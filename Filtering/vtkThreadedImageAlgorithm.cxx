@@ -306,7 +306,7 @@ int vtkThreadedImageAlgorithm::RequestData(
     }
   if (str.Outputs)
     {
-    delete [] str.Outputs;  
+    delete [] str.Outputs;
     }
 
   return 1;
@@ -318,9 +318,9 @@ void vtkThreadedImageAlgorithm::ThreadedRequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
-  int extent[6], 
+  int extent[6],
   int threadId)
 {
   this->ThreadedExecute(inData[0][0], outData[0], extent, threadId);
@@ -329,12 +329,15 @@ void vtkThreadedImageAlgorithm::ThreadedRequestData(
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkThreadedImageAlgorithm::ThreadedExecute(
-  vtkImageData *vtkNotUsed(inData), 
-  vtkImageData *vtkNotUsed(outData),
-  int extent[6], 
-  int vtkNotUsed(threadId))
+  vtkImageData * inData,
+  vtkImageData * outData,
+  int extent[6],
+  int threadId)
 {
-  extent = extent;
+  (void)inData;
+  (void)outData;
+  (void)extent;
+  (void)threadId;
   vtkErrorMacro("Subclass should override this method!!!");
 }
 

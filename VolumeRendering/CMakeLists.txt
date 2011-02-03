@@ -28,6 +28,7 @@ vtkFixedPointVolumeRayCastCompositeShadeHelper.cxx
 vtkFixedPointVolumeRayCastHelper.cxx
 vtkFixedPointVolumeRayCastMIPHelper.cxx
 vtkFixedPointVolumeRayCastMapper.cxx
+vtkVolumeRayCastSpaceLeapingImageFilter.cxx
 vtkGPUVolumeRayCastMapper.cxx
 vtkHAVSVolumeMapper.cxx
 vtkProjectedAAHexahedraMapper.cxx

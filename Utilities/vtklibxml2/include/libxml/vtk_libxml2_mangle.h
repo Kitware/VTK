@@ -52,8 +52,10 @@ nm libxml2.a |grep " [TRD] "
 #define __xmlStructuredError vtk_libxml2___xmlStructuredError
 #define __xmlSubstituteEntitiesDefaultValue vtk_libxml2___xmlSubstituteEntitiesDefaultValue
 #define __xmlTreeIndentString vtk_libxml2___xmlTreeIndentString
-#define _fini vtk_libxml2__fini
-#define _init vtk_libxml2__init
+#if !defined(_fini) && !defined(_init)
+  #define _fini vtk_libxml2__fini
+  #define _init vtk_libxml2__init
+#endif
 #define attribute vtk_libxml2_attribute
 #define attributeDecl vtk_libxml2_attributeDecl
 #define cdataBlock vtk_libxml2_cdataBlock

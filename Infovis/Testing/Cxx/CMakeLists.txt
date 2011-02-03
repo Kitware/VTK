@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(MyTests
     TestArcEdges
     TestAssignCoordinates
+    TestCirclePackLayoutStrategy
     TestCollapseVerticesByArray
     TestContingencyStatistics
     TestCorrelativeStatistics
@@ -55,6 +56,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestRISReader
       TestStringToNumeric
       TestTulipReader
+      TestTulipReaderProperties
       )
   ENDIF (VTK_DATA_ROOT)
 

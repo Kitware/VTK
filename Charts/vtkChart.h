@@ -23,6 +23,7 @@
 
 #include "vtkContextItem.h"
 #include "vtkVector.h"      // For vtkRectf
+#include "vtkStdString.h"   // For vtkStdString ivars
 
 class vtkTransform2D;
 class vtkContextScene;
@@ -136,8 +137,8 @@ public:
 
   // Description:
   // Get/set the title text of the chart.
-  vtkSetStringMacro(Title);
-  vtkGetStringMacro(Title);
+  virtual void SetTitle(const vtkStdString &title);
+  virtual vtkStdString GetTitle();
 
   // Description:
   // Get the vtkTextProperty that governs how the chart title is displayed.
@@ -220,7 +221,7 @@ protected:
 
   // Description:
   // The title of the chart
-  char* Title;
+  vtkStdString Title;
 
   // Description:
   // The text properties associated with the chart

@@ -28,15 +28,15 @@
 class vtkImageData;
 class vtkScalarsToColors;
 
-class VTK_CHARTS_EXPORT vtk2DHistogramItem : public vtkPlot
+class VTK_CHARTS_EXPORT vtkPlotHistogram2D : public vtkPlot
 {
 public:
-  vtkTypeMacro(vtk2DHistogramItem, vtkPlot);
+  vtkTypeMacro(vtkPlotHistogram2D, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
   // Creates a new object.
-  static vtk2DHistogramItem *New();
+  static vtkPlotHistogram2D *New();
 
   // Description:
   // Perform any updates to the item that may be necessary before rendering.
@@ -54,7 +54,7 @@ public:
   // functions as a double to generate a color.
   virtual void SetInput(vtkImageData *data, vtkIdType z = 0);
   virtual void SetInput(vtkTable*) { }
-  virtual void SetInput(vtkTable*, const char*, const char*) { }
+  virtual void SetInput(vtkTable*, const vtkStdString&, const vtkStdString&) { }
 
   // Description:
   // Get the input table used by the plot.
@@ -76,8 +76,8 @@ public:
 
 //BTX
 protected:
-  vtk2DHistogramItem();
-  ~vtk2DHistogramItem();
+  vtkPlotHistogram2D();
+  ~vtkPlotHistogram2D();
 
   // Description:
   // Where all the magic happens...
@@ -89,8 +89,8 @@ protected:
   vtkRectf Position;
 
 private:
-  vtk2DHistogramItem(const vtk2DHistogramItem &); // Not implemented.
-  void operator=(const vtk2DHistogramItem &); // Not implemented.
+  vtkPlotHistogram2D(const vtkPlotHistogram2D &); // Not implemented.
+  void operator=(const vtkPlotHistogram2D &); // Not implemented.
 
 //ETX
 };

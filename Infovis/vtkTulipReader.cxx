@@ -290,7 +290,53 @@ int vtkTulipReader::RequestData(
             }
           }
         }
-      else
+      else if (type == "int")
+        {
+        vtkIntArray* vertArr = vtkIntArray::New();
+        vertArr->SetName(name.c_str());
+        vertArr->SetNumberOfValues(nodeIdMap.size());
+        builder->GetVertexData()->AddArray(vertArr);
+        vertArr->Delete();
+
+        vtkIntArray* edgeArr = vtkIntArray::New();
+        edgeArr->SetName(name.c_str());
+        edgeArr->SetNumberOfValues(edgeIdMap.size());
+        builder->GetEdgeData()->AddArray(edgeArr);
+        edgeArr->Delete();
+
+        vtkTulipReaderNextToken(fin, tok);
+        while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)
+          {
+          assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::KEYWORD);
+          vtkStdString key = tok.StringValue;
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::TEXT ||
+            tok.Type == vtkTulipReaderToken::INT);
+          int id = tok.IntValue;
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::TEXT);
+          vtksys_ios::stringstream ss;
+          int value;
+          ss << tok.StringValue;
+          ss >> value;
+          assert(!ss.fail());
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::CLOSE_PAREN);
+          vtkTulipReaderNextToken(fin, tok);
+
+          if (key == "node")
+            {
+            vertArr->SetValue(nodeIdMap[id], value);
+            }
+          else if (key == "edge")
+            {
+            edgeArr->SetValue(edgeIdMap[id], value);
+            }
+          }
+        }
+      else // Remaining properties are ignored.
         {
         vtkTulipReaderNextToken(fin, tok);
         while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)

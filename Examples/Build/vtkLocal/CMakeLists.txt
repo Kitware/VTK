@@ -1,7 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
-IF(COMMAND CMAKE_POLICY)
-  CMAKE_POLICY(SET CMP0003 NEW)
-ENDIF(COMMAND CMAKE_POLICY)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
 
 # Set the project/library name here.  Classes should be declared as
 # "class vtkLocal_EXPORT vtkFoo", where vtkLocal is the name of the

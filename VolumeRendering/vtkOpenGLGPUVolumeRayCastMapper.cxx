@@ -361,7 +361,7 @@ public:
             }
           this->LastSampleDistance=sampleDistance;
           }
-        
+
         glTexImage1D(GL_TEXTURE_1D,0,GL_ALPHA16,
                      vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize,0,
                      GL_ALPHA,GL_FLOAT,this->Table);
@@ -1929,7 +1929,7 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
 
   this->ActualSampleDistance=1.0;
   this->LastProgressEventTime=0.0; // date in seconds
-  
+
   this->PreserveOrientation=true;
 
   this->Program=0;
@@ -2171,7 +2171,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     this->LoadExtensionsSucceeded=0;
     return;
     }
-  
+
   // Create an extension manager
   vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(window);
@@ -2767,11 +2767,17 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
   int size[2];
   ren->GetTiledSize(&size[0],&size[1]);
 
-
-  int needNewMaxValueBuffer=this->MaxValueFrameBuffer==0 &&
+  const bool accumulativeBlendMode =
     (this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ||
      this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND ||
      this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND);
+
+  const bool needNewMaxValueBuffer =
+    (this->MaxValueFrameBuffer == 0) && accumulativeBlendMode;
+
+  GLint value;
+  glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&value);
+  GLuint savedFrameBuffer=static_cast<GLuint>(value);
 
   if(needNewMaxValueBuffer)
     {
@@ -2784,63 +2790,41 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     // max scalar frame buffer
     GLuint maxValueFrameBuffer;
     glGenTextures(1,&maxValueFrameBuffer);
-    // Color buffers
-    GLint savedFrameBuffer;
-    glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&savedFrameBuffer);
-    vtkgl::BindFramebufferEXT(
-      vtkgl::FRAMEBUFFER_EXT,static_cast<GLuint>(this->FrameBufferObject));
-    glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer);
-    vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
-                                   vtkgl::COLOR_ATTACHMENT0_EXT+1,
-                                   GL_TEXTURE_2D,maxValueFrameBuffer,0);
     this->MaxValueFrameBuffer=
       static_cast<unsigned int>(maxValueFrameBuffer);
-    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                              static_cast<GLuint>(savedFrameBuffer));
 
     // max scalar frame buffer2
     GLuint maxValueFrameBuffer2;
     glGenTextures(1,&maxValueFrameBuffer2);
-    glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer2);
     this->MaxValueFrameBuffer2=
       static_cast<unsigned int>(maxValueFrameBuffer2);
     }
   else
     {
-     if(this->MaxValueFrameBuffer!=0 &&
-        (this->BlendMode!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-         &&
-         this->BlendMode!=vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
-         &&
-         this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND))
-       {
-       // blend mode changed and does not need max value buffer anymore.
+    if (this->MaxValueFrameBuffer && !accumulativeBlendMode)
+      {
+      // blend mode changed and does not need max value buffer anymore.
 
-       GLint savedFrameBuffer;
-       glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&savedFrameBuffer);
-       vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                static_cast<GLuint>(this->FrameBufferObject));
-       vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
-                                      vtkgl::COLOR_ATTACHMENT0_EXT+1,
-                                      GL_TEXTURE_2D,0,0); // not scalar buffer
-       vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                 static_cast<GLuint>(savedFrameBuffer));
+      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                               static_cast<GLuint>(this->FrameBufferObject));
+      vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
+                                     vtkgl::COLOR_ATTACHMENT0_EXT+1,
+                                     GL_TEXTURE_2D,0,0); // not scalar buffer
+      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,savedFrameBuffer);
 
-       GLuint maxValueFrameBuffer=
-         static_cast<GLuint>(this->MaxValueFrameBuffer);
-       glDeleteTextures(1,&maxValueFrameBuffer);
-       this->MaxValueFrameBuffer=0;
+      GLuint maxValueFrameBuffer=
+        static_cast<GLuint>(this->MaxValueFrameBuffer);
+      glDeleteTextures(1,&maxValueFrameBuffer);
+      this->MaxValueFrameBuffer=0;
 
-       GLuint maxValueFrameBuffer2=
-         static_cast<GLuint>(this->MaxValueFrameBuffer2);
-       glDeleteTextures(1,&maxValueFrameBuffer2);
-       this->MaxValueFrameBuffer2=0;
-       }
+      GLuint maxValueFrameBuffer2=
+        static_cast<GLuint>(this->MaxValueFrameBuffer2);
+      glDeleteTextures(1,&maxValueFrameBuffer2);
+      this->MaxValueFrameBuffer2=0;
+      }
     }
 
-  if((this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
-      || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND) && (this->SizeChanged || needNewMaxValueBuffer))
+  if (accumulativeBlendMode && (this->SizeChanged || needNewMaxValueBuffer))
     {
     // max scalar frame buffer
     GLuint maxValueFrameBuffer=static_cast<GLuint>(this->MaxValueFrameBuffer);
@@ -2861,6 +2845,18 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
                    0, GL_RGBA, GL_FLOAT, NULL );
       }
 
+
+    // Bind and attach here (after the size has been set, or ATI will cry),
+    // then restore default buffer.
+    vtkgl::BindFramebufferEXT(
+      vtkgl::FRAMEBUFFER_EXT,static_cast<GLuint>(this->FrameBufferObject));
+    vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
+                                   vtkgl::COLOR_ATTACHMENT0_EXT+1,
+                                   GL_TEXTURE_2D,maxValueFrameBuffer,0);
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                              static_cast<GLuint>(savedFrameBuffer));
+
+
     // max scalar frame buffer 2
     GLuint maxValueFrameBuffer2=static_cast<GLuint>(this->MaxValueFrameBuffer2);
     glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer2);
@@ -2879,8 +2875,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
       glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,size[0],size[1],
                    0, GL_RGBA, GL_FLOAT, NULL );
       }
-
     }
+
   this->PrintError("AllocateFrameBuffers");
   return result;
 }
@@ -4074,16 +4070,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-  
+
   // See if the volume transform is orientation-preserving
   vtkMatrix4x4 *m=vol->GetMatrix();
   double det=vtkMath::Determinant3x3(
     m->GetElement(0,0),m->GetElement(0,1),m->GetElement(0,2),
     m->GetElement(1,0),m->GetElement(1,1),m->GetElement(1,2),
     m->GetElement(2,0),m->GetElement(2,1),m->GetElement(2,2));
-  
+
   this->PreserveOrientation=det>0;
-  
+
   // If we have clipping planes, render the back faces of the clipped
   // bounding box of the whole dataset to set the zbuffer.
   if(this->ClippingPlanes && this->ClippingPlanes->GetNumberOfItems()!=0)
@@ -4320,7 +4316,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     }
   cout << "AFTER isValid0"  << endl;
 #endif
-  
+
   if(this->NumberOfCroppingRegions>1)
     {
     // framebuffer texture
@@ -4844,7 +4840,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
     this->RenderWholeVolume(ren,vol);
     }
   else
-    { 
+    {
     this->ClipCroppingRegionPlanes();
     this->RenderRegions(ren,vol);
     }
@@ -4990,7 +4986,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer *ren,
     this->RenderBlock(ren,vol,0);
     this->PostRender(ren,numberOfScalarComponents);
     }
-  
+
   // Let's just make sure no OpenGL errors occurred during this render
   this->PrintError("End GPU Render");
 
@@ -6125,7 +6121,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
   vtkMatrix4x4::Multiply4x4(eyeToWorld,worldToTexture,eyeToTexture);
 
   GLfloat matrix[16];// used sometimes as 3x3, sometimes as 4x4.
-  double *raw=eyeToTexture->Element[0];
   int index;
   int column;
   int row;
@@ -6142,7 +6137,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
       while(row<3)
         {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-        matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+        matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
         }
@@ -6158,7 +6153,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
       while(row<4)
         {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-        matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+        matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
         }
@@ -6177,7 +6172,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     while(row<4)
       {
 //      cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-      matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+      matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
       ++index;
       ++row;
       }
@@ -6198,7 +6193,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
       while(row<3)
         {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-        matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+        matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
         }

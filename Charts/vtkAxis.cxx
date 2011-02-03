@@ -57,7 +57,6 @@ vtkAxis::vtkAxis()
   this->TitleProperties->SetJustificationToCentered();
   this->Minimum = 0.0;
   this->Maximum = 6.66;
-  this->Title = NULL;
   this->LogScale = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
@@ -84,7 +83,6 @@ vtkAxis::vtkAxis()
 //-----------------------------------------------------------------------------
 vtkAxis::~vtkAxis()
 {
-  this->SetTitle(NULL);
   this->TitleProperties->Delete();
   this->LabelProperties->Delete();
   this->Pen->Delete();
@@ -265,7 +263,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
                     this->Point2[0], this->Point2[1]);
 
   // Draw the axis title if there is one
-  if (this->Title && this->Title[0])
+  if (this->Title && !this->Title.empty())
     {
     int x = 0;
     int y = 0;
@@ -398,6 +396,22 @@ void vtkAxis::SetRange(double minimum, double maximum)
 {
   this->SetMinimum(minimum);
   this->SetMaximum(maximum);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetTitle(const vtkStdString &title)
+{
+  if (this->Title != title)
+    {
+    this->Title = title;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkAxis::GetTitle()
+{
+  return this->Title;
 }
 
 //-----------------------------------------------------------------------------
@@ -591,7 +605,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   // Then, if there is an axis label, add that in.
   vtkRectf titleBounds;
-  if (this->Title && this->Title[0])
+  if (this->Title && !this->Title.empty())
     {
     painter->ApplyTextProp(this->TitleProperties);
     painter->ComputeStringBounds(this->Title,

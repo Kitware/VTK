@@ -57,8 +57,6 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
   unsigned long count = 0;
   unsigned long target;
 
-  id = id;
-
   inData->GetIncrements(inInc0, inInc1, inInc2);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
   wholeMin0 = wholeExt[0];

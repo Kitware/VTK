@@ -92,11 +92,11 @@ public:
   // you can specify which array to use for coloring using these methods.
   // The lookup table will decide how to convert vectors to colors.
   void SelectColorArray(vtkIdType arrayNum);
-  void SelectColorArray(const char* arrayName);
+  void SelectColorArray(const vtkStdString& arrayName);
 
   // Description:
   // Get the array name to color by.
-  const char* GetColorArrayName();
+  vtkStdString GetColorArrayName();
 
 //BTX
   // Description:

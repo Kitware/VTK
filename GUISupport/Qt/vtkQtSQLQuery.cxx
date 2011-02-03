@@ -94,7 +94,7 @@ bool vtkQtSQLQuery::Execute()
     QString errorString;
     errorString.sprintf("Query execute error: %s (type:%d)\n",
       error.text().toAscii().data(),error.type());
-    vtkErrorMacro(<< errorString.toStdString());
+    vtkErrorMacro(<< errorString.toAscii().data());
     return false;
     }
 
@@ -102,7 +102,7 @@ bool vtkQtSQLQuery::Execute()
   this->Internals->FieldNames.clear();
   for (int i = 0; i < this->Internals->QtQuery.record().count(); i++)
     {
-    this->Internals->FieldNames.push_back(this->Internals->QtQuery.record().fieldName(i).toStdString());
+    this->Internals->FieldNames.push_back(this->Internals->QtQuery.record().fieldName(i).toAscii().data());
     }
   return true;
 }
@@ -206,7 +206,7 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     case QVariant::LongLong:
       return vtkVariant(v.toLongLong());
     case QVariant::String:
-      return vtkVariant(v.toString().toStdString());
+      return vtkVariant(v.toString().toAscii().data());
     case QVariant::UInt:
       return vtkVariant(v.toUInt());
     case QVariant::ULongLong:
@@ -223,7 +223,7 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     default:
       vtkErrorMacro(<< "Unhandled Qt variant type " 
         << v.type() << " found; returning string variant.");
-      return vtkVariant(v.toString().toStdString());
+      return vtkVariant(v.toString().toAscii().data());
     }
 }
 

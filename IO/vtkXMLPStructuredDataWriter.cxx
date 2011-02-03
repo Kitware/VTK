@@ -14,41 +14,27 @@
 =========================================================================*/
 #include "vtkXMLPStructuredDataWriter.h"
 #include "vtkXMLStructuredDataWriter.h"
+#include "vtkExecutive.h"
 #include "vtkExtentTranslator.h"
 #include "vtkErrorCode.h"
 #include "vtkDataSet.h"
-
-vtkCxxSetObjectMacro(vtkXMLPStructuredDataWriter, ExtentTranslator,
-                     vtkExtentTranslator);
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter()
 {
-  this->ExtentTranslator = vtkExtentTranslator::New();
 }
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::~vtkXMLPStructuredDataWriter()
 {
-  if (this->ExtentTranslator)
-    {
-    this->ExtentTranslator->Delete();
-    this->ExtentTranslator = 0;
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  if(this->ExtentTranslator)
-    {
-    os << indent << "ExtentTranslator: " << this->ExtentTranslator << "\n";
-    }
-  else
-    {
-    os << indent << "ExtentTranslator: (none)\n";
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -63,11 +49,17 @@ void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, vtk
 void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 {
   int extent[6];
-  this->ExtentTranslator->SetPiece(index);
-  this->ExtentTranslator->SetGhostLevel(0);
-  this->ExtentTranslator->PieceToExtent();
-  this->ExtentTranslator->GetExtent(extent);
-  
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+
+  et->SetNumberOfPieces(this->GetNumberOfPieces());
+  et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  et->SetPiece(index);
+  et->SetGhostLevel(0);
+  et->PieceToExtent();
+  et->GetExtent(extent);
+
   this->WriteVectorAttribute("Extent", 6, extent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
@@ -79,16 +71,20 @@ void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 //----------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
 {
-  vtkDataSet* input = this->GetInputAsDataSet();
-  
-  this->ExtentTranslator->SetWholeExtent(input->GetWholeExtent());
-  this->ExtentTranslator->SetNumberOfPieces(this->NumberOfPieces);
-  this->ExtentTranslator->SetPiece(index);
-  this->ExtentTranslator->SetGhostLevel(this->GhostLevel);
-  this->ExtentTranslator->PieceToExtent();  
-  
+  int extent[6];
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+
+  et->SetNumberOfPieces(this->GetNumberOfPieces());
+  et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  et->SetPiece(index);
+  et->SetGhostLevel(0);
+  et->PieceToExtent();
+  et->GetExtent(extent);
+
   vtkXMLStructuredDataWriter* pWriter = this->CreateStructuredPieceWriter();
-  pWriter->SetWriteExtent(this->ExtentTranslator->GetExtent());
-  
+  pWriter->SetWriteExtent(extent);
+
   return pWriter;
 }

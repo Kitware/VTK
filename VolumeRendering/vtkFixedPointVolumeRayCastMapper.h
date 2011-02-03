@@ -75,6 +75,7 @@ class vtkFixedPointVolumeRayCastCompositeHelper;
 class vtkFixedPointVolumeRayCastCompositeGOHelper;
 class vtkFixedPointVolumeRayCastCompositeGOShadeHelper;
 class vtkFixedPointVolumeRayCastCompositeShadeHelper;
+class vtkVolumeRayCastSpaceLeapingImageFilter;
 class vtkDirectionEncoder;
 class vtkEncodedGradientShader;
 class vtkFiniteDifferenceGradientEstimator;
@@ -477,13 +478,12 @@ protected:
   double SavedSpacing[3];
   
   
-  // Min Max structured used to do space leaping
+  // Min Max structure used to do space leaping
   unsigned short *MinMaxVolume;
   int             MinMaxVolumeSize[4];
   vtkImageData   *SavedMinMaxInput;
-  vtkTimeStamp    SavedMinMaxBuildTime;
-  vtkTimeStamp    SavedMinMaxGradientTime;
-  vtkTimeStamp    SavedMinMaxFlagTime;
+  vtkImageData   *MinMaxVolumeCache;
+  vtkVolumeRayCastSpaceLeapingImageFilter * SpaceLeapFilter;
 
   void            UpdateMinMaxVolume( vtkVolume *vol );
   void            FillInMaxGradientMagnitudes( int fullDim[3],
@@ -495,7 +495,6 @@ protected:
   int FlipMIPComparison;
   
   void ApplyFinalColorWindowLevel();
-  
 
 private:
   vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&);  // Not implemented.

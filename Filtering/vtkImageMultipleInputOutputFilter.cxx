@@ -206,21 +206,21 @@ void vtkImageMultipleInputOutputFilter::ExecuteData(vtkDataObject *out)
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkImageMultipleInputOutputFilter::
-ThreadedExecute(vtkImageData **vtkNotUsed(inData), 
+ThreadedExecute(vtkImageData **vtkNotUsed(inData),
                 vtkImageData **vtkNotUsed(outData),
                 int extent[6], int vtkNotUsed(threadId))
 {
-  extent = extent;
+  (void)extent;
   vtkErrorMacro("Subclass should override this method!!!");
 }
 
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkImageMultipleInputOutputFilter::
-ThreadedExecute(vtkImageData **vtkNotUsed(inData), 
+ThreadedExecute(vtkImageData **vtkNotUsed(inData),
                 vtkImageData *vtkNotUsed(outData),
                 int extent[6], int vtkNotUsed(threadId))
 {
-  extent = extent;
+  (void)extent;
   vtkErrorMacro("This method should not be called!");
 }

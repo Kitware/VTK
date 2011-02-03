@@ -81,7 +81,7 @@ endif()
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
-SET(VTK_MINOR_VERSION 7)
+SET(VTK_MINOR_VERSION 9)
 SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
@@ -892,16 +892,16 @@ IF(VTK_USE_MPI)
 
   # Use MPI variables defined in the CMake (2.8) FindMPI module.
   IF(${MPIEXEC})
-    SET(VTK_MPIRUN_EXE ${MPIEXEC})
-    SET(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPIRUN_EXE CACHE FILEPATH ${MPIEXEC} FORCE)
+    SET(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
     IF(NOT ${MPI_NUMPROC_FLAG})
-      SET(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+      SET(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
     ELSE(NOT ${MPI_NUMPROC_FLAG})
-      SET(VTK_MPI_NUMPROC_FLAG ${MPIEXEC_NUMPROC_FLAG} CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+      SET(VTK_MPI_NUMPROC_FLAG ${MPIEXEC_NUMPROC_FLAG} CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
     ENDIF(NOT ${MPI_NUMPROC_FLAG})
-    SET(VTK_MPI_PREFLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-    SET(VTK_MPI_POSTFLAGS ${MPIEXEC_POSTFLAGS} CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-    SET(VTK_MPI_MAX_NUMPROCS ${MPIEXEC_MAX_NUMPROCS} CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_PREFLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
+    SET(VTK_MPI_POSTFLAGS ${MPIEXEC_POSTFLAGS} CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
+    SET(VTK_MPI_MAX_NUMPROCS ${MPIEXEC_MAX_NUMPROCS} CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
   ELSE(${MPIEXEC})
   # set to the default hardcoded values. This else can probably be deleted when VTK requires CMake 2.8+.
     FIND_PROGRAM(VTK_MPIRUN_EXE NAMES mpiexec mpirun lamexec PATHS "C:/Program Files/MPICH/mpd/bin")
@@ -978,32 +978,32 @@ ENDIF(BUILD_TESTING OR VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------
 # Configure the default VTK_DATA_ROOT for the location of VTKData.  To get
-# the VTKData repository from CVS, issue the following commands:
+# the VTKData repository from git, issue the following command:
 #
-# cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData login
-# (respond with password vtk)
-# cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData checkout VTKData
+# git clone git://vtk.org/VTKData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKData.git
 FIND_PATH(VTK_DATA_ROOT VTKData.readme
   ${VTK_SOURCE_DIR}/VTKData
   ${VTK_SOURCE_DIR}/../VTKData
   ${VTK_SOURCE_DIR}/../../VTKData
   $ENV{VTK_DATA_ROOT}
-  DOC "The repository for data used for testing.  To obtain from CVS: \"cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK co VTKData\"")
+  DOC "The repository for data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKData.git\""
+  )
 
 #-----------------------------------------------------------------------------
-# Configure the default VTK__LARGE_DATA_ROOT for the location of VTKLargeData.
+# Configure the default VTK_LARGE_DATA_ROOT for the location of VTKLargeData.
+# To get the VTKLargeData repository from git, issue the following command:
+#
+# git clone git://vtk.org/VTKLargeData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKLargeData.git
 FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme
   ${VTK_SOURCE_DIR}/VTKLargeData
   ${VTK_SOURCE_DIR}/../VTKLargeData
   ${VTK_SOURCE_DIR}/../../VTKLargeData
   $ENV{VTK_LARGE_DATA_ROOT}
-  DOC "The repository for large data used for testing.  To check out this repository from CVS, first run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK login
-
-(respond with password vtk) and then run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK checkout VTKLargeData"
+  DOC "The repository for large data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKLargeData.git\""
   )
 
 #-----------------------------------------------------------------------------
@@ -1460,8 +1460,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_CMAKE_DIR}/FindMySQL.cmake
     ${VTK_CMAKE_DIR}/FindTCL.cmake
     ${VTK_CMAKE_DIR}/FindPythonLibs.cmake
-    ${VTK_CMAKE_DIR}/FindPackageHandleStandardArgs.cmake
-    ${VTK_CMAKE_DIR}/FindPackageHandleStandardArgs2.cmake
     ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
     ${VTK_CMAKE_DIR}/vtkExportKit.cmake
     ${VTK_CMAKE_DIR}/vtkKit.cmake.in

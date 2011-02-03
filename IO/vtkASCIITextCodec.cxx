@@ -25,33 +25,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <stdexcept>
 
-
 vtkStandardNewMacro(vtkASCIITextCodec);
 
-vtkTextCodec* vtkASCIITextCodecFromCallback()
-{
-   return vtkASCIITextCodec::New() ;
-}
-
-class vtkASCIITextCodecRegister
-{
-  public:
-    vtkASCIITextCodecRegister()
-    {
-      vtkTextCodecFactory::RegisterCreateCallback(vtkASCIITextCodecFromCallback) ;
-    }
-
-    ~vtkASCIITextCodecRegister()
-    {
-      vtkTextCodecFactory::UnRegisterCreateCallback(vtkASCIITextCodecFromCallback) ;
-    }
-} ;
-
-static vtkASCIITextCodecRegister foo ;
-
-
 const char* vtkASCIITextCodec::Name() {return "US-ASCII" ;}
-
 
 bool vtkASCIITextCodec::CanHandle(const char* NameStr)
 {
@@ -60,7 +36,6 @@ bool vtkASCIITextCodec::CanHandle(const char* NameStr)
   else
     return false ;
 }
-
 
 bool vtkASCIITextCodec::IsValid(istream& InputStream)
 {
@@ -89,7 +64,8 @@ bool vtkASCIITextCodec::IsValid(istream& InputStream)
 }
 
 
-void vtkASCIITextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output)
+void vtkASCIITextCodec::ToUnicode(istream& InputStream,
+                                  vtkTextCodec::OutputIterator& output)
 {
   while (!InputStream.eof())
     {

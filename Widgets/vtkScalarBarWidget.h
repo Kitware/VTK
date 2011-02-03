@@ -51,6 +51,8 @@ public:
   // so it can be added to the renderer independent of the widget.
   virtual void SetRepresentation(vtkScalarBarRepresentation *rep);
 
+  // Description:
+  // Return the representation as a vtkScalarBarRepresentation.
   vtkScalarBarRepresentation *GetScalarBarRepresentation()
     { return reinterpret_cast<vtkScalarBarRepresentation *>(this->GetRepresentation()); }
 

@@ -150,6 +150,9 @@ int TestTilingCxx(int argc, char* argv[])
   ren1->SetViewport(0, 0, 1, 1);
 
   renWin->Render();
+  renWin->Render();
+
+  vtksys::SystemTools::Delay(1000);
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

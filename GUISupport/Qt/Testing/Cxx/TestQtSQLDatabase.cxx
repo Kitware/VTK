@@ -43,7 +43,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
   //QCoreApplication app(argc, argv);
   //for (int i = 0; i < QCoreApplication::libraryPaths().count(); i++)
   //  {
-  //  cerr << QCoreApplication::libraryPaths().at(i).toStdString() << endl;
+  //  cerr << QCoreApplication::libraryPaths().at(i).toAscii().data() << endl;
   //  }
 
   bool interactive = false;
@@ -55,7 +55,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
   //bool askpass = true;
   //QString host = "localhost";
   //int port = 3306;
-  
+
   // QSQLITE parameters:
   QString dbtype("QSQLITE");
   QString database(":memory:");
@@ -67,54 +67,54 @@ int TestQtSQLDatabase(int argc, char* argv[])
 
   for (int i = 1; i < argc; i++)
     {
-    if (!strcmp(argv[i], "-I")) 
+    if (!strcmp(argv[i], "-I"))
       {
       interactive = true;
       continue;
       }
-    if (!strcmp(argv[i], "-t")) 
+    if (!strcmp(argv[i], "-t"))
       {
       i++;
       dbtype = argv[i];
       continue;
       }
-    if (!strcmp(argv[i], "-d")) 
+    if (!strcmp(argv[i], "-d"))
       {
       i++;
       database = argv[i];
       continue;
       }
-    if (!strcmp(argv[i], "-u")) 
+    if (!strcmp(argv[i], "-u"))
       {
       i++;
       user = argv[i];
       continue;
       }
-    if (!strcmp(argv[i], "-w")) 
+    if (!strcmp(argv[i], "-w"))
       {
       askpass = true;
       continue;
       }
-    if (!strcmp(argv[i], "-h")) 
+    if (!strcmp(argv[i], "-h"))
       {
       i++;
       host = argv[i];
       continue;
       }
-    if (!strcmp(argv[i], "-p")) 
+    if (!strcmp(argv[i], "-p"))
       {
       i++;
       port = atoi(argv[i]);
       continue;
       }
-    if (!strcmp(argv[i], "-q")) 
+    if (!strcmp(argv[i], "-q"))
       {
       i++;
       queryText = argv[i];
       continue;
       }
 
-    cerr << argv[0] << " Options:\n" 
+    cerr << argv[0] << " Options:\n"
       << " -I (interactive, shows Qt table with query result)\n"
       << " -t database type (QSQLITE, QMYSQL, etc.; default: QSQLITE)\n"
       << " -h host (default: :memory:)\n"
@@ -133,11 +133,11 @@ int TestQtSQLDatabase(int argc, char* argv[])
     }
 
   vtkQtSQLDatabase* db = vtkQtSQLDatabase::New();
-  db->SetDatabaseType(dbtype.toStdString().c_str());
-  db->SetDatabaseName(database.toStdString().c_str());
-  db->SetUserName(user.toStdString().c_str());
+  db->SetDatabaseType(dbtype.toAscii().data());
+  db->SetDatabaseName(database.toAscii().data());
+  db->SetUserName(user.toAscii().data());
   db->SetPort(port);
-  if (!db->Open(password.toStdString().c_str()))
+  if (!db->Open(password.toAscii().data()))
     {
     cerr << "Unable to open database" << endl;
     return 1;
@@ -155,8 +155,8 @@ int TestQtSQLDatabase(int argc, char* argv[])
   if (!dataExists)
     {
     QString createQuery("CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)");
-    cout << createQuery.toStdString() << endl;
-    query->SetQuery(createQuery.toStdString().c_str());
+    cout << createQuery.toAscii().data() << endl;
+    query->SetQuery(createQuery.toAscii().data());
     if (!query->Execute())
       {
       cerr << "Create query failed" << endl;
@@ -166,8 +166,8 @@ int TestQtSQLDatabase(int argc, char* argv[])
     for (int i = 0; i < 40; i++)
       {
       QString insertQuery = QString("INSERT INTO people VALUES('John Doe %1', %1, %2)").arg(i).arg(10*i);
-      cout << insertQuery.toStdString() << endl;
-      query->SetQuery(insertQuery.toStdString().c_str());
+      cout << insertQuery.toAscii().data() << endl;
+      query->SetQuery(insertQuery.toAscii().data());
       if (!query->Execute())
         {
         cerr << "Insert query failed" << endl;
@@ -176,7 +176,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
       }
     }
 
-  query->SetQuery(queryText.toStdString().c_str());
+  query->SetQuery(queryText.toAscii().data());
   cerr << endl << "Running query: " << query->GetQuery() << endl;
 
   cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;

@@ -144,12 +144,12 @@ void vtkContextActor::Initialize(vtkViewport* viewport)
   vtkContextDevice2D *device = NULL;
   if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
     {
-    cout << "Using OpenGL 2 for the render." << endl;
+    vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
     device = vtkOpenGL2ContextDevice2D::New();
     }
   else
     {
-    cout << "Using OpenGL 1 for the render." << endl;
+    vtkDebugMacro("Using OpenGL 1 for 2D rendering.")
     device = vtkOpenGLContextDevice2D::New();
     }
   if (device)

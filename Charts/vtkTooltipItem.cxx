@@ -35,7 +35,6 @@ vtkStandardNewMacro(vtkTooltipItem);
 vtkTooltipItem::vtkTooltipItem()
 {
   this->Position = this->PositionVector.GetData();
-  this->Text = NULL;
   this->TextProperties = vtkTextProperty::New();
   this->TextProperties->SetVerticalJustificationToBottom();
   this->TextProperties->SetJustificationToLeft();
@@ -50,11 +49,25 @@ vtkTooltipItem::vtkTooltipItem()
 //-----------------------------------------------------------------------------
 vtkTooltipItem::~vtkTooltipItem()
 {
-
-  this->SetText(NULL);
   this->Pen->Delete();
   this->Brush->Delete();
   this->TextProperties->Delete();
+}
+
+//-----------------------------------------------------------------------------
+void vtkTooltipItem::SetText(const vtkStdString &text)
+{
+  if (this->Text != text)
+    {
+    this->Text = text;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkTooltipItem::GetText()
+{
+  return this->Text;
 }
 
 //-----------------------------------------------------------------------------

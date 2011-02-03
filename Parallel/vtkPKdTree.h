@@ -366,7 +366,11 @@ private:
 
   int AllCheckForFailure(int rc, const char *where, const char *how);
   void AllCheckParameters();
-  double *VolumeBounds();
+
+  // Description:
+  // Return the global bounds over all processes.  Returns true
+  // if successful and false otherwise.
+  bool VolumeBounds(double*);
   int DivideRegion(vtkKdNode *kd, int L, int level, int tag);
   int BreadthFirstDivide(double *bounds);
   void enQueueNode(vtkKdNode *kd, int L, int level, int tag);

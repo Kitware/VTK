@@ -1434,8 +1434,8 @@ scope_list_item: maybe_scoped_id
     };
 
 scope_type: PUBLIC {access_level = VTK_ACCESS_PUBLIC;}
-          | PRIVATE {access_level = VTK_ACCESS_PROTECTED;}
-          | PROTECTED {access_level = VTK_ACCESS_PRIVATE;};
+          | PRIVATE {access_level = VTK_ACCESS_PRIVATE;}
+          | PROTECTED {access_level = VTK_ACCESS_PROTECTED;};
 
 /*
  * Enums

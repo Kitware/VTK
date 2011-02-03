@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # This script makes optional suggestions for working with git.
-
 if test "$(git config color.ui)" != "auto"; then
   cat << EOF
 

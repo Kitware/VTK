@@ -2395,8 +2395,10 @@ nm lib/libhdf5_debug.so | grep -v vtk__ | grep " [ABCDGNRSTVW] " | awk '{print "
 #define __bss_start vtk____bss_start
 #define _edata vtk___edata
 #define _end vtk___end
-#define _fini vtk___fini
-#define _init vtk___init
+#if !defined(_fini) && !defined(_init)
+  #define _fini vtk___fini
+  #define _init vtk___init
+#endif
 #define epoch_marker_class vtk__epoch_marker_class
 
 #endif

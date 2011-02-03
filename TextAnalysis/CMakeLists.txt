@@ -36,6 +36,10 @@ SET(KIT_LIBS
   vtkFiltering
   )
 
+SET(KIT_INTERFACE_LIBRARIES
+  vtkFiltering
+  )
+
 SET( Kit_SRCS
 vtkAssignMimeType.cxx
 vtkConcatenateArray.cxx

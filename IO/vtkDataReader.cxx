@@ -2269,7 +2269,7 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
 // Read color scalar point attributes. Return 0 if error.
 int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 {
-  int i, j, idx, numComp, skipScalar=0;
+  int i, j, idx, numComp=0, skipScalar=0;
   char name[256];
   char buffer[1024];
 
@@ -2363,7 +2363,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 // Read texture coordinates point attributes. Return 0 if error.
 int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
 {
-  int dim;
+  int dim = 0;
   int skipTCoord = 0;
   char line[256], name[256];
   vtkDataArray *data;
@@ -2513,7 +2513,7 @@ int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes *a, int numPts)
 int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
 {
   int i;
-  int size, skipTable=0;
+  int size=0, skipTable=0;
   vtkLookupTable *lut;
   unsigned char *ptr;
   char line[256], name[256];
@@ -2725,7 +2725,7 @@ int vtkDataReader::ReadCells(int size, int *data,
 
 vtkFieldData *vtkDataReader::ReadFieldData()
 {
-  int i, numArrays, skipField=0;
+  int i, numArrays=0, skipField=0;
   vtkFieldData *f;
   char name[256], type[256];
   int numComp, numTuples;

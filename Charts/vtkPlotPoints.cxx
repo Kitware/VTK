@@ -849,7 +849,7 @@ void vtkPlotPoints::CreateDefaultLookupTable()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotPoints::SelectColorArray(const char *arrayName)
+void vtkPlotPoints::SelectColorArray(const vtkStdString& arrayName)
 {
   vtkTable *table = this->Data->GetInput();
   if (!table)
@@ -908,7 +908,7 @@ void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
 }
 
 //-----------------------------------------------------------------------------
-const char* vtkPlotPoints::GetColorArrayName()
+vtkStdString vtkPlotPoints::GetColorArrayName()
 {
   return this->ColorArrayName;
 }

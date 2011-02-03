@@ -13,13 +13,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     # add tests that require data
     SET(MyTests ${MyTests}
       #TestContextUnicode.cxx # Disabled until Freetype unicode works
-      Test2DHistogram.cxx
       TestBarGraph.cxx
       TestContext.cxx
       TestContextImage.cxx
       TestDiagram.cxx
       #TestFreeTypeContextUnicode.cxx
       #TestFreeTypeRender.cxx
+      TestHistogram2D.cxx
       TestLinePlot.cxx
       TestLinePlotInteraction.cxx
       TestMultipleChartRenderers.cxx
@@ -45,6 +45,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     SET(TestLinePlotInteractionError 25)
     SET(TestMultipleRenderersError 25)
     SET(TestMultipleScalarsToColorsError 25)
+    SET(TestParallelCoordinatesError 15)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)

@@ -13,11 +13,12 @@
 
 =========================================================================*/
 
-#include "vtkArrayWriter.h"
-
+#include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
+#include <vtkArrayWriter.h>
 #include <vtkDenseArray.h>
 #include <vtkExecutive.h>
+#include <vtkInformation.h>
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
@@ -334,17 +335,38 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
 
 vtkStandardNewMacro(vtkArrayWriter);
 
-vtkArrayWriter::vtkArrayWriter()
+vtkArrayWriter::vtkArrayWriter() :
+  FileName(0),
+  Binary(false)
 {
 }
 
 vtkArrayWriter::~vtkArrayWriter()
 {
+  this->SetFileName(0);
 }
 
 void vtkArrayWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "Binary: " << this->Binary << endl;
+}
+
+int vtkArrayWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
+  return 1;
+}
+
+void vtkArrayWriter::WriteData()
+{
+  this->Write(this->FileName ? this->FileName : "", this->Binary > 0 ? true : false);
+}
+
+int vtkArrayWriter::Write()
+{
+  return Superclass::Write();
 }
 
 bool vtkArrayWriter::Write(const vtkStdString& file_name, bool WriteBinary)

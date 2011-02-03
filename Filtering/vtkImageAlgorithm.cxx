@@ -21,6 +21,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkErrorCode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 
@@ -72,6 +73,7 @@ int vtkImageAlgorithm::RequestData(
   vtkInformation *outInfo = 
     outputVector->GetInformationObject(outputPort);
   // call ExecuteData
+  this->SetErrorCode( vtkErrorCode::NoError );
   if (outInfo)
     {
     this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
@@ -80,6 +82,12 @@ int vtkImageAlgorithm::RequestData(
     {
     this->ExecuteData(NULL);
     }
+  // Check for any error set by downstream filter (IO in most case)
+  if ( this->GetErrorCode() )
+    {
+    return 0;
+    }
+
   return 1;
 }
 

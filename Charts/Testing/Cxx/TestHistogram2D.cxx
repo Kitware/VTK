@@ -15,29 +15,28 @@
 
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
-#include "vtkChart2DHistogram.h"
-#include "vtk2DHistogramItem.h"
+#include "vtkChartHistogram2D.h"
+#include "vtkPlotHistogram2D.h"
 #include "vtkImageData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkMath.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkNew.h"
 
 //----------------------------------------------------------------------------
-int Test2DHistogram( int, char * [] )
+int TestHistogram2D(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   int size = 401;
-  vtkSmartPointer<vtkContextView> view =
-      vtkSmartPointer<vtkContextView>::New();
+  vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(size, size);
-  vtkSmartPointer<vtkChart2DHistogram> chart =
-      vtkSmartPointer<vtkChart2DHistogram>::New();
+  vtkNew<vtkChartHistogram2D> chart;
 
-  view->GetScene()->AddItem(chart);
+  view->GetScene()->AddItem(chart.GetPointer());
 
-  vtkSmartPointer<vtkImageData> data = vtkSmartPointer<vtkImageData>::New();
+  vtkNew<vtkImageData> data;
   data->SetExtent(0, size-1, 0, size-1, 0, 0);
   data->SetNumberOfScalarComponents(1);
   data->SetScalarTypeToDouble();
@@ -55,10 +54,9 @@ int Test2DHistogram( int, char * [] )
           cos(vtkMath::RadiansFromDegrees(double(j)));
       }
     }
-  chart->SetInput(data);
+  chart->SetInput(data.GetPointer());
 
-  vtkSmartPointer<vtkColorTransferFunction> transferFunction =
-      vtkSmartPointer<vtkColorTransferFunction>::New();
+  vtkNew<vtkColorTransferFunction> transferFunction;
   transferFunction->AddHSVSegment(0.0, 0.0, 1.0, 1.0,
                                   0.3333, 0.3333, 1.0, 1.0);
   transferFunction->AddHSVSegment(0.3333, 0.3333, 1.0, 1.0,
@@ -66,7 +64,7 @@ int Test2DHistogram( int, char * [] )
   transferFunction->AddHSVSegment(0.6666, 0.6666, 1.0, 1.0,
                                   1.0, 0.2, 1.0, 0.3);
   transferFunction->Build();
-  chart->SetTransferFunction(transferFunction);
+  chart->SetTransferFunction(transferFunction.GetPointer());
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

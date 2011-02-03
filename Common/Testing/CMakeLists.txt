@@ -64,6 +64,7 @@ IF(PYTHON_EXECUTABLE)
     vtkLargeInteger.h
     vtkLinkedList.h
     vtkLinkedListIterator.h
+    vtkNew.h
     vtkOStrStreamWrapper.h
     vtkOStreamWrapper.h
     vtkObject.h

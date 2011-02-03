@@ -44,6 +44,7 @@
 // is a triple of edge id, source vertex id, and target vertex id.
 // The graph is read in as undirected graph.
 // NOTE: This currently only supports reading connectivity information.
+// Also, only string and int properties are supported.
 // Display information is discarded.
 
 #ifndef _vtkTulipReader_h

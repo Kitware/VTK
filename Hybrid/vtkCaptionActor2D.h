@@ -14,20 +14,20 @@
 =========================================================================*/
 // .NAME vtkCaptionActor2D - draw text label associated with a point
 // .SECTION Description
-// vtkCaptionActor2D is a hybrid 2D/3D actor that is used to associate text 
-// with a point (the AttachmentPoint) in the scene. The caption can be 
-// drawn with a rectangular border and a leader connecting 
-// the caption to the attachment point. Optionally, the leader can be 
+// vtkCaptionActor2D is a hybrid 2D/3D actor that is used to associate text
+// with a point (the AttachmentPoint) in the scene. The caption can be
+// drawn with a rectangular border and a leader connecting
+// the caption to the attachment point. Optionally, the leader can be
 // glyphed at its endpoint to create arrow heads or other indicators.
-// 
+//
 // To use the caption actor, you normally specify the Position and Position2
 // coordinates (these are inherited from the vtkActor2D superclass). (Note
 // that Position2 can be set using vtkActor2D's SetWidth() and SetHeight()
 // methods.)  Position and Position2 define the size of the caption, and a
 // third point, the AttachmentPoint, defines a point that the caption is
-// associated with.  You must also define the caption text, 
+// associated with.  You must also define the caption text,
 // whether you want a border around the caption, and whether you want a
-// leader from the caption to the attachment point. The font attributes of 
+// leader from the caption to the attachment point. The font attributes of
 // the text can be set through the vtkTextProperty associated to this actor.
 // You also indicate whether you want
 // the leader to be 2D or 3D. (2D leaders are always drawn over the
@@ -76,8 +76,8 @@ public:
   // Description:
   // Define the text to be placed in the caption. The text can be multiple
   // lines (separated by "\n").
-  vtkSetStringMacro(Caption);
-  vtkGetStringMacro(Caption);
+  virtual void SetCaption(const char* caption);
+  virtual char* GetCaption();
 
   // Description:
   // Set/Get the attachment point for the caption. By default, the attachment
@@ -92,7 +92,7 @@ public:
   vtkBooleanMacro(Border,int);
 
   // Description:
-  // Enable/disable drawing a "line" from the caption to the 
+  // Enable/disable drawing a "line" from the caption to the
   // attachment point.
   vtkSetMacro(Leader,int);
   vtkGetMacro(Leader,int);
@@ -115,14 +115,14 @@ public:
   // Description:
   // Specify the relative size of the leader head. This is expressed as a
   // fraction of the size (diagonal length) of the renderer. The leader
-  // head is automatically scaled so that window resize, zooming or other 
+  // head is automatically scaled so that window resize, zooming or other
   // camera motion results in proportional changes in size to the leader
   // glyph.
   vtkSetClampMacro(LeaderGlyphSize,double,0.0,0.1);
   vtkGetMacro(LeaderGlyphSize,double);
 
   // Description:
-  // Specify the maximum size of the leader head (if any) in pixels. This 
+  // Specify the maximum size of the leader head (if any) in pixels. This
   // is used in conjunction with LeaderGlyphSize to cap the maximum size of
   // the LeaderGlyph.
   vtkSetClampMacro(MaximumLeaderGlyphSize,int,1,1000);
@@ -143,14 +143,14 @@ public:
   // Set/Get the text property.
   virtual void SetCaptionTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(CaptionTextProperty,vtkTextProperty);
-    
+
   // Description:
   // Shallow copy of this scaled text actor. Overloads the virtual
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Enable/disable whether to attach the arrow only to the edge, 
+  // Enable/disable whether to attach the arrow only to the edge,
   // NOT the vertices of the caption border.
   vtkSetMacro(AttachEdgeOnly,int);
   vtkGetMacro(AttachEdgeOnly,int);
@@ -172,7 +172,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;}
   int RenderOverlay(vtkViewport* viewport);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
@@ -184,7 +184,6 @@ protected:
 
   vtkCoordinate *AttachmentPointCoordinate;
 
-  char  *Caption;
   int   Border;
   int   Leader;
   int   ThreeDimensionalLeader;
@@ -192,7 +191,7 @@ protected:
   int   MaximumLeaderGlyphSize;
 
   vtkPolyData *LeaderGlyph; //what to put on the end of the leader
-  
+
   int   Padding;
   int   AttachEdgeOnly;
 
@@ -209,7 +208,7 @@ private:
   vtkGlyph3D          *HeadGlyph;       // for 3D leader
   vtkPolyData         *LeaderPolyData;  // line represents the leader
   vtkAppendPolyData   *AppendLeader;    // append head and leader
-  
+
   // for 2D leader
   vtkCoordinate       *MapperCoordinate2D;
   vtkPolyDataMapper2D *LeaderMapper2D;
