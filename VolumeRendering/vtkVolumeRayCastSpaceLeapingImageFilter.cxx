@@ -20,6 +20,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataArray.h"
+#include "vtkPointData.h"
+
+#ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
+#include "vtkMetaImageWriter.h"
+#endif
 
 #include <math.h>
 
@@ -36,6 +41,7 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
 {
   this->ComputeMinMax = 0;
   this->ComputeGradientOpacity = 0;
+  this->UpdateGradientOpacityFlags = 0;
   this->IndependentComponents  = 1;
   this->CurrentScalars = NULL;
   this->MinNonZeroScalarIndex = NULL;
@@ -49,6 +55,7 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
     this->ScalarOpacityTable[i] = NULL;
     this->GradientOpacityTable[i] = NULL;
     }
+  this->Cache = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -74,6 +81,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::PrintSelf(ostream& os, vtkIndent i
 
   os << indent << "ComputeMinMax: " << this->ComputeMinMax << "\n";
   os << indent << "ComputeGradientOpacity: " << this->ComputeGradientOpacity << "\n";
+  os << indent << "UpdateGradientOpacityFlags: " << this->UpdateGradientOpacityFlags << "\n";
   os << indent << "IndependentComponents: " << this->IndependentComponents << "\n";
   os << indent << "CurrentScalars: " << this->CurrentScalars << "\n";
   // this->TableShift
@@ -101,6 +109,14 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestUpdateExtent (
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), wholeExtent, 6);
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeRayCastSpaceLeapingImageFilter
+::SetCache( vtkImageData * cache )
+{
+  // Do not reference count it to avoid reference counting loops
+  this->Cache = cache;
 }
 
 //----------------------------------------------------------------------------
@@ -788,11 +804,18 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   const int components = this->GetCurrentScalars()->GetNumberOfComponents();
   const unsigned int nComponents = (this->GetIndependentComponents()) ? components : 1;
 
-  vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
+  // Clear the output if we are computing the min-max. In other cases, we
+  // will be re-using the cache. (See the method AllocateOutputData)
+
+  if (this->ComputeMinMax)
+    {
+    vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
                         outData[0], outExt, nComponents );
+    }
 
 
   // If only scalar min-max need to be re-computed
+
   if (this->ComputeMinMax && !this->ComputeGradientOpacity)
     {
     int scalarType   = this->CurrentScalars->GetDataType();
@@ -806,12 +829,10 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
         vtkErrorMacro("Unknown scalar type");
         return;
       }
-
-    // Process the flags based on the computed min-max volume
-    this->FillScalarOpacityFlags(outData[0], outExt);
     }
 
   // If only gradient max needs to be recomputed
+
   else if (this->ComputeGradientOpacity && !this->ComputeMinMax)
     {
     int scalarType   = this->CurrentScalars->GetDataType();
@@ -825,13 +846,11 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
         vtkErrorMacro("Unknown scalar type");
         return;
       }
-
-    // Process the flags based on the computed min-max volume
-    this->FillScalarAndGradientOpacityFlags(outData[0], outExt);
     }
 
   // If both scalar min-max need to be re-computed and gradient max needs to
   // be re-computed
+
   else if (this->ComputeGradientOpacity && this->ComputeMinMax)
     {
     int scalarType   = this->CurrentScalars->GetDataType();
@@ -845,11 +864,22 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
         vtkErrorMacro("Unknown scalar type");
         return;
       }
+    }
 
+
+  // Update the flags now for this extent. There are two specialized methods
+  // here, depending on what mode we are in, so that we may do the flag update
+  // in one pass through the data.
+
+  if (this->UpdateGradientOpacityFlags)
+    {
     // Process the flags based on the computed min-max volume
     this->FillScalarAndGradientOpacityFlags(outData[0], outExt);
     }
-
+  else
+    {
+    this->FillScalarOpacityFlags(outData[0], outExt);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -859,16 +889,17 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  if (!(this->ComputeGradientOpacity || this->ComputeMinMax))
-    {
-    return 1; // Nothing to do. Just pass through
-    }
+#ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
+  cout << "ComputingGradientOpacity: " << ComputeGradientOpacity;
+  cout << " ComputingMinMax: " << ComputeMinMax << " UpdatingFlags: 1" << endl;
+#endif
 
   // Find the first non-zero scalar opacity and gradient opacity points on
   // the respective transfer functions
 
   this->ComputeFirstNonZeroOpacityIndices();
 
+  // The actual work is done in the line below.
   if (this->Superclass::RequestData(request, inputVector, outputVector))
     {
 
@@ -1048,12 +1079,98 @@ unsigned short * vtkVolumeRayCastSpaceLeapingImageFilter
 unsigned long vtkVolumeRayCastSpaceLeapingImageFilter
 ::ComputeOffset( int ext[6], int wholeExt[6], int nComponents )
 {
-  const unsigned int wDim[3] = { wholeExt[5]-wholeExt[4]+1,
+  const unsigned int wDim[3] = { wholeExt[1]-wholeExt[0]+1,
                                  wholeExt[3]-wholeExt[2]+1,
-                                 wholeExt[1]-wholeExt[0]+1 };
+                                 wholeExt[5]-wholeExt[4]+1 };
   unsigned long offset = (wDim[1]*wDim[0]*(ext[4]-wholeExt[4]) +
                                   wDim[0]*(ext[2]-wholeExt[2]) +
                                           (ext[0]-wholeExt[0]))
                                                      * nComponents;
   return offset;
 }
+
+//----------------------------------------------------------------------------
+// Allocate the output data, caching if necessary. Caching may result in 
+// invalid outputs and should be turned on, only when this filter is used
+// as an internal ivar of the vtkFixedPointVolumeRayCastMapper.
+void vtkVolumeRayCastSpaceLeapingImageFilter
+::AllocateOutputData(vtkImageData *output, int *uExtent)
+{ 
+  // set the extent to be the update extent
+  output->SetExtent(uExtent);
+
+  if (this->Cache)
+    {
+    
+    int extent[6];
+    this->Cache->GetExtent(extent);
+    if (extent[0] == uExtent[0] && extent[1] == uExtent[1] &&
+        extent[2] == uExtent[2] && extent[3] == uExtent[3] &&
+        extent[4] == uExtent[4] && extent[5] == uExtent[5] &&
+        this->Cache->GetNumberOfScalarComponents() ==
+                    output->GetNumberOfScalarComponents())
+      {
+      // Reuse the cache since it has the same dimensions. We may not be
+      // updating all flags
+
+      // This is absolutely scary code, if used as a standard VTK imaging filter,
+      // but since the filter will be used only as an iVar of
+      // vtkFixedPointVolumeRayCastMapper, we need a caching mechanism to avoid
+      // reallocation of memory and re-update of certain bits in the Min-max
+      // structure. In the interest of speed, we resort to a wee bit of ugly
+      // code.
+      output->GetPointData()->SetScalars(
+          this->Cache->GetPointData()->GetScalars() );
+      return;
+      }
+    }
+
+  // Otherwise allocate output afresh
+  output->AllocateScalars();
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkVolumeRayCastSpaceLeapingImageFilter
+::AllocateOutputData(vtkDataObject *output)
+{ 
+  // Call the superclass method
+  return vtkImageAlgorithm::AllocateOutputData(output);
+}
+
+//----------------------------------------------------------------------------
+#ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
+void vtkVolumeRayCastSpaceLeapingImageFilter
+::WriteMinMaxVolume( 
+  int component, unsigned short *minMaxVolume,
+  int minMaxVolumeSize[4],
+  const char *filename )
+{
+  vtkImageData *image = vtkImageData::New();
+  image->SetExtent(0, minMaxVolumeSize[0]-1,
+                   0, minMaxVolumeSize[1]-1,
+                   0, minMaxVolumeSize[2]-1);
+  image->SetScalarTypeToUnsignedShort();
+  image->AllocateScalars();
+  
+  const unsigned int nComponents = static_cast< unsigned int >(
+      minMaxVolumeSize[3]);
+  const unsigned long nVoxels =
+    minMaxVolumeSize[0]*minMaxVolumeSize[1]*minMaxVolumeSize[2];
+  const unsigned int inc = nComponents * 3;
+  unsigned short *pSrc = minMaxVolume + component;
+  unsigned short *pDst = static_cast< unsigned short * >(
+                                image->GetScalarPointer());
+  for (unsigned long i = 0; i < nVoxels; ++i, pSrc += inc, ++pDst)
+    {
+    *pDst = *pSrc;
+    }
+
+  vtkMetaImageWriter *writer = vtkMetaImageWriter::New();
+  writer->SetFileName(filename);
+  writer->SetInput(image);
+  writer->Write();
+
+  writer->Delete();
+  image->Delete();
+}
+#endif
