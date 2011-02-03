@@ -588,15 +588,10 @@ int vtkConvertSelection::Convert(
         vtkErrorMacro("Could not find vtkDataArray for thresholds selection.");
         return 0;
         }
-      int inverse = 0;
-      if (inputNode->GetProperties()->Has(vtkSelectionNode::INVERSE()))
-        {
-        inverse = inputNode->GetProperties()->Get(vtkSelectionNode::INVERSE());
-        }
       for (vtkIdType id = 0; id < dataArr->GetNumberOfTuples(); id++)
         {
         int keepPoint = vtkExtractSelectedThresholds::EvaluateValue(dataArr, id, lims);
-        if (keepPoint ^ inverse)
+        if (keepPoint)
           {
           indices->InsertNextValue(id);
           }
