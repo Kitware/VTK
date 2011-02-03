@@ -495,7 +495,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
       break;
       }
 
-    vtksys::SystemTools::Delay(remaining * 1000.0);
+    vtksys::SystemTools::Delay(static_cast<unsigned int>(remaining * 1000.0));
     }
 
   return 0;
