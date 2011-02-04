@@ -24,6 +24,9 @@
 #include <vtkstd/algorithm>
 #include <cstring>
 #include <cassert>
+#include <sstream>
+#include <fstream>
+
 using vtkstd::vector;
 using vtkstd::copy;
 
@@ -256,6 +259,7 @@ void vtkAMRBox::WriteToVtkFile( const char *file )
         {
           for( int i=0; i < nodeExtent[0]; ++i )
             {
+
               ijk[0] = i;
               ijk[1] = j;
               ijk[2] = k;
@@ -267,6 +271,7 @@ void vtkAMRBox::WriteToVtkFile( const char *file )
                 isghost[ pntIdx ] = 0;
               else
                 isghost[ pntIdx ] = 1;
+
             } // END for all k
         } // END for all j
     } // END for all i
@@ -507,15 +512,18 @@ void vtkAMRBox::SetDataSetOrigin(double x0, double y0, double z0)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetBoxOrigin(double *x0) const
 {
-  x0[0]=this->X0[0]+this->DX[0]*this->LoCorner[0];
-  if (this->Dimension>=2)
-    {
-    x0[1]=this->X0[1]+this->DX[1]*this->LoCorner[1];
-    }
-  if (this->Dimension==3)
-    {
-    x0[2]=this->X0[2]+this->DX[2]*this->LoCorner[2];
-    }
+  x0[0] = this->X0[0];
+  x0[1] = this->X0[1];
+  x0[2] = this->X0[2];
+//  x0[0]=this->X0[0]+this->DX[0]*this->LoCorner[0];
+//  if (this->Dimension>=2)
+//    {
+//    x0[1]=this->X0[1]+this->DX[1]*this->LoCorner[1];
+//    }
+//  if (this->Dimension==3)
+//    {
+//    x0[2]=this->X0[2]+this->DX[2]*this->LoCorner[2];
+//    }
 }
 
 //-----------------------------------------------------------------------------
@@ -709,13 +717,53 @@ bool vtkAMRBox::Empty() const
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 {
-  int i = floor( (x-this->LoCorner[0])/this->DX[0] );
-  int j = floor( (y-this->LoCorner[1])/this->DX[1] );
-  int k = floor( (z-this->LoCorner[2])/this->DX[2] );
+  double xMax = 0.0;
+  double yMax = 0.0;
+  double zMax = 0.0;
 
-  if( this->Contains( i, j, k) )
-    return true;
+  int ndim[3];
+  this->GetNumberOfNodes( ndim );
+  switch( this->Dimension )
+    {
+    case 1:
+      xMax = this->X0[0]+(this->DX[0]*ndim[0]);
+      if( x >= this->X0[0] && x <= xMax  )
+          return true;
+      break;
+    case 2:
+      xMax = this->X0[0]+(this->DX[0]*ndim[0]);
+      yMax = this->X0[1]+(this->DX[1]*ndim[1]);
+
+      this->WriteBox(
+        this->X0[0], this->X0[1], 0,
+        xMax, yMax, 0 );
+
+
+      if( x >= this->X0[0] && x <= xMax &&
+          y >= this->X0[1] && y <= yMax     )
+          return true;
+      break;
+    case 3:
+      xMax = this->X0[0]+(this->DX[0]*ndim[0]);
+      yMax = this->X0[1]+(this->DX[1]*ndim[1]);
+      zMax = this->X0[2]+(this->DX[2]*ndim[2]);
+
+      this->WriteBox(
+        this->X0[0], this->X0[1], this->X0[2],
+        xMax, yMax, zMax );
+
+      if( x >= this->X0[0] && x <= xMax &&
+          y >= this->X0[1] && y <= yMax &&
+          z >= this->X0[2] && z <= zMax   )
+          return true;
+      break;
+    default:
+      // Code should not reach here!
+      // TODO: add better error handling here!
+      return false;
+    }
   return false;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -895,7 +943,7 @@ void vtkAMRBox::Refine(int r)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Coarsen(int r)
 {
-  assert( !this->Empty() );
+  vtkAssertUtils::assertFalse( this->Empty(),__FILE__,__LINE__);
   if (this->Empty())
     {
     return;
@@ -1005,6 +1053,42 @@ void vtkAMRBox::ExtrudeGhostCells( int nlayers )
       this->Invalidate();
     }
 
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::GetRealExtent( int realext[6] ) const
+{
+  realext[0] = this->RealExtent[0];
+  realext[1] = this->RealExtent[1];
+  realext[2] = this->RealExtent[2];
+  realext[3] = this->RealExtent[3];
+  realext[4] = this->RealExtent[4];
+  realext[5] = this->RealExtent[5];
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::SetRealExtent( int realExtent[6] )
+{
+  // Sanity Checks
+  vtkAssertUtils::assertInRange(
+   realExtent[0],this->LoCorner[0],this->HiCorner[0],__FILE__,__LINE__);
+  vtkAssertUtils::assertInRange(
+   realExtent[1],this->LoCorner[0],this->HiCorner[0],__FILE__,__LINE__);
+  vtkAssertUtils::assertInRange(
+   realExtent[2],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
+  vtkAssertUtils::assertInRange(
+   realExtent[3],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
+  vtkAssertUtils::assertInRange(
+   realExtent[4],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
+  vtkAssertUtils::assertInRange(
+   realExtent[5],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
+
+  this->RealExtent[0] = realExtent[0];
+  this->RealExtent[1] = realExtent[1];
+  this->RealExtent[2] = realExtent[2];
+  this->RealExtent[3] = realExtent[3];
+  this->RealExtent[4] = realExtent[4];
+  this->RealExtent[5] = realExtent[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -1289,7 +1373,38 @@ void Split(
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkAMRBox::WriteBox(
+      const double x, const double y, const double z,
+      const double X, const double Y, const double Z )
+{
+  std::ostringstream oss;
+  oss.str( "" ); oss.clear( );
+  oss << "Box" << this->Dimension << "D_";
+  oss << this->BlockId << "_Level_" << this->BlockLevel << ".vtk";
 
+  std::ofstream ofs;
+  ofs.open( oss.str().c_str( ) );
+  vtkAssertUtils::assertTrue( ofs.is_open(), __FILE__, __LINE__ );
+  ofs << "# vtk DataFile Version 3.0\n";
+  ofs << oss.str( ) << std::endl;
+  ofs << "ASCII\n";
+  ofs << "DATA_SET_UNSTUCTURED_GRID\n";
+  ofs << "POINTS 8 double\n";
+  ofs << x << " " << y << " " << z << std::endl;
+  ofs << X << " " << y << " " << z << std::endl;
+  ofs << X << " " << Y << " " << z << std::endl;
+  ofs << x << " " << Y << " " << z << std::endl;
+  ofs << x << " " << y << " " << Z << std::endl;
+  ofs << X << " " << y << " " << Z << std::endl;
+  ofs << X << " " << Y << " " << Z << std::endl;
+  ofs << x << " " << Y << " " << Z << std::endl;
+  ofs << "CELLS 1 9\n";
+  ofs << "8 0 1 2 3 4 5 6 7\n";
+  ofs << "CELL_TYPES 1\n";
+  ofs << "12\n";
+  ofs.close( );
+}
 
 
 

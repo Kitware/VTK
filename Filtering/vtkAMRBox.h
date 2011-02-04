@@ -117,6 +117,14 @@ public:
   void SetLevel( const int level );
 
   // Description:
+  // Returns the real extent of this AMR Box instance.
+  void GetRealExtent( int realExtent[6] ) const;
+
+  // Description:
+  // Sets the real extent of this AMR box instance.
+  void SetRealExtent( int realExtent[6] );
+
+  // Description:
   // Checks if the point is inside this AMRBox instance.
   // x,y,z the world point
   bool HasPoint( const double x, const double y, const double z );
@@ -320,6 +328,17 @@ private:
   double X0[3];       // Dataset origin (not box origin)
   double DX[3];       // grid spacing
   int RealExtent[6];  // Extent of the all the real nodes, i.e., not the ghosts
+
+
+
+  // Description:
+  // A simple method to write a box with the given min/max
+  // coordindates for debugging.
+  void WriteBox(
+      const double x, const double y, const double z,
+      const double X, const double Y, const double Z );
+
+
 };
 
 // NOTE 2008-11-10
