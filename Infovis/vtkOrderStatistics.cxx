@@ -536,13 +536,9 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       continue;
       } // else
 
-    histogramTab->Dump();
-
     // Clean up
     delete [] cdf;
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
-
-  quantileTab->Dump();
 
   // Resize output meta so quantile table can be appended
   nBlocks = inMeta->GetNumberOfBlocks();
@@ -564,8 +560,16 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     return;
     }
 
-  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
-  if ( ! quantileTab )
+  unsigned nBlocks = inMeta->GetNumberOfBlocks();
+  if ( nBlocks < 2 )
+    {
+    return;
+    }
+
+  unsigned nbq = nBlocks - 1;
+  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( nbq ) );
+  if ( ! quantileTab
+       || inMeta->GetMetaData( nbq )->Get( vtkCompositeDataSet::NAME() ) != vtkStdString( "Quantiles" ) )
     {
     return;
     }
@@ -590,15 +594,11 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   vtkDoubleArray* statCol = vtkDoubleArray::New();
   statCol->SetName( "Kolomogorov-Smirnov" );
 
-  // Downcast columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( quantileTab->GetColumnByName( "Variable" ) );
-
   // Prepare storage for quantiles and model CDFs
-  vtkIdType nQuant = quantileTab->GetNumberOfColumns() - 2;
+  vtkIdType nQuant = quantileTab->GetNumberOfRows();
   vtkStdString* quantiles = new vtkStdString[nQuant];
 
   // Loop over requests
-  vtkIdType nRowQuant = quantileTab->GetNumberOfRows();
   vtkIdType nRowData = inData->GetNumberOfRows();
   double inv_nq =  1. / nQuant;
   double inv_card = 1. / nRowData;
@@ -617,17 +617,13 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       continue;
       }
 
-    // Find the model row that corresponds to the variable of the request
-    vtkIdType r = 0;
-    while ( r < nRowQuant && vars->GetValue( r ) != varName )
+    // Find the quantile column that corresponds to the variable of the request
+    vtkAbstractArray* quantCol = quantileTab->GetColumnByName( varName );
+    if ( ! quantCol )
       {
-      ++ r;
-      }
-    if ( r >= nRowQuant )
-      {
-      vtkWarningMacro( "Incomplete input: model does not have a row "
+      vtkWarningMacro( "Quantile table table does not have a column "
                        << varName.c_str()
-                       <<". Cannot test." );
+                       << ". Ignoring it." );
       continue;
       }
 
@@ -662,7 +658,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     for ( vtkIdType i = 0; i < nQuant; ++ i )
       {
       // Read quantile and update CDF
-      quantiles[i] = quantileTab->GetValue( r, i + 2 ).ToString();
+      quantiles[i] = quantileTab->GetValueByName( i + 2, varName ).ToString();
 
       // Update empirical CDF if new value found (with unknown ECDF)
       vtksys_stl::pair<CDF::iterator,bool> result
