@@ -38,8 +38,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/map>
 #include <vtksys/stl/set>
 
-typedef vtksys_stl::map<vtkStdString,double> CDF;
-
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -628,6 +626,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       }
 
     // First iterate over all observations to calculate empirical PDF
+    typedef vtksys_stl::map<vtkStdString,double> CDF;
     CDF cdfEmpirical;
     for ( vtkIdType j = 0; j < nRowData; ++ j )
       {
