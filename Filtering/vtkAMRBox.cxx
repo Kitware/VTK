@@ -250,16 +250,16 @@ void vtkAMRBox::WriteToVtkFile( const char *file )
   int    ijk[3];
   double pnt[3];
   pnt[0] = pnt[1] = pnt[2] = 0;
-  for( int i=0; i < nodeExtent[0]; ++i )
+  for( int k=0; k < nodeExtent[2]; ++k )
     {
-      ijk[0] = i;
       for( int j=0; j < nodeExtent[1]; ++j )
         {
-          ijk[1] = j;
-          for( int k=0; k < nodeExtent[2]; ++k )
+          for( int i=0; i < nodeExtent[0]; ++i )
             {
-              int pntIdx = this->GetNodeLinearIndex( i,j,k );
+              ijk[0] = i;
+              ijk[1] = j;
               ijk[2] = k;
+              int pntIdx = this->GetNodeLinearIndex( i,j,k );
               this->GetPoint( ijk, pnt );
               ofs << pnt[ 0 ] << " " << pnt[ 1 ] << " " << pnt[ 2 ] << "\n";
 
