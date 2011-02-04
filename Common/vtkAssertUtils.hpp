@@ -123,6 +123,25 @@ class vtkAssertUtils
     }
 
 
+    inline static void assertNotEquals(
+        const int rhs, const int lhs, const char *file, int line )
+    {
+      #ifdef ASSERT_ON
+       if( rhs == lhs )
+         {
+         std::cerr << "===========================================\n";
+         std::cerr <<  __DATE__ << " " << __TIME__ << std::endl;
+         std::cerr << "ERROR: AssertUtils::assertNotEquals() failed from:\n";
+         std::cerr << "FILE: " << file << std::endl;
+         std::cerr << "LINE: " << line << std::endl;
+         std::cerr << "num1: " << rhs  << std::endl;
+         std::cerr << "num2: " << lhs  << std::endl;
+         assert( rhs == lhs );
+         }
+      #endif
+      return;
+    }
+
     /**
      * @brief Checks if the two numbers are equal.
      * @param rhs the number on the right-hand-side.
@@ -131,7 +150,6 @@ class vtkAssertUtils
     inline static void assertEquals(
         const int rhs, const int lhs, const char* file, int line )
     {
-
       #ifdef ASSERT_ON
         if( rhs != lhs )
         {
@@ -146,7 +164,6 @@ class vtkAssertUtils
         }
       #endif
       return;
-
     }
 
     /**
