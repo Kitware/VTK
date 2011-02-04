@@ -20,6 +20,8 @@
 #include "vtkInformationIdTypeKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationDoubleKey.h"
 #include "vtkInformationKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiPieceDataSet.h"
@@ -27,15 +29,22 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkIdList.h"
+#include "vtkAssertUtils.hpp"
 
 #include <vtkstd/vector>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 vtkInformationKeyRestrictedMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector, 6);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,NUMBER_OF_BLANKED_POINTS,IdType);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,REFINEMENT_RATIO,Integer);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX_DIMENSIONALITY,Integer);
+vtkInformationKeyRestrictedMacro(
+    vtkHierarchicalBoxDataSet,BOX_ORIGIN,DoubleVector, 3);
+vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,RANK,Integer);
+vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BLOCK_ID,Integer);
+vtkInformationKeyRestrictedMacro(
+    vtkHierarchicalBoxDataSet,REAL_EXTENT,IntegerVector,6);
 
 typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
 //----------------------------------------------------------------------------
@@ -141,17 +150,34 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
       const int *loCorner=box.GetLoCorner();
       const int *hiCorner=box.GetHiCorner();
       info->Set(BOX_DIMENSIONALITY(), box.GetDimensionality());
-      info->Set(BOX(),
-        loCorner[0], loCorner[1], loCorner[2],
-        hiCorner[0], hiCorner[1], hiCorner[2]);
+      info->Set(BOX(),loCorner[0], loCorner[1], loCorner[2],
+                      hiCorner[0], hiCorner[1], hiCorner[2]);
+      double x0[3];
+      box.GetBoxOrigin( x0 );
+      info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
+      info->Set(RANK(), box.GetProcessId() );
+      info->Set(BLOCK_ID(), box.GetBlockId() );
+
+      int realExtent[6];
+      box.GetRealExtent( realExtent );
+      info->Set(REAL_EXTENT(),
+          realExtent[0], realExtent[1], realExtent[2],
+          realExtent[3], realExtent[4], realExtent[5] );
       }
+    else
+      {
+      vtkErrorMacro( "Metadata object is NULL!!!!" );
+      }
+    }
+  else
+    {
+    vtkErrorMacro( "Multi-piece data-structure is NULL!!!" );
     }
 }
 
 //----------------------------------------------------------------------------
-vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
-                                                      unsigned int id,
-                                                      vtkAMRBox& box)
+vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
+                unsigned int level,unsigned int id,vtkAMRBox& box)
 {
   if (this->GetNumberOfLevels() <= level ||
     this->GetNumberOfDataSets(level) <= id)
@@ -167,20 +193,47 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
     vtkInformation* info = levelDS->GetMetaData(id);
     if (info)
       {
-      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
-        info->Get(BOX_DIMENSIONALITY()) : 3;
-      box.SetDimensionality(dimensionality);
 
-      int* boxVec = info->Get(BOX());
-      if (boxVec)
-        {
-        box.SetDimensions(boxVec,boxVec+3);
-        }
+      // Sanity Checks
+      vtkAssertUtils::assertTrue(
+       info->Has(BOX_DIMENSIONALITY()),__FILE__, __LINE__);
+      vtkAssertUtils::assertTrue(info->Has(BOX()),__FILE__,__LINE__);
+      vtkAssertUtils::assertTrue(info->Has(BOX_ORIGIN()),__FILE__,__LINE__);
+      vtkAssertUtils::assertTrue(info->Has(RANK()),__FILE__,__LINE__);
+      vtkAssertUtils::assertTrue(info->Has(BLOCK_ID()),__FILE__,__LINE__);
+      vtkAssertUtils::assertTrue(info->Has(REAL_EXTENT()),__FILE__,__LINE__);
+
+      int *dims = info->Get( BOX() );
+      box.SetDimensions(dims,dims+3);
+      box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
+      box.SetDataSetOrigin( info->Get( BOX_ORIGIN() ) );
+      box.SetProcessId( info->Get( RANK() ) );
+      box.SetBlockId( info->Get( BLOCK_ID() ) );
+      box.SetRealExtent( info->Get( REAL_EXTENT() ) );
+
+//      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
+//          info->Get()
+//      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
+//        info->Get(BOX_DIMENSIONALITY()) : 3;
+//      box.SetDimensionality(dimensionality);
+//
+//      int* boxVec = info->Get(BOX());
+//      if (boxVec)
+//        {
+//        box.SetDimensions(boxVec,boxVec+3);
+//        }
+
+      }
+    else
+      {
+      vtkErrorMacro( "Metadata is NULL!" );
       }
     return ds;
     }
   return 0;
 }
+
+
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level,
@@ -274,9 +327,7 @@ int vtkHierarchicalBoxDataSetIsInBoxes(vtkAMRBoxList& boxes,
 void vtkHierarchicalBoxDataSet::GenerateCellVisibility(
     vtkUniformGrid *coarseGrid )
 {
-  // Sanity Check!
-  assert( coarseGrid != NULL );
-//  assert( coarseGrid->GetPointVisibility()->IsConstrained() );
+  vtkAssertUtils::assertNotNull( coarseGrid,__FILE__,__LINE__ );
 
   unsigned int cellIdx = 0;
   vtkIdList *cellPnts = vtkIdList::New( );
@@ -308,29 +359,28 @@ void vtkHierarchicalBoxDataSet::GeneratePointVisibility(
     const unsigned int level, vtkUniformGrid *coarseGrid )
 {
   // Sanity Check!
-  assert( level <= this->GetNumberOfLevels( )   );
-  assert( coarseGrid != NULL );
+  vtkAssertUtils::assertTrue(
+   level<=this->GetNumberOfLevels(), __FILE__, __LINE__);
+  vtkAssertUtils::assertNotNull(coarseGrid,__FILE__,__LINE__);
 
   unsigned int nextLevel   = level+1;
   unsigned int dataIdx     = 0;
   unsigned int numDataSets = this->GetNumberOfDataSets( nextLevel );
-  for( ; dataIdx < numDataSets; ++dataIdx )
+
+   for( ; dataIdx < numDataSets; ++dataIdx )
     {
     vtkAMRBox fineBox;
     vtkUniformGrid *fineGrid = this->GetDataSet(
-        nextLevel, dataIdx, fineBox );
-    assert( fineGrid != NULL );
+     nextLevel, dataIdx, fineBox );
 
     unsigned int pnt = 0;
     for( ; pnt < coarseGrid->GetNumberOfPoints(); ++pnt )
       {
         double X[3];
-        int ijk[3];
-        double nc[3];
         coarseGrid->GetPoint( pnt, X );
-        int cellIdx = fineGrid->ComputeStructuredCoordinates( X, ijk, nc );
-        if( cellIdx > 0 )
+        if( fineBox.HasPoint( X[0],X[1],X[2] ) )
           coarseGrid->BlankPoint( pnt );
+
       }
     } // END for all data at next level
     coarseGrid->AttachPointVisibilityToPointData();
@@ -351,15 +401,19 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays( )
       unsigned int dataIdx     = 0;
       for( ; dataIdx < numDataSets; ++dataIdx )
         {
-
         vtkAMRBox coarseBox;
         vtkUniformGrid *coarseGrid =
           this->GetDataSet( level, dataIdx, coarseBox );
-        this->GeneratePointVisibility( level, coarseGrid );
-        this->GenerateCellVisibility( coarseGrid );
-//        assert( coarseGrid->GetPo->IsConstrained() );
-//        assert( coarseGrid->CellVisibility->IsConstrained() );
+        if( coarseGrid != NULL )
+          {
+          vtkAssertUtils::assertEquals(
+           coarseGrid->GetNumberOfPoints(),coarseBox.GetNumberOfNodes(),
+           __FILE__,__LINE__ );
 
+          this->GeneratePointVisibility( level, coarseGrid );
+          this->GenerateCellVisibility( coarseGrid );
+          }
+        // Else the grid does not belong to this process
         }
 
     } // END for all coarse levels
@@ -374,17 +428,20 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays( )
     vtkUniformGrid *fineGrid =
          this->GetDataSet( lastLevel, dataIdx, fineBox );
 
-    // Unblank points
-    unsigned int idx = 0;
-    for( ; idx < fineGrid->GetNumberOfPoints(); ++idx )
-      fineGrid->UnBlankPoint( idx );
+    if( fineGrid != NULL )
+      {
+      // Unblank points
+      unsigned int idx = 0;
+      for( ; idx < fineGrid->GetNumberOfPoints(); ++idx )
+        fineGrid->UnBlankPoint( idx );
 
-    // Unblank cells
-    for( idx=0; idx < fineGrid->GetNumberOfPoints(); ++idx )
-      fineGrid->UnBlankCell( idx );
+      // Unblank cells
+      for( idx=0; idx < fineGrid->GetNumberOfPoints(); ++idx )
+        fineGrid->UnBlankCell( idx );
 
-    fineGrid->AttachPointVisibilityToPointData();
-    fineGrid->AttachCellVisibilityToCellData();
+      fineGrid->AttachPointVisibilityToPointData();
+      fineGrid->AttachCellVisibilityToCellData();
+      }
 
   } // END for all data at the finest level
 

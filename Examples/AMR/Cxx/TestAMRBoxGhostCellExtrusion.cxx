@@ -19,7 +19,7 @@ int main( int arc, char **argv )
   double origin[] = {0,0,0};
   int    dim      = 2;
   int    ndim[]   = {5,5,1};
-  double h[]      = {0.5,0.5,0.0};
+  double h[]      = {0.5,0.5,0.2};
   int    blockId  = 1;
   int    level    = 1;
   int    rank     = 0;
@@ -30,17 +30,17 @@ int main( int arc, char **argv )
   std::cout << "\n======================================================\n";
   std::cout.flush( );
 
-  myTestBox.ExtrudeGhostCells( 3 );
+  myTestBox.ExtrudeGhostCells( 1 );
   myTestBox.WriteToVtkFile( "initial1.vtk" );
   myTestBox.Print( std::cout );
   std::cout << "\n======================================================\n";
   std::cout.flush( );
 
-//  myTestBox.ExtrudeGhostCells( 1 );
-//  myTestBox.WriteToVtkFile( "initial2.vtk" );
-//  myTestBox.Print( std::cout );
-//  std::cout << "\n======================================================\n";
-//  std::cout.flush( );
+  myTestBox.ExtrudeGhostCells( 2 );
+  myTestBox.WriteToVtkFile( "initial2.vtk" );
+  myTestBox.Print( std::cout );
+  std::cout << "\n======================================================\n";
+  std::cout.flush( );
 
   return 0;
 }

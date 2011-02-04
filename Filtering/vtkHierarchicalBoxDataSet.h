@@ -167,6 +167,10 @@ public:
   static vtkInformationIntegerKey* BOX_DIMENSIONALITY();
   static vtkInformationIntegerKey* REFINEMENT_RATIO();
   static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
+  static vtkInformationDoubleVectorKey* BOX_ORIGIN();
+  static vtkInformationIntegerKey* RANK();
+  static vtkInformationIntegerKey* BLOCK_ID();
+  static vtkInformationIntegerVectorKey* REAL_EXTENT();
 
   //BTX
   // Description:
@@ -229,6 +233,9 @@ protected:
   vtkTimeStamp ScalarRangeComputeTime;
 
 private:
+
+
+
   vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&);  // Not implemented.
   void operator=(const vtkHierarchicalBoxDataSet&);  // Not implemented.
 };
