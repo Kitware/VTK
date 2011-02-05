@@ -346,6 +346,9 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
+  // Decide once for all whether midpoint interpolation will be needed
+  bool midPt = ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps ? 1 : 0 );
+
   // Iterate over primary tables
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
@@ -559,15 +562,14 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     }
 
   unsigned nBlocks = inMeta->GetNumberOfBlocks();
-  if ( nBlocks < 2 )
+  if ( nBlocks < 1 )
     {
     return;
     }
 
-  unsigned nbq = nBlocks - 1;
-  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( nbq ) );
+  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( nBlocks - 1 ) );
   if ( ! quantileTab
-       || inMeta->GetMetaData( nbq )->Get( vtkCompositeDataSet::NAME() ) != vtkStdString( "Quantiles" ) )
+       || inMeta->GetMetaData( nBlocks - 1 )->Get( vtkCompositeDataSet::NAME() ) != vtkStdString( "Quantiles" ) )
     {
     return;
     }
@@ -876,52 +878,47 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
                                               vtkStringArray* rowNames,
                                               AssessFunctor*& dfunc )
 {
+  dfunc = 0;
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-  if ( ! inMeta
-       || inMeta->GetNumberOfBlocks() < 1 )
+  if ( ! inMeta )
     {
     return;
     }
 
-  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
-  if ( ! quantileTab )
+  unsigned nBlocks = inMeta->GetNumberOfBlocks();
+  if ( nBlocks < 1 )
+    {
+    return;
+    }
+
+  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( nBlocks - 1 ) );
+  if ( ! quantileTab
+       || inMeta->GetMetaData( nBlocks - 1 )->Get( vtkCompositeDataSet::NAME() ) != vtkStdString( "Quantiles" ) )
     {
     return;
     }
 
   vtkStdString varName = rowNames->GetValue( 0 );
 
-  // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( quantileTab->GetColumnByName( "Variable" ) );
-  if ( ! vars )
+  // Find the quantile column that corresponds to the variable of the request
+  vtkAbstractArray* quantCol = quantileTab->GetColumnByName( varName );
+  if ( ! quantCol )
     {
-    dfunc = 0;
+    vtkWarningMacro( "Quantile table table does not have a column "
+                     << varName.c_str()
+                     << ". Ignoring it." );
     return;
     }
 
-  // Loop over parameters table until the requested variable is found
-  vtkIdType nRowP = quantileTab->GetNumberOfRows();
-  for ( int r = 0; r < nRowP; ++ r )
+  // Grab the data for the requested variable
+  vtkAbstractArray* vals = outData->GetColumnByName( varName );
+  if ( ! vals )
     {
-    if ( vars->GetValue( r ) == varName )
-      {
-      // Grab the data for the requested variable
-      vtkAbstractArray* vals = outData->GetColumnByName( varName );
-      if ( ! vals )
-        {
-        dfunc = 0;
-        return;
-        }
-
-      // Select assess functor
-      else
-        {
-        dfunc = new StringColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
-        }
-      return;
-      }
+    return;
     }
 
-  // The variable of interest was not found in the parameter table
-  dfunc = 0;
+  // Select assess functor
+  dfunc = new StringColumnQuantizationFunctor( vals, quantileTab->GetRow( 0 ) );
+
+  // If arrived here it means that the variable of interest was not found in the parameter table
 }

@@ -722,6 +722,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
+  dfunc = 0;
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO ); 
   if ( ! inMeta )
     { 
@@ -752,7 +753,6 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
-    dfunc = 0;
     return;
     }
 
@@ -765,7 +765,6 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
       vtkAbstractArray* arr = outData->GetColumnByName( varName );
       if ( ! arr )
         {
-        dfunc = 0;
         return;
         }
       
@@ -773,7 +772,6 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
       vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
       if ( ! vals )
         {
-        dfunc = 0;
         return;
         }
 
@@ -799,7 +797,6 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
       }
     }
 
-  // The variable of interest was not found in the parameter table
-  dfunc = 0;
+  // If arrived here it means that the variable of interest was not found in the parameter table
 }
 

@@ -1050,6 +1050,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
+  dfunc = 0;
   vtkTable* contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
   if ( ! contingencyTab  )
     {
@@ -1064,7 +1065,6 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkAbstractArray* valsY = outData->GetColumnByName( varNameY );
   if ( ! valsX || ! valsY )
     {
-    dfunc = 0;
     return;
     }
 
@@ -1080,7 +1080,6 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     para.push_back( vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( this->AssessParameters->GetValue( p ) ) ) );
     if ( ! para[p] )
       {
-      dfunc = 0;
       return;
       }
     }
@@ -1135,7 +1134,6 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
                      << varNameY.c_str()
                      << "). Ignoring it." );
 
-    dfunc = 0;
     return;
     }
 
