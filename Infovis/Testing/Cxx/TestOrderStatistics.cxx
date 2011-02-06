@@ -480,8 +480,9 @@ int TestOrderStatistics( int, char *[] )
   os2->Update();
 
   // Get calculated model
-  outputModelDS = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles2 = vtkTable::SafeDownCast( outputModelDS->GetBlock( 2 ) );
+  outputModelDS2 = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  nbq = outputModelDS2->GetNumberOfBlocks() - 1;
+  outputQuantiles2 = vtkTable::SafeDownCast( outputModelDS2->GetBlock( nbq ) );
 
   cout << "\n## Input text (punctuation omitted):\n   "
        << text
