@@ -659,7 +659,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     for ( vtkIdType i = 0; i < nQuant; ++ i )
       {
       // Read quantile and update CDF
-      quantiles[i] = quantileTab->GetValueByName( i + 2, varName ).ToString();
+      quantiles[i] = quantileTab->GetValueByName( i, varName ).ToString();
 
       // Update empirical CDF if new value found (with unknown ECDF)
       vtksys_stl::pair<CDF::iterator,bool> result
