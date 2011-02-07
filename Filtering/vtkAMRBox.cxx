@@ -737,9 +737,9 @@ bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
       xMax = this->X0[0]+(this->DX[0]*ndim[0]);
       yMax = this->X0[1]+(this->DX[1]*ndim[1]);
 
-      this->WriteBox(
-        this->X0[0], this->X0[1], 0,
-        xMax, yMax, 0 );
+//      this->WriteBox(
+//        this->X0[0], this->X0[1], 0,
+//        xMax, yMax, 0 );
 
 
       if( x >= this->X0[0] && x <= xMax &&
@@ -751,9 +751,9 @@ bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
       yMax = this->X0[1]+(this->DX[1]*ndim[1]);
       zMax = this->X0[2]+(this->DX[2]*ndim[2]);
 
-      this->WriteBox(
-        this->X0[0], this->X0[1], this->X0[2],
-        xMax, yMax, zMax );
+//      this->WriteBox(
+//        this->X0[0], this->X0[1], this->X0[2],
+//        xMax, yMax, zMax );
 
       if( x >= this->X0[0] && x <= xMax &&
           y >= this->X0[1] && y <= yMax &&
