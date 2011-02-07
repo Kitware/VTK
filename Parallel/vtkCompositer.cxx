@@ -69,10 +69,10 @@ void vtkCompositer::SetController(vtkMultiProcessController *mpc)
 void vtkCompositer::CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
                                     vtkDataArray *pTmp, vtkFloatArray *zTmp)
 {
-  pBuf = pBuf;
-  zBuf = zBuf;
-  pTmp = pTmp;
-  zTmp = zTmp;
+  (void)pBuf;
+  (void)zBuf;
+  (void)pTmp;
+  (void)zTmp;
 }
 
 //-------------------------------------------------------------------------

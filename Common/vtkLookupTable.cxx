@@ -16,6 +16,7 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkMathConfigure.h"
 #include <assert.h>
 
 vtkStandardNewMacro(vtkLookupTable);
@@ -355,17 +356,11 @@ inline double vtkApplyLogScale(double v, const double range[2],
 
 //----------------------------------------------------------------------------
 // Apply shift/scale to the scalar value v and do table lookup.
-inline unsigned char *vtkLinearLookup(double v,
-                                      unsigned char *table,
-                                      double maxIndex,
-                                      double shift, double scale,
-                                      unsigned char *nanColor)
+inline unsigned char *vtkLinearLookupMain(double v,
+                                          unsigned char *table,
+                                          double maxIndex,
+                                          double shift, double scale)
 {
-  if (vtkMath::IsNan(v))
-    {
-    return nanColor;
-    }
-
   double findx = (v + shift)*scale;
   if (findx < 0.0)
     {
@@ -379,6 +374,41 @@ inline unsigned char *vtkLinearLookup(double v,
   /* round
   return &table[4*(unsigned int)(findx + 0.5f)];
   */
+}
+
+template<class T>
+unsigned char *vtkLinearLookup(
+  T v, unsigned char *table, double maxIndex, double shift, double scale,
+  unsigned char *vtkNotUsed(nanColor))
+{
+  return vtkLinearLookupMain(v, table, maxIndex, shift, scale);
+}
+
+//----------------------------------------------------------------------------
+// Check for not-a-number when mapping double or float
+inline unsigned char *vtkLinearLookup(
+  double v, unsigned char *table, double maxIndex, double shift, double scale,
+  unsigned char *nanColor)
+{
+  // calling isnan() instead of vtkMath::IsNan() improves performance
+#ifdef VTK_HAS_ISNAN
+  if (isnan(v))
+#else
+  if (vtkMath::IsNan(v))
+#endif
+    {
+    return nanColor;
+    }
+
+  return vtkLinearLookupMain(v, table, maxIndex, shift, scale);
+}
+
+inline unsigned char *vtkLinearLookup(
+  float v, unsigned char *table, double maxIndex, double shift, double scale,
+  unsigned char *nanColor)
+{
+  return vtkLinearLookup(static_cast<double>(v), table, maxIndex, shift, scale,
+                         nanColor);
 }
 
 //----------------------------------------------------------------------------
@@ -482,8 +512,6 @@ unsigned char *vtkLookupTable::MapValue(double v)
 }
 
 //----------------------------------------------------------------------------
-// accelerate the mapping by copying the data in 32-bit chunks instead
-// of 8-bit chunks
 template<class T>
 void vtkLookupTableMapData(vtkLookupTable *self, T *input, 
                            unsigned char *output, int length, 
@@ -498,9 +526,10 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
   double alpha;
 
   unsigned char nanColor[4];
+  const double *nanColord = self->GetNanColor();
   for (int c = 0; c < 4; c++)
     {
-    nanColor[c] = static_cast<unsigned char>(self->GetNanColor()[c]*255.0);
+    nanColor[c] = static_cast<unsigned char>(nanColord[c]*255.0);
     }
 
   if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required 
@@ -527,11 +556,12 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           val = vtkApplyLogScale(*input, range, logRange);
           cptr = vtkLinearLookup(val, table, maxIndex, shift, scale, nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;     
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
+          output[3] = cptr[3];
           input += inIncr;
+          output += 4;
           }
         }
       else if (outFormat == VTK_RGB)
@@ -540,10 +570,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           val = vtkApplyLogScale(*input, range, logRange);
           cptr = vtkLinearLookup(val, table, maxIndex, shift, scale, nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
           input += inIncr;
+          output += 3;
           }
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
@@ -552,10 +583,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           val = vtkApplyLogScale(*input, range, logRange);
           cptr = vtkLinearLookup(val, table, maxIndex, shift, scale, nanColor);
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
-          *output++ = cptr[3];
+          output[1] = cptr[3];
           input += inIncr;
+          output += 2;
           }
         }
       else // outFormat == VTK_LUMINANCE
@@ -591,11 +623,12 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale,
                                  nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;     
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
+          output[3] = cptr[3];
           input += inIncr;
+          output += 4;
           }
         }
       else if (outFormat == VTK_RGB)
@@ -604,10 +637,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale,
                                  nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
           input += inIncr;
+          output += 3;
           }
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
@@ -616,10 +650,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale,
                                  nanColor);
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
-          *output++ = cptr[3];
+          output[1] = cptr[3];
           input += inIncr;
+          output += 2;
           }
         }
       else // outFormat == VTK_LUMINANCE
@@ -660,11 +695,12 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           val = vtkApplyLogScale(*input, range, logRange);
           cptr = vtkLinearLookup(val, table, maxIndex, shift, scale, nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = static_cast<unsigned char>((*cptr)*alpha); cptr++;
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
+          output[3] = static_cast<unsigned char>(cptr[3]*alpha);
           input += inIncr;
+          output += 4;
           }
         }
       else if (outFormat == VTK_RGB)
@@ -673,10 +709,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           val = vtkApplyLogScale(*input, range, logRange);
           cptr = vtkLinearLookup(val, table, maxIndex, shift, scale, nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
           input += inIncr;
+          output += 3;
           }
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
@@ -685,10 +722,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           val = vtkApplyLogScale(*input, range, logRange);
           cptr = vtkLinearLookup(val, table, maxIndex, shift, scale, nanColor);
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
-          *output++ = static_cast<unsigned char>(alpha*cptr[3]);
+          output[1] = static_cast<unsigned char>(alpha*cptr[3]);
           input += inIncr;
+          output += 2;
           }
         }
       else // outFormat == VTK_LUMINANCE
@@ -724,11 +762,12 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale,
                                  nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = static_cast<unsigned char>((*cptr)*alpha); cptr++;
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
+          output[3] = static_cast<unsigned char>(cptr[3]*alpha);
           input += inIncr;
+          output += 4;
           }
         }
       else if (outFormat == VTK_RGB)
@@ -737,10 +776,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale,
                                  nanColor);
-          *output++ = *cptr++;
-          *output++ = *cptr++;
-          *output++ = *cptr++;
+          output[0] = cptr[0];
+          output[1] = cptr[1];
+          output[2] = cptr[2];
           input += inIncr;
+          output += 3;
           }
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
@@ -749,10 +789,11 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           {
           cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale,
                                  nanColor);
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
-          *output++ = static_cast<unsigned char>(cptr[3]*alpha);
+          output[1] = static_cast<unsigned char>(cptr[3]*alpha);
           input += inIncr;
+          output += 2;
           }
         }
       else // outFormat == VTK_LUMINANCE

@@ -43,36 +43,8 @@
 //-----------------------------------------------------------------------------
 namespace {
 
-// See if the point is within tolerance on x and between base and extent on Y.
-bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
-             const vtkVector3f& current)
-{
-  if (current.X() > point.X() - tol.X() && current.X() < point.X() + tol.X() &&
-      point.Y() > current.Y() && point.Y() < current.Z())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
 // Compare the two vectors, in X component only
 bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
-{
-  if (v1.X() < v2.X())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
-// Compare the two vectors, in X component only
-bool compVector3fX(const vtkVector3f& v1, const vtkVector3f& v2)
 {
   if (v1.X() < v2.X())
     {

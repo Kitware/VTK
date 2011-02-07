@@ -160,7 +160,10 @@ int vtkWrap_IsInteger(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
 
-  t = (t & ~VTK_PARSE_UNSIGNED);
+  if (t != VTK_PARSE_UNSIGNED_CHAR)
+    {
+    t = (t & ~VTK_PARSE_UNSIGNED);
+    }
   switch (t)
     {
     case VTK_PARSE_SHORT:
@@ -169,6 +172,7 @@ int vtkWrap_IsInteger(ValueInfo *val)
     case VTK_PARSE_ID_TYPE:
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
+    case VTK_PARSE_UNSIGNED_CHAR:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_SSIZE_T:
       return 1;

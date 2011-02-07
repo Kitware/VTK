@@ -21,37 +21,20 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxSetObjectMacro(vtkXMLPStructuredDataWriter, ExtentTranslator,
-                     vtkExtentTranslator);
-
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter()
 {
-  this->ExtentTranslator = vtkExtentTranslator::New();
 }
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::~vtkXMLPStructuredDataWriter()
 {
-  if (this->ExtentTranslator)
-    {
-    this->ExtentTranslator->Delete();
-    this->ExtentTranslator = 0;
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  if(this->ExtentTranslator)
-    {
-    os << indent << "ExtentTranslator: " << this->ExtentTranslator << "\n";
-    }
-  else
-    {
-    os << indent << "ExtentTranslator: (none)\n";
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -69,11 +52,14 @@ void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
   vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
     inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+
+  et->SetNumberOfPieces(this->GetNumberOfPieces());
+  et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   et->SetPiece(index);
   et->SetGhostLevel(0);
   et->PieceToExtent();
   et->GetExtent(extent);
-  
+
   this->WriteVectorAttribute("Extent", 6, extent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
@@ -89,6 +75,9 @@ vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
   vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
     inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+
+  et->SetNumberOfPieces(this->GetNumberOfPieces());
+  et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   et->SetPiece(index);
   et->SetGhostLevel(0);
   et->PieceToExtent();

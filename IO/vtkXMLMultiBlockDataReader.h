@@ -57,6 +57,14 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation* info);
 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
+                                 vtkInformationVector*);
+
+  virtual int FillMetaData(vtkCompositeDataSet* metadata,
+                           vtkXMLDataElement* element,
+                           unsigned int& dataSetIndex);
+
 private:
   vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&);  // Not implemented.
   void operator=(const vtkXMLMultiBlockDataReader&);  // Not implemented.

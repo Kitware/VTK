@@ -38,6 +38,7 @@
 #cmakedefine VTK_USE_SPROC
 #cmakedefine VTK_HP_PTHREADS
 #cmakedefine VTK_USE_WIN32_THREADS
+# define VTK_MAX_THREADS @VTK_MAX_THREADS@
 
 /* Size of fundamental data types.  */
 /* Mac OS X uses two data models, ILP32 (in which integers, long integers,

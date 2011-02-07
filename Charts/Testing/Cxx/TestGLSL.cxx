@@ -32,6 +32,7 @@
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkNew.h"
 
 #include "vtkRegressionTestImage.h"
 
@@ -69,9 +70,6 @@ const char* SimpleFragmentShader2 =
 "    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
 "}\n";
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 //----------------------------------------------------------------------------
 class GLSLTestItem : public vtkContextItem
 {
@@ -93,11 +91,11 @@ public:
 int TestGLSL( int, char * [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
-  VTK_CREATE(vtkContextView, view);
+  vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(200, 200);
-  VTK_CREATE(GLSLTestItem, test);
-  view->GetScene()->AddItem(test);
+  vtkNew<GLSLTestItem> test;
+  view->GetScene()->AddItem(test.GetPointer());
 
   // Ensure that there is a valid OpenGL context - Mac inconsistent behavior.
   view->GetRenderWindow()->SetMultiSamples(0);

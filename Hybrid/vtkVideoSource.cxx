@@ -25,10 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkWindows.h"
-
-#include <ctype.h>
-#include <time.h>
+#include "vtksys/SystemTools.hxx"
 
 //---------------------------------------------------------------
 // Important FrameBufferMutex rules:
@@ -463,22 +460,6 @@ void vtkVideoSource::InternalGrab()
 }
 
 //----------------------------------------------------------------------------
-// platform-independent sleep function
-static inline void vtkSleep(double duration)
-{
-  duration = duration; // avoid warnings
-  // sleep according to OS preference
-#ifdef _WIN32
-  Sleep((int)(1000*duration));
-#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
-  struct timespec sleep_time, dummy;
-  sleep_time.tv_sec = (int)duration;
-  sleep_time.tv_nsec = (int)(1000000000*(duration-sleep_time.tv_sec));
-  nanosleep(&sleep_time,&dummy);
-#endif
-}
-
-//----------------------------------------------------------------------------
 // Sleep until the specified absolute time has arrived.
 // You must pass a handle to the current thread.  
 // If '0' is returned, then the thread was aborted before or during the wait.
@@ -490,7 +471,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
     double remaining = time - vtkTimerLog::GetUniversalTime();
 
     // check to see if we have reached the specified time
-    if (remaining <= 0)
+    if (remaining <= 0.0)
       {
       if (i == 0)
         {
@@ -514,7 +495,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
       break;
       }
 
-    vtkSleep(remaining);
+    vtksys::SystemTools::Delay(static_cast<unsigned int>(remaining * 1000.0));
     }
 
   return 0;

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageMultipleInputFilter - Generic filter that has N inputs.
 // .SECTION Description
-// vtkImageMultipleInputFilter is a super class for filters that 
+// vtkImageMultipleInputFilter is a super class for filters that
 // have any number of inputs. Streaming is not available in this class yet.
 
 // .SECTION See Also
@@ -36,7 +36,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set an Input of this filter. 
+  // Set an Input of this filter.
   virtual void SetInput(int num, vtkImageData *input);
 
   // Description:
@@ -44,7 +44,7 @@ public:
   // Expands the list memory if necessary
   virtual void AddInput(vtkImageData *input);
   virtual void RemoveInput(vtkImageData *input);
-  
+
   // Description:
   // Get one input to this filter.
   vtkImageData *GetInput(int num);
@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Turning bypass on will cause the filter to turn off and
-  // simply pass the data from the first input (input0) through.  
+  // simply pass the data from the first input (input0) through.
   // It is implemented for consistency with vtkImageToImageFilter.
   vtkSetMacro(Bypass,int);
   vtkGetMacro(Bypass,int);
@@ -65,14 +65,14 @@ public:
 
   // Description:
   // Putting this here until I merge graphics and imaging streaming.
-  virtual int SplitExtent(int splitExt[6], int startExt[6], 
+  virtual int SplitExtent(int splitExt[6], int startExt[6],
                           int num, int total);
 
   // Description:
   // The execute method created by the subclass.
   // This is kept public instead of protected since it is called
   // from a non-member thread function.
-  virtual void ThreadedExecute(vtkImageData **inDatas, 
+  virtual void ThreadedExecute(vtkImageData **inDatas,
                                vtkImageData *outData,
                                int extent[6], int threadId);
 
@@ -87,9 +87,9 @@ protected:
   int NumberOfThreads;
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
-  
-  virtual void ComputeInputUpdateExtent( int inExt[6], 
-                                         int outExt[6], 
+
+  virtual void ComputeInputUpdateExtent( int inExt[6],
+                                         int outExt[6],
                                          int whichInput );
 
 

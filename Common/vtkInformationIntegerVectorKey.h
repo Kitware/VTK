@@ -39,6 +39,7 @@ public:
   // information object.
   void Append(vtkInformation* info, int value);
   void Set(vtkInformation* info, int* value, int length);
+  void Set(vtkInformation* info);
   int* Get(vtkInformation* info);
   int  Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, int* value);

@@ -198,7 +198,7 @@ typedef struct
    bool           defined;    // Has this field already been defined in the
                               //    MetaFile being parsed
    int            length;     // Actual/expect length of an array
-   double         value[255]; // Memory and pointers for the field's value(s).
+   double         value[4096]; // Memory and pointers for the field's value(s).
    bool           terminateRead;  // Set to true if field indicates end of 
                                   //   meta data
    } MET_FieldRecordType;

@@ -525,7 +525,7 @@ png_handle_IEND(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
    {
       png_error(png_ptr, "No image in file");
 
-      info_ptr = info_ptr; /* quiet compiler warnings about unused info_ptr */
+      (void)info_ptr; /* quiet compiler warnings about unused info_ptr */
    }
 
    png_ptr->mode |= (PNG_AFTER_IDAT | PNG_HAVE_IEND);

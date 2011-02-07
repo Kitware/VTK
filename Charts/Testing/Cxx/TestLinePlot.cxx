@@ -22,31 +22,31 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkNew.h"
 
 //----------------------------------------------------------------------------
 int TestLinePlot( int, char * [] )
 {
   // Set up a 2D scene, add an XY chart to it
-  vtkSmartPointer<vtkContextView> view =
-      vtkSmartPointer<vtkContextView>::New();
+  vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
-  vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
-  view->GetScene()->AddItem(chart);
+  vtkNew<vtkChartXY> chart;
+  view->GetScene()->AddItem(chart.GetPointer());
 
   // Create a table with some points in it...
-  vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
-  vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
+  vtkNew<vtkTable> table;
+  vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX);
-  vtkSmartPointer<vtkFloatArray> arrC = vtkSmartPointer<vtkFloatArray>::New();
+  table->AddColumn(arrX.GetPointer());
+  vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC);
-  vtkSmartPointer<vtkFloatArray> arrS = vtkSmartPointer<vtkFloatArray>::New();
+  table->AddColumn(arrC.GetPointer());
+  vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS);
-  vtkSmartPointer<vtkFloatArray> arrS2 = vtkSmartPointer<vtkFloatArray>::New();
+  table->AddColumn(arrS.GetPointer());
+  vtkNew<vtkFloatArray> arrS2;
   arrS2->SetName("Sine2");
-  table->AddColumn(arrS2);
+  table->AddColumn(arrS2.GetPointer());
   // Test charting with a few more points...
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
@@ -61,15 +61,15 @@ int TestLinePlot( int, char * [] )
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 1);
+  line->SetInput(table.GetPointer(), 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 2);
+  line->SetInput(table.GetPointer(), 0, 2);
   line->SetColor(255, 0, 0, 255);
   line->SetWidth(5.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 3);
+  line->SetInput(table.GetPointer(), 0, 3);
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
 
