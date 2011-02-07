@@ -223,7 +223,7 @@ public:
 
   // Description:
   // Intersect this box with another box in place.
-  void operator&=(const vtkAMRBox &rhs);
+  //void operator&=(const vtkAMRBox &rhs);
 
   // Description:
   // Test to see if a given cell index is inside this box.

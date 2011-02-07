@@ -41,6 +41,8 @@ vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,REFINEMENT_RATIO,Integer);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX_DIMENSIONALITY,Integer);
 vtkInformationKeyRestrictedMacro(
     vtkHierarchicalBoxDataSet,BOX_ORIGIN,DoubleVector, 3);
+vtkInformationKeyRestrictedMacro(
+    vtkHierarchicalBoxDataSet,SPACING,DoubleVector, 3);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,RANK,Integer);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BLOCK_ID,Integer);
 vtkInformationKeyRestrictedMacro(
@@ -143,7 +145,13 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
     this->Superclass::GetChild(level));
   if (levelDS)
     {
-    levelDS->SetPiece(id, dataSet);
+
+    // If this dataSet != NULL, i.e., it is owned by this process
+    if( dataSet != NULL )
+      {
+      levelDS->SetPiece(id, dataSet);
+      }
+
     vtkInformation* info = levelDS->GetMetaData(id);
     if (info)
       {
@@ -157,6 +165,10 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
       info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
       info->Set(RANK(), box.GetProcessId() );
       info->Set(BLOCK_ID(), box.GetBlockId() );
+
+      double spacing[3];
+      box.GetGridSpacing( spacing );
+      info->Set(SPACING(),spacing[0],spacing[1],spacing[2]);
 
       int realExtent[6];
       box.GetRealExtent( realExtent );
@@ -203,13 +215,18 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
       vtkAssertUtils::assertTrue(info->Has(BLOCK_ID()),__FILE__,__LINE__);
       vtkAssertUtils::assertTrue(info->Has(REAL_EXTENT()),__FILE__,__LINE__);
 
+      box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
       int *dims = info->Get( BOX() );
       box.SetDimensions(dims,dims+3);
-      box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
       box.SetDataSetOrigin( info->Get( BOX_ORIGIN() ) );
       box.SetProcessId( info->Get( RANK() ) );
       box.SetBlockId( info->Get( BLOCK_ID() ) );
       box.SetRealExtent( info->Get( REAL_EXTENT() ) );
+      box.SetLevel( level );
+
+      double *spacing = info->Get( SPACING() );
+      vtkAssertUtils::assertNotNull( spacing, __FILE__, __LINE__ );
+      box.SetGridSpacing( spacing );
 
 //      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
 //          info->Get()
@@ -372,6 +389,8 @@ void vtkHierarchicalBoxDataSet::GeneratePointVisibility(
     vtkAMRBox fineBox;
     vtkUniformGrid *fineGrid = this->GetDataSet(
      nextLevel, dataIdx, fineBox );
+    vtkAssertUtils::assertEquals(
+     fineBox.GetLevel(), nextLevel,__FILE__,__LINE__);
 
     unsigned int pnt = 0;
     for( ; pnt < coarseGrid->GetNumberOfPoints(); ++pnt )

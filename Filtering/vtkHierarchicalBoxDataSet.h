@@ -168,6 +168,7 @@ public:
   static vtkInformationIntegerKey* REFINEMENT_RATIO();
   static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
   static vtkInformationDoubleVectorKey* BOX_ORIGIN();
+  static vtkInformationDoubleVectorKey* SPACING();
   static vtkInformationIntegerKey* RANK();
   static vtkInformationIntegerKey* BLOCK_ID();
   static vtkInformationIntegerVectorKey* REAL_EXTENT();

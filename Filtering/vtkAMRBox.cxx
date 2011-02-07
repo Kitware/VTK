@@ -166,6 +166,7 @@ vtkAMRBox::vtkAMRBox(
 {
   // Sanity Check!
   vtkAssertUtils::assertInRange( dim, 2, 3, __FILE__, __LINE__ );
+  vtkAssertUtils::assertTrue( (level>=0), __FILE__, __LINE__ );
 
   this->Dimension = dim;
 
@@ -305,7 +306,7 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
   other.GetDimensions(lo,hi);
   this->SetDimensions(lo,hi);
   this->SetGridSpacing(other.GetGridSpacing());
-  this->SetDataSetOrigin(other.GetDataSetOrigin());
+  this->SetDataSetOrigin( other.GetDataSetOrigin() );
   this->ProcessId  = other.ProcessId;
   this->BlockId    = other.BlockId;
   this->BlockLevel = other.BlockLevel;
@@ -515,6 +516,8 @@ void vtkAMRBox::GetBoxOrigin(double *x0) const
   x0[0] = this->X0[0];
   x0[1] = this->X0[1];
   x0[2] = this->X0[2];
+
+// TODO: ?
 //  x0[0]=this->X0[0]+this->DX[0]*this->LoCorner[0];
 //  if (this->Dimension>=2)
 //    {
@@ -812,37 +815,37 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::operator&=(const vtkAMRBox &other)
-{
-  if (this->Dimension!=other.Dimension)
-    {
-    vtkGenericWarningMacro(
-      "Can't operate on a " << this->Dimension
-      << "D box with a " << other.Dimension << "D box.");
-    return;
-    }
-  if (this->Empty())
-    {
-    return;
-    }
-  if (other.Empty())
-    {
-    this->Invalidate();
-    return;
-    }
-
-  int otherLo[3];
-  int otherHi[3];
-  other.GetDimensions(otherLo,otherHi);
-  int lo[3];
-  int hi[3];
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
-    hi[q]=(this->HiCorner[q]<otherHi[q] ? this->HiCorner[q] : otherHi[q]);
-    }
-  this->SetDimensions(lo,hi);
-}
+//void vtkAMRBox::operator&=(const vtkAMRBox &other)
+//{
+//  if (this->Dimension!=other.Dimension)
+//    {
+//    vtkGenericWarningMacro(
+//      "Can't operate on a " << this->Dimension
+//      << "D box with a " << other.Dimension << "D box.");
+//    return;
+//    }
+//  if (this->Empty())
+//    {
+//    return;
+//    }
+//  if (other.Empty())
+//    {
+//    this->Invalidate();
+//    return;
+//    }
+//
+//  int otherLo[3];
+//  int otherHi[3];
+//  other.GetDimensions(otherLo,otherHi);
+//  int lo[3];
+//  int hi[3];
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
+//    hi[q]=(this->HiCorner[q]<otherHi[q] ? this->HiCorner[q] : otherHi[q]);
+//    }
+//  this->SetDimensions(lo,hi);
+//}
 
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i,int j,int k) const
@@ -1386,10 +1389,11 @@ void vtkAMRBox::WriteBox(
   std::ofstream ofs;
   ofs.open( oss.str().c_str( ) );
   vtkAssertUtils::assertTrue( ofs.is_open(), __FILE__, __LINE__ );
+
   ofs << "# vtk DataFile Version 3.0\n";
   ofs << oss.str( ) << std::endl;
   ofs << "ASCII\n";
-  ofs << "DATA_SET_UNSTUCTURED_GRID\n";
+  ofs << "DATASET UNSTRUCTURED_GRID\n";
   ofs << "POINTS 8 double\n";
   ofs << x << " " << y << " " << z << std::endl;
   ofs << X << " " << y << " " << z << std::endl;
@@ -1403,6 +1407,7 @@ void vtkAMRBox::WriteBox(
   ofs << "8 0 1 2 3 4 5 6 7\n";
   ofs << "CELL_TYPES 1\n";
   ofs << "12\n";
+
   ofs.close( );
 }
 
