@@ -7,9 +7,9 @@
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*=========================================================================
@@ -42,22 +42,35 @@ SOFTWARE should be clearly marked, so as not to confuse it with the
 version available from Los Alamos National Laboratory.
 
 =========================================================================*/
-// .NAME vtkMPASReader - Read an MPAS netCFD file
+// .NAME vtkMPASReader - Read an MPAS netCDF file
 // .SECTION Description
 // This program reads an MPAS netCDF data file to allow paraview to
-// display a dual-grid sphere.
+// display a dual-grid sphere or latlon projection.  Also allows
+// display of primal-grid sphere.
 // The variables that have time dim are available to ParaView.
 //
 // Assume all variables are of interest if they have dims
 // (Time, nCells|nVertices, nVertLevels, [nTracers])
-// Converts variable data type from double to float.
 // Assume no more than 100 vars each for cell and point data
-// Displays tracer vars as tracer1, tracer2, etc.
 // Does not deal with edge data.
 //
-// Christine Ahrens
-// 8/9/2010
-// Version 1.2
+// When using this reader, it is important that you remember to do the
+//following:
+//   1.  When changing a selected variable, remember to select it also
+//       in the drop down box to "color by".  It doesn't color by that variable
+//       automatically.
+//   2.  When selecting multilayer sphere view, make layer thickness around
+//       100,000.
+//   3.  When selecting multilayer lat/lon view, make layer thickness around 10.
+//   4.  Always click the -Z orientation after making a switch from lat/lon to
+//       sphere, from single to multilayer or changing thickness.
+//   5.  Be conservative on the number of changes you make before hitting Apply,
+//       since there may be bugs in this reader.  Just make one change and then
+//       hit Apply.
+
+//
+// Christine Ahrens (cahrens@lanl.gov)
+// Version 1.3
 
 #ifndef __vtkMPASReader_h
 #define __vtkMPASReader_h
@@ -69,7 +82,7 @@ version available from Los Alamos National Laboratory.
 
 class vtkCallbackCommand;
 class vtkDataArraySelection;
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkStdString;
 class vtkStringArray;
 
@@ -87,15 +100,16 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   // Description:
   // Get the number of data cells
-  vtkGetMacro(NumberOfDualCells, int);
+  vtkGetMacro(maxCells, int);
 
   // Description:
   // Get the number of points
-  vtkGetMacro(NumberOfDualPoints, int);
+  vtkGetMacro(maxPoints, int);
 
   // Description:
   // Get the number of data variables at the cell centers and points
-  vtkGetMacro(NumberOfVariables, int);
+  vtkGetMacro(numCellVars, int);
+  vtkGetMacro(numPointVars, int);
 
   // Description:
   // Get the reader's output
@@ -119,8 +133,27 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void SetCellArrayStatus(const char* name, int status);
   void DisableAllCellArrays();
   void EnableAllCellArrays();
+
   void SetVerticalLevel(int level);
   vtkGetVector2Macro(VerticalLevelRange, int);
+
+  void SetLayerThickness(int val);
+  vtkGetVector2Macro(LayerThicknessRange, int);
+
+  void SetCenterLon(int val);
+  vtkGetVector2Macro(CenterLonRange, int);
+
+  void SetProjectLatLon(bool val);
+  vtkGetMacro(ProjectLatLon, bool);
+
+  void SetIsAtmosphere(bool val);
+  vtkGetMacro(IsAtmosphere, bool);
+
+  void SetIsZeroCentered(bool val);
+  vtkGetMacro(IsZeroCentered, bool);
+
+  void SetShowMultilayerView(bool val);
+  vtkGetMacro(ShowMultilayerView, bool);
 
   // Description:
   // Returns true if the given file can be read.
@@ -129,6 +162,7 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
  protected:
   vtkMPASReader();
   ~vtkMPASReader();
+  void DestroyData();
 
   char *FileName;         // First field part file giving path
   /*
@@ -137,11 +171,8 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   */
 
   //  int NumberOfPieces;         // Number of files in dataset
-  vtkIdType NumberOfDualPoints;       // Number of points in grid
-  vtkIdType NumberOfDualCells;        // Number of cells in grid
   // vtkIdType NumberOfTuples;        // Number of tuples in sub extent
 
-  int NumberOfVariables;      // Number of variables to display
   vtkStdString* VariableName;     // Names of each variable
   int* VariableType;          // Scalar, vector or tensor
 
@@ -149,15 +180,6 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   double* TimeSteps;          // Times available for request
   double dTime;
 
-  vtkFloatArray** dualCellVarData;    // Actual data arrays
-  vtkFloatArray** dualPointVarData;   // Actual data arrays
-
-  // Selected field of interest
-  vtkDataArraySelection* PointDataArraySelection;
-  vtkDataArraySelection* CellDataArraySelection;
-
-  int VerticalLevelSelected;
-  int VerticalLevelRange[2];
 
   // Observer to modify this object when array selections are modified
   vtkCallbackCommand* SelectionObserver;
@@ -167,9 +189,6 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int RequestInformation(vtkInformation *, vtkInformationVector **,
                          vtkInformationVector *);
 
-  void LoadGeometryData(int var, double dTime);
-  void LoadPointData(int var);
-  void LoadCellData(int var);
 
   static void SelectionCallback(vtkObject* caller, unsigned long eid,
                                 void* clientdata, void* calldata);
@@ -177,21 +196,88 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   bool infoRequested;
   bool dataRequested;
 
-  char tracerNames[MAX_VAR_NAME][MAX_VARS];
-  int numDualCellVars;
-  int numDualPointVars;
-  double* primalPointVarData;
-  double* primalCellVarData;
-  int ReadAndOutputDualGrid();
+  // params
+
+  // Selected field of interest
+  vtkDataArraySelection* PointDataArraySelection;
+  vtkDataArraySelection* CellDataArraySelection;
+
+  vtkDoubleArray** cellVarDataArray;    // Actual data arrays
+  vtkDoubleArray** pointVarDataArray;   // Actual data arrays
+
+  int VerticalLevelSelected;
+  int VerticalLevelRange[2];
+
+  int LayerThickness;
+  int LayerThicknessRange[2];
+
+  int CenterLon;
+  int CenterLonRange[2];
+
+  bool ProjectLatLon;
+  bool IsAtmosphere;
+  bool IsZeroCentered;
+  bool ShowMultilayerView;
+
+  bool includeTopography;
+  bool doBugFix;
+  double centerRad;
+
+
+  // geometry
+  int nVertLevels;
+  int maxNVertLevels;
+  int numCells;
+  int numPoints;
+  int cellOffset;
+  int pointOffset;
+  int pointsPerCell;
+  int currentExtraPoint;  // current extra point
+  int currentExtraCell;   // current extra  cell
+  double* pointX;      // x coord of point
+  double* pointY;      // y coord of point
+  double* pointZ;      // z coord of point
+  int modNumPoints;
+  int modNumCells;
+  int* origConnections;   // original connections
+  int* modConnections;    // modified connections
+  int* cellMap;           // maps from added cell to original cell #
+  int* pointMap;          // maps from added point to original point #
+  int* maxLevelPoint;      //
+  int maxCells;           // max cells
+  int maxPoints;          // max points
+  int verticalIndex;      // for singleLayer, which vertical level
+
+  // vars
+  int numCellVars;
+  int numPointVars;
+  double* pointVarData;
+  double* cellVarData;
+
+  void SetDefaults();
+  int GetNcDims();
+  int CheckParams();
+  int GetNcVars(const char* cellDimName, const char* pointDimName);
+  int ReadAndOutputGrid(bool init);
   int ReadAndOutputVariableData();
+  int BuildVarArrays();
+  int AllocSphereGeometry();
+  int AllocLatLonGeometry();
+  void ShiftLonData();
+  int AddMirrorPoint(int index, double dividerX);
+  void FixPoints();
+  int EliminateXWrap();
+  void OutputPoints(bool init);
+  void OutputCells(bool init);
+  unsigned char GetCellType();
+  void LoadGeometryData(int var, double dTime);
   int LoadPointVarData(int variable, double dTime);
   int LoadCellVarData(int variable, double dTime);
-  int BuildVarArrays();
+  int RegenerateGeometry();
 
  private:
   vtkMPASReader(const vtkMPASReader&);    // Not implemented.
   void operator=(const vtkMPASReader&); // Not implemented.
-
   class Internal;
   Internal *Internals;
 
