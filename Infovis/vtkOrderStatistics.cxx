@@ -346,9 +346,6 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  // Decide once for all whether midpoint interpolation will be needed
-  bool midPt = ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps ? 1 : 0 );
-
   // Iterate over primary tables
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
@@ -413,22 +410,28 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       probaCol->SetValue( r, p );
       }
 
-    // Now calculate and store quantile indices
-    vtksys_stl::vector<vtkIdType> quantileRankInHisto;
+    // Storage for quantile indices
+    vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> > quantileIndices;
+    vtksys_stl::pair<vtkIdType,vtkIdType> qIdxPair;
 
-    // First quantile index is always 1 (correspoding to the first and the smallest value)
-    quantileRankInHisto.push_back( 1 );
+    // First quantile index is always 1 with no jump (corresponding to the first and the smallest value)
+    qIdxPair.first = 1;
+    qIdxPair.second = 1;
+    quantileIndices.push_back( qIdxPair );
 
     // Calculate all interior quantiles (i.e. for 0 < k < q)
     vtkIdType rank = 1;
     double dh = n / static_cast<double>( this->NumberOfIntervals );
     for ( vtkIdType k = 1; k < this->NumberOfIntervals; ++ k )
       {
-      // Calculate quantile index
-      vtkIdType qi = static_cast<vtkIdType>( ceil( k * dh ) );
+      // Calculate np value
+      double np = k * dh;
 
-      // Find rank of the entry where quantile index is reached using the CDF
-      while ( qi > cdf[rank] )
+      // Calculate first quantile index
+      vtkIdType qIdx1 = static_cast<vtkIdType>( ceil( np ) );
+
+      // Find rank of the entry where first quantile index is reached using the CDF
+      while ( qIdx1 > cdf[rank] )
         {
         ++ rank;
 
@@ -439,18 +442,50 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                          << " the CDF is  "
                          << cdf[rank]
                          <<" < "
-                         << qi
+                         << qIdx1
                          << " the quantile index. Cannot derive model." );
           return;
           }
         }
 
-      // Save rank
-      quantileRankInHisto.push_back( rank );
+      // Store rank in histogram of first quantile index
+      qIdxPair.first = rank;
+
+      // Calculate second quantile index for mid-point interpolation
+      vtkIdType qIdx2 = static_cast<vtkIdType>( floor( np + 1. ) );
+
+      // If the two quantile indices differ find rank where second is reached
+      if ( qIdx1 != qIdx2 )
+        {
+        while ( qIdx2 > cdf[rank] )
+          {
+          ++ rank;
+
+          if ( rank > nRowHist )
+            {
+            vtkErrorMacro( "Inconsistent quantile table: at last rank "
+                           << rank
+                           << " the CDF is  "
+                           << cdf[rank]
+                           <<" < "
+                           << qIdx2
+                           << " the quantile index. Cannot derive model." );
+            return;
+            }
+          }
+        }
+
+      // Store rank in histogram of second quantile index
+      qIdxPair.second = rank;
+
+      // Store pair of ranks
+      quantileIndices.push_back( qIdxPair );
       }
 
-    // Last quantile index is always the cardinality (correspoding to the last and thus largest value)
-    quantileRankInHisto.push_back( nRowHist - 1 );
+    // Last quantile index is always cardinality with no jump (corresponding to the last and thus largest value)
+    qIdxPair.first = nRowHist - 1;
+    qIdxPair.second = nRowHist - 1;;
+    quantileIndices.push_back( qIdxPair );
 
     // Finally prepare quantile values column
     vtkStdString varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
@@ -468,17 +503,36 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       quantileTab->AddColumn( quantCol );
       quantCol->Delete();
 
-      // Compute and store quantile values
-      vtkIdType k = 0;
-      for ( vtksys_stl::vector<vtkIdType>::iterator it = quantileRankInHisto.begin();
-            it != quantileRankInHisto.end(); ++ it, ++ k )
+      // Decide whether midpoint interpolation will be used for this numeric type input
+      if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
         {
-        // Retrieve data value from rank into histogram
-        double Qp = dvals->GetTuple1( *it );
+        // Compute and store quantile values
+        vtkIdType k = 0;
+        for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+              qit != quantileIndices.end(); ++ qit, ++ k )
+          {
+          // Retrieve data values from rank into histogram and interpolate
+          double Qp = .5 * ( dvals->GetTuple1( qit->first )
+                             + dvals->GetTuple1( qit->second ) );
 
-        // Store quantile value
-        quantCol->SetTuple1( k, Qp );
+          // Store quantile value
+          quantCol->SetTuple1( k, Qp );
+          } // qit
         }
+      else // if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+        {
+        // Compute and store quantile values
+        vtkIdType k = 0;
+        for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+              qit != quantileIndices.end(); ++ qit, ++ k )
+          {
+          // Retrieve data value from rank into histogram
+          double Qp = dvals->GetTuple1( qit->first );
+
+          // Store quantile value
+          quantCol->SetTuple1( k, Qp );
+          } // qit
+        } // else ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
       } // if ( vals->IsA("vtkDataArray") )
     else if ( vals->IsA("vtkStringArray") )
       {
@@ -494,11 +548,11 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
       // Compute and store quantile values
       vtkIdType k = 0;
-      for ( vtksys_stl::vector<vtkIdType>::iterator it = quantileRankInHisto.begin();
-            it != quantileRankInHisto.end(); ++ it, ++ k )
+      for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+            qit != quantileIndices.end(); ++ qit, ++ k )
         {
         // Retrieve data value from rank into histogram
-        vtkStdString Qp = svals->GetValue( *it );
+        vtkStdString Qp = svals->GetValue( qit->first );
 
         // Store quantile value
         quantCol->SetValue( k, Qp );
@@ -518,11 +572,11 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
       // Compute and store quantile values
       vtkIdType k = 0;
-      for ( vtksys_stl::vector<vtkIdType>::iterator it = quantileRankInHisto.begin();
-            it != quantileRankInHisto.end(); ++ it, ++ k )
+      for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+            qit != quantileIndices.end(); ++ qit, ++ k )
         {
         // Retrieve data value from rank into histogram
-        vtkVariant Qp = vvals->GetValue( *it );
+        vtkVariant Qp = vvals->GetValue( qit->first );
 
         // Store quantile value
         quantCol->SetValue( k, Qp );
