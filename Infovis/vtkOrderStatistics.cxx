@@ -428,7 +428,15 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       double np = k * dh;
 
       // Calculate first quantile index
-      vtkIdType qIdx1 = static_cast<vtkIdType>( ceil( np ) );
+      vtkIdType qIdx1;
+      if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+        {
+        qIdx1 = static_cast<vtkIdType>( round( np ) );
+        }
+      else
+        {
+        qIdx1 = static_cast<vtkIdType>( ceil( np ) );
+        }
 
       // Find rank of the entry where first quantile index is reached using the CDF
       while ( qIdx1 > cdf[rank] )
@@ -451,29 +459,33 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       // Store rank in histogram of first quantile index
       qIdxPair.first = rank;
 
-      // Calculate second quantile index for mid-point interpolation
-      vtkIdType qIdx2 = static_cast<vtkIdType>( floor( np + 1. ) );
-
-      // If the two quantile indices differ find rank where second is reached
-      if ( qIdx1 != qIdx2 )
+      // Decide whether midpoint interpolation will be used for this numeric type input
+      if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
         {
-        while ( qIdx2 > cdf[rank] )
-          {
-          ++ rank;
+        // Calculate second quantile index for mid-point interpolation
+        vtkIdType qIdx2 = static_cast<vtkIdType>( floor( np + 1. ) );
 
-          if ( rank > nRowHist )
+        // If the two quantile indices differ find rank where second is reached
+        if ( qIdx1 != qIdx2 )
+          {
+          while ( qIdx2 > cdf[rank] )
             {
-            vtkErrorMacro( "Inconsistent quantile table: at last rank "
-                           << rank
-                           << " the CDF is  "
-                           << cdf[rank]
-                           <<" < "
-                           << qIdx2
-                           << " the quantile index. Cannot derive model." );
-            return;
+            ++ rank;
+
+            if ( rank > nRowHist )
+              {
+              vtkErrorMacro( "Inconsistent quantile table: at last rank "
+                             << rank
+                             << " the CDF is  "
+                             << cdf[rank]
+                             <<" < "
+                             << qIdx2
+                             << " the quantile index. Cannot derive model." );
+              return;
+              }
             }
           }
-        }
+        } // if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
 
       // Store rank in histogram of second quantile index
       qIdxPair.second = rank;

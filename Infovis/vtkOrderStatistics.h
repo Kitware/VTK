@@ -55,8 +55,9 @@ public:
   // Description:
   // The type of quantile definition.
   enum QuantileDefinitionType {
-    InverseCDF              = 0,
-    InverseCDFAveragedSteps = 1 // Ignored for non-numeric types
+    InverseCDF              = 0, // Identical to method 1 of R
+    InverseCDFAveragedSteps = 1, // Identical to method 2 of R, ignored for non-numeric types
+    NearestObservation      = 2, // Identical to method 3 of R
     };
 //ETX
 
