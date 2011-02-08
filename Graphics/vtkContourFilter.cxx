@@ -636,20 +636,28 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
     // get the range of the input if available
     vtkInformation *fInfo = NULL;
     vtkDataArray *inscalars = this->GetInputArrayToProcess(0, inputVector);
-    vtkDataSet *input = vtkDataSet::SafeDownCast
-      (inInfo->Get(vtkDataObject::DATA_OBJECT()));
-    vtkInformationVector *miv = inInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
-    for (int index = 0; index < miv->GetNumberOfInformationObjects(); index++)
+    if (inscalars)
       {
-      vtkInformation *mInfo = miv->GetInformationObject(index);
-      const char *minfo_arrayname =
-        mInfo->Get(vtkDataObject::FIELD_ARRAY_NAME());
-      if (minfo_arrayname && !strcmp(minfo_arrayname, inscalars->GetName()))
+      vtkInformationVector *miv = inInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
+      for (int index = 0; index < miv->GetNumberOfInformationObjects(); index++)
         {
-        fInfo = mInfo;
-        break;
+        vtkInformation *mInfo = miv->GetInformationObject(index);
+        const char *minfo_arrayname =
+          mInfo->Get(vtkDataObject::FIELD_ARRAY_NAME());
+        if (minfo_arrayname && !strcmp(minfo_arrayname, inscalars->GetName()))
+          {
+          fInfo = mInfo;
+          break;
+          }
         }
       }
+    else
+      {
+      fInfo = vtkDataObject::GetActiveFieldInformation
+        (inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS,
+         vtkDataSetAttributes::SCALARS);
+      }
+
     if (!fInfo)
       {
       return 1;
