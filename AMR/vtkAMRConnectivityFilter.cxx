@@ -124,14 +124,16 @@ void vtkAMRConnectivityFilter::ComputeBlockConnectivity(const vtkAMRBox &myBox)
                       // Add to local connectivity
                       this->LocalConnectivity->InsertConnection(
                           myBox.GetBlockId(),myBox.GetLevel(),
-                          box.GetBlockId(),box.GetLevel,myRank );
+                          box.GetBlockId(),box.GetLevel(),
+                          myRank );
                     }
                   else
                     {
                       // Add to remote connectivity
                       this->LocalConnectivity->InsertConnection(
                           myBox.GetBlockId(),myBox.GetLevel(),
-                          box.GetBlockId(),box.GetLevel,myRank );
+                          box.GetBlockId(),box.GetLevel(),
+                          box.GetProcessId() );
 
                     }
 
