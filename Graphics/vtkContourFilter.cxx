@@ -634,10 +634,30 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
     // get the range of the input if available
-    vtkInformation *fInfo = 
-      vtkDataObject::GetActiveFieldInformation
-      (inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, 
-       vtkDataSetAttributes::SCALARS);
+    vtkInformation *fInfo = NULL;
+    vtkDataArray *inscalars = this->GetInputArrayToProcess(0, inputVector);
+    if (inscalars)
+      {
+      vtkInformationVector *miv = inInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
+      for (int index = 0; index < miv->GetNumberOfInformationObjects(); index++)
+        {
+        vtkInformation *mInfo = miv->GetInformationObject(index);
+        const char *minfo_arrayname =
+          mInfo->Get(vtkDataObject::FIELD_ARRAY_NAME());
+        if (minfo_arrayname && !strcmp(minfo_arrayname, inscalars->GetName()))
+          {
+          fInfo = mInfo;
+          break;
+          }
+        }
+      }
+    else
+      {
+      fInfo = vtkDataObject::GetActiveFieldInformation
+        (inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS,
+         vtkDataSetAttributes::SCALARS);
+      }
+
     if (!fInfo)
       {
       return 1;
@@ -672,11 +692,10 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
         }
 
       double inRes = 1.0;
-      if (inInfo->Has(
-                      vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION()))
+      if (inInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION()))
         {
-        inRes = inInfo->Get(
-                            vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION());
+        inRes = inInfo->Get
+          (vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION());
         }
       if (inRes >= 0.99)
         {
@@ -684,7 +703,8 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
         }
       else
         {
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority*0.1);
+        outInfo->Set
+          (vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority*0.1);
         }
       }
     return 1;

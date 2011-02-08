@@ -522,6 +522,7 @@ public:
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationDoubleVectorKey* FIELD_RANGE();
   static vtkInformationDoubleVectorKey* PIECE_FIELD_RANGE();
+  static vtkInformationStringKey* FIELD_ARRAY_NAME();
   static vtkInformationIntegerVectorKey* PIECE_EXTENT();
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationDoubleVectorKey* ORIGIN();

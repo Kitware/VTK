@@ -193,11 +193,13 @@ int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
     {
     vtkXMLDataElement* eNested = eDSA->GetNestedElement(i);
     vtkInformation *info = infoVector->GetInformationObject(i);
-    
+
     double range[2];
     if (eNested->GetScalarAttribute("RangeMin", range[0]) &&
         eNested->GetScalarAttribute("RangeMax", range[1]))
       {
+      info->Set(vtkDataObject::FIELD_ARRAY_NAME(),
+                eNested->GetAttribute("Name"));
       info->Set(vtkDataObject::PIECE_FIELD_RANGE(), range, 2);
       if (piece == 0 && numPieces == 1)
         {
@@ -205,7 +207,7 @@ int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
         }
       }
     }
-  
+
   return 1;
 }
 
