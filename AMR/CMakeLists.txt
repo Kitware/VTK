@@ -7,6 +7,7 @@ FILE( GLOB Kit_SRCS *.cxx )
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAMRGridIndexEncoder
+  vtkAMRLink
   WRAP_EXCLUDE
 )
 ## Include CMAKE code common to all kits
