@@ -217,7 +217,7 @@ int CartesianToSpherical(double x, double y, double z, double* rho,
   trho = sqrt( (x*x) + (y*y) + (z*z));
   ttheta = atan2(y, x);
   tphi = acos(z/(trho));
-  if (isnan(trho) || isnan(ttheta) || isnan(tphi)) {
+  if (vtkMath::IsNan(trho) || vtkMath::IsNan(ttheta) || vtkMath::IsNan(tphi)) {
     return -1;
   }
   *rho = trho;
@@ -241,7 +241,7 @@ int SphericalToCartesian(double rho, double phi, double theta, double* x,
   tx = rho* sin(phi) * cos(theta);
   ty = rho* sin(phi) * sin(theta);
   tz = rho* cos(phi);
-  if (isnan(tx) || isnan(ty) || isnan(tz)) {
+  if (vtkMath::IsNan(tx) || vtkMath::IsNan(ty) || vtkMath::IsNan(tz)) {
     return -1;
   }
 
