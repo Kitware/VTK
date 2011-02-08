@@ -25,7 +25,7 @@
 #ifndef VTKAMRINTERBLOCKCONNECTIVITY_H_
 #define VTKAMRINTERBLOCKCONNECTIVITY_H_
 
-class vtkVector;
+class vtkAMRLink;
 
 class VTK_AMR_EXPORT vtkAMRInterBlockConnectivity : public vtkObject
 {
@@ -56,7 +56,7 @@ class VTK_AMR_EXPORT vtkAMRInterBlockConnectivity : public vtkObject
     // blockId = tuple[0]
     // level   = tuple[1]
     // rank    = tuple[2]
-    vtkVector<int,3> GetConnection(
+    vtkAMRLink GetConnection(
         const int myBlockId, const int myLevelId, const int connectionIndex );
 
   protected:
@@ -67,7 +67,7 @@ class VTK_AMR_EXPORT vtkAMRInterBlockConnectivity : public vtkObject
     // Returns the connection information for the given block
     // boxk -- the encoded (blockId,levelId) of the block in query.
     // NOTE: See vtkAMRGridIndexEncoder for the encoding
-    vtkVector<int,3> GetConnection( const unsigned int block, int idx );
+    vtkAMRLink GetConnection( const unsigned int block, int idx );
 
     // Description:
     // Returns true if connections for the given block exist, o/w false.
@@ -83,7 +83,7 @@ class VTK_AMR_EXPORT vtkAMRInterBlockConnectivity : public vtkObject
 
     // Description:
     // Constructs a tuple to hold the (block,level,rank) information
-    vtkVector<int,3> GetTuple(const int block, const int level, const int rank);
+    vtkAMRLink GetTuple(const int block, const int level, const int rank);
 
   private:
 
@@ -91,7 +91,7 @@ class VTK_AMR_EXPORT vtkAMRInterBlockConnectivity : public vtkObject
      const vtkAMRInterBlockConnectivity&);// Not Implemented
     void operator=(const vtkAMRInterBlockConnectivity&);// Not Implemented
 
-    vtkstd::map<unsigned int,vtkstd::vector< vtkVector<int,3> > > connectivity;
+    vtkstd::map<unsigned int,vtkstd::vector< vtkAMRLink > > connectivity;
 };
 
 #endif /* VTKAMRINTERBLOCKCONNECTIVITY_H_ */
