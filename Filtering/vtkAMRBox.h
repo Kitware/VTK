@@ -88,12 +88,31 @@ public:
   vtkAMRBox &operator=(const vtkAMRBox &other);
 
   // Description:
+  // Determines if two AMR boxes collide.
+  static bool Collides( const vtkAMRBox &b1, const vtkAMRBox &b2 );
+
+  // Description:
   // Set the box to null;
   void Invalidate();
 
   // Description:
-  //
+  // Returns the number of ghost layes that have been extruded along
+  // each dimension.
   void GetNumberOfGhosts( int *ng );
+
+  // Description:
+  // Get the minimum coordinates
+  double GetMinX() const;
+  double GetMinY() const;
+  double GetMinZ() const;
+  void GetMinBounds( double min[3] ) const;
+
+  // Description:
+  // Get the maximum coordinates
+  double GetMaxX() const;
+  double GetMaxY() const;
+  double GetMaxZ() const;
+  void GetMaxBounds( double max[3] ) const;
 
   // Description:
   // Get/Set the spatial dimension of the box. Only 2 and 3 

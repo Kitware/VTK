@@ -718,6 +718,62 @@ bool vtkAMRBox::Empty() const
 }
 
 //-----------------------------------------------------------------------------
+double vtkAMRBox::GetMinX() const
+{
+  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
+  return( this->X0[0] );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRBox::GetMinY() const
+{
+  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
+  if( this->Dimension >= 2 )
+    return( this->X0[1] );
+  return( 0 );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRBox::GetMinZ() const
+{
+  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
+  if( this->Dimension >= 3 )
+    return( this->X0[2] );
+  return( 0 );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRBox::GetMaxX() const
+{
+  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
+  int ndim[3];
+  this->GetNumberOfNodes( ndim );
+  return( ( this->X0[0]+(this->DX[0]*ndim[0]) ) );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRBox::GetMaxY() const
+{
+  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
+  int ndim[3];
+  this->GetNumberOfNodes( ndim );
+  if( this->Dimension >= 2 )
+    return( ( this->X0[1]+(this->DX[1]*ndim[1]) ) );
+  return( 0 );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRBox::GetMaxZ() const
+{
+  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
+  int ndim[3];
+  this->GetNumberOfNodes( ndim );
+  if( this->Dimension >= 3 )
+    return( (this->X0[2]+(this->DX[2]*ndim[2])) );
+  return( 0 );
+}
+
+//-----------------------------------------------------------------------------
 bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 {
   double xMax = 0.0;
@@ -1238,8 +1294,53 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const size_t &bytesize )
   ptr += 3*sizeof( int );
 }
 
+//-----------------------------------------------------------------------------
+void vtkAMRBox::GetMinBounds( double min[3] ) const
+{
+  min[0] = this->GetMinX();
+  min[1] = this->GetMinY();
+  min[2] = this->GetMinZ();
+}
 
+//-----------------------------------------------------------------------------
+void vtkAMRBox::GetMaxBounds( double max[3] ) const
+{
+  max[0] = this->GetMaxX();
+  max[1] = this->GetMaxY();
+  max[2] = this->GetMaxZ();
+}
 
+//-----------------------------------------------------------------------------
+bool vtkAMRBox::Collides( const vtkAMRBox &b1, const vtkAMRBox &b2)
+{
+  double min1[3];
+  double max1[3];
+  double min2[3];
+  double max2[3];
+
+  b1.GetMinBounds( min1 );
+  b1.GetMaxBounds( max1 );
+  b2.GetMinBounds( min2 );
+  b2.GetMaxBounds( max2 );
+
+  for( int i=0; i < 3; ++i )
+    {
+
+      if( (min1[i] >= min2[i]) && (min1[i] <= max2[i]) )
+       continue;
+      if( (min2[i] >= min1[i]) && (min2[i] <= max1[i]) )
+        continue;
+      if( (max1[i] >= min2[i]) && (max1[i] <= max2[i]) )
+        continue;
+      if( (max2[i] >= min1[i]) && (max2[i] <= max1[i]) )
+        continue;
+
+      return false;
+    } // End for all directions
+
+  return true;
+
+}
 
 
 
