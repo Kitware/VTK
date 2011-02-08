@@ -609,6 +609,7 @@ vtkStreamingDemandDrivenPipeline
             for (int n = 0; n < nArrays; n++)
               {
               vtkInformation *oArray = miv->GetInformationObject(n);
+              oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
               oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
               }
             }
@@ -619,6 +620,7 @@ vtkStreamingDemandDrivenPipeline
             for (int n = 0; n < nArrays; n++)
               {
               vtkInformation *oArray = miv->GetInformationObject(n);
+              oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
               oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
               }
             }
