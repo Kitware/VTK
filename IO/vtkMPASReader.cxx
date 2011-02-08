@@ -1283,7 +1283,7 @@ void vtkMPASReader::OutputPoints(bool init)
       points->InsertNextPoint(x, y, z);
       //    points->SetPoint(j, x, y, z);
     } else {
-      double rho, rholevel, theta, phi;
+      double rho=0.0, rholevel=0.0, theta=0.0, phi=0.0;
       int retval = -1;
 
       if (!ProjectLatLon) {
@@ -1337,7 +1337,7 @@ void vtkMPASReader::OutputPoints(bool init)
 
 unsigned char vtkMPASReader::GetCellType() {
   // write cell types
-  unsigned char cellType;
+  unsigned char cellType = VTK_TRIANGLE;
   switch (pointsPerCell) {
     case 3:
       if (!ShowMultilayerView) {
@@ -1546,7 +1546,7 @@ int vtkMPASReader::LoadPointVarData(int variableIndex, double dTimeStep)
   vtkDebugMacro
     (<< "got point data in vtkMPASReader::LoadPointVarData" << endl);
 
-  int i, k;
+  int i=0, k=0;
 
   if (ShowMultilayerView) {
 
@@ -2097,4 +2097,16 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "numCellVars: " << this->numCellVars << "\n";
   os << indent << "maxPoints: " << this->maxPoints << "\n";
   os << indent << "maxCells: " << this->maxCells << "\n";
+  os << indent << "ProjectLatLon: "
+     << (this->ProjectLatLon?"ON":"OFF") << endl;
+  os << indent << "ShowMultilayerView: "
+     << (this->ShowMultilayerView?"ON":"OFF") << endl;
+  os << indent << "CenterLonRange: "
+     << this->CenterLonRange[0] << "," << this->CenterLonRange[1] << endl;
+  os << indent << "IsAtmosphere: "
+     << (this->IsAtmosphere?"ON":"OFF") << endl;
+  os << indent << "IsZeroCentered: "
+     << (this->IsZeroCentered?"ON":"OFF") << endl;
+  os << indent << "LayerThicknessRange: "
+     << this->LayerThicknessRange[0] << "," << this->LayerThicknessRange[1] << endl;
 }
