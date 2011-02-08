@@ -780,6 +780,11 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
 
   // - Get the number of independent components for which we need to keep
   //   track of min/max
+  if (!this->GetCurrentScalars())
+    {
+    return;
+    }
+
   const int components = this->GetCurrentScalars()->GetNumberOfComponents();
   const unsigned int nComponents = (this->GetIndependentComponents()) ? components : 1;
 
