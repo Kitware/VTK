@@ -217,7 +217,7 @@ int CartesianToSpherical(double x, double y, double z, double* rho,
   trho = sqrt( (x*x) + (y*y) + (z*z));
   ttheta = atan2(y, x);
   tphi = acos(z/(trho));
-  if (isnan(trho) || isnan(ttheta) || isnan(tphi)) {
+  if (vtkMath::IsNan(trho) || vtkMath::IsNan(ttheta) || vtkMath::IsNan(tphi)) {
     return -1;
   }
   *rho = trho;
@@ -241,7 +241,7 @@ int SphericalToCartesian(double rho, double phi, double theta, double* x,
   tx = rho* sin(phi) * cos(theta);
   ty = rho* sin(phi) * sin(theta);
   tz = rho* cos(phi);
-  if (isnan(tx) || isnan(ty) || isnan(tz)) {
+  if (vtkMath::IsNan(tx) || vtkMath::IsNan(ty) || vtkMath::IsNan(tz)) {
     return -1;
   }
 
@@ -662,8 +662,10 @@ int vtkMPASReader::GetNcDims()
   NumberOfTimeSteps = Time->size();
 
   CHECK_DIM(pnf, "nVertLevels");
-  NcDim* nVertLevels = pnf->get_dim("nVertLevels");
-  maxNVertLevels = nVertLevels->size();
+  NcDim* _nVertLevels = pnf->get_dim("nVertLevels");
+  maxNVertLevels = _nVertLevels->size();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -918,6 +920,8 @@ int vtkMPASReader::AllocSphereGeometry()
        << endl);
   }
   vtkDebugMacro(<< "Leaving AllocSphereGeometry..." << endl);
+
+  return 1;
 }
 
 
@@ -999,6 +1003,8 @@ int vtkMPASReader::AllocLatLonGeometry()
        << endl);
   }
   vtkDebugMacro(<< "Leaving AllocLatLonGeometry..." << endl);
+
+  return 1;
 }
 
 
@@ -1100,8 +1106,8 @@ void vtkMPASReader::FixPoints()
       lastk = pointsPerCell-1;
       const double thresh = .06981317007977; // 4 degrees
       for (int k = 0; k < pointsPerCell; k++)  {
-        double xdiff = abs(pointX[conns[k]]
-            - pointX[conns[lastk]]);
+      //unused -> double xdiff = abs(pointX[conns[k]]
+      //    - pointX[conns[lastk]]);
         double ydiff = abs(pointY[conns[k]]
             - pointY[conns[lastk]]);
         // Don't look at cells at map border
@@ -1128,12 +1134,6 @@ int vtkMPASReader::EliminateXWrap ()
 
   // For each cell, examine vertices
   // Add new points and cells where needed to account for wraparound.
-
-  int mirrorcell;
-  int apoint;
-  int mirrorpoint;
-
-
   for (int j = cellOffset; j < numCells + cellOffset; j++ ) {
     int *conns = origConnections + (j * pointsPerCell);
     int *modConns = modConnections + (j * pointsPerCell);
@@ -1153,7 +1153,7 @@ int vtkMPASReader::EliminateXWrap ()
 
       // first point is anchor it doesn't move
       double anchorX = pointX[conns[0]];
-      double anchorY = pointY[conns[0]];
+      //unused -> double anchorY = pointY[conns[0]];
       modConns[0] = conns[0];
 
       // modify existing cell, so it doesn't wrap
@@ -1225,6 +1225,8 @@ int vtkMPASReader::EliminateXWrap ()
        maxPoints << endl);
   }
   vtkDebugMacro(<< "Leaving EliminateXWrap..." << endl);
+
+  return 1;
 }
 
 
@@ -1586,13 +1588,15 @@ int vtkMPASReader::LoadPointVarData(int variableIndex, double dTimeStep)
   for (int j = pointOffset + numPoints; j < currentExtraPoint; j++) {
     // use map to find out what point data we are using
     //vtkDebugMacro(<<"LoadPointVarData: j: " << j << " k: " << k << endl);
-    int k;
+    //int k; //this k shadows one in an outer scope is it independent?
 
     if (!ShowMultilayerView) {
-      int k = pointMap[j - numPoints - pointOffset];
+      //int k; //this k shadows one in an outer scope is it independent?
+      k = pointMap[j - numPoints - pointOffset];
       dataBlock[j] = dataBlock[k];
     } else {
-      int k = pointMap[j - numPoints - pointOffset]*maxNVertLevels;
+      //int k; //this k shadows one in an outer scope is it independent?
+      k = pointMap[j - numPoints - pointOffset]*maxNVertLevels;
       // write data for one point -- lowest level to highest
       for (int levelNum = 0; levelNum < maxNVertLevels; levelNum++) {
         dataBlock[i++] = pointVarData[k++];
@@ -1732,6 +1736,8 @@ int vtkMPASReader::RegenerateGeometry()
   this->CellDataArraySelection->Modified();
 
   this->Modified();
+
+  return 1;
 }
 
 
