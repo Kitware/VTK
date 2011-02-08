@@ -225,7 +225,6 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
 
   // geometry
-  int nVertLevels;
   int maxNVertLevels;
   int numCells;
   int numPoints;
