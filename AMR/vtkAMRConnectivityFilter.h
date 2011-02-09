@@ -37,6 +37,7 @@ class VTK_AMR_EXPORT vtkAMRConnectivityFilter : public vtkHierarchicalBoxDataSet
 
     // Inline setters & getters
     vtkSetMacro( AMRDataSet, vtkHierarchicalBoxDataSet* );
+    vtkSetMacro( Controller, vtkMultiProcessController* );
     vtkGetMacro( RemoteConnectivity, vtkAMRInterBlockConnectivity* );
     vtkGetMacro( LocalConnectivity, vtkAMRInterBlockConnectivity* );
 
