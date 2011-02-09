@@ -144,7 +144,7 @@ int TestOrderStatistics( int, char *[] )
     os->AddColumn( columns[i] );
     }
 
-  // Test Learn, Derive, and Test options
+  // Test Learn, Derive, and Test operations
   os->SetLearnOption( true );
   os->SetDeriveOption( true );
   os->SetTestOption( true );
@@ -171,12 +171,14 @@ int TestOrderStatistics( int, char *[] )
   cout << "## Calculated the following quartiles with InverseCDFAveragedSteps quantile definition:\n";
   for ( vtkIdType c = 1; c < outputQuantiles->GetNumberOfColumns(); ++ c )
     {
+    vtkStdString colName = outputQuantiles->GetColumnName( c );
     cout << "   Variable="
-         << outputQuantiles->GetColumnName( c )
+         << colName
          << "\n";
 
     outputQuantiles->Dump();
 
+    // Check some results of the Derive operation
     for ( int r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
       {
       double Qp = outputQuantiles->GetValue( r, c ).ToDouble();
@@ -192,6 +194,63 @@ int TestOrderStatistics( int, char *[] )
         testStatus = 1;
         }
       }
+
+    // Check some results of the Assess operation
+    vtkStdString quantColName = "Quantile(" + colName + ")";
+    vtkAbstractArray* absQuantArr = outputData->GetColumnByName( quantColName );
+    if ( ! absQuantArr )
+      {
+      vtkGenericWarningMacro("Cannot retrieve quartile array for variable: "
+                             << colName
+                             << ".");
+      testStatus = 1;
+      }
+    else
+      {
+      vtkDataArray* dataQuantArr = vtkDoubleArray::SafeDownCast( absQuantArr );
+      if ( ! dataQuantArr )
+        {
+        vtkGenericWarningMacro("Quartile array for variable: "
+                               << colName
+                               << " is not a data array.");
+        testStatus = 1;
+        }
+
+      vtksys_stl::map<int,int> histoQuantiles;
+      for ( vtkIdType r = 0; r < dataQuantArr->GetNumberOfTuples(); ++ r )
+        {
+        int qIdx = static_cast<int>( round( dataQuantArr->GetTuple1( r ) ) );
+        ++ histoQuantiles[qIdx];
+        }
+
+      int totalHist = 0;
+      for ( vtksys_stl::map<int,int>::iterator hit = histoQuantiles.begin();
+            hit != histoQuantiles.end() ; ++ hit )
+        {
+        cout << "  IQR "
+             << hit->first
+             << ": "
+             << hit->second
+             << " observations\n";
+
+        totalHist += hit->second;
+        }
+      cout << "  Total: "
+           << totalHist
+           << " observations\n";
+
+      if ( nVals != totalHist )
+        {
+        vtkGenericWarningMacro("Quartile-based histogram size "
+                               << totalHist
+                               << " != "
+                               << nVals
+                               << ", the data set cardinality.");
+        testStatus = 1;
+        }
+      }
+
+    cout << "\n";
     }
 
   cout << "\n## Calculated the following histograms:\n";
@@ -217,8 +276,7 @@ int TestOrderStatistics( int, char *[] )
       }
     }
 
-  outputData->Dump();
-  // Check some results of the Test option
+  // Check some results of the Test operation
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
     {
@@ -242,7 +300,7 @@ int TestOrderStatistics( int, char *[] )
     os->AddColumn( columns[i] );
     }
 
-  // Test Learn, Derive, and Test options with InverseCDF quantile definition
+  // Test Learn, Derive, and Test operations with InverseCDF quantile definition
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
   os->SetLearnOption( true );
   os->SetDeriveOption( true );
@@ -289,7 +347,7 @@ int TestOrderStatistics( int, char *[] )
       }
     }
 
-  // Check some results of the Test option
+  // Check some results of the Test operation
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
     {
@@ -305,7 +363,7 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
-  // Test Learn, Derive, and Test option for deciles with InverseCDF quantile definition (as with Octave)
+  // Test Learn, Derive, and Test operation for deciles with InverseCDF quantile definition (as with Octave)
   os->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   os->SetNumberOfIntervals( 10 );
   os->Update();
@@ -325,7 +383,7 @@ int TestOrderStatistics( int, char *[] )
     outputQuantiles->Dump();
     }
 
-  // Check some results of the Test option
+  // Check some results of the Test operation
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
     {
@@ -344,7 +402,7 @@ int TestOrderStatistics( int, char *[] )
   // Clean up
   os->Delete();
 
-  // Test Learn option for quartiles with non-numeric ordinal data
+  // Test Learn operation for quartiles with non-numeric ordinal data
   vtkStdString text(
     "an ordinal scale defines a total preorder of objects the scale values themselves have a total order names may be used like bad medium good if numbers are used they are only relevant up to strictly monotonically increasing transformations also known as order isomorphisms" );
   vtksys_stl::vector<int>::size_type textLength = text.size();
