@@ -28,7 +28,7 @@ class vtkAMRInterBlockConnectivity;
 class vtkAMRBox;
 class vtkMultiProcessController;
 
-class vtkAMRConnectivityFilter : public vtkHierarchicalBoxDataSetAlgorithm
+class VTK_AMR_EXPORT vtkAMRConnectivityFilter : public vtkHierarchicalBoxDataSetAlgorithm
 {
   public:
     static vtkAMRConnectivityFilter* New();
