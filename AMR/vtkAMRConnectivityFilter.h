@@ -59,8 +59,8 @@ class VTK_AMR_EXPORT vtkAMRConnectivityFilter : public vtkHierarchicalBoxDataSet
     vtkAMRInterBlockConnectivity *LocalConnectivity;
 
   private:
-    vtkAMRConnectivityFilter(const vtkAMRConnectivityFilter&);
-    vtkAMRConnectivityFilter& operator=(const vtkAMRConnectivityFilter&);
+    vtkAMRConnectivityFilter(const vtkAMRConnectivityFilter&); // Not implemented
+    vtkAMRConnectivityFilter& operator=(const vtkAMRConnectivityFilter&); // Not implemented
 
 
 };

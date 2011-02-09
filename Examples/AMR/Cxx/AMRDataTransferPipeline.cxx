@@ -21,6 +21,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkAMRBox.h"
 #include "vtkAMRConnectivityFilter.h"
+#include "vtkAMRDataTransferFilter.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkXMLPHierarchicalBoxDataWriter.h"
 #include "vtkMultiProcessController.h"
@@ -79,6 +80,25 @@ int main( int argc, char **argv )
   Controller->Barrier();
 
   // STEP 2: Data transfer
+  std::cout << "Transfering solution\n";
+  std::cout.flush();
+
+  vtkAMRDataTransferFilter* transferFilter = vtkAMRDataTransferFilter::New();
+  vtkAssertUtils::assertNotNull( transferFilter,__FILE__,__LINE__);
+
+  transferFilter->SetController( Controller );
+  transferFilter->SetAMRDataSet( amrData );
+  transferFilter->SetNumberOfGhostLayers( 1 );
+  transferFilter->SetRemoteConnectivity(
+      connectivityFilter->GetRemoteConnectivity() );
+  transferFilter->SetLocalConnectivity(
+      connectivityFilter->GetLocalConnectivity() );
+
+  transferFilter->Transfer();
+
+  std::cout << "[DONE]\n";
+  std::cout.flush();
+  Controller->Barrier();
 
   Controller->Finalize();
   return 0;
