@@ -130,7 +130,7 @@ void vtkAMRConnectivityFilter::ComputeBlockConnectivity(const vtkAMRBox &myBox)
                   else
                     {
                       // Add to remote connectivity
-                      this->LocalConnectivity->InsertConnection(
+                      this->RemoteConnectivity->InsertConnection(
                           myBox.GetBlockId(),myBox.GetLevel(),
                           box.GetBlockId(),box.GetLevel(),
                           box.GetProcessId() );
