@@ -58,8 +58,8 @@ void vtkAMRInterBlockConnectivity::PrintSelf(
       for( int i=0; i < this->GetNumberOfConnections( idx ); ++i )
         {
           vtkAMRLink tuple = this->GetConnection( idx, i );
-          oss <<  "(" << tuple.GetBlockID() << ", ";
-          oss << tuple.GetLevel( ) << ", ";
+          oss <<  "( BlockID:" << tuple.GetBlockID() << ", Level:";
+          oss << tuple.GetLevel( ) << ", Rank:";
           oss << tuple.GetProcessRank( );
           oss << ")\n";
         } // END for all connections of the block corresponding to (block,level)
