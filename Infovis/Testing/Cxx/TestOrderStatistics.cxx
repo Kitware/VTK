@@ -217,6 +217,7 @@ int TestOrderStatistics( int, char *[] )
       }
     }
 
+  outputData->Dump();
   // Check some results of the Test option
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
@@ -421,7 +422,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   int sum12 = 0;
-  cout << "\n## Calculated the following histogram from "
+  cout << "\n## Calculated the following quantization from "
        << os2->GetNumberOfIntervals()
        << "-quantiles:\n";
 
@@ -429,25 +430,26 @@ int TestOrderStatistics( int, char *[] )
   vtkstd::map<int,char> histo12Repr;
   for ( vtkstd::map<int,int>::iterator it = histo12Text.begin(); it != histo12Text.end(); ++ it )
     {
-    int lowerBnd = it->first;
-    int upperBnd = it->second;
-    sum12 += upperBnd;
+    int quantIdx = it->first;
+    int prevqIdx = ( it->first ? it->first - 1 : 0 );
+    int frequVal = it->second;
+    sum12 += frequVal;
 
-    const char* lowerVal = outputQuantiles2->GetValue( 0, lowerBnd + 1 ).ToString();
-    const char* upperVal = outputQuantiles2->GetValue( 0, lowerBnd + 2 ).ToString();
+    const char* lowerVal = outputQuantiles2->GetValueByName( prevqIdx, "Text" ).ToString();
+    const char* upperVal = outputQuantiles2->GetValueByName( quantIdx, "Text" ).ToString();
     char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
-    histo12Repr[lowerBnd] = midVal;
+    histo12Repr[quantIdx] = midVal;
 
     cout << "   interval "
-         << lowerBnd
-         << ( lowerBnd > 1 ? ": ]" : ": [" )
+         << quantIdx
+         << ( quantIdx > 1 ? ": ]" : ": [" )
          << *lowerVal
          << " - "
          << *upperVal
          << "] represented by "
          << midVal
          << " with frequency "
-         << upperBnd
+         << frequVal
          << "\n";
     }
 
@@ -496,7 +498,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   int sum100 = 0;
-  cout << "\n## Calculated the following histogram with "
+  cout << "\n## Calculated the following quantization with "
        << os2->GetNumberOfIntervals()
        << "-quantiles:\n";
 
@@ -504,25 +506,26 @@ int TestOrderStatistics( int, char *[] )
   vtkstd::map<int,char> histo100Repr;
   for ( vtkstd::map<int,int>::iterator it = histo100Text.begin(); it != histo100Text.end(); ++ it )
     {
-    int lowerBnd = it->first;
-    int upperBnd = it->second;
-    sum100 += upperBnd;
+    int quantIdx = it->first;
+    int prevqIdx = ( it->first ? it->first - 1 : 0 );
+    int frequVal = it->second;
+    sum100 += frequVal;
 
-    const char* lowerVal = outputQuantiles2->GetValue( 0, lowerBnd + 1 ).ToString();
-    const char* upperVal = outputQuantiles2->GetValue( 0, lowerBnd + 2 ).ToString();
+    const char* lowerVal = outputQuantiles2->GetValueByName( prevqIdx, "Text" ).ToString();
+    const char* upperVal = outputQuantiles2->GetValueByName( quantIdx, "Text" ).ToString();
     char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
-    histo100Repr[lowerBnd] = midVal;
+    histo100Repr[quantIdx] = midVal;
 
     cout << "   interval "
-         << lowerBnd
-         << ( lowerBnd > 1 ? ": ]" : ": [" )
+         << quantIdx
+         << ( quantIdx > 1 ? ": ]" : ": [" )
          << *lowerVal
          << " - "
          << *upperVal
          << "] represented by "
          << midVal
          << " with frequency "
-         << upperBnd
+         << frequVal
          << "\n";
     }
 
