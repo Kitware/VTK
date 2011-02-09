@@ -298,6 +298,7 @@ void vtkWindowToImageFilter::RequestData(
     cam->SetParallelProjection(cams[i]->GetParallelProjection());
     cam->SetFocalDisk(cams[i]->GetFocalDisk());
     cam->SetUserTransform(cams[i]->GetUserTransform());
+    cam->SetUseHorizontalViewAngle(cams[i]->GetUseHorizontalViewAngle());
     cam->SetViewShear(cams[i]->GetViewShear());
     aren->SetActiveCamera(cam);
     }
