@@ -658,7 +658,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   distCol->SetName( "Maximum Distance" );
 
   vtkDoubleArray* statCol = vtkDoubleArray::New();
-  statCol->SetName( "Kolomogorov-Smirnov" );
+  statCol->SetName( "Kolmogorov-Smirnov" );
 
   // Prepare storage for quantiles and model CDFs
   vtkIdType nQuant = quantileTab->GetNumberOfRows();
