@@ -146,40 +146,36 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
   if (levelDS)
     {
 
-    // If this dataSet != NULL, i.e., it is owned by this process
-    if( dataSet != NULL )
-      {
-      levelDS->SetPiece(id, dataSet);
-      }
-
+    levelDS->SetPiece(id, dataSet);
     vtkInformation* info = levelDS->GetMetaData(id);
     if (info)
       {
-      const int *loCorner=box.GetLoCorner();
-      const int *hiCorner=box.GetHiCorner();
-      info->Set(BOX_DIMENSIONALITY(), box.GetDimensionality());
-      info->Set(BOX(),loCorner[0], loCorner[1], loCorner[2],
-                      hiCorner[0], hiCorner[1], hiCorner[2]);
-      double x0[3];
-      box.GetBoxOrigin( x0 );
-      info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
-      info->Set(RANK(), box.GetProcessId() );
-      info->Set(BLOCK_ID(), box.GetBlockId() );
+        const int *loCorner=box.GetLoCorner();
+        const int *hiCorner=box.GetHiCorner();
+        info->Set(BOX_DIMENSIONALITY(), box.GetDimensionality());
+        info->Set(BOX(),loCorner[0], loCorner[1], loCorner[2],
+                        hiCorner[0], hiCorner[1], hiCorner[2]);
+        double x0[3];
+        box.GetBoxOrigin( x0 );
+        info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
+        info->Set(RANK(), box.GetProcessId() );
+        info->Set(BLOCK_ID(), box.GetBlockId() );
 
-      double spacing[3];
-      box.GetGridSpacing( spacing );
-      info->Set(SPACING(),spacing[0],spacing[1],spacing[2]);
+        double spacing[3];
+        box.GetGridSpacing( spacing );
+        info->Set(SPACING(),spacing[0],spacing[1],spacing[2]);
 
-      int realExtent[6];
-      box.GetRealExtent( realExtent );
-      info->Set(REAL_EXTENT(),
-          realExtent[0], realExtent[1], realExtent[2],
-          realExtent[3], realExtent[4], realExtent[5] );
+        int realExtent[6];
+        box.GetRealExtent( realExtent );
+        info->Set(REAL_EXTENT(),
+            realExtent[0], realExtent[1], realExtent[2],
+            realExtent[3], realExtent[4], realExtent[5] );
       }
     else
       {
       vtkErrorMacro( "Metadata object is NULL!!!!" );
       }
+
     }
   else
     {
