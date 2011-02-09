@@ -812,10 +812,10 @@ public:
   {
     result->SetNumberOfValues( 1 );
 
-    double x = this->Data->GetTuple1( id );
-    if ( x < this->Quantiles->GetTuple1( 0 ) )
+    double dval = this->Data->GetTuple1( id );
+    if ( dval < this->Quantiles->GetTuple1( 0 ) )
       {
-      // x is smaller than lower bound
+      // dval is smaller than lower bound
       result->SetValue( 0, 0 );
 
       return;
@@ -823,7 +823,7 @@ public:
 
     vtkIdType q = 1;
     vtkIdType n = this->Quantiles->GetNumberOfTuples();
-    while ( q < n && x > this->Quantiles->GetTuple1( q ) )
+    while ( q < n && dval > this->Quantiles->GetTuple1( q ) )
       {
       ++ q;
       }
@@ -853,10 +853,10 @@ public:
   {
     result->SetNumberOfValues( 1 );
 
-    vtkStdString x = this->Data->GetValue( id );
-    if ( x < this->Quantiles->GetValue( 0 ) )
+    vtkStdString sval = this->Data->GetValue( id );
+    if ( sval < this->Quantiles->GetValue( 0 ) )
       {
-      // x is smaller than lower bound
+      // sval is smaller than lower bound
       result->SetValue( 0, 0 );
 
       return;
@@ -864,7 +864,48 @@ public:
 
     vtkIdType q = 1;
     vtkIdType n = this->Quantiles->GetNumberOfValues();
-    while ( q < n && x > this->Quantiles->GetValue( q ) )
+    while ( q < n && sval > this->Quantiles->GetValue( q ) )
+      {
+      ++ q;
+      }
+
+    result->SetValue( 0, q );
+  }
+};
+
+// ----------------------------------------------------------------------
+class VariantArrayQuantizer : public vtkStatisticsAlgorithm::AssessFunctor
+{
+public:
+  vtkVariantArray* Data;
+  vtkVariantArray* Quantiles;
+
+  VariantArrayQuantizer( vtkAbstractArray* vals,
+                         vtkAbstractArray* quantiles )
+  {
+    this->Data      = vtkVariantArray::SafeDownCast( vals );
+    this->Quantiles = vtkVariantArray::SafeDownCast( quantiles );
+  }
+  virtual ~VariantArrayQuantizer()
+  {
+  }
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
+  {
+    result->SetNumberOfValues( 1 );
+
+    vtkVariant vval = this->Data->GetValue( id );
+    if ( vval < this->Quantiles->GetValue( 0 ) )
+      {
+      // vval is smaller than lower bound
+      result->SetValue( 0, 0 );
+
+      return;
+      }
+
+    vtkIdType q = 1;
+    vtkIdType n = this->Quantiles->GetNumberOfValues();
+    while ( q < n && vval > this->Quantiles->GetValue( q ) )
       {
       ++ q;
       }
@@ -924,12 +965,13 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     {
     dfunc = new DataArrayQuantizer( vals, quantiles );
     }
-  else if ( vals->IsA("vtkStringArray") )
+  else if ( vals->IsA("vtkStringArray") && quantiles->IsA("vtkStringArray") )
     {
     dfunc = new StringArrayQuantizer( vals, quantiles );
     }
-  else if ( vals->IsA("vtkVariantArray") )
+  else if ( vals->IsA("vtkVariantArray") && quantiles->IsA("vtkVariantArray") )
     {
+    dfunc = new VariantArrayQuantizer( vals, quantiles );
     }
   else
     {
