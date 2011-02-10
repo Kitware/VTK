@@ -194,6 +194,10 @@ public:
   vtkGetMacro(UseCurrentAnnotationColor, bool);
   vtkBooleanMacro(UseCurrentAnnotationColor, bool);
 
+  // Description:
+  // Retrieve the modified time for this filter.
+  virtual long unsigned int GetMTime();
+
 protected:
   vtkApplyColors();
   ~vtkApplyColors();
