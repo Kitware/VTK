@@ -237,17 +237,19 @@ int vtkThreadedImageAlgorithm::RequestData(
     for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *outData = static_cast<vtkImageData *>(
+      vtkImageData *outData = vtkImageData::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
       str.Outputs[i] = outData;
-      
-      int updateExtent[6];
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
-                updateExtent);
-      
-      // for image filters as a convenience we usually allocate the output data
-      // in the superclass
-      this->AllocateOutputData(outData, updateExtent);
+      if (outData)
+        {
+        int updateExtent[6];
+        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                  updateExtent);
+
+        // unlike geometry filters, for image filters data is pre-allocated
+        // in the superclass (which means, in this class)
+        this->AllocateOutputData(outData, updateExtent);
+        }
       }
     }
   
@@ -269,8 +271,8 @@ int vtkThreadedImageAlgorithm::RequestData(
         for (j = 0; j < portInfo->GetNumberOfInformationObjects(); ++j)
           {
           vtkInformation* info = portInfo->GetInformationObject(j);
-          str.Inputs[i][j] =
-            static_cast<vtkImageData*>(info->Get(vtkDataObject::DATA_OBJECT()));
+          str.Inputs[i][j] = vtkImageData::SafeDownCast(
+            info->Get(vtkDataObject::DATA_OBJECT()));
           }
         }
       }
