@@ -454,11 +454,11 @@ void vtkApplyColors::ProcessColorArray(
 long unsigned int vtkApplyColors::GetMTime()
 {
   long unsigned int mtime = Superclass::GetMTime();
-  if (this->PointLookupTable->GetMTime() > mtime)
+  if (this->PointLookupTable && this->PointLookupTable->GetMTime() > mtime)
     {
     mtime = this->PointLookupTable->GetMTime();
     }
-  if (this->CellLookupTable->GetMTime() > mtime)
+  if (this->CellLookupTable && this->CellLookupTable->GetMTime() > mtime)
     {
     mtime = this->CellLookupTable->GetMTime();
     }
