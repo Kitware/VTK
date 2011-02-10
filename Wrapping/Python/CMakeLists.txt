@@ -33,9 +33,12 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   SET(__inst_files
     vtkPython.h
     vtkPythonUtil.h
+    vtkPythonArgs.h
+    vtkPythonOverload.h
     PyVTKClass.h
     PyVTKObject.h
     PyVTKSpecialObject.h
+    PyVTKMutableObject.h
   )
   INSTALL(FILES ${__inst_files}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
