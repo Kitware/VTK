@@ -484,7 +484,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkPolyDataToImageStencil> dataToStencil =
     vtkSmartPointer<vtkPolyDataToImageStencil>::New();
-  dataToStencil->SetInputConnection( filter->GetOutputPort() );
+  dataToStencil->SetInput(splinePoly);
 
   dataToStencil->SetInformationInput( extract->GetOutput() );
 

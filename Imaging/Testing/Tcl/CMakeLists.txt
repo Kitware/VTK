@@ -58,7 +58,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestImageWeightedSum
         TestInPlaceFilter
         TestIslandRemoval2D
-        TestLassooStencil
+        TestLassoStencil
         TestMapToRGBABlockStreaming
         TestMapToWindowLevelColors
         TestMapToWindowLevelColors2
