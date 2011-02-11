@@ -6,6 +6,7 @@ SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 
 SET( Kit_SRCS
+vtkImageDataToStructuredGridFilter.cxx
 vtkAbstractCellLocator.cxx
 vtkAbstractInterpolatedVelocityField.cxx
 vtkAbstractMapper.cxx
