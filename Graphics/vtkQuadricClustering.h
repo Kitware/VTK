@@ -278,7 +278,7 @@ protected:
   int UseInputPoints;
 
   // Description:
-  // This method sets the verticies of the output.
+  // This method sets the vertices of the output.
   // It duplicates the structure of the input cells (but decimiated).
   void EndAppendVertexGeometry(vtkPolyData *input, vtkPolyData *output);
 
