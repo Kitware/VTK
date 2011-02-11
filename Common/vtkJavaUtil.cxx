@@ -520,7 +520,7 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
   return result;
 }
 
-JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString out)
+JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString &out)
 {
   const char *inBytes;
   int length, i;
