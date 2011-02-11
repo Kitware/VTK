@@ -3514,7 +3514,7 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix(vtkInformation *inInfo,
     if ((this->OptimizedTransform == NULL && 
          (inSpacing[i] != outSpacing[i] || inOrigin[i] != outOrigin[i])) ||
         (this->OptimizedTransform != NULL &&
-         (inSpacing[i] != 1.0 || inOrigin[i] != 0.0))) 
+         (outSpacing[i] != 1.0 || outOrigin[i] != 0.0)))
       {
       isIdentity = 0;
       }

@@ -309,7 +309,7 @@ void vtkImageMarchingCubesComputePointGradient(T *ptr, double *g,
 
 
 //----------------------------------------------------------------------------
-// This method interpolates verticies to make a new point.
+// This method interpolates vertices to make a new point.
 template <class T>
 int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
                                       int idx0, int idx1, int idx2,
@@ -661,7 +661,7 @@ void vtkImageMarchingCubes::March(vtkImageData *inData,
 
 
 //============================================================================
-// These method act as the point locator so verticies will be shared.
+// These method act as the point locator so vertices will be shared.
 // One 2d array of cubes is stored. (z dimension is ignored).
 // Points are indexed by their cube and edge.
 // Shared edges are only represented once.  Cubes are responsible for
