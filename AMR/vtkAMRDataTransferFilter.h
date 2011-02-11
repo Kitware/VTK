@@ -25,10 +25,14 @@
 
 #include "vtkHierarchicalBoxDataSetAlgorithm.h"
 
+#include <string>
+
 class vtkHierarchicalBoxDataSet;
 class vtkAMRBox;
 class vtkAMRInterBlockConnectivity;
 class vtkMultiProcessController;
+class vtkUniformGrid;
+class vtkDataArray;
 
 class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
                       public vtkHierarchicalBoxDataSetAlgorithm
@@ -54,6 +58,35 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
   protected:
     vtkAMRDataTransferFilter();
     virtual ~vtkAMRDataTransferFilter();
+
+    // Description:
+    // Extrudes ghost layers for each high-resolution block.
+    // NOTE: the block(s) at the 0th level are not extruded(?)
+    void ExtrudeGhostLayers();
+
+    // Description:
+    // Given the extruded grid & the initial non-extruded grid, this method
+    // returns the extruded grid. The extruded grid will have all the data
+    // of the non-extruded grid, plus allocated space for
+    vtkUniformGrid* GetExtrudedGrid( vtkAMRBox &box, vtkUniformGrid *grid);
+
+    // Description:
+    // Writes the AMR data as a list of boxes. Primarily,
+    // used for debugging purposes.
+    void WriteData( vtkHierarchicalBoxDataSet* amr, std::string prefix);
+
+    // Description:
+    // Writes the given grid to a legacy VTK file. This is
+    // primarilly used for debugging.
+    void WriteGrid( vtkUniformGrid* grid, std::string prefix );
+
+    // Description:
+    // Returns a VTK string representation of the supplied data array
+    std::string GetDataArrayVTKString( vtkDataArray* dataArray );
+
+    // Description:
+    // Loops throught the data-set and writes each grid.
+    void WriteGrids( );
 
     int                          NumberOfGhostLayers;
     vtkHierarchicalBoxDataSet    *ExtrudedData;
