@@ -38,48 +38,35 @@ vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
   this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
 }
 
-double *vtkLinearExtrusionFilter::ViaNormal(double x[3], vtkIdType id,
+void vtkLinearExtrusionFilter::ViaNormal(double x[3], vtkIdType id,
                                            vtkDataArray *n)
 {
-  static double xNew[3], normal[3];
-  int i;
+  double normal[3];
 
   n->GetTuple(id, normal);
-  for (i=0; i<3; i++) 
+  for (vtkIdType i=0; i<3; i++)
     {
-    xNew[i] = x[i] + this->ScaleFactor*normal[i];
+    x[i] = x[i] + this->ScaleFactor*normal[i];
     }
-
-  return xNew;
 }
 
-double *vtkLinearExtrusionFilter::ViaVector(double x[3],
+void vtkLinearExtrusionFilter::ViaVector(double x[3],
                                            vtkIdType vtkNotUsed(id), 
                                            vtkDataArray *vtkNotUsed(n))
 {
-  static double xNew[3];
-  int i;
-
-  for (i=0; i<3; i++) 
+  for (vtkIdType i=0; i<3; i++)
     {
-    xNew[i] = x[i] + this->ScaleFactor*this->Vector[i];
+    x[i] = x[i] + this->ScaleFactor*this->Vector[i];
     }
-
-  return xNew;
 }
 
-double *vtkLinearExtrusionFilter::ViaPoint(double x[3], vtkIdType vtkNotUsed(id),
+void vtkLinearExtrusionFilter::ViaPoint(double x[3], vtkIdType vtkNotUsed(id),
                                           vtkDataArray *vtkNotUsed(n))
 {
-  static double xNew[3];
-  int i;
-
-  for (i=0; i<3; i++) 
+  for (vtkIdType i=0; i<3; i++)
     {
-    xNew[i] = x[i] + this->ScaleFactor*(x[i] - this->ExtrusionPoint[i]);
+    x[i] = x[i] + this->ScaleFactor*(x[i] - this->ExtrusionPoint[i]);
     }
-
-  return xNew;
 }
 
 int vtkLinearExtrusionFilter::RequestData(
@@ -208,8 +195,8 @@ int vtkLinearExtrusionFilter::RequestData(
 
     inPts->GetPoint(ptId, x);
     newPts->SetPoint(ptId,x);
-    newPts->SetPoint(ptId+numPts,
-                     (this->*(this->ExtrudePoint))(x,ptId,inNormals));
+    (this->*(this->ExtrudePoint))(x,ptId,inNormals);
+    newPts->SetPoint(ptId+numPts,x);
     outputPD->CopyData(pd,ptId,ptId);
     outputPD->CopyData(pd,ptId,ptId+numPts);
     }
