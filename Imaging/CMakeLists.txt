@@ -113,7 +113,7 @@ vtkImageVariance3D.cxx
 vtkImageWrapPad.cxx
 vtkImageWeightedSum.cxx
 vtkImplicitFunctionToImageStencil.cxx
-vtkLassooStencilSource.cxx
+vtkLassoStencilSource.cxx
 vtkPointLoad.cxx
 vtkROIStencilSource.cxx
 vtkRTAnalyticSource.cxx

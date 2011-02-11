@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkLassooStencilSource.h
+  Module:    vtkLassoStencilSource.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLassooStencilSource - Create a stencil from a contour
+// .NAME vtkLassoStencilSource - Create a stencil from a contour
 // .SECTION Description
-// vtkLassooStencilSource will create an image stencil from a
+// vtkLassoStencilSource will create an image stencil from a
 // set of points that define a contour.  Its output can be
 // used with vtkImageStecil or other vtk classes that apply
 // a stencil to an image.
@@ -23,8 +23,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkLassooStencilSource_h
-#define __vtkLassooStencilSource_h
+#ifndef __vtkLassoStencilSource_h
+#define __vtkLassoStencilSource_h
 
 
 #include "vtkImageStencilSource.h"
@@ -33,11 +33,11 @@ class vtkPoints;
 class vtkSpline;
 class vtkLSSPointMap;
 
-class VTK_IMAGING_EXPORT vtkLassooStencilSource : public vtkImageStencilSource
+class VTK_IMAGING_EXPORT vtkLassoStencilSource : public vtkImageStencilSource
 {
 public:
-  static vtkLassooStencilSource *New();
-  vtkTypeMacro(vtkLassooStencilSource, vtkImageStencilSource);
+  static vtkLassoStencilSource *New();
+  vtkTypeMacro(vtkLassoStencilSource, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
@@ -85,8 +85,8 @@ public:
   unsigned long GetMTime();
 
 protected:
-  vtkLassooStencilSource();
-  ~vtkLassooStencilSource();
+  vtkLassoStencilSource();
+  ~vtkLassoStencilSource();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
@@ -99,8 +99,8 @@ protected:
   vtkLSSPointMap *PointMap;
 
 private:
-  vtkLassooStencilSource(const vtkLassooStencilSource&);  // Not implemented.
-  void operator=(const vtkLassooStencilSource&);  // Not implemented.
+  vtkLassoStencilSource(const vtkLassoStencilSource&);  // Not implemented.
+  void operator=(const vtkLassoStencilSource&);  // Not implemented.
 };
 
 #endif
