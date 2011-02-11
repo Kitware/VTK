@@ -19,7 +19,7 @@
 // be used with vtkImageStecil or other vtk classes that apply
 // a stencil to an image.
 // .SECTION See Also
-// vtkImplicitFunctionToImageStencil vtkLassooStencilSource
+// vtkImplicitFunctionToImageStencil vtkLassoStencilSource
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
