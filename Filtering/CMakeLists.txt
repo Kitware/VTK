@@ -174,6 +174,7 @@ vtkPolyDataToPolyDataFilter.cxx
 vtkPolygon.cxx
 vtkPolyhedron.cxx
 vtkPolyLine.cxx
+vtkPolyPlane.cxx
 vtkPolyVertex.cxx
 vtkProcessObject.cxx
 vtkPropAssembly.cxx
