@@ -41,3 +41,12 @@ TARGET_LINK_LIBRARIES( AMRDataTransferPipeline
              vtkParallel
              ${MPI_LIBRARIES} 
              )
+             
+## Add TestImageDataToStructuredGridFilter
+ADD_EXECUTABLE( TestImageDataToStructuredGridFilter 
+                TestImageDataToStructuredGridFilter.cxx )
+TARGET_LINK_LIBRARIES(TestImageDataToStructuredGridFilter
+                      vtkGraphics
+                      vtkIO
+                      vtkFiltering 
+                      )

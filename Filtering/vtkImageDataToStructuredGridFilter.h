@@ -16,24 +16,25 @@
 //  data to structured grid.
 //
 // .SECTION Description
-// A concrete instance of vtkDataSetAlgorithm which provides functionality for
-// converting vtkImageData to vtkStructuredGrid
+// A concrete instance of vtkStructuredGridAlgorithm which provides
+// functionality for converting instances of vtkImageData to vtkStructuredGrid.
 
 #ifndef VTKIMAGEDATATOSTRUCTUREDGRIDFILTER_H_
 #define VTKIMAGEDATATOSTRUCTUREDGRIDFILTER_H_
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkStructuredGridAlgorithm.h"
 
 class vtkStructuredGrid;
 class vtkImageData;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_FILTERING_EXPORT vtkImageDataToStructuredGridFilter : public vtkDataSetAlgorithm
+class VTK_FILTERING_EXPORT vtkImageDataToStructuredGridFilter :
+                                             public vtkStructuredGridAlgorithm
 {
   public:
     static vtkImageDataToStructuredGridFilter* New();
-    vtkTypeMacro(vtkImageDataToStructuredGridFilter,vtkDataSetAlgorithm);
+    vtkTypeMacro(vtkImageDataToStructuredGridFilter,vtkStructuredGridAlgorithm);
     void PrintSelf( std::ostream &oss, vtkIndent indent );
 
   protected:
@@ -45,8 +46,14 @@ class VTK_FILTERING_EXPORT vtkImageDataToStructuredGridFilter : public vtkDataSe
         vtkInformationVector** inputVector,
         vtkInformationVector* outputVector );
 
+    // Description:
+    // Helper function to copy point/cell data from image to grid
+    void CopyPointData( vtkImageData*, vtkStructuredGrid* );
+    void CopyCellData( vtkImageData*, vtkStructuredGrid*  );
+
     virtual int FillInputPortInformation(int, vtkInformation* info);
     virtual int FillOutputPortInformation(int, vtkInformation* info );
+
   private:
     vtkImageDataToStructuredGridFilter(
         const vtkImageDataToStructuredGridFilter& ); //Not implemented
