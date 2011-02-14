@@ -206,14 +206,14 @@ public:
   virtual void Initialize()
     {this->Initialize(NULL);}
 
+  // The state of the widget
+  //BTX
+  enum {Start,Define,Manipulate};
+  //ETX
+
 protected:
   vtkContourWidget();
   ~vtkContourWidget();
-
-  // The state of the widget
-//BTX
-  enum {Start,Define,Manipulate};
-//ETX
 
   int WidgetState;
   int CurrentHandle;
