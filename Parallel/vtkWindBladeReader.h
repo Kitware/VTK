@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkWindBladeReader is a source object that reads WindBlade files
 // which are block binary files with tags before and after each block
-// giving the number of bytes within the block.  The number of data
+// giving the number of bytes within the block.  The number of data 
 // variables dumped varies.  The data is 3D rectilinear with irregular
 // spacing on the Z dimension.
 //
@@ -53,13 +53,13 @@ class vtkUnstructuredGrid;
 class vtkMultiBlockDataSetAglorithm;
 class vtkStructuredGridAlgorithm;
 
-class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
+class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm 
 {
 public:
   static vtkWindBladeReader *New();
   vtkTypeMacro(vtkWindBladeReader,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
 
@@ -71,8 +71,9 @@ public:
 
   // Description:
   // Get the reader's output
-  vtkStructuredGrid *GetFieldOutput();
-  vtkUnstructuredGrid *GetBladeOutput();
+  vtkStructuredGrid *GetFieldOutput();		// Output port 0
+  vtkUnstructuredGrid *GetBladeOutput();	// Output port 1
+  vtkStructuredGrid *GetGroundOutput();		// Output port 2
 
   // Description:
   // The following methods allow selective reading of solutions fields.
@@ -100,16 +101,23 @@ protected:
   // Extent information
   vtkIdType NumberOfTuples;  // Number of tuples in subextent
 
+  // Field
   int WholeExtent[6];  // Extents of entire grid
   int SubExtent[6];  // Processor grid extent
   int UpdateExtent[6];
   int Dimension[3];  // Size of entire grid
   int SubDimension[3];  // Size of processor grid
 
+  // Ground
+  int GExtent[6];      // Extents of ground grid
+  int GSubExtent[6];  // Processor grid extent
+  int GDimension[3];   // Size of ground grid
+
   float Step[3];  // Spacing delta
   int UseTopographyFile;  // Topography or flat
   vtkStdString TopographyFile;  // Name of topography data file
   vtkPoints* Points;   // Structured grid geometry
+  vtkPoints* GPoints;   // Structured grid geometry for ground
   vtkPoints* BPoints;   // Unstructured grid geometry
   float Compression;   // Stretching at Z surface [0,1]
   float Fit;    // Cubic or quadratic [0,1]
@@ -119,6 +127,7 @@ protected:
   vtkFloatArray* ySpacing;
   vtkFloatArray* zSpacing;
   float* zTopographicValues;
+  float zMinValue;
 
   // Variable information
   int NumberOfFileVariables;  // Number of variables in data file
@@ -133,6 +142,7 @@ protected:
   int* VariableByteCount;  // Number of bytes in basic type
   long int* VariableOffset;  // Offset into data file
   int BlockSize;   // Size of every data block
+  int GBlockSize;  // Size of every data block
 
   vtkFloatArray** data;   // Actual data arrays
   vtkStdString RootDirectory; // Directory where the .wind file is.
@@ -160,8 +170,6 @@ protected:
   vtkStdString TurbineDirectory; // Turbine unstructured data
   vtkStdString TurbineTowerName; // Name of tower file
   vtkStdString TurbineBladeName; // Base name of time series blade data
-  int NumberLinesToSkip;        // New format has lines that need to skipped
-                                // in blade files
 
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
@@ -170,7 +178,7 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   // Controlls initializing and querrying MPI
-  vtkMultiProcessController * MPIController;
+  vtkMultiProcessController * MPIController; 
 
   // Read the header file describing the dataset
   void ReadGlobalData();
@@ -183,6 +191,7 @@ protected:
 
   // Calculate the coordinates
   void FillCoordinates();
+  void FillGroundCoordinates();
   void CreateCoordinates();
   void CreateZTopography(float* zdata);
   float GDeform(float sigma, float sigmaMax, int flag);
@@ -200,7 +209,7 @@ protected:
   void CalculatePressure(int pres, int prespre, int tempg, int density);
 
   virtual int RequestData(
-    vtkInformation* request,
+    vtkInformation* request, 
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
@@ -210,13 +219,13 @@ protected:
     vtkInformationVector* outputVector);
 
   static void SelectionCallback(
-    vtkObject *caller,
+    vtkObject *caller, 
     unsigned long eid,
-    void *clientdata,
+    void *clientdata, 
     void *calldata);
 
   static void EventCallback(
-    vtkObject* caller,
+    vtkObject* caller, 
     unsigned long eid,
     void* clientdata, void* calldata);
 
