@@ -27,7 +27,7 @@ void VPICPart::initialize()
 {
    FILE* filePtr = fopen(this->fileName[0].c_str(), "r");
    if (filePtr == NULL) {
-      cout << "Could not open file " << this->fileName[0] << endl;
+      cerr << "Could not open file " << this->fileName[0] << endl;
    }
 
    // Header verifies consistency and gets sizes

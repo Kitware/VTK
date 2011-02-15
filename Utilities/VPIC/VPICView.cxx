@@ -130,6 +130,7 @@ void VPICView::partitionFiles()
       }
    }
 
+   /*
    if (this->rank == 0) {
       cout << endl << "New partition of files" << endl;
       cout << "File grid size: ["
@@ -141,6 +142,7 @@ void VPICView::partitionFiles()
            << this->layoutSize[1] << ","
            << this->layoutSize[2] << "]" << endl;
    }
+   */
 
    // Partition graphics processors over the file decomposition
    partition();
@@ -262,12 +264,14 @@ void VPICView::partition()
                this->decomposition[dim] = layoutSize[dim];
       }
    }
+   /*
    if (this->rank == 0) {
       cout << "Graphics decomposition: ["
            << this->decomposition[0] << ","
            << this->decomposition[1] << ","
            << this->decomposition[2] << "]" << endl;
    }
+   */
 
    // Using the part partition and the processor partition assign
    // part ranges for each processor which will be used for subextents
@@ -419,7 +423,7 @@ void VPICView::calculateGridExtents()
 void VPICView::loadVariableData(
         float* varData,
         int varOffset,
-        int* subdimension,
+        int* _subdimension,
         int timeStep,
         int var,
         int comp)
@@ -447,7 +451,7 @@ void VPICView::loadVariableData(
       this->myParts[part]->loadVariableData(
                             varData,
                             varOffset,
-                            subdimension,
+                            _subdimension,
                             this->global.getVariableKind(var),
                             this->global.getVariableType(var),
                             this->global.getVariableByteCount(var),
@@ -607,9 +611,11 @@ void VPICView::setStride(int s[])
        oldStride[2] != this->stride[2])
          this->calculateGridNeeded = true;
 
+   /*
    if (this->rank == 0)
       cout << "Stride set to (" << this->stride[0] << ","
            << this->stride[1] << "," << this->stride[2] << ")" << endl;
+   */
 }
 
 //////////////////////////////////////////////////////////////////////////////
