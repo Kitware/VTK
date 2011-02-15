@@ -202,7 +202,7 @@ bool DataSetsEqual( vtkImageData* img, vtkStructuredGrid* sg )
   return true;
 }
 
-int TestImageDataToStructuredGrid( int argc, char **argv )
+int TestImageDataToStructuredGrid(int,char *[])
 {
   int rval = 0;
 
