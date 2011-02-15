@@ -476,9 +476,11 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
   this->data[var] = vtkFloatArray::New();
   this->data[var]->SetName(VariableName[var].c_str());
 
+  /*
   if (this->Rank == 0)
     cout << "LoadVariableData " << this->VariableName[var]
          << " time " << timeStep << endl;
+  */
 
   // First set the number of components for this variable
   int numberOfComponents = 0;
