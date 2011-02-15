@@ -175,25 +175,25 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   doubleCol->Delete();
 
   // Set order statistics algorithm and its input data port
-  vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkOrderStatistics* orderStats = vtkOrderStatistics::New();
+  orderStats->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   datasetTable->Delete();
 
   // Select Columns of Interest
   for ( int i = 0; i< nMetrics; ++ i )
     {
-    haruspex->AddColumn( columns[i] );
+    orderStats->AddColumn( columns[i] );
     }
 
   // Use Learn and Derive options of order statistics with InverseCDFAveragedSteps quantile definition
-  haruspex->SetLearnOption( true );
-  haruspex->SetDeriveOption( true );
-  haruspex->SetTestOption( false );
-  haruspex->SetAssessOption( false );
-  haruspex->Update();
+  orderStats->SetLearnOption( true );
+  orderStats->SetDeriveOption( true );
+  orderStats->SetTestOption( false );
+  orderStats->SetAssessOption( false );
+  orderStats->Update();
 
   // Get calculated model
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( orderStats->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   unsigned nbq = outputMetaDS->GetNumberOfBlocks() - 1;
   vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( nbq ) );
 
@@ -265,7 +265,7 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
 
   // Clean up
   delete chart;
-  haruspex->Delete();
+  orderStats->Delete();
 
   return result;
 }
