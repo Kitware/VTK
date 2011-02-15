@@ -17,7 +17,7 @@
 // A simple utility that demonstrates & tests the functionality of the
 // vtkImageDataToStructuredGridFilter.
 
-#include "vtkImageDataToStructuredGridFilter.h"
+#include "vtkImageToStructuredGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkImageData.h"
 #include "vtkUniformGrid.h"
@@ -41,8 +41,7 @@ int main( int argc, char **argv )
   vtkAssertUtils::assertNotNull( myGrid, __FILE__, __LINE__ );
   vtkAssertUtils::assertEquals(
       myGrid->GetCellData()->GetNumberOfArrays(),1,__FILE__,__LINE__);
-  vtkImageDataToStructuredGridFilter* myFilter =
-            vtkImageDataToStructuredGridFilter::New( );
+  vtkImageToStructuredGrid* myFilter = vtkImageToStructuredGrid::New( );
   vtkAssertUtils::assertNotNull( myFilter, __FILE__, __LINE__  );
 
   myFilter->SetInput( myGrid );
