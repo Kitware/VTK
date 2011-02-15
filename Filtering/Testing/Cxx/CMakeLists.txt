@@ -26,6 +26,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestPolygon.cxx
   TestTreeBFSIterator.cxx
   TestTriangle.cxx
+  TestImageDataToStructuredGrid.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )
