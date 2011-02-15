@@ -103,7 +103,7 @@ void LoadData(
    // Read the contiguous variable data from the file
    FILE* filePtr = fopen(fileName.c_str(), "r");
    if (filePtr == 0) {
-      cout << "Failed to open file " << fileName << endl;
+      cerr << "Failed to open file " << fileName << endl;
       return;
    }
    fseek(filePtr, offset, SEEK_SET);

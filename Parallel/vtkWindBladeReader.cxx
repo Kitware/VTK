@@ -364,10 +364,11 @@ int vtkWindBladeReader::RequestData(
              << this->TimeSteps[timeStep];
     this->FilePtr = fopen(fileName.str().c_str(), "r");
     if (this->FilePtr == NULL)
-      cout << "Could not open file " << fileName.str() << endl;
+      cerr << "Could not open file " << fileName.str() << endl;
+    /*
     if (this->Rank == 0)
       cout << "Load file " << fileName.str() << endl;
-
+    */
     // Some variables depend on others, so force their loading
     for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
       if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
@@ -687,12 +688,12 @@ void vtkWindBladeReader::ReadGlobalData()
 {
   ifstream inStr(this->Filename);
   if (!inStr) {
-    cout << "Could not open the global .wind file " << this->Filename << endl;
+    cerr << "Could not open the global .wind file " << this->Filename << endl;
   }
 
   string::size_type dirPos = string(this->Filename).rfind(Slash);
    if (dirPos == string::npos) {
-      cout << "Bad input file name " << this->Filename << endl;
+      cerr << "Bad input file name " << this->Filename << endl;
    }
   this->RootDirectory = string(this->Filename).substr(0, dirPos);
 
@@ -826,7 +827,7 @@ void vtkWindBladeReader::ReadDataVariables(ifstream& inStr)
     else if (structType == "VECTOR")
       this->VariableStruct[i] = VECTOR;
     else
-      cout << "Error in structure type " << structType << endl;
+      cerr << "Error in structure type " << structType << endl;
 
     line >> basicType;
     line >> this->VariableByteCount[i];
@@ -836,7 +837,7 @@ void vtkWindBladeReader::ReadDataVariables(ifstream& inStr)
     else if (basicType == "INTEGER")
       this->VariableBasicType[i] = INTEGER;
     else
-      cout << "Error in basic type " << basicType << endl;
+      cerr << "Error in basic type " << basicType << endl;
   }
 
   // Add any derived variables
@@ -868,7 +869,7 @@ void vtkWindBladeReader::FindVariableOffsets()
            << this->DataBaseName << this->TimeStepFirst;
   this->FilePtr = fopen(fileName.str().c_str(), "r");
   if (this->FilePtr == NULL) {
-    cout << "Could not open file " << fileName.str() << endl;
+    cerr << "Could not open file " << fileName.str() << endl;
     exit(1);
   }
 
@@ -1258,7 +1259,7 @@ void vtkWindBladeReader::SetupBladeData()
            << this->TurbineTowerName;
   ifstream inStr(fileName.str().c_str());
   if (!inStr)
-    cout << "Could not open " << fileName << endl;
+    cerr << "Could not open " << fileName << endl;
 
   // File is ASCII text so read until EOF
   char inBuf[LINE_SIZE];
@@ -1289,7 +1290,7 @@ void vtkWindBladeReader::SetupBladeData()
             << this->TurbineBladeName << this->TimeStepFirst;
   ifstream inStr2(fileName2.str().c_str());
   if (!inStr2)
-    cout << "Could not open " << fileName2 << endl;
+    cerr << "Could not open " << fileName2 << endl;
 
   this->NumberOfBladeCells = 0;
   while (inStr2.getline(inBuf, LINE_SIZE))
@@ -1317,8 +1318,10 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
            << this->TurbineBladeName
            << this->TimeSteps[timeStep];
   ifstream inStr(fileName.str().c_str());
+  /*
   if (this->Rank == 0)
     cout << "Load file " << fileName.str() << endl;
+  */
   char inBuf[LINE_SIZE];
 
   // Allocate space for points and cells
