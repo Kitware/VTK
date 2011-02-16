@@ -48,7 +48,7 @@ void vtkImageToStructuredGrid::PrintSelf( std::ostream &oss,
 
 //------------------------------------------------------------------------------
 int vtkImageToStructuredGrid::FillInputPortInformation(
-                                                int port, vtkInformation* info)
+                                  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkImageData");
   return 1;
@@ -56,7 +56,7 @@ int vtkImageToStructuredGrid::FillInputPortInformation(
 
 //------------------------------------------------------------------------------
 int vtkImageToStructuredGrid::FillOutputPortInformation(
-                                                int port, vtkInformation* info )
+                                  int vtkNotUsed(port), vtkInformation* info )
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkStructuredGrid");
   return 1;
@@ -64,7 +64,7 @@ int vtkImageToStructuredGrid::FillOutputPortInformation(
 
 //------------------------------------------------------------------------------
 int vtkImageToStructuredGrid::RequestData(
-                                  vtkInformation* request,
+                                  vtkInformation* vtkNotUsed(request),
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector )
 {
