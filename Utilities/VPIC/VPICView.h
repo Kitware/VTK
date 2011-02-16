@@ -84,10 +84,9 @@ public:
    int  getNumberOfParts()      { return this->numberOfMyParts; }
 
 private:
-   VPICGlobal& global;                  // Common information for overall data
-
    int   rank;                          // Processor number
    int   totalRank;                     // Number of graphics processors
+   VPICGlobal& global;                  // Common information for overall data
 
    // Visualization information
    int   decomposition[DIMENSION];      // Graphics processor layout sizes

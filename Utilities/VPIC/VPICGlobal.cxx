@@ -77,7 +77,7 @@ void VPICGlobal::readGlobal(const string& inFile)
 
   ifstream inStr(this->globalFile.c_str());
   if (!inStr) {
-    cout << "Could not open the global .vpc file" << endl;
+    cerr << "Could not open the global .vpc file" << endl;
   }
 
   char inBuf[LINESIZE];
@@ -198,7 +198,7 @@ void VPICGlobal::readFieldVariables(ifstream& inStr)
     else if (structType == "TENSOR" && this->fieldCompSize[i] == 9)
       this->fieldStructType[i] = TENSOR9;
     else
-      cout << "Error in structure type " << structType << endl;
+      cerr << "Error in structure type " << structType << endl;
 
     line >> basicType;
     line >> this->fieldByteCount[i];
@@ -208,7 +208,7 @@ void VPICGlobal::readFieldVariables(ifstream& inStr)
     else if (basicType == "INTEGER")
       this->fieldBasicType[i] = INTEGER;
     else
-      cout << "Error in basic type " << basicType << endl;
+      cerr << "Error in basic type " << basicType << endl;
   }
 }
 
@@ -266,8 +266,8 @@ void VPICGlobal::readSpeciesVariables(ifstream& inStr)
           this->speciesName[s][i] += ")";
 
           // Structure, number of components, type, number of bytes
-          string localrest = varLine.substr(lastPos+1);
-          istringstream localline(localrest.c_str());
+          string llocalrest = varLine.substr(lastPos+1);
+          istringstream localline(llocalrest.c_str());
 
           localline >> structType;
           localline >> this->speciesCompSize[s][i];
@@ -281,7 +281,7 @@ void VPICGlobal::readSpeciesVariables(ifstream& inStr)
           else if (structType == "TENSOR" && this->speciesCompSize[s][i] == 9)
             this->speciesStructType[s][i] = TENSOR9;
           else
-            cout << "Error in structure type " << structType << endl;
+            cerr << "Error in structure type " << structType << endl;
       
           localline >> basicType;
           localline >> this->speciesByteCount[s][i];
@@ -291,7 +291,7 @@ void VPICGlobal::readSpeciesVariables(ifstream& inStr)
           else if (basicType == "INTEGER")
             this->speciesBasicType[s][i] = INTEGER;
           else
-            cout << "Error in basic type " << basicType << endl;
+            cerr << "Error in basic type " << basicType << endl;
         }
         s++;
       }
@@ -339,7 +339,7 @@ void VPICGlobal::buildFileNames()
    // From the full path name of the .vpc file find the directory name
    string::size_type dirPos = this->globalFile.rfind(Slash);
    if (dirPos == string::npos) {
-      cout << "Bad input file name " << this->globalFile << endl;
+      cerr << "Bad input file name " << this->globalFile << endl;
       exit(1);
    }
    string dirName = this->globalFile.substr(0, dirPos);
@@ -562,7 +562,7 @@ void VPICGlobal::addNewTimeSteps()
    delete dir;
 
    // If we have additional time subdirectories add to list of times and names
-   if (newTime.size() > this->numberOfTimeSteps) {
+   if (static_cast<int>(newTime.size()) > this->numberOfTimeSteps) {
 
       this->dumpTime.clear();
       this->dumpName.clear();
