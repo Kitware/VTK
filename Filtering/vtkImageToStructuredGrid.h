@@ -29,7 +29,8 @@ class vtkImageData;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_FILTERING_EXPORT vtkImageToStructuredGrid:public vtkStructuredGridAlgorithm
+class VTK_FILTERING_EXPORT vtkImageToStructuredGrid:
+  public vtkStructuredGridAlgorithm
 {
   public:
     static vtkImageToStructuredGrid* New();
