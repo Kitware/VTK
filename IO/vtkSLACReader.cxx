@@ -1249,20 +1249,21 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
           = this->ReadPointDataArray(modeFD, varId);
         if (imagDataArray)
           {
+          vtkIdType numTuples = dataArray->GetNumberOfTuples();
+
           // allocate space for complex magnitude data
           vtkSmartPointer<vtkDataArray> cplxMagArray;
           cplxMagArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
           cplxMagArray->SetNumberOfComponents(1);
-          cplxMagArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
+          cplxMagArray->SetNumberOfTuples(numTuples);
 
           // allocate space for phase data
           vtkSmartPointer<vtkDataArray> phaseArray;
           phaseArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
           phaseArray->SetNumberOfComponents(3);
-          phaseArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
+          phaseArray->SetNumberOfTuples(numTuples);
 
           int numComponents = dataArray->GetNumberOfComponents();
-          vtkIdType numTuples = dataArray->GetNumberOfTuples();
           for (vtkIdType i = 0; i < numTuples; i++)
             {
             double accum_mag= 0.0;
