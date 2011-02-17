@@ -40,7 +40,6 @@ vtkMultiProcessController *Controller;
 // Function Prototypes
 vtkHierarchicalBoxDataSet* GetAMRDataSet( );
 vtkUniformGrid* GetGrid( double* origin,double* h,int* ndim );
-void WriteAMRData( vtkHierarchicalBoxDataSet *amrdata, const char* filename );
 
 int main( int argc, char **argv )
 {
@@ -61,7 +60,6 @@ int main( int argc, char **argv )
   vtkAssertUtils::assertEquals(
    amrData->GetNumberOfDataSets(1),2,__FILE__,__LINE__ );
 
-  WriteAMRData( amrData, "Input" );
 
   std::cout << "Done reading!" << std::endl;
   std::cout.flush( );
@@ -113,17 +111,6 @@ int main( int argc, char **argv )
 //=============================================================================
 //                    Function Prototype Implementation
 //=============================================================================
-
-void WriteAMRData( vtkHierarchicalBoxDataSet* amrdata, const char* filename )
-{
-  vtkAssertUtils::assertNotNull(amrdata,__FILE__,__LINE__);
-
-//  vtkXMLPHierarchicalBoxDataWriter *myWriter =
-//          vtkXMLPHierarchicalBoxDataWriter::New( );
-//  myWriter->SetInput( amrdata );
-//  myWriter->SetFileName( filename );
-//  myWriter->Write();
-}
 
 //------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* GetAMRDataSet( )

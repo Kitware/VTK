@@ -23,6 +23,9 @@
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkImageToStructuredGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredGridWriter.h"
 
 #include <string>
 #include <sstream>
@@ -69,7 +72,7 @@ void vtkAMRDataTransferFilter::Transfer( )
   vtkAssertUtils::assertNotNull(this->ExtrudedData,__FILE__,__LINE__);
 
   // STEP 1: Donor-Receiver search
-  // TODO: implement this
+  this->DonorSearch();
 }
 
 //------------------------------------------------------------------------------
@@ -114,6 +117,20 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::DonorSearch()
+{
+  vtkAssertUtils::assertNotNull(this->ExtrudedData,__FILE__,__LINE__);
+
+  // TODO: implement this
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::DataTransfer()
+{
+  // TODO: implement this
+}
+
+//------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid( vtkAMRBox &ebox,
                                                       vtkUniformGrid* srcGrid )
 {
@@ -128,8 +145,6 @@ vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid( vtkAMRBox &ebox,
   ebox.GetNumberOfNodes( ndim );
   ebox.GetGridSpacing( h );
   ebox.GetBoxOrigin( origin );
-
-  std::cout << "ndim: " << ndim[0] << " " << ndim[1] << " " << ndim[2] << "\n";
 
   extrudedGrid->Initialize();
   extrudedGrid->SetDimensions( ndim );
@@ -159,7 +174,7 @@ void vtkAMRDataTransferFilter::WriteData( vtkHierarchicalBoxDataSet* amrData,
           vtkUniformGrid *myGrid = amrData->GetDataSet(level,data,myBox);
 
           if( myGrid != NULL )
-            myBox.WriteToVtkFile( oss.str().c_str() );
+            this->WriteGrid( myGrid, oss.str()  );
         } // END for all data
     } // END for all levels
 
@@ -171,117 +186,29 @@ void vtkAMRDataTransferFilter::WriteGrid( vtkUniformGrid* grid,
 {
   vtkAssertUtils::assertNotNull( grid, __FILE__, __LINE__ );
 
-   std::ostringstream oss;
-   oss.str( "" );
-   oss << prefix << ".vtk";
+  // STEP 0: Setup the file name to use
+  std::string fileName = prefix + ".vtk";
 
-   std::ofstream ofs;
-   ofs.open( oss.str( ).c_str( ) );
-   vtkAssertUtils::assertTrue( ofs.is_open(), __FILE__, __LINE__ );
+  // STEP 1: Convert to a structured grid
+  vtkImageToStructuredGrid *img2sgrid = vtkImageToStructuredGrid::New( );
+  vtkAssertUtils::assertNotNull( img2sgrid,__FILE__,__LINE__);
 
-   ofs << "# vtk DataFile Version 3.0\n";
-   ofs <<  prefix << "\n";
-   ofs << "ASCII\n";
-   ofs << "DATASET STRUCTURED_GRID\n";
+  img2sgrid->SetInput( grid );
+  img2sgrid->Update();
+  vtkStructuredGrid *myGrid = img2sgrid->GetOutput();
+  vtkAssertUtils::assertNotNull(myGrid,__FILE__,__LINE__);
 
-   double pnt[3];
-   int ijk[3];
-   int N[3];
-   grid->GetDimensions( N );
-   ofs << "DIMENSIONS " << N[0] << " " << N[1] << " " << N[2] << std::endl;
-   ofs << "POINTS " << grid->GetNumberOfPoints( ) <<  " double\n";
+  // STEP 2: Use structured grid writer to write the grid object
+  vtkStructuredGridWriter *myWriter = vtkStructuredGridWriter::New();
+  vtkAssertUtils::assertNotNull( myWriter,__FILE__,__LINE__);
 
-   for( int k=0; k < N[2]; ++k )
-     {
-       for( int j=0; j < N[1]; ++j )
-         {
-           for( int i=0; i < N[0]; ++i )
-             {
-               ijk[0] = i; ijk[1] = j; ijk[2] = k;
-               int pntIdx = vtkStructuredData::ComputePointId( N, ijk );
-               grid->GetPoint( pntIdx, pnt );
+  std::cout << "Writing grid @" << fileName << std::endl;
+  std::cout.flush();
 
-               ofs << pnt[ 0 ] << " " << pnt[ 1 ] << " " << pnt[ 2 ] << "\n";
-             } // END for all k
-         } // END for all j
-     } // END for all i
+  myWriter->SetInput(0,myGrid);
+  myWriter->SetFileName( fileName.c_str( ) );
+  myWriter->Update();
+  myWriter->Delete();
 
-   vtkPointData *pntData = grid->GetPointData();
-   if( (pntData != NULL) && (pntData->GetNumberOfArrays() > 0) )
-     {
-       ofs << "POINT_DATA " << grid->GetNumberOfPoints() << std::endl;
-       for(int dataArray=0;dataArray < pntData->GetNumberOfArrays();++dataArray)
-         {
-           vtkDataArray *array = pntData->GetArray( dataArray );
-           vtkAssertUtils::assertNotNull( array, __FILE__, __LINE__ );
-
-           ofs << this->GetDataArrayVTKString( array );
-         } // END for all data arrays
-
-     } // if there are point data
-
-   vtkCellData *cellData = grid->GetCellData( );
-   if( (cellData != NULL) && ( cellData->GetNumberOfArrays() > 0) )
-     {
-       ofs << "CELL_DATA " << grid->GetNumberOfCells() << std::endl;
-       for( int arrayidx=0; arrayidx<cellData->GetNumberOfArrays(); ++arrayidx)
-         {
-           vtkDataArray *array = cellData->GetArray( arrayidx );
-           vtkAssertUtils::assertNotNull( array, __FILE__, __LINE__ );
-
-           ofs << this->GetDataArrayVTKString( array );
-         } // END for all arrays
-     }
-   ofs.close( );
-
-}
-
-//------------------------------------------------------------------------------
-std::string vtkAMRDataTransferFilter::GetDataArrayVTKString(vtkDataArray *d )
-{
-  vtkAssertUtils::assertNotNull( d, __FILE__, __LINE__ );
-  std::ostringstream oss;
-  oss.str( "" );
-
-  int i=0;
-  switch( d->GetNumberOfComponents()  )
-  {
-    case 1:
-      // Write as scalars
-      oss << "SCALARS " << d->GetName() << " " << d->GetDataTypeAsString();
-      oss << " 1\n";
-      oss << "LOOKUP_TABLE default\n";
-      for( i=0; i < d->GetNumberOfTuples(); ++i )
-       oss << d->GetComponent(i,1) << std::endl;
-      break;
-    default:
-      // Write as Vector
-      // TODO: implement this
-      break;
-  }
-  return( oss.str( ) );
-}
-
-//------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::WriteGrids( )
-{
-  vtkAssertUtils::assertNotNull( this->AMRDataSet,__FILE__,__LINE__);
-
-  std::ostringstream oss;
-
-  for( int l=0; l < this->AMRDataSet->GetNumberOfLevels(); ++l )
-    {
-      for( int idx=0; idx < this->AMRDataSet->GetNumberOfDataSets(l); ++idx )
-        {
-          vtkAMRBox myBox;
-          vtkUniformGrid* myGrid=this->AMRDataSet->GetDataSet( l, idx, myBox );
-          if( myGrid != NULL )
-            {
-              oss.str( "" );
-              oss << "INITIAL_" << myBox.GetBlockId() << "_";
-              oss << myBox.GetLevel();
-              this->WriteGrid( myGrid, oss.str( ) );
-            }
-        } // END for all data
-    } // END for all levels
+  img2sgrid->Delete();
 }

@@ -81,12 +81,12 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     void WriteGrid( vtkUniformGrid* grid, std::string prefix );
 
     // Description:
-    // Returns a VTK string representation of the supplied data array
-    std::string GetDataArrayVTKString( vtkDataArray* dataArray );
+    //
+    void DonorSearch();
 
     // Description:
-    // Loops throught the data-set and writes each grid.
-    void WriteGrids( );
+    //
+    void DataTransfer();
 
     int                          NumberOfGhostLayers;
     vtkHierarchicalBoxDataSet    *ExtrudedData;
