@@ -476,7 +476,7 @@ void vtkGarbageCollectorImpl::CollectInternal(vtkObjectBase* root)
     delete c;
     }
 
-#ifndef VTK_LEAN_AND_MEAN
+#ifndef NDEBUG
   // Print remaining referenced components for debugging.
   for(ComponentsType::iterator i = this->ReferencedComponents.begin(), iend = this->ReferencedComponents.end();
       i != iend; ++i)
@@ -587,7 +587,7 @@ vtkGarbageCollectorImpl::VisitTarjan(vtkObjectBase* obj)
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_LEAN_AND_MEAN
+#ifdef NDEBUG
 void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr,
                                      const char*)
 {
@@ -704,7 +704,7 @@ void vtkGarbageCollectorImpl::CollectComponent(ComponentType* c)
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEAN_AND_MEAN
+#ifndef NDEBUG
 void vtkGarbageCollectorImpl::PrintComponent(ComponentType* c)
 {
   if(this->Debug && vtkObject::GetGlobalWarningDisplay())
