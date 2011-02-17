@@ -26,6 +26,7 @@
 #define VTKAMRINTERBLOCKCONNECTIVITY_H_
 
 class vtkAMRLink;
+class vtkUnsignedIntArray;
 
 class VTK_AMR_EXPORT vtkAMRInterBlockConnectivity : public vtkObject
 {
@@ -45,6 +46,14 @@ class VTK_AMR_EXPORT vtkAMRInterBlockConnectivity : public vtkObject
     // Returns the number of connections for the block corresponding to the
     // given block idx and level id.
     int GetNumberOfConnections( const int myBlockId, const int myLevelId );
+
+    // Description:
+    // Checks to see if this vtkAMRInterBlockConnectivity has any connections.
+    bool HasConnections();
+
+    // Description:
+    // Returns the set of encoded keys for each of
+    vtkUnsignedIntArray* GetEncodedGridKeys();
 
     // Description:
     // Returns true if connections for the given block exist, o/w false.

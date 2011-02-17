@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkAMRLink.h"
 #include "vtkAssertUtils.hpp"
+#include "vtkUnsignedIntArray.h"
 
 //
 // Standard functions
@@ -126,6 +127,28 @@ bool vtkAMRInterBlockConnectivity::HasBlockConnections( const unsigned int idx )
   if( this->connectivity.find( idx ) != this->connectivity.end() )
     return true;
   return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkAMRInterBlockConnectivity::HasConnections()
+{
+  if( this->connectivity.size() > 0 )
+    return true;
+  return false;
+}
+
+//------------------------------------------------------------------------------
+vtkUnsignedIntArray* vtkAMRInterBlockConnectivity::GetEncodedGridKeys()
+{
+  vtkUnsignedIntArray *myArray = vtkUnsignedIntArray::New();
+  vtkstd::map<unsigned int, vtkstd::vector< vtkAMRLink > >::iterator iter;
+  int idx = 0;
+  for(iter=this->connectivity.begin();iter != this->connectivity.end();++iter)
+    {
+      myArray->InsertValue( idx, iter->first );
+      ++idx;
+    } // END for all connections
+  return( myArray );
 }
 
 //------------------------------------------------------------------------------
