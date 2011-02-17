@@ -219,5 +219,6 @@ int TestImageDataToStructuredGrid(int,char *[])
   if( !DataSetsEqual( img1, sg1 ) )
       rval = 1;
 
+  myFilter->Delete();
   return( rval );
 }
