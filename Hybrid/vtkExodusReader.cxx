@@ -3998,12 +3998,12 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
 
     // Get the data into the temp int array
     ex_get_node_num_map(this->CurrentHandle, exo_array_data);
-cerr << "node num map : ";
-for (i = 0; i < this->NumberOfNodesInFile; i ++)
-{
-  cerr << exo_array_data[i] << " ";
-}
-cerr << endl;
+//cerr << "node num map : ";
+//for (i = 0; i < this->NumberOfNodesInFile; i ++)
+//{
+//  cerr << exo_array_data[i] << " ";
+//}
+//cerr << endl;
 
 
     // Okay copy the points that are actually used into the vtk array
