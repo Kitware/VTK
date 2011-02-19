@@ -44,11 +44,17 @@ public:
   void setLayer(vtkQtChartSeriesLayer* layer);
   vtkQtChartSeriesLayer* getLayer();
 
+  //If true, the filter only looks at the start of the series for a match
+  //If false, the filter looks for any substring match
+  void setSearchBeginningOnly(bool searchBeginningOnly);
+  bool getSearchBeginningOnly();
+
 private slots:
   void filterSeries(const QString& text);
 
 private:
   vtkQtChartSeriesLayer* Layer;
+  bool mySearchBeginningOnly;
 };
 
 #endif
