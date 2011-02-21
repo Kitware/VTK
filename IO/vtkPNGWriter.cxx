@@ -47,7 +47,7 @@ vtkPNGWriter::~vtkPNGWriter()
 void vtkPNGWriter::Write()
 {
   this->SetErrorCode(vtkErrorCode::NoError);
-  
+
   // Error checking
   if ( this->GetInput() == NULL )
     {
@@ -60,13 +60,13 @@ void vtkPNGWriter::Write()
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
-  
+
   // Make sure the file name is allocated
-  this->InternalFileName = 
+  this->InternalFileName =
     new char[(this->FileName ? strlen(this->FileName) : 1) +
             (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
             (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
-  
+
   // Fill in image information.
   this->GetInput()->UpdateInformation();
   int *wExtent;
@@ -76,24 +76,24 @@ void vtkPNGWriter::Write()
   this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
   // loop over the z axis and write the slices
-  for (this->FileNumber = wExtent[4]; this->FileNumber <= wExtent[5]; 
+  for (this->FileNumber = wExtent[4]; this->FileNumber <= wExtent[5];
        ++this->FileNumber)
     {
     this->MaximumFileNumber = this->FileNumber;
     this->GetInput()->SetUpdateExtent(wExtent[0], wExtent[1],
                                       wExtent[2], wExtent[3],
-                                      this->FileNumber, 
+                                      this->FileNumber,
                                       this->FileNumber);
     // determine the name
     if (this->FileName)
       {
       sprintf(this->InternalFileName,"%s",this->FileName);
       }
-    else 
+    else
       {
       if (this->FilePrefix)
         {
-        sprintf(this->InternalFileName, this->FilePattern, 
+        sprintf(this->InternalFileName, this->FilePattern,
                 this->FilePrefix, this->FileNumber);
         }
       else
@@ -117,10 +117,10 @@ void vtkPNGWriter::Write()
 
 extern "C"
 {
-  void vtkPNGWriteInit(png_structp png_ptr, png_bytep data, 
+  void vtkPNGWriteInit(png_structp png_ptr, png_bytep data,
                        png_size_t sizeToWrite)
   {
-    vtkPNGWriter *self = 
+    vtkPNGWriter *self =
       vtkPNGWriter::SafeDownCast(static_cast<vtkObject *>
                                  (png_get_io_ptr(png_ptr)));
     if (self)
@@ -142,20 +142,33 @@ extern "C"
 
 extern "C"
 {
-  /* The PNG library does not expect the error function to return.
-     Therefore we must use this ugly longjmp call.  */
-  void vtkPNGWriteErrorFunction(png_structp png_ptr,
-                                png_const_charp vtkNotUsed(error_msg))
+  void vtkPNGWriteWarningFunction(png_structp png_ptr,
+                                  png_const_charp warning_msg)
   {
-    longjmp(png_ptr->jmpbuf, 1);
+    PNG_CONST char *name = "UNKNOWN (ERROR!)";
+    char *test;
+    test = static_cast<char *>(png_get_error_ptr(png_ptr));
+
+    if (test == NULL)
+      fprintf(stderr, "%s: libpng warning: %s\n", name, warning_msg);
+
+    else
+      fprintf(stderr, "%s: libpng warning: %s\n", test, warning_msg);
   }
 }
 
 extern "C"
 {
-  void vtkPNGWriteWarningFunction(png_structp vtkNotUsed(png_ptr),
-                                  png_const_charp vtkNotUsed(warning_msg))
+  /* The PNG library does not expect the error function to return.
+     Therefore we must use this ugly longjmp call.  */
+  void vtkPNGWriteErrorFunction(png_structp png_ptr,
+                                png_const_charp error_msg)
   {
+#if PNG_LIBPNG_VER >= 10400
+    vtkPNGWriteWarningFunction(png_ptr, error_msg);
+#else
+    longjmp(png_ptr->jmpbuf, 1);
+#endif
   }
 }
 
@@ -176,7 +189,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     {
     vtkWarningMacro("PNGWriter only supports unsigned char and unsigned short inputs");
     return;
-    }   
+    }
 
   png_structp png_ptr = png_create_write_struct
     (PNG_LIBPNG_VER_STRING, (png_voidp)NULL, NULL, NULL);
@@ -185,7 +198,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     vtkErrorMacro(<<"Unable to write PNG file!");
     return;
     }
-  
+
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
     {
@@ -195,7 +208,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     return;
     }
 
-  
+
   this->TempFP = 0;
   if (this->WriteToMemory)
     {
@@ -208,7 +221,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
       }
     // start out with 10K as a guess for the image size
     uc->Allocate(10000);
-    png_set_write_fn(png_ptr, static_cast<png_voidp>(this), 
+    png_set_write_fn(png_ptr, static_cast<png_voidp>(this),
                      vtkPNGWriteInit, vtkPNGWriteFlush);
     }
   else
@@ -223,7 +236,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
       png_init_io(png_ptr, this->TempFP);
       png_set_error_fn(png_ptr, png_ptr,
                        vtkPNGWriteErrorFunction, vtkPNGWriteWarningFunction);
-      if (setjmp(png_ptr->jmpbuf))
+      if (setjmp(png_jmpbuf((png_ptr))))
         {
         fclose(this->TempFP);
         this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
@@ -231,13 +244,13 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
         }
     }
 
-  
+
   int *uExtent = data->GetUpdateExtent();
   void *outPtr;
   outPtr = data->GetScalarPointer(uExtent[0], uExtent[2], uExtent[4]);
   png_uint_32 width, height;
   width = uExtent[1] - uExtent[0] + 1;
-  height = uExtent[3] - uExtent[2] + 1;  
+  height = uExtent[3] - uExtent[2] + 1;
   int bit_depth = 8;
   if (data->GetScalarType() == VTK_UNSIGNED_SHORT)
     {
@@ -255,14 +268,14 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     default: color_type = PNG_COLOR_TYPE_RGB_ALPHA;
       break;
     }
-  
+
   png_set_IHDR(png_ptr, info_ptr, width, height,
                bit_depth, color_type, PNG_INTERLACE_NONE,
-               PNG_COMPRESSION_TYPE_DEFAULT, 
+               PNG_COMPRESSION_TYPE_DEFAULT,
                PNG_FILTER_TYPE_DEFAULT);
   // interlace_type - PNG_INTERLACE_NONE or
   //                 PNG_INTERLACE_ADAM7
-    
+
   png_write_info(png_ptr, info_ptr);
   // default is big endian
   if (bit_depth > 8)
@@ -297,7 +310,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       }
     }
-  
+
   if (this->TempFP)
     {
     fclose(this->TempFP);
