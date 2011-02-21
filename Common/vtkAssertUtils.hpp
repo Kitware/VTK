@@ -29,7 +29,9 @@ class vtkAssertUtils
      * @param line the line number where this function is called.
      */
     inline static void assertFalse(
-        const bool predicate, const char* file, int line )
+        const bool vtkNotUsed(predicate),
+        const char* vtkNotUsed(file),
+        int vtkNotUsed(line) )
     {
       #ifdef ASSERT_ON
         if( predicate != false )
@@ -54,7 +56,9 @@ class vtkAssertUtils
      * @param line the line number where this function is called.
      */
     inline static void assertTrue(
-        const bool predicate, const char* file, int line )
+        const bool vtkNotUsed(predicate),
+        const char* vtkNotUsed(file),
+        int vtkNotUsed(line) )
     {
       #ifdef ASSERT_ON
         if( predicate != true )
@@ -79,7 +83,9 @@ class vtkAssertUtils
      * @param line the line number where this function is called.
      */
     inline static void assertNull(
-        const void* ptr, const char* file, int line )
+        const void* vtkNotUsed(ptr),
+        const char* vtkNotUsed(file),
+        int vtkNotUsed(line) )
     {
 
       #ifdef ASSERT_ON
@@ -104,7 +110,9 @@ class vtkAssertUtils
      * @param line the line number where this function is called.
      */
     inline static void assertNotNull(
-        const void *ptr, const char* file, int line )
+        const void* vtkNotUsed(ptr),
+        const char* vtkNotUsed(file),
+        int vtkNotUsed(line) )
     {
 
       #ifdef ASSERT_ON
@@ -124,7 +132,10 @@ class vtkAssertUtils
 
 
     inline static void assertNotEquals(
-        const int rhs, const int lhs, const char *file, int line )
+        const int vtkNotUsed(rhs),
+        const int vtkNotUsed(lhs),
+        const char* vtkNotUsed(file),
+        int vtkNotUsed(line) )
     {
       #ifdef ASSERT_ON
        if( rhs == lhs )
@@ -148,7 +159,10 @@ class vtkAssertUtils
      * @param lhs the number on the left-hand-side.
      */
     inline static void assertEquals(
-        const int rhs, const int lhs, const char* file, int line )
+        const int vtkNotUsed(rhs),
+        const int vtkNotUsed(lhs),
+        const char* vtkNotUsed(file),
+        int vtkNotUsed(line) )
     {
       #ifdef ASSERT_ON
         if( rhs != lhs )
@@ -175,7 +189,11 @@ class vtkAssertUtils
      * of the lower and upper bounds.
      */
     inline static void assertInRange(
-        const int num, const int lb, const int ub, const char* file, int line )
+        const int vtkNotUsed(num),
+        const int vtkNotUsed(lb),
+        const int vtkNotUsed(ub),
+        const char* vtkNotUsed(file),
+        int vtkNotUsed(line) )
     {
 
       #ifdef ASSERT_ON
