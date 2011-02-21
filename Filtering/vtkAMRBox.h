@@ -37,7 +37,9 @@
 
 class VTK_FILTERING_EXPORT vtkAMRBox : public vtkSerializable
 {
+
 public:
+
   // Description:
   // Construct the empty box.
   vtkAMRBox(int dim=3);
@@ -66,7 +68,7 @@ public:
 
   // Description:
   // Construct a specific box & set all of its meta-data
-  // origin   -- 3-tuple consisting of the x,y,z world origin of the box
+  // origin   -- 3-tuple consisting of the x,y,z world origin of the Dataset
   // dim      -- The dimension of the corresponding block, i.e., 2 or 3
   // ndim     -- 3-tuple of the number of points along each dimension
   //             Note, this constructor assumes loCorner to be 0
@@ -74,9 +76,53 @@ public:
   // blockIdx -- the ID of the block corresponding to this instance
   // level    -- the level of this instance
   // rank     -- the corresponding process rank that owns this block
+  //
+  // .SECTION: Note the origin is the origin of the entire data-set and not
+  // the origin of the box. To get the origin of the box use
   vtkAMRBox(
       const double origin[3], const int dim, const int ndim[3],
       const double h[3], const int blockIdx, const int level,
+      const int rank );
+
+
+   // Description:
+   // Construct a specific box & set all of its meta-data
+   // origin   -- 3-tuple consisting of the x,y,z world origin of the Dataset
+   // dim      -- The dimension of the corresponding block, i.e., 2 or 3
+   // lo       -- 3-tuple of the lowest corner of the box
+   // hi       -- 3-tuple of the highest corner of the box
+   //             Note, this constructor assumes loCorner to be 0
+   // h        -- 3-tuple consisting of the mesh spacing at each dimension
+   // blockIdx -- the ID of the block corresponding to this instance
+   // level    -- the level of this instance
+   // rank     -- the corresponding process rank that owns this block
+   //
+   // .SECTION: Note the origin is the origin of the entire data-set and not
+   // the origin of the box. To get the origin of the box use
+  vtkAMRBox(
+      const double origin[3], const int dimension,
+      const int lo[3], const int hi[3],
+      const double h[3], const int blockIdx, const int level,
+      const int rank );
+
+
+  // Description:
+  // Consturcts a specific box with given dataSet origin & box origin.
+  // dataSetOrigin -- x,y,z world origin of the entire dataset.
+  // boxOrigin     -- x,y,z box origin.
+  // dimension     -- the dimension of the corresponding block, i.e., 2 or 3.
+  // h             -- mesh spacing along each direction.
+  // ndims         -- Number of points along each dimension
+  // blockIdx      -- the ID of the block corresponding to this instance.
+  // level         -- the level of this instance.
+  // rank          -- the corresponding process rank that owns this block.
+  vtkAMRBox(
+      const double dataSetOrigin[3], const double boxOrigin[3],
+      const int dimension,
+      const double h[3],
+      const int   ndim[3],
+      const int blockIdx,
+      const int level,
       const int rank );
 
   // Description:
@@ -101,14 +147,14 @@ public:
   void GetNumberOfGhosts( int *ng );
 
   // Description:
-  // Get the minimum coordinates
+  // Get the minimum coordinates of this box instance.
   double GetMinX() const;
   double GetMinY() const;
   double GetMinZ() const;
   void GetMinBounds( double min[3] ) const;
 
   // Description:
-  // Get the maximum coordinates
+  // Get the maximum coordinates of this box instance.
   double GetMaxX() const;
   double GetMaxY() const;
   double GetMaxZ() const;
@@ -142,6 +188,7 @@ public:
   // Description:
   // Sets the real extent of this AMR box instance.
   void SetRealExtent( int realExtent[6] );
+  void SetRealExtent( int minijk[3], int maxijk[3] );
 
   // Description:
   // Checks if the point is inside this AMRBox instance.
@@ -289,7 +336,8 @@ public:
   // AMR box at the given ijk coordinates.
   // ijk -- the computational coordinate of the point in query (in)
   // pnt -- the physical (real) coordinate of the point (out)
-  void GetPoint( const int ijk[3], double pnt[3] );
+  void GetPoint( const int ijk[3], double pnt[3] ) const;
+  void GetPoint( const int i, const int j, const int k, double pnt[3] ) const;
 
   // Description:
   // Send the box to a stream. "(ilo,jlo,jhi),(ihi,jhi,khi)"
@@ -330,6 +378,7 @@ public:
   //ETX
 
 public:
+
   // Description:
   // These are public for backward compatibility only. If your
   // code uses these, it will break in the future when this class
@@ -338,12 +387,18 @@ public:
   int LoCorner[3]; // lo corner cell id.
   int HiCorner[3]; // hi corner cell id.
 
+protected:
+
+  // Description:
+  // Initializes this box instance.
+  void Initialize( );
+
 private:
   int Dimension;      // 2 or 3
   int BlockId;        // The ID of the corresponding block
   int ProcessId;      // The process ID that owns this block
   int BlockLevel;     // The level of this AMR box instance
-  int NG[3];          // Number of ghosts along each dimension
+  int NG[6];          // Number of ghosts along each dimension
   double X0[3];       // Dataset origin (not box origin)
   double DX[3];       // grid spacing
   int RealExtent[6];  // Extent of the all the real nodes, i.e., not the ghosts
