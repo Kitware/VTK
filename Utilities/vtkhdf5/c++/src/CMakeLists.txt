@@ -94,7 +94,7 @@ INSTALL (
     FILES
         ${CPP_HDRS}
     DESTINATION
-        include/cpp
+        ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkhdf5/cpp
 )
 ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 
