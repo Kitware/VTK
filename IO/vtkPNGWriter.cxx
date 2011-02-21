@@ -168,6 +168,7 @@ extern "C"
     vtkPNGWriteWarningFunction(png_ptr, error_msg);
 #else
     longjmp(png_ptr->jmpbuf, 1);
+    (void)error_msg;
 #endif
   }
 }
