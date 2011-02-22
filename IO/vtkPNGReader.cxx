@@ -24,10 +24,10 @@ vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER
 // Let us get rid of this funny warning on /W4:
-// warning C4611: interaction between '_setjmp' and C++ object 
+// warning C4611: interaction between '_setjmp' and C++ object
 // destruction is non-portable
 #pragma warning( disable : 4611 )
-#endif 
+#endif
 
 //----------------------------------------------------------------------------
 void vtkPNGReader::ExecuteInformation()
@@ -63,7 +63,7 @@ void vtkPNGReader::ExecuteInformation()
     fclose(fp);
     return;
     }
-  
+
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
     {
@@ -90,7 +90,7 @@ void vtkPNGReader::ExecuteInformation()
     png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
     return;
   }
- 
+
   png_init_io(png_ptr, fp);
   png_set_sig_bytes(png_ptr, 8);
 
@@ -100,7 +100,7 @@ void vtkPNGReader::ExecuteInformation()
   int bit_depth, color_type, interlace_type;
   int compression_type, filter_method;
   // get size and bit-depth of the PNG-image
-  png_get_IHDR(png_ptr, info_ptr, 
+  png_get_IHDR(png_ptr, info_ptr,
                &width, &height,
                &bit_depth, &color_type, &interlace_type,
                &compression_type, &filter_method);
@@ -113,13 +113,17 @@ void vtkPNGReader::ExecuteInformation()
     }
 
   // minimum of a byte per pixel
-  if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) 
+  if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
     {
+#if PNG_LIBPNG_VER >= 10400
+    png_set_expand_gray_1_2_4_to_8(png_ptr);
+#else
     png_set_gray_1_2_4_to_8(png_ptr);
+#endif
     }
 
   // add alpha if any alpha found
-  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) 
+  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
     {
     png_set_tRNS_to_alpha(png_ptr);
     }
@@ -177,7 +181,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     {
     return;
     }
-  
+
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
     {
@@ -193,7 +197,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
                             (png_infopp)NULL);
     return;
     }
-  
+
   // Set error handling
   if (setjmp (png_jmpbuf(png_ptr)))
   {
@@ -209,7 +213,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
   int bit_depth, color_type, interlace_type;
   int compression_type, filter_method;
   // get size and bit-depth of the PNG-image
-  png_get_IHDR(png_ptr, info_ptr, 
+  png_get_IHDR(png_ptr, info_ptr,
                &width, &height,
                &bit_depth, &color_type, &interlace_type,
                &compression_type, &filter_method);
@@ -222,13 +226,17 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     }
 
   // minimum of a byte per pixel
-  if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) 
+  if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
     {
+#if PNG_LIBPNG_VER >= 10400
+    png_set_expand_gray_1_2_4_to_8(png_ptr);
+#else
     png_set_gray_1_2_4_to_8(png_ptr);
+#endif
     }
 
   // add alpha if any alpha found
-  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) 
+  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
     {
     png_set_tRNS_to_alpha(png_ptr);
     }
@@ -285,8 +293,8 @@ void vtkPNGReaderUpdate(vtkPNGReader *self, vtkImageData *data, OT *outPtr)
   data->GetExtent(outExtent);
   data->GetIncrements(outIncr);
 
-  long pixSize = data->GetNumberOfScalarComponents()*sizeof(OT);  
-  
+  long pixSize = data->GetNumberOfScalarComponents()*sizeof(OT);
+
   outPtr2 = outPtr;
   int idx2;
   for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
@@ -317,7 +325,7 @@ void vtkPNGReader::ExecuteData(vtkDataObject *output)
   data->GetPointData()->GetScalars()->SetName("PNGImage");
 
   this->ComputeDataIncrements();
-  
+
   // Call the correct templated function for the output
   void *outPtr;
 
@@ -328,7 +336,7 @@ void vtkPNGReader::ExecuteData(vtkDataObject *output)
     vtkTemplateMacro(vtkPNGReaderUpdate(this, data, (VTK_TT *)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
-    }   
+    }
 }
 
 
@@ -356,7 +364,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
     fclose(fp);
     return 0;
     }
-  
+
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
     {
@@ -365,7 +373,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
     fclose(fp);
     return 0;
     }
-  
+
   png_infop end_info = png_create_info_struct(png_ptr);
   if (!end_info)
     {
@@ -375,14 +383,14 @@ int vtkPNGReader::CanReadFile(const char* fname)
     return 0;
     }
   png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-  
+
   fclose(fp);
-  return 3; 
+  return 3;
 }
 #ifdef _MSC_VER
 // Put the warning back
 #pragma warning( default : 4611 )
-#endif 
+#endif
 
 //----------------------------------------------------------------------------
 void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
