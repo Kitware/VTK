@@ -229,8 +229,8 @@ initializeLibxml2(void) {
     * Deactivate the cache if created; otherwise we have to create/free it
     * for every test, since it will confuse the memory leak detection.
     * Note that normally this need not be done, since the cache is not
-    * created until set explicitely with xmlXPathContextSetCache();
-    * but for test purposes it is sometimes usefull to activate the
+    * created until set explicitly with xmlXPathContextSetCache();
+    * but for test purposes it is sometimes useful to activate the
     * cache by default for the whole library.
     */
     if (ctxtXPath->cache != NULL)

@@ -47981,7 +47981,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3VdbeNoopComment(Vdbe *p, const char *zFormat,
 ** having to check to see if the return from this routine is a valid pointer.
 **
 ** About the #ifdef VTK_SQLITE_OMIT_TRACE:  Normally, this routine is never called
-** unless p->nOp>0.  This is because in the absense of VTK_SQLITE_OMIT_TRACE,
+** unless p->nOp>0.  This is because in the absence of VTK_SQLITE_OMIT_TRACE,
 ** an OP_Trace instruction is always inserted by vtk_sqlite3VdbeGet() as soon as
 ** a new VDBE is created.  So we are free to set addr to p->nOp-1 without
 ** having to double-check to make sure that the result is non-negative. But
@@ -48542,7 +48542,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3VdbeMakeReady(
   ** being called from vtk_sqlite3_reset() to reset the virtual machine.
   */
   if( nVar>=0 && ALWAYS(db->mallocFailed==0) ){
-    u8 *zCsr = (u8 *)&p->aOp[p->nOp];       /* Memory avaliable for alloation */
+    u8 *zCsr = (u8 *)&p->aOp[p->nOp];       /* Memory available for alloation */
     u8 *zEnd = (u8 *)&p->aOp[p->nOpAlloc];  /* First byte past available mem */
     int nByte;                              /* How much extra memory needed */
 

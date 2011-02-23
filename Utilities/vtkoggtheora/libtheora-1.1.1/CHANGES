@@ -124,7 +124,7 @@ libtheora 1.0beta1 (2007 September 22)
  - Granulepos scheme modified to match other codecs. This bumps
    the bitstream revision to 3.2.1. Bitstreams marked 3.2.0 are
    handled correctly by this decoder. Older decoders will show
-   a one frame sync error in the less noticable direction.
+   a one frame sync error in the less noticeable direction.
 
 libtheora 1.0alpha8 (2007 September 18)
 

@@ -110,7 +110,7 @@ public:
 
   // Description:
   // A collection of plane equations used to bound the position of the point.
-  // This is in addition to confining the point to a plane - these contraints
+  // This is in addition to confining the point to a plane - these constraints
   // are meant to, for example, keep a point within the extent of an image.
   // Using a set of plane equations allows for more complex bounds (such as
   // bounding a point to an oblique reliced image that has hexagonal shape)

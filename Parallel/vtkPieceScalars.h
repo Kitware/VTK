@@ -16,7 +16,7 @@
 //
 // .SECTION Description
 // vtkPieceScalars is meant to display which piece is being requested
-// as scalar values.  It is usefull for visualizing the partitioning for
+// as scalar values.  It is useful for visualizing the partitioning for
 // streaming or distributed pipelines.
 //
 // .SECTION See Also

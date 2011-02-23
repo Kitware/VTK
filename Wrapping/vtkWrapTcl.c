@@ -158,7 +158,7 @@ void output_temp(FILE *fp, int i, unsigned int aType,
     case VTK_PARSE_UNKNOWN:     return;
     }
 
-  /* handle array arguements */
+  /* handle array arguments */
   if (count > 1)
     {
     fprintf(fp,"temp%i[%i];\n",i,count);
