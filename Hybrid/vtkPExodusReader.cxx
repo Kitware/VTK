@@ -43,7 +43,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkCommand.h"
 
-#include "netcdf.h"
+#include "vtk_netcdf.h"
 #include "vtkExodusII.h"
 #include <sys/stat.h>
 #include <ctype.h>

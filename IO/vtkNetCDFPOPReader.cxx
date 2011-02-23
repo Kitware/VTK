@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <netcdf.h>
+#include "vtk_netcdf.h"
 #include <string>
 #include <vector>
 
