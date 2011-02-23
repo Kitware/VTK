@@ -112,6 +112,8 @@ public:
   // grid are set.
   virtual void BlankPoint(vtkIdType ptId);
   virtual void UnBlankPoint(vtkIdType ptId);
+  virtual void BlankPoint( const int i, const int j, const int k );
+  virtual void UnBlankPoint( const int i, const int j, const int k );
 
   // Description:
   // Methods for supporting blanking of cells. Blanking turns on or off
@@ -120,6 +122,8 @@ public:
   // grid are set.
   virtual void BlankCell(vtkIdType ptId);
   virtual void UnBlankCell(vtkIdType ptId);
+  virtual void BlankCell( const int i, const int j, const int k );
+  virtual void UnBlankCell( const int i, const int j, const int k );
 
   // Description:
   // Get the array that defines the blanking (visibility) of each point.

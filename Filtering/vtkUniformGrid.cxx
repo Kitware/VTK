@@ -29,6 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStructuredVisibilityConstraint.h"
+#include "vtkStructuredData.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 #include "vtkIntArray.h"
@@ -779,11 +780,29 @@ void vtkUniformGrid::BlankPoint(vtkIdType ptId)
 }
 
 //----------------------------------------------------------------------------
+void vtkUniformGrid::BlankPoint( const int i, const int j, const int k )
+{
+  int ijk[3];
+  ijk[0] = i; ijk[1] = j; ijk[2] = k;
+  int idx = vtkStructuredData::ComputePointId(this->Dimensions, ijk );
+  this->BlankPoint( idx );
+}
+
+//----------------------------------------------------------------------------
 // Turn on a particular data point.
 void vtkUniformGrid::UnBlankPoint(vtkIdType ptId)
 {
   this->PointVisibility->Initialize(this->GetDimensions());
   this->PointVisibility->UnBlank(ptId);
+}
+
+//----------------------------------------------------------------------------
+void vtkUniformGrid::UnBlankPoint( const int i, const int j, const int k )
+{
+  int ijk[3];
+  ijk[0] = i; ijk[1] = j; ijk[2] = k;
+  int idx = vtkStructuredData::ComputePointId(this->Dimensions, ijk );
+  this->UnBlankPoint( idx );
 }
 
 //----------------------------------------------------------------------------
@@ -813,6 +832,15 @@ void vtkUniformGrid::BlankCell(vtkIdType cellId)
 }
 
 //----------------------------------------------------------------------------
+void vtkUniformGrid::BlankCell( const int i, const int j, const int k )
+{
+  int ijk[3];
+  ijk[0] = i; ijk[1] = j; ijk[2] = k;
+  int idx = vtkStructuredData::ComputeCellId(this->Dimensions, ijk );
+  this->BlankCell( idx );
+}
+
+//----------------------------------------------------------------------------
 // Turn on a particular data cell.
 void vtkUniformGrid::UnBlankCell(vtkIdType cellId)
 {
@@ -824,6 +852,15 @@ void vtkUniformGrid::UnBlankCell(vtkIdType cellId)
   dims[2] = ( dims[2] < 1 )? 1 : dims[2];
   this->CellVisibility->Initialize( dims );
   this->CellVisibility->UnBlank(cellId);
+}
+
+//----------------------------------------------------------------------------
+void vtkUniformGrid::UnBlankCell( const int i, const int j, const int k )
+{
+  int ijk[3];
+  ijk[0] = i; ijk[1] = j; ijk[2] = k;
+  int idx = vtkStructuredData::ComputeCellId(this->Dimensions, ijk );
+  this->UnBlankCell( idx );
 }
 
 //----------------------------------------------------------------------------
