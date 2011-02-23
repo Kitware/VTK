@@ -976,13 +976,13 @@ H5Z_filter_scaleoffset(unsigned flags, size_t cd_nelmts, const unsigned cd_value
     unsigned char *outbuf = NULL;   /* pointer to new output buffer */
     unsigned buf_offset = 21;       /* buffer offset because of parameters stored in file */
     unsigned i;                     /* index */
-    parms_atomic p;                 /* paramters needed for compress/decompress functions */
+    parms_atomic p;                 /* parameters needed for compress/decompress functions */
 
     FUNC_ENTER_NOAPI(H5Z_filter_scaleoffset, 0)
 
     /* check arguments */
     if(cd_nelmts != H5Z_SCALEOFFSET_TOTAL_NPARMS)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid scaleoffset number of paramters")
+       HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid scaleoffset number of parameters")
 
     /* Check if memory byte order matches dataset datatype byte order */
     switch(H5T_native_order_g) {
@@ -1052,7 +1052,7 @@ H5Z_filter_scaleoffset(unsigned flags, size_t cd_nelmts, const unsigned cd_value
         minbits = (uint32_t)scale_factor;
     }
 
-    /* prepare paramters to pass to compress/decompress functions */
+    /* prepare parameters to pass to compress/decompress functions */
     p.size = cd_values[H5Z_SCALEOFFSET_PARM_SIZE];
     p.mem_order = H5T_native_order_g;
 

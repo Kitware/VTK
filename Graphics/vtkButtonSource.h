@@ -26,7 +26,7 @@
 // Creating a vtkButtonSource requires specifying its center point. 
 // (Subclasses have other attributes that must be set to control 
 // the shape of the button.) You must also specify how to control
-// the shape of the texture region; i.e., wheter to size the
+// the shape of the texture region; i.e., whether to size the
 // texture region proportional to the texture dimensions or whether
 // to size the texture region proportional to the button. Also, buttons
 // can be created single sided are mirrored to create two-sided buttons.

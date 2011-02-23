@@ -135,7 +135,7 @@ public:
 
   // Description:
   // We precompute some values to speed up update of the terrain.
-  // Unfortunately, they have to be manually/explicitely updated
+  // Unfortunately, they have to be manually/explicitly updated
   // when the camera or renderer size changes.
   void InitializeNodeAnalysis(int rendererSize[2]);
 

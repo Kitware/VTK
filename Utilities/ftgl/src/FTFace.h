@@ -52,7 +52,7 @@ class FTGL_EXPORT FTFace
     bool Open( const unsigned char *pBufferBytes, size_t bufferSizeInBytes );
 
     /** 
-     * Attach auxilliary file to face (e.g., font metrics). 
+     * Attach auxiliary file to face (e.g., font metrics). 
      */ 
     bool Attach( const char* filename); 
 
