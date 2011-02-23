@@ -39,8 +39,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/string>
 #include <vtksys/ios/sstream>
 #include <vtksys/ios/iostream>
-#include <cstring>
-#include <cmath>
 
 #include "vtkMultiProcessController.h"
 
@@ -62,11 +60,12 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->Filename = NULL;
   this->SetNumberOfInputPorts(0);
 
-  // Set up two output ports, one for fields, one for blades
-  this->SetNumberOfOutputPorts(2);
+  // Set up three output ports for field, blade and ground
+  this->SetNumberOfOutputPorts(3);
 
   // Irregularly spaced grid description for entire problem
   this->Points = vtkPoints::New();
+  this->GPoints = vtkPoints::New();
   this->xSpacing = vtkFloatArray::New();
   this->ySpacing = vtkFloatArray::New();
   this->zSpacing = vtkFloatArray::New();
@@ -121,10 +120,6 @@ vtkWindBladeReader::vtkWindBladeReader()
     this->Rank = 0;
     this->TotalRank = 1;
     }
-
-  // by default don't skip any lines because normal wind files do not
-  // have a header
-  this->NumberLinesToSkip = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -151,6 +146,7 @@ vtkWindBladeReader::~vtkWindBladeReader()
     delete [] zTopographicValues;
 
   this->Points->Delete();
+  this->GPoints->Delete();
   this->BPoints->Delete();
 
   if (this->data)
@@ -210,10 +206,13 @@ int vtkWindBladeReader::RequestInformation(
 
   // Get ParaView information and output pointers
   vtkInformation* fieldInfo = outputVector->GetInformationObject(0);
-  vtkStructuredGrid *field = vtkStructuredGrid::SafeDownCast(
-                             fieldInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid *field = GetFieldOutput();
+
   vtkInformation* bladeInfo = outputVector->GetInformationObject(1);
   vtkUnstructuredGrid* blade = GetBladeOutput();
+
+  vtkInformation* groundInfo = outputVector->GetInformationObject(2);
+  vtkStructuredGrid *ground = GetGroundOutput();
 
   // Read global size and variable information from input file one time
   if (this->NumberOfVariables == 0) {
@@ -239,10 +238,26 @@ int vtkWindBladeReader::RequestInformation(
     this->WholeExtent[3] = this->Dimension[1] - 1;
     this->WholeExtent[5] = this->Dimension[2] - 1;
 
+    // Ground is from level to topography of field, one cell thick
+    this->GDimension[0] = this->Dimension[0];
+    this->GDimension[1] = this->Dimension[1];
+    this->GDimension[2] = 2;
+
+    this->GExtent[0] = this->GExtent[2] = this->GExtent[4] = 0;
+    this->GExtent[1] = this->GDimension[0] - 1;
+    this->GExtent[3] = this->GDimension[1] - 1;
+    this->GExtent[5] = this->GDimension[2] - 1;
+
     field->SetWholeExtent(this->WholeExtent);
     field->SetDimensions(this->Dimension);
     fieldInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    this->WholeExtent, 6);
+
+    ground->SetWholeExtent(this->GExtent);
+    ground->SetDimensions(this->GDimension);
+    groundInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                   this->GExtent, 6);
+
     blade->SetWholeExtent(this->WholeExtent);
 
     // Create the rectilinear coordinate spacing for entire problem
@@ -285,7 +300,8 @@ int vtkWindBladeReader::RequestInformation(
 
 //----------------------------------------------------------------------------
 // RequestData populates the output object with data for rendering
-// Uses two output ports (one for fields and one for turbine blades).
+// Uses three output ports (field, turbine blades, and ground).
+// Field data is parallel, blade and ground only on processor 0
 //----------------------------------------------------------------------------
 int vtkWindBladeReader::RequestData(
       vtkInformation *reqInfo,
@@ -348,10 +364,11 @@ int vtkWindBladeReader::RequestData(
              << this->TimeSteps[timeStep];
     this->FilePtr = fopen(fileName.str().c_str(), "r");
     if (this->FilePtr == NULL)
-      cout << "Could not open file " << fileName.str() << endl;
+      cerr << "Could not open file " << fileName.str() << endl;
+    /*
     if (this->Rank == 0)
       cout << "Load file " << fileName.str() << endl;
-
+    */
     // Some variables depend on others, so force their loading
     for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
       if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
@@ -395,9 +412,8 @@ int vtkWindBladeReader::RequestData(
     fclose(this->FilePtr);
   }
 
-  // Request data is on blade
-  // hackish: answer regardless of port just to keep the temporal
-  // pipeline happy see SDDP::PREVIOUS_UPDATE_TIME_STEPS()
+  // Request data is on blade and is displayed only by processor 0
+  // Even if the blade is turned off, it must update with time along with field
   if (port == 0 || port == 1) {
     if (this->UseTurbineFile == 1 && this->Rank == 0) {
 
@@ -430,6 +446,23 @@ int vtkWindBladeReader::RequestData(
       LoadBladeData(timeStep);
     }
   }
+
+  // Request data in on ground and is displayed only by processor 0
+  if (port == 0 || port == 2) {
+
+    vtkInformation* groundInfo = outVector->GetInformationObject(2);
+    vtkStructuredGrid *ground = GetGroundOutput();
+
+    // Set the extent info for this processor
+    groundInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                   this->GSubExtent);
+    ground->SetExtent(this->GSubExtent);
+
+    // Set the rectilinear coordinates matching the requested subextents
+    FillGroundCoordinates();
+    ground->SetPoints(this->GPoints);
+  }
+
   return 1;
 }
 
@@ -655,12 +688,12 @@ void vtkWindBladeReader::ReadGlobalData()
 {
   ifstream inStr(this->Filename);
   if (!inStr) {
-    cout << "Could not open the global .wind file " << this->Filename << endl;
+    cerr << "Could not open the global .wind file " << this->Filename << endl;
   }
 
   string::size_type dirPos = string(this->Filename).rfind(Slash);
    if (dirPos == string::npos) {
-      cout << "Bad input file name " << this->Filename << endl;
+      cerr << "Bad input file name " << this->Filename << endl;
    }
   this->RootDirectory = string(this->Filename).substr(0, dirPos);
 
@@ -794,7 +827,7 @@ void vtkWindBladeReader::ReadDataVariables(ifstream& inStr)
     else if (structType == "VECTOR")
       this->VariableStruct[i] = VECTOR;
     else
-      cout << "Error in structure type " << structType << endl;
+      cerr << "Error in structure type " << structType << endl;
 
     line >> basicType;
     line >> this->VariableByteCount[i];
@@ -804,7 +837,7 @@ void vtkWindBladeReader::ReadDataVariables(ifstream& inStr)
     else if (basicType == "INTEGER")
       this->VariableBasicType[i] = INTEGER;
     else
-      cout << "Error in basic type " << basicType << endl;
+      cerr << "Error in basic type " << basicType << endl;
   }
 
   // Add any derived variables
@@ -836,7 +869,7 @@ void vtkWindBladeReader::FindVariableOffsets()
            << this->DataBaseName << this->TimeStepFirst;
   this->FilePtr = fopen(fileName.str().c_str(), "r");
   if (this->FilePtr == NULL) {
-    cout << "Could not open file " << fileName.str() << endl;
+    cerr << "Could not open file " << fileName.str() << endl;
     exit(1);
   }
 
@@ -906,6 +939,54 @@ void vtkWindBladeReader::FillCoordinates()
 }
 
 //----------------------------------------------------------------------------
+// Fill in the rectilinear points for the requested subextents
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::FillGroundCoordinates()
+{
+  this->GPoints->Delete();
+  this->GPoints = vtkPoints::New();
+
+  // If dataset is flat, x and y are constant spacing, z is stretched
+  if (this->UseTopographyFile == 0) {
+
+    // Save vtkPoints instead of spacing coordinates because topography file
+    // requires this to be vtkStructuredGrid and not vtkRectilinearGrid
+    for (int k = this->GSubExtent[4]; k <= this->GSubExtent[5]; k++) {
+      float z = this->zMinValue;
+      for (int j = this->GSubExtent[2]; j <= this->GSubExtent[3]; j++) {
+        float y = this->ySpacing->GetValue(j);
+        for (int i = this->GSubExtent[0]; i <= this->GSubExtent[1]; i++) {
+          float x = this->xSpacing->GetValue(i);
+          this->GPoints->InsertNextPoint(x, y, z);
+        }
+      }
+    }
+  }
+
+  // If dataset is topographic, x and y are constant spacing
+  // Z data is calculated from an x by y topographic data file
+  else {
+    int planeSize = this->GDimension[0] * this->GDimension[1];
+    int rowSize = this->GDimension[0];
+
+    for (int k = this->GSubExtent[4]; k <= this->GSubExtent[5]; k++) {
+      for (int j = this->GSubExtent[2]; j <= this->GSubExtent[3]; j++) {
+        float y = this->ySpacing->GetValue(j);
+        for (int i = this->GSubExtent[0]; i <= this->GSubExtent[1]; i++) {
+          float x = this->xSpacing->GetValue(i);
+          if (k == 0) {
+            this->GPoints->InsertNextPoint(x, y, this->zMinValue);
+          } else {
+            int indx = ((k - 1) * planeSize) + (j * rowSize) + i;
+            this->GPoints->InsertNextPoint(x, y, this->zTopographicValues[indx]);
+          }
+        }
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 // Calculate the Points for flat Rectilinear type grid or topographic
 // generalized StructuredGrid which is what is being created here
 //----------------------------------------------------------------------------
@@ -938,7 +1019,16 @@ void vtkWindBladeReader::CreateCoordinates()
 
     this->zTopographicValues = new float[this->BlockSize];
     CreateZTopography(this->zTopographicValues);
+
+    this->zMinValue = this->zTopographicValues[0];
+    for (int k = 0; k < this->BlockSize; k++)
+      if (this->zMinValue > this->zTopographicValues[k])
+        this->zMinValue = this->zTopographicValues[k];
   }
+
+  // Set the ground minimum
+  if (this->UseTopographyFile == 0 || this->UseTurbineFile == 1)
+    this->zMinValue = -1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -1169,7 +1259,7 @@ void vtkWindBladeReader::SetupBladeData()
            << this->TurbineTowerName;
   ifstream inStr(fileName.str().c_str());
   if (!inStr)
-    cout << "Could not open " << fileName.str().c_str() << endl;
+    cerr << "Could not open " << fileName << endl;
 
   // File is ASCII text so read until EOF
   char inBuf[LINE_SIZE];
@@ -1177,25 +1267,6 @@ void vtkWindBladeReader::SetupBladeData()
   float angularVelocity, angleBlade1;
   int numberOfBlades;
   int towerID;
-  // all header stuff is here to deal with wind data format changes
-  // number of columns tells us if the turbine tower file has at least 13
-  // columns. if so then we are dealing with a wind data format that has
-  // an extra header in the turbine blade files
-  int numColumns = 0;
-
-  // test first line in turbine tower file to see if it has at least 13th column
-  // if so then this is indication of "new" format
-  if (inStr.getline(inBuf, LINE_SIZE)) {
-    size_t len = strlen(inBuf);
-    // number of lines corresponds to number of spaces
-    for (size_t i = 0; i < len; i++)
-      if (inBuf[i] == ' ')
-        numColumns++;
-  }
-  else
-    std::cout << fileName.str().c_str() << " is empty!\n";
-  // reset seek position
-  inStr.seekg(ios_base::beg);
 
   while (inStr.getline(inBuf, LINE_SIZE)) {
 
@@ -1218,38 +1289,10 @@ void vtkWindBladeReader::SetupBladeData()
             << this->TurbineDirectory << Slash
             << this->TurbineBladeName << this->TimeStepFirst;
   ifstream inStr2(fileName2.str().c_str());
-  if (!inStr2) {
-    cout << "Could not open blade file: " << fileName2.str().c_str() <<
-            " to calculate blade cells...\n";
-    for (int i = this->TimeStepFirst + this->TimeStepDelta; i <= this->TimeStepLast;
-         i += this->TimeStepDelta) {
-      ostringstream fileName3;
-      fileName3 << this->RootDirectory << Slash
-                  << this->TurbineDirectory << Slash
-                  << this->TurbineBladeName << i;
-      std::cout << "Trying " << fileName3.str().c_str() << "...";
-      inStr2.open(fileName3.str().c_str());
-      if(inStr2.good()) {
-        std::cout << "success.\n";
-        break;
-      }
-      else
-        std::cout << "failure.\n";
-    }
-  }
+  if (!inStr2)
+    cerr << "Could not open " << fileName2 << endl;
 
   this->NumberOfBladeCells = 0;
-  // if we have at least 13 columns, then this is the new format with a header in the
-  // turbine blade file
-  if (numColumns >= 13 && inStr2) {
-    int linesSkipped = 0;
-    // each blade tower tries to split the columns such that there are
-    // five items per line in header, so skip those lines
-    this->NumberLinesToSkip = this->NumberOfBladeTowers*(int)ceil(numColumns/5.0);
-    // now skip the first few lines based on header, if that applies
-    while(inStr2.getline(inBuf, LINE_SIZE) && linesSkipped < NumberLinesToSkip)
-      linesSkipped++;
-  }
   while (inStr2.getline(inBuf, LINE_SIZE))
     this->NumberOfBladeCells++;
   inStr2.close();
@@ -1275,8 +1318,10 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
            << this->TurbineBladeName
            << this->TimeSteps[timeStep];
   ifstream inStr(fileName.str().c_str());
+  /*
   if (this->Rank == 0)
     cout << "Load file " << fileName.str() << endl;
+  */
   char inBuf[LINE_SIZE];
 
   // Allocate space for points and cells
@@ -1315,11 +1360,8 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   float x, y, z;
   vtkIdType cell[NUM_BASE_SIDES];
 
-  int linesRead = 0;
   while (inStr.getline(inBuf, LINE_SIZE)) {
-    // continue around header if need be
-    linesRead++;
-    if (linesRead <= this->NumberLinesToSkip) continue;
+
     istringstream line(inBuf);
     line >> turbineID >> bladeID >> partID;
 
@@ -1380,13 +1422,6 @@ void vtkWindBladeReader::SelectionCallback(
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredGrid* vtkWindBladeReader::GetFieldOutput()
-{
-  return vtkStructuredGrid::SafeDownCast(
-    this->GetExecutive()->GetOutputData(0));
-}
-
-//----------------------------------------------------------------------------
 int vtkWindBladeReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
@@ -1425,6 +1460,14 @@ void vtkWindBladeReader::SetPointArrayStatus(const char* name, int status)
     this->PointDataArraySelection->DisableArray(name);
 }
 
+//----------------------------------------------------------------------------
+vtkStructuredGrid* vtkWindBladeReader::GetFieldOutput()
+{
+  return vtkStructuredGrid::SafeDownCast(
+    this->GetExecutive()->GetOutputData(0));
+}
+
+//----------------------------------------------------------------------------
 vtkUnstructuredGrid *vtkWindBladeReader::GetBladeOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
@@ -1436,13 +1479,34 @@ vtkUnstructuredGrid *vtkWindBladeReader::GetBladeOutput()
 }
 
 //----------------------------------------------------------------------------
+vtkStructuredGrid *vtkWindBladeReader::GetGroundOutput()
+{
+  if (this->GetNumberOfOutputPorts() < 3)
+    {
+    return NULL;
+    }
+  return vtkStructuredGrid::SafeDownCast(
+    this->GetExecutive()->GetOutputData(2));
+}
+
+//----------------------------------------------------------------------------
 int vtkWindBladeReader::FillOutputPortInformation(int port,
                                                   vtkInformation* info)
 {
-  if(port == 0)
+  // Field data
+  if (port == 0)
     {
     return this->Superclass::FillOutputPortInformation(port, info);
     }
+  // Blade data
+  if (port == 1)
+    {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
+    }
+  // Ground data for topology
+  if (port == 2)
+    {
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
+    }
   return 1;
 }

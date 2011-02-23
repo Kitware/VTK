@@ -1,7 +1,7 @@
 package require vtk
 
 
-# A script to test the vtkLassooStencilSource
+# A script to test the vtkLassoStencilSource
 
 
 vtkPNGReader reader
@@ -30,22 +30,22 @@ points2 InsertNextPoint 230 100 0
 points2 InsertNextPoint 150 170 0
 points2 InsertNextPoint 110 170 0
 
-vtkLassooStencilSource roiStencil1
+vtkLassoStencilSource roiStencil1
 roiStencil1 SetShapeToPolygon
 roiStencil1 SetSlicePoints 0 points1
 roiStencil1 SetInformationInput [reader GetOutput]
 
-vtkLassooStencilSource roiStencil2
+vtkLassoStencilSource roiStencil2
 roiStencil2 SetShapeToPolygon
 roiStencil2 SetPoints points2
 roiStencil2 SetInformationInput [reader GetOutput]
 
-vtkLassooStencilSource roiStencil3
+vtkLassoStencilSource roiStencil3
 roiStencil3 SetShapeToSpline
 roiStencil3 SetPoints points1
 roiStencil3 SetInformationInput [reader GetOutput]
 
-vtkLassooStencilSource roiStencil4
+vtkLassoStencilSource roiStencil4
 roiStencil4 SetShapeToSpline
 roiStencil4 SetSlicePoints 0 points2
 roiStencil4 SetInformationInput [reader GetOutput]

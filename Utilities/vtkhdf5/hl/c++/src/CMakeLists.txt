@@ -25,7 +25,7 @@ INSTALL (
     FILES
         ${HDF5_HL_CPP_HDRS}
     DESTINATION
-        include/hl/cpp
+        ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkhdf5/hl/cpp
 )
 
 #-----------------------------------------------------------------------------

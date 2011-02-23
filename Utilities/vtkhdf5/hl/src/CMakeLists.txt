@@ -46,7 +46,7 @@ INSTALL (
     FILES
         ${HL_HEADERS}
     DESTINATION
-        include
+        ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkhdf5
 )
 
 #-----------------------------------------------------------------------------

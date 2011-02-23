@@ -26,7 +26,7 @@ extern JNIEXPORT jlong vtkJavaGetId(JNIEnv *env,jobject obj);
 
 extern JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj);
 extern JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in);
-extern JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString out);
+extern JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString &out);
 extern JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
 
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env,

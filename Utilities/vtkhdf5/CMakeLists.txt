@@ -460,7 +460,9 @@ ENDIF (HDF5_BUILD_TOOLS AND BUILD_TESTING)
 #-----------------------------------------------------------------------------
 # Dashboard and Testing Settings
 #-----------------------------------------------------------------------------
+IF(0)
 OPTION (BUILD_TESTING "Build HDF5 Unit Testing" OFF)
+ENDIF(0)
 IF (BUILD_TESTING)
   SET (DART_TESTING_TIMEOUT 1200 CACHE INTEGER
        "Timeout in seconds for each test (default 1200=20minutes)")
@@ -474,17 +476,20 @@ IF (BUILD_TESTING)
   INCLUDE (${HDF5_SOURCE_DIR}/CTestConfig.cmake)
 ENDIF (BUILD_TESTING)
 
+
 #-----------------------------------------------------------------------------
 # Option to build Fortran bindings/tests/examples
 # Make sure this appears before the CONFIGURE_FILE step
 # so that fortran name mangling is detected before writing H5pubconf.h
 #-----------------------------------------------------------------------------
+IF(0)
 OPTION (HDF5_BUILD_FORTRAN "Build FORTRAN support" OFF)
+ENDIF(0)
 IF (HDF5_BUILD_FORTRAN)
   # Set default name mangling : overridden by Fortran detection in fortran dir
   SET (H5_FC_FUNC "H5_FC_FUNC(name,NAME) name ## _")
   SET (H5_FC_FUNC_ "H5_FC_FUNC_(name,NAME) name ## _")
-  ADD_SUBDIRECTORY (${HDF5_SOURCE_DIR}/fortran ${PROJECT_BINARY_DIR}/fortran)
+  #ADD_SUBDIRECTORY (${HDF5_SOURCE_DIR}/fortran ${PROJECT_BINARY_DIR}/fortran)
 ELSE (HDF5_BUILD_FORTRAN)
   SET (H5_FC_FUNC "H5_FC_FUNC(name,NAME) name ## _")
   SET (H5_FC_FUNC_ "H5_FC_FUNC_(name,NAME) name ## _")
@@ -493,10 +498,12 @@ ENDIF (HDF5_BUILD_FORTRAN)
 #-----------------------------------------------------------------------------
 # Option to build examples
 #-----------------------------------------------------------------------------
+IF(0)
 OPTION (HDF5_BUILD_EXAMPLES  "Build HDF5 Library Examples" OFF)
 IF (HDF5_BUILD_EXAMPLES)
   ADD_SUBDIRECTORY (${HDF5_SOURCE_DIR}/examples ${PROJECT_BINARY_DIR}/examples)
 ENDIF (HDF5_BUILD_EXAMPLES)
+ENDIF(0)
 
 #-----------------------------------------------------------------------------
 # Option to build HDF5 C++ Library
@@ -509,10 +516,12 @@ ENDIF (HDF5_BUILD_CPP_LIB)
 #-----------------------------------------------------------------------------
 # Option to build HDF5 Tools
 #-----------------------------------------------------------------------------
+IF(0)
 OPTION (HDF5_BUILD_TOOLS  "Build HDF5 Tools" OFF)
 IF (HDF5_BUILD_TOOLS)
   ADD_SUBDIRECTORY (${HDF5_SOURCE_DIR}/tools ${PROJECT_BINARY_DIR}/tools)
 ENDIF (HDF5_BUILD_TOOLS)
+ENDIF(0)
 
 #-----------------------------------------------------------------------------
 # Option to build High Level API's
@@ -544,7 +553,7 @@ INSTALL (
     FILES
         ${PROJECT_BINARY_DIR}/H5pubconf.h
     DESTINATION
-        include
+        ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkhdf5
 )
 ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 

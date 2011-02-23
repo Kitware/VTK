@@ -6,6 +6,7 @@ SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 
 SET( Kit_SRCS
+vtkImageToStructuredGrid.cxx
 vtkAbstractCellLocator.cxx
 vtkAbstractInterpolatedVelocityField.cxx
 vtkAbstractMapper.cxx
@@ -174,6 +175,7 @@ vtkPolyDataToPolyDataFilter.cxx
 vtkPolygon.cxx
 vtkPolyhedron.cxx
 vtkPolyLine.cxx
+vtkPolyPlane.cxx
 vtkPolyVertex.cxx
 vtkProcessObject.cxx
 vtkPropAssembly.cxx

@@ -1238,76 +1238,69 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
       = this->ReadPointDataArray(modeFD, varId);
     if (!dataArray) continue;
 
-    // Check for imaginary component of mode data.
+
+    // Handle the imaginary component of mode data:  
+    // If simulation is purely real, all imaginary components would be zero.
+    // Saving all the zeroes would waste space, so they aren't saved.  So
+    // missing imaginary components in the file means we should know to use
+    // zeroes.  
+    // (TLDR: load imaginary components if provided, or use zeroes if not.)
     if (this->FrequencyModes)
       {
+      vtkIdType numTuples = dataArray->GetNumberOfTuples();
+      vtkSmartPointer<vtkDataArray> imagDataArray= 0;
+
+      // I am assuming here that the imaginary data has the same dimensions as
+      // the real data.
       if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
+        imagDataArray = this->ReadPointDataArray(modeFD, varId);
+
+      // allocate space for complex magnitude data
+      vtkSmartPointer<vtkDataArray> cplxMagArray;
+      cplxMagArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
+      cplxMagArray->SetNumberOfComponents(1);
+      cplxMagArray->SetNumberOfTuples(numTuples);
+
+      // allocate space for phase data
+      vtkSmartPointer<vtkDataArray> phaseArray;
+      phaseArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
+      phaseArray->SetNumberOfComponents(3);
+      phaseArray->SetNumberOfTuples(numTuples);
+
+      int numComponents = dataArray->GetNumberOfComponents();
+      for (vtkIdType i = 0; i < numTuples; i++)
         {
-        // I am assuming here that the imaginary data (if it exists) has the
-        // same dimensions as the real data.
-        vtkSmartPointer<vtkDataArray> imagDataArray
-          = this->ReadPointDataArray(modeFD, varId);
-        if (imagDataArray)
+        double accumulated_mag= 0.0;
+        for (int j = 0; j < numComponents; j++)
           {
-          // allocate space for complex magnitude data
-          vtkSmartPointer<vtkDataArray> cplxMagArray;
-          cplxMagArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
-          cplxMagArray->SetNumberOfComponents(1);
-          cplxMagArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
+          double real = dataArray->GetComponent(i, j);
+          double imag = 0.0;
 
-          // allocate space for phase data
-          vtkSmartPointer<vtkDataArray> phaseArray;
-          phaseArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
-          phaseArray->SetNumberOfComponents(3);
-          phaseArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
+          // when values are purely real, no imaginary component is saved in the
+          // data file, because all those zeroes would waste space.  So if
+          // imaginary values are provided, use them, otherwise use 0.0.
+          if (imagDataArray) 
+            imag = imagDataArray->GetComponent(i, j);
 
-          int numComponents = dataArray->GetNumberOfComponents();
-          vtkIdType numTuples = dataArray->GetNumberOfTuples();
-          for (vtkIdType i = 0; i < numTuples; i++)
-            {
-            double accum_mag= 0.0;
-            for (int j = 0; j < numComponents; j++)
-              {
-              double real = dataArray->GetComponent(i, j);
-              double imag = imagDataArray->GetComponent(i, j);
+          double mag2 = real*real + imag*imag;
+          accumulated_mag += mag2;
+          double mag= sqrt(mag2);
 
-              double mag2 = real*real + imag*imag;
-              accum_mag += mag2;
-              double mag= sqrt(mag2);
-
-              double startphase = atan2(imag, real);
-              dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
-              phaseArray->SetComponent(i, j, startphase);
-              }
-            cplxMagArray->SetComponent(i, 0, sqrt(accum_mag));
-            phaseArray->SetComponent(i, 0, sqrt(accum_mag));
-            }
-
-          // add complex magnitude data to the point data
-          vtkStdString cplxMagName= name + "_cplx_mag";
-          cplxMagArray->SetName(cplxMagName);
-          pd->AddArray(cplxMagArray);
-
-          vtkStdString phaseName= name + "_phase";
-          phaseArray->SetName(phaseName);
-          pd->AddArray(phaseArray);
+          double startphase = atan2(imag, real);
+          dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
+          phaseArray->SetComponent(i, j, startphase);
           }
+        cplxMagArray->SetComponent(i, 0, sqrt(accumulated_mag));
         }
-      else
-        {
-        int numComponents = dataArray->GetNumberOfComponents();
-        vtkIdType numTuples = dataArray->GetNumberOfTuples();
-        for (vtkIdType i = 0; i < numTuples; i++)
-          {
-          for (int j = 0; j < numComponents; j++)
-            {
-            double real = dataArray->GetComponent(i, j);
-            double mag= fabs(real);
-            double startphase = (real >= 0 )? 0.0 : vtkMath::Pi();
-            dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
-            }
-          }
-        }
+
+      // add complex magnitude data to the point data
+      vtkStdString cplxMagName= name + "_cplx_mag";
+      cplxMagArray->SetName(cplxMagName);
+      pd->AddArray(cplxMagArray);
+
+      vtkStdString phaseName= name + "_phase";
+      phaseArray->SetName(phaseName);
+      pd->AddArray(phaseArray);
       }
 
     // Add the data to the point data.

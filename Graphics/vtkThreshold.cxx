@@ -350,15 +350,34 @@ int vtkThreshold::ProcessRequest(vtkInformation* request,
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
     // get the range of the input if available
-    vtkInformation *fInfo = 
-      vtkDataObject::GetActiveFieldInformation
-      (inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, 
-       vtkDataSetAttributes::SCALARS);
+    vtkInformation *fInfo = NULL;
+    vtkDataArray *inscalars = this->GetInputArrayToProcess(0, inputVector);
+    if (inscalars)
+      {
+      vtkInformationVector *miv = inInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
+      for (int index = 0; index < miv->GetNumberOfInformationObjects(); index++)
+        {
+        vtkInformation *mInfo = miv->GetInformationObject(index);
+        const char *minfo_arrayname =
+          mInfo->Get(vtkDataObject::FIELD_ARRAY_NAME());
+        if (minfo_arrayname && !strcmp(minfo_arrayname, inscalars->GetName()))
+          {
+          fInfo = mInfo;
+          break;
+          }
+        }
+      }
+    else
+      {
+      fInfo = vtkDataObject::GetActiveFieldInformation
+        (inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS,
+         vtkDataSetAttributes::SCALARS);
+      }
     if (!fInfo)
       {
       return 1;
       }
- 
+
     double *range = fInfo->Get(vtkDataObject::PIECE_FIELD_RANGE());
     if (range)
       {

@@ -28,14 +28,14 @@ int VPICHeader::readHeader(FILE* filePtr)
    // Consistency check to see if file can be read on this machine
    int consistent = parseBoilerPlate(filePtr);
    if (consistent == 0) {
-      cout << "Data file is not consistent on this machine" << endl;
+      cerr << "Data file is not consistent on this machine" << endl;
    }
 
    // Version and dump type
    fread(&this->version, sizeof(int), 1, filePtr);
    fread(&this->dumpType, sizeof(int), 1, filePtr);
    if (this->dumpType != VPIC_FIELD && this->dumpType != VPIC_HYDRO)
-      cout << "Bad VPIC dump type (not field or hydro)" << endl;
+      cerr << "Bad VPIC dump type (not field or hydro)" << endl;
 
    // Information
    fread(&this->dumpTime, sizeof(int), 1, filePtr);
@@ -95,41 +95,41 @@ int VPICHeader::parseBoilerPlate(FILE* fp)
        byteSize[3] != sizeof(float) ||
        byteSize[4] != sizeof(double))
    {
-      cout << "Numerical type byte sizes do not match:" << endl;
-      cout << "long: " << (short) byteSize[0] << " != " 
+      cerr << "Numerical type byte sizes do not match:" << endl;
+      cerr << "long: " << (short) byteSize[0] << " != " 
            << sizeof(long long) << endl;
-      cout << "short: " << (short) byteSize[1] << " != " 
+      cerr << "short: " << (short) byteSize[1] << " != " 
            << sizeof(short) << endl;
-      cout << "int: " << (short) byteSize[2] << " != " 
+      cerr << "int: " << (short) byteSize[2] << " != " 
            << sizeof(int) << endl;
-      cout << "float: " << (short) byteSize[3] << " != "
+      cerr << "float: " << (short) byteSize[3] << " != "
            << sizeof(float) << endl;
-      cout << "double: " << (short) byteSize[4] << " != " 
+      cerr << "double: " << (short) byteSize[4] << " != " 
            << sizeof(double) << endl;
       return 0;
    }
 
    fread(&cafe, sizeof(short int), 1, fp);
    if (cafe != (short int) 0xcafe) {
-      cout << "Endianness does not match" << endl;
+      cerr << "Endianness does not match" << endl;
       return 0;
    }
 
    fread(&deadbeef, sizeof(int), 1, fp);
    if (deadbeef != (int) 0xdeadbeef) {
-      cout << "Endianness does not match" << endl;
+      cerr << "Endianness does not match" << endl;
       return 0;
    }
 
    fread(&floatone, sizeof(float), 1, fp);
    if (floatone != 1.0) {
-      cout << "Could not locate float 1.0" << endl;
+      cerr << "Could not locate float 1.0" << endl;
       return 0;
    }
 
    fread(&doubleone, sizeof(double), 1, fp);
    if (doubleone != 1.0) {
-      cout << "Could not locate double 1.0" << endl;
+      cerr << "Could not locate double 1.0" << endl;
       return 0;
    }
    return 1;
