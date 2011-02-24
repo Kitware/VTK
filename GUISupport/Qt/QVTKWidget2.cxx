@@ -41,6 +41,7 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);       
 }
 
 QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
@@ -49,6 +50,7 @@ QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidg
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);       
 }
 
 QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
@@ -57,6 +59,7 @@ QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shar
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);       
 }
 
 /*! destructor */
@@ -202,7 +205,7 @@ void QVTKWidget2::resizeGL(int w, int h)
   // and update the interactor
   if(this->mRenWin->GetInteractor())
     {
-    QResizeEvent e(QSize(), QSize(w,h));
+    QResizeEvent e(QSize(w,h), QSize());
     mIrenAdapter->ProcessEvent(&e, this->mRenWin->GetInteractor());
     }
 }
