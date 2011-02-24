@@ -837,6 +837,8 @@ void vtkUniformGrid::BlankCell( const int i, const int j, const int k )
   int ijk[3];
   ijk[0] = i; ijk[1] = j; ijk[2] = k;
   int idx = vtkStructuredData::ComputeCellId(this->Dimensions, ijk );
+  assert( "cell id in range:" &&
+   ( (idx >= 0) && (idx < this->GetNumberOfCells() ) ) );
   this->BlankCell( idx );
 }
 
@@ -860,6 +862,8 @@ void vtkUniformGrid::UnBlankCell( const int i, const int j, const int k )
   int ijk[3];
   ijk[0] = i; ijk[1] = j; ijk[2] = k;
   int idx = vtkStructuredData::ComputeCellId(this->Dimensions, ijk );
+  assert( "cell id in range:" &&
+    ( (idx >= 0) && (idx < this->GetNumberOfCells() ) ) );
   this->UnBlankCell( idx );
 }
 
