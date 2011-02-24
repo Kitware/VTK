@@ -15,7 +15,6 @@
 #include "vtkDataArray.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
-#include "vtkCriticalSection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
