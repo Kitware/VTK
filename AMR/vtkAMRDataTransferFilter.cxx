@@ -26,6 +26,7 @@
 #include "vtkImageToStructuredGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridWriter.h"
+#include "vtkUnsignedIntArray.h"
 
 #include <string>
 #include <sstream>
@@ -73,6 +74,12 @@ void vtkAMRDataTransferFilter::Transfer( )
 
   // STEP 1: Donor-Receiver search
   this->DonorSearch();
+
+  // STEP 3: DataTransfer
+  this->DataTransfer( );
+
+  // STEP 4: Synch processes
+  this->Controller->Barrier( );
 }
 
 //------------------------------------------------------------------------------
@@ -96,7 +103,8 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
           vtkUniformGrid *myGrid =
            this->AMRDataSet->GetDataSet(currentLevel,dataIdx,myBox);
 
-          myBox.ExtrudeGhostCells( this->NumberOfGhostLayers );
+          myBox.Grow( this->NumberOfGhostLayers );
+//          myBox.ExtrudeGhostCells( this->NumberOfGhostLayers );
           myGrid = (myGrid != NULL)? this->GetExtrudedGrid(myBox,myGrid) : NULL;
 
           if( myGrid != NULL )
@@ -120,8 +128,19 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
 void vtkAMRDataTransferFilter::DonorSearch()
 {
   vtkAssertUtils::assertNotNull(this->ExtrudedData,__FILE__,__LINE__);
+  vtkAssertUtils::assertNotNull(this->RemoteConnectivity,__FILE__,__LINE__);
+  vtkAssertUtils::assertNotNull(this->LocalConnectivity,__FILE__,__LINE__);
 
-  // TODO: implement this
+  vtkUnsignedIntArray *rmtGridKeys =
+   this->RemoteConnectivity->GetEncodedGridKeys();
+
+  for( int i=0; i < rmtGridKeys->GetNumberOfTuples(); ++i )
+    {
+    }
+  vtkUnsignedIntArray *localGridKeys =
+   this->LocalConnectivity->GetEncodedGridKeys();
+
+
 }
 
 //------------------------------------------------------------------------------
@@ -201,9 +220,6 @@ void vtkAMRDataTransferFilter::WriteGrid( vtkUniformGrid* grid,
   // STEP 2: Use structured grid writer to write the grid object
   vtkStructuredGridWriter *myWriter = vtkStructuredGridWriter::New();
   vtkAssertUtils::assertNotNull( myWriter,__FILE__,__LINE__);
-
-  std::cout << "Writing grid @" << fileName << std::endl;
-  std::cout.flush();
 
   myWriter->SetInput(0,myGrid);
   myWriter->SetFileName( fileName.c_str( ) );

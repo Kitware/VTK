@@ -216,7 +216,7 @@ protected:
   // Description:
   // Computes the point visibility array of the given grid @the provided level.
   virtual void GeneratePointVisibility( const unsigned int level,
-      vtkUniformGrid *gridPtr );
+      vtkUniformGrid *gridPtr, vtkAMRBox* coarseBox );
 
   // Description:
   // Computes the cell visibility array of the given grid based on the pre-

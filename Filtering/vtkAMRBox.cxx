@@ -235,8 +235,10 @@ vtkAMRBox::vtkAMRBox(
     {
       this->X0[i]       = dataSetOrigin[i];
       this->DX[i]       = h[i];
-      this->LoCorner[i] = floor( (boxOrigin[i]-dataSetOrigin[i])/h[i] );
+      this->LoCorner[i] = round( (boxOrigin[i]-dataSetOrigin[i])/h[i] );
       this->HiCorner[i] = this->LoCorner[i] + ( ndim[i]-1 );
+      vtkAssertUtils::assertTrue( (this->LoCorner[i]>=0),__FILE__,__LINE__);
+      vtkAssertUtils::assertTrue( (this->HiCorner[i]>=0),__FILE__,__LINE__);
     }
 
   this->BlockId    = blockIdx;
@@ -262,9 +264,9 @@ int vtkAMRBox::GetNodeLinearIndex( const int i,const int j,const int k )
   vtkAssertUtils::assertInRange(
    i,this->LoCorner[0],this->HiCorner[0],__FILE__, __LINE__ );
   vtkAssertUtils::assertInRange(
-   j,this->LoCorner[0],this->HiCorner[1],__FILE__, __LINE__ );
+   j,this->LoCorner[1],this->HiCorner[1],__FILE__, __LINE__ );
   vtkAssertUtils::assertInRange(
-   k,this->LoCorner[0],this->HiCorner[2],__FILE__, __LINE__ );
+   k,this->LoCorner[2],this->HiCorner[2],__FILE__, __LINE__ );
 
   int ndim[3];
   int ijk[3];
@@ -298,7 +300,7 @@ void vtkAMRBox::WriteToVtkFile( const char *file )
 {
   // Sanity Checks
   vtkAssertUtils::assertNotNull( file, __FILE__, __LINE__ );
-  vtkAssertUtils::assertTrue( std::strlen( file )>0, __FILE__, __LINE__ );
+//  vtkAssertUtils::assertTrue( std::strlen( file )>0, __FILE__, __LINE__ );
 
   std::ofstream ofs;
   ofs.open( file );
@@ -322,11 +324,11 @@ void vtkAMRBox::WriteToVtkFile( const char *file )
   int    ijk[3];
   double pnt[3];
   pnt[0] = pnt[1] = pnt[2] = 0;
-  for( int k=0; k < nodeExtent[2]; ++k )
+  for( int k=this->LoCorner[2]; k <= this->HiCorner[2]; ++k )
     {
-      for( int j=0; j < nodeExtent[1]; ++j )
+      for( int j=this->LoCorner[1]; j <= this->HiCorner[1]; ++j )
         {
-          for( int i=0; i < nodeExtent[0]; ++i )
+          for( int i=this->LoCorner[0]; i <= this->HiCorner[0]; ++i )
             {
 
               ijk[0] = i;
@@ -931,52 +933,51 @@ double vtkAMRBox::GetMaxZ() const
 }
 
 //-----------------------------------------------------------------------------
+void vtkAMRBox::GetMinBounds( double min[3] ) const
+{
+  min[0] = min[1] = min[2] = 0.0;
+  for( int i=0; i < this->Dimension; ++i )
+    min[ i ] = this->X0[i]+this->LoCorner[i]*this->DX[i];
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::GetMaxBounds( double max[3] ) const
+{
+  max[0] = max[1] = max[2] = 0.0;
+  for( int i=0; i < this->Dimension; ++i )
+    max[ i ] =this->X0[i]+this->HiCorner[i]*this->DX[i];
+}
+
+//-----------------------------------------------------------------------------
 bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 {
-  double xMax = 0.0;
-  double yMax = 0.0;
-  double zMax = 0.0;
 
-  int ndim[3];
-  this->GetNumberOfNodes( ndim );
+  double min[3];
+  double max[3];
+  this->GetMinBounds( min );
+  this->GetMaxBounds( max );
+
   switch( this->Dimension )
     {
-    case 1:
-      xMax = this->X0[0]+(this->DX[0]*ndim[0]);
-      if( x >= this->X0[0] && x <= xMax  )
-          return true;
-      break;
-    case 2:
-      xMax = this->X0[0]+(this->DX[0]*ndim[0]);
-      yMax = this->X0[1]+(this->DX[1]*ndim[1]);
-
-//      this->WriteBox(
-//        this->X0[0], this->X0[1], 0,
-//        xMax, yMax, 0 );
-
-
-      if( x >= this->X0[0] && x <= xMax &&
-          y >= this->X0[1] && y <= yMax     )
-          return true;
-      break;
-    case 3:
-      xMax = this->X0[0]+(this->DX[0]*ndim[0]);
-      yMax = this->X0[1]+(this->DX[1]*ndim[1]);
-      zMax = this->X0[2]+(this->DX[2]*ndim[2]);
-
-//      this->WriteBox(
-//        this->X0[0], this->X0[1], this->X0[2],
-//        xMax, yMax, zMax );
-
-      if( x >= this->X0[0] && x <= xMax &&
-          y >= this->X0[1] && y <= yMax &&
-          z >= this->X0[2] && z <= zMax   )
-          return true;
-      break;
-    default:
-      // Code should not reach here!
-      // TODO: add better error handling here!
-      return false;
+      case 1:
+        if( x >= min[0] && x <= max[0]  )
+            return true;
+        break;
+      case 2:
+        if( x >= min[0] && x <= max[0] &&
+            y >= min[1] && y <= max[1]     )
+            return true;
+        break;
+      case 3:
+        if( x >= min[0] && x <= max[0] &&
+            y >= min[1] && y <= max[1] &&
+            z >= min[2] && z <= max[2]   )
+            return true;
+        break;
+      default:
+        // Code should not reach here!
+        // TODO: add better error handling here!
+        return false;
     }
   return false;
 
@@ -1226,52 +1227,6 @@ ostream &vtkAMRBox::Print(ostream &os) const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::ExtrudeGhostCells( int nlayers )
-{
-  vtkAssertUtils::assertTrue( (nlayers>=1), __FILE__, __LINE__ );
-
-  for( int layer=0; layer < nlayers; ++layer )
-    {
-      // STEP 0: Shift origin and increase the dimension
-      for( int i=0; i < this->Dimension; ++i )
-        {
-          vtkAssertUtils::assertEquals(this->LoCorner[i],0,__FILE__,__LINE__);
-          this->X0[i]       -= this->DX[i];
-          this->HiCorner[i] += 2;
-          this->NG[i]++;
-        }
-    }
-
-  // Update the RealExtent
-  switch( this->Dimension )
-    {
-    case 1:
-      this->RealExtent[0] = this->LoCorner[0]+nlayers; // real-imin
-      this->RealExtent[1] = this->HiCorner[0]-nlayers; // real-imax
-      break;
-    case 2:
-      this->RealExtent[0] = this->LoCorner[0]+nlayers; // real-imin
-      this->RealExtent[1] = this->HiCorner[0]-nlayers; // real-imax
-      this->RealExtent[2] = this->LoCorner[1]+nlayers; // real-jmin
-      this->RealExtent[3] = this->HiCorner[1]-nlayers; // real-jmax
-      break;
-    case 3:
-      this->RealExtent[0] = this->LoCorner[0]+nlayers; // real-imin
-      this->RealExtent[1] = this->HiCorner[0]-nlayers; // real-imax
-      this->RealExtent[2] = this->LoCorner[1]+nlayers; // real-jmin
-      this->RealExtent[3] = this->HiCorner[1]-nlayers; // real-jmax
-      this->RealExtent[4] = this->LoCorner[2]+nlayers; // real-kmin
-      this->RealExtent[5] = this->HiCorner[2]-nlayers; // real-kmax
-      break;
-    default:
-      // Code should not reach here!
-      // TODO: Better error handling of this case!
-      this->Invalidate();
-    }
-
-}
-
-//-----------------------------------------------------------------------------
 void vtkAMRBox::GetRealExtent( int realext[6] ) const
 {
   realext[0] = this->RealExtent[0];
@@ -1294,10 +1249,14 @@ void vtkAMRBox::SetRealExtent( int realExtent[6] )
    realExtent[2],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
   vtkAssertUtils::assertInRange(
    realExtent[3],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-   realExtent[4],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-   realExtent[5],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
+
+ if( this->Dimension  == 3 )
+   {
+    vtkAssertUtils::assertInRange(
+     realExtent[4],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
+    vtkAssertUtils::assertInRange(
+     realExtent[5],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
+   }
 
   this->RealExtent[0] = realExtent[0]; // imin
   this->RealExtent[1] = realExtent[1]; // imax
@@ -1344,7 +1303,7 @@ bool vtkAMRBox::IsGhostNode( const int i, const int j, const int k )
   switch( this->Dimension )
     {
     case 1:
-      if( (i < this->RealExtent[0]) || (i > this->RealExtent[1]) )
+      if( (i < this->RealExtent[0]) || (i > this->RealExtent[1])    )
         status = true;
       break;
     case 2:
@@ -1355,7 +1314,7 @@ bool vtkAMRBox::IsGhostNode( const int i, const int j, const int k )
     case 3:
       if( (i < this->RealExtent[0]) || (i > this->RealExtent[1]) ||
           (j < this->RealExtent[2]) || (j > this->RealExtent[3]) ||
-          (k < this->RealExtent[4]) || (k > this->RealExtent[5] )   )
+          (k < this->RealExtent[4]) || (k > this->RealExtent[5])    )
         status = true;
       break;
     default:
@@ -1370,6 +1329,7 @@ bool vtkAMRBox::IsGhostNode( const int i, const int j, const int k )
 void vtkAMRBox::GetPoint( const int ijk[3], double pnt[3] ) const
 {
   // Compiler should unroll this small loop!
+  pnt[0] = 0.0; pnt[1] = 0.0; pnt[2] = 0.0;
   for( int i=0; i < this->Dimension; ++i )
     {
       // Sanity Check!
@@ -1486,22 +1446,6 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const size_t &bytesize )
   // STEP 8: serialize the high corner
   std::memcpy(&(this->HiCorner), ptr,  3*sizeof(int) );
   ptr += 3*sizeof( int );
-}
-
-//-----------------------------------------------------------------------------
-void vtkAMRBox::GetMinBounds( double min[3] ) const
-{
-  min[0] = this->GetMinX();
-  min[1] = this->GetMinY();
-  min[2] = this->GetMinZ();
-}
-
-//-----------------------------------------------------------------------------
-void vtkAMRBox::GetMaxBounds( double max[3] ) const
-{
-  max[0] = this->GetMaxX();
-  max[1] = this->GetMaxY();
-  max[2] = this->GetMaxZ();
 }
 
 //-----------------------------------------------------------------------------

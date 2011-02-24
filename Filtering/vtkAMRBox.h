@@ -322,11 +322,6 @@ public:
   bool IsGhostNode( const int i, const int j, const int k );
 
   // Description:
-  // Extrudes a provided number of (virtual) ghost cells
-  // nlayers -- the number of layers of ghost cells to extrude. Default is 1.
-  void ExtrudeGhostCells( int nlayers=1 );
-
-  // Description:
   // Writes this instance of AMR box as a uniform grid in a VTK file
   // that can be visualized with ParaView.
   void WriteToVtkFile( const char *file );

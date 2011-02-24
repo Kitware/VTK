@@ -30,13 +30,15 @@ int main( int arc, char **argv )
   std::cout << "\n======================================================\n";
   std::cout.flush( );
 
-  myTestBox.ExtrudeGhostCells( 1 );
+  myTestBox.Grow( 1 );
+//  myTestBox.ExtrudeGhostCells( 1 );
   myTestBox.WriteToVtkFile( "initial1.vtk" );
   myTestBox.Print( std::cout );
   std::cout << "\n======================================================\n";
   std::cout.flush( );
 
-  myTestBox.ExtrudeGhostCells( 2 );
+  myTestBox.Grow( 2 );
+//  myTestBox.ExtrudeGhostCells( 2 );
   myTestBox.WriteToVtkFile( "initial2.vtk" );
   myTestBox.Print( std::cout );
   std::cout << "\n======================================================\n";

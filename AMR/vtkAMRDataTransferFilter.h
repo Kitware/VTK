@@ -81,11 +81,12 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     void WriteGrid( vtkUniformGrid* grid, std::string prefix );
 
     // Description:
-    //
+    // Process the remote connectivity and local connectivity lists and
+    // finds a donor for each
     void DonorSearch();
 
     // Description:
-    //
+    // Transfers
     void DataTransfer();
 
     int                          NumberOfGhostLayers;
