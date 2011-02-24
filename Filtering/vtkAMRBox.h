@@ -70,7 +70,7 @@ public:
   // Construct a specific box & set all of its meta-data
   // origin   -- 3-tuple consisting of the x,y,z world origin of the Dataset
   // dim      -- The dimension of the corresponding block, i.e., 2 or 3
-  // ndim     -- 3-tuple of the number of points along each dimension
+  // ndim     -- 3-tuple of the number of cells along each dimension
   //             Note, this constructor assumes loCorner to be 0
   // h        -- 3-tuple consisting of the mesh spacing at each dimension
   // blockIdx -- the ID of the block corresponding to this instance
@@ -112,7 +112,7 @@ public:
   // boxOrigin     -- x,y,z box origin.
   // dimension     -- the dimension of the corresponding block, i.e., 2 or 3.
   // h             -- mesh spacing along each direction.
-  // ndims         -- Number of points along each dimension
+  // ndims         -- Number of cells along each dimension
   // blockIdx      -- the ID of the block corresponding to this instance.
   // level         -- the level of this instance.
   // rank          -- the corresponding process rank that owns this block.

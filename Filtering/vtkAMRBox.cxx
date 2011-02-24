@@ -945,7 +945,7 @@ void vtkAMRBox::GetMaxBounds( double max[3] ) const
 {
   max[0] = max[1] = max[2] = 0.0;
   for( int i=0; i < this->Dimension; ++i )
-    max[ i ] =this->X0[i]+this->HiCorner[i]*this->DX[i];
+    max[ i ] =this->X0[i]+(this->HiCorner[i]+1)*this->DX[i];
 }
 
 //-----------------------------------------------------------------------------
