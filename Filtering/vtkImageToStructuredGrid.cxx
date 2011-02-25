@@ -97,6 +97,7 @@ int vtkImageToStructuredGrid::RequestData(
    }
    grid->SetDimensions(dims);
    grid->SetPoints( gridPoints );
+   gridPoints->Delete();
 
    this->CopyPointData( img, grid );
    this->CopyCellData( img, grid );

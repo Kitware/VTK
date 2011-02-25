@@ -91,6 +91,7 @@ vtkUniformGrid* GetGrid( double *origin, double *spacing, int *ndim )
       pntData->SetValue(pntIdx, (node[0]+node[1]+node[2]) );
     } // END for all points
   grd->GetPointData()->AddArray( pntData );
+  pntData->Delete();
 
 
   vtkDoubleArray* xyz = vtkDoubleArray::New( );
@@ -129,6 +130,7 @@ vtkUniformGrid* GetGrid( double *origin, double *spacing, int *ndim )
     } // END for all cells
 
   grd->GetCellData()->AddArray(xyz);
+  xyz->Delete();
   return grd;
 }
 
@@ -213,6 +215,7 @@ int TestImageDataToStructuredGrid(int,char *[])
 
   vtkImageToStructuredGrid* myFilter = vtkImageToStructuredGrid::New( );
   myFilter->SetInput( img1 );
+  img1->Delete();
   myFilter->Update();
   vtkStructuredGrid* sg1 = myFilter->GetOutput();
 
