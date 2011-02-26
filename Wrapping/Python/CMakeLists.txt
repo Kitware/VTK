@@ -420,6 +420,8 @@ IF(PYTHON_EXECUTABLE)
     vtk/gtk/GtkVTKRenderWindow
     vtk/gtk/__init__
     vtk/gtk/GtkVTKRenderWindowInteractor
+    vtk/gtk/GtkGLExtVTKRenderWindow
+    vtk/gtk/GtkGLExtVTKRenderWindowInteractor
     )
 
 # Done listing of files.
