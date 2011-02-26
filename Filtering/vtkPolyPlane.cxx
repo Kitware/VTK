@@ -52,10 +52,13 @@ vtkPolyPlane::~vtkPolyPlane()
 unsigned long vtkPolyPlane::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long p1Time;
 
-  p1Time = this->PolyLine->GetMTime();
-  mTime = ( p1Time > mTime ? p1Time : mTime );
+  if (this->PolyLine)
+    {
+    unsigned long p1Time;
+    p1Time = this->PolyLine->GetMTime();
+    mTime = ( p1Time > mTime ? p1Time : mTime );
+    }
 
   return mTime;
 }
