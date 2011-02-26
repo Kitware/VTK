@@ -69,13 +69,13 @@ class QVTK_EXPORT QVTKGraphicsItem : public QGraphicsWidget
 
   protected Q_SLOTS:
     // slot to make this vtk render window current
-    void MakeCurrent();
+    virtual void MakeCurrent();
     // slot called when vtk render window starts to draw
-    void Start();
+    virtual void Start();
     // slot called when vtk render window is done drawing
-    void End();
+    virtual void End();
     // slot called when vtk wants to know if the context is current
-    void IsCurrent(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
+    virtual void IsCurrent(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
 
   protected:
 
