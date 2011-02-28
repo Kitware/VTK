@@ -25,6 +25,9 @@
 
 #include "vtkDemandDrivenPipeline.h"
 
+#define VTK_UPDATE_EXTENT_COMBINE 1
+#define VTK_UPDATE_EXTENT_REPLACE 2
+
 class vtkExtentTranslator;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
@@ -182,6 +185,11 @@ public:
   static vtkInformationIntegerKey* UPDATE_PIECE_NUMBER();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
+
+  // Description:
+  // Key for combining the update extents requested by all consumers,
+  // so that the final extent that is produced satisfies all consumers.
+  static vtkInformationIntegerVectorKey* COMBINED_UPDATE_EXTENT();
 
   // Description:
   // This is set if the extent was set through extent translation.
