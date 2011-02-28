@@ -517,6 +517,10 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
     }
 
   int comps = arr->GetNumberOfComponents();
+  if (row >= arr->GetNumberOfTuples())
+    {
+    return vtkVariant();
+    }
   if (vtkDataArray::SafeDownCast(arr))
     {
     if (comps == 1)
