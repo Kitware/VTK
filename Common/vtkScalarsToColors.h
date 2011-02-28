@@ -110,15 +110,19 @@ public:
 
   // Description:
   // Change mode that maps vectors by magnitude vs. component.
+  // If the mode is "RGBColors", then the vectors components are
+  // scaled to the range and passed directly as the colors.
   vtkSetMacro(VectorMode, int);
   vtkGetMacro(VectorMode, int);
   void SetVectorModeToMagnitude();
   void SetVectorModeToComponent();
+  void SetVectorModeToRGBColors();
 
 //BTX
   enum VectorModes {
     MAGNITUDE=0,
-    COMPONENT=1
+    COMPONENT=1,
+    RGBCOLORS=2
   };
 //ETX
 
@@ -128,9 +132,20 @@ public:
   // to map to colors, you can specify it here.
   vtkSetMacro(VectorComponent, int);
   vtkGetMacro(VectorComponent, int);
-  
+
+  // Description:
+  // Map vectors through the lookup table.  Unlike MapScalarsThroughTable,
+  // this method will use the VectorMode to decide how to map vectors.
+  // The output format can be set to VTK_RGBA (4 components),
+  // VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
+  // or VTK_LUMINANCE_ALPHA (2 components)
+  void MapVectorsThroughTable(void *input, unsigned char *output,
+                              int inputDataType, int numberOfValues,
+                              int inputIncrement, int outputFormat);
+
   // Description:
   // Map a set of scalars through the lookup table in a single operation. 
+  // This method ignores the VectorMode and the VectorComponent.
   // The output format can be set to VTK_RGBA (4 components), 
   // VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
   // or VTK_LUMINANCE_ALPHA (2 components)
@@ -141,7 +156,13 @@ public:
   void MapScalarsThroughTable(vtkDataArray *scalars, 
                               unsigned char *output) 
     {this->MapScalarsThroughTable(scalars,output,VTK_RGBA);}
-
+  void MapScalarsThroughTable(void *input, unsigned char *output,
+                              int inputDataType, int numberOfValues,
+                              int inputIncrement,
+                              int outputFormat)
+    {this->UseMagnitude = 0;
+     this->MapScalarsThroughTable2(input, output, inputDataType,
+       numberOfValues, inputIncrement, outputFormat);}
 
   // Description:
   // An internal method typically not used in applications.
@@ -170,6 +191,20 @@ public:
 protected:
   vtkScalarsToColors();
   ~vtkScalarsToColors() {}
+
+  // Description:
+  // An internal method that assumes that the input already has the right
+  // colors, and only remaps the range to [0,255] and pads to the desired
+  // output format.  If the input has 1 or 2 components, the first component
+  // will duplicated if the output format is RGB or RGBA.  If the input
+  // has 2 or 4 components, the last component will be used for the alpha
+  // if the output format is RGBA or LuminanceAlpha.  If the input has
+  // 3 or 4 components but the output is Luminance or LuminanceAlpha,
+  // then the components will be combined to compute the luminance.
+  // Any components past the fourth component will be ignored.
+  void MapColorsToColors(void *input, unsigned char *output,
+                         int inputDataType, int numberOfValues,
+                         int numberOfComponents, int outputFormat);
 
   double Alpha;
 
