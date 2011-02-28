@@ -41,6 +41,7 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);       
 }
 
 QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
@@ -49,6 +50,7 @@ QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidg
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);       
 }
 
 QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
@@ -57,6 +59,7 @@ QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shar
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);       
 }
 
 /*! destructor */
@@ -134,6 +137,8 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Disconnect(mRenWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
     mConnect->Disconnect(mRenWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
     mConnect->Disconnect(mRenWin, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
+    mConnect->Disconnect(mRenWin, vtkCommand::StartEvent, this, SLOT(Start()));
+    mConnect->Disconnect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
     }
 
   // now set the window
@@ -147,10 +152,6 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     // tell the vtk window what the size of this window is
     this->mRenWin->SetSize(this->width(), this->height());
     this->mRenWin->SetPosition(this->x(), this->y());
-
-    // have VTK start this window and create the necessary graphics resources
-    makeCurrent();
-    this->mRenWin->OpenGLInit();
 
     // if an interactor wasn't provided, we'll make one by default
     if(!this->mRenWin->GetInteractor())
@@ -175,6 +176,8 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Connect(mRenWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
     mConnect->Connect(mRenWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
     mConnect->Connect(mRenWin, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
+    mConnect->Connect(mRenWin, vtkCommand::StartEvent, this, SLOT(Start()));
+    mConnect->Connect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
     }
 }
 
@@ -186,6 +189,18 @@ QVTKInteractor* QVTKWidget2::GetInteractor()
 {
   return QVTKInteractor
     ::SafeDownCast(this->GetRenderWindow()->GetInteractor());
+}
+
+void QVTKWidget2::Start()
+{
+  makeCurrent();
+  mRenWin->PushState();
+  mRenWin->OpenGLInit();
+}
+
+void QVTKWidget2::End()
+{
+  mRenWin->PopState();
 }
 
 /*! handle resize event
@@ -202,7 +217,7 @@ void QVTKWidget2::resizeGL(int w, int h)
   // and update the interactor
   if(this->mRenWin->GetInteractor())
     {
-    QResizeEvent e(QSize(), QSize(w,h));
+    QResizeEvent e(QSize(w,h), QSize());
     mIrenAdapter->ProcessEvent(&e, this->mRenWin->GetInteractor());
     }
 }
