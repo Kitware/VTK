@@ -23,7 +23,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Given a selection of columns of interest in an input data table, this
 // class provides the following functionalities, depending on the
 // execution mode it is executed in:
-// * Learn: calculate arbitrary quantiles. Provide specific names when 5-point
+// * Learn: calculate histogram.
+// * Derive: calculate PDFs and arbitrary quantiles. Provide specific names when 5-point
 //   statistics (minimum, 1st quartile, median, third quartile, maximum) requested.
 // * Assess: given an input data set and a set of q-quantiles, label each datum
 //   either with the quantile interval to which it belongs, or 0 if it is smaller
@@ -54,20 +55,11 @@ public:
   // Description:
   // The type of quantile definition.
   enum QuantileDefinitionType {
-    InverseCDF              = 0,
-    InverseCDFAveragedSteps = 1 // Ignored for non-numeric types
+    InverseCDF              = 0, // Identical to method 1 of R
+    InverseCDFAveragedSteps = 1, // Identical to method 2 of R, ignored for non-numeric types
+    NearestObservation      = 2, // Identical to method 3 of R
     };
 //ETX
-
-  // Description:
-  // Set/get whether histograms and assessment data should be treated as numeric data.
-  // Otherwise, then everything is treated as strings, which always works, and is thus the
-  // the default.
-  // Note that if the data is indeed numeric but this is not set, some strange results will
-  // occur because of the use of the lexicographic order instead of the order on reals.
-  vtkSetMacro( NumericType, int );
-  vtkGetMacro( NumericType, int );
-  vtkBooleanMacro( NumericType, int );
 
   // Description:
   // Set/Get the number of quantiles (with uniform spacing).
@@ -126,7 +118,6 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  int NumericType;
   int NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
 

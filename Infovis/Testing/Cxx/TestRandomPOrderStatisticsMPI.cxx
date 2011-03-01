@@ -66,10 +66,14 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
-  // Generate an input table that contains samples of mutually independent discrete random variables
+  // Generate an input table that contains samples of a truncated Gaussian pseudo-random variable
   int nVariables = 1;
   vtkIntArray* intArray[1];
   vtkStdString columnNames[] = { "Rounded Normal" };
+
+  // Storage for local extrema
+  int* min_l = new int[nVariables];
+  int* max_l = new int[nVariables];
 
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
@@ -79,13 +83,57 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     intArray[c]->SetNumberOfComponents( 1 );
     intArray[c]->SetName( columnNames[c] );
 
-    for ( int r = 0; r < args->nVals; ++ r )
+    // Store first value
+    int v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+    intArray[c]->InsertNextValue( v );
+
+    // Initialize local extrema
+    min_l[c] = v;
+    max_l[c] = v;
+
+    // Continue up to nVals values have been generated
+    for ( int r = 1; r < args->nVals; ++ r )
       {
-      intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) ) );
+      // Store new value
+      int v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+      intArray[c]->InsertNextValue( v );
+
+      // Update local extrema
+      if ( v < min_l[c] )
+        {
+        min_l[c] = v;
+        }
+      else if ( v > max_l[c] )
+        {
+        max_l[c] = v;
+        }
       }
 
     inputData->AddColumn( intArray[c] );
     intArray[c]->Delete();
+    }
+
+  // Reduce all minima for this variable
+  int min_g;
+  com->AllReduce( min_l,
+                  &min_g,
+                  1,
+                  vtkCommunicator::MIN_OP );
+
+  // Reduce all maxima for this variable
+  int max_g;
+  com->AllReduce( max_l,
+                  &max_g,
+                  1,
+                  vtkCommunicator::MAX_OP );
+
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Generated pseudo-random sample which globally ranges from "
+         << min_g
+         << " to "
+         << max_g
+         << ".\n";
     }
 
   // ************************** Order Statistics **************************
@@ -98,7 +146,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel order statistics engine and set its ports
   vtkPOrderStatistics* pos = vtkPOrderStatistics::New();
   pos->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pos->AddColumn( columnNames[0] );
@@ -106,9 +154,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pos->SetLearnOption( true );
   pos->SetDeriveOption( true );
-  pos->SetAssessOption( true );
+  pos->SetAssessOption( false );
   pos->SetTestOption( false );
-  pos->SetNumericType( true ); // Data set is numeric
   pos->Update();
 
   // Synchronize and stop clock
@@ -124,11 +171,9 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Now perform verifications
-  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
-
-  int testIntValue;
-  int numProcs = controller->GetNumberOfProcesses();
+  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
+  unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   // Verify that all processes have the same grand total and histograms size
   if ( com->GetLocalProcessId() == args->ioRank )
@@ -136,38 +181,68 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     cout << "\n## Verifying that all processes have the same grand total and histograms size.\n";
     }
 
-  // Gather all grand totals
-  int GT_l = outputQuantiles->GetValueByName( 0, "Cardinality" ).ToInt();
+  // Gather all cardinalities
+  int numProcs = controller->GetNumberOfProcesses();
+  int GT_l = outputHistogram->GetValueByName( 0, "Cardinality" ).ToInt();
   int* GT_g = new int[numProcs];
   com->AllGather( &GT_l,
                   GT_g,
                   1 );
 
-  // Use the first grand total as reference (as they all must be equal)
-  testIntValue = GT_g[0];
-
-  // Print out all grand totals
+  // Print out and verify all cardinalities
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     for ( int i = 0; i < numProcs; ++ i )
       {
-      cout << "     On process "
+      cout << "   On process "
            << i
-           << ", grand total = "
+           << ", cardinality = "
            << GT_g[i]
            << ", histogram size = "
            << outputHistogram->GetNumberOfRows()
            << "\n";
 
-      if ( GT_g[i] != testIntValue )
+      if ( GT_g[i] != args->nVals )
         {
-        vtkGenericWarningMacro("Incorrect CDF.");
+        vtkGenericWarningMacro("Incorrect cardinality.");
         *(args->retVal) = 1;
         }
       }
     }
 
+  // Print out and verify global extrema
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Verifying that calculated global extrema are correct.\n";
+    double min_c = outputQuantiles->GetValueByName( 0,
+                                                    columnNames[0] ).ToDouble();
+
+    double max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
+                                                    columnNames[0] ).ToDouble();
+
+    cout << "   Calculated minimum = "
+           << min_c
+           << ", maximum = "
+           << max_c
+           << "\n";
+
+    if ( min_c != min_g )
+        {
+        vtkGenericWarningMacro("Incorrect minimum.");
+        *(args->retVal) = 1;
+        }
+
+    if ( max_c != max_g )
+        {
+        vtkGenericWarningMacro("Incorrect maximum.");
+        *(args->retVal) = 1;
+        }
+    }
+
   // Clean up
+  delete [] GT_g;
+  delete [] min_l;
+  delete [] max_l;
   pos->Delete();
   inputData->Delete();
   timer->Delete();
