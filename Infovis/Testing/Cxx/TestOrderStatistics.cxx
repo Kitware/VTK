@@ -13,6 +13,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkStringArray.h"
+#include "vtkMath.h"
 #include "vtkTable.h"
 #include "vtkOrderStatistics.h"
 #include "vtkMultiBlockDataSet.h"
@@ -219,7 +220,7 @@ int TestOrderStatistics( int, char *[] )
       vtksys_stl::map<int,int> histoQuantiles;
       for ( vtkIdType r = 0; r < dataQuantArr->GetNumberOfTuples(); ++ r )
         {
-        int qIdx = static_cast<int>( round( dataQuantArr->GetTuple1( r ) ) );
+        int qIdx = static_cast<int>( vtkMath::Round( dataQuantArr->GetTuple1( r ) ) );
         ++ histoQuantiles[qIdx];
         }
 

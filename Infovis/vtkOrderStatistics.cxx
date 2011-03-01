@@ -431,7 +431,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       vtkIdType qIdx1;
       if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
         {
-        qIdx1 = static_cast<vtkIdType>( round( np ) );
+        qIdx1 = static_cast<vtkIdType>( vtkMath::Round( np ) );
         }
       else
         {
