@@ -357,7 +357,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
 
     // Downcast columns to typed arrays for efficient data access
-    vtkAbstractArray* vals = vtkAbstractArray::SafeDownCast( histogramTab->GetColumnByName( "Value" ) );
+    vtkAbstractArray* vals = histogramTab->GetColumnByName( "Value" );
     vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
 
     // The CDF will be used for quantiles calculation (effectively as a reverse look-up table

@@ -154,7 +154,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pos->SetLearnOption( true );
   pos->SetDeriveOption( true );
-  pos->SetAssessOption( true );
+  pos->SetAssessOption( false );
   pos->SetTestOption( false );
   pos->Update();
 
@@ -209,10 +209,6 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
         }
       }
     }
-
-  com->Barrier();
-  outputHistogram->Dump();
-  outputQuantiles->Dump();
 
   // Print out and verify global extrema
   if ( com->GetLocalProcessId() == args->ioRank )
