@@ -353,6 +353,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     }
   
   // Clean up
+  delete [] GT_g;
   delete [] cdf_l;
   delete [] cdf_g;
   pcs->Delete();
