@@ -53,8 +53,9 @@ typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 {
-  this->ScalarRange[0]=VTK_DOUBLE_MAX;
-  this->ScalarRange[1]=VTK_DOUBLE_MIN;
+  this->ScalarRange[0]    = VTK_DOUBLE_MAX;
+  this->ScalarRange[1]    = VTK_DOUBLE_MIN;
+  this->PadCellVisibility = false;
 }
 
 //----------------------------------------------------------------------------
@@ -338,152 +339,6 @@ int vtkHierarchicalBoxDataSetIsInBoxes(vtkAMRBoxList& boxes,
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GenerateCellVisibility(
-    vtkUniformGrid *coarseGrid )
-{
-  vtkAssertUtils::assertNotNull( coarseGrid,__FILE__,__LINE__ );
-
-  unsigned int cellIdx = 0;
-  vtkIdList *cellPnts = vtkIdList::New( );
-  for( ; cellIdx < coarseGrid->GetNumberOfCells(); ++cellIdx )
-    {
-    coarseGrid->GetCellPoints( cellIdx, cellPnts );
-    unsigned int count  = 0;
-    unsigned int pntIdx = 0;
-
-    for( ; pntIdx < cellPnts->GetNumberOfIds(); ++pntIdx )
-      {
-
-      vtkIdType meshIdx = cellPnts->GetId( pntIdx );
-      if( !coarseGrid->IsPointVisible( meshIdx ) )
-        ++count;
-      }
-
-    if( count == cellPnts->GetNumberOfIds() )
-      coarseGrid->BlankCell( cellIdx );
-
-    cellPnts->Reset();
-    }
-  coarseGrid->AttachCellVisibilityToCellData();
-
-}
-
-//----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GeneratePointVisibility(
-    const unsigned int level, vtkUniformGrid *coarseGrid, vtkAMRBox* coarseBox )
-{
-  // Sanity Check!
-  vtkAssertUtils::assertTrue(
-   level<=this->GetNumberOfLevels(),__FILE__, __LINE__);
-  vtkAssertUtils::assertNotNull(coarseGrid,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(coarseBox,__FILE__,__LINE__ );
-
-  unsigned int nextLevel   = level+1;
-  unsigned int dataIdx     = 0;
-  unsigned int numDataSets = this->GetNumberOfDataSets( nextLevel );
-
-   for( ; dataIdx < numDataSets; ++dataIdx )
-    {
-      vtkAMRBox fineBox;
-      vtkUniformGrid *fineGrid = this->GetDataSet(
-       nextLevel, dataIdx, fineBox );
-      vtkAssertUtils::assertEquals(
-       fineBox.GetLevel(), nextLevel,__FILE__,__LINE__);
-
-      fineBox.Coarsen( this->GetRefinementRatio( level ) );
-
-
-      const int *hi = coarseBox->GetHiCorner();
-      const int *lo = coarseBox->GetLoCorner();
-
-       for( int i=lo[0]; i <= hi[0]; ++i )
-        {
-          for( int j=lo[1]; j <= hi[1]; ++j )
-            {
-              for( int k=lo[2]; k <= hi[2]; ++k )
-                {
-
-                  if( fineBox.Contains( i,j,k ) )
-                    {
-                      int li,lj,lk; // local ijk indices
-                      li = i-lo[0];
-                      lj = j-lo[1];
-                      lk = k-lo[2];
-                      coarseGrid->BlankPoint(li,lj,lk);
-                    }
-
-                } // END for k
-            } // END for j
-         } // END for i
-
-
-    } // END for all data at next level
-
-    coarseGrid->AttachPointVisibilityToPointData();
-
-}
-
-//----------------------------------------------------------------------------
-//void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays( )
-//{
-//  unsigned int numLevels = this->GetNumberOfLevels( );
-//  unsigned int lastLevel = numLevels-1;
-//
-//  // STEP 0: Mask point & cell visibility of coarser levels
-//  for( unsigned int level=0; level < lastLevel; ++level )
-//    {
-//      unsigned int numDataSets = this->GetNumberOfDataSets( level );
-//      unsigned int dataIdx     = 0;
-//      for( ; dataIdx < numDataSets; ++dataIdx )
-//        {
-//        vtkAMRBox coarseBox;
-//        vtkUniformGrid *coarseGrid =
-//          this->GetDataSet( level, dataIdx, coarseBox );
-//        if( coarseGrid != NULL )
-//          {
-//          vtkAssertUtils::assertEquals(
-//           coarseGrid->GetNumberOfPoints(),coarseBox.GetNumberOfNodes(),
-//           __FILE__,__LINE__ );
-//
-//          this->GeneratePointVisibility( level, coarseGrid, &coarseBox );
-//          this->GenerateCellVisibility( coarseGrid );
-//          }
-//        // Else the grid does not belong to this process
-//        }
-//
-//    } // END for all coarse levels
-//
-//  // STEP 1: Unblank all points & cells at the finest level, i.e., all grids
-//  // at the finest level are visible
-//  int numFineDataSets  = this->GetNumberOfDataSets( lastLevel );
-//  unsigned int dataIdx = 0;
-//  for( ; dataIdx < numFineDataSets; ++dataIdx )
-//    {
-//      vtkAMRBox fineBox;
-//      vtkUniformGrid *fineGrid =
-//           this->GetDataSet( lastLevel, dataIdx, fineBox );
-//
-//      if( fineGrid != NULL )
-//        {
-//          // Unblank points
-//          unsigned int idx = 0;
-//          for( ; idx < fineGrid->GetNumberOfPoints(); ++idx )
-//            fineGrid->UnBlankPoint( idx );
-//
-//          // Unblank cells
-//          for( idx=0; idx < fineGrid->GetNumberOfPoints(); ++idx )
-//            fineGrid->UnBlankCell( idx );
-//
-//          fineGrid->AttachPointVisibilityToPointData();
-//          fineGrid->AttachCellVisibilityToCellData();
-//        }
-//
-//    } // END for all data at the finest level
-//
-//}
-
-
-//----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 {
   unsigned int numLevels = this->GetNumberOfLevels();
@@ -525,8 +380,6 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       }
 
     numDataSets = this->GetNumberOfDataSets(levelIdx);
-//    std::cout << "Number of datasets: " << numDataSets << std::endl;
-//    std::cout.flush( );
 
     for (dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
       {
@@ -534,14 +387,6 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
       if (grid && !box.Empty())
         {
-
-//        assert( grid->GetNumberOfCells()==box.GetNumberOfCells() );
-//        assert( grid->GetNumberOfPoints()==box.GetNumberOfNodes() );
-
-//        int cellDims[3];
-//        box.GetNumberOfCells(cellDims);
-//        vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
-//        int N = box.GetNumberOfCells();
 
         int cellDims[3];
         box.GetNumberOfNodes(cellDims);
@@ -567,12 +412,6 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
                 // Blank if cell is covered by a box of higher level
                 if (vtkHierarchicalBoxDataSetIsInBoxes(boxes, ix, iy, iz))
                   {
-                      int ndim[3];
-                      box.GetNumberOfNodes( ndim );
-
-                      int ijk[3] = { ix, iy, iz };
-
-//                      vtkIdType id = vtkStructuredData::ComputeCellId(ndim,ijk);
                      vtkIdType id =
                         (iz-loCorner[2])*cellDims[0]*cellDims[1] +
                         (iy-loCorner[1])*cellDims[0] +
@@ -589,11 +428,11 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 
           }
 
-//        grid->SetPointVisibilityArray( vis );
-//        grid->AttachPointVisibilityToPointData();
-
         grid->SetCellVisibilityArray(vis);
-        grid->AttachCellVisibilityToCellData();
+        if( this->PadCellVisibility == true )
+          {
+            grid->AttachCellVisibilityToCellData();
+          }
 
 
         if (this->HasMetaData(levelIdx, dataSetIdx))
