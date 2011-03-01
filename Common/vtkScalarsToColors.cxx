@@ -365,8 +365,8 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
     {
     do
       {
-      double l = inPtr[0];
-      double a = inPtr[1];
+      unsigned char l = inPtr[0];
+      unsigned char a = inPtr[1];
       outPtr[0] = l;
       outPtr[1] = l;
       outPtr[2] = l;
@@ -380,8 +380,8 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
     {
     do
       {
-      double l = inPtr[0];
-      double a = inPtr[1];
+      unsigned char l = inPtr[0];
+      unsigned char a = inPtr[1];
       outPtr[0] = l;
       outPtr[1] = l;
       outPtr[2] = l;
