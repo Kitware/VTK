@@ -214,7 +214,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
     // First replace existing rows
     // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
-    vtkIdType nRowHist = histoTab->GetNumberOfRows();
+    //vtkIdType nRowHist = histoTab->GetNumberOfRows();
 
     // Clean up
     row->Delete();
