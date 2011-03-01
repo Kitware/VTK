@@ -37,4 +37,9 @@ protected:
   void keyReleaseEvent(QKeyEvent*);
   void wheelEvent(QWheelEvent*);
 
+  void MakeCurrent();
+  void Frame();
+  void Start();
+  void End();
+
 };

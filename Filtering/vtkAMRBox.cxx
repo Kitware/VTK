@@ -460,6 +460,7 @@ void vtkAMRBox::SetDimensions(
     this->HiCorner[0]=ihi;
     this->HiCorner[1]=jhi;
     this->HiCorner[2]=khi;
+    this->SetRealExtent( this->LoCorner, this->HiCorner );
     }
 }
 
@@ -630,18 +631,22 @@ void vtkAMRBox::GetNumberOfCells(int *ext) const
  vtkAssertUtils::assertTrue(
   this->HiCorner[2]>=this->LoCorner[2],__FILE__,__LINE__ );
 
-  if (this->Empty())
-    {
-    ext[0]=ext[1]=0;
-    if (this->Dimension>2){ ext[2]=0; }
-    return;
-    }
+  ext[0]=this->HiCorner[0]-this->LoCorner[0];
+  ext[1]=this->HiCorner[1]-this->LoCorner[1];
+  ext[2]=this->HiCorner[2]-this->LoCorner[2];
 
-  ext[2]=1;
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    ext[q]=this->HiCorner[q]-this->LoCorner[q]+1;
-    }
+//  if (this->Empty())
+//    {
+//    ext[0]=ext[1]=0;
+//    if (this->Dimension>2){ ext[2]=0; }
+//    return;
+//    }
+//
+//  ext[2]=1;
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    ext[q]=this->HiCorner[q]-this->LoCorner[q]+1;
+//    }
 
 }
 
@@ -665,9 +670,9 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
     default:
       numCells = 0;
       // Code should not reach here
+//      vtkWarningMacro( "Encountered a box with dimension > 3!" );
     }
   return( numCells );
-
 }
 
 //-----------------------------------------------------------------------------
@@ -681,18 +686,22 @@ void vtkAMRBox::GetNumberOfNodes(int *ext) const
   vtkAssertUtils::assertTrue(
    this->HiCorner[2]>=this->LoCorner[2], __FILE__, __LINE__ );
 
-  if (this->Empty())
-    {
-    ext[0]=ext[1]=0;
-    if (this->Dimension>2){ ext[2]=0; }
-    return;
-    }
+  ext[0] = (this->HiCorner[0]-this->LoCorner[0])+1;
+  ext[1] = (this->HiCorner[1]-this->LoCorner[1])+1;
+  ext[2] = (this->HiCorner[2]-this->LoCorner[2])+1;
 
-  ext[2]=1;
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    ext[q]=this->HiCorner[q]-this->LoCorner[q]+2;
-    }
+//  if (this->Empty())
+//    {
+//    ext[0]=ext[1]=0;
+//    if (this->Dimension>2){ ext[2]=0; }
+//    return;
+//    }
+//
+//  ext[2]=1;
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    ext[q]=this->HiCorner[q]-this->LoCorner[q]+2;
+//    }
 }
 
 //-----------------------------------------------------------------------------
@@ -715,6 +724,7 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
     default:
       numNodes = 0;
       // Code should not reach here
+//      vtkWarningMacro( "Encountered a box with dimension > 3!" );
     }
   return( numNodes );
 }
@@ -868,7 +878,7 @@ double vtkAMRBox::GetMaxX() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetPoint( this->HiCorner+1, pnt );
+  this->GetPoint( this->HiCorner, pnt );
   return( pnt[0] );
 }
 
@@ -878,7 +888,7 @@ double vtkAMRBox::GetMaxY() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetPoint( this->HiCorner+1, pnt );
+  this->GetPoint( this->HiCorner, pnt );
 
   if( this->Dimension >= 2 )
     return( pnt[1] );
@@ -891,7 +901,7 @@ double vtkAMRBox::GetMaxZ() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetPoint( this->HiCorner+1, pnt );
+  this->GetPoint( this->HiCorner, pnt );
 
   if( this->Dimension == 3 )
    return( pnt[2] );
@@ -995,37 +1005,37 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::operator&=(const vtkAMRBox &other)
-{
-  if (this->Dimension!=other.Dimension)
-    {
-    vtkGenericWarningMacro(
-      "Can't operate on a " << this->Dimension
-      << "D box with a " << other.Dimension << "D box.");
-    return;
-    }
-  if (this->Empty())
-    {
-    return;
-    }
-  if (other.Empty())
-    {
-    this->Invalidate();
-    return;
-    }
-
-  int otherLo[3];
-  int otherHi[3];
-  other.GetDimensions(otherLo,otherHi);
-  int lo[3];
-  int hi[3];
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
-    hi[q]=(this->HiCorner[q]<otherHi[q] ? this->HiCorner[q] : otherHi[q]);
-    }
-  this->SetDimensions(lo,hi);
-}
+//void vtkAMRBox::operator&=(const vtkAMRBox &other)
+//{
+//  if (this->Dimension!=other.Dimension)
+//    {
+//    vtkGenericWarningMacro(
+//      "Can't operate on a " << this->Dimension
+//      << "D box with a " << other.Dimension << "D box.");
+//    return;
+//    }
+//  if (this->Empty())
+//    {
+//    return;
+//    }
+//  if (other.Empty())
+//    {
+//    this->Invalidate();
+//    return;
+//    }
+//
+//  int otherLo[3];
+//  int otherHi[3];
+//  other.GetDimensions(otherLo,otherHi);
+//  int lo[3];
+//  int hi[3];
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
+//    hi[q]=(this->HiCorner[q]<otherHi[q] ? this->HiCorner[q] : otherHi[q]);
+//    }
+//  this->SetDimensions(lo,hi);
+//}
 
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i,int j,int k) const
@@ -1132,19 +1142,25 @@ void vtkAMRBox::Coarsen(int r)
     return;
     }
 
+//  std::cout << "=============================\n";
+//  std::cout << "Before coarsening:\n";
+//  this->Print( std::cout );
+//  std::cout << std::endl;
+//  std::cout.flush( );
+
   // sanity check.
-  int nCells[3];
-  this->GetNumberOfCells(nCells);
-  for (int q=0; q<this->Dimension; ++q)
-    {
-     if (nCells[q]%r)
-      {
-      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
-        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
-      vtkGenericWarningMacro("This box cannot be coarsened.");
-      return;
-      }
-    }
+//  int nCells[3];
+//  this->GetNumberOfCells(nCells);
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//     if (nCells[q]%r)
+//      {
+//      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
+//        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
+//      vtkGenericWarningMacro("This box cannot be coarsened.");
+//      return;
+//      }
+//    }
 
   int lo[3];
   int hi[3];
@@ -1158,6 +1174,13 @@ void vtkAMRBox::Coarsen(int r)
   this->DX[0]*=r;
   this->DX[1]*=r;
   this->DX[2]*=r;
+
+//  std::cout << "After coarsening:\n";
+//  this->Print( std::cout );
+//  std::cout << std::endl;
+//  std::cout << "=============================\n";
+//  std::cout.flush( );
+
 }
 
 //-----------------------------------------------------------------------------

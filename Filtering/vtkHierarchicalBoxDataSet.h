@@ -48,7 +48,7 @@ class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkUniformGrid;
 
-class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet : public vtkCompositeDataSet
+class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet: public vtkCompositeDataSet
 {
 public:
   static vtkHierarchicalBoxDataSet *New();
@@ -209,19 +209,14 @@ public:
   // and dataset index are valid.
   unsigned int GetFlatIndex(unsigned int level, unsigned int index);
 
+  // Description:
+  // In-line Set & Get
+  vtkSetMacro( PadCellVisibility, bool );
+  vtkGetMacro( PadCellVisibility, bool );
+
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();
-
-  // Description:
-  // Computes the point visibility array of the given grid @the provided level.
-  virtual void GeneratePointVisibility( const unsigned int level,
-      vtkUniformGrid *gridPtr, vtkAMRBox* coarseBox );
-
-  // Description:
-  // Computes the cell visibility array of the given grid based on the pre-
-  // computed point visibility array.
-  virtual void GenerateCellVisibility( vtkUniformGrid *gridPtr );
 
   // Description:
   // Compute the range of the scalars and cache it into ScalarRange
@@ -232,6 +227,8 @@ protected:
   double ScalarRange[2];
   // Time at which scalar range is computed
   vtkTimeStamp ScalarRangeComputeTime;
+
+  bool PadCellVisibility;
 
 private:
 

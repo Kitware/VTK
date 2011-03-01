@@ -79,11 +79,15 @@ public Q_SLOTS:
 
 protected Q_SLOTS:
   // slot to make this vtk render window current
-  void MakeCurrent();
+  virtual void MakeCurrent();
   // slot called when vtk wants to know if the context is current
-  void IsCurrent(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
+  virtual void IsCurrent(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
   // slot called when vtk wants to frame the window
-  void Frame();
+  virtual void Frame();
+  // slot called when vtk wants to start the render
+  virtual void Start();
+  // slot called when vtk wants to end the render
+  virtual void End();
 
 protected:
   // overloaded resize handler
