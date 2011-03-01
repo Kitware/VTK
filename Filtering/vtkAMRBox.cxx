@@ -460,6 +460,7 @@ void vtkAMRBox::SetDimensions(
     this->HiCorner[0]=ihi;
     this->HiCorner[1]=jhi;
     this->HiCorner[2]=khi;
+    this->SetRealExtent( this->LoCorner, this->HiCorner );
     }
 }
 
