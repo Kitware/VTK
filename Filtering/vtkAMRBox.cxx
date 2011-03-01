@@ -634,7 +634,7 @@ void vtkAMRBox::GetNumberOfCells(int *ext) const
   ext[0]=this->HiCorner[0]-this->LoCorner[0];
   ext[1]=this->HiCorner[1]-this->LoCorner[1];
   ext[2]=this->HiCorner[2]-this->LoCorner[2];
-// TODO: ?
+
 //  if (this->Empty())
 //    {
 //    ext[0]=ext[1]=0;
@@ -673,18 +673,6 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
 //      vtkWarningMacro( "Encountered a box with dimension > 3!" );
     }
   return( numCells );
-// TODO: ?
-//  if (this->Empty())
-//    {
-//    return 0;
-//    }
-//
-//  vtkIdType nCells=1;
-//  for (int q=0; q<this->Dimension; ++q)
-//    {
-//    nCells*=this->HiCorner[q]-this->LoCorner[q]+1;
-//    }
-//  return nCells;
 }
 
 //-----------------------------------------------------------------------------
@@ -702,7 +690,6 @@ void vtkAMRBox::GetNumberOfNodes(int *ext) const
   ext[1] = (this->HiCorner[1]-this->LoCorner[1])+1;
   ext[2] = (this->HiCorner[2]-this->LoCorner[2])+1;
 
-// TODO: ?
 //  if (this->Empty())
 //    {
 //    ext[0]=ext[1]=0;
@@ -740,18 +727,6 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
 //      vtkWarningMacro( "Encountered a box with dimension > 3!" );
     }
   return( numNodes );
-// TODO: ?
-//  if (this->Empty())
-//    {
-//    return 0;
-//    }
-//
-//  vtkIdType nPoints=1;
-//  for (int q=0; q<this->Dimension; ++q)
-//    {
-//    nPoints*=this->HiCorner[q]-this->LoCorner[q]+2;
-//    }
-//  return nPoints;
 }
 
 //-----------------------------------------------------------------------------

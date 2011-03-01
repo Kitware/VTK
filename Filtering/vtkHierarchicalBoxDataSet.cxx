@@ -391,6 +391,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
         int cellDims[3];
         box.GetNumberOfNodes(cellDims);
         vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
+//        int N = box.GetNumberOfCells();
         int N = box.GetNumberOfNodes();
 
         vis->SetNumberOfTuples( N );
