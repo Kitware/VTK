@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Description
 // vtkCocoaTkUtilities provide access to the Tk internals for Cocoa
 // implementations of Tk.  These internals must be implemented in a .mm
-// file, since Cocoa is Objective C, but the header file itself is 
+// file, since Cocoa is Objective-C, but the header file itself is 
 // pure C++ so that it can be included by other VTK classes.
 //
 // .SECTION See Also
