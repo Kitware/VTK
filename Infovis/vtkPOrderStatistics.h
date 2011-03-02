@@ -64,34 +64,6 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
   vtkPOrderStatistics();
   ~vtkPOrderStatistics();
 
-//BTX
-  // Description:
-  // Pack all entries of a order table in:
-  // 1. a single string for all realizations of variables, and
-  // 2. a single vector for the corresponding keys and cardinalities
-  bool Pack( vtkTable* orderTab,
-             vtkStdString& xPacked,
-             vtkstd::vector<vtkIdType>& kcValues );
-
-  // Description:
-  // Reduce the collection of local order tables to the global one
-  bool Reduce( vtkIdType& xSizeTotal,
-               char* xPacked_g,
-               vtkStdString& xPacked_l,
-               vtkIdType& kcSizeTotal,
-               vtkIdType*  kcValues_g,
-               vtkstd::vector<vtkIdType>& kcValues_l );
-
-  // Description:
-  // Broadcast reduced order table to all processes
-  bool Broadcast( vtkIdType xSizeTotal,
-                  vtkStdString& xPacked,
-                  vtkstd::vector<vtkStdString>& xValues,
-                  vtkIdType kcSizeTotal,
-                  vtkstd::vector<vtkIdType>& kcValues,
-                  vtkIdType reduceProc );
-//ETX
-
   vtkMultiProcessController* Controller;
  private:
   vtkPOrderStatistics(const vtkPOrderStatistics&); // Not implemented.

@@ -826,6 +826,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
+  dfunc = 0;
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO ); 
   if ( ! inMeta
        || inMeta->GetNumberOfBlocks() < 2 )
@@ -859,7 +860,6 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStringArray* varY = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable Y" ) );
   if ( ! varX || ! varY )
     {
-    dfunc = 0;
     return;
     }
 
@@ -875,7 +875,6 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       vtkAbstractArray* arrY = outData->GetColumnByName( varNameY );
       if ( ! arrX || ! arrY )
         {
-        dfunc = 0;
         return;
         }
       
@@ -884,7 +883,6 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       vtkDataArray* valsY = vtkDataArray::SafeDownCast( arrY );
       if ( ! valsX || ! valsY )
         {
-        dfunc = 0;
         return;
         }
 
@@ -901,7 +899,6 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                          << " variance/covariance matrix has non-positive determinant"
                          << " (assessment values will be set to -1)." );
         
-        dfunc = 0;
         }
       else
         {
@@ -919,6 +916,5 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       }
     }
 
-  // The pair of variables of interest was not found in the parameter table
-  dfunc = 0;
+  // If arrived here, it means that the pair of variables of interest was not found in the parameter table
 }
