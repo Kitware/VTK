@@ -210,31 +210,31 @@ void vtkLookupTable::ForceBuild()
         c_rgba[2] = static_cast<unsigned char> 
           (127.5*(1.0+cos((1.0-static_cast<double>(rgba[2]))*3.141593)));
         c_rgba[3] = static_cast<unsigned char> (alpha*255.0);
-        /* same code, but with rounding 
-           c_rgba[0] = static_cast<unsigned char> 
-           (127.5f*(1.0f + (double)cos(double((1.0f-rgba[0])*3.141593f)))+0.5f);
-           c_rgba[1] = static_cast<unsigned char> 
-           (127.5f*(1.0f + (double)cos(double((1.0f-rgba[1])*3.141593f)))+0.5f);
-           c_rgba[2] = static_cast<unsigned char> 
-           (127.5f*(1.0f + (double)cos(double((1.0f-rgba[2])*3.141593f)))+0.5f);
-           c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
+        /* same code, but with rounding for correctness
+        c_rgba[0] = static_cast<unsigned char>
+          (127.5*(1.0 + cos((1.0 - rgba[0])*3.141593)) + 0.5);
+        c_rgba[1] = static_cast<unsigned char>
+          (127.5*(1.0 + cos((1.0 - rgba[1])*3.141593)) + 0.5);
+        c_rgba[2] = static_cast<unsigned char>
+          (127.5*(1.0 + cos((1.0 - rgba[2])*3.141593)) + 0.5);
+        c_rgba[3] = static_cast<unsigned char>(alpha*255.0 + 0.5);
         */
         }
         break;
       case VTK_RAMP_LINEAR:
         {
-        c_rgba[0] = static_cast<unsigned char>((rgba[0])*255.0f + 0.5f);
-        c_rgba[1] = static_cast<unsigned char>((rgba[1])*255.0f + 0.5f);
-        c_rgba[2] = static_cast<unsigned char>((rgba[2])*255.0f + 0.5f);
-        c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
+        c_rgba[0] = static_cast<unsigned char>(rgba[0]*255.0 + 0.5);
+        c_rgba[1] = static_cast<unsigned char>(rgba[1]*255.0 + 0.5);
+        c_rgba[2] = static_cast<unsigned char>(rgba[2]*255.0 + 0.5);
+        c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0 + 0.5);
         }
         break;
       case VTK_RAMP_SQRT:
         {
-        c_rgba[0] = static_cast<unsigned char>((sqrt(rgba[0]))*255.0f + 0.5f);
-        c_rgba[1] = static_cast<unsigned char>((sqrt(rgba[1]))*255.0f + 0.5f);
-        c_rgba[2] = static_cast<unsigned char>((sqrt(rgba[2]))*255.0f + 0.5f);
-        c_rgba[3] = static_cast<unsigned char>((sqrt(rgba[3]))*255.0f + 0.5f);
+        c_rgba[0] = static_cast<unsigned char>(sqrt(rgba[0])*255.0 + 0.5);
+        c_rgba[1] = static_cast<unsigned char>(sqrt(rgba[1])*255.0 + 0.5);
+        c_rgba[2] = static_cast<unsigned char>(sqrt(rgba[2])*255.0 + 0.5);
+        c_rgba[3] = static_cast<unsigned char>(sqrt(rgba[3])*255.0 + 0.5);
         }
         break;
       default:
@@ -371,9 +371,6 @@ inline unsigned char *vtkLinearLookupMain(double v,
     findx = maxIndex;
     }
   return &table[4*static_cast<unsigned int>(findx)];
-  /* round
-  return &table[4*(unsigned int)(findx + 0.5f)];
-  */
 }
 
 template<class T>
@@ -442,8 +439,6 @@ vtkIdType vtkLookupTable::GetIndex(double v)
       }
     else
       {
-      /* while this looks like the wrong scale, it is the correct scale
-       * taking into account the truncation to int that happens below. */
       scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
       }
     v = vtkApplyLogScale(v, this->TableRange, logRange);
@@ -457,8 +452,6 @@ vtkIdType vtkLookupTable::GetIndex(double v)
       }
     else
       {
-      /* while this looks like the wrong scale, it is the correct scale
-       * taking into account the truncation to int that happens below. */
       scale = (maxIndex + 1)/(this->TableRange[1] - this->TableRange[0]);
       }
     }
@@ -529,7 +522,10 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
   const double *nanColord = self->GetNanColor();
   for (int c = 0; c < 4; c++)
     {
-    nanColor[c] = static_cast<unsigned char>(nanColord[c]*255.0);
+    double v = nanColord[c];
+    if (v < 0.0) { v = 0.0; }
+    else if (v > 1.0) { v = 1.0; }
+    nanColor[c] = static_cast<unsigned char>(v*255.0 + 0.5);
     }
 
   if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required 
@@ -546,8 +542,6 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
         }
       else
         {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
         scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
         }
       if (outFormat == VTK_RGBA)
@@ -612,8 +606,6 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
         }
       else
         {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
         scale = (maxIndex + 1)/(range[1] - range[0]);
         }
 
@@ -685,8 +677,6 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
         }
       else
         {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
         scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
         }
       if (outFormat == VTK_RGBA)
@@ -698,7 +688,7 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           output[0] = cptr[0];
           output[1] = cptr[1];
           output[2] = cptr[2];
-          output[3] = static_cast<unsigned char>(cptr[3]*alpha);
+          output[3] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
           input += inIncr;
           output += 4;
           }
@@ -724,7 +714,7 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           cptr = vtkLinearLookup(val, table, maxIndex, shift, scale, nanColor);
           output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
-          output[1] = static_cast<unsigned char>(alpha*cptr[3]);
+          output[1] = static_cast<unsigned char>(alpha*cptr[3] + 0.5);
           input += inIncr;
           output += 2;
           }
@@ -751,8 +741,6 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
         }
       else
         {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
         scale = (maxIndex + 1)/(range[1] - range[0]);
         }
 
@@ -765,7 +753,7 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           output[0] = cptr[0];
           output[1] = cptr[1];
           output[2] = cptr[2];
-          output[3] = static_cast<unsigned char>(cptr[3]*alpha);
+          output[3] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
           input += inIncr;
           output += 4;
           }
@@ -791,7 +779,7 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
                                  nanColor);
           output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
-          output[1] = static_cast<unsigned char>(cptr[3]*alpha);
+          output[1] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
           input += inIncr;
           output += 2;
           }
@@ -938,10 +926,10 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, double rgba[4])
 
   unsigned char *_rgba = this->Table->WritePointer(4*indx,4);
 
-  _rgba[0] = static_cast<unsigned char>(rgba[0]*255.0f + 0.5f);
-  _rgba[1] = static_cast<unsigned char>(rgba[1]*255.0f + 0.5f);
-  _rgba[2] = static_cast<unsigned char>(rgba[2]*255.0f + 0.5f);
-  _rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
+  _rgba[0] = static_cast<unsigned char>(rgba[0]*255.0 + 0.5);
+  _rgba[1] = static_cast<unsigned char>(rgba[1]*255.0 + 0.5);
+  _rgba[2] = static_cast<unsigned char>(rgba[2]*255.0 + 0.5);
+  _rgba[3] = static_cast<unsigned char>(rgba[3]*255.0 + 0.5);
 
   this->InsertTime.Modified();
   this->Modified();
