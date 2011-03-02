@@ -13,7 +13,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
+#import <Cocoa/Cocoa.h>
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
+
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCommand.h"
 #import "vtkIdList.h"

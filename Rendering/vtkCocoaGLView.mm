@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+#import <Cocoa/Cocoa.h>
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
+
 #import "vtkCocoaGLView.h"
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCocoaRenderWindowInteractor.h"
