@@ -95,7 +95,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     for ( int r = 1; r < args->nVals; ++ r )
       {
       // Store new value
-      int v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+      v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
       intArray[c]->InsertNextValue( v );
 
       // Update local extrema
