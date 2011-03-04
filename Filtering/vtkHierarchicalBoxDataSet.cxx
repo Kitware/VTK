@@ -186,67 +186,177 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 }
 
 //----------------------------------------------------------------------------
-vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
-                unsigned int level,unsigned int id,vtkAMRBox& box)
+void vtkHierarchicalBoxDataSet::SetDataSet(
+    unsigned int level, unsigned int idx, vtkUniformGrid *grid )
 {
-  if (this->GetNumberOfLevels() <= level ||
-    this->GetNumberOfDataSets(level) <= id)
+  assert( "Input grid is NULL!" && (grid!=NULL) );
+
+  // STEP 0: Resize the number of levels accordingly
+  if( level >= this->GetNumberOfLevels() )
     {
-    return 0;
+      this->SetNumberOfLevels( level+1 );
     }
 
-  vtkMultiPieceDataSet* levelDS = vtkMultiPieceDataSet::SafeDownCast(
-    this->Superclass::GetChild(level));
-  if (levelDS)
+  // STEP 1: Insert data at the given location
+  vtkMultiPieceDataSet* levelDS =
+      vtkMultiPieceDataSet::SafeDownCast( this->Superclass::GetChild(level));
+  if( levelDS != NULL )
     {
-    vtkUniformGrid* ds = vtkUniformGrid::SafeDownCast(levelDS->GetPiece(id));
-    vtkInformation* info = levelDS->GetMetaData(id);
-    if (info)
-      {
-
-      // Sanity Checks
-      vtkAssertUtils::assertTrue(
-       info->Has(BOX_DIMENSIONALITY()),__FILE__, __LINE__);
-      vtkAssertUtils::assertTrue(info->Has(BOX()),__FILE__,__LINE__);
-      vtkAssertUtils::assertTrue(info->Has(BOX_ORIGIN()),__FILE__,__LINE__);
-      vtkAssertUtils::assertTrue(info->Has(RANK()),__FILE__,__LINE__);
-      vtkAssertUtils::assertTrue(info->Has(BLOCK_ID()),__FILE__,__LINE__);
-      vtkAssertUtils::assertTrue(info->Has(REAL_EXTENT()),__FILE__,__LINE__);
-
-      box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
-      int *dims = info->Get( BOX() );
-      box.SetDimensions(dims,dims+3);
-      box.SetDataSetOrigin( info->Get( BOX_ORIGIN() ) );
-      box.SetProcessId( info->Get( RANK() ) );
-      box.SetBlockId( info->Get( BLOCK_ID() ) );
-      box.SetRealExtent( info->Get( REAL_EXTENT() ) );
-      box.SetLevel( level );
-
-      double *spacing = info->Get( SPACING() );
-      vtkAssertUtils::assertNotNull( spacing, __FILE__, __LINE__ );
-      box.SetGridSpacing( spacing );
-
-//      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
-//          info->Get()
-//      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
-//        info->Get(BOX_DIMENSIONALITY()) : 3;
-//      box.SetDimensionality(dimensionality);
-//
-//      int* boxVec = info->Get(BOX());
-//      if (boxVec)
-//        {
-//        box.SetDimensions(boxVec,boxVec+3);
-//        }
-
-      }
-    else
-      {
-      vtkErrorMacro( "Metadata is NULL!" );
-      }
-    return ds;
+      levelDS->SetPiece(idx, grid);
     }
-  return 0;
+  else
+    {
+      vtkErrorMacro( "Multi-piece data-structure is NULL!!!!" );
+    }
 }
+
+//------------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::SetMetaData(
+    unsigned int level, unsigned int id, const vtkAMRBox &box )
+{
+
+  // STEP 0: Resize the number of levels accordingly
+  if( level >= this->GetNumberOfLevels() )
+    {
+      this->SetNumberOfLevels( level+1 );
+    }
+
+  // STEP 1: Insert the meta data at the given location
+  vtkMultiPieceDataSet* levelDS =
+      vtkMultiPieceDataSet::SafeDownCast( this->Superclass::GetChild(level));
+  if( levelDS != NULL )
+    {
+      if( id >= levelDS->GetNumberOfPieces() )
+        levelDS->SetPiece( id+1, NULL);
+
+      vtkInformation* info = levelDS->GetMetaData(id);
+      if (info)
+        {
+          const int *loCorner=box.GetLoCorner();
+          const int *hiCorner=box.GetHiCorner();
+          info->Set(BOX_DIMENSIONALITY(), box.GetDimensionality());
+          info->Set(BOX(),loCorner[0], loCorner[1], loCorner[2],
+                          hiCorner[0], hiCorner[1], hiCorner[2]);
+          double x0[3];
+          box.GetBoxOrigin( x0 );
+          info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
+          info->Set(RANK(), box.GetProcessId() );
+          info->Set(BLOCK_ID(), box.GetBlockId() );
+
+          double spacing[3];
+          box.GetGridSpacing( spacing );
+          info->Set(SPACING(),spacing[0],spacing[1],spacing[2]);
+
+          int realExtent[6];
+          box.GetRealExtent( realExtent );
+          info->Set(REAL_EXTENT(),
+              realExtent[0], realExtent[1], realExtent[2],
+              realExtent[3], realExtent[4], realExtent[5] );
+        }
+      else
+        {
+          vtkErrorMacro( "Metadata object is NULL!!!!" );
+        }
+    }
+  else
+    {
+      vtkErrorMacro( "Multi-piece data-structure is NULL!!!!" );
+    }
+
+}
+
+//------------------------------------------------------------------------------
+vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
+    unsigned int level, unsigned int id )
+{
+  if( this->GetNumberOfLevels() <= level ||
+      this->GetNumberOfDataSets(level) <= id )
+    {
+      return NULL;
+    }
+
+  vtkMultiPieceDataSet* levelDS =
+      vtkMultiPieceDataSet::SafeDownCast(this->Superclass::GetChild(level));
+  if( levelDS )
+    {
+      return( vtkUniformGrid::SafeDownCast( levelDS->GetPiece( id ) ) );
+    }
+  vtkErrorMacro( "Unexcepected NULL pointer encountered!\n" );
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
+                          unsigned int level, unsigned int id, vtkAMRBox& box )
+{
+  if( this->GetMetaData( level, id, box ) != 1 )
+    {
+      vtkErrorMacro( "Could not retrieve meta-data for the given data set!" );
+    }
+  return( this->GetDataSet( level, id ) );
+}
+
+//vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
+//                unsigned int level,unsigned int id,vtkAMRBox& box)
+//{
+//  if (this->GetNumberOfLevels() <= level ||
+//    this->GetNumberOfDataSets(level) <= id)
+//    {
+//    return 0;
+//    }
+//
+//  vtkMultiPieceDataSet* levelDS = vtkMultiPieceDataSet::SafeDownCast(
+//    this->Superclass::GetChild(level));
+//  if (levelDS)
+//    {
+//    vtkUniformGrid* ds = vtkUniformGrid::SafeDownCast(levelDS->GetPiece(id));
+//    vtkInformation* info = levelDS->GetMetaData(id);
+//    if (info)
+//      {
+//
+//      // Sanity Checks
+//      vtkAssertUtils::assertTrue(
+//       info->Has(BOX_DIMENSIONALITY()),__FILE__, __LINE__);
+//      vtkAssertUtils::assertTrue(info->Has(BOX()),__FILE__,__LINE__);
+//      vtkAssertUtils::assertTrue(info->Has(BOX_ORIGIN()),__FILE__,__LINE__);
+//      vtkAssertUtils::assertTrue(info->Has(RANK()),__FILE__,__LINE__);
+//      vtkAssertUtils::assertTrue(info->Has(BLOCK_ID()),__FILE__,__LINE__);
+//      vtkAssertUtils::assertTrue(info->Has(REAL_EXTENT()),__FILE__,__LINE__);
+//
+//      box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
+//      int *dims = info->Get( BOX() );
+//      box.SetDimensions(dims,dims+3);
+//      box.SetDataSetOrigin( info->Get( BOX_ORIGIN() ) );
+//      box.SetProcessId( info->Get( RANK() ) );
+//      box.SetBlockId( info->Get( BLOCK_ID() ) );
+//      box.SetRealExtent( info->Get( REAL_EXTENT() ) );
+//      box.SetLevel( level );
+//
+//      double *spacing = info->Get( SPACING() );
+//      vtkAssertUtils::assertNotNull( spacing, __FILE__, __LINE__ );
+//      box.SetGridSpacing( spacing );
+//
+////      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
+////          info->Get()
+////      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
+////        info->Get(BOX_DIMENSIONALITY()) : 3;
+////      box.SetDimensionality(dimensionality);
+////
+////      int* boxVec = info->Get(BOX());
+////      if (boxVec)
+////        {
+////        box.SetDimensions(boxVec,boxVec+3);
+////        }
+//
+//      }
+//    else
+//      {
+//      vtkErrorMacro( "Metadata is NULL!" );
+//      }
+//    return ds;
+//    }
+//  return 0;
+//}
 
 
 
@@ -293,6 +403,51 @@ int vtkHierarchicalBoxDataSet::GetRefinementRatio(vtkCompositeDataIterator* iter
     return 0;
     }
   return info->Has(REFINEMENT_RATIO())? info->Get(REFINEMENT_RATIO()): 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkHierarchicalBoxDataSet::GetMetaData(
+    unsigned int level, unsigned int index, vtkAMRBox &box)
+{
+  vtkMultiPieceDataSet* levelMDS =
+   vtkMultiPieceDataSet::SafeDownCast( this->GetChild(level) );
+  if( levelMDS != NULL )
+    {
+      vtkInformation* info = levelMDS->GetMetaData( index );
+      if( info != NULL )
+        {
+          // Sanity Checks
+          assert( "Expected Meta-data" && info->Has( BOX_DIMENSIONALITY() ) );
+          assert( "Expected Meta-data" && info->Has( BOX() ) );
+          assert( "Expected Meta-data" && info->Has( RANK() ) );
+          assert( "Expected Meta-data" && info->Has( BOX_ORIGIN() ) );
+          assert( "Expected Meta-data" && info->Has( BLOCK_ID() )  );
+          assert( "Expected Meta-data" && info->Has( REAL_EXTENT() )  );
+
+          box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
+          int *dims = info->Get( BOX() );
+          box.SetDimensions(dims,dims+3);
+          box.SetDataSetOrigin( info->Get( BOX_ORIGIN() ) );
+          box.SetProcessId( info->Get( RANK() ) );
+          box.SetBlockId( info->Get( BLOCK_ID() ) );
+          box.SetRealExtent( info->Get( REAL_EXTENT() ) );
+          box.SetLevel( level );
+          double *spacing = info->Get( SPACING() );
+          box.SetGridSpacing( spacing );
+
+          return 1;
+        }
+      else
+        {
+          vtkErrorMacro( "No meta-data found for requested object!\n" );
+          return 0;
+        }
+    }
+  else
+    {
+      vtkErrorMacro( "No data found at requested level!\n" );
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

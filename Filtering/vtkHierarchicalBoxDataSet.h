@@ -95,6 +95,17 @@ public:
   // levels and the number of datasets in the level to fit level, id requested. 
   void SetDataSet(unsigned int level, unsigned int id, 
                   int LoCorner[3], int HiCorner[3], vtkUniformGrid* dataSet);
+
+  // Description:
+  // Set the dataset pointer for a given node without any metadata. This will
+  // resize the number of levels and the number of datasets accordingly.
+  void SetDataSet(unsigned int level, unsigned int id, vtkUniformGrid* dataSet);
+
+  // Description:
+  // Sets the meta-data object at a given node. This will resize the number
+  // of levels and number of datasets acoordingly.
+  void SetMetaData(unsigned int level, unsigned int id, const vtkAMRBox &box );
+
 //BTX
   // Description:
   // Set the dataset pointer for a given node. This will resize the number of
@@ -112,6 +123,7 @@ public:
   vtkUniformGrid* GetDataSet(unsigned int level,
                              unsigned int id,
                              vtkAMRBox& box);
+  vtkUniformGrid* GetDataSet(unsigned int level,unsigned int id );
 
   // Description:
   // Returns the AMR box for the location pointer by the iterator.
@@ -136,6 +148,11 @@ public:
   // vtkInformation object if none is already present. Use HasMetaData to
   // avoid unnecessary allocations.
   vtkInformation* GetMetaData(unsigned int level, unsigned int index);
+
+  // Description:
+  // Get the AMR box meta-data associated with a given dataset.
+  // Returns 1 iff GetMetaData() was successful, else 0.
+  int GetMetaData(unsigned int level, unsigned int index, vtkAMRBox &box);
 
   // Description:
   // Returns if meta-data exists for a given dataset under a given level.
