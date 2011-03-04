@@ -37,7 +37,6 @@
   
   #define METAIO_STL    std
   #define METAIO_STREAM std
-  #define METAIO_KWSYS  itksys
   #include <iostream>
   #include <fstream>
   
@@ -68,8 +67,6 @@
     #include <fstream.h>
   #endif
 
-  #define METAIO_KWSYS  vtksys
-  
   #if (defined(_WIN32) || defined(WIN32)) && defined(vtkmetaio_BUILD_SHARED_LIBS)
     #ifdef vtkmetaio_EXPORTS
       #define METAIO_EXPORT __declspec(dllexport)

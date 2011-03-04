@@ -1525,7 +1525,7 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
     char **ptr;
     other_flag = 1;
     /* make room for other_props */
-    other_data = (char *) myalloc (elem->other_size);
+    other_data = (char *) plyAllocateMemory(elem->other_size);
     /* store pointer in user's structure to the other_props */
     ptr = (char **) (elem_ptr + elem->other_offset);
     *ptr = other_data;
@@ -1643,7 +1643,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
     char **ptr;
     other_flag = 1;
     /* make room for other_props */
-    other_data = (char *) myalloc (elem->other_size);
+    other_data = (char *) plyAllocateMemory(elem->other_size);
     /* store pointer in user's structure to the other_props */
     ptr = (char **) (elem_ptr + elem->other_offset);
     *ptr = other_data;
