@@ -29,17 +29,17 @@
 //-----------------------------------------------------------------------------
 //           H E L P E R   M E T H O D S  &   M A C R O S
 //-----------------------------------------------------------------------------
-#define CHECK_TEST( P, testName, msg ) {                                  \
+#define CHECK_TEST( P, testName, rval ) {                                 \
   if( !P ) {                                                              \
     std::cerr << "ERROR:" << testName << " FAILED!\n";                    \
-    std::cerr << "Message:" << msg << std::endl;                          \
     std::cerr << "Location:" << __FILE__ << ":" << __LINE__ << std::endl; \
+    ++rval;                                                               \
   }                                                                       \
 }
 
 // Description:
 // Gets the grid for the given process
-void WriteUniformGrid( vtkUniformGrid *myGrid )
+void WriteUniformGrid( vtkUniformGrid *myGrid, std::string prefix )
 {
   assert( "Input Grid is not NULL" && (myGrid != NULL) );
 
@@ -50,7 +50,8 @@ void WriteUniformGrid( vtkUniformGrid *myGrid )
 
   myImage2StructuredGridFilter->SetInput( myGrid );
   myImage2StructuredGridFilter->Update();
-//  vtkStructuredGrid* myStructuredGrid = myImage2StructuredGridFilter->GetS
+  vtkStructuredGrid* myStructuredGrid =
+      myImage2StructuredGridFilter->GetOutput();
 
 }
 
@@ -158,20 +159,14 @@ int TestAMRUtilities(int,char*[])
   assert( "Null Multi-process controller encountered" &&
             (myController != NULL) );
 
+  // Synchronize Processes
   myController->Barrier();
 
   int rval=0;
-  CHECK_TEST(TestComputeDataSetOrigin(myController),"ComputeOrigin","mismatch with expected");
-//  if( !TestComputeDataSetOrigin( myController ) )
-//    {
-//      std::cerr << "ERROR: Failed In computing the global data-set origin!";
-//      std::cerr << "@" << __FILE__ << ":"<< __LINE__ << std::endl;
-//      std::cerr.flush();
-//      ++rval;
-//    }
+  CHECK_TEST( TestComputeDataSetOrigin(myController),"ComputeOrigin", rval );
 
+  // Synchronize Processes
   myController->Barrier();
-
   return( rval );
 }
 
