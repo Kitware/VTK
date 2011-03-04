@@ -28,7 +28,8 @@ class vtkAMRInterBlockConnectivity;
 class vtkAMRBox;
 class vtkMultiProcessController;
 
-class VTK_AMR_EXPORT vtkAMRConnectivityFilter : public vtkHierarchicalBoxDataSetAlgorithm
+class VTK_AMR_EXPORT vtkAMRConnectivityFilter :
+      public vtkHierarchicalBoxDataSetAlgorithm
 {
   public:
     static vtkAMRConnectivityFilter* New();
@@ -53,10 +54,10 @@ class VTK_AMR_EXPORT vtkAMRConnectivityFilter : public vtkHierarchicalBoxDataSet
     // Computes the inter-block connectivity of the given block.
     void ComputeBlockConnectivity( const vtkAMRBox &box );
 
-    vtkMultiProcessController    *Controller;
-    vtkHierarchicalBoxDataSet    *AMRDataSet;
-    vtkAMRInterBlockConnectivity *RemoteConnectivity;
-    vtkAMRInterBlockConnectivity *LocalConnectivity;
+    vtkMultiProcessController*    Controller;
+    vtkHierarchicalBoxDataSet*    AMRDataSet;
+    vtkAMRInterBlockConnectivity* RemoteConnectivity;
+    vtkAMRInterBlockConnectivity* LocalConnectivity;
 
   private:
     vtkAMRConnectivityFilter(const vtkAMRConnectivityFilter&); // Not implemented

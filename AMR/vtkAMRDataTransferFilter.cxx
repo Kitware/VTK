@@ -170,6 +170,23 @@ vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid( vtkAMRBox &ebox,
   extrudedGrid->SetSpacing( h );
   extrudedGrid->SetOrigin( origin );
 
+  // Deep-Copy Data from source Grid to Extruded Grid
+  vtkPointData *pntData = srcGrid->GetPointData();
+  for( int idx=0; idx < pntData->GetNumberOfArrays(); ++idx )
+    {
+      vtkDataArray *a = pntData->GetArray( idx );
+      switch( a->GetDataType( ) )
+        {
+
+        } // END switch
+
+    } // END for all point arrays
+
+  vtkCellData *cellData = srcGrid->GetCellData();
+  for( int idx=0; idx < cellData->GetNumberOfArrays(); ++idx )
+    {
+      vtkDataArray *a = cellData->GetArray( idx );
+    } // END for all cell arrays
   return( extrudedGrid );
 }
 
