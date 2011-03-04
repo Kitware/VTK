@@ -71,37 +71,17 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
         {
           // TODO: Define a custom operator s.t. only one all-reduce operation
           // is called.
-          controller->Barrier();
-          std::cout << "Process: " << controller->GetLocalProcessId() << " ";
-          std::cout << "Seding min: " << min[0] << ", ";
-          std::cout << min[1] << ", " << min[2] << std::endl;
-          std::cout.flush();
-          controller->Barrier();
-
-          controller->AllReduce(
-           &min[0],&origin[0],sizeof(double),vtkCommunicator::MIN_OP);
-          controller->AllReduce(
-           &min[1],&origin[1],sizeof(double),vtkCommunicator::MIN_OP);
-          controller->AllReduce(
-           &min[2],&origin[2],sizeof(double),vtkCommunicator::MIN_OP);
-
-
-          controller->Barrier();
-          std::cout << "Process: " << controller->GetLocalProcessId() << " ";
-          std::cout << "Rcvd Origin: " << origin[0] << ", ";
-          std::cout << origin[1] << ", " << origin[2] << std::endl;
-          std::cout.flush();
-          controller->Barrier();
-
-          controller->Barrier();
-//          return;
+          controller->AllReduce(&min[0],&origin[0],1,vtkCommunicator::MIN_OP);
+          controller->AllReduce(&min[1],&origin[1],1,vtkCommunicator::MIN_OP);
+          controller->AllReduce(&min[2],&origin[2],1,vtkCommunicator::MIN_OP);
+          return;
         }
     }
 
    // Else this is a single process
-//   origin[0] = min[0];
-//   origin[1] = min[1];
-//   origin[2] = min[2];
+   origin[0] = min[0];
+   origin[1] = min[1];
+   origin[2] = min[2];
 }
 
 //------------------------------------------------------------------------------
