@@ -25,9 +25,17 @@
 #include "vtkUniformGrid.h"
 #include "vtkImageToStructuredGrid.h"
 
+
 //-----------------------------------------------------------------------------
-//                   H E L P E R   M E T H O D S
+//           H E L P E R   M E T H O D S  &   M A C R O S
 //-----------------------------------------------------------------------------
+#define CHECK_TEST( P, testName, msg ) {                                  \
+  if( !P ) {                                                              \
+    std::cerr << "ERROR:" << testName << " FAILED!\n";                    \
+    std::cerr << "Message:" << msg << std::endl;                          \
+    std::cerr << "Location:" << __FILE__ << ":" << __LINE__ << std::endl; \
+  }                                                                       \
+}
 
 // Description:
 // Gets the grid for the given process
@@ -153,14 +161,18 @@ int TestAMRUtilities(int,char*[])
   myController->Barrier();
 
   int rval=0;
-  if( !TestComputeDataSetOrigin( myController ) )
-    {
-      std::cerr << "ERROR: Failed In computing the global data-set origin!\n";
-      std::cerr.flush();
-      ++rval;
-    }
+  CHECK_TEST(TestComputeDataSetOrigin(myController),"ComputeOrigin","mismatch with expected");
+//  if( !TestComputeDataSetOrigin( myController ) )
+//    {
+//      std::cerr << "ERROR: Failed In computing the global data-set origin!";
+//      std::cerr << "@" << __FILE__ << ":"<< __LINE__ << std::endl;
+//      std::cerr.flush();
+//      ++rval;
+//    }
 
-   return( rval );
+  myController->Barrier();
+
+  return( rval );
 }
 
 //-----------------------------------------------------------------------------
@@ -181,6 +193,5 @@ int main( int argc, char **argv )
 
   contr->Finalize();
   contr->Delete();
-  MPI_Finalize();
   return rc;
 }
