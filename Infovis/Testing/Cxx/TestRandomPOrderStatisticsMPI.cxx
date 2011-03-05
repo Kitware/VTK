@@ -184,11 +184,14 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Gather all cardinalities
   int numProcs = controller->GetNumberOfProcesses();
-  int GT_l = outputCard->GetValueByName( 0, "Cardinality" ).ToInt();
-  int* GT_g = new int[numProcs];
-  com->AllGather( &GT_l,
-                  GT_g,
+  int card_l = outputCard->GetValueByName( 0, "Cardinality" ).ToInt();
+  int* card_g = new int[numProcs];
+  com->AllGather( &card_l,
+                  card_g,
                   1 );
+
+  // Known global cardinality
+  int testIntValue = args->nVals * numProcs;
 
   // Print out and verify all cardinalities
   if ( com->GetLocalProcessId() == args->ioRank )
@@ -198,18 +201,18 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
       cout << "   On process "
            << i
            << ", cardinality = "
-           << GT_g[i]
+           << card_g[i]
            << ", histogram size = "
            << outputHistogram->GetNumberOfRows()
            << "\n";
 
-      if ( GT_g[i] != args->nVals * numProcs )
+      if ( card_g[i] != testIntValue )
         {
         vtkGenericWarningMacro("Incorrect cardinality:"
-                               << GT_g[i]
+                               << card_g[i]
                                << " <> "
-                               << args->nVals * numProcs
-                               << ")";
+                               << testIntValue
+                               << ")");
         *(args->retVal) = 1;
         }
       }
@@ -245,7 +248,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Clean up
-  delete [] GT_g;
+  delete [] card_g;
   delete [] min_l;
   delete [] max_l;
   pos->Delete();
