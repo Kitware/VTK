@@ -155,10 +155,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       doubleCol->SetName( "Value" );
       histogramTab->AddColumn( doubleCol );
       doubleCol->Delete();
-
-      // Value of cardinality row is NaN
-      double noVal = vtkMath::Nan();
-      row->SetValue( 0, noVal );
       }
     else if ( vals->IsA("vtkStringArray") )
       {
@@ -166,10 +162,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       stringCol->SetName( "Value" );
       histogramTab->AddColumn( stringCol );
       stringCol->Delete();
-
-      // Value of cardinality row is the empty string
-      vtkStdString noVal = vtkStdString( "" );
-      row->SetValue( 0, noVal );
       }
     else if ( vals->IsA("vtkVariantArray") )
       {
@@ -177,10 +169,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       variantCol->SetName( "Value" );
       histogramTab->AddColumn( variantCol );
       variantCol->Delete();
-
-      // Value of cardinality row is the empty variant
-      vtkVariant noVal = vtkVariant( "" );
-      row->SetValue( 0, noVal );
       }
     else
       {
@@ -195,15 +183,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     idTypeCol->SetName( "Cardinality" );
     histogramTab->AddColumn( idTypeCol );
     idTypeCol->Delete();
-
-    // Insert first row which will always contain the data set cardinality
-    // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in
-    // learn mode to make it clear that it is not a correct value. This is an issue of database
-    // normalization: including the cardinality to the other counts can lead to inconsistency, in particular
-    // when the input meta table is calculated by something else than the learn mode (e.g., is specified
-    // by the user).
-    row->SetValue( 1, -1 );
-    histogramTab->InsertNextRow( row );
 
     // Switch depending on data type
     if ( vals->IsA("vtkDataArray") )
@@ -377,15 +356,14 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     vtkAbstractArray* vals = histogramTab->GetColumnByName( "Value" );
     vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
 
-    // The CDF will be used for quantiles calculation (effectively as a reverse look-up table
-    // NB: first entry (index 0) is not used
+    // The CDF will be used for quantiles calculation (effectively as a reverse look-up table)
     vtkIdType nRowHist = histogramTab->GetNumberOfRows();
     vtkIdType* cdf =  new vtkIdType[nRowHist];
 
     // Calculate variable cardinality and CDF
     vtkIdType c;
     vtkIdType n = 0;
-    for ( vtkIdType r = 1; r < nRowHist; ++ r ) // Skip first row where data set cardinality will be stored
+    for ( vtkIdType r = 0; r < nRowHist; ++ r )
       {
       // Update cardinality and CDF
       c = card->GetValue( r );
@@ -397,7 +375,6 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     vtkStdString varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
     // Store cardinality
-    histogramTab->SetValueByName( 0, "Cardinality", n );
     row->SetValue( 0, varName );
     row->SetValue( 1, n );
     cardinalityTab->InsertNextRow( row );
@@ -419,13 +396,10 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       probaCol = vtkDoubleArray::SafeDownCast( abstrCol );
       }
 
-    // Store invalid probability for cardinality row
-    histogramTab->SetValueByName( 0, "P", -1. );
-
     // Finally calculate and store probabilities
     double inv_n = 1. / n;
     double p;
-    for ( vtkIdType r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
+    for ( vtkIdType r = 0; r < nRowHist; ++ r )
       {
       c = card->GetValue( r );
       p = inv_n * c;
@@ -437,9 +411,9 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> > quantileIndices;
     vtksys_stl::pair<vtkIdType,vtkIdType> qIdxPair;
 
-    // First quantile index is always 1 with no jump (corresponding to the first and the smallest value)
-    qIdxPair.first = 1;
-    qIdxPair.second = 1;
+    // First quantile index is always 0 with no jump (corresponding to the first and the smallest value)
+    qIdxPair.first = 0;
+    qIdxPair.second = 0;
     quantileIndices.push_back( qIdxPair );
 
     // Calculate all interior quantiles (i.e. for 0 < k < q)

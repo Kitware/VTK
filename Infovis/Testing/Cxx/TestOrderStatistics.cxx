@@ -171,14 +171,13 @@ int TestOrderStatistics( int, char *[] )
   vtkTable* outputTest = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "## Calculated the following quartiles with InverseCDFAveragedSteps quantile definition:\n";
+  outputQuantiles->Dump();
   for ( vtkIdType c = 1; c < outputQuantiles->GetNumberOfColumns(); ++ c )
     {
     vtkStdString colName = outputQuantiles->GetColumnName( c );
     cout << "   Variable="
          << colName
          << "\n";
-
-    outputQuantiles->Dump();
 
     // Check some results of the Derive operation
     for ( int r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
@@ -229,7 +228,7 @@ int TestOrderStatistics( int, char *[] )
       for ( vtksys_stl::map<int,int>::iterator hit = histoQuantiles.begin();
             hit != histoQuantiles.end() ; ++ hit )
         {
-        cout << "  IQR "
+        cout << "    IQR "
              << hit->first
              << ": "
              << hit->second
@@ -237,7 +236,7 @@ int TestOrderStatistics( int, char *[] )
 
         totalHist += hit->second;
         }
-      cout << "  Total: "
+      cout << "    Total: "
            << totalHist
            << " observations\n";
 
@@ -340,14 +339,9 @@ int TestOrderStatistics( int, char *[] )
   outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   cout << "\n## Calculated the following quartiles with InverseCDFAveragedSteps quantile definition:\n";
+  outputQuantiles->Dump();
   for ( vtkIdType c = 1; c < outputQuantiles->GetNumberOfColumns(); ++ c )
     {
-    cout << "   Variable="
-         << outputQuantiles->GetColumnName( c )
-         << "\n";
-
-    outputQuantiles->Dump();
-
     // Verify some of the calculated quartiles
     for ( int r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
       {
@@ -356,7 +350,9 @@ int TestOrderStatistics( int, char *[] )
 
       if ( fabs( Qp - valsTest2[i] ) > 1.e-6 )
         {
-        vtkGenericWarningMacro("Incorrect quartiles: "
+        vtkGenericWarningMacro("Incorrect quartiles for variable "
+                               << outputQuantiles->GetColumnName( c )
+                               << ": "
                                << Qp
                                << " != "
                                << valsTest2[i]
@@ -393,14 +389,7 @@ int TestOrderStatistics( int, char *[] )
   outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   cout << "\n## Calculated the following deciles with InverseCDF quantile definition:\n";
-  for ( vtkIdType c = 1; c < outputQuantiles->GetNumberOfColumns(); ++ c )
-    {
-    cout << "   Variable="
-         << outputQuantiles->GetColumnName( c )
-         << "\n";
-
-    outputQuantiles->Dump();
-    }
+  outputQuantiles->Dump();
 
   // Check some results of the Test operation
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
