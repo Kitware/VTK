@@ -368,7 +368,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Calculate variable cardinality and CDF
     vtkIdType c;
     vtkIdType n = 0;
-    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row where data set cardinality will be stored
+    for ( vtkIdType r = 1; r < nRowHist; ++ r ) // Skip first row where data set cardinality will be stored
       {
       // Update cardinality and CDF
       c = card->GetValue( r );
@@ -402,7 +402,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Finally calculate and store probabilities
     double inv_n = 1. / n;
     double p;
-    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
+    for ( vtkIdType r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
       {
       c = card->GetValue( r );
       p = inv_n * c;
