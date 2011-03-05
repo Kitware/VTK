@@ -470,7 +470,7 @@ int TestOrderStatistics( int, char *[] )
        << "\n";
 
   cout << "\n## Calculated the following histogram:\n";
-  for ( unsigned b = 0; b < outputModelDS2->GetNumberOfBlocks() - 1; ++ b )
+  for ( unsigned b = 0; b < outputModelDS2->GetNumberOfBlocks() - 2; ++ b )
     {
     vtkStdString varName = outputModelDS2->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
     cout << "   Variable="
