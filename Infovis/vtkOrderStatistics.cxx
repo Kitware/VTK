@@ -208,7 +208,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     // Switch depending on data type
     if ( vals->IsA("vtkDataArray") )
       {
-      // Downcast column to double array for efficient data access
+      // Downcast column to data array for efficient data access
       vtkDataArray* dvals = vtkDataArray::SafeDownCast( vals );
 
       // Calculate histogram
@@ -250,7 +250,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       } // else if ( vals->IsA("vtkStringArray") )
     else if ( vals->IsA("vtkVariantArray") )
       {
-      // Downcast column to string array for efficient data access
+      // Downcast column to variant array for efficient data access
       vtkVariantArray* vvals = vtkVariantArray::SafeDownCast( vals );
 
       // Calculate histogram
@@ -505,7 +505,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Switch depending on data type
     if ( vals->IsA("vtkDataArray") )
       {
-      // Downcast column to double array for efficient data access
+      // Downcast column to data array for efficient data access
       vtkDataArray* dvals = vtkDataArray::SafeDownCast( vals );
 
       // Create column for quantiles of the same type as the values
