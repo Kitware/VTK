@@ -232,7 +232,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
           // First, fetch value
           x = dvals_g->GetTuple1( r );
 
-          // Then, retrieve cardinality
+          // Then, retrieve corresponding cardinality
           c = card_g->GetValue( r );
 
           // Last, update histogram count for corresponding value
@@ -354,11 +354,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
     // Replace local histogram table with globally reduced one
     outMeta->SetBlock( b, histoTab_g );
-
-    if ( myRank == reduceProc )
-      {
-      histoTab_g->Dump();
-      }
 
     // Clean up
     histoTab_g->Delete();
