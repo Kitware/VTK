@@ -78,14 +78,14 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 #if DEBUG_PARALLEL_ORDER_STATISTICS
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
-#if DEBUG_PARALLEL_ORDER_STATISTICS
   vtkTimerLog *timers=vtkTimerLog::New();
   timers->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
+
   // First calculate order statistics on local data set
   this->Superclass::Learn( inData, inParameters, outMeta );
+
 #if DEBUG_PARALLEL_ORDER_STATISTICS
   timers->StopTimer();
 
@@ -103,6 +103,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
     {
+
 #if DEBUG_PARALLEL_ORDER_STATISTICS
     timer->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
@@ -161,6 +162,9 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     timerA->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
+    // Create new table for global histogram
+    vtkTable* histoTab_g = vtkTable::New();
+
     // Create column for global histogram cardinalities
     vtkIdTypeArray* card_g = vtkIdTypeArray::New();
     card_g->SetName( "Cardinality" );
@@ -171,6 +175,12 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
                   card_g,
                   reduceProc );
 
+    for ( vtkIdType r = 0; r < card_g->GetNumberOfTuples(); ++ r )
+      {
+      cerr << "Proc " << myRank << " " << r << " " << card_g->GetValue( r ) << "\n";
+      }
+
+    com->Barrier();
     // Gather all histogram values on reduceProc and perform reduction of the global histogram table
     if ( vals->IsA("vtkDataArray") )
       {
@@ -207,14 +217,20 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
         // Reduce to the global histogram table
         vtkstd::map<double,vtkIdType> histogram;
+        double x;
         vtkIdType c;
         for ( vtkIdType r = 1; r < nRow_g; ++ r ) // Skip first row where data set cardinality is stored
           {
-          // First retrieve cardinality
+          // First, fetch value
+          x = dvals->GetTuple1( r );
+
+          // Then, retrieve cardinality
           c = card_g->GetValue( r );
 
-          // Then update histogram count for corresponding value
-          histogram[dvals->GetTuple1( r )] += c;
+          // Last, update histogram count for corresponding value
+          histogram[x] += c;
+
+          cerr << r << " " << x << "  " << c << "\n";
           }
 
         // Now resize global histogram arrays to reduced size
@@ -237,6 +253,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
           dvals_g->SetTuple1( r, hit->first );
           card_g->SetValue( r, hit->second );
           }
+        } // if ( myRank == reduceProc )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
     timerA->StopTimer();
@@ -261,7 +278,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       }
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
-        } // if ( myRank == reduceProc )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
     timerB->StartTimer();
@@ -278,8 +294,9 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         return;
         }
 
-      // Clean up
-      dvals_g->Delete();
+        //
+        histoTab_g->AddColumn( dvals_g );
+        dvals_g->Delete();
       }
     else if ( vals->IsA("vtkStringArray") )
       {
@@ -333,18 +350,20 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     timerB->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
-    // Finally, fill the new, global histogram (everyone does this so everyone ends up with the same model)
-    vtkVariantArray* row = vtkVariantArray::New();
-    row->SetNumberOfValues( 2 );
-
-    // First replace existing rows
-    // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
-    //vtkIdType nRowHist = histoTab->GetNumberOfRows();
-
-    // Clean up
-    row->Delete();
+    //
+    histoTab_g->AddColumn( card_g );
     card_g->Delete();
 
+    // Replace local histogram table with globally reduced one
+    outMeta->SetBlock( b, histoTab_g );
+
+    if ( myRank == reduceProc )
+      {
+      histoTab_g->Dump();
+      }
+
+    // Clean up
+    histoTab_g->Delete();
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
