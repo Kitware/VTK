@@ -171,16 +171,17 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
     // Gather all histogram cardinalities on process reduceProc
     // NB: GatherV because the arrays have variable lengths
-    com->GatherV( card,
-                  card_g,
-                  reduceProc );
+    if ( ! com->GatherV( card,
+                         card_g,
+                         reduceProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << com->GetLocalProcessId()
+                      << " could not gather histogram cardinalities.");
 
-    for ( vtkIdType r = 0; r < card_g->GetNumberOfTuples(); ++ r )
-      {
-      cerr << "Proc " << myRank << " " << r << " " << card_g->GetValue( r ) << "\n";
-      }
+        return;
+        }
 
-    com->Barrier();
     // Gather all histogram values on reduceProc and perform reduction of the global histogram table
     if ( vals->IsA("vtkDataArray") )
       {
@@ -193,9 +194,16 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
       // Gather all histogram values on process reduceProc
       // NB: GatherV because the arrays have variable lengths
-      com->GatherV( dvals,
-                    dvals_g,
-                    reduceProc );
+      if ( ! com->GatherV( dvals,
+                           dvals_g,
+                           reduceProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << com->GetLocalProcessId()
+                      << " could not gather histogram values.");
+
+        return;
+        }
 
       // Reduce to global histogram table on process reduceProc
       if ( myRank == reduceProc )
@@ -222,15 +230,13 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         for ( vtkIdType r = 0; r < nRow_g; ++ r )
           {
           // First, fetch value
-          x = dvals->GetTuple1( r );
+          x = dvals_g->GetTuple1( r );
 
           // Then, retrieve cardinality
           c = card_g->GetValue( r );
 
           // Last, update histogram count for corresponding value
           histogram[x] += c;
-
-          cerr << r << " " << x << "  " << c << "\n";
           }
 
         // Now resize global histogram arrays to reduced size
