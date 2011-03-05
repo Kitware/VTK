@@ -173,6 +173,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Now perform verifications
   vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
   unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
+  vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq - 1 ) );
   vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   // Verify that all processes have the same grand total and histograms size
@@ -183,7 +184,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Gather all cardinalities
   int numProcs = controller->GetNumberOfProcesses();
-  int GT_l = outputHistogram->GetValueByName( 0, "Cardinality" ).ToInt();
+  int GT_l = outputCard->GetValueByName( 0, "Cardinality" ).ToInt();
   int* GT_g = new int[numProcs];
   com->AllGather( &GT_l,
                   GT_g,
@@ -202,9 +203,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
            << outputHistogram->GetNumberOfRows()
            << "\n";
 
-      if ( GT_g[i] != args->nVals )
+      if ( GT_g[i] != args->nVals * numProcs )
         {
-        vtkGenericWarningMacro("Incorrect cardinality.");
+        vtkGenericWarningMacro("Incorrect cardinality:"
+                               << GT_g[i]
+                               << " <> "
+                               << args->nVals * numProcs
+                               << ")";
         *(args->retVal) = 1;
         }
       }
