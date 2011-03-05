@@ -219,7 +219,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         vtkstd::map<double,vtkIdType> histogram;
         double x;
         vtkIdType c;
-        for ( vtkIdType r = 1; r < nRow_g; ++ r ) // Skip first row where data set cardinality is stored
+        for ( vtkIdType r = 0; r < nRow_g; ++ r )
           {
           // First, fetch value
           x = dvals->GetTuple1( r );
@@ -238,17 +238,9 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         dvals_g->SetNumberOfTuples( nRow_g );
         card_g->SetNumberOfTuples( nRow_g );
 
-        // Insert first invalid cardinality value of -1 for data set cardinality to be calculated by Derive
-        // Cf. superclass for detailed explanation
-        card_g->SetValue( 0, -1 );
-
-        // Value of cardinality row is NaN
-        double noVal = vtkMath::Nan();
-        dvals_g->SetTuple1( 0, noVal );
-
         // Then store reduced histogram into array
         vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
-        for ( vtkIdType r = 1; r < nRow_g; ++ r, ++ hit ) // Skip first row where data set cardinality is stored
+        for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
           {
           dvals_g->SetTuple1( r, hit->first );
           card_g->SetValue( r, hit->second );
