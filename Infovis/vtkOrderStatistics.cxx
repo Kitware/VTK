@@ -300,10 +300,23 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  // Create quantiles table
-  vtkTable* quantileTab = vtkTable::New();
+  // Create cardinality table
+  vtkTable* cardinalityTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Variable" );
+  cardinalityTab->AddColumn( stringCol );
+  stringCol->Delete();
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  cardinalityTab->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  // Create quantile table
+  vtkTable* quantileTab = vtkTable::New();
+
+  stringCol = vtkStringArray::New();
   stringCol->SetName( "Quantile" );
   quantileTab->AddColumn( stringCol );
   stringCol->Delete();
@@ -346,6 +359,10 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
+  // Prepare row for insertion into cardinality table
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 2 );
+
   // Iterate over primary tables
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
@@ -376,8 +393,14 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       cdf[r] = n;
       }
 
+    // Get block variable name
+    vtkStdString varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+
     // Store cardinality
     histogramTab->SetValueByName( 0, "Cardinality", n );
+    row->SetValue( 0, varName );
+    row->SetValue( 1, n );
+    cardinalityTab->InsertNextRow( row );
 
     // Find or create column of probability mass function of histogram table
     vtkStdString probaName( "P" );
@@ -499,10 +522,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     qIdxPair.second = nRowHist - 1;;
     quantileIndices.push_back( qIdxPair );
 
-    // Finally prepare quantile values column
-    vtkStdString varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
-
-    // Switch depending on data type
+    // Finally prepare quantile values column depending on data type
     if ( vals->IsA("vtkDataArray") )
       {
       // Downcast column to data array for efficient data access
@@ -607,13 +627,21 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     delete [] cdf;
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 
-  // Resize output meta so quantile table can be appended
+  // Resize output meta so cardinality and quantile tables can be appended
   nBlocks = inMeta->GetNumberOfBlocks();
-  inMeta->SetNumberOfBlocks( nBlocks + 1 );
-  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
-  inMeta->SetBlock( nBlocks, quantileTab );
+  inMeta->SetNumberOfBlocks( nBlocks + 2 );
+
+  // Append cardinality table at block nBlocks
+  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Cardinalities" );
+  inMeta->SetBlock( nBlocks, cardinalityTab );
+
+  // Append quantile table at block nBlocks + 1
+  inMeta->GetMetaData( static_cast<unsigned>( nBlocks + 1 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
+  inMeta->SetBlock( nBlocks + 1 , quantileTab );
 
   // Clean up
+  row->Delete();
+  cardinalityTab->Delete();
   quantileTab->Delete();
 }
 
