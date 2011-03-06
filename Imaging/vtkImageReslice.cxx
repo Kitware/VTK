@@ -594,12 +594,13 @@ int vtkImageReslice::ConvertScalarInfo(
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::ConvertScalars(
-  void *inPtr, void *outPtr, int vtkNotUsed(inputType),
-  int inputComponents, int count,
+  void *inPtr, void *outPtr, int inputType, int inputComponents, int count,
   int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
   int vtkNotUsed(threadId))
 {
-  memcpy(outPtr, inPtr, inputComponents*count);
+  size_t bytecount = count*inputComponents;
+  bytecount *= vtkDataArray::GetDataTypeSize(inputType);
+  memcpy(outPtr, inPtr, bytecount);
 }
 
 //----------------------------------------------------------------------------
@@ -3013,7 +3014,7 @@ void vtkOptimizedExecute(vtkImageReslice *self,
 
   int optimizeNearest = 0;
   if (self->GetInterpolationMode() == VTK_RESLICE_NEAREST &&
-      !(wrap || newtrans || perspective) &&
+      !(wrap || newtrans || perspective || convertScalars) &&
       inData->GetScalarType() == outData->GetScalarType())
     {
     optimizeNearest = 1;
