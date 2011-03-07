@@ -57,7 +57,7 @@ vtkProp3DFollower::~vtkProp3DFollower()
 }
 
 //----------------------------------------------------------------------------
-void vtkProp3DFollower::SetProp(vtkProp3D *prop)
+void vtkProp3DFollower::SetProp3D(vtkProp3D *prop)
 {
   if (this->Device != prop)
     {
@@ -76,7 +76,7 @@ void vtkProp3DFollower::SetProp(vtkProp3D *prop)
 
 
 //----------------------------------------------------------------------------
-vtkProp3D *vtkProp3DFollower::GetProp()
+vtkProp3D *vtkProp3DFollower::GetProp3D()
 {
   return this->Device;
 }

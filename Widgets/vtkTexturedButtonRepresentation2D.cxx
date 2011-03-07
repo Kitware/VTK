@@ -135,7 +135,7 @@ GetButtonTexture(int i)
 void vtkTexturedButtonRepresentation2D::PlaceWidget(double bds[6])
 {
   int i;
-  double bounds[6], center[3], aBds[6], aCenter[3];
+  double bounds[6], center[3];
 
   this->AdjustBounds(bds, bounds, center);
   for (i=0; i<6; i++)
@@ -156,7 +156,8 @@ void vtkTexturedButtonRepresentation2D::PlaceWidget(double bds[6])
   e[0] = static_cast<double>(bounds[0]);
   e[1] = static_cast<double>(bounds[2]);
   this->Balloon->StartWidgetInteraction(e);
-  this->Balloon->SetImageSize(bounds[1]-bounds[0],bounds[3]-bounds[2]);
+  this->Balloon->SetImageSize(static_cast<int>(bounds[1]-bounds[0]),
+                              static_cast<int>(bounds[3]-bounds[2]));
 }
 
 //-------------------------------------------------------------------------
