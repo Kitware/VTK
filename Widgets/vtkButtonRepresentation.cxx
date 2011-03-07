@@ -116,4 +116,5 @@ void vtkButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of States: " << this->NumberOfStates << "\n";
   os << indent << "State: " << this->State << "\n";
+  os << indent << "Highlight State: " << this->HighlightState << "\n";
 }
