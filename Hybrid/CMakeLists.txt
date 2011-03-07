@@ -132,8 +132,8 @@ vtkExodusIIReaderVariableCheck
 WRAP_EXCLUDE)
 
 # for vtkStructuredGridLIC2D
-SET( glsl_files
-     vtkStructuredGridLIC2D_fs
+SET( shader_files
+     vtkStructuredGridLIC2D_fs.glsl
    )
 
 SET(Kit_EXTRA_SRCS)
@@ -146,17 +146,18 @@ SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
 
 # for vtkStructuredGridLIC2D
-SET( glsl_h_files )
-FOREACH( file ${glsl_files} )
-  SET( src ${VTK_SOURCE_DIR}/Hybrid/${file}.glsl )
-  SET( res ${VTK_BINARY_DIR}/Hybrid/${file}.cxx )
-  SET( resh ${VTK_BINARY_DIR}/Hybrid/${file}.h )
-  SET( glsl_h_files ${glsl_h_files} "${resh}" )
+SET( shader_h_files )
+FOREACH( file ${shader_files} )
+  GET_FILENAME_COMPONENT(file_we ${file} NAME_WE)
+  SET( src ${VTK_SOURCE_DIR}/Hybrid/${file} )
+  SET( res ${VTK_BINARY_DIR}/Hybrid/${file_we}.cxx )
+  SET( resh ${VTK_BINARY_DIR}/Hybrid/${file_we}.h )
+  SET( shader_h_files ${shader_h_files} "${resh}" )
   ADD_CUSTOM_COMMAND(
     OUTPUT ${res} ${resh}
     DEPENDS ${src} vtkEncodeString
     COMMAND ${VTK_ENCODESTRING_EXE}
-    ARGS ${res} ${src} ${file} --build-header VTK_HYBRID_EXPORT vtkSystemIncludes.h
+    ARGS ${res} ${src} ${file_we} --build-header VTK_HYBRID_EXPORT vtkSystemIncludes.h
     )
   SET( Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res} )
 ENDFOREACH( file )
@@ -168,6 +169,7 @@ INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
+    ${shader_h_files}
     ${CMAKE_CURRENT_SOURCE_DIR}/vtk3DS.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development
