@@ -84,8 +84,10 @@ void vtkProp3DButtonRepresentation::SetState(int state)
   this->Follower->SetProp3D(this->CurrentProp);
 
   this->Picker->InitializePickList();
-  this->Picker->AddPickList(this->CurrentProp);
-
+  if ( this->CurrentProp )
+    {
+    this->Picker->AddPickList(this->CurrentProp);
+    }
 }
 
 //-------------------------------------------------------------------------
