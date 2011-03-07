@@ -15,6 +15,7 @@ SET(MyTests
 #  TestAxesTransformWidget.cxx
   TestBalloonWidget.cxx
   TestBorderWidget.cxx
+  TestButtonWidget.cxx
   TestCameraWidget.cxx
 #  TestCaptionWidget.cxx
   TestCenteredSliderWidget2D.cxx
