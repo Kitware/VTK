@@ -226,7 +226,7 @@ IF(VTK_USE_RENDERING)
 
 SET(shader_h_files)
 FOREACH(file ${shader_files})
-  SET(file_we ${file} NAME_WE)
+  GET_FILENAME_COMPONENT(file_we ${file} NAME_WE)
   SET(src ${VTK_SOURCE_DIR}/Parallel/${file})
   SET(res ${VTK_BINARY_DIR}/Parallel/${file_we}.cxx)
   SET(resh ${VTK_BINARY_DIR}/Parallel/${file_we}.h)
@@ -235,7 +235,7 @@ FOREACH(file ${shader_files})
     OUTPUT ${res} ${resh}
     DEPENDS ${src} vtkEncodeString
     COMMAND ${VTK_ENCODESTRING_EXE}
-    ARGS ${res} ${src} ${file} --build-header VTK_PARALLEL_EXPORT vtkSystemIncludes.h
+    ARGS ${res} ${src} ${file_we} --build-header VTK_PARALLEL_EXPORT vtkSystemIncludes.h
     )
   SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
 ENDFOREACH(file)
