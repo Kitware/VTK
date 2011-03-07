@@ -153,16 +153,14 @@ bool TestComputeDataSetOrigin( vtkMultiProcessController *myController )
   vtkAMRUtilities::ComputeDataSetOrigin( origin, myAMRData, myController );
   myAMRData->Delete();
 
-  myController->Barrier();
-  std::cout << myController->GetLocalProcessId() << ": ";
-  std::cout << origin[0] << ", " << origin[1] << ", " << origin[2] << std::endl;
-  std::cout.flush();
-  myController->Barrier();
-
+  int status    = 0;
+  int statusSum = 0;
   if( (origin[0] == 0.0) && (origin[1] == 0.0) && (origin[2] == 0.0) )
-    return true;
-  else
-    return false;
+    status = 1;
+
+  myController->AllReduce( &status, &statusSum, 1, vtkCommunicator::SUM_OP  );
+
+  return( ( (statusSum==2)? true : false ) );
 }
 
 // Description:
