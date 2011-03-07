@@ -21,7 +21,6 @@
 #ifndef vtkWinCE_h
 
 #define vtkWinCE_h
-#define VTK_LEAN_AND_MEAN
 
 struct ostream    // Output stream
 {
