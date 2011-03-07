@@ -58,11 +58,14 @@
 #define VTK_RESLICE_LINEAR 1
 #define VTK_RESLICE_RESERVED_2 2
 #define VTK_RESLICE_CUBIC 3
+#define VTK_RESLICE_LANCZOS 4
+#define VTK_RESLICE_KAISER 5
 
 class vtkImageData;
 class vtkAbstractTransform;
 class vtkMatrix4x4;
 class vtkImageStencilData;
+class vtkScalarsToColors;
 
 class VTK_IMAGING_EXPORT vtkImageReslice : public vtkThreadedImageAlgorithm
 {
@@ -194,9 +197,12 @@ public:
   vtkBooleanMacro(Border, int);
 
   // Description:
-  // Set interpolation mode (default: nearest neighbor). 
+  // Set interpolation mode (default: nearest neighbor).  Also
+  // see SetInterpolationSizeParameter, which is valid for the
+  // Lanczos and Kaiser windowed sinc interpolation interpolation
+  // methods.
   vtkSetClampMacro(InterpolationMode, int,
-                   VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC);
+                   VTK_RESLICE_NEAREST, VTK_RESLICE_KAISER);
   vtkGetMacro(InterpolationMode, int);
   void SetInterpolationModeToNearestNeighbor() {
     this->SetInterpolationMode(VTK_RESLICE_NEAREST); };
@@ -204,7 +210,23 @@ public:
     this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
   void SetInterpolationModeToCubic() {
     this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
+  void SetInterpolationModeToLanczos() {
+    this->SetInterpolationMode(VTK_RESLICE_LANCZOS); };
+  void SetInterpolationModeToKaiser() {
+    this->SetInterpolationMode(VTK_RESLICE_KAISER); };
   virtual const char *GetInterpolationModeAsString();
+
+  // Description:
+  // Set the size parameter for any interpolation kernel
+  // that takes such a parameter.  For windowed sinc methods
+  // such as Lanczos and Kaiser, this is the half-width of
+  // the kernel.  This parameter must be an integer between
+  // 1 and 7, and it has a default value of 3.  Note that
+  // the alpha parameter for Kaiser is automatically forced
+  // to three times this value, and cannot be modified
+  // independently.
+  vtkSetClampMacro(InterpolationSizeParameter, int, 1, 7);
+  vtkGetMacro(InterpolationSizeParameter, int);
 
   // Description:
   // Turn on and off optimizations (default on, they should only be
@@ -297,6 +319,20 @@ public:
   void SetStencil(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 
+  // Description:
+  // Generate an output stencil that defines which pixels were
+  // interpolated and which pixels were out-of-bounds of the input.
+  vtkSetMacro(GenerateStencilOutput, int);
+  vtkGetMacro(GenerateStencilOutput, int);
+  vtkBooleanMacro(GenerateStencilOutput, int);
+
+  // Description:
+  // Get the output stencil.
+  vtkAlgorithmOutput *GetStencilOutputPort() {
+    return this->GetOutputPort(1); }
+  vtkImageStencilData *GetStencilOutput();
+  void SetStencilOutput(vtkImageStencilData *stencil);
+
 protected:
   vtkImageReslice();
   ~vtkImageReslice();
@@ -310,6 +346,8 @@ protected:
   int Mirror;
   int Border;
   int InterpolationMode;
+  int InterpolationSizeParameter;
+  int BSplineCheck;
   int Optimization;
   double BackgroundColor[4];
   double OutputOrigin[3];
@@ -322,11 +360,41 @@ protected:
   int ComputeOutputSpacing;
   int ComputeOutputOrigin;
   int ComputeOutputExtent;
+  int GenerateStencilOutput;
 
   vtkMatrix4x4 *IndexMatrix;
   vtkAbstractTransform *OptimizedTransform;
 
+  // Description:
+  // This should be set to 1 by derived classes that override the
+  // ConvertScalars method.
+  int HasConvertScalars;
+
+  // Description:
+  // This should be overridden by derived classes that operate on
+  // the interpolated data before it is placed in the output.
+  virtual int ConvertScalarInfo(int &scalarType, int &numComponents);
+
+  // Description:
+  // This should be overridden by derived classes that operate on
+  // the interpolated data before it is placed in the output.
+  // The input data will usually be double or float (since the
+  // interpolation routines use floating-point) but it could be
+  // of any type.  This method will be called from multiple threads,
+  // so it must be thread-safe in derived classes.
+  virtual void ConvertScalars(void *inPtr, void *outPtr,
+                              int inputType, int inputNumComponents,
+                              int count, int idX, int idY, int idZ,
+                              int threadId);
+
+  void ConvertScalarsBase(void *inPtr, void *outPtr,
+                          int inputType, int inputNumComponents,
+                          int count, int idX, int idY, int idZ, int threadId) {
+    this->ConvertScalars(inPtr, outPtr, inputType, inputNumComponents,
+                         count, idX, idY, idZ, threadId); }
+
   void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
+  virtual void AllocateOutputData(vtkImageData *output, int *uExtent);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
                                  vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
@@ -337,11 +405,16 @@ protected:
                                    vtkImageData ***inData,
                                    vtkImageData **outData, int ext[6], int id);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
   vtkMatrix4x4 *GetIndexMatrix(vtkInformation *inInfo,
                                vtkInformation *outInfo);
   vtkAbstractTransform *GetOptimizedTransform() { 
     return this->OptimizedTransform; };
+
+  void BuildInterpolationTables();
+
+  int DoBSplineCheck(vtkImageData *inData);
 
 private:
   vtkImageReslice(const vtkImageReslice&);  // Not implemented.
