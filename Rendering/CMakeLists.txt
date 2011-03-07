@@ -141,6 +141,7 @@ SET( Kit_SRCS
   vtkPrimitivePainter.cxx
   vtkProp3DCollection.cxx
   vtkProp3D.cxx
+  vtkProp3DFollower.cxx
   vtkProperty.cxx
   vtkPropPicker.cxx
   vtkQuadricLODActor.cxx
@@ -206,7 +207,7 @@ ENDIF (NOT VTK_LEGACY_REMOVE)
 
 IF(VTK_USE_GL2PS)
   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)
-   
+
   IF(VTK_USE_SYSTEM_GL2PS)
   ELSE(VTK_USE_SYSTEM_GL2PS)
     SET(Kit_GL2PS_SRCS ${VTK_SOURCE_DIR}/Utilities/vtkgl2ps/gl2ps.c)
@@ -216,7 +217,7 @@ IF(VTK_USE_GL2PS)
 ENDIF(VTK_USE_GL2PS)
 
 IF(VTK_USE_CG_SHADERS)
-  SET(Kit_SRCS ${Kit_SRCS} 
+  SET(Kit_SRCS ${Kit_SRCS}
     vtkCgShader.cxx
     vtkCgShaderDeviceAdapter.cxx
     vtkCgShaderProgram.cxx
@@ -354,7 +355,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkFreeTypeUtilities
   WRAP_EXCLUDE)
 
-SET(Kit_FT_SRCS 
+SET(Kit_FT_SRCS
   fonts/face_arial.cxx
   fonts/face_arial_bold.cxx
   fonts/face_arial_bold_italic.cxx
@@ -379,7 +380,7 @@ IF(VTK_USE_X)
   OPTION(VTK_USE_TDX "Use 3Dconnexion device" OFF)
   MARK_AS_ADVANCED(VTK_USE_TDX)
   IF(VTK_USE_TDX)
-   
+
    SET(VTK_TDX_INCLUDE_PATH CACHE PATH "Directory path to xdrvlib.h for 3DConnexion device")
    SET(VTK_TDX_OBJECT_PATH CACHE FILEPATH "File path to xdrvlib.a for 3DConnexion device")
    SET(Kit_SRCS ${Kit_SRCS} vtkTDxDevice.cxx vtkTDxUnixDevice.cxx)
@@ -420,7 +421,7 @@ ENDIF()
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Rendering/vtkTDxConfigure.h.in
                ${VTK_BINARY_DIR}/Rendering/vtkTDxConfigure.h @ONLY IMMEDIATE)
 
-IF(VTK_USE_QT)   
+IF(VTK_USE_QT)
   SET(QT_DONT_USE_QTGUI)
   INCLUDE(${QT_USE_FILE})
 
@@ -506,8 +507,8 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(vtkOpenGLExtensionManager.cxx
   PROPERTIES OBJECT_DEPENDS ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx)
 
-SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} 
-  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx 
+SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
+  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -607,7 +608,7 @@ IF (WIN32)
     IF (OPENGL_gl_LIBRARY)
       SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkXOpenGLRenderWindow.cxx)
       SET(KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} )
-    ENDIF (OPENGL_gl_LIBRARY)    
+    ENDIF (OPENGL_gl_LIBRARY)
   ELSE(VTK_USE_X)
     SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
                  vtkWin32OpenGLRenderWindow.cxx
@@ -621,13 +622,13 @@ ELSE (WIN32)
                    vtkCocoaRenderWindowInteractor.mm
                    vtkCocoaRenderWindow.mm
                    vtkCocoaGLView.mm)
-       
+
       # The objective-c++ classes might need their own flags.
       # Set them if specified.
       IF(VTK_REQUIRED_OBJCXX_FLAGS)
 
-        SET_SOURCE_FILES_PROPERTIES(vtkCocoaRenderWindowInteractor.mm 
-                                    vtkCocoaRenderWindow.mm 
+        SET_SOURCE_FILES_PROPERTIES(vtkCocoaRenderWindowInteractor.mm
+                                    vtkCocoaRenderWindow.mm
                                     vtkCocoaGLView.mm
                                     PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
 
@@ -675,7 +676,7 @@ ENDIF(VTK_USE_CG_SHADERS)
 
 if(DirectX_FOUND)
  # d3d9.lib for symbol Direct3DCreate9
- # symbol CLSID_WbemLocator IID_IWbemLocator: wbemuuid.lib 
+ # symbol CLSID_WbemLocator IID_IWbemLocator: wbemuuid.lib
  # wbemuuid.lib is *NOT A FILE* (you cannot find it), it is probably an
  # embedded library added by the linker itself.
  set(KIT_LIBS ${KIT_LIBS} ${DirectX_LIBRARY} wbemuuid)
@@ -789,8 +790,8 @@ IF (VTK_WRAP_TCL AND VTK_USE_TK)
   IF(VTK_USE_CARBON)
     SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} "-framework Carbon")
   ENDIF(VTK_USE_CARBON)
-  SET(Kit_TCL_EXTRA_CMDS 
-    vtkTkRenderWidget 
+  SET(Kit_TCL_EXTRA_CMDS
+    vtkTkRenderWidget
     vtkTkImageViewerWidget)
 ENDIF (VTK_WRAP_TCL AND VTK_USE_TK)
 
@@ -837,7 +838,7 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
   IF(VTK_USE_CARBON)
     SET(VTK_PYTHONTK_LIBRARIES ${VTK_PYTHONTK_LIBRARIES} "-framework Carbon")
   ENDIF(VTK_USE_CARBON)
- 
+
   TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                         vtk${KIT}
                         ${VTK_PYTHONTK_LIBRARIES})
@@ -860,9 +861,9 @@ ENDIF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
 IF(VTK_USE_X)
   SET(X11_LIB_SEARCH_PATH
     /usr/X11R6/lib
-    /usr/local/lib 
-    /usr/openwin/lib 
-    /usr/lib 
+    /usr/local/lib
+    /usr/openwin/lib
+    /usr/lib
     )
   FIND_LIBRARY(X11_Xt_LIB Xt ${X11_LIB_SEARCH_PATH})
   MARK_AS_ADVANCED(X11_Xt_LIB)
