@@ -2643,7 +2643,7 @@ void vtkAllocBackgroundPixel(vtkImageReslice *self, void **rval,
     }
 }      
 
-void vtkFreeBackgroundPixel(vtkImageReslice *self, void **rval)
+void vtkFreeBackgroundPixel(vtkImageReslice *vtkNotUsed(self), void **rval)
 {
   double *doublePtr = static_cast<double *>(*rval);
   delete [] doublePtr;
