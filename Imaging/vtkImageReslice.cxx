@@ -893,6 +893,12 @@ void vtkImageReslice::AllocateOutputData(vtkImageData *output,
 }
 
 //----------------------------------------------------------------------------
+vtkImageData *vtkImageReslice::AllocateOutputData(vtkDataObject *output)
+{
+  return this->Superclass::AllocateOutputData(output);
+}
+
+//----------------------------------------------------------------------------
 void vtkImageReslice::GetAutoCroppedOutputBounds(vtkInformation *inInfo,
                                                  double bounds[6])
 {
