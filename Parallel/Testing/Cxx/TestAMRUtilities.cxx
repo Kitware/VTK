@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include <iostream>
+#include <sstream>
 #include <cassert>
 #include <mpi.h>
 
@@ -24,7 +25,7 @@
 #include "vtkMPIController.h"
 #include "vtkUniformGrid.h"
 #include "vtkImageToStructuredGrid.h"
-
+#include "vtkStructuredGridWriter.h"
 
 //-----------------------------------------------------------------------------
 //           H E L P E R   M E T H O D S  &   M A C R O S
@@ -45,14 +46,22 @@ void WriteUniformGrid( vtkUniformGrid *myGrid, std::string prefix )
 
   vtkImageToStructuredGrid* myImage2StructuredGridFilter =
       vtkImageToStructuredGrid::New();
-  assert( "Image-2-StructuredGridFilter" &&
+  assert( "Cannot create Image2StructuredGridFilter" &&
           (myImage2StructuredGridFilter != NULL) );
 
   myImage2StructuredGridFilter->SetInput( myGrid );
   myImage2StructuredGridFilter->Update();
   vtkStructuredGrid* myStructuredGrid =
       myImage2StructuredGridFilter->GetOutput();
+  assert( "Structured Grid output is NULL!" &&
+          (myStructuredGrid != NULL) );
 
+  vtkStructuredGridWriter *myWriter = vtkStructuredGridWriter::New();
+  myWriter->SetFileName( prefix.c_str() );
+  myWriter->SetInput( myStructuredGrid );
+  myWriter->Update();
+  myWriter->Delete();
+  myImage2StructuredGridFilter->Delete();
 }
 
 // Description:
@@ -70,7 +79,7 @@ void GetGrid( vtkUniformGrid *myGrid, int &level, int &index,
         {
           level=index=0;
           double myOrigin[3] = {0.0,0.0,0.0};
-          int ndim[3] = {4,4,0};
+          int ndim[3] = {4,4,1};
           double spacing[3] = {1,1,1};
           myGrid->Initialize();
           myGrid->SetOrigin( myOrigin );
@@ -82,8 +91,8 @@ void GetGrid( vtkUniformGrid *myGrid, int &level, int &index,
         {
           level=1;index=0;
           double myOrigin[3] = {1.0,1.0,0.0};
-          int ndim[3] = {7,4,0};
-          double spacing[3] = {1/3,1/3,1/3};
+          int ndim[3] = {5,3,1};
+          double spacing[3] = {0.5,0.5,0.5};
           myGrid->Initialize();
           myGrid->SetOrigin( myOrigin );
           myGrid->SetSpacing( spacing );
@@ -115,6 +124,12 @@ void GetAMRDataSet(
   GetGrid( myGrid, level, index, myController );
   assert( "Invalid level" && (level >= 0) );
   assert( "Invalid index" && (index >= 0) );
+  std::ostringstream oss;
+  oss.clear();
+  oss.str("");
+  oss << "Process_" << myController->GetLocalProcessId() << "_GRID_";
+  oss << "L" << level << "_" << index << ".vtk";
+  WriteUniformGrid( myGrid, oss.str( ) );
 
   amrData->SetDataSet( level, index, myGrid );
   myGrid->Delete();
