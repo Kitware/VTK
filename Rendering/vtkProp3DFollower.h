@@ -51,8 +51,8 @@ class VTK_RENDERING_EXPORT vtkProp3DFollower : public vtkProp3D
 
   // Description:
   // Set/Get the vtkProp3D to control (i.e., face the camera).
-  virtual void SetProp(vtkProp3D *prop);
-  virtual vtkProp3D *GetProp();
+  virtual void SetProp3D(vtkProp3D *prop);
+  virtual vtkProp3D *GetProp3D();
 
   // Description:
   // Set/Get the camera to follow. If this is not set, then the follower
