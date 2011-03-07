@@ -81,7 +81,7 @@ public:
   void SetNormal(double x[3]);
   double* GetNormal();
   void GetNormal(double xyz[3]);
-  
+
   // Description:
   // Force the plane widget to be aligned with one of the x-y-z axes.
   // If one axis is set on, the other two will be set off.
@@ -143,7 +143,7 @@ public:
   // Satisfies superclass API.  This returns a pointer to the underlying
   // PolyData (which represents the plane).
   vtkPolyDataAlgorithm* GetPolyDataAlgorithm();
-   
+
   // Description:
   // Get the implicit function for the plane. The user must provide the
   // instance of the class vtkPlane. Note that vtkPlane is a subclass of
@@ -160,9 +160,9 @@ public:
   // Get the properties on the normal (line and cone).
   vtkGetObjectMacro(NormalProperty,vtkProperty);
   vtkGetObjectMacro(SelectedNormalProperty,vtkProperty);
-  
+
   // Description:
-  // Get the plane properties. The properties of the plane when selected 
+  // Get the plane properties. The properties of the plane when selected
   // and unselected can be manipulated.
   vtkGetObjectMacro(PlaneProperty,vtkProperty);
   vtkGetObjectMacro(SelectedPlaneProperty,vtkProperty);
@@ -194,7 +194,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
 //BTX - manage the state of the widget
   enum _InteractionState
   {
@@ -249,16 +249,16 @@ protected:
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
   int  OutlineTranslation; //whether the outline can be moved
-  int  ScaleEnabled; //whether the widget can be scaled 
+  int  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
-  
+
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
   vtkPolyDataMapper *CutMapper;
   vtkActor          *CutActor;
   int                DrawPlane;
   void HighlightPlane(int highlight);
-  
+
   // Optional tubes are represented by extracting boundary edges and tubing
   vtkFeatureEdges   *Edges;
   vtkTubeFilter     *EdgesTuber;
@@ -294,10 +294,10 @@ protected:
 
   // Do the picking
   vtkCellPicker *Picker;
-  
+
   // Transform the normal (used for rotation)
   vtkTransform *Transform;
-  
+
   // Methods to manipulate the plane
   void ConstrainOrigin(double x[3]);
   void Rotate(double X, double Y, double *p1, double *p2, double *vpn);
@@ -318,12 +318,12 @@ protected:
   vtkProperty *SelectedOutlineProperty;
   vtkProperty *EdgesProperty;
   void CreateDefaultProperties();
-  
+
   void GeneratePlane();
-  
+
   // Support GetBounds() method
   vtkBox *BoundingBox;
-  
+
 private:
   vtkImplicitPlaneRepresentation(const vtkImplicitPlaneRepresentation&);  //Not implemented
   void operator=(const vtkImplicitPlaneRepresentation&);  //Not implemented

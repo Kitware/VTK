@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFollower.cxx
+  Module:    vtkProp3DFollower.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,8 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#include "vtkFollower.h"
+#include "vtkProp3DFollower.h"
 
 #include "vtkCamera.h"
 #include "vtkMath.h"
@@ -23,40 +22,69 @@
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkAssemblyPaths.h"
 
 #include <math.h>
 
-vtkStandardNewMacro(vtkFollower);
+vtkStandardNewMacro(vtkProp3DFollower);
 
-vtkCxxSetObjectMacro(vtkFollower,Camera,vtkCamera);
+vtkCxxSetObjectMacro(vtkProp3DFollower,Camera,vtkCamera);
 
 //----------------------------------------------------------------------
 // Creates a follower with no camera set
-vtkFollower::vtkFollower()
+vtkProp3DFollower::vtkProp3DFollower()
 {
   this->Camera = NULL;
-  this->Device = vtkActor::New();
+  this->Device = NULL;
 
   this->InternalMatrix = vtkMatrix4x4::New();
 }
 
 //----------------------------------------------------------------------
-vtkFollower::~vtkFollower()
+vtkProp3DFollower::~vtkProp3DFollower()
 {
   if (this->Camera)
     {
     this->Camera->UnRegister(this);
     }
 
-  this->Device->Delete();
+  if (this->Camera)
+    {
+    this->Device->Delete();
+    }
 
   this->InternalMatrix->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkFollower::ComputeMatrix()
+void vtkProp3DFollower::SetProp(vtkProp3D *prop)
 {
-  // check whether or not need to rebuild the matrix
+  if (this->Device != prop)
+    {
+    if ( this->Device != NULL )
+      {
+      this->Device->Delete();
+      }
+    this->Device = prop;
+    if ( this->Device != NULL )
+      {
+      this->Device->Register(this);
+      }
+    this->Modified();
+    }
+}
+
+
+//----------------------------------------------------------------------------
+vtkProp3D *vtkProp3DFollower::GetProp()
+{
+  return this->Device;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkProp3DFollower::ComputeMatrix()
+{
   if ( this->GetMTime() > this->MatrixMTime ||
        (this->Camera && this->Camera->GetMTime() > this->MatrixMTime) )
     {
@@ -110,11 +138,6 @@ void vtkFollower::ComputeMatrix()
           }
         }
 
-      // We cannot directly use the vup angle since it can be aligned with Rz:
-      //vtkMath::Cross(vup,Rz,Rx);
-      //vtkMath::Normalize(Rx);
-      //vtkMath::Cross(Rz,Rx,Ry);
-
       //instead use the view right angle:
       double dop[3], vur[3];
       this->Camera->GetDirectionOfProjection(dop);
@@ -159,8 +182,129 @@ void vtkFollower::ComputeMatrix()
     }
 }
 
+//-----------------------------------------------------------------------------
+double *vtkProp3DFollower::GetBounds()
+{
+  if ( this->Device )
+    {
+    this->ComputeMatrix();
+    this->Device->SetUserMatrix(this->Matrix);
+    return this->Device->GetBounds();
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkProp3DFollower::ReleaseGraphicsResources(vtkWindow *w)
+{
+  if ( this->Device )
+    {
+    this->Device->ReleaseGraphicsResources(w);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkProp3DFollower::HasTranslucentPolygonalGeometry()
+{
+  if ( this->Device )
+    {
+    return this->Device->HasTranslucentPolygonalGeometry();
+    }
+  else
+    {
+    return 0;
+    }
+}
+
 //----------------------------------------------------------------------
-void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
+int vtkProp3DFollower::RenderOpaqueGeometry(vtkViewport *vp)
+{
+  if ( this->Device )
+    {
+    this->ComputeMatrix();
+    this->Device->SetUserMatrix(this->Matrix);
+
+    return this->Device->RenderOpaqueGeometry(vp);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkProp3DFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
+{
+  if ( this->Device )
+    {
+    this->ComputeMatrix();
+    this->Device->SetUserMatrix(this->Matrix);
+    return this->Device->RenderTranslucentPolygonalGeometry(vp);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------
+int vtkProp3DFollower::RenderVolumetricGeometry(vtkViewport *vp)
+{
+  if ( this->Device )
+    {
+    this->ComputeMatrix();
+    this->Device->SetUserMatrix(this->Matrix);
+    return this->Device->RenderVolumetricGeometry(vp);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------
+void vtkProp3DFollower::ShallowCopy(vtkProp *prop)
+{
+  vtkProp3DFollower *f = vtkProp3DFollower::SafeDownCast(prop);
+  if ( f != NULL )
+    {
+    this->SetCamera(f->GetCamera());
+    }
+
+  // Now do superclass
+  this->vtkProp3D::ShallowCopy(prop);
+}
+
+//----------------------------------------------------------------------------
+void vtkProp3DFollower::InitPathTraversal()
+{
+  if ( this->Device )
+    {
+    this->Device->InitPathTraversal();
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAssemblyPath *vtkProp3DFollower::GetNextPath()
+{
+  if ( this->Device )
+    {
+    return this->Device->GetNextPath();
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+//----------------------------------------------------------------------
+void vtkProp3DFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
@@ -174,119 +318,3 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Camera: (none)\n";
     }
 }
-
-//----------------------------------------------------------------------
-int vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
-{
-  if ( ! this->Mapper )
-    {
-    return 0;
-    }
-
-  if (!this->Property)
-    {
-    // force creation of a property
-    this->GetProperty();
-    }
-
-  if (this->GetIsOpaque())
-    {
-    vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
-    this->Render(ren);
-    return 1;
-    }
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-int vtkFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
-{
-  if ( ! this->Mapper )
-    {
-    return 0;
-    }
-
-  if (!this->Property)
-    {
-    // force creation of a property
-    this->GetProperty();
-    }
-
-  if (!this->GetIsOpaque())
-    {
-    vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
-    this->Render(ren);
-    return 1;
-    }
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-void vtkFollower::ReleaseGraphicsResources(vtkWindow *w)
-{
-  this->Device->ReleaseGraphicsResources(w);
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Does this prop have some translucent polygonal geometry?
-int vtkFollower::HasTranslucentPolygonalGeometry()
-{
-  if ( ! this->Mapper )
-    {
-    return 0;
-    }
-  // make sure we have a property
-  if (!this->Property)
-    {
-    // force creation of a property
-    this->GetProperty();
-    }
-
-  // is this actor opaque ?
-  return !this->GetIsOpaque();
-}
-
-//-----------------------------------------------------------------------------
-// This causes the actor to be rendered. It, in turn, will render the actor's
-// property and then mapper.
-void vtkFollower::Render(vtkRenderer *ren)
-{
-  this->Property->Render(this, ren);
-
-  this->Device->SetProperty (this->Property);
-  this->Property->Render(this, ren);
-  if (this->BackfaceProperty)
-    {
-    this->BackfaceProperty->BackfaceRender(this, ren);
-    this->Device->SetBackfaceProperty(this->BackfaceProperty);
-    }
-
-  /* render the texture */
-  if (this->Texture)
-    {
-    this->Texture->Render(ren);
-    }
-
-  // make sure the device has the same matrix
-  this->ComputeMatrix();
-  this->Device->SetUserMatrix(this->Matrix);
-
-  this->Device->Render(ren,this->Mapper);
-}
-
-//----------------------------------------------------------------------
-void vtkFollower::ShallowCopy(vtkProp *prop)
-{
-  vtkFollower *f = vtkFollower::SafeDownCast(prop);
-  if ( f != NULL )
-    {
-    this->SetCamera(f->GetCamera());
-    }
-
-  // Now do superclass
-  this->vtkActor::ShallowCopy(prop);
-}
-
-
-
