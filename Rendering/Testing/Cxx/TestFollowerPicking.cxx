@@ -275,7 +275,7 @@ int TestFollowerPicking( int argc, char* argv[] )
   ia->SetScale(0.01,0.01,0.01);
 
   VTK_CREATE(vtkProp3DFollower,p3dFollower);
-  p3dFollower->SetProp(ia);
+  p3dFollower->SetProp3D(ia);
 
   // Debugging code
   VTK_CREATE(vtkPlaneSource, plane2);
