@@ -395,6 +395,7 @@ protected:
 
   void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
   virtual void AllocateOutputData(vtkImageData *output, int *uExtent);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
                                  vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
