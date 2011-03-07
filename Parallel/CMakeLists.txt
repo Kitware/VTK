@@ -114,8 +114,8 @@ IF(VTK_USE_RENDERING)
     )
 
 # The set of source files to be encoded.
-SET(glsl_files
-  vtkCompositeZPassShader_fs
+SET(shader_files
+  vtkCompositeZPassShader_fs.glsl
   )
 ENDIF(VTK_USE_RENDERING)
 
@@ -224,12 +224,13 @@ IF(VTK_USE_RENDERING)
 # Create custom commands to encode each assembly file into a C string
 # literal in a header file.
 
-SET(glsl_h_files)
-FOREACH(file ${glsl_files})
-  SET(src ${VTK_SOURCE_DIR}/Parallel/${file}.glsl)
-  SET(res ${VTK_BINARY_DIR}/Parallel/${file}.cxx)
-  SET(resh ${VTK_BINARY_DIR}/Parallel/${file}.h)
-  SET(glsl_h_files ${glsl_h_files} "${resh}")
+SET(shader_h_files)
+FOREACH(file ${shader_files})
+  SET(file_we ${file} NAME_WE)
+  SET(src ${VTK_SOURCE_DIR}/Parallel/${file})
+  SET(res ${VTK_BINARY_DIR}/Parallel/${file_we}.cxx)
+  SET(resh ${VTK_BINARY_DIR}/Parallel/${file_we}.h)
+  SET(shader_h_files ${shader_h_files} "${resh}")
   ADD_CUSTOM_COMMAND(
     OUTPUT ${res} ${resh}
     DEPENDS ${src} vtkEncodeString
