@@ -180,7 +180,7 @@ void vtkAMRUtilities::DeserializeMetaData(
     {
       assert( "ptr is NULL" && (ptr != NULL) );
 
-      vtkIdType nbytes = 0;
+      vtkIdType nbytes = vtkAMRBox::GetBytesize();
       boxList[ i ].Deserialize( ptr, nbytes );
       ptr += nbytes;
     }
