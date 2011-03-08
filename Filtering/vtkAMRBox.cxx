@@ -1005,37 +1005,37 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
-//void vtkAMRBox::operator&=(const vtkAMRBox &other)
-//{
-//  if (this->Dimension!=other.Dimension)
-//    {
-//    vtkGenericWarningMacro(
-//      "Can't operate on a " << this->Dimension
-//      << "D box with a " << other.Dimension << "D box.");
-//    return;
-//    }
-//  if (this->Empty())
-//    {
-//    return;
-//    }
-//  if (other.Empty())
-//    {
-//    this->Invalidate();
-//    return;
-//    }
-//
-//  int otherLo[3];
-//  int otherHi[3];
-//  other.GetDimensions(otherLo,otherHi);
-//  int lo[3];
-//  int hi[3];
-//  for (int q=0; q<this->Dimension; ++q)
-//    {
-//    lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
-//    hi[q]=(this->HiCorner[q]<otherHi[q] ? this->HiCorner[q] : otherHi[q]);
-//    }
-//  this->SetDimensions(lo,hi);
-//}
+void vtkAMRBox::operator&=(const vtkAMRBox &other)
+{
+  if (this->Dimension!=other.Dimension)
+    {
+    vtkGenericWarningMacro(
+      "Can't operate on a " << this->Dimension
+      << "D box with a " << other.Dimension << "D box.");
+    return;
+    }
+  if (this->Empty())
+    {
+    return;
+    }
+  if (other.Empty())
+    {
+    this->Invalidate();
+    return;
+    }
+
+  int otherLo[3];
+  int otherHi[3];
+  other.GetDimensions(otherLo,otherHi);
+  int lo[3];
+  int hi[3];
+  for (int q=0; q<this->Dimension; ++q)
+    {
+    lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
+    hi[q]=(this->HiCorner[q]<otherHi[q] ? this->HiCorner[q] : otherHi[q]);
+    }
+  this->SetDimensions(lo,hi);
+}
 
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i,int j,int k) const
@@ -1329,7 +1329,7 @@ void vtkAMRBox::GetPoint(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Serialize( unsigned char*& buffer, size_t& vtkNotUsed(bytesize))
+void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& vtkNotUsed(bytesize))
 {
 
   vtkAssertUtils::assertNull( buffer, __FILE__, __LINE__ );
@@ -1375,7 +1375,7 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, size_t& vtkNotUsed(bytesize))
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Deserialize( unsigned char* buffer, const size_t &bytesize )
+void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
 {
 
   vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
@@ -1589,6 +1589,14 @@ void Split(
     copy(aDecomp.begin(),aDecomp.end(),decomp.begin()+nRemain);
     aDecomp.clear();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkAMRBox::WriteBox( )
+{
+  this->WriteBox(
+      this->GetMinX(),this->GetMinY(), this->GetMinZ(),
+      this->GetMaxX(),this->GetMaxY(), this->GetMaxZ() );
 }
 
 //----------------------------------------------------------------------------

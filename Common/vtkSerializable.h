@@ -29,12 +29,13 @@ public:
   // Description:
   // Serializes this instance in to a byte-stream.
   // Implemented by concrete classes.
-  virtual void Serialize( unsigned char*& buffer, size_t &bufferSize )=0;
+  virtual void Serialize( unsigned char*& buffer, vtkIdType &bufferSize )=0;
 
   // Description:
   // De-serializes this instance from a byte-stream.
   // Implemented by concrete classes.
-  virtual void Deserialize( unsigned char* buffer, const size_t &bufferSize )=0;
+  virtual void Deserialize(
+      unsigned char* buffer, const vtkIdType &bufferSize )=0;
 
 protected:
   vtkSerializable();
