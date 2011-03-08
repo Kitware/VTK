@@ -26,11 +26,14 @@
 
 #include "vtkObject.h"
 
+#include <vector>
+
 // Forward declarations
 class vtkAMRBox;
 class vtkHierarchicalBoxDataSet;
 class vtkMPIController;
 class vtkMultiProcessController;
+class vtkUniformGrid;
 
 class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
 {
@@ -41,25 +44,87 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     void PrintSelf( std::ostream& os, vtkIndent indent );
 
     // Description:
-    // Computes the global data-set origin
+    // Computes the global data-set origin, i.e., the min (x,y,z),
+    // out of all the blocks in the data-set. Note, if the data is
+    // distributed, the corresponding multi-process controller must
+    // be provided in order to compute the global min (x,y,z) on  all
+    // the processes.
+    //
+    // .SECTION Assumptions
+    // Only level 0 is checked, since the grid(s) at level 0 is guaranteed to
+    // cover the entire domain.
     static void ComputeDataSetOrigin(
         double origin[3], vtkHierarchicalBoxDataSet *amrData,
         vtkMultiProcessController *myController=NULL );
 
     // Description:
-    // TODO: Write description....
+    // This method Collects & Constructs the meta-data of the given AMR dataset.
+    // If the data is distributed, the AMR meta-data is communicated s.t. each
+    // process has a complete hierarchical box data-set with meta-data.
     static void CollectAMRMetaData(
         vtkHierarchicalBoxDataSet *amrData,
-        vtkMPIController *myController=NULL );
+        vtkMultiProcessController *myController=NULL );
 
     // Description:
-    // TODO: write description....
+    // This method computes the refinement ratio at each level.
+    // At each level, l, the refinement ratio r_l is computed by
+    // r_l = D_{l-1} / D_{l}, where D_{l-1} and D_{l} are the grid
+    // spacings at the previous and current level respectively.
+    //
+    // .SECTION Assumptions
+    // 1) If the data is distributed vktAMRUtilities::CollectAMRMetaData must
+    //    be called prior to computing the level refinement ratios.
+    // 2) Within each level, the refinement ratios are the same for all blocks.
+    // 3) The refinement ratio is uniform along each dimension of the block.
     static void ComputeLevelRefinementRatio(
         vtkHierarchicalBoxDataSet *amrData );
 
   protected:
     vtkAMRUtilities() {};
     ~vtkAMRUtilities() {};
+
+    // Descritpion:
+    // This method serializes all the metadata within the given instance of
+    // AMR data-set in to the user-supplied buffer.
+    static void SerializeMetaData(
+        vtkHierarchicalBoxDataSet *amrData,
+        unsigned char *&buffer,
+        vtkIdType &numBytes );
+
+    // Description:
+    // This method desirializes the metadata from the user-supplied serialized
+    // buffer into the user-supplie list vtkAMRBox instances.
+    static void DeserializeMetaData(
+        unsigned char *buffer,
+        const vtkIdType numBytes,
+        std::vector< vtkAMRBox > &boxList );
+
+    // Description:
+    // This method distributes the AMR data to all process. Upon completion,
+    // the give AMR data-set has a complete tree with all meta-data.
+    //
+    // .SECTION Assumptions
+    //
+    static void DistributeMetaData(
+        vtkHierarchicalBoxDataSet *amrData,
+        vtkMultiProcessController *myController );
+
+    // Description:
+    // Given the global data-set origin and the corresponding grid, this
+    // method constructs a corresponding vtkAMRBox metadata object.
+    //
+    // .SECTION Note
+    // This method assumes that the data on the grid is cell-centered, hence,
+    // the AMR box is constructed using the cell dimensions of the grid and
+    // not the node dimensions.
+    static void CreateAMRBoxForGrid(
+        double origin[3], vtkUniformGrid *myGrid, vtkAMRBox &myBox );
+
+    // Description:
+    // Computes the metadata for the grids that are owned by this process.
+    static void ComputeLocalMetaData(
+        double origin[3], vtkHierarchicalBoxDataSet *myAMRData,
+        const int process );
 
   private:
     vtkAMRUtilities(const vtkAMRUtilities&); // Not implemented

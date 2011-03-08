@@ -38,6 +38,7 @@
   }                                                                       \
 }
 
+//-----------------------------------------------------------------------------
 // Description:
 // Gets the grid for the given process
 void WriteUniformGrid( vtkUniformGrid *myGrid, std::string prefix )
@@ -64,6 +65,7 @@ void WriteUniformGrid( vtkUniformGrid *myGrid, std::string prefix )
   myImage2StructuredGridFilter->Delete();
 }
 
+//-----------------------------------------------------------------------------
 // Description:
 // Gets the grid for the given process
 void GetGrid( vtkUniformGrid *myGrid, int &level, int &index,
@@ -108,6 +110,7 @@ void GetGrid( vtkUniformGrid *myGrid, int &level, int &index,
 
 }
 
+//-----------------------------------------------------------------------------
 // Description:
 // Get the AMR data-structure for the given process
 void GetAMRDataSet(
@@ -139,6 +142,7 @@ void GetAMRDataSet(
 //                   T E S T   M E T H O D S
 //-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
 // Description:
 // Tests the functionality for computing the global data-set origin.
 bool TestComputeDataSetOrigin( vtkMultiProcessController *myController )
@@ -163,6 +167,25 @@ bool TestComputeDataSetOrigin( vtkMultiProcessController *myController )
   return( ( (statusSum==2)? true : false ) );
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Tests the functionality for computing the global data-set origin.
+bool TestCollectMetaData( vtkMultiProcessController *myController )
+{
+
+  assert( "Null Multi-process controller encountered" &&
+          (myController != NULL) );
+  myController->Barrier();
+
+  vtkHierarchicalBoxDataSet* myAMRData = vtkHierarchicalBoxDataSet::New();
+  GetAMRDataSet( myAMRData, myController );
+
+  vtkAMRUtilities::CollectAMRMetaData( myAMRData, myController );
+  myAMRData->Delete();
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 // Description:
 // Main Test driver
 int TestAMRUtilities(int,char*[])
@@ -177,6 +200,7 @@ int TestAMRUtilities(int,char*[])
 
   int rval=0;
   CHECK_TEST( TestComputeDataSetOrigin(myController),"ComputeOrigin", rval );
+  CHECK_TEST( TestCollectMetaData(myController), "CollectMetaData", rval );
 
   // Synchronize Processes
   myController->Barrier();
