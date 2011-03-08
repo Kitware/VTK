@@ -39,7 +39,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_netcdf.h"
-#include "vtkExodusII.h"
+#include "vtk_exodusII.h"
 
 #include "vtksys/SystemTools.hxx"
 

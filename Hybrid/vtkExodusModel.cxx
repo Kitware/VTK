@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <vtkstd/set>
 #include <vtkstd/map>
-#include "vtkExodusII.h"
+#include "vtk_exodusII.h"
 #include <ctype.h>
 
 

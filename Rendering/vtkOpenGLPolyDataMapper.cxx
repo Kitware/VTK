@@ -106,10 +106,6 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 {
   vtkPolyData *input= this->GetInput();
-  vtkPlaneCollection *clipPlanes;
-  vtkPlane *plane;
-  int i, numClipPlanes;
-  double planeEquation[4];
 
   //
   // make sure that we've been properly initialized
@@ -149,78 +145,24 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
   // make sure our window is current
   ren->GetRenderWindow()->MakeCurrent();
 
-  clipPlanes = this->ClippingPlanes;
-
-  if (clipPlanes == NULL)
+  // add all the clipping planes
+  vtkMatrix4x4 *actorMatrix = act->GetMatrix();
+  double planeEquation[4];
+  int numClipPlanes;
+  for (numClipPlanes = 0;
+       this->GetClippingPlaneInDataCoords(
+           actorMatrix, numClipPlanes, planeEquation);
+       numClipPlanes++)
     {
-    numClipPlanes = 0;
-    }
-  else
-    {
-    numClipPlanes = clipPlanes->GetNumberOfItems();
-    if (numClipPlanes > 6)
+    if (numClipPlanes >= 6)
       {
-      vtkErrorMacro(<< "OpenGL guarantees at most 6 additional clipping planes");
+      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      break;
       }
-    }
 
-  for (i = 0; i < numClipPlanes; i++)
-    {
-     glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
-    }
-
-  if ( clipPlanes )
-    {
-    vtkMatrix4x4 *actorMatrix = vtkMatrix4x4::New();
-    act->GetMatrix( actorMatrix );
-    actorMatrix->Invert();
-    
-    double origin[4], normal[3], point[4];
-    
-    for (i = 0; i < numClipPlanes; i++)
-      {    
-      plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
-      
-      plane->GetOrigin(origin);
-      plane->GetNormal(normal);
-      
-      point[0] = origin[0] + normal[0];
-      point[1] = origin[1] + normal[1];
-      point[2] = origin[2] + normal[2];
-      
-      origin[3] = point[3] = 1.0;
-      
-      actorMatrix->MultiplyPoint( origin, origin );
-      actorMatrix->MultiplyPoint( point, point );
-      
-      if ( origin[3] != 1.0 )
-        {
-        origin[0] /= origin[3];
-        origin[1] /= origin[3];
-        origin[2] /= origin[3];
-        }
-      
-      if ( point[3] != 1.0 )
-        {
-        point[0] /= point[3];
-        point[1] /= point[3];
-        point[2] /= point[3];
-        }
-      
-      normal[0] = point[0] - origin[0];
-      normal[1] = point[1] - origin[1];
-      normal[2] = point[2] - origin[2];
-      
-      planeEquation[0] = normal[0];
-      planeEquation[1] = normal[1];
-      planeEquation[2] = normal[2];
-      planeEquation[3] = -(planeEquation[0]*origin[0]+
-                           planeEquation[1]*origin[1]+
-                           planeEquation[2]*origin[2]);
-      glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
-      }
-    
-    actorMatrix->Delete();  
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+numClipPlanes);
+    glEnable(clipPlaneId);
+    glClipPlane(clipPlaneId, planeEquation);
     }
 
   // For vertex coloring, this sets this->Colors as side effect.
@@ -336,9 +278,10 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     this->TimeToDraw = 0.0001;
     }
 
-  for (i = 0; i < numClipPlanes; i++)
+  for (int i = 0; i < numClipPlanes; i++)
     {
-    glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
+    glDisable(clipPlaneId);
     }
 }
 

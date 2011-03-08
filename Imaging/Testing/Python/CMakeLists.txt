@@ -9,17 +9,20 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ContinuousClose2D
         IdealHighPass
         LaplacianEdgeEnhance
+        MultipleUpdateExtents
         #reconstructSurface -- scanf
         resampledTexture
         ResliceColorWrap
         ResliceInformationInput
         ResliceInterpolationModes
         ResliceInterpolationOblique
+        ResliceLanczosKaiser
         ResliceMirrorOblique
         ResliceMirrorPad
         ResliceOptimizationOff
         ReslicePermutations
         ReslicePermuteResample
+        ResliceToColors
         ResliceWrapOblique
         ResliceWrapPad
         Spectrum

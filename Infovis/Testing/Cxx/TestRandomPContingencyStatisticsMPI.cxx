@@ -136,7 +136,6 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
   vtkIdType nRowSumm = outputSummary->GetNumberOfRows();
-  int testIntValue;
   double testDoubleValue1;
   double testDoubleValue2;
   int numProcs = controller->GetNumberOfProcesses();
@@ -154,8 +153,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
                   GT_g, 
                   1 );
 
-  // Use the first grand total as reference (as they all must be equal)
-  testIntValue = GT_g[0];
+  // Known global grand total
+  int testIntValue = args->nVals * numProcs;
   
   // Print out all grand totals
   if ( com->GetLocalProcessId() == args->ioRank )
@@ -172,7 +171,11 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
       
       if ( GT_g[i] != testIntValue )
         {
-        vtkGenericWarningMacro("Incorrect CDF.");
+        vtkGenericWarningMacro("Incorrect grand total:"
+                               << GT_g[i]
+                               << " <> "
+                               << testIntValue
+                               << ")");
         *(args->retVal) = 1;
         }
       }
@@ -353,6 +356,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     }
   
   // Clean up
+  delete [] GT_g;
   delete [] cdf_l;
   delete [] cdf_g;
   pcs->Delete();

@@ -91,6 +91,7 @@ vtkImageRange3D.cxx
 vtkImageRectilinearWipe.cxx
 vtkImageResample.cxx
 vtkImageReslice.cxx
+vtkImageResliceToColors.cxx
 vtkImageSeedConnectivity.cxx
 vtkImageSeparableConvolution.cxx
 vtkImageShiftScale.cxx

@@ -77,7 +77,7 @@ class vtkUnsignedCharArray;
 // on the render window (initial value is false).
 // Signature is:
 // void vtkGraphicErrorMacro(vtkRenderWindow *renderWindow,const char *message)
-#ifdef VTK_LEAN_AND_MEAN
+#ifdef NDEBUG
 # define vtkGraphicErrorMacro(renderWindow,message)
 #else
 # define vtkGraphicErrorMacro(renderWindow,message)                     \

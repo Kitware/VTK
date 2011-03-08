@@ -1959,8 +1959,10 @@ lp_or_la: LP { postSig("("); scopeSig($<str>1); postSig("*");
         | LA { postSig("("); scopeSig($<str>1); postSig("&");
                $<integer>$ = VTK_PARSE_REF; };
 
+maybe_func_const: | CONST { currentFunction->IsConst = 1; };
+
 maybe_array_or_args: { $<integer>$ = 0; }
-   | '(' { pushFunction(); postSig("("); } args_list ')'
+   | '(' { pushFunction(); postSig("("); } args_list ')' maybe_func_const
      { $<integer>$ = VTK_PARSE_FUNCTION; postSig(")"); popFunction(); }
    | var_array { $<integer>$ = VTK_PARSE_ARRAY; };
 
