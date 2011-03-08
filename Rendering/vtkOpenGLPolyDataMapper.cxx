@@ -148,11 +148,13 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
   // add all the clipping planes
   vtkMatrix4x4 *actorMatrix = act->GetMatrix();
   double planeEquation[4];
-  int numClipPlanes = 0;
-  while (this->GetClippingPlaneInDataCoords(
-           actorMatrix, numClipPlanes++, planeEquation))
+  int numClipPlanes;
+  for (numClipPlanes = 0;
+       this->GetClippingPlaneInDataCoords(
+           actorMatrix, numClipPlanes, planeEquation);
+       numClipPlanes++)
     {
-    if (numClipPlanes > 6)
+    if (numClipPlanes >= 6)
       {
       vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
       break;
