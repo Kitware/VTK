@@ -30,11 +30,22 @@
 //-----------------------------------------------------------------------------
 //           H E L P E R   M E T H O D S  &   M A C R O S
 //-----------------------------------------------------------------------------
+
 #define CHECK_TEST( P, testName, rval ) {                                 \
   if( !P ) {                                                              \
     std::cerr << "ERROR:" << testName << " FAILED!\n";                    \
     std::cerr << "Location:" << __FILE__ << ":" << __LINE__ << std::endl; \
+    std::cerr.flush();                                                    \
     ++rval;                                                               \
+  }                                                                       \
+}
+
+#define CHECK_CONDITION( P, shortMessage, status ) {                      \
+  if( !P ) {                                                              \
+    std::cerr << "ERROR:" << shortMessage << std::endl;                   \
+    std::cerr << "Location: " << __FILE__ << ":" << __LINE__ << std::endl;\
+    status = 0;                                                           \
+    return status;                                                        \
   }                                                                       \
 }
 
@@ -63,6 +74,103 @@ void WriteUniformGrid( vtkUniformGrid *myGrid, std::string prefix )
   myWriter->Update();
   myWriter->Delete();
   myImage2StructuredGridFilter->Delete();
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Gets the grid for the given process
+int CheckMetaData( vtkHierarchicalBoxDataSet *myAMRData )
+{
+
+  int status = 1;
+  vtkAMRBox myBox;
+
+  // STEP 0: Check metadata @(0,0)
+  if( myAMRData->GetMetaData( 0, 0, myBox ) == 1 )
+    {
+       CHECK_CONDITION((myBox.GetBlockId()==0),"BlockId mismatch", status );
+       CHECK_CONDITION((myBox.GetLevel()==0),"Level mismatch", status);
+    }
+  else
+    {
+      std::cerr << "Could not retrieve metadata for item @(0,0)!\n";
+      std::cerr.flush( );
+      status = 0;
+    }
+
+  // STEP 1: Check metadata @(1,0)
+  if( myAMRData->GetMetaData(1,0,myBox) == 1 )
+    {
+
+    }
+  else
+    {
+      std::cerr << "Could not retrieve metadata for item @(0,0)!\n";
+      std::cerr.flush( );
+      status = 0;
+    }
+
+  return( status );
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Gets the grid for the given process
+int CheckProcessData0( vtkHierarchicalBoxDataSet *myAMRData )
+{
+  // Sanity Check
+  assert( "Input AMR dataset is NULL" && (myAMRData != NULL) );
+
+  int status = 1;
+
+  if( myAMRData->GetDataSet(0,0) == NULL )
+    {
+      std::cerr << "ERROR: Expected data to be non-NULL, but, data is NULL!\n";
+      std::cerr.flush();
+      status = 0;
+    }
+  else if( myAMRData->GetDataSet(1,0) != NULL )
+    {
+      std::cerr << "ERROR: Expected data to be NULL, but, data is NOT NULL!\n";
+      std::cerr.flush( );
+      status = 0;
+    }
+  else
+    {
+      status = CheckMetaData( myAMRData );
+    }
+
+  return status;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Gets the grid for the given process
+int CheckProcessData1( vtkHierarchicalBoxDataSet *myAMRData )
+{
+  // Sanity Check
+  assert( "Input AMR dataset is NULL" && (myAMRData != NULL) );
+
+  int status = 1;
+
+  if( myAMRData->GetDataSet(0,0) != NULL )
+    {
+      std::cerr << "ERROR: Expected data to be NULL, but, data is NOT NULL!\n";
+      std::cerr.flush();
+      status = 0;
+    }
+  else if( myAMRData->GetDataSet(1,0) == NULL )
+    {
+      std::cerr << "ERROR: Expected data to be non-NULL, but, data is NULL!\n";
+      std::cerr.flush( );
+      status = 0;
+    }
+  else
+    {
+      status = CheckMetaData( myAMRData );
+    }
+
+  return status;
 }
 
 //-----------------------------------------------------------------------------
@@ -181,8 +289,26 @@ bool TestCollectMetaData( vtkMultiProcessController *myController )
   GetAMRDataSet( myAMRData, myController );
 
   vtkAMRUtilities::CollectAMRMetaData( myAMRData, myController );
+
+  int status    = 0;
+  int statusSum = 0;
+  switch( myController->GetLocalProcessId() )
+    {
+      case 0:
+        status = CheckProcessData0( myAMRData );
+        break;
+      case 1:
+        status = CheckProcessData1( myAMRData );
+        break;
+      default:
+        std::cerr << "ERROR: This test must be run with 2 MPI processes!\n";
+        std::cerr.flush( );
+        status = 0;
+    }
   myAMRData->Delete();
-  return false;
+
+  myController->AllReduce( &status, &statusSum, 1, vtkCommunicator::SUM_OP );
+  return ( (statusSum==2)? true : false );
 }
 
 //-----------------------------------------------------------------------------
