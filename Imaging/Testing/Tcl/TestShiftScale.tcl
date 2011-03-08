@@ -1,7 +1,7 @@
 package require vtk
 
 # Shift and scale an image (in that order)
-# This filter is usefull for converting to a lower precision data type.
+# This filter is useful for converting to a lower precision data type.
 
 vtkImageReader reader
 [reader GetOutput] ReleaseDataFlagOff

@@ -118,7 +118,7 @@ protected:
   // The observer to report progress from reading data from XMLParser.
   vtkCallbackCommand* DataProgressObserver;  
 
-  // Specify the last time step read, usefull to know if we need to rearead data
+  // Specify the last time step read, useful to know if we need to rearead data
   // //PointData
   int *PointDataTimeStep;
   unsigned long *PointDataOffset;

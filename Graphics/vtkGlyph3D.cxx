@@ -486,7 +486,7 @@ int vtkGlyph3D::RequestData(
     // ghostLevel > 0.  I am leaving this over glyphing here because
     // it make a nice example (sphereGhost.tcl) to show the 
     // point ghost levels with the glyph filter.  I am not certain 
-    // of the usefullness of point ghost levels over 1, but I will have
+    // of the usefulness of point ghost levels over 1, but I will have
     // to think about it.
     if (inGhostLevels && inGhostLevels[inPtId] > requestedGhostLevel)
       {

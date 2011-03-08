@@ -54,7 +54,7 @@ public:
   // These are the main methods that should be called. These methods 
   // are responsible for converting a piece to an extent. The signatures
   // without arguments are only thread safe when each thread accesses a
-  // different instance. The signatures with arguements are fully thread
+  // different instance. The signatures with arguments are fully thread
   // safe. 
   virtual int PieceToExtent();
   virtual int PieceToExtentByPoints();

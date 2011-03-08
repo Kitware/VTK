@@ -10627,7 +10627,7 @@ doc_load:
   
 exit:
     /*
-    * Return the bucket explicitely; this is needed for the
+    * Return the bucket explicitly; this is needed for the
     * main schema.
     */
     if (bucket != NULL)
@@ -14685,7 +14685,7 @@ xmlSchemaIsParticleEmptiable(xmlSchemaParticlePtr particle)
  * Schema Component Constraint:
  * Type Derivation OK (Simple) (cos-st-derived-OK)
  *
- * Checks wheter @type can be validly
+ * Checks whether @type can be validly
  * derived from @baseType.
  *
  * Returns 0 on success, an positive error code otherwise.
@@ -15983,7 +15983,7 @@ xmlSchemaCheckCOSCTDerivedOK(xmlSchemaAbstractCtxtPtr actxt,
  * Calls:
  * Type Derivation OK (Simple) AND Type Derivation OK (Complex)
  *
- * Checks wheter @type can be validly derived from @baseType.
+ * Checks whether @type can be validly derived from @baseType.
  *
  * Returns 0 on success, an positive error code otherwise.
  */
@@ -18424,7 +18424,7 @@ xmlSchemaFixupComplexType(xmlSchemaParserCtxtPtr pctxt,
                     * NOTE that, although we miss to add an intermediate
                     * <sequence>, this should produce no difference to
                     * neither the regex compilation of the content model,
-                    * nor to the complex type contraints.
+                    * nor to the complex type constraints.
                     */
                     particle->children->children =
                         (xmlSchemaTreeItemPtr) baseType->subtypes;
@@ -20993,7 +20993,7 @@ xmlSchemaFixupComponents(xmlSchemaParserCtxtPtr pctxt,
     * At this point we need build and check all simple types.
     */
     /*
-    * Apply contraints for attribute declarations.
+    * Apply constraints for attribute declarations.
     */
     for (i = 0; i < nbItems; i++) {
         item = items[i];
@@ -21745,7 +21745,7 @@ xmlSchemaLookupNamespace(xmlSchemaValidCtxtPtr vctxt,
         if ((vctxt->inode->node == NULL) ||
             (vctxt->inode->node->doc == NULL)) {
             VERROR_INT("xmlSchemaLookupNamespace",
-                "no node or node's doc avaliable");
+                "no node or node's doc available");
             return (NULL);
         }
         ns = xmlSearchNs(vctxt->inode->node->doc,
@@ -26368,7 +26368,7 @@ xmlSchemaValidateChildElem(xmlSchemaValidCtxtPtr vctxt)
     if (ptype->builtInType == XML_SCHEMAS_ANYTYPE) {
         /*
         * Workaround for "anyType": we have currently no content model
-        * assigned for "anyType", so handle it explicitely.
+        * assigned for "anyType", so handle it explicitly.
         * "anyType" has an unbounded, lax "any" wildcard.
         */
         vctxt->inode->decl = xmlSchemaGetElem(vctxt->schema,

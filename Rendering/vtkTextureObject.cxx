@@ -888,7 +888,7 @@ bool vtkTextureObject::Create1D(int numComps,
 
   if (!internalFormat || !format || !type)
     {
-    vtkErrorMacro("Failed to detemine texture paramters.");
+    vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
     }
 
@@ -971,7 +971,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
 
   if (!internalFormat || !format || !type)
     {
-    vtkErrorMacro("Failed to detemine texture paramters.");
+    vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
     }
 
@@ -1298,7 +1298,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
   if (!internalFormat || !format || !type)
     {
-    vtkErrorMacro("Failed to detemine texture paramters.");
+    vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
     }
 
@@ -1414,7 +1414,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
 
   if (!internalFormat || !format || !type)
     {
-    vtkErrorMacro("Failed to detemine texture paramters.");
+    vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
     }
 
@@ -1470,7 +1470,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
   if (!internalFormat || !format || !type)
     {
-    vtkErrorMacro("Failed to detemine texture paramters.");
+    vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
     }
 

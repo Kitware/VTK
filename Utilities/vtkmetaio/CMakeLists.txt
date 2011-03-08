@@ -40,7 +40,7 @@ elseif(METAIO_FOR_ITK)
     include_directories(${ITK_LIBXML2_INCLUDE_DIR})
     set(METAIO_LIBXML2_LIBRARIES ${ITK_LIBXML2_LIBRARIES})
   endif()
-else()
+elseif(NOT METAIO_NAMESPACE)
   set(METAIO_NAMESPACE MetaIO)
 endif()
 

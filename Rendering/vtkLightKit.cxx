@@ -41,7 +41,7 @@ static const char *vtkLightKitSubTypeStrings[] = {
 };
 
 // These are the same as vtkLightKitSubTypeStrings but shorter
-// usefull for a GUI with minimum space
+// useful for a GUI with minimum space
 static const char *vtkLightKitSubTypeShortStrings[] = {
   "War.",
   "Int. ",
