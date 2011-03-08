@@ -151,7 +151,7 @@ public:
 
   // Description:
   // old comment:
-  // Downlad Extent from GPU data buffer to CPU.
+  // Download Extent from GPU data buffer to CPU.
   // GPU data size must exactly match Extent.
   // CPU data buffer will be resized to match WholeExtent in which only the
   // Extent will be filled with the GPU data.

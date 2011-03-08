@@ -190,12 +190,12 @@ public:
   void CleanArguments();
   
   // Description:
-  // Get some paramters from the command line arguments, env, or defaults
+  // Get some parameters from the command line arguments, env, or defaults
   const char *GetDataRoot();
   vtkSetStringMacro(DataRoot);
 
   // Description:
-  // Get some paramters from the command line arguments, env, or defaults
+  // Get some parameters from the command line arguments, env, or defaults
   const char *GetTempDirectory();
   vtkSetStringMacro(TempDirectory);
 

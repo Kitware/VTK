@@ -79,7 +79,7 @@ public:
   // ORIENTATION_RIGHTTOP        6       (row 0 rhs, col 0 top)
   // ORIENTATION_RIGHTBOT        7       (row 0 rhs, col 0 bottom)
   // ORIENTATION_LEFTBOT         8       (row 0 lhs, col 0 bottom)
-  // User need to explicitely include vtk_tiff.h header to have access to those #define
+  // User need to explicitly include vtk_tiff.h header to have access to those #define
   void SetOrientationType( unsigned int orientationType );
   vtkGetMacro( OrientationType, unsigned int );
 

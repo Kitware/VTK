@@ -7115,7 +7115,7 @@ H5C_flush_invalidate_cache(H5F_t * f,
 
 	/* Finally, reset the actual_slist_len and actual_slist_size
 	 * fields to zero, as these fields are used to accumulate
-	 * the slist lenght and size that we see as we scan through
+         * the slist length and size that we see as we scan through
 	 * the slist.
 	 */
 	actual_slist_len = 0;

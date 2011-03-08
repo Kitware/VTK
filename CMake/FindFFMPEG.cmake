@@ -8,7 +8,7 @@
 
 # also defined, but not for general use are
 # FFMPEG_avformat_LIBRARY and FFMPEG_avcodec_LIBRARY, where to find the FFMPEG library.
-# This is usefull to do it this way so that we can always add more libraries
+# This is useful to do it this way so that we can always add more libraries
 # if needed to FFMPEG_LIBRARIES if ffmpeg ever changes...
 
 # if ffmpeg headers are all in one directory

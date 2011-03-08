@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Specify the vtkCharArray to be used  when reading from a string.
-  // If set, this array has precendence over InputString.
+  // If set, this array has precedence over InputString.
   // Use this instead of InputString to avoid the extra memory copy.
   // It should be noted that if the underlying char* is owned by the
   // user ( vtkCharArray::SetArray(array, 1); ) and is deleted before
