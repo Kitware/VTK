@@ -54,6 +54,7 @@ class vtkGenericCell;
 class vtkImageData;
 class vtkAbstractCellLocator;
 class vtkCollection;
+class vtkMatrix4x4;
 
 class VTK_RENDERING_EXPORT vtkCellPicker : public vtkPicker
 {
@@ -227,7 +228,8 @@ protected:
                                          vtkProp3D *prop,
                                          vtkAbstractMapper3D *mapper);
 
-  static int ClipLineWithPlanes(vtkPlaneCollection *planes,
+  static int ClipLineWithPlanes(vtkAbstractMapper3D *mapper,
+                                vtkMatrix4x4 *propMatrix,
                                 const double p1[3], const double p2[3],
                                 double &t1, double &t2, int& planeId);
 

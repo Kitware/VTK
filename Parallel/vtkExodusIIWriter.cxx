@@ -44,7 +44,7 @@
 #include "vtkMultiProcessController.h"
 #endif
 
-#include <vtkExodusII.h>
+#include "vtk_exodusII.h"
 #include <time.h>
 #include <ctype.h>
 
