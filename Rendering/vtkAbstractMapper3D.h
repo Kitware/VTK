@@ -33,6 +33,7 @@
 
 class vtkWindow;
 class vtkDataSet;
+class vtkMatrix4x4;
 
 class VTK_RENDERING_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
 {
@@ -72,6 +73,12 @@ public:
   // Is this a "render into image" mapper? A subclass would return 1 if the
   // mapper produces an image by rendering into a software image buffer.
   virtual int IsARenderIntoImageMapper() {return 0;}
+
+  // Description:
+  // Get the ith clipping plane as a homogeneous normal, returns
+  // false when i is too large i.e. no planes left.
+  bool GetClippingPlaneInDataCoords(
+    vtkMatrix4x4 *actorMatrix, int i, double plane[4]);
 
 protected:
    vtkAbstractMapper3D();

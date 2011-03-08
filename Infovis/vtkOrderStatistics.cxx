@@ -155,10 +155,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       doubleCol->SetName( "Value" );
       histogramTab->AddColumn( doubleCol );
       doubleCol->Delete();
-
-      // Value of cardinality row is NaN
-      double noVal = vtkMath::Nan();
-      row->SetValue( 0, noVal );
       }
     else if ( vals->IsA("vtkStringArray") )
       {
@@ -166,10 +162,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       stringCol->SetName( "Value" );
       histogramTab->AddColumn( stringCol );
       stringCol->Delete();
-
-      // Value of cardinality row is the empty string
-      vtkStdString noVal = vtkStdString( "" );
-      row->SetValue( 0, noVal );
       }
     else if ( vals->IsA("vtkVariantArray") )
       {
@@ -177,10 +169,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       variantCol->SetName( "Value" );
       histogramTab->AddColumn( variantCol );
       variantCol->Delete();
-
-      // Value of cardinality row is the empty variant
-      vtkVariant noVal = vtkVariant( "" );
-      row->SetValue( 0, noVal );
       }
     else
       {
@@ -196,19 +184,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     histogramTab->AddColumn( idTypeCol );
     idTypeCol->Delete();
 
-    // Insert first row which will always contain the data set cardinality
-    // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in
-    // learn mode to make it clear that it is not a correct value. This is an issue of database
-    // normalization: including the cardinality to the other counts can lead to inconsistency, in particular
-    // when the input meta table is calculated by something else than the learn mode (e.g., is specified
-    // by the user).
-    row->SetValue( 1, -1 );
-    histogramTab->InsertNextRow( row );
-
     // Switch depending on data type
     if ( vals->IsA("vtkDataArray") )
       {
-      // Downcast column to double array for efficient data access
+      // Downcast column to data array for efficient data access
       vtkDataArray* dvals = vtkDataArray::SafeDownCast( vals );
 
       // Calculate histogram
@@ -250,7 +229,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       } // else if ( vals->IsA("vtkStringArray") )
     else if ( vals->IsA("vtkVariantArray") )
       {
-      // Downcast column to string array for efficient data access
+      // Downcast column to variant array for efficient data access
       vtkVariantArray* vvals = vtkVariantArray::SafeDownCast( vals );
 
       // Calculate histogram
@@ -300,10 +279,23 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  // Create quantiles table
-  vtkTable* quantileTab = vtkTable::New();
+  // Create cardinality table
+  vtkTable* cardinalityTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Variable" );
+  cardinalityTab->AddColumn( stringCol );
+  stringCol->Delete();
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  cardinalityTab->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  // Create quantile table
+  vtkTable* quantileTab = vtkTable::New();
+
+  stringCol = vtkStringArray::New();
   stringCol->SetName( "Quantile" );
   quantileTab->AddColumn( stringCol );
   stringCol->Delete();
@@ -346,6 +338,10 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
+  // Prepare row for insertion into cardinality table
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 2 );
+
   // Iterate over primary tables
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
@@ -360,15 +356,14 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     vtkAbstractArray* vals = histogramTab->GetColumnByName( "Value" );
     vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
 
-    // The CDF will be used for quantiles calculation (effectively as a reverse look-up table
-    // NB: first entry (index 0) is not used
+    // The CDF will be used for quantiles calculation (effectively as a reverse look-up table)
     vtkIdType nRowHist = histogramTab->GetNumberOfRows();
     vtkIdType* cdf =  new vtkIdType[nRowHist];
 
     // Calculate variable cardinality and CDF
     vtkIdType c;
     vtkIdType n = 0;
-    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row where data set cardinality will be stored
+    for ( vtkIdType r = 0; r < nRowHist; ++ r )
       {
       // Update cardinality and CDF
       c = card->GetValue( r );
@@ -376,8 +371,13 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       cdf[r] = n;
       }
 
+    // Get block variable name
+    vtkStdString varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+
     // Store cardinality
-    histogramTab->SetValueByName( 0, "Cardinality", n );
+    row->SetValue( 0, varName );
+    row->SetValue( 1, n );
+    cardinalityTab->InsertNextRow( row );
 
     // Find or create column of probability mass function of histogram table
     vtkStdString probaName( "P" );
@@ -396,13 +396,10 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       probaCol = vtkDoubleArray::SafeDownCast( abstrCol );
       }
 
-    // Store invalid probability for cardinality row
-    histogramTab->SetValueByName( 0, "P", -1. );
-
     // Finally calculate and store probabilities
     double inv_n = 1. / n;
     double p;
-    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
+    for ( vtkIdType r = 0; r < nRowHist; ++ r )
       {
       c = card->GetValue( r );
       p = inv_n * c;
@@ -414,9 +411,9 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> > quantileIndices;
     vtksys_stl::pair<vtkIdType,vtkIdType> qIdxPair;
 
-    // First quantile index is always 1 with no jump (corresponding to the first and the smallest value)
-    qIdxPair.first = 1;
-    qIdxPair.second = 1;
+    // First quantile index is always 0 with no jump (corresponding to the first and the smallest value)
+    qIdxPair.first = 0;
+    qIdxPair.second = 0;
     quantileIndices.push_back( qIdxPair );
 
     // Calculate all interior quantiles (i.e. for 0 < k < q)
@@ -499,13 +496,10 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     qIdxPair.second = nRowHist - 1;;
     quantileIndices.push_back( qIdxPair );
 
-    // Finally prepare quantile values column
-    vtkStdString varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
-
-    // Switch depending on data type
+    // Finally prepare quantile values column depending on data type
     if ( vals->IsA("vtkDataArray") )
       {
-      // Downcast column to double array for efficient data access
+      // Downcast column to data array for efficient data access
       vtkDataArray* dvals = vtkDataArray::SafeDownCast( vals );
 
       // Create column for quantiles of the same type as the values
@@ -607,13 +601,21 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     delete [] cdf;
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 
-  // Resize output meta so quantile table can be appended
+  // Resize output meta so cardinality and quantile tables can be appended
   nBlocks = inMeta->GetNumberOfBlocks();
-  inMeta->SetNumberOfBlocks( nBlocks + 1 );
-  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
-  inMeta->SetBlock( nBlocks, quantileTab );
+  inMeta->SetNumberOfBlocks( nBlocks + 2 );
+
+  // Append cardinality table at block nBlocks
+  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Cardinalities" );
+  inMeta->SetBlock( nBlocks, cardinalityTab );
+
+  // Append quantile table at block nBlocks + 1
+  inMeta->GetMetaData( static_cast<unsigned>( nBlocks + 1 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
+  inMeta->SetBlock( nBlocks + 1 , quantileTab );
 
   // Clean up
+  row->Delete();
+  cardinalityTab->Delete();
   quantileTab->Delete();
 }
 

@@ -42,7 +42,7 @@ vtkCxxSetObjectMacro(vtkBalloonRepresentation, FrameProperty, vtkProperty2D);
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, BalloonImage, vtkImageData);
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, ImageProperty, vtkProperty2D);
 
-  
+
 //----------------------------------------------------------------------
 vtkBalloonRepresentation::vtkBalloonRepresentation()
 {
@@ -79,9 +79,9 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   tc->InsertComponent(0,0, 0.0);  tc->InsertComponent(0,1, 0.0);
   tc->InsertComponent(1,0, 1.0);  tc->InsertComponent(1,1, 0.0);
   tc->InsertComponent(2,0, 1.0);  tc->InsertComponent(2,1, 1.0);
-  tc->InsertComponent(3,0, 0.0);  tc->InsertComponent(3,1, 1.0);  
+  tc->InsertComponent(3,0, 0.0);  tc->InsertComponent(3,1, 1.0);
   this->TexturePolyData->GetPointData()->SetTCoords(tc);
-  tc->Delete();  
+  tc->Delete();
   this->TextureMapper = vtkPolyDataMapper2D::New();
   this->TextureMapper->SetInput(this->TexturePolyData);
   this->TextureActor = vtkActor2D::New();
@@ -104,7 +104,7 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   this->TextProperty->SetFontSize(14);
   this->TextProperty->BoldOn();
   this->TextMapper->SetTextProperty(this->TextProperty);
-  
+
   // The frame
   this->FramePoints = vtkPoints::New();
   this->FramePoints->SetNumberOfPoints(4);
@@ -150,7 +150,7 @@ vtkBalloonRepresentation::~vtkBalloonRepresentation()
   this->TextMapper->Delete();
   this->TextActor->Delete();
   this->TextProperty->Delete();
-  
+
   // The frame
   this->FramePoints->Delete();
   this->FramePolygon->Delete();
@@ -205,7 +205,7 @@ inline void vtkBalloonRepresentation::ScaleImage(double imageSize[2],double scal
 //----------------------------------------------------------------------
 void vtkBalloonRepresentation::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
@@ -228,7 +228,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
     double e[2];
     e[0] = static_cast<double>(this->StartEventPosition[0] + this->Offset[0]);
     e[1] = static_cast<double>(this->StartEventPosition[1] + this->Offset[1]);
-    
+
     // Determine the size of the text
     if ( this->BalloonText )
       {
@@ -251,7 +251,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
         this->ImageVisible = ( (imageSize[0] > 0.0 && imageSize[1] > 0.0) ? 1 : 0 );
         }
       }
-    
+
     // Layout the text and image
     if ( this->TextVisible || this->ImageVisible )
       {
@@ -270,14 +270,14 @@ void vtkBalloonRepresentation::BuildRepresentation()
         io[0] = 0.0;
         io[1] = 0.0;
         }
-      
+
       else //both image and text
         {
         this->AdjustImageSize(imageSize);
         if ( this->BalloonLayout == ImageTop )
           {
           frameSize[1] = stringSize[1] + 2*this->Padding;
-          double length = (imageSize[0] > (stringSize[0]+2*this->Padding) ? 
+          double length = (imageSize[0] > (stringSize[0]+2*this->Padding) ?
                            imageSize[0] : (stringSize[0]+2*this->Padding));
           frameSize[0] = length;
           double scale = length/imageSize[0];
@@ -292,7 +292,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
         else if ( this->BalloonLayout == ImageBottom )
           {
           frameSize[1] = stringSize[1] + 2*this->Padding;
-          double length = (imageSize[0] > (stringSize[0]+2*this->Padding) ? 
+          double length = (imageSize[0] > (stringSize[0]+2*this->Padding) ?
                            imageSize[0] : (stringSize[0]+2*this->Padding));
           frameSize[0] = length;
           double scale = length/imageSize[0];
@@ -307,7 +307,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
         else if ( this->BalloonLayout == ImageLeft )
           {
           frameSize[0] = stringSize[0] + 2*this->Padding;
-          double length = (imageSize[1] > (stringSize[1]+2*this->Padding) ? 
+          double length = (imageSize[1] > (stringSize[1]+2*this->Padding) ?
                            imageSize[1] : (stringSize[1]+2*this->Padding));
           frameSize[1] = length;
           double scale = length/imageSize[1];
@@ -322,7 +322,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
         else if ( this->BalloonLayout == ImageRight )
           {
           frameSize[0] = stringSize[0] + 2*this->Padding;
-          double length = (imageSize[1] > (stringSize[1]+2*this->Padding) ? 
+          double length = (imageSize[1] > (stringSize[1]+2*this->Padding) ?
                            imageSize[1] : (stringSize[1]+2*this->Padding));
           frameSize[1] = length;
           double scale = length/imageSize[1];
@@ -335,7 +335,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
           so[1] = length/2.0 - stringSize[1]/2.0;
           }
         }
-      
+
       // Reposition the origin of the balloon if it's off the renderer
       if ( e[0] < 0 )
         {
@@ -353,7 +353,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
         {
         e[1] = size[1] - (frameSize[1]+imageSize[1]);
         }
-      
+
       // Draw the text if visible
       if ( this->TextVisible )
         {
@@ -375,6 +375,11 @@ void vtkBalloonRepresentation::BuildRepresentation()
         this->TexturePoints->SetPoint(3, e[0]+io[0],e[1]+io[1]+imageSize[1],0.0);
         }
       }//if something visible
+
+    // Update the properties
+    this->TextureActor->SetProperty(this->ImageProperty);
+    this->FrameActor->SetProperty(this->FrameProperty);
+    this->TextMapper->SetTextProperty(this->TextProperty);
 
     this->BuildTime.Modified();
     }
@@ -415,13 +420,41 @@ int vtkBalloonRepresentation::RenderOverlay(vtkViewport *v)
   return count;
 }
 
+//----------------------------------------------------------------------
+int vtkBalloonRepresentation::
+ComputeInteractionState(int X, int Y, int)
+{
+  // Is it in the text region or the image region?
+  double x0[3], x2[3];
+  if ( this->ImageVisible )
+    {
+    this->TexturePoints->GetPoint(0,x0);
+    this->TexturePoints->GetPoint(2,x2);
+    if ( (x0[0] <= X && X <= x2[0]) && (x0[1] <= Y && Y <= x2[1]) )
+      {
+      return vtkBalloonRepresentation::OnImage;
+      }
+    }
+
+  if ( this->TextVisible )
+    {
+    this->FramePoints->GetPoint(0,x0);
+    this->FramePoints->GetPoint(2,x2);
+    if ( (x0[0] <= X && X <= x2[0]) && (x0[1] <= Y && Y <= x2[1]) )
+      {
+      return vtkBalloonRepresentation::OnText;
+      }
+    }
+
+  return vtkBalloonRepresentation::Outside;
+}
 
 //----------------------------------------------------------------------
 void vtkBalloonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Balloon Text: ";
   if ( this->BalloonText )
     {
@@ -431,7 +464,7 @@ void vtkBalloonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
-  
+
   os << indent << "Balloon Image: ";
   if ( this->BalloonImage )
     {
@@ -441,7 +474,7 @@ void vtkBalloonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
-  
+
   os << indent << "Balloon Layout: ";
   switch (this->BalloonLayout)
     {

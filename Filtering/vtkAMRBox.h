@@ -289,7 +289,7 @@ public:
 
   // Description:
   // Intersect this box with another box in place.
-  //void operator&=(const vtkAMRBox &rhs);
+  void operator&=(const vtkAMRBox &rhs);
 
   // Description:
   // Test to see if a given cell index is inside this box.
@@ -348,20 +348,22 @@ public:
   // Post-conditions:
   //   buffer   != NULL
   //   bytesize != 0
-  void Serialize( unsigned char*& buffer, size_t &bytesize );
+  void Serialize( unsigned char*& buffer, vtkIdType &bytesize );
 
   // Description:
   // Deserializes this object instance from the given byte-stream.
   // Pre-conditions:
   //   buffer != NULL
   //   bytesize != 0
-  void Deserialize( unsigned char* buffer, const size_t &bytesize );
+  void Deserialize( unsigned char* buffer, const vtkIdType &bytesize );
 
   // Description:
   // Returns the number of bytes allocated by this instance. In addition,
   // this number of bytes corresponds to the buffer size required to serialize
   // any vtkAMRBox instance.
-  static size_t GetBytesize(){return (10*sizeof(int)+6*sizeof(double)); };
+  static vtkIdType GetBytesize(){return (10*sizeof(int)+6*sizeof(double)); };
+
+  void WriteBox();
 
   //BTX
   // @deprecated Replaced by Contains() as of VTK 5.4.
@@ -406,7 +408,6 @@ private:
   void WriteBox(
       const double x, const double y, const double z,
       const double X, const double Y, const double Z );
-
 
 };
 

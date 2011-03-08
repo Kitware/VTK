@@ -13,6 +13,8 @@ ELSE(VTK_USE_SYSTEM_HDF5)
   SET(HDF5_EXTERNAL_LIB_PREFIX "vtk")
   # Export configuration to this export variable
   SET(HDF5_EXPORTED_TARGETS ${VTK_INSTALL_EXPORT_NAME})
+  
+  SET_PROPERTY(GLOBAL APPEND PROPERTY VTK_TARGETS vtkhdf5)
 
   # Silence HDF5's warnings. We'll let them get fixed upstream
   # and merge in updates as necessary.

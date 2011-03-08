@@ -45,7 +45,7 @@
 
 #include "vtk_netcdf.h"
 #include "vtk_exodus2_mangle.h"
-#include "exodusII_cfg.h"
+#include "vtkexodus2/include/exodusII_cfg.h"
 /* #include "stddef.h" */
 
 

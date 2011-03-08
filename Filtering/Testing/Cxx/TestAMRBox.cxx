@@ -198,97 +198,97 @@ int TestAMRBox(int , char *[])
     }
   }
   // Intersect.
-//  {
-//  vtkAMRBox A(-4,-4,-4,4,4,4);
-//  vtkAMRBox B(-4,-4,-4,-1,-1,-1);
-//  vtkAMRBox C(1,1,1,4,4,4);
-//  vtkAMRBox AA(A);
-//  AA&=A;              // ==A
-//  vtkAMRBox AB(A);
-//  AB&=B;              // ==B
-//  vtkAMRBox BA(B);
-//  BA&=A;              // ==B
-//  vtkAMRBox AC(A);
-//  AC&=C;              // ==C
-//  vtkAMRBox CA(C);
-//  CA&=A;              // ==C
-//  vtkAMRBox BC(B);
-//  BC&=C;              // ==NULL
-//  vtkAMRBox CB(C);
-//  CB&=B;              // ==NULL
-//
-//  vtkAMRBox D(-4,-4,4,4);
-//  vtkAMRBox E(-4,-4,-1,-1);
-//  vtkAMRBox F(1,1,4,4);
-//  vtkAMRBox DD(D);
-//  DD&=D;              // ==D
-//  vtkAMRBox DE(D);
-//  DE&=E;              // ==E
-//  vtkAMRBox ED(E);
-//  ED&=D;              // ==E
-//  vtkAMRBox DF(D);
-//  DF&=F;              // ==F
-//  vtkAMRBox FD(F);
-//  FD&=D;              // ==F
-//  vtkAMRBox EF(E);
-//  EF&=F;              // ==NULL
-//  vtkAMRBox FE(F);
-//  FE&=E;              // ==NULL
-//
-//  vtkAMRBox AD(A);
-//  AD&=D;              // ==NULL
-//  vtkAMRBox DA(D);
-//  DA&=A;              // ==NULL
-//
-//  if (!(AA==A)
-//   || !(AB==B) || !(BA==AB)
-//   || !(AC==C) || !(AC==CA)
-//   || !BC.Empty() || !CB.Empty()
-//   || !(DD==D)
-//   || !(DE==E) || !(DE==ED)
-//   || !(DF==F) || !(DF==FD)
-//   || !EF.Empty() || !FE.Empty()
-//   || !(AD==A)
-//   || !(DA==D))
-//    {
-//    A.Print(cerr) << endl;
-//    B.Print(cerr) << endl;
-//    C.Print(cerr) << endl;
-//    AA.Print(cerr) << endl;
-//    AB.Print(cerr) << endl;
-//    BA.Print(cerr) << endl;
-//    AC.Print(cerr) << endl;
-//    CA.Print(cerr) << endl;
-//    BC.Print(cerr) << endl;
-//    CB.Print(cerr) << endl;
-//    D.Print(cerr) << endl;
-//    E.Print(cerr) << endl;
-//    F.Print(cerr) << endl;
-//    DD.Print(cerr) << endl;
-//    DE.Print(cerr) << endl;
-//    ED.Print(cerr) << endl;
-//    DF.Print(cerr) << endl;
-//    FD.Print(cerr) << endl;
-//    FE.Print(cerr) << endl;
-//    EF.Print(cerr) << endl;
-//    AD.Print(cerr) << endl;
-//    DA.Print(cerr) << endl;
-//    cerr << "Failed testing operator&=." << endl;
-//    return 1;
-//    }
-//  }
+  {
+  vtkAMRBox A(-4,-4,-4,4,4,4);
+  vtkAMRBox B(-4,-4,-4,-1,-1,-1);
+  vtkAMRBox C(1,1,1,4,4,4);
+  vtkAMRBox AA(A);
+  AA&=A;              // ==A
+  vtkAMRBox AB(A);
+  AB&=B;              // ==B
+  vtkAMRBox BA(B);
+  BA&=A;              // ==B
+  vtkAMRBox AC(A);
+  AC&=C;              // ==C
+  vtkAMRBox CA(C);
+  CA&=A;              // ==C
+  vtkAMRBox BC(B);
+  BC&=C;              // ==NULL
+  vtkAMRBox CB(C);
+  CB&=B;              // ==NULL
+
+  vtkAMRBox D(-4,-4,4,4);
+  vtkAMRBox E(-4,-4,-1,-1);
+  vtkAMRBox F(1,1,4,4);
+  vtkAMRBox DD(D);
+  DD&=D;              // ==D
+  vtkAMRBox DE(D);
+  DE&=E;              // ==E
+  vtkAMRBox ED(E);
+  ED&=D;              // ==E
+  vtkAMRBox DF(D);
+  DF&=F;              // ==F
+  vtkAMRBox FD(F);
+  FD&=D;              // ==F
+  vtkAMRBox EF(E);
+  EF&=F;              // ==NULL
+  vtkAMRBox FE(F);
+  FE&=E;              // ==NULL
+
+  vtkAMRBox AD(A);
+  AD&=D;              // ==NULL
+  vtkAMRBox DA(D);
+  DA&=A;              // ==NULL
+
+  if (!(AA==A)
+   || !(AB==B) || !(BA==AB)
+   || !(AC==C) || !(AC==CA)
+   || !BC.Empty() || !CB.Empty()
+   || !(DD==D)
+   || !(DE==E) || !(DE==ED)
+   || !(DF==F) || !(DF==FD)
+   || !EF.Empty() || !FE.Empty()
+   || !(AD==A)
+   || !(DA==D))
+    {
+    A.Print(cerr) << endl;
+    B.Print(cerr) << endl;
+    C.Print(cerr) << endl;
+    AA.Print(cerr) << endl;
+    AB.Print(cerr) << endl;
+    BA.Print(cerr) << endl;
+    AC.Print(cerr) << endl;
+    CA.Print(cerr) << endl;
+    BC.Print(cerr) << endl;
+    CB.Print(cerr) << endl;
+    D.Print(cerr) << endl;
+    E.Print(cerr) << endl;
+    F.Print(cerr) << endl;
+    DD.Print(cerr) << endl;
+    DE.Print(cerr) << endl;
+    ED.Print(cerr) << endl;
+    DF.Print(cerr) << endl;
+    FD.Print(cerr) << endl;
+    FE.Print(cerr) << endl;
+    EF.Print(cerr) << endl;
+    AD.Print(cerr) << endl;
+    DA.Print(cerr) << endl;
+    cerr << "Failed testing operator&=." << endl;
+    return 1;
+    }
+  }
   // Serialize/Deserialize
   {
     vtkAMRBox A( 0,0,0, 9,9,9 );
     unsigned char *buffer = NULL;
-    size_t bytesize       = 0;
+    vtkIdType bytesize       = 0;
     A.Serialize( buffer, bytesize );
     if( (buffer == NULL) || (bytesize == 0) )
       {
       std::cerr << "Failed serializing AMR box." << std::endl;
       return 1;
       }
-    size_t expectedByteSize = vtkAMRBox::GetBytesize();
+    vtkIdType expectedByteSize = vtkAMRBox::GetBytesize();
     if( bytesize != expectedByteSize )
       {
       std::cerr << "Bytesize of buffer did not match expected size.\n";

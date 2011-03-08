@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#import <Cocoa/Cocoa.h>
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
+
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCommand.h"
@@ -21,8 +25,6 @@
 #import "vtkTDxMacDevice.h"
 #endif
 
-#import <Cocoa/Cocoa.h>
-#import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);

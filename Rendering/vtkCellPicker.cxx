@@ -253,18 +253,10 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
   // Clip the ray with the mapper's ClippingPlanes and adjust t1, t2.
   // This limits the pick search to the inside of the clipped region.
   int clippingPlaneId = -1;
-  if (m && (planes = m->GetClippingPlanes())
-      && (planes->GetNumberOfItems() > 0))
+  if (m && !this->ClipLineWithPlanes(m, this->Transform->GetMatrix(),
+                                     p1, p2, t1, t2, clippingPlaneId))
     {
-    // This is a bit ugly: need to transform back to world coordinates
-    double q1[3], q2[3];
-    this->Transform->TransformPoint(p1, q1);
-    this->Transform->TransformPoint(p2, q2);
-
-    if (!this->ClipLineWithPlanes(planes, q1, q2, t1, t2, clippingPlaneId))
-      {
-      return VTK_DOUBLE_MAX;
-      }
+    return VTK_DOUBLE_MAX;
     }
 
   // Initialize the pick position to the frontmost clipping plane
@@ -312,39 +304,19 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
       this->MapperPosition[1] = p1[1]*(1.0-t1) + p2[1]*t1;
       this->MapperPosition[2] = p1[2]*(1.0-t1) + p2[2]*t1;
 
-      // Use the normal from the plane: it is in world coordinates
-      planes->GetItem(clippingPlaneId)->GetNormal(this->PickNormal);
-      // We want the "out" direction
-      this->PickNormal[0] = -this->PickNormal[0];
-      this->PickNormal[1] = -this->PickNormal[1];
-      this->PickNormal[2] = -this->PickNormal[2];
-
-      // This code is a little crazy: transforming a normal involves
-      // matrix inversion and transposal, but since the normal
-      // is to be transformed from world -> mapper coords, only the
-      // transpose is needed.
       double hvec[4];
-      hvec[0] = this->PickNormal[0];
-      hvec[1] = this->PickNormal[1];
-      hvec[2] = this->PickNormal[2];
-      hvec[3] = 0.0;
-      double matrix[16];
-      vtkMatrix4x4::DeepCopy(matrix, this->Transform->GetMatrix());
-      vtkMatrix4x4::Transpose(matrix, matrix);
-      vtkMatrix4x4::MultiplyPoint(matrix, hvec, hvec);
-      this->MapperNormal[0] = hvec[0];
-      this->MapperNormal[1] = hvec[1];
-      this->MapperNormal[2] = hvec[2];
-      }
-    else
-      {
-      // The pick position isn't on a clipping plane, so
-      // use the normal generated from the mapper's input data.
-      this->Transform->TransformNormal(this->MapperNormal, this->PickNormal);
+      m->GetClippingPlaneInDataCoords(
+        this->Transform->GetMatrix(), clippingPlaneId, hvec);
+      vtkMath::Normalize(hvec);
+      // Want normal outward from the planes, not inward
+      this->MapperNormal[0] = -hvec[0];
+      this->MapperNormal[1] = -hvec[1];
+      this->MapperNormal[2] = -hvec[2];
       }
 
     // The position comes from the data, so put it into world coordinates
     this->Transform->TransformPoint(this->MapperPosition, this->PickPosition);
+    this->Transform->TransformNormal(this->MapperNormal, this->PickNormal);
     }
 
   return tMin;
@@ -1022,24 +994,21 @@ double vtkCellPicker::IntersectProp3DWithLine(const double *, const double *,
 // values between 0 and 1.  The index of the frontmost intersected plane is
 // returned in planeId.
 
-int vtkCellPicker::ClipLineWithPlanes(vtkPlaneCollection *planes,
-                                        const double p1[3], const double p2[3],
-                                        double &t1, double &t2, int& planeId)
+int vtkCellPicker::ClipLineWithPlanes(vtkAbstractMapper3D *mapper,
+                                      vtkMatrix4x4 *mat,
+                                      const double p1[3], const double p2[3],
+                                      double &t1, double &t2, int& planeId)
 {
   // The minPlaneId is the index of the plane that t1 lies on
   planeId = -1;
   t1 = 0.0;
   t2 = 1.0;
 
-  vtkCollectionSimpleIterator iter;
-  planes->InitTraversal(iter);
-  vtkPlane *plane;
-  for (int i = 0; (plane = planes->GetNextPlane(iter)); i++)
+  double plane[4];
+  for (int i = 0; mapper->GetClippingPlaneInDataCoords(mat, i, plane); i++)
     {
-    // This uses EvaluateFunction instead of FunctionValue because,
-    // like the mapper, we want to ignore any transform on the planes.
-    double d1 = plane->EvaluateFunction(const_cast<double *>(p1));
-    double d2 = plane->EvaluateFunction(const_cast<double *>(p2));
+    double d1 = plane[0]*p1[0] + plane[1]*p1[1] + plane[2]*p1[2] + plane[3];
+    double d2 = plane[0]*p2[0] + plane[1]*p2[1] + plane[2]*p2[2] + plane[3];
 
     // If both distances are negative, both points are outside
     if (d1 < 0 && d2 < 0)
@@ -1097,8 +1066,8 @@ int vtkCellPicker::ClipLineWithPlanes(vtkPlaneCollection *planes,
 // xmin, xmax, ymin, ymax, zmin, zmax.
 
 int vtkCellPicker::ClipLineWithExtent(const int extent[6],
-                                        const double x1[3], const double x2[3],
-                                        double &t1, double &t2, int &planeId)
+                                      const double x1[3], const double x2[3],
+                                      double &t1, double &t2, int &planeId)
 {
   double bounds[6];
   bounds[0] = extent[0]; bounds[1] = extent[1]; bounds[2] = extent[2];
