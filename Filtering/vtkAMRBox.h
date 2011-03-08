@@ -361,7 +361,7 @@ public:
   // Returns the number of bytes allocated by this instance. In addition,
   // this number of bytes corresponds to the buffer size required to serialize
   // any vtkAMRBox instance.
-  static vtkIdType GetBytesize(){return (10*sizeof(int)+6*sizeof(double)); };
+  static vtkIdType GetBytesize(){return (16*sizeof(int)+6*sizeof(double)); };
 
   void WriteBox();
 
