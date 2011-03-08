@@ -81,11 +81,13 @@ void vtkProp3DButtonRepresentation::SetState(int state)
   this->Superclass::SetState(state);
 
   this->CurrentProp = this->GetButtonProp(this->State);
-  this->Follower->SetProp(this->CurrentProp);
+  this->Follower->SetProp3D(this->CurrentProp);
 
   this->Picker->InitializePickList();
-  this->Picker->AddPickList(this->CurrentProp);
-
+  if ( this->CurrentProp )
+    {
+    this->Picker->AddPickList(this->CurrentProp);
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -227,7 +229,7 @@ void vtkProp3DButtonRepresentation::BuildRepresentation()
     if ( this->FollowCamera )
       {
       this->Follower->SetCamera(this->Renderer->GetActiveCamera());
-      this->Follower->SetProp(this->CurrentProp);
+      this->Follower->SetProp3D(this->CurrentProp);
       this->Follower->SetOrigin((*iter).second.Origin);
       this->Follower->SetPosition((*iter).second.Translation);
       this->Follower->SetScale((*iter).second.Scale);

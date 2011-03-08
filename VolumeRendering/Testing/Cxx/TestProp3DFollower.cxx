@@ -358,7 +358,7 @@ int TestProp3DFollower( int argc, char* argv[] )
   volume->SetOrigin(-32,-32,-32);
 
   VTK_CREATE(vtkProp3DFollower,vFollower);
-  vFollower->SetProp(volume);
+  vFollower->SetProp3D(volume);
 
   // Picking callback
   VTK_CREATE(vtkPickFollowerCallback, myCallback);

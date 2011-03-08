@@ -173,6 +173,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Now perform verifications
   vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
   unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
+  vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq - 1 ) );
   vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   // Verify that all processes have the same grand total and histograms size
@@ -183,11 +184,14 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Gather all cardinalities
   int numProcs = controller->GetNumberOfProcesses();
-  int GT_l = outputHistogram->GetValueByName( 0, "Cardinality" ).ToInt();
-  int* GT_g = new int[numProcs];
-  com->AllGather( &GT_l,
-                  GT_g,
+  int card_l = outputCard->GetValueByName( 0, "Cardinality" ).ToInt();
+  int* card_g = new int[numProcs];
+  com->AllGather( &card_l,
+                  card_g,
                   1 );
+
+  // Known global cardinality
+  int testIntValue = args->nVals * numProcs;
 
   // Print out and verify all cardinalities
   if ( com->GetLocalProcessId() == args->ioRank )
@@ -197,14 +201,18 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
       cout << "   On process "
            << i
            << ", cardinality = "
-           << GT_g[i]
+           << card_g[i]
            << ", histogram size = "
            << outputHistogram->GetNumberOfRows()
            << "\n";
 
-      if ( GT_g[i] != args->nVals )
+      if ( card_g[i] != testIntValue )
         {
-        vtkGenericWarningMacro("Incorrect cardinality.");
+        vtkGenericWarningMacro("Incorrect cardinality:"
+                               << card_g[i]
+                               << " <> "
+                               << testIntValue
+                               << ")");
         *(args->retVal) = 1;
         }
       }
@@ -240,7 +248,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Clean up
-  delete [] GT_g;
+  delete [] card_g;
   delete [] min_l;
   delete [] max_l;
   pos->Delete();
