@@ -51,7 +51,7 @@
 
 #include <string.h>
 
-#include <netcdf.h>
+#include "vtk_netcdf.h"
 
 #define CALL_NETCDF_GENERIC(call, on_error) \
   { \

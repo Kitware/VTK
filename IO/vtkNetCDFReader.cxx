@@ -46,7 +46,7 @@
 #include <vtkstd/set>
 #include <vtksys/SystemTools.hxx>
 
-#include <netcdf.h>
+#include "vtk_netcdf.h"
 
 #define CALL_NETCDF(call) \
   { \
