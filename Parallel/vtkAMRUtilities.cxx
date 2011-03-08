@@ -229,10 +229,21 @@ void vtkAMRUtilities::DistributeMetaData(
   amrBoxes.resize( numRanks );
   for( int i=0; i < numRanks; ++i )
     {
-      DeserializeMetaData( rcvBuffer+offSet[i],rcvcounts[i],amrBoxes[i] );
+
+      if( i != myController->GetLocalProcessId() )
+        {
+          DeserializeMetaData( rcvBuffer+offSet[i],rcvcounts[i],amrBoxes[i] );
+          for( int j=0; j < amrBoxes[i].size(); ++j )
+            {
+              int level = amrBoxes[i][j].GetLevel();
+              int index = amrBoxes[i][j].GetBlockId();
+              amrData->SetMetaData( level,index,amrBoxes[i][j] );
+            }
+        }
+
     }
 
-  // STEP 6: Clean up all dynamicall allocated memory
+  // STEP 7: Clean up all dynamically allocated memory
   delete [] buffer;
   delete [] rcvcounts;
   delete [] offSet;
