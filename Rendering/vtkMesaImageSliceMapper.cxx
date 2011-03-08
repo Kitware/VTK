@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMesaImageActor.cxx
+  Module:    vtkMesaImageSliceMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,25 +19,23 @@
 
 #include <math.h>
 #include "vtkToolkits.h"
-#include "vtkMesaImageActor.h"
-#include "vtkRenderWindow.h"
-#include "vtkMesaProperty.h"
+#include "vtkMesaImageSliceMapper.h"
 #include "vtkMesaCamera.h"
-#include "vtkMesaLight.h"
-#include "vtkCuller.h"
+#include "vtkMesaRenderer.h"
+#include "vtkMesaRenderWindow.h"
 
 
 // make sure this file is included before the #define takes place
-// so we don't get two vtkMesaImageActor classes defined.
-#include "vtkOpenGLImageActor.h"
-#include "vtkMesaImageActor.h"
+// so we don't get two vtkMesaImageSliceMapper classes defined.
+#include "vtkOpenGLImageSliceMapper.h"
+#include "vtkMesaImageSliceMapper.h"
 
-// Make sure vtkMesaImageActor is a copy of vtkOpenGLImageActor
-// with vtkOpenGLImageActor replaced with vtkMesaImageActor
-#define vtkOpenGLImageActor vtkMesaImageActor
+// Make sure vtkMesaImageSliceMapper is a copy of vtkOpenGLImageSliceMapper
+// with vtkOpenGLImageSliceMapper replaced with vtkMesaImageSliceMapper
+#define vtkOpenGLImageSliceMapper vtkMesaImageSliceMapper
 #define vtkOpenGLRenderWindow vtkMesaRenderWindow
-#include "vtkOpenGLImageActor.cxx"
-#undef vtkOpenGLImageActor
+#include "vtkOpenGLImageSliceMapper.cxx"
+#undef vtkOpenGLImageSliceMapper
 #undef vtkOpenGLRenderWindow
 
-vtkStandardNewMacro(vtkMesaImageActor);
+vtkStandardNewMacro(vtkMesaImageSliceMapper);

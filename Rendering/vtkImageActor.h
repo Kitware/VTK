@@ -12,36 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageActor - draw an image (data & properties) in a rendered 3D scene
+// .NAME vtkImageActor - draw an image in a rendered 3D scene
 // .SECTION Description
 // vtkImageActor is used to render an image in a 3D scene.  The image
 // is placed at the origin of the image, and its size is controlled by the
 // image dimensions and image spacing. The orientation of the image is
 // orthogonal to one of the x-y-z axes depending on which plane the
-// image is defined in. vtkImageActor duplicates the functionality 
-// of combinations of other VTK classes in a convenient, single class.
-
-// .SECTION Caveats
-// vtkImageData requires the image to be of type unsigned char. Use a
-// filter like vtkImageShiftScale to convert to unsigned char (the
-// method to use is SetOutputTypeToUnsignedChar()).
+// image is defined in.  This class has been mostly superseded by
+// the vtkImageSlice class, which provides more functionality than
+// vtkImageActor.
 
 // .SECTION See Also
-// vtkImageData vtkProp vtkImageShiftScale
+// vtkImageData vtkImageSliceMapper vtkImageProperty
 
 #ifndef __vtkImageActor_h
 #define __vtkImageActor_h
 
-#include "vtkProp3D.h"
+#include "vtkImageSlice.h"
 
 class vtkPropCollection;
 class vtkRenderer;
 class vtkImageData;
 
-class VTK_RENDERING_EXPORT vtkImageActor : public vtkProp3D
+
+class VTK_RENDERING_EXPORT vtkImageActor : public vtkImageSlice
 {
 public:
-  vtkTypeMacro(vtkImageActor,vtkProp3D);
+  vtkTypeMacro(vtkImageActor,vtkImageSlice);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,27 +46,32 @@ public:
   static vtkImageActor *New();
 
   // Description:
-  // Set/Get the image data input for the image actor.  
+  // Set/Get the image data input for the image actor.  This is for
+  // backwards compatibility, for a proper pipeline connection you
+  // should use GetMapper()->SetInputConnection() instead.
   virtual void SetInput(vtkImageData *);
-  vtkGetObjectMacro(Input,vtkImageData);
+  virtual vtkImageData *GetInput();
 
   // Description:
   // Turn on/off linear interpolation of the image when rendering.
-  vtkGetMacro(Interpolate,int);
-  vtkSetMacro(Interpolate,int);
+  // More options are available in the Property of the image actor.
+  virtual void SetInterpolate(int);
+  virtual int GetInterpolate();
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
   // Set/Get the object's opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
-  vtkSetClampMacro(Opacity,double,0.0,1.0);
-  vtkGetMacro(Opacity,double);
+  virtual void SetOpacity(double);
+  virtual double GetOpacity();
+  double GetOpacityMinValue() { return 0.0; }
+  double GetOpacityMaxValue() { return 1.0; }
 
   // Description:
   // The image extent is generally set explicitly, but if not set
   // it will be determined from the input image data.
   void SetDisplayExtent(int extent[6]);
-  void SetDisplayExtent(int minX, int maxX, int minY, int maxY, 
+  void SetDisplayExtent(int minX, int maxX, int minY, int maxY,
                         int minZ, int maxZ);
   void GetDisplayExtent(int extent[6]);
   int *GetDisplayExtent() {return this->DisplayExtent;}
@@ -77,7 +79,7 @@ public:
   // Description:
   // Get the bounds of this image actor. Either copy the bounds
   // into a user provided array or return a pointer to an array.
-  // In either case the boudns is expressed as a 6-vector 
+  // In either case the boudns is expressed as a 6-vector
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   double *GetBounds();
   void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); };
@@ -96,20 +98,6 @@ public:
   int GetSliceNumber();
   int GetSliceNumberMax();
   int GetSliceNumberMin();
-  
-  //BTX
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // Support the standard render methods.
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual void Render(vtkRenderer *) {};
-  
-  // Description:
-  // Does this prop have some translucent polygonal geometry?
-  virtual int HasTranslucentPolygonalGeometry();
-  //ETX
 
   // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not
@@ -127,15 +115,21 @@ public:
   int GetWholeZMin();
   int GetWholeZMax();
 
+  // Description:
+  // Internal method, should only be used by rendering.
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+
 protected:
   vtkImageActor();
   ~vtkImageActor();
 
-  int           Interpolate;
-  double        Opacity;
-  vtkImageData* Input;
+  // Description:
+  // Guess the orientation from the extent.  The orientation will be Z
+  // unless the extent is single-slice in one of the other directions.
+  static int GetOrientationFromExtent(const int extent[6]);
+
   int           DisplayExtent[6];
-  int           ComputedDisplayExtent[6];
   double        DisplayBounds[6];
 
 private:
@@ -144,4 +138,3 @@ private:
 };
 
 #endif
-
