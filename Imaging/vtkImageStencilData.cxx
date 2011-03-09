@@ -450,6 +450,53 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
 
   return 1;
 }
+
+//----------------------------------------------------------------------------
+// Checks if an index is inside the stencil.
+int vtkImageStencilData::IsInside( int xIdx, int yIdx, int zIdx )
+{
+
+  // This can be faster than GetNextExtent if called on every voxel
+  // (non-sequentially). If calling sequentially, the preferred way is to
+  // use GetNextExtent and then loop over the returned [r1,r2] extents.
+
+  int yExt = this->Extent[3] - this->Extent[2] + 1;
+  yIdx -= this->Extent[2];
+  if (yIdx < 0 || yIdx >= yExt)
+    {
+    return 0; // out-of-bounds in y
+    }
+  
+  int zExt = this->Extent[5] - this->Extent[4] + 1;
+  zIdx -= this->Extent[4];
+  if (zIdx < 0 || zIdx >= zExt)
+    {
+    return 0; // out-of-bounds in z
+    }
+
+  // get the ExtentList and ExtentListLength for this yIdx,zIdx
+  int incr = zIdx*yExt + yIdx;
+  int *clist = this->ExtentLists[incr];
+  int clistlen = this->ExtentListLengths[incr];
+
+  // Check now if we lie within any of the pairs for this (yIdx, zIdx)
+  for ( int iter = 0; iter < clistlen; )
+    {
+    if (clist[iter++] > xIdx)
+      {
+      ++iter;
+      continue;
+      }
+
+    if (xIdx <= clist[iter++])
+      {
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
 //----------------------------------------------------------------------------
 //  Fills the stencil.  Extents must be set.
 void vtkImageStencilData::Fill( void )
