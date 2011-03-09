@@ -136,6 +136,14 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 }
 
 //----------------------------------------------------------------------------
+
+//void vtkHierarchicalBoxDataSet::SetDataSet(
+//  unsigned int level, unsigned int id, vtkAMRBox &box, vtkUniformGrid *dataSet)
+//{
+//  this->SetMetaData( level, id, box );
+//  this->SetDataSet( level, id, dataSet );
+//}
+
 void vtkHierarchicalBoxDataSet::SetDataSet(
   unsigned int level, unsigned int id, vtkAMRBox& box, vtkUniformGrid* dataSet)
 {
