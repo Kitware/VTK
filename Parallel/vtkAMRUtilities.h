@@ -44,6 +44,14 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     void PrintSelf( std::ostream& os, vtkIndent indent );
 
     // Description:
+    // Generates all the metadata required for the given AMR dataset.
+    // Specifically, this method computes & distributes the AMR box
+    // metadata and computes the level refinement ratio.
+    static void GenerateMetaData(
+        vtkHierarchicalBoxDataSet *amrData,
+        vtkMultiProcessController *myController=NULL );
+
+    // Description:
     // Computes the global bounds, i.e., the min (x,y,z) and max (x,y,z)
     // out of all the blocks in the data-set. Note, if the data is distributed,
     // the corresponding multi-process controller must be provided in order to

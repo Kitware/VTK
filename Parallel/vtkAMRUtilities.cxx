@@ -31,6 +31,20 @@ void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRUtilities::GenerateMetaData(
+    vtkHierarchicalBoxDataSet *amrData,
+    vtkMultiProcessController *controller )
+{
+  // Sanity check
+  assert( "Input AMR Data is NULL" && (amrData != NULL) );
+
+  CollectAMRMetaData( amrData, controller );
+  ComputeLevelRefinementRatio( amrData );
+  if( controller != NULL )
+    controller->Barrier();
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRUtilities::ComputeDataSetOrigin(
        double origin[3], vtkHierarchicalBoxDataSet *amrData,
        vtkMultiProcessController *controller )

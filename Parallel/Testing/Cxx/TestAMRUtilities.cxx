@@ -288,6 +288,34 @@ void GetAMRDataSet(
 //-----------------------------------------------------------------------------
 // Description:
 // Tests the functionality for computing the global bounds.
+bool TestGenerateMetaData( vtkMultiProcessController *myController )
+{
+  assert( "Null Multi-process controller encountered!" &&
+          (myController != NULL ) );
+
+  vtkHierarchicalBoxDataSet* myAMRData = vtkHierarchicalBoxDataSet::New();
+  GetAMRDataSet( myAMRData, myController );
+  vtkAMRUtilities::GenerateMetaData( myAMRData, myController );
+
+  int status    = 1;
+  int statusSum = 0;
+  for( unsigned int i=0; i < myAMRData->GetNumberOfLevels(); ++i )
+    {
+      if( myAMRData->GetRefinementRatio( i ) != 2 )
+        {
+          status =0;
+          break;
+        }
+    }
+
+  myAMRData->Delete();
+  myController->AllReduce( &status, &statusSum, 1, vtkCommunicator::SUM_OP );
+  return( ( (statusSum==2)? true : false ) );
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Tests the functionality for computing the global bounds.
 bool TestComputeGlobalBounds( vtkMultiProcessController *myController )
 {
   assert( "Null Multi-process controller encountered!" &&
@@ -395,7 +423,8 @@ int TestAMRUtilities(int,char*[])
   int rval=0;
   CHECK_TEST( TestComputeDataSetOrigin(myController),"ComputeOrigin", rval );
   CHECK_TEST( TestCollectMetaData(myController), "CollectMetaData", rval );
-  CHECK_TEST( TestComputeGlobalBounds(myController),"ComputeBounds",rval);
+  CHECK_TEST( TestComputeGlobalBounds(myController),"ComputeBounds",rval );
+  CHECK_TEST( TestGenerateMetaData(myController),"GenerateMetaData",rval );
 
   // Synchronize Processes
   myController->Barrier();
