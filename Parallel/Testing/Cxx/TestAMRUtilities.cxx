@@ -287,6 +287,39 @@ void GetAMRDataSet(
 
 //-----------------------------------------------------------------------------
 // Description:
+// Tests the functionality for computing the global bounds.
+bool TestComputeGlobalBounds( vtkMultiProcessController *myController )
+{
+  assert( "Null Multi-process controller encountered!" &&
+          (myController != NULL ) );
+
+  vtkHierarchicalBoxDataSet* myAMRData = vtkHierarchicalBoxDataSet::New();
+  GetAMRDataSet( myAMRData, myController );
+  double bounds[6];
+  vtkAMRUtilities::ComputeGlobalBounds( bounds, myAMRData, myController );
+  myAMRData->Delete();
+
+  int status    = 0;
+  int statusSum = 0;
+  if( (bounds[0]== 0.0) && (bounds[1]==0.0) && /*(bounds[2]==0.0) &&*/
+      (bounds[3]== 3.0) && (bounds[4]==3.0) /*&& (bounds[5]==0.0)*/ )
+    {
+      status = 1;
+    }
+  else
+    {
+      std::cerr << "ERROR: The bounds are:";
+      for( int i=0; i < 6; std::cerr << bounds[i++] << " " );
+      std::cerr << std::endl;
+      std::cerr.flush();
+    }
+
+  myController->AllReduce( &status, &statusSum, 1, vtkCommunicator::SUM_OP );
+  return( ( (statusSum==2)? true : false ) );
+}
+
+//-----------------------------------------------------------------------------
+// Description:
 // Tests the functionality for computing the global data-set origin.
 bool TestComputeDataSetOrigin( vtkMultiProcessController *myController )
 {
@@ -362,6 +395,7 @@ int TestAMRUtilities(int,char*[])
   int rval=0;
   CHECK_TEST( TestComputeDataSetOrigin(myController),"ComputeOrigin", rval );
   CHECK_TEST( TestCollectMetaData(myController), "CollectMetaData", rval );
+  CHECK_TEST( TestComputeGlobalBounds(myController),"ComputeBounds",rval);
 
   // Synchronize Processes
   myController->Barrier();

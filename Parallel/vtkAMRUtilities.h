@@ -44,6 +44,17 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     void PrintSelf( std::ostream& os, vtkIndent indent );
 
     // Description:
+    // Computes the global bounds, i.e., the min (x,y,z) and max (x,y,z)
+    // out of all the blocks in the data-set. Note, if the data is distributed,
+    // the corresponding multi-process controller must be provided in order to
+    // compute the global min (x,y,z) and max (x,y,z) on all the processes.
+    // Upon return of this method, the bounds array consists of the global
+    // bounds ordered as follows: {xmin,ymin,zmin,xmax,ymax,zmax}
+    static void ComputeGlobalBounds(
+        double bounds[6], vtkHierarchicalBoxDataSet *amrData,
+        vtkMultiProcessController *myController=NULL );
+
+    // Description:
     // Computes the global data-set origin, i.e., the min (x,y,z),
     // out of all the blocks in the data-set. Note, if the data is
     // distributed, the corresponding multi-process controller must

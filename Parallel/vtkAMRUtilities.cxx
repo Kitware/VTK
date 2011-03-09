@@ -39,7 +39,7 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
   assert( "Input AMR Data is NULL" && (amrData != NULL) );
 
   double min[3];
-  min[0] = min[1] = min[2] = 100;
+  min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
 
   // Note, we only need to check at level 0 since, the grids at
   // level 0 are guaranteed to cover the entire domain. Most datasets
@@ -82,6 +82,77 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
    origin[0] = min[0];
    origin[1] = min[1];
    origin[2] = min[2];
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRUtilities::ComputeGlobalBounds(
+    double bounds[6], vtkHierarchicalBoxDataSet *amrData,
+    vtkMultiProcessController *myController )
+{
+  // Sanity check
+  assert( "Input AMR Data is NULL" && (amrData != NULL) );
+
+  double min[3];
+  double max[3];
+  min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
+  max[0] = max[1] = max[2] = std::numeric_limits<double>::min();
+
+  // Note, we only need to check at level 0 since, the grids at
+  // level 0 are guaranteed to cover the entire domain. Most datasets
+  // will have a single grid at level 0.
+  for( int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
+    {
+
+      vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
+      if( gridPtr != NULL )
+        {
+          // Get the bounnds of the grid: {xmin,xmax,ymin,ymax,zmin,zmax}
+          double *gridBounds = gridPtr->GetBounds();
+          assert( "Failed when accessing grid bounds!" && (gridBounds!=NULL) );
+
+          // Check min
+          if( gridBounds[0] < min[0] )
+            min[0] = gridBounds[0];
+          if( gridBounds[2] < min[1] )
+            min[1] = gridBounds[2];
+          if( gridBounds[4] < min[2] )
+            min[2] = gridBounds[4];
+
+          // Check max
+          if( gridBounds[1] > max[0])
+            max[0] = gridBounds[1];
+          if( gridBounds[3] > max[1])
+            max[1] = gridBounds[3];
+          if( gridBounds[5] > max[2] )
+            max[2] = gridBounds[5];
+        }
+
+    } // END for all data-sets at level 0
+
+  if( myController != NULL )
+    {
+      if( myController->GetNumberOfProcesses() > 1 )
+        {
+          // All Reduce min
+          myController->AllReduce(&min[0],&bounds[0],1,vtkCommunicator::MIN_OP);
+          myController->AllReduce(&min[1],&bounds[1],1,vtkCommunicator::MIN_OP);
+          myController->AllReduce(&min[2],&bounds[2],1,vtkCommunicator::MIN_OP);
+
+          // All Reduce max
+          myController->AllReduce(&max[0],&bounds[3],1,vtkCommunicator::MAX_OP);
+          myController->AllReduce(&max[1],&bounds[4],1,vtkCommunicator::MAX_OP);
+          myController->AllReduce(&max[2],&bounds[5],1,vtkCommunicator::MAX_OP);
+          return;
+        }
+    }
+
+  bounds[0] = min[0];
+  bounds[1] = min[1];
+  bounds[2] = min[2];
+  bounds[3] = max[0];
+  bounds[4] = max[1];
+  bounds[5] = max[2];
+
 }
 
 //------------------------------------------------------------------------------
