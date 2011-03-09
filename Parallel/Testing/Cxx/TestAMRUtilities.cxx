@@ -90,6 +90,23 @@ int CheckMetaData( vtkHierarchicalBoxDataSet *myAMRData )
     {
        CHECK_CONDITION((myBox.GetBlockId()==0),"BlockId mismatch", status );
        CHECK_CONDITION((myBox.GetLevel()==0),"Level mismatch", status);
+       CHECK_CONDITION((myBox.GetProcessId()==0),"Process ID mismatch",status);
+
+       int lo[3]; int hi[3];
+       myBox.GetLoCorner( lo );
+       myBox.GetHiCorner( hi );
+       CHECK_CONDITION((lo[0]==0),"LoCorner mismatch",status);
+       CHECK_CONDITION((lo[1]==0),"LoCorner mismatch",status);
+       CHECK_CONDITION((lo[2]==0),"LoCorner mismatch",status);
+       CHECK_CONDITION((hi[0]==2),"HiCorner mismatch",status);
+       CHECK_CONDITION((hi[1]==2),"HiCorner mismatch",status);
+       CHECK_CONDITION((hi[2]==0),"HiCorner mismatch",status);
+
+       double spacing[3];
+       myBox.GetGridSpacing( spacing );
+       CHECK_CONDITION((spacing[0]==1.0),"Check grid spacing",status);
+       CHECK_CONDITION((spacing[1]==1.0),"Check grid spacing",status);
+       CHECK_CONDITION((spacing[2]==1.0),"Check grid spacing",status);
     }
   else
     {
@@ -101,7 +118,25 @@ int CheckMetaData( vtkHierarchicalBoxDataSet *myAMRData )
   // STEP 1: Check metadata @(1,0)
   if( myAMRData->GetMetaData(1,0,myBox) == 1 )
     {
+      CHECK_CONDITION((myBox.GetBlockId()==0),"BlockId mismatch", status );
+      CHECK_CONDITION((myBox.GetLevel()==1),"Level mismatch", status);
+      CHECK_CONDITION((myBox.GetProcessId()==1),"Process ID mismatch",status);
 
+      int lo[3]; int hi[3];
+      myBox.GetLoCorner( lo );
+      myBox.GetHiCorner( hi );
+      CHECK_CONDITION((lo[0]==2),"LoCorner mismatch",status);
+      CHECK_CONDITION((lo[1]==2),"LoCorner mismatch",status);
+      CHECK_CONDITION((lo[2]==0),"LoCorner mismatch",status);
+      CHECK_CONDITION((hi[0]==5),"HiCorner mismatch",status);
+      CHECK_CONDITION((hi[1]==3),"HiCorner mismatch",status);
+      CHECK_CONDITION((hi[2]==0),"HiCorner mismatch",status);
+
+      double spacing[3];
+      myBox.GetGridSpacing( spacing );
+      CHECK_CONDITION((spacing[0]==0.5),"Check grid spacing",status);
+      CHECK_CONDITION((spacing[1]==0.5),"Check grid spacing",status);
+      CHECK_CONDITION((spacing[2]==0.5),"Check grid spacing",status);
     }
   else
     {
