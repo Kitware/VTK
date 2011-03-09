@@ -1143,18 +1143,18 @@ void vtkAMRBox::Coarsen(int r)
     }
 
   // sanity check.
-  int nCells[3];
-  this->GetNumberOfCells(nCells);
-  for (int q=0; q<this->Dimension; ++q)
-    {
-     if (nCells[q]%r)
-      {
-      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
-        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
-      vtkGenericWarningMacro("This box cannot be coarsened.");
-      return;
-      }
-    }
+//  int nCells[3];
+//  this->GetNumberOfCells(nCells);
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//     if (nCells[q]%r)
+//      {
+//      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
+//        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
+//      vtkGenericWarningMacro("This box cannot be coarsened.");
+//      return;
+//      }
+//    }
 
   int lo[3];
   int hi[3];
@@ -1317,13 +1317,13 @@ void vtkAMRBox::GetPoint(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& vtkNotUsed(bytesize))
+void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 {
 
   vtkAssertUtils::assertNull( buffer, __FILE__, __LINE__ );
 
-  size_t bufsize = vtkAMRBox::GetBytesize();
-  buffer         = new unsigned char[ bufsize ];
+  bytesize       = vtkAMRBox::GetBytesize();
+  buffer         = new unsigned char[ bytesize ];
   vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
 
   // STEP 0: set pointer to traverse the buffer
