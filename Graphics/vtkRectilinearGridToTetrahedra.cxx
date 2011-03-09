@@ -540,7 +540,7 @@ int vtkRectilinearGridToTetrahedra::RequestData(
   if (this->TetraPerCell == VTK_VOXEL_TO_5_AND_12_TET)
     {
     vtkDataArray *TempVoxelSubdivisionType = RectGrid->GetCellData()->GetScalars();
-    if((TempVoxelSubdivisionType == NULL))
+    if(TempVoxelSubdivisionType == NULL)
       {
       vtkErrorMacro(<< "Scalars to input Should be set!");
       return 1;
