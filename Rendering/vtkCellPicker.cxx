@@ -244,7 +244,6 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
   vtkMapper *mapper = 0;
   vtkAbstractVolumeMapper *volumeMapper = 0;
   vtkImageActor *imageActor = 0;
-  vtkPlaneCollection *planes = 0;
 
   double tMin = VTK_DOUBLE_MAX;
   double t1 = 0.0;
@@ -304,14 +303,14 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
       this->MapperPosition[1] = p1[1]*(1.0-t1) + p2[1]*t1;
       this->MapperPosition[2] = p1[2]*(1.0-t1) + p2[2]*t1;
 
-      double hvec[4];
+      double plane[4];
       m->GetClippingPlaneInDataCoords(
-        this->Transform->GetMatrix(), clippingPlaneId, hvec);
-      vtkMath::Normalize(hvec);
+        this->Transform->GetMatrix(), clippingPlaneId, plane);
+      vtkMath::Normalize(plane);
       // Want normal outward from the planes, not inward
-      this->MapperNormal[0] = -hvec[0];
-      this->MapperNormal[1] = -hvec[1];
-      this->MapperNormal[2] = -hvec[2];
+      this->MapperNormal[0] = -plane[0];
+      this->MapperNormal[1] = -plane[1];
+      this->MapperNormal[2] = -plane[2];
       }
 
     // The position comes from the data, so put it into world coordinates
