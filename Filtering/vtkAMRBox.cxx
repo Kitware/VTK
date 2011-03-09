@@ -1142,25 +1142,19 @@ void vtkAMRBox::Coarsen(int r)
     return;
     }
 
-//  std::cout << "=============================\n";
-//  std::cout << "Before coarsening:\n";
-//  this->Print( std::cout );
-//  std::cout << std::endl;
-//  std::cout.flush( );
-
   // sanity check.
-//  int nCells[3];
-//  this->GetNumberOfCells(nCells);
-//  for (int q=0; q<this->Dimension; ++q)
-//    {
-//     if (nCells[q]%r)
-//      {
-//      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
-//        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
-//      vtkGenericWarningMacro("This box cannot be coarsened.");
-//      return;
-//      }
-//    }
+  int nCells[3];
+  this->GetNumberOfCells(nCells);
+  for (int q=0; q<this->Dimension; ++q)
+    {
+     if (nCells[q]%r)
+      {
+      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
+        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
+      vtkGenericWarningMacro("This box cannot be coarsened.");
+      return;
+      }
+    }
 
   int lo[3];
   int hi[3];
@@ -1174,12 +1168,6 @@ void vtkAMRBox::Coarsen(int r)
   this->DX[0]*=r;
   this->DX[1]*=r;
   this->DX[2]*=r;
-
-//  std::cout << "After coarsening:\n";
-//  this->Print( std::cout );
-//  std::cout << std::endl;
-//  std::cout << "=============================\n";
-//  std::cout.flush( );
 
 }
 
