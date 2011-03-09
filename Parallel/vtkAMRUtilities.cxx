@@ -58,7 +58,7 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
   // Note, we only need to check at level 0 since, the grids at
   // level 0 are guaranteed to cover the entire domain. Most datasets
   // will have a single grid at level 0.
-  for( int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
+  for( unsigned int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
     {
 
       vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
@@ -114,7 +114,7 @@ void vtkAMRUtilities::ComputeGlobalBounds(
   // Note, we only need to check at level 0 since, the grids at
   // level 0 are guaranteed to cover the entire domain. Most datasets
   // will have a single grid at level 0.
-  for( int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
+  for( unsigned int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
     {
 
       vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
@@ -204,9 +204,9 @@ void vtkAMRUtilities::SerializeMetaData(
 
   // STEP 0: Collect all the AMR boxes in a vector
   std::vector< vtkAMRBox > boxList;
-  for( int level=0; level < amrData->GetNumberOfLevels(); ++level )
+  for( unsigned int level=0; level < amrData->GetNumberOfLevels(); ++level )
     {
-      for( int idx=0; idx < amrData->GetNumberOfDataSets( level ); ++idx )
+      for(unsigned int idx=0;idx < amrData->GetNumberOfDataSets( level );++idx )
         {
 
           if( amrData->GetDataSet(level,idx) != NULL )
@@ -230,7 +230,7 @@ void vtkAMRUtilities::SerializeMetaData(
   ptr += sizeof(int);
 
   // STEP 3: Serialize each box
-  for( int i=0; i < boxList.size( ); ++i )
+  for( unsigned int i=0; i < boxList.size( ); ++i )
     {
       assert( "ptr is NULL" && (ptr != NULL) );
 
@@ -318,7 +318,7 @@ void vtkAMRUtilities::DistributeMetaData(
       if( i != myController->GetLocalProcessId() )
         {
           DeserializeMetaData( rcvBuffer+offSet[i],rcvcounts[i],amrBoxes[i] );
-          for( int j=0; j < amrBoxes[i].size(); ++j )
+          for( unsigned int j=0; j < amrBoxes[i].size(); ++j )
             {
               int level = amrBoxes[i][j].GetLevel();
               int index = amrBoxes[i][j].GetBlockId();
@@ -369,6 +369,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
   myBox.SetDimensions( lo, hi );
   myBox.SetDataSetOrigin( origin );
   myBox.SetGridSpacing( h );
+
 }
 
 //------------------------------------------------------------------------------
@@ -378,9 +379,9 @@ void vtkAMRUtilities::ComputeLocalMetaData(
   // Sanity check
   assert( "Input AMR data is NULL" && (myAMRData != NULL) );
 
-  for( int level=0; level < myAMRData->GetNumberOfLevels(); ++level )
+  for( unsigned int level=0; level < myAMRData->GetNumberOfLevels(); ++level )
     {
-      for( int idx=0; idx < myAMRData->GetNumberOfDataSets(level); ++idx )
+      for(unsigned int idx=0;idx < myAMRData->GetNumberOfDataSets(level);++idx )
         {
 
           vtkUniformGrid *myGrid = myAMRData->GetDataSet( level, idx );
