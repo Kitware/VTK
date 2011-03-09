@@ -60,6 +60,13 @@ public:
                     int yIdx, int zIdx, int &iter);
 
   // Description:
+  // Checks if an index is inside the stencil.
+  // This can be faster than GetNextExtent if called on a voxel. If calling 
+  // sequentially, along a scan line, the preferred way is to use 
+  // GetNextExtent and then loop over the returned [r1,r2] extents.
+  int IsInside( int xIdx, int yIdx, int zIdx );
+
+  // Description:
   // This method is used by vtkImageStencilDataSource to add an x 
   // sub extent [r1,r2] for the x row (yIdx,zIdx).  The specified sub
   // extent must not intersect any other sub extents along the same x row.
