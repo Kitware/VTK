@@ -2029,7 +2029,7 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
           }
 
         // Reduce Number Of Roots To One 
-        if( (*r1 == *r2) )
+        if( *r1 == *r2 )
           {
           *num_roots = 1;
           }
