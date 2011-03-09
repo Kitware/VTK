@@ -366,6 +366,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
       hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
     }
 
+  myBox.SetDimensionality( myGrid->GetDataDimension() );
   myBox.SetDimensions( lo, hi );
   myBox.SetDataSetOrigin( origin );
   myBox.SetGridSpacing( h );
