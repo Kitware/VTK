@@ -60,15 +60,18 @@ void WriteAMRData(
   // Sanity check
   assert( "AMR dataset is NULL" && (myAMRData != NULL) );
 
-  std::ostringstream oss;
-  oss << "AMR_PROCESS_" << controller->GetLocalProcessId() << ".vtk";
-
   vtkXMLHierarchicalBoxDataWriter *myAMRWriter =
       vtkXMLHierarchicalBoxDataWriter::New();
+
+  std::ostringstream oss;
+  oss << "AMR_PROCESS_" << controller->GetLocalProcessId() << "."
+      << myAMRWriter->GetDefaultFileExtension();
+
   myAMRWriter->SetFileName( oss.str().c_str() );
   myAMRWriter->SetInput( myAMRData );
-  myAMRWriter->Update();
+  myAMRWriter->Write();
   myAMRWriter->Delete();
+  controller->Barrier();
 }
 
 //-----------------------------------------------------------------------------
@@ -330,7 +333,11 @@ bool TestGenerateMetaData( vtkMultiProcessController *myController )
         }
     }
 
-//  WriteAMRData( myAMRData, myController );
+//  std::cout << "Calling write AMR Data...";
+//  std::cout.flush();
+  WriteAMRData( myAMRData, myController );
+//  std::cout << "[DONE]\n";
+//  std::cout.flush();
 //  myController->Barrier();
 
   myAMRData->Delete();
@@ -447,12 +454,18 @@ int TestAMRUtilities(int,char*[])
 
   int rval=0;
   CHECK_TEST( TestComputeDataSetOrigin(myController),"ComputeOrigin", rval );
-  CHECK_TEST( TestCollectMetaData(myController), "CollectMetaData", rval );
-  CHECK_TEST( TestComputeGlobalBounds(myController),"ComputeBounds",rval );
-  CHECK_TEST( TestGenerateMetaData(myController),"GenerateMetaData",rval );
-
-  // Synchronize Processes
   myController->Barrier();
+
+  CHECK_TEST( TestCollectMetaData(myController), "CollectMetaData", rval );
+  myController->Barrier();
+
+  CHECK_TEST( TestComputeGlobalBounds(myController),"ComputeBounds",rval );
+  myController->Barrier();
+
+  CHECK_TEST( TestGenerateMetaData(myController),"GenerateMetaData",rval );
+  myController->Barrier();
+
+
   return( rval );
 }
 
