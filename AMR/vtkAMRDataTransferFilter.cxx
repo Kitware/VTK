@@ -14,7 +14,6 @@
  =========================================================================*/
 #include "vtkAMRDataTransferFilter.h"
 #include "vtkObjectFactory.h"
-#include "vtkAssertUtils.hpp"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkAMRBox.h"
 #include "vtkAMRInterBlockConnectivity.h"
@@ -27,9 +26,11 @@
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridWriter.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkXMLHierarchicalBoxDataWriter.h"
 
 #include <string>
 #include <sstream>
+#include <cassert>
 
 //
 // Standard Functions
@@ -62,15 +63,15 @@ void vtkAMRDataTransferFilter::PrintSelf( std::ostream &oss, vtkIndent indent )
 void vtkAMRDataTransferFilter::Transfer( )
 {
   // Sanity Checks
-  vtkAssertUtils::assertTrue( (this->NumberOfGhostLayers>=1),__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(this->AMRDataSet,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(this->Controller,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(this->RemoteConnectivity,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(this->LocalConnectivity,__FILE__,__LINE__);
+  assert("pre:ghost layers >= 1" && (this->NumberOfGhostLayers>=1));
+  assert("pre:AMRDataSet != NULL" && (this->AMRDataSet != NULL));
+  assert("pre:Controller != NULL" && (this->Controller != NULL));
+  assert("pre:RemoteConnectivity != NULL" && (this->RemoteConnectivity!=NULL));
+  assert("pre:LocalConnectivity != NULL" && (this->LocalConnectivity!=NULL));
 
   // STEP 0: Construct the extruded ghost data
   this->ExtrudeGhostLayers();
-  vtkAssertUtils::assertNotNull(this->ExtrudedData,__FILE__,__LINE__);
+  assert("post: ExtrudedData != NULL" && (this->ExtrudedData != NULL ) );
 
   // STEP 1: Donor-Receiver search
   this->DonorSearch();
@@ -85,7 +86,8 @@ void vtkAMRDataTransferFilter::Transfer( )
 //------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
 {
-  vtkAssertUtils::assertNotNull(this->AMRDataSet,__FILE__,__LINE__);
+  // Sanity Checks
+  assert("pre:AMRDataSet != NULL" && (this->AMRDataSet != NULL) );
 
   this->WriteData( this->AMRDataSet,"INITIAL");
 
@@ -103,17 +105,17 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
           vtkUniformGrid *myGrid =
            this->AMRDataSet->GetDataSet(currentLevel,dataIdx,myBox);
 
-          myBox.Grow( this->NumberOfGhostLayers );
-//          myBox.ExtrudeGhostCells( this->NumberOfGhostLayers );
-          myGrid = (myGrid != NULL)? this->GetExtrudedGrid(myBox,myGrid) : NULL;
-
-          if( myGrid != NULL )
-            {
-              std::ostringstream oss;
-              oss << "EXTRUDED_GRID_" << myBox.GetBlockId( );
-              oss << "_" << myBox.GetLevel( );
-              this->WriteGrid( myGrid, oss.str( ).c_str( )  );
-            }
+//          myBox.Grow( this->NumberOfGhostLayers );
+////          myBox.ExtrudeGhostCells( this->NumberOfGhostLayers );
+//          myGrid = (myGrid != NULL)? this->GetExtrudedGrid(myBox,myGrid) : NULL;
+//
+//          if( myGrid != NULL )
+//            {
+//              std::ostringstream oss;
+//              oss << "EXTRUDED_GRID_" << myBox.GetBlockId( );
+//              oss << "_" << myBox.GetLevel( );
+//              this->WriteGrid( myGrid, oss.str( ).c_str( )  );
+//            }
 
           this->ExtrudedData->SetDataSet(currentLevel,dataIdx,myBox,myGrid);
 
@@ -127,20 +129,16 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
 //------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::DonorSearch()
 {
-  vtkAssertUtils::assertNotNull(this->ExtrudedData,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(this->RemoteConnectivity,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(this->LocalConnectivity,__FILE__,__LINE__);
+  // Sanity checks
+  assert("pre: ExtrudedData != NULL" && (this->ExtrudedData != NULL) );
+  assert("pre: RemoteConnectivity != NULL" && (this->RemoteConnectivity!=NULL));
+  assert("pre: LocalConnectivity != NULL" && (this->LocalConnectivity!=NULL));
 
-  vtkUnsignedIntArray *rmtGridKeys =
-   this->RemoteConnectivity->GetEncodedGridKeys();
+  // TODO:
+  // Call LocalDonorSearch()
 
-  for( int i=0; i < rmtGridKeys->GetNumberOfTuples(); ++i )
-    {
-    }
-  vtkUnsignedIntArray *localGridKeys =
-   this->LocalConnectivity->GetEncodedGridKeys();
-
-
+  // TODO:
+  // Call RemoteDonorSearch()
 }
 
 //------------------------------------------------------------------------------
@@ -150,43 +148,40 @@ void vtkAMRDataTransferFilter::DataTransfer()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid( vtkAMRBox &ebox,
-                                                      vtkUniformGrid* srcGrid )
+vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid(
+    vtkUniformGrid* srcGrid )
 {
-  vtkAssertUtils::assertNotNull( srcGrid,__FILE__,__LINE__ );
-
+  // Sanity check
+  assert( "pre: SourceGrid != NULL" && (srcGrid != NULL) );
   vtkUniformGrid *extrudedGrid = vtkUniformGrid::New();
 
   int    ndim[3];
   double origin[3];
   double h[3];
 
-  ebox.GetNumberOfNodes( ndim );
-  ebox.GetGridSpacing( h );
-  ebox.GetBoxOrigin( origin );
-
-  extrudedGrid->Initialize();
-  extrudedGrid->SetDimensions( ndim );
-  extrudedGrid->SetSpacing( h );
-  extrudedGrid->SetOrigin( origin );
+// TODO: implement this
+//  extrudedGrid->Initialize();
+//  extrudedGrid->SetDimensions( ndim );
+//  extrudedGrid->SetSpacing( h );
+//  extrudedGrid->SetOrigin( origin );
 
   // Deep-Copy Data from source Grid to Extruded Grid
-  vtkPointData *pntData = srcGrid->GetPointData();
-  for( int idx=0; idx < pntData->GetNumberOfArrays(); ++idx )
-    {
-      vtkDataArray *a = pntData->GetArray( idx );
-      switch( a->GetDataType( ) )
-        {
+//  vtkPointData *pntData = srcGrid->GetPointData();
+//  for( int idx=0; idx < pntData->GetNumberOfArrays(); ++idx )
+//    {
+//      vtkDataArray *a = pntData->GetArray( idx );
+//      switch( a->GetDataType( ) )
+//        {
+//
+//        } // END switch
+//
+//    } // END for all point arrays
 
-        } // END switch
-
-    } // END for all point arrays
-
-  vtkCellData *cellData = srcGrid->GetCellData();
-  for( int idx=0; idx < cellData->GetNumberOfArrays(); ++idx )
-    {
-      vtkDataArray *a = cellData->GetArray( idx );
-    } // END for all cell arrays
+//  vtkCellData *cellData = srcGrid->GetCellData();
+//  for( int idx=0; idx < cellData->GetNumberOfArrays(); ++idx )
+//    {
+//      vtkDataArray *a = cellData->GetArray( idx );
+//    } // END for all cell arrays
   return( extrudedGrid );
 }
 
@@ -194,54 +189,20 @@ vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid( vtkAMRBox &ebox,
 void vtkAMRDataTransferFilter::WriteData( vtkHierarchicalBoxDataSet* amrData,
                                           std::string prefix)
 {
-  vtkAssertUtils::assertNotNull(amrData,__FILE__,__LINE__);
+  assert( "pre: AMRData != NULL" && (amrData != NULL) );
+
+  vtkXMLHierarchicalBoxDataWriter *myAMRWriter =
+        vtkXMLHierarchicalBoxDataWriter::New();
 
   std::ostringstream oss;
-  int numLevels = amrData->GetNumberOfLevels();
-  for( int level=0; level < numLevels; ++level )
-    {
-      int numData = amrData->GetNumberOfDataSets( level );
-      for( int data=0; data < numData; ++data )
-        {
-          oss.str( "" );
-          oss << prefix << "_BLOCK_" << data << "_LEVEL_" << level << ".vtk";
+  oss << prefix << "." << myAMRWriter->GetDefaultFileExtension();
 
-          vtkAMRBox myBox;
-          vtkUniformGrid *myGrid = amrData->GetDataSet(level,data,myBox);
-
-          if( myGrid != NULL )
-            this->WriteGrid( myGrid, oss.str()  );
-        } // END for all data
-    } // END for all levels
-
+  myAMRWriter->SetFileName( oss.str().c_str() );
+  myAMRWriter->SetInput( amrData );
+  myAMRWriter->Write();
+  myAMRWriter->Delete();
+  if( this->Controller != NULL )
+    this->Controller->Barrier();
 }
 
-//------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::WriteGrid( vtkUniformGrid* grid,
-                                          std::string prefix )
-{
-  vtkAssertUtils::assertNotNull( grid, __FILE__, __LINE__ );
 
-  // STEP 0: Setup the file name to use
-  std::string fileName = prefix + ".vtk";
-
-  // STEP 1: Convert to a structured grid
-  vtkImageToStructuredGrid *img2sgrid = vtkImageToStructuredGrid::New( );
-  vtkAssertUtils::assertNotNull( img2sgrid,__FILE__,__LINE__);
-
-  img2sgrid->SetInput( grid );
-  img2sgrid->Update();
-  vtkStructuredGrid *myGrid = img2sgrid->GetOutput();
-  vtkAssertUtils::assertNotNull(myGrid,__FILE__,__LINE__);
-
-  // STEP 2: Use structured grid writer to write the grid object
-  vtkStructuredGridWriter *myWriter = vtkStructuredGridWriter::New();
-  vtkAssertUtils::assertNotNull( myWriter,__FILE__,__LINE__);
-
-  myWriter->SetInput(0,myGrid);
-  myWriter->SetFileName( fileName.c_str( ) );
-  myWriter->Update();
-  myWriter->Delete();
-
-  img2sgrid->Delete();
-}
