@@ -596,6 +596,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           }
 
         grid->SetCellVisibilityArray(vis);
+        vis->Delete();
         if( this->PadCellVisibility == true )
           {
             grid->AttachCellVisibilityToCellData();
