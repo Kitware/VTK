@@ -197,7 +197,10 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 void vtkHierarchicalBoxDataSet::SetDataSet(
     unsigned int level, unsigned int idx, vtkUniformGrid *grid )
 {
-  assert( "Input grid is NULL!" && (grid!=NULL) );
+
+// In some cases the grid could be NULL, i.e., in the case that the data
+// is distributed.
+//  assert( "Input grid is NULL!" && (grid!=NULL) );
 
   // STEP 0: Resize the number of levels accordingly
   if( level >= this->GetNumberOfLevels() )
