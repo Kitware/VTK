@@ -359,11 +359,35 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
   ndim[0]--; ndim[1]--; ndim[2]--;
 
   // Compute lo,hi box dimensions
-  for( int i=0; i < 3; ++i )
+  int i=0;
+  switch( myGrid->GetDataDimension() )
     {
-      ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
-      lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
-      hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+    case 1:
+      ndim[0] = (ndim[0] < 1)? 1 : ndim[0];
+      lo[0]   = round( (gridOrigin[0]-origin[0])/h[0] );
+      hi[0]   = round( lo[0] + ( ndim[0]-1 ) );
+      for(i=1; i<3; ++i )
+       lo[i] = hi[i] = 0;
+      break;
+    case 2:
+      for( i=0; i < 2; ++i )
+        {
+          ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
+          lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
+          hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+        }
+      lo[2] = hi[2] = 0;
+      break;
+    case 3:
+      for( i=0; i < 3; ++i )
+        {
+          ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
+          lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
+          hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+        }
+      break;
+    default:
+      assert( "Invalid grid dimension! Code should not reach here!" && false );
     }
 
   myBox.SetDimensionality( myGrid->GetDataDimension() );
