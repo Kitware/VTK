@@ -118,6 +118,7 @@ int main( int argc, char **argv )
   transferFilter->Delete();
 
   Controller->Finalize();
+  Controller->Delete();
   return 0;
 }
 
@@ -243,5 +244,6 @@ vtkUniformGrid* GetGrid( double *origin, double *spacing, int *ndim )
     } // END for all cells
 
   grd->GetCellData()->AddArray(xyz);
+  xyz->Delete();
   return grd;
 }
