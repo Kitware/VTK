@@ -205,4 +205,3 @@ void vtkAMRDataTransferFilter::WriteData( vtkHierarchicalBoxDataSet* amrData,
     this->Controller->Barrier();
 }
 
-
