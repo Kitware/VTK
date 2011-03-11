@@ -44,6 +44,7 @@ vtkMultiProcessController *Controller;
 vtkHierarchicalBoxDataSet* GetSerialAMRDataSet();
 vtkHierarchicalBoxDataSet* GetParallelAMRDataSet();
 vtkUniformGrid* GetGrid( double* origin,double* h,int* ndim );
+void ComputeGaussianPulseError( vtkHierarchicalBoxDataSet *amrData );
 
 //
 // Main
@@ -102,12 +103,16 @@ int main( int argc, char **argv )
 
   transferFilter->SetController( Controller );
   transferFilter->SetAMRDataSet( amrData );
-  transferFilter->SetNumberOfGhostLayers( 2 );
+  transferFilter->SetNumberOfGhostLayers( 1 );
   transferFilter->SetRemoteConnectivity(
    connectivityFilter->GetRemoteConnectivity() );
   transferFilter->SetLocalConnectivity(
    connectivityFilter->GetLocalConnectivity() );
   transferFilter->Transfer();
+
+  vtkHierarchicalBoxDataSet *newData = transferFilter->GetExtrudedData();
+  assert( "extruded data is NULL!" && (newData != NULL) );
+  ComputeGaussianPulseError( newData );
 
   std::cout << "[DONE]\n";
   std::cout.flush();
@@ -126,6 +131,34 @@ int main( int argc, char **argv )
 //=============================================================================
 //                    Function Prototype Implementation
 //=============================================================================
+
+//------------------------------------------------------------------------------
+void ComputeGaussianPulseError( vtkHierarchicalBoxDataSet *data )
+{
+  // Sanity check
+  assert( "pre: data is NULL!" && (data != NULL) );
+
+  for( unsigned int level=0; level < data->GetNumberOfLevels(); ++level )
+    {
+      for( unsigned int idx=0; idx < data->GetNumberOfDataSets(level); ++idx)
+        {
+
+          vtkUniformGrid *ug = data->GetDataSet(level,idx);
+          if( ug != NULL )
+            {
+              vtkDoubleArray *err = vtkDoubleArray::New();
+              err->SetNumberOfComponents( 1 );
+              err->SetNumberOfValues( ug->GetNumberOfCells() );
+
+              for( int cell=0; cell < ug->GetNumberOfCells(); ++cell )
+                {
+                  //TODO: implement this
+                }// END for all grid cells
+            }
+
+        } // END for all data
+    } // END for all levels
+}
 
 //------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* GetSerialAMRDataSet( )
