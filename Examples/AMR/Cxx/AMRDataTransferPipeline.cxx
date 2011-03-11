@@ -16,6 +16,7 @@
 //  A simple utility to demonstrate & test the parallel AMR functionality
 //  and inter-block data transfer.
 
+#include <cmath>
 #include <cassert>
 #include <mpi.h>
 
@@ -81,7 +82,7 @@ int main( int argc, char **argv )
   std::cout << "Computing inter-block & inter-process connectivity!\n";
   std::cout.flush( );
 
-  vtkAMRConnectivityFilter* connectivityFilter= vtkAMRConnectivityFilter::New( );
+  vtkAMRConnectivityFilter* connectivityFilter=vtkAMRConnectivityFilter::New( );
   connectivityFilter->SetController( Controller );
   connectivityFilter->SetAMRDataSet( amrData );
   connectivityFilter->ComputeConnectivity();
@@ -209,8 +210,15 @@ vtkUniformGrid* GetGrid( double *origin, double *spacing, int *ndim )
   grd->SetSpacing( spacing );
   grd->SetDimensions( ndim );
 
+  // Apply Gaussian Pulse
+  double x0 = 6.0;
+  double y0 = 6.0;
+  double lx = 12;
+  double ly = 12;
+  double a  = 0.1;
+
   vtkDoubleArray* xyz = vtkDoubleArray::New( );
-  xyz->SetName( "XYZ" );
+  xyz->SetName( "GaussianPulse" );
   xyz->SetNumberOfComponents( 1 );
   xyz->SetNumberOfTuples( grd->GetNumberOfCells() );
   for( int cellIdx=0; cellIdx < grd->GetNumberOfCells(); ++cellIdx )
@@ -234,12 +242,13 @@ vtkUniformGrid* GetGrid( double *origin, double *spacing, int *ndim )
           xyzCenter[2] += pnt[2];
         } // END for all cell points
 
-      xyzCenter[0] = xyzCenter[0] / (cellPoints->GetNumberOfPoints());
-      xyzCenter[1] = xyzCenter[1] / (cellPoints->GetNumberOfPoints());
-      xyzCenter[2] = xyzCenter[2] / (cellPoints->GetNumberOfPoints());
+      double x = xyzCenter[0] / (cellPoints->GetNumberOfPoints());
+      double y = xyzCenter[1] / (cellPoints->GetNumberOfPoints());
+      double z = xyzCenter[2] / (cellPoints->GetNumberOfPoints());
 
-      double f = xyzCenter[0]*xyzCenter[0] +
-          xyzCenter[1]*xyzCenter[1] + xyzCenter[2]*xyzCenter[2];
+      double r = ( ( (x-x0)*(x-x0) ) / ( lx*lx ) ) +
+                 ( ( (y-y0)*(y-y0) ) / ( ly*ly ) );
+      double f = a*std::exp( -r );
       xyz->SetTuple1(cellIdx,f);
     } // END for all cells
 
