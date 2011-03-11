@@ -59,6 +59,28 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     vtkAMRDataTransferFilter();
     virtual ~vtkAMRDataTransferFilter();
 
+    // Desciption:
+    // Given an extruded uniform grid instance and the real extent
+    // this method creates a "GHOST" cell array that indicates
+    // whether the cells are ghost cells or not.
+    // .SECTION WARNING
+    // The given real extent parameter (re) is the cell extent.
+    void AttachCellGhostInformation(vtkUniformGrid *ug, int *re);
+
+    // Description:
+    // Copies the point data from the source grid within the real extent
+    // of the target grid. Ghost node data is initialized to 0.0
+    // .SECTION WARNING
+    // The given real extent parameter (re) is the cell extent.
+    void CopyPointData(vtkUniformGrid *s, vtkUniformGrid *t, int *re);
+
+    // Description:
+    // Copies the cell data from the source grid within the real extent
+    // of the target grid. Ghost cell data is initialize to 0.0
+    // .SECTION WARNING
+    // The given real extent parameter (re) is the cell extent.
+    void CopyCellData(vtkUniformGrid *s, vtkUniformGrid *t, int *re);
+
     // Description:
     // Extrudes ghost layers for each high-resolution block.
     // NOTE: the block(s) at the 0th level are not extruded(?)
