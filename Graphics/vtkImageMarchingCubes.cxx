@@ -783,7 +783,7 @@ int *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge)
   cellY -= this->LocatorMinY;
 
   // compute new indexes for edges (0 to 4) 
-  // must be compatable with LocatorIncrementZ.
+  // must be compatible with LocatorIncrementZ.
   if (edge == 7)
     {
     edge = 1;

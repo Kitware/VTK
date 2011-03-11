@@ -137,11 +137,10 @@ GetButtonProp(int i)
 //-------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
 {
-  int i;
   double bounds[6], center[3], aBds[6], aCenter[3];
 
   this->AdjustBounds(bds, bounds, center);
-  for (i=0; i<6; i++)
+  for (int i=0; i<6; i++)
     {
     this->InitialBounds[i] = bounds[i];
     }

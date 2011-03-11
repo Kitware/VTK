@@ -199,7 +199,7 @@ public:
   // This flag makes the filter copy cell data from input to output 
   // (the best it can).  It uses input cells that trigger the addition
   // of output cells (no averaging).  This is off by default, and does
-  // not work when append is being called explicitely (non-pipeline usage).
+  // not work when append is being called explicitly (non-pipeline usage).
   vtkSetMacro(CopyCellData, int); 
   vtkGetMacro(CopyCellData, int); 
   vtkBooleanMacro(CopyCellData, int); 

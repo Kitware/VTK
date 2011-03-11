@@ -1142,12 +1142,6 @@ void vtkAMRBox::Coarsen(int r)
     return;
     }
 
-//  std::cout << "=============================\n";
-//  std::cout << "Before coarsening:\n";
-//  this->Print( std::cout );
-//  std::cout << std::endl;
-//  std::cout.flush( );
-
   // sanity check.
 //  int nCells[3];
 //  this->GetNumberOfCells(nCells);
@@ -1174,12 +1168,6 @@ void vtkAMRBox::Coarsen(int r)
   this->DX[0]*=r;
   this->DX[1]*=r;
   this->DX[2]*=r;
-
-//  std::cout << "After coarsening:\n";
-//  this->Print( std::cout );
-//  std::cout << std::endl;
-//  std::cout << "=============================\n";
-//  std::cout.flush( );
 
 }
 
@@ -1329,13 +1317,13 @@ void vtkAMRBox::GetPoint(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& vtkNotUsed(bytesize))
+void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 {
 
   vtkAssertUtils::assertNull( buffer, __FILE__, __LINE__ );
 
-  size_t bufsize = vtkAMRBox::GetBytesize();
-  buffer         = new unsigned char[ bufsize ];
+  bytesize       = vtkAMRBox::GetBytesize();
+  buffer         = new unsigned char[ bytesize ];
   vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
 
   // STEP 0: set pointer to traverse the buffer
@@ -1372,6 +1360,10 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& vtkNotUsed(bytesiz
   // STEP 8: serialize the high corner
   std::memcpy(ptr, &(this->HiCorner), 3*sizeof(int) );
   ptr += 3*sizeof( int );
+
+  // STEP 9: serialize real-extent
+  std::memcpy(ptr, &(this->RealExtent), 6*sizeof(int));
+  ptr += 6*sizeof( int );
 }
 
 //-----------------------------------------------------------------------------
@@ -1409,19 +1401,23 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
   ptr += sizeof( int );
   vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
 
-  // STEP 6: serialize the block level
+  // STEP 6: de-serialize the block level
   std::memcpy(&(this->BlockLevel), ptr, sizeof(int) );
   ptr += sizeof( int );
   vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
 
-  // STEP 7: serialize the low corner
+  // STEP 7: de-serialize the low corner
   std::memcpy( &(this->LoCorner), ptr, 3*sizeof(int) );
   ptr += 3*sizeof( int );
   vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
 
-  // STEP 8: serialize the high corner
+  // STEP 8: de-serialize the high corner
   std::memcpy(&(this->HiCorner), ptr,  3*sizeof(int) );
   ptr += 3*sizeof( int );
+
+  // STEP 9: de-serialize the real extent
+  std::memcpy(&(this->RealExtent), ptr, 6*sizeof(int) );
+  ptr += 6*sizeof( int );
 }
 
 //-----------------------------------------------------------------------------

@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 // vtkSquarifyLayoutStrategy partitions the space for child vertices into regions
-// that use all avaliable space and are as close to squares as possible.
+// that use all available space and are as close to squares as possible.
 // The algorithm also takes into account the relative vertex size.
 //
 // .SECTION Thanks

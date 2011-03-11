@@ -202,7 +202,7 @@ typedef enum {
  * 
  * See <a href="http://svn.xiph.org/trunk/theora/examples/encoder_example.c">
  * examples/encoder_example.c</a> for usage examples of the
- * other paramters and good default settings for the encoder parameters.
+ * other parameters and good default settings for the encoder parameters.
  */
 typedef struct {
   ogg_uint32_t  width;    /**< encoded frame width  */
@@ -623,7 +623,7 @@ extern int theora_packet_iskeyframe(ogg_packet *op);
  * section represents the frame count at the last keyframe,
  * and the less-significant section represents the count of
  * frames since the last keyframe. In this way the overall
- * field is still non-decreasing with time, but usefully encodes
+ * field is still non-decreasing with time, but usefuly encodes
  * a pointer to the last keyframe, which is necessary for
  * correctly restarting decode after a seek. 
  *

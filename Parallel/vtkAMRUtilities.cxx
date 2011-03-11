@@ -31,6 +31,20 @@ void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRUtilities::GenerateMetaData(
+    vtkHierarchicalBoxDataSet *amrData,
+    vtkMultiProcessController *controller )
+{
+  // Sanity check
+  assert( "Input AMR Data is NULL" && (amrData != NULL) );
+
+  CollectAMRMetaData( amrData, controller );
+  ComputeLevelRefinementRatio( amrData );
+  if( controller != NULL )
+    controller->Barrier();
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRUtilities::ComputeDataSetOrigin(
        double origin[3], vtkHierarchicalBoxDataSet *amrData,
        vtkMultiProcessController *controller )
@@ -39,12 +53,12 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
   assert( "Input AMR Data is NULL" && (amrData != NULL) );
 
   double min[3];
-  min[0] = min[1] = min[2] = 100;
+  min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
 
   // Note, we only need to check at level 0 since, the grids at
   // level 0 are guaranteed to cover the entire domain. Most datasets
   // will have a single grid at level 0.
-  for( int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
+  for( unsigned int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
     {
 
       vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
@@ -85,6 +99,77 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRUtilities::ComputeGlobalBounds(
+    double bounds[6], vtkHierarchicalBoxDataSet *amrData,
+    vtkMultiProcessController *myController )
+{
+  // Sanity check
+  assert( "Input AMR Data is NULL" && (amrData != NULL) );
+
+  double min[3];
+  double max[3];
+  min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
+  max[0] = max[1] = max[2] = std::numeric_limits<double>::min();
+
+  // Note, we only need to check at level 0 since, the grids at
+  // level 0 are guaranteed to cover the entire domain. Most datasets
+  // will have a single grid at level 0.
+  for( unsigned int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
+    {
+
+      vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
+      if( gridPtr != NULL )
+        {
+          // Get the bounnds of the grid: {xmin,xmax,ymin,ymax,zmin,zmax}
+          double *gridBounds = gridPtr->GetBounds();
+          assert( "Failed when accessing grid bounds!" && (gridBounds!=NULL) );
+
+          // Check min
+          if( gridBounds[0] < min[0] )
+            min[0] = gridBounds[0];
+          if( gridBounds[2] < min[1] )
+            min[1] = gridBounds[2];
+          if( gridBounds[4] < min[2] )
+            min[2] = gridBounds[4];
+
+          // Check max
+          if( gridBounds[1] > max[0])
+            max[0] = gridBounds[1];
+          if( gridBounds[3] > max[1])
+            max[1] = gridBounds[3];
+          if( gridBounds[5] > max[2] )
+            max[2] = gridBounds[5];
+        }
+
+    } // END for all data-sets at level 0
+
+  if( myController != NULL )
+    {
+      if( myController->GetNumberOfProcesses() > 1 )
+        {
+          // All Reduce min
+          myController->AllReduce(&min[0],&bounds[0],1,vtkCommunicator::MIN_OP);
+          myController->AllReduce(&min[1],&bounds[1],1,vtkCommunicator::MIN_OP);
+          myController->AllReduce(&min[2],&bounds[2],1,vtkCommunicator::MIN_OP);
+
+          // All Reduce max
+          myController->AllReduce(&max[0],&bounds[3],1,vtkCommunicator::MAX_OP);
+          myController->AllReduce(&max[1],&bounds[4],1,vtkCommunicator::MAX_OP);
+          myController->AllReduce(&max[2],&bounds[5],1,vtkCommunicator::MAX_OP);
+          return;
+        }
+    }
+
+  bounds[0] = min[0];
+  bounds[1] = min[1];
+  bounds[2] = min[2];
+  bounds[3] = max[0];
+  bounds[4] = max[1];
+  bounds[5] = max[2];
+
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRUtilities::CollectAMRMetaData(
     vtkHierarchicalBoxDataSet *amrData,
     vtkMultiProcessController *myController )
@@ -119,9 +204,9 @@ void vtkAMRUtilities::SerializeMetaData(
 
   // STEP 0: Collect all the AMR boxes in a vector
   std::vector< vtkAMRBox > boxList;
-  for( int level=0; level < amrData->GetNumberOfLevels(); ++level )
+  for( unsigned int level=0; level < amrData->GetNumberOfLevels(); ++level )
     {
-      for( int idx=0; idx < amrData->GetNumberOfDataSets( level ); ++idx )
+      for(unsigned int idx=0;idx < amrData->GetNumberOfDataSets( level );++idx )
         {
 
           if( amrData->GetDataSet(level,idx) != NULL )
@@ -145,7 +230,7 @@ void vtkAMRUtilities::SerializeMetaData(
   ptr += sizeof(int);
 
   // STEP 3: Serialize each box
-  for( int i=0; i < boxList.size( ); ++i )
+  for( unsigned int i=0; i < boxList.size( ); ++i )
     {
       assert( "ptr is NULL" && (ptr != NULL) );
 
@@ -180,7 +265,7 @@ void vtkAMRUtilities::DeserializeMetaData(
     {
       assert( "ptr is NULL" && (ptr != NULL) );
 
-      vtkIdType nbytes = 0;
+      vtkIdType nbytes = vtkAMRBox::GetBytesize();
       boxList[ i ].Deserialize( ptr, nbytes );
       ptr += nbytes;
     }
@@ -229,10 +314,21 @@ void vtkAMRUtilities::DistributeMetaData(
   amrBoxes.resize( numRanks );
   for( int i=0; i < numRanks; ++i )
     {
-      DeserializeMetaData( rcvBuffer+offSet[i],rcvcounts[i],amrBoxes[i] );
+
+      if( i != myController->GetLocalProcessId() )
+        {
+          DeserializeMetaData( rcvBuffer+offSet[i],rcvcounts[i],amrBoxes[i] );
+          for( unsigned int j=0; j < amrBoxes[i].size(); ++j )
+            {
+              int level = amrBoxes[i][j].GetLevel();
+              int index = amrBoxes[i][j].GetBlockId();
+              amrData->SetMetaData( level,index,amrBoxes[i][j] );
+            }
+        }
+
     }
 
-  // STEP 6: Clean up all dynamicall allocated memory
+  // STEP 7: Clean up all dynamically allocated memory
   delete [] buffer;
   delete [] rcvcounts;
   delete [] offSet;
@@ -263,16 +359,42 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
   ndim[0]--; ndim[1]--; ndim[2]--;
 
   // Compute lo,hi box dimensions
-  for( int i=0; i < 3; ++i )
+  int i=0;
+  switch( myGrid->GetDataDimension() )
     {
-      ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
-      lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
-      hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+    case 1:
+      ndim[0] = (ndim[0] < 1)? 1 : ndim[0];
+      lo[0]   = round( (gridOrigin[0]-origin[0])/h[0] );
+      hi[0]   = round( lo[0] + ( ndim[0]-1 ) );
+      for(i=1; i<3; ++i )
+       lo[i] = hi[i] = 0;
+      break;
+    case 2:
+      for( i=0; i < 2; ++i )
+        {
+          ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
+          lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
+          hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+        }
+      lo[2] = hi[2] = 0;
+      break;
+    case 3:
+      for( i=0; i < 3; ++i )
+        {
+          ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
+          lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
+          hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+        }
+      break;
+    default:
+      assert( "Invalid grid dimension! Code should not reach here!" && false );
     }
 
+  myBox.SetDimensionality( myGrid->GetDataDimension() );
   myBox.SetDimensions( lo, hi );
   myBox.SetDataSetOrigin( origin );
   myBox.SetGridSpacing( h );
+
 }
 
 //------------------------------------------------------------------------------
@@ -282,9 +404,9 @@ void vtkAMRUtilities::ComputeLocalMetaData(
   // Sanity check
   assert( "Input AMR data is NULL" && (myAMRData != NULL) );
 
-  for( int level=0; level < myAMRData->GetNumberOfLevels(); ++level )
+  for( unsigned int level=0; level < myAMRData->GetNumberOfLevels(); ++level )
     {
-      for( int idx=0; idx < myAMRData->GetNumberOfDataSets(level); ++idx )
+      for(unsigned int idx=0;idx < myAMRData->GetNumberOfDataSets(level);++idx )
         {
 
           vtkUniformGrid *myGrid = myAMRData->GetDataSet( level, idx );

@@ -86,6 +86,19 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
   // First calculate order statistics on local data set
   this->Superclass::Learn( inData, inParameters, outMeta );
 
+  if ( ! outMeta
+       || outMeta->GetNumberOfBlocks() < 1 )
+    {
+    // No statistics were calculated.
+
+#if DEBUG_PARALLEL_ORDER_STATISTICS
+    timer->Delete();
+    timers->Delete();
+#endif //DEBUG_PARALLEL_ORDER_STATISTICS
+
+    return;
+    }
+
 #if DEBUG_PARALLEL_ORDER_STATISTICS
   timers->StopTimer();
 
@@ -123,15 +136,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
   // NB: Use process 0 as sole reducer for now
   vtkIdType reduceProc = 0;
-
-  if ( ! outMeta || outMeta->GetNumberOfBlocks() < 1 )
-    {
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
-    return;
-    }
 
   // Iterate over primary tables
   unsigned int nBlocks = outMeta->GetNumberOfBlocks();

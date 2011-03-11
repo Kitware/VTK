@@ -67,8 +67,8 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     // Description:
     // Given the extruded grid & the initial non-extruded grid, this method
     // returns the extruded grid. The extruded grid will have all the data
-    // of the non-extruded grid, plus allocated space for
-    vtkUniformGrid* GetExtrudedGrid( vtkAMRBox &box, vtkUniformGrid *grid);
+    // of the non-extruded grid, plus allocated space for ghost data
+    vtkUniformGrid* GetExtrudedGrid( vtkUniformGrid *grid);
 
     // Description:
     // Writes the AMR data as a list of boxes. Primarily,

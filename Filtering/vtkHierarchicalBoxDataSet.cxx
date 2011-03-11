@@ -136,60 +136,71 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 }
 
 //----------------------------------------------------------------------------
+
 void vtkHierarchicalBoxDataSet::SetDataSet(
-  unsigned int level, unsigned int id, vtkAMRBox& box, vtkUniformGrid* dataSet)
+  unsigned int level, unsigned int id, vtkAMRBox &box, vtkUniformGrid *dataSet)
 {
-  if (level >= this->GetNumberOfLevels())
-    {
-    this->SetNumberOfLevels(level+1);
-    }
-  vtkMultiPieceDataSet* levelDS = vtkMultiPieceDataSet::SafeDownCast(
-    this->Superclass::GetChild(level));
-  if (levelDS)
-    {
-
-    levelDS->SetPiece(id, dataSet);
-    vtkInformation* info = levelDS->GetMetaData(id);
-    if (info)
-      {
-        const int *loCorner=box.GetLoCorner();
-        const int *hiCorner=box.GetHiCorner();
-        info->Set(BOX_DIMENSIONALITY(), box.GetDimensionality());
-        info->Set(BOX(),loCorner[0], loCorner[1], loCorner[2],
-                        hiCorner[0], hiCorner[1], hiCorner[2]);
-        double x0[3];
-        box.GetBoxOrigin( x0 );
-        info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
-        info->Set(RANK(), box.GetProcessId() );
-        info->Set(BLOCK_ID(), box.GetBlockId() );
-
-        double spacing[3];
-        box.GetGridSpacing( spacing );
-        info->Set(SPACING(),spacing[0],spacing[1],spacing[2]);
-
-        int realExtent[6];
-        box.GetRealExtent( realExtent );
-        info->Set(REAL_EXTENT(),
-            realExtent[0], realExtent[1], realExtent[2],
-            realExtent[3], realExtent[4], realExtent[5] );
-      }
-    else
-      {
-      vtkErrorMacro( "Metadata object is NULL!!!!" );
-      }
-
-    }
-  else
-    {
-    vtkErrorMacro( "Multi-piece data-structure is NULL!!!" );
-    }
+  this->SetDataSet( level, id, dataSet );
+  this->SetMetaData( level, id, box );
 }
+
+//void vtkHierarchicalBoxDataSet::SetDataSet(
+//  unsigned int level, unsigned int id, vtkAMRBox& box, vtkUniformGrid* dataSet)
+//{
+//  if (level >= this->GetNumberOfLevels())
+//    {
+//    this->SetNumberOfLevels(level+1);
+//    }
+//  vtkMultiPieceDataSet* levelDS = vtkMultiPieceDataSet::SafeDownCast(
+//    this->Superclass::GetChild(level));
+//  if (levelDS)
+//    {
+//
+//    levelDS->SetPiece(id, dataSet);
+//    vtkInformation* info = levelDS->GetMetaData(id);
+//    if (info)
+//      {
+//        const int *loCorner=box.GetLoCorner();
+//        const int *hiCorner=box.GetHiCorner();
+//        info->Set(BOX_DIMENSIONALITY(), box.GetDimensionality());
+//        info->Set(BOX(),loCorner[0], loCorner[1], loCorner[2],
+//                        hiCorner[0], hiCorner[1], hiCorner[2]);
+//        double x0[3];
+//        box.GetBoxOrigin( x0 );
+//        info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
+//        info->Set(RANK(), box.GetProcessId() );
+//        info->Set(BLOCK_ID(), box.GetBlockId() );
+//
+//        double spacing[3];
+//        box.GetGridSpacing( spacing );
+//        info->Set(SPACING(),spacing[0],spacing[1],spacing[2]);
+//
+//        int realExtent[6];
+//        box.GetRealExtent( realExtent );
+//        info->Set(REAL_EXTENT(),
+//            realExtent[0], realExtent[1], realExtent[2],
+//            realExtent[3], realExtent[4], realExtent[5] );
+//      }
+//    else
+//      {
+//      vtkErrorMacro( "Metadata object is NULL!!!!" );
+//      }
+//
+//    }
+//  else
+//    {
+//    vtkErrorMacro( "Multi-piece data-structure is NULL!!!" );
+//    }
+//}
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::SetDataSet(
     unsigned int level, unsigned int idx, vtkUniformGrid *grid )
 {
-  assert( "Input grid is NULL!" && (grid!=NULL) );
+
+// In some cases the grid could be NULL, i.e., in the case that the data
+// is distributed.
+//  assert( "Input grid is NULL!" && (grid!=NULL) );
 
   // STEP 0: Resize the number of levels accordingly
   if( level >= this->GetNumberOfLevels() )
@@ -227,7 +238,7 @@ void vtkHierarchicalBoxDataSet::SetMetaData(
   if( levelDS != NULL )
     {
       if( id >= levelDS->GetNumberOfPieces() )
-        levelDS->SetPiece( id+1, NULL);
+        levelDS->SetPiece( id, NULL);
 
       vtkInformation* info = levelDS->GetMetaData(id);
       if (info)
@@ -585,6 +596,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           }
 
         grid->SetCellVisibilityArray(vis);
+        vis->Delete();
         if( this->PadCellVisibility == true )
           {
             grid->AttachCellVisibilityToCellData();

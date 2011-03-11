@@ -153,7 +153,7 @@ public:
                             void *indices) = 0;
 
   // Description:
-  // Returns true if this device adapter is compatable with the given
+  // Returns true if this device adapter is compatible with the given
   // vtkRenderer.
   virtual int Compatible(vtkRenderer *renderer) = 0;
 

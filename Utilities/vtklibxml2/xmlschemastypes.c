@@ -65,7 +65,7 @@ struct _xmlSchemaValDate {
     unsigned int        hour    :5;     /* 0 <=  hour   <= 23   */
     unsigned int        min     :6;     /* 0 <=  min    <= 59   */
     double              sec;
-    unsigned int        tz_flag :1;     /* is tzo explicitely set? */
+    unsigned int        tz_flag :1;     /* is tzo explicitly set? */
     signed int          tzo     :12;    /* -1440 <= tzo <= 1440;
                                            currently only -840 to +840 are needed */
 };

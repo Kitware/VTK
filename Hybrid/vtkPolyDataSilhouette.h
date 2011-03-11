@@ -75,7 +75,7 @@ public:
   vtkBooleanMacro(BorderEdges,int);
 
   // Description:
-  // Enables or Disables piece invariance. This is usefull when dealing with
+  // Enables or Disables piece invariance. This is useful when dealing with
   // multi-block data sets. Note: requires one level of ghost cells
   vtkSetMacro(PieceInvariant,int);
   vtkGetMacro(PieceInvariant,int);

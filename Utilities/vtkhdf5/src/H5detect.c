@@ -41,7 +41,7 @@ static const char *FileHeader = "\n\
  *
  *		Detects machine byte order and floating point
  *		format and generates a C source file (native.c)
- *		to describe those paramters.
+ *		to describe those parameters.
  *
  * Assumptions: We have an ANSI compiler.  We're on a Unix like
  *		system or configure has detected those Unix

@@ -118,9 +118,9 @@ char chroma_type[16];
 size_t y4m_dst_buf_sz;
 /*The amount to read directly into the converted frame buffer.*/
 size_t y4m_dst_buf_read_sz;
-/*The size of the auxilliary buffer.*/
+/*The size of the auxiliary buffer.*/
 size_t y4m_aux_buf_sz;
-/*The amount to read into the auxilliary buffer.*/
+/*The amount to read into the auxiliary buffer.*/
 size_t y4m_aux_buf_read_sz;
 
 /*The function used to perform chroma conversion.*/

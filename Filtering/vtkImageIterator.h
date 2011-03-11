@@ -33,7 +33,7 @@ public:
   typedef DType *SpanIterator;
 
   // Description:
-  // Default empty constructor, usefull only when creating an array of iterators
+  // Default empty constructor, useful only when creating an array of iterators
   // You need to call Initialize afterward
   vtkImageIterator();
 

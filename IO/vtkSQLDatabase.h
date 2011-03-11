@@ -221,7 +221,7 @@ protected:
   ~vtkSQLDatabase();
 
   // Description:
-  // Subclasses should override this method to determine connection paramters
+  // Subclasses should override this method to determine connection parameters
   // given the URL. This is called by CreateFromURL() to initialize the instance.
   // Look at CreateFromURL() for details about the URL format.
   virtual bool ParseURL( const char* url ) = 0;

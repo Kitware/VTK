@@ -190,7 +190,7 @@ public:
   // The \c type arg is one of the VTK type constants recognized by the
   // vtkTemplateMacro (VTK_FLOAT, VTK_INT, etc.).  \c maxlength is measured
   // in number of values (as opposed to number of bytes) and is the maxmum
-  // lenght of the data to receive.  If the maxlength is less than the length
+  // length of the data to receive.  If the maxlength is less than the length
   // of the message sent by the sender, an error will be flagged. Once a
   // message is received, use the GetCount() method to determine the actual
   // size of the data received.
@@ -810,7 +810,7 @@ public:
   // If either rightHasBounds or leftHasBounds is not 0 then the
   // corresponding int will be set to 1 if the right/left processor has
   // bounds else it will be set to 0
-  // The last three arguements are the tags to be used when performing
+  // The last three arguments are the tags to be used when performing
   // the operation
   virtual int ComputeGlobalBounds(int processorId, int numProcesses,
                                   vtkBoundingBox *bounds,

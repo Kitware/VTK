@@ -21,7 +21,7 @@
 // alpha range and generating a table.
 //
 // .SECTION Caveats
-// You need to explicitely call Build() when constructing the LUT by hand.
+// You need to explicitly call Build() when constructing the LUT by hand.
 //
 // .SECTION See Also
 // vtkLogLookupTable vtkWindowLevelLookupTable
