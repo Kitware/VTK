@@ -30,15 +30,11 @@ using std::ends;
 
 // Use old-style strstream.
 #else
-# ifdef _WIN32_WCE
-#  include "vtkWinCE.h"
+# if defined(_MSC_VER)
+#  include <strstrea.h>
 # else
-#  if defined(_MSC_VER)
-#   include <strstrea.h>
-#  else
-#   include <strstream.h>
-#  endif
-# endif // Win CE
+#  include <strstream.h>
+# endif
 #endif
 
 //----------------------------------------------------------------------------
