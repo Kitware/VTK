@@ -872,9 +872,8 @@ IF(VTK_USE_MATROX_IMAGING)
     )
 ENDIF(VTK_USE_MATROX_IMAGING)
 
-
 IF(VTK_USE_MPI)
-  FIND_PACKAGE(MPI)
+  FIND_PACKAGE(MPI REQUIRED)
 ENDIF(VTK_USE_MPI)
 
 #-----------------------------------------------------------------------------
@@ -888,11 +887,12 @@ ENDIF(VTK_USE_MPI)
 # So, tests will be run something like this:
 # ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} executable ${VTK_MPI_POSTFLAGS}
 #
+
 IF(VTK_USE_MPI)
 
   # Use MPI variables defined in the CMake (2.8) FindMPI module.
   IF(${MPIEXEC})
-    SET(VTK_MPIRUN_EXE CACHE FILEPATH ${MPIEXEC} FORCE)
+    SET(VTK_MPIRUN_EXE ${MPIEXEC} CACHE FILEPATH "" FORCE)
     SET(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
     IF(NOT ${MPI_NUMPROC_FLAG})
       SET(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
@@ -918,7 +918,6 @@ IF(VTK_USE_MPI)
   SEPARATE_ARGUMENTS(VTK_MPI_PREFLAGS)
   SEPARATE_ARGUMENTS(VTK_MPI_POSTFLAGS)
 ENDIF(VTK_USE_MPI)
-
 
 #-----------------------------------------------------------------------------
 # Create STL header wrappers to block warnings in the STL headers.
