@@ -1184,9 +1184,11 @@ struct vtkImageResliceInterpolate
 // constants for different boundary-handling modes
 
 #define VTK_RESLICE_MODE_MASK 0x000f   // the interpolation modes
-#define VTK_RESLICE_BORDER    0x0010   // allow a half-voxel border
-#define VTK_RESLICE_WRAP      0x0020   // wrap to opposite side of image
-#define VTK_RESLICE_MIRROR    0x0040   // mirror off of the boundary
+#define VTK_RESLICE_BORDER    0x0030   // allow a border
+#define VTK_RESLICE_BORDER1   0x0010   // allow a half-voxel border
+#define VTK_RESLICE_BORDER2   0x0020   // allow a full-voxel border
+#define VTK_RESLICE_WRAP      0x0040   // wrap to opposite side of image
+#define VTK_RESLICE_MIRROR    0x0080   // mirror off of the boundary
 #define VTK_RESLICE_N_MASK    0x0f00   // one less than kernel size
 #define VTK_RESLICE_N_SHIFT   8        // position of size info
 #define VTK_RESLICE_X_NEAREST 0x1000   // don't interpolate in x (hint)
@@ -1205,9 +1207,13 @@ static int vtkResliceGetMode(vtkImageReslice *self)
     {
     mode |= VTK_RESLICE_WRAP;
     }
-  else if (self->GetBorder())
+  else if (self->GetBorder() == 1)
     {
-    mode |= VTK_RESLICE_BORDER;
+    mode |= VTK_RESLICE_BORDER1;
+    }
+  else if (self->GetBorder() == 2)
+    {
+    mode |= VTK_RESLICE_BORDER2;
     }
 
   // n is the kernel size subtract one, where the kernel size
@@ -1577,6 +1583,61 @@ inline  int vtkInterpolateBorderCheck(int inIdX0, int inIdX1, int inExtX,
   return 1;
 }
 
+//----------------------------------------------------------------------------
+// If the value is within one full voxel of the range [0,inExtX), then
+// set it to "0" or "inExtX-1" as appropriate.
+
+inline  int vtkInterpolateBorder(int &inIdX0, int inExtX)
+{
+  if (inIdX0 >= 0 && inIdX0 < inExtX)
+    {
+    return 0;
+    }
+  if (inIdX0 == -1)
+    {
+    inIdX0 = 0;
+    return 0;
+    }
+  if (inIdX0 == inExtX)
+    {
+    inIdX0 = inExtX-1;
+    return 0;
+    }
+
+  return 1;
+}
+
+inline  int vtkInterpolateBorder(int &inIdX0, int &inIdX1, int inExtX)
+{
+  if (inIdX0 >= 0 && inIdX1 < inExtX)
+    {
+    return 0;
+    }
+  if (inIdX0 == -1)
+    {
+    inIdX1 = inIdX0 = 0;
+    return 0;
+    }
+  if (inIdX0 == inExtX - 1)
+    {
+    inIdX1 = inIdX0;
+    return 0;
+    }
+
+  return 1;
+}
+
+inline  int vtkInterpolateBorderCheck(int inIdX0, int inIdX1, int inExtX)
+{
+  if ((inIdX0 >= 0 && inIdX1 < inExtX) ||
+      (inIdX0 == -1) || (inIdX0 == inExtX - 1))
+    {
+    return 0;
+    }
+
+  return 1;
+}
+
 
 //----------------------------------------------------------------------------
 // Do nearest-neighbor interpolation of the input data 'inPtr' of extent 
@@ -1603,7 +1664,13 @@ int vtkImageResliceInterpolate<F, T>::NearestNeighbor(
       inIdY0 < 0 || inIdY0 >= inExtY ||
       inIdZ0 < 0 || inIdZ0 >= inExtZ)
     {
-    if ((mode & VTK_RESLICE_WRAP) != 0)
+    if ((mode & VTK_RESLICE_BORDER2) != 0)
+      {
+      inIdX0 = vtkInterpolateBorder(inIdX0, inExtX);
+      inIdY0 = vtkInterpolateBorder(inIdY0, inExtY);
+      inIdZ0 = vtkInterpolateBorder(inIdZ0, inExtZ);
+      }
+    else if ((mode & VTK_RESLICE_WRAP) != 0)
       {
       inIdX0 = vtkInterpolateWrap(inIdX0, inExtX);
       inIdY0 = vtkInterpolateWrap(inIdY0, inExtY);
@@ -1666,11 +1733,21 @@ int vtkImageResliceInterpolate<F, T>::Trilinear(
       inIdY0 < 0 || inIdY1 >= inExtY ||
       inIdZ0 < 0 || inIdZ1 >= inExtZ)
     {
-    if ((mode & VTK_RESLICE_BORDER) != 0)
+    if ((mode & VTK_RESLICE_BORDER1) != 0)
       {
       if (vtkInterpolateBorder(inIdX0, inIdX1, inExtX, fx) ||
           vtkInterpolateBorder(inIdY0, inIdY1, inExtY, fy) ||
           vtkInterpolateBorder(inIdZ0, inIdZ1, inExtZ, fz))
+        {
+        outPtr += numscalars;
+        return 0;
+        }
+      }
+    else if ((mode & VTK_RESLICE_BORDER2) != 0)
+      {
+      if (vtkInterpolateBorder(inIdX0, inIdX1, inExtX) ||
+          vtkInterpolateBorder(inIdY0, inIdY1, inExtY) ||
+          vtkInterpolateBorder(inIdZ0, inIdZ1, inExtZ))
         {
         outPtr += numscalars;
         return 0;
@@ -1921,12 +1998,23 @@ int vtkImageResliceInterpolate<F, T>::Tricubic(
           inIdY0 < 0 || inIdY0 + multipleY >= inExtY ||
           inIdZ0 < 0 || inIdZ0 + multipleZ >= inExtZ)
         {
-        if ((mode & VTK_RESLICE_BORDER) != 0)
+        if ((mode & VTK_RESLICE_BORDER1) != 0)
           {
           // allow extrapolation to half a pixel width past edge
           if (vtkInterpolateBorderCheck(inIdX0, inIdX0+multipleX, inExtX, fx) ||
               vtkInterpolateBorderCheck(inIdY0, inIdY0+multipleY, inExtY, fy) ||
               vtkInterpolateBorderCheck(inIdZ0, inIdZ0+multipleZ, inExtZ, fz))
+            {
+            outPtr += numscalars;
+            return 0;
+            }
+          }
+        else if ((mode & VTK_RESLICE_BORDER2) != 0)
+          {
+          // allow extrapolation to a full pixel width past edge
+          if (vtkInterpolateBorderCheck(inIdX0, inIdX0+multipleX, inExtX) ||
+              vtkInterpolateBorderCheck(inIdY0, inIdY0+multipleY, inExtY) ||
+              vtkInterpolateBorderCheck(inIdZ0, inIdZ0+multipleZ, inExtZ))
             {
             outPtr += numscalars;
             return 0;
@@ -2210,11 +2298,21 @@ int vtkImageResliceInterpolate<F, T>::General(
       inIdY0 < 0 || inIdY1 >= inExtY ||
       inIdZ0 < 0 || inIdZ1 >= inExtZ)
     {
-    if ((mode & VTK_RESLICE_BORDER) != 0)
+    if ((mode & VTK_RESLICE_BORDER1) != 0)
       {
       if (vtkInterpolateBorderCheck(inIdX0, inIdX1, inExtX, fx) ||
           vtkInterpolateBorderCheck(inIdY0, inIdY1, inExtY, fy) ||
           vtkInterpolateBorderCheck(inIdZ0, inIdZ1, inExtZ, fz))
+        {
+        outPtr += numscalars;
+        return 0;
+        }
+      }
+    else if ((mode & VTK_RESLICE_BORDER2) != 0)
+      {
+      if (vtkInterpolateBorderCheck(inIdX0, inIdX1, inExtX) ||
+          vtkInterpolateBorderCheck(inIdY0, inIdY1, inExtY) ||
+          vtkInterpolateBorderCheck(inIdZ0, inIdZ1, inExtZ))
         {
         outPtr += numscalars;
         return 0;
@@ -3021,7 +3119,8 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   int optimizeNearest = 0;
   if (self->GetInterpolationMode() == VTK_RESLICE_NEAREST &&
       !(wrap || newtrans || perspective || convertScalars) &&
-      inData->GetScalarType() == outData->GetScalarType())
+      inData->GetScalarType() == outData->GetScalarType() &&
+      (mode & VTK_RESLICE_BORDER2) == 0)
     {
     optimizeNearest = 1;
     }
@@ -3830,6 +3929,10 @@ void vtkPermuteNearestTable(const int outExt[6], const int inExt[6],
         }
       else
         {
+        if ((mode & VTK_RESLICE_BORDER2) != 0)
+          {
+          vtkInterpolateBorder(inId, inExtK);
+          }
         if (inId < 0 || inId >= inExtK)
           {
           if (region == 1)
@@ -3915,7 +4018,9 @@ void vtkPermuteLinearTable(const int outExt[6], const int inExt[6],
         }
       else if ((mode & VTK_RESLICE_BORDER) != 0)
         {
-        if (vtkInterpolateBorder(inId0, inId1, inExtK, f))
+        if (vtkInterpolateBorder(inId0, inId1, inExtK, f) ||
+            ((mode & VTK_RESLICE_BORDER2) != 0 &&
+            vtkInterpolateBorder(inId0, inId1, inExtK)))
           {
           if (region == 1)
             { // leaving the input extent
@@ -4044,10 +4149,12 @@ void vtkPermuteCubicTable(const int outExt[6], const int inExt[6],
         inId[2] = vtkInterpolateWrap(inId[2], inExtK);
         inId[3] = vtkInterpolateWrap(inId[3], inExtK);
         region = 1;
-        }      
+        }
       else if ((mode & VTK_RESLICE_BORDER) != 0)
         {
-        if (vtkInterpolateBorderCheck(inId[1], inId[2], inExtK, f))
+        if (vtkInterpolateBorder(inId[1], inId[2], inExtK, f) ||
+            ((mode & VTK_RESLICE_BORDER2) != 0 &&
+            vtkInterpolateBorder(inId[1], inId[2], inExtK)))
           {
           if (region == 1)
             { // leaving the input extent
@@ -4183,10 +4290,18 @@ void vtkPermuteGeneralTable(const int outExt[6], const int inExt[6],
       else
         {
         int inside = 1;
-        if ((mode & VTK_RESLICE_BORDER) != 0)
+        if ((mode & VTK_RESLICE_BORDER1) != 0)
           {
           if (vtkInterpolateBorderCheck(
                 inId[m2], inId[m2] + fIsNotZero, inExtK, f))
+            {
+            inside = 0;
+            }
+          }
+        else if ((mode & VTK_RESLICE_BORDER2) != 0)
+          {
+          if (vtkInterpolateBorderCheck(
+                inId[m2], inId[m2] + fIsNotZero, inExtK))
             {
             inside = 0;
             }
