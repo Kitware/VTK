@@ -1573,14 +1573,8 @@ inline  int vtkInterpolateBorder(int &inIdX0, int &inIdX1, int inExtX,
 inline  int vtkInterpolateBorderCheck(int inIdX0, int inIdX1, int inExtX,
                                       double fx)
 {
-  if ((inIdX0 >= 0 && inIdX1 < inExtX) ||
-      (inIdX0 == -1 && fx >= 0.5) ||
-      (inIdX0 == inExtX - 1 && fx < 0.5))
-    {
-    return 0;
-    }
-
-  return 1;
+  return (inIdX0 < -1 || (inIdX0 == -1 && fx < 0.5) ||
+          inIdX1 > inExtX || (inIdX0 == inExtX-1 && fx >= 0.5));
 }
 
 //----------------------------------------------------------------------------
@@ -1613,7 +1607,7 @@ inline  int vtkInterpolateBorder(int &inIdX0, int &inIdX1, int inExtX)
     {
     return 0;
     }
-  if (inIdX0 == -1)
+  if (inIdX1 == 0)
     {
     inIdX1 = inIdX0 = 0;
     return 0;
@@ -1629,13 +1623,7 @@ inline  int vtkInterpolateBorder(int &inIdX0, int &inIdX1, int inExtX)
 
 inline  int vtkInterpolateBorderCheck(int inIdX0, int inIdX1, int inExtX)
 {
-  if ((inIdX0 >= 0 && inIdX1 < inExtX) ||
-      (inIdX0 == -1) || (inIdX0 == inExtX - 1))
-    {
-    return 0;
-    }
-
-  return 1;
+  return (inIdX1 < 0 || inIdX0 >= inExtX);
 }
 
 
