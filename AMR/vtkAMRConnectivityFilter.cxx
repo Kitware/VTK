@@ -79,13 +79,13 @@ void vtkAMRConnectivityFilter::ComputeConnectivity( )
       for( ;dataIdx < this->AMRDataSet->GetNumberOfDataSets(level); ++dataIdx )
         {
            vtkAMRBox myBox;
-           vtkUniformGrid *myGrid =
-               this->AMRDataSet->GetDataSet(level,dataIdx,myBox);
-           if( myGrid != NULL )
-             {
-               this->ComputeBlockConnectivity( myBox );
-             }
-
+           this->AMRDataSet->GetMetaData( level, dataIdx, myBox );
+           assert( "post: metadata level mismatch" &&
+                   (myBox.GetLevel()==level) );
+           assert( "post: metadata idx mismatch" &&
+                   (myBox.GetBlockId()==dataIdx) );
+           myBox.WriteBox();
+           this->ComputeBlockConnectivity( myBox );
         }// END for all blocks at this level
 
     } // END for all levels
@@ -93,7 +93,7 @@ void vtkAMRConnectivityFilter::ComputeConnectivity( )
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRConnectivityFilter::ComputeBlockConnectivity(const vtkAMRBox &myBox)
+void vtkAMRConnectivityFilter::ComputeBlockConnectivity( vtkAMRBox &myBox)
 {
   vtkAssertUtils::assertNotNull( this->Controller,__FILE__,__LINE__);
   vtkAssertUtils::assertNotNull( this->AMRDataSet, __FILE__,__LINE__);
@@ -106,8 +106,7 @@ void vtkAMRConnectivityFilter::ComputeBlockConnectivity(const vtkAMRBox &myBox)
       for( ; idx < this->AMRDataSet->GetNumberOfDataSets( level ); ++idx )
         {
           vtkAMRBox box;
-          vtkUniformGrid *dummyGrid =
-              this->AMRDataSet->GetDataSet(level,idx,box);
+          this->AMRDataSet->GetMetaData( level, idx, box );
 
           // If the blocks are not at the same level or are at the
           // same level but, have a different block ID, the check for
@@ -136,7 +135,6 @@ void vtkAMRConnectivityFilter::ComputeBlockConnectivity(const vtkAMRBox &myBox)
                           box.GetProcessId() );
 
                     }
-
                 } // END if the boxes collide
 
             } // END if different block

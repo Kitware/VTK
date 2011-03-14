@@ -52,7 +52,7 @@ class VTK_AMR_EXPORT vtkAMRConnectivityFilter :
 
     // Description:
     // Computes the inter-block connectivity of the given block.
-    void ComputeBlockConnectivity( const vtkAMRBox &box );
+    void ComputeBlockConnectivity( vtkAMRBox &box );
 
     vtkMultiProcessController*    Controller;
     vtkHierarchicalBoxDataSet*    AMRDataSet;
