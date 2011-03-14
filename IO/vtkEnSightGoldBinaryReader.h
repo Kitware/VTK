@@ -118,7 +118,7 @@ protected:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached. Return -1 if
   // an error occurred.
-  virtual int CreateUnstructuredGridOutput(int partId, 
+  virtual int CreateUnstructuredGridOutput(int partId,
     char line[80],
     const char* name,
     vtkMultiBlockDataSet *output);
@@ -126,7 +126,7 @@ protected:
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGrid output.  Return 0 if EOF reached.
-  virtual int CreateStructuredGridOutput(int partId, 
+  virtual int CreateStructuredGridOutput(int partId,
     char line[256],
     const char* name,
     vtkMultiBlockDataSet *output);
@@ -185,9 +185,10 @@ protected:
 
   ifstream *IFile;
   // The size of the file could be used to choose byte order.
-  int FileSize;
+  vtkIdType FileSize;
 
 private:
+  int SizeOfInt;
   vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&);  // Not implemented.
   void operator=(const vtkEnSightGoldBinaryReader&);  // Not implemented.
 };

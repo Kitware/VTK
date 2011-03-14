@@ -18,6 +18,7 @@ TARGET_LINK_LIBRARIES(IdentityMatrix vtkCommon)
 ADD_EXECUTABLE(ArrayIteration ArrayIteration.cxx)
 TARGET_LINK_LIBRARIES(ArrayIteration vtkCommon)
 
-ADD_EXECUTABLE(AdjacencyMatrix AdjacencyMatrix.cxx)
-TARGET_LINK_LIBRARIES(AdjacencyMatrix vtkInfovis vtkViews)
-
+IF(VTK_USE_VIEWS AND VTK_USE_INFOVIS)
+  ADD_EXECUTABLE(AdjacencyMatrix AdjacencyMatrix.cxx)
+  TARGET_LINK_LIBRARIES(AdjacencyMatrix vtkInfovis vtkViews)
+ENDIF(VTK_USE_VIEWS AND VTK_USE_INFOVIS)

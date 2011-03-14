@@ -17,7 +17,7 @@ class vtkMultiProcessController;
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-#include "vtkExodusII.h"
+#include "vtk_exodusII.h"
 
 class vtkExodusIIReaderParser;
 class vtkMutableDirectedGraph;

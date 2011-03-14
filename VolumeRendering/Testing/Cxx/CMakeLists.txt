@@ -35,6 +35,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestMinIntensityRendering.cxx
       TestProjectedTetrahedra.cxx
       TestProjectedHexahedra.cxx
+      TestProp3DFollower.cxx
       TestSmartVolumeMapper.cxx
       TestSmartVolumeMapperWindowLevel.cxx
       TestTM3DLightComponents.cxx
@@ -60,7 +61,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
   #
-  # Add all the executables 
+  # Add all the executables
   FOREACH (test ${TestsToRun})
     GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
     IF (VTK_DATA_ROOT)
@@ -69,7 +70,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/${KIT}/${TName}.png)
     ELSE (VTK_DATA_ROOT)
-      ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
+      ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
     ENDIF (VTK_DATA_ROOT)
-  ENDFOREACH (test) 
+  ENDFOREACH (test)
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)

@@ -27,7 +27,7 @@
 //
 // The size of the balloon is ultimately controlled by the text properties
 // (i.e., font size). This representation uses a layout policy as follows.
-// 
+//
 // If there is just text and no image, then the text properties and padding
 // are used to control the size of the balloon.
 //
@@ -104,18 +104,18 @@ public:
   // Set/get the text property (relevant only if text is shown).
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
-    
+
   // Description:
   // Set/get the frame property (relevant only if text is shown).
   // The frame lies behind the text.
   virtual void SetFrameProperty(vtkProperty2D *p);
   vtkGetObjectMacro(FrameProperty,vtkProperty2D);
-    
+
   // Description:
   // Set/get the image property (relevant only if an image is shown).
   virtual void SetImageProperty(vtkProperty2D *p);
   vtkGetObjectMacro(ImageProperty,vtkProperty2D);
-    
+
 //BTX
   enum {ImageLeft=0,ImageRight,ImageBottom,ImageTop};
 //ETX
@@ -139,7 +139,7 @@ public:
   // Description:
   // Set/Get the offset from the mouse pointer from which to place the
   // balloon. The representation will try and honor this offset unless there
-  // is a collision with the side of the renderer, in which case the balloon 
+  // is a collision with the side of the renderer, in which case the balloon
   // will be repositioned to lie within the rendering window.
   vtkSetVector2Macro(Offset,int);
   vtkGetVector2Macro(Offset,int);
@@ -155,11 +155,16 @@ public:
   virtual void StartWidgetInteraction(double e[2]);
   virtual void EndWidgetInteraction(double e[2]);
   virtual void BuildRepresentation();
-  
+  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+
   // Description:
   // Methods required by vtkProp superclass.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int RenderOverlay(vtkViewport *viewport);
+
+  // Description:
+  // State is either outside, or inside (on the text portion ot the image).
+  enum _InteractionState {Outside=0, OnText, OnImage};
 
 protected:
   vtkBalloonRepresentation();
@@ -181,7 +186,7 @@ protected:
   vtkTextMapper       *TextMapper;
   vtkActor2D          *TextActor;
   vtkTextProperty     *TextProperty;
-  
+
   // Represent the image
   vtkTexture          *Texture;
   vtkPolyData         *TexturePolyData;
@@ -197,11 +202,11 @@ protected:
   vtkPolyDataMapper2D *FrameMapper;
   vtkActor2D          *FrameActor;
   vtkProperty2D       *FrameProperty;
-  
+
   // Internal variable controlling rendering process
   int TextVisible;
   int ImageVisible;
-  
+
   // Helper methods
   void AdjustImageSize(double imageSize[2]);
   void ScaleImage(double imageSize[2],double scale);

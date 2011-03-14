@@ -65,7 +65,7 @@ class FTGL_EXPORT FTFont
     virtual bool Open( const unsigned char *pBufferBytes, size_t bufferSizeInBytes, bool preCache = true);
 
     /** 
-     * Attach auxilliary file to font (e.g., font metrics). 
+     * Attach auxiliary file to font (e.g., font metrics). 
      */ 
     bool Attach( const char* filename); 
 

@@ -30,125 +30,136 @@ vtkStandardNewMacro(vtkFollower);
 
 vtkCxxSetObjectMacro(vtkFollower,Camera,vtkCamera);
 
+//----------------------------------------------------------------------
 // Creates a follower with no camera set
 vtkFollower::vtkFollower()
 {
   this->Camera = NULL;
   this->Device = vtkActor::New();
+
+  this->InternalMatrix = vtkMatrix4x4::New();
 }
 
+//----------------------------------------------------------------------
 vtkFollower::~vtkFollower()
 {
   if (this->Camera)
     {
     this->Camera->UnRegister(this);
     }
-  
+
   this->Device->Delete();
+
+  this->InternalMatrix->Delete();
 }
 
-// Copy the follower's composite 4x4 matrix into the matrix provided.
-void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
+//----------------------------------------------------------------------------
+void vtkFollower::ComputeMatrix()
 {
-  double *pos, *vup;
-  double Rx[3], Ry[3], Rz[3], p1[3];
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  int i;
-  double distance;
-  
-  this->GetOrientation();
-  this->Transform->Push();  
-  this->Transform->PostMultiply();  
-  this->Transform->Identity();
-
-  // apply user defined matrix last if there is one 
-  if (this->UserMatrix)
+  // check whether or not need to rebuild the matrix
+  if ( this->GetMTime() > this->MatrixMTime ||
+       (this->Camera && this->Camera->GetMTime() > this->MatrixMTime) )
     {
-    this->Transform->Concatenate(this->UserMatrix);
-    }
+    this->GetOrientation();
+    this->Transform->Push();
+    this->Transform->Identity();
+    this->Transform->PostMultiply();
 
-  this->Transform->Translate(-this->Origin[0],
-                             -this->Origin[1],
-                             -this->Origin[2]);
-  // scale
-  this->Transform->Scale(this->Scale[0],
-                         this->Scale[1],
-                         this->Scale[2]);
-  
-  // rotate
-  this->Transform->RotateY(this->Orientation[1]);
-  this->Transform->RotateX(this->Orientation[0]);
-  this->Transform->RotateZ(this->Orientation[2]);
+    this->Transform->Translate(-this->Origin[0],
+                               -this->Origin[1],
+                               -this->Origin[2]);
+    // scale
+    this->Transform->Scale(this->Scale[0],
+                           this->Scale[1],
+                           this->Scale[2]);
 
-  if (this->Camera)
-    {
-    // do the rotation
-    // first rotate y 
-    pos = this->Camera->GetPosition();
-    vup = this->Camera->GetViewUp();
+    // rotate
+    this->Transform->RotateY(this->Orientation[1]);
+    this->Transform->RotateX(this->Orientation[0]);
+    this->Transform->RotateZ(this->Orientation[2]);
 
-    if (this->Camera->GetParallelProjection())
+    if (this->Camera)
       {
-      this->Camera->GetDirectionOfProjection(Rz);
-      Rz[0] = -Rz[0];
-      Rz[1] = -Rz[1];
-      Rz[2] = -Rz[2];
-      }
-    else
-      {
-      distance = sqrt(
-        (pos[0] - this->Position[0])*(pos[0] - this->Position[0]) +
-        (pos[1] - this->Position[1])*(pos[1] - this->Position[1]) +
-        (pos[2] - this->Position[2])*(pos[2] - this->Position[2]));
-      for (i = 0; i < 3; i++)
+      double *pos, *vup, distance;
+      double Rx[3], Ry[3], Rz[3];
+
+      vtkMatrix4x4 *matrix = this->InternalMatrix;
+      matrix->Identity();
+
+      // do the rotation
+      // first rotate y
+      pos = this->Camera->GetPosition();
+      vup = this->Camera->GetViewUp();
+
+      if (this->Camera->GetParallelProjection())
         {
-        Rz[i] = (pos[i] - this->Position[i])/distance;
+        this->Camera->GetDirectionOfProjection(Rz);
+        Rz[0] = -Rz[0];
+        Rz[1] = -Rz[1];
+        Rz[2] = -Rz[2];
         }
+      else
+        {
+        distance = sqrt(
+          (pos[0] - this->Position[0])*(pos[0] - this->Position[0]) +
+          (pos[1] - this->Position[1])*(pos[1] - this->Position[1]) +
+          (pos[2] - this->Position[2])*(pos[2] - this->Position[2]));
+        for (int i = 0; i < 3; i++)
+          {
+          Rz[i] = (pos[i] - this->Position[i])/distance;
+          }
+        }
+
+      // We cannot directly use the vup angle since it can be aligned with Rz:
+      //vtkMath::Cross(vup,Rz,Rx);
+      //vtkMath::Normalize(Rx);
+      //vtkMath::Cross(Rz,Rx,Ry);
+
+      //instead use the view right angle:
+      double dop[3], vur[3];
+      this->Camera->GetDirectionOfProjection(dop);
+
+      vtkMath::Cross(dop,vup,vur);
+      vtkMath::Normalize(vur);
+
+      vtkMath::Cross(Rz, vur, Ry);
+      vtkMath::Normalize(Ry);
+      vtkMath::Cross(Ry,Rz,Rx);
+
+      matrix->Element[0][0] = Rx[0];
+      matrix->Element[1][0] = Rx[1];
+      matrix->Element[2][0] = Rx[2];
+      matrix->Element[0][1] = Ry[0];
+      matrix->Element[1][1] = Ry[1];
+      matrix->Element[2][1] = Ry[2];
+      matrix->Element[0][2] = Rz[0];
+      matrix->Element[1][2] = Rz[1];
+      matrix->Element[2][2] = Rz[2];
+
+      this->Transform->Concatenate(matrix);
       }
-  
-    // We cannot directly use the vup angle since it can be aligned with Rz:
-    //vtkMath::Cross(vup,Rz,Rx);
-    //vtkMath::Normalize(Rx);
-    //vtkMath::Cross(Rz,Rx,Ry);       
-    
-    //instead use the view right angle:
-    double dop[3], vur[3];
-    this->Camera->GetDirectionOfProjection(dop);
 
-    vtkMath::Cross(dop,vup,vur);
-    vtkMath::Normalize(vur);
+    // translate to projection reference point PRP
+    // this is the camera's position blasted through
+    // the current matrix
+    this->Transform->Translate(this->Origin[0] + this->Position[0],
+                               this->Origin[1] + this->Position[1],
+                               this->Origin[2] + this->Position[2]);
 
-    vtkMath::Cross(Rz, vur, Ry);
-    vtkMath::Normalize(Ry);
-    vtkMath::Cross(Ry,Rz,Rx);
+    // apply user defined matrix last if there is one
+    if (this->UserMatrix)
+      {
+      this->Transform->Concatenate(this->UserMatrix);
+      }
 
-    matrix->Element[0][0] = Rx[0];
-    matrix->Element[1][0] = Rx[1];
-    matrix->Element[2][0] = Rx[2];
-    matrix->Element[0][1] = Ry[0];
-    matrix->Element[1][1] = Ry[1];
-    matrix->Element[2][1] = Ry[2];
-    matrix->Element[0][2] = Rz[0];
-    matrix->Element[1][2] = Rz[1];
-    matrix->Element[2][2] = Rz[2];
-
-    this->Transform->Concatenate(matrix);
+    this->Transform->PreMultiply();
+    this->Transform->GetMatrix(this->Matrix);
+    this->MatrixMTime.Modified();
+    this->Transform->Pop();
     }
+}
 
-  // translate to projection reference point PRP
-  // this is the camera's position blasted through
-  // the current matrix
-  p1[0] = this->Origin[0] + this->Position[0];
-  p1[1] = this->Origin[1] + this->Position[1];
-  p1[2] = this->Origin[2] + this->Position[2];
-
-  this->Transform->Translate(p1[0],p1[1],p1[2]);
-  this->Transform->GetMatrix(result);
-  
-  matrix->Delete();
-  this->Transform->Pop();  
-} 
-
+//----------------------------------------------------------------------
 void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -164,6 +175,7 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------
 int vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
@@ -210,6 +222,12 @@ int vtkFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //-----------------------------------------------------------------------------
+void vtkFollower::ReleaseGraphicsResources(vtkWindow *w)
+{
+  this->Device->ReleaseGraphicsResources(w);
+}
+
+//-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 int vtkFollower::HasTranslucentPolygonalGeometry()
@@ -231,13 +249,11 @@ int vtkFollower::HasTranslucentPolygonalGeometry()
 
 //-----------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
-// property and then mapper.  
+// property and then mapper.
 void vtkFollower::Render(vtkRenderer *ren)
 {
   this->Property->Render(this, ren);
-  
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  
+
   this->Device->SetProperty (this->Property);
   this->Property->Render(this, ren);
   if (this->BackfaceProperty)
@@ -251,22 +267,15 @@ void vtkFollower::Render(vtkRenderer *ren)
     {
     this->Texture->Render(ren);
     }
-    
+
   // make sure the device has the same matrix
-  this->GetMatrix(matrix);
-  this->Device->SetUserMatrix(matrix);
-  
+  this->ComputeMatrix();
+  this->Device->SetUserMatrix(this->Matrix);
+
   this->Device->Render(ren,this->Mapper);
-
-  matrix->Delete();
 }
 
-void vtkFollower::GetMatrix(double m[16])
-{
-  this->GetMatrix(this->Matrix); 
-  vtkMatrix4x4::DeepCopy(m,this->Matrix);
-}
-
+//----------------------------------------------------------------------
 void vtkFollower::ShallowCopy(vtkProp *prop)
 {
   vtkFollower *f = vtkFollower::SafeDownCast(prop);

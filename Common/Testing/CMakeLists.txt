@@ -110,7 +110,6 @@ IF(PYTHON_EXECUTABLE)
     vtkWeakPointer.h
     vtkWeakPointerBase.h
     vtkWin32Header.h
-    vtkWinCE.h
     vtkWindows.h
     vtkXMLFileOutputWindow.h
     )

@@ -141,6 +141,7 @@ SET( Kit_SRCS
   vtkPrimitivePainter.cxx
   vtkProp3DCollection.cxx
   vtkProp3D.cxx
+  vtkProp3DFollower.cxx
   vtkProperty.cxx
   vtkPropPicker.cxx
   vtkQuadricLODActor.cxx
@@ -206,7 +207,7 @@ ENDIF (NOT VTK_LEGACY_REMOVE)
 
 IF(VTK_USE_GL2PS)
   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)
-   
+
   IF(VTK_USE_SYSTEM_GL2PS)
   ELSE(VTK_USE_SYSTEM_GL2PS)
     SET(Kit_GL2PS_SRCS ${VTK_SOURCE_DIR}/Utilities/vtkgl2ps/gl2ps.c)
@@ -216,7 +217,7 @@ IF(VTK_USE_GL2PS)
 ENDIF(VTK_USE_GL2PS)
 
 IF(VTK_USE_CG_SHADERS)
-  SET(Kit_SRCS ${Kit_SRCS} 
+  SET(Kit_SRCS ${Kit_SRCS}
     vtkCgShader.cxx
     vtkCgShaderDeviceAdapter.cxx
     vtkCgShaderProgram.cxx
@@ -354,7 +355,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkFreeTypeUtilities
   WRAP_EXCLUDE)
 
-SET(Kit_FT_SRCS 
+SET(Kit_FT_SRCS
   fonts/face_arial.cxx
   fonts/face_arial_bold.cxx
   fonts/face_arial_bold_italic.cxx
@@ -379,7 +380,7 @@ IF(VTK_USE_X)
   OPTION(VTK_USE_TDX "Use 3Dconnexion device" OFF)
   MARK_AS_ADVANCED(VTK_USE_TDX)
   IF(VTK_USE_TDX)
-   
+
    SET(VTK_TDX_INCLUDE_PATH CACHE PATH "Directory path to xdrvlib.h for 3DConnexion device")
    SET(VTK_TDX_OBJECT_PATH CACHE FILEPATH "File path to xdrvlib.a for 3DConnexion device")
    SET(Kit_SRCS ${Kit_SRCS} vtkTDxDevice.cxx vtkTDxUnixDevice.cxx)
@@ -420,7 +421,7 @@ ENDIF()
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Rendering/vtkTDxConfigure.h.in
                ${VTK_BINARY_DIR}/Rendering/vtkTDxConfigure.h @ONLY IMMEDIATE)
 
-IF(VTK_USE_QT)   
+IF(VTK_USE_QT)
   SET(QT_DONT_USE_QTGUI)
   INCLUDE(${QT_USE_FILE})
 
@@ -447,43 +448,44 @@ IF(VTK_USE_QT)
 ENDIF(VTK_USE_QT)
 
 # The set of source files to be encoded.
-SET(glsl_files
-  vtkColorMaterialHelper_vs
-  vtkDepthPeeling_fs
-  vtkGaussianBlurPassShader_fs
-  vtkLighting_s # s not vs or fs because it can be used in both.
-  vtkLightingHelper_s # s not vs or fs because it can be used in both.
-  vtkLineIntegralConvolution2D_fs
-  vtkLineIntegralConvolution2D_fs1
-  vtkLineIntegralConvolution2D_fs2
-  vtkOpenGLRenderer_PeelingFS
-  vtkOpenGLPropertyDefaultPropFunc_fs
-  vtkOpenGLPropertyDefaultPropFunc_vs
-  vtkOpenGLPropertyDefaultMain_fs
-  vtkOpenGLPropertyDefaultMain_vs
-  vtkSobelGradientMagnitudePassShader1_fs
-  vtkSobelGradientMagnitudePassShader2_fs
-  vtkShadowMapPassShader_fs
-  vtkShadowMapPassShader_vs
-  vtkSurfaceLICPainter_fs1
-  vtkSurfaceLICPainter_fs2
-  vtkSurfaceLICPainter_vs1
+SET(shader_files
+  vtkColorMaterialHelper_vs.glsl
+  vtkDepthPeeling_fs.glsl
+  vtkGaussianBlurPassShader_fs.glsl
+  vtkLighting_s.glsl # s not vs or fs because it can be used in both.
+  vtkLightingHelper_s.glsl # s not vs or fs because it can be used in both.
+  vtkLineIntegralConvolution2D_fs.glsl
+  vtkLineIntegralConvolution2D_fs1.glsl
+  vtkLineIntegralConvolution2D_fs2.glsl
+  vtkOpenGLRenderer_PeelingFS.glsl
+  vtkOpenGLPropertyDefaultPropFunc_fs.glsl
+  vtkOpenGLPropertyDefaultPropFunc_vs.glsl
+  vtkOpenGLPropertyDefaultMain_fs.glsl
+  vtkOpenGLPropertyDefaultMain_vs.glsl
+  vtkSobelGradientMagnitudePassShader1_fs.glsl
+  vtkSobelGradientMagnitudePassShader2_fs.glsl
+  vtkShadowMapPassShader_fs.glsl
+  vtkShadowMapPassShader_vs.glsl
+  vtkSurfaceLICPainter_fs1.glsl
+  vtkSurfaceLICPainter_fs2.glsl
+  vtkSurfaceLICPainter_vs1.glsl
   )
 
 # Create custom commands to encode each assembly file into a C string
 # literal in a header file.
 
-SET(glsl_h_files)
-FOREACH(file ${glsl_files})
-  SET(src ${VTK_SOURCE_DIR}/Rendering/${file}.glsl)
-  SET(res ${VTK_BINARY_DIR}/Rendering/${file}.cxx)
-  SET(resh ${VTK_BINARY_DIR}/Rendering/${file}.h)
-  SET(glsl_h_files ${glsl_h_files} "${resh}")
+SET(shader_h_files)
+FOREACH(file ${shader_files})
+  GET_FILENAME_COMPONENT(file_we ${file} NAME_WE)
+  SET(src ${VTK_SOURCE_DIR}/Rendering/${file})
+  SET(res ${VTK_BINARY_DIR}/Rendering/${file_we}.cxx)
+  SET(resh ${VTK_BINARY_DIR}/Rendering/${file_we}.h)
+  SET(shader_h_files ${shader_h_files} "${resh}")
   ADD_CUSTOM_COMMAND(
     OUTPUT ${res} ${resh}
     DEPENDS ${src} vtkEncodeString
     COMMAND ${VTK_ENCODESTRING_EXE}
-    ARGS ${res} ${src} ${file} --build-header VTK_RENDERING_EXPORT vtkSystemIncludes.h
+    ARGS ${res} ${src} ${file_we} --build-header VTK_RENDERING_EXPORT vtkSystemIncludes.h
     )
   SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
 ENDFOREACH(file)
@@ -505,8 +507,8 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(vtkOpenGLExtensionManager.cxx
   PROPERTIES OBJECT_DEPENDS ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx)
 
-SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} 
-  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx 
+SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
+  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -606,7 +608,7 @@ IF (WIN32)
     IF (OPENGL_gl_LIBRARY)
       SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkXOpenGLRenderWindow.cxx)
       SET(KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} )
-    ENDIF (OPENGL_gl_LIBRARY)    
+    ENDIF (OPENGL_gl_LIBRARY)
   ELSE(VTK_USE_X)
     SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
                  vtkWin32OpenGLRenderWindow.cxx
@@ -620,13 +622,13 @@ ELSE (WIN32)
                    vtkCocoaRenderWindowInteractor.mm
                    vtkCocoaRenderWindow.mm
                    vtkCocoaGLView.mm)
-       
+
       # The objective-c++ classes might need their own flags.
       # Set them if specified.
       IF(VTK_REQUIRED_OBJCXX_FLAGS)
 
-        SET_SOURCE_FILES_PROPERTIES(vtkCocoaRenderWindowInteractor.mm 
-                                    vtkCocoaRenderWindow.mm 
+        SET_SOURCE_FILES_PROPERTIES(vtkCocoaRenderWindowInteractor.mm
+                                    vtkCocoaRenderWindow.mm
                                     vtkCocoaGLView.mm
                                     PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
 
@@ -674,7 +676,7 @@ ENDIF(VTK_USE_CG_SHADERS)
 
 if(DirectX_FOUND)
  # d3d9.lib for symbol Direct3DCreate9
- # symbol CLSID_WbemLocator IID_IWbemLocator: wbemuuid.lib 
+ # symbol CLSID_WbemLocator IID_IWbemLocator: wbemuuid.lib
  # wbemuuid.lib is *NOT A FILE* (you cannot find it), it is probably an
  # embedded library added by the linker itself.
  set(KIT_LIBS ${KIT_LIBS} ${DirectX_LIBRARY} wbemuuid)
@@ -788,8 +790,8 @@ IF (VTK_WRAP_TCL AND VTK_USE_TK)
   IF(VTK_USE_CARBON)
     SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} "-framework Carbon")
   ENDIF(VTK_USE_CARBON)
-  SET(Kit_TCL_EXTRA_CMDS 
-    vtkTkRenderWidget 
+  SET(Kit_TCL_EXTRA_CMDS
+    vtkTkRenderWidget
     vtkTkImageViewerWidget)
 ENDIF (VTK_WRAP_TCL AND VTK_USE_TK)
 
@@ -808,6 +810,7 @@ ENDIF(NOT CMAKE_CROSSCOMPILING)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
+    ${shader_h_files}
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGL.h
     ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
@@ -835,7 +838,7 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
   IF(VTK_USE_CARBON)
     SET(VTK_PYTHONTK_LIBRARIES ${VTK_PYTHONTK_LIBRARIES} "-framework Carbon")
   ENDIF(VTK_USE_CARBON)
- 
+
   TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                         vtk${KIT}
                         ${VTK_PYTHONTK_LIBRARIES})
@@ -858,9 +861,9 @@ ENDIF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
 IF(VTK_USE_X)
   SET(X11_LIB_SEARCH_PATH
     /usr/X11R6/lib
-    /usr/local/lib 
-    /usr/openwin/lib 
-    /usr/lib 
+    /usr/local/lib
+    /usr/openwin/lib
+    /usr/lib
     )
   FIND_LIBRARY(X11_Xt_LIB Xt ${X11_LIB_SEARCH_PATH})
   MARK_AS_ADVANCED(X11_Xt_LIB)

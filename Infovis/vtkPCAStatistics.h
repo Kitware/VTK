@@ -129,7 +129,7 @@ public:
   // Get the eigenvalues. This function:
   // void GetEigenvalues(int request, int i, vtkDoubleArray*);
   // does all of the work. The other functions simply call this function with the appropriate
-  // paramters. These functions are not valid unless Update() has been called and the Derive
+  // parameters. These functions are not valid unless Update() has been called and the Derive
   // option is turned on.
   void GetEigenvalues(int request, vtkDoubleArray*);
   void GetEigenvalues(vtkDoubleArray*);

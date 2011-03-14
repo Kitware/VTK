@@ -36,7 +36,7 @@
 #define _NETCDF_
 
 #include "vtk_netcdf_mangle.h"
-#include "ncconfig.h" /* for DLL_NETCDF */
+#include "vtknetcdf/ncconfig.h" /* for DLL_NETCDF */
 
 #include <stddef.h> /* size_t, ptrdiff_t */
 #include <errno.h>  /* netcdf functions sometimes return system errors */

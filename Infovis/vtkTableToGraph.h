@@ -20,7 +20,7 @@
 // .NAME vtkTableToGraph - convert a vtkTable into a vtkGraph
 //
 // .SECTION Description
-// vtkTableToGraph converts a table to a graph using an auxilliary 
+// vtkTableToGraph converts a table to a graph using an auxiliary 
 // link graph.  The link graph specifies how each row in the table
 // should be converted to an edge, or a collection of edges.  It also
 // specifies which columns of the table should be considered part of

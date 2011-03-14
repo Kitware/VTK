@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExodusII.h
+  Module:    vtk_exodusII.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,16 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifndef __vtk_exodusII_h
+#define __vtk_exodusII_h
 
-#ifndef __vtkExodusII_h
-#define __vtkExodusII_h
+/* Use the exodusII library configured for VTK.  */
+#include <vtkexodus2/include/exodusII.h>
 
-/* this file makes sure any change in vtk_exodus2_mangle.h will trigger
- * a rebuild of the exodus reader in vtkHybrid package.
- * Files in Hybrid must include vtkExodusII.h instead of exodusII.h
- */
-
-#include "exodusII.h"
-#include "vtk_exodus2_mangle.h"
-
-#endif /* #ifndef __vtkExodusII_h */
+#endif

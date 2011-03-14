@@ -43,7 +43,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <netcdf.h>
+#include "vtk_netcdf.h"
 
 //=============================================================================
 #define CALL_NETCDF(call)                       \

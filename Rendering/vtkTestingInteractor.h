@@ -33,8 +33,15 @@
 class VTK_RENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
 {
 public:
+  // Description:
+  // Standard object factory instantiation method.
   static vtkTestingInteractor* New();
+
+  // Description:
+  // Type and printing information.
   vtkTypeMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   virtual void Start();
 
   static int         TestReturnStatus;  // Return status of the test

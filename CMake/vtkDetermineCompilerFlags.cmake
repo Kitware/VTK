@@ -96,12 +96,12 @@ IF(APPLE)
     # -no-cpp-precomp was a compiler flag present only in Apple's gcc and not
     # in the FSF gcc. The flag is obsolete and totally removed in gcc 4.2
     # and later. I believe it is only needed with gcc 3.3 and earlier.
-    INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkCheckCXXAcceptsFlags.cmake)
-    vtkCHECK_CXX_ACCEPTS_FLAGS("-no-cpp-precomp" CXX_HAS_CPP_PRECOMP_FLAG)
-    IF(${CXX_HAS_CPP_PRECOMP_FLAG})
+    EXECUTE_PROCESS(COMMAND "${CMAKE_C_COMPILER}" --version
+      OUTPUT_VARIABLE _version ERROR_VARIABLE _version)
+    IF("${_version}" MATCHES "gcc.*3\\.3.*Apple")
       SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -no-cpp-precomp")
       SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -no-cpp-precomp")
-    ENDIF(${CXX_HAS_CPP_PRECOMP_FLAG})
+    ENDIF()
     IF(NOT BUILD_SHARED_LIBS)
       SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -mlong-branch")
       SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -mlong-branch")
