@@ -237,8 +237,8 @@ void vtkAMRDataTransferFilter::CopyCellData(
                 int component = 0;
                 for( ;component<newArray->GetNumberOfComponents(); ++component)
                   {
-                    newArray->SetComponent(tIdx,component,
-                        src->GetCellData()->GetComponent( sIdx, component ) );
+                      newArray->SetComponent(
+                       tIdx,component,arrayPtr->GetComponent(sIdx, component));
                   } // END for all array components
 
               } // END for all k

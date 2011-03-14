@@ -17,6 +17,7 @@
 //  and inter-block data transfer.
 
 #include <cmath>
+#include <sstream>
 #include <cassert>
 #include <mpi.h>
 
@@ -31,7 +32,7 @@
 #include "vtkAMRConnectivityFilter.h"
 #include "vtkAMRDataTransferFilter.h"
 #include "vtkHierarchicalBoxDataSet.h"
-#include "vtkXMLPHierarchicalBoxDataWriter.h"
+#include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMPIController.h"
 #include "vtkAMRUtilities.h"
@@ -41,10 +42,12 @@
 vtkMultiProcessController *Controller;
 
 // Function Prototypes
+void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix );
 vtkHierarchicalBoxDataSet* GetSerialAMRDataSet();
 vtkHierarchicalBoxDataSet* GetParallelAMRDataSet();
 vtkUniformGrid* GetGrid( double* origin,double* h,int* ndim );
 void ComputeGaussianPulseError( vtkHierarchicalBoxDataSet *amrData );
+double ComputePulseAt( vtkUniformGrid *grid, const int cellIdx );
 
 //
 // Main
@@ -113,6 +116,7 @@ int main( int argc, char **argv )
   vtkHierarchicalBoxDataSet *newData = transferFilter->GetExtrudedData();
   assert( "extruded data is NULL!" && (newData != NULL) );
   ComputeGaussianPulseError( newData );
+  WriteAMRData( newData, "NEWDATA" );
 
   std::cout << "[DONE]\n";
   std::cout.flush();
@@ -133,6 +137,67 @@ int main( int argc, char **argv )
 //=============================================================================
 
 //------------------------------------------------------------------------------
+void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )
+{
+  assert( "pre: AMR Data is NULL!" && (amrData != NULL) );
+
+  vtkXMLHierarchicalBoxDataWriter *myAMRWriter=
+    vtkXMLHierarchicalBoxDataWriter::New();
+
+  std::ostringstream oss;
+  oss << prefix << "." << myAMRWriter->GetDefaultFileExtension();
+
+  myAMRWriter->SetFileName( oss.str().c_str() );
+  myAMRWriter->SetInput( amrData );
+  myAMRWriter->Write();
+  myAMRWriter->Delete();
+}
+
+//------------------------------------------------------------------------------
+double ComputePulseAt( vtkUniformGrid *grid, const int cellIdx )
+{
+  // Sanity check
+  assert( "pre: grid != NULL" && (grid != NULL) );
+  assert( "pre: cellIdx in bounds" &&
+         ( (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells()) ) );
+
+  // Gaussian Pulse parameters
+  double x0 = 6.0;
+  double y0 = 6.0;
+  double lx = 12;
+  double ly = 12;
+  double a  = 0.1;
+
+  vtkCell* myCell = grid->GetCell( cellIdx);
+  assert( "post: myCell != NULL" && (myCell != NULL) );
+
+  vtkPoints *cellPoints = myCell->GetPoints();
+
+  double xyzCenter[3];
+  xyzCenter[0] = 0.0;
+  xyzCenter[1] = 0.0;
+  xyzCenter[2] = 0.0;
+
+  for( int cp=0; cp < cellPoints->GetNumberOfPoints(); ++cp )
+    {
+       double pnt[3];
+       cellPoints->GetPoint( cp, pnt );
+       xyzCenter[0] += pnt[0];
+       xyzCenter[1] += pnt[1];
+       xyzCenter[2] += pnt[2];
+    } // END for all cell points
+
+  double x = xyzCenter[0] / (cellPoints->GetNumberOfPoints());
+  double y = xyzCenter[1] / (cellPoints->GetNumberOfPoints());
+  double z = xyzCenter[2] / (cellPoints->GetNumberOfPoints());
+  double r = ( ( (x-x0)*(x-x0) ) / ( lx*lx ) ) +
+             ( ( (y-y0)*(y-y0) ) / ( ly*ly ) );
+  double f = a*std::exp( -r );
+
+  return( f );
+}
+
+//------------------------------------------------------------------------------
 void ComputeGaussianPulseError( vtkHierarchicalBoxDataSet *data )
 {
   // Sanity check
@@ -147,6 +212,7 @@ void ComputeGaussianPulseError( vtkHierarchicalBoxDataSet *data )
           if( ug != NULL )
             {
               vtkDoubleArray *err = vtkDoubleArray::New();
+              err->SetName( "err" );
               err->SetNumberOfComponents( 1 );
               err->SetNumberOfValues( ug->GetNumberOfCells() );
 
@@ -159,7 +225,10 @@ void ComputeGaussianPulseError( vtkHierarchicalBoxDataSet *data )
 
               for( int cell=0; cell < ug->GetNumberOfCells(); ++cell )
                 {
-
+                  double expected = ComputePulseAt( ug, cell );
+                  double actual   = pulse->GetComponent( cell, 0 );
+                  double abserr   = std::abs( (actual-expected) );
+                  err->SetComponent( cell, 0, abserr );
                 } // END for all grid cells
 
               CD->AddArray( err );
@@ -253,46 +322,13 @@ vtkUniformGrid* GetGrid( double *origin, double *spacing, int *ndim )
   grd->SetSpacing( spacing );
   grd->SetDimensions( ndim );
 
-  // Apply Gaussian Pulse
-  double x0 = 6.0;
-  double y0 = 6.0;
-  double lx = 12;
-  double ly = 12;
-  double a  = 0.1;
-
   vtkDoubleArray* xyz = vtkDoubleArray::New( );
   xyz->SetName( "GaussianPulse" );
   xyz->SetNumberOfComponents( 1 );
   xyz->SetNumberOfTuples( grd->GetNumberOfCells() );
   for( int cellIdx=0; cellIdx < grd->GetNumberOfCells(); ++cellIdx )
     {
-      vtkCell* myCell = grd->GetCell( cellIdx);
-      assert( "post: myCell != NULL" && (myCell != NULL) );
-
-      vtkPoints *cellPoints = myCell->GetPoints();
-
-      double xyzCenter[3];
-      xyzCenter[0] = 0.0;
-      xyzCenter[1] = 0.0;
-      xyzCenter[2] = 0.0;
-
-      for( int cp=0; cp < cellPoints->GetNumberOfPoints(); ++cp )
-        {
-          double pnt[3];
-          cellPoints->GetPoint( cp, pnt );
-          xyzCenter[0] += pnt[0];
-          xyzCenter[1] += pnt[1];
-          xyzCenter[2] += pnt[2];
-        } // END for all cell points
-
-      double x = xyzCenter[0] / (cellPoints->GetNumberOfPoints());
-      double y = xyzCenter[1] / (cellPoints->GetNumberOfPoints());
-      double z = xyzCenter[2] / (cellPoints->GetNumberOfPoints());
-
-      double r = ( ( (x-x0)*(x-x0) ) / ( lx*lx ) ) +
-                 ( ( (y-y0)*(y-y0) ) / ( ly*ly ) );
-      double f = a*std::exp( -r );
-      xyz->SetTuple1(cellIdx,f);
+      xyz->SetTuple1(cellIdx, ComputePulseAt(grd,cellIdx) );
     } // END for all cells
 
   grd->GetCellData()->AddArray(xyz);
