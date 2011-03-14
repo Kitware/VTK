@@ -87,7 +87,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
     // If mapper did not specify a component, use the VectorMode
     if (comp < 0 && numberOfComponents > 1)
       {
-      this->MapVectorsThroughTable(scalars->GetVoidPointer(comp),
+      this->MapVectorsThroughTable(scalars->GetVoidPointer(0),
                                    newColors->GetPointer(0),
                                    scalars->GetDataType(),
                                    scalars->GetNumberOfTuples(),
