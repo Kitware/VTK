@@ -69,7 +69,8 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       ENDIF (TMP_FILEPATH)
 
       IF(NOT "${KIT}" STREQUAL "Rendering" OR
-         NOT "${TMP_FILENAME}" STREQUAL "vtkgl")
+         (NOT "${TMP_FILENAME}" STREQUAL "vtkgl" AND
+          NOT "${TMP_FILENAME}" STREQUAL "vtkOpenGLState"))
       IF(NOT "${KIT}" STREQUAL "Filtering" OR
          NOT "${TMP_FILENAME}" STREQUAL "vtkInformation")
 
@@ -97,7 +98,8 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       ENDIF(NOT "${KIT}" STREQUAL "Filtering" OR
             NOT "${TMP_FILENAME}" STREQUAL "vtkInformation")
       ENDIF(NOT "${KIT}" STREQUAL "Rendering" OR
-            NOT "${TMP_FILENAME}" STREQUAL "vtkgl")
+            (NOT "${TMP_FILENAME}" STREQUAL "vtkgl" AND
+             NOT "${TMP_FILENAME}" STREQUAL "vtkOpenGLState"))
     ENDIF (IGNORE_WRAP_EXCLUDE OR TMP_WRAP_SPECIAL OR NOT TMP_WRAP_EXCLUDE)
   ENDFOREACH(FILE)
 
