@@ -150,10 +150,20 @@ void ComputeGaussianPulseError( vtkHierarchicalBoxDataSet *data )
               err->SetNumberOfComponents( 1 );
               err->SetNumberOfValues( ug->GetNumberOfCells() );
 
+              vtkCellData *CD = ug->GetCellData();
+              assert( "pre: Grid must have cell data!" &&
+                      (CD->GetNumberOfArrays() > 0) );
+
+              vtkDataArray *pulse = CD->GetArray( "GaussianPulse" );
+              assert( "pre: Pulse data not found on grid!" && (pulse!=NULL) );
+
               for( int cell=0; cell < ug->GetNumberOfCells(); ++cell )
                 {
-                  //TODO: implement this
-                }// END for all grid cells
+
+                } // END for all grid cells
+
+              CD->AddArray( err );
+              err->Delete();
             }
 
         } // END for all data
