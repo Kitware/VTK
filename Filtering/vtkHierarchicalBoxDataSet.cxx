@@ -249,7 +249,7 @@ void vtkHierarchicalBoxDataSet::SetMetaData(
           info->Set(BOX(),loCorner[0], loCorner[1], loCorner[2],
                           hiCorner[0], hiCorner[1], hiCorner[2]);
           double x0[3];
-          box.GetBoxOrigin( x0 );
+          box.GetDataSetOrigin( x0 );
           info->Set(BOX_ORIGIN(), x0[0], x0[1], x0[2] );
           info->Set(RANK(), box.GetProcessId() );
           info->Set(BLOCK_ID(), box.GetBlockId() );
