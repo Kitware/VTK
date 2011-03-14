@@ -135,7 +135,7 @@ public:
 
   // Description:
   // Determines if two AMR boxes collide.
-  static bool Collides( const vtkAMRBox &b1, const vtkAMRBox &b2 );
+  static bool Collides( vtkAMRBox &b1, vtkAMRBox &b2 );
 
   // Description:
   // Set the box to null;

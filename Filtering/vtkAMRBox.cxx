@@ -841,7 +841,7 @@ double vtkAMRBox::GetMinX() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetBoxOrigin(pnt);
+  this->GetMinBounds( pnt );
 
   return( pnt[0] );
 }
@@ -852,7 +852,7 @@ double vtkAMRBox::GetMinY() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetBoxOrigin(pnt);
+  this->GetMinBounds( pnt );
 
   if( this->Dimension >= 2 )
       return( pnt[1] );
@@ -865,7 +865,7 @@ double vtkAMRBox::GetMinZ() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetBoxOrigin(pnt);
+  this->GetMinBounds( pnt );
 
   if( this->Dimension >= 3 )
     return( pnt[2] );
@@ -878,7 +878,7 @@ double vtkAMRBox::GetMaxX() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetPoint( this->HiCorner, pnt );
+  this->GetMaxBounds( pnt );
   return( pnt[0] );
 }
 
@@ -888,7 +888,7 @@ double vtkAMRBox::GetMaxY() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetPoint( this->HiCorner, pnt );
+  this->GetMaxBounds( pnt );
 
   if( this->Dimension >= 2 )
     return( pnt[1] );
@@ -901,7 +901,7 @@ double vtkAMRBox::GetMaxZ() const
   vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
 
   double pnt[3];
-  this->GetPoint( this->HiCorner, pnt );
+  this->GetMaxBounds( pnt );
 
   if( this->Dimension == 3 )
    return( pnt[2] );
@@ -1421,19 +1421,23 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRBox::Collides( const vtkAMRBox &b1, const vtkAMRBox &b2)
+bool vtkAMRBox::Collides( vtkAMRBox &b1, vtkAMRBox &b2)
 {
   double min1[3];
   double max1[3];
   double min2[3];
   double max2[3];
 
+  // Sanity check
+  assert( "pre: boxes must be of the same dimension" &&
+          (b1.GetDimensionality( ) == b2.GetDimensionality( )  ) );
+
   b1.GetMinBounds( min1 );
   b1.GetMaxBounds( max1 );
   b2.GetMinBounds( min2 );
   b2.GetMaxBounds( max2 );
 
-  for( int i=0; i < 3; ++i )
+  for( int i=0; i < b1.GetDimensionality(); ++i )
     {
 
       if( (min1[i] >= min2[i]) && (min1[i] <= max2[i]) )
