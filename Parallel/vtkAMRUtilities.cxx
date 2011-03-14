@@ -414,6 +414,7 @@ void vtkAMRUtilities::ComputeLocalMetaData(
             {
               vtkAMRBox myBox;
               CreateAMRBoxForGrid( origin, myGrid, myBox );
+              myBox.SetBlockId( idx );
               myBox.SetLevel( level );
               myBox.SetProcessId( process );
               myAMRData->SetMetaData( level, idx, myBox );
