@@ -28,10 +28,18 @@
 #include "vtkStructuredGridWriter.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkXMLHierarchicalBoxDataWriter.h"
+#include "vtkAMRGridIndexEncoder.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataWriter.h"
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkAMRLink.h"
 
 #include <string>
 #include <sstream>
 #include <cassert>
+#include <vtkstd/map>
+#include <algorithm>
 
 //
 // Standard Functions
@@ -52,12 +60,146 @@ vtkAMRDataTransferFilter::vtkAMRDataTransferFilter()
 vtkAMRDataTransferFilter::~vtkAMRDataTransferFilter()
 {
   this->ExtrudedData->Delete();
+
+  vtkstd::map<unsigned int,vtkPolyData*>::iterator it;
+  for( it=this->ReceiverList.begin(); it != this->ReceiverList.end(); ++it )
+      it->second->Delete();
+  this->ReceiverList.erase(this->ReceiverList.begin(),this->ReceiverList.end());
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
-  // Not implemented
+  this->Superclass::PrintSelf( oss, indent );
+}
+
+//------------------------------------------------------------------------------
+bool vtkAMRDataTransferFilter::IsGhostCell( vtkUniformGrid *ug, int cellIdx )
+{
+  assert( "pre: input grid is NULL" && (ug != NULL) );
+  assert( "pre: cell index out-of-bounds" &&
+          ( (cellIdx >= 0) & (cellIdx < ug->GetNumberOfCells() ) )  );
+
+  vtkCellData *CD = ug->GetCellData();
+  assert( "pre: cell data is NULL!" && (CD != NULL) );
+
+  if( CD->HasArray("GHOST") )
+    {
+      vtkIntArray *ghostArray =
+       vtkIntArray::SafeDownCast( CD->GetArray( "GHOST" ) );
+      assert( "pre: ghost array is NULL!" && (ghostArray != NULL) );
+
+      if( ghostArray->GetValue( cellIdx ) == 0 )
+        return true;
+    }
+
+  // Note: If the grid does not have any GHOST information, then
+  // the cell is assumed to be a real cell of the grid.
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::ComputeCellCenter(
+             vtkUniformGrid *ug, int cellIdx, double center[3] )
+{
+  // Sanity checsk
+  assert( "input grid is NULL" && (ug != NULL)  );
+  assert( "center array is NULL" && (center != NULL) );
+
+  vtkCell *myCell = ug->GetCell( cellIdx );
+  assert( "post: cell is NULL" && (myCell != NULL) );
+
+  double pCenter[3];
+  double *weights = new double[ myCell->GetNumberOfPoints() ];
+  int subId       = myCell->GetParametricCenter( pCenter );
+  myCell->EvaluateLocation( subId,pCenter,center,weights );
+  delete [] weights;
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::WriteReceivers( )
+{
+  std::map< unsigned int, vtkPolyData* >::iterator it=this->ReceiverList.begin();
+  std::ostringstream oss;
+
+  for( ; it != this->ReceiverList.end(); ++it )
+    {
+      int level = -1;
+      int idx   = -1;
+      vtkAMRGridIndexEncoder::decode( it->first,level,idx );
+
+      oss.str( "" ); oss.clear();
+      oss << "Receivers_" << level << "_" << idx << ".vtk";
+
+      vtkPolyData *myData = it->second;
+      if( myData != NULL )
+        {
+          vtkPolyDataWriter *myWriter = vtkPolyDataWriter::New();
+          myWriter->SetFileName( oss.str().c_str() );
+          myWriter->SetInput( it->second );
+          myWriter->Write();
+          myWriter->Delete();
+        }
+
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::GetReceivers( )
+{
+  assert( "pre: Extruded data" && (this->ExtrudedData != NULL) );
+
+  unsigned int level = 0;
+  for( ; level < this->ExtrudedData->GetNumberOfLevels(); ++level )
+    {
+      unsigned int idx = 0;
+      for( ; idx < this->ExtrudedData->GetNumberOfDataSets( level ); ++idx )
+        {
+
+          vtkUniformGrid *gridPtr = this->ExtrudedData->GetDataSet(level,idx);
+          if( gridPtr != NULL )
+            {
+              unsigned int gridIdx = vtkAMRGridIndexEncoder::encode(level,idx);
+              if(this->ReceiverList.find( gridIdx )!=this->ReceiverList.end())
+                {
+                  this->ReceiverList[ gridIdx ]->Delete();
+                  this->ReceiverList.erase( gridIdx );
+                }
+
+              vtkPolyData  *receivers   = vtkPolyData::New();
+              vtkCellArray *vertexCells = vtkCellArray::New();
+              vtkPoints *myPoints       = vtkPoints::New();
+              vtkIntArray *meshIDData   = vtkIntArray::New();
+              meshIDData->SetName( "CellID" );
+
+              for( int i=0; i < gridPtr->GetNumberOfCells(); ++i )
+                {
+                  if( this->IsGhostCell( gridPtr, i) )
+                    {
+                      double center[3];
+                      this->ComputeCellCenter( gridPtr, i, center );
+                      myPoints->InsertNextPoint( center );
+
+                      vtkIdType cidx =  myPoints->GetNumberOfPoints()-1;
+                      vertexCells->InsertNextCell( 1, &cidx );
+                      meshIDData->InsertNextValue( i );
+                    } // END if ghost cell
+                } // END for all cells
+
+              receivers->SetPoints( myPoints );
+              myPoints->Delete();
+
+              receivers->SetVerts( vertexCells );
+              vertexCells->Delete();
+
+              receivers->GetPointData()->AddArray( meshIDData );
+              meshIDData->Delete();
+
+              this->ReceiverList[ gridIdx ] = receivers;
+            } // END if grid is not NULL
+
+        } // END for all grids
+    } // END for all levels
 }
 
 //------------------------------------------------------------------------------
@@ -147,6 +289,52 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::FindDonors(
+    const unsigned int receiverIdx,
+    const int donorGridLevel,
+    const int donorBlockIdx )
+{
+  if( this->ReceiverList.find(receiverIdx) == this->ReceiverList.end() )
+    return;
+
+  vtkPolyData *myReceivers = this->ReceiverList[ receiverIdx ];
+  assert( "pre: receivers are NULL!" && (myReceivers != NULL) );
+
+  if( myReceivers->GetNumberOfPoints() == 0 )
+    return;
+
+  vtkUniformGrid *ug=
+   this->AMRDataSet->GetDataSet( donorGridLevel,donorBlockIdx );
+  assert( "pre: donor grid is NULL!" && (ug != NULL) );
+
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::LocalDonorSearch()
+{
+  vtkUnsignedIntArray *cons = this->LocalConnectivity->GetEncodedGridKeys();
+
+  unsigned int con = 0;
+  for( ; con < cons->GetNumberOfTuples(); ++con )
+    {
+      unsigned int idx= cons->GetValue( con );
+      int level       = -1;
+      int blockIdx    = -1;
+      vtkAMRGridIndexEncoder::decode(idx,level,blockIdx);
+
+      int nCons=this->LocalConnectivity->GetNumberOfConnections(blockIdx,level);
+      for( int i=0; i < nCons; ++i )
+        {
+          vtkAMRLink lnk=
+           this->LocalConnectivity->GetConnection( blockIdx,level,i);
+          this->FindDonors( idx, lnk.GetLevel(),lnk.GetBlockID() );
+        } // END for all grid connections
+
+    } // END for all grids with local connections
+
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::DonorSearch()
 {
   // Sanity checks
@@ -154,8 +342,11 @@ void vtkAMRDataTransferFilter::DonorSearch()
   assert("pre: RemoteConnectivity != NULL" && (this->RemoteConnectivity!=NULL));
   assert("pre: LocalConnectivity != NULL" && (this->LocalConnectivity!=NULL));
 
-  // TODO:
+  this->GetReceivers();
+  this->WriteReceivers();
+
   // Call LocalDonorSearch()
+  this->LocalDonorSearch();
 
   // TODO:
   // Call RemoteDonorSearch()

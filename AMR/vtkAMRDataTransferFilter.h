@@ -25,6 +25,7 @@
 
 #include "vtkHierarchicalBoxDataSetAlgorithm.h"
 
+#include <vtkstd/map>
 #include <string>
 
 class vtkHierarchicalBoxDataSet;
@@ -33,6 +34,7 @@ class vtkAMRInterBlockConnectivity;
 class vtkMultiProcessController;
 class vtkUniformGrid;
 class vtkDataArray;
+class vtkPolyData;
 
 class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
                       public vtkHierarchicalBoxDataSetAlgorithm
@@ -103,9 +105,34 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     void WriteGrid( vtkUniformGrid* grid, std::string prefix );
 
     // Description:
-    // Process the remote connectivity and local connectivity lists and
-    // finds a donor for each
+    // Writes the receivers. Mainly used for debugging purposes.
+    void WriteReceivers();
+
+    // Description:
+    // Checks if the cell corresponding to cellIdx of the
+    // given grid instance is a ghost cell or not.
+    //
+    // .SECTION Assumptions:
+    // This method assumes that Ghost Cell information is attached to
+    // the cell data of the given grid instance.
+    bool IsGhostCell( vtkUniformGrid *ug, int cellIdx );
+
+    // Description:
+    // This method computes the center of the given cell.
+    void ComputeCellCenter( vtkUniformGrid *ug, int cellIdx, double center[3] );
+
+    // Description:
+    // Extracts the receiver points from each grid on the extruded data-set.
+    void GetReceivers();
+
+    // Description:
+    // Finds the donor cell for each receiver point
     void DonorSearch();
+    void LocalDonorSearch();
+    void FindDonors(
+      const unsigned int receiverIdx,
+      const int donorGridLevel,
+      const int donorBlockIdx );
 
     // Description:
     // Transfers
@@ -117,6 +144,8 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     vtkHierarchicalBoxDataSet    *AMRDataSet;
     vtkAMRInterBlockConnectivity *RemoteConnectivity;
     vtkAMRInterBlockConnectivity *LocalConnectivity;
+
+    vtkstd::map<unsigned int, vtkPolyData*> ReceiverList;
 
   private:
     vtkAMRDataTransferFilter(const vtkAMRDataTransferFilter&); // Not implemented
