@@ -17,6 +17,7 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCollection.h"
+#include "vtkCommand.h"
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
@@ -532,6 +533,7 @@ int vtkMultiProcessController::ProcessRMIs()
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 {
+  this->InvokeEvent(vtkCommand::StartEvent);
   int triggerMessage[128];
   unsigned char *arg = NULL;
   int error = RMI_NO_ERROR;
@@ -611,6 +613,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       }
     } while (!dont_loop);
 
+  this->InvokeEvent(vtkCommand::EndEvent);
   return error;
 }
 
@@ -620,27 +623,35 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
                                            void *arg, int argLength,
                                            int rmiTag)
 {
-  bool found = false;
+  // we build the list of callbacks to call and then invoke them to handle the
+  // case where the callback removes the callback.
+  vtkstd::vector<vtkInternal::vtkRMICallback> callbacks;
+
   vtkInternal::RMICallbackMap::iterator iter =
     this->Internal->RMICallbacks.find(rmiTag);
   if (iter != this->Internal->RMICallbacks.end())
     {
     vtkInternal::RMICallbackVector::iterator iterVec;
     for (iterVec = iter->second.begin();
-      iterVec != iter->second.end(); ++iterVec)
+      iterVec != iter->second.end(); iterVec++)
       {
-      found = true;
       if (iterVec->Function)
         {
-        (*iterVec->Function)(iterVec->LocalArgument, arg, argLength, remoteProcessId);
+        callbacks.push_back(*iterVec);
         }
       }
     }
 
-  if ( ! found)
+  if (callbacks.size()==0)
     {
     vtkErrorMacro("Process " << this->GetLocalProcessId() << 
                   " Could not find RMI with tag " << rmiTag);
+    }
+  
+  vtkstd::vector<vtkInternal::vtkRMICallback>::iterator citer;
+  for (citer = callbacks.begin(); citer != callbacks.end(); citer++)
+    {
+    (*citer->Function)(citer->LocalArgument, arg, argLength, remoteProcessId);
     }
 }
 
