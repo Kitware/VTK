@@ -69,7 +69,6 @@ void vtkImageSlice::GetImages(vtkPropCollection *vc)
 }
 
 //----------------------------------------------------------------------------
-// Shallow copy of an volume.
 void vtkImageSlice::ShallowCopy(vtkProp *prop)
 {
   vtkImageSlice *v = vtkImageSlice::SafeDownCast(prop);
@@ -254,7 +253,7 @@ int vtkImageSlice::RenderOpaqueGeometry(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageSlice::RenderOverlay(vtkViewport* viewport)
+int vtkImageSlice::RenderOverlay(vtkViewport* vtkNotUsed(viewport))
 {
   vtkDebugMacro(<< "vtkImageSlice::RenderOverlay");
 

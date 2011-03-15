@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkLookupTable.h"
+#include "vtkColorTransferFunction.h"
 
 vtkStandardNewMacro(vtkImageProperty);
 
@@ -66,7 +67,48 @@ const char *vtkImageProperty::GetInterpolationTypeAsString()
 //----------------------------------------------------------------------------
 void vtkImageProperty::DeepCopy(vtkImageProperty *p)
 {
-  this->Modified();
+  if (p != NULL)
+    {
+    this->SetColorWindow(p->GetColorWindow());
+    this->SetColorLevel(p->GetColorLevel());
+    vtkScalarsToColors *lut = p->GetLookupTable();
+    if (lut == NULL)
+      {
+      this->SetLookupTable(NULL);
+      }
+    else
+      {
+      vtkLookupTable *olut = vtkLookupTable::SafeDownCast(lut);
+      vtkColorTransferFunction *octf =
+        vtkColorTransferFunction::SafeDownCast(lut);
+
+      if (olut)
+        {
+        vtkLookupTable *nlut = olut->NewInstance();
+        nlut->DeepCopy(olut);
+        this->SetLookupTable(nlut);
+        nlut->Delete();
+        }
+      else if (octf)
+        {
+        vtkColorTransferFunction *nctf = octf->NewInstance();
+        nctf->DeepCopy(octf);
+        this->SetLookupTable(nctf);
+        nctf->Delete();
+        }
+      else
+        {
+        // The vtkScalarsToColors base class has no DeepCopy,
+        // so fall back to shallow copy
+        this->SetLookupTable(lut);
+        }
+      }
+    this->SetUseLookupTableScalarRange(p->GetUseLookupTableScalarRange());
+    this->SetOpacity(p->GetOpacity());
+    this->SetAmbient(p->GetAmbient());
+    this->SetDiffuse(p->GetDiffuse());
+    this->SetInterpolationType(p->GetInterpolationType());
+    }
 }
 
 //----------------------------------------------------------------------------
