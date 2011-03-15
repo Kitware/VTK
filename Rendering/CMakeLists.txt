@@ -74,6 +74,11 @@ SET( Kit_SRCS
   vtkHierarchicalPolyDataMapper.cxx
   vtkImageActor.cxx
   vtkImageMapper.cxx
+  vtkImageMapper3D.cxx
+  vtkImageProperty.cxx
+  vtkImageResliceMapper.cxx
+  vtkImageSlice.cxx
+  vtkImageSliceMapper.cxx
   vtkImageViewer2.cxx
   vtkImageViewer.cxx
   vtkImagingFactory.cxx
@@ -245,8 +250,9 @@ SET( KitOpenGL_SRCS
   vtkOpenGLExtensionManager.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSupport.cxx
-  vtkOpenGLImageActor.cxx
   vtkOpenGLImageMapper.cxx
+  vtkOpenGLImageResliceMapper.cxx
+  vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLLightingPainter.cxx
   vtkOpenGLPainterDeviceAdapter.cxx
@@ -290,6 +296,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCuller
   vtkExporter
   vtkGPUInfoList
+  vtkImageMapper3D
   vtkImageProcessingPass
   vtkImporter
   vtkInteractorObserver
@@ -469,6 +476,7 @@ SET(shader_files
   vtkSurfaceLICPainter_fs1.glsl
   vtkSurfaceLICPainter_fs2.glsl
   vtkSurfaceLICPainter_vs1.glsl
+  vtkTextureBicubicARB_fp.asm
   )
 
 # Create custom commands to encode each assembly file into a C string
@@ -703,8 +711,9 @@ IF (VTK_USE_MANGLED_MESA)
                  vtkMesaClipPlanesPainter.cxx
                  vtkMesaCoincidentTopologyResolutionPainter.cxx
                  vtkMesaDisplayListPainter.cxx
-                 vtkMesaImageActor.cxx
                  vtkMesaImageMapper.cxx
+                 vtkMesaImageResliceMapper.cxx
+                 vtkMesaImageSliceMapper.cxx
                  vtkMesaLight.cxx
                  vtkMesaLightingPainter.cxx
                  vtkMesaPainterDeviceAdapter.cxx
