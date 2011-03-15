@@ -25,7 +25,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkCamera.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkImageSlice.h";
+#include "vtkImageSlice.h"
 #include "vtkImageMapper3D.h"
 #include "vtkImageProperty.h"
 
