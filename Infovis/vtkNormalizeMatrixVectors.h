@@ -19,16 +19,16 @@
 
 =========================================================================*/
 
-#ifndef __vtkNormalizeMatrixVectors_h
-#define __vtkNormalizeMatrixVectors_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkNormalizeMatrixVectors - given a sparse input matrix, produces
 // a sparse output matrix with each vector normalized to unit length.
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkNormalizeMatrixVectors_h
+#define __vtkNormalizeMatrixVectors_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAlgorithm
 {
