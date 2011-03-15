@@ -292,22 +292,23 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
           if( currentLevel == 0)
             {
               // Grids at level 0 are not extruded
-              this->ExtrudedData->SetDataSet(currentLevel,dataIdx,myBox,myGrid);
+              vtkUniformGrid *ug = this->CloneGrid( myGrid );
+              this->ExtrudedData->SetDataSet(currentLevel,dataIdx,myBox,ug);
+              ug->Delete();
             }
           else
             {
-
-              std::ostringstream oss;
-              oss.str(""); oss.clear();
-              oss << "InitialGrid_" << currentLevel << "_" << dataIdx;
-              this->WriteGrid( myGrid, oss.str() );
+//              std::ostringstream oss;
+//              oss.str(""); oss.clear();
+//              oss << "InitialGrid_" << currentLevel << "_" << dataIdx;
+//              this->WriteGrid( myGrid, oss.str() );
 
               vtkUniformGrid *extrudedGrid = this->GetExtrudedGrid( myGrid );
               assert( "post: extrudedGrid != NULL" && (extrudedGrid != NULL) );
 
-              oss.str(""); oss.clear();
-              oss << "ExtrudedGrid_" << currentLevel << "_" << dataIdx;
-              this->WriteGrid( extrudedGrid, oss.str() );
+//              oss.str(""); oss.clear();
+//              oss << "ExtrudedGrid_" << currentLevel << "_" << dataIdx;
+//              this->WriteGrid( extrudedGrid, oss.str() );
 
               myBox.Grow(this->NumberOfGhostLayers);
               this->ExtrudedData->SetDataSet(
@@ -482,7 +483,7 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
           vtkCellData *donorCD = donorGrid->GetCellData();
           assert( "pre: donor grid cell data is NULL" && (donorCD != NULL) );
 
-          unsigned int arrayIdx = 0;
+          vtkIdType arrayIdx = 0;
           for( ; arrayIdx < donorCD->GetNumberOfArrays(); ++arrayIdx )
             {
               vtkDataArray *cellData = donorCD->GetArray( arrayIdx );
@@ -680,6 +681,64 @@ void vtkAMRDataTransferFilter::AttachCellGhostInformation(
   ghostArray->Delete();
 }
 
+
+//------------------------------------------------------------------------------
+vtkUniformGrid* vtkAMRDataTransferFilter::CloneGrid( vtkUniformGrid *ug)
+{
+  // Sanity check
+  assert( "pre: input grid is NULL" && (ug != NULL) );
+
+  // STEP 0: Construct the topology
+  vtkUniformGrid *cloneGrid = vtkUniformGrid::New();
+  cloneGrid->Initialize();
+  cloneGrid->SetOrigin( ug->GetOrigin() );
+  cloneGrid->SetDimensions( ug->GetDimensions() );
+  cloneGrid->SetSpacing( ug->GetSpacing() );
+
+  // STEP 1: Copy point & cell data from the original grid
+  cloneGrid->GetPointData()->DeepCopy( ug->GetPointData() );
+  cloneGrid->GetCellData()->DeepCopy( ug->GetCellData() );
+
+  int numCells = cloneGrid->GetNumberOfCells();
+
+  // STEP 2: Attach ghost array information
+  vtkIntArray *ghostArray = vtkIntArray::New();
+  ghostArray->SetName( "GHOST" );
+  ghostArray->SetNumberOfTuples( numCells );
+  ghostArray->SetNumberOfComponents( 1 );
+  ghostArray->FillComponent(0,1);
+  cloneGrid->GetCellData()->AddArray( ghostArray );
+  ghostArray->Delete();
+
+  // STEP 3: Attach donor grid information
+  vtkUnsignedIntArray *donorGrid = vtkUnsignedIntArray::New();
+  donorGrid->SetName( "DonorGridIdx" );
+  donorGrid->SetNumberOfComponents( 1 );
+  donorGrid->SetNumberOfTuples( numCells );
+  cloneGrid->GetCellData()->AddArray( donorGrid );
+  donorGrid->Delete();
+
+  // STEP 4: Attach donor cell information
+  vtkIntArray *donorCell = vtkIntArray::New();
+  donorCell->SetName( "DonorCellIdx" );
+  donorCell->SetNumberOfComponents( 1 ) ;
+  donorCell->SetNumberOfTuples( numCells );
+  donorCell->FillComponent(0,-1);
+  cloneGrid->GetCellData()->AddArray( donorCell );
+  donorCell->Delete();
+
+  // STEP 5: Attach donor level information
+  vtkIntArray *donorLevel = vtkIntArray::New();
+  donorLevel->SetName( "DonorLevel" );
+  donorLevel->SetNumberOfComponents( 1 );
+  donorLevel->SetNumberOfTuples( numCells );
+  donorLevel->FillComponent(0,-1);
+  cloneGrid->GetCellData()->AddArray( donorLevel );
+  donorLevel->Delete();
+
+  return( cloneGrid );
+}
+
 //------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid(
     vtkUniformGrid* srcGrid )
@@ -725,6 +784,34 @@ vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid(
 
   // STEP 4: Copy CellData
   this->CopyCellData( srcGrid, extrudedGrid, realCellExtent );
+
+  int numCells = extrudedGrid->GetNumberOfCells();
+
+  // STEP 5: Attach donor grid information
+  vtkUnsignedIntArray *donorGrid = vtkUnsignedIntArray::New();
+  donorGrid->SetName( "DonorGridIdx" );
+  donorGrid->SetNumberOfComponents( 1 );
+  donorGrid->SetNumberOfTuples( numCells );
+  extrudedGrid->GetCellData()->AddArray( donorGrid );
+  donorGrid->Delete();
+
+  // STEP 6: Attach donor cell information
+  vtkIntArray *donorCell = vtkIntArray::New();
+  donorCell->SetName( "DonorCellIdx" );
+  donorCell->SetNumberOfComponents( 1 ) ;
+  donorCell->SetNumberOfTuples( numCells );
+  donorCell->FillComponent(0,-1);
+  extrudedGrid->GetCellData()->AddArray( donorCell );
+  donorCell->Delete();
+
+  // STEP 7: Attach donor level information
+  vtkIntArray *donorLevel = vtkIntArray::New();
+  donorLevel->SetName( "DonorLevel" );
+  donorLevel->SetNumberOfComponents( 1 );
+  donorLevel->SetNumberOfTuples( numCells );
+  donorLevel->FillComponent(0,-1);
+  extrudedGrid->GetCellData()->AddArray( donorLevel );
+  donorLevel->Delete();
 
   return( extrudedGrid );
 }

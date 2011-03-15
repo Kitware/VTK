@@ -95,6 +95,11 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     vtkUniformGrid* GetExtrudedGrid( vtkUniformGrid *grid);
 
     // Description:
+    // Creates an identical copy of the grid given as input with the additional
+    // ghost information, donor level information and donor grid information.
+    vtkUniformGrid* CloneGrid( vtkUniformGrid *grid);
+
+    // Description:
     // Writes the AMR data as a list of boxes. Primarily,
     // used for debugging purposes.
     void WriteData( vtkHierarchicalBoxDataSet* amr, std::string prefix);
@@ -135,6 +140,7 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     //   <li> <b>DonorLevel</b>: the level from which the data is copied. </li>
     // </ul>
     void AddReceiverInformation( vtkPolyData *receivers );
+
 
     // Description:
     // Finds the donor cell for each receiver point
