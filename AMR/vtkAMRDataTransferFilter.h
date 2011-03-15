@@ -148,6 +148,7 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     // Description:
     // Transfers
     void DataTransfer();
+    void LocalDataTransfer();
 
     int                          NumberOfGhostLayers;
     vtkHierarchicalBoxDataSet    *ExtrudedData;

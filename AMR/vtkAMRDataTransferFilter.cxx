@@ -341,11 +341,54 @@ void vtkAMRDataTransferFilter::FindDonors(
   if( myReceivers->GetNumberOfPoints() == 0 )
     return;
 
+  unsigned int encodedDonorGridIdx=
+   vtkAMRGridIndexEncoder::encode( donorGridLevel, donorBlockIdx );
+
   vtkUniformGrid *ug=
    this->AMRDataSet->GetDataSet( donorGridLevel,donorBlockIdx );
   assert( "pre: donor grid is NULL!" && (ug != NULL) );
 
+  vtkPointData *PD = myReceivers->GetPointData();
+  assert("pre: point data is NULL!" && (PD != NULL) );
+  assert("pre: No DonorGridIdx attribute" && (PD->HasArray("DonorGridIdx")));
+  assert("pre: No DonorCellIdx attribute" && (PD->HasArray("DonorCellIdx")));
+  assert("pre: No DonorLevel attribute" && (PD->HasArray( "DonorLevel")));
 
+  vtkUnsignedIntArray *donorGridInfo=
+   vtkUnsignedIntArray::SafeDownCast(PD->GetArray("DonorGridIdx"));
+  vtkIntArray *donorCellInfo=
+   vtkIntArray::SafeDownCast(PD->GetArray("DonorCellIdx"));
+  vtkIntArray *donorLevelInfo=
+   vtkIntArray::SafeDownCast(PD->GetArray("DonorLevel"));
+
+  vtkIdType rcverIdx = 0;
+  for( ; rcverIdx < myReceivers->GetNumberOfPoints(); ++rcverIdx )
+    {
+      double *rcver = myReceivers->GetPoint( rcverIdx );
+      assert( "post: rcver array is NULL!" && (rcver != NULL) );
+
+      int ijk[3];
+      double pcoords[3];
+      int status = ug->ComputeStructuredCoordinates( rcver, ijk, pcoords );
+      if( status == 1 )
+        {
+          vtkIdType cellIdx=
+            vtkStructuredData::ComputeCellId( ug->GetDimensions(),ijk );
+
+          // Check if this data is at a higher resolution. Some ghost
+          // cells can have both a lower & higher resolution donor
+          // cells. In this case, preference is given to the highest
+          // resolution data.
+          if( donorLevelInfo->GetValue( rcverIdx ) < donorGridLevel )
+            {
+              donorLevelInfo->SetValue( rcverIdx, donorGridLevel );
+              donorCellInfo->SetValue( rcverIdx, cellIdx );
+              donorGridInfo->SetValue( rcverIdx, encodedDonorGridIdx );
+            }
+
+        } // END if the cell is found in this grid
+
+    } // END for all receivers
 
 }
 
@@ -377,6 +420,99 @@ void vtkAMRDataTransferFilter::LocalDonorSearch()
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::LocalDataTransfer()
+{
+  vtkstd::map<unsigned int,vtkPolyData* >::iterator it;
+  it = this->ReceiverList.begin();
+  for( ; it != this->ReceiverList.end(); ++it )
+    {
+      unsigned int rGridIdx  = it->first;
+      vtkPolyData *receivers = it->second;
+      assert( "pre: receivers is NULL" && (receivers != NULL) );
+
+      int receiverLevel    = -1;
+      int receiverBlockIdx = -1;
+      vtkAMRGridIndexEncoder::decode( rGridIdx,receiverLevel,receiverBlockIdx );
+
+      vtkUniformGrid *receiverGrid=
+       this->ExtrudedData->GetDataSet(receiverLevel,receiverBlockIdx);
+      assert( "pre: receiver grid is NULL" && (receiverGrid != NULL) );
+
+      vtkCellData *receiverCD = receiverGrid->GetCellData();
+      assert( "pre: Receiver grid cells is NULL" && (receiverCD != NULL) );
+
+      vtkPointData *PD = receivers->GetPointData();
+      assert("pre:point data is NULL!" && (PD != NULL) );
+      assert("pre:No DonorGridIdx attribute" && (PD->HasArray("DonorGridIdx")));
+      assert("pre:No DonorCellIdx attribute" && (PD->HasArray("DonorCellIdx")));
+      assert("pre:No DonorLevel attribute" && (PD->HasArray("DonorLevel")));
+      assert("pre:No mesh CellId attribute" && (PD->HasArray("CellID")));
+
+      vtkUnsignedIntArray *donorGridInfo=
+       vtkUnsignedIntArray::SafeDownCast(PD->GetArray("DonorGridIdx"));
+      vtkIntArray *donorCellInfo=
+       vtkIntArray::SafeDownCast(PD->GetArray("DonorCellIdx"));
+      vtkIntArray *donorLevelInfo=
+       vtkIntArray::SafeDownCast(PD->GetArray("DonorLevel"));
+      vtkIntArray *meshCellInfo=
+       vtkIntArray::SafeDownCast(PD->GetArray("CellID"));
+
+      vtkIdType rcverIdx = 0;
+      for( ; rcverIdx < receivers->GetNumberOfPoints(); ++rcverIdx )
+        {
+          int rcvCellIdx = meshCellInfo->GetValue(rcverIdx);
+          assert( "post: rcver cell out-of-bounds" &&
+           (rcvCellIdx >=0)&&(rcvCellIdx < receiverGrid->GetNumberOfCells()));
+
+          int donorLevel            = donorLevelInfo->GetValue(rcverIdx);
+          int donorCell             = donorCellInfo->GetValue(rcverIdx);
+          unsigned int donorGridIdx = donorGridInfo->GetValue(rcverIdx);
+
+          int donorGridLevel    = -1;
+          int donorGridBlockIdx = -1;
+          vtkAMRGridIndexEncoder::decode(
+           donorGridIdx,donorGridLevel,donorGridBlockIdx);
+          assert( "post: donor grid level mismatch!" &&
+                  (donorGridLevel==donorLevel));
+
+          vtkUniformGrid *donorGrid=
+           this->AMRDataSet->GetDataSet(donorGridLevel,donorGridBlockIdx);
+          assert( "pre: donor grid is NULL" && (donorGrid != NULL) );
+
+          vtkCellData *donorCD = donorGrid->GetCellData();
+          assert( "pre: donor grid cell data is NULL" && (donorCD != NULL) );
+
+          unsigned int arrayIdx = 0;
+          for( ; arrayIdx < donorCD->GetNumberOfArrays(); ++arrayIdx )
+            {
+              vtkDataArray *cellData = donorCD->GetArray( arrayIdx );
+              assert( "pre: cell data array is NULL" && (cellData != NULL) );
+
+              if( receiverCD->HasArray(cellData->GetName() ) )
+                {
+                  vtkDataArray *rCellData =
+                   receiverCD->GetArray( cellData->GetName() );
+                  assert("pre: receiver cell data is NULL" && (rCellData!=NULL));
+                  assert("pre: number of componenets mismatch" &&
+                   (rCellData->GetNumberOfComponents()==
+                    cellData->GetNumberOfComponents()) );
+
+                  for( int k=0; k < cellData->GetNumberOfComponents(); ++k )
+                    {
+                      rCellData->SetComponent(rcvCellIdx,k,
+                          cellData->GetComponent(donorCell,k));
+                    }
+                }
+
+            } // END for all arrays
+
+        } // END for all receiver nodes of the grid
+
+    } // END for all receiving grids
+
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::DonorSearch()
 {
   // Sanity checks
@@ -385,10 +521,9 @@ void vtkAMRDataTransferFilter::DonorSearch()
   assert("pre: LocalConnectivity != NULL" && (this->LocalConnectivity!=NULL));
 
   this->GetReceivers();
-  this->WriteReceivers();
 
-  // Call LocalDonorSearch()
   this->LocalDonorSearch();
+  this->WriteReceivers();
 
   // TODO:
   // Call RemoteDonorSearch()
@@ -397,7 +532,13 @@ void vtkAMRDataTransferFilter::DonorSearch()
 //------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::DataTransfer()
 {
-  // TODO: implement this
+  // Sanity checks
+  assert("pre: ExtrudedData != NULL" && (this->ExtrudedData != NULL) );
+
+  this->LocalDataTransfer();
+
+  // TODO:
+  // Call RemoteDataTransfer()
 }
 
 //------------------------------------------------------------------------------
