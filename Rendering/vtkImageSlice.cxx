@@ -69,7 +69,6 @@ void vtkImageSlice::GetImages(vtkPropCollection *vc)
 }
 
 //----------------------------------------------------------------------------
-// Shallow copy of an volume.
 void vtkImageSlice::ShallowCopy(vtkProp *prop)
 {
   vtkImageSlice *v = vtkImageSlice::SafeDownCast(prop);
