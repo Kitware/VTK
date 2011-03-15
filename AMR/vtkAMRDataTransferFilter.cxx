@@ -260,7 +260,10 @@ void vtkAMRDataTransferFilter::Transfer( )
   // STEP 3: DataTransfer
   this->DataTransfer( );
 
-  // STEP 4: Synch processes
+  // STEP 4: Attach Ownership Information
+  this->AttachPointOwnershipInfo( );
+
+  // STEP 5: Synch processes
   this->Controller->Barrier( );
 }
 
@@ -421,6 +424,7 @@ void vtkAMRDataTransferFilter::LocalDonorSearch()
 }
 
 //------------------------------------------------------------------------------
+// TODO: Modularize and clean the function below
 void vtkAMRDataTransferFilter::LocalDataTransfer()
 {
   vtkstd::map<unsigned int,vtkPolyData* >::iterator it;
@@ -441,6 +445,12 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
 
       vtkCellData *receiverCD = receiverGrid->GetCellData();
       assert( "pre: Receiver grid cells is NULL" && (receiverCD != NULL) );
+      assert( "pre:No DonorGridIdx attribute" &&
+              (receiverCD->HasArray("DonorGridIdx") ) );
+      assert("pre:No DonorCellIdx attribute" &&
+              (receiverCD->HasArray("DonorCellIdx") ) );
+      assert("pre:No DonorLevel attribute" &&
+              (receiverCD->HasArray("DonorLevel") ) );
 
       vtkPointData *PD = receivers->GetPointData();
       assert("pre:point data is NULL!" && (PD != NULL) );
@@ -476,6 +486,20 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
           assert( "post: donor grid level mismatch!" &&
                   (donorGridLevel==donorLevel));
 
+          vtkIntArray *rCellIdx=
+           vtkIntArray::SafeDownCast(
+            receiverCD->GetArray("DonorCellIdx") );
+          vtkUnsignedIntArray *rGridIdx=
+           vtkUnsignedIntArray::SafeDownCast(
+            receiverCD->GetArray("DonorGridIdx") );
+          vtkIntArray *rDonorLevel=
+           vtkIntArray::SafeDownCast(
+            receiverCD->GetArray( "DonorLevel") );
+
+          rCellIdx->SetValue(rcvCellIdx,donorCell);
+          rGridIdx->SetValue(rcvCellIdx,donorGridIdx);
+          rDonorLevel->SetValue(rcvCellIdx,donorLevel);
+
           vtkUniformGrid *donorGrid=
            this->AMRDataSet->GetDataSet(donorGridLevel,donorGridBlockIdx);
           assert( "pre: donor grid is NULL" && (donorGrid != NULL) );
@@ -498,7 +522,7 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
                    (rCellData->GetNumberOfComponents()==
                     cellData->GetNumberOfComponents()) );
 
-                  for( int k=0; k < cellData->GetNumberOfComponents(); ++k )
+                  for(int k=0;k < cellData->GetNumberOfComponents();++k)
                     {
                       rCellData->SetComponent(rcvCellIdx,k,
                           cellData->GetComponent(donorCell,k));
@@ -508,8 +532,82 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
             } // END for all arrays
 
         } // END for all receiver nodes of the grid
-
     } // END for all receiving grids
+
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::AttachPointOwnershipInfo()
+{
+  // Sanity checks
+  assert( "pre: ExtrudedData != NULL" && (this->ExtrudedData!=NULL) );
+
+  unsigned int level        = 0;
+  for( ;level < this->ExtrudedData->GetNumberOfLevels(); ++level )
+    {
+      unsigned int dataIdx=0;
+      for( ;dataIdx < this->ExtrudedData->GetNumberOfDataSets(level); ++dataIdx)
+        {
+          vtkIntArray *pntOwnership = vtkIntArray::New();
+          vtkUniformGrid *myGrid=this->ExtrudedData->GetDataSet(level,dataIdx);
+          if( myGrid != NULL )
+            {
+              pntOwnership->SetName( "PointOwnership" );
+              pntOwnership->SetNumberOfComponents( 1 );
+              pntOwnership->SetNumberOfTuples( myGrid->GetNumberOfPoints() );
+              pntOwnership->FillComponent(0,1);
+            }
+
+          vtkCellData *myCellData = myGrid->GetCellData();
+          assert( "pre: cell data is NULL" && (myCellData != NULL) );
+          assert( "pre: donor level info not available" &&
+                  ( myCellData->HasArray("DonorLevel") ) );
+
+          vtkIntArray *donorLevelInfo=
+           vtkIntArray::SafeDownCast(
+             myCellData->GetArray("DonorLevel") );
+
+          vtkUnsignedIntArray *donorGridInfo=
+           vtkUnsignedIntArray::SafeDownCast(
+             myCellData->GetArray("DonorGridIdx") );
+
+          vtkIdType cellIdx = 0;
+          for( ;cellIdx < myGrid->GetNumberOfCells(); ++cellIdx )
+            {
+
+              if( this->IsGhostCell( myGrid, cellIdx ) &&
+                  (donorLevelInfo->GetValue(cellIdx) == level)  )
+                {
+
+                  int donorGridBlock = -1;
+                  int donorLevel     = -1;
+                  vtkAMRGridIndexEncoder::decode(
+                   donorGridInfo->GetValue(cellIdx),donorLevel,donorGridBlock );
+                  assert("post: level mismatch" && (donorLevel==level) );
+
+                  vtkCell *myCell = myGrid->GetCell( cellIdx );
+                  assert("post: cell is NULL!" && (myCell != NULL) );
+
+                  if( dataIdx > donorGridBlock )
+                    {
+                      vtkIdList *nodes = myCell->GetPointIds();
+                      assert( "pre: cell nodes vtkIdList is null" &&
+                              (nodes != NULL ) );
+
+                      vtkIdType nodeIdx = 0;
+                      for(; nodeIdx < nodes->GetNumberOfIds(); ++nodeIdx )
+                        pntOwnership->SetValue( nodes->GetId( nodeIdx ), 0 );
+                    }
+
+                }
+            } // END for all grid cells
+
+          myGrid->GetPointData()->AddArray( pntOwnership );
+          pntOwnership->Delete();
+
+        } // END for all data at current level
+    } // END for all levels
+
 
 }
 

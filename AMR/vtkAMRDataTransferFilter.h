@@ -141,6 +141,9 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     // </ul>
     void AddReceiverInformation( vtkPolyData *receivers );
 
+    // Description:
+    // Attaches point ownership information to the output AMR dataset.
+    void AttachPointOwnershipInfo();
 
     // Description:
     // Finds the donor cell for each receiver point
