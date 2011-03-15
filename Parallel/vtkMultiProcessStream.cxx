@@ -87,40 +87,37 @@ public:
       case stream_value:
         wordSize = sizeof(int);
         break;
+
+      case string_value:
+        // We want to bitswap the string size which is an int
+        wordSize = sizeof(int);
+        break;
         }
 
       switch (wordSize)
         {
-      case 1: break;
-      case 4: vtkSwap4(&(*iter)); break;
-      case 8: vtkSwap8(&(*iter)); break;
+        case 1: break;
+        case 4: vtkSwap4(&(*iter)); break;
+        case 8: vtkSwap8(&(*iter)); break;
         }
 
-      unsigned int to_skip = 0;
-      switch (type)
+      // In case of string we don't need to swap char values
+      int nbSkip = 0;
+      if (type == string_value || type == stream_value)
         {
-      case stream_value:
-          {
-          unsigned char* data = reinterpret_cast<unsigned char*>(&to_skip);
-          for (size_t cc=0; cc < sizeof(unsigned int); cc++)
-            {
-            data[cc] = *iter;
-            iter++;
-            }
-          wordSize = 0;
-          }
-        break;
-        }
-
-      for (unsigned int cc=0; cc < to_skip; cc++)
-        {
-        iter++;
+        nbSkip = *reinterpret_cast<int*>(&*iter);
         }
 
       while (wordSize>0)
         {
         iter++;
         wordSize--;
+        }
+
+      // Skip String chars
+      for (int cc=0; cc < nbSkip; cc++)
+        {
+        iter++;
         }
       }
     }
@@ -233,10 +230,22 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (vtkTypeUInt64 value)
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator << (const vtkstd::string& value)
 {
+  // Find the real string size
+  int size = static_cast<int>(value.size());
+
+  // Set the type
   this->Internals->Data.push_back(vtkInternals::string_value);
-  const char* c_value = value.c_str();
-  this->Internals->Push(reinterpret_cast<const unsigned char*>(c_value),
-    strlen(c_value)+1);
+
+  // Set the string size
+  this->Internals->Push(reinterpret_cast<unsigned char*>(&size),
+                        sizeof(int));
+
+  // Set the string content
+  for(int idx=0; idx < size; idx++)
+    {
+    this->Internals->Push( reinterpret_cast<const unsigned char*>(&value[idx]),
+                           sizeof(char));
+    }
   return (*this);
 }
 
@@ -370,14 +379,14 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkstd::string& value
   value = "";
   assert(this->Internals->Data.front() == vtkInternals::string_value);
   this->Internals->Data.pop_front();
-  while (true)
+  int stringSize;
+  this->Internals->Pop( reinterpret_cast<unsigned char*>(&stringSize),
+                        sizeof(int));
+  char c_value;
+  for(int idx=0; idx < stringSize; idx++)
     {
-    char c_value;
-    this->Internals->Pop(reinterpret_cast<unsigned char*>(&c_value), sizeof(char));
-    if (c_value == 0x0)
-      {
-      break;
-      }
+    this->Internals->Pop( reinterpret_cast<unsigned char*>(&c_value),
+                          sizeof(char));
     value += c_value;
     }
   return (*this);

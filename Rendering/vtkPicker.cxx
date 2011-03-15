@@ -33,8 +33,9 @@
 #include "vtkVertex.h"
 #include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkImageMapper3D.h"
 #include "vtkBox.h"
-#include "vtkImageActor.h"
+#include "vtkImageSlice.h"
 
 vtkStandardNewMacro(vtkPicker);
 
@@ -69,14 +70,15 @@ vtkPicker::~vtkPicker()
 
 //----------------------------------------------------------------------
 // Update state when prop3D is picked.
-void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
+void vtkPicker::MarkPicked(vtkAssemblyPath *path,
+                           vtkProp3D *vtkNotUsed(prop3D),
                            vtkAbstractMapper3D *m,
                            double tMin, double mapperPos[3])
 {
   int i;
   vtkMapper *mapper;
   vtkAbstractVolumeMapper *volumeMapper;
-  vtkImageActor *imageActor;
+  vtkImageMapper3D *imageMapper;
 
   this->SetPath(path);
   this->GlobalTMin = tMin;
@@ -95,10 +97,10 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
     this->DataSet = volumeMapper->GetDataSetInput();
     this->Mapper = volumeMapper;
     }
-  else if ( (imageActor=vtkImageActor::SafeDownCast(prop3D)) != NULL )
+  else if ( (imageMapper=vtkImageMapper3D::SafeDownCast(m)) != NULL )
     {
-    this->DataSet = imageActor->GetInput();
-    this->Mapper = NULL;
+    this->DataSet = imageMapper->GetInput();
+    this->Mapper = imageMapper;
     }
   else
     {
@@ -283,7 +285,7 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   vtkActor *actor;
   vtkLODProp3D *prop3D;
   vtkVolume *volume;
-  vtkImageActor *imageActor = 0;
+  vtkImageSlice *imageSlice = 0;
   vtkAssemblyPath *path;
   vtkProperty *tempProperty;
   this->Transform->PostMultiply();
@@ -327,9 +329,9 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
           {
           mapper = volume->GetMapper();
           }
-        else if ( (imageActor=vtkImageActor::SafeDownCast(propCandidate)) )
+        else if ( (imageSlice=vtkImageSlice::SafeDownCast(propCandidate)) )
           {
-          mapper = 0;
+          mapper = imageSlice->GetMapper();
           }
         else
           {
@@ -372,10 +374,6 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         if ( mapper != NULL )
           {
           mapper->GetBounds(bounds);
-          }
-        else if ( imageActor != NULL )
-          {
-          imageActor->GetDisplayBounds(bounds);
           }
 
         bounds[0] -= tol; bounds[1] += tol;
@@ -453,21 +451,11 @@ double vtkPicker::IntersectWithLine(double p1[3], double p2[3],
 {
   int i;
   double center[3], t, ray[3], rayFactor;
-  vtkImageActor *imageActor = NULL;
 
   // Get the data from the modeler
   if ( mapper != NULL )
     {
     mapper->GetCenter(center);
-    }
-  else if ( (imageActor = vtkImageActor::SafeDownCast(prop3D)) != NULL)
-    {
-    double bounds[6];
-    imageActor->GetDisplayBounds(bounds);
-    for (i=0; i<3; i++)
-      {
-      center[i] = 0.5*(bounds[2*i] + bounds[2*i+1]);
-      }
     }
   else
     {

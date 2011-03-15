@@ -102,6 +102,7 @@
 // Constants for InterpolationType
 #define VTK_NEAREST_INTERPOLATION       0
 #define VTK_LINEAR_INTERPOLATION        1
+#define VTK_CUBIC_INTERPOLATION         2
 
 // For volume rendering
 #define VTK_MAX_VRCOMP                  4
