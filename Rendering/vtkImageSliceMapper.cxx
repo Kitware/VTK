@@ -62,13 +62,13 @@ vtkImageSliceMapper::~vtkImageSliceMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkImageSliceMapper::ReleaseGraphicsResources(vtkWindow *)
 {
   // see OpenGL subclass for implementation
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *image)
+void vtkImageSliceMapper::Render(vtkRenderer *, vtkImageSlice *)
 {
   // see OpenGL subclass for implementation
 }
