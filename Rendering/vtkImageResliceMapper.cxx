@@ -98,13 +98,13 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *)
 {
   // see OpenGL subclass for implementation
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *image)
+void vtkImageResliceMapper::Render(vtkRenderer *, vtkImageSlice *)
 {
   // see OpenGL subclass for implementation
 }

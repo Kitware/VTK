@@ -254,7 +254,7 @@ int vtkImageSlice::RenderOpaqueGeometry(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageSlice::RenderOverlay(vtkViewport* viewport)
+int vtkImageSlice::RenderOverlay(vtkViewport* vtkNotUsed(viewport))
 {
   vtkDebugMacro(<< "vtkImageSlice::RenderOverlay");
 

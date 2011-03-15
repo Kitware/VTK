@@ -108,15 +108,15 @@ vtkImageData *vtkImageMapper3D::GetInput()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkImageMapper3D::ReleaseGraphicsResources(vtkWindow *)
 {
-  // see OpenGL subclass for implementation
+  // see subclass for implementation
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::Render(vtkRenderer *ren, vtkImageSlice *image)
+void vtkImageMapper3D::Render(vtkRenderer *, vtkImageSlice *)
 {
-  // see OpenGL subclass for implementation
+  // see subclass for implementation
 }
 
 //----------------------------------------------------------------------------
@@ -280,8 +280,9 @@ void vtkImageMapper3D::InternalLoad(
 {
   // implemented in subclasses
 }
+
 //----------------------------------------------------------------------------
-bool vtkImageMapper3D::TextureSizeOK(const int size[2])
+bool vtkImageMapper3D::TextureSizeOK(const int [2])
 {
   // implemented in subclasses
   return true;
