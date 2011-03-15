@@ -58,6 +58,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestIdealLowPass
         TestImageCanvas
         TestImageProjection
+        TestImageThresholdConnectivity
         TestImageWeightedSum
         TestInPlaceFilter
         TestIslandRemoval2D
