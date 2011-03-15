@@ -145,6 +145,38 @@ void vtkAMRDataTransferFilter::WriteReceivers( )
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRDataTransferFilter::AddReceiverInformation( vtkPolyData *receivers )
+{
+  assert( "pre: receiver data is NULL" && (receivers != NULL) );
+
+  // Add array that will store the donor grid information
+  vtkUnsignedIntArray *donorGrid = vtkUnsignedIntArray::New();
+  donorGrid->SetName( "DonorGridIdx" );
+  donorGrid->SetNumberOfComponents( 1 );
+  donorGrid->SetNumberOfTuples( receivers->GetNumberOfPoints() );
+  receivers->GetPointData()->AddArray( donorGrid );
+  donorGrid->Delete();
+
+  // Add array to hold the donor cell information
+  vtkIntArray *donorCell = vtkIntArray::New();
+  donorCell->SetName( "DonorCellIdx" );
+  donorCell->SetNumberOfComponents( 1 ) ;
+  donorCell->SetNumberOfTuples( receivers->GetNumberOfPoints() );
+  donorCell->FillComponent(0,-1);
+  receivers->GetPointData()->AddArray( donorCell );
+  donorCell->Delete();
+
+  // Add array to hold the donor level infomration
+  vtkIntArray *donorLevel = vtkIntArray::New();
+  donorLevel->SetName( "DonorLevel" );
+  donorLevel->SetNumberOfComponents( 1 );
+  donorLevel->SetNumberOfTuples( receivers->GetNumberOfPoints() );
+  donorLevel->FillComponent(0,-1);
+  receivers->GetPointData()->AddArray( donorLevel );
+  donorLevel->Delete();
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::GetReceivers( )
 {
   assert( "pre: Extruded data" && (this->ExtrudedData != NULL) );
@@ -169,6 +201,9 @@ void vtkAMRDataTransferFilter::GetReceivers( )
               vtkPolyData  *receivers   = vtkPolyData::New();
               vtkCellArray *vertexCells = vtkCellArray::New();
               vtkPoints *myPoints       = vtkPoints::New();
+
+              // CellID maps the receiver point, i.e., the cell centroid back
+              // to the corresponding ghost cell ID w.r.t. the extruded grid.
               vtkIntArray *meshIDData   = vtkIntArray::New();
               meshIDData->SetName( "CellID" );
 
@@ -194,6 +229,9 @@ void vtkAMRDataTransferFilter::GetReceivers( )
 
               receivers->GetPointData()->AddArray( meshIDData );
               meshIDData->Delete();
+
+              // Prepare Receiver arrays
+              this->AddReceiverInformation( receivers );
 
               this->ReceiverList[ gridIdx ] = receivers;
             } // END if grid is not NULL
@@ -307,6 +345,8 @@ void vtkAMRDataTransferFilter::FindDonors(
    this->AMRDataSet->GetDataSet( donorGridLevel,donorBlockIdx );
   assert( "pre: donor grid is NULL!" && (ug != NULL) );
 
+
+
 }
 
 //------------------------------------------------------------------------------
@@ -331,6 +371,8 @@ void vtkAMRDataTransferFilter::LocalDonorSearch()
         } // END for all grid connections
 
     } // END for all grids with local connections
+
+  cons->Delete();
 
 }
 

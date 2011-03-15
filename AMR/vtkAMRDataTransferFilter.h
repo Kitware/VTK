@@ -126,6 +126,17 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     void GetReceivers();
 
     // Description:
+    // Adds the receiver information arrays as point data.
+    // Each receiver is associated with the following information:
+    // <ul>
+    //   <li> <b>DonorGridIdx</b>: the encoded donor grid index. </li>
+    //   <li> <b>DonorCellIdx</b>: the cell index of the donor cell w.r.t. the
+    //        donor grid. </li>
+    //   <li> <b>DonorLevel</b>: the level from which the data is copied. </li>
+    // </ul>
+    void AddReceiverInformation( vtkPolyData *receivers );
+
+    // Description:
     // Finds the donor cell for each receiver point
     void DonorSearch();
     void LocalDonorSearch();
