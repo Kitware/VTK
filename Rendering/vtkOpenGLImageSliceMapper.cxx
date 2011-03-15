@@ -262,14 +262,15 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
       const char *prog = vtkTextureBicubicARB_fp;
       vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                               vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                              strlen(prog), prog);
+                              static_cast<GLsizei>(strlen(prog)), prog);
 
       int erri;
       glGetIntegerv(vtkgl::PROGRAM_ERROR_POSITION_ARB, &erri);
       if (erri != -1)
         {
         vtkErrorMacro("Failed to load bicubic shader program: "
-                      << glGetString(vtkgl::PROGRAM_ERROR_STRING_ARB));
+                      << reinterpret_cast<const char *>(
+                           glGetString(vtkgl::PROGRAM_ERROR_STRING_ARB)));
         }
       }
 
