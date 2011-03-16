@@ -459,8 +459,6 @@ void vtkQtTreeView::Update()
 
     this->TreeView->resizeColumnToContents(0);
     this->TreeView->collapseAll();
-    this->SetShowRootNode(false);
-
 
     this->LastInputMTime = tree->GetMTime();
     }
