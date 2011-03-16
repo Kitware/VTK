@@ -30,6 +30,7 @@ class vtkContextScene;
 class vtkPlot;
 class vtkAxis;
 class vtkTextProperty;
+class vtkChartLegend;
 
 class vtkInteractorStyle;
 class vtkAnnotationLink;
@@ -134,6 +135,11 @@ public:
   // Set/get whether the chart should draw a legend.
   virtual void SetShowLegend(bool visible);
   virtual bool GetShowLegend();
+
+  // Description:
+  // Get the legend for the chart, if available. Can return NULL if there is no
+  // legend.
+  virtual vtkChartLegend * GetLegend();
 
   // Description:
   // Get/set the title text of the chart.

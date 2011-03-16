@@ -170,6 +170,20 @@ vtkIdType vtkChartPie::GetNumberOfPlots()
     return 0;
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkChartPie::SetShowLegend(bool visible)
+{
+  this->vtkChart::SetShowLegend(visible);
+  this->Legend->SetVisible(visible);
+}
+
+//-----------------------------------------------------------------------------
+vtkChartLegend * vtkChartPie::GetLegend()
+{
+  return this->Legend;
+}
+
 //-----------------------------------------------------------------------------
 bool vtkChartPie::Hit(const vtkContextMouseEvent &mouse)
 {
@@ -204,7 +218,6 @@ bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   return true;
 }
 
-
 //-----------------------------------------------------------------------------
 bool vtkChartPie::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
@@ -222,7 +235,6 @@ bool vtkChartPie::MouseButtonReleaseEvent(const vtkContextMouseEvent &/*mouse*/)
 {
   return true;
 }
-
 
 //-----------------------------------------------------------------------------
 bool vtkChartPie::MouseWheelEvent(const vtkContextMouseEvent &, int /*delta*/)
