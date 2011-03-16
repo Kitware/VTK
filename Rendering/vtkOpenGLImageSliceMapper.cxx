@@ -215,7 +215,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
 
     GLenum interp = (
       (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION) ?
-        GL_NEAREST : GL_LINEAR);  
+        GL_NEAREST : GL_LINEAR);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
@@ -264,7 +264,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
                               vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                               static_cast<GLsizei>(strlen(prog)), prog);
 
-      int erri;
+      GLint erri;
       glGetIntegerv(vtkgl::PROGRAM_ERROR_POSITION_ARB, &erri);
       if (erri != -1)
         {
@@ -326,6 +326,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
 
   // now bind it
   glEnable(GL_TEXTURE_2D);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   if (useFragmentProgram)
     {
     glEnable(vtkgl::FRAGMENT_PROGRAM_ARB);
@@ -368,9 +369,16 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
     }
   else
     {
+    float color[4];
+    color[3] = opacity;
     glEnable(GL_LIGHTING);
-    glMaterialf(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-    glMaterialf(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+    glShadeModel(GL_FLAT);
+    color[0] = color[1] = color[2] = ambient;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
+    color[0] = color[1] = color[2] = diffuse;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
+    color[0] = color[1] = color[2] = 0.0;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
     }
 
   glColor4f(1.0, 1.0, 1.0, opacity);

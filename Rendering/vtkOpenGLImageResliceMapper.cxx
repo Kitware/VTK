@@ -264,6 +264,7 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
 
   // now bind it
   glEnable(GL_TEXTURE_2D);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
   // depth peeling
   vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
@@ -302,9 +303,16 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
     }
   else
     {
+    float color[4];
+    color[3] = opacity;
     glEnable(GL_LIGHTING);
-    glMaterialf(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-    glMaterialf(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+    glShadeModel(GL_FLAT);
+    color[0] = color[1] = color[2] = ambient;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
+    color[0] = color[1] = color[2] = diffuse;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
+    color[0] = color[1] = color[2] = 0.0;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
     }
 
   glColor4f(1.0, 1.0, 1.0, opacity);
