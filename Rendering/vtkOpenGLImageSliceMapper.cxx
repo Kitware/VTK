@@ -264,7 +264,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
                               vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                               static_cast<GLsizei>(strlen(prog)), prog);
 
-      int erri;
+      GLint erri;
       glGetIntegerv(vtkgl::PROGRAM_ERROR_POSITION_ARB, &erri);
       if (erri != -1)
         {
