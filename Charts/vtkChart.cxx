@@ -149,6 +149,11 @@ bool vtkChart::GetShowLegend()
   return this->ShowLegend;
 }
 
+vtkChartLegend * vtkChart::GetLegend()
+{
+  return 0;
+}
+
 //-----------------------------------------------------------------------------
 void vtkChart::SetTitle(const vtkStdString &title)
 {

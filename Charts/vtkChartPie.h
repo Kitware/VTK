@@ -65,6 +65,15 @@ public:
   virtual vtkIdType GetNumberOfPlots();
 
   // Description:
+  // Set whether the chart should draw a legend.
+  virtual void SetShowLegend(bool visible);
+
+  // Description:
+  // Get the legend for the chart, if available. Can return NULL if there is no
+  // legend.
+  virtual vtkChartLegend * GetLegend();
+
+  // Description:
   // Set the vtkContextScene for the item, always set for an item in a scene.
   virtual void SetScene(vtkContextScene *scene);
 
