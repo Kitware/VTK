@@ -327,6 +327,8 @@ vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
   dualCellDims[0] = (celldims[0]==1)? 1 : (celldims[0]-1);
   dualCellDims[1] = (celldims[1]==1)? 1 : (celldims[1]-1);
   dualCellDims[2] = (celldims[2]==1)? 1 : (celldims[2]-1);
+
+  // Note: this is the max number of cells that the dual can have
   int numCellsInDual  = dualCellDims[0]*dualCellDims[1]*dualCellDims[2];
 
   // STEP 3: Determine the total number of nodes per cell. Note, we use
@@ -374,8 +376,15 @@ vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
         } // END for all j
     } // END for all i
   pntIdList->Delete();
+
+// These asserts are not valid since dual cells are not formed for the entire
+//  input grid
 //  assert("post: cellCounter==numCellsInDual" && (cellCounter==numCellsInDual));
 //  assert( meshElements->GetNumberOfCells() == cellCounter );
+
+  // Release unused memory
+  meshElements->Squeeze();
+
   mesh->SetPoints( nodes );
   nodes->Delete();
   mesh->SetCells( cellType,meshElements );
