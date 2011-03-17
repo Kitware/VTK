@@ -32,6 +32,7 @@
 #include "vtkUnstructuredGridWriter.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkIntArray.h"
 
 //
 // Standard methods
@@ -165,6 +166,7 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
   ijkpnt[1]  = ijk[1];
   ijkpnt[2]  = ijk[2];
 
+  int count  = 0;
   int pntIdx = -1;
 
   switch( numNodesPerCell )
@@ -175,25 +177,25 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 3, pntIdx );
       break;
     case 8: /* Form Hex */
@@ -203,25 +205,25 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
       /* Hex base */
       pntIdx        = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 3, pntIdx );
 
       /* Hex top */
@@ -231,118 +233,71 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 4, pntIdx );
 
       ijkpnt[0]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 5, pntIdx );
 
       ijkpnt[1]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 6, pntIdx );
 
       ijkpnt[0]--;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
       if( !ug->IsCellVisible( pntIdx ) )
-        return false;
+        ++count;
       pntIdList->InsertId( 7, pntIdx );
       break;
     default:
       vtkErrorMacro( "Undefined number of nodes per cell!" );
     }
+
+  // If all the dual nodes correspond to cells that are not visible
+  // on input grid, then reject the formation of this dual by returning
+  // false, otherwise, accept the formation of the cell
+  if( count == numNodesPerCell )
+    return false;
   return true;
-}
 
-//------------------------------------------------------------------------------
-void vtkAMRDualMeshExtractor::GetNeighbor(
-    const int ijk[3], const int dims[3],
-    const int di, const int dj, const int dk,
-    vtkIdList *neiList )
-{
-  int neiijk[3];
-  int distance[3];
-  distance[0]=di; distance[1]=dj; distance[2]=dk;
-
-  for( int i=0; i < 3; ++i )
-    neiijk[i] = ijk[i]+distance[i];
-
-  if( (neiijk[0] >= 0 && neiijk[0] < dims[0]) &&
-      (neiijk[1] >= 0 && neiijk[1] < dims[1]) &&
-      (neiijk[2] >= 0 && neiijk[2] < dims[2]) )
-    {
-      int neiIdx = vtkStructuredData::ComputePointId(
-          const_cast< int* >(dims), neiijk );
-      neiList->InsertNextId( neiIdx );
-    }
-}
-
-//------------------------------------------------------------------------------
-void vtkAMRDualMeshExtractor::GetCellNeighbors(
-    const int cellijk[3], const int celldims[3], vtkIdList *neisIdList )
-{
-  assert( "pre: Neighbors ID list is NULL" && (neisIdList != NULL) );
-
-  int dimension = ( celldims[2] == 1 ) ? 2 : 3;
-  switch( dimension )
-    {
-      case 2:
-        this->GetNeighbor(cellijk,celldims, -1, 0,0, neisIdList);
-        this->GetNeighbor(cellijk,celldims,  1, 0,0, neisIdList);
-        this->GetNeighbor(cellijk,celldims,  0,-1,0, neisIdList);
-        this->GetNeighbor(cellijk,celldims,  0, 1,0, neisIdList);
-        break;
-      case 3:
-        this->GetNeighbor(cellijk,celldims,-1, 0, 0, neisIdList);
-        this->GetNeighbor(cellijk,celldims, 1, 0, 0, neisIdList);
-        this->GetNeighbor(cellijk,celldims, 0,-1, 0, neisIdList);
-        this->GetNeighbor(cellijk,celldims, 0, 1, 0, neisIdList);
-        this->GetNeighbor(cellijk,celldims, 0, 0,-1, neisIdList);
-        this->GetNeighbor(cellijk,celldims, 0, 0, 1, neisIdList);
-        break;
-      default:
-        vtkErrorMacro( "Cannot query neighbors for dimension:" << dimension );
-    }
 }
 
 //------------------------------------------------------------------------------
 bool vtkAMRDualMeshExtractor::ProcessCellDual(
-        vtkUniformGrid *ug, const int cellIdx,
-        const int cellijk[3], const int celldims[3] )
+    vtkUniformGrid *ug, const int cellIdx,
+    const int cellijk[3], const int celldims[3] )
 {
-  assert( "pre: input uniform grid is NULL!" && (ug != NULL) );
+  assert( "pre: input uniform grid is NULL" && (ug != NULL) );
+  assert( "pre: input grid must have point data" &&
+           (ug->GetPointData() != NULL) );
+  assert( "pre: input grid must have PointOwnership information" &&
+           ug->GetPointData()->HasArray("PointOwnership") );
   assert( "pre: cell index out-of-bounds!" &&
-           ( (cellIdx >= 0) && (cellIdx < ug->GetNumberOfCells() ) ) );
+          ( (cellIdx >= 0) && (cellIdx < ug->GetNumberOfCells() ) ) );
 
   if( ug->IsCellVisible( cellIdx ) )
     return true;
   else
     {
-      // If the cell is not visible but, is adjacent
-      // to a cell that is visible it must be processed.
-
-      // Get cell neighbors
-      vtkIdList *neiIdList  = vtkIdList::New();
-      this->GetCellNeighbors( cellijk,celldims,neiIdList );
-
-      // Check if any of the cell neighbors is visible, if
-      // they are, process the cell dual.
-      unsigned int nei =0;
-      for( ; nei < neiIdList->GetNumberOfIds(); ++nei )
+      vtkPointData *PD = ug->GetPointData();
+      vtkIntArray  *PO =
+       vtkIntArray::SafeDownCast( PD->GetArray("PointOwnership") );
+      vtkIdList *ptIds = vtkIdList::New();
+      ug->GetCellPoints( cellIdx, ptIds );
+      for( int i=0; i < ptIds->GetNumberOfIds(); ++i )
         {
-          int neiCellIdx = neiIdList->GetId( nei );
-          if( ug->IsCellVisible( neiCellIdx ) )
+          if( PO->GetValue( ptIds->GetId(i) ) == 1 )
             {
-              neiIdList->Delete();
+              ptIds->Delete();
               return true;
             }
-        } // END for all cell neighbors
-
-      neiIdList->Delete();
+        } // END for all nodes
+      ptIds->Delete();
     }
 
   return false;
