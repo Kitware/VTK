@@ -30,6 +30,8 @@
 #include "vtkCellArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkUnstructuredGridWriter.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
 
 //
 // Standard methods
@@ -296,7 +298,7 @@ vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
                   ++cellCounter;
                 }
 
-              // TODO: copy cell data from ug to the points of the dual mesh
+              mesh->GetPointData()->ShallowCopy( ug->GetCellData() );
 
             } // END for all k
         } // END for all j
