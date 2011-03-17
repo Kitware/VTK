@@ -227,12 +227,12 @@ vtkCell *vtkUniformGrid::GetCell(vtkIdType cellId)
     }
 
   // see whether the cell is blanked
-  if ( (this->PointVisibility->IsConstrained() ||
-        this->CellVisibility->IsConstrained())
-       && !this->IsCellVisible(cellId) )
-    {
-    return this->GetEmptyCell();
-    }
+//  if ( (this->PointVisibility->IsConstrained() ||
+//        this->CellVisibility->IsConstrained())
+//       && !this->IsCellVisible(cellId) )
+//    {
+//    return this->GetEmptyCell();
+//    }
 
   switch (this->GetDataDescription())
     {
