@@ -365,8 +365,8 @@ int vtkImageSliceMapper::GetSliceFromCamera(
   slicepos -= this->DataOrigin[orientation];
   slicepos /= this->DataSpacing[orientation];
 
-  // round to get integer
-  return vtkMath::Floor(slicepos + 0.5);
+  // round to get integer, add a tolerance to prefer rounding up
+  return vtkMath::Floor(slicepos + (0.5 + 7.62939453125e-06));
 }
 
 //----------------------------------------------------------------------------
