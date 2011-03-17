@@ -35,6 +35,7 @@ class vtkMultiProcessController;
 class vtkUniformGrid;
 class vtkDataArray;
 class vtkPolyData;
+class vtkIntArray;
 
 class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
                       public vtkHierarchicalBoxDataSetAlgorithm
@@ -144,6 +145,12 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     // Description:
     // Attaches point ownership information to the output AMR dataset.
     void AttachPointOwnershipInfo();
+    void CheckOwnershipAtSameLevel(
+        vtkIntArray *ownership, vtkUniformGrid *grid, int level, int dataIdx );
+    void CheckOwnershipDownstream(
+        vtkIntArray *ownership, vtkUniformGrid *grid,
+        vtkHierarchicalBoxDataSet *amds,
+        int currentLevel );
 
     // Description:
     // Finds the donor cell for each receiver point
