@@ -245,20 +245,15 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
       }
 #endif
 
-    if (useFragmentProgram && (this->FragmentShaderIndex == 0 ||
-        xsize != this->TextureSize[0] || ysize != this->TextureSize[1]))
+    if (useFragmentProgram && this->FragmentShaderIndex == 0)
       {
       // Use the the ancient ARB_fragment_program extension, it works
       // reliably even with very old hardware and drivers
       vtkgl::GenProgramsARB(1, &tempIndex);
       this->FragmentShaderIndex = static_cast<long>(tempIndex);
+
       vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             this->FragmentShaderIndex);
-
-      vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
-        static_cast<float>(xsize), static_cast<float>(ysize),
-        static_cast<float>(1.0/xsize), static_cast<float>(1.0/ysize));
-
       const char *prog = vtkTextureBicubicARB_fp;
       vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                               vtkgl::PROGRAM_FORMAT_ASCII_ARB,
@@ -309,14 +304,23 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
   // execute the display list that uses creates the texture
 #ifdef GL_VERSION_1_1
   glBindTexture(GL_TEXTURE_2D, this->Index);
-  if (useFragmentProgram)
-    {
-    vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
-                          this->FragmentShaderIndex);
-    }
 #else
   glCallList(static_cast<GLuint>(this->Index));
 #endif
+
+  if (useFragmentProgram)
+    {
+    // Bind the bicubic interpolation fragment program, it will
+    // not do anything if modern shader objects are also in play.
+    vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
+                          this->FragmentShaderIndex);
+    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
+                          static_cast<float>(this->TextureSize[0]),
+                          static_cast<float>(this->TextureSize[1]),
+                          static_cast<float>(1.0/this->TextureSize[0]),
+                          static_cast<float>(1.0/this->TextureSize[1]));
+    glEnable(vtkgl::FRAGMENT_PROGRAM_ARB);
+    }
 
   // don't accept fragments if they have zero opacity:
   // this will stop the zbuffer from be blocked by totally
@@ -324,13 +328,8 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
   glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
   glEnable(GL_ALPHA_TEST);
 
-  // now bind it
   glEnable(GL_TEXTURE_2D);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  if (useFragmentProgram)
-    {
-    glEnable(vtkgl::FRAGMENT_PROGRAM_ARB);
-    }
 
   // depth peeling
   vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
@@ -419,6 +418,11 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
   if (ambient == 1.0 && diffuse == 0.0)
     {
     glEnable(GL_LIGHTING);
+    }
+
+  if (useFragmentProgram)
+    {
+    glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
 }
 
