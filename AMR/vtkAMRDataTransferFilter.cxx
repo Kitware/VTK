@@ -664,8 +664,10 @@ void vtkAMRDataTransferFilter::AttachPointOwnershipInfo()
             }
 
           this->CheckOwnershipAtSameLevel(pntOwnership,myGrid,level,dataIdx);
+//          this->CheckOwnershipDownstream(
+//              pntOwnership, myGrid, this->ExtrudedData, level );
           this->CheckOwnershipDownstream(
-              pntOwnership, myGrid, this->ExtrudedData, level );
+              pntOwnership,myGrid,this->AMRDataSet,level );
 
           myGrid->GetPointData()->AddArray( pntOwnership );
           pntOwnership->Delete();
