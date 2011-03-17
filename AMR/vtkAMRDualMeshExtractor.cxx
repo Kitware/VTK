@@ -289,7 +289,8 @@ vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
               this->ComputeCellCenter( ug, cellIdx, centroid );
               nodes->InsertPoint( cellIdx, centroid );
 
-              if( this->GetCellIds( ijk,celldims, pntIdList,numNodesPerCell ) )
+              if( ug->IsCellVisible( cellIdx ) &&
+                  this->GetCellIds( ijk,celldims, pntIdList,numNodesPerCell ) )
                 {
                   meshElements->InsertNextCell( pntIdList );
                   ++cellCounter;
@@ -301,8 +302,8 @@ vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
         } // END for all j
     } // END for all i
   pntIdList->Delete();
-  assert("post: cellCounter==numCellsInDual" && (cellCounter==numCellsInDual));
-  assert( meshElements->GetNumberOfCells() == cellCounter );
+//  assert("post: cellCounter==numCellsInDual" && (cellCounter==numCellsInDual));
+//  assert( meshElements->GetNumberOfCells() == cellCounter );
   mesh->SetPoints( nodes );
   nodes->Delete();
   mesh->SetCells( cellType,meshElements );
