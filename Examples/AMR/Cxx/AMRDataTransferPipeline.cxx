@@ -36,7 +36,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkMPIController.h"
 #include "vtkAMRUtilities.h"
-
+#include "vtkAMRDualMeshExtractor.h"
 
 // Global Variables
 vtkMultiProcessController *Controller;
@@ -122,7 +122,13 @@ int main( int argc, char **argv )
   std::cout.flush();
   Controller->Barrier();
 
+  vtkAMRDualMeshExtractor *dme = vtkAMRDualMeshExtractor::New();
+  dme->SetInput( newData );
+  dme->Update();
+  dme->WriteMultiBlockData( dme->GetOutput() );
+
   // STEP 3: CleanUp
+  dme->Delete();
   amrData->Delete();
   connectivityFilter->Delete();
   transferFilter->Delete();
