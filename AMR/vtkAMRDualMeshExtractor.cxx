@@ -153,10 +153,11 @@ void vtkAMRDualMeshExtractor::ComputeCellCenter(
 
 //------------------------------------------------------------------------------
 bool vtkAMRDualMeshExtractor::GetCellIds(
-     int ijk[3], int dims[3], vtkIdList *pntIdList, int numNodesPerCell )
+     vtkUniformGrid *ug, int ijk[3], int dims[3],
+     vtkIdList *pntIdList, int numNodesPerCell )
 {
-
   // Sanity checks
+  assert( "pre: Input uniform grid is NULL" && (ug != NULL) );
   assert( "pre: pntIdList is NULL" && (pntIdList != NULL) );
 
   int ijkpnt[3];
@@ -173,18 +174,26 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
         return false;
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 3, pntIdx );
       break;
     case 8: /* Form Hex */
@@ -193,18 +202,26 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
 
       /* Hex base */
       pntIdx        = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 3, pntIdx );
 
       /* Hex top */
@@ -213,18 +230,26 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
       ijkpnt[1] = ijk[1];
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 4, pntIdx );
 
       ijkpnt[0]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 5, pntIdx );
 
       ijkpnt[1]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 6, pntIdx );
 
       ijkpnt[0]--;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
+      if( !ug->IsCellVisible( pntIdx ) )
+        return false;
       pntIdList->InsertId( 7, pntIdx );
       break;
     default:
@@ -266,18 +291,18 @@ void vtkAMRDualMeshExtractor::GetCellNeighbors(
   switch( dimension )
     {
       case 2:
-        this->GetNeighbor(cellijk,celldims,-1,0,0,neisIdList);
-        this->GetNeighbor(cellijk,celldims,1,0,0,neisIdList);
-        this->GetNeighbor(cellijk,celldims,0,-1,0,neisIdList);
-        this->GetNeighbor(cellijk,celldims,0,1,0,neisIdList);
+        this->GetNeighbor(cellijk,celldims, -1, 0,0, neisIdList);
+        this->GetNeighbor(cellijk,celldims,  1, 0,0, neisIdList);
+        this->GetNeighbor(cellijk,celldims,  0,-1,0, neisIdList);
+        this->GetNeighbor(cellijk,celldims,  0, 1,0, neisIdList);
         break;
       case 3:
-        this->GetNeighbor(cellijk,celldims,-1,0,0,neisIdList);
-        this->GetNeighbor(cellijk,celldims,1,0,0,neisIdList);
-        this->GetNeighbor(cellijk,celldims,0,-1,0,neisIdList);
-        this->GetNeighbor(cellijk,celldims,0,1,0,neisIdList);
-        this->GetNeighbor(cellijk,celldims,0,0,-1,neisIdList);
-        this->GetNeighbor(cellijk,celldims,0,0,1,neisIdList);
+        this->GetNeighbor(cellijk,celldims,-1, 0, 0, neisIdList);
+        this->GetNeighbor(cellijk,celldims, 1, 0, 0, neisIdList);
+        this->GetNeighbor(cellijk,celldims, 0,-1, 0, neisIdList);
+        this->GetNeighbor(cellijk,celldims, 0, 1, 0, neisIdList);
+        this->GetNeighbor(cellijk,celldims, 0, 0,-1, neisIdList);
+        this->GetNeighbor(cellijk,celldims, 0, 0, 1, neisIdList);
         break;
       default:
         vtkErrorMacro( "Cannot query neighbors for dimension:" << dimension );
@@ -382,7 +407,7 @@ vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
               nodes->InsertPoint( cellIdx, centroid );
 
               if( this->ProcessCellDual( ug, cellIdx, ijk, celldims ) &&
-                  this->GetCellIds( ijk,celldims, pntIdList,numNodesPerCell ) )
+                  this->GetCellIds(ug,ijk,celldims,pntIdList,numNodesPerCell) )
                 {
                   meshElements->InsertNextCell( pntIdList );
                   ++cellCounter;

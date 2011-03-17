@@ -75,7 +75,9 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     // It Returns true if a valid cell can be formed from the given point
     // else false. Note, a valid cell cannot be formed if the point is on
     // a max boundary w.r.t. to the given dimensions.
-    bool GetCellIds(  int ijk[3], int dims[3],
+    bool GetCellIds(
+          vtkUniformGrid *ug,
+          int ijk[3], int dims[3],
           vtkIdList *pntIdList, int numNodesPerCell );
 
     // Description:
