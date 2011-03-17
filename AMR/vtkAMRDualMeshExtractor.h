@@ -51,6 +51,24 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     vtkAMRDualMeshExtractor();
     virtual ~vtkAMRDualMeshExtractor();
 
+    // Description:
+    // TODO: enter description
+    void GetNeighbor(
+        const int ijk[3], const int dims[3],
+        const int di, const int dj, const int dk,
+        vtkIdList *neiList );
+
+    // Description:
+    // TODO: enter descripion
+    void GetCellNeighbors(
+       const int cellijk[3], const int celldims[3],
+       vtkIdList *neisIdList );
+
+    // Description:
+    // TODO: enter description
+    bool ProcessCellDual(
+     vtkUniformGrid *ug, const int cellIdx,
+     const int cellijk[3], const int celldims[3] );
 
     // Description:
     // This methnod computes the cell point ids for a given ijk point.
