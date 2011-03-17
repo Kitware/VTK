@@ -31,7 +31,7 @@ class vtkInformationVector;
 class vtkUniformGrid;
 class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
-class vtkPolyData;
+class vtkUnstructuredGrid;
 class vtkIdList;
 
 class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
@@ -71,7 +71,7 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
 
     // Descrition:
     // TODO: enter description
-    vtkPolyData* GetDualMesh( vtkUniformGrid *ug );
+    vtkUnstructuredGrid* GetDualMesh( vtkUniformGrid *ug );
 
     // Standard pipeline routines
     virtual int RequestData(

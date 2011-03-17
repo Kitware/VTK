@@ -23,12 +23,13 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkUniformGrid.h"
 #include "vtkIdList.h"
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkUnstructuredGridWriter.h"
 
 //
 // Standard methods
@@ -110,13 +111,6 @@ int vtkAMRDualMeshExtractor::RequestData( vtkInformation *request,
   std::cout << "[DONE]\n";
   std::cout.flush();
 
-//  std::cout << "Write multiblock data...";
-//  std::cout.flush();
-//
-//  this->WriteMultiBlockData( mbds );
-//  std::cout << "[DONE]\n";
-//  std::cout.flush();
-
   return 1;
 }
 
@@ -173,50 +167,42 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
   switch( numNodesPerCell )
     {
     case 4: /* Form Quad */
-      if( (ijk[0] == dims[0]) || (ijk[1] == dims[1]) )
+      if( (ijk[0] == dims[0]-1) || (ijk[1] == dims[1]-1) )
         return false;
 
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[0] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[1] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[2] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[3] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 3, pntIdx );
       break;
     case 8: /* Form Hex */
-      if( (ijk[0]==dims[0]) || (ijk[1]==dims[1]) || (ijk[2]==dims[2]) )
+      if( (ijk[0]==dims[0]-1) || (ijk[1]==dims[1]-1) || (ijk[2]==dims[2]-1) )
        return false;
 
       /* Hex base */
-      pntIdx        = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[0] = pntIdx;
+      pntIdx        = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[1] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[2] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[3] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 3, pntIdx );
 
       /* Hex top */
@@ -224,23 +210,19 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
       ijkpnt[0] = ijk[0];
       ijkpnt[1] = ijk[1];
 
-      pntIdx       = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[4] = pntIdx;
+      pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 4, pntIdx );
 
       ijkpnt[0]++;
-      pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[5] = pntIdx;
+      pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 5, pntIdx );
 
       ijkpnt[1]++;
-      pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[6] = pntIdx;
+      pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 6, pntIdx );
 
       ijkpnt[0]--;
-      pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
-//      pntIdList[7] = pntIdx;
+      pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
       pntIdList->InsertId( 7, pntIdx );
       break;
     default:
@@ -250,12 +232,11 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
 }
 
 //------------------------------------------------------------------------------
-vtkPolyData* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
+vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
 {
   assert( "pre: Input uniform grid is NULL!" && (ug!=NULL) );
 
-  vtkPolyData  *mesh        = vtkPolyData::New();
-  vtkCellArray *meshVertices = vtkCellArray::New();
+  vtkUnstructuredGrid  *mesh = vtkUnstructuredGrid::New();
   vtkCellArray *meshElements = vtkCellArray::New();
   vtkPoints    *nodes        = vtkPoints::New();
 
@@ -282,12 +263,13 @@ vtkPolyData* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
   int cellType        = (numNodesPerCell==4)? VTK_QUAD : VTK_HEXAHEDRON;
 
   // STEP 4: Allocate Dual mesh data-structures
-  meshVertices->SetNumberOfCells( ug->GetNumberOfCells() );
   nodes->SetNumberOfPoints( ug->GetNumberOfCells() );
+  meshElements->EstimateSize( numCellsInDual, numNodesPerCell );
 
   // STEP 5: Construct mesh topology & copy solution
   vtkIdList *pntIdList = vtkIdList::New();
   pntIdList->SetNumberOfIds( numNodesPerCell );
+  int cellCounter = 0;
   for( int i=0; i < celldims[0]; ++i )
     {
       for( int j=0; j < celldims[1]; ++j )
@@ -306,11 +288,11 @@ vtkPolyData* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
               double centroid[3];
               this->ComputeCellCenter( ug, cellIdx, centroid );
               nodes->InsertPoint( cellIdx, centroid );
-              meshVertices->InsertCellPoint( cellIdx );
 
               if( this->GetCellIds( ijk,celldims, pntIdList,numNodesPerCell ) )
                 {
                   meshElements->InsertNextCell( pntIdList );
+                  ++cellCounter;
                 }
 
               // TODO: copy cell data from ug to the points of the dual mesh
@@ -319,14 +301,13 @@ vtkPolyData* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
         } // END for all j
     } // END for all i
   pntIdList->Delete();
-
+  assert("post: cellCounter==numCellsInDual" && (cellCounter==numCellsInDual));
+  assert( meshElements->GetNumberOfCells() == cellCounter );
   mesh->SetPoints( nodes );
   nodes->Delete();
-//  mesh->SetVerts( meshVertices );
-  meshVertices->Delete();
-  mesh->SetPolys( meshElements );
+  mesh->SetCells( cellType,meshElements );
   meshElements->Delete();
-  mesh->BuildCells();
+
   return mesh;
 }
 
@@ -355,7 +336,7 @@ void vtkAMRDualMeshExtractor::ExtractDualMesh(
           vtkUniformGrid *ug = amrds->GetDataSet( level, dataIdx );
           if( ug != NULL )
             {
-              vtkPolyData *dualMesh = this->GetDualMesh( ug );
+              vtkUnstructuredGrid *dualMesh = this->GetDualMesh( ug );
               assert( "post: dual-mesh is NULL" && (dualMesh != NULL) );
               mpds->SetPiece( dataIdx, dualMesh );
               dualMesh->Delete();
