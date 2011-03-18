@@ -155,7 +155,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
     {
     nc_comps = static_cast<int>(this->Colors->GetNumberOfComponents());
     }
-  if (this->ScalarVisibility && this->Colors && (nc_comps == 4))
+  if (this->ScalarVisibility && this->Colors && nc_comps == 4)
     {
     for (size_t i = 0, nc = 0; i < rows; ++i, nc += nc_comps)
       {
@@ -163,8 +163,8 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
         {
         line[j].Set(this->Storage->AxisPos[j], (*this->Storage)[j][i]);
         }
-      painter->DrawPoly(line[0].GetData(), static_cast<int>(cols),
-                        this->Colors->GetPointer(nc), nc_comps);
+      painter->GetPen()->SetColor(this->Colors->GetPointer(nc));
+      painter->DrawPoly(line[0].GetData(), static_cast<int>(cols));
       }
     }
   else

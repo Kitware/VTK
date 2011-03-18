@@ -98,6 +98,11 @@ void vtkBrush::SetColor(unsigned char r, unsigned char g, unsigned char b,
   this->Color[3] = a;
 }
 
+void vtkBrush::SetColor(const vtkColor4ub &color)
+{
+  this->BrushColor = color;
+}
+
 //-----------------------------------------------------------------------------
 void vtkBrush::SetOpacity(unsigned char a)
 {
@@ -120,6 +125,11 @@ void vtkBrush::GetColor(unsigned char color[4])
     {
     color[i] = this->Color[i];
     }
+}
+
+vtkColor4ub vtkBrush::GetColorObject()
+{
+  return this->BrushColor;
 }
 
 //-----------------------------------------------------------------------------
