@@ -212,6 +212,20 @@ extern "C" { typedef int (*vtkExodusIIGetMapFunc)( int, int* ); }
 #include "vtkExodusIIReaderPrivate.h"
 #include "vtkExodusIIReaderVariableCheck.h"
 
+// --------------------------------------------------- PRIVATE CLASS Implementations
+vtkExodusIIReaderPrivate::BlockSetInfoType::~BlockSetInfoType()
+{
+  //this is needed to properly manage memory.
+  //when vectors are resized or reserved they have the chance of copying
+  //the objects and destroying the old objects, which will leave the CachedConnectivity hanging
+  //this fixes is in respone to Bug #11982
+  if ( this->CachedConnectivity )
+    {
+    this->CachedConnectivity->Delete();
+    }
+}
+
+
 // ----------------------------------------------------------- UTILITY ROUTINES
 
 // This function exists because FORTRAN ordering sucks.

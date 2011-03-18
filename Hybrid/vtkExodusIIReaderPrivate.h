@@ -358,6 +358,7 @@ public:
     vtkUnstructuredGrid* CachedConnectivity;
 
     BlockSetInfoType() { this->CachedConnectivity = 0; }
+    ~BlockSetInfoType();
   };
 
   /// A struct to hold information about Exodus blocks
