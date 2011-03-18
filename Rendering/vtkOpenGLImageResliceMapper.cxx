@@ -264,7 +264,7 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
 
   // now bind it
   glEnable(GL_TEXTURE_2D);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
   // depth peeling
   vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
