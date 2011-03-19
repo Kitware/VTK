@@ -216,12 +216,12 @@ double vtkImageSlice::GetMaxZBound()
 // Does this prop have some translucent polygonal geometry?
 int vtkImageSlice::HasTranslucentPolygonalGeometry()
 {
-  // Always render during translucent pass, to keep the behaviour
-  // predictable.
+  // Always render during opaque pass, to keep the behavior
+  // predictable and because depth-peeling kills alpha-blending.
   // In the future, the Renderer should render images in layers,
   // i.e. where each image will have a layer number assigned to it,
   // and the Renderer will do the images in their own pass. 
-  return 1;
+  return 0;
 }
 
 //----------------------------------------------------------------------------
