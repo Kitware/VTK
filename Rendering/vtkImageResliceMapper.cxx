@@ -409,9 +409,17 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   reslice->SetOutputSpacing(spacing);
   reslice->SetOutputOrigin(origin);
 
-  // Tell reslice to use a double-thickness border,
-  // since the polygon geometry will dictate the actual size
-  reslice->SetBorder(2);
+  if (this->SliceFacesCamera)
+    {
+    // if slice follows camera, use reslice to set the border
+    reslice->SetBorder(this->Border);
+    }
+  else
+    {
+    // tell reslice to use a double-thickness border,
+    // since the polygon geometry will dictate the actual size
+    reslice->SetBorder(2);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -447,6 +455,13 @@ void vtkImageResliceMapper::MakeTextureCutGeometry(
   vtkImageData *input, const int extent[6], int border,
   double coords[18], double tcoords[12], int &ncoords)
 {
+  if (this->SliceFacesCamera)
+    {
+    ncoords = 4;
+    this->MakeTextureGeometry(input, extent, 1, coords, tcoords);
+    return;
+    }
+
   // info about the texture
   int xdim, ydim;
   int imageSize[2];
