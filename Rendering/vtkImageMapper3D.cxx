@@ -413,7 +413,7 @@ void vtkImageMapperConvertToRGBA(
     }
 
   // alpha as unsigned char and as fixed-point
-  unsigned char alpha2 = static_cast<unsigned char>(alpha*255);
+  unsigned char alpha2 = static_cast<unsigned char>(alpha*255 + 0.5);
   int alpha3 = static_cast<int>(alpha*65536);
 
   // loop through the data and copy it for the texture
@@ -524,12 +524,25 @@ void vtkImageMapperConvertToRGBA(
 
 //----------------------------------------------------------------------------
 // Convert data to unsigned char
+
+template<class F>
+inline F vtkImageMapperClamp(F x, F xmin, F xmax)
+{
+  // do not change this code: it compiles into min/max opcodes
+  x = (x > xmin ? x : xmin);
+  x = (x < xmax ? x : xmax);
+  return x;
+}
+
 template<class F, class T>
 void vtkImageMapperShiftScale(
   const T *inPtr, unsigned char *outPtr, const int extent[6],
   int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
   F shift, F scale, F alpha)
 {
+  const F vmin = static_cast<F>(0);
+  const F vmax = static_cast<F>(255);
+
   // number of values per row of input image
   int rowLength = (extent[1] - extent[0] + 1);
   if (rowLength <= 0)
@@ -537,7 +550,7 @@ void vtkImageMapperShiftScale(
     return;
     }
 
-  unsigned char alpha2 = static_cast<unsigned char>(alpha*255);
+  unsigned char alpha2 = static_cast<unsigned char>(alpha*255 + 0.5);
 
   // loop through the data and copy it for the texture
   if (numComp == 1)
@@ -551,9 +564,8 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F val = (inPtr[0] + shift)*scale;
-          if (val < 0) { val = 0; }
-          if (val > 255) { val = 255; }
-          unsigned char cval = static_cast<unsigned char>(val);
+          val = vtkImageMapperClamp(val, vmin, vmax);
+          unsigned char cval = static_cast<unsigned char>(val + 0.5);
           outPtr[0] = cval;
           outPtr[1] = cval;
           outPtr[2] = cval;
@@ -581,13 +593,11 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F val = (inPtr[0] + shift)*scale;
-          if (val < 0) { val = 0; }
-          if (val > 255) { val = 255; }
-          unsigned char cval = static_cast<unsigned char>(val);
+          val = vtkImageMapperClamp(val, vmin, vmax);
+          unsigned char cval = static_cast<unsigned char>(val + 0.5);
           val = (inPtr[1] + shift)*scale;
-          if (val < 0) { val = 0; }
-          if (val > 255) { val = 255; }
-          unsigned char aval = static_cast<unsigned char>(val*alpha);
+          val = vtkImageMapperClamp(val, vmin, vmax);
+          unsigned char aval = static_cast<unsigned char>(val*alpha + 0.5);
           outPtr[0] = cval;
           outPtr[1] = cval;
           outPtr[2] = cval;
@@ -615,17 +625,14 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F r = (inPtr[0] + shift)*scale;
-          if (r < 0) { r = 0; }
-          if (r > 255) { r = 255; }
           F g = (inPtr[1] + shift)*scale;
-          if (g < 0) { g = 0; }
-          if (g > 255) { g = 255; }
           F b = (inPtr[2] + shift)*scale;
-          if (b < 0) { b = 0; }
-          if (b > 255) { b = 255; }
-          outPtr[0] = static_cast<unsigned char>(r);
-          outPtr[1] = static_cast<unsigned char>(g);
-          outPtr[2] = static_cast<unsigned char>(b);
+          r = vtkImageMapperClamp(r, vmin, vmax);
+          g = vtkImageMapperClamp(g, vmin, vmax);
+          b = vtkImageMapperClamp(b, vmin, vmax);
+          outPtr[0] = static_cast<unsigned char>(r + 0.5);
+          outPtr[1] = static_cast<unsigned char>(g + 0.5);
+          outPtr[2] = static_cast<unsigned char>(b + 0.5);
           outPtr[3] = alpha2;
           outPtr += 4;
           inPtr += 3;
@@ -650,21 +657,17 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F r = (inPtr[0] + shift)*scale;
-          if (r < 0) { r = 0; }
-          if (r > 255) { r = 255; }
           F g = (inPtr[1] + shift)*scale;
-          if (g < 0) { g = 0; }
-          if (g > 255) { g = 255; }
           F b = (inPtr[2] + shift)*scale;
-          if (b < 0) { b = 0; }
-          if (b > 255) { b = 255; }
           F a = (inPtr[3] + shift)*scale;
-          if (a < 0) { a = 0; }
-          if (a > 255) { a = 255; }
-          outPtr[0] = static_cast<unsigned char>(r);
-          outPtr[1] = static_cast<unsigned char>(g);
-          outPtr[2] = static_cast<unsigned char>(b);
-          outPtr[3] = static_cast<unsigned char>(a*alpha);
+          r = vtkImageMapperClamp(r, vmin, vmax);
+          g = vtkImageMapperClamp(g, vmin, vmax);
+          b = vtkImageMapperClamp(b, vmin, vmax);
+          a = vtkImageMapperClamp(a, vmin, vmax);
+          outPtr[0] = static_cast<unsigned char>(r + 0.5);
+          outPtr[1] = static_cast<unsigned char>(g + 0.5);
+          outPtr[2] = static_cast<unsigned char>(b + 0.5);
+          outPtr[3] = static_cast<unsigned char>(a*alpha + 0.5);
           outPtr += 4;
           inPtr += numComp;
           }
