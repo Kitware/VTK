@@ -362,14 +362,11 @@ inline unsigned char *vtkLinearLookupMain(double v,
                                           double shift, double scale)
 {
   double findx = (v + shift)*scale;
-  if (findx < 0.0)
-    {
-    findx = 0.0;
-    }
-  else if (findx > maxIndex)
-    {
-    findx = maxIndex;
-    }
+
+  // do not change this code: it compiles into min/max opcodes
+  findx = (findx > 0 ? findx : 0);
+  findx = (findx < maxIndex ? findx : maxIndex);
+
   return &table[4*static_cast<unsigned int>(findx)];
 }
 
