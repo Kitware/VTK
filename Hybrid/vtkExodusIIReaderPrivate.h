@@ -357,7 +357,8 @@ public:
     /// Cached cell connectivity arrays for mesh
     vtkUnstructuredGrid* CachedConnectivity;
 
-    BlockSetInfoType() { this->CachedConnectivity = 0; }
+    BlockSetInfoType(){this->CachedConnectivity=0;}
+    BlockSetInfoType(const BlockSetInfoType& block);
     ~BlockSetInfoType();
   };
 
@@ -375,7 +376,7 @@ public:
     int CellType; 
     // Number of points per cell as used by VTK 
     // -- not what's in the file (i.e., BdsPerEntry[0] >= PointsPerCell)
-    int PointsPerCell; 
+    int PointsPerCell;
   };
 
   /// A struct to hold information about Exodus blocks

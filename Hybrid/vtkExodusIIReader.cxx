@@ -213,18 +213,28 @@ extern "C" { typedef int (*vtkExodusIIGetMapFunc)( int, int* ); }
 #include "vtkExodusIIReaderVariableCheck.h"
 
 // --------------------------------------------------- PRIVATE CLASS Implementations
+vtkExodusIIReaderPrivate::BlockSetInfoType::BlockSetInfoType(
+  const vtkExodusIIReaderPrivate::BlockSetInfoType &block):
+  vtkExodusIIReaderPrivate::ObjectInfoType(block),
+  FileOffset(block.FileOffset),
+  PointMap(block.PointMap),
+  ReversePointMap(block.ReversePointMap),
+  CachedConnectivity(0)
+{  
+  //this is needed to properly manage memory.
+  //when vectors are resized or reserved the container
+  //might be copied to a memory spot, so we need a proper copy constructor
+  //so that the cache remains valid
+  this->CachedConnectivity = block.CachedConnectivity;  
+}
+
 vtkExodusIIReaderPrivate::BlockSetInfoType::~BlockSetInfoType()
 {
-  //this is needed to properly manage memory.
-  //when vectors are resized or reserved they have the chance of copying
-  //the objects and destroying the old objects, which will leave the CachedConnectivity hanging
-  //this fixes is in respone to Bug #11982
-  if ( this->CachedConnectivity )
+  if (this->CachedConnectivity)
     {
     this->CachedConnectivity->Delete();
     }
 }
-
 
 // ----------------------------------------------------------- UTILITY ROUTINES
 
