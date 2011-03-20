@@ -665,6 +665,7 @@ void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
     double l = inPtr[0];
     double a = inPtr[1];
     l = (l + shift)*scale;
+    a = (a + shift)*scale;
     if (l < 0) { l = 0; }
     if (l > 255) { l = 255; }
     if (a < 0) { a = 0; }
@@ -689,6 +690,7 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
     double l = inPtr[0];
     double a = inPtr[1];
     l = (l + shift)*scale;
+    a = (a + shift)*scale;
     if (l < 0) { l = 0; }
     if (l > 255) { l = 255; }
     if (a < 0) { a = 0; }
