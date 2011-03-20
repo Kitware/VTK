@@ -1320,7 +1320,9 @@ inline F vtkResliceClamp(F x, F xmin, F xmax)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeInt8& clamp)
 {
-  val = vtkResliceClamp(val, -128.0, 127.0);
+  static F minval = static_cast<F>(-128);
+  static F maxval = static_cast<F>(127);
+  val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
 #endif
@@ -1329,7 +1331,9 @@ inline void vtkResliceClamp(F val, vtkTypeInt8& clamp)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeUInt8& clamp)
 {
-  val = vtkResliceClamp(val, 0.0, 255.0);
+  static F minval = static_cast<F>(0);
+  static F maxval = static_cast<F>(255);
+  val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
 #endif
@@ -1338,7 +1342,9 @@ inline void vtkResliceClamp(F val, vtkTypeUInt8& clamp)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeInt16& clamp)
 {
-  val = vtkResliceClamp(val, -32768.0, 32767.0);
+  static F minval = static_cast<F>(-32768);
+  static F maxval = static_cast<F>(32767);
+  val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
 #endif
@@ -1347,7 +1353,9 @@ inline void vtkResliceClamp(F val, vtkTypeInt16& clamp)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeUInt16& clamp)
 {
-  val = vtkResliceClamp(val, 0.0, 65535.0);
+  static F minval = static_cast<F>(0);
+  static F maxval = static_cast<F>(65535);
+  val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
 #endif
@@ -1356,7 +1364,9 @@ inline void vtkResliceClamp(F val, vtkTypeUInt16& clamp)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeInt32& clamp)
 {
-  val = vtkResliceClamp(val, -2147483648.0, 2147483647.0);
+  static F minval = static_cast<F>(-2147483648);
+  static F maxval = static_cast<F>(2147483647);
+  val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
 #endif
@@ -1365,7 +1375,9 @@ inline void vtkResliceClamp(F val, vtkTypeInt32& clamp)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeUInt32& clamp)
 {
-  val = vtkResliceClamp(val, 0.0, 4294967295.0);
+  static F minval = static_cast<F>(0);
+  static F maxval = static_cast<F>(4294967295);
+  val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
 #endif
@@ -2019,9 +2031,7 @@ void vtkKaiserInterpWeights(T *F, T f, int m)
 
 
 // General interpolation for high-order kernels.
-// Requirements: kernel size must be even, and the interpolating
-// curve must pass through the data points.  In other words, this
-// will have to be modified to work with b-splines.
+// Requirements: kernel size must be even.
 
 template <class F, class T>
 void vtkImageResliceInterpolate<F, T>::General(
@@ -2121,20 +2131,14 @@ void vtkImageResliceInterpolate<F, T>::General(
     }
 
   // check if only one slice in a particular direction
-  int multipleX = (minX != maxX);
   int multipleY = (minY != maxY);
   int multipleZ = (minZ != maxZ);
-
-  // or if exactly over a point
-  multipleX &= (fx != 0);
-  multipleY &= (fy != 0);
-  multipleZ &= (fz != 0);
 
   // the limits to use when doing the interpolation
   int k1 = m2*(1 - multipleZ);
   int k2 = (m2 + 1)*(multipleZ + 1) - 1;
-  int j1 = m2*(1 - multipleZ);
-  int j2 = (m2 + 1)*(multipleZ + 1) - 1;
+  int j1 = m2*(1 - multipleY);
+  int j2 = (m2 + 1)*(multipleY + 1) - 1;
 
   do // loop over components
     {
@@ -4042,12 +4046,10 @@ void vtkPermuteGeneralTable(const int outExt[6], const int inExt[6],
         {
         F f;
         int idx = vtkResliceFloor(point, f) - m2;
-        int fIsNotZero = (f != 0);
         int inId[VTK_RESLICE_MAX_KERNEL_SIZE];
 
         // is there more than one slice in this direction
         int multiple = (minExt != maxExt);
-        multiple &= fIsNotZero;
 
         int l;
         int low = m2*(1 - multiple);
