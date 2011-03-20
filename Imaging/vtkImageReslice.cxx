@@ -1320,8 +1320,8 @@ inline F vtkResliceClamp(F x, F xmin, F xmax)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeInt8& clamp)
 {
-  static F minval = static_cast<F>(-128);
-  static F maxval = static_cast<F>(127);
+  static F minval = static_cast<F>(-128.0);
+  static F maxval = static_cast<F>(127.0);
   val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
@@ -1332,7 +1332,7 @@ template <class F>
 inline void vtkResliceClamp(F val, vtkTypeUInt8& clamp)
 {
   static F minval = static_cast<F>(0);
-  static F maxval = static_cast<F>(255);
+  static F maxval = static_cast<F>(255.0);
   val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
@@ -1342,8 +1342,8 @@ inline void vtkResliceClamp(F val, vtkTypeUInt8& clamp)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeInt16& clamp)
 {
-  static F minval = static_cast<F>(-32768);
-  static F maxval = static_cast<F>(32767);
+  static F minval = static_cast<F>(-32768.0);
+  static F maxval = static_cast<F>(32767.0);
   val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
@@ -1354,7 +1354,7 @@ template <class F>
 inline void vtkResliceClamp(F val, vtkTypeUInt16& clamp)
 {
   static F minval = static_cast<F>(0);
-  static F maxval = static_cast<F>(65535);
+  static F maxval = static_cast<F>(65535.0);
   val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
@@ -1364,8 +1364,8 @@ inline void vtkResliceClamp(F val, vtkTypeUInt16& clamp)
 template <class F>
 inline void vtkResliceClamp(F val, vtkTypeInt32& clamp)
 {
-  static F minval = static_cast<F>(-2147483648);
-  static F maxval = static_cast<F>(2147483647);
+  static F minval = static_cast<F>(-2147483648.0);
+  static F maxval = static_cast<F>(2147483647.0);
   val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
@@ -1376,7 +1376,7 @@ template <class F>
 inline void vtkResliceClamp(F val, vtkTypeUInt32& clamp)
 {
   static F minval = static_cast<F>(0);
-  static F maxval = static_cast<F>(4294967295);
+  static F maxval = static_cast<F>(4294967295.0);
   val = vtkResliceClamp(val, minval, maxval);
   vtkResliceRound(val,clamp);
 }
