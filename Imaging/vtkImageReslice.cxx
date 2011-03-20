@@ -4094,7 +4094,7 @@ void vtkPermuteGeneralTable(const int outExt[6], const int inExt[6],
           {
           traversal[j][m*i+l] = inId[low]*inInc[k];
           }
-        for (; l < m; l++)
+        for (; l <= high; l++)
           {
           traversal[j][m*i+l] = inId[l]*inInc[k];
           }
