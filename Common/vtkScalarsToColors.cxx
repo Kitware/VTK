@@ -451,12 +451,15 @@ void vtkScalarsToColorsLuminanceToLuminance(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double l = inPtr[0];
     l = (l + shift)*scale;
-    if (l < 0) { l = 0; }
-    if (l > 255) { l = 255; }
+    l = (l > minval ? l : minval);
+    l = (l < maxval ? l : maxval);
     l += 0.5;
     outPtr[0] = static_cast<unsigned char>(l);
     inPtr += numComponents;
@@ -470,12 +473,15 @@ void vtkScalarsToColorsLuminanceToRGB(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double l = inPtr[0];
     l = (l + shift)*scale;
-    if (l < 0) { l = 0; }
-    if (l > 255) { l = 255; }
+    l = (l > minval ? l : minval);
+    l = (l < maxval ? l : maxval);
     unsigned char lc = static_cast<unsigned char>(l + 0.5);
     outPtr[0] = lc;
     outPtr[1] = lc;
@@ -491,6 +497,9 @@ void vtkScalarsToColorsRGBToLuminance(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double r = inPtr[0];
@@ -499,12 +508,12 @@ void vtkScalarsToColorsRGBToLuminance(
     r = (r + shift)*scale;
     g = (g + shift)*scale;
     b = (b + shift)*scale;
-    if (r < 0) { r = 0; }
-    if (r > 255) { r = 255; }
-    if (g < 0) { g = 0; }
-    if (g > 255) { g = 255; }
-    if (b < 0) { b = 0; }
-    if (b > 255) { b = 255; }
+    r = (r > minval ? r : minval);
+    r = (r < maxval ? r : maxval);
+    g = (g > minval ? g : minval);
+    g = (g < maxval ? g : maxval);
+    b = (b > minval ? b : minval);
+    b = (b < maxval ? b : maxval);
     double l = vtkScalarsToColorsLuminance(r, g, b) + 0.5;
     outPtr[0] = static_cast<unsigned char>(l);
     inPtr += numComponents;
@@ -518,6 +527,9 @@ void vtkScalarsToColorsRGBToRGB(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double r = inPtr[0];
@@ -526,12 +538,12 @@ void vtkScalarsToColorsRGBToRGB(
     r = (r + shift)*scale;
     g = (g + shift)*scale;
     b = (b + shift)*scale;
-    if (r < 0) { r = 0; }
-    if (r > 255) { r = 255; }
-    if (g < 0) { g = 0; }
-    if (g > 255) { g = 255; }
-    if (b < 0) { b = 0; }
-    if (b > 255) { b = 255; }
+    r = (r > minval ? r : minval);
+    r = (r < maxval ? r : maxval);
+    g = (g > minval ? g : minval);
+    g = (g < maxval ? g : maxval);
+    b = (b > minval ? b : minval);
+    b = (b < maxval ? b : maxval);
     r += 0.5;
     g += 0.5;
     b += 0.5;
@@ -550,13 +562,15 @@ void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = static_cast<unsigned char>(alpha*255 + 0.5);
+  static double minval = 0;
+  static double maxval = 255.0;
 
   do
     {
     double l = inPtr[0];
     l = (l + shift)*scale;
-    if (l < 0) { l = 0; }
-    if (l > 255) { l = 255; }
+    l = (l > minval ? l : minval);
+    l = (l < maxval ? l : maxval);
     l += 0.5;
     outPtr[0] = static_cast<unsigned char>(l);
     outPtr[1] = a;
@@ -572,13 +586,15 @@ void vtkScalarsToColorsLuminanceToRGBA(
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = static_cast<unsigned char>(alpha*255 + 0.5);
+  static double minval = 0;
+  static double maxval = 255.0;
 
   do
     {
     double l = inPtr[0];
     l = (l + shift)*scale;
-    if (l < 0) { l = 0; }
-    if (l > 255) { l = 255; }
+    l = (l > minval ? l : minval);
+    l = (l < maxval ? l : maxval);
     unsigned char lc = static_cast<unsigned char>(l + 0.5);
     outPtr[0] = lc;
     outPtr[1] = lc;
@@ -596,6 +612,8 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = static_cast<unsigned char>(alpha*255 + 0.5);
+  static double minval = 0;
+  static double maxval = 255.0;
 
   do
     {
@@ -605,12 +623,12 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(
     r = (r + shift)*scale;
     g = (g + shift)*scale;
     b = (b + shift)*scale;
-    if (r < 0) { r = 0; }
-    if (r > 255) { r = 255; }
-    if (g < 0) { g = 0; }
-    if (g > 255) { g = 255; }
-    if (b < 0) { b = 0; }
-    if (b > 255) { b = 255; }
+    r = (r > minval ? r : minval);
+    r = (r < maxval ? r : maxval);
+    g = (g > minval ? g : minval);
+    g = (g < maxval ? g : maxval);
+    b = (b > minval ? b : minval);
+    b = (b < maxval ? b : maxval);
     double l = vtkScalarsToColorsLuminance(r, g, b) + 0.5;
     outPtr[0] = static_cast<unsigned char>(l);
     outPtr[1] = a;
@@ -626,6 +644,8 @@ void vtkScalarsToColorsRGBToRGBA(
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = static_cast<unsigned char>(alpha*255 + 0.5);
+  static double minval = 0;
+  static double maxval = 255.0;
 
   do
     {
@@ -635,12 +655,12 @@ void vtkScalarsToColorsRGBToRGBA(
     r = (r + shift)*scale;
     g = (g + shift)*scale;
     b = (b + shift)*scale;
-    if (r < 0) { r = 0; }
-    if (r > 255) { r = 255; }
-    if (g < 0) { g = 0; }
-    if (g > 255) { g = 255; }
-    if (b < 0) { b = 0; }
-    if (b > 255) { b = 255; }
+    r = (r > minval ? r : minval);
+    r = (r < maxval ? r : maxval);
+    g = (g > minval ? g : minval);
+    g = (g < maxval ? g : maxval);
+    b = (b > minval ? b : minval);
+    b = (b < maxval ? b : maxval);
     r += 0.5;
     g += 0.5;
     b += 0.5;
@@ -660,15 +680,19 @@ void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double l = inPtr[0];
     double a = inPtr[1];
     l = (l + shift)*scale;
-    if (l < 0) { l = 0; }
-    if (l > 255) { l = 255; }
-    if (a < 0) { a = 0; }
-    if (a > 255) { a = 255; }
+    a = (a + shift)*scale;
+    l = (l > minval ? l : minval);
+    l = (l < maxval ? l : maxval);
+    a = (a > minval ? a : minval);
+    a = (a < maxval ? a : maxval);
     l += 0.5;
     a = a*alpha + 0.5;
     outPtr[0] = static_cast<unsigned char>(l);
@@ -684,15 +708,19 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double l = inPtr[0];
     double a = inPtr[1];
     l = (l + shift)*scale;
-    if (l < 0) { l = 0; }
-    if (l > 255) { l = 255; }
-    if (a < 0) { a = 0; }
-    if (a > 255) { a = 255; }
+    a = (a + shift)*scale;
+    l = (l > minval ? l : minval);
+    l = (l < maxval ? l : maxval);
+    a = (a > minval ? a : minval);
+    a = (a < maxval ? a : maxval);
     unsigned char lc = static_cast<unsigned char>(l + 0.5);
     a = a*alpha + 0.5;
     outPtr[0] = lc;
@@ -710,6 +738,9 @@ void vtkScalarsToColorsRGBAToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double r = inPtr[0];
@@ -720,14 +751,14 @@ void vtkScalarsToColorsRGBAToLuminanceAlpha(
     g = (g + shift)*scale;
     b = (b + shift)*scale;
     a = (a + shift)*scale;
-    if (r < 0) { r = 0; }
-    if (r > 255) { r = 255; }
-    if (g < 0) { g = 0; }
-    if (g > 255) { g = 255; }
-    if (b < 0) { b = 0; }
-    if (b > 255) { b = 255; }
-    if (a < 0) { a = 0; }
-    if (a > 255) { a = 255; }
+    r = (r > minval ? r : minval);
+    r = (r < maxval ? r : maxval);
+    g = (g > minval ? g : minval);
+    g = (g < maxval ? g : maxval);
+    b = (b > minval ? b : minval);
+    b = (b < maxval ? b : maxval);
+    a = (a > minval ? a : minval);
+    a = (a < maxval ? a : maxval);
     a = a*alpha + 0.5;
     double l = vtkScalarsToColorsLuminance(r, g, b) + 0.5;
     outPtr[0] = static_cast<unsigned char>(l);
@@ -743,6 +774,9 @@ void vtkScalarsToColorsRGBAToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
+  static double minval = 0;
+  static double maxval = 255.0;
+
   do
     {
     double r = inPtr[0];
@@ -753,14 +787,14 @@ void vtkScalarsToColorsRGBAToRGBA(
     g = (g + shift)*scale;
     b = (b + shift)*scale;
     a = (a + shift)*scale;
-    if (r < 0) { r = 0; }
-    if (r > 255) { r = 255; }
-    if (g < 0) { g = 0; }
-    if (g > 255) { g = 255; }
-    if (b < 0) { b = 0; }
-    if (b > 255) { b = 255; }
-    if (a < 0) { a = 0; }
-    if (a > 255) { a = 255; }
+    r = (r > minval ? r : minval);
+    r = (r < maxval ? r : maxval);
+    g = (g > minval ? g : minval);
+    g = (g < maxval ? g : maxval);
+    b = (b > minval ? b : minval);
+    b = (b < maxval ? b : maxval);
+    a = (a > minval ? a : minval);
+    a = (a < maxval ? a : maxval);
     r += 0.5;
     g += 0.5;
     b += 0.5;

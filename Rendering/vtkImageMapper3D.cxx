@@ -402,8 +402,7 @@ void vtkImageMapperCopy(
 static
 void vtkImageMapperConvertToRGBA(
   unsigned char *inPtr, unsigned char *outPtr, const int extent[6],
-  int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
-  double alpha)
+  int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ)
 {
   // number of values per row of input image
   int rowLength = extent[1] - extent[0] + 1;
@@ -412,9 +411,7 @@ void vtkImageMapperConvertToRGBA(
     return;
     }
 
-  // alpha as unsigned char and as fixed-point
-  unsigned char alpha2 = static_cast<unsigned char>(alpha*255);
-  int alpha3 = static_cast<int>(alpha*65536);
+  unsigned char alpha = 255;
 
   // loop through the data and copy it for the texture
   if (numComp == 1)
@@ -430,7 +427,7 @@ void vtkImageMapperConvertToRGBA(
           outPtr[0] = val;
           outPtr[1] = val;
           outPtr[2] = val;
-          outPtr[3] = alpha2;
+          outPtr[3] = alpha;
           outPtr += 4;
           inPtr++;
           }
@@ -457,7 +454,7 @@ void vtkImageMapperConvertToRGBA(
           outPtr[0] = val;
           outPtr[1] = val;
           outPtr[2] = val;
-          outPtr[3] = ((a*alpha3) >> 16);
+          outPtr[3] = a;
           outPtr += 4;
           inPtr += 2;
           }
@@ -482,7 +479,7 @@ void vtkImageMapperConvertToRGBA(
           outPtr[0] = inPtr[0];
           outPtr[1] = inPtr[1];
           outPtr[2] = inPtr[2];
-          outPtr[3] = alpha2;
+          outPtr[3] = alpha;
           outPtr += 4;
           inPtr += 3;
           }
@@ -507,7 +504,7 @@ void vtkImageMapperConvertToRGBA(
           outPtr[0] = inPtr[0];
           outPtr[1] = inPtr[1];
           outPtr[2] = inPtr[2];
-          outPtr[3] = (((inPtr[3])*alpha3) >> 16);
+          outPtr[3] = inPtr[3];
           outPtr += 4;
           inPtr += numComp;
           }
@@ -524,12 +521,25 @@ void vtkImageMapperConvertToRGBA(
 
 //----------------------------------------------------------------------------
 // Convert data to unsigned char
+
+template<class F>
+inline F vtkImageMapperClamp(F x, F xmin, F xmax)
+{
+  // do not change this code: it compiles into min/max opcodes
+  x = (x > xmin ? x : xmin);
+  x = (x < xmax ? x : xmax);
+  return x;
+}
+
 template<class F, class T>
 void vtkImageMapperShiftScale(
   const T *inPtr, unsigned char *outPtr, const int extent[6],
   int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
-  F shift, F scale, F alpha)
+  F shift, F scale)
 {
+  const F vmin = static_cast<F>(0);
+  const F vmax = static_cast<F>(255);
+
   // number of values per row of input image
   int rowLength = (extent[1] - extent[0] + 1);
   if (rowLength <= 0)
@@ -537,7 +547,7 @@ void vtkImageMapperShiftScale(
     return;
     }
 
-  unsigned char alpha2 = static_cast<unsigned char>(alpha*255);
+  unsigned char alpha = 255;
 
   // loop through the data and copy it for the texture
   if (numComp == 1)
@@ -551,13 +561,12 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F val = (inPtr[0] + shift)*scale;
-          if (val < 0) { val = 0; }
-          if (val > 255) { val = 255; }
-          unsigned char cval = static_cast<unsigned char>(val);
+          val = vtkImageMapperClamp(val, vmin, vmax);
+          unsigned char cval = static_cast<unsigned char>(val + 0.5);
           outPtr[0] = cval;
           outPtr[1] = cval;
           outPtr[2] = cval;
-          outPtr[3] = alpha2;
+          outPtr[3] = alpha;
           outPtr += 4;
           inPtr++;
           }
@@ -581,13 +590,11 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F val = (inPtr[0] + shift)*scale;
-          if (val < 0) { val = 0; }
-          if (val > 255) { val = 255; }
-          unsigned char cval = static_cast<unsigned char>(val);
+          val = vtkImageMapperClamp(val, vmin, vmax);
+          unsigned char cval = static_cast<unsigned char>(val + 0.5);
           val = (inPtr[1] + shift)*scale;
-          if (val < 0) { val = 0; }
-          if (val > 255) { val = 255; }
-          unsigned char aval = static_cast<unsigned char>(val*alpha);
+          val = vtkImageMapperClamp(val, vmin, vmax);
+          unsigned char aval = static_cast<unsigned char>(val + 0.5);
           outPtr[0] = cval;
           outPtr[1] = cval;
           outPtr[2] = cval;
@@ -615,18 +622,15 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F r = (inPtr[0] + shift)*scale;
-          if (r < 0) { r = 0; }
-          if (r > 255) { r = 255; }
           F g = (inPtr[1] + shift)*scale;
-          if (g < 0) { g = 0; }
-          if (g > 255) { g = 255; }
           F b = (inPtr[2] + shift)*scale;
-          if (b < 0) { b = 0; }
-          if (b > 255) { b = 255; }
-          outPtr[0] = static_cast<unsigned char>(r);
-          outPtr[1] = static_cast<unsigned char>(g);
-          outPtr[2] = static_cast<unsigned char>(b);
-          outPtr[3] = alpha2;
+          r = vtkImageMapperClamp(r, vmin, vmax);
+          g = vtkImageMapperClamp(g, vmin, vmax);
+          b = vtkImageMapperClamp(b, vmin, vmax);
+          outPtr[0] = static_cast<unsigned char>(r + 0.5);
+          outPtr[1] = static_cast<unsigned char>(g + 0.5);
+          outPtr[2] = static_cast<unsigned char>(b + 0.5);
+          outPtr[3] = alpha;
           outPtr += 4;
           inPtr += 3;
           }
@@ -650,21 +654,17 @@ void vtkImageMapperShiftScale(
           {
           // Pixel operation
           F r = (inPtr[0] + shift)*scale;
-          if (r < 0) { r = 0; }
-          if (r > 255) { r = 255; }
           F g = (inPtr[1] + shift)*scale;
-          if (g < 0) { g = 0; }
-          if (g > 255) { g = 255; }
           F b = (inPtr[2] + shift)*scale;
-          if (b < 0) { b = 0; }
-          if (b > 255) { b = 255; }
           F a = (inPtr[3] + shift)*scale;
-          if (a < 0) { a = 0; }
-          if (a > 255) { a = 255; }
-          outPtr[0] = static_cast<unsigned char>(r);
-          outPtr[1] = static_cast<unsigned char>(g);
-          outPtr[2] = static_cast<unsigned char>(b);
-          outPtr[3] = static_cast<unsigned char>(a*alpha);
+          r = vtkImageMapperClamp(r, vmin, vmax);
+          g = vtkImageMapperClamp(g, vmin, vmax);
+          b = vtkImageMapperClamp(b, vmin, vmax);
+          a = vtkImageMapperClamp(a, vmin, vmax);
+          outPtr[0] = static_cast<unsigned char>(r + 0.5);
+          outPtr[1] = static_cast<unsigned char>(g + 0.5);
+          outPtr[2] = static_cast<unsigned char>(b + 0.5);
+          outPtr[3] = static_cast<unsigned char>(a + 0.5);
           outPtr += 4;
           inPtr += numComp;
           }
@@ -683,7 +683,7 @@ void vtkImageMapperShiftScale(
 void vtkImageMapper3D::ConvertImageScalarsToRGBA(
   void *inPtr, unsigned char *outPtr, const int extent[6],
   int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
-  int scalarType, double scalarRange[2], double alpha)
+  int scalarType, double scalarRange[2])
 {
   double shift = -scalarRange[0];
   double scale = 255.0;
@@ -704,7 +704,7 @@ void vtkImageMapper3D::ConvertImageScalarsToRGBA(
     {
     vtkImageMapperConvertToRGBA(static_cast<unsigned char *>(inPtr),
                                 outPtr, extent, numComp,
-                                inIncY, inIncZ, outIncY, outIncZ, alpha);
+                                inIncY, inIncZ, outIncY, outIncZ);
     }
   else
     {
@@ -714,7 +714,7 @@ void vtkImageMapper3D::ConvertImageScalarsToRGBA(
         vtkImageMapperShiftScale(static_cast<VTK_TT*>(inPtr),
                                  outPtr, extent, numComp,
                                  inIncY, inIncZ, outIncY, outIncZ,
-                                 shift, scale, alpha));
+                                 shift, scale));
       default:
         vtkGenericWarningMacro(
           "ConvertImageScalarsToRGBA: Unknown input ScalarType");
@@ -801,21 +801,19 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
   // lookup table and window/level
   double colorWindow = 255.0;
   double colorLevel = 127.5;
-  double alpha = 1.0;
   vtkScalarsToColors *lookupTable = 0;
 
   if (property)
     {
     colorWindow = property->GetColorWindow();
     colorLevel = property->GetColorLevel();
-    alpha = property->GetOpacity();
     lookupTable = property->GetLookupTable();
     }
 
   // check if the input is pre-formatted as colors
   int inputIsColors = false;
   if (lookupTable == 0 && scalarType == VTK_UNSIGNED_CHAR &&
-      alpha == 1.0 && colorLevel == 127.5 && colorWindow == 255.0)
+      colorLevel == 127.5 && colorWindow == 255.0)
     {
     inputIsColors = true;
     if (numComp < 4)
@@ -896,9 +894,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
   // reformat the data for use as a texture
   if (lookupTable)
     {
-    // apply a lookup table (SetAlpha() doesn't change timestamp)
-    double saveAlpha = lookupTable->GetAlpha();
-    lookupTable->SetAlpha(alpha);
+    // apply a lookup table
     if (property && !property->GetUseLookupTableScalarRange())
       {
       // no way to do this without modifying the table
@@ -908,14 +904,12 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
     this->ApplyLookupTableToImageScalars(inPtr, outPtr, extent, numComp,
                                          inIncY, inIncZ, outIncY, outIncZ,
                                          scalarType, lookupTable);
-
-    lookupTable->SetAlpha(saveAlpha);
     }
   else if (!inputIsColors) // no lookup table, do a shift/scale calculation
     {
     this->ConvertImageScalarsToRGBA(inPtr, outPtr, extent, numComp,
                                     inIncY, inIncZ, outIncY, outIncZ,
-                                    scalarType, range, alpha);
+                                    scalarType, range);
     }
   else // just copy the data
     {

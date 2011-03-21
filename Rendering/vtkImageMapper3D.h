@@ -132,7 +132,7 @@ protected:
   static void ConvertImageScalarsToRGBA(
     void *inPtr, unsigned char *outPtr, const int extent[6],
     int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
-    int scalarType, double scalarRange[2], double alpha);
+    int scalarType, double scalarRange[2]);
 
   // Description:
   // Perform window/level and color mapping operations to produce

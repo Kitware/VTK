@@ -92,6 +92,7 @@ public:
   // ranging from 0 to 255.
   void SetColor(unsigned char r, unsigned char g, unsigned char b,
                 unsigned char a);
+  void SetColor(const vtkColor4ub &color);
 
   // Description:
   // Set the opacity with an unsigned char, ranging from 0 (transparent) to 255
@@ -105,6 +106,10 @@ public:
   // Description:
   // Get the color of the brush - expects an unsigned char of length 3.
   void GetColor(unsigned char color[3]);
+
+  // Description:
+  // Get the color of the pen.
+  vtkColor4ub GetColorObject();
 
   // Description:
   // Get the opacity (unsigned char), ranging from 0 (transparent) to 255

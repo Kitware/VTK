@@ -73,6 +73,7 @@ public:
   // ranging from 0 to 255.
   void SetColor(unsigned char r, unsigned char g, unsigned char b,
                 unsigned char a);
+  void SetColor(const vtkColor4ub &color);
 
   // Description:
   // Set the opacity with an unsigned char, ranging from 0 (transparent) to 255
@@ -90,6 +91,10 @@ public:
   // Description:
   // Get the color of the brush - gives a pointer to the underlying data.
   unsigned char * GetColor() { return &this->Color[0]; }
+
+  // Description:
+  // Get the color of the brush.
+  vtkColor4ub GetColorObject();
 
   // Description:
   // Set the texture that will be used to fill polygons
