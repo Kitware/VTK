@@ -180,8 +180,6 @@ void vtkAMRUtilities::CollectAMRMetaData(
   // STEP 0: Compute the global dataset origin
   double origin[3];
   ComputeDataSetOrigin( origin, amrData, myController );
-  std::cout << "Global Origin: " << origin[0] << " " << origin[1] << " " << origin[2] << std::endl;
-  std::cout.flush();
 
   // STEP 1: Compute the metadata of each process locally
   int process = (myController == NULL)? 0 : myController->GetLocalProcessId();
