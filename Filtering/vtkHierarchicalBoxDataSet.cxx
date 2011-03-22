@@ -620,15 +620,31 @@ vtkAMRBox vtkHierarchicalBoxDataSet::GetAMRBox(vtkCompositeDataIterator* iter)
   vtkAMRBox box;
   if (this->HasMetaData(iter))
     {
-    vtkInformation* info = this->GetMetaData(iter);
-    int dimensionality = info->Has(BOX_DIMENSIONALITY())?
-      info->Get(BOX_DIMENSIONALITY()) : 3;
-    box.SetDimensionality(dimensionality);
-    int* boxVec = info->Get(BOX());
-    if (boxVec)
-      {
-      box.SetDimensions(boxVec,boxVec+3);
-      }
+      vtkInformation* info = this->GetMetaData(iter);
+      // Sanity Checks
+      assert( "Expected Meta-data" && info->Has( BOX_DIMENSIONALITY() ) );
+      assert( "Expected Meta-data" && info->Has( BOX() ) );
+      assert( "Expected Meta-data" && info->Has( RANK() ) );
+      assert( "Expected Meta-data" && info->Has( BOX_ORIGIN() ) );
+      assert( "Expected Meta-data" && info->Has( BLOCK_ID() )  );
+      assert( "Expected Meta-data" && info->Has( REAL_EXTENT() )  );
+
+      box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
+      int *dims = info->Get( BOX() );
+      box.SetDimensions(dims,dims+3);
+      box.SetDataSetOrigin( info->Get( BOX_ORIGIN() ) );
+      box.SetProcessId( info->Get( RANK() ) );
+      box.SetBlockId( info->Get( BLOCK_ID() ) );
+      box.SetRealExtent( info->Get( REAL_EXTENT() ) );
+// TODO: How can we determine the level from an iterator? One possibility is
+// to store that information in the vtkInformation object, but, that requires
+// more storage and hashing.
+      double *spacing = info->Get( SPACING() );
+      box.SetGridSpacing( spacing );
+    }
+  else
+    {
+      vtkErrorMacro( "No Metadata found for item found!" );
     }
   return box;
 }
