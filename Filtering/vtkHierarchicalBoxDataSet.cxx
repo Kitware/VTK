@@ -31,6 +31,8 @@
 #include "vtkIdList.h"
 #include "vtkAssertUtils.hpp"
 
+#include <cmath>
+#include <limits>
 #include <vtkstd/vector>
 #include <sstream>
 #include <cassert>
@@ -417,6 +419,70 @@ int vtkHierarchicalBoxDataSet::GetRefinementRatio(vtkCompositeDataIterator* iter
 }
 
 //----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
+{
+  if( (this->GetNumberOfLevels() == 0) ||
+      (this->GetNumberOfDataSets(0) == 0) )
+      return;
+
+  double min[3];
+  double max[3];
+  min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
+  max[0] = max[1] = max[2] = std::numeric_limits<double>::min();
+
+  int lo[3];
+  lo[0]=lo[1]=lo[2]=0;
+  int hi[3];
+  hi[0]=hi[1]=hi[2]=0;
+
+  int dimension = 0;
+  double spacing[3];
+
+  unsigned int dataIdx = 0;
+  for( ; dataIdx < this->GetNumberOfDataSets(0); ++dataIdx )
+    {
+      vtkAMRBox myBox;
+      this->GetMetaData( 0, dataIdx, myBox );
+
+      double boxmin[3];
+      double boxmax[3];
+      int    boxdims[3];
+
+      // Note: the AMR boxes are cell dimensioned, hence,
+      // in order to calculate the global dimensions, we
+      // just need to sum the number of cells in the box.
+      myBox.GetNumberOfCells( boxdims );
+
+      myBox.GetMinBounds( boxmin );
+      myBox.GetMaxBounds( boxmax );
+      for( int i=0; i < myBox.GetDimensionality(); ++i )
+        {
+
+          if( boxmin[i] < min[i] )
+            min[i] = boxmin[i];
+
+          if( boxmax[i] > max[i] )
+            max[i] = boxmax[i];
+        }
+
+      dimension = myBox.GetDimensionality();
+      myBox.GetGridSpacing( spacing );
+
+    } // END for all data
+
+  for( int i=0; i < dimension; ++i )
+   hi[ i ] = round( (max[i]-min[i])/spacing[i] );
+
+  root.SetDimensionality( dimension );
+  root.SetDataSetOrigin( min );
+  root.SetGridSpacing( spacing );
+  root.SetDimensions( lo, hi );
+  root.SetLevel( 0 );
+  root.SetBlockId( 0 );
+  root.SetProcessId( -1 ); /* not owned, can be computed by any process */
+}
+
+//----------------------------------------------------------------------------
 int vtkHierarchicalBoxDataSet::GetMetaData(
     unsigned int level, unsigned int index, vtkAMRBox &box)
 {
@@ -450,7 +516,7 @@ int vtkHierarchicalBoxDataSet::GetMetaData(
         }
       else
         {
-          vtkErrorMacro( "No meta-data found for requested object!\n" );
+//          vtkErrorMacro( "No meta-data found for requested object!\n" );
           return 0;
         }
     }

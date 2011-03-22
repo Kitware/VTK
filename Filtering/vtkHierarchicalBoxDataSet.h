@@ -91,6 +91,11 @@ public:
     { this->Superclass::SetDataSet(iter, dataObj); }
 
   // Description:
+  // This method returns the root AMR box for the entire root level.
+  // The root AMR box covers the entire domain.
+  void GetRootAMRBox( vtkAMRBox &root );
+
+  // Description:
   // Set the dataset pointer for a given node. This will resize the number of
   // levels and the number of datasets in the level to fit level, id requested. 
   void SetDataSet(unsigned int level, unsigned int id, 
