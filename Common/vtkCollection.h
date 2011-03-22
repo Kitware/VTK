@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Return the number of objects in the list.
-  int  GetNumberOfItems();
+  int  GetNumberOfItems() { return this->NumberOfItems; }
 
   // Description:
   // Initialize the traversal of the collection. This means the data pointer
