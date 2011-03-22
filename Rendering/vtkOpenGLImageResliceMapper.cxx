@@ -318,20 +318,20 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
   glColor4f(1.0, 1.0, 1.0, opacity);
 
   // Add all the clipping planes
-  double planeEquation[4];
-  int numClipPlanes;
-  for (numClipPlanes = 0;
-       this->GetClippingPlaneInDataCoords(
-         prop->GetMatrix(), numClipPlanes, planeEquation);
-       numClipPlanes++)
+  int numClipPlanes = this->GetNumberOfClippingPlanes();
+  if (numClipPlanes > 6)
     {
-    if (numClipPlanes > 6)
-      {
-      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
-      break;
-      }
+    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+    numClipPlanes = 6;
+    }
 
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+numClipPlanes);
+  int i;
+  for (i = 0; i < numClipPlanes; i++)
+    {
+    double planeEquation[4];
+    this->GetClippingPlaneInDataCoords(this->SliceToWorldMatrix,
+                                       i, planeEquation);
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
     glEnable(clipPlaneId);
     glClipPlane(clipPlaneId, planeEquation);
     }
@@ -339,7 +339,7 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
   if (this->NCoords)
     {
     glBegin((this->NCoords == 4) ? GL_QUADS : GL_POLYGON);
-    for (int i = 0; i < this->NCoords; i++)
+    for (i = 0; i < this->NCoords; i++)
       {
       glTexCoord2dv(&this->TCoords[i*2]);
       glVertex3dv(&this->Coords[i*3]);
@@ -347,7 +347,7 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
     glEnd();
     }
 
-  for (int i = 0; i < numClipPlanes; i++)
+  for (i = 0; i < numClipPlanes; i++)
     {
     GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
     glDisable(clipPlaneId);

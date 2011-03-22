@@ -75,10 +75,14 @@ public:
   virtual int IsARenderIntoImageMapper() {return 0;}
 
   // Description:
-  // Get the ith clipping plane as a homogeneous normal, returns
-  // false when i is too large i.e. no planes left.
-  bool GetClippingPlaneInDataCoords(
-    vtkMatrix4x4 *actorMatrix, int i, double plane[4]);
+  // Get the ith clipping plane as a homogeneous plane equation.
+  // Use GetNumberOfClippingPlanes to get the number of planes.
+  void GetClippingPlaneInDataCoords(
+    vtkMatrix4x4 *propMatrix, int i, double planeEquation[4]);
+
+  // Description:
+  // Get the number of clipping planes.
+  int GetNumberOfClippingPlanes();
 
 protected:
    vtkAbstractMapper3D();
