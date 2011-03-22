@@ -601,7 +601,7 @@ void vtkScalarsToColorsLuminanceToRGBA(
     outPtr[2] = lc;
     outPtr[3] = a;
     inPtr += numComponents;
-    outPtr += 2;
+    outPtr += 4;
     }
   while (--count);
 }
