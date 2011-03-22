@@ -425,7 +425,6 @@ void vtkAMRBox::SetDimensionality(int dim)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetProcessId( const int pid )
 {
-  vtkAssertUtils::assertTrue( (pid>=0), __FILE__, __LINE__ );
   this->ProcessId = pid;
 }
 
