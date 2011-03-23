@@ -22,8 +22,6 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkPlane.h"
-#include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
@@ -146,21 +144,19 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
   ren->GetRenderWindow()->MakeCurrent();
 
   // add all the clipping planes
-  vtkMatrix4x4 *actorMatrix = act->GetMatrix();
-  double planeEquation[4];
-  int numClipPlanes;
-  for (numClipPlanes = 0;
-       this->GetClippingPlaneInDataCoords(
-           actorMatrix, numClipPlanes, planeEquation);
-       numClipPlanes++)
+  int numClipPlanes = this->GetNumberOfClippingPlanes();
+  if (numClipPlanes > 6)
     {
-    if (numClipPlanes >= 6)
-      {
-      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
-      break;
-      }
+    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+    numClipPlanes = 6;
+    }
 
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+numClipPlanes);
+  int i;
+  for (i = 0; i < numClipPlanes; i++)
+    {
+    double planeEquation[4];
+    this->GetClippingPlaneInDataCoords(act->GetMatrix(), i, planeEquation);
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
     glEnable(clipPlaneId);
     glClipPlane(clipPlaneId, planeEquation);
     }
@@ -278,7 +274,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     this->TimeToDraw = 0.0001;
     }
 
-  for (int i = 0; i < numClipPlanes; i++)
+  for (i = 0; i < numClipPlanes; i++)
     {
     GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
     glDisable(clipPlaneId);
