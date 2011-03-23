@@ -41,7 +41,19 @@ TARGET_LINK_LIBRARIES( AMRDataTransferPipeline
              vtkParallel
              ${MPI_LIBRARIES} 
              )
-             
+
+## Add Generate3DAMRDataSetWithPulse executable
+ADD_EXECUTABLE( Generate3DAMRDataSetWithPulse Generate3DAMRDataSetWithPulse.cxx)
+TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
+                       vtkGraphics
+                       vtkFiltering
+                       vtkRendering
+                       vtkIO
+                       vtkAMR
+                       vtkParallel
+                       ${MPI_LIBRARIES} 
+                       )
+                                    
 ## Add TestImageDataToStructuredGridFilter
 ADD_EXECUTABLE( TestImageDataToStructuredGridFilter 
                 TestImageDataToStructuredGridFilter.cxx )
