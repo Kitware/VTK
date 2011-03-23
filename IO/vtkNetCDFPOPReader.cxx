@@ -64,6 +64,8 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->FileName = NULL;
+  this->NCDFFD = 0;
+  this->OpenedFileName = NULL;
   this->Stride[0] = this->Stride[1] = this->Stride[2] = 1;
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback
@@ -79,7 +81,11 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
 vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
 {
   this->SetFileName(0);
-  nc_close(this->NCDFFD);
+  if(this->OpenedFileName)
+    {
+    nc_close(this->NCDFFD);
+    this->SetOpenedFileName(NULL);
+    }
   if(this->SelectionObserver)
     {
     this->SelectionObserver->Delete();
@@ -99,6 +105,8 @@ void vtkNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(NULL)") << endl;
+  os << indent << "OpenedFileName: "
+     << (this->OpenedFileName ? this->OpenedFileName : "(NULL)") << endl;
   os << indent << "Stride: {" << this->Stride[0] << ", "
      << this->Stride[1] << ", " << this->Stride[2] << ", "
      << "}" << endl;
@@ -123,11 +131,22 @@ int vtkNetCDFPOPReader::RequestInformation(
     vtkErrorMacro("FileName not set.");
     return 0;
     }
-  int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
-  if (retval != NC_NOERR)//checks if read file error
+
+  if(this->OpenedFileName == NULL || strcmp(this->OpenedFileName, this->FileName) != 0)
     {
-    vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
-    return 0;
+    if(this->OpenedFileName)
+      {
+      nc_close(this->NCDFFD);
+      this->SetOpenedFileName(NULL);
+      }
+    int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
+    if (retval != NC_NOERR)//checks if read file error
+      {
+      // we don't need to close the file if there was an error opening the file
+      vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
+      return 0;
+      }
+    this->SetOpenedFileName(this->FileName);
     }
   // get number of variables from file
   int numberOfVariables;
