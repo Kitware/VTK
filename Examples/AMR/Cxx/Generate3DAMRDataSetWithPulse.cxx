@@ -97,7 +97,7 @@ void SetPulse()
 {
   Pulse.origin[0] = Pulse.origin[1] = Pulse.origin[2] = -1.0;
   Pulse.width[0]  = Pulse.width[1]  = Pulse.width[3]  = 6.0;
-  Pulse.amplitude = 0.1;
+  Pulse.amplitude = 0.0001;
 }
 
 //------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )
     vtkXMLHierarchicalBoxDataWriter::New();
 
   std::ostringstream oss;
-  oss << prefix << "." << myAMRWriter->GetDefaultFileExtension();
+  oss << prefix << ".vthb";
 
   myAMRWriter->SetFileName( oss.str().c_str() );
   myAMRWriter->SetInput( amrData );
