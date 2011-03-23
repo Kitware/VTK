@@ -195,7 +195,7 @@ int vtkImageToImageStencil::RequestInformation(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  static int wholeExtent[6];
+  int wholeExtent[6];
   double spacing[3];
   double origin[3];
 
