@@ -470,8 +470,9 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 
     } // END for all data
 
+  // Dimension based on CELLS and start number from 0.
   for( int i=0; i < dimension; ++i )
-   hi[ i ] = round( (max[i]-min[i])/spacing[i] );
+   hi[ i ] = round( (max[i]-min[i])/spacing[i] )-1;
 
   root.SetDimensionality( dimension );
   root.SetDataSetOrigin( min );
