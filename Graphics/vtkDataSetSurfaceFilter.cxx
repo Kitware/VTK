@@ -319,7 +319,7 @@ void vtkDataSetSurfaceFilter::EstimateStructuredDataArraySizes(
 //----------------------------------------------------------------------------
 int vtkDataSetSurfaceFilter::UniformGridExecute(
     vtkDataSet* input, vtkPolyData *output,
-    vtkIdType *ext, vtkIdType *wholeExt)
+    vtkIdType *ext, vtkIdType *wholeExt, bool extractface[6] )
 {
 
   if( this->UseStrips )
@@ -369,17 +369,28 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
     }
 
   // xMin face
-  this->ExecuteFaceQuads(input, output, 0, ext, 0,1,2, wholeExt, true );
+  if( extractface[0] )
+    this->ExecuteFaceQuads(input, output, 0, ext, 0,1,2, wholeExt, true );
+
   // xMax face
-  this->ExecuteFaceQuads(input, output, 1, ext, 0,2,1, wholeExt, true );
+  if( extractface[1] )
+    this->ExecuteFaceQuads(input, output, 1, ext, 0,2,1, wholeExt, true );
+
   // yMin face
-  this->ExecuteFaceQuads(input, output, 0, ext, 1,2,0, wholeExt, true );
+  if( extractface[2] )
+    this->ExecuteFaceQuads(input, output, 0, ext, 1,2,0, wholeExt, true );
+
   // yMax face
-  this->ExecuteFaceQuads(input, output, 1, ext, 1,0,2, wholeExt, true );
+  if( extractface[3] )
+    this->ExecuteFaceQuads(input, output, 1, ext, 1,0,2, wholeExt, true );
+
   // zMin face
-  this->ExecuteFaceQuads(input, output, 0, ext, 2,0,1, wholeExt, true );
+  if( extractface[4] )
+    this->ExecuteFaceQuads(input, output, 0, ext, 2,0,1, wholeExt, true );
+
   // zMax face
-  this->ExecuteFaceQuads(input, output, 1, ext, 2,1,0, wholeExt, true );
+  if( extractface[5] )
+    this->ExecuteFaceQuads(input, output, 1, ext, 2,1,0, wholeExt, true );
 
   output->Squeeze();
   if (this->OriginalCellIds != NULL)

@@ -131,10 +131,10 @@ public:
   virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
   virtual int UniformGridExecute(
       vtkDataSet *input, vtkPolyData *output,
-      vtkIdType *ext, vtkIdType *wholeExt );
+      vtkIdType *ext, vtkIdType *wholeExt, bool extractface[6] );
 #ifdef VTK_USE_64BIT_IDS
   virtual int UniformGridExecute(vtkDataSet *input,
-    vtkPolyData *output, int *ext32, int *wholeExt32)
+    vtkPolyData *output, int *ext32, int *wholeExt32, bool extractface[6] )
     {
     vtkIdType ext[6]; vtkIdType wholeExt[6];
     for (int cc=0; cc < 6; cc++)
@@ -142,7 +142,7 @@ public:
       ext[cc] = ext32[cc];
       wholeExt[cc] = wholeExt32[cc];
       }
-    return this->UniformGridExecute(input, output, ext, wholeExt);
+    return this->UniformGridExecute(input, output, ext, wholeExt, extractface);
     }
 #endif
 
