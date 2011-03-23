@@ -114,11 +114,11 @@ protected:
   // Get the camera orientation as a simple integer [0,1,2,3,4,5]
   // that indicates one of the six major directions.  The integers
   // 0,1,2 are x,y,z and 3,4,5 are -x,-y,-z.
-  int GetOrientationFromCamera(vtkImageSlice *prop, vtkCamera *camera);
+  int GetOrientationFromCamera(vtkMatrix4x4 *propMatrix, vtkCamera *camera);
 
   // Description:
   // Get the current slice as the one closest to the focal point.
-  int GetSliceFromCamera(vtkImageSlice *prop, vtkCamera *camera);
+  int GetSliceFromCamera(vtkMatrix4x4 *propMatrix, vtkCamera *camera);
 
   int SliceNumber;
   int SliceNumberMinValue;

@@ -38,6 +38,10 @@ public:
     {
     mapper->CurrentProp = prop;
     }
+  static void SetInRender(vtkImageMapper3D *mapper, bool inRender)
+    {
+    mapper->InRender = inRender;
+    }
 };
 
 //----------------------------------------------------------------------------
@@ -265,20 +269,6 @@ int vtkImageSlice::RenderOverlay(vtkViewport* vtkNotUsed(viewport))
 //----------------------------------------------------------------------------
 void vtkImageSlice::Render(vtkRenderer *ren)
 {
-  this->Update();
-
-  if (!this->Mapper)
-    {
-    vtkErrorMacro( << "You must specify a mapper!\n" );
-    return;
-    }
-
-  // If we don't have any input return silently
-  if (!this->Mapper->GetInput())
-    {
-    return;
-    }
-
   // Force the creation of a property
   if (!this->Property)
     {
@@ -291,8 +281,24 @@ void vtkImageSlice::Render(vtkRenderer *ren)
     return;
     }
 
-  this->Mapper->Render(ren, this);
-  this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
+  if (!this->Mapper)
+    {
+    vtkErrorMacro( << "You must specify a mapper!\n" );
+    return;
+    }
+
+  vtkImageToImageMapper3DFriendship::SetInRender(this->Mapper, true);
+
+  this->Update();
+
+  // only call the mapper if it has an input
+  if (this->Mapper->GetInput())
+    {
+    this->Mapper->Render(ren, this);
+    this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
+    }
+
+  vtkImageToImageMapper3DFriendship::SetInRender(this->Mapper, false);
 }
 
 //----------------------------------------------------------------------------

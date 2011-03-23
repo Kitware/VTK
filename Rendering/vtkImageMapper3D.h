@@ -31,7 +31,7 @@
 
 class vtkRenderer;
 class vtkProp3D;
-class vtkCamera;
+class vtkMatrix4x4;
 class vtkLookupTable;
 class vtkScalarsToColors;
 class vtkImageSlice;
@@ -179,20 +179,22 @@ protected:
     vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
-  // Get the camera associated with this mapper, or zero if none.
+  // Get the renderer associated with this mapper, or zero if none.
   // This will raise an error if multiple renderers are found.
-  vtkCamera *GetCurrentCamera();
+  vtkRenderer *GetCurrentRenderer();
 
   // Description:
   // Get the vtkImage prop associated with this mapper, or zero if none.
   vtkImageSlice *GetCurrentProp() { return this->CurrentProp; }
 
+  // Description:
+  // Get the data-to-world matrix for this mapper, according to the
+  // assembly path for its prop.
+  vtkMatrix4x4 *GetDataToWorldMatrix();
+
   int Border;
   vtkLookupTable *DefaultLookupTable;
   bool UsePowerOfTwoTextures;
-
-  // The prop this mapper is attached to, or zero if none.
-  vtkImageSlice *CurrentProp;
 
   // The slice.
   vtkPlane *SlicePlane;
@@ -205,6 +207,11 @@ protected:
   int DataWholeExtent[6];
 
 private:
+  // The prop this mapper is attached to, or zero if none.
+  vtkImageSlice *CurrentProp;
+  vtkMatrix4x4 *DataToWorldMatrix;
+  bool InRender;
+
   vtkImageMapper3D(const vtkImageMapper3D&);  // Not implemented.
   void operator=(const vtkImageMapper3D&);  // Not implemented.
 

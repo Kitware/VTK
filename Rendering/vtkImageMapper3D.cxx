@@ -51,7 +51,9 @@ vtkImageMapper3D::vtkImageMapper3D()
 
   this->UsePowerOfTwoTextures = false;
 
+  this->DataToWorldMatrix = vtkMatrix4x4::New();
   this->CurrentProp = 0;
+  this->InRender = false;
 
   this->DataOrigin[0] = 0.0;
   this->DataOrigin[1] = 0.0;
@@ -79,6 +81,10 @@ vtkImageMapper3D::~vtkImageMapper3D()
   if (this->SlicePlane)
     {
     this->SlicePlane->Delete();
+    }
+  if (this->DataToWorldMatrix)
+    {
+    this->DataToWorldMatrix->Delete();
     }
 }
 
@@ -181,7 +187,54 @@ int vtkImageMapper3D::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-vtkCamera *vtkImageMapper3D::GetCurrentCamera()
+static
+vtkRenderer *vtkImageMapper3DFindRenderer(vtkProp *prop, int &count)
+{
+  vtkRenderer *ren = 0;
+
+  int n = prop->GetNumberOfConsumers();
+  for (int i = 0; i < n; i++)
+    {
+    vtkObjectBase *o = prop->GetConsumer(i);
+    vtkProp3D *a = 0;
+    if ( (ren = vtkRenderer::SafeDownCast(o)) )
+      {
+      count++;
+      }
+    else if ( (a = vtkProp3D::SafeDownCast(o)) )
+      {
+      ren = vtkImageMapper3DFindRenderer(a, count);
+      }
+    }
+
+  return ren;
+}
+
+//----------------------------------------------------------------------------
+static
+void vtkImageMapper3DComputeMatrix(vtkProp *prop, double mat[16])
+{
+  vtkMatrix4x4 *propmat = prop->GetMatrix();
+  vtkMatrix4x4::DeepCopy(mat, propmat);
+
+  int n = prop->GetNumberOfConsumers();
+  for (int i = 0; i < n; i++)
+    {
+    vtkObjectBase *o = prop->GetConsumer(i);
+    vtkProp3D *a = 0;
+    if ( (a = vtkProp3D::SafeDownCast(o)) )
+      {
+      vtkImageMapper3DComputeMatrix(a, mat);
+      if (a->IsA("vtkAssembly"))
+        {
+        vtkMatrix4x4::Multiply4x4(mat, *propmat->Element, mat);
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkRenderer *vtkImageMapper3D::GetCurrentRenderer()
 {
   vtkImageSlice *prop = this->CurrentProp;
   vtkRenderer *ren = 0;
@@ -192,16 +245,7 @@ vtkCamera *vtkImageMapper3D::GetCurrentCamera()
     return 0;
     }
 
-  int n = prop->GetNumberOfConsumers();
-  for (int i = 0; i < n; i++)
-    {
-    vtkObjectBase *o = prop->GetConsumer(i);
-    if (o->IsA("vtkRenderer"))
-      {
-      count++;
-      ren = static_cast<vtkRenderer *>(o);
-      }
-    }
+  ren = vtkImageMapper3DFindRenderer(prop, count);
 
   if (count > 1)
     {
@@ -210,12 +254,33 @@ vtkCamera *vtkImageMapper3D::GetCurrentCamera()
     ren = 0;
     }
 
-  if (ren)
+  return ren;
+}
+
+//----------------------------------------------------------------------------
+vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
+{
+  vtkProp3D *prop = this->CurrentProp;
+
+  if (prop)
     {
-    return ren->GetActiveCamera();
+    if (this->InRender)
+      {
+      this->DataToWorldMatrix->DeepCopy(prop->GetMatrix());
+      }
+    else
+      {
+      double mat[16];
+      vtkImageMapper3DComputeMatrix(prop, mat);
+      this->DataToWorldMatrix->DeepCopy(mat);
+      }
+    }
+  else
+    {
+    this->DataToWorldMatrix->Identity();
     }
 
-  return 0;
+  return this->DataToWorldMatrix;
 }
 
 //----------------------------------------------------------------------------
