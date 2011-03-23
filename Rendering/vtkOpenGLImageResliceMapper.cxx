@@ -97,7 +97,7 @@ void vtkOpenGLImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 //----------------------------------------------------------------------------
 // Load the given image extent into a texture and render it
 void vtkOpenGLImageResliceMapper::InternalLoad(
-  vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
+  vtkRenderer *ren, vtkProp3D *vtkNotUsed(prop), vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
   vtkOpenGLRenderWindow *renWin =
