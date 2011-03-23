@@ -119,10 +119,12 @@ int vtkImageResliceMapper::ProcessRequest(
     // Get point/normal from camera
     if (this->SliceFacesCamera || this->SliceAtFocalPoint)
       {
-      vtkCamera *camera = this->GetCurrentCamera();
+      vtkRenderer *ren = this->GetCurrentRenderer();
 
-      if (camera)
+      if (ren)
         {
+        vtkCamera *camera = ren->GetActiveCamera();
+
         if (this->SliceAtFocalPoint)
           {
           this->SlicePlane->SetOrigin(camera->GetFocalPoint());
@@ -613,9 +615,10 @@ unsigned long vtkImageResliceMapper::GetMTime()
   // will be called if the camera changes
   if (this->SliceFacesCamera || this->SliceAtFocalPoint)
     {
-    vtkCamera *camera = this->GetCurrentCamera();
-    if (camera)
+    vtkRenderer *ren = this->GetCurrentRenderer();
+    if (ren)
       {
+      vtkCamera *camera = ren->GetActiveCamera();
       unsigned long mTime2 = camera->GetMTime();
       if (mTime2 > mTime)
         {

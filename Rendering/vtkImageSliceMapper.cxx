@@ -20,6 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkImageSlice.h"
 #include "vtkCamera.h"
+#include "vtkRenderer.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -90,7 +91,7 @@ int vtkImageSliceMapper::ProcessRequest(
     inInfo->Get(vtkDataObject::SPACING(), spacing);
     inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
-    vtkImageSlice *prop = this->GetCurrentProp();
+    vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
 
     if (this->Cropping)
       {
@@ -109,19 +110,21 @@ int vtkImageSliceMapper::ProcessRequest(
 
     if (this->SliceFacesCamera || this->SliceAtFocalPoint)
       {
-      vtkCamera *camera = this->GetCurrentCamera();
+      vtkRenderer *ren = this->GetCurrentRenderer();
 
-      if (prop && camera)
+      if (matrix && ren)
         {
+        vtkCamera *camera = ren->GetActiveCamera();
+
         if (this->SliceFacesCamera)
           {
-          this->Orientation = this->GetOrientationFromCamera(prop, camera);
+          this->Orientation = this->GetOrientationFromCamera(matrix, camera);
           this->Orientation = this->Orientation % 3;
           }
 
         if (this->SliceAtFocalPoint)
           {
-          this->SliceNumber = this->GetSliceFromCamera(prop, camera);
+          this->SliceNumber = this->GetSliceFromCamera(matrix, camera);
           }
         }
       }
@@ -164,11 +167,11 @@ int vtkImageSliceMapper::ProcessRequest(
     normal[3] = -point[orientation];
     normal[orientation] = 1.0;
 
-    if (prop)
+    if (matrix)
       {
       // Convert point and normal to world coords
       double mat[16];
-      vtkMatrix4x4::DeepCopy(mat, prop->GetMatrix());
+      vtkMatrix4x4::DeepCopy(mat, matrix);
       vtkMatrix4x4::MultiplyPoint(mat, point, point);
       point[0] /= point[3];
       point[1] /= point[3];
@@ -225,9 +228,11 @@ unsigned long vtkImageSliceMapper::GetMTime()
   if (this->SliceFacesCamera || this->SliceAtFocalPoint)
     {
     vtkImageSlice *prop = this->GetCurrentProp();
-    vtkCamera *camera = this->GetCurrentCamera();
-    if (prop && camera)
+    vtkRenderer *ren = this->GetCurrentRenderer();
+
+    if (prop && ren)
       {
+      vtkCamera *camera = ren->GetActiveCamera();
       unsigned long mTime2 = prop->GetMTime();
       if (mTime2 > mTime)
         {
@@ -316,7 +321,7 @@ double *vtkImageSliceMapper::GetBounds()
 
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetOrientationFromCamera(
-  vtkImageSlice *prop, vtkCamera *camera)
+  vtkMatrix4x4 *propMatrix, vtkCamera *camera)
 {
   int orientation = 2;
   double normal[4] = { 0, 0, -1, 0 };
@@ -324,7 +329,7 @@ int vtkImageSliceMapper::GetOrientationFromCamera(
   double mat[16];
 
   camera->GetDirectionOfProjection(normal);
-  vtkMatrix4x4::Transpose(*prop->GetMatrix()->Element, mat);
+  vtkMatrix4x4::Transpose(*propMatrix->Element, mat);
   vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
 
   for (int i = 2; i >= 0; --i)
@@ -348,7 +353,7 @@ int vtkImageSliceMapper::GetOrientationFromCamera(
 
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceFromCamera(
-  vtkImageSlice *prop, vtkCamera *camera)
+  vtkMatrix4x4 *propMatrix, vtkCamera *camera)
 {
   int orientation = this->Orientation;
 
@@ -357,7 +362,7 @@ int vtkImageSliceMapper::GetSliceFromCamera(
 
   // convert world coords to data coords
   double mat[16];
-  vtkMatrix4x4::Invert(*prop->GetMatrix()->Element, mat);
+  vtkMatrix4x4::Invert(*propMatrix->Element, mat);
   vtkMatrix4x4::MultiplyPoint(mat, p, p);
   double slicepos = p[orientation]/p[3];
 
