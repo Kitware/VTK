@@ -421,7 +421,3 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ${VTK_BINARY_DIR}/Testing/Temporary)
   ENDIF (UNIX  AND  PYTHON_EXECUTABLE  AND  VTK_DATA_ROOT  AND  HAVE_SOCKETS)
 ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
-
-
-add_executable(TestTemporalParallelWriter TestTemporalParallelWriter.cxx)
-target_link_libraries(TestTemporalParallelWriter vtkParallel vtkIO)
