@@ -33,6 +33,8 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkIntArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkDoubleArray.h"
 
 //
 // Standard methods
@@ -111,6 +113,14 @@ int vtkAMRDualMeshExtractor::RequestData( vtkInformation *request,
   std::cout.flush();
 
   this->ExtractDualMesh( amrds, mbds );
+//  this->WriteMultiBlockData( mbds, "INITIALDUAL" );
+  std::cout << "[DONE]\n";
+  std::cout.flush();
+
+  std::cout << "Fixing gaps...";
+  std::cout.flush();
+
+  this->FixGaps( amrds, mbds );
   std::cout << "[DONE]\n";
   std::cout.flush();
 
@@ -118,7 +128,97 @@ int vtkAMRDualMeshExtractor::RequestData( vtkInformation *request,
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDualMeshExtractor::WriteMultiBlockData( vtkMultiBlockDataSet *mbds )
+void vtkAMRDualMeshExtractor::FixGaps(
+    vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *dual )
+{
+  // Sanity check
+  assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
+  assert( "pre: dual grid is NULL"   && (dual != NULL) );
+  assert( "pre: NumLevels in AMR data set must equal NumBlocks in dual" &&
+      (amrds->GetNumberOfLevels()==dual->GetNumberOfBlocks() ) );
+
+  unsigned int level=0;
+  for( ; level < amrds->GetNumberOfLevels(); ++level )
+    {
+      vtkMultiPieceDataSet *mpds =
+       vtkMultiPieceDataSet::SafeDownCast(dual->GetBlock( level ) );
+
+      // Sanity check
+      assert( "pre: multi-piece dataset is NULL" && (mpds != NULL) );
+      assert( "pre: NumDataSets at level must match NumPieces in block" &&
+       (amrds->GetNumberOfDataSets(level)==mpds->GetNumberOfPieces()));
+
+      unsigned int dataIdx = 0;
+      for( ; dataIdx < amrds->GetNumberOfDataSets(level); ++dataIdx )
+        {
+          vtkUnstructuredGrid *dualMesh =
+           vtkUnstructuredGrid::SafeDownCast( mpds->GetPiece( dataIdx ) );
+          assert( "pre: dual mesh is NULL" && (dualMesh != NULL) );
+
+          this->ProcessDual( level, dualMesh, amrds );
+        } // END for all data at current level
+
+    } // END for all levels
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDualMeshExtractor::ProcessDual(
+    const unsigned int myLevel, vtkUnstructuredGrid *dualMesh,
+    vtkHierarchicalBoxDataSet *amrData )
+{
+  // Sanity check
+  assert( "pre: AMR dataset is NULL" && (amrData != NULL) );
+  assert( "pre: dual mesh is NULL" && (dualMesh != NULL) );
+  assert( "pre: level index out-of-bounds" &&
+   ( myLevel >= 0 && myLevel < amrData->GetNumberOfLevels()) );
+
+  if( myLevel == 0 )
+    return;
+
+  vtkPointData *PD = dualMesh->GetPointData();
+  assert( "pre: dual mesh must have point data!" && (PD != NULL) );
+  assert( "pre: dual mesh must have donor level information" &&
+          (PD->HasArray("DonorLevel") ) );
+  assert( "pre: dual mesh must have donor cell array information" &&
+          (PD->HasArray("DonorCellIdx") ) );
+  assert( "pre: dual mesh must have donor grid information" &&
+          (PD->HasArray("DonorGridIdx") ) );
+  assert( "pre: dual mesh must have donor centroid information" &&
+          (PD->HasArray("DonorCentroid") ) );
+
+  vtkIntArray *dlevelInfo=
+   vtkIntArray::SafeDownCast( PD->GetArray("DonorLevel") );
+  vtkIntArray *donorCellInfo=
+   vtkIntArray::SafeDownCast( PD->GetArray("DonorCellIdx") );
+  vtkUnsignedIntArray *donorGridInfo=
+   vtkUnsignedIntArray::SafeDownCast( PD->GetArray("DonorGridIdx") );
+  vtkDoubleArray *donorCentroid=
+   vtkDoubleArray::SafeDownCast( PD->GetArray("DonorCentroid") );
+
+  vtkPoints *nodes = dualMesh->GetPoints();
+  assert( "pre: dual mesh nodes vtkPoints is NULL" && (nodes != NULL) );
+
+  vtkIdType nodeIdx = 0;
+  for( ; nodeIdx < dualMesh->GetNumberOfPoints(); ++ nodeIdx )
+    {
+      int dlevel            = dlevelInfo->GetValue( nodeIdx );
+      int dcell             = donorCellInfo->GetValue( nodeIdx );
+      unsigned int dGridIdx = donorGridInfo->GetValue( nodeIdx );
+
+      if( dlevel != -1 && dlevel < myLevel )
+        {
+          nodes->SetPoint(nodeIdx,
+           donorCentroid->GetComponent(nodeIdx,0),
+           donorCentroid->GetComponent(nodeIdx,1),
+           donorCentroid->GetComponent(nodeIdx,2) );
+        }
+
+    } // END for all nodes
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRDualMeshExtractor::WriteMultiBlockData(
+    vtkMultiBlockDataSet *mbds, const char *prefix )
 {
   // Sanity Check
   assert( "pre: Multi-block dataset is NULL" && (mbds != NULL) );
@@ -126,7 +226,7 @@ void vtkAMRDualMeshExtractor::WriteMultiBlockData( vtkMultiBlockDataSet *mbds )
 
   std::ostringstream oss;
   oss.str(""); oss.clear();
-  oss << "DUALMESH." << writer->GetDefaultFileExtension();
+  oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str( ).c_str( ) );
   writer->SetInput( mbds );
   writer->Write();
@@ -379,7 +479,7 @@ vtkUnstructuredGrid* vtkAMRDualMeshExtractor::GetDualMesh( vtkUniformGrid *ug )
 
 // These asserts are not valid since dual cells are not formed for the entire
 //  input grid
-//  assert("post: cellCounter==numCellsInDual" && (cellCounter==numCellsInDual));
+//  assert("post: cellCounter==numCellsInDual"&&(cellCounter==numCellsInDual));
 //  assert( meshElements->GetNumberOfCells() == cellCounter );
 
   // Release unused memory

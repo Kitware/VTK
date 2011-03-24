@@ -48,7 +48,7 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     // Description:
     // This method writes multiblock data. Note, this method is mostly used
     // for debugging purposes.
-    void WriteMultiBlockData( vtkMultiBlockDataSet *mbds );
+    void WriteMultiBlockData( vtkMultiBlockDataSet *mbds, const char *prefix );
 
   protected:
     vtkAMRDualMeshExtractor();
@@ -97,6 +97,16 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     // Description:
     // This method computes the dual mesh for the given uniform grid.
     vtkUnstructuredGrid* GetDualMesh( vtkUniformGrid *ug );
+
+    // Description:
+    // This method fixes the gaps at the inter-level regions
+    void FixGaps( vtkHierarchicalBoxDataSet *amrds,vtkMultiBlockDataSet *dual );
+
+    // Description:
+    // This method
+    void ProcessDual(
+      const unsigned int currentLevel, vtkUnstructuredGrid *dualMesh,
+      vtkHierarchicalBoxDataSet *amrData );
 
     // Standard pipeline routines
     virtual int RequestData(
