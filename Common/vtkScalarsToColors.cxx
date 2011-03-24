@@ -1114,8 +1114,13 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
   newColors->SetNumberOfTuples(numTuples);
   unsigned char *nptr = newColors->GetPointer(0);
   double alpha = this->Alpha;
-  if (alpha < 0) { alpha = 0; }
-  if (alpha > 1) { alpha = 1; }
+  alpha = (alpha > 0 ? alpha : 0);
+  alpha = (alpha < 1 ? alpha : 1);
+
+  if (numTuples <= 0)
+    {
+    return newColors;
+    }
 
   switch (numComp)
     {
