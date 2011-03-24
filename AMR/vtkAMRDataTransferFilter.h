@@ -150,7 +150,7 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     void CheckOwnershipDownstream(
         vtkIntArray *ownership, vtkUniformGrid *grid,
         vtkHierarchicalBoxDataSet *amds,
-        int currentLevel );
+        vtkIdType currentLevel );
 
     // Description:
     // Finds the donor cell for each receiver point

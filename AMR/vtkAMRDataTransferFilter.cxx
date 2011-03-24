@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkIntArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageToStructuredGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridWriter.h"
@@ -174,6 +175,17 @@ void vtkAMRDataTransferFilter::AddReceiverInformation( vtkPolyData *receivers )
   donorLevel->FillComponent(0,-1);
   receivers->GetPointData()->AddArray( donorLevel );
   donorLevel->Delete();
+
+  // Add array to hold the donor cell center
+  vtkDoubleArray *donorCellCenter = vtkDoubleArray::New();
+  donorCellCenter->SetName( "DonorCentroid" );
+  donorCellCenter->SetNumberOfComponents( 3 );
+  donorCellCenter->SetNumberOfTuples( receivers->GetNumberOfPoints() );
+  donorCellCenter->FillComponent(0,0.0);
+  donorCellCenter->FillComponent(1,0.0);
+  donorCellCenter->FillComponent(2,0.0);
+  receivers->GetPointData()->AddArray( donorCellCenter );
+  donorCellCenter->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -357,6 +369,7 @@ void vtkAMRDataTransferFilter::FindDonors(
   assert("pre: No DonorGridIdx attribute" && (PD->HasArray("DonorGridIdx")));
   assert("pre: No DonorCellIdx attribute" && (PD->HasArray("DonorCellIdx")));
   assert("pre: No DonorLevel attribute" && (PD->HasArray( "DonorLevel")));
+  assert("pre: No DonorCentroid attribute" && (PD->HasArray("DonorCentroid")));
 
   vtkUnsignedIntArray *donorGridInfo=
    vtkUnsignedIntArray::SafeDownCast(PD->GetArray("DonorGridIdx"));
@@ -364,6 +377,8 @@ void vtkAMRDataTransferFilter::FindDonors(
    vtkIntArray::SafeDownCast(PD->GetArray("DonorCellIdx"));
   vtkIntArray *donorLevelInfo=
    vtkIntArray::SafeDownCast(PD->GetArray("DonorLevel"));
+  vtkDoubleArray *donorCentroid=
+   vtkDoubleArray::SafeDownCast( PD->GetArray("DonorCentroid") );
 
   vtkIdType rcverIdx = 0;
   for( ; rcverIdx < myReceivers->GetNumberOfPoints(); ++rcverIdx )
@@ -388,6 +403,12 @@ void vtkAMRDataTransferFilter::FindDonors(
               donorLevelInfo->SetValue( rcverIdx, donorGridLevel );
               donorCellInfo->SetValue( rcverIdx, cellIdx );
               donorGridInfo->SetValue( rcverIdx, encodedDonorGridIdx );
+
+              double dcentroid[3];
+              this->ComputeCellCenter( ug, cellIdx, dcentroid );
+              donorCentroid->SetComponent(rcverIdx, 0, dcentroid[0] );
+              donorCentroid->SetComponent(rcverIdx, 1, dcentroid[1] );
+              donorCentroid->SetComponent(rcverIdx, 2, dcentroid[2] );
             }
 
         } // END if the cell is found in this grid
@@ -431,33 +452,37 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
   it = this->ReceiverList.begin();
   for( ; it != this->ReceiverList.end(); ++it )
     {
-      unsigned int rGridIdx  = it->first;
+      unsigned int rIdx  = it->first;
       vtkPolyData *receivers = it->second;
       assert( "pre: receivers is NULL" && (receivers != NULL) );
 
       int receiverLevel    = -1;
       int receiverBlockIdx = -1;
-      vtkAMRGridIndexEncoder::decode( rGridIdx,receiverLevel,receiverBlockIdx );
+      vtkAMRGridIndexEncoder::decode( rIdx,receiverLevel,receiverBlockIdx );
 
       vtkUniformGrid *receiverGrid=
        this->ExtrudedData->GetDataSet(receiverLevel,receiverBlockIdx);
       assert( "pre: receiver grid is NULL" && (receiverGrid != NULL) );
 
       vtkCellData *receiverCD = receiverGrid->GetCellData();
-      assert( "pre: Receiver grid cells is NULL" && (receiverCD != NULL) );
+      assert( "pre:Receiver grid cells is NULL" && (receiverCD != NULL) );
       assert( "pre:No DonorGridIdx attribute" &&
-              (receiverCD->HasArray("DonorGridIdx") ) );
-      assert("pre:No DonorCellIdx attribute" &&
-              (receiverCD->HasArray("DonorCellIdx") ) );
-      assert("pre:No DonorLevel attribute" &&
-              (receiverCD->HasArray("DonorLevel") ) );
+              (receiverCD->HasArray("DonorGridIdx")));
+      assert( "pre:No DonorCellIdx attribute" &&
+              (receiverCD->HasArray("DonorCellIdx")));
+      assert( "pre:No DonorLevel attribute" &&
+              (receiverCD->HasArray("DonorLevel")));
+      assert( "pre: No DonorCentroid attribute" &&
+              (receiverCD->HasArray("DonorCentroid")));
 
       vtkPointData *PD = receivers->GetPointData();
-      assert("pre:point data is NULL!" && (PD != NULL) );
-      assert("pre:No DonorGridIdx attribute" && (PD->HasArray("DonorGridIdx")));
-      assert("pre:No DonorCellIdx attribute" && (PD->HasArray("DonorCellIdx")));
-      assert("pre:No DonorLevel attribute" && (PD->HasArray("DonorLevel")));
-      assert("pre:No mesh CellId attribute" && (PD->HasArray("CellID")));
+      assert( "pre:point data is NULL!" && (PD != NULL) );
+      assert( "pre:No DonorGridIdx attribute" && (PD->HasArray("DonorGridIdx")));
+      assert( "pre:No DonorCellIdx attribute" && (PD->HasArray("DonorCellIdx")));
+      assert( "pre:No DonorLevel attribute" && (PD->HasArray("DonorLevel")));
+      assert( "pre:No mesh CellId attribute" && (PD->HasArray("CellID")));
+      assert( "pre:No DonorCentroid attribute" &&
+              (PD->HasArray("DonorCentroid")));
 
       vtkUnsignedIntArray *donorGridInfo=
        vtkUnsignedIntArray::SafeDownCast(PD->GetArray("DonorGridIdx"));
@@ -467,6 +492,8 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
        vtkIntArray::SafeDownCast(PD->GetArray("DonorLevel"));
       vtkIntArray *meshCellInfo=
        vtkIntArray::SafeDownCast(PD->GetArray("CellID"));
+      vtkDoubleArray *donorCentroid=
+       vtkDoubleArray::SafeDownCast( PD->GetArray("DonorCentroid") );
 
       vtkIdType rcverIdx = 0;
       for( ; rcverIdx < receivers->GetNumberOfPoints(); ++rcverIdx )
@@ -486,6 +513,11 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
           assert( "post: donor grid level mismatch!" &&
                   (donorGridLevel==donorLevel));
 
+          double dcentroid[3];
+          dcentroid[0] = donorCentroid->GetComponent(rcverIdx,0);
+          dcentroid[1] = donorCentroid->GetComponent(rcverIdx,1);
+          dcentroid[2] = donorCentroid->GetComponent(rcverIdx,2);
+
           vtkIntArray *rCellIdx=
            vtkIntArray::SafeDownCast(
             receiverCD->GetArray("DonorCellIdx") );
@@ -495,10 +527,17 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
           vtkIntArray *rDonorLevel=
            vtkIntArray::SafeDownCast(
             receiverCD->GetArray( "DonorLevel") );
+          vtkDoubleArray *rDonorCentroid=
+            vtkDoubleArray::SafeDownCast(
+              receiverCD->GetArray("DonorCentroid") );
 
           rCellIdx->SetValue(rcvCellIdx,donorCell);
           rGridIdx->SetValue(rcvCellIdx,donorGridIdx);
           rDonorLevel->SetValue(rcvCellIdx,donorLevel);
+
+          rDonorCentroid->SetComponent( rcvCellIdx, 0, dcentroid[0] );
+          rDonorCentroid->SetComponent( rcvCellIdx, 1, dcentroid[1] );
+          rDonorCentroid->SetComponent( rcvCellIdx, 2, dcentroid[2] );
 
           vtkUniformGrid *donorGrid=
            this->AMRDataSet->GetDataSet(donorGridLevel,donorGridBlockIdx);
@@ -594,7 +633,7 @@ void vtkAMRDataTransferFilter::CheckOwnershipAtSameLevel(
 //------------------------------------------------------------------------------
 void vtkAMRDataTransferFilter::CheckOwnershipDownstream(
     vtkIntArray *ownership, vtkUniformGrid *grid,
-    vtkHierarchicalBoxDataSet *amds, int currentLevel )
+    vtkHierarchicalBoxDataSet *amds, vtkIdType currentLevel )
 {
   // Sanity check
   assert( "pre: Input grid is NULL" && (grid != NULL) );
@@ -603,7 +642,7 @@ void vtkAMRDataTransferFilter::CheckOwnershipDownstream(
   assert( "pre: level index out-of-bounds" &&
           (currentLevel >= 0) && (currentLevel < amds->GetNumberOfLevels() ) );
 
-  int nextLevel = currentLevel+1;
+  vtkIdType nextLevel = currentLevel+1;
   if( nextLevel < amds->GetNumberOfLevels() )
     {
 
@@ -899,6 +938,16 @@ vtkUniformGrid* vtkAMRDataTransferFilter::CloneGrid( vtkUniformGrid *ug)
   cloneGrid->GetCellData()->AddArray( donorLevel );
   donorLevel->Delete();
 
+  // STEP 6: Attach donor centroid information
+  vtkDoubleArray *donorCentroid = vtkDoubleArray::New();
+  donorCentroid->SetName( "DonorCentroid" );
+  donorCentroid->SetNumberOfComponents( 3 );
+  donorCentroid->SetNumberOfTuples( numCells );
+  donorCentroid->FillComponent(0,0.0);
+  donorCentroid->FillComponent(1,0.0);
+  donorCentroid->FillComponent(2,0.0);
+  cloneGrid->GetCellData()->AddArray( donorCentroid );
+  donorCentroid->Delete();
   return( cloneGrid );
 }
 
@@ -976,6 +1025,16 @@ vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid(
   extrudedGrid->GetCellData()->AddArray( donorLevel );
   donorLevel->Delete();
 
+  // STEP 6: Attach donor centroid information
+  vtkDoubleArray *donorCentroid = vtkDoubleArray::New();
+  donorCentroid->SetName( "DonorCentroid" );
+  donorCentroid->SetNumberOfComponents( 3 );
+  donorCentroid->SetNumberOfTuples( numCells );
+  donorCentroid->FillComponent(0,0.0);
+  donorCentroid->FillComponent(1,0.0);
+  donorCentroid->FillComponent(2,0.0);
+  extrudedGrid->GetCellData()->AddArray( donorCentroid );
+  donorCentroid->Delete();
   return( extrudedGrid );
 }
 
