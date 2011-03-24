@@ -125,7 +125,12 @@ int main( int argc, char **argv )
   vtkAMRDualMeshExtractor *dme = vtkAMRDualMeshExtractor::New();
   dme->SetInput( newData );
   dme->Update();
-  dme->WriteMultiBlockData( dme->GetOutput() );
+
+  std::cout << "Writting dual...";
+  std::cout.flush();
+  dme->WriteMultiBlockData( dme->GetOutput(), "FINALDUAL" );
+  std::cout << "[DONE]\n";
+  std::cout.flush();
 
   // STEP 3: CleanUp
   dme->Delete();
