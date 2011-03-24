@@ -195,14 +195,12 @@ int vtkImageToImageStencil::RequestInformation(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // whole extent is largest possible extent, because this filter
-  // can accommodate any update extent
-  static int wholeExtent[6] = { 0, VTK_LARGE_INTEGER >> 2,
-                                0, VTK_LARGE_INTEGER >> 2,
-                                0, VTK_LARGE_INTEGER >> 2 };
+  int wholeExtent[6];
   double spacing[3];
   double origin[3];
 
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+              wholeExtent);
   inInfo->Get(vtkDataObject::SPACING(), spacing);
   inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
