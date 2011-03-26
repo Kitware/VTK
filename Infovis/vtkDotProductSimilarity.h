@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkDotProductSimilarity_h
-#define __vtkDotProductSimilarity_h
-
-#include "vtkTableAlgorithm.h"
-
 // .NAME vtkDotProductSimilarity - compute dot-product similarity metrics.
 //
 // .SECTION Description
@@ -56,6 +51,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkDotProductSimilarity_h
+#define __vtkDotProductSimilarity_h
+
+#include "vtkTableAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
 {

@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayReader_h
-#define __vtkArrayReader_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkArrayReader -  Reads sparse and dense vtkArray data written by vtkArrayWriter.
 //
 // .SECTION Description
@@ -37,6 +32,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkArrayReader_h
+#define __vtkArrayReader_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_IO_EXPORT vtkArrayReader :
   public vtkArrayDataAlgorithm
