@@ -74,6 +74,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       MeshQuality.cxx
       TestActor2DTextures.cxx
       TestArrayCalculator.cxx
+      TestCollisionDetection.cxx
       TestGradientAndVorticity.cxx
       TestHierarchicalBoxPipeline.cxx
       TestIconGlyphFilterGravity.cxx
