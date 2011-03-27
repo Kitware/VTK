@@ -145,15 +145,23 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
       reuseTexture = false;
       }
 
+    // try to reuse the data that was passed, instead of reallocating
+    bool reuseData = true;
+
     // get the data to load as a texture
     int xsize = this->TextureSize[0];
     int ysize = this->TextureSize[1];
     int bytesPerPixel = this->TextureBytesPerPixel;
-    bool releaseData;
+
+    // do an in-place checkerboarding of the reslice output
+    if (property && property->GetCheckerboard())
+      {
+      this->CheckerboardImage(input, ren->GetActiveCamera(), property);
+      }
 
     unsigned char *data = this->MakeTextureData(
       0, input, extent, xsize, ysize, bytesPerPixel, reuseTexture,
-      releaseData);
+      reuseData);
 
     this->MakeTextureCutGeometry(input, extent, this->Border,
       this->Coords, this->TCoords, this->NCoords);
@@ -243,7 +251,7 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
 #endif
     // modify the load time to the current time
     this->LoadTime.Modified();
-    if (releaseData)
+    if (!reuseData)
       {
       delete [] data;
       }

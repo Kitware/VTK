@@ -82,6 +82,11 @@ protected:
   ~vtkImageResliceMapper();
 
   // Description:
+  // Do a checkerboard pattern to the alpha of an RGBA image
+  void CheckerboardImage(
+    vtkImageData *input, vtkCamera *camera, vtkImageProperty *property);
+
+  // Description:
   // Compute the coords and texcoords for the image poly.
   void MakeTextureCutGeometry(
     vtkImageData *input, const int extent[6], int border,

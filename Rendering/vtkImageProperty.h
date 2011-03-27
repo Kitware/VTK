@@ -99,6 +99,22 @@ public:
   virtual const char *GetInterpolationTypeAsString();
 
   // Description:
+  // Make a checkerboard pattern where the black squares are transparent.
+  vtkSetMacro(Checkerboard, int);
+  vtkBooleanMacro(Checkerboard, int);
+  vtkGetMacro(Checkerboard, int);
+
+  // Description:
+  // The spacing for checkerboarding.  This is in real units, not pixels.
+  vtkSetVector2Macro(CheckerboardSpacing, double);
+  vtkGetVector2Macro(CheckerboardSpacing, double);
+
+  // Description:
+  // The phase offset for checkerboarding, use a value between 0 and 1.
+  vtkSetVector2Macro(CheckerboardOffset, double);
+  vtkGetVector2Macro(CheckerboardOffset, double);
+
+  // Description:
   // Get the MTime for this property.  If the lookup table is set,
   // the mtime will include the mtime of the lookup table.
   unsigned long GetMTime();
@@ -115,6 +131,9 @@ protected:
   double Opacity;
   double Ambient;
   double Diffuse;
+  int Checkerboard;
+  double CheckerboardSpacing[2];
+  double CheckerboardOffset[2];
 
 private:
   vtkImageProperty(const vtkImageProperty&);  // Not implemented.

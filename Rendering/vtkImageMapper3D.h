@@ -135,13 +135,20 @@ protected:
     int scalarType, double scalarRange[2]);
 
   // Description:
+  // Checkerboard the alpha component of an RGBA image.  The origin and
+  // spacing are in pixel units.
+  static void CheckerboardRGBA(
+    unsigned char *data, int xsize, int ysize,
+    double originx, double originy, double spacingx, double spacingy);
+
+  // Description:
   // Perform window/level and color mapping operations to produce
   // unsigned char data that can be used as a texture.  See the
   // source file for more information.
   unsigned char *MakeTextureData(
     vtkImageProperty *property, vtkImageData *input, int extent[6],
     int &xsize, int &ysize, int &bytesPerPixel, bool &reuseTexture,
-    bool &release);
+    bool &reuseData);
 
   // Description:
   // Compute the coordinates and texture coordinates for the image, given

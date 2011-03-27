@@ -37,6 +37,12 @@ vtkImageProperty::vtkImageProperty()
   this->Diffuse = 0.0;
 
   this->InterpolationType = VTK_LINEAR_INTERPOLATION;
+
+  this->Checkerboard = 0;
+  this->CheckerboardSpacing[0] = 10.0;
+  this->CheckerboardSpacing[1] = 10.0;
+  this->CheckerboardOffset[0] = 0.0;
+  this->CheckerboardOffset[1] = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -108,6 +114,9 @@ void vtkImageProperty::DeepCopy(vtkImageProperty *p)
     this->SetAmbient(p->GetAmbient());
     this->SetDiffuse(p->GetDiffuse());
     this->SetInterpolationType(p->GetInterpolationType());
+    this->SetCheckerboard(p->GetCheckerboard());
+    this->SetCheckerboardSpacing(p->GetCheckerboardSpacing());
+    this->SetCheckerboardOffset(p->GetCheckerboardOffset());
     }
 }
 
@@ -141,4 +150,10 @@ void vtkImageProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Diffuse: " << this->Diffuse << "\n";
   os << indent << "InterpolationType: "
      << this->GetInterpolationTypeAsString() << "\n";
+  os << indent << "Checkerboard: "
+     << (this->Checkerboard ? "On\n" : "Off\n");
+  os << indent << "CheckerboardSpacing: " << this->CheckerboardSpacing[0]
+     << " " << this->CheckerboardSpacing[1] << "\n";
+  os << indent << "CheckerboardOffset: " << this->CheckerboardOffset[0]
+     << " " << this->CheckerboardOffset[1] << "\n";
 }

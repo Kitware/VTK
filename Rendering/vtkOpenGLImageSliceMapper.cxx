@@ -137,6 +137,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
 
   // get the mtime of the property, including the lookup table
   unsigned long propertyMTime = 0;
+  bool checkerboard = false;
   if (property)
     {
     propertyMTime = property->GetMTime();
@@ -149,6 +150,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
         propertyMTime = mtime;
         }
       }
+    checkerboard = (property->GetCheckerboard() != 0);
     }
 
   // get the previous load time
@@ -169,15 +171,27 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
     bool reuseTexture = false;
 #endif
 
+    // whether to try to use the input data directly as the texture
+    bool reuseData = true;
+    if (checkerboard)
+      {
+      reuseData = false;
+      }
+
     // get the data to load as a texture
     int xsize = this->TextureSize[0];
     int ysize = this->TextureSize[1];
     int bytesPerPixel = this->TextureBytesPerPixel;
-    bool releaseData;
 
     unsigned char *data = this->MakeTextureData(
       property, input, extent, xsize, ysize, bytesPerPixel, reuseTexture,
-      releaseData);
+      reuseData);
+
+    if (checkerboard)
+      {
+      this->CheckerboardImage(
+        data, xsize, ysize, input->GetSpacing(), property);
+      }
 
     // set the geometry for the quad to texture
     this->MakeTextureGeometry(
@@ -295,7 +309,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
 #endif
     // modify the load time to the current time
     this->LoadTime.Modified();
-    if (releaseData)
+    if (!reuseData)
       {
       delete [] data;
       }

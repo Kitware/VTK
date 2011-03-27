@@ -452,6 +452,55 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
 }
 
 //----------------------------------------------------------------------------
+void vtkImageResliceMapper::CheckerboardImage(
+  vtkImageData *input, vtkCamera *camera, vtkImageProperty *property)
+{
+  // Use focal point as center of checkerboard pattern.  This guarantees
+  // exactly the same checkerboard for all images in the scene, which is
+  // useful when doing multiple overlays.
+  double focalPoint[4];
+  camera->GetFocalPoint(focalPoint);
+  focalPoint[3] = 1.0;
+
+  double worldToSlice[16];
+  vtkMatrix4x4::Invert(*this->SliceToWorldMatrix->Element, worldToSlice);
+
+  vtkMatrix4x4::MultiplyPoint(worldToSlice, focalPoint, focalPoint);
+  if (focalPoint[3] != 0.0)
+    {
+    focalPoint[0] /= focalPoint[3];
+    focalPoint[1] /= focalPoint[3];
+    focalPoint[2] /= focalPoint[3];
+    }
+
+  // Get the checkerboard spacing and apply the offset fraction
+  double checkSpacing[2], checkOffset[2];
+  property->GetCheckerboardSpacing(checkSpacing);
+  property->GetCheckerboardOffset(checkOffset);
+  checkOffset[0] = checkOffset[0]*checkSpacing[0] + focalPoint[0];
+  checkOffset[1] = checkOffset[1]*checkSpacing[1] + focalPoint[1];
+
+  // Adjust according to the origin and spacing of the slice data
+  double origin[3], spacing[3];
+  input->GetSpacing(spacing);
+  input->GetOrigin(origin);
+  checkOffset[0] = (checkOffset[0] - origin[0])/spacing[0];
+  checkOffset[1] = (checkOffset[1] - origin[1])/spacing[1];
+  checkSpacing[0] /= spacing[0],
+  checkSpacing[1] /= spacing[1];
+
+  // Apply the checkerboard to the data
+  int extent[6];
+  input->GetExtent(extent);
+  unsigned char *data = static_cast<unsigned char *>(
+    input->GetScalarPointerForExtent(extent));
+
+  vtkImageMapper3D::CheckerboardRGBA(
+    data, extent[1] - extent[0] + 1, extent[3] - extent[2] + 1,
+    checkOffset[0], checkOffset[1], checkSpacing[0], checkSpacing[1]);
+}
+
+//----------------------------------------------------------------------------
 // Compute the coords and tcoords for a cut through an image
 void vtkImageResliceMapper::MakeTextureCutGeometry(
   vtkImageData *input, const int extent[6], int border,

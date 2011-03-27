@@ -19,6 +19,7 @@
 #include "vtkPlane.h"
 #include "vtkImageData.h"
 #include "vtkImageSlice.h"
+#include "vtkImageProperty.h"
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
 #include "vtkGraphicsFactory.h"
@@ -387,4 +388,40 @@ void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
   normal[3] = -(slice*this->DataSpacing[orientation] +
                 this->DataOrigin[orientation]);
   normal[orientation] = 1.0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSliceMapper::CheckerboardImage(
+  unsigned char *data, int xsize, int ysize,
+  const double imageSpacing[3], vtkImageProperty *property)
+{
+  // Get the imagedata dims that correspond to the texture "x" and "y"
+  int orientation = (this->Orientation % 3);
+  int xdim = 1;
+  int ydim = 2;
+  if (orientation != 0)
+    {
+    xdim = 0;
+    if (orientation != 1)
+      {
+      ydim = 1;
+      }
+    }
+
+  // Get the checkerboard spacing and the offset fraction
+  double spacing[2], offset[2];
+  property->GetCheckerboardSpacing(spacing);
+  property->GetCheckerboardOffset(offset);
+
+  // Adjust the spacing according to the image data spacing
+  spacing[0] = floor(spacing[0]/imageSpacing[xdim] + 0.5);
+  spacing[1] = floor(spacing[1]/imageSpacing[ydim] + 0.5);
+
+  // Center the checkerboard at the image center, because it looks nice
+  offset[0] = floor(0.5*xsize + spacing[0]*offset[0] + 0.5);
+  offset[1] = floor(0.5*ysize + spacing[1]*offset[1] + 0.5);
+
+  // Note that spacing has been converted to integer spacing
+  vtkImageMapper3D::CheckerboardRGBA(
+    data, xsize, ysize, offset[0], offset[1], spacing[0], spacing[1]);
 }

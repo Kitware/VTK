@@ -828,6 +828,102 @@ void vtkImageMapper3D::ApplyLookupTableToImageScalars(
 }
 
 //----------------------------------------------------------------------------
+void vtkImageMapper3D::CheckerboardRGBA(
+  unsigned char *data, int xsize, int ysize,
+  double originx, double originy, double spacingx, double spacingy)
+{
+  static double maxval = 2147483647;
+  static double minval = -2147483647;
+
+  originx = (originx > minval ? originx : minval);
+  originx = (originx < maxval ? originx : maxval);
+  originy = (originy > minval ? originy : minval);
+  originy = (originy < maxval ? originy : maxval);
+
+  spacingx = fabs(spacingx);
+  spacingy = fabs(spacingy);
+
+  spacingx = (spacingx < maxval ? spacingx : maxval);
+  spacingy = (spacingy < maxval ? spacingy : maxval);
+  spacingx = (spacingx != 0 ? spacingx : maxval);
+  spacingy = (spacingy != 0 ? spacingy : maxval);
+
+  int xn = static_cast<int>(spacingx);
+  int yn = static_cast<int>(spacingy);
+  double fx = spacingx - xn;
+  double fy = spacingy - yn;
+
+  int state = 0;
+  int tmpstate = ~state;
+  double spacing2x = 2*spacingx;
+  double spacing2y = 2*spacingy;
+  originx -= vtkMath::Floor(originx/spacing2x)*spacing2x;
+  originy -= vtkMath::Floor(originy/spacing2y)*spacing2y;
+  double tmporiginx = originx - spacingx;
+  originx = (tmporiginx < 0 ? originx : tmporiginx);
+  state = (tmporiginx < 0 ? state : tmpstate);
+  tmpstate = ~state;
+  double tmporiginy = originy - spacingy;
+  originy = (tmporiginy < 0 ? originy : tmporiginy);
+  state = (tmporiginy < 0 ? state : tmpstate);
+  
+  int xm = static_cast<int>(originx);
+  int savexm = xm;
+  int ym = static_cast<int>(originy);
+  double gx = originx - xm;
+  double savegx = gx;
+  double gy = originy - ym;
+
+  int inc = 4;
+  data += (inc - 1);
+  for (int j = 0; j < ysize;)
+    {
+    double tmpy = gy - 1.0;
+    gy = (tmpy < 0 ? gy : tmpy);
+    int yextra = (tmpy >= 0);
+    ym += yextra;
+    int ry = ysize - j;
+    ym = (ym < ry ? ym : ry);
+    j += ym;
+
+    for (; ym; --ym)
+      {
+      tmpstate = state;
+      xm = savexm;
+      gx = savegx;
+
+      for (int i = 0; i < xsize;)
+        {
+        double tmpx = gx - 1.0;
+        gx = (tmpx < 0 ? gx : tmpx);
+        int xextra = (tmpx >= 0);
+        xm += xextra;
+        int rx = xsize - i;
+        xm = (xm < rx ? xm : rx);
+        i += xm;
+        if ( (tmpstate & xm) ) 
+          {
+          do
+            {
+            *data = 0;
+            data += inc;
+            }
+          while (--xm);
+          }
+        data += inc*xm;
+        xm = xn;
+        tmpstate = ~tmpstate;
+        gx += fx;
+        }
+      }
+
+   ym = yn;
+   state = ~state;
+   gy += fy;
+   }  
+}
+
+//----------------------------------------------------------------------------
 // Given an image and an extent that describes a single slice, this method
 // will return a contiguous block of unsigned char data that can be loaded
 // into a texture.
@@ -840,12 +936,12 @@ void vtkImageMapper3D::ApplyLookupTableToImageScalars(
 // If subTexture is not set to one upon return, then xsize,ysize will
 // describe the full texture size, with the assumption that the full
 // texture must be reloaded.
-// If releaseData is set upon return, then the returned array must be
+// If reuseData is false upon return, then the returned array must be
 // freed after use with delete [].
 unsigned char *vtkImageMapper3D::MakeTextureData(
   vtkImageProperty *property, vtkImageData *input, int extent[6],
   int &xsize, int &ysize, int &bytesPerPixel, bool &reuseTexture,
-  bool &releaseData)
+  bool &reuseData)
 {
   int xdim, ydim;
   int imageSize[2];
@@ -881,7 +977,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
       colorLevel == 127.5 && colorWindow == 255.0)
     {
     inputIsColors = true;
-    if (numComp < 4)
+    if (reuseData && numComp < 4)
       {
       textureBytesPerPixel = numComp;
       }
@@ -923,9 +1019,8 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
       {
       contiguous = true;
       // if contiguous and correct data type, use data as-is
-      if (inputIsColors)
+      if (inputIsColors && reuseData)
         {
-        releaseData = 0;
         return static_cast<unsigned char *>(
           input->GetScalarPointerForExtent(extent));
         }
@@ -933,7 +1028,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
     }
 
   // could not directly use input data, so allocate a new array
-  releaseData = true;
+  reuseData = false;
 
   unsigned char *outPtr = new unsigned char [ysize*xsize*bytesPerPixel];
 
