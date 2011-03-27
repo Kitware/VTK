@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage.cxx
+  Module:    vtkImageSlice.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -45,9 +45,6 @@ public:
 };
 
 //----------------------------------------------------------------------------
-// Creates a Volume with the following defaults: origin(0,0,0)
-// position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0).
 vtkImageSlice::vtkImageSlice()
 {
   this->Mapper = NULL;
@@ -55,7 +52,6 @@ vtkImageSlice::vtkImageSlice()
 }
 
 //----------------------------------------------------------------------------
-// Destruct a volume
 vtkImageSlice::~vtkImageSlice()
 {
   if (this->Property)
