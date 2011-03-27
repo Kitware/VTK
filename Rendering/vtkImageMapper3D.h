@@ -163,7 +163,7 @@ protected:
   // correspond to the texture "x" and "y", provide the x, y image size,
   // and provide the texture size (padded to a power of two if the hardware
   // requires).
-  void ComputeTextureSize(
+  virtual void ComputeTextureSize(
     const int extent[6], int &xdim, int &ydim,
     int imageSize[2], int textureSize[2]);
 
@@ -201,7 +201,6 @@ protected:
 
   int Border;
   vtkLookupTable *DefaultLookupTable;
-  bool UsePowerOfTwoTextures;
 
   // The slice.
   vtkPlane *SlicePlane;

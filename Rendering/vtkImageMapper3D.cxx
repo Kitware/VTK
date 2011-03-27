@@ -49,8 +49,6 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->SliceFacesCamera = 0;
   this->SliceAtFocalPoint = 0;
 
-  this->UsePowerOfTwoTextures = false;
-
   this->DataToWorldMatrix = vtkMatrix4x4::New();
   this->CurrentProp = 0;
   this->InRender = false;
@@ -1167,24 +1165,8 @@ void vtkImageMapper3D::ComputeTextureSize(
   imageSize[0] = (extent[xdim*2+1] - extent[xdim*2] + 1);
   imageSize[1] = (extent[ydim*2+1] - extent[ydim*2] + 1);
 
-  if (this->UsePowerOfTwoTextures)
-    {
-    // find the target size of the power-of-two texture
-    for (int i = 0; i < 2; i++)
-      {
-      int powerOfTwo = 1;
-      while (powerOfTwo < imageSize[i])
-        {
-        powerOfTwo <<= 1;
-        }
-      textureSize[i] = powerOfTwo;
-      }
-    }
-  else
-    {
-    textureSize[0] = imageSize[0];
-    textureSize[1] = imageSize[1];
-    }
+  textureSize[0] = imageSize[0];
+  textureSize[1] = imageSize[1];
 }
 
 //----------------------------------------------------------------------------

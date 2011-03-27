@@ -391,14 +391,12 @@ void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSliceMapper::CheckerboardImage(
-  unsigned char *data, int xsize, int ysize,
-  const double imageSpacing[3], vtkImageProperty *property)
+void vtkImageSliceMapper::GetDimensionIndices(
+  int orientation, int &xdim, int &ydim)
 {
-  // Get the imagedata dims that correspond to the texture "x" and "y"
-  int orientation = (this->Orientation % 3);
-  int xdim = 1;
-  int ydim = 2;
+  orientation = orientation % 3;
+  xdim = 1;
+  ydim = 2;
   if (orientation != 0)
     {
     xdim = 0;
@@ -407,6 +405,16 @@ void vtkImageSliceMapper::CheckerboardImage(
       ydim = 1;
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSliceMapper::CheckerboardImage(
+  unsigned char *data, int xsize, int ysize,
+  const double imageSpacing[3], vtkImageProperty *property)
+{
+  // Get the imagedata dims that correspond to the texture "x" and "y"
+  int xdim, ydim;
+  this->GetDimensionIndices(this->Orientation, xdim, ydim);
 
   // Get the checkerboard spacing and the offset fraction
   double spacing[2], offset[2];

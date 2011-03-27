@@ -368,6 +368,41 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLImageResliceMapper::ComputeTextureSize(
+  const int extent[6], int &xdim, int &ydim,
+  int imageSize[2], int textureSize[2])
+{
+  // the dimension indices that will correspond to the
+  // columns and rows of the 2D texture are always 0 and 1
+  // because the image has been resliced
+  xdim = 0;
+  ydim = 1;
+
+  // compute the image dimensions
+  imageSize[0] = (extent[xdim*2+1] - extent[xdim*2] + 1);
+  imageSize[1] = (extent[ydim*2+1] - extent[ydim*2] + 1);
+
+  if (this->UsePowerOfTwoTextures)
+    {
+    // find the target size of the power-of-two texture
+    for (int i = 0; i < 2; i++)
+      {
+      int powerOfTwo = 1;
+      while (powerOfTwo < imageSize[i])
+        {
+        powerOfTwo <<= 1;
+        }
+      textureSize[i] = powerOfTwo;
+      }
+    }
+  else
+    {
+    textureSize[0] = imageSize[0];
+    textureSize[1] = imageSize[1];
+    }
+}
+
+//----------------------------------------------------------------------------
 // Determine if a given texture size is supported by the video card
 bool vtkOpenGLImageResliceMapper::TextureSizeOK(const int size[2])
 {
