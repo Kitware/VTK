@@ -43,6 +43,7 @@ vtkClipHyperOctree.cxx
 vtkClipPolyData.cxx
 vtkClipVolume.cxx
 vtkCoincidentPoints.cxx
+vtkCollisionDetectionFilter.cxx
 vtkCompositeDataGeometryFilter.cxx
 vtkCompositeDataProbeFilter.cxx
 vtkConeSource.cxx
@@ -290,7 +291,7 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
-vtkEdgeSubdivisionCriterion.cxx 
+vtkEdgeSubdivisionCriterion.cxx
 vtkExtractSelectionBase
 vtkGeodesicPath
 vtkGraphGeodesicPath
