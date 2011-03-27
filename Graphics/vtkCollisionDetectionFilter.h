@@ -2,13 +2,14 @@
 
   Program:   Visualization Toolkit
   Module:    vtkCollisionDetectionFilter.h
-  Language:  C++
-  RCS:   $Id: vtkCollisionDetectionFilter.h,v 1.2 2009/09/07 12:36:04 glawlor Exp $
 
-  Copyright (c) 2003 and onwards, Goodwin Lawlor
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  http://www.bioengineering-research.com/copyright.html for copyright details
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 // .NAME vtkCollisionDetectionFilter - performs collision determination between two polyhedral surfaces
@@ -39,25 +40,21 @@
 #define __vtkCollisionDetectionFilter_h
 
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkBioengConfigure.h" // Include configuration header.
-
 #include "vtkLinearTransform.h"
 #include "vtkIdTypeArray.h"
 #include "vtkFieldData.h"
 
+// Forward declarations
 class vtkOBBTree;
 class vtkPolyData;
 class vtkPoints;
 class vtkMatrix4x4;
 
-// If you are compiling this class as an addition to VTK/Graphics change VTK_BIOENG_EXPORTS
-// to VTK_GRAPHICS_EXPORT on the next line and delete 
-// "#include "vtkBioengConfigure.h" // Include configuration header." above.
 
-class VTK_BIOENG_EXPORT vtkCollisionDetectionFilter : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkCollisionDetectionFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkCollisionDetectionFilter, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCollisionDetectionFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

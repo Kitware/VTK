@@ -41,7 +41,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkCollisionDetectionFilter, "$Revision: 1.3 $");
 vtkStandardNewMacro(vtkCollisionDetectionFilter);
 
 // Constructs with initial 0 values.
