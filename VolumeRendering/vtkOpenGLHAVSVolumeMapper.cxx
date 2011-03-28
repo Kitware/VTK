@@ -71,9 +71,9 @@ vtkOpenGLHAVSVolumeMapper::~vtkOpenGLHAVSVolumeMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLHAVSVolumeMapper::CheckOpenGLError(const char * vtkNotUsed(str))
+void vtkOpenGLHAVSVolumeMapper::CheckOpenGLError(const char * str)
 {
-  int err = glGetError();
+  int err = glGetError(); (void)str;
   if ( err != GL_NO_ERROR && this->GetDebug() )
     {
     vtkDebugMacro( << "OpenGL Error: " << str );

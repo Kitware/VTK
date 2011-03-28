@@ -598,7 +598,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
   cam->GetFrustumPlanes( aspect, frustumPlanes );
   unsigned long allowableLabelArea = static_cast<unsigned long>
     ( ( ( kdbounds[1] - kdbounds[0] ) * ( kdbounds[3] - kdbounds[2] ) ) * this->MaximumLabelFraction );
-  (void)allowableLabelArea
+  (void)allowableLabelArea;
   unsigned long renderedLabelArea = 0;
   unsigned long iteratedLabelArea = 0;
   double camVec[3];

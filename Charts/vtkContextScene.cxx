@@ -322,9 +322,10 @@ void vtkContextScene::SetInteractorStyle(vtkInteractorStyle *interactor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextScene::ProcessEvents(vtkObject* vtkNotUsed(caller), 
-                             unsigned long vtkNotUsed(eventId), void*)
+void vtkContextScene::ProcessEvents(vtkObject* caller, 
+                             unsigned long eventId, void*)
 {
+  (void)caller; (void)eventId; // unused warning
   vtkDebugMacro("ProcessEvents called! " << caller->GetClassName() << "\t"
       << vtkCommand::GetStringFromEventId(eventId)
       << "\n\t" << vtkInteractorStyleRubberBand2D::SafeDownCast(caller)->GetInteraction());
