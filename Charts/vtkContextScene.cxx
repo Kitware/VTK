@@ -322,8 +322,8 @@ void vtkContextScene::SetInteractorStyle(vtkInteractorStyle *interactor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextScene::ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void*)
+void vtkContextScene::ProcessEvents(vtkObject* vtkNotUsed(caller), 
+                             unsigned long vtkNotUsed(eventId), void*)
 {
   vtkDebugMacro("ProcessEvents called! " << caller->GetClassName() << "\t"
       << vtkCommand::GetStringFromEventId(eventId)
