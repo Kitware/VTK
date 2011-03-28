@@ -619,7 +619,7 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
 #else 
   numTested = static_cast<int>(candidates.size());
   this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
-  int TotalAssigned = LocalAssignedCount; 
+  int TotalAssigned = LocalAssignedCount; (void)TotalAssigned;
 #endif
   // Assign unique identifiers taking into account uneven distribution 
   // across processes and seeds which were rejected
