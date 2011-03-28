@@ -243,7 +243,7 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
   //
   this->BuildTime.Modified();
   //
-  double av_depth = (double)tot_depth/nln;
+  double av_depth = (double)tot_depth/nln; (void)av_depth;
   vtkDebugMacro( << "BSP Tree Statistics \n"
                  << "Num Parent/Leaf Nodes " << npn
                  << "/" << nln << "\n"
