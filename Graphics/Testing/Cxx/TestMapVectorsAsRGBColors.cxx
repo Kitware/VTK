@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkImageData.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkPointData.h"
 #include "vtkImageMapper.h"
 #include "vtkActor2D.h"
@@ -86,6 +87,10 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
 
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
+
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  iren->SetRenderWindow(renWin);
 
   renWin->SetSize(640, 640);
 
@@ -161,6 +166,10 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
 
   renWin->Render();
   int retVal = vtkRegressionTestImage(renWin);
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
 
   return !retVal;
 }
