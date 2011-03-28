@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkSparseArrayToTable_h
-#define __vtkSparseArrayToTable_h
-
-#include "vtkTableAlgorithm.h"
-
 // .NAME vtkSparseArrayToTable - Converts a sparse array to a vtkTable.
 //
 // .SECTION Description
@@ -39,6 +34,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkSparseArrayToTable_h
+#define __vtkSparseArrayToTable_h
+
+#include "vtkTableAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkSparseArrayToTable : public vtkTableAlgorithm
 {

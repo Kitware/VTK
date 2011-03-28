@@ -19,15 +19,15 @@
 
 =========================================================================*/
 
-#ifndef __vtkTransposeMatrix_h
-#define __vtkTransposeMatrix_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkTransposeMatrix - Computes the transpose of an input matrix.
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkTransposeMatrix_h
+#define __vtkTransposeMatrix_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkTransposeMatrix : public vtkArrayDataAlgorithm
 {
