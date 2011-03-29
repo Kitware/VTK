@@ -98,6 +98,11 @@ public:
     this->SetInterpolationType(VTK_CUBIC_INTERPOLATION); };
   virtual const char *GetInterpolationTypeAsString();
 
+  // Set the layer number.  This is ignored unless the image is part
+  // of a stack.
+  vtkSetMacro(LayerNumber, int);
+  int GetLayerNumber() { return this->LayerNumber; }
+
   // Description:
   // Make a checkerboard pattern where the black squares are transparent.
   vtkSetMacro(Checkerboard, int);
@@ -115,6 +120,20 @@ public:
   vtkGetVector2Macro(CheckerboardOffset, double);
 
   // Description:
+  // Use an opaque backing polygon, which will be visible where the image
+  // is translucent.  When images are in a stack, the backing polygons
+  // for all images will be drawn before any of the images in the stack,
+  // in order to allow the images in the stack to be composited.
+  vtkSetMacro(Backing, int);
+  vtkBooleanMacro(Backing, int);
+  vtkGetMacro(Backing, int);
+
+  // Description:
+  // Set the color of the backing polygon.  The default color is black.
+  vtkSetVector3Macro(BackingColor, double);
+  vtkGetVector3Macro(BackingColor, double);
+
+  // Description:
   // Get the MTime for this property.  If the lookup table is set,
   // the mtime will include the mtime of the lookup table.
   unsigned long GetMTime();
@@ -128,12 +147,15 @@ protected:
   double ColorLevel;
   int UseLookupTableScalarRange;
   int InterpolationType;
+  int LayerNumber;
   double Opacity;
   double Ambient;
   double Diffuse;
   int Checkerboard;
   double CheckerboardSpacing[2];
   double CheckerboardOffset[2];
+  int Backing;
+  double BackingColor[3];
 
 private:
   vtkImageProperty(const vtkImageProperty&);  // Not implemented.

@@ -38,6 +38,11 @@ class vtkImageSlice;
 class vtkImageProperty;
 class vtkImageData;
 class vtkImageToImageMapper3DFriendship;
+class vtkImageToImageStackFriendship;
+
+#define VTK_IMAGE_DEFAULT  0
+#define VTK_IMAGE_UNDERLAY 1
+#define VTK_IMAGE_OVERLAY  2
 
 class VTK_RENDERING_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
 {
@@ -61,6 +66,17 @@ public:
   vtkImageData *GetInput();
   vtkDataSet *GetDataSetInput();
   vtkDataObject *GetDataObjectInput();
+
+  // Description:
+  // Set the type of render to use.  The default mode is to render as an
+  // opaque object if the opacity is unity and there is no alpha channel,
+  // or if backing is on, and to render as a translucent object otherwise. 
+  vtkSetMacro(RenderType, int);
+  vtkGetMacro(RenderType, int);
+  void SetRenderTypeToOverlay() { this->SetRenderType(VTK_IMAGE_OVERLAY); }
+  void SetRenderTypeToUnderlay() { this->SetRenderType(VTK_IMAGE_UNDERLAY); }
+  void SetRenderTypeToDefault() { this->SetRenderType(VTK_IMAGE_DEFAULT); }
+  const char *GetRenderTypeAsString();
 
   // Description:
   // Instead of displaying the image only out to the image
@@ -215,13 +231,25 @@ protected:
 private:
   // The prop this mapper is attached to, or zero if none.
   vtkImageSlice *CurrentProp;
+
+  // The cached data-to-world matrix
   vtkMatrix4x4 *DataToWorldMatrix;
+
+  // Set by vtkImageSlice if a render is in progress
   bool InRender;
+
+  // Set by vtkImageStack when doing multi-pass rendering
+  bool RenderTexture;
+  bool RenderDepth;
+  bool RenderColor;
+
+  int RenderType;
 
   vtkImageMapper3D(const vtkImageMapper3D&);  // Not implemented.
   void operator=(const vtkImageMapper3D&);  // Not implemented.
 
   friend class vtkImageToImageMapper3DFriendship;
+  friend class vtkImageToImageStackFriendship;
 };
 
 #endif

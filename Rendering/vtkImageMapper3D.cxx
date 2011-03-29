@@ -44,6 +44,7 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->DefaultLookupTable->SetVectorModeToRGBColors();
 
   this->Border = 0;
+  this->RenderType = VTK_IMAGE_DEFAULT;
 
   this->SlicePlane = vtkPlane::New();
   this->SliceFacesCamera = 0;
@@ -52,6 +53,10 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->DataToWorldMatrix = vtkMatrix4x4::New();
   this->CurrentProp = 0;
   this->InRender = false;
+
+  this->RenderTexture = true;
+  this->RenderDepth = true;
+  this->RenderColor = true;
 
   this->DataOrigin[0] = 0.0;
   this->DataOrigin[1] = 0.0;
@@ -142,6 +147,20 @@ int vtkImageMapper3D::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
+//----------------------------------------------------------------------------
+const char *vtkImageMapper3D::GetRenderTypeAsString()
+{
+  switch (this->RenderType)
+    {
+    case VTK_IMAGE_OVERLAY:
+      return "Overlay";
+    case VTK_IMAGE_UNDERLAY:
+      return "Underlay";
+    case VTK_IMAGE_DEFAULT:
+      return "Default";
+    }
+  return "";
+}
 
 //----------------------------------------------------------------------------
 void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -154,6 +173,7 @@ void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SliceFacesCamera: "
      << (this->SliceFacesCamera ? "On\n" : "Off\n");
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
+  os << indent << "RenderType: " << this->GetRenderTypeAsString() << "\n";
 }
 
 //----------------------------------------------------------------------------

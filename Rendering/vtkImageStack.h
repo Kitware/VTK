@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSlice.h
+  Module:    vtkImageStack.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,73 +12,67 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageSlice - represents an image in a 3D scene
+// .NAME vtkImageStack - manages a stack of composited images
 // .SECTION Description
-// vtkImageSlice is used to represent an image in a 3D scene.  It displays
-// the image either as a slice or as a projection from the camera's
-// perspective. Adjusting the position and orientation of the slice
-// is done by adjusting the focal point and direction of the camera,
-// or alternatively the slice can be set manually in vtkImageMapper3D.
-// The lookup table and window/leve are set in vtkImageProperty.
-// Prop3D methods such as SetPosition() and RotateWXYZ() change the
-// position and orientation of the data with respect to VTK world
-// coordinates.
+// vtkImageStack manages the compositing of a set of images. Each image
+// is assigned a layer number through its property object, and it is
+// this layer number that determines the compositing order: images with
+// a higher layer number are drawn over top of images with a lower layer
+// number.  The image stack has a SetActiveLayer method for controlling
+// which layer to use for interaction and picking.  The vtkImageStack
+// does not behave like an assembly, its matrix is always identical to
+// that of its currently active image.
 // .SECTION Thanks
 // Thanks to David Gobbi at the Seaman Family MR Centre and Dept. of Clinical
 // Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
 // .SECTION See also
 // vtkImageMapper3D vtkImageProperty vtkProp3D
 
-#ifndef __vtkImageSlice_h
-#define __vtkImageSlice_h
+#ifndef __vtkImageStack_h
+#define __vtkImageStack_h
 
-#include "vtkProp3D.h"
+#include "vtkImageSlice.h"
 
-class vtkRenderer;
-class vtkPropCollection;
+class vtkImageSliceCollection;
 class vtkImageProperty;
 class vtkImageMapper3D;
 
-class VTK_RENDERING_EXPORT vtkImageSlice : public vtkProp3D
+class VTK_RENDERING_EXPORT vtkImageStack : public vtkImageSlice
 {
 public:
-  vtkTypeMacro(vtkImageSlice,vtkProp3D);
+  vtkTypeMacro(vtkImageStack,vtkImageSlice);
   void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkImageStack *New();
 
   // Description:
-  // Creates an Image with the following defaults: origin(0,0,0)
-  // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
-  // orientation=(0,0,0).
-  static vtkImageSlice *New();
+  // Add an image to the stack.
+  void AddImage(vtkImageSlice *prop);
 
   // Description:
-  // Set/Get the mapper.
-  void SetMapper(vtkImageMapper3D *mapper);
-  vtkGetObjectMacro(Mapper, vtkImageMapper3D);
+  // Remove an image from the stack.
+  void RemoveImage(vtkImageSlice *prop);
 
   // Description:
-  // Set/Get the image display properties.
-  void SetProperty(vtkImageProperty *property);
-  virtual vtkImageProperty *GetProperty();
+  // Set the active layer number.  This is the layer that will be
+  // used for picking and interaction.
+  vtkSetMacro(ActiveLayer, int);
+  int GetActiveLayer() { return this->ActiveLayer; }
 
   // Description:
-  // Update the rendering pipeline by updating the ImageMapper
-  void Update();
+  // Get the mapper for the currently active image.
+  vtkImageMapper3D *GetMapper();
 
   // Description:
-  // Get the bounds - either all six at once
-  // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
+  // Get the property for the currently active image.
+  vtkImageProperty *GetProperty();
+
+  // Description:
+  // Get the combined bounds of all of the images.
   double *GetBounds();
   void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
-  double GetMinXBound();
-  double GetMaxXBound();
-  double GetMinYBound();
-  double GetMaxYBound();
-  double GetMinZBound();
-  double GetMaxZBound();
 
   // Description:
-  // Return the MTime also considering the property etc.
+  // Return the max MTime of all the images. 
   unsigned long int GetMTime();
 
   // Description:
@@ -89,7 +83,7 @@ public:
   unsigned long GetRedrawMTime();
 
   // Description:
-  // Shallow copy of this vtkImageSlice. Overloads the virtual vtkProp method.
+  // Shallow copy of this prop. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
   // Description:
@@ -109,24 +103,22 @@ public:
   virtual int HasTranslucentPolygonalGeometry();
 
   // Description:
-  // This causes the image and its mapper to be rendered. Note that a side
-  // effect of this method is that the pipeline will be updated.
-  virtual void Render(vtkRenderer *);
-
-  // Description:
   // Release any resources held by this prop.
   void ReleaseGraphicsResources(vtkWindow *win);
 
 protected:
-  vtkImageSlice();
-  ~vtkImageSlice();
+  vtkImageStack();
+  ~vtkImageStack();
 
-  vtkImageMapper3D *Mapper;
-  vtkImageProperty *Property;
+  void SetMapper(vtkImageMapper3D *mapper);
+  void SetProperty(vtkImageProperty *property);
+
+  vtkImageSliceCollection *Images;
+  int ActiveLayer;
 
 private:
-  vtkImageSlice(const vtkImageSlice&);  // Not implemented.
-  void operator=(const vtkImageSlice&);  // Not implemented.
+  vtkImageStack(const vtkImageStack&);  // Not implemented.
+  void operator=(const vtkImageStack&);  // Not implemented.
 };
 
 #endif
