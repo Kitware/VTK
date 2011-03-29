@@ -22,13 +22,14 @@
 #ifndef __vtkExtractDataSets_h
 #define __vtkExtractDataSets_h
 
-#include "vtkHierarchicalBoxDataSetAlgorithm.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractDataSets : public vtkHierarchicalBoxDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractDataSets :
+          public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkExtractDataSets* New();
-  vtkTypeMacro(vtkExtractDataSets, vtkHierarchicalBoxDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractDataSets, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -47,6 +48,8 @@ protected:
   virtual int RequestData(vtkInformation *, 
                           vtkInformationVector **, 
                           vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkExtractDataSets(const vtkExtractDataSets&); // Not implemented.
