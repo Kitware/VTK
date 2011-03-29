@@ -32,8 +32,10 @@ the code that parses the header file.
 
 /* This is the struct that contains the options */
 OptionInfo options;
-int help = 0;
-int version = 0;
+
+/* Flags for --help and --version */
+int vtk_parse_help = 0;
+int vtk_parse_version = 0;
 
 /* This method provides the back-end for the generators */
 extern void vtkParseOutput(FILE *, FileInfo *);
@@ -121,11 +123,11 @@ static int check_options(int argc, char *argv[])
       }
     else if (strcmp(argv[i], "--help") == 0)
       {
-      help = 1;
+      vtk_parse_help = 1;
       }
     else if (strcmp(argv[i], "--version") == 0)
       {
-      version = 1;
+      vtk_parse_version = 1;
       }
     }
 
@@ -138,10 +140,12 @@ OptionInfo *vtkParse_GetCommandLineOptions()
   return &options;
 }
 
-static void print_help(FILE *stream, const char *cmd)
+static void vtk_parse_print_help(FILE *stream, const char *cmd)
 {
   fprintf(stream,
     "Usage: %s [options] input_file output_file\n"
+    "  --help          print this help message\n"
+    "  --version       print the VTK version\n"
     "  --concrete      force concrete class\n"
     "  --abstract      force abstract class\n"
     "  --vtkobject     vtkObjectBase-derived class\n"
@@ -171,21 +175,32 @@ int main(int argc, char *argv[])
     {
     has_options = 1;
     }
-  else if (argi < 0 || (argc < 3 && !help && !version) || argc > 5)
+  else if (argi < 0 || argc > 5 ||
+           (argc < 3 && !vtk_parse_help && !vtk_parse_version))
     {
-    print_help( stderr, argv[0] );
+    vtk_parse_print_help(stderr, argv[0]);
     exit(1);
     }
 
-  if( version )
+  if (vtk_parse_version)
     {
-    const char *version = VTK_VERSION;
-    fprintf( stdout, "%s %s\n", argv[0], version );
+    const char *ver = VTK_VERSION;
+    const char *exename = argv[0];
+    /* remove directory part of exe name */
+    for (exename += strlen(exename); exename > argv[0]; --exename)
+      {
+      char pc = *(exename - 1);
+      if (pc == ':' || pc == '/' || pc == '\\')
+        {
+        break;
+        }
+      }
+    fprintf(stdout, "%s %s\n", exename, ver);
     exit(0);
     }
-  if( help )
+  if (vtk_parse_help)
     {
-    print_help( stdout, argv[0] );
+    vtk_parse_print_help(stdout, argv[0]);
     exit(0);
     }
 
