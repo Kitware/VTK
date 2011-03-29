@@ -35,6 +35,10 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkMultiProcessController.h"
+
+#include "vtkAMRConnectivityFilter.h"
+#include "vtkAMRDataTransferFilter.h"
 
 //
 // Standard methods
@@ -88,6 +92,11 @@ int vtkAMRDualMeshExtractor::RequestData( vtkInformation *request,
     input->Get(vtkDataObject::DATA_OBJECT()));
   assert( "pre: input AMR dataset is NULL" && (amrds != NULL) );
 
+//  vtkHierarchicalBoxDataSet *ghostAMR = this->ExchangeGhostInformation( amrds );
+//  assert( "pre: ghosted AMR dataset is NULL" && (ghostAMR != NULL) );
+//  assert( "pre: numLevels in ghostAMR are not equal" &&
+//          (ghostAMR->GetNumberOfLevels() == amrds->GetNumberOfLevels() ) );
+
   // STEP 1: Get output object
   vtkInformation *output= outputVector->GetInformationObject(0);
   assert( "pre: Null output information object!" && (output != NULL) );
@@ -98,12 +107,14 @@ int vtkAMRDualMeshExtractor::RequestData( vtkInformation *request,
   assert( "pre: ouput multi-block dataset is NULL" && (mbds != NULL) );
 
   // STEP 2: Allocate output multi-block data-structure
+//  mbds->SetNumberOfBlocks( ghostAMR->GetNumberOfLevels() );
   mbds->SetNumberOfBlocks( amrds->GetNumberOfLevels() );
 
   unsigned int level=0;
   for( ; level < amrds->GetNumberOfLevels(); ++level )
     {
       vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::New();
+//      mpds->SetNumberOfPieces( ghostAMR->GetNumberOfDataSets( level ) );
       mpds->SetNumberOfPieces( amrds->GetNumberOfDataSets( level ) );
       mbds->SetBlock( level, mpds );
       mpds->Delete();
@@ -111,7 +122,8 @@ int vtkAMRDualMeshExtractor::RequestData( vtkInformation *request,
 
   std::cout << "Extract dual mesh...";
   std::cout.flush();
-
+//
+//  this->ExtractDualMesh( ghostAMR, mbds );
   this->ExtractDualMesh( amrds, mbds );
 //  this->WriteMultiBlockData( mbds, "INITIALDUAL" );
   std::cout << "[DONE]\n";
@@ -120,11 +132,49 @@ int vtkAMRDualMeshExtractor::RequestData( vtkInformation *request,
   std::cout << "Fixing gaps...";
   std::cout.flush();
 
+//  this->FixGaps( ghostAMR,mbds );
   this->FixGaps( amrds, mbds );
   std::cout << "[DONE]\n";
   std::cout.flush();
 
+//  ghostAMR->Delete();
+
   return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkHierarchicalBoxDataSet* vtkAMRDualMeshExtractor::ExchangeGhostInformation(
+    vtkHierarchicalBoxDataSet *input )
+{
+  // Sanity Check
+  assert( "pre: input AMR dataset is NULL!" && (input != NULL) );
+
+  // STEP 0: Compute AMR inter-grid connectivity
+  vtkAMRConnectivityFilter* connectivityFilter=vtkAMRConnectivityFilter::New( );
+  connectivityFilter->SetController(
+      vtkMultiProcessController::GetGlobalController() );
+  connectivityFilter->SetAMRDataSet( input );
+  connectivityFilter->ComputeConnectivity();
+
+  // STEP 1: Create a single layer of ghost cells and exhange information
+  // at the ghost cells
+  vtkAMRDataTransferFilter* transferFilter = vtkAMRDataTransferFilter::New();
+  transferFilter->SetController(
+      vtkMultiProcessController::GetGlobalController() );
+  transferFilter->SetAMRDataSet( input );
+  transferFilter->SetNumberOfGhostLayers( 1 );
+  transferFilter->SetRemoteConnectivity(
+   connectivityFilter->GetRemoteConnectivity() );
+  transferFilter->SetLocalConnectivity(
+   connectivityFilter->GetLocalConnectivity() );
+  transferFilter->Transfer();
+
+  vtkHierarchicalBoxDataSet *newData = transferFilter->GetExtrudedData();
+  assert( "extruded data is NULL!" && (newData != NULL) );
+
+  connectivityFilter->Delete();
+  transferFilter->Delete();
+  return( newData );
 }
 
 //------------------------------------------------------------------------------

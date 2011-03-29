@@ -55,6 +55,13 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     virtual ~vtkAMRDualMeshExtractor();
 
     // Description:
+    // This method exchanges ghost information among the AMR
+    // grids and returns a new instance of the input AMR dataset
+    // that consists the ghost information.
+    vtkHierarchicalBoxDataSet* ExchangeGhostInformation(
+        vtkHierarchicalBoxDataSet *inputAMR );
+
+    // Description:
     // This method checks if the dual node for the cell corresponding
     // to cellIdx, w.r.t. the uniform grid ug, should be processed, i.e.,
     // form a cell using the adjacent dual cell nodes. There are two conditions
