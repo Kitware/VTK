@@ -42,6 +42,18 @@ TARGET_LINK_LIBRARIES( AMRDataTransferPipeline
              ${MPI_LIBRARIES} 
              )
 
+## Add AMRDualExtractor executable
+ADD_EXECUTABLE( AMRDualExtractor AMRDualExtractor.cxx )
+TARGET_LINK_LIBRARIES( AMRDualExtractor 
+             vtkGraphics
+             vtkFiltering
+             vtkRendering 
+             vtkIO 
+             vtkAMR 
+             vtkParallel
+             ${MPI_LIBRARIES} 
+             )
+
 ## Add Generate3DAMRDataSetWithPulse executable
 ADD_EXECUTABLE( Generate3DAMRDataSetWithPulse Generate3DAMRDataSetWithPulse.cxx)
 TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
