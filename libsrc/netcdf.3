@@ -1,0 +1,1405 @@
+.nr yr \n(yr+1900
+.af mo 01
+.af dy 01
+.TH NETCDF 3 "1997-04-18" "Printed: \n(yr-\n(mo-\n(dy" "UNIDATA LIBRARY FUNCTIONS"
+.SH NAME
+netcdf \- Unidata's Network Common Data Form (netCDF) library interface
+.SH SYNOPSIS
+.ft B
+.na
+.nh
+#include "netcdf.h"
+.sp
+
+cc ...  -lnetcdf -lhdf5_hl -lhdf5 -lz -lm
+
+.ad
+.hy
+Complete documentation for the netCDF libraries can be found at the netCDF website: http://www.unidata.ucar.edu/software/netcdf/.
+.sp
+.SH "LIBRARY VERSION"
+.LP
+This document describes versions 3 and 4
+of Unidata netCDF data-access interface
+for the C programming language.
+.HP
+\fBconst char* nc_inq_libvers()\fR
+.sp
+Returns a string identifying the version of the netCDF library, and
+when it was built, like: "3.1a of Aug 22 1996 12:57:47 $".
+.LP
+The RCS \fBident(1)\fP command will find a string like
+"$\|Id: @\|(#) netcdf library version 3.1a of Sep  6 1996 15:56:26 $"
+in the library. The SCCS \fBwhat(1)\fP command will find a string like
+"netcdf library version 3.1a of Aug 23 1996 16:07:40 $".
+.SH "RETURN VALUES"
+.LP
+All netCDF functions (except
+\fBnc_inq_libvers(\|)\fR and \fBnc_strerror(\|)\fR) return an integer status.
+
+If this returned status value is not equal to
+\fBNC_NOERR\fR (zero), it
+indicates that an error occurred. The possible status values are defined in 
+system include file <errno.h> and in "netcdf.h".
+.HP
+\fBconst char* nc_strerror(int \fIstatus\fP)\fR
+.sp
+Returns a string textual translation of the \fIstatus\fP
+value, like "Attribute or variable name contains illegal characters"
+or "No such file or directory".
+.sp
+.SH "FILE OPERATIONS"
+.LP
+.HP
+\fBint nc_create(const char \fIpath\fP[], int \fIcmode\fP, int* \fIncid\fP)\fR
+.sp
+Creates a new netCDF dataset at \fIpath\fP,
+returning a netCDF ID in \fIncid\fP.
+The argument \fIcmode\fP may include the bitwise-or
+of the following flags:
+\fBNC_NOCLOBBER\fR
+to protect existing datasets (default
+silently blows them away),
+\fBNC_SHARE\fR
+for synchronous dataset updates for classic format files
+(default is to buffer accesses),
+.sp
+When a netCDF dataset is created, is is opened
+\fBNC_WRITE\fR.
+The new netCDF dataset is in define mode.
+\fBNC_64BIT_OFFSET\fR.
+to create a file in the 64-bit offset format 
+(as opposed to classic format, the default). 
+\fBNC_TRUE\fR to create a netCDF-4/HDF5 file, 
+and \fBNC_CLASSIC_MODEL\fR to guarantee that netCDF-4/HDF5 files maintain compatibility 
+with the netCDF classic data model.
+.HP
+\fBint nc__create(const char \fIpath\fP[], int \fIcmode\fP, size_t \fIinitialsize\fP, size_t* \fIchunksize\fP, int* \fIncid\fP)\fR
+.sp
+Like \fBnc_create(\|)\fR but has additional performance tuning parameters.
+.sp
+The argument \fIinitialsize\fP sets the initial size of the file at
+creation time.
+.sp
+See \fBnc__open(\|)\fR below for an explanation of the \fIchunksize\fP
+parameter.
+.HP
+\fBint nc_open(const char \fIpath\fP[], int \fImode\fP, int* \fIncid\fP)\fR
+.sp
+(Corresponds to \fBncopen(\|)\fR in version 2)
+.sp
+Opens a existing netCDF dataset at \fIpath\fP
+returning a netCDF ID
+in \fIncid\fP.
+The type of access is described by the \fImode\fP parameter,
+which may include the bitwise-or
+of the following flags:
+\fBNC_WRITE\fR
+for read-write access (default
+read-only),
+\fBNC_SHARE\fR
+for synchronous dataset updates (default is
+to buffer accesses), and
+\fBNC_LOCK\fR
+(not yet implemented).
+.sp
+As of NetCDF version 4.1, and if TRUE support was enabled
+when the NetCDF library was built, the path parameter
+may specify a TRUE URL. In this case, the access mode is
+forced to be read-only.
+.HP
+\fBint nc__open(const char \fIpath\fP[], int \fImode\fP, size_t* \fIchunksize\fP, int* \fIncid\fP)\fR
+.sp
+Like \fBnc_open(\|)\fR but has an additional performance tuning parameter.
+.sp
+The argument referenced by \fIchunksize\fP controls a space versus time
+tradeoff, memory allocated in the netcdf library versus number of system
+calls.
+Because of internal requirements, the value may not be set to exactly
+the value requested.
+The actual value chosen is returned by reference.
+Using the value \fBNC_SIZEHINT_DEFAULT\fR causes the library to choose a
+default.
+How the system choses the default depends on the system.
+On many systems, the "preferred I/O block size" is available from the 
+\fBstat()\fR system call, \fBstruct stat\fR member \fBst_blksize\fR.
+If this is available it is used. Lacking that, twice the system pagesize
+is used.
+Lacking a call to discover the system pagesize, we just set default
+chunksize to 8192.
+.sp
+The chunksize is a property of a given open netcdf descriptor
+\fIncid\fP, it is not a persistent property of the netcdf dataset.
+.sp
+As with \fBnc__open(\|)\fR, the path parameter
+may specify a TRUE URL, but the tuning parameters are ignored.
+.HP
+\fBint nc_redef(int \fIncid\fP)\fR
+.sp
+(Corresponds to \fBncredef(\|)\fR in version 2)
+.sp
+Puts an open netCDF dataset into define mode, 
+so dimensions, variables, and attributes can be added or renamed and 
+attributes can be deleted.
+.HP
+\fBint nc_enddef(int \fIncid\fP)\fR
+.sp
+(Corresponds to \fBncendef(\|)\fR in version 2)
+.sp
+Takes an open netCDF dataset out of define mode.
+The changes made to the netCDF dataset
+while it was in define mode are checked and committed to disk if no
+problems occurred.  Some data values may be written as well,
+see "VARIABLE PREFILLING" below.
+After a successful call, variable data can be read or written to the dataset.
+.HP
+\fBint nc__enddef(int \fIncid\fP, size_t \fIh_minfree\fP, size_t \fIv_align\fP, size_t \fIv_minfree\fP, size_t \fIr_align\fP)\fR
+.sp
+Like \fBnc_enddef(\|)\fR but has additional performance tuning parameters.
+.sp
+Caution: this function exposes internals of the netcdf version 1 file
+format.
+It may not be available on future netcdf implementations.
+.sp
+The current netcdf file format has three sections,
+the "header" section, the data section for fixed size variables, and
+the data section for variables which have an unlimited dimension (record
+variables).
+The header begins at the beginning of the file. The index
+(offset) of the beginning of the other two sections is contained in the
+header. Typically, there is no space between the sections. This causes
+copying overhead to accrue if one wishes to change the size of the
+sections,
+as may happen when changing names of things, text attribute values,
+adding
+attributes or adding variables. Also, for buffered i/o, there may be
+advantages
+to aligning sections in certain ways.
+.sp
+The minfree parameters allow one to control costs of future calls
+to \fBnc_redef(\|)\fR, \fBnc_enddef(\|)\fR by requesting that \fIminfree\fP bytes be
+available at the end of the section.
+The \fIh_minfree\fP parameter sets the pad
+at the end of the "header" section. The \fIv_minfree\fP parameter sets
+the pad at the end of the data section for fixed size variables.
+.sp
+The align parameters allow one to set the alignment of the beginning of
+the corresponding sections. The beginning of the section is rounded up
+to an index which is a multiple of the align parameter. The flag value
+\fBNC_ALIGN_CHUNK\fR tells the library to use the chunksize (see above)
+as the align parameter.
+The \fIv_align\fP parameter controls the alignment of the beginning of
+the data section for fixed size variables.
+The \fIr_align\fP parameter controls the alignment of the beginning of
+the data section for variables which have an unlimited dimension (record
+variables).
+.sp
+The file format requires mod 4 alignment, so the align parameters
+are silently rounded up to multiples of 4. The usual call,
+\fBnc_enddef(\fIncid\fP)\fR
+is equivalent to
+\fBnc__enddef(\fIncid\fP, 0, 4, 0, 4)\fR.
+.sp
+The file format does not contain a "record size" value, this is
+calculated from the sizes of the record variables. This unfortunate fact
+prevents us from providing minfree and alignment control of the
+"records"
+in a netcdf file. If you add a variable which has an unlimited
+dimension,
+the third section will always be copied with the new variable added.
+.HP
+\fBint nc_sync(int \fIncid\fP)\fR
+.sp
+(Corresponds to \fBncsync(\|)\fR in version 2)
+.sp
+Unless the
+\fBNC_SHARE\fR
+bit is set in
+\fBnc_open(\|)\fR or \fBnc_create(\|)\fR,
+accesses to the underlying netCDF dataset are
+buffered by the library. This function synchronizes the state of
+the underlying dataset and the library.
+This is done automatically by
+\fBnc_close(\|)\fR and \fBnc_enddef(\|)\fR.
+.HP
+\fBint nc_abort(int \fIncid\fP)\fR
+.sp
+(Corresponds to \fBncabort(\|)\fR in version 2)
+.sp
+You don't need to call this function.
+This function is called automatically by
+\fBnc_close(\|)\fR
+if the netCDF was in define mode and something goes wrong with the commit.
+If the netCDF dataset isn't in define mode, then this function is equivalent to
+\fBnc_close(\|)\fR.
+If it is called after
+\fBnc_redef(\|)\fR,
+but before
+\fBnc_enddef(\|)\fR,
+the new definitions are not committed and the dataset is closed.
+If it is called after
+\fBnc_create(\|)\fR
+but before
+\fBnc_enddef(\|)\fR,
+the dataset disappears.
+.HP
+\fBint nc_close(int \fIncid\fP)\fR
+.sp
+(Corresponds to
+\fBncclose(\|)\fR in version 2)
+.sp
+Closes an open netCDF dataset.
+If the dataset is in define mode,
+\fBnc_enddef(\|)\fR
+will be called before closing.
+After a dataset is closed, its ID may be reassigned to another dataset.
+.HP
+\fBint nc_inq(int \fIncid\fP, int* \fIndims\fP, int* \fInvars\fP,
+int* \fInatts\fP, int* \fIunlimdimid\fP)\fR
+.HP
+\fBint nc_inq_ndims(int \fIncid\fP, int* \fIndims\fP)\fR
+.HP
+\fBint nc_inq_nvars(int \fIncid\fP, int* \fInvars\fP)\fR
+.HP
+\fBint nc_inq_natts(int \fIncid\fP, int* \fInatts\fP)\fR
+.HP
+\fBint nc_inq_unlimdim(int \fIncid\fP, int* \fIunlimdimid\fP)\fR
+.HP
+\fBint nc_inq_format(int \fIncid\fP, int* \fIformatn\fP)\fR
+.sp
+Use these functions to find out what is in a netCDF dataset.
+Upon successful return,
+\fIndims\fP will contain  the
+number of dimensions defined for this netCDF dataset,
+\fInvars\fP will contain the number of variables,
+\fInatts\fP will contain the number of attributes, and
+\fIunlimdimid\fP will contain the
+dimension ID of the unlimited dimension if one exists, or
+-1 otherwise.
+\fIformatn\fP will contain the version number of the dataset <format>, one of
+\fBNC_FORMAT_CLASSIC\fR, \fBNC_FORMAT_64BIT\fR, \fBNC_FORMAT_NETCDF4\fR, or
+\fBNC_FORMAT_NETCDF4_CLASSIC\fR.
+If any of the
+return parameters is a \fBNULL\fR pointer, then the corresponding information
+will not be returned; hence, no space need be allocated for it.
+.HP
+\fBint nc_def_dim(int \fIncid\fP, const char \fIname\fP[], size_t \fIlen\fP, int* \fIdimid\fP)\fR
+.sp
+(Corresponds to \fBncdimdef(\|)\fR in version 2)
+.sp
+Adds a new dimension to an open netCDF dataset, which must be 
+in define mode.
+\fIname\fP is the dimension name.
+If \fIdimid\fP is not a \fBNULL\fR pointer then upon successful completion \fIdimid\fP will contain the dimension ID of the newly created dimension.
+
+.SH "USER DEFINED TYPES"
+.LP
+Users many define types for a netCDF-4/HDF5 file (unless the
+\fBNC_CLASSIC_MODEL\fR was used when the file was creates). Users may
+define compound types, variable length arrays, enumeration types, and
+opaque types.
+.sp
+
+.HP
+\fBint nc_def_compound(int \fIncid\fP, size_t \fIsize\fP, const char \fIname\fP[], int* \fItypeidp\fP)\fR
+.sp
+Define a compound type.
+.HP
+\fBint nc_insert_compound(int \fIncid\fP, nc_type \fI\fP, const char \fIname\fP[], size_t \fIoffset\fP, nc_type \fIfield_typeid\fP)\fR
+.sp
+Insert an element into a compound type. May not be done after type has been used, or after the type has been written by an enddef.
+.HP
+\fBint nc_insert_array_compound(int \fIncid\fP, nc_type \fI\fP, const char \fIname\fP[], size_t \fIoffset\fP, nc_type \fIfield_typeid\fP, int \fIndims\fP, const int \fIdim_sizes\fP[])\fR
+.sp 
+Insert an array into a compound type.
+.HP
+\fBint nc_inq_type(int \fIncid\fP, nc_type \fI\fP, char \fIname\fP[], size_t* \fIsizep\fP)\fR
+.sp
+Learn about a type.
+.HP
+\fBint nc_inq_compound(int \fIncid\fP, nc_type \fI\fP, char \fIname\fP[], size_t* \fIsizep\fP, size_t* \fInfieldsp\fP)\fR
+.HP
+\fBint nc_inq_compound_name(int \fIncid\fP, nc_type \fI\fP, char \fIname\fP[])\fR
+.HP
+\fBint nc_inq_compound_size(int \fIncid\fP, nc_type \fI\fP, size_t* \fIsizep\fP)\fR
+.HP
+\fBint nc_inq_compound_nfields(int \fIncid\fP, nc_type \fI\fP, size_t* \fInfieldsp\fP)\fR
+.HP
+\fBint nc_inq_compound_fieldname(int \fIncid\fP, nc_type \fI\fP, int \fIfieldid\fP, char \fIname\fP[])\fR
+.HP
+\fBint nc_inq_compound_fieldindex(int \fIncid\fP, nc_type \fI\fP, const char \fIname\fP[], int* \fIfieldidp\fP)\fR
+.HP
+\fBint nc_inq_compound_fieldoffset(int \fIncid\fP, nc_type \fI\fP, int \fIfieldid\fP, size_t* \fIoffsetp\fP)\fR
+.HP
+\fBint nc_inq_compound_fieldtype(int \fIncid\fP, nc_type \fI\fP, int \fIfieldid\fP, nc_type* \fIfield_typeid\fP)\fR
+.HP
+\fBint nc_inq_compound_fieldndims(int \fIncid\fP, nc_type \fI\fP, int \fIfieldid\fP, int* \fIndims\fP)\fR
+.HP
+\fBint nc_inq_compound_fielddim_sizes(int \fIncid\fP, nc_type \fI\fP, int \fIfieldid\fP, int \fIdim_sizes\fP[])\fR
+.sp
+Learn about a compound type.
+.HP
+\fBint nc_def_vlen(int \fIncid\fP, const char \fIname\fP[], nc_type \fIbase_typeid\fP, nc_type* \fIxtypep\fP)\fR
+.sp
+Create a varaible length array type.
+.HP
+\fBint nc_inq_vlen(int \fIncid\fP, nc_type \fI\fP, char \fIname\fP[], size_t* \fIdatum_sizep\fP, nc_type* \fIbase_nc_typep\fP)\fR
+.sp
+Learn about a varaible length array type.
+.HP
+\fBint nc_free_vlen(nc_vlen_t *vl)\fR
+.sp
+Free memory comsumed by reading data of a varaible length array type.
+.HP
+\fBint nc_put_vlen_element(int \fIncid\fP, nc_type \fI\fP, void * \fIvlen_element\fP, size_t \fIlen\fP, void * \fIdata\fP)\fR
+.sp
+Write one VLEN.
+.HP
+\fBint nc_get_vlen_element(int \fIncid\fP, nc_type \fI\fP, void ** \fIvlen_element\fP, size_t \fIlen\fP, void ** \fIdata\fP)\fR
+.sp
+Read one VLEN.
+.HP
+\fBint nc_free_string(size_t \fIlen\fP, char **data)\fR
+.sp
+Free memory comsumed by reading data of a string type.
+.HP
+\fBint nc_inq_user_type(int \fIncid\fP, nc_type \fI\fP, char \fIname\fP[], size_t* \fI\fP, nc_type* \fI\fP, size_t* \fI\fP, int* \fI\fP)\fR
+.sp
+Learn about a user define type.
+.HP
+\fBint nc_def_enum(int \fIncid\fP, nc_type \fIbase_typeid\fP, const char \fIname\fP[], nc_type* \fItypeidp\fP)\fR
+.sp
+Define an enumeration type.
+.HP
+\fBint nc_insert_enum(int \fIncid\fP, nc_type \fIbase_typeid\fP, const char \fIname\fP[], const void *value)\fR
+.sp
+Insert a name-value pair into enumeration type.
+.HP
+\fBint nc_inq_enum_member(int \fIncid\fP, nc_type \fIxtype\fP, int \fIidx\fP, char \fIname\fP[], void *value)\fR
+.HP
+\fBint nc_inq_enum_ident(int \fIncid\fP, nc_type \fIxtype\fP, int \fIidx\fP, long long \fIvalue\fP, char \fIidentifier\fP[])\fR
+.sp
+Learn about a name-value pair into enumeration type.
+.HP
+\fBint nc_def_opaque(int \fIncid\fP, size_t \fIsize\fP, const char \fIname\fP[], nc_type* \fIxtypep\fP)\fR
+.sp
+Create an opaque type.
+.HP
+\fBint nc_inq_opaque(int \fIncid\fP, nc_type \fIxtype\fP, char \fIname\fP[], size_t* \fIsizep\fP)\fR
+.sp
+Learn about opaque type.
+.HP
+.SH "GROUPS"
+.sp
+Users may organize data into hierarchical groups in netCDF-4/HDF5 files (unless \fBNC_CLASSIC_MODEL\fR was used when creating the file).
+.HP
+\fBint nc_inq_grps(int \fIncid\fP, int* \fInumgrps\fP, int \fIncids\fP[])\fR
+.sp
+Learn how many groups (and their ncids) are available from the group represented by ncid.
+.HP
+\fBint nc_inq_grpname(int \fIncid\fP, char \fIname\fP[])\fR
+.HP
+\fBint nc_inq_grpname_full(int \fIncid\fP, size_t* \fIlen\fP, char \fIname\fP[])\fR
+.HP
+\fBint nc_inq_grpname_len(int \fIncid\fP, size_t* \fIlen\fP)\fR
+.HP
+\fBint nc_inq_grp_parent(int \fIncid\fP, int* \fIncid\fP)\fR
+.HP
+\fBint nc_inq_grp_ncid(int \fIncid\fP, char \fIname\fP[], int* \fIncid\fP)\fR
+.HP
+\fBint nc_inq_full_ncid(int \fIncid\fP, char \fIname\fP[], int* \fIncid\fP)\fR
+.sp
+Learn about a group.
+.HP
+\fBint nc_inq_varids(int \fIncid\fP, int* \fInvars\fP, int* \fI\fP)\fR
+.sp
+Get the varids in a group.
+.HP
+\fBint nc_inq_dimids(int \fIncid\fP, int* \fIndims\fP, int* \fIdimids\fP, int \fIinclude_parents\fP)\fR
+.sp
+Get the dimids in a group and (potentially) its parents.
+.HP
+\fBint nc_inq_typeids(int \fIncid\fP, int* \fIntypes\fP, int \fItypeids\fP[])\fR
+.sp
+Get the typeids of user-defined types in a group.
+.HP
+\fBint nc_def_grp(int \fIncid\fP, char \fIname\fP[], int* \fIncid\fP)\fR
+.sp
+Create a group.
+.LP
+
+.SH "DIMENSIONS"
+.LP
+.HP
+\fBint nc_inq_dimid(int \fIncid\fP, const char \fIname\fP[], int* \fIdimid\fP)\fR
+.sp
+(Corresponds to \fBncdimid(\|)\fR in version 2)
+.sp
+Given a dimension name, returns the ID of a netCDF dimension in \fIdimid\fP.
+.HP
+\fBint nc_inq_dim(int \fIncid\fP, int \fIdimid\fP, char \fIname\fP[], size_t* \fIlen\fP)\fR
+.HP
+\fBint nc_inq_dimname(int \fIncid\fP, int \fIdimid\fP, char \fIname\fP[])\fR
+.HP
+\fBint nc_inq_dimlen(int \fIncid\fP, int \fIdimid\fP, size_t* \fIlen\fP)\fR
+.sp
+Use these functions to find out about a dimension.
+If either the \fIname\fP
+argument or \fIlen\fP argument is a \fBNULL\fR pointer, then
+the associated information will not be returned.  Otherwise,
+\fIname\fP should be  big enough (\fBNC_MAX_NAME\fR)
+to hold the dimension name as the name will be copied into your storage.
+The length return parameter, \fIlen\fP
+will contain the size of the dimension.
+For the unlimited dimension, the returned length is the current
+maximum value used for writing into any of the variables which use
+the dimension.
+.HP
+\fBint nc_rename_dim(int \fIncid\fP, int \fIdimid\fP, const char \fIname\fP[])\fR
+.sp
+(Corresponds to \fBncdimrename(\|)\fR in version 2)
+.sp
+Renames an existing dimension in an open netCDF dataset.
+If the new name is longer than the old name, the netCDF dataset must be in 
+define mode.
+You cannot rename a dimension to have the same name as another dimension.
+.SH "VARIABLES"
+.LP
+.HP
+\fBint nc_def_var(int \fIncid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, int \fIndims\fP, const int \fIdimids\fP[], int* \fIvarid\fP)\fR
+.sp
+(Corresponds to \fBncvardef(\|)\fR in version 2)
+.sp
+Adds a new variable to a netCDF dataset. The netCDF must be in define mode.
+If not \fBNULL\fR, then \fIvarid\fP will be set to the netCDF variable ID.
+.HP
+\fBint nc_inq_varid(int \fIncid\fP, const char \fIname\fP[], int* \fIvarid\fP)\fR
+.sp
+(Corresponds to \fBncvarid(\|)\fR in version 2)
+.sp
+Returns the ID of a netCDF variable in \fIvarid\fP given its name.
+.HP
+\fBint nc_inq_var(int \fIncid\fP, int \fIvarid\fP, char \fIname\fP[], nc_type* \fIxtype\fP, int* \fIndims\fP, int \fIdimids\fP[],
+int* \fInatts\fP)\fR
+.HP
+\fBint nc_inq_varname(int \fIncid\fP, int \fIvarid\fP, char \fIname\fP[])\fR
+.HP
+\fBint nc_inq_vartype(int \fIncid\fP, int \fIvarid\fP, nc_type* \fIxtype\fP)\fR
+.HP
+\fBint nc_inq_varndims(int \fIncid\fP, int \fIvarid\fP, int* \fIndims\fP)\fR
+.HP
+\fBint nc_inq_vardimid(int \fIncid\fP, int \fIvarid\fP, int \fIdimids\fP[])\fR
+.HP
+\fBint nc_inq_varnatts(int \fIncid\fP, int \fIvarid\fP, int* \fInatts\fP)\fR
+.sp
+Returns information about a netCDF variable, given its ID.
+If any of the
+return parameters (\fIname\fP, \fIxtype\fP, \fIndims\fP, \fIdimids\fP, or
+\fInatts\fP) is a \fBNULL\fR pointer, then the corresponding information
+will not be returned; hence, no space need be allocated for it.
+.HP
+\fBint nc_rename_var(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[])\fR
+.sp
+(Corresponds to \fBncvarrename(\|)\fR in version 2)
+.sp
+Changes the name of a netCDF variable.
+If the new name is longer than the old name, the netCDF must be in define mode.
+You cannot rename a variable to have the name of any existing variable.
+
+.SH "VARIABLES \fIin\fP NETCDF-4 FILES"
+.LP
+The following functions may only be used on variables in a
+netCDF-4/HDF5 data file. These functions must be called after the
+variable is defined, but before an enddef call.
+.sp
+\fBint nc_def_var_deflate(int \fIncid\fP, int \fIvarid\fP, int \fIshuffle\fP, int \fIdeflate\fP, int \fIdeflate_level\fP)\fR
+.sp
+Turn on compression and/or shuffle filter. (Shuffle filter is only useful for integer data.)
+.HP
+\fBint nc_inq_var_deflate(int \fIncid\fP, int \fIvarid\fP, int* \fIshufflep\fP, int* \fIdeflatep\fP, int* \fIdeflate_levelp\fP)\fR
+.sp
+Learn about a variable's deflate settings.
+.HP
+\fBint nc_def_var_fletcher32(int \fIncid\fP, int \fIvarid\fP, int \fIfletcher32\fP)\fR
+.sp
+Turn on checksumming for a variable.
+.HP
+\fBint nc_inq_var_fletcher32(int \fIncid\fP, int \fIvarid\fP, int* \fIfletcher32\fP)\fR
+.sp
+Learn about checksumming for a variable.
+.HP
+\fBint nc_def_var_chunking(int \fIncid\fP, int \fIvarid\fP, int \fIstorage\fP, const size_t \fIchunksizesp\fP[])\fR
+.sp
+Set chunksizes for a variable.
+.HP
+\fBint nc_inq_var_chunking(int \fIncid\fP, int \fIvarid\fP, int* \fIstoragep\fP, size_t \fIchunksizesp\fP[])\fR
+.sp
+Learn about chunksizes for a variable.
+.HP
+\fBint nc_def_var_fill(int \fIncid\fP, int \fIvarid\fP, int \fIno_fill\fP, const size_t \fIchunksizesp\fP[])\fR
+.sp
+Set a fill value for a variable.
+.HP
+\fBint nc_inq_var_fill(int \fIncid\fP, int \fIvarid\fP, int* \fIstoragep\fP, size_t \fIchunksizesp\fP[])\fR
+.sp
+Learn the fill value for a variable.
+.HP
+\fBint nc_def_var_endian(int \fIncid\fP, int \fIvarid\fP, int \fIendian\fP)\fR
+.sp
+Set endianness of variable.
+.HP
+\fBint nc_inq_var_endian(int \fIncid\fP, int \fIvarid\fP, int* \fIendianp\fP)\fR
+.sp
+Learn the endianness of a variable.
+.HP
+
+.SH "WRITING AND READING WHOLE VARIABLES"
+.LP
+.HP
+\fBint nc_put_var_text(int \fIncid\fP, int \fIvarid\fP, const char \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_uchar(int \fIncid\fP, int \fIvarid\fP, const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_schar(int \fIncid\fP, int \fIvarid\fP, const signed char \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_short(int \fIncid\fP, int \fIvarid\fP, const short \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_int(int \fIncid\fP, int \fIvarid\fP, const int \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_long(int \fIncid\fP, int \fIvarid\fP, const long \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_float(int \fIncid\fP, int \fIvarid\fP, const float \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_double(int \fIncid\fP, int \fIvarid\fP, const double \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_ubyte(int \fIncid\fP, int \fIvarid\fP, const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_ushort(int \fIncid\fP, int \fIvarid\fP, const unsigned short \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_uint(int \fIncid\fP, int \fIvarid\fP, const unsigned int \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_int64(int \fIncid\fP, int \fIvarid\fP, const long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_uint64(int \fIncid\fP, int \fIvarid\fP, const unsigned long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_var_string(int \fIncid\fP, int \fIvarid\fP, const char * \fIout\fP[])\fR
+
+
+.sp
+Writes an entire netCDF variable (i.e. all the values).  The netCDF
+dataset must be open and in data mode.  The type of the data is
+specified in the function name, and it is converted to the external
+type of the specified variable, if possible, otherwise an
+\fBNC_ERANGE\fR error is returned. Note that rounding is not performed
+during the conversion. Floating point numbers are truncated when
+converted to integers.
+.HP
+\fBint nc_get_var_text(int \fIncid\fP, int \fIvarid\fP, char \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_uchar(int \fIncid\fP, int \fIvarid\fP, unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_schar(int \fIncid\fP, int \fIvarid\fP, signed char \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_short(int \fIncid\fP, int \fIvarid\fP, short \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_int(int \fIncid\fP, int \fIvarid\fP, int \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_long(int \fIncid\fP, int \fIvarid\fP, long \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_float(int \fIncid\fP, int \fIvarid\fP, float \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_double(int \fIncid\fP, int \fIvarid\fP, double \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_ubyte(int \fIncid\fP, int \fIvarid\fP, unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_ushort(int \fIncid\fP, int \fIvarid\fP, unsigned short \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_uint(int \fIncid\fP, int \fIvarid\fP, unsigned int \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_int64(int \fIncid\fP, int \fIvarid\fP, long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_uint64(int \fIncid\fP, int \fIvarid\fP, unsigned long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_var_string(int \fIncid\fP, int \fIvarid\fP, char * \fIin\fP[])\fR
+
+
+.sp
+Reads an entire netCDF variable (i.e. all the values).
+The netCDF dataset must be open and in data mode.  
+The data is converted from the external type of the specified variable,
+if necessary, to the type specified in the function name.  If conversion is
+not possible, an \fBNC_ERANGE\fR error is returned.
+.SH "WRITING AND READING ONE DATUM"
+.LP
+.HP
+\fBint nc_put_var1_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], char \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned char \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], signed char \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], short \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], int \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], long \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], float \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], double \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned char \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned short \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned int \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], long long \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned long long \fI*out\fP)\fR
+.HP
+\fBint nc_put_var1_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], char * \fI*out\fP)\fR
+
+
+.sp
+Puts a single data value into a variable at the position \fIindex\fP of an
+open netCDF dataset that is in data mode.  The type of the data is
+specified in the function name, and it is converted to the external type
+of the specified variable, if possible, otherwise an \fBNC_ERANGE\fR
+error is returned.
+.HP
+\fBint nc_get_var1_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], char* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned char* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], signed char* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], short* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], int* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], long* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], float* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], double* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned char* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned short* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned int* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], long long* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], unsigned long long* \fIin\fP)\fR
+.HP
+\fBint nc_get_var1_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIindex\fP[], char ** \fIin\fP)\fR
+
+
+.sp
+Gets a single data value from a variable at the position \fIindex\fP
+of an open netCDF dataset that is in data mode.  
+The data is converted from the external type of the specified variable,
+if necessary, to the type specified in the function name.  If conversion is
+not possible, an \fBNC_ERANGE\fR error is returned.
+.SH "WRITING AND READING AN ARRAY"
+.LP
+.HP
+\fBint nc_put_vara_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const signed char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const short \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const int \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const long \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const float \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const double \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const unsigned short \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const unsigned int \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const unsigned long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_vara_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const char * \fIout\fP[])\fR
+
+
+.sp
+Writes an array section of values into a netCDF variable of an open
+netCDF dataset, which must be in data mode.  The array section is specified
+by the \fIstart\fP and \fIcount\fP vectors, which give the starting index
+and count of values along each dimension of the specified variable.
+The type of the data is
+specified in the function name and is converted to the external type
+of the specified variable, if possible, otherwise an \fBNC_ERANGE\fR
+error is returned.
+.HP
+\fBint nc_get_vara_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], signed char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], short \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], int \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], long \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], float \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], double \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], unsigned short \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], unsigned int \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], unsigned long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_vara_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], char * \fIin\fP[])\fR
+
+
+.sp
+Reads an array section of values from a netCDF variable of an open
+netCDF dataset, which must be in data mode.  The array section is specified
+by the \fIstart\fP and \fIcount\fP vectors, which give the starting index
+and count of values along each dimension of the specified variable.
+The data is converted from the external type of the specified variable,
+if necessary, to the type specified in the function name.  If conversion is
+not possible, an \fBNC_ERANGE\fR error is returned.
+.SH "WRITING AND READING A SLICED ARRAY"
+.LP
+.HP
+\fBint nc_put_vars_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const signed char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const short \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const int \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const long \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const float \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const double \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const unsigned short \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const unsigned int \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const unsigned long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_vars_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], const char * \fIout\fP[])\fR
+
+
+.sp
+These functions are used for \fIstrided output\fP, which is like the
+array section output described above, except that
+the sampling stride (the interval between accessed values) is
+specified for each dimension.
+For an explanation of the sampling stride
+vector, see COMMON ARGUMENTS DESCRIPTIONS below.
+.HP
+\fBint nc_get_vars_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], signed char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], short \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], int \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], long \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], float \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], double \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], unsigned short \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], unsigned int \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], unsigned long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_vars_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], char * \fIin\fP[])\fR
+
+
+.sp
+These functions are used for \fIstrided input\fP, which is like the
+array section input described above, except that 
+the sampling stride (the interval between accessed values) is
+specified for each dimension.
+For an explanation of the sampling stride
+vector, see COMMON ARGUMENTS DESCRIPTIONS below.
+.SH "WRITING AND READING A MAPPED ARRAY"
+.LP
+.HP
+\fBint nc_put_varm_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const char \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const signed char \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const short \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const int \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const long \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const float \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const double \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const unsigned short \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const unsigned int \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const unsigned long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_varm_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, const char * \fIout\fP[])\fR
+
+
+.sp
+These functions are used for \fImapped output\fP, which is like
+strided output described above, except that an additional index mapping
+vector is provided to specify the in-memory arrangement of the data
+values.
+For an explanation of the index
+mapping vector, see COMMON ARGUMENTS DESCRIPTIONS below.
+.HP
+\fBint nc_get_varm_text(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, char \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_uchar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_schar(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, signed char \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_short(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, short \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_int(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, int \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_long(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, long \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_float(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, float \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_double(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, double \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_ubyte(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_ushort(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, unsigned short \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_uint(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, unsigned int \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_int64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_uint64(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, unsigned long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_varm_string(int \fIncid\fP, int \fIvarid\fP, const size_t \fIstart\fP[], const size_t \fIcount\fP[], const size_t \fIstride\fP[], \fIimap\fP, char * \fIin\fP[])\fR
+
+
+.sp
+These functions are used for \fImapped input\fP, which is like
+strided input described above, except that an additional index mapping
+vector is provided to specify the in-memory arrangement of the data
+values.
+For an explanation of the index
+mapping vector, see COMMON ARGUMENTS DESCRIPTIONS below.
+.SH "ATTRIBUTES"
+.LP
+.HP
+\fBint nc_put_att_text(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const char \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_uchar(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_schar(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const signed char \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_short(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const short \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_int(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const int \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_long(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const long \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_float(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const float \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_double(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const double \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_ubyte(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const unsigned char \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_ushort(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const unsigned short \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_uint(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const unsigned int \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_int64(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_uint64(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const unsigned long long \fIout\fP[])\fR
+.HP
+\fBint nc_put_att_string(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, const char * \fIout\fP[])\fR
+
+
+.HP
+\fBint nc_put_att(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type \fIxtype\fP, size_t \fIlen\fP, void * \fIip\fP)\fR
+.HP
+\fBint nc_get_att(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], void ** \fIip\fP)\fR
+.sp
+Unlike variables, attributes do not have 
+separate functions for defining and writing values.
+This family of functions defines a new attribute with a value or changes
+the value of an existing attribute.
+If the attribute is new, or if the space required to
+store the attribute value is greater than before,
+the netCDF dataset must be in define mode.
+The parameter \fIlen\fP is the number of values from \fIout\fP to transfer.
+It is often one, except that for
+\fBnc_put_att_text(\|)\fR it will usually be
+\fBstrlen(\fIout\fP)\fR.
+.sp
+For these functions, the type component of the function name refers to
+the in-memory type of the value, whereas the \fIxtype\fP argument refers to the
+external type for storing the value.  An \fBNC_ERANGE\fR
+error results if
+a conversion between these types is not possible.  In this case the value
+is represented with the appropriate fill-value for the associated 
+external type.
+.HP
+\fBint nc_inq_attname(int \fIncid\fP, int \fIvarid\fP, int \fIattnum\fP, char \fIname\fP[])\fR
+.sp
+Gets the
+name of an attribute, given its variable ID and attribute number.
+This function is useful in generic applications that
+need to get the names of all the attributes associated with a variable,
+since attributes are accessed by name rather than number in all other
+attribute functions.  The number of an attribute is more volatile than
+the name, since it can change when other attributes of the same variable
+are deleted.  The attributes for each variable are numbered
+from 0 (the first attribute) to
+\fInvatts\fP-1,
+where \fInvatts\fP is
+the number of attributes for the variable, as returned from a call to
+\fBnc_inq_varnatts(\|)\fR.
+If the \fIname\fP parameter is a \fBNULL\fR pointer, no name will be
+returned and no space need be allocated.
+.HP
+\fBint nc_inq_att(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type* \fIxtype\fP, size_t* \fIlen\fP)\fR
+.HP
+\fBint nc_inq_attid(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], int* \fIattnum\fP)\fR
+.HP
+\fBint nc_inq_atttype(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], nc_type* \fIxtype\fP)\fR
+.HP
+\fBint nc_inq_attlen(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], size_t* \fIlen\fP)\fR
+.sp
+These functions return information about a netCDF attribute,
+given its variable ID and name.  The information returned is the
+external type in \fIxtype\fP
+and the number of elements in the attribute as \fIlen\fP.
+If any of the return arguments is a \fBNULL\fR pointer,
+the specified information will not be returned.
+.HP
+\fBint nc_copy_att(int \fIncid\fP, int \fIvarid_in\fP, const char \fIname\fP[], int \fIncid_out\fP, int \fIvarid_out\fP)\fR
+.sp
+Copies an
+attribute from one netCDF dataset to another.  It can also be used to
+copy an attribute from one variable to another within the same netCDF.
+\fIncid_in\fP is the netCDF ID of an input netCDF dataset from which the
+attribute will be copied.
+\fIvarid_in\fP
+is the ID of the variable in the input netCDF dataset from which the
+attribute will be copied, or \fBNC_GLOBAL\fR
+for a global attribute.
+\fIname\fP
+is the name of the attribute in the input netCDF dataset to be copied.
+\fIncid_out\fP
+is the netCDF ID of the output netCDF dataset to which the attribute will be 
+copied.
+It is permissible for the input and output netCDF ID's to be the same.  The
+output netCDF dataset should be in define mode if the attribute to be
+copied does not already exist for the target variable, or if it would
+cause an existing target attribute to grow.
+\fIvarid_out\fP
+is the ID of the variable in the output netCDF dataset to which the attribute will
+be copied, or \fBNC_GLOBAL\fR to copy to a global attribute.
+.HP
+\fBint nc_rename_att(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], const char \fInewname\fP[])\fR
+.sp
+Changes the
+name of an attribute.  If the new name is longer than the original name,
+the netCDF must be in define mode.  You cannot rename an attribute to
+have the same name as another attribute of the same variable.
+\fIname\fP is the original attribute name.
+\fInewname\fP
+is the new name to be assigned to the specified attribute.  If the new name
+is longer than the old name, the netCDF dataset must be in define mode.
+.HP
+\fBint nc_del_att(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[])\fR
+.sp
+Deletes an attribute from a netCDF dataset.  The dataset must be in
+define mode.
+.HP
+\fBint nc_get_att_text(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], char \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_uchar(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_schar(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], signed char \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_short(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], short \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_int(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], int \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_long(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], long \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_float(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], float \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_double(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], double \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_ubyte(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], unsigned char \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_ushort(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], unsigned short \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_uint(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], unsigned int \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_int64(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_uint64(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], unsigned long long \fIin\fP[])\fR
+.HP
+\fBint nc_get_att_string(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], char * \fIin\fP[])\fR
+
+
+.sp
+Gets the value(s) of a netCDF attribute, given its
+variable ID and name.  Converts from the external type to the type
+specified in
+the function name, if possible, otherwise returns an \fBNC_ERANGE\fR
+error.
+All elements of the vector of attribute
+values are returned, so you must allocate enough space to hold
+them.  If you don't know how much space to reserve, call
+\fBnc_inq_attlen(\|)\fR
+first to find out the length of the attribute.
+.SH "COMMON ARGUMENT DESCRIPTIONS"
+.LP
+In this section we define some common arguments which are used in the 
+"FUNCTION DESCRIPTIONS" section.
+.TP
+int \fIncid\fP
+is the netCDF ID returned from a previous, successful call to
+\fBnc_open(\|)\fR or \fBnc_create(\|)\fR
+.TP
+char \fIname\fP[]
+is the name of a dimension, variable, or attribute. The names of 
+dimensions, variables and attributes consist of arbitrary
+sequences of alphanumeric characters (as well as underscore '_',
+period '.' and hyphen '-'), beginning with a letter or
+underscore. (However names commencing with underscore are reserved for
+system use.) Case is significant in netCDF names. A zero-length name
+is not allowed.
+As an input argument, 
+it shall be a pointer to a 0-terminated string; as an output argument, it 
+shall be the address of a buffer in which to hold such a string.
+The maximum allowable number of characters 
+(excluding the terminating 0) is \fBNC_MAX_NAME\fR.
+.TP
+nc_type \fIxtype\fP
+specifies the external data type of a netCDF variable or attribute and
+is one of the following:
+\fBNC_BYTE\fR, \fBNC_CHAR\fR, \fBNC_SHORT\fR, \fBNC_INT\fR, 
+\fBNC_FLOAT\fR, or \fBNC_DOUBLE\fR.
+These are used to specify 8-bit integers,
+characters, 16-bit integers, 32-bit integers, 32-bit IEEE floating point
+numbers, and 64-bit IEEE floating-point numbers, respectively.
+(\fBNC_INT\fR corresponds to \fBNC_LONG\fR in version 2, to specify a
+32-bit integer).
+.TP
+int \fIdimids\fP[]
+is a vector of dimension ID's and defines the shape of a netCDF variable.
+The size of the vector shall be greater than or equal to the
+rank (i.e. the number of dimensions) of the variable (\fIndims\fP).
+The vector shall be ordered by the speed with which a dimension varies:
+\fIdimids\fP[\fIndims\fP-1]
+shall be the dimension ID of the most rapidly
+varying dimension and
+\fIdimids\fP[0]
+shall be the dimension ID of the most slowly
+varying dimension.
+The maximum possible number of
+dimensions for a variable is given by the symbolic constant
+\fBNC_MAX_VAR_DIMS\fR.
+.TP
+int \fIdimid\fP
+is the ID of a netCDF dimension.
+netCDF dimension ID's are allocated sequentially from the 
+non-negative
+integers beginning with 0.
+.TP
+int \fIndims\fP
+is either the total number of dimensions in a netCDF dataset or the rank
+(i.e. the number of dimensions) of a netCDF variable.
+The value shall not be negative or greater than the symbolic constant 
+\fBNC_MAX_VAR_DIMS\fR.
+.TP
+int \fIvarid\fP
+is the ID of a netCDF variable or (for the attribute-access functions) 
+the symbolic constant
+\fBNC_GLOBAL\fR,
+which is used to reference global attributes.
+netCDF variable ID's are allocated sequentially from the 
+non-negative
+integers beginning with 0.
+.TP
+int* \fInatts\fP
+is the number of global attributes in a netCDF dataset  for the
+\fBnc_inquire(\|)\fR
+function or the number
+of attributes associated with a netCDF variable for the
+\fBnc_varinq(\|)\fR
+function.
+.TP
+const size_t \fIindex\fP[]
+specifies the indicial coordinates of the netCDF data value to be accessed.
+The indices start at 0;
+thus, for example, the first data value of a
+two-dimensional variable is (0,0).
+The size of the vector shall be at least the rank of the associated
+netCDF variable and its elements shall correspond, in order, to the
+variable's dimensions.
+.TP
+const size_t \fIstart\fP[]
+specifies the starting point
+for accessing a netCDF variable's data values
+in terms of the indicial coordinates of 
+the corner of the array section.
+The indices start at 0;
+thus, the first data
+value of a variable is (0, 0, ..., 0).
+The size of the vector shall be at least the rank of the associated
+netCDF variable and its elements shall correspond, in order, to the
+variable's dimensions.
+.TP
+const size_t \fIcount\fP[]
+specifies the number of indices selected along each dimension of the
+array section.
+Thus, to access a single value, for example, specify \fIcount\fP as
+(1, 1, ..., 1).
+Note that, for strided I/O, this argument must be adjusted
+to be compatible with the \fIstride\fP and \fIstart\fP arguments so that 
+the interaction of the
+three does not attempt to access an invalid data co-ordinate.
+The elements of the
+\fIcount\fP vector correspond, in order, to the variable's dimensions.
+.TP
+const size_t \fIstride\fP[]
+specifies the sampling interval along each dimension of the netCDF
+variable.   The elements of the stride vector correspond, in order,
+to the netCDF variable's dimensions (\fIstride\fP[0])
+gives the sampling interval along the most slowly 
+varying dimension of the netCDF variable).  Sampling intervals are
+specified in type-independent units of elements (a value of 1 selects
+consecutive elements of the netCDF variable along the corresponding
+dimension, a value of 2 selects every other element, etc.).
+A \fBNULL\fR stride argument is treated as (1, 1, ... , 1).
+.TP
+\fIimap\fP
+specifies the mapping between the dimensions of a netCDF variable and
+the in-memory structure of the internal data array.  The elements of
+the index mapping vector correspond, in order, to the netCDF variable's
+dimensions (\fIimap\fP[0] gives the distance
+between elements of the internal array corresponding to the most
+slowly varying dimension of the netCDF variable).
+Distances between elements are specified in type-independent units of
+elements (the distance between internal elements that occupy adjacent
+memory locations is 1 and not the element's byte-length as in netCDF 2).
+A \fBNULL\fR pointer means the memory-resident values have
+the same structure as the associated netCDF variable.
+.SH "VARIABLE PREFILLING"
+.LP
+By default, the netCDF interface sets the values of
+all newly-defined variables of finite length (i.e. those that do not have
+an unlimited, dimension) to the type-dependent fill-value associated with each 
+variable.  This is done when \fBnc_enddef(\|)\fR
+is called.  The
+fill-value for a variable may be changed from the default value by
+defining the attribute `\fB_FillValue\fR' for the variable.  This
+attribute must have the same type as the variable and be of length one.
+.LP
+Variables with an unlimited dimension are also prefilled, but on
+an `as needed' basis.  For example, if the first write of such a
+variable is to position 5, then
+positions
+0 through 4
+(and no others)
+would be set to the fill-value at the same time.
+.LP
+This default prefilling of data values may be disabled by
+or'ing the
+\fBNC_NOFILL\fR
+flag into the mode parameter of \fBnc_open(\|)\fR or \fBnc_create(\|)\fR,
+or, by calling the function \fBnc_set_fill(\|)\fR
+with the argument \fBNC_NOFILL\fR.
+For variables that do not use the unlimited dimension,
+this call must
+be made before
+\fBnc_enddef(\|)\fR.
+For variables that
+use the unlimited dimension, this call
+may be made at any time.
+.LP
+One can obtain increased performance of the netCDF interface by using 
+this feature, but only at the expense of requiring the application to set
+every single data value.  The performance
+enhancing behavior of this function is dependent on the particulars of
+the implementation and dataset format.
+The flag value controlled by \fBnc_set_fill(\|)\fR
+is per netCDF ID,
+not per variable or per write. 
+Allowing this to change affects the degree to which
+a program can be effectively parallelized.
+Given all of this, we state that the use
+of this feature may not be available (or even needed) in future
+releases. Programmers are cautioned against heavy reliance upon this
+feature.
+.HP
+\fBint nc_setfill(int \fIncid\fP, int \fIfillmode\fP, int* \fIold_fillemode\fP)\fR
+.sp
+(Corresponds to \fBncsetfill(\|)\fR in version 2)
+.sp
+Determines whether or not variable prefilling will be done (see 
+above).
+The netCDF dataset shall be writable.
+\fIfillmode\fP is either \fBNC_FILL\fR
+to enable prefilling (the
+default) or \fBNC_NOFILL\fR
+to disable prefilling.
+This function returns the previous setting in \fIold_fillmode\fP.
+
+.HP
+.SH "MPP FUNCTION DESCRIPTIONS"
+.LP
+Additional functions for use on SGI/Cray MPP machines (_CRAYMPP).
+These are used to set and inquire which PE is the base for MPP
+for a particular netCDF. These are only relevant when
+using the SGI/Cray ``global''
+Flexible File I/O layer and desire to have
+only a subset of PEs to open the specific netCDF file.
+For technical reasons, these functions are available on all platforms.
+On a platform other than SGI/Cray MPP, it is as if
+only processor available were processor 0.
+.LP
+To use this feature, you need to specify a communicator group and call
+\fBglio_group_mpi(\|)\fR or \fBglio_group_shmem(\|)\fR prior to the netCDF
+\fBnc_open(\|)\fR and \fBnc_create(\|)\fR calls.
+.HP
+\fBint nc__create_mp(const char \fIpath\fP[], int \fIcmode\fP, size_t \fIinitialsize\fP, int \fIpe\fP, size_t* \fIchunksize\fP, int* \fIncid\fP)\fR
+.sp
+Like \fBnc__create(\|)\fR but allows the base PE to be set.
+.sp
+The argument \fIpe\fP sets the base PE at creation time. In the MPP
+environment, \fBnc__create(\|)\fR and \fBnc_create(\|)\fR set the base PE to processor
+zero by default.
+.HP
+\fBint nc__open_mp(const char \fIpath\fP[], int \fImode\fP, int \fIpe\fP, size_t* \fIchunksize\fP, int* \fIncid\fP)\fR
+.sp
+Like \fBnc__open(\|)\fR but allows the base PE to be set.
+The argument \fIpe\fP sets the base PE at creation time. In the MPP
+environment, \fBnc__open(\|)\fR and \fBnc_open(\|)\fR set the base PE to processor
+zero by default.
+.HP
+\fBint nc_inq_base_pe(int \fIncid\fP, int* \fIpe\fP)\fR
+.sp
+Inquires of the netCDF dataset which PE is being used as the base for MPP use.
+This is safe to use at any time.
+.HP
+\fBint nc_set_base_pe(int \fIncid\fP, int \fIpe\fP)\fR
+.sp
+Resets the base PE for the netCDF dataset.
+Only perform this operation when the affected communicator group
+synchronizes before and after the call.
+This operation is very risky and should only be contemplated
+under only the most extreme cases.
+.SH "ENVIRONMENT VARIABLES"
+.TP 4
+.B NETCDF_FFIOSPEC
+Specifies the Flexible File I/O buffers for netCDF I/O when executing
+under the UNICOS operating system (the variable is ignored on other
+operating systems).
+An appropriate specification can greatly increase the efficiency of 
+netCDF I/O -- to the extent that it can actually surpass FORTRAN binary 
+I/O.
+This environment variable has been made a little more generalized,
+such that other FFIO option specifications can now be added.
+The default specification is \fBbufa:336:2\fP,
+unless a current FFIO specification is in operation,
+which will be honored.
+See UNICOS Flexible File I/O for more information.
+.SH "MAILING-LISTS"
+.LP
+Both a mailing list and a digest are available for
+discussion of the netCDF interface and announcements about netCDF bugs,
+fixes, and enhancements.
+To begin or change your subscription to either the mailing-list or the
+digest, send one of the following in the body (not
+the subject line) of an email message to "majordomo@unidata.ucar.edu".
+Use your email address in place of \fIjdoe@host.inst.domain\fP.
+.sp
+To subscribe to the netCDF mailing list:
+.RS
+\fBsubscribe netcdfgroup \fIjdoe@host.inst.domain\fR
+.RE
+To unsubscribe from the netCDF mailing list:
+.RS
+\fBunsubscribe netcdfgroup \fIjdoe@host.inst.domain\fR
+.RE
+To subscribe to the netCDF digest:
+.RS
+\fBsubscribe netcdfdigest \fIjdoe@host.inst.domain\fR
+.RE
+To unsubscribe from the netCDF digest:
+.RS
+\fBunsubscribe netcdfdigest \fIjdoe@host.inst.domain\fR
+.RE
+To retrieve the general introductory information for the mailing list:
+.RS
+\fBinfo netcdfgroup\fR
+.RE
+To get a synopsis of other majordomo commands:
+.RS
+\fBhelp\fR
+.RE
+.SH "SEE ALSO"
+.LP
+.BR ncdump (1),
+.BR ncgen (1),
+.BR netcdf (3).
+.LP
+\fInetCDF User's Guide\fP, published
+by the Unidata Program Center, University Corporation for Atmospheric
+Research, located in Boulder, Colorado.
+
+NetCDF home page at http:/www.unidata.ucar.edu/netcdf.
