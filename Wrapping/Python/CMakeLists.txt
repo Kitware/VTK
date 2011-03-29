@@ -122,7 +122,8 @@ SET(VTKPYTHON_LINK_LIBS
   vtkFiltering
   vtkIO
   vtkGraphics
-  vtkImaging )
+  vtkImaging 
+  vtkAMR )
 
 SET (vtkpython_pyc_depends
     vtkCommonPython
@@ -130,10 +131,11 @@ SET (vtkpython_pyc_depends
     vtkIOPython
     vtkGraphicsPython
     vtkImagingPython
+    vtkAMRPython
     )
 
 IF(BORLAND)
-  SET(KITS Common Filtering Graphics IO Imaging)
+  SET(KITS Common Filtering Graphics IO Imaging AMR)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
   ENDIF(VTK_USE_PARALLEL)
