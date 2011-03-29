@@ -146,10 +146,11 @@ static void print_help(FILE *stream, const char *cmd)
     "  --abstract      force abstract class\n"
     "  --vtkobject     vtkObjectBase-derived class\n"
     "  --special       non-vtkObjectBase class\n"
-    "  --hints <file>  hints file\n"
-    "  --types <file>  type hierarchy file\n"
+    "  --hints <file>  the hints file to use\n"
+    "  --types <file>  the type hierarchy file to use\n"
     "  -I <dir>        add an include directory\n"
-    "  -D <macro>      define a preprocessor macro\n",
+    "  -D <macro>      define a preprocessor macro\n"
+    "  -U <macro>      undefine a preprocessor macro\n",
     cmd);
 }
 
