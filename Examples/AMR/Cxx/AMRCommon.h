@@ -27,6 +27,8 @@
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkXMLHierarchicalBoxDataReader.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkUniformGrid.h"
+#include "vtkCell.h"
 
 namespace AMRCommon {
 
@@ -99,7 +101,38 @@ void WriteMultiBlockData( vtkMultiBlockDataSet *mbds, std::string prefix )
   writer->Delete();
 }
 
+//------------------------------------------------------------------------------
+// Constructs a uniform grid instance given the prescribed
+// origin, grid spacing and dimensions.
+vtkUniformGrid* GetGrid( double* origin,double* h,int* ndim )
+{
+  vtkUniformGrid *grd = vtkUniformGrid::New();
+  grd->Initialize();
+  grd->SetOrigin( origin );
+  grd->SetSpacing( h );
+  grd->SetDimensions( ndim );
+  return grd;
+}
 
+//------------------------------------------------------------------------------
+// Computes the cell center for the cell corresponding to cellIdx w.r.t.
+// the given grid. The cell center is stored in the supplied buffer c.
+void ComputeCellCenter( vtkUniformGrid *grid, const int cellIdx, double c[3] )
+{
+  assert( "pre: grid != NULL" && (grid != NULL) );
+  assert( "pre: Null cell center buffer" && (c != NULL)  );
+  assert( "pre: cellIdx in bounds" &&
+          (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells() ) );
+
+  vtkCell *myCell = grid->GetCell( cellIdx );
+  assert( "post: cell is NULL" && (myCell != NULL) );
+
+  double pCenter[3];
+  double *weights = new double[ myCell->GetNumberOfPoints() ];
+  int subId       = myCell->GetParametricCenter( pCenter );
+  myCell->EvaluateLocation( subId,pCenter,c,weights );
+  delete [] weights;
+}
 
 
 } // END namespace
