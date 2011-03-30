@@ -270,6 +270,12 @@ public:
   void Grow(int byN);
 
   // Description:
+  // Grows the box within the given bounds. Ensures that the
+  // grown box will not fall outside the integer bounds of the
+  // root box.
+  void GrowWithinBounds( int byN, vtkAMRBox &root );
+
+  // Description:
   // Shrinks the box in all directions.
   void Shrink(int byN);
 

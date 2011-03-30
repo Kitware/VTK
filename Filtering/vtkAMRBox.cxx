@@ -752,6 +752,43 @@ void vtkAMRBox::Grow(int byN)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAMRBox::GrowWithinBounds( int byN, vtkAMRBox &rootBox )
+{
+   if( this->Empty())
+     return;
+
+   int lo[3];
+   int hi[3];
+
+   this->GetLoCorner( lo );
+   this->GetHiCorner( hi );
+
+   for( int q=0; q < this->Dimension; ++q )
+     {
+
+       for( int i=0; i < byN; ++i )
+         {
+
+          if( lo[q]-1 >= 0 )
+            {
+              lo[q] = lo[q]-1;
+              this->NG[q*2]++;
+            }
+          if( hi[q]+1 <= rootBox.GetHiCorner()[q] )
+            {
+              hi[q] = hi[q]+1;
+              this->NG[q*2+1]++;
+            }
+
+         } // END for N
+
+     } // END for all dimensions
+
+   this->SetDimensions(lo,hi);
+
+}
+
+//-----------------------------------------------------------------------------
 void vtkAMRBox::Shrink(int byN)
 {
   if (this->Empty())
