@@ -16,8 +16,12 @@
 // .SECTION Description
 // vtkExtractDataSets accepts a vtkHierarchicalBoxDataSet as input and extracts
 // different datasets from different levels. The output is
-// vtkHierarchicalBoxDataSet with same structure as the input with only the
-// selected datasets passed through. 
+// vtkMultiBlockDataSet of vtkMultiPiece datasets. Each block corresponds to
+// a level in the vktHierarchicalBoxDataSet. Individual datasets, within a level,
+// are stored in a vtkMultiPiece dataset.
+//
+// .SECTION See Also
+// vtkHierarchicalBoxDataSet, vtkMultiBlockDataSet vtkMultiPieceDataSet
 
 #ifndef __vtkExtractDataSets_h
 #define __vtkExtractDataSets_h
