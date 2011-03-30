@@ -319,6 +319,8 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
   int count  = 0;
   int pntIdx = -1;
 
+  vtkIntArray *dlevel =
+   vtkIntArray::SafeDownCast( ug->GetCellData()->GetArray( "DonorLevel" ) );
   switch( numNodesPerCell )
     {
     case 4: /* Form Quad */
@@ -326,25 +328,25 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
         return false;
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 3, pntIdx );
       break;
@@ -354,25 +356,25 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
 
       /* Hex base */
       pntIdx        = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2  )
         ++count;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 3, pntIdx );
 
@@ -382,25 +384,25 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
       ijkpnt[1] = ijk[1];
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 4, pntIdx );
 
       ijkpnt[0]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 5, pntIdx );
 
       ijkpnt[1]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 6, pntIdx );
 
       ijkpnt[0]--;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) )
+      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
         ++count;
       pntIdList->InsertId( 7, pntIdx );
       break;
@@ -436,8 +438,8 @@ bool vtkAMRDualMeshExtractor::ProcessCellDual(
    vtkIntArray::SafeDownCast( ug->GetCellData()->GetArray("DonorLevel" ) );
 
   // If the cell has no donor, then ignore it
-//  if( dlevel->GetValue( cellIdx ) == -2 )
-//    return false;
+  if( dlevel->GetValue( cellIdx ) == -2 )
+    return false;
 
   if( ug->IsCellVisible( cellIdx ) )
     return true;

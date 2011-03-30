@@ -317,13 +317,13 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
               vtkUniformGrid *extrudedGrid = this->GetExtrudedGrid( myGrid );
               assert( "post: extrudedGrid != NULL" && (extrudedGrid != NULL) );
 
-              vtkAMRBox globalBox;
-              double h[3];
-              myBox.GetGridSpacing( h );
-              this->AMRDataSet->GetGlobalAMRBoxWithSpacing( globalBox, h );
-              myBox.GrowWithinBounds( this->NumberOfGhostLayers, globalBox );
+//              vtkAMRBox globalBox;
+//              double h[3];
+//              myBox.GetGridSpacing( h );
+//              this->AMRDataSet->GetGlobalAMRBoxWithSpacing( globalBox, h );
+//              myBox.GrowWithinBounds( this->NumberOfGhostLayers, globalBox );
 
-//              myBox.Grow(this->NumberOfGhostLayers);
+              myBox.Grow(this->NumberOfGhostLayers);
 
               this->ExtrudedData->SetDataSet(
                currentLevel,dataIdx,myBox,extrudedGrid);
@@ -418,9 +418,6 @@ void vtkAMRDataTransferFilter::FindDonors(
           donorLevelInfo->SetValue( rcverIdx, -2 );
           donorCellInfo->SetValue( rcverIdx, -2 );
           donorGridInfo->SetValue( rcverIdx, 0 );
-          donorCentroid->SetComponent(rcverIdx, 0, 0.0 );
-          donorCentroid->SetComponent(rcverIdx, 1, 0.0 );
-          donorCentroid->SetComponent(rcverIdx, 2, 0.0 );
         }
 
     } // END for all receivers
@@ -518,7 +515,16 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
 
           // Skip cells that are outside the boundary
           if( donorLevel == -2 )
-            continue;
+            {
+              // Setting the donor level on the recever grid side to -2
+              // tells downstream filters, e.g., the dual-mesh-extractor
+              // that this cell is probably out-of-bounds or more precisely
+              // that no donor cell was found!
+              vtkIntArray *dlevel =
+               vtkIntArray::SafeDownCast(receiverCD->GetArray("DonorLevel"));
+              dlevel->SetValue( rcvCellIdx, -2 );
+              continue;
+            }
 
           int donorGridLevel    = -1;
           int donorGridBlockIdx = -1;
