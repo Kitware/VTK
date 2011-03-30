@@ -427,8 +427,17 @@ bool vtkAMRDualMeshExtractor::ProcessCellDual(
            (ug->GetPointData() != NULL) );
   assert( "pre: input grid must have PointOwnership information" &&
            ug->GetPointData()->HasArray("PointOwnership") );
+  assert( "pre: input grid must have DonorLevel information" &&
+           ug->GetCellData()->HasArray("DonorLevel") );
   assert( "pre: cell index out-of-bounds!" &&
           ( (cellIdx >= 0) && (cellIdx < ug->GetNumberOfCells() ) ) );
+
+  vtkIntArray  *dlevel =
+   vtkIntArray::SafeDownCast( ug->GetCellData()->GetArray("DonorLevel" ) );
+
+  // If the cell has no donor, then ignore it
+//  if( dlevel->GetValue( cellIdx ) == -2 )
+//    return false;
 
   if( ug->IsCellVisible( cellIdx ) )
     return true;
@@ -437,6 +446,7 @@ bool vtkAMRDualMeshExtractor::ProcessCellDual(
       vtkPointData *PD = ug->GetPointData();
       vtkIntArray  *PO =
        vtkIntArray::SafeDownCast( PD->GetArray("PointOwnership") );
+
       vtkIdList *ptIds = vtkIdList::New();
       ug->GetCellPoints( cellIdx, ptIds );
       for( int i=0; i < ptIds->GetNumberOfIds(); ++i )

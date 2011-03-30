@@ -313,19 +313,18 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
             }
           else
             {
-//              std::ostringstream oss;
-//              oss.str(""); oss.clear();
-//              oss << "InitialGrid_" << currentLevel << "_" << dataIdx;
-//              this->WriteGrid( myGrid, oss.str() );
 
               vtkUniformGrid *extrudedGrid = this->GetExtrudedGrid( myGrid );
               assert( "post: extrudedGrid != NULL" && (extrudedGrid != NULL) );
 
-//              oss.str(""); oss.clear();
-//              oss << "ExtrudedGrid_" << currentLevel << "_" << dataIdx;
-//              this->WriteGrid( extrudedGrid, oss.str() );
+              vtkAMRBox globalBox;
+              double h[3];
+              myBox.GetGridSpacing( h );
+              this->AMRDataSet->GetGlobalAMRBoxWithSpacing( globalBox, h );
+              myBox.GrowWithinBounds( this->NumberOfGhostLayers, globalBox );
 
-              myBox.Grow(this->NumberOfGhostLayers);
+//              myBox.Grow(this->NumberOfGhostLayers);
+
               this->ExtrudedData->SetDataSet(
                currentLevel,dataIdx,myBox,extrudedGrid);
               extrudedGrid->Delete();
@@ -412,6 +411,17 @@ void vtkAMRDataTransferFilter::FindDonors(
             }
 
         } // END if the cell is found in this grid
+      else
+        {
+          // -2 indicates that this node is orphaned, i.e., no donor cell
+          // was found.
+          donorLevelInfo->SetValue( rcverIdx, -2 );
+          donorCellInfo->SetValue( rcverIdx, -2 );
+          donorGridInfo->SetValue( rcverIdx, 0 );
+          donorCentroid->SetComponent(rcverIdx, 0, 0.0 );
+          donorCentroid->SetComponent(rcverIdx, 1, 0.0 );
+          donorCentroid->SetComponent(rcverIdx, 2, 0.0 );
+        }
 
     } // END for all receivers
 
@@ -506,11 +516,16 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
           int donorCell             = donorCellInfo->GetValue(rcverIdx);
           unsigned int donorGridIdx = donorGridInfo->GetValue(rcverIdx);
 
+          // Skip cells that are outside the boundary
+          if( donorLevel == -2 )
+            continue;
+
           int donorGridLevel    = -1;
           int donorGridBlockIdx = -1;
           vtkAMRGridIndexEncoder::decode(
            donorGridIdx,donorGridLevel,donorGridBlockIdx);
-          assert( "post: donor grid level mismatch!" &&
+
+         assert( "post: donor grid level mismatch!" &&
                   (donorGridLevel==donorLevel));
 
           double dcentroid[3];

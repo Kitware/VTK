@@ -110,7 +110,7 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     void FixGaps( vtkHierarchicalBoxDataSet *amrds,vtkMultiBlockDataSet *dual );
 
     // Description:
-    // This method
+    // This method process the dual mesh at the current level.
     void ProcessDual(
       const unsigned int currentLevel, vtkUnstructuredGrid *dualMesh,
       vtkHierarchicalBoxDataSet *amrData );

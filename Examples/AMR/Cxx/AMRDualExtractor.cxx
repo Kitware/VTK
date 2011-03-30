@@ -55,6 +55,7 @@ int main( int argc, char **argv )
   vtkHierarchicalBoxDataSet *amrData=
     AMRCommon::ReadAMRData( std::string(argv[1] ) );
   AMRCommon::WriteAMRData( amrData, std::string("INPUTAMR") );
+  assert( "AMR dataset is empty!"  && (amrData->GetNumberOfLevels() > 0) );
 
   // STEP 1: Compute intergrid connectivity
   std::cout << "Computing inter-block & inter-process connectivity!\n";
