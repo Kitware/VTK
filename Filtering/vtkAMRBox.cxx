@@ -771,12 +771,12 @@ void vtkAMRBox::GrowWithinBounds( int byN, vtkAMRBox &rootBox )
 
           if( lo[q]-1 >= 0 )
             {
-              lo[q] = lo[q]-1;
+              lo[q]--;
               this->NG[q*2]++;
             }
           if( hi[q]+1 <= rootBox.GetHiCorner()[q] )
             {
-              hi[q] = hi[q]+1;
+              hi[q]++;
               this->NG[q*2+1]++;
             }
 
