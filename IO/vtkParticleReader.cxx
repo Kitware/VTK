@@ -638,15 +638,16 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   ptr = data;
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();  
+  points->SetDataTypeToDouble();
   points->SetNumberOfPoints(length);
-  vtkSmartPointer<vtkFloatArray> array = vtkSmartPointer<vtkFloatArray>::New();  
+  vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
   array->SetName("Scalar");
   vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();  
   
   // Each cell will have 1000 points.  Leave a little extra space just in case.
   // We break up the cell this way so that the render will check for aborts
   // at a reasonable rate.
-  verts->Allocate((int)((float)length * 1.002));
+  verts->Allocate((int)((double)length * 1.002));
   // Keep adding cells until we run out of points.
   ptIdx = 0;
   int cnt = 1;
