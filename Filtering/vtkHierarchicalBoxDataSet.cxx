@@ -484,6 +484,40 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 }
 
 //----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::GetGlobalAMRBoxWithSpacing(
+    vtkAMRBox &box, double h[3] )
+{
+  vtkAMRBox root;
+  this->GetRootAMRBox( root );
+
+  double min[3]; double max[3];
+  root.GetMinBounds( min );
+  root.GetMaxBounds( max );
+
+  int ndim[3];
+  ndim[0]=ndim[1]=ndim[2]=0;
+
+  for(int i=0; i < root.GetDimensionality(); ++i )
+    {
+      // Note -1 is subtracted here because the data
+      // is cell-centered and we downshift to number
+      // from 0.
+      ndim[ i ] = round( (max[i]-min[i])/h[i] )-1;
+    }
+
+  int lo[3];
+  lo[0]=lo[1]=lo[2]=0;
+
+  box.SetDimensionality( root.GetDimensionality() );
+  box.SetDataSetOrigin( min );
+  box.SetGridSpacing( h );
+  box.SetDimensions( lo, ndim );
+  box.SetLevel( 0 );
+  box.SetBlockId( 0 );
+  box.SetProcessId( -1 ); /* any process can compute this block */
+}
+
+//----------------------------------------------------------------------------
 int vtkHierarchicalBoxDataSet::GetMetaData(
     unsigned int level, unsigned int index, vtkAMRBox &box)
 {

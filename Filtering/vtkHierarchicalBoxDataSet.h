@@ -96,6 +96,11 @@ public:
   void GetRootAMRBox( vtkAMRBox &root );
 
   // Description:
+  // This method returns the global AMR box, covering the entire
+  // domain, with the prescribed spacing.
+  void GetGlobalAMRBoxWithSpacing( vtkAMRBox &box, double h[3] );
+
+  // Description:
   // Set the dataset pointer for a given node. This will resize the number of
   // levels and the number of datasets in the level to fit level, id requested. 
   void SetDataSet(unsigned int level, unsigned int id, 
