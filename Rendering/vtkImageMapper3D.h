@@ -39,10 +39,6 @@ class vtkImageProperty;
 class vtkImageData;
 class vtkImageToImageMapper3DFriendship;
 
-#define VTK_IMAGE_DEFAULT  0
-#define VTK_IMAGE_UNDERLAY 1
-#define VTK_IMAGE_OVERLAY  2
-
 class VTK_RENDERING_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
 {
 public:
