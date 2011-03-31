@@ -328,25 +328,33 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
         return false;
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+        return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+        return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+        return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+        return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 3, pntIdx );
       break;
@@ -356,25 +364,33 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
 
       /* Hex base */
       pntIdx        = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ))
         ++count;
       pntIdList->InsertId( 0, pntIdx );
 
       ijkpnt[0]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2  )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 1, pntIdx );
 
       ijkpnt[1]++;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 2, pntIdx );
 
       ijkpnt[0]--;
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 3, pntIdx );
 
@@ -384,25 +400,33 @@ bool vtkAMRDualMeshExtractor::GetCellIds(
       ijkpnt[1] = ijk[1];
 
       pntIdx       = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 4, pntIdx );
 
       ijkpnt[0]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 5, pntIdx );
 
       ijkpnt[1]++;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 6, pntIdx );
 
       ijkpnt[0]--;
       pntIdx = vtkStructuredData::ComputePointId( dims, ijkpnt );
-      if( !ug->IsCellVisible( pntIdx ) || dlevel->GetValue(pntIdx)!=-2 )
+      if( dlevel->GetValue(pntIdx) == -2 )
+         return false;
+      if( !ug->IsCellVisible( pntIdx ) )
         ++count;
       pntIdList->InsertId( 7, pntIdx );
       break;
