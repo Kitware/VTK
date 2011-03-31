@@ -96,7 +96,8 @@ void vtkOpenGLImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 
 //----------------------------------------------------------------------------
 // Render the backing polygon
-void vtkOpenGLImageResliceMapper::RenderBackingPolygon(vtkRenderer *ren)
+void vtkOpenGLImageResliceMapper::RenderBackingPolygon(
+  vtkRenderer *vtkNotUsed(ren))
 {
   if (this->NCoords)
     {
