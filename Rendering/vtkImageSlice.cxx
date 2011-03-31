@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage.cxx
+  Module:    vtkImageSlice.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -42,12 +42,36 @@ public:
     {
     mapper->InRender = inRender;
     }
+  static void SetStackedImagePass(vtkImageMapper3D *mapper, int pass)
+    {
+    switch (pass)
+      {
+      case 0:
+        mapper->MatteEnable = true;
+        mapper->ColorEnable = false;
+        mapper->DepthEnable = false;
+        break;
+      case 1:
+        mapper->MatteEnable = false;
+        mapper->ColorEnable = true;
+        mapper->DepthEnable = false;
+        break;
+      case 2:
+        mapper->MatteEnable = false;
+        mapper->ColorEnable = false;
+        mapper->DepthEnable = true;
+        break;
+      default:
+        mapper->MatteEnable = true;
+        mapper->ColorEnable = true;
+        mapper->DepthEnable = true;
+        break;
+      }
+    }
+
 };
 
 //----------------------------------------------------------------------------
-// Creates a Volume with the following defaults: origin(0,0,0)
-// position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0).
 vtkImageSlice::vtkImageSlice()
 {
   this->Mapper = NULL;
@@ -55,7 +79,6 @@ vtkImageSlice::vtkImageSlice()
 }
 
 //----------------------------------------------------------------------------
-// Destruct a volume
 vtkImageSlice::~vtkImageSlice()
 {
   if (this->Property)
@@ -410,6 +433,16 @@ unsigned long vtkImageSlice::GetRedrawMTime()
     }
 
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSlice::SetStackedImagePass(int pass)
+{
+  if (this->Mapper)
+    {
+    vtkImageToImageMapper3DFriendship::SetStackedImagePass(
+      this->Mapper, pass);
+    }
 }
 
 //----------------------------------------------------------------------------

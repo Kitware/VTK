@@ -120,6 +120,16 @@ protected:
   // Get the current slice as the one closest to the focal point.
   int GetSliceFromCamera(vtkMatrix4x4 *propMatrix, vtkCamera *camera);
 
+  // Description:
+  // Get the dimension indices according to the orientation.
+  static void GetDimensionIndices(int orientation, int &xdim, int &ydim);
+
+  // Description:
+  // Do a checkerboard pattern to the alpha of an RGBA image
+  void CheckerboardImage(
+  unsigned char *data, int xsize, int ysize,
+  const double imageSpacing[3], vtkImageProperty *property);
+
   int SliceNumber;
   int SliceNumberMinValue;
   int SliceNumberMaxValue;

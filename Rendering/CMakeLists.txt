@@ -78,7 +78,9 @@ SET( Kit_SRCS
   vtkImageProperty.cxx
   vtkImageResliceMapper.cxx
   vtkImageSlice.cxx
+  vtkImageSliceCollection.cxx
   vtkImageSliceMapper.cxx
+  vtkImageStack.cxx
   vtkImageViewer2.cxx
   vtkImageViewer.cxx
   vtkImagingFactory.cxx
