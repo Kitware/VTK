@@ -57,13 +57,20 @@ protected:
   ~vtkOpenGLImageResliceMapper();
 
   // Description:
-  // Load the texture and geometry.
-  void Load(vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property);
+  // Call the OpenGL code that does color and lighting.
+  void RenderColorAndLighting(
+    double red, double green, double blue,
+    double alpha, double ambient, double diffuse);
+
+  // Description:
+  // Render an opaque polygon behind the image.  This is also used
+  // in multi-pass rendering to render into the depth buffer.
+  void RenderBackingPolygon(vtkRenderer *ren);
 
   // Description:
   // Non-recursive internal method, generate a single texture
   // and its corresponding geometry.
-  void InternalLoad(
+  void RenderTexturedPolygon(
     vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
@@ -89,11 +96,7 @@ protected:
   vtkTimeStamp LoadTime;
   long Index; // OpenGL ID for texture or display list
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
-
-  double Coords[18];
-  double TCoords[12];
-  int NCoords;
-  
+ 
   int TextureSize[2];
   int TextureBytesPerPixel;
 

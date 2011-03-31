@@ -19,9 +19,7 @@
 // this layer number that determines the compositing order: images with
 // a higher layer number are drawn over top of images with a lower layer
 // number.  The image stack has a SetActiveLayer method for controlling
-// which layer to use for interaction and picking.  The vtkImageStack
-// does not behave like an assembly, its matrix is always identical to
-// that of its currently active image.
+// which layer to use for interaction and picking.
 // .SECTION Thanks
 // Thanks to David Gobbi at the Seaman Family MR Centre and Dept. of Clinical
 // Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
@@ -36,6 +34,7 @@
 class vtkImageSliceCollection;
 class vtkImageProperty;
 class vtkImageMapper3D;
+class vtkCollection;
 
 class VTK_RENDERING_EXPORT vtkImageStack : public vtkImageSlice
 {
@@ -113,6 +112,9 @@ protected:
   void SetMapper(vtkImageMapper3D *mapper);
   void SetProperty(vtkImageProperty *property);
 
+  void PokeMatrices(vtkMatrix4x4 *matrix);
+
+  vtkCollection *ImageMatrices;
   vtkImageSliceCollection *Images;
   int ActiveLayer;
 

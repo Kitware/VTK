@@ -44,7 +44,6 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->DefaultLookupTable->SetVectorModeToRGBColors();
 
   this->Border = 0;
-  this->RenderType = VTK_IMAGE_DEFAULT;
 
   this->SlicePlane = vtkPlane::New();
   this->SliceFacesCamera = 0;
@@ -54,9 +53,9 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->CurrentProp = 0;
   this->InRender = false;
 
-  this->RenderTexture = true;
-  this->RenderDepth = true;
-  this->RenderColor = true;
+  this->MatteEnable = true;
+  this->ColorEnable = true;
+  this->DepthEnable = true;
 
   this->DataOrigin[0] = 0.0;
   this->DataOrigin[1] = 0.0;
@@ -148,21 +147,6 @@ int vtkImageMapper3D::ProcessRequest(
 }
 
 //----------------------------------------------------------------------------
-const char *vtkImageMapper3D::GetRenderTypeAsString()
-{
-  switch (this->RenderType)
-    {
-    case VTK_IMAGE_OVERLAY:
-      return "Overlay";
-    case VTK_IMAGE_UNDERLAY:
-      return "Underlay";
-    case VTK_IMAGE_DEFAULT:
-      return "Default";
-    }
-  return "";
-}
-
-//----------------------------------------------------------------------------
 void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -173,7 +157,6 @@ void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SliceFacesCamera: "
      << (this->SliceFacesCamera ? "On\n" : "Off\n");
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
-  os << indent << "RenderType: " << this->GetRenderTypeAsString() << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -243,7 +226,7 @@ void vtkImageMapper3DComputeMatrix(vtkProp *prop, double mat[16])
     if ( (a = vtkProp3D::SafeDownCast(o)) )
       {
       vtkImageMapper3DComputeMatrix(a, mat);
-      if (a->IsA("vtkAssembly"))
+      if (a->IsA("vtkAssembly") || a->IsA("vtkImageStack"))
         {
         vtkMatrix4x4::Multiply4x4(mat, *propmat->Element, mat);
         }
@@ -303,7 +286,7 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
 
 //----------------------------------------------------------------------------
 // Subdivide the image until the pieces fit into texture memory
-void vtkImageMapper3D::RecursiveLoad(
+void vtkImageMapper3D::RecursiveRenderTexturedPolygon(
   vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
@@ -319,7 +302,8 @@ void vtkImageMapper3D::RecursiveLoad(
   if (this->TextureSizeOK(textureSize))
     {
     // We can fit it - render
-    this->InternalLoad(ren, prop, property, input, extent, recursive);
+    this->RenderTexturedPolygon(
+      ren, prop, property, input, extent, recursive);
     }
 
   // If the texture does not fit, then subdivide and render
@@ -348,16 +332,18 @@ void vtkImageMapper3D::RecursiveLoad(
     // Render each half recursively
     subExtent[idx*2] = extent[idx*2];
     subExtent[idx*2 + 1] = extent[idx*2] + tsize - 1;
-    this->RecursiveLoad(ren, prop, property, input, subExtent, true);
+    this->RecursiveRenderTexturedPolygon(
+      ren, prop, property, input, subExtent, true);
 
     subExtent[idx*2] = subExtent[idx*2] + tsize;
     subExtent[idx*2 + 1] = extent[idx*2 + 1];
-    this->RecursiveLoad(ren, prop, property, input, subExtent, true);
+    this->RecursiveRenderTexturedPolygon(
+      ren, prop, property, input, subExtent, true);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::InternalLoad(
+void vtkImageMapper3D::RenderTexturedPolygon(
   vtkRenderer *, vtkProp3D *, vtkImageProperty *,
   vtkImageData *, int [6], bool)
 {
@@ -1147,20 +1133,23 @@ void vtkImageMapper3D::MakeTextureGeometry(
     coords[9 + ydim] += 0.5*spacing[ydim];
     }
 
-  // compute the tcoords
-  double textureBorder = 0.5*(border == 0);
+  if (tcoords)
+    {
+    // compute the tcoords
+    double textureBorder = 0.5*(border == 0);
 
-  tcoords[0] = textureBorder/textureSize[0];
-  tcoords[1] = textureBorder/textureSize[1];
+    tcoords[0] = textureBorder/textureSize[0];
+    tcoords[1] = textureBorder/textureSize[1];
 
-  tcoords[2] = (imageSize[0] - textureBorder)/textureSize[0];
-  tcoords[3] = tcoords[1];
+    tcoords[2] = (imageSize[0] - textureBorder)/textureSize[0];
+    tcoords[3] = tcoords[1];
 
-  tcoords[4] = tcoords[2];
-  tcoords[5] = (imageSize[1] - textureBorder)/textureSize[1];
+    tcoords[4] = tcoords[2];
+    tcoords[5] = (imageSize[1] - textureBorder)/textureSize[1];
 
-  tcoords[6] = tcoords[0];
-  tcoords[7] = tcoords[5];
+    tcoords[6] = tcoords[0];
+    tcoords[7] = tcoords[5];
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1207,9 +1196,14 @@ void vtkImageMapper3D::GetSlicePlaneInDataCoords(
 
   // Convert to a homogeneous normal in data coords
   normal[3] = -vtkMath::Dot(point, normal);
-  double mat[16];
-  vtkMatrix4x4::Transpose(*propMatrix->Element, mat);
-  vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
+
+  // Transform to data coordinates
+  if (propMatrix)
+    {
+    double mat[16];
+    vtkMatrix4x4::Transpose(*propMatrix->Element, mat);
+    vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
+    }
 
   // Normalize the "normal" part for good measure
   double l = vtkMath::Norm(normal);

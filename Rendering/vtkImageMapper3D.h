@@ -38,7 +38,6 @@ class vtkImageSlice;
 class vtkImageProperty;
 class vtkImageData;
 class vtkImageToImageMapper3DFriendship;
-class vtkImageToImageStackFriendship;
 
 #define VTK_IMAGE_DEFAULT  0
 #define VTK_IMAGE_UNDERLAY 1
@@ -66,17 +65,6 @@ public:
   vtkImageData *GetInput();
   vtkDataSet *GetDataSetInput();
   vtkDataObject *GetDataObjectInput();
-
-  // Description:
-  // Set the type of render to use.  The default mode is to render as an
-  // opaque object if the opacity is unity and there is no alpha channel,
-  // or if backing is on, and to render as a translucent object otherwise. 
-  vtkSetMacro(RenderType, int);
-  vtkGetMacro(RenderType, int);
-  void SetRenderTypeToOverlay() { this->SetRenderType(VTK_IMAGE_OVERLAY); }
-  void SetRenderTypeToUnderlay() { this->SetRenderType(VTK_IMAGE_UNDERLAY); }
-  void SetRenderTypeToDefault() { this->SetRenderType(VTK_IMAGE_DEFAULT); }
-  const char *GetRenderTypeAsString();
 
   // Description:
   // Instead of displaying the image only out to the image
@@ -188,8 +176,8 @@ protected:
   virtual bool TextureSizeOK(const int size[2]);
 
   // Description:
-  // The load method, called by RecursiveLoad.
-  virtual void InternalLoad(
+  // Called by RecursiveRenderTexturedPolygon, overriden by subclasses.
+  virtual void RenderTexturedPolygon(
     vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
@@ -197,7 +185,7 @@ protected:
   // Recursive internal method, will call the non-recursive method
   // as many times as necessary if the texture must be broken up into
   // pieces that are small enough for the GPU to render
-  virtual void RecursiveLoad(
+  virtual void RecursiveRenderTexturedPolygon(
     vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
@@ -228,6 +216,11 @@ protected:
   double DataOrigin[3];
   int DataWholeExtent[6];
 
+  // Set by vtkImageStack when doing multi-pass rendering
+  bool MatteEnable;
+  bool ColorEnable;
+  bool DepthEnable;
+
 private:
   // The prop this mapper is attached to, or zero if none.
   vtkImageSlice *CurrentProp;
@@ -238,18 +231,10 @@ private:
   // Set by vtkImageSlice if a render is in progress
   bool InRender;
 
-  // Set by vtkImageStack when doing multi-pass rendering
-  bool RenderTexture;
-  bool RenderDepth;
-  bool RenderColor;
-
-  int RenderType;
-
   vtkImageMapper3D(const vtkImageMapper3D&);  // Not implemented.
   void operator=(const vtkImageMapper3D&);  // Not implemented.
 
   friend class vtkImageToImageMapper3DFriendship;
-  friend class vtkImageToImageStackFriendship;
 };
 
 #endif

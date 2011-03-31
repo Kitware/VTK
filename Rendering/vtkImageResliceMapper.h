@@ -87,12 +87,6 @@ protected:
     vtkImageData *input, vtkCamera *camera, vtkImageProperty *property);
 
   // Description:
-  // Compute the coords and texcoords for the image poly.
-  void MakeTextureCutGeometry(
-    vtkImageData *input, const int extent[6], int border,
-    double coords[18], double tcoords[12], int &ncoords);
-
-  // Description:
   // Update the slice-to-world matrix from the camera.
   void UpdateSliceToWorldMatrix(vtkCamera *camera);
 
@@ -102,12 +96,27 @@ protected:
   void UpdateWorldToDataMatrix(vtkImageSlice *prop);
 
   // Description:
-  // Set all of the reslicing parameters.
+  // Set all of the reslicing parameters.  This requires that
+  // the SliceToWorld and WorldToData matrices are up-to-date.
   void UpdateResliceInformation(vtkRenderer *ren);
 
   // Description:
   // Set the interpolation.
   void UpdateResliceInterpolation(vtkImageProperty *property);
+
+  // Description:
+  // Update anything related to the image coloring.
+  void UpdateColorInformation(vtkImageProperty *property);
+
+  // Description:
+  // Make a polygon by cutting the data bounds with a plane.
+  void UpdatePolygonCoords(vtkRenderer *ren);
+
+  // Description:
+  // Compute the texcoords for the image poly.
+  void ComputeTCoords(
+    vtkImageData *input, const int extent[6], int ncoords,
+    const double *coords, double *tcoords);
 
   // Description:
   // Garbage collection for reference loops.
@@ -118,6 +127,10 @@ protected:
   vtkMatrix4x4 *WorldToDataMatrix; // World to Data transform matrix
   vtkMatrix4x4 *SliceToWorldMatrix; // Slice to World transform matrix
 
+  double Coords[18];
+  double TCoords[12];
+  int NCoords;
+ 
 private:
   vtkImageResliceMapper(const vtkImageResliceMapper&);  // Not implemented.
   void operator=(const vtkImageResliceMapper&);  // Not implemented.

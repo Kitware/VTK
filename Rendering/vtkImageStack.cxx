@@ -26,6 +26,7 @@ vtkStandardNewMacro(vtkImageStack);
 vtkImageStack::vtkImageStack()
 {
   this->Images = vtkImageSliceCollection::New();
+  this->ImageMatrices = NULL;
   this->ActiveLayer = 0;
 }
 
@@ -43,6 +44,11 @@ vtkImageStack::~vtkImageStack()
       }
 
     this->Images->Delete();
+    }
+
+  if (this->ImageMatrices)
+    {
+    this->ImageMatrices->Delete();
     }
 }
 
@@ -223,6 +229,42 @@ int vtkImageStack::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
+// Assembly-like behavior
+void vtkImageStack::PokeMatrices(vtkMatrix4x4 *matrix)
+{
+  if (this->ImageMatrices == NULL)
+    {
+    this->ImageMatrices = vtkCollection::New();
+    }
+
+  if (matrix)
+    {
+    vtkCollectionSimpleIterator pit;
+    this->Images->InitTraversal(pit);
+    vtkImageSlice *image = 0;
+    while ( (image = this->Images->GetNextImage(pit)) != 0)
+      {
+      vtkMatrix4x4 *propMatrix = vtkMatrix4x4::New();
+      propMatrix->Multiply4x4(image->GetMatrix(), matrix, propMatrix);
+      image->PokeMatrix(propMatrix);
+      this->ImageMatrices->AddItem(propMatrix);
+      propMatrix->Delete();
+      }
+    }
+  else
+    {
+    vtkCollectionSimpleIterator pit;
+    this->Images->InitTraversal(pit);
+    vtkImageSlice *image = 0;
+    while ( (image = this->Images->GetNextImage(pit)) != 0)
+      {
+      image->PokeMatrix(NULL);
+      }
+    this->ImageMatrices->RemoveAllItems();
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkImageStack::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkImageStack::RenderOpaqueGeometry");
@@ -230,13 +272,37 @@ int vtkImageStack::RenderOpaqueGeometry(vtkViewport* viewport)
   // Opaque render is always called first, so sort here
   this->Images->Sort();
 
-  int rendered = 0;
-  vtkCollectionSimpleIterator pit;
-  this->Images->InitTraversal(pit);
-  vtkImageSlice *image = 0;
-  while ( (image = this->Images->GetNextImage(pit)) != 0)
+  if (!this->IsIdentity)
     {
-    rendered |= image->RenderOpaqueGeometry(viewport);
+    this->PokeMatrices(this->GetMatrix());
+    }
+
+  int rendered = 0;
+  vtkImageSlice *image = 0;
+  vtkCollectionSimpleIterator pit;
+
+  if (this->Images->GetNumberOfItems() == 1)
+    {
+    // no multi-pass if only one image
+    this->Images->InitTraversal(pit);
+    image = this->Images->GetNextImage(pit);
+    return image->RenderOpaqueGeometry(viewport);
+    }
+
+  for (int pass = 0; pass < 3; pass++)
+    {
+    this->Images->InitTraversal(pit);
+    while ( (image = this->Images->GetNextImage(pit)) != 0)
+      {
+      image->SetStackedImagePass(pass);
+      rendered |= image->RenderOpaqueGeometry(viewport);
+      image->SetStackedImagePass(-1);
+      }
+    }
+
+  if (!this->IsIdentity)
+    {
+    this->PokeMatrices(NULL);
     }
 
   return rendered;
@@ -247,13 +313,37 @@ int vtkImageStack::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkImageStack::RenderTranslucentPolygonalGeometry");
 
-  int rendered = 0;
-  vtkCollectionSimpleIterator pit;
-  this->Images->InitTraversal(pit);
-  vtkImageSlice *image = 0;
-  while ( (image = this->Images->GetNextImage(pit)) != 0)
+  if (!this->IsIdentity)
     {
-    rendered |= image->RenderTranslucentPolygonalGeometry(viewport);
+    this->PokeMatrices(this->GetMatrix());
+    }
+
+  int rendered = 0;
+  vtkImageSlice *image = 0;
+  vtkCollectionSimpleIterator pit;
+
+  if (this->Images->GetNumberOfItems() == 1)
+    {
+    // no multi-pass if only one image
+    this->Images->InitTraversal(pit);
+    image = this->Images->GetNextImage(pit);
+    return image->RenderTranslucentPolygonalGeometry(viewport);
+    }
+
+  for (int pass = 1; pass < 3; pass++)
+    {
+    this->Images->InitTraversal(pit);
+    while ( (image = this->Images->GetNextImage(pit)) != 0)
+      {
+      image->SetStackedImagePass(pass);
+      rendered |= image->RenderTranslucentPolygonalGeometry(viewport);
+      image->SetStackedImagePass(-1);
+      }
+    }
+
+  if (!this->IsIdentity)
+    {
+    this->PokeMatrices(NULL);
     }
 
   return rendered;
@@ -264,13 +354,37 @@ int vtkImageStack::RenderOverlay(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkImageStack::RenderOverlay");
 
-  int rendered = 0;
-  vtkCollectionSimpleIterator pit;
-  this->Images->InitTraversal(pit);
-  vtkImageSlice *image = 0;
-  while ( (image = this->Images->GetNextImage(pit)) != 0)
+  if (!this->IsIdentity)
     {
-    rendered |= image->RenderOverlay(viewport);
+    this->PokeMatrices(this->GetMatrix());
+    }
+
+  int rendered = 0;
+  vtkImageSlice *image = 0;
+  vtkCollectionSimpleIterator pit;
+
+  if (this->Images->GetNumberOfItems() == 1)
+    {
+    // no multi-pass if only one image
+    this->Images->InitTraversal(pit);
+    image = this->Images->GetNextImage(pit);
+    return image->RenderOverlay(viewport);
+    }
+
+  for (int pass = 1; pass < 3; pass++)
+    {
+    this->Images->InitTraversal(pit);
+    while ( (image = this->Images->GetNextImage(pit)) != 0)
+      {
+      image->SetStackedImagePass(pass);
+      rendered |= image->RenderOverlay(viewport);
+      image->SetStackedImagePass(-1);
+      }
+    }
+
+  if (!this->IsIdentity)
+    {
+    this->PokeMatrices(NULL);
     }
 
   return rendered;

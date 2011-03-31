@@ -95,8 +95,23 @@ void vtkOpenGLImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 }
 
 //----------------------------------------------------------------------------
+// Render the backing polygon
+void vtkOpenGLImageResliceMapper::RenderBackingPolygon(vtkRenderer *ren)
+{
+  if (this->NCoords)
+    {
+    glBegin((this->NCoords == 4) ? GL_QUADS : GL_POLYGON);
+    for (int i = 0; i < this->NCoords; i++)
+      {
+      glVertex3dv(&this->Coords[i*3]);
+      }
+    glEnd();
+    }
+}
+ 
+//----------------------------------------------------------------------------
 // Load the given image extent into a texture and render it
-void vtkOpenGLImageResliceMapper::InternalLoad(
+void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
   vtkRenderer *ren, vtkProp3D *vtkNotUsed(prop), vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
@@ -162,9 +177,6 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
     unsigned char *data = this->MakeTextureData(
       0, input, extent, xsize, ysize, bytesPerPixel, reuseTexture,
       reuseData);
-
-    this->MakeTextureCutGeometry(input, extent, this->Border,
-      this->Coords, this->TCoords, this->NCoords);
 
     GLuint tempIndex = 0;
 
@@ -264,106 +276,39 @@ void vtkOpenGLImageResliceMapper::InternalLoad(
   glCallList(static_cast<GLuint>(this->Index));
 #endif
 
-  // don't accept fragments if they have zero opacity:
-  // this will stop the zbuffer from be blocked by totally
-  // transparent texture fragments.
-  glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
-  glEnable(GL_ALPHA_TEST);
-
-  // now bind it
   glEnable(GL_TEXTURE_2D);
+
+  // modulate the texture with the fragment for lighting effects
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-  // depth peeling
-  vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
-
-  if (oRenderer->GetDepthPeelingHigherLayer())
+  if (this->SliceFacesCamera)
     {
-    GLint uUseTexture = oRenderer->GetUseTextureUniformVariable();
-    GLint uTexture = oRenderer->GetTextureUniformVariable();
-    vtkgl::Uniform1i(uUseTexture, 1);
-    vtkgl::Uniform1i(uTexture, 0); // active texture 0
+    // use a full-screen quad if slice faces camera, this ensures that all
+    // images showing the same "slice" use exactly the same geometry, which
+    // helps to avoid some depth-buffer coincidence issues
+    double coords[12], tcoords[8];
+    this->MakeTextureGeometry(input, extent, 1, coords, tcoords);
+
+    glBegin(GL_QUADS);
+    for (int i = 0; i < 4; i++)
+      {
+      glTexCoord2dv(&tcoords[i*2]);
+      glVertex3dv(&coords[i*3]);
+      }
+    glEnd();
     }
-
-#ifdef GL_VERSION_1_1
-  // do an offset to avoid depth buffer issues
-  if (vtkMapper::GetResolveCoincidentTopology() !=
-      VTK_RESOLVE_SHIFT_ZBUFFER )
+  else if (this->NCoords)
     {
-    double f, u;
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-    glPolygonOffset(f,u);
-    }
-#endif
+    this->ComputeTCoords(
+      input, extent, this->NCoords, this->Coords, this->TCoords);
 
-  // set the OpenGL state and draw the quad
-  glDisable(GL_CULL_FACE);
-  glDisable(GL_COLOR_MATERIAL);
-
-  double opacity = property->GetOpacity();
-  double ambient = property->GetAmbient();
-  double diffuse = property->GetDiffuse();
-
-  if (ambient == 1.0 && diffuse == 0.0)
-    {
-    glDisable(GL_LIGHTING);
-    }
-  else
-    {
-    float color[4];
-    color[3] = opacity;
-    glEnable(GL_LIGHTING);
-    glShadeModel(GL_FLAT);
-    color[0] = color[1] = color[2] = ambient;
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
-    color[0] = color[1] = color[2] = diffuse;
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
-    color[0] = color[1] = color[2] = 0.0;
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
-    }
-
-  glColor4f(1.0, 1.0, 1.0, opacity);
-
-  // Add all the clipping planes
-  int numClipPlanes = this->GetNumberOfClippingPlanes();
-  if (numClipPlanes > 6)
-    {
-    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
-    numClipPlanes = 6;
-    }
-
-  int i;
-  for (i = 0; i < numClipPlanes; i++)
-    {
-    double planeEquation[4];
-    this->GetClippingPlaneInDataCoords(this->SliceToWorldMatrix,
-                                       i, planeEquation);
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
-    glEnable(clipPlaneId);
-    glClipPlane(clipPlaneId, planeEquation);
-    }
-
-  if (this->NCoords)
-    {
     glBegin((this->NCoords == 4) ? GL_QUADS : GL_POLYGON);
-    for (i = 0; i < this->NCoords; i++)
+    for (int i = 0; i < this->NCoords; i++)
       {
       glTexCoord2dv(&this->TCoords[i*2]);
       glVertex3dv(&this->Coords[i*3]);
       }
     glEnd();
-    }
-
-  for (i = 0; i < numClipPlanes; i++)
-    {
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
-    glDisable(clipPlaneId);
-    }
-
-  if (ambient == 1.0 && diffuse == 0.0)
-    {
-    glEnable(GL_LIGHTING);
     }
 }
 
@@ -432,48 +377,6 @@ bool vtkOpenGLImageResliceMapper::TextureSizeOK(const int size[2])
 }
 
 //----------------------------------------------------------------------------
-// Load the texture and the geometry
-void vtkOpenGLImageResliceMapper::Load(
-  vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property)
-{
-  vtkImageResliceToColors *reslice = this->ImageReslice;
-  vtkScalarsToColors *lookupTable = this->DefaultLookupTable;
-
-  reslice->SetInput(this->GetInput());
-
-  if (property)
-    {
-    double colorWindow = property->GetColorWindow();
-    double colorLevel = property->GetColorLevel();
-    if (property->GetLookupTable())
-      {
-      lookupTable = property->GetLookupTable();
-      if (!property->GetUseLookupTableScalarRange())
-        {
-        lookupTable->SetRange(colorLevel - 0.5*colorWindow,
-                              colorLevel + 0.5*colorWindow);
-        }
-      }
-    else
-      {
-      lookupTable->SetRange(colorLevel - 0.5*colorWindow,
-                            colorLevel + 0.5*colorWindow);
-      }
-    }
-  else
-    {
-    lookupTable->SetRange(0, 255);
-    }
-
-  reslice->SetLookupTable(lookupTable);
-  reslice->UpdateWholeExtent();
-
-  this->RecursiveLoad(
-    ren, prop, property, reslice->GetOutput(),
-    reslice->GetOutputExtent(), false);
-}
-
-//----------------------------------------------------------------------------
 // Set the modelview transform and load the texture
 void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
@@ -483,17 +386,20 @@ void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   this->UpdateWorldToDataMatrix(prop);
   this->UpdateSliceToWorldMatrix(ren->GetActiveCamera());
 
+  // update the coords for the polygon to be textured
+  this->UpdatePolygonCoords(ren);
+
   // set the reslice spacing/origin/extent/axes
   this->UpdateResliceInformation(ren);
 
   // set the reslice bits related to the property
   this->UpdateResliceInterpolation(property);
 
-  // the hefty glPushAttrib call
-  glPushAttrib(GL_ENABLE_BIT);
+  // update anything related to the image coloring
+  this->UpdateColorInformation(property);
 
-  // for picking
-  glDepthMask(GL_TRUE);
+  // time the render
+  this->Timer->StartTimer();
 
   // transpose VTK matrix to create OpenGL matrix
   double mat[16];
@@ -504,11 +410,120 @@ void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   glPushMatrix();
   glMultMatrixd(mat);
 
-  // time the render
-  this->Timer->StartTimer();
+  // push a bunch of OpenGL state items, so they can be popped later:
+  // GL_ALPHA_TEST, GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_CULL_FACE,
+  // GL_LIGHTING, GL_CLIP_PLANE, GL_TEXTURE_2D
+  glPushAttrib(GL_ENABLE_BIT);
+
+  // and now enable/disable as needed for our render
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_COLOR_MATERIAL);
+
+  // don't accept fragments if they have zero opacity:
+  // this will stop the zbuffer from being blocked by totally
+  // transparent texture fragments.
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
+
+  // depth peeling
+  vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
+
+  if (oRenderer->GetDepthPeelingHigherLayer())
+    {
+    GLint uUseTexture = oRenderer->GetUseTextureUniformVariable();
+    GLint uTexture = oRenderer->GetTextureUniformVariable();
+    vtkgl::Uniform1i(uUseTexture, 1);
+    vtkgl::Uniform1i(uTexture, 0); // active texture 0
+    }
+
+#ifdef GL_VERSION_1_1
+  // do an offset to avoid depth buffer issues
+  if (vtkMapper::GetResolveCoincidentTopology() !=
+      VTK_RESOLVE_SHIFT_ZBUFFER )
+    {
+    double f, u;
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+    glPolygonOffset(f,u);
+    }
+#endif
+
+  // Add all the clipping planes
+  int numClipPlanes = this->GetNumberOfClippingPlanes();
+  if (numClipPlanes > 6)
+    {
+    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+    }
+
+  for (int i = 0; i < 6; i++)
+    {
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
+    if (i < numClipPlanes)
+      {
+      double planeEquation[4];
+      this->GetClippingPlaneInDataCoords(this->SliceToWorldMatrix,
+                                         i, planeEquation);
+      glClipPlane(clipPlaneId, planeEquation);
+      glEnable(clipPlaneId);
+      }
+    else
+      {
+      glDisable(clipPlaneId);
+      }
+    }
+
+  // Whether to write to the depth buffer and color buffer
+  glDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE);
+  if (!this->ColorEnable && !this->MatteEnable)
+    {
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    }
+
+  // color and lighting related items
+  double opacity = property->GetOpacity();
+  double ambient = property->GetAmbient();
+  double diffuse = property->GetDiffuse();
+
+  // render the backing polygon
+  int backing = property->GetBacking();
+  double *bcolor = property->GetBackingColor();
+  if (backing &&
+      (this->MatteEnable || (this->DepthEnable && !this->ColorEnable)))
+    {
+    // the backing polygon is always opaque
+    this->RenderColorAndLighting(
+      bcolor[0], bcolor[1], bcolor[2], 1.0, ambient, diffuse);
+    this->RenderBackingPolygon(ren);
+    }
 
   // render the texture
-  this->Load(ren, prop, property);
+  if (this->ColorEnable || (!backing && this->DepthEnable))
+    {
+    this->RenderColorAndLighting(1.0, 1.0, 1.0, opacity, ambient, diffuse);
+
+    this->ImageReslice->SetInput(this->GetInput());
+    this->ImageReslice->UpdateWholeExtent();
+
+    this->RecursiveRenderTexturedPolygon(
+      ren, prop, property, this->ImageReslice->GetOutput(),
+      this->ImageReslice->GetOutputExtent(), false);
+    }
+
+  // Set the masks back again
+  glDepthMask(GL_TRUE);
+  if (!this->ColorEnable && !this->MatteEnable)
+    {
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+
+  // pop the following attribs that were changed:
+  // GL_ALPHA_TEST, GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_CULL_FACE,
+  // GL_LIGHTING, GL_CLIP_PLANE, GL_TEXTURE_2D
+  glPopAttrib();
+
+  // pop transformation matrix
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
@@ -516,12 +531,36 @@ void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     {
     this->TimeToDraw = 0.0001;
     }
+}
 
-  // pop transformation matrix
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+//----------------------------------------------------------------------------
+void vtkOpenGLImageResliceMapper::RenderColorAndLighting(
+  double red, double green, double blue,
+  double alpha, double ambient, double diffuse)
+{
+  glColor4f(red, green, blue, alpha);
 
-  glPopAttrib();
+  if (ambient == 1.0 && diffuse == 0.0)
+    {
+    glDisable(GL_LIGHTING);
+    }
+  else
+    {
+    float color[4];
+    color[3] = alpha;
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
+    color[0] = red*ambient;
+    color[1] = green*ambient;
+    color[2] = blue*ambient;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
+    color[0] = red*diffuse;
+    color[1] = green*diffuse;
+    color[2] = blue*diffuse;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
+    color[0] = color[1] = color[2] = 0.0;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
+    }
 }
 
 //----------------------------------------------------------------------------
