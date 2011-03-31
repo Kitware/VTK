@@ -411,7 +411,7 @@ void vtkAMRDataTransferFilter::FindDonors(
             }
 
         } // END if the cell is found in this grid
-      else
+      else if( donorLevelInfo->GetValue(rcverIdx) == -1 )
         {
           // -2 indicates that this node is orphaned, i.e., no donor cell
           // was found.
