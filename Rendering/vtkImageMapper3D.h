@@ -39,6 +39,10 @@ class vtkImageProperty;
 class vtkImageData;
 class vtkImageToImageMapper3DFriendship;
 
+#define VTK_IMAGE_DEFAULT  0
+#define VTK_IMAGE_UNDERLAY 1
+#define VTK_IMAGE_OVERLAY  2
+
 class VTK_RENDERING_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
 {
 public:
@@ -135,13 +139,20 @@ protected:
     int scalarType, double scalarRange[2]);
 
   // Description:
+  // Checkerboard the alpha component of an RGBA image.  The origin and
+  // spacing are in pixel units.
+  static void CheckerboardRGBA(
+    unsigned char *data, int xsize, int ysize,
+    double originx, double originy, double spacingx, double spacingy);
+
+  // Description:
   // Perform window/level and color mapping operations to produce
   // unsigned char data that can be used as a texture.  See the
   // source file for more information.
   unsigned char *MakeTextureData(
     vtkImageProperty *property, vtkImageData *input, int extent[6],
     int &xsize, int &ysize, int &bytesPerPixel, bool &reuseTexture,
-    bool &release);
+    bool &reuseData);
 
   // Description:
   // Compute the coordinates and texture coordinates for the image, given
@@ -156,7 +167,7 @@ protected:
   // correspond to the texture "x" and "y", provide the x, y image size,
   // and provide the texture size (padded to a power of two if the hardware
   // requires).
-  void ComputeTextureSize(
+  virtual void ComputeTextureSize(
     const int extent[6], int &xdim, int &ydim,
     int imageSize[2], int textureSize[2]);
 
@@ -165,8 +176,8 @@ protected:
   virtual bool TextureSizeOK(const int size[2]);
 
   // Description:
-  // The load method, called by RecursiveLoad.
-  virtual void InternalLoad(
+  // Called by RecursiveRenderTexturedPolygon, overriden by subclasses.
+  virtual void RenderTexturedPolygon(
     vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
@@ -174,7 +185,7 @@ protected:
   // Recursive internal method, will call the non-recursive method
   // as many times as necessary if the texture must be broken up into
   // pieces that are small enough for the GPU to render
-  virtual void RecursiveLoad(
+  virtual void RecursiveRenderTexturedPolygon(
     vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
@@ -194,7 +205,6 @@ protected:
 
   int Border;
   vtkLookupTable *DefaultLookupTable;
-  bool UsePowerOfTwoTextures;
 
   // The slice.
   vtkPlane *SlicePlane;
@@ -206,10 +216,19 @@ protected:
   double DataOrigin[3];
   int DataWholeExtent[6];
 
+  // Set by vtkImageStack when doing multi-pass rendering
+  bool MatteEnable;
+  bool ColorEnable;
+  bool DepthEnable;
+
 private:
   // The prop this mapper is attached to, or zero if none.
   vtkImageSlice *CurrentProp;
+
+  // The cached data-to-world matrix
   vtkMatrix4x4 *DataToWorldMatrix;
+
+  // Set by vtkImageSlice if a render is in progress
   bool InRender;
 
   vtkImageMapper3D(const vtkImageMapper3D&);  // Not implemented.

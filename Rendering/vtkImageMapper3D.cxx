@@ -49,11 +49,13 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->SliceFacesCamera = 0;
   this->SliceAtFocalPoint = 0;
 
-  this->UsePowerOfTwoTextures = false;
-
   this->DataToWorldMatrix = vtkMatrix4x4::New();
   this->CurrentProp = 0;
   this->InRender = false;
+
+  this->MatteEnable = true;
+  this->ColorEnable = true;
+  this->DepthEnable = true;
 
   this->DataOrigin[0] = 0.0;
   this->DataOrigin[1] = 0.0;
@@ -144,7 +146,6 @@ int vtkImageMapper3D::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -225,7 +226,7 @@ void vtkImageMapper3DComputeMatrix(vtkProp *prop, double mat[16])
     if ( (a = vtkProp3D::SafeDownCast(o)) )
       {
       vtkImageMapper3DComputeMatrix(a, mat);
-      if (a->IsA("vtkAssembly"))
+      if (a->IsA("vtkAssembly") || a->IsA("vtkImageStack"))
         {
         vtkMatrix4x4::Multiply4x4(mat, *propmat->Element, mat);
         }
@@ -285,7 +286,7 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
 
 //----------------------------------------------------------------------------
 // Subdivide the image until the pieces fit into texture memory
-void vtkImageMapper3D::RecursiveLoad(
+void vtkImageMapper3D::RecursiveRenderTexturedPolygon(
   vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
@@ -301,7 +302,8 @@ void vtkImageMapper3D::RecursiveLoad(
   if (this->TextureSizeOK(textureSize))
     {
     // We can fit it - render
-    this->InternalLoad(ren, prop, property, input, extent, recursive);
+    this->RenderTexturedPolygon(
+      ren, prop, property, input, extent, recursive);
     }
 
   // If the texture does not fit, then subdivide and render
@@ -330,16 +332,18 @@ void vtkImageMapper3D::RecursiveLoad(
     // Render each half recursively
     subExtent[idx*2] = extent[idx*2];
     subExtent[idx*2 + 1] = extent[idx*2] + tsize - 1;
-    this->RecursiveLoad(ren, prop, property, input, subExtent, true);
+    this->RecursiveRenderTexturedPolygon(
+      ren, prop, property, input, subExtent, true);
 
     subExtent[idx*2] = subExtent[idx*2] + tsize;
     subExtent[idx*2 + 1] = extent[idx*2 + 1];
-    this->RecursiveLoad(ren, prop, property, input, subExtent, true);
+    this->RecursiveRenderTexturedPolygon(
+      ren, prop, property, input, subExtent, true);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::InternalLoad(
+void vtkImageMapper3D::RenderTexturedPolygon(
   vtkRenderer *, vtkProp3D *, vtkImageProperty *,
   vtkImageData *, int [6], bool)
 {
@@ -828,6 +832,102 @@ void vtkImageMapper3D::ApplyLookupTableToImageScalars(
 }
 
 //----------------------------------------------------------------------------
+void vtkImageMapper3D::CheckerboardRGBA(
+  unsigned char *data, int xsize, int ysize,
+  double originx, double originy, double spacingx, double spacingy)
+{
+  static double maxval = 2147483647;
+  static double minval = -2147483647;
+
+  originx = (originx > minval ? originx : minval);
+  originx = (originx < maxval ? originx : maxval);
+  originy = (originy > minval ? originy : minval);
+  originy = (originy < maxval ? originy : maxval);
+
+  spacingx = fabs(spacingx);
+  spacingy = fabs(spacingy);
+
+  spacingx = (spacingx < maxval ? spacingx : maxval);
+  spacingy = (spacingy < maxval ? spacingy : maxval);
+  spacingx = (spacingx != 0 ? spacingx : maxval);
+  spacingy = (spacingy != 0 ? spacingy : maxval);
+
+  int xn = static_cast<int>(spacingx);
+  int yn = static_cast<int>(spacingy);
+  double fx = spacingx - xn;
+  double fy = spacingy - yn;
+
+  int state = 0;
+  int tmpstate = ~state;
+  double spacing2x = 2*spacingx;
+  double spacing2y = 2*spacingy;
+  originx -= vtkMath::Floor(originx/spacing2x)*spacing2x;
+  originy -= vtkMath::Floor(originy/spacing2y)*spacing2y;
+  double tmporiginx = originx - spacingx;
+  originx = (tmporiginx < 0 ? originx : tmporiginx);
+  state = (tmporiginx < 0 ? state : tmpstate);
+  tmpstate = ~state;
+  double tmporiginy = originy - spacingy;
+  originy = (tmporiginy < 0 ? originy : tmporiginy);
+  state = (tmporiginy < 0 ? state : tmpstate);
+  
+  int xm = static_cast<int>(originx);
+  int savexm = xm;
+  int ym = static_cast<int>(originy);
+  double gx = originx - xm;
+  double savegx = gx;
+  double gy = originy - ym;
+
+  int inc = 4;
+  data += (inc - 1);
+  for (int j = 0; j < ysize;)
+    {
+    double tmpy = gy - 1.0;
+    gy = (tmpy < 0 ? gy : tmpy);
+    int yextra = (tmpy >= 0);
+    ym += yextra;
+    int ry = ysize - j;
+    ym = (ym < ry ? ym : ry);
+    j += ym;
+
+    for (; ym; --ym)
+      {
+      tmpstate = state;
+      xm = savexm;
+      gx = savegx;
+
+      for (int i = 0; i < xsize;)
+        {
+        double tmpx = gx - 1.0;
+        gx = (tmpx < 0 ? gx : tmpx);
+        int xextra = (tmpx >= 0);
+        xm += xextra;
+        int rx = xsize - i;
+        xm = (xm < rx ? xm : rx);
+        i += xm;
+        if ( (tmpstate & xm) ) 
+          {
+          do
+            {
+            *data = 0;
+            data += inc;
+            }
+          while (--xm);
+          }
+        data += inc*xm;
+        xm = xn;
+        tmpstate = ~tmpstate;
+        gx += fx;
+        }
+      }
+
+   ym = yn;
+   state = ~state;
+   gy += fy;
+   }  
+}
+
+//----------------------------------------------------------------------------
 // Given an image and an extent that describes a single slice, this method
 // will return a contiguous block of unsigned char data that can be loaded
 // into a texture.
@@ -840,12 +940,12 @@ void vtkImageMapper3D::ApplyLookupTableToImageScalars(
 // If subTexture is not set to one upon return, then xsize,ysize will
 // describe the full texture size, with the assumption that the full
 // texture must be reloaded.
-// If releaseData is set upon return, then the returned array must be
+// If reuseData is false upon return, then the returned array must be
 // freed after use with delete [].
 unsigned char *vtkImageMapper3D::MakeTextureData(
   vtkImageProperty *property, vtkImageData *input, int extent[6],
   int &xsize, int &ysize, int &bytesPerPixel, bool &reuseTexture,
-  bool &releaseData)
+  bool &reuseData)
 {
   int xdim, ydim;
   int imageSize[2];
@@ -881,7 +981,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
       colorLevel == 127.5 && colorWindow == 255.0)
     {
     inputIsColors = true;
-    if (numComp < 4)
+    if (reuseData && numComp < 4)
       {
       textureBytesPerPixel = numComp;
       }
@@ -923,9 +1023,8 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
       {
       contiguous = true;
       // if contiguous and correct data type, use data as-is
-      if (inputIsColors)
+      if (inputIsColors && reuseData)
         {
-        releaseData = 0;
         return static_cast<unsigned char *>(
           input->GetScalarPointerForExtent(extent));
         }
@@ -933,7 +1032,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
     }
 
   // could not directly use input data, so allocate a new array
-  releaseData = true;
+  reuseData = false;
 
   unsigned char *outPtr = new unsigned char [ysize*xsize*bytesPerPixel];
 
@@ -1034,20 +1133,23 @@ void vtkImageMapper3D::MakeTextureGeometry(
     coords[9 + ydim] += 0.5*spacing[ydim];
     }
 
-  // compute the tcoords
-  double textureBorder = 0.5*(border == 0);
+  if (tcoords)
+    {
+    // compute the tcoords
+    double textureBorder = 0.5*(border == 0);
 
-  tcoords[0] = textureBorder/textureSize[0];
-  tcoords[1] = textureBorder/textureSize[1];
+    tcoords[0] = textureBorder/textureSize[0];
+    tcoords[1] = textureBorder/textureSize[1];
 
-  tcoords[2] = (imageSize[0] - textureBorder)/textureSize[0];
-  tcoords[3] = tcoords[1];
+    tcoords[2] = (imageSize[0] - textureBorder)/textureSize[0];
+    tcoords[3] = tcoords[1];
 
-  tcoords[4] = tcoords[2];
-  tcoords[5] = (imageSize[1] - textureBorder)/textureSize[1];
+    tcoords[4] = tcoords[2];
+    tcoords[5] = (imageSize[1] - textureBorder)/textureSize[1];
 
-  tcoords[6] = tcoords[0];
-  tcoords[7] = tcoords[5];
+    tcoords[6] = tcoords[0];
+    tcoords[7] = tcoords[5];
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1072,24 +1174,8 @@ void vtkImageMapper3D::ComputeTextureSize(
   imageSize[0] = (extent[xdim*2+1] - extent[xdim*2] + 1);
   imageSize[1] = (extent[ydim*2+1] - extent[ydim*2] + 1);
 
-  if (this->UsePowerOfTwoTextures)
-    {
-    // find the target size of the power-of-two texture
-    for (int i = 0; i < 2; i++)
-      {
-      int powerOfTwo = 1;
-      while (powerOfTwo < imageSize[i])
-        {
-        powerOfTwo <<= 1;
-        }
-      textureSize[i] = powerOfTwo;
-      }
-    }
-  else
-    {
-    textureSize[0] = imageSize[0];
-    textureSize[1] = imageSize[1];
-    }
+  textureSize[0] = imageSize[0];
+  textureSize[1] = imageSize[1];
 }
 
 //----------------------------------------------------------------------------
@@ -1110,9 +1196,14 @@ void vtkImageMapper3D::GetSlicePlaneInDataCoords(
 
   // Convert to a homogeneous normal in data coords
   normal[3] = -vtkMath::Dot(point, normal);
-  double mat[16];
-  vtkMatrix4x4::Transpose(*propMatrix->Element, mat);
-  vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
+
+  // Transform to data coordinates
+  if (propMatrix)
+    {
+    double mat[16];
+    vtkMatrix4x4::Transpose(*propMatrix->Element, mat);
+    vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
+    }
 
   // Normalize the "normal" part for good measure
   double l = vtkMath::Norm(normal);

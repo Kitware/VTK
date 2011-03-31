@@ -57,15 +57,32 @@ protected:
   ~vtkOpenGLImageResliceMapper();
 
   // Description:
-  // Load the texture and geometry.
-  void Load(vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property);
+  // Call the OpenGL code that does color and lighting.
+  void RenderColorAndLighting(
+    double red, double green, double blue,
+    double alpha, double ambient, double diffuse);
+
+  // Description:
+  // Render an opaque polygon behind the image.  This is also used
+  // in multi-pass rendering to render into the depth buffer.
+  void RenderBackingPolygon(vtkRenderer *ren);
 
   // Description:
   // Non-recursive internal method, generate a single texture
   // and its corresponding geometry.
-  void InternalLoad(
+  void RenderTexturedPolygon(
     vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
+
+  // Description:
+  // Given an extent that describes a slice (it must have unit thickness
+  // in one of the three directions), return the dimension indices that
+  // correspond to the texture "x" and "y", provide the x, y image size,
+  // and provide the texture size (padded to a power of two if the hardware
+  // requires).
+  void ComputeTextureSize(
+    const int extent[6], int &xdim, int &ydim,
+    int imageSize[2], int textureSize[2]);
 
   // Description:
   // Test whether a given texture size is supported.  This includes a
@@ -79,13 +96,11 @@ protected:
   vtkTimeStamp LoadTime;
   long Index; // OpenGL ID for texture or display list
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
-
-  double Coords[18];
-  double TCoords[12];
-  int NCoords;
-  
+ 
   int TextureSize[2];
   int TextureBytesPerPixel;
+
+  bool UsePowerOfTwoTextures;
   bool UseClampToEdge;
 
 private:
