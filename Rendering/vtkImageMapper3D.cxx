@@ -861,8 +861,10 @@ void vtkImageMapper3D::CheckerboardRGBA(
   int tmpstate = ~state;
   double spacing2x = 2*spacingx;
   double spacing2y = 2*spacingy;
-  originx -= vtkMath::Floor(originx/spacing2x)*spacing2x;
-  originy -= vtkMath::Floor(originy/spacing2y)*spacing2y;
+  originx -= ceil(originx/spacing2x)*spacing2x;
+  while (originx < 0) { originx += spacing2x; }
+  originy -= ceil(originy/spacing2y)*spacing2y;
+  while (originy < 0) { originy += spacing2y; }
   double tmporiginx = originx - spacingx;
   originx = (tmporiginx < 0 ? originx : tmporiginx);
   state = (tmporiginx < 0 ? state : tmpstate);

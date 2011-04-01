@@ -92,6 +92,8 @@ int vtkImageSliceMapper::ProcessRequest(
     inInfo->Get(vtkDataObject::SPACING(), spacing);
     inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
+    cerr << "WHOLE_EXTENT " << this << ": " << this->DataWholeExtent[0] << ", " << this->DataWholeExtent[1] << ", " << this->DataWholeExtent[2] << ", " << this->DataWholeExtent[3] << ", " << this->DataWholeExtent[4] << ", " << this->DataWholeExtent[5] << "\n";
+
     vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
 
     if (this->Cropping)
@@ -192,6 +194,7 @@ int vtkImageSliceMapper::ProcessRequest(
   // set update extent to display extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
+    cerr << "UPDATE_EXTENT " << this << ": " << this->DisplayExtent[0] << ", " << this->DisplayExtent[1] << ", " << this->DisplayExtent[2] << ", " << this->DisplayExtent[3] << ", " << this->DisplayExtent[4] << ", " << this->DisplayExtent[5] << "\n";
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       this->DisplayExtent, 6);
@@ -269,6 +272,7 @@ int vtkImageSliceMapper::GetSliceNumber()
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMinValue()
 {
+  cerr << "UpdateInformation 1 " << this << "\n";
   this->UpdateInformation();
   return this->SliceNumberMinValue;
 }
@@ -276,6 +280,7 @@ int vtkImageSliceMapper::GetSliceNumberMinValue()
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMaxValue()
 {
+  cerr << "UpdateInformation 2 " << this << "\n";
   this->UpdateInformation();
   return this->SliceNumberMaxValue;
 }
@@ -289,6 +294,7 @@ double *vtkImageSliceMapper::GetBounds()
     return this->Bounds;
     }
 
+  cerr << "UpdateInformation 3 " << this << "\n";
   this->UpdateInformation();
 
   int extent[6];
@@ -421,13 +427,15 @@ void vtkImageSliceMapper::CheckerboardImage(
   property->GetCheckerboardSpacing(spacing);
   property->GetCheckerboardOffset(offset);
 
-  // Adjust the spacing according to the image data spacing
-  spacing[0] = floor(spacing[0]/imageSpacing[xdim] + 0.5);
-  spacing[1] = floor(spacing[1]/imageSpacing[ydim] + 0.5);
+  // Adjust the spacing according to the image data spacing, add a tolerance
+  // to prefer rounding up since ties happen often and can cause different
+  // platforms/compilers to give different results
+  spacing[0] = floor(spacing[0]/imageSpacing[xdim] + 0.50000762939453125);
+  spacing[1] = floor(spacing[1]/imageSpacing[ydim] + 0.50000762939453125);
 
   // Center the checkerboard at the image center, because it looks nice
-  offset[0] = floor(0.5*xsize + spacing[0]*offset[0] + 0.5);
-  offset[1] = floor(0.5*ysize + spacing[1]*offset[1] + 0.5);
+  offset[0] = floor(0.5*xsize + spacing[0]*offset[0] + 0.50000762939453125);
+  offset[1] = floor(0.5*ysize + spacing[1]*offset[1] + 0.50000762939453125);
 
   // Note that spacing has been converted to integer spacing
   vtkImageMapper3D::CheckerboardRGBA(
