@@ -126,18 +126,18 @@ void vtkImageSliceCollection::Sort()
     {
     int imin = i;
     int lmin = layerArray[imin].layer;
-    int j = i;
+    int j = i + 1;
 
     do
       {
-      int l = layerArray[++j].layer;
+      int l = layerArray[j].layer;
       if (l < lmin)
         {
         imin = j;
         lmin = l;
         }
       }
-    while (j < numElems);
+    while (++j < numElems);
 
     vtkImageSliceLayerPair t = layerArray[imin];
     layerArray[imin] = layerArray[i];
