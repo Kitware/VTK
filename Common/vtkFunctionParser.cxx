@@ -556,8 +556,7 @@ bool vtkFunctionParser::Evaluate()
 
   this->StackPointer = -1;
 
-  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime() ||
-    this->VariableMTime.GetMTime() > this->ParseMTime.GetMTime())
+  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime())
     {
     if (this->Parse() == 0)
       {
@@ -2225,8 +2224,7 @@ void vtkFunctionParser::RemoveVectorVariables()
 //-----------------------------------------------------------------------------
 void vtkFunctionParser::CheckExpression(int &pos, char **error)
 {
-  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime() ||
-     this->VariableMTime.GetMTime() > this->CheckMTime.GetMTime())
+  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime())
     {
     // Need to parse again.
 
