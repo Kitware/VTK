@@ -177,8 +177,6 @@ int vtkFunctionParser::Parse()
     return 0;
     }
 
-//    this->RemoveSpaces();
-
   result = this->CheckSyntax();
   if (!result)
     {
@@ -558,10 +556,7 @@ bool vtkFunctionParser::Evaluate()
 
   this->StackPointer = -1;
 
-//  this->RemoveSpaces();
-
-  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime() ||
-    this->VariableMTime.GetMTime() > this->ParseMTime.GetMTime())
+  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime())
     {
     if (this->Parse() == 0)
       {
@@ -2229,21 +2224,21 @@ void vtkFunctionParser::RemoveVectorVariables()
 //-----------------------------------------------------------------------------
 void vtkFunctionParser::CheckExpression(int &pos, char **error)
 {
-  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime() ||
-     this->VariableMTime.GetMTime() > this->CheckMTime.GetMTime())
+  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime())
     {
     // Need to parse again.
+
+    // Reset previous error cache.
+    this->ParseErrorPositon = -1;
+    this->ParseError        = NULL;
+
+    this->CopyParseError(pos, error);
     }
   else
     {
-    pos     = this->ParseErrorPositon;
-    *error   = this->ParseError;
+    this->CopyParseError(pos, error);
     return;
     }
-
-  // Reset.
-  this->ParseErrorPositon = -1;
-  this->ParseError        = NULL;
 
   this->CheckMTime.Modified();
 
@@ -2507,7 +2502,6 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
   delete [] expectCommaOnParenthesisCount;
   delete [] expectTwoCommasOnParenthesisCount;
 
-  this->CopyParseError(pos, error);
   return;
 }
 
