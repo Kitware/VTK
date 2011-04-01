@@ -99,11 +99,14 @@ void vtkOpenGLImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 void vtkOpenGLImageResliceMapper::RenderBackingPolygon(
   vtkRenderer *vtkNotUsed(ren))
 {
+  static double normal[3] = { 0.0, 0.0, 1.0 };
+
   if (this->NCoords)
     {
     glBegin((this->NCoords == 4) ? GL_QUADS : GL_POLYGON);
     for (int i = 0; i < this->NCoords; i++)
       {
+      glNormal3dv(normal);
       glVertex3dv(&this->Coords[i*3]);
       }
     glEnd();
@@ -282,7 +285,9 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
   // modulate the texture with the fragment for lighting effects
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-  if (this->SliceFacesCamera)
+  static double normal[3] = { 0.0, 0.0, 1.0 };
+
+  if (1) //this->SliceFacesCamera)
     {
     // use a full-screen quad if slice faces camera, this ensures that all
     // images showing the same "slice" use exactly the same geometry, which
@@ -293,6 +298,7 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
     glBegin(GL_QUADS);
     for (int i = 0; i < 4; i++)
       {
+      glNormal3dv(normal);
       glTexCoord2dv(&tcoords[i*2]);
       glVertex3dv(&coords[i*3]);
       }
@@ -306,6 +312,7 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
     glBegin((this->NCoords == 4) ? GL_QUADS : GL_POLYGON);
     for (int i = 0; i < this->NCoords; i++)
       {
+      glNormal3dv(normal);
       glTexCoord2dv(&this->TCoords[i*2]);
       glVertex3dv(&this->Coords[i*3]);
       }
