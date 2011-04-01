@@ -287,7 +287,7 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
 
   static double normal[3] = { 0.0, 0.0, 1.0 };
 
-  if (1) //this->SliceFacesCamera)
+  if (this->SliceFacesCamera)
     {
     // use a full-screen quad if slice faces camera, this ensures that all
     // images showing the same "slice" use exactly the same geometry, which
