@@ -41,7 +41,7 @@ public:
   // Bounds of the item, typically the bound of all the control points
   virtual void GetBounds(double bounds[4]);
 
-  // Decription:
+  // Description:
   // Paint the points with a fixed size (cosmetic) which doesn't depend
   // on the scene zoom factor. Selected and unselected points are drawn
   // with a different color.
@@ -94,7 +94,7 @@ protected:
 
   static void CallComputePoints(vtkObject* sender, unsigned long event, void* receiver, void* params);
 
-  // Decription:
+  // Description:
   // Must be reimplemented by subclasses to calculate the points to draw.
   // It's subclass responsibility to call ComputePoints() via the callback
   virtual void ComputePoints();

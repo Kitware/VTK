@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkGeoImageNode, vtkGeoTreeNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Decription:
+  // Description:
   // Every subclass implements these methods returning the specific type.
   // This is easier than templating.
   vtkGeoImageNode* GetChild(int idx);

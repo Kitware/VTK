@@ -50,7 +50,7 @@ protected:
   vtkPiecewiseControlPointsItem();
   virtual ~vtkPiecewiseControlPointsItem();
 
-  // Decription:
+  // Description:
   // Reimplemented to extract the control points from the piecewise function
   virtual void ComputePoints();
 
