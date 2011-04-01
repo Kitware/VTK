@@ -92,8 +92,6 @@ int vtkImageSliceMapper::ProcessRequest(
     inInfo->Get(vtkDataObject::SPACING(), spacing);
     inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
-    cerr << "WHOLE_EXTENT " << this << ": " << this->DataWholeExtent[0] << ", " << this->DataWholeExtent[1] << ", " << this->DataWholeExtent[2] << ", " << this->DataWholeExtent[3] << ", " << this->DataWholeExtent[4] << ", " << this->DataWholeExtent[5] << "\n";
-
     vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
 
     if (this->Cropping)
@@ -194,7 +192,6 @@ int vtkImageSliceMapper::ProcessRequest(
   // set update extent to display extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    cerr << "UPDATE_EXTENT " << this << ": " << this->DisplayExtent[0] << ", " << this->DisplayExtent[1] << ", " << this->DisplayExtent[2] << ", " << this->DisplayExtent[3] << ", " << this->DisplayExtent[4] << ", " << this->DisplayExtent[5] << "\n";
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       this->DisplayExtent, 6);
@@ -272,7 +269,6 @@ int vtkImageSliceMapper::GetSliceNumber()
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMinValue()
 {
-  cerr << "UpdateInformation 1 " << this << "\n";
   this->UpdateInformation();
   return this->SliceNumberMinValue;
 }
@@ -280,7 +276,6 @@ int vtkImageSliceMapper::GetSliceNumberMinValue()
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMaxValue()
 {
-  cerr << "UpdateInformation 2 " << this << "\n";
   this->UpdateInformation();
   return this->SliceNumberMaxValue;
 }
@@ -294,7 +289,6 @@ double *vtkImageSliceMapper::GetBounds()
     return this->Bounds;
     }
 
-  cerr << "UpdateInformation 3 " << this << "\n";
   this->UpdateInformation();
 
   int extent[6];
