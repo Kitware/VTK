@@ -177,8 +177,6 @@ int vtkFunctionParser::Parse()
     return 0;
     }
 
-//    this->RemoveSpaces();
-
   result = this->CheckSyntax();
   if (!result)
     {
@@ -557,8 +555,6 @@ bool vtkFunctionParser::Evaluate()
   double temp[3];
 
   this->StackPointer = -1;
-
-//  this->RemoveSpaces();
 
   if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime() ||
     this->VariableMTime.GetMTime() > this->ParseMTime.GetMTime())
