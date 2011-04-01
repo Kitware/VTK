@@ -8,7 +8,7 @@ IF(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
     # For now, only build the CPack installer if vtk(.exe) will be available for
     # installation:
     #
-    IF(VTK_WRAP_TCL)
+    IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
       SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "VTK - The Visualization Toolkit")
       SET(CPACK_PACKAGE_VENDOR "Kitware, Inc.")
       SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Copyright.txt")
@@ -33,7 +33,7 @@ IF(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       ENDIF(WIN32)
 
       INCLUDE(CPack)
-    ENDIF(VTK_WRAP_TCL)
+    ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 
   ENDIF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 ENDIF(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
