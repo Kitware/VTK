@@ -45,7 +45,7 @@ public:
   // Retrieve the root geometry representing the entire globe.
   virtual bool FetchRoot(vtkGeoTreeNode* root);
 
-  // Decription:
+  // Description:
   // Retreive the child's geometry from disk.
   virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
 

@@ -100,13 +100,13 @@ public:
   // Override to make the renderer use this camera subclass
   virtual void SetCurrentRenderer(vtkRenderer*);
 
-  // Decription:
+  // Description:
   // Whether to lock the heading a particular value during pan.
   vtkGetMacro(LockHeading, bool);
   vtkSetMacro(LockHeading, bool);
   vtkBooleanMacro(LockHeading, bool);
   
-  // Decription:
+  // Description:
   // Called after camera properties are modified
   void ResetCameraClippingRange();
 

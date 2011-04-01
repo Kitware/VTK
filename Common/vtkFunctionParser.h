@@ -125,7 +125,7 @@ public:
   vtkTypeMacro(vtkFunctionParser, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Decription:
+  // Description:
   // Set/Get input string to evaluate.
   void SetFunction(const char *function);
   vtkGetStringMacro(Function);
