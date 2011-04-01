@@ -2229,17 +2229,18 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
      this->VariableMTime.GetMTime() > this->CheckMTime.GetMTime())
     {
     // Need to parse again.
+
+    // Reset previous error cache.
+    this->ParseErrorPositon = -1;
+    this->ParseError        = NULL;
+
+    this->CopyParseError(pos, error);
     }
   else
     {
-    pos     = this->ParseErrorPositon;
-    *error   = this->ParseError;
+    this->CopyParseError(pos, error);
     return;
     }
-
-  // Reset.
-  this->ParseErrorPositon = -1;
-  this->ParseError        = NULL;
 
   this->CheckMTime.Modified();
 
@@ -2503,7 +2504,6 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
   delete [] expectCommaOnParenthesisCount;
   delete [] expectTwoCommasOnParenthesisCount;
 
-  this->CopyParseError(pos, error);
   return;
 }
 
