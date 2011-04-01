@@ -193,13 +193,6 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
       // when one of our representations is updated.
       rep->AddObserver(vtkCommand::UpdateEvent, this->GetObserver());
 
-      if (rep->GetNumberOfInputPorts() > 0 &&
-          rep->GetNumberOfInputConnections(0) > 0)
-        {
-        // TODO: Do we need to update the rep
-        this->AddInputConnection(rep->GetInternalOutputPort(),
-                                 rep->GetInternalSelectionOutputPort());
-        }
       this->AddRepresentationInternal(rep);
       this->Implementation->Representations.push_back(rep);
       }
@@ -219,14 +212,7 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
   if (this->IsRepresentationPresent(rep))
     {
     rep->RemoveFromView(this);
-    rep->RemoveObserver(this->GetObserver());
-    if (rep->GetNumberOfInputPorts() > 0 &&
-        rep->GetNumberOfInputConnections(0) > 0)
-      {
-      // TODO: Do we need to update the rep
-      this->RemoveInputConnection(rep->GetInternalOutputPort(),
-                                  rep->GetInternalSelectionOutputPort());
-      }
+    rep->RemoveObserver(this->GetObserver());    
     this->RemoveRepresentationInternal(rep);
     vtkstd::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator it, itEnd;
     it = this->Implementation->Representations.begin();
