@@ -99,7 +99,7 @@ public:
   virtual const char *GetInterpolationTypeAsString();
 
   // Set the layer number.  This is ignored unless the image is part
-  // of a stack.
+  // of a vtkImageStack.  The default layer number is zero.
   vtkSetMacro(LayerNumber, int);
   int GetLayerNumber() { return this->LayerNumber; }
 
@@ -115,7 +115,8 @@ public:
   vtkGetVector2Macro(CheckerboardSpacing, double);
 
   // Description:
-  // The phase offset for checkerboarding, use a value between 0 and 1.
+  // The phase offset for checkerboarding, in units of spacing.  Use a
+  // value between 0 and 2, where 2 is an offset of two squares.
   vtkSetVector2Macro(CheckerboardOffset, double);
   vtkGetVector2Macro(CheckerboardOffset, double);
 
