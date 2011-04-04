@@ -712,7 +712,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 
 static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 {
-  static char result[1024];
+  static char result[2048]; /* max literal string length */
   size_t currPos = 0;
   ValueInfo *arg;
   unsigned int argtype;
@@ -777,7 +777,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 static char *vtkWrapPython_ArgCheckString(
   int isvtkobjmethod, FunctionInfo *currentFunction)
 {
-  static char result[1024];
+  static char result[2048]; /* max literal string length */
   size_t currPos = 0;
   ValueInfo *arg;
   unsigned int argtype;
@@ -1132,7 +1132,7 @@ static int *vtkWrapPython_ArgCountToOverloadMap(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
   int fnum, int is_vtkobject, int *nmax, int *overlap)
 {
-  static int overloadMap[100];
+  static int overloadMap[512];
   int totalArgs, requiredArgs;
   int occ, occCounter;
   FunctionInfo *theOccurrence;
