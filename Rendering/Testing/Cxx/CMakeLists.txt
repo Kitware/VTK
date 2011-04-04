@@ -41,6 +41,7 @@ IF(VTK_USE_DISPLAY)
     TestImageSliceMapperOrient2D.cxx
     TestImageSliceMapperOrient3D.cxx
     TestImageSliceMapperInterpolation.cxx
+    TestImageStack.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
     TestLabelPlacer2D.cxx

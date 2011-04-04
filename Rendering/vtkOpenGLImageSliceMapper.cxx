@@ -124,9 +124,14 @@ void vtkOpenGLImageSliceMapper::RenderBackingPolygon()
   this->MakeTextureGeometry(
     this->GetInput(), this->DisplayExtent, this->Border, coords, 0);
 
+  static double normals[3][3] =
+    { {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} };
+  double *normal = normals[(this->Orientation % 3)];
+
   glBegin(GL_QUADS);
   for (int i = 0; i < 4; i++)
     {
+    glNormal3dv(normal);
     glVertex3dv(&coords[i*3]);
     }
   glEnd();
@@ -358,9 +363,14 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   // modulate the texture with the fragment for lighting effects
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+  static double normals[3][3] =
+    { { 1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+  double *normal = normals[(this->Orientation % 3)];
+
   glBegin(GL_QUADS);
   for (int i = 0; i < 4; i++)
     {
+    glNormal3dv(normal);
     glTexCoord2dv(this->TCoords + i*2);
     glVertex3dv(this->Coords + i*3);
     }
