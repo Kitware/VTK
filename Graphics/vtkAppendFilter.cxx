@@ -301,6 +301,7 @@ int vtkAppendFilter::RequestData(
   ptIds->Delete();
   newPtIds->Delete();
 
+  output->Squeeze();
   return 1;
 }
   

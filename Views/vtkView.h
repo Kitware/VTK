@@ -191,23 +191,7 @@ protected:
   // This may be overridden by subclasses to process additional events.
   virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
     void* callData);
-    
-  // Description:
-  // Connects to the internal pipeline.
-  // Subclasses that handle tight integration between view and
-  // representation should override this method.
-  virtual void AddInputConnection(
-    vtkAlgorithmOutput* vtkNotUsed(conn),
-    vtkAlgorithmOutput* vtkNotUsed(selectionConn)) { }
-  
-  // Description:
-  // Disconnects the internal pipeline.
-  // Subclasses that handle tight integration between view and
-  // representation should override this method.
-  virtual void RemoveInputConnection(
-    vtkAlgorithmOutput* vtkNotUsed(conn),
-    vtkAlgorithmOutput* vtkNotUsed(selectionConn)) { }
-  
+
   // Description:
   // Create a default vtkDataRepresentation for the given vtkAlgorithmOutput.
   // View subclasses may override this method to create custom representations.
