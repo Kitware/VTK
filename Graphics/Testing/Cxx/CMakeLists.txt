@@ -26,6 +26,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeDual.cxx
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
+    TestLineSource.cxx
     TestMapVectorsAsRGBColors.cxx
     TestNamedComponents.cxx
     TestMeanValueCoordinatesInterpolation1.cxx
