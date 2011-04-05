@@ -21,6 +21,9 @@
 #ifndef AMRCOMMON_H_
 #define AMRCOMMON_H_
 
+#include <cassert>
+#include <sstream>
+
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkMultiBlockDataSet.h"
 
