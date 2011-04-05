@@ -278,7 +278,17 @@ bool vtkGraphLayoutView::GetColorEdges()
 {
   return this->GetGraphRepresentation()->GetColorEdgesByArray();
 }
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEdgeSelection(bool vis)
+{
+  this->GetGraphRepresentation()->SetEdgeSelection(vis);
+}
 
+//----------------------------------------------------------------------------
+bool vtkGraphLayoutView::GetEdgeSelection()
+{
+  return this->GetGraphRepresentation()->GetEdgeSelection();
+}
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeScalarBarVisibility(bool vis)
 {
@@ -514,4 +524,3 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
