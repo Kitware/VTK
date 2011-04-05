@@ -29,6 +29,7 @@
 #define VTKAMRPROBEFILTER_H_
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include <set> // For C++ STL set
 
 class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
@@ -55,6 +56,26 @@ class VTK_AMR_EXPORT vtkAMRProbeFilter : public vtkMultiBlockDataSetAlgorithm
   protected:
     vtkAMRProbeFilter();
     virtual ~vtkAMRProbeFilter();
+
+    // Description:
+    // Extracts the AMR blocks into a multi-block dataset instance.
+    void ExtractAMRBlocks(
+      vtkMultiBlockDataSet *mbds,
+      vtkHierarchicalBoxDataSet *amrds,
+      std::set< unsigned int > &blocksToExtract );
+
+    // Description:
+    // Determines if a point is within a block at a given level
+    bool FindPointInLevel(
+        double x, double y, double z,
+        int levelIdx, vtkHierarchicalBoxDataSet *amrds, int &blockId );
+
+    // Description:
+    // Determines if a point is within an AMR block given the x,y,z coordinates
+    // and the level and ID of the target block.
+    bool PointInAMRBlock(
+        double x, double y, double z,
+        int levelIdx, int blockIdx, vtkHierarchicalBoxDataSet *amrds );
 
     // Description:
     // Given a user-supplied pointset, this method finds the blocks

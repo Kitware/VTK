@@ -77,6 +77,18 @@ TARGET_LINK_LIBRARIES( Generate2DAMRDataSetWithPulse
                        vtkParallel
                        ${MPI_LIBRARIES} 
                        )
+
+## Add TestAMRProbe executable
+ADD_EXECUTABLE( TestAMRProbe TestAMRProbe.cxx )
+TARGET_LINK_LIBRARIES( TestAMRProbe 
+                       vtkGraphics
+                       vtkFiltering
+                       vtkRendering
+                       vtkIO
+                       vtkAMR
+                       vtkParallel
+                       ${MPI_LIBRARIES} 
+                      )
                                    
 ## Add TestImageDataToStructuredGridFilter
 ADD_EXECUTABLE( TestImageDataToStructuredGridFilter 

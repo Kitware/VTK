@@ -15,6 +15,7 @@
 
 #include <cassert>
 #include <list>
+#include <set>
 #include <algorithm>
 
 #include "vtkInformation.h"
@@ -25,8 +26,10 @@
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkUniformGrid.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkAMRBox.h"
+#include "vtkAMRGridIndexEncoder.h"
 
 vtkStandardNewMacro(vtkAMRProbeFilter);
 
@@ -64,6 +67,91 @@ void vtkAMRProbeFilter::SetProbePoints( vtkPointSet *probes )
 }
 
 //------------------------------------------------------------------------------
+bool vtkAMRProbeFilter::PointInAMRBlock(
+    double x, double y, double z,
+    int levelIdx, int blockIdx,
+    vtkHierarchicalBoxDataSet *amrds )
+{
+  assert( "pre: input AMR dataset is NULL" && (amrds != NULL) );
+  assert( "pre: level index is out of bounds!" &&
+           ( (levelIdx >= 0) && (levelIdx < amrds->GetNumberOfLevels() ) ) );
+  assert( "pre: block index is out of bounds!" &&
+    ( (blockIdx >= 0) && (blockIdx < amrds->GetNumberOfDataSets(levelIdx) ) ) );
+
+  vtkAMRBox amrBox;
+  amrds->GetMetaData( levelIdx, blockIdx, amrBox );
+
+  if( amrBox.HasPoint( x, y, z ) )
+    return true;
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkAMRProbeFilter::FindPointInLevel(
+    double x, double y, double z,
+    int levelIdx,vtkHierarchicalBoxDataSet *amrds,
+    int &blockId )
+{
+  assert( "pre: input AMR dataset is NULL" && (amrds != NULL) );
+  assert( "pre: level index is out of bounds!" &&
+   ( (levelIdx >= 0) && (levelIdx < amrds->GetNumberOfLevels() ) ) );
+
+  unsigned int dataIdx = 0;
+  for( ; dataIdx < amrds->GetNumberOfDataSets( levelIdx ); ++dataIdx )
+    {
+
+      if( this->PointInAMRBlock(x,y,z,levelIdx,dataIdx,amrds) )
+        {
+          blockId = static_cast< int >( dataIdx );
+          return true;
+        }
+
+    }
+
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRProbeFilter::ExtractAMRBlocks(
+    vtkMultiBlockDataSet *mbds, vtkHierarchicalBoxDataSet *amrds,
+    std::set< unsigned int > &blocksToExtract )
+{
+  assert( "pre: multi-block dataset is NULL" && (mbds != NULL) );
+  assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
+
+  mbds->SetNumberOfBlocks( blocksToExtract.size() );
+
+  unsigned int blockIdx = 0;
+  std::set< unsigned int >::iterator iter = blocksToExtract.begin();
+  for( ; iter != blocksToExtract.end(); ++iter )
+    {
+      unsigned int gridIdx = *iter;
+      int blockId = -1;
+      int levelId = -1;
+      vtkAMRGridIndexEncoder::decode( gridIdx, levelId, blockId );
+      assert( "level index out-of-bounds" &&
+          ( (levelId >= 0) && ( levelId < amrds->GetNumberOfLevels())));
+      assert( "block index out-of-bounds" &&
+          ( (blockId >= 0) && (blockId < amrds->GetNumberOfDataSets(levelId))));
+
+      vtkUniformGrid *ug = amrds->GetDataSet( levelId, blockId );
+      if( ug != NULL )
+        {
+          vtkUniformGrid *clone = ug->NewInstance();
+          clone->ShallowCopy( ug );
+          clone->SetCellVisibilityArray( NULL );
+          clone->SetPointVisibilityArray( NULL );
+
+          mbds->SetBlock( blockIdx, clone );
+          ++blockIdx;
+          clone->Delete();
+        }
+
+    } // END for all blocks
+
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRProbeFilter::ProbeAMR(
     vtkPointSet *probes, vtkHierarchicalBoxDataSet *amrds,
     vtkMultiBlockDataSet *mbds )
@@ -73,39 +161,62 @@ void vtkAMRProbeFilter::ProbeAMR(
   assert( "pre: input probe pointset is NULL" && (probes != NULL) );
   assert( "pre: multiblock output is NULL" && (mbds != NULL) );
 
-  std::list< vtkIdType > probeIds;
-  unsigned int pnt = 0;
-  for( ; pnt < probes->GetNumberOfPoints(); ++pnt )
-      probeIds.push_front( pnt );
 
-  // Loop through all levels from highest to lowest and while there
-  // are still probe points.
-  unsigned int level=amrds->GetNumberOfLevels()-1;
-  for( ; !probeIds.empty() && (level >= 0); --level )
+  // Contains the packed (levelId,blockId) pair of the blocks
+  // to extract in the multiblock dataset.
+  std::set< unsigned int > blocksToExtract;
+
+  // STEP 0: Initialize work ID list
+  std::list< vtkIdType > workIdList;
+  for( vtkIdType idx=0; idx < probes->GetNumberOfPoints(); ++idx )
+    workIdList.push_front( idx );
+
+  // STEP 1: loop while the workIdList is not empty, searching for a block
+  // that contains the point, starting from highest resolution level to
+  // lowest resolution
+  while( !workIdList.empty() )
     {
+      vtkIdType currentIdx = workIdList.front();
+      workIdList.pop_front();
 
-      std::list< vtkIdType >::iterator probeIter = probeIds.begin();
-      for( ; probeIter != probeIds.end(); ++probeIter )
+      double pnt[3];
+      probes->GetPoint( currentIdx, pnt );
+
+      int blockId               = -1;
+      unsigned int currentLevel = amrds->GetNumberOfLevels()-1;
+      bool isBlockFound  = false;
+      for( ; currentLevel >= 0; --currentLevel )
         {
-          vtkIdType idx = *probeIter;
-          double coords[3];
-          probes->GetPoint( idx, coords );
 
-          unsigned int dataIdx = 0;
-          for( ; dataIdx < amrds->GetNumberOfDataSets(level); ++dataIdx )
+          if( this->FindPointInLevel(
+              pnt[0],pnt[1],pnt[2],
+              currentLevel,amrds,blockId ) )
             {
-              vtkAMRBox box;
-              amrds->GetMetaData( level, dataIdx, box );
-              if( box.HasPoint(coords[0],coords[1],coords[2]) )
-                {
-                  // TODO: implement this
-                }
+              assert( "invalid block ID" &&
+                    ( (blockId >= 0) &&
+                      (blockId < amrds->GetNumberOfDataSets(currentLevel) ) ) );
 
-            } // END for all data
-        } // END for all probes
+              int level            = static_cast< int >( currentLevel );
+              unsigned int grididx =
+               vtkAMRGridIndexEncoder::encode(level,blockId);
+              blocksToExtract.insert( grididx );
+              isBlockFound = true;
+              break;
+            }
 
-    } // END for all levels
+        } // END for all levels
 
+      if( !isBlockFound )
+        {
+          //
+          // TODO: What should we do with probes that were not found?
+          //
+        }
+
+    } // END while work ID list is not empty
+
+    // STEP 2: Extract the AMR blocks
+    this->ExtractAMRBlocks( mbds, amrds, blocksToExtract );
 }
 
 //------------------------------------------------------------------------------
