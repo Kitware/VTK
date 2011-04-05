@@ -117,6 +117,12 @@ public:
   vtkBooleanMacro(ColorEdges, bool);
 
   // Description:
+  // Whether edges are selectable. Default is on.
+  void SetEdgeSelection(bool vis);
+  bool GetEdgeSelection();
+  vtkBooleanMacro(EdgeSelection, bool);
+
+  // Description:
   // The array to use for coloring edges.
   void SetEnabledEdgesArrayName(const char* name);
   const char* GetEnabledEdgesArrayName();
