@@ -22,6 +22,8 @@
  * see vtkWrapPython_ArgCheckString() in vtkWrapPython.c.
  */
 
+// .NAME vtkPythonOverload
+
 #ifndef __vtkPythonOverload_h
 #define __vtkPythonOverload_h
 
