@@ -24,6 +24,8 @@ if(METAIO_FOR_VTK)
   if(BUILD_SHARED_LIBS)
     add_definitions(-Dvtkmetaio_BUILD_SHARED_LIBS)
   endif()
+elseif("${METAIO_NAMESPACE}" STREQUAL "ITKMetaIO")
+  set(METAIO_FOR_ITK 1)
 elseif(NOT METAIO_NAMESPACE)
   set(METAIO_NAMESPACE MetaIO)
 endif()
@@ -46,7 +48,9 @@ if(NOT METAIO_INSTALL_INCLUDE_DIR)
   set(METAIO_INSTALL_INCLUDE_DIR include)
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/metaIOConfig.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/metaIOConfig.h @ONLY)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(${METAIO_NAMESPACE}
   metaTypes.h
@@ -122,6 +126,7 @@ endif(NOT METAIO_INSTALL_NO_LIBRARIES)
 if(NOT METAIO_INSTALL_NO_DEVELOPMENT)
   file(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
   install(FILES ${__files}
+                ${CMAKE_CURRENT_BINARY_DIR}/metaIOConfig.h
     DESTINATION ${METAIO_INSTALL_INCLUDE_DIR} COMPONENT Development
     )
 endif()
