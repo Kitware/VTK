@@ -52,6 +52,7 @@ vtkPlotPoints::vtkPlotPoints()
   this->Sorted = NULL;
   this->BadPoints = NULL;
   this->MarkerStyle = vtkPlotPoints::CIRCLE;
+  this->MarkerSize = -1.0;
   this->LogX = false;
   this->LogY = false;
   this->Marker = NULL;
@@ -137,10 +138,15 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     return false;
     }
 
-  float width = this->Pen->GetWidth() * 2.3;
-  if (width < 8.0)
+  // Maintain legacy behavior (using pen width) if MarkerSize was not set
+  float width = this->MarkerSize;
+  if (width < 0.0f)
     {
-    width = 8.0;
+    width = this->Pen->GetWidth() * 2.3;
+    if (width < 8.0)
+      {
+      width = 8.0;
+      }
     }
 
   // If there is a marker style, then draw the marker for each point too
