@@ -417,7 +417,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     quantileIndices.push_back( qIdxPair );
 
     // Calculate all interior quantiles (i.e. for 0 < k < q)
-    vtkIdType rank = 1;
+    vtkIdType rank = 0;
     double dh = n / static_cast<double>( this->NumberOfIntervals );
     for ( vtkIdType k = 1; k < this->NumberOfIntervals; ++ k )
       {
@@ -440,12 +440,12 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         ++ rank;
 
-        if ( rank > nRowHist )
+        if ( rank >= nRowHist )
           {
           vtkErrorMacro( "Inconsistent quantile table: at last rank "
                          << rank
                          << " the CDF is  "
-                         << cdf[rank]
+                         << cdf[rank-1]
                          <<" < "
                          << qIdx1
                          << " the quantile index. Cannot derive model." );
@@ -469,12 +469,12 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
             {
             ++ rank;
 
-            if ( rank > nRowHist )
+            if ( rank >= nRowHist )
               {
               vtkErrorMacro( "Inconsistent quantile table: at last rank "
                              << rank
                              << " the CDF is  "
-                             << cdf[rank]
+                             << cdf[rank-1]
                              <<" < "
                              << qIdx2
                              << " the quantile index. Cannot derive model." );
