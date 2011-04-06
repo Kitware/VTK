@@ -21,6 +21,8 @@ more efficient and flexible that the original PyArg_ParseTuple() code,
 resulting in wrapper code that is faster and more compact.
 -----------------------------------------------------------------------*/
 
+// .NAME vtkPythonArgs
+
 #ifndef __vtkPythonArgs_h
 #define __vtkPythonArgs_h
 

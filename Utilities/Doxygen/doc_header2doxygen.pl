@@ -522,14 +522,20 @@ foreach my $source (@files) {
                 push @description, $line;
             }
 
-            # While there are non-empty lines add these lines to the
-            # list of declarations (and/or inline definitions)
-            # pertaining to the same description.
+            # While there are non-empty lines or a new Descrption line add
+            # these lines to the list of declarations
+            # (and/or inline definitions) pertaining to the same description.
 
             my @declarations = ();
             while ($line && $line =~ /\s*\S/) {
                 push @declarations, $line;
-                $line = shift @headerfile
+                # terminate if we encounter another Description line
+                # that doesn't have a leading empty line
+                if ($headerfile[0] !~ /^(\s*)\/\/\s*De(s|c)(s|c)?ription/ ) {
+                    $line = shift @headerfile;
+                }else{
+                    $line = "";
+                }
             }
 
             # If there is more than one declaration or at least a macro,
