@@ -26,13 +26,13 @@
 
 #include "vtkChart.h"
 #include "vtkSmartPointer.h" // For SP ivars
+#include "vtkVector.h" // For vtkVector2f in struct
 
 class vtkPlot;
 class vtkAxis;
 class vtkPlotGrid;
 class vtkChartLegend;
 class vtkTooltipItem;
-class vtkVector2f;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
 class VTK_CHARTS_EXPORT vtkChartXY : public vtkChart
@@ -268,8 +268,11 @@ private:
   void CalculateBarPlots();
 
   // Description:
-  // Try to locate a point within the plots to display in a tooltip
-  bool LocatePointInPlots(const vtkContextMouseEvent &mouse);
+  // Try to locate a point within the plots to display in a tooltip.
+  // If invokeEvent is greater than 0, then an event will be invoked if a point
+  // is at that mouse position.
+  bool LocatePointInPlots(const vtkContextMouseEvent &mouse,
+                          int invokeEvent = -1);
 
   // Description:
   // Remove the plot from the plot corners list.
@@ -278,6 +281,16 @@ private:
   void ZoomInAxes(vtkAxis *x, vtkAxis *y, float *orign, float *max);
 
 //ETX
+};
+
+// Description:
+// Small struct used by InvokeEvent to send some information about the point
+// that was clicked on. This is an experimental part of the API, subject to
+// change.
+struct vtkChartPlotData
+{
+  vtkStdString SeriesName;
+  vtkVector2f Position;
 };
 
 #endif //__vtkChartXY_h
