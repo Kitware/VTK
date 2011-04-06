@@ -37,7 +37,7 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkColorLegend* New();
 
-  // Decription:
+  // Description:
   // Bounds of the item, by default (0, 1, 0, 1) but it mainly depends on the
   // range of the vtkScalarsToColors function.
   virtual void GetBounds(double bounds[4]);
@@ -48,7 +48,7 @@ public:
   // Paint function is invoked.
   virtual void Update();
 
-  // Decription:
+  // Description:
   // Paint the texture into a rectangle defined by the bounds. If
   // MaskAboveCurve is true and a shape has been provided by a subclass, it
   // draws the texture into the shape
