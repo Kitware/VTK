@@ -716,7 +716,7 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
     }
 
   int i;
-  double xExt = 20; //bounds[1] - bounds[0];
+  double xExt = bounds[1] - bounds[0];
   double yExt = bounds[3] - bounds[2];
   double zExt = bounds[5] - bounds[4];
 
