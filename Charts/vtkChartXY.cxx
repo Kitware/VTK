@@ -1167,7 +1167,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
+bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
+                                    int invokeEvent)
 {
   size_t n = this->ChartPrivate->plots.size();
   if (mouse.ScreenPos[0] > this->Point1[0] &&
@@ -1202,6 +1203,14 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
               {
               // We found a point, set up the tooltip and return
               this->SetTooltipInfo(mouse, plotPos, seriesIndex, plot);
+              if (invokeEvent >= 0)
+                {
+                vtkChartPlotData plotIndex;
+                plotIndex.SeriesName = plot->GetLabel();
+                plotIndex.Position = plotPos;
+                // Invoke an event, with the client data supplied
+                this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
+                }
               return true;
               }
             }
@@ -1306,9 +1315,10 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
     if (fabs(this->BoxGeometry[0]) < 0.5 || fabs(this->BoxGeometry[1]) < 0.5)
       {
-      // Invalid box size - do nothing
+      // Invalid box size - treat as a point click event
       this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
       this->DrawBox = false;
+      this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
       return true;
       }
 
@@ -1346,7 +1356,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
                                                 PlotCorners[i]->GetItem(j));
           if (plot && plot->GetVisible())
             {
-            /* 
+            /*
              * Populate the internal selection.  This will be referenced later
              * to subsequently populate the selection inside the annotation link.
              */
