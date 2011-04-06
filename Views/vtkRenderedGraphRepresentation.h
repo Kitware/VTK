@@ -205,6 +205,9 @@ public:
   virtual bool GetEdgeVisibility();
   vtkBooleanMacro(EdgeVisibility, bool);
 
+  void SetEdgeSelection(bool b);
+  bool GetEdgeSelection();
+
   // ------------------------------------------------------------------------
   // Vertex layout strategy
 
@@ -421,6 +424,8 @@ protected:
   char* EdgeLayoutStrategyName;
   bool HideVertexLabelsOnInteraction;
   bool HideEdgeLabelsOnInteraction;
+
+  bool EdgeSelection;
 
 private:
   vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&); // Not implemented
