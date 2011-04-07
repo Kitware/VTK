@@ -530,6 +530,11 @@ void vtkChartXY::RecalculatePlotBounds()
       continue;
       }
     (*it)->GetBounds(bounds);
+    if (bounds[1]-bounds[0] < 0.0)
+      {
+      // skip uninitialized bounds.
+      continue;
+      }
     int corner = this->GetPlotCorner(*it);
 
     // Initialize the appropriate ranges, or push out the ranges
