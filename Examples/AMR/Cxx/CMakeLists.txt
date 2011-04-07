@@ -54,6 +54,18 @@ TARGET_LINK_LIBRARIES( AMRDualExtractor
              ${MPI_LIBRARIES} 
              )
 
+## Add AMRHomogenization
+ADD_EXECUTABLE(AMRHomogenization AMRHomogenization.cxx)
+TARGET_LINK_LIBRARIES( AMRHomogenization
+                vtkGraphics
+                vtkFiltering
+                vtkRendering
+                vtkIO
+                vtkAMR
+                vtkParallel
+                ${MPI_LIBRARIES}
+                )
+
 ## Add Generate3DAMRDataSetWithPulse executable
 ADD_EXECUTABLE( Generate3DAMRDataSetWithPulse Generate3DAMRDataSetWithPulse.cxx)
 TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
