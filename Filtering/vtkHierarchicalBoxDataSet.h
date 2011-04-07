@@ -112,6 +112,11 @@ public:
   void SetDataSet(unsigned int level, unsigned int id, vtkUniformGrid* dataSet);
 
   // Description:
+  // Appends the dataset to the given level. This will resize the
+  // number of levels and the number of datasets accordingly.
+  void AppendDataSet(unsigned int level, vtkUniformGrid* dataSet );
+
+  // Description:
   // Sets the meta-data object at a given node. This will resize the number
   // of levels and number of datasets acoordingly.
   void SetMetaData(unsigned int level, unsigned int id, const vtkAMRBox &box );

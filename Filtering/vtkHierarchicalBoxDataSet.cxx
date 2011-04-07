@@ -224,6 +224,30 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 }
 
 //------------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::AppendDataSet(
+    unsigned int level, vtkUniformGrid* grid )
+{
+  // STEP 0: Resize the number of levels accordingly
+  if( level >= this->GetNumberOfLevels() )
+    {
+      this->SetNumberOfLevels( level+1 );
+    }
+
+  // STEP 1: Insert data at the end
+  vtkMultiPieceDataSet* levelDS =
+      vtkMultiPieceDataSet::SafeDownCast( this->Superclass::GetChild(level));
+  if( levelDS != NULL )
+    {
+      unsigned int idx = levelDS->GetNumberOfPieces();
+      levelDS->SetPiece(idx, grid);
+    }
+  else
+    {
+      vtkErrorMacro( "Multi-piece data-structure is NULL!!!!" );
+    }
+}
+
+//------------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::SetMetaData(
     unsigned int level, unsigned int id, const vtkAMRBox &box )
 {
