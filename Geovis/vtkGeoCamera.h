@@ -144,7 +144,7 @@ public:
   // Returns a value from 0 to 1.
   double GetNodeCoverage(vtkGeoTerrainNode* node);
   
-  // Decription:
+  // Description:
   // Whether to lock the heading a particular value,
   // or to let the heading "roam free" when performing
   // latitude and longitude changes.

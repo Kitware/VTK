@@ -19,16 +19,17 @@
 
 =========================================================================*/
 
-#ifndef __vtkVariantCreate_h
-#define __vtkVariantCreate_h
-
+// .NAME vtkVariantCreate
+// .SECTION Description
+// Performs an explicit conversion from an arbitrary type to a vtkVariant.  Provides
+// callers with a "hook" for defining conversions from user-defined types to vtkVariant.
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-// Description:
-// Performs an explicit conversion from an arbitrary type to a vtkVariant.  Provides
-// callers with a "hook" for defining conversions from user-defined types to vtkVariant.
+#ifndef __vtkVariantCreate_h
+#define __vtkVariantCreate_h
+
 template<typename T>
 vtkVariant vtkVariantCreate(const T&)
 {

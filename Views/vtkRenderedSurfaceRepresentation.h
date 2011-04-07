@@ -74,12 +74,12 @@ protected:
   // Performs per-render operations.
   virtual void PrepareForRendering(vtkRenderView* view);
   
-  // Decription:
+  // Description:
   // Adds the representation to the view.  This is called from
   // vtkView::AddRepresentation().
   virtual bool AddToView(vtkView* view);
   
-  // Decription:
+  // Description:
   // Removes the representation to the view.  This is called from
   // vtkView::RemoveRepresentation().
   virtual bool RemoveFromView(vtkView* view);

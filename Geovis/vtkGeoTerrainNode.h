@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkGeoTerrainNode, vtkGeoTreeNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Decription:
+  // Description:
   // Every subclass implements these methods returning the specific type.
   // This is easier than templating.
   vtkGeoTerrainNode* GetChild(int idx);
   vtkGeoTerrainNode* GetParent();
     
-  // Decription:
+  // Description:
   // Given, a long, lat position, return altitude in meters
   // relative to  sea level.
   double GetAltitude(double longitude, double latitude);
