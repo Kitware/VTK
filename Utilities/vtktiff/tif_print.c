@@ -90,7 +90,7 @@ _TIFFPrintField(FILE* fd, const TIFFFieldInfo *fip,
                         || fip->field_type == TIFF_FLOAT)
                         fprintf(fd, "%f", ((float *) raw_data)[j]);
                 else if(fip->field_type == TIFF_IFD)
-                        fprintf(fd, "0x%ulx", ((uint32 *) raw_data)[j]);
+                        fprintf(fd, "0x%lx", (unsigned long)((uint32 *) raw_data)[j]);
                 else if(fip->field_type == TIFF_ASCII) {
                         fprintf(fd, "%s", (char *) raw_data);
                         break;

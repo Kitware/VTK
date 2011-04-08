@@ -32,6 +32,9 @@ bool fuzzyCompare1D(A a, A b)
 
 int TestLineSource( int argc, char* argv[] )
 {
+  (void)argc;
+  (void)argv;
+  
   {
   // Test double functions
   double p1[3] = {1.0, 0.0, 0.0};
