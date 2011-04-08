@@ -13,6 +13,11 @@ FILE( GLOB Kit_SRCS *.cxx )
 SET(KIT_LIBS vtkParallel vtkCommon vtkFiltering)
 
 SET_SOURCE_FILES_PROPERTIES(
+    vtkAMRBaseReader
+    ABSTRACT
+)
+
+SET_SOURCE_FILES_PROPERTIES(
   vtkAMRGridIndexEncoder
   vtkAMRLink
   WRAP_EXCLUDE
