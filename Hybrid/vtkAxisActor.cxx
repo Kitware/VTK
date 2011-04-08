@@ -519,6 +519,9 @@ int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
 //   Corrected the test that causes the routine to exit early when
 //   no work needs to be done.
 //
+//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//   Use mapper bounds, not actor bounds.
+//
 // *******************************************************************
 
 void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
@@ -528,7 +531,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     return;
     }
 
-  double bounds[6], center[3], tick[3], pos[3];
+  double bounds[6], center[3], tick[3], pos[3], scale[3];
   int i = 0;
   int xmult = 0;
   int ymult = 0;
@@ -566,10 +569,11 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     ptIdx = 4*i + 1;
     this->MajorTickPts->GetPoint(ptIdx, tick);
 
-    this->LabelActors[i]->GetBounds(bounds);
+    this->LabelActors[i]->GetMapper()->GetBounds(bounds);
+    this->LabelActors[i]->GetScale(scale);
 
-    double halfWidth  = (bounds[1] - bounds[0]) * 0.5;
-    double halfHeight = (bounds[3] - bounds[2]) * 0.5;
+    double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * scale[0];
+    double halfHeight = (bounds[3] - bounds[2]) * 0.5 * scale[1];
 
     center[0] = tick[0] + xmult * (halfWidth  + this->MinorTickSize);
     center[1] = tick[1] + ymult * (halfHeight + this->MinorTickSize);
@@ -608,6 +612,9 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 //    Fix bug with positioning of titles (the titles were being placed
 //    far away from the bounding box in some cases).
 //
+//    David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//    Use mapper bounds, not actor bounds.
+//
 // **********************************************************************
 
 void vtkAxisActor::BuildTitle(bool force)
@@ -616,7 +623,7 @@ void vtkAxisActor::BuildTitle(bool force)
     {
     return;
     }
-  double labBounds[6], titleBounds[6], center[3], pos[3];
+  double labBounds[6], titleBounds[6], center[3], pos[3], scale[3];
   double labHeight, maxHeight = 0, labWidth, maxWidth = 0;
   double halfTitleWidth, halfTitleHeight;
 
@@ -654,18 +661,20 @@ void vtkAxisActor::BuildTitle(bool force)
   //
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
-    this->LabelActors[i]->GetBounds(labBounds);
-    labWidth = labBounds[1] - labBounds[0];
+    this->LabelActors[i]->GetMapper()->GetBounds(labBounds);
+    this->LabelActors[i]->GetScale(scale);
+    labWidth = (labBounds[1] - labBounds[0])*scale[0];
     maxWidth = (labWidth > maxWidth ? labWidth : maxWidth);
-    labHeight = labBounds[3] - labBounds[2];
+    labHeight = (labBounds[3] - labBounds[2])*scale[1];
     maxHeight = (labHeight > maxHeight ? labHeight : maxHeight);
     }
   this->TitleVector->SetText(this->Title);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetPosition(p2[0], p2[1], p2[2]);
-  this->TitleActor->GetBounds(titleBounds);
-  halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5;
-  halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5;
+  this->TitleActor->GetMapper()->GetBounds(titleBounds);
+  this->TitleActor->GetScale(scale);
+  halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5 * scale[0];
+  halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5 * scale[1];
 
   center[0] = p1[0] + (p2[0] - p1[0]) / 2.0;
   center[1] = p1[1] + (p2[1] - p1[1]) / 2.0;
@@ -1530,27 +1539,26 @@ void vtkAxisActor::GetBounds(double b[6])
 //   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
 //   Reset the actor's position and scale.
 //
+// Modifications:
+//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//   Use mapper bounds, not actor bounds, so centering is not necessary.
+//
 // *********************************************************************
 
-double vtkAxisActor::ComputeMaxLabelLength(const double center[3])
+double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
 {
   double length, maxLength = 0.;
-  double pos[3];
-  double scale;
+  double bounds[6];
+  double xsize, ysize;
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
-    this->LabelActors[i]->GetPosition(pos);
-    scale = this->LabelActors[i]->GetScale()[0];
-
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->SetProperty(this->GetProperty());
-    this->LabelActors[i]->SetPosition(center[0], center[1] , center[2]);
-    this->LabelActors[i]->SetScale(1.);
-    length = this->LabelActors[i]->GetLength();
+    this->LabelActors[i]->GetMapper()->GetBounds(bounds);
+    xsize = bounds[1] - bounds[0];
+    ysize = bounds[3] - bounds[2];
+    length = sqrt(xsize*xsize + ysize*ysize);
     maxLength = (length > maxLength ? length : maxLength);
-
-    this->LabelActors[i]->SetPosition(pos);
-    this->LabelActors[i]->SetScale(scale);
     }
   return maxLength;
 }
@@ -1574,23 +1582,26 @@ double vtkAxisActor::ComputeMaxLabelLength(const double center[3])
 //   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
 //   Reset the actor's position and scale.
 //
+// Modifications:
+//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//   Use mapper bounds, not actor bounds, so centering is not necessary.
+//
 // *********************************************************************
 
-double vtkAxisActor::ComputeTitleLength(const double center[3])
+double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
 {
-  double pos[3], scale, len;
-  this->TitleActor->GetPosition(pos);
-  scale = this->TitleActor->GetScale()[0];
+  double bounds[6];
+  double xsize, ysize;
+  double length;
+
   this->TitleVector->SetText(this->Title);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetProperty(this->GetProperty());
-  this->TitleActor->SetPosition(center[0], center[1] , center[2]);
-  this->TitleActor->SetScale(1.);
-  len = this->TitleActor->GetLength();
-
-  this->TitleActor->SetPosition(pos);
-  this->TitleActor->SetScale(scale);
-  return len;
+  this->TitleActor->GetMapper()->GetBounds(bounds);
+  xsize = bounds[1] - bounds[0];
+  ysize = bounds[3] - bounds[2];
+  length = sqrt(xsize*xsize + ysize*ysize);
+  return length;
 }
 
 // *********************************************************************
