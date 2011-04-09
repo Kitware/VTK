@@ -146,7 +146,8 @@ int vtkStreamingDemandDrivenPipeline
     // UPDATE_EXTENT is not an empty extent
     int *updateExtent = 0;
     if (outInfo &&
-        (updateExtent = outInfo->Get(UPDATE_EXTENT())) != 0)
+        ((updateExtent = outInfo->Get(UPDATE_EXTENT())) != 0) &&
+        !outInfo->Has(UPDATE_RESOLUTION()))
       {
       // Downstream algorithms can set UPDATE_EXTENT_INITIALIZED to
       // REPLACE if they do not want to combine with previous extents
