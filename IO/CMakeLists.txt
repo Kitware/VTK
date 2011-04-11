@@ -130,6 +130,7 @@ vtkSLCReader.cxx
 vtkSTLReader.cxx
 vtkSTLWriter.cxx
 vtkSimplePointsReader.cxx
+vtkSimplePointsWriter.cxx
 vtkSortFileNames.cxx
 vtkStructuredGridReader.cxx
 vtkStructuredGridWriter.cxx
