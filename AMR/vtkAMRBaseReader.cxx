@@ -27,8 +27,7 @@
 
 vtkAMRBaseReader::vtkAMRBaseReader()
 {
-  this->MaxLevel   = 0; // By default load just the low-res data at level 0
-  this->Controller = NULL;
+
 }
 
 //------------------------------------------------------------------------------
@@ -66,8 +65,8 @@ void vtkAMRBaseReader::Initialize()
   this->CellDataArraySelection  = vtkDataArraySelection::New();
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->SelectionObserver       = vtkCallbackCommand::New();
-  this->SelectionObserver->SetCallback(
-      &vtkAMRBaseReader::SelectionModifiedCallback);
+//  this->SelectionObserver->SetCallback(
+//      &vtkAMRBaseReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData( this );
   this->CellDataArraySelection->AddObserver(
      vtkCommand::ModifiedEvent,this->SelectionObserver );
@@ -77,11 +76,11 @@ void vtkAMRBaseReader::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkAMRBaseReader::SelectionModifiedCallback(
-    vtkObject*, unsigned long, void* clientdata, void*)
-{
-  static_cast<vtkAMRBaseReader*>(clientdata)->Modified();
-}
+//void vtkAMRBaseReader::SelectionModifiedCallback(
+//    vtkObject*, unsigned long, void* clientdata, void*)
+//{
+//  static_cast<vtkAMRBaseReader*>(clientdata)->Modified();
+//}
 
 //------------------------------------------------------------------------------
 int vtkAMRBaseReader::GetNumberOfPointArrays()

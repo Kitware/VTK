@@ -10,7 +10,7 @@ SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 FILE( GLOB Kit_SRCS *.cxx )
 
 ## Set the libraries required by this kit
-SET(KIT_LIBS vtkParallel vtkCommon vtkFiltering)
+SET(KIT_LIBS vtkParallel vtkCommon vtkFiltering ${VTK_HDF5_LIBRARIES})
 
 SET_SOURCE_FILES_PROPERTIES(
     vtkAMRBaseReader

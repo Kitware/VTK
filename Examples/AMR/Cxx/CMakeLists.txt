@@ -40,6 +40,7 @@ TARGET_LINK_LIBRARIES( AMRDataTransferPipeline
              vtkAMR 
              vtkParallel
              ${MPI_LIBRARIES} 
+             ${VTK_HDF5_LIBRARIES}
              )
 
 ## Add AMRDualExtractor executable
@@ -52,6 +53,7 @@ TARGET_LINK_LIBRARIES( AMRDualExtractor
              vtkAMR 
              vtkParallel
              ${MPI_LIBRARIES} 
+             ${VTK_HDF5_LIBRARIES}
              )
 
 ## Add AMRHomogenization
@@ -64,6 +66,7 @@ TARGET_LINK_LIBRARIES( AMRHomogenization
                 vtkAMR
                 vtkParallel
                 ${MPI_LIBRARIES}
+                ${VTK_HDF5_LIBRARIES}
                 )
 
 ## Add Generate3DAMRDataSetWithPulse executable
@@ -76,6 +79,7 @@ TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
                        vtkAMR
                        vtkParallel
                        ${MPI_LIBRARIES} 
+                       ${VTK_HDF5_LIBRARIES}
                        )
                        
 ## Add Generate3DAMRDataSetWithPulse executable                        
@@ -88,6 +92,7 @@ TARGET_LINK_LIBRARIES( Generate2DAMRDataSetWithPulse
                        vtkAMR
                        vtkParallel
                        ${MPI_LIBRARIES} 
+                       ${VTK_HDF5_LIBRARIES}
                        )
 
 ## Add TestAMRProbe executable
@@ -100,6 +105,7 @@ TARGET_LINK_LIBRARIES( TestAMRProbe
                        vtkAMR
                        vtkParallel
                        ${MPI_LIBRARIES} 
+                       ${VTK_HDF5_LIBRARIES}
                       )
                                    
 ## Add TestImageDataToStructuredGridFilter

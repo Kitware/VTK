@@ -21,6 +21,7 @@
 #include <cassert>
 #include <mpi.h>
 
+#include "vtkAMRBaseReader.h"
 #include "vtkUniformGrid.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"

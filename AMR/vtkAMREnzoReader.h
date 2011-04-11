@@ -24,7 +24,9 @@
 #include "vtkAMRBaseReader.h"
 #include <vtkstd/vector> // STL vector Header
 
-class vtkEnzoReaderInternal;
+//class vtkEnzoReaderInternal;
+class vtkHierarchicalBoxDataSet;
+class vtkCallbackCommand;
 
 class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
 {
@@ -51,12 +53,16 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
                   vtkstd::vector< int > &idxcounter );
 
     // Description:
-    // See vtkAMRBaseReader::GetBlock
+    // See vtkAMRBaseReader::ReadMetaData
     void ReadMetaData();
 
     // Description:
     // See vtkAMRBaseReader::GenerateBlockMap
     void GenerateBlockMap();
+
+    // Description:
+    // See vtkAMRBaseReader::GetBlockLevel
+    int GetBlockLevel( const int blockIdx );
 
     // Description:
     // See vtkAMRBaseReader::GetNumberOfBlocks
@@ -66,8 +72,14 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
     // See vtkAMRBaseReader::GetNumberOfBlocks
     int GetNumberOfLevels();
 
-  private:
-    vtkEnzoReaderInternal *Internal;
+    // Description:
+    // TODO:
+    static void SelectionModifiedCallback(
+        vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
+
+//    vtkEnzoReaderInternal *Internal;
+
+   private:
     vtkAMREnzoReader( const vtkAMREnzoReader& ); // Not Implemented
     void operator=(const vtkAMREnzoReader& ); // Not Implemented
 };
