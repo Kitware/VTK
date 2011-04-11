@@ -40,6 +40,13 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Enum of bar chart oritentation types
+  enum {
+    VERTICAL = 0,
+    HORIZONTAL
+  };
+
+  // Description:
   // Creates a 2D Chart object.
   static vtkPlotBar *New();
 
@@ -72,6 +79,12 @@ public:
 
   vtkSetMacro(Offset, float);
   vtkGetMacro(Offset, float);
+
+  // Description:
+  // Set/get the orientation of the bars.
+  // Valid orientations are VERTICAL (default) and HORIZONTAL.
+  virtual void SetOrientation(int orientation);
+  vtkGetMacro(Orientation, int);
 
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
@@ -126,6 +139,8 @@ protected:
 
   float Width;
   float Offset;
+
+  int Orientation;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
