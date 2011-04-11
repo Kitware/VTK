@@ -76,7 +76,6 @@ ENDIF(VTK_USE_RENDERING)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    metaIOConfig.h
     vtk_expat.h
     vtk_jpeg.h
     vtk_png.h
