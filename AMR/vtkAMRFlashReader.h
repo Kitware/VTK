@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkAMREnzoReader.h
+ Module:    vtkAMRFlashReader.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -12,34 +12,33 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMREnzoReader.h -- Reader for Enzo AMR datasets.
+// .NAME vtkAMREnzoReader.h -- Reader for Flash AMR datasets.
 //
 // .SECTION Description
 // A concrete instance of vtkAMRBaseReader that implements functionality
-// for reading Enzo AMR datasets.
+// for reading Flash AMR datasets.
 
-#ifndef VTKAMRENZOREADER_H_
-#define VTKAMRENZOREADER_H_
+#ifndef VTKAMRFLASHREADER_H_
+#define VTKAMRFLASHREADER_H_
 
 #include "vtkAMRBaseReader.h"
 
 class vtkHierarchicalBoxDataSet;
-class vtkEnzoReaderInternal;
 
-class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
+class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 {
   public:
-    static vtkAMREnzoReader* New();
-    vtkTypeMacro(vtkAMREnzoReader,vtkAMRBaseReader);
-    void PrintSelf(std::ostream &os, vtkIndent indent );
+    static vtkAMRFlashReader* New();
+    vtkTypeMacro( vtkAMRFlashReader, vtkAMRBaseReader );
+    void PrintSelf( std::ostream &os, vtkIndent indent );
 
     // Description:
     // See vtkAMRBaseReader::SetFileName
     void SetFileName( const char* fileName );
 
   protected:
-    vtkAMREnzoReader();
-    ~vtkAMREnzoReader();
+    vtkAMRFlashReader();
+    ~vtkAMRFlashReader();
 
     // Description:
     // See vtkAMRBaseReader::ReadMetaData
@@ -72,10 +71,8 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
     void SetUpDataArraySelections();
 
   private:
-    vtkAMREnzoReader( const vtkAMREnzoReader& ); // Not Implemented
-    void operator=(const vtkAMREnzoReader& ); // Not Implemented
-
-    vtkEnzoReaderInternal *Internal;
+    vtkAMRFlashReader( const vtkAMRFlashReader& ); // Not implemented
+    void operator=(const vtkAMRFlashReader& ); // Not implemented
 };
 
-#endif /* VTKAMRENZOREADER_H_ */
+#endif /* VTKAMRFLASHREADER_H_ */

@@ -20,10 +20,12 @@
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkCallbackCommand.h"
+#include "vtkIndent.h"
 
 #include "vtkAMRUtilities.h"
 
 #include <cassert>
+
 
 vtkAMRBaseReader::vtkAMRBaseReader()
 {
@@ -61,12 +63,13 @@ void vtkAMRBaseReader::Initialize()
   this->FileName      = NULL;
   this->MaxLevel      = 0;
   this->LoadParticles = 1;
+  this->Controller    = NULL;
 
   this->CellDataArraySelection  = vtkDataArraySelection::New();
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->SelectionObserver       = vtkCallbackCommand::New();
-//  this->SelectionObserver->SetCallback(
-//      &vtkAMRBaseReader::SelectionModifiedCallback);
+  this->SelectionObserver->SetCallback(
+      &vtkAMRBaseReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData( this );
   this->CellDataArraySelection->AddObserver(
      vtkCommand::ModifiedEvent,this->SelectionObserver );
@@ -76,11 +79,11 @@ void vtkAMRBaseReader::Initialize()
 }
 
 //----------------------------------------------------------------------------
-//void vtkAMRBaseReader::SelectionModifiedCallback(
-//    vtkObject*, unsigned long, void* clientdata, void*)
-//{
-//  static_cast<vtkAMRBaseReader*>(clientdata)->Modified();
-//}
+void vtkAMRBaseReader::SelectionModifiedCallback(
+    vtkObject*, unsigned long, void* clientdata, void*)
+{
+  static_cast<vtkAMRBaseReader*>(clientdata)->Modified();
+}
 
 //------------------------------------------------------------------------------
 int vtkAMRBaseReader::GetNumberOfPointArrays()
@@ -188,7 +191,7 @@ int vtkAMRBaseReader::RequestData(
   this->GenerateBlockMap();
 
   vtkstd::vector< int > idxcounter;
-  idxcounter.resize(this->GetNumberOfLevels(), 0);
+  idxcounter.resize(this->GetNumberOfLevels()+1, 0);
   for( int block=0; block < this->GetNumberOfBlocks(); ++block )
     {
 

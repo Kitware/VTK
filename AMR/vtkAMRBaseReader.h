@@ -28,13 +28,14 @@ class vtkHierarchicalBoxDataSet;
 class vtkMultiProcessController;
 class vtkDataArraySelection;
 class vtkCallbackCommand;
+class vtkIndent;
 
 class VTK_AMR_EXPORT vtkAMRBaseReader :
   public vtkHierarchicalBoxDataSetAlgorithm
 {
   public:
      vtkTypeMacro( vtkAMRBaseReader, vtkHierarchicalBoxDataSetAlgorithm );
-     virtual void PrintSelf(std::ostream &os, vtkIndent indent);
+     void PrintSelf(std::ostream &os, vtkIndent indent);
 
      // Description:
      // Initializes the AMR reader.
@@ -90,7 +91,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
   protected:
     vtkAMRBaseReader();
-    virtual ~vtkAMRBaseReader();
+    ~vtkAMRBaseReader();
 
     // Description:
     // Determines if the block is owned by this process based on the
@@ -142,8 +143,9 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
     // Description:
     // Loads the block according to the index w.r.t. the generated BlockMap.
-    virtual void GetBlock( int index, vtkHierarchicalBoxDataSet *hbds,
-                           vtkstd::vector< int > &idxcounter ) = 0;
+    virtual void GetBlock(
+        int index, vtkHierarchicalBoxDataSet *hbds,
+        vtkstd::vector< int > &idxcounter ) = 0;
 
     // Description:
     // Standard Pipeline methods, subclasses may override this method if needed.
@@ -164,8 +166,8 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
     // Descriptions
     // Call-back registered with the SelectionObserver.
-//    static void SelectionModifiedCallback(
-//      vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
+    static void SelectionModifiedCallback(
+      vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
 
     int LoadParticles;
     int MaxLevel;
