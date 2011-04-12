@@ -71,12 +71,17 @@ public:
 
   // Description:
   // Set the width of the line.
-  virtual void SetWidth(float width);
+  vtkSetMacro(Width, float);
 
   // Description:
   // Get the width of the line.
-  virtual float GetWidth();
+  vtkGetMacro(Width, float);
 
+  // Description:
+  // Set/get the horizontal offset of the bars.
+  // Positive values move the bars leftward.
+  // For HORIZONTAL orientation, offsets bars vertically,
+  // with a positive value moving bars downward.
   vtkSetMacro(Offset, float);
   vtkGetMacro(Offset, float);
 
