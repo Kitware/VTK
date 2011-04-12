@@ -865,23 +865,25 @@ int vtkStreamingDemandDrivenPipeline
         updateExtent[2] <= updateExtent[3] &&
         updateExtent[4] <= updateExtent[5]))
       {
-      if (!outInfo->Has(UPDATE_RESOLUTION()) &&
-          !outInfo->Has(UNRESTRICTED_UPDATE_EXTENT()))
+      if (!outInfo->Has(UNRESTRICTED_UPDATE_EXTENT()))
         {
-        // Update extent is outside the whole extent and is not empty.
-        vtkErrorMacro("The update extent specified in the "
-                      "information for output port " << outputPort
-                      << " on algorithm " << this->Algorithm->GetClassName()
-                      << "(" << this->Algorithm << ") is "
-                      << updateExtent[0] << " " << updateExtent[1] << " "
-                      << updateExtent[2] << " " << updateExtent[3] << " "
-                      << updateExtent[4] << " " << updateExtent[5]
-                      << ", which is outside the whole extent "
-                      << wholeExtent[0] << " " << wholeExtent[1] << " "
-                      << wholeExtent[2] << " " << wholeExtent[3] << " "
-                      << wholeExtent[4] << " " << wholeExtent[5] << ".");
+        if (!outInfo->Has(UPDATE_RESOLUTION()))
+          {
+          // Update extent is outside the whole extent and is not empty.
+          vtkErrorMacro("The update extent specified in the "
+                        "information for output port " << outputPort
+                        << " on algorithm " << this->Algorithm->GetClassName()
+                        << "(" << this->Algorithm << ") is "
+                        << updateExtent[0] << " " << updateExtent[1] << " "
+                        << updateExtent[2] << " " << updateExtent[3] << " "
+                        << updateExtent[4] << " " << updateExtent[5]
+                        << ", which is outside the whole extent "
+                        << wholeExtent[0] << " " << wholeExtent[1] << " "
+                        << wholeExtent[2] << " " << wholeExtent[3] << " "
+                        << wholeExtent[4] << " " << wholeExtent[5] << ".");
+          }
+        return 0;
         }
-      return 0;
       }
     }
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_TIME_EXTENT)
