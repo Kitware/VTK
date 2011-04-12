@@ -437,18 +437,26 @@ void vtkPlotBar::GetBounds(double bounds[4])
   vtkDataArray* x = this->UseIndexForXSeries ?
                     0 : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray *y = this->Data->GetInputArrayToProcess(1, table);
+  if (!y)
+    {
+      return;
+    }
 
-  if (this->UseIndexForXSeries && y)
+  if (this->UseIndexForXSeries)
     {
     bounds[seriesLow] = 0 - (this->Width / 2 );
     bounds[seriesHigh] = y->GetNumberOfTuples() + (this->Width/2);
     }
-  else if (x && y)
+  else if (x)
     {
     x->GetRange(&bounds[seriesLow]);
     // We surround our point by Width/2 on either side
     bounds[seriesLow] -= this->Width / 2.0 + this->Offset;
     bounds[seriesHigh] += this->Width / 2.0 - this->Offset;
+    }
+  else
+    {
+      return;
     }
 
   y->GetRange(&bounds[valuesLow]);
