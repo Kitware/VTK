@@ -209,6 +209,9 @@ int vtkImageToImageStencil::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
+  outInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UNRESTRICTED_UPDATE_EXTENT(), 1);
+
   return 1;
 }
 
@@ -224,11 +227,37 @@ int vtkImageToImageStencil::FillInputPortInformation(int,
 int vtkImageToImageStencil::RequestUpdateExtent(
   vtkInformation *,
   vtkInformationVector **inputVector,
-  vtkInformationVector *)
+  vtkInformationVector *outputVector)
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-              6);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  int extent[6], wholeExtent[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+
+  // clip UpdateExtent with WholeExtent
+  extent[0] = (extent[0] > wholeExtent[0] ? extent[0] : wholeExtent[0]);
+  extent[1] = (extent[1] < wholeExtent[1] ? extent[1] : wholeExtent[1]);
+  extent[2] = (extent[2] > wholeExtent[2] ? extent[2] : wholeExtent[2]);
+  extent[3] = (extent[3] < wholeExtent[3] ? extent[3] : wholeExtent[3]);
+  extent[4] = (extent[4] > wholeExtent[4] ? extent[4] : wholeExtent[4]);
+  extent[5] = (extent[5] < wholeExtent[5] ? extent[5] : wholeExtent[5]);
+
+  // if invalid, use the current data extent if allocated
+  if (extent[0] > extent[1] || extent[2] > extent[3] || extent[4] > extent[5])
+    {
+    for (int j = 0; j < 6; j += 2)
+      {
+      extent[j] = extent[j+1] = wholeExtent[j];
+      }
+    vtkImageData *inData = vtkImageData::SafeDownCast(
+      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    if (inData)
+      {
+      inData->GetExtent(extent);
+      }
+    }
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
   return 1;
 }
