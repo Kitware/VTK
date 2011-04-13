@@ -1,15 +1,19 @@
 SET(KIT IO)
 
 SET(ConditionalTests)
+
 IF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   SET(ConditionalTests ${ConditionalTests} TestAVIWriter.cxx)
 ENDIF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
+
 IF(VTK_USE_MPEG2_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestMovieWriter.cxx)
 ENDIF(VTK_USE_MPEG2_ENCODER)
+
 IF(VTK_USE_FFMPEG_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestFFMPEGWriter.cxx)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
+
 IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   SET(ConditionalTests
     ${ConditionalTests}
@@ -22,34 +26,39 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     TestNetCDFPOPReader.cxx
     )
 
-IF(NOT WIN32)
-  SET(ConditionalTests
-    ${ConditionalTests}
-    SLACParticleReader.cxx
-    )
-ENDIF(NOT WIN32)
+  IF(NOT WIN32)
+    SET(ConditionalTests
+      ${ConditionalTests}
+      SLACParticleReader.cxx
+      )
+  ENDIF(NOT WIN32)
 
 ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+
 IF(VTK_USE_INFOVIS)
   SET(ConditionalTests ${ConditionalTests}
        TestDataObjectIO.cxx
        TestDataObjectXMLIO.cxx)
 ENDIF(VTK_USE_INFOVIS)
+
 IF(VTK_USE_METAIO)
   SET(ConditionalTests ${ConditionalTests} TestMetaIO.cxx)
 ENDIF(VTK_USE_METAIO)
+
 IF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
   SET(ConditionalTests ${ConditionalTests} TestPostgreSQLDatabase.cxx)
   IF (VTK_DATA_ROOT)
     SET(ConditionalTests ${ConditionalTests} TestPostgreSQLTableReadWrite.cxx)
   ENDIF (VTK_DATA_ROOT)
 ENDIF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
+
 IF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
   SET(ConditionalTests ${ConditionalTests} TestMySQLDatabase.cxx)
   IF (VTK_DATA_ROOT)
     SET(ConditionalTests ${ConditionalTests} TestMySQLTableReadWrite.cxx)
   ENDIF (VTK_DATA_ROOT)
 ENDIF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
+
 IF(VTK_USE_ODBC AND VTK_ODBC_TEST_DSN)
   SET(ConditionalTests ${ConditionalTest} TestODBCDatabase.cxx)
 ENDIF(VTK_USE_ODBC AND VTK_ODBC_TEST_DSN)
@@ -68,9 +77,11 @@ ELSE(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
     ENDIF(VTK_SIZEOF___INT64 MATCHES "^8$")
   ENDIF(VTK_SIZEOF_LONG MATCHES "^8$")
 ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
+
 IF(VTK_HAS_UINT64_ARRAY)
   SET(ConditionalTests ${ConditionalTests} TestSQLiteDatabase.cxx)
 ENDIF(VTK_HAS_UINT64_ARRAY)
+
 IF(VTK_USE_OGGTHEORA_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestOggTheoraWriter.cxx)
 ENDIF(VTK_USE_OGGTHEORA_ENCODER)
@@ -81,6 +92,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestSQLDatabaseSchema.cxx
   TestSQLiteTableReadWrite.cxx
   TestImageReader2Factory.cxx
+  TestSimplePointsReaderWriter.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
@@ -93,9 +105,12 @@ TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkImaging vtksys)
 IF(VTK_USE_INFOVIS)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkInfovis)
 ENDIF(VTK_USE_INFOVIS)
+
 IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering)
 ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+
+ADD_TEST(TestSimplePointsReaderWriter ${CXX_TEST_PATH}/${KIT}CxxTests TestSimplePointsReaderWriter)
 
 IF (VTK_DATA_ROOT)
   ADD_TEST(TestXML ${CXX_TEST_PATH}/${KIT}CxxTests TestXML
