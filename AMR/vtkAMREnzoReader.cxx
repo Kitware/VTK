@@ -986,8 +986,17 @@ void vtkEnzoReaderInternal::CheckAttributeNames()
 //       this->TheReader->LoadAttribute(
 //            this->BlockAttributeNames[i].c_str(),this->ReferenceBlock - 1)  )
       {
-      numTupls = this->DataArray->GetNumberOfTuples();
-      this->ReleaseDataArray();
+
+        if( this->DataArray != NULL )
+          {
+            numTupls = this->DataArray->GetNumberOfTuples();
+            this->ReleaseDataArray();
+          }
+        else
+          {
+            numTupls = 0;
+          }
+
       }
 
     // compare the three numbers
@@ -1106,6 +1115,14 @@ vtkAMREnzoReader::~vtkAMREnzoReader()
 {
   delete this->Internal;
   this->Internal=NULL;
+
+  this->BlockMap.clear();
+
+  if( this->FileName )
+    {
+      delete [] this->FileName;
+      this->FileName = NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1117,6 +1134,8 @@ void vtkAMREnzoReader::PrintSelf( std::ostream &os, vtkIndent indent )
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::SetFileName( const char* fileName )
 {
+  assert("pre: Internal Enzo AMR Reader is NULL" && (this->Internal != NULL ));
+
   int isValid=0;
 
   if( fileName && strcmp( fileName, "" ) &&
@@ -1176,6 +1195,7 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
   this->Internal->ReadMetaData();
   this->SetUpDataArraySelections( );
   this->Modified();
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1245,6 +1265,10 @@ void vtkAMREnzoReader::GetBlock(
 
   this->Internal->ReadMetaData();
   int blockIdx                 = this->BlockMap[ index ];
+  assert( "block index out-of-bounds!" &&
+    (blockIdx+1 >= 0) && (blockIdx+1 < this->Internal->Blocks.size() ) );
+
+  // this->Internal->Blocks includes a pseudo block --- the root as block #0
   vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ blockIdx+1 ];
   int level                    = theBlock.Level;
 
