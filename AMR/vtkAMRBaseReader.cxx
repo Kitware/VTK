@@ -190,9 +190,20 @@ int vtkAMRBaseReader::RequestData(
   this->ReadMetaData();
   this->GenerateBlockMap();
 
+  // Initialize counter of the number of blocks at each level.
+  // This counter is used to compute the block index w.r.t. the
+  // hierarchical box data-structure. Note that then number of blocks
+  // can change based on user constraints, e.g., the number of levels
+  // visible.
   vtkstd::vector< int > idxcounter;
   idxcounter.resize(this->GetNumberOfLevels()+1, 0);
-  for( int block=0; block < this->GetNumberOfBlocks(); ++block )
+
+  // Find the number of blocks to be processed. BlockMap.size()
+  // has all the blocks that are to be processesed and may be
+  // less than or equal to this->GetNumberOfBlocks(), i.e., the
+  // total number of blocks.
+  int numBlocks = static_cast< int >( this->BlockMap.size() );
+  for( int block=0; block < numBlocks; ++block )
     {
 
       if( this->IsBlockMine(block) )
@@ -211,5 +222,7 @@ int vtkAMRBaseReader::RequestData(
   if( this->Controller != NULL )
     this->Controller->Barrier();
 
+  outInf = NULL;
+  output = NULL;
   return 1;
 }
