@@ -188,6 +188,14 @@ int vtkImageMapper3D::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
+int vtkImageMapper3D::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 static
 vtkRenderer *vtkImageMapper3DFindRenderer(vtkProp *prop, int &count)
 {
