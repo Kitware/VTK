@@ -24,6 +24,7 @@
 #include "vtkAMRBaseReader.h"
 
 class vtkHierarchicalBoxDataSet;
+class vtkFlashReaderInternal;
 
 class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 {
@@ -73,6 +74,8 @@ class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
   private:
     vtkAMRFlashReader( const vtkAMRFlashReader& ); // Not implemented
     void operator=(const vtkAMRFlashReader& ); // Not implemented
+
+    vtkFlashReaderInternal *Internal;
 };
 
 #endif /* VTKAMRFLASHREADER_H_ */
