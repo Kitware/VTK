@@ -47,4 +47,6 @@ void vtkSimplePointsWriter::WriteData()
 void vtkSimplePointsWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "DecimalPrecision: " << this->DecimalPrecision << "\n";
 }
