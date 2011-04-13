@@ -60,10 +60,11 @@ void vtkAMRBaseReader::PrintSelf( std::ostream &os, vtkIndent indent )
 void vtkAMRBaseReader::Initialize()
 {
   this->SetNumberOfInputPorts( 0 );
-  this->FileName      = NULL;
-  this->MaxLevel      = 0;
-  this->LoadParticles = 1;
-  this->Controller    = NULL;
+  this->FileName       = NULL;
+  this->MaxLevel       = 0;
+  this->LoadParticles  = 1;
+  this->Controller     = NULL;
+  this->InitialRequest = true;
 
   this->CellDataArraySelection  = vtkDataArraySelection::New();
   this->PointDataArraySelection = vtkDataArraySelection::New();
@@ -173,6 +174,17 @@ bool vtkAMRBaseReader::IsBlockMine( const int blockIdx )
   if( myRank == this->GetBlockProcessId( blockIdx ) )
     return true;
   return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRBaseReader::InitializeArraySelections()
+{
+  if( this->InitialRequest )
+    {
+      this->PointDataArraySelection->DisableAllArrays();
+      this->CellDataArraySelection->DisableAllArrays();
+      this->InitialRequest=false;
+    }
 }
 
 //------------------------------------------------------------------------------

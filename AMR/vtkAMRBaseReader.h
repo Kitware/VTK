@@ -161,6 +161,12 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     vtkCallbackCommand    *SelectionObserver;
 
     // Description:
+    // Initializes the array selections. If this is an initial request,
+    // i.e., the first load from the file, all the arrays are deselected,
+    // and the IntialRequest ivar is set to false.
+    void InitializeArraySelections();
+
+    // Description:
     // Initializes the PointDataArraySelection & CellDataArraySelection
     virtual void SetUpDataArraySelections() = 0;
 
@@ -169,6 +175,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     static void SelectionModifiedCallback(
       vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
 
+    bool InitialRequest;
     int LoadParticles;
     int MaxLevel;
     char *FileName;
