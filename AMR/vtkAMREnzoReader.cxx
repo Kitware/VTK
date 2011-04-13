@@ -24,6 +24,18 @@
 #include "vtkIndent.h"
 #include "vtksys/SystemTools.hxx"
 
+#include "vtkDataSet.h"
+#include "vtkCellData.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkShortArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkLongLongArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedShortArray.h"
+
 #define H5_USE_16_API
 #include <hdf5.h>
 
@@ -506,14 +518,298 @@ public:
        }
      }
 
-  void   SetFileName( char * fileName ) { this->FileName = fileName; }
-  void   ReadMetaData();
-  void   GetAttributeNames();
-  void   CheckAttributeNames();
-  void   ReadBlockStructures();
-  void   ReadGeneralParameters();
-  void   DetermineRootBoundingBox();
+  void SetFileName( char * fileName ) { this->FileName = fileName; }
+  void ReadMetaData();
+  void GetAttributeNames();
+  void CheckAttributeNames();
+  void ReadBlockStructures();
+  void ReadGeneralParameters();
+  void DetermineRootBoundingBox();
+  int LoadAttribute( const char *attribute, int blockIdx );
+  int GetBlockAttribute(
+       const char* attribute, int blockIdx, vtkDataSet* pDataSet );
+
 };
+
+int vtkEnzoReaderInternal::GetBlockAttribute(
+    const char *atribute, int blockIdx, vtkDataSet *pDataSet )
+{
+
+  // this function must be called by GetBlock( ... )
+  this->ReadMetaData();
+
+  if ( atribute == NULL || blockIdx < 0  ||
+       pDataSet == NULL || blockIdx >= this->NumberOfBlocks )
+    {
+      return 0;
+    }
+
+  // try obtaining the attribute and attaching it to the grid as a cell data
+  // NOTE: the 'equal' comparison below is MUST because in some cases (such
+  // as cosmological datasets) not all rectilinear blocks contain an assumably
+  // common block attribute. This is the case where such a block attribute
+  // may result from a particles-to-cells interpolation process. Thus those
+  // blocks with particles (e.g., the reference one with the fewest cells)
+  // contain it as a block attribute, whereas others without particles just
+  // do not contain this block attribute.
+  int   succeded = 0;
+  if (  this->LoadAttribute( atribute, blockIdx ) &&
+        ( pDataSet->GetNumberOfCells() ==
+          this->DataArray->GetNumberOfTuples() )
+     )
+    {
+      succeded = 1;
+      pDataSet->GetCellData()->AddArray( this->DataArray );
+      this->ReleaseDataArray();
+    }
+
+  return succeded;
+}
+
+int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
+{
+  // TODO: implement this
+  // called by GetBlockAttribute( ... ) or GetParticlesAttribute()
+  this->ReadMetaData();
+
+  if ( atribute == NULL || blockIdx < 0  ||
+       blockIdx >= this->NumberOfBlocks )
+    {
+      return 0;
+    }
+
+  // this->Internal->Blocks includes a pseudo block --- the root as block #0
+  blockIdx ++;
+
+  // currently only the HDF5 file format is supported
+  vtkstd::string blckFile = this->Blocks[ blockIdx ].BlockFileName;
+  hid_t  fileIndx = H5Fopen( blckFile.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
+  if( fileIndx < 0 )
+    {
+      return 0;
+    }
+
+  // retrieve the contents of the root directory to look for a group
+  // corresponding to the target block, if available, open that group
+
+  int     blckIndx;
+  char    blckName[65];
+  int     objIndex;
+  hsize_t numbObjs;
+  hid_t   rootIndx = H5Gopen( fileIndx, "/" );
+  H5Gget_num_objs( rootIndx, &numbObjs );
+  for ( objIndex=0; objIndex < static_cast < int >( numbObjs ); objIndex ++  )
+    {
+        int type = H5Gget_objtype_by_idx( rootIndx, objIndex );
+        if ( type == H5G_GROUP )
+          {
+            H5Gget_objname_by_idx( rootIndx, objIndex, blckName, 64 );
+            if ( (  sscanf( blckName, "Grid%d", &blckIndx )  ==  1  )  &&
+                 (  (blckIndx  ==  blockIdx) || (blckIndx == blockIdx+1) ) )
+              {
+                // located the target block
+                rootIndx = H5Gopen( rootIndx, blckName );
+                break;
+              }
+          }
+
+    } // END for all objects
+
+  // disable error messages while looking for the attribute (if any) name
+  // and enable error messages when it is done
+  void       * pContext = NULL;
+  H5E_auto_t   erorFunc;
+  H5Eget_auto( &erorFunc, &pContext );
+  H5Eset_auto( NULL, NULL );
+
+  hid_t        attrIndx = H5Dopen( rootIndx, atribute );
+
+  H5Eset_auto( erorFunc, pContext );
+  pContext = NULL;
+
+  // check if the data attribute exists
+  if ( attrIndx < 0 )
+    {
+      vtkGenericWarningMacro(
+       "Attribute (" << atribute << ") data does not exist in file "
+       << blckFile.c_str() );
+      H5Gclose( rootIndx );
+      H5Fclose( fileIndx );
+      return 0;
+    }
+
+  // get cell dimensions and the valid number
+  hsize_t cellDims[3];
+  hid_t   spaceIdx = H5Dget_space( attrIndx );
+  H5Sget_simple_extent_dims( spaceIdx, cellDims, NULL );
+  hsize_t numbDims = H5Sget_simple_extent_ndims( spaceIdx );
+
+  // number of attribute tuples = number of cells (or particles)
+  int numTupls = 0;
+  switch( numbDims )
+    {
+    case 1:
+      numTupls = cellDims[0];
+      break;
+    case 2:
+      numTupls = cellDims[0] * cellDims[1];
+      break;
+    case 3:
+      numTupls = cellDims[0] * cellDims[1] * cellDims[2];
+      break;
+    default:
+      H5Gclose( spaceIdx );
+      H5Fclose( attrIndx );
+      H5Gclose( rootIndx );
+      H5Fclose( fileIndx );
+      return 0;
+    }
+
+  // determine the data type, load the values, and, if necessary, convert
+  // the raw data to double type
+  // DOUBLE / FLOAT  / INT  / UINT  / CHAR  / UCHAR
+  // SHORT  / USHORT / LONG / ULONG / LLONG / ULLONG / LDOUBLE
+
+  this->ReleaseDataArray(); // data array maintained by internal
+
+  hid_t tRawType = H5Dget_type( attrIndx );
+  hid_t dataType = H5Tget_native_type( tRawType, H5T_DIR_ASCEND );
+  if (  H5Tequal( dataType, H5T_NATIVE_FLOAT )  )
+    {
+
+    this->DataArray = vtkFloatArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    float  * arrayPtr = static_cast < float * >
+    (  vtkFloatArray::SafeDownCast( this->DataArray )
+    ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_DOUBLE )  )
+    {
+
+    this->DataArray = vtkDoubleArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    double  * arrayPtr = static_cast < double * >
+    (  vtkDoubleArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_INT )  )
+    {
+
+    this->DataArray = vtkIntArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    int  * arrayPtr = static_cast < int * >
+    (  vtkIntArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_UINT )  )
+    {
+
+    this->DataArray = vtkUnsignedIntArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    unsigned int  * arrayPtr = static_cast < unsigned int * >
+    (  vtkUnsignedIntArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_SHORT )  )
+    {
+
+    this->DataArray = vtkShortArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    short  * arrayPtr = static_cast < short * >
+    (  vtkShortArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_USHORT )  )
+    {
+
+    this->DataArray = vtkUnsignedShortArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    unsigned short  * arrayPtr = static_cast < unsigned short * >
+    (  vtkUnsignedShortArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_UCHAR )  )
+    {
+
+    this->DataArray = vtkUnsignedCharArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    unsigned char  * arrayPtr = static_cast < unsigned char * >
+    (  vtkUnsignedCharArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_LONG )  )
+    {
+
+    this->DataArray = vtkLongArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    long  * arrayPtr = static_cast < long * >
+    (  vtkLongArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+  if (  H5Tequal( dataType, H5T_NATIVE_LLONG )  )
+    {
+
+    this->DataArray = vtkLongLongArray::New();
+    this->DataArray->SetNumberOfTuples( numTupls );
+    long long  * arrayPtr = static_cast < long long * >
+    (  vtkLongLongArray::SafeDownCast( this->DataArray )
+       ->GetPointer( 0 )  );
+    H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
+    arrayPtr = NULL;
+    }
+  else
+    {
+//        vtkErrorMacro( "Unknown HDF5 data type --- it is not FLOAT, "       <<
+//                       "DOUBLE, INT, UNSIGNED INT, SHORT, UNSIGNED SHORT, " <<
+//                       "UNSIGNED CHAR, LONG, or LONG LONG." << endl );
+
+        H5Tclose( dataType );
+        H5Tclose( tRawType );
+        H5Tclose( spaceIdx );
+        H5Dclose( attrIndx );
+        H5Gclose( rootIndx );
+        H5Fclose( fileIndx );
+        return 0;
+    }
+
+
+  // do not forget to provide a name for the array
+  this->DataArray->SetName( atribute );
+
+// This close statements cause a crash!
+//  H5Tclose( dataType );
+//  H5Tclose( tRawType );
+//  H5Tclose( spaceIdx );
+//  H5Dclose( attrIndx );
+//  H5Gclose( rootIndx );
+//  H5Fclose( fileIndx );
+  return 1;
+}
 
 // ----------------------------------------------------------------------------
 // parse the hierarchy file to create block structures, including the bounding
@@ -1193,7 +1489,8 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
     }
 
   this->Internal->ReadMetaData();
-  this->SetUpDataArraySelections( );
+  this->SetUpDataArraySelections();
+  this->InitializeArraySelections();
   this->Modified();
   return;
 }
@@ -1289,7 +1586,18 @@ void vtkAMREnzoReader::GetBlock(
   ug->SetOrigin( blockMin[0],blockMin[1],blockMin[2] );
   ug->SetSpacing( spacings[0],spacings[1],spacings[2] );
 
-  // TODO: load data to the grid
+  int numAttrs = static_cast< int >(this->Internal->BlockAttributeNames.size());
+  for( int i=0; i < numAttrs; ++i )
+    {
+      if(this->GetCellArrayStatus(
+          this->Internal->BlockAttributeNames[ i ].c_str()))
+      {
+        this->Internal->GetBlockAttribute(
+          this->Internal->BlockAttributeNames[ i ].c_str(),
+          blockIdx, ug );
+      }
+
+    }
 
   hbds->SetDataSet(level,idxcounter[level],ug);
   ug->Delete();
