@@ -15,7 +15,7 @@
 #include "vtkSimplePointsWriter.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
+#include "vtkDataSet.h"
 
 #include <fstream>
 #include <iomanip>
@@ -30,7 +30,7 @@ vtkSimplePointsWriter::vtkSimplePointsWriter()
 
 void vtkSimplePointsWriter::WriteData()
 {
-  vtkPolyData *input = this->GetInput();
+  vtkDataSet *input = this->GetInput();
 
   std::ofstream fout(this->FileName);
 
