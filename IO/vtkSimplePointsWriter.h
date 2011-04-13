@@ -22,13 +22,13 @@
 #ifndef __vtkSimplePointsWriter_h
 #define __vtkSimplePointsWriter_h
 
-#include <vtkPolyDataWriter.h> //parent class
+#include <vtkDataSetWriter.h>
 
-class VTK_IO_EXPORT vtkSimplePointsWriter : public vtkPolyDataWriter
+class VTK_IO_EXPORT vtkSimplePointsWriter : public vtkDataSetWriter
 {
 public:
   static vtkSimplePointsWriter *New();
-  vtkTypeMacro(vtkSimplePointsWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkSimplePointsWriter,vtkDataSetWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkGetMacro(DecimalPrecision, int);
@@ -41,6 +41,7 @@ protected:
   void WriteData();
 
   int DecimalPrecision;
+
 private:
   vtkSimplePointsWriter(const vtkSimplePointsWriter&);  // Not implemented.
   void operator=(const vtkSimplePointsWriter&);  // Not implemented.

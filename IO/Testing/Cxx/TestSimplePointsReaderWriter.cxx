@@ -21,7 +21,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-int TestSimplePointsReaderWriter( int argc, char *argv[] )
+int TestSimplePointsReaderWriter( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
 {
   // Create a sphere.
   vtkSmartPointer<vtkSphereSource> sphereSource = 
