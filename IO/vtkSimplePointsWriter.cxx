@@ -37,7 +37,7 @@ vtkSimplePointsWriter::vtkSimplePointsWriter()
 void vtkSimplePointsWriter::WriteData()
 {
   vtkPointSet *input = vtkPointSet::SafeDownCast(this->GetInput());
-  int numberOfPoints = 0;
+  vtkIdType numberOfPoints = 0;
 
   if (input)
     {
