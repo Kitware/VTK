@@ -160,7 +160,7 @@ class vtkPlotBarSegment : public vtkObject {
 
       for (int i = 0; i < n; ++i)
         {
-        if (orientation != vtkPlotBar::VERTICAL) // Also default fallback
+        if (orientation == vtkPlotBar::VERTICAL)
           {
           if (p)
             painter->DrawRect(f[2*i]-(width/2)-offset, p[2*i+1],
@@ -217,12 +217,8 @@ class vtkPlotBarSegment : public vtkObject {
       // of the search uses the assumption that X = bar position, Y = bar
       // value; swapping the target X and Y is simpler that swapping the
       // X and Y of all the other references to the bar data.
-      vtkVector2f targetPoint;
-      if (orientation != vtkPlotBar::VERTICAL) // Also default fallback
-        {
-        targetPoint.Set(point.X(), point.Y()); // Copy
-        }
-      else // HORIZONTAL orientation
+      vtkVector2f targetPoint(point);
+      if (orientation == vtkPlotBar::HORIZONTAL)
         {
         targetPoint.Set(point.Y(), point.X()); // Swap x and y
         }
@@ -231,23 +227,23 @@ class vtkPlotBarSegment : public vtkObject {
       // When searching, invert the behavior of the offset and
       // compensate for the half width overlap.
       std::vector<vtkVector2f>::iterator low;
-      vtkVector2f lowPoint(point.X()-(offset * -1)-halfWidth, 0.0f);
+      vtkVector2f lowPoint(targetPoint.X()-(offset * -1)-halfWidth, 0.0f);
       low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
       while (low != v.end())
         {
         // Is the left side of the bar beyond the point?
-        if (low->X()-offset-halfWidth > point.X())
+        if (low->X()-offset-halfWidth > targetPoint.X())
           {
           break;
           }
         // Does the bar surround the point?
-        else if (low->X()-halfWidth-offset < point.X() &&
-                 low->X()+halfWidth-offset > point.X())
+        else if (low->X()-halfWidth-offset < targetPoint.X() &&
+                 low->X()+halfWidth-offset > targetPoint.X())
           {
           // Is the point within the vertical extent of the bar?
-          if ((point.Y() >= 0 && point.Y() < low->Y()) ||
-              (point.Y() < 0 && point.Y() > low->Y()))
+          if ((targetPoint.Y() >= 0 && targetPoint.Y() < low->Y()) ||
+              (targetPoint.Y() < 0 && targetPoint.Y() > low->Y()))
             {
             *location = *low;
             return true;
@@ -417,7 +413,7 @@ bool vtkPlotBar::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
 void vtkPlotBar::GetBounds(double bounds[4])
 {
   int seriesLow, seriesHigh, valuesLow, valuesHigh;
-  if (this->Orientation !=  vtkPlotBar::VERTICAL) // Also default fallback
+  if (this->Orientation ==  vtkPlotBar::VERTICAL)
     {
     seriesLow = 0; // Xmin
     seriesHigh = 1; // Xmax
@@ -456,7 +452,7 @@ void vtkPlotBar::GetBounds(double bounds[4])
     }
   else
     {
-      return;
+    return;
     }
 
   y->GetRange(&bounds[valuesLow]);

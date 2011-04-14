@@ -15,9 +15,7 @@
 
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
 #include "vtkPlotBar.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
@@ -78,19 +76,19 @@ int TestBarGraphHorizontal(int , char * [])
   vtkPlotBar* barPlot = 0;
 
   plot = chart->AddPlot(vtkChart::BAR);
-  barPlot = vtkPlotBar::SafeDownCast(barPlot);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
   barPlot->SetInput(table.GetPointer(), 0, 1);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(0, 255, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  barPlot = vtkPlotBar::SafeDownCast(barPlot);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
   barPlot->SetInput(table.GetPointer(), 0, 2);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(255, 0, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  barPlot = vtkPlotBar::SafeDownCast(barPlot);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
   barPlot->SetInput(table.GetPointer(), 0, 3);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(0, 0, 255, 255);
