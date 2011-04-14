@@ -109,6 +109,7 @@ protected:
   // Description:
   // See algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
   // Description:
   // Handle requests from the pipeline executive.

@@ -34,7 +34,7 @@
 #include "vtkImageSlice.h"
 #include "vtkPlane.h"
 #include "vtkImageReader2.h"
-#include "vtkOutlineSource.h"
+#include "vtkOutlineFilter.h"
 #include "vtkDataSetMapper.h"
 #include "vtkActor.h"
 
@@ -156,8 +156,8 @@ int TestImageStack(int argc, char* argv[])
       image->Delete();
       image2->Delete();
 
-      vtkOutlineSource *outline = vtkOutlineSource::New();
-      outline->SetBounds(reader->GetOutput()->GetBounds());
+      vtkOutlineFilter *outline = vtkOutlineFilter::New();
+      outline->SetInputConnection(reader->GetOutputPort());
 
       vtkDataSetMapper *mapper = vtkDataSetMapper::New();
       mapper->SetInputConnection(outline->GetOutputPort());

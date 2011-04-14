@@ -56,6 +56,9 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->CroppingRegion[3] = 0;
   this->CroppingRegion[4] = 0;
   this->CroppingRegion[5] = 0;
+
+  // streaming misbehaves if there is no output port
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -196,6 +199,12 @@ int vtkImageSliceMapper::ProcessRequest(
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       this->DisplayExtent, 6);
 
+    return 1;
+    }
+
+  // just a dummy, does not do anything
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
+    {
     return 1;
     }
 
