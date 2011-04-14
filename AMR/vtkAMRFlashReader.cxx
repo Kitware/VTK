@@ -18,6 +18,19 @@
 #include "vtkAMRUtilities.h"
 #include "vtkByteSwap.h"
 #include "vtkUniformGrid.h"
+#include "vtkDataArraySelection.h"
+
+#include "vtkDataSet.h"
+#include "vtkCellData.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkShortArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkLongLongArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedShortArray.h"
 
 #include <cassert>
 #include <vtkstd/vector>
@@ -178,7 +191,165 @@ public:
            ( hid_t dataIndx, const char * compName, double * dataBuff );
   void     ReadParticleAttributes();
   void     ReadParticleAttributesFLASH3();
+  void     GetBlockAttribute( const char *atribute, int blockIdx,
+                              vtkDataSet *pDataSet );
 };
+
+//-----------------------------------------------------------------------------
+void vtkFlashReaderInternal::GetBlockAttribute(
+    const char *atribute, int blockIdx, vtkDataSet *pDataSet )
+{
+ // this function must be called by GetBlock( ... )
+ this->ReadMetaData();
+
+ if ( atribute == NULL || blockIdx < 0  ||
+      pDataSet == NULL || blockIdx >= this->NumberOfBlocks )
+   {
+//   vtkDebugMacro( "Data attribute name or vtkDataSet NULL, or " <<
+//                  "invalid block index." << endl );
+   return;
+   }
+ // remove the prefix ("mesh_blockandlevel/" or "mesh_blockandproc/") to get
+ // the actual attribute name
+ vtkstd::string  tempName = atribute;
+ size_t          slashPos = tempName.find( "/" );
+ vtkstd::string  attrName = tempName.substr ( slashPos + 1 );
+ hid_t           dataIndx = H5Dopen
+                            ( this->FileIndex, attrName.c_str() );
+
+ if ( dataIndx < 0 )
+   {
+//   vtkErrorMacro( "Invalid attribute name." << endl );
+   return;
+   }
+
+ hid_t    spaceIdx = H5Dget_space( dataIndx );
+ hsize_t  dataDims[4]; // dataDims[0] == number of blocks
+ hsize_t  numbDims = H5Sget_simple_extent_dims( spaceIdx, dataDims, NULL );
+
+ if ( numbDims != 4 )
+   {
+//   vtkErrorMacro( "Error with reading the data dimensions." << endl );
+   return;
+   }
+
+ int      numTupls = dataDims[1] * dataDims[2] * dataDims[3];
+ hsize_t  startVec[5];
+ hsize_t  stridVec[5];
+ hsize_t  countVec[5];
+
+ startVec[0] = blockIdx;
+ startVec[1] = 0;
+ startVec[2] = 0;
+ startVec[3] = 0;
+
+ stridVec[0] = 1;
+ stridVec[1] = 1;
+ stridVec[2] = 1;
+ stridVec[3] = 1;
+
+ countVec[0] = 1;
+ countVec[1] = dataDims[1];
+ countVec[2] = dataDims[2];
+ countVec[3] = dataDims[3];
+
+ // file space index
+ hid_t      filSpace = H5Screate_simple( 4, dataDims, NULL );
+ H5Sselect_hyperslab ( filSpace, H5S_SELECT_SET, startVec,
+                       stridVec, countVec,       NULL );
+
+ startVec[0] = 0;
+ startVec[1] = 0;
+ startVec[2] = 0;
+ startVec[3] = 0;
+
+ stridVec[0] = 1;
+ stridVec[1] = 1;
+ stridVec[2] = 1;
+ stridVec[3] = 1;
+
+ countVec[0] = 1;
+ countVec[1] = dataDims[1];
+ countVec[2] = dataDims[2];
+ countVec[3] = dataDims[3];
+
+ hid_t      memSpace = H5Screate_simple( 4, dataDims, NULL );
+ H5Sselect_hyperslab ( memSpace, H5S_SELECT_SET, startVec,
+                       stridVec, countVec,       NULL );
+
+ vtkDoubleArray   * dataAray = vtkDoubleArray::New();
+ dataAray->SetName( atribute );
+ dataAray->SetNumberOfTuples( numTupls );
+ double           * arrayPtr = static_cast < double * >
+                               (  dataAray->GetPointer( 0 )  );
+
+ int    i;
+ hid_t  hRawType = H5Dget_type( dataIndx );
+ hid_t  dataType = H5Tget_native_type( hRawType, H5T_DIR_ASCEND );
+
+ if (  H5Tequal( dataType, H5T_NATIVE_DOUBLE )  )
+   {
+   H5Dread( dataIndx, dataType,    memSpace,
+            filSpace, H5P_DEFAULT, arrayPtr );
+   }
+ else
+ if (  H5Tequal( dataType, H5T_NATIVE_FLOAT )  )
+   {
+   float * dataFlts = new float [ numTupls ];
+   H5Dread( dataIndx, dataType,    memSpace,
+            filSpace, H5P_DEFAULT, dataFlts );
+   for ( i = 0; i < numTupls; i ++ )
+     {
+     arrayPtr[i] = dataFlts[i];
+     }
+   delete [] dataFlts;
+   dataFlts = NULL;
+   }
+ else
+ if (  H5Tequal( dataType, H5T_NATIVE_INT )  )
+   {
+   int * dataInts = new int [ numTupls ];
+   H5Dread( dataIndx, dataType,    memSpace,
+            filSpace, H5P_DEFAULT, dataInts );
+   for ( i = 0; i < numTupls; i ++ )
+     {
+     arrayPtr[i] = dataInts[i];
+     }
+   delete[] dataInts;
+   dataInts = NULL;
+   }
+ else
+ if (  H5Tequal( dataType, H5T_NATIVE_UINT )  )
+   {
+   unsigned int * unsgnInt = new unsigned int [ numTupls ];
+   H5Dread( dataIndx, dataType,    memSpace,
+            filSpace, H5P_DEFAULT, unsgnInt );
+   for ( i = 0; i < numTupls; i ++ )
+     {
+     arrayPtr[i] = unsgnInt[i];
+     }
+   delete[] unsgnInt;
+   unsgnInt = NULL;
+   }
+ else
+   {
+//   vtkErrorMacro( "Invalid data attribute type." << endl );
+   }
+
+ H5Sclose( filSpace );
+ H5Sclose( memSpace );
+ H5Sclose( spaceIdx );
+ H5Tclose( dataType );
+ H5Tclose( hRawType );
+ H5Dclose( dataIndx );
+
+ pDataSet->GetCellData()->AddArray ( dataAray );
+
+ dataAray->Delete();
+ dataAray = NULL;
+ arrayPtr = NULL;
+
+}
 
 //-----------------------------------------------------------------------------
 void vtkFlashReaderInternal::Init()
@@ -1668,12 +1839,11 @@ void vtkAMRFlashReader::SetFileName( const char* fileName )
       this->FileName[ strlen( fileName ) ] = '\0';
 
       this->Internal->SetFileName( this->FileName );
-      this->SetUpDataArraySelections();
-      this->InitializeArraySelections();
     }
 
+  this->SetUpDataArraySelections();
+  this->InitializeArraySelections();
   this->Modified();
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1742,7 +1912,9 @@ void vtkAMRFlashReader::GetBlock(
   this->Internal->ReadMetaData();
 
   int blockIdx = this->BlockMap[ index ];
-  int level    = this->Internal->Blocks[ blockIdx ].Level;
+
+  // Start numbering levels from 0!
+  int level    = this->Internal->Blocks[ blockIdx ].Level-1;
   double blockMin[3];
   double blockMax[3];
   double spacings[3];
@@ -1759,7 +1931,16 @@ void vtkAMRFlashReader::GetBlock(
   ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
   ug->SetSpacing( spacings );
 
-  // TODO: load data
+  int numAttrs = static_cast< int >( this->Internal->AttributeNames.size() );
+  for( int i=0; i < numAttrs; ++i )
+    {
+      if( this->GetCellArrayStatus(
+            this->Internal->AttributeNames[i].c_str() ) )
+        {
+          this->Internal->GetBlockAttribute(
+              this->Internal->AttributeNames[i].c_str(),blockIdx, ug );
+        }
+    }
 
   hbds->SetDataSet(level,idxcounter[level],ug);
   ug->Delete();
@@ -1769,5 +1950,14 @@ void vtkAMRFlashReader::GetBlock(
 //-----------------------------------------------------------------------------
 void vtkAMRFlashReader::SetUpDataArraySelections()
 {
-  // TODO: implement this
+  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  this->Internal->ReadMetaData();
+
+  int numAttrs = static_cast< int >( this->Internal->AttributeNames.size() );
+  for( int i=0; i < numAttrs; ++i )
+    {
+      this->CellDataArraySelection->AddArray(
+          this->Internal->AttributeNames[ i ].c_str()  );
+    }
+
 }
