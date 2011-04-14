@@ -58,11 +58,26 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
   this->ScalarRange[0]    = VTK_DOUBLE_MAX;
   this->ScalarRange[1]    = VTK_DOUBLE_MIN;
   this->PadCellVisibility = false;
+  this->origin[0] = this->origin[1] = this->origin[3] = 0.0;
 }
 
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::SetOrigin( const double o[3] )
+{
+  for( int i=0; i < 3; ++i )
+    this->origin[i] = o[i];
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::GetOrigin( double o[3] )
+{
+  for( int i=0; i < 3; ++i )
+    o[i] = this->origin[i];
 }
 
 //----------------------------------------------------------------------------

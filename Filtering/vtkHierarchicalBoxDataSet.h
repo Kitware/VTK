@@ -55,6 +55,12 @@ public:
   vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkCompositeDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Descrition:
+  // Set & Get the AMR dataset origin
+  // The origin is essentially the minimum of all the grids.
+  void SetOrigin( const double origin[3] );
+  void GetOrigin( double origin[3] );
+
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
   virtual vtkCompositeDataIterator* NewIterator();
@@ -261,6 +267,9 @@ protected:
   vtkTimeStamp ScalarRangeComputeTime;
 
   bool PadCellVisibility;
+
+  // Global Origin
+  double origin[3];
 
 private:
 
