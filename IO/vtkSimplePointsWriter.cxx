@@ -15,9 +15,15 @@
 #include "vtkSimplePointsWriter.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkDataSet.h"
+#include "vtkPointSet.h"
+#include "vtkErrorCode.h"
 
-#include <fstream>
+#if !defined(_WIN32) || defined(__CYGWIN__)
+# include <unistd.h> /* unlink */
+#else
+# include <io.h> /* unlink */
+#endif
+
 #include <iomanip>
 
 vtkStandardNewMacro(vtkSimplePointsWriter);
@@ -30,18 +36,41 @@ vtkSimplePointsWriter::vtkSimplePointsWriter()
 
 void vtkSimplePointsWriter::WriteData()
 {
-  vtkDataSet *input = this->GetInput();
+  vtkPointSet *input = vtkPointSet::SafeDownCast(this->GetInput());
+  int numberOfPoints = 0;
 
-  std::ofstream fout(this->FileName);
+  if (input)
+    {
+    numberOfPoints = input->GetNumberOfPoints();
+    }
 
-  for(vtkIdType i = 0; i < input->GetNumberOfPoints(); i++)
+  // OpenVTKFile() will report any errors that happen
+  ostream *outfilep = this->OpenVTKFile();
+  if (!outfilep)
+    {
+    return;
+    }
+
+  ostream &outfile = *outfilep;
+
+  for(vtkIdType i = 0; i < numberOfPoints; i++)
     {
     double p[3];
     input->GetPoint(i,p);
-    fout << std::setprecision(this->DecimalPrecision) << p[0] << " " << p[1] << " " << p[2] << std::endl;
+    outfile << std::setprecision(this->DecimalPrecision)
+            << p[0] << " " << p[1] << " " << p[2] << std::endl;
     }
 
-  fout.close();
+  // Close the file
+  this->CloseVTKFile(outfilep);
+
+  // Delete the file if an error occurred
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: "
+                  << this->FileName);
+    unlink(this->FileName);
+    }
 }
 
 void vtkSimplePointsWriter::PrintSelf(ostream& os, vtkIndent indent)
