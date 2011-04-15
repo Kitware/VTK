@@ -54,7 +54,20 @@ class vtkImageImportFromArray:
                   'L':VTK_UNSIGNED_LONG,   # uint64
                   'f':VTK_FLOAT,           # float32
                   'd':VTK_DOUBLE,          # float64
+                  'F':VTK_FLOAT,           # float32
+                  'D':VTK_DOUBLE,          # float64
                   }
+
+    __sizeDict = { VTK_SIGNED_CHAR:1,
+                   VTK_UNSIGNED_CHAR:1,
+                   VTK_SHORT:2,
+                   VTK_UNSIGNED_SHORT:2,
+                   VTK_INT:4,
+                   VTK_UNSIGNED_INT:4,
+                   VTK_LONG:4,
+                   VTK_UNSIGNED_LONG:4,
+                   VTK_FLOAT:4,
+                   VTK_DOUBLE:8 }
 
     # convert 'Int32' to 'unsigned short'
     def SetConvertIntToUnsignedShort(self,yesno):
@@ -100,8 +113,10 @@ class vtkImageImportFromArray:
 
         ar_type = self.__typeDict[typecode]
 
+        complexComponents = 1
         if (typecode == 'F' or typecode == 'D'):
             numComponents = numComponents * 2
+            complexComponents = 2
 
         if (self.__ConvertIntToUnsignedShort and typecode == 'i'):
             imTmpArr = imArray.astype('h').flat
@@ -109,7 +124,7 @@ class vtkImageImportFromArray:
         else:
             imTmpArr = imArray.flat
 
-        size = len(imTmpArr)*self.__sizeDict[type]*numComponents
+        size = len(imTmpArr)*self.__sizeDict[ar_type]*complexComponents
         self.__import.CopyImportVoidPointer(imTmpArr,size)
         self.__import.SetDataScalarType(ar_type)
         self.__import.SetNumberOfScalarComponents(numComponents)
