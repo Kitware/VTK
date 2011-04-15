@@ -29,7 +29,16 @@ From vtkImageExport
 import Numeric
 import umath
 from vtk import vtkImageExport
-from vtkConstants import *
+from vtk import VTK_SIGNED_CHAR
+from vtk import VTK_UNSIGNED_CHAR
+from vtk import VTK_SHORT
+from vtk import VTK_UNSIGNED_SHORT
+from vtk import VTK_INT
+from vtk import VTK_UNSIGNED_INT
+from vtk import VTK_LONG
+from vtk import VTK_UNSIGNED_LONG
+from vtk import VTK_FLOAT
+from vtk import VTK_DOUBLE
 
 _NEW_NUMERIC = 0
 try:
@@ -51,7 +60,7 @@ class vtkImageExportToArray:
     # type dictionary: note that python doesn't support
     # unsigned integers!
 
-    __typeDict = { VTK_CHAR:Numeric.Int8,
+    __typeDict = { VTK_SIGNED_CHAR:Numeric.Int8,
                    VTK_UNSIGNED_CHAR:Numeric.UnsignedInt8,
                    VTK_SHORT:Numeric.Int16,
                    VTK_UNSIGNED_SHORT:Numeric.Int16,
@@ -59,7 +68,7 @@ class vtkImageExportToArray:
                    VTK_FLOAT:Numeric.Float32,
                    VTK_DOUBLE:Numeric.Float64 }
 
-    __sizeDict = { VTK_CHAR:1,
+    __sizeDict = { VTK_SIGNED_CHAR:1,
                    VTK_UNSIGNED_CHAR:1,
                    VTK_SHORT:2,
                    VTK_UNSIGNED_SHORT:2,

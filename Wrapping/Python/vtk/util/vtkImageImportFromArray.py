@@ -1,9 +1,8 @@
 """
 vtkImageImportFromArray: a NumPy front-end to vtkImageImport
 
-Load a Numeric Python array into a VTK image.
-To use this class, you must have the LLNL Numeric Python distribution
-(http://numpy.sf.net)
+Load a python array into a vtk image.
+To use this class,you must have NumPy installed (http://numpy.scipy.org/)
 
 Methods:
 
@@ -25,49 +24,37 @@ Methods from vtkImageImport:
   SetDataOrigin()
 """
 
-import Numeric
 from vtk import vtkImageImport
-from vtkConstants import *
-
-_NEW_NUMERIC = 0
-try:
-    val = float(Numeric.__version__)
-except ValueError:
-    _NEW_NUMERIC = 0
-else:
-    if val > 20.0:
-        _NEW_NUMERIC = 1
-    else:
-        _NEW_NUMERIC = 0
-
+from vtk import VTK_SIGNED_CHAR
+from vtk import VTK_UNSIGNED_CHAR
+from vtk import VTK_SHORT
+from vtk import VTK_UNSIGNED_SHORT
+from vtk import VTK_INT
+from vtk import VTK_UNSIGNED_INT
+from vtk import VTK_LONG
+from vtk import VTK_UNSIGNED_LONG
+from vtk import VTK_FLOAT
+from vtk import VTK_DOUBLE
 
 class vtkImageImportFromArray:
     def __init__(self):
         self.__import = vtkImageImport()
-        self.__ConvertIntToUnsignedShort = 0
+        self.__ConvertIntToUnsignedShort = False
         self.__Array = None
 
     # type dictionary: note that python doesn't support
     # unsigned integers properly!
-    __typeDict = {'c':VTK_UNSIGNED_CHAR,
-                  'b':VTK_UNSIGNED_CHAR,
-                  '1':VTK_CHAR,
-                  's':VTK_SHORT,
-                  'i':VTK_INT,
-                  'l':VTK_LONG,
-                  'f':VTK_FLOAT,
-                  'd':VTK_DOUBLE,
-                  'F':VTK_FLOAT,
-                  'D':VTK_DOUBLE }
-
-    __sizeDict = { VTK_CHAR:1,
-                   VTK_UNSIGNED_CHAR:1,
-                   VTK_SHORT:2,
-                   VTK_UNSIGNED_SHORT:2,
-                   VTK_INT:4,
-                   VTK_LONG:4,
-                   VTK_FLOAT:4,
-                   VTK_DOUBLE:8 }
+    __typeDict = {'b':VTK_SIGNED_CHAR,     # int8
+                  'B':VTK_UNSIGNED_CHAR,   # uint8
+                  'h':VTK_SHORT,           # int16
+                  'H':VTK_UNSIGNED_SHORT,  # uint16
+                  'i':VTK_INT,             # int32
+                  'I':VTK_UNSIGNED_INT,    # uint32
+                  'l':VTK_LONG,            # int64
+                  'L':VTK_UNSIGNED_LONG,   # uint64
+                  'f':VTK_FLOAT,           # float32
+                  'd':VTK_DOUBLE,          # float64
+                  }
 
     # convert 'Int32' to 'unsigned short'
     def SetConvertIntToUnsignedShort(self,yesno):
@@ -77,10 +64,17 @@ class vtkImageImportFromArray:
         return self.__ConvertIntToUnsignedShort
 
     def ConvertIntToUnsignedShortOn(self):
-        self.__ConvertIntToUnsignedShort = 1
+        self.__ConvertIntToUnsignedShort = True
 
     def ConvertIntToUnsignedShortOff(self):
-        self.__ConvertIntToUnsignedShort = 0
+        self.__ConvertIntToUnsignedShort = False
+
+    def Update(self):
+        self.__import.Update()
+
+    # get the output
+    def GetOutputPort(self):
+        return self.__import.GetOutputPort()
 
     # get the output
     def GetOutput(self):
@@ -89,33 +83,34 @@ class vtkImageImportFromArray:
     # import an array
     def SetArray(self,imArray):
         self.__Array = imArray
+        imString = imArray.tostring()
         numComponents = 1
         dim = imArray.shape
-
-        if (len(dim) == 4):
+        if len(dim) == 0:
+            dim = (1,1,1)
+        elif len(dim) == 1:
+            dim = (1, 1, dim[0])
+        elif len(dim) == 2:
+            dim = (1, dim[0], dim[1])
+        elif len(dim) == 4:
             numComponents = dim[3]
             dim = (dim[0],dim[1],dim[2])
 
-        type = self.__typeDict[imArray.typecode()]
+        typecode = imArray.dtype.char
 
-        if (imArray.typecode() == 'F' or imArray.typecode == 'D'):
+        ar_type = self.__typeDict[typecode]
+
+        if (typecode == 'F' or typecode == 'D'):
             numComponents = numComponents * 2
 
-        if (self.__ConvertIntToUnsignedShort and imArray.typecode() == 'i'):
-            if _NEW_NUMERIC:
-                imTmpArr = imArray.astype(Numeric.Int16).flat
-            else:
-                imTmpArr = imArray.astype(Numeric.Int16).tostring()
-            type = VTK_UNSIGNED_SHORT
+        if (self.__ConvertIntToUnsignedShort and typecode == 'i'):
+            imString = imArray.astype('h').tostring()
+            ar_type = VTK_UNSIGNED_SHORT
         else:
-            if _NEW_NUMERIC:
-                imTmpArr = imArray.flat
-            else:
-                imTmpArr = imArray.tostring()
+            imString = imArray.tostring()
 
-        size = len(imTmpArr)*self.__sizeDict[type]
-        self.__import.CopyImportVoidPointer(imTmpArr, size)
-        self.__import.SetDataScalarType(type)
+        self.__import.CopyImportVoidPointer(imString,len(imString))
+        self.__import.SetDataScalarType(ar_type)
         self.__import.SetNumberOfScalarComponents(numComponents)
         extent = self.__import.GetDataExtent()
         self.__import.SetDataExtent(extent[0],extent[0]+dim[2]-1,
