@@ -83,7 +83,7 @@ class vtkImageImportFromArray:
     # import an array
     def SetArray(self,imArray):
         self.__Array = imArray
-        imString = imArray.tostring()
+        imTmpArr = imArray.flat
         numComponents = 1
         dim = imArray.shape
         if len(dim) == 0:
@@ -104,12 +104,13 @@ class vtkImageImportFromArray:
             numComponents = numComponents * 2
 
         if (self.__ConvertIntToUnsignedShort and typecode == 'i'):
-            imString = imArray.astype('h').tostring()
+            imTmpArr = imArray.astype('h').flat
             ar_type = VTK_UNSIGNED_SHORT
         else:
-            imString = imArray.tostring()
+            imTmpArr = imArray.flat
 
-        self.__import.CopyImportVoidPointer(imString,len(imString))
+        size = len(imTmpArr)*self.__sizeDict[type]*numComponents
+        self.__import.CopyImportVoidPointer(imTmpArr,size)
         self.__import.SetDataScalarType(ar_type)
         self.__import.SetNumberOfScalarComponents(numComponents)
         extent = self.__import.GetDataExtent()
