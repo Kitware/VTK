@@ -52,7 +52,9 @@ public:
   vtkSetStringMacro(FileName);
 
   // Description:
-  // Read an arbitrary array from a stream.
+  // Read an arbitrary array from a stream.  Note: you MUST always
+  // open streams in binary mode to prevent problems reading files
+  // on Windows.
   static vtkArray* Read(istream& stream);
 
 protected:
