@@ -146,7 +146,7 @@ class vtkPlotBarSegment : public vtkObject {
       }
 
     void Paint(vtkContext2D *painter, vtkPen *pen, vtkBrush *brush,
-               float width, float offset)
+               float width, float offset, int orientation)
       {
       painter->ApplyPen(pen);
       painter->ApplyBrush(brush);
@@ -160,17 +160,29 @@ class vtkPlotBarSegment : public vtkObject {
 
       for (int i = 0; i < n; ++i)
         {
-        if (p)
-          painter->DrawRect(f[2*i]-(width/2)-offset, p[2*i+1],
-                            width, f[2*i+1] - p[2*i+1]);
-        else
-          painter->DrawRect(f[2*i]-(width/2)-offset, 0.0,
-                            width, f[2*i+1]);
+        if (orientation == vtkPlotBar::VERTICAL)
+          {
+          if (p)
+            painter->DrawRect(f[2*i]-(width/2)-offset, p[2*i+1],
+                              width, f[2*i+1] - p[2*i+1]);
+          else
+            painter->DrawRect(f[2*i]-(width/2)-offset, 0.0,
+                              width, f[2*i+1]);
+          }
+        else // HORIZONTAL orientation
+          {
+          if (p)
+            painter->DrawRect(p[2*i+1], f[2*i]-(width/2)-offset,
+                              f[2*i+1] - p[2*i+1], width);
+          else
+            painter->DrawRect(0.0, f[2*i]-(width/2)-offset,
+                              f[2*i+1], width);
+          }
         }
       }
 
     bool GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
-                         float width, float offset)
+                         float width, float offset, int orientation)
       {
       if (!this->Points)
         {
@@ -200,27 +212,38 @@ class vtkPlotBarSegment : public vtkObject {
       // side of the point with which it is associated.
       float halfWidth = width / 2.0;
 
+      // If orientation is VERTICAL, search normally. For HORIZONTAL,
+      // simply transpose the X and Y coordinates of the target, as the rest
+      // of the search uses the assumption that X = bar position, Y = bar
+      // value; swapping the target X and Y is simpler that swapping the
+      // X and Y of all the other references to the bar data.
+      vtkVector2f targetPoint(point);
+      if (orientation == vtkPlotBar::HORIZONTAL)
+        {
+        targetPoint.Set(point.Y(), point.X()); // Swap x and y
+        }
+
       // Set up our search array, use the STL lower_bound algorithm
       // When searching, invert the behavior of the offset and
       // compensate for the half width overlap.
       std::vector<vtkVector2f>::iterator low;
-      vtkVector2f lowPoint(point.X()-(offset * -1)-halfWidth, 0.0f);
+      vtkVector2f lowPoint(targetPoint.X()-(offset * -1)-halfWidth, 0.0f);
       low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
       while (low != v.end())
         {
         // Is the left side of the bar beyond the point?
-        if (low->X()-offset-halfWidth > point.X())
+        if (low->X()-offset-halfWidth > targetPoint.X())
           {
           break;
           }
         // Does the bar surround the point?
-        else if (low->X()-halfWidth-offset < point.X() &&
-                 low->X()+halfWidth-offset > point.X())
+        else if (low->X()-halfWidth-offset < targetPoint.X() &&
+                 low->X()+halfWidth-offset > targetPoint.X())
           {
           // Is the point within the vertical extent of the bar?
-          if ((point.Y() >= 0 && point.Y() < low->Y()) ||
-              (point.Y() < 0 && point.Y() > low->Y()))
+          if ((targetPoint.Y() >= 0 && targetPoint.Y() < low->Y()) ||
+              (targetPoint.Y() < 0 && targetPoint.Y() > low->Y()))
             {
             *location = *low;
             return true;
@@ -260,7 +283,8 @@ public:
     }
 
   void PaintSegments(vtkContext2D *painter, vtkColorSeries *colorSeries,
-                     vtkPen *pen, vtkBrush *brush, float width, float offset)
+                     vtkPen *pen, vtkBrush *brush, float width, float offset,
+                     int orientation)
     {
     int colorInSeries = 0;
     bool useColorSeries = this->Segments.size() > 1;
@@ -271,19 +295,19 @@ public:
         {
         brush->SetColor(colorSeries->GetColorRepeating(colorInSeries++).GetData());
         }
-      (*it)->Paint(painter, pen, brush, width, offset);
+      (*it)->Paint(painter, pen, brush, width, offset, orientation);
       }
     }
 
 
   int GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
-                      float width, float offset)
+                      float width, float offset, int orientation)
     {
     int index = 0;
     for (std::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
            this->Segments.begin(); it != this->Segments.end(); ++it)
       {
-      if ((*it)->GetNearestPoint(point,location,width,offset))
+      if ((*it)->GetNearestPoint(point,location,width,offset,orientation))
         {
         return index;
         }
@@ -313,6 +337,7 @@ vtkPlotBar::vtkPlotBar()
   this->Pen->SetWidth(1.0);
   this->Offset = 1.0;
   this->ColorSeries = 0;
+  this->Orientation = vtkPlotBar::VERTICAL;
 }
 
 //-----------------------------------------------------------------------------
@@ -363,7 +388,7 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
     }
 
   this->Private->PaintSegments(painter,this->ColorSeries, this->Pen,this->Brush,
-                               this->Width, this->Offset);
+                               this->Width, this->Offset, this->Orientation);
 
   return true;
 }
@@ -387,26 +412,50 @@ bool vtkPlotBar::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
 //-----------------------------------------------------------------------------
 void vtkPlotBar::GetBounds(double bounds[4])
 {
+  int seriesLow, seriesHigh, valuesLow, valuesHigh;
+  if (this->Orientation ==  vtkPlotBar::VERTICAL)
+    {
+    seriesLow = 0; // Xmin
+    seriesHigh = 1; // Xmax
+    valuesLow = 2; // Ymin
+    valuesHigh = 3; // Ymax
+    }
+  else // HORIZONTAL orientation
+    {
+    seriesLow = 2; // Ymin
+    seriesHigh = 3; // Ymax
+    valuesLow = 0; // Xmin
+    valuesHigh = 1; // Xmax
+    }
+
   // Get the x and y arrays (index 0 and 1 respectively)
   vtkTable *table = this->Data->GetInput();
   vtkDataArray* x = this->UseIndexForXSeries ?
                     0 : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray *y = this->Data->GetInputArrayToProcess(1, table);
-
-  if (this->UseIndexForXSeries && y)
+  if (!y)
     {
-    bounds[0] = 0 - (this->Width / 2 );
-    bounds[1] = y->GetNumberOfTuples() + (this->Width/2);
+      return;
     }
-  else if (x && y)
+
+  if (this->UseIndexForXSeries)
     {
-    x->GetRange(&bounds[0]);
+    bounds[seriesLow] = 0 - (this->Width / 2 );
+    bounds[seriesHigh] = y->GetNumberOfTuples() + (this->Width/2);
+    }
+  else if (x)
+    {
+    x->GetRange(&bounds[seriesLow]);
     // We surround our point by Width/2 on either side
-    bounds[0] -= this->Width / 2.0 + this->Offset;
-    bounds[1] += this->Width / 2.0 - this->Offset;
+    bounds[seriesLow] -= this->Width / 2.0 + this->Offset;
+    bounds[seriesHigh] += this->Width / 2.0 - this->Offset;
+    }
+  else
+    {
+    return;
     }
 
-  y->GetRange(&bounds[2]);
+  y->GetRange(&bounds[valuesLow]);
 
   double y_range[2];
   std::map< int, std::string >::iterator it;
@@ -415,32 +464,31 @@ void vtkPlotBar::GetBounds(double bounds[4])
     {
     y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
     y->GetRange(y_range);
-    bounds[3] += y_range[1];
+    bounds[valuesHigh] += y_range[1];
     }
 
-  // Bar plots always have one of the y bounds at the orgin
-  if (bounds[2] > 0.0f)
+  // Bar plots always have one of the value bounds at the orgin
+  if (bounds[valuesLow] > 0.0f)
     {
-    bounds[2] = 0.0;
+    bounds[valuesLow] = 0.0;
     }
-  else if (bounds[3] < 0.0f)
+  else if (bounds[valuesHigh] < 0.0f)
     {
-    bounds[3] = 0.0;
+    bounds[valuesHigh] = 0.0;
     }
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBar::SetWidth(float width)
+void vtkPlotBar::SetOrientation(int orientation)
 {
-  this->Width = width;
-}
-
-//-----------------------------------------------------------------------------
-float vtkPlotBar::GetWidth()
-{
-  return this->Width;
+  if (orientation < 0 || orientation > 1)
+    {
+    vtkErrorMacro("Error, invalid orientation value supplied: " << orientation)
+    return;
+    }
+  this->Orientation = orientation;
 }
 
 //-----------------------------------------------------------------------------
@@ -468,7 +516,7 @@ int vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
                                   vtkVector2f* location)
 {
   return this->Private->GetNearestPoint(point, location, this->Width,
-                                        this->Offset);
+                                        this->Offset, this->Orientation);
 }
 
 //-----------------------------------------------------------------------------

@@ -14,6 +14,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     SET(MyTests ${MyTests}
       #TestContextUnicode.cxx # Disabled until Freetype unicode works
       TestBarGraph.cxx
+      TestBarGraphHorizontal.cxx
       TestContext.cxx
       TestContextImage.cxx
       TestDiagram.cxx
