@@ -2,19 +2,14 @@
 vtkImageImportFromArray: a NumPy front-end to vtkImageImport
 
 Load a python array into a vtk image.
-To use this class,you must have NumPy installed (http://numpy.scipy.org/)
+To use this class, you must have NumPy installed (http://numpy.scipy.org/)
 
 Methods:
 
-  GetOutput() -- connect to VTK image pipeline
-  SetArray()  -- set the array to load in
-
-Convert python 'Int' to VTK_UNSIGNED_SHORT:
-(python doesn't support unsigned short, so this might be necessary)
-
-  SetConvertIntToUnsignedShort(yesno)
-  ConvertIntToUnsignedShortOn()
-  ConvertIntToUnsignedShortOff()
+  SetArray()  -- set the numpy array to load
+  Update()    -- generate the output
+  GetOutput() -- get the image as vtkImageData
+  GetOutputPort() -- connect to VTK pipeline
 
 Methods from vtkImageImport:
 (if you don't set these, sensible defaults will be used)
@@ -50,8 +45,6 @@ class vtkImageImportFromArray:
                   'H':VTK_UNSIGNED_SHORT,  # uint16
                   'i':VTK_INT,             # int32
                   'I':VTK_UNSIGNED_INT,    # uint32
-                  'l':VTK_LONG,            # int64
-                  'L':VTK_UNSIGNED_LONG,   # uint64
                   'f':VTK_FLOAT,           # float32
                   'd':VTK_DOUBLE,          # float64
                   'F':VTK_FLOAT,           # float32
@@ -64,8 +57,6 @@ class vtkImageImportFromArray:
                    VTK_UNSIGNED_SHORT:2,
                    VTK_INT:4,
                    VTK_UNSIGNED_INT:4,
-                   VTK_LONG:4,
-                   VTK_UNSIGNED_LONG:4,
                    VTK_FLOAT:4,
                    VTK_DOUBLE:8 }
 
@@ -96,7 +87,6 @@ class vtkImageImportFromArray:
     # import an array
     def SetArray(self,imArray):
         self.__Array = imArray
-        imTmpArr = imArray.flat
         numComponents = 1
         dim = imArray.shape
         if len(dim) == 0:
@@ -119,13 +109,11 @@ class vtkImageImportFromArray:
             complexComponents = 2
 
         if (self.__ConvertIntToUnsignedShort and typecode == 'i'):
-            imTmpArr = imArray.astype('h').flat
+            imArray = imArray.astype('h')
             ar_type = VTK_UNSIGNED_SHORT
-        else:
-            imTmpArr = imArray.flat
 
-        size = len(imTmpArr)*self.__sizeDict[ar_type]*complexComponents
-        self.__import.CopyImportVoidPointer(imTmpArr,size)
+        size = len(imArray.flat)*self.__sizeDict[ar_type]*complexComponents
+        self.__import.CopyImportVoidPointer(imArray, size)
         self.__import.SetDataScalarType(ar_type)
         self.__import.SetNumberOfScalarComponents(numComponents)
         extent = self.__import.GetDataExtent()
