@@ -167,9 +167,17 @@ extern "C" {
 
     // Find the image
 #ifdef VTK_PYTHON_BUILD
-    void *ptr;
-    char typeCheck[128];
-    sscanf ( argv[1], "_%lx_%s", (long *)&ptr, typeCheck);
+    char typeCheck[256];
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+    union { void *p; unsigned long l; } u;
+    sscanf ( argv[1], "_%lx_%s", &u.l, typeCheck);
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+    union { void *p; unsigned long long l; } u;
+    sscanf ( argv[1], "_%llx_%s", &u.l, typeCheck);
+#elif defined(VTK_TYPE_USE___INT64)
+    union { void *p; unsigned __int64 l; } u;
+    sscanf ( argv[1], "_%I64x_%s", &u.l, typeCheck);
+#endif
     // Various historical pointer manglings
     if ( strcmp ( "vtkImageData", typeCheck ) != 0 &&
          strcmp ( "vtkImageData_p", typeCheck ) != 0 &&
@@ -179,12 +187,12 @@ extern "C" {
          strcmp ( "p_vtkStructuredPoints", typeCheck ) != 0 )
       {
       // bad type
-      ptr = NULL;
+      u.p = NULL;
       }
-    image = (vtkImageData*) ptr;
+    image = static_cast<vtkImageData*>(u.p);
 #else
-    image = (vtkImageData*) vtkTclGetPointerFromObject ( argv[1], 
-                                                         "vtkImageData", interp, status );
+    image = static_cast<vtkImageData*>(
+      vtkTclGetPointerFromObject ( argv[1], "vtkImageData", interp, status ));
 #endif
     if ( !image )
       {
