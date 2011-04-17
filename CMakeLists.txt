@@ -503,6 +503,9 @@ INCLUDE(vtkTestFullSpecialization)
 # Check for explicit template instantiation support by compiler.
 INCLUDE(vtkTestExplicitInstantiation)
 
+# Test for atomics and other compiler intrinsics
+INCLUDE(vtkTestBuiltins)
+
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
   IF(${not} ${invar})
