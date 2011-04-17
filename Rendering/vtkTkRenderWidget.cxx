@@ -170,8 +170,13 @@ extern "C" {
     void *ptr;
     char typeCheck[128];
     sscanf ( argv[1], "_%lx_%s", (long *)&ptr, typeCheck);
-    if ( strcmp ( "vtkImageData", typeCheck ) != 0
-         && strcmp ( "vtkStructuredPoints", typeCheck ) != 0 )
+    // Various historical pointer manglings
+    if ( strcmp ( "vtkImageData", typeCheck ) != 0 &&
+         strcmp ( "vtkImageData_p", typeCheck ) != 0 &&
+         strcmp ( "p_vtkImageData", typeCheck ) != 0 &&
+         strcmp ( "vtkStructuredPoints", typeCheck ) != 0 &&
+         strcmp ( "vtkStructuredPoints_p", typeCheck ) != 0 &&
+         strcmp ( "p_vtkStructuredPoints", typeCheck ) != 0 )
       {
       // bad type
       ptr = NULL;
