@@ -21,7 +21,7 @@ TARGET_LINK_LIBRARIES(Delaunay3DAlpha vtkHybrid)
 SET(KIT ModellingExamples)
 SET(MyTests TestFinance.cxx TestDelaunay3D.cxx TestDelaunay3DAlpha.cxx)
 
-INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+INCLUDE(vtkTestingObjectFactory)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
                ${MyTests})

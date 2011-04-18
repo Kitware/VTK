@@ -7,6 +7,11 @@
 IF(NOT VTK_USE_FILE_INCLUDED)
   SET(VTK_USE_FILE_INCLUDED 1)
 
+  # Update CMAKE_MODULE_PATH so includes work.
+  SET (CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH}
+    ${VTK_CMAKE_DIR})
+
   # Load the compiler settings used for VTK.
   IF(VTK_BUILD_SETTINGS_FILE AND NOT SKIP_VTK_BUILD_SETTINGS_FILE)
     INCLUDE(${CMAKE_ROOT}/Modules/CMakeImportBuildSettings.cmake)
@@ -24,6 +29,6 @@ IF(NOT VTK_USE_FILE_INCLUDED)
   INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
 
   # Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
-  INCLUDE(${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake)
+  INCLUDE(vtkMakeInstantiator)
 
 ENDIF(NOT VTK_USE_FILE_INCLUDED)

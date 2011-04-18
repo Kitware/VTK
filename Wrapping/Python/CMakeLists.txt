@@ -86,7 +86,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)
 
-VTK_ADD_EXECUTABLE(vtkpython vtkPythonAppInit.cxx)
+VTK_ADD_EXECUTABLE(vtkpython vtkPythonAppInit.cxx vtkpython.rc)
 
 SET(VTKPYTHON_LINK_FLAGS)
 SET(VTKPYTHON_LINK_LIBS)
@@ -309,7 +309,6 @@ ENDIF (VTK_USE_PARALLEL AND VTK_USE_MPI)
 
 IF(NOT VTK_INSTALL_NO_RUNTIME AND NOT VTK_INSTALL_NO_VTKPYTHON)
   INSTALL(TARGETS vtkpython ${PVTKPYTHON_EXECUTABLE}
-    EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
@@ -562,9 +561,10 @@ IF(PYTHON_EXECUTABLE)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/PythonInstall.cmake.in
                    ${VTK_BINARY_DIR}/Wrapping/Python/PythonInstall.cmake
                    @ONLY IMMEDIATE)
-    SET_TARGET_PROPERTIES(vtkpython_pyc PROPERTIES POST_INSTALL_SCRIPT
-      ${VTK_BINARY_DIR}/Wrapping/Python/PythonInstall.cmake
-      )
+
+    install(SCRIPT ${VTK_BINARY_DIR}/Wrapping/Python/PythonInstall.cmake
+            COMPONENT RuntimeLibraries
+            )
   ENDIF(NOT VTK_INSTALL_NO_PYTHON)
 ENDIF(PYTHON_EXECUTABLE)
 

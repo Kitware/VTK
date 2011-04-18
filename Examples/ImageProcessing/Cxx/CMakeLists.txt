@@ -15,7 +15,7 @@ TARGET_LINK_LIBRARIES(ImageSlicing vtkRendering vtkImaging vtkIO)
 SET(KIT ImageProcessingExamples)
 SET(MyTests TestImageSlicing.cxx)
 
-INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+INCLUDE(vtkTestingObjectFactory)
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
                ${MyTests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
