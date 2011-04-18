@@ -719,14 +719,71 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
                 // Blank if cell is covered by a box of higher level
                 if (vtkHierarchicalBoxDataSetIsInBoxes(boxes, ix, iy, iz))
                   {
-                     vtkIdType id =
-                        (iz-loCorner[2])*cellDims[0]*cellDims[1] +
-                        (iy-loCorner[1])*cellDims[0] +
-                        (ix-loCorner[0]);
-                      vtkAssertUtils::assertInRange(
-                       id, 0, vis->GetNumberOfTuples()-1,__FILE__,__LINE__);
-                      vis->SetValue(id, 0);
-                      numBlankedPts++;
+                    if( box.GetDimensionality() == 3)
+                      {
+                        vtkIdType id =
+                            (iz-loCorner[2])*cellDims[0]*cellDims[1] +
+                            (iy-loCorner[1])*cellDims[0] +
+                            (ix-loCorner[0]);
+                        vtkAssertUtils::assertInRange(
+                            id, 0, vis->GetNumberOfTuples()-1,__FILE__,__LINE__);
+                        vis->SetValue(id, 0);
+                        numBlankedPts++;
+                      }
+                    else if( box.GetDimensionality() == 2 )
+                      {
+                        if( cellDims[0]==1 )
+                          {
+                            // YZ plane
+                            int N1 = cellDims[1];
+                            int N2 = cellDims[2];
+                            vtkIdType id =
+                                (ix-loCorner[0])*N1*N2+
+                                (iz-loCorner[2])*N1+
+                                (iy-loCorner[1]);
+                            vtkAssertUtils::assertInRange(
+                              id, 0, vis->GetNumberOfTuples()-1,
+                              __FILE__,__LINE__);
+                            vis->SetValue(id,0);
+                            numBlankedPts++;
+                          }
+                        else if( cellDims[1]==1 )
+                          {
+                            // XZ plane
+                            int N1 = cellDims[0];
+                            int N2 = cellDims[2];
+                            vtkIdType id =
+                                (iy-loCorner[1])*N1*N2+
+                                (iz-loCorner[2])*N1+
+                                (ix-loCorner[0]);
+                            vtkAssertUtils::assertInRange(
+                              id, 0, vis->GetNumberOfTuples()-1,
+                              __FILE__,__LINE__);
+                            vis->SetValue(id,0);
+                            numBlankedPts++;
+                          }
+                        else if( cellDims[2]== 1 )
+                          {
+                            // XY plane
+                            vtkIdType id =
+                              (iz-loCorner[2])*cellDims[0]*cellDims[1] +
+                              (iy-loCorner[1])*cellDims[0] +
+                              (ix-loCorner[0]);
+                            vtkAssertUtils::assertInRange(
+                                id, 0, vis->GetNumberOfTuples()-1,
+                                __FILE__,__LINE__);
+                            vis->SetValue(id, 0);
+                            numBlankedPts++;
+                          }
+                        else
+                          {
+                            vtkErrorMacro("AMR data not in YZ,XZ or XY plane!");
+                          }
+                      }
+                    else
+                      {
+                        vtkErrorMacro( "Cannot Handle dimension!" );
+                      }
                   }
 
                 } // END for x
