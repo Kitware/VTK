@@ -19155,7 +19155,7 @@ VTK_SQLITE_PRIVATE u8 vtk_sqlite3GetVarint(const unsigned char *p, u64 *v){
   /* a: p2<<28 | p4<<14 | p6 (unmasked) */
   if (!(a&0x80))
   {
-    a &= (0x1f<<28)|(0x7f<<14)|(0x7f);
+    a &= (0xfU<<28)|(0x7f<<14)|(0x7f);
     b &= (0x7f<<14)|(0x7f);
     b = b<<7;
     a |= b;
@@ -19172,7 +19172,7 @@ VTK_SQLITE_PRIVATE u8 vtk_sqlite3GetVarint(const unsigned char *p, u64 *v){
   /* b: p3<<28 | p5<<14 | p7 (unmasked) */
   if (!(b&0x80))
   {
-    b &= (0x1f<<28)|(0x7f<<14)|(0x7f);
+    b &= (0xfU<<28)|(0x7f<<14)|(0x7f);
     /* moved CSE2 up */
     /* a &= (0x7f<<14)|(0x7f); */
     a = a<<7;
