@@ -67,4 +67,3 @@ int main( int argc, char **argv )
 //  sliceAMR->Delete();
   return 0;
 }
-

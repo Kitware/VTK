@@ -29,6 +29,8 @@ class vtkInformationVector;
 class vtkHierarchicalBoxDataSet;
 class vtkMultiProcessController;
 class vtkPlane;
+class vtkAMRBox;
+class vtkUniformGrid;
 
 class VTK_AMR_EXPORT vtkAMRSliceFilter :
   public vtkHierarchicalBoxDataSetAlgorithm
@@ -63,6 +65,31 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
   protected:
     vtkAMRSliceFilter();
     ~vtkAMRSliceFilter();
+
+    // Description:
+    // Computes the cell center of the cell corresponding to the supplied
+    // cell index w.r.t. the input uniform grid.
+    void ComputeCellCenter(
+        vtkUniformGrid *ug, const int cellIdx, double centroid[3] );
+
+    // Description:
+    // Gets the slice from the given grid given the plane origin & the
+    // user-supplied normal associated with this class instance.
+    vtkUniformGrid* GetSlice( double origin[3], vtkUniformGrid *grid );
+
+    // Description:
+    // Copies the cell data for the cells in the slice from the 3-D grid.
+    void GetSliceCellData( vtkUniformGrid *slice, vtkUniformGrid *grid3D );
+
+    // Description:
+    // Determines if a plane intersects with an AMR box
+    bool PlaneIntersectsAMRBox( double plane[4], double bounds[6] );
+
+    // Description:
+    // Extracts a 2-D AMR slice from the dataset.
+    void GetAMRSliceInPlane(
+        vtkPlane *p, vtkHierarchicalBoxDataSet *inp,
+        vtkHierarchicalBoxDataSet *out );
 
     // Description:
     // A utility function that checks if the input AMR data is 2-D.
