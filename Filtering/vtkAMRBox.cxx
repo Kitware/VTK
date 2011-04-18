@@ -280,31 +280,36 @@ int vtkAMRBox::GetNodeLinearIndex( const int i,const int j,const int k )
 int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
 {
   // Sanity Check!
-  vtkAssertUtils::assertInRange(
-   i,this->LoCorner[0],this->HiCorner[0]-1,__FILE__, __LINE__ );
-  vtkAssertUtils::assertInRange(
-   j,this->LoCorner[1],this->HiCorner[1]-1,__FILE__, __LINE__ );
-  vtkAssertUtils::assertInRange(
-   k,this->LoCorner[2],this->HiCorner[2]-1,__FILE__, __LINE__ );
+  assert( "pre: i-index out-of-bounds!" &&
+   ( (i >= 0) && (i <= this->HiCorner[0]) ) );
+  assert( "pre: j-index out-of-bounds!" &&
+   ( (j >= 0) && (j <= this->HiCorner[1] ) ) );
+  assert( "pre: k-index out-of-bounds!" &&
+   ( (k >= 0) && (k <= this->HiCorner[2]) ) );
 
+  // Get Cell dimensions. Note, the AMR box is cell dimensioned,
+  // hence the number of nodes here returns actually the number
+  // of cells corresponding to the associated grid.
   int ndim[3];
-  int ijk[3];
-  ijk[0]=i; ijk[1]=j; ijk[2]=k;
   this->GetNumberOfNodes( ndim );
-  int idx = vtkStructuredData::ComputeCellId( ndim, ijk );
+
+  // Shift nunmbering to 0-based.
+  int ijk[3];
+  ijk[0]=i-this->LoCorner[0];
+  ijk[1]=j-this->LoCorner[1];
+  ijk[2]=k-this->LoCorner[2];
+
+  // Compute the linear index.
+  int idx = vtkStructuredData::ComputePointId( ndim, ijk );
   return( idx );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::WriteToVtkFile( const char *file )
 {
-  // Sanity Checks
-  vtkAssertUtils::assertNotNull( file, __FILE__, __LINE__ );
-//  vtkAssertUtils::assertTrue( std::strlen( file )>0, __FILE__, __LINE__ );
-
   std::ofstream ofs;
   ofs.open( file );
-  vtkAssertUtils::assertTrue( ofs.is_open(), __FILE__, __LINE__ );
+  assert( "Cannot open file!" && ofs.is_open() );
 
   ofs << "# vtk DataFile Version 3.0\n";
   ofs << "Grid:" << this->BlockId << " Level:" << this->BlockLevel << "\n";
@@ -319,7 +324,7 @@ void vtkAMRBox::WriteToVtkFile( const char *file )
 
 
   int *isghost = new int[ this->GetNumberOfNodes() ];
-  vtkAssertUtils::assertNotNull( isghost, __FILE__, __LINE__ );
+  assert( "Ghost array is NULL" && (isghost != NULL) );
 
   int    ijk[3];
   double pnt[3];

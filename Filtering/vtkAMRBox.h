@@ -330,7 +330,7 @@ public:
   // Description:
   // Writes this instance of AMR box as a uniform grid in a VTK file
   // that can be visualized with ParaView.
-  void WriteToVtkFile( const char *file );
+//  void WriteToVtkFile( const char *file );
 
   // Description:
   // Gets the real coordinates of the point within the virtual
