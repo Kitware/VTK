@@ -69,6 +69,19 @@ TARGET_LINK_LIBRARIES( AMRHomogenization
                 ${VTK_HDF5_LIBRARIES}
                 )
 
+## Add AMR Slicer 
+ADD_EXECUTABLE(AMRSlicer AMRSlicer.cxx)
+TARGET_LINK_LIBRARIES( AMRSlicer
+                vtkGraphics
+                vtkFiltering
+                vtkRendering
+                vtkIO
+                vtkAMR
+                vtkParallel
+                ${MPI_LIBRARIES}
+                ${VTK_HDF5_LIBRARIES}
+                )
+
 ## Add Generate3DAMRDataSetWithPulse executable
 ADD_EXECUTABLE( Generate3DAMRDataSetWithPulse Generate3DAMRDataSetWithPulse.cxx)
 TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
