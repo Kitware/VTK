@@ -88,26 +88,28 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
   vtkPlane *pl = vtkPlane::New();
 
   double amrorigin[3];
-  inp->GetOrigin(amrorigin);
+  vtkAMRUtilities::ComputeDataSetOrigin( amrorigin, inp, this->Controller );
 
   double porigin[3];
-  porigin[0]=porigin[1]=porigin[2]=0.0;
+  for( int i=0; i < 3; ++i )
+    porigin[i]=amrorigin[i];
+
   switch( this->Normal )
     {
       case 1:
         // X-Normal
         pl->SetNormal(1.0,0.0,0.0);
-        porigin[0] = amrorigin[0] + this->OffSetFromOrigin;
+        porigin[0] += this->OffSetFromOrigin;
         break;
       case 2:
         // Y-Normal
         pl->SetNormal(0.0,1.0,0.0);
-        porigin[1] = amrorigin[1] + this->OffSetFromOrigin;
+        porigin[1] += this->OffSetFromOrigin;
         break;
       case 3:
         // Z-Normal
         pl->SetNormal(0.0,0.0,1.0);
-        porigin[2] = amrorigin[2] + this->OffSetFromOrigin;
+        porigin[2] += this->OffSetFromOrigin;
         break;
       default:
         vtkErrorMacro( "Undefined plane normal" );
