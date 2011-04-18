@@ -154,7 +154,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
 
       sliceOrigin[0] = grid->GetOrigin()[0];
       sliceOrigin[1] = porigin[1];
-      sliceOrigin[2] = grid->GetOrigin()[1];
+      sliceOrigin[2] = grid->GetOrigin()[2];
       break;
     case 3:
       // Z-Normal -- XY plane
