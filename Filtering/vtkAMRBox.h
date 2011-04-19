@@ -211,12 +211,6 @@ public:
   void Grow(int byN);
 
   // Description:
-  // Grows the box within the given bounds. Ensures that the
-  // grown box will not fall outside the integer bounds of the
-  // root box.
-  void GrowWithinBounds( int byN, vtkAMRBox &root );
-
-  // Description:
   // Shrinks the box in all directions.
   void Shrink(int byN);
 
@@ -228,7 +222,16 @@ public:
 
   // Description:
   // Test if this box is empty/valid.
+  // The box is empty iff all the hibounds are
+  // equal to the low bounds, i.e.,
+  // LoCorner[ i ] == HiCorner[ i ] for all i.
   bool Empty() const;
+
+  // Description:
+  // Check to see if the AMR box instance is invalid.
+  // An AMR box is invalid iff HiCorner[ i ] < LoCorner[ i ]
+  // for any i.
+  bool IsInvalid() const;
 
   // Description:
   // Test if this box has the same dimensions as another.

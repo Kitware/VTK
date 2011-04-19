@@ -151,6 +151,8 @@ vtkAMRBox::vtkAMRBox(const vtkAMRBox &other)
 //-----------------------------------------------------------------------------
 vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
 {
+  assert( "pre: AMR Box instance is invalid" && !other.IsInvalid() );
+
   if (this==&other) return *this;
 
   this->SetDimensionality(other.GetDimensionality());
@@ -172,6 +174,7 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
       this->NG[i]         = other.NG[i];
     }
 
+  assert( "post: AMR Box instance is invalid" && !this->IsInvalid() );
   return *this;
 }
 
@@ -182,25 +185,27 @@ void vtkAMRBox::Initialize( )
   this->ProcessId  = 0;
   this->BlockId    = 0;
   this->BlockLevel = 0;
+
+  for( int i=0; i < 3; ++i )
+    {
+      this->LoCorner[ i ] = 0;
+      this->HiCorner[ i ] = 0;
+    }
+
   this->X0[0] = this->X0[1] = this->X0[2] = 0.0;
-  this->DX[0] = this->DX[1] = this->DX[2] = 0.0;
+  this->DX[0] = this->DX[1] = this->DX[2] = 1.0;
   for( int i=0; i < 6; ++i )
     {
       this->NG[i]         = 0;
       this->RealExtent[i] = 0;
     }
-  this->Invalidate();
+
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetDimensionality(int dim)
 {
-  if (dim<1 || dim>3)
-    {
-    vtkGenericWarningMacro(
-      "Invalid spatial dimension, " << dim << ", given.");
-    return;
-    }
+  assert( "dimension is out-of-bounds" && ( (dim >=1) && (dim <= 3) ) );
   this->Dimension=dim;
 }
 
@@ -231,67 +236,53 @@ void vtkAMRBox::SetDimensions(
 {
   if (ilo>ihi || jlo>jhi || klo>khi)
     {
-    this->Invalidate();
+      assert( "pre: Invalid index range specifiction encountered" && false );
+      this->Invalidate();
     }
   else
     {
-    this->LoCorner[0]=ilo;
-    this->LoCorner[1]=jlo;
-    this->LoCorner[2]=klo;
-    this->HiCorner[0]=ihi;
-    this->HiCorner[1]=jhi;
-    this->HiCorner[2]=khi;
-    this->SetRealExtent( this->LoCorner, this->HiCorner );
+      this->LoCorner[0]= ilo;
+      this->LoCorner[1]= jlo;
+      this->LoCorner[2]= klo;
+      this->HiCorner[0]= ihi;
+      this->HiCorner[1]= jhi;
+      this->HiCorner[2]= khi;
+      this->Dimension  = this->DetectDimension( ilo,jlo,klo,ihi,jhi,khi );
+      this->SetRealExtent( this->LoCorner, this->HiCorner );
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetDimensions(const int *lo, const int *hi)
 {
-  switch (this->Dimension)
-    {
-    case 1:
-      this->SetDimensions(lo[0],0,0,hi[0],0,0);
-      break;
-    case 2:
-      this->SetDimensions(lo[0],lo[1],0,hi[0],hi[1],0);
-      break;
-    case 3:
-      this->SetDimensions(lo[0],lo[1],lo[2],hi[0],hi[1],hi[2]);
-      break;
-    }
+  this->SetDimensions(
+      lo[0],lo[1],lo[2],
+      hi[0],hi[1],hi[2] );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetDimensions(const int *dims)
 {
-  switch (this->Dimension)
-    {
-    case 1:
-    this->SetDimensions(dims[0],0,0,dims[1],0,0);
-    break;
-    case 2:
-    this->SetDimensions(dims[0],dims[2],0,dims[1],dims[3],0);
-    break;
-    case 3:
-    this->SetDimensions(dims[0],dims[2],dims[4],dims[1],dims[3],dims[5]);
-    break;
-    }
+  this->SetDimensions(
+      dims[0],dims[2],dims[4],
+      dims[1],dims[3],dims[5]);
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetDimensions(int *lo, int *hi) const
 {
-  for (int q=0; q<this->Dimension; ++q)
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  for (int q=0; q < 3; ++q)
     {
-    lo[q]=this->LoCorner[q];
-    hi[q]=this->HiCorner[q];
+      lo[q]=this->LoCorner[q];
+      hi[q]=this->HiCorner[q];
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetDimensions(int dims[6]) const
 {
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   dims[0]=this->LoCorner[0];
   dims[1]=this->HiCorner[0];
   dims[2]=this->LoCorner[1];
@@ -303,27 +294,30 @@ void vtkAMRBox::GetDimensions(int dims[6]) const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetLoCorner(int *lo) const
 {
-  for (int q=0; q<this->Dimension; ++q)
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  for (int q=0; q < 3; ++q)
     {
-    lo[q]=this->LoCorner[q];
+      lo[q]=this->LoCorner[q];
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetHiCorner(int *hi) const
 {
-  for (int q=0; q<this->Dimension; ++q)
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  for (int q=0; q < 3; ++q)
     {
-    hi[q]=this->HiCorner[q];
+      hi[q]=this->HiCorner[q];
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetGridSpacing(double *dX) const
 {
-  for (int q=0; q<this->Dimension; ++q)
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  for (int q=0; q < 3; ++q)
     {
-    dX[q]=this->DX[q];
+      dX[q]=this->DX[q];
     }
 }
 
@@ -336,15 +330,7 @@ void vtkAMRBox::SetGridSpacing(double dx)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetGridSpacing(const double *dX)
 {
-  switch (this->Dimension)
-    {
-  case 2:
-    this->SetGridSpacing(dX[0],dX[1],0.0);
-    break;
-  case 3:
-    this->SetGridSpacing(dX[0],dX[1],dX[2]);
-    break;
-    }
+  this->SetGridSpacing( dX[0], dX[1], dX[2] );
 }
 
 //-----------------------------------------------------------------------------
@@ -358,7 +344,8 @@ void vtkAMRBox::SetGridSpacing(double dx, double dy, double dz)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetDataSetOrigin(double *x0) const
 {
-  for (int q=0; q<this->Dimension; ++q)
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  for (int q=0; q < 3; ++q)
     {
       x0[q]=this->X0[q];
     }
@@ -367,18 +354,7 @@ void vtkAMRBox::GetDataSetOrigin(double *x0) const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetDataSetOrigin(const double *x0)
 {
-  switch (this->Dimension)
-    {
-  case 1:
-    this->SetDataSetOrigin(x0[0],0.0,0.0);
-    break;
-  case 2:
-    this->SetDataSetOrigin(x0[0],x0[1],0.0);
-    break;
-  case 3:
-    this->SetDataSetOrigin(x0[0],x0[1],x0[2]);
-    break;
-    }
+  this->SetDataSetOrigin( x0[0], x0[1], x0[2] );
 }
 
 //-----------------------------------------------------------------------------
@@ -395,7 +371,7 @@ void vtkAMRBox::GetBoxOrigin(double *x0) const
   assert( "pre: input array is NULL" && (x0 != NULL) );
   x0[0] = x0[1] = x0[2] = 0.0;
 
-  for( int i=0; i < this->Dimension; ++i )
+  for( int i=0; i < 3; ++i )
     {
       x0[i] = this->X0[i]+this->LoCorner[i]*this->DX[i];
     }
@@ -405,9 +381,7 @@ void vtkAMRBox::GetBoxOrigin(double *x0) const
 void vtkAMRBox::GetNumberOfCells(int *ext) const
 {
   // Sanity Check!
-  assert( "pre: invalid extent" && ( this->HiCorner[0]>=this->LoCorner[0] ) );
-  assert( "pre: invalid extent" && ( this->HiCorner[1]>=this->LoCorner[1] ) );
-  assert( "pre: invalid extent" && ( this->HiCorner[2]>=this->LoCorner[2] ) );
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   ext[0]=this->HiCorner[0]-this->LoCorner[0];
   ext[1]=this->HiCorner[1]-this->LoCorner[1];
@@ -431,24 +405,17 @@ void vtkAMRBox::GetNumberOfCells(int *ext) const
 //-----------------------------------------------------------------------------
 vtkIdType vtkAMRBox::GetNumberOfCells() const
 {
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+
   int cellExtent[3];
   this->GetNumberOfCells( cellExtent );
   int numCells = 0;
-  switch( this->Dimension )
+  for( int i=0; i < 3; ++i )
     {
-    case 1:
-      numCells = cellExtent[0];
-      break;
-    case 2:
-      numCells = cellExtent[0]*cellExtent[1];
-      break;
-    case 3:
-      numCells = cellExtent[0]*cellExtent[1]*cellExtent[2];
-      break;
-    default:
-      numCells = 0;
-      // Code should not reach here
-//      vtkWarningMacro( "Encountered a box with dimension > 3!" );
+      if( numCells == 0 )
+        numCells = cellExtent[i];
+      else if( cellExtent[i] != 0 )
+        numCells *= cellExtent[i];
     }
   return( numCells );
 }
@@ -457,9 +424,7 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
 void vtkAMRBox::GetNumberOfNodes(int *ext) const
 {
   // Sanity Check!
-  assert( "pre: invalid extent" && ( this->HiCorner[0]>=this->LoCorner[0] ) );
-  assert( "pre: invalid extent" && ( this->HiCorner[1]>=this->LoCorner[1] ) );
-  assert( "pre: invalid extent" && ( this->HiCorner[2]>=this->LoCorner[2] ) );
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   ext[0] = (this->HiCorner[0]-this->LoCorner[0])+1;
   ext[1] = (this->HiCorner[1]-this->LoCorner[1])+1;
@@ -482,23 +447,17 @@ void vtkAMRBox::GetNumberOfNodes(int *ext) const
 //-----------------------------------------------------------------------------
 vtkIdType vtkAMRBox::GetNumberOfNodes() const
 {
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+
   int ext[3];
   this->GetNumberOfNodes( ext );
   int numNodes = 0;
-  switch( this->Dimension )
+  for( int i=0; i < 3; ++i )
     {
-    case 1:
-      numNodes = ext[0];
-      break;
-    case 2:
-      numNodes = ext[0]*ext[1];
-      break;
-    case 3:
-      numNodes = ext[0]*ext[1]*ext[2];
-      break;
-    default:
-      numNodes = 0;
-      // Code should not reach here
+      if( numNodes == 0 )
+        numNodes = ext[i];
+      else if( ext[i] != 0 )
+        numNodes *= ext[i];
     }
   return( numNodes );
 }
@@ -506,143 +465,310 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Grow(int byN)
 {
-  if (this->Empty())
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+
+  if( this->Empty() )
     {
-    return;
+      std::cerr << "WARNING: tried growing an empty AMR box!\n";
+      std::cerr << "FILE:" << __FILE__ << std::endl;
+      std::cerr << "LINE:" << __LINE__ << std::endl;
+      std::cerr.flush();
+      return;
     }
+
   int lo[3];
   int hi[3];
 
-  // TODO: There is no bound checking here!
-  // ijk's can be negative & grids can grow
-  // outside the domain?
-  for (int q=0; q<this->Dimension; ++q)
+
+  // TODO: One quesions here is, should we allow negative indices?
+  //       Or should we otherwise, ensure that the box is grown with
+  //       bounds.
+  int q;
+  switch( this->Dimension )
     {
-     lo[q]=this->LoCorner[q]-byN;
-     hi[q]=this->HiCorner[q]+byN;
-     this->NG[q*2]++;
-     this->NG[q*2+1]++;
+      case 1:
+        lo[1] = this->LoCorner[1];
+        lo[2] = this->LoCorner[2];
+        hi[1] = this->HiCorner[1];
+        hi[2] = this->HiCorner[2];
+        lo[0] = this->LoCorner[0]-byN;
+        hi[0] = this->HiCorner[0]+byN;
+        this->NG[0]++;
+        this->NG[1]++;
+        break;
+      case 2:
+        if( this->HiCorner[0] == this->LoCorner[0] )
+          {
+            lo[0] = this->LoCorner[0];
+            hi[0] = this->HiCorner[0];
+
+            // Grow in the YZ plane
+            for( q=1; q < 3; ++q )
+              {
+                lo[q] = this->LoCorner[q]-byN;
+                hi[q] = this->HiCorner[q]+byN;
+                this->NG[q*2]++;
+                this->NG[q*2+1]++;
+              }
+          }
+        else if( this->HiCorner[1] == this->LoCorner[1] )
+          {
+            lo[1] = this->LoCorner[1];
+            hi[1] = this->HiCorner[1];
+
+            // Grow in the XZ plane
+
+            // grow along x
+            lo[0] = this->LoCorner[0]-byN;
+            hi[0] = this->HiCorner[0]+byN;
+            this->NG[0]++;
+            this->NG[1]++;
+
+            // grow along z
+            lo[2] = this->LoCorner[2]-byN;
+            hi[2] = this->HiCorner[2]+byN;
+            this->NG[4]++;
+            this->NG[5]++;
+          }
+        else if( this->HiCorner[2] == this->LoCorner[2] )
+          {
+            lo[2] = this->LoCorner[2];
+            hi[2] = this->HiCorner[2];
+
+            // Grow in the XY plane
+            for( q=0; q < 2; ++q )
+              {
+                lo[q] = this->LoCorner[q]-byN;
+                hi[q] = this->HiCorner[q]+byN;
+                this->NG[q*2]++;
+                this->NG[q*2+1]++;
+              }
+          }
+        break;
+      case 3:
+        for( q=0; q < 3; ++q )
+          {
+            lo[q] = this->LoCorner[q]-byN;
+            hi[q] = this->HiCorner[q]+byN;
+            this->NG[q*2]++;
+            this->NG[q*2+1]++;
+          }
+        break;
+      default:
+        // Code should not reach here!
+        std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
+        std::cerr.flush();
+        assert( false );
     }
   this->SetDimensions(lo,hi);
-}
-
-//-----------------------------------------------------------------------------
-void vtkAMRBox::GrowWithinBounds( int byN, vtkAMRBox &rootBox )
-{
-   if( this->Empty())
-     return;
-
-   int lo[3];
-   int hi[3];
-
-   this->GetLoCorner( lo );
-   this->GetHiCorner( hi );
-
-   for( int q=0; q < this->Dimension; ++q )
-     {
-
-       for( int i=0; i < byN; ++i )
-         {
-
-          if( lo[q]-1 >= 0 )
-            {
-              lo[q]--;
-              this->NG[q*2]++;
-            }
-          if( hi[q]+1 <= rootBox.GetHiCorner()[q] )
-            {
-              hi[q]++;
-              this->NG[q*2+1]++;
-            }
-
-         } // END for N
-
-     } // END for all dimensions
-
-   this->SetDimensions(lo,hi);
-
+  assert( "post: Grown AMR Box instance is invalid" && !this->IsInvalid() );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Shrink(int byN)
 {
-  if (this->Empty())
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+
+  if( this->Empty() )
     {
-    return;
+      std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
+      std::cerr << "FILE:" << __FILE__ << std::endl;
+      std::cerr << "LINE:" << __LINE__ << std::endl;
+      std::cerr.flush();
+      return;
     }
+
   int lo[3];
   int hi[3];
 
-  // TODO: There is no bound checking here!
-  // ijk's can be negative, grids can shrink
-  // to a plane(3-D) or point (2-D) or worse
-  // get inverted
-  for (int q=0; q<this->Dimension; ++q)
+  // TODO: One quesions here is, should we allow negative indices?
+  //       Or should we otherwise, ensure that the box is grown with
+  //       bounds.
+  int q;
+  switch( this->Dimension )
     {
-    lo[q]=this->LoCorner[q]+byN;
-    hi[q]=this->HiCorner[q]-byN;
-    if( this->NG[q] > 0)
-      this->NG[q*2]--;
-    if( this->NG[q*2+1] > 0)
-      this->NG[q*2+1]--;
+      case 1:
+        lo[0] = this->LoCorner[0]+byN;
+        hi[0] = this->HiCorner[0]-byN;
+        break;
+      case 2:
+        if( this->HiCorner[0] == this->LoCorner[0] )
+          {
+            // Shrink in the YZ plane
+            for( q=1; q < 3; ++q )
+              {
+                lo[q] = this->LoCorner[q]+byN;
+                hi[q] = this->HiCorner[q]-byN;
+              }
+          }
+        else if( this->HiCorner[1] == this->LoCorner[1] )
+          {
+            // Shrink in the XZ plane
+
+            // grow along x
+            lo[0] = this->LoCorner[0]+byN;
+            hi[0] = this->HiCorner[0]-byN;
+
+            // grow along z
+            lo[2] = this->LoCorner[2]+byN;
+            hi[2] = this->HiCorner[2]-byN;
+          }
+        else if( this->HiCorner[2] == this->LoCorner[2] )
+          {
+            // Shrink in the XY plane
+            for( q=0; q < 2; ++q )
+              {
+                lo[q] = this->LoCorner[q]+byN;
+                hi[q] = this->HiCorner[q]-byN;
+              }
+          }
+        break;
+      case 3:
+        for( q=0; q < 3; ++q )
+          {
+            lo[q] = this->LoCorner[q]+byN;
+            hi[q] = this->HiCorner[q]-byN;
+          }
+        break;
+      default:
+        // Code should not reach here!
+        std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
+        std::cerr.flush();
+        assert( false );
     }
   this->SetDimensions(lo,hi);
+  assert( "post: Grown AMR Box instance is invalid" && !this->IsInvalid() );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Shift(int i, int j)
 {
-  if (this->Empty())
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  if( this->Empty() )
     {
-    return;
+      std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
+      std::cerr << "FILE:" << __FILE__ << std::endl;
+      std::cerr << "LINE:" << __LINE__ << std::endl;
+      std::cerr.flush();
+      return;
     }
+
   // TODO: There is no bound checking here!
   // ijk's can be negative,
   this->SetDimensions(
-    this->LoCorner[0]+i, this->LoCorner[1]+j,0,
-    this->HiCorner[0]+i, this->HiCorner[1]+j,0);
+    this->LoCorner[0]+i, this->LoCorner[1]+j,this->LoCorner[2],
+    this->HiCorner[0]+i, this->HiCorner[1]+j,this->HiCorner[2] );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Shift(int i, int j, int k)
 {
-  if (this->Empty())
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  if( this->Empty() )
     {
-    return;
+      std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
+      std::cerr << "FILE:" << __FILE__ << std::endl;
+      std::cerr << "LINE:" << __LINE__ << std::endl;
+      std::cerr.flush();
+      return;
     }
-  // TODO: There is no bound checking here!
-  // ijk's can be negative,
-  this->SetDimensions(
-    this->LoCorner[0]+i, this->LoCorner[1]+j,this->LoCorner[2]+k,
-    this->HiCorner[0]+i, this->HiCorner[1]+j,this->HiCorner[2]+k);
+
+  int ijk[3];
+  ijk[0] = i;
+  ijk[1] = j;
+  ijk[2] = k;
+
+  // TODO: One quesions here is, should we allow negative indices?
+  //       Or should we otherwise, ensure that the box is grown with
+  //       bounds.
+  int q;
+  switch( this->Dimension )
+    {
+      case 1:
+        this->LoCorner[0] = this->LoCorner[0]+i;
+        this->HiCorner[0] = this->HiCorner[0]+i;
+        break;
+      case 2:
+        if( this->HiCorner[0] == this->LoCorner[0] )
+          {
+             // Shift in the YZ plane
+            for( q=1; q < 3; ++q )
+              {
+                this->LoCorner[q] = this->LoCorner[q]+ijk[q];
+                this->HiCorner[q] = this->HiCorner[q]+ijk[q];
+              }
+          }
+        else if( this->HiCorner[1] == this->LoCorner[1] )
+          {
+            // Shift in the XZ plane
+
+            // shift in x
+            this->LoCorner[0] = this->LoCorner[0]+i;
+            this->HiCorner[0] = this->HiCorner[0]+i;
+
+            // shift in z
+            this->LoCorner[2] = this->LoCorner[2]+k;
+            this->HiCorner[2] = this->HiCorner[2]+k;
+          }
+        else if( this->HiCorner[2] == this->LoCorner[2] )
+          {
+            // Shift in the XY plane
+            for( q=0; q < 2; ++q )
+              {
+                this->LoCorner[q] = this->LoCorner[q]+ijk[q];
+                this->HiCorner[q] = this->HiCorner[q]+ijk[q];
+              }
+          }
+        break;
+      case 3:
+        for( q=0; q < 3; ++q )
+          {
+            this->LoCorner[q] = this->LoCorner[q]+ijk[q];
+            this->HiCorner[q] = this->HiCorner[q]+ijk[q];
+          }
+        break;
+      default:
+        // Code should not reach here!
+        std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
+        std::cerr.flush();
+        assert( false );
+    }
+  assert( "post: Shifted AMR Box instance is invalid" && !this->IsInvalid() );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Shift(const int *I)
 {
-  // TODO: There is no bound checking here!
-  // ijk's can be negative,
-  switch (this->Dimension)
+  this->Shift( I[0], I[1], I[2] );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAMRBox::IsInvalid() const
+{
+  for( int q=0; q < 3; ++q )
     {
-    case 2:
-      this->Shift(I[0],I[1]);
-      break;
-    case 3:
-      this->Shift(I[0],I[1],I[2]);
-      break;
+      if( this->HiCorner[q] < this->LoCorner[q] )
+        return true;
     }
+  return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Empty() const
 {
-  for (int q=0; q<this->Dimension; ++q)
+  int count=0;
+  for (int q=0; q < 3; ++q)
     {
-    if (this->HiCorner[q]<this->LoCorner[q])
-      {
-      return true;
-      }
+      assert( "pre: invalid index range specification" &&
+              ( this->HiCorner[q] >= this->LoCorner[q] ) );
+
+      if (this->HiCorner[q] == this->LoCorner[q])
+          ++count;
     }
+
+  if( count == 3 )
+    return true;
+
   return false;
 }
 
@@ -651,7 +777,6 @@ double vtkAMRBox::GetMinX() const
 {
   double pnt[3];
   this->GetMinBounds( pnt );
-
   return( pnt[0] );
 }
 
@@ -660,10 +785,7 @@ double vtkAMRBox::GetMinY() const
 {
   double pnt[3];
   this->GetMinBounds( pnt );
-
-  if( this->Dimension >= 2 )
-      return( pnt[1] );
-  return( 0 );
+  return( pnt[1] );
 }
 
 //-----------------------------------------------------------------------------
@@ -671,10 +793,7 @@ double vtkAMRBox::GetMinZ() const
 {
   double pnt[3];
   this->GetMinBounds( pnt );
-
-  if( this->Dimension >= 3 )
-    return( pnt[2] );
-  return( 0 );
+  return( pnt[2] );
 }
 
 //-----------------------------------------------------------------------------
@@ -690,10 +809,7 @@ double vtkAMRBox::GetMaxY() const
 {
   double pnt[3];
   this->GetMaxBounds( pnt );
-
-  if( this->Dimension >= 2 )
-    return( pnt[1] );
-  return( 0 );
+  return( pnt[1] );
 }
 
 //-----------------------------------------------------------------------------
@@ -701,17 +817,14 @@ double vtkAMRBox::GetMaxZ() const
 {
   double pnt[3];
   this->GetMaxBounds( pnt );
-
-  if( this->Dimension == 3 )
-   return( pnt[2] );
-  return( 0 );
+  return( pnt[2] );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetMinBounds( double min[3] ) const
 {
   min[0] = min[1] = min[2] = 0.0;
-  for( int i=0; i < this->Dimension; ++i )
+  for( int i=0; i < 3; ++i )
     min[ i ] = this->X0[i]+this->LoCorner[i]*this->DX[i];
 }
 
@@ -719,13 +832,14 @@ void vtkAMRBox::GetMinBounds( double min[3] ) const
 void vtkAMRBox::GetMaxBounds( double max[3] ) const
 {
   max[0] = max[1] = max[2] = 0.0;
-  for( int i=0; i < this->Dimension; ++i )
+  for( int i=0; i < 3; ++i )
     max[ i ] =this->X0[i]+(this->HiCorner[i]+1)*this->DX[i];
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 {
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   double min[3];
   double max[3];
@@ -739,9 +853,33 @@ bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
             return true;
         break;
       case 2:
-        if( x >= min[0] && x <= max[0] &&
-            y >= min[1] && y <= max[1]     )
-            return true;
+        if( this->LoCorner[0] == this->HiCorner[0] )
+          {
+            // YZ plane
+            return(
+             (y >= min[1] && y <= max[1] &&
+              z >= min[2] && z <= max[2]) );
+          }
+        else if( this->LoCorner[1] == this->HiCorner[1] )
+          {
+            // XZ plane
+          return(
+           (x >= min[0] && x <= max[0] &&
+            z >= min[2] && z <= max[2]) );
+          }
+        else if( this->LoCorner[2] == this->HiCorner[2] )
+          {
+            // XY plane
+            return(
+             (x >= min[0] && x <= max[0] &&
+              y >= min[1] && y <= max[1]) );
+          }
+        else
+          {
+            std::cerr << "Error code should not reach here!";
+            std::cerr.flush();
+            assert(false);
+          }
         break;
       case 3:
         if( x >= min[0] && x <= max[0] &&
@@ -750,9 +888,9 @@ bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
             return true;
         break;
       default:
-        // Code should not reach here!
-        // TODO: add better error handling here!
-        return false;
+        std::cerr << "Error code should not reach here!";
+        std::cerr.flush();
+        assert(false);
     }
   return false;
 
@@ -806,6 +944,7 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::operator&=(const vtkAMRBox &other)
 {
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   if (this->Dimension!=other.Dimension)
     {
     vtkGenericWarningMacro(
@@ -839,39 +978,59 @@ void vtkAMRBox::operator&=(const vtkAMRBox &other)
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i,int j,int k) const
 {
-  assert( "pre: AMR Box should not be empty!" && !this->Empty() );
-  switch (this->Dimension)
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+
+  if( this->Empty() )
+    return false;
+
+   switch (this->Dimension)
     {
-    case 1:
-    if (!this->Empty()
-      && this->LoCorner[0]<=i
-      && this->HiCorner[0]>=i)
-      {
-      return true;
-      }
-    break;
-    case 2:
-    if (!this->Empty()
-      && this->LoCorner[0]<=i
-      && this->HiCorner[0]>=i
-      && this->LoCorner[1]<=j
-      && this->HiCorner[1]>=j)
-      {
-      return true;
-      }
-    break;
-    case 3:
-    if (!this->Empty()
-      && this->LoCorner[0]<=i
-      && this->HiCorner[0]>=i
-      && this->LoCorner[1]<=j
-      && this->HiCorner[1]>=j
-      && this->LoCorner[2]<=k
-      && this->HiCorner[2]>=k)
-      {
-      return true;
-      }
-    break;
+      case 1:
+        if( this->LoCorner[0]<=i && this->HiCorner[0]>=i )
+          {
+            return true;
+          }
+        break;
+      case 2:
+        if( this->LoCorner[0] == this->HiCorner[0] )
+          {
+            // Check YZ plane
+          return(
+           ( this->LoCorner[1]<=j &&
+             this->HiCorner[1]>=j &&
+             this->LoCorner[2]<=k &&
+             this->HiCorner[2]>=k) );
+          }
+        else if( this->LoCorner[1] == this->HiCorner[1] )
+          {
+            // Check XZ plane
+            return(
+             ( this->LoCorner[0]<=i &&
+               this->HiCorner[0]>=i &&
+               this->LoCorner[2]<=k &&
+               this->HiCorner[2]>=k) );
+          }
+        else if( this->LoCorner[2] == this->HiCorner[2] )
+          {
+            // Check XY plane
+            return(
+             ( this->LoCorner[0]<=i &&
+               this->HiCorner[0]>=i &&
+               this->LoCorner[1]<=j &&
+               this->HiCorner[1]>=j) );
+          }
+        break;
+      case 3:
+        if( this->LoCorner[0]<=i &&
+            this->HiCorner[0]>=i &&
+            this->LoCorner[1]<=j &&
+            this->HiCorner[1]>=j &&
+            this->LoCorner[2]<=k &&
+            this->HiCorner[2]>=k  )
+          {
+            return true;
+          }
+        break;
     }
   return false;
 }
@@ -879,19 +1038,7 @@ bool vtkAMRBox::Contains(int i,int j,int k) const
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(const int *I) const
 {
-  switch (this->Dimension)
-    {
-    case 1:
-    return this->Contains(I[0],0,0);
-    break;
-    case 2:
-    return this->Contains(I[0],I[1],0);
-    break;
-    case 3:
-    return this->Contains(I[0],I[1],I[2]);
-    break;
-    }
-  return false;
+  return this->Contains( I[0],I[1],I[2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -913,60 +1060,192 @@ bool vtkAMRBox::Contains(const vtkAMRBox &other) const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Refine(int r)
 {
-  if (this->Empty())
+  assert( "pre: Input refinement ratio must be >= 2" && (r >= 2)  );
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+
+  if( this->Empty() )
     {
-    return;
+      std::cerr << "WARNING: tried refining an empty AMR box!\n";
+      std::cerr << "FILE:" << __FILE__ << std::endl;
+      std::cerr << "LINE:" << __LINE__ << std::endl;
+      std::cerr.flush();
+      return;
     }
 
-  int lo[3];
-  int hi[3];
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    lo[q]=this->LoCorner[q]*r;
-    hi[q]=(this->HiCorner[q]+1)*r-1;
-    }
-  this->SetDimensions(lo,hi);
+  int q;
+ switch( this->Dimension )
+   {
+     case 1:
+       this->LoCorner[0] *= r;
+       this->HiCorner[0]  = (this->HiCorner[0]+1)*r-1;
+       this->DX[0] /= r;
+       break;
+     case 2:
+       if( this->HiCorner[0] == this->LoCorner[0] )
+         {
+           // Refine the YZ plane
+           for( q=1; q < 3; ++q )
+             {
+               this->LoCorner[q]=this->LoCorner[q]*r;
+               this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
+               this->DX[q] /= r;
+             }
+         }
+       else if( this->HiCorner[1] == this->LoCorner[1] )
+         {
+           // Refine the XZ plane
 
-  this->DX[0]/=r;
-  this->DX[1]/=r;
-  this->DX[2]/=r;
+           // Refine x
+           this->LoCorner[0] *= r;
+           this->HiCorner[0]  = (this->HiCorner[0]+1)*r-1;
+           this->DX[0] /= r;
+
+           // Refine z
+           this->LoCorner[1] *= r;
+           this->HiCorner[1]  = (this->HiCorner[1]+1)*r-1;
+           this->DX[1] /= r;
+
+         }
+       else if( this->HiCorner[2] == this->LoCorner[2] )
+         {
+           for( q=0; q < 2; ++q )
+            {
+              this->LoCorner[q]=this->LoCorner[q]*r;
+              this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
+              this->DX[q] /= r;
+            }
+         }
+       break;
+     case 3:
+       for( q=0; q < 3; ++q )
+         {
+           this->LoCorner[q]=this->LoCorner[q]*r;
+           this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
+           this->DX[q] /= r;
+         }
+       break;
+     default:
+       // Code should not reach here!
+       std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
+       std::cerr.flush();
+       assert( false );
+   }
+  assert( "post: Refined AMR Box instance is invalid" && !this->IsInvalid() );
+
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Coarsen(int r)
 {
-  if (this->Empty())
+  assert( "pre: Input refinement ratio must be >= 2" && (r >= 2)  );
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+
+  if( this->Empty() )
     {
-    return;
+      std::cerr << "WARNING: tried refining an empty AMR box!\n";
+      std::cerr << "FILE:" << __FILE__ << std::endl;
+      std::cerr << "LINE:" << __LINE__ << std::endl;
+      std::cerr.flush();
+      return;
     }
 
-  // sanity check.
-//  int nCells[3];
-//  this->GetNumberOfCells(nCells);
-//  for (int q=0; q<this->Dimension; ++q)
-//    {
-//     if (nCells[q]%r)
-//      {
-//      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
-//        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
-//      vtkGenericWarningMacro("This box cannot be coarsened.");
-//      return;
-//      }
-//    }
 
   int lo[3];
   int hi[3];
-  for (int q=0; q<this->Dimension; ++q)
+  int q;
+
+  switch( this->Dimension )
     {
-    lo[q]=(this->LoCorner[q]<0 ? -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
-    hi[q]=(this->HiCorner[q]<0 ? -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+    case 1:
+      lo[1]=this->LoCorner[1];
+      lo[2]=this->LoCorner[2];
+      hi[1]=this->HiCorner[1];
+      hi[2]=this->HiCorner[2];
+      lo[0]=( (this->LoCorner[0]<0)?
+              -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
+      hi[0]=( (this->HiCorner[0]<0)?
+              -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
+      this->DX[0]*=r;
+      break;
+    case 2:
+      if( this->LoCorner[0] == this->HiCorner[0] )
+        {
+          // keep x fixed
+          lo[0] = this->LoCorner[0];
+          hi[0] = this->HiCorner[0];
+
+          // Coarsen in YZ plane
+          for( q=1; q < 3; ++q )
+            {
+              lo[q]=( (this->LoCorner[q] < 0)?
+                      -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+              hi[q]=( this->HiCorner[q]<0 ?
+                      -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+              this->DX[q]*=r;
+            }
+        }
+      else if( this->LoCorner[1] == this->HiCorner[1] )
+        {
+          // keep y fixed
+          lo[1] = this->LoCorner[1];
+          hi[1] = this->HiCorner[1];
+
+          // Coarsen in XZ plane
+          lo[0]=( (this->LoCorner[0]<0)?
+                  -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
+          hi[0]=( (this->HiCorner[0]<0)?
+                  -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
+          this->DX[0]*=r;
+
+          lo[2]=( (this->LoCorner[2]<0)?
+                  -abs(this->LoCorner[2]+1)/r-1 : this->LoCorner[2]/r);
+          hi[2]=( (this->HiCorner[2]<0)?
+                  -abs(this->HiCorner[2]+1)/r-1 : this->HiCorner[2]/r );
+          this->DX[0]*=r;
+
+        }
+      else if( this->LoCorner[2] == this->HiCorner[2] )
+        {
+          // Keep z fixed
+          lo[2] = this->LoCorner[2];
+          hi[2] = this->HiCorner[2];
+
+          // Coarsen in XY plane
+          for( q=0; q < 2; ++q )
+            {
+              lo[q]=( (this->LoCorner[q] < 0)?
+                      -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+              hi[q]=( this->HiCorner[q]<0 ?
+                      -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+              this->DX[q]*=r;
+            }
+        }
+      else
+        {
+          std::cerr << "ERROR: code should not reach here!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          assert( false );
+        }
+      break;
+    case 3:
+      for( q=0; q < 3; ++q )
+        {
+          lo[q]=( (this->LoCorner[q] < 0)?
+                  -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+          hi[q]=( this->HiCorner[q]<0 ?
+                  -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+          this->DX[q]*=r;
+        }
+      break;
+    default:
+      std::cerr << "ERROR: Undefined dimension, code should not reach here!\n";
+      std::cerr << "FILE: " << __FILE__ << std::endl;
+      std::cerr << "LINE: " << __LINE__ << std::endl;
+      assert( false );
     }
-  this->SetDimensions(lo,hi);
-
-  this->DX[0]*=r;
-  this->DX[1]*=r;
-  this->DX[2]*=r;
-
+  this->SetDimensions( lo, hi );
+  assert( "post: Coarsened AMR Box instance is invalid" && !this->IsInvalid() );
 }
 
 //-----------------------------------------------------------------------------
@@ -1055,7 +1334,7 @@ void vtkAMRBox::GetPoint( const int ijk[3], double pnt[3] ) const
 {
   // Compiler should unroll this small loop!
   pnt[0] = 0.0; pnt[1] = 0.0; pnt[2] = 0.0;
-  for( int i=0; i < this->Dimension; ++i )
+  for( int i=0; i < 3; ++i )
     {
       // Sanity Check!
       assert( "pre: ijk index out-of-bounds" &&
