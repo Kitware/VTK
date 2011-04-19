@@ -360,7 +360,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
   ndim[0]--; ndim[1]--; ndim[2]--;
 
   // Compute lo,hi box dimensions
-  int i=0;
+  int i=0; int max=0;
   switch( myGrid->GetDataDimension() )
     {
     case 1:
@@ -371,13 +371,39 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
        lo[i] = hi[i] = 0;
       break;
     case 2:
-      for( i=0; i < 2; ++i )
+      if( ndim[0]==0 )
         {
-          ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
-          lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
-          hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+          // YZ plane
+          for( i=1; i < 2; ++i )
+            {
+              ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
+              lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
+              hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+            }
+          lo[0] = hi[0] = 0;
         }
-      lo[2] = hi[2] = 0;
+      else if( ndim[1] == 0 )
+        {
+          // XZ plane
+          lo[1]   = hi[1] = 0;
+          ndim[0] = (ndim[0] < 1)? 1 : ndim[0];
+          lo[0]   = round( (gridOrigin[0]-origin[0])/h[0] );
+          hi[0]   = round( lo[0] + ( ndim[0]-1 ) );
+          ndim[2] = (ndim[2] < 1)? 1 : ndim[2];
+          lo[2]   = round( (gridOrigin[2]-origin[2])/h[2] );
+          hi[2]   = round( lo[2] + ( ndim[2]-1 ) );
+        }
+      else if( ndim[2] == 0 )
+        {
+          // XY plane
+          for( i=0; i < 2; ++i )
+            {
+              ndim[i] = (ndim[i] < 1)? 1 : ndim[i];
+              lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
+              hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+            }
+          lo[2] = hi[2] = 0;
+        }
       break;
     case 3:
       for( i=0; i < 3; ++i )
