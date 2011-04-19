@@ -20,11 +20,12 @@ if (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
   endif(VTK_WRAP_PYTHON)
 endif (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
 
-
-install(FILES ${VTK_SOURCE_DIR}/vtkLogo.ico
-  DESTINATION ${VTK_INSTALL_BIN_DIR_CM24}
-  PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ
-  COMPONENT RuntimeExecutables)
+if(WIN32)
+  install(FILES ${VTK_SOURCE_DIR}/vtkLogo.ico
+    DESTINATION ${VTK_INSTALL_BIN_DIR_CM24}
+    PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ
+    COMPONENT RuntimeExecutables)
+endif()
 
 if(WIN32)
   set(vtk_runtime_dir ${VTK_INSTALL_BIN_DIR_CM24})
@@ -61,7 +62,8 @@ if(NOT APPLE AND VTK_WRAP_PYTHON)
   install(DIRECTORY ${PYTHON_LIBS_DIR}
           DESTINATION ${vtk_runtime_dir}
           USE_SOURCE_PERMISSIONS
-          COMPONENT RuntimeLibraries)
+          COMPONENT RuntimeLibraries
+          PATTERN "command" EXCLUDE)
 endif()
 
 set(_dir "${VTK_INSTALL_LIB_DIR_CM24}")
@@ -70,7 +72,18 @@ if(WIN32)
 endif(WIN32)
 
 
-list(APPEND lib_search_dir "\${CMAKE_INSTALL_PREFIX}/bin" "\${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_LIB_DIR_CM24}")
+list(APPEND lib_search_dir 
+     "\${CMAKE_INSTALL_PREFIX}/bin" 
+     "\${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_LIB_DIR_CM24}")
+
+if(WIN32)
+  list(APPEND lib_search_dir 
+    "\${CMAKE_INSTALL_PREFIX}/bin" )
+else()
+  list(APPEND lib_search_dir
+    "\${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_LIB_DIR_CM24}")
+endif()
+
 list(APPEND lib_search_dir "${VTK_BINARY_DIR}/bin")
 
 if(WIN32)
@@ -94,11 +107,15 @@ endif()
 set(APPS)
 
 if(VTK_WRAP_PYTHON)
-  list(APPEND APPS "\${CMAKE_INSTALL_PREFIX}/${_dir}/vtkpython${CMAKE_EXECUTABLE_SUFFIX}")  # paths to executables
+  if(WIN32)
+    list(APPEND APPS "\${CMAKE_INSTALL_PREFIX}/bin/vtkpython${CMAKE_EXECUTABLE_SUFFIX}")  # paths to executables
+  else()
+    list(APPEND APPS "\${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_LIB_DIR_CM24}/vtkpython${CMAKE_EXECUTABLE_SUFFIX}")  # paths to executables
+  endif()
 endif()
 
 if(VTK_WRAP_TCL)
-  #list(APPEND APPS "\${CMAKE_INSTALL_PREFIX}/${_dir}/vtk${CMAKE_EXECUTABLE_SUFFIX}")
+  #list(APPEND APPS "\${CMAKE_INSTALL_PREFIX}/bin/vtk${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
 install(CODE "
