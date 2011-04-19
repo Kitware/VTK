@@ -73,6 +73,7 @@ protected:
   // Description:
   // Need to be reimplemented by subclasses, ComputeTexture() is called at
   // paint time if the texture is not up to date compared to vtkScalarsToColorsItem
+  // Return false if no texture is generated.
   virtual void ComputeTexture() = 0;
 
   // Description:
