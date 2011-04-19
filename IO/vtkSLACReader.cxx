@@ -1239,19 +1239,28 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
     if (!dataArray) continue;
 
 
-    // Handle the imaginary component of mode data:  
+    // Handle the imaginary component of mode data:
     // If simulation is purely real, all imaginary components would be zero.
     // Saving all the zeroes would waste space, so they aren't saved.  So
     // missing imaginary components in the file means we should know to use
-    // zeroes.  
-    // (TLDR: load imaginary components if provided, or use zeroes if not.)
-    if (this->FrequencyModes)
+    // zeroes.
+    //
+    // Because we can't know whether a fieldname (without a corresponding
+    // fieldname_image) is complex or not, we only do this for "efield" and
+    // "bfield.
+    //
+    // (TLDR: for efield and bfield, load imaginary components if provided,
+    // otherwise use zeroes.)
+    if (this->FrequencyModes && (name == "efield" || name == "bfield"))
       {
       vtkIdType numTuples = dataArray->GetNumberOfTuples();
-      vtkSmartPointer<vtkDataArray> imagDataArray= 0;
 
       // I am assuming here that the imaginary data has the same dimensions as
       // the real data.
+
+      // if this variable name has a correstponding name_imag, use that,
+      // otherwise assume zeroes.
+      vtkSmartPointer<vtkDataArray> imagDataArray= 0;
       if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
         imagDataArray = this->ReadPointDataArray(modeFD, varId);
 
@@ -1279,7 +1288,7 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
           // when values are purely real, no imaginary component is saved in the
           // data file, because all those zeroes would waste space.  So if
           // imaginary values are provided, use them, otherwise use 0.0.
-          if (imagDataArray) 
+          if (imagDataArray)
             imag = imagDataArray->GetComponent(i, j);
 
           double mag2 = real*real + imag*imag;
