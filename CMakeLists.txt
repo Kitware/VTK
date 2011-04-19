@@ -308,6 +308,7 @@ STRING(REGEX REPLACE "^/" "" VTK_INSTALL_JAVA_DIR_CM24 "${VTK_INSTALL_JAVA_DIR}"
 # executable under lib.
 if(UNIX)
   OPTION(VTK_BUILD_FORWARDING_EXECUTABLES "Build forwarding executables for vtk, vtkpython, etc." OFF)
+  INCLUDE(vtkForwardingExecutable)
   MARK_AS_ADVANCED(VTK_BUILD_FORWARDING_EXECUTABLES)
 endif()
 
