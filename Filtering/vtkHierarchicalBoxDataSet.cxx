@@ -605,13 +605,18 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           std::cout.flush( );
           continue;
           }
+
+//        vtkAMRBox coarsebox;
+//        this->GetMetaData( levelIdx+1,dataSetIdx, coarsebox );
+
         vtkInformation* info = this->GetMetaData(
             levelIdx+1,dataSetIdx);
         int* boxVec = info->Get(BOX());
         int dimensionality = info->Has(BOX_DIMENSIONALITY())?
           info->Get(BOX_DIMENSIONALITY()) : 3;
-        vtkAMRBox coarsebox( boxVec );
+//        vtkAMRBox coarsebox( boxVec );
 //        vtkAMRBox coarsebox(dimensionality,boxVec,boxVec+3);
+        vtkAMRBox coarsebox(boxVec,boxVec+3);
         int refinementRatio = this->GetRefinementRatio(levelIdx);
         if (refinementRatio == 0)
           {
