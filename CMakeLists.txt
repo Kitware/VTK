@@ -303,6 +303,16 @@ STRING(REGEX REPLACE "^/" "" VTK_INSTALL_TCL_DIR_CM24 "${VTK_INSTALL_TCL_DIR}")
 STRING(REGEX REPLACE "^/" "" VTK_INSTALL_JAVA_DIR_CM24 "${VTK_INSTALL_JAVA_DIR}")
 
 #-----------------------------------------------------------------------------
+# Provide option to build executables as forwarding executables where by a launcher that
+# sets the appropriate environment is installed in /bin/ which then 'launches' the 'real'
+# executable under lib.
+if(UNIX)
+  OPTION(VTK_BUILD_FORWARDING_EXECUTABLES "Build forwarding executables for vtk, vtkpython, etc." OFF)
+  INCLUDE(vtkForwardingExecutable)
+  MARK_AS_ADVANCED(VTK_BUILD_FORWARDING_EXECUTABLES)
+endif()
+
+#-----------------------------------------------------------------------------
 # Save the compiler settings so another project can import them.
 CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
