@@ -29,7 +29,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkIdList.h"
-#include "vtkAssertUtils.hpp"
 
 #include <cmath>
 #include <limits>
@@ -348,69 +347,6 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
   return( this->GetDataSet( level, id ) );
 }
 
-//vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
-//                unsigned int level,unsigned int id,vtkAMRBox& box)
-//{
-//  if (this->GetNumberOfLevels() <= level ||
-//    this->GetNumberOfDataSets(level) <= id)
-//    {
-//    return 0;
-//    }
-//
-//  vtkMultiPieceDataSet* levelDS = vtkMultiPieceDataSet::SafeDownCast(
-//    this->Superclass::GetChild(level));
-//  if (levelDS)
-//    {
-//    vtkUniformGrid* ds = vtkUniformGrid::SafeDownCast(levelDS->GetPiece(id));
-//    vtkInformation* info = levelDS->GetMetaData(id);
-//    if (info)
-//      {
-//
-//      // Sanity Checks
-//      vtkAssertUtils::assertTrue(
-//       info->Has(BOX_DIMENSIONALITY()),__FILE__, __LINE__);
-//      vtkAssertUtils::assertTrue(info->Has(BOX()),__FILE__,__LINE__);
-//      vtkAssertUtils::assertTrue(info->Has(BOX_ORIGIN()),__FILE__,__LINE__);
-//      vtkAssertUtils::assertTrue(info->Has(RANK()),__FILE__,__LINE__);
-//      vtkAssertUtils::assertTrue(info->Has(BLOCK_ID()),__FILE__,__LINE__);
-//      vtkAssertUtils::assertTrue(info->Has(REAL_EXTENT()),__FILE__,__LINE__);
-//
-//      box.SetDimensionality( info->Get( BOX_DIMENSIONALITY() ) );
-//      int *dims = info->Get( BOX() );
-//      box.SetDimensions(dims,dims+3);
-//      box.SetDataSetOrigin( info->Get( BOX_ORIGIN() ) );
-//      box.SetProcessId( info->Get( RANK() ) );
-//      box.SetBlockId( info->Get( BLOCK_ID() ) );
-//      box.SetRealExtent( info->Get( REAL_EXTENT() ) );
-//      box.SetLevel( level );
-//
-//      double *spacing = info->Get( SPACING() );
-//      vtkAssertUtils::assertNotNull( spacing, __FILE__, __LINE__ );
-//      box.SetGridSpacing( spacing );
-//
-////      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
-////          info->Get()
-////      int dimensionality = info->Has(BOX_DIMENSIONALITY())?
-////        info->Get(BOX_DIMENSIONALITY()) : 3;
-////      box.SetDimensionality(dimensionality);
-////
-////      int* boxVec = info->Get(BOX());
-////      if (boxVec)
-////        {
-////        box.SetDimensions(boxVec,boxVec+3);
-////        }
-//
-//      }
-//    else
-//      {
-//      vtkErrorMacro( "Metadata is NULL!" );
-//      }
-//    return ds;
-//    }
-//  return 0;
-//}
-
-
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level,
@@ -723,8 +659,8 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
                         (iz-loCorner[2])*cellDims[0]*cellDims[1] +
                         (iy-loCorner[1])*cellDims[0] +
                         (ix-loCorner[0]);
-                    vtkAssertUtils::assertInRange(
-                        id, 0, vis->GetNumberOfTuples()-1,__FILE__,__LINE__);
+                    assert( "cell index out-of-bounds!" &&
+                     ( (id >=0) && (id < vis->GetNumberOfTuples() ) ) );
                     vis->SetValue(id, 0);
                     numBlankedPts++;
                   }
