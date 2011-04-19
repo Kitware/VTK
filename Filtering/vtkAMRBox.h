@@ -76,14 +76,14 @@ public:
   // blockIdx      -- the ID of the block corresponding to this instance.
   // level         -- the level of this instance.
   // rank          -- the corresponding process rank that owns this block.
-  vtkAMRBox(
-      const double dataSetOrigin[3], const double boxOrigin[3],
-      const int dimension,
-      const double h[3],
-      const int   ndim[3],
-      const int blockIdx,
-      const int level,
-      const int rank );
+//  vtkAMRBox(
+//      const double dataSetOrigin[3], const double boxOrigin[3],
+//      const int dimension,
+//      const double h[3],
+//      const int   ndim[3],
+//      const int blockIdx,
+//      const int level,
+//      const int rank );
 
   // Description:
   // Copy construct this box from another.
@@ -324,6 +324,9 @@ public:
   // any vtkAMRBox instance.
   static vtkIdType GetBytesize(){return (16*sizeof(int)+6*sizeof(double)); };
 
+  // Description:
+  // Writes the AMR box in a VTK file.
+  // Note: This method is used for debugging purposes.
   void WriteBox();
 
   //BTX
@@ -362,6 +365,21 @@ private:
   int RealExtent[6];  // Extent of the all the real nodes, i.e., not the ghosts
 
 
+  // Description:
+  // This method builds the AMR box with the given dimensions.
+  // Note: the dimension of the AMR box is automatically detected
+  // within this method.
+  void BuildAMRBox(
+      const int ilo, const int jlo, const int klo,
+      const int ihi, const int jhi, const int khi );
+
+  // Description:
+  // Determines the dimension of the AMR box given the
+  // box indices. Note, the AMR box can be on an arbitrary
+  // axis-aligned plane, i.e., XZ or YZ.
+  int DetectDimension(
+      const int ilo, const int jlo, const int klo,
+      const int ihi, const int jhi, const int khi  );
 
   // Description:
   // A simple method to write a box with the given min/max

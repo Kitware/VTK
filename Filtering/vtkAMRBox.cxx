@@ -49,17 +49,9 @@ vtkAMRBox::vtkAMRBox(
     int ilo,int jlo,
     int ihi,int jhi)
 {
-  this->Initialize( );
-  this->SetDimensionality(2);
-  this->SetDimensions(ilo,jlo,0,ihi,jhi,0);
-  this->X0[0]=this->X0[1]=this->X0[2]=0.0;
-  this->DX[0]=this->DX[1]=this->DX[2]=1.0;
-  this->RealExtent[0] = ilo;
-  this->RealExtent[1] = ihi;
-  this->RealExtent[2] = jlo;
-  this->RealExtent[3] = jhi;
-  this->RealExtent[4] = 0;
-  this->RealExtent[5] = 0;
+  this->BuildAMRBox( ilo,jlo,0,ihi,jhi,0);
+  assert( "post: Dimension expected to <= 2" &&
+    ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -67,8 +59,49 @@ vtkAMRBox::vtkAMRBox(
     int ilo,int jlo,int klo,
     int ihi,int jhi,int khi)
 {
+  this->BuildAMRBox( ilo, jlo, klo, ihi,jhi,khi);
+}
+
+//-----------------------------------------------------------------------------
+vtkAMRBox::vtkAMRBox(const int *lo, const int *hi)
+{
+  this->BuildAMRBox( lo[0],lo[1],lo[2],hi[0],hi[1],hi[2] );
+}
+
+//-----------------------------------------------------------------------------
+vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
+{
+  assert( "pre: lo corner buffer is NULL" && (lo != NULL) );
+  assert( "pre: hi corner buffer is NULL" && (hi != NULL) );
+
+  this->BuildAMRBox( lo[0], lo[1], lo[2], hi[0], hi[1], hi[2] );
+  assert( "post: AMR box dimension does not match expected dimension" &&
+           (dim==this->GetDimensionality() ) );
+}
+
+//-----------------------------------------------------------------------------
+vtkAMRBox::vtkAMRBox(const int *dims)
+{
+  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
+}
+
+//-----------------------------------------------------------------------------
+vtkAMRBox::vtkAMRBox(int dim, const int *dims)
+{
+  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
+  assert( "post: AMR box dimension does not match expected dimension" &&
+          (dim==this->GetDimensionality() ) );
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::BuildAMRBox(
+    const int ilo, const int jlo, const int klo,
+    const int ihi, const int jhi, const int khi  )
+{
   this->Initialize();
-  this->SetDimensionality(3);
+  this->SetDimensionality(
+   this->DetectDimension(ilo, jlo, klo,ihi, jhi, khi ) );
   this->SetDimensions(ilo,jlo,klo,ihi,jhi,khi);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
@@ -78,92 +111,6 @@ vtkAMRBox::vtkAMRBox(
   this->RealExtent[3] = jhi;
   this->RealExtent[4] = klo;
   this->RealExtent[5] = khi;
-}
-
-//-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(const int *lo, const int *hi)
-{
-  this->Initialize();
-  this->SetDimensionality(3);
-  this->SetDimensions(lo,hi);
-  this->X0[0]=this->X0[1]=this->X0[2]=0.0;
-  this->DX[0]=this->DX[1]=this->DX[2]=1.0;
-  this->RealExtent[0] = lo[0];
-  this->RealExtent[1] = hi[0];
-  this->RealExtent[2] = lo[1];
-  this->RealExtent[3] = hi[1];
-  this->RealExtent[4] = lo[2];
-  this->RealExtent[5] = hi[2];
-}
-
-//-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
-{
-  this->Initialize();
-  this->SetDimensionality(dim);
-  this->SetDimensions(lo,hi);
-  this->X0[0]=this->X0[1]=this->X0[2]=0.0;
-  this->DX[0]=this->DX[1]=this->DX[2]=1.0;
-}
-
-//-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(const int *dims)
-{
-  this->SetDimensionality(3);
-  this->Initialize( );
-  this->SetDimensions(dims);
-  this->X0[0]=this->X0[1]=this->X0[2]=0.0;
-  this->DX[0]=this->DX[1]=this->DX[2]=1.0;
-}
-
-//-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(int dim, const int *dims)
-{
-  this->Initialize();
-  this->SetDimensionality(dim);
-  this->SetDimensions(dims);
-  this->X0[0]=this->X0[1]=this->X0[2]=0.0;
-  this->DX[0]=this->DX[1]=this->DX[2]=1.0;
-}
-
-
-//-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(
-    const double dataSetOrigin[3], const double boxOrigin[3],
-    const int dimension,
-    const double h[3],
-    const int ndim[3],
-    const int blockIdx,
-    const int level,
-    const int rank )
-{
-  this->Initialize();
-
-  this->Dimension = dimension;
-  for( int i=0; i < this->Dimension; ++i )
-    {
-      this->X0[i]       = dataSetOrigin[i];
-      this->DX[i]       = h[i];
-      this->LoCorner[i] = round( (boxOrigin[i]-dataSetOrigin[i])/h[i] );
-      this->HiCorner[i] = this->LoCorner[i] + ( ndim[i]-1 );
-      assert( "loCorner >= 0" && (this->LoCorner[i]>=0) );
-      assert( "hiCorner >= 0" && (this->HiCorner[i]>=0) );
-    }
-
-  this->BlockId    = blockIdx;
-  this->BlockLevel = level;
-  this->ProcessId  = rank;
-  for( int i=0; i < 6; ++i )
-    {
-      this->NG[ i ] = 0;
-    }
-
-  this->RealExtent[0] = this->LoCorner[0];
-  this->RealExtent[1] = this->HiCorner[0];
-  this->RealExtent[2] = this->LoCorner[1];
-  this->RealExtent[3] = this->HiCorner[1];
-  this->RealExtent[4] = this->LoCorner[2];
-  this->RealExtent[5] = this->HiCorner[2];
 }
 
 //-----------------------------------------------------------------------------
@@ -1246,6 +1193,32 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
   std::memcpy(&(this->RealExtent), ptr, 6*sizeof(int) );
   ptr += 6*sizeof( int );
   assert( ptr != NULL );
+}
+
+//-----------------------------------------------------------------------------
+int vtkAMRBox::DetectDimension(
+    const int ilo, const int jlo, const int klo,
+    const int ihi, const int jhi, const int khi )
+{
+
+  int dim = 3;
+  if( ilo == ihi )
+    {
+      --dim;
+    }
+  if( jlo == jhi )
+    {
+      --dim;
+    }
+  if( klo == khi )
+    {
+      --dim;
+    }
+
+  assert( "pre: Invalid dimension detected" &&
+          ( (dim >= 1) && (dim <= 3) ) );
+
+  return( dim );
 }
 
 //-----------------------------------------------------------------------------
