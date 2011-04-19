@@ -79,7 +79,7 @@ FUNCTION (vtk_add_executable_with_forwarding2
 
       SET(VTK_FORWARD_EXE ${exe_name})
       CONFIGURE_FILE(
-        ${ParaView_CMAKE_DIR}/pv-forward.c.in
+        ${ParaView_CMAKE_DIR}/vtk-forward.c.in
         ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}-forward.c
         @ONLY IMMEDIATE)
       add_executable(${exe_name}
