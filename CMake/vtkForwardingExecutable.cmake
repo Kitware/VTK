@@ -34,11 +34,11 @@ FUNCTION (vtk_add_executable_with_forwarding
     )
   endif (NOT DEFINED VTK_INSTALL_LIB_DIR_CM24)
 
-  add_executable_with_forwarding2(out_var "" "" 
+  vtk_add_executable_with_forwarding2(out_var "" "" 
     ${VTK_INSTALL_LIB_DIR_CM24}
     ${exe_name} ${ARGN})
   set (${out_real_exe_suffix} "${out_var}" PARENT_SCOPE)
-ENDFUNCTION(add_executable_with_forwarding)
+ENDFUNCTION(vtk_add_executable_with_forwarding)
 
 #----------------------------------------------------------------------------
 FUNCTION (vtk_add_executable_with_forwarding2
@@ -65,7 +65,7 @@ FUNCTION (vtk_add_executable_with_forwarding2
       IF (NOT EXECUTABLE_OUTPUT_PATH)
         SET (exe_output_path ${CMAKE_BINARY_DIR})
       ENDIF (NOT EXECUTABLE_OUTPUT_PATH)
-      SET(VTK_EXE_SUFFIX -real)
+      SET(VTK_EXE_SUFFIX -launcher)
       SET(VTK_FORWARD_DIR_BUILD "${exe_output_path}")
       SET(VTK_FORWARD_DIR_INSTALL "../${install_lib_dir}")
       SET(VTK_FORWARD_PATH_BUILD "\"${VTK_FORWARD_DIR_BUILD}\"")
@@ -79,20 +79,20 @@ FUNCTION (vtk_add_executable_with_forwarding2
 
       SET(VTK_FORWARD_EXE ${exe_name})
       CONFIGURE_FILE(
-        ${ParaView_CMAKE_DIR}/vtk-forward.c.in
+        ${VTK_CMAKE_DIR}/vtk-forward.c.in
         ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}-forward.c
         @ONLY IMMEDIATE)
-      add_executable(${exe_name}
+      add_executable(${exe_name}${VTK_EXE_SUFFIX}
         ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}-forward.c)
-      set_target_properties(${exe_name} PROPERTIES
+      set_target_properties(${exe_name}${VTK_EXE_SUFFIX} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/launcher)
-      ADD_DEPENDENCIES(${exe_name} ${exe_name}${VTK_EXE_SUFFIX})
+      set_target_properties(${exe_name}${VTK_EXE_SUFFIX} PROPERTIES
+        OUTPUT_NAME ${exe_name})
+      ADD_DEPENDENCIES(${exe_name}${VTK_EXE_SUFFIX} ${exe_name})
     ENDIF(NOT WIN32)
   ENDIF (BUILD_SHARED_LIBS AND NOT mac_bundle)
 
-  add_executable(${exe_name}${VTK_EXE_SUFFIX} ${ARGN})
-  set_target_properties(${exe_name}${VTK_EXE_SUFFIX} PROPERTIES
-        OUTPUT_NAME ${exe_name})
+  add_executable(${exe_name} ${ARGN})
 
   set (${out_real_exe_suffix} "${VTK_EXE_SUFFIX}" PARENT_SCOPE)
-ENDFUNCTION (add_executable_with_forwarding2)
+ENDFUNCTION (vtk_add_executable_with_forwarding2)
