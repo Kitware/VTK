@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkType.h"
 #include "vtkStructuredData.h"
-#include "vtkAssertUtils.hpp"
 
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
@@ -127,96 +126,6 @@ vtkAMRBox::vtkAMRBox(int dim, const int *dims)
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
 }
 
-//-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(
-      const double origin[3], const int dim, const int ndim[3],
-      const double h[3], const int blockIdx, const int level,
-      const int rank )
-{
-  // Sanity Check!
-  vtkAssertUtils::assertInRange( dim, 2, 3, __FILE__, __LINE__ );
-  vtkAssertUtils::assertTrue( (level>=0), __FILE__, __LINE__ );
-
-  this->Dimension = dim;
-
-  // low corner ijk is @ (0,0,0)
-  this->LoCorner[ 0 ] = this->LoCorner[ 1 ] = this->LoCorner[ 2 ] = 0;
-
-  for( int i=0; i < 3; ++i )
-    {
-      vtkAssertUtils::assertTrue( ndim[i]>=1, __FILE__, __LINE__ );
-      this->X0[i]       = origin[i];
-      this->DX[i]       = h[i];
-      this->HiCorner[i] = ndim[i]-1; // we are indexing from 0!
-      vtkAssertUtils::assertTrue( this->HiCorner[i]>=0, __FILE__, __LINE__ );
-    }
-  this->BlockId    = blockIdx;
-  this->BlockLevel = level;
-  this->ProcessId  = rank;
-  for( int i=0; i < 6; ++i )
-    {
-      this->NG[ i ] = 0;
-    }
-  this->RealExtent[0] = this->LoCorner[0];
-  this->RealExtent[1] = this->HiCorner[0];
-  this->RealExtent[2] = this->LoCorner[1];
-  this->RealExtent[3] = this->HiCorner[1];
-  this->RealExtent[4] = this->LoCorner[2];
-  this->RealExtent[5] = this->HiCorner[2];
-}
-
-//-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(
-    const double origin[3], const int dimension,
-    const int lo[3], const int hi[3],
-    const double h[3],
-    const int blockIdx,const int level,
-    const int rank )
-{
-  // Sanity check!
-  vtkAssertUtils::assertInRange( dimension, 2, 3, __FILE__, __LINE__ );
-  vtkAssertUtils::assertTrue( (level>=0), __FILE__,__LINE__ );
-  vtkAssertUtils::assertTrue( (hi[0]>=lo[0]),__FILE__,__LINE__ );
-  vtkAssertUtils::assertTrue( (hi[1]>=lo[1]),__FILE__,__LINE__ );
-  vtkAssertUtils::assertTrue( (hi[2]>=lo[2]),__FILE__,__LINE__ );
-  vtkAssertUtils::assertTrue( (hi[0]>=0),__FILE__,__LINE__);
-  vtkAssertUtils::assertTrue( (lo[0]>=0),__FILE__,__LINE__);
-  vtkAssertUtils::assertTrue( (hi[1]>=0),__FILE__,__LINE__);
-  vtkAssertUtils::assertTrue( (lo[1]>=0),__FILE__,__LINE__);
-  vtkAssertUtils::assertTrue( (hi[2]>=0),__FILE__,__LINE__);
-  vtkAssertUtils::assertTrue( (lo[2]>=0),__FILE__,__LINE__);
-
-  this->Initialize();
-  this->Dimension = dimension;
-
-  this->LoCorner[0] = lo[0];
-  this->LoCorner[1] = lo[1];
-  this->LoCorner[2] = lo[2];
-
-  this->HiCorner[0] = hi[0];
-  this->HiCorner[1] = hi[1];
-  this->HiCorner[2] = hi[2];
-
-  for( int i=0; i < this->Dimension; ++i )
-    {
-      this->X0[ i ] = origin[ i ];
-      this->DX[ i ] = h[ i ];
-      vtkAssertUtils::assertTrue( this->HiCorner[i]>=0, __FILE__, __LINE__ );
-    }
-   this->BlockId    = blockIdx;
-   this->BlockLevel = level;
-   this->ProcessId  = rank;
-   for( int i=0; i < 6; ++i )
-     {
-       this->NG[ i ] = 0;
-     }
-   this->RealExtent[0] = this->LoCorner[0];
-   this->RealExtent[1] = this->HiCorner[0];
-   this->RealExtent[2] = this->LoCorner[1];
-   this->RealExtent[3] = this->HiCorner[1];
-   this->RealExtent[4] = this->LoCorner[2];
-   this->RealExtent[5] = this->HiCorner[2];
-}
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(
@@ -237,8 +146,8 @@ vtkAMRBox::vtkAMRBox(
       this->DX[i]       = h[i];
       this->LoCorner[i] = round( (boxOrigin[i]-dataSetOrigin[i])/h[i] );
       this->HiCorner[i] = this->LoCorner[i] + ( ndim[i]-1 );
-      vtkAssertUtils::assertTrue( (this->LoCorner[i]>=0),__FILE__,__LINE__);
-      vtkAssertUtils::assertTrue( (this->HiCorner[i]>=0),__FILE__,__LINE__);
+      assert( "loCorner >= 0" && (this->LoCorner[i]>=0) );
+      assert( "hiCorner >= 0" && (this->HiCorner[i]>=0) );
     }
 
   this->BlockId    = blockIdx;
@@ -260,14 +169,6 @@ vtkAMRBox::vtkAMRBox(
 //-----------------------------------------------------------------------------
 int vtkAMRBox::GetNodeLinearIndex( const int i,const int j,const int k )
 {
-  // Sanity Check!
-  vtkAssertUtils::assertInRange(
-   i,this->LoCorner[0],this->HiCorner[0],__FILE__, __LINE__ );
-  vtkAssertUtils::assertInRange(
-   j,this->LoCorner[1],this->HiCorner[1],__FILE__, __LINE__ );
-  vtkAssertUtils::assertInRange(
-   k,this->LoCorner[2],this->HiCorner[2],__FILE__, __LINE__ );
-
   int ndim[3];
   int ijk[3];
   ijk[0]=i; ijk[1]=j; ijk[2]=k;
@@ -304,66 +205,6 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   return( idx );
 }
 
-//-----------------------------------------------------------------------------
-void vtkAMRBox::WriteToVtkFile( const char *file )
-{
-  std::ofstream ofs;
-  ofs.open( file );
-  assert( "Cannot open file!" && ofs.is_open() );
-
-  ofs << "# vtk DataFile Version 3.0\n";
-  ofs << "Grid:" << this->BlockId << " Level:" << this->BlockLevel << "\n";
-  ofs << "ASCII\n";
-  ofs << "DATASET STRUCTURED_GRID\n";
-
-  int nodeExtent[3];
-  this->GetNumberOfNodes( nodeExtent );
-  ofs << "DIMENSIONS " << nodeExtent[0] << " " << nodeExtent[1];
-  ofs << " " << nodeExtent[2 ] << std::endl;
-  ofs << "POINTS " << this->GetNumberOfNodes() << " double\n";
-
-
-  int *isghost = new int[ this->GetNumberOfNodes() ];
-  assert( "Ghost array is NULL" && (isghost != NULL) );
-
-  int    ijk[3];
-  double pnt[3];
-  pnt[0] = pnt[1] = pnt[2] = 0;
-  for( int k=this->LoCorner[2]; k <= this->HiCorner[2]; ++k )
-    {
-      for( int j=this->LoCorner[1]; j <= this->HiCorner[1]; ++j )
-        {
-          for( int i=this->LoCorner[0]; i <= this->HiCorner[0]; ++i )
-            {
-
-              ijk[0] = i;
-              ijk[1] = j;
-              ijk[2] = k;
-              int pntIdx = this->GetNodeLinearIndex( i,j,k );
-              this->GetPoint( ijk, pnt );
-              ofs << pnt[ 0 ] << " " << pnt[ 1 ] << " " << pnt[ 2 ] << "\n";
-
-              if( this->IsGhostNode( i,j,k ) )
-                isghost[ pntIdx ] = 0;
-              else
-                isghost[ pntIdx ] = 1;
-
-            } // END for all k
-        } // END for all j
-    } // END for all i
-
-  // Attach Ghost status as point data
-  ofs << "POINT_DATA " << this->GetNumberOfNodes() << std::endl;
-  ofs << "SCALARS GHOSTFLAG int 1\n";
-  ofs << "LOOKUP_TABLE default\n";
-  for( int i=0; i < this->GetNumberOfNodes(); ++i )
-   ofs << isghost[ i ] << std::endl;
-
-  delete[] isghost;
-  isghost = NULL;
-
-  ofs.close( );
-}
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const vtkAMRBox &other)
@@ -436,14 +277,14 @@ void vtkAMRBox::SetProcessId( const int pid )
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetBlockId( const int blockIdx )
 {
-  vtkAssertUtils::assertTrue( (blockIdx>=0), __FILE__, __LINE__ );
+  assert( "pre: blockIdx >= 0" && (blockIdx >= 0) );
   this->BlockId = blockIdx;
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetLevel( const int level )
 {
-  vtkAssertUtils::assertTrue( (level>=0), __FILE__, __LINE__ );
+  assert( "pre: level >= 0" && (level >= 0) );
   this->BlockLevel = level;
 }
 
@@ -615,7 +456,7 @@ void vtkAMRBox::SetDataSetOrigin(double x0, double y0, double z0)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetBoxOrigin(double *x0) const
 {
-  vtkAssertUtils::assertNotNull( x0,__FILE__,__LINE__);
+  assert( "pre: input array is NULL" && (x0 != NULL) );
   x0[0] = x0[1] = x0[2] = 0.0;
 
   for( int i=0; i < this->Dimension; ++i )
@@ -627,13 +468,10 @@ void vtkAMRBox::GetBoxOrigin(double *x0) const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetNumberOfCells(int *ext) const
 {
-  // Sanity!
- vtkAssertUtils::assertTrue(
-  this->HiCorner[0]>=this->LoCorner[0],__FILE__,__LINE__ );
- vtkAssertUtils::assertTrue(
-  this->HiCorner[1]>=this->LoCorner[1],__FILE__,__LINE__ );
- vtkAssertUtils::assertTrue(
-  this->HiCorner[2]>=this->LoCorner[2],__FILE__,__LINE__ );
+  // Sanity Check!
+  assert( "pre: invalid extent" && ( this->HiCorner[0]>=this->LoCorner[0] ) );
+  assert( "pre: invalid extent" && ( this->HiCorner[1]>=this->LoCorner[1] ) );
+  assert( "pre: invalid extent" && ( this->HiCorner[2]>=this->LoCorner[2] ) );
 
   ext[0]=this->HiCorner[0]-this->LoCorner[0];
   ext[1]=this->HiCorner[1]-this->LoCorner[1];
@@ -682,13 +520,10 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetNumberOfNodes(int *ext) const
 {
-  // Sanity!
-  vtkAssertUtils::assertTrue(
-   this->HiCorner[0]>=this->LoCorner[0], __FILE__, __LINE__ );
-  vtkAssertUtils::assertTrue(
-   this->HiCorner[1]>=this->LoCorner[1], __FILE__, __LINE__ );
-  vtkAssertUtils::assertTrue(
-   this->HiCorner[2]>=this->LoCorner[2], __FILE__, __LINE__ );
+  // Sanity Check!
+  assert( "pre: invalid extent" && ( this->HiCorner[0]>=this->LoCorner[0] ) );
+  assert( "pre: invalid extent" && ( this->HiCorner[1]>=this->LoCorner[1] ) );
+  assert( "pre: invalid extent" && ( this->HiCorner[2]>=this->LoCorner[2] ) );
 
   ext[0] = (this->HiCorner[0]-this->LoCorner[0])+1;
   ext[1] = (this->HiCorner[1]-this->LoCorner[1])+1;
@@ -728,7 +563,6 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
     default:
       numNodes = 0;
       // Code should not reach here
-//      vtkWarningMacro( "Encountered a box with dimension > 3!" );
     }
   return( numNodes );
 }
@@ -879,8 +713,6 @@ bool vtkAMRBox::Empty() const
 //-----------------------------------------------------------------------------
 double vtkAMRBox::GetMinX() const
 {
-  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
-
   double pnt[3];
   this->GetMinBounds( pnt );
 
@@ -890,8 +722,6 @@ double vtkAMRBox::GetMinX() const
 //-----------------------------------------------------------------------------
 double vtkAMRBox::GetMinY() const
 {
-  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
-
   double pnt[3];
   this->GetMinBounds( pnt );
 
@@ -903,8 +733,6 @@ double vtkAMRBox::GetMinY() const
 //-----------------------------------------------------------------------------
 double vtkAMRBox::GetMinZ() const
 {
-  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
-
   double pnt[3];
   this->GetMinBounds( pnt );
 
@@ -916,8 +744,6 @@ double vtkAMRBox::GetMinZ() const
 //-----------------------------------------------------------------------------
 double vtkAMRBox::GetMaxX() const
 {
-  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
-
   double pnt[3];
   this->GetMaxBounds( pnt );
   return( pnt[0] );
@@ -926,8 +752,6 @@ double vtkAMRBox::GetMaxX() const
 //-----------------------------------------------------------------------------
 double vtkAMRBox::GetMaxY() const
 {
-  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
-
   double pnt[3];
   this->GetMaxBounds( pnt );
 
@@ -939,8 +763,6 @@ double vtkAMRBox::GetMaxY() const
 //-----------------------------------------------------------------------------
 double vtkAMRBox::GetMaxZ() const
 {
-  vtkAssertUtils::assertTrue( this->Dimension>=1, __FILE__, __LINE__ );
-
   double pnt[3];
   this->GetMaxBounds( pnt );
 
@@ -1081,7 +903,7 @@ void vtkAMRBox::operator&=(const vtkAMRBox &other)
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i,int j,int k) const
 {
-  vtkAssertUtils::assertFalse( this->Empty(), __FILE__, __LINE__ );
+  assert( "pre: AMR Box should not be empty!" && !this->Empty() );
   switch (this->Dimension)
     {
     case 1:
@@ -1177,7 +999,6 @@ void vtkAMRBox::Refine(int r)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Coarsen(int r)
 {
-  vtkAssertUtils::assertFalse( this->Empty(),__FILE__,__LINE__);
   if (this->Empty())
     {
     return;
@@ -1245,24 +1066,6 @@ void vtkAMRBox::GetRealExtent( int realext[6] ) const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetRealExtent( int realExtent[6] )
 {
-  // Sanity Checks
-  vtkAssertUtils::assertInRange(
-   realExtent[0],this->LoCorner[0],this->HiCorner[0],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-   realExtent[1],this->LoCorner[0],this->HiCorner[0],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-   realExtent[2],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-   realExtent[3],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
-
- if( this->Dimension  == 3 )
-   {
-    vtkAssertUtils::assertInRange(
-     realExtent[4],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
-    vtkAssertUtils::assertInRange(
-     realExtent[5],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
-   }
-
   this->RealExtent[0] = realExtent[0]; // imin
   this->RealExtent[1] = realExtent[1]; // imax
   this->RealExtent[2] = realExtent[2]; // jmin
@@ -1274,25 +1077,6 @@ void vtkAMRBox::SetRealExtent( int realExtent[6] )
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetRealExtent( int min[3], int max[3] )
 {
-  // Sanity Checks
-  // Check i-range
-  vtkAssertUtils::assertInRange(
-    min[0],this->LoCorner[0],this->HiCorner[0],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-    max[0],this->LoCorner[0],this->HiCorner[0],__FILE__,__LINE__);
-
-  // Check j-range
-  vtkAssertUtils::assertInRange(
-    min[1],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-    max[1],this->LoCorner[1],this->HiCorner[1],__FILE__,__LINE__);
-
-  // Check k-range
-  vtkAssertUtils::assertInRange(
-    min[2],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
-  vtkAssertUtils::assertInRange(
-    max[2],this->LoCorner[2],this->HiCorner[2],__FILE__,__LINE__);
-
   this->RealExtent[0] = min[0]; // imin
   this->RealExtent[1] = max[0]; // imax
   this->RealExtent[2] = min[1]; // jmin
@@ -1338,8 +1122,8 @@ void vtkAMRBox::GetPoint( const int ijk[3], double pnt[3] ) const
   for( int i=0; i < this->Dimension; ++i )
     {
       // Sanity Check!
-      vtkAssertUtils::assertInRange(
-       ijk[i],this->LoCorner[i],this->HiCorner[i], __FILE__, __LINE__ );
+      assert( "pre: ijk index out-of-bounds" &&
+          (ijk[i]>=this->LoCorner[i]) && (ijk[i]<=this->HiCorner[i]) );
 
       if( ijk[i] == 0 )
         pnt[i] = this->X0[i];
@@ -1361,11 +1145,11 @@ void vtkAMRBox::GetPoint(
 void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 {
 
-  vtkAssertUtils::assertNull( buffer, __FILE__, __LINE__ );
+  assert( "pre: input buffer is expected to be NULL" && (buffer==NULL) );
 
   bytesize       = vtkAMRBox::GetBytesize();
   buffer         = new unsigned char[ bytesize ];
-  vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
+  assert( buffer != NULL );
 
   // STEP 0: set pointer to traverse the buffer
   unsigned char* ptr = buffer;
@@ -1411,8 +1195,8 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
 {
 
-  vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
-  vtkAssertUtils::assertTrue( (bytesize > 0), __FILE__, __LINE__ );
+  assert( "pre: input buffer is NULL" && (buffer != NULL) );
+  assert( "pre: buffer bytesize is 0" && (bytesize >0) );
 
   // STEP 0: set pointer to traverse the buffer
   unsigned char *ptr = buffer;
@@ -1420,45 +1204,48 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
   // STEP 1: de-serialize the dimension
   std::memcpy( &(this->Dimension), ptr, sizeof(int) );
   ptr += sizeof( int );
-  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+  assert( ptr != NULL );
+
 
   // STEP 2: de-serialize the coordinates
   std::memcpy( &(this->X0), ptr, 3*sizeof(double) );
   ptr += 3*sizeof(double);
-  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+  assert( ptr != NULL );
 
   // STEP 3: de-serialize the spacing array
   std::memcpy( &(this->DX), ptr, 3*sizeof(double) );
   ptr += 3*sizeof(double);
-  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+  assert( ptr != NULL );
 
   // STEP 4: de-serialize the block ID
   std::memcpy( &(this->BlockId), ptr, sizeof(int) );
   ptr += sizeof( int );
-  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+  assert( ptr != NULL );
 
   // STEP 5: de-serialize the process ID
   std::memcpy( &(this->ProcessId), ptr, sizeof(int) );
   ptr += sizeof( int );
-  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+  assert( ptr != NULL );
 
   // STEP 6: de-serialize the block level
   std::memcpy(&(this->BlockLevel), ptr, sizeof(int) );
   ptr += sizeof( int );
-  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+  assert( ptr != NULL );
 
   // STEP 7: de-serialize the low corner
   std::memcpy( &(this->LoCorner), ptr, 3*sizeof(int) );
   ptr += 3*sizeof( int );
-  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+  assert( ptr != NULL );
 
   // STEP 8: de-serialize the high corner
   std::memcpy(&(this->HiCorner), ptr,  3*sizeof(int) );
   ptr += 3*sizeof( int );
+  assert( ptr != NULL );
 
   // STEP 9: de-serialize the real extent
   std::memcpy(&(this->RealExtent), ptr, 6*sizeof(int) );
   ptr += 6*sizeof( int );
+  assert( ptr != NULL );
 }
 
 //-----------------------------------------------------------------------------
@@ -1652,7 +1439,7 @@ void vtkAMRBox::WriteBox(
 
   std::ofstream ofs;
   ofs.open( oss.str().c_str( ) );
-  vtkAssertUtils::assertTrue( ofs.is_open(), __FILE__, __LINE__ );
+  assert( "Cannot open file" && ( ofs.is_open() ) );
 
   ofs << "# vtk DataFile Version 3.0\n";
   ofs << oss.str( ) << std::endl;

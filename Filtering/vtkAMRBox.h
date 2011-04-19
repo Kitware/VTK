@@ -25,17 +25,16 @@
 // vtkAMRBox is used in vtkHierarchicalBoxDataSet to compute cell visibilty.
 //
 // .SECTION See Also
-// vtkHierarachicalBoxDataSet, vtkAMRBoxUtilities.hxx
+// vtkHierarachicalBoxDataSet, vtkAMRUtilities
 
 #ifndef __vtkAMRBox_h
 #define __vtkAMRBox_h
 
 #include "vtkObject.h"
-#include "vtkSerializable.h"
-#include "vtkType.h" //For utility functions.
+#include "vtkType.h"     //For utility functions.
 #include <vtkstd/vector> // STL Header
 
-class VTK_FILTERING_EXPORT vtkAMRBox : public vtkSerializable
+class VTK_FILTERING_EXPORT vtkAMRBox
 {
 
 public:
@@ -51,7 +50,7 @@ public:
       int ihi,int jhi,int khi);
 
   // Description:
-  // Construct a specific 2D box.
+  // Construct a specific 2D box in the XY plane.
   vtkAMRBox(
       int ilo,int jlo,
       int ihi,int jhi);
@@ -65,45 +64,6 @@ public:
   // Construct a specific box. (ilo,ihi, jlo,jhi, klo,khi)
   vtkAMRBox(int dim, const int dims[6]);
   vtkAMRBox(const int dims[6]);
-
-  // Description:
-  // Construct a specific box & set all of its meta-data
-  // origin   -- 3-tuple consisting of the x,y,z world origin of the Dataset
-  // dim      -- The dimension of the corresponding block, i.e., 2 or 3
-  // ndim     -- 3-tuple of the number of cells along each dimension
-  //             Note, this constructor assumes loCorner to be 0
-  // h        -- 3-tuple consisting of the mesh spacing at each dimension
-  // blockIdx -- the ID of the block corresponding to this instance
-  // level    -- the level of this instance
-  // rank     -- the corresponding process rank that owns this block
-  //
-  // .SECTION: Note the origin is the origin of the entire data-set and not
-  // the origin of the box. To get the origin of the box use
-  vtkAMRBox(
-      const double origin[3], const int dim, const int ndim[3],
-      const double h[3], const int blockIdx, const int level,
-      const int rank );
-
-
-   // Description:
-   // Construct a specific box & set all of its meta-data
-   // origin   -- 3-tuple consisting of the x,y,z world origin of the Dataset
-   // dim      -- The dimension of the corresponding block, i.e., 2 or 3
-   // lo       -- 3-tuple of the lowest corner of the box
-   // hi       -- 3-tuple of the highest corner of the box
-   //             Note, this constructor assumes loCorner to be 0
-   // h        -- 3-tuple consisting of the mesh spacing at each dimension
-   // blockIdx -- the ID of the block corresponding to this instance
-   // level    -- the level of this instance
-   // rank     -- the corresponding process rank that owns this block
-   //
-   // .SECTION: Note the origin is the origin of the entire data-set and not
-   // the origin of the box. To get the origin of the box use
-  vtkAMRBox(
-      const double origin[3], const int dimension,
-      const int lo[3], const int hi[3],
-      const double h[3], const int blockIdx, const int level,
-      const int rank );
 
 
   // Description:
@@ -326,11 +286,6 @@ public:
   // Checks to see if the node corresponding to the given
   // i-j-k coordinates is a ghost node.
   bool IsGhostNode( const int i, const int j, const int k );
-
-  // Description:
-  // Writes this instance of AMR box as a uniform grid in a VTK file
-  // that can be visualized with ParaView.
-  void WriteToVtkFile( const char *file );
 
   // Description:
   // Gets the real coordinates of the point within the virtual
