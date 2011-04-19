@@ -30,7 +30,8 @@
 
 class vtkHierarchicalBoxDataSet;
 
-class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLCompositeDataReader
+class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader :
+  public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLHierarchicalBoxDataReader* New();
