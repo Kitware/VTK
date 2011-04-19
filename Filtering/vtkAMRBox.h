@@ -67,25 +67,6 @@ public:
 
 
   // Description:
-  // Consturcts a specific box with given dataSet origin & box origin.
-  // dataSetOrigin -- x,y,z world origin of the entire dataset.
-  // boxOrigin     -- x,y,z box origin.
-  // dimension     -- the dimension of the corresponding block, i.e., 2 or 3.
-  // h             -- mesh spacing along each direction.
-  // ndims         -- Number of cells along each dimension
-  // blockIdx      -- the ID of the block corresponding to this instance.
-  // level         -- the level of this instance.
-  // rank          -- the corresponding process rank that owns this block.
-//  vtkAMRBox(
-//      const double dataSetOrigin[3], const double boxOrigin[3],
-//      const int dimension,
-//      const double h[3],
-//      const int   ndim[3],
-//      const int blockIdx,
-//      const int level,
-//      const int rank );
-
-  // Description:
   // Copy construct this box from another.
   vtkAMRBox(const vtkAMRBox &other);
 
@@ -273,10 +254,6 @@ public:
   // Description:
   // Coarsen the box.
   void Coarsen(int r);
-
-  // Description:
-  // Returns the linear index of the given node structured coordinates
-  int GetNodeLinearIndex( const int i, const int j, const int k );
 
   // Description:
   // Returns the linear index of the given cell structured coordinates

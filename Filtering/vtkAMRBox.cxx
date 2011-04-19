@@ -114,17 +114,6 @@ void vtkAMRBox::BuildAMRBox(
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRBox::GetNodeLinearIndex( const int i,const int j,const int k )
-{
-  int ndim[3];
-  int ijk[3];
-  ijk[0]=i; ijk[1]=j; ijk[2]=k;
-  this->GetNumberOfNodes( ndim );
-  int idx = vtkStructuredData::ComputePointId( ndim, ijk );
-  return( idx );
-}
-
-//-----------------------------------------------------------------------------
 int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
 {
   // Sanity Check!
