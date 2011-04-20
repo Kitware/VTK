@@ -291,6 +291,7 @@ struct vtkChartPlotData
 {
   vtkStdString SeriesName;
   vtkVector2f Position;
+  vtkVector2i ScreenPosition;
 };
 
 #endif //__vtkChartXY_h

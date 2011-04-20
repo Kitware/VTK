@@ -203,13 +203,14 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         vtkWarningMacro("Missing amr box for level " << level << ",  dataset " << index);
         }
 
-      int dimensionality = 3;
-      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
-        {
-        // default.
-        dimensionality = 3;
-        }
-      amrBox.SetDimensionality(dimensionality);
+// Note: the dimensionality is auto-detected by the AMR box now
+//      int dimensionality = 3;
+//      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
+//        {
+//        // default.
+//        dimensionality = 3;
+//        }
+//      amrBox.SetDimensionality(dimensionality);
 
       vtkSmartPointer<vtkUniformGrid> childDS = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
@@ -309,7 +310,6 @@ void vtkXMLHierarchicalBoxDataReader::SetMetaData(
           // XML, hence, they are not re-computed here!
           vtkAMRBox box;
           hbox->GetMetaData( level, dataIdx, box );
-          box.SetDimensionality( ug->GetDataDimension() );
           box.SetDataSetOrigin( origin );
           box.SetGridSpacing( ug->GetSpacing() );
           box.SetBlockId( dataIdx );
@@ -317,7 +317,6 @@ void vtkXMLHierarchicalBoxDataReader::SetMetaData(
           box.SetProcessId( 0 ); // Data is serial!
 
           hbox->SetMetaData( level, dataIdx, box );
-
         } // END for all data at the current level
     } // END for all levels
 

@@ -1213,6 +1213,7 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
                 vtkChartPlotData plotIndex;
                 plotIndex.SeriesName = plot->GetLabel();
                 plotIndex.Position = plotPos;
+                plotIndex.ScreenPosition = mouse.ScreenPos;
                 // Invoke an event, with the client data supplied
                 this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
                 }

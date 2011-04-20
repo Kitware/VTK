@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestBarGraph.cxx
+  Module:    TestBarGraphHorizontal.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,9 +15,8 @@
 
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
+#include "vtkPlotBar.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
 #include "vtkContextView.h"
@@ -35,7 +34,7 @@ static int data_2010[] = {9058, 10941, 9979, 10270, 8900, 11228,
                           14688, 12231, 10160, 9585, 9384, 8590};
 
 //----------------------------------------------------------------------------
-int TestBarGraph(int , char * [])
+int TestBarGraphHorizontal(int , char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -74,20 +73,27 @@ int TestBarGraph(int , char * [])
 
   // Add multiple bar plots, setting the colors etc
   vtkPlot *plot = 0;
+  vtkPlotBar* barPlot = 0;
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 1);
-  plot->SetColor(0, 255, 0, 255);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetInput(table.GetPointer(), 0, 1);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  barPlot->SetColor(0, 255, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 2);
-  plot->SetColor(255, 0, 0, 255);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetInput(table.GetPointer(), 0, 2);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  barPlot->SetColor(255, 0, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 3);
-  plot->SetColor(0, 0, 255, 255);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetInput(table.GetPointer(), 0, 3);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  barPlot->SetColor(0, 0, 255, 255);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

@@ -86,11 +86,13 @@ public:
 
 //BTX
   // Description:
-  // Write input port 0 data to an arbitrary stream.
+  // Write input port 0 data to an arbitrary stream.  Note: streams should always be opened in
+  // binary mode, to prevent problems reading files on Windows.
   bool Write(ostream& stream, bool WriteBinary = false);
 
   // Description:
-  // Write arbitrary data to a stream without using the pipeline.
+  // Write arbitrary data to a stream without using the pipeline.  Note: streams should always
+  // be opened in binary mode, to prevent problems reading files on Windows.
   static bool Write(vtkArray* array, ostream& stream, bool WriteBinary = false);
 //ETX
 

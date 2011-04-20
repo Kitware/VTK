@@ -16,9 +16,6 @@
 
 #include "vtkObjectFactory.h"
 
-#include <algorithm>
-using std::max;
-
 #if defined(__BORLANDC__)
 # pragma warn -8012 /* signed/unsigned comparison */
 #endif
@@ -95,22 +92,9 @@ using std::max;
          "unknown error")                               \
     << ".");
 
-// this pointer is not accessable in a static member function
-#define vtkGenericErrorMacro(x)                         \
-{ if (vtkObject::GetGlobalWarningDisplay()) {           \
-      vtkOStreamWrapper::EndlType endl;                 \
-      vtkOStreamWrapper::UseEndl(endl);                 \
-      vtkOStrStreamWrapper vtkmsg;                      \
-      vtkmsg                                            \
-        << "Error: In " __FILE__ ", line "              \
-        << __LINE__ << "\n" x                           \
-        << "\n\n";                                      \
-      vtkOutputWindowDisplayErrorText(vtkmsg.str());    \
-      vtkmsg.rdbuf()->freeze(0);}}
-
-// convert error number to string and report via vtkGenericErrorMacro
+// convert error number to string and report via vtkGenericWarningMacro
 #define vtkSocketGenericErrorMacro(_message)            \
-  vtkGenericErrorMacro(                                 \
+  vtkGenericWarningMacro(                                 \
     << (_message)                                       \
     << " "                                              \
     << vtkSafeStrMacro(                                 \
@@ -118,7 +102,7 @@ using std::max;
          "unknown error")                               \
     << ".");
 
-// on windows sterror doesn't handle socket error codes
+// on windows strerror doesn't handle socket error codes
 #if defined(_WIN32) && !defined(__CYGWIN__)
 static
 const char *wsaStrerror(int wsaeid)
@@ -205,7 +189,7 @@ int vtkSocket::BindSocket(int socketdescriptor, int port)
     iErr);
 #elif defined(VTK_HAVE_SO_REUSEADDR)
   vtkRestartInterruptedSystemCallMacro(
-    setsockopt(socketdescriptor,SOL_SOCKET,SO_REUSEADDR,(void*)&opt,sizeof(int)),
+    setsockopt(socketdescriptor,SOL_SOCKET,SO_REUSEADDR,(char*)&opt,sizeof(int)),
     iErr);
 #endif
   if (iErr == vtkSocketErrorReturnMacro)
@@ -355,7 +339,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
 
   if (size < 0)
     {
-    vtkGenericErrorMacro("Can't select fewer than 0.");
+    vtkGenericWarningMacro("Can't select fewer than 0.");
     return -1;
     }
 
@@ -377,7 +361,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
     for (int i=0; i<size; i++)
       {
       FD_SET(sockets_to_select[i],&rset);
-      max_fd = max(sockets_to_select[i],max_fd);
+      max_fd = (sockets_to_select[i] > max_fd ? sockets_to_select[i] : max_fd);
       }
 
     // block until one socket is ready to read.
@@ -413,7 +397,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
     }
 
   // no activity on any of the sockets
-  vtkGenericErrorMacro("Socket error in select. No descriptor selected.");
+  vtkGenericWarningMacro("Socket error in select. No descriptor selected.");
   return -1; 
 #else
   static_cast<void>(sockets_to_select);
@@ -466,9 +450,14 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
       {
       // SelectSocket doesn't test for pending errors.
       int pendingErr;
-      socklen_t pendingErrLen=sizeof(pendingErr);
+#if defined(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
+      socklen_t pendingErrLen = sizeof(pendingErr);
+#else
+      int pendingErrLen = sizeof(pendingErr);
+#endif
+
       vtkRestartInterruptedSystemCallMacro(
-        getsockopt(socketdescriptor, SOL_SOCKET, SO_ERROR, &pendingErr, &pendingErrLen),
+        getsockopt(socketdescriptor, SOL_SOCKET, SO_ERROR, (char *)&pendingErr, &pendingErrLen),
         iErr);
       if (iErr == vtkSocketErrorReturnMacro)
         {
@@ -513,6 +502,7 @@ int vtkSocket::GetPort(int sock)
 #else
   int sizebuf = sizeof(sockinfo);
 #endif
+
   int iErr;
   vtkRestartInterruptedSystemCallMacro(
     getsockname(sock, reinterpret_cast<sockaddr*>(&sockinfo), &sizebuf),
@@ -639,7 +629,7 @@ int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
 #endif
 
     total += nRecvd;
-    } 
+    }
   while( readFully && (total < length));
 
   return total;

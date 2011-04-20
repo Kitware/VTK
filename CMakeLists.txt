@@ -254,6 +254,9 @@ IF(NOT VTK_INSTALL_JAVA_DIR)
   SET(VTK_INSTALL_JAVA_DIR ${VTK_INSTALL_PACKAGE_DIR}/java)
 ENDIF(NOT VTK_INSTALL_JAVA_DIR)
 
+OPTION(VTK_INSTALL_THIRD_PARTY_LIBRARIES "Use fixup bundle to install vtk and vtkpython dependencies." OFF)
+MARK_AS_ADVANCED(VTK_INSTALL_THIRD_PARTY_LIBRARIES)
+
 # There are three basic components to the VTK installation: runtime,
 # development, and documentation.  Install rules for each component
 # are surrounded by blockers.  Parent projects or users can specify
@@ -266,13 +269,14 @@ ENDIF(NOT VTK_INSTALL_JAVA_DIR)
 # switch library installation on and off correctly we make the
 # decision here.
 SET(VTK_INSTALL_NO_LIBRARIES)
+
 IF(BUILD_SHARED_LIBS)
   IF(VTK_INSTALL_NO_RUNTIME AND VTK_INSTALL_NO_DEVELOPMENT)
-    SET(VTK_INSTALL_NO_LIBRARIES 1)
+    SET(VTK_INSTALL_NO_LIBRARIES ON)
   ENDIF(VTK_INSTALL_NO_RUNTIME AND VTK_INSTALL_NO_DEVELOPMENT)
 ELSE(BUILD_SHARED_LIBS)
   IF(VTK_INSTALL_NO_DEVELOPMENT)
-    SET(VTK_INSTALL_NO_LIBRARIES 1)
+    SET(VTK_INSTALL_NO_LIBRARIES ON)
   ENDIF(VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF(BUILD_SHARED_LIBS)
 
@@ -288,6 +292,16 @@ STRING(REGEX REPLACE "^/" "" VTK_INSTALL_DOXYGEN_DIR_CM24 "${VTK_INSTALL_DOXYGEN
 STRING(REGEX REPLACE "^/" "" VTK_INSTALL_DOC_DIR_CM24 "${VTK_INSTALL_DOC_DIR}")
 STRING(REGEX REPLACE "^/" "" VTK_INSTALL_TCL_DIR_CM24 "${VTK_INSTALL_TCL_DIR}")
 STRING(REGEX REPLACE "^/" "" VTK_INSTALL_JAVA_DIR_CM24 "${VTK_INSTALL_JAVA_DIR}")
+
+#-----------------------------------------------------------------------------
+# Provide option to build executables as forwarding executables where by a launcher that
+# sets the appropriate environment is installed in /bin/ which then 'launches' the 'real'
+# executable under lib.
+if(UNIX)
+  OPTION(VTK_BUILD_FORWARDING_EXECUTABLES "Build forwarding executables for vtk, vtkpython, etc." OFF)
+  INCLUDE(vtkForwardingExecutable)
+  MARK_AS_ADVANCED(VTK_BUILD_FORWARDING_EXECUTABLES)
+endif()
 
 #-----------------------------------------------------------------------------
 # Save the compiler settings so another project can import them.
@@ -406,6 +420,11 @@ ENDIF(NOT "VTK_USE_VOLUMERENDERING" MATCHES "^VTK_USE_VOLUMERENDERING$")
 
 SET(VTK_KITS COMMON FILTERING IO GRAPHICS GENERIC_FILTERING IMAGING)
 
+# Include Rendering in module path to find vtkTestingObjectFactory
+IF(VTK_USE_RENDERING)
+  SET(CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/Rendering/" ${CMAKE_MODULE_PATH})
+ENDIF()
+
 IF(VTK_USE_RENDERING)
   SET(VTK_KITS ${VTK_KITS} RENDERING)
   SET(VTK_KITS ${VTK_KITS} VOLUMERENDERING)
@@ -502,6 +521,9 @@ INCLUDE(vtkTestFullSpecialization)
 
 # Check for explicit template instantiation support by compiler.
 INCLUDE(vtkTestExplicitInstantiation)
+
+# Test for atomics and other compiler intrinsics
+INCLUDE(vtkTestBuiltins)
 
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
@@ -1488,6 +1510,11 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
+# Use fixup_bundle to pull in vtk and vtkpython dependencies
+IF(VTK_INSTALL_THIRD_PARTY_LIBRARIES)
+  ADD_SUBDIRECTORY(Utilities/Release)
+ENDIF()
 
 # Setup CPack
 INCLUDE(VTKCPack.cmake)
