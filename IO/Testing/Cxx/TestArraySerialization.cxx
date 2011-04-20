@@ -169,6 +169,18 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(i1->GetVariantValue(0, 0).ToDouble() == 5);
     test_expression(i1->GetVariantValue(1, 0).ToDouble() == 0);
 
+    // Test from string ...
+    std::string j("vtk-dense-array string\nascii\ne1\n0 3 3\nvalues\nThe\nquick brown\nfox\n");
+    vtkSmartPointer<vtkArray> j1;
+    j1.TakeReference(vtkArrayReader::Read(j.c_str()));
+
+    test_expression(j1);
+    test_expression(vtkDenseArray<vtkStdString>::SafeDownCast(j1));
+    test_expression(j1->GetNonNullSize() == 3);
+    test_expression(j1->GetVariantValue(0).ToString() == "The");
+    test_expression(j1->GetVariantValue(1).ToString() == "quick brown");
+    test_expression(j1->GetVariantValue(2).ToString() == "fox");
+
     // Test Read and Write in Binary mode
     // Test sparse-array round-trip ...
     vtkSmartPointer<vtkSparseArray<double> > ba1 = vtkSmartPointer<vtkSparseArray<double> >::New();

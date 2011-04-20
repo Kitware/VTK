@@ -57,6 +57,14 @@ public:
   // on Windows.
   static vtkArray* Read(istream& stream);
 
+  // Description:
+  // Read an arbitrary array from a character buffer.
+  static vtkArray* Read(const char* buffer);
+
+  // Description:
+  // Read an arbitrary array from a character buffer with specified length.
+  static vtkArray* Read(const char* buffer, int length);
+
 protected:
   vtkArrayReader();
   ~vtkArrayReader();
