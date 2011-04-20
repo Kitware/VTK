@@ -1189,9 +1189,9 @@ void vtkAMRBox::Refine(int r)
            this->DX[0] /= r;
 
            // Refine z
-           this->LoCorner[1] *= r;
-           this->HiCorner[1]  = (this->HiCorner[1]+1)*r-1;
-           this->DX[1] /= r;
+           this->LoCorner[2] *= r;
+           this->HiCorner[2]  = (this->HiCorner[2]+1)*r-1;
+           this->DX[2] /= r;
 
          }
        else if( this->HiCorner[2] == this->LoCorner[2] )
@@ -1289,7 +1289,7 @@ void vtkAMRBox::Coarsen(int r)
                   -abs(this->LoCorner[2]+1)/r-1 : this->LoCorner[2]/r);
           hi[2]=( (this->HiCorner[2]<0)?
                   -abs(this->HiCorner[2]+1)/r-1 : this->HiCorner[2]/r );
-          this->DX[0]*=r;
+          this->DX[2]*=r;
 
         }
       else if( this->LoCorner[2] == this->HiCorner[2] )
@@ -1571,6 +1571,15 @@ int vtkAMRBox::DetectDimension(
       --dim;
     }
 
+  // TODO: this is a temporary fix, the dimension should never get to 0!
+  if( dim == 0 ) dim=3;
+
+  if( dim < 1 || dim > 3 )
+    {
+      std::cerr << "WARNING: Invalid dimension: " << dim << std::endl;
+      std::cerr << "FILE: " << __FILE__ << std::endl;
+      std::cerr << "LINE: " << __LINE__ << std::endl;
+    }
   assert( "pre: Invalid dimension detected" &&
           ( (dim >= 1) && (dim <= 3) ) );
 
