@@ -410,7 +410,7 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
   int hi[3];
   hi[0]=hi[1]=hi[2]=0;
 
-  int dimension = 0;
+//  int dimension = 0;
   double spacing[3];
 
   unsigned int dataIdx = 0;
@@ -430,7 +430,8 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 
       myBox.GetMinBounds( boxmin );
       myBox.GetMaxBounds( boxmax );
-      for( int i=0; i < myBox.GetDimensionality(); ++i )
+//      for( int i=0; i < myBox.GetDimensionality(); ++i )
+      for( int i=0; i < 3; ++i )
         {
 
           if( boxmin[i] < min[i] )
@@ -440,16 +441,16 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
             max[i] = boxmax[i];
         }
 
-      dimension = myBox.GetDimensionality();
+//      dimension = myBox.GetDimensionality();
       myBox.GetGridSpacing( spacing );
 
     } // END for all data
 
   // Dimension based on CELLS and start number from 0.
-  for( int i=0; i < dimension; ++i )
+  for( int i=0; i < 3; ++i )
    hi[ i ] = round( (max[i]-min[i])/spacing[i] )-1;
 
-  root.SetDimensionality( dimension );
+//  root.SetDimensionality( dimension );
   root.SetDataSetOrigin( min );
   root.SetGridSpacing( spacing );
   root.SetDimensions( lo, hi );
@@ -609,13 +610,13 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 //        vtkAMRBox coarsebox;
 //        this->GetMetaData( levelIdx+1,dataSetIdx, coarsebox );
 
-        vtkInformation* info = this->GetMetaData(
-            levelIdx+1,dataSetIdx);
-        int* boxVec = info->Get(BOX());
-        int dimensionality = info->Has(BOX_DIMENSIONALITY())?
-          info->Get(BOX_DIMENSIONALITY()) : 3;
+//        int dimensionality = info->Has(BOX_DIMENSIONALITY())?
+//          info->Get(BOX_DIMENSIONALITY()) : 3;
 //        vtkAMRBox coarsebox( boxVec );
 //        vtkAMRBox coarsebox(dimensionality,boxVec,boxVec+3);
+
+        vtkInformation* info = this->GetMetaData(levelIdx+1,dataSetIdx);
+        int* boxVec          = info->Get(BOX());
         vtkAMRBox coarsebox(boxVec,boxVec+3);
         int refinementRatio = this->GetRefinementRatio(levelIdx);
         if (refinementRatio == 0)
@@ -636,12 +637,15 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       if (grid && !box.Empty())
         {
 
-        int cellDims[3];
-        box.GetNumberOfNodes(cellDims);
-        vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
-//        int N = box.GetNumberOfCells();
-        int N = box.GetNumberOfNodes();
+//        int cellDims[3];
+//        box.GetNumberOfNodes(cellDims);
+//        int N = box.GetNumberOfNodes();
 
+        int cellDims[3];
+        box.GetNumberOfCells(cellDims);
+        int N = box.GetNumberOfCells();
+
+        vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
         vis->SetNumberOfTuples( N );
         vis->FillComponent(0,static_cast<char>(1));
         vtkIdType numBlankedPts = 0;
@@ -691,6 +695,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
             this->GetMetaData(levelIdx,dataSetIdx);
           infotmp->Set(NUMBER_OF_BLANKED_POINTS(), numBlankedPts);
           }
+
         }
       }
     }
