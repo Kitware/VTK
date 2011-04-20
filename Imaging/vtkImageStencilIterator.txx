@@ -115,6 +115,10 @@ void vtkImageStencilIterator<DType>::Initialize(
     this->HasStencil = true;
     this->InStencil = true;
 
+    this->SpanIndexX = 0;
+    this->SpanIndexY = 0;
+    this->SpanIndexZ = 0;
+
     int stencilExtent[6];
     stencil->GetExtent(stencilExtent);
 
@@ -186,20 +190,26 @@ void vtkImageStencilIterator<DType>::Initialize(
       this->SpanMaxZ = stencilExtent[5] - extent[4];
       }
 
-    this->SpanCountPointer =
-      vtkImageStencilIteratorFriendship::GetExtentListLengths(stencil) +
-      startOffset;
+    if (this->SpanMinY <= this->SpanMaxY &&
+        this->SpanMinZ <= this->SpanMaxZ)
+      {
+      this->SpanCountPointer =
+        vtkImageStencilIteratorFriendship::GetExtentListLengths(stencil) +
+        startOffset;
 
-    this->SpanListPointer =
-      vtkImageStencilIteratorFriendship::GetExtentLists(stencil) +
-      startOffset;
+      this->SpanListPointer =
+        vtkImageStencilIteratorFriendship::GetExtentLists(stencil) +
+        startOffset;
 
-    this->SpanIndexX = 0;
-    this->SpanIndexY = 0;
-    this->SpanIndexZ = 0;
-
-    // Holds the current position within the span list for the current row
-    this->SetSpanState(this->SpanMinX);
+      // Holds the current position within the span list for the current row
+      this->SetSpanState(this->SpanMinX);
+      }
+    else
+      {
+      this->SpanCountPointer = 0;
+      this->SpanListPointer = 0;
+      this->InStencil = false;
+      }
     }
   else
     {
