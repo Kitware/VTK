@@ -522,6 +522,23 @@ int vtkArrayReader::RequestData(
   return 0;
 }
 
+vtkArray* vtkArrayReader::Read(const char* buffer)
+{
+  int len = 0;
+  if (buffer)
+    {
+    len = static_cast<int>(strlen(buffer));
+    }
+  return vtkArrayReader::Read(buffer, len);
+}
+
+vtkArray* vtkArrayReader::Read(const char* buffer, int length)
+{
+  std::string str(buffer, length);
+  std::istringstream iss(str);
+  return vtkArrayReader::Read(iss);
+}
+
 vtkArray* vtkArrayReader::Read(istream& stream)
 {
   try
