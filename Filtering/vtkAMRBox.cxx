@@ -132,11 +132,9 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   assert( "pre: k-index out-of-bounds!" &&
    ( (k >= 0) && (k <= this->HiCorner[2]) ) );
 
-  // Get Cell dimensions. Note, the AMR box is cell dimensioned,
-  // hence the number of nodes here returns actually the number
-  // of cells corresponding to the associated grid.
+  // Get Cell dimensions.
   int ndim[3];
-  this->GetNumberOfNodes( ndim );
+  this->GetNumberOfCells( ndim );
 
   // Shift nunmbering to 0-based.
   int ijk[3];
@@ -1084,37 +1082,28 @@ bool vtkAMRBox::Contains(int i,int j,int k) const
           {
             // Check YZ plane
           return(
-           ( this->LoCorner[1]<=j &&
-             this->HiCorner[1]>=j &&
-             this->LoCorner[2]<=k &&
-             this->HiCorner[2]>=k) );
+           ( this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
+             this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
           }
         else if( this->LoCorner[1] == this->HiCorner[1] )
           {
             // Check XZ plane
             return(
-             ( this->LoCorner[0]<=i &&
-               this->HiCorner[0]>=i &&
-               this->LoCorner[2]<=k &&
-               this->HiCorner[2]>=k) );
+             ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
+               this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
           }
         else if( this->LoCorner[2] == this->HiCorner[2] )
           {
             // Check XY plane
             return(
-             ( this->LoCorner[0]<=i &&
-               this->HiCorner[0]>=i &&
-               this->LoCorner[1]<=j &&
-               this->HiCorner[1]>=j) );
+             ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
+               this->LoCorner[1]<=j && this->HiCorner[1]>=j) );
           }
         break;
       case 3:
-        if( this->LoCorner[0]<=i &&
-            this->HiCorner[0]>=i &&
-            this->LoCorner[1]<=j &&
-            this->HiCorner[1]>=j &&
-            this->LoCorner[2]<=k &&
-            this->HiCorner[2]>=k  )
+        if( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
+            this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
+            this->LoCorner[2]<=k && this->HiCorner[2]>=k  )
           {
             return true;
           }
@@ -1218,6 +1207,7 @@ void vtkAMRBox::Refine(int r)
        std::cerr.flush();
        assert( false );
    }
+  assert( "post: Refined AMR box should not be empty!" && !this->Empty() );
   assert( "post: Refined AMR Box instance is invalid" && !this->IsInvalid() );
 
 }
@@ -1242,6 +1232,9 @@ void vtkAMRBox::Coarsen(int r)
   int hi[3];
   int q;
 
+  int nCells[3];
+  this->GetNumberOfCells( nCells );
+
   switch( this->Dimension )
     {
     case 1:
@@ -1249,10 +1242,11 @@ void vtkAMRBox::Coarsen(int r)
       lo[2]=this->LoCorner[2];
       hi[1]=this->HiCorner[1];
       hi[2]=this->HiCorner[2];
+
       lo[0]=( (this->LoCorner[0]<0)?
-              -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
+         -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
       hi[0]=( (this->HiCorner[0]<0)?
-              -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
+         -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
       this->DX[0]*=r;
       break;
     case 2:
@@ -1265,10 +1259,10 @@ void vtkAMRBox::Coarsen(int r)
           // Coarsen in YZ plane
           for( q=1; q < 3; ++q )
             {
-              lo[q]=( (this->LoCorner[q] < 0)?
-                      -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
-              hi[q]=( this->HiCorner[q]<0 ?
-                      -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+              lo[q] = ( (this->LoCorner[q] < 0)?
+                 -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+              hi[q] = ( this->HiCorner[q]<0 ?
+                 -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
               this->DX[q]*=r;
             }
         }
@@ -1279,16 +1273,20 @@ void vtkAMRBox::Coarsen(int r)
           hi[1] = this->HiCorner[1];
 
           // Coarsen in XZ plane
+
+          // coarsen x
           lo[0]=( (this->LoCorner[0]<0)?
-                  -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
+             -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
           hi[0]=( (this->HiCorner[0]<0)?
-                  -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
+             -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
           this->DX[0]*=r;
 
+          // coarsen y
           lo[2]=( (this->LoCorner[2]<0)?
-                  -abs(this->LoCorner[2]+1)/r-1 : this->LoCorner[2]/r);
+             -abs(this->LoCorner[2]+1)/r-1 : this->LoCorner[2]/r);
           hi[2]=( (this->HiCorner[2]<0)?
-                  -abs(this->HiCorner[2]+1)/r-1 : this->HiCorner[2]/r );
+             -abs(this->HiCorner[2]+1)/r-1 : this->HiCorner[2]/r );
+
           this->DX[2]*=r;
 
         }
@@ -1320,9 +1318,9 @@ void vtkAMRBox::Coarsen(int r)
       for( q=0; q < 3; ++q )
         {
           lo[q]=( (this->LoCorner[q] < 0)?
-                  -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+             -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
           hi[q]=( this->HiCorner[q]<0 ?
-                  -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+            -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
           this->DX[q]*=r;
         }
       break;
@@ -1332,7 +1330,11 @@ void vtkAMRBox::Coarsen(int r)
       std::cerr << "LINE: " << __LINE__ << std::endl;
       assert( false );
     }
+  this->DX[0] *= r;
+  this->DX[1] *= r;
+  this->DX[2] *= r;
   this->SetDimensions( lo, hi );
+  assert( "post: Coarsened AMR box should not be empty!" && !this->Empty() );
   assert( "post: Coarsened AMR Box instance is invalid" && !this->IsInvalid() );
 }
 
@@ -1570,9 +1572,6 @@ int vtkAMRBox::DetectDimension(
     {
       --dim;
     }
-
-  // TODO: this is a temporary fix, the dimension should never get to 0!
-  if( dim == 0 ) dim=3;
 
   if( dim < 1 || dim > 3 )
     {
