@@ -133,6 +133,14 @@ public:
   const vtkArrayRange& operator[](DimensionT i) const;
 
   // Description:
+  // Get the extent of the i-th dimension.
+  vtkArrayRange GetExtent(DimensionT i) const;
+
+  // Description:
+  // Set the extent of the i-th dimension.
+  void SetExtent(DimensionT i, const vtkArrayRange&);
+
+  // Description:
   // Equality comparison
   bool operator==(const vtkArrayExtents& rhs) const;
 
