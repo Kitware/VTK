@@ -254,6 +254,9 @@ IF(NOT VTK_INSTALL_JAVA_DIR)
   SET(VTK_INSTALL_JAVA_DIR ${VTK_INSTALL_PACKAGE_DIR}/java)
 ENDIF(NOT VTK_INSTALL_JAVA_DIR)
 
+OPTION(VTK_INSTALL_THIRD_PARTY_LIBRARIES "Use fixup bundle to install vtk and vtkpython dependencies." OFF)
+MARK_AS_ADVANCED(VTK_INSTALL_THIRD_PARTY_LIBRARIES)
+
 # There are three basic components to the VTK installation: runtime,
 # development, and documentation.  Install rules for each component
 # are surrounded by blockers.  Parent projects or users can specify
@@ -266,18 +269,6 @@ ENDIF(NOT VTK_INSTALL_JAVA_DIR)
 # switch library installation on and off correctly we make the
 # decision here.
 SET(VTK_INSTALL_NO_LIBRARIES)
-
-IF(NOT DEFINED VTK_INSTALL_DEVELOPMENT)
-  SET(VTK_INSTALL_DEVELOPMENT ON CACHE BOOL "Install headers, link libraries and other files used for development" FORCE )
-ENDIF()
-
-IF(NOT DEFINED VTK_INSTALL_NO_DEVELOPMENT)
-  IF(VTK_INSTALL_DEVELOPMENT)
-    SET(VTK_INSTALL_NO_DEVELOPMENT OFF)
-  ELSE()
-    SET(VTK_INSTALL_NO_DEVELOPMENT ON)
-  ENDIF()
-ENDIF()
 
 IF(BUILD_SHARED_LIBS)
   IF(VTK_INSTALL_NO_RUNTIME AND VTK_INSTALL_NO_DEVELOPMENT)
@@ -1519,8 +1510,10 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
-# Install rules for fixing up vtkpython
-ADD_SUBDIRECTORY(Utilities/Release)
+# Use fixup_bundle to pull in vtk and vtkpython dependencies
+IF(VTK_INSTALL_THIRD_PARTY_LIBRARIES)
+  ADD_SUBDIRECTORY(Utilities/Release)
+ENDIF()
 
 # Setup CPack
 INCLUDE(VTKCPack.cmake)
