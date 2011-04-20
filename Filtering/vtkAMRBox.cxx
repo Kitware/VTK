@@ -77,18 +77,26 @@ vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
   this->BuildAMRBox( lo[0], lo[1], lo[2], hi[0], hi[1], hi[2] );
   assert( "post: AMR box dimension does not match expected dimension" &&
            (dim==this->GetDimensionality() ) );
+  assert( "post: Dimension expected to <= 2" &&
+      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
 }
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const int *dims)
 {
-  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
+  this->BuildAMRBox(dims[0],dims[2],dims[4],dims[1],dims[3],dims[5] );
+  assert( "post: Dimension expected to <= 2" &&
+      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
+//  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
 }
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(int dim, const int *dims)
 {
-  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
+  this->BuildAMRBox( dims[0], dims[2],dims[4], dims[1],dims[3],dims[5] );
+  assert( "post: Dimension expected to <= 2" &&
+      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
+//  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
   assert( "post: AMR box dimension does not match expected dimension" &&
           (dim==this->GetDimensionality() ) );
 }
@@ -383,9 +391,49 @@ void vtkAMRBox::GetNumberOfCells(int *ext) const
   // Sanity Check!
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
-  ext[0]=this->HiCorner[0]-this->LoCorner[0];
-  ext[1]=this->HiCorner[1]-this->LoCorner[1];
-  ext[2]=this->HiCorner[2]-this->LoCorner[2];
+  if( this->Empty( ) )
+    {
+      ext[0]=ext[1]=ext[2]=0;
+      return;
+    }
+
+  switch( this->Dimension )
+    {
+      case 1:
+        ext[1] = ext[2] = 0;
+        ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+        break;
+      case 2:
+        if( this->HiCorner[0] == this->LoCorner[0] )
+          {
+            ext[0] = 0;
+            ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
+            ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
+          }
+        else if( this->HiCorner[1] == this->LoCorner[1] )
+          {
+            ext[1] = 0;
+            ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+            ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
+          }
+        else if( this->HiCorner[2] == this->LoCorner[2] )
+          {
+            ext[2] = 0;
+            ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+            ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
+          }
+        break;
+      case 3:
+        ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+        ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
+        ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
+        break;
+      default:
+        std::cerr << "Undefined dimension!\n";
+        std::cerr << "FILE: " << __FILE__ << std::endl;
+        std::cerr << "LINE: " << __LINE__ << std::endl;
+        std::cerr.flush();
+    }
 
 //  if (this->Empty())
 //    {
@@ -426,9 +474,49 @@ void vtkAMRBox::GetNumberOfNodes(int *ext) const
   // Sanity Check!
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
-  ext[0] = (this->HiCorner[0]-this->LoCorner[0])+1;
-  ext[1] = (this->HiCorner[1]-this->LoCorner[1])+1;
-  ext[2] = (this->HiCorner[2]-this->LoCorner[2])+1;
+  if( this->Empty( ) )
+    {
+      ext[0]=ext[1]=ext[2]=0;
+      return;
+    }
+
+  switch( this->Dimension )
+    {
+      case 1:
+        ext[1] = ext[2] = 0;
+        ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+        break;
+      case 2:
+        if( this->HiCorner[0] == this->LoCorner[0] )
+          {
+            ext[0] = 0;
+            ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
+            ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
+          }
+        else if( this->HiCorner[1] == this->LoCorner[1] )
+          {
+            ext[1] = 0;
+            ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+            ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
+          }
+        else if( this->HiCorner[2] == this->LoCorner[2] )
+          {
+            ext[2] = 0;
+            ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+            ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
+          }
+        break;
+      case 3:
+        ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+        ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
+        ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
+        break;
+      default:
+        std::cerr << "Undefined dimension!\n";
+        std::cerr << "FILE: " << __FILE__ << std::endl;
+        std::cerr << "LINE: " << __LINE__ << std::endl;
+        std::cerr.flush();
+    }
 
 //  if (this->Empty())
 //    {
