@@ -376,7 +376,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
         if( ndim[0]==1 )
           {
             // YZ plane
-            for( i=1; i < 2; ++i )
+            for( i=1; i < 3; ++i )
               {
                 lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
                 hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
@@ -387,6 +387,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
           {
             // XZ plane
             lo[1]   = hi[1] = round( (gridOrigin[1]-origin[1])/h[1] );
+
             lo[0]   = round( (gridOrigin[0]-origin[0])/h[0] );
             hi[0]   = round( lo[0] + ( ndim[0]-1 ) );
             lo[2]   = round( (gridOrigin[2]-origin[2])/h[2] );
