@@ -41,12 +41,15 @@
 #define __vtkHierarchicalBoxDataSet_h
 
 #include "vtkCompositeDataSet.h"
+#include <vtkstd/vector> // For STL vector
 
 class vtkAMRBox;
 class vtkInformationIdTypeKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkUniformGrid;
+
+typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
 
 class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet: public vtkCompositeDataSet
 {
@@ -255,6 +258,11 @@ public:
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();
+
+  // Description:
+  // Gets the list of higher res boxes from this level at the level, l+1
+  void GetHigherResolutionCoarsenedBoxes(
+      vtkAMRBoxList &blist, const unsigned int l );
 
   // Description:
   // Compute the range of the scalars and cache it into ScalarRange
