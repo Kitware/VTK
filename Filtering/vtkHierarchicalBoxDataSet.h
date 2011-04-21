@@ -213,6 +213,7 @@ public:
   static vtkInformationIntegerKey* RANK();
   static vtkInformationIntegerKey* BLOCK_ID();
   static vtkInformationIntegerVectorKey* REAL_EXTENT();
+  static vtkInformationIntegerKey* GEOMETRIC_DESCRIPTION();
 
   //BTX
   // Description:
@@ -263,6 +264,11 @@ protected:
   // Gets the list of higher res boxes from this level at the level, l+1
   void GetHigherResolutionCoarsenedBoxes(
       vtkAMRBoxList &blist, const unsigned int l );
+
+  // Description:
+  // Blanks the grids at level, l, Given the list of high-res boxes at level
+  // l+1 coarsened to level l.
+  void BlankGridsAtLevel( vtkAMRBoxList &blist, const unsigned int l );
 
   // Description:
   // Compute the range of the scalars and cache it into ScalarRange
