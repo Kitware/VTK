@@ -1,8 +1,14 @@
+# Always add these tests
+SET(MyTests
+  TestCenterOfMass.cxx
+  )
+
 # if we have rendering add the following tests
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Graphics)
   # add tests that do not require data
   SET(MyTests
+    ${MyTests}
     Mace.cxx
     expCos.cxx
     BoxClipTriangulate.cxx

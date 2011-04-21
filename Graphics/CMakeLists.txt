@@ -35,6 +35,7 @@ vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
 vtkCellLocatorInterpolatedVelocityField.cxx
 vtkCellQuality.cxx
+vtkCenterOfMass.cxx
 vtkCleanPolyData.cxx
 vtkClipClosedSurface.cxx
 vtkClipConvexPolyData.cxx
