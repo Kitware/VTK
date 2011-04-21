@@ -586,11 +586,6 @@ void vtkHierarchicalBoxDataSet::BlankGridsAtLevel(
   unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx);
   for( unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
     {
-      std::cout << "==============================================\n";
-      std::cout << "Blanking grid: " << levelIdx << ", " << dataSetIdx;
-      std::cout << std::endl;
-      std::cout.flush();
-
       vtkAMRBox box;
       vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
       if (grid != NULL )
@@ -604,14 +599,6 @@ void vtkHierarchicalBoxDataSet::BlankGridsAtLevel(
           vis->SetNumberOfTuples( N );
           vis->FillComponent(0,static_cast<char>(1));
           vtkIdType numBlankedPts = 0;
-
-          std::cout << "Here is the list of coarsened boxes:\n";
-          for( unsigned int bb=0; bb < boxes.size(); ++bb )
-            {
-              boxes[ bb ].Print( std::cout );
-              std::cout << std::endl;
-              std::cout.flush();
-            }
 
           const int *loCorner=box.GetLoCorner();
           const int *hiCorner=box.GetHiCorner();
