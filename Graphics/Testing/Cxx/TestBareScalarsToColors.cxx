@@ -120,6 +120,12 @@ int TestBareScalarsToColors(int argc, char *argv[])
 
     // coverage
     unsigned char *color = table->MapValue(0.5*(range[0] + range[1]));
+    if (color[0] != 128)
+      {
+      cout << "Expected greyscale 128: ";
+      cout << color[0] << ", " << color[1] << ", " << color[2] << ", "
+           << color[3] << std::endl;
+      }
 
     outputs[i] = vtkSmartPointer<vtkUnsignedCharArray>::New();
     outputs[i]->SetNumberOfComponents(outputc);
