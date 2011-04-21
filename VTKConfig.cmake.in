@@ -6,6 +6,9 @@
 # to load VTK's settings for an external project.
 @VTK_CONFIG_INSTALL_ONLY@
 
+# The set of VTK libraries
+SET(VTK_LIBRARIES "@VTK_LIBRARIES@")
+
 # The VTK include file directories.
 SET(VTK_INCLUDE_DIRS "@VTK_INCLUDE_DIRS_CONFIG@")
 
