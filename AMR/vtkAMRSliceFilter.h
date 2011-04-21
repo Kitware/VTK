@@ -67,6 +67,11 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     ~vtkAMRSliceFilter();
 
     // Description:
+    // Returns the cell index w.r.t. the given input grid which contains
+    // the query point x. A -1 is returned if the point is not found.
+    int GetDonorCellIdx( double x[3], vtkUniformGrid *ug );
+
+    // Description:
     // Computes the cell center of the cell corresponding to the supplied
     // cell index w.r.t. the input uniform grid.
     void ComputeCellCenter(

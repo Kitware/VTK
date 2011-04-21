@@ -25,6 +25,8 @@
 #include "vtkAMRBox.h"
 #include "vtkUniformGrid.h"
 #include "vtkStructuredData.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
 
 #include <cassert>
 
@@ -302,6 +304,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
                 assert( "Dimension of slice must be 2-D" &&
                          (slice->GetDataDimension()==2) );
                 assert( "2-D slice is NULL" && (slice != NULL) );
+                this->GetSliceCellData( slice, grid );
                 unsigned int blockIdx =
                     out->GetNumberOfDataSets( box.GetLevel() );
                 out->SetDataSet( box.GetLevel(), blockIdx, slice );
@@ -329,12 +332,49 @@ void vtkAMRSliceFilter::ComputeCellCenter(
     vtkCell *myCell = ug->GetCell( cellIdx );
     assert( "post: cell is NULL" && (myCell != NULL) );
 
+    myCell->GetNumberOfPoints();
     double pCenter[3];
     double *weights = new double[ myCell->GetNumberOfPoints() ];
     int subId       = myCell->GetParametricCenter( pCenter );
     myCell->EvaluateLocation( subId, pCenter, centroid, weights );
     delete [] weights;
-    myCell->Delete();
+//    myCell->Delete();
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRSliceFilter::GetDonorCellIdx( double x[3], vtkUniformGrid *ug )
+{
+  double x0[3];
+  ug->GetOrigin( x0 );
+
+  double h[3];
+  ug->GetSpacing( h );
+
+  int ijk[3];
+  for( int i=0; i < 3; ++i )
+    {
+      ijk[ i ] = floor( (x[i]-x0[i])/h[i] );
+    }
+
+  int dims[3];
+  ug->GetDimensions( dims );
+  --dims[0]; --dims[1]; --dims[2];
+  dims[0] = ( dims[0] < 1 )? 1 : dims[0];
+  dims[1] = ( dims[1] < 1 )? 1 : dims[1];
+  dims[2] = ( dims[2] < 1 )? 1 : dims[2];
+
+  for( int i=0; i < 3; ++i )
+    {
+      if( ijk[i] < 0 || ijk[i] > dims[i] )
+        {
+          std::cerr << "Pnt: "<< x[0]  << " "<< x[1]  << " "<< x[2]  << "\n";
+          std::cerr << "IJK: "<< ijk[0]<< " "<< ijk[1]<< " "<< ijk[2]<< "\n";
+          std::cerr.flush();
+          return -1;
+        }
+    }
+
+  return( vtkStructuredData::ComputePointId( dims, ijk ) );
 }
 
 //------------------------------------------------------------------------------
@@ -345,103 +385,70 @@ void vtkAMRSliceFilter::GetSliceCellData(
   assert( "pre: 3-D AMR slice grid is NULL" && (grid3D != NULL) );
 
   // STEP 1: Allocate data-structures
-//  vtkCellData *sourceCD = grid3D->GetCellData();
-//  assert( "pre: source cell data is NULL" && (sourceCD != NULL) );
-//
-//  vtkCellData *targetCD = slice->GetCellData();
-//  assert( "pre: target cell data is NULL" && (targetCD != NULL) );
-//
-//  int numCells = slice->GetNumberOfCells();
-//  for( int arrayIdx=0; arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
-//    {
-//      vtkDataArray *array = NULL;
-//      switch( sourceCD->GetArray( arrayIdx )->GetDataType() )
-//        {
-//          case VTK_DOUBLE:
-//            array = vtkDoubleArray::New();
-//            break;
-//          case VTK_INT:
-//            array = vtkIntArray::New();
-//            break;
-//          default:
-//            vtkErrorMacro( "Cannot handle datatype!" );
-//        }
-//      assert( "pre: slice grid data array is NULL!" && (array != NULL) );
-//
-//      array->SetNumberOfTuples( numCells );
-//      array->SetNumberOfComponents(
-//       sourceCD->GetArray(arrayIdx)->GetNumberOfComponents() );
-//    } // END for all arrays
+  vtkCellData *sourceCD = grid3D->GetCellData();
+  assert( "pre: source cell data is NULL" && ( sourceCD != NULL ) );
+
+  vtkCellData *targetCD = slice->GetCellData();
+  assert( "pre: target cell data is NULL" && (targetCD != NULL) );
+
+  if( sourceCD->GetNumberOfArrays() == 0 )
+    return;
+
+  int numCells = slice->GetNumberOfCells();
+  for( int arrayIdx=0; arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
+    {
+      vtkDataArray *array = sourceCD->GetArray( arrayIdx )->NewInstance();
+      array->Initialize();
+      array->SetName( sourceCD->GetArray( arrayIdx )->GetName() );
+      array->SetNumberOfComponents(
+       sourceCD->GetArray( arrayIdx )->GetNumberOfComponents( ) );
+      array->SetNumberOfTuples( numCells );
+      targetCD->AddArray( array );
+      array->Delete();
+    } // END for all arrays
 
   // STEP 2: Fill in slice data-arrays
-//  int dims[3];
-//  slice->GetDimensions( dims );
-//  --dims[0]; --dims[1]; --dims[2];
-//   dims[0] = (dims[0] < 1)? 1 : dims[0];
-//   dims[1] = (dims[1] < 1)? 1 : dims[1];
-//   dims[2] = (dims[2] < 1)? 1 : dims[2];
-//
-//   int ijk[3];
-//   for( ijk[0]=0; ijk[0] <= dims[0]; ++ijk[0] )
-//     {
-//       for( ijk[1]=0; ijk[1] <= dims[1]; ++ijk[1] )
-//         {
-//           for( ijk[2]=0; ijk[2] <= dims[2]; ++ijk[2] )
-//             {
-//
-//               // Note: The dimensions here are cells based, so ComputePointId
-//               // will return linear index of the cell
-//               int cellIdx = vtkStructuredData::ComputePointId( dims, ijk );
-//
-//               double probePnt[3];
-//               this->ComputeCellCenter( slice, cellIdx, probePnt );
-//
-//               double weights[8];
-//               double pcoords[3];
-//               int subId;
-//               vtkIdType sourceCellIdx =
-//                   grid3D->FindCell(
-//                       probePnt,NULL, 0, 1.e-9,subId,pcoords,weights);
-//
-//               if( sourceCellIdx != -1 )
-//                 {
-//
-//                   int arrayIdx = 0;
-//                   for(;arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
-//                     {
-//
-//                       vtkDataArray *sourceArray = sourceCD->GetArray(arrayIdx);
-//                       assert( "pre: src array is NULL" &&
-//                               (sourceArray != NULL) );
-//
-//                       const char *name = sourceArray->GetName();
-//                       assert( "pre: target cell data must have array" &&
-//                                (targetCD->HasArray( name ) ) );
-//                       vtkDataArray *targetArray = targetCD->GetArray( name );
-//                       assert( "pre: target array is NULL" &&
-//                               (targetArray != NULL ) );
-//                       assert( "pre: numcom mismatch" &&
-//                               (sourceArray->GetNumberOfComponents()==
-//                                targetArray->GetNumberOfComponents() ) );
-//
-//                       int ncomp     = sourceArray->GetNumberOfComponents();
-//                       int component = 0;
-//                       for( ; component < ncomp; ++component )
-//                         {
-//                           targetArray->SetComponent(
-//                               cellIdx,component,
-//                                 sourceArray->GetComponent(
-//                                     sourceCellIdx, component ) );
-//                         } // END for all components
-//
-//                     } // END for all arrays
-//
-//
-//                 } // If source cell is found
-//
-//             } // END for all k
-//         } // END for all j
-//     } // END for all i
+  int numOrphans = 0;
+  for( int cellIdx=0; cellIdx < numCells; ++cellIdx )
+    {
+      double probePnt[3];
+      this->ComputeCellCenter( slice, cellIdx, probePnt );
+
+      int sourceCellIdx = this->GetDonorCellIdx( probePnt, grid3D );
+      if( sourceCellIdx != -1 )
+        {
+           int arrayIdx = 0;
+           for(;arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
+             {
+               vtkDataArray *sourceArray = sourceCD->GetArray(arrayIdx);
+               assert( "pre: src array is NULL" &&
+                       (sourceArray != NULL) );
+               const char *name = sourceArray->GetName();
+               assert( "pre: target cell data must have array" &&
+                        (targetCD->HasArray( name ) ) );
+               vtkDataArray *targetArray = targetCD->GetArray( name );
+               assert( "pre: target array is NULL" &&
+                       (targetArray != NULL ) );
+               assert( "pre: numcom mismatch" &&
+                       (sourceArray->GetNumberOfComponents()==
+                        targetArray->GetNumberOfComponents() ) );
+
+               targetArray->SetTuple( cellIdx, sourceCellIdx, sourceArray );
+             } // END for all arrays
+        } // If a source cell is found, copy it's data.
+      else
+        {
+          vtkGenericWarningMacro( "No Source cell found!" );
+          ++ numOrphans;
+        }
+
+    } // END for all cells
+
+    if( numOrphans != 0 )
+      {
+        vtkGenericWarningMacro(
+            "Orphans: " << numOrphans << " / " << numCells );
+      }
 
 }
 
