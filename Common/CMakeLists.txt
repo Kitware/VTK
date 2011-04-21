@@ -385,7 +385,6 @@ vtkOverrideInformationCollection
 vtkParametricFunction
 vtkProp
 vtkRandomSequence
-vtkScalarsToColors
 vtkSocket
 vtkStructuredData
 vtkWarpTransform
