@@ -282,6 +282,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
     const char* inst_dirs[] = {
       "/lib/python" VTK_PYTHON_VERSION "/site-packages/vtk", // UNIX --prefix
       "/python" VTK_PYTHON_VERSION "/site-packages/vtk", // UNIX + Forwarding exe --prefix
+      "/../Library/Python/" VTK_PYTHON_VERSION "/site-packages/vtk", // Apple + Forwarding exe
       "/lib/python/vtk", // UNIX --home
       "/Lib/site-packages/vtk", "/Lib/vtk", // Windows
       "/site-packages/vtk", "/vtk", // Windows
