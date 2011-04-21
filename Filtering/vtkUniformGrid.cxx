@@ -171,6 +171,12 @@ int vtkUniformGrid::Initialize(const vtkAMRBox *def, int nGhosts)
 }
 
 //----------------------------------------------------------------------------
+int vtkUniformGrid::GetGridDescription()
+{
+  return( this->GetDataDescription() );
+}
+
+//----------------------------------------------------------------------------
 vtkEmptyCell* vtkUniformGrid::GetEmptyCell()
 {
   if (!this->EmptyCell)
