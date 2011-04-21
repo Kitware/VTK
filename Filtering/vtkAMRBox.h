@@ -108,6 +108,11 @@ public:
   void SetDimensionality(int dim);
 
   // Description:
+  // Sets the Grid topology description of this AMR box instance.
+  int GetGridDescription() const { return this->GridDescription; };
+  void SetGridDescription( const int desc );
+
+  // Description:
   // Get/Set the process ID of the process that owns the box.
   int GetProcessId() const { return this->ProcessId; }
   void SetProcessId( const int pid );
@@ -302,7 +307,7 @@ public:
   // Returns the number of bytes allocated by this instance. In addition,
   // this number of bytes corresponds to the buffer size required to serialize
   // any vtkAMRBox instance.
-  static vtkIdType GetBytesize(){return (16*sizeof(int)+6*sizeof(double)); };
+  static vtkIdType GetBytesize(){return (17*sizeof(int)+6*sizeof(double)); };
 
   // Description:
   // Writes the AMR box in a VTK file.
@@ -335,14 +340,15 @@ protected:
   void Initialize( );
 
 private:
-  int Dimension;      // 2 or 3
-  int BlockId;        // The ID of the corresponding block
-  int ProcessId;      // The process ID that owns this block
-  int BlockLevel;     // The level of this AMR box instance
-  int NG[6];          // Number of ghosts along each dimension
-  double X0[3];       // Dataset origin (not box origin)
-  double DX[3];       // grid spacing
-  int RealExtent[6];  // Extent of the all the real nodes, i.e., not the ghosts
+  int Dimension;       // 2 or 3
+  int BlockId;         // The ID of the corresponding block
+  int ProcessId;       // The process ID that owns this block
+  int BlockLevel;      // The level of this AMR box instance
+  int NG[6];           // Number of ghosts along each dimension
+  double X0[3];        // Dataset origin (not box origin)
+  double DX[3];        // grid spacing
+  int RealExtent[6];   // Extent of the all the real nodes, i.e., not the ghosts
+  int GridDescription; // Defines whether the box is on the XY,YZ planes.
 
 
   // Description:
@@ -357,9 +363,9 @@ private:
   // Determines the dimension of the AMR box given the
   // box indices. Note, the AMR box can be on an arbitrary
   // axis-aligned plane, i.e., XZ or YZ.
-  int DetectDimension(
-      const int ilo, const int jlo, const int klo,
-      const int ihi, const int jhi, const int khi  );
+//  int DetectDimension(
+//      const int ilo, const int jlo, const int klo,
+//      const int ihi, const int jhi, const int khi  );
 
   // Description:
   // A simple method to write a box with the given min/max

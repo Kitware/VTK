@@ -108,8 +108,11 @@ void vtkAMRBox::BuildAMRBox(
     const int ihi, const int jhi, const int khi  )
 {
   this->Initialize();
-  this->SetDimensionality(
-   this->DetectDimension(ilo, jlo, klo,ihi, jhi, khi ) );
+
+// Dimension must be explicitely defined!
+//  this->SetDimensionality(
+//   this->DetectDimension(ilo, jlo, klo,ihi, jhi, khi ) );
+
   this->SetDimensions(ilo,jlo,klo,ihi,jhi,khi);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
@@ -136,14 +139,26 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   int ndim[3];
   this->GetNumberOfCells( ndim );
 
-  // Shift nunmbering to 0-based.
+  // Convert to local numbering
   int ijk[3];
   ijk[0]=i-this->LoCorner[0];
   ijk[1]=j-this->LoCorner[1];
   ijk[2]=k-this->LoCorner[2];
 
+  int N1  = ndim[0];
+  int N2  = ndim[1];
+  int idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
+  // use the following pseudo code:
+  // for (int i=0; i<3; i++)
+  //   {
+  //   cellDims[i] = box.HiCorner[i] - box.LoCorner[i] + 1;
+  //   }
+  // vtkIdType cellId =
+  //   (z-box.LoCorner[2])*cellDims[0]*cellDims[1] +
+  //   (y-box.LoCorner[1])*cellDims[0] +
+  //   (x-box.LoCorner[0]);
   // Compute the linear index.
-  int idx = vtkStructuredData::ComputePointId( ndim, ijk );
+//  int idx = vtkStructuredData::ComputePointId( ndim, ijk );
   return( idx );
 }
 
@@ -187,10 +202,11 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Initialize( )
 {
-  this->Dimension  = 3;
-  this->ProcessId  = 0;
-  this->BlockId    = 0;
-  this->BlockLevel = 0;
+  this->Dimension       = 3;
+  this->ProcessId       = 0;
+  this->BlockId         = 0;
+  this->BlockLevel      = 0;
+  this->GridDescription = VTK_XYZ_GRID;
 
   for( int i=0; i < 3; ++i )
     {
@@ -213,6 +229,12 @@ void vtkAMRBox::SetDimensionality(int dim)
 {
   assert( "dimension is out-of-bounds" && ( (dim >=1) && (dim <= 3) ) );
   this->Dimension=dim;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::SetGridDescription( const int desc )
+{
+  this->GridDescription = desc;
 }
 
 //-----------------------------------------------------------------------------
@@ -253,7 +275,10 @@ void vtkAMRBox::SetDimensions(
       this->HiCorner[0]= ihi;
       this->HiCorner[1]= jhi;
       this->HiCorner[2]= khi;
-      this->Dimension  = this->DetectDimension( ilo,jlo,klo,ihi,jhi,khi );
+
+// Dimension must be explicitely defined
+//      this->Dimension  = this->DetectDimension( ilo,jlo,klo,ihi,jhi,khi );
+
       this->SetRealExtent( this->LoCorner, this->HiCorner );
     }
 }
@@ -842,20 +867,21 @@ bool vtkAMRBox::IsInvalid() const
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Empty() const
 {
-  int count=0;
-  for (int q=0; q < 3; ++q)
-    {
-      assert( "pre: invalid index range specification" &&
-              ( this->HiCorner[q] >= this->LoCorner[q] ) );
-
-      if (this->HiCorner[q] == this->LoCorner[q])
-          ++count;
-    }
-
-  if( count == 3 )
-    return true;
-
-  return false;
+  return this->IsInvalid();
+//  int count=0;
+//  for (int q=0; q < 3; ++q)
+//    {
+//      assert( "pre: invalid index range specification" &&
+//              ( this->HiCorner[q] >= this->LoCorner[q] ) );
+//
+//      if (this->HiCorner[q] == this->LoCorner[q])
+//          ++count;
+//    }
+//
+//  if( count == 3 )
+//    return true;
+//
+//  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1078,27 +1104,27 @@ bool vtkAMRBox::Contains(int i,int j,int k) const
           }
         break;
       case 2:
-        if( this->LoCorner[0] == this->HiCorner[0] )
-          {
-            // Check YZ plane
-          return(
-           ( this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
-             this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
-          }
-        else if( this->LoCorner[1] == this->HiCorner[1] )
-          {
-            // Check XZ plane
-            return(
-             ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
-               this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
-          }
-        else if( this->LoCorner[2] == this->HiCorner[2] )
-          {
+//        if( this->LoCorner[0] == this->HiCorner[0] )
+//          {
+//            // Check YZ plane
+//          return(
+//           ( this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
+//             this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
+//          }
+//        else if( this->LoCorner[1] == this->HiCorner[1] )
+//          {
+//            // Check XZ plane
+//            return(
+//             ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
+//               this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
+//          }
+//        else if( this->LoCorner[2] == this->HiCorner[2] )
+//          {
             // Check XY plane
             return(
              ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
                this->LoCorner[1]<=j && this->HiCorner[1]>=j) );
-          }
+//          }
         break;
       case 3:
         if( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
@@ -1250,48 +1276,48 @@ void vtkAMRBox::Coarsen(int r)
       this->DX[0]*=r;
       break;
     case 2:
-      if( this->LoCorner[0] == this->HiCorner[0] )
-        {
-          // keep x fixed
-          lo[0] = this->LoCorner[0];
-          hi[0] = this->HiCorner[0];
-
-          // Coarsen in YZ plane
-          for( q=1; q < 3; ++q )
-            {
-              lo[q] = ( (this->LoCorner[q] < 0)?
-                 -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
-              hi[q] = ( this->HiCorner[q]<0 ?
-                 -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
-              this->DX[q]*=r;
-            }
-        }
-      else if( this->LoCorner[1] == this->HiCorner[1] )
-        {
-          // keep y fixed
-          lo[1] = this->LoCorner[1];
-          hi[1] = this->HiCorner[1];
-
-          // Coarsen in XZ plane
-
-          // coarsen x
-          lo[0]=( (this->LoCorner[0]<0)?
-             -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
-          hi[0]=( (this->HiCorner[0]<0)?
-             -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
-          this->DX[0]*=r;
-
-          // coarsen y
-          lo[2]=( (this->LoCorner[2]<0)?
-             -abs(this->LoCorner[2]+1)/r-1 : this->LoCorner[2]/r);
-          hi[2]=( (this->HiCorner[2]<0)?
-             -abs(this->HiCorner[2]+1)/r-1 : this->HiCorner[2]/r );
-
-          this->DX[2]*=r;
-
-        }
-      else if( this->LoCorner[2] == this->HiCorner[2] )
-        {
+//      if( this->LoCorner[0] == this->HiCorner[0] )
+//        {
+//          // keep x fixed
+//          lo[0] = this->LoCorner[0];
+//          hi[0] = this->HiCorner[0];
+//
+//          // Coarsen in YZ plane
+//          for( q=1; q < 3; ++q )
+//            {
+//              lo[q] = ( (this->LoCorner[q] < 0)?
+//                 -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+//              hi[q] = ( this->HiCorner[q]<0 ?
+//                 -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+//              this->DX[q]*=r;
+//            }
+//        }
+//      else if( this->LoCorner[1] == this->HiCorner[1] )
+//        {
+//          // keep y fixed
+//          lo[1] = this->LoCorner[1];
+//          hi[1] = this->HiCorner[1];
+//
+//          // Coarsen in XZ plane
+//
+//          // coarsen x
+//          lo[0]=( (this->LoCorner[0]<0)?
+//             -abs(this->LoCorner[0]+1)/r-1 : this->LoCorner[0]/r);
+//          hi[0]=( (this->HiCorner[0]<0)?
+//             -abs(this->HiCorner[0]+1)/r-1 : this->HiCorner[0]/r );
+//          this->DX[0]*=r;
+//
+//          // coarsen y
+//          lo[2]=( (this->LoCorner[2]<0)?
+//             -abs(this->LoCorner[2]+1)/r-1 : this->LoCorner[2]/r);
+//          hi[2]=( (this->HiCorner[2]<0)?
+//             -abs(this->HiCorner[2]+1)/r-1 : this->HiCorner[2]/r );
+//
+//          this->DX[2]*=r;
+//
+//        }
+//      else if( this->LoCorner[2] == this->HiCorner[2] )
+//        {
           // Keep z fixed
           lo[2] = this->LoCorner[2];
           hi[2] = this->HiCorner[2];
@@ -1305,14 +1331,14 @@ void vtkAMRBox::Coarsen(int r)
                       -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
               this->DX[q]*=r;
             }
-        }
-      else
-        {
-          std::cerr << "ERROR: code should not reach here!\n";
-          std::cerr << "FILE: " << __FILE__ << std::endl;
-          std::cerr << "LINE: " << __LINE__ << std::endl;
-          assert( false );
-        }
+//        }
+//      else
+//        {
+//          std::cerr << "ERROR: code should not reach here!\n";
+//          std::cerr << "FILE: " << __FILE__ << std::endl;
+//          std::cerr << "LINE: " << __LINE__ << std::endl;
+//          assert( false );
+//        }
       break;
     case 3:
       for( q=0; q < 3; ++q )
@@ -1341,7 +1367,8 @@ void vtkAMRBox::Coarsen(int r)
 //-----------------------------------------------------------------------------
 ostream &vtkAMRBox::Print(ostream &os) const
 {
-  os << "Low: ("  << this->LoCorner[0]
+  os << this->Dimension << "-D AMR box => "
+     << "Low: ("  << this->LoCorner[0]
      << ","  << this->LoCorner[1]
      << ","  << this->LoCorner[2]
      << ") High: (" << this->HiCorner[0]
@@ -1494,6 +1521,10 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
   // STEP 9: serialize real-extent
   std::memcpy(ptr, &(this->RealExtent), 6*sizeof(int));
   ptr += 6*sizeof( int );
+
+  // STEP 10: serialize Grid description
+  std::memcpy(ptr, &(this->GridDescription), sizeof(int) );
+  ptr += sizeof( int );
 }
 
 //-----------------------------------------------------------------------------
@@ -1551,39 +1582,44 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
   std::memcpy(&(this->RealExtent), ptr, 6*sizeof(int) );
   ptr += 6*sizeof( int );
   assert( ptr != NULL );
+
+  // STEP 10: de-serialize the grid description
+  std::memcpy( &(this->GridDescription), ptr, sizeof(int) );
+  ptr += sizeof(int);
+  assert( ptr != NULL );
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRBox::DetectDimension(
-    const int ilo, const int jlo, const int klo,
-    const int ihi, const int jhi, const int khi )
-{
-
-  int dim = 3;
-  if( ilo == ihi )
-    {
-      --dim;
-    }
-  if( jlo == jhi )
-    {
-      --dim;
-    }
-  if( klo == khi )
-    {
-      --dim;
-    }
-
-  if( dim < 1 || dim > 3 )
-    {
-      std::cerr << "WARNING: Invalid dimension: " << dim << std::endl;
-      std::cerr << "FILE: " << __FILE__ << std::endl;
-      std::cerr << "LINE: " << __LINE__ << std::endl;
-    }
-  assert( "pre: Invalid dimension detected" &&
-          ( (dim >= 1) && (dim <= 3) ) );
-
-  return( dim );
-}
+//int vtkAMRBox::DetectDimension(
+//    const int ilo, const int jlo, const int klo,
+//    const int ihi, const int jhi, const int khi )
+//{
+//
+//  int dim = 3;
+//  if( ilo == ihi )
+//    {
+//      --dim;
+//    }
+//  if( jlo == jhi )
+//    {
+//      --dim;
+//    }
+//  if( klo == khi )
+//    {
+//      --dim;
+//    }
+//
+//  if( dim < 1 || dim > 3 )
+//    {
+//      std::cerr << "WARNING: Invalid dimension: " << dim << std::endl;
+//      std::cerr << "FILE: " << __FILE__ << std::endl;
+//      std::cerr << "LINE: " << __LINE__ << std::endl;
+//    }
+//  assert( "pre: Invalid dimension detected" &&
+//          ( (dim >= 1) && (dim <= 3) ) );
+//
+//  return( dim );
+//}
 
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Collides( vtkAMRBox &b1, vtkAMRBox &b2)
