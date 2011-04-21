@@ -24,6 +24,7 @@
 #include "vtkPlane.h"
 #include "vtkAMRBox.h"
 #include "vtkUniformGrid.h"
+#include "vtkStructuredData.h"
 
 #include <cassert>
 
@@ -147,6 +148,11 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceOrigin[0] = porigin[0];
       sliceOrigin[1] = grid->GetOrigin()[1];
       sliceOrigin[2] = grid->GetOrigin()[2];
+
+      slice->SetOrigin( sliceOrigin );
+      slice->SetDimensions( sliceDims );
+      slice->SetSpacing( grid->GetSpacing() );
+      assert( slice->GetGridDescription()== VTK_YZ_PLANE );
       break;
     case 2:
       // Y-Normal -- XZ plane
@@ -157,6 +163,11 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceOrigin[0] = grid->GetOrigin()[0];
       sliceOrigin[1] = porigin[1];
       sliceOrigin[2] = grid->GetOrigin()[2];
+
+      slice->SetOrigin( sliceOrigin );
+      slice->SetDimensions( sliceDims );
+      slice->SetSpacing( grid->GetSpacing() );
+      assert( slice->GetGridDescription() == VTK_XZ_PLANE );
       break;
     case 3:
       // Z-Normal -- XY plane
@@ -167,14 +178,15 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceOrigin[0] = grid->GetOrigin()[0];
       sliceOrigin[1] = grid->GetOrigin()[1];
       sliceOrigin[2] = porigin[2];
+
+      slice->SetOrigin( sliceOrigin );
+      slice->SetDimensions( sliceDims );
+      slice->SetSpacing( grid->GetSpacing() );
+      assert( slice->GetGridDescription() == VTK_XY_PLANE );
       break;
     default:
       vtkErrorMacro( "Undefined normal" );
     }
-
-  slice->SetOrigin( sliceOrigin );
-  slice->SetDimensions( sliceDims );
-  slice->SetSpacing( grid->GetSpacing() );
 
   return( slice );
 }
