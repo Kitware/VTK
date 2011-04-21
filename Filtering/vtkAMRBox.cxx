@@ -145,20 +145,47 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   ijk[1]=j-this->LoCorner[1];
   ijk[2]=k-this->LoCorner[2];
 
-  int N1  = ndim[0];
-  int N2  = ndim[1];
-  int idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
-  // use the following pseudo code:
-  // for (int i=0; i<3; i++)
-  //   {
-  //   cellDims[i] = box.HiCorner[i] - box.LoCorner[i] + 1;
-  //   }
-  // vtkIdType cellId =
-  //   (z-box.LoCorner[2])*cellDims[0]*cellDims[1] +
-  //   (y-box.LoCorner[1])*cellDims[0] +
-  //   (x-box.LoCorner[0]);
-  // Compute the linear index.
-//  int idx = vtkStructuredData::ComputePointId( ndim, ijk );
+  int N1,N2,idx;
+  switch( this->Dimension )
+    {
+      case 1:
+      case 3:
+        N1  = ndim[0];
+        N2  = ndim[1];
+        idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
+        break;
+      case 2:
+        switch( this->GridDescription )
+          {
+            case VTK_XY_PLANE:
+              N1  = ndim[0];
+              N2  = ndim[1];
+              idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
+              break;
+            case VTK_XZ_PLANE:
+              N1  = ndim[0];
+              N2  = ndim[2];
+              idx = ijk[1]*N1*N2 + ijk[2]*N1 + ijk[0];
+              break;
+            case VTK_YZ_PLANE:
+              N1  = ndim[1];
+              N2  = ndim[2];
+              idx = ijk[0]*N1*N2 + ijk[2]*N1 + ijk[1];
+              break;
+            default:
+              std::cerr << "Invalid 2-D topoly for AMR box!\n";
+              std::cerr << "FILE: " << __FILE__ << std::endl;
+              std::cerr << "LINE: " << __LINE__ << std::endl;
+              std::cerr.flush();
+          }
+        break;
+      default:
+        std::cerr << "Invalid dimension for AMR box!\n";
+        std::cerr << "FILE: " << __FILE__ << std::endl;
+        std::cerr << "LINE: " << __LINE__ << std::endl;
+        std::cerr.flush();
+
+    }
   return( idx );
 }
 
