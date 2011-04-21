@@ -122,6 +122,8 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
           }
         childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
         }
+      amrBox.SetDimensionality( childDS->GetDataDimension() );
+      amrBox.SetGridDescription( childDS->GetGridDescription( ) );
       hbox->SetDataSet(level, index, amrBox, childDS); 
       }
     dataSetIndex++;
@@ -204,13 +206,13 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         }
 
 // Note: the dimensionality is auto-detected by the AMR box now
-//      int dimensionality = 3;
-//      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
-//        {
-//        // default.
-//        dimensionality = 3;
-//        }
-//      amrBox.SetDimensionality(dimensionality);
+      int dimensionality = 3;
+      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
+        {
+        // default.
+        dimensionality = 3;
+        }
+      amrBox.SetDimensionality(dimensionality);
 
       vtkSmartPointer<vtkUniformGrid> childDS = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
@@ -224,6 +226,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
           }
         childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
         }
+      amrBox.SetGridDescription( childDS->GetGridDescription( ) );
       hbox->SetDataSet(level, index, amrBox, childDS); 
       dataSetIndex++;
       }
