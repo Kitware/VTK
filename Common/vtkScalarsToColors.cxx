@@ -136,7 +136,7 @@ void vtkScalarsToColors::GetColor(double v, double rgb[3])
   double shift, scale;
   vtkScalarsToColorsComputeShiftScale(this, shift, scale);
 
-  double val = (val + shift)*scale;
+  double val = (v + shift)*scale;
   val = (val > minval ? val : minval);
   val = (val < maxval ? val : maxval);
 
