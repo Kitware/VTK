@@ -37,6 +37,7 @@ vtkAMRSliceFilter::vtkAMRSliceFilter()
   this->OffSetFromOrigin = 0.0;
   this->Normal           = 1;
   this->Controller       = NULL;
+  this->initialRequest   = true;
 }
 
 //------------------------------------------------------------------------------
@@ -84,6 +85,37 @@ bool vtkAMRSliceFilter::IsAMRData2D( vtkHierarchicalBoxDataSet *input )
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRSliceFilter::InitializeOffSet( vtkHierarchicalBoxDataSet *inp )
+{
+  if( !this->initialRequest )
+    return;
+
+  double minBounds[3];
+  double maxBounds[3];
+
+  vtkAMRBox root;
+  inp->GetRootAMRBox( root );
+  root.GetMinBounds( minBounds );
+  root.GetMaxBounds( maxBounds );
+
+  switch( this->Normal )
+    {
+      case 1:
+        this->OffSetFromOrigin = ( maxBounds[0]-minBounds[0] )/2.0;
+        break;
+      case 2:
+        this->OffSetFromOrigin = ( maxBounds[1]-minBounds[1] )/2.0;
+        break;
+      case 3:
+        this->OffSetFromOrigin = ( maxBounds[2]-minBounds[3] )/2.0;
+        break;
+      default:
+        vtkErrorMacro( "Undefined plane normal" );
+    }
+  this->initialRequest = false;
+}
+
+//------------------------------------------------------------------------------
 vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
 {
   vtkPlane *pl = vtkPlane::New();
@@ -94,6 +126,8 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
   double porigin[3];
   for( int i=0; i < 3; ++i )
     porigin[i]=amrorigin[i];
+
+  this->InitializeOffSet( inp );
 
   switch( this->Normal )
     {

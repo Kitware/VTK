@@ -99,9 +99,14 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     // Returns the axis-aligned cut plane.
     vtkPlane* GetCutPlane( vtkHierarchicalBoxDataSet *input );
 
+    // Description:
+    // Initializes the off-set to be at the center of the input data-set.
+    void InitializeOffSet( vtkHierarchicalBoxDataSet *inp );
+
     double origin[3];
     double OffSetFromOrigin;
     int    Normal; // 1=>X-Normal, 2=>Y-Normal, 3=>Z-Normal
+    bool   initialRequest;
 
     vtkMultiProcessController *Controller;
 
