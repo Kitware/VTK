@@ -253,6 +253,8 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
             if( this->PlaneIntersectsAMRBox( plane, bounds ) )
               {
                 vtkUniformGrid *slice = this->GetSlice( p->GetOrigin(), grid );
+                assert( "Dimension of slice must be 2-D" &&
+                         (slice->GetDataDimension()==2) );
                 assert( "2-D slice is NULL" && (slice != NULL) );
                 unsigned int blockIdx =
                     out->GetNumberOfDataSets( box.GetLevel() );
