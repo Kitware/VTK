@@ -1166,8 +1166,15 @@ int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
 }
 
 //----------------------------------------------------------------------------
-void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
+void vtkColorTransferFunction::DeepCopy( vtkScalarsToColors *o )
 {
+  vtkColorTransferFunction *f = NULL;
+  if (o)
+    {
+    this->Superclass::DeepCopy(o);
+    f = vtkColorTransferFunction::SafeDownCast(o);
+    }
+
   if (f != NULL)
     {
     this->Clamping     = f->Clamping;
@@ -1192,6 +1199,8 @@ void vtkColorTransferFunction::ShallowCopy( vtkColorTransferFunction *f )
 {
   if (f != NULL)
     {
+    this->Superclass::DeepCopy(f);
+
     this->Clamping     = f->Clamping;
     this->ColorSpace   = f->ColorSpace;
     this->HSVWrap      = f->HSVWrap;

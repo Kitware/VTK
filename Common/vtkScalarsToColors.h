@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkScalarsToColors - Superclass for mapping scalar values into 
-//  colors
+// .NAME vtkScalarsToColors - Superclass for mapping scalar values to colors
 // .SECTION Description
 // vtkScalarsToColors is a general purpose superclass for objects that
 // convert scalars to colors. This include vtkLookupTable classes and
-// color transfer functions.
+// color transfer functions.  By itself, this class will simply rescale
+// the scalars
 //
 // The scalars to color mapping can be augmented with an additional
 // uniform alpha blend. This is used, for example, to blend a vtkActor's
@@ -39,7 +39,8 @@ class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+  static vtkScalarsToColors *New();
+
   // Description:
   // Return true if all of the values defining the mapping have an opacity
   // equal to 1. Default implementation return true.
@@ -52,20 +53,20 @@ public:
   
   // Description:
   // Sets/Gets the range of scalars which will be mapped.
-  virtual double *GetRange() = 0;
-  virtual void SetRange(double min, double max) = 0;
-  void SetRange(double rng[2]) 
+  virtual double *GetRange();
+  virtual void SetRange(double min, double max);
+  void SetRange(double rng[2])
     {this->SetRange(rng[0],rng[1]);}
   
   // Description:
   // Map one value through the lookup table and return a color defined
   // as a RGBA unsigned char tuple (4 bytes).
-  virtual unsigned char *MapValue(double v) = 0;
+  virtual unsigned char *MapValue(double v);
 
   // Description:
   // Map one value through the lookup table and return the color as
   // an RGB array of doubles between 0 and 1.
-  virtual void GetColor(double v, double rgb[3]) = 0;
+  virtual void GetColor(double v, double rgb[3]);
 
   // Description:
   // Map one value through the lookup table and return the color as
@@ -76,8 +77,7 @@ public:
   // Description:
   // Map one value through the lookup table and return the alpha value
   // (the opacity) as a double between 0 and 1.
-  virtual double GetOpacity(double vtkNotUsed(v)) 
-    {return 1.0;}
+  virtual double GetOpacity(double v);
 
   // Description:
   // Map one value through the lookup table and return the luminance
@@ -169,7 +169,7 @@ public:
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
                                        int inputIncrement, 
-                                       int outputFormat) = 0;
+                                       int outputFormat);
 
   // Description:
   // An internal method used to convert a color array to RGBA. The
@@ -179,6 +179,10 @@ public:
     vtkUnsignedCharArray *colors, int numComp, int numTuples);
 
   // Description:
+  // Copy the contents from another object.
+  virtual void DeepCopy(vtkScalarsToColors *o);
+
+  // Description:
   // This should return 1 is the subclass is using log scale for mapping scalars
   // to colors. Default implementation returns 0.
   virtual int UsingLogScale()
@@ -186,7 +190,7 @@ public:
 
   // Description:
   // Get the number of available colors for mapping to.
-  virtual vtkIdType GetNumberOfAvailableColors() = 0;
+  virtual vtkIdType GetNumberOfAvailableColors();
 
 protected:
   vtkScalarsToColors();
@@ -218,6 +222,8 @@ protected:
 
 private:
   double RGB[3];
+  unsigned char RGBABytes[4];
+  double InputRange[2];
 
   vtkScalarsToColors(const vtkScalarsToColors&);  // Not implemented.
   void operator=(const vtkScalarsToColors&);  // Not implemented.

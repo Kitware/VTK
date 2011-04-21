@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestAppendSelection.cxx
 #    TestAppendPolyData.cxx #pending a bug fix
     TestAssignAttribute.cxx
+    TestBareScalarsToColors.cxx
     TestBSPTree.cxx
     TestCellDataToPointData.cxx
     TestDensifyPolyData.cxx
