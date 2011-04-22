@@ -373,7 +373,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
          lo[i] = hi[i] = 0;
         break;
       case 2:
-        if( ndim[0]==1 )
+        if( myGrid->GetGridDescription() == VTK_YZ_PLANE )
           {
             // YZ plane
             for( i=1; i < 3; ++i )
@@ -383,7 +383,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
               }
             lo[0] = hi[0] = round( (gridOrigin[0]-origin[0])/h[0] );
           }
-        else if( ndim[1] == 1 )
+        else if( myGrid->GetGridDescription() == VTK_XZ_PLANE )
           {
             // XZ plane
             lo[1]   = hi[1] = round( (gridOrigin[1]-origin[1])/h[1] );
@@ -393,7 +393,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
             lo[2]   = round( (gridOrigin[2]-origin[2])/h[2] );
             hi[2]   = round( lo[2] + ( ndim[2]-1 ) );
           }
-        else if( ndim[2] == 1 )
+        else if( myGrid->GetGridDescription() == VTK_XY_PLANE )
           {
             // XY plane
             for( i=0; i < 2; ++i )
@@ -417,6 +417,8 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
             false );
     }
 
+  myBox.SetGridDescription( myGrid->GetGridDescription( ) );
+  myBox.SetDimensionality( myGrid->GetDataDimension() );
   myBox.SetDataSetOrigin( origin );
   myBox.SetGridSpacing( h );
   myBox.SetDimensions( lo, hi );

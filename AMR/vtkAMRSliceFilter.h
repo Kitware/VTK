@@ -67,6 +67,11 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     ~vtkAMRSliceFilter();
 
     // Description:
+    // Returns the cell index w.r.t. the given input grid which contains
+    // the query point x. A -1 is returned if the point is not found.
+    int GetDonorCellIdx( double x[3], vtkUniformGrid *ug );
+
+    // Description:
     // Computes the cell center of the cell corresponding to the supplied
     // cell index w.r.t. the input uniform grid.
     void ComputeCellCenter(
@@ -99,9 +104,14 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     // Returns the axis-aligned cut plane.
     vtkPlane* GetCutPlane( vtkHierarchicalBoxDataSet *input );
 
+    // Description:
+    // Initializes the off-set to be at the center of the input data-set.
+    void InitializeOffSet( vtkHierarchicalBoxDataSet *inp );
+
     double origin[3];
     double OffSetFromOrigin;
     int    Normal; // 1=>X-Normal, 2=>Y-Normal, 3=>Z-Normal
+    bool   initialRequest;
 
     vtkMultiProcessController *Controller;
 

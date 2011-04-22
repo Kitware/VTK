@@ -69,6 +69,10 @@ public:
   virtual void Initialize();
   virtual int GetMaxCellSize() {return 8;}; //voxel is the largest
 
+  // Description:
+  // Returns the data description of this uniform grid instance.
+  int GetGridDescription();
+
   //BTX
   // Description:
   // Initialize with no ghost cell arrays, from the definition in

@@ -116,7 +116,7 @@ int vtkImageResliceToColors::ConvertScalarInfo(
   if (!this->LookupTable && !this->DefaultLookupTable)
     {
     // Build a default greyscale lookup table
-    this->DefaultLookupTable = vtkLookupTable::New();
+    this->DefaultLookupTable = vtkScalarsToColors::New();
     this->DefaultLookupTable->SetRange(0.0, 255.0);
     this->DefaultLookupTable->SetVectorModeToRGBColors();
     }
