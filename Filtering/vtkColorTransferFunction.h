@@ -238,8 +238,11 @@ protected:
   void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
 
   // Internal method to sort the vector and update the
-  // Range whenever a node is added or removed
+  // Range whenever a node is added, edited or removed
+  // It always calls Modified().
   void SortAndUpdateRange();
+  // Returns true if the range has been updated and Modified() has been called
+  bool UpdateRange();
  
   // Description:
   // Moves point from oldX to newX. It removed the point from oldX. If any point
