@@ -22,6 +22,7 @@ IF(VTK_USE_DISPLAY)
     TestBlurAndSobelPasses.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
+    TestFollowerPicking.cxx
     TestGaussianBlurPass.cxx
     TestGlyph3DMapper.cxx
     TestGlyph3DMapperMasking.cxx
