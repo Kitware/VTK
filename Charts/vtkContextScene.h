@@ -206,6 +206,10 @@ protected:
   virtual void ButtonReleaseEvent(int button, int x, int y);
 
   // Description:
+  // Process a mouse button double click event.
+  virtual void ButtonDoubleClickEvent(int button, int x, int y);
+
+  // Description:
   // Process a mouse wheel event where delta is the movement forward or back.
   virtual void MouseWheelEvent(int delta, int x, int y);
 

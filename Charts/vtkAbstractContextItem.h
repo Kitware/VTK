@@ -129,6 +129,12 @@ public:
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
+  // Mouse button double click event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseButtonDblClickEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
   // Mouse wheel event, positive delta indicates forward movement of the wheel.
   // Return true if the item holds the event, false if the event can be
   // propagated to other items.
