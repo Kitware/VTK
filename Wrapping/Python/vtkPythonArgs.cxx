@@ -249,6 +249,18 @@ bool vtkPythonGetValue(PyObject *o, char *&a)
 }
 
 inline
+bool vtkPythonGetValue(PyObject *o, std::string &a)
+{
+  const char *b;
+  if (vtkPythonGetStringValue(o, b, "string is required"))
+    {
+    a = b;
+    return true;
+    }
+  return false;
+}
+
+inline
 bool vtkPythonGetValue(PyObject *o, vtkStdString &a)
 {
   const char *b;
@@ -953,6 +965,7 @@ VTK_PYTHON_GET_ARG(void *)
 VTK_PYTHON_GET_ARG(const void *)
 VTK_PYTHON_GET_ARG(char *)
 VTK_PYTHON_GET_ARG(const char *)
+VTK_PYTHON_GET_ARG(std::string)
 VTK_PYTHON_GET_ARG(vtkStdString)
 VTK_PYTHON_GET_ARG(vtkUnicodeString)
 VTK_PYTHON_GET_ARG(char)
@@ -1083,6 +1096,7 @@ bool vtkPythonArgs::SetArgValue(int i, T a) \
   return true; \
 }
 
+VTK_PYTHON_SET_ARG(const std::string &)
 VTK_PYTHON_SET_ARG(const vtkStdString &)
 VTK_PYTHON_SET_ARG(const vtkUnicodeString &)
 VTK_PYTHON_SET_ARG(char)

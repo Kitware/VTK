@@ -160,6 +160,7 @@ public:
   // Get the next argument as a string.
   bool GetValue(const char *&v);
   bool GetValue(char *&v);
+  bool GetValue(std::string &v);
   bool GetValue(vtkStdString &v);
   bool GetValue(vtkUnicodeString &v);
 
@@ -237,6 +238,7 @@ public:
 
   // Description:
   // Set the value of an argument if it is an assignable type.
+  bool SetArgValue(int i, const std::string &v);
   bool SetArgValue(int i, const vtkStdString &v);
   bool SetArgValue(int i, const vtkUnicodeString &v);
   bool SetArgValue(int i, char v);
@@ -340,6 +342,7 @@ public:
   // Description:
   // Build a string return value.
   static PyObject *BuildValue(const char *v);
+  static PyObject *BuildValue(const std::string &v);
   static PyObject *BuildValue(const vtkStdString &v);
   static PyObject *BuildValue(const vtkUnicodeString &v);
 
@@ -608,6 +611,12 @@ PyObject *vtkPythonArgs::BuildValue(const char *a)
     }
   Py_INCREF(Py_None);
   return Py_None;
+}
+
+inline
+PyObject *vtkPythonArgs::BuildValue(const std::string &a)
+{
+  return PyString_FromString(a.c_str());
 }
 
 inline
