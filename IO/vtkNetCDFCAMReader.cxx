@@ -31,17 +31,6 @@
 
 vtkStandardNewMacro(vtkNetCDFCAMReader);
 
-//============================================================================
-#define CALL_NETCDF(call) \
-{ \
-  int errorcode = call; \
-  if (errorcode != NC_NOERR) \
-  { \
-    vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode)); \
-    return 0; \
-  } \
-}
-
 //----------------------------------------------------------------------------
 vtkNetCDFCAMReader::vtkNetCDFCAMReader()
 {
@@ -188,9 +177,7 @@ int vtkNetCDFCAMReader::RequestUpdateExtent(
 
 //----------------------------------------------------------------------------
 int vtkNetCDFCAMReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+  vtkInformation *,vtkInformationVector **,vtkInformationVector *outputVector)
 {
   if(this->FileName == NULL || this->ConnectivityFileName == NULL)
     {
@@ -234,15 +221,25 @@ int vtkNetCDFCAMReader::RequestData(
       }
     }
 
+  // Set the NetCDF error handler to not kill the application.
+  // Upon exiting this method the error handler will be restored
+  // to its previous state.
+  NcError ncError(NcError::verbose_nonfatal);
+
   // read in the points first
   NcDim* dimension = this->PointsFile->get_dim("ncol");
+  if(dimension == NULL)
+    {
+    vtkErrorMacro("Cannot find the number of points (ncol dimension).");
+    return 0;
+    }
   NcVar* lon = this->PointsFile->get_var("lon");
   NcVar* lat = this->PointsFile->get_var("lat");
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   long numPoints = dimension->size();
   if(lat == NULL || lon == NULL)
     {
-    vtkErrorMacro("Cannot find coordinates.");
+    vtkErrorMacro("Cannot find coordinates (lat or lon variable).");
     return 0;
     }
   if(lat->type() == ncDouble)
@@ -289,13 +286,20 @@ int vtkNetCDFCAMReader::RequestData(
 
   // read in any point data with dimensions (time, lev, ncol)
   NcDim* levelsDimension = this->PointsFile->get_dim("lev");
-  long numLevels = levelsDimension->size();
+  if(levelsDimension == NULL)
+    {
+    vtkErrorMacro("Cannot find the number of levels (lev dimension).");
+    return 0;
+    }
+
+  //long numLevels = levelsDimension->size();
   for(int i=0;i<this->PointsFile->num_vars();i++)
     {
     NcVar* variable = this->PointsFile->get_var(i);
-    if(variable->num_dims() != 3 || variable->get_dim(0)->size() != 1 ||
-       variable->get_dim(1)->size() != numLevels ||
-       variable->get_dim(2)->size() != numPoints)
+    if(variable->num_dims() != 3 ||
+       strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+       strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
+       strcmp(variable->get_dim(2)->name(), "ncol") != 0)
       { // not a field variable
       continue;
       }
@@ -337,19 +341,21 @@ int vtkNetCDFCAMReader::RequestData(
   // boundary and it should be on the right boundary we will have
   // to create that point.  that's what boundaryPoints is used for.
   std::map<vtkIdType, vtkIdType> boundaryPoints;
-  dimension = this->ConnectivityFile->get_dim("ncenters");
+  dimension = this->ConnectivityFile->get_dim("ncells");
   if(dimension == NULL)
-    {  //supposed to be ncells but in example dataset it is ncenters
-    this->ConnectivityFile->get_dim("ncenters");
-    }
-  NcVar* connectivity = this->ConnectivityFile->get_var("element_corners");
-  long numCells = dimension->size();
-  output->Allocate(numCells);
-  if(connectivity == NULL)
     {
-    vtkErrorMacro("Cannot find cell connectivity.");
+    vtkErrorMacro("Cannot find the number of cells (ncells dimension).");
     return 0;
     }
+  NcVar* connectivity =
+    this->ConnectivityFile->get_var("element_corners");
+  if(connectivity == NULL)
+    {
+    vtkErrorMacro("Cannot find cell connectivity (element_corners dimension).");
+    return 0;
+    }
+  long numCells = dimension->size();
+  output->Allocate(numCells);
   std::vector<int> cellConnectivity(4*numCells);
   connectivity->get(&(cellConnectivity[0]), 4, numCells);
   double bounds[6];
@@ -409,8 +415,8 @@ int vtkNetCDFCAMReader::RequestData(
     pointData->CopyData(pointData, it->first, it->second);
     }
 
-  vtkDebugMacro(<<"Read " <<output->GetNumberOfPoints() <<" points,"
-                <<output->GetNumberOfCells() <<" cells.\n");
+  vtkDebugMacro(<<"Read " << output->GetNumberOfPoints() <<" points,"
+                << output->GetNumberOfCells() <<" cells.\n");
 
   return 1;
 }
