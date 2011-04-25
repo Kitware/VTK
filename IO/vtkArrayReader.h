@@ -50,6 +50,18 @@ public:
   // Set the filesystem location from which data will be read.
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
+  
+  // Description:
+  // The input string to parse. If you set the input string, you must also set
+  // the ReadFromInputString flag to parse the string instead of a file.
+  virtual void SetInputString(const vtkStdString& string);
+  virtual vtkStdString GetInputString();
+  
+  // Description:
+  // Whether to read from an input string as opposed to a file, which is the default.
+  vtkSetMacro(ReadFromInputString, bool);
+  vtkGetMacro(ReadFromInputString, bool);
+  vtkBooleanMacro(ReadFromInputString, bool);
 
   // Description:
   // Read an arbitrary array from a stream.  Note: you MUST always
@@ -58,12 +70,8 @@ public:
   static vtkArray* Read(istream& stream);
 
   // Description:
-  // Read an arbitrary array from a character buffer.
-  static vtkArray* Read(const char* buffer);
-
-  // Description:
-  // Read an arbitrary array from a character buffer with specified length.
-  static vtkArray* Read(const char* buffer, int length);
+  // Read an arbitrary array from a string.
+  static vtkArray* Read(vtkStdString str);
 
 protected:
   vtkArrayReader();
@@ -75,6 +83,8 @@ protected:
     vtkInformationVector*);
 
   char* FileName;
+  vtkStdString InputString;
+  bool ReadFromInputString;
 
 private:
   vtkArrayReader(const vtkArrayReader&); // Not implemented
