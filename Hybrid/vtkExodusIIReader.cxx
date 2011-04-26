@@ -1169,6 +1169,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       binfo->Status = 0;
       return;
       }
+    ent->Register (this);
     }
 
   vtkIntArray* arr;
@@ -1253,6 +1254,10 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       }
 #endif // VTK_USE_64BIT_IDS
     }
+    if (ent) 
+      {
+      ent->UnRegister (this);
+      }
 }
 
 //-----------------------------------------------------------------------------
