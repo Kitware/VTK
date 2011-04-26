@@ -116,6 +116,22 @@ public:
   virtual void SetRange(double minimum, double maximum);
 
   // Description:
+  // Set the logical lowest possible value for \a Minimum, in plot coordinates.
+  void SetLowerLimit(double lowest);
+
+  // Description:
+  // Get the logical lowest possible value for \a Minimum, in plot coordinates.
+  vtkGetMacro(LowerLimit, double);
+
+  // Description:
+  // Set the logical highest possible value for \a Maximum, in plot coordinates.
+  virtual void SetHigherLimit(double highest);
+
+  // Description:
+  // Get the logical highest possible value for \a Maximum, in plot coordinates.
+  vtkGetMacro(HigherLimit, double);
+
+  // Description:
   // Get/set the title text of the axis.
   virtual void SetTitle(const vtkStdString &title);
   virtual vtkStdString GetTitle();
@@ -288,6 +304,8 @@ protected:
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
+  double LowerLimit;   // Lowest possible value for Minimum
+  double HigherLimit;  // Highest possible value for Maximum
   vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale

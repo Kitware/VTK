@@ -24,9 +24,10 @@
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtksys/ios/sstream"
-
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
+#include <limits>
 #include "math.h"
 
 //-----------------------------------------------------------------------------
@@ -57,6 +58,8 @@ vtkAxis::vtkAxis()
   this->TitleProperties->SetJustificationToCentered();
   this->Minimum = 0.0;
   this->Maximum = 6.66;
+  this->LowerLimit = std::numeric_limits<double>::max() * -1.;
+  this->HigherLimit = std::numeric_limits<double>::max();
   this->LogScale = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
@@ -368,6 +371,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkAxis::SetMinimum(double minimum)
 {
+  minimum = std::max(minimum, this->LowerLimit);
   if (this->Minimum == minimum)
     {
     return;
@@ -379,8 +383,23 @@ void vtkAxis::SetMinimum(double minimum)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAxis::SetLowerLimit(double lowest)
+{
+  if (this->LowerLimit == lowest)
+    {
+    return;
+    }
+  if (this->Minimum < lowest )
+    {
+    this->SetMinimum(lowest);
+    }
+  this->LowerLimit = lowest;
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::SetMaximum(double maximum)
 {
+  maximum = std::min(maximum, this->HigherLimit);
   if (this->Maximum == maximum)
     {
     return;
@@ -389,6 +408,20 @@ void vtkAxis::SetMaximum(double maximum)
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetHigherLimit(double highest)
+{
+  if (this->HigherLimit == highest)
+    {
+    return;
+    }
+  if (this->Maximum < highest )
+    {
+    this->SetMaximum(highest);
+    }
+  this->HigherLimit = highest;
 }
 
 //-----------------------------------------------------------------------------
