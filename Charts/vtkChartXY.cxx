@@ -275,7 +275,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
       ++visiblePlots;
       }
     }
-  if (visiblePlots == 0)
+  if (visiblePlots == 0 && !this->RenderEmpty)
     {
     // Nothing to plot, so don't draw anything.
     return false;
