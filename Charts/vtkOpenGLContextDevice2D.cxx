@@ -715,15 +715,30 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 {
   float p[] = { floor(point[0]), floor(point[1]) };
 
-  vtkImageData *image = vtkImageData::New();
+#if 1
+  vtkTextureImageCache<TextPropertyKey>::CacheData cache =
+    this->Storage->TextTextureCache.GetCacheData(
+      TextPropertyKey(this->TextProp, string));
+  vtkImageData* image = cache.ImageData;
+  if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
+    {
+    if (!this->TextRenderer->RenderString(this->TextProp, string, image))
+      {
+      return;
+      }
+    }
+  vtkTexture* texture = cache.Texture;
+#else
+  vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
   if (!this->TextRenderer->RenderString(this->TextProp, string, image))
     {
-    image->Delete();
     return;
     }
 
   this->SetTexture(image);
-  this->Storage->Texture->Render(this->Renderer);
+  vtkTexture* texture = this->Storage->Texture;
+#endif
+  texture->Render(this->Renderer);
 
   float width = static_cast<float>(image->GetOrigin()[0]);
   float height = static_cast<float>(image->GetOrigin()[1]);
@@ -752,9 +767,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  this->Storage->Texture->PostRender(this->Renderer);
+  texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
-  image->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -1125,6 +1139,7 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
     {
     this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
     }
+  this->Storage->TextTextureCache.ReleaseGraphicsResources(window);
 }
 
 //----------------------------------------------------------------------------
