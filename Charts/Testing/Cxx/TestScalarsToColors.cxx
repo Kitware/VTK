@@ -45,6 +45,7 @@ int TestScalarsToColors(int ,  char * [])
   view->GetRenderWindow()->SetSize(400, 300);
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   chart->SetTitle("Chart");
+  chart->ForceAxesToBoundsOn();
   view->GetScene()->AddItem(chart);
 
   vtkSmartPointer<vtkLookupTable> lookupTable =
