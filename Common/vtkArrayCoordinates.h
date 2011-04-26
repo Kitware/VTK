@@ -87,7 +87,7 @@ public:
 
   // Description:
   // Returns the coordinate of the i-th dimension.
-  const CoordinateT GetCoordinate(DimensionT i) const;
+  CoordinateT GetCoordinate(DimensionT i) const;
 
   // Description:
   // Sets the coordinate of the i-th dimension.
