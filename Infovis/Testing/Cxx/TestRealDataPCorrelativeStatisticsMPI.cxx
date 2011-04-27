@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories 
+// Thanks to Philippe Pebay and Ajith Mascarenhas from Sandia National Laboratories 
 // for implementing this test.
 
 #include <mpi.h>
@@ -46,6 +46,144 @@ struct RandomSampleStatisticsArgs
   char** argv;
 };
 
+// Calculate the processor id (integer triple), given its rank
+void CalculateProcessorId( int *procDim, int rank, int *procId )
+{
+  int procXY = procDim[0] * procDim[1];
+  
+  procId[2] = rank / procXY;
+  procId[1] = ( rank - procId[2] * procXY ) / procDim[0];
+  procId[0] = ( rank - procId[2] * procXY ) % procDim[0];
+}
+
+// Calculate the processor rank given its id(integer triple)
+int CalculateProcessorRank(int *procDim, int *procId)
+{
+  int rank = procId[2] * procDim[0] * procDim[1] + 
+    procId[1] * procDim[0] + procId[0];
+  
+  return rank;
+}
+
+// Read a block of data bounded by [low, high] from file into buffer.
+// The entire data has dimensions dim
+void ReadFloatDataBlockFromFile( ifstream& ifs,
+                            vtkIdType *dim,
+                            int *low,
+                            int *high,
+                            float *buffer )
+{
+  vtkIdType dimXY = dim[0] * dim[1];
+  vtkIdType dimX  = dim[0];
+
+  float *pbuffer = buffer;
+
+  // Set bounds
+  vtkIdType bounds[2][3];
+  bounds[0][0] = ( low[0] < 0 ? 0 : low[0] );
+  bounds[0][1] = ( low[1] < 0 ? 0 : low[1] );
+  bounds[0][2] = ( low[2] < 0 ? 0 : low[2] );
+
+  bounds[1][0] = ( high[0] >= dim[0] ? dim[0] - 1 : high[0] );
+  bounds[1][1] = ( high[1] >= dim[1] ? dim[1] - 1 : high[1] );
+  bounds[1][2] = ( high[2] >= dim[2] ? dim[2] - 1 : high[2] );
+
+  vtkIdType rangeX = bounds[1][0] - bounds[0][0] + 1;
+  vtkIdType sizeX = high[0] - low[0] + 1;
+  vtkIdType sizeY = high[1] - low[1] + 1;
+  vtkIdType sizeXY = sizeX * sizeY;
+
+  pbuffer += (bounds[0][0] - low[0] );  // Next position to start writing.
+
+  // Iterate over 'z'.
+  for (int z = low[2]; z <= high[2]; z++)
+    {
+      if (z >= bounds[0][2] && z <= bounds[1][2] )
+        {
+          vtkIdType offsetZ = z * dimXY; 
+
+          // Iterate over 'y'.
+          for (int y = low[1]; y <= high[1]; y++)
+            {
+              if (y >= bounds[0][1] && y <= bounds[1][1] )
+                {
+                  vtkIdType offsetY = y * dimX;
+                  long long offset = offsetZ + offsetY + bounds[0][0];
+
+                  // Seek to point.
+                  ifs.seekg( offset * sizeof(*pbuffer), ios::beg );
+
+                  // Get a block of rangeX values.
+                  ifs.read( reinterpret_cast<char *>( pbuffer ), 
+                            rangeX * sizeof(*pbuffer) );
+
+                  pbuffer += sizeX;  // Proceed to next write position.
+
+                  if (ifs.fail() || ifs.eof() )
+                    {
+                      cerr << "Failed or reached EOF in readDataBlockFromFile\n";
+                      exit( -1 );
+                    }
+                }
+              else
+                {
+                  pbuffer += sizeX;  // Skip one line.
+                }
+            }
+        }
+      else
+        {
+          pbuffer += sizeXY;  // Skip one plane.
+        }
+    }
+}
+
+// Given the data dimensions dataDim, the process dimensions procDim, my
+// process id myProcId, set the block bounding box myBlockBounds for my data.
+// Also open the data file as filestream ifs.
+void SetDataParameters( vtkIdType *dataDim, 
+                        int *procDim,
+                        int *myProcId, 
+                        const char* fileName, 
+                        ifstream& ifs, 
+                        int myBlockBounds[2][3] )
+{
+  int myDim[3];
+  myDim[0] = static_cast<int>( ceil( dataDim[0] / ( 1. * procDim[0] ) ) );
+  myDim[1] = static_cast<int>( ceil( dataDim[1] / ( 1. * procDim[1] ) ) );
+  myDim[2] = static_cast<int>( ceil( dataDim[2] / ( 1. * procDim[2] ) ) );
+
+  // cout << "My data dim = " << myDim[0] << " x " << myDim[1] <<
+  //   " x " << myDim[2] << endl;
+
+  // Determine data bounds
+  myBlockBounds[0][0] = myProcId[0] * myDim[0];
+  myBlockBounds[0][1] = myProcId[1] * myDim[1];
+  myBlockBounds[0][2] = myProcId[2] * myDim[2];
+
+  int mybb0 = myBlockBounds[0][0] + myDim[0] - 1;
+  int cast0 = static_cast<int>( dataDim[0] - 1 );
+  myBlockBounds[1][0] = ( mybb0 < cast0 ? mybb0 : cast0 );
+
+  int mybb1 = myBlockBounds[0][1] + myDim[1] - 1;
+  int cast1 = static_cast<int>( dataDim[1] - 1 );
+  myBlockBounds[1][1] = ( mybb1 < cast1 ? mybb1 : cast1 );
+
+  int mybb2 = myBlockBounds[0][2] + myDim[2] - 1;
+  int cast2 = static_cast<int>( dataDim[2] - 1 );
+  myBlockBounds[1][2] = ( mybb2 < cast2 ? mybb2 : cast2 );
+
+  // Open file
+  ifs.open( fileName, ios::in | ios::binary );
+
+  if( ifs.fail() )
+    {
+      cerr << "Error opening  file: " << fileName 
+           << ". Exiting...\n";
+      exit( -1 );
+    }
+}
+
 // This will be called by all processes
 void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 {
@@ -59,56 +197,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Get local rank
   int myRank = com->GetLocalProcessId();
 
-  // Seed random number generator
-  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
-
-  // Generate an input table that contains samples of mutually independent random variables over [0, 1]
-  int nUniform = 2;
-  int nNormal  = 2;
-  int nVariables = nUniform + nNormal;
-
+  // ************************** Read input data file **************************** 
   vtkTable* inputData = vtkTable::New();
-  vtkDoubleArray* doubleArray[4];
-  vtkStdString columnNames[] = { "Standard Uniform 0", 
-                                 "Standard Uniform 1",
-                                 "Standard Normal 0",
-                                 "Standard Normal 1" };
-  
-  // Standard uniform samples
-  for ( int c = 0; c < nUniform; ++ c )
-    {
-    doubleArray[c] = vtkDoubleArray::New();
-    doubleArray[c]->SetNumberOfComponents( 1 );
-    doubleArray[c]->SetName( columnNames[c] );
-
-    double x;
-    for ( int r = 0; r < args->nVals; ++ r )
-      {
-      x = vtkMath::Random();
-      doubleArray[c]->InsertNextValue( x );
-      }
-    
-    inputData->AddColumn( doubleArray[c] );
-    doubleArray[c]->Delete();
-    }
-
-  // Standard normal samples
-  for ( int c = nUniform; c < nVariables; ++ c )
-    {
-    doubleArray[c] = vtkDoubleArray::New();
-    doubleArray[c]->SetNumberOfComponents( 1 );
-    doubleArray[c]->SetName( columnNames[c] );
-
-    double x;
-    for ( int r = 0; r < args->nVals; ++ r )
-      {
-      x = vtkMath::Gaussian();
-      doubleArray[c]->InsertNextValue( x );
-      }
-    
-    inputData->AddColumn( doubleArray[c] );
-    doubleArray[c]->Delete();
-    }
 
   // ************************** Correlative Statistics ************************** 
 
@@ -121,9 +211,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   vtkPCorrelativeStatistics* pcs = vtkPCorrelativeStatistics::New();
   pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
-  // Select column pairs (uniform vs. uniform, normal vs. normal)
-  pcs->AddColumnPair( columnNames[0], columnNames[1] );
-  pcs->AddColumnPair( columnNames[2], columnNames[3] );
+  // Select column pairs
+  // FIXME
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearnOption( true );
@@ -135,7 +224,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-  vtkTable* outputData = pcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
     // Synchronize and stop clock
   com->Barrier();
@@ -193,6 +281,15 @@ int main( int argc, char** argv )
   // **************************** MPI Initialization *************************** 
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize( &argc, &argv );
+
+  // If no data file name was provided, terminate in error.
+  if ( argc < 2 )
+    {
+    vtkGenericWarningMacro("No data file name was provided.");
+    controller->Delete();
+    return 1;
+    } 
+  
 
   // If an MPI controller was not created, terminate in error.
   if ( ! controller->IsA( "vtkMPIController" ) )
