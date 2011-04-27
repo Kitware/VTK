@@ -227,6 +227,28 @@ int vtkNetCDFCAMReader::RequestData(
   NcError ncError(NcError::verbose_nonfatal);
 
   // read in the points first
+  NcDim* levelsDimension = this->PointsFile->get_dim("lev");
+  if(levelsDimension == NULL)
+    {
+    vtkErrorMacro("Cannot find the number of levels (lev dimension).");
+    return 0;
+    }
+  long numLevels = levelsDimension->size();
+  NcVar* levelsVar = this->PointsFile->get_var("lev");
+  if(levelsVar == NULL)
+    {
+    vtkErrorMacro("Cannot find the number of levels (lev variable).");
+    return 0;
+    }
+  if(levelsVar->num_dims() != 1 ||
+     levelsVar->get_dim(0)->size() != numLevels)
+    {
+    vtkErrorMacro("The lev variable is not consistent.");
+    return 0;
+    }
+  std::vector<double> levelData(numLevels);
+  levelsVar->get(&levelData[0], numLevels);
+
   NcDim* dimension = this->PointsFile->get_dim("ncol");
   if(dimension == NULL)
     {
@@ -236,7 +258,7 @@ int vtkNetCDFCAMReader::RequestData(
   NcVar* lon = this->PointsFile->get_var("lon");
   NcVar* lat = this->PointsFile->get_var("lat");
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  long numPoints = dimension->size();
+  long numFilePoints = dimension->size();
   if(lat == NULL || lon == NULL)
     {
     vtkErrorMacro("Cannot find coordinates (lat or lon variable).");
@@ -245,101 +267,47 @@ int vtkNetCDFCAMReader::RequestData(
   if(lat->type() == ncDouble)
     {
     points->SetDataTypeToDouble();
-    points->SetNumberOfPoints(numPoints);
-    std::vector<double> array(numPoints*2);
-    if(!lon->get(&array[0], numPoints))
+    points->SetNumberOfPoints(numFilePoints);
+    std::vector<double> array(numFilePoints*2);
+    if(!lon->get(&array[0], numFilePoints))
       {
       return 0;
       }
-    if(!lat->get(&array[numPoints], numPoints))
+    if(!lat->get(&array[numFilePoints], numFilePoints))
       {
       return 0;
       }
-    for(long i=0;i<numPoints;i++)
+    for(long i=0;i<numFilePoints;i++)
       {
-      points->SetPoint(i, array[i], array[i+numPoints], 0.);
+      points->SetPoint(i, array[i], array[i+numFilePoints], levelData[0]);
       }
     }
   else
     {
     points->SetDataTypeToFloat();
-    points->SetNumberOfPoints(numPoints);
-    std::vector<float> array(numPoints*2);
-    if(!lon->get(&array[0], numPoints))
+    points->SetNumberOfPoints(numFilePoints);
+    std::vector<float> array(numFilePoints*2);
+    if(!lon->get(&array[0], numFilePoints))
       {
       return 0;
       }
-    if(!lat->get(&array[numPoints], numPoints))
+    if(!lat->get(&array[numFilePoints], numFilePoints))
       {
       return 0;
       }
-    for(long i=0;i<numPoints;i++)
+    for(long i=0;i<numFilePoints;i++)
       {
-      points->SetPoint(i, array[i], array[i+numPoints], 0.);
-      }
-    for(long i=0;i<numPoints;i++)
-      {
-      points->SetPoint(i, array[i], array[i+numPoints], 0.);
+      points->SetPoint(i, array[i], array[i+numFilePoints], levelData[0]);
       }
     }
   output->SetPoints(points);
-
-  // read in any point data with dimensions (time, lev, ncol)
-  NcDim* levelsDimension = this->PointsFile->get_dim("lev");
-  if(levelsDimension == NULL)
-    {
-    vtkErrorMacro("Cannot find the number of levels (lev dimension).");
-    return 0;
-    }
-
-  //long numLevels = levelsDimension->size();
-  for(int i=0;i<this->PointsFile->num_vars();i++)
-    {
-    NcVar* variable = this->PointsFile->get_var(i);
-    if(variable->num_dims() != 3 ||
-       strcmp(variable->get_dim(0)->name(), "time") != 0 ||
-       strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
-       strcmp(variable->get_dim(2)->name(), "ncol") != 0)
-      { // not a field variable
-      continue;
-      }
-    NcToken variableName = variable->name();
-    // if we have a different level, that should be set here
-    long level = 0;
-    variable->set_cur(0, level, 0);
-    vtkDataArray* dataArray = NULL;
-    if(variable->type() == ncDouble)
-      {
-      vtkDoubleArray* doubleArray = vtkDoubleArray::New();
-      doubleArray->SetNumberOfTuples(numPoints);
-      if(!variable->get(doubleArray->GetPointer(0),
-                        1, 1, numPoints))
-        {
-        return 0;
-        }
-      dataArray = doubleArray;
-      }
-    else
-      {
-      vtkFloatArray* floatArray = vtkFloatArray::New();
-      floatArray->SetNumberOfTuples(numPoints);
-      if(!variable->get(floatArray->GetPointer(0),
-                        1, 1, numPoints))
-        {
-        return 0;
-        }
-      dataArray = floatArray;
-      }
-    dataArray->SetName(variableName);
-    output->GetPointData()->AddArray(dataArray);
-    dataArray->Delete();
-    }
 
   // now read in the cell connectivity.  note that this is a periodic
   // domain and only the points on the left boundary are included in
   // the points file.  if a cell uses a point that is on the left
   // boundary and it should be on the right boundary we will have
   // to create that point.  that's what boundaryPoints is used for.
+  // we don't actually build the cells yet though.
   std::map<vtkIdType, vtkIdType> boundaryPoints;
   dimension = this->ConnectivityFile->get_dim("ncells");
   if(dimension == NULL)
@@ -355,7 +323,6 @@ int vtkNetCDFCAMReader::RequestData(
     return 0;
     }
   long numCells = dimension->size();
-  output->Allocate(numCells);
   std::vector<int> cellConnectivity(4*numCells);
   connectivity->get(&(cellConnectivity[0]), 4, numCells);
   double bounds[6];
@@ -402,17 +369,146 @@ int vtkNetCDFCAMReader::RequestData(
           }
         }
       }
-    output->InsertNextCell(VTK_QUAD, 4, pointIds);
+    //output->InsertNextCell(VTK_QUAD, 4, pointIds);
+    }
+
+  // we now have all of the points at a single level.  build them up
+  // for the rest of the levels before creating the cells.
+  vtkIdType numPointsPerLevel = points->GetNumberOfPoints();
+  // a hacky way to resize the points array without resetting the data
+  points->InsertPoint(numPointsPerLevel*levelData.size()-1, 0, 0, 0);
+  for(vtkIdType pt=0;pt<numPointsPerLevel;pt++)
+    {
+    double point[3];
+    points->GetPoint(pt, point);
+    for(size_t lev=1;lev<levelData.size();lev++)
+      {
+      point[2] = levelData[lev];
+      points->SetPoint(pt+lev*numPointsPerLevel, point);
+      }
+    }
+
+  // now that we have the full set of points, read in any point
+  // data with dimensions (time, lev, ncol) but read them in
+  // by chunks of ncol since it will be a pretty big chunk of
+  // memory that we'll have to brea up anyways.
+  for(int i=0;i<this->PointsFile->num_vars();i++)
+    {
+    NcVar* variable = this->PointsFile->get_var(i);
+    if(variable->num_dims() != 3 ||
+       strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+       strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
+       strcmp(variable->get_dim(2)->name(), "ncol") != 0)
+      { // not a field variable
+      continue;
+      }
+    vtkDoubleArray* doubleArray = NULL;
+    vtkFloatArray* floatArray = NULL;
+    if(variable->type() == ncDouble)
+      {
+      doubleArray = vtkDoubleArray::New();
+      doubleArray->SetNumberOfTuples(points->GetNumberOfPoints());
+      doubleArray->SetName(variable->name());
+      output->GetPointData()->AddArray(doubleArray);
+      doubleArray->Delete();
+      }
+    else
+      {
+      floatArray = vtkFloatArray::New();
+      floatArray->SetNumberOfTuples(points->GetNumberOfPoints());
+      floatArray->SetName(variable->name());
+      output->GetPointData()->AddArray(floatArray);
+      floatArray->Delete();
+      }
+    for(size_t lev=0;lev<levelData.size();lev++)
+      {
+      long level = static_cast<long>(lev);
+      variable->set_cur(0, level, 0);
+      if(doubleArray)
+        {
+        if(!variable->get(doubleArray->GetPointer(0)+level*numPointsPerLevel,
+                          1, 1, numFilePoints))
+          {
+          return 0;
+          }
+        }
+      else
+        {
+        if(!variable->get(floatArray->GetPointer(0)+level*numPointsPerLevel,
+                          1, 1, numFilePoints))
+          {
+          return 0;
+          }
+        }
+      }
     }
 
   output->GetPointData()->CopyAllOn();
-  output->GetPointData()->CopyAllocate(output->GetPointData(),
-                                       output->GetNumberOfPoints());
+//   output->GetPointData()->CopyAllocate(output->GetPointData(),
+//                                        output->GetNumberOfPoints());
   vtkPointData* pointData = output->GetPointData();
   for(std::map<vtkIdType, vtkIdType>::const_iterator it=
         boundaryPoints.begin();it!=boundaryPoints.end();it++)
     {
-    pointData->CopyData(pointData, it->first, it->second);
+    for(size_t lev=0;lev<levelData.size();lev++)
+      {
+      pointData->CopyData(pointData, it->first+lev*numPointsPerLevel,
+                          it->second+lev*numPointsPerLevel);
+      }
+    }
+
+  // now we actually create the cells
+  output->Allocate(numCells*(levelData.size()-1));
+  for(long i=0;i<numCells;i++)
+    {
+    vtkIdType pointIds[4];
+    bool nearRightBoundary = false;
+    bool nearLeftBoundary = false;
+    double point[3];
+    for(int j=0;j<4;j++)
+      {
+      pointIds[j] = cellConnectivity[i+j*numCells]-1;
+      output->GetPoint(pointIds[j], point);
+      if(point[0] > rightSide)
+        {
+        nearRightBoundary = true;
+        }
+      else if(point[0] < leftSide)
+        {
+        nearLeftBoundary = true;
+        }
+      }
+    if(nearLeftBoundary == true && nearRightBoundary == true)
+      {
+      for(int j=0;j<4;j++)
+        {
+        output->GetPoint(pointIds[j], point);
+        if(point[0] < leftSide)
+          {
+          std::map<vtkIdType, vtkIdType>::iterator otherPoint =
+            boundaryPoints.find(pointIds[j]);
+          if(otherPoint != boundaryPoints.end())
+            { // already made point on the right boundary
+            pointIds[j] = otherPoint->second;
+            }
+          else
+            { // need to make point on the right boundary
+            pointIds[j] = boundaryPoints[pointIds[j]] =
+              points->InsertNextPoint(point[0]+360., point[1], point[2]);
+            }
+          }
+        }
+      }
+    for(size_t lev=0;lev<levelData.size()-1;lev++)
+      {
+      vtkIdType hexIds[8];
+      for(int j=0;j<4;j++)
+        {
+        hexIds[j] = pointIds[j]+lev*numPointsPerLevel;
+        hexIds[j+4] = pointIds[j+4]+(1+lev)*numPointsPerLevel;
+        }
+      output->InsertNextCell(VTK_HEXAHEDRON, 8, pointIds);
+      }
     }
 
   vtkDebugMacro(<<"Read " << output->GetNumberOfPoints() <<" points,"
