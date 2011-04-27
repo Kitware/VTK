@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestParallelRandomStatisticsMPI.cxx
+Program:   Visualization Toolkit
+Module:    TestParallelRandomStatisticsMPI.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*
@@ -37,7 +37,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
-struct RandomSampleStatisticsArgs
+struct RealDataCorrelativeStatisticsArgs
 {
   int nVals;
   int* retVal;
@@ -57,7 +57,7 @@ void CalculateProcessorId( int *procDim, int rank, int *procId )
 }
 
 // Calculate the processor rank given its id(integer triple)
-int CalculateProcessorRank(int *procDim, int *procId)
+int CalculateProcessorRank( int *procDim, int *procId )
 {
   int rank = procId[2] * procDim[0] * procDim[1] + 
     procId[1] * procDim[0] + procId[0];
@@ -68,10 +68,10 @@ int CalculateProcessorRank(int *procDim, int *procId)
 // Read a block of data bounded by [low, high] from file into buffer.
 // The entire data has dimensions dim
 void ReadFloatDataBlockFromFile( ifstream& ifs,
-                            vtkIdType *dim,
-                            int *low,
-                            int *high,
-                            float *buffer )
+                                 vtkIdType *dim,
+                                 int *low,
+                                 int *high,
+                                 float *buffer )
 {
   vtkIdType dimXY = dim[0] * dim[1];
   vtkIdType dimX  = dim[0];
@@ -119,10 +119,10 @@ void ReadFloatDataBlockFromFile( ifstream& ifs,
 
                   pbuffer += sizeX;  // Proceed to next write position.
 
-                  if (ifs.fail() || ifs.eof() )
+                  if ( ifs.fail() || ifs.eof() )
                     {
-                      cerr << "Failed or reached EOF in readDataBlockFromFile\n";
-                      exit( -1 );
+                    vtkGenericWarningMacro("Failed to read data or reached EOF.");
+                    exit( -1 );
                     }
                 }
               else
@@ -178,17 +178,18 @@ void SetDataParameters( vtkIdType *dataDim,
 
   if( ifs.fail() )
     {
-      cerr << "Error opening  file: " << fileName 
-           << ". Exiting...\n";
+    vtkGenericWarningMacro("Error opening  file:"
+                           << fileName
+                           <<".");
       exit( -1 );
     }
 }
 
 // This will be called by all processes
-void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
+void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void* arg )
 {
   // Get test parameters
-  RandomSampleStatisticsArgs* args = reinterpret_cast<RandomSampleStatisticsArgs*>( arg );
+  RealDataCorrelativeStatisticsArgs* args = reinterpret_cast<RealDataCorrelativeStatisticsArgs*>( arg );
   *(args->retVal) = 0;
 
   // Get MPI communicator
@@ -360,7 +361,7 @@ int main( int argc, char** argv )
 
   // Parameters for regression test.
   int testValue = 0;
-  RandomSampleStatisticsArgs args;
+  RealDataCorrelativeStatisticsArgs args;
   args.nVals = 100000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
@@ -368,7 +369,7 @@ int main( int argc, char** argv )
   args.argv = argv;
 
   // Execute the function named "process" on both processes
-  controller->SetSingleMethod( RandomSampleStatistics, &args );
+  controller->SetSingleMethod( RealDataCorrelativeStatistics, &args );
   controller->SingleMethodExecute();
 
   // Clean up and exit
