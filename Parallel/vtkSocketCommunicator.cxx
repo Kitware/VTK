@@ -21,11 +21,17 @@
 #include "vtkSocketController.h"
 #include "vtkStdString.h"
 #include "vtkTypeTraits.h"
+#include <assert.h>
 
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 #include <vtkstd/list>
 #include <vtkstd/map>
+
+// Uncomment the following line to help with debugging. When
+// ENABLE_SYNCHRONIZED_COMMUNICATION is defined, every Send() blocks until the
+// receive is successful.
+//#define ENABLE_SYNCHRONIZED_COMMUNICATION
 
 class vtkSocketCommunicator::vtkMessageBuffer
 {
@@ -286,7 +292,20 @@ int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
     byteData += maxSend*typeSize;
     length -= maxSend;
     }
-  return this->SendTagged(byteData, typeSize, length, tag, typeName);
+  if (!this->SendTagged(byteData, typeSize, length, tag, typeName))
+    {
+    return 0;
+    }
+#ifdef ENABLE_SYNCHRONIZED_COMMUNICATION
+  int status[3] = {0, 0, 0};
+  this->ReceiveTagged(status, sizeof(int), 3, 9876543,
+    "ENABLE_SYNCHRONIZED_COMMUNICATION#1");
+  assert(status[0] == 9876543 && status[2] == 9876544 && 
+    (status[1] == 1  || status[1] == 2));
+  this->SendTagged(status, sizeof(int), 3, 9876544,
+    "ENABLE_SYNCHRONIZED_COMMUNICATION#2");
+#endif
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -371,6 +390,17 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
     idata[2] = 1;
     vtkByteSwap::SwapLE(&idata[2]);
     }
+
+#ifdef ENABLE_SYNCHRONIZED_COMMUNICATION
+  int status[3] = {9876543, 1, 9876544};
+  int other_status[3] = {-1, -1, -1};
+  assert(this->SendTagged(status, sizeof(int), 3, 9876543,
+      "ENABLE_SYNCHRONIZED_COMMUNICATION#1"));
+  assert(this->ReceiveTagged(other_status, sizeof(int), 3, 9876544,
+      "ENABLE_SYNCHRONIZED_COMMUNICATION#2"));
+  assert(other_status[0] == status[0] && other_status[1] == status[1] &&
+    other_status[2] == status[2]);
+#endif
 
   return ret;
 }
@@ -700,6 +730,10 @@ int vtkSocketCommunicator::SendTagged(const void* data, int wordSize,
                                       int numWords, int tag,
                                       const char* logName)
 {
+  if (tag == 10)
+    {
+    int a=12;
+    }
   if(!this->Socket->Send(&tag, static_cast<int>(sizeof(int))))
     {
     vtkSocketCommunicatorErrorMacro("Could not send tag.");
@@ -750,7 +784,7 @@ int vtkSocketCommunicator::ReceivedTaggedFromBuffer(
   this->FixByteOrder(data, wordSize, numWords);
 
   // Log this event.
-  this->LogTagged("Sent", data, wordSize, numWords, tag, logName);
+  this->LogTagged("Receive(from Buffer)", data, wordSize, numWords, tag, logName);
 
   return 1;
 }
@@ -830,6 +864,10 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
         {
         // TODO: we may want to optimize this to avoid multiple copying of the
         // data.
+        if (this->LogStream)
+          {
+          *this->LogStream << "Bufferring last message (" << recvTag <<")" << endl;
+          }
         this->ReceivedMessageBuffer->Push(recvTag, length, ptr);
         }
       delete [] idata;
@@ -1039,7 +1077,7 @@ void vtkSocketCommunicator::LogTagged(const char* name, const void* data,
                                   reinterpret_cast<const vtkTypeFloat64*>(data),
                                   numWords, 6, static_cast<vtkTypeFloat64*>(0));
       }
-    *this->LogStream << "\n";
+    *this->LogStream << endl;
     }
 }
 
