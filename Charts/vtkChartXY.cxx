@@ -285,7 +285,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   this->Update();
 
-  if (this->MTime > this->ChartPrivate->axes[0]->GetMTime())
+  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime())
     {
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
