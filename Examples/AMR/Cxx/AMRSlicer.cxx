@@ -31,8 +31,6 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkAMRBox.h"
-#include "vtkAMRConnectivityFilter.h"
-#include "vtkAMRDataTransferFilter.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkMultiProcessController.h"
