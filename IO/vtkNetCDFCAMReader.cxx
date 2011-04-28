@@ -20,6 +20,7 @@
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
@@ -246,9 +247,6 @@ int vtkNetCDFCAMReader::RequestData(
     vtkErrorMacro("The lev variable is not consistent.");
     return 0;
     }
-  std::vector<double> levelData(numLevels);
-  levelsVar->get(&levelData[0], numLevels);
-
   NcDim* dimension = this->PointsFile->get_dim("ncol");
   if(dimension == NULL)
     {
@@ -279,7 +277,7 @@ int vtkNetCDFCAMReader::RequestData(
       }
     for(long i=0;i<numFilePoints;i++)
       {
-      points->SetPoint(i, array[i], array[i+numFilePoints], levelData[0]);
+      points->SetPoint(i, array[i], array[i+numFilePoints], numLevels);
       }
     }
   else
@@ -297,7 +295,7 @@ int vtkNetCDFCAMReader::RequestData(
       }
     for(long i=0;i<numFilePoints;i++)
       {
-      points->SetPoint(i, array[i], array[i+numFilePoints], levelData[0]);
+      points->SetPoint(i, array[i], array[i+numFilePoints], numLevels);
       }
     }
   output->SetPoints(points);
@@ -378,14 +376,14 @@ int vtkNetCDFCAMReader::RequestData(
   // for the rest of the levels before creating the cells.
   vtkIdType numPointsPerLevel = points->GetNumberOfPoints();
   // a hacky way to resize the points array without resetting the data
-  points->InsertPoint(numPointsPerLevel*levelData.size()-1, 0, 0, 0);
+  points->InsertPoint(numPointsPerLevel*numLevels-1, 0, 0, 0);
   for(vtkIdType pt=0;pt<numPointsPerLevel;pt++)
     {
     double point[3];
     points->GetPoint(pt, point);
-    for(size_t lev=1;lev<levelData.size();lev++)
+    for(long lev=1;lev<numLevels;lev++)
       {
-      point[2] = levelData[lev];
+      point[2] = numLevels - lev;
       points->SetPoint(pt+lev*numPointsPerLevel, point);
       }
     }
@@ -424,13 +422,12 @@ int vtkNetCDFCAMReader::RequestData(
       output->GetPointData()->AddArray(floatArray);
       floatArray->Delete();
       }
-    for(size_t lev=0;lev<levelData.size();lev++)
+    for(long lev=0;lev<numLevels;lev++)
       {
-      long level = static_cast<long>(lev);
-      variable->set_cur(0, level, 0);
+      variable->set_cur(0, lev, 0);
       if(doubleArray)
         {
-        if(!variable->get(doubleArray->GetPointer(0)+level*numPointsPerLevel,
+        if(!variable->get(doubleArray->GetPointer(0)+lev*numPointsPerLevel,
                           1, 1, numFilePoints))
           {
           return 0;
@@ -438,7 +435,7 @@ int vtkNetCDFCAMReader::RequestData(
         }
       else
         {
-        if(!variable->get(floatArray->GetPointer(0)+level*numPointsPerLevel,
+        if(!variable->get(floatArray->GetPointer(0)+lev*numPointsPerLevel,
                           1, 1, numFilePoints))
           {
           return 0;
@@ -446,7 +443,7 @@ int vtkNetCDFCAMReader::RequestData(
         }
       }
     }
-
+  // we have to copy the values from the left size to the right side
   output->GetPointData()->CopyAllOn();
   output->GetPointData()->CopyAllocate(output->GetPointData(),
                                        output->GetNumberOfPoints());
@@ -454,12 +451,26 @@ int vtkNetCDFCAMReader::RequestData(
   for(std::map<vtkIdType, vtkIdType>::const_iterator it=
         boundaryPoints.begin();it!=boundaryPoints.end();it++)
     {
-    for(size_t lev=0;lev<levelData.size();lev++)
+    for(long lev=0;lev<numLevels;lev++)
       {
       pointData->CopyData(pointData, it->first+lev*numPointsPerLevel,
                           it->second+lev*numPointsPerLevel);
       }
     }
+  // add in level data for each plane which corresponds to an average pressure
+  std::vector<float> levelData(numLevels);
+  levelsVar->get(&levelData[0], numLevels);
+  vtkNew<vtkFloatArray> levelPointData;
+  levelPointData->SetName(levelsVar->name());
+  levelPointData->SetNumberOfTuples(points->GetNumberOfPoints());
+  for(long j=0;j<numLevels;j++)
+    {
+    for(vtkIdType i=0;i<numPointsPerLevel;i++)
+      {
+      levelPointData->SetValue(j*numPointsPerLevel+i, levelData[j]);
+      }
+    }
+  output->GetPointData()->AddArray(levelPointData.GetPointer());
 
   this->SetProgress(.75);  // educated guess for progress
 
@@ -500,8 +511,8 @@ int vtkNetCDFCAMReader::RequestData(
       vtkIdType hexIds[8];
       for(int j=0;j<4;j++)
         {
-        hexIds[j+4] = pointIds[j]+lev*numPointsPerLevel;
-        hexIds[j] = pointIds[j]+(1+lev)*numPointsPerLevel;
+        hexIds[j] = pointIds[j]+lev*numPointsPerLevel;
+        hexIds[j+4] = pointIds[j]+(1+lev)*numPointsPerLevel;
         }
       output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
       }
