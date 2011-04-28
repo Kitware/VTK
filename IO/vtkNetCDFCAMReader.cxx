@@ -169,7 +169,7 @@ int vtkNetCDFCAMReader::RequestUpdateExtent(
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
     {
-    return 1;
+    return 0;
     }
 
   return 1;
@@ -444,8 +444,8 @@ int vtkNetCDFCAMReader::RequestData(
     }
 
   output->GetPointData()->CopyAllOn();
-//   output->GetPointData()->CopyAllocate(output->GetPointData(),
-//                                        output->GetNumberOfPoints());
+  output->GetPointData()->CopyAllocate(output->GetPointData(),
+                                       output->GetNumberOfPoints());
   vtkPointData* pointData = output->GetPointData();
   for(std::map<vtkIdType, vtkIdType>::const_iterator it=
         boundaryPoints.begin();it!=boundaryPoints.end();it++)
@@ -485,17 +485,7 @@ int vtkNetCDFCAMReader::RequestData(
         output->GetPoint(pointIds[j], point);
         if(point[0] < leftSide)
           {
-          std::map<vtkIdType, vtkIdType>::iterator otherPoint =
-            boundaryPoints.find(pointIds[j]);
-          if(otherPoint != boundaryPoints.end())
-            { // already made point on the right boundary
-            pointIds[j] = otherPoint->second;
-            }
-          else
-            { // need to make point on the right boundary
-            pointIds[j] = boundaryPoints[pointIds[j]] =
-              points->InsertNextPoint(point[0]+360., point[1], point[2]);
-            }
+          pointIds[j] = boundaryPoints[pointIds[j]];
           }
         }
       }
@@ -504,10 +494,10 @@ int vtkNetCDFCAMReader::RequestData(
       vtkIdType hexIds[8];
       for(int j=0;j<4;j++)
         {
-        hexIds[j] = pointIds[j]+lev*numPointsPerLevel;
-        hexIds[j+4] = pointIds[j+4]+(1+lev)*numPointsPerLevel;
+        hexIds[j+4] = pointIds[j]+lev*numPointsPerLevel;
+        hexIds[j] = pointIds[j]+(1+lev)*numPointsPerLevel;
         }
-      output->InsertNextCell(VTK_HEXAHEDRON, 8, pointIds);
+      output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
       }
     }
 
