@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkAMRDataTransferFilter.cxx
+ Module:    vtkAMRGhostExchange.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -12,7 +12,7 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-#include "vtkAMRDataTransferFilter.h"
+#include "vtkAMRGhostExchange.h"
 #include "vtkObjectFactory.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkAMRBox.h"
@@ -35,6 +35,8 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkAMRLink.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
 #include <string>
 #include <sstream>
@@ -45,9 +47,9 @@
 //
 // Standard Functions
 //
-vtkStandardNewMacro(vtkAMRDataTransferFilter);
+vtkStandardNewMacro(vtkAMRGhostExchange);
 
-vtkAMRDataTransferFilter::vtkAMRDataTransferFilter()
+vtkAMRGhostExchange::vtkAMRGhostExchange()
 {
   this->Controller          = NULL;
   this->AMRDataSet          = NULL;
@@ -55,10 +57,13 @@ vtkAMRDataTransferFilter::vtkAMRDataTransferFilter()
   this->LocalConnectivity   = NULL;
   this->ExtrudedData        = NULL;
   this->NumberOfGhostLayers = 1;
+
+  this->SetNumberOfInputPorts( 1 );
+  this->SetNumberOfOutputPorts( 1 );
 }
 
 //------------------------------------------------------------------------------
-vtkAMRDataTransferFilter::~vtkAMRDataTransferFilter()
+vtkAMRGhostExchange::~vtkAMRGhostExchange()
 {
   this->ExtrudedData->Delete();
 
@@ -69,13 +74,62 @@ vtkAMRDataTransferFilter::~vtkAMRDataTransferFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::PrintSelf( std::ostream &oss, vtkIndent indent )
+void vtkAMRGhostExchange::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMRDataTransferFilter::IsGhostCell( vtkUniformGrid *ug, int cellIdx )
+int vtkAMRGhostExchange::FillInputPortInformation(
+      int vtkNotUsed(port), vtkInformation *info )
+{
+  info->Set(
+   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkHierarchicalBoxDataSet");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRGhostExchange::FillOutputPortInformation(
+    int vtkNotUsed(port), vtkInformation *info )
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkHierarchicalBoxDataSet");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRGhostExchange::RequestData(
+    vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector )
+{
+  // Sanity check
+  assert( "pre: Input vector is NULL"  && (inputVector != NULL) );
+  assert( "pre: output vector is NULL" && (outputVector != NULL) );
+
+  // STEP 0: Get input & output objects
+  vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
+  assert( "pre: Null input information object!" && (input != NULL) );
+  this->AMRDataSet = vtkHierarchicalBoxDataSet::SafeDownCast(
+   input->Get(vtkDataObject::DATA_OBJECT()));
+  assert( "pre: input AMR dataset is NULL" && (this->AMRDataSet != NULL) );
+
+  vtkInformation *output= outputVector->GetInformationObject(0);
+  assert( "pre: Null output information object!" && (output != NULL) );
+  this->ExtrudedData = vtkHierarchicalBoxDataSet::SafeDownCast(
+   output->Get(vtkDataObject::DATA_OBJECT() ) );
+  assert( "pre: ouput AMR dataset is NULL" && (this->ExtrudedData != NULL) );
+
+  // STEP 1: Transfer solution to ghosts
+  this->Transfer();
+
+  // STEP 2: Synchronize
+  if( this->Controller != NULL )
+    this->Controller->Barrier();
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+bool vtkAMRGhostExchange::IsGhostCell( vtkUniformGrid *ug, int cellIdx )
 {
   assert( "pre: input grid is NULL" && (ug != NULL) );
   assert( "pre: cell index out-of-bounds" &&
@@ -100,7 +154,7 @@ bool vtkAMRDataTransferFilter::IsGhostCell( vtkUniformGrid *ug, int cellIdx )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::ComputeCellCenter(
+void vtkAMRGhostExchange::ComputeCellCenter(
              vtkUniformGrid *ug, int cellIdx, double center[3] )
 {
   // Sanity checsk
@@ -118,7 +172,7 @@ void vtkAMRDataTransferFilter::ComputeCellCenter(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::WriteReceivers( )
+void vtkAMRGhostExchange::WriteReceivers( )
 {
   std::map< unsigned int, vtkPolyData* >::iterator it=this->ReceiverList.begin();
   std::ostringstream oss;
@@ -146,7 +200,7 @@ void vtkAMRDataTransferFilter::WriteReceivers( )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::AddReceiverInformation( vtkPolyData *receivers )
+void vtkAMRGhostExchange::AddReceiverInformation( vtkPolyData *receivers )
 {
   assert( "pre: receiver data is NULL" && (receivers != NULL) );
 
@@ -189,7 +243,7 @@ void vtkAMRDataTransferFilter::AddReceiverInformation( vtkPolyData *receivers )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::GetReceivers( )
+void vtkAMRGhostExchange::GetReceivers( )
 {
   assert( "pre: Extruded data" && (this->ExtrudedData != NULL) );
 
@@ -253,7 +307,7 @@ void vtkAMRDataTransferFilter::GetReceivers( )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::Transfer( )
+void vtkAMRGhostExchange::Transfer( )
 {
   // Sanity Checks
   assert("pre:ghost layers >= 1" && (this->NumberOfGhostLayers>=1));
@@ -280,14 +334,14 @@ void vtkAMRDataTransferFilter::Transfer( )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
+void vtkAMRGhostExchange::ExtrudeGhostLayers( )
 {
   // Sanity Checks
-  assert("pre:AMRDataSet != NULL" && (this->AMRDataSet != NULL) );
+  assert( "pre: AMRDataSet != NULL" && (this->AMRDataSet != NULL) );
+  assert( "pre: Extruded Dataset is NULL" && (this->ExtrudedData != NULL) );
 
   this->WriteData( this->AMRDataSet,"INITIAL");
 
-  this->ExtrudedData = vtkHierarchicalBoxDataSet::New();
   int numLevels      = this->AMRDataSet->GetNumberOfLevels();
 
   for( int currentLevel=0; currentLevel < numLevels; ++currentLevel )
@@ -342,7 +396,7 @@ void vtkAMRDataTransferFilter::ExtrudeGhostLayers( )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::FindDonors(
+void vtkAMRGhostExchange::FindDonors(
     const unsigned int receiverIdx,
     const int donorGridLevel,
     const int donorBlockIdx )
@@ -425,7 +479,7 @@ void vtkAMRDataTransferFilter::FindDonors(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::LocalDonorSearch()
+void vtkAMRGhostExchange::LocalDonorSearch()
 {
   vtkUnsignedIntArray *cons = this->LocalConnectivity->GetEncodedGridKeys();
 
@@ -453,7 +507,7 @@ void vtkAMRDataTransferFilter::LocalDonorSearch()
 
 //------------------------------------------------------------------------------
 // TODO: Modularize and clean the function below
-void vtkAMRDataTransferFilter::LocalDataTransfer()
+void vtkAMRGhostExchange::LocalDataTransfer()
 {
   vtkstd::map<unsigned int,vtkPolyData* >::iterator it;
   it = this->ReceiverList.begin();
@@ -597,7 +651,7 @@ void vtkAMRDataTransferFilter::LocalDataTransfer()
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::CheckOwnershipAtSameLevel(
+void vtkAMRGhostExchange::CheckOwnershipAtSameLevel(
     vtkIntArray *ownership, vtkUniformGrid *myGrid, int level, int dataIdx )
 {
   // Sanity check
@@ -652,7 +706,7 @@ void vtkAMRDataTransferFilter::CheckOwnershipAtSameLevel(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::CheckOwnershipDownstream(
+void vtkAMRGhostExchange::CheckOwnershipDownstream(
     vtkIntArray *ownership, vtkUniformGrid *grid,
     vtkHierarchicalBoxDataSet *amds, vtkIdType currentLevel )
 {
@@ -701,7 +755,7 @@ void vtkAMRDataTransferFilter::CheckOwnershipDownstream(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::AttachPointOwnershipInfo()
+void vtkAMRGhostExchange::AttachPointOwnershipInfo()
 {
   // Sanity checks
   assert( "pre: output data is NULL" && (this->ExtrudedData != NULL) );
@@ -737,7 +791,7 @@ void vtkAMRDataTransferFilter::AttachPointOwnershipInfo()
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::DonorSearch()
+void vtkAMRGhostExchange::DonorSearch()
 {
   // Sanity checks
   assert("pre: ExtrudedData != NULL" && (this->ExtrudedData != NULL) );
@@ -754,7 +808,7 @@ void vtkAMRDataTransferFilter::DonorSearch()
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::DataTransfer()
+void vtkAMRGhostExchange::DataTransfer()
 {
   // Sanity checks
   assert("pre: ExtrudedData != NULL" && (this->ExtrudedData != NULL) );
@@ -766,7 +820,7 @@ void vtkAMRDataTransferFilter::DataTransfer()
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::CopyPointData(
+void vtkAMRGhostExchange::CopyPointData(
     vtkUniformGrid *src, vtkUniformGrid *t, int *re )
 {
   // Sanity check
@@ -786,7 +840,7 @@ void vtkAMRDataTransferFilter::CopyPointData(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::CopyCellData(
+void vtkAMRGhostExchange::CopyCellData(
     vtkUniformGrid *src, vtkUniformGrid *t, int *re )
 {
   // Sanity check
@@ -853,7 +907,7 @@ void vtkAMRDataTransferFilter::CopyCellData(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::AttachCellGhostInformation(
+void vtkAMRGhostExchange::AttachCellGhostInformation(
     vtkUniformGrid *extrudedGrid, int *realCellExtent)
 {
   // Sanity Check
@@ -906,7 +960,7 @@ void vtkAMRDataTransferFilter::AttachCellGhostInformation(
 
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRDataTransferFilter::CloneGrid( vtkUniformGrid *ug)
+vtkUniformGrid* vtkAMRGhostExchange::CloneGrid( vtkUniformGrid *ug)
 {
   // Sanity check
   assert( "pre: input grid is NULL" && (ug != NULL) );
@@ -973,7 +1027,7 @@ vtkUniformGrid* vtkAMRDataTransferFilter::CloneGrid( vtkUniformGrid *ug)
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid(
+vtkUniformGrid* vtkAMRGhostExchange::GetExtrudedGrid(
     vtkUniformGrid* srcGrid )
 {
   // Sanity check
@@ -1060,7 +1114,7 @@ vtkUniformGrid* vtkAMRDataTransferFilter::GetExtrudedGrid(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::WriteData( vtkHierarchicalBoxDataSet* amrData,
+void vtkAMRGhostExchange::WriteData( vtkHierarchicalBoxDataSet* amrData,
                                           std::string prefix)
 {
   assert( "pre: AMRData != NULL" && (amrData != NULL) );
@@ -1080,7 +1134,7 @@ void vtkAMRDataTransferFilter::WriteData( vtkHierarchicalBoxDataSet* amrData,
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRDataTransferFilter::WriteGrid(
+void vtkAMRGhostExchange::WriteGrid(
     vtkUniformGrid *grid, std::string prefix)
 {
   // Sanity check
