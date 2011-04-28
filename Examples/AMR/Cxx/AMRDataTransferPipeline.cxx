@@ -15,6 +15,9 @@
 // .SECTION Description
 //  A simple utility to demonstrate & test the parallel AMR functionality
 //  and inter-block data transfer.
+//
+// .SECTION Note
+// This utility code is currently deprecated.
 
 #include <cmath>
 #include <sstream>
@@ -31,7 +34,7 @@
 #include "vtkCellData.h"
 #include "vtkAMRBox.h"
 #include "vtkAMRConnectivityFilter.h"
-#include "vtkAMRDataTransferFilter.h"
+//#include "vtkAMRDataTransferFilter.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkMultiProcessController.h"
@@ -55,92 +58,92 @@ double ComputePulseAt( vtkUniformGrid *grid, const int cellIdx );
 //
 int main( int argc, char **argv )
 {
-  Controller = vtkMPIController::New();
-  Controller->Initialize( &argc, &argv );
-  assert("pre: Controller != NULL" && (Controller != NULL ) );
-
-  // STEP 0: Read In AMR data
-  std::cout << "Constructing Sample AMR data!" << std::endl;
-  std::cout.flush( );
-
-  vtkHierarchicalBoxDataSet *amrData = NULL;
-
-  if( Controller->GetNumberOfProcesses( ) == 3 )
-    amrData = GetParallelAMRDataSet( );
-  else if( Controller->GetNumberOfProcesses() == 1 )
-    amrData = GetSerialAMRDataSet( );
-  else
-    {
-      std::cerr << "Can only run with 1 or 3 MPI processes!\n";
-      std::cerr.flush();
-      return( -1 );
-    }
-
-  assert("pre: AMRData != NULL" && (amrData != NULL) );
-  assert("pre: numLevels == 2" && (amrData->GetNumberOfLevels()==2) );
-
-  std::cout << "Done reading!" << std::endl;
-  std::cout.flush( );
-  Controller->Barrier( );
-
-  // STEP 1: Compute inter-block and inter-process connectivity
-  std::cout << "Computing inter-block & inter-process connectivity!\n";
-  std::cout.flush( );
-
-  vtkAMRConnectivityFilter* connectivityFilter=vtkAMRConnectivityFilter::New( );
-  connectivityFilter->SetController( Controller );
-  connectivityFilter->SetAMRDataSet( amrData );
-  connectivityFilter->ComputeConnectivity();
-
-  std::cout << "Done computing connectivity!\n";
-  std::cout.flush( );
-  Controller->Barrier();
-
-  connectivityFilter->Print( std::cout );
-  Controller->Barrier();
-
-  // STEP 2: Data transfer
-  std::cout << "Transfering solution\n";
-  std::cout.flush();
-
-  vtkAMRDataTransferFilter* transferFilter = vtkAMRDataTransferFilter::New();
-
-  transferFilter->SetController( Controller );
-  transferFilter->SetAMRDataSet( amrData );
-  transferFilter->SetNumberOfGhostLayers( 1 );
-  transferFilter->SetRemoteConnectivity(
-   connectivityFilter->GetRemoteConnectivity() );
-  transferFilter->SetLocalConnectivity(
-   connectivityFilter->GetLocalConnectivity() );
-  transferFilter->Transfer();
-
-  vtkHierarchicalBoxDataSet *newData = transferFilter->GetExtrudedData();
-  assert( "extruded data is NULL!" && (newData != NULL) );
-  ComputeGaussianPulseError( newData );
-  WriteAMRData( newData, "NEWDATA" );
-
-  std::cout << "[DONE]\n";
-  std::cout.flush();
-  Controller->Barrier();
-
-  vtkAMRDualMeshExtractor *dme = vtkAMRDualMeshExtractor::New();
-  dme->SetInput( newData );
-  dme->Update();
-
-  std::cout << "Writting dual...";
-  std::cout.flush();
-  dme->WriteMultiBlockData( dme->GetOutput(), "FINALDUAL" );
-  std::cout << "[DONE]\n";
-  std::cout.flush();
-
-  // STEP 3: CleanUp
-  dme->Delete();
-  amrData->Delete();
-  connectivityFilter->Delete();
-  transferFilter->Delete();
-
-  Controller->Finalize();
-  Controller->Delete();
+//  Controller = vtkMPIController::New();
+//  Controller->Initialize( &argc, &argv );
+//  assert("pre: Controller != NULL" && (Controller != NULL ) );
+//
+//  // STEP 0: Read In AMR data
+//  std::cout << "Constructing Sample AMR data!" << std::endl;
+//  std::cout.flush( );
+//
+//  vtkHierarchicalBoxDataSet *amrData = NULL;
+//
+//  if( Controller->GetNumberOfProcesses( ) == 3 )
+//    amrData = GetParallelAMRDataSet( );
+//  else if( Controller->GetNumberOfProcesses() == 1 )
+//    amrData = GetSerialAMRDataSet( );
+//  else
+//    {
+//      std::cerr << "Can only run with 1 or 3 MPI processes!\n";
+//      std::cerr.flush();
+//      return( -1 );
+//    }
+//
+//  assert("pre: AMRData != NULL" && (amrData != NULL) );
+//  assert("pre: numLevels == 2" && (amrData->GetNumberOfLevels()==2) );
+//
+//  std::cout << "Done reading!" << std::endl;
+//  std::cout.flush( );
+//  Controller->Barrier( );
+//
+//  // STEP 1: Compute inter-block and inter-process connectivity
+//  std::cout << "Computing inter-block & inter-process connectivity!\n";
+//  std::cout.flush( );
+//
+//  vtkAMRConnectivityFilter* connectivityFilter=vtkAMRConnectivityFilter::New( );
+//  connectivityFilter->SetController( Controller );
+//  connectivityFilter->SetAMRDataSet( amrData );
+//  connectivityFilter->ComputeConnectivity();
+//
+//  std::cout << "Done computing connectivity!\n";
+//  std::cout.flush( );
+//  Controller->Barrier();
+//
+//  connectivityFilter->Print( std::cout );
+//  Controller->Barrier();
+//
+//  // STEP 2: Data transfer
+//  std::cout << "Transfering solution\n";
+//  std::cout.flush();
+//
+//  vtkAMRDataTransferFilter* transferFilter = vtkAMRDataTransferFilter::New();
+//
+//  transferFilter->SetController( Controller );
+//  transferFilter->SetAMRDataSet( amrData );
+//  transferFilter->SetNumberOfGhostLayers( 1 );
+//  transferFilter->SetRemoteConnectivity(
+//   connectivityFilter->GetRemoteConnectivity() );
+//  transferFilter->SetLocalConnectivity(
+//   connectivityFilter->GetLocalConnectivity() );
+//  transferFilter->Transfer();
+//
+//  vtkHierarchicalBoxDataSet *newData = transferFilter->GetExtrudedData();
+//  assert( "extruded data is NULL!" && (newData != NULL) );
+//  ComputeGaussianPulseError( newData );
+//  WriteAMRData( newData, "NEWDATA" );
+//
+//  std::cout << "[DONE]\n";
+//  std::cout.flush();
+//  Controller->Barrier();
+//
+//  vtkAMRDualMeshExtractor *dme = vtkAMRDualMeshExtractor::New();
+//  dme->SetInput( newData );
+//  dme->Update();
+//
+//  std::cout << "Writting dual...";
+//  std::cout.flush();
+//  dme->WriteMultiBlockData( dme->GetOutput(), "FINALDUAL" );
+//  std::cout << "[DONE]\n";
+//  std::cout.flush();
+//
+//  // STEP 3: CleanUp
+//  dme->Delete();
+//  amrData->Delete();
+//  connectivityFilter->Delete();
+//  transferFilter->Delete();
+//
+//  Controller->Finalize();
+//  Controller->Delete();
   return 0;
 }
 
