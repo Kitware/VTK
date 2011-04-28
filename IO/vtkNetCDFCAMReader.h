@@ -12,9 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNetCDFCAMReader - read unstructured NetCDF CAM files
+// .NAME vtkNetCDFCAMReader - Read unstructured NetCDF CAM files.
 // .SECTION Description
-
+// Reads in a NetCDF CAM (Community Atmospheric Model) file and produces
+// and unstructured grid.  The grid is actually unstructured in the
+// X and Y directions and rectilinear in the Z direction with all
+// hex cells.  The reader requires 2 NetCDF files.  The first is the
+// cell connectivity file which has the quad connectivity in the plane.
+// The other connectivity file has all of the point and field information.
+// Currently this reader ignores time that may exist in the points
+// file.
 
 #ifndef __vtkNetCDFCAMReader_h
 #define __vtkNetCDFCAMReader_h
@@ -22,7 +29,6 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class NcFile;
-class vtkUnstructuredGrid;
 
 class VTK_IO_EXPORT vtkNetCDFCAMReader : public vtkUnstructuredGridAlgorithm
 {
@@ -44,7 +50,6 @@ public:
   void SetConnectivityFileName(const char* fileName);
   vtkGetStringMacro(ConnectivityFileName);
 
-
 protected:
   vtkNetCDFCAMReader();
   ~vtkNetCDFCAMReader();
@@ -52,13 +57,8 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
-
-  virtual int FillOutputPortInformation(int, vtkInformation*);
 
 private:
   vtkNetCDFCAMReader(const vtkNetCDFCAMReader&);  // Not implemented.
@@ -73,6 +73,9 @@ private:
   // The file name that contains the cell connectivity information.
   char* ConnectivityFileName;
 
+  // Description:
+  // The NetCDF file descriptors.  NULL indicates they haven't
+  // been opened.
   NcFile* PointsFile;
   NcFile* ConnectivityFile;
 };

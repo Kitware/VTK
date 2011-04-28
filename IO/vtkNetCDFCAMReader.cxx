@@ -196,7 +196,7 @@ int vtkNetCDFCAMReader::RequestData(
     }
 
   vtkDebugMacro(<<"Reading NetCDF CAM file.");
-
+  this->SetProgress(0);
   if(this->PointsFile == NULL)
     {
     this->PointsFile = new NcFile(this->FileName, NcFile::ReadOnly);
@@ -302,6 +302,8 @@ int vtkNetCDFCAMReader::RequestData(
     }
   output->SetPoints(points);
 
+  this->SetProgress(.25);  // educated guess for progress
+
   // now read in the cell connectivity.  note that this is a periodic
   // domain and only the points on the left boundary are included in
   // the points file.  if a cell uses a point that is on the left
@@ -388,6 +390,8 @@ int vtkNetCDFCAMReader::RequestData(
       }
     }
 
+  this->SetProgress(.5);  // educated guess for progress
+
   // now that we have the full set of points, read in any point
   // data with dimensions (time, lev, ncol) but read them in
   // by chunks of ncol since it will be a pretty big chunk of
@@ -457,6 +461,8 @@ int vtkNetCDFCAMReader::RequestData(
       }
     }
 
+  this->SetProgress(.75);  // educated guess for progress
+
   // now we actually create the cells
   output->Allocate(numCells*(levelData.size()-1));
   for(long i=0;i<numCells;i++)
@@ -508,15 +514,28 @@ int vtkNetCDFCAMReader::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkNetCDFCAMReader::FillOutputPortInformation(int,
-                                                  vtkInformation* info)
-{
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 void vtkNetCDFCAMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "FileName: "
+     << (this->FileName ? this->FileName : "(NULL)") << endl;
+  os << indent << "ConnectivityFileName: " <<
+    (this->ConnectivityFileName ? this->ConnectivityFileName : "(NULL)")
+     << endl;
+  if(this->PointsFile)
+    {
+    os << indent << "PointsFile: " << this->PointsFile << endl;
+    }
+  else
+    {
+    os << indent << "PointsFile: (NULL)" << endl;
+    }
+  if(this->ConnectivityFile)
+    {
+    os << indent << "ConnectivityFile: " << this->ConnectivityFile << endl;
+    }
+  else
+    {
+    os << indent << "ConnectivityFile: (NULL)" << endl;
+    }
 }
