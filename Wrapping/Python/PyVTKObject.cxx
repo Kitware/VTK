@@ -33,6 +33,7 @@
 #include "vtkObjectBase.h"
 #include "vtkDataArray.h"
 
+#include "stddef.h"
 #include <vtksys/ios/sstream>
 
 //--------------------------------------------------------------------
@@ -415,6 +416,7 @@ PyObject *PyVTKObject_New(
 
   self->vtk_ptr = ptr;
   self->vtk_class = NULL;
+  self->vtk_flags = 0;
 
   // We want to find the class that best matches GetClassName(), since
   // the object might have been created by a factory and might therefore
@@ -462,4 +464,26 @@ PyObject *PyVTKObject_New(
     }
 
   return (PyObject *)self;
+}
+
+vtkObjectBase *PyVTKObject_GetObject(PyObject *obj)
+{
+  return ((PyVTKObject *)obj)->vtk_ptr;
+}
+
+long PyVTKObject_GetFlags(PyObject *obj)
+{
+  return ((PyVTKObject *)obj)->vtk_flags;
+}
+
+void PyVTKObject_SetFlag(PyObject *obj, long flag, int val)
+{
+  if (val)
+    {
+    ((PyVTKObject *)obj)->vtk_flags |= flag;
+    }
+  else
+    {
+    ((PyVTKObject *)obj)->vtk_flags &= ~flag;
+    }
 }
