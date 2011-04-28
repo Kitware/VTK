@@ -551,7 +551,7 @@ int vtkPiecewiseFunction::RemovePoint( double x )
     // if the first or last point has been removed, then we update the range
     // No need to sort here as the order of points hasn't changed.
     bool modifiedInvoked = false;
-    if (retVal == 0 || retVal == this->Internal->Nodes.size())
+    if (i == 0 || i == this->Internal->Nodes.size())
       {
       modifiedInvoked = this->UpdateRange();
       }

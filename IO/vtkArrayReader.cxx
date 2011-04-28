@@ -477,6 +477,7 @@ vtkArrayReader::vtkArrayReader() :
   FileName(0)
 {
   this->SetNumberOfInputPorts(0);
+  this->ReadFromInputString = false;
 }
 
 vtkArrayReader::~vtkArrayReader()
@@ -489,6 +490,20 @@ void vtkArrayReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "InputString: " << this->InputString << endl;
+  os << indent << "ReadFromInputString: "
+     << (this->ReadFromInputString ? "on" : "off") << endl;
+}
+
+void vtkArrayReader::SetInputString(const vtkStdString& string)
+{
+  this->InputString = string;
+  this->Modified();
+}
+
+vtkStdString vtkArrayReader::GetInputString()
+{
+  return this->InputString;
 }
 
 int vtkArrayReader::RequestData(
@@ -498,12 +513,20 @@ int vtkArrayReader::RequestData(
 {
   try
     {
-    if(!this->FileName)
-      throw std::runtime_error("FileName not set.");
-
-    ifstream file(this->FileName, std::ios::binary);
-
-    vtkArray* const array = this->Read(file);
+    vtkArray* array = NULL;
+    if(this->ReadFromInputString)
+      {
+      array = this->Read(this->InputString);
+      }
+    else
+      {
+      if(!this->FileName)
+        throw std::runtime_error("FileName not set.");
+  
+      ifstream file(this->FileName, std::ios::binary);
+  
+      array = this->Read(file);
+      }
     if(!array)
       throw std::runtime_error("Error reading array.");
 
@@ -522,19 +545,8 @@ int vtkArrayReader::RequestData(
   return 0;
 }
 
-vtkArray* vtkArrayReader::Read(const char* buffer)
+vtkArray* vtkArrayReader::Read(vtkStdString str)
 {
-  int len = 0;
-  if (buffer)
-    {
-    len = static_cast<int>(strlen(buffer));
-    }
-  return vtkArrayReader::Read(buffer, len);
-}
-
-vtkArray* vtkArrayReader::Read(const char* buffer, int length)
-{
-  std::string str(buffer, length);
   std::istringstream iss(str);
   return vtkArrayReader::Read(iss);
 }
