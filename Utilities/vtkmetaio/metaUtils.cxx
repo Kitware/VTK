@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stddef.h>
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -984,7 +985,7 @@ bool MET_InitReadField(MET_FieldRecordType * _mf,
 //
 bool MET_SkipToVal(METAIO_STREAM::istream &fp)
   {
-  char c;
+  int c;
   if( fp.eof() )
     {
     return false;
@@ -992,12 +993,12 @@ bool MET_SkipToVal(METAIO_STREAM::istream &fp)
 
   c = fp.get();
 
-  while( c != MET_SeperatorChar && c != ':' && !fp.eof() )
+  while(  !fp.eof() && c != MET_SeperatorChar && c != ':' )
     {
     c = fp.get();
     }
 
-  while( ( c == MET_SeperatorChar || c == ':' || isspace(c) ) && !fp.eof() )
+  while( !fp.eof() && ( c == MET_SeperatorChar || c == ':' || isspace(c) ) )
     {
     c = fp.get();
     }
