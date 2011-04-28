@@ -20,7 +20,8 @@
 #include "vtkMultiProcessController.h"
 #include "vtkAMRInterBlockConnectivity.h"
 #include "vtkHierarchicalBoxDataSet.h"
-#include "vtkAssertUtils.hpp"
+
+#include <cassert>
 
 //
 // Standard methods
@@ -29,16 +30,19 @@ vtkStandardNewMacro( vtkAMRConnectivityFilter );
 
 vtkAMRConnectivityFilter::vtkAMRConnectivityFilter()
 {
+  this->AMRDataSet         = NULL;
   this->RemoteConnectivity = NULL;
   this->LocalConnectivity  = NULL;
-  this->Controller         = vtkMultiProcessController::GetGlobalController();
+  this->Controller         = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkAMRConnectivityFilter::~vtkAMRConnectivityFilter()
 {
-  this->RemoteConnectivity->Delete();
-  this->LocalConnectivity->Delete();
+  this->AMRDataSet         = NULL;
+  this->RemoteConnectivity = NULL;
+  this->LocalConnectivity  = NULL;
+  this->Controller         = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -60,7 +64,6 @@ void vtkAMRConnectivityFilter::PrintSelf( std::ostream &os, vtkIndent indent )
 //-----------------------------------------------------------------------------
 void vtkAMRConnectivityFilter::ComputeConnectivity( )
 {
-  vtkAssertUtils::assertNotNull( this->Controller,__FILE__,__LINE__ );
 
   if( this->AMRDataSet == NULL )
     {
@@ -69,8 +72,6 @@ void vtkAMRConnectivityFilter::ComputeConnectivity( )
 
   this->RemoteConnectivity = vtkAMRInterBlockConnectivity::New( );
   this->LocalConnectivity  = vtkAMRInterBlockConnectivity::New( );
-  vtkAssertUtils::assertNotNull(this->RemoteConnectivity,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull(this->LocalConnectivity,__FILE__,__LINE__);
 
   unsigned int level = 0;
   for( ;level < this->AMRDataSet->GetNumberOfLevels(); ++level )
@@ -86,7 +87,8 @@ void vtkAMRConnectivityFilter::ComputeConnectivity( )
                    (myBox.GetBlockId()==dataIdx) );
            myBox.WriteBox();
            this->ComputeBlockConnectivity( myBox );
-        }// END for all blocks at this level
+
+        } // END for all blocks at this level
 
     } // END for all levels
 
@@ -95,10 +97,12 @@ void vtkAMRConnectivityFilter::ComputeConnectivity( )
 //-----------------------------------------------------------------------------
 void vtkAMRConnectivityFilter::ComputeBlockConnectivity( vtkAMRBox &myBox)
 {
-  vtkAssertUtils::assertNotNull( this->Controller,__FILE__,__LINE__);
-  vtkAssertUtils::assertNotNull( this->AMRDataSet, __FILE__,__LINE__);
+  assert( "pre: Input AMR dataset is NULL" && (this->AMRDataSet != NULL) );
 
-  int myRank         = this->Controller->GetLocalProcessId();
+  int myRank = 0;
+  if( this->Controller != NULL )
+   myRank = this->Controller->GetLocalProcessId();
+
   unsigned int level = 0;
   for( ; level < this->AMRDataSet->GetNumberOfLevels(); ++level )
     {
@@ -133,13 +137,13 @@ void vtkAMRConnectivityFilter::ComputeBlockConnectivity( vtkAMRBox &myBox)
                           myBox.GetBlockId(),myBox.GetLevel(),
                           box.GetBlockId(),box.GetLevel(),
                           box.GetProcessId() );
-
                     }
                 } // END if the boxes collide
 
             } // END if different block
 
         } // END for all blocks at this level
+
     } // END for all levels
 
 
