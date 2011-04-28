@@ -58,6 +58,11 @@ class VTK_AMR_EXPORT vtkAMRGhostCellExtruder :
      vtkSetMacro(Controller,vtkMultiProcessController*);
      vtkGetMacro(Controller,vtkMultiProcessController*);
 
+     // Description:
+     // Set/Get the number of extusions layers
+     vtkSetMacro(NumberOfGhostLayers,int);
+     vtkGetMacro(NumberOfGhostLayers,int);
+
   protected:
     vtkAMRGhostCellExtruder();
     virtual ~vtkAMRGhostCellExtruder();

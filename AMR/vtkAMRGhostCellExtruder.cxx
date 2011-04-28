@@ -101,6 +101,8 @@ void vtkAMRGhostCellExtruder::ConstructExtrudedDataSet(
 {
   assert( "pre: input AMR dataset is NULL" && (inAMR != NULL) );
   assert( "pre: output AMR dataset is NULL" && (outAMR != NULL ) );
+  assert( "pre: number of exrtusion layers is less that 1" &&
+            (this->NumberOfGhostLayers >= 1) );
 
   vtkUniformGrid *ugPtr     = NULL;
   unsigned int currentLevel = 0;
