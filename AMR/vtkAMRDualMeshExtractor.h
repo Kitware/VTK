@@ -35,6 +35,7 @@ class vtkUniformGrid;
 class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
 class vtkUnstructuredGrid;
+class vtkMultiProcessController;
 class vtkIdList;
 
 class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
@@ -44,6 +45,19 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     static vtkAMRDualMeshExtractor *New();
     vtkTypeMacro(vtkAMRDualMeshExtractor,vtkMultiBlockDataSetAlgorithm);
     void PrintSelf( std::ostream& oss, vtkIndent indent);
+
+    // Description:
+    // Set & Get macro for the multi-process controller.
+    // The controller is set to NULL by default in which
+    // case the algorithm will operate serially.
+    vtkSetMacro(Controller,vtkMultiProcessController*);
+    vtkGetMacro(Controller,vtkMultiProcessController*);
+
+    // Description:
+    // Sets the number of ghost layers to use when stitching the duals at
+    // the inter-level boundaries. Default is 1.
+    vtkSetMacro(NumberOfGhostLayers,int);
+    vtkGetMacro(NumberOfGhostLayers,int);
 
     // Description:
     // This method writes multiblock data. Note, this method is mostly used
@@ -121,6 +135,8 @@ class VTK_AMR_EXPORT vtkAMRDualMeshExtractor :
     virtual int FillInputPortInformation(int port, vtkInformation *info);
     virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
+    vtkMultiProcessController *Controller;
+    int NumberOfGhostLayers;
   private:
     vtkAMRDualMeshExtractor(const vtkAMRDualMeshExtractor&);// Not implemented
     void operator=(const vtkAMRDualMeshExtractor&);// Not implemented
