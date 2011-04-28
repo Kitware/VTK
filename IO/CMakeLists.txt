@@ -91,6 +91,7 @@ vtkMINCImageWriter.cxx
 vtkMPASReader.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
+vtkNetCDFCAMReader.cxx
 vtkNetCDFCFReader.cxx
 vtkNetCDFPOPReader.cxx
 vtkNetCDFReader.cxx
