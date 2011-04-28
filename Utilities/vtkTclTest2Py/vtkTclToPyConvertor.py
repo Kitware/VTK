@@ -302,12 +302,12 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
                     translated_cmd += "%s" % arg
             translated_cmd += ")"
         elif len(arguments) > 0 and arguments[0] == "UnRegister":
-            translated_cmd = "%s.UnRegister(" % command
+            translated_cmd = "# %s.UnRegister(" % command
             if len(arguments) < 2 or len(arguments[1].strip()) == 0:
                 translated_cmd += "None"
             else:
                 translated_cmd += "%s" % arguments[1]
-            translated_cmd += ")"
+            translated_cmd += ") # not needed in python"
             pass
         elif command in self._procedure_list:
             translated_cmd = "%s(" % command

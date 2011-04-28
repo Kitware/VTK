@@ -40,6 +40,8 @@ def processLine(line, output, keepTcl=1):
             output.write('# ' + line)
     elif string.find(line, "deiconify") > -1:
         output.write('# ' + line)        
+    elif string.find(line, "UnRegister") > -1:
+        output.write('# ' + line + ' # not needed for python')
     else:
         if keepTcl == 1:
             output.write('#' + line)
