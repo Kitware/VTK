@@ -65,55 +65,7 @@ class VTK_AMR_EXPORT vtkAMRGhostExchange:
 
     // Description:
     // Computes donor-receiver pairs and transfers the solution
-    void Transfer();
-
-    // Desciption:
-    // Given an extruded uniform grid instance and the real extent
-    // this method creates a "GHOST" cell array that indicates
-    // whether the cells are ghost cells or not.
-    // .SECTION WARNING
-    // The given real extent parameter (re) is the cell extent.
-    void AttachCellGhostInformation(vtkUniformGrid *ug, int *re);
-
-    // Description:
-    // Copies the point data from the source grid within the real extent
-    // of the target grid. Ghost node data is initialized to 0.0
-    // .SECTION WARNING
-    // The given real extent parameter (re) is the cell extent.
-    void CopyPointData(vtkUniformGrid *s, vtkUniformGrid *t, int *re);
-
-    // Description:
-    // Copies the cell data from the source grid within the real extent
-    // of the target grid. Ghost cell data is initialize to 0.0
-    // .SECTION WARNING
-    // The given real extent parameter (re) is the cell extent.
-    void CopyCellData(vtkUniformGrid *s, vtkUniformGrid *t, int *re);
-
-    // Description:
-    // Extrudes ghost layers for each high-resolution block.
-    // NOTE: the block(s) at the 0th level are not extruded(?)
-    void ExtrudeGhostLayers();
-
-    // Description:
-    // Given the extruded grid & the initial non-extruded grid, this method
-    // returns the extruded grid. The extruded grid will have all the data
-    // of the non-extruded grid, plus allocated space for ghost data
-    vtkUniformGrid* GetExtrudedGrid( vtkUniformGrid *grid);
-
-    // Description:
-    // Creates an identical copy of the grid given as input with the additional
-    // ghost information, donor level information and donor grid information.
-    vtkUniformGrid* CloneGrid( vtkUniformGrid *grid);
-
-    // Description:
-    // Writes the AMR data as a list of boxes. Primarily,
-    // used for debugging purposes.
-    void WriteData( vtkHierarchicalBoxDataSet* amr, std::string prefix);
-
-    // Description:
-    // Writes the given grid to a legacy VTK file. This is
-    // primarilly used for debugging.
-    void WriteGrid( vtkUniformGrid* grid, std::string prefix );
+    void Transfer( );
 
     // Description:
     // Writes the receivers. Mainly used for debugging purposes.
