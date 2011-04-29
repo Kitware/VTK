@@ -281,10 +281,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
            << " seconds."
            << "\n";
       }
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
-
-#if DEBUG_PARALLEL_ORDER_STATISTICS
     timerB->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
