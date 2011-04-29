@@ -73,6 +73,7 @@ All rights reserved.
 //
 // ****************************************************************************
 
+class vtkAxesFollower;
 class vtkCamera;
 class vtkCoordinate;
 class vtkFollower;
@@ -287,6 +288,32 @@ public:
 
   void BuildAxis(vtkViewport *viewport, bool);
 
+//BTX
+  vtkGetObjectMacro(TitleActor,  vtkAxesFollower);
+
+  inline vtkAxesFollower** GetLabelActors()
+    {
+    return this->LabelActors;
+    }
+//ETX
+
+  vtkGetMacro(NumberOfLabelsBuilt, int);
+
+  // Description
+  // Set/Get flag whether to calculate title offset.
+  // Default is true.
+  vtkSetMacro(CalculateTitleOffset, int);
+  vtkGetMacro(CalculateTitleOffset, int);
+  vtkBooleanMacro(CalculateTitleOffset, int);
+
+  // Description
+  // Set/Get flag whether to calculate label offset.
+  // Default is true.
+  vtkSetMacro(CalculateLabelOffset, int);
+  vtkGetMacro(CalculateLabelOffset, int);
+  vtkBooleanMacro(CalculateLabelOffset, int);
+
+
 protected:
   vtkAxisActor();
   ~vtkAxisActor();
@@ -364,11 +391,11 @@ private:
 
   vtkVectorText     *TitleVector;
   vtkPolyDataMapper *TitleMapper;
-  vtkFollower       *TitleActor;
+  vtkAxesFollower   *TitleActor;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
-  vtkFollower       **LabelActors;
+  vtkAxesFollower   **LabelActors;
 
   vtkPolyData        *Axis;
   vtkPolyDataMapper  *AxisMapper;
@@ -381,6 +408,9 @@ private:
   vtkTimeStamp        TitleTextTime;
 
   int                 AxisHasZeroLength;
+
+  int                 CalculateTitleOffset;
+  int                 CalculateLabelOffset;
 };
 
 
