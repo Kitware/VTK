@@ -467,7 +467,7 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
         {
         return NULL;
         }
-      if (PyVTKObject_Check(result))
+      if (!PyVTKObject_Check(result))
         {
         PyErr_SetString(PyExc_TypeError, "__vtk__() doesn't return a VTK object");
         Py_DECREF(result);
