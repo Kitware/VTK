@@ -17,6 +17,7 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkMath.h"
+#include "vtkPolynomialSolversUnivariate.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderWindow.h"

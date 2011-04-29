@@ -97,6 +97,15 @@ int vtkWrap_IsConst(ValueInfo *val);
 /*@}*/
 
 /**
+ * Hints.
+ * NewInstance objects must be freed by the caller.
+ */
+/*@{*/
+int vtkWrap_IsNewInstance(ValueInfo *val);
+/*@}*/
+
+
+/**
  * Check whether the class is derived from vtkObjectBase.
  * If "hinfo" is NULL, this just checks that the class
  * name starts with "vtk".
@@ -139,6 +148,14 @@ void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo);
  * GetNumberOfComponents() method gives the tuple size.
  */
 void vtkWrap_FindCountHints(
+  ClassInfo *data, HierarchyInfo *hinfo);
+
+/**
+ * Apply any hints about methods that return a new object instance,
+ * i.e. factory methods and the like.  Reference counts must be
+ * handled differently for such returned objects.
+ */
+void vtkWrap_FindNewInstanceMethods(
   ClassInfo *data, HierarchyInfo *hinfo);
 
 /**
