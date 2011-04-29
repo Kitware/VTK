@@ -65,6 +65,49 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
 }
 
+//-----------------------------------------------------------------------------
+int vtkPOrderStatisticsDataArrayReduce( vtkIdTypeArray* card_g,
+                                        vtkDataArray* dvals_g )
+{
+  // Check consistency: we must have as many values as cardinality entries
+  vtkIdType nRow_g = card_g->GetNumberOfTuples();
+  if ( nRow_g != dvals_g->GetNumberOfTuples() )
+    {
+    return 0;
+    }
+
+  // Reduce to the global histogram table
+  vtkstd::map<double,vtkIdType> histogram;
+  double x;
+  vtkIdType c;
+  for ( vtkIdType r = 0; r < nRow_g; ++ r )
+    {
+    // First, fetch value
+    x = dvals_g->GetTuple1( r );
+
+    // Then, retrieve corresponding cardinality
+    c = card_g->GetValue( r );
+
+    // Last, update histogram count for corresponding value
+    histogram[x] += c;
+    }
+
+  // Now resize global histogram arrays to reduced size
+  nRow_g = static_cast<vtkIdType>( histogram.size() );
+  dvals_g->SetNumberOfTuples( nRow_g );
+  card_g->SetNumberOfTuples( nRow_g );
+
+  // Then store reduced histogram into array
+  vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
+  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
+    {
+    dvals_g->SetTuple1( r, hit->first );
+    card_g->SetValue( r, hit->second );
+    }
+
+  return 1;
+}
+
 // ----------------------------------------------------------------------
 void vtkPOrderStatistics::Learn( vtkTable* inData,
                                  vtkTable* inParameters,
@@ -212,48 +255,17 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       // Reduce to global histogram table on process reduceProc
       if ( myRank == reduceProc )
         {
-        // Check consistency: we must have as many values as cardinality entries
-        vtkIdType nRow_g = card_g->GetNumberOfTuples();
-        if ( nRow_g != dvals_g->GetNumberOfTuples() )
+        if ( ! vtkPOrderStatisticsDataArrayReduce( card_g, dvals_g ) )
           {
           vtkErrorMacro("Gathering error on process "
                         << this->Controller->GetCommunicator()->GetLocalProcessId()
                         << ": inconsistent number of values and cardinality entries: "
                         << dvals_g->GetNumberOfTuples()
                         << " <> "
-                        <<  nRow_g
+                        << card_g->GetNumberOfTuples()
                         << ".");
 
           return;
-          }
-
-        // Reduce to the global histogram table
-        vtkstd::map<double,vtkIdType> histogram;
-        double x;
-        vtkIdType c;
-        for ( vtkIdType r = 0; r < nRow_g; ++ r )
-          {
-          // First, fetch value
-          x = dvals_g->GetTuple1( r );
-
-          // Then, retrieve corresponding cardinality
-          c = card_g->GetValue( r );
-
-          // Last, update histogram count for corresponding value
-          histogram[x] += c;
-          }
-
-        // Now resize global histogram arrays to reduced size
-        nRow_g = static_cast<vtkIdType>( histogram.size() );
-        dvals_g->SetNumberOfTuples( nRow_g );
-        card_g->SetNumberOfTuples( nRow_g );
-
-        // Then store reduced histogram into array
-        vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
-        for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
-          {
-          dvals_g->SetTuple1( r, hit->first );
-          card_g->SetValue( r, hit->second );
           }
         } // if ( myRank == reduceProc )
 
@@ -299,7 +311,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         //
         histoTab_g->AddColumn( dvals_g );
         dvals_g->Delete();
-      }
+      } // if ( vals->IsA("vtkDataArray") )
     else if ( vals->IsA("vtkStringArray") )
       {
       // Packing step: concatenate all x and c values
