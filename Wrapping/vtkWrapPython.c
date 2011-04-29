@@ -509,6 +509,16 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     {
     fprintf(fp,
             "      result = ap.BuildVTKObject(tempr);\n");
+
+    if (vtkWrap_IsNewInstance(val))
+      {
+      fprintf(fp,
+            "      if (result && PyVTKObject_Check(result))\n"
+            "        {\n"
+            "        PyVTKObject_GetObject(result)->UnRegister(0);\n"
+            "        PyVTKObject_SetFlag(result, VTK_PYTHON_IGNORE_UNREGISTER, 1);\n"
+            "        }\n");
+      }
     }
   else if (vtkWrap_IsSpecialObject(val) &&
            vtkWrap_IsRef(val))
@@ -1845,6 +1855,9 @@ static void vtkWrapPython_GenerateMethods(
   /* modify the arg count for vtkDataArray methods */
   vtkWrap_FindCountHints(data, hinfo);
 
+  /* identify methods that create new instances of objects */
+  vtkWrap_FindNewInstanceMethods(data, hinfo);
+
   /* go through all functions and see which are wrappable */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
@@ -2135,15 +2148,19 @@ static void vtkWrapPython_ClassMethodDef(
             data->Name);
     }
 
-  /* vtkObjectBase needs entries for GetAddressAsString and PrintRevisions */
+  /* vtkObjectBase needs GetAddressAsString, PrintRevisions, UnRegister */
   else if (strcmp("vtkObjectBase", data->Name) == 0)
     {
     fprintf(fp,
             "  {(char*)\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
             "   (char*)\"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n"
             "  {(char*)\"PrintRevisions\",  Py%s_PrintRevisions, 1,\n"
-            "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
-            data->Name, data->Name);
+            "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n"
+            "  {(char*)\"Register\", Py%s_Register, 1,\n"
+            "   (char*)\"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
+            "  {(char*)\"UnRegister\", Py%s_UnRegister, 1,\n"
+            "   (char*)\"V.UnRegister(vtkObjectBase)\\nC++: virtual void UnRegister(vtkObjectBase *o)\\n\\nDecrease the reference count (release by another object). This\\nhas the same effect as invoking Delete() (i.e., it reduces the\\nreference count by 1).\\n\"},\n",
+            data->Name, data->Name, data->Name, data->Name);
     }
 
   /* python expects the method table to end with a "NULL" entry */
@@ -2276,6 +2293,8 @@ static int vtkWrapPython_MethodCheck(
 
   /* new and delete are meaningless in wrapped languages */
   if (currentFunction->Name == 0 ||
+      strcmp("Register", currentFunction->Name) == 0 ||
+      strcmp("UnRegister", currentFunction->Name) == 0 ||
       strcmp("Delete", currentFunction->Name) == 0 ||
       strcmp("New", currentFunction->Name) == 0)
     {
@@ -2685,7 +2704,9 @@ static void vtkWrapPython_CustomMethods(
       theFunc = data->Functions[i];
 
       if ((strcmp(theFunc->Name, "GetAddressAsString") == 0) ||
-          (strcmp(theFunc->Name, "PrintRevisions") == 0))
+          (strcmp(theFunc->Name, "PrintRevisions") == 0) ||
+          (strcmp(theFunc->Name, "Register") == 0) ||
+          (strcmp(theFunc->Name, "UnRegister") == 0))
         {
         theFunc->Name = NULL;
         }
@@ -2737,6 +2758,84 @@ static void vtkWrapPython_CustomMethods(
             "    tempr = vtkmsg_with_warning_C4701.str().c_str();\n"
             "\n"
             "    result = ap.BuildValue(tempr);\n"
+            "    }\n"
+            "\n"
+            "  return result;\n"
+            "}\n"
+            "\n",
+            data->Name, data->Name);
+
+    /* Override the Register method to check whether to ignore Register */
+    fprintf(fp,
+            "static PyObject *\n"
+            "PyvtkObjectBase_Register(PyObject *self, PyObject *args)\n"
+            "{\n"
+            "  vtkPythonArgs ap(self, args, \"Register\");\n"
+            "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
+            "  %s *op = static_cast<%s *>(vp);\n"
+            "\n"
+            "  vtkObjectBase *temp0 = NULL;\n"
+            "  PyObject *result = NULL;\n"
+            "\n"
+            "  if (op && ap.CheckArgCount(1) &&\n"
+            "      ap.GetVTKObject(temp0, \"vtkObjectBase\"))\n"
+            "    {\n"
+            "    if (!PyVTKObject_Check(self) ||\n"
+            "        (PyVTKObject_GetFlags(self) & VTK_PYTHON_IGNORE_UNREGISTER) == 0)\n"
+            "      {\n"
+            "      if (ap.IsBound())\n"
+            "        {\n"
+            "        op->Register(temp0);\n"
+            "        }\n"
+            "      else\n"
+            "        {\n"
+            "        op->vtkObjectBase::Register(temp0);\n"
+            "        }\n"
+            "      }\n"
+            "\n"
+            "    if (!ap.ErrorOccurred())\n"
+            "      {\n"
+            "      result = ap.BuildNone();\n"
+            "      }\n"
+            "    }\n"
+            "\n"
+            "  return result;\n"
+            "}\n"
+            "\n",
+            data->Name, data->Name);
+
+    /* Override the UnRegister method to check whether to ignore UnRegister */
+    fprintf(fp,
+            "static PyObject *\n"
+            "PyvtkObjectBase_UnRegister(PyObject *self, PyObject *args)\n"
+            "{\n"
+            "  vtkPythonArgs ap(self, args, \"UnRegister\");\n"
+            "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
+            "  %s *op = static_cast<%s *>(vp);\n"
+            "\n"
+            "  vtkObjectBase *temp0 = NULL;\n"
+            "  PyObject *result = NULL;\n"
+            "\n"
+            "  if (op && ap.CheckArgCount(1) &&\n"
+            "      ap.GetVTKObject(temp0, \"vtkObjectBase\"))\n"
+            "    {\n"
+            "    if (!PyVTKObject_Check(self) ||\n"
+            "        (PyVTKObject_GetFlags(self) & VTK_PYTHON_IGNORE_UNREGISTER) == 0)\n"
+            "      {\n"
+            "      if (ap.IsBound())\n"
+            "        {\n"
+            "        op->UnRegister(temp0);\n"
+            "        }\n"
+            "      else\n"
+            "        {\n"
+            "        op->vtkObjectBase::UnRegister(temp0);\n"
+            "        }\n"
+            "      }\n"
+            "\n"
+            "    if (!ap.ErrorOccurred())\n"
+            "      {\n"
+            "      result = ap.BuildNone();\n"
+            "      }\n"
             "    }\n"
             "\n"
             "  return result;\n"
