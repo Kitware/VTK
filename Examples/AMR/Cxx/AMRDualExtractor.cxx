@@ -32,7 +32,7 @@
 #include "vtkCellData.h"
 #include "vtkAMRBox.h"
 #include "vtkAMRConnectivityFilter.h"
-#include "vtkAMRDataTransferFilter.h"
+#include "vtkAMRGhostExchange.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkMultiProcessController.h"
@@ -75,18 +75,16 @@ int main( int argc, char **argv )
   std::cout << " -- Transfering solution...\n";
   std::cout.flush();
 
-  vtkAMRDataTransferFilter* transferFilter = vtkAMRDataTransferFilter::New();
 
-  transferFilter->SetController( Controller );
-  transferFilter->SetAMRDataSet( amrData );
-  transferFilter->SetNumberOfGhostLayers( 1 );
-  transferFilter->SetRemoteConnectivity(
-   connectivityFilter->GetRemoteConnectivity() );
-  transferFilter->SetLocalConnectivity(
-   connectivityFilter->GetLocalConnectivity() );
-  transferFilter->Transfer();
-
-  vtkHierarchicalBoxDataSet *newData = transferFilter->GetExtrudedData();
+  vtkAMRGhostExchange* gridSolutionExchanger = vtkAMRGhostExchange::New();
+  gridSolutionExchanger->SetAMRDataSet( amrData );
+  gridSolutionExchanger->SetNumberOfGhostLayers( 1 );
+  gridSolutionExchanger->SetRemoteConnectivity(
+      connectivityFilter->GetRemoteConnectivity() );
+  gridSolutionExchanger->SetLocalConnectivity(
+      connectivityFilter->GetLocalConnectivity() );
+  gridSolutionExchanger->Update();
+  vtkHierarchicalBoxDataSet *newData = gridSolutionExchanger->GetOutput();
   assert( "extruded data is NULL!" && (newData != NULL) );
   AMRCommon::WriteAMRData( newData, "EXTRUDED" );
 
@@ -108,7 +106,6 @@ int main( int argc, char **argv )
   dme->Delete();
   amrData->Delete();
   connectivityFilter->Delete();
-  transferFilter->Delete();
 
   Controller->Finalize();
   Controller->Delete();

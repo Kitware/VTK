@@ -410,7 +410,21 @@ void vtkColorTransferFunction::SortAndUpdateRange()
   vtkstd::sort( this->Internal->Nodes.begin(),
                 this->Internal->Nodes.end(),
                 this->Internal->CompareNodes );
-  
+  bool modifiedInvoked = this->UpdateRange();
+  // If range is updated, Modified() has been called, don't call it again.
+  if (!modifiedInvoked)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkColorTransferFunction::UpdateRange()
+{
+  double oldRange[2];
+  oldRange[0] = this->Range[0];
+  oldRange[1] = this->Range[1];
+
   int size = static_cast<int>(this->Internal->Nodes.size());
   if ( size )
     {
@@ -422,8 +436,15 @@ void vtkColorTransferFunction::SortAndUpdateRange()
     this->Range[0] = 0;
     this->Range[1] = 0;
     }
-  
-  this->Modified();  
+
+  // If the range is the same, then no need to call Modified()
+  if (oldRange[0] == this->Range[0] && oldRange[1] == this->Range[1])
+    {
+    return false;
+    }
+
+  this->Modified();
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -466,7 +487,17 @@ int vtkColorTransferFunction::RemovePoint( double x )
     {
     delete *iter;
     this->Internal->Nodes.erase(iter);
-    this->Modified();
+    // If the first or last point has been removed, then we update the range
+    // No need to sort here as the order of points hasn't changed.
+    bool modifiedInvoked = false;
+    if (i == 0 || i == this->Internal->Nodes.size())
+      {
+      modifiedInvoked = this->UpdateRange();
+      }
+    if (!modifiedInvoked)
+      {
+      this->Modified();
+      }
     }
   else
      {
@@ -1153,6 +1184,7 @@ int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
     return -1;
     }
   
+  double oldX = this->Internal->Nodes[index]->X;
   this->Internal->Nodes[index]->X = val[0];
   this->Internal->Nodes[index]->R = val[1];
   this->Internal->Nodes[index]->G = val[2];
@@ -1160,7 +1192,18 @@ int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
   this->Internal->Nodes[index]->Midpoint = val[4];
   this->Internal->Nodes[index]->Sharpness = val[5];
 
-  this->Modified();
+  if (oldX != val[0])
+    {
+    // The point has been moved, the order of points or the range might have
+    // been modified.
+    this->SortAndUpdateRange();
+    // No need to call Modified() here because SortAndUpdateRange() has done it
+    // already.
+    }
+  else
+    {
+    this->Modified();
+    }
 
   return 1;
 }

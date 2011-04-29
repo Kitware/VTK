@@ -38,7 +38,8 @@
 #include "vtkMultiProcessController.h"
 
 #include "vtkAMRConnectivityFilter.h"
-#include "vtkAMRDataTransferFilter.h"
+#include "vtkAMRGhostExchange.h"
+//#include "vtkAMRDataTransferFilter.h"
 
 //
 // Standard methods
@@ -48,6 +49,9 @@ vtkStandardNewMacro( vtkAMRDualMeshExtractor );
 
 vtkAMRDualMeshExtractor::vtkAMRDualMeshExtractor()
 {
+  this->Controller          = NULL;
+  this->NumberOfGhostLayers = 1;
+  this->SetNumberOfInputPorts( 1 );
   this->SetNumberOfOutputPorts( 1 );
 }
 
@@ -158,22 +162,20 @@ vtkHierarchicalBoxDataSet* vtkAMRDualMeshExtractor::ExchangeGhostInformation(
 
   // STEP 1: Create a single layer of ghost cells and exhange information
   // at the ghost cells
-  vtkAMRDataTransferFilter* transferFilter = vtkAMRDataTransferFilter::New();
-  transferFilter->SetController(
-      vtkMultiProcessController::GetGlobalController() );
-  transferFilter->SetAMRDataSet( input );
-  transferFilter->SetNumberOfGhostLayers( 1 );
-  transferFilter->SetRemoteConnectivity(
+  vtkAMRGhostExchange *gridSolutionExchanger = vtkAMRGhostExchange::New();
+  gridSolutionExchanger->SetController( this->Controller );
+  gridSolutionExchanger->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
+  gridSolutionExchanger->SetRemoteConnectivity(
    connectivityFilter->GetRemoteConnectivity() );
-  transferFilter->SetLocalConnectivity(
+  gridSolutionExchanger->SetLocalConnectivity(
    connectivityFilter->GetLocalConnectivity() );
-  transferFilter->Transfer();
+  gridSolutionExchanger->Update();
 
-  vtkHierarchicalBoxDataSet *newData = transferFilter->GetExtrudedData();
+  vtkHierarchicalBoxDataSet *newData = gridSolutionExchanger->GetOutput();
   assert( "extruded data is NULL!" && (newData != NULL) );
 
   connectivityFilter->Delete();
-  transferFilter->Delete();
+  gridSolutionExchanger->Delete();
   return( newData );
 }
 
@@ -220,7 +222,7 @@ void vtkAMRDualMeshExtractor::ProcessDual(
   assert( "pre: AMR dataset is NULL" && (amrData != NULL) );
   assert( "pre: dual mesh is NULL" && (dualMesh != NULL) );
   assert( "pre: level index out-of-bounds" &&
-   ( myLevel >= 0 && myLevel < amrData->GetNumberOfLevels()) );
+          (myLevel < amrData->GetNumberOfLevels()) );
 
   if( myLevel == 0 )
     return;

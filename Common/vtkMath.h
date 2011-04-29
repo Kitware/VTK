@@ -84,16 +84,6 @@ public:
   static double DegreesFromRadians( double radians);
 
   // Description:
-  // @deprecated Replaced by vtkMath::RadiansFromDegrees() as of VTK 5.4.
-  VTK_LEGACY(static float DegreesToRadians());
-  VTK_LEGACY(static double DoubleDegreesToRadians());
-
-  // Description:
-  // @deprecated Replaced by vtkMath::DegreesFromRadians() as of VTK 5.4.
-  VTK_LEGACY(static float RadiansToDegrees());
-  VTK_LEGACY(static double DoubleRadiansToDegrees());
-
-  // Description:
   // Rounds a float to the nearest integer.
   static int Round(float f) {
     return static_cast<int>( f + ( f >= 0 ? 0.5 : -0.5 ) ); }
@@ -1001,45 +991,6 @@ inline double vtkMath::DegreesFromRadians( double x )
 {
   return x * 57.29577951308232;
 }
-
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-inline float vtkMath::DegreesToRadians()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::DegreesToRadians, "VTK 5.4",
-                           vtkMath::RadiansFromDegrees);
-
-  return vtkMath::RadiansFromDegrees( 1.f );
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::DoubleDegreesToRadians()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::DoubleDegreesToRadians, "VTK 5.4",
-                           vtkMath::RadiansFromDegrees);
-
-
-  return vtkMath::RadiansFromDegrees( 1. );
-}
-
-//----------------------------------------------------------------------------
-inline float vtkMath::RadiansToDegrees()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::RadiansToDegrees, "VTK 5.4",
-                           vtkMath::DegreesFromRadians);
-
-  return vtkMath::DegreesFromRadians( 1.f );
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::DoubleRadiansToDegrees()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::DoubleRadiansToDegrees, "VTK 5.4",
-                           vtkMath::DegreesFromRadians);
-
-  return vtkMath::DegreesFromRadians( 1. );
-}
-#endif // #ifndef VTK_LEGACY_REMOVE
 
 //----------------------------------------------------------------------------
 inline vtkTypeInt64 vtkMath::Factorial( int N )

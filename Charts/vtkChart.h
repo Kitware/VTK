@@ -178,6 +178,16 @@ public:
   vtkGetMacro(AutoSize, bool);
 
   // Description:
+  // Set/get whether the chart should still render its axes and decorations
+  // even if the chart has no visible plots. Default is false (do not render
+  // an empty plot).
+  //
+  // Note that if you wish to render axes for an empty plot you should also
+  // set AutoSize to false, as that will hide all axes for an empty plot.
+  vtkSetMacro(RenderEmpty, bool);
+  vtkGetMacro(RenderEmpty, bool);
+
+  // Description:
   // Assign action types to mouse buttons. Available action types are PAN, ZOOM
   // and SELECT in the chart enum, the default assigns the LEFT_BUTTON to
   // PAN, MIDDLE_BUTTON to ZOOM and RIGHT_BUTTON to SELECT. Valid mouse enums
@@ -235,6 +245,7 @@ protected:
 
   vtkRectf Size;
   bool AutoSize;
+  bool RenderEmpty;
 
   // Description:
   // Hold mouse action mappings.

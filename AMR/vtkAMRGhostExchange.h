@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkAMRDataTransferFilter.h
+ Module:    vtkAMRGhostExchange.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -12,16 +12,19 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRDataTransferFilter -- Transfers data at the block boundaries
+// .NAME vtkAMRGhostExchange -- Transfers data at the block boundaries
 //
 // .SECTION Description
 // A concrete instance of vtkHierarchicalBoxDataSet algorithm that implements
-// functionality for computing the donor-receiver pairs at the inter-block
-// boundaries and transfers the data, i.e., the solution. The solution is
-// transfered from either lower resolution blocks or same resolution blocks.
+// functionality for extruding ghost layers, computing the donor-receiver pairs
+// at the inter-block boundaries and transfering of the solution.
+//
+// .SECTION Caveats
+// In the present implementation the solution is transfered from either lower
+// resolution blocks or same resolution blocks.
 
-#ifndef VTKAMRDATATRANSFERFILTER_H_
-#define VTKAMRDATATRANSFERFILTER_H_
+#ifndef vtkAMRGhostExchange_H_
+#define vtkAMRGhostExchange_H_
 
 #include "vtkHierarchicalBoxDataSetAlgorithm.h"
 
@@ -36,13 +39,15 @@ class vtkUniformGrid;
 class vtkDataArray;
 class vtkPolyData;
 class vtkIntArray;
+class vtkInformation;
+class vtkInformationVector;
 
-class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
+class VTK_AMR_EXPORT vtkAMRGhostExchange:
                       public vtkHierarchicalBoxDataSetAlgorithm
 {
   public:
-    static vtkAMRDataTransferFilter* New();
-    vtkTypeMacro(vtkAMRDataTransferFilter,vtkHierarchicalBoxDataSetAlgorithm);
+    static vtkAMRGhostExchange* New();
+    vtkTypeMacro(vtkAMRGhostExchange,vtkHierarchicalBoxDataSetAlgorithm);
     void PrintSelf( std::ostream &oss, vtkIndent indent );
 
     // Inline setters & getters
@@ -53,62 +58,14 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     vtkSetNGetMacro(LocalConnectivity,vtkAMRInterBlockConnectivity*);
     vtkGetMacro(ExtrudedData,vtkHierarchicalBoxDataSet*);
 
-    // Description:
-    // Computes donor-receiver pairs and transfers the solution
-    void Transfer();
-
 
   protected:
-    vtkAMRDataTransferFilter();
-    virtual ~vtkAMRDataTransferFilter();
-
-    // Desciption:
-    // Given an extruded uniform grid instance and the real extent
-    // this method creates a "GHOST" cell array that indicates
-    // whether the cells are ghost cells or not.
-    // .SECTION WARNING
-    // The given real extent parameter (re) is the cell extent.
-    void AttachCellGhostInformation(vtkUniformGrid *ug, int *re);
+    vtkAMRGhostExchange();
+    virtual ~vtkAMRGhostExchange();
 
     // Description:
-    // Copies the point data from the source grid within the real extent
-    // of the target grid. Ghost node data is initialized to 0.0
-    // .SECTION WARNING
-    // The given real extent parameter (re) is the cell extent.
-    void CopyPointData(vtkUniformGrid *s, vtkUniformGrid *t, int *re);
-
-    // Description:
-    // Copies the cell data from the source grid within the real extent
-    // of the target grid. Ghost cell data is initialize to 0.0
-    // .SECTION WARNING
-    // The given real extent parameter (re) is the cell extent.
-    void CopyCellData(vtkUniformGrid *s, vtkUniformGrid *t, int *re);
-
-    // Description:
-    // Extrudes ghost layers for each high-resolution block.
-    // NOTE: the block(s) at the 0th level are not extruded(?)
-    void ExtrudeGhostLayers();
-
-    // Description:
-    // Given the extruded grid & the initial non-extruded grid, this method
-    // returns the extruded grid. The extruded grid will have all the data
-    // of the non-extruded grid, plus allocated space for ghost data
-    vtkUniformGrid* GetExtrudedGrid( vtkUniformGrid *grid);
-
-    // Description:
-    // Creates an identical copy of the grid given as input with the additional
-    // ghost information, donor level information and donor grid information.
-    vtkUniformGrid* CloneGrid( vtkUniformGrid *grid);
-
-    // Description:
-    // Writes the AMR data as a list of boxes. Primarily,
-    // used for debugging purposes.
-    void WriteData( vtkHierarchicalBoxDataSet* amr, std::string prefix);
-
-    // Description:
-    // Writes the given grid to a legacy VTK file. This is
-    // primarilly used for debugging.
-    void WriteGrid( vtkUniformGrid* grid, std::string prefix );
+    // Computes donor-receiver pairs and transfers the solution
+    void Transfer( );
 
     // Description:
     // Writes the receivers. Mainly used for debugging purposes.
@@ -166,6 +123,12 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     void DataTransfer();
     void LocalDataTransfer();
 
+    // Standard pipeline routines
+    virtual int RequestData(
+        vtkInformation*,vtkInformationVector**,vtkInformationVector*);
+    virtual int FillInputPortInformation(int port, vtkInformation *info);
+    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+
     int                          NumberOfGhostLayers;
     vtkHierarchicalBoxDataSet    *ExtrudedData;
     vtkMultiProcessController    *Controller;
@@ -176,9 +139,9 @@ class VTK_AMR_EXPORT vtkAMRDataTransferFilter:
     vtkstd::map<unsigned int, vtkPolyData*> ReceiverList;
 
   private:
-    vtkAMRDataTransferFilter(const vtkAMRDataTransferFilter&); // Not implemented
-    vtkAMRDataTransferFilter& operator=(const vtkAMRDataTransferFilter&); // Not implemented
+    vtkAMRGhostExchange(const vtkAMRGhostExchange&); // Not implemented
+    vtkAMRGhostExchange& operator=(const vtkAMRGhostExchange&); // Not implemented
 
 };
 
-#endif /* VTKAMRDATATRANSFERFILTER_H_ */
+#endif /* vtkAMRGhostExchange_H_ */

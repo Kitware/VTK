@@ -82,6 +82,19 @@ TARGET_LINK_LIBRARIES( AMRSlicer
                 ${VTK_HDF5_LIBRARIES}
                 )
 
+## Add AMR Ghost Cell Extruder 
+ADD_EXECUTABLE(AMRGhostCellExtruder AMRGhostCellExtruder.cxx)
+TARGET_LINK_LIBRARIES( AMRGhostCellExtruder
+                vtkGraphics
+                vtkFiltering
+                vtkRendering
+                vtkIO
+                vtkAMR
+                vtkParallel
+                ${MPI_LIBRARIES}
+                ${VTK_HDF5_LIBRARIES}
+                )
+                
 ## Add Generate3DAMRDataSetWithPulse executable
 ADD_EXECUTABLE( Generate3DAMRDataSetWithPulse Generate3DAMRDataSetWithPulse.cxx)
 TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
