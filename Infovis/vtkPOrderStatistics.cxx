@@ -119,8 +119,8 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timers=vtkTimerLog::New();
-  timers->StartTimer();
+  vtkTimerLog *timer=vtkTimerLog::New();
+  timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
   // First calculate order statistics on local data set
@@ -130,31 +130,32 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
        || outMeta->GetNumberOfBlocks() < 1 )
     {
     // No statistics were calculated.
-
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    timers->Delete();
+    timer->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
     return;
     }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-  timers->StopTimer();
+  timer->StopTimer();
 
   cout << "## Process "
        << this->Controller->GetCommunicator()->GetLocalProcessId()
        << " serial engine executed in "
-       << timers->GetElapsedTime()
+       << timer->GetElapsedTime()
        << " seconds."
        << "\n";
-
-  timers->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
   // Make sure that parallel updates are needed, otherwise leave it at that.
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
     {
+#if DEBUG_PARALLEL_ORDER_STATISTICS
+    timer->Delete();
+#endif //DEBUG_PARALLEL_ORDER_STATISTICS
+
     return;
     }
 
@@ -195,9 +196,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    vtkTimerLog *timerA=vtkTimerLog::New();
-    vtkTimerLog *timerB=vtkTimerLog::New();
-    timerA->StartTimer();
+    timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
     // Create new table for global histogram
@@ -261,28 +260,16 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         } // if ( myRank == reduceProc )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    timerA->StopTimer();
+    timer->StopTimer();
 
-    if ( myRank == reduceProc )
-      {
-      cout << "## Process "
-           << myRank
-           << " gathered and reduced in "
-           << timerA->GetElapsedTime()
-           << " seconds."
-           << "\n";
-      }
-    else // if ( myRank == reduceProc )
-      {
-      cout << "## Process "
-           << myRank
-           << " gathered in "
-           << timerA->GetElapsedTime()
-           << " seconds."
-           << "\n";
-      }
+    cout << "## Process "
+         << myRank
+         << ( myRank == reduceProc ? " gathered and reduced in " : " gathered in " )
+         << timer->GetElapsedTime()
+         << " seconds."
+         << "\n";
 
-    timerB->StartTimer();
+    timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
       // Finally broadcast reduced histogram values
@@ -339,17 +326,16 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    timerB->StopTimer();
+    timer->StopTimer();
 
     cout << "## Process "
          << myRank
          << " broadcasted in "
-         << timerB->GetElapsedTime()
+         << timer->GetElapsedTime()
          << " seconds."
          << "\n";
 
-    timerA->Delete();
-    timerB->Delete();
+    timer->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
     //
