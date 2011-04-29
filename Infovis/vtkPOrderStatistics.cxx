@@ -119,9 +119,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timer=vtkTimerLog::New();
-  timer->StartTimer();
-
   vtkTimerLog *timers=vtkTimerLog::New();
   timers->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
@@ -135,7 +132,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     // No statistics were calculated.
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
     timers->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
@@ -159,11 +155,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
     {
-
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
     return;
     }
 
@@ -374,17 +365,4 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     // Clean up
     histoTab_g->Delete();
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
-
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  timer->StopTimer();
-
-  cout << "## Process "
-       << myRank
-       << " parallel Learn took "
-       << timer->GetElapsedTime()
-       << " seconds."
-       << "\n";
-
-  timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
 }
