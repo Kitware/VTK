@@ -33,7 +33,7 @@
 #include "vtkObjectBase.h"
 #include "vtkDataArray.h"
 
-#include "stddef.h"
+#include <stddef.h>
 #include <vtksys/ios/sstream>
 
 //--------------------------------------------------------------------
