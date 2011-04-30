@@ -31,9 +31,16 @@ public:
                      vtkAxisActor *yAxis,
                      vtkAxisActor *zAxis)
    {
+   if(!xAxis || !yAxis || !zAxis)
+     {
+     vtkErrorMacro("One of the axis is invalid or null\n");
+     return;
+     }
    this->XAxis = xAxis;
    this->YAxis = yAxis;
    this->ZAxis = zAxis;
+
+   this->Modified();
    }
 //ETX
 

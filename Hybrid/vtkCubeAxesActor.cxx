@@ -114,9 +114,9 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
     this->ScreenSize = 10.0;
 
-    this->LabelScreenOffset = 20.0;
+    this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
     this->TitleScreenOffset =
-      this->LabelScreenOffset * 2.0 + this->ScreenSize;
+      this->LabelScreenOffset * 2.0 + this->ScreenSize * 0.5;
 
     // Pass information to axes followers.
     this->XAxes[i]->GetTitleActor()->SetAxes(this->XAxes[i],
@@ -540,6 +540,48 @@ void vtkCubeAxesActor::AdjustAxes(double bounds[6],
       zRange[1] = zRange[1] - this->CornerOffset * zScale * (zRange[1] - ave);
       }
     }
+}
+
+// *************************************************************************
+// Screen size affects the screen offset as well.
+// *************************************************************************
+void vtkCubeAxesActor::SetScreenSize(double screenSize)
+{
+this->ScreenSize = screenSize;
+// Considering pivot point at center of the geometry hence (this->ScreenSize * 0.5).
+this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
+this->TitleScreenOffset = this->LabelScreenOffset * 2.0 +
+  this->ScreenSize * 0.5;
+
+for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  {
+  this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+  this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+  this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+
+  int numberOfLabelsBuild = this->XAxes[i]->GetNumberOfLabelsBuilt();
+  vtkAxesFollower **labelActors = this->XAxes[i]->GetLabelActors();
+  for(int k=0; k < numberOfLabelsBuild; ++k)
+    {
+    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+    }
+
+  numberOfLabelsBuild = this->YAxes[i]->GetNumberOfLabelsBuilt();
+  labelActors = this->YAxes[i]->GetLabelActors();
+  for(int k=0; k < numberOfLabelsBuild; ++k)
+    {
+    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+    }
+
+  numberOfLabelsBuild = this->ZAxes[i]->GetNumberOfLabelsBuilt();
+  labelActors = this->ZAxes[i]->GetLabelActors();
+  for(int k=0; k < numberOfLabelsBuild; ++k)
+    {
+    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+    }
+  }
+
+this->Modified();
 }
 
 // Release any graphics resources that are being consumed by this actor.
