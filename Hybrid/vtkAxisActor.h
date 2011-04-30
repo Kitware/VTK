@@ -255,7 +255,6 @@ public:
   void SetLabelScale(const double);
   void SetTitleScale(const double);
 
-
   // Description:
   // Set/Get the starting position for minor and major tick points,
   // and the delta values that determine their spacing.
@@ -289,14 +288,22 @@ public:
   void BuildAxis(vtkViewport *viewport, bool);
 
 //BTX
+  // Description:
+  // Get title actor and it is responsible for drawing
+  // title text.
   vtkGetObjectMacro(TitleActor,  vtkAxesFollower);
 
+  // Description:
+  // Get label actors responsigle for drawing label text.
   inline vtkAxesFollower** GetLabelActors()
     {
     return this->LabelActors;
     }
 //ETX
 
+  // Description:
+  // Get total numbe of labels built. Once built
+  // this count does not change.
   vtkGetMacro(NumberOfLabelsBuilt, int);
 
   // Description

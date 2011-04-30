@@ -831,6 +831,16 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MinorTicksVisible: " << this->MinorTicksVisible << endl;
 
+  os << indent << "TitleActor: ";
+  if(this->TitleActor)
+    {
+    os << indent << "TitleActor: (" << this->TitleActor << ")\n";
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
   os << indent << "Camera: ";
   if (this->Camera)
     {
