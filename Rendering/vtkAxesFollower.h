@@ -12,7 +12,7 @@ class VTK_RENDERING_EXPORT vtkAxesFollower : public vtkFollower
 {
 public:
  vtkTypeMacro(vtkAxesFollower,vtkFollower);
- void PrintSelf(ostream& os, vtkIndent indent);
+ virtual void PrintSelf(ostream& os, vtkIndent indent);
 
  // Description:
  // Creates a follower with no camera set

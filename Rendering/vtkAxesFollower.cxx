@@ -469,11 +469,11 @@ void vtkAxesFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "FollowAxes: "  << FollowAxes   << std::endl;
-  os << indent << "AutoCenter: "  << AutoCenter   << std::endl;
-  os << indent << "EnableLOD: "   << EnableLOD    << std::endl;
-  os << indent << "LODFactor: "   << LODFactor    << std::endl;
-  os << indent << "ScreenOffset: "<< ScreenOffset << std::endl;
+  os << indent << "FollowAxes: ("  << this->FollowAxes   << ")\n";
+  os << indent << "AutoCenter: ("  << this->AutoCenter   << ")\n";
+  os << indent << "EnableLOD: ("   << this->EnableLOD    << ")\n";
+  os << indent << "LODFactor: ("   << this->LODFactor    << ")\n";
+  os << indent << "ScreenOffset: ("<< this->ScreenOffset << ")\n";
 
   if ( this->XAxis )
     {
