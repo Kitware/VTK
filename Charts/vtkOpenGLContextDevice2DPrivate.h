@@ -128,7 +128,7 @@ protected:
   std::list<CacheElement > Cache;
   // Description:
   // Maximum size the cache list can be.
-  int MaxSize;
+  size_t MaxSize;
 };
 
 template<class Key>
