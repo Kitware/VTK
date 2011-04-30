@@ -80,7 +80,7 @@ public:
         case vtkCommand::LeftButtonPressEvent :
           if (interactor->GetRepeatCount())
             {
-            this->Target->ButtonDoubleClickEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
+            this->Target->DoubleClickEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
             }
           else
             {
@@ -90,7 +90,7 @@ public:
         case vtkCommand::MiddleButtonPressEvent :
           if (interactor->GetRepeatCount())
             {
-            this->Target->ButtonDoubleClickEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
+            this->Target->DoubleClickEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
             }
           else
             {
@@ -100,7 +100,7 @@ public:
         case vtkCommand::RightButtonPressEvent :
           if (interactor->GetRepeatCount())
             {
-            this->Target->ButtonDoubleClickEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
+            this->Target->DoubleClickEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
             }
           else
             {
@@ -643,7 +643,7 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextScene::ButtonDoubleClickEvent(int button, int x, int y)
+void vtkContextScene::DoubleClickEvent(int button, int x, int y)
 {
   vtkContextMouseEvent &event = this->Storage->Event;
   event.ScreenPos.Set(x, y);
@@ -658,7 +658,8 @@ void vtkContextScene::ButtonDoubleClickEvent(int button, int x, int y)
   if (newItemPicked)
     {
     vtkAbstractContextItem* cur = newItemPicked;
-    this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseButtonDblClickEvent);
+    this->ProcessItem(cur, event,
+                      &vtkAbstractContextItem::MouseDoubleClickEvent);
     }
 }
 
