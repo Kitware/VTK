@@ -206,14 +206,7 @@ void vtkAxesFollower::ComputeTransformMatrix(vtkRenderer *ren)
 
     if(this->AutoCenter)
       {
-      // Offset by half of width & height so that pivot is at center
-      // of the geometry.
-      double *bounds = this->GetMapper()->GetBounds();
-      double halfWidth  = (bounds[1] - bounds[0]) * 0.5;
-      double halfHeight = (bounds[3] - bounds[2]) * 0.5;
-
-      pivotPoint[0] = this->Origin[0] + halfWidth;
-      pivotPoint[1] = this->Origin[1] + halfHeight;
+      this->GetMapper()->GetCenter(pivotPoint);
       }
 
     // Move to pivto point.
