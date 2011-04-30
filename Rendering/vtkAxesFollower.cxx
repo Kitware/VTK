@@ -293,31 +293,40 @@ void vtkAxesFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
                                                    vtkAxisActor *orthoAxis1,
                                                    vtkAxisActor *orthoAxis2)
 {
+  double Ry1[3], Rz1[3];
   double Ry2[3], Rz2[3];
 
   double autoScaleFactor = this->AutoScale(ren, this->Camera, this->ScreenOffset, this->Position);
 
-  this->CalculateOrthogonalVectors(Rx,  Ry,  Rz,  xAxis, orthoAxis1, ren);
+  this->CalculateOrthogonalVectors(Rx,  Ry1, Rz1,  xAxis, orthoAxis1, ren);
   this->CalculateOrthogonalVectors(Rx,  Ry2, Rz2, xAxis, orthoAxis2, ren);
 
   double dop[3];
   this->Camera->GetDirectionOfProjection(dop);
   vtkMath::Normalize(dop);
 
-  double val1 = vtkMath::Dot(Rz, dop);
+  double val1 = vtkMath::Dot(Rz1, dop);
   double val2 = vtkMath::Dot(Rz2, dop);
 
   double origRy[3] = {0.0, 0.0, 0.0};
 
   if(fabs(val1) > fabs(val2))
     {
-    translation[0] =  -Ry[0] * autoScaleFactor;
-    translation[1] =  -Ry[1] * autoScaleFactor;
-    translation[2] =  -Ry[2] * autoScaleFactor;
+    translation[0] =  -Ry1[0] * autoScaleFactor;
+    translation[1] =  -Ry1[1] * autoScaleFactor;
+    translation[2] =  -Ry1[2] * autoScaleFactor;
 
-    origRy[0] = Ry[0];
-    origRy[1] = Ry[1];
-    origRy[2] = Ry[2];
+    origRy[0] = Ry1[0];
+    origRy[1] = Ry1[1];
+    origRy[2] = Ry1[2];
+
+    Ry[0] = Ry1[0];
+    Ry[1] = Ry1[1];
+    Ry[2] = Ry1[2];
+
+    Rz[0] = Rz1[0];
+    Rz[1] = Rz1[1];
+    Rz[2] = Rz1[2];
 
     // NOTE: Basically the idea here is that val1 will be positive
     // only when we have projection direction aligned with our z directon
