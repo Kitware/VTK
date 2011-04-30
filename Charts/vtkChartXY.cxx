@@ -647,8 +647,8 @@ void vtkChartXY::RecalculatePlotBounds()
 
     if (this->ForceAxesToBounds)
       {
-      axis->SetLowerLimit(range[0]);
-      axis->SetHigherLimit(range[1]);
+      axis->SetMinimumLimit(range[0]);
+      axis->SetMaximumLimit(range[1]);
       }
     if (axis->GetBehavior() == vtkAxis::AUTO && initialized[i])
       {
@@ -1134,11 +1134,11 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     vtkAxis* xAxis = this->ChartPrivate->axes[vtkAxis::BOTTOM];
     vtkAxis* yAxis = this->ChartPrivate->axes[vtkAxis::LEFT];
     delta[0] = delta[0] > 0 ?
-      std::min(delta[0], xAxis->GetHigherLimit() - xAxis->GetMaximum()) :
-      std::max(delta[0], xAxis->GetLowerLimit() - xAxis->GetMinimum());
+      std::min(delta[0], xAxis->GetMaximumLimit() - xAxis->GetMaximum()) :
+      std::max(delta[0], xAxis->GetMinimumLimit() - xAxis->GetMinimum());
     delta[1] = delta[1] > 0 ?
-      std::min(delta[1], yAxis->GetHigherLimit() - yAxis->GetMaximum()) :
-      std::max(delta[1], yAxis->GetLowerLimit() - yAxis->GetMinimum());
+      std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum()) :
+      std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
     xAxis->SetMinimum(xAxis->GetMinimum() + delta[0]);
     xAxis->SetMaximum(xAxis->GetMaximum() + delta[0]);
     yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
@@ -1158,11 +1158,11 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       xAxis = this->ChartPrivate->axes[vtkAxis::TOP];
       yAxis = this->ChartPrivate->axes[vtkAxis::RIGHT];
       delta[0] = delta[0] > 0 ?
-        std::min(delta[0], xAxis->GetHigherLimit() - xAxis->GetMaximum()) :
-        std::max(delta[0], xAxis->GetLowerLimit() - xAxis->GetMinimum());
+        std::min(delta[0], xAxis->GetMaximumLimit() - xAxis->GetMaximum()) :
+        std::max(delta[0], xAxis->GetMinimumLimit() - xAxis->GetMinimum());
       delta[1] = delta[1] > 0 ?
-        std::min(delta[1], yAxis->GetHigherLimit() - yAxis->GetMaximum()) :
-        std::max(delta[1], yAxis->GetLowerLimit() - yAxis->GetMinimum());
+        std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum()) :
+        std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
       xAxis->SetMinimum(xAxis->GetMinimum() + delta[0]);
       xAxis->SetMaximum(xAxis->GetMaximum() + delta[0]);
       yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);

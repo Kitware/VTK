@@ -117,19 +117,19 @@ public:
 
   // Description:
   // Set the logical lowest possible value for \a Minimum, in plot coordinates.
-  void SetLowerLimit(double lowest);
+  virtual void SetMinimumLimit(double lowest);
 
   // Description:
   // Get the logical lowest possible value for \a Minimum, in plot coordinates.
-  vtkGetMacro(LowerLimit, double);
+  vtkGetMacro(MinimumLimit, double);
 
   // Description:
   // Set the logical highest possible value for \a Maximum, in plot coordinates.
-  virtual void SetHigherLimit(double highest);
+  virtual void SetMaximumLimit(double highest);
 
   // Description:
   // Get the logical highest possible value for \a Maximum, in plot coordinates.
-  vtkGetMacro(HigherLimit, double);
+  vtkGetMacro(MaximumLimit, double);
 
   // Description:
   // Get/set the title text of the axis.
@@ -222,7 +222,7 @@ public:
 
   // Description:
   // Set the tick positions (in plot coordinates).
-  virtual void SetTickPositions(vtkDoubleArray*);
+  virtual void SetTickPositions(vtkDoubleArray* positions);
 
   // Description:
   // An array with the positions of the tick marks along the axis line.
@@ -235,7 +235,7 @@ public:
 
   // Description:
   // Set the tick labels for the axis.
-  virtual void SetTickLabels(vtkStringArray*);
+  virtual void SetTickLabels(vtkStringArray* labels);
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a
@@ -304,8 +304,8 @@ protected:
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
-  double LowerLimit;   // Lowest possible value for Minimum
-  double HigherLimit;  // Highest possible value for Maximum
+  double MinimumLimit; // Lowest possible value for Minimum
+  double MaximumLimit; // Highest possible value for Maximum
   vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
