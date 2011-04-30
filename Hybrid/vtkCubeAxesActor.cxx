@@ -69,9 +69,7 @@ vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 //
 // *************************************************************************
 
-vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor(),
-  LabelScreenOffset(20),
-  TitleScreenOffset(40)
+vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 {
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
@@ -114,6 +112,11 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor(),
     this->ZAxes[i]->SetCalculateTitleOffset(0);
     this->ZAxes[i]->SetCalculateLabelOffset(0);
 
+    this->ScreenSize = 10.0;
+
+    this->LabelScreenOffset = 20.0;
+    this->TitleScreenOffset =
+      this->LabelScreenOffset * 2.0 + this->ScreenSize;
 
     // Pass information to axes followers.
     this->XAxes[i]->GetTitleActor()->SetAxes(this->XAxes[i],
@@ -236,8 +239,6 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor(),
 
   this->LabelScale = -1.0;
   this->TitleScale = -1.0;
-
-  this->ScreenSize = 10.0;
 }
 
 // ****************************************************************************
@@ -1461,6 +1462,9 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
       this->ZAxes[i]->SetTitleScale(this->TitleScale);
       }
     }
+
+  // Scale appropriately.
+  this->AutoScale(viewport);
 
   this->RenderSomething = 1;
   this->BuildTime.Modified();

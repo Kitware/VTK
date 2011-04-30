@@ -339,8 +339,8 @@ protected:
 
   int RenderSomething;
 
-  const int LabelScreenOffset;
-  const int TitleScreenOffset;
+  int LabelScreenOffset;
+  int TitleScreenOffset;
 
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
