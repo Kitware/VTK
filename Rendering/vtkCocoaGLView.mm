@@ -620,7 +620,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
                   (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-  int clickCount = [theEvent clickCount];
+  int clickCount = static_cast<int>([theEvent clickCount]);
   int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the
