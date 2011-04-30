@@ -129,6 +129,14 @@ public:
   vtkSetMacro(HiddenAxisBorder, int);
   vtkGetMacro(HiddenAxisBorder, int);
 
+  // Description
+  // Force the axes to have their Minimum and Maximum properties inside the
+  // plot boundaries. It constrains pan and zoom interaction.
+  // False by default.
+  vtkSetMacro(ForceAxesToBounds, bool);
+  vtkGetMacro(ForceAxesToBounds, bool);
+  vtkBooleanMacro(ForceAxesToBounds, bool);
+
   // Description:
   // Set the width fraction for any bar charts drawn in this chart. It is
   // assumed that all bar plots will use the same array for the X axis, and that
@@ -256,6 +264,12 @@ protected:
   // Indicate if the layout has changed in some way that would require layout
   // code to be called.
   bool LayoutChanged;
+
+  // Description:
+  // Property to force the axes to have their Minimum and Maximum properties
+  // inside the plot boundaries. It constrains pan and zoom interaction.
+  // False by default.
+  bool ForceAxesToBounds;
 
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.
