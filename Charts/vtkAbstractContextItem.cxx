@@ -132,7 +132,7 @@ bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent 
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonDblClickEvent(const vtkContextMouseEvent & event)
+bool vtkAbstractContextItem::MouseDoubleClickEvent(const vtkContextMouseEvent & event)
 {
   return this->MouseButtonPressEvent(event);
 }
