@@ -58,8 +58,8 @@ vtkAxis::vtkAxis()
   this->TitleProperties->SetJustificationToCentered();
   this->Minimum = 0.0;
   this->Maximum = 6.66;
-  this->LowerLimit = std::numeric_limits<double>::max() * -1.;
-  this->HigherLimit = std::numeric_limits<double>::max();
+  this->MinimumLimit = std::numeric_limits<double>::max() * -1.;
+  this->MaximumLimit = std::numeric_limits<double>::max();
   this->LogScale = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
@@ -371,7 +371,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkAxis::SetMinimum(double minimum)
 {
-  minimum = std::max(minimum, this->LowerLimit);
+  minimum = std::max(minimum, this->MinimumLimit);
   if (this->Minimum == minimum)
     {
     return;
@@ -383,9 +383,9 @@ void vtkAxis::SetMinimum(double minimum)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxis::SetLowerLimit(double lowest)
+void vtkAxis::SetMinimumLimit(double lowest)
 {
-  if (this->LowerLimit == lowest)
+  if (this->MinimumLimit == lowest)
     {
     return;
     }
@@ -393,13 +393,13 @@ void vtkAxis::SetLowerLimit(double lowest)
     {
     this->SetMinimum(lowest);
     }
-  this->LowerLimit = lowest;
+  this->MinimumLimit = lowest;
 }
 
 //-----------------------------------------------------------------------------
 void vtkAxis::SetMaximum(double maximum)
 {
-  maximum = std::min(maximum, this->HigherLimit);
+  maximum = std::min(maximum, this->MaximumLimit);
   if (this->Maximum == maximum)
     {
     return;
@@ -411,9 +411,9 @@ void vtkAxis::SetMaximum(double maximum)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxis::SetHigherLimit(double highest)
+void vtkAxis::SetMaximumLimit(double highest)
 {
-  if (this->HigherLimit == highest)
+  if (this->MaximumLimit == highest)
     {
     return;
     }
@@ -421,7 +421,7 @@ void vtkAxis::SetHigherLimit(double highest)
     {
     this->SetMaximum(highest);
     }
-  this->HigherLimit = highest;
+  this->MaximumLimit = highest;
 }
 
 //-----------------------------------------------------------------------------
