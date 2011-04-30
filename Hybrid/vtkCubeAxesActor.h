@@ -106,6 +106,13 @@ public:
   vtkGetVector2Macro( ZAxisRange, double );
 
   // Description:
+  // Explicitly specify the screen size of title and label text.
+  // ScreenSize detemines the size of the text in terms of screen
+  // pixels. Default is 10.0.
+  vtkSetMacro(ScreenSize, double);
+  vtkGetMacro(ScreenSize, double);
+
+  // Description:
   // Set/Get the camera to perform scaling and translation of the
   // vtkCubeAxesActor.
   virtual void SetCamera(vtkCamera*);

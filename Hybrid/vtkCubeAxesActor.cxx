@@ -618,6 +618,8 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZAxisRange: [" << this->ZAxisRange[0] << ", "
     << this->ZAxisRange[1] << "] " << endl;
 
+  os << indent << "ScreenSize: (" << this->ScreenSize << ")\n";
+
   if (this->Camera)
     {
     os << indent << "Camera:\n";
