@@ -715,7 +715,7 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 {
   float p[] = { floor(point[0]), floor(point[1]) };
 
-#if 1
+  // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
     this->Storage->TextTextureCache.GetCacheData(
       TextPropertyKey(this->TextProp, string));
@@ -728,16 +728,6 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
       }
     }
   vtkTexture* texture = cache.Texture;
-#else
-  vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
-  if (!this->TextRenderer->RenderString(this->TextProp, string, image))
-    {
-    return;
-    }
-
-  this->SetTexture(image);
-  vtkTexture* texture = this->Storage->Texture;
-#endif
   texture->Render(this->Renderer);
 
   float width = static_cast<float>(image->GetOrigin()[0]);
