@@ -45,10 +45,12 @@ public:
   // Description:
   // Set the position of the tooltip (in pixels).
   vtkSetVector2Macro(Position, float);
+  void SetPosition(const vtkVector2f &pos);
 
   // Description:
   // Get position of the axis (in pixels).
   vtkGetVector2Macro(Position, float);
+  vtkVector2f GetPositionVector();
 
   // Description:
   // Get/set the text of the item.
@@ -63,6 +65,10 @@ public:
   // Description:
   // Get a pointer to the vtkPen object.
   vtkGetObjectMacro(Brush, vtkBrush);
+
+  // Description:
+  // Get the vtkTextProperty that governs how the tooltip text is displayed.
+  vtkGetObjectMacro(TextProperties, vtkTextProperty);
 
   // Description:
   // Update the geometry of the tooltip.
