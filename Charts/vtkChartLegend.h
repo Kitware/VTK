@@ -24,8 +24,8 @@
 #define __vtkChartLegend_h
 
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkVector.h"       // For vtkRectf return value
+#include "vtkNew.h"         // For vtkNew
+#include "vtkVector.h"      // For vtkRectf return value
 
 class vtkChart;
 class vtkPen;
@@ -55,7 +55,8 @@ public:
     CENTER,
     RIGHT,
     TOP,
-    BOTTOM
+    BOTTOM,
+    CUSTOM
     };
 
   // Description:
@@ -116,10 +117,6 @@ public:
   vtkGetMacro(Inline, bool);
 
   // Description:
-  // Get the vtkTextProperty for the legend's labels.
-  vtkTextProperty * GetLabelProperties();
-
-  // Description:
   // Set the chart that the legend belongs to and will draw the legend for.
   void SetChart(vtkChart* chart);
 
@@ -143,6 +140,18 @@ public:
   // ensure the numbers are correct, Update() should be called first.
   virtual vtkRectf GetBoundingRect(vtkContext2D* painter);
 
+  // Description:
+  // Get the pen used to draw the legend outline.
+  vtkPen * GetPen();
+
+  // Description:
+  // Get the brush used to draw the legend background.
+  vtkBrush * GetBrush();
+
+  // Description:
+  // Get the vtkTextProperty for the legend's labels.
+  vtkTextProperty * GetLabelProperties();
+
 protected:
   vtkChartLegend();
   ~vtkChartLegend();
@@ -153,15 +162,15 @@ protected:
 
   // Description:
   // The pen used to draw the legend box.
-  vtkSmartPointer<vtkPen> Pen;
+  vtkNew<vtkPen> Pen;
 
   // Description:
   // The brush used to render the background of the legend.
-  vtkSmartPointer<vtkBrush> Brush;
+  vtkNew<vtkBrush> Brush;
 
   // Description:
   // The text properties of the labels used in the legend.
-  vtkSmartPointer<vtkTextProperty> LabelProperties;
+  vtkNew<vtkTextProperty> LabelProperties;
 
   vtkTimeStamp PlotTime;
   vtkTimeStamp RectTime;
