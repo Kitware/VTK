@@ -1045,6 +1045,12 @@ vtkChartLegend* vtkChartXY::GetLegend()
 }
 
 //-----------------------------------------------------------------------------
+vtkTooltipItem* vtkChartXY::GetTooltip()
+{
+  return this->Tooltip;
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkChartXY::GetNumberOfPlots()
 {
   return this->ChartPrivate->plots.size();

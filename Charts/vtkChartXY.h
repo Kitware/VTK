@@ -103,6 +103,10 @@ public:
   virtual vtkChartLegend* GetLegend();
 
   // Description:
+  // Get the vtkTooltipItem object that will be displayed by the chart.
+  virtual vtkTooltipItem* GetTooltip();
+
+  // Description:
   // Get the number of axes in the current chart.
   virtual vtkIdType GetNumberOfAxes();
 
