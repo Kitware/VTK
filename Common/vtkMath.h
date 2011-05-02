@@ -929,12 +929,6 @@ public:
   static int PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
 
   // Description:
-  // Calculate \a num points, at a regular interval, along a parametric
-  // spiral. Note this spiral is only in two dimensions having a constant
-  // z value.
-  static void SpiralPoints(vtkIdType num, vtkPoints * offsets);
-
-  // Description:
   // In Euclidean space, there is a unique circle passing through any given
   // three non-collinear points P1, P2, and P3. Using Cartesian coordinates
   // to represent these points as spatial vectors, it is possible to use the
