@@ -295,7 +295,6 @@ bool vtkChartLegend::Hit(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartLegend::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  cout << "Move event in legend..." << endl;
   if (this->Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
     vtkVector2f delta = mouse.ScenePos - mouse.LastScenePos;
