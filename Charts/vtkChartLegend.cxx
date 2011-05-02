@@ -317,7 +317,7 @@ bool vtkChartLegend::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartLegend::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+bool vtkChartLegend::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   this->Button = -1;
   return true;
