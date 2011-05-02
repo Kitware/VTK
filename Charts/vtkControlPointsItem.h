@@ -25,8 +25,8 @@
 #ifndef __vtkControlPointsItem_h
 #define __vtkControlPointsItem_h
 
-#include "vtkCommand.h"
 #include "vtkPlot.h"
+#include "vtkCommand.h" // For vtkCommand enum
 
 class vtkCallbackCommand;
 class vtkContext2D;
@@ -178,7 +178,7 @@ protected:
   // Description:
   // Mouse button down event.
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
-  virtual bool MouseButtonDoubleClickEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse move event.

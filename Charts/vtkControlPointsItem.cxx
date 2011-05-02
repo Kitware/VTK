@@ -619,7 +619,7 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
 }
 
 //-----------------------------------------------------------------------------
-bool vtkControlPointsItem::MouseButtonDoubleClickEvent(const vtkContextMouseEvent &mouse)
+bool vtkControlPointsItem::MouseDoubleClickEvent(const vtkContextMouseEvent &mouse)
 {
   if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
