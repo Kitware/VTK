@@ -824,6 +824,12 @@ void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
   vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
                               this->Legend->GetVerticalAlignment());
 
+  if (legendAlignment[0] == vtkChartLegend::CUSTOM ||
+      legendAlignment[1] == vtkChartLegend::CUSTOM)
+    {
+    return;
+    }
+
   if (this->Legend->GetInline())
     {
     switch (this->Legend->GetHorizontalAlignment())
