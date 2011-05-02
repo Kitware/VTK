@@ -117,6 +117,14 @@ public:
   vtkGetMacro(Inline, bool);
 
   // Description:
+  // Get/set if the legend can be dragged with the mouse button, or not.
+  // True results in left click and drag causing the legend to move around the
+  // scene. False disables response to mouse events.
+  // The default is true.
+  vtkSetMacro(DragEnabled, bool);
+  vtkGetMacro(DragEnabled, bool);
+
+  // Description:
   // Set the chart that the legend belongs to and will draw the legend for.
   void SetChart(vtkChart* chart);
 
@@ -152,6 +160,22 @@ public:
   // Get the vtkTextProperty for the legend's labels.
   vtkTextProperty * GetLabelProperties();
 
+  // Description:
+  // Return true if the supplied x, y coordinate is inside the item.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button down event
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button release event.
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
 protected:
   vtkChartLegend();
   ~vtkChartLegend();
@@ -171,6 +195,14 @@ protected:
   // Description:
   // The text properties of the labels used in the legend.
   vtkNew<vtkTextProperty> LabelProperties;
+
+  // Description:
+  // Should we move the legend box around in response to the mouse drag?
+  bool DragEnabled;
+
+  // Description:
+  // Last button to be pressed.
+  int Button;
 
   vtkTimeStamp PlotTime;
   vtkTimeStamp RectTime;

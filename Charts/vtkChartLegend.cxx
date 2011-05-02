@@ -26,6 +26,8 @@
 #include "vtkWeakPointer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 
 #include "vtkObjectFactory.h"
 
@@ -69,6 +71,8 @@ vtkChartLegend::vtkChartLegend()
   this->Padding = 5;
   this->SymbolWidth = 25;
   this->Inline = true;
+  this->Button = -1;
+  this->DragEnabled = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -270,6 +274,54 @@ void vtkChartLegend::SetChart(vtkChart* chart)
 vtkChart* vtkChartLegend::GetChart()
 {
   return this->Storage->Chart;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::Hit(const vtkContextMouseEvent &mouse)
+{
+  if (this->DragEnabled && mouse.ScreenPos.X() > this->Rect.X() &&
+      mouse.ScreenPos.X() < this->Rect.X() + this->Rect.Width() &&
+      mouse.ScreenPos.Y() > this->Rect.Y() &&
+      mouse.ScreenPos.Y() < this->Rect.Y() + this->Rect.Height())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  cout << "Move event in legend..." << endl;
+  if (this->Button == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    vtkVector2f delta = mouse.ScenePos - mouse.LastScenePos;
+    this->HorizontalAlignment = vtkChartLegend::CUSTOM;
+    this->Storage->Point = this->Storage->Point + delta;
+    this->GetScene()->SetDirty(true);
+    }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+{
+  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    this->Button = vtkContextMouseEvent::LEFT_BUTTON;
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+{
+  this->Button = -1;
+  return true;
 }
 
 //-----------------------------------------------------------------------------
