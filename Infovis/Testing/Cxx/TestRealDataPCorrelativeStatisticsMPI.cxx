@@ -199,7 +199,38 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
   int myRank = com->GetLocalProcessId();
 
   // ************************** Read input data file **************************** 
+  vtkIdType dataDim[] = { 2025, 1600, 400 };
+  int procDim[] = { 1, 1 ,1 };
+  int myProcId[3];
+  const char fileName[] = "Blah"; // FIXME
+
+  CalculateProcessorId( procDim, myRank, myProcId );
+
+  ifstream ifs;
+  int myBlockBounds[2][3];
+  SetDataParameters( dataDim,
+                     procDim,
+                     myProcId, 
+                     fileName, 
+                     ifs,
+                     myBlockBounds );
+
+  vtkIdType myDataDim[3];
+  myDataDim[0] = myBlockBounds[1][0] - myBlockBounds[0][0] + 1;
+  myDataDim[1] = myBlockBounds[1][1] - myBlockBounds[0][1] + 1;
+  myDataDim[2] = myBlockBounds[1][2] - myBlockBounds[0][2] + 1;
+  vtkIdType myDataSize = myDataDim[0] * myDataDim[1] * myDataDim[2];
+  float* buffer = new float[myDataSize];
+
+  ReadFloatDataBlockFromFile( ifs,
+                              dataDim,
+                              myBlockBounds[0],
+                              myBlockBounds[1],
+                              buffer );
+
   vtkTable* inputData = vtkTable::New();
+
+  delete [] buffer;
 
   // ************************** Correlative Statistics ************************** 
 
