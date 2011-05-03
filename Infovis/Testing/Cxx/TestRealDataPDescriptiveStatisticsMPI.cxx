@@ -210,6 +210,11 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   int myProcId[3];
   CalculateProcessorId( args->procDim, myRank, myProcId );
 
+  // Synchronize and start clock
+  com->Barrier();
+  vtkTimerLog *timer=vtkTimerLog::New();
+  timer->StartTimer();
+
   // ************************** Read input data file ****************************
   ifstream ifs;
   int myBlockBounds[2][3];
@@ -234,9 +239,10 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
                               buffer );
 
   // ************************** Create input data table *************************
+  vtkStdString varName( "Chi" );
   vtkFloatArray* floatArr = vtkFloatArray::New();
   floatArr->SetNumberOfComponents( 1 );
-  floatArr->SetName( "Floats" );
+  floatArr->SetName( varName );
 
   for ( vtkIdType i = 0; i < myDataSize; ++ i )
     {
@@ -256,17 +262,12 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
 
   // ************************** Descriptive Statistics **************************
 
-  // Synchronize and start clock
-  com->Barrier();
-  vtkTimerLog *timer=vtkTimerLog::New();
-  timer->StartTimer();
-
   // Instantiate a parallel descriptive statistics engine and set its input
   vtkPDescriptiveStatistics* pcs = vtkPDescriptiveStatistics::New();
   pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
-  // Select column pairs
-  pcs->AddColumn( "Floats" );
+  // Select column of interest
+  pcs->AddColumn( varName );
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearnOption( true );
