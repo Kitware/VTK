@@ -148,9 +148,7 @@ vtkStdString vtkPlot::GetLabel()
   return this->GetLabel(0);
 }
 
-
 //-----------------------------------------------------------------------------
-
 void vtkPlot::SetLabels(vtkStringArray *labels)
 {
   if (this->Labels == labels)
@@ -198,6 +196,24 @@ int vtkPlot::GetNumberOfLabels()
     {
     return 0;
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
+{
+  if (this->IndexedLabels == labels)
+    {
+    return;
+    }
+
+  this->IndexedLabels = labels;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkStringArray * vtkPlot::GetIndexedLabels()
+{
+  return this->IndexedLabels.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
