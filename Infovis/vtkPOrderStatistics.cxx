@@ -65,6 +65,49 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
 }
 
+//-----------------------------------------------------------------------------
+int vtkPOrderStatisticsDataArrayReduce( vtkIdTypeArray* card_g,
+                                        vtkDataArray* dvals_g )
+{
+  // Check consistency: we must have as many values as cardinality entries
+  vtkIdType nRow_g = card_g->GetNumberOfTuples();
+  if ( nRow_g != dvals_g->GetNumberOfTuples() )
+    {
+    return 0;
+    }
+
+  // Reduce to the global histogram table
+  vtkstd::map<double,vtkIdType> histogram;
+  double x;
+  vtkIdType c;
+  for ( vtkIdType r = 0; r < nRow_g; ++ r )
+    {
+    // First, fetch value
+    x = dvals_g->GetTuple1( r );
+
+    // Then, retrieve corresponding cardinality
+    c = card_g->GetValue( r );
+
+    // Last, update histogram count for corresponding value
+    histogram[x] += c;
+    }
+
+  // Now resize global histogram arrays to reduced size
+  nRow_g = static_cast<vtkIdType>( histogram.size() );
+  dvals_g->SetNumberOfTuples( nRow_g );
+  card_g->SetNumberOfTuples( nRow_g );
+
+  // Then store reduced histogram into array
+  vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
+  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
+    {
+    dvals_g->SetTuple1( r, hit->first );
+    card_g->SetValue( r, hit->second );
+    }
+
+  return 1;
+}
+
 // ----------------------------------------------------------------------
 void vtkPOrderStatistics::Learn( vtkTable* inData,
                                  vtkTable* inParameters,
@@ -78,9 +121,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 #if DEBUG_PARALLEL_ORDER_STATISTICS
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
-
-  vtkTimerLog *timers=vtkTimerLog::New();
-  timers->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
   // First calculate order statistics on local data set
@@ -90,33 +130,28 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
        || outMeta->GetNumberOfBlocks() < 1 )
     {
     // No statistics were calculated.
-
 #if DEBUG_PARALLEL_ORDER_STATISTICS
     timer->Delete();
-    timers->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
     return;
     }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-  timers->StopTimer();
+  timer->StopTimer();
 
   cout << "## Process "
        << this->Controller->GetCommunicator()->GetLocalProcessId()
        << " serial engine executed in "
-       << timers->GetElapsedTime()
+       << timer->GetElapsedTime()
        << " seconds."
        << "\n";
-
-  timers->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
   // Make sure that parallel updates are needed, otherwise leave it at that.
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
     {
-
 #if DEBUG_PARALLEL_ORDER_STATISTICS
     timer->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
@@ -161,9 +196,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    vtkTimerLog *timerA=vtkTimerLog::New();
-    vtkTimerLog *timerB=vtkTimerLog::New();
-    timerA->StartTimer();
+    timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
     // Create new table for global histogram
@@ -212,77 +245,31 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       // Reduce to global histogram table on process reduceProc
       if ( myRank == reduceProc )
         {
-        // Check consistency: we must have as many values as cardinality entries
-        vtkIdType nRow_g = card_g->GetNumberOfTuples();
-        if ( nRow_g != dvals_g->GetNumberOfTuples() )
+        if ( ! vtkPOrderStatisticsDataArrayReduce( card_g, dvals_g ) )
           {
           vtkErrorMacro("Gathering error on process "
                         << this->Controller->GetCommunicator()->GetLocalProcessId()
                         << ": inconsistent number of values and cardinality entries: "
                         << dvals_g->GetNumberOfTuples()
                         << " <> "
-                        <<  nRow_g
+                        << card_g->GetNumberOfTuples()
                         << ".");
 
           return;
           }
-
-        // Reduce to the global histogram table
-        vtkstd::map<double,vtkIdType> histogram;
-        double x;
-        vtkIdType c;
-        for ( vtkIdType r = 0; r < nRow_g; ++ r )
-          {
-          // First, fetch value
-          x = dvals_g->GetTuple1( r );
-
-          // Then, retrieve corresponding cardinality
-          c = card_g->GetValue( r );
-
-          // Last, update histogram count for corresponding value
-          histogram[x] += c;
-          }
-
-        // Now resize global histogram arrays to reduced size
-        nRow_g = static_cast<vtkIdType>( histogram.size() );
-        dvals_g->SetNumberOfTuples( nRow_g );
-        card_g->SetNumberOfTuples( nRow_g );
-
-        // Then store reduced histogram into array
-        vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
-        for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
-          {
-          dvals_g->SetTuple1( r, hit->first );
-          card_g->SetValue( r, hit->second );
-          }
         } // if ( myRank == reduceProc )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    timerA->StopTimer();
+    timer->StopTimer();
 
-    if ( myRank == reduceProc )
-      {
-      cout << "## Process "
-           << myRank
-           << " gathered and reduced in "
-           << timerA->GetElapsedTime()
-           << " seconds."
-           << "\n";
-      }
-    else // if ( myRank == reduceProc )
-      {
-      cout << "## Process "
-           << myRank
-           << " gathered in "
-           << timerA->GetElapsedTime()
-           << " seconds."
-           << "\n";
-      }
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
+    cout << "## Process "
+         << myRank
+         << ( myRank == reduceProc ? " gathered and reduced in " : " gathered in " )
+         << timer->GetElapsedTime()
+         << " seconds."
+         << "\n";
 
-
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timerB->StartTimer();
+    timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
       // Finally broadcast reduced histogram values
@@ -299,7 +286,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         //
         histoTab_g->AddColumn( dvals_g );
         dvals_g->Delete();
-      }
+      } // if ( vals->IsA("vtkDataArray") )
     else if ( vals->IsA("vtkStringArray") )
       {
       // Packing step: concatenate all x and c values
@@ -339,17 +326,16 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    timerB->StopTimer();
+    timer->StopTimer();
 
     cout << "## Process "
          << myRank
          << " broadcasted in "
-         << timerB->GetElapsedTime()
+         << timer->GetElapsedTime()
          << " seconds."
          << "\n";
 
-    timerA->Delete();
-    timerB->Delete();
+    timer->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
     //
@@ -362,17 +348,4 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     // Clean up
     histoTab_g->Delete();
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
-
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  timer->StopTimer();
-
-  cout << "## Process "
-       << myRank
-       << " parallel Learn took "
-       << timer->GetElapsedTime()
-       << " seconds."
-       << "\n";
-
-  timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
 }
