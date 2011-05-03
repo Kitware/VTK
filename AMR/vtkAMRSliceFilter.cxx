@@ -102,7 +102,7 @@ void vtkAMRSliceFilter::InitializeOffSet(
         this->OffSetFromOrigin = ( maxBounds[1]-minBounds[1] )/2.0;
         break;
       case 3:
-        this->OffSetFromOrigin = ( maxBounds[2]-minBounds[3] )/2.0;
+        this->OffSetFromOrigin = ( maxBounds[2]-minBounds[2] )/2.0;
         break;
       default:
         vtkErrorMacro( "Undefined plane normal" );
@@ -124,9 +124,8 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
   root.GetMaxBounds( maxBounds );
 
   double porigin[3];
-//  double porigin[3];
-//    for( int i=0; i < 3; ++i )
-//      porigin[i]=minBounds[i];
+  for( int i=0; i < 3; ++i )
+    porigin[i]=minBounds[i];
 
   // Ensures the initial cut-plane is in the middle of the domain.
   this->InitializeOffSet( inp, minBounds, maxBounds );
