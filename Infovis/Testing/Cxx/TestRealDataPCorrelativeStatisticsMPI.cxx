@@ -391,7 +391,7 @@ int main( int argc, char** argv )
 
   // Set default argument values (some of which are invalid, for mandatory parameters)
   vtkStdString fileName= ""; // invalid
-  int* dataDim; // invalid
+  int dataDim[] = { 1, 1 ,1 }; // invalid
   int procDim[] = { 1, 1 ,1 };
 
   // Initialize command line argument parser
@@ -407,7 +407,7 @@ int main( int argc, char** argv )
   // Parse input data file name
   clArgs.AddArgument("--data-dim",
                      vtksys::CommandLineArguments::MULTI_ARGUMENT,
-                     &dataDim, "Dimensions of the input data");
+                     dataDim, "Dimensions of the input data");
 
   // Parse process array dimensions
   clArgs.AddArgument("--proc-dim",
