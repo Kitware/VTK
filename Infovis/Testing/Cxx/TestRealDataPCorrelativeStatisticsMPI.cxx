@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkPCorrelativeStatistics.h"
 
-#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
@@ -47,6 +47,7 @@ struct RealDataCorrelativeStatisticsArgs
   int ioRank;
   vtkStdString fileName;
   int* dataDim;
+  int* procDim;
   int argc;
   char** argv;
 };
@@ -206,15 +207,14 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
 
   // Get local rank
   int myRank = com->GetLocalProcessId();
-  int procDim[] = { 1, 1 ,1 };
   int myProcId[3];
-  CalculateProcessorId( procDim, myRank, myProcId );
+  CalculateProcessorId( args->procDim, myRank, myProcId );
 
   // ************************** Read input data file ****************************
   ifstream ifs;
   int myBlockBounds[2][3];
   SetDataParameters( args->dataDim,
-                     procDim,
+                     args->procDim,
                      myProcId,
                      args->fileName,
                      ifs,
@@ -233,8 +233,25 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
                               myBlockBounds[1],
                               buffer );
 
-  vtkTable* inputData = vtkTable::New();
+  // ************************** Create input data table *************************
+  vtkFloatArray* floatArr = vtkFloatArray::New();
+  floatArr->SetNumberOfComponents( 1 );
+  floatArr->SetName( "Floats" );
 
+  for ( vtkIdType i = 0; i < myDataSize; ++ i )
+    {
+    floatArr->InsertNextValue( buffer[i] );
+    }
+
+  cout << "\n# Cardinality on process "
+       << myRank
+       << ": "
+       << myDataSize
+       << "\n";
+  vtkTable* inputData = vtkTable::New();
+  inputData->AddColumn( floatArr );
+
+  floatArr->Delete();
   delete [] buffer;
 
   // ************************** Correlative Statistics **************************
@@ -249,7 +266,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
   pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
   // Select column pairs
-  // FIXME
+  //pcs->AddColumn( "Floats" );
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearnOption( true );
@@ -379,6 +396,15 @@ int main( int argc, char** argv )
          << " will be the I/O node.\n";
     }
 
+  // Check how many processes have been made available
+  int numProcs = controller->GetNumberOfProcesses();
+  if ( myRank == ioRank )
+    {
+    cout << "\n# Running test with "
+         << numProcs
+         << " processes...\n";
+    }
+
   // **************************** Parse command line ***************************
   // If no arguments were provided, terminate in error.
   if ( argc < 2 )
@@ -391,7 +417,7 @@ int main( int argc, char** argv )
   // Set default argument values (some of which are invalid, for mandatory parameters)
   vtkStdString fileName= "";
   vtksys_stl::vector<int> dataDim;
-  int procDim[] = { 1, 1 ,1 };
+  vtksys_stl::vector<int> procDim;
 
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;
@@ -411,7 +437,7 @@ int main( int argc, char** argv )
   // Parse process array dimensions
   clArgs.AddArgument("--proc-dim",
                      vtksys::CommandLineArguments::MULTI_ARGUMENT,
-                     procDim, "Dimensions of the input data");
+                     &procDim, "Dimensions of the input data");
 
   // If incorrect arguments were provided, terminate in error.
   if ( ! clArgs.Parse() )
@@ -472,28 +498,70 @@ int main( int argc, char** argv )
       }
     }
 
-  // ************************** Initialize test *********************************
-  // Check how many processes have been made available
-  int numProcs = controller->GetNumberOfProcesses();
-  if ( myRank == ioRank )
+  // Fill process dimensionality with ones if not provided or incomplete
+  unsigned int missingDim = 3 - procDim.size();
+  for ( unsigned int d = 0; d < missingDim; ++ d )
     {
-    cout << "\n# Running test with "
-         << numProcs
-         << " processes...\n";
+    procDim.push_back( 1 );
     }
+
+  // If process dimensionality is inconsistent with total number of processes, terminate in error.
+  if ( procDim.at( 0 ) * procDim.at( 1 ) * procDim.at( 2 ) != numProcs )
+    {
+    if ( myRank == ioRank )
+      {
+      vtkGenericWarningMacro("Number of processes: "
+                             << numProcs
+                             << " <> "
+                             << procDim.at( 0 )
+                             << " * "
+                             << procDim.at( 1 )
+                             << " * "
+                             << procDim.at( 2 )
+                             << ".");
+      }
+
+    // Terminate cleanly
+    controller->Finalize();
+    controller->Delete();
+    return 1;
+    }
+  else
+    {
+    if ( myRank == ioRank )
+      {
+      cout << "\n# Process dimensionality: "
+           << procDim.at( 0 )
+           << " "
+           << procDim.at( 1 )
+           << " "
+           << procDim.at( 2 )
+           << "\n";
+      }
+    }
+
+  // ************************** Initialize test *********************************
 
   // Parameters for regression test.
   int testValue = 0;
   RealDataCorrelativeStatisticsArgs args;
-  int dataDimPtr[3];
-  dataDimPtr[0] = dataDim.at( 0 );
-  dataDimPtr[1] = dataDim.at( 1 );
-  dataDimPtr[2] = dataDim.at( 2 );
+
   args.nVals = 100000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.fileName = fileName;
+  int dataDimPtr[3];
+  dataDimPtr[0] = dataDim.at( 0 );
+  dataDimPtr[1] = dataDim.at( 1 );
+  dataDimPtr[2] = dataDim.at( 2 );
   args.dataDim = dataDimPtr;
+
+  int procDimPtr[3];
+  procDimPtr[0] = procDim.at( 0 );
+  procDimPtr[1] = procDim.at( 1 );
+  procDimPtr[2] = procDim.at( 2 );
+  args.procDim = procDimPtr;
+
   args.argc = argc;
   args.argv = argv;
 
