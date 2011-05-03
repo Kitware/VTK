@@ -298,6 +298,8 @@ void vtkAxisActor::ShallowCopy(vtkProp *prop)
     this->SetTickVisibility(a->GetTickVisibility());
     this->SetLabelVisibility(a->GetLabelVisibility());
     this->SetTitleVisibility(a->GetTitleVisibility());
+    this->SetCalculateTitleOffset(a->GetCalculateTitleOffset());
+    this->SetCalculateLabelOffset(a->GetCalculateLabelOffset());
     }
 
   // Now do superclass

@@ -20,12 +20,6 @@ public:
 
 //BTX
  // Description:
- // Set/Get the camera to follow. If this is not set, then the follower
- // won't know who to follow.
- virtual void SetCamera(vtkCamera*);
- vtkGetObjectMacro(Camera,vtkCamera);
-
- // Description:
  // Set three orthogonal axes one of which needs to be followed.
  inline void SetAxes(vtkAxisActor *xAxis,
                      vtkAxisActor *yAxis,
@@ -136,10 +130,6 @@ protected:
  vtkAxisActor *XAxis;
  vtkAxisActor *YAxis;
  vtkAxisActor *ZAxis;
-
- vtkCamera    *Camera;
- vtkActor     *Device;
-
 
 private:
 
