@@ -69,7 +69,7 @@ vtkAxesFollower::vtkAxesFollower() : vtkFollower()
   this->EnableLOD  =  0;
   this->LODFactor  =  0.80;
 
-  this->ScreenOffset = 10;
+  this->ScreenOffset = 10.0;
 
   this->XAxis = NULL;
   this->YAxis = NULL;

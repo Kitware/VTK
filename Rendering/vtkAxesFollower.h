@@ -55,8 +55,8 @@ public:
  // Enable / disable use of LOD. If enabled the actor
  // will not be visible at a certain distance from the
  // camera (currently usind threhold distance = 0.80 * clipRange[1])
- vtkSetMacro(EnableLOD, double);
- vtkGetMacro(EnableLOD, double);
+ vtkSetMacro(EnableLOD, int);
+ vtkGetMacro(EnableLOD, int);
 
  // Description:
  // Set LOD factor (0.0 - 1.0), default is 0.80. This determines at what fraction
