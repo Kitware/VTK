@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <mpi.h>
 
-#include "vtkPCorrelativeStatistics.h"
+#include "vtkPDescriptiveStatistics.h"
 
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtksys/CommandLineArguments.hxx"
 #include "vtksys/SystemTools.hxx"
 
-struct RealDataCorrelativeStatisticsArgs
+struct RealDataDescriptiveStatisticsArgs
 {
   int nVals;
   int* retVal;
@@ -196,10 +196,10 @@ void SetDataParameters( int *dataDim,
 }
 
 // This will be called by all processes
-void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void* arg )
+void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void* arg )
 {
   // Get test parameters
-  RealDataCorrelativeStatisticsArgs* args = reinterpret_cast<RealDataCorrelativeStatisticsArgs*>( arg );
+  RealDataDescriptiveStatisticsArgs* args = reinterpret_cast<RealDataDescriptiveStatisticsArgs*>( arg );
   *(args->retVal) = 0;
 
   // Get MPI communicator
@@ -254,19 +254,19 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
   floatArr->Delete();
   delete [] buffer;
 
-  // ************************** Correlative Statistics **************************
+  // ************************** Descriptive Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
 
-  // Instantiate a parallel correlative statistics engine and set its input
-  vtkPCorrelativeStatistics* pcs = vtkPCorrelativeStatistics::New();
+  // Instantiate a parallel descriptive statistics engine and set its input
+  vtkPDescriptiveStatistics* pcs = vtkPDescriptiveStatistics::New();
   pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
   // Select column pairs
-  //pcs->AddColumn( "Floats" );
+  pcs->AddColumn( "Floats" );
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearnOption( true );
@@ -285,7 +285,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
+    cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
          << "   Total sample size: "
          << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()
          << " \n"
@@ -544,7 +544,7 @@ int main( int argc, char** argv )
 
   // Parameters for regression test.
   int testValue = 0;
-  RealDataCorrelativeStatisticsArgs args;
+  RealDataDescriptiveStatisticsArgs args;
 
   args.nVals = 100000;
   args.retVal = &testValue;
@@ -566,7 +566,7 @@ int main( int argc, char** argv )
   args.argv = argv;
 
   // Execute the function named "process" on both processes
-  controller->SetSingleMethod( RealDataCorrelativeStatistics, &args );
+  controller->SetSingleMethod( RealDataDescriptiveStatistics, &args );
   controller->SingleMethodExecute();
 
   // Clean up and exit
