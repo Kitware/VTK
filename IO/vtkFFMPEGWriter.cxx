@@ -485,13 +485,14 @@ void vtkFFMPEGWriter::Write()
     }
 
   // get the data
-  this->GetInput()->UpdateInformation();
-  int *wExtent = this->GetInput()->GetWholeExtent();
-  this->GetInput()->SetUpdateExtent(wExtent);
-  this->GetInput()->Update();
+  vtkImageData* input = this->GetImageDataInput(0);
+  input->UpdateInformation();
+  int *wExtent = input->GetWholeExtent();
+  input->SetUpdateExtent(wExtent);
+  input->Update();
 
   int dim[4];
-  this->GetInput()->GetDimensions(dim);
+  input->GetDimensions(dim);
   if ( this->Internals->Dim[0] == 0 && this->Internals->Dim[1] == 0 )
     {
     this->Internals->Dim[0] = dim[0];
@@ -519,7 +520,7 @@ void vtkFFMPEGWriter::Write()
     this->Initialized = 1;
     }
 
-  if (!this->Internals->Write(this->GetInput()))
+  if (!this->Internals->Write(input))
     {
     vtkErrorMacro("Error storing image.");
     this->Error = 1;

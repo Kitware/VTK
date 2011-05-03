@@ -89,9 +89,10 @@ void vtkAVIWriter::Start()
     }
   
   // Fill in image information.
-  this->GetInput()->UpdateInformation();
-  int *wExtent = this->GetInput()->GetWholeExtent();
-  this->GetInput()->SetUpdateExtent(wExtent);
+  vtkImageData* input = this->GetImageDataInput(0);
+  input->UpdateInformation();
+  int *wExtent = input->GetWholeExtent();
+  input->SetUpdateExtent(wExtent);
 
   LONG hr;     
   AVISTREAMINFO strhdr;
@@ -212,13 +213,14 @@ void vtkAVIWriter::Write()
     }
   
   // get the data
-  this->GetInput()->UpdateInformation();
-  int *wExtent = this->GetInput()->GetWholeExtent();
-  this->GetInput()->SetUpdateExtent(wExtent);
-  this->GetInput()->Update();
+  vtkImageData* input = this->GetImageDataInput(0):
+  input->UpdateInformation();
+  int *wExtent = input->GetWholeExtent();
+  input->SetUpdateExtent(wExtent);
+  input->Update();
   // get the pointer to the data
   unsigned char *ptr = 
-    (unsigned char *)(this->GetInput()->GetScalarPointer());
+    (unsigned char *)(input->GetScalarPointer());
 
   int dataWidth = (((wExtent[1] - wExtent[0] + 1)*3+3)/4)*4;
   int srcWidth = (wExtent[1] - wExtent[0] + 1)*3;

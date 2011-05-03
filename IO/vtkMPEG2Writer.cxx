@@ -239,13 +239,14 @@ void vtkMPEG2Writer::Write()
     }
 
   // get the data
-  this->GetInput()->UpdateInformation();
-  int *wExtent = this->GetInput()->GetWholeExtent();
-  this->GetInput()->SetUpdateExtent(wExtent);
-  this->GetInput()->Update();
+  vtkImageData* input = this->GetImageDataInput(0);
+  input->UpdateInformation();
+  int *wExtent = input->GetWholeExtent();
+  input->SetUpdateExtent(wExtent);
+  input->Update();
 
   int dim[4];
-  this->GetInput()->GetDimensions(dim);
+  input->GetDimensions(dim);
   if ( this->Internals->Dim[0] == 0 && this->Internals->Dim[1] == 0 )
     {
     this->Internals->Dim[0] = dim[0];
@@ -268,7 +269,7 @@ void vtkMPEG2Writer::Write()
   MPEG2_structure* str = this->Internals->GetMPEG2Structure();
   char buffer[1024];
   sprintf(buffer, str->tplorg, this->Time + str->frame0);
-  this->Internals->StoreImage(buffer, this->GetInput());
+  this->Internals->StoreImage(buffer, input);
                  
   int last = MPEG2_putseq_one(this->ActualWrittenTime, this->Time,str);
   if ( last >= 0 )

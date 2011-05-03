@@ -21,7 +21,8 @@
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
-#include "vtkPLOT3DReader.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkGeometryFilter.h"
 #include "vtkParallelFactory.h"
 #include "vtkPolyData.h"
@@ -34,6 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridOutlineFilter.h"
+#include "vtkTrivialProducer.h"
 
 struct PStreamArgs_tmp
 {
@@ -75,7 +77,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
                                                      "Data/combxyz.bin");
   char* fname2 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, 
                                                      "Data/combq.bin");
-  vtkPLOT3DReader* Plot3D0 = vtkPLOT3DReader::New();
+  vtkMultiBlockPLOT3DReader* Plot3D0 = vtkMultiBlockPLOT3DReader::New();
   Plot3D0->SetFileName(fname1);
   Plot3D0->SetQFileName (fname2);
   Plot3D0->SetBinaryFile(1);
@@ -87,10 +89,22 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Plot3D0->SetByteOrder(0);
   delete[] fname1;
   delete[] fname2;
+  Plot3D0->Update();
+
+  vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(
+    Plot3D0->GetOutput()->GetBlock(0));
+  // TODO: Currently, this does not work in parallel. I need
+  // to fix the trivial producer such that it creates a new
+  // output and shallow copies the ivar to it. Otherwise, the Crop
+  // called by vtkStreamingDemandDrivenPipeline ends up cropping
+  // the ivar, which effects the next whole extent, which is really
+  // bad.
+  vtkTrivialProducer* tv = vtkTrivialProducer::New();
+  tv->SetOutput(sg);
 
   vtkStructuredGridOutlineFilter* Geometry5 = 
     vtkStructuredGridOutlineFilter::New();
-  Geometry5->SetInputConnection(Plot3D0->GetOutputPort());
+  Geometry5->SetInputConnection(tv->GetOutputPort());
   
   vtkPolyDataMapper* Mapper5 = vtkPolyDataMapper::New();
   Mapper5->SetInputConnection(Geometry5->GetOutputPort());
@@ -119,7 +133,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LineSourceWidget0->SetResolution(20);
 
   vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();; 
-  Stream0->SetInputConnection(Plot3D0->GetOutputPort());
+  Stream0->SetInputConnection(tv->GetOutputPort());
   Stream0->SetSource(LineSourceWidget0->GetOutput());
   Stream0->SetIntegrationStepUnit(2);
   Stream0->SetMaximumPropagation(5);
@@ -198,6 +212,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   iren->Delete();
   compManager->Delete();
   Plot3D0->Delete();
+  tv->Delete();
   Stream0->Delete();
   LookupTable1->Delete();
   LineSourceWidget0->Delete();

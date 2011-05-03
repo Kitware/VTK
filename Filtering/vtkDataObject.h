@@ -41,7 +41,6 @@ class vtkExecutive;
 class vtkFieldData;
 class vtkInformation;
 class vtkProcessObject;
-class vtkSource;
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
 class vtkExtentTranslator;
 class vtkInformationDataObjectKey;
@@ -66,11 +65,6 @@ public:
 
   vtkTypeMacro(vtkDataObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Set/Get the source object creating this data object.
-  vtkGetObjectMacro(Source,vtkSource);
-  void SetSource(vtkSource *s);
 
   // Description:
   // Set/Get the information object associated with this data object.
@@ -546,9 +540,6 @@ protected:
 
   // General field data associated with data object      
   vtkFieldData  *FieldData;  
-
-  // Who generated this data as output?
-  vtkSource     *Source;     
 
   // Keep track of data release during network execution
   int DataReleased; 

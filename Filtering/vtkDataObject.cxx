@@ -21,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkSource.h"
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformationDataObjectKey.h"
@@ -72,33 +71,6 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
 vtkInformationKeyMacro(vtkDataObject, DATA_GEOMETRY_UNMODIFIED, Integer);
 vtkInformationKeyMacro(vtkDataObject, SIL, DataObject);
 
-class vtkDataObjectToSourceFriendship
-{
-public:
-  static void SetOutput(vtkSource* source, int i, vtkDataObject* newData)
-    {
-    if(source)
-      {
-      // Make sure there is room in the source for this output.
-      if(i >= source->NumberOfOutputs)
-        {
-        source->SetNumberOfOutputs(i+1);
-        }
-
-      // Update the source's Outputs array.
-      vtkDataObject* oldData = source->Outputs[i];
-      if(newData)
-        {
-        newData->Register(source);
-        }
-      source->Outputs[i] = newData;
-      if(oldData)
-        {
-        oldData->UnRegister(source);
-        }
-      }
-    }
-};
 
 // Initialize static member that controls global data release 
 // after use by filter
@@ -119,7 +91,6 @@ const char vtkDataObject
 //----------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
 {
-  this->Source = NULL;
   this->PipelineInformation = 0;
 
   this->Information = vtkInformation::New();
@@ -147,15 +118,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if ( this->Source )
-    {
-    os << indent << "Source: " << this->Source << "\n";
-    }
-  else
-    {
-    os << indent << "Source: (none)\n";
-    }
-  
   if ( this->Information )
     {
     os << indent << "Information: " << this->Information << "\n";
@@ -286,9 +248,6 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
   vtkInformation* oldInfo = this->PipelineInformation;
   if(newInfo != oldInfo)
     {
-    // Remove any existing compatibility link to a source.
-    this->Source = 0;
-
     if(newInfo)
       {
       // Reference the new information.
@@ -304,20 +263,6 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
 
       // Tell the new information about this object.
       newInfo->Set(vtkDataObject::DATA_OBJECT(), this);
-
-      // If the new producer is a vtkSource then setup the backward
-      // compatibility link.
-      vtkExecutive* newExec = vtkExecutive::PRODUCER()->GetExecutive(newInfo);
-      int newPort = vtkExecutive::PRODUCER()->GetPort(newInfo);
-      if(newExec)
-        {
-        vtkSource* newSource = vtkSource::SafeDownCast(newExec->GetAlgorithm());
-        if(newSource)
-          {
-          vtkDataObjectToSourceFriendship::SetOutput(newSource, newPort, this);
-          this->Source = newSource;
-          }
-        }
       }
 
     // Save the pointer to the new information.
@@ -325,19 +270,6 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
 
     if(oldInfo)
       {
-      // If the old producer was a vtkSource then remove the backward
-      // compatibility link.
-      vtkExecutive* oldExec = vtkExecutive::PRODUCER()->GetExecutive(oldInfo);
-      int oldPort = vtkExecutive::PRODUCER()->GetPort(oldInfo);
-      if(oldExec)
-        {
-        vtkSource* oldSource = vtkSource::SafeDownCast(oldExec->GetAlgorithm());
-        if(oldSource)
-          {
-          vtkDataObjectToSourceFriendship::SetOutput(oldSource, oldPort, 0);
-          }
-        }
-
       // Remove the old information's reference to us.
       oldInfo->Set(vtkDataObject::DATA_OBJECT(), 0);
 
@@ -791,32 +723,6 @@ void vtkDataObject::ReleaseData()
 int vtkDataObject::ShouldIReleaseData()
 {
   return vtkDataObjectGlobalReleaseDataFlag || this->GetReleaseDataFlag();
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetSource(vtkSource* newSource)
-{
-  vtkDebugMacro( << this->GetClassName() << " ("
-                 << this << "): setting Source to " << newSource );
-  if(newSource)
-    {
-    // Find the output index on the source producing this data object.
-    int index = newSource->GetOutputIndex(this);
-    if(index >= 0)
-      {
-      newSource->GetExecutive()->SetOutputData(index, this);
-      }
-    else
-      {
-      vtkErrorMacro("SetSource cannot find the output index of this "
-                    "data object from the source.");
-      this->SetPipelineInformation(0);
-      }
-    }
-  else
-    {
-    this->SetPipelineInformation(0);
-    }
 }
 
 //----------------------------------------------------------------------------

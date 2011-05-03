@@ -15,7 +15,8 @@
 #include "vtkBYUReader.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkPLOT3DReader.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPNMReader.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
@@ -287,7 +288,7 @@ int main(int argc, char** argv)
 
   comm->Send(rgrid->GetOutput(), 1, 11);
 
-  VTK_CREATE(vtkPLOT3DReader, pl3d);
+  VTK_CREATE(vtkMultiBlockPLOT3DReader, pl3d);
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
   pl3d->SetXYZFileName(fname);
   delete[] fname;
@@ -299,7 +300,7 @@ int main(int argc, char** argv)
 
   pl3d->Update();
 
-  comm->Send(pl3d->GetOutput(), 1, 11);
+  comm->Send(pl3d->GetOutput()->GetBlock(0), 1, 11);
 
   VTK_CREATE(vtkPNMReader, imageData);
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/earth.ppm");

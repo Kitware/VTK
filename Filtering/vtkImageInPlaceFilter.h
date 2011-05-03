@@ -19,9 +19,6 @@
 // if the requested region has different extent than the input region
 // or some other object is referencing the input region.  
 
-// .SECTION See Also
-// vtkImageToImageFilter vtkImageMultipleInputFilter vtkImageTwoInputFilter
-
 
 #ifndef __vtkImageInPlaceFilter_h
 #define __vtkImageInPlaceFilter_h

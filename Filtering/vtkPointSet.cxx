@@ -20,7 +20,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkPointLocator.h"
-#include "vtkSource.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \

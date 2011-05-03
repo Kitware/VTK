@@ -24,7 +24,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
-#include "vtkSource.h"
 
 #include <math.h>
 

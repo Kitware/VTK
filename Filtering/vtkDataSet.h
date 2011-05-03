@@ -45,7 +45,6 @@ class vtkCellTypes;
 class vtkGenericCell;
 class vtkIdList;
 class vtkPointData;
-class vtkSourceToDataSetFriendship;
 
 class VTK_FILTERING_EXPORT vtkDataSet : public vtkDataObject
 {
@@ -366,7 +365,6 @@ protected:
 private:
   void InternalDataSetCopy(vtkDataSet *src);
   //BTX
-  friend class vtkSourceToDataSetFriendship;
   friend class vtkImageAlgorithmToDataSetFriendship;
   //ETX
 private:
