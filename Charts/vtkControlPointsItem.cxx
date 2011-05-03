@@ -804,9 +804,8 @@ void vtkControlPointsItem::MovePoints(float tX, float tY)
     double currentPoint[4] = {0.0, 0.0, 0.0, 0.0};
     this->GetControlPoint(point, currentPoint);
     vtkVector2f newPos(currentPoint[0] + tX, currentPoint[1] + tY);
-    vtkIdType newIdx = this->MovePoint(point, newPos);
+    //vtkIdType newIdx = this->MovePoint(point, newPos);
     // don't support 'switch' mode yet
-    vtkNotUsed(newIdx);
     //if (newIdx != point)
     //  {
     //  int next = (newIdx > point) ? 1 : -1;
