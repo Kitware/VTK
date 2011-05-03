@@ -298,7 +298,6 @@ int vtkNetCDFCAMReader::RequestData(
       points->SetPoint(i, array[i], array[i+numFilePoints], numLevels);
       }
     }
-  output->SetPoints(points);
 
   this->SetProgress(.25);  // educated guess for progress
 
@@ -326,7 +325,7 @@ int vtkNetCDFCAMReader::RequestData(
   std::vector<int> cellConnectivity(4*numCells);
   connectivity->get(&(cellConnectivity[0]), 4, numCells);
   double bounds[6];
-  output->GetBounds(bounds);
+  points->GetBounds(bounds);
   double leftSide = bounds[0] + .25*(bounds[1]-bounds[0]);
   double rightSide = bounds[0] + .75*(bounds[1]-bounds[0]);
   for(long i=0;i<numCells;i++)
@@ -338,7 +337,7 @@ int vtkNetCDFCAMReader::RequestData(
     for(int j=0;j<4;j++)
       {
       pointIds[j] = cellConnectivity[i+j*numCells]-1;
-      output->GetPoint(pointIds[j], point);
+      points->GetPoint(pointIds[j], point);
       if(point[0] > rightSide)
         {
         nearRightBoundary = true;
@@ -352,7 +351,7 @@ int vtkNetCDFCAMReader::RequestData(
       {
       for(int j=0;j<4;j++)
         {
-        output->GetPoint(pointIds[j], point);
+        points->GetPoint(pointIds[j], point);
         if(point[0] < leftSide)
           {
           std::map<vtkIdType, vtkIdType>::iterator otherPoint =
@@ -369,7 +368,6 @@ int vtkNetCDFCAMReader::RequestData(
           }
         }
       }
-    //output->InsertNextCell(VTK_QUAD, 4, pointIds);
     }
 
   // we now have all of the points at a single level.  build them up
@@ -387,6 +385,8 @@ int vtkNetCDFCAMReader::RequestData(
       points->SetPoint(pt+lev*numPointsPerLevel, point);
       }
     }
+  points->Modified();
+  output->SetPoints(points);
 
   this->SetProgress(.5);  // educated guess for progress
 
