@@ -46,6 +46,7 @@ struct RealDataCorrelativeStatisticsArgs
   int* retVal;
   int ioRank;
   vtkStdString fileName;
+  int* dataDim;
   int argc;
   char** argv;
 };
@@ -72,7 +73,7 @@ int CalculateProcessorRank( int *procDim, int *procId )
 // Read a block of data bounded by [low, high] from file into buffer.
 // The entire data has dimensions dim
 void ReadFloatDataBlockFromFile( ifstream& ifs,
-                                 vtkIdType *dim,
+                                 int *dim,
                                  int *low,
                                  int *high,
                                  float *buffer )
@@ -149,14 +150,14 @@ void ReadFloatDataBlockFromFile( ifstream& ifs,
 // Given the data dimensions dataDim, the process dimensions procDim, my
 // process id myProcId, set the block bounding box myBlockBounds for my data.
 // Also open the data file as filestream ifs.
-void SetDataParameters( vtkIdType *dataDim,
+void SetDataParameters( int *dataDim,
                         int *procDim,
                         int *myProcId,
                         const char* fileName,
                         ifstream& ifs,
                         int myBlockBounds[2][3] )
 {
-  int myDim[3];
+  vtkIdType myDim[3];
   myDim[0] = static_cast<int>( ceil( dataDim[0] / ( 1. * procDim[0] ) ) );
   myDim[1] = static_cast<int>( ceil( dataDim[1] / ( 1. * procDim[1] ) ) );
   myDim[2] = static_cast<int>( ceil( dataDim[2] / ( 1. * procDim[2] ) ) );
@@ -169,16 +170,16 @@ void SetDataParameters( vtkIdType *dataDim,
   myBlockBounds[0][1] = myProcId[1] * myDim[1];
   myBlockBounds[0][2] = myProcId[2] * myDim[2];
 
-  int mybb0 = myBlockBounds[0][0] + myDim[0] - 1;
-  int cast0 = static_cast<int>( dataDim[0] - 1 );
+  vtkIdType mybb0 = myBlockBounds[0][0] + myDim[0] - 1;
+  vtkIdType cast0 = static_cast<int>( dataDim[0] - 1 );
   myBlockBounds[1][0] = ( mybb0 < cast0 ? mybb0 : cast0 );
 
-  int mybb1 = myBlockBounds[0][1] + myDim[1] - 1;
-  int cast1 = static_cast<int>( dataDim[1] - 1 );
+  vtkIdType mybb1 = myBlockBounds[0][1] + myDim[1] - 1;
+  vtkIdType cast1 = static_cast<int>( dataDim[1] - 1 );
   myBlockBounds[1][1] = ( mybb1 < cast1 ? mybb1 : cast1 );
 
-  int mybb2 = myBlockBounds[0][2] + myDim[2] - 1;
-  int cast2 = static_cast<int>( dataDim[2] - 1 );
+  vtkIdType mybb2 = myBlockBounds[0][2] + myDim[2] - 1;
+  vtkIdType cast2 = static_cast<int>( dataDim[2] - 1 );
   myBlockBounds[1][2] = ( mybb2 < cast2 ? mybb2 : cast2 );
 
   // Open file
@@ -186,7 +187,7 @@ void SetDataParameters( vtkIdType *dataDim,
 
   if( ifs.fail() )
     {
-    vtkGenericWarningMacro("Error opening  file:"
+    vtkGenericWarningMacro("Error opening file:"
                            << fileName
                            <<".");
     exit( -1 );
@@ -210,11 +211,9 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
   CalculateProcessorId( procDim, myRank, myProcId );
 
   // ************************** Read input data file ****************************
-
-  vtkIdType dataDim[] = { 2025, 1600, 400 };
   ifstream ifs;
   int myBlockBounds[2][3];
-  SetDataParameters( dataDim,
+  SetDataParameters( args->dataDim,
                      procDim,
                      myProcId,
                      args->fileName,
@@ -229,7 +228,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
   float* buffer = new float[myDataSize];
 
   ReadFloatDataBlockFromFile( ifs,
-                              dataDim,
+                              args->dataDim,
                               myBlockBounds[0],
                               myBlockBounds[1],
                               buffer );
@@ -390,8 +389,8 @@ int main( int argc, char** argv )
     }
 
   // Set default argument values (some of which are invalid, for mandatory parameters)
-  vtkStdString fileName= ""; // invalid
-  int dataDim[] = { 1, 1 ,1 }; // invalid
+  vtkStdString fileName= "";
+  vtksys_stl::vector<int> dataDim;
   int procDim[] = { 1, 1 ,1 };
 
   // Initialize command line argument parser
@@ -407,7 +406,7 @@ int main( int argc, char** argv )
   // Parse input data file name
   clArgs.AddArgument("--data-dim",
                      vtksys::CommandLineArguments::MULTI_ARGUMENT,
-                     dataDim, "Dimensions of the input data");
+                     &dataDim, "Dimensions of the input data");
 
   // Parse process array dimensions
   clArgs.AddArgument("--proc-dim",
@@ -444,10 +443,34 @@ int main( int argc, char** argv )
       }
     }
 
-  for ( int ii = 0 ; ii < 3; ++ ii )
-    cout << dataDim[ii]
-         << " ";
-  cout << "\n";
+  // If no or insufficient data dimensionality information, terminate in error.
+  if ( dataDim.size() < 3 )
+    {
+    if ( myRank == ioRank )
+      {
+      vtkGenericWarningMacro("Only "
+                             << dataDim.size()
+                             << "data dimension(s) provided (3 needed).");
+      }
+
+    // Terminate cleanly
+    controller->Finalize();
+    controller->Delete();
+    return 1;
+    }
+  else
+    {
+    if ( myRank == ioRank )
+      {
+      cout << "\n# Data dimensionality: "
+           << dataDim.at( 0 )
+           << " "
+           << dataDim.at( 1 )
+           << " "
+           << dataDim.at( 2 )
+           << "\n";
+      }
+    }
 
   // ************************** Initialize test *********************************
   // Check how many processes have been made available
@@ -462,10 +485,15 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RealDataCorrelativeStatisticsArgs args;
+  int dataDimPtr[3];
+  dataDimPtr[0] = dataDim.at( 0 );
+  dataDimPtr[1] = dataDim.at( 1 );
+  dataDimPtr[2] = dataDim.at( 2 );
   args.nVals = 100000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.fileName = fileName;
+  args.dataDim = dataDimPtr;
   args.argc = argc;
   args.argv = argv;
 
