@@ -390,7 +390,7 @@ private:
   int    LastAxisPosition;
   int    LastAxisType;
   int    LastTickLocation;
-  double  LastLabelStart;
+  double LastLabelStart;
 
   vtkPoints         *MinorTickPts;
   vtkPoints         *MajorTickPts;

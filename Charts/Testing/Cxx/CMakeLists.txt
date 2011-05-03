@@ -14,6 +14,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       #TestContextUnicode.cxx # Disabled until Freetype unicode works
       TestBarGraph.cxx
       TestBarGraphHorizontal.cxx
+      TestColorTransferFunction.cxx
       TestContext.cxx
       TestContextImage.cxx
       TestDiagram.cxx

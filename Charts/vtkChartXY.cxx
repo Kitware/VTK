@@ -55,6 +55,7 @@
 
 #include "vtksys/ios/sstream"
 #include "vtkDataArray.h"
+#include "vtkStringArray.h"
 
 // My STL containers
 #include <vector>
@@ -285,7 +286,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   this->Update();
 
-  if (this->MTime > this->ChartPrivate->axes[0]->GetMTime())
+  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime())
     {
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
@@ -1272,13 +1273,21 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
       label += vtkStdString(bar->GetGroupName()) + ": ";
       }
     }
-  label += plot->GetLabel(seriesIndex);
+  vtkStringArray *labels = plot->GetIndexedLabels();
+  if (labels && seriesIndex < labels->GetNumberOfTuples())
+    {
+    label += labels->GetValue(seriesIndex) + ": ";
+    }
+  else
+    {
+    label += plot->GetLabel(0) + ": ";
+    }
   // If axes are set to logarithmic scale we need to convert the
   // axis value using 10^(axis value)
   vtksys_ios::ostringstream ostr;
+  ostr << label;
   ostr.imbue(vtkstd::locale::classic());
   ostr.setf(ios::fixed, ios::floatfield);
-  ostr << label << ": ";
   ostr.precision(ChartPrivate->axes[vtkAxis::BOTTOM]->GetPrecision());
   ostr << (this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetLogScale()?
     pow(double(10.0), double(plotPos.X())):

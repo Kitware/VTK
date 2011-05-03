@@ -31,8 +31,6 @@
 
 vtkStandardNewMacro(vtkAxesFollower);
 
-vtkCxxSetObjectMacro(vtkAxesFollower,Camera,vtkCamera);
-
 // List of vectors per axis (depending on which one needs to be
 // followed.
 // Order here is X, Y, and Z.
@@ -71,13 +69,11 @@ vtkAxesFollower::vtkAxesFollower() : vtkFollower()
   this->EnableLOD  =  0;
   this->LODFactor  =  0.80;
 
-  this->ScreenOffset = 10;
+  this->ScreenOffset = 10.0;
 
   this->XAxis = NULL;
   this->YAxis = NULL;
   this->ZAxis = NULL;
-  this->Camera = NULL;
-  this->Device = vtkActor::New();
 
   this->AxisPointingLeft = -1;
 
@@ -87,13 +83,6 @@ vtkAxesFollower::vtkAxesFollower() : vtkFollower()
 //----------------------------------------------------------------------
 vtkAxesFollower::~vtkAxesFollower()
 {
-  if (this->Camera)
-    {
-    this->Camera->UnRegister(this);
-    }
-
-  this->Device->Delete();
-
   this->InternalMatrix->Delete();
 }
 
@@ -635,7 +624,12 @@ void vtkAxesFollower::ShallowCopy(vtkProp *prop)
   vtkAxesFollower *f = vtkAxesFollower::SafeDownCast(prop);
   if ( f != NULL )
     {
-    this->SetCamera(f->GetCamera());
+    this->SetFollowAxes(f->GetFollowAxes());
+    this->SetAutoCenter(f->GetAutoCenter());
+    this->SetEnableLOD(f->GetEnableLOD());
+    this->SetLODFactor(f->GetLODFactor());
+    this->SetScreenOffset(f->GetScreenOffset());
+    this->SetAxes(f->XAxis, f->YAxis, f->ZAxis);
     }
 
   // Now do superclass
