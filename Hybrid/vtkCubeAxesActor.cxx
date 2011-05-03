@@ -278,6 +278,10 @@ void vtkCubeAxesActor::ShallowCopy(vtkCubeAxesActor *actor)
   this->ForceXLabelReset = actor->ForceXLabelReset;
   this->ForceYLabelReset = actor->ForceYLabelReset;
   this->ForceZLabelReset = actor->ForceZLabelReset;
+
+  this->LabelScreenOffset = actor->LabelScreenOffset;
+  this->TitleScreenOffset = actor->TitleScreenOffset;
+  this->ScreenSize        = actor->ScreenSize;
 }
 
 // ****************************************************************************

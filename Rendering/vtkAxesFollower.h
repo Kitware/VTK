@@ -20,12 +20,6 @@ public:
 
 //BTX
  // Description:
- // Set/Get the camera to follow. If this is not set, then the follower
- // won't know who to follow.
- virtual void SetCamera(vtkCamera*);
- vtkGetObjectMacro(Camera,vtkCamera);
-
- // Description:
  // Set three orthogonal axes one of which needs to be followed.
  inline void SetAxes(vtkAxisActor *xAxis,
                      vtkAxisActor *yAxis,
@@ -61,8 +55,8 @@ public:
  // Enable / disable use of LOD. If enabled the actor
  // will not be visible at a certain distance from the
  // camera (currently usind threhold distance = 0.80 * clipRange[1])
- vtkSetMacro(EnableLOD, double);
- vtkGetMacro(EnableLOD, double);
+ vtkSetMacro(EnableLOD, int);
+ vtkGetMacro(EnableLOD, int);
 
  // Description:
  // Set LOD factor (0.0 - 1.0), default is 0.80. This determines at what fraction
@@ -136,10 +130,6 @@ protected:
  vtkAxisActor *XAxis;
  vtkAxisActor *YAxis;
  vtkAxisActor *ZAxis;
-
- vtkCamera    *Camera;
- vtkActor     *Device;
-
 
 private:
 
