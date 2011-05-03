@@ -528,7 +528,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     if (inRange(point, tol, (*low).pos))
       {
       *location = (*low).pos;
-      return (*low).index;
+      return static_cast<int>((*low).index);
       }
     else if (low->pos.X() > highX)
       {
