@@ -145,6 +145,10 @@ public:
   vtkIdType InsertNextPoint(double x, double y);
 
   // Description:
+  // Remove point described by its id
+  void RemovePoint(vtkIdType id) {this->Data->RemoveTuple(id);}
+
+  // Description:
   // Specify the number of points for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetPoint() method for fast insertion.

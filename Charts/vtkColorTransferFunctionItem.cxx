@@ -87,18 +87,18 @@ void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunc
 //-----------------------------------------------------------------------------
 void vtkColorTransferFunctionItem::ComputeTexture()
 {
-
+  double bounds[4];
+  this->GetBounds(bounds);
+  if (bounds[0] == bounds[1]
+      || !this->ColorTransferFunction)
+    {
+    return;
+    }
   if (this->Texture == 0)
     {
     this->Texture = vtkImageData::New();
     }
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] == bounds[1])
-    {
-    vtkWarningMacro(<< "The color transfer function seems empty");
-    return;
-    }
+
   // Could depend of the screen resolution
   const int dimension = 256;
   double* values = new double[dimension];
@@ -127,4 +127,5 @@ void vtkColorTransferFunctionItem::ComputeTexture()
       }
     }
   delete [] values;
+  return;
 }
