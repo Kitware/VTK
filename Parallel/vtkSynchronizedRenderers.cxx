@@ -498,7 +498,7 @@ void vtkSynchronizedRenderers::vtkRawImage::Initialize(
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomps)
 {
-  if (dx*dy < this->Data->GetNumberOfTuples() &&
+  if (dx*dy <= this->Data->GetNumberOfTuples() &&
     this->Data->GetNumberOfComponents() == numcomps)
     {
     this->Size[0] = dx;

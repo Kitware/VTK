@@ -290,9 +290,15 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       UInt16 buttonNumber;
       GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
                         sizeof(buttonNumber), NULL, &buttonNumber);
-      
+
+      UInt32 clickCount;
+      GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
+                        sizeof(clickCount), NULL, &clickCount);
+      int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
+
       me->SetEventInformationFlipY(int(mouseLoc.x), int(mouseLoc.y),
-                                   controlDown, shiftDown);
+                                   controlDown, shiftDown,
+                                   0, repeatCount);
       me->SetLastMouseDelta(0, 0);
       me->SetAltKey(altDown);
 

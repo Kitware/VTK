@@ -307,7 +307,7 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
                 translated_cmd += "None"
             else:
                 translated_cmd += "%s" % arguments[1]
-            translated_cmd += ")"
+            translated_cmd += ") # not needed in python"
             pass
         elif command in self._procedure_list:
             translated_cmd = "%s(" % command

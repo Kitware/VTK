@@ -34,6 +34,7 @@ SET( Kit_SRCS
   vtkAreaPicker.cxx
   vtkMapArrayValues.cxx
   vtkAssembly.cxx
+  vtkAxesFollower.cxx
   vtkAxisActor2D.cxx
   vtkCamera.cxx
   vtkCameraActor.cxx
