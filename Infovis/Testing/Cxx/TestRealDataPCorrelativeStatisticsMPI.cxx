@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay and Ajith Mascarenhas from Sandia National Laboratories 
+// Thanks to Philippe Pebay and Ajith Mascarenhas from Sandia National Laboratories
 // for implementing this test.
 
 #include <mpi.h>
@@ -37,11 +37,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
+#include "vtksys/CommandLineArguments.hxx"
+#include "vtksys/SystemTools.hxx"
+
 struct RealDataCorrelativeStatisticsArgs
 {
   int nVals;
   int* retVal;
   int ioRank;
+  vtkStdString fileName;
   int argc;
   char** argv;
 };
@@ -50,7 +54,7 @@ struct RealDataCorrelativeStatisticsArgs
 void CalculateProcessorId( int *procDim, int rank, int *procId )
 {
   int procXY = procDim[0] * procDim[1];
-  
+
   procId[2] = rank / procXY;
   procId[1] = ( rank - procId[2] * procXY ) / procDim[0];
   procId[0] = ( rank - procId[2] * procXY ) % procDim[0];
@@ -59,9 +63,9 @@ void CalculateProcessorId( int *procDim, int rank, int *procId )
 // Calculate the processor rank given its id(integer triple)
 int CalculateProcessorRank( int *procDim, int *procId )
 {
-  int rank = procId[2] * procDim[0] * procDim[1] + 
+  int rank = procId[2] * procDim[0] * procDim[1] +
     procId[1] * procDim[0] + procId[0];
-  
+
   return rank;
 }
 
@@ -93,59 +97,63 @@ void ReadFloatDataBlockFromFile( ifstream& ifs,
   vtkIdType sizeY = high[1] - low[1] + 1;
   vtkIdType sizeXY = sizeX * sizeY;
 
-  pbuffer += (bounds[0][0] - low[0] );  // Next position to start writing.
+  // Next position to start writing
+  pbuffer += (bounds[0][0] - low[0] );
 
-  // Iterate over 'z'.
+  // Iterate over 'z'
   for (int z = low[2]; z <= high[2]; z++)
     {
-      if (z >= bounds[0][2] && z <= bounds[1][2] )
-        {
-          vtkIdType offsetZ = z * dimXY; 
+    if (z >= bounds[0][2] && z <= bounds[1][2] )
+      {
+      vtkIdType offsetZ = z * dimXY;
 
-          // Iterate over 'y'.
-          for (int y = low[1]; y <= high[1]; y++)
+      // Iterate over 'y'.
+      for (int y = low[1]; y <= high[1]; y++)
+        {
+        if (y >= bounds[0][1] && y <= bounds[1][1] )
+          {
+          vtkIdType offsetY = y * dimX;
+          long long offset = offsetZ + offsetY + bounds[0][0];
+
+          // Seek to point
+          ifs.seekg( offset * sizeof(*pbuffer), ios::beg );
+
+          // Get a block of rangeX values
+          ifs.read( reinterpret_cast<char *>( pbuffer ),
+                    rangeX * sizeof(*pbuffer) );
+
+          // Proceed to next write position
+          pbuffer += sizeX;
+
+          if ( ifs.fail() || ifs.eof() )
             {
-              if (y >= bounds[0][1] && y <= bounds[1][1] )
-                {
-                  vtkIdType offsetY = y * dimX;
-                  long long offset = offsetZ + offsetY + bounds[0][0];
-
-                  // Seek to point.
-                  ifs.seekg( offset * sizeof(*pbuffer), ios::beg );
-
-                  // Get a block of rangeX values.
-                  ifs.read( reinterpret_cast<char *>( pbuffer ), 
-                            rangeX * sizeof(*pbuffer) );
-
-                  pbuffer += sizeX;  // Proceed to next write position.
-
-                  if ( ifs.fail() || ifs.eof() )
-                    {
-                    vtkGenericWarningMacro("Failed to read data or reached EOF.");
-                    exit( -1 );
-                    }
-                }
-              else
-                {
-                  pbuffer += sizeX;  // Skip one line.
-                }
+            vtkGenericWarningMacro("Failed to read data or reached EOF.");
+            exit( -1 );
             }
+          }
+        else
+          {
+          // Skip one line
+          pbuffer += sizeX;
+          }
         }
-      else
-        {
-          pbuffer += sizeXY;  // Skip one plane.
-        }
+      }
+    else
+      {
+      // Skip one plane
+      pbuffer += sizeXY;
+      }
     }
 }
 
 // Given the data dimensions dataDim, the process dimensions procDim, my
 // process id myProcId, set the block bounding box myBlockBounds for my data.
 // Also open the data file as filestream ifs.
-void SetDataParameters( vtkIdType *dataDim, 
+void SetDataParameters( vtkIdType *dataDim,
                         int *procDim,
-                        int *myProcId, 
-                        const char* fileName, 
-                        ifstream& ifs, 
+                        int *myProcId,
+                        const char* fileName,
+                        ifstream& ifs,
                         int myBlockBounds[2][3] )
 {
   int myDim[3];
@@ -181,7 +189,7 @@ void SetDataParameters( vtkIdType *dataDim,
     vtkGenericWarningMacro("Error opening  file:"
                            << fileName
                            <<".");
-      exit( -1 );
+    exit( -1 );
     }
 }
 
@@ -197,21 +205,19 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
 
   // Get local rank
   int myRank = com->GetLocalProcessId();
-
-  // ************************** Read input data file **************************** 
-  vtkIdType dataDim[] = { 2025, 1600, 400 };
   int procDim[] = { 1, 1 ,1 };
   int myProcId[3];
-  const char fileName[] = "Blah"; // FIXME
-
   CalculateProcessorId( procDim, myRank, myProcId );
 
+  // ************************** Read input data file ****************************
+
+  vtkIdType dataDim[] = { 2025, 1600, 400 };
   ifstream ifs;
   int myBlockBounds[2][3];
   SetDataParameters( dataDim,
                      procDim,
-                     myProcId, 
-                     fileName, 
+                     myProcId,
+                     args->fileName,
                      ifs,
                      myBlockBounds );
 
@@ -232,7 +238,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
 
   delete [] buffer;
 
-  // ************************** Correlative Statistics ************************** 
+  // ************************** Correlative Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
@@ -257,7 +263,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
   vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
-    // Synchronize and stop clock
+  // Synchronize and stop clock
   com->Barrier();
   timer->StopTimer();
 
@@ -265,7 +271,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
     {
     cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
          << "   Total sample size: "
-         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()   
+         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()
          << " \n"
          << "   Wall time: "
          << timer->GetElapsedTime()
@@ -284,7 +290,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
         }
       cout << "\n";
       }
-    
+
     cout << "   Calculated the following derived statistics:\n";
     for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
       {
@@ -299,7 +305,7 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
       cout << "\n";
       }
     }
-  
+
   // Clean up
   pcs->Delete();
   inputData->Delete();
@@ -310,18 +316,9 @@ void RealDataCorrelativeStatistics( vtkMultiProcessController* controller, void*
 //----------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-  // **************************** MPI Initialization *************************** 
+  // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize( &argc, &argv );
-
-  // If no data file name was provided, terminate in error.
-  if ( argc < 2 )
-    {
-    vtkGenericWarningMacro("No data file name was provided.");
-    controller->Delete();
-    return 1;
-    } 
-  
 
   // If an MPI controller was not created, terminate in error.
   if ( ! controller->IsA( "vtkMPIController" ) )
@@ -329,16 +326,19 @@ int main( int argc, char** argv )
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    } 
+    }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
-  // ************************** Find an I/O node ******************************** 
+  // Get local rank
+  int myRank = com->GetLocalProcessId();
+
+  // ************************** Find an I/O node ********************************
   int* ioPtr;
   int ioRank;
   int flag;
 
-  MPI_Attr_get( MPI_COMM_WORLD, 
+  MPI_Attr_get( MPI_COMM_WORLD,
                 MPI_IO,
                 &ioPtr,
                 &flag );
@@ -353,10 +353,10 @@ int main( int argc, char** argv )
     // This is the only case when a testValue of -1 will be returned
     controller->Finalize();
     controller->Delete();
-    
+
     return -1;
     }
-  else 
+  else
     {
     if ( *ioPtr == MPI_ANY_SOURCE )
       {
@@ -373,17 +373,86 @@ int main( int argc, char** argv )
       }
     }
 
-  // ************************** Initialize test ********************************* 
-  if ( com->GetLocalProcessId() == ioRank )
+  if ( myRank == ioRank )
     {
     cout << "\n# Process "
          << ioRank
          << " will be the I/O node.\n";
     }
-      
+
+  // **************************** Parse command line ***************************
+  // If no arguments were provided, terminate in error.
+  if ( argc < 2 )
+    {
+    vtkGenericWarningMacro("No input data arguments were provided.");
+    controller->Delete();
+    return 1;
+    }
+
+  // Set default argument values (some of which are invalid, for mandatory parameters)
+  vtkStdString fileName= ""; // invalid
+  int* dataDim; // invalid
+  int procDim[] = { 1, 1 ,1 };
+
+  // Initialize command line argument parser
+  vtksys::CommandLineArguments clArgs;
+  clArgs.Initialize( argc, argv );
+  clArgs.StoreUnusedArguments( false );
+
+  // Parse input data file name
+  clArgs.AddArgument("--file-name",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &fileName, "Name of input data file");
+
+  // Parse input data file name
+  clArgs.AddArgument("--data-dim",
+                     vtksys::CommandLineArguments::MULTI_ARGUMENT,
+                     &dataDim, "Dimensions of the input data");
+
+  // Parse process array dimensions
+  clArgs.AddArgument("--proc-dim",
+                     vtksys::CommandLineArguments::MULTI_ARGUMENT,
+                     procDim, "Dimensions of the input data");
+
+  // If incorrect arguments were provided, terminate in error.
+  if ( ! clArgs.Parse() )
+    {
+    vtkGenericWarningMacro("Incorrect input data arguments were provided.");
+    return 1;
+    }
+
+  // If no file name was provided, terminate in error.
+  if ( ! strcmp( fileName.c_str(), "" ) )
+    {
+    if ( myRank == ioRank )
+      {
+      vtkGenericWarningMacro("No input data file name was provided.");
+      }
+
+    // Terminate cleanly
+    controller->Finalize();
+    controller->Delete();
+    return 1;
+    }
+  else
+    {
+    if ( myRank == ioRank )
+      {
+      cout << "\n# Input data file name: "
+           << fileName
+           << "\n";
+      }
+    }
+
+  for ( int ii = 0 ; ii < 3; ++ ii )
+    cout << dataDim[ii]
+         << " ";
+  cout << "\n";
+
+  // ************************** Initialize test *********************************
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
-  if ( controller->GetLocalProcessId() == ioRank )
+  if ( myRank == ioRank )
     {
     cout << "\n# Running test with "
          << numProcs
@@ -396,6 +465,7 @@ int main( int argc, char** argv )
   args.nVals = 100000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
+  args.fileName = fileName;
   args.argc = argc;
   args.argv = argv;
 
@@ -404,13 +474,13 @@ int main( int argc, char** argv )
   controller->SingleMethodExecute();
 
   // Clean up and exit
-  if ( com->GetLocalProcessId() == ioRank )
+  if ( myRank == ioRank )
     {
     cout << "\n# Test completed.\n\n";
     }
 
   controller->Finalize();
   controller->Delete();
-  
+
   return testValue;
 }
