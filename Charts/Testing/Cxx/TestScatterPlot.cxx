@@ -50,6 +50,9 @@ int TestScatterPlot(int , char * [])
   vtkNew<vtkFloatArray> arrT;
   arrT->SetName("Tan");
   table->AddColumn(arrT.GetPointer());
+  vtkNew<vtkStringArray> labels;
+  labels->SetName("Labels");
+  table->AddColumn(labels.GetPointer());
 
   // Test charting with a few more points...
   int numPoints = 40;
@@ -61,6 +64,14 @@ int TestScatterPlot(int , char * [])
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
     table->SetValue(i, 3, tan(i * inc) + 0.5);
+    if (i % 2)
+      {
+      table->SetValue(i, 4, vtkStdString("Odd"));
+      }
+    else
+      {
+      table->SetValue(i, 4, vtkStdString("Even"));
+      }
     }
 
   // Add multiple line plots, setting the colors etc
@@ -78,6 +89,7 @@ int TestScatterPlot(int , char * [])
   points->SetInput(table.GetPointer(), 0, 3);
   points->SetColor(0, 0, 255, 255);
   points->SetWidth(4.0);
+  points->SetIndexedLabels(labels.GetPointer());
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
