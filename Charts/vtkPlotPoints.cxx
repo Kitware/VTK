@@ -33,12 +33,26 @@
 #include <algorithm>
 
 // PIMPL for STL vector...
-class vtkPlotPoints::VectorPIMPL : public std::vector<vtkVector2f>
+struct vtkIndexedVector2f
+{
+  size_t index;
+  vtkVector2f pos;
+};
+
+class vtkPlotPoints::VectorPIMPL : public std::vector<vtkIndexedVector2f>
 {
 public:
-  VectorPIMPL(vtkVector2f* startPos, vtkVector2f* finishPos)
-    : std::vector<vtkVector2f>(startPos, finishPos)
+  VectorPIMPL(vtkVector2f* array, size_t n)
+    : std::vector<vtkIndexedVector2f>()
   {
+    this->reserve(n);
+    for (size_t i = 0; i < n; ++i)
+      {
+      vtkIndexedVector2f tmp;
+      tmp.index = i;
+      tmp.pos = array[i];
+      this->push_back(tmp);
+      }
   }
 };
 
@@ -427,6 +441,19 @@ void vtkPlotPoints::GetBounds(double bounds[4])
 namespace
 {
 
+bool compVector3fX(const vtkIndexedVector2f& v1,
+                   const vtkIndexedVector2f& v2)
+{
+  if (v1.pos.X() < v2.pos.X())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
 // Compare the two vectors, in X component only
 bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
 {
@@ -480,8 +507,8 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     {
     vtkVector2f* data =
         static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-    this->Sorted = new VectorPIMPL(data, data+n);
-    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
+    this->Sorted = new VectorPIMPL(data, n);
+    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
     }
 
   // Set up our search array, use the STL lower_bound algorithm
@@ -489,19 +516,21 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
   VectorPIMPL &v = *this->Sorted;
 
   // Get the lowest point we might hit within the supplied tolerance
-  vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
-  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+  vtkIndexedVector2f lowPoint;
+  lowPoint.index = -1;
+  lowPoint.pos = vtkVector2f(point.X()-tol.X(), 0.0f);
+  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
 
   // Now consider the y axis
   float highX = point.X() + tol.X();
   while (low != v.end())
     {
-    if (inRange(point, tol, *low))
+    if (inRange(point, tol, (*low).pos))
       {
-      *location = *low;
-      return 0;
+      *location = (*low).pos;
+      return (*low).index;
       }
-    else if (low->X() > highX)
+    else if (low->pos.X() > highX)
       {
       break;
       }
