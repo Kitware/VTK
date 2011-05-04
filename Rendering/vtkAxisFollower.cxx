@@ -281,9 +281,9 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
     Ry[2] = -Ry[2];
     }
 
-  // Since we already stored all the possible Y axis that would go toward the geometry we need to
-  // compare if the Y axis defined by the our math aligns with these. If not then we got inverted Y
-  // and hence need to invert the translation too.
+  // Since we already stored all the possible Y axes that are geometry aligned,
+  // we compare our vertical vector with these vectors and if it aligns then we
+  // translate in opposite direction.
   int axisPosition = this->Axis->GetAxisPosition();
 
   double dotVal1 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][0], origRy) ;
