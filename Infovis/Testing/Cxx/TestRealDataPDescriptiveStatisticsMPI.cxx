@@ -42,7 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 struct RealDataDescriptiveStatisticsArgs
 {
-  int nVals;
   int* retVal;
   int ioRank;
   vtkStdString fileName;
@@ -547,7 +546,6 @@ int main( int argc, char** argv )
   int testValue = 0;
   RealDataDescriptiveStatisticsArgs args;
 
-  args.nVals = 100000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.fileName = fileName;
