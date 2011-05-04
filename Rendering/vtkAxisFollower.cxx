@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAxesFollower.cxx
+  Module:    vtkAxisFollower.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkAxesFollower.h"
+#include "vtkAxisFollower.h"
 
 #include "vtkAxisActor.h"
 #include "vtkCamera.h"
@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkStandardNewMacro(vtkAxesFollower);
+vtkStandardNewMacro(vtkAxisFollower);
 
 // List of vectors per axis (depending on which one needs to be
 // followed.
@@ -62,18 +62,15 @@ namespace
 
 //----------------------------------------------------------------------
 // Creates a follower with no camera set
-vtkAxesFollower::vtkAxesFollower() : vtkFollower()
+vtkAxisFollower::vtkAxisFollower() : vtkFollower()
 {
-  this->FollowAxes = -1;
   this->AutoCenter =  1;
   this->EnableLOD  =  0;
   this->LODFactor  =  0.80;
 
   this->ScreenOffset = 10.0;
 
-  this->XAxis = NULL;
-  this->YAxis = NULL;
-  this->ZAxis = NULL;
+  this->Axis = NULL;
 
   this->AxisPointingLeft = -1;
 
@@ -81,14 +78,14 @@ vtkAxesFollower::vtkAxesFollower() : vtkFollower()
 }
 
 //----------------------------------------------------------------------
-vtkAxesFollower::~vtkAxesFollower()
+vtkAxisFollower::~vtkAxisFollower()
 {
   this->InternalMatrix->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkAxesFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double *Rz,
-                                                 vtkAxisActor *axis1, vtkAxisActor *axis2,
+void vtkAxisFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double *Rz,
+                                                 vtkAxisActor *axis1, double *dop,
                                                  vtkRenderer *ren)
 {
   vtkMatrix4x4* cameraMatrix = this->Camera->GetViewTransformMatrix();
@@ -102,19 +99,11 @@ void vtkAxesFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double 
   Rx[1] = axis1Pt2[1] - axis1Pt1[1];
   Rx[2] = axis1Pt2[2] - axis1Pt1[2];
 
-  vtkCoordinate *c1Axis2 =  axis2->GetPoint1Coordinate();
-  vtkCoordinate *c2Axis2 =  axis2->GetPoint2Coordinate();
-
-  double *axis2Pt1 = c1Axis2->GetComputedWorldValue(ren);
-  double *axis2Pt2 = c2Axis2->GetComputedWorldValue(ren);
-
-  Ry[0] = axis2Pt2[0] - axis2Pt1[0];
-  Ry[1] = axis2Pt2[1] - axis2Pt1[1];
-  Ry[2] = axis2Pt2[2] - axis2Pt1[2];
-
-  vtkMath::Normalize(Rx);
+  // Get Y
+  vtkMath::Cross(Rx, dop, Ry);
   vtkMath::Normalize(Ry);
 
+  // Get Z
   vtkMath::Cross(Rx, Ry, Rz);
   vtkMath::Normalize(Rz);
 
@@ -149,7 +138,7 @@ void vtkAxesFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double 
 }
 
 //----------------------------------------------------------------------------
-double vtkAxesFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
+double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
                                   double screenOffset, double position[])
 {
   if(!viewport || !camera || !position)
@@ -175,17 +164,11 @@ double vtkAxesFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
 }
 
 //----------------------------------------------------------------------------
-void vtkAxesFollower::ComputeTransformMatrix(vtkRenderer *ren)
+void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
 {
-  if(this->FollowAxes == -1)
+  if(!this->Axis)
     {
-    vtkErrorMacro("ERROR: Axes to follow is not set\n");
-    return;
-    }
-
-  if(!this->XAxis || !this->YAxis || !this->ZAxis)
-    {
-    vtkErrorMacro("ERROR: Requires three valid orthogonal vectors\n");
+    vtkErrorMacro("ERROR: Invalid axis\n");
     return;
     }
 
@@ -225,33 +208,13 @@ void vtkAxesFollower::ComputeTransformMatrix(vtkRenderer *ren)
     this->Transform->RotateZ(this->Orientation[2]);
 
     double translation[3] = {0.0, 0.0, 0.0};
-    if (this->XAxis && this->YAxis && this->ZAxis)
+    if (this->Axis)
       {
       vtkMatrix4x4 *matrix = this->InternalMatrix;
       matrix->Identity();
       double Rx[3], Ry[3], Rz[3];
 
-      // Follow X axis.
-      if(this->FollowAxes == VTK_AXIS_TYPE_X)
-        {
-        this->ComputeRotationAndTranlation(ren, translation, Rx, Ry, Rz, this->XAxis,
-                                           this->YAxis, this->ZAxis);
-        }
-      else if(this->FollowAxes == VTK_AXIS_TYPE_Y)
-        {
-        this->ComputeRotationAndTranlation(ren, translation, Rx, Ry, Rz, this->YAxis,
-                                           this->XAxis, this->ZAxis);
-        }
-      else if(this->FollowAxes == VTK_AXIS_TYPE_Z)
-        {
-        this->ComputeRotationAndTranlation(ren, translation, Rx, Ry, Rz, this->ZAxis,
-                                           this->XAxis, this->YAxis);
-        }
-      else
-        {
-        // Do nothing.
-        return;
-        }
+      this->ComputeRotationAndTranlation(ren, translation, Rx, Ry, Rz, this->Axis);
 
       vtkMath::Normalize(Rx);
       vtkMath::Normalize(Ry);
@@ -288,116 +251,64 @@ void vtkAxesFollower::ComputeTransformMatrix(vtkRenderer *ren)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxesFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double translation[],
+void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double translation[],
                                                    double Rx[], double Ry[], double Rz[],
-                                                   vtkAxisActor *xAxis,
-                                                   vtkAxisActor *orthoAxis1,
-                                                   vtkAxisActor *orthoAxis2)
+                                                   vtkAxisActor *axis)
 {
-  double Ry1[3], Rz1[3];
-  double Ry2[3], Rz2[3];
-
   double autoScaleFactor = this->AutoScale(ren, this->Camera, this->ScreenOffset, this->Position);
-
-  this->CalculateOrthogonalVectors(Rx,  Ry1, Rz1, xAxis, orthoAxis1, ren);
-  this->CalculateOrthogonalVectors(Rx,  Ry2, Rz2, xAxis, orthoAxis2, ren);
 
   double dop[3];
   this->Camera->GetDirectionOfProjection(dop);
   vtkMath::Normalize(dop);
 
-  double val1 = vtkMath::Dot(Rz1, dop);
-  double val2 = vtkMath::Dot(Rz2, dop);
+  this->CalculateOrthogonalVectors(Rx, Ry, Rz, axis, dop, ren);
+
+  double dotVal = vtkMath::Dot(Rz, dop);
 
   double origRy[3] = {0.0, 0.0, 0.0};
 
-  if(fabs(val1) > fabs(val2))
+  origRy[0] = Ry[0];
+  origRy[1] = Ry[1];
+  origRy[2] = Ry[2];
+
+  // NOTE: Basically the idea here is that val1 will be positive
+  // only when we have projection direction aligned with our z directon
+  // and when that happens it means that our Y is inverted.
+  if(dotVal > 0)
     {
-    translation[0] =  -Ry1[0] * autoScaleFactor;
-    translation[1] =  -Ry1[1] * autoScaleFactor;
-    translation[2] =  -Ry1[2] * autoScaleFactor;
-
-    origRy[0] = Ry1[0];
-    origRy[1] = Ry1[1];
-    origRy[2] = Ry1[2];
-
-    Ry[0] = Ry1[0];
-    Ry[1] = Ry1[1];
-    Ry[2] = Ry1[2];
-
-    Rz[0] = Rz1[0];
-    Rz[1] = Rz1[1];
-    Rz[2] = Rz1[2];
-
-    // NOTE: Basically the idea here is that val1 will be positive
-    // only when we have projection direction aligned with our z directon
-    // and when that happens it means that our Y is inverted.
-    // Similar operation we have to do when val2 > 0.
-    if(val1 > 0)
-      {
-      Ry[0] = -Ry[0];
-      Ry[1] = -Ry[1];
-      Ry[2] = -Ry[2];
-      }
-    }
-  else
-    {
-    translation[0] =  -Ry2[0] * autoScaleFactor;
-    translation[1] =  -Ry2[1] * autoScaleFactor;
-    translation[2] =  -Ry2[2] * autoScaleFactor;
-
-    origRy[0] = Ry2[0];
-    origRy[1] = Ry2[1];
-    origRy[2] = Ry2[2];
-
-    Ry[0] = Ry2[0];
-    Ry[1] = Ry2[1];
-    Ry[2] = Ry2[2];
-
-    Rz[0] = Rz2[0];
-    Rz[1] = Rz2[1];
-    Rz[2] = Rz2[2];
-
-    if(val2 > 0)
-      {
-      Ry[0] = -Ry[0];
-      Ry[1] = -Ry[1];
-      Ry[2] = -Ry[2];
-      }
+    Ry[0] = -Ry[0];
+    Ry[1] = -Ry[1];
+    Ry[2] = -Ry[2];
     }
 
   // Since we already stored all the possible Y axis that would go toward the geometry we need to
   // compare if the Y axis defined by the our math aligns with these. If not then we got inverted Y
   // and hence need to invert the translation too.
-  int axisPosition = -1;
-  if(this->FollowAxes == VTK_AXIS_TYPE_X)
+  int axisPosition = this->Axis->GetAxisPosition();
+
+  double dotVal1 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][0], origRy) ;
+  double dotVal2 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][1], origRy) ;
+
+  if(fabs(dotVal1) > fabs(dotVal2))
     {
-    axisPosition = this->XAxis->GetAxisPosition();
-    }
-  else if(this->FollowAxes == VTK_AXIS_TYPE_Y)
-    {
-    axisPosition = this->YAxis->GetAxisPosition();
-    }
-  else if(this->FollowAxes == VTK_AXIS_TYPE_Z)
-    {
-    axisPosition = this->ZAxis->GetAxisPosition();
+    int sign = (dotVal1 > 0 ? -1 : 1);
+
+    translation[0] =  origRy[0] * autoScaleFactor * sign;
+    translation[1] =  origRy[1] * autoScaleFactor * sign;
+    translation[2] =  origRy[2] * autoScaleFactor * sign;
     }
   else
     {
-    // Do nothing.
-    }
+    int sign = (dotVal2 > 0 ? -1 : 1);
 
-    if(!(vtkMath::Dot(AxisAlignedY[this->FollowAxes][axisPosition][0], origRy) > 0) &&
-       !(vtkMath::Dot(AxisAlignedY[this->FollowAxes][axisPosition][1], origRy) > 0) )
-    {
-    translation[0] = -translation[0];
-    translation[1] = -translation[1];
-    translation[2] = -translation[2];
+    translation[0] =  origRy[0] * autoScaleFactor * sign;
+    translation[1] =  origRy[1] * autoScaleFactor * sign;
+    translation[2] =  origRy[2] * autoScaleFactor * sign;
     }
 }
 
 //----------------------------------------------------------------------
-void vtkAxesFollower::ComputerAutoCenterTranslation(
+void vtkAxisFollower::ComputerAutoCenterTranslation(
   const double& vtkNotUsed(autoScaleFactor), double translation[3])
 {
   if(!translation)
@@ -416,15 +327,15 @@ void vtkAxesFollower::ComputerAutoCenterTranslation(
     halfWidth  = -halfWidth;
     }
 
-  if(this->FollowAxes == VTK_AXIS_TYPE_X)
+  if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_X)
     {
     translation[0] = translation[0] - halfWidth;
     }
-  else if(this->FollowAxes == VTK_AXIS_TYPE_Y)
+  else if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_Y)
     {
     translation[1] = translation[1] - halfWidth;
     }
-  else if(this->FollowAxes == VTK_AXIS_TYPE_Z)
+  else if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_Z)
     {
     translation[2] = translation[2] - halfWidth;
     }
@@ -437,7 +348,7 @@ void vtkAxesFollower::ComputerAutoCenterTranslation(
 }
 
 //----------------------------------------------------------------------
-int vtkAxesFollower::EvaluateVisibility()
+int vtkAxisFollower::EvaluateVisibility()
 {
   if(!this->Camera->GetParallelProjection())
     {
@@ -468,64 +379,27 @@ int vtkAxesFollower::EvaluateVisibility()
 }
 
 //----------------------------------------------------------------------
-void vtkAxesFollower::PrintSelf(ostream& os, vtkIndent indent)
+void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "FollowAxes: ("  << this->FollowAxes   << ")\n";
   os << indent << "AutoCenter: ("  << this->AutoCenter   << ")\n";
   os << indent << "EnableLOD: ("   << this->EnableLOD    << ")\n";
   os << indent << "LODFactor: ("   << this->LODFactor    << ")\n";
   os << indent << "ScreenOffset: ("<< this->ScreenOffset << ")\n";
 
-  if ( this->XAxis )
+  if ( this->Axis )
     {
-    os << indent << "XAxis: (" << this->XAxis << ")\n";
+    os << indent << "Axis: (" << this->Axis << ")\n";
     }
   else
     {
-    os << indent << "XAxis: (none)\n";
-    }
-
-  if ( this->YAxis )
-    {
-    os << indent << "YAxis: (" << this->YAxis << ")\n";
-    }
-  else
-    {
-    os << indent << "YAxis: (none)\n";
-    }
-
-  if ( this->ZAxis )
-    {
-    os << indent << "ZAxis: (" << this->ZAxis << ")\n";
-    }
-  else
-    {
-    os << indent << "ZAxis: (none)\n";
-    }
-
-  if ( this->Camera )
-    {
-    os << indent << "Camera: (" << this->Camera << ")\n";
-    }
-  else
-    {
-    os << indent << "Camera: (none)\n";
-    }
-
-  if ( this->Device )
-    {
-    os << indent << "Device: (" << this->Device << ")\n";
-    }
-  else
-    {
-    os << indent << "Device: (none)\n";
+    os << indent << "Axis: (none)\n";
     }
 }
 
 //----------------------------------------------------------------------
-int vtkAxesFollower::RenderOpaqueGeometry(vtkViewport *vp)
+int vtkAxisFollower::RenderOpaqueGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
     {
@@ -548,7 +422,7 @@ int vtkAxesFollower::RenderOpaqueGeometry(vtkViewport *vp)
 }
 
 //-----------------------------------------------------------------------------
-int vtkAxesFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
+int vtkAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
     {
@@ -571,7 +445,7 @@ int vtkAxesFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxesFollower::ReleaseGraphicsResources(vtkWindow *w)
+void vtkAxisFollower::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->Device->ReleaseGraphicsResources(w);
 }
@@ -579,7 +453,7 @@ void vtkAxesFollower::ReleaseGraphicsResources(vtkWindow *w)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkAxesFollower::HasTranslucentPolygonalGeometry()
+int vtkAxisFollower::HasTranslucentPolygonalGeometry()
 {
   if ( ! this->Mapper )
     {
@@ -599,7 +473,7 @@ int vtkAxesFollower::HasTranslucentPolygonalGeometry()
 //-----------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.
-void vtkAxesFollower::Render(vtkRenderer *ren)
+void vtkAxisFollower::Render(vtkRenderer *ren)
 {
   if(this->EnableLOD && !this->EvaluateVisibility())
     {
@@ -631,17 +505,16 @@ void vtkAxesFollower::Render(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------
-void vtkAxesFollower::ShallowCopy(vtkProp *prop)
+void vtkAxisFollower::ShallowCopy(vtkProp *prop)
 {
-  vtkAxesFollower *f = vtkAxesFollower::SafeDownCast(prop);
+  vtkAxisFollower *f = vtkAxisFollower::SafeDownCast(prop);
   if ( f != NULL )
     {
-    this->SetFollowAxes(f->GetFollowAxes());
     this->SetAutoCenter(f->GetAutoCenter());
     this->SetEnableLOD(f->GetEnableLOD());
     this->SetLODFactor(f->GetLODFactor());
     this->SetScreenOffset(f->GetScreenOffset());
-    this->SetAxes(f->XAxis, f->YAxis, f->ZAxis);
+    this->SetFollowAxis(f->GetFollowAxis());
     }
 
   // Now do superclass

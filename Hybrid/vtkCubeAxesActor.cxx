@@ -16,7 +16,7 @@
 #include "vtkCubeAxesActor.h"
 
 #include "vtkAxisActor.h"
-#include "vtkAxesFollower.h"
+#include "vtkAxisFollower.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkFollower.h"
@@ -119,22 +119,13 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
       this->LabelScreenOffset * 2.0 + this->ScreenSize * 0.5;
 
     // Pass information to axes followers.
-    this->XAxes[i]->GetTitleActor()->SetAxes(this->XAxes[i],
-                                             this->YAxes[i],
-                                             this->ZAxes[i]);
-    this->XAxes[i]->GetTitleActor()->SetFollowAxes(0);
+    this->XAxes[i]->GetTitleActor()->SetFollowAxis(this->XAxes[i]);
     this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
 
-    this->YAxes[i]->GetTitleActor()->SetAxes(this->XAxes[i],
-                                             this->YAxes[i],
-                                             this->ZAxes[i]);
-    this->YAxes[i]->GetTitleActor()->SetFollowAxes(1);
+    this->YAxes[i]->GetTitleActor()->SetFollowAxis(this->YAxes[i]);
     this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
 
-    this->ZAxes[i]->GetTitleActor()->SetAxes(this->XAxes[i],
-                                             this->YAxes[i],
-                                             this->ZAxes[i]);
-    this->ZAxes[i]->GetTitleActor()->SetFollowAxes(2);
+    this->ZAxes[i]->GetTitleActor()->SetFollowAxis(this->ZAxes[i]);
     this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
     }
 
@@ -564,7 +555,7 @@ for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
   this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
 
   int numberOfLabelsBuild = this->XAxes[i]->GetNumberOfLabelsBuilt();
-  vtkAxesFollower **labelActors = this->XAxes[i]->GetLabelActors();
+  vtkAxisFollower **labelActors = this->XAxes[i]->GetLabelActors();
   for(int k=0; k < numberOfLabelsBuild; ++k)
     {
     labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
@@ -2075,7 +2066,7 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBE
     axis[i]->SetTitleScale(newTitleScale);
 
     // Now labels.
-    vtkAxesFollower** labelActors = axis[i]->GetLabelActors();
+    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
 
     for(int j=0; j < axis[i]->GetNumberOfLabelsBuilt(); ++j)
       {
@@ -2262,13 +2253,26 @@ void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     int numberOfLabelsBuild = axis[i]->GetNumberOfLabelsBuilt();
-    vtkAxesFollower **labelActors = axis[i]->GetLabelActors();
+    vtkAxisFollower **labelActors = axis[i]->GetLabelActors();
     for(int k=0; k < numberOfLabelsBuild; ++k)
       {
-      labelActors[k]->SetAxes(this->XAxes[i],
-                              this->YAxes[i],
-                              this->ZAxes[i]);
-      labelActors[k]->SetFollowAxes(index);
+      if(index == 0)
+        {
+        labelActors[k]->SetFollowAxis(this->XAxes[i]);
+        }
+      else if(index == 1)
+        {
+        labelActors[k]->SetFollowAxis(this->YAxes[i]);
+        }
+      else if(index == 2)
+        {
+        labelActors[k]->SetFollowAxis(this->ZAxes[i]);
+        }
+      else
+        {
+        // Do nothing.
+        }
+
       labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
       }
     }

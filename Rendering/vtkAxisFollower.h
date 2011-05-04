@@ -1,6 +1,20 @@
+/*=========================================================================
 
-#ifndef __vtkAxesFollower_h
-#define __vtkAxesFollower_h
+  Program:   Visualization Toolkit
+  Module:    vtkAxisFollower.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef __vtkAxisFollower_h
+#define __vtkAxisFollower_h
 
 #include "vtkFollower.h"
 
@@ -8,40 +22,36 @@
 class vtkAxisActor;
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkAxesFollower : public vtkFollower
+class VTK_RENDERING_EXPORT vtkAxisFollower : public vtkFollower
 {
 public:
- vtkTypeMacro(vtkAxesFollower,vtkFollower);
+ vtkTypeMacro(vtkAxisFollower,vtkFollower);
  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
  // Description:
  // Creates a follower with no camera set
- static vtkAxesFollower *New();
+ static vtkAxisFollower *New();
 
 //BTX
  // Description:
  // Set three orthogonal axes one of which needs to be followed.
- inline void SetAxes(vtkAxisActor *xAxis,
-                     vtkAxisActor *yAxis,
-                     vtkAxisActor *zAxis)
+ inline void SetFollowAxis(vtkAxisActor *axis)
    {
-   if(!xAxis || !yAxis || !zAxis)
+   if(!axis)
      {
-     vtkErrorMacro("One of the axis is invalid or null\n");
+     vtkErrorMacro("Axis is invalid or null\n");
      return;
      }
-   this->XAxis = xAxis;
-   this->YAxis = yAxis;
-   this->ZAxis = zAxis;
+   this->Axis = axis;
 
    this->Modified();
    }
-//ETX
 
- // Description:
- // Set/Get the axis that needs to be followed.
- vtkSetClampMacro(FollowAxes, int, 0, 2);
- vtkGetMacro(FollowAxes, int);
+ inline vtkAxisActor* GetFollowAxis()
+   {
+   return this->Axis;
+   }
+//ETX
 
  // Description:
  // Set/Get state of auto center mode where additional
@@ -95,11 +105,11 @@ public:
  void ShallowCopy(vtkProp *prop);
 
 protected:
- vtkAxesFollower();
- ~vtkAxesFollower();
+ vtkAxisFollower();
+ ~vtkAxisFollower();
 
  void CalculateOrthogonalVectors(double *Rx, double *Ry, double *Rz,
-                                 vtkAxisActor *axis1, vtkAxisActor *axis2,
+                                 vtkAxisActor *axis1, double *dop,
                                  vtkRenderer *ren);
 
  double AutoScale(vtkViewport *viewport, vtkCamera * camera,
@@ -107,8 +117,7 @@ protected:
 
  void ComputeRotationAndTranlation(vtkRenderer *ren, double translation[3],
                                    double Rx[3], double Ry[3], double Rz[3],
-                                   vtkAxisActor *xAxis, vtkAxisActor *orthoAxis1,
-                                   vtkAxisActor *orthoAxis2);
+                                   vtkAxisActor *axis);
 
  // \NOTE: Not used as of now.
  void ComputerAutoCenterTranslation(const double& autoScaleFactor,
@@ -116,8 +125,6 @@ protected:
 
 
  int  EvaluateVisibility();
-
- int          FollowAxes;
 
  int          AutoCenter;
 
@@ -127,16 +134,15 @@ protected:
 
  double       ScreenOffset;
 
- vtkAxisActor *XAxis;
- vtkAxisActor *YAxis;
- vtkAxisActor *ZAxis;
+ vtkAxisActor *Axis;
+
 
 private:
 
  int AxisPointingLeft;
 
- vtkAxesFollower(const vtkAxesFollower&);  // Not implemented.
- void operator=(const vtkAxesFollower&);  // Not implemented.
+ vtkAxisFollower(const vtkAxisFollower&);  // Not implemented.
+ void operator =(const vtkAxisFollower&);  // Not implemented.
 
  // hide the two parameter Render() method from the user and the compiler.
  virtual void Render(vtkRenderer *, vtkMapper *) {};
@@ -146,4 +152,4 @@ private:
 
 };
 
-#endif // __vtkAxesFollower_h
+#endif // __vtkAxisFollower_h

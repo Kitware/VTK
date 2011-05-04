@@ -73,7 +73,7 @@ All rights reserved.
 //
 // ****************************************************************************
 
-class vtkAxesFollower;
+class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
 class vtkFollower;
@@ -291,11 +291,11 @@ public:
   // Description:
   // Get title actor and it is responsible for drawing
   // title text.
-  vtkGetObjectMacro(TitleActor,  vtkAxesFollower);
+  vtkGetObjectMacro(TitleActor,  vtkAxisFollower);
 
   // Description:
   // Get label actors responsigle for drawing label text.
-  inline vtkAxesFollower** GetLabelActors()
+  inline vtkAxisFollower** GetLabelActors()
     {
     return this->LabelActors;
     }
@@ -398,11 +398,11 @@ private:
 
   vtkVectorText     *TitleVector;
   vtkPolyDataMapper *TitleMapper;
-  vtkAxesFollower   *TitleActor;
+  vtkAxisFollower   *TitleActor;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
-  vtkAxesFollower   **LabelActors;
+  vtkAxisFollower   **LabelActors;
 
   vtkPolyData        *Axis;
   vtkPolyDataMapper  *AxisMapper;
