@@ -16,25 +16,39 @@
 #include "vtkAMRParticles.h"
 #include "vtkAMRParticleType.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+
+#include <cassert>
 
 vtkStandardNewMacro(vtkAMRParticles);
 
 vtkAMRParticles::vtkAMRParticles()
 {
+  this->Points = vtkPoints::New();
   this->Points->SetDataTypeToDouble();
+
+  this->ParticleData = vtkPointData::New();
   this->ParticleType = VTK_GENERIC_PARTICLE;
 }
 
 //------------------------------------------------------------------------------
 vtkAMRParticles::~vtkAMRParticles()
 {
-  // TODO Auto-generated destructor stub
+  if( this->Points != NULL )
+   this->Points->Delete();
+
+  if( this->ParticleData != NULL )
+    this->ParticleData->Delete();
+
+  this->Points       = NULL;
+  this->ParticleData = NULL;
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRParticles::PrintSelf( std::ostream &os, vtkIndent indent )
 {
-  this->Superclass::Print( os, indent );
+  this->Superclass::PrintSelf( os, indent );
 }
 
 //------------------------------------------------------------------------------
@@ -60,7 +74,7 @@ void vtkAMRParticles::SetParticle( const vtkIdType idx, double x[3] )
 
 //------------------------------------------------------------------------------
 void vtkAMRParticles::SetParticle( const vtkIdType idx,
-    double &x, double &y, double &z )
+   const double x, const double y, const double z )
 {
   assert( "pre: particle index out-of-bounds" &&
           (idx>=0) && (idx<this->GetNumberOfParticles()) );
@@ -88,4 +102,10 @@ void vtkAMRParticles::GetParticle(
   x = this->Points->GetPoint( idx )[ 0 ];
   y = this->Points->GetPoint( idx )[ 1 ];
   z = this->Points->GetPoint( idx )[ 2 ];
+}
+
+//------------------------------------------------------------------------------
+vtkPointData* vtkAMRParticles::GetParticleData()
+{
+  return( this->ParticleData );
 }
