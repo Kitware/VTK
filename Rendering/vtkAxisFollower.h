@@ -110,7 +110,7 @@ protected:
  vtkAxisFollower();
  ~vtkAxisFollower();
 
- void CalculateOrthogonalVectors(double *Rx, double *Ry, double *Rz,
+ void CalculateOrthogonalVectors(double Rx[3], double Ry[3], double Rz[3],
                                  vtkAxisActor *axis1, double *dop,
                                  vtkRenderer *ren);
 

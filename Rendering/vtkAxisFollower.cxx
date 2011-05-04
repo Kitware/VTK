@@ -84,11 +84,10 @@ vtkAxisFollower::~vtkAxisFollower()
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double *Rz,
-                                                 vtkAxisActor *axis, double *dop,
-                                                 vtkRenderer *ren)
+void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
+  double rZ[3], vtkAxisActor *axis, double *dop, vtkRenderer *ren)
 {
-  if(!Rx || !Ry || !Rz)
+  if(!rX || !rY || !rZ)
     {
     vtkErrorMacro("Invalid or NULL direction vectors\n");
     return;
@@ -119,17 +118,17 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double 
   double *axisPt1 = c1Axis->GetComputedWorldValue(ren);
   double *axisPt2 = c2Axis->GetComputedWorldValue(ren);
 
-  Rx[0] = axisPt2[0] - axisPt1[0];
-  Rx[1] = axisPt2[1] - axisPt1[1];
-  Rx[2] = axisPt2[2] - axisPt1[2];
+  rX[0] = axisPt2[0] - axisPt1[0];
+  rX[1] = axisPt2[1] - axisPt1[1];
+  rX[2] = axisPt2[2] - axisPt1[2];
 
   // Get Y
-  vtkMath::Cross(Rx, dop, Ry);
-  vtkMath::Normalize(Ry);
+  vtkMath::Cross(rX, dop, rY);
+  vtkMath::Normalize(rY);
 
   // Get Z
-  vtkMath::Cross(Rx, Ry, Rz);
-  vtkMath::Normalize(Rz);
+  vtkMath::Cross(rX, rY, rZ);
+  vtkMath::Normalize(rZ);
 
   double a[3], b[3];
   double *tranformedPt1 = cameraMatrix->MultiplyDoublePoint(axisPt1);
@@ -148,12 +147,12 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double 
   if(b[0] < a[0])
     {
     this->AxisPointingLeft = 1;
-    Rx[0] = -Rx[0];
-    Rx[1] = -Rx[1];
-    Rx[2] = -Rx[2];
-    Rz[0] = -Rz[0];
-    Rz[1] = -Rz[1];
-    Rz[2] = -Rz[2];
+    rX[0] = -rX[0];
+    rX[1] = -rX[1];
+    rX[2] = -rX[2];
+    rZ[0] = -rZ[0];
+    rZ[1] = -rZ[1];
+    rZ[2] = -rZ[2];
     }
   else
     {
@@ -250,23 +249,23 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
       {
       vtkMatrix4x4 *matrix = this->InternalMatrix;
       matrix->Identity();
-      double Rx[3], Ry[3], Rz[3];
+      double rX[3], rY[3], rZ[3];
 
-      this->ComputeRotationAndTranlation(ren, translation, Rx, Ry, Rz, this->Axis);
+      this->ComputeRotationAndTranlation(ren, translation, rX, rY, rZ, this->Axis);
 
-      vtkMath::Normalize(Rx);
-      vtkMath::Normalize(Ry);
-      vtkMath::Normalize(Rz);
+      vtkMath::Normalize(rX);
+      vtkMath::Normalize(rY);
+      vtkMath::Normalize(rZ);
 
-      matrix->Element[0][0] = Rx[0];
-      matrix->Element[1][0] = Rx[1];
-      matrix->Element[2][0] = Rx[2];
-      matrix->Element[0][1] = Ry[0];
-      matrix->Element[1][1] = Ry[1];
-      matrix->Element[2][1] = Ry[2];
-      matrix->Element[0][2] = Rz[0];
-      matrix->Element[1][2] = Rz[1];
-      matrix->Element[2][2] = Rz[2];
+      matrix->Element[0][0] = rX[0];
+      matrix->Element[1][0] = rX[1];
+      matrix->Element[2][0] = rX[2];
+      matrix->Element[0][1] = rY[0];
+      matrix->Element[1][1] = rY[1];
+      matrix->Element[2][1] = rY[2];
+      matrix->Element[0][2] = rZ[0];
+      matrix->Element[1][2] = rZ[1];
+      matrix->Element[2][2] = rZ[2];
 
       this->Transform->Concatenate(matrix);
       }
@@ -290,7 +289,7 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
 
 //-----------------------------------------------------------------------------
 void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double translation[3],
-                                                   double Rx[3], double Ry[3], double Rz[3],
+                                                   double rX[3], double rY[3], double rZ[3],
                                                    vtkAxisActor *axis)
 {
   double autoScaleFactor =
@@ -300,24 +299,24 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
   this->Camera->GetDirectionOfProjection(dop);
   vtkMath::Normalize(dop);
 
-  this->CalculateOrthogonalVectors(Rx, Ry, Rz, axis, dop, ren);
+  this->CalculateOrthogonalVectors(rX, rY, rZ, axis, dop, ren);
 
-  double dotVal = vtkMath::Dot(Rz, dop);
+  double dotVal = vtkMath::Dot(rZ, dop);
 
   double origRy[3] = {0.0, 0.0, 0.0};
 
-  origRy[0] = Ry[0];
-  origRy[1] = Ry[1];
-  origRy[2] = Ry[2];
+  origRy[0] = rY[0];
+  origRy[1] = rY[1];
+  origRy[2] = rY[2];
 
   // NOTE: Basically the idea here is that dotVal will be positive
   // only when we have projection direction aligned with our z directon
   // and when that happens it means that our Y is inverted.
   if(dotVal > 0)
     {
-    Ry[0] = -Ry[0];
-    Ry[1] = -Ry[1];
-    Ry[2] = -Ry[2];
+    rY[0] = -rY[0];
+    rY[1] = -rY[1];
+    rY[2] = -rY[2];
     }
 
   // Since we already stored all the possible Y axes that are geometry aligned,
