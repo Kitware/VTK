@@ -85,19 +85,43 @@ vtkAxisFollower::~vtkAxisFollower()
 
 //----------------------------------------------------------------------------
 void vtkAxisFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double *Rz,
-                                                 vtkAxisActor *axis1, double *dop,
+                                                 vtkAxisActor *axis, double *dop,
                                                  vtkRenderer *ren)
 {
+  if(!Rx || !Ry || !Rz)
+    {
+    vtkErrorMacro("Invalid or NULL direction vectors\n");
+    return;
+    }
+
+  if(!axis)
+    {
+    vtkErrorMacro("Invalid or NULL axis\n");
+    return;
+    }
+
+  if(!dop)
+    {
+    vtkErrorMacro("Invalid or NULL direction of projection vector\n");
+    return;
+    }
+
+  if(!ren)
+    {
+    vtkErrorMacro("Invalid or NULL renderer\n");
+    return;
+    }
+
   vtkMatrix4x4* cameraMatrix = this->Camera->GetViewTransformMatrix();
 
-  vtkCoordinate *c1Axis1 =  axis1->GetPoint1Coordinate();
-  vtkCoordinate *c2Axis1 =  axis1->GetPoint2Coordinate();
-  double *axis1Pt1 = c1Axis1->GetComputedWorldValue(ren);
-  double *axis1Pt2 = c2Axis1->GetComputedWorldValue(ren);
+  vtkCoordinate *c1Axis =  axis->GetPoint1Coordinate();
+  vtkCoordinate *c2Axis =  axis->GetPoint2Coordinate();
+  double *axisPt1 = c1Axis->GetComputedWorldValue(ren);
+  double *axisPt2 = c2Axis->GetComputedWorldValue(ren);
 
-  Rx[0] = axis1Pt2[0] - axis1Pt1[0];
-  Rx[1] = axis1Pt2[1] - axis1Pt1[1];
-  Rx[2] = axis1Pt2[2] - axis1Pt1[2];
+  Rx[0] = axisPt2[0] - axisPt1[0];
+  Rx[1] = axisPt2[1] - axisPt1[1];
+  Rx[2] = axisPt2[2] - axisPt1[2];
 
   // Get Y
   vtkMath::Cross(Rx, dop, Ry);
@@ -108,12 +132,12 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double 
   vtkMath::Normalize(Rz);
 
   double a[3], b[3];
-  double *tranformedPt1 = cameraMatrix->MultiplyDoublePoint(axis1Pt1);
+  double *tranformedPt1 = cameraMatrix->MultiplyDoublePoint(axisPt1);
   a[0] = tranformedPt1[0];
   a[1] = tranformedPt1[1];
   a[2] = tranformedPt1[2];
 
-  double *tranformedPt2 = cameraMatrix->MultiplyDoublePoint(axis1Pt2);
+  double *tranformedPt2 = cameraMatrix->MultiplyDoublePoint(axisPt2);
   b[0] = tranformedPt2[0];
   b[1] = tranformedPt2[1];
   b[2] = tranformedPt2[2];
@@ -139,12 +163,26 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double *Rx, double *Ry, double 
 
 //----------------------------------------------------------------------------
 double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
-                                  double screenOffset, double position[])
+                                  double screenOffset, double position[3])
 {
-  if(!viewport || !camera || !position)
+  double newScale = 0.0;
+
+  if(!viewport)
     {
-    vtkErrorMacro("Invalid or NULL arguments \n");
-    return 0;
+    vtkErrorMacro("Invalid or NULL viewport \n");
+    return newScale;
+    }
+
+  if(!camera)
+    {
+    vtkErrorMacro("Invalid or NULL camera \n");
+    return newScale;
+    }
+
+  if(!position)
+    {
+    vtkErrorMacro("Invalid or NULL position \n");
+    return newScale;
     }
 
   double factor = 1;
@@ -158,7 +196,7 @@ double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
     double dist = sqrt(
           vtkMath::Distance2BetweenPoints(position,
                                           camera->GetPosition()));
-    double newScale = factor * dist;
+    newScale = factor * dist;
 
     return newScale;
 }
@@ -193,16 +231,16 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
       this->GetMapper()->GetCenter(pivotPoint);
       }
 
-    // Move to pivto point.
+    // Move pivot point to origin
     this->Transform->Translate(-pivotPoint[0],
                                -pivotPoint[1],
                                -pivotPoint[2]);
-    // scale
+    // Scale
     this->Transform->Scale(this->Scale[0],
                            this->Scale[1],
                            this->Scale[2]);
 
-    // rotate
+    // Rotate
     this->Transform->RotateY(this->Orientation[1]);
     this->Transform->RotateX(this->Orientation[0]);
     this->Transform->RotateZ(this->Orientation[2]);
@@ -251,11 +289,12 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double translation[],
-                                                   double Rx[], double Ry[], double Rz[],
+void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double translation[3],
+                                                   double Rx[3], double Ry[3], double Rz[3],
                                                    vtkAxisActor *axis)
 {
-  double autoScaleFactor = this->AutoScale(ren, this->Camera, this->ScreenOffset, this->Position);
+  double autoScaleFactor =
+    this->AutoScale(ren, this->Camera, this->ScreenOffset, this->Position);
 
   double dop[3];
   this->Camera->GetDirectionOfProjection(dop);
@@ -271,7 +310,7 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
   origRy[1] = Ry[1];
   origRy[2] = Ry[2];
 
-  // NOTE: Basically the idea here is that val1 will be positive
+  // NOTE: Basically the idea here is that dotVal will be positive
   // only when we have projection direction aligned with our z directon
   // and when that happens it means that our Y is inverted.
   if(dotVal > 0)
@@ -317,7 +356,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
     return;
     }
 
-  double *bounds    = this->GetMapper()->GetBounds();
+  double *bounds = this->GetMapper()->GetBounds();
 
   // Offset by half of width.
   double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * this->Scale[0];
@@ -477,7 +516,7 @@ void vtkAxisFollower::Render(vtkRenderer *ren)
 {
   if(this->EnableLOD && !this->EvaluateVisibility())
     {
-    this->SetVisibility(this->EvaluateVisibility());
+    this->SetVisibility(0);
     return;
     }
 

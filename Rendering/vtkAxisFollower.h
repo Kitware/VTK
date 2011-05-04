@@ -34,7 +34,7 @@ public:
 
 //BTX
  // Description:
- // Set three orthogonal axes one of which needs to be followed.
+ // Set axis that needs to be followed.
  inline void SetFollowAxis(vtkAxisActor *axis)
    {
    if(!axis)
@@ -47,6 +47,7 @@ public:
    this->Modified();
    }
 
+ // Get axis that is being followed.
  inline vtkAxisActor* GetFollowAxis()
    {
    return this->Axis;
@@ -64,7 +65,8 @@ public:
  // Description:
  // Enable / disable use of LOD. If enabled the actor
  // will not be visible at a certain distance from the
- // camera (currently usind threhold distance = 0.80 * clipRange[1])
+ // camera (default is 0.80 * clipRange[1])
+ //
  vtkSetMacro(EnableLOD, int);
  vtkGetMacro(EnableLOD, int);
 
