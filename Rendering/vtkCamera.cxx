@@ -864,8 +864,13 @@ void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
                             double x20,  double x21,  double x22, double x23,
                             double x30,  double x31,  double x32, double x33 )
 {
-
-
+  vtkDebugMacro( <<"vtkCamera::HeadTracked = " << this->HeadTracked );
+  vtkDebugMacro( << "vtkCamera::SetHeadPose( "
+                 << x00 << " " << x01 << " " << x02 << " " << x03
+                 << x10 << " " << x11 << " " << x12 << " " << x13
+                 << x20 << " " << x21 << " " << x22 << " " << x23
+                 << x30 << " " << x31 << " " << x32 << " " << x33
+                 << ")" );
   this->HeadPose->SetElement( 0,0,x00 );
   this->HeadPose->SetElement( 0,1,x01 );
   this->HeadPose->SetElement( 0,2,x02 );
@@ -885,8 +890,30 @@ void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
   this->HeadPose->SetElement( 3,1,x31 );
   this->HeadPose->SetElement( 3,2,x32 );
   this->HeadPose->SetElement( 3,3,x33 );
-  // this->ComputeProjAndViewParams();
-  // this->ComputeViewTransform();
+}
+
+// -----------------------------------------------------------------HeadTracked
+void vtkCamera::GetHeadPose( double x[16] )
+{
+  x[0] = this->HeadPose->GetElement( 0,0 );
+  x[1] = this->HeadPose->GetElement( 0,1 );
+  x[2] = this->HeadPose->GetElement( 0,2 );
+  x[3] = this->HeadPose->GetElement( 0,3 );
+
+  x[4] = this->HeadPose->GetElement( 1,0 );
+  x[5] = this->HeadPose->GetElement( 1,1 );
+  x[6] = this->HeadPose->GetElement( 1,2 );
+  x[7] = this->HeadPose->GetElement( 1,3 );
+
+  x[8] = this->HeadPose->GetElement( 2,0 );
+  x[9] = this->HeadPose->GetElement( 2,1 );
+  x[10] = this->HeadPose->GetElement( 2,2 );
+  x[11] = this->HeadPose->GetElement( 2,3 );
+
+  x[12] = this->HeadPose->GetElement( 3,0 );
+  x[13] = this->HeadPose->GetElement( 3,1 );
+  x[14] = this->HeadPose->GetElement( 3,2 );
+  x[15] = this->HeadPose->GetElement( 3,3 );
 }
 
 //------------------------------------------------------------------HeadTracked
