@@ -171,6 +171,7 @@ static int TableIndex(int tableId)
 vtkSESAMEReader::vtkSESAMEReader()
 {
   this->Internal = new MyInternal();
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkSESAMEReader::~vtkSESAMEReader()
@@ -451,6 +452,11 @@ int vtkSESAMEReader::RequestData(vtkInformation *,
                                  vtkInformationVector *outputVector)
 {
   vtkRectilinearGrid* output = vtkRectilinearGrid::GetData(outputVector);
+  if (!this->Internal->File)
+      {
+      return 0;
+      }
+
   // read the file
   JumpToTable(this->Internal->TableId);
   this->ReadTable(output);

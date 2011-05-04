@@ -30,7 +30,7 @@ Plot3D0 Update
 set output [[Plot3D0 GetOutput] GetBlock 0]
 
 vtkStructuredGridOutlineFilter Geometry5
-Geometry5 SetInput output
+Geometry5 SetInput $output
 
 vtkPolyDataMapper Mapper5
 Mapper5 SetInputConnection [Geometry5 GetOutputPort]

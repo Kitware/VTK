@@ -26,8 +26,11 @@ $locator locator$i
 vtkSpatialRepresentationFilter boxes$i
   boxes$i SetInput [asource GetOutput]
   boxes$i SetSpatialRepresentation locator$i
+  boxes$i SetGenerateLeaves 1
+  boxes$i Update
+  set output [[boxes$i GetOutput] GetBlock [expr [boxes$i GetMaximumLevel] + 1]]
 vtkPolyDataMapper boxMapper$i
-  boxMapper$i SetInput [boxes$i GetOutput]
+  boxMapper$i SetInput $output
 vtkActor boxActor$i
   boxActor$i SetMapper boxMapper$i
   boxActor$i AddPosition [expr $i * 15] 0 0

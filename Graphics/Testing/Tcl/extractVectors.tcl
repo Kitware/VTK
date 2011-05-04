@@ -17,7 +17,7 @@ vtkMultiBlockPLOT3DReader pl3d
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
-    set output [[[pl3d GetOutput] GetBlock 0]
+    set output [[pl3d GetOutput] GetBlock 0]
 
 vtkExtractVectorComponents vx
   vx SetInput $output

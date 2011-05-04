@@ -6,14 +6,16 @@ set file1 sgFile1.vts
 set file2 sgFile2.vts
 
 # Create a reader and write out the field
-vtkPLOT3DReader combReader
+vtkMultiBlockPLOT3DReader combReader
   combReader SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   combReader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
   combReader SetScalarFunctionNumber 100  
+  combReader Update
+  set output [[combReader GetOutput] GetBlock 0]
 
 # extract to reduce extents of grid
 vtkExtractGrid extract
-  extract SetInputConnection [combReader GetOutputPort]
+  extract SetInput $output
   extract SetVOI 0 28 0 32 0 24
   extract Update
 
@@ -24,7 +26,7 @@ vtkXMLStructuredGridWriter gridWriter
   gridWriter SetDataModeToAscii
   gridWriter Write
 
-  gridWriter SetInputConnection [combReader GetOutputPort] 
+  gridWriter SetInput $output
   gridWriter SetFileName $file1
   gridWriter SetDataModeToAppended
   gridWriter SetNumberOfPieces 2
