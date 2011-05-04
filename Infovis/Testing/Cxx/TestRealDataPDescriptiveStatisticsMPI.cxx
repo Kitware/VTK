@@ -539,7 +539,7 @@ int main( int argc, char** argv )
 
   // Fill process dimensionality with ones if not provided or incomplete
   int missingDim = 3 - static_cast<int>( procDim.size() );
-  for ( unsigned int d = 0; d < missingDim; ++ d )
+  for ( int d = 0; d < missingDim; ++ d )
     {
     procDim.push_back( 1 );
     }
