@@ -164,7 +164,9 @@ vtkIdType vtkColorTransferControlPointsItem::AddPoint(double* newPos)
   vtkIdType expectedPoint = this->vtkControlPointsItem::AddPoint(newPos);
   double rgb[3] = {0., 0., 0.};
   this->ColorTransferFunction->GetColor(newPos[0], rgb);
-  vtkIdType addedPoint = this->ColorTransferFunction->AddRGBPoint(newPos[0], rgb[0], rgb[1], rgb[2]);
+  vtkIdType addedPoint =
+    this->ColorTransferFunction->AddRGBPoint(newPos[0], rgb[0], rgb[1], rgb[2]);
+  vtkNotUsed(expectedPoint);
   assert(addedPoint == expectedPoint);
   return addedPoint;
 }
@@ -176,8 +178,11 @@ vtkIdType vtkColorTransferControlPointsItem::RemovePoint(double* currentPoint)
     {
     return -1;
     }
-  vtkIdType expectedPoint = this->vtkControlPointsItem::RemovePoint(currentPoint);
-  vtkIdType removedPoint = this->ColorTransferFunction->RemovePoint(currentPoint[0]);
+  vtkIdType expectedPoint =
+    this->vtkControlPointsItem::RemovePoint(currentPoint);
+  vtkIdType removedPoint =
+    this->ColorTransferFunction->RemovePoint(currentPoint[0]);
+  vtkNotUsed(expectedPoint);
   assert(removedPoint == expectedPoint);
   return removedPoint;
 }

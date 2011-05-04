@@ -517,7 +517,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
 
   // Get the lowest point we might hit within the supplied tolerance
   vtkIndexedVector2f lowPoint;
-  lowPoint.index = -1;
+  lowPoint.index = 0;
   lowPoint.pos = vtkVector2f(point.X()-tol.X(), 0.0f);
   low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
 
