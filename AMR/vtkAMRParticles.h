@@ -24,13 +24,13 @@
 #ifndef VTKAMRPARTICLES_H_
 #define VTKAMRPARTICLES_H_
 
-#include "vtkPointSet.h"
+#include "vtkObject.h"
 
 class vtkIndent;
 class vtkPointData;
 class vtkPoints;
 
-class vtkAMRParticles : public vtkObject
+class VTK_AMR_EXPORT vtkAMRParticles : public vtkObject
 {
   public:
     static vtkAMRParticles* New();
