@@ -177,6 +177,18 @@ double vtkAxesFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
 //----------------------------------------------------------------------------
 void vtkAxesFollower::ComputeTransformMatrix(vtkRenderer *ren)
 {
+  if(this->FollowAxes == -1)
+    {
+    vtkErrorMacro("ERROR: Axes to follow is not set\n");
+    return;
+    }
+
+  if(!this->XAxis || !this->YAxis || !this->ZAxis)
+    {
+    vtkErrorMacro("ERROR: Requires three valid orthogonal vectors\n");
+    return;
+    }
+
   // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime ||
        (this->Camera && this->Camera->GetMTime() > this->MatrixMTime) )
@@ -287,7 +299,7 @@ void vtkAxesFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
 
   double autoScaleFactor = this->AutoScale(ren, this->Camera, this->ScreenOffset, this->Position);
 
-  this->CalculateOrthogonalVectors(Rx,  Ry1, Rz1,  xAxis, orthoAxis1, ren);
+  this->CalculateOrthogonalVectors(Rx,  Ry1, Rz1, xAxis, orthoAxis1, ren);
   this->CalculateOrthogonalVectors(Rx,  Ry2, Rz2, xAxis, orthoAxis2, ren);
 
   double dop[3];
