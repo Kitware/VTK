@@ -1034,7 +1034,7 @@ bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum( NodePointer node )
   * of nodes at level M exist, this means the list of children will be
   * (2**D)**(M+1) long.
   * For a quadtree, D = 2.
-  * 
+  *
   * Instead of limiting the Queue size, we limit the total number of nodes queued.
   * Since nodes are popped off the front of the queue as they are pushed onto the
   * back, this is a stricter limit. It is also more closely related to the actual
@@ -1414,7 +1414,7 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum( NodePointer node )
   * of nodes at level M exist, this means the list of children will be
   * (2**D)**(M+1) long.
   * For an octree, D = 3.
-  * 
+  *
   * Instead of limiting the Queue size, we limit the total number of nodes queued.
   * Since nodes are popped off the front of the queue as they are pushed onto the
   * back, this is a stricter limit. It is also more closely related to the actual
@@ -1930,13 +1930,13 @@ void vtkLabelHierarchyBuildCoincidenceMap(
       setCount = 0;
       for( ; setIter != (*mapIter).second.second.end(); ++setIter )
         {
-        impl->CoincidenceMap[(*setIter)] = 
+        impl->CoincidenceMap[(*setIter)] =
           lh->GetCenterPts()->InsertNextPoint( point );
         lh->GetPoints()->SetPoint( (*setIter),
           point[0] + offsets[setCount + 1].first * scale,
           point[1] + offsets[setCount + 1].second * scale,
           point[2] );
-        //cout << "Point: " << point[0] + offsets[setCount].first*scale << " " << 
+        //cout << "Point: " << point[0] + offsets[setCount].first*scale << " " <<
         //  point[1] + offsets[setCount].second*scale << endl;
         ++setCount;
         }
@@ -2034,13 +2034,13 @@ void vtkLabelHierarchy::ComputeHierarchy()
     {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
-    vtkMath::SpiralPoints( numCoincidentPoints + 1, offsets );
+    vtkCoincidentPoints::SpiralPoints( numCoincidentPoints + 1, offsets );
     for(int i = 0; i < numCoincidentPoints; ++i)
       {
       Id = coincidentPoints->GetId( i );
       this->Points->GetPoint( Id, point );
       // save center points for drawing spokes.
-      /*this->Implementation->CoincidenceMap[i] = 
+      /*this->Implementation->CoincidenceMap[i] =
         this->CenterPts->InsertNextPoint(point);*/
       offsets->GetPoint( i + 1, spiralPoint );
       this->Points->SetPoint( Id,

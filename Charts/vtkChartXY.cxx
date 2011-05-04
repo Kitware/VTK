@@ -55,6 +55,7 @@
 
 #include "vtksys/ios/sstream"
 #include "vtkDataArray.h"
+#include "vtkStringArray.h"
 
 // My STL containers
 #include <vector>
@@ -152,6 +153,8 @@ vtkChartXY::vtkChartXY()
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip);
   this->LayoutChanged = true;
+
+  this->ForceAxesToBounds = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -283,7 +286,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   this->Update();
 
-  if (this->MTime > this->ChartPrivate->axes[0]->GetMTime())
+  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime())
     {
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
@@ -643,6 +646,11 @@ void vtkChartXY::RecalculatePlotBounds()
         return;
       }
 
+    if (this->ForceAxesToBounds)
+      {
+      axis->SetMinimumLimit(range[0]);
+      axis->SetMaximumLimit(range[1]);
+      }
     if (axis->GetBehavior() == vtkAxis::AUTO && initialized[i])
       {
       axis->SetRange(range[0], range[1]);
@@ -816,6 +824,12 @@ void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
   int padding = 5;
   vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
                               this->Legend->GetVerticalAlignment());
+
+  if (legendAlignment[0] == vtkChartLegend::CUSTOM ||
+      legendAlignment[1] == vtkChartLegend::CUSTOM)
+    {
+    return;
+    }
 
   if (this->Legend->GetInline())
     {
@@ -1038,6 +1052,12 @@ vtkChartLegend* vtkChartXY::GetLegend()
 }
 
 //-----------------------------------------------------------------------------
+vtkTooltipItem* vtkChartXY::GetTooltip()
+{
+  return this->Tooltip;
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkChartXY::GetNumberOfPlots()
 {
   return this->ChartPrivate->plots.size();
@@ -1126,6 +1146,12 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Now move the axes and recalculate the transform
     vtkAxis* xAxis = this->ChartPrivate->axes[vtkAxis::BOTTOM];
     vtkAxis* yAxis = this->ChartPrivate->axes[vtkAxis::LEFT];
+    delta[0] = delta[0] > 0 ?
+      std::min(delta[0], xAxis->GetMaximumLimit() - xAxis->GetMaximum()) :
+      std::max(delta[0], xAxis->GetMinimumLimit() - xAxis->GetMinimum());
+    delta[1] = delta[1] > 0 ?
+      std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum()) :
+      std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
     xAxis->SetMinimum(xAxis->GetMinimum() + delta[0]);
     xAxis->SetMaximum(xAxis->GetMaximum() + delta[0]);
     yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
@@ -1144,6 +1170,12 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       // Now move the axes and recalculate the transform
       xAxis = this->ChartPrivate->axes[vtkAxis::TOP];
       yAxis = this->ChartPrivate->axes[vtkAxis::RIGHT];
+      delta[0] = delta[0] > 0 ?
+        std::min(delta[0], xAxis->GetMaximumLimit() - xAxis->GetMaximum()) :
+        std::max(delta[0], xAxis->GetMinimumLimit() - xAxis->GetMinimum());
+      delta[1] = delta[1] > 0 ?
+        std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum()) :
+        std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
       xAxis->SetMinimum(xAxis->GetMinimum() + delta[0]);
       xAxis->SetMaximum(xAxis->GetMaximum() + delta[0]);
       yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
@@ -1241,13 +1273,21 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
       label += vtkStdString(bar->GetGroupName()) + ": ";
       }
     }
-  label += plot->GetLabel(seriesIndex);
+  vtkStringArray *labels = plot->GetIndexedLabels();
+  if (labels && seriesIndex < labels->GetNumberOfTuples())
+    {
+    label += labels->GetValue(seriesIndex) + ": ";
+    }
+  else
+    {
+    label += plot->GetLabel(0) + ": ";
+    }
   // If axes are set to logarithmic scale we need to convert the
   // axis value using 10^(axis value)
   vtksys_ios::ostringstream ostr;
+  ostr << label;
   ostr.imbue(vtkstd::locale::classic());
   ostr.setf(ios::fixed, ios::floatfield);
-  ostr << label << ": ";
   ostr.precision(ChartPrivate->axes[vtkAxis::BOTTOM]->GetPrecision());
   ostr << (this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetLogScale()?
     pow(double(10.0), double(plotPos.X())):

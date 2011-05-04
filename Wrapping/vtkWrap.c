@@ -544,6 +544,10 @@ void vtkWrap_FindNewInstanceMethods(
            strcmp(data->Name, "vtkAbstractArray") == 0) ||
           (strcmp(theFunc->Name, "CreateArray") == 0 &&
            strcmp(data->Name, "vtkArray") == 0) ||
+          (strcmp(theFunc->Name, "GetQueryInstance") == 0 &&
+           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
+          (strcmp(theFunc->Name, "CreateFromURL") == 0 &&
+           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
           (strcmp(theFunc->Name, "MakeTransform") == 0 &&
            vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractTransform")))
         {

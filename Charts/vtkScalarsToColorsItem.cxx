@@ -99,6 +99,10 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     {
     this->ComputeTexture();
     }
+  if (this->Texture == 0)
+    {
+    return false;
+    }
   vtkSmartPointer<vtkPen> transparentPen = vtkSmartPointer<vtkPen>::New();
   transparentPen->SetLineType(vtkPen::NO_PEN);
   painter->ApplyPen(transparentPen);

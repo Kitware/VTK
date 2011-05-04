@@ -87,18 +87,11 @@ bool vtkAMRSliceFilter::IsAMRData2D( vtkHierarchicalBoxDataSet *input )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRSliceFilter::InitializeOffSet( vtkHierarchicalBoxDataSet *inp )
+void vtkAMRSliceFilter::InitializeOffSet(
+    vtkHierarchicalBoxDataSet *inp, double *minBounds, double *maxBounds )
 {
   if( !this->initialRequest )
     return;
-
-  double minBounds[3];
-  double maxBounds[3];
-
-  vtkAMRBox root;
-  inp->GetRootAMRBox( root );
-  root.GetMinBounds( minBounds );
-  root.GetMaxBounds( maxBounds );
 
   switch( this->Normal )
     {
@@ -109,7 +102,7 @@ void vtkAMRSliceFilter::InitializeOffSet( vtkHierarchicalBoxDataSet *inp )
         this->OffSetFromOrigin = ( maxBounds[1]-minBounds[1] )/2.0;
         break;
       case 3:
-        this->OffSetFromOrigin = ( maxBounds[2]-minBounds[3] )/2.0;
+        this->OffSetFromOrigin = ( maxBounds[2]-minBounds[2] )/2.0;
         break;
       default:
         vtkErrorMacro( "Undefined plane normal" );
@@ -122,14 +115,20 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
 {
   vtkPlane *pl = vtkPlane::New();
 
-  double amrorigin[3];
-  vtkAMRUtilities::ComputeDataSetOrigin( amrorigin, inp, this->Controller );
+  // Get global bounds
+  double minBounds[3];
+  double maxBounds[3];
+  vtkAMRBox root;
+  inp->GetRootAMRBox( root );
+  root.GetMinBounds( minBounds );
+  root.GetMaxBounds( maxBounds );
 
   double porigin[3];
   for( int i=0; i < 3; ++i )
-    porigin[i]=amrorigin[i];
+    porigin[i]=minBounds[i];
 
-  this->InitializeOffSet( inp );
+  // Ensures the initial cut-plane is in the middle of the domain.
+  this->InitializeOffSet( inp, minBounds, maxBounds );
 
   switch( this->Normal )
     {
@@ -137,16 +136,46 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
         // X-Normal
         pl->SetNormal(1.0,0.0,0.0);
         porigin[0] += this->OffSetFromOrigin;
+//        if( porigin[0] < minBounds[0] )
+//          {
+//            double dx  = abs( minBounds[0]-porigin[0] );
+//            porigin[0] = maxBounds[0]-dx;
+//          }
+//        else if( porigin[0] > maxBounds[0] )
+//          {
+//            double dx = abs( porigin[0]-maxBounds[0] );
+//            porigin[0] = minBounds[0]+dx;
+//          }
         break;
       case 2:
         // Y-Normal
         pl->SetNormal(0.0,1.0,0.0);
         porigin[1] += this->OffSetFromOrigin;
+//        if( porigin[1] < minBounds[1] )
+//         {
+//          double dx  = abs( minBounds[1]-porigin[1] );
+//          porigin[1] = maxBounds[1]-dx;
+//         }
+//       else if( porigin[1] > maxBounds[1] )
+//         {
+//           double dx = abs( porigin[1]-maxBounds[1] );
+//           porigin[1] = minBounds[1]+dx;
+//         }
         break;
       case 3:
         // Z-Normal
         pl->SetNormal(0.0,0.0,1.0);
         porigin[2] += this->OffSetFromOrigin;
+//        if( porigin[2] < minBounds[2] )
+//         {
+//           double dx  = abs( minBounds[2]-porigin[2] );
+//           porigin[2] = maxBounds[2]-dx;
+//         }
+//       else if( porigin[2] > maxBounds[2] )
+//         {
+//           double dx = abs( porigin[2]-maxBounds[2] );
+//           porigin[2] = minBounds[2]+dx;
+//         }
         break;
       default:
         vtkErrorMacro( "Undefined plane normal" );

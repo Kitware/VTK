@@ -106,7 +106,8 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
 
     // Description:
     // Initializes the off-set to be at the center of the input data-set.
-    void InitializeOffSet( vtkHierarchicalBoxDataSet *inp );
+    void InitializeOffSet(
+      vtkHierarchicalBoxDataSet *inp, double *min, double *max );
 
     double origin[3];
     double OffSetFromOrigin;

@@ -88,18 +88,16 @@ void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 //-----------------------------------------------------------------------------
 void vtkPiecewiseFunctionItem::ComputeTexture()
 {
-
+  double bounds[4];
+  this->GetBounds(bounds);
+   if (bounds[0] == bounds[1]
+       || !this->PiecewiseFunction)
+    {
+    return;
+    }
   if (this->Texture == 0)
     {
     this->Texture = vtkImageData::New();
-    }
-
-  double bounds[4];
-  this->GetBounds(bounds);
-   if (bounds[0] == bounds[1])
-    {
-    vtkWarningMacro(<< "The piecewise function seems empty");
-    return;
     }
 
   const int dimension = 256;
@@ -139,4 +137,5 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
       ptr+=4;
       }
     }
+  return;
 }

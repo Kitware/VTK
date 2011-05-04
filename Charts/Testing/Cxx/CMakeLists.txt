@@ -1,6 +1,5 @@
 # if we have rendering and views add the following tests
-IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
-
+IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
 
   SET(KIT Charts)
   # add tests that do not require data
@@ -15,12 +14,14 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       #TestContextUnicode.cxx # Disabled until Freetype unicode works
       TestBarGraph.cxx
       TestBarGraphHorizontal.cxx
+      TestColorTransferFunction.cxx
       TestContext.cxx
       TestContextImage.cxx
       TestDiagram.cxx
       #TestFreeTypeContextUnicode.cxx
       #TestFreeTypeRender.cxx
       TestHistogram2D.cxx
+      TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
       TestLinePlotInteraction.cxx
       TestMultipleChartRenderers.cxx

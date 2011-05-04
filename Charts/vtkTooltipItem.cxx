@@ -55,6 +55,18 @@ vtkTooltipItem::~vtkTooltipItem()
 }
 
 //-----------------------------------------------------------------------------
+void vtkTooltipItem::SetPosition(const vtkVector2f &pos)
+{
+  this->PositionVector = pos;
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2f vtkTooltipItem::GetPositionVector()
+{
+  return this->PositionVector;
+}
+
+//-----------------------------------------------------------------------------
 void vtkTooltipItem::SetText(const vtkStdString &text)
 {
   if (this->Text != text)

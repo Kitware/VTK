@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPiecewiseControlPointsItem.h
+  Module:    vtkColorTransferControlPointsItem.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,38 +13,38 @@
 
 =========================================================================*/
 
-// .NAME vtkPiecewiseControlPointsItem - Control points for
-// vtkPiecewiseFunction.
+// .NAME vtkColorTransferControlPointsItem - Control points for
+// vtkColorTransferFunction.
 // .SECTION Description
-// vtkPiecewiseControlPointsItem draws the control points of a vtkPiecewiseFunction.
+// vtkColorTransferControlPointsItem draws the control points of a vtkColorTransferFunction.
 // .SECTION See Also
 // vtkControlPointsItem
-// vtkPiecewiseFunctionItem
+// vtkColorTransferFunctionItem
 // vtkCompositeTransferFunctionItem
 
-#ifndef __vtkPiecewiseControlPointsItem_h
-#define __vtkPiecewiseControlPointsItem_h
+#ifndef __vtkColorTransferControlPointsItem_h
+#define __vtkColorTransferControlPointsItem_h
 
 #include "vtkControlPointsItem.h"
 
-class vtkPiecewiseFunction;
+class vtkColorTransferFunction;
 
-class VTK_CHARTS_EXPORT vtkPiecewiseControlPointsItem: public vtkControlPointsItem
+class VTK_CHARTS_EXPORT vtkColorTransferControlPointsItem: public vtkControlPointsItem
 {
 public:
-  vtkTypeMacro(vtkPiecewiseControlPointsItem, vtkControlPointsItem);
+  vtkTypeMacro(vtkColorTransferControlPointsItem, vtkControlPointsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
   // Creates a piecewise control points object
-  static vtkPiecewiseControlPointsItem* New();
+  static vtkColorTransferControlPointsItem* New();
 
   // Description:
   // Set the piecewise function to draw its points
-  virtual void SetPiecewiseFunction(vtkPiecewiseFunction* function);
+  void SetColorTransferFunction(vtkColorTransferFunction* function);
   // Description
   // Get the piecewise function
-  vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
+  vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
 
   // Description:
   // Add a point to the function. Returns the index of the point (0 based),
@@ -59,27 +59,30 @@ public:
   virtual vtkIdType RemovePoint(double* pos);
 
   // Description:
-  // Controls whether or not control points are drawn (true) or clicked and
-  // moved (false).
+  // If ColorFill is true, the control point brush color is set with the
+  // matching color in the color transfer function.
   // False by default.
-  vtkSetMacro(StrokeMode, bool);
+  vtkSetMacro(ColorFill, bool);
+  vtkGetMacro(ColorFill, bool);
 
 protected:
-  vtkPiecewiseControlPointsItem();
-  virtual ~vtkPiecewiseControlPointsItem();
+  vtkColorTransferControlPointsItem();
+  virtual ~vtkColorTransferControlPointsItem();
 
   virtual unsigned long int GetControlPointsMTime();
 
+  virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
   virtual int  GetNumberOfPoints()const;
   virtual void GetControlPoint(vtkIdType index, double *point);
   virtual void SetControlPoint(vtkIdType index, double *point);
   virtual void EditPoint(float tX, float tY);
 
-  vtkPiecewiseFunction* PiecewiseFunction;
+  vtkColorTransferFunction* ColorTransferFunction;
 
+  bool ColorFill;
 private:
-  vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &); // Not implemented.
-  void operator=(const vtkPiecewiseControlPointsItem &);   // Not implemented.
+  vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem &); // Not implemented.
+  void operator=(const vtkColorTransferControlPointsItem &);   // Not implemented.
 };
 
 #endif
