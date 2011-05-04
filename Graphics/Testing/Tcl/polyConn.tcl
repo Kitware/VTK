@@ -11,16 +11,17 @@ vtkRenderWindowInteractor iren
 
 # read data
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set output [[pl3d GetOutput] GetBlock 0]
 
 # planes to connect
 vtkStructuredGridGeometryFilter plane1
-    plane1 SetInputConnection [pl3d GetOutputPort]
+    plane1 SetInput $output
     plane1 SetExtent 20 20 0 100 0 100
 vtkPolyDataConnectivityFilter conn
     conn SetInputConnection [plane1 GetOutputPort]
@@ -28,14 +29,14 @@ vtkPolyDataConnectivityFilter conn
     conn SetScalarRange 0.19 0.25
 vtkPolyDataMapper plane1Map
     plane1Map SetInputConnection [conn GetOutputPort]
-    eval plane1Map SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval plane1Map SetScalarRange [$output GetScalarRange]
 vtkActor plane1Actor
     plane1Actor SetMapper plane1Map
     [plane1Actor GetProperty] SetOpacity 0.999
 
 # outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInput $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

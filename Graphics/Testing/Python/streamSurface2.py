@@ -15,15 +15,16 @@ iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName( vtkGetDataRoot() + '/Data/combxyz.bin' )
 pl3d.SetQFileName( vtkGetDataRoot() + '/Data/combq.bin' )
 pl3d.SetScalarFunctionNumber( 100 )
 pl3d.SetVectorFunctionNumber( 202 )
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInput(pl3d_output)
 
 outlineMapper = vtk.vtkPolyDataMapper() 
 outlineMapper.SetInputConnection(outline.GetOutputPort())
@@ -40,7 +41,7 @@ integ = vtk.vtkRungeKutta4()
 
 sl = vtk.vtkStreamLine()
 sl.SetIntegrator(integ)
-sl.SetInputConnection(pl3d.GetOutputPort())
+sl.SetInput(pl3d_output)
 sl.SetSource(seeds.GetOutput())
 sl.SetMaximumPropagationTime(0.1)
 sl.SetIntegrationStepLength(0.1)

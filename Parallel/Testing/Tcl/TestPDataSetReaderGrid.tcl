@@ -22,12 +22,13 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 
   # ====== Structured Grid ======
   # First save out a grid in parallel form.
-  vtkPLOT3DReader reader
+  vtkMultiBlockPLOT3DReader reader
     reader SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     reader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
+    reader Update
   vtkPDataSetWriter writer
     writer SetFileName "comb.pvtk"
-    writer SetInputConnection [reader GetOutputPort]
+    writer SetInput [[reader GetOutput] GetBlock 0]
     writer SetNumberOfPieces 4
     writer Write
   vtkPDataSetReader pReader

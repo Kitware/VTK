@@ -11,15 +11,16 @@ vtkRenderWindowInteractor iren
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set output [[[pl3d GetOutput] GetBlock 0]
 
 vtkExtractVectorComponents vx
-  vx SetInputConnection [pl3d GetOutputPort]
+  vx SetInput $output
 vtkContourFilter isoVx
     isoVx SetInput [vx GetVxComponent]
     isoVx SetValue 0 .38
@@ -35,7 +36,7 @@ vtkActor isoVxActor
     eval [isoVxActor GetProperty] SetColor 1 0.7 0.6
 
 vtkExtractVectorComponents vy
-  vy SetInputConnection [pl3d GetOutputPort]
+  vy SetInput $output
 vtkContourFilter isoVy
     isoVy SetInput [vy GetVyComponent]
     isoVy SetValue 0 .38
@@ -51,7 +52,7 @@ vtkActor isoVyActor
     eval [isoVyActor GetProperty] SetColor 0.7 1 0.6
 
 vtkExtractVectorComponents vz
-  vz SetInputConnection [pl3d GetOutputPort]
+  vz SetInput $output
 vtkContourFilter isoVz
     isoVz SetInput [vz GetVzComponent]
     isoVz SetValue 0 .38
@@ -67,7 +68,7 @@ vtkActor isoVzActor
     eval [isoVzActor GetProperty] SetColor 0.4 0.5 1
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInput $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

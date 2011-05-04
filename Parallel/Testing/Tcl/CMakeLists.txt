@@ -63,13 +63,6 @@ IF (VTK_DATA_ROOT)
            -T ${VTK_BINARY_DIR}/Testing/Temporary
            -V Baseline/Parallel/TestCutMaterial.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-  ADD_TEST(BranchExtentTranslator-image ${VTK_EXECUTABLE}
-           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestBranchExtentTranslator.tcl
-           -D ${VTK_DATA_ROOT}
-           -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestBranchExtentTranslator.png
-           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(PDataSetReaderGrid-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPDataSetReaderGrid.tcl

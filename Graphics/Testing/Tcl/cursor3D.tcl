@@ -9,15 +9,16 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
   # read data
-vtkPLOT3DReader reader
+vtkMultiBlockPLOT3DReader reader
   reader SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   reader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
   reader SetScalarFunctionNumber 110
   reader Update
+  set output [[reader GetOutput] GetBlock 0]
 
   # create outline
 vtkStructuredGridOutlineFilter outlineF
-  outlineF SetInputConnection [reader GetOutputPort]
+  outlineF SetInput $output
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outlineF GetOutputPort]
 vtkActor outline
@@ -26,8 +27,8 @@ vtkActor outline
 
   # create cursor
 vtkCursor3D cursor
-  eval cursor SetModelBounds [[reader GetOutput] GetBounds]
-  eval cursor SetFocalPoint [[reader GetOutput] GetCenter]
+  eval cursor SetModelBounds [$output GetBounds]
+  eval cursor SetFocalPoint [$output GetCenter]
   cursor AllOff
   cursor AxesOn
   cursor OutlineOn
@@ -43,7 +44,7 @@ vtkActor cursorActor
   # create probe
 vtkProbeFilter probe
   probe SetInput [cursor GetFocus]
-  probe SetSource [reader GetOutput]
+  probe SetSource $output
 
   # create a cone geometry for glyph
 vtkConeSource cone

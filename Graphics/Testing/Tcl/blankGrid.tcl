@@ -13,14 +13,16 @@ package require vtktesting
 # create pipeline - start by extracting a single plane from the grid
 #
 
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
 pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
 pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
 pl3d SetScalarFunctionNumber 100
 pl3d SetVectorFunctionNumber 202
+pl3d Update
+set output [[pl3d GetOutput] GetBlock 0]
 
 vtkExtractGrid plane
-plane SetInputConnection [pl3d GetOutputPort]
+plane SetInput $output
 plane SetVOI 0 57 0 33 0 0
 plane Update
 
@@ -89,7 +91,7 @@ planeActor2 SetMapper planeMapper2
 # An outline around the data
 #
 vtkStructuredGridOutlineFilter outline
-outline SetInputConnection [pl3d GetOutputPort]
+outline SetInput $output
 
 vtkPolyDataMapper outlineMapper
 outlineMapper SetInputConnection [outline GetOutputPort]

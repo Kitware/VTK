@@ -3,12 +3,13 @@ package require vtkinteraction
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+set output [[pl3d GetOutput] GetBlock 0]
 
 # create three line probes
 vtkLineSource line
@@ -23,7 +24,7 @@ vtkTransformPolyDataFilter tf
     tf SetTransform transL1
 vtkProbeFilter probe
     probe SetInputConnection [tf GetOutputPort]
-    probe SetSource [pl3d GetOutput]
+    probe SetSource $output
 
 vtkTransform transL2
     transL2 Translate 9.2 0.0 31.20
@@ -34,7 +35,7 @@ vtkTransformPolyDataFilter tf2
     tf2 SetTransform transL2
 vtkProbeFilter probe2
     probe2 SetInputConnection [tf2 GetOutputPort]
-    probe2 SetSource [pl3d GetOutput]
+    probe2 SetSource $output
 
 vtkTransform transL3
     transL3 Translate 13.27 0.0 33.40
@@ -45,7 +46,7 @@ vtkTransformPolyDataFilter tf3
     tf3 SetTransform transL3
 vtkProbeFilter probe3
     probe3 SetInputConnection [tf3 GetOutputPort]
-    probe3 SetSource [pl3d GetOutput]
+    probe3 SetSource $output
 
 vtkAppendPolyData appendF
     appendF AddInput [probe GetPolyDataOutput]
@@ -179,7 +180,7 @@ vtkXYPlotActor xyplot3
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInput $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

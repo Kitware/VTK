@@ -15,13 +15,14 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 # get the interactor ui
 
 # Create a reader and write out the field
-vtkPLOT3DReader comb
+vtkMultiBlockPLOT3DReader comb
     comb SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     comb SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     comb SetScalarFunctionNumber 100
-
+    comb Update
+    set output [[comb GetOutput] GetBlock 0]
 vtkStructuredGridWriter wsg
-  wsg SetInputConnection [comb GetOutputPort] 
+  wsg SetInput $output
   wsg SetFileTypeToBinary
   wsg SetFileName "combsg.vtk"
   wsg Write

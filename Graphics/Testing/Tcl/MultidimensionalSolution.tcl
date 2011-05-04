@@ -29,35 +29,37 @@ vtkRenderWindowInteractor iren
 #
 
 # get the pressure gradient vector field
-vtkPLOT3DReader pl3d_gradient
+vtkMultiBlockPLOT3DReader pl3d_gradient
     pl3d_gradient SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d_gradient SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d_gradient SetScalarFunctionNumber 100
     pl3d_gradient SetVectorFunctionNumber 210
     pl3d_gradient Update
+    set pl3d_g_output [[pl3d_gradient GetOutput] GetBlock 0]
 
 # get the velocity vector field
-vtkPLOT3DReader pl3d_velocity
+vtkMultiBlockPLOT3DReader pl3d_velocity
     pl3d_velocity SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d_velocity SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d_velocity SetScalarFunctionNumber 100
     pl3d_velocity SetVectorFunctionNumber 200
     pl3d_velocity Update
+    set pl3d_v_output [[pl3d_velocity GetOutput] GetBlock 0]
 
 
 # contour the scalar fields
 vtkContourFilter contour
-contour SetInputConnection [pl3d_gradient GetOutputPort]
+contour SetInput $pl3d_g_output
 contour SetValue 0 0.225
 
 # probe the vector fields to get data at the contour surface
 vtkProbeFilter probe_gradient
 probe_gradient SetInputConnection [contour GetOutputPort]
-probe_gradient SetSource [pl3d_gradient GetOutput]
+probe_gradient SetSource $pl3d_g_output
 
 vtkProbeFilter probe_velocity
 probe_velocity SetInputConnection [contour GetOutputPort]
-probe_velocity SetSource [pl3d_velocity GetOutput]
+probe_velocity SetSource $pl3d_v_output
 
 
 #
@@ -167,11 +169,13 @@ vtkLODActor dotActor
 # 
 # The PLOT3DReader is used to draw the outline of the original dataset.
 # 
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
+    pl3d Update
+    set pl3d_output [[pl3d GetOutput] GetBlock 0]
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInput $pl3d_output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

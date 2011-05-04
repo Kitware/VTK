@@ -14,12 +14,13 @@ vtkRenderWindowInteractor iren
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
   pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
   pl3d SetScalarFunctionNumber 110
   pl3d SetVectorFunctionNumber 202
   pl3d Update
+  set output [[pl3d GetOutput] GetBlock 0]
 
 vtkLineSource probeLine
   probeLine SetPoint1 1 1 29
@@ -28,7 +29,7 @@ vtkLineSource probeLine
 
 vtkProbeFilter probe
   probe SetInputConnection [probeLine GetOutputPort]
-  probe SetSource [pl3d GetOutput]
+  probe SetSource $output
 
 vtkTubeFilter probeTube
   probeTube SetInput [probe GetPolyDataOutput]
@@ -37,7 +38,7 @@ vtkTubeFilter probeTube
 
 vtkPolyDataMapper probeMapper
   probeMapper SetInputConnection [probeTube GetOutputPort]
-  eval probeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+  eval probeMapper SetScalarRange [$output GetScalarRange]
 
 vtkActor probeActor
   probeActor SetMapper probeMapper
@@ -58,13 +59,13 @@ vtkWarpScalar displayWarp
 
 vtkPolyDataMapper displayMapper
   displayMapper SetInput [displayWarp GetPolyDataOutput]
-eval displayMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+eval displayMapper SetScalarRange [$output GetScalarRange]
 
 vtkActor displayActor
   displayActor SetMapper displayMapper
 
 vtkStructuredGridOutlineFilter outline
-  outline SetInputConnection [pl3d GetOutputPort]
+  outline SetInput $output
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
