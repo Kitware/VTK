@@ -893,10 +893,11 @@ void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
         }
       }
     }
-  int size = this->GetNumberOfPoints();
+  const int oldNumberOfPoints = this->GetNumberOfPoints();
   vtkIdType addedPoint = this->AddPoint(pos);
   this->SetCurrentPoint(addedPoint);
-  assert(size + 1 == this->GetNumberOfPoints());
+  vtkNotUsed(oldNumberOfPoints);
+  assert(oldNumberOfPoints + 1 == this->GetNumberOfPoints());
 }
 
 //-----------------------------------------------------------------------------
