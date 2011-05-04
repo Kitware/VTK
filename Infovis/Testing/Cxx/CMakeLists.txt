@@ -169,13 +169,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestParallelKMeansStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
-
-      ADD_TEST(TestRealDataPDescriptiveStatisticsMPI
-        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
-        ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestRealDataPDescriptiveStatisticsMPI
-        ${VTK_MPI_POSTFLAGS}
-        )
     ENDIF (VTK_MPIRUN_EXE)
 
   ENDIF (VTK_USE_PARALLEL AND VTK_USE_MPI)
