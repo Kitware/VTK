@@ -152,8 +152,11 @@ vtkIdType vtkPiecewiseControlPointsItem::RemovePoint(double* currentPoint)
     {
     return -1;
     }
-  vtkIdType expectedPoint = this->vtkControlPointsItem::RemovePoint(currentPoint);
-  vtkIdType removedPoint = this->PiecewiseFunction->RemovePoint(currentPoint[0]);
+  vtkIdType expectedPoint =
+    this->vtkControlPointsItem::RemovePoint(currentPoint);
+  vtkIdType removedPoint =
+    this->PiecewiseFunction->RemovePoint(currentPoint[0]);
+  vtkNotUsed(expectedPoint);
   assert(removedPoint == expectedPoint);
   return removedPoint;
 }
