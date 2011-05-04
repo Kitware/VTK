@@ -428,6 +428,7 @@ public:
   void SetConfigParams( double o2screen, double o2right, double o2left,
                         double o2top, double o2bottom , double interOccDist,
                         double scale, vtkMatrix4x4 * surfaceRot );
+
   // Description:
   // This function is a convinience function intended for the Paraview
   // ServerManager
@@ -435,6 +436,11 @@ public:
                     double x10,  double x11,  double x12, double x13,
                     double x20,  double x21,  double x22, double x23,
                     double x30,  double x31,  double x32, double x33 );
+
+  // Description:
+  // This is a convenience function to get the current head position. This is
+  // typically used by ParaView for head-tracking support
+  void GetHeadPose( double *x );
 
   // Description:
   // HeadTracker mode. It impacts on the computation of the transforms.
