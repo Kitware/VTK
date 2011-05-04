@@ -228,8 +228,8 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   myDataDim[0] = myBlockBounds[1][0] - myBlockBounds[0][0] + 1;
   myDataDim[1] = myBlockBounds[1][1] - myBlockBounds[0][1] + 1;
   myDataDim[2] = myBlockBounds[1][2] - myBlockBounds[0][2] + 1;
-  vtkIdType myDataSize = myDataDim[0] * myDataDim[1] * myDataDim[2];
-  float* buffer = new float[myDataSize];
+  vtkIdType card_l = myDataDim[0] * myDataDim[1] * myDataDim[2];
+  float* buffer = new float[card_l];
 
   ReadFloatDataBlockFromFile( ifs,
                               args->dataDim,
@@ -243,16 +243,11 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   floatArr->SetNumberOfComponents( 1 );
   floatArr->SetName( varName );
 
-  for ( vtkIdType i = 0; i < myDataSize; ++ i )
+  for ( vtkIdType i = 0; i < card_l; ++ i )
     {
     floatArr->InsertNextValue( buffer[i] );
     }
 
-  cout << "\n# Cardinality on process "
-       << myRank
-       << ": "
-       << myDataSize
-       << "\n";
   vtkTable* inputData = vtkTable::New();
   inputData->AddColumn( floatArr );
 
@@ -268,10 +263,11 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   // Select column of interest
   pcs->AddColumn( varName );
 
-  // Test (in parallel) with Learn, Derive, and Assess options turned on
+  // Test (in parallel) with Learn and Derive options turned on
   pcs->SetLearnOption( true );
   pcs->SetDeriveOption( true );
-  pcs->SetAssessOption( true );
+  pcs->SetTestOption( false );
+  pcs->SetAssessOption( false );
   pcs->Update();
 
   // Get output data and meta tables
@@ -285,10 +281,7 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
-         << "   Total sample size: "
-         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()
-         << " \n"
+    cout << "\n## Completed parallel calculation of descriptive statistics (without assessment):\n"
          << "   Wall time: "
          << timer->GetElapsedTime()
          << " sec.\n";
@@ -319,6 +312,52 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
              << "  ";
         }
       cout << "\n";
+      }
+    }
+
+  // Verify that sizes of read data sets sums up to the calculated global cardinality
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Verifying that sizes of read data sets sums up to the calculated global cardinality.\n";
+    }
+
+  // Gather all cardinalities
+  int numProcs = controller->GetNumberOfProcesses();
+  vtkIdType* card_g = new vtkIdType[numProcs];
+  com->AllGather( &card_l,
+                  card_g,
+                  1 );
+
+  // Calculated global cardinality
+  vtkIdType testIntValue = outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt();
+
+  // Print and verify some results
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    vtkIdType sumCards = 0;
+    for ( int i = 0; i < numProcs; ++ i )
+      {
+      cout << "   Cardinality of data set read on process "
+           << i
+           << ": "
+           << card_g[i]
+           << "\n";
+
+      sumCards += card_g[i];
+      }
+
+    cout << "   Cardinality of global data set: "
+         << sumCards
+         << " \n";
+
+    if ( sumCards != testIntValue )
+      {
+      vtkGenericWarningMacro("Incorrect calculated global cardinality:"
+                             << testIntValue
+                             << " <> "
+                             << sumCards
+                             << ")");
+      *(args->retVal) = 1;
       }
     }
 
