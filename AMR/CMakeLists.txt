@@ -2,7 +2,7 @@
 SET(KIT AMR)
 SET(UKIT AMR)
 SET(KIT_TCL_LIBS vtkCommonTCL)
-SET(KIT_PYTHON_LIBS vtkCommonPythonD)
+SET(KIT_PYTHON_LIBS vtkCommonPythonD vtkFilteringPythonD vtkParallelPythonD)
 SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 
