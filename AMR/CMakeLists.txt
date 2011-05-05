@@ -1,10 +1,10 @@
 ## Set the Kit name
 SET(KIT AMR)
 SET(UKIT AMR)
-SET(KIT_TCL_LIBS vtkCommonTCL)
+SET(KIT_TCL_LIBS vtkCommonTCL vtkFilteringTCL vtkParallelTCL)
 SET(KIT_PYTHON_LIBS vtkCommonPythonD vtkFilteringPythonD vtkParallelPythonD)
-SET(KIT_JAVA_LIBS vtkCommonJava)
-SET(KIT_INTERFACE_LIBRARIES vtkCommon)
+SET(KIT_JAVA_LIBS vtkCommonJava vtkFilteringJava vtkParallelJava)
+SET(KIT_INTERFACE_LIBRARIES vtkCommon vtkFiltering vtkParallel)
 
 ## Get the kit sources
 FILE( GLOB Kit_SRCS *.cxx )
