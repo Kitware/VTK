@@ -29,7 +29,7 @@
 
 #include "vtkFollower.h"
 
-#include "vtkWeakPointer.h"
+#include "vtkWeakPointer.h" // For vtkWeakPointer
 
 // Forward declarations.
 class vtkAxisActor;
