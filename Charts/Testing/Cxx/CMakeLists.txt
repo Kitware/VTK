@@ -44,6 +44,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
     ENDIF(VTK_USE_GLSL_SHADERS)
     # Set the tolerance higher for a few tests that need it
     set(TestGLSL 12)
+    set(TestChartsOn3D 16)
     SET(TestLinePlotError 25)
     SET(TestLinePlotInteractionError 25)
     SET(TestMultipleRenderersError 25)
