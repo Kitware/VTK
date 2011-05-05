@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ImageWeightedSum.cxx
     ImageAccumulate.cxx
     FastSplatter.cxx
+    TestUpdateExtentReset.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
