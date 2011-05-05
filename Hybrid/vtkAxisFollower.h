@@ -33,7 +33,7 @@
 class vtkAxisActor;
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkAxisFollower : public vtkFollower
+class VTK_HYBRID_EXPORT vtkAxisFollower : public vtkFollower
 {
 public:
  vtkTypeMacro(vtkAxisFollower,vtkFollower);
