@@ -64,15 +64,20 @@ namespace
 // Creates a follower with no camera set
 vtkAxisFollower::vtkAxisFollower() : vtkFollower()
 {
-  this->AutoCenter =  1;
-  this->EnableLOD  =  0;
-  this->LODFactor  =  0.80;
+  this->AutoCenter                = 1;
 
-  this->ScreenOffset = 10.0;
+  this->EnableDistanceLOD         = 0;
+  this->DistanceLODThreshold      = 0.80;
 
-  this->Axis = NULL;
+  this->EnableViewAngleLOD        = 1;
+  this->ViewAngleLODThreshold     = 0.34;
 
-  this->AxisPointingLeft = -1;
+  this->ScreenOffset              = 10.0;
+
+  this->Axis                      = NULL;
+
+  this->AxisPointingLeft          = -1;
+  this->VisibleAtCurrentViewAngle = -1;
 
   this->InternalMatrix = vtkMatrix4x4::New();
 }
@@ -81,6 +86,24 @@ vtkAxisFollower::vtkAxisFollower() : vtkFollower()
 vtkAxisFollower::~vtkAxisFollower()
 {
   this->InternalMatrix->Delete();
+}
+
+//----------------------------------------------------------------------
+void vtkAxisFollower::SetAxis(vtkAxisActor *axis)
+{
+  if(!axis)
+    {
+    vtkErrorMacro("Invalid or NULL axis\n");
+    return;
+    }
+
+  if(this->Axis != axis)
+    {
+    // \NOTE: Don't increment the ref count of axis as it could lead to
+    // circular references.
+    this->Axis = axis;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -319,6 +342,12 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
     rY[2] = -rY[2];
     }
 
+  // Check visibility at current view angle.
+  if(this->EnableViewAngleLOD)
+    {
+    this->ExecuteViewAngleVisibility(rZ);
+    }
+
   // Since we already stored all the possible Y axes that are geometry aligned,
   // we compare our vertical vector with these vectors and if it aligns then we
   // translate in opposite direction.
@@ -386,7 +415,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
 }
 
 //----------------------------------------------------------------------
-int vtkAxisFollower::EvaluateVisibility()
+int vtkAxisFollower::TestDistanceVisibility()
 {
   if(!this->Camera->GetParallelProjection())
     {
@@ -396,7 +425,7 @@ int vtkAxisFollower::EvaluateVisibility()
 
     // We are considering the far clip plane for evaluation. In certain
     // odd conditions it might not work.
-    const double maxVisibleDistanceFromCamera = this->LODFactor * (cameraClippingRange[1]);
+    const double maxVisibleDistanceFromCamera = this->DistanceLODThreshold * (cameraClippingRange[1]);
 
     double dist = sqrt(vtkMath::Distance2BetweenPoints(this->Camera->GetPosition(),
                                                        this->Position));
@@ -417,13 +446,40 @@ int vtkAxisFollower::EvaluateVisibility()
 }
 
 //----------------------------------------------------------------------
+void vtkAxisFollower::ExecuteViewAngleVisibility(double normal[3])
+{
+  if(!normal)
+    {
+    vtkErrorMacro("ERROR: Invalid or NULL normal\n");
+    return;
+    }
+
+  double *cameraPos = this->Camera->GetPosition();
+  double  dir[3] = {this->Position[0] - cameraPos[0],
+                    this->Position[1] - cameraPos[1],
+                    this->Position[2] - cameraPos[2]};
+  vtkMath::Normalize(dir);
+  double dotDir = vtkMath::Dot(dir, normal);
+  if( fabs(dotDir) < this->ViewAngleLODThreshold )
+    {
+    this->VisibleAtCurrentViewAngle = 0;
+    }
+  else
+    {
+    this->VisibleAtCurrentViewAngle = 1;
+    }
+}
+
+//----------------------------------------------------------------------
 void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "AutoCenter: ("  << this->AutoCenter   << ")\n";
-  os << indent << "EnableLOD: ("   << this->EnableLOD    << ")\n";
-  os << indent << "LODFactor: ("   << this->LODFactor    << ")\n";
+  os << indent << "EnableDistanceLOD: ("   << this->EnableDistanceLOD    << ")\n";
+  os << indent << "DistanceLODThreshold: ("   << this->DistanceLODThreshold    << ")\n";
+  os << indent << "EnableViewAngleLOD: ("   << this->EnableViewAngleLOD    << ")\n";
+  os << indent << "ViewAngleLODThreshold: ("   << this->ViewAngleLODThreshold    << ")\n";
   os << indent << "ScreenOffset: ("<< this->ScreenOffset << ")\n";
 
   if ( this->Axis )
@@ -513,7 +569,7 @@ int vtkAxisFollower::HasTranslucentPolygonalGeometry()
 // property and then mapper.
 void vtkAxisFollower::Render(vtkRenderer *ren)
 {
-  if(this->EnableLOD && !this->EvaluateVisibility())
+  if(this->EnableDistanceLOD && !this->TestDistanceVisibility())
     {
     this->SetVisibility(0);
     return;
@@ -539,7 +595,14 @@ void vtkAxisFollower::Render(vtkRenderer *ren)
   this->ComputeTransformMatrix(ren);
   this->Device->SetUserMatrix(this->Matrix);
 
-  this->Device->Render(ren,this->Mapper);
+  if(this->VisibleAtCurrentViewAngle)
+    {
+    this->Device->Render(ren,this->Mapper);
+    }
+  else
+    {
+    this->SetVisibility(this->VisibleAtCurrentViewAngle);
+    }
 }
 
 //----------------------------------------------------------------------
@@ -549,12 +612,14 @@ void vtkAxisFollower::ShallowCopy(vtkProp *prop)
   if ( f != NULL )
     {
     this->SetAutoCenter(f->GetAutoCenter());
-    this->SetEnableLOD(f->GetEnableLOD());
-    this->SetLODFactor(f->GetLODFactor());
+    this->SetEnableDistanceLOD(f->GetEnableDistanceLOD());
+    this->SetDistanceLODThreshold(f->GetDistanceLODThreshold());
+    this->SetEnableViewAngleLOD(f->GetEnableViewAngleLOD());
+    this->SetViewAngleLODThreshold(f->GetViewAngleLODThreshold());
     this->SetScreenOffset(f->GetScreenOffset());
-    this->SetFollowAxis(f->GetFollowAxis());
+    this->SetAxis(f->GetAxis());
     }
 
   // Now do superclass
-  this->vtkActor::ShallowCopy(prop);
+  this->Superclass::ShallowCopy(prop);
 }

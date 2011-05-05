@@ -43,27 +43,10 @@ public:
  // Creates a follower with no camera set
  static vtkAxisFollower *New();
 
-//BTX
  // Description:
  // Set axis that needs to be followed.
- inline void SetFollowAxis(vtkAxisActor *axis)
-   {
-   if(!axis)
-     {
-     vtkErrorMacro("Axis is invalid or null\n");
-     return;
-     }
-   this->Axis = axis;
-
-   this->Modified();
-   }
-
- // Get axis that is being followed.
- inline vtkAxisActor* GetFollowAxis()
-   {
-   return this->Axis;
-   }
-//ETX
+ virtual void SetAxis(vtkAxisActor*);
+ vtkGetObjectMacro(Axis, vtkAxisActor);
 
  // Description:
  // Set/Get state of auto center mode where additional
@@ -74,18 +57,32 @@ public:
  vtkBooleanMacro(AutoCenter, int);
 
  // Description:
- // Enable / disable use of LOD. If enabled the actor
- // will not be visible at a certain distance from the
- // camera (default is 0.80 * clipRange[1])
- //
- vtkSetMacro(EnableLOD, int);
- vtkGetMacro(EnableLOD, int);
+ // Enable / disable use of distance based LOD. If enabled the actor
+ // will not be visible at a certain distance from the camera.
+ // Default is false.
+ vtkSetMacro(EnableDistanceLOD, int);
+ vtkGetMacro(EnableDistanceLOD, int);
 
  // Description:
- // Set LOD factor (0.0 - 1.0), default is 0.80. This determines at what fraction
- // of camera far clip distance, we need to make this actor not visible.
- vtkSetClampMacro(LODFactor, double, 0.0, 1.0);
- vtkGetMacro(LODFactor, double);
+ // Set distance LOD threshold (0.0 - 1.0).This determines at what fraction
+ // of camera far clip range, actor is not visible.
+ // Default is 0.80.
+ vtkSetClampMacro(DistanceLODThreshold, double, 0.0, 1.0);
+ vtkGetMacro(DistanceLODThreshold, double);
+
+ // Description:
+ // Enable / disable use of view angle based LOD. If enabled the actor
+ // will not be visible at a certain view angle.
+ // Default is true.
+ vtkSetMacro(EnableViewAngleLOD, int);
+ vtkGetMacro(EnableViewAngleLOD, int);
+
+ // Description:
+ // Set view angle LOD threshold (0.0 - 1.0).This determines at what view
+ // angle to geometry will make the geometry not visibile.
+ // Default is 0.34.
+ vtkSetClampMacro(ViewAngleLODThreshold, double, 0.0, 1.0);
+ vtkGetMacro(ViewAngleLODThreshold, double);
 
  // Description:
  // Set/Get the desired screen offset from the axis.
@@ -137,13 +134,16 @@ protected:
                                     double translation[3]);
 
 
- int  EvaluateVisibility();
+ int  TestDistanceVisibility();
+ void ExecuteViewAngleVisibility(double normal[3]);
 
  int          AutoCenter;
 
- int          EnableLOD;
+ int          EnableDistanceLOD;
+ double       DistanceLODThreshold;
 
- double       LODFactor;
+ int          EnableViewAngleLOD;
+ double       ViewAngleLODThreshold;
 
  double       ScreenOffset;
 
@@ -153,6 +153,7 @@ protected:
 private:
 
  int AxisPointingLeft;
+ int VisibleAtCurrentViewAngle;
 
  vtkAxisFollower(const vtkAxisFollower&);  // Not implemented.
  void operator =(const vtkAxisFollower&);  // Not implemented.

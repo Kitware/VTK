@@ -119,13 +119,13 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
       this->LabelScreenOffset * 2.0 + this->ScreenSize * 0.5;
 
     // Pass information to axes followers.
-    this->XAxes[i]->GetTitleActor()->SetFollowAxis(this->XAxes[i]);
+    this->XAxes[i]->GetTitleActor()->SetAxis(this->XAxes[i]);
     this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
 
-    this->YAxes[i]->GetTitleActor()->SetFollowAxis(this->YAxes[i]);
+    this->YAxes[i]->GetTitleActor()->SetAxis(this->YAxes[i]);
     this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
 
-    this->ZAxes[i]->GetTitleActor()->SetFollowAxis(this->ZAxes[i]);
+    this->ZAxes[i]->GetTitleActor()->SetAxis(this->ZAxes[i]);
     this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
     }
 
@@ -2258,15 +2258,15 @@ void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
       {
       if(index == 0)
         {
-        labelActors[k]->SetFollowAxis(this->XAxes[i]);
+        labelActors[k]->SetAxis(this->XAxes[i]);
         }
       else if(index == 1)
         {
-        labelActors[k]->SetFollowAxis(this->YAxes[i]);
+        labelActors[k]->SetAxis(this->YAxes[i]);
         }
       else if(index == 2)
         {
-        labelActors[k]->SetFollowAxis(this->ZAxes[i]);
+        labelActors[k]->SetAxis(this->ZAxes[i]);
         }
       else
         {
