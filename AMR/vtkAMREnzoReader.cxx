@@ -1004,7 +1004,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
       theStr = "";
       int    tmpInt;
       char   tmpChr;
-      while (  ( tmpChr = stream.get() )  !=  '['  );
+      while (  ( tmpChr = stream.get() )  !=  '['  ) ;
       while (  ( tmpChr = stream.get() )  !=  ']'  ) theStr += tmpChr;
 
       int    blkIdx = atoi( theStr.c_str() );
@@ -1562,8 +1562,9 @@ void vtkAMREnzoReader::GetBlock(
 
   this->Internal->ReadMetaData();
   int blockIdx                 = this->BlockMap[ index ];
+  int N                        = this->Internal->Blocks.size();
   assert( "block index out-of-bounds!" &&
-    (blockIdx+1 >= 0) && (blockIdx+1 < this->Internal->Blocks.size() ) );
+    (blockIdx+1 >= 0) && (blockIdx+1 < N ) );
 
   // this->Internal->Blocks includes a pseudo block --- the root as block #0
   vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ blockIdx+1 ];
