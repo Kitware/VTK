@@ -94,7 +94,7 @@ vtkAxisActor::vtkAxisActor()
   this->TitleMapper->SetInput(this->TitleVector->GetOutput());
   this->TitleActor = vtkAxisFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
-  this->TitleActor->SetEnableLOD(1);
+  this->TitleActor->SetEnableLOD(0);
   this->TitleActor->SetLODFactor(0.90);
 
   // to avoid deleting/rebuilding create once up front
@@ -912,7 +912,7 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
       this->LabelMappers[i]->SetInput(this->LabelVectors[i]->GetOutput());
       this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
-      this->LabelActors[i]->SetEnableLOD(1);
+      this->LabelActors[i]->SetEnableLOD(0);
       }
     }
 
