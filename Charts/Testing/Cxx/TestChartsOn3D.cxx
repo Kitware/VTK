@@ -50,9 +50,6 @@ int TestChartsOn3D(int , char * [])
   renderer->GetActiveCamera()->SetPosition(1.0, 1.0, -4.0);
   renderer->GetActiveCamera()->Azimuth(40);
 
-  //renderer->GetActiveCamera()->Pitch(45.0);
-
-
   // Cube Source 1
   vtkNew<vtkCubeSource> cube;
   vtkNew<vtkPolyDataMapper> cubeMapper;
@@ -122,6 +119,7 @@ int TestChartsOn3D(int , char * [])
   points->SetColor(0, 0, 255, 255);
   points->SetWidth(4.0);
 
+  renwin->SetMultiSamples(0);
   iren->Initialize();
   iren->Start();
 
