@@ -150,6 +150,7 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
   rX[0] = axisPt2[0] - axisPt1[0];
   rX[1] = axisPt2[1] - axisPt1[1];
   rX[2] = axisPt2[2] - axisPt1[2];
+  vtkMath::Normalize(rX);
 
   // Get Y
   vtkMath::Cross(rX, dop, rY);
@@ -160,12 +161,17 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
   vtkMath::Normalize(rZ);
 
   double a[3], b[3];
-  double *tranformedPt1 = cameraMatrix->MultiplyDoublePoint(axisPt1);
+
+  // Need homogeneous points.
+  double homoPt1[4] = {axisPt1[0], axisPt1[2], axisPt1[2], 1.0};
+  double homoPt2[4] = {axisPt2[0], axisPt2[2], axisPt2[2], 1.0};
+
+  double *tranformedPt1 = cameraMatrix->MultiplyDoublePoint(homoPt1);
   a[0] = tranformedPt1[0];
   a[1] = tranformedPt1[1];
   a[2] = tranformedPt1[2];
 
-  double *tranformedPt2 = cameraMatrix->MultiplyDoublePoint(axisPt2);
+  double *tranformedPt2 = cameraMatrix->MultiplyDoublePoint(homoPt2);
   b[0] = tranformedPt2[0];
   b[1] = tranformedPt2[1];
   b[2] = tranformedPt2[2];
