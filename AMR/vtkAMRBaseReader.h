@@ -93,6 +93,11 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     vtkAMRBaseReader();
     ~vtkAMRBaseReader();
 
+    // Desscription:
+    // Checks if this reader instance is attached to a communicator
+    // with more than one MPI processes.
+    bool IsParallel();
+
     // Description:
     // Determines if the block is owned by this process based on the
     // the block index and total number of processes.
