@@ -14,6 +14,7 @@ SET(KIT_LIBS vtkParallel vtkCommon vtkFiltering ${VTK_HDF5_LIBRARIES})
 
 SET_SOURCE_FILES_PROPERTIES(
     vtkAMRBaseReader
+    vtkAMRBaseParticlesReader
     ABSTRACT
 )
 
