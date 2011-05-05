@@ -29,6 +29,8 @@
 
 #include "vtkFollower.h"
 
+#include "vtkWeakPointer.h"
+
 // Forward declarations.
 class vtkAxisActor;
 class vtkRenderer;
@@ -46,7 +48,7 @@ public:
  // Description:
  // Set axis that needs to be followed.
  virtual void SetAxis(vtkAxisActor*);
- vtkGetObjectMacro(Axis, vtkAxisActor);
+ virtual vtkAxisActor* GetAxis();
 
  // Description:
  // Set/Get state of auto center mode where additional
@@ -147,7 +149,7 @@ protected:
 
  double       ScreenOffset;
 
- vtkAxisActor *Axis;
+ vtkWeakPointer<vtkAxisActor> Axis;
 
 
 private:

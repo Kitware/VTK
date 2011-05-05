@@ -106,6 +106,12 @@ void vtkAxisFollower::SetAxis(vtkAxisActor *axis)
     }
 }
 
+//----------------------------------------------------------------------
+vtkAxisActor* vtkAxisFollower::GetAxis()
+{
+  return this->Axis.GetPointer();
+}
+
 //----------------------------------------------------------------------------
 void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
   double rZ[3], vtkAxisActor *axis, double *dop, vtkRenderer *ren)
