@@ -12,6 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkAxisFollower - a subclass of vtkFollower that ensures that
+// data is always parallel to the axis defined by a vtkAxisActor.
+// .SECTION Description
+// vtkAxisFollower is a subclass of vtkFollower that always follows its
+// specified axis. More specifically it will not change its position or scale,
+// but it will continually update its orientation so that it is aliged with the
+// axis and facing at angle to the camera to provide maximum visibilty.
+// This is typically used for text labels for 3d plots.
+// .SECTION see also
+// vtkActor vtkFollower vtkCamera vtkAxisActor vtkCubeAxesActor
+
 
 #ifndef __vtkAxisFollower_h
 #define __vtkAxisFollower_h
