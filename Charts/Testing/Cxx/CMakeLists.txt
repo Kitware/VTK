@@ -15,6 +15,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestBarGraph.cxx
       TestBarGraphHorizontal.cxx
       TestColorTransferFunction.cxx
+      TestChartsOn3D.cxx
       TestContext.cxx
       TestContextImage.cxx
       TestDiagram.cxx
