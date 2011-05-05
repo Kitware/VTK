@@ -63,7 +63,7 @@ void vtkAMRBaseReader::Initialize()
   this->FileName       = NULL;
   this->MaxLevel       = 0;
   this->LoadParticles  = 1;
-  this->Controller     = NULL;
+  this->Controller     = vtkMultiProcessController::GetGlobalController();
   this->InitialRequest = true;
 
   this->CellDataArraySelection  = vtkDataArraySelection::New();
@@ -155,7 +155,7 @@ int vtkAMRBaseReader::GetBlockProcessId( const int blockIdx )
 {
   // If this is reader instance is serial, return Process 0
   // as the Process ID for the corresponding block.
-  if( this->Controller == NULL )
+  if( !this->IsParallel() )
     return 0;
 
   int N = this->Controller->GetNumberOfProcesses();
@@ -167,7 +167,7 @@ bool vtkAMRBaseReader::IsBlockMine( const int blockIdx )
 {
   // If this reader instance does not run in parallel, then,
   // all blocks are owned by this reader.
-  if( this->Controller == NULL )
+  if( !this->IsParallel() )
     return true;
 
   int myRank = this->Controller->GetLocalProcessId();
@@ -185,6 +185,18 @@ void vtkAMRBaseReader::InitializeArraySelections()
       this->CellDataArraySelection->DisableAllArrays();
       this->InitialRequest=false;
     }
+}
+
+//------------------------------------------------------------------------------
+bool vtkAMRBaseReader::IsParallel( )
+{
+  if( this->Controller == NULL )
+    return false;
+
+  if( this->Controller->GetNumberOfProcesses() > 1 )
+    return true;
+
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -231,7 +243,7 @@ int vtkAMRBaseReader::RequestData(
 
   // If this instance of the reader is not parallel, block until all processes
   // read their blocks.
-  if( this->Controller != NULL )
+  if( this->IsParallel() )
     this->Controller->Barrier();
 
   outInf = NULL;
