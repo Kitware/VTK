@@ -44,6 +44,19 @@ TARGET_LINK_LIBRARIES( AMRDataTransferPipeline
              )
 
 ## Add AMRDataTransferPipeline executable
+ADD_EXECUTABLE(flash2vth flash2vth.cxx)
+TARGET_LINK_LIBRARIES( flash2vth 
+             vtkGraphics
+             vtkFiltering
+             vtkRendering 
+             vtkIO 
+             vtkAMR 
+             vtkParallel
+             ${MPI_LIBRARIES} 
+             ${VTK_HDF5_LIBRARIES}
+             )
+             
+## Add AMRDataTransferPipeline executable
 ADD_EXECUTABLE(enzo2vth enzo2vth.cxx)
 TARGET_LINK_LIBRARIES( enzo2vth 
              vtkGraphics
