@@ -497,16 +497,24 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     return -1;
     }
   vtkIdType n = this->Points->GetNumberOfPoints();
+  vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
   if (n < 2)
     {
+    // Just manually search the tiny array
+    for (vtkIdType i = 0; i < n; ++i)
+      {
+      if (inRange(point, tol, data[i]))
+        {
+        *location = data[i];
+        return i;
+        }
+      }
     return -1;
     }
 
   // Sort the data if it has not been done already...
   if (!this->Sorted)
     {
-    vtkVector2f* data =
-        static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
     this->Sorted = new VectorPIMPL(data, n);
     std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
     }
