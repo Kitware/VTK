@@ -139,7 +139,10 @@ vtkIdType vtkPiecewiseControlPointsItem::AddPoint(double* newPos)
     {
     return -1;
     }
-  vtkIdType expectedPoint = this->vtkControlPointsItem::AddPoint(newPos);
+#ifndef NDEBUG
+  vtkIdType expectedPoint =
+#endif
+    this->vtkControlPointsItem::AddPoint(newPos);
   vtkIdType addedPoint = this->PiecewiseFunction->AddPoint(newPos[0], newPos[1]);
   assert(addedPoint == expectedPoint);
   return addedPoint;
@@ -152,11 +155,12 @@ vtkIdType vtkPiecewiseControlPointsItem::RemovePoint(double* currentPoint)
     {
     return -1;
     }
+#ifndef NDEBUG
   vtkIdType expectedPoint =
+#endif
     this->vtkControlPointsItem::RemovePoint(currentPoint);
   vtkIdType removedPoint =
     this->PiecewiseFunction->RemovePoint(currentPoint[0]);
-  vtkNotUsed(expectedPoint);
   assert(removedPoint == expectedPoint);
   return removedPoint;
 }

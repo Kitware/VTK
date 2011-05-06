@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkAxisActor.h"
 
-#include "vtkAxesFollower.h"
+#include "vtkAxisFollower.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCoordinate.h"
@@ -92,10 +92,9 @@ vtkAxisActor::vtkAxisActor()
   this->TitleVector = vtkVectorText::New();
   this->TitleMapper = vtkPolyDataMapper::New();
   this->TitleMapper->SetInput(this->TitleVector->GetOutput());
-  this->TitleActor = vtkAxesFollower::New();
+  this->TitleActor = vtkAxisFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
-  this->TitleActor->SetEnableLOD(1);
-  this->TitleActor->SetLODFactor(0.90);
+  this->TitleActor->SetEnableDistanceLOD(0);
 
   // to avoid deleting/rebuilding create once up front
   this->NumberOfLabelsBuilt = 0;
@@ -903,16 +902,16 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
 
     this->LabelVectors = new vtkVectorText * [numLabels];
     this->LabelMappers = new vtkPolyDataMapper * [numLabels];
-    this->LabelActors = new vtkAxesFollower * [numLabels];
+    this->LabelActors  = new vtkAxisFollower * [numLabels];
 
     for (i = 0; i < numLabels; i++)
       {
       this->LabelVectors[i] = vtkVectorText::New();
       this->LabelMappers[i] = vtkPolyDataMapper::New();
       this->LabelMappers[i]->SetInput(this->LabelVectors[i]->GetOutput());
-      this->LabelActors[i] = vtkAxesFollower::New();
+      this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
-      this->LabelActors[i]->SetEnableLOD(1);
+      this->LabelActors[i]->SetEnableDistanceLOD(0);
       }
     }
 

@@ -893,10 +893,11 @@ void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
         }
       }
     }
+#ifndef NDEBUG
   const int oldNumberOfPoints = this->GetNumberOfPoints();
+#endif
   vtkIdType addedPoint = this->AddPoint(pos);
   this->SetCurrentPoint(addedPoint);
-  vtkNotUsed(oldNumberOfPoints);
   assert(oldNumberOfPoints + 1 == this->GetNumberOfPoints());
 }
 
