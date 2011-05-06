@@ -103,8 +103,9 @@ int TestCubeAxes3( int argc, char * argv [] )
   axes2->SetXLabelFormat("%6.1f");
   axes2->SetYLabelFormat("%6.1f");
   axes2->SetZLabelFormat("%6.1f");
+  axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
-  axes2->SetScreenSize(20.0);
+  axes2->SetCornerOffset(0.0);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();

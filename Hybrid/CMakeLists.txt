@@ -34,6 +34,7 @@ vtkArcPlotter.cxx
 vtkAnnotatedCubeActor.cxx
 vtkAxisActor.cxx
 vtkAxesActor.cxx
+vtkAxisFollower.cxx
 vtkBarChartActor.cxx
 vtkCaptionActor2D.cxx
 vtkCornerAnnotation.cxx
@@ -44,7 +45,7 @@ vtkEarthSource.cxx
 vtkFacetReader.cxx
 vtkGreedyTerrainDecimation.cxx
 vtkGridTransform.cxx
-vtkImageDataLIC2D.cxx 
+vtkImageDataLIC2D.cxx
 vtkImageDataLIC2DExtentTranslator.cxx
 vtkImageToPolyDataFilter.cxx
 vtkImplicitModeller.cxx
