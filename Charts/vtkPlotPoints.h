@@ -164,6 +164,10 @@ protected:
   void CalculateBounds(double bounds[4]);
 
   // Description:
+  // Create the sorted point list if necessary.
+  void CreateSortedPoints();
+
+  // Description:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D *Points;
 
