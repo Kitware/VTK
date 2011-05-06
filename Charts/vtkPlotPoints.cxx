@@ -485,39 +485,30 @@ bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlotPoints::CreateSortedPoints()
+{
+  // Sort the data if it has not been done already...
+  if (!this->Sorted)
+    {
+    vtkIdType n = this->Points->GetNumberOfPoints();
+    vtkVector2f* data =
+        static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    this->Sorted = new VectorPIMPL(data, n);
+    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tol,
                                     vtkVector2f* location)
 {
-  // Right now doing a simple bisector search of the array. This should be
-  // revisited. Assumes the x axis is sorted, which should always be true for
-  // line plots.
+  // Right now doing a simple bisector search of the array.
   if (!this->Points)
     {
     return -1;
     }
-  vtkIdType n = this->Points->GetNumberOfPoints();
-  vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-  if (n < 2)
-    {
-    // Just manually search the tiny array
-    for (vtkIdType i = 0; i < n; ++i)
-      {
-      if (inRange(point, tol, data[i]))
-        {
-        *location = data[i];
-        return i;
-        }
-      }
-    return -1;
-    }
-
-  // Sort the data if it has not been done already...
-  if (!this->Sorted)
-    {
-    this->Sorted = new VectorPIMPL(data, n);
-    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
-    }
+  this->CreateSortedPoints();
 
   // Set up our search array, use the STL lower_bound algorithm
   VectorPIMPL::iterator low;
@@ -554,6 +545,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     {
     return false;
     }
+  this->CreateSortedPoints();
 
   if (!this->Selection)
     {
@@ -561,17 +553,29 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     }
   this->Selection->SetNumberOfTuples(0);
 
-  // Iterate through all points and check whether any are in range
-  vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-  vtkIdType n = this->Points->GetNumberOfPoints();
+  // Set up our search array, use the STL lower_bound algorithm
+  VectorPIMPL::iterator low;
+  VectorPIMPL &v = *this->Sorted;
 
-  for (vtkIdType i = 0; i < n; ++i)
+  // Get the lowest point we might hit within the supplied tolerance
+  vtkIndexedVector2f lowPoint;
+  lowPoint.index = 0;
+  lowPoint.pos = min;
+  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+
+  // Iterate until we are out of range in X
+  while (low != v.end())
     {
-    if (data[i].X() >= min.X() && data[i].X() <= max.X() &&
-        data[i].Y() >= min.Y() && data[i].Y() <= max.Y())
-      {
-      this->Selection->InsertNextValue(i);
-      }
+      if (low->pos.X() >= min.X() && low->pos.X() <= max.X() &&
+          low->pos.Y() >= min.Y() && low->pos.Y() <= max.Y())
+        {
+        this->Selection->InsertNextValue(low->index);
+        }
+      else if (low->pos.X() > max.X())
+        {
+        break;
+        }
+      ++low;
     }
   return this->Selection->GetNumberOfTuples() > 0;
 }
