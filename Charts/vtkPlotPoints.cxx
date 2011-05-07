@@ -147,7 +147,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotPoints.");
 
-  if (!this->Visible || !this->Points)
+  if (!this->Visible || !this->Points || this->Points->GetNumberOfPoints() == 0)
     {
     return false;
     }
