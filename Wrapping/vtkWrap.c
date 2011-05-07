@@ -517,6 +517,26 @@ void vtkWrap_FindCountHints(
         }
       }
     }
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    theFunc = data->Functions[i];
+
+    if (theFunc->IsOperator && theFunc->Name &&
+        strcmp(theFunc->Name, "operator[]") == 0)
+      {
+      if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkVector"))
+        {
+        theFunc->SizeHint = "GetSize()";
+        }
+      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayCoordinates") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtents") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArraySort"))
+        {
+        theFunc->SizeHint = "GetDimensions()";
+        }
+      }
+    }
 }
 
 /* -------------------------------------------------------------------- */
