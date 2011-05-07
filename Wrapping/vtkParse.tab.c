@@ -1399,7 +1399,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 typedef union YYSTYPE
 {
 
-/* Line 214 of yacc.c  */
+/* Line 222 of yacc.c  */
 #line 1182 "vtkParse.y"
 
   const char   *str;
@@ -1407,7 +1407,7 @@ typedef union YYSTYPE
 
 
 
-/* Line 214 of yacc.c  */
+/* Line 222 of yacc.c  */
 #line 1544 "vtkParse.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
@@ -4993,7 +4993,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1410 "vtkParse.y"
     { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
     break;
 
   case 60:
@@ -5015,7 +5015,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1414 "vtkParse.y"
     { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
     break;
 
   case 63:
@@ -8295,6 +8295,7 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->NumberOfArguments = 0;
   func->ReturnValue = NULL;
   func->Macro = NULL;
+  func->SizeHint = NULL;
   func->IsStatic = 0;
   func->IsVirtual = 0;
   func->IsPureVirtual = 0;
@@ -9717,6 +9718,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
   const char *classname;
   unsigned int baseType;
   unsigned int pointers;
+  unsigned int refbit;
   unsigned int qualifiers;
   unsigned int tmp1, tmp2;
   int i;
@@ -9724,6 +9726,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
   classname = typedefinfo->Class;
   baseType = (typedefinfo->Type & VTK_PARSE_BASE_TYPE);
   pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
+  refbit = (valinfo->Type & VTK_PARSE_REF);
   qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
 
   /* handle const */
@@ -9788,7 +9791,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
     }
 
   /* put everything together */
-  valinfo->Type = (baseType | pointers | qualifiers);
+  valinfo->Type = (baseType | pointers | refbit | qualifiers);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
   valinfo->Count *= typedefinfo->Count;

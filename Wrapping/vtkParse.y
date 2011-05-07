@@ -1408,11 +1408,11 @@ class_def_item:
    | CLASS_REF
    | operator func_body { output_function(); }
    | FRIEND operator func_body { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
    | template operator func_body { output_function(); }
    | method func_body { output_function(); }
    | FRIEND method func_body { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
    | template method func_body { output_function(); }
    | legacy_method func_body { legacySig(); output_function(); }
    | VTK_BYTE_SWAP_DECL '(' maybe_other ')' ';'
@@ -2680,6 +2680,7 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->NumberOfArguments = 0;
   func->ReturnValue = NULL;
   func->Macro = NULL;
+  func->SizeHint = NULL;
   func->IsStatic = 0;
   func->IsVirtual = 0;
   func->IsPureVirtual = 0;
@@ -4102,6 +4103,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
   const char *classname;
   unsigned int baseType;
   unsigned int pointers;
+  unsigned int refbit;
   unsigned int qualifiers;
   unsigned int tmp1, tmp2;
   int i;
@@ -4109,6 +4111,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
   classname = typedefinfo->Class;
   baseType = (typedefinfo->Type & VTK_PARSE_BASE_TYPE);
   pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
+  refbit = (valinfo->Type & VTK_PARSE_REF);
   qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
 
   /* handle const */
@@ -4173,7 +4176,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
     }
 
   /* put everything together */
-  valinfo->Type = (baseType | pointers | qualifiers);
+  valinfo->Type = (baseType | pointers | refbit | qualifiers);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
   valinfo->Count *= typedefinfo->Count;
