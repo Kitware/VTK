@@ -2985,25 +2985,14 @@ static void vtkWrapPython_GenerateObjectNew(
 }
 
 /* -------------------------------------------------------------------- */
-/* generate extra functions for a special object */
-static void vtkWrapPython_SpecialObjectProtocols(
-  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo,
-  SpecialTypeInfo *info)
+/* The following functions are for generating code for special types,
+ * i.e. types that are not derived from vtkObjectBase */
+/* -------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------- */
+/* generate function for printing a special object */
+static void vtkWrapPython_NewDeleteProtocol(FILE *fp, ClassInfo *data)
 {
-  static const char *compare_consts[6] = {
-    "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
-  static const char *compare_tokens[6] = {
-    "<", "<=", "==", "!=", ">", ">=" };
-  int compare_ops = 0;
-  int i, n;
-  FunctionInfo *func;
-  FunctionInfo *getItemFunc, *setItemFunc;
-
-  /* clear all info about the type */
-  info->has_print = 0;
-  info->has_compare = 0;
-  info->has_sequence = 0;
-
   /* the new method for python versions >= 2.2 */
   fprintf(fp,
     "#if PY_VERSION_HEX >= 0x02020000\n"
@@ -3040,6 +3029,16 @@ static void vtkWrapPython_SpecialObjectProtocols(
     "}\n"
     "\n",
     data->Name, data->Name);
+}
+
+
+/* -------------------------------------------------------------------- */
+/* generate function for printing a special object */
+static void vtkWrapPython_PrintProtocol(
+  FILE *fp, ClassInfo *data, FileInfo *finfo, SpecialTypeInfo *info)
+{
+  int i;
+  FunctionInfo *func;
 
   /* look in the file for "operator<<" for printing */
   for (i = 0; i < finfo->Contents->NumberOfFunctions; i++)
@@ -3097,9 +3096,22 @@ static void vtkWrapPython_SpecialObjectProtocols(
       "\n",
       data->Name, data->Name);
     }
+}
+
+/* -------------------------------------------------------------------- */
+/* generate function for comparing special objects */
+static void vtkWrapPython_RichCompareProtocol(
+  FILE *fp, ClassInfo *data, FileInfo *finfo, SpecialTypeInfo *info)
+{
+  static const char *compare_consts[6] = {
+    "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
+  static const char *compare_tokens[6] = {
+    "<", "<=", "==", "!=", ">", ">=" };
+  int compare_ops = 0;
+  int i, n;
+  FunctionInfo *func;
 
   /* look for comparison operator methods */
-  compare_ops = 0;
   n = data->NumberOfFunctions + finfo->Contents->NumberOfFunctions;
   for (i = 0; i < n; i++)
     {
@@ -3271,10 +3283,19 @@ static void vtkWrapPython_SpecialObjectProtocols(
       "#endif\n"
       "\n");
     }
+}
+
+/* -------------------------------------------------------------------- */
+/* generate functions for indexing into special objects */
+static void vtkWrapPython_SequenceProtocol(
+  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo, SpecialTypeInfo *info)
+{
+  int i;
+  FunctionInfo *func;
+  FunctionInfo *getItemFunc = 0;
+  FunctionInfo *setItemFunc = 0;
 
   /* look for [] operator */
-  getItemFunc = 0;
-  setItemFunc = 0;
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     func = data->Functions[i];
@@ -3423,7 +3444,12 @@ static void vtkWrapPython_SpecialObjectProtocols(
       "#endif\n"
       "};\n\n");
     }
+}
 
+/* -------------------------------------------------------------------- */
+/* generate function for hashing special objects */
+static void vtkWrapPython_HashProtocol(FILE *fp, ClassInfo *data)
+{
   /* the hash function, defined only for specific types */
   fprintf(fp,
     "static long Py%s_Hash(PyObject *self)\n",
@@ -3479,6 +3505,25 @@ static void vtkWrapPython_SpecialObjectProtocols(
       "}\n"
       "\n");
     }
+
+}
+
+/* -------------------------------------------------------------------- */
+/* generate extra functions for a special object */
+static void vtkWrapPython_SpecialTypeProtocols(
+  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo,
+  SpecialTypeInfo *info)
+{
+  /* clear all info about the type */
+  info->has_print = 0;
+  info->has_compare = 0;
+  info->has_sequence = 0;
+
+  vtkWrapPython_NewDeleteProtocol(fp, data);
+  vtkWrapPython_PrintProtocol(fp, data, finfo, info);
+  vtkWrapPython_RichCompareProtocol(fp, data, finfo, info);
+  vtkWrapPython_SequenceProtocol(fp, data, hinfo, info);
+  vtkWrapPython_HashProtocol(fp, data);
 }
 
 /* -------------------------------------------------------------------- */
@@ -3507,7 +3552,7 @@ static void vtkWrapPython_GenerateSpecialType(
     data->Name);
 
   /* generate all functions and protocols needed for the type */
-  vtkWrapPython_SpecialObjectProtocols(fp, data, finfo, hinfo, &info);
+  vtkWrapPython_SpecialTypeProtocols(fp, data, finfo, hinfo, &info);
 
   /* Generate the TypeObject */
   fprintf(fp,
