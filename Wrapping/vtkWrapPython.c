@@ -2135,7 +2135,7 @@ static void vtkWrapPython_GenerateMethods(
   /* write out the wrapper for each function in the array */
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
     {
-    FunctionInfo *theFunc = wrappedFunctions[fnum];
+    theFunc = wrappedFunctions[fnum];
 
     /* check for type precedence, don't need a "float" method if a
        "double" method exists */
@@ -3290,12 +3290,13 @@ static void vtkWrapPython_RichCompareProtocol(
 static void vtkWrapPython_SequenceProtocol(
   FILE *fp, ClassInfo *data, HierarchyInfo *hinfo, SpecialTypeInfo *info)
 {
+  int has_default_constructor = 0;
   int i;
   FunctionInfo *func;
   FunctionInfo *getItemFunc = 0;
   FunctionInfo *setItemFunc = 0;
 
-  /* look for [] operator */
+  /* look for [] operator and default constructor */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     func = data->Functions[i];
@@ -3315,6 +3316,11 @@ static void vtkWrapPython_SequenceProtocol(
           getItemFunc = func;
           }
         }
+      }
+    if (func->Name && vtkWrap_IsConstructor(data, func) &&
+        func->NumberOfArguments == 0)
+      {
+      has_default_constructor = 1;
       }
     }
 
