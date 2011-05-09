@@ -38,9 +38,9 @@ int TestColorTransferFunction(int ,  char * [])
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     vtkSmartPointer<vtkColorTransferFunction>::New();
-  colorTransferFunction->AddHSVSegment(0.,0.,1.,1.,0.3333,0.3333,1.,1.);
-  colorTransferFunction->AddHSVSegment(0.3333,0.3333,1.,1.,0.6666,0.6666,1.,1.);
-  colorTransferFunction->AddHSVSegment(0.6666,0.6666,1.,1.,1.,0.,1.,1.);
+  colorTransferFunction->AddHSVSegment(50.,0.,1.,1.,85.,0.3333,1.,1.);
+  colorTransferFunction->AddHSVSegment(85.,0.3333,1.,1.,170.,0.6666,1.,1.);
+  colorTransferFunction->AddHSVSegment(170.,0.6666,1.,1.,200.,0.,1.,1.);
 
   colorTransferFunction->Build();
 
@@ -52,6 +52,7 @@ int TestColorTransferFunction(int ,  char * [])
   vtkSmartPointer<vtkColorTransferControlPointsItem> controlPointsItem =
     vtkSmartPointer<vtkColorTransferControlPointsItem>::New();
   controlPointsItem->SetColorTransferFunction(colorTransferFunction);
+  controlPointsItem->SetUserBounds(0., 255., 0., 1.);
   chart->AddPlot(controlPointsItem);
 
   //Finally render the scene and compare the image to a reference image

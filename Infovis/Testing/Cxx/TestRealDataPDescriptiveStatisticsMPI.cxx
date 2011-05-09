@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*
- * Copyright 2008 Sandia Corporation.
+ * Copyright 2011 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
  * U.S. Government. Redistribution and use in source and binary forms, with
@@ -38,7 +38,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 #include "vtksys/CommandLineArguments.hxx"
-#include "vtksys/SystemTools.hxx"
 
 struct RealDataDescriptiveStatisticsArgs
 {
@@ -468,7 +467,7 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &fileName, "Name of input data file");
 
-  // Parse input data file name
+  // Parse input data dimensions
   clArgs.AddArgument("--data-dim",
                      vtksys::CommandLineArguments::MULTI_ARGUMENT,
                      &dataDim, "Dimensions of the input data");

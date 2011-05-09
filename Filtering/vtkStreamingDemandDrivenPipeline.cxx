@@ -235,23 +235,33 @@ int vtkStreamingDemandDrivenPipeline
       if(!this->InputCountIsValid(inInfoVec) || 
          !this->InputTypeIsValid(inInfoVec))
         {
-        return 0;
+        result = 0;
         }
-
-      // Remove update-related keys from the input information.
-      this->ResetUpdateInformation(request, inInfoVec, outInfoVec);
-
-      // Invoke the request on the algorithm.
-      this->LastPropogateUpdateExtentShortCircuited = 0;
-      result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
-                                   inInfoVec, outInfoVec);
-      
-      // Propagate the update extent to all inputs.
-      if(result)
+      else
         {
-        result = this->ForwardUpstream(request);
+        // Remove update-related keys from the input information.
+        this->ResetUpdateInformation(request, inInfoVec, outInfoVec);
+
+        // Invoke the request on the algorithm.
+        this->LastPropogateUpdateExtentShortCircuited = 0;
+        result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
+                                     inInfoVec, outInfoVec);
+
+        // Propagate the update extent to all inputs.
+        if(result)
+          {
+          result = this->ForwardUpstream(request);
+          }
+        result = 1;
         }
-      result = 1;
+      }
+    if (this->LastPropogateUpdateExtentShortCircuited)
+      {
+      if(outInfo && outInfo->Has(COMBINED_UPDATE_EXTENT()))
+        {
+        static int emptyExt[6] = { 0, -1, 0, -1, 0, -1 };
+        outInfo->Set(COMBINED_UPDATE_EXTENT(), emptyExt, 6);
+        }
       }
     return result;
     }

@@ -163,18 +163,18 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
   double a[3], b[3];
 
   // Need homogeneous points.
-  double homoPt1[4] = {axisPt1[0], axisPt1[2], axisPt1[2], 1.0};
-  double homoPt2[4] = {axisPt2[0], axisPt2[2], axisPt2[2], 1.0};
+  double homoPt1[4] = {axisPt1[0], axisPt1[1], axisPt1[2], 1.0};
+  double homoPt2[4] = {axisPt2[0], axisPt2[1], axisPt2[2], 1.0};
 
-  double *tranformedPt1 = cameraMatrix->MultiplyDoublePoint(homoPt1);
-  a[0] = tranformedPt1[0];
-  a[1] = tranformedPt1[1];
-  a[2] = tranformedPt1[2];
+  double *viewCoordinatePt1 = cameraMatrix->MultiplyDoublePoint(homoPt1);
+  a[0] = viewCoordinatePt1[0];
+  a[1] = viewCoordinatePt1[1];
+  a[2] = viewCoordinatePt1[2];
 
-  double *tranformedPt2 = cameraMatrix->MultiplyDoublePoint(homoPt2);
-  b[0] = tranformedPt2[0];
-  b[1] = tranformedPt2[1];
-  b[2] = tranformedPt2[2];
+  double *viewCoordinatePt2 = cameraMatrix->MultiplyDoublePoint(homoPt2);
+  b[0] = viewCoordinatePt2[0];
+  b[1] = viewCoordinatePt2[1];
+  b[2] = viewCoordinatePt2[2];
 
   // If the axis second point pointing towards left we would like to have a 180
   // rotation around the vertical axis so that text would still be readable and drawn

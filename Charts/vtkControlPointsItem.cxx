@@ -44,6 +44,12 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(
     vtkControlPointsItem::CallComputePoints);
+
+  this->Bounds[0] = this->Bounds[2] = 0.;
+  this->Bounds[1] = this->Bounds[3] = -1.;
+  this->UserBounds[0] = this->UserBounds[2] = 0.;
+  this->UserBounds[1] = this->UserBounds[3] = -1.;
+
   this->ScreenPointRadius = 6.f;
   this->Transform = vtkTransform2D::New();
 
@@ -81,25 +87,50 @@ void vtkControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::GetBounds(double bounds[4])
 {
-  if (this->BoundsMTime.GetMTime() < this->GetControlPointsMTime())
+  if (this->UserBounds[0] <= this->UserBounds[1] &&
+      this->UserBounds[2] <= this->UserBounds[3])
     {
-    this->Bounds[0] = this->Bounds[2] =  VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = -VTK_DOUBLE_MAX;
-    for (vtkIdType i=0; i < this->GetNumberOfPoints(); ++i)
-      {
-      double point[4];
-      this->GetControlPoint(i, point);
-      this->Bounds[0] = std::min(this->Bounds[0], point[0]);
-      this->Bounds[1] = std::max(this->Bounds[1], point[0]);
-      this->Bounds[2] = std::min(this->Bounds[2], point[1]);
-      this->Bounds[3] = std::max(this->Bounds[3], point[1]);
-      }
-    this->BoundsMTime.Modified();
+    bounds[0] = this->UserBounds[0];
+    bounds[1] = this->UserBounds[1];
+    bounds[2] = this->UserBounds[2];
+    bounds[3] = this->UserBounds[3];
+    return;
+    }
+  if (this->Bounds[0] > this->Bounds[1] ||
+      this->Bounds[2] > this->Bounds[3])
+    {
+    this->ComputeBounds();
     }
   bounds[0] = this->Bounds[0];
   bounds[1] = this->Bounds[1];
   bounds[2] = this->Bounds[2];
   bounds[3] = this->Bounds[3];
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::ResetBounds()
+{
+  this->Bounds[0] = 0.;
+  this->Bounds[1] = -1.;
+  this->Bounds[2] = 0.;
+  this->Bounds[3] = -1.;
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::ComputeBounds()
+{
+  this->Bounds[0] = this->Bounds[2] =  VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = -VTK_DOUBLE_MAX;
+  for (vtkIdType i=0; i < this->GetNumberOfPoints(); ++i)
+    {
+    double point[4];
+    this->GetControlPoint(i, point);
+    this->Bounds[0] = std::min(this->Bounds[0], point[0]);
+    this->Bounds[1] = std::max(this->Bounds[1], point[0]);
+    this->Bounds[2] = std::min(this->Bounds[2], point[1]);
+    this->Bounds[3] = std::max(this->Bounds[3], point[1]);
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -191,8 +222,53 @@ void vtkControlPointsItem::ComputePoints()
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
 {
-  return mouse.Pos[0] <= 1. && mouse.Pos[0] >= 0. &&
-    mouse.Pos[1] <= 1. && mouse.Pos[1] >= 0.;
+  double pos[2];
+  pos[0] = mouse.Pos[0];
+  pos[1] = mouse.Pos[1];
+  bool clamped = this->ClampPos(pos);
+  if (!clamped)
+    {
+    return true;
+    }
+  // maybe the cursor is over the first or last point (which could be outside
+  // the bounds because of the screen point size).
+  pos[0] = mouse.Pos[0];
+  pos[1] = mouse.Pos[1];
+  if (this->IsOverPoint(pos, 0) ||
+      this->IsOverPoint(pos, this->GetNumberOfPoints() - 1))
+    {
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkControlPointsItem::ClampPos(double pos[2])
+{
+  double bounds[4];
+  this->GetBounds(bounds);
+  bool clamped = false;
+  if (pos[0] < bounds[0])
+    {
+    pos[0] = bounds[0];
+    clamped = true;
+    }
+  if (pos[0] > bounds[1])
+    {
+    pos[0] = bounds[1];
+    clamped = true;
+    }
+  if (pos[1] < 0.)
+    {
+    pos[1] = 0.;
+    clamped = true;
+    }
+  if (pos[1] > 1.)
+    {
+    pos[1] = 1.;
+    clamped = true;
+    }
+  return clamped;
 }
 
 //-----------------------------------------------------------------------------
@@ -422,10 +498,36 @@ vtkIdType vtkControlPointsItem::FindPoint(double* pos, double tolerance)
 */
 
 //-----------------------------------------------------------------------------
+bool vtkControlPointsItem::IsOverPoint(double* pos, vtkIdType pointId)
+{
+  if (pointId < 0 || pointId >= this->GetNumberOfPoints())
+    {
+    return false;
+    }
+
+  double screenPos[2];
+  this->Transform->TransformPoints(pos, screenPos, 1);
+
+  double point[4];
+  this->GetControlPoint(pointId, point);
+  double screenPoint[2];
+  this->Transform->TransformPoints(point, screenPoint, 1);
+
+  double distance2 =
+    (screenPoint[0] - screenPos[0]) * (screenPoint[0] - screenPos[0]) +
+    (screenPoint[1] - screenPos[1]) * (screenPoint[1] - screenPos[1]);
+  double tolerance = 1.3;
+  double radius2 = this->ScreenPointRadius * this->ScreenPointRadius
+    * tolerance * tolerance;
+  return distance2 <= radius2;
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkControlPointsItem::FindPoint(double* pos)
 {
   double tolerance = 1.3;
-  double radius = this->ScreenPointRadius * this->ScreenPointRadius * tolerance * tolerance;
+  double radius2 = this->ScreenPointRadius * this->ScreenPointRadius
+    * tolerance * tolerance;
   double screenPos[2];
   this->Transform->TransformPoints(pos, screenPos, 1);
   vtkIdType pointId = -1;
@@ -437,19 +539,19 @@ vtkIdType vtkControlPointsItem::FindPoint(double* pos)
     this->GetControlPoint(i, point);
     double screenPoint[2];
     this->Transform->TransformPoints(point, screenPoint, 1);
-    double distance =
+    double distance2 =
       (screenPoint[0] - screenPos[0]) * (screenPoint[0] - screenPos[0]) +
       (screenPoint[1] - screenPos[1]) * (screenPoint[1] - screenPos[1]);
-    if (distance <= radius)
+    if (distance2 <= radius2)
       {
-      if (distance == 0.)
+      if (distance2 == 0.)
         {// we found the best match ever
         return i;
         }
-      else if (distance < minDist)
+      else if (distance2 < minDist)
         {// we found something not too bad, maybe we can find closer
         pointId = i;
-        minDist = distance;
+        minDist = distance2;
         }
       }
     // don't search any further if the x is already too large
@@ -584,8 +686,7 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
              && this->Selection->GetNumberOfTuples() <= 1
              && !this->StrokeMode)
       {
-      pos[0] = std::min(std::max(pos[0], 0.), 1.);
-      pos[1] = std::min(std::max(pos[1], 0.), 1.);
+      this->ClampPos(pos);
       vtkIdType addedPoint = this->AddPoint(pos);
       this->SetCurrentPoint(addedPoint);
       return true;
@@ -723,8 +824,9 @@ vtkIdType vtkControlPointsItem::MovePoint(vtkIdType point, const vtkVector2f& ne
 
   // Make sure the new point is inside the boundaries of the function
   double boundedPos[2];
-  boundedPos[0] = std::min(std::max(newPos[0], 0.f), 1.f);
-  boundedPos[1] = std::min(std::max(newPos[1], 0.f), 1.f);
+  boundedPos[0] = newPos[0];
+  boundedPos[1] = newPos[1];
+  this->ClampPos(boundedPos);
 
   if (!this->SwitchPointsMode)
     {
@@ -827,8 +929,9 @@ void vtkControlPointsItem::MovePoints(float tX, float tY)
 void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
 {
   double pos[2];
-  pos[0] = std::min(std::max(newPos[0], 0.f), 1.f);
-  pos[1] = std::min(std::max(newPos[1], 0.f), 1.f);
+  pos[0] = newPos[0];
+  pos[1] = newPos[1];
+  this->ClampPos(pos);
 
   // last point
   if (this->CurrentPoint != -1)

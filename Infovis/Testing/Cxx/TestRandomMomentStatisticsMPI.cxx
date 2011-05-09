@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestParallelRandomStatisticsMPI.cxx
+  Module:    TestRandomMomentStatisticsMPI.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*
- * Copyright 2008 Sandia Corporation.
+ * Copyright 2011 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
  * U.S. Government. Redistribution and use in source and binary forms, with
@@ -43,16 +43,14 @@
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
-// For debugging purposes, output results of serial engines ran on each slice of the distributed data set
-#define PRINT_ALL_SERIAL_STATS 0 
+#include "vtksys/CommandLineArguments.hxx"
 
 struct RandomSampleStatisticsArgs
 {
   int nVals;
+  bool descOnly;
   int* retVal;
   int ioRank;
-  int argc;
-  char** argv;
 };
 
 // This will be called by all processes
@@ -159,7 +157,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Test (serially) with Learn and Derive options only
   ds->SetLearnOption( true );
   ds->SetDeriveOption( true );
-  ds->SetAssessOption( true );
+  ds->SetAssessOption( false );
   ds->SetTestOption( false );
   ds->Update();
 
@@ -168,40 +166,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
-#if PRINT_ALL_SERIAL_STATS
-  cout << "\n## Proc "
-       << myRank
-       << " calculated the following primary statistics:\n";
-  for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputPrimary->GetColumnName( i )
-           << "="
-           << outputPrimary->GetValue( r, i ).ToString()
-           << "  ";
-      }
-    cout << "\n";
-    }
-
-  cout << "\n## Proc "
-       << myRank
-       << " calculated the following derived statistics:\n";
-  for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputDerived->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputDerived->GetColumnName( i )
-           << "="
-           << outputDerived->GetValue( r, i ).ToString()
-           << "  ";
-      }
-    cout << "\n";
-    }
-#endif //PRINT_ALL_SERIAL_STATS
-  
   // Collect (local) cardinalities, extrema, and means
   int nRows = outputPrimary->GetNumberOfRows();
   int np = com->GetNumberOfProcesses();
@@ -353,6 +317,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pds->SetLearnOption( true );
   pds->SetDeriveOption( true );
   pds->SetAssessOption( true );
+  pds->SetTestOption( false );
   pds->SignedDeviationsOff(); // Use unsigned deviations
   pds->Update();
 
@@ -491,6 +456,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
              << i + 1
              << " standard deviation(s) from the mean.\n";
 
+        // Test some statistics
         if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
           {
           vtkGenericWarningMacro("Incorrect value.");
@@ -507,6 +473,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Clean up
   pds->Delete();
 
+  // If only descriptive statistics were required, complete clean up and bail out from here
+  if ( args->descOnly )
+    {
+    inputData->Delete();
+    timer->Delete();
+    return;
+    }
+
   // ************************** Correlative Statistics ************************** 
 
   // Synchronize and start clock
@@ -521,17 +495,17 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcs->AddColumnPair( columnNames[0], columnNames[1] );
   pcs->AddColumnPair( columnNames[2], columnNames[3] );
 
-  // Test (in parallel) with Learn, Derive, and Assess options turned on
+  // Test (in parallel) with Learn, Derive options turned on
   pcs->SetLearnOption( true );
   pcs->SetDeriveOption( true );
-  pcs->SetAssessOption( true );
+  pcs->SetAssessOption( false );
+  pcs->SetTestOption( false );
   pcs->Update();
 
   // Get output data and meta tables
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-  outputData = pcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
     // Synchronize and stop clock
   com->Barrier();
@@ -588,7 +562,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel correlative statistics engine and set its ports
   vtkPMultiCorrelativeStatistics* pmcs = vtkPMultiCorrelativeStatistics::New();
   pmcs->SetInput( 0, inputData );
-  outputData = pmcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pmcs->SetColumnStatus( columnNames[0], true );
@@ -650,7 +623,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel pca statistics engine and set its ports
   vtkPPCAStatistics* pcas = vtkPPCAStatistics::New();
   pcas->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-  outputData = pcas->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcas->SetColumnStatus( columnNames[0], true );
@@ -763,7 +735,6 @@ int main( int argc, char** argv )
       }
     }
 
-  // ************************** Initialize test ********************************* 
   if ( com->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Process "
@@ -780,14 +751,41 @@ int main( int argc, char** argv )
          << " processes...\n";
     }
 
+  // **************************** Parse command line ***************************
+  // Set default argument values
+  int nVals = 100000;
+  bool descOnly = false;
+
+  // Initialize command line argument parser
+  vtksys::CommandLineArguments clArgs;
+  clArgs.Initialize( argc, argv );
+  clArgs.StoreUnusedArguments( false );
+
+  // Parse per-process cardinality in each pseudo-random sample
+  clArgs.AddArgument("--n-per-proc",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse whether only descriptive statistics should be tested (for faster testing)
+  clArgs.AddArgument("--descriptive-only",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &descOnly, "Test only descriptive statistics");
+
+  // If incorrect arguments were provided, terminate in error.
+  if ( ! clArgs.Parse() )
+    {
+    vtkGenericWarningMacro("Incorrect input data arguments were provided.");
+    return 1;
+    }
+
+  // ************************** Initialize test ********************************* 
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 100000;
+  args.nVals = nVals;
+  args.descOnly = descOnly;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.argc = argc;
-  args.argv = argv;
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomSampleStatistics, &args );
