@@ -535,7 +535,8 @@ void vtkWrap_FindCountHints(
         {
         theFunc->SizeHint = "GetDimensions()";
         }
-      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtentsList"))
+      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtentsList") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayWeights"))
         {
         theFunc->SizeHint = "GetCount()";
         }
