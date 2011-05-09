@@ -187,20 +187,7 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
 
   while (pyclass != NULL)
     {
-    PyMethodDef *meth;
-
-    if (pyclass->vtk_dict == NULL)
-      {
-      pyclass->vtk_dict = PyDict_New();
-
-      for (meth = pyclass->vtk_methods; meth && meth->ml_name; meth++)
-        {
-        PyDict_SetItemString(pyclass->vtk_dict,meth->ml_name,
-                             PyCFunction_New(meth, (PyObject *)pyclass));
-        }
-      }
-
-    value = PyDict_GetItem(pyclass->vtk_dict, attr);
+    value = PyDict_GetItem(PyVTKClass_GetDict((PyObject *)pyclass), attr);
 
     if (value)
       {
@@ -241,9 +228,37 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
 }
 
 //--------------------------------------------------------------------
+#if PY_MAJOR_VERSION >= 2
+static int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
+{
+  PyVTKObject *self = (PyVTKObject *)o;
+  PyObject *members[2];
+  int err = 0;
+  int i;
+
+  members[0] = (PyObject *)self->vtk_class;
+  members[1] = self->vtk_dict;
+
+  for (i = 0; i < 2 && err == 0; i++)
+    {
+    if (members[i])
+      {
+      err = visit(members[i], arg);
+      }
+    }
+
+  return err;
+}
+#endif
+
+//--------------------------------------------------------------------
 static void PyVTKObject_Delete(PyObject *op)
 {
   PyVTKObject *self = (PyVTKObject *)op;
+
+#if PY_VERSION_HEX >= 0x02020000
+  PyObject_GC_UnTrack(op);
+#endif
 
 #if PY_VERSION_HEX >= 0x02010000
   if (self->vtk_weakreflist != NULL)
@@ -259,10 +274,12 @@ static void PyVTKObject_Delete(PyObject *op)
   Py_DECREF((PyObject *)self->vtk_class);
   Py_DECREF(self->vtk_dict);
 
-#if PY_MAJOR_VERSION >= 2
-  PyObject_Del(self);
+#if PY_VERSION_HEX >= 0x02020000
+  PyObject_GC_Del(op);
+#elif PY_MAJOR_VERSION >= 2
+  PyObject_Del(op);
 #else
-  PyMem_DEL(self);
+  PyMem_DEL(op);
 #endif
 }
 
@@ -369,19 +386,25 @@ PyTypeObject PyVTKObject_Type = {
   PyVTKObject_GetAttr,                   // tp_getattro
   PyVTKObject_SetAttr,                   // tp_setattro
   &PyVTKObject_AsBuffer,                 // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02010000
+#if PY_VERSION_HEX >= 0x02020000
+  Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_HAVE_WEAKREFS, // tp_flags
+#elif PY_VERSION_HEX >= 0x02010000
   Py_TPFLAGS_HAVE_WEAKREFS,              // tp_flags
 #else
   0,                                     // tp_flags
 #endif
   (char*)"A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
-  0,                                     // tp_traverse
+#if PY_MAJOR_VERSION >= 2
+  PyVTKObject_Traverse,                  // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
 #if PY_VERSION_HEX >= 0x02010000
   offsetof(PyVTKObject, vtk_weakreflist),// tp_weaklistoffset
 #else
   0,                                     // tp_weaklistoffset
+#endif
+#else
+  0, 0, 0, 0,                            // reserved
 #endif
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
@@ -390,6 +413,9 @@ PyObject *PyVTKObject_New(
   PyObject *pyvtkclass, PyObject *pydict, vtkObjectBase *ptr)
 {
   PyVTKClass *vtkclass = (PyVTKClass *)pyvtkclass;
+  PyObject *dict = 0;
+  PyObject *cls = 0;
+
   bool haveRef = false;
   if (!ptr)
     {
@@ -408,16 +434,6 @@ PyObject *PyVTKObject_New(
       }
     }
 
-#if PY_MAJOR_VERSION >= 2
-  PyVTKObject *self = PyObject_New(PyVTKObject, &PyVTKObject_Type);
-#else
-  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObject_Type);
-#endif
-
-  self->vtk_ptr = ptr;
-  self->vtk_class = NULL;
-  self->vtk_flags = 0;
-
   // We want to find the class that best matches GetClassName(), since
   // the object might have been created by a factory and might therefore
   // not be of the type of the class that New() was called on.
@@ -427,30 +443,46 @@ PyObject *PyVTKObject_New(
   // then the class is a special custom class and must be kept.
   if (pydict == NULL && vtkclass->vtk_methods != NULL)
     {
-    PyObject *cls = vtkPythonUtil::FindClass(ptr->GetClassName());
-    self->vtk_class = (PyVTKClass *)cls;
+    cls = vtkPythonUtil::FindClass(ptr->GetClassName());
     }
 
   // Use the class that was passed as an argument
-  if (self->vtk_class == NULL)
+  if (cls == NULL)
     {
-    self->vtk_class = vtkclass;
+    cls = (PyObject *)vtkclass;
     }
 
-  Py_INCREF(self->vtk_class);
+  Py_INCREF(cls);
 
   if (pydict)
     {
     Py_INCREF(pydict);
-    self->vtk_dict = pydict;
+    dict = pydict;
     }
   else
     {
-    self->vtk_dict = PyDict_New();
+    dict = PyDict_New();
     }
+
+#if PY_VERSION_HEX >= 0x02020000
+  PyVTKObject *self = PyObject_GC_New(PyVTKObject, &PyVTKObject_Type);
+#elif PY_MAJOR_VERSION >= 2
+  PyVTKObject *self = PyObject_New(PyVTKObject, &PyVTKObject_Type);
+#else
+  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObject_Type);
+#endif
+
+  self->vtk_ptr = ptr;
+  self->vtk_flags = 0;
+  self->vtk_class = (PyVTKClass *)cls;
+  self->vtk_dict = dict;
 
 #if PY_VERSION_HEX >= 0x02010000
   self->vtk_weakreflist = NULL;
+#endif
+
+#if PY_VERSION_HEX >= 0x02020000
+  PyObject_GC_Track((PyObject *)self);
 #endif
 
   // A python object owning a VTK object reference is getting
