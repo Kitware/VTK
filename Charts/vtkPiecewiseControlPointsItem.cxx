@@ -84,6 +84,7 @@ void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t
     {
     this->PiecewiseFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ResetBounds();
   this->ComputePoints();
 }
 
