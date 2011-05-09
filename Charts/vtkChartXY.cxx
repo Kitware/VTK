@@ -142,8 +142,6 @@ vtkChartXY::vtkChartXY()
 
   this->PlotTransformValid = false;
 
-  this->BoxOrigin[0] = this->BoxOrigin[1] = 0.0f;
-  this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
   this->DrawBox = false;
   this->DrawNearestPoint = false;
   this->DrawAxesAtOrigin = false;
@@ -319,8 +317,8 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->GetBrush()->SetColor(255, 255, 255, 0);
     painter->GetPen()->SetColor(0, 0, 0, 255);
     painter->GetPen()->SetWidth(1.0);
-    painter->DrawRect(this->BoxOrigin[0], this->BoxOrigin[1],
-                      this->BoxGeometry[0], this->BoxGeometry[1]);
+    painter->DrawRect(this->MouseBox.X(), this->MouseBox.Y(),
+                      this->MouseBox.Width(), this->MouseBox.Height());
     }
 
   if (this->Title)
@@ -1189,8 +1187,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.Button == this->Actions.Zoom() ||
            mouse.Button == this->Actions.Select())
     {
-    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
-    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
+    this->MouseBox.SetWidth(mouse.Pos.X() - this->MouseBox.X());
+    this->MouseBox.SetHeight(mouse.Pos.Y() - this->MouseBox.Y());
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
@@ -1246,7 +1244,10 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
                 plotIndex.SeriesName = plot->GetLabel();
                 plotIndex.Position = plotPos;
                 plotIndex.ScreenPosition = mouse.ScreenPos;
+                plotIndex.Index = seriesIndex;
                 // Invoke an event, with the client data supplied
+                cout << "Invoking event for plot: " << seriesIndex << " "
+                     << plotPos.X() << ", " << plotPos.Y() << endl;
                 this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
                 }
               return true;
@@ -1325,15 +1326,15 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
   if (mouse.Button == this->Actions.Pan())
     {
     // The mouse panning action.
+    this->MouseBox.Set(mouse.Pos.X(), mouse.Pos.Y(), 0.0, 0.0);
+    this->DrawBox = false;
     return true;
     }
   else if (mouse.Button == this->Actions.Zoom() ||
            mouse.Button == this->Actions.Select())
     {
     // Selection, for now at least...
-    this->BoxOrigin[0] = mouse.Pos[0];
-    this->BoxOrigin[1] = mouse.Pos[1];
-    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+    this->MouseBox.Set(mouse.Pos.X(), mouse.Pos.Y(), 0.0, 0.0);
     this->DrawBox = true;
     return true;
     }
@@ -1357,12 +1358,13 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
   if (mouse.Button == this->Actions.Select())
     {
     // Check whether a valid selection box was drawn
-    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
-    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
-    if (fabs(this->BoxGeometry[0]) < 0.5 || fabs(this->BoxGeometry[1]) < 0.5)
+    this->MouseBox.SetWidth(mouse.Pos.X() - this->MouseBox.X());
+    this->MouseBox.SetHeight(mouse.Pos.Y() - this->MouseBox.Y());
+    if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
       {
       // Invalid box size - treat as a point click event
-      this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+      this->MouseBox.SetWidth(0.0);
+      this->MouseBox.SetHeight(0.0);
       this->DrawBox = false;
       this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
       return true;
@@ -1370,18 +1372,19 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 
     // Iterate through the plots and build a selection
     for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
-    {
+      {
       int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
                                    ->GetNumberOfItems());
       if (items)
-      {
+        {
         vtkTransform2D *transform =
             this->ChartPrivate->PlotCorners[i]->GetTransform();
-        transform->InverseTransformPoints(this->BoxOrigin, this->BoxOrigin, 1);
+        transform->InverseTransformPoints(this->MouseBox.GetData(),
+                                          this->MouseBox.GetData(), 1);
         float point2[] = { mouse.Pos[0], mouse.Pos[1] };
         transform->InverseTransformPoints(point2, point2, 1);
 
-        vtkVector2f min(this->BoxOrigin);
+        vtkVector2f min(this->MouseBox.GetData());
         vtkVector2f max(point2);
         if (min.X() > max.X())
           {
@@ -1427,7 +1430,8 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
       }
 
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
-    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+    this->MouseBox.SetWidth(0.0);
+    this->MouseBox.SetHeight(0.0);
     this->DrawBox = false;
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
@@ -1436,12 +1440,13 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.Button == this->Actions.Zoom())
     {
     // Check whether a valid zoom box was drawn
-    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
-    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
-    if (fabs(this->BoxGeometry[0]) < 0.5 || fabs(this->BoxGeometry[1]) < 0.5)
+    this->MouseBox.SetWidth(mouse.Pos.X() - this->MouseBox.X());
+    this->MouseBox.SetHeight(mouse.Pos.Y() - this->MouseBox.Y());
+    if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
       {
       // Invalid box size - do nothing
-      this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+      this->MouseBox.SetWidth(0.0);
+      this->MouseBox.SetHeight(0.0);
       this->DrawBox = false;
       return true;
       }
@@ -1451,13 +1456,14 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 
     this->ZoomInAxes(this->ChartPrivate->axes[vtkAxis::BOTTOM],
                      this->ChartPrivate->axes[vtkAxis::LEFT],
-                     this->BoxOrigin, point2);
+                     this->MouseBox.GetData(), point2);
     this->ZoomInAxes(this->ChartPrivate->axes[vtkAxis::TOP],
                      this->ChartPrivate->axes[vtkAxis::RIGHT],
-                     this->BoxOrigin, point2);
+                     this->MouseBox.GetData(), point2);
 
     this->RecalculatePlotTransforms();
-    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+    this->MouseBox.SetWidth(0.0);
+    this->MouseBox.SetHeight(0.0);
     this->DrawBox = false;
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
