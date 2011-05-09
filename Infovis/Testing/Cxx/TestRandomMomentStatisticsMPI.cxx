@@ -157,7 +157,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Test (serially) with Learn and Derive options only
   ds->SetLearnOption( true );
   ds->SetDeriveOption( true );
-  ds->SetAssessOption( true );
+  ds->SetAssessOption( false );
   ds->SetTestOption( false );
   ds->Update();
 
@@ -317,6 +317,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pds->SetLearnOption( true );
   pds->SetDeriveOption( true );
   pds->SetAssessOption( true );
+  pds->SetTestOption( false );
   pds->SignedDeviationsOff(); // Use unsigned deviations
   pds->Update();
 
@@ -494,17 +495,17 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcs->AddColumnPair( columnNames[0], columnNames[1] );
   pcs->AddColumnPair( columnNames[2], columnNames[3] );
 
-  // Test (in parallel) with Learn, Derive, and Assess options turned on
+  // Test (in parallel) with Learn, Derive options turned on
   pcs->SetLearnOption( true );
   pcs->SetDeriveOption( true );
-  pcs->SetAssessOption( true );
+  pcs->SetAssessOption( false );
+  pcs->SetTestOption( false );
   pcs->Update();
 
   // Get output data and meta tables
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-  outputData = pcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
     // Synchronize and stop clock
   com->Barrier();
@@ -561,7 +562,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel correlative statistics engine and set its ports
   vtkPMultiCorrelativeStatistics* pmcs = vtkPMultiCorrelativeStatistics::New();
   pmcs->SetInput( 0, inputData );
-  outputData = pmcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pmcs->SetColumnStatus( columnNames[0], true );
@@ -623,7 +623,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel pca statistics engine and set its ports
   vtkPPCAStatistics* pcas = vtkPPCAStatistics::New();
   pcas->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-  outputData = pcas->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcas->SetColumnStatus( columnNames[0], true );
