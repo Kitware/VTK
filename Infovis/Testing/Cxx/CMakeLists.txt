@@ -131,10 +131,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ADD_EXECUTABLE(TestRandomPOrderStatisticsMPI TestRandomPOrderStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestRandomPOrderStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
-    # TestParallelKMeansStatisticsMPI:
+    # TestRandomPKMeansStatisticsMPI:
     # MPI test of parallel KMeans statistics
-    ADD_EXECUTABLE(TestParallelKMeansStatisticsMPI TestParallelKMeansStatisticsMPI.cxx)
-    TARGET_LINK_LIBRARIES(TestParallelKMeansStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
+    ADD_EXECUTABLE(TestRandomPKMeansStatisticsMPI TestRandomPKMeansStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRandomPKMeansStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
     # TestRealDataPDescriptiveStatisticsMPI:
     # MPI test of parallel descriptive statistics with real data
@@ -163,10 +163,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_MPI_POSTFLAGS}
         )
 
-      ADD_TEST(TestParallelKMeansStatisticsMPI
+      ADD_TEST(TestRandomPKMeansStatisticsMPI
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestParallelKMeansStatisticsMPI
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestRandomPKMeansStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
     ENDIF (VTK_MPIRUN_EXE)
