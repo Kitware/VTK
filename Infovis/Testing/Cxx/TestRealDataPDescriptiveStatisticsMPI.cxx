@@ -38,7 +38,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 #include "vtksys/CommandLineArguments.hxx"
-#include "vtksys/SystemTools.hxx"
 
 struct RealDataDescriptiveStatisticsArgs
 {
