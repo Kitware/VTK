@@ -26,6 +26,20 @@
 #define H5_USE_16_API
 #include <hdf5.h>
 
+#include "vtkAMREnzoReader.h"
+#include "vtksys/SystemTools.hxx"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkFloatArray.h"
+#include "vtkIntArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
+
 #include <vtkstd/vector>
 #include <vtkstd/string>
 #include <cassert>
@@ -123,7 +137,7 @@ static const char * GetEnzoMajorFileName( const char * path, int & start )
     }
 }
 
-const char * GetEnzoMajorFileName( const char * path )
+static const char * GetEnzoMajorFileName( const char * path )
 {
 //  int     dummy1;
 //  return  GetEnzoMajorFileName( path, dummy1 );
@@ -133,7 +147,7 @@ const char * GetEnzoMajorFileName( const char * path )
   return( vpath[ vpath.size()-1 ].c_str() );
 }
 
-const char * GetEnzoDirectory( const char * path )
+static const char * GetEnzoDirectory( const char * path )
 {
   int start;
   GetEnzoMajorFileName( path, start );
