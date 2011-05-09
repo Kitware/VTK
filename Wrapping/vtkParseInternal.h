@@ -88,6 +88,11 @@ void vtkParse_AddArgumentToTemplate(TemplateArgs *info, TemplateArg *item);
 /*@}*/
 
 /**
+ * Add default constructors if they do not already exist
+ */
+void vtkParse_AddDefaultConstructors(ClassInfo *data);
+
+/**
  * Expand a typedef within a type declaration.
  */
 void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo);

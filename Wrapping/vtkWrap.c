@@ -535,7 +535,8 @@ void vtkWrap_FindCountHints(
         {
         theFunc->SizeHint = "GetDimensions()";
         }
-      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtentsList"))
+      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtentsList") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayWeights"))
         {
         theFunc->SizeHint = "GetCount()";
         }
@@ -654,7 +655,6 @@ void vtkWrap_DeclareVariable(
   FILE *fp, ValueInfo *val, const char *name, int i, int flags)
 {
   unsigned int aType;
-  const char *aClass;
   int j;
 
   if (val == NULL)
@@ -663,7 +663,6 @@ void vtkWrap_DeclareVariable(
     }
 
   aType = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  aClass = val->Class;
 
   /* do nothing for void */
   if (aType == VTK_PARSE_VOID ||
