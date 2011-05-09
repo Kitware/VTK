@@ -233,6 +233,9 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetScalarMaterialMode(m->GetScalarMaterialMode());
     this->SetImmediateModeRendering(m->GetImmediateModeRendering());
     this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
+    this->SetInterpolateScalarsBeforeMapping(
+      m->GetInterpolateScalarsBeforeMapping());
+
     if ( m->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
       {
       this->ColorByArrayComponent(m->GetArrayId(),m->GetArrayComponent());
