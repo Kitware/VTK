@@ -1246,8 +1246,6 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
                 plotIndex.ScreenPosition = mouse.ScreenPos;
                 plotIndex.Index = seriesIndex;
                 // Invoke an event, with the client data supplied
-                cout << "Invoking event for plot: " << seriesIndex << " "
-                     << plotPos.X() << ", " << plotPos.Y() << endl;
                 this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
                 }
               return true;
@@ -1355,12 +1353,14 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
       return true;
       }
     }
-  if (mouse.Button == this->Actions.Select())
+  if (mouse.Button > vtkContextMouseEvent::NO_BUTTON &&
+      mouse.Button <= vtkContextMouseEvent::RIGHT_BUTTON)
     {
-    // Check whether a valid selection box was drawn
     this->MouseBox.SetWidth(mouse.Pos.X() - this->MouseBox.X());
     this->MouseBox.SetHeight(mouse.Pos.Y() - this->MouseBox.Y());
-    if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
+    if ((fabs(this->MouseBox.Width()) < 0.5 && fabs(this->MouseBox.Height()) < 0.5)
+        && (mouse.Button == this->Actions.Select() ||
+            mouse.Button == this->Actions.Pan()))
       {
       // Invalid box size - treat as a point click event
       this->MouseBox.SetWidth(0.0);
@@ -1369,7 +1369,17 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
       this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
       return true;
       }
-
+    }
+  if (mouse.Button == this->Actions.Select())
+    {
+    if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
+      {
+      // Invalid box size - do nothing
+      this->MouseBox.SetWidth(0.0);
+      this->MouseBox.SetHeight(0.0);
+      this->DrawBox = false;
+      return true;
+      }
     // Iterate through the plots and build a selection
     for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
       {
@@ -1440,8 +1450,6 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.Button == this->Actions.Zoom())
     {
     // Check whether a valid zoom box was drawn
-    this->MouseBox.SetWidth(mouse.Pos.X() - this->MouseBox.X());
-    this->MouseBox.SetHeight(mouse.Pos.Y() - this->MouseBox.Y());
     if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
       {
       // Invalid box size - do nothing
