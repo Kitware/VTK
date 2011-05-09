@@ -465,6 +465,8 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayExtents.cxx
     vtkArrayExtentsList.cxx
     vtkArrayRange.cxx
+    vtkArraySort.cxx
+    vtkArrayWeights.cxx
     PROPERTIES WRAP_SPECIAL 1
   )
 
