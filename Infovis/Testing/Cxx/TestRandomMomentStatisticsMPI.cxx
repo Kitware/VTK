@@ -43,6 +43,8 @@
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
+#include "vtksys/CommandLineArguments.hxx"
+
 // For debugging purposes, output results of serial engines ran on each slice of the distributed data set
 #define PRINT_ALL_SERIAL_STATS 0 
 
@@ -489,6 +491,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
              << i + 1
              << " standard deviation(s) from the mean.\n";
 
+        // Test some statistics
         if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
           {
           vtkGenericWarningMacro("Incorrect value.");
@@ -761,7 +764,6 @@ int main( int argc, char** argv )
       }
     }
 
-  // ************************** Initialize test ********************************* 
   if ( com->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Process "
@@ -778,10 +780,32 @@ int main( int argc, char** argv )
          << " processes...\n";
     }
 
+  // **************************** Parse command line ***************************
+  // Set default cardinality per process
+  int nVals = 100000;
+  
+  // Initialize command line argument parser
+  vtksys::CommandLineArguments clArgs;
+  clArgs.Initialize( argc, argv );
+  clArgs.StoreUnusedArguments( false );
+
+  // Parse per-process cardinality in each pseudo-random sample
+  clArgs.AddArgument("--n-per-proc",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // If incorrect arguments were provided, terminate in error.
+  if ( ! clArgs.Parse() )
+    {
+    vtkGenericWarningMacro("Incorrect input data arguments were provided.");
+    return 1;
+    }
+
+  // ************************** Initialize test ********************************* 
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 100000;
+  args.nVals = nVals;
   args.retVal = &testValue;
   args.ioRank = ioRank;
 
