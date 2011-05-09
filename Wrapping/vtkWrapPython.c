@@ -40,7 +40,7 @@ static void vtkWrapPython_ClassDoc(
 
 /* print out headers for any special types used by methods */
 static void vtkWrapPython_GenerateSpecialHeaders(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo);
+  FILE *fp, FileInfo *file_info, HierarchyInfo *hinfo);
 
 /* print out any custom methods */
 static void vtkWrapPython_CustomMethods(
@@ -2536,82 +2536,88 @@ static void vtkWrapPython_ClassDoc(
 /* -------------------------------------------------------------------- */
 /* generate includes for any special types that are used */
 static void vtkWrapPython_GenerateSpecialHeaders(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo)
+  FILE *fp, FileInfo *file_info, HierarchyInfo *hinfo)
 {
   const char **types;
   int numTypes = 0;
   FunctionInfo *currentFunction;
-  int i, j, k, n, m;
+  int i, j, k, n, m, ii, nn;
   unsigned int aType;
   const char *classname;
   const char *ownincfile = "";
+  ClassInfo *data;
 
   types = (const char **)malloc(1000*sizeof(const char *));
 
-  n = data->NumberOfFunctions;
-  for (i = 0; i < n; i++)
+  nn = file_info->Contents->NumberOfClasses;
+  for (ii = 0; ii < nn; ii++)
     {
-    currentFunction = data->Functions[i];
-    if (vtkWrapPython_MethodCheck(currentFunction, hinfo))
+    data = file_info->Contents->Classes[ii];
+    n = data->NumberOfFunctions;
+    for (i = 0; i < n; i++)
       {
-      classname = "void";
-      aType = VTK_PARSE_VOID;
-      if (currentFunction->ReturnValue)
+      currentFunction = data->Functions[i];
+      if (vtkWrapPython_MethodCheck(currentFunction, hinfo))
         {
-        classname = currentFunction->ReturnValue->Class;
-        aType = currentFunction->ReturnValue->Type;
-        }
-
-      m = vtkWrap_CountWrappedArgs(currentFunction);
-
-      for (j = -1; j < m; j++)
-        {
-        if (j >= 0)
+        classname = "void";
+        aType = VTK_PARSE_VOID;
+        if (currentFunction->ReturnValue)
           {
-          classname = currentFunction->Arguments[j]->Class;
-          aType = currentFunction->Arguments[j]->Type;
+          classname = currentFunction->ReturnValue->Class;
+          aType = currentFunction->ReturnValue->Type;
           }
-        /* we don't require the header file if it is just a pointer */
-        if ((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+
+        m = vtkWrap_CountWrappedArgs(currentFunction);
+
+        for (j = -1; j < m; j++)
           {
-          if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_STRING)
+          if (j >= 0)
             {
-            classname = "vtkStdString";
+            classname = currentFunction->Arguments[j]->Class;
+            aType = currentFunction->Arguments[j]->Type;
             }
-          else if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING)
+          /* we don't require the header file if it is just a pointer */
+          if ((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
             {
-            classname = "vtkUnicodeString";
+            if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_STRING)
+              {
+              classname = "vtkStdString";
+              }
+            else if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING)
+              {
+              classname = "vtkUnicodeString";
+              }
+            else if ((aType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT)
+              {
+              classname = 0;
+              }
             }
-          else if ((aType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT)
+          else
             {
             classname = 0;
             }
-          }
-        else
-          {
-          classname = 0;
-          }
 
-        /* we already include our own header */
-        if (classname && strcmp(classname, data->Name) != 0)
-          {
-          for (k = 0; k < numTypes; k++)
+          /* we already include our own header */
+          if (classname && strcmp(classname, data->Name) != 0)
             {
-            /* make a unique list of all classes found */
-            if (strcmp(classname, types[k]) == 0)
+            for (k = 0; k < numTypes; k++)
               {
-              break;
+              /* make a unique list of all classes found */
+              if (strcmp(classname, types[k]) == 0)
+                {
+                break;
+                }
               }
-            }
 
-          if (k == numTypes)
-            {
-            if (numTypes > 0 && (numTypes % 1000) == 0)
+            if (k == numTypes)
               {
-              types = (const char **)realloc((char **)types,
-                (numTypes + 1000)*sizeof(const char *));
+              if (numTypes > 0 && (numTypes % 1000) == 0)
+                {
+                types = (const char **)realloc((char **)types,
+                  (numTypes + 1000)*sizeof(const char *));
+                }
+              types[numTypes++] = classname;
               }
-            types[numTypes++] = classname;
             }
           }
         }
@@ -2619,7 +2625,16 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     }
 
   /* get our own include file (returns NULL if hinfo is NULL) */
-  ownincfile = vtkWrapPython_ClassHeader(hinfo, data->Name);
+  data = file_info->MainClass;
+  if (!data && file_info->Contents->NumberOfClasses > 0)
+    {
+    data = file_info->Contents->Classes[0];
+    }
+
+  if (data)
+    {
+    ownincfile = vtkWrapPython_ClassHeader(hinfo, data->Name);
+    }
 
   /* for each unique type found in the file */
   for (i = 0; i < numTypes; i++)
@@ -3711,6 +3726,71 @@ static void vtkWrapPython_GenerateSpecialType(
     data->Name, data->Name);
 }
 
+/* -------------------------------------------------------------------- */
+/* Wrap one class */
+void vtkWrapPython_WrapOneClass(
+  FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo,
+  int is_vtkobject)
+{
+  int class_has_new = 0;
+  int i;
+
+  /* prototype for the docstring function */
+  fprintf(fp,
+          "\n"
+          "static const char **Py%s_Doc();\n"
+          "\n",
+          data->Name);
+
+  /* check for New() function */
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    if (data->Functions[i]->Name &&
+        strcmp("New",data->Functions[i]->Name) == 0 &&
+        data->Functions[i]->NumberOfArguments == 0)
+      {
+      class_has_new = 1;
+      }
+    }
+
+  /* now output all the methods are wrappable */
+  if (is_vtkobject || !data->IsAbstract)
+    {
+    vtkWrapPython_GenerateMethods(fp, data, hinfo, is_vtkobject, 0);
+    }
+
+  /* output the class initilization function for VTK objects */
+  if (is_vtkobject)
+    {
+    vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
+    }
+
+  /* output the class initilization function for special objects */
+  else if (!data->IsAbstract)
+    {
+    vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
+    }
+
+  /* the docstring for the class, as a static var ending in "Doc" */
+  if (is_vtkobject || !data->IsAbstract)
+    {
+    fprintf(fp,
+            "const char **Py%s_Doc()\n"
+            "{\n"
+            "  static const char *docstring[] = {\n",
+            data->Name);
+
+    vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
+
+    fprintf(fp,
+            "    NULL\n"
+            "  };\n"
+            "\n"
+            "  return docstring;\n"
+            "}\n"
+            "\n");
+    }
+}
 
 /* -------------------------------------------------------------------- */
 /* This method adds constants defined in the file to the module */
@@ -3866,7 +3946,6 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   HierarchyInfo *hinfo = 0;
   const char *name;
   char *name_from_file = 0;
-  int class_has_new = 0;
   int has_constants = 0;
   int is_vtkobject = 1;
   int i;
@@ -3914,9 +3993,12 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     }
 
   /* use the hierarchy file to expand typedefs */
-  if (data && hinfo)
+  if (hinfo)
     {
-    vtkWrap_ExpandTypedefs(data, hinfo);
+    for (i = 0; i < contents->NumberOfClasses; i++)
+      {
+      vtkWrap_ExpandTypedefs(contents->Classes[i], hinfo);
+      }
     }
 
   /* the VTK_WRAPPING_CXX tells header files where they're included from */
@@ -3954,11 +4036,8 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "#include \"vtkPythonCommand.h\"\n");
     }
 
-  if (data)
-    {
-    /* generate includes for any special types that are used */
-    vtkWrapPython_GenerateSpecialHeaders(fp, data, hinfo);
-    }
+  /* generate includes for any special types that are used */
+  vtkWrapPython_GenerateSpecialHeaders(fp, file_info, hinfo);
 
   /* the header file for the wrapped class */
   fprintf(fp,
@@ -3988,6 +4067,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
 
   if (data && is_vtkobject)
     {
+    /* for vtkObjectBase objects: export New method for use by subclasses */
     fprintf(fp,
             "#if defined(WIN32)\n"
             "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
@@ -3997,7 +4077,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
             "\n",
             data->Name, data->Name);
 
-    /* bring in all the superclasses */
+    /* declare the New methods for all the superclasses */
     for (i = 0; i < data->NumberOfSuperClasses; i++)
       {
       if (vtkWrap_IsClassWrapped(hinfo, data->SuperClasses[i]) &&
@@ -4010,43 +4090,10 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
       }
     }
 
-  /* prototype for the docstring function */
+  /* Produce the methods and data for the class */
   if (data)
     {
-    fprintf(fp,
-            "\n"
-            "static const char **Py%s_Doc();\n"
-            "\n",
-            data->Name);
-
-    /* check for New() function */
-    for (i = 0; i < data->NumberOfFunctions; i++)
-      {
-      if (data->Functions[i]->Name &&
-          strcmp("New",data->Functions[i]->Name) == 0 &&
-          data->Functions[i]->NumberOfArguments == 0)
-        {
-        class_has_new = 1;
-        }
-      }
-
-    /* now output all the methods are wrappable */
-    if (is_vtkobject || !data->IsAbstract)
-      {
-      vtkWrapPython_GenerateMethods(fp, data, hinfo, is_vtkobject, 0);
-      }
-
-    /* output the class initilization function for VTK objects */
-    if (is_vtkobject)
-      {
-      vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
-      }
-
-    /* output the class initilization function for special objects */
-    else if (!data->IsAbstract)
-      {
-      vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
-      }
+    vtkWrapPython_WrapOneClass(fp, data, file_info, hinfo, is_vtkobject);
     }
 
   /* The function for adding everything to the module dict */
@@ -4122,26 +4169,6 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   /* close the AddFile function */
   fprintf(fp,
           "}\n\n");
-
-  /* the docstring for the class, as a static var ending in "Doc" */
-  if (data && (is_vtkobject || !data->IsAbstract))
-    {
-    fprintf(fp,
-            "const char **Py%s_Doc()\n"
-            "{\n"
-            "  static const char *docstring[] = {\n",
-            data->Name);
-
-    vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
-
-    fprintf(fp,
-            "    NULL\n"
-            "  };\n"
-            "\n"
-            "  return docstring;\n"
-            "}\n"
-            "\n");
-    }
 
   if (name_from_file)
     {
