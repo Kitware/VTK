@@ -261,7 +261,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     vtkCallbackCommand *cbc = vtkCallbackCommand::New();
     cbc->SetClientData(this);
     cbc->SetCallback(dirty_cache);
-    this->mRenWin->AddObserver(vtkCommand::EndEvent, cbc);
+    this->mRenWin->AddObserver(vtkCommand::RenderEvent, cbc);
     cbc->Delete();
     }
 
