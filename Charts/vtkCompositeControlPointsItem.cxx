@@ -88,6 +88,7 @@ void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* fun
     {
     this->OpacityFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ResetBounds();
   this->ComputePoints();
 }
 

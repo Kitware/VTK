@@ -46,7 +46,15 @@ public:
 
   // Description:
   // Bounds of the item, typically the bound of all the control points
+  // except if custom bounds have been set \sa SetUserBounds.
   virtual void GetBounds(double bounds[4]);
+
+  // Description:
+  // Set custom bounds, except if bounds are invalid, bounds will be
+  // automatically computed based on the range of the control points
+  // Invalid bounds by default.
+  vtkSetVector4Macro(UserBounds, double);
+  vtkGetVector4Macro(UserBounds, double)
 
   // Description:
   // Paint the points with a fixed size (cosmetic) which doesn't depend
@@ -103,6 +111,12 @@ public:
   vtkIdType FindPoint(double* pos);
 
   // Description:
+  // Returns true if pos is above the pointId point, false otherwise.
+  // It uses the size of the drawn point. To search what point is under the pos,
+  // use the more efficient \sa FindPoint() instead.
+  bool IsOverPoint(double* pos, vtkIdType pointId);
+
+  // Description:
   // Returns the id of the control point exactly matching pos, -1 if not found.
   vtkIdType GetControlPointId(double* pos);
 
@@ -152,6 +166,12 @@ public:
   // Description:
   // Sets the current point selected.
   void SetCurrentPoint(vtkIdType index);
+
+  // Description:
+  // Recompute the bounds next time they are requested.
+  // You shouldn't have to call it but it is provided for rare cases.
+  void ResetBounds();
+
 protected:
   vtkControlPointsItem();
   virtual ~vtkControlPointsItem();
@@ -167,6 +187,11 @@ protected:
   // Description:
   // Returns true if the supplied x, y coordinate is on a control point.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Clamp the given 2D pos into the bounds of the function.
+  // Return true if the pos has been clamped, false otherwise.
+  bool ClampPos(double pos[2]);
 
   // Description:
   // Internal function that paints a collection of points and optionally
@@ -197,7 +222,8 @@ protected:
   vtkIdType           CurrentPoint;
 
   double              Bounds[4];
-  vtkTimeStamp        BoundsMTime; // Time at which bounds computed
+  double              UserBounds[4];
+
   vtkTransform2D*     Transform;
   float               ScreenPointRadius;
   float               ItemPointRadius2;
@@ -215,6 +241,7 @@ private:
   void operator=(const vtkControlPointsItem &);   // Not implemented.
 
   vtkIdType RemovePointId(vtkIdType pointId);
+  void      ComputeBounds();
 };
 
 #endif
