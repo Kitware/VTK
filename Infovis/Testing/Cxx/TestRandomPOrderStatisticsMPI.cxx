@@ -46,8 +46,6 @@ struct RandomOrderStatisticsArgs
   double absTol;
   int* retVal;
   int ioRank;
-  int argc;
-  char** argv;
 };
 
 // This will be called by all processes
@@ -331,8 +329,6 @@ int main( int argc, char** argv )
   args.absTol = 1.e-6;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.argc = argc;
-  args.argv = argv;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
