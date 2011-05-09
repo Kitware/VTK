@@ -467,7 +467,7 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &fileName, "Name of input data file");
 
-  // Parse input data file name
+  // Parse input data dimensions
   clArgs.AddArgument("--data-dim",
                      vtksys::CommandLineArguments::MULTI_ARGUMENT,
                      &dataDim, "Dimensions of the input data");
