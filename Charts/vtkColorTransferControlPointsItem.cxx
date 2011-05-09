@@ -85,6 +85,7 @@ void vtkColorTransferControlPointsItem::SetColorTransferFunction(vtkColorTransfe
     {
     this->ColorTransferFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ResetBounds();
   this->ComputePoints();
 }
 
