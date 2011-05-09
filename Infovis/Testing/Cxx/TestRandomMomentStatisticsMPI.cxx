@@ -51,8 +51,6 @@ struct RandomSampleStatisticsArgs
   int nVals;
   int* retVal;
   int ioRank;
-  int argc;
-  char** argv;
 };
 
 // This will be called by all processes
@@ -786,8 +784,6 @@ int main( int argc, char** argv )
   args.nVals = 100000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.argc = argc;
-  args.argv = argv;
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomSampleStatistics, &args );
