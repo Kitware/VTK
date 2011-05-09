@@ -38,9 +38,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 
-// For debugging purposes, output results of serial engines ran on each slice of the distributed data set
-#define PRINT_ALL_SERIAL_STATS 0
-
 struct RandomSampleStatisticsArgs
 {
   int nVals;
