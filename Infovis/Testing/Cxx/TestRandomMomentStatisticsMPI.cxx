@@ -45,12 +45,10 @@
 
 #include "vtksys/CommandLineArguments.hxx"
 
-// For debugging purposes, output results of serial engines ran on each slice of the distributed data set
-#define PRINT_ALL_SERIAL_STATS 0 
-
 struct RandomSampleStatisticsArgs
 {
   int nVals;
+  bool descOnly;
   int* retVal;
   int ioRank;
 };
@@ -168,40 +166,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
-#if PRINT_ALL_SERIAL_STATS
-  cout << "\n## Proc "
-       << myRank
-       << " calculated the following primary statistics:\n";
-  for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputPrimary->GetColumnName( i )
-           << "="
-           << outputPrimary->GetValue( r, i ).ToString()
-           << "  ";
-      }
-    cout << "\n";
-    }
-
-  cout << "\n## Proc "
-       << myRank
-       << " calculated the following derived statistics:\n";
-  for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputDerived->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputDerived->GetColumnName( i )
-           << "="
-           << outputDerived->GetValue( r, i ).ToString()
-           << "  ";
-      }
-    cout << "\n";
-    }
-#endif //PRINT_ALL_SERIAL_STATS
-  
   // Collect (local) cardinalities, extrema, and means
   int nRows = outputPrimary->GetNumberOfRows();
   int np = com->GetNumberOfProcesses();
@@ -508,6 +472,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Clean up
   pds->Delete();
 
+  // If only descriptive statistics were required, complete clean up and bail out from here
+  if ( args->descOnly )
+    {
+    inputData->Delete();
+    timer->Delete();
+    return;
+    }
+
   // ************************** Correlative Statistics ************************** 
 
   // Synchronize and start clock
@@ -781,9 +753,10 @@ int main( int argc, char** argv )
     }
 
   // **************************** Parse command line ***************************
-  // Set default cardinality per process
+  // Set default argument values
   int nVals = 100000;
-  
+  bool descOnly = false;
+
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;
   clArgs.Initialize( argc, argv );
@@ -793,6 +766,11 @@ int main( int argc, char** argv )
   clArgs.AddArgument("--n-per-proc",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse whether only descriptive statistics should be tested (for faster testing)
+  clArgs.AddArgument("--descriptive-only",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &descOnly, "Test only descriptive statistics");
 
   // If incorrect arguments were provided, terminate in error.
   if ( ! clArgs.Parse() )
@@ -806,6 +784,7 @@ int main( int argc, char** argv )
   int testValue = 0;
   RandomSampleStatisticsArgs args;
   args.nVals = nVals;
+  args.descOnly = descOnly;
   args.retVal = &testValue;
   args.ioRank = ioRank;
 
