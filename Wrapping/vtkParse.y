@@ -4103,7 +4103,7 @@ const char *vtkParse_DuplicateString(const char *cp, size_t n)
 }
 
 /* Add default constructors if they do not already exist */
-void vtkParse_AddDefaultConstructors(ClassInfo *data)
+void vtkParse_AddDefaultConstructors(ClassInfo *cls)
 {
   FunctionInfo *func;
   ValueInfo *arg;
@@ -4111,16 +4111,16 @@ void vtkParse_AddDefaultConstructors(ClassInfo *data)
   int default_constructor = 1;
   int copy_constructor = 1;
 
-  if (data == NULL || data->Name == NULL)
+  if (cls == NULL || cls->Name == NULL)
     {
     return;
     }
 
-  n = data->NumberOfFunctions;
+  n = cls->NumberOfFunctions;
   for (i = 0; i < n; i++)
     {
-    func = data->Functions[i];
-    if (func->Name && strcmp(func->Name, data->Name) == 0)
+    func = cls->Functions[i];
+    if (func->Name && strcmp(func->Name, cls->Name) == 0)
       {
       default_constructor = 0;
 
@@ -4128,7 +4128,7 @@ void vtkParse_AddDefaultConstructors(ClassInfo *data)
         {
         arg = func->Arguments[0];
         if (arg->Class &&
-            strcmp(arg->Class, data->Name) == 0 &&
+            strcmp(arg->Class, cls->Name) == 0 &&
             (arg->Type & VTK_PARSE_POINTER_MASK) == 0)
           {
           copy_constructor = 0;
@@ -4141,25 +4141,25 @@ void vtkParse_AddDefaultConstructors(ClassInfo *data)
     {
     func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
     vtkParse_InitFunction(func);
-    func->Class = vtkstrdup(data->Name);
-    func->Name = vtkstrdup(data->Name);
-    func->Signature = vtkstrcat(data->Name, "()");
-    vtkParse_AddFunctionToClass(data, func);
+    func->Class = vtkstrdup(cls->Name);
+    func->Name = vtkstrdup(cls->Name);
+    func->Signature = vtkstrcat(cls->Name, "()");
+    vtkParse_AddFunctionToClass(cls, func);
     }
 
   if (copy_constructor)
     {
     func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
     vtkParse_InitFunction(func);
-    func->Class = vtkstrdup(data->Name);
-    func->Name = vtkstrdup(data->Name);
-    func->Signature = vtkstrcat4(data->Name, "(const &", data->Name, ")");
+    func->Class = vtkstrdup(cls->Name);
+    func->Name = vtkstrdup(cls->Name);
+    func->Signature = vtkstrcat4(cls->Name, "(const &", cls->Name, ")");
     arg = (ValueInfo *)malloc(sizeof(ValueInfo));
     vtkParse_InitValue(arg);
     arg->Type = (VTK_PARSE_OBJECT_REF | VTK_PARSE_CONST);
-    arg->Class = vtkstrdup(data->Name);
+    arg->Class = vtkstrdup(cls->Name);
     vtkParse_AddArgumentToFunction(func, arg);
-    vtkParse_AddFunctionToClass(data, func);
+    vtkParse_AddFunctionToClass(cls, func);
     }
 }
 
