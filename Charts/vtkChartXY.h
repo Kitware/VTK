@@ -230,12 +230,8 @@ protected:
   bool PlotTransformValid;
 
   // Description:
-  // The origin of the box when selecting a region of the chart.
-  float BoxOrigin[2];
-
-  // Description:
-  // The width and height of the selection box.
-  float BoxGeometry[2];
+  // The box created as the mouse is dragged around the screen.
+  vtkRectf MouseBox;
 
   // Description:
   // Should the box be drawn (could be selection, zoom etc).
@@ -310,6 +306,7 @@ struct vtkChartPlotData
   vtkStdString SeriesName;
   vtkVector2f Position;
   vtkVector2i ScreenPosition;
+  int Index;
 };
 
 #endif //__vtkChartXY_h
