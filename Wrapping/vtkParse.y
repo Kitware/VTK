@@ -3014,6 +3014,9 @@ void reject_class(const char *classname, int is_struct_or_union)
 /* reached the end of a class definition */
 void end_class()
 {
+  /* add default constructors */
+  vtkParse_AddDefaultConstructors(currentClass);
+
   popClass();
 }
 
@@ -4095,6 +4098,67 @@ const char *vtkParse_DuplicateString(const char *cp, size_t n)
   res[n] = '\0';
 
   return res;
+}
+
+/* Add default constructors if they do not already exist */
+void vtkParse_AddDefaultConstructors(ClassInfo *data)
+{
+  FunctionInfo *func;
+  ValueInfo *arg;
+  int i, n;
+  int default_constructor = 1;
+  int copy_constructor = 1;
+
+  if (data == NULL || data->Name == NULL)
+    {
+    return;
+    }
+
+  n = data->NumberOfFunctions;
+  for (i = 0; i < n; i++)
+    {
+    func = data->Functions[i];
+    if (func->Name && strcmp(func->Name, data->Name) == 0)
+      {
+      default_constructor = 0;
+
+      if (func->NumberOfArguments == 1)
+        {
+        arg = func->Arguments[0];
+        if (arg->Class &&
+            strcmp(arg->Class, data->Name) == 0 &&
+            (arg->Type & VTK_PARSE_POINTER_MASK) == 0)
+          {
+          copy_constructor = 0;
+          }
+        }
+      }
+    }
+
+  if (default_constructor)
+    {
+    func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+    vtkParse_InitFunction(func);
+    func->Class = vtkstrdup(data->Name);
+    func->Name = vtkstrdup(data->Name);
+    func->Signature = vtkstrcat(data->Name, "()");
+    vtkParse_AddFunctionToClass(data, func);
+    }
+
+  if (copy_constructor)
+    {
+    func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+    vtkParse_InitFunction(func);
+    func->Class = vtkstrdup(data->Name);
+    func->Name = vtkstrdup(data->Name);
+    func->Signature = vtkstrcat4(data->Name, "(const &", data->Name, ")");
+    arg = (ValueInfo *)malloc(sizeof(ValueInfo));
+    vtkParse_InitValue(arg);
+    arg->Type = (VTK_PARSE_OBJECT_REF | VTK_PARSE_CONST);
+    arg->Class = vtkstrdup(data->Name);
+    vtkParse_AddArgumentToFunction(func, arg);
+    vtkParse_AddFunctionToClass(data, func);
+    }
 }
 
 /* Expand a typedef within a type declaration. */
