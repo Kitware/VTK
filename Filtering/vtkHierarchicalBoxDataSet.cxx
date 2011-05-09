@@ -58,7 +58,7 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
   this->ScalarRange[0]    = VTK_DOUBLE_MAX;
   this->ScalarRange[1]    = VTK_DOUBLE_MIN;
   this->PadCellVisibility = false;
-  this->origin[0] = this->origin[1] = this->origin[3] = 0.0;
+  this->origin[0] = this->origin[1] = this->origin[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------
