@@ -39,7 +39,6 @@
 
 #include "vtkFastNumericConversion.h"
 #include "vtkObjectFactory.h"
-#include "vtkTimerLog.h"
 
 vtkStandardNewMacro(vtkFastNumericConversion);
 
