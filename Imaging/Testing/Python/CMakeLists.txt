@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ContinuousClose2D
         IdealHighPass
         LaplacianEdgeEnhance
+        MultipleUpdateExtents
         #reconstructSurface -- scanf
         resampledTexture
         ResliceColorWrap

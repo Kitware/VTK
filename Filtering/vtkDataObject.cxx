@@ -193,6 +193,16 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
          << updateExtent[3] << ", " << updateExtent[4] << ", "
          << updateExtent[5] << endl;
       }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::COMBINED_UPDATE_EXTENT()))
+      {
+      int combinedExtent[6];
+      pInfo->Get(vtkStreamingDemandDrivenPipeline::COMBINED_UPDATE_EXTENT(),
+                 combinedExtent);
+      os << indent << "CombinedUpdateExtent: " << combinedExtent[0] << ", "
+         << combinedExtent[1] << ", " << combinedExtent[2] << ", "
+         << combinedExtent[3] << ", " << combinedExtent[4] << ", "
+         << combinedExtent[5] << endl;
+      }
     if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
       {
       os << indent << "Update Number Of Pieces: "
