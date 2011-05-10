@@ -19,7 +19,7 @@
 #include <vtkImageAppendComponents.h>
 #include <vtkSmartPointer.h>
 
-int TestUpdateExtentReset(int argc, char * argv [] )
+int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
 {
   vtkSmartPointer<vtkImageData> img = vtkSmartPointer<vtkImageData>::New();
   img->SetDimensions(100, 100, 100);
