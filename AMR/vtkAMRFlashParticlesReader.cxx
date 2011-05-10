@@ -46,7 +46,7 @@ void vtkAMRFlashParticlesReader::ReadMetaData()
 //------------------------------------------------------------------------------
 vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles( const int blkidx )
 {
-  vtkPolytData* particles = vtkPolyData::New();
+  vtkPolyData* particles = vtkPolyData::New();
   // TODO: implement this
   return( particles );
 }
