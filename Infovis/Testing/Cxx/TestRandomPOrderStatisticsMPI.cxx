@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*
- * Copyright 2009 Sandia Corporation.
+ * Copyright 2011 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
  * U.S. Government. Redistribution and use in source and binary forms, with
@@ -46,8 +46,6 @@ struct RandomOrderStatisticsArgs
   double absTol;
   int* retVal;
   int ioRank;
-  int argc;
-  char** argv;
 };
 
 // This will be called by all processes
@@ -331,8 +329,6 @@ int main( int argc, char** argv )
   args.absTol = 1.e-6;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.argc = argc;
-  args.argv = argv;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();

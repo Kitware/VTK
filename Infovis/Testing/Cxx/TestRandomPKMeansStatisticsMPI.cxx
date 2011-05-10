@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestParallelKMeansStatisticsMPI.cxx
+  Module:    TestRandomPKMeansStatisticsMPI.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*
- * Copyright 2008 Sandia Corporation.
+ * Copyright 2011 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
  * U.S. Government. Redistribution and use in source and binary forms, with
@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Janine Bennett, Philippe Pebay, and David Thompson from Sandia National Laboratories 
+// Thanks to Janine Bennett, Philippe Pebay, and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
 #include <mpi.h>
@@ -38,17 +38,12 @@
 #include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 
-// For debugging purposes, output results of serial engines ran on each slice of the distributed data set
-#define PRINT_ALL_SERIAL_STATS 0 
-
 struct RandomSampleStatisticsArgs
 {
-  int nVals; 
+  int nVals;
   int nProcs;
   int* retVal;
   int ioRank;
-  int argc;
-  char** argv;
 };
 
 // This will be called by all processes
@@ -72,9 +67,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray;
-  vtkStdString columnNames[] = { "Normal 0", 
+  vtkStdString columnNames[] = { "Normal 0",
                                  "Normal 1",
-                                 "Normal 2", 
+                                 "Normal 2",
                                  "Normal 3",
                                  "Normal 4",
                                  "Normal 5"};
@@ -155,7 +150,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   delete [] clusterCoords;
 
-  // ************************** KMeans Statistics ************************** 
+  // ************************** KMeans Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
@@ -238,7 +233,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 //----------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-  // **************************** MPI Initialization *************************** 
+  // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize( &argc, &argv );
 
@@ -248,16 +243,16 @@ int main( int argc, char** argv )
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    } 
+    }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
-  // ************************** Find an I/O node ******************************** 
+  // ************************** Find an I/O node ********************************
   int* ioPtr;
   int ioRank;
   int flag;
 
-  MPI_Attr_get( MPI_COMM_WORLD, 
+  MPI_Attr_get( MPI_COMM_WORLD,
                 MPI_IO,
                 &ioPtr,
                 &flag );
@@ -272,10 +267,10 @@ int main( int argc, char** argv )
     // This is the only case when a testValue of -1 will be returned
     controller->Finalize();
     controller->Delete();
-    
+
     return -1;
     }
-  else 
+  else
     {
     if ( *ioPtr == MPI_ANY_SOURCE )
       {
@@ -291,15 +286,15 @@ int main( int argc, char** argv )
                       vtkCommunicator::MIN_OP );
       }
     }
-  
-  // ************************** Initialize test ********************************* 
+
+  // ************************** Initialize test *********************************
   if ( com->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Process "
          << ioRank
          << " will be the I/O node.\n";
     }
-      
+
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
   if ( controller->GetLocalProcessId() == ioRank )
@@ -316,8 +311,6 @@ int main( int argc, char** argv )
   args.nProcs = numProcs;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.argc = argc;
-  args.argv = argv;
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomSampleStatistics, &args );
@@ -331,6 +324,6 @@ int main( int argc, char** argv )
 
   controller->Finalize();
   controller->Delete();
-  
+
   return testValue;
 }

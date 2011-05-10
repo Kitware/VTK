@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay, David Thompson and Janine Bennett from Sandia National Laboratories 
+// Thanks to Philippe Pebay, David Thompson and Janine Bennett from Sandia National Laboratories
 // for implementing this test.
 
 #include <mpi.h>
@@ -76,11 +76,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray[4];
-  vtkStdString columnNames[] = { "Standard Uniform 0", 
+  vtkStdString columnNames[] = { "Standard Uniform 0",
                                  "Standard Uniform 1",
                                  "Standard Normal 0",
                                  "Standard Normal 1" };
-  
+
   // Standard uniform samples
   for ( int c = 0; c < nUniform; ++ c )
     {
@@ -94,7 +94,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       x = vtkMath::Random();
       doubleArray[c]->InsertNextValue( x );
       }
-    
+
     inputData->AddColumn( doubleArray[c] );
     doubleArray[c]->Delete();
     }
@@ -112,14 +112,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       x = vtkMath::Gaussian();
       doubleArray[c]->InsertNextValue( x );
       }
-    
+
     inputData->AddColumn( doubleArray[c] );
     doubleArray[c]->Delete();
     }
 
   // "68-95-99.7 rule"
   // Actually testing for 1, ..., numRuleVa standard deviations
-  int numRuleVal = 6; 
+  int numRuleVal = 6;
 
   // Reference values
   double sigmaRuleVal[] = { 68.2689492137,
@@ -127,7 +127,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                             99.7300203937,
                             99.9936657516,
                             99.9999426697,
-                            99.9999998027 }; 
+                            99.9999998027 };
 
   // Tolerances
   double sigmaRuleTol[] = { 1.,
@@ -137,7 +137,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                             .01,
                             .005 };
 
-  // ************************** Descriptive Statistics ************************** 
+  // ************************** Descriptive Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
@@ -188,7 +188,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Collect -max instead of max so a single reduce op. (minimum) can process both extrema at a time
     extrema_l[2 * r + 1] = - outputPrimary->GetValueByName( r, "Maximum" ).ToDouble();
     }
-  
+
   // Reduce all extremal values, and gather all cardinalities and means, on process calcProc
   int calcProc = np - 1;
 
@@ -207,18 +207,18 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Have process calcProc calculate global cardinality and mean, and send all results to I/O process
   if ( myRank == calcProc )
     {
-    if ( ! com->Send( extrema_g, 
-                      n2Rows, 
-                      args->ioRank, 
+    if ( ! com->Send( extrema_g,
+                      n2Rows,
+                      args->ioRank,
                       65 ) )
       {
       vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
       *(args->retVal) = 1;
       }
 
-    if ( ! com->Send( cardsAndMeans_g, 
-                      n2Rows, 
-                      args->ioRank, 
+    if ( ! com->Send( cardsAndMeans_g,
+                      n2Rows,
+                      args->ioRank,
                       66 ) )
       {
       vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
@@ -229,18 +229,18 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Have I/O process receive results from process calcProc
   if ( myRank == args->ioRank )
     {
-    if ( ! com->Receive( extrema_g, 
-                         n2Rows, 
-                         calcProc, 
+    if ( ! com->Receive( extrema_g,
+                         n2Rows,
+                         calcProc,
                          65 ) )
       {
       vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
       *(args->retVal) = 1;
       }
 
-    if ( ! com->Receive( cardsAndMeans_g, 
-                         n2Rows, 
-                         calcProc, 
+    if ( ! com->Receive( cardsAndMeans_g,
+                         n2Rows,
+                         calcProc,
                          66 ) )
       {
       vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
@@ -287,7 +287,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
            << "\n";
       }
     }
-  
+
   // Clean up
   delete [] cardsAndMeans_l;
   delete [] cardsAndMeans_g;
@@ -302,7 +302,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Synchronize and start clock
   com->Barrier();
   timer->StartTimer();
-  
+
   // Instantiate a parallel descriptive statistics engine and set its input data
   vtkPDescriptiveStatistics* pds = vtkPDescriptiveStatistics::New();
   pds->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
@@ -335,7 +335,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
          << "   Total sample size: "
-         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()   
+         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()
          << " \n"
          << "   Wall time: "
          << timer->GetElapsedTime()
@@ -354,7 +354,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
         }
       cout << "\n";
       }
-    
+
     cout << "   Calculated the following derived statistics:\n";
     for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
       {
@@ -369,13 +369,13 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       cout << "\n";
       }
     }
-  
+
   // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
     }
-  
+
   vtkDoubleArray* relDev[2];
   relDev[0] = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "d(Standard Normal 0)" ) );
@@ -435,8 +435,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Sum all local counters
     int* outsideStdv_g = new int[numRuleVal];
-    com->AllReduce( outsideStdv_l, 
-                    outsideStdv_g, 
+    com->AllReduce( outsideStdv_l,
+                    outsideStdv_g,
                     numRuleVal,
                     vtkCommunicator::SUM_OP );
 
@@ -450,7 +450,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
         {
         double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
 
-        cout << "      " 
+        cout << "      "
              << testVal
              << "\\% within "
              << i + 1
@@ -481,7 +481,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     return;
     }
 
-  // ************************** Correlative Statistics ************************** 
+  // ************************** Correlative Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
@@ -515,7 +515,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
          << "   Total sample size: "
-         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()   
+         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()
          << " \n"
          << "   Wall time: "
          << timer->GetElapsedTime()
@@ -534,7 +534,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
         }
       cout << "\n";
       }
-    
+
     cout << "   Calculated the following derived statistics:\n";
     for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
       {
@@ -549,11 +549,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       cout << "\n";
       }
     }
-  
+
   // Clean up
   pcs->Delete();
 
-  // ************************** Multi-Correlative Statistics ************************** 
+  // ************************** Multi-Correlative Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
@@ -614,7 +614,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Clean up
   pmcs->Delete();
 
-  // ************************** PCA Statistics ************************** 
+  // ************************** PCA Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
@@ -681,7 +681,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 //----------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-  // **************************** MPI Initialization *************************** 
+  // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize( &argc, &argv );
 
@@ -691,16 +691,16 @@ int main( int argc, char** argv )
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    } 
+    }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
-  // ************************** Find an I/O node ******************************** 
+  // ************************** Find an I/O node ********************************
   int* ioPtr;
   int ioRank;
   int flag;
 
-  MPI_Attr_get( MPI_COMM_WORLD, 
+  MPI_Attr_get( MPI_COMM_WORLD,
                 MPI_IO,
                 &ioPtr,
                 &flag );
@@ -715,10 +715,10 @@ int main( int argc, char** argv )
     // This is the only case when a testValue of -1 will be returned
     controller->Finalize();
     controller->Delete();
-    
+
     return -1;
     }
-  else 
+  else
     {
     if ( *ioPtr == MPI_ANY_SOURCE )
       {
@@ -741,7 +741,7 @@ int main( int argc, char** argv )
          << ioRank
          << " will be the I/O node.\n";
     }
-      
+
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
   if ( controller->GetLocalProcessId() == ioRank )
@@ -778,7 +778,7 @@ int main( int argc, char** argv )
     return 1;
     }
 
-  // ************************** Initialize test ********************************* 
+  // ************************** Initialize test *********************************
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
@@ -799,6 +799,6 @@ int main( int argc, char** argv )
 
   controller->Finalize();
   controller->Delete();
-  
+
   return testValue;
 }
