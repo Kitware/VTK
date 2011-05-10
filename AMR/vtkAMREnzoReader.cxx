@@ -43,7 +43,7 @@
 #include <vtkstd/string>
 #include <cassert>
 
-#include "vtkAMREnzoReaderInternal.hpp"
+#include "vtkAMREnzoReaderInternal.h"
 
 
 vtkStandardNewMacro(vtkAMREnzoReader);
@@ -51,7 +51,7 @@ vtkStandardNewMacro(vtkAMREnzoReader);
 //-----------------------------------------------------------------------------
 vtkAMREnzoReader::vtkAMREnzoReader()
 {
-  this->Internal = new vtkEnzoReaderInternal( this );
+  this->Internal = new vtkEnzoReaderInternal();
   this->Initialize();
 }
 
