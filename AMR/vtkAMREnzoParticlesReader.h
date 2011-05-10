@@ -26,6 +26,7 @@
 
 #include "vtkAMRBaseParticlesReader.h"
 
+
 class vtkPolyData;
 class vtkEnzoReaderInternal;
 
@@ -40,6 +41,11 @@ class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
   protected:
     vtkAMREnzoParticlesReader();
     virtual ~vtkAMREnzoParticlesReader();
+
+    // Description:
+    // Read the particles from the given particles file for the block
+    // corresponding to the given block index.
+    vtkPolyData* GetParticles( const char* file, const int blockIdx );
 
     // Description:
     // See vtkAMRBaseParticlesReader::ReadMetaData()
