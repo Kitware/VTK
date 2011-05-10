@@ -52,7 +52,7 @@ class VTK_AMR_EXPORT vtkAMRBaseParticlesReader :
       vtkGetMacro(FilterLocation,int);
       vtkBooleanMacro(FilterLocation,int);
 
-      void SetFileName( const char *fileName );
+      virtual void SetFileName( const char *fileName );
       vtkGetStringMacro(FileName);
 
       // Description:
