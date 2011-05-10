@@ -43,7 +43,7 @@ void vtkAMRBaseParticlesReader::PrintSelf( std::ostream &os, vtkIndent indent )
 int vtkAMRBaseParticlesReader::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
-  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSEt" );
+  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
   return 1;
 }
 
