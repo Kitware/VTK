@@ -3305,13 +3305,12 @@ static void vtkWrapPython_RichCompareProtocol(
 static void vtkWrapPython_SequenceProtocol(
   FILE *fp, ClassInfo *data, HierarchyInfo *hinfo, SpecialTypeInfo *info)
 {
-  int has_default_constructor = 0;
   int i;
   FunctionInfo *func;
   FunctionInfo *getItemFunc = 0;
   FunctionInfo *setItemFunc = 0;
 
-  /* look for [] operator and default constructor */
+  /* look for [] operator */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     func = data->Functions[i];
@@ -3331,11 +3330,6 @@ static void vtkWrapPython_SequenceProtocol(
           getItemFunc = func;
           }
         }
-      }
-    if (func->Name && vtkWrap_IsConstructor(data, func) &&
-        func->NumberOfArguments == 0)
-      {
-      has_default_constructor = 1;
       }
     }
 
