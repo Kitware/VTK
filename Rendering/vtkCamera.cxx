@@ -104,7 +104,7 @@ vtkCamera::vtkCamera()
   this->UserViewTransformCallbackCommand = NULL;
 
   // Head tracking
-  this->HeadTracked = 0;
+  this->HeadTracked = 1;
   this->HeadPose = vtkMatrix4x4::New();
 
   // HeadTracked Projection parameters
@@ -1039,10 +1039,42 @@ double nearz, double farz)
     {
     if ( this->HeadTracked )
       {
-      this->ProjectionTransform->Frustum( this->AsymLeft,  this->AsymRight,
-                                          this->AsymBottom, this->AsymTop,
-                                          0.01, 10000.0 );
-      // this->ClippingRange[0],
+//      this->ProjectionTransform->Frustum( this->AsymLeft,  this->AsymRight,
+//                                          this->AsymBottom, this->AsymTop,
+//                                          0.01, 10000.0 );
+//      // this->ClippingRange[0],
+
+      double hPoint[2] = {this->AsymRight, this->AsymTop};
+      double lPoint[2] = {this->AsymLeft, this->AsymBottom};
+      double nearPlane = 0.01;
+      double farPlane  = 10000.0;
+      double width  = hPoint[0]  - lPoint[0];
+      double height = hPoint[1]  - lPoint[1];
+      double depth  = farPlane - nearPlane;
+
+      vtkMatrix4x4* deeringMatrix = vtkMatrix4x4::New();
+      deeringMatrix->SetElement(0, 0, (2 * this->EyePos[2])/ width );
+      deeringMatrix->SetElement(0, 1, 0.0);
+      deeringMatrix->SetElement(0, 2, (hPoint[0] + lPoint[0] - (2.0 * this->EyePos[0])) / width);
+      deeringMatrix->SetElement(0, 3, (-this->EyePos[2] * (hPoint[0] + lPoint[0]) / width));
+
+      deeringMatrix->SetElement(1, 0, 0.0 );
+      deeringMatrix->SetElement(1, 1, (2 * this->EyePos[2])/ height);
+      deeringMatrix->SetElement(1, 2, (hPoint[1] + lPoint[1] - (2.0 * this->EyePos[1]))/height);
+      deeringMatrix->SetElement(1, 3, (-this->EyePos[2] * (hPoint[1] + lPoint[1]) / height));
+
+      deeringMatrix->SetElement(2, 0, 0.0);
+      deeringMatrix->SetElement(2, 1, 0.0);
+      deeringMatrix->SetElement(2, 2, (farPlane + nearPlane - (2.0 * this->EyePos[2]))/depth);
+      deeringMatrix->SetElement(2, 3, (farPlane - this->EyePos[2] - (farPlane * (farPlane + nearPlane - 2.0 * this->EyePos[2]) / depth )));
+
+      deeringMatrix->SetElement(3, 0, 0.0);
+      deeringMatrix->SetElement(3, 1, 0.0);
+      deeringMatrix->SetElement(3, 2, -1.0);
+      deeringMatrix->SetElement(3, 3, this->EyePos[2]);
+
+      this->ProjectionTransform->SetMatrix(deeringMatrix);
+
       // this->ClippingRange[1] );
       }
     else
