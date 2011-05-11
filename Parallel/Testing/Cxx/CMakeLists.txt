@@ -399,13 +399,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V ${VTK_LARGE_DATA_ROOT}/Baseline/Parallel/PSLACReaderQuadratic.png
           ${VTK_MPI_POSTFLAGS})
-        ADD_TEST(TestWindBladeReader
-          ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 1 ${VTK_MPI_PREFLAGS}
-          ${CXX_TEST_PATH}/${KIT}CxxTests
-          TestWindBladeReader -D ${VTK_LARGE_DATA_ROOT}
-          -T ${VTK_BINARY_DIR}/Testing/Temporary
-          -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestWindBladeReader.pn
-          g${VTK_MPI_POSTFLAGS})
       ENDIF (VTK_MPIRUN_EXE)
     ENDIF (VTK_LARGE_DATA_ROOT)
   ENDIF (VTK_USE_MPI)
