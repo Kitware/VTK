@@ -363,7 +363,7 @@ void vtkChartXY::CalculateBarPlots()
           {
           double x0 = x->GetTuple1(0);
           double x1 = x->GetTuple1(1);
-          float width = static_cast<float>((x1 - x0) * this->BarWidthFraction);
+          float width = static_cast<float>(fabs(x1 - x0) * this->BarWidthFraction);
           barWidth = width / bars.size();
           }
         }
