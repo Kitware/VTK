@@ -28,7 +28,13 @@ Changes by Phil Thompson, Mar. 2008
 """
 
 
-from PyQt4 import QtCore, QtGui
+try:
+    from PyQt4 import QtCore, QtGui
+except ImportError:
+    try:
+        from PySide import QtCore, QtGui
+    except ImportError as err:
+        raise ImportError("Cannot load either PyQt or PySide")
 import vtk
 
 
