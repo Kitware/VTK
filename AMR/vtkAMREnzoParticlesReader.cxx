@@ -15,6 +15,7 @@
 #include "vtkAMREnzoParticlesReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkCellArray.h"
 
 #include <cassert>
 #include <vtkstd/vector>
@@ -226,7 +227,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 
   int TotalNumberOfParticles = xcoords.size();
   positions->SetNumberOfPoints( TotalNumberOfParticles );
-  int NumberOfParticlesLoaded = 0;
+  vtkIdType NumberOfParticlesLoaded = 0;
   for( int i=0; i < TotalNumberOfParticles; ++i )
     {
       if( (i%this->Frequency) == 0  )
@@ -247,6 +248,17 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   positions->Squeeze();
   particles->SetPoints( positions );
   positions->Delete();
+
+  // Create CellArray consisting of a single polyvertex cell
+  vtkCellArray *polyVertex     = vtkCellArray::New();
+
+  polyVertex->InsertNextCell( NumberOfParticlesLoaded  );
+  for( vtkIdType idx=0; idx < NumberOfParticlesLoaded; ++idx )
+    polyVertex->InsertCellPoint( idx );
+
+  particles->SetVerts( polyVertex );
+  polyVertex->Delete();
+
   return( particles );
 }
 
