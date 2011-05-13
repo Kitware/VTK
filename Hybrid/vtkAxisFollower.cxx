@@ -551,32 +551,6 @@ int vtkAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxisFollower::ReleaseGraphicsResources(vtkWindow *w)
-{
-  this->Device->ReleaseGraphicsResources(w);
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Does this prop have some translucent polygonal geometry?
-int vtkAxisFollower::HasTranslucentPolygonalGeometry()
-{
-  if ( ! this->Mapper )
-    {
-    return 0;
-    }
-  // make sure we have a property
-  if (!this->Property)
-    {
-    // force creation of a property
-    this->GetProperty();
-    }
-
-  // is this actor opaque ?
-  return !this->GetIsOpaque();
-}
-
-//-----------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.
 void vtkAxisFollower::Render(vtkRenderer *ren)
