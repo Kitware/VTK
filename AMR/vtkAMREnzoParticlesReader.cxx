@@ -16,9 +16,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
+#include "vtkDataArraySelection.h"
+#include "vtkPointData.h"
 
 #include <cassert>
 #include <vtkstd/vector>
+
+#include "vtksys/SystemTools.hxx"
 
 #define H5_USE_16_API
 #include <hdf5.h>      // for the HDF data loading engine
@@ -59,7 +63,8 @@ bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
           if( (sscanf( blckName, "Grid%d", &blckIndx )==1) &&
               (blckIndx  ==  blockIdx) )
             {
-              rootIndx = H5Gopen( rootIndx, blckName ); // located the target block
+              // located the target block
+              rootIndx = H5Gopen( rootIndx, blckName );
               if( rootIndx < 0 )
                 {
                   vtkGenericWarningMacro( "Could not locate target block!\n" );
@@ -177,9 +182,12 @@ void vtkAMREnzoParticlesReader::ReadMetaData()
        GetEnzoDirectory(this->Internal->MajorFileName.c_str());
 
   this->Internal->ReadMetaData();
+  this->Internal->CheckAttributeNames();
 
   this->NumberOfBlocks = this->Internal->NumberOfBlocks;
   this->Initialized    = true;
+
+  this->SetupParticleDataSelections();
 }
 
 //------------------------------------------------------------------------------
@@ -216,6 +224,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   vtkstd::vector< double > ycoords;
   vtkstd::vector< double > zcoords;
 
+  // TODO: should we handle 2-D particle datasets?
   GetDoubleArrayByName( rootIndx, "particle_position_x", xcoords );
   GetDoubleArrayByName( rootIndx, "particle_position_y", ycoords );
   GetDoubleArrayByName( rootIndx, "particle_position_z", zcoords );
@@ -227,6 +236,10 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 
   int TotalNumberOfParticles = xcoords.size();
   positions->SetNumberOfPoints( TotalNumberOfParticles );
+
+  vtkIdList *ids = vtkIdList::New();
+  ids->SetNumberOfIds( TotalNumberOfParticles );
+
   vtkIdType NumberOfParticlesLoaded = 0;
   for( int i=0; i < TotalNumberOfParticles; ++i )
     {
@@ -235,6 +248,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
           if( this->CheckLocation( xcoords[i], ycoords[i],zcoords[i] ) )
             {
               int pidx = NumberOfParticlesLoaded;
+              ids->InsertId( pidx, i );
               positions->SetPoint( pidx, xcoords[i],ycoords[i],zcoords[i] );
               ++NumberOfParticlesLoaded;
             } // END if within requested region
@@ -244,8 +258,12 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   H5Gclose( rootIndx );
   H5Fclose( fileIndx );
 
+  ids->SetNumberOfIds( NumberOfParticlesLoaded );
+  ids->Squeeze();
+
   positions->SetNumberOfPoints( NumberOfParticlesLoaded );
   positions->Squeeze();
+
   particles->SetPoints( positions );
   positions->Delete();
 
@@ -259,7 +277,73 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   particles->SetVerts( polyVertex );
   polyVertex->Delete();
 
+
+  int numArrays = this->ParticleDataArraySelection->GetNumberOfArrays();
+  for( int i=0; i < numArrays; ++i )
+    {
+      const char* name = this->ParticleDataArraySelection->GetArrayName( i );
+      if( this->ParticleDataArraySelection->ArrayIsEnabled( name ) )
+        {
+          // Note: 0-based indexing is used for loading particles
+          this->Internal->LoadAttribute( name, blockIdx );
+          assert( "pre: particle attribute size mismatch" &&
+             (this->Internal->DataArray->GetNumberOfTuples()==
+              TotalNumberOfParticles) );
+
+          vtkDataArray *array = this->Internal->DataArray->NewInstance();
+          array->SetName(this->Internal->DataArray->GetName( )  );
+          array->SetNumberOfTuples( NumberOfParticlesLoaded );
+          array->SetNumberOfComponents(
+              this->Internal->DataArray->GetNumberOfComponents() );
+
+          vtkIdType numIds = ids->GetNumberOfIds();
+          for( vtkIdType pidx=0; pidx < numIds; ++pidx )
+            {
+              vtkIdType particleIdx = ids->GetId( pidx );
+              int numComponents = array->GetNumberOfComponents();
+              for( int k=0; k < numComponents; ++k )
+                {
+                  array->SetComponent( pidx, k,
+                      this->Internal->DataArray->GetComponent(
+                          particleIdx,k ) );
+                } // END for all components
+            } // END for all ids of loaded particles
+
+          pdata->AddArray( array );
+          array->Delete();
+
+        } // END if the array is supposed to be loaded
+
+    } // END for all particle arrays
+
+  ids->Delete();
   return( particles );
+}
+
+//------------------------------------------------------------------------------
+void vtkAMREnzoParticlesReader::SetupParticleDataSelections()
+{
+  assert( "pre: Intenal reader is NULL" && (this->Internal != NULL) );
+
+  unsigned int N = this->Internal->ParticleAttributeNames.size();
+  for( unsigned int i=0; i < N; ++i )
+    {
+
+      bool isParticleAttribute =
+       vtksys::SystemTools::StringStartsWith(
+         this->Internal->ParticleAttributeNames[ i ].c_str( ),
+          "particle_" );
+
+      if( isParticleAttribute )
+        {
+          this->ParticleDataArraySelection->AddArray(
+              this->Internal->ParticleAttributeNames[ i ].c_str() );
+        }
+
+
+    } // END for all particles attributes
+
+  this->InitializeParticleDataSelections();
 }
 
 //------------------------------------------------------------------------------

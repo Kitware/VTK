@@ -52,6 +52,11 @@ class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
     void ReadMetaData();
 
     // Description:
+    // See vtkAMRBaseParticlesReader::SetupParticleDataSelections
+    void SetupParticleDataSelections();
+
+
+    // Description:
     // Reads the particles.
     vtkPolyData* ReadParticles( const int blkidx );
 
