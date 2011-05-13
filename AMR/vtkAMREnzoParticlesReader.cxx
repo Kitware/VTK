@@ -53,6 +53,11 @@ bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
           int    blckIndx;
           char   blckName[65];
           H5Gget_objname_by_idx( rootIndx, objIndex, blckName, 64 );
+
+          std::cout << "blockIdx=" << blockIdx << " ";
+          std::cout << "Checking block: " << blckName << std::endl;
+          std::cout.flush();
+
           // Is this the target block?
           if( (sscanf( blckName, "Grid%d", &blckIndx )==1) &&
               (blckIndx  ==  blockIdx) )
@@ -61,12 +66,11 @@ bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
               if( rootIndx < 0 )
                 {
                   vtkGenericWarningMacro( "Could not locate target block!\n" );
-                  return NULL;
                 }
               found = true;
               break;
             }
-        }
+        } // END if group
 
     } // END for all objects
 
@@ -144,7 +148,39 @@ void vtkAMREnzoParticlesReader::ReadMetaData()
     return;
 
   this->Internal->SetFileName( this->FileName );
+  vtkstd::string  tempName( this->FileName );
+  vtkstd::string  bExtName( ".boundary" );
+  vtkstd::string  hExtName( ".hierarchy" );
+
+  if( tempName.length() > hExtName.length() &&
+       tempName.substr(tempName.length()-hExtName.length() )== hExtName )
+     {
+       this->Internal->MajorFileName =
+           tempName.substr( 0, tempName.length() - hExtName.length() );
+       this->Internal->HierarchyFileName = tempName;
+       this->Internal->BoundaryFileName  =
+           this->Internal->MajorFileName + bExtName;
+     }
+  else if( tempName.length() > bExtName.length() &&
+      tempName.substr( tempName.length() - bExtName.length() )==bExtName )
+    {
+      this->Internal->MajorFileName =
+         tempName.substr( 0, tempName.length() - bExtName.length() );
+      this->Internal->BoundaryFileName  = tempName;
+      this->Internal->HierarchyFileName =
+         this->Internal->MajorFileName + hExtName;
+    }
+  else
+   {
+     vtkErrorMacro( "Enzo file has invalid extension!");
+     return;
+   }
+
+   this->Internal->DirectoryName =
+       GetEnzoDirectory(this->Internal->MajorFileName.c_str());
+
   this->Internal->ReadMetaData();
+
   this->NumberOfBlocks = this->Internal->NumberOfBlocks;
   this->Initialized    = true;
 }
@@ -166,7 +202,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
     }
 
   hid_t rootIndx;
-  if( ! FindBlockIndex( fileIndx, blockIdx,rootIndx ) )
+  if( ! FindBlockIndex( fileIndx, blockIdx+1,rootIndx ) )
     {
       vtkErrorMacro( "Could not locate target block!" );
       return NULL;
