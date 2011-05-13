@@ -28,6 +28,8 @@ class vtkInformationVector;
 class vtkIndent;
 class vtkMultiProcessController;
 class vtkPolyData;
+class vtkDataArraySelection;
+class vtkCallbackCommand;
 
 class VTK_AMR_EXPORT vtkAMRBaseParticlesReader :
   public vtkMultiBlockDataSetAlgorithm
@@ -51,6 +53,27 @@ class VTK_AMR_EXPORT vtkAMRBaseParticlesReader :
       vtkSetMacro(FilterLocation,int);
       vtkGetMacro(FilterLocation,int);
       vtkBooleanMacro(FilterLocation,int);
+
+
+      // Description:
+      // Get the data array selection tables used to configure which data
+      // arrays are loaded by the reader.
+      vtkGetObjectMacro(ParticleDataArraySelection,vtkDataArraySelection);
+
+      // Description:
+      // Get the number of particles arrays available in the input.
+      int GetNumberOfParticleArrays();
+
+      // Description:
+      // Get the particle array name of the array associated with the given
+      // index.
+      const char* GetParticleArrayName( int index );
+
+      // Description:
+      // Get/Set whether the particle array status.
+      int GetParticleArrayStatus( const char* name );
+      void SetParticleArrayStatus( const char* name, int status );
+
 
       virtual void SetFileName( const char *fileName );
       vtkGetStringMacro(FileName);
@@ -120,7 +143,29 @@ class VTK_AMR_EXPORT vtkAMRBaseParticlesReader :
     // NOTE: must be called in the constructor of concrete classes.
     void Initialize();
 
-    // Description
+    // Description:
+    // Standard Array selection variables & methods
+    vtkDataArraySelection *ParticleDataArraySelection;
+    vtkCallbackCommand *SelectionObserver;
+
+    // Description:
+    // Initializes the ParticleDataArraySelection object. This method
+    // only executes for an intial request in which case all arrays are
+    // deselected.
+    void InitializeParticleDataSelections();
+
+    // Description:
+    // Sets up the ParticleDataArraySelection. Implemented
+    // by concrete classes.
+    virtual void SetupParticleDataSelections() = 0;
+
+    // Description:
+    // Call-back registered with the SelectionObserver for selecting/deselecting
+    // particles
+    static void SelectionModifiedCallback(
+     vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
+
+    // Description:
     // Standard pipeline operations
     virtual int RequestData( vtkInformation *request,
         vtkInformationVector **inputVector,
@@ -136,6 +181,7 @@ class VTK_AMR_EXPORT vtkAMRBaseParticlesReader :
     int Frequency;
     vtkMultiProcessController *Controller;
 
+    bool  InitialRequest;
     bool  Initialized;
     char *FileName;
 
