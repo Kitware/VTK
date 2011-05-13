@@ -54,10 +54,6 @@ bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
           char   blckName[65];
           H5Gget_objname_by_idx( rootIndx, objIndex, blckName, 64 );
 
-          std::cout << "blockIdx=" << blockIdx << " ";
-          std::cout << "Checking block: " << blckName << std::endl;
-          std::cout.flush();
-
           // Is this the target block?
           if( (sscanf( blckName, "Grid%d", &blckIndx )==1) &&
               (blckIndx  ==  blockIdx) )
@@ -109,8 +105,8 @@ void GetDoubleArrayByName(
   array.resize( numbPnts );
   H5Dread( arrayIdx,H5T_NATIVE_DOUBLE,H5S_ALL,H5S_ALL,H5P_DEFAULT,&array[0] );
 
-  H5Dclose( spaceIdx );
-  H5Dclose( arrayIdx );
+//  H5Dclose( spaceIdx );
+//  H5Dclose( arrayIdx );
 }
 
 //------------------------------------------------------------------------------
@@ -222,6 +218,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   GetDoubleArrayByName( rootIndx, "particle_position_x", xcoords );
   GetDoubleArrayByName( rootIndx, "particle_position_y", ycoords );
   GetDoubleArrayByName( rootIndx, "particle_position_z", zcoords );
+
   assert( "Coordinate arrays must have the same size: " &&
            (xcoords.size()==ycoords.size() ) );
   assert( "Coordinate arrays must have the same size: " &&
@@ -261,8 +258,9 @@ vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
 
   if( NumParticles <= 0 )
     {
-      vtkErrorMacro( "NumParticles=" << NumParticles );
-      return NULL;
+      vtkPolyData* emptyParticles = vtkPolyData::New();
+      assert( "Cannot create particles dataset" && ( emptyParticles != NULL ) );
+      return( emptyParticles );
     }
 
   vtkstd::string pfile = this->Internal->Blocks[iBlockIdx].ParticleFileName;
