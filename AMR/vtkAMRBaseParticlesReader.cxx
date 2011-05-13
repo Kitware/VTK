@@ -55,6 +55,7 @@ void vtkAMRBaseParticlesReader::Initialize( )
   this->FilterLocation = 0;
   this->NumberOfBlocks = 0;
   this->Initialized    = false;
+  this->FileName       = NULL;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
 
   for( int i=0; i < 3; ++i )
@@ -67,6 +68,9 @@ void vtkAMRBaseParticlesReader::Initialize( )
 //------------------------------------------------------------------------------
 void vtkAMRBaseParticlesReader::SetFileName( const char *fileName )
 {
+
+  std::cout << "SetFileName: " << fileName << std::endl;
+  std::cout.flush();
 
   if( this->FileName != NULL )
     {
@@ -85,6 +89,9 @@ void vtkAMRBaseParticlesReader::SetFileName( const char *fileName )
 
   this->FileName = new char[ strlen(fileName)+1 ];
   strcpy(this->FileName,fileName);
+
+  std::cout << "Setting filename done!\n";
+  std::cout.flush();
 
   this->Modified();
 }
