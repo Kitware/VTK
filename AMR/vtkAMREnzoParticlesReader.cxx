@@ -229,7 +229,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   int NumberOfParticlesLoaded = 0;
   for( int i=0; i < TotalNumberOfParticles; ++i )
     {
-      if( (i%this->Frequency == 0)  )
+      if( (i%this->Frequency) == 0  )
         {
           if( this->CheckLocation( xcoords[i], ycoords[i],zcoords[i] ) )
             {
@@ -240,10 +240,11 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 
         } // END if within requested interval
     } // END for all particles
-
   H5Gclose( rootIndx );
   H5Fclose( fileIndx );
 
+  positions->SetNumberOfPoints( NumberOfParticlesLoaded );
+  positions->Squeeze();
   particles->SetPoints( positions );
   positions->Delete();
   return( particles );
