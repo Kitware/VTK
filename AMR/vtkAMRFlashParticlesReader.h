@@ -42,6 +42,10 @@ class VTK_AMR_EXPORT vtkAMRFlashParticlesReader :
     void ReadMetaData();
 
     // Description:
+    // See vtkAMRBaseParticlesReader::SetupParticlesDataSelections
+    void SetupParticleDataSelections();
+
+    // Description:
     // See vtkAMRBaseParticlesReader::ReadParticles
     vtkPolyData* ReadParticles( const int blkidx );
 
