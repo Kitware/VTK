@@ -78,7 +78,7 @@ int TestMPASReader( int argc, char *argv[] )
     reader->Update();
     reader->EnableAllCellArrays();
     reader->EnableAllPointArrays();
-    reader->SetProjectLatLon(i);
+    reader->SetProjectLatLon(static_cast<bool>(i));
     reader->SetVerticalLevel(i);
     reader->Update();
 
