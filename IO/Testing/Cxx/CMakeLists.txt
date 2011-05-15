@@ -18,6 +18,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   SET(ConditionalTests
     ${ConditionalTests}
     TestHyperOctreeIO.cxx
+    TestMPASReader.cxx
     TestPLYReader.cxx
     TestProStarReader.cxx
     TestTecplotReader.cxx
@@ -170,6 +171,10 @@ IF (VTK_LARGE_DATA_ROOT)
          TestNetCDFPOPReader -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestNetCDFPOPReader.png)
+    ADD_TEST(TestMPASReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestMPASReader -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestMPASReader.png)
     IF(NOT WIN32)
       ADD_TEST(SLACParticleReader ${CXX_TEST_PATH}/${KIT}CxxTests
            SLACParticleReader -D ${VTK_LARGE_DATA_ROOT}
