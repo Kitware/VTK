@@ -100,14 +100,6 @@ public:
  virtual void Render(vtkRenderer *ren);
 
  // Description:
- // Does this prop have some translucent polygonal geometry?
- virtual int HasTranslucentPolygonalGeometry();
-
- // Description:
- // Release any graphics resources associated with this vtkProp3DFollower.
- virtual void ReleaseGraphicsResources(vtkWindow*);
-
- // Description:
  // Generate the matrix based on ivars. This method overloads its superclasses
  // ComputeMatrix() method due to the special vtkFollower matrix operations.
  virtual void ComputeTransformMatrix(vtkRenderer *ren);
