@@ -747,24 +747,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
           }
         fprintf(fp,");\n");
         fprintf(fp,"\n    if (temp == 0) return null;");
-        fprintf(fp,"\n    %s obj = null;", currentFunction->ReturnClass);
-        fprintf(fp,"\n    java.lang.ref.WeakReference ref = (java.lang.ref.WeakReference)vtkGlobalJavaHash.PointerToReference.get(new Long(temp));");
-        fprintf(fp,"\n    if (ref != null) {");
-        fprintf(fp,"\n      obj = (%s)ref.get();", currentFunction->ReturnClass);
-        fprintf(fp,"\n    }");
-        fprintf(fp,"\n    if (obj == null) {");
-        fprintf(fp,"\n      %s tempObj = new %s(temp);", currentFunction->ReturnClass, currentFunction->ReturnClass);
-        fprintf(fp,"\n      String className = tempObj.GetClassName();");
-        fprintf(fp,"\n      try {");
-        fprintf(fp,"\n        Class c = Class.forName(\"vtk.\" + className);");
-        fprintf(fp,"\n        java.lang.reflect.Constructor cons = c.getConstructor(new Class[] {long.class} );");
-        fprintf(fp,"\n        obj = (%s)cons.newInstance(new Object[] {new Long(temp)});", currentFunction->ReturnClass);
-        fprintf(fp,"\n      } catch (Exception e) {");
-        fprintf(fp,"\n        e.printStackTrace();");
-        fprintf(fp,"\n      }");
-        fprintf(fp,"\n      vtkObjectBase.VTKDeleteReference(temp);");
-        fprintf(fp,"\n    }");
-        fprintf(fp,"\n    return obj;");
+        fprintf(fp,"\n    return (%s)vtkObject.JAVA_OBJECT_MANAGER.getJavaObject(vtkObjectBase.VTKGetClassNameFromReference(temp), temp);", currentFunction->ReturnClass);
         fprintf(fp,"\n  }\n");
         }
       else
@@ -850,7 +833,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
       {
       fprintf(fp,"\n  public %s() {", data->Name);
       fprintf(fp,"\n    this.vtkId = this.VTKInit();");
-      fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
+      fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
       fprintf(fp,"\n  }\n");
       }
     else
@@ -861,36 +844,32 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     fprintf(fp,"\n    super();");
     fprintf(fp,"\n    this.vtkId = id;");
     fprintf(fp,"\n    this.VTKRegister();");
-    fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
+    fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
     fprintf(fp,"\n  }\n");
-    fprintf(fp,"\n  protected long vtkId = 0;\n");
-    fprintf(fp,"\n  protected boolean vtkDeleted = false;\n");
+    fprintf(fp,"\n  protected long vtkId;\n");
     fprintf(fp,"\n  public long GetVTKId() { return this.vtkId; }");
 
     /* if we are a base class and have a delete method */
     if (data->HasDelete)
       {
       fprintf(fp,"\n  public static native void VTKDeleteReference(long id);");
+      fprintf(fp,"\n  public static native String VTKGetClassNameFromReference(long id);");
       fprintf(fp,"\n  protected native void VTKDelete();");
       fprintf(fp,"\n  protected native void VTKRegister();");
       fprintf(fp,"\n  public void Delete() {");
-      fprintf(fp,"\n    int refCount = this.GetReferenceCount();");
-      fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.remove(new Long(this.vtkId));");
-      fprintf(fp,"\n    this.VTKDelete();");
-      fprintf(fp,"\n    this.vtkDeleted = true;");
-      fprintf(fp,"\n    if (refCount == 1) {");
-      fprintf(fp,"\n      this.vtkId = 0;");
-      fprintf(fp,"\n    }");
+      fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.unRegisterJavaObject(this.vtkId);");
+      fprintf(fp,"\n    this.vtkId = 0;");
       fprintf(fp,"\n  }");
       }
     }
   /* Special case for vtkObject */
   else if ( strcmp("vtkObject",data->Name) == 0 )
     {
+    fprintf(fp,"\n  public static vtk.vtkJavaMemoryManager JAVA_OBJECT_MANAGER = new vtk.vtkJavaMemoryManagerImpl();");
     fprintf(fp,"\n  public %s() {", data->Name);
     fprintf(fp,"\n    super();");
     fprintf(fp,"\n    this.vtkId = this.VTKInit();");
-    fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
+    fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
     fprintf(fp,"\n  }\n");
     fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->Name);
     }
