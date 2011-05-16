@@ -551,8 +551,6 @@ int vtkAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //-----------------------------------------------------------------------------
-// This causes the actor to be rendered. It, in turn, will render the actor's
-// property and then mapper.
 void vtkAxisFollower::Render(vtkRenderer *ren)
 {
   if(this->EnableDistanceLOD && !this->TestDistanceVisibility())
