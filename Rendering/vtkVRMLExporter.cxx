@@ -278,7 +278,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"      children [\n");
   trans->Delete();
 
-  vtkDataObject* inputDO = anActor->GetMapper()->GetInput();
+  vtkDataObject* inputDO = anActor->GetMapper()->GetInputDataObject(0, 0);
   if (inputDO == NULL)
     {
     return;

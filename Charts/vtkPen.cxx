@@ -97,12 +97,17 @@ void vtkPen::SetColor(unsigned char r, unsigned char g, unsigned char b)
 
 //-----------------------------------------------------------------------------
 void vtkPen::SetColor(unsigned char r, unsigned char g, unsigned char b,
-                unsigned char a)
+                      unsigned char a)
 {
   this->Color[0] = r;
   this->Color[1] = g;
   this->Color[2] = b;
   this->Color[3] = a;
+}
+
+void vtkPen::SetColor(const vtkColor4ub &color)
+{
+  this->PenColor = color;
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +132,11 @@ void vtkPen::GetColor(unsigned char color[3])
     {
     color[i] = this->Color[i];
     }
+}
+
+vtkColor4ub vtkPen::GetColorObject()
+{
+  return this->PenColor;
 }
 
 //-----------------------------------------------------------------------------

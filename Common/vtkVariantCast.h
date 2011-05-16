@@ -19,21 +19,23 @@
 
 =========================================================================*/
 
-#ifndef __vtkVariantCast_h
-#define __vtkVariantCast_h
-
-#include <vtkUnicodeString.h>
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-
-// Description:
+// .NAME vtkVariantCast
+// .SECTION Description
 // Converts a vtkVariant to some other type.  Wherever possible, implicit conversions are
 // performed, so this method can be used to convert from nearly any type to a string, or
 // from a string to nearly any type.  Note that some conversions may fail at runtime, such
 // as a conversion from the string "abc" to a numeric type.
 //
 // The optional 'valid' flag can be used by callers to verify whether conversion succeeded.
+
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkVariantCast_h
+#define __vtkVariantCast_h
+
+#include <vtkUnicodeString.h>
+
 template<typename T>
 T vtkVariantCast(const vtkVariant& value, bool* valid = 0)
 {

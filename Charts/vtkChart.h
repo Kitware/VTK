@@ -30,6 +30,7 @@ class vtkContextScene;
 class vtkPlot;
 class vtkAxis;
 class vtkTextProperty;
+class vtkChartLegend;
 
 class vtkInteractorStyle;
 class vtkAnnotationLink;
@@ -136,6 +137,11 @@ public:
   virtual bool GetShowLegend();
 
   // Description:
+  // Get the legend for the chart, if available. Can return NULL if there is no
+  // legend.
+  virtual vtkChartLegend * GetLegend();
+
+  // Description:
   // Get/set the title text of the chart.
   virtual void SetTitle(const vtkStdString &title);
   virtual vtkStdString GetTitle();
@@ -170,6 +176,16 @@ public:
   // render window. Default is true.
   vtkSetMacro(AutoSize, bool);
   vtkGetMacro(AutoSize, bool);
+
+  // Description:
+  // Set/get whether the chart should still render its axes and decorations
+  // even if the chart has no visible plots. Default is false (do not render
+  // an empty plot).
+  //
+  // Note that if you wish to render axes for an empty plot you should also
+  // set AutoSize to false, as that will hide all axes for an empty plot.
+  vtkSetMacro(RenderEmpty, bool);
+  vtkGetMacro(RenderEmpty, bool);
 
   // Description:
   // Assign action types to mouse buttons. Available action types are PAN, ZOOM
@@ -229,6 +245,7 @@ protected:
 
   vtkRectf Size;
   bool AutoSize;
+  bool RenderEmpty;
 
   // Description:
   // Hold mouse action mappings.

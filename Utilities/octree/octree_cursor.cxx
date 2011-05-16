@@ -186,7 +186,7 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::over( int child_of_shared_parent )
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 void octree_cursor<T_,R_,P_,O_,OP_,d_>::axis_partner( int axis )
 {
-  if ( axis < 0 || axis >= (1<<d_) )
+  if ( axis < 0 || axis >= d_ )
     {
     throw vtkstd::range_error( "An invalid axis was specified." );
     }

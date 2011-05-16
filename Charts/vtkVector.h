@@ -65,6 +65,19 @@ public:
   // used in much the same way as vector.at(i) is used.
   T operator()(int i) const { return this->Data[i]; }
 
+  // Description:
+  // Cast the vector to the specified type, returning the result.
+  template<typename TR>
+  vtkVector<TR, Size> Cast() const
+  {
+    vtkVector<TR, Size> result;
+    for (int i = 0; i < Size; ++i)
+      {
+      result[i] = static_cast<TR>(Data[i]);
+      }
+    return result;
+  }
+
 protected:
   // Description:
   // The only thing stored in memory!
@@ -127,6 +140,8 @@ public:
     this->Data[2] = z;
   }
 
+  vtkVector3(const T* init) : vtkVector<T, 3>(init) { }
+
   // Description:
   // Set the x, y and z components of the vector.
   void Set(const T& x, const T& y, const T& z)
@@ -179,6 +194,8 @@ public:
     this->Data[2] = width;
     this->Data[3] = height;
   }
+
+  vtkRect(const T* init) : vtkVector<T, 4>(init) { }
 
   // Description:
   // Set the x, y components of the rectangle, and the width/height.
@@ -234,6 +251,7 @@ class vtkVector2i : public vtkVector2<int>
 {
 public:
   vtkVector2i(int x = 0, int y = 0) : vtkVector2<int>(x, y) {}
+  vtkVector2i(const int *init) : vtkVector2<int>(init) {}
 };
 
 class vtkVector2f : public vtkVector2<float>
@@ -247,12 +265,14 @@ class vtkVector2d : public vtkVector2<double>
 {
 public:
   vtkVector2d(double x = 0.0, double y = 0.0) : vtkVector2<double>(x, y) {}
+  vtkVector2d(const double *init) : vtkVector2<double>(init) {}
 };
 
 class vtkVector3i : public vtkVector3<int>
 {
 public:
   vtkVector3i(int x = 0, int y = 0, int z = 0) : vtkVector3<int>(x, y, z) {}
+  vtkVector3i(const int *init) : vtkVector3<int>(init) {}
 };
 
 class vtkVector3f : public vtkVector3<float>
@@ -260,6 +280,7 @@ class vtkVector3f : public vtkVector3<float>
 public:
   vtkVector3f(float x = 0.0, float y = 0.0, float z = 0.0)
     : vtkVector3<float>(x, y, z) {}
+  vtkVector3f(const float *init) : vtkVector3<float>(init) {}
 };
 
 class vtkVector3d : public vtkVector3<double>
@@ -267,6 +288,7 @@ class vtkVector3d : public vtkVector3<double>
 public:
   vtkVector3d(double x = 0.0, double y = 0.0, double z = 0.0)
     : vtkVector3<double>(x, y, z) {}
+  vtkVector3d(const double *init) : vtkVector3<double>(init) {}
 };
 
 class vtkRecti : public vtkRect<int>
@@ -274,6 +296,7 @@ class vtkRecti : public vtkRect<int>
 public:
   vtkRecti(int x = 0, int y = 0, int width = 0, int height = 0)
     : vtkRect<int>(x, y, width, height) {}
+  vtkRecti(const int *init) : vtkRect<int>(init) {}
 };
 
 class vtkRectf : public vtkRect<float>
@@ -281,6 +304,7 @@ class vtkRectf : public vtkRect<float>
 public:
   vtkRectf(float x = 0.0, float y = 0.0, float width = 0.0, float height = 0.0)
     : vtkRect<float>(x, y, width, height) {}
+  vtkRectf(const float *init) : vtkRect<float>(init) {}
 };
 
 class vtkRectd : public vtkRect<double>
@@ -289,6 +313,17 @@ public:
   vtkRectd(double x = 0.0, double y = 0.0, double width = 0.0,
            double height = 0.0)
     : vtkRect<double>(x, y, width, height) {}
+  vtkRectd(const double *init) : vtkRect<double>(init) {}
 };
+
+// Some operators for easy addition etc
+inline const vtkVector2f operator+(const vtkVector2f &lhs, const vtkVector2f &rhs)
+{
+  return vtkVector2f(lhs[0] + rhs[0], lhs[1] + rhs[1]);
+}
+inline const vtkVector2f operator-(const vtkVector2f &lhs, const vtkVector2f &rhs)
+{
+  return vtkVector2f(lhs[0] - rhs[0], lhs[1] - rhs[1]);
+}
 
 #endif // __vtkVector_h

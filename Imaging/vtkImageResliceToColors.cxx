@@ -116,13 +116,8 @@ int vtkImageResliceToColors::ConvertScalarInfo(
   if (!this->LookupTable && !this->DefaultLookupTable)
     {
     // Build a default greyscale lookup table
-    this->DefaultLookupTable = vtkLookupTable::New();
+    this->DefaultLookupTable = vtkScalarsToColors::New();
     this->DefaultLookupTable->SetRange(0.0, 255.0);
-    this->DefaultLookupTable->SetRampToLinear();
-    this->DefaultLookupTable->SetValueRange(0.0, 1.0);
-    this->DefaultLookupTable->SetSaturationRange(0.0, 0.0);
-    this->DefaultLookupTable->SetAlphaRange(1.0, 1.0);
-    this->DefaultLookupTable->Build();
     this->DefaultLookupTable->SetVectorModeToRGBColors();
     }
 
@@ -141,7 +136,7 @@ void vtkImageResliceToColors::ConvertScalars(
     table = this->DefaultLookupTable;
     }
 
-  if (inputComponents == 1)
+  if (inputComponents == 1 && this->LookupTable)
     {
     table->MapScalarsThroughTable(
       inPtr, static_cast<unsigned char *>(outPtr),

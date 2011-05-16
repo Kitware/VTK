@@ -348,8 +348,6 @@ struct vtkFoamIntVectorVector
 private:
   vtkIntArray *Indices, *Body;
 
-  vtkFoamIntVectorVector();
-
 public:
   ~vtkFoamIntVectorVector()
   {
@@ -362,6 +360,10 @@ public:
   {
     this->Indices->Register(0); // vtkDataArrays do not have ShallowCopy
     this->Body->Register(0);
+  }
+  vtkFoamIntVectorVector() :
+    Indices(vtkIntArray::New()), Body(vtkIntArray::New())
+  {
   }
   vtkFoamIntVectorVector(const int nElements, const int bodyLength) :
     Indices(vtkIntArray::New()), Body(vtkIntArray::New())
@@ -2403,6 +2405,51 @@ public:
     else
       {
       throw vtkFoamError() << "Expected integer, found " << currToken;
+      }
+  }
+
+  // reads compact list of labels.
+  void ReadCompactIOLabelList(vtkFoamIOobject& io)
+  {
+    if (io.GetFormat() != vtkFoamIOobject::BINARY)
+      {
+      this->ReadLabelListList(io);
+      return;
+      }
+
+    this->Superclass::LabelListListPtr = new vtkFoamIntVectorVector;
+    this->Superclass::Type = LABELLISTLIST;
+    for(int arrayI = 0; arrayI < 2; arrayI++)
+      {
+      vtkFoamToken currToken;
+      if (!io.Read(currToken))
+        {
+        throw vtkFoamError() << "Unexpected EOF";
+        }
+      if (currToken.GetType() == vtkFoamToken::LABEL)
+        {
+        const int sizeI = currToken.To<int>();
+        if (sizeI < 0)
+          {
+          throw vtkFoamError() << "List size must not be negative: size = "
+              << sizeI;
+          }
+        if (sizeI > 0) // avoid invalid reference
+          {
+          vtkIntArray *array = (arrayI == 0
+              ? this->Superclass::LabelListListPtr->GetIndices()
+              : this->Superclass::LabelListListPtr->GetBody());
+          array->SetNumberOfValues(sizeI);
+          io.ReadExpecting('(');
+          io.Read(reinterpret_cast<unsigned char*>(array->GetPointer(0)),
+              sizeI * sizeof(int));
+          io.ReadExpecting(')');
+          }
+        }
+      else
+        {
+        throw vtkFoamError() << "Expected integer, found " << currToken;
+        }
       }
   }
 
@@ -4580,7 +4627,14 @@ vtkFoamIntVectorVector * vtkOpenFOAMReaderPrivate::ReadFacesFile(
   vtkFoamEntryValue dict(NULL);
   try
     {
-    dict.ReadLabelListList(io);
+    if (io.GetClassName() == "faceCompactList")
+      {
+      dict.ReadCompactIOLabelList(io);
+      }
+    else
+      {
+      dict.ReadLabelListList(io);
+      }
     }
   catch(vtkFoamError& e)
     {

@@ -242,8 +242,13 @@ IF(OC_X86_ASM)
     libtheora-${THEORA_VERSION}/lib/x86/sse2fdct.c
     )
 ENDIF(OC_X86_ASM)
+
 IF(MSVC)
-  LIST(APPEND VTKOGGTHEORA_SRCS vtkoggtheora.def vtkoggtheora.rc)
+  IF(BUILD_SHARED_LIBS)
+    LIST(APPEND VTKOGGTHEORA_SRCS vtkoggtheora.def vtkoggtheora.rc)
+  ELSE(BUILD_SHARED_LIBS)
+    LIST(REMOVE_ITEM VTKOGGTHEORA_SRCS vtkoggtheora.def vtkoggtheora.rc)
+  ENDIF(BUILD_SHARED_LIBS)
 ENDIF(MSVC)
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)

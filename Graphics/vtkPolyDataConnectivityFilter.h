@@ -23,7 +23,7 @@
 // specified cell ids; 5) extract the region closest to the specified
 // point; or 6) extract all regions (used to color regions).
 //
-// This filter is specialized for polygonal data. This means it runs a bit 
+// This filter is specialized for polygonal data. This means it runs a bit
 // faster and is easier to construct visualization networks that process
 // polygonal data.
 //
@@ -122,7 +122,7 @@ public:
   void DeleteSpecifiedRegion(int id);
 
   // Description:
-  // Use to specify x-y-z point coordinates when extracting the region 
+  // Use to specify x-y-z point coordinates when extracting the region
   // closest to a specified point.
   vtkSetVector3Macro(ClosestPoint,double);
   vtkGetVectorMacro(ClosestPoint,double,3);
@@ -157,7 +157,6 @@ protected:
 
   void TraverseAndMark();
 
-private:
   // used to support algorithm execution
   vtkDataArray *CellScalars;
   vtkIdList *NeighborCellPointIds;
@@ -165,7 +164,7 @@ private:
   vtkIdType *PointMap;
   vtkDataArray *NewScalars;
   vtkIdType RegionNumber;
-  vtkIdType PointNumber;    
+  vtkIdType PointNumber;
   vtkIdType NumCellsInRegion;
   vtkDataArray *InScalars;
   vtkPolyData *Mesh;
@@ -182,27 +181,27 @@ private:
 // Return the method of extraction as a string.
 inline const char *vtkPolyDataConnectivityFilter::GetExtractionModeAsString(void)
 {
-  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ) 
+  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
     {
     return "ExtractPointSeededRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
     {
     return "ExtractCellSeededRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS )
     {
     return "ExtractSpecifiedRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS )
     {
     return "ExtractAllRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION )
     {
     return "ExtractClosestPointRegion";
     }
-  else 
+  else
     {
     return "ExtractLargestRegion";
     }

@@ -101,7 +101,7 @@ public:
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns the index of the data series with which the point is associated or 
+  // Returns the index of the data series with which the point is associated or
   // -1.
   virtual int GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
@@ -128,6 +128,12 @@ public:
   // in this class is used as a parameter.
   vtkGetMacro(MarkerStyle, int);
   vtkSetMacro(MarkerStyle, int);
+
+  // Description:
+  // Get/set the marker size that should be used. The default is negative, and
+  // in that case it is 2.3 times the pen width, if less than 8 will be used.
+  vtkGetMacro(MarkerSize, float);
+  vtkSetMacro(MarkerSize, float);
 
 //BTX
 protected:
@@ -158,6 +164,10 @@ protected:
   void CalculateBounds(double bounds[4]);
 
   // Description:
+  // Create the sorted point list if necessary.
+  void CreateSortedPoints();
+
+  // Description:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D *Points;
 
@@ -178,6 +188,7 @@ protected:
   // Description:
   // The marker style that should be used
   int MarkerStyle;
+  float MarkerSize;
   vtkImageData* Marker;
   vtkImageData* HighlightMarker;
 

@@ -19,7 +19,9 @@
 #include "vtkPlane.h"
 #include "vtkImageData.h"
 #include "vtkImageSlice.h"
+#include "vtkImageProperty.h"
 #include "vtkCamera.h"
+#include "vtkRenderer.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -54,6 +56,9 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->CroppingRegion[3] = 0;
   this->CroppingRegion[4] = 0;
   this->CroppingRegion[5] = 0;
+
+  // streaming misbehaves if there is no output port
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -62,13 +67,13 @@ vtkImageSliceMapper::~vtkImageSliceMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkImageSliceMapper::ReleaseGraphicsResources(vtkWindow *)
 {
   // see OpenGL subclass for implementation
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *image)
+void vtkImageSliceMapper::Render(vtkRenderer *, vtkImageSlice *)
 {
   // see OpenGL subclass for implementation
 }
@@ -90,7 +95,7 @@ int vtkImageSliceMapper::ProcessRequest(
     inInfo->Get(vtkDataObject::SPACING(), spacing);
     inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
-    vtkImageSlice *prop = this->GetCurrentProp();
+    vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
 
     if (this->Cropping)
       {
@@ -109,19 +114,21 @@ int vtkImageSliceMapper::ProcessRequest(
 
     if (this->SliceFacesCamera || this->SliceAtFocalPoint)
       {
-      vtkCamera *camera = this->GetCurrentCamera();
+      vtkRenderer *ren = this->GetCurrentRenderer();
 
-      if (prop && camera)
+      if (matrix && ren)
         {
+        vtkCamera *camera = ren->GetActiveCamera();
+
         if (this->SliceFacesCamera)
           {
-          this->Orientation = this->GetOrientationFromCamera(prop, camera);
+          this->Orientation = this->GetOrientationFromCamera(matrix, camera);
           this->Orientation = this->Orientation % 3;
           }
 
         if (this->SliceAtFocalPoint)
           {
-          this->SliceNumber = this->GetSliceFromCamera(prop, camera);
+          this->SliceNumber = this->GetSliceFromCamera(matrix, camera);
           }
         }
       }
@@ -164,11 +171,11 @@ int vtkImageSliceMapper::ProcessRequest(
     normal[3] = -point[orientation];
     normal[orientation] = 1.0;
 
-    if (prop)
+    if (matrix)
       {
       // Convert point and normal to world coords
       double mat[16];
-      vtkMatrix4x4::DeepCopy(mat, prop->GetMatrix());
+      vtkMatrix4x4::DeepCopy(mat, matrix);
       vtkMatrix4x4::MultiplyPoint(mat, point, point);
       point[0] /= point[3];
       point[1] /= point[3];
@@ -192,6 +199,12 @@ int vtkImageSliceMapper::ProcessRequest(
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       this->DisplayExtent, 6);
 
+    return 1;
+    }
+
+  // just a dummy, does not do anything
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
+    {
     return 1;
     }
 
@@ -225,9 +238,11 @@ unsigned long vtkImageSliceMapper::GetMTime()
   if (this->SliceFacesCamera || this->SliceAtFocalPoint)
     {
     vtkImageSlice *prop = this->GetCurrentProp();
-    vtkCamera *camera = this->GetCurrentCamera();
-    if (prop && camera)
+    vtkRenderer *ren = this->GetCurrentRenderer();
+
+    if (prop && ren)
       {
+      vtkCamera *camera = ren->GetActiveCamera();
       unsigned long mTime2 = prop->GetMTime();
       if (mTime2 > mTime)
         {
@@ -316,7 +331,7 @@ double *vtkImageSliceMapper::GetBounds()
 
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetOrientationFromCamera(
-  vtkImageSlice *prop, vtkCamera *camera)
+  vtkMatrix4x4 *propMatrix, vtkCamera *camera)
 {
   int orientation = 2;
   double normal[4] = { 0, 0, -1, 0 };
@@ -324,7 +339,7 @@ int vtkImageSliceMapper::GetOrientationFromCamera(
   double mat[16];
 
   camera->GetDirectionOfProjection(normal);
-  vtkMatrix4x4::Transpose(*prop->GetMatrix()->Element, mat);
+  vtkMatrix4x4::Transpose(*propMatrix->Element, mat);
   vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
 
   for (int i = 2; i >= 0; --i)
@@ -348,7 +363,7 @@ int vtkImageSliceMapper::GetOrientationFromCamera(
 
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceFromCamera(
-  vtkImageSlice *prop, vtkCamera *camera)
+  vtkMatrix4x4 *propMatrix, vtkCamera *camera)
 {
   int orientation = this->Orientation;
 
@@ -357,7 +372,7 @@ int vtkImageSliceMapper::GetSliceFromCamera(
 
   // convert world coords to data coords
   double mat[16];
-  vtkMatrix4x4::Invert(*prop->GetMatrix()->Element, mat);
+  vtkMatrix4x4::Invert(*propMatrix->Element, mat);
   vtkMatrix4x4::MultiplyPoint(mat, p, p);
   double slicepos = p[orientation]/p[3];
 
@@ -365,8 +380,8 @@ int vtkImageSliceMapper::GetSliceFromCamera(
   slicepos -= this->DataOrigin[orientation];
   slicepos /= this->DataSpacing[orientation];
 
-  // round to get integer
-  return vtkMath::Floor(slicepos + 0.5);
+  // round to get integer, add a tolerance to prefer rounding up
+  return vtkMath::Floor(slicepos + (0.5 + 7.62939453125e-06));
 }
 
 //----------------------------------------------------------------------------
@@ -382,4 +397,50 @@ void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
   normal[3] = -(slice*this->DataSpacing[orientation] +
                 this->DataOrigin[orientation]);
   normal[orientation] = 1.0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSliceMapper::GetDimensionIndices(
+  int orientation, int &xdim, int &ydim)
+{
+  orientation = orientation % 3;
+  xdim = 1;
+  ydim = 2;
+  if (orientation != 0)
+    {
+    xdim = 0;
+    if (orientation != 1)
+      {
+      ydim = 1;
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSliceMapper::CheckerboardImage(
+  unsigned char *data, int xsize, int ysize,
+  const double imageSpacing[3], vtkImageProperty *property)
+{
+  // Get the imagedata dims that correspond to the texture "x" and "y"
+  int xdim, ydim;
+  this->GetDimensionIndices(this->Orientation, xdim, ydim);
+
+  // Get the checkerboard spacing and the offset fraction
+  double spacing[2], offset[2];
+  property->GetCheckerboardSpacing(spacing);
+  property->GetCheckerboardOffset(offset);
+
+  // Adjust the spacing according to the image data spacing, add a tolerance
+  // to prefer rounding up since ties happen often and can cause different
+  // platforms/compilers to give different results
+  spacing[0] = floor(spacing[0]/imageSpacing[xdim] + 0.50000762939453125);
+  spacing[1] = floor(spacing[1]/imageSpacing[ydim] + 0.50000762939453125);
+
+  // Center the checkerboard at the image center, because it looks nice
+  offset[0] = floor(0.5*xsize + spacing[0]*offset[0] + 0.50000762939453125);
+  offset[1] = floor(0.5*ysize + spacing[1]*offset[1] + 0.50000762939453125);
+
+  // Note that spacing has been converted to integer spacing
+  vtkImageMapper3D::CheckerboardRGBA(
+    data, xsize, ysize, offset[0], offset[1], spacing[0], spacing[1]);
 }

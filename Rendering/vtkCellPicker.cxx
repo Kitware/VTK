@@ -1046,8 +1046,11 @@ int vtkCellPicker::ClipLineWithPlanes(vtkAbstractMapper3D *mapper,
   t2 = 1.0;
 
   double plane[4];
-  for (int i = 0; mapper->GetClippingPlaneInDataCoords(mat, i, plane); i++)
+  int numClipPlanes = mapper->GetNumberOfClippingPlanes();
+  for (int i = 0; i < numClipPlanes; i++)
     {
+    mapper->GetClippingPlaneInDataCoords(mat, i, plane);
+
     double d1 = plane[0]*p1[0] + plane[1]*p1[1] + plane[2]*p1[2] + plane[3];
     double d2 = plane[0]*p2[0] + plane[1]*p2[1] + plane[2]*p2[2] + plane[3];
 

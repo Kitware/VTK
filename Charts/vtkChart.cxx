@@ -51,6 +51,7 @@ vtkChart::vtkChart()
   this->TitleProperties->SetFontFamilyToArial();
   this->AnnotationLink = NULL;
   this->AutoSize = true;
+  this->RenderEmpty = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -147,6 +148,11 @@ void vtkChart::SetShowLegend(bool visible)
 bool vtkChart::GetShowLegend()
 {
   return this->ShowLegend;
+}
+
+vtkChartLegend * vtkChart::GetLegend()
+{
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

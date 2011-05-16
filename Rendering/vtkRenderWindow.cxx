@@ -1257,6 +1257,12 @@ void vtkRenderWindow::CopyResultFrame(void)
     this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,!this->DoubleBuffer);
     }
 
+  // Just before we swap buffers (in case of double buffering), we fire the
+  // RenderEvent marking that a render call has concluded successfully. We
+  // separate this from EndEvent since some applications may want to put some
+  // more elements on the "draw-buffer" before calling the rendering complete.
+  // This event gives them that opportunity.
+  this->InvokeEvent(vtkCommand::RenderEvent);
   this->Frame();
 }
 

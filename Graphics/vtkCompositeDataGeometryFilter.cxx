@@ -86,10 +86,10 @@ int vtkCompositeDataGeometryFilter::RequestCompositeData(
     return 0;
     }
 
+  bool added=false;
   vtkCompositeDataIterator* iter = input->NewIterator();
-  iter->GoToFirstItem();
   vtkAppendPolyData* append = vtkAppendPolyData::New();
-  while (!iter->IsDoneWithTraversal())
+  for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (ds)
@@ -99,13 +99,15 @@ int vtkCompositeDataGeometryFilter::RequestCompositeData(
       geom->Update();
       append->AddInput(geom->GetOutput());
       geom->Delete();
+      added = true;
       }
-    iter->GoToNextItem();
     }
   iter->Delete();
-  append->Update();
-
-  output->ShallowCopy(append->GetOutput());
+  if (added)
+    {
+    append->Update();
+    output->ShallowCopy(append->GetOutput());
+    }
 
   append->Delete();
 

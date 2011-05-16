@@ -18,12 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkDelimitedTextReader_h
-#define __vtkDelimitedTextReader_h
-
-#include "vtkTableAlgorithm.h"
-#include "vtkUnicodeString.h" // Needed for vtkUnicodeString
-#include "vtkStdString.h" // Needed for vtkStdString
 
 // .NAME vtkDelimitedTextReader - reads in delimited ascii or unicode text files
 // and outputs a vtkTable data structure.
@@ -63,6 +57,14 @@
 // This reader assumes that the first line in the file (whether that's
 // headers or the first document) contains at least as many fields as
 // any other line in the file.
+
+
+#ifndef __vtkDelimitedTextReader_h
+#define __vtkDelimitedTextReader_h
+
+#include "vtkTableAlgorithm.h"
+#include "vtkUnicodeString.h" // Needed for vtkUnicodeString
+#include "vtkStdString.h" // Needed for vtkStdString
 
 class VTK_INFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {

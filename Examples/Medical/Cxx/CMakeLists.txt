@@ -29,7 +29,7 @@ ENDIF(VTK_USE_METAIO)
 SET(KIT MedicalExamples)
 SET(MyTests TestMedical1.cxx TestMedical2.cxx TestMedical3.cxx TestMedical4.cxx)
 
-INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+INCLUDE(vtkTestingObjectFactory)
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
                ${MyTests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets vtkVolumeRendering)

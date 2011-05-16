@@ -25,11 +25,11 @@ int TestVector(int, char*[])
   vtkVector2i vec2i;
   cout << "Size of vtkVector2i: " << sizeof(vec2i) << endl;
   int arr2i[2];
-  
+
   // just to avoid warning
   arr2i[0]=0;
   arr2i[1]=0;
-  
+
   cout << "Size of int[2]: " << sizeof(arr2i) << endl;
 
   if (sizeof(vec2i) != sizeof(arr2i))
@@ -85,6 +85,18 @@ int TestVector(int, char*[])
       return 1;
       }
     }
+
+  // Test out casting...
+  vtkVector<float, 3> castVec = vec3i.Cast<float>();
+  vtkVector3d castVecd(castVec.Cast<double>().GetData());
+  if (castVecd[0] < -0.0000001 || castVecd[0] > 0.0000001)
+  {
+    // Then the number did not make it through within reasonable precision.
+    cerr << "Error: castVecd value incorrect. Should be ~0.0 for component 1."
+         << "\ncastVecd[0] = " << castVecd[0] << endl;
+    return 1;
+  }
+  cout << "castVecd[0] = " << castVecd[0] << endl;
 
   // Now to test out one of the color classes and memory layouts of arrays
   // Note that the memory layout of a vtkColor3ub[5] is the same as an unsigned

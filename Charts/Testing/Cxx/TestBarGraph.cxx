@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinePlot.cxx
+  Module:    TestBarGraph.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -27,9 +27,12 @@
 #include "vtkNew.h"
 
 // Monthly circulation data
-static int data_2008[] = {10822, 10941, 9979, 10370, 9460, 11228, 15093, 12231, 10160, 9816, 9384, 7892};
-static int data_2009[] = {9058, 9474, 9979, 9408, 8900, 11569, 14688, 12231, 10294, 9585, 8957, 8590};
-static int data_2010[] = {9058, 10941, 9979, 10270, 8900, 11228, 14688, 12231, 10160, 9585, 9384, 8590};
+static int data_2008[] = {10822, 10941, 9979, 10370, 9460, 11228,
+                          15093, 12231, 10160, 9816, 9384, 7892};
+static int data_2009[] = {9058, 9474, 9979, 9408, 8900, 11569,
+                          14688, 12231, 10294, 9585, 8957, 8590};
+static int data_2010[] = {9058, 10941, 9979, 10270, 8900, 11228,
+                          14688, 12231, 10160, 9585, 9384, 8590};
 
 //----------------------------------------------------------------------------
 int TestBarGraph(int , char * [])
@@ -69,20 +72,20 @@ int TestBarGraph(int , char * [])
     table->SetValue(i,3,data_2010[i]);
     }
 
-  // Add multiple line plots, setting the colors etc
-  vtkPlot *line = 0;
+  // Add multiple bar plots, setting the colors etc
+  vtkPlot *plot = 0;
 
-  line = chart->AddPlot(vtkChart::BAR);
-  line->SetInput(table.GetPointer(), 0, 1);
-  line->SetColor(0, 255, 0, 255);
+  plot = chart->AddPlot(vtkChart::BAR);
+  plot->SetInput(table.GetPointer(), 0, 1);
+  plot->SetColor(0, 255, 0, 255);
 
-  line = chart->AddPlot(vtkChart::BAR);
-  line->SetInput(table.GetPointer(), 0, 2);
-  line->SetColor(255, 0, 0, 255);
+  plot = chart->AddPlot(vtkChart::BAR);
+  plot->SetInput(table.GetPointer(), 0, 2);
+  plot->SetColor(255, 0, 0, 255);
 
-  line = chart->AddPlot(vtkChart::BAR);
-  line->SetInput(table.GetPointer(), 0, 3);
-  line->SetColor(0, 0, 255, 255);
+  plot = chart->AddPlot(vtkChart::BAR);
+  plot->SetInput(table.GetPointer(), 0, 3);
+  plot->SetColor(0, 0, 255, 255);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

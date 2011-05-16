@@ -212,6 +212,30 @@ extern "C" { typedef int (*vtkExodusIIGetMapFunc)( int, int* ); }
 #include "vtkExodusIIReaderPrivate.h"
 #include "vtkExodusIIReaderVariableCheck.h"
 
+// --------------------------------------------------- PRIVATE CLASS Implementations
+vtkExodusIIReaderPrivate::BlockSetInfoType::BlockSetInfoType(
+  const vtkExodusIIReaderPrivate::BlockSetInfoType &block):
+  vtkExodusIIReaderPrivate::ObjectInfoType(block),
+  FileOffset(block.FileOffset),
+  PointMap(block.PointMap),
+  ReversePointMap(block.ReversePointMap),
+  CachedConnectivity(0)
+{  
+  //this is needed to properly manage memory.
+  //when vectors are resized or reserved the container
+  //might be copied to a memory spot, so we need a proper copy constructor
+  //so that the cache remains valid
+  this->CachedConnectivity = block.CachedConnectivity;  
+}
+
+vtkExodusIIReaderPrivate::BlockSetInfoType::~BlockSetInfoType()
+{
+  if (this->CachedConnectivity)
+    {
+    this->CachedConnectivity->Delete();
+    }
+}
+
 // ----------------------------------------------------------- UTILITY ROUTINES
 
 // This function exists because FORTRAN ordering sucks.
@@ -1145,6 +1169,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       binfo->Status = 0;
       return;
       }
+    ent->Register (this);
     }
 
   vtkIntArray* arr;
@@ -1229,6 +1254,10 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       }
 #endif // VTK_USE_64BIT_IDS
     }
+    if (ent) 
+      {
+      ent->UnRegister (this);
+      }
 }
 
 //-----------------------------------------------------------------------------
@@ -4833,8 +4862,7 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 void vtkExodusIIReaderPrivate::ResetCache()
 {
   this->Cache->Clear();
-  this->Cache->SetCacheCapacity( 0. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
-  this->Cache->SetCacheCapacity( 128. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
+  this->Cache->SetCacheCapacity( 0.0 ); // FIXME: Perhaps Cache should have a Reset and a Clear method?  
   this->ClearConnectivityCaches();
 }
 

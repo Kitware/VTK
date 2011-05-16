@@ -66,6 +66,16 @@ const vtkArrayCoordinates::CoordinateT& vtkArrayCoordinates::operator[](Dimensio
   return this->Storage[i];
 }
 
+vtkArrayCoordinates::CoordinateT vtkArrayCoordinates::GetCoordinate(DimensionT i) const
+{
+  return this->Storage[i];
+}
+
+void vtkArrayCoordinates::SetCoordinate(DimensionT i, const CoordinateT& coordinate)
+{
+  this->Storage[i] = coordinate;
+}
+
 bool vtkArrayCoordinates::operator==(const vtkArrayCoordinates& rhs) const
 {
   return this->Storage == rhs.Storage;

@@ -29,6 +29,8 @@ SET(Kit_SRCS
   vtkColor.h
   vtkColorSeries.cxx
   vtkColorTransferFunctionItem.cxx
+  vtkColorTransferControlPointsItem.cxx
+  vtkCompositeControlPointsItem.cxx
   vtkCompositeTransferFunctionItem.cxx
   vtkContext2D.cxx
   vtkContextActor.cxx

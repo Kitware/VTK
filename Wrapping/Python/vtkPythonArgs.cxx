@@ -861,43 +861,58 @@ vtkObjectBase *vtkPythonArgs::GetArgAsVTKObject(
   const char *classname, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
+  vtkObjectBase *r = vtkPythonArgs::GetArgAsVTKObject(o, classname, valid);
+  if (!valid)
+    {
+    this->RefineArgTypeError(this->I - this->M - 1);
+    }
+  return r;
+}
+
+vtkObjectBase *vtkPythonArgs::GetArgAsVTKObject(
+  PyObject *o, const char *classname, bool &valid)
+{
   vtkObjectBase *r = vtkPythonUtil::GetPointerFromObject(o, classname);
-  if (r || o == Py_None)
-    {
-    valid = true;
-    return r;
-    }
-  this->RefineArgTypeError(this->I - this->M - 1);
-  valid = false;
+  valid = (r || o == Py_None);
   return r;
 }
 
-void *vtkPythonArgs::GetArgAsSpecialObject(const char *classname, PyObject **p)
+void *vtkPythonArgs::GetArgAsSpecialObject(
+  const char *classname, PyObject **p)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
+  void *r = vtkPythonArgs::GetArgAsSpecialObject(o, classname, p);
+  if (r == NULL)
+    {
+    this->RefineArgTypeError(this->I - this->M - 1);
+    }
+  return r;
+}
+
+void *vtkPythonArgs::GetArgAsSpecialObject(
+  PyObject *o, const char *classname, PyObject **p)
+{
   void *r = vtkPythonUtil::GetPointerFromSpecialObject(o, classname, p);
-  if (r)
-    {
-    return r;
-    }
-  this->RefineArgTypeError(this->I - this->M - 1);
   return r;
 }
 
-int vtkPythonArgs::GetArgAsEnum(const char *, bool &valid)
+int vtkPythonArgs::GetArgAsEnum(const char *s, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
+  int i = vtkPythonArgs::GetArgAsEnum(o, s, valid);
+  if (!valid)
+    {
+    this->RefineArgTypeError(this->I - this->M - 1);
+    }
+  return i;
+}
 
+int vtkPythonArgs::GetArgAsEnum(PyObject *o, const char *, bool &valid)
+{
   // should check enum type for validity
   int i = 0;
-  if (vtkPythonGetValue(o, i))
-    {
-    valid = true;
-    return i;
-    }
-  this->RefineArgTypeError(this->I - this->M - 1);
-  valid = false;
-  return 0;
+  valid = (vtkPythonGetValue(o, i) != 0);
+  return (valid ? i : 0);
 }
 
 
@@ -907,31 +922,40 @@ int vtkPythonArgs::GetArgAsEnum(const char *, bool &valid)
 void *vtkPythonArgs::GetArgAsSIPObject(const char *classname, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
-  void *r = vtkPythonUtil::SIPGetPointerFromObject(o, classname);
-  if (r || !PyErr_Occurred())
+  void *r = vtkPythonArgs::GetArgAsSIPObject(o, classname, valid);
+  if (!valid)
     {
-    valid = true;
-    return r;
+    this->RefineArgTypeError(this->I - this->M - 1);
     }
-  this->RefineArgTypeError(this->I - this->M - 1);
-  valid = false;
-  return NULL;
+  return r;
+}
+
+void *vtkPythonArgs::GetArgAsSIPObject(
+  PyObject *o, const char *classname, bool &valid)
+{
+  void *r = vtkPythonUtil::SIPGetPointerFromObject(o, classname);
+  valid = (r || !PyErr_Occurred());
+  return (valid ? r : NULL);
 }
 
 int vtkPythonArgs::GetArgAsSIPEnum(const char *classname, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
-
-  int i = 0;
-  if (vtkPythonUtil::SIPGetPointerFromObject(o, classname) &&
-      vtkPythonGetValue(o, i))
+  int i = vtkPythonArgs::GetArgAsSIPEnum(o, classname, valid);
+  if (!valid)
     {
-    valid = true;
-    return i;
+    this->RefineArgTypeError(this->I - this->M - 1);
     }
-  this->RefineArgTypeError(this->I - this->M - 1);
-  valid = false;
-  return 0;
+  return i;
+}
+
+int vtkPythonArgs::GetArgAsSIPEnum(
+  PyObject *o, const char *classname, bool &valid)
+{
+  int i = 0;
+  valid = (vtkPythonUtil::SIPGetPointerFromObject(o, classname) &&
+           vtkPythonGetValue(o, i));
+  return (valid ? i : 0);
 }
 
 //--------------------------------------------------------------------
@@ -947,6 +971,11 @@ bool vtkPythonArgs::GetValue(T &a) \
     } \
   this->RefineArgTypeError(this->I - this->M - 1); \
   return false; \
+} \
+ \
+bool vtkPythonArgs::GetValue(PyObject *o, T &a) \
+{ \
+  return vtkPythonGetValue(o, a); \
 }
 
 VTK_PYTHON_GET_ARG(void *)
@@ -1051,15 +1080,21 @@ VTK_PYTHON_GET_NARRAY_ARG(unsigned __int64)
 //--------------------------------------------------------------------
 // Define the special function pointer GetNextArg method
 
-bool vtkPythonArgs::GetFunction(PyObject *&o)
+bool vtkPythonArgs::GetFunction(PyObject *arg, PyObject *&o)
 {
-  o = PyTuple_GET_ITEM(this->Args, this->I++);
+  o = arg;
   if (o == Py_None || PyCallable_Check(o))
     {
     return true;
     }
   PyErr_SetString(PyExc_TypeError, "a callable object is required");
   return false;
+}
+
+bool vtkPythonArgs::GetFunction(PyObject *&o)
+{
+  PyObject *arg = PyTuple_GET_ITEM(this->Args, this->I++);
+  return vtkPythonArgs::GetFunction(arg, o);
 }
 
 //--------------------------------------------------------------------

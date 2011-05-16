@@ -59,7 +59,7 @@ public:
   // Description:
   // Set/Get the image display properties.
   void SetProperty(vtkImageProperty *property);
-  vtkImageProperty *GetProperty();
+  virtual vtkImageProperty *GetProperty();
 
   // Description:
   // Update the rendering pipeline by updating the ImageMapper
@@ -116,6 +116,13 @@ public:
   // Description:
   // Release any resources held by this prop.
   void ReleaseGraphicsResources(vtkWindow *win);
+
+  // Description:
+  // For stacked image rendering, set the pass.  The first pass
+  // renders just the backing polygon, the second pass renders
+  // the image, and the third pass renders the depth buffer.
+  // Set to -1 to render all of these in the same pass.
+  void SetStackedImagePass(int pass);
 
 protected:
   vtkImageSlice();

@@ -212,6 +212,14 @@ ADD_CUSTOM_COMMAND(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
   )
 
+IF(VTK_HAVE_SYNC_BUILTINS)
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkTimeStamp.cxx
+    PROPERTIES
+    COMPILE_DEFINITIONS VTK_HAVE_SYNC_BUILTINS
+  )
+ENDIF(VTK_HAVE_SYNC_BUILTINS)
+
 SET_SOURCE_FILES_PROPERTIES(
   vtkUnicodeString.cxx
   OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
@@ -375,7 +383,6 @@ vtkOverrideInformationCollection
 vtkParametricFunction
 vtkProp
 vtkRandomSequence
-vtkScalarsToColors
 vtkSocket
 vtkStructuredData
 vtkWarpTransform
@@ -455,6 +462,8 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayExtents.cxx
     vtkArrayExtentsList.cxx
     vtkArrayRange.cxx
+    vtkArraySort.cxx
+    vtkArrayWeights.cxx
     PROPERTIES WRAP_SPECIAL 1
   )
 

@@ -78,7 +78,9 @@ SET( Kit_SRCS
   vtkImageProperty.cxx
   vtkImageResliceMapper.cxx
   vtkImageSlice.cxx
+  vtkImageSliceCollection.cxx
   vtkImageSliceMapper.cxx
+  vtkImageStack.cxx
   vtkImageViewer2.cxx
   vtkImageViewer.cxx
   vtkImagingFactory.cxx
@@ -823,6 +825,12 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGL.h
     ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development
+    )
+
+  INSTALL(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkTestingObjectFactory.cmake
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake
     COMPONENT Development
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

@@ -24,6 +24,7 @@ the code that parses the header file.
 #include "vtkParse.h"
 #include "vtkParseMain.h"
 #include "vtkParseInternal.h"
+#include "vtkConfigure.h" // VTK_VERSION
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,10 @@ the code that parses the header file.
 
 /* This is the struct that contains the options */
 OptionInfo options;
+
+/* Flags for --help and --version */
+int vtk_parse_help = 0;
+int vtk_parse_version = 0;
 
 /* This method provides the back-end for the generators */
 extern void vtkParseOutput(FILE *, FileInfo *);
@@ -116,6 +121,14 @@ static int check_options(int argc, char *argv[])
         }
       vtkParse_UndefineMacro(argv[i]);
       }
+    else if (strcmp(argv[i], "--help") == 0)
+      {
+      vtk_parse_help = 1;
+      }
+    else if (strcmp(argv[i], "--version") == 0)
+      {
+      vtk_parse_version = 1;
+      }
     }
 
   return i;
@@ -125,6 +138,24 @@ static int check_options(int argc, char *argv[])
 OptionInfo *vtkParse_GetCommandLineOptions()
 {
   return &options;
+}
+
+static void vtk_parse_print_help(FILE *stream, const char *cmd)
+{
+  fprintf(stream,
+    "Usage: %s [options] input_file output_file\n"
+    "  --help          print this help message\n"
+    "  --version       print the VTK version\n"
+    "  --concrete      force concrete class\n"
+    "  --abstract      force abstract class\n"
+    "  --vtkobject     vtkObjectBase-derived class\n"
+    "  --special       non-vtkObjectBase class\n"
+    "  --hints <file>  the hints file to use\n"
+    "  --types <file>  the type hierarchy file to use\n"
+    "  -I <dir>        add an include directory\n"
+    "  -D <macro>      define a preprocessor macro\n"
+    "  -U <macro>      undefine a preprocessor macro\n",
+    cmd);
 }
 
 int main(int argc, char *argv[])
@@ -144,20 +175,33 @@ int main(int argc, char *argv[])
     {
     has_options = 1;
     }
-  else if (argi < 0 || argc < 3 || argc > 5)
+  else if (argi < 0 || argc > 5 ||
+           (argc < 3 && !vtk_parse_help && !vtk_parse_version))
     {
-    fprintf(stderr,
-            "Usage: %s [options] input_file output_file\n"
-            "  --concrete      force concrete class\n"
-            "  --abstract      force abstract class\n"
-            "  --vtkobject     vtkObjectBase-derived class\n"
-            "  --special       non-vtkObjectBase class\n"
-            "  --hints <file>  hints file\n"
-            "  --types <file>  type hierarchy file\n"
-            "  -I <dir>        add an include directory\n"
-            "  -D <macro>      define a preprocessor macro\n",
-            argv[0]);
+    vtk_parse_print_help(stderr, argv[0]);
     exit(1);
+    }
+
+  if (vtk_parse_version)
+    {
+    const char *ver = VTK_VERSION;
+    const char *exename = argv[0];
+    /* remove directory part of exe name */
+    for (exename += strlen(exename); exename > argv[0]; --exename)
+      {
+      char pc = *(exename - 1);
+      if (pc == ':' || pc == '/' || pc == '\\')
+        {
+        break;
+        }
+      }
+    fprintf(stdout, "%s %s\n", exename, ver);
+    exit(0);
+    }
+  if (vtk_parse_help)
+    {
+    vtk_parse_print_help(stdout, argv[0]);
+    exit(0);
     }
 
   options.InputFileName = argv[argi++];

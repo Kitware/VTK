@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkMatricizeArray_h
-#define __vtkMatricizeArray_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkMatricizeArray - Convert an array of arbitrary dimensions to a
 // matrix.
 //
@@ -34,6 +29,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkMatricizeArray_h
+#define __vtkMatricizeArray_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkMatricizeArray : public vtkArrayDataAlgorithm
 {

@@ -7,6 +7,7 @@ set(DOXYGEN "@DOXYGEN@")
 set(DOXYGEN_DOT_EXECUTABLE "@DOXYGEN_DOT_EXECUTABLE@")
 set(HTML_HELP_COMPILER "@HTML_HELP_COMPILER@")
 set(PERL "@PERL@")
+set(DOXYGEN_KEEP_TEMP "@DOXYGEN_KEEP_TEMP@")
 
 # These checks should really be in the CMakeLists.txt file when VTK is
 # configured with BUILD_DOCUMENTATION ON:
@@ -471,19 +472,23 @@ endif()
 # ----------------------------------------------------------------------------
 # Clean-up.
 
-step(13 "clean up")
-file(REMOVE_RECURSE "${INTERMEDIATE_DOX_DIR}")
+if(DOXYGEN_KEEP_TEMP)
+  message("Skipping step 13: clean up.")
+else()
+  step(13 "clean up")
+  file(REMOVE_RECURSE "${INTERMEDIATE_DOX_DIR}")
 
-if(DOWNLOAD_VTK_TAGFILE)
-  if(NOT VTK_TAGFILE STREQUAL "")
-    file(REMOVE "${VTK_TAGFILE_DEST_DIR}/${VTK_TAGFILE}")
+  if(DOWNLOAD_VTK_TAGFILE)
+    if(NOT VTK_TAGFILE STREQUAL "")
+      file(REMOVE "${VTK_TAGFILE_DEST_DIR}/${VTK_TAGFILE}")
+   endif()
   endif()
-endif()
 
-if(COMPILE_HTML_HELP)
-  if(NOT RESULTING_HTML_HELP_FILE STREQUAL "")
-    if(ALLOW_ERASE_OUTPUT_DIRECTORY)
-      file(REMOVE_RECURSE "${OUTPUT_DIRECTORY}")
+  if(COMPILE_HTML_HELP)
+    if(NOT RESULTING_HTML_HELP_FILE STREQUAL "")
+      if(ALLOW_ERASE_OUTPUT_DIRECTORY)
+        file(REMOVE_RECURSE "${OUTPUT_DIRECTORY}")
+      endif()
     endif()
   endif()
 endif()

@@ -561,6 +561,7 @@ int vtkLabelPlacer::RequestData(
   cam->GetFrustumPlanes( aspect, frustumPlanes );
   unsigned long allowableLabelArea = static_cast<unsigned long>
     ( ( ( kdbounds[1] - kdbounds[0] ) * ( kdbounds[3] - kdbounds[2] ) ) * this->MaximumLabelFraction );
+  (void)allowableLabelArea;
   unsigned long renderedLabelArea = 0;
   unsigned long iteratedLabelArea = 0;
   double camVec[3];
@@ -814,7 +815,7 @@ int vtkLabelPlacer::RequestData(
           conn[0] = opts1->InsertNextPoint( dispx[0], dispx[1], 0. );
           break;
           }
-        vtkIdType cid = ouData1->InsertNextCell( VTK_VERTEX, 1, conn );
+        vtkIdType cid = ouData1->InsertNextCell( VTK_VERTEX, 1, conn ); (void)cid;
         vtkDebugMacro("     Point: " << conn[0] << " (" << x[0] << "," << x[1] << "," << x[2] << ") Vertex: " << cid);
         iconIndexArr1->InsertNextValue( iconIndexArr->GetValue( inIter->GetLabelId() ) );
         }

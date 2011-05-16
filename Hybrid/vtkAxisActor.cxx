@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkAxisActor.h"
 
+#include "vtkAxisFollower.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCoordinate.h"
@@ -91,8 +92,9 @@ vtkAxisActor::vtkAxisActor()
   this->TitleVector = vtkVectorText::New();
   this->TitleMapper = vtkPolyDataMapper::New();
   this->TitleMapper->SetInput(this->TitleVector->GetOutput());
-  this->TitleActor = vtkFollower::New();
+  this->TitleActor = vtkAxisFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
+  this->TitleActor->SetEnableDistanceLOD(0);
 
   // to avoid deleting/rebuilding create once up front
   this->NumberOfLabelsBuilt = 0;
@@ -148,6 +150,9 @@ vtkAxisActor::vtkAxisActor()
   this->MajorRangeStart = 0.;
   this->DeltaRangeMinor = 1.;
   this->DeltaRangeMajor = 1.;
+
+  this->CalculateTitleOffset = 1;
+  this->CalculateLabelOffset = 1;
 }
 
 // ****************************************************************
@@ -292,6 +297,8 @@ void vtkAxisActor::ShallowCopy(vtkProp *prop)
     this->SetTickVisibility(a->GetTickVisibility());
     this->SetLabelVisibility(a->GetLabelVisibility());
     this->SetTitleVisibility(a->GetTitleVisibility());
+    this->SetCalculateTitleOffset(a->GetCalculateTitleOffset());
+    this->SetCalculateLabelOffset(a->GetCalculateLabelOffset());
     }
 
   // Now do superclass
@@ -481,6 +488,11 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->SetProperty(this->GetProperty());
+
+    if(!this->GetCalculateLabelOffset())
+      {
+      this->LabelActors[i]->SetAutoCenter(1);
+      }
     }
 
   if (force || this->BuildTime.GetMTime() <  this->BoundsTime.GetMTime() ||
@@ -519,6 +531,9 @@ int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
 //   Corrected the test that causes the routine to exit early when
 //   no work needs to be done.
 //
+//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//   Use mapper bounds, not actor bounds.
+//
 // *******************************************************************
 
 void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
@@ -528,7 +543,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     return;
     }
 
-  double bounds[6], center[3], tick[3], pos[3];
+  double bounds[6], center[3], tick[3], pos[3], scale[3];
   int i = 0;
   int xmult = 0;
   int ymult = 0;
@@ -566,16 +581,33 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     ptIdx = 4*i + 1;
     this->MajorTickPts->GetPoint(ptIdx, tick);
 
-    this->LabelActors[i]->GetBounds(bounds);
+    this->LabelActors[i]->GetMapper()->GetBounds(bounds);
+    this->LabelActors[i]->GetScale(scale);
 
-    double halfWidth  = (bounds[1] - bounds[0]) * 0.5;
-    double halfHeight = (bounds[3] - bounds[2]) * 0.5;
+    if(this->CalculateLabelOffset)
+      {
+      double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * scale[0];
+      double halfHeight = (bounds[3] - bounds[2]) * 0.5 * scale[1];
 
-    center[0] = tick[0] + xmult * (halfWidth  + this->MinorTickSize);
-    center[1] = tick[1] + ymult * (halfHeight + this->MinorTickSize);
-    pos[0] = (center[0] - xadjust *halfWidth);
-    pos[1] = (center[1] - yadjust *halfHeight);
-    pos[2] = tick[2];
+      center[0] = tick[0] + xmult * (halfWidth  + this->MinorTickSize);
+      center[1] = tick[1] + ymult * (halfHeight + this->MinorTickSize);
+      center[2] = tick[2];
+
+      pos[0] = (center[0] - xadjust *halfWidth);
+      pos[1] = (center[1] - yadjust *halfHeight);
+      pos[2] =  center[2];
+      }
+    else
+      {
+      center[0] = tick[0] ;
+      center[1] = tick[1];
+      center[2] = tick[2];
+
+      pos[0] = center[0];
+      pos[1] = center[1];
+      pos[2] = center[2];
+      }
+
     this->LabelActors[i]->SetPosition(pos[0], pos[1], pos[2]);
     }
 }
@@ -608,6 +640,9 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 //    Fix bug with positioning of titles (the titles were being placed
 //    far away from the bounding box in some cases).
 //
+//    David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//    Use mapper bounds, not actor bounds.
+//
 // **********************************************************************
 
 void vtkAxisActor::BuildTitle(bool force)
@@ -616,7 +651,7 @@ void vtkAxisActor::BuildTitle(bool force)
     {
     return;
     }
-  double labBounds[6], titleBounds[6], center[3], pos[3];
+  double labBounds[6], titleBounds[6], center[3], pos[3], scale[3];
   double labHeight, maxHeight = 0, labWidth, maxWidth = 0;
   double halfTitleWidth, halfTitleHeight;
 
@@ -654,29 +689,39 @@ void vtkAxisActor::BuildTitle(bool force)
   //
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
-    this->LabelActors[i]->GetBounds(labBounds);
-    labWidth = labBounds[1] - labBounds[0];
+    this->LabelActors[i]->GetMapper()->GetBounds(labBounds);
+    this->LabelActors[i]->GetScale(scale);
+    labWidth = (labBounds[1] - labBounds[0])*scale[0];
     maxWidth = (labWidth > maxWidth ? labWidth : maxWidth);
-    labHeight = labBounds[3] - labBounds[2];
+    labHeight = (labBounds[3] - labBounds[2])*scale[1];
     maxHeight = (labHeight > maxHeight ? labHeight : maxHeight);
     }
   this->TitleVector->SetText(this->Title);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetPosition(p2[0], p2[1], p2[2]);
-  this->TitleActor->GetBounds(titleBounds);
-  halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5;
-  halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5;
+  this->TitleActor->GetMapper()->GetBounds(titleBounds);
+  this->TitleActor->GetScale(scale);
+  if(!this->GetCalculateTitleOffset())
+    {
+    this->TitleActor->SetAutoCenter(1);
+    }
 
   center[0] = p1[0] + (p2[0] - p1[0]) / 2.0;
   center[1] = p1[1] + (p2[1] - p1[1]) / 2.0;
   center[2] = p1[2] + (p2[2] - p1[2]) / 2.0;
 
-  center[0] += xmult * (halfTitleWidth + maxWidth);
-  center[1] += ymult * (halfTitleHeight + 2*maxHeight);
+  if(this->CalculateTitleOffset)
+    {
+    halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5 * scale[0];
+    halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5 * scale[1];
+    center[0] += xmult * (halfTitleWidth + maxWidth);
+    center[1] += ymult * (halfTitleHeight + 2*maxHeight);
+    }
 
-  pos[0] = center[0] - xmult*halfTitleWidth;
-  pos[1] = center[1] - ymult*halfTitleHeight;
+  pos[0] = center[0];
+  pos[1] = center[1];
   pos[2] = center[2];
+
   this->TitleActor->SetPosition(pos[0], pos[1], pos[2]);
 }
 
@@ -787,6 +832,16 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MinorTicksVisible: " << this->MinorTicksVisible << endl;
 
+  os << indent << "TitleActor: ";
+  if(this->TitleActor)
+    {
+    os << indent << "TitleActor: (" << this->TitleActor << ")\n";
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
   os << indent << "Camera: ";
   if (this->Camera)
     {
@@ -812,6 +867,9 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GridlineZLength: " << this->GridlineZLength << endl;
 
   os << indent << "TickLocation: " << this->TickLocation << endl;
+
+  os << indent << "CalculateLabelOffset: " << this->CalculateLabelOffset << std::endl;
+  os << indent << "CalculateTitleOffset: " << this->CalculateTitleOffset << std::endl;
 }
 
 // **************************************************************************
@@ -844,15 +902,16 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
 
     this->LabelVectors = new vtkVectorText * [numLabels];
     this->LabelMappers = new vtkPolyDataMapper * [numLabels];
-    this->LabelActors = new vtkFollower * [numLabels];
+    this->LabelActors  = new vtkAxisFollower * [numLabels];
 
     for (i = 0; i < numLabels; i++)
       {
       this->LabelVectors[i] = vtkVectorText::New();
       this->LabelMappers[i] = vtkPolyDataMapper::New();
       this->LabelMappers[i]->SetInput(this->LabelVectors[i]->GetOutput());
-      this->LabelActors[i] = vtkFollower::New();
+      this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
+      this->LabelActors[i]->SetEnableDistanceLOD(0);
       }
     }
 
@@ -1530,27 +1589,26 @@ void vtkAxisActor::GetBounds(double b[6])
 //   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
 //   Reset the actor's position and scale.
 //
+// Modifications:
+//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//   Use mapper bounds, not actor bounds, so centering is not necessary.
+//
 // *********************************************************************
 
-double vtkAxisActor::ComputeMaxLabelLength(const double center[3])
+double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
 {
   double length, maxLength = 0.;
-  double pos[3];
-  double scale;
+  double bounds[6];
+  double xsize, ysize;
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
-    this->LabelActors[i]->GetPosition(pos);
-    scale = this->LabelActors[i]->GetScale()[0];
-
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->SetProperty(this->GetProperty());
-    this->LabelActors[i]->SetPosition(center[0], center[1] , center[2]);
-    this->LabelActors[i]->SetScale(1.);
-    length = this->LabelActors[i]->GetLength();
+    this->LabelActors[i]->GetMapper()->GetBounds(bounds);
+    xsize = bounds[1] - bounds[0];
+    ysize = bounds[3] - bounds[2];
+    length = sqrt(xsize*xsize + ysize*ysize);
     maxLength = (length > maxLength ? length : maxLength);
-
-    this->LabelActors[i]->SetPosition(pos);
-    this->LabelActors[i]->SetScale(scale);
     }
   return maxLength;
 }
@@ -1574,23 +1632,26 @@ double vtkAxisActor::ComputeMaxLabelLength(const double center[3])
 //   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
 //   Reset the actor's position and scale.
 //
+// Modifications:
+//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
+//   Use mapper bounds, not actor bounds, so centering is not necessary.
+//
 // *********************************************************************
 
-double vtkAxisActor::ComputeTitleLength(const double center[3])
+double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
 {
-  double pos[3], scale, len;
-  this->TitleActor->GetPosition(pos);
-  scale = this->TitleActor->GetScale()[0];
+  double bounds[6];
+  double xsize, ysize;
+  double length;
+
   this->TitleVector->SetText(this->Title);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetProperty(this->GetProperty());
-  this->TitleActor->SetPosition(center[0], center[1] , center[2]);
-  this->TitleActor->SetScale(1.);
-  len = this->TitleActor->GetLength();
-
-  this->TitleActor->SetPosition(pos);
-  this->TitleActor->SetScale(scale);
-  return len;
+  this->TitleActor->GetMapper()->GetBounds(bounds);
+  xsize = bounds[1] - bounds[0];
+  ysize = bounds[3] - bounds[2];
+  length = sqrt(xsize*xsize + ysize*ysize);
+  return length;
 }
 
 // *********************************************************************
@@ -1686,6 +1747,7 @@ vtkCoordinate* vtkAxisActor::GetPoint1Coordinate()
   return this->Point1Coordinate;
 }
 
+//---------------------------------------------------------------------------
 vtkCoordinate* vtkAxisActor::GetPoint2Coordinate()
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this
@@ -1694,21 +1756,25 @@ vtkCoordinate* vtkAxisActor::GetPoint2Coordinate()
   return this->Point2Coordinate;
 }
 
+//---------------------------------------------------------------------------
 void vtkAxisActor::SetPoint1(double x, double y, double z)
 {
   this->Point1Coordinate->SetValue(x, y, z);
 }
 
+//---------------------------------------------------------------------------
 void vtkAxisActor::SetPoint2(double x, double y, double z)
 {
   this->Point2Coordinate->SetValue(x, y, z);
 }
 
+//---------------------------------------------------------------------------
 double* vtkAxisActor::GetPoint1()
 {
   return this->Point1Coordinate->GetValue();
 }
 
+//---------------------------------------------------------------------------
 double* vtkAxisActor::GetPoint2()
 {
   return this->Point2Coordinate->GetValue();

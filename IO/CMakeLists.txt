@@ -91,6 +91,7 @@ vtkMINCImageWriter.cxx
 vtkMPASReader.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
+vtkNetCDFCAMReader.cxx
 vtkNetCDFCFReader.cxx
 vtkNetCDFPOPReader.cxx
 vtkNetCDFReader.cxx
@@ -130,6 +131,7 @@ vtkSLCReader.cxx
 vtkSTLReader.cxx
 vtkSTLWriter.cxx
 vtkSimplePointsReader.cxx
+vtkSimplePointsWriter.cxx
 vtkSortFileNames.cxx
 vtkStructuredGridReader.cxx
 vtkStructuredGridWriter.cxx

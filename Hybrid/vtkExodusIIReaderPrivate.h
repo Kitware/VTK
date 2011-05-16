@@ -55,9 +55,10 @@ public:
   /// Read requested data and store in unstructured grid.
   int RequestData( vtkIdType timeStep, vtkMultiBlockDataSet* output );
 
-  // Description:
-  // Prepare a data set with the proper structure and arrays but no cells.
-  // This is used by the parallel reader when a process has no files assigned to it.
+  /** Description:
+    * Prepare a data set with the proper structure and arrays but no cells.
+    * This is used by the parallel reader when a process has no files assigned to it.
+    */
   int SetUpEmptyGrid( vtkMultiBlockDataSet* output );
 
   /** Reset the class so that another file may be read.
@@ -357,7 +358,9 @@ public:
     /// Cached cell connectivity arrays for mesh
     vtkUnstructuredGrid* CachedConnectivity;
 
-    BlockSetInfoType() { this->CachedConnectivity = 0; }
+    BlockSetInfoType(){this->CachedConnectivity=0;}
+    BlockSetInfoType(const BlockSetInfoType& block);
+    ~BlockSetInfoType();
   };
 
   /// A struct to hold information about Exodus blocks
@@ -374,7 +377,7 @@ public:
     int CellType; 
     // Number of points per cell as used by VTK 
     // -- not what's in the file (i.e., BdsPerEntry[0] >= PointsPerCell)
-    int PointsPerCell; 
+    int PointsPerCell;
   };
 
   /// A struct to hold information about Exodus blocks

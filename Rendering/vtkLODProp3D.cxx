@@ -89,6 +89,7 @@ vtkLODProp3D::~vtkLODProp3D()
     {
     if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE )
       {
+      this->LODs[i].Prop3D->RemoveConsumer(this);
       this->LODs[i].Prop3D->RemoveObserver(this->PickCallback);
       this->LODs[i].Prop3D->Delete();
       }
@@ -237,7 +238,8 @@ void vtkLODProp3D::RemoveLOD( int id )
     {
     return;
     }
-  
+
+  this->LODs[index].Prop3D->RemoveConsumer(this);
   this->LODs[index].Prop3D->RemoveObserver(this->PickCallback);
   this->LODs[index].Prop3D->Delete();
   this->LODs[index].ID = VTK_INDEX_NOT_IN_USE;
@@ -360,6 +362,8 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
     actor->SetTexture( t );
     }
 
+  actor->AddConsumer(this);
+
   this->LODs[index].Prop3D        = actor;
   this->LODs[index].Prop3DType    = VTK_LOD_ACTOR_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
@@ -403,6 +407,8 @@ int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
     volume->SetProperty( p );
     }
 
+  volume->AddConsumer(this);
+
   this->LODs[index].Prop3D        = volume;
   this->LODs[index].Prop3DType    = VTK_LOD_VOLUME_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
@@ -445,6 +451,8 @@ int vtkLODProp3D::AddLOD( vtkImageMapper3D *m, vtkImageProperty *p,
     {
     image->SetProperty( p );
     }
+
+  image->AddConsumer(this);
 
   this->LODs[index].Prop3D        = image;
   this->LODs[index].Prop3DType    = VTK_LOD_IMAGE_TYPE;

@@ -78,12 +78,20 @@ public:
   void SetDimensions(DimensionT dimensions);
 
   // Description:
-  // Returns the index of the i-th dimension.
+  // Returns the coordinate of the i-th dimension.
   CoordinateT& operator[](DimensionT i);
 
   // Description:
-  // Returns the index of the i-th dimension.
+  // Returns the coordinate of the i-th dimension.
   const CoordinateT& operator[](DimensionT i) const;
+
+  // Description:
+  // Returns the coordinate of the i-th dimension.
+  CoordinateT GetCoordinate(DimensionT i) const;
+
+  // Description:
+  // Sets the coordinate of the i-th dimension.
+  void SetCoordinate(DimensionT i, const CoordinateT&);
 
   // Description:
   // Equality comparison

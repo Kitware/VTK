@@ -411,7 +411,23 @@ void vtkSynchronizedRenderers::RendererInfo::Save(vtkMultiProcessStream& stream)
          << this->CameraClippingRange[0]
          << this->CameraClippingRange[1]
          << this->CameraViewAngle
-         << this->CameraParallelScale;
+         << this->CameraParallelScale
+         << this->HeadPose[0]
+         << this->HeadPose[1]
+         << this->HeadPose[2]
+         << this->HeadPose[3]
+         << this->HeadPose[4]
+         << this->HeadPose[5]
+         << this->HeadPose[6]
+         << this->HeadPose[7]
+         << this->HeadPose[8]
+         << this->HeadPose[9]
+         << this->HeadPose[10]
+         << this->HeadPose[11]
+         << this->HeadPose[12]
+         << this->HeadPose[13]
+         << this->HeadPose[14]
+         << this->HeadPose[15] ;
 }
 
 //----------------------------------------------------------------------------
@@ -426,9 +442,9 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
   stream >> this->ImageReductionFactor
          >> this->Draw
          >> this->CameraParallelProjection
-         >> this->Viewport[0] 
+         >> this->Viewport[0]
          >> this->Viewport[1]
-         >> this->Viewport[2] 
+         >> this->Viewport[2]
          >> this->Viewport[3]
          >> this->CameraPosition[0]
          >> this->CameraPosition[1]
@@ -444,7 +460,23 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
          >> this->CameraClippingRange[0]
          >> this->CameraClippingRange[1]
          >> this->CameraViewAngle
-         >> this->CameraParallelScale;
+         >> this->CameraParallelScale
+         >> this->HeadPose[0]
+         >> this->HeadPose[1]
+         >> this->HeadPose[2]
+         >> this->HeadPose[3]
+         >> this->HeadPose[4]
+         >> this->HeadPose[5]
+         >> this->HeadPose[6]
+         >> this->HeadPose[7]
+         >> this->HeadPose[8]
+         >> this->HeadPose[9]
+         >> this->HeadPose[10]
+         >> this->HeadPose[11]
+         >> this->HeadPose[12]
+         >> this->HeadPose[13]
+         >> this->HeadPose[14]
+         >> this->HeadPose[15];
   return true;
 }
 
@@ -462,6 +494,7 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   cam->GetClippingRange(this->CameraClippingRange);
   this->CameraViewAngle = cam->GetViewAngle();
   this->CameraParallelScale = cam->GetParallelScale();
+  cam->GetHeadPose( this->HeadPose );
 }
 
 //----------------------------------------------------------------------------
@@ -475,10 +508,26 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetFocalPoint(this->CameraFocalPoint);
   cam->SetViewUp(this->CameraViewUp);
   cam->SetWindowCenter(this->CameraWindowCenter[0],
-    this->CameraWindowCenter[1]);
+                       this->CameraWindowCenter[1]);
   cam->SetClippingRange(this->CameraClippingRange);
   cam->SetViewAngle(this->CameraViewAngle);
   cam->SetParallelScale(this->CameraParallelScale);
+  cam->SetHeadPose(this->HeadPose[0],
+                   this->HeadPose[1],
+                   this->HeadPose[2],
+                   this->HeadPose[3],
+                   this->HeadPose[4],
+                   this->HeadPose[5],
+                   this->HeadPose[6],
+                   this->HeadPose[7],
+                   this->HeadPose[8],
+                   this->HeadPose[9],
+                   this->HeadPose[10],
+                   this->HeadPose[11],
+                   this->HeadPose[12],
+                   this->HeadPose[13],
+                   this->HeadPose[14],
+                   this->HeadPose[15] );
 }
 
 
@@ -498,7 +547,7 @@ void vtkSynchronizedRenderers::vtkRawImage::Initialize(
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomps)
 {
-  if (dx*dy < this->Data->GetNumberOfTuples() &&
+  if (dx*dy <= this->Data->GetNumberOfTuples() &&
     this->Data->GetNumberOfComponents() == numcomps)
     {
     this->Size[0] = dx;
@@ -669,7 +718,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
     static_cast<int>(window_size[0] * viewport[2])-1,
     static_cast<int>(window_size[1] * viewport[3])-1,
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
-    this->GetRawPtr()); 
+    this->GetRawPtr());
   this->MarkValid();
   return true;
 }

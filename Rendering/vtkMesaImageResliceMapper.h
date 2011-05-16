@@ -68,6 +68,16 @@ protected:
     vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
+  // Given an extent that describes a slice (it must have unit thickness
+  // in one of the three directions), return the dimension indices that
+  // correspond to the texture "x" and "y", provide the x, y image size,
+  // and provide the texture size (padded to a power of two if the hardware
+  // requires).
+  void ComputeTextureSize(
+    const int extent[6], int &xdim, int &ydim,
+    int imageSize[2], int textureSize[2]);
+
+  // Description:
   // Test whether a given texture size is supported.  This includes a
   // check of whether the texture will fit into texture memory.
   bool TextureSizeOK(const int size[2]);
@@ -83,6 +93,8 @@ protected:
   double TCoords[8];
   int TextureSize[2];
   int TextureBytesPerPixel;
+
+  bool UsePowerOfTwoTextures;
   bool UseClampToEdge;
 
 private:

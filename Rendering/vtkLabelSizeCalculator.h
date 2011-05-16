@@ -1,12 +1,17 @@
-#ifndef __vtkLabelSizeCalculator_h
-#define __vtkLabelSizeCalculator_h
+/*=========================================================================
 
-#include "vtkPassInputTypeAlgorithm.h"
+  Program:   Visualization Toolkit
+  Module:    vtkLabelSizeCalculator.h
 
-class vtkIntArray;
-class vtkFreeTypeUtilities;
-class vtkStringArray;
-class vtkTextProperty;
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 
 // .NAME vtkLabelSizeCalculator
 // .SECTION Description
@@ -26,6 +31,16 @@ class vtkTextProperty;
 // This array must be a vtkIntArray.
 // Any type that does not map to a font property that was set will
 // be set to the type 0's type property.
+
+#ifndef __vtkLabelSizeCalculator_h
+#define __vtkLabelSizeCalculator_h
+
+#include "vtkPassInputTypeAlgorithm.h"
+
+class vtkIntArray;
+class vtkFreeTypeUtilities;
+class vtkStringArray;
+class vtkTextProperty;
 
 class VTK_RENDERING_EXPORT vtkLabelSizeCalculator : public vtkPassInputTypeAlgorithm
 {

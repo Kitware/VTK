@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage.cxx
+  Module:    vtkImageSlice.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -38,12 +38,40 @@ public:
     {
     mapper->CurrentProp = prop;
     }
+  static void SetInRender(vtkImageMapper3D *mapper, bool inRender)
+    {
+    mapper->InRender = inRender;
+    }
+  static void SetStackedImagePass(vtkImageMapper3D *mapper, int pass)
+    {
+    switch (pass)
+      {
+      case 0:
+        mapper->MatteEnable = true;
+        mapper->ColorEnable = false;
+        mapper->DepthEnable = false;
+        break;
+      case 1:
+        mapper->MatteEnable = false;
+        mapper->ColorEnable = true;
+        mapper->DepthEnable = false;
+        break;
+      case 2:
+        mapper->MatteEnable = false;
+        mapper->ColorEnable = false;
+        mapper->DepthEnable = true;
+        break;
+      default:
+        mapper->MatteEnable = true;
+        mapper->ColorEnable = true;
+        mapper->DepthEnable = true;
+        break;
+      }
+    }
+
 };
 
 //----------------------------------------------------------------------------
-// Creates a Volume with the following defaults: origin(0,0,0)
-// position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0).
 vtkImageSlice::vtkImageSlice()
 {
   this->Mapper = NULL;
@@ -51,7 +79,6 @@ vtkImageSlice::vtkImageSlice()
 }
 
 //----------------------------------------------------------------------------
-// Destruct a volume
 vtkImageSlice::~vtkImageSlice()
 {
   if (this->Property)
@@ -69,7 +96,6 @@ void vtkImageSlice::GetImages(vtkPropCollection *vc)
 }
 
 //----------------------------------------------------------------------------
-// Shallow copy of an volume.
 void vtkImageSlice::ShallowCopy(vtkProp *prop)
 {
   vtkImageSlice *v = vtkImageSlice::SafeDownCast(prop);
@@ -217,12 +243,12 @@ double vtkImageSlice::GetMaxZBound()
 // Does this prop have some translucent polygonal geometry?
 int vtkImageSlice::HasTranslucentPolygonalGeometry()
 {
-  // Always render during translucent pass, to keep the behaviour
-  // predictable.
+  // Always render during opaque pass, to keep the behavior
+  // predictable and because depth-peeling kills alpha-blending.
   // In the future, the Renderer should render images in layers,
   // i.e. where each image will have a layer number assigned to it,
   // and the Renderer will do the images in their own pass. 
-  return 1;
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -254,7 +280,7 @@ int vtkImageSlice::RenderOpaqueGeometry(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageSlice::RenderOverlay(vtkViewport* viewport)
+int vtkImageSlice::RenderOverlay(vtkViewport* vtkNotUsed(viewport))
 {
   vtkDebugMacro(<< "vtkImageSlice::RenderOverlay");
 
@@ -266,20 +292,6 @@ int vtkImageSlice::RenderOverlay(vtkViewport* viewport)
 //----------------------------------------------------------------------------
 void vtkImageSlice::Render(vtkRenderer *ren)
 {
-  this->Update();
-
-  if (!this->Mapper)
-    {
-    vtkErrorMacro( << "You must specify a mapper!\n" );
-    return;
-    }
-
-  // If we don't have any input return silently
-  if (!this->Mapper->GetInput())
-    {
-    return;
-    }
-
   // Force the creation of a property
   if (!this->Property)
     {
@@ -292,8 +304,24 @@ void vtkImageSlice::Render(vtkRenderer *ren)
     return;
     }
 
-  this->Mapper->Render(ren, this);
-  this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
+  if (!this->Mapper)
+    {
+    vtkErrorMacro( << "You must specify a mapper!\n" );
+    return;
+    }
+
+  vtkImageToImageMapper3DFriendship::SetInRender(this->Mapper, true);
+
+  this->Update();
+
+  // only call the mapper if it has an input
+  if (this->Mapper->GetInput())
+    {
+    this->Mapper->Render(ren, this);
+    this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
+    }
+
+  vtkImageToImageMapper3DFriendship::SetInRender(this->Mapper, false);
 }
 
 //----------------------------------------------------------------------------
@@ -405,6 +433,16 @@ unsigned long vtkImageSlice::GetRedrawMTime()
     }
 
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSlice::SetStackedImagePass(int pass)
+{
+  if (this->Mapper)
+    {
+    vtkImageToImageMapper3DFriendship::SetStackedImagePass(
+      this->Mapper, pass);
+    }
 }
 
 //----------------------------------------------------------------------------

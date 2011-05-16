@@ -304,6 +304,8 @@ int TestFollowerPicking( int argc, char* argv[] )
 
   VTK_CREATE(vtkRenderWindow, renWin);
   renWin->AddRenderer(ren1);
+  // Turn off antialiasing so all GPUs produce the same image
+  renWin->SetMultiSamples(0);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renWin);

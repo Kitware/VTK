@@ -58,6 +58,11 @@ void vtkTimeStamp::Modified()
   this->ModifiedTime = (unsigned long)OSAtomicIncrement32Barrier(&vtkTimeStampTime);
  #endif
 
+// GCC and CLANG intrinsics
+#elif defined(VTK_HAVE_SYNC_BUILTINS)
+  static volatile unsigned long vtkTimeStampTime = 0;
+  this->ModifiedTime = __sync_add_and_fetch(&vtkTimeStampTime, 1);
+
 // General case
 #else
   static unsigned long vtkTimeStampTime = 0;

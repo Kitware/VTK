@@ -25,7 +25,7 @@
   #undef METAIO_EXPORT
 #endif 
 
-#include "../metaIOConfig.h"
+#include "metaIOConfig.h"
 
 #if defined(METAIO_FOR_ITK) || !defined(METAIO_FOR_VTK)
   // ITK

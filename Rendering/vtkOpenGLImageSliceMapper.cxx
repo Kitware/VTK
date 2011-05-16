@@ -116,9 +116,31 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 }
 
 //----------------------------------------------------------------------------
+// Render the backing polygon
+void vtkOpenGLImageSliceMapper::RenderBackingPolygon()
+{
+  // set the geometry for the quad to texture
+  double coords[12];
+  this->MakeTextureGeometry(
+    this->GetInput(), this->DisplayExtent, this->Border, coords, 0);
+
+  static double normals[3][3] =
+    { {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} };
+  double *normal = normals[(this->Orientation % 3)];
+
+  glBegin(GL_QUADS);
+  for (int i = 0; i < 4; i++)
+    {
+    glNormal3dv(normal);
+    glVertex3dv(&coords[i*3]);
+    }
+  glEnd();
+}
+ 
+//----------------------------------------------------------------------------
 // Load the given image extent into a texture and render it
-void vtkOpenGLImageSliceMapper::InternalLoad(
-  vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
+void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
+  vtkRenderer *ren, vtkProp3D *vtkNotUsed(prop), vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
   vtkOpenGLRenderWindow *renWin =
@@ -137,6 +159,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
 
   // get the mtime of the property, including the lookup table
   unsigned long propertyMTime = 0;
+  bool checkerboard = false;
   if (property)
     {
     propertyMTime = property->GetMTime();
@@ -149,6 +172,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
         propertyMTime = mtime;
         }
       }
+    checkerboard = (property->GetCheckerboard() != 0);
     }
 
   // get the previous load time
@@ -169,15 +193,27 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
     bool reuseTexture = false;
 #endif
 
+    // whether to try to use the input data directly as the texture
+    bool reuseData = true;
+    if (checkerboard)
+      {
+      reuseData = false;
+      }
+
     // get the data to load as a texture
     int xsize = this->TextureSize[0];
     int ysize = this->TextureSize[1];
     int bytesPerPixel = this->TextureBytesPerPixel;
-    bool releaseData;
 
     unsigned char *data = this->MakeTextureData(
       property, input, extent, xsize, ysize, bytesPerPixel, reuseTexture,
-      releaseData);
+      reuseData);
+
+    if (checkerboard)
+      {
+      this->CheckerboardImage(
+        data, xsize, ysize, input->GetSpacing(), property);
+      }
 
     // set the geometry for the quad to texture
     this->MakeTextureGeometry(
@@ -215,7 +251,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
 
     GLenum interp = (
       (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION) ?
-        GL_NEAREST : GL_LINEAR);  
+        GL_NEAREST : GL_LINEAR);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
@@ -245,26 +281,21 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
       }
 #endif
 
-    if (useFragmentProgram && (this->FragmentShaderIndex == 0 ||
-        xsize != this->TextureSize[0] || ysize != this->TextureSize[1]))
+    if (useFragmentProgram && this->FragmentShaderIndex == 0)
       {
       // Use the the ancient ARB_fragment_program extension, it works
       // reliably even with very old hardware and drivers
       vtkgl::GenProgramsARB(1, &tempIndex);
       this->FragmentShaderIndex = static_cast<long>(tempIndex);
+
       vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             this->FragmentShaderIndex);
-
-      vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
-        static_cast<float>(xsize), static_cast<float>(ysize),
-        static_cast<float>(1.0/xsize), static_cast<float>(1.0/ysize));
-
       const char *prog = vtkTextureBicubicARB_fp;
       vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                               vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                               static_cast<GLsizei>(strlen(prog)), prog);
 
-      int erri;
+      GLint erri;
       glGetIntegerv(vtkgl::PROGRAM_ERROR_POSITION_ARB, &erri);
       if (erri != -1)
         {
@@ -300,7 +331,7 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
 #endif
     // modify the load time to the current time
     this->LoadTime.Modified();
-    if (releaseData)
+    if (!reuseData)
       {
       delete [] data;
       }
@@ -309,108 +340,78 @@ void vtkOpenGLImageSliceMapper::InternalLoad(
   // execute the display list that uses creates the texture
 #ifdef GL_VERSION_1_1
   glBindTexture(GL_TEXTURE_2D, this->Index);
-  if (useFragmentProgram)
-    {
-    vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
-                          this->FragmentShaderIndex);
-    }
 #else
   glCallList(static_cast<GLuint>(this->Index));
 #endif
 
-  // don't accept fragments if they have zero opacity:
-  // this will stop the zbuffer from be blocked by totally
-  // transparent texture fragments.
-  glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
-  glEnable(GL_ALPHA_TEST);
-
-  // now bind it
-  glEnable(GL_TEXTURE_2D);
   if (useFragmentProgram)
     {
+    // Bind the bicubic interpolation fragment program, it will
+    // not do anything if modern shader objects are also in play.
+    vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
+                          this->FragmentShaderIndex);
+    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
+                          static_cast<float>(this->TextureSize[0]),
+                          static_cast<float>(this->TextureSize[1]),
+                          static_cast<float>(1.0/this->TextureSize[0]),
+                          static_cast<float>(1.0/this->TextureSize[1]));
     glEnable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
 
-  // depth peeling
-  vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
+  glEnable(GL_TEXTURE_2D);
 
-  if (oRenderer->GetDepthPeelingHigherLayer())
-    {
-    GLint uUseTexture = oRenderer->GetUseTextureUniformVariable();
-    GLint uTexture = oRenderer->GetTextureUniformVariable();
-    vtkgl::Uniform1i(uUseTexture, 1);
-    vtkgl::Uniform1i(uTexture, 0); // active texture 0
-    }
+  // modulate the texture with the fragment for lighting effects
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-#ifdef GL_VERSION_1_1
-  // do an offset to avoid depth buffer issues
-  if (vtkMapper::GetResolveCoincidentTopology() !=
-      VTK_RESOLVE_SHIFT_ZBUFFER )
-    {
-    double f, u;
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-    glPolygonOffset(f,u);
-    }
-#endif
-
-  // set the OpenGL state and draw the quad
-  glDisable(GL_CULL_FACE);
-  glDisable(GL_COLOR_MATERIAL);
-
-  double opacity = property->GetOpacity();
-  double ambient = property->GetAmbient();
-  double diffuse = property->GetDiffuse();
-
-  if (ambient == 1.0 && diffuse == 0.0)
-    {
-    glDisable(GL_LIGHTING);
-    }
-  else
-    {
-    glEnable(GL_LIGHTING);
-    glMaterialf(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-    glMaterialf(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-    }
-
-  glColor4f(1.0, 1.0, 1.0, opacity);
-
-  // Add all the clipping planes
-  double planeEquation[4];
-  int numClipPlanes;
-  for (numClipPlanes = 0;
-       this->GetClippingPlaneInDataCoords(
-         prop->GetMatrix(), numClipPlanes, planeEquation);
-       numClipPlanes++)
-    {
-    if (numClipPlanes > 6)
-      {
-      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
-      break;
-      }
-
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+numClipPlanes);
-    glEnable(clipPlaneId);
-    glClipPlane(clipPlaneId, planeEquation);
-    }
+  static double normals[3][3] =
+    { { 1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+  double *normal = normals[(this->Orientation % 3)];
 
   glBegin(GL_QUADS);
   for (int i = 0; i < 4; i++)
     {
+    glNormal3dv(normal);
     glTexCoord2dv(this->TCoords + i*2);
     glVertex3dv(this->Coords + i*3);
     }
   glEnd();
 
-  for (int i = 0; i < numClipPlanes; i++)
+  if (useFragmentProgram)
     {
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
-    glDisable(clipPlaneId);
+    glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
+}
 
-  if (ambient == 1.0 && diffuse == 0.0)
+//----------------------------------------------------------------------------
+void vtkOpenGLImageSliceMapper::ComputeTextureSize(
+  const int extent[6], int &xdim, int &ydim,
+  int imageSize[2], int textureSize[2])
+{
+  // find dimension indices that will correspond to the
+  // columns and rows of the 2D texture
+  this->GetDimensionIndices(this->Orientation, xdim, ydim);
+
+  // compute the image dimensions
+  imageSize[0] = (extent[xdim*2+1] - extent[xdim*2] + 1);
+  imageSize[1] = (extent[ydim*2+1] - extent[ydim*2] + 1);
+
+  if (this->UsePowerOfTwoTextures)
     {
-    glEnable(GL_LIGHTING);
+    // find the target size of the power-of-two texture
+    for (int i = 0; i < 2; i++)
+      {
+      int powerOfTwo = 1;
+      while (powerOfTwo < imageSize[i])
+        {
+        powerOfTwo <<= 1;
+        }
+      textureSize[i] = powerOfTwo;
+      }
+    }
+  else
+    {
+    textureSize[0] = imageSize[0];
+    textureSize[1] = imageSize[1];
     }
 }
 
@@ -444,15 +445,6 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
 }
 
 //----------------------------------------------------------------------------
-// Load the texture and the geometry
-void vtkOpenGLImageSliceMapper::Load(
-  vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property)
-{
-  this->RecursiveLoad(
-    ren, prop, property, this->GetInput(), this->DisplayExtent, false);
-}
-
-//----------------------------------------------------------------------------
 // Set the modelview transform and load the texture
 void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
@@ -465,10 +457,10 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     this->CheckOpenGLCapabilities(renWin);
     }
 
-  glPushAttrib(GL_ENABLE_BIT);
+  vtkImageProperty *property = prop->GetProperty();
 
-  // for picking
-  glDepthMask(GL_TRUE);
+  // time the render
+  this->Timer->StartTimer();
 
   // build transformation
   int identity = prop->GetIsIdentity();
@@ -484,11 +476,119 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     glMultMatrixd(mat);
     }
 
-  // time the render
-  this->Timer->StartTimer();
+  // push a bunch of OpenGL state items, so they can be popped later:
+  // GL_ALPHA_TEST, GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_CULL_FACE,
+  // GL_LIGHTING, GL_CLIP_PLANE, GL_TEXTURE_2D
+  glPushAttrib(GL_ENABLE_BIT);
+
+  // and now enable/disable as needed for our render
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_COLOR_MATERIAL);
+
+  // don't accept fragments if they have zero opacity:
+  // this will stop the zbuffer from being blocked by totally
+  // transparent texture fragments.
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
+
+  // depth peeling
+  vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
+
+  if (oRenderer->GetDepthPeelingHigherLayer())
+    {
+    GLint uUseTexture = oRenderer->GetUseTextureUniformVariable();
+    GLint uTexture = oRenderer->GetTextureUniformVariable();
+    vtkgl::Uniform1i(uUseTexture, 1);
+    vtkgl::Uniform1i(uTexture, 0); // active texture 0
+    }
+
+#ifdef GL_VERSION_1_1
+  // do an offset to avoid depth buffer issues
+  if (vtkMapper::GetResolveCoincidentTopology() !=
+      VTK_RESOLVE_SHIFT_ZBUFFER )
+    {
+    double f, u;
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+    glPolygonOffset(f,u);
+    }
+#endif
+
+  // Add all the clipping planes
+  int numClipPlanes = this->GetNumberOfClippingPlanes();
+  if (numClipPlanes > 6)
+    {
+    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+    }
+
+  for (int i = 0; i < 6; i++)
+    {
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
+    if (i < numClipPlanes)
+      {
+      double planeEquation[4];
+      this->GetClippingPlaneInDataCoords(prop->GetMatrix(),
+                                         i, planeEquation);
+      glClipPlane(clipPlaneId, planeEquation);
+      glEnable(clipPlaneId);
+      }
+    else
+      {
+      glDisable(clipPlaneId);
+      }
+    }
+
+  // Whether to write to the depth buffer and color buffer
+  glDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE);
+  if (!this->ColorEnable && !this->MatteEnable)
+    {
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    }
+
+  // color and lighting related items
+  double opacity = property->GetOpacity();
+  double ambient = property->GetAmbient();
+  double diffuse = property->GetDiffuse();
+
+  // render the backing polygon
+  int backing = property->GetBacking();
+  double *bcolor = property->GetBackingColor();
+  if (backing &&
+      (this->MatteEnable || (this->DepthEnable && !this->ColorEnable)))
+    {
+    // the backing polygon is always opaque
+    this->RenderColorAndLighting(
+      bcolor[0], bcolor[1], bcolor[2], 1.0, ambient, diffuse);
+    this->RenderBackingPolygon();
+    }
 
   // render the texture
-  this->Load(ren, prop, prop->GetProperty());
+  if (this->ColorEnable || (!backing && this->DepthEnable))
+    {
+    this->RenderColorAndLighting(1.0, 1.0, 1.0, opacity, ambient, diffuse);
+
+    this->RecursiveRenderTexturedPolygon(
+      ren, prop, property, this->GetInput(), this->DisplayExtent, false);
+    }
+
+  // Set the masks back again
+  glDepthMask(GL_TRUE);
+  if (!this->ColorEnable && !this->MatteEnable)
+    {
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+
+  // pop the following attribs that were changed:
+  // GL_ALPHA_TEST, GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_CULL_FACE,
+  // GL_LIGHTING, GL_CLIP_PLANE, GL_TEXTURE_2D
+  glPopAttrib();
+
+  if (!identity)
+    {
+    // pop transformation matrix
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    }
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
@@ -496,15 +596,36 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     {
     this->TimeToDraw = 0.0001;
     }
+}
 
-  // pop transformation matrix
-  if (!identity)
+//----------------------------------------------------------------------------
+void vtkOpenGLImageSliceMapper::RenderColorAndLighting(
+  double red, double green, double blue,
+  double alpha, double ambient, double diffuse)
+{
+  glColor4f(red, green, blue, alpha);
+
+  if (ambient == 1.0 && diffuse == 0.0)
     {
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
+    glDisable(GL_LIGHTING);
     }
-
-  glPopAttrib();
+  else
+    {
+    float color[4];
+    color[3] = alpha;
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
+    color[0] = red*ambient;
+    color[1] = green*ambient;
+    color[2] = blue*ambient;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
+    color[0] = red*diffuse;
+    color[1] = green*diffuse;
+    color[2] = blue*diffuse;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
+    color[0] = color[1] = color[2] = 0.0;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
+    }
 }
 
 //----------------------------------------------------------------------------

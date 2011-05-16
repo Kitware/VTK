@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkLookupTable.h"
+#include "vtkColorTransferFunction.h"
 
 vtkStandardNewMacro(vtkImageProperty);
 
@@ -36,6 +37,19 @@ vtkImageProperty::vtkImageProperty()
   this->Diffuse = 0.0;
 
   this->InterpolationType = VTK_LINEAR_INTERPOLATION;
+
+  this->LayerNumber = 0;
+
+  this->Checkerboard = 0;
+  this->CheckerboardSpacing[0] = 10.0;
+  this->CheckerboardSpacing[1] = 10.0;
+  this->CheckerboardOffset[0] = 0.0;
+  this->CheckerboardOffset[1] = 0.0;
+
+  this->Backing = 0;
+  this->BackingColor[0] = 0.0;
+  this->BackingColor[1] = 0.0;
+  this->BackingColor[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -66,7 +80,51 @@ const char *vtkImageProperty::GetInterpolationTypeAsString()
 //----------------------------------------------------------------------------
 void vtkImageProperty::DeepCopy(vtkImageProperty *p)
 {
-  this->Modified();
+  if (p != NULL)
+    {
+    this->SetColorWindow(p->GetColorWindow());
+    this->SetColorLevel(p->GetColorLevel());
+    vtkScalarsToColors *lut = p->GetLookupTable();
+    if (lut == NULL)
+      {
+      this->SetLookupTable(NULL);
+      }
+    else
+      {
+      vtkLookupTable *olut = vtkLookupTable::SafeDownCast(lut);
+      vtkColorTransferFunction *octf =
+        vtkColorTransferFunction::SafeDownCast(lut);
+
+      if (olut)
+        {
+        vtkLookupTable *nlut = olut->NewInstance();
+        nlut->DeepCopy(olut);
+        this->SetLookupTable(nlut);
+        nlut->Delete();
+        }
+      else if (octf)
+        {
+        vtkColorTransferFunction *nctf = octf->NewInstance();
+        nctf->DeepCopy(octf);
+        this->SetLookupTable(nctf);
+        nctf->Delete();
+        }
+      else
+        {
+        // The vtkScalarsToColors base class has no DeepCopy,
+        // so fall back to shallow copy
+        this->SetLookupTable(lut);
+        }
+      }
+    this->SetUseLookupTableScalarRange(p->GetUseLookupTableScalarRange());
+    this->SetOpacity(p->GetOpacity());
+    this->SetAmbient(p->GetAmbient());
+    this->SetDiffuse(p->GetDiffuse());
+    this->SetInterpolationType(p->GetInterpolationType());
+    this->SetCheckerboard(p->GetCheckerboard());
+    this->SetCheckerboardSpacing(p->GetCheckerboardSpacing());
+    this->SetCheckerboardOffset(p->GetCheckerboardOffset());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -99,4 +157,14 @@ void vtkImageProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Diffuse: " << this->Diffuse << "\n";
   os << indent << "InterpolationType: "
      << this->GetInterpolationTypeAsString() << "\n";
+  os << indent << "LayerNumber: " << this->LayerNumber << "\n";
+  os << indent << "Checkerboard: "
+     << (this->Checkerboard ? "On\n" : "Off\n");
+  os << indent << "CheckerboardSpacing: " << this->CheckerboardSpacing[0]
+     << " " << this->CheckerboardSpacing[1] << "\n";
+  os << indent << "CheckerboardOffset: " << this->CheckerboardOffset[0]
+     << " " << this->CheckerboardOffset[1] << "\n";
+  os << indent << "Backing: " << (this->Backing ? "On\n" : "Off\n");
+  os << indent << "BackingColor: " << this->BackingColor[0] << " "
+     << this->BackingColor[1] << " " << this->BackingColor[2] << "\n";
 }

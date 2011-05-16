@@ -1981,7 +1981,6 @@ static int preproc_evaluate_include(
 {
   const char *cp;
   const char *filename;
-  size_t namelen = 0;
 
   if (strncmp("include", tokens->text, tokens->len) == 0)
     {
@@ -2015,7 +2014,6 @@ static int preproc_evaluate_include(
         {
         return VTK_PARSE_SYNTAX_ERROR;
         }
-      namelen = cp - filename - 1;
 
       return preproc_include_file(info, filename, 0);
       }
@@ -2024,7 +2022,6 @@ static int preproc_evaluate_include(
       cp++;
       filename = cp;
       while (*cp != '>' && *cp != '\n' && *cp != '\0') { cp++; }
-      namelen = cp - filename;
       if (*cp != '>')
         {
         return VTK_PARSE_SYNTAX_ERROR;

@@ -33,7 +33,6 @@
 #include "vtkImageReslice.h"
 
 class vtkScalarsToColors;
-class vtkLookupTable;
 
 class VTK_IMAGING_EXPORT vtkImageResliceToColors : public vtkImageReslice
 {
@@ -75,7 +74,7 @@ protected:
   ~vtkImageResliceToColors();
 
   vtkScalarsToColors *LookupTable;
-  vtkLookupTable *DefaultLookupTable;
+  vtkScalarsToColors *DefaultLookupTable;
   int OutputFormat;
 
   int ConvertScalarInfo(int &scalarType, int &numComponents);

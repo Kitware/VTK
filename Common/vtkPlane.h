@@ -70,6 +70,13 @@ public:
   void ProjectPoint(double x[3], double xproj[3]);
 
   // Description
+  // Project a vector v onto plane defined by origin and normal. The
+  // projected vector is returned in vproj.
+  static void ProjectVector(double v[3], double origin[3], double normal[3],
+                           double vproj[3]);
+  void ProjectVector(double v[3], double vproj[3]);
+
+  // Description
   // Project a point x onto plane defined by origin and normal. The 
   // projected point is returned in xproj. NOTE : normal does NOT have to 
   // have magnitude 1.

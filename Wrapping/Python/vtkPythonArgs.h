@@ -21,6 +21,8 @@ more efficient and flexible that the original PyArg_ParseTuple() code,
 resulting in wrapper code that is faster and more compact.
 -----------------------------------------------------------------------*/
 
+// .NAME vtkPythonArgs
+
 #ifndef __vtkPythonArgs_h
 #define __vtkPythonArgs_h
 
@@ -103,6 +105,11 @@ public:
     bool b;
     v = (T *)this->GetArgAsVTKObject(classname, b);
     return b; }
+  template<class T>
+  bool GetVTKObject(PyObject *o, T *&v, const char *classname) {
+    bool b;
+    v = (T *)vtkPythonArgs::GetArgAsVTKObject(o, classname, b);
+    return b; }
 
   // Description:
   // Get the next argument as a special object.  If a constructor
@@ -112,6 +119,12 @@ public:
   bool GetSpecialObject(T *&v, PyObject *&o, const char *classname) {
     v = static_cast<T *>(this->GetArgAsSpecialObject(classname, &o));
     return (v != NULL); }
+  template<class T>
+  static bool GetSpecialObject(
+    PyObject *arg, T *&v, PyObject *&o, const char *classname) {
+    v = static_cast<T *>(
+      vtkPythonArgs::GetArgAsSpecialObject(arg, classname, &o));
+    return (v != NULL); }
 
   // Description:
   // Get the next argument as a special object.  Use this if the
@@ -119,6 +132,11 @@ public:
   template<class T>
   bool GetSpecialObject(T *&v, const char *classname) {
     v = static_cast<T *>(this->GetArgAsSpecialObject(classname, NULL));
+    return (v != NULL); }
+  template<class T>
+  static bool GetSpecialObject(PyObject *o, T *&v, const char *classname) {
+    v = static_cast<T *>(
+      vtkPythonArgs::GetArgAsSpecialObject(o, classname, NULL));
     return (v != NULL); }
 
   // Description:
@@ -128,6 +146,11 @@ public:
     bool r;
     v = static_cast<T>(this->GetArgAsEnum(enumname, r));
     return r; }
+  template<class T>
+  static bool GetEnumValue(PyObject *o, T &v, const char *enumname) {
+    bool r;
+    v = static_cast<T>(vtkPythonArgs::GetArgAsEnum(o, enumname, r));
+    return r; }
 
   // Description:
   // Get the next argument as a SIP object.
@@ -135,6 +158,11 @@ public:
   bool GetSIPObject(T *&v, const char *classname) {
     bool r;
     v = (T *)this->GetArgAsSIPObject(classname, r);
+    return r; }
+  template<class T>
+  static bool GetSIPObject(PyObject *o, T *&v, const char *classname) {
+    bool r;
+    v = (T *)vtkPythonArgs::GetArgAsSIPObject(o, classname, r);
     return r; }
 
   // Description:
@@ -144,47 +172,75 @@ public:
     bool r;
     v = static_cast<T>(this->GetArgAsSIPEnum(enumname, r));
     return r; }
+  template<class T>
+  static bool GetSIPEnumValue(PyObject *o, T &v, const char *enumname) {
+    bool r;
+    v = static_cast<T>(vtkPythonArgs::GetArgAsSIPEnum(o, enumname, r));
+    return r; }
 
   // Description:
   // Get the arguments needed for a SetExecuteMethod or a similar
   // method that requires a function-pointer argument.
   bool GetFunction(PyObject *&o);
+  static bool GetFunction(PyObject *arg, PyObject *&o);
 
   // Get the next arg as a void pointer (to a buffer object).
   bool GetValue(void *&v);
+  static bool GetValue(PyObject *o, void *&v);
   bool GetValue(const void *&v);
+  static bool GetValue(PyObject *o, const void *&v);
 
   // Description:
   // Get the next argument as a string.
   bool GetValue(const char *&v);
+  static bool GetValue(PyObject *o, const char *&v);
   bool GetValue(char *&v);
+  static bool GetValue(PyObject *o, char *&v);
   bool GetValue(vtkStdString &v);
+  static bool GetValue(PyObject *o, vtkStdString &v);
   bool GetValue(vtkUnicodeString &v);
+  static bool GetValue(PyObject *o, vtkUnicodeString &v);
 
   // Description:
   // Get the next string arg as a character.
   bool GetValue(char &v);
+  static bool GetValue(PyObject *o, char &v);
 
   // Description:
   // Get the next argument.  Sets a TypeError on failure.
   bool GetValue(float &v);
+  static bool GetValue(PyObject *o, float &v);
   bool GetValue(double &v);
+  static bool GetValue(PyObject *o, double &v);
   bool GetValue(bool &v);
+  static bool GetValue(PyObject *o, bool &v);
   bool GetValue(signed char &v);
+  static bool GetValue(PyObject *o, signed char &v);
   bool GetValue(unsigned char &v);
+  static bool GetValue(PyObject *o, unsigned char &v);
   bool GetValue(short &v);
+  static bool GetValue(PyObject *o, short &v);
   bool GetValue(unsigned short &v);
+  static bool GetValue(PyObject *o, unsigned short &v);
   bool GetValue(int &v);
+  static bool GetValue(PyObject *o, int &v);
   bool GetValue(unsigned int &v);
+  static bool GetValue(PyObject *o, unsigned int &v);
   bool GetValue(long &v);
+  static bool GetValue(PyObject *o, long &v);
   bool GetValue(unsigned long &v);
+  static bool GetValue(PyObject *o, unsigned long &v);
 #ifdef VTK_TYPE_USE_LONG_LONG
   bool GetValue(long long &v);
+  static bool GetValue(PyObject *o, long long &v);
   bool GetValue(unsigned long long &v);
+  static bool GetValue(PyObject *o, unsigned long long &v);
 #endif
 #ifdef VTK_TYPE_USE___INT64
   bool GetValue(__int64 &v);
+  static bool GetValue(PyObject *o, __int64 &v);
   bool GetValue(unsigned __int64 &v);
+  static bool GetValue(PyObject *o, unsigned __int64 &v);
 #endif
 
   // Description:
@@ -428,22 +484,32 @@ protected:
   // Description:
   // Get the next argument as an object of the given type.
   vtkObjectBase *GetArgAsVTKObject(const char *classname, bool &valid);
+  static vtkObjectBase *GetArgAsVTKObject(
+    PyObject *o, const char *classname, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.
   void *GetArgAsSpecialObject(const char *classname, PyObject **newobj);
+  static void *GetArgAsSpecialObject(
+    PyObject *o, const char *classname, PyObject **newobj);
 
   // Description:
   // Get the next argument as an object of the given type.
   int GetArgAsEnum(const char *classname, bool &valid);
+  static int GetArgAsEnum(
+    PyObject *o, const char *classname, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.
   void *GetArgAsSIPObject(const char *classname, bool &valid);
+  static void *GetArgAsSIPObject(
+    PyObject *o, const char *classname, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.
   int GetArgAsSIPEnum(const char *classname, bool &valid);
+  static int GetArgAsSIPEnum(
+    PyObject *o, const char *classname, bool &valid);
 
   // Description:
   // Raise a TypeError if a virtual method call was called.

@@ -20,6 +20,8 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkGeometryFilter.h"
 #include "vtkImageData.h"
 #include "vtkLightCollection.h"
@@ -364,9 +366,8 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
 void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkX3DExporterWriter* writer, int index)
 {
-  vtkDataSet *ds;
+  vtkSmartPointer<vtkDataSet> ds;
   vtkPolyData *pd;
-  vtkSmartPointer<vtkGeometryFilter> gf;
   vtkPointData *pntData;
   vtkCellData *cellData;
   vtkPoints *points;
@@ -386,6 +387,41 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     return;
     }
 
+  vtkDataObject* dObj = anActor->GetMapper()->GetInputDataObject(0, 0);
+
+  // get the mappers input and matrix
+  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
+  if (cd)
+    {
+    vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
+    gf->SetInput(cd);
+    gf->Update();
+    ds = gf->GetOutput();
+    gf->Delete();
+    }
+  else
+    {
+    ds = anActor->GetMapper()->GetInput();
+    }
+
+  if (!ds)
+    {
+    return;
+    }
+
+  // we really want polydata
+  if ( ds->GetDataObjectType() != VTK_POLY_DATA )
+    {
+    vtkSmartPointer<vtkGeometryFilter> gf = vtkSmartPointer<vtkGeometryFilter>::New();
+    gf->SetInput(ds);
+    gf->Update();
+    pd = gf->GetOutput();
+    }
+  else
+    {
+    pd = static_cast<vtkPolyData *>(ds.GetPointer());
+    }
+
   // Essential to turn of interpolate scalars otherwise GetScalars() may return
   // NULL. We restore value before returning.
   int isbm = anActor->GetMapper()->GetInterpolateScalarsBeforeMapping();
@@ -399,22 +435,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   writer->SetField(translation, SFVEC3F, trans->GetPosition());
   writer->SetField(rotation, SFROTATION, trans->GetOrientationWXYZ());
   writer->SetField(scale, SFVEC3F, trans->GetScale());
-
-  // get the mappers input and matrix
-  ds = anActor->GetMapper()->GetInput();
-
-  // we really want polydata
-  if ( ds->GetDataObjectType() != VTK_POLY_DATA )
-    {
-    gf = vtkSmartPointer<vtkGeometryFilter>::New();
-    gf->SetInput(ds);
-    gf->Update();
-    pd = gf->GetOutput();
-    }
-  else
-    {
-    pd = static_cast<vtkPolyData *>(ds);
-    }
 
   prop = anActor->GetProperty();
   points = pd->GetPoints();

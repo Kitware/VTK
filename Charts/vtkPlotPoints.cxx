@@ -33,12 +33,26 @@
 #include <algorithm>
 
 // PIMPL for STL vector...
-class vtkPlotPoints::VectorPIMPL : public std::vector<vtkVector2f>
+struct vtkIndexedVector2f
+{
+  size_t index;
+  vtkVector2f pos;
+};
+
+class vtkPlotPoints::VectorPIMPL : public std::vector<vtkIndexedVector2f>
 {
 public:
-  VectorPIMPL(vtkVector2f* startPos, vtkVector2f* finishPos)
-    : std::vector<vtkVector2f>(startPos, finishPos)
+  VectorPIMPL(vtkVector2f* array, size_t n)
+    : std::vector<vtkIndexedVector2f>()
   {
+    this->reserve(n);
+    for (size_t i = 0; i < n; ++i)
+      {
+      vtkIndexedVector2f tmp;
+      tmp.index = i;
+      tmp.pos = array[i];
+      this->push_back(tmp);
+      }
   }
 };
 
@@ -52,6 +66,7 @@ vtkPlotPoints::vtkPlotPoints()
   this->Sorted = NULL;
   this->BadPoints = NULL;
   this->MarkerStyle = vtkPlotPoints::CIRCLE;
+  this->MarkerSize = -1.0;
   this->LogX = false;
   this->LogY = false;
   this->Marker = NULL;
@@ -132,15 +147,20 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotPoints.");
 
-  if (!this->Visible || !this->Points)
+  if (!this->Visible || !this->Points || this->Points->GetNumberOfPoints() == 0)
     {
     return false;
     }
 
-  float width = this->Pen->GetWidth() * 2.3;
-  if (width < 8.0)
+  // Maintain legacy behavior (using pen width) if MarkerSize was not set
+  float width = this->MarkerSize;
+  if (width < 0.0f)
     {
-    width = 8.0;
+    width = this->Pen->GetWidth() * 2.3;
+    if (width < 8.0)
+      {
+      width = 8.0;
+      }
     }
 
   // If there is a marker style, then draw the marker for each point too
@@ -421,6 +441,19 @@ void vtkPlotPoints::GetBounds(double bounds[4])
 namespace
 {
 
+bool compVector3fX(const vtkIndexedVector2f& v1,
+                   const vtkIndexedVector2f& v2)
+{
+  if (v1.pos.X() < v2.pos.X())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
 // Compare the two vectors, in X component only
 bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
 {
@@ -452,50 +485,51 @@ bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlotPoints::CreateSortedPoints()
+{
+  // Sort the data if it has not been done already...
+  if (!this->Sorted)
+    {
+    vtkIdType n = this->Points->GetNumberOfPoints();
+    vtkVector2f* data =
+        static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    this->Sorted = new VectorPIMPL(data, n);
+    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tol,
                                     vtkVector2f* location)
 {
-  // Right now doing a simple bisector search of the array. This should be
-  // revisited. Assumes the x axis is sorted, which should always be true for
-  // line plots.
+  // Right now doing a simple bisector search of the array.
   if (!this->Points)
     {
     return -1;
     }
-  vtkIdType n = this->Points->GetNumberOfPoints();
-  if (n < 2)
-    {
-    return -1;
-    }
-
-  // Sort the data if it has not been done already...
-  if (!this->Sorted)
-    {
-    vtkVector2f* data =
-        static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-    this->Sorted = new VectorPIMPL(data, data+n);
-    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
-    }
+  this->CreateSortedPoints();
 
   // Set up our search array, use the STL lower_bound algorithm
   VectorPIMPL::iterator low;
   VectorPIMPL &v = *this->Sorted;
 
   // Get the lowest point we might hit within the supplied tolerance
-  vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
-  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+  vtkIndexedVector2f lowPoint;
+  lowPoint.index = 0;
+  lowPoint.pos = vtkVector2f(point.X()-tol.X(), 0.0f);
+  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
 
   // Now consider the y axis
   float highX = point.X() + tol.X();
   while (low != v.end())
     {
-    if (inRange(point, tol, *low))
+    if (inRange(point, tol, (*low).pos))
       {
-      *location = *low;
-      return 0;
+      *location = (*low).pos;
+      return static_cast<int>((*low).index);
       }
-    else if (low->X() > highX)
+    else if (low->pos.X() > highX)
       {
       break;
       }
@@ -511,6 +545,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     {
     return false;
     }
+  this->CreateSortedPoints();
 
   if (!this->Selection)
     {
@@ -518,17 +553,29 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     }
   this->Selection->SetNumberOfTuples(0);
 
-  // Iterate through all points and check whether any are in range
-  vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-  vtkIdType n = this->Points->GetNumberOfPoints();
+  // Set up our search array, use the STL lower_bound algorithm
+  VectorPIMPL::iterator low;
+  VectorPIMPL &v = *this->Sorted;
 
-  for (vtkIdType i = 0; i < n; ++i)
+  // Get the lowest point we might hit within the supplied tolerance
+  vtkIndexedVector2f lowPoint;
+  lowPoint.index = 0;
+  lowPoint.pos = min;
+  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+
+  // Iterate until we are out of range in X
+  while (low != v.end())
     {
-    if (data[i].X() >= min.X() && data[i].X() <= max.X() &&
-        data[i].Y() >= min.Y() && data[i].Y() <= max.Y())
-      {
-      this->Selection->InsertNextValue(i);
-      }
+      if (low->pos.X() >= min.X() && low->pos.X() <= max.X() &&
+          low->pos.Y() >= min.Y() && low->pos.Y() <= max.Y())
+        {
+        this->Selection->InsertNextValue(low->index);
+        }
+      else if (low->pos.X() > max.X())
+        {
+        break;
+        }
+      ++low;
     }
   return this->Selection->GetNumberOfTuples() > 0;
 }

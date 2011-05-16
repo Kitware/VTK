@@ -362,14 +362,11 @@ inline unsigned char *vtkLinearLookupMain(double v,
                                           double shift, double scale)
 {
   double findx = (v + shift)*scale;
-  if (findx < 0.0)
-    {
-    findx = 0.0;
-    }
-  else if (findx > maxIndex)
-    {
-    findx = maxIndex;
-    }
+
+  // do not change this code: it compiles into min/max opcodes
+  findx = (findx > 0 ? findx : 0);
+  findx = (findx < maxIndex ? findx : maxIndex);
+
   return &table[4*static_cast<unsigned int>(findx)];
 }
 
@@ -1012,16 +1009,22 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
+void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
 {
-  if (!lut)
+  if (!obj)
     {
     return;
     }
-  this->Alpha               = lut->Alpha;
-  this->UseMagnitude        = lut->UseMagnitude;
-  this->VectorMode          = lut->VectorMode;
-  this->VectorComponent     = lut->VectorComponent;
+
+  vtkLookupTable *lut = vtkLookupTable::SafeDownCast(obj);
+
+  if (!lut)
+    {
+    vtkErrorMacro("Cannot DeepCopy a " << obj->GetClassName()
+                  << " into a vtkLookupTable.");
+    return;
+    }
+
   this->Scale               = lut->Scale;
   this->TableRange[0]       = lut->TableRange[0];
   this->TableRange[1]       = lut->TableRange[1];
@@ -1038,6 +1041,8 @@ void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
   this->InsertTime          = lut->InsertTime;
   this->BuildTime           = lut->BuildTime;
   this->Table->DeepCopy(lut->Table);
+
+  this->Superclass::DeepCopy(obj);
 }
 
 //----------------------------------------------------------------------------

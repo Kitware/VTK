@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkFastNumericConversion.h
-  
+
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -79,30 +79,33 @@ public:
   vtkTypeMacro(vtkFastNumericConversion, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Wrappable method for script-testing of correct cross-platform
-  // functionality
-  int TestQuickFloor(double val);
+  int TestQuickFloor(double val)
+    {
+    return vtkFastNumericConversion::QuickFloor(val);
+    }
 
-  // Description:
-  // Wrappable method for script-testing of correct cross-platform
-  // functionality
-  int TestSafeFloor(double val);
+  int TestSafeFloor(double val)
+    {
+    return vtkFastNumericConversion::SafeFloor(val);
+    }
 
-  // Description:
-  // Wrappable method for script-testing of correct cross-platform
-  // functionality
-  int TestRound(double val);
+  int TestRound(double val)
+    {
+    return vtkFastNumericConversion::Round(val);
+    }
 
-  // Description:
-  // Wrappable method for script-testing of correct cross-platform
-  // functionality
-  int TestConvertFixedPointIntPart(double val);
+  int TestConvertFixedPointIntPart(double val)
+    {
+    int frac;
+    return ConvertFixedPoint(val, frac);
+    }
 
-  // Description:
-  // Wrappable method for script-testing of correct cross-platform
-  // functionality
-  int TestConvertFixedPointFracPart(double val);
+  int TestConvertFixedPointFracPart(double val)
+    {
+    int frac;
+    ConvertFixedPoint(val, frac);
+    return frac;
+    }
 
 protected:
   //BTX
@@ -114,7 +117,7 @@ protected:
   // resulting in a shift of our integer bits.
   static inline double BorrowBit() { return 1.5;};
 
-  // Description: 
+  // Description:
   // Represent 2^30 as a double precision float. Use as a stepping
   // stone for computing 2^52 as a double, since we can't represent 2^52 as an
   // int before converting to double.
@@ -123,10 +126,10 @@ protected:
       return static_cast<double>(static_cast<unsigned long>(1) << 30);
     }
 
-  // Description: 
-  // Represent 2^52 as a double precision float. This value is 
+  // Description:
+  // Represent 2^52 as a double precision float. This value is
   // significant because doubles have 52 bits of precision in the mantissa
-  static inline double two52() 
+  static inline double two52()
     {
       return (static_cast<unsigned long>(1) << (52-30)) * two30();
     }
@@ -137,7 +140,7 @@ protected:
   // but we're going to pretend we only have 51 to play with when using safe
   // floor, since the default round-to-even on an X86 mucks with the LSB
   // during the denormalizing shift.
-  static inline double two51() 
+  static inline double two51()
     {
       return (static_cast<unsigned long>(1) << (51-30)) * two30();
     }
@@ -145,7 +148,7 @@ protected:
   // Description:
   // Represent 2^63 as a double precision float. We need this value to shift
   // unwanted fractional bits off the end of an extended precision value
-  static inline double two63() 
+  static inline double two63()
     {
       return (static_cast<unsigned long>(1) << (63-60)) * two30() * two30();
     }
@@ -154,7 +157,7 @@ protected:
   // Represent 2^62 as a double precision float. We need this value to shift
   // unwanted fractional bits off the end of an extended precision value. Use
   // when we're doing a SafeFloor.
-  static inline double two62() 
+  static inline double two62()
     {
       return (static_cast<unsigned long>(1) << (62-60)) * two30() * two30();
     }
@@ -169,7 +172,7 @@ protected:
   // an inherent limitation of using SafeFloor to prevent round-ups under any
   // circumstances, and there's no need to make QuickFloor handle a wider
   // range of numbers than SafeFloor.
-#define INT_BITS 30 
+#define INT_BITS 30
 #define EXT_BITS 64
 #define DBL_BITS 53
 
@@ -201,7 +204,7 @@ protected:
   // acceptable in most situations where performance is of the essence.
   // Make this public so that clients can account for the RoundingTieBreaker
   // if necessary
-public: 
+public:
 #ifdef VTK_EXT_PREC
   // Compute (0.5 ^ (EXT_BITS-INT_BITS)) as a compile-time constant
   static inline double RoundingTieBreaker()
@@ -218,11 +221,11 @@ public:
 
 protected:
   // Description:
-  // This is the magic floating point value which when added to any other 
-  // floating point value, causes the rounded integer portion of that 
+  // This is the magic floating point value which when added to any other
+  // floating point value, causes the rounded integer portion of that
   // floating point value to appear in the least significant bits of the
   // mantissa, which is what we want.
-  static inline double QuickFloorDenormalizer() 
+  static inline double QuickFloorDenormalizer()
     {return two52() * BorrowBit(); };
 
   // Description:
@@ -231,20 +234,20 @@ protected:
   // floating point value to appear in the NEXT TO least significant bits of
   // the mantissa, which is what we want. This allows the CPU rounding mode
   // to muck with the LSB which we can then discard in SafeFloor
-  static inline double SafeFloorDenormalizer() 
+  static inline double SafeFloorDenormalizer()
     { return two51() * BorrowBit(); };
 
   // Description:
   // This value is added to and then subtracted from an extended precision
   // value in order to clear the fractional bits so that they do not
   // adversely affect the final double-precision result.
-  static inline double QuickExtPrecTempDenormalizer() 
+  static inline double QuickExtPrecTempDenormalizer()
     {return two63() * BorrowBit(); };
 
   // Description:
-  // Just like QuickExtPrecTempDenormalizer(), but preserves one extra bit of 
+  // Just like QuickExtPrecTempDenormalizer(), but preserves one extra bit of
   // fixed point precision to guard against the CPU mucking with the LSB
-  static inline double SafeExtPrecTempDenormalizer() 
+  static inline double SafeExtPrecTempDenormalizer()
     {return two62() * BorrowBit(); };
 
   static inline double QuickRoundAdjust() {return 0.5;};
@@ -256,7 +259,7 @@ protected:
   enum {exponent_pos = 0, mantissa_pos = 1};
 #else
   enum {exponent_pos = 1, mantissa_pos = 0};
-#endif 
+#endif
   //ETX
 
 public:
@@ -287,12 +290,6 @@ public:
       }
     };
 
-  // Description:
-  // Conduct timing tests so that the usefulness of this class can be
-  // ascertained on whatever platform it is being used. Output can be
-  // retrieved via Print method.
-  void PerformanceTests(void);    
-
   //BTX
   // Description:
   // Perform a quick flooring of the double-precision floating point
@@ -316,14 +313,14 @@ public:
 #ifdef VTK_USE_TRICK
       union { int i[2]; double d; } u;
 #ifdef VTK_EXT_PREC
-      u.d = (((val - (QuickRoundAdjust() - RoundingTieBreaker())) 
+      u.d = (((val - (QuickRoundAdjust() - RoundingTieBreaker()))
               // Push off those extended precision bits
-              + QuickExtPrecTempDenormalizer()) 
+              + QuickExtPrecTempDenormalizer())
              // Pull back the wanted bits into double range
-             - QuickExtPrecTempDenormalizer()) 
+             - QuickExtPrecTempDenormalizer())
         + QuickFloorDenormalizer();
 #else // ! VTK_EXT_PREC
-      u.d = (val - (QuickRoundAdjust() - RoundingTieBreaker())) 
+      u.d = (val - (QuickRoundAdjust() - RoundingTieBreaker()))
         + QuickFloorDenormalizer();
 #endif // VTK_EXT_PREC
       return u.i[mantissa_pos];
@@ -356,7 +353,7 @@ public:
              - SafeExtPrecTempDenormalizer())
         + SafeFloorDenormalizer();
 #else // ! VTK_EXT_PREC
-      u.d = (val - SafeRoundAdjust()) 
+      u.d = (val - SafeRoundAdjust())
         + SafeFloorDenormalizer();
 #endif // VTK_EXT_PREC
       return u.i[mantissa_pos] >> SafeFinalShift();
@@ -379,12 +376,12 @@ public:
 #ifdef VTK_USE_TRICK
       union { int i[2]; double d; } u;
 #ifdef VTK_EXT_PREC
-      u.d = ((val 
-              + QuickExtPrecTempDenormalizer()) 
+      u.d = ((val
+              + QuickExtPrecTempDenormalizer())
              - QuickExtPrecTempDenormalizer())
         + QuickFloorDenormalizer();
 #else // ! VTK_EXT_PREC
-      u.d = val  
+      u.d = val
         + QuickFloorDenormalizer();
 #endif // VTK_EXT_PREC
     return u.i[mantissa_pos];
@@ -403,7 +400,7 @@ public:
   // Description:
   // Convert the value to a fixed point representation, returning the
   // integer portion as function value, and returning the fractional
-  // part in the second parameter. 
+  // part in the second parameter.
   inline int ConvertFixedPoint(const double &val, int &fracPart)
     {
       union { int i[2]; double d; } u;
@@ -413,7 +410,7 @@ public:
              - this->epTempDenormalizer)
         + this->fpDenormalizer;
 #else // ! VTK_EXT_PREC
-      u.d = (val - fixRound) 
+      u.d = (val - fixRound)
         + this->fpDenormalizer;
 #endif // VTK_EXT_PREC
     fracPart = (u.i[mantissa_pos] & fracMask) >> 1;
@@ -434,13 +431,6 @@ protected:
     this->internalReservedFracBits = 0;
     this->fracMask = 0;
     this->fpDenormalizer = 0;
-    this->bare_time = 0;
-    this->cast_time = 0;
-    this->convert_time = 0;
-    this->quickfloor_time = 0;
-    this->safefloor_time = 0;
-    this->round_time = 0;
-    this->InternalRebuild();
     };
   ~vtkFastNumericConversion() {};
   void InternalRebuild(void);
@@ -462,15 +452,8 @@ private:
   // Adjustment for rounding based on the number of bits reserved for
   // fractional representation
   double fixRound;
-
-  double bare_time;
-  double cast_time;
-  double convert_time;
-  double quickfloor_time;
-  double safefloor_time;
-  double round_time;
   //ETX
-  
+
   vtkFastNumericConversion(const vtkFastNumericConversion&); // Not implemented
   void operator=(const vtkFastNumericConversion&); // Not implemented
 };

@@ -254,6 +254,13 @@ int vtkWrap_IsConst(ValueInfo *val)
   return ((val->Type & VTK_PARSE_CONST) != 0);
 }
 
+/* -------------------------------------------------------------------- */
+/* Hints */
+
+int vtkWrap_IsNewInstance(ValueInfo *val)
+{
+  return ((val->Type & VTK_PARSE_NEWINSTANCE) != 0);
+}
 
 /* -------------------------------------------------------------------- */
 /* Constructor/Destructor checks */
@@ -474,13 +481,13 @@ void vtkWrap_FindCountHints(
   const char *countMethod = "GetNumberOfComponents()";
   FunctionInfo *theFunc;
 
-  for (i = 0; i < data->NumberOfFunctions; i++)
+  /* add hints for array GetTuple methods */
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
     {
-    theFunc = data->Functions[i];
-
-    /* add hints for array GetTuple methods */
-    if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
+    for (i = 0; i < data->NumberOfFunctions; i++)
       {
+      theFunc = data->Functions[i];
+
       if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
            strcmp(theFunc->Name, "GetTupleValue") == 0) &&
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
@@ -507,6 +514,69 @@ void vtkWrap_FindCountHints(
                theFunc->Arguments[0]->Count == 0)
         {
         theFunc->Arguments[0]->CountHint = countMethod;
+        }
+      }
+    }
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    theFunc = data->Functions[i];
+
+    if (theFunc->IsOperator && theFunc->Name &&
+        strcmp(theFunc->Name, "operator[]") == 0)
+      {
+      if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkVector"))
+        {
+        theFunc->SizeHint = "GetSize()";
+        }
+      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayCoordinates") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtents") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArraySort"))
+        {
+        theFunc->SizeHint = "GetDimensions()";
+        }
+      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtentsList") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayWeights"))
+        {
+        theFunc->SizeHint = "GetCount()";
+        }
+      }
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/* This sets the NewInstance hint for generator methods. */
+void vtkWrap_FindNewInstanceMethods(
+  ClassInfo *data, HierarchyInfo *hinfo)
+{
+  int i;
+  FunctionInfo *theFunc;
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    theFunc = data->Functions[i];
+    if (theFunc->Name && theFunc->ReturnValue &&
+        vtkWrap_IsVTKObject(theFunc->ReturnValue) &&
+        vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
+      {
+      if (strcmp(theFunc->Name, "NewInstance") == 0 ||
+          strcmp(theFunc->Name, "CreateInstance") == 0 ||
+          (strcmp(theFunc->Name, "CreateImageReader2") == 0 &&
+           strcmp(data->Name, "vtkImageReader2Factory") == 0) ||
+          (strcmp(theFunc->Name, "CreateDataArray") == 0 &&
+           strcmp(data->Name, "vtkDataArray") == 0) ||
+          (strcmp(theFunc->Name, "CreateArray") == 0 &&
+           strcmp(data->Name, "vtkAbstractArray") == 0) ||
+          (strcmp(theFunc->Name, "CreateArray") == 0 &&
+           strcmp(data->Name, "vtkArray") == 0) ||
+          (strcmp(theFunc->Name, "GetQueryInstance") == 0 &&
+           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
+          (strcmp(theFunc->Name, "CreateFromURL") == 0 &&
+           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
+          (strcmp(theFunc->Name, "MakeTransform") == 0 &&
+           vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractTransform")))
+        {
+        theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
         }
       }
     }
@@ -585,7 +655,6 @@ void vtkWrap_DeclareVariable(
   FILE *fp, ValueInfo *val, const char *name, int i, int flags)
 {
   unsigned int aType;
-  const char *aClass;
   int j;
 
   if (val == NULL)
@@ -594,7 +663,6 @@ void vtkWrap_DeclareVariable(
     }
 
   aType = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  aClass = val->Class;
 
   /* do nothing for void */
   if (aType == VTK_PARSE_VOID ||

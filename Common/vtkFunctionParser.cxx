@@ -177,8 +177,6 @@ int vtkFunctionParser::Parse()
     return 0;
     }
 
-//    this->RemoveSpaces();
-
   result = this->CheckSyntax();
   if (!result)
     {
@@ -305,7 +303,13 @@ int vtkFunctionParser::DisambiguateOperators()
         tempStackPtr--;
         break;
       case VTK_PARSER_DIVIDE:
-        if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
+        if (tempStack[tempStackPtr-1] == 1 && tempStack[tempStackPtr] == 0)
+          {
+          // vector / scalar.
+          this->ByteCode[i] = VTK_PARSER_VECTOR_OVER_SCALAR;
+          tempStack[tempStackPtr-1] = 1;
+          }
+        else if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
           vtkErrorMacro("can't divide vectors");
           return 0;
@@ -457,6 +461,18 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         tempStackPtr--;
         break;
+      case VTK_PARSER_VECTOR_OVER_SCALAR:
+        if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
+          {
+          this->ByteCode[i] = VTK_PARSER_DIVIDE;
+          }
+        else if (tempStack[tempStackPtr-1] == 0 && tempStack[tempStackPtr] == 1)
+          {
+          vtkErrorMacro("expecting a vector followed by a scalar");
+          return 0;
+          }
+        tempStackPtr--;
+        break;
       case VTK_PARSER_MAGNITUDE:
         if (tempStack[tempStackPtr] == 0)
           {
@@ -558,10 +574,7 @@ bool vtkFunctionParser::Evaluate()
 
   this->StackPointer = -1;
 
-//  this->RemoveSpaces();
-
-  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime() ||
-    this->VariableMTime.GetMTime() > this->ParseMTime.GetMTime())
+  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime())
     {
     if (this->Parse() == 0)
       {
@@ -851,6 +864,12 @@ bool vtkFunctionParser::Evaluate()
         this->Stack[stackPosition-3] *= this->Stack[stackPosition];
         this->Stack[stackPosition-2] *= this->Stack[stackPosition];
         this->Stack[stackPosition-1] *= this->Stack[stackPosition];
+        stackPosition--;
+        break;
+      case VTK_PARSER_VECTOR_OVER_SCALAR:
+        this->Stack[stackPosition-3] /= this->Stack[stackPosition];
+        this->Stack[stackPosition-2] /= this->Stack[stackPosition];
+        this->Stack[stackPosition-1] /= this->Stack[stackPosition];
         stackPosition--;
         break;
       case VTK_PARSER_MAGNITUDE:
@@ -2229,21 +2248,21 @@ void vtkFunctionParser::RemoveVectorVariables()
 //-----------------------------------------------------------------------------
 void vtkFunctionParser::CheckExpression(int &pos, char **error)
 {
-  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime() ||
-     this->VariableMTime.GetMTime() > this->CheckMTime.GetMTime())
+  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime())
     {
     // Need to parse again.
+
+    // Reset previous error cache.
+    this->ParseErrorPositon = -1;
+    this->ParseError        = NULL;
+
+    this->CopyParseError(pos, error);
     }
   else
     {
-    pos     = this->ParseErrorPositon;
-    *error   = this->ParseError;
+    this->CopyParseError(pos, error);
     return;
     }
-
-  // Reset.
-  this->ParseErrorPositon = -1;
-  this->ParseError        = NULL;
 
   this->CheckMTime.Modified();
 
@@ -2507,7 +2526,6 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
   delete [] expectCommaOnParenthesisCount;
   delete [] expectTwoCommasOnParenthesisCount;
 
-  this->CopyParseError(pos, error);
   return;
 }
 

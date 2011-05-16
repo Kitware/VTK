@@ -72,20 +72,40 @@ public:
 
 //      cout << "eventId: " << eventId << " -> "
 //           << this->GetStringFromEventId(eventId) << endl;
-
       switch (eventId)
         {
         case vtkCommand::MouseMoveEvent :
           this->Target->MouseMoveEvent(x, y);
           break;
         case vtkCommand::LeftButtonPressEvent :
-          this->Target->ButtonPressEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
+          if (interactor->GetRepeatCount())
+            {
+            this->Target->DoubleClickEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
+            }
+          else
+            {
+            this->Target->ButtonPressEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
+            }
           break;
         case vtkCommand::MiddleButtonPressEvent :
-          this->Target->ButtonPressEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
+          if (interactor->GetRepeatCount())
+            {
+            this->Target->DoubleClickEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
+            }
+          else
+            {
+            this->Target->ButtonPressEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
+            }
           break;
         case vtkCommand::RightButtonPressEvent :
-          this->Target->ButtonPressEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
+          if (interactor->GetRepeatCount())
+            {
+            this->Target->DoubleClickEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
+            }
+          else
+            {
+            this->Target->ButtonPressEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
+            }
           break;
         case vtkCommand::LeftButtonReleaseEvent :
           this->Target->ButtonReleaseEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
@@ -322,9 +342,10 @@ void vtkContextScene::SetInteractorStyle(vtkInteractorStyle *interactor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextScene::ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void*)
+void vtkContextScene::ProcessEvents(vtkObject* caller, 
+                             unsigned long eventId, void*)
 {
+  (void)caller; (void)eventId; // unused warning
   vtkDebugMacro("ProcessEvents called! " << caller->GetClassName() << "\t"
       << vtkCommand::GetStringFromEventId(eventId)
       << "\n\t" << vtkInteractorStyleRubberBand2D::SafeDownCast(caller)->GetInteraction());
@@ -619,6 +640,27 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
     this->Storage->itemMousePressCurrent = NULL;
     }
   this->Storage->Event.Button = vtkContextMouseEvent::NO_BUTTON;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextScene::DoubleClickEvent(int button, int x, int y)
+{
+  vtkContextMouseEvent &event = this->Storage->Event;
+  event.ScreenPos.Set(x, y);
+  event.ScenePos.Set(x, y);
+  event.Pos.Set(x, y);
+  event.LastScreenPos = event.ScreenPos;
+  event.LastScenePos = event.ScenePos;
+  event.LastPos = event.Pos;
+  event.Button = button;
+
+  vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
+  if (newItemPicked)
+    {
+    vtkAbstractContextItem* cur = newItemPicked;
+    this->ProcessItem(cur, event,
+                      &vtkAbstractContextItem::MouseDoubleClickEvent);
+    }
 }
 
 //-----------------------------------------------------------------------------

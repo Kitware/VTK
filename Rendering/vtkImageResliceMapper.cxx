@@ -98,13 +98,13 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *)
 {
   // see OpenGL subclass for implementation
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *image)
+void vtkImageResliceMapper::Render(vtkRenderer *, vtkImageSlice *)
 {
   // see OpenGL subclass for implementation
 }
@@ -119,10 +119,12 @@ int vtkImageResliceMapper::ProcessRequest(
     // Get point/normal from camera
     if (this->SliceFacesCamera || this->SliceAtFocalPoint)
       {
-      vtkCamera *camera = this->GetCurrentCamera();
+      vtkRenderer *ren = this->GetCurrentRenderer();
 
-      if (camera)
+      if (ren)
         {
+        vtkCamera *camera = ren->GetActiveCamera();
+
         if (this->SliceAtFocalPoint)
           {
           this->SlicePlane->SetOrigin(camera->GetFocalPoint());
@@ -174,29 +176,26 @@ void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice *prop)
 // Update the SliceToWorld transformation matrix
 void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
 {
-  vtkMatrix4x4 *viewMatrix = camera->GetViewTransformMatrix();
-
-  // Get the slice point and normal
-  double point[3];
-  double normal[3];
-  this->SlicePlane->GetOrigin(point);
-  this->SlicePlane->GetNormal(normal);
-  vtkAbstractTransform *sliceTransform = this->SlicePlane->GetTransform();
-  if (sliceTransform)
-    {
-    sliceTransform->TransformNormalAtPoint(point, normal, normal);
-    sliceTransform->InternalTransformPoint(point, point);
-    }
-  vtkMath::Normalize(normal);
+  // Get slice plane in world coords by passing null as the prop matrix 
+  double plane[4];
+  this->GetSlicePlaneInDataCoords(0, plane);
 
   // Make sure normal is facing towards camera
+  vtkMatrix4x4 *viewMatrix = camera->GetViewTransformMatrix();
   double *ndop = viewMatrix->Element[2];
-  if (vtkMath::Dot(ndop, normal) < 0)
+  if (vtkMath::Dot(ndop, plane) < 0)
     {
-    normal[0] = -normal[0];
-    normal[1] = -normal[1];
-    normal[2] = -normal[2];
+    plane[0] = -plane[0];
+    plane[1] = -plane[1];
+    plane[2] = -plane[2];
+    plane[3] = -plane[3];
     }
+
+  // The normal is the first three elements
+  double *normal = plane;
+
+  // The last element is -dot(normal, origin)
+  double dp = -plane[3];
 
   // Compute rotation angle between camera axis and slice normal
   double vec[3];
@@ -224,7 +223,6 @@ void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
 
   // Create a slice-to-world transform matrix
   // The columns are v1, v2, normal
-  double dp = vtkMath::Dot(normal, point);
   vtkMatrix4x4 *sliceToWorld = this->SliceToWorldMatrix;
 
   double v1[3], v2[3];
@@ -285,43 +283,28 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   vtkMatrix4x4::Invert(*this->SliceToWorldMatrix->Element, worldToSlice);
   vtkMatrix4x4::Multiply4x4(worldToSlice, viewToWorld, viewToSlice);
 
-  // Get the slice point and normal
-  double normal[3];
-  double hpoint[4];
-  hpoint[3] = 1.0;
-  this->SlicePlane->GetOrigin(hpoint);
-  this->SlicePlane->GetNormal(normal);
-  vtkAbstractTransform *sliceTransform = this->SlicePlane->GetTransform();
-  if (sliceTransform)
-    {
-    sliceTransform->TransformNormalAtPoint(hpoint, normal, normal);
-    sliceTransform->InternalTransformPoint(hpoint, hpoint);
-    }
-  vtkMath::Normalize(normal);
-
-  // Make sure normal is facing towards camera
-  double *ndop = viewMatrix->Element[2];
-  if (vtkMath::Dot(ndop, normal) < 0)
-    {
-    normal[0] = -normal[0];
-    normal[1] = -normal[1];
-    normal[2] = -normal[2];
-    }
-
-  // Convert point and normal to homogeneous plane equation
-  double dp = vtkMath::Dot(hpoint, normal);
+  // Get slice plane in world coords by passing null as the matrix
   double plane[4];
-  plane[0] = normal[0];
-  plane[1] = normal[1];
-  plane[2] = normal[2];
-  plane[3] = -dp;
+  this->GetSlicePlaneInDataCoords(0, plane);
 
-  // Transform the plane into view coordinates
+  // Check whether normal is facing towards camera, the "ndop" is
+  // the negative of the direction of projection for the camera
+  double *ndop = viewMatrix->Element[2];
+  if (vtkMath::Dot(ndop, plane) < 0)
+    {
+    plane[0] = -plane[0];
+    plane[1] = -plane[1];
+    plane[2] = -plane[2];
+    plane[3] = -plane[3];
+    }
+
+  // Get the z position of the slice in slice coords
+  // (requires plane to be normalized by GetSlicePlaneInDataCoords)
+  double z = (plane[2] - 2.0)*plane[3];
+
+  // Transform the plane into view coordinates, using the transpose
+  // of the inverse of the world-to-view matrix
   vtkMatrix4x4::MultiplyPoint(planeWorldToView, plane, plane);
-
-  // Transform point into slice coordinate system to get z
-  vtkMatrix4x4::MultiplyPoint(worldToSlice, hpoint, hpoint);
-  double z = hpoint[2]/hpoint[3];
 
   // Compute the bounds in slice coords
   double xmin = VTK_DOUBLE_MAX;
@@ -335,6 +318,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     double x = (((i & 1) == 0) ? -1.0 : 1.0);
     double y = (((i & 2) == 0) ? -1.0 : 1.0);
 
+    double hpoint[4];
     hpoint[0] = x;
     hpoint[1] = y;
     hpoint[2] = 0.0;
@@ -409,9 +393,50 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   reslice->SetOutputSpacing(spacing);
   reslice->SetOutputOrigin(origin);
 
-  // Tell reslice to use a double-thickness border,
-  // since the polygon geometry will dictate the actual size
-  reslice->SetBorder(2);
+  if (this->SliceFacesCamera)
+    {
+    // if slice follows camera, use reslice to set the border
+    reslice->SetBorder(this->Border);
+    }
+  else
+    {
+    // tell reslice to use a double-thickness border,
+    // since the polygon geometry will dictate the actual size
+    reslice->SetBorder(2);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Do all the fancy math to set up the reslicing
+void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty *property)
+{
+  vtkScalarsToColors *lookupTable = this->DefaultLookupTable;
+
+  if (property)
+    {
+    double colorWindow = property->GetColorWindow();
+    double colorLevel = property->GetColorLevel();
+    if (property->GetLookupTable())
+      {
+      lookupTable = property->GetLookupTable();
+      if (!property->GetUseLookupTableScalarRange())
+        {
+        lookupTable->SetRange(colorLevel - 0.5*colorWindow,
+                              colorLevel + 0.5*colorWindow);
+        }
+      }
+    else
+      {
+      lookupTable->SetRange(colorLevel - 0.5*colorWindow,
+                            colorLevel + 0.5*colorWindow);
+      }
+    }
+  else
+    {
+    lookupTable->SetRange(0, 255);
+    }
+
+  this->ImageReslice->SetLookupTable(lookupTable);
 }
 
 //----------------------------------------------------------------------------
@@ -442,44 +467,146 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
 }
 
 //----------------------------------------------------------------------------
-// Compute the coords and tcoords for a cut through an image
-void vtkImageResliceMapper::MakeTextureCutGeometry(
-  vtkImageData *input, const int extent[6], int border,
-  double coords[18], double tcoords[12], int &ncoords)
+void vtkImageResliceMapper::CheckerboardImage(
+  vtkImageData *input, vtkCamera *camera, vtkImageProperty *property)
 {
-  // info about the texture
-  int xdim, ydim;
-  int imageSize[2];
-  int textureSize[2];
+  // Use focal point as center of checkerboard pattern.  This guarantees
+  // exactly the same checkerboard for all images in the scene, which is
+  // useful when doing multiple overlays.
+  double focalPoint[4];
+  camera->GetFocalPoint(focalPoint);
+  focalPoint[3] = 1.0;
 
-  // compute image size and texture size from extent
-  this->ComputeTextureSize(
-    extent, xdim, ydim, imageSize, textureSize);
+  double worldToSlice[16];
+  vtkMatrix4x4::Invert(*this->SliceToWorldMatrix->Element, worldToSlice);
 
-  // now get the info about the reslice output
-  double *spacing = input->GetSpacing();
-  double *origin = input->GetOrigin();
-  double z = origin[2];
+  vtkMatrix4x4::MultiplyPoint(worldToSlice, focalPoint, focalPoint);
+  if (focalPoint[3] != 0.0)
+    {
+    focalPoint[0] /= focalPoint[3];
+    focalPoint[1] /= focalPoint[3];
+    focalPoint[2] /= focalPoint[3];
+    }
 
-  // get the min of the x and y spacings to use as a tolerance
-  double sx = fabs(spacing[0]);
-  double sy = fabs(spacing[1]);
-  double tol = ((sx < sy) ? sx : sy);
+  // Get the checkerboard spacing and apply the offset fraction
+  double checkSpacing[2], checkOffset[2];
+  property->GetCheckerboardSpacing(checkSpacing);
+  property->GetCheckerboardOffset(checkOffset);
+  checkOffset[0] = checkOffset[0]*checkSpacing[0] + focalPoint[0];
+  checkOffset[1] = checkOffset[1]*checkSpacing[1] + focalPoint[1];
+
+  // Adjust according to the origin and spacing of the slice data
+  double origin[3], spacing[3];
+  input->GetSpacing(spacing);
+  input->GetOrigin(origin);
+  checkOffset[0] = (checkOffset[0] - origin[0])/spacing[0];
+  checkOffset[1] = (checkOffset[1] - origin[1])/spacing[1];
+  checkSpacing[0] /= spacing[0],
+  checkSpacing[1] /= spacing[1];
+
+  // Apply the checkerboard to the data
+  int extent[6];
+  input->GetExtent(extent);
+  unsigned char *data = static_cast<unsigned char *>(
+    input->GetScalarPointerForExtent(extent));
+
+  vtkImageMapper3D::CheckerboardRGBA(
+    data, extent[1] - extent[0] + 1, extent[3] - extent[2] + 1,
+    checkOffset[0], checkOffset[1], checkSpacing[0], checkSpacing[1]);
+}
+
+//----------------------------------------------------------------------------
+// Compute the vertices of the polygon in the slice coordinate system
+void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
+{
+  // Get the projection matrix
+  double aspect = ren->GetTiledAspectRatio();
+  vtkCamera *camera = ren->GetActiveCamera();
+  vtkMatrix4x4 *viewMatrix = camera->GetViewTransformMatrix();
+  vtkMatrix4x4 *projMatrix = camera->GetProjectionTransformMatrix(
+                               aspect, 0, 1);
+
+  // Compute other useful matrices
+  double worldToView[16];
+  double viewToWorld[16];
+  vtkMatrix4x4::Multiply4x4(
+    *projMatrix->Element, *viewMatrix->Element, worldToView);
+  vtkMatrix4x4::Invert(worldToView, viewToWorld);
+
+  double worldToSlice[16];
+  double viewToSlice[16];
+  vtkMatrix4x4::Invert(*this->SliceToWorldMatrix->Element, worldToSlice);
+  vtkMatrix4x4::Multiply4x4(worldToSlice, viewToWorld, viewToSlice);
+
+  // Get slice plane in world coords by passing null as the matrix
+  double plane[4];
+  this->GetSlicePlaneInDataCoords(0, plane);
+
+  // Check whether normal is facing towards camera, the "ndop" is
+  // the negative of the direction of projection for the camera
+  double *ndop = viewMatrix->Element[2];
+  if (vtkMath::Dot(ndop, plane) < 0)
+    {
+    plane[0] = -plane[0];
+    plane[1] = -plane[1];
+    plane[2] = -plane[2];
+    plane[3] = -plane[3];
+    }
+
+  // Get the z position of the slice in slice coords
+  // (requires plane to be normalized by GetSlicePlaneInDataCoords)
+  double z = (plane[2] - 2.0)*plane[3];
+
+  // Generate a tolerance based on the screen pixel size
+  double fpoint[4];
+  camera->GetFocalPoint(fpoint);
+  fpoint[3] = 1.0;
+  vtkMatrix4x4::MultiplyPoint(worldToView, fpoint, fpoint);
+  fpoint[0] /= fpoint[3];
+  fpoint[1] /= fpoint[3];
+  fpoint[2] /= fpoint[3];
+  fpoint[3] = 1.0;
+
+  double topOfScreen[4], botOfScreen[4];
+  fpoint[1] -= 1.0;
+  vtkMatrix4x4::MultiplyPoint(viewToWorld, fpoint, topOfScreen);
+  fpoint[1] += 2.0;
+  vtkMatrix4x4::MultiplyPoint(viewToWorld, fpoint, botOfScreen);
+
+  topOfScreen[0] /= topOfScreen[3];
+  topOfScreen[1] /= topOfScreen[3];
+  topOfScreen[2] /= topOfScreen[3];
+  topOfScreen[3] = 1.0;
+
+  botOfScreen[0] /= botOfScreen[3];
+  botOfScreen[1] /= botOfScreen[3];
+  botOfScreen[2] /= botOfScreen[3];
+  botOfScreen[3] = 1.0;
+
+  // height of view in world coords at focal point
+  double viewHeight =
+    sqrt(vtkMath::Distance2BetweenPoints(topOfScreen, botOfScreen));
+
+  // height of view in pixels
+  int height = ren->GetSize()[1];
+
+  double tol = (height == 0 ? 0.5 : viewHeight*0.5/height); 
 
   // make the data bounding box (with or without border)
+  int border = this->Border;
   double b = (border ? 0.5 : 0.0);
   double bounds[6];
   for (int ii = 0; ii < 3; ii++)
     {
-    double c = b;
+    double c = b*this->DataSpacing[ii];
     int lo = this->DataWholeExtent[2*ii];
     int hi = this->DataWholeExtent[2*ii+1];
     if (border == 0 && lo == hi)
       { // apply tolerance to avoid degeneracy
-      c = fabs(tol/this->DataSpacing[ii]);
+      c = tol;
       }
-    bounds[2*ii]   = (lo - c)*this->DataSpacing[ii] + this->DataOrigin[ii];
-    bounds[2*ii+1] = (hi + c)*this->DataSpacing[ii] + this->DataOrigin[ii];
+    bounds[2*ii]   = lo*this->DataSpacing[ii] + this->DataOrigin[ii] - c;
+    bounds[2*ii+1] = hi*this->DataSpacing[ii] + this->DataOrigin[ii] + c;
     }
 
   // transform the vertices to the slice coord system
@@ -488,7 +615,10 @@ void vtkImageResliceMapper::MakeTextureCutGeometry(
   double weights[8];
   bool above[8];
   double mat[16];
-  vtkMatrix4x4::Invert(*this->ResliceMatrix->Element, mat);
+  vtkMatrix4x4::Multiply4x4(*this->WorldToDataMatrix->Element,
+                            *this->SliceToWorldMatrix->Element, mat);
+  vtkMatrix4x4::Invert(mat, mat);
+
   for (int i = 0; i < 8; i++)
     {
     double point[4];
@@ -530,9 +660,12 @@ void vtkImageResliceMapper::MakeTextureCutGeometry(
   // n should never exceed six
   if (n > 6)
     {
-    vtkErrorMacro("MakeTextureCutGeometry generated more than "
+    vtkErrorMacro("UpdateCutPolygon generated more than "
                   "6 points, please report a bug!");
     }
+
+  double *coords = this->Coords;
+  this->NCoords = n;
 
   if (n > 0)
     {
@@ -566,22 +699,39 @@ void vtkImageResliceMapper::MakeTextureCutGeometry(
       coords[kk3+1] = y;
       coords[kk3+2] = z;
       }
-
-    // compute the texture coords
-    for (int k = 0; k < n; k++)
-      {
-      int k2 = k*2;
-      int k3 = k*3;
-      tcoords[k2]   = ((coords[k3]   - origin[0] + 0.5*spacing[0])/
-                       (textureSize[0]*spacing[0]));
-      tcoords[k2+1] = ((coords[k3+1] - origin[1] + 0.5*spacing[1])/
-                       (textureSize[1]*spacing[1]));
-      }
     }
-
-  ncoords = n;
 }
 
+//----------------------------------------------------------------------------
+// Compute the texture coordinates for the cut polygon
+void vtkImageResliceMapper::ComputeTCoords(
+  vtkImageData *input, const int extent[6], int ncoords,
+  const double *coords, double *tcoords)
+{
+  // info about the texture, based on the provided extent
+  int xdim, ydim;
+  int imageSize[2];
+  int textureSize[2];
+
+  // compute image size and texture size from extent
+  this->ComputeTextureSize(
+    extent, xdim, ydim, imageSize, textureSize);
+
+  // now get the info about the image
+  double *spacing = input->GetSpacing();
+  double *origin = input->GetOrigin();
+
+  // compute the texture coords
+  for (int k = 0; k < ncoords; k++)
+    {
+    int k2 = k*2;
+    int k3 = k*3;
+    tcoords[k2]   = ((coords[k3]   - origin[0] + 0.5*spacing[0])/
+                     (textureSize[0]*spacing[0]));
+    tcoords[k2+1] = ((coords[k3+1] - origin[1] + 0.5*spacing[1])/
+                     (textureSize[1]*spacing[1]));
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
@@ -598,9 +748,10 @@ unsigned long vtkImageResliceMapper::GetMTime()
   // will be called if the camera changes
   if (this->SliceFacesCamera || this->SliceAtFocalPoint)
     {
-    vtkCamera *camera = this->GetCurrentCamera();
-    if (camera)
+    vtkRenderer *ren = this->GetCurrentRenderer();
+    if (ren)
       {
+      vtkCamera *camera = ren->GetActiveCamera();
       unsigned long mTime2 = camera->GetMTime();
       if (mTime2 > mTime)
         {

@@ -21,7 +21,7 @@ TARGET_LINK_LIBRARIES(BalloonWidget vtkRendering vtkWidgets)
 SET(KIT WidgetsExamples)
 SET(MyTests TestSlider.cxx TestSlider2D.cxx TestBalloonWidget.cxx)
 
-INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+INCLUDE(vtkTestingObjectFactory)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
                ${MyTests})

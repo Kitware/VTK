@@ -246,10 +246,6 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
              strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
              strcmp(gl_vendor,"ATI Technologies Inc.")==0);
     }
-  if (result && strcmp(name, "GL_ARB_fragment_program") == 0)
-    {
-    result=(this->GetProcAddress("glGenProgramsARB")!=0);
-    }
   return result;
 }
 
@@ -714,31 +710,9 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
 
   if (strcmp(name, "GL_ARB_fragment_program") == 0)
     {
-    vtkgl::ProgramStringARB = reinterpret_cast<vtkgl::PFNGLPROGRAMSTRINGARBPROC>(this->GetProcAddress("glProgramStringARB"));
-    vtkgl::BindProgramARB = reinterpret_cast<vtkgl::PFNGLBINDPROGRAMARBPROC>(this->GetProcAddress("glBindProgramARB"));
-    vtkgl::DeleteProgramsARB = reinterpret_cast<vtkgl::PFNGLDELETEPROGRAMSARBPROC>(this->GetProcAddress("glDeleteProgramsARB"));
-    vtkgl::GenProgramsARB = reinterpret_cast<vtkgl::PFNGLGENPROGRAMSARBPROC>(this->GetProcAddress("glGenProgramsARB"));
-    vtkgl::ProgramEnvParameter4dARB = reinterpret_cast<vtkgl::PFNGLPROGRAMENVPARAMETER4DARBPROC>(this->GetProcAddress("glProgramEnvParameter4dARB"));
-    vtkgl::ProgramEnvParameter4dvARB= reinterpret_cast<vtkgl::PFNGLPROGRAMENVPARAMETER4DVARBPROC>(this->GetProcAddress("glProgramEnvParameter4dvARB"));
-    vtkgl::ProgramEnvParameter4fARB = reinterpret_cast<vtkgl::PFNGLPROGRAMENVPARAMETER4FARBPROC>(this->GetProcAddress("glProgramEnvParameter4fARB"));
-    vtkgl::ProgramEnvParameter4fvARB = reinterpret_cast<vtkgl::PFNGLPROGRAMENVPARAMETER4FVARBPROC>(this->GetProcAddress("glProgramEnvParameter4fvARB"));
-    vtkgl::ProgramLocalParameter4dARB = reinterpret_cast<vtkgl::PFNGLPROGRAMLOCALPARAMETER4DARBPROC>(this->GetProcAddress("glProgramLocalParameter4dARB"));
-    vtkgl::ProgramLocalParameter4dvARB = reinterpret_cast<vtkgl::PFNGLPROGRAMLOCALPARAMETER4DVARBPROC>(this->GetProcAddress("glProgramLocalParameter4dvARB"));
-    vtkgl::ProgramLocalParameter4fARB = reinterpret_cast<vtkgl::PFNGLPROGRAMLOCALPARAMETER4FARBPROC>(this->GetProcAddress("glProgramLocalParameter4fARB"));
-    vtkgl::ProgramLocalParameter4fvARB = reinterpret_cast<vtkgl::PFNGLPROGRAMLOCALPARAMETER4FVARBPROC>(this->GetProcAddress("glProgramLocalParameter4fvARB"));
-    vtkgl::GetProgramEnvParameterdvARB = reinterpret_cast<vtkgl::PFNGLGETPROGRAMENVPARAMETERDVARBPROC>(this->GetProcAddress("glGetProgramEnvParameterdvARB"));
-    vtkgl::GetProgramEnvParameterfvARB = reinterpret_cast<vtkgl::PFNGLGETPROGRAMENVPARAMETERFVARBPROC>(this->GetProcAddress("glGetProgramEnvParameterfvARB"));
-    vtkgl::GetProgramLocalParameterdvARB = reinterpret_cast<vtkgl::PFNGLGETPROGRAMLOCALPARAMETERDVARBPROC>(this->GetProcAddress("glGetProgramLocalParameterdvARB"));
-    vtkgl::GetProgramLocalParameterfvARB = reinterpret_cast<vtkgl::PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC>(this->GetProcAddress("glGetProgramLocalParameterfvARB"));
-    vtkgl::GetProgramivARB = reinterpret_cast<vtkgl::PFNGLGETPROGRAMIVARBPROC>(this->GetProcAddress("glGetProgramivARB"));
-    vtkgl::GetProgramStringARB = reinterpret_cast<vtkgl::PFNGLGETPROGRAMSTRINGARBPROC>(this->GetProcAddress("glGetProgramStringARB"));
-    vtkgl::GetVertexAttribdvARB = reinterpret_cast<vtkgl::PFNGLGETVERTEXATTRIBDVARBPROC>(this->GetProcAddress("glGetVertexAttribdvARB"));
-    vtkgl::GetVertexAttribfvARB = reinterpret_cast<vtkgl::PFNGLGETVERTEXATTRIBFVARBPROC>(this->GetProcAddress("glGetVertexAttribfvARB"));
-    vtkgl::GetVertexAttribivARB = reinterpret_cast<vtkgl::PFNGLGETVERTEXATTRIBIVARBPROC>(this->GetProcAddress("glGetVertexAttribivARB"));
-    vtkgl::GetVertexAttribPointervARB = reinterpret_cast<vtkgl::PFNGLGETVERTEXATTRIBPOINTERVARBPROC>(this->GetProcAddress("glGetVertexAttribPointervARB"));
-    vtkgl::IsProgramARB = reinterpret_cast<vtkgl::PFNGLISPROGRAMARBPROC>(this->GetProcAddress("glIsProgramARB"));
-
-    return 1 && (vtkgl::ProgramStringARB != NULL) && (vtkgl::BindProgramARB != NULL) && (vtkgl::DeleteProgramsARB != NULL) && (vtkgl::GenProgramsARB != NULL) && (vtkgl::ProgramEnvParameter4dARB != NULL) && (vtkgl::ProgramEnvParameter4dvARB != NULL) && (vtkgl::ProgramEnvParameter4fARB != NULL) && (vtkgl::ProgramEnvParameter4fvARB != NULL) && (vtkgl::ProgramLocalParameter4dARB != NULL) && (vtkgl::ProgramLocalParameter4dvARB != NULL) && (vtkgl::ProgramLocalParameter4fARB != NULL) && (vtkgl::ProgramLocalParameter4fvARB != NULL) && (vtkgl::GetProgramEnvParameterdvARB != NULL) && (vtkgl::GetProgramEnvParameterfvARB != NULL) && (vtkgl::GetProgramLocalParameterdvARB != NULL) && (vtkgl::GetProgramLocalParameterfvARB != NULL) && (vtkgl::GetProgramivARB != NULL) && (vtkgl::GetProgramStringARB != NULL) && (vtkgl::GetVertexAttribdvARB != NULL) && (vtkgl::GetVertexAttribfvARB != NULL) && (vtkgl::GetVertexAttribivARB != NULL) && (vtkgl::GetVertexAttribPointervARB != NULL) && (vtkgl::IsProgramARB != NULL);
+    // fragment_program is loaded as part of vertex_program
+    int success=vtkgl::LoadExtension("GL_ARB_vertex_program", this);
+    return success && vtkgl::LoadExtension(name, this);
     }
 
   if (strcmp(name, "GL_VERSION_1_4") == 0)
