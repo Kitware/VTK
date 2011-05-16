@@ -351,12 +351,12 @@ void vtkPerspectiveTransform::DeeringFrustum(double xmin, double xmax,
 
   matrix[0][2] = ( H[x]+L[x] - 2*E[x] )/width;
   matrix[1][2] = ( H[y]+L[y] - 2*E[y] )/height;
-  matrix[2][2] = ( B+F-2*E[z] )/depth
+  matrix[2][2] = ( B+F-2*E[z] )/depth;
   matrix[3][2] = -1;
 
   matrix[0][3] = ( -E[z]*( H[x]+L[x] ) )/width;
   matrix[1][3] = ( -E[z]*( H[y]+L[y] ) )/height;
-  matrix[2][3] = B-E[Z]- ( B *( B+F - 2*E[z] )/depth );
+  matrix[2][3] = B-E[z]- ( B *( B+F - 2*E[z] )/depth );
   matrix[3][3] = E[z];
 
   this->Concatenate(*matrix);
