@@ -50,3 +50,9 @@ vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles( const int blkidx )
   // TODO: implement this
   return( particles );
 }
+
+//------------------------------------------------------------------------------
+void vtkAMRFlashParticlesReader::SetupParticleDataSelections()
+{
+  // TODO: implement this
+}

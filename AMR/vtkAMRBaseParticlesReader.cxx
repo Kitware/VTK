@@ -19,6 +19,8 @@
 #include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkCallbackCommand.h"
+#include "vtkDataArraySelection.h"
 
 #include <cassert>
 
@@ -30,7 +32,9 @@ vtkAMRBaseParticlesReader::vtkAMRBaseParticlesReader()
 //------------------------------------------------------------------------------
 vtkAMRBaseParticlesReader::~vtkAMRBaseParticlesReader()
 {
-
+  this->ParticleDataArraySelection->RemoveObserver( this->SelectionObserver );
+  this->SelectionObserver->Delete();
+  this->ParticleDataArraySelection->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -48,6 +52,54 @@ int vtkAMRBaseParticlesReader::FillOutputPortInformation(
 }
 
 //------------------------------------------------------------------------------
+int vtkAMRBaseParticlesReader::GetNumberOfParticleArrays()
+{
+  assert( "pre: ParticleDataArraySelection is NULL!" &&
+          (this->ParticleDataArraySelection != NULL) );
+  return this->ParticleDataArraySelection->GetNumberOfArrays();
+}
+
+//------------------------------------------------------------------------------
+const char* vtkAMRBaseParticlesReader::GetParticleArrayName( int index )
+{
+  assert( "pre: array inded out-of-bounds!" &&
+          ( index >= 0 ) &&
+          (index < this->ParticleDataArraySelection->GetNumberOfArrays()) );
+
+  return this->ParticleDataArraySelection->GetArrayName( index );
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRBaseParticlesReader::GetParticleArrayStatus( const char* name )
+{
+  assert( "pre: array name is NULL" && (name != NULL)  );
+  return this->ParticleDataArraySelection->ArrayIsEnabled( name );
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRBaseParticlesReader::SetParticleArrayStatus(
+    const char* name, int status )
+{
+
+  if( status )
+    {
+      this->ParticleDataArraySelection->EnableArray( name );
+    }
+  else
+    {
+      this->ParticleDataArraySelection->DisableArray( name );
+    }
+
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRBaseParticlesReader::SelectionModifiedCallback(
+    vtkObject*, unsigned long, void* clientdata, void*)
+{
+  static_cast<vtkAMRBaseParticlesReader*>(clientdata)->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRBaseParticlesReader::Initialize( )
 {
   this->SetNumberOfInputPorts( 0 );
@@ -55,6 +107,8 @@ void vtkAMRBaseParticlesReader::Initialize( )
   this->FilterLocation = 0;
   this->NumberOfBlocks = 0;
   this->Initialized    = false;
+  this->InitialRequest = true;
+  this->FileName       = NULL;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
 
   for( int i=0; i < 3; ++i )
@@ -62,6 +116,23 @@ void vtkAMRBaseParticlesReader::Initialize( )
       this->MinLocation[ i ] = this->MaxLocation[ i ] = 0.0;
     }
 
+  this->ParticleDataArraySelection = vtkDataArraySelection::New();
+  this->SelectionObserver          = vtkCallbackCommand::New();
+  this->SelectionObserver->SetCallback(
+      &vtkAMRBaseParticlesReader::SelectionModifiedCallback );
+  this->SelectionObserver->SetClientData( this );
+  this->ParticleDataArraySelection->AddObserver(
+      vtkCommand::ModifiedEvent,this->SelectionObserver );
+ }
+
+//------------------------------------------------------------------------------
+void vtkAMRBaseParticlesReader::InitializeParticleDataSelections()
+{
+  if( !this->InitialRequest )
+    return;
+
+  this->ParticleDataArraySelection->DisableAllArrays();
+  this->InitialRequest = false;
 }
 
 //------------------------------------------------------------------------------
