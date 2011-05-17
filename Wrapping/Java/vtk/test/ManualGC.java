@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import vtk.vtkIdTypeArray;
 import vtk.vtkObject;
 import vtk.vtkObjectBase;
-import vtk.vtkReferenceInformations;
+import vtk.vtkReferenceInformation;
 import vtk.vtkSelection;
 import vtk.vtkSelectionNode;
 
@@ -54,7 +54,7 @@ public class ManualGC {
                 }
                 ++count;
                 if (count % 100 == 0) {
-                    vtkReferenceInformations infos = vtkObject.JAVA_OBJECT_MANAGER.gc(false);
+                    vtkReferenceInformation infos = vtkObject.JAVA_OBJECT_MANAGER.gc(false);
                     System.out.println(infos.toString());
                 }
             }

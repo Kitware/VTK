@@ -11,20 +11,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author sebastien jourdain - sebastien.jourdain@kitware.com
  */
-public class vtkReferenceInformations {
+public class vtkReferenceInformation {
     private int numberOfObjectsToFree;
     private int numberOfObjectsStillReferenced;
     private HashMap<String, AtomicInteger> classesKept;
     private HashMap<String, AtomicInteger> classesRemoved;
     private boolean keepTrackOfClassNames;
 
-    public vtkReferenceInformations(int nbToFree, int nbToKeep, int totalSize) {
+    public vtkReferenceInformation(int nbToFree, int nbToKeep, int totalSize) {
         this.numberOfObjectsToFree = nbToFree;
         this.numberOfObjectsStillReferenced = nbToKeep;
         this.keepTrackOfClassNames = false;
     }
 
-    public vtkReferenceInformations(boolean keepTrackOfClassNames) {
+    public vtkReferenceInformation(boolean keepTrackOfClassNames) {
         this.numberOfObjectsToFree = 0;
         this.numberOfObjectsStillReferenced = 0;
         this.keepTrackOfClassNames = keepTrackOfClassNames;

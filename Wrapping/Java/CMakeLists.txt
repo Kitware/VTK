@@ -158,7 +158,7 @@ IF(JAVA_COMPILE)
 
     SET(VTK_JAVA_DEPENDENCIES
       CellType
-      vtkReferenceInformations
+      vtkReferenceInformation
       vtkJavaGarbageCollector
       vtkJavaMemoryManager
       vtkJavaMemoryManagerImpl

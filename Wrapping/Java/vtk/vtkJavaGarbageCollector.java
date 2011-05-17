@@ -40,7 +40,7 @@ public class vtkJavaGarbageCollector {
 
             public void run() {
                 // Do the delete here
-                vtkReferenceInformations info = vtkObject.JAVA_OBJECT_MANAGER.gc(debug);
+                vtkReferenceInformation info = vtkObject.JAVA_OBJECT_MANAGER.gc(debug);
                 if (debug) {
                     System.out.println(info);
                     System.out.println(info.listKeptReferenceToString());

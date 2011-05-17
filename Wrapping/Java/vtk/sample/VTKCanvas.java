@@ -13,7 +13,7 @@ import vtk.vtkConeSource;
 import vtk.vtkNativeLibrary;
 import vtk.vtkObject;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkReferenceInformations;
+import vtk.vtkReferenceInformation;
 
 public class VTKCanvas extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -63,7 +63,7 @@ public class VTKCanvas extends JPanel {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        vtkReferenceInformations infos = vtkObject.JAVA_OBJECT_MANAGER.gc(true);
+        vtkReferenceInformation infos = vtkObject.JAVA_OBJECT_MANAGER.gc(true);
         System.out.println(infos);
         System.out.println(infos.listRemovedReferenceToString());
         System.out.println(infos.listKeptReferenceToString());

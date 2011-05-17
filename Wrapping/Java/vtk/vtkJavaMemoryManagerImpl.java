@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
     private vtkJavaGarbageCollector garbageCollector;
     private ReentrantLock lock;
+    private vtkReferenceInformation lastGcResult;
     private HashMap<Long, WeakReference<vtkObjectBase>> objectMap;
     private HashMap<Long, String> objectMapClassName;
 
@@ -110,11 +111,11 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
 
     @Override
     // Thread safe
-    public vtkReferenceInformations gc(boolean debug) {
+    public vtkReferenceInformation gc(boolean debug) {
         System.gc();
         try {
             this.lock.lock();
-            final vtkReferenceInformations infos = new vtkReferenceInformations(debug);
+            final vtkReferenceInformation infos = new vtkReferenceInformation(debug);
             for (Long id : new TreeSet<Long>(this.objectMap.keySet())) {
                 vtkObjectBase obj = this.objectMap.get(id).get();
                 if (obj == null) {
@@ -125,6 +126,7 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
                 }
             }
 
+            this.lastGcResult = infos;
             return infos;
         } finally {
             this.lock.unlock();
@@ -154,5 +156,10 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
     @Override
     public int getSize() {
         return objectMap.size();
+    }
+
+    @Override
+    public vtkReferenceInformation getLastReferenceInformation() {
+        return this.lastGcResult;
     }
 }
