@@ -248,14 +248,6 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
       this->GetCurrentOutput());
 
-  // Save the start location where the new cell connectivity will be
-  // appended.
-  vtkIdType startLoc = 0;
-  if(output->GetCells()->GetData())
-    {
-    startLoc = output->GetCells()->GetData()->GetNumberOfTuples();
-    }
-
   // Set the range of progress for the cell specifications.
   this->SetProgressRange(progressRange, 1, fractions);
 
@@ -284,6 +276,15 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   // Construct the cell locations.
   vtkIdTypeArray* locations = output->GetCellLocationsArray();
   vtkIdType* locs = locations->GetPointer(this->StartCell);
+  vtkIdTypeArray* cellArrayData = output->GetCells()->GetData();
+  vtkIdType startLoc = 0;
+  if (this->StartCell > 0)
+    {
+    // this set the startLoc to point to the location in the cellArray where the
+    // cell for this piece will start writing.
+    startLoc = locations->GetValue(this->StartCell-1) +
+      cellArrayData->GetValue(locations->GetValue(this->StartCell-1));
+    }
   vtkIdType* begin = output->GetCells()->GetData()->GetPointer(startLoc);
   vtkIdType* cur = begin;
   vtkIdType i;
