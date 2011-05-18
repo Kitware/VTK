@@ -747,7 +747,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
           }
         fprintf(fp,");\n");
         fprintf(fp,"\n    if (temp == 0) return null;");
-        fprintf(fp,"\n    return (%s)vtkObject.JAVA_OBJECT_MANAGER.getJavaObject(vtkObjectBase.VTKGetClassNameFromReference(temp), temp);", currentFunction->ReturnClass);
+        fprintf(fp,"\n    return (%s)vtkObject.JAVA_OBJECT_MANAGER.getJavaObject(temp);", currentFunction->ReturnClass);
         fprintf(fp,"\n  }\n");
         }
       else

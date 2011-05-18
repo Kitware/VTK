@@ -31,7 +31,7 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
     @SuppressWarnings("unchecked")
     @Override
     // Thread safe
-    public <T extends vtkObjectBase> T getJavaObject(String className, Long vtkId) {
+    public <T extends vtkObjectBase> T getJavaObject(Long vtkId) {
         // Check pre-condition
         if (vtkId == null || vtkId.longValue() == 0) {
             throw new RuntimeException("Invalid ID, can not be null or equal to 0.");
@@ -64,6 +64,7 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
                 // No-one did create it, so let's do it
                 if (resultObject == null) {
                     try {
+                        String className = vtkObjectBase.VTKGetClassNameFromReference(vtkId.longValue());
                         Class<T> c = (Class<T>) Class.forName("vtk." + className);
                         Constructor<T> cons = c.getConstructor(new Class[] { long.class });
                         resultObject = cons.newInstance(new Object[] { vtkId });
