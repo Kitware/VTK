@@ -39,7 +39,7 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
 
         // Check inside the map if the object is already there
         WeakReference<vtkObjectBase> value = objectMap.get(vtkId);
-        vtkObjectBase resultObject = (value == null) ? null : objectMap.get(vtkId).get();
+        vtkObjectBase resultObject = (value == null) ? null : value.get();
 
         // If not, we have to do something
         if (value == null || resultObject == null) {
@@ -51,7 +51,7 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
                 // create the object in between, if so just return the created
                 // instance
                 value = objectMap.get(vtkId);
-                resultObject = (value == null) ? null : objectMap.get(vtkId).get();
+                resultObject = (value == null) ? null : value.get();
                 if (resultObject != null) {
                     return (T) resultObject;
                 }
