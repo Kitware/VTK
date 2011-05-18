@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 // * Assess: given an input data set, two means and a 2x2 covariance matrix,
 //   mark each datum with corresponding relative deviation (2-dimensional Mahlanobis
 //   distance).
-// * Test: no statistical tests available yet.
+// * Test: Jarque-Bera-Srivastava test of 2-d normality
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
