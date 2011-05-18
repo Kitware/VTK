@@ -54,6 +54,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkRenderWindow.h"
 
 QVTKInteractorInternal::QVTKInteractorInternal(QVTKInteractor* p)
   : Parent(p)
