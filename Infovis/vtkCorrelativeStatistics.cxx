@@ -368,12 +368,12 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   vtkStdString doubleNames[] = { "Variance X",
                                  "Variance Y",
                                  "Covariance",
+                                 "Determinant",
                                  "Slope Y/X", 
                                  "Intercept Y/X", 
                                  "Slope X/Y", 
                                  "Intercept X/Y", 
-                                 "Pearson r",
-                                 "Determinant" };
+                                 "Pearson r" };
   
   // Create table for derived statistics
   vtkIdType nRow = primaryTab->GetNumberOfRows();
@@ -423,22 +423,22 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     derivedVals[0] = varX;
     derivedVals[1] = varY;
     derivedVals[2] = covXY;
-    derivedVals[8] = varX * varY - covXY * covXY;
+    derivedVals[3] = varX * varY - covXY * covXY;
 
     // Linear regression lines are valid only if the determinant is positive
-    if ( derivedVals[8] <= 0. )
+    if ( derivedVals[3] <= 0. )
       {
       vtkWarningMacro( "Incorrect parameters for column pair ("
                        <<c1.c_str()
                        <<", "
                        <<c2.c_str()
                        <<"): variance/covariance matrix has non-positive determinant: "
-                       <<derivedVals[8] );
-      derivedVals[3] = 0.;
+                       <<derivedVals[3] );
       derivedVals[4] = 0.;
       derivedVals[5] = 0.;
       derivedVals[6] = 0.;
       derivedVals[7] = 0.;
+      derivedVals[8] = 0.;
       }
     else
       {
@@ -447,18 +447,18 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
       // variable Y on variable X:
       //   slope
-      derivedVals[3] = covXY / varX;
+      derivedVals[4] = covXY / varX;
       //   intersect
-      derivedVals[4] = meanY - derivedVals[3] * meanX;
+      derivedVals[5] = meanY - derivedVals[4] * meanX;
       
       //   variable X on variable Y:
       //   slope
-      derivedVals[5] = covXY / varY;
+      derivedVals[6] = covXY / varY;
       //   intersect
-      derivedVals[6] = meanX - derivedVals[5] * meanY;
+      derivedVals[7] = meanX - derivedVals[6] * meanY;
       
       // correlation coefficient
-      derivedVals[7] = covXY / sqrt( varX * varY );
+      derivedVals[8] = covXY / sqrt( varX * varY );
       }
 
     for ( int j = 0; j < numDoubles; ++ j )
