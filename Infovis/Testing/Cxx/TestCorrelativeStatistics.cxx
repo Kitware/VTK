@@ -256,17 +256,17 @@ int TestCorrelativeStatistics( int, char *[] )
       {
       double testSlopeYX = outputDerived1->GetValueByName( r, "Slope Y/X" ).ToDouble();
       double testInterceptYX = outputDerived1->GetValueByName( r, "Intercept Y/X" ).ToDouble();
-      if ( fabs ( testSlopeYX * testMeanX + testInterceptYX - testMeanY ) > 1.e-12 )
+      if ( fabs ( testSlopeYX * testMeanX + testInterceptYX - testMeanY ) > 1.e-8 )
         {
-        vtkGenericWarningMacro("Incorrect linear regression of Y on X"<<fabs ( testSlopeYX * testMeanX + testInterceptYX - testMeanY ));
+        vtkGenericWarningMacro("Incorrect linear regression of Y on X");
         testStatus = 1;
         }
       
       double testSlopeXY = outputDerived1->GetValueByName( r, "Slope X/Y" ).ToDouble();
       double testInterceptXY = outputDerived1->GetValueByName( r, "Intercept X/Y" ).ToDouble();
-      if ( fabs ( testSlopeXY * testMeanY + testInterceptXY - testMeanX ) > 1.e-12 )
+      if ( fabs ( testSlopeXY * testMeanY + testInterceptXY - testMeanX ) > 1.e-8 )
         {
-        vtkGenericWarningMacro("Incorrect linear regression of X on Y"<<fabs ( testSlopeXY * testMeanY + testInterceptXY - testMeanX ));
+        vtkGenericWarningMacro("Incorrect linear regression of X on Y");
         testStatus = 1;
         }
       }
