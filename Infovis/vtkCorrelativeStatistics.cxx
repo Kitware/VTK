@@ -364,7 +364,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  int numDoubles = 8;
+  int numDoubles = 9;
   vtkStdString doubleNames[] = { "Variance X",
                                  "Variance Y",
                                  "Covariance",
@@ -372,7 +372,8 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                  "Intercept Y/X", 
                                  "Slope X/Y", 
                                  "Intercept X/Y", 
-                                 "Pearson r" };
+                                 "Pearson r",
+                                 "Determinant" };
   
   // Create table for derived statistics
   vtkIdType nRow = primaryTab->GetNumberOfRows();
@@ -390,16 +391,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  if ( ! derivedTab->GetColumnByName( "Linear Correlation" ) )
-    {  
-    vtkStringArray* stringCol = vtkStringArray::New();
-    stringCol->SetName( "Linear Correlation" );
-    stringCol->SetNumberOfTuples( nRow );
-    derivedTab->AddColumn( stringCol );
-    stringCol->Delete();
-    }
-
-  // Storage for stdv x, stdv y, var x, var y, cov, slope y/x, int. y/x, slope x/y, int. x/y, r
+  // Storage for stdv x, stdv y, var x, var y, cov, slope y/x, int. y/x, slope x/y, int. x/y, r, D
   double* derivedVals = new double[numDoubles]; // 
 
   for ( int i = 0; i < nRow; ++ i )
@@ -431,23 +423,22 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     derivedVals[0] = varX;
     derivedVals[1] = varY;
     derivedVals[2] = covXY;
+    derivedVals[8] = varX * varY - covXY * covXY;
 
-    vtkStdString status = "valid";
-
-    double d = varX * varY - covXY * covXY;
-    if ( d <= 0. )
+    // Linear regression lines are valid only if the determinant is positive
+    if ( derivedVals[8] <= 0. )
       {
       vtkWarningMacro( "Incorrect parameters for column pair ("
                        <<c1.c_str()
                        <<", "
                        <<c2.c_str()
-                       <<"): variance/covariance matrix has non-positive determinant." );
+                       <<"): variance/covariance matrix has non-positive determinant: "
+                       <<derivedVals[8] );
       derivedVals[3] = 0.;
       derivedVals[4] = 0.;
       derivedVals[5] = 0.;
       derivedVals[6] = 0.;
       derivedVals[7] = 0.;
-      status = "invalid";
       }
     else
       {
@@ -470,7 +461,6 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       derivedVals[7] = covXY / sqrt( varX * varY );
       }
 
-    derivedTab->SetValueByName( i, "Linear Correlation", status );
     for ( int j = 0; j < numDoubles; ++ j )
       {
       derivedTab->SetValueByName( i, doubleNames[j], derivedVals[j] );
