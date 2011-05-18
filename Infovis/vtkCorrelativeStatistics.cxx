@@ -458,13 +458,13 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       //   slope
       derivedVals[3] = covXY / varX;
       //   intersect
-      derivedVals[4] = meanY - derivedVals[0] * meanX;
+      derivedVals[4] = meanY - derivedVals[3] * meanX;
       
       //   variable X on variable Y:
       //   slope
       derivedVals[5] = covXY / varY;
       //   intersect
-      derivedVals[6] = meanX - derivedVals[2] * meanY;
+      derivedVals[6] = meanX - derivedVals[5] * meanY;
       
       // correlation coefficient
       derivedVals[7] = covXY / sqrt( varX * varY );
