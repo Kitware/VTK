@@ -369,9 +369,9 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                  "Variance Y",
                                  "Covariance",
                                  "Slope Y/X", 
-                                 "Intersect Y/X", 
+                                 "Intercept Y/X", 
                                  "Slope X/Y", 
-                                 "Intersect X/Y", 
+                                 "Intercept X/Y", 
                                  "Pearson r" };
   
   // Create table for derived statistics
