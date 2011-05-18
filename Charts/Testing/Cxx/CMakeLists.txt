@@ -24,6 +24,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestHistogram2D.cxx
       TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
+      TestLinePlot2.cxx
       TestLinePlotInteraction.cxx
       TestMultipleChartRenderers.cxx
       TestMultipleRenderers.cxx
@@ -46,6 +47,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
     set(TestGLSLError 12)
     set(TestChartsOn3DError 16)
     SET(TestLinePlotError 25)
+    SET(TestLinePlot2Error 25)
     SET(TestLinePlotInteractionError 25)
     SET(TestMultipleRenderersError 25)
     SET(TestMultipleScalarsToColorsError 25)
