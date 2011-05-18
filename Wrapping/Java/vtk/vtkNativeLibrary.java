@@ -1,8 +1,17 @@
 package vtk;
 
+import java.io.File;
+
 /**
- * Enum used to load native library more easily
- * 
+ * Enum used to load native library more easily. If you don't want to set the
+ * specific environment variable you can provide the path of the directory that
+ * contains the VTK library through a Java Property. Like in the following
+ * command line:
+ *
+ * > java -cp vtk.jar -Dvtk.lib.dir=.../vtk-libs vtk.sample.SimpleVTK
+ *
+ * The directory .../vtk-libs must contain the so/dll/dylib + the jni files
+ *
  * @author sebastien jourdain - sebastien.jourdain@kitware.com
  */
 public enum vtkNativeLibrary {
@@ -62,6 +71,19 @@ public enum vtkNativeLibrary {
      */
     public void LoadLibrary() throws UnsatisfiedLinkError {
         if (!loaded) {
+            if (System.getProperty("vtk.lib.dir") != null) {
+                File dir = new File(System.getProperty("vtk.lib.dir"));
+                patchJavaLibraryPath(dir.getAbsolutePath());
+                File libPath = new File(dir, System.mapLibraryName(nativeLibraryName));
+                if (libPath.exists()) {
+                    try {
+                        Runtime.getRuntime().load(libPath.getAbsolutePath());
+                        loaded = true;
+                        return;
+                    } catch (UnsatisfiedLinkError e) {
+                    }
+                }
+            }
             System.loadLibrary(nativeLibraryName);
         }
         loaded = true;
@@ -79,6 +101,17 @@ public enum vtkNativeLibrary {
      */
     public String GetLibraryName() {
         return nativeLibraryName;
+    }
+
+    private static void patchJavaLibraryPath(String vtkLibDir) {
+        if (vtkLibDir != null) {
+            String path_separator = System.getProperty("path.separator");
+            String s = System.getProperty("java.library.path");
+            if (!s.contains(vtkLibDir)) {
+                s = s + path_separator + vtkLibDir;
+                System.setProperty("java.library.path", s);
+            }
+        }
     }
 
     private String nativeLibraryName;
