@@ -890,6 +890,7 @@ vtkIdType vtkStringArray::InsertNextValue( const char *value )
     {
     return this->InsertNextValue( vtkStdString( value ) );
     }
+  return this->MaxId;
 }
 
 vtkIdType vtkStringArray::LookupValue( const char *value )
