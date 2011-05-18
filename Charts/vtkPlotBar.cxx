@@ -36,6 +36,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <set>
 
 //-----------------------------------------------------------------------------
 namespace {
@@ -148,11 +149,13 @@ class vtkPlotBarSegment : public vtkObject {
       this->Points = 0;
       this->Sorted = 0;
       this->Previous = 0;
+      this->SelectionSet = 0;
       }
 
     ~vtkPlotBarSegment()
       {
       delete this->Sorted;
+      delete this->SelectionSet;
       }
 
     void Configure(vtkPlotBar *bar, vtkDataArray *x_array,
@@ -164,6 +167,9 @@ class vtkPlotBarSegment : public vtkObject {
         {
         this->Points = vtkSmartPointer<vtkPoints2D>::New();
         }
+      // For the atypical case that Configure is called on a non-fresh "this"
+      delete this->Sorted;
+      delete this->SelectionSet;
 
       if (x_array)
         {
@@ -202,6 +208,16 @@ class vtkPlotBarSegment : public vtkObject {
 
       for (int i = 0; i < n; ++i)
         {
+        if (this->SelectionSet &&
+            this->SelectionSet->find(static_cast<vtkIdType>(i)) !=
+            this->SelectionSet->end())
+          {
+          painter->GetBrush()->SetColor(255, 50, 0, 150);
+          }
+        else
+          {
+          painter->GetBrush()->SetColor(brush->GetColorObject());
+          }
         if (orientation == vtkPlotBar::VERTICAL)
           {
           if (p)
@@ -295,10 +311,84 @@ class vtkPlotBarSegment : public vtkObject {
         }
     }
 
+    bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max,
+                      float width, float offset, int orientation)
+    {
+      if (!this->Points)
+        {
+        return false;
+        }
+
+      this->CreateSortedPoints();
+
+      if (!this->SelectionSet)
+        {
+        // Use a Set for faster lookup during paint
+        this->SelectionSet = new std::set<vtkIdType>();
+        }
+      this->SelectionSet->clear();
+
+      // If orientation is VERTICAL, search normally. For HORIZONTAL,
+      // transpose the selection box.
+      vtkVector2f targetMin(min);
+      vtkVector2f targetMax(max);
+      if (orientation == vtkPlotBar::HORIZONTAL)
+        {
+        targetMin.Set(min.Y(), min.X());
+        targetMax.Set(max.Y(), max.X());
+        }
+
+      // The extent of any given bar is half a width on either
+      // side of the point with which it is associated.
+      float halfWidth = width / 2.0;
+
+      // Get the lowest X coordinate we might hit
+      vtkIndexedVector2f lowPoint;
+      lowPoint.index = 0;
+      lowPoint.pos = vtkVector2f(targetMin.X()-(offset * -1)-halfWidth, 0.0f);
+
+      // Set up our search array, use the STL lower_bound algorithm
+      VectorPIMPL::iterator low;
+      VectorPIMPL &v = *this->Sorted;
+      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+
+      while (low != v.end())
+        {
+        // Is the bar's X coordinates at least partially within the box?
+        if (low->pos.X()+halfWidth-offset > targetMin.X() &&
+            low->pos.X()-halfWidth-offset < targetMax.X())
+          {
+          // Is the bar within the vertical extent of the box?
+          if ((targetMin.Y() > 0 && low->pos.Y() >= targetMin.Y()) || // Box is entirely above X axis
+              (targetMax.Y() < 0 && low->pos.Y() <= targetMax.Y()) || // Box is entirely below X axis
+              (targetMin.Y() < 0 && targetMax.Y() > 0)) // Box spans across X-axis
+            {
+            this->SelectionSet->insert(low->index);
+            }
+          }
+        // Is the left side of the bar beyond the box?
+        if (low->pos.X()-offset-halfWidth > targetMax.X())
+          {
+          break;
+          }
+        ++low;
+        }
+
+      if (this->SelectionSet->empty())
+        {
+        return false;
+        }
+      else
+        {
+        return true;
+        }
+      }
+
     vtkSmartPointer<vtkPlotBarSegment> Previous;
     vtkSmartPointer<vtkPoints2D> Points;
     vtkPlotBar *Bar;
     VectorPIMPL* Sorted;
+    std::set<vtkIdType>* SelectionSet;
     };
 
 vtkStandardNewMacro(vtkPlotBarSegment);
@@ -366,6 +456,34 @@ public:
       }
     return -1;
     }
+
+  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max,
+                    float width, float offset, int orientation,
+                    vtkIdTypeArray* selection)
+  {
+    // Selection functionality not supported for stacked plots (yet)
+    if (this->Segments.size() != 1)
+      {
+      return false;
+      }
+
+    // This has the side effect of generating SelectionSet
+    if (this->Segments[0]->SelectPoints(min, max, width, offset, orientation))
+      {
+      for(std::set<vtkIdType>::const_iterator itr =
+            this->Segments[0]->SelectionSet->begin();
+          itr != this->Segments[0]->SelectionSet->end();
+          itr++)
+        {
+        selection->InsertNextValue(*itr);
+        }
+      return true;
+      }
+    else
+      {
+      return false;
+      }
+  }
 
   std::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
   vtkPlotBar *Bar;
@@ -705,4 +823,18 @@ void vtkPlotBar::SetColorSeries(vtkColorSeries *colorSeries)
 vtkColorSeries *vtkPlotBar::GetColorSeries()
 {
   return this->ColorSeries;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
+{
+  if (!this->Selection)
+    {
+    this->Selection = vtkIdTypeArray::New();
+    }
+  this->Selection->SetNumberOfTuples(0);
+
+  return this->Private->SelectPoints(min, max, this->Width, this->Offset,
+                                                this->Orientation,
+                                                this->Selection);
 }
