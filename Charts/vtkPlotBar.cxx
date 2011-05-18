@@ -145,11 +145,11 @@ class vtkPlotBarSegment : public vtkObject {
 
     vtkPlotBarSegment()
       {
-      this->Bar = 0;
-      this->Points = 0;
-      this->Sorted = 0;
-      this->Previous = 0;
-      this->SelectionSet = 0;
+      this->Bar = NULL;
+      this->Points = NULL;
+      this->Sorted = NULL;
+      this->Previous = NULL;
+      this->SelectionSet = NULL;
       }
 
     ~vtkPlotBarSegment()
@@ -201,7 +201,7 @@ class vtkPlotBarSegment : public vtkObject {
       int n = this->Points->GetNumberOfPoints();
       float *f =
           vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
-      float *p = 0;
+      float *p = NULL;
       if (this->Previous)
         p = vtkFloatArray::SafeDownCast(
               this->Previous->Points->GetData())->GetPointer(0);
@@ -498,13 +498,12 @@ vtkStandardNewMacro(vtkPlotBar);
 vtkPlotBar::vtkPlotBar()
 {
   this->Private = new vtkPlotBarPrivate(this);
-  this->Points = 0;
-  this->Labels = 0;
-  this->AutoLabels = 0;
+  this->Points = NULL;
+  this->AutoLabels = NULL;
   this->Width = 1.0;
   this->Pen->SetWidth(1.0);
   this->Offset = 1.0;
-  this->ColorSeries = 0;
+  this->ColorSeries = NULL;
   this->Orientation = vtkPlotBar::VERTICAL;
 }
 
@@ -804,7 +803,7 @@ void vtkPlotBar::SetInputArray(int index, const vtkStdString &name)
     {
     this->Private->AdditionalSeries[index] = name;
     }
-  this->AutoLabels = 0; // No longer valid
+  this->AutoLabels = NULL; // No longer valid
 }
 
 //-----------------------------------------------------------------------------
