@@ -9,21 +9,23 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import vtk.vtkActor;
 import vtk.vtkDataSetMapper;
 import vtk.vtkNativeLibrary;
 import vtk.vtkObject;
 import vtk.vtkPanel;
+import vtk.vtkReferenceInformation;
 import vtk.vtkRenderer;
 import vtk.vtkShrinkFilter;
 import vtk.vtkSphereSource;
@@ -34,13 +36,14 @@ import vtk.vtkSphereSource;
  *
  * @author sebastien jourdain - sebastien.jourdain@kitware.com
  */
-public class MultiThreadedApplicationWithGC extends JPanel {
+public class Demo extends JPanel {
     private static final long serialVersionUID = 1L;
     private vtkPanel panel3d;
     private JCheckBox runGC;
     private JCheckBox debugMode;
     private JLabel gcStatus;
-    private int NUMBER_OF_PIPLINE_TO_BUILD = 1000;
+    private int NUMBER_OF_PIPLINE_TO_BUILD = 120;
+    private int nbSeconds;
 
     private final CompletionService<vtkActor> exec;
 
@@ -57,38 +60,14 @@ public class MultiThreadedApplicationWithGC extends JPanel {
     }
 
     // -----------------------------------------------------------------
-    public static class RemoveRandomActorRunnable implements Runnable {
-        private final vtkPanel panel;
-        private final vtkRenderer renderer;
-        private Runnable worker = new Runnable() {
-            @Override
-            public void run() {
-                renderer.RemoveActor(renderer.GetActors().GetLastProp());
-                panel.resetCamera();
-                panel.Render();
-            }
-        };
-
-        public RemoveRandomActorRunnable(vtkPanel panel) {
-            this.panel = panel;
-            this.renderer = panel.GetRenderer();
-        }
-
-        @Override
-        public void run() {
-            if (renderer.GetNumberOfPropsRendered() > 2) {
-                SwingUtilities.invokeLater(worker);
-            }
-        }
-    }
-
-    // -----------------------------------------------------------------
     public static class AddActorRunnable implements Runnable {
         private vtkActor actorToAdd;
         private vtkRenderer renderer;
+        private vtkPanel panel;
 
-        void setRenderer(vtkRenderer renderer) {
-            this.renderer = renderer;
+        void setRenderer(vtkPanel panel) {
+            this.renderer = panel.GetRenderer();
+            this.panel = panel;
         }
 
         void setActor(vtkActor a) {
@@ -98,6 +77,7 @@ public class MultiThreadedApplicationWithGC extends JPanel {
         @Override
         public void run() {
             this.renderer.AddActor(this.actorToAdd);
+            this.panel.Render();
         }
     }
 
@@ -132,7 +112,7 @@ public class MultiThreadedApplicationWithGC extends JPanel {
             mapper.Update();
 
             // Wait some time
-            Thread.sleep((long) (Math.random() * 1000));
+            Thread.sleep((long) (Math.random() * 500));
 
             // Return
             return actor;
@@ -148,10 +128,10 @@ public class MultiThreadedApplicationWithGC extends JPanel {
 
     // -----------------------------------------------------------------
 
-    public MultiThreadedApplicationWithGC() {
+    public Demo() {
         super(new BorderLayout());
         panel3d = new vtkPanel();
-        gcStatus = new JLabel("Starting");
+        gcStatus = new JLabel("");
         runGC = new JCheckBox("Enable GC", false);
         debugMode = new JCheckBox("Debug mode", false);
         exec = new ExecutorCompletionService<vtkActor>(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
@@ -161,13 +141,46 @@ public class MultiThreadedApplicationWithGC extends JPanel {
         statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
         statusBar.add(runGC);
         statusBar.add(debugMode);
+        statusBar.add(Box.createHorizontalGlue());
         statusBar.add(gcStatus);
         add(panel3d, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
 
         // Init app
-        this.setupGC();
+        // this.setupGC(); // We use a Swing timer that show the result in UI
+        // instead..
         this.setupWorkers();
+
+        // Update GC info into the UI every seconds
+        // Reset camera each seconds the first 10 ones
+        this.nbSeconds = 0;
+        new Timer(1000, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (nbSeconds++ < 10) {
+                    panel3d.resetCamera();
+                }
+                vtkRenderer renderer = panel3d.GetRenderer();
+                if (renderer.GetNumberOfPropsRendered() > 1) {
+                    renderer.RemoveActor(renderer.GetActors().GetLastProp());
+                }
+
+                // Run GC in local thread (EDT)
+                if (runGC.isSelected()) {
+                    vtkReferenceInformation info = vtkObject.JAVA_OBJECT_MANAGER.gc(debugMode.isSelected());
+                    if (debugMode.isSelected()) {
+                        System.out.println(info.listKeptReferenceToString());
+                        System.out.println(info.listRemovedReferenceToString());
+                    }
+                    gcStatus.setText(info.toString());
+                } else {
+                    gcStatus.setText("");
+                }
+
+                panel3d.Render();
+            }
+        }).start();
     }
 
     private void setupGC() {
@@ -192,15 +205,10 @@ public class MultiThreadedApplicationWithGC extends JPanel {
     }
 
     private void setupWorkers() {
-        // Remove actor thread: Start in 1s and run every 300ms
-        ScheduledExecutorService cleanerThread = Executors.newSingleThreadScheduledExecutor();
-        RemoveRandomActorRunnable removeActorRunnable = new RemoveRandomActorRunnable(panel3d);
-        cleanerThread.scheduleAtFixedRate(removeActorRunnable, 1000, 300, TimeUnit.MILLISECONDS);
-
         // Add actor thread: Consume the working queue and add the actor into
         // the render inside the EDT thread
         final AddActorRunnable adderRunnable = new AddActorRunnable();
-        adderRunnable.setRenderer(panel3d.GetRenderer());
+        adderRunnable.setRenderer(panel3d);
         new Thread() {
             public void run() {
                 for (int i = 0; i < NUMBER_OF_PIPLINE_TO_BUILD; i++) {
@@ -231,7 +239,7 @@ public class MultiThreadedApplicationWithGC extends JPanel {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                MultiThreadedApplicationWithGC app = new MultiThreadedApplicationWithGC();
+                Demo app = new Demo();
 
                 JFrame f = new JFrame("Concurrency test");
                 f.getContentPane().setLayout(new BorderLayout());

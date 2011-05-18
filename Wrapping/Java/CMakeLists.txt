@@ -164,6 +164,7 @@ IF(JAVA_COMPILE)
       vtkJavaMemoryManagerImpl
       vtkNativeLibrary
       vtkSettings
+      vtkJavaTesting
       AxesActor
     )
     SET(VTK_JAVA_SAMPLE_DEPENDENCIES)
@@ -176,7 +177,7 @@ IF(JAVA_COMPILE)
       SET(VTK_JAVA_SAMPLE_DEPENDENCIES ${VTK_JAVA_SAMPLE_DEPENDENCIES}
         ImagePlaneWidget
         InternalFrames
-        MultiThreadedApplicationWithGC
+        Demo
         SimpleVTK
         VTKCanvas
       )
@@ -261,7 +262,6 @@ IF(JAVA_COMPILE)
       ENDIF(WIN32)
 
       FOREACH(jfile
-          vtkJavaTesting
           Regression
           ConcurrencyGC
           JavaDelete

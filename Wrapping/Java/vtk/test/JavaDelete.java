@@ -3,6 +3,7 @@ package vtk.test;
 import java.util.concurrent.TimeUnit;
 
 import vtk.vtkDoubleArray;
+import vtk.vtkJavaTesting;
 import vtk.vtkObject;
 import vtk.vtkQuadric;
 import vtk.vtkSampleFunction;

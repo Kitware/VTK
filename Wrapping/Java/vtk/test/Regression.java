@@ -18,6 +18,7 @@ import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkImageData;
 import vtk.vtkImageDifference;
+import vtk.vtkJavaTesting;
 import vtk.vtkObject;
 import vtk.vtkPNGWriter;
 import vtk.vtkPolyDataMapper;

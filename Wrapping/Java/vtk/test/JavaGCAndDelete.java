@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import vtk.vtkActor;
 import vtk.vtkArrowSource;
+import vtk.vtkJavaTesting;
 import vtk.vtkObject;
 import vtk.vtkPolyDataMapper;
 

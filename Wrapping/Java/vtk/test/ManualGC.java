@@ -3,6 +3,7 @@ package vtk.test;
 import java.util.concurrent.TimeUnit;
 
 import vtk.vtkIdTypeArray;
+import vtk.vtkJavaTesting;
 import vtk.vtkObject;
 import vtk.vtkObjectBase;
 import vtk.vtkReferenceInformation;

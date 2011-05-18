@@ -10,7 +10,7 @@ import java.io.File;
  *
  * > java -cp vtk.jar -Dvtk.lib.dir=.../vtk-libs vtk.sample.SimpleVTK
  *
- * The directory .../vtk-libs must contain the so/dll/dylib + the jni files
+ * The directory .../vtk-libs must contain the so/dll/dylib + the jnilib files
  *
  * @author sebastien jourdain - sebastien.jourdain@kitware.com
  */

@@ -1,10 +1,9 @@
-package vtk.test;
+package vtk;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import vtk.vtkJavaGarbageCollector;
 import vtk.vtkObject;
 import vtk.vtkRenderWindow;
 import vtk.vtkSettings;

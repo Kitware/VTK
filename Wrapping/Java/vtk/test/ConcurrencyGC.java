@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
 import vtk.vtkJavaGarbageCollector;
+import vtk.vtkJavaTesting;
 import vtk.vtkPoints;
 import vtk.vtkUnstructuredGrid;
 
