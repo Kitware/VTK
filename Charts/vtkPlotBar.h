@@ -119,6 +119,10 @@ public:
   // Get the group name of the bar char - can be displayed on the X axis.
   virtual vtkStdString GetGroupName();
 
+  // Description:
+  // Select all points in the specified rectangle.
+  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
