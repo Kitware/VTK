@@ -16,6 +16,7 @@
 #include "vtkPlotBar.h"
 
 #include "vtkContext2D.h"
+#include "vtkRect.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkContextDevice2D.h"

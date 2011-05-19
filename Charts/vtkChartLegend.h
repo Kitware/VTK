@@ -25,7 +25,7 @@
 
 #include "vtkContextItem.h"
 #include "vtkNew.h"         // For vtkNew
-#include "vtkVector.h"      // For vtkRectf return value
+#include "vtkRect.h"        // For vtkRectf return value
 
 class vtkChart;
 class vtkPen;
