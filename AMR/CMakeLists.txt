@@ -22,6 +22,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAMRGridIndexEncoder
   vtkAMRLink
   vtkAMREnzoReaderInternal
+  vtkAMRFlashReaderInternal
   WRAP_EXCLUDE
 )
 ## Include CMAKE code common to all kits
