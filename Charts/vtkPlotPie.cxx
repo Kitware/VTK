@@ -22,6 +22,7 @@
 #include "vtkContextMapper2D.h"
 #include "vtkTable.h"
 #include "vtkMath.h"
+#include "vtkRect.h"
 
 #include "vtkObjectFactory.h"
 
@@ -199,7 +200,7 @@ vtkColorSeries *vtkPlotPie::GetColorSeries()
 
 //-----------------------------------------------------------------------------
 int vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f&,
-                              vtkVector2f* values)
+                                vtkVector2f* values)
 {
   float x = point.X() - this->Private->CenterX;
   float y = point.Y() - this->Private->CenterY;

@@ -22,7 +22,7 @@
 #define __vtkChart_h
 
 #include "vtkContextItem.h"
-#include "vtkVector.h"      // For vtkRectf
+#include "vtkRect.h"        // For vtkRectf
 #include "vtkStdString.h"   // For vtkStdString ivars
 
 class vtkTransform2D;
