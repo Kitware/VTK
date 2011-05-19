@@ -34,6 +34,7 @@
 #include "vtkDataArray.h"
 
 #include <vtksys/ios/sstream>
+#include <vtksys/cstddef>
 
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_String(PyObject *op)
