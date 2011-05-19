@@ -340,7 +340,7 @@ protected:
   // Control the timer duration
   unsigned long  TimerDuration; //in milliseconds
   
-  // Forward evets to the RenderWindowInteractor
+  // Forward events to the RenderWindowInteractor
   vtkEventForwarderCommand * EventForwarder;
 
   vtkTDxInteractorStyle *TDxStyle;

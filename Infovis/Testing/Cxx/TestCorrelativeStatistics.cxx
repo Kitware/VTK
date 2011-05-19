@@ -198,13 +198,15 @@ int TestCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated primary statistics
-    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble() - meansX1[r] ) > 1.e-6 )
+    double testMeanX = outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble();
+    if ( fabs ( testMeanX - meansX1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean for X");
       testStatus = 1;
       }
 
-    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble() - meansY1[r] ) > 1.e-6 )
+    double testMeanY = outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble();
+    if ( fabs ( testMeanY - meansY1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean for Y");
       testStatus = 1;
@@ -225,23 +227,50 @@ int TestCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated derived statistics
-    if ( fabs ( outputDerived1->GetValueByName( r, "Variance X" ).ToDouble() - varsX1[r] ) > 1.e-5 )
+    double testMeanX = outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble();
+    double testMeanY = outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble();
+
+    double testVarX = outputDerived1->GetValueByName( r, "Variance X" ).ToDouble();
+    if ( fabs ( testVarX - varsX1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for X");
       testStatus = 1;
       }
 
-    if ( fabs ( outputDerived1->GetValueByName( r, "Variance Y" ).ToDouble() - varsY1[r] ) > 1.e-5 )
+    double testVarY = outputDerived1->GetValueByName( r, "Variance Y" ).ToDouble();
+    if ( fabs ( testVarY - varsY1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for Y");
       testStatus = 1;
       }
 
-    if ( fabs ( outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble() - correlations1[r] ) > 1.e-6 )
+    double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
+    if ( fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
       }
+
+    // Test regression lines if linear regression is valid
+    if ( outputDerived1->GetValueByName( r, "Linear Correlation").ToString() == "valid" )
+      {
+      double testSlopeYX = outputDerived1->GetValueByName( r, "Slope Y/X" ).ToDouble();
+      double testInterceptYX = outputDerived1->GetValueByName( r, "Intercept Y/X" ).ToDouble();
+      if ( fabs ( testSlopeYX * testMeanX + testInterceptYX - testMeanY ) > 1.e-8 )
+        {
+        vtkGenericWarningMacro("Incorrect linear regression of Y on X");
+        testStatus = 1;
+        }
+      
+      double testSlopeXY = outputDerived1->GetValueByName( r, "Slope X/Y" ).ToDouble();
+      double testInterceptXY = outputDerived1->GetValueByName( r, "Intercept X/Y" ).ToDouble();
+      if ( fabs ( testSlopeXY * testMeanY + testInterceptXY - testMeanX ) > 1.e-8 )
+        {
+        vtkGenericWarningMacro("Incorrect linear regression of X on Y");
+        testStatus = 1;
+        }
+      }
+
     cout << "\n";
     }
 
