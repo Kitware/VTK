@@ -16,19 +16,23 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
+#include "vtkAMRFlashReaderInternal.h"
+
 #include <cassert>
 
 vtkStandardNewMacro( vtkAMRFlashParticlesReader );
 
 vtkAMRFlashParticlesReader::vtkAMRFlashParticlesReader()
 {
+  this->Internal = new vtkFlashReaderInternal();
   this->Initialize();
 }
 
 //------------------------------------------------------------------------------
 vtkAMRFlashParticlesReader::~vtkAMRFlashParticlesReader()
 {
-  // TODO Auto-generated destructor stub
+  if( this->Internal != NULL )
+    delete this->Internal;
 }
 
 //------------------------------------------------------------------------------

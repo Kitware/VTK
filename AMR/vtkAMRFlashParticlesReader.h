@@ -24,6 +24,7 @@
 
 class vtkIndent;
 class vtkPolyData;
+class vtkFlashReaderInternal;
 
 class VTK_AMR_EXPORT vtkAMRFlashParticlesReader :
   public vtkAMRBaseParticlesReader
@@ -48,6 +49,9 @@ class VTK_AMR_EXPORT vtkAMRFlashParticlesReader :
     // Description:
     // See vtkAMRBaseParticlesReader::ReadParticles
     vtkPolyData* ReadParticles( const int blkidx );
+
+
+    vtkFlashReaderInternal *Internal;
 
   private:
     vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ); // Not implemented
