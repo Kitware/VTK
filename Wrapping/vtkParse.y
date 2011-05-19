@@ -1408,11 +1408,11 @@ class_def_item:
    | CLASS_REF
    | operator func_body { output_function(); }
    | FRIEND operator func_body { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
    | template operator func_body { output_function(); }
    | method func_body { output_function(); }
    | FRIEND method func_body { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
    | template method func_body { output_function(); }
    | legacy_method func_body { legacySig(); output_function(); }
    | VTK_BYTE_SWAP_DECL '(' maybe_other ')' ';'
@@ -2680,6 +2680,7 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->NumberOfArguments = 0;
   func->ReturnValue = NULL;
   func->Macro = NULL;
+  func->SizeHint = NULL;
   func->IsStatic = 0;
   func->IsVirtual = 0;
   func->IsPureVirtual = 0;
@@ -3013,6 +3014,9 @@ void reject_class(const char *classname, int is_struct_or_union)
 /* reached the end of a class definition */
 void end_class()
 {
+  /* add default constructors */
+  vtkParse_AddDefaultConstructors(currentClass);
+
   popClass();
 }
 
@@ -4096,12 +4100,74 @@ const char *vtkParse_DuplicateString(const char *cp, size_t n)
   return res;
 }
 
+/* Add default constructors if they do not already exist */
+void vtkParse_AddDefaultConstructors(ClassInfo *cls)
+{
+  FunctionInfo *func;
+  ValueInfo *arg;
+  int i, n;
+  int default_constructor = 1;
+  int copy_constructor = 1;
+
+  if (cls == NULL || cls->Name == NULL)
+    {
+    return;
+    }
+
+  n = cls->NumberOfFunctions;
+  for (i = 0; i < n; i++)
+    {
+    func = cls->Functions[i];
+    if (func->Name && strcmp(func->Name, cls->Name) == 0)
+      {
+      default_constructor = 0;
+
+      if (func->NumberOfArguments == 1)
+        {
+        arg = func->Arguments[0];
+        if (arg->Class &&
+            strcmp(arg->Class, cls->Name) == 0 &&
+            (arg->Type & VTK_PARSE_POINTER_MASK) == 0)
+          {
+          copy_constructor = 0;
+          }
+        }
+      }
+    }
+
+  if (default_constructor)
+    {
+    func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+    vtkParse_InitFunction(func);
+    func->Class = vtkstrdup(cls->Name);
+    func->Name = vtkstrdup(cls->Name);
+    func->Signature = vtkstrcat(cls->Name, "()");
+    vtkParse_AddFunctionToClass(cls, func);
+    }
+
+  if (copy_constructor)
+    {
+    func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+    vtkParse_InitFunction(func);
+    func->Class = vtkstrdup(cls->Name);
+    func->Name = vtkstrdup(cls->Name);
+    func->Signature = vtkstrcat4(cls->Name, "(const &", cls->Name, ")");
+    arg = (ValueInfo *)malloc(sizeof(ValueInfo));
+    vtkParse_InitValue(arg);
+    arg->Type = (VTK_PARSE_OBJECT_REF | VTK_PARSE_CONST);
+    arg->Class = vtkstrdup(cls->Name);
+    vtkParse_AddArgumentToFunction(func, arg);
+    vtkParse_AddFunctionToClass(cls, func);
+    }
+}
+
 /* Expand a typedef within a type declaration. */
 void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
 {
   const char *classname;
   unsigned int baseType;
   unsigned int pointers;
+  unsigned int refbit;
   unsigned int qualifiers;
   unsigned int tmp1, tmp2;
   int i;
@@ -4109,6 +4175,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
   classname = typedefinfo->Class;
   baseType = (typedefinfo->Type & VTK_PARSE_BASE_TYPE);
   pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
+  refbit = (valinfo->Type & VTK_PARSE_REF);
   qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
 
   /* handle const */
@@ -4173,7 +4240,7 @@ void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
     }
 
   /* put everything together */
-  valinfo->Type = (baseType | pointers | qualifiers);
+  valinfo->Type = (baseType | pointers | refbit | qualifiers);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
   valinfo->Count *= typedefinfo->Count;
