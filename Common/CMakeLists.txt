@@ -39,6 +39,7 @@ vtkCharArray.cxx
 vtkClientSocket.cxx
 vtkCollection.cxx
 vtkCollectionIterator.cxx
+vtkColor.h
 vtkCommand.cxx
 vtkCommonInformationKeyManager.cxx
 vtkConditionVariable.cxx
@@ -157,6 +158,7 @@ vtkProperty2D.cxx
 vtkQuadratureSchemeDefinition.cxx
 vtkQuadric.cxx
 vtkRandomSequence.cxx
+vtkRect.h
 vtkReferenceCount.cxx
 vtkRungeKutta2.cxx
 vtkRungeKutta4.cxx
@@ -192,6 +194,7 @@ vtkUnsignedLongArray.cxx
 vtkUnsignedShortArray.cxx
 vtkVariant.cxx
 vtkVariantArray.cxx
+vtkVector.h
 vtkVersion.cxx
 vtkVoidArray.cxx
 vtkWarpTransform.cxx
@@ -208,7 +211,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake.in ${CMAKE_CUR
 ADD_CUSTOM_COMMAND(
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake 
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
   )
 
@@ -338,6 +341,7 @@ vtkArrayIterator
 vtkArrayIteratorTemplate
 vtkAbstractTransform
 vtkCallbackCommand
+vtkColor
 vtkCommand
 vtkCommonInformationKeyManager
 vtkDataArray
@@ -376,11 +380,20 @@ vtkParametricFunction
 vtkProp
 vtkRandomSequence
 vtkScalarsToColors
+vtkRect
 vtkSocket
 vtkStructuredData
+vtkVector
 vtkWarpTransform
 vtkWindow
 ABSTRACT
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkColor
+  vtkRect
+  vtkVector
+  HEADER_FILE_ONLY
 )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -388,6 +401,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkBoundingBox.cxx
   vtkBreakPoint.cxx
   vtkCallbackCommand.cxx
+  vtkColor.h
   vtkCommonInformationKeyManager.cxx
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
@@ -400,12 +414,14 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
+  vtkRect.h
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
+  vtkVector.h
 
   WRAP_EXCLUDE
 )
@@ -497,7 +513,7 @@ ENDIF(NOT HAVE_SOCKETS)
 # and socket also
 IF(CMAKE_SYSTEM MATCHES "SunOS.*")
   SET(KIT_LIBS ${KIT_LIBS} socket nsl)
-ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*") 
+ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
