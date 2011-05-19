@@ -45,6 +45,11 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
       vtkGetMacro(OffSetFromOrigin,double);
 
       // Description:
+      // Set/Get the maximum resolution used in this instance.
+      vtkSetMacro(MaxResolution,int);
+      vtkGetMacro(MaxResolution,int);
+
+      // Description:
       // Set/Get the Axis normal. There are only 3 acceptable values
       // 1-(X-Normal); 2-(Y-Normal); 3-(Z-Normal)
       vtkSetMacro(Normal,int);
@@ -61,6 +66,11 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
          vtkInformation*,vtkInformationVector**,vtkInformationVector*);
       virtual int FillInputPortInformation(int port, vtkInformation *info);
       virtual int FillOutputPortInformation(int port, vtkInformation *info);
+
+      // Description:
+      // Performs upstream requests to the reader
+      virtual int RequestUpdateExtent(
+          vtkInformation*, vtkInformationVector**,vtkInformationVector* );
 
   protected:
     vtkAMRSliceFilter();
@@ -113,7 +123,7 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     double OffSetFromOrigin;
     int    Normal; // 1=>X-Normal, 2=>Y-Normal, 3=>Z-Normal
     bool   initialRequest;
-
+    int    MaxResolution;
     vtkMultiProcessController *Controller;
 
   private:
