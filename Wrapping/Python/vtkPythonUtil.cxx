@@ -662,12 +662,17 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 
     // If a TypeError occurred, clear it and set our own error
     PyObject *ex = PyErr_Occurred();
-    if (ex == NULL || !PyErr_GivenExceptionMatches(ex, PyExc_TypeError))
+    if (ex != NULL)
       {
-      return NULL;
+      if (PyErr_GivenExceptionMatches(ex, PyExc_TypeError))
+        {
+        PyErr_Clear();
+        }
+      else
+        {
+        return NULL;
+        }
       }
-
-    PyErr_Clear();
     }
 
 #ifdef VTKPYTHONDEBUG
