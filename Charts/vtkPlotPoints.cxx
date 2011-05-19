@@ -715,7 +715,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
 }
 
 //-----------------------------------------------------------------------------
-inline void vtkPlotPoints::CalculateLogSeries()
+void vtkPlotPoints::CalculateLogSeries()
 {
   if (!this->XAxis || !this->YAxis)
     {
@@ -742,7 +742,7 @@ inline void vtkPlotPoints::CalculateLogSeries()
 }
 
 //-----------------------------------------------------------------------------
-inline void vtkPlotPoints::FindBadPoints()
+void vtkPlotPoints::FindBadPoints()
 {
   // This should be run after CalculateLogSeries as a final step.
   float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
@@ -775,7 +775,7 @@ inline void vtkPlotPoints::FindBadPoints()
 }
 
 //-----------------------------------------------------------------------------
-inline void vtkPlotPoints::CalculateBounds(double bounds[4])
+void vtkPlotPoints::CalculateBounds(double bounds[4])
 {
   // We can use the BadPoints array to skip the bad points
   if (!this->Points || !this->BadPoints)
