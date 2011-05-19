@@ -24,6 +24,9 @@
 class vtkObjectBase;
 struct PyVTKClass;
 
+// Flags for special properties or features
+#define VTK_PYTHON_IGNORE_UNREGISTER 1 // block Register/UnRegister calls
+
 // This is the VTK/Python 'object,' it contains the python object header
 // plus a pointer to the associated vtkObjectBase and PyVTKClass.
 struct PyVTKObject {
@@ -31,6 +34,7 @@ struct PyVTKObject {
   PyVTKClass *vtk_class;
   PyObject *vtk_dict;
   vtkObjectBase *vtk_ptr;
+  long vtk_flags;
 #if PY_VERSION_HEX >= 0x02010000
   PyObject *vtk_weakreflist;
 #endif
@@ -45,6 +49,15 @@ extern "C"
 VTK_PYTHON_EXPORT
 PyObject *PyVTKObject_New(
   PyObject *vtkclass, PyObject *pydict, vtkObjectBase *ptr);
+
+VTK_PYTHON_EXPORT
+vtkObjectBase *PyVTKObject_GetObject(PyObject *obj);
+
+VTK_PYTHON_EXPORT
+void PyVTKObject_SetFlag(PyObject *obj, long flag, int val);
+
+VTK_PYTHON_EXPORT
+long PyVTKObject_GetFlags(PyObject *obj);
 }
 
 #endif
