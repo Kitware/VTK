@@ -770,7 +770,8 @@ public:
   double SlopeXY;
   double InterYX;
   double InterXY;
-  double DInv;
+  double InvVar;
+  bool PositiveVar;
 
   BivariateRegressionDeviationsFunctor( vtkDataArray* valsX,
                                         vtkDataArray* valsY,
@@ -782,8 +783,7 @@ public:
                                         double slopeYX,
                                         double slopeXY,
                                         double interYX,
-                                        double interXY,
-                                        double d )
+                                        double interXY )
   {
     this->DataX = valsX;
     this->DataY = valsY;
@@ -796,7 +796,29 @@ public:
     this->SlopeXY = slopeXY;
     this->InterYX = interYX;
     this->InterXY = interXY;
-    this->DInv  = 1. / d;
+
+    // Store inverse of generalized variance if positive, otherwise do not calculate Mahalanobis distance
+    double d = varianceX * varianceY - covXY * covXY;
+    if ( d > 0. )
+      {
+      this->InvVar  = 1. / d;
+      this->PositiveVar  = true;
+      }
+    else
+      {
+      vtkGenericWarningMacro( "Determinant of ["
+                              << this->VarX
+                              << " "
+                              << this->CovXY 
+                              << " ; "
+                              << this->CovXY
+                              << " "
+                              << this->VarY
+                              << "]= "
+                              << d
+                              << " <= 0, assessment values will be set to -1." );
+      this->PositiveVar  = false;
+      }
   }
   virtual ~BivariateRegressionDeviationsFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -806,12 +828,22 @@ public:
     double x = this->DataX->GetTuple1( id );
     double y = this->DataY->GetTuple1( id );
 
-    // Center observation (for Mahalanobis distance)
-    double x_c = x - this->MeanX;
-    double y_c = y - this->MeanY;
+    // Calculate Mahlanobis distance only if positive variance, else store invalid -1 value
+    double smd;
+    if ( this->PositiveVar )
+      {
+      // Center observation for efficiency
+      double x_c = x - this->MeanX;
+      double y_c = y - this->MeanY;
 
-    // Calculate 2-d squared Mahalanobis distance
-    double smd  = ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c ) * this->DInv;
+      // Calculate 2-d squared Mahalanobis distance
+      smd  = ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c ) * this->InvVar;
+      }
+    else
+      {
+      // Store invalid -1 value
+      smd = -1;
+      }
 
     // Calculate residual from regression of Y into X
     double dYX = x - ( this->SlopeYX * x + this->InterYX );
@@ -903,33 +935,19 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble(); 
       double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble(); 
 
-      double d = varianceX * varianceY - covXY * covXY;
-      if ( d <= 0. )
-        {
-        vtkWarningMacro( "Covariance matrix of ("
-                         << varNameX.c_str()
-                         << ","
-                         << varNameY.c_str()
-                         << ") has non-positive determinant "
-                         << d
-                         << ", assessment values will be set to -1." );
-        }
-      else
-        {
-        dfunc = new BivariateRegressionDeviationsFunctor( valsX,
-                                                          valsY,
-                                                          meanX,
-                                                          meanY,
-                                                          varianceX,
-                                                          varianceY,
-                                                          covXY,
-                                                          slopeYX,
-                                                          slopeXY,
-                                                          interYX,
-                                                          interXY,
-                                                          d );
-        }
+      dfunc = new BivariateRegressionDeviationsFunctor( valsX,
+                                                        valsY,
+                                                        meanX,
+                                                        meanY,
+                                                        varianceX,
+                                                        varianceY,
+                                                        covXY,
+                                                        slopeYX,
+                                                        slopeXY,
+                                                        interYX,
+                                                        interXY );
       
+      // Parameters of requested column pair were found, no need to continue
       return;
       }
     }
