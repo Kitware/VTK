@@ -422,12 +422,6 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Linear regression lines are valid only if the determinant is positive
     if ( derivedVals[3] <= 0. )
       {
-      vtkWarningMacro( "Incorrect parameters for column pair ("
-                       <<c1.c_str()
-                       <<", "
-                       <<c2.c_str()
-                       <<"): variance/covariance matrix has non-positive determinant: "
-                       <<derivedVals[3] );
       derivedVals[4] = 0.;
       derivedVals[5] = 0.;
       derivedVals[6] = 0.;
