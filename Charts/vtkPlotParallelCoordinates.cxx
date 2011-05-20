@@ -216,14 +216,6 @@ void vtkPlotParallelCoordinates::GetBounds(double *)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlotParallelCoordinates::GetNearestPoint(const vtkVector2f& ,
-                                  const vtkVector2f& ,
-                                  vtkVector2f* )
-{
-  return -1;
-}
-
-//-----------------------------------------------------------------------------
 bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
                                                    float high)
 {
