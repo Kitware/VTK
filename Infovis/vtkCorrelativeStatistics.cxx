@@ -49,9 +49,9 @@ vtkStandardNewMacro(vtkCorrelativeStatistics);
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues( 3 );
-  this->AssessNames->SetValue( 0, "d^2" );
-  this->AssessNames->SetValue( 0, "d_y" );
-  this->AssessNames->SetValue( 0, "d_x" );
+  this->AssessNames->SetValue( 0, "Mahalanobis^2" );
+  this->AssessNames->SetValue( 0, "Residual Y/X" );
+  this->AssessNames->SetValue( 0, "Residual X/Y" );
 }
 
 // ----------------------------------------------------------------------
@@ -756,7 +756,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-class TableColumnPairMahlanobisFunctor : public vtkStatisticsAlgorithm::AssessFunctor
+class BivariateRegressionDeviationsFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
   vtkDataArray* DataX;
@@ -766,35 +766,64 @@ public:
   double VarX;
   double VarY;
   double CovXY;
+  double SlopeYX;
+  double SlopeXY;
+  double InterYX;
+  double InterXY;
   double DInv;
 
-  TableColumnPairMahlanobisFunctor( vtkDataArray* valsX,
-                                    vtkDataArray* valsY,
-                                    double meanX,
-                                    double meanY,
-                                    double varX,
-                                    double varY,
-                                    double covXY,
-                                    double dInv )
+  BivariateRegressionDeviationsFunctor( vtkDataArray* valsX,
+                                        vtkDataArray* valsY,
+                                        double meanX,
+                                        double meanY,
+                                        double varianceX,
+                                        double varianceY,
+                                        double covXY,
+                                        double slopeYX,
+                                        double slopeXY,
+                                        double interYX,
+                                        double interXY,
+                                        double d )
   {
     this->DataX = valsX;
     this->DataY = valsY;
     this->MeanX = meanX;
     this->MeanY = meanY;
-    this->VarX  = varX;
-    this->VarY  = varY;
+    this->VarX  = varianceX;
+    this->VarY  = varianceY;
     this->CovXY = covXY;
-    this->DInv  = dInv;
+    this->SlopeYX = slopeYX;
+    this->SlopeXY = slopeXY;
+    this->InterYX = interYX;
+    this->InterXY = interXY;
+    this->DInv  = 1. / d;
   }
-  virtual ~TableColumnPairMahlanobisFunctor() { }
+  virtual ~BivariateRegressionDeviationsFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
-    double x = this->DataX->GetTuple1( id ) - this->MeanX;
-    double y = this->DataY->GetTuple1( id ) - this->MeanY;
+    // First retrieve 2-d observation
+    double x = this->DataX->GetTuple1( id );
+    double y = this->DataY->GetTuple1( id );
 
-    result->SetNumberOfValues( 1 );
-    result->SetValue( 0, ( this->VarY * x * x - 2. * this->CovXY * x * y + this->VarX * y * y ) * this->DInv );
+    // Center observation (for Mahalanobis distance)
+    double x_c = x - this->MeanX;
+    double y_c = y - this->MeanY;
+
+    // Calculate 2-d squared Mahalanobis distance
+    double smd  = ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c ) * this->DInv;
+
+    // Calculate residual from regression of Y into X
+    double dYX = x - ( this->SlopeYX * x + this->InterYX );
+
+    // Calculate residual from regression of X into Y
+    double dXY = x - ( this->SlopeXY * x + this->InterXY );
+
+    // Store calculated assessments
+    result->SetNumberOfValues( 3 );
+    result->SetValue( 0, smd );
+    result->SetValue( 1, dYX );
+    result->SetValue( 2, dXY );
   }
 };
 
@@ -868,28 +897,37 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       double meanY = primaryTab->GetValueByName( r, "Mean Y" ).ToDouble();
       double varianceX = derivedTab->GetValueByName( r, "Variance X" ).ToDouble();
       double varianceY = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
-      double covarianceXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
+      double covXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
+      double slopeYX = derivedTab->GetValueByName( r, "Slope Y/X" ).ToDouble(); 
+      double slopeXY = derivedTab->GetValueByName( r, "Slope X/Y" ).ToDouble(); 
+      double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble(); 
+      double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble(); 
 
-      double d = varianceX * varianceY - covarianceXY * covarianceXY;
+      double d = varianceX * varianceY - covXY * covXY;
       if ( d <= 0. )
         {
-        vtkWarningMacro( "Incorrect parameters for column pair ("
+        vtkWarningMacro( "Covariance matrix of ("
                          << varNameX.c_str()
                          << ","
                          << varNameY.c_str()
-                         << "), variance/covariance matrix has non-positive determinant"
-                         << " (assessment values will be set to -1)." );
+                         << ") has non-positive determinant "
+                         << d
+                         << ", assessment values will be set to -1." );
         }
       else
         {
-        dfunc = new TableColumnPairMahlanobisFunctor( valsX,
-                                                      valsY,
-                                                      meanX,
-                                                      meanY,
-                                                      varianceX,
-                                                      varianceY,
-                                                      covarianceXY,
-                                                      1. / d );
+        dfunc = new BivariateRegressionDeviationsFunctor( valsX,
+                                                          valsY,
+                                                          meanX,
+                                                          meanY,
+                                                          varianceX,
+                                                          varianceY,
+                                                          covXY,
+                                                          slopeYX,
+                                                          slopeXY,
+                                                          interYX,
+                                                          interXY,
+                                                          d );
         }
       
       return;
