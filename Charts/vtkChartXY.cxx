@@ -1234,7 +1234,7 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
           if (plot && plot->GetVisible())
             {
             int seriesIndex;
-            vtkIdType segmentIndex;
+            vtkIdType segmentIndex = -1;
             vtkPlotBar* plotBar = vtkPlotBar::SafeDownCast(plot);
             if (plotBar)
               {
@@ -1246,7 +1246,6 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
               {
               seriesIndex = plot->GetNearestPoint(position, tolerance,
                                                   &plotPos);
-              segmentIndex = -1;
               }
             if (seriesIndex >= 0)
               {

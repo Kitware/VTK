@@ -97,7 +97,7 @@ void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previous_points, A *a,
     }
 }
 
-// PIMPL for STL vector...
+// Indexed vector for sorting
 struct vtkIndexedVector2f
 {
   size_t index;
@@ -360,9 +360,9 @@ class vtkPlotBarSegment : public vtkObject {
             low->pos.X()-halfWidth-offset < targetMax.X())
           {
           // Is the bar within the vertical extent of the box?
-          if ((targetMin.Y() > 0 && low->pos.Y() >= targetMin.Y()) || // Box is entirely above X axis
-              (targetMax.Y() < 0 && low->pos.Y() <= targetMax.Y()) || // Box is entirely below X axis
-              (targetMin.Y() < 0 && targetMax.Y() > 0)) // Box spans across X-axis
+          if ((targetMin.Y() > 0 && low->pos.Y() >= targetMin.Y()) ||
+              (targetMax.Y() < 0 && low->pos.Y() <= targetMax.Y()) ||
+              (targetMin.Y() < 0 && targetMax.Y() > 0))
             {
             this->SelectionSet->insert(low->index);
             }
