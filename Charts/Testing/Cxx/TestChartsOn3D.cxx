@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinePlot.cxx
+  Module:    TestChartsOn3D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,28 +13,68 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkNew.h"
+#include "vtkActor.h"
 #include "vtkChartXY.h"
-#include "vtkPlotPoints.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkStringArray.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextActor.h"
+#include "vtkCubeSource.h"
+#include "vtkFloatArray.h"
+#include "vtkPlotPoints.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderer.h"
+#include "vtkRenderView.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkNew.h"
+#include "vtkTable.h"
+#include "vtkCamera.h"
 
 //----------------------------------------------------------------------------
-int TestScatterPlot(int , char * [])
+int TestChartsOn3D(int , char * [])
 {
-  // Set up a 2D scene, add an XY chart to it
-  vtkNew<vtkContextView> view;
-  view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(400, 300);
+
+  vtkNew<vtkRenderWindow> renwin;
+  renwin->SetMultiSamples(4);
+  renwin->SetSize(600, 400);
+
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renwin.GetPointer());
+
+  vtkNew<vtkRenderer> renderer;
+  renderer->SetBackground(0.8, 0.8, 0.8);
+  renwin->AddRenderer(renderer.GetPointer());
+
+  renderer->ResetCamera();
+  renderer->GetActiveCamera()->SetPosition(1.0, 1.0, -4.0);
+  renderer->GetActiveCamera()->Azimuth(40);
+
+  // Cube Source 1
+  vtkNew<vtkCubeSource> cube;
+  vtkNew<vtkPolyDataMapper> cubeMapper;
+  vtkNew<vtkActor> cubeActor;
+
+  cubeMapper->SetInputConnection(cube->GetOutputPort());
+  cubeActor->SetMapper(cubeMapper.GetPointer());
+  cubeActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+  renderer->AddActor(cubeActor.GetPointer());
+  cubeActor->GetProperty()->SetRepresentationToSurface();
+
+  // Now the chart
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
-  chart->SetShowLegend(true);
+  vtkNew<vtkContextScene> chartScene;
+  vtkNew<vtkContextActor> chartActor;
+
+  chart->SetAutoSize(false);
+  chart->SetSize(vtkRectf(0.0, 0.0, 300, 200));
+
+  chartScene->AddItem(chart.GetPointer());
+  chartActor->SetScene(chartScene.GetPointer());
+
+  //both needed
+  renderer->AddActor(chartActor.GetPointer());
+  chartScene->SetRenderer(renderer.GetPointer());
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -50,13 +90,10 @@ int TestScatterPlot(int , char * [])
   vtkNew<vtkFloatArray> arrT;
   arrT->SetName("Tan");
   table->AddColumn(arrT.GetPointer());
-  vtkNew<vtkStringArray> labels;
-  labels->SetName("Labels");
-  table->AddColumn(labels.GetPointer());
-
   // Test charting with a few more points...
-  int numPoints = 40;
+  int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
+  table->SetNumberOfRows(numPoints);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {
@@ -64,14 +101,6 @@ int TestScatterPlot(int , char * [])
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
     table->SetValue(i, 3, tan(i * inc) + 0.5);
-    if (i % 2)
-      {
-      table->SetValue(i, 4, vtkStdString("Odd"));
-      }
-    else
-      {
-      table->SetValue(i, 4, vtkStdString("Even"));
-      }
     }
 
   // Add multiple line plots, setting the colors etc
@@ -89,12 +118,10 @@ int TestScatterPlot(int , char * [])
   points->SetInput(table.GetPointer(), 0, 3);
   points->SetColor(0, 0, 255, 255);
   points->SetWidth(4.0);
-  points->SetIndexedLabels(labels.GetPointer());
 
-  //Finally render the scene and compare the image to a reference image
-  view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetInteractor()->Initialize();
-  view->GetInteractor()->Start();
+  renwin->SetMultiSamples(0);
+  iren->Initialize();
+  iren->Start();
 
   return EXIT_SUCCESS;
 }

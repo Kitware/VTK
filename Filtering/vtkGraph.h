@@ -460,7 +460,7 @@ public:
   // returns false.
   virtual bool CheckedDeepCopy(vtkGraph *g);
 
-  // Decription:
+  // Description:
   // Reclaim unused memory.
   virtual void Squeeze();
 

@@ -71,12 +71,12 @@ protected:
   vtkQtChartRepresentation();
   ~vtkQtChartRepresentation();
   
-  // Decription:
+  // Description:
   // Adds the representation to the view.
   // This is called from vtkView::AddRepresentation().
   bool AddToView(vtkView* view);
   
-  // Decription:
+  // Description:
   // Removes the representation to the view.
   // This is called from vtkView::RemoveRepresentation().
   bool RemoveFromView(vtkView* view);

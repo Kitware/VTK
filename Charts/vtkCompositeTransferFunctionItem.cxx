@@ -24,6 +24,8 @@
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 
+// STD includes
+#include <algorithm>
 #include <cassert>
 
 //-----------------------------------------------------------------------------
@@ -68,9 +70,9 @@ void vtkCompositeTransferFunctionItem::GetBounds(double* bounds)
   this->Superclass::GetBounds(bounds);
   if (this->OpacityFunction)
     {
-    double* opacityRange = this->ColorTransferFunction->GetRange();
-    bounds[0] = bounds[0] < opacityRange[0] ? bounds[0] : opacityRange[0];;
-    bounds[1] = bounds[1] < opacityRange[1] ? bounds[1] : opacityRange[1];
+    double* opacityRange = this->OpacityFunction->GetRange();
+    bounds[0] = std::min(bounds[0], opacityRange[0]);
+    bounds[1] = std::max(bounds[1], opacityRange[1]);
     }
 }
 
@@ -91,11 +93,16 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   this->Superclass::ComputeTexture();
   double bounds[4];
   this->GetBounds(bounds);
-  if (bounds[0] == bounds[1])
+  if (bounds[0] == bounds[1]
+      || !this->OpacityFunction)
     {
-    vtkWarningMacro(<< "The piecewise function seems empty");
     return;
     }
+  if (this->Texture == 0)
+    {
+    this->Texture = vtkImageData::New();
+    }
+
   const int dimension = this->Texture->GetExtent()[1] + 1;
   double* values = new double[dimension];
   this->OpacityFunction->GetTable(bounds[0], bounds[1], dimension, values);
@@ -124,4 +131,5 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       }
     }
   delete [] values;
+  return;
 }

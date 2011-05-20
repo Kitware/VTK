@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkScalarsToColorsItem, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Decription:
+  // Description:
   // Bounds of the item, by default (0, 1, 0, 1) but it mainly depends on the
   // range of the ScalarsToColors function.
   // Need to be reimplemented by subclasses if the range is != [0,1]
   virtual void GetBounds(double bounds[4]);
 
-  // Decription:
+  // Description:
   // Paint the texture into a rectangle defined by the bounds. If
   // MaskAboveCurve is true and a shape has been provided by a subclass, it
   // draws the texture into the shape
@@ -57,7 +57,7 @@ public:
   // PolyLinePen type is vtkPen::NO_PEN by default.
   vtkGetObjectMacro(PolyLinePen, vtkPen);
 
-  // Decription:
+  // Description:
   // Don't fill in the part above the transfer function.
   // If true texture is not visible above the shape provided by subclasses,
   // otherwise the whole rectangle defined by the bounds is filled with the
@@ -73,6 +73,7 @@ protected:
   // Description:
   // Need to be reimplemented by subclasses, ComputeTexture() is called at
   // paint time if the texture is not up to date compared to vtkScalarsToColorsItem
+  // Return false if no texture is generated.
   virtual void ComputeTexture() = 0;
 
   // Description:

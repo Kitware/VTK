@@ -103,9 +103,9 @@ public:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated or
   // -1.
-  virtual int GetNearestPoint(const vtkVector2f& point,
-                               const vtkVector2f& tolerance,
-                               vtkVector2f* location);
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f& tolerance,
+                                    vtkVector2f* location);
 
   // Description:
   // Select all points in the specified rectangle.
@@ -162,6 +162,10 @@ protected:
   // Description:
   // Calculate the bounds of the plot, ignoring the bad points.
   void CalculateBounds(double bounds[4]);
+
+  // Description:
+  // Create the sorted point list if necessary.
+  void CreateSortedPoints();
 
   // Description:
   // Store a well packed set of XY coordinates for this data series.

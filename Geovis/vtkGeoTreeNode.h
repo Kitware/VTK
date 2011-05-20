@@ -102,7 +102,7 @@ public:
   virtual void DeleteData()
     { }
 
-  // Decription:
+  // Description:
   // Get this nodes child index in node's parent.
   int GetWhichChildAreYou();
 
@@ -112,7 +112,7 @@ public:
   // not have to be in the same tree!
   bool IsDescendantOf(vtkGeoTreeNode* elder);
 
-  // Decription:
+  // Description:
   // Create children of the same type as parent.
   // Id, level and Latitude-Longitude ranges are set.
   // Returns VTK_ERROR if level gets too deep to create children.

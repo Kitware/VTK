@@ -40,6 +40,13 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Enum of bar chart oritentation types
+  enum {
+    VERTICAL = 0,
+    HORIZONTAL
+  };
+
+  // Description:
   // Creates a 2D Chart object.
   static vtkPlotBar *New();
 
@@ -64,14 +71,25 @@ public:
 
   // Description:
   // Set the width of the line.
-  virtual void SetWidth(float width);
+  vtkSetMacro(Width, float);
 
   // Description:
   // Get the width of the line.
-  virtual float GetWidth();
+  vtkGetMacro(Width, float);
 
+  // Description:
+  // Set/get the horizontal offset of the bars.
+  // Positive values move the bars leftward.
+  // For HORIZONTAL orientation, offsets bars vertically,
+  // with a positive value moving bars downward.
   vtkSetMacro(Offset, float);
   vtkGetMacro(Offset, float);
+
+  // Description:
+  // Set/get the orientation of the bars.
+  // Valid orientations are VERTICAL (default) and HORIZONTAL.
+  virtual void SetOrientation(int orientation);
+  vtkGetMacro(Orientation, int);
 
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
@@ -101,14 +119,29 @@ public:
   // Get the group name of the bar char - can be displayed on the X axis.
   virtual vtkStdString GetGroupName();
 
+  // Description:
+  // Select all points in the specified rectangle.
+  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns the index of the data series with which the point is associated or 
+  // Returns the index of the data series with which the point is associated or
   // -1.
-  virtual int GetNearestPoint(const vtkVector2f& point,
-                               const vtkVector2f& tolerance,
-                               vtkVector2f* location);
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f& tolerance,
+                                    vtkVector2f* location);
+
+  // Description:
+  // Function to query a plot for the nearest point to the specified coordinate.
+  // Returns the index of the data series with which the point is associated or
+  // -1.
+  // If a vtkIdType* is passed, its referent will be set to index of the bar
+  // segment with which a point is associated, or -1.
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f&,
+                                    vtkVector2f* location,
+                                    vtkIdType* segmentIndex);
 
 protected:
   vtkPlotBar();
@@ -122,10 +155,10 @@ protected:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D *Points;
 
-  bool Sorted;
-
   float Width;
   float Offset;
+
+  int Orientation;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.

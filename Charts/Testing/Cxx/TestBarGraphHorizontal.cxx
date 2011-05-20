@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestBarGraph.cxx
+  Module:    TestBarGraphHorizontal.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,19 +15,15 @@
 
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
+#include "vtkPlotBar.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRegressionTestImage.h"
-
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
+#include "vtkNew.h"
 
 // Monthly circulation data
 static int data_2008[] = {10822, 10941, 9979, 10370, 9460, 11228,
@@ -38,33 +34,33 @@ static int data_2010[] = {9058, 10941, 9979, 10270, 8900, 11228,
                           14688, 12231, 10160, 9585, 9384, 8590};
 
 //----------------------------------------------------------------------------
-int TestBarGraph(int , char * [])
+int TestBarGraphHorizontal(int , char * [])
 {
   // Set up a 2D scene, add an XY chart to it
-  VTK_CREATE(vtkContextView, view);
+  vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
-  VTK_CREATE(vtkChartXY, chart);
-  view->GetScene()->AddItem(chart);
+  vtkNew<vtkChartXY> chart;
+  view->GetScene()->AddItem(chart.GetPointer());
 
   // Create a table with some points in it...
-  VTK_CREATE(vtkTable, table);
+  vtkNew<vtkTable> table;
 
-  VTK_CREATE(vtkIntArray, arrMonth);
+  vtkNew<vtkIntArray> arrMonth;
   arrMonth->SetName("Month");
-  table->AddColumn(arrMonth);
+  table->AddColumn(arrMonth.GetPointer());
 
-  VTK_CREATE(vtkIntArray, arr2008);
+  vtkNew<vtkIntArray> arr2008;
   arr2008->SetName("2008");
-  table->AddColumn(arr2008);
+  table->AddColumn(arr2008.GetPointer());
 
-  VTK_CREATE(vtkIntArray, arr2009);
+  vtkNew<vtkIntArray> arr2009;
   arr2009->SetName("2009");
-  table->AddColumn(arr2009);
+  table->AddColumn(arr2009.GetPointer());
 
-  VTK_CREATE(vtkIntArray, arr2010);
+  vtkNew<vtkIntArray> arr2010;
   arr2010->SetName("2010");
-  table->AddColumn(arr2010);
+  table->AddColumn(arr2010.GetPointer());
 
   table->SetNumberOfRows(12);
   for (int i = 0; i < 12; i++)
@@ -77,20 +73,27 @@ int TestBarGraph(int , char * [])
 
   // Add multiple bar plots, setting the colors etc
   vtkPlot *plot = 0;
+  vtkPlotBar* barPlot = 0;
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 1);
-  plot->SetColor(0, 255, 0, 255);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetInput(table.GetPointer(), 0, 1);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  barPlot->SetColor(0, 255, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 2);
-  plot->SetColor(255, 0, 0, 255);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetInput(table.GetPointer(), 0, 2);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  barPlot->SetColor(255, 0, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 3);
-  plot->SetColor(0, 0, 255, 255);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetInput(table.GetPointer(), 0, 3);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  barPlot->SetColor(0, 0, 255, 255);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

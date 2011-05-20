@@ -26,6 +26,7 @@
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkVector.h"       // For position variables
+#include "vtkRect.h"         // For bounding rect
 #include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkContext2D;
@@ -114,6 +115,22 @@ public:
   // Description:
   // Get the logical range of the axis, in plot coordinates.
   virtual void SetRange(double minimum, double maximum);
+
+  // Description:
+  // Set the logical lowest possible value for \a Minimum, in plot coordinates.
+  virtual void SetMinimumLimit(double lowest);
+
+  // Description:
+  // Get the logical lowest possible value for \a Minimum, in plot coordinates.
+  vtkGetMacro(MinimumLimit, double);
+
+  // Description:
+  // Set the logical highest possible value for \a Maximum, in plot coordinates.
+  virtual void SetMaximumLimit(double highest);
+
+  // Description:
+  // Get the logical highest possible value for \a Maximum, in plot coordinates.
+  vtkGetMacro(MaximumLimit, double);
 
   // Description:
   // Get/set the title text of the axis.
@@ -206,7 +223,7 @@ public:
 
   // Description:
   // Set the tick positions (in plot coordinates).
-  virtual void SetTickPositions(vtkDoubleArray*);
+  virtual void SetTickPositions(vtkDoubleArray* positions);
 
   // Description:
   // An array with the positions of the tick marks along the axis line.
@@ -219,11 +236,11 @@ public:
 
   // Description:
   // Set the tick labels for the axis.
-  virtual void SetTickLabels(vtkStringArray*);
+  virtual void SetTickLabels(vtkStringArray* labels);
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a
-  // vtkRect4f, with the corner being the offset from Point1, and the width/
+  // vtkRectf, with the corner being the offset from Point1, and the width/
   // height being the total width/height required by the axis. In order to
   // ensure the numbers are correct, Update() should be called on the axis.
   vtkRectf GetBoundingRect(vtkContext2D* painter);
@@ -288,6 +305,8 @@ protected:
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
+  double MinimumLimit; // Lowest possible value for Minimum
+  double MaximumLimit; // Highest possible value for Maximum
   vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale

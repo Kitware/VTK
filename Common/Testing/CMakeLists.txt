@@ -36,6 +36,7 @@ IF(PYTHON_EXECUTABLE)
     vtkBreakPoint.h
     vtkByteSwap.h
     vtkCallbackCommand.h
+    vtkColor.h
     vtkCommand.h
     vtkCommonInformationKeyManager.h
     vtkContainer.h
@@ -78,6 +79,7 @@ IF(PYTHON_EXECUTABLE)
     vtkPropCollection.h
     vtkPythonCommand.h
     vtkRayCastStructures.h
+    vtkRect.h
     vtkRungeKutta2.h 
     vtkSetGet.h
     vtkSmartPointer.h

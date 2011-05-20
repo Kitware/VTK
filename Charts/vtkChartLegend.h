@@ -24,8 +24,8 @@
 #define __vtkChartLegend_h
 
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkVector.h"       // For vtkRectf return value
+#include "vtkNew.h"         // For vtkNew
+#include "vtkRect.h"        // For vtkRectf return value
 
 class vtkChart;
 class vtkPen;
@@ -55,7 +55,8 @@ public:
     CENTER,
     RIGHT,
     TOP,
-    BOTTOM
+    BOTTOM,
+    CUSTOM
     };
 
   // Description:
@@ -116,8 +117,12 @@ public:
   vtkGetMacro(Inline, bool);
 
   // Description:
-  // Get the vtkTextProperty for the legend's labels.
-  vtkTextProperty * GetLabelProperties();
+  // Get/set if the legend can be dragged with the mouse button, or not.
+  // True results in left click and drag causing the legend to move around the
+  // scene. False disables response to mouse events.
+  // The default is true.
+  vtkSetMacro(DragEnabled, bool);
+  vtkGetMacro(DragEnabled, bool);
 
   // Description:
   // Set the chart that the legend belongs to and will draw the legend for.
@@ -143,6 +148,34 @@ public:
   // ensure the numbers are correct, Update() should be called first.
   virtual vtkRectf GetBoundingRect(vtkContext2D* painter);
 
+  // Description:
+  // Get the pen used to draw the legend outline.
+  vtkPen * GetPen();
+
+  // Description:
+  // Get the brush used to draw the legend background.
+  vtkBrush * GetBrush();
+
+  // Description:
+  // Get the vtkTextProperty for the legend's labels.
+  vtkTextProperty * GetLabelProperties();
+
+  // Description:
+  // Return true if the supplied x, y coordinate is inside the item.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button down event
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button release event.
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
 protected:
   vtkChartLegend();
   ~vtkChartLegend();
@@ -153,15 +186,23 @@ protected:
 
   // Description:
   // The pen used to draw the legend box.
-  vtkSmartPointer<vtkPen> Pen;
+  vtkNew<vtkPen> Pen;
 
   // Description:
   // The brush used to render the background of the legend.
-  vtkSmartPointer<vtkBrush> Brush;
+  vtkNew<vtkBrush> Brush;
 
   // Description:
   // The text properties of the labels used in the legend.
-  vtkSmartPointer<vtkTextProperty> LabelProperties;
+  vtkNew<vtkTextProperty> LabelProperties;
+
+  // Description:
+  // Should we move the legend box around in response to the mouse drag?
+  bool DragEnabled;
+
+  // Description:
+  // Last button to be pressed.
+  int Button;
 
   vtkTimeStamp PlotTime;
   vtkTimeStamp RectTime;

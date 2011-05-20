@@ -57,11 +57,11 @@ public:
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns the index of the data series with which the point is associated or
-  // -1.
-  virtual int GetNearestPoint(const vtkVector2f& point,
-                              const vtkVector2f& tolerance,
-                              vtkVector2f* location);
+  // Returns the index of the data series with which the point is associated, or
+  // -1 if no point was found.
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f& tolerance,
+                                    vtkVector2f* location);
 
   // Description:
   // Select all points in the specified rectangle.
@@ -96,15 +96,15 @@ public:
 
   // Description:
   // Set a single label on this plot.
-  void SetLabel(const vtkStdString &label);
+  virtual void SetLabel(const vtkStdString &label);
 
   // Description:
   // Get the single label of this plot.
-  vtkStdString GetLabel();
+  virtual vtkStdString GetLabel();
 
   // Description:
   // Set the plot labels.
-  void SetLabels(vtkStringArray *labels);
+  virtual void SetLabels(vtkStringArray *labels);
 
   // Description:
   // Get the plot labels.
@@ -117,6 +117,16 @@ public:
   // Description:
   // Get the label at the specified index.
   vtkStdString GetLabel(vtkIdType index);
+
+  // Description:
+  // Set indexed labels for the plot. If set, this array can be used to provide
+  // custom labels for each point in a plot. This array should be the same
+  // length as the points array. Default is null (no indexed labels).
+  void SetIndexedLabels(vtkStringArray *labels);
+
+  // Description:
+  // Get the indexed labels array.
+  virtual vtkStringArray *GetIndexedLabels();
 
   // Description:
   // Get the data object that the plot will draw.
@@ -196,6 +206,10 @@ protected:
   // Description:
   // Holds Labels when they're auto-created
   vtkSmartPointer<vtkStringArray> AutoLabels;
+
+  // Description:
+  // Holds Labels when they're auto-created
+  vtkSmartPointer<vtkStringArray> IndexedLabels;
 
   // Description:
   // Use the Y array index for the X value. If true any X column setting will be
