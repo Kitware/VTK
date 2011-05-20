@@ -119,14 +119,29 @@ public:
   // Get the group name of the bar char - can be displayed on the X axis.
   virtual vtkStdString GetGroupName();
 
+  // Description:
+  // Select all points in the specified rectangle.
+  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated or 
   // -1.
   virtual int GetNearestPoint(const vtkVector2f& point,
-                               const vtkVector2f& tolerance,
-                               vtkVector2f* location);
+                              const vtkVector2f& tolerance,
+                              vtkVector2f* location);
+
+  // Description:
+  // Function to query a plot for the nearest point to the specified coordinate.
+  // Returns the index of the data series with which the point is associated or
+  // -1.
+  // If a vtkIdType* is passed, its referent will be set to index of the bar
+  // segment with which a point is associated, or -1.
+  virtual int GetNearestPoint(const vtkVector2f& point,
+                              const vtkVector2f&,
+                              vtkVector2f* location,
+                              vtkIdType* segmentIndex);
 
 protected:
   vtkPlotBar();
@@ -139,8 +154,6 @@ protected:
   // Description:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D *Points;
-
-  bool Sorted;
 
   float Width;
   float Offset;

@@ -363,7 +363,7 @@ void vtkChartXY::CalculateBarPlots()
           {
           double x0 = x->GetTuple1(0);
           double x1 = x->GetTuple1(1);
-          float width = static_cast<float>((x1 - x0) * this->BarWidthFraction);
+          float width = static_cast<float>(fabs(x1 - x0) * this->BarWidthFraction);
           barWidth = width / bars.size();
           }
         }
@@ -1233,11 +1233,25 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
                                                 PlotCorners[i]->GetItem(j));
           if (plot && plot->GetVisible())
             {
-            int seriesIndex = plot->GetNearestPoint(position, tolerance, &plotPos);
+            int seriesIndex;
+            vtkIdType segmentIndex = -1;
+            vtkPlotBar* plotBar = vtkPlotBar::SafeDownCast(plot);
+            if (plotBar)
+              {
+              // If the plot is a vtkPlotBar, get the segment index too
+              seriesIndex = plotBar->GetNearestPoint(position, tolerance,
+                                                     &plotPos, &segmentIndex);
+              }
+            else
+              {
+              seriesIndex = plot->GetNearestPoint(position, tolerance,
+                                                  &plotPos);
+              }
             if (seriesIndex >= 0)
               {
               // We found a point, set up the tooltip and return
-              this->SetTooltipInfo(mouse, plotPos, seriesIndex, plot);
+              this->SetTooltipInfo(mouse, plotPos, seriesIndex, plot,
+                                   segmentIndex);
               if (invokeEvent >= 0)
                 {
                 vtkChartPlotData plotIndex;
@@ -1260,16 +1274,18 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
 
 void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 const vtkVector2f &plotPos,
-                                int seriesIndex, vtkPlot* plot)
+                                int seriesIndex, vtkPlot* plot,
+                                vtkIdType segmentIndex)
 {
   vtkStdString label;
   // Check for group names if we are plotting stacked bars
-  if (seriesIndex > 0)
+  if (segmentIndex > 0)
     {
     vtkPlotBar *bar = vtkPlotBar::SafeDownCast(plot);
-    if (bar && bar->GetGroupName())
+    if (bar && bar->GetLabels() &&
+        segmentIndex < bar->GetLabels()->GetNumberOfTuples())
       {
-      label += vtkStdString(bar->GetGroupName()) + ": ";
+      label += bar->GetLabels()->GetValue(segmentIndex) + ": ";
       }
     }
   vtkStringArray *labels = plot->GetIndexedLabels();
