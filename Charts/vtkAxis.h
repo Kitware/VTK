@@ -26,6 +26,7 @@
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkVector.h"       // For position variables
+#include "vtkRect.h"         // For bounding rect
 #include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkContext2D;
@@ -239,7 +240,7 @@ public:
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a
-  // vtkRect4f, with the corner being the offset from Point1, and the width/
+  // vtkRectf, with the corner being the offset from Point1, and the width/
   // height being the total width/height required by the axis. In order to
   // ensure the numbers are correct, Update() should be called on the axis.
   vtkRectf GetBoundingRect(vtkContext2D* painter);

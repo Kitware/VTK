@@ -26,7 +26,6 @@ SET(Kit_SRCS
   vtkChartPie.cxx
   vtkColorLegend.cxx
   vtkPlotPie.cxx
-  vtkColor.h
   vtkColorSeries.cxx
   vtkColorTransferFunctionItem.cxx
   vtkColorTransferControlPointsItem.cxx
@@ -62,13 +61,10 @@ SET(Kit_SRCS
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
   vtkTooltipItem.cxx
-  vtkVector.h
   )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkColor
   vtkContextMouseEvent
-  vtkVector
   HEADER_FILE_ONLY
 )
 
@@ -76,27 +72,23 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
   vtkAbstractContextItem
   vtkChart
-  vtkColor
   vtkContextDevice2D
   vtkContextItem
   vtkContextMapper2D
   vtkControlPointsItem
   vtkPlot
   vtkScalarsToColorsItem
-  vtkVector
   ABSTRACT
   )
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
-  vtkColor
   vtkContextBufferId
   vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId
   vtkOpenGL2ContextDevice2D
   vtkOpenGLContextDevice2D
-  vtkVector
   WRAP_EXCLUDE
 )
 
