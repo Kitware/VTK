@@ -71,6 +71,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, FAST_PATH_OBJECT_ID, Id
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_OBJECT_ID, IdType);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_OBJECT_TYPE, String);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_ID_TYPE, String);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_AMR_LEVEL, Integer );
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
@@ -1239,6 +1240,13 @@ int vtkStreamingDemandDrivenPipeline
   if (dataResolution == -1.0 || updateResolution > dataResolution)
     {
     return 1;
+    }
+
+  if( outInfo->Has( UPDATE_AMR_LEVEL() ) )
+    {
+      std::cout << "EXECUTING.....\n";
+      std::cout.flush();
+      return 1;
     }
 
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT

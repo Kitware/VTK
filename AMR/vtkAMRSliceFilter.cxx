@@ -27,6 +27,9 @@
 #include "vtkStructuredData.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
+#include "vtkInformationIntegerKey.h"
+
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
 
@@ -479,6 +482,26 @@ void vtkAMRSliceFilter::GetSliceCellData(
             "Orphans: " << numOrphans << " / " << numCells );
       }
 
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRSliceFilter::RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector )
+{
+  std::cout << "RequestUpdate Extent is called!!!!\n";
+  std::cout << "Resolution: " << this->MaxResolution << std::endl;
+  std::cout.flush();
+
+  vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
+  assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
+
+  // Send upstream request for higher resolution
+  inInfo->Set(
+   vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL(),
+   this->MaxResolution );
+
+  return 1;
 }
 
 //------------------------------------------------------------------------------

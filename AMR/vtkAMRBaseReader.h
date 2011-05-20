@@ -158,6 +158,10 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
         vtkInformation* vtkNotUsed(request),
         vtkInformationVector** vtkNotUsed(inputVector),
         vtkInformationVector* outputVector );
+    virtual int RequestInformation(
+        vtkInformation* rqst,
+        vtkInformationVector** inputVector,
+        vtkInformationVector* outputVector );
     int FillOutputPortInformation(int port,vtkInformation *info);
 
     // Array selection member variables and methods

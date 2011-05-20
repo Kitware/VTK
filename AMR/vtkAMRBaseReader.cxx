@@ -22,7 +22,11 @@
 #include "vtkCallbackCommand.h"
 #include "vtkIndent.h"
 
+#include "vtkAMRSliceFilter.h"
+
 #include "vtkAMRUtilities.h"
+
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
 
@@ -199,6 +203,19 @@ bool vtkAMRBaseReader::IsParallel( )
   return false;
 }
 
+
+//------------------------------------------------------------------------------
+int vtkAMRBaseReader::RequestInformation(
+    vtkInformation *rqst,
+    vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector )
+{
+  std::cout << "Called RequestInformation..." << std::endl;
+  std::cout.flush();
+  this->Modified();
+  return 1;
+}
+
 //------------------------------------------------------------------------------
 int vtkAMRBaseReader::RequestData(
         vtkInformation* vtkNotUsed(request),
@@ -210,6 +227,17 @@ int vtkAMRBaseReader::RequestData(
     vtkHierarchicalBoxDataSet::SafeDownCast(
      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
+
+  std::cout <<  __FILE__ << "::RequestData is called....";
+  if( outInf->Has(
+      vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() ) )
+    {
+      this->MaxLevel = outInf->Get(
+          vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() );
+      std::cout << "\nSetting NEW max level: " << this->MaxLevel << std::endl;
+    }
+  std::cout.flush();
+  std::cout << std::endl;
 
   this->ReadMetaData();
   this->GenerateBlockMap();

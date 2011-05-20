@@ -35,6 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <string>
 #include <sstream>
@@ -58,11 +59,6 @@ namespace
   const int INTEGER  = 2;
 }
 
-#ifdef WIN32
-static const char * Slash = "\\";
-#else
-static const char * Slash = "/";
-#endif
 
 vtkStandardNewMacro(vtkWindBladeReader);
 
@@ -192,7 +188,7 @@ void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: "
+  os << indent << "Filename: "
      << (this->Filename ? this->Filename : "(NULL)") << endl;
 
   os << indent << "WholeExent: {" << this->WholeExtent[0] << ", "
@@ -390,8 +386,8 @@ int vtkWindBladeReader::RequestData(
 
     // Open the data file for time step if needed
     std::ostringstream fileName;
-    fileName << this->RootDirectory << Slash
-             << this->DataDirectory << Slash << this->DataBaseName
+    fileName << this->RootDirectory << "/"
+             << this->DataDirectory << "/" << this->DataBaseName
              << this->TimeSteps[timeStep];
     this->FilePtr = fopen(fileName.str().c_str(), "r");
     if (this->FilePtr == NULL)
@@ -753,18 +749,21 @@ void vtkWindBladeReader::LoadVariableData(int var)
 //----------------------------------------------------------------------------
 bool vtkWindBladeReader::ReadGlobalData()
 {
-  ifstream inStr(this->Filename);
+  //kwsys_stl::string fileName = this->Filename;
+  std::string fileName = this->Filename;
+  vtksys::SystemTools::ConvertToUnixSlashes(fileName);
+  ifstream inStr(fileName.c_str());
   if (!inStr)
     {
-    vtkWarningMacro("Could not open the global .wind file " << this->Filename);
+    vtkWarningMacro("Could not open the global .wind file " << fileName);
     }
 
-  std::string::size_type dirPos = std::string(this->Filename).rfind(Slash);
+  std::string::size_type dirPos = std::string(fileName).rfind("/");
   if (dirPos == std::string::npos)
     {
-    vtkWarningMacro("Bad input file name " << this->Filename);
+    vtkWarningMacro("Bad input file name " << fileName);
     }
-  this->RootDirectory = std::string(this->Filename).substr(0, dirPos);
+  this->RootDirectory = std::string(fileName).substr(0, dirPos);
 
   char inBuf[LINE_SIZE];
   std::string keyword;
@@ -1005,8 +1004,8 @@ bool vtkWindBladeReader::FindVariableOffsets()
 {
   // Open the first data file
   std::ostringstream fileName;
-  fileName << this->RootDirectory << Slash
-           << this->DataDirectory << Slash
+  fileName << this->RootDirectory << "/"
+           << this->DataDirectory << "/"
            << this->DataBaseName << this->TimeStepFirst;
   this->FilePtr = fopen(fileName.str().c_str(), "r");
   if (this->FilePtr == NULL)
@@ -1219,7 +1218,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 {
   // Read the x,y topography data file
   std::ostringstream fileName;
-  fileName << this->RootDirectory << Slash
+  fileName << this->RootDirectory << "/"
            << this->TopographyFile;
   FILE* filePtr = fopen(fileName.str().c_str(), "r");
   int blockSize = this->Dimension[0] * this->Dimension[1];
@@ -1474,8 +1473,8 @@ void vtkWindBladeReader::SetupBladeData()
 {
   // Load the tower information
   std::ostringstream fileName;
-  fileName << this->RootDirectory << Slash
-           << this->TurbineDirectory << Slash
+  fileName << this->RootDirectory << "/"
+           << this->TurbineDirectory << "/"
            << this->TurbineTowerName;
   ifstream inStr(fileName.str().c_str());
   if (!inStr)
@@ -1532,8 +1531,8 @@ void vtkWindBladeReader::SetupBladeData()
 
   // Calculate the number of cells in unstructured turbine blades
   std::ostringstream fileName2;
-  fileName2 << this->RootDirectory << Slash
-            << this->TurbineDirectory << Slash
+  fileName2 << this->RootDirectory << "/"
+            << this->TurbineDirectory << "/"
             << this->TurbineBladeName << this->TimeStepFirst;
   ifstream inStr2(fileName2.str().c_str());
   if (!inStr2)
@@ -1544,8 +1543,8 @@ void vtkWindBladeReader::SetupBladeData()
          i += this->TimeStepDelta)
       {
       std::ostringstream fileName3;
-      fileName3 << this->RootDirectory << Slash
-                << this->TurbineDirectory << Slash
+      fileName3 << this->RootDirectory << "/"
+                << this->TurbineDirectory << "/"
                 << this->TurbineBladeName << i;
       //std::cout << "Trying " << fileName3.str().c_str() << "...";
       inStr2.open(fileName3.str().c_str());
@@ -1597,8 +1596,8 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
 
   // Open the file for this time step
   std::ostringstream fileName;
-  fileName << this->RootDirectory << Slash
-           << this->TurbineDirectory << Slash
+  fileName << this->RootDirectory << "/"
+           << this->TurbineDirectory << "/"
            << this->TurbineBladeName
            << this->TimeSteps[timeStep];
   ifstream inStr(fileName.str().c_str());

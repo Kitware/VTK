@@ -5590,8 +5590,6 @@ int vtkExodusIIReader::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Check if a particular time was requested.
-  int timeStep = this->TimeStep;
-
   if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
     { // Get the requested time step. We only support requests of a single time step in this reader right now
     double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
@@ -5667,8 +5665,8 @@ int vtkExodusIIReader::RequestData(
     haveFastPath = true;
     }
 
-  //cout << "Requesting step " << timeStep << " for output " << output << "\n";
-  this->Metadata->RequestData( timeStep, output );
+  //cout << "Requesting step " << this->TimeStep << " for output " << output << "\n";
+  this->Metadata->RequestData( this->TimeStep, output );
   this->ProducedFastPathOutput = this->Metadata->ProducedFastPathOutput;
 
   // Restore previous fastpath values so we don't respond to old pipeline requests
