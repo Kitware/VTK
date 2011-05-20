@@ -240,8 +240,8 @@ class vtkPlotBarSegment : public vtkObject {
         }
       }
 
-    int GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
-                        float width, float offset, int orientation)
+    vtkIdType GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
+                              float width, float offset, int orientation)
       {
       if (!this->Points && this->Points->GetNumberOfPoints())
         {
@@ -432,9 +432,9 @@ public:
     }
 
 
-  int GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
-                      float width, float offset, int orientation,
-                      vtkIdType* segmentIndex)
+  vtkIdType GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
+                            float width, float offset, int orientation,
+                            vtkIdType* segmentIndex)
     {
     vtkIdType segmentIndexCtr = 0;
     for (std::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
@@ -679,19 +679,19 @@ void vtkPlotBar::GetColor(double rgb[3])
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
-                                const vtkVector2f&,
-                                vtkVector2f* location)
+vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
+                                      const vtkVector2f&,
+                                      vtkVector2f* location)
 {
   return this->Private->GetNearestPoint(point, location, this->Width,
                                         this->Offset, this->Orientation, 0);
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
-                                const vtkVector2f&,
-                                vtkVector2f* location,
-                                vtkIdType* segmentIndex)
+vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
+                                      const vtkVector2f&,
+                                      vtkVector2f* location,
+                                      vtkIdType* segmentIndex)
 {
   return this->Private->GetNearestPoint(point, location, this->Width,
                                         this->Offset, this->Orientation,
