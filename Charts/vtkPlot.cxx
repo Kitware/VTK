@@ -79,8 +79,8 @@ bool vtkPlot::PaintLegend(vtkContext2D*, const vtkRectf&, int)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
-                              vtkVector2f*)
+vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
+                                   vtkVector2f*)
 {
   return -1;
 }

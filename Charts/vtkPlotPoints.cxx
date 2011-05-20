@@ -499,9 +499,9 @@ void vtkPlotPoints::CreateSortedPoints()
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
-                                    const vtkVector2f& tol,
-                                    vtkVector2f* location)
+vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
+                                         const vtkVector2f& tol,
+                                         vtkVector2f* location)
 {
   // Right now doing a simple bisector search of the array.
   if (!this->Points)

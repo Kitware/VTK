@@ -22,6 +22,7 @@
 #include "vtkFreeTypeStringToImage.h"
 
 #include "vtkVector.h"
+#include "vtkRect.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
