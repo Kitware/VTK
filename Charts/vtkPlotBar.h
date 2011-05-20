@@ -126,11 +126,11 @@ public:
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns the index of the data series with which the point is associated or 
+  // Returns the index of the data series with which the point is associated or
   // -1.
-  virtual int GetNearestPoint(const vtkVector2f& point,
-                              const vtkVector2f& tolerance,
-                              vtkVector2f* location);
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f& tolerance,
+                                    vtkVector2f* location);
 
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
@@ -138,10 +138,10 @@ public:
   // -1.
   // If a vtkIdType* is passed, its referent will be set to index of the bar
   // segment with which a point is associated, or -1.
-  virtual int GetNearestPoint(const vtkVector2f& point,
-                              const vtkVector2f&,
-                              vtkVector2f* location,
-                              vtkIdType* segmentIndex);
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f&,
+                                    vtkVector2f* location,
+                                    vtkIdType* segmentIndex);
 
 protected:
   vtkPlotBar();
