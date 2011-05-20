@@ -48,16 +48,10 @@ vtkStandardNewMacro(vtkCorrelativeStatistics);
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
-  this->AssessNames->SetNumberOfValues( 1 );
+  this->AssessNames->SetNumberOfValues( 3 );
   this->AssessNames->SetValue( 0, "d^2" );
-
-  this->AssessParameters = vtkStringArray::New();
-  this->AssessParameters->SetNumberOfValues( 5 );
-  this->AssessParameters->SetValue( 0, "Mean X" );
-  this->AssessParameters->SetValue( 1, "Mean Y" );
-  this->AssessParameters->SetValue( 2, "Variance X" );
-  this->AssessParameters->SetValue( 3, "Variance Y" );
-  this->AssessParameters->SetValue( 4, "Covariance" );
+  this->AssessNames->SetValue( 0, "d_y" );
+  this->AssessNames->SetValue( 0, "d_x" );
 }
 
 // ----------------------------------------------------------------------
@@ -876,13 +870,13 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      double meanX = primaryTab->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
-      double meanY = primaryTab->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
-      double variX = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 2 ) ).ToDouble();
-      double variY = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 3 ) ).ToDouble();
-      double covXY = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 4 ) ).ToDouble();
+      double meanX = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
+      double meanY = primaryTab->GetValueByName( r, "Mean Y" ).ToDouble();
+      double varianceX = derivedTab->GetValueByName( r, "Variance X" ).ToDouble();
+      double varianceY = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
+      double covarianceXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
 
-      double d = variX * variY - covXY * covXY;
+      double d = varianceX * varianceY - covarianceXY * covarianceXY;
       if ( d <= 0. )
         {
         vtkWarningMacro( "Incorrect parameters for column pair:"
@@ -896,9 +890,9 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                       valsY,
                                                       meanX,
                                                       meanY,
-                                                      variX,
-                                                      variY,
-                                                      covXY,
+                                                      varianceX,
+                                                      varianceY,
+                                                      covarianceXY,
                                                       1. / d );
         }
       
