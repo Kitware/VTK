@@ -879,10 +879,12 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       double d = varianceX * varianceY - covarianceXY * covarianceXY;
       if ( d <= 0. )
         {
-        vtkWarningMacro( "Incorrect parameters for column pair:"
-                         << " variance/covariance matrix has non-positive determinant"
+        vtkWarningMacro( "Incorrect parameters for column pair ("
+                         << varNameX.c_str()
+                         << ","
+                         << varNameY.c_str()
+                         << "), variance/covariance matrix has non-positive determinant"
                          << " (assessment values will be set to -1)." );
-        
         }
       else
         {
