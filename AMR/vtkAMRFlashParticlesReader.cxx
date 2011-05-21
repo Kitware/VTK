@@ -15,6 +15,7 @@
 #include "vtkAMRFlashParticlesReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkDataArraySelection.h"
 
 #include "vtkAMRFlashReaderInternal.h"
 
@@ -25,6 +26,7 @@ vtkStandardNewMacro( vtkAMRFlashParticlesReader );
 vtkAMRFlashParticlesReader::vtkAMRFlashParticlesReader()
 {
   this->Internal = new vtkFlashReaderInternal();
+  this->Initialized = false;
   this->Initialize();
 }
 
@@ -44,7 +46,14 @@ void vtkAMRFlashParticlesReader::PrintSelf( std::ostream &os, vtkIndent indent )
 //------------------------------------------------------------------------------
 void vtkAMRFlashParticlesReader::ReadMetaData()
 {
-  // TODO: implement this
+  if( this->Initialized )
+    return;
+
+  this->Internal->SetFileName( this->FileName );
+  this->Internal->ReadMetaData();
+  this->NumberOfBlocks = this->Internal->NumberOfBlocks;
+  this->Initialized    = true;
+  this->SetupParticleDataSelections();
 }
 
 //------------------------------------------------------------------------------
@@ -58,5 +67,14 @@ vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles( const int blkidx )
 //------------------------------------------------------------------------------
 void vtkAMRFlashParticlesReader::SetupParticleDataSelections()
 {
-  // TODO: implement this
+  assert( "pre: Internal reader is NULL" && (this->Internal != NULL) );
+
+  unsigned int N = this->Internal->ParticleAttributeNames.size();
+  for( unsigned int i=0; i < N; ++i )
+    {
+       this->ParticleDataArraySelection->AddArray(
+           this->Internal->ParticleAttributeNames[ i ].c_str( ) );
+    } // END for all particles attributes
+
+  this->InitializeParticleDataSelections();
 }

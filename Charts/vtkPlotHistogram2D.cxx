@@ -49,11 +49,11 @@ bool vtkPlotHistogram2D::Paint(vtkContext2D *painter)
       int *extent = this->Input->GetExtent();
       bounds[0] = this->Input->GetOrigin()[0];
       bounds[1] = bounds[0] +
-          (extent[1] - extent[0]) * this->Input->GetSpacing()[0];
+          (extent[1] - extent[0] + 1) * this->Input->GetSpacing()[0];
 
       bounds[2] = this->Input->GetOrigin()[1];
       bounds[3] = bounds[2] +
-          (extent[3] - extent[2]) * this->Input->GetSpacing()[1];
+          (extent[3] - extent[2] + 1) * this->Input->GetSpacing()[1];
       this->Position = vtkRectf(bounds[0], bounds[2],
                                 bounds[1] - bounds[0], bounds[3] - bounds[2]);
       }

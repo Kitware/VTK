@@ -23,7 +23,7 @@
 
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h"  // Needed for SP ivars
-#include "vtkVector.h"        // Needed for vtkRectf
+#include "vtkRect.h"          // Needed for vtkRectf
 
 class vtkImageData;
 class vtkScalarsToColors;
