@@ -26,6 +26,9 @@
 #include "vtkProp.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+using namespace std;
+
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
@@ -92,7 +95,7 @@ void vtkSelectionNode::SetSelectionList(vtkAbstractArray* arr)
     this->SelectionData = vtkDataSetAttributes::New();
     }
   this->SelectionData->Initialize();
-  this->SelectionData->AddArray(arr);  
+  this->SelectionData->AddArray(arr);
 }
 
 //----------------------------------------------------------------------------
@@ -245,7 +248,7 @@ vtkProp* vtkSelectionNode::GetSelectedProp()
 }
 
 //----------------------------------------------------------------------------
-bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, 
+bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
   bool fullcompare/*=true*/)
 {
   if (!other)
@@ -253,9 +256,9 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
     return false;
     }
 
-  vtkSmartPointer<vtkInformationIterator> iterSelf = 
+  vtkSmartPointer<vtkInformationIterator> iterSelf =
     vtkSmartPointer<vtkInformationIterator>::New();
-  
+
   iterSelf->SetInformation(this->Properties);
 
   vtkInformation* otherProperties = other->GetProperties();
@@ -263,13 +266,13 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
     iterSelf->GoToNextItem())
     {
     vtkInformationKey* key = iterSelf->GetCurrentKey();
-    vtkInformationIntegerKey* ikey = 
+    vtkInformationIntegerKey* ikey =
       vtkInformationIntegerKey::SafeDownCast(key);
-    vtkInformationObjectBaseKey* okey = 
+    vtkInformationObjectBaseKey* okey =
       vtkInformationObjectBaseKey::SafeDownCast(key);
     if (ikey)
       {
-      if (!otherProperties->Has(ikey) || 
+      if (!otherProperties->Has(ikey) ||
         this->Properties->Get(ikey) != otherProperties->Get(ikey))
         {
         return false;
@@ -277,7 +280,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
       }
     if (okey)
       {
-      if (!otherProperties->Has(okey) || 
+      if (!otherProperties->Has(okey) ||
         this->Properties->Get(okey) != otherProperties->Get(okey))
         {
         return false;
@@ -350,7 +353,7 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
           }
         if (!aa2)
           {
-          vtkErrorMacro(<< "Could not find array with name " 
+          vtkErrorMacro(<< "Could not find array with name "
                         << aa1->GetName() << " in other selection.");
           }
         if (aa1->GetDataType() != aa2->GetDataType())
@@ -392,6 +395,14 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
       }
     }
 }
+
+//----------------------------------------------------------------------------
+
+void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
+{
+  cout << "vtkSelectionNode::SubtractSelectionList()" << endl;
+}
+
 
 //----------------------------------------------------------------------------
 unsigned long vtkSelectionNode::GetMTime()
