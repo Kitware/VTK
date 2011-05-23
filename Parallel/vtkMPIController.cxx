@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 char vtkMPIController::ProcessorName[MPI_MAX_PROCESSOR_NAME] = "";
 int vtkMPIController::UseSsendForRMI = 0;
+int vtkMPIController::Initialized = 0;
 
 // Output window which prints out the process id
 // with the error or warning messages
@@ -136,7 +137,8 @@ void vtkMPIController::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkMPIController::Initialize(int* argc, char*** argv)
+void vtkMPIController::Initialize(int* argc, char*** argv, 
+	int vtkNotUsed(initializedExternally) )
 {
   int flag;
   MPI_Initialized(&flag);

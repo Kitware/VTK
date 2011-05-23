@@ -65,7 +65,8 @@ public:
   // otherwise command line arguments will not be correct (because
   // usually MPI implementations add their own arguments during
   // startup).
-  virtual void Initialize(int* argc, char*** argv);
+  virtual void Initialize(int* argc, char*** argv, int initializedExternally ); 
+  virtual void Initialize(int* argc, char*** argv) { this->Initialize(argc, argv,0); }
 
   // Description:
   // Same as Initialize(0, 0). Mainly for calling from wrapped languages.
@@ -173,6 +174,8 @@ public:
 #endif
 
 //ETX
+  // Initialize only once.
+  static int Initialized;
 
   static const char* GetProcessorName();
 
@@ -209,8 +212,6 @@ protected:
 
   friend class vtkMPIOutputWindow;
 
-  // Initialize only once.
-  static int Initialized;
 
   static char ProcessorName[];
 
