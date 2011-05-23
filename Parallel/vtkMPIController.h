@@ -65,14 +65,10 @@ public:
   // otherwise command line arguments will not be correct (because
   // usually MPI implementations add their own arguments during
   // startup).
-  virtual void Initialize(int* argc, char*** argv) 
-    { this->Initialize(argc, argv, 0); }
-
-  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv),
-                          int initializedExternally);
+  virtual void Initialize(int* argc, char*** argv);
 
   // Description:
-  // Same as Initialize(0, 0, 1). Mainly for calling from wrapped languages.
+  // Same as Initialize(0, 0). Mainly for calling from wrapped languages.
   virtual void Initialize();
 
   // Description:

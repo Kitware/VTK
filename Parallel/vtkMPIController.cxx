@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int vtkMPIController::Initialized = 0;
 char vtkMPIController::ProcessorName[MPI_MAX_PROCESSOR_NAME] = "";
 int vtkMPIController::UseSsendForRMI = 0;
 
@@ -133,22 +132,21 @@ void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
 //----------------------------------------------------------------------------
 void vtkMPIController::Initialize()
 {
-  this->Initialize(0, 0, 1);
+  this->Initialize(0, 0);
 }
 
 //----------------------------------------------------------------------------
-void vtkMPIController::Initialize(int* argc, char*** argv, 
-                                  int initializedExternally)
+void vtkMPIController::Initialize(int* argc, char*** argv)
 {
-  if (vtkMPIController::Initialized)
+  int flag;
+  MPI_Initialized(&flag);
+  if (flag)
     {
-    vtkWarningMacro("Already initialized.");
-    return;
+    vtkDebugMacro(<< "MPI has already been initialized.  "
+                  << "Declining duplicate initialization.  "
+                  << "Don't worry, this is not an error.");
     }
-  
-  // Can be done once in the program.
-  vtkMPIController::Initialized = 1;
-  if (initializedExternally == 0)
+  else
     {
     MPI_Init(argc, argv);
     }
