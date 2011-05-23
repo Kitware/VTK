@@ -74,7 +74,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     public void Delete() {
         if (this.getParent() != null) {
             this.getParent().remove(this);
-            this.getParent().validate();
         }
         // Free internal VTK objects
         rw.Delete();
