@@ -48,16 +48,10 @@ vtkStandardNewMacro(vtkCorrelativeStatistics);
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
-  this->AssessNames->SetNumberOfValues( 1 );
-  this->AssessNames->SetValue( 0, "d^2" );
-
-  this->AssessParameters = vtkStringArray::New();
-  this->AssessParameters->SetNumberOfValues( 5 );
-  this->AssessParameters->SetValue( 0, "Mean X" );
-  this->AssessParameters->SetValue( 1, "Mean Y" );
-  this->AssessParameters->SetValue( 2, "Variance X" );
-  this->AssessParameters->SetValue( 3, "Variance Y" );
-  this->AssessParameters->SetValue( 4, "Covariance" );
+  this->AssessNames->SetNumberOfValues( 3 );
+  this->AssessNames->SetValue( 0, "Mahalanobis^2" );
+  this->AssessNames->SetValue( 1, "Residual Y/X" );
+  this->AssessNames->SetValue( 2, "Residual X/Y" );
 }
 
 // ----------------------------------------------------------------------
@@ -425,42 +419,25 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     derivedVals[2] = covXY;
     derivedVals[3] = varX * varY - covXY * covXY;
 
-    // Linear regression lines are valid only if the determinant is positive
-    if ( derivedVals[3] <= 0. )
-      {
-      vtkWarningMacro( "Incorrect parameters for column pair ("
-                       <<c1.c_str()
-                       <<", "
-                       <<c2.c_str()
-                       <<"): variance/covariance matrix has non-positive determinant: "
-                       <<derivedVals[3] );
-      derivedVals[4] = 0.;
-      derivedVals[5] = 0.;
-      derivedVals[6] = 0.;
-      derivedVals[7] = 0.;
-      derivedVals[8] = 0.;
-      }
-    else
-      {
-      double meanX = primaryTab->GetValueByName( i, "Mean X" ).ToDouble();
-      double meanY = primaryTab->GetValueByName( i, "Mean Y" ).ToDouble();
-
-      // variable Y on variable X:
-      //   slope
-      derivedVals[4] = covXY / varX;
-      //   intersect
-      derivedVals[5] = meanY - derivedVals[4] * meanX;
-      
-      //   variable X on variable Y:
-      //   slope
-      derivedVals[6] = covXY / varY;
-      //   intersect
-      derivedVals[7] = meanX - derivedVals[6] * meanY;
-      
-      // correlation coefficient
-      derivedVals[8] = covXY / sqrt( varX * varY );
-      }
-
+    // There will be NaN values in linear regression if covariance matrix is not positive definite
+    double meanX = primaryTab->GetValueByName( i, "Mean X" ).ToDouble();
+    double meanY = primaryTab->GetValueByName( i, "Mean Y" ).ToDouble();
+    
+    // variable Y on variable X:
+    //   slope
+    derivedVals[4] = covXY / varX;
+    //   intersect
+    derivedVals[5] = meanY - derivedVals[4] * meanX;
+    
+    //   variable X on variable Y:
+    //   slope
+    derivedVals[6] = covXY / varY;
+    //   intersect
+    derivedVals[7] = meanX - derivedVals[6] * meanY;
+    
+    // correlation coefficient
+    derivedVals[8] = covXY / sqrt( varX * varY );
+    
     for ( int j = 0; j < numDoubles; ++ j )
       {
       derivedTab->SetValueByName( i, doubleNames[j], derivedVals[j] );
@@ -768,7 +745,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-class TableColumnPairMahlanobisFunctor : public vtkStatisticsAlgorithm::AssessFunctor
+class BivariateRegressionDeviationsFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
   vtkDataArray* DataX;
@@ -777,36 +754,65 @@ public:
   double MeanY;
   double VarX;
   double VarY;
+  double InvDetXY;
   double CovXY;
-  double DInv;
+  double SlopeYX;
+  double SlopeXY;
+  double InterYX;
+  double InterXY;
 
-  TableColumnPairMahlanobisFunctor( vtkDataArray* valsX,
-                                    vtkDataArray* valsY,
-                                    double meanX,
-                                    double meanY,
-                                    double varX,
-                                    double varY,
-                                    double covXY,
-                                    double dInv )
+  BivariateRegressionDeviationsFunctor( vtkDataArray* valsX,
+                                        vtkDataArray* valsY,
+                                        double meanX,
+                                        double meanY,
+                                        double varianceX,
+                                        double varianceY,
+                                        double covXY,
+                                        double detXY,
+                                        double slopeYX,
+                                        double slopeXY,
+                                        double interYX,
+                                        double interXY )
   {
     this->DataX = valsX;
     this->DataY = valsY;
     this->MeanX = meanX;
     this->MeanY = meanY;
-    this->VarX  = varX;
-    this->VarY  = varY;
+    this->VarX  = varianceX;
+    this->VarY  = varianceY;
     this->CovXY = covXY;
-    this->DInv  = dInv;
+    this->InvDetXY = 1. / detXY;
+    this->SlopeYX = slopeYX;
+    this->SlopeXY = slopeXY;
+    this->InterYX = interYX;
+    this->InterXY = interXY;
   }
-  virtual ~TableColumnPairMahlanobisFunctor() { }
+  virtual ~BivariateRegressionDeviationsFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
-    double x = this->DataX->GetTuple1( id ) - this->MeanX;
-    double y = this->DataY->GetTuple1( id ) - this->MeanY;
+    // First retrieve 2-d observation
+    double x = this->DataX->GetTuple1( id );
+    double y = this->DataY->GetTuple1( id );
 
-    result->SetNumberOfValues( 1 );
-    result->SetValue( 0, ( this->VarY * x * x - 2. * this->CovXY * x * y + this->VarX * y * y ) * this->DInv );
+    // Center observation for efficiency
+    double x_c = x - this->MeanX;
+    double y_c = y - this->MeanY;
+    
+    // Calculate 2-d squared Mahalanobis distance
+    double smd  = ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c ) * this->InvDetXY;
+
+    // Calculate residual from regression of Y into X
+    double dYX = x - ( this->SlopeYX * x + this->InterYX );
+
+    // Calculate residual from regression of X into Y
+    double dXY = x - ( this->SlopeXY * x + this->InterXY );
+
+    // Store calculated assessments
+    result->SetNumberOfValues( 3 );
+    result->SetValue( 0, smd );
+    result->SetValue( 1, dYX );
+    result->SetValue( 2, dXY );
   }
 };
 
@@ -876,32 +882,36 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      double meanX = primaryTab->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
-      double meanY = primaryTab->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
-      double variX = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 2 ) ).ToDouble();
-      double variY = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 3 ) ).ToDouble();
-      double covXY = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 4 ) ).ToDouble();
+      // Fetch necessary values from primary model
+      double meanX = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
+      double meanY = primaryTab->GetValueByName( r, "Mean Y" ).ToDouble();
 
-      double d = variX * variY - covXY * covXY;
-      if ( d <= 0. )
-        {
-        vtkWarningMacro( "Incorrect parameters for column pair:"
-                         << " variance/covariance matrix has non-positive determinant"
-                         << " (assessment values will be set to -1)." );
-        
-        }
-      else
-        {
-        dfunc = new TableColumnPairMahlanobisFunctor( valsX,
-                                                      valsY,
-                                                      meanX,
-                                                      meanY,
-                                                      variX,
-                                                      variY,
-                                                      covXY,
-                                                      1. / d );
-        }
+      // Fetch necessary values from derived model
+      // NB: If derived values were specified (and not calculated by Derive) 
+      //     and are mutually inconsistent, then incorrect assessments will be produced
+      double varianceX = derivedTab->GetValueByName( r, "Variance X" ).ToDouble();
+      double varianceY = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
+      double covXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
+      double detXY = derivedTab->GetValueByName( r, "Determinant" ).ToDouble();
+      double slopeYX = derivedTab->GetValueByName( r, "Slope Y/X" ).ToDouble(); 
+      double slopeXY = derivedTab->GetValueByName( r, "Slope X/Y" ).ToDouble(); 
+      double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble(); 
+      double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble(); 
+
+      dfunc = new BivariateRegressionDeviationsFunctor( valsX,
+                                                        valsY,
+                                                        meanX,
+                                                        meanY,
+                                                        varianceX,
+                                                        varianceY,
+                                                        covXY,
+                                                        detXY,
+                                                        slopeYX,
+                                                        slopeXY,
+                                                        interYX,
+                                                        interXY );
       
+      // Parameters of requested column pair were found, no need to continue
       return;
       }
     }
