@@ -192,7 +192,14 @@ public:
   static void SetUseSsendForRMI(int use_send)
     { vtkMPIController::UseSsendForRMI = (use_send != 0)? 1: 0; }
   static int GetUseSsendForRMI() { return vtkMPIController::UseSsendForRMI; }
+
+  // Ask MPI whether it's already been initialized / finalized.
+  static int IsMPIInitialized();
+  static int IsMPIFinalized();
+
 //BTX
+
+
 protected:
   vtkMPIController();
   ~vtkMPIController();
@@ -219,7 +226,9 @@ protected:
 
   friend class vtkMPIOutputWindow;
 
-  // Initialize only once.
+  // This ivar tracks whether vtkMPIController has been initialized.
+  // This is separate from whether MPI itself has been initialized
+  // (via MPI_Init).
   static int Initialized;
 
   static char ProcessorName[];
