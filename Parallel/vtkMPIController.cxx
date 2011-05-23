@@ -129,6 +129,13 @@ void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
     }
 }
 
+// ----------------------------------------------------------------------
+
+void vtkMPIController::Initialize(int* argc, char*** argv, int vtkNotUsed(initialized_externally))
+{
+  this->Initialize(argc, argv);
+}
+
 //----------------------------------------------------------------------------
 void vtkMPIController::Initialize()
 {
@@ -174,10 +181,15 @@ const char* vtkMPIController::GetProcessorName()
   return ProcessorName;
 }
 
+void vtkMPIController::Finalize(int vtkNotUsed(finalized_externally))
+{
+  this->Finalize();
+}
+
 // Good-bye world
 // There should be no MPI calls after this.
 // (Except maybe MPI_XXX_free()) unless finalized externally.
-void vtkMPIController::Finalize(int finalizedExternally)
+void vtkMPIController::Finalize()
 {
   if (vtkMPIController::Initialized)
     { 
@@ -191,11 +203,12 @@ void vtkMPIController::Finalize(int finalizedExternally)
       this->RMICommunicator->Delete();
       this->RMICommunicator = 0;
       }
-    if (finalizedExternally == 0)
+    int finalized_externally;
+    MPI_Finalized(&finalized_externally);
+    if (finalized_externally == 0)
       {
       MPI_Finalize();
       }
-    vtkMPIController::Initialized = 0;
     this->Modified();
     }  
   
