@@ -31,7 +31,6 @@
 
 #include <vtkstd/vector>
 
-#include <iostream>
 using namespace std;
 
 
