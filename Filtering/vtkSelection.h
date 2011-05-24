@@ -91,8 +91,12 @@ public:
 
   // Description:
   // Remove the nodes from the specified selection from this selection.
+  // Assumes that selection node internal arrays are vtkIdTypeArrays.
   virtual void Subtract(vtkSelection* selection);
 
+  // Description:
+  // Remove the nodes from the specified selection from this selection.
+  // Assumes that selection node internal arrays are vtkIdTypeArrays.
   virtual void Subtract(vtkSelectionNode* node);
 
   // Description:
