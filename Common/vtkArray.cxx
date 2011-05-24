@@ -160,7 +160,7 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
         case VTK_STRING:
           return vtkSparseArray<vtkStdString>::New();
         case VTK_UNICODE_STRING:
-          return vtkDenseArray<vtkUnicodeString>::New();
+          return vtkSparseArray<vtkUnicodeString>::New();
         case VTK_VARIANT:
           return vtkSparseArray<vtkVariant>::New();
         }
