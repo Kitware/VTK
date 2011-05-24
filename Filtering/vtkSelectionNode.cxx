@@ -15,6 +15,7 @@
 #include "vtkSelectionNode.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIterator.h"
@@ -27,7 +28,15 @@
 #include "vtkSmartPointer.h"
 
 #include <iostream>
+#include <vtkstd/algorithm>
+#include <vtkstd/set>
+#include <vtkstd/iterator>
+
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
 using namespace std;
+using namespace vtkstd;
 
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
@@ -400,7 +409,85 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
 
 void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
 {
-  cout << "vtkSelectionNode::SubtractSelectionList()" << endl;
+//  cout << "vtkSelectionNode::SubtractSelectionList()" << endl;
+  int type = this->Properties->Get(CONTENT_TYPE());
+  switch(type)
+    {
+    case GLOBALIDS:
+    case PEDIGREEIDS:
+    case VALUES:
+    case INDICES:
+    case LOCATIONS:
+    case THRESHOLDS:
+    case BLOCKS:
+      {
+      vtkDataSetAttributes * fd1 = this->GetSelectionData();
+      vtkDataSetAttributes * fd2 = other->GetSelectionData();
+      if(fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
+        {
+        vtkErrorMacro(<< "Cannot take subtract selections if the number of arrays do not match.");
+        }
+//      cout << "NumberOfArrays: " << fd1->GetNumberOfArrays() << endl;
+      for(int iarray=0; iarray<fd1->GetNumberOfArrays(); iarray++)
+        {
+
+        if( fd1->GetArray(iarray)->GetDataType() == VTK_ID_TYPE )
+          {
+
+          vtkIdTypeArray * fd1_array = (vtkIdTypeArray*)fd1->GetArray(iarray);
+          vtkIdTypeArray * fd2_array = (vtkIdTypeArray*)fd2->GetArray(iarray);
+
+          vtkIdType fd1_N = fd1_array->GetNumberOfTuples();
+          vtkIdType fd2_N = fd2_array->GetNumberOfTuples();
+
+          vtkIdType * fd1_P = (vtkIdType*)fd1_array->GetVoidPointer(0);
+          vtkIdType * fd2_P = (vtkIdType*)fd2_array->GetVoidPointer(0);
+
+          // make sure both arrays are sorted
+          sort( fd1_P, fd1_P + fd1_N);
+          sort( fd2_P, fd2_P + fd2_N);
+
+          std::set<vtkIdType> result;
+
+          std::set_difference(fd1_P, fd1_P + fd1_N,
+                              fd2_P, fd2_P + fd2_N,
+                              std::inserter(result, result.end()));
+
+//          cout << "result.size(): " << result.size() << endl;
+
+          fd1_array->Reset();
+          for(std::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
+            {
+//            cout << "\t" << *p << endl;
+            fd1_array->InsertNextValue( *p );
+            }
+
+//          cout << "\tiarray: " << iarray << endl;
+//          cout << "\tfd1 data size: " << fd1_array->GetDataSize() << endl;
+//          cout << "\t\tsize fd1: " << fd1_array->GetNumberOfTuples() << endl;
+//          cout << "\t\ttype fd1: " << fd1_array->GetDataType() << endl;
+//          for(int i=0; i<fd1_array->GetNumberOfTuples(); i++)
+//            {
+//            cout << "\t\t\t" << i << ":\t" << fd1_array->GetVariantValue(i) << endl;
+//            }
+//          cout << "\t\tsize fd2: " << fd2_array->GetNumberOfTuples() << endl;
+//          for(int i=0; i<fd2_array->GetNumberOfTuples(); i++)
+//            {
+//            cout << "\t\t\t" << i << ":\t" << fd2_array->GetVariantValue(i) << endl;
+//            }
+          //fd1->GetArray(iarray)->PrintSelf(cout, vtkIndent(15));
+          //fd1->GetPedigreeIds()->PrintSelf(cout, vtkIndent(5));
+//          cout << endl;
+          }
+        }
+      break;
+      }
+    case FRUSTUM:
+    default:
+      {
+      vtkErrorMacro(<< "Do not know how to subtract the given content type " << type << ".");
+      }
+    };
 }
 
 
