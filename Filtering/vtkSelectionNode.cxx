@@ -427,13 +427,11 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
         {
         vtkErrorMacro(<< "Cannot take subtract selections if the number of arrays do not match.");
         }
-//      cout << "NumberOfArrays: " << fd1->GetNumberOfArrays() << endl;
       for(int iarray=0; iarray<fd1->GetNumberOfArrays(); iarray++)
         {
 
         if( fd1->GetArray(iarray)->GetDataType() == VTK_ID_TYPE )
           {
-
           vtkIdTypeArray * fd1_array = (vtkIdTypeArray*)fd1->GetArray(iarray);
           vtkIdTypeArray * fd2_array = (vtkIdTypeArray*)fd2->GetArray(iarray);
 
@@ -453,31 +451,11 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
                               fd2_P, fd2_P + fd2_N,
                               std::inserter(result, result.end()));
 
-//          cout << "result.size(): " << result.size() << endl;
-
           fd1_array->Reset();
           for(std::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
             {
-//            cout << "\t" << *p << endl;
             fd1_array->InsertNextValue( *p );
             }
-
-//          cout << "\tiarray: " << iarray << endl;
-//          cout << "\tfd1 data size: " << fd1_array->GetDataSize() << endl;
-//          cout << "\t\tsize fd1: " << fd1_array->GetNumberOfTuples() << endl;
-//          cout << "\t\ttype fd1: " << fd1_array->GetDataType() << endl;
-//          for(int i=0; i<fd1_array->GetNumberOfTuples(); i++)
-//            {
-//            cout << "\t\t\t" << i << ":\t" << fd1_array->GetVariantValue(i) << endl;
-//            }
-//          cout << "\t\tsize fd2: " << fd2_array->GetNumberOfTuples() << endl;
-//          for(int i=0; i<fd2_array->GetNumberOfTuples(); i++)
-//            {
-//            cout << "\t\t\t" << i << ":\t" << fd2_array->GetVariantValue(i) << endl;
-//            }
-          //fd1->GetArray(iarray)->PrintSelf(cout, vtkIndent(15));
-          //fd1->GetPedigreeIds()->PrintSelf(cout, vtkIndent(5));
-//          cout << endl;
           }
         }
       break;

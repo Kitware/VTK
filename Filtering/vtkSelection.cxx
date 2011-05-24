@@ -234,10 +234,8 @@ void vtkSelection::Union(vtkSelectionNode* node)
 
 void vtkSelection::Subtract(vtkSelection* s)
 {
-//  cout << "vtkSelection::Subtract( vtkSelection* );" << endl;
   for(unsigned int n=0; n<s->GetNumberOfNodes(); ++n)
     {
-//    cout << "\tSubtract Node: " << n << endl;
     this->Subtract(s->GetNode(n));
     }
 }
@@ -246,26 +244,13 @@ void vtkSelection::Subtract(vtkSelection* s)
 
 void vtkSelection::Subtract(vtkSelectionNode* node)
 {
-//  cout << "vtkSelection::Subtract( vtkSelectionNode* );" << endl;
   bool subtracted = false;
   for( unsigned int tn = 0; tn<this->GetNumberOfNodes(); ++tn)
     {
-//    cout << "\ttn = " << tn << endl;
     vtkSelectionNode* tnode = this->GetNode(tn);
-//    cout << "\tproperties match? " << tnode->EqualProperties(node) << endl;
-
-    // For DEBUGGING
-    if (!tnode->EqualProperties(node) )
-      {
-//      cout << "source selection node:" << endl;
-      tnode->PrintSelf(cout, vtkIndent(5));
-//      cout << endl << "other selection node :" << endl;
-//      node->PrintSelf(cout, vtkIndent(5));
-      }
 
     if(tnode->EqualProperties(node))
       {
-//      cout << "\tNode " << tn << " subtracted..." << endl;
       tnode->SubtractSelectionList(node);
       subtracted = true;
       }
