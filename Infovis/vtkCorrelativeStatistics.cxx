@@ -589,15 +589,13 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double bS1;
     double bS2;
     double jbs;
-
+    double invn = 1. / nRowData;
+    double halfinvn = .5 * invn;
+    
     // Eliminate near degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
-    double invn = 1. / nRowData;
-    double halfinvn = .5 * invn;
-    if ( detS > 1.e-100
-         && sX2 > 0.
-         && sY2 > 0. )
+    if ( detS > 1.e-300 )
       {
       // Calculate trace, discriminant, and eigenvalues of covariance matrix S
       double trS = sX2 + sY2;
@@ -609,7 +607,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       double w = .5 * ( sX2 - sY2 - sqdS );
       double f = 1. / sqrt ( sXY2 + w * w );
 
-      double hd = f * sXY; // Diagonal terms of H are identical
+      // Diagonal terms of H are identical
+      double hd = f * sXY; 
       double h21 = f * ( eigS1 - sX2 );
       double h12 = f * ( eigS2 - sY2 );
 
