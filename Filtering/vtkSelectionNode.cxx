@@ -27,7 +27,6 @@
 #include "vtkProp.h"
 #include "vtkSmartPointer.h"
 
-#include <iostream>
 #include <vtkstd/algorithm>
 #include <vtkstd/set>
 #include <vtkstd/iterator>
@@ -35,7 +34,6 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-using namespace std;
 using namespace vtkstd;
 
 vtkStandardNewMacro(vtkSelectionNode);
@@ -409,7 +407,6 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
 
 void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
 {
-//  cout << "vtkSelectionNode::SubtractSelectionList()" << endl;
   int type = this->Properties->Get(CONTENT_TYPE());
   switch(type)
     {
@@ -445,14 +442,14 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
           sort( fd1_P, fd1_P + fd1_N);
           sort( fd2_P, fd2_P + fd2_N);
 
-          std::set<vtkIdType> result;
+          vtkstd::set<vtkIdType> result;
 
-          std::set_difference(fd1_P, fd1_P + fd1_N,
-                              fd2_P, fd2_P + fd2_N,
-                              std::inserter(result, result.end()));
+          vtkstd::set_difference(fd1_P, fd1_P + fd1_N,
+                                 fd2_P, fd2_P + fd2_N,
+                                 vtkstd::inserter(result, result.end()));
 
           fd1_array->Reset();
-          for(std::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
+          for(vtkstd::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
             {
             fd1_array->InsertNextValue( *p );
             }
