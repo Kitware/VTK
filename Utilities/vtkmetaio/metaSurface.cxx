@@ -26,7 +26,7 @@ namespace METAIO_NAMESPACE {
 
 SurfacePnt::
 SurfacePnt(int dim)
-{ 
+{
   m_Dim = dim;
   m_X = new float[m_Dim];
   m_V = new float[m_Dim];
@@ -34,7 +34,7 @@ SurfacePnt(int dim)
     {
     m_X[i] = 0;
     m_V[i] = 0;
-    } 
+    }
   //Color is red by default
   m_Color[0]=1.0f;
   m_Color[1]=0.0f;
@@ -48,7 +48,7 @@ SurfacePnt::
   delete []m_X;
   delete []m_V;
 }
-  
+
 
 //
 // MetaSurface Constructors
@@ -97,7 +97,7 @@ MetaSurface::
 ~MetaSurface()
 {
   Clear();
-  
+
   M_Destroy();
 }
 
@@ -119,14 +119,14 @@ CopyInfo(const MetaObject * _object)
   MetaObject::CopyInfo(_object);
 }
 
-    
+
 
 void MetaSurface::
 PointDim(const char* pointDim)
 {
   strcpy(m_PointDim,pointDim);
 }
-    
+
 const char* MetaSurface::
 PointDim(void) const
 {
@@ -164,7 +164,7 @@ Clear(void)
   strcpy(m_PointDim, "x y z v1x v1y v1z r g b");
   m_ElementType = MET_FLOAT;
 }
-        
+
 /** Destroy Surface information */
 void MetaSurface::
 M_Destroy(void)
@@ -262,9 +262,9 @@ M_Read(void)
   }
 
   if(META_DEBUG) METAIO_STREAM::cout << "MetaSurface: M_Read: Parsing Header" << METAIO_STREAM::endl;
- 
+
   MET_FieldRecordType * mF;
- 
+
   mF = MET_GetFieldRecord("NPoints", &m_Fields);
   if(mF->defined)
   {
@@ -285,7 +285,7 @@ M_Read(void)
 
   int pntDim;
   char** pntVal = NULL;
-  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal); 
+  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
   int i;
   for(i=0;i<pntDim;i++)
@@ -309,19 +309,20 @@ M_Read(void)
     int gc = m_ReadStream->gcount();
     if(gc != readSize)
     {
-      METAIO_STREAM::cout << "MetaSurface: m_Read: data not read completely" 
+      METAIO_STREAM::cout << "MetaSurface: m_Read: data not read completely"
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
+      delete [] _data;
       return false;
     }
 
     i=0;
     int d;
     unsigned int k;
-    for(int j=0; j<m_NPoints; j++) 
+    for(int j=0; j<m_NPoints; j++)
     {
       SurfacePnt* pnt = new SurfacePnt(m_NDims);
-     
+
       for(d=0; d<m_NDims; d++)
       {
         char* num = new char[sizeof(float)];
@@ -331,7 +332,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_X[d] = (float)td;
         delete [] num;
       }
@@ -345,7 +346,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_V[d] = (float)td;
         delete [] num;
       }
@@ -359,7 +360,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_Color[d] = (float)td;
         delete [] num;
       }
@@ -369,7 +370,7 @@ M_Read(void)
   }
   else
   {
-    for(int j=0; j<m_NPoints; j++) 
+    for(int j=0; j<m_NPoints; j++)
     {
       SurfacePnt* pnt = new SurfacePnt(m_NDims);
 
@@ -398,7 +399,7 @@ M_Read(void)
       m_PointList.push_back(pnt);
     }
 
-      
+
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
     {
@@ -423,7 +424,7 @@ M_Write(void)
   }
 
   /** Then copy all points */
-  
+
   if(m_BinaryData)
   {
     PointListType::const_iterator it = m_PointList.begin();
@@ -439,27 +440,27 @@ M_Write(void)
       for(d = 0; d < m_NDims; d++)
       {
         float x = (*it)->m_X[d];
-        MET_SwapByteIfSystemMSB(&x,MET_FLOAT);     
+        MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
         MET_DoubleToValue((double)x,m_ElementType,data,i++);
       }
 
       for(d = 0; d < m_NDims; d++)
       {
         float v = (*it)->m_V[d];
-        MET_SwapByteIfSystemMSB(&v,MET_FLOAT);    
+        MET_SwapByteIfSystemMSB(&v,MET_FLOAT);
         MET_DoubleToValue((double)v,m_ElementType,data,i++);
       }
-      
+
       for(d=0; d<4; d++)
       {
         float c = (*it)->m_Color[d];
-        MET_SwapByteIfSystemMSB(&c,MET_FLOAT);    
+        MET_SwapByteIfSystemMSB(&c,MET_FLOAT);
         MET_DoubleToValue((double)c,m_ElementType,data,i++);
       }
 
       it++;
     }
-   
+
     m_WriteStream->write((char *)data,(m_NDims*2+4)*m_NPoints*elementSize);
     m_WriteStream->write("\n",1);
     delete [] data;
@@ -468,7 +469,7 @@ M_Write(void)
   {
     PointListType::const_iterator it = m_PointList.begin();
     PointListType::const_iterator itEnd = m_PointList.end();
-  
+
     int d;
     while(it != itEnd)
     {

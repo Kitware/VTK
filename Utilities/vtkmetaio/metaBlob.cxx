@@ -26,14 +26,14 @@ namespace METAIO_NAMESPACE {
 
 BlobPnt::
 BlobPnt(int dim)
-{ 
+{
   m_Dim = dim;
   m_X = new float[m_Dim];
   for(unsigned int i=0;i<m_Dim;i++)
     {
     m_X[i] = 0;
     }
-    
+
   //Color is red by default
   m_Color[0]=1.0f;
   m_Color[1]=0.0f;
@@ -43,7 +43,7 @@ BlobPnt(int dim)
 
 BlobPnt::
 ~BlobPnt()
-{ 
+{
   delete []m_X;
 };
 
@@ -119,14 +119,14 @@ CopyInfo(const MetaObject * _object)
   MetaObject::CopyInfo(_object);
 }
 
-    
+
 
 void MetaBlob::
 PointDim(const char* pointDim)
 {
   strcpy(m_PointDim,pointDim);
 }
-    
+
 const char* MetaBlob::
 PointDim(void) const
 {
@@ -160,13 +160,13 @@ Clear(void)
     BlobPnt* pnt = *it;
     it++;
     delete pnt;
-  }  
+  }
   m_PointList.clear();
   m_NPoints = 0;
   strcpy(m_PointDim, "x y z red green blue alpha");
   m_ElementType = MET_FLOAT;
 }
-        
+
 /** Destroy blob information */
 void MetaBlob::
 M_Destroy(void)
@@ -191,7 +191,7 @@ M_SetupReadFields(void)
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "NPoints", MET_INT, true);
   m_Fields.push_back(mF);
- 
+
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "ElementType", MET_STRING, true);
   mF->required = true;
@@ -264,9 +264,9 @@ M_Read(void)
   }
 
   if(META_DEBUG) METAIO_STREAM::cout << "MetaBlob: M_Read: Parsing Header" << METAIO_STREAM::endl;
- 
+
   MET_FieldRecordType * mF;
- 
+
   mF = MET_GetFieldRecord("NPoints", &m_Fields);
   if(mF->defined)
   {
@@ -295,11 +295,11 @@ M_Read(void)
 
   int pntDim;
   char** pntVal = NULL;
-  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal); 
- 
-    
+  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
+
+
   int j;
-  for(j = 0; j < pntDim; j++) 
+  for(j = 0; j < pntDim; j++)
   {
     if(!strcmp(pntVal[j], "x") || !strcmp(pntVal[j], "X"))
     {
@@ -319,33 +319,35 @@ M_Read(void)
     {
     delete [] pntVal[i];
     }
- 
+
   delete [] pntVal;
-   
+
   float v[16];
-  
+
   if(m_BinaryData)
   {
     int elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
     int readSize = m_NPoints*(m_NDims+4)*elementSize;
-    
+
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
     int gc = m_ReadStream->gcount();
     if(gc != readSize)
     {
-      METAIO_STREAM::cout << "MetaBlob: m_Read: data not read completely" 
+      METAIO_STREAM::cout << "MetaBlob: m_Read: data not read completely"
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
+      delete [] _data;
+      delete [] posDim;
       return false;
     }
 
     i=0;
     int d;
     unsigned int k;
-    for(j=0; j<m_NPoints; j++) 
+    for(j=0; j<m_NPoints; j++)
     {
       BlobPnt* pnt = new BlobPnt(m_NDims);
 
@@ -385,14 +387,14 @@ M_Read(void)
   }
   else
   {
-    for(j=0; j<m_NPoints; j++) 
+    for(j=0; j<m_NPoints; j++)
     {
       BlobPnt* pnt = new BlobPnt(m_NDims);
-      
+
       for(int k=0; k<pntDim; k++)
       {
         *m_ReadStream >> v[k];
-        m_ReadStream->get(); 
+        m_ReadStream->get();
       }
 
       int d;
@@ -405,7 +407,7 @@ M_Read(void)
       {
         pnt->m_Color[d] = v[d+m_NDims];
       }
-     
+
       m_PointList.push_back(pnt);
     }
 
@@ -418,7 +420,7 @@ M_Read(void)
         }
       }
   }
-  
+
   delete [] posDim;
   return true;
 }
@@ -430,7 +432,7 @@ M_Write(void)
 
   if(!MetaObject::M_Write())
     {
-    METAIO_STREAM::cout << "MetaBlob: M_Read: Error parsing file" 
+    METAIO_STREAM::cout << "MetaBlob: M_Read: Error parsing file"
                         << METAIO_STREAM::endl;
     return false;
     }
@@ -451,18 +453,18 @@ M_Write(void)
       for(d = 0; d < m_NDims; d++)
         {
         float pntX = (*it)->m_X[d];
-        MET_SwapByteIfSystemMSB(&pntX,MET_FLOAT);    
+        MET_SwapByteIfSystemMSB(&pntX,MET_FLOAT);
         MET_DoubleToValue((double)pntX,m_ElementType,data,i++);
         }
 
       for(d = 0; d < 4; d++)
         {
         float c = (*it)->m_Color[d];
-        MET_SwapByteIfSystemMSB(&c,MET_FLOAT);    
+        MET_SwapByteIfSystemMSB(&c,MET_FLOAT);
         MET_DoubleToValue((double)c,m_ElementType,data,i++);
         }
       it++;
-      }  
+      }
     m_WriteStream->write((char *)data,(m_NDims+4)*m_NPoints*elementSize);
     m_WriteStream->write("\n",1);
     delete [] data;
@@ -471,7 +473,7 @@ M_Write(void)
     {
     PointListType::const_iterator it = m_PointList.begin();
     PointListType::const_iterator itEnd = m_PointList.end();
-  
+
     int d;
     while(it != itEnd)
       {

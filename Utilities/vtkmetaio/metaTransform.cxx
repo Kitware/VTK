@@ -521,6 +521,7 @@ M_Read(void)
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << parametersDimension*sizeof(double) << " : actual = " << gc << METAIO_STREAM::endl;
       return false;
+      delete [] _data;
       }
 
     unsigned long k=0;

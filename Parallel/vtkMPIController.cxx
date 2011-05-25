@@ -104,18 +104,19 @@ vtkMPIController::~vtkMPIController()
 void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Initialized: " << ( vtkMPIController::Initialized ? "(yes)" : "(no)" ) << endl;
+  os << indent << "MPI initialized: " << ( vtkMPIController::IsMPIInitialized() ? "(yes)" : "(no)" ) << endl;
+  os << indent << "vtkMPIController/communicator initialized: " << ( vtkMPIController::Initialized ? "(yes)" : "(no)" ) << endl;
 }
 
 vtkMPICommunicator* vtkMPIController::WorldRMICommunicator=0;
 
 //----------------------------------------------------------------------------
-void vtkMPIController::TriggerRMIInternal(int remoteProcessId, 
+void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
     void* arg, int argLength, int rmiTag, bool propagate)
 {
   vtkMPICommunicator* mpiComm = vtkMPICommunicator::SafeDownCast(
     this->RMICommunicator);
-  int use_ssend = mpiComm->GetUseSsend(); 
+  int use_ssend = mpiComm->GetUseSsend();
   if (vtkMPIController::UseSsendForRMI == 1 && use_ssend == 0)
     {
     mpiComm->SetUseSsend(1);
@@ -130,6 +131,13 @@ void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
     }
 }
 
+// ----------------------------------------------------------------------
+
+void vtkMPIController::Initialize(int* argc, char*** argv, int vtkNotUsed(initialized_externally))
+{
+  this->Initialize(argc, argv);
+}
+
 //----------------------------------------------------------------------------
 void vtkMPIController::Initialize()
 {
@@ -140,8 +148,7 @@ void vtkMPIController::Initialize()
 void vtkMPIController::Initialize(int* argc, char*** argv, 
 	int vtkNotUsed(initializedExternally) )
 {
-  int flag;
-  MPI_Initialized(&flag);
+  int flag = vtkMPIController::IsMPIInitialized();
   if (flag)
     {
     vtkDebugMacro(<< "MPI has already been initialized.  "
@@ -152,6 +159,26 @@ void vtkMPIController::Initialize(int* argc, char*** argv,
     {
     MPI_Init(argc, argv);
     }
+
+  // XXX Investigate: do we also need to keep the VTK MPI
+  // communicators from being initialized more than once?  Probably.
+  if (vtkMPIController::Initialized)
+    {
+    vtkDebugMacro(<<"Global vtkMPIController/vtkMPICommunicator information "
+                  <<"has also been initialized already.  Declining duplicate "
+                  <<"initialization.  This is also not an error.");
+
+    // This stuff needs to be set anyway since it's local instead of
+    // global.
+    this->RMICommunicator = vtkMPIController::WorldRMICommunicator;
+    // Since we use Delete to get rid of the reference, we should use
+    // NULL to register.
+    this->RMICommunicator->Register(NULL);
+    this->Modified();
+
+    return;
+    }
+
   this->InitializeCommunicator(vtkMPICommunicator::GetWorldCommunicator());
 
   int tmp;
@@ -168,6 +195,7 @@ void vtkMPIController::Initialize(int* argc, char*** argv,
   // Since we use Delete to get rid of the reference, we should use NULL to register.
   this->RMICommunicator->Register(NULL);
 
+  vtkMPIController::Initialized = 1;
   this->Modified();
 }
 
@@ -176,13 +204,18 @@ const char* vtkMPIController::GetProcessorName()
   return ProcessorName;
 }
 
+void vtkMPIController::Finalize(int vtkNotUsed(finalized_externally))
+{
+  this->Finalize();
+}
+
 // Good-bye world
 // There should be no MPI calls after this.
 // (Except maybe MPI_XXX_free()) unless finalized externally.
-void vtkMPIController::Finalize(int finalizedExternally)
+void vtkMPIController::Finalize()
 {
   if (vtkMPIController::Initialized)
-    { 
+    {
     vtkMPIController::WorldRMICommunicator->Delete();
     vtkMPIController::WorldRMICommunicator = 0;
     vtkMPICommunicator::WorldCommunicator->Delete();
@@ -193,35 +226,34 @@ void vtkMPIController::Finalize(int finalizedExternally)
       this->RMICommunicator->Delete();
       this->RMICommunicator = 0;
       }
-    if (finalizedExternally == 0)
+    if (vtkMPIController::IsMPIFinalized() == 0)
       {
       MPI_Finalize();
       }
-    vtkMPIController::Initialized = 0;
     this->Modified();
-    }  
-  
+    }
+
 }
 
-// Called by SetCommunicator and constructor. It frees but does 
+// Called by SetCommunicator and constructor. It frees but does
 // not set RMIHandle (which should not be set by using MPI_Comm_dup
 // during construction).
 void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
 {
-  if (this->Communicator != comm) 
-    { 
-    if (this->Communicator != 0) 
-      { 
-      this->Communicator->UnRegister(this); 
+  if (this->Communicator != comm)
+    {
+    if (this->Communicator != 0)
+      {
+      this->Communicator->UnRegister(this);
       }
-    this->Communicator = comm; 
-    if (this->Communicator != 0) 
-      { 
-      this->Communicator->Register(this); 
-      } 
+    this->Communicator = comm;
+    if (this->Communicator != 0)
+      {
+      this->Communicator->Register(this);
+      }
 
-    this->Modified(); 
-    }  
+    this->Modified();
+    }
 
 
 }
@@ -283,7 +315,7 @@ void vtkMPIController::MultipleMethodExecute()
     }
 
   int i = this->GetLocalProcessId();
-  
+
   if (i < this->GetNumberOfProcesses())
     {
     vtkProcessFunctionType multipleMethod;
@@ -343,4 +375,20 @@ vtkMPIController *vtkMPIController::PartitionController(int localColor,
   vtkMPIController *controller = vtkMPIController::New();
   controller->SetCommunicator(subcomm);
   return controller;
+}
+
+// ----------------------------------------------------------------------
+int vtkMPIController::IsMPIInitialized()
+{
+  int flag;
+  MPI_Initialized(&flag);
+  return flag;
+}
+
+// ----------------------------------------------------------------------
+int vtkMPIController::IsMPIFinalized()
+{
+  int flag;
+  MPI_Finalized(&flag);
+  return flag;
 }

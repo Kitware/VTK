@@ -65,20 +65,29 @@ public:
   // otherwise command line arguments will not be correct (because
   // usually MPI implementations add their own arguments during
   // startup).
-  virtual void Initialize(int* argc, char*** argv, int initializedExternally ); 
-  virtual void Initialize(int* argc, char*** argv) { this->Initialize(argc, argv,0); }
+  virtual void Initialize(int* argc, char*** argv);
 
   // Description:
   // Same as Initialize(0, 0). Mainly for calling from wrapped languages.
   virtual void Initialize();
 
   // Description:
+  // Compatibility method for a legacy API.  Since we ask MPI itself
+  // whether it's been initialized, the 'initializedExternally' flag
+  // is no longer necessary.
+  VTK_LEGACY(void Initialize(int* argc, char*** argv, int initializedExternally));
+
+  // Description:
   // This method is for cleaning up and has to be called before
   // the end of the program if MPI was initialized with
-  //Initialize()
-  virtual void Finalize() { this->Finalize(0); }
+  // Initialize()
+  virtual void Finalize();
 
-  virtual void Finalize(int finalizedExternally);
+  // Description:
+  // Compatibility method for a legacy API.  Since we now ask MPI
+  // itself whether it's been finalized, the 'finalizedExternally'
+  // parameter is no longer necessary.
+  VTK_LEGACY(void Finalize(int finalizedExternally));
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
@@ -185,7 +194,14 @@ public:
   static void SetUseSsendForRMI(int use_send)
     { vtkMPIController::UseSsendForRMI = (use_send != 0)? 1: 0; }
   static int GetUseSsendForRMI() { return vtkMPIController::UseSsendForRMI; }
+
+  // Ask MPI whether it's already been initialized / finalized.
+  static int IsMPIInitialized();
+  static int IsMPIFinalized();
+
 //BTX
+
+
 protected:
   vtkMPIController();
   ~vtkMPIController();
@@ -212,6 +228,10 @@ protected:
 
   friend class vtkMPIOutputWindow;
 
+  // This ivar tracks whether vtkMPIController has been initialized.
+  // This is separate from whether MPI itself has been initialized
+  // (via MPI_Init).
+  static int Initialized;
 
   static char ProcessorName[];
 
