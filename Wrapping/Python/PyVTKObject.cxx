@@ -394,7 +394,7 @@ PyTypeObject PyVTKObject_Type = {
 #else
   0,                                     // tp_flags
 #endif
-  (char*)"A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
+  (char*)"Use help(x.__class__) to get full documentation.",  // tp_doc
 #if PY_MAJOR_VERSION >= 2
   PyVTKObject_Traverse,                  // tp_traverse
   0,                                     // tp_clear
