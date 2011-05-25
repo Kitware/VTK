@@ -226,6 +226,7 @@ static PyObject *PyVTKClass_Dir(PyObject *op, PyObject *arg)
     PyDict_Update(dict, PyVTKClass_GetDict(mro[--n]));
     }
   while (n > 0);
+  delete [] mro;
 
   if (PyVTKObject_Check(arg) && ((PyVTKObject *)arg)->vtk_dict)
     {
