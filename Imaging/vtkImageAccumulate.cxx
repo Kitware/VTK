@@ -286,7 +286,7 @@ int vtkImageAccumulate::RequestData(
 
   // We need to allocate our own scalars since we are overriding
   // the superclasses "Execute()" method.
-  outData->SetExtent(outData->GetWholeExtent());
+  outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   outData->AllocateScalars();
 
   vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);

@@ -146,14 +146,10 @@ public:
 
   // Description:
   // Set / Get the extent on just one axis
-  virtual void SetAxisUpdateExtent(int axis, int min, int max);
-  virtual void GetAxisUpdateExtent(int axis, int &min, int &max);
-
-  // Description:
-  // Override to copy information from pipeline information to data
-  // information for backward compatibility.  See
-  // vtkDataObject::UpdateInformation for details.
-  virtual void UpdateInformation();
+  virtual void SetAxisUpdateExtent(int axis, int min, int max,
+                                   const int* updateExtent,
+                                   int* axisUpdateExtent);
+  virtual void GetAxisUpdateExtent(int axis, int &min, int &max, const int* updateExtent);
 
   // Description:
   // Set/Get the extent. On each axis, the extent is defined by the index
@@ -170,20 +166,16 @@ public:
   vtkGetVector6Macro(Extent, int);
 
   // Description:
-  // Get the estimated size of this data object itself. Should be called
-  // after UpdateInformation() and PropagateUpdateExtent() have both been
-  // called. This estimate should be fairly accurate since this is structured
-  // data.
-  virtual unsigned long GetEstimatedMemorySize();
-
-  // Description:
   // These returns the minimum and maximum values the ScalarType can hold
   // without overflowing.
+  virtual double GetScalarTypeMin(vtkInformation* meta_data);
   virtual double GetScalarTypeMin();
+  virtual double GetScalarTypeMax(vtkInformation* meta_data);
   virtual double GetScalarTypeMax();
 
   // Description:
   // Get the size of the scalar type in bytes.
+  virtual int GetScalarSize(vtkInformation* meta_data);
   virtual int GetScalarSize();
 
   // Description:
@@ -226,6 +218,7 @@ public:
   // Description:
   // Allocate the vtkScalars object associated with this object.
   virtual void AllocateScalars();
+  virtual void AllocateScalars(int dataType, int numComponents);
 
   // Description:
   // This method is passed a input and output region, and executes the filter
@@ -239,10 +232,10 @@ public:
     this->CopyAndCastFrom(inData, e);}
 
   // Description:
-  // Reallocates and copies to set the Extent to the UpdateExtent.
+  // Reallocates and copies to set the Extent to updateExtent.
   // This is used internally when the exact extent is requested,
   // and the source generated more than the update extent.
-  virtual void Crop();
+  virtual void Crop(const int* updateExtent);
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -269,38 +262,17 @@ public:
   vtkSetVector3Macro(Origin,double);
   vtkGetVector3Macro(Origin,double);
 
-  // Description:
-  // Set/Get the data scalar type (i.e VTK_DOUBLE). Note that these methods
-  // are setting and getting the pipeline scalar type. i.e. they are setting
-  // the type that the image data will be once it has executed. Until the
-  // REQUEST_DATA pass the actual scalars may be of some other type. This is
-  // for backwards compatibility
-  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
-  void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
-  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
-  void SetScalarTypeToUnsignedInt()
-    {this->SetScalarType(VTK_UNSIGNED_INT);};
-  void SetScalarTypeToLong(){this->SetScalarType(VTK_LONG);};
-  void SetScalarTypeToUnsignedLong()
-    {this->SetScalarType(VTK_UNSIGNED_LONG);};
-  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);};
-  void SetScalarTypeToUnsignedShort()
-    {this->SetScalarType(VTK_UNSIGNED_SHORT);};
-  void SetScalarTypeToUnsignedChar()
-    {this->SetScalarType(VTK_UNSIGNED_CHAR);};
-  void SetScalarTypeToSignedChar()
-    {this->SetScalarType(VTK_SIGNED_CHAR);};
-  void SetScalarTypeToChar()
-    {this->SetScalarType(VTK_CHAR);};
-  void SetScalarType(int);
+  static void SetScalarType(int, vtkInformation* meta_data);
+  static int GetScalarType(vtkInformation* meta_data);
+  static bool HasScalarType(vtkInformation* meta_data);
   int GetScalarType();
-  const char* GetScalarTypeAsString()
-    { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
 
   // Description:
   // Set/Get the number of scalar components for points. As with the
   // SetScalarType method this is setting pipeline info.
-  void SetNumberOfScalarComponents( int n );
+  static void SetNumberOfScalarComponents( int n, vtkInformation* meta_data);
+  static int GetNumberOfScalarComponents(vtkInformation* meta_data);
+  static bool HasNumberOfScalarComponents(vtkInformation* meta_data);
   int GetNumberOfScalarComponents();
 
   // Must only be called with vtkImageData (or subclass) as input
@@ -313,7 +285,8 @@ public:
                                          vtkInformation* input,
                                          vtkInformation* output,
                                          int forceCopy);
-  virtual void CopyInformationFromPipeline(vtkInformation* request);
+  virtual void CopyInformationFromPipeline(vtkInformation* request,
+                                           vtkInformation* information);
 
   // Description:
   // make the output data ready for new data to be inserted. For most
@@ -378,7 +351,7 @@ protected:
 
   void ComputeIncrements();
   void ComputeIncrements(vtkIdType inc[3]);
-  void CopyOriginAndSpacingFromPipeline();
+  void CopyOriginAndSpacingFromPipeline(vtkInformation* info);
 
   vtkTimeStamp ExtentComputeTime;
 

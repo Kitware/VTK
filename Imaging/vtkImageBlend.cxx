@@ -871,10 +871,9 @@ void vtkImageBlend::ThreadedRequestData (
         return;
         }
       tmpData->SetExtent(outExt);
-      tmpData->SetNumberOfScalarComponents(
+      tmpData->AllocateScalars(
+        VTK_DOUBLE,
         (outData[0]->GetNumberOfScalarComponents() >= 3 ? 3 : 1) + 1);
-      tmpData->SetScalarType(VTK_DOUBLE);
-      tmpData->AllocateScalars();
       memset(static_cast<void *>(tmpData->GetScalarPointer()), 0, 
              (outExt[1] - outExt[0] + 1) * 
              (outExt[3] - outExt[2] + 1) * 

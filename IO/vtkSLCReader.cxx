@@ -18,6 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <ctype.h>
 
@@ -147,7 +148,9 @@ void vtkSLCReader::ExecuteData(vtkDataObject* )
 { 
   vtkImageData *output = this->GetOutput();
   
-  output->SetExtent(output->GetWholeExtent());
+  output->SetExtent(
+    vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+      this->GetOutputInformation(0)));
   output->AllocateScalars();
 
   if (!output->GetPointData()->GetScalars())

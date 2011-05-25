@@ -58,8 +58,8 @@ protected:
   vtkTIFFWriter();
   ~vtkTIFFWriter() {}
 
-  virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *);
+  virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]);
+  virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
   virtual void WriteFileTrailer(ofstream *, vtkImageData *);
 
   void* TIFFPtr;

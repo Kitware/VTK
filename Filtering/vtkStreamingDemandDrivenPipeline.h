@@ -70,17 +70,17 @@ public:
   // update information call.  A value of -1 indicates that there is
   // no maximum.
   int SetMaximumNumberOfPieces(int port, int n);
-  int SetMaximumNumberOfPieces(vtkInformation *, int n);
+  static int SetMaximumNumberOfPieces(vtkInformation *, int n);
   int GetMaximumNumberOfPieces(int port);
-  int GetMaximumNumberOfPieces(vtkInformation *);
+  static int GetMaximumNumberOfPieces(vtkInformation *);
 
   // Description:
   // Set/Get the whole extent of an output port.  The whole extent is
   // meta data for structured data sets.  It gets set by the algorithm
   // during the update information pass.
-  int SetWholeExtent(vtkInformation *, int extent[6]);
-  void GetWholeExtent(vtkInformation *, int extent[6]);
-  int* GetWholeExtent(vtkInformation *);
+  static int SetWholeExtent(vtkInformation *, int extent[6]);
+  static void GetWholeExtent(vtkInformation *, int extent[6]);
+  static int* GetWholeExtent(vtkInformation *);
 
   // Description:
   // If the whole input extent is required to generate the requested output
@@ -88,14 +88,14 @@ public:
   // whole input extent. This method assumes that the whole extent is known
   // (that UpdateInformation has been called)
   int SetUpdateExtentToWholeExtent(int port);
-  int SetUpdateExtentToWholeExtent(vtkInformation *);
+  static int SetUpdateExtentToWholeExtent(vtkInformation *);
   
   // Description:
   // Get/Set the update extent for output ports that use 3D extents.
   int SetUpdateExtent(int port, int extent[6]);
-  int SetUpdateExtent(vtkInformation *, int extent[6]);
-  void GetUpdateExtent(vtkInformation *, int extent[6]);
-  int* GetUpdateExtent(vtkInformation *);
+  static int SetUpdateExtent(vtkInformation *, int extent[6]);
+  static void GetUpdateExtent(vtkInformation *, int extent[6]);
+  static int* GetUpdateExtent(vtkInformation *);
 
   // Description:
   // Set/Get the update piece, update number of pieces, and update
@@ -103,14 +103,14 @@ public:
   // extent in 3D.
   int SetUpdateExtent(int port, 
                       int piece, int numPieces, int ghostLevel);
-  int SetUpdateExtent(vtkInformation *, 
-                      int piece, int numPieces, int ghostLevel);
-  int SetUpdatePiece(vtkInformation *, int piece);
-  int GetUpdatePiece(vtkInformation *);
-  int SetUpdateNumberOfPieces(vtkInformation *, int n);
-  int GetUpdateNumberOfPieces(vtkInformation *);
-  int SetUpdateGhostLevel(vtkInformation *, int n);
-  int GetUpdateGhostLevel(vtkInformation *);
+  static int SetUpdateExtent(vtkInformation *, 
+                             int piece, int numPieces, int ghostLevel);
+  static int SetUpdatePiece(vtkInformation *, int piece);
+  static int GetUpdatePiece(vtkInformation *);
+  static int SetUpdateNumberOfPieces(vtkInformation *, int n);
+  static int GetUpdateNumberOfPieces(vtkInformation *);
+  static int SetUpdateGhostLevel(vtkInformation *, int n);
+  static int GetUpdateGhostLevel(vtkInformation *);
   int SetUpdateResolution(int port, double r);
   int SetUpdateResolution(vtkInformation *, double r);
   double GetUpdateResolution(vtkInformation *);
@@ -118,7 +118,7 @@ public:
   // Description:
   // Get/Set the update extent for output ports that use Temporal Extents
   int SetUpdateTimeSteps(int port, double *times, int length);
-  int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
+  static int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
   int SetUpdateTimeStep(int port, double time);
   //void GetUpdateTimeSteps(vtkInformation *, int extent[6]);
 
@@ -136,9 +136,9 @@ public:
   // Get/Set the object that will translate pieces into structured
   // extents for an output port.
   int SetExtentTranslator(int port, vtkExtentTranslator* translator);
-  int SetExtentTranslator(vtkInformation *, vtkExtentTranslator* translator);
+  static int SetExtentTranslator(vtkInformation *, vtkExtentTranslator* translator);
   vtkExtentTranslator* GetExtentTranslator(int port);
-  vtkExtentTranslator* GetExtentTranslator(vtkInformation *info);
+  static vtkExtentTranslator* GetExtentTranslator(vtkInformation *info);
 
   // Description:
   // Set/Get the whole bounding box of an output port data object.

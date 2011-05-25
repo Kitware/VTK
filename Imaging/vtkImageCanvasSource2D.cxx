@@ -50,7 +50,6 @@ vtkImageCanvasSource2D::vtkImageCanvasSource2D()
   this->SetNumberOfInputPorts(0);
 
   this->ImageData = vtkImageData::New();
-  this->ImageData->SetScalarType(VTK_DOUBLE);
 
   this->WholeExtent[0] = 0;
   this->WholeExtent[1] = 0;
@@ -173,7 +172,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   int *extent;
   int ext[6];
   //  int z = this->DefaultZ;
-  image->GetWholeExtent(ext);
+  image->GetExtent(ext);
   if ( sx < 0 )
     {
     sx = ext[0];
@@ -1542,8 +1541,8 @@ void vtkImageCanvasSource2D::SetScalarType(int t)
   if (this->ImageData->GetScalarType() != t)
     {
     this->Modified();
-    this->ImageData->SetScalarType(t);
-    this->ImageData->AllocateScalars();
+    this->ImageData->AllocateScalars(
+      t, this->ImageData->GetNumberOfScalarComponents());
     }
 }
 
@@ -1560,8 +1559,8 @@ void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
   if (this->ImageData->GetNumberOfScalarComponents() != t)
     {
     this->Modified();
-    this->ImageData->SetNumberOfScalarComponents(t);
-    this->ImageData->AllocateScalars();
+    this->ImageData->AllocateScalars(
+      this->ImageData->GetScalarType(), t);
     }
 }
 

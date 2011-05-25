@@ -142,7 +142,8 @@ int vtkGlyph3D::RequestData(
   int numberOfSources = this->GetNumberOfInputConnections(1);
   vtkPolyData *defaultSource = NULL;
   vtkIdTypeArray *pointIds=0;
-  vtkPolyData *source = 0;
+  vtkPolyData *source = this->GetSource(0, inputVector[1]);
+;
 
   vtkDebugMacro(<<"Generating glyphs");
 
@@ -208,7 +209,7 @@ int vtkGlyph3D::RequestData(
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
     {
-    if ( this->GetSource(0, inputVector[1]) == NULL )
+    if ( !source )
       {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -228,7 +229,7 @@ int vtkGlyph3D::RequestData(
   outputPD->CopyNormalsOff();
   outputPD->CopyTCoordsOff();
 
-  if (!this->GetSource(0, inputVector[1]))
+  if (!source)
     {
     defaultSource = vtkPolyData::New();
     defaultSource->Allocate();
@@ -241,12 +242,12 @@ int vtkGlyph3D::RequestData(
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    defaultSource->SetUpdateExtent(0, 1, 0);
     this->SetSource(defaultSource);
     defaultSource->Delete();
     defaultSource = NULL;
     defaultPoints->Delete();
     defaultPoints = NULL;
+    source = defaultSource;
     }
   
   if ( this->IndexMode != VTK_INDEXING_OFF )
@@ -255,7 +256,6 @@ int vtkGlyph3D::RequestData(
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
       {
-      source = this->GetSource(i, inputVector[1]);
       if ( source != NULL )
         {
         if (source->GetNumberOfPoints() > numSourcePts)
@@ -275,7 +275,6 @@ int vtkGlyph3D::RequestData(
     }
   else
     {
-    source = this->GetSource(0, inputVector[1]);
     sourcePts = source->GetPoints();
     numSourcePts = sourcePts->GetNumberOfPoints();
     numSourceCells = source->GetNumberOfCells();
@@ -372,7 +371,7 @@ int vtkGlyph3D::RequestData(
     }
   else
     {
-    output->Allocate(this->GetSource(0, inputVector[1]),
+    output->Allocate(source,
                      3*numPts*numSourceCells, numPts*numSourceCells);
     }
 
@@ -464,7 +463,6 @@ int vtkGlyph3D::RequestData(
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
       
-      source = this->GetSource(index, inputVector[1]);
       if ( source != NULL )
         {
         sourcePts = source->GetPoints();
@@ -475,7 +473,7 @@ int vtkGlyph3D::RequestData(
       }
 
     // Make sure we're not indexing into empty glyph
-    if ( this->GetSource(index, inputVector[1]) == NULL )
+    if ( !source )
       {
       continue;
       }
@@ -504,7 +502,7 @@ int vtkGlyph3D::RequestData(
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
-      cell = this->GetSource(index, inputVector[1])->GetCell(cellId);
+      cell = source->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (pts->Reset(), i=0; i < npts; i++) 

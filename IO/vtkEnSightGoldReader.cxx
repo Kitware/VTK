@@ -2691,8 +2691,6 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
   points->Allocate(numPts);
 
@@ -2776,8 +2774,6 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   xCoords->Allocate(dimensions[0]);
   yCoords->Allocate(dimensions[1]);
   zCoords->Allocate(dimensions[2]);
@@ -2867,8 +2863,6 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
 
   for (i = 0; i < 3; i++)
     {

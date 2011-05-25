@@ -22,6 +22,7 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
+#include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
@@ -143,7 +144,6 @@ vtkDataWriter::~vtkDataWriter()
 ostream *vtkDataWriter::OpenVTKFile()
 {
   ostream *fptr;
-  vtkDataObject *input = this->GetInput();
   
   if ((!this->WriteToOutputString) && ( !this->FileName ))
     {
@@ -164,12 +164,12 @@ ostream *vtkDataWriter::OpenVTKFile()
       this->OutputStringLength = 0;
       }
     // Allocate the new output string. (Note: this will only work with binary).
-    if (input == NULL)
+    if (!this->GetInputExecutive(0, 0))
       {
       vtkErrorMacro(<< "No input! Can't write!");
       return NULL;    
       }
-    input->Update();
+    this->GetInputExecutive(0, 0)->Update();
     /// OutputString will be allocated on CloseVTKFile().
     /// this->OutputStringAllocatedLength =
     ///   static_cast<int> (500+ 1024 * input->GetActualMemorySize());

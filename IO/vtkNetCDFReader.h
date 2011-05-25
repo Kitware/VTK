@@ -215,6 +215,8 @@ protected:
 private:
   vtkNetCDFReader(const vtkNetCDFReader &);     // Not implemented
   void operator=(const vtkNetCDFReader &);      // Not implemented
+
+  int UpdateExtent[6];
 };
 
 #endif //__vtkNetCDFReader_h

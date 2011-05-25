@@ -1518,33 +1518,6 @@ vtkIdType vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts,
 }
 
 //----------------------------------------------------------------------------
-void vtkUnstructuredGrid::GetUpdateExtent(int& piece, int& numPieces, int& ghostLevel)
-{
-  piece = this->GetUpdatePiece();
-  numPieces = this->GetUpdateNumberOfPieces();
-  ghostLevel = this->GetUpdateGhostLevel();
-}
-
-//----------------------------------------------------------------------------
-int* vtkUnstructuredGrid::GetUpdateExtent()
-{
-  return this->Superclass::GetUpdateExtent();
-}
-
-//----------------------------------------------------------------------------
-void vtkUnstructuredGrid::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                                          int& z0, int& z1)
-{
-  this->Superclass::GetUpdateExtent(x0, x1, y0, y1, z0, z1);
-}
-
-//----------------------------------------------------------------------------
-void vtkUnstructuredGrid::GetUpdateExtent(int extent[6])
-{
-  this->Superclass::GetUpdateExtent(extent);
-}
-
-//----------------------------------------------------------------------------
 unsigned long vtkUnstructuredGrid::GetActualMemorySize()
 {
   unsigned long size=this->vtkPointSet::GetActualMemorySize();

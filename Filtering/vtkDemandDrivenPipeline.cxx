@@ -540,7 +540,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
     if(data && !outInfo->Get(DATA_NOT_GENERATED()))
       {
       data->PrepareForNewData();
-      data->CopyInformationFromPipeline(request);
+      data->CopyInformationFromPipeline(request, outInfo);
       }
     }
 

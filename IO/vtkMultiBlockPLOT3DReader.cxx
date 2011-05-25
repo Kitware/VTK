@@ -530,11 +530,6 @@ int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
   vtkDebugMacro("Geometry number of grids: " << numGrid);
   if ( numGrid == 0 )
     {
-    // Bad file, set all extents to invalid.
-    for (i=0; i<numBlocks; i++)
-      {
-      this->Internal->Blocks[i]->SetWholeExtent(0, -1, 0, -1, 0, -1);
-      }
     return VTK_ERROR;
     }
 
@@ -551,7 +546,7 @@ int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
       }
     vtkDebugMacro("Geometry, block " << i << " dimensions: "
                   << ni << " " << nj << " " << nk);
-    this->Internal->Blocks[i]->SetWholeExtent(
+    this->Internal->Blocks[i]->SetExtent(
       0, ni-1, 0, nj-1, 0, nk-1);
     }
   this->SkipByteCount(fp);
@@ -621,12 +616,13 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp)
                   << ni << " " << nj << " " << nk);
 
     int extent[6];
-    this->Internal->Blocks[i]->GetWholeExtent(extent);
+    this->Internal->Blocks[i]->GetExtent(extent);
     if ( extent[1] != ni-1 || extent[3] != nj-1 || extent[5] != nk-1)
       {
       this->SetErrorCode(vtkErrorCode::FileFormatError);
       vtkErrorMacro("Geometry and data dimensions do not match. "
                     "Data file may be corrupt.");
+      this->Internal->Blocks[i]->Initialize();
       return VTK_ERROR;
       }
     }
@@ -801,8 +797,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
       vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
       int dims[6];
-      nthOutput->GetWholeExtent(dims);
-      nthOutput->SetExtent(dims);
       nthOutput->GetDimensions(dims);
       this->PointCache[i] = vtkFloatArray::New();
       this->PointCache[i]->SetNumberOfComponents(3);
@@ -895,8 +889,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       {
       vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
       int dims[6];
-      nthOutput->GetWholeExtent(dims);
-      nthOutput->SetExtent(dims);
 
       vtkPoints* points = vtkPoints::New();
       points->SetData(this->PointCache[i]);
@@ -950,8 +942,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       properties->Delete();
       
       int dims[6];
-      nthOutput->GetWholeExtent(dims);
-      nthOutput->SetExtent(dims);
       nthOutput->GetDimensions(dims);
 
       this->SkipByteCount(qFp);

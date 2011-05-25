@@ -849,5 +849,6 @@ void vtkImageReader2::SetDataScalarType(int type)
   this->Modified();
   this->DataScalarType = type;
   // Set the default output scalar type
-  this->GetOutput()->SetScalarType(this->DataScalarType);
+  vtkImageData::SetScalarType(this->DataScalarType,
+                              this->GetOutputInformation(0));
 }

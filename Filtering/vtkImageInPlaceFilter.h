@@ -39,7 +39,7 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-  void CopyData(vtkImageData *in, vtkImageData *out);
+  void CopyData(vtkImageData *in, vtkImageData *out, int* outExt);
   
 private:
   vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);  // Not implemented.

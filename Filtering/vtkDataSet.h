@@ -320,7 +320,11 @@ public:
   // Description:
   // Normally called by pipeline executives or algoritgms only. This method
   // computes the ghost arrays for a given dataset.
-  virtual void GenerateGhostLevelArray();
+  virtual void GenerateGhostLevelArray(int update_piece,
+                                       int update_num_pieces,
+                                       int update_ghost_level,
+                                       int* whole_extent,
+                                       vtkExtentTranslator* translator);
 
   //BTX
   // Description:

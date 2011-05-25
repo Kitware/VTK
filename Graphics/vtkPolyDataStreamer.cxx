@@ -98,9 +98,12 @@ int vtkPolyDataStreamer::RequestData(
     pieceColors = vtkFloatArray::New();
     }
 
-  outGhost = output->GetUpdateGhostLevel();
-  outPiece = output->GetUpdatePiece();
-  outNumPieces = output->GetUpdateNumberOfPieces();
+  outGhost = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  outPiece = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  outNumPieces = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   for (i = 0; i < this->NumberOfStreamDivisions; ++i)
     {
     inPiece = outPiece * this->NumberOfStreamDivisions + i;
@@ -108,7 +111,6 @@ int vtkPolyDataStreamer::RequestData(
                 inPiece);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                 outNumPieces *this->NumberOfStreamDivisions);
-    input->Update();
     copy = vtkPolyData::New();
     copy->ShallowCopy(input);
     append->AddInput(copy);

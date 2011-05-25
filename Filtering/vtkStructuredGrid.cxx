@@ -1058,13 +1058,11 @@ void vtkStructuredGrid::GetScalarRange(double range[2])
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredGrid::Crop()
+void vtkStructuredGrid::Crop(const int* updateExtent)
 {
   int i, j, k;
   int uExt[6];
   const int* extent = this->Extent;
-  int updateExtent[6] = {0,-1,0,-1,0,-1};
-  this->GetUpdateExtent(updateExtent);
 
   // If the update extent is larger than the extent, 
   // we cannot do anything about it here.

@@ -102,31 +102,22 @@ protected:
     return 1;
   }
 
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
-
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*)
-    {
-      return 1;
-    };
+  {
+    return 1;
+  }
 
-  // Description:
-  // This detects when the UpdateExtent will generate no data.
-  // This condition is satisfied when the UpdateExtent has 
-  // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
-  // The source uses this call to determine whether to call Execute.
-  int UpdateExtentIsEmpty(vtkDataObject *output);
-
-  // Description:
-  // This method is the old style execute method
-  virtual void ExecuteData(vtkDataObject *output);
-  virtual void Execute();
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector)
+  {
+    return 1;
+  }
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);

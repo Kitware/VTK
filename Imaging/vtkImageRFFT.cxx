@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -172,13 +173,22 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
 // This method is passed input and output Datas, and executes the RFFT
 // algorithm to fill the output from the input.
 // Not threaded yet.
-void vtkImageRFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                                  int outExt[6], int threadId)
+void vtkImageRFFT::ThreadedRequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector ),
+  vtkImageData ***inDataVec,
+  vtkImageData **outDataVec,
+  int outExt[6],
+  int threadId)
 {
+  vtkImageData* inData = inDataVec[0][0];
+  vtkImageData* outData = outDataVec[0];
   void *inPtr, *outPtr;
   int inExt[6];
 
-  int *wExt = inData->GetWholeExtent();
+  int *wExt = inputVector[0]->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   vtkImageRFFTInternalRequestUpdateExtent(inExt,outExt,wExt,this->Iteration);
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -953,7 +953,7 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject *dataObject)
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearGrid::Crop()
+void vtkRectilinearGrid::Crop(const int* updateExtent)
 {
   int i, j, k;
   // What we want.
@@ -961,8 +961,6 @@ void vtkRectilinearGrid::Crop()
   // What we have.
   int ext[6];
   const int* extent = this->Extent;
-  int updateExtent[6] = {0,-1,0,-1,0,-1};
-  this->GetUpdateExtent(updateExtent);
 
   // If the update extent is larger than the extent, 
   // we cannot do anything about it here.

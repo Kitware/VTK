@@ -15,7 +15,10 @@
 #include "vtkImageCheckerboard.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageCheckerboard);
 
@@ -38,7 +41,8 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
                                   vtkImageData *in2Data, T *in2Ptr,
                                   vtkImageData *outData, 
                                   T *outPtr,
-                                  int outExt[6], int id)
+                                  int outExt[6], int id,
+                                  int wholeExt[6])
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -50,7 +54,6 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   vtkIdType inIncX, inIncY, inIncZ;
   vtkIdType in2IncX, in2IncY, in2IncZ;
   vtkIdType outIncX, outIncY, outIncZ;
-  int wholeExt[6];
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
@@ -63,8 +66,6 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
     
-  outData->GetWholeExtent(wholeExt);
-  
   dimWholeX = wholeExt[1] - wholeExt[0] + 1;
   dimWholeY = wholeExt[3] - wholeExt[2] + 1;
   dimWholeZ = wholeExt[5] - wholeExt[4] + 1;
@@ -159,7 +160,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 void vtkImageCheckerboard::ThreadedRequestData(
   vtkInformation * vtkNotUsed( request ), 
   vtkInformationVector ** vtkNotUsed( inputVector ), 
-  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkInformationVector * outputVector,
   vtkImageData ***inData, 
   vtkImageData **outData,
   int outExt[6], int id)
@@ -203,7 +204,10 @@ void vtkImageCheckerboard::ThreadedRequestData(
                   << inData[1][0]->GetNumberOfScalarComponents());
     return;
     }
-  
+
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  int wholeExtent[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
@@ -213,7 +217,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
                                    static_cast<VTK_TT *>(in2Ptr), 
                                    outData[0], 
                                    static_cast<VTK_TT *>(outPtr), 
-                                   outExt, id));
+                                   outExt, id, wholeExtent));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

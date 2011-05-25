@@ -1251,6 +1251,50 @@ int vtkAlgorithm::GetTotalNumberOfInputConnections()
 }
 
 //----------------------------------------------------------------------------
+vtkInformation* vtkAlgorithm::GetOutputInformation(int port)
+{
+  return this->GetExecutive()->GetOutputInformation(port);
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkAlgorithm::GetInputInformation(int port, int index)
+{
+  if(index < 0 || index >= this->GetNumberOfInputConnections(port))
+    {
+    vtkErrorMacro("Attempt to get connection index " << index
+                  << " for input port " << port << ", which has "
+                  << this->GetNumberOfInputConnections(port)
+                  << " connections.");
+    return 0;
+    }
+  return this->GetExecutive()->GetInputInformation(port, index);
+}
+
+//----------------------------------------------------------------------------
+vtkExecutive* vtkAlgorithm::GetInputExecutive(int port, int index)
+{
+  if(index < 0 || index >= this->GetNumberOfInputConnections(port))
+    {
+    vtkErrorMacro("Attempt to get connection index " << index
+                  << " for input port " << port << ", which has "
+                  << this->GetNumberOfInputConnections(port)
+                  << " connections.");
+    return 0;
+    }
+  if(vtkInformation* info =
+     this->GetExecutive()->GetInputInformation(port, index))
+    {
+    // Get the executive producing this input.  If there is none, then
+    // it is a NULL input.
+    vtkExecutive* producer;
+    int producerPort;
+    vtkExecutive::PRODUCER()->Get(info,producer,producerPort);
+    return producer;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
   if(index < 0 || index >= this->GetNumberOfInputConnections(port))

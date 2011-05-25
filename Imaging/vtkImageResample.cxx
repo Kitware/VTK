@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageResample.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -95,7 +96,7 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis,
       vtkErrorMacro("GetMagnificationFactor: Input not set.");
       return 0.0;
       }
-    this->GetInput()->UpdateInformation();
+    this->GetInputConnection(0, 0)->GetProducer()->UpdateInformation();
     if (!inInfo)
       {
       inInfo = this->GetExecutive()->GetInputInformation(0, 0);

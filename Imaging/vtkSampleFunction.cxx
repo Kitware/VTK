@@ -145,8 +145,11 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
   vtkIdType numPts;
   double p[3], s;
   vtkImageData *output=this->GetOutput();
+  int* extent =
+    this->GetExecutive()->GetOutputInformation(0)->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
-  output->SetExtent(output->GetUpdateExtent());
+  output->SetExtent(extent);
   output = this->AllocateOutputData(outp);
   vtkDataArray *newScalars =output->GetPointData()->GetScalars();
 
@@ -164,8 +167,6 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
 
   // Traverse all points evaluating implicit function at each point
   //
-  int extent[6];
-  output->GetUpdateExtent(extent);
   double spacing[3];
   output->GetSpacing(spacing);
 
@@ -254,11 +255,12 @@ unsigned long vtkSampleFunction::GetMTime()
 
 void vtkSampleFunction::Cap(vtkDataArray *s)
 {
-  int i,j,k,extent[6];
+  int i,j,k;
   vtkIdType idx;
   int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
-  vtkImageData *output = this->GetOutput();
-  output->GetUpdateExtent(extent);
+  const int* extent =
+    this->GetExecutive()->GetOutputInformation(0)->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   // i-j planes
   //k = extent[4];

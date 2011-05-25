@@ -165,7 +165,7 @@ int vtkDataSetSurfaceFilter::RequestData(
   if (input->GetExtentType() == VTK_3D_EXTENT)
     {
     const int *wholeExt32;
-    wholeExt32 = input->GetWholeExtent();
+    wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     wholeExt[0] = wholeExt32[0]; 
     wholeExt[1] = wholeExt32[1]; 
     wholeExt[2] = wholeExt32[2];
@@ -178,7 +178,9 @@ int vtkDataSetSurfaceFilter::RequestData(
     {
     case  VTK_UNSTRUCTURED_GRID:
       {
-      if (!this->UnstructuredGridExecute(input, output))
+      if (!this->UnstructuredGridExecute(
+            input, output, outInfo->Get(
+              vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())))
         {
         return 1;
         }
@@ -959,7 +961,8 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
-                                                     vtkPolyData *output)
+                                                     vtkPolyData *output,
+                                                     int updateGhostLevel)
 {
   vtkCellArray *newVerts;
   vtkCellArray *newLines;
@@ -1544,8 +1547,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     }
   if (this->PieceInvariant)
     {
-    int ghostLevels = output->GetUpdateGhostLevel();
-    output->RemoveGhostCells(ghostLevels+1);
+    output->RemoveGhostCells(updateGhostLevel+1);
     }
 
   this->DeleteQuadHash();

@@ -2737,8 +2737,6 @@ int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
     return -1;
     }
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   points->Allocate(numPts);
   
   coordsRead = new float[numPts*3];

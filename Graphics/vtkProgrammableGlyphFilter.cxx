@@ -187,8 +187,6 @@ int vtkProgrammableGlyphFilter::RequestData(
     
     if ( source ) 
       {
-      source->Update();
-    
       sourcePts = source->GetPoints();
       numSourcePts = source->GetNumberOfPoints();
       numSourceCells = source->GetNumberOfCells();

@@ -67,6 +67,33 @@ vtkGenericDataSet *vtkGenericProbeFilter::GetSource()
 
 
 //----------------------------------------------------------------------------
+int vtkGenericProbeFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // A variation of the bug fix from John Biddiscombe.
+  // Make sure that the scalar type and number of components
+  // are propagated from the source not the input.
+  if (vtkImageData::HasScalarType(sourceInfo))
+    {
+    vtkImageData::SetScalarType(vtkImageData::GetScalarType(sourceInfo),
+                                outInfo);
+    }
+  if (vtkImageData::HasNumberOfScalarComponents(sourceInfo))
+    {
+    vtkImageData::SetNumberOfScalarComponents(
+      vtkImageData::GetNumberOfScalarComponents(sourceInfo),
+      outInfo);
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkGenericProbeFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -209,16 +236,6 @@ int vtkGenericProbeFilter::RequestData(
   cellIt->Delete();
   delete[] tuples;
 
-  // BUG FIX: JB.
-  // Output gets setup from input, but when output is imagedata, scalartype
-  // depends on source scalartype not input scalartype
-  if (output->IsA("vtkImageData"))
-    {
-    vtkImageData *out = static_cast<vtkImageData *>(output);
-    vtkDataArray *s = outputPD->GetScalars();
-    out->SetScalarType(s->GetDataType());
-    out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
-    }
   return 1;
 }
 

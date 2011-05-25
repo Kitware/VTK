@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -50,10 +51,17 @@ int vtkImageFourierCenter::IterativeRequestUpdateExtent(
 //----------------------------------------------------------------------------
 // This method is passed input and output regions, and executes the fft
 // algorithm to fill the output from the input.
-void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData, 
-                                            vtkImageData *outData,
-                                            int outExt[6], int threadId)
+void vtkImageFourierCenter::ThreadedRequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector,
+  vtkImageData ***inDataVec,
+  vtkImageData **outDataVec,
+  int outExt[6],
+  int threadId)
 {
+  vtkImageData* inData = inDataVec[0][0];
+  vtkImageData* outData = outDataVec[0];
   double *inPtr0, *inPtr1, *inPtr2;
   double *outPtr0, *outPtr1, *outPtr2;
   vtkIdType inInc0, inInc1, inInc2;
@@ -93,7 +101,8 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   // Get stuff needed to loop through the pixel
   numberOfComponents = outData->GetNumberOfScalarComponents();
   outPtr0 = static_cast<double *>(outData->GetScalarPointerForExtent(outExt));
-  wholeExtent = this->GetOutput()->GetWholeExtent();
+  wholeExtent = outputVector->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   // permute to make the filtered axis come first
   this->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
   this->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);

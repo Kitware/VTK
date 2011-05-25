@@ -21,6 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
@@ -61,9 +62,9 @@ int vtkArrowSource::RequestData(
   vtkTransformFilter *tf2 = vtkTransformFilter::New();
   vtkAppendPolyData *append = vtkAppendPolyData::New();
 
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
-  ghostLevel = output->GetUpdateGhostLevel();
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   cyl->SetResolution(this->ShaftResolution);
   cyl->SetRadius(this->ShaftRadius);
@@ -92,7 +93,7 @@ int vtkArrowSource::RequestData(
  tf2->SetTransform(trans2);
  tf2->SetInputConnection(append->GetOutputPort());
 
-  if (output->GetUpdatePiece() == 0 && numPieces > 0)
+  if (piece == 0 && numPieces > 0)
     {
     if (this->Invert)
       {
@@ -105,9 +106,6 @@ int vtkArrowSource::RequestData(
       output->ShallowCopy(append->GetOutput());
       }
     }
-  output->SetUpdatePiece(piece);
-  output->SetUpdateNumberOfPieces(numPieces);
-  output->SetUpdateGhostLevel(ghostLevel);
 
   cone->Delete();
   trans0->Delete();

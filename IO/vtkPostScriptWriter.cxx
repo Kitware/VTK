@@ -29,9 +29,15 @@ void vtkPostScriptWriter::WriteFileTrailer(ofstream *file,
 }
 
 void vtkPostScriptWriter::WriteFileHeader(ofstream *file, 
-                                          vtkImageData *cache)
+                                          vtkImageData *cache,
+                                          int wExt[6])
 {
-  int min1, max1, min2, max2, min3, max3;
+  int min1 = wExt[0],
+    max1 = wExt[1],
+    min2 = wExt[2],
+    max2 = wExt[3],
+    min3 = wExt[4],
+    max3 = wExt[5];
   int bpp;
   int cols, rows, scols, srows;
   float scale = 1;
@@ -39,7 +45,6 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
   int pagehgt = 11*72;
   
   // Find the length of the rows to write.
-  cache->GetWholeExtent(min1, max1, min2, max2, min3, max3);
   bpp = cache->GetNumberOfScalarComponents();
   
   cols = max1 - min1 + 1;
@@ -118,7 +123,7 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
 
 
 void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
-                                    int extent[6])
+                                    int extent[6], int wExtent[6])
 {
   int idxC, idx0, idx1, idx2;
   unsigned char *ptr;
@@ -126,7 +131,6 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
   unsigned long target;
   float progress = this->Progress;
   float area;
-  int *wExtent;
   static int itemsperline = 0;
   const char* hexits = "0123456789abcdef";
   
@@ -147,7 +151,6 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
       return; 
     }
   
-  wExtent = this->GetInput()->GetWholeExtent();
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
           (extent[1] - extent[0] + 1)) / 
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*

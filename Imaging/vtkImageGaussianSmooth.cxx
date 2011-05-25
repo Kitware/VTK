@@ -418,9 +418,8 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
       // create a temp data for intermediate results
       tempData = vtkImageData::New();
       tempData->SetExtent(tempExt);
-      tempData->SetNumberOfScalarComponents(
-        inData[0][0]->GetNumberOfScalarComponents());
-      tempData->SetScalarType(inData[0][0]->GetScalarType());
+      tempData->AllocateScalars(inData[0][0]->GetScalarType(),
+                                inData[0][0]->GetNumberOfScalarComponents());
       this->ExecuteAxis(1, inData[0][0], inExt, tempData, tempExt, 
                         &cycle, target, &count, total, inInfo);
       this->ExecuteAxis(0, tempData, tempExt, outData[0], outExt, 
@@ -444,15 +443,13 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
       // create a temp data for intermediate results
       temp0Data = vtkImageData::New();
       temp0Data->SetExtent(temp0Ext);
-      temp0Data->SetNumberOfScalarComponents(
-        inData[0][0]->GetNumberOfScalarComponents());
-      temp0Data->SetScalarType(inData[0][0]->GetScalarType());
+      temp0Data->AllocateScalars(inData[0][0]->GetScalarType(),
+                                 inData[0][0]->GetNumberOfScalarComponents());
 
       temp1Data = vtkImageData::New();
       temp1Data->SetExtent(temp1Ext);
-      temp1Data->SetNumberOfScalarComponents(
-        inData[0][0]->GetNumberOfScalarComponents());
-      temp1Data->SetScalarType(inData[0][0]->GetScalarType());
+      temp1Data->AllocateScalars(inData[0][0]->GetScalarType(),
+                                 inData[0][0]->GetNumberOfScalarComponents());
       this->ExecuteAxis(2, inData[0][0], inExt, temp0Data, temp0Ext,
                         &cycle, target, &count, total, inInfo);
       this->ExecuteAxis(1, temp0Data, temp0Ext, temp1Data, temp1Ext,

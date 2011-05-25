@@ -558,8 +558,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
   volume = vtkStructuredPoints::New();
   volume->SetDimensions( gridSize[0], gridSize[1], chunkSize );
   volume->SetSpacing( this->Spacing );
-  volume->SetScalarType( VTK_FLOAT );
-  volume->AllocateScalars();
+  volume->AllocateScalars( VTK_FLOAT, 1 );
   volumePtr = 
     (float *)(volume->GetPointData()->GetScalars()->GetVoidPointer(0));
 

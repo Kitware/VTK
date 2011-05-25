@@ -94,18 +94,6 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-  // Description:
-  // This detects when the UpdateExtent will generate no data.
-  // This condition is satisfied when the UpdateExtent has 
-  // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
-  // The source uses this call to determine whether to call Execute.
-  int UpdateExtentIsEmpty(vtkDataObject *output);
-
-  // Description:
-  // This method is the old style execute method
-  virtual void ExecuteData(vtkDataObject *output);
-  virtual void Execute();
-
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
   virtual int FillInputPortInformation(int port, vtkInformation* info);

@@ -62,8 +62,6 @@ vtkFastSplatter::vtkFastSplatter()
   this->MaxValue = 1.0;
 
   this->Buckets = vtkImageData::New();
-  this->Buckets->SetScalarTypeToUnsignedInt();
-  this->Buckets->SetNumberOfScalarComponents(1);
 
   this->NumberOfPointsSplatted = 0;
 
@@ -117,7 +115,7 @@ int vtkFastSplatter::FillInputPortInformation(int port,
 // ExecuteInformation method.
 int vtkFastSplatter::RequestInformation(
                                  vtkInformation *vtkNotUsed(request),
-                                 vtkInformationVector **vtkNotUsed(inputVector),
+                                 vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector)
 {
   // get the info objects
@@ -164,8 +162,15 @@ int vtkFastSplatter::RequestInformation(
                0, this->OutputDimensions[0] - 1, 
                0, this->OutputDimensions[1] - 1, 
                0, this->OutputDimensions[2] - 1);
-//  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
-//  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  vtkInformation *splatInfo = inputVector[1]->GetInformationObject(0);
+  vtkImageData::SetScalarType(
+    vtkImageData::GetScalarType(splatInfo),
+    outInfo);
+  // if (splatInfo->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
+  //   {
+  //   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+  //                splatInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
+  //   }
 
   // Setup ExtentTranslator so that all downstream piece requests are
   // converted to whole extent update requests, as need by this filter.
@@ -466,10 +471,8 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   output->SetExtent(0, this->OutputDimensions[0] - 1, 
                     0, this->OutputDimensions[1] - 1, 
                     0, this->OutputDimensions[2] - 1);
-  output->SetNumberOfScalarComponents(
-                                    splatImage->GetNumberOfScalarComponents());
-  output->SetScalarType(splatImage->GetScalarType());
-  output->AllocateScalars();
+  output->AllocateScalars(splatImage->GetScalarType(),
+                          splatImage->GetNumberOfScalarComponents());
 
   // Set up intermediate buckets image.
   this->Buckets->SetDimensions(this->OutputDimensions);
@@ -478,7 +481,7 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   this->Buckets->SetExtent(0, this->OutputDimensions[0] - 1, 
                            0, this->OutputDimensions[1] - 1, 
                            0, this->OutputDimensions[2] - 1);
-  this->Buckets->AllocateScalars();
+  this->Buckets->AllocateScalars(VTK_UNSIGNED_INT, 1);
 
   // Get array for buckets.
   unsigned int *buckets =

@@ -127,7 +127,8 @@ public:
                                          vtkInformation* input,
                                          vtkInformation* output,
                                          int forceCopy);
-  virtual void CopyInformationFromPipeline(vtkInformation* request);
+  virtual void CopyInformationFromPipeline(vtkInformation* request,
+                                           vtkInformation* meta_data);
 
   //BTX
   // Description:
@@ -161,7 +162,7 @@ protected:
 
   // Description:
   // Get important info from pipeline.
-  void CopyOriginAndSpacingFromPipeline();
+  void CopyOriginAndSpacingFromPipeline(vtkInformation* meta_data);
 
   // Description:
   // Merges portions of the stencil that are within Self's extents into 

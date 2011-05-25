@@ -92,7 +92,7 @@ int vtkFeatureEdges::RequestData(
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   unsigned char* ghostLevels=0;
   unsigned char  updateLevel = static_cast<unsigned char>(
-    output->GetUpdateGhostLevel());
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   
   vtkDebugMacro(<<"Executing feature edges");
 

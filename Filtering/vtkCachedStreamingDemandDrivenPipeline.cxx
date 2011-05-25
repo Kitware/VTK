@@ -323,9 +323,6 @@ int vtkCachedStreamingDemandDrivenPipeline
   if (id && id2)
     {
     id2->SetExtent(id->GetExtent());
-    id2->SetScalarType(id->GetScalarType());
-    id2->SetNumberOfScalarComponents(
-      id->GetNumberOfScalarComponents());
     id2->GetPointData()->SetScalars(
       id->GetPointData()->GetScalars());
     }

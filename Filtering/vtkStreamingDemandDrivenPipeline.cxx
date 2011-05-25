@@ -33,6 +33,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+#include <assert.h>
+
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -1073,7 +1075,15 @@ vtkStreamingDemandDrivenPipeline
         // for a ghost array 2. it may be wrong
         if (outInfo->Has(UPDATE_EXTENT_TRANSLATED()))
           {
-          ds->GenerateGhostLevelArray();
+          // For debugging, remove later.
+          assert(outInfo->Has(EXTENT_TRANSLATOR()));
+
+          ds->GenerateGhostLevelArray(
+            outInfo->Get(UPDATE_PIECE_NUMBER()),
+            outInfo->Get(UPDATE_NUMBER_OF_PIECES()),
+            outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS()),
+            outInfo->Get(UPDATE_EXTENT()),
+            vtkExtentTranslator::SafeDownCast(outInfo->Get(EXTENT_TRANSLATOR())));
           }
         }
       
@@ -1418,10 +1428,10 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetMaximumNumberOfPieces on invalid output");
+    vtkGenericWarningMacro("SetMaximumNumberOfPieces on invalid output");
     return 0;
     }
-  if(this->GetMaximumNumberOfPieces(info) != n)
+  if(vtkStreamingDemandDrivenPipeline::GetMaximumNumberOfPieces(info) != n)
     {
     info->Set(MAXIMUM_NUMBER_OF_PIECES(), n);
     return 1;
@@ -1442,7 +1452,7 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("GetMaximumNumberOfPieces on invalid output");
+    vtkGenericWarningMacro("GetMaximumNumberOfPieces on invalid output");
     return 0;
     }
   if(!info->Has(MAXIMUM_NUMBER_OF_PIECES()))
@@ -1458,12 +1468,12 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetWholeExtent on invalid output");
+    vtkGenericWarningMacro("SetWholeExtent on invalid output");
     return 0;
     }
   int modified = 0;
   int oldExtent[6];
-  this->GetWholeExtent(info, oldExtent);
+  vtkStreamingDemandDrivenPipeline::GetWholeExtent(info, oldExtent);
   if(oldExtent[0] != extent[0] || oldExtent[1] != extent[1] ||
      oldExtent[2] != extent[2] || oldExtent[3] != extent[3] ||
      oldExtent[4] != extent[4] || oldExtent[5] != extent[5])
@@ -1519,7 +1529,7 @@ int vtkStreamingDemandDrivenPipeline
 {
   if (!info)
     {
-    vtkErrorMacro("SetUpdateExtentToWholeExtent on invalid output");
+    vtkGenericWarningMacro("SetUpdateExtentToWholeExtent on invalid output");
     return 0;
     }
 
@@ -1529,37 +1539,46 @@ int vtkStreamingDemandDrivenPipeline
     {
     if(data->GetExtentType() == VTK_PIECES_EXTENT)
       {
-      modified |= this->SetUpdatePiece(info, 0);
-      modified |= this->SetUpdateNumberOfPieces(info, 1);
-      modified |= this->SetUpdateGhostLevel(info, 0);
+      modified |=
+        vtkStreamingDemandDrivenPipeline::SetUpdatePiece(info, 0);
+      modified |=
+        vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(info, 1);
+      modified |=
+        vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(info, 0);
       }
     else if(data->GetExtentType() == VTK_3D_EXTENT)
       {
       int extent[6] = {0,-1,0,-1,0,-1};
       info->Get(WHOLE_EXTENT(), extent);
-      modified |= this->SetUpdateExtent(info, extent);
+      modified |=
+        vtkStreamingDemandDrivenPipeline::SetUpdateExtent(info, extent);
       }
     else if(data->GetExtentType() == VTK_TIME_EXTENT)
       {
-      modified |= this->SetUpdatePiece(info, 0);
-      modified |= this->SetUpdateNumberOfPieces(info, 1);
-      modified |= this->SetUpdateGhostLevel(info, 0);
+      modified |=
+        vtkStreamingDemandDrivenPipeline::SetUpdatePiece(info, 0);
+      modified |=
+        vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(info, 1);
+      modified |=
+        vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(info, 0);
       if (info->Has(TIME_STEPS()))
         {
         double *tsteps = info->Get(TIME_STEPS());
-        modified |= this->SetUpdateTimeSteps(info, tsteps, 1);
+        modified |=
+          vtkStreamingDemandDrivenPipeline::SetUpdateTimeSteps(info, tsteps, 1);
         }
       else if (info->Has(TIME_RANGE()))
         {
         // if we have only a range, then pick the first time
         double *range = info->Get(TIME_RANGE());
-        modified |= this->SetUpdateTimeSteps(info, range, 1);        
+        modified |=
+          vtkStreamingDemandDrivenPipeline::SetUpdateTimeSteps(info, range, 1);
         }
       }
     }
   else
     {
-    vtkErrorMacro("SetUpdateExtentToWholeExtent called with no data object.");
+    vtkGenericWarningMacro("SetUpdateExtentToWholeExtent called with no data object.");
     }
 
   // Make sure the update extent will remain the whole extent until
@@ -1583,12 +1602,12 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetUpdateExtent on invalid output");
+    vtkGenericWarningMacro("SetUpdateExtent on invalid output");
     return 0;
     }
   int modified = 0;
   int oldExtent[6];
-  this->GetUpdateExtent(info, oldExtent);
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, oldExtent);
   if(oldExtent[0] != extent[0] || oldExtent[1] != extent[1] ||
      oldExtent[2] != extent[2] || oldExtent[3] != extent[3] ||
      oldExtent[4] != extent[4] || oldExtent[5] != extent[5])
@@ -1617,35 +1636,38 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetUpdateExtent on invalid output");
+    vtkGenericWarningMacro("SetUpdateExtent on invalid output");
     return 0;
     }
   int modified = 0;
-  modified |= this->SetUpdatePiece(info, piece);
-  modified |= this->SetUpdateNumberOfPieces(info, numPieces);
-  modified |= this->SetUpdateGhostLevel(info, ghostLevel);
+  modified |= vtkStreamingDemandDrivenPipeline::SetUpdatePiece(
+    info, piece);
+  modified |= vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(
+    info, numPieces);
+  modified |= vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(
+    info, ghostLevel);
   if(vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT()))
     {
     if(data->GetExtentType() == VTK_3D_EXTENT)
       {
-      if(vtkExtentTranslator* translator = this->GetExtentTranslator(info))
+      if(vtkExtentTranslator* translator = 
+         vtkStreamingDemandDrivenPipeline::GetExtentTranslator(info))
         {
         int wholeExtent[6];
-        this->GetWholeExtent(info, wholeExtent);
+        vtkStreamingDemandDrivenPipeline::GetWholeExtent(info, wholeExtent);
         translator->SetWholeExtent(wholeExtent);
         translator->SetPiece(piece);
         translator->SetNumberOfPieces(numPieces);
         translator->SetGhostLevel(ghostLevel);
         translator->PieceToExtent();
-        modified |= this->SetUpdateExtent(info, translator->GetExtent());
+        modified |=
+          vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+            info, translator->GetExtent());
         info->Set(UPDATE_EXTENT_TRANSLATED(), 1);
         }
       else
         {
-        vtkErrorMacro("Cannot translate unstructured extent to structured "
-                      "for algorithm "
-                      << this->Algorithm->GetClassName() << "("
-                      << this->Algorithm << ").");
+        vtkGenericWarningMacro("Cannot translate unstructured extent to structured.");
         }
       }
     }
@@ -1659,7 +1681,7 @@ void vtkStreamingDemandDrivenPipeline
   static int emptyExtent[6] = {0,-1,0,-1,0,-1};
   if(!info)
     {
-    vtkErrorMacro("GetUpdateExtent on invalid output");
+    vtkGenericWarningMacro("GetUpdateExtent on invalid output");
     memcpy(extent, emptyExtent, sizeof(int)*6);
     return;
     }
@@ -1678,7 +1700,7 @@ int* vtkStreamingDemandDrivenPipeline
   static int emptyExtent[6] = {0,-1,0,-1,0,-1};
   if(!info)
     {
-    vtkErrorMacro("GetUpdateExtent on invalid output");
+    vtkGenericWarningMacro("GetUpdateExtent on invalid output");
     return emptyExtent;
     }
   if(!info->Has(UPDATE_EXTENT()))
@@ -1695,11 +1717,11 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetUpdatePiece on invalid output");
+    vtkGenericWarningMacro("SetUpdatePiece on invalid output");
     return 0;
     }
   int modified = 0;
-  if(this->GetUpdatePiece(info) != piece)
+  if(vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info) != piece)
     {
     info->Set(UPDATE_PIECE_NUMBER(), piece);
     modified = 1;
@@ -1753,7 +1775,7 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetUpdateTimeSteps on invalid output");
+    vtkGenericWarningMacro("SetUpdateTimeSteps on invalid output");
     return 0;
     }
   int modified = 0;
@@ -1795,7 +1817,7 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("GetUpdatePiece on invalid output");
+    vtkGenericWarningMacro("GetUpdatePiece on invalid output");
     return 0;
     }
   if(!info->Has(UPDATE_PIECE_NUMBER()))
@@ -1827,11 +1849,11 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetUpdateNumberOfPieces on invalid output");
+    vtkGenericWarningMacro("SetUpdateNumberOfPieces on invalid output");
     return 0;
     }
   int modified = 0;
-  if(this->GetUpdateNumberOfPieces(info) != n)
+  if(vtkStreamingDemandDrivenPipeline::GetUpdateNumberOfPieces(info) != n)
     {
     info->Set(UPDATE_NUMBER_OF_PIECES(), n);
     modified = 1;
@@ -1846,7 +1868,7 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("GetUpdateNumberOfPieces on invalid output");
+    vtkGenericWarningMacro("GetUpdateNumberOfPieces on invalid output");
     return 1;
     }
   if(!info->Has(UPDATE_NUMBER_OF_PIECES()))
@@ -1862,10 +1884,10 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("SetUpdateGhostLevel on invalid output");
+    vtkGenericWarningMacro("SetUpdateGhostLevel on invalid output");
     return 0;
     }
-  if(this->GetUpdateGhostLevel(info) != n)
+  if(vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(info) != n)
     {
     info->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), n);
     return 1;
@@ -1879,7 +1901,7 @@ int vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("GetUpdateGhostLevel on invalid output");
+    vtkGenericWarningMacro("GetUpdateGhostLevel on invalid output");
     return 0;
     }
   if(!info->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
@@ -1936,7 +1958,7 @@ vtkStreamingDemandDrivenPipeline
 {
   if(!info)
     {
-    vtkErrorMacro("Attempt to set translator for invalid output");
+    vtkGenericWarningMacro("Attempt to set translator for invalid output");
     return 0;
     }
   vtkExtentTranslator* oldTranslator =
@@ -1962,7 +1984,7 @@ vtkStreamingDemandDrivenPipeline::GetExtentTranslator(vtkInformation *info)
 {
   if(!info)
     {
-    vtkErrorMacro("Attempt to get translator for invalid output");
+    vtkGenericWarningMacro("Attempt to get translator for invalid output");
     return 0;
     }
   vtkExtentTranslator* translator =

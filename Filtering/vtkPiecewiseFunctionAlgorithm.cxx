@@ -117,88 +117,8 @@ int vtkPiecewiseFunctionAlgorithm::RequestData(
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* outputVector)
 {
-  // the default implimentation is to do what the old pipeline did find what
-  // output is requesting the data, and pass that into ExecuteData
-
-  // which output port did the request come from
-  int outputPort = 
-    request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-  // if output port is negative then that means this filter is calling the
-  // update directly, in that case just assume port 0
-  if (outputPort == -1)
-      {
-      outputPort = 0;
-      }
-  
-  // get the data object
-  vtkInformation *outInfo = 
-    outputVector->GetInformationObject(outputPort);
-  // call ExecuteData
-  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
-
   return 1;
 }
-
-//----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteData 
-// can handle an empty extent.
-void vtkPiecewiseFunctionAlgorithm::ExecuteData(vtkDataObject *output)
-{
-  // I want to find out if the requested extent is empty.
-  if (output && this->UpdateExtentIsEmpty(output))
-    {
-    output->Initialize();
-    return;
-    }
-  
-  this->Execute();
-}
-
-//----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::Execute()
-{
-  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
-}
-
-//----------------------------------------------------------------------------
-int vtkPiecewiseFunctionAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
-{
-  if (output == NULL)
-    {
-    return 1;
-    }
-
-  int *ext = output->GetUpdateExtent();
-  switch ( output->GetExtentType() )
-    {
-    case VTK_PIECES_EXTENT:
-      // Special way of asking for no input.
-      if ( output->GetUpdateNumberOfPieces() == 0 )
-        {
-        return 1;
-        }
-      break;
-
-    case VTK_3D_EXTENT:
-      // Special way of asking for no input. (zero volume)
-      if (ext[0] == (ext[1] + 1) ||
-          ext[2] == (ext[3] + 1) ||
-          ext[4] == (ext[5] + 1))
-      {
-      return 1;
-      }
-      break;
-
-    // We should never have this case occur
-    default:
-      vtkErrorMacro( << "Internal error - invalid extent type!" );
-      break;
-    }
-
-  return 0;
-}
-
 
 //----------------------------------------------------------------------------
 void vtkPiecewiseFunctionAlgorithm::SetInput(vtkDataObject* input)

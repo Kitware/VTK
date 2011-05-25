@@ -101,8 +101,7 @@ int vtkImageStencilSource::RequestInformation(
   // origin, and whole extent from it.
   if (this->InformationInput)
     {
-    this->InformationInput->UpdateInformation();
-    this->InformationInput->GetWholeExtent(wholeExtent);
+    this->InformationInput->GetExtent(wholeExtent);
     this->InformationInput->GetSpacing(spacing);
     this->InformationInput->GetOrigin(origin);
     }

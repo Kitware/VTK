@@ -18,6 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTrivialProducer.h"
 
 
 //----------------------------------------------------------------------------
@@ -144,7 +145,7 @@ vtkImageIterateFilter
 //----------------------------------------------------------------------------
 int vtkImageIterateFilter::RequestData(vtkInformation* request,
                                         vtkInformationVector** inputVector,
-                                        vtkInformationVector*)
+                                        vtkInformationVector* outputVector)
 {
   vtkInformation* in = inputVector[0]->GetInformationObject(0);
   for(int i=0; i < this->NumberOfIterations; ++i)
@@ -153,7 +154,7 @@ int vtkImageIterateFilter::RequestData(vtkInformation* request,
 
     vtkInformation* out = this->IterationData[i+1]->GetPipelineInformation();
     vtkDataObject* outData = out->Get(vtkDataObject::DATA_OBJECT());
-    outData->CopyInformationFromPipeline(request);
+    outData->CopyInformationFromPipeline(request, out);
 
     this->InputVector->SetInformationObject(0, in);
     this->OutputVector->SetInformationObject(0, out);
@@ -243,8 +244,9 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
   for (idx = 1; idx < num; ++idx)
     {
     this->IterationData[idx] = vtkImageData::New();
-    this->IterationData[idx]->ReleaseDataFlagOn();
-    this->IterationData[idx]->GetProducerPort();
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->ReleaseDataFlagOn();
+    tp->SetOutput(this->IterationData[idx]);
     }
 
   this->NumberOfIterations = num;

@@ -89,9 +89,6 @@ void vtkCardinalSpline::Compute ()
   int size;
   int i;
 
-  // Make sure the function is up to date.
-  this->PiecewiseFunction->Update();
-
   // get the size of the independent variables
   size = this->PiecewiseFunction->GetSize ();
 

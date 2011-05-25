@@ -23,6 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
 
@@ -136,7 +137,8 @@ int vtkApproximatingSubdivisionFilter::RequestData(
       ghostLevels = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
       }
     }
-  int updateGhostLevel = output->GetUpdateGhostLevel();
+  int updateGhostLevel = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
      
   output->SetPoints(inputDS->GetPoints());
   output->SetPolys(inputDS->GetPolys());

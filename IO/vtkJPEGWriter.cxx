@@ -16,7 +16,9 @@
 
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -81,10 +83,11 @@ void vtkJPEGWriter::Write()
             (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
   
   // Fill in image information.
-  this->GetInput()->UpdateInformation();
+  vtkDemandDrivenPipeline::SafeDownCast(this->GetInputExecutive(0, 0))->UpdateInformation();
   int *wExtent;
-  wExtent = this->GetInput()->GetWholeExtent();
-  this->FileNumber = this->GetInput()->GetWholeExtent()[4];
+  wExtent = this->GetInputInformation(0, 0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  this->FileNumber = wExtent[4];
   this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
   this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
@@ -93,10 +96,13 @@ void vtkJPEGWriter::Write()
        ++this->FileNumber)
     {
     this->MaximumFileNumber = this->FileNumber;
-    this->GetInput()->SetUpdateExtent(wExtent[0], wExtent[1],
-                                      wExtent[2], wExtent[3],
-                                      this->FileNumber, 
-                                      this->FileNumber);
+    int uExtent[6];
+    memcpy(uExtent, wExtent, 4*sizeof(int));
+    uExtent[4] = this->FileNumber;
+    uExtent[5] = this->FileNumber;
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      this->GetInputInformation(0, 0),
+      uExtent);
     // determine the name
     if (this->FileName)
       {
@@ -114,8 +120,8 @@ void vtkJPEGWriter::Write()
         sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
         }
       }
-    this->GetInput()->Update();
-    this->WriteSlice(this->GetInput());
+    this->GetInputExecutive(0, 0)->Update();
+    this->WriteSlice(this->GetInput(), uExtent);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {
       vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
@@ -225,7 +231,7 @@ extern "C"
 #if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
 #pragma warning ( disable : 4611 )
 #endif
-void vtkJPEGWriter::WriteSlice(vtkImageData *data)
+void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
 {
   // Call the correct templated function for the output
   unsigned int ui;
@@ -292,7 +298,6 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
     }
   
   // set the information about image
-  int *uExtent = data->GetUpdateExtent();
   unsigned int width, height;
   width = uExtent[1] - uExtent[0] + 1;
   height = uExtent[3] - uExtent[2] + 1;  

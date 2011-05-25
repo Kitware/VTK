@@ -300,7 +300,6 @@ int vtkGenericGlyph3DFilter::RequestData(
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    defaultSource->SetUpdateExtent(0, 1, 0);
     this->SetSource(defaultSource);
     defaultSource->Delete();
     defaultSource = NULL;

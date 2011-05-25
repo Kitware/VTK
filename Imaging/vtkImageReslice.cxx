@@ -981,8 +981,7 @@ int vtkImageReslice::RequestInformation(
 
   if (this->InformationInput)
     {
-    this->InformationInput->UpdateInformation();
-    this->InformationInput->GetWholeExtent(inWholeExt);
+    this->InformationInput->GetExtent(inWholeExt);
     this->InformationInput->GetSpacing(inSpacing);
     this->InformationInput->GetOrigin(inOrigin);
     }

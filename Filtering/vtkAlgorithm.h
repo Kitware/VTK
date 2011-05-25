@@ -320,6 +320,28 @@ public:
   vtkAlgorithmOutput* GetInputConnection(int port, int index);
 
   // Description:
+  // Returns the executive associated with a particular input
+  // connection.
+  vtkExecutive* GetInputExecutive(int port, int index);
+
+  // Description:
+  // Return the information object that is associated with
+  // a particular input connection. This can be used to get
+  // meta-data coming from the REQUEST_INFORMATION pass and set
+  // requests for the REQUEST_UPDATE_EXTENT pass. NOTE:
+  // Do not use this in any of the pipeline passes. Use
+  // the information objects passed as arguments instead.
+  vtkInformation* GetInputInformation(int port, int index);
+
+  // Description:
+  // Return the information object that is associated with
+  // a particular output port. This can be used to set
+  // meta-data coming during the REQUEST_INFORMATION. NOTE:
+  // Do not use this in any of the pipeline passes. Use
+  // the information objects passed as arguments instead.
+  vtkInformation* GetOutputInformation(int port);
+
+  // Description:
   // Bring this algorithm's outputs up-to-date.
   virtual void Update();
 

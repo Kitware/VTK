@@ -75,6 +75,10 @@ public:
                        unsigned long* mtime);
 
   // Description:
+  // Bring the output information up to date.
+  virtual int UpdateInformation() {return 1;}
+
+  // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
   // and 0 for failure.
   virtual int Update();

@@ -147,8 +147,7 @@ int vtkGaussianCubeReader::RequestData(
 
   grid->SetOrigin(0, 0, 0);
   grid->SetSpacing(1, 1, 1);
-  grid->SetScalarTypeToFloat();
-  grid->AllocateScalars();
+  grid->AllocateScalars(VTK_FLOAT, 1);
 
   grid->GetPointData()->GetScalars()->SetName(title);
 
