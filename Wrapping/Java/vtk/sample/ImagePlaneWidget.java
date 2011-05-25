@@ -2,8 +2,6 @@ package vtk.sample;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -42,14 +40,6 @@ public class ImagePlaneWidget extends vtkCanvas {
     // -----------------------------------------------------------------
 
     public ImagePlaneWidget(String path) {
-        // attach observer to set the render window size after
-        // the render window is created...
-        addWindowSetObserver(new Observer() {
-            public void update(Observable o, Object arg) {
-                setSize(width, height);
-            }
-        });
-
         // Start by loading some data.
         vtkVolume16Reader v16 = new vtkVolume16Reader();
         v16.SetDataDimensions(64, 64);

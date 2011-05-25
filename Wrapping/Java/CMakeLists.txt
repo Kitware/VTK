@@ -180,6 +180,7 @@ IF(JAVA_COMPILE)
         Demo
         SimpleVTK
         VTKCanvas
+        ReleaseVtkPanel
       )
       ADD_DEPENDENCIES(VTKJavaRendering VTKJavaGraphics VTKJavaImaging)
       ADD_DEPENDENCIES(VTKJavaVolumeRendering VTKJavaRendering)

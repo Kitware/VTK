@@ -8,8 +8,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.SwingUtilities;
 
@@ -35,7 +33,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     protected int LightFollowCamera = 1;
     protected int InteractionMode = 1;
     protected boolean rendering = false;
-    protected WindowObservable windowSetObservable = new WindowObservable();
 
     static {
         vtkNativeLibrary.COMMON.LoadLibrary();
@@ -72,14 +69,25 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     }
 
     public void Delete() {
+        if(rendering) {
+          return;
+        }
+        rendering = true;
+        // We prevent any further rendering
+
         if (this.getParent() != null) {
             this.getParent().remove(this);
         }
         // Free internal VTK objects
-        rw.Delete();
-        ren.Delete();
-        cam.Delete();
-        lgt.Delete();
+        ren = null;
+        cam = null;
+        lgt = null;
+        // On linux we prefer to have a memory leak instead of a crash
+        if(!rw.GetClassName().equals("vtkXOpenGLRenderWindow")) {
+           rw = null;
+        } else {
+          System.out.println("The renderwindow has been kept arount to prevent a crash");
+        }
     }
 
     protected native int RenderCreate(vtkRenderWindow id0);
@@ -95,7 +103,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         addKeyListener(this);
         super.setSize(200, 200);
         rw.SetSize(200, 200);
-        addWindowSetObserver(new WindowSetObserver());
     }
 
     public vtkPanel(vtkRenderWindow renwin) {
@@ -106,7 +113,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         addKeyListener(this);
         super.setSize(200, 200);
         rw.SetSize(200, 200);
-        addWindowSetObserver(new WindowSetObserver());
     }
 
     public void Report() {
@@ -132,14 +138,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
 
     public vtkRenderWindow GetRenderWindow() {
         return rw;
-    }
-
-    public void addWindowSetObserver(Observer obs) {
-        windowSetObservable.addObserver(obs);
-    }
-
-    public void removeWindowSetObserver(Observer obs) {
-        windowSetObservable.deleteObserver(obs);
     }
 
     public void setSize(int x, int y) {
@@ -185,8 +183,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
                     rw.SetSize(getWidth(), getHeight());
                     UnLock();
                     windowset = 1;
-                    // notify observers that we have a renderwindow created
-                    windowSetObservable.notifyObservers();
+                    this.setSize(getWidth(), getHeight());
                 }
                 Lock();
                 rw.Render();
@@ -368,36 +365,26 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         if ('w' == keyChar) {
             vtkActorCollection ac;
             vtkActor anActor;
-            vtkActor aPart;
-            int i, j;
+            int i;
 
             ac = ren.GetActors();
             ac.InitTraversal();
             for (i = 0; i < ac.GetNumberOfItems(); i++) {
                 anActor = ac.GetNextActor();
-                anActor.InitPartTraversal();
-                for (j = 0; j < anActor.GetNumberOfParts(); j++) {
-                    aPart = anActor.GetNextPart();
-                    aPart.GetProperty().SetRepresentationToWireframe();
-                }
+                anActor.GetProperty().SetRepresentationToWireframe();
             }
             this.Render();
         }
         if ('s' == keyChar) {
             vtkActorCollection ac;
             vtkActor anActor;
-            vtkActor aPart;
-            int i, j;
+            int i;
 
             ac = ren.GetActors();
             ac.InitTraversal();
             for (i = 0; i < ac.GetNumberOfItems(); i++) {
                 anActor = ac.GetNextActor();
-                anActor.InitPartTraversal();
-                for (j = 0; j < anActor.GetNumberOfParts(); j++) {
-                    aPart = anActor.GetNextPart();
-                    aPart.GetProperty().SetRepresentationToSurface();
-                }
+                anActor.GetProperty().SetRepresentationToSurface();
             }
             this.Render();
         }
@@ -436,26 +423,4 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     public void keyReleased(KeyEvent e) {
     }
 
-    private class WindowObservable extends Observable {
-
-        public void notifyObservers() {
-            this.setChanged();
-            super.notifyObservers();
-        }
-
-        public void notifyObservers(Object message) {
-            this.setChanged();
-            super.notifyObservers(message);
-        }
-    }
-
-    private class WindowSetObserver implements Observer {
-
-        public void update(Observable o, Object arg) {
-            // we know the window is set, so changes to the render window size
-            // will actually take place
-            // if (getWidth() > 0 && getHeight() > 0)
-            // rw.SetSize(getWidth(), getHeight());
-        }
-    }
 }
