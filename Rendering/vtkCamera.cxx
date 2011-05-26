@@ -391,24 +391,29 @@ void vtkCamera::ComputeScreenOrientation()
 //----------------------------------------------------------------------------
 void vtkCamera::ComputeDeeringFrustrum()
 {
+  // \TODO: Make it call only once.
+  this->ComputeScreenOrientation();
+
   // Deering calculations.
   const int x =0, y=1, z=2;
   double F = this->ClippingRange[1];
   double B = this->ClippingRange[0];
   double E[3];
+
   double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
-  double H[2] = {this->ScreenTopRight[0],this->ScreenTopRight[1]};
+  double H[2] = {this->ScreenTopRight[0],   this->ScreenTopRight[1]};
 
   E[0] = this->EyePosition[0];
   E[1] = this->EyePosition[1];
+  E[2] = this->EyePosition[2];
 
   if(this->LeftEye)
     {
-    E[2] = this->EyePosition[2] - (this->InterocularDistance / 2.0);
+    E[0] = this->EyePosition[0] - (this->InterocularDistance / 2.0);
     }
   else
     {
-    E[2] = this->EyePosition[2] + (this->InterocularDistance / 2.0);
+    E[0] = this->EyePosition[0] + (this->InterocularDistance / 2.0);
     }
 
   // First tranform the eye to new position.
