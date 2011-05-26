@@ -969,7 +969,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble(); 
       double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble(); 
 
-      // Mahlanobis distance will always be Nan for degenerate covariance matrices
+      // Mahalanobis distance will always be Nan for degenerate covariance matrices
       double invDetXY;
       if ( detXY < VTK_DBL_MIN
            || varianceX < 0.
