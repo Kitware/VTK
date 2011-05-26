@@ -610,7 +610,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       double sum4Y = 0.;
       double tmp;
 
-      // If covariance matrix is diagonal within machine precision, simplify case
+      // If covariance matrix is diagonal within machine precision, do not transform
       if ( sXY < sqrt( VTK_DBL_MIN )
            || sXY < ( .5 * sqrt( VTK_DBL_EPSILON ) * fabs( sX2 - sY2 ) ) )
         {
@@ -642,7 +642,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
         sum3Y /= ( tmp * sY2 );
         sum4Y /= tmp;
         } // if ( sXY < 1.e-300 )
-      // Handle general case where sXY <> 0
+      // Otherwise calculated transformation matrix H and apply transformation
       else
         {
         // Calculate trace, discriminant, and eigenvalues of covariance matrix S
