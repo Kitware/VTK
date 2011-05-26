@@ -38,7 +38,7 @@ class vtkCameraCallbackCommand;
 
 class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 {
-public:
+ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkCamera,vtkObject);
 
@@ -260,6 +260,21 @@ public:
   vtkGetMacro(FocalDisk,double);
 
   // Description:
+  // Set/Get top left corner point of the screen.
+  vtkSetVector3Macro(ScreenBottomLeft, double);
+  vtkGetVector3Macro(ScreenBottomLeft, double);
+
+  // Description:
+  // Set/Get bottom left corner point of the screen.
+  vtkSetVector3Macro(ScreenBottomRight, double);
+  vtkGetVector3Macro(ScreenBottomRight, double);
+
+  // Description:
+  // Set/Get top right corner point of the screen.
+  vtkSetVector3Macro(ScreenTopRight, double);
+  vtkGetVector3Macro(ScreenTopRight, double);
+
+  // Description:
   // Return the matrix of the view transform.
   // The ViewTransform depends on only three ivars:  the Position, the
   // FocalPoint, and the ViewUp vector.  All the other methods are there
@@ -297,9 +312,9 @@ public:
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates of a point located inside the frustum are in the
   // range ([-1,+1],[-1,+1],[nearz,farz]).
-  virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
-                                                     double nearz,
-                                                     double farz);
+   virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
+                                                      double nearz,
+                                                      double farz);
 
   // Description:
   // Return the projection transform matrix, which converts from camera
@@ -415,44 +430,6 @@ public:
   vtkGetMacro(LeftEye,int);
 
   // Description:
-  // This function does 3  things.
-  // 1. It sets the camera mode to head tracked i.e ensures that the
-  // Asymmetric Frustuma are uses.
-  // 2. It sets variables like AsymLeft,AsymRight, AsymBottom and Asym
-  // to set the HeadTracked Projection Matrix.
-  // 3. It sets the View matrix Params
-  void ComputeProjAndViewParams( );
-
-  // Description:
-  // Setting configuration for the physical screen (physical window). The
-  // configuration takes only two parameters the LowerLeft coordinate of the
-  // screen and the UpperRight coordinate
-  void SetScreenConfig( double LowerLeft[4],
-                        double LowerRight[4],
-                        double UpperRight[4] ,
-                        double interOccDist, double scale);
-
-  // Description:
-  // This function is a convinience function intended for the Paraview
-  // ServerManager
-  void SetHeadPose( double x00,  double x01,  double x02, double x03,
-                    double x10,  double x11,  double x12, double x13,
-                    double x20,  double x21,  double x22, double x23,
-                    double x30,  double x31,  double x32, double x33 );
-
-  // Description:
-  // This is a convenience function to get the current head position. This is
-  // typically used by ParaView for head-tracking support
-  void GetHeadPose( double *x );
-
-  // Description:
-  // HeadTracker mode. It impacts on the computation of the transforms.
-  // Initial value is false.
-  //vtkSetMacro(HeadTracked,bool);
-  vtkSetMacro(HeadTracked,int);
-  vtkGetMacro(HeadTracked,int);
-
-  // Description:
   // Copy the properties of `source' into `this'.
   // Copy pointers of matrices.
   // \pre source_exists!=0
@@ -469,7 +446,6 @@ public:
 protected:
   vtkCamera();
   ~vtkCamera();
-
 
   // Description:
   // These methods should only be used within vtkCamera.cxx.
@@ -503,38 +479,15 @@ protected:
                                            double nearz,
                                            double farz);
 
-  // Description:
-  // This is aconvenience function to get Identity matrix with
-  // translation set to given values
-  vtkMatrix4x4* SetTranslation( vtkMatrix4x4 mat );
 
   void ComputeCameraLightTransform();
 
-  // Description:
-  // This method is used to set the transfromation matrix from Display
-  // Surface coordinates wrt the Room Base coordinates
-  void SetSurface2Base( vtkMatrix4x4 *head );
 
   // Description:
-  // This sets the SurfaceRot transfromation based on the screen
-  // basis vectors
-  void SetSurfaceRotation( double xBase[3], double yBase[3], double zBase[3]);
+  // Given screen screen top, bottom left and top right
+  // calculate screen rotation.
+  void ComputeScreenOrientation();
 
-  // Description:
-  // Setting the configuration of the display VRJuggler style. This is to set
-  // the screen coordinaates for head tracking
-  void JugglerConfig( double LowerLeft[4],
-                      double LowerRight[4],
-                      double UpperRight[4] ,
-                      double interOccDist, double scale);
-
-  // Description
-  // Setting the configuration of the display Deering style. This is used to set
-  // teh screen coordinates for head tracking.
-  void DeeringConfig( double LowerLeft[4],
-                      double LowerRight[4],
-                      double UpperRight[4] ,
-                      double interOccDist, double scale);
 
   // Description:
   // Copy the ivars. Do nothing for the matrices.
@@ -561,6 +514,13 @@ protected:
   double ViewPlaneNormal[3];
   double ViewShear[3];
   int    UseHorizontalViewAngle;
+
+  double ScreenBottomLeft[3];
+  double ScreenBottomRight[3];
+  double ScreenTopRight[3];
+
+  vtkMatrix4x4 *ScreenOrientation;
+
   vtkHomogeneousTransform *UserTransform;
   vtkHomogeneousTransform *UserViewTransform;
 
@@ -570,38 +530,15 @@ protected:
   vtkTransform *CameraLightTransform;
 
   double FocalDisk;
-//BTX
+  //BTX
   vtkCameraCallbackCommand *UserViewTransformCallbackCommand;
   friend class vtkCameraCallbackCommand;
-//ETX
+  //ETX
 
   // ViewingRaysMtime keeps track of camera modifications which will
   // change the calculation of viewing rays for the camera before it is
   // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
-
-  // Asymmetric Frustum
-  int HeadTracked;
-  vtkMatrix4x4 *HeadPose;
-  vtkTransform *Surface2Base;
-  vtkMatrix4x4 *HeadTrackedViewMat;
-  vtkTransform *PreViewTransform;
-
-  double AsymLeft, AsymRight,  AsymBottom,  AsymTop;
-  double EyePos[3];
-  double O2Screen;
-  double O2Right;
-  double O2Left;
-  double O2Top;
-  double O2Bottom;
-  double EyeOffset;
-  double ScaleFactor;
-  vtkMatrix4x4 *SurfaceRot;
-
-  // temp
-  vtkMatrix4x4 *eyePosMat;
-  vtkMatrix4x4 *negEyePosMat;
-  vtkMatrix4x4 *eyeOffsetMat;
 
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.
