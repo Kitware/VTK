@@ -817,7 +817,7 @@ public:
                                         double varianceX,
                                         double varianceY,
                                         double covXY,
-                                        double detXY,
+                                        double invDetXY,
                                         double slopeYX,
                                         double slopeXY,
                                         double interYX,
@@ -830,7 +830,7 @@ public:
     this->VarX  = varianceX;
     this->VarY  = varianceY;
     this->CovXY = covXY;
-    this->InvDetXY = 1. / detXY;
+    this->InvDetXY = invDetXY;
     this->SlopeYX = slopeYX;
     this->SlopeXY = slopeXY;
     this->InterYX = interYX;
@@ -848,8 +848,8 @@ public:
     double x_c = x - this->MeanX;
     double y_c = y - this->MeanY;
     
-    // Calculate 2-d squared Mahalanobis distance
-    double smd  = ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c ) * this->InvDetXY;
+    // Calculate 2-d squared Mahalanobis distance (Nan for degenerate cases)
+    double smd  =  this->InvDetXY * ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c );
 
     // Calculate residual from regression of Y into X
     double dYX = y - ( this->SlopeYX * x + this->InterYX );
@@ -947,6 +947,19 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble(); 
       double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble(); 
 
+      // Mahlanobis distance will always be Nan for degenerate covariance matrices
+      double invDetXY;
+      if ( detXY < VTK_DBL_MIN
+           || varianceX < 0.
+           || varianceY < 0. )
+        {
+        invDetXY = vtkMath::Nan();
+        }
+      else
+        {
+        invDetXY = 1. / detXY;
+        }
+        
       dfunc = new BivariateRegressionDeviationsFunctor( valsX,
                                                         valsY,
                                                         meanX,
@@ -954,7 +967,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                         varianceX,
                                                         varianceY,
                                                         covXY,
-                                                        detXY,
+                                                        invDetXY,
                                                         slopeYX,
                                                         slopeXY,
                                                         interYX,
