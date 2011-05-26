@@ -346,7 +346,7 @@ int TestCorrelativeStatistics( int, char *[] )
     vtkGenericWarningMacro("Expected 3 outliers, found " << nOutliers << ".");
     testStatus = 1;
     }
-
+  outputData1->Dump();
   // Test with a slight variation of initial data set (to test model aggregation)
   int nVals2 = 32;
 

@@ -852,10 +852,10 @@ public:
     double smd  = ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c ) * this->InvDetXY;
 
     // Calculate residual from regression of Y into X
-    double dYX = x - ( this->SlopeYX * x + this->InterYX );
+    double dYX = y - ( this->SlopeYX * x + this->InterYX );
 
     // Calculate residual from regression of X into Y
-    double dXY = x - ( this->SlopeXY * x + this->InterXY );
+    double dXY = x - ( this->SlopeXY * y + this->InterXY );
 
     // Store calculated assessments
     result->SetNumberOfValues( 3 );
