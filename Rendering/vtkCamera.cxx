@@ -28,6 +28,8 @@
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkCamera);
 
+vtkCxxSetObjectMacro(vtkCamera, EyeTransformationMatrix, vtkMatrix4x4);
+
 //-----------------------------------------------------------------------------
 class vtkCameraCallbackCommand : public vtkCommand
 {
@@ -95,6 +97,10 @@ vtkCamera::vtkCamera()
       this->EyePosition[2] = 0.0;
 
   this->ScreenOrientation = vtkMatrix4x4::New();
+  this->ScreenOrientation->Identity();
+
+  this->EyeTransformationMatrix = vtkMatrix4x4::New();
+  this->EyeTransformationMatrix->Identity();
 
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;
@@ -405,6 +411,10 @@ void vtkCamera::ComputeDeeringFrustrum()
     E[2] = this->EyePosition[2] + (this->InterocularDistance / 2.0);
     }
 
+  // First tranform the eye to new position.
+  this->EyeTransformationMatrix->MultiplyPoint(E, E);
+
+  // Now transform the eye to screen coordinate system.
   this->ScreenOrientation->MultiplyPoint(E, E);
 
   double matrix[4][4];

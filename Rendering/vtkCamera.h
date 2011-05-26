@@ -293,6 +293,11 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetVector3Macro(EyePosition, double);
 
   // Description:
+  // Set/Get eye transformation matrix.
+  void SetEyeTransformationMatrix(vtkMatrix4x4* matrix);
+  vtkGetObjectMacro(EyeTransformationMatrix, vtkMatrix4x4);
+
+  // Description:
   // Return the matrix of the view transform.
   // The ViewTransform depends on only three ivars:  the Position, the
   // FocalPoint, and the ViewUp vector.  All the other methods are there
@@ -545,6 +550,7 @@ protected:
   double EyePosition[3];
 
   vtkMatrix4x4 *ScreenOrientation;
+  vtkMatrix4x4 *EyeTransformationMatrix;
 
   vtkHomogeneousTransform *UserTransform;
   vtkHomogeneousTransform *UserViewTransform;
