@@ -597,56 +597,94 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double detS = sX2 * sY2 - sXY2;
     if ( detS > 1.e-300 )
       {
-      // Calculate trace, discriminant, and eigenvalues of covariance matrix S
-      double trS = sX2 + sY2;
-      double sqdS = sqrt( trS * trS - 4 * detS );
-      double eigS1 = .5 * ( trS + sqdS );
-      double eigS2 = .5 * ( trS - sqdS );
-
-      // Calculate transformation matrix H so S = H diag(eigSi) H^t
-      double w = .5 * ( sX2 - sY2 - sqdS );
-      double f = 1. / sqrt ( sXY2 + w * w );
-
-      // Diagonal terms of H are identical
-      double hd = f * sXY; 
-      double h21 = f * ( eigS1 - sX2 );
-      double h12 = f * ( eigS2 - sY2 );
-
-      // Now iterate over all observations
+      // Initialize third and fourth order sums
       double sum3X = 0.;
       double sum3Y = 0.;
       double sum4X = 0.;
       double sum4Y = 0.;
-      double x, y, tmp, t1, t2;
-      for ( vtkIdType j = 0; j < nRowData; ++ j )
+      double tmp;
+
+      // If covariance matrix is diagonal within machine precision, simplify case
+      if ( sXY < ( .5 * sqrt( VTK_DBL_EPSILON ) * fabs( sX2 - sY2 ) ) )
         {
-        // Read and center observation
-        x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
-        y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
-
-        // Transform coordinates into eigencoordinates
-        t1 = hd * x + h21 * y;
-        t2 = h12 * x + hd * y;
-
-        // Update third and fourth order sums for each eigencoordinate
-        tmp = t1 * t1;
-        sum3X += tmp * t1;
-        sum4X += tmp * tmp;
-        tmp = t2 * t2;
-        sum3Y += tmp * t2;
-        sum4Y += tmp * tmp;
-        }
-
-      // Normalize all sums with corresponding eigenvalues and powers
-      sum3X *= sum3X;
-      tmp = eigS1 * eigS1;
-      sum3X /= ( tmp * eigS1 );
-      sum4X /= tmp;
-
-      sum3Y *= sum3Y;
-      tmp = eigS2 * eigS2;
-      sum3Y /= ( tmp * eigS2 );
-      sum4Y /= tmp;
+        // Simply iterate over all observations
+        double x, y;
+        for ( vtkIdType j = 0; j < nRowData; ++ j )
+          {
+          // Read and center observation
+          x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
+          y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
+          
+          // Update third and fourth order sums for each eigencoordinate
+          tmp = x * x;
+          sum3X += tmp * x;
+          sum4X += tmp * tmp;
+          tmp = y * y;
+          sum3Y += tmp * y;
+          sum4Y += tmp * tmp;
+          }
+        
+        // Normalize all sums with corresponding eigenvalues and powers
+        sum3X *= sum3X;
+        tmp = sX2 * sX2;
+        sum3X /= ( tmp * sX2 );
+        sum4X /= tmp;
+        
+        sum3Y *= sum3Y;
+        tmp = sY2 * sY2;
+        sum3Y /= ( tmp * sY2 );
+        sum4Y /= tmp;
+        } // if ( sXY < 1.e-300 )
+      // Handle general case where sXY <> 0
+      else
+        {
+        // Calculate trace, discriminant, and eigenvalues of covariance matrix S
+        double trS = sX2 + sY2;
+        double sqdS = sqrt( trS * trS - 4 * detS );
+        double eigS1 = .5 * ( trS + sqdS );
+        double eigS2 = .5 * ( trS - sqdS );
+        
+        // Calculate transformation matrix H so S = H diag(eigSi) H^t
+        double w = .5 * ( sX2 - sY2 - sqdS );
+        double f = 1. / sqrt ( sXY2 + w * w );
+        
+        // Diagonal terms of H are identical
+        double hd = f * sXY; 
+        double h21 = f * ( eigS1 - sX2 );
+        double h12 = f * ( eigS2 - sY2 );
+        
+        // Now iterate over all observations
+        double x, y, t1, t2;
+        for ( vtkIdType j = 0; j < nRowData; ++ j )
+          {
+          // Read and center observation
+          x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
+          y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
+          
+          // Transform coordinates into eigencoordinates
+          t1 = hd * x + h21 * y;
+          t2 = h12 * x + hd * y;
+          
+          // Update third and fourth order sums for each eigencoordinate
+          tmp = t1 * t1;
+          sum3X += tmp * t1;
+          sum4X += tmp * tmp;
+          tmp = t2 * t2;
+          sum3Y += tmp * t2;
+          sum4Y += tmp * tmp;
+          }
+        
+        // Normalize all sums with corresponding eigenvalues and powers
+        sum3X *= sum3X;
+        tmp = eigS1 * eigS1;
+        sum3X /= ( tmp * eigS1 );
+        sum4X /= tmp;
+        
+        sum3Y *= sum3Y;
+        tmp = eigS2 * eigS2;
+        sum3Y /= ( tmp * eigS2 );
+        sum4Y /= tmp;
+        } // else
 
       // Calculate Srivastava skewness and kurtosis
       bS1 = halfinvn * invn * ( sum3X +  sum3Y );
