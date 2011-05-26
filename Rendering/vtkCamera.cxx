@@ -75,6 +75,8 @@ vtkCamera::vtkCamera()
   this->ViewAngle = 30.0;
   this->UseHorizontalViewAngle = 0;
 
+  this->UseDeeringFrustrum  = 0;
+
   this->ScreenBottomLeft[0] = -1.0;
   this->ScreenBottomLeft[1] =  1.0;
   this->ScreenBottomLeft[2] = -1.0;
@@ -86,6 +88,11 @@ vtkCamera::vtkCamera()
   this->ScreenTopRight[0] =  1.0;
   this->ScreenTopRight[1] =  1.0;
   this->ScreenTopRight[2] = -1.0;
+
+  this->InterocularDistance = 0.06;
+
+  this->EyePosition[0] = this->EyePosition[1] =
+      this->EyePosition[2] = 0.0;
 
   this->ScreenOrientation = vtkMatrix4x4::New();
 
@@ -373,6 +380,66 @@ void vtkCamera::ComputeScreenOrientation()
   this->ScreenOrientation->SetElement(0, 0, zAxis[0]);
   this->ScreenOrientation->SetElement(0, 0, zAxis[1]);
   this->ScreenOrientation->SetElement(0, 0, zAxis[2]);
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::ComputeDeeringFrustrum()
+{
+  // Deering calculations.
+  const int x =0, y=1, z=2;
+  double F = this->ClippingRange[1];
+  double B = this->ClippingRange[0];
+  double E[3];
+  double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
+  double H[2] = {this->ScreenTopRight[0],this->ScreenTopRight[1]};
+
+  E[0] = this->EyePosition[0];
+  E[1] = this->EyePosition[1];
+
+  if(this->LeftEye)
+    {
+    E[2] = this->EyePosition[2] - (this->InterocularDistance / 2.0);
+    }
+  else
+    {
+    E[2] = this->EyePosition[2] + (this->InterocularDistance / 2.0);
+    }
+
+  this->ScreenOrientation->MultiplyPoint(E, E);
+
+  double matrix[4][4];
+  double width  = H[x] - L[x];
+  double height = H[y] - L[y];
+  B = E[z] - B;
+  F = E[z] - F;
+  double depth = B - F;
+  matrix[0][0] =  ( 2*E[z] ) / width;
+  matrix[1][0] =  0;
+  matrix[2][0] =  0;
+  matrix[3][0] =  0;
+
+  matrix[0][1] =  0;
+  matrix[1][1] =  ( 2*E[z] )/ height;
+  matrix[2][1] =  0;
+  matrix[3][1] =  0;
+
+  matrix[0][2] = ( H[x]+L[x] - 2*E[x] )/width;
+  matrix[1][2] = ( H[y]+L[y] - 2*E[y] )/height;
+  matrix[2][2] = ( B+F-2*E[z] )/depth;
+  matrix[3][2] = -1;
+
+  matrix[0][3] = ( -E[z]*( H[x]+L[x] ) )/width;
+  matrix[1][3] = ( -E[z]*( H[y]+L[y] ) )/height;
+  matrix[2][3] = B-E[z]- ( B *( B+F - 2*E[z] )/depth );
+  matrix[3][3] = E[z];
+
+  for ( int i=0; i<4; i++ )
+    {
+    for ( int j=0; j<4; j++ )
+      {
+      this->ProjectionTransform->GetMatrix()->SetElement( i,j,  matrix[i][j] ) ;
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -877,7 +944,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
   // adjust Z-buffer range
   this->ProjectionTransform->AdjustZBuffer( -1, +1, nearz, farz );
 
-  if ( this->ParallelProjection)
+  if ( this->ParallelProjection )
     {
     // set up a rectangular parallelipiped
 
@@ -892,6 +959,10 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
     this->ProjectionTransform->Ortho( xmin, xmax, ymin, ymax,
                                       this->ClippingRange[0],
                                       this->ClippingRange[1] );
+    }
+  else if(this->Stereo && this->UseDeeringFrustrum)
+    {
+    this->ComputeDeeringFrustrum();
     }
   else
     {
@@ -921,7 +992,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                         this->ClippingRange[1] );
     }
 
-  if ( this->Stereo )
+  if ( this->Stereo && !this->UseDeeringFrustrum)
     {
     // set up a shear for stereo views
     if ( this->LeftEye )

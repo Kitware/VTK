@@ -260,6 +260,14 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetMacro(FocalDisk,double);
 
   // Description:
+  // Set/Get use deering frustrum.
+  // Deering frustrum is used for off-axis stereo frustrum
+  // calculation. This requires stereo set to be true.
+  vtkSetMacro(UseDeeringFrustrum, int);
+  vtkGetMacro(UseDeeringFrustrum, int);
+  vtkBooleanMacro(UseDeeringFrustrum, int);
+
+  // Description:
   // Set/Get top left corner point of the screen.
   vtkSetVector3Macro(ScreenBottomLeft, double);
   vtkGetVector3Macro(ScreenBottomLeft, double);
@@ -273,6 +281,16 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Set/Get top right corner point of the screen.
   vtkSetVector3Macro(ScreenTopRight, double);
   vtkGetVector3Macro(ScreenTopRight, double);
+
+  // Description:
+  // Set/Get interocular distance.
+  vtkSetMacro(InterocularDistance, double);
+  vtkGetMacro(InterocularDistance, double);
+
+  // Description:
+  // Set/Get eye position.
+  vtkSetVector3Macro(EyePosition, double);
+  vtkGetVector3Macro(EyePosition, double);
 
   // Description:
   // Return the matrix of the view transform.
@@ -488,6 +506,10 @@ protected:
   void ComputeScreenOrientation();
 
   // Description:
+  // Compute and use frustrum using deering method.
+  void ComputeDeeringFrustrum();
+
+  // Description:
   // Copy the ivars. Do nothing for the matrices.
   // Called by ShallowCopy() and DeepCopy()
   // \pre source_exists!=0
@@ -513,9 +535,14 @@ protected:
   double ViewShear[3];
   int    UseHorizontalViewAngle;
 
+  int    UseDeeringFrustrum;
+
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];
   double ScreenTopRight[3];
+
+  double InterocularDistance;
+  double EyePosition[3];
 
   vtkMatrix4x4 *ScreenOrientation;
 
