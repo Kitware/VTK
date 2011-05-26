@@ -183,9 +183,6 @@ public:
 #endif
 
 //ETX
-  // Initialize only once.
-  static int Initialized;
-
   static const char* GetProcessorName();
 
   // Description:

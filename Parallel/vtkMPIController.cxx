@@ -131,17 +131,16 @@ void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
     }
 }
 
-// ----------------------------------------------------------------------
-
-void vtkMPIController::Initialize(int* argc, char*** argv, int vtkNotUsed(initialized_externally))
-{
-  this->Initialize(argc, argv);
-}
-
 //----------------------------------------------------------------------------
 void vtkMPIController::Initialize()
 {
   this->Initialize(0, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMPIController::Initialize( int *argc, char*** argv )
+{
+  this->Initialize( argc, argv, 0);
 }
 
 //----------------------------------------------------------------------------
