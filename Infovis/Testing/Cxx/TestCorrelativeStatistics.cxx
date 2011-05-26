@@ -97,15 +97,15 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
-  dataset1Arr->SetName( "Metric 0" );
+  dataset1Arr->SetName( "M0" );
 
   vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
-  dataset2Arr->SetName( "Metric 1" );
+  dataset2Arr->SetName( "M1" );
 
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents( 1 );
-  dataset3Arr->SetName( "Metric 2" );
+  dataset3Arr->SetName( "M2" );
 
   for ( int i = 0; i < nVals1; ++ i )
     {
@@ -127,8 +127,8 @@ int TestCorrelativeStatistics( int, char *[] )
   int nMetricPairs = 2;
   vtkStdString columnPairs[] = 
     { 
-      "Metric 0", "Metric 1", // First pair
-      "Metric 2", "Metric 1"  // Second pair
+      "M0", "M1", // First pair
+      "M2", "M1"  // Second pair
     };
 
   // Reference values
@@ -163,13 +163,13 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Select Column Pairs of Interest ( Learn Mode ) 
   // 1.1: a valid pair
-  cs1->AddColumnPair( "Metric 0", "Metric 1" ); 
+  cs1->AddColumnPair( "M0", "M1" ); 
   // 1.2: the same valid pair, just reversed -- should thus be ignored
-  cs1->AddColumnPair( "Metric 1", "Metric 0" );
+  cs1->AddColumnPair( "M1", "M0" );
   // 2: another valid pair
-  cs1->AddColumnPair( "Metric 2", "Metric 1" ); 
+  cs1->AddColumnPair( "M2", "M1" ); 
   // 3: an invalid pair
-  cs1->AddColumnPair( "Metric 1", "Metric 3" ); 
+  cs1->AddColumnPair( "M1", "M3" ); 
 
   // Test Learn, Derive, Test, and Assess options
   cs1->SetLearnOption( true );
@@ -352,15 +352,15 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
   dataset4Arr->SetNumberOfComponents( 1 );
-  dataset4Arr->SetName( "Metric 0" );
+  dataset4Arr->SetName( "M0" );
 
   vtkDoubleArray* dataset5Arr = vtkDoubleArray::New();
   dataset5Arr->SetNumberOfComponents( 1 );
-  dataset5Arr->SetName( "Metric 1" );
+  dataset5Arr->SetName( "M1" );
 
   vtkDoubleArray* dataset6Arr = vtkDoubleArray::New();
   dataset6Arr->SetNumberOfComponents( 1 );
-  dataset6Arr->SetName( "Metric 2" );
+  dataset6Arr->SetName( "M2" );
 
   for ( int i = 0; i < nVals2; ++ i )
     {

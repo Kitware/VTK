@@ -24,6 +24,8 @@
 
 class vtkIndent;
 class vtkPolyData;
+class vtkPointData;
+class vtkIdList;
 class vtkFlashReaderInternal;
 
 class VTK_AMR_EXPORT vtkAMRFlashParticlesReader :
@@ -50,6 +52,9 @@ class VTK_AMR_EXPORT vtkAMRFlashParticlesReader :
     // See vtkAMRBaseParticlesReader::ReadParticles
     vtkPolyData* ReadParticles( const int blkidx );
 
+    // Description:
+    // Reads the particlles of the given block from the given file.
+    vtkPolyData* GetParticles( const char* file, const int blkidx );
 
     vtkFlashReaderInternal *Internal;
 

@@ -615,7 +615,21 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
     {
     return ((PyVTKSpecialObject *)obj)->vtk_ptr;
     }
-  else if (PyVTKObject_Check(obj))
+
+#if PY_VERSION_HEX >= 0x02020000
+  // check superclasses
+  for (PyTypeObject *basetype = obj->ob_type->tp_base;
+       basetype != NULL;
+       basetype = basetype->tp_base)
+    {
+    if (strcmp(basetype->tp_name, result_type) == 0)
+      {
+      return ((PyVTKSpecialObject *)obj)->vtk_ptr;
+      }
+    }
+#endif
+
+  if (PyVTKObject_Check(obj))
     {
     // use the VTK type name, instead of "vtkobject"
     object_type =
