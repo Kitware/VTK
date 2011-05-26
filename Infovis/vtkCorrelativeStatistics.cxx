@@ -45,6 +45,12 @@
 
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
+#ifndef DBL_MIN
+#  define VTK_DBL_MIN    2.2250738585072014e-308
+#else  // DBL_MIN
+#  define VTK_DBL_MIN    DBL_MIN
+#endif  // DBL_MIN
+
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
@@ -595,7 +601,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     // Eliminate near degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
-    if ( detS > 1.e-300 )
+    if ( detS > 0. )
       {
       // Initialize third and fourth order sums
       double sum3X = 0.;
@@ -605,7 +611,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       double tmp;
 
       // If covariance matrix is diagonal within machine precision, simplify case
-      if ( sXY < ( .5 * sqrt( VTK_DBL_EPSILON ) * fabs( sX2 - sY2 ) ) )
+      if ( sXY < sqrt( VTK_DBL_MIN )
+           || sXY < ( .5 * sqrt( VTK_DBL_EPSILON ) * fabs( sX2 - sY2 ) ) )
         {
         // Simply iterate over all observations
         double x, y;
