@@ -256,10 +256,7 @@ void vtkSelection::Subtract(vtkSelectionNode* node)
     }
   if( !subtracted )
     {
-    cout << "\tNot subtracted!" << endl;
-    vtkSmartPointer<vtkSelectionNode> clone = vtkSmartPointer<vtkSelectionNode>::New();
-    clone->DeepCopy(node);
-    this->AddNode(clone);
+    vtkErrorMacro("Could not subtract selections");
     }
 }
 

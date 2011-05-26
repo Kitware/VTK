@@ -411,12 +411,8 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
   switch(type)
     {
     case GLOBALIDS:
-    case PEDIGREEIDS:
-    case VALUES:
     case INDICES:
-    case LOCATIONS:
-    case THRESHOLDS:
-    case BLOCKS:
+    case PEDIGREEIDS:
       {
       vtkDataSetAttributes * fd1 = this->GetSelectionData();
       vtkDataSetAttributes * fd2 = other->GetSelectionData();
@@ -424,13 +420,26 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
         {
         vtkErrorMacro(<< "Cannot take subtract selections if the number of arrays do not match.");
         }
-      for(int iarray=0; iarray<fd1->GetNumberOfArrays(); iarray++)
-        {
-
-        if( fd1->GetArray(iarray)->GetDataType() == VTK_ID_TYPE )
+//#if 0
+//      for(int iarray=0; iarray<fd1->GetNumberOfArrays(); iarray++)
+//        {
+//#endif
+        if( fd1->GetNumberOfArrays() != 1 || fd2->GetNumberOfArrays() != 1)
           {
-          vtkIdTypeArray * fd1_array = (vtkIdTypeArray*)fd1->GetArray(iarray);
-          vtkIdTypeArray * fd2_array = (vtkIdTypeArray*)fd2->GetArray(iarray);
+          vtkErrorMacro(<<"Cannot subtract selections with more than one array.");
+          return;
+          }
+
+        if( fd1->GetArray(0)->GetDataType() != VTK_ID_TYPE || fd2->GetArray(0)->GetDataType() != VTK_ID_TYPE )
+          {
+          vtkErrorMacro(<<"Can only subtract selections with vtkIdTypeArray lists.");
+          }
+
+
+//        if( fd1->GetArray(iarray)->GetDataType() == VTK_ID_TYPE )
+//          {
+          vtkIdTypeArray * fd1_array = (vtkIdTypeArray*)fd1->GetArray(0);
+          vtkIdTypeArray * fd2_array = (vtkIdTypeArray*)fd2->GetArray(0);
 
           vtkIdType fd1_N = fd1_array->GetNumberOfTuples();
           vtkIdType fd2_N = fd2_array->GetNumberOfTuples();
@@ -453,11 +462,17 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
             {
             fd1_array->InsertNextValue( *p );
             }
-          }
-        }
+//          }
+//#if 0
+//        }
+//#endif
       break;
       }
+    case BLOCKS:
     case FRUSTUM:
+    case LOCATIONS:
+    case THRESHOLDS:
+    case VALUES:
     default:
       {
       vtkErrorMacro(<< "Do not know how to subtract the given content type " << type << ".");
