@@ -31,7 +31,6 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
 // ----------------------------------------------------------------------
@@ -47,7 +46,6 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->TestOption = false;
   // Most engines have only 1 primary table.
   this->NumberOfPrimaryTables = 1;
-  this->AssessParameters = 0;
   this->AssessNames = vtkStringArray::New();
   this->Internals = new vtkStatisticsAlgorithmPrivate;
 }
@@ -55,7 +53,6 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 {
-  this->SetAssessParameters( 0 );
   this->SetAssessNames( 0 );
   delete this->Internals;
 }
@@ -69,10 +66,6 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "Assess: " << this->AssessOption << endl;
   os << indent << "Test: " << this->TestOption << endl;
   os << indent << "NumberOfPrimaryTables: " << this->NumberOfPrimaryTables << endl;
-  if ( this->AssessParameters )
-    {
-    this->AssessParameters->PrintSelf( os, indent.GetNextIndent() );
-    }
   if ( this->AssessNames )
     {
     this->AssessNames->PrintSelf( os, indent.GetNextIndent() );
@@ -179,26 +172,6 @@ int vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c, vtkSt
 {
   return this->Internals->GetColumnForRequest( r, c, columnName ) ? 1 : 0;
 }
-
-// ----------------------------------------------------------------------
-void vtkStatisticsAlgorithm::SetAssessOptionParameter( vtkIdType id, vtkStdString name )
-{
-  if ( id >= 0 && id < this->AssessParameters->GetNumberOfValues() )
-    {
-    this->AssessParameters->SetValue( id, name );
-    this->Modified();
-    }
-} 
-
-// ----------------------------------------------------------------------
-vtkStdString vtkStatisticsAlgorithm::GetAssessParameter( vtkIdType id )
-{
-  if ( id >= 0 && id < this->AssessParameters->GetNumberOfValues() )
-    {
-    return this->AssessParameters->GetValue( id );
-    }
-  return 0;
-} 
 
 // ----------------------------------------------------------------------
 bool vtkStatisticsAlgorithm::SetParameter( const char* vtkNotUsed(parameter),
