@@ -599,9 +599,9 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     // Eliminate absurd or degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
-    if ( sX2 < 0.
-         || sY2 < 0.
-         || detS < VTK_DBL_MIN )
+    if ( detS < VTK_DBL_MIN
+         || sX2 < 0.
+         || sY2 < 0. )
       {
       // Absurd or degenerate inputs result in NaN statistics
       bS1 = vtkMath::Nan();
