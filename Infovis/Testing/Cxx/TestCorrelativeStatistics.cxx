@@ -140,11 +140,11 @@ int TestCorrelativeStatistics( int, char *[] )
   double meansY1[] = { 49.5, -1. };
   double varsY1[] = { 7.548397, 0. };
 
-  // Covariance matrix of (metric 0, metric 1) pair
-  double covariance1[] = { 5.98286, 7.54839, 6.14516 }; 
+  // Covariance matrix of (metric 0, metric 1) and (metric 1, metric 2) pairs
+  double covariances1[] = { 6.14516, 0. }; 
 
-  // Pearson r for each of the three pairs
-  double correlations1[] = { 0.914433, 0. }; 
+  // Pearson r for each of the pairs
+  double correlations1[] = { 0.914433, vtkMath::Nan() }; 
 
   // Thresholds for outlier detection
   double threshold[] = { 4., 1.8, 1.8 };
@@ -241,6 +241,13 @@ int TestCorrelativeStatistics( int, char *[] )
     if ( fabs ( testVarY - varsY1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for Y");
+      testStatus = 1;
+      }
+
+    double testCovariance = outputDerived1->GetValueByName( r, "Covariance" ).ToDouble();
+    if ( fabs ( testCovariance - covariances1[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect covariance");
       testStatus = 1;
       }
 
