@@ -595,14 +595,16 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double bS1;
     double bS2;
     double jbs;
-    double invn = 1. / nRowData;
-    double halfinvn = .5 * invn;
-    
+
     // Eliminate near degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
     if ( detS > 0. )
       {
+      // Normalization factors
+      double invn = 1. / nRowData;
+      double halfinvn = .5 * invn;
+
       // Initialize third and fourth order sums
       double sum3X = 0.;
       double sum3Y = 0.;
