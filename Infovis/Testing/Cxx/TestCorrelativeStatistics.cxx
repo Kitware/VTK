@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sandia Corporation.
+ * Copyright 2011 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
  * U.S. Government. Redistribution and use in source and binary forms, with
@@ -140,14 +140,14 @@ int TestCorrelativeStatistics( int, char *[] )
   double meansY1[] = { 49.5, -1. };
   double varsY1[] = { 7.548397, 0. };
 
-  // Covariance matrix of (metric 0, metric 1) pair
-  double covariance1[] = { 5.98286, 7.54839, 6.14516 }; 
+  // Covariance matrix of (metric 0, metric 1) and (metric 1, metric 2) pairs
+  double covariances1[] = { 6.14516, 0. }; 
 
-  // Pearson r for each of the three pairs
-  double correlations1[] = { 0.914433, 0. }; 
+  // Pearson r for each of the pairs
+  double correlations1[] = { 0.914433, vtkMath::Nan() }; 
 
-  // Threshold for outlier detection
-  double threshold = 4.;
+  // Thresholds for outlier detection
+  double threshold[] = { 4., 1.8, 1.8 };
 
   // Set correlative statistics algorithm and its input data port
   vtkCorrelativeStatistics* cs1 = vtkCorrelativeStatistics::New();
@@ -244,6 +244,13 @@ int TestCorrelativeStatistics( int, char *[] )
       testStatus = 1;
       }
 
+    double testCovariance = outputDerived1->GetValueByName( r, "Covariance" ).ToDouble();
+    if ( fabs ( testCovariance - covariances1[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect covariance");
+      testStatus = 1;
+      }
+
     double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
     if ( fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
       {
@@ -294,57 +301,46 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->ResetRequests(); // Clear existing pairs
   cs1->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
-  cout << "\n## Searching for outliers with respect to this bivariate Gaussian distribution:\n"
-       << "   (X, Y) = ("
-       << columnPairs[0]
-       << ", "
-       << columnPairs[1]
-       << "), mean=("
-       << meansX1[0]
-       << ", "
-       << meansY1[0]
-       << "), covariance=["
-       << covariance1[0]
-       << ", "
-       << covariance1[2]
-       << " ; "
-       << covariance1[2]
-       << ", "
-       << covariance1[1]
-       << "], Squared Mahalanobis > "
-       << threshold
-       << "\n";
-
-  int nOutliers = 0;
-  int tableIdx[] = { 0, 1, 3 };
-  cout << "   Found the following outliers:\n";
+  cout << "\n## Searching for outliers with respect to various criteria:\n";
+  int assessIdx[] = { 3, 4, 5 };
+  int testIntValue[] = { 3, 3, 4 };
   for ( int i = 0; i < 3; ++ i )
     {
-    cout << "   "
-         << outputData1->GetColumnName( tableIdx[i] );
-    }
-  cout << "\n";
+    cerr << "   For |"
+         <<  outputData1->GetColumnName( assessIdx[i] )
+         << "| > "
+         << threshold[i]
+         << ", found the following outliers:\n";
 
-  for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
-    {
-    if ( outputData1->GetValue( r, tableIdx[2] ).ToDouble() > threshold )
+    int nOutliers = 0;
+
+    for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
       {
-      ++ nOutliers;
-
-      for ( int i = 0; i < 3; ++ i )
+      double assessed = outputData1->GetValue( r, assessIdx[i] ).ToDouble();
+      if ( fabs( assessed ) > threshold[i] )
         {
-        cout << "     "
-             << outputData1->GetValue( r,  tableIdx[i] ).ToDouble()
-             << "    ";
+        ++ nOutliers;
+        
+        cout << "     ("
+             << outputData1->GetValueByName( r, columnPairs[0] ).ToDouble()
+             << ","
+             << outputData1->GetValueByName( r, columnPairs[1] ).ToDouble()
+             << "): "
+           << assessed
+             << "\n";
         }
-      cout << "\n";
-      }
-    }
+      } // r
 
-  if ( nOutliers != 3 )
-    {
-    vtkGenericWarningMacro("Expected 3 outliers, found " << nOutliers << ".");
-    testStatus = 1;
+    // Verify that number of found outliers is correct
+    if ( nOutliers != testIntValue[i] )
+      {
+      vtkGenericWarningMacro("Expected "
+                             <<testIntValue[i]
+                             <<" outliers, found " 
+                             << nOutliers 
+                             << ".");
+      testStatus = 1;
+      }
     }
 
   // Test with a slight variation of initial data set (to test model aggregation)

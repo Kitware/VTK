@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -44,6 +44,12 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkCorrelativeStatistics);
+
+#ifndef DBL_MIN
+#  define VTK_DBL_MIN    2.2250738585072014e-308
+#else  // DBL_MIN
+#  define VTK_DBL_MIN    DBL_MIN
+#endif  // DBL_MIN
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
@@ -424,19 +430,41 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     double meanY = primaryTab->GetValueByName( i, "Mean Y" ).ToDouble();
     
     // variable Y on variable X:
-    //   slope
-    derivedVals[4] = covXY / varX;
+    //   slope (explicitly handle degenerate cases)
+      if ( varX < VTK_DBL_MIN )
+        {
+        derivedVals[4] = vtkMath::Nan();
+        }
+      else
+        {
+        derivedVals[4] = covXY / varX;
+        }
     //   intersect
     derivedVals[5] = meanY - derivedVals[4] * meanX;
     
     //   variable X on variable Y:
-    //   slope
-    derivedVals[6] = covXY / varY;
+    //   slope (explicitly handle degenerate cases)
+      if ( varY < VTK_DBL_MIN )
+        {
+        derivedVals[6] = vtkMath::Nan();
+        }
+      else
+        {
+        derivedVals[6] = covXY / varY;
+        }
     //   intersect
     derivedVals[7] = meanX - derivedVals[6] * meanY;
     
-    // correlation coefficient
-    derivedVals[8] = covXY / sqrt( varX * varY );
+    // correlation coefficient (be consistent with degenerate cases detected above)
+    if ( varX < VTK_DBL_MIN
+         || varY < VTK_DBL_MIN )
+      {
+      derivedVals[8] = vtkMath::Nan();
+      }
+    else
+      {
+      derivedVals[8] = covXY / sqrt( varX * varY );
+      }
     
     for ( int j = 0; j < numDoubles; ++ j )
       {
@@ -590,64 +618,113 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double bS2;
     double jbs;
 
-    // Eliminate near degenerate covariance matrices
+    // Eliminate absurd or degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
-    double invn = 1. / nRowData;
-    double halfinvn = .5 * invn;
-    if ( detS > 1.e-100
-         && sX2 > 0.
-         && sY2 > 0. )
+    if ( detS < VTK_DBL_MIN
+         || sX2 < 0.
+         || sY2 < 0. )
       {
-      // Calculate trace, discriminant, and eigenvalues of covariance matrix S
-      double trS = sX2 + sY2;
-      double sqdS = sqrt( trS * trS - 4 * detS );
-      double eigS1 = .5 * ( trS + sqdS );
-      double eigS2 = .5 * ( trS - sqdS );
+      // Absurd or degenerate inputs result in NaN statistics
+      bS1 = vtkMath::Nan();
+      bS2 = vtkMath::Nan();
+      jbs = vtkMath::Nan();
+      }
+    else
+      {
+      // Normalization factors
+      double invn = 1. / nRowData;
+      double halfinvn = .5 * invn;
 
-      // Calculate transformation matrix H so S = H diag(eigSi) H^t
-      double w = .5 * ( sX2 - sY2 - sqdS );
-      double f = 1. / sqrt ( sXY2 + w * w );
-
-      double hd = f * sXY; // Diagonal terms of H are identical
-      double h21 = f * ( eigS1 - sX2 );
-      double h12 = f * ( eigS2 - sY2 );
-
-      // Now iterate over all observations
+      // Initialize third and fourth order sums
       double sum3X = 0.;
       double sum3Y = 0.;
       double sum4X = 0.;
       double sum4Y = 0.;
-      double x, y, tmp, t1, t2;
-      for ( vtkIdType j = 0; j < nRowData; ++ j )
+      double tmp;
+
+      // If covariance matrix is diagonal within machine precision, do not transform
+      if ( sXY < sqrt( VTK_DBL_MIN )
+           || sXY < ( .5 * sqrt( VTK_DBL_EPSILON ) * fabs( sX2 - sY2 ) ) )
         {
-        // Read and center observation
-        x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
-        y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
-
-        // Transform coordinates into eigencoordinates
-        t1 = hd * x + h21 * y;
-        t2 = h12 * x + hd * y;
-
-        // Update third and fourth order sums for each eigencoordinate
-        tmp = t1 * t1;
-        sum3X += tmp * t1;
-        sum4X += tmp * tmp;
-        tmp = t2 * t2;
-        sum3Y += tmp * t2;
-        sum4Y += tmp * tmp;
-        }
-
-      // Normalize all sums with corresponding eigenvalues and powers
-      sum3X *= sum3X;
-      tmp = eigS1 * eigS1;
-      sum3X /= ( tmp * eigS1 );
-      sum4X /= tmp;
-
-      sum3Y *= sum3Y;
-      tmp = eigS2 * eigS2;
-      sum3Y /= ( tmp * eigS2 );
-      sum4Y /= tmp;
+        // Simply iterate over all observations
+        double x, y;
+        for ( vtkIdType j = 0; j < nRowData; ++ j )
+          {
+          // Read and center observation
+          x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
+          y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
+          
+          // Update third and fourth order sums for each eigencoordinate
+          tmp = x * x;
+          sum3X += tmp * x;
+          sum4X += tmp * tmp;
+          tmp = y * y;
+          sum3Y += tmp * y;
+          sum4Y += tmp * tmp;
+          }
+        
+        // Normalize all sums with corresponding eigenvalues and powers
+        sum3X *= sum3X;
+        tmp = sX2 * sX2;
+        sum3X /= ( tmp * sX2 );
+        sum4X /= tmp;
+        
+        sum3Y *= sum3Y;
+        tmp = sY2 * sY2;
+        sum3Y /= ( tmp * sY2 );
+        sum4Y /= tmp;
+        } // if ( sXY < 1.e-300 )
+      // Otherwise calculated transformation matrix H and apply transformation
+      else
+        {
+        // Calculate trace, discriminant, and eigenvalues of covariance matrix S
+        double trS = sX2 + sY2;
+        double sqdS = sqrt( trS * trS - 4 * detS );
+        double eigS1 = .5 * ( trS + sqdS );
+        double eigS2 = .5 * ( trS - sqdS );
+        
+        // Calculate transformation matrix H so S = H diag(eigSi) H^t
+        double w = .5 * ( sX2 - sY2 - sqdS );
+        double f = 1. / sqrt ( sXY2 + w * w );
+        
+        // Diagonal terms of H are identical
+        double hd = f * sXY; 
+        double h21 = f * ( eigS1 - sX2 );
+        double h12 = f * ( eigS2 - sY2 );
+        
+        // Now iterate over all observations
+        double x, y, t1, t2;
+        for ( vtkIdType j = 0; j < nRowData; ++ j )
+          {
+          // Read and center observation
+          x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
+          y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
+          
+          // Transform coordinates into eigencoordinates
+          t1 = hd * x + h21 * y;
+          t2 = h12 * x + hd * y;
+          
+          // Update third and fourth order sums for each eigencoordinate
+          tmp = t1 * t1;
+          sum3X += tmp * t1;
+          sum4X += tmp * tmp;
+          tmp = t2 * t2;
+          sum3Y += tmp * t2;
+          sum4Y += tmp * tmp;
+          }
+        
+        // Normalize all sums with corresponding eigenvalues and powers
+        sum3X *= sum3X;
+        tmp = eigS1 * eigS1;
+        sum3X /= ( tmp * eigS1 );
+        sum4X /= tmp;
+        
+        sum3Y *= sum3Y;
+        tmp = eigS2 * eigS2;
+        sum3Y /= ( tmp * eigS2 );
+        sum4Y /= tmp;
+        } // else
 
       // Calculate Srivastava skewness and kurtosis
       bS1 = halfinvn * invn * ( sum3X +  sum3Y );
@@ -656,12 +733,6 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       // Finally, calculate Jarque-Bera-Srivastava statistic
       tmp = bS2 - 3.;
       jbs = static_cast<double>( nRowData ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
-      }
-    else
-      {
-      bS1 = vtkMath::Nan();
-      bS2 = vtkMath::Nan();
-      jbs = vtkMath::Nan();
       }
 
     // Insert variable name and calculated Jarque-Bera-Srivastava statistic
@@ -768,7 +839,7 @@ public:
                                         double varianceX,
                                         double varianceY,
                                         double covXY,
-                                        double detXY,
+                                        double invDetXY,
                                         double slopeYX,
                                         double slopeXY,
                                         double interYX,
@@ -781,7 +852,7 @@ public:
     this->VarX  = varianceX;
     this->VarY  = varianceY;
     this->CovXY = covXY;
-    this->InvDetXY = 1. / detXY;
+    this->InvDetXY = invDetXY;
     this->SlopeYX = slopeYX;
     this->SlopeXY = slopeXY;
     this->InterYX = interYX;
@@ -799,14 +870,14 @@ public:
     double x_c = x - this->MeanX;
     double y_c = y - this->MeanY;
     
-    // Calculate 2-d squared Mahalanobis distance
-    double smd  = ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c ) * this->InvDetXY;
+    // Calculate 2-d squared Mahalanobis distance (Nan for degenerate cases)
+    double smd  =  this->InvDetXY * ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c );
 
     // Calculate residual from regression of Y into X
-    double dYX = x - ( this->SlopeYX * x + this->InterYX );
+    double dYX = y - ( this->SlopeYX * x + this->InterYX );
 
     // Calculate residual from regression of X into Y
-    double dXY = x - ( this->SlopeXY * x + this->InterXY );
+    double dXY = x - ( this->SlopeXY * y + this->InterXY );
 
     // Store calculated assessments
     result->SetNumberOfValues( 3 );
@@ -898,6 +969,19 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble(); 
       double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble(); 
 
+      // Mahlanobis distance will always be Nan for degenerate covariance matrices
+      double invDetXY;
+      if ( detXY < VTK_DBL_MIN
+           || varianceX < 0.
+           || varianceY < 0. )
+        {
+        invDetXY = vtkMath::Nan();
+        }
+      else
+        {
+        invDetXY = 1. / detXY;
+        }
+        
       dfunc = new BivariateRegressionDeviationsFunctor( valsX,
                                                         valsY,
                                                         meanX,
@@ -905,7 +989,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                         varianceX,
                                                         varianceY,
                                                         covXY,
-                                                        detXY,
+                                                        invDetXY,
                                                         slopeYX,
                                                         slopeXY,
                                                         interYX,
