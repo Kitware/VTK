@@ -29,6 +29,7 @@
 vtkInstantiatorNewMacro(vtkCamera);
 
 vtkCxxSetObjectMacro(vtkCamera, EyeTransformationMatrix, vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkCamera, SceneMatrix, vtkMatrix4x4);
 
 //-----------------------------------------------------------------------------
 class vtkCameraCallbackCommand : public vtkCommand
@@ -101,6 +102,9 @@ vtkCamera::vtkCamera()
 
   this->EyeTransformationMatrix = vtkMatrix4x4::New();
   this->EyeTransformationMatrix->Identity();
+
+  this->SceneMatrix = vtkMatrix4x4::New();
+  this->SceneMatrix->Identity();
 
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;

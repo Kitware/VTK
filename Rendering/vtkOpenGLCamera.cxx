@@ -38,11 +38,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  
+
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
-  
+
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
     {
@@ -91,7 +91,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     if (ren->GetRenderWindow()->GetDoubleBuffer())
       {
       glDrawBuffer(static_cast<GLenum>(win->GetBackBuffer()));
-      
+
       // Reading back buffer means back left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
@@ -100,18 +100,18 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     else
       {
       glDrawBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
-      
+
       // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
       glReadBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
       }
     }
-  
+
   glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
   glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
-    
+
   // some renderer subclasses may have more complicated computations for the
   // aspect ratio. SO take that into account by computing the difference
   // between our simple aspect ratio and what the actual renderer is
@@ -122,7 +122,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->vtkViewport::ComputeAspect();
   ren->vtkViewport::GetAspect(aspect2);
   double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
-  
+
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
     {
