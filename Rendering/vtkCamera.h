@@ -479,7 +479,6 @@ protected:
                                            double nearz,
                                            double farz);
 
-
   void ComputeCameraLightTransform();
 
 
@@ -487,7 +486,6 @@ protected:
   // Given screen screen top, bottom left and top right
   // calculate screen rotation.
   void ComputeScreenOrientation();
-
 
   // Description:
   // Copy the ivars. Do nothing for the matrices.
