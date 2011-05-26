@@ -132,7 +132,7 @@ METAIO_STL::string MET_ReadForm(METAIO_STREAM::istream &_fp)
 
   METAIO_STL::string value;
 
-  if(mF && mF->defined)
+  if(mF->defined)
     {
     value = (char *)(mF->value);
     delete mF;
@@ -162,7 +162,7 @@ METAIO_STL::string MET_ReadType(METAIO_STREAM::istream &_fp)
 
   METAIO_STL::string value;
 
-  if(mF && mF->defined)
+  if(mF->defined)
     {
     value = (char *)(mF->value);
     delete mF;
