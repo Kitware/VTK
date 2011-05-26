@@ -596,10 +596,19 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double bS2;
     double jbs;
 
-    // Eliminate near degenerate covariance matrices
+    // Eliminate absurd or degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
-    if ( detS > 0. )
+    if ( sX2 < 0.
+         || sY2 < 0.
+         || detS < VTK_DBL_MIN )
+      {
+      // Absurd or degenerate inputs result in NaN statistics
+      bS1 = vtkMath::Nan();
+      bS2 = vtkMath::Nan();
+      jbs = vtkMath::Nan();
+      }
+    else
       {
       // Normalization factors
       double invn = 1. / nRowData;
@@ -702,12 +711,6 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       // Finally, calculate Jarque-Bera-Srivastava statistic
       tmp = bS2 - 3.;
       jbs = static_cast<double>( nRowData ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
-      }
-    else
-      {
-      bS1 = vtkMath::Nan();
-      bS2 = vtkMath::Nan();
-      jbs = vtkMath::Nan();
       }
 
     // Insert variable name and calculated Jarque-Bera-Srivastava statistic
