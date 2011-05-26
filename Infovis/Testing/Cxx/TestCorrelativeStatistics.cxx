@@ -146,8 +146,8 @@ int TestCorrelativeStatistics( int, char *[] )
   // Pearson r for each of the three pairs
   double correlations1[] = { 0.914433, 0. }; 
 
-  // Threshold for outlier detection
-  double threshold = 4.;
+  // Thresholds for outlier detection
+  double threshold[] = { 4., 1.8, 1.8 };
 
   // Set correlative statistics algorithm and its input data port
   vtkCorrelativeStatistics* cs1 = vtkCorrelativeStatistics::New();
@@ -294,59 +294,48 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->ResetRequests(); // Clear existing pairs
   cs1->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
-  cout << "\n## Searching for outliers with respect to this bivariate Gaussian distribution:\n"
-       << "   (X, Y) = ("
-       << columnPairs[0]
-       << ", "
-       << columnPairs[1]
-       << "), mean=("
-       << meansX1[0]
-       << ", "
-       << meansY1[0]
-       << "), covariance=["
-       << covariance1[0]
-       << ", "
-       << covariance1[2]
-       << " ; "
-       << covariance1[2]
-       << ", "
-       << covariance1[1]
-       << "], Squared Mahalanobis > "
-       << threshold
-       << "\n";
-
-  int nOutliers = 0;
-  int tableIdx[] = { 0, 1, 3 };
-  cout << "   Found the following outliers:\n";
+  cout << "\n## Searching for outliers with respect to various criteria:\n";
+  int assessIdx[] = { 3, 4, 5 };
+  int testIntValue[] = { 3, 3, 4 };
   for ( int i = 0; i < 3; ++ i )
     {
-    cout << "   "
-         << outputData1->GetColumnName( tableIdx[i] );
-    }
-  cout << "\n";
+    cerr << "   For |"
+         <<  outputData1->GetColumnName( assessIdx[i] )
+         << "| > "
+         << threshold[i]
+         << ", found the following outliers:\n";
 
-  for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
-    {
-    if ( outputData1->GetValue( r, tableIdx[2] ).ToDouble() > threshold )
+    int nOutliers = 0;
+
+    for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
       {
-      ++ nOutliers;
-
-      for ( int i = 0; i < 3; ++ i )
+      double assessed = outputData1->GetValue( r, assessIdx[i] ).ToDouble();
+      if ( fabs( assessed ) > threshold[i] )
         {
-        cout << "     "
-             << outputData1->GetValue( r,  tableIdx[i] ).ToDouble()
-             << "    ";
+        ++ nOutliers;
+        
+        cout << "     ("
+             << outputData1->GetValueByName( r, columnPairs[0] ).ToDouble()
+             << ","
+             << outputData1->GetValueByName( r, columnPairs[1] ).ToDouble()
+             << "): "
+           << assessed
+             << "\n";
         }
-      cout << "\n";
+      } // r
+
+    // Verify that number of found outliers is correct
+    if ( nOutliers != testIntValue[i] )
+      {
+      vtkGenericWarningMacro("Expected "
+                             <<testIntValue[i]
+                             <<" outliers, found " 
+                             << nOutliers 
+                             << ".");
+      testStatus = 1;
       }
     }
 
-  if ( nOutliers != 3 )
-    {
-    vtkGenericWarningMacro("Expected 3 outliers, found " << nOutliers << ".");
-    testStatus = 1;
-    }
-  outputData1->Dump();
   // Test with a slight variation of initial data set (to test model aggregation)
   int nVals2 = 32;
 

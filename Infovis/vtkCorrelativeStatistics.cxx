@@ -430,19 +430,41 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     double meanY = primaryTab->GetValueByName( i, "Mean Y" ).ToDouble();
     
     // variable Y on variable X:
-    //   slope
-    derivedVals[4] = covXY / varX;
+    //   slope (explicitly handle degenerate cases)
+      if ( varX < VTK_DBL_MIN )
+        {
+        derivedVals[4] = vtkMath::Nan();
+        }
+      else
+        {
+        derivedVals[4] = covXY / varX;
+        }
     //   intersect
     derivedVals[5] = meanY - derivedVals[4] * meanX;
     
     //   variable X on variable Y:
-    //   slope
-    derivedVals[6] = covXY / varY;
+    //   slope (explicitly handle degenerate cases)
+      if ( varY < VTK_DBL_MIN )
+        {
+        derivedVals[6] = vtkMath::Nan();
+        }
+      else
+        {
+        derivedVals[6] = covXY / varY;
+        }
     //   intersect
     derivedVals[7] = meanX - derivedVals[6] * meanY;
     
-    // correlation coefficient
-    derivedVals[8] = covXY / sqrt( varX * varY );
+    // correlation coefficient (be consistent with degenerate cases detected above)
+    if ( varX < VTK_DBL_MIN
+         || varY < VTK_DBL_MIN )
+      {
+      derivedVals[8] = vtkMath::Nan();
+      }
+    else
+      {
+      derivedVals[8] = covXY / sqrt( varX * varY );
+      }
     
     for ( int j = 0; j < numDoubles; ++ j )
       {
