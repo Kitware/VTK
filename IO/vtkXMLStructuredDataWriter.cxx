@@ -428,14 +428,15 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::SetupExtentTranslator()
 {
-  vtkDataSet* input = this->GetInputAsDataSet();
+  int* wExt = this->GetInputInformation(0, 0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   
   // If no write extent has been set, use the whole extent.
   if((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
      (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
      (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
     {
-    this->SetInternalWriteExtent(input->GetWholeExtent());
+    this->SetInternalWriteExtent(wExt);
     }
   else
     {

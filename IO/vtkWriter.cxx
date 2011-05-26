@@ -122,9 +122,9 @@ int vtkWriter::RequestData(
 
   for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
     {
-    if (this->GetInput(idx) != NULL)
+    if (this->GetInputExecutive(idx, 0) != NULL)
       {
-      this->GetInput(idx)->Update();
+      this->GetInputExecutive(idx, 0)->Update();
       }
     }
 
@@ -150,15 +150,6 @@ int vtkWriter::RequestData(
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
   this->WriteData();
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
-
-  // Release any inputs if marked for release
-  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
-    {
-    if (this->GetInput(idx) && this->GetInput(idx)->ShouldIReleaseData())
-      {
-      this->GetInput(idx)->ReleaseData();
-      }
-    }
 
   this->WriteTime.Modified();
 

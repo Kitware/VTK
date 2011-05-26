@@ -40,8 +40,9 @@ void vtkXMLPStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
 {
-  vtkDataSet* input = this->GetInputAsDataSet();  
-  this->WriteVectorAttribute("WholeExtent", 6, input->GetWholeExtent());
+  int* wExt = this->GetInputInformation(0, 0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  this->WriteVectorAttribute("WholeExtent", 6, wExt);
   this->Superclass::WritePrimaryElementAttributes(os, indent);
 }
 

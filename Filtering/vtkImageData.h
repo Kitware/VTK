@@ -266,6 +266,8 @@ public:
   static int GetScalarType(vtkInformation* meta_data);
   static bool HasScalarType(vtkInformation* meta_data);
   int GetScalarType();
+  const char* GetScalarTypeAsString()
+    { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
 
   // Description:
   // Set/Get the number of scalar components for points. As with the

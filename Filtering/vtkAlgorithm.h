@@ -320,9 +320,27 @@ public:
   vtkAlgorithmOutput* GetInputConnection(int port, int index);
 
   // Description:
+  // Returns the algorithm connected to a port-index pair.
+  vtkAlgorithm* GetInputAlgorithm(int port, int index);
+
+  // Description:
+  // Equivalent to GetInputAlgorithm(0, 0).
+  vtkAlgorithm* GetInputAlgorithm()
+  {
+    return this->GetInputAlgorithm(0, 0);
+  }
+
+  // Description:
   // Returns the executive associated with a particular input
   // connection.
   vtkExecutive* GetInputExecutive(int port, int index);
+
+  // Description:
+  // Equivalent to GetInputExecutive(0, 0)
+  vtkExecutive* GetInputExecutive()
+  {
+    return this->GetInputExecutive(0, 0);
+  }
 
   // Description:
   // Return the information object that is associated with
@@ -332,6 +350,13 @@ public:
   // Do not use this in any of the pipeline passes. Use
   // the information objects passed as arguments instead.
   vtkInformation* GetInputInformation(int port, int index);
+
+  // Description:
+  // Equivalent to GetInputInformation(0, 0)
+  vtkInformation* GetInputInformation()
+  {
+    return this->GetInputInformation(0, 0);
+  }
 
   // Description:
   // Return the information object that is associated with

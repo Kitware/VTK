@@ -1271,6 +1271,17 @@ vtkInformation* vtkAlgorithm::GetInputInformation(int port, int index)
 }
 
 //----------------------------------------------------------------------------
+vtkAlgorithm* vtkAlgorithm::GetInputAlgorithm(int port, int index)
+{
+  vtkAlgorithmOutput* aoutput = this->GetInputConnection(port, index);
+  if (!aoutput)
+    {
+    return 0;
+    }
+  return aoutput->GetProducer();
+}
+
+//----------------------------------------------------------------------------
 vtkExecutive* vtkAlgorithm::GetInputExecutive(int port, int index)
 {
   if(index < 0 || index >= this->GetNumberOfInputConnections(port))

@@ -561,7 +561,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     {
     this->IconTransform->SetViewport(ren);
     this->IconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
-    this->IconActor->GetTexture()->GetInput()->Update();
+    this->IconActor->GetTexture()->GetInputAlgorithm()->Update();
     int *dim = this->IconActor->GetTexture()->GetInput()->GetDimensions();
     this->IconGlyph->SetIconSheetSize(dim);
     // Override the array for vtkIconGlyphFilter to process if we have 
