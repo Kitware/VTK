@@ -34,10 +34,10 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-using namespace vtkstd;
 
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
+
 
 vtkInformationKeyMacro(vtkSelectionNode,CONTENT_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,SOURCE,ObjectBase);
@@ -404,7 +404,6 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
 }
 
 //----------------------------------------------------------------------------
-
 void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
 {
   int type = this->Properties->Get(CONTENT_TYPE());
@@ -420,10 +419,6 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
         {
         vtkErrorMacro(<< "Cannot take subtract selections if the number of arrays do not match.");
         }
-//#if 0
-//      for(int iarray=0; iarray<fd1->GetNumberOfArrays(); iarray++)
-//        {
-//#endif
         if( fd1->GetNumberOfArrays() != 1 || fd2->GetNumberOfArrays() != 1)
           {
           vtkErrorMacro(<<"Cannot subtract selections with more than one array.");
@@ -435,9 +430,6 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
           vtkErrorMacro(<<"Can only subtract selections with vtkIdTypeArray lists.");
           }
 
-
-//        if( fd1->GetArray(iarray)->GetDataType() == VTK_ID_TYPE )
-//          {
           vtkIdTypeArray * fd1_array = (vtkIdTypeArray*)fd1->GetArray(0);
           vtkIdTypeArray * fd2_array = (vtkIdTypeArray*)fd2->GetArray(0);
 
@@ -448,8 +440,8 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
           vtkIdType * fd2_P = (vtkIdType*)fd2_array->GetVoidPointer(0);
 
           // make sure both arrays are sorted
-          sort( fd1_P, fd1_P + fd1_N);
-          sort( fd2_P, fd2_P + fd2_N);
+          vtkstd::sort( fd1_P, fd1_P + fd1_N );
+          vtkstd::sort( fd2_P, fd2_P + fd2_N );
 
           vtkstd::set<vtkIdType> result;
 
@@ -462,10 +454,6 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
             {
             fd1_array->InsertNextValue( *p );
             }
-//          }
-//#if 0
-//        }
-//#endif
       break;
       }
     case BLOCKS:
@@ -479,7 +467,6 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
       }
     };
 }
-
 
 //----------------------------------------------------------------------------
 unsigned long vtkSelectionNode::GetMTime()

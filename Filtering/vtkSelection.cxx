@@ -230,7 +230,7 @@ void vtkSelection::Union(vtkSelectionNode* node)
     }
 }
 
-
+//----------------------------------------------------------------------------
 void vtkSelection::Subtract(vtkSelection* s)
 {
   for(unsigned int n=0; n<s->GetNumberOfNodes(); ++n)
@@ -239,8 +239,7 @@ void vtkSelection::Subtract(vtkSelection* s)
     }
 }
 
-
-
+//----------------------------------------------------------------------------
 void vtkSelection::Subtract(vtkSelectionNode* node)
 {
   bool subtracted = false;
@@ -259,7 +258,6 @@ void vtkSelection::Subtract(vtkSelectionNode* node)
     vtkErrorMacro("Could not subtract selections");
     }
 }
-
 
 //----------------------------------------------------------------------------
 unsigned long vtkSelection::GetMTime()
