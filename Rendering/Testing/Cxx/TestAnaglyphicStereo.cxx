@@ -74,6 +74,7 @@ int TestAnaglyphicStereo(int argc, char *argv[])
   renwin->SetSize(250, 250);
   renwin->SetStereoRender(1);
   renwin->SetStereoCapableWindow(1);
+  renwin->SetStereoTypeToRedBlue();
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
