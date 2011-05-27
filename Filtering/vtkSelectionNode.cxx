@@ -311,7 +311,15 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
       {
       vtkAbstractArray* arr = this->SelectionData->GetAbstractArray(a);
       vtkAbstractArray* otherArr = other->SelectionData->GetAbstractArray(a);
-      if (strcmp(arr->GetName(), otherArr->GetName()))
+      if (!arr->GetName() && otherArr->GetName())
+        {
+        return false;
+        }
+      if (arr->GetName() && !otherArr->GetName())
+        {
+        return false;
+        }
+      if (arr->GetName() && otherArr->GetName() && strcmp(arr->GetName(), otherArr->GetName()))
         {
         return false;
         }
