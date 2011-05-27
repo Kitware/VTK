@@ -29,6 +29,36 @@ using namespace std;
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+#define DEBUG 0
+
+
+#if DEBUG
+// ------------------------------------------------------------------------------------------------
+static void PrintSelectionNodes(vtkSmartPointer<vtkSelection>& sel, const char* tag = NULL)
+{
+  vtkIdType numNodes = sel->GetNumberOfNodes();
+
+  if(tag)
+    {
+    cout << tag << endl;
+    }
+
+  for(int iNode=0; iNode < numNodes; iNode++)
+    {
+    if(tag) cout << "\t";
+    cout << "Node: " << iNode << endl;
+    vtkIdType listSize = sel->GetNode(iNode)->GetSelectionList()->GetNumberOfTuples();
+    for(int iVal=0; iVal < listSize; iVal++)
+      {
+      if(tag) cout << "\t";
+      cout << "\t" << iVal << "\t" << sel->GetNode(iNode)->GetSelectionList()->GetVariantValue(iVal) << endl;
+      }
+    }
+}
+#endif
+
+
+// ------------------------------------------------------------------------------------------------
 int TestSelectionSubtract(int,char *[])
 {
   // Create a selection, sel1, of PEDIGREEIDS containing {1, 2, 3}
@@ -51,23 +81,60 @@ int TestSelectionSubtract(int,char *[])
   sel2Node->SetContentType(vtkSelectionNode::PEDIGREEIDS);
   sel2Node->SetFieldType(vtkSelectionNode::VERTEX);
   sel2Node->SetSelectionList(sel2Arr);
-  sel2Arr->InsertNextValue(2);
   sel2Arr->InsertNextValue(3);
+  sel2Arr->InsertNextValue(1);
 
-  cout << "sel1->GetNumberOfNodes(): " << sel1->GetNumberOfNodes() << endl;   fflush(stdout);
-  cout << "sel2->GetNumberOfNodes(): " << sel2->GetNumberOfNodes() << endl;   fflush(stdout);
+  // debugging
+#if DEBUG
+  PrintSelectionNodes(sel1, "sel1");
+  PrintSelectionNodes(sel2, "sel2");
+#endif
 
   // Subtract sel2 from sel1
-  // sel1->Subtract(sel2);
+#if DEBUG
+  cout << endl << "Subtract sel2 from sel1 ..." << endl << endl;
+#endif
+  sel1->Subtract(sel2);
 
-  // TODO: add correctness check.
+  // debugging
+#if DEBUG
+  PrintSelectionNodes(sel1, "sel1");
+#endif
 
-  if(0)
+  // Correctness check.
+  bool failed = false;
+  cout << "Check # of nodes == 1 ....... ";
+  if(sel1->GetNumberOfNodes() != 1)
     {
-    cerr << "TestSelectionSubtract failed." << endl;
-    return EXIT_FAILURE;
+    cout << "FAILED" << endl;
+    failed = true;
+    }
+  else
+    {
+    cout << "OK" << endl;
     }
 
-  cout << "TestSelectionSubtract exited successfully." << endl;
-  return EXIT_SUCCESS;
+  cout << "Check # of tuples == 1 ...... ";
+  if(sel1->GetNode(0)->GetSelectionList()->GetNumberOfTuples() != 1)
+    {
+    cout << "FAILED" << endl;
+    failed = true;
+    }
+  else
+    {
+    cout << "OK" << endl;
+    }
+
+  cout << "Check selection value is 2 .. ";
+  if(sel1->GetNode(0)->GetSelectionList()->GetVariantValue(0) != 2)
+    {
+    cout << "FAILED" << endl;
+    failed = true;
+    }
+  else
+    {
+    cout << "OK" << endl;
+    }
+
+  return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
