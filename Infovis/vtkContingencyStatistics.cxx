@@ -42,8 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-#define VTK_STATISTICS_NUMBER_OF_VARIABLES 2
-
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
@@ -961,7 +959,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
       }
 
     vtkStringArray* varNames = vtkStringArray::New();
-    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
+    varNames->SetNumberOfValues( 2 );
     varNames->SetValue( 0, varNameX );
     varNames->SetValue( 1, varNameY );
 
