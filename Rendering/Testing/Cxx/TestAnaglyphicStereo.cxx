@@ -38,6 +38,11 @@
 
 int TestAnaglyphicStereo(int argc, char *argv[])
 {
+  double bottomLeft[3]  = {-1.0, -1.0, -1.0};
+  double bottomRight[3] = { 1.0, -1.0, -1.0};
+  double topRight[3]    = { 1.0,  1.0, -1.0};
+
+
   vtkMapper::SetResolveCoincidentTopologyToShiftZBuffer();
   vtkMapper::SetResolveCoincidentTopologyZShift(0.1);
 
@@ -49,6 +54,7 @@ int TestAnaglyphicStereo(int argc, char *argv[])
 
   VTK_CREATE(vtkActor, actor1);
   actor1->SetMapper(mapper1);
+  actor1->GetProperty()->SetAmbient(0.1);
 
   VTK_CREATE(vtkConeSource, cone1);
   cone1->SetCenter(0.0, 0.0, -10.0);
@@ -62,9 +68,12 @@ int TestAnaglyphicStereo(int argc, char *argv[])
   VTK_CREATE(vtkRenderer, renderer);
   renderer->AddActor(actor1);
   renderer->AddActor(actor2);
-  renderer->SetAmbient(0.5, 0.5, 0.5);
+  renderer->SetAmbient(1.0, 1.0, 1.0);
 
   vtkCamera *camera = renderer->GetActiveCamera();
+  camera->SetScreenBottomLeft(bottomLeft);
+  camera->SetScreenBottomRight(bottomRight);
+  camera->SetScreenTopRight(topRight);
   camera->SetUseDeeringFrustrum(1);
   camera->SetEyePosition(0.0, 0.0, 10.0);
   camera->SetInterocularDistance(0.05);
