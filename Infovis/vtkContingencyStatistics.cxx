@@ -60,13 +60,6 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 1, "Py|x" );
   this->AssessNames->SetValue( 2, "Px|y" );
   this->AssessNames->SetValue( 3, "PMI" );
-
-  this->AssessParameters = vtkStringArray::New();
-  this->AssessParameters->SetNumberOfValues( 4 );
-  this->AssessParameters->SetValue( 0, "P" );
-  this->AssessParameters->SetValue( 1, "Py|x" );
-  this->AssessParameters->SetValue( 2, "Px|y" );
-  this->AssessParameters->SetValue( 3, "PMI" );
 }
 
 // ----------------------------------------------------------------------
@@ -869,14 +862,17 @@ public:
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               const vtksys_stl::map<vtkStdString,PDF> parameters[4] )
+                                               vtksys_stl::map<vtkStdString,PDF> pdfX_Y,
+                                               vtksys_stl::map<vtkStdString,PDF> pdfYcX,
+                                               vtksys_stl::map<vtkStdString,PDF> pdfXcY,
+                                               vtksys_stl::map<vtkStdString,PDF> pmiX_Y )
   {
     this->DataX = valsX;
     this->DataY = valsY;
-    this->PdfX_Y = parameters[0];
-    this->PdfYcX = parameters[1];
-    this->PdfXcY = parameters[2];
-    this->PmiX_Y = parameters[3];
+    this->PdfX_Y = pdfX_Y;
+    this->PdfYcX = pdfYcX;
+    this->PdfXcY = pdfXcY;
+    this->PmiX_Y = pmiX_Y;
   }
   virtual ~BivariateContingenciesAndInformationFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -1073,23 +1069,22 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
 
-  int np = this->AssessParameters->GetNumberOfValues();
-  vtksys_stl::vector<vtkDoubleArray *> para;
-  for ( int p = 0; p < np; ++ p )
+  vtkDoubleArray* pX_Y = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "P" ) );
+  vtkDoubleArray* pYcX = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Py|x" ) );
+  vtkDoubleArray* pXcY = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Px|y" ) );
+  vtkDoubleArray* pmis = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "PMI" ) );
+
+  // Verify that assess parameters have been properly obtained
+  if ( ! pX_Y || ! pYcX || ! pXcY || ! pmis )
     {
-    para.push_back( vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( this->AssessParameters->GetValue( p ) ) ) );
-    if ( ! para[p] )
-      {
       return;
-      }
     }
 
-  // parameter maps:
-  // 0: PDF(X,Y)
-  // 1: PDF(Y|X)
-  // 2: PDF(X|Y)
-  // 3: PMI(X,Y)
-  vtksys_stl::map<vtkStdString,PDF> paraMap[4];
+  // Create parameter maps
+  vtksys_stl::map<vtkStdString,PDF> pdfX_Y;
+  vtksys_stl::map<vtkStdString,PDF> pdfYcX;
+  vtksys_stl::map<vtkStdString,PDF> pdfXcY;
+  vtksys_stl::map<vtkStdString,PDF> pmiX_Y;
 
   // Sanity check: joint CDF
   double cdf = 0.;
@@ -1109,20 +1104,29 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
       continue;
       }
 
+    // Get observation values
     x = valx->GetValue( r );
     y = valy->GetValue( r );
 
-    for ( int p = 0; p < np; ++ p )
-      {
-      v = para[p]->GetValue( r );
-      paraMap[p][x][y] = v;
+    // Fill parameter maps
+    // PDF(X,Y)
+    v = pX_Y->GetValue( r );
+    pdfX_Y[x][y] = v;
 
-      // Sanity check: update CDF
-      if ( ! p )
-        {
-        cdf += v;
-        }
-      }
+    // Sanity check: update CDF
+    cdf += v;
+
+    // PDF(Y|X)
+    v = pYcX->GetValue( r );
+    pdfYcX[x][y] = v;
+
+    // PDF(X|Y)
+    v = pXcY->GetValue( r );
+    pdfXcY[x][y] = v;
+
+    // PMI(X,Y)
+    v = pmis->GetValue( r );
+    pmiX_Y[x][y] = v;
     } // for ( int r = 1; r < nRowCont; ++ r )
 
   // Sanity check: verify that CDF = 1
@@ -1139,5 +1143,8 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
 
   dfunc = new BivariateContingenciesAndInformationFunctor( valsX,
                                                            valsY,
-                                                           paraMap );
+                                                           pdfX_Y,
+                                                           pdfYcX,
+                                                           pdfXcY,
+                                                           pmiX_Y );
 }
