@@ -29,6 +29,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkConeSource.h"
 #include "vtkSphereSource.h"
 
 #include "vtkSmartPointer.h"
@@ -40,18 +41,29 @@ int TestAnaglyphicStereo(int argc, char *argv[])
   vtkMapper::SetResolveCoincidentTopologyToShiftZBuffer();
   vtkMapper::SetResolveCoincidentTopologyZShift(0.1);
 
-  VTK_CREATE(vtkSphereSource, sphere);
-  sphere->SetCenter(0.0, 0.0, 0.0);
+  VTK_CREATE(vtkSphereSource, sphere1);
+  sphere1->SetCenter(0.0, 0.0, 0.0);
 
-  VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->SetInputConnection(sphere->GetOutputPort());
+  VTK_CREATE(vtkPolyDataMapper, mapper1);
+  mapper1->SetInputConnection(sphere1->GetOutputPort());
 
-  VTK_CREATE(vtkActor, actor);
-  actor->SetMapper(mapper);
+  VTK_CREATE(vtkActor, actor1);
+  actor1->SetMapper(mapper1);
+
+  VTK_CREATE(vtkConeSource, cone1);
+  cone1->SetCenter(0.0, 0.0, -10.0);
+
+  VTK_CREATE(vtkPolyDataMapper, mapper2);
+  mapper2->SetInputConnection(cone1->GetOutputPort());
+
+  VTK_CREATE(vtkActor, actor2);
+  actor2->SetMapper(mapper2);
 
   VTK_CREATE(vtkRenderer, renderer);
-  renderer->AddActor(actor);
+  renderer->AddActor(actor1);
+  renderer->AddActor(actor2);
   renderer->SetAmbient(0.5, 0.5, 0.5);
+  renderer->ResetCamera();
 
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetUseDeeringFrustrum(1);
