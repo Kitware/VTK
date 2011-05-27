@@ -413,7 +413,6 @@ void vtkCamera::ComputeDeeringFrustrum()
   this->ComputeScreenOrientation();
 
   // Deering calculations.
-  const int x =0, y=1, z=2;
   double F = this->ScreenNearPlane;
   double B = this->ScreenFarPlane;
   double E[3];
@@ -441,31 +440,31 @@ void vtkCamera::ComputeDeeringFrustrum()
   this->ScreenOrientation->MultiplyPoint(E, E);
 
   double matrix[4][4];
-  double width  = H[x] - L[x];
-  double height = H[y] - L[y];
-  B = E[z] - B;
-  F = E[z] - F;
+  double width  = H[0] - L[0];
+  double height = H[1] - L[1];
+  B = E[2] - B;
+  F = E[2] - F;
 
   double depth = B - F;
-  matrix[0][0] =  ( 2*E[z] ) / width;
+  matrix[0][0] =  ( 2*E[2] ) / width;
   matrix[1][0] =  0;
   matrix[2][0] =  0;
   matrix[3][0] =  0;
 
   matrix[0][1] =  0;
-  matrix[1][1] =  ( 2*E[z] )/ height;
+  matrix[1][1] =  ( 2*E[2] )/ height;
   matrix[2][1] =  0;
   matrix[3][1] =  0;
 
-  matrix[0][2] = ( H[x]+L[x] - 2*E[x] )/width;
-  matrix[1][2] = ( H[y]+L[y] - 2*E[y] )/height;
-  matrix[2][2] = ( B+F-2*E[z] )/depth;
+  matrix[0][2] = ( H[0]+L[0] - 2*E[0] )/width;
+  matrix[1][2] = ( H[1]+L[1] - 2*E[1] )/height;
+  matrix[2][2] = ( B+F-2*E[2] )/depth;
   matrix[3][2] = -1;
 
-  matrix[0][3] = ( -E[z]*( H[x]+L[x] ) )/width;
-  matrix[1][3] = ( -E[z]*( H[y]+L[y] ) )/height;
-  matrix[2][3] = B-E[z]- ( B *( B+F - 2*E[z] )/depth );
-  matrix[3][3] = E[z];
+  matrix[0][3] = ( -E[2]*( H[0]+L[0] ) )/width;
+  matrix[1][3] = ( -E[2]*( H[1]+L[1] ) )/height;
+  matrix[2][3] = B-E[2]- ( B *( B+F - 2*E[2] )/depth );
+  matrix[3][3] = E[2];
 
   for ( int i=0; i<4; i++ )
     {
