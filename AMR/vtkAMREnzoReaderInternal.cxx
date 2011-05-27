@@ -115,10 +115,13 @@ const char * GetEnzoMajorFileName( const char * path )
 {
 //  int     dummy1;
 //  return  GetEnzoMajorFileName( path, dummy1 );
-  std::vector< std::string > vpath;
-  vtksys::SystemTools::SplitPath( path,vpath );
-  assert( vpath.size() >= 1);
-  return( vpath[ vpath.size()-1 ].c_str() );
+//  std::vector< std::string > vpath;
+  std::string fileName =
+    vtksys::SystemTools::GetFilenameName( std::string( path ) );
+  return( fileName.c_str()  );
+//  vtksys::SystemTools::SplitPath( path,vpath );
+//  assert( vpath.size() >= 1);
+//  return( vpath[ vpath.size()-1 ].c_str() );
 }
 
 const char * GetEnzoDirectory( const char * path )
@@ -860,6 +863,8 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
       stream >> theStr; // '='
       stream >> szName;
 
+      std::cout << "szname: " << szName.c_str() << std::endl;
+      std::cout.flush();
       tmpBlk.BlockFileName = this->DirectoryName + "/" +
                              GetEnzoMajorFileName( szName.c_str() );
 
