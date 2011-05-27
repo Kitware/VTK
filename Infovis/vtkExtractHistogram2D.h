@@ -185,9 +185,9 @@ protected:
 
   // Description:
   // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ) { return; }; 
+  virtual void Assess( vtkTable*,
+                       vtkMultiBlockDataSet*,
+                       vtkTable* ) { return; }; 
 
   // Description:
   // Provide the appropriate assessment functor. Not used.
