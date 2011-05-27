@@ -109,7 +109,7 @@ vtkCamera::vtkCamera()
   this->SceneMatrix = vtkMatrix4x4::New();
   this->SceneMatrix->Identity();
 
-  this->TotalViewMatrix = vtkMatrix4x4::New();
+  this->ViewTransformationMatrix = vtkMatrix4x4::New();
 
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;
@@ -157,8 +157,8 @@ vtkCamera::~vtkCamera()
   this->SceneMatrix->Delete();
   this->SceneMatrix = NULL;
 
-  this->TotalViewMatrix->Delete();
-  this->TotalViewMatrix = NULL;
+  this->ViewTransformationMatrix->Delete();
+  this->ViewTransformationMatrix = NULL;
 
   this->Transform->Delete();
   this->ViewTransform->Delete();
@@ -1574,9 +1574,9 @@ vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
   // Camera complete view matrix is combination of scene and view
   // transform matrix.
   vtkMatrix4x4::Multiply4x4(this->SceneMatrix, this->ViewTransform->GetMatrix(),
-    this->TotalViewMatrix);
+    this->ViewTransformationMatrix);
 
-  return this->TotalViewMatrix;
+  return this->ViewTransformationMatrix;
 }
 
 double *vtkCamera::GetOrientation()

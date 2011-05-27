@@ -63,7 +63,6 @@ int TestAnaglyphicStereo(int argc, char *argv[])
   renderer->AddActor(actor1);
   renderer->AddActor(actor2);
   renderer->SetAmbient(0.5, 0.5, 0.5);
-  renderer->ResetCamera();
 
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetUseDeeringFrustrum(1);
