@@ -106,6 +106,8 @@ vtkCamera::vtkCamera()
   this->SceneMatrix = vtkMatrix4x4::New();
   this->SceneMatrix->Identity();
 
+  this->TotalViewMatrix = vtkMatrix4x4::New();
+
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;
   this->Thickness = 1000.0;
@@ -145,6 +147,15 @@ vtkCamera::~vtkCamera()
 {
   this->ScreenOrientation->Delete();
   this->ScreenOrientation = NULL;
+
+  this->EyeTransformationMatrix->Delete();
+  this->EyeTransformationMatrix = NULL;
+
+  this->SceneMatrix->Delete();
+  this->SceneMatrix = NULL;
+
+  this->TotalViewMatrix->Delete();
+  this->TotalViewMatrix = NULL;
 
   this->Transform->Delete();
   this->ViewTransform->Delete();
@@ -1516,10 +1527,48 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
   os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", "
      << this->WindowCenter[1] << ")\n";
+
+  os << indent << "UseDeeringFrustrum: (" << this->UseDeeringFrustrum
+     << ")\n";
+
+  os << indent << "ScreenBottomLeft: (" << this->ScreenBottomLeft[0]
+     << ", " << this->ScreenBottomLeft[1] << ", " << this->ScreenBottomLeft[2]
+     << ")\n";
+
+  os << indent << "ScreenBottomRight: (" << this->ScreenBottomRight[0]
+     << ", " << this->ScreenBottomRight[1] << ", " << this->ScreenBottomRight[2]
+     << ")\n";
+
+  os << indent << "ScreenTopRight: (" << this->ScreenTopRight[0]
+     << ", " << this->ScreenTopRight[1] << ", " << this->ScreenTopRight[2]
+     << ")\n";
+
+  os << indent << "InterocularDistance: (" << this->InterocularDistance
+     << ")\n";
+
+  os << indent << "EyePosition: (" << this->EyePosition[0]
+     << ", " << this->EyePosition[1] << ", " << this->EyePosition[2]
+     << ")\n";
+
+  os << indent << "ScreenOrientation: (" << this->ScreenOrientation
+     << ")\n";
+
+  os << indent << "EyeTransformationMatrix: (" << this->EyeTransformationMatrix
+     << ")\n";
+
+  os << indent << "SceneMatrix: (" << this->SceneMatrix
+     << ")\n";
 }
 
 vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
-{ return this->ViewTransform->GetMatrix(); }
+{
+  // Camera complete view matrix is combination of scene and view
+  // transform matrix.
+  vtkMatrix4x4::Multiply4x4(this->SceneMatrix, this->ViewTransform->GetMatrix(),
+    this->TotalViewMatrix);
+
+  return this->TotalViewMatrix;
+}
 
 double *vtkCamera::GetOrientation()
 { return this->ViewTransform->GetOrientation(); };

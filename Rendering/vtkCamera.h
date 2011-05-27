@@ -559,6 +559,8 @@ protected:
 
   vtkMatrix4x4 *SceneMatrix;
 
+  vtkMatrix4x4 *TotalViewMatrix;
+
   vtkHomogeneousTransform *UserTransform;
   vtkHomogeneousTransform *UserViewTransform;
 
