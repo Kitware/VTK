@@ -76,6 +76,16 @@ public:
   vtkGetMacro(ComputeVorticity, int);
   vtkBooleanMacro(ComputeVorticity, int);
 
+  // Description:
+  // Add Q-criterion to the output field data.  The name of the array
+  // will be "Q-Criterion" and will be the same type as the input
+  // array.  The input array must have 3 components in order to
+  // compute this.  Note that Q-citerion is a balance of the rate
+  // of vorticity and the rate of strain.
+  vtkSetMacro(ComputeQCriterion, int);
+  vtkGetMacro(ComputeQCriterion, int);
+  vtkBooleanMacro(ComputeQCriterion, int);
+
 protected:
   vtkGradientFilter();
   ~vtkGradientFilter();
@@ -114,6 +124,12 @@ protected:
   // This only applies if the input grid is a vtkUnstructuredGrid or a
   // vtkPolyData.
   int FasterApproximation;
+
+  // Description:
+  // Flag to indicate that the Q-criterion of the input vector is to
+  // be computed.  The input array to be processed must have
+  // 3 components.  By default ComputeQCriterion is off.
+  int ComputeQCriterion;
 
   // Description:
   // Flag to indicate that vorticity/curl of the input vector is to 
