@@ -139,22 +139,9 @@ public:
   vtkGetMacro( NumberOfPrimaryTables, vtkIdType );
 
   // Description:
-  // Set/get assessment parameters.
-  virtual void SetAssessParameters( vtkStringArray* );
-  vtkGetObjectMacro(AssessParameters,vtkStringArray);
-
-  // Description:
   // Set/get assessment names.
   virtual void SetAssessNames( vtkStringArray* );
   vtkGetObjectMacro(AssessNames,vtkStringArray);
-
-  // Description:
-  // Set the name of a parameter of the Assess option
-  void SetAssessOptionParameter( vtkIdType id, vtkStdString name );
-
-  // Description:
-  // Get the name of a parameter of the Assess option
-  vtkStdString GetAssessParameter( vtkIdType id );
 
 //BTX
   // Description:
@@ -287,7 +274,6 @@ protected:
   bool DeriveOption;
   bool AssessOption;
   bool TestOption;
-  vtkStringArray* AssessParameters;
   vtkStringArray* AssessNames;
   vtkStatisticsAlgorithmPrivate* Internals;
 
