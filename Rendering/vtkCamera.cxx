@@ -81,16 +81,19 @@ vtkCamera::vtkCamera()
   this->UseDeeringFrustrum  = 0;
 
   this->ScreenBottomLeft[0] = -1.0;
-  this->ScreenBottomLeft[1] =  1.0;
+  this->ScreenBottomLeft[1] = -1.0;
   this->ScreenBottomLeft[2] = -1.0;
 
-  this->ScreenBottomRight[0] = -1.0;
+  this->ScreenBottomRight[0] =  1.0;
   this->ScreenBottomRight[1] = -1.0;
   this->ScreenBottomRight[2] = -1.0;
 
   this->ScreenTopRight[0] =  1.0;
   this->ScreenTopRight[1] =  1.0;
   this->ScreenTopRight[2] = -1.0;
+
+  this->ScreenNearPlane = 0.01;
+  this->ScreenFarPlane  = 1000.01;
 
   this->InterocularDistance = 0.06;
 
@@ -411,8 +414,8 @@ void vtkCamera::ComputeDeeringFrustrum()
 
   // Deering calculations.
   const int x =0, y=1, z=2;
-  double F = this->ClippingRange[1];
-  double B = this->ClippingRange[0];
+  double F = this->ScreenNearPlane;
+  double B = this->ScreenFarPlane;
   double E[3];
 
   double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
@@ -442,6 +445,7 @@ void vtkCamera::ComputeDeeringFrustrum()
   double height = H[y] - L[y];
   B = E[z] - B;
   F = E[z] - F;
+
   double depth = B - F;
   matrix[0][0] =  ( 2*E[z] ) / width;
   matrix[1][0] =  0;
@@ -1541,6 +1545,12 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ScreenTopRight: (" << this->ScreenTopRight[0]
      << ", " << this->ScreenTopRight[1] << ", " << this->ScreenTopRight[2]
+     << ")\n";
+
+  os << indent << "ScreenNearPlane: (" << this->ScreenNearPlane
+     << ")\n";
+
+  os << indent << "ScreenFarPlane: (" << this->ScreenFarPlane
      << ")\n";
 
   os << indent << "InterocularDistance: (" << this->InterocularDistance

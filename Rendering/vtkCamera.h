@@ -283,6 +283,11 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetVector3Macro(ScreenTopRight, double);
 
   // Description:
+  // Set/Get screen near plane.
+  vtkSetMacro(ScreenNearPlane, double);
+  vtkGetMacro(ScreenFarPlane,  double);
+
+  // Description:
   // Set/Get interocular distance.
   vtkSetMacro(InterocularDistance, double);
   vtkGetMacro(InterocularDistance, double);
@@ -550,6 +555,9 @@ protected:
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];
   double ScreenTopRight[3];
+
+  double ScreenNearPlane;
+  double ScreenFarPlane;
 
   double InterocularDistance;
   double EyePosition[3];
