@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -31,9 +31,6 @@
 
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
-
-#define VTK_STATISTICS_NUMBER_OF_VARIABLES 2
-
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -108,7 +105,7 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
       }
     
     vtkStringArray* varNames = vtkStringArray::New();
-    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
+    varNames->SetNumberOfValues( 2 );
     varNames->SetValue( 0, varNameX );
     varNames->SetValue( 1, varNameY );
 
