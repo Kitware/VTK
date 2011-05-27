@@ -44,12 +44,6 @@
 
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
-#ifndef DBL_MIN
-#  define VTK_DBL_MIN    2.2250738585072014e-308
-#else  // DBL_MIN
-#  define VTK_DBL_MIN    DBL_MIN
-#endif  // DBL_MIN
-
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {

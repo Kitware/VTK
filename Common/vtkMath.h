@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
   U.S. Government. Redistribution and use in source and binary forms, with
@@ -41,6 +41,12 @@
 #endif
 
 #include <assert.h> // assert() in inline implementations.
+
+#ifndef DBL_MIN
+#  define VTK_DBL_MIN    2.2250738585072014e-308
+#else  // DBL_MIN
+#  define VTK_DBL_MIN    DBL_MIN
+#endif  // DBL_MIN
 
 #ifndef DBL_EPSILON
 #  define VTK_DBL_EPSILON    2.2204460492503131e-16
