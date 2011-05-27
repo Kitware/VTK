@@ -489,9 +489,9 @@ int vtkAMRSliceFilter::RequestUpdateExtent(
     vtkInformation*, vtkInformationVector **inputVector,
     vtkInformationVector *outputVector )
 {
-  std::cout << "RequestUpdate Extent is called!!!!\n";
-  std::cout << "Resolution: " << this->MaxResolution << std::endl;
-  std::cout.flush();
+//  std::cout << "RequestUpdate Extent is called!!!!\n";
+//  std::cout << "Resolution: " << this->MaxResolution << std::endl;
+//  std::cout.flush();
 
   vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
   assert( "pre: inInfo is NULL" && (inInfo != NULL)  );

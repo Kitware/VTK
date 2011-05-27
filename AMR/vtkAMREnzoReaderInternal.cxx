@@ -863,8 +863,8 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
       stream >> theStr; // '='
       stream >> szName;
 
-      std::cout << "szname: " << szName.c_str() << std::endl;
-      std::cout.flush();
+//      std::cout << "szname: " << szName.c_str() << std::endl;
+//      std::cout.flush();
       tmpBlk.BlockFileName = this->DirectoryName + "/" +
                              GetEnzoMajorFileName( szName.c_str() );
 
