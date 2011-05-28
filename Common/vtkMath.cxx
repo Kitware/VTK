@@ -34,6 +34,15 @@
 
 vtkStandardNewMacro(vtkMath);
 
+class vtkMathInternal
+{
+public:
+  vtkMathInternal();
+  ~vtkMathInternal();
+  vtkMinimalStandardRandomSequence *Uniform;
+  vtkBoxMuellerRandomSequence *Gaussian;
+};
+
 vtkMathInternal::vtkMathInternal()
 {
   this->Gaussian=vtkBoxMuellerRandomSequence::New();
