@@ -167,10 +167,20 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
 
     if (strcmp(name,"__this__") == 0)
       {
-      char buf[256];
-      sprintf(buf,"p_%s", self->vtk_ptr->GetClassName());
+      const char *classname = self->vtk_ptr->GetClassName();
+      const char *cp = classname;
+      char buf[1024];
+      if (isalpha(*cp) || *cp == '_')
+        {
+        do { cp++; } while (isalnum(*cp) || *cp == '_');
+        }
+      if (*cp != '0')
+        {
+        classname = ((PyVTKClass *)self->vtk_class)->vtk_mangle;
+        }
+      sprintf(buf, "p_%.500s", classname);
       return PyString_FromString(
-        vtkPythonUtil::ManglePointer(self->vtk_ptr,buf));
+        vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
       }
 
     if (strcmp(name,"__doc__") == 0)

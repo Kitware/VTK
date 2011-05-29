@@ -77,6 +77,12 @@ PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr);
 VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr);
 
+VTK_PYTHON_EXPORT
+PyObject *PyVTKSpecialObject_Repr(PyObject *self);
+
+VTK_PYTHON_EXPORT
+PyObject *PyVTKSpecialObject_SequenceString(PyObject *self);
+
 #if PY_VERSION_HEX < 0x02020000
 VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr);

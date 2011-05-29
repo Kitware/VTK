@@ -455,7 +455,8 @@ int vtkPythonOverload::CheckArg(
         else if (PyVTKObject_Check(arg))
           {
           PyVTKObject *vobj = (PyVTKObject *)arg;
-          if (strncmp(vobj->vtk_ptr->GetClassName(), classname, 127) != 0)
+          if (strncmp(vtkPythonUtil::PythonicClassName(
+                vobj->vtk_ptr->GetClassName()), classname, 127) != 0)
             {
             // Trace back through superclasses to look for a match
             PyVTKClass *cls = vobj->vtk_class;

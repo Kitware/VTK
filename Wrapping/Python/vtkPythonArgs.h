@@ -26,6 +26,7 @@ resulting in wrapper code that is faster and more compact.
 
 #include "vtkPythonUtil.h"
 #include "PyVTKClass.h"
+#include "PyVTKTemplate.h"
 
 #include "vtkConfigure.h"
 #include "vtkStdString.h"

@@ -137,6 +137,16 @@ int vtkWrap_IsClassWrapped(
   HierarchyInfo *hinfo, const char *classname);
 
 /**
+ * Check whether the destructor is public
+ */
+int vtkWrap_HasPublicDestructor(ClassInfo *data);
+
+/**
+ * Check whether the copy constructor is public
+ */
+int vtkWrap_HasPublicCopyConstructor(ClassInfo *data);
+
+/**
  * Expand all typedef types that are used in function arguments.
  * This should be done before any wrapping is done, to make sure
  * that the wrappers see the real types.

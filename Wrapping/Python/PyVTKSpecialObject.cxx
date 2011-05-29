@@ -55,6 +55,119 @@ PyVTKSpecialType::PyVTKSpecialType(
 }
 
 //--------------------------------------------------------------------
+PyObject *PyVTKSpecialObject_Repr(PyObject *self)
+{
+  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
+  PyTypeObject *type = self->ob_type;
+  const char *name = self->ob_type->tp_name;
+
+  PyObject *s = PyString_FromString((char *)"(");
+  PyString_ConcatAndDel(&s, PyString_FromString((char *)name));
+  PyString_ConcatAndDel(&s, PyString_FromString((char *)")"));
+
+#if PY_VERSION_HEX >= 0x02020000
+  while (type->tp_base && !type->tp_str)
+    {
+    type = type->tp_base;
+    }
+#endif
+
+  // use str() if available
+  if (type->tp_str)
+    {
+    PyObject *t = type->tp_str(self);
+    if (t == NULL)
+      {
+      Py_XDECREF(s);
+      s = NULL;
+      }
+    else
+      {
+      PyString_ConcatAndDel(&s, t);
+      }
+    }
+  // otherwise just print address of object
+  else if (obj->vtk_ptr)
+    {
+    char buf[256];
+    sprintf(buf, "%p", obj->vtk_ptr);
+    PyString_ConcatAndDel(&s, PyString_FromString(buf));
+    }
+
+  return s;
+}
+
+//--------------------------------------------------------------------
+PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
+{
+  Py_ssize_t n, i;
+  PyObject *s = NULL;
+  PyObject *t, *o, *comma;
+  const char *bracket = "[...]";
+
+  if (self->ob_type->tp_as_sequence &&
+      self->ob_type->tp_as_sequence->sq_item != NULL &&
+      self->ob_type->tp_as_sequence->sq_ass_item == NULL)
+    {
+    bracket = "(...)";
+    }
+
+  i = Py_ReprEnter(self);
+  if (i < 0)
+    {
+    return NULL;
+    }
+  else if (i > 0)
+    {
+    return PyString_FromString((char *)bracket);
+    }
+
+  n = PySequence_Size(self);
+  if (n >= 0)
+    {
+    comma = PyString_FromString((char *)", ");
+    s = PyString_FromStringAndSize((char *)bracket, 1);
+
+    for (i = 0; i < n && s != NULL; i++)
+      {
+      if (i > 0)
+        {
+        PyString_Concat(&s, comma);
+        }
+      o = PySequence_GetItem(self, i);
+      t = NULL;
+      if (o)
+        {
+        t = PyObject_Repr(o);
+        Py_DECREF(o);
+        }
+      if (t)
+        {
+        PyString_ConcatAndDel(&s, t);
+        }
+      else
+        {
+        Py_DECREF(s);
+        s = NULL;
+        }
+      n = PySequence_Size(self);
+      }
+
+    if (s)
+      {
+      PyString_ConcatAndDel(&s,
+        PyString_FromStringAndSize((char *)&bracket[4], 1));
+      }
+
+    Py_DECREF(comma);
+    }
+
+  Py_ReprLeave(self);
+
+  return s;
+}
+
+//--------------------------------------------------------------------
 #if PY_VERSION_HEX < 0x02020000
 PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr)
 {
@@ -191,6 +304,7 @@ PyObject *PyVTKSpecialType_New(PyTypeObject *pytype,
 #if PY_VERSION_HEX < 0x2020000
   return PyCFunction_New(newmethod, Py_None);
 #else
+  PyType_Ready(pytype);
   return (PyObject *)pytype;
 #endif
 }
