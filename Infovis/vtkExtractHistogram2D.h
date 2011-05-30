@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -182,6 +182,12 @@ protected:
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
                      vtkTable* ) { return; }; 
+
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable*,
+                       vtkMultiBlockDataSet*,
+                       vtkTable* ) { return; }; 
 
   // Description:
   // Provide the appropriate assessment functor. Not used.

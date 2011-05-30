@@ -79,6 +79,12 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* );
 
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData ); 
+
 //BTX  
   // Description:
   // Provide the appropriate assessment functor.
@@ -94,4 +100,3 @@ private:
 };
 
 #endif
-

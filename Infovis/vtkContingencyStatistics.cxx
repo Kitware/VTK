@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -41,8 +41,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/vector>
 
 #include <vtksys/ios/sstream>
-
-#define VTK_STATISTICS_NUMBER_OF_VARIABLES 2
 
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
@@ -513,6 +511,146 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 }
 
 // ----------------------------------------------------------------------
+void vtkContingencyStatistics::Assess( vtkTable* inData,
+                                       vtkMultiBlockDataSet* inMeta,
+                                       vtkTable* outData )
+{
+  if ( ! inData )
+    {
+    return;
+    }
+
+  if ( ! inMeta )
+    {
+    return;
+    }
+
+  vtkTable* summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! summaryTab )
+    {
+    return;
+    }
+
+  // Downcast columns to string arrays for efficient data access
+  vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
+
+  // Loop over requests
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
+  vtkIdType nRowData = inData->GetNumberOfRows();
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one pair of column of interest (if there are others, they are ignored)
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    vtkStdString varNameX = *it;
+    if ( ! inData->GetColumnByName( varNameX ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varNameX.c_str()
+                       << ". Ignoring this pair." );
+      continue;
+      }
+
+    ++ it;
+    vtkStdString varNameY = *it;
+    if ( ! inData->GetColumnByName( varNameY ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varNameY.c_str()
+                       << ". Ignoring this pair." );
+      continue;
+      }
+
+    // Find the summary key to which the pair (colX,colY) corresponds
+    vtkIdType pairKey = -1;
+    for ( vtkIdType r = 0; r < nRowSumm && pairKey == -1; ++ r )
+      {
+      if ( varX->GetValue( r ) == varNameX
+           &&
+           varY->GetValue( r ) == varNameY )
+        {
+        pairKey = r;
+        }
+      }
+    if ( pairKey < 0 || pairKey >= nRowSumm )
+      {
+      vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
+                     << pairKey
+                     <<". Cannot derive model." );
+      return;
+      }
+
+    vtkStringArray* varNames = vtkStringArray::New();
+    varNames->SetNumberOfValues( 2 );
+    varNames->SetValue( 0, varNameX );
+    varNames->SetValue( 1, varNameY );
+
+    // Store names to be able to use SetValueByName which is faster than SetValue
+    int nv = this->AssessNames->GetNumberOfValues();
+    vtkStdString* names = new vtkStdString[nv];
+    for ( int v = 0; v < nv; ++ v )
+      {
+      vtksys_ios::ostringstream assessColName;
+      assessColName << this->AssessNames->GetValue( v )
+                    << "("
+                    << varNameX
+                    << ","
+                    << varNameY
+                    << ")";
+
+      names[v] = assessColName.str().c_str();
+
+      vtkDoubleArray* assessValues = vtkDoubleArray::New();
+      assessValues->SetName( names[v] );
+      assessValues->SetNumberOfTuples( nRowData );
+      outData->AddColumn( assessValues );
+      assessValues->Delete();
+      }
+
+    // Select assess functor
+    AssessFunctor* dfunc;
+    this->SelectAssessFunctor( outData,
+                               inMeta,
+                               pairKey,
+                               varNames,
+                               dfunc );
+
+    if ( ! dfunc )
+      {
+      // Functor selection did not work. Do nothing.
+      vtkWarningMacro( "AssessFunctors could not be allocated for column pair ("
+                       << varNameX.c_str()
+                       << ","
+                       << varNameY.c_str()
+                       << "). Ignoring it." );
+      delete [] names;
+      continue;
+      }
+    else
+      {
+      // Assess each entry of the column
+      vtkVariantArray* assessResult = vtkVariantArray::New();
+      for ( vtkIdType r = 0; r < nRowData; ++ r )
+        {
+        (*dfunc)( assessResult, r );
+        for ( int v = 0; v < nv; ++ v )
+          {
+          outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+          }
+        }
+
+      assessResult->Delete();
+      }
+
+    // Clean up
+    delete dfunc;
+    delete [] names;
+    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
+    } // rit
+}
+
+// ----------------------------------------------------------------------
 void vtkContingencyStatistics::Test( vtkTable* inData,
                                      vtkMultiBlockDataSet* inMeta,
                                      vtkTable* outMeta )
@@ -888,146 +1026,6 @@ public:
     result->SetValue( 3, this->PmiX_Y[x][y] );
   }
 };
-
-// ----------------------------------------------------------------------
-void vtkContingencyStatistics::Assess( vtkTable* inData,
-                                       vtkMultiBlockDataSet* inMeta,
-                                       vtkTable* outData )
-{
-  if ( ! inData )
-    {
-    return;
-    }
-
-  if ( ! inMeta )
-    {
-    return;
-    }
-
-  vtkTable* summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
-  if ( ! summaryTab )
-    {
-    return;
-    }
-
-  // Downcast columns to string arrays for efficient data access
-  vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
-  vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
-
-  // Loop over requests
-  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
-  vtkIdType nRowData = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
-        rit != this->Internals->Requests.end(); ++ rit )
-    {
-    // Each request contains only one pair of column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
-    vtkStdString varNameX = *it;
-    if ( ! inData->GetColumnByName( varNameX ) )
-      {
-      vtkWarningMacro( "InData table does not have a column "
-                       << varNameX.c_str()
-                       << ". Ignoring this pair." );
-      continue;
-      }
-
-    ++ it;
-    vtkStdString varNameY = *it;
-    if ( ! inData->GetColumnByName( varNameY ) )
-      {
-      vtkWarningMacro( "InData table does not have a column "
-                       << varNameY.c_str()
-                       << ". Ignoring this pair." );
-      continue;
-      }
-
-    // Find the summary key to which the pair (colX,colY) corresponds
-    vtkIdType pairKey = -1;
-    for ( vtkIdType r = 0; r < nRowSumm && pairKey == -1; ++ r )
-      {
-      if ( varX->GetValue( r ) == varNameX
-           &&
-           varY->GetValue( r ) == varNameY )
-        {
-        pairKey = r;
-        }
-      }
-    if ( pairKey < 0 || pairKey >= nRowSumm )
-      {
-      vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
-                     << pairKey
-                     <<". Cannot derive model." );
-      return;
-      }
-
-    vtkStringArray* varNames = vtkStringArray::New();
-    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
-    varNames->SetValue( 0, varNameX );
-    varNames->SetValue( 1, varNameY );
-
-    // Store names to be able to use SetValueByName which is faster than SetValue
-    int nv = this->AssessNames->GetNumberOfValues();
-    vtkStdString* names = new vtkStdString[nv];
-    for ( int v = 0; v < nv; ++ v )
-      {
-      vtksys_ios::ostringstream assessColName;
-      assessColName << this->AssessNames->GetValue( v )
-                    << "("
-                    << varNameX
-                    << ","
-                    << varNameY
-                    << ")";
-
-      names[v] = assessColName.str().c_str();
-
-      vtkDoubleArray* assessValues = vtkDoubleArray::New();
-      assessValues->SetName( names[v] );
-      assessValues->SetNumberOfTuples( nRowData );
-      outData->AddColumn( assessValues );
-      assessValues->Delete();
-      }
-
-    // Select assess functor
-    AssessFunctor* dfunc;
-    this->SelectAssessFunctor( outData,
-                               inMeta,
-                               pairKey,
-                               varNames,
-                               dfunc );
-
-    if ( ! dfunc )
-      {
-      // Functor selection did not work. Do nothing.
-      vtkWarningMacro( "AssessFunctors could not be allocated for column pair ("
-                       << varNameX.c_str()
-                       << ","
-                       << varNameY.c_str()
-                       << "). Ignoring it." );
-      delete [] names;
-      continue;
-      }
-    else
-      {
-      // Assess each entry of the column
-      vtkVariantArray* assessResult = vtkVariantArray::New();
-      for ( vtkIdType r = 0; r < nRowData; ++ r )
-        {
-        (*dfunc)( assessResult, r );
-        for ( int v = 0; v < nv; ++ v )
-          {
-          outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
-          }
-        }
-
-      assessResult->Delete();
-      }
-
-    // Clean up
-    delete dfunc;
-    delete [] names;
-    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
-    } // rit
-}
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* vtkNotUsed( outData ),
