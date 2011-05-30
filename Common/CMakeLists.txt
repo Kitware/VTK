@@ -349,7 +349,6 @@ vtkArrayIterator
 vtkArrayIteratorTemplate
 vtkAbstractTransform
 vtkCallbackCommand
-vtkColor
 vtkCommand
 vtkCommonInformationKeyManager
 vtkDataArray
@@ -387,10 +386,9 @@ vtkOverrideInformationCollection
 vtkParametricFunction
 vtkProp
 vtkRandomSequence
-vtkRect
+vtkScalarsToColors
 vtkSocket
 vtkStructuredData
-vtkVector
 vtkWarpTransform
 vtkWindow
 ABSTRACT
@@ -434,8 +432,11 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkColor.h
+  vtkRect.h
   vtkTimeStamp.cxx
   vtkVariant.cxx
+  vtkVector.h
 
   PROPERTIES WRAP_SPECIAL 1
 )
@@ -456,6 +457,10 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayRange.cxx
     vtkArraySort.cxx
     vtkArrayWeights.cxx
+    vtkDenseArray.h
+    vtkSparseArray.h
+    vtkTypedArray.h
+    vtkTypeTemplate.h
     )
 
   SET_SOURCE_FILES_PROPERTIES(
@@ -470,7 +475,19 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayRange.cxx
     vtkArraySort.cxx
     vtkArrayWeights.cxx
+    vtkDenseArray.h
+    vtkSparseArray.h
+    vtkTypedArray.h
+    vtkTypeTemplate.h
     WRAP_EXCLUDE
+    )
+
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkDenseArray.h
+    vtkSparseArray.h
+    vtkTypedArray.h
+    vtkTypeTemplate.h
+    HEADER_FILE_ONLY
     )
 
   SET_SOURCE_FILES_PROPERTIES(
@@ -480,6 +497,10 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayRange.cxx
     vtkArraySort.cxx
     vtkArrayWeights.cxx
+    vtkDenseArray.h
+    vtkSparseArray.h
+    vtkTypedArray.h
+    vtkTypeTemplate.h
     PROPERTIES WRAP_SPECIAL 1
   )
 
@@ -545,7 +566,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkABI.h
     vtkArrayIteratorTemplate.h
     vtkDataArrayTemplate.h
-    vtkDenseArray.h
     vtkIOStream.h
     vtkIOStreamFwd.h
     vtkNew.h
@@ -554,8 +574,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkSystemIncludes.h
     vtkTemplateAliasMacro.h
     vtkType.h
-    vtkTypedArray.h
-    vtkTypeTemplate.h
     vtkTypeTraits.h
     vtkVariantCast.h
     vtkVariantInlineOperators.h

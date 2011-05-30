@@ -35,8 +35,8 @@
 static PyObject *PyVTKClass_String(PyObject *op)
 {
   PyVTKClass *self = (PyVTKClass *)op;
-  char buf[255];
-  sprintf(buf,"%s.%s",
+  char buf[1024];
+  sprintf(buf,"%.500s.%.500s",
           PyString_AsString(self->vtk_module),
           PyString_AsString(self->vtk_name));
 
@@ -47,11 +47,10 @@ static PyObject *PyVTKClass_String(PyObject *op)
 static PyObject *PyVTKClass_Repr(PyObject *op)
 {
   PyVTKClass *self = (PyVTKClass *)op;
-  char buf[255];
-  sprintf(buf,"<%s %s.%s at %p>",op->ob_type->tp_name,
+  char buf[512];
+  sprintf(buf,"<%.80s %.80s.%.80s>", op->ob_type->tp_name,
           PyString_AsString(self->vtk_module),
-          PyString_AsString(self->vtk_name),
-          self);
+          PyString_AsString(self->vtk_name));
 
   return PyString_FromString(buf);
 }
@@ -447,10 +446,12 @@ PyObject *PyVTKClass_GetDict(PyObject *obj)
 
 PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
                          const char *classname, const char *modulename,
+                         const char *pythonname, const char *manglename,
                          const char *docstring[], PyObject *base)
 {
-  static PyObject *modulestr[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  static int nmodulestr = 10;
+  static PyObject *modulestr[32] = {
+     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+  static int nmodulestr = 32;
   PyObject *moduleobj = 0;
   PyObject *bases = 0;
   PyObject *name = 0;
@@ -476,7 +477,11 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
       bases = PyTuple_New(0);
       }
 
-    name = PyString_FromString((char *)classname);
+    if (!pythonname)
+      {
+      pythonname = classname;
+      }
+    name = PyString_FromString((char *)pythonname);
 
     // intern the module string
     for (i = 0; i < nmodulestr; i++)
@@ -524,6 +529,8 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
     class_self->vtk_new = constructor;
     class_self->vtk_doc = doc;
     class_self->vtk_module = moduleobj;
+    class_self->vtk_cppname = classname;
+    class_self->vtk_mangle = (manglename ? manglename : classname);
 
 #if PY_VERSION_HEX >= 0x02020000
     PyObject_GC_Track(self);
@@ -621,6 +628,8 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
     newclass->vtk_new = base->vtk_new;
     newclass->vtk_module = NULL;
     newclass->vtk_doc = NULL;
+    newclass->vtk_cppname = classname;
+    newclass->vtk_mangle = classname;
 
     globals = PyEval_GetGlobals();
     if (globals != NULL)
