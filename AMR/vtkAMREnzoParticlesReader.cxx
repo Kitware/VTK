@@ -18,6 +18,8 @@
 #include "vtkCellArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkPointData.h"
+#include "vtkIntArray.h"
+#include "vtkDataArray.h"
 
 #include <cassert>
 #include <vtkstd/vector>
@@ -124,7 +126,8 @@ vtkStandardNewMacro(vtkAMREnzoParticlesReader);
 //------------------------------------------------------------------------------
 vtkAMREnzoParticlesReader::vtkAMREnzoParticlesReader()
 {
-  this->Internal = new vtkEnzoReaderInternal();
+  this->Internal     = new vtkEnzoReaderInternal();
+  this->ParticleType = -1; /* undefined particle type */
   this->Initialize();
 }
 
@@ -191,6 +194,41 @@ void vtkAMREnzoParticlesReader::ReadMetaData()
 }
 
 //------------------------------------------------------------------------------
+vtkDataArray* vtkAMREnzoParticlesReader::GetParticlesTypeArray(
+    const int blockIdx )
+{
+
+  vtkIntArray *array = vtkIntArray::New();
+  if( this->ParticleDataArraySelection->ArrayExists( "particle_type" ) )
+    {
+      this->Internal->LoadAttribute( "particle_type", blockIdx );
+      array->DeepCopy( this->Internal->DataArray );
+    }
+  return( array );
+}
+
+//------------------------------------------------------------------------------
+bool vtkAMREnzoParticlesReader::CheckParticleType(
+    const int idx, vtkIntArray *ptypes )
+{
+  assert( "pre: particles type array should not be NULL" && (ptypes != NULL) );
+
+  if( ptypes->GetNumberOfTuples() > 0 &&
+      this->ParticleDataArraySelection->ArrayExists( "particle_type" ) )
+    {
+      int ptype = ptypes->GetValue( idx );
+      if( (this->ParticleType==0) || (ptype==this->ParticleType) )
+        return true;
+      else
+        return false;
+    }
+  else
+    {
+      return true;
+    }
+}
+
+//------------------------------------------------------------------------------
 vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
     const char* file, const int blockIdx )
 {
@@ -229,6 +267,9 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   GetDoubleArrayByName( rootIndx, "particle_position_y", ycoords );
   GetDoubleArrayByName( rootIndx, "particle_position_z", zcoords );
 
+  vtkIntArray *particleTypes = vtkIntArray::SafeDownCast(
+      this->GetParticlesTypeArray( blockIdx ) );
+
   assert( "Coordinate arrays must have the same size: " &&
            (xcoords.size()==ycoords.size() ) );
   assert( "Coordinate arrays must have the same size: " &&
@@ -245,7 +286,8 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
     {
       if( (i%this->Frequency) == 0  )
         {
-          if( this->CheckLocation( xcoords[i], ycoords[i],zcoords[i] ) )
+          if( this->CheckLocation( xcoords[i], ycoords[i],zcoords[i] ) &&
+              this->CheckParticleType( i, particleTypes) )
             {
               int pidx = NumberOfParticlesLoaded;
               ids->InsertId( pidx, i );
@@ -277,6 +319,8 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   particles->SetVerts( polyVertex );
   polyVertex->Delete();
 
+  // Release the particle types array
+  particleTypes->Delete();
 
   int numArrays = this->ParticleDataArraySelection->GetNumberOfArrays();
   for( int i=0; i < numArrays; ++i )

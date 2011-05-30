@@ -28,6 +28,8 @@
 
 
 class vtkPolyData;
+class vtkDataArray;
+class vtkIntArray;
 class vtkEnzoReaderInternal;
 
 class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
@@ -37,6 +39,11 @@ class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
     static vtkAMREnzoParticlesReader* New();
     vtkTypeMacro( vtkAMREnzoParticlesReader, vtkAMRBaseParticlesReader );
     void PrintSelf( std::ostream &os, vtkIndent indent );
+
+    // Description:
+    // Returns the requested particle type.
+    vtkSetMacro( ParticleType, int );
+    vtkGetMacro( ParticleType, int );
 
   protected:
     vtkAMREnzoParticlesReader();
@@ -55,10 +62,20 @@ class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
     // See vtkAMRBaseParticlesReader::SetupParticleDataSelections
     void SetupParticleDataSelections();
 
+    // Description:
+    // Filter's by particle type, iff particle_type is included in
+    // the given file.
+    bool CheckParticleType( const int pIdx, vtkIntArray *ptypes );
+
+    // Description:
+    // Returns the ParticlesType Array
+    vtkDataArray *GetParticlesTypeArray( const int blockIdx );
 
     // Description:
     // Reads the particles.
     vtkPolyData* ReadParticles( const int blkidx );
+
+    int ParticleType;
 
     vtkEnzoReaderInternal *Internal;
 
