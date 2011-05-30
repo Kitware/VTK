@@ -503,8 +503,6 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     this->ColorTextureMap = vtkSmartPointer<vtkImageData>::New();
     this->ColorTextureMap->SetExtent(0,numberOfColors-1,
       0,1, 0,0);
-    this->ColorTextureMap->SetNumberOfScalarComponents(4);
-    this->ColorTextureMap->SetScalarTypeToUnsignedChar();
     vtkSmartPointer<vtkDataArray> colors;
     colors.TakeReference(this->LookupTable->MapScalars(scalarTable,
                                                        this->ColorMode, 0));

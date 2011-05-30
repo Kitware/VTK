@@ -164,7 +164,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     {
     return;
     }
-  ds->Update();
+  anActor->GetMapper()->GetInputAlgorithm()->Update();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
     
   // we really want polydata

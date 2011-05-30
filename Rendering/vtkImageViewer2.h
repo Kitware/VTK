@@ -56,10 +56,12 @@
 
 #include "vtkObject.h"
 
+class vtkAlgorithm;
 class vtkAlgorithmOutput;
 class vtkImageActor;
 class vtkImageData;
 class vtkImageMapToWindowLevelColors;
+class vtkInformation;
 class vtkInteractorStyleImage;
 class vtkRenderWindow;
 class vtkRenderer;
@@ -220,6 +222,11 @@ protected:
   int Slice;
 
   virtual void UpdateOrientation();
+
+  vtkAlgorithm* GetInputAlgorithm();
+  vtkInformation* GetInputInformation();
+
+  friend class vtkImageViewer2Callback;
 
 private:
   vtkImageViewer2(const vtkImageViewer2&);  // Not implemented.

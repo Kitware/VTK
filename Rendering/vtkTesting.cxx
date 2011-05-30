@@ -34,6 +34,8 @@
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -423,7 +425,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   VTK_CREATE(vtkPNGReader, rt_png);
   rt_png->SetFileName(this->ValidImageFileName); 
   rt_png->Update();
-  image->Update();
+  // image->Update();
 
   VTK_CREATE(vtkImageDifference, rt_id);
 
@@ -435,8 +437,10 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   ic2->SetClipData(1);
   ic2->SetInput(rt_png->GetOutput());
 
-  int* wExt1 = ic1->GetInput()->GetWholeExtent();
-  int* wExt2 = ic2->GetInput()->GetWholeExtent();
+  int* wExt1 = ic1->GetInputInformation()->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* wExt2 = ic2->GetInputInformation()->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   ic1->SetOutputWholeExtent(wExt1[0] + this->BorderOffset, 
                             wExt1[1] - this->BorderOffset, 
                             wExt1[2] + this->BorderOffset, 

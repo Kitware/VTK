@@ -131,6 +131,9 @@ protected:
   vtkRenderWindowInteractor *Interactor;
   vtkInteractorStyleImage *InteractorStyle;
 
+  friend class vtkImageViewerCallback;
+  vtkAlgorithm* GetInputAlgorithm();
+
 private:
   vtkImageViewer(const vtkImageViewer&);  // Not implemented.
   void operator=(const vtkImageViewer&);  // Not implemented.

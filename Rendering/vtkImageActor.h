@@ -30,6 +30,7 @@
 
 #include "vtkImageSlice.h"
 
+class vtkAlgorithm;
 class vtkPropCollection;
 class vtkRenderer;
 class vtkImageData;
@@ -131,6 +132,9 @@ protected:
 
   int           DisplayExtent[6];
   double        DisplayBounds[6];
+
+  // Convenience function that returns the input of the mapper
+  vtkAlgorithm *GetInputAlgorithm();
 
 private:
   vtkImageActor(const vtkImageActor&);  // Not implemented.

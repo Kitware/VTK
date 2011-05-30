@@ -303,7 +303,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
     }
   else
     {
-    ds->Update();
+    anActor->GetMapper()->GetInputAlgorithm()->Update();
     pd = static_cast<vtkPolyData *>(ds);
     }
 
@@ -337,7 +337,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
       vtkErrorMacro(<< "texture has no input!\n");
       return;
       }
-    aTexture->GetInput()->Update();
+    aTexture->GetInputAlgorithm()->Update();
     size = aTexture->GetInput()->GetDimensions();
     scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 

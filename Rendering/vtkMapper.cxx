@@ -608,8 +608,6 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
     this->ColorTextureMap = vtkImageData::New();
     this->ColorTextureMap->SetExtent(0,ColorTextureMapSize-1, 
                                      0,0, 0,0);
-    this->ColorTextureMap->SetNumberOfScalarComponents(4);
-    this->ColorTextureMap->SetScalarTypeToUnsignedChar();
     this->ColorTextureMap->GetPointData()->SetScalars(
          this->LookupTable->MapScalars(tmp, this->ColorMode, 0));
     this->LookupTable->SetAlpha(orig_alpha);

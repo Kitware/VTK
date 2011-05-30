@@ -133,8 +133,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   const unsigned int dim = 128;
   vtkImageData *image = vtkImageData::New();
   image->SetDimensions(dim, dim, 1);
-  image->SetScalarTypeToUnsignedChar();
-  image->AllocateScalars();
+  image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
   
   for (unsigned int y = 0; y < dim; y++)
     {

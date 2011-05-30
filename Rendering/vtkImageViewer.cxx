@@ -17,10 +17,12 @@
 #include "vtkActor2D.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageViewer);
 
@@ -108,10 +110,12 @@ public:
 
       if (event == vtkCommand::ResetWindowLevelEvent)
         {
-        this->IV->GetInput()->UpdateInformation();
-        this->IV->GetInput()->SetUpdateExtent
-          (this->IV->GetInput()->GetWholeExtent());
-        this->IV->GetInput()->Update();
+        this->IV->GetInputAlgorithm()->UpdateInformation();
+        vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+          this->IV->GetInputAlgorithm()->GetOutputInformation(0),
+          vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+            this->IV->GetInputAlgorithm()->GetOutputInformation(0)));
+        this->IV->GetInputAlgorithm()->Update();
         double *range = this->IV->GetInput()->GetScalarRange();
         this->IV->SetColorWindow(range[1] - range[0]);
         this->IV->SetColorLevel(0.5 * (range[1] + range[0]));
@@ -237,8 +241,9 @@ void vtkImageViewer::Render()
     if (this->RenderWindow->GetSize()[0] == 0 && this->ImageMapper->GetInput())
       {
       // get the size from the mappers input
-      this->ImageMapper->GetInput()->UpdateInformation();
-      int *ext = this->ImageMapper->GetInput()->GetWholeExtent();
+      this->ImageMapper->GetInputAlgorithm()->UpdateInformation();
+      int *ext = this->ImageMapper->GetInputInformation()->Get(
+        vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
       // if it would be smaller than 150 by 100 then limit to 150 by 100
       int xs = ext[1] - ext[0] + 1;
       int ys = ext[3] - ext[2] + 1;
@@ -272,6 +277,12 @@ void vtkImageViewer::OffScreenRenderingOn()
 void vtkImageViewer::OffScreenRenderingOff()
 {
   this->SetOffScreenRendering(0);
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithm* vtkImageViewer::GetInputAlgorithm()
+{
+  return this->ImageMapper->GetInputAlgorithm();
 }
 
 #ifndef VTK_LEGACY_REMOVE

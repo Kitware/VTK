@@ -20,6 +20,7 @@
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 
 //----------------------------------------------------------------------------
@@ -54,9 +55,9 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     }
 
   int currentPiece, nPieces;
-  vtkDataObject *input = this->GetInputDataObject(0, 0);
+  vtkInformation *inInfo = this->GetInputInformation();
 
-  if (input == NULL)
+  if (inInfo == NULL)
     {
     vtkErrorMacro("Mapper has no input.");
     return;
@@ -68,7 +69,9 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     // If more than one pieces, render in loop.
     currentPiece = this->NumberOfSubPieces * this->Piece + i;
-    input->SetUpdateExtent(currentPiece, nPieces, this->GhostLevel);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      inInfo,
+      currentPiece, nPieces, this->GhostLevel);
     this->RenderPiece(ren, act);
     }
 }
@@ -104,15 +107,18 @@ void vtkPolyDataMapper::Update()
     }
 
   int currentPiece, nPieces = this->NumberOfPieces;
-  vtkPolyData* input = this->GetInput();
+  vtkInformation* inInfo = this->GetInputInformation();
 
   // If the estimated pipeline memory usage is larger than
   // the memory limit, break the current piece into sub-pieces.
-  if (input)
+  if (inInfo)
     {
     currentPiece = this->NumberOfSubPieces * this->Piece;
-    input->SetUpdateExtent(currentPiece, this->NumberOfSubPieces*nPieces,
-                           this->GhostLevel);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      inInfo,
+      currentPiece,
+      this->NumberOfSubPieces*nPieces,
+      this->GhostLevel);
     }
 
   this->vtkMapper::Update();

@@ -341,7 +341,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
     {
     return;
     }
-  dataset->Update();
+  actor->GetMapper()->GetInputAlgorithm()->Update();
   
   // convert non polygon data to polygon data if needed
   vtkGeometryFilter *geometryFilter = NULL;

@@ -298,7 +298,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
   else
     {
-    ds->Update();
+    anActor->GetMapper()->GetInputAlgorithm()->Update();
     pd = static_cast<vtkPolyData *>(ds);
     }
 
@@ -354,7 +354,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       vtkErrorMacro(<< "texture has no input!\n");
       return;
       }
-    aTexture->GetInput()->Update();
+    aTexture->GetInputAlgorithm()->Update();
     size = aTexture->GetInput()->GetDimensions();
     scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 
