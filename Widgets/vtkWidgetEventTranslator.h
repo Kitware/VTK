@@ -80,6 +80,7 @@ public:
                          int repeatCount, char* keySym);
   int RemoveTranslation( vtkEvent *e );
   int RemoveTranslation(unsigned long VTKEvent);
+  int RemoveTranslation(const char *VTKEvent);
   
   // Description:
   // Clear all events from the translator (i.e., no events will be
