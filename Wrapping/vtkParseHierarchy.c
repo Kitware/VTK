@@ -256,7 +256,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
         strcpy(&cp[n], "::");
         strncpy(&cp[n+2], &line[i], m);
         i += m;
-        cp[n+m+3] = '\0';
+        cp[n+m+2] = '\0';
         free((char *)entry->Name);
         entry->Name = cp;
         }
