@@ -894,8 +894,12 @@ static char *vtkWrapPython_ArgCheckString(
         argtype == VTK_PARSE_QOBJECT_PTR)
       {
       result[currPos++] = ' ';
-      if (argtype == VTK_PARSE_OBJECT_REF ||
-          argtype == VTK_PARSE_QOBJECT_REF)
+      if (argtype == VTK_PARSE_OBJECT_REF &&
+          (argtype & VTK_PARSE_CONST) == 0)
+        {
+        result[currPos++] = '&';
+        }
+      else if (argtype == VTK_PARSE_QOBJECT_REF)
         {
         result[currPos++] = '&';
         }
