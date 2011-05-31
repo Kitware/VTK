@@ -19,7 +19,7 @@
 // contains information about a piece of the whole selection. Each selection
 // node may contain different types of selections.
 //
-// .SECTION See Also 
+// .SECTION See Also
 // vtkSelectionNode
 
 #ifndef __vtkSelection_h
@@ -42,36 +42,36 @@ public:
   // Description:
   // Restore data object to initial state,
   virtual void Initialize();
-  
+
   // Description:
   // Returns VTK_SELECTION enumeration value.
   virtual int GetDataObjectType() {return VTK_SELECTION;}
 
-  // Description: 
+  // Description:
   // Returns the number of nodes in this selection.
   // Each node contains information about part of the selection.
   unsigned int GetNumberOfNodes();
 
-  // Description: 
+  // Description:
   // Returns a node given it's index. Performs bound checking
   // and will return 0 if out-of-bounds.
   virtual vtkSelectionNode* GetNode(unsigned int idx);
 
-  // Description: 
+  // Description:
   // Adds a selection node.
   virtual void AddNode(vtkSelectionNode*);
 
-  // Description: 
+  // Description:
   // Removes a selection node.
   virtual void RemoveNode(unsigned int idx);
   virtual void RemoveNode(vtkSelectionNode*);
   virtual void RemoveAllNodes();
 
-  // Description: 
+  // Description:
   // Copy selection nodes of the input.
   virtual void DeepCopy(vtkDataObject* src);
 
-  // Description: 
+  // Description:
   // Copy selection nodes of the input.
   // This is a shallow copy: selection lists and pointers in the
   // properties are passed by reference.
@@ -88,6 +88,16 @@ public:
   // Attempts to reuse a selection node in this selection if properties
   // match exactly. Otherwise, creates a new selection node.
   virtual void Union(vtkSelectionNode* node);
+
+  // Description:
+  // Remove the nodes from the specified selection from this selection.
+  // Assumes that selection node internal arrays are vtkIdTypeArrays.
+  virtual void Subtract(vtkSelection* selection);
+
+  // Description:
+  // Remove the nodes from the specified selection from this selection.
+  // Assumes that selection node internal arrays are vtkIdTypeArrays.
+  virtual void Subtract(vtkSelectionNode* node);
 
   // Description:
   // Return the MTime taking into account changes to the properties

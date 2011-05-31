@@ -20,10 +20,11 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestImageIterator.cxx
   TestGenericCell.cxx
   TestGraph.cxx
-  TestHigherOrderCell.cxx  
+  TestHigherOrderCell.cxx
   TestPointLocators.cxx
-  TestPolyDataRemoveCell.cxx  
+  TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
+  TestSelectionSubtract.cxx
   TestTreeBFSIterator.cxx
   TestTriangle.cxx
   TestImageDataToStructuredGrid.cxx
@@ -32,7 +33,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkFiltering vtkGraphics)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkFiltering vtkGraphics vtkInfovis)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
