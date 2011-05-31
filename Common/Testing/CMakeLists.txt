@@ -75,7 +75,6 @@ IF(PYTHON_EXECUTABLE)
     vtkOnePieceExtentTranslator.h
     vtkOverrideInformationCollection.h
     vtkPlaneCollection.h
-    vtkProcessStatistics.h
     vtkPropCollection.h
     vtkPythonCommand.h
     vtkRayCastStructures.h
