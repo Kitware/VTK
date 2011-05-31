@@ -8,6 +8,7 @@ IF (VTK_PYTHON_EXE)
       TestGhost
       TestMutable
       TestSubClass
+      TestTemplates
       TestWeakref
       TestNumpySupport
       TestTerminationCrash

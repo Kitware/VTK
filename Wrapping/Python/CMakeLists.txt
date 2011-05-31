@@ -10,6 +10,7 @@ SET(VTK_PYTHON_CORE_SRCS
   PyVTKMutableObject.cxx
   PyVTKObject.cxx
   PyVTKSpecialObject.cxx
+  PyVTKTemplate.cxx
 )
 
 # SIP directory will be searched before other python dirs
