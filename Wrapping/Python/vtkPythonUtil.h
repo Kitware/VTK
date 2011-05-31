@@ -39,6 +39,11 @@ class VTK_PYTHON_EXPORT vtkPythonUtil
 public:
 
   // Description:
+  // If the name is templated or mangled, converts it into
+  // a python-printable name.
+  static const char *PythonicClassName(const char *classname);
+
+  // Description:
   // Add a PyVTKClass to the type lookup table, this allows us to later
   // create object given only the class name.
   static void AddClassToMap(PyObject *obj, const char *classname);
@@ -78,7 +83,8 @@ public:
   // Description:
   // Convert a SIP wrapped object to a PyObject.
   // Special behaviour: NULL is converted to Py_None.
-  static PyObject *SIPGetObjectFromPointer(const void *ptr, const char* classname, bool is_new);
+  static PyObject *SIPGetObjectFromPointer(
+    const void *ptr, const char* classname, bool is_new);
 
   // Description:
   // Try to convert some PyObject into a PyVTKObject, currently conversion

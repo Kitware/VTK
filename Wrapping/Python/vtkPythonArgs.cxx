@@ -836,7 +836,7 @@ vtkObjectBase *vtkPythonArgs::GetSelfFromFirstArg(
       if (PyVTKObject_Check(self))
         {
         vtkObjectBase *vtkself = ((PyVTKObject *)self)->vtk_ptr;
-        if (vtkself->IsA(classname))
+        if (vtkself->IsA(vtkclass->vtk_cppname))
           {
           return vtkself;
           }
