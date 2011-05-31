@@ -594,7 +594,6 @@ int vtkPExodusIIReader::RequestData(
     this->ReaderList[reader_idx]->SetDisplacementMagnitude( this->GetDisplacementMagnitude() );
     this->ReaderList[reader_idx]->SetHasModeShapes( this->GetHasModeShapes() );
     this->ReaderList[reader_idx]->SetAnimateModeShapes( this->GetAnimateModeShapes() );
-    this->ReaderList[reader_idx]->SetEdgeFieldDecorations( this->GetEdgeFieldDecorations() );
     this->ReaderList[reader_idx]->SetFaceFieldDecorations( this->GetFaceFieldDecorations() );
 
     this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );

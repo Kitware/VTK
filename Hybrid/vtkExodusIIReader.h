@@ -285,14 +285,6 @@ public:
 
   // Description:
   // FIXME
-  virtual void SetEdgeFieldDecorations( int d );
-  int GetEdgeFieldDecorations();
-  void EdgeFieldDecorationsNone() { this->SetEdgeFieldDecorations( NONE ); }
-  void EdgeFieldDecorationsGlyphs() { this->SetEdgeFieldDecorations( GLYPHS ); }
-  void EdgeFieldDecorationsCornerAveraged() { this->SetEdgeFieldDecorations( CORNER_AVERAGED ); }
-
-  // Description:
-  // FIXME
   virtual void SetFaceFieldDecorations( int d );
   int GetFaceFieldDecorations();
   void FaceFieldDecorationsNone() { this->SetFaceFieldDecorations( NONE ); }
