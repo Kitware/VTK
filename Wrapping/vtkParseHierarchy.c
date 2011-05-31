@@ -65,13 +65,14 @@ HierarchyEntry *vtkParseHierarchy_FindEntry(
   /* use classname as-is for the search if possible */
   cp = (char *)classname;
 
-  /* look for template parameters */
-  n = vtkParse_NameLength(classname);
-  for (i = 0; i < n; i++)
+  /* get portion of name before final template parameters */
+  n = vtkParse_UnscopedNameLength(classname);
+  for (i = 0; classname[i+n] == ':' && classname[i+n+1] == ':'; i += n + 2)
     {
-    if (classname[i] == '<') { break; }
+    n = vtkParse_UnscopedNameLength(&classname[i]);
     }
-
+  i += vtkParse_IdentifierLength(&classname[i]);
+      
   /* create a new (shorter) search string if necessary */
   if (classname[i] != '\0')
     {
