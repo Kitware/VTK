@@ -1550,7 +1550,7 @@ const char **vtkParse_GetTemplateMacroTypes()
 }
 
 /* Get a zero-terminated array of the types in vtkArray. */
-const char **vtkParse_GetNDArrayTypes()
+const char **vtkParse_GetArrayTypes()
 {
   static const char *types[] = {
     "char", "signed char", "unsigned char", "short", "unsigned short",
@@ -1561,7 +1561,7 @@ const char **vtkParse_GetNDArrayTypes()
 #ifdef VTK_TYPE_USE___INT64
     "__int64", "unsigned __int64",
 #endif
-    "float", "double", "bool",
+    "float", "double",
     "vtkStdString", "vtkUnicodeString", "vtkVariant", NULL };
 
   return types;

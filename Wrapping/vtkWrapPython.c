@@ -4351,7 +4351,7 @@ int vtkWrapPython_WrapTemplatedClass(
       if (strcmp(entry->Name, "vtkDenseArray") == 0 ||
           strcmp(entry->Name, "vtkSparseArray") == 0)
         {
-        types = vtkParse_GetNDArrayTypes();
+        types = vtkParse_GetArrayTypes();
         }
       /* do all other templated classes indirectly */
       else if (nargs > 0)

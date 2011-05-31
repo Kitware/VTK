@@ -163,7 +163,7 @@ const char **vtkParse_GetTemplateMacroTypes();
 /**
  * Get a zero-terminated array of the types in vtkArray.
  */
-const char **vtkParse_GetNDArrayTypes();
+const char **vtkParse_GetArrayTypes();
 
 
 #ifdef __cplusplus
