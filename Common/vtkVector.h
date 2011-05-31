@@ -37,7 +37,7 @@ public:
       }
   }
 
-  vtkVector(const T* init)
+  explicit vtkVector(const T* init)
   {
     for (int i = 0; i < Size; ++i)
       {
@@ -96,7 +96,7 @@ public:
     this->Data[1] = y;
   }
 
-  vtkVector2(const T* init) : vtkVector<T, 2>(init)
+  explicit vtkVector2(const T* init) : vtkVector<T, 2>(init)
   {
   }
 
@@ -140,7 +140,7 @@ public:
     this->Data[2] = z;
   }
 
-  vtkVector3(const T* init) : vtkVector<T, 3>(init) { }
+  explicit vtkVector3(const T* init) : vtkVector<T, 3>(init) { }
 
   // Description:
   // Set the x, y and z components of the vector.
@@ -186,7 +186,7 @@ class vtkVector2i : public vtkVector2<int>
 {
 public:
   vtkVector2i(int x = 0, int y = 0) : vtkVector2<int>(x, y) {}
-  vtkVector2i(const int *init) : vtkVector2<int>(init) {}
+  explicit vtkVector2i(const int *init) : vtkVector2<int>(init) {}
 };
 
 class vtkVector2f : public vtkVector2<float>
@@ -200,14 +200,14 @@ class vtkVector2d : public vtkVector2<double>
 {
 public:
   vtkVector2d(double x = 0.0, double y = 0.0) : vtkVector2<double>(x, y) {}
-  vtkVector2d(const double *init) : vtkVector2<double>(init) {}
+  explicit vtkVector2d(const double *init) : vtkVector2<double>(init) {}
 };
 
 class vtkVector3i : public vtkVector3<int>
 {
 public:
   vtkVector3i(int x = 0, int y = 0, int z = 0) : vtkVector3<int>(x, y, z) {}
-  vtkVector3i(const int *init) : vtkVector3<int>(init) {}
+  explicit vtkVector3i(const int *init) : vtkVector3<int>(init) {}
 };
 
 class vtkVector3f : public vtkVector3<float>
@@ -215,7 +215,7 @@ class vtkVector3f : public vtkVector3<float>
 public:
   vtkVector3f(float x = 0.0, float y = 0.0, float z = 0.0)
     : vtkVector3<float>(x, y, z) {}
-  vtkVector3f(const float *init) : vtkVector3<float>(init) {}
+  explicit vtkVector3f(const float *init) : vtkVector3<float>(init) {}
 };
 
 class vtkVector3d : public vtkVector3<double>
@@ -223,7 +223,7 @@ class vtkVector3d : public vtkVector3<double>
 public:
   vtkVector3d(double x = 0.0, double y = 0.0, double z = 0.0)
     : vtkVector3<double>(x, y, z) {}
-  vtkVector3d(const double *init) : vtkVector3<double>(init) {}
+  explicit vtkVector3d(const double *init) : vtkVector3<double>(init) {}
 };
 
 // Some operators for easy addition etc
