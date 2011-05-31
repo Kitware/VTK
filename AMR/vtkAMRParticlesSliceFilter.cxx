@@ -19,6 +19,11 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIndent.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkPolyData.h"
+#include "vtkGenericOutlineFilter.h"
+
+#include <cassert>
 
 vtkStandardNewMacro(vtkAMRParticlesSliceFilter);
 
@@ -63,9 +68,35 @@ int vtkAMRParticlesSliceFilter::FillOutputPortInformation(
 
 //------------------------------------------------------------------------------
 int vtkAMRParticlesSliceFilter::RequestData(
-    vtkInformation* vtkNotUsed(request), vtkInformationVector **input,
-    vtkInformationVector *output )
+    vtkInformation* vtkNotUsed(request), vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector )
 {
 
+  // STEP 0: Get input object
+  vtkInformation *input = inputVector[0]->GetInformationObject(0);
+  assert( "pre: input information object is NULL" && (input != NULL) );
+  vtkMultiBlockDataSet *particles =
+      vtkMultiBlockDataSet::SafeDownCast(
+          input->Get( vtkDataObject::DATA_OBJECT() ) );
+  assert( "pre: input particles dataset is NULL" && (particles != NULL) );
+
+  // STEP 1: Get output object
+  vtkInformation *output = outputVector->GetInformationObject( 0 );
+  assert( "pre: output information object is NULL" && (output != NULL) );
+  vtkMultiBlockDataSet *outputParticles =
+      vtkMultiBlockDataSet::SafeDownCast(
+          output->Get( vtkDataObject::DATA_OBJECT() ) );
+  assert( "pre: output particles dataset is NULL" && (outputParticles!=NULL));
+
+
+  // STEP 2: Get outline
+  vtkGenericOutlineFilter *outlineExtractor = vtkGenericOutlineFilter::New();
+  outlineExtractor->SetInput( particles );
+  outlineExtractor->Update();
+  vtkPolyData *bbox = outlineExtractor->GetOutput( );
+  outlineExtractor->Delete();
+
+  outputParticles->SetNumberOfBlocks( particles->GetNumberOfBlocks() );
+  outputParticles->SetBlock( 0, bbox );
   return 1;
 }
