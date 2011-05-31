@@ -39,7 +39,7 @@ public:
     this->Data[3] = height;
   }
 
-  vtkRect(const T* init) : vtkVector<T, 4>(init) { }
+  explicit vtkRect(const T* init) : vtkVector<T, 4>(init) { }
 
   // Description:
   // Set the x, y components of the rectangle, and the width/height.
@@ -94,7 +94,7 @@ class vtkRecti : public vtkRect<int>
 public:
   vtkRecti(int x = 0, int y = 0, int width = 0, int height = 0)
     : vtkRect<int>(x, y, width, height) {}
-  vtkRecti(const int *init) : vtkRect<int>(init) {}
+  explicit vtkRecti(const int *init) : vtkRect<int>(init) {}
 };
 
 class vtkRectf : public vtkRect<float>
@@ -102,7 +102,7 @@ class vtkRectf : public vtkRect<float>
 public:
   vtkRectf(float x = 0.0, float y = 0.0, float width = 0.0, float height = 0.0)
     : vtkRect<float>(x, y, width, height) {}
-  vtkRectf(const float *init) : vtkRect<float>(init) {}
+  explicit vtkRectf(const float *init) : vtkRect<float>(init) {}
 };
 
 class vtkRectd : public vtkRect<double>
@@ -111,7 +111,7 @@ public:
   vtkRectd(double x = 0.0, double y = 0.0, double width = 0.0,
            double height = 0.0)
     : vtkRect<double>(x, y, width, height) {}
-  vtkRectd(const double *init) : vtkRect<double>(init) {}
+  explicit vtkRectd(const double *init) : vtkRect<double>(init) {}
 };
 
 #endif // __vtkRect_h
