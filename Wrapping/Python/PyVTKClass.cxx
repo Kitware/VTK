@@ -185,6 +185,65 @@ static PyObject *PyVTKClass_GetAttr(PyObject *op, PyObject *attr)
 }
 
 //--------------------------------------------------------------------
+#if PY_VERSION_HEX >= 0x02020000
+static PyObject *PyVTKClass_Dir(PyObject *op, PyObject *arg)
+{
+  /* depending on where it is bound */
+  if (arg && PyVTKClass_Check(arg))
+    {
+    op = arg;
+    }
+
+  PyVTKClass *pyclass = (PyVTKClass *)op;
+  PyObject *bases;
+  Py_ssize_t n;
+  for (n = 0; pyclass != NULL; n++)
+    {
+    bases = pyclass->vtk_bases;
+    pyclass = NULL;
+    if (PyTuple_Size(bases))
+      {
+      pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
+      }
+    }
+
+  PyObject **mro = new PyObject *[n];
+  pyclass = (PyVTKClass *)op;
+  for (n = 0; pyclass != NULL; n++)
+    {
+    mro[n] = (PyObject *)pyclass;
+    bases = pyclass->vtk_bases;
+    pyclass = NULL;
+    if (PyTuple_Size(bases))
+      {
+      pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
+      }
+    }
+
+  PyObject *dict = PyDict_New();
+  do
+    {
+    PyDict_Update(dict, PyVTKClass_GetDict(mro[--n]));
+    }
+  while (n > 0);
+  delete [] mro;
+
+  if (PyVTKObject_Check(arg) && ((PyVTKObject *)arg)->vtk_dict)
+    {
+    PyDict_Update(dict, ((PyVTKObject *)arg)->vtk_dict);
+    }
+ 
+  PyObject *rval = PyDict_Keys(dict);
+  Py_DECREF(dict);
+
+  return rval;
+}
+
+static PyMethodDef PyVTKClass_Dir_Method =
+{ "__dir__", PyVTKClass_Dir, METH_O, "class directory" };
+#endif
+
+//--------------------------------------------------------------------
 #if PY_MAJOR_VERSION >= 2
 static int PyVTKClass_Traverse(PyObject *o, visitproc visit, void *arg)
 {
@@ -266,6 +325,13 @@ static PyObject *PyVTKClassMetaType_GetAttr(PyObject *op, PyObject *attr)
     {
     return Py_BuildValue((char*)"[ss]", "__doc__", "__name__");
     }
+#if PY_VERSION_HEX >= 0x02020000
+  if (strcmp(name,"__dir__") == 0)
+    {
+    return PyCFunction_New(&PyVTKClass_Dir_Method, op);
+    }
+#endif
+
   PyErr_SetString(PyExc_AttributeError, name);
   return NULL;
 }
