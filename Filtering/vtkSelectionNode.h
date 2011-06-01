@@ -155,13 +155,7 @@ public:
   // Get or set the field type of the selection.
   // This is the same as setting the FIELD_TYPE() key on the property.
   virtual void SetFieldType(int type);
-  virtual int GetFieldType();
-
-  // Description:
-  // Get or set the prop of the selection.
-  // This is the same as setting the PROP() key on the property.
-  virtual void SetSelectedProp(vtkProp* prop);
-  virtual vtkProp* GetSelectedProp();
+  virtual int GetFieldType();S
 
   // Description:
   // For location selection of points, if distance is greater than this reject.
