@@ -90,7 +90,7 @@ template<typename T>
 class vtkVector2 : public vtkVector<T, 2>
 {
 public:
-  vtkVector2(const T& x = 0.0, const T& y = 0.0)
+  vtkVector2(const T& x = 0, const T& y = 0)
   {
     this->Data[0] = x;
     this->Data[1] = y;
@@ -133,7 +133,7 @@ template<typename T>
 class vtkVector3 : public vtkVector<T, 3>
 {
 public:
-  vtkVector3(const T& x = 0.0, const T& y = 0.0, const T& z = 0.0)
+  vtkVector3(const T& x = 0, const T& y = 0, const T& z = 0)
   {
     this->Data[0] = x;
     this->Data[1] = y;
