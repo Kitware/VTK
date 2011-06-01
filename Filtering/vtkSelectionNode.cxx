@@ -24,7 +24,6 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkProp.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/algorithm>
