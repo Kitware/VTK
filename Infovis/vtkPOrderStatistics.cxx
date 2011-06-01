@@ -124,7 +124,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timer=vtkTimerLog::New();
+  vtkTimerLog *timer = vtkTimerLog::New();
   timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
