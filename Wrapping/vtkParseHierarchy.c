@@ -65,13 +65,16 @@ HierarchyEntry *vtkParseHierarchy_FindEntry(
   /* use classname as-is for the search if possible */
   cp = (char *)classname;
 
-  /* look for template parameters */
-  n = vtkParse_NameLength(classname);
-  for (i = 0; i < n; i++)
+  /* get portion of name before final template parameters */
+  n = vtkParse_UnscopedNameLength(classname);
+  i = 0;
+  while (classname[i+n] == ':' && classname[i+n+1] == ':')
     {
-    if (classname[i] == '<') { break; }
+    i += n + 2;
+    n = vtkParse_UnscopedNameLength(&classname[i]);
     }
-
+  i += vtkParse_IdentifierLength(&classname[i]);
+      
   /* create a new (shorter) search string if necessary */
   if (classname[i] != '\0')
     {
@@ -256,7 +259,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
         strcpy(&cp[n], "::");
         strncpy(&cp[n+2], &line[i], m);
         i += m;
-        cp[n+m+3] = '\0';
+        cp[n+m+2] = '\0';
         free((char *)entry->Name);
         entry->Name = cp;
         }
@@ -976,7 +979,7 @@ const char *vtkParseHierarchy_ExpandTypedefsInName(
     }
   if (newname)
     {
-    cp = (char *)malloc(strlen(newname + 1));
+    cp = (char *)malloc(strlen(newname) + 1);
     strcpy(cp, newname);
     name = cp;
     }

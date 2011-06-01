@@ -164,6 +164,7 @@ public:
   // Key defining a request to propagate information about the update
   // extent downstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT_INFORMATION();
+  static vtkInformationRequestKey* REQUEST_MANAGE_INFORMATION();
 
   // Description:
   // Key defining to propagate resolution changes up the pipeline.

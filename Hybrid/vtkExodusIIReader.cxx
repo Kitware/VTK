@@ -381,12 +381,6 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
 
   this->SqueezePoints = 1;
 
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
-
-  this->EdgeDecorationMesh = 0;
-  this->FaceDecorationMesh = 0;
-  
   this->Parser = 0;
 
   this->FastPathObjectType = vtkExodusIIReader::NODAL;
@@ -1111,28 +1105,6 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
     }
 
   return status;
-}
-
-//-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputEdgeDecorations()
-{
-  if ( this->EdgeFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-
-}
-
-//-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputFaceDecorations()
-{
-  if ( this->FaceFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-  
 }
 
 //-----------------------------------------------------------------------------
@@ -4664,10 +4636,6 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
   // option is available:
   this->ProducedFastPathOutput = (this->AssembleArraysOverTime(output) != 0);
 
-  // Finally, generate the decorations for edge and face fields.
-  this->AssembleOutputEdgeDecorations();
-  this->AssembleOutputFaceDecorations();
-
   this->CloseFile();
 
   return 0;
@@ -4847,9 +4815,6 @@ void vtkExodusIIReaderPrivate::ResetSettings()
   this->AnimateModeShapes = 1;
 
   this->SqueezePoints = 1;
-
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
 
   this->InitialArrayInfo.clear();
   this->InitialObjectInfo.clear();
@@ -5773,26 +5738,6 @@ void vtkExodusIIReader::SetAnimateModeShapes(int flag)
 int vtkExodusIIReader::GetAnimateModeShapes()
 {
   return this->Metadata->GetAnimateModeShapes();
-}
-
-void vtkExodusIIReader::SetEdgeFieldDecorations( int d )
-{
-  this->Metadata->SetEdgeFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetEdgeFieldDecorations()
-{
-  return this->Metadata->GetEdgeFieldDecorations();
-}
-
-void vtkExodusIIReader::SetFaceFieldDecorations( int d )
-{
-  this->Metadata->SetFaceFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetFaceFieldDecorations()
-{
-  return this->Metadata->GetFaceFieldDecorations();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }

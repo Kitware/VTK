@@ -15,11 +15,11 @@ import exceptions
 import vtk
 from vtk.test import Testing
 
-arrayTypes = ['bool', 'char', 'int8', 'uint8', 'int16', 'uint16',
+arrayTypes = ['char', 'int8', 'uint8', 'int16', 'uint16',
               'int32', 'uint32', int, 'uint', 'int64', 'uint64',
               'float32', float, str, 'unicode', vtk.vtkVariant]
 
-arrayCodes = ['?', 'c', 'b', 'B', 'h', 'H',
+arrayCodes = ['c', 'b', 'B', 'h', 'H',
               'i', 'I', 'l', 'L', 'q', 'Q',
               'f', 'd']
 

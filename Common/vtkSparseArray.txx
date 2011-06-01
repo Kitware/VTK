@@ -360,7 +360,7 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
     return;
     }
 
-  for(vtkIdType i = 0; i != sort.GetDimensions(); ++i)
+  for(DimensionT i = 0; i != sort.GetDimensions(); ++i)
     {
     if(sort[i] < 0 || sort[i] >= this->GetDimensions())
       {
@@ -370,21 +370,21 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
     }
 
   const SizeT count = this->GetNonNullSize();
-  vtkstd::vector<vtkIdType> sort_order(count);
-  for(vtkIdType i = 0; i != count; ++i)
-    sort_order[i] = i;
+  vtkstd::vector<DimensionT> sort_order(count);
+  for(SizeT i = 0; i != count; ++i)
+    sort_order[i] = static_cast<DimensionT>(i);
   vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
 
-  vtkstd::vector<vtkIdType> temp_coordinates(count);
-  for(vtkIdType j = 0; j != this->GetDimensions(); ++j)
+  vtkstd::vector<DimensionT> temp_coordinates(count);
+  for(DimensionT j = 0; j != this->GetDimensions(); ++j)
     {
-    for(vtkIdType i = 0; i != count; ++i)
+    for(SizeT i = 0; i != count; ++i)
       temp_coordinates[i] = this->Coordinates[j][sort_order[i]];
     vtkstd::swap(temp_coordinates, this->Coordinates[j]);
     }
 
   vtkstd::vector<T> temp_values(count);
-  for(vtkIdType i = 0; i != count; ++i)
+  for(SizeT i = 0; i != count; ++i)
     temp_values[i] = this->Values[sort_order[i]];
   vtkstd::swap(temp_values, this->Values);
 }

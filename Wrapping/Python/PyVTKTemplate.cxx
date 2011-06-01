@@ -327,7 +327,7 @@ static PyObject *PyVTKTemplate_GetAttr(PyObject *self, PyObject *attr)
       }
     if (strcmp(name, "__bases__") == 0)
       {
-      return Py_BuildValue("()");
+      return Py_BuildValue((char *)"()");
       }
     }
 
@@ -475,7 +475,8 @@ int PyVTKTemplate_AddSpecialization(PyObject *self, PyObject *val)
   const char *cp;
   PyObject *keys[16];
   PyObject *key;
-  int i, j;
+  int i, n;
+  size_t j;
   bool isnumber;
 
   if (PyVTKClass_Check(val))
@@ -524,7 +525,7 @@ int PyVTKTemplate_AddSpecialization(PyObject *self, PyObject *val)
       }
     else
       {
-      keys[i] = PyString_FromStringAndSize(cp, j);
+      keys[i] = PyString_FromStringAndSize(cp, (Py_ssize_t)j);
       }
     cp += j;
     if (*cp == ',')
@@ -533,16 +534,17 @@ int PyVTKTemplate_AddSpecialization(PyObject *self, PyObject *val)
       }
     }
 
-  if (i == 1)
+  n = i;
+  if (n == 1)
     {
     key = keys[0];
     }
   else
     {
-    key = PyTuple_New(i);
-    for (j = 0; j < i; j++)
+    key = PyTuple_New(n);
+    for (i = 0; i < n; i++)
       {
-      PyTuple_SET_ITEM(key, j, keys[j]);
+      PyTuple_SET_ITEM(key, i, keys[i]);
       }
     }
 
