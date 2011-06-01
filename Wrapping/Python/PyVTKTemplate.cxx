@@ -327,7 +327,7 @@ static PyObject *PyVTKTemplate_GetAttr(PyObject *self, PyObject *attr)
       }
     if (strcmp(name, "__bases__") == 0)
       {
-      return Py_BuildValue("()");
+      return Py_BuildValue((char *)"()");
       }
     }
 

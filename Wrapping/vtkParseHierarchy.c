@@ -67,8 +67,10 @@ HierarchyEntry *vtkParseHierarchy_FindEntry(
 
   /* get portion of name before final template parameters */
   n = vtkParse_UnscopedNameLength(classname);
-  for (i = 0; classname[i+n] == ':' && classname[i+n+1] == ':'; i += n + 2)
+  i = 0;
+  while (classname[i+n] == ':' && classname[i+n+1] == ':')
     {
+    i += n + 2;
     n = vtkParse_UnscopedNameLength(&classname[i]);
     }
   i += vtkParse_IdentifierLength(&classname[i]);
@@ -977,7 +979,7 @@ const char *vtkParseHierarchy_ExpandTypedefsInName(
     }
   if (newname)
     {
-    cp = (char *)malloc(strlen(newname + 1));
+    cp = (char *)malloc(strlen(newname) + 1);
     strcpy(cp, newname);
     name = cp;
     }
