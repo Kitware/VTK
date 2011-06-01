@@ -69,7 +69,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Add a column for target compression
   vtkDoubleArray* doubleArray = vtkDoubleArray::New();
   doubleArray->SetNumberOfComponents( 1 );
-  doubleArray->SetName(" Compression ");
+  doubleArray->SetName( "Compression" );
   doubleArray->InsertNextValue( 1000. );
   inputPara->AddColumn( doubleArray );
   doubleArray->Delete();

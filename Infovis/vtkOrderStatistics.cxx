@@ -108,7 +108,7 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::Learn( vtkTable* inData,
-                                vtkTable* vtkNotUsed( inParameters ),
+                                vtkTable* inParameters,
                                 vtkMultiBlockDataSet* outMeta )
 {
   if ( ! inData )
@@ -120,6 +120,23 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     {
     return;
     }
+
+  // Parameters which might have been made available to the algorithm
+  double compression = -1.; // a target value which will always be satisfied
+
+  // Process parameter input table
+  if ( inParameters 
+       && inParameters->GetNumberOfRows() > 0 
+       && inParameters->GetNumberOfColumns() > 0 )
+    {
+    // Retrieve target compression if one is available (same for all variables)
+    if ( inParameters->GetColumnByName( "Compression" ) )
+      {
+      compression = inParameters->GetValueByName( 0, "Compression" ).ToDouble();
+      }
+    }
+
+  cerr << "Retrieved target compression of: " << compression << "\n";
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
