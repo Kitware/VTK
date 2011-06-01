@@ -83,21 +83,20 @@ int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
 {
   PyVTKObject *self = (PyVTKObject *)op;
   char *name = PyString_AsString(attr);
-  static const char *roattrs[] = {
-    "___dict__", "__class__", "__name__", "__module__", "__bases__", NULL };
-  char buf[128];
-  int i;
 
   if (name[0] == '_' && name[1] == '_')
     {
-    for (i = 0; roattrs[i] != NULL; i++)
-      { 
-      if (strcmp(name, roattrs[i]) == 0)
-        {
-        sprintf(buf, "%s is a read-only attribute", name);
-        PyErr_SetString(PyExc_RuntimeError, buf);
-        return -1;
-        }
+    if (strcmp(name, "__dict__") == 0)
+      {
+      PyErr_SetString(PyExc_RuntimeError,
+                      "__dict__ is a read-only attribute");
+      return -1;
+      }
+    if (strcmp(name, "__class__") == 0)
+      {
+      PyErr_SetString(PyExc_RuntimeError,
+                      "__class__ is a read-only attribute");
+      return -1;
       }
     }
 
@@ -184,28 +183,6 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
       {
       Py_INCREF(self->vtk_dict);
       return self->vtk_dict;
-      }
-
-    /* mimic a class to make help() work */
-    if (strcmp(name,"__bases__") == 0)
-      {
-      bases = PyTuple_New(1);
-      PyTuple_SetItem(bases, 0, (PyObject *)pyclass);
-      Py_INCREF(pyclass);
-      return bases;
-      }
-
-    if (strcmp(name,"__name__") == 0)
-      {
-      value = PyString_FromString("instance of ");
-      PyString_Concat(&value, pyclass->vtk_name);
-      return value;
-      }
-
-    if (strcmp(name,"__module__") == 0)
-      {
-      Py_INCREF(pyclass->vtk_module);
-      return pyclass->vtk_module;
       }
     }
 
