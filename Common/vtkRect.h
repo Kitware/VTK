@@ -30,8 +30,8 @@ template<typename T>
 class vtkRect : public vtkVector<T, 4>
 {
 public:
-  vtkRect(const T& x = 0.0, const T& y = 0.0, const T width = 0.0,
-          const T& height = 0.0 )
+  vtkRect(const T& x = 0, const T& y = 0, const T& width = 0,
+          const T& height = 0 )
   {
     this->Data[0] = x;
     this->Data[1] = y;
