@@ -239,22 +239,6 @@ int vtkSelectionNode::GetFieldType()
 }
 
 //----------------------------------------------------------------------------
-void vtkSelectionNode::SetSelectedProp(vtkProp* prop)
-{
-  this->GetProperties()->Set(vtkSelectionNode::PROP(), prop);
-}
-
-//----------------------------------------------------------------------------
-vtkProp* vtkSelectionNode::GetSelectedProp()
-{
-  if (this->GetProperties()->Has(vtkSelectionNode::PROP()))
-    {
-    return vtkProp::SafeDownCast(this->GetProperties()->Get(vtkSelectionNode::PROP()));
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
   bool fullcompare/*=true*/)
 {
