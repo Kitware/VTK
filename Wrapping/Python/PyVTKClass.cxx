@@ -239,7 +239,7 @@ static PyObject *PyVTKClass_Dir(PyObject *op, PyObject *arg)
 }
 
 static PyMethodDef PyVTKClass_Dir_Method =
-{ "__dir__", PyVTKClass_Dir, METH_O, "class directory" };
+{ (char *)"__dir__", PyVTKClass_Dir, METH_O, (char *)"class directory" };
 #endif
 
 //--------------------------------------------------------------------
