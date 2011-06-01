@@ -239,7 +239,6 @@ protected:
 
   // Description:
   // Execute the calculations required by the Learn option, given some input Data
-  // NB: input parameters are unused.
   virtual void Learn( vtkTable*,
                       vtkTable*,
                       vtkMultiBlockDataSet* ) = 0;
