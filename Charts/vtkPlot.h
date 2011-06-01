@@ -25,11 +25,11 @@
 #define __vtkPlot_h
 
 #include "vtkContextItem.h"
+#include "vtkStdString.h" // Needed to hold TooltipLabelFormat ivar
 #include "vtkSmartPointer.h"  // Needed to hold SP ivars
 
 class vtkVariant;
 class vtkTable;
-class vtkStdString;
 class vtkIdTypeArray;
 class vtkContextMapper2D;
 class vtkPen;
@@ -54,6 +54,20 @@ public:
   virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
                            int legendIndex);
 
+  // Description:
+  // Sets/gets a printf-style string to build custom tooltip labels from.
+  // An empty string generates the default tooltip labels.
+  // The following case-sensitive format tags (without quotes) are recognized:
+  //   '%x' The X value of the plot element
+  //   '%y' The Y value of the plot element
+  //   '%i' The IndexedLabels entry for the plot element
+  //   '%l' The value of the plot's GetLabel() function
+  //   '%s' (vtkPlotBar only) The Labels entry for the bar segment
+  // Any other characters or unrecognized format tags are printed in the
+  // tooltip label verbatim.
+  virtual void SetTooltipLabelFormat(const vtkStdString &label);
+  virtual vtkStdString GetTooltipLabelFormat();
+
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
@@ -62,6 +76,14 @@ public:
   virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
                                     vtkVector2f* location);
+
+  // Description:
+  // Generate and return the tooltip label string for this plot
+  // The segmentIndex parameter is ignored, except for vtkPlotBar
+  virtual void GetTooltipLabel(const vtkVector2f &plotPos,
+                               vtkIdType seriesIndex,
+                               vtkIdType segmentIndex,
+                               vtkStdString* tooltipLabel);
 
   // Description:
   // Select all points in the specified rectangle.
@@ -192,6 +214,24 @@ protected:
   ~vtkPlot();
 
   // Description:
+  // Generate and return the tooltip label string for this plot.
+  // Called if TooltipLabelFormat is empty.
+  // May be reimplemented by plot types subclassing vtkPlot.
+  virtual void GetDefaultTooltipLabel(const vtkVector2f &plotPos,
+                                      vtkIdType seriesIndex,
+                                      vtkIdType segmentIndex,
+                                      vtkStdString* tooltipLabel);
+
+  // Description:
+  // Generate and return a user-formatted tooltip label string for this plot.
+  // Called if TooltipLabelFormat is not empty.
+  // May be reimplemented by plot types subclassing vtkPlot.
+  virtual void GetCustomTooltipLabel(const vtkVector2f &plotPos,
+                                      vtkIdType seriesIndex,
+                                      vtkIdType segmentIndex,
+                                      vtkStdString* tooltipLabel);
+
+  // Description:
   // This object stores the vtkPen that controls how the plot is drawn.
   vtkPen* Pen;
 
@@ -232,6 +272,11 @@ protected:
   // Description:
   // The X axis associated with this plot.
   vtkAxis* YAxis;
+
+  // Description:
+  // A printf-style string to build custom tooltip labels from.
+  // See the accessor/mutator functions for full documentation.
+  vtkStdString TooltipLabelFormat;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.
