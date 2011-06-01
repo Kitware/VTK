@@ -379,6 +379,7 @@ public:
   static vtkInformationIntegerKey* PRESERVES_TOPOLOGY();
   static vtkInformationIntegerKey* PRESERVES_ATTRIBUTES();
   static vtkInformationIntegerKey* PRESERVES_RANGES();
+  static vtkInformationIntegerKey* MANAGES_METAINFORMATION();
 
 protected:
   vtkAlgorithm();
