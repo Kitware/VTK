@@ -155,7 +155,7 @@ public:
   // Get or set the field type of the selection.
   // This is the same as setting the FIELD_TYPE() key on the property.
   virtual void SetFieldType(int type);
-  virtual int GetFieldType();S
+  virtual int GetFieldType();
 
   // Description:
   // For location selection of points, if distance is greater than this reject.
