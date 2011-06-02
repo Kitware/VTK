@@ -38,11 +38,14 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
+#include "vtksys/CommandLineArguments.hxx"
+
 struct RandomOrderStatisticsArgs
 {
   int nVals;
   double stdev;
-  double absTol;
+  bool quantize;
+  int maxHistoSize;
   int* retVal;
   int ioRank;
 };
@@ -153,8 +156,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   pos->SetDeriveOption( true );
   pos->SetAssessOption( false );
   pos->SetTestOption( false );
-  pos->SetQuantize( true ); // Will allow for quantization
-  pos->SetMaximumHistogramSize( 50 ); // Keep histogram small for scalability
+  pos->SetQuantize( args->quantize );
+  pos->SetMaximumHistogramSize( args->maxHistoSize );
   pos->Update();
 
   // Synchronize and stop clock
@@ -312,6 +315,45 @@ int main( int argc, char** argv )
       }
     }
 
+  // **************************** Parse command line ***************************
+  // Set default argument values
+  int nVals = 100000;
+  double stdev = 50.;
+  bool quantize = false;
+  int maxHistoSize = 500;
+
+  // Initialize command line argument parser
+  vtksys::CommandLineArguments clArgs;
+  clArgs.Initialize( argc, argv );
+  clArgs.StoreUnusedArguments( false );
+
+  // Parse per-process cardinality of each pseudo-random sample
+  clArgs.AddArgument("--n-per-proc",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse standard deviation of each pseudo-random sample
+  clArgs.AddArgument("--std-dev",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &stdev, "Standard deviation of each pseudo-random sample");
+
+  // Parse maximum histogram size
+  clArgs.AddArgument("--max-histo-size",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &maxHistoSize, "Maximum histogram size (when re-quantizing is allowed)");
+
+  // Parse whether quantization should be used (to reduce histogram size)
+  clArgs.AddArgument("--quantize",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &quantize, "Allow re-quantizing");
+
+  // If incorrect arguments were provided, terminate in error.
+  if ( ! clArgs.Parse() )
+    {
+    vtkGenericWarningMacro("Incorrect input data arguments were provided.");
+    return 1;
+    }
+
   // ************************** Initialize test *********************************
   if ( com->GetLocalProcessId() == ioRank )
     {
@@ -324,10 +366,10 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomOrderStatisticsArgs args;
-
-  args.nVals = 1000000;
-  args.stdev = 50.;
-  args.absTol = 1.e-6;
+  args.nVals = nVals;
+  args.stdev = stdev;
+  args.quantize = quantize;
+  args.maxHistoSize = maxHistoSize;
   args.retVal = &testValue;
   args.ioRank = ioRank;
 
