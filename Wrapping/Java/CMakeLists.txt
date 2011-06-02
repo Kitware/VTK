@@ -43,6 +43,7 @@ IF(JAVA_COMPILE)
     STRING(REGEX REPLACE "\\.java" ".class;" CLASS_FILES ${VTK_JAVA_DEPENDENCIES})
     ADD_CUSTOM_TARGET(VTKJava ALL)
     ADD_CUSTOM_TARGET(VTKJavaJar ALL)
+    ADD_CUSTOM_TARGET(VTKJavaSampleJar ALL)
 
     SET(KITS Common Filtering IO Graphics GenericFiltering Imaging)
     IF (VTK_USE_RENDERING)
