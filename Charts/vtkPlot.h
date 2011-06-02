@@ -116,19 +116,21 @@ public:
   vtkGetObjectMacro(Brush, vtkBrush);
 
   // Description:
-  // Set a single label on this plot.
+  // Set the label of this plot.
   virtual void SetLabel(const vtkStdString &label);
 
   // Description:
-  // Get the single label of this plot.
+  // Get the label of this plot.
   virtual vtkStdString GetLabel();
 
   // Description:
-  // Set the plot labels.
+  // Set the plot labels, these are used for stacked chart variants, with the
+  // index referring to the stacking index.
   virtual void SetLabels(vtkStringArray *labels);
 
   // Description:
-  // Get the plot labels.
+  // Get the plot labels. If this array has a length greater than 1 the index
+  // refers to the stacked objects in the plot. See vtkPlotBar for example.
   virtual vtkStringArray *GetLabels();
 
   // Description:
