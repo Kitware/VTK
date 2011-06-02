@@ -24,6 +24,7 @@
 #include "vtkContextMapper2D.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkNew.h"
 #include "vtksys/ios/sstream"
 
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
@@ -219,10 +220,9 @@ float vtkPlot::GetWidth()
 //-----------------------------------------------------------------------------
 void vtkPlot::SetLabel(const vtkStdString& label)
 {
-  vtkStringArray *labels = vtkStringArray::New();
+  vtkNew<vtkStringArray> labels;
   labels->InsertNextValue(label);
-  this->SetLabels(labels);
-  labels->Delete();
+  this->SetLabels(labels.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
