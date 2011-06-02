@@ -509,7 +509,7 @@ int vtkWrapPython_HasWrappedSuperClass(
   header = entry->HeaderFile;
   while (entry->NumberOfSuperClasses == 1)
     {
-    supername = vtkParseHierarchy_SpecializedSuperClass(entry, name, 0);
+    supername = vtkParseHierarchy_TemplatedSuperClass(entry, name, 0);
     if (name != classname)
       {
       free((char *)name);
@@ -4275,8 +4275,8 @@ int vtkWrapPython_WrapTemplatedClass(
   FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo)
 {
   char classname[1024];
-  const char *specializations[1024];
-  int nspecializations = 0;
+  const char *instantiations[1024];
+  int ninstantiations = 0;
   int i, j, k, nargs;
   ClassInfo *sdata;
   ValueInfo *tdef;
@@ -4286,7 +4286,7 @@ int vtkWrapPython_WrapTemplatedClass(
   const char **args;
   const char **defaults;
   const char *modulename;
-  const char *specialized_name;
+  const char *name_with_args;
   int is_vtkobject = 0;
   const char **types;
 
@@ -4308,7 +4308,7 @@ int vtkWrapPython_WrapTemplatedClass(
   modulename = entry->Module;
   defaults = entry->TemplateArgDefaults;
 
-  /* find all specializations from derived classes */
+  /* find all instantiations from derived classes */
   for (j = 0; j < hinfo->NumberOfEntries; j++)
     {
     entry = &hinfo->Entries[j];
@@ -4319,7 +4319,7 @@ int vtkWrapPython_WrapTemplatedClass(
       {
       continue;
       }
-    /* look for typedefs of template specializations */
+    /* look for typedefs of template instantiations */
     if (entry->IsTypedef)
       {
       tdef = entry->Typedef;
@@ -4374,36 +4374,36 @@ int vtkWrapPython_WrapTemplatedClass(
             }
           }
 
-        specialized_name = NULL;
+        name_with_args = NULL;
         if (strcmp(data->Name, entry->Name) == 0)
           {
           /* entry is the same as data */
           cp = (char *)malloc(strlen(classname) + 1);
           strcpy(cp, classname);
-          specialized_name = cp;
+          name_with_args = cp;
           }
         else
           {
-          /* entry is not data, see if it is a specialized subclass,
-           * and if so, what specialization of 'data' it derives from */
+          /* entry is not data, see if it is a subclass, and if so,
+           * what template args of 'data' it corresponds to */
           vtkParseHierarchy_IsTypeOfTemplated(
-            hinfo, entry, classname, data->Name, &specialized_name);
+            hinfo, entry, classname, data->Name, &name_with_args);
           }
 
-        if (specialized_name)
+        if (name_with_args)
           {
-          /* append to the list of specializations if not present yet */
-          for (k = 0; k < nspecializations; k++)
+          /* append to the list of instantiations if not present yet */
+          for (k = 0; k < ninstantiations; k++)
             {
-            if (strcmp(specialized_name, specializations[k]) == 0) { break; }
+            if (strcmp(name_with_args, instantiations[k]) == 0) { break; }
             }
-          if (k == nspecializations)
+          if (k == ninstantiations)
             {
-            specializations[nspecializations++] = specialized_name;
+            instantiations[ninstantiations++] = name_with_args;
             }
           else
             {
-            free((char *)specialized_name);
+            free((char *)name_with_args);
             }
           }
 
@@ -4412,22 +4412,22 @@ int vtkWrapPython_WrapTemplatedClass(
       }
     }
 
-  if (nspecializations)
+  if (ninstantiations)
     {
-    for (k = 0; k < nspecializations; k++)
+    for (k = 0; k < ninstantiations; k++)
       {
-      entry = vtkParseHierarchy_FindEntry(hinfo, specializations[k]);
+      entry = vtkParseHierarchy_FindEntry(hinfo, instantiations[k]);
       is_vtkobject = vtkParseHierarchy_IsTypeOfTemplated(
-        hinfo, entry, specializations[k], "vtkObjectBase", NULL);
+        hinfo, entry, instantiations[k], "vtkObjectBase", NULL);
 
       nargs = data->Template->NumberOfArguments;
-      vtkParse_DecomposeTemplatedType(specializations[k],
+      vtkParse_DecomposeTemplatedType(instantiations[k],
         &name, nargs, &args, defaults);
 
       sdata = (ClassInfo *)malloc(sizeof(ClassInfo));
       vtkParse_CopyClass(sdata, data);
-      vtkParse_SpecializeTemplatedClass(sdata, nargs, args);
-      vtkParse_MangledTypeName(specializations[k], classname);
+      vtkParse_InstantiateClassTemplate(sdata, nargs, args);
+      vtkParse_MangledTypeName(instantiations[k], classname);
 
       vtkWrapPython_WrapOneClass(
         fp, classname, sdata, file_info, hinfo, is_vtkobject);
@@ -4444,14 +4444,14 @@ int vtkWrapPython_WrapTemplatedClass(
     vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
 
     fprintf(fp,
-            "    \"\\nSpecializations:\\n\\n\",\n");
+            "    \"\\nProvided Types:\\n\\n\",\n");
 
-    for (k = 0; k < nspecializations; k++)
+    for (k = 0; k < ninstantiations; k++)
       {
-      vtkWrapPython_PythonicName(specializations[k], classname);
+      vtkWrapPython_PythonicName(instantiations[k], classname);
       fprintf(fp,
              "    \"  %s => %s\\n\",\n",
-             classname, specializations[k]);
+             classname, instantiations[k]);
       }
 
     fprintf(fp,
@@ -4469,13 +4469,13 @@ int vtkWrapPython_WrapTemplatedClass(
             "\n",
             data->Name, data->Name, data->Name);
 
-    for (k = 0; k < nspecializations; k++)
+    for (k = 0; k < ninstantiations; k++)
       {
-      vtkParse_MangledTypeName(specializations[k], classname);
+      vtkParse_MangledTypeName(instantiations[k], classname);
 
-      entry = vtkParseHierarchy_FindEntry(hinfo, specializations[k]);
+      entry = vtkParseHierarchy_FindEntry(hinfo, instantiations[k]);
       if (vtkParseHierarchy_IsTypeOfTemplated(
-            hinfo, entry, specializations[k], "vtkObjectBase", NULL))
+            hinfo, entry, instantiations[k], "vtkObjectBase", NULL))
         {
         fprintf(fp,
             "  o = PyVTKClass_%sNew(modulename);\n",
@@ -4489,13 +4489,13 @@ int vtkWrapPython_WrapTemplatedClass(
         }
 
       fprintf(fp,
-            "  if (o && PyVTKTemplate_AddSpecialization(temp, o) != 0)\n"
+            "  if (o && PyVTKTemplate_AddItem(temp, o) != 0)\n"
             "    {\n"
             "    Py_DECREF(o);\n"
             "    }\n"
             "\n");
 
-      free((char *)specializations[k]);
+      free((char *)instantiations[k]);
       }
 
     fprintf(fp,

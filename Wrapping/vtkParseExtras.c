@@ -894,7 +894,7 @@ void vtkParse_ValueInfoFromString(ValueInfo *data, const char *text)
 
 
 
-/* substitute template types and values with specialized types and values */
+/* substitute generic types and values with actual types and values */
 static void func_substitution(
   FunctionInfo *data, int m, const char *arg_names[],
   const char *arg_values[], ValueInfo *arg_types[]);
@@ -1118,8 +1118,8 @@ void vtkParse_FreeTemplateDecomposition(
 }
 
 
-/* Specialize a templated class by substituting the provided arguments. */
-void vtkParse_SpecializeTemplatedClass(
+/* Instantiate a class template by substituting the provided arguments. */
+void vtkParse_InstantiateClassTemplate(
   ClassInfo *data, int n, const char *args[])
 {
   TemplateArgs *t = data->Template;
@@ -1132,15 +1132,15 @@ void vtkParse_SpecializeTemplatedClass(
 
   if (t == NULL)
     {
-    fprintf(stderr, "vtkParse_SpecializeTemplatedClass: "
-            "attempt to specialize a non-templated class.\n");
+    fprintf(stderr, "vtkParse_InstantiateClassTemplate: "
+            "this class is not templated.\n");
     return;
     }
 
   m = t->NumberOfArguments;
   if (n > m)
     {
-    fprintf(stderr, "vtkParse_SpecializeTemplatedClass: "
+    fprintf(stderr, "vtkParse_InstantiateClassTemplate: "
             "too many template args.\n");
     return;
     }
@@ -1150,7 +1150,7 @@ void vtkParse_SpecializeTemplatedClass(
     if (t->Arguments[i]->Value == NULL ||
         t->Arguments[i]->Value[0] == '\0')
       {
-      fprintf(stderr, "vtkParse_SpecializeTemplatedClass: "
+      fprintf(stderr, "vtkParse_InstantiateClassTemplate: "
               "too few template args.\n");
       return;
       }
@@ -1186,14 +1186,14 @@ void vtkParse_SpecializeTemplatedClass(
       }
     }
 
-  /* no longer templated (has been specialized) */
+  /* no longer a template (has been instantiated) */
   if (data->Template)
     {
     vtkParse_FreeTemplateArgs(data->Template);
     }
   data->Template = NULL;
 
-  /* specialize the name */
+  /* append template args to class name */
   k = strlen(data->Name) + 2;
   for (i = 0; i < m; i++)
     {
@@ -1222,7 +1222,7 @@ void vtkParse_SpecializeTemplatedClass(
   data->Name = vtkParse_DuplicateString(new_name, k);
   free((char *)new_name);
 
-  /* do the specialization */
+  /* do the template arg substitution */
   class_substitution(data, m, arg_names, args, arg_types);
 
   /* free all allocated arrays */
