@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 #include "vtkPOrderStatistics.h"
 
-#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
@@ -66,13 +66,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Generate a parameter table for the Learn option
   vtkTable* inputPara = vtkTable::New();
 
-  // Add a column for target compression
-  vtkDoubleArray* doubleArray = vtkDoubleArray::New();
-  doubleArray->SetNumberOfComponents( 1 );
-  doubleArray->SetName( "Compression" );
-  doubleArray->InsertNextValue( 1000. );
-  inputPara->AddColumn( doubleArray );
-  doubleArray->Delete();
+  // Add a column for maximum histogram size
+  vtkIdTypeArray* idTypeArray = vtkIdTypeArray::New();
+  idTypeArray->SetNumberOfComponents( 1 );
+  idTypeArray->SetName( "MaxSize" );
+  idTypeArray->InsertNextValue( 50 );
+  inputPara->AddColumn( idTypeArray );
+  idTypeArray->Delete();
   
   // Generate an input table that contains samples of a truncated Gaussian pseudo-random variable
   int nVariables = 1;
@@ -337,7 +337,7 @@ int main( int argc, char** argv )
   RandomOrderStatisticsArgs args;
 
   args.nVals = 1000000;
-  args.stdev = 5.;
+  args.stdev = 50.;
   args.absTol = 1.e-6;
   args.retVal = &testValue;
   args.ioRank = ioRank;

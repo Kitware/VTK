@@ -122,21 +122,22 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     }
 
   // Parameters which might have been made available to the algorithm
-  double compression = -1.; // a target value which will always be satisfied
-
+  vtkIdType maxSize = -1.; // an invalid target value by default
+  int iteration = 0; // by default, this is initial learn operation
+  
   // Process parameter input table
   if ( inParameters 
        && inParameters->GetNumberOfRows() > 0 
        && inParameters->GetNumberOfColumns() > 0 )
     {
-    // Retrieve target compression if one is available (same for all variables)
-    if ( inParameters->GetColumnByName( "Compression" ) )
+    // Retrieve maximum histogram size if one is available (same for all variables)
+    if ( inParameters->GetColumnByName( "MaxSize" ) )
       {
-      compression = inParameters->GetValueByName( 0, "Compression" ).ToDouble();
+      maxSize = inParameters->GetValueByName( 0, "MaxSize" ).ToInt();
       }
     }
 
-  cerr << "Retrieved target compression of: " << compression << "\n";
+  cerr << "Retrieved target histogram size of: " << maxSize << "\n";
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
@@ -211,6 +212,16 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       for ( vtkIdType r = 0; r < nRow; ++ r )
         {
         ++ histogram[dvals->GetTuple1( r )];
+        }
+
+      // Retrieve extremal values
+      double mini = histogram.begin()->first;
+      double maxi = histogram.rbegin()->first;
+      vtkIdType Nq = histogram.size();
+
+      if ( Nq > maxSize )
+        {
+        cerr << "Only achieved size of " << Nq << "\n";
         }
 
       // Store histogram
