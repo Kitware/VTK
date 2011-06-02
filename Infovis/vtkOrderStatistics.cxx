@@ -209,14 +209,13 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         // If histogram is too big, quantization will have to occur
         while ( Nq > this->MaximumHistogramSize )
           {
-          cerr << "** Nq = " << Nq << "\n";
           // Retrieve extremal values
           double mini = histogram.begin()->first;
           double maxi = histogram.rbegin()->first;
 
           // Create bucket width based on target histogram size
           // FIXME: .5 is arbitrary at this point
-          double width = ( maxi - mini ) / ceil( .3 * Nq  );
+          double width = ( maxi - mini ) / vtkMath::Round(  Nq / 2. );
           
           // Now re-calculate histogram by quantizing values
           histogram.clear();
@@ -225,17 +224,14 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
           for ( vtkIdType r = 0; r < nRow; ++ r )
             {
             reading = dvals->GetTuple1( r );
-            quantum = mini + ceil( ( reading - mini ) / width ) * width;
+            quantum = mini + vtkMath::Round( ( reading - mini ) / width ) * width;
             ++ histogram[quantum];
             }
 
-          // Update histogram size for conditional
+          // Update histogram size for conditional clause
           Nq = histogram.size();
           }
-        
         }
-
-
 
       // Store histogram
       for ( vtksys_stl::map<double,vtkIdType>::iterator mit = histogram.begin();
