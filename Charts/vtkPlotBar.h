@@ -120,6 +120,13 @@ public:
   virtual vtkStdString GetGroupName();
 
   // Description:
+  // Generate and return the tooltip label string for this plot
+  // The segmentIndex is implemented here.
+  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+                                       vtkIdType seriesIndex,
+                                       vtkIdType segmentIndex);
+
+  // Description:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 
