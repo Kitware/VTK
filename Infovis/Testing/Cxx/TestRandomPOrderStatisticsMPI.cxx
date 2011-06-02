@@ -63,17 +63,6 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
-  // Generate a parameter table for the Learn option
-  vtkTable* inputPara = vtkTable::New();
-
-  // Add a column for maximum histogram size
-  vtkIdTypeArray* idTypeArray = vtkIdTypeArray::New();
-  idTypeArray->SetNumberOfComponents( 1 );
-  idTypeArray->SetName( "MaxSize" );
-  idTypeArray->InsertNextValue( 50 );
-  inputPara->AddColumn( idTypeArray );
-  idTypeArray->Delete();
-  
   // Generate an input table that contains samples of a truncated Gaussian pseudo-random variable
   int nVariables = 1;
   vtkIntArray* intArray[1];
@@ -154,7 +143,6 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel order statistics engine and set its ports
   vtkPOrderStatistics* pos = vtkPOrderStatistics::New();
   pos->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-  pos->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, inputPara );
   vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
@@ -165,6 +153,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   pos->SetDeriveOption( true );
   pos->SetAssessOption( false );
   pos->SetTestOption( false );
+  pos->SetQuantize( true ); // Will allow for quantization
+  pos->SetMaximumHistogramSize( 50 ); // Keep histogram small for scalability
   pos->Update();
 
   // Synchronize and stop clock
@@ -262,7 +252,6 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   delete [] max_l;
   pos->Delete();
   inputData->Delete();
-  inputPara->Delete();
   timer->Delete();
 }
 
