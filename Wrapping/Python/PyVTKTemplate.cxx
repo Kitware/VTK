@@ -15,9 +15,9 @@
 /*-----------------------------------------------------------------------
   The PyVTKTemplate was created in May 2011 by David Gobbi.
 
-  This object is a container for specializations of templated types.
-  Essentially, it is a "dict" that accepts specialized template args
-  as keys, and provides the corresponding specialized type.
+  This object is a container for instantiations of templated types.
+  Essentially, it is a "dict" that accepts template args as keys,
+  and provides the corresponding instantiation of the template.
 -----------------------------------------------------------------------*/
 
 #include "PyVTKTemplate.h"
@@ -35,9 +35,9 @@
 //--------------------------------------------------------------------
 
 const char *PyVTKTemplate_Doc =
-  "A container for specialations of template classes.\n\n"
+  "A container for instantiations of class and function templates.\n\n"
   "This is a dictionary for templates, provide the template args\n"
-  "in square brackets to get the desired specialized type.\n";
+  "in square brackets to get the desired kind of class.\n";
 
 //--------------------------------------------------------------------
 // methods from python
@@ -112,11 +112,11 @@ static PyMethodDef PyVTKTemplate_Methods[] = {
   {(char*)"keys", PyVTKTemplate_Keys, METH_VARARGS,
    (char *)"T.keys() -> list of allowed template args."},
   {(char*)"values", PyVTKTemplate_Values, METH_VARARGS,
-   (char *)"T.values() -> list of provided specialized types."},
+   (char *)"T.values() -> list of provided template instantiations."},
   {(char*)"items", PyVTKTemplate_Items, METH_VARARGS,
    (char *)"T.items() -> list of (args,types) pairs."},
   {(char*)"get", PyVTKTemplate_Get, METH_VARARGS,
-   (char *)"T.get(args) -> get specialized type or None."},
+   (char *)"T.get(args) -> get instantiated template type or None."},
   {(char*)"copy", PyVTKTemplate_Copy, METH_VARARGS,
    (char *)"T.copy() -> get a shallow copy of T."},
   { NULL, NULL, 0, NULL }
@@ -469,7 +469,7 @@ static size_t template_bracket_len(const char *text)
 }
 
 //--------------------------------------------------------------------
-int PyVTKTemplate_AddSpecialization(PyObject *self, PyObject *val)
+int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
 {
   const char *name = NULL;
   const char *cp;

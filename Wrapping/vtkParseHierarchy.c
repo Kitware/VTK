@@ -540,15 +540,15 @@ void vtkParseHierarchy_Free(HierarchyInfo *info)
 
 /* Check whether class is derived from baseclass.  You must supply
  * the entry for the class (returned by FindEntry) as well as the
- * classname.  The classname can be a specialized template, with the
+ * classname.  If the class is templated, the classname can include 
  * template args in angle brackets.  If you provide a pointer for
- * specialized_baseclass, then it will be used to return the specialized
- * name of the baseclass.  */
+ * baseclass_with_args, then it will be used to return the name of
+ * name of the baseclass with template args in angle brackets. */
 
 int vtkParseHierarchy_IsTypeOfTemplated(
   const HierarchyInfo *info,
   const HierarchyEntry *entry, const char *classname,
-  const char *baseclass, const char **specialized_baseclass)
+  const char *baseclass, const char **baseclass_with_args)
 {
   HierarchyEntry *tmph;
   const char *name;
@@ -576,7 +576,7 @@ int vtkParseHierarchy_IsTypeOfTemplated(
     /* if classname is the same as baseclass, done! */
     if (strcmp(entry->Name, baseclass) == 0)
       {
-      if (specialized_baseclass)
+      if (baseclass_with_args)
         {
         if (!classname_needs_free)
           {
@@ -584,7 +584,7 @@ int vtkParseHierarchy_IsTypeOfTemplated(
           strcpy(tmp, classname);
           classname = tmp;
           }
-        *specialized_baseclass = classname;
+        *baseclass_with_args = classname;
         classname_needs_free = 0;
         }
       rval = 1;
@@ -599,7 +599,7 @@ int vtkParseHierarchy_IsTypeOfTemplated(
     /* if class is templated */
     if (entry->NumberOfTemplateArgs)
       {
-      /* check for template specialization of classname */
+      /* check for template args for classname */
       m = strlen(entry->Name);
       if (classname[m] == '<')
         {
@@ -630,7 +630,7 @@ int vtkParseHierarchy_IsTypeOfTemplated(
             }
           }
 
-        /* use the class template args to specialize the baseclass */
+        /* use the class template args to find baseclass template args */
         supername = vtkParse_StringReplace(
           supername, entry->NumberOfTemplateArgs, entry->TemplateArgs, args);
         if (supername != entry->SuperClasses[j])
@@ -697,7 +697,7 @@ int vtkParseHierarchy_IsTypeOfTemplated(
           {
           rval = vtkParseHierarchy_IsTypeOfTemplated(
                    info, &info->Entries[i], classname, baseclass,
-                   specialized_baseclass);
+                   baseclass_with_args);
           }
         }
 
@@ -721,9 +721,9 @@ int vtkParseHierarchy_IsTypeOfTemplated(
     free((char *)classname);
     }
 
-  if (specialized_baseclass && !rval)
+  if (baseclass_with_args && !rval)
     {
-    *specialized_baseclass = NULL;
+    *baseclass_with_args = NULL;
     }
 
   return rval;
@@ -754,7 +754,7 @@ void vtkParseHierarchy_FreeTemplateArgs(int n, const char *args[])
  * with corresponding template parameters.  Returns null if 'i' is out
  * of range, i.e. greater than or equal to the number of superclasses.
  * The returned classname must be freed with "free()". */
-const char *vtkParseHierarchy_SpecializedSuperClass(
+const char *vtkParseHierarchy_TemplatedSuperClass(
   const HierarchyEntry *entry, const char *classname, int i)
 {
   const char *supername = NULL;
