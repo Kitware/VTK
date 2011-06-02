@@ -233,13 +233,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
            << max_c
            << "\n";
 
-    if ( min_c != min_g )
+    if ( fabs( min_c - min_g ) > 1.e-6 )
         {
         vtkGenericWarningMacro("Incorrect minimum.");
         *(args->retVal) = 1;
         }
 
-    if ( max_c != max_g )
+    if ( fabs( max_c - max_g ) > 1.e-6 )
         {
         vtkGenericWarningMacro("Incorrect maximum.");
         *(args->retVal) = 1;
