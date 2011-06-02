@@ -42,6 +42,8 @@ vtkPlot::vtkPlot()
   this->Selection = NULL;
   this->XAxis = NULL;
   this->YAxis = NULL;
+
+  this->TooltipDefaultLabelFormat = "%l: %x,  %y";
 }
 
 //-----------------------------------------------------------------------------
@@ -86,123 +88,85 @@ vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::GetTooltipLabel(const vtkVector2f &plotPos,
-                              vtkIdType seriesIndex,
-                              vtkIdType segmentIndex,
-                              vtkStdString* tooltipLabel)
+vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2f &plotPos,
+                                      vtkIdType seriesIndex,
+                                      vtkIdType)
 {
-  if (!tooltipLabel)
-    {
-    return;
-    }
-  tooltipLabel->clear();
-
-  if (this->TooltipLabelFormat.empty())
-    {
-    this->GetDefaultTooltipLabel(plotPos, seriesIndex, segmentIndex,
-                                 tooltipLabel);
-    }
-  else
-    {
-    this->GetCustomTooltipLabel(plotPos, seriesIndex, segmentIndex,
-                               tooltipLabel);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkPlot::GetDefaultTooltipLabel(const vtkVector2f &plotPos,
-                                     vtkIdType seriesIndex,
-                                     vtkIdType segmentIndex,
-                                     vtkStdString* tooltipLabel)
-{
-  this->TooltipLabelFormat.clear(); // Should already be empty
-
-  if (this->IndexedLabels)
-    {
-    this->TooltipLabelFormat += "%i";
-    }
-  else
-    {
-    this->TooltipLabelFormat += "%l";
-    }
-  this->TooltipLabelFormat += ": %x,  %y";
-
-  this->GetCustomTooltipLabel(plotPos, seriesIndex, segmentIndex,
-                              tooltipLabel);
-  this->TooltipLabelFormat.clear();
-}
-
-//-----------------------------------------------------------------------------
-void vtkPlot::GetCustomTooltipLabel(const vtkVector2f &plotPos,
-                                    vtkIdType seriesIndex,
-                                    vtkIdType segmentIndex,
-                                    vtkStdString* tooltipLabel)
-{
-  // Determine and format the X and Y position in the chart
-  vtksys_ios::ostringstream ostr;
-  ostr.imbue(vtkstd::locale::classic());
-  ostr.setf(ios::fixed, ios::floatfield);
-
-  ostr.precision(this->XAxis->GetPrecision());
-  // If axes are set to logarithmic scale we need to convert the
-  // axis value using 10^(axis value)
-  ostr << (this->XAxis->GetLogScale()?
-    pow(double(10.0), double(plotPos.X())):
-    plotPos.X());
-  vtkStdString chartPosX(ostr.str());
-
-  ostr.str("");
-  ostr.precision(this->YAxis->GetPrecision());
-  ostr << (this->YAxis->GetLogScale()?
-    pow(double(10.0), double(plotPos.Y())):
-    plotPos.Y());
-  vtkStdString chartPosY(ostr.str());
-
+  vtkStdString tooltipLabel;
+  vtkStdString &format = this->TooltipLabelFormat.empty() ?
+        this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
-  for (int i =0; i < TooltipLabelFormat.length(); i++)
+  for (size_t i = 0; i < format.length(); ++i)
     {
     if (escapeNext)
       {
-      switch (TooltipLabelFormat.at(i))
+      switch (format[i])
         {
         case 'x':
-          *tooltipLabel += chartPosX;
+          tooltipLabel += this->GetNumber(plotPos.X(), this->XAxis);
           break;
         case 'y':
-          *tooltipLabel += chartPosY;
+          tooltipLabel += this->GetNumber(plotPos.Y(), this->YAxis);
           break;
         case 'i':
           if (this->IndexedLabels &&
               seriesIndex >= 0 &&
               seriesIndex < this->IndexedLabels->GetNumberOfTuples())
             {
-            *tooltipLabel += this->IndexedLabels->GetValue(seriesIndex);
+            tooltipLabel += this->IndexedLabels->GetValue(seriesIndex);
             }
           break;
         case 'l':
           // GetLabel() is GetLabel(0) in this implementation
-          *tooltipLabel += this->GetLabel();
+          tooltipLabel += this->GetLabel();
           break;
         default: // If no match, insert the entire format tag
-          *tooltipLabel += "%";
-          *tooltipLabel += TooltipLabelFormat.at(i);
+          tooltipLabel += "%";
+          tooltipLabel += format[i];
           break;
         }
       escapeNext = false;
       }
     else
       {
-      if (TooltipLabelFormat.at(i) == '%')
+      if (format[i] == '%')
         {
         escapeNext = true;
         }
       else
         {
-        *tooltipLabel += TooltipLabelFormat.at(i);
+        tooltipLabel += format[i];
         }
       }
     }
+  return tooltipLabel;
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
+{
+  // Determine and format the X and Y position in the chart
+  vtksys_ios::ostringstream ostr;
+  ostr.imbue(vtkstd::locale::classic());
+  ostr.setf(ios::fixed, ios::floatfield);
+
+  if (axis)
+    {
+    ostr.precision(this->XAxis->GetPrecision());
+    }
+
+  if (axis && axis->GetLogScale())
+    {
+    // If axes are set to logarithmic scale we need to convert the
+    // axis value using 10^(axis value)
+    ostr << pow(double(10.0), double(position));
+    }
+  else
+    {
+    ostr << position;
+    }
+  return ostr.str();
 }
 
 //-----------------------------------------------------------------------------
@@ -323,6 +287,15 @@ void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
   if (this->IndexedLabels == labels)
     {
     return;
+    }
+
+  if (labels)
+    {
+    this->TooltipDefaultLabelFormat = "%i: %x,  %y";
+    }
+  else
+    {
+    this->TooltipDefaultLabelFormat = "%l: %x,  %y";
     }
 
   this->IndexedLabels = labels;

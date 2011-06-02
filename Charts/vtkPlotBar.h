@@ -120,6 +120,13 @@ public:
   virtual vtkStdString GetGroupName();
 
   // Description:
+  // Generate and return the tooltip label string for this plot
+  // The segmentIndex is implemented here.
+  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+                                       vtkIdType seriesIndex,
+                                       vtkIdType segmentIndex);
+
+  // Description:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 
@@ -146,25 +153,6 @@ public:
 protected:
   vtkPlotBar();
   ~vtkPlotBar();
-
-  // Description:
-  // Generate and return the tooltip label string for this plot.
-  // Called if TooltipLabelFormat is empty.
-  // Reimplimented from vtkPlot, to use the segmentIndex parameter.
-  virtual void GetDefaultTooltipLabel(const vtkVector2f &plotPos,
-                                      vtkIdType seriesIndex,
-                                      vtkIdType segmentIndex,
-                                      vtkStdString* tooltipLabel);
-
-  // Description:
-  // Generate and return a user-formatted tooltip label string for this plot.
-  // Called if TooltipLabelFormat is not empty.
-  // Reimplimented from vtkPlot, to use the segmentIndex
-  // parameter ('%s' format tag).
-  virtual void GetCustomTooltipLabel(const vtkVector2f &plotPos,
-                                      vtkIdType seriesIndex,
-                                      vtkIdType segmentIndex,
-                                      vtkStdString* tooltipLabel);
 
   // Description:
   // Update the table cache.

@@ -1277,8 +1277,8 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 vtkIdType segmentIndex)
 {
   // Have the plot generate its tooltip label
-  vtkStdString tooltipLabel;
-  plot->GetTooltipLabel(plotPos, seriesIndex, segmentIndex, &tooltipLabel);
+  vtkStdString tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex,
+                                                    segmentIndex);
 
   // Set the tooltip
   this->Tooltip->SetText(tooltipLabel);

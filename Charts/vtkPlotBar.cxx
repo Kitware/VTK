@@ -782,6 +782,18 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
     prev = this->Private->AddSegment(x,y,prev);
     }
 
+  this->TooltipDefaultLabelFormat.clear();
+  // Set the default tooltip according to the segments
+  if (this->Private->Segments.size() > 1)
+    {
+    this->TooltipDefaultLabelFormat = "%s: ";
+    }
+  if (this->IndexedLabels)
+    {
+    this->TooltipDefaultLabelFormat += "%i: ";
+    }
+  this->TooltipDefaultLabelFormat += "%x,  %y";
+
   this->BuildTime.Modified();
   return true;
 }
@@ -840,80 +852,45 @@ bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBar::GetDefaultTooltipLabel(const vtkVector2f &plotPos,
-                                        vtkIdType seriesIndex,
-                                        vtkIdType segmentIndex,
-                                        vtkStdString* tooltipLabel)
+vtkStdString vtkPlotBar::GetTooltipLabel(const vtkVector2f &plotPos,
+                                         vtkIdType seriesIndex,
+                                         vtkIdType segmentIndex)
 {
-  // If we are plotting stacked bars, add segment names
-  if (this->Private->Segments.size() > 1)
-    {
-    this->TooltipLabelFormat.clear(); // Should already be empty
-
-    this->TooltipLabelFormat += "%s";
-    if (this->IndexedLabels)
-      {
-      this->TooltipLabelFormat += ": %i";
-      }
-    this->TooltipLabelFormat += ": %x,  %y";
-
-    this->GetCustomTooltipLabel(plotPos, seriesIndex, segmentIndex,
-                                tooltipLabel);
-    this->TooltipLabelFormat.clear();
-    }
-  else // No stacked bars
-    {
-    // Use vtkPlot's implementation
-    Superclass::GetDefaultTooltipLabel(plotPos, seriesIndex, segmentIndex,
-                                       tooltipLabel);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkPlotBar::GetCustomTooltipLabel(const vtkVector2f &plotPos,
-                                       vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex,
-                                       vtkStdString* tooltipLabel)
-{
-  // Generate most of the custom tooltip label using vtkPlot's implementation
-  vtkStdString baseTooltipLabel;
-  Superclass::GetCustomTooltipLabel(plotPos, seriesIndex, segmentIndex,
-                                    &baseTooltipLabel);
-
-  // Go through the baseTooltipLabel, and replace any vtkPlotBar-specific
-  // format tag
+  vtkStdString baseLabel = Superclass::GetTooltipLabel(plotPos, seriesIndex,
+                                                       segmentIndex);
+  vtkStdString tooltipLabel;
   bool escapeNext = false;
-  for (int i =0; i < baseTooltipLabel.length(); i++)
+  for (size_t i = 0; i < baseLabel.length(); ++i)
     {
     if (escapeNext)
       {
-      switch (baseTooltipLabel.at(i))
+      switch (baseLabel[i])
         {
         case 's':
-          if (segmentIndex >= 0 &&
-              this->GetLabels() &&
+          if (segmentIndex >= 0 && this->GetLabels() &&
               segmentIndex < this->GetLabels()->GetNumberOfTuples())
             {
-            *tooltipLabel += this->GetLabels()->GetValue(segmentIndex);
+            tooltipLabel += this->GetLabels()->GetValue(segmentIndex);
             }
           break;
         default: // If no match, insert the entire format tag
-          *tooltipLabel += "%";
-          *tooltipLabel += baseTooltipLabel.at(i);
+          tooltipLabel += "%";
+          tooltipLabel += baseLabel[i];
           break;
         }
       escapeNext = false;
       }
     else
       {
-      if (baseTooltipLabel.at(i) == '%')
+      if (baseLabel[i] == '%')
         {
         escapeNext = true;
         }
       else
         {
-        *tooltipLabel += baseTooltipLabel.at(i);
+        tooltipLabel += baseLabel[i];
         }
       }
     }
+  return tooltipLabel;
 }

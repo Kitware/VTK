@@ -70,20 +70,19 @@ public:
 
 //BTX
   // Description:
+  // Generate and return the tooltip label string for this plot
+  // The segmentIndex parameter is ignored, except for vtkPlotBar
+  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+                                       vtkIdType seriesIndex,
+                                       vtkIdType segmentIndex);
+
+  // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated, or
   // -1 if no point was found.
   virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
                                     vtkVector2f* location);
-
-  // Description:
-  // Generate and return the tooltip label string for this plot
-  // The segmentIndex parameter is ignored, except for vtkPlotBar
-  virtual void GetTooltipLabel(const vtkVector2f &plotPos,
-                               vtkIdType seriesIndex,
-                               vtkIdType segmentIndex,
-                               vtkStdString* tooltipLabel);
 
   // Description:
   // Select all points in the specified rectangle.
@@ -214,22 +213,8 @@ protected:
   ~vtkPlot();
 
   // Description:
-  // Generate and return the tooltip label string for this plot.
-  // Called if TooltipLabelFormat is empty.
-  // May be reimplemented by plot types subclassing vtkPlot.
-  virtual void GetDefaultTooltipLabel(const vtkVector2f &plotPos,
-                                      vtkIdType seriesIndex,
-                                      vtkIdType segmentIndex,
-                                      vtkStdString* tooltipLabel);
-
-  // Description:
-  // Generate and return a user-formatted tooltip label string for this plot.
-  // Called if TooltipLabelFormat is not empty.
-  // May be reimplemented by plot types subclassing vtkPlot.
-  virtual void GetCustomTooltipLabel(const vtkVector2f &plotPos,
-                                      vtkIdType seriesIndex,
-                                      vtkIdType segmentIndex,
-                                      vtkStdString* tooltipLabel);
+  // Get the properly formatted number for the supplied position and axis.
+  vtkStdString GetNumber(double position, vtkAxis *axis);
 
   // Description:
   // This object stores the vtkPen that controls how the plot is drawn.
@@ -277,6 +262,11 @@ protected:
   // A printf-style string to build custom tooltip labels from.
   // See the accessor/mutator functions for full documentation.
   vtkStdString TooltipLabelFormat;
+
+  // Description:
+  // The default printf-style string to build custom tooltip labels from.
+  // See the accessor/mutator functions for full documentation.
+  vtkStdString TooltipDefaultLabelFormat;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.
