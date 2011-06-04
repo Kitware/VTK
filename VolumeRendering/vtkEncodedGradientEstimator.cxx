@@ -133,7 +133,7 @@ vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
   this->Modified();
 }
 
-int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int xyzIndex ) 
+int vtkEncodedGradientEstimator::GetEncodedNormalIndex( vtkIdType xyzIndex ) 
 {
   this->Update();
   return *(this->EncodedNormals + xyzIndex);

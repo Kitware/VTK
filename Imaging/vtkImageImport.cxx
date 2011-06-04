@@ -260,7 +260,7 @@ void vtkImageImport::ExecuteData(vtkDataObject *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::CopyImportVoidPointer(void *ptr, int size)
+void vtkImageImport::CopyImportVoidPointer(void *ptr, vtkIdType size)
 {
   unsigned char *mem = new unsigned char [size];
   memcpy(mem,ptr,size);
