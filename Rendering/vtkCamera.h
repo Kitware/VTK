@@ -261,52 +261,72 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Set/Get use deering frustrum.
-  // Deering frustrum is used for off-axis stereo frustrum
-  // calculation. This requires stereo set to be true.
+  // Deering frustrum is used for off-axis frustrum calculations specially
+  // for stereo rendering.
+  // For reference see "High Resolution Virtual Reality", in Proc.
+  // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
   vtkSetMacro(UseDeeringFrustrum, int);
   vtkGetMacro(UseDeeringFrustrum, int);
   vtkBooleanMacro(UseDeeringFrustrum, int);
 
   // Description:
   // Set/Get top left corner point of the screen.
+  // This will be used only for deering frustrum calculation.
+  // Default is (-1.0, -1.0, -1.0).
   vtkSetVector3Macro(ScreenBottomLeft, double);
   vtkGetVector3Macro(ScreenBottomLeft, double);
 
   // Description:
   // Set/Get bottom left corner point of the screen.
+  // This will be used only for deering frustrum calculation.
+  // Default is (1.0, -1.0, -1.0).
   vtkSetVector3Macro(ScreenBottomRight, double);
   vtkGetVector3Macro(ScreenBottomRight, double);
 
   // Description:
   // Set/Get top right corner point of the screen.
+  // This will be used only for deering frustrum calculation.
+  // Default is (1.0, 1.0, -1.0).
   vtkSetVector3Macro(ScreenTopRight, double);
   vtkGetVector3Macro(ScreenTopRight, double);
 
   // Description:
   // Set/Get screen near plane.
+  // This will be used only for deering frustrum calculation.
   vtkSetMacro(ScreenNearPlane, double);
   vtkGetMacro(ScreenFarPlane,  double);
 
   // Description:
-  // Set/Get interocular distance.
-  vtkSetMacro(InterocularDistance, double);
-  vtkGetMacro(InterocularDistance, double);
-
-  // Description:
-  // Set/Get eye position.
-  vtkSetVector3Macro(EyePosition, double);
-  vtkGetVector3Macro(EyePosition, double);
+  // Set/Get distance between the eyes.
+  // This will be used only for deering frustrum calculation.
+  // Default is 0.06.
+  vtkSetMacro(EyeSeparation, double);
+  vtkGetMacro(EyeSeparation, double);
 
   // Description:
   // Set/Get eye transformation matrix.
-  void SetEyeTransformationMatrix(vtkMatrix4x4* matrix);
-  vtkGetObjectMacro(EyeTransformationMatrix, vtkMatrix4x4);
+  // This will be used only for deering frustrum calculation.
+  // This is the transformation matrix for the point between eyes.
+  // Default is identity.
+  void SetEyeTransformMatrix(vtkMatrix4x4* matrix);
+  vtkGetObjectMacro(EyeTransformMatrix, vtkMatrix4x4);
 
   // Description:
-  // Set/Get scene transformation matrix.
-  void SetSceneMatrix(vtkMatrix4x4 *matrix);
-  vtkGetObjectMacro(SceneMatrix, vtkMatrix4x4);
+  // Set/Get model transformation matrix.
+  // This matrix could be used for model related transformations
+  // such as scale, shear, roations and translations.
+  void SetModelTransformMatrix(vtkMatrix4x4 *matrix);
+  vtkGetObjectMacro(ModelTransformMatrix, vtkMatrix4x4);
 
+  // Description:
+  // Return the model view matrix for model view transform.
+  virtual vtkMatrix4x4 *GetModelViewTransformMatrix();
+
+  // Description:
+  // Return the model view transform.
+  virtual vtkTransform *GetModelViewTransformObject();
+
+  // Backward compatible functions (start).
   // Description:
   // Return the matrix of the view transform.
   // The ViewTransform depends on only three ivars:  the Position, the
@@ -316,13 +336,13 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Return the view transform.
-  // The ViewTransform depends on only three ivars:  the Position, the
-  // FocalPoint, and the ViewUp vector.  All the other methods are there
-  // simply for the sake of the users' convenience.
-  virtual vtkTransform *GetViewTransformObject()
-    {
-      return this->ViewTransform;
-    }
+  // If the camera's ModelTransformMatrix is not modified from default,
+  // the ViewTransform depends on only three ivars:
+  // the Position, the FocalPoint, and the ViewUp vector.
+  // All the other methods are there simply for the sake of the users'
+  // convenience.
+  virtual vtkTransform *GetViewTransformObject();
+  // Backward compatible functions (end).
 
   // Description:
   // Return the projection transform matrix, which converts from camera
@@ -525,6 +545,10 @@ protected:
   void ComputeDeeringFrustrum();
 
   // Description:
+  // Compute model view matrix for the camera.
+  void ComputeModelViewMatrix();
+
+  // Description:
   // Copy the ivars. Do nothing for the matrices.
   // Called by ShallowCopy() and DeepCopy()
   // \pre source_exists!=0
@@ -559,15 +583,12 @@ protected:
   double ScreenNearPlane;
   double ScreenFarPlane;
 
-  double InterocularDistance;
-  double EyePosition[3];
+  double EyeSeparation;
 
   vtkMatrix4x4 *ScreenOrientation;
-  vtkMatrix4x4 *EyeTransformationMatrix;
+  vtkMatrix4x4 *EyeTransformMatrix;
 
-  vtkMatrix4x4 *SceneMatrix;
-
-  vtkMatrix4x4 *ViewTransformationMatrix;
+  vtkMatrix4x4 *ModelTransformMatrix;
 
   vtkHomogeneousTransform *UserTransform;
   vtkHomogeneousTransform *UserViewTransform;
@@ -576,6 +597,8 @@ protected:
   vtkPerspectiveTransform *ProjectionTransform;
   vtkPerspectiveTransform *Transform;
   vtkTransform *CameraLightTransform;
+
+  vtkTransform *ModelViewTransform;
 
   double FocalDisk;
   //BTX

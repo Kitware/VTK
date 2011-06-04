@@ -23,6 +23,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkMatrix4x4.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -42,12 +43,10 @@ int TestAnaglyphicStereo(int argc, char *argv[])
   double bottomRight[3] = { 1.0, -1.0, -1.0};
   double topRight[3]    = { 1.0,  1.0, -1.0};
 
-
-  vtkMapper::SetResolveCoincidentTopologyToShiftZBuffer();
-  vtkMapper::SetResolveCoincidentTopologyZShift(0.1);
-
   VTK_CREATE(vtkSphereSource, sphere1);
-  sphere1->SetCenter(0.0, 0.0, 0.0);
+  sphere1->SetCenter(0.0, 0.0, -4.0);
+  sphere1->SetThetaResolution(100);
+  sphere1->SetPhiResolution(100.0);
 
   VTK_CREATE(vtkPolyDataMapper, mapper1);
   mapper1->SetInputConnection(sphere1->GetOutputPort());
@@ -58,32 +57,41 @@ int TestAnaglyphicStereo(int argc, char *argv[])
 
   VTK_CREATE(vtkConeSource, cone1);
   cone1->SetCenter(0.0, 0.0, -10.0);
+  cone1->SetResolution(100.0);
 
   VTK_CREATE(vtkPolyDataMapper, mapper2);
   mapper2->SetInputConnection(cone1->GetOutputPort());
 
   VTK_CREATE(vtkActor, actor2);
   actor2->SetMapper(mapper2);
+  actor2->GetProperty()->SetAmbient(0.1);
 
   VTK_CREATE(vtkRenderer, renderer);
   renderer->AddActor(actor1);
   renderer->AddActor(actor2);
   renderer->SetAmbient(1.0, 1.0, 1.0);
 
+  VTK_CREATE(vtkMatrix4x4, eyeMatrix);
+  eyeMatrix->SetElement(0, 3, 0.0);
+  eyeMatrix->SetElement(1, 3, 0.0);
+  eyeMatrix->SetElement(2, 3, 10.0);
+
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);
   camera->SetUseDeeringFrustrum(1);
-  camera->SetEyePosition(0.0, 0.0, 10.0);
-  camera->SetInterocularDistance(0.05);
+  camera->SetEyeTransformMatrix(eyeMatrix);
+  camera->SetEyeSeparation(0.05);
 
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->AddRenderer(renderer);
-  renwin->SetSize(250, 250);
+  renwin->SetSize(1080, 1080);
   renwin->SetStereoRender(1);
   renwin->SetStereoCapableWindow(1);
   renwin->SetStereoTypeToRedBlue();
+
+  renderer->Render();
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

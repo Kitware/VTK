@@ -28,8 +28,7 @@
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkCamera);
 
-vtkCxxSetObjectMacro(vtkCamera, EyeTransformationMatrix, vtkMatrix4x4);
-vtkCxxSetObjectMacro(vtkCamera, SceneMatrix, vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkCamera, EyeTransformMatrix, vtkMatrix4x4);
 
 //-----------------------------------------------------------------------------
 class vtkCameraCallbackCommand : public vtkCommand
@@ -95,21 +94,16 @@ vtkCamera::vtkCamera()
   this->ScreenNearPlane = 0.01;
   this->ScreenFarPlane  = 1000.01;
 
-  this->InterocularDistance = 0.06;
-
-  this->EyePosition[0] = this->EyePosition[1] =
-      this->EyePosition[2] = 0.0;
+  this->EyeSeparation = 0.06;
 
   this->ScreenOrientation = vtkMatrix4x4::New();
   this->ScreenOrientation->Identity();
 
-  this->EyeTransformationMatrix = vtkMatrix4x4::New();
-  this->EyeTransformationMatrix->Identity();
+  this->EyeTransformMatrix = vtkMatrix4x4::New();
+  this->EyeTransformMatrix->Identity();
 
-  this->SceneMatrix = vtkMatrix4x4::New();
-  this->SceneMatrix->Identity();
-
-  this->ViewTransformationMatrix = vtkMatrix4x4::New();
+  this->ModelTransformMatrix = vtkMatrix4x4::New();
+  this->ModelTransformMatrix->Identity();
 
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;
@@ -135,6 +129,7 @@ vtkCamera::vtkCamera()
   this->ViewTransform = vtkTransform::New();
   this->ProjectionTransform = vtkPerspectiveTransform::New();
   this->CameraLightTransform = vtkTransform::New();
+  this->ModelViewTransform = vtkTransform::New();
   this->UserTransform = NULL;
   this->UserViewTransform = NULL;
   this->UserViewTransformCallbackCommand = NULL;
@@ -151,19 +146,17 @@ vtkCamera::~vtkCamera()
   this->ScreenOrientation->Delete();
   this->ScreenOrientation = NULL;
 
-  this->EyeTransformationMatrix->Delete();
-  this->EyeTransformationMatrix = NULL;
+  this->EyeTransformMatrix->Delete();
+  this->EyeTransformMatrix = NULL;
 
-  this->SceneMatrix->Delete();
-  this->SceneMatrix = NULL;
-
-  this->ViewTransformationMatrix->Delete();
-  this->ViewTransformationMatrix = NULL;
+  this->ModelTransformMatrix->Delete();
+  this->ModelTransformMatrix = NULL;
 
   this->Transform->Delete();
   this->ViewTransform->Delete();
   this->ProjectionTransform->Delete();
   this->CameraLightTransform->Delete();
+  this->ModelViewTransform->Delete();
   if (this->UserTransform)
     {
     this->UserTransform->UnRegister(this);
@@ -415,30 +408,29 @@ void vtkCamera::ComputeDeeringFrustrum()
   // Deering calculations.
   double F = this->ScreenFarPlane;
   double B = this->ScreenNearPlane;
-  double E[3];
+  double E[3] = {0.0, 0.0, 0.0};
 
   double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
   double H[2] = {this->ScreenTopRight[0],   this->ScreenTopRight[1]};
 
-  E[0] = this->EyePosition[0];
-  E[1] = this->EyePosition[1];
-  E[2] = this->EyePosition[2];
-
   if(this->LeftEye)
     {
-    E[0] = this->EyePosition[0] - (this->InterocularDistance / 2.0);
+    E[0] -= this->EyeSeparation / 2.0;
     }
   else
     {
-    E[0] = this->EyePosition[0] + (this->InterocularDistance / 2.0);
+    E[0] += this->EyeSeparation / 2.0;
     }
 
   // First tranform the eye to new position.
-  this->EyeTransformationMatrix->MultiplyPoint(E, E);
+  this->EyeTransformMatrix->MultiplyPoint(E, E);
 
   // Now transform the eye to screen coordinate system.
   this->ScreenOrientation->MultiplyPoint(E, E);
 
+
+  // MAKE THE BOUND CALCULATIONS INCLUDE SCENE  MATRIX AND USE CLIP RANGE ACCORDINGLY.
+  // ACCOUT FOR DIFFERENCE IN CAMERA POSITION and EYE POSITION.
   double matrix[4][4];
   double width  = H[0] - L[0];
   double height = H[1] - L[1];
@@ -472,6 +464,17 @@ void vtkCamera::ComputeDeeringFrustrum()
       {
       this->ProjectionTransform->GetMatrix()->SetElement( i,j,  matrix[i][j] ) ;
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::ComputeModelViewMatrix()
+{
+  if(this->ModelViewTransform->GetMTime() < this->ModelTransformMatrix->GetMTime() ||
+     this->ModelViewTransform->GetMTime() < this->ViewTransform->GetMTime())
+    {
+    vtkMatrix4x4::Multiply4x4(this->ModelTransformMatrix, this->ViewTransform->GetMatrix(),
+                              this->ModelViewTransform->GetMatrix());
     }
 }
 
@@ -1552,35 +1555,85 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScreenFarPlane: (" << this->ScreenFarPlane
      << ")\n";
 
-  os << indent << "InterocularDistance: (" << this->InterocularDistance
-     << ")\n";
-
-  os << indent << "EyePosition: (" << this->EyePosition[0]
-     << ", " << this->EyePosition[1] << ", " << this->EyePosition[2]
+  os << indent << "EyeSeparation: (" << this->EyeSeparation
      << ")\n";
 
   os << indent << "ScreenOrientation: (" << this->ScreenOrientation
      << ")\n";
 
-  os << indent << "EyeTransformationMatrix: (" << this->EyeTransformationMatrix
+  os << indent << "EyeTransformMatrix: (" << this->EyeTransformMatrix
      << ")\n";
 
-  os << indent << "SceneMatrix: (" << this->SceneMatrix
+  os << indent << "ModelTransformMatrix: (" << this->ModelTransformMatrix
      << ")\n";
 }
 
+//-----------------------------------------------------------------------------
+void vtkCamera::SetModelTransformMatrix(vtkMatrix4x4 *matrix)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
+                << ModelTransformMatrix << " to " << matrix );
+
+  if(!matrix)
+    {
+    return;
+    }
+
+  if (this->ModelTransformMatrix != matrix)
+    {
+    vtkMatrix4x4* temp = this->ModelTransformMatrix;
+    this->ModelTransformMatrix = matrix;
+    if (this->ModelTransformMatrix != NULL)
+      {
+      this->ModelTransformMatrix->Register(this);
+
+      vtkMatrix4x4::Multiply4x4(this->ModelTransformMatrix, this->ViewTransform->GetMatrix(),
+                                this->ModelViewTransform->GetMatrix());
+      }
+    if (temp != NULL)
+      {
+      temp->UnRegister(this);
+      }
+    this->Modified();
+    }
+  }
+
+//-----------------------------------------------------------------------------
+vtkMatrix4x4 *vtkCamera::GetModelViewTransformMatrix()
+{
+  this->ComputeModelViewMatrix();
+
+  return this->ModelViewTransform->GetMatrix();
+}
+
+//-----------------------------------------------------------------------------
+vtkTransform *vtkCamera::GetModelViewTransformObject()
+{
+  this->ComputeModelViewMatrix();
+
+  return this->ModelViewTransform;
+}
+
+//-----------------------------------------------------------------------------
 vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
 {
-  // Camera complete view matrix is combination of scene and view
-  // transform matrix.
-  vtkMatrix4x4::Multiply4x4(this->SceneMatrix, this->ViewTransform->GetMatrix(),
-    this->ViewTransformationMatrix);
+  this->ComputeModelViewMatrix();
 
-  return this->ViewTransformationMatrix;
+  return this->ModelViewTransform->GetMatrix();
 }
 
+//-----------------------------------------------------------------------------
+vtkTransform *vtkCamera::GetViewTransformObject()
+{
+  this->ComputeModelViewMatrix();
+
+  return this->ModelViewTransform;
+}
+
+//-----------------------------------------------------------------------------
 double *vtkCamera::GetOrientation()
 { return this->ViewTransform->GetOrientation(); };
 
+//-----------------------------------------------------------------------------
 double *vtkCamera::GetOrientationWXYZ()
 { return this->ViewTransform->GetOrientationWXYZ(); };
