@@ -1009,6 +1009,9 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
 }
 
 //----------------------------------------------------------------------------
+// Modify the trunc() operation provided by static_cast<int>() to get floor(),
+// if x<0 (condition g) and x!=trunc(x) (condition n) then floor(x)=trunc(x)-1
+// Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Floor(double x)
 {
   const int r = static_cast<int>(x);
@@ -1018,6 +1021,9 @@ inline int vtkMath::Floor(double x)
 }
 
 //----------------------------------------------------------------------------
+// Modify the trunc() operation provided by static_cast<int>() to get ceil(),
+// if x>=0 (condition g) and x!=trunc(x) (condition n) then ceil(x)=trunc(x)+1
+// Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Ceil(double x)
 {
   const int r = static_cast<int>(x);
