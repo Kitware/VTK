@@ -996,7 +996,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                       this->ClippingRange[0],
                                       this->ClippingRange[1] );
     }
-  else if(this->Stereo && this->UseDeeringFrustrum)
+  else if(this->UseDeeringFrustrum)
     {
     this->ComputeDeeringFrustrum();
     }
