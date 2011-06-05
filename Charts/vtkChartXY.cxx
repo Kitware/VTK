@@ -1260,6 +1260,25 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
                 plotIndex.Index = seriesIndex;
                 // Invoke an event, with the client data supplied
                 this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
+
+                if (invokeEvent == vtkCommand::SelectionChangedEvent)
+                  {
+                  vtkNew<vtkIdTypeArray> selectionIds;
+                  selectionIds->InsertNextValue(seriesIndex);
+                  plot->SetSelection(selectionIds.GetPointer());
+
+                  if (this->AnnotationLink)
+                    {
+                    vtkNew<vtkSelection> selection;
+                    vtkNew<vtkSelectionNode> node;
+                    selection->AddNode(node.GetPointer());
+                    node->SetContentType(vtkSelectionNode::INDICES);
+                    node->SetFieldType(vtkSelectionNode::POINT);
+                    node->SetSelectionList(selectionIds.GetPointer());
+                    this->AnnotationLink
+                        ->SetCurrentSelection(selection.GetPointer());
+                    }
+                  }
                 }
               return true;
               }
@@ -1321,6 +1340,11 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
     this->DrawBox = true;
     return true;
     }
+  else if (mouse.Button == this->ActionsClick.Select() ||
+           mouse.Button == this->ActionsClick.Notify())
+    {
+    return true;
+    }
   else
     {
     return false;
@@ -1347,12 +1371,24 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
         && (mouse.Button == this->Actions.Select() ||
             mouse.Button == this->Actions.Pan()))
       {
-      // Invalid box size - treat as a point click event
+      // Invalid box size - treat as a single clicke event
       this->MouseBox.SetWidth(0.0);
       this->MouseBox.SetHeight(0.0);
       this->DrawBox = false;
-      this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
-      return true;
+      if (mouse.Button == this->ActionsClick.Notify())
+        {
+        this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
+        return true;
+        }
+      else if (mouse.Button == this->ActionsClick.Select())
+        {
+        this->LocatePointInPlots(mouse, vtkCommand::SelectionChangedEvent);
+        return true;
+        }
+      else
+        {
+        return false;
+        }
       }
     }
   if (mouse.Button == this->Actions.Select())
