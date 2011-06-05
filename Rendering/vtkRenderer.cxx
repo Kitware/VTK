@@ -1150,8 +1150,43 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     }
 
   // Find the plane equation for the camera view plane
-  this->ActiveCamera->GetViewPlaneNormal(vn);
-  this->ActiveCamera->GetPosition(position);
+
+  if(!this->ActiveCamera->GetUseDeeringFrustrum())
+    {
+    this->ActiveCamera->GetViewPlaneNormal(vn);
+    this->ActiveCamera->GetPosition(position);
+    }
+  else
+    {
+    // Make a convenience function like GetEyePosition and SetEyePostion
+    // that will set the element of this eye transform matrix.
+    vtkMatrix4x4* eyeMatrix = this->ActiveCamera->GetEyeTransformMatrix();
+    position[0] = eyeMatrix->GetElement(0,3);
+    position[1] = eyeMatrix->GetElement(1,3);
+    position[2] = eyeMatrix->GetElement(2,3);
+
+    // Is this ever going to change?
+    vn[0] = 0.0;
+    vn[1] = 0.0;
+    vn[2] = 1.0;
+
+    // Expand the bounding box by model view transform matrix.
+    double min[4] = {bounds[0], bounds[2], bounds[4], 1.0};
+    double max[4] = {bounds[1], bounds[3], bounds[5], 1.0};
+
+    this->ActiveCamera->GetModelViewTransformMatrix()->MultiplyPoint(min, min);
+    this->ActiveCamera->GetModelViewTransformMatrix()->MultiplyPoint(max, max);
+
+    // Copy the values back.
+    bounds[0] = min[0];
+    bounds[2] = min[1];
+    bounds[4] = min[2];
+
+    bounds[1] = max[0];
+    bounds[3] = max[1];
+    bounds[5] = max[2];
+    }
+
   a = -vn[0];
   b = -vn[1];
   c = -vn[2];

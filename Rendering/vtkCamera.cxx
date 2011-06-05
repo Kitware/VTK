@@ -406,8 +406,8 @@ void vtkCamera::ComputeDeeringFrustrum()
   this->ComputeScreenOrientation();
 
   // Deering calculations.
-  double F = this->ScreenFarPlane;
-  double B = this->ScreenNearPlane;
+  double F = this->ClippingRange[1];
+  double B = this->ClippingRange[0];
   double E[3] = {0.0, 0.0, 0.0};
 
   double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
@@ -436,6 +436,8 @@ void vtkCamera::ComputeDeeringFrustrum()
   double height = H[1] - L[1];
   B = E[2] - B;
   F = E[2] - F;
+
+//  F *= 10.0;
 
   double depth = B - F;
   matrix[0][0] =  ( 2*E[2] ) / width;
