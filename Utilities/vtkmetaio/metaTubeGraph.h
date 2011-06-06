@@ -53,7 +53,7 @@ public:
 
   ~TubeGraphPnt()
   {
-    delete m_T;
+    delete [] m_T;
   };
   
   unsigned int m_Dim;

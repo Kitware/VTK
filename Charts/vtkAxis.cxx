@@ -743,6 +743,21 @@ void vtkAxis::GenerateTickLabels(double min, double max)
         {
         value = min + double(i) * mult * this->TickInterval;
         }
+      if (this->TickInterval < 1.0)
+        {
+        // For small TickInterval, increase the precision of the comparison
+        if (fabs(value) < (0.00000001 * this->TickInterval))
+          {
+          value = 0.0;
+          }
+        }
+      else
+        {
+        if (fabs(value) < 0.00000001)
+          {
+          value = 0.0;
+          }
+        }
       this->TickPositions->InsertNextValue(value);
       // Make a tick mark label for the tick
       if (this->LogScale)

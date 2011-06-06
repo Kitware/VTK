@@ -12,6 +12,11 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2011 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+  -------------------------------------------------------------------------*/
 // .NAME vtkPOrderStatistics - A class for parallel univariate order statistics
 // .SECTION Description
 // vtkPOrderStatistics is vtkOrderStatistics subclass for parallel datasets.

@@ -389,7 +389,7 @@ int vtkWindBladeReader::RequestData(
     fileName << this->RootDirectory << "/"
              << this->DataDirectory << "/" << this->DataBaseName
              << this->TimeSteps[timeStep];
-    this->FilePtr = fopen(fileName.str().c_str(), "r");
+    this->FilePtr = fopen(fileName.str().c_str(), "rb");
     if (this->FilePtr == NULL)
       {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
@@ -1007,7 +1007,7 @@ bool vtkWindBladeReader::FindVariableOffsets()
   fileName << this->RootDirectory << "/"
            << this->DataDirectory << "/"
            << this->DataBaseName << this->TimeStepFirst;
-  this->FilePtr = fopen(fileName.str().c_str(), "r");
+  this->FilePtr = fopen(fileName.str().c_str(), "rb");
   if (this->FilePtr == NULL)
     {
     vtkErrorMacro("Could not open file " << fileName.str());
@@ -1220,7 +1220,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   std::ostringstream fileName;
   fileName << this->RootDirectory << "/"
            << this->TopographyFile;
-  FILE* filePtr = fopen(fileName.str().c_str(), "r");
+  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
   int blockSize = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
 

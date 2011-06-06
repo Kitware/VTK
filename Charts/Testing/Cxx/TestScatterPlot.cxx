@@ -79,6 +79,8 @@ int TestScatterPlot(int , char * [])
   points->SetInput(table.GetPointer(), 0, 1);
   points->SetColor(0, 0, 0, 255);
   points->SetWidth(1.0);
+  points->SetIndexedLabels(labels.GetPointer());
+  points->SetTooltipLabelFormat("%i from %l (%x, %y)");
   vtkPlotPoints::SafeDownCast(points)->SetMarkerStyle(vtkPlotPoints::CROSS);
   points = chart->AddPlot(vtkChart::POINTS);
   points->SetInput(table.GetPointer(), 0, 2);

@@ -3138,6 +3138,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
           // if there was a read error
           if(rOff == -1)
             {
+            delete [] currentIndex;
             return false;
             }
 
@@ -3162,6 +3163,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
                                  m_CompressionTable);
           if(rOff == -1)
             {
+            delete [] currentIndex;
             return false;
             }
           data += bytesToRead;
@@ -3207,6 +3209,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
                   << METAIO_STREAM::endl;
         METAIO_STREAM::cerr << "   ideal = " << readSize << " : actual = " << gc
                   << METAIO_STREAM::endl;
+        delete [] currentIndex;
         return false;
         }
 

@@ -455,7 +455,8 @@ int vtkPythonOverload::CheckArg(
         else if (PyVTKObject_Check(arg))
           {
           PyVTKObject *vobj = (PyVTKObject *)arg;
-          if (strncmp(vobj->vtk_ptr->GetClassName(), classname, 127) != 0)
+          if (strncmp(vtkPythonUtil::PythonicClassName(
+                vobj->vtk_ptr->GetClassName()), classname, 127) != 0)
             {
             // Trace back through superclasses to look for a match
             PyVTKClass *cls = vobj->vtk_class;
@@ -494,40 +495,72 @@ int vtkPythonOverload::CheckArg(
         }
 
       // Any other object starting with "vtk" is a special object
-      else if ((classname[0] == '&' && classname[1] == 'v' &&
-                classname[2] == 't' && classname[3] == 'k') ||
-               (classname[0] == 'v' && classname[1] == 't' &&
-                classname[2] == 'k'))
+      else if (classname[0] == 'v' && classname[1] == 't' &&
+               classname[2] == 'k')
         {
-        // Skip over the "&" that indicates a reference
-        if (classname[0] == '&')
+        // Check for an exact match
+        if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
           {
-          classname++;
+#if PY_VERSION_HEX >= 0x02020000
+          // Check superclasses
+          PyTypeObject *basetype = arg->ob_type->tp_base;
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          while (basetype &&
+                 strncmp(basetype->tp_name, classname, 127) != 0)
+            {
+            penalty++;
+            basetype = basetype->tp_base;
+            }
+          if (!basetype)
+#endif
+            {
+            // If it didn't match, then maybe conversion is possible
+            penalty = VTK_PYTHON_NEEDS_CONVERSION;
+
+            // Look up the required type in the map
+            PyVTKSpecialType *info = NULL;
+
+            // The "level != 0" ensures that we don't chain conversions
+            if (level != 0 ||
+                (info = vtkPythonUtil::FindSpecialType(classname)) == NULL)
+              {
+              penalty = VTK_PYTHON_INCOMPATIBLE;
+              }
+            else
+              {
+              // Try out all the constructor methods
+              if (!vtkPythonOverload::FindConversionMethod(
+                     info->constructors, arg))
+                {
+                penalty = VTK_PYTHON_INCOMPATIBLE;
+                }
+              }
+            }
           }
+        }
+      else if (classname[0] == '&' && classname[1] == 'v' &&
+               classname[2] == 't' && classname[3] == 'k')
+        {
+        // Skip over the "&" that indicates a non-const reference
+        classname++;
 
         // Check for an exact match
         if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
           {
-          // If it didn't match, then maybe conversion is possible
-          penalty = VTK_PYTHON_NEEDS_CONVERSION;
-
-          // Look up the required type in the map
-          PyVTKSpecialType *info = NULL;
-
-          // The "level != 0" ensures that we don't chain conversions
-          if (level != 0 ||
-              (info = vtkPythonUtil::FindSpecialType(classname)) == NULL)
+#if PY_VERSION_HEX >= 0x02020000
+          // Check superclasses
+          PyTypeObject *basetype = arg->ob_type->tp_base;
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          while (basetype &&
+                 strncmp(basetype->tp_name, classname, 127) != 0)
+            {
+            penalty++;
+            basetype = basetype->tp_base;
+            }
+          if (!basetype)
+#endif
             {
             penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
-          else
-            {
-            // Try out all the constructor methods
-            if (!vtkPythonOverload::FindConversionMethod(
-                   info->constructors, arg))
-              {
-              penalty = VTK_PYTHON_INCOMPATIBLE;
-              }
             }
           }
         }

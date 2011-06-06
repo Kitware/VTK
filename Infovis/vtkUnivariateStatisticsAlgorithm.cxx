@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -32,9 +32,6 @@
 
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
-
-#define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
-
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -98,7 +95,7 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
       }
 
     vtkStringArray* varNames = vtkStringArray::New();
-    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
+    varNames->SetNumberOfValues( 1 );
     varNames->SetValue( 0, varName );
 
     // Store names to be able to use SetValueByName, and create the outData columns

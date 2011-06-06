@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -26,12 +26,12 @@ PURPOSE.  See the above copyright notice for more information.
 //   (cf. P. Pebay, Formulas for robust, one-pass parallel computation of covariances
 //   and Arbitrary-Order Statistical Moments, Sandia Report SAND2008-6212, Sep 2008,
 //   http://infoserve.sandia.gov/sand_doc/2008/086212.pdf for details)
-// * Derive: calculate unbiased variance and covariance estimators, estimator of
-//   standard deviations, linear regressions, and Pearson correlation coefficient.
+// * Derive: calculate unbiased covariance matrix estimators and its determinant, 
+//   linear regressions, and Pearson correlation coefficient.
 // * Assess: given an input data set, two means and a 2x2 covariance matrix,
 //   mark each datum with corresponding relative deviation (2-dimensional Mahlanobis
 //   distance).
-// * Test: no statistical tests available yet.
+// * Test: Jarque-Bera-Srivastava test of 2-d normality
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
@@ -79,6 +79,12 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* );
 
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData ); 
+
 //BTX  
   // Description:
   // Provide the appropriate assessment functor.
@@ -94,4 +100,3 @@ private:
 };
 
 #endif
-

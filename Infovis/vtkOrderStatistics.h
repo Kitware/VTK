@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -72,6 +72,17 @@ public:
   void SetQuantileDefinition ( int );
 
   // Description:
+  // Set/Get whether quantization will be allowed to enforce maximum histogram size.
+  vtkSetMacro( Quantize, bool );
+  vtkGetMacro( Quantize, bool );
+
+  // Description:
+  // Set/Get the maximum histogram size.
+  // This maximum size is enforced only when Quantize is TRUE.
+  vtkSetMacro( MaximumHistogramSize, vtkIdType );
+  vtkGetMacro( MaximumHistogramSize, vtkIdType );
+
+  // Description:
   // Get the quantile definition.
   vtkIdType GetQuantileDefinition() { return static_cast<vtkIdType>( this->QuantileDefinition ); }
 
@@ -120,6 +131,8 @@ protected:
 
   int NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
+  bool Quantize;
+  vtkIdType MaximumHistogramSize;
 
 private:
   vtkOrderStatistics(const vtkOrderStatistics&); // Not implemented

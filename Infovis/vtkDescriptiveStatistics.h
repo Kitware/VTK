@@ -92,16 +92,6 @@ public:
   vtkBooleanMacro(SignedDeviations,int);
 
   // Description:
-  // A convenience method (in particular for UI wrapping) to set the name of the
-  // column that contains the nominal value for the Assess option.
-  void SetNominalParameter( const char* name );
-
-  // Description:
-  // A convenience method (in particular for UI wrapping) to set the name of the
-  // column that contains the deviation for the Assess option.
-  void SetDeviationParameter( const char* name );
-
-  // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
                           vtkMultiBlockDataSet* );

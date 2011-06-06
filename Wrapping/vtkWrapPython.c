@@ -22,6 +22,8 @@
 #include "vtkWrapText.h"
 #include "vtkParse.h"
 #include "vtkParseMain.h"
+#include "vtkParseExtras.h"
+#include "vtkParseInternal.h"
 #include "vtkParseHierarchy.h"
 #include "vtkConfigure.h"
 
@@ -42,19 +44,32 @@ static void vtkWrapPython_ClassDoc(
 static void vtkWrapPython_GenerateSpecialHeaders(
   FILE *fp, FileInfo *file_info, HierarchyInfo *hinfo);
 
+/* Wrap one class, returns zero if not wrappable */
+int vtkWrapPython_WrapOneClass(
+  FILE *fp, const char *classname, ClassInfo *data,
+  FileInfo *file_info, HierarchyInfo *hinfo, int is_vtkobject);
+
+void vtkWrapPython_AddConstant(
+  FILE *fp, const char *indent, const char *dictvar, const char *objvar,
+  ValueInfo *val);
+
+/* Declare the exports and imports for a VTK/Python class */
+void vtkWrapPython_ExportVTKClass(
+  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo);
+
 /* print out any custom methods */
 static void vtkWrapPython_CustomMethods(
-  FILE *fp, ClassInfo *data, int do_constructors);
+  FILE *fp, const char *classname, ClassInfo *data, int do_constructors);
 
 /* print out the code for one method, including all of its overloads */
 void vtkWrapPython_GenerateOneMethod(
-  FILE *fp, ClassInfo *data, FunctionInfo *wrappedFunctions[],
-  int numberOfWrappedFunctions, int fnum,
+  FILE *fp, const char *classname, ClassInfo *data,
+  FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
   int is_vtkobject, int do_constructors);
 
 /* print out all methods and the method table */
 static void vtkWrapPython_GenerateMethods(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo,
+  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo,
   int is_vtkobject, int do_constructors);
 
 /* declare all variables needed by the wrapper method */
@@ -100,27 +115,45 @@ static void vtkWrapPython_FreeConstructedObjects(
 
 /* output the method table for all overloads of a particular method */
 static void vtkWrapPython_OverloadMethodDef(
-  FILE *fp, ClassInfo *data, int *overloadMap,
+  FILE *fp, const char *classname, ClassInfo *data, int *overloadMap,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences, int is_vtkobject, int all_legacy);
 
 /* a master method to choose which overload to call */
 static void vtkWrapPython_OverloadMasterMethod(
-  FILE *fp, ClassInfo *data, int *overloadMap, int maxArgs,
+  FILE *fp, const char *classname, int *overloadMap, int maxArgs,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences, int is_vtkobject, int all_legacy);
 
 /* output the MethodDef table for this class */
 static void vtkWrapPython_ClassMethodDef(
-  FILE *fp, ClassInfo *data,
+  FILE *fp, const char *classname, ClassInfo *data,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum);
+
+/* check whether a non-vtkObjectBase class is wrappable */
+static int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data);
+
+/* check whether the superclass of the specified class is wrapped */
+static int vtkWrapPython_HasWrappedSuperClass(
+  HierarchyInfo *hinfo, const char *classname);
 
 /* write out a python type object */
 static void vtkWrapPython_GenerateSpecialType(
-  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
+  FILE *fp, const char *classname, ClassInfo *data,
+  FileInfo *finfo, HierarchyInfo *hinfo);
 
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
+
+/* get the true superclass */
+static const char *vtkWrapPython_GetSuperClass(
+  ClassInfo *data, HierarchyInfo *hinfo);
+
+/* if name has template args, convert to mangled form */
+static void vtkWrapPython_MangleTemplateArgs(const char *name, char *pname);
+
+/* convert C++ type name to a python type name */
+static size_t vtkWrapPython_PythonicName(const char *name, char *pname);
 
 /* check for wrappability, flags may be VTK_WRAP_ARG or VTK_WRAP_RETURN */
 static int vtkWrapPython_IsValueWrappable(
@@ -157,7 +190,6 @@ static int *vtkWrapPython_ArgCountToOverloadMap(
 static char *vtkWrapPython_ArgCheckString(
   int isvtkobjmethod, FunctionInfo *currentFunction);
 
-
 /* -------------------------------------------------------------------- */
 /* A struct for special types to store info about the type, it is fairly
  * small because not many operators or special features are wrapped */
@@ -168,13 +200,262 @@ typedef struct _SpecialTypeInfo
   int has_sequence; /* the [] operator takes a single integer */
 } SpecialTypeInfo;
 
+/* -------------------------------------------------------------------- */
+/* get the true superclass */
+const char *vtkWrapPython_GetSuperClass(
+  ClassInfo *data, HierarchyInfo *hinfo)
+{
+  int i;
+  const char *supername = NULL;
+  const char *name;
+  const char **args;
+  const char *defaults[2] = { NULL, NULL };
+
+  for (i = 0; i < data->NumberOfSuperClasses; i++)
+    {
+    supername = data->SuperClasses[i];
+
+    if (strncmp(supername, "vtkTypeTemplate<", 16) == 0)
+      {
+      vtkParse_DecomposeTemplatedType(supername, &name, 2, &args, defaults);
+      supername = vtkParse_DuplicateString(args[1], strlen(args[1]));
+      vtkParse_FreeTemplateDecomposition(name, 2, args);
+      }
+
+    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
+      {
+      if (vtkWrap_IsClassWrapped(hinfo, supername) &&
+          vtkWrap_IsVTKObjectBaseType(hinfo, supername))
+        {
+        return supername;
+        }
+      }
+    else if (vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name))
+      {
+      return supername;
+      }
+    }
+
+  return NULL;
+}
+
+/* -------------------------------------------------------------------- */
+/* If name has template args, convert to mangled form */
+static void vtkWrapPython_MangleTemplateArgs(const char *name, char *pname)
+{
+  size_t i;
+
+  /* look for first char that is not alphanumeric or underscore */
+  i = vtkParse_IdentifierLength(name);
+
+  if (name[i] != '\0')
+    {
+    vtkParse_MangledTypeName(name, pname);
+    }
+  else
+    {
+    strcpy(pname, name);
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/* convert a C type to pythonic form */
+static size_t vtkWrapPython_PythonicName(const char *name, char *pname)
+{
+  unsigned int ctype = 0;
+  const char *ptype = NULL;
+  size_t i, j, n, m;
+
+  /* skip const, volatile qualifiers */
+  for (;;)
+    {
+    if (strncmp(name, "const ", 6) == 0)
+      {
+      name += 6;
+      }
+    else if (strncmp(name, "volatile ", 9) == 0)
+      {
+      name += 9;
+      }
+    else
+      {
+      break;
+      }
+    }
+
+  /* convert basic types to their VTK_PARSE constants */
+  n = vtkParse_BasicTypeFromString(name, &ctype, NULL, NULL);
+
+  /* convert to pythonic equivalents (borrowed from numpy) */
+  switch (ctype & VTK_PARSE_BASE_TYPE)
+    {
+    case VTK_PARSE_BOOL:
+      ptype = "bool";
+      break;
+    case VTK_PARSE_CHAR:
+      ptype = "char";
+      break;
+    case VTK_PARSE_SIGNED_CHAR:
+      ptype = "int8";
+      break;
+    case VTK_PARSE_UNSIGNED_CHAR:
+      ptype = "uint8";
+      break;
+    case VTK_PARSE_SHORT:
+      ptype = "int16";
+      break;
+    case VTK_PARSE_UNSIGNED_SHORT:
+      ptype = "uint16";
+      break;
+    case VTK_PARSE_INT:
+      ptype = "int32";
+      break;
+    case VTK_PARSE_UNSIGNED_INT:
+      ptype = "uint32";
+      break;
+    case VTK_PARSE_LONG:
+      ptype = "int"; /* python int is C long */
+      break;
+    case VTK_PARSE_UNSIGNED_LONG:
+      ptype = "uint";
+      break;
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
+      ptype = "int64";
+      break;
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
+      ptype = "uint64";
+      break;
+    case VTK_PARSE_FLOAT:
+      ptype = "float32";
+      break;
+    case VTK_PARSE_DOUBLE:
+      ptype = "float64";
+      break;
+    }
+
+  /* if type was a simple type, then we're done */
+  if (ptype)
+    {
+    strcpy(pname, ptype);
+    return n;
+    }
+
+  /* look for VTK types that become common python types */
+  if ((n == 12 && strncmp(name, "vtkStdString", n) == 0) ||
+      (n == 11 && strncmp(name, "std::string", n) == 0) ||
+      (n == 14 && strncmp(name, "vtkstd::string", n) == 0))
+    {
+    strcpy(pname, "str");
+    return n;
+    }
+  else if (n == 16 && strncmp(name, "vtkUnicodeString", n) == 0)
+    {
+    strcpy(pname, "unicode");
+    return n;
+    }
+
+  /* check whether name is templated */
+  for (i = 0; i < n; i++)
+    {
+    if (name[i] == '<')
+      {
+      break;
+      }
+    }
+
+  strncpy(pname, name, i);
+
+  if (name[i] != '<')
+    {
+    pname[i] = '\0';
+    return i;
+    }
+
+  /* if templated, subst '[' for '<' */
+  pname[i++] = '[';
+  j = i;
+
+  m = 1;
+  while (name[i] != '>' && i < n && m != 0)
+    {
+    if (name[i] >= '0' && name[i] <= '9')
+      {
+      /* incomplete: only does decimal integers */
+      do { pname[j++] = name[i++]; }
+      while (name[i] >= '0' && name[i] <= '9');
+      while (name[i] == 'u' || name[i] == 'l' ||
+             name[i] == 'U' || name[i] == 'L') { i++; }
+      }
+    else
+      {
+      m = vtkWrapPython_PythonicName(&name[i], &pname[j]);
+      i += m;
+      j = strlen(pname);
+      }
+    while (name[i] == ' ' || name[i] == '\t') { i++; }
+    if (name[i] == ',') { pname[j++] = name[i++]; }
+    while (name[i] == ' ' || name[i] == '\t') { i++; }
+    }
+
+  if (name[i] == '>')
+    {
+    i++;
+    pname[j++] = ']';
+    }
+
+  pname[j] = '\0';
+
+  return i;
+}
 
 /* -------------------------------------------------------------------- */
 /* Get the header file for the specified class */
 static const char *vtkWrapPython_ClassHeader(
   HierarchyInfo *hinfo, const char *classname)
 {
+  /* to allow special types to be used when "hinfo" is not available
+   * (this is necessary until VTK exports the hierarchy files) */
+  static const char *headers[][2] = {
+    { "vtkArrayCoordinates", "vtkArrayCoordinates.h" },
+    { "vtkArrayExtents", "vtkArrayExtents.h" },
+    { "vtkArrayExtentsList", "vtkArrayExtentsList.h" },
+    { "vtkArrayRange", "vtkArrayRange.h" },
+    { "vtkArraySort", "vtkArraySort.h" },
+    { "vtkArrayWeights", "vtkArrayWeights.h" },
+    { "vtkTimeStamp", "vtkTimeStap.h" },
+    { "vtkVariant", "vtkVariant.h" },
+    { "vtkStdString", "vtkStdString.h" },
+    { "vtkUnicodeString", "vtkUnicodeString.h" },
+    { "vtkVector", "vtkVector.h" },
+    { "vtkVector2", "vtkVector.h" },
+    { "vtkVector2i", "vtkVector.h" },
+    { "vtkVector2f", "vtkVector.h" },
+    { "vtkVector2d", "vtkVector.h" },
+    { "vtkVector3", "vtkVector.h" },
+    { "vtkVector3i", "vtkVector.h" },
+    { "vtkVector3f", "vtkVector.h" },
+    { "vtkVector3d", "vtkVector.h" },
+    { "vtkRect", "vtkRect.h" },
+    { "vtkRecti", "vtkRect.h" },
+    { "vtkRectf", "vtkRect.h" },
+    { "vtkRectd", "vtkRect.h" },
+    { "vtkColor", "vtkColor.h" },
+    { "vtkColor3", "vtkColor.h" },
+    { "vtkColor3ub", "vtkColor.h" },
+    { "vtkColor3f", "vtkColor.h" },
+    { "vtkColor3d", "vtkColor.h" },
+    { "vtkColor4", "vtkColor.h" },
+    { "vtkColor4ub", "vtkColor.h" },
+    { "vtkColor4f", "vtkColor.h" },
+    { "vtkColor4d", "vtkColor.h" },
+    { NULL, NULL }
+  };
+
   HierarchyEntry *entry;
+  int i;
+  size_t n;
 
   /* if "hinfo" is present, use it to find the file */
   if (hinfo)
@@ -186,42 +467,96 @@ static const char *vtkWrapPython_ClassHeader(
       }
     }
 
-  /* otherwise, use these hard-coded entries */
-  if (strcmp(classname, "vtkArrayCoordinates") == 0)
+  /* otherwise, use the hard-coded entries */
+  n = vtkParse_IdentifierLength(classname);
+  for (i = 0; headers[i][0]; i++)
     {
-    return "vtkArrayCoordinates.h";
-    }
-  else if (strcmp(classname, "vtkArrayExtents") == 0)
-    {
-    return "vtkArrayExtents.h";
-    }
-  else if (strcmp(classname, "vtkArrayExtentsList") == 0)
-    {
-    return "vtkArrayExtentsList.h";
-    }
-  else if (strcmp(classname, "vtkArrayRange") == 0)
-    {
-    return "vtkArrayRange.h";
-    }
-  else if (strcmp(classname, "vtkTimeStamp") == 0)
-    {
-    return "vtkTimeStamp.h";
-    }
-  else if (strcmp(classname, "vtkVariant") == 0)
-    {
-    return "vtkVariant.h";
-    }
-  else if (strcmp(classname, "vtkStdString") == 0)
-    {
-    return "vtkStdString.h";
-    }
-  else if (strcmp(classname, "vtkUnicodeString") == 0)
-    {
-    return "vtkUnicodeString.h";
+    if (strlen(headers[i][0]) == n &&
+        strncmp(classname, headers[i][0], n) == 0)
+      {
+      return headers[i][1];
+      }
     }
 
   return 0;
 }
+
+/* -------------------------------------------------------------------- */
+/* check whether the superclass of the specified class is wrapped */
+int vtkWrapPython_HasWrappedSuperClass(
+  HierarchyInfo *hinfo, const char *classname)
+{
+  HierarchyEntry *entry;
+  const char *module;
+  const char *header;
+  const char *name;
+  const char *supername;
+  int result = 0;
+
+  if (!hinfo)
+    {
+    return 0;
+    }
+
+  name = classname;
+  entry = vtkParseHierarchy_FindEntry(hinfo, name);
+  if (!entry)
+    {
+    return 0;
+    }
+
+  module = entry->Module;
+  header = entry->HeaderFile;
+  while (entry->NumberOfSuperClasses == 1)
+    {
+    supername = vtkParseHierarchy_TemplatedSuperClass(entry, name, 0);
+    if (name != classname)
+      {
+      free((char *)name);
+      }
+    name = supername;
+    entry = vtkParseHierarchy_FindEntry(hinfo, name);
+    /* the order of these conditions is important */
+    if (!entry)
+      {
+      break;
+      }
+    else if (entry->IsTypedef)
+      {
+      break;
+      }
+    else if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE"))
+      {
+      result = 1;
+      break;
+      }
+    else if (strcmp(entry->Module, module) != 0)
+      {
+      break;
+      }
+    else if (strncmp(entry->Name, "vtk", 3) != 0)
+      {
+      break;
+      }
+    else if (vtkParseHierarchy_GetProperty(entry, "WRAP_SPECIAL"))
+      {
+      result = 1;
+      break;
+      }
+    else if (strcmp(entry->HeaderFile, header) != 0)
+      {
+      break;
+      }
+    }
+
+  if (name != classname)
+    {
+    free((char *)name);
+    }
+
+  return result;
+}
+
 
 /* -------------------------------------------------------------------- */
 /* Declare all local variables used by the wrapper method */
@@ -395,6 +730,7 @@ static void vtkWrapPython_GetSingleArgument(
 {
   const char *prefix = "ap.";
   char argname[32];
+  char pythonname[1024];
   argname[0] = '\0';
 
   if (static_call)
@@ -405,20 +741,32 @@ static void vtkWrapPython_GetSingleArgument(
 
   if (vtkWrap_IsVTKObject(arg))
     {
-    fprintf(fp, "%sGetVTKObject(%stemp%d, \"%s\")",
-            prefix, argname, i, arg->Class);
+    vtkWrapPython_PythonicName(arg->Class, pythonname);
+    if (strcmp(arg->Class, pythonname) != 0)
+      {
+      /* use typeid() for templated names */
+      fprintf(fp, "%sGetVTKObject(%stemp%d, typeid(%s).name())",
+              prefix, argname, i, arg->Class);
+      }
+    else
+      {
+      fprintf(fp, "%sGetVTKObject(%stemp%d, \"%s\")",
+              prefix, argname, i, pythonname);
+      }
     }
   else if (vtkWrap_IsSpecialObject(arg) &&
            !vtkWrap_IsNonConstRef(arg))
     {
+    vtkWrapPython_PythonicName(arg->Class, pythonname);
     fprintf(fp, "%sGetSpecialObject(%stemp%d, pobj%d, \"%s\")",
-            prefix, argname, i, i, arg->Class);
+            prefix, argname, i, i, pythonname);
     }
   else if (vtkWrap_IsSpecialObject(arg) &&
            vtkWrap_IsNonConstRef(arg))
     {
+    vtkWrapPython_PythonicName(arg->Class, pythonname);
     fprintf(fp, "%sGetSpecialObject(%stemp%d, \"%s\")",
-            prefix, argname, i, arg->Class);
+            prefix, argname, i, pythonname);
     }
   else if (vtkWrap_IsQtEnum(arg))
     {
@@ -523,6 +871,7 @@ static void vtkWrapPython_GetAllArguments(
 static void vtkWrapPython_ReturnValue(
   FILE *fp, ValueInfo *val, int static_call)
 {
+  char pythonname[1024];
   const char *deref = "";
   const char *prefix = "ap.";
 
@@ -571,16 +920,18 @@ static void vtkWrapPython_ReturnValue(
   else if (vtkWrap_IsSpecialObject(val) &&
            vtkWrap_IsRef(val))
     {
+    vtkWrapPython_PythonicName(val->Class, pythonname);
     fprintf(fp,
             "      result = %sBuildSpecialObject(tempr, \"%s\");\n",
-            prefix, val->Class);
+            prefix, pythonname);
     }
   else if (vtkWrap_IsSpecialObject(val) &&
            !vtkWrap_IsRef(val))
     {
+    vtkWrapPython_PythonicName(val->Class, pythonname);
     fprintf(fp,
             "      result = %sBuildSpecialObject(&tempr, \"%s\");\n",
-            prefix, val->Class);
+            prefix, pythonname);
     }
   else if (vtkWrap_IsQtObject(val) &&
            (vtkWrap_IsRef(val) || vtkWrap_IsPointer(val)))
@@ -840,6 +1191,7 @@ static char *vtkWrapPython_ArgCheckString(
   int isvtkobjmethod, FunctionInfo *currentFunction)
 {
   static char result[2048]; /* max literal string length */
+  char pythonname[1024];
   size_t currPos = 0;
   ValueInfo *arg;
   unsigned int argtype;
@@ -893,9 +1245,14 @@ static char *vtkWrapPython_ArgCheckString(
         argtype == VTK_PARSE_QOBJECT_REF ||
         argtype == VTK_PARSE_QOBJECT_PTR)
       {
+      vtkWrapPython_PythonicName(arg->Class, pythonname);
       result[currPos++] = ' ';
-      if (argtype == VTK_PARSE_OBJECT_REF ||
-          argtype == VTK_PARSE_QOBJECT_REF)
+      if (argtype == VTK_PARSE_OBJECT_REF &&
+          (argtype & VTK_PARSE_CONST) == 0)
+        {
+        result[currPos++] = '&';
+        }
+      else if (argtype == VTK_PARSE_QOBJECT_REF)
         {
         result[currPos++] = '&';
         }
@@ -904,8 +1261,8 @@ static char *vtkWrapPython_ArgCheckString(
         {
         result[currPos++] = '*';
         }
-      strcpy(&result[currPos], arg->Class);
-      currPos += strlen(arg->Class);
+      strcpy(&result[currPos], pythonname);
+      currPos += strlen(pythonname);
       }
 
     else if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg))
@@ -1411,8 +1768,8 @@ static void vtkWrapPython_GenerateMethodCall(
     if (is_constructor)
       {
       fprintf(fp,
-              "    %s *op = %s(",
-              data->Name, methodname);
+              "    %s *op = new %s(",
+              data->Name, data->Name);
       }
     else if (vtkWrap_IsVoid(currentFunction->ReturnValue))
       {
@@ -1643,7 +2000,7 @@ static void vtkWrapPython_FreeConstructedObjects(
  * this is also used to write out all constructors for the class */
 
 static void vtkWrapPython_OverloadMethodDef(
-  FILE *fp, ClassInfo *data, int *overloadMap,
+  FILE *fp, const char *classname, ClassInfo *data, int *overloadMap,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
   int fnum, int numberOfOccurrences, int is_vtkobject, int all_legacy)
 {
@@ -1665,7 +2022,7 @@ static void vtkWrapPython_OverloadMethodDef(
 
   fprintf(fp,
          "static PyMethodDef Py%s_%s_Methods[] = {\n",
-          data->Name, theFunc->Name);
+          classname, theFunc->Name);
 
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
@@ -1723,7 +2080,7 @@ static void vtkWrapPython_OverloadMethodDef(
     fprintf(fp,
             "  {NULL, Py%s_%s%s, 1,\n"
             "   (char*)\"%s\"},\n",
-            data->Name, wrappedFunctions[occ]->Name,
+            classname, wrappedFunctions[occ]->Name,
             occSuffix,
             vtkWrapPython_ArgCheckString(
               (is_vtkobject && !theOccurrence->IsStatic),
@@ -1754,7 +2111,7 @@ static void vtkWrapPython_OverloadMethodDef(
 /* make a method that will choose which overload to call */
 
 static void vtkWrapPython_OverloadMasterMethod(
-  FILE *fp, ClassInfo *data, int *overloadMap, int maxArgs,
+  FILE *fp, const char *classname, int *overloadMap, int maxArgs,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences, int is_vtkobject, int all_legacy)
 {
@@ -1797,13 +2154,13 @@ static void vtkWrapPython_OverloadMasterMethod(
           "static PyObject *\n"
           "Py%s_%s(PyObject *self, PyObject *args)\n"
           "{\n",
-           data->Name, currentFunction->Name);
+           classname, currentFunction->Name);
 
   if (overlap)
     {
     fprintf(fp,
           "  PyMethodDef *methods = Py%s_%s_Methods;\n",
-           data->Name, currentFunction->Name);
+           classname, currentFunction->Name);
     }
 
   fprintf(fp,
@@ -1832,7 +2189,7 @@ static void vtkWrapPython_OverloadMasterMethod(
       {
       fprintf(fp,
               "      return Py%s_%s_s%d(self, args);\n",
-              data->Name, currentFunction->Name, occ);
+              classname, currentFunction->Name, occ);
       }
     }
 
@@ -1877,9 +2234,11 @@ static void vtkWrapPython_OverloadMasterMethod(
 /* Write out the code for one method (including all its overloads) */
 
 void vtkWrapPython_GenerateOneMethod(
-  FILE *fp, ClassInfo *data, FunctionInfo *wrappedFunctions[],
-  int numberOfWrappedFunctions, int fnum, int is_vtkobject, int do_constructors)
+  FILE *fp, const char *classname, ClassInfo *data,
+  FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
+  int is_vtkobject, int do_constructors)
 {
+  char pythonname[1024];
   FunctionInfo *theFunc;
   char occSuffix[8];
   FunctionInfo *theOccurrence;
@@ -1929,7 +2288,7 @@ void vtkWrapPython_GenerateOneMethod(
               "static PyObject *\n"
               "Py%s_%s%s(PyObject *%s, PyObject *args)\n"
               "{\n",
-              data->Name, theOccurrence->Name, occSuffix,
+              classname, theOccurrence->Name, occSuffix,
               ((theOccurrence->IsStatic | do_constructors) ? "" : "self"));
 
       /* Use vtkPythonArgs to convert python args to C args */
@@ -1999,9 +2358,10 @@ void vtkWrapPython_GenerateOneMethod(
       /* generate the code that builds the return value */
       if (do_constructors && !is_vtkobject)
         {
+        vtkWrapPython_PythonicName(data->Name, pythonname);
         fprintf(fp,
                 "    result = PyVTKSpecialObject_New(\"%s\", op);\n",
-                data->Name);
+                pythonname);
         }
       else
         {
@@ -2044,7 +2404,8 @@ void vtkWrapPython_GenerateOneMethod(
     {
     /* output the method table for the signatures */
     vtkWrapPython_OverloadMethodDef(
-      fp, data, overloadMap, wrappedFunctions, numberOfWrappedFunctions,
+      fp, classname, data, overloadMap,
+      wrappedFunctions, numberOfWrappedFunctions,
       fnum, numberOfOccurrences, is_vtkobject, all_legacy);
     }
 
@@ -2052,7 +2413,7 @@ void vtkWrapPython_GenerateOneMethod(
     {
     /* declare a "master method" to choose among the overloads */
     vtkWrapPython_OverloadMasterMethod(
-      fp, data, overloadMap, maxArgs,
+      fp, classname, overloadMap, maxArgs,
       wrappedFunctions, numberOfWrappedFunctions,
       fnum, numberOfOccurrences, is_vtkobject, all_legacy);
     }
@@ -2090,7 +2451,7 @@ void vtkWrapPython_GenerateOneMethod(
  * words, this poorly named function is "the big one". */
 
 static void vtkWrapPython_GenerateMethods(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo,
+  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo,
   int is_vtkobject, int do_constructors)
 {
   int i;
@@ -2105,7 +2466,7 @@ static void vtkWrapPython_GenerateMethods(
     data->NumberOfFunctions*sizeof(FunctionInfo *));
 
   /* output any custom methods */
-  vtkWrapPython_CustomMethods(fp, data, do_constructors);
+  vtkWrapPython_CustomMethods(fp, classname, data, do_constructors);
 
   /* modify the arg count for vtkDataArray methods */
   vtkWrap_FindCountHints(data, hinfo);
@@ -2148,7 +2509,7 @@ static void vtkWrapPython_GenerateMethods(
       fprintf(fp,"\n");
 
       vtkWrapPython_GenerateOneMethod(
-        fp, data, wrappedFunctions, numberOfWrappedFunctions,
+        fp, classname, data, wrappedFunctions, numberOfWrappedFunctions,
         fnum, is_vtkobject, do_constructors);
 
       } /* is this method non NULL */
@@ -2157,7 +2518,7 @@ static void vtkWrapPython_GenerateMethods(
   /* the method table for constructors is produced elsewhere */
   if (!do_constructors)
     {
-    vtkWrapPython_ClassMethodDef(fp, data, wrappedFunctions,
+    vtkWrapPython_ClassMethodDef(fp, classname, data, wrappedFunctions,
                                  numberOfWrappedFunctions, fnum);
     }
 
@@ -2167,13 +2528,13 @@ static void vtkWrapPython_GenerateMethods(
 /* -------------------------------------------------------------------- */
 /* output the MethodDef table for this class */
 static void vtkWrapPython_ClassMethodDef(
-  FILE *fp, ClassInfo *data,
+  FILE *fp, const char *classname, ClassInfo *data,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum)
 {
   /* output the method table, with pointers to each function defined above */
   fprintf(fp,
           "static PyMethodDef Py%s_Methods[] = {\n",
-          data->Name);
+          classname);
 
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
     {
@@ -2199,7 +2560,7 @@ static void vtkWrapPython_ClassMethodDef(
 
       fprintf(fp,
               "  {(char*)\"%s\", Py%s_%s, 1,\n",
-              wrappedFunctions[fnum]->Name, data->Name,
+              wrappedFunctions[fnum]->Name, classname,
               wrappedFunctions[fnum]->Name);
 
       fprintf(fp,
@@ -2219,7 +2580,7 @@ static void vtkWrapPython_ClassMethodDef(
     fprintf(fp,
             "  {(char*)\"AddObserver\",  Py%s_AddObserver, 1,\n"
             "   (char*)\"V.AddObserver(int, function) -> int\\nC++: unsigned long AddObserver(const char *event,\\n    vtkCommand *command, float priority=0.0f)\\n\\nAdd an event callback function(vtkObject, int) for an event type.\\nReturns a handle that can be used with RemoveEvent(int).\"},\n",
-            data->Name);
+            classname);
     }
 
   /* vtkObjectBase needs GetAddressAsString, PrintRevisions, UnRegister */
@@ -2234,7 +2595,7 @@ static void vtkWrapPython_ClassMethodDef(
             "   (char*)\"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
             "  {(char*)\"UnRegister\", Py%s_UnRegister, 1,\n"
             "   (char*)\"V.UnRegister(vtkObjectBase)\\nC++: virtual void UnRegister(vtkObjectBase *o)\\n\\nDecrease the reference count (release by another object). This\\nhas the same effect as invoking Delete() (i.e., it reduces the\\nreference count by 1).\\n\"},\n",
-            data->Name, data->Name, data->Name, data->Name);
+            classname, classname, classname, classname);
     }
 
   /* python expects the method table to end with a "NULL" entry */
@@ -2316,6 +2677,7 @@ static int vtkWrapPython_IsValueWrappable(
     if (vtkWrap_IsObject(val))
       {
       if (vtkWrap_IsSpecialType(hinfo, aClass) ||
+          vtkWrapPython_HasWrappedSuperClass(hinfo, aClass) ||
           vtkWrap_IsQtObject(val) ||
           vtkWrap_IsQtEnum(val))
         {
@@ -2413,6 +2775,8 @@ static void vtkWrapPython_ClassDoc(
   FILE *fp, FileInfo *file_info, ClassInfo *data, HierarchyInfo *hinfo,
   int is_vtkobject)
 {
+  char pythonname[1024];
+  const char *supername;
   char *cp;
   const char *ccp;
   size_t i, n;
@@ -2435,19 +2799,13 @@ static void vtkWrapPython_ClassDoc(
     }
 
   /* only consider superclasses that are wrapped */
-  for (j = 0; j < data->NumberOfSuperClasses; j++)
+  supername = vtkWrapPython_GetSuperClass(data, hinfo);
+  if (supername)
     {
-    if (vtkWrap_IsClassWrapped(hinfo, data->SuperClasses[j]))
-      {
-      break;
-      }
-    }
-
-  if (j < data->NumberOfSuperClasses)
-    {
+    vtkWrapPython_PythonicName(supername, pythonname);
     fprintf(fp,
             "    \"Superclass: %s\\n\\n\",\n",
-            vtkWrapText_QuoteString(data->SuperClasses[j], 500));
+            vtkWrapText_QuoteString(pythonname, 500));
     }
 
   n = 100;
@@ -2518,7 +2876,7 @@ static void vtkWrapPython_ClassDoc(
     }
 
   /* for special objects, add constructor signatures to the doc */
-  if (!is_vtkobject)
+  if (!is_vtkobject && !data->Template)
     {
     for (j = 0; j < data->NumberOfFunctions; j++)
       {
@@ -2658,9 +3016,44 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 }
 
 /* -------------------------------------------------------------------- */
+/* Declare the exports and imports for a VTK/Python class */
+void vtkWrapPython_ExportVTKClass(
+  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo)
+{
+  char classname[1024];
+  const char *supername;
+
+  /* mangle the classname if necessary */
+  vtkWrapPython_MangleTemplateArgs(data->Name, classname);
+
+  /* for vtkObjectBase objects: export New method for use by subclasses */
+  fprintf(fp,
+          "#if defined(WIN32)\n"
+          "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
+          "#else\n"
+          "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
+          "#endif\n"
+          "\n",
+          classname, classname);
+
+  /* declare the New methods for all the superclasses */
+  supername = vtkWrapPython_GetSuperClass(data, hinfo);
+  if (supername)
+    {
+    vtkWrapPython_MangleTemplateArgs(supername, classname);
+    fprintf(fp,
+      "#ifndef DECLARED_PyVTKClass_%sNew\n"
+      "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
+      "#define DECLARED_PyVTKClass_%sNew\n"
+      "#endif\n",
+      classname, classname, classname);
+    }
+}
+
+/* -------------------------------------------------------------------- */
 /* generate code for custom methods for some classes */
 static void vtkWrapPython_CustomMethods(
-  FILE *fp, ClassInfo *data, int do_constructors)
+  FILE *fp, const char *classname, ClassInfo *data, int do_constructors)
 {
   int i;
   FunctionInfo *theFunc;
@@ -2694,11 +3087,11 @@ static void vtkWrapPython_CustomMethods(
     /* Add the AddObserver method to vtkObject. */
     fprintf(fp,
             "static PyObject *\n"
-            "PyvtkObject_AddObserver(PyObject *self, PyObject *args)\n"
+            "Py%s_AddObserver(PyObject *self, PyObject *args)\n"
             "{\n"
             "  vtkPythonArgs ap(self, args, \"AddObserver\");\n"
             "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
-            "  vtkObject *op = static_cast<vtkObject *>(vp);\n"
+            "  %s *op = static_cast<%s *>(vp);\n"
             "\n"
             "  char *temp0s = NULL;\n"
             "  int temp0i = 0;\n"
@@ -2707,7 +3100,8 @@ static void vtkWrapPython_CustomMethods(
             "  unsigned long tempr;\n"
             "  PyObject *result = NULL;\n"
             "  int argtype = 0;\n"
-            "\n");
+            "\n",
+            classname, data->Name, data->Name);
 
     fprintf(fp,
             "  if (op)\n"
@@ -2752,7 +3146,7 @@ static void vtkWrapPython_CustomMethods(
             "        }\n"
             "      else\n"
             "        {\n"
-            "        tempr = op->vtkObject::AddObserver(temp0i, cbc, temp2);\n"
+            "        tempr = op->%s::AddObserver(temp0i, cbc, temp2);\n"
             "        }\n"
             "      }\n"
             "    else\n"
@@ -2763,10 +3157,11 @@ static void vtkWrapPython_CustomMethods(
             "        }\n"
             "      else\n"
             "        {\n"
-            "        tempr = op->vtkObject::AddObserver(temp0s, cbc, temp2);\n"
+            "        tempr = op->%s::AddObserver(temp0s, cbc, temp2);\n"
             "        }\n"
             "      }\n"
-            "\n");
+            "\n",
+            data->Name, data->Name);
 
     fprintf(fp,
             "    cbc->Delete();\n"
@@ -2803,7 +3198,7 @@ static void vtkWrapPython_CustomMethods(
     /* add the GetAddressAsString method to vtkObjectBase */
     fprintf(fp,
             "static PyObject *\n"
-            "PyvtkObjectBase_GetAddressAsString(PyObject *self, PyObject *args)\n"
+            "Py%s_GetAddressAsString(PyObject *self, PyObject *args)\n"
             "{\n"
             "  vtkPythonArgs ap(self, args, \"GetAddressAsString\");\n"
             "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
@@ -2824,12 +3219,12 @@ static void vtkWrapPython_CustomMethods(
             "  return result;\n"
             "}\n"
             "\n",
-            data->Name, data->Name);
+            classname, data->Name, data->Name);
 
     /* add the PrintRevisions method to vtkObjectBase. */
     fprintf(fp,
             "static PyObject *\n"
-            "PyvtkObjectBase_PrintRevisions(PyObject *self, PyObject *args)\n"
+            "Py%s_PrintRevisions(PyObject *self, PyObject *args)\n"
             "{\n"
             "  vtkPythonArgs ap(self, args, \"PrintRevisions\");\n"
             "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
@@ -2851,12 +3246,12 @@ static void vtkWrapPython_CustomMethods(
             "  return result;\n"
             "}\n"
             "\n",
-            data->Name, data->Name);
+            classname, data->Name, data->Name);
 
     /* Override the Register method to check whether to ignore Register */
     fprintf(fp,
             "static PyObject *\n"
-            "PyvtkObjectBase_Register(PyObject *self, PyObject *args)\n"
+            "Py%s_Register(PyObject *self, PyObject *args)\n"
             "{\n"
             "  vtkPythonArgs ap(self, args, \"Register\");\n"
             "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
@@ -2877,7 +3272,7 @@ static void vtkWrapPython_CustomMethods(
             "        }\n"
             "      else\n"
             "        {\n"
-            "        op->vtkObjectBase::Register(temp0);\n"
+            "        op->%s::Register(temp0);\n"
             "        }\n"
             "      }\n"
             "\n"
@@ -2890,12 +3285,12 @@ static void vtkWrapPython_CustomMethods(
             "  return result;\n"
             "}\n"
             "\n",
-            data->Name, data->Name);
+            classname, data->Name, data->Name, data->Name);
 
     /* Override the UnRegister method to check whether to ignore UnRegister */
     fprintf(fp,
             "static PyObject *\n"
-            "PyvtkObjectBase_UnRegister(PyObject *self, PyObject *args)\n"
+            "Py%s_UnRegister(PyObject *self, PyObject *args)\n"
             "{\n"
             "  vtkPythonArgs ap(self, args, \"UnRegister\");\n"
             "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
@@ -2916,7 +3311,7 @@ static void vtkWrapPython_CustomMethods(
             "        }\n"
             "      else\n"
             "        {\n"
-            "        op->vtkObjectBase::UnRegister(temp0);\n"
+            "        op->%s::UnRegister(temp0);\n"
             "        }\n"
             "      }\n"
             "\n"
@@ -2929,72 +3324,122 @@ static void vtkWrapPython_CustomMethods(
             "  return result;\n"
             "}\n"
             "\n",
-            data->Name, data->Name);
+            classname, data->Name, data->Name, data->Name);
     }
 }
 
 /* -------------------------------------------------------------------- */
 /* generate the New method for a vtkObjectBase object */
 static void vtkWrapPython_GenerateObjectNew(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo, int class_has_new)
+  FILE *fp, const char *classname, ClassInfo *data,
+  HierarchyInfo *hinfo, int class_has_new)
 {
+  char superclassname[1024];
+  char pythonname[1024];
+  const char *name;
+  int has_constants = 0;
   int i;
 
   if (class_has_new)
     {
     fprintf(fp,
-            "static vtkObjectBase *%s_StaticNew()\n"
+            "static vtkObjectBase *Py%s_StaticNew()\n"
             "{\n"
             "  return %s::New();\n"
             "}\n"
             "\n",
-            data->Name, data->Name);
+            classname, data->Name);
     }
 
   fprintf(fp,
           "PyObject *PyVTKClass_%sNew(const char *modulename)\n"
           "{\n",
-          data->Name);
+          classname);
 
   if (class_has_new)
     {
     fprintf(fp,
-            "  return PyVTKClass_New(&%s_StaticNew,\n",
-            data->Name);
+            "  PyObject *cls = PyVTKClass_New(&Py%s_StaticNew,\n",
+            classname);
     }
   else
     {
     fprintf(fp,
-            "  return PyVTKClass_New(NULL,\n");
+            "  PyObject *cls = PyVTKClass_New(NULL,\n");
     }
 
-  fprintf(fp,
-          "                        Py%s_Methods,\n"
-          "                        \"%s\",modulename,\n"
-          "                        Py%s_Doc(),",
-          data->Name, data->Name, data->Name);
+  vtkWrapPython_PythonicName(data->Name, pythonname);
+  if (strcmp(data->Name, pythonname) == 0)
+    {
+    fprintf(fp,
+            "    Py%s_Methods,\n"
+            "    \"%s\", modulename,\n"
+            "    NULL, NULL,\n"
+            "    Py%s_Doc(),",
+            classname, classname, classname);
+    }
+  else
+    {
+    /* use of typeid() matches vtkTypeTemplate */
+    fprintf(fp,
+            "    Py%s_Methods,\n"
+            "    typeid(%s).name(), modulename,\n"
+            "    \"%s\", \"%s\",\n"
+            "    Py%s_Doc(),",
+            classname, data->Name, pythonname, classname, classname);
+    }
 
   /* find the first superclass that is a VTK class */
-  for (i = 0; i < data->NumberOfSuperClasses; i++)
+  name = vtkWrapPython_GetSuperClass(data, hinfo);
+  if (name)
     {
-    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->SuperClasses[i]))
-      {
-      break;
-      }
-    }
-
-  if (i < data->NumberOfSuperClasses)
-    {
+    vtkWrapPython_MangleTemplateArgs(name, superclassname);
     fprintf(fp, "\n"
-            "                        PyVTKClass_%sNew(modulename));\n",
-            data->SuperClasses[i]);
+            "    PyVTKClass_%sNew(modulename));\n",
+            superclassname);
     }
   else
     {
     fprintf(fp, "0);\n");
     }
 
+  for (i = 0; i < data->NumberOfConstants; i++)
+    {
+    if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
+      {
+      has_constants = 1;
+      break;
+      }
+    }
+
+  if (has_constants)
+    {
+    fprintf(fp,
+            "\n"
+            "  if (cls)\n"
+            "    {\n"
+            "    PyObject *d = PyVTKClass_GetDict(cls);\n"
+            "    PyObject *o;\n"
+            "\n");
+
+    /* add any constants defined in the class to its dict */
+    for (i = 0; i < data->NumberOfConstants; i++)
+      {
+      if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
+        {
+        vtkWrapPython_AddConstant(
+          fp, "    ", "d", "o", data->Constants[i]);
+        fprintf(fp, "\n");
+        }
+      }
+
+    fprintf(fp,
+            "    }\n"
+            "\n");
+    }
+
   fprintf(fp,
+          "  return cls;\n"
           "}\n"
           "\n");
 }
@@ -3006,8 +3451,29 @@ static void vtkWrapPython_GenerateObjectNew(
 
 /* -------------------------------------------------------------------- */
 /* generate function for printing a special object */
-static void vtkWrapPython_NewDeleteProtocol(FILE *fp, ClassInfo *data)
+static void vtkWrapPython_NewDeleteProtocol(
+  FILE *fp, const char *classname, ClassInfo *data)
 {
+  const char *constructor;
+  size_t n, m;
+
+  /* remove namespaces and template parameters from the
+   * class name to get the constructor name */
+  constructor = data->Name;
+  m = vtkParse_UnscopedNameLength(constructor);
+  while (constructor[m] == ':' && constructor[m+1] == ':')
+    {
+    constructor += m + 2;
+    m = vtkParse_UnscopedNameLength(constructor);
+    }
+  for (n = 0; n < m; n++)
+    {
+    if (constructor[n] == '<')
+      {
+      break;
+      }
+    }
+
   /* the new method for python versions >= 2.2 */
   fprintf(fp,
     "#if PY_VERSION_HEX >= 0x02020000\n"
@@ -3021,11 +3487,11 @@ static void vtkWrapPython_NewDeleteProtocol(FILE *fp, ClassInfo *data)
     "    return NULL;\n"
     "    }\n"
     "\n"
-    "  return Py%s_%s(NULL, args);\n"
+    "  return Py%s_%*.*s(NULL, args);\n"
     "}\n"
     "#endif\n"
     "\n",
-    data->Name, data->Name, data->Name);
+    classname, classname, (int)n, (int)n, constructor);
 
   /* the delete method */
   fprintf(fp,
@@ -3043,14 +3509,15 @@ static void vtkWrapPython_NewDeleteProtocol(FILE *fp, ClassInfo *data)
     "#endif\n"
     "}\n"
     "\n",
-    data->Name, data->Name);
+    classname, data->Name);
 }
 
 
 /* -------------------------------------------------------------------- */
 /* generate function for printing a special object */
 static void vtkWrapPython_PrintProtocol(
-  FILE *fp, ClassInfo *data, FileInfo *finfo, SpecialTypeInfo *info)
+  FILE *fp, const char *classname, ClassInfo *data,
+  FileInfo *finfo, SpecialTypeInfo *info)
 {
   int i;
   FunctionInfo *func;
@@ -3075,24 +3542,6 @@ static void vtkWrapPython_PrintProtocol(
       }
     }
 
-  /* the repr function */
-  fprintf(fp,
-    "static PyObject *Py%s_Repr(PyObject *self)\n"
-    "{\n"
-    "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
-    "  vtksys_ios::ostringstream os;\n"
-    "  const char *name = self->ob_type->tp_name;\n"
-    "  os << \"(\" << name << \")\";\n"
-    "  if (obj->vtk_ptr)\n"
-    "    {\n"
-    "    os << %sstatic_cast<const %s *>(obj->vtk_ptr);\n"
-    "    }\n"
-    "  const vtksys_stl::string &s = os.str();\n"
-    "  return PyString_FromStringAndSize(s.data(), s.size());\n"
-    "}\n"
-    "\n",
-    data->Name, (info->has_print ? "*" : ""), data->Name);
-
   /* the str function */
   if (info->has_print)
     {
@@ -3109,22 +3558,26 @@ static void vtkWrapPython_PrintProtocol(
       "  return PyString_FromStringAndSize(s.data(), s.size());\n"
       "}\n"
       "\n",
-      data->Name, data->Name);
+      classname, data->Name);
     }
 }
 
 /* -------------------------------------------------------------------- */
 /* generate function for comparing special objects */
 static void vtkWrapPython_RichCompareProtocol(
-  FILE *fp, ClassInfo *data, FileInfo *finfo, SpecialTypeInfo *info)
+  FILE *fp, const char *classname, ClassInfo *data,
+  FileInfo *finfo, SpecialTypeInfo *info)
 {
   static const char *compare_consts[6] = {
     "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
   static const char *compare_tokens[6] = {
     "<", "<=", "==", "!=", ">", ">=" };
   int compare_ops = 0;
+  char pythonname[1024];
   int i, n;
   FunctionInfo *func;
+
+  vtkWrapPython_PythonicName(data->Name, pythonname);
 
   /* look for comparison operator methods */
   n = data->NumberOfFunctions + finfo->Contents->NumberOfFunctions;
@@ -3205,7 +3658,7 @@ static void vtkWrapPython_RichCompareProtocol(
       "  const %s *so2 = NULL;\n"
       "  int result = -1;\n"
       "\n",
-      data->Name, data->Name, data->Name);
+      classname, data->Name, data->Name);
 
     for (i = 1; i <= 2; i++)
       {
@@ -3230,8 +3683,8 @@ static void vtkWrapPython_RichCompareProtocol(
         "      }\n"
         "    }\n"
         "\n",
-        i, data->Name, i, i, i, data->Name, i, i, data->Name,
-        i, data->Name, i, i);
+        i, classname, i, i, i, data->Name, i, i, data->Name,
+        i, pythonname, i, i);
       }
 
     /* the switch statement for all possible compare ops */
@@ -3303,7 +3756,8 @@ static void vtkWrapPython_RichCompareProtocol(
 /* -------------------------------------------------------------------- */
 /* generate functions for indexing into special objects */
 static void vtkWrapPython_SequenceProtocol(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo, SpecialTypeInfo *info)
+  FILE *fp, const char *classname, ClassInfo *data,
+  HierarchyInfo *hinfo, SpecialTypeInfo *info)
 {
   int i;
   FunctionInfo *func;
@@ -3314,6 +3768,7 @@ static void vtkWrapPython_SequenceProtocol(
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     func = data->Functions[i];
+
     if (func->Name && func->IsOperator &&
         strcmp(func->Name, "operator[]") == 0  &&
         vtkWrapPython_MethodCheck(func, hinfo))
@@ -3345,7 +3800,7 @@ static void vtkWrapPython_SequenceProtocol(
       "\n"
       "  return static_cast<Py_ssize_t>(op->%s);\n"
       "}\n\n",
-      data->Name, data->Name, data->Name, getItemFunc->SizeHint);
+      classname, data->Name, data->Name, getItemFunc->SizeHint);
 
     fprintf(fp,
       "PyObject *Py%s_SequenceItem(PyObject *self, Py_ssize_t i)\n"
@@ -3353,7 +3808,7 @@ static void vtkWrapPython_SequenceProtocol(
       "  void *vp = vtkPythonArgs::GetSelfPointer(self);\n"
       "  %s *op = static_cast<%s *>(vp);\n"
       "\n",
-      data->Name, data->Name, data->Name);
+      classname, data->Name, data->Name);
 
     vtkWrapPython_DeclareVariables(fp, getItemFunc);
 
@@ -3389,7 +3844,7 @@ static void vtkWrapPython_SequenceProtocol(
         "  void *vp = vtkPythonArgs::GetSelfPointer(self);\n"
         "  %s *op = static_cast<%s *>(vp);\n"
         "\n",
-        data->Name, data->Name, data->Name);
+        classname, data->Name, data->Name);
 
       vtkWrap_DeclareVariable(fp, setItemFunc->Arguments[0], "temp", 0,
                               VTK_WRAP_ARG);
@@ -3436,13 +3891,13 @@ static void vtkWrapPython_SequenceProtocol(
       "  0, // sq_repeat\n"
       "  Py%s_SequenceItem, // sq_item\n"
       "  0, // sq_slice\n",
-      data->Name, data->Name, data->Name);
+      classname, classname, classname);
 
     if (setItemFunc)
       {
       fprintf(fp,
         "  Py%s_SequenceSetItem, // sq_ass_item\n",
-        data->Name);
+        classname);
       }
     else
       {
@@ -3463,12 +3918,13 @@ static void vtkWrapPython_SequenceProtocol(
 
 /* -------------------------------------------------------------------- */
 /* generate function for hashing special objects */
-static void vtkWrapPython_HashProtocol(FILE *fp, ClassInfo *data)
+static void vtkWrapPython_HashProtocol(
+  FILE *fp, const char *classname, ClassInfo *data)
 {
   /* the hash function, defined only for specific types */
   fprintf(fp,
     "static long Py%s_Hash(PyObject *self)\n",
-    data->Name);
+    classname);
 
   if (strcmp(data->Name, "vtkTimeStamp") == 0)
     {
@@ -3526,48 +3982,126 @@ static void vtkWrapPython_HashProtocol(FILE *fp, ClassInfo *data)
 /* -------------------------------------------------------------------- */
 /* generate extra functions for a special object */
 static void vtkWrapPython_SpecialTypeProtocols(
-  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo,
-  SpecialTypeInfo *info)
+  FILE *fp, const char *classname, ClassInfo *data,
+  FileInfo *finfo, HierarchyInfo *hinfo, SpecialTypeInfo *info)
 {
   /* clear all info about the type */
   info->has_print = 0;
   info->has_compare = 0;
   info->has_sequence = 0;
 
-  vtkWrapPython_NewDeleteProtocol(fp, data);
-  vtkWrapPython_PrintProtocol(fp, data, finfo, info);
-  vtkWrapPython_RichCompareProtocol(fp, data, finfo, info);
-  vtkWrapPython_SequenceProtocol(fp, data, hinfo, info);
-  vtkWrapPython_HashProtocol(fp, data);
+  vtkWrapPython_NewDeleteProtocol(fp, classname, data);
+  vtkWrapPython_PrintProtocol(fp, classname, data, finfo, info);
+  vtkWrapPython_RichCompareProtocol(fp, classname, data, finfo, info);
+  vtkWrapPython_SequenceProtocol(fp, classname, data, hinfo, info);
+  vtkWrapPython_HashProtocol(fp, classname, data);
+}
+
+/* -------------------------------------------------------------------- */
+/* For classes that aren't derived from vtkObjectBase, check to see if
+ * they are wrappable */
+int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data)
+{
+  /* no templated types */
+  if (data->Template)
+    {
+    return 0;
+    }
+
+  /* no abstract classes */
+  if (data->IsAbstract)
+    {
+    return 0;
+    }
+
+  if (strncmp(data->Name, "vtk", 3) != 0)
+    {
+    return 0;
+    }
+
+  /* require public destructor and copy contructor */
+  if (!vtkWrap_HasPublicDestructor(data) ||
+      !vtkWrap_HasPublicCopyConstructor(data))
+    {
+    return 0;
+    }
+
+  return 1;
 }
 
 /* -------------------------------------------------------------------- */
 /* write out a special type object */
 static void vtkWrapPython_GenerateSpecialType(
-  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
+  FILE *fp, const char *classname, ClassInfo *data,
+  FileInfo *finfo, HierarchyInfo *hinfo)
 {
+  char pythonname[1024];
+  char supername[1024];
+  const char *name;
   SpecialTypeInfo info;
+  const char *constructor;
+  size_t n, m;
+  int has_superclass = 0;
+
+  /* the pythonic name for the class */
+  vtkWrapPython_PythonicName(data->Name, pythonname);
+
+  /* remove namespaces and template parameters from the
+   * class name to get the constructor name */
+  constructor = data->Name;
+  m = vtkParse_UnscopedNameLength(constructor);
+  while (constructor[m] == ':' && constructor[m+1] == ':')
+    {
+    constructor += m + 2;
+    m = vtkParse_UnscopedNameLength(constructor);
+    }
+  for (n = 0; n < m; n++)
+    {
+    if (constructor[n] == '<')
+      {
+      break;
+      }
+    }
 
   /* forward declaration of the type object */
   fprintf(fp,
+    "#ifndef DECLARED_Py%s_Type\n"
     "extern PyTypeObject Py%s_Type;\n"
+    "#define DECLARED_Py%s_Type\n"
+    "#endif\n"
     "\n",
-    data->Name);
+    classname, classname, classname);
+
+  /* and the superclass */
+  has_superclass = vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name);
+  if (has_superclass)
+    {
+    name = vtkWrapPython_GetSuperClass(data, hinfo);
+    vtkWrapPython_MangleTemplateArgs(name, supername);
+    fprintf(fp,
+      "#ifndef DECLARED_Py%s_Type\n"
+      "extern PyTypeObject Py%s_Type;\n"
+      "#define DECLARED_Py%s_Type\n"
+      "#endif\n"
+      "\n",
+      supername, supername, supername);
+    }
 
   /* generate all constructor methods */
-  vtkWrapPython_GenerateMethods(fp, data, hinfo, 0, 1);
+  vtkWrapPython_GenerateMethods(fp, classname, data, hinfo, 0, 1);
 
   /* generate the method table for the New method */
   fprintf(fp,
     "static PyMethodDef Py%s_NewMethod = \\\n"
-    "{ (char*)\"%s\", Py%s_%s, 1,\n"
+    "{ (char*)\"%s\", Py%s_%*.*s, 1,\n"
     "  (char*)\"\" };\n"
     "\n",
-    data->Name, data->Name, data->Name,
-    data->Name);
+    classname, pythonname, classname,
+    (int)n, (int)n, constructor);
 
   /* generate all functions and protocols needed for the type */
-  vtkWrapPython_SpecialTypeProtocols(fp, data, finfo, hinfo, &info);
+  vtkWrapPython_SpecialTypeProtocols(
+    fp, classname, data, finfo, hinfo, &info);
 
   /* Generate the TypeObject */
   fprintf(fp,
@@ -3582,8 +4116,8 @@ static void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_getattr\n"
     "  0, // tp_setattr\n"
     "  0, // tp_compare\n"
-    "  Py%s_Repr, // tp_repr\n",
-    data->Name, data->Name, data->Name, data->Name);
+    "  PyVTKSpecialObject_Repr, // tp_repr\n",
+    classname, pythonname, classname);
 
   fprintf(fp,
     "  0, // tp_as_number\n");
@@ -3592,7 +4126,7 @@ static void vtkWrapPython_GenerateSpecialType(
     {
     fprintf(fp,
       "  &Py%s_AsSequence, // tp_as_sequence\n",
-    data->Name);
+    classname);
     }
   else
     {
@@ -3604,13 +4138,18 @@ static void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_as_mapping\n"
     "  Py%s_Hash, // tp_hash\n"
     "  0, // tp_call\n",
-    data->Name);
+    classname);
 
   if (info.has_print)
     {
     fprintf(fp,
       "  Py%s_String, // tp_str\n",
-      data->Name);
+      classname);
+    }
+  else if (info.has_sequence)
+    {
+    fprintf(fp,
+      "  PyVTKSpecialObject_SequenceString, // tp_str\n");
     }
   else
     {
@@ -3639,7 +4178,7 @@ static void vtkWrapPython_GenerateSpecialType(
       "#else\n"
       "  0, // tp_richcompare\n"
       "#endif\n",
-      data->Name);
+      classname);
     }
   else
     {
@@ -3657,8 +4196,22 @@ static void vtkWrapPython_GenerateSpecialType(
   fprintf(fp,
     "  Py%s_Methods, // tp_methods\n"
     "  0, // tp_members\n"
-    "  0, // tp_getset\n"
-    "  0, // tp_base\n"
+    "  0, // tp_getset\n",
+    classname);
+
+  if (has_superclass)
+    {
+    fprintf(fp,
+      "  &Py%s_Type, // tp_base\n",
+      supername);
+    }
+  else
+    {
+    fprintf(fp,
+      "  0, // tp_base\n");
+    }
+
+  fprintf(fp,
     "  0, // tp_dict\n"
     "  0, // tp_descr_get\n"
     "  0, // tp_descr_set\n"
@@ -3672,7 +4225,7 @@ static void vtkWrapPython_GenerateSpecialType(
     "  _PyObject_Del, // tp_free\n"
     "#endif\n"
     "  0, // tp_is_gc\n",
-    data->Name, data->Name);
+    classname);
 
   /* fields set by python itself */
   fprintf(fp,
@@ -3691,7 +4244,7 @@ static void vtkWrapPython_GenerateSpecialType(
 
   /* generate the copy constructor helper function */
   fprintf(fp,
-    "static void *%s_Copy(const void *obj)\n"
+    "static void *Py%s_CCopy(const void *obj)\n"
     "{\n"
     "  if (obj)\n"
     "    {\n"
@@ -3700,7 +4253,7 @@ static void vtkWrapPython_GenerateSpecialType(
     "  return 0;\n"
     "}\n"
     "\n",
-    data->Name, data->Name, data->Name);
+    classname, data->Name, data->Name);
 
   /* the method for adding the VTK extras to the type,
    * the unused "const char *" arg is the module name */
@@ -3710,31 +4263,289 @@ static void vtkWrapPython_GenerateSpecialType(
     "  return PyVTKSpecialType_New(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
-    "    Py%s_%s_Methods,\n"
+    "    Py%s_%*.*s_Methods,\n"
     "    &Py%s_NewMethod,\n"
-    "    Py%s_Doc(), &%s_Copy);\n"
+    "    Py%s_Doc(), &Py%s_CCopy);\n"
     "}\n"
     "\n",
-    data->Name, data->Name, data->Name,
-    data->Name, data->Name, data->Name,
-    data->Name, data->Name);
+    classname, classname, classname,
+    classname, (int)n, (int)n, constructor, classname,
+    classname, classname);
+}
+
+/* -------------------------------------------------------------------- */
+/* Wrap a templated class */
+int vtkWrapPython_WrapTemplatedClass(
+  FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo)
+{
+  char classname[1024];
+  const char *instantiations[1024];
+  int ninstantiations = 0;
+  int i, j, k, nargs;
+  ClassInfo *sdata;
+  ValueInfo *tdef;
+  HierarchyEntry *entry;
+  const char *name;
+  char *cp;
+  const char **args;
+  const char **defaults;
+  const char *modulename;
+  const char *name_with_args;
+  int is_vtkobject = 0;
+  const char **types;
+
+  /* do not directly wrap vtkTypeTemplate */
+  if (strcmp(data->Name, "vtkTypeTemplate") == 0)
+    {
+    return 0;
+    }
+
+  if (hinfo == 0)
+    {
+    return 0;
+    }
+  entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
+  if (entry == 0)
+    {
+    return 0;
+    }
+  modulename = entry->Module;
+  defaults = entry->TemplateArgDefaults;
+
+  /* find all instantiations from derived classes */
+  for (j = 0; j < hinfo->NumberOfEntries; j++)
+    {
+    entry = &hinfo->Entries[j];
+    classname[0] = '\0';
+
+    /* skip enum entries */
+    if (entry->IsEnum)
+      {
+      continue;
+      }
+    /* look for typedefs of template instantiations */
+    if (entry->IsTypedef)
+      {
+      tdef = entry->Typedef;
+      if ((tdef->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT &&
+          entry->NumberOfTemplateArgs == 0)
+        {
+        if (tdef->Class && tdef->Class[0] != '\0' &&
+            tdef->Class[strlen(tdef->Class) - 1] == '>')
+          {
+          strcpy(classname, tdef->Class);
+          entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+          }
+        }
+      if (!entry || entry->IsTypedef || entry->IsEnum)
+        {
+        continue;
+        }
+      }
+
+    nargs = entry->NumberOfTemplateArgs;
+    args = entry->TemplateArgs;
+    if (strcmp(entry->Module, modulename) == 0 &&
+        (entry->NumberOfSuperClasses == 1 ||
+         strcmp(entry->Name, data->Name) == 0))
+      {
+      types = NULL;
+
+      /* only do these classes directly */
+      if (strcmp(entry->Name, "vtkDenseArray") == 0 ||
+          strcmp(entry->Name, "vtkSparseArray") == 0)
+        {
+        types = vtkParse_GetArrayTypes();
+        }
+      /* do all other templated classes indirectly */
+      else if (nargs > 0)
+        {
+        continue;
+        }
+
+      for (i = 0; i == 0 || (types && types[i] != NULL); i++)
+        {
+        /* make the classname, with template args if present */
+        if (classname[0] == '\0')
+          {
+          if (nargs == 0)
+            {
+            sprintf(classname, "%s", entry->Name);
+            }
+          else if (nargs == 1)
+            {
+            sprintf(classname, "%s<%s>", entry->Name, types[i]);
+            }
+          }
+
+        name_with_args = NULL;
+        if (strcmp(data->Name, entry->Name) == 0)
+          {
+          /* entry is the same as data */
+          cp = (char *)malloc(strlen(classname) + 1);
+          strcpy(cp, classname);
+          name_with_args = cp;
+          }
+        else
+          {
+          /* entry is not data, see if it is a subclass, and if so,
+           * what template args of 'data' it corresponds to */
+          vtkParseHierarchy_IsTypeOfTemplated(
+            hinfo, entry, classname, data->Name, &name_with_args);
+          }
+
+        if (name_with_args)
+          {
+          /* append to the list of instantiations if not present yet */
+          for (k = 0; k < ninstantiations; k++)
+            {
+            if (strcmp(name_with_args, instantiations[k]) == 0) { break; }
+            }
+          if (k == ninstantiations)
+            {
+            instantiations[ninstantiations++] = name_with_args;
+            }
+          else
+            {
+            free((char *)name_with_args);
+            }
+          }
+
+        classname[0] = '\0';
+        }
+      }
+    }
+
+  if (ninstantiations)
+    {
+    for (k = 0; k < ninstantiations; k++)
+      {
+      entry = vtkParseHierarchy_FindEntry(hinfo, instantiations[k]);
+      is_vtkobject = vtkParseHierarchy_IsTypeOfTemplated(
+        hinfo, entry, instantiations[k], "vtkObjectBase", NULL);
+
+      nargs = data->Template->NumberOfArguments;
+      vtkParse_DecomposeTemplatedType(instantiations[k],
+        &name, nargs, &args, defaults);
+
+      sdata = (ClassInfo *)malloc(sizeof(ClassInfo));
+      vtkParse_CopyClass(sdata, data);
+      vtkParse_InstantiateClassTemplate(sdata, nargs, args);
+      vtkParse_MangledTypeName(instantiations[k], classname);
+
+      vtkWrapPython_WrapOneClass(
+        fp, classname, sdata, file_info, hinfo, is_vtkobject);
+
+      vtkParse_FreeClass(sdata);
+      vtkParse_FreeTemplateDecomposition(name, nargs, args);
+      }
+
+    /* the docstring for the templated class */
+    fprintf(fp,
+            "static const char *Py%s_Doc[] = {\n",
+            data->Name);
+
+    vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
+
+    fprintf(fp,
+            "    \"\\nProvided Types:\\n\\n\",\n");
+
+    for (k = 0; k < ninstantiations; k++)
+      {
+      vtkWrapPython_PythonicName(instantiations[k], classname);
+      fprintf(fp,
+             "    \"  %s => %s\\n\",\n",
+             classname, instantiations[k]);
+      }
+
+    fprintf(fp,
+            "    NULL\n"
+            "};\n"
+            "\n");
+
+    fprintf(fp,
+            "PyObject *Py%s_TemplateNew(const char *modulename)\n"
+            "{\n"
+            "  PyObject *o;\n"
+            "\n"
+            "  PyObject *temp = PyVTKTemplate_New(\"%s\", modulename,\n"
+            "                                     Py%s_Doc);\n"
+            "\n",
+            data->Name, data->Name, data->Name);
+
+    for (k = 0; k < ninstantiations; k++)
+      {
+      vtkParse_MangledTypeName(instantiations[k], classname);
+
+      entry = vtkParseHierarchy_FindEntry(hinfo, instantiations[k]);
+      if (vtkParseHierarchy_IsTypeOfTemplated(
+            hinfo, entry, instantiations[k], "vtkObjectBase", NULL))
+        {
+        fprintf(fp,
+            "  o = PyVTKClass_%sNew(modulename);\n",
+            classname);
+        }
+      else
+        {
+        fprintf(fp,
+            "  o = Py%s_TypeNew(modulename);\n",
+            classname);
+        }
+
+      fprintf(fp,
+            "  if (o && PyVTKTemplate_AddItem(temp, o) != 0)\n"
+            "    {\n"
+            "    Py_DECREF(o);\n"
+            "    }\n"
+            "\n");
+
+      free((char *)instantiations[k]);
+      }
+
+    fprintf(fp,
+          "  return temp;\n"
+          "}\n"
+          "\n");
+
+    return 1;
+    }
+
+  return 0;
 }
 
 /* -------------------------------------------------------------------- */
 /* Wrap one class */
-void vtkWrapPython_WrapOneClass(
-  FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo,
-  int is_vtkobject)
+int vtkWrapPython_WrapOneClass(
+  FILE *fp, const char *classname, ClassInfo *data,
+  FileInfo *file_info, HierarchyInfo *hinfo, int is_vtkobject)
 {
   int class_has_new = 0;
   int i;
+
+  /* recursive handling of templated classes */
+  if (data->Template)
+    {
+    return vtkWrapPython_WrapTemplatedClass(fp, data, file_info, hinfo);
+    }
+
+  /* verify wrappability */
+  if (!is_vtkobject && !vtkWrapPython_IsSpecialTypeWrappable(data))
+    {
+    return 0;
+    }
+
+  /* declare items to be exported or imported */
+  if (is_vtkobject)
+    {
+    vtkWrapPython_ExportVTKClass(fp, data, hinfo);
+    }
 
   /* prototype for the docstring function */
   fprintf(fp,
           "\n"
           "static const char **Py%s_Doc();\n"
           "\n",
-          data->Name);
+          classname);
 
   /* check for New() function */
   for (i = 0; i < data->NumberOfFunctions; i++)
@@ -3750,19 +4561,22 @@ void vtkWrapPython_WrapOneClass(
   /* now output all the methods are wrappable */
   if (is_vtkobject || !data->IsAbstract)
     {
-    vtkWrapPython_GenerateMethods(fp, data, hinfo, is_vtkobject, 0);
+    vtkWrapPython_GenerateMethods(
+      fp, classname, data, hinfo, is_vtkobject, 0);
     }
 
   /* output the class initilization function for VTK objects */
   if (is_vtkobject)
     {
-    vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
+    vtkWrapPython_GenerateObjectNew(
+      fp, classname, data, hinfo, class_has_new);
     }
 
   /* output the class initilization function for special objects */
   else if (!data->IsAbstract)
     {
-    vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
+    vtkWrapPython_GenerateSpecialType(
+      fp, classname, data, file_info, hinfo);
     }
 
   /* the docstring for the class, as a static var ending in "Doc" */
@@ -3772,7 +4586,7 @@ void vtkWrapPython_WrapOneClass(
             "const char **Py%s_Doc()\n"
             "{\n"
             "  static const char *docstring[] = {\n",
-            data->Name);
+            classname);
 
     vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
 
@@ -3784,6 +4598,8 @@ void vtkWrapPython_WrapOneClass(
             "}\n"
             "\n");
     }
+
+  return 1;
 }
 
 /* -------------------------------------------------------------------- */
@@ -3932,47 +4748,42 @@ void vtkWrapPython_AddConstant(
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
 
+#define MAX_WRAPPED_CLASSES 256
+
 void vtkParseOutput(FILE *fp, FileInfo *file_info)
 {
+  ClassInfo *wrappedClasses[MAX_WRAPPED_CLASSES];
   ClassInfo *data = NULL;
   NamespaceInfo *contents;
   OptionInfo *options;
-  HierarchyInfo *hinfo = 0;
+  HierarchyInfo *hinfo = NULL;
   const char *name;
-  char *name_from_file = 0;
-  int has_constants = 0;
-  int is_vtkobject = 1;
-  int i;
-  size_t j, m;
+  char *name_from_file = NULL;
+  int numberOfWrappedClasses = 0;
+  int wrapped_anything = 0;
+  int i, j;
+  size_t k, m;
+  int is_vtkobject;
 
-  /* get the main class */
-  if (file_info->MainClass && file_info->MainClass->Template == NULL)
+  /* get the filename without the extension */
+  name = file_info->FileName;
+  m = strlen(name);
+  for (k = m; k > 0; k--)
     {
-    data = file_info->MainClass;
-    name = data->Name;
+    if (name[k] == '.') { break; }
     }
-  /* if no class, use the file name */
-  else
+  if (k > 0) { m = k; }
+  for (k = m; k > 0; k--)
     {
-    name = file_info->FileName;
-    m = strlen(name);
-    for (j = m; j > 0; j--)
-      {
-      if (name[j] == '.') { break; }
-      }
-    if (j > 0) { m = j; }
-    for (j = m; j > 0; j--)
-      {
-      if (!((name[j-1] >= 'a' && name[j-1] <= 'z') ||
-            (name[j-1] >= 'A' && name[j-1] <= 'Z') ||
-            (name[j-1] >= '0' && name[j-1] <= '9') ||
-            name[j-1] == '_')) { break; }
-      }
-    name_from_file = (char *)malloc(m - j + 1);
-    strncpy(name_from_file, &name[j], m - j);
-    name_from_file[m-j] = '\0';
-    name = name_from_file;
+    if (!((name[k-1] >= 'a' && name[k-1] <= 'z') ||
+          (name[k-1] >= 'A' && name[k-1] <= 'Z') ||
+          (name[k-1] >= '0' && name[k-1] <= '9') ||
+          name[k-1] == '_')) { break; }
     }
+  name_from_file = (char *)malloc(m - k + 1);
+  strncpy(name_from_file, &name[k], m - k);
+  name_from_file[m-k] = '\0';
+  name = name_from_file;
 
   /* get the global namespace */
   contents = file_info->Contents;
@@ -4001,7 +4812,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "#define VTK_WRAPPING_CXX\n",
           name);
 
-  /* unless this is vtkObjectBase, define VTK_STREAMS_FWD_ONLY */
+  /* unless this is vtkObjectBase.h, define VTK_STREAMS_FWD_ONLY */
   if (strcmp("vtkObjectBase", name) != 0)
     {
     /* Block inclusion of full streams.  */
@@ -4035,20 +4846,8 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
 
   /* the header file for the wrapped class */
   fprintf(fp,
-          "#include \"%s.h\"\n",
+          "#include \"%s.h\"\n\n",
           name);
-
-  /* is this isn't a vtkObjectBase-derived object, then it is special */
-  is_vtkobject = options->IsVTKObject;
-
-  /* add sstream header for special objects and vtkObjectBase*/
-  if (data && (strcmp(data->Name, "vtkObjectBase") == 0 ||
-               (!is_vtkobject && !data->IsAbstract)))
-    {
-    fprintf(fp,
-            "\n"
-            "#include <vtksys/ios/sstream>\n");
-    }
 
   /* do the export of the main entry point */
   fprintf(fp,
@@ -4059,104 +4858,84 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "#endif\n",
           name, name);
 
-  if (data && is_vtkobject)
+  /* Wrap all of the classes in the file */
+  for (i = 0; i < contents->NumberOfClasses; i++)
     {
-    /* for vtkObjectBase objects: export New method for use by subclasses */
-    fprintf(fp,
-            "#if defined(WIN32)\n"
-            "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
-            "#else\n"
-            "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
-            "#endif\n"
-            "\n",
-            data->Name, data->Name);
+    data = contents->Classes[i];
 
-    /* declare the New methods for all the superclasses */
-    for (i = 0; i < data->NumberOfSuperClasses; i++)
+    /* second-guess whether type is a vtkobject */
+    is_vtkobject = (data == file_info->MainClass ? options->IsVTKObject : 0);
+    if (hinfo)
       {
-      if (vtkWrap_IsClassWrapped(hinfo, data->SuperClasses[i]) &&
-          vtkWrap_IsVTKObjectBaseType(hinfo, data->SuperClasses[i]))
+      is_vtkobject = vtkWrap_IsTypeOf(hinfo, data->Name, "vtkObjectBase");
+      }
+
+    /* if "hinfo" is present, wrap everything, else just the main class */
+    if (hinfo || data == file_info->MainClass)
+      {
+      if (vtkWrapPython_WrapOneClass(
+            fp, data->Name, data, file_info, hinfo, is_vtkobject))
         {
-        fprintf(fp,
-          "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
-          data->SuperClasses[i]);
+        wrappedClasses[numberOfWrappedClasses++] = data;
         }
       }
-    }
-
-  /* Produce the methods and data for the class */
-  if (data)
-    {
-    vtkWrapPython_WrapOneClass(fp, data, file_info, hinfo, is_vtkobject);
     }
 
   /* The function for adding everything to the module dict */
+  wrapped_anything = (numberOfWrappedClasses || contents->NumberOfConstants);
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
-          "  PyObject *dict, const char *%s)\n"
+          "  PyObject *%s, const char *%s)\n"
           "{\n"
-          "  PyObject *o;\n",
-          name, (data ? "modulename" : ""));
+          "%s",
+          name,
+          (wrapped_anything ? "dict" : ""),
+          (numberOfWrappedClasses ? "modulename" : ""),
+          (wrapped_anything ? "  PyObject *o;\n" : ""));
 
-  if (data && is_vtkobject)
+  /* Add all of the classes that have been wrapped */
+  for (i = 0; i < numberOfWrappedClasses; i++)
     {
-    fprintf(fp,
+    data = wrappedClasses[i];
+
+    if (data->Template)
+      {
+      /* Template generator */
+      fprintf(fp,
+             "  o = Py%s_TemplateNew(modulename);\n"
+            "\n",
+            data->Name);
+      }
+    else if (data == file_info->MainClass && options->IsVTKObject)
+      {
+      /* Class is derived from vtkObjectBase */
+      fprintf(fp,
             "  o = PyVTKClass_%sNew(modulename);\n"
-            "\n"
-            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
-            "    {\n"
-            "    Py_DECREF(o);\n"
-            "    }\n",
-            data->Name, data->Name);
-
-    for (i = 0; i < data->NumberOfConstants; i++)
-      {
-      if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
-        {
-        has_constants = 1;
-        break;
-        }
+            "\n",
+            data->Name);
       }
-
-    if (has_constants)
+    else
       {
+      /* Classes that are not derived from vtkObjectBase */
       fprintf(fp,
-              "  else\n"
-              "    {\n"
-              "    PyObject *d = PyVTKClass_GetDict(o);\n"
-              "\n");
-
-      /* add any constants defined in the class */
-      for (i = 0; i < data->NumberOfConstants; i++)
-        {
-        if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
-          {
-          vtkWrapPython_AddConstant(fp, "    ", "d", "o", data->Constants[i]);
-          fprintf(fp, "\n");
-          }
-        }
-
-      fprintf(fp,
-              "    }\n"
-              "\n");
-      }
-    }
-  else if (data) /* not is_vtkobject */
-    {
-    fprintf(fp,
             "  o = Py%s_TypeNew(modulename);\n"
-            "\n"
+            "\n",
+            data->Name);
+      }
+
+    fprintf(fp,
             "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
             "    {\n"
             "    Py_DECREF(o);\n"
-            "    }\n",
-            data->Name, data->Name);
+            "    }\n"
+            "\n",
+            data->Name);
     }
 
   /* add any constants defined in the file */
-  for (i = 0; i < contents->NumberOfConstants; i++)
+  for (j = 0; j < contents->NumberOfConstants; j++)
     {
-    vtkWrapPython_AddConstant(fp, "  ", "dict", "o", contents->Constants[i]);
+    vtkWrapPython_AddConstant(fp, "  ", "dict", "o", contents->Constants[j]);
     fprintf(fp, "\n");
     }
 
@@ -4164,8 +4943,5 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   fprintf(fp,
           "}\n\n");
 
-  if (name_from_file)
-    {
-    free(name_from_file);
-    }
+  free(name_from_file);
 }

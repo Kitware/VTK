@@ -17,22 +17,22 @@
 
   Contributed to the VisualizationToolkit by the author in June 2010
   under the terms of the Visualization Toolkit 2008 copyright.
--------------------------------------------------------------------------*/
+--------------------------------------------------------------------------*/
 
 /**
  This file contains utility functions for loading and parsing
  a VTK hierarchy file.  The file contains entries like the
  following (one per line in the file):
 
- classname [ : superclass ] ; header.h
+ classname [ : superclass ] ; header.h ; vtkKit [; flags]
 
  For each typedef, the output file will have a line like this:
 
- name = &[2][3]* const type ; header.h
+ name = &[2][3]* const type ; header.h ; vtkKit [; flags]
 
  For each enum, the output file will have:
 
- enumname : int ; header.h
+ enumname : enum ; header.h ; vtkKit [; flags]
 
 */
 
@@ -40,7 +40,7 @@
 #define VTK_PARSE_HIERARCHY_H
 
 /* Need the ValueInfo struct for typedefs */
-#include "vtkParseInternal.h"
+#include "vtkParse.h"
 
 /**
  * One entry from the hierarchy file.
@@ -50,6 +50,10 @@ typedef struct _HierarchyEntry
 {
   const char  *Name;            /* the class or type name */
   const char  *HeaderFile;      /* header file the class is defined in */
+  const char  *Module;          /* library the class is defined in */
+  int          NumberOfTemplateArgs; /* number of template arguments */
+  const char **TemplateArgs;
+  const char **TemplateArgDefaults;
   int          NumberOfProperties;   /* number of properties */
   const char **Properties;
   int          NumberOfSuperClasses; /* number of superclasses */
@@ -99,17 +103,52 @@ const char *vtkParseHierarchy_GetProperty(
   const HierarchyEntry *entry, const char *property);
 
 /**
- * Check whether class is derived from superclass
+ * Check whether class is derived from baseclass.
  */
 int vtkParseHierarchy_IsTypeOf(const HierarchyInfo *info,
-  const HierarchyEntry *entry, const char *superclass);
+  const HierarchyEntry *entry, const char *baseclass);
 
 /**
- * Expand an unrecognized type in a ValueInfo struct by
+ * Check whether class is derived from baseclass.  You must supply
+ * the entry for the class (returned by FindEntry) as well as the
+ * classname.  The classname can include template args in angle brackets.
+ * The baseclass_with_args parameter, if not set to NULL, will be used
+ * to return the name of base class with the template args in angle
+ * brackets that classname was derived from.  If not set to NULL,
+ * this should be freed with free() to avoid a memory leak.
+ */
+int vtkParseHierarchy_IsTypeOfTemplated(const HierarchyInfo *info,
+  const HierarchyEntry *entry, const char *classname,
+  const char *baseclass, const char **baseclass_with_args);
+
+/**
+ * Free the template args returned by IsTypeOfTemplated
+ */
+void vtkParseHierarchy_FreeTemplateArgs(int n, const char *args[]);
+
+/**
+ * Given a classname with template parameters, get the superclass name
+ * with corresponding template parameters.  Returns null if 'i' is out
+ * of range, i.e. greater than or equal to the number of superclasses.
+ * The returned classname must be freed with "free()".
+ */
+const char *vtkParseHierarchy_TemplatedSuperClass(
+  const HierarchyEntry *entry, const char *classname, int i);
+
+/**
+ * Expand all unrecognized types in a ValueInfo struct by
  * using the typedefs in the HierarchyInfo struct.
  */
-int vtkParseHierarchy_ExpandTypedefs(
+int vtkParseHierarchy_ExpandTypedefsInValue(
   const HierarchyInfo *info, ValueInfo *data, const char *scope);
+
+/**
+ * Expand typedefs found in a name stored as a string.  The value
+ * of "text" will be returned if no expansion occurred, else a new
+ * string is returned that must be freed with "free()".
+ */
+const char *vtkParseHierarchy_ExpandTypedefsInName(
+  const HierarchyInfo *info, const char *text, const char *scope);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -12,6 +12,11 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2011 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+  -------------------------------------------------------------------------*/
 #if defined(_MSC_VER)
 #pragma warning (disable:4503)
 #endif
@@ -119,7 +124,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     }
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timer=vtkTimerLog::New();
+  vtkTimerLog *timer = vtkTimerLog::New();
   timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 

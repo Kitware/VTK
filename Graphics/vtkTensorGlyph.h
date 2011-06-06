@@ -194,6 +194,7 @@ protected:
   vtkTensorGlyph();
   ~vtkTensorGlyph();
 
+  virtual int RequestUpdateExtent(vtkInformation *,  vtkInformationVector **, vtkInformationVector *);
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

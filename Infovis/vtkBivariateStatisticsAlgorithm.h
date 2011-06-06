@@ -75,12 +75,6 @@ protected:
   vtkBivariateStatisticsAlgorithm();
   ~vtkBivariateStatisticsAlgorithm();
 
-  // Description:
-  // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ); 
-
 private:
   vtkBivariateStatisticsAlgorithm(const vtkBivariateStatisticsAlgorithm&); // Not implemented
   void operator=(const vtkBivariateStatisticsAlgorithm&);   // Not implemented

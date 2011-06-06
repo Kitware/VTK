@@ -256,6 +256,7 @@ public:
         this->UseStringDelimiter)
       {
       this->WithinString = value;
+      this->CurrentField.clear();
       return *this;
       }
     

@@ -35,6 +35,7 @@
 
 #include <stddef.h>
 #include <vtksys/ios/sstream>
+#include <vtksys/cstddef>
 
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_String(PyObject *op)
@@ -166,10 +167,20 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
 
     if (strcmp(name,"__this__") == 0)
       {
-      char buf[256];
-      sprintf(buf,"p_%s", self->vtk_ptr->GetClassName());
+      const char *classname = self->vtk_ptr->GetClassName();
+      const char *cp = classname;
+      char buf[1024];
+      if (isalpha(*cp) || *cp == '_')
+        {
+        do { cp++; } while (isalnum(*cp) || *cp == '_');
+        }
+      if (*cp != '0')
+        {
+        classname = ((PyVTKClass *)self->vtk_class)->vtk_mangle;
+        }
+      sprintf(buf, "p_%.500s", classname);
       return PyString_FromString(
-        vtkPythonUtil::ManglePointer(self->vtk_ptr,buf));
+        vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
       }
 
     if (strcmp(name,"__doc__") == 0)
@@ -393,7 +404,7 @@ PyTypeObject PyVTKObject_Type = {
 #else
   0,                                     // tp_flags
 #endif
-  (char*)"A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
+  (char*)"Use help(x.__class__) to get full documentation.",  // tp_doc
 #if PY_MAJOR_VERSION >= 2
   PyVTKObject_Traverse,                  // tp_traverse
   0,                                     // tp_clear
