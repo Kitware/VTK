@@ -1570,6 +1570,37 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 }
 
+
+//-----------------------------------------------------------------------------
+void vtkCamera::SetEyePosition(double eyePosition[3])
+{
+  if(!eyePosition)
+    {
+    vtkErrorMacro(<< "ERROR: Invalid or NULL eye position\n");
+    return;
+    }
+
+  this->ModelTransformMatrix->SetElement(0, 3, eyePosition[0]);
+  this->ModelTransformMatrix->SetElement(1, 3, eyePosition[1]);
+  this->ModelTransformMatrix->SetElement(2, 3, eyePosition[2]);
+
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCamera::GetEyePosition(double eyePosition[3])
+{
+  if(!eyePosition)
+    {
+    vtkErrorMacro(<< "ERROR: Invalid or NULL eye position\n");
+    return;
+    }
+
+  eyePosition[0] = this->EyeTransformMatrix->GetElement(0, 3);
+  eyePosition[1] = this->EyeTransformMatrix->GetElement(1, 3);
+  eyePosition[2] = this->EyeTransformMatrix->GetElement(2, 3);
+}
+
 //-----------------------------------------------------------------------------
 void vtkCamera::SetModelTransformMatrix(vtkMatrix4x4 *matrix)
 {
@@ -1598,7 +1629,7 @@ void vtkCamera::SetModelTransformMatrix(vtkMatrix4x4 *matrix)
       }
     this->Modified();
     }
-  }
+}
 
 //-----------------------------------------------------------------------------
 vtkMatrix4x4 *vtkCamera::GetModelViewTransformMatrix()
@@ -1611,17 +1642,13 @@ vtkMatrix4x4 *vtkCamera::GetModelViewTransformMatrix()
 //-----------------------------------------------------------------------------
 vtkTransform *vtkCamera::GetModelViewTransformObject()
 {
-  this->ComputeModelViewMatrix();
-
-  return this->ModelViewTransform;
+ return this->ModelViewTransform;
 }
 
 //-----------------------------------------------------------------------------
 vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
 {
-  this->ComputeModelViewMatrix();
-
-  return this->ModelViewTransform->GetMatrix();
+  return this->GetModelTransformMatrix();
 }
 
 //-----------------------------------------------------------------------------
