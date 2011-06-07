@@ -291,12 +291,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetVector3Macro(ScreenTopRight, double);
 
   // Description:
-  // Set/Get screen near plane.
-  // This will be used only for deering frustrum calculation.
-  vtkSetMacro(ScreenNearPlane, double);
-  vtkGetMacro(ScreenFarPlane,  double);
-
-  // Description:
   // Set/Get distance between the eyes.
   // This will be used only for deering frustrum calculation.
   // Default is 0.06.
@@ -592,9 +586,6 @@ protected:
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];
   double ScreenTopRight[3];
-
-  double ScreenNearPlane;
-  double ScreenFarPlane;
 
   double EyeSeparation;
 

@@ -91,9 +91,6 @@ vtkCamera::vtkCamera()
   this->ScreenTopRight[1] =  1.0;
   this->ScreenTopRight[2] = -1.0;
 
-  this->ScreenNearPlane = 0.01;
-  this->ScreenFarPlane  = 1000.01;
-
   this->EyeSeparation = 0.06;
 
   this->ScreenOrientation = vtkMatrix4x4::New();
@@ -430,16 +427,11 @@ void vtkCamera::ComputeDeeringFrustrum()
   // Now transform the eye to screen coordinate system.
   this->ScreenOrientation->MultiplyPoint(E, E);
 
-
-  // MAKE THE BOUND CALCULATIONS INCLUDE SCENE  MATRIX AND USE CLIP RANGE ACCORDINGLY.
-  // ACCOUT FOR DIFFERENCE IN CAMERA POSITION and EYE POSITION.
   double matrix[4][4];
   double width  = H[0] - L[0];
   double height = H[1] - L[1];
   B = E[2] - B;
   F = E[2] - F;
-
-//  F *= 10.0;
 
   double depth = B - F;
   matrix[0][0] =  ( 2*E[2] ) / width;
@@ -1551,12 +1543,6 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ScreenTopRight: (" << this->ScreenTopRight[0]
      << ", " << this->ScreenTopRight[1] << ", " << this->ScreenTopRight[2]
-     << ")\n";
-
-  os << indent << "ScreenNearPlane: (" << this->ScreenNearPlane
-     << ")\n";
-
-  os << indent << "ScreenFarPlane: (" << this->ScreenFarPlane
      << ")\n";
 
   os << indent << "EyeSeparation: (" << this->EyeSeparation
