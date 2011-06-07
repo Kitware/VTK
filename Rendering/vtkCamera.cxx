@@ -408,7 +408,9 @@ void vtkCamera::ComputeDeeringFrustrum()
   // Deering calculations.
   double F = this->ClippingRange[1];
   double B = this->ClippingRange[0];
-  double E[3] = {0.0, 0.0, 0.0};
+
+  // vtkMatrix::MultiplyPoint expect homogeneous coordinate.
+  double E[4] = {0.0, 0.0, 0.0, 1.0};
 
   double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
   double H[2] = {this->ScreenTopRight[0],   this->ScreenTopRight[1]};
