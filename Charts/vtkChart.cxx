@@ -32,6 +32,13 @@ vtkChart::MouseActions::MouseActions()
 }
 
 //-----------------------------------------------------------------------------
+vtkChart::MouseClickActions::MouseClickActions()
+{
+  this->Data[0] = vtkContextMouseEvent::LEFT_BUTTON;
+  this->Data[1] = vtkContextMouseEvent::RIGHT_BUTTON;
+}
+
+//-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -279,6 +286,21 @@ void vtkChart::SetActionToButton(int action, int button)
 int vtkChart::GetActionToButton(int action)
 {
   return this->Actions[action];
+}
+
+void vtkChart::SetClickActionToButton(int action, int button)
+{
+  if (action < vtkChart::SELECT || action > vtkChart::NOTIFY)
+    {
+    vtkErrorMacro("Error, invalid action value supplied: " << action)
+    return;
+    }
+  this->Actions[action - 2] = button;
+}
+
+int vtkChart::GetClickActionToButton(int action)
+{
+  return this->Actions[action - 2];
 }
 
 //-----------------------------------------------------------------------------

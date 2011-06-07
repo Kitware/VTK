@@ -187,7 +187,7 @@ int vtkCellDerivatives::RequestData(
           
           outTensors->InsertTuple(cellId, tens->T);
           }
-        else // this->TensorMode == VTK_TENSOR_MODE_COMPUTE_STRAIN
+        else if (this->TensorMode == VTK_TENSOR_MODE_COMPUTE_STRAIN)
           {
           tens->SetComponent(0,0, derivs[0]);
           tens->SetComponent(0,1, 0.5*(derivs[1]+derivs[3]));
@@ -200,6 +200,10 @@ int vtkCellDerivatives::RequestData(
           tens->SetComponent(2,2, derivs[8]);
           
           outTensors->InsertTuple(cellId, tens->T);
+          }
+        else if (this->TensorMode == VTK_TENSOR_MODE_PASS_TENSORS)
+          {
+          // do nothing.
           }
 
         if ( computeVorticity )

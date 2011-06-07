@@ -194,9 +194,9 @@ are used for the template arguments instead of < > brackets:
 >>> v = vtkVector['float64',3]([1.0, 2.0, 3.0])
 >>> a = vtkDenseArray[str]()
 
-Only a limited number of specializations are available, usually limited
-by which specializations are used by typedefs and by other classes in
-the C++ code.  A list of the specializations available for a particular
+Only a limited range of template args can be used, usually dictated by
+by which args are used by typedefs and by other classes in the C++ code.
+A list of the allowed argument combinations available for a particular
 template can be found by calling help() on the template:
 
 >>> help(vtkVector)

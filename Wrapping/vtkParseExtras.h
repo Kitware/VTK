@@ -122,23 +122,23 @@ void vtkParse_FreeTemplateDecomposition(
   const char *classname, int n, const char **args);
 
 /**
- * Specialize a templated class by substituting the provided arguments
+ * Instantiate a class template by substituting the provided arguments
  * for the template parameters. If "n" is less than the number of template
  * parameters, then default parameter values (if present) will be used.
  * If an error occurs, the error will be printed to stderr and NULL will
  * be returned.
  */
-void vtkParse_SpecializeTemplatedClass(
+void vtkParse_InstantiateClassTemplate(
   ClassInfo *data, int n, const char *args[]);
 
 /**
- * Specialize a templated function or class method by substituting the
+ * Instantiate a function or class method template by substituting the
  * provided arguments for the template parameters.  If "n" is less than
  * the number of template parameters, then default parameter values
  * (if present) will be used.  If an error occurs, the error will be
  * printed to stderr and NULL will be returned.
  */
-void vtkParse_SpecializeTemplatedFunction(
+void vtkParse_IntantiateFunctionTemplate(
   FunctionInfo *data, int n, const char *args);
 
 /**
