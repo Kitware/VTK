@@ -90,8 +90,10 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->Clip2=0;
   
   this->PolyData=0;
+  this->PolyDataProducer=0;
   this->SurfacePolyData=0;
   this->RPolyData=0;
+  this->RPolyDataProducer = 0;
   
   this->RData=0;
   this->RContour=0;
@@ -913,7 +915,7 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
     return;
     }
 
-  this->PolyData->Update();
+  this->PolyDataProducer->Update();
   if (reportProgress)
     {
     this->UpdateProgress(minProgress+delProgress);
@@ -967,10 +969,12 @@ void vtkExtractCTHPart::CreateInternalPipeline()
     this->Clip2->SetValue(this->VolumeFractionSurfaceValueInternal);
     this->Append2->AddInput(this->Clip2->GetOutput());
     this->PolyData = this->Append2->GetOutput();
+    this->PolyDataProducer = this->Append2;
     }
   else
     {
     this->PolyData = this->Contour->GetOutput();
+    this->PolyDataProducer = this->Contour;
     }
   
   // Rectilinear grid case pipeline
@@ -1001,10 +1005,12 @@ void vtkExtractCTHPart::CreateInternalPipeline()
     this->RClip2->SetValue(this->VolumeFractionSurfaceValueInternal);
     this->RAppend2->AddInput(this->RClip2->GetOutput());
     this->RPolyData = this->RAppend2->GetOutput();
+    this->RPolyDataProducer = this->RAppend2;
     }
   else
     {
     this->RPolyData = this->RContour->GetOutput();
+    this->RPolyDataProducer = this->RContour;
     }
 }
 
@@ -1206,7 +1212,7 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
     return;
     }
   
-  this->RPolyData->Update();
+  this->RPolyDataProducer->Update();
 
   if (reportProgress)
     {

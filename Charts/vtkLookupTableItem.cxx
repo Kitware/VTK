@@ -96,9 +96,7 @@ void vtkLookupTableItem::ComputeTexture()
   this->Texture->SetExtent(0, dimension - 1,
                            0,0,
                            0,0);
-  this->Texture->SetNumberOfScalarComponents(4);
-  this->Texture->SetScalarTypeToUnsignedChar();
-  this->Texture->AllocateScalars();
+  this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
   // TODO: Support log scale ?
   double bounds[4];
   this->GetBounds(bounds);

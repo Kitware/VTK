@@ -342,7 +342,7 @@ int vtkSpiderPlotActor::BuildPlot(vtkViewport *viewport)
     }
   
   // Check modified time to see whether we have to rebuild.
-  this->Input->Update();
+  //this->Input->Update();
 
   if (positionsHaveChanged ||
       this->GetMTime() > this->BuildTime ||

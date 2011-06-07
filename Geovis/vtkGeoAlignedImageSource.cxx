@@ -371,8 +371,7 @@ void vtkGeoAlignedImageSource::CropImageForNode(vtkGeoImageNode* node, vtkImageD
 
   vtkSmartPointer<vtkImageData> cropped = vtkSmartPointer<vtkImageData>::New();
   cropped->ShallowCopy(image);
-  cropped->SetUpdateExtent(ext);
-  cropped->Crop();
+  cropped->Crop(ext);
 
   // Now set the longitude and latitude range based on the actual image size.
   double lonRange[2];

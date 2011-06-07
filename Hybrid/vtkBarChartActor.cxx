@@ -332,8 +332,6 @@ int vtkBarChartActor::BuildPlot(vtkViewport *viewport)
     }
   
   // Check modified time to see whether we have to rebuild.
-  this->Input->Update();
-
   if (positionsHaveChanged ||
       this->GetMTime() > this->BuildTime ||
       this->Input->GetMTime() > this->BuildTime ||

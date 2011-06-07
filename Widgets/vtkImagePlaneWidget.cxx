@@ -39,6 +39,8 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
@@ -1432,13 +1434,15 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
     return;
     }
 
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   int extent[6];
-  this->ImageData->GetWholeExtent(extent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
 
   // Prevent obscuring voxels by offsetting the plane geometry
   //
@@ -1554,13 +1558,15 @@ void vtkImagePlaneWidget::UpdatePlane()
 
   // Calculate appropriate pixel spacing for the reslicing
   //
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   int extent[6];
-  this->ImageData->GetWholeExtent(extent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   int i;
 
@@ -1930,11 +1936,13 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
     {
     return;
     } 
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
   double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
   double pt1[3];
@@ -1986,11 +1994,13 @@ int vtkImagePlaneWidget::GetSliceIndex()
     {
     return 0;
     } 
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
   double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
 
@@ -2083,7 +2093,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   // up to date already, this call doesn't cost very much.  If we don't make
   // this call and the data is not up to date, the GetScalar... call will
   // cause a segfault.
-  this->ImageData->Update();
+  this->Reslice->GetInputAlgorithm()->Update();
 
   vtkAssemblyPath *path;
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);

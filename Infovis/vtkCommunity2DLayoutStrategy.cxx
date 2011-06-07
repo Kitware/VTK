@@ -100,10 +100,8 @@ vtkCommunity2DLayoutStrategy::~vtkCommunity2DLayoutStrategy()
 // Helper functions
 void vtkCommunity2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
 
@@ -136,10 +134,8 @@ void vtkCommunity2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, in
 
 void vtkCommunity2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
   

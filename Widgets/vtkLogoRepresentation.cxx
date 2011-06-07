@@ -144,7 +144,7 @@ void vtkLogoRepresentation::BuildRepresentation()
       double imageSize[2], borderSize[2], o[2];
       imageSize[0] = 0.0;
       imageSize[1] = 0.0;
-      this->Image->Update();
+      //this->Image->Update();
       if ( this->Image->GetDataDimension() == 2 )
         {
         int dims[3];

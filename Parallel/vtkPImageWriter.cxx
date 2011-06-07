@@ -74,7 +74,8 @@ void vtkPImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
 void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
-                                    ofstream *file)
+                                     vtkInformation* inInfo,
+                                     ofstream *file)
 {
   int             min, max, mid;
   vtkImageData    *data;
@@ -118,7 +119,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
 
     // Subclasses can write a header with this method call.
-    this->WriteFileHeader(file, cache);
+    this->WriteFileHeader(file, cache, inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
     ++this->FileNumber;
     }
   
@@ -154,18 +155,19 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // if so the just get the data and write it out
   if ( inputMemorySize < this->MemoryLimit )
     {
-    ext = cache->GetUpdateExtent();
+    ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     vtkDebugMacro("Getting input extent: " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] << endl);
-    cache->Update();
+    this->GetInputAlgorithm()->Update();
     data = cache;
-    this->RecursiveWrite(axis,cache,data,file);
+    this->RecursiveWrite(axis,cache,data,inInfo,file);
     vtkPIWCloseFile;
     return;
     }
 
   // if the current request did not fit into memory
   // the we will split the current axis
-  this->GetInput()->GetAxisUpdateExtent(axis, min, max);
+  int* updateExtent = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+  this->GetInput()->GetAxisUpdateExtent(axis, min, max, updateExtent);
   
   vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
         << "), UpdateMemory: " << inputMemorySize 
@@ -175,7 +177,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     {
     if (axis > 0)
       {
-      this->RecursiveWrite(axis - 1,cache, file);
+      this->RecursiveWrite(axis - 1,cache, inInfo, file);
       }
     else
       {
@@ -187,30 +189,37 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   
   mid = (min + max) / 2;
 
+  int axisUpdateExtent[6];
+
   // if it is the y axis then flip by default
   if (axis == 1 && !this->FileLowerLeft)
     {
     // first half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     
     // second half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     }
   else
     {
     // first half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     
     // second half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     }
     
   // restore original extent
-  cache->SetAxisUpdateExtent(axis, min, max);
+  cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
 
   // if we opened the file here, then we need to close it up
   vtkPIWCloseFile;

@@ -94,10 +94,8 @@ vtkClustering2DLayoutStrategy::~vtkClustering2DLayoutStrategy()
 // Helper functions
 void vtkClustering2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
 
@@ -130,10 +128,8 @@ void vtkClustering2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, i
 
 void vtkClustering2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
   

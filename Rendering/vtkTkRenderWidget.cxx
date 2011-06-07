@@ -253,8 +253,7 @@ extern "C" {
     int extent[6];
     // Pass the check?
     int valid = 1;
-    image->Update();
-    image->GetWholeExtent ( extent );
+    image->GetExtent ( extent );
     // Setup the photo data block, this info will be used later to
     // handle the vtk data types and window/level
     // For reference:

@@ -154,17 +154,10 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
   // vtkImageData is already smart about allocating arrays, so we'll just
   // let it take care of that for us.
   outImage->Initialize();
-  outImage->SetScalarType(this->ScalarType);
   outImage->SetExtent(0,this->NumberOfBins[0]-1,0,this->NumberOfBins[1]-1,0,0);
   outImage->SetSpacing(binWidth[0],binWidth[1],0.0);
 
-  // allocate only if necessary
-  if (!outImage->GetPointData() ||
-      !outImage->GetPointData()->GetScalars() ||
-      outImage->GetPointData()->GetScalars()->GetNumberOfTuples() != this->NumberOfBins[0]*this->NumberOfBins[1])
-    {
-    outImage->AllocateScalars();
-    }
+  outImage->AllocateScalars(this->ScalarType, 1);
 
   outImage->GetPointData()->GetScalars()->FillComponent(0,0);
   outImage->GetPointData()->GetScalars()->SetName("histogram");

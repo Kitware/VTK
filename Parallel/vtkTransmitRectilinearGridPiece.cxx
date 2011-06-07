@@ -167,10 +167,18 @@ int vtkTransmitRectilinearGridPiece::RequestData(
     }
 
   int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  
   if (ghostLevel > 0 && this->CreateGhostCells)
     {
-    output->GenerateGhostLevelArray();
+    int updatePiece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    int updateNumPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    int* wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    vtkExtentTranslator* et = vtkStreamingDemandDrivenPipeline::GetExtentTranslator(inInfo);
+    output->GenerateGhostLevelArray(updatePiece,
+                                    updateNumPieces,
+                                    ghostLevel,
+                                    wholeExt,
+                                    et);
     }
 
   return 1;
@@ -194,7 +202,6 @@ void vtkTransmitRectilinearGridPiece::RootExecute(vtkRectilinearGrid *input,
 
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
-  tmp->SetReleaseDataFlag(0);
   extract->SetInput(tmp);
   extractExecutive->UpdateDataObject();
 

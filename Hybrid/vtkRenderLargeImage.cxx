@@ -201,7 +201,8 @@ void vtkRenderLargeImage::RequestData(
     }
   
   // Get the requested extents.
-  this->GetOutput()->GetUpdateExtent(inExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+               inExtent);
 
   // get and transform the increments
   data->GetIncrements(inIncr);

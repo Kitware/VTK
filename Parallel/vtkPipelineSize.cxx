@@ -354,8 +354,9 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
   do 
     {
     oldSize = size;
-    input->SetUpdateExtent(piece*subDivisions, numPieces*subDivisions);
-    input->PropagateUpdateExtent();
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      mapper->GetInputInformation(), piece*subDivisions, numPieces*subDivisions, 0);
+    mapper->GetInputAlgorithm()->PropagateUpdateExtent();
     size = this->GetEstimatedSize(mapper,0,0);
     // watch for the first time through
     if (!oldSize)

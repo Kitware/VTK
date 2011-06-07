@@ -122,7 +122,6 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
       }
     }
   sgrid->SetPoints(points);
-  sgrid->Update();
   points->Delete();
 
   locator1->SetDataSet(sgrid);

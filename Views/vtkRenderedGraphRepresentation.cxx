@@ -1042,7 +1042,7 @@ void vtkRenderedGraphRepresentation::PrepareForRendering(vtkRenderView* view)
     this->VertexIconGlyph->SetDisplaySize(view->GetDisplaySize());
     this->VertexIconGlyph->SetUseIconSize(false);
     this->VertexIconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
-    this->VertexIconActor->GetTexture()->GetInput()->Update();
+    this->VertexIconActor->GetTexture()->GetInputAlgorithm()->Update();
     int* dim = this->VertexIconActor->GetTexture()->GetInput()->GetDimensions();
     this->VertexIconGlyph->SetIconSheetSize(dim);
     }

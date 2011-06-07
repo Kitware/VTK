@@ -1339,6 +1339,17 @@ void vtkAlgorithm::Update()
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::PropagateUpdateExtent()
+{
+  vtkStreamingDemandDrivenPipeline* sddp =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+  if (sddp)
+    {
+    sddp->PropagateUpdateExtent(-1);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::UpdateInformation()
 {
   vtkDemandDrivenPipeline* ddp =
@@ -1532,3 +1543,53 @@ double vtkAlgorithm::ComputePriority()
   return sddp->ComputePriority(0);
 }
 
+//-------------------------------------------------------------
+int vtkAlgorithm::SetUpdateExtentToWholeExtent(
+  int port, int connection)
+{
+  if (this->GetInputInformation(port, connection))
+    {
+    return
+      vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+        this->GetInputInformation(port, connection));
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//-------------------------------------------------------------
+int vtkAlgorithm::SetUpdateExtentToWholeExtent()
+{
+  return this->SetUpdateExtentToWholeExtent(0, 0);
+}
+
+//-------------------------------------------------------------
+void vtkAlgorithm::SetUpdateExtent(int port, int connection,
+                                   int piece,
+                                   int numPieces,
+                                   int ghostLevel)
+{
+  if (this->GetInputInformation(port, connection))
+    {
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      this->GetInputInformation(port, connection),
+      piece,
+      numPieces,
+      ghostLevel);
+    }
+}
+
+//-------------------------------------------------------------
+void vtkAlgorithm::SetUpdateExtent(int port,
+                                   int connection,
+                                   int extent[6])
+{
+  if (this->GetInputInformation(port, connection))
+    {
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      this->GetInputInformation(port, connection),
+      extent);
+    }
+}

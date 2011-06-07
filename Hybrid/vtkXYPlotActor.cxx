@@ -573,7 +573,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     for (mtime=0, this->InputList->InitTraversal(dsit); 
          (ds = this->InputList->GetNextDataSet(dsit)); )
       {
-      ds->Update();
+      //ds->Update();
       dsMtime = ds->GetMTime();
       if ( dsMtime > mtime )
         {
@@ -588,7 +588,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     for (mtime=0, this->DataObjectInputList->InitTraversal(doit); 
          (dobj = this->DataObjectInputList->GetNextDataObject(doit)); )
       {
-      dobj->Update();
+      //dobj->Update();
       dsMtime = dobj->GetMTime();
       if ( dsMtime > mtime )
         {
@@ -2262,7 +2262,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
 double vtkXYPlotActor::ComputeGlyphScale(int i, int *pos, int *pos2)
 {
   vtkPolyData *pd=this->LegendActor->GetEntrySymbol(i);
-  pd->Update();
+  //pd->Update();
   double length=pd->GetLength();
   double sf = this->GlyphSize * sqrt((double)(pos[0]-pos2[0])*(pos[0]-pos2[0]) + 
                                     (pos[1]-pos2[1])*(pos[1]-pos2[1])) / length;

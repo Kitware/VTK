@@ -29,6 +29,7 @@
 #include "vtkMatrixToLinearTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkMatrix4x4.h"
+#include "vtkTrivialProducer.h"
 #include "vtkTesting.h"
 
 
@@ -82,8 +83,7 @@ CreateBoxStencilData(double d1, double d2 )
   image->SetOrigin(  0.0, 0.0, 0.0 );
   image->SetExtent(static_cast<int>(d1)-2,static_cast<int>(d2)+2,
                    static_cast<int>(d1)-2,static_cast<int>(d2)+2, 0, 0 );
-  image->SetScalarTypeToUnsignedChar();
-  image->AllocateScalars();
+  image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   vtkImageStencil *stencil = vtkImageStencil::New();
   stencil->SetInput( image );
@@ -112,9 +112,7 @@ static void GetStencilDataAsImageData(
   extent[5] = extent[4]; // Otherwise we cannot write it out as a PNG!
   int extent1[6] = {0,50,0,50,0,0};
   image->SetExtent(extent1);
-  image->SetScalarTypeToUnsignedChar();
-  image->SetNumberOfScalarComponents(3);
-  image->AllocateScalars();
+  image->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   // Fill image with zeroes
   for (int y=extent1[2]; y <= extent1[3]; y++)
@@ -205,7 +203,10 @@ int TestImageStencilData( int argc, char * argv [] )
     return EXIT_FAILURE;
     }
 
-  int retval = testing->RegressionTest( image, 10 );
+  vtkSmartPointer< vtkTrivialProducer > producer =
+    vtkSmartPointer< vtkTrivialProducer >::New();
+  producer->SetOutput(image);
+  int retval = testing->RegressionTest( producer, 10 );
   testing->Delete();
   image->Delete();
 

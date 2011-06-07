@@ -241,7 +241,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
     // Determine the size of the image
     if ( this->BalloonImage )
       {
-      this->BalloonImage->Update();
+      //this->BalloonImage->Update();
       if ( this->BalloonImage->GetDataDimension() == 2 )
         {
         int dims[3];

@@ -2665,9 +2665,9 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     return;
     }
   
-  this->GetInput()->UpdateInformation();
-  this->GetInput()->SetUpdateExtentToWholeExtent();
-  this->GetInput()->Update();
+  this->GetInputAlgorithm()->UpdateInformation();
+  this->GetInputAlgorithm()->SetUpdateExtentToWholeExtent();
+  this->GetInputAlgorithm()->Update();
   
    // Check to make sure we have an appropriate integrator.
   if (this->RayIntegrator)
@@ -4152,13 +4152,13 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
           ++y;
           done=y>v1->GetScreenY();
           }
-        // values, invw, zview
+        //values, invw, zview
         break;
       case VTK_LINE_DIAGONAL:
         ++y;
         x+=xSign;
         done=y>v1->GetScreenY();
-        // values, invw, zview
+        //values, invw, zview
         break;
       case VTK_LINE_BRESENHAM:
         if(xIncrement)

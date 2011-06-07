@@ -36,6 +36,7 @@
 #include "vtkFloatArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
+#include "vtkAlgorithm.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -327,9 +328,9 @@ int vtkTesting::LookForFile(const char* newFileName)
     }
 }
 //-----------------------------------------------------------------------------
-int vtkTesting::RegressionTest(vtkImageData* image, double thresh)
+int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
 {
-  int result = this->RegressionTest(image, thresh, cout);
+  int result = this->RegressionTest(imageSource, thresh, cout);
 
   cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
   cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
@@ -386,11 +387,14 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
     rt_w2if->ReadFrontBufferOn();
     }
 
-  int res = this->RegressionTest(rt_w2if->GetOutput(), thresh, os);
+  rt_w2if->Update();
+  int res = this->RegressionTest(rt_w2if, thresh, os);
   return res;
 }
 //-----------------------------------------------------------------------------
-int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
+int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
+                               double thresh,
+                               ostream& os)
 {
   // do a get to compute the real value
   this->GetValidImageFileName();
@@ -415,7 +419,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     vtkstd::string vImage = tmpDir + "/" + validName;
     VTK_CREATE(vtkPNGWriter, rt_pngw);
     rt_pngw->SetFileName(vImage.c_str());
-    rt_pngw->SetInput(image);
+    rt_pngw->SetInputConnection(imageSource->GetOutputPort());
     rt_pngw->Write();
     os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">" 
       << this->ValidImageFileName << "</DartMeasurement>" << endl;
@@ -425,13 +429,13 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   VTK_CREATE(vtkPNGReader, rt_png);
   rt_png->SetFileName(this->ValidImageFileName); 
   rt_png->Update();
-  // image->Update();
+  imageSource->Update();
 
   VTK_CREATE(vtkImageDifference, rt_id);
 
   VTK_CREATE(vtkImageClip, ic1);
   ic1->SetClipData(1);
-  ic1->SetInput(image);
+  ic1->SetInputConnection(imageSource->GetOutputPort());
 
   VTK_CREATE(vtkImageClip, ic2);
   ic2->SetClipData(1);
@@ -655,7 +659,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     // write out the image that was generated
     vtkstd::string vImage = tmpDir + "/" + validName;
     rt_pngw->SetFileName(vImage.c_str());
-    rt_pngw->SetInput(image);
+    rt_pngw->SetInputConnection(imageSource->GetOutputPort());
     rt_pngw->Write();
 
     os <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";

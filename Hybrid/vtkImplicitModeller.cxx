@@ -177,7 +177,9 @@ void vtkImplicitModeller::StartAppend(int internal)
     // it has been called.
     this->UpdateInformation();
     }
-  this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+    this->GetOutputInformation(0),
+    vtkStreamingDemandDrivenPipeline::GetWholeExtent(this->GetOutputInformation(0)));
   
   vtkDebugMacro(<< "Initializing data");
   this->AllocateOutputData(this->GetOutput());

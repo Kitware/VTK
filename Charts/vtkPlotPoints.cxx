@@ -228,8 +228,6 @@ void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
     if (!this->Marker)
       {
       this->Marker = vtkImageData::New();
-      this->Marker->SetScalarTypeToUnsignedChar();
-      this->Marker->SetNumberOfScalarComponents(4);
       }
     else
       {
@@ -247,8 +245,6 @@ void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
     if (!this->HighlightMarker)
       {
       this->HighlightMarker = vtkImageData::New();
-      this->HighlightMarker->SetScalarTypeToUnsignedChar();
-      this->HighlightMarker->SetNumberOfScalarComponents(4);
       data = this->HighlightMarker;
       }
     else
@@ -264,7 +260,7 @@ void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
     }
 
   data->SetExtent(0, width-1, 0, width-1, 0, 0);
-  data->AllocateScalars();
+  data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
   unsigned char* image =
       static_cast<unsigned char*>(data->GetScalarPointer());
 

@@ -739,7 +739,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
     vtkErrorMacro(<< "texture has no input!\n");
     return;
     }
-  aTexture->GetInput()->Update();
+  aTexture->Update();
   size = aTexture->GetInput()->GetDimensions();
   scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 

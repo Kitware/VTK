@@ -396,7 +396,6 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   if ( this->LeaderGlyph )
     {
     // compute the scale
-    this->LeaderGlyph->Update();
     double length = this->LeaderGlyph->GetLength();
     int *sze = viewport->GetSize();
     int   numPixels = static_cast<int> (this->LeaderGlyphSize *
@@ -433,7 +432,6 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     this->LeaderMapper2D->SetInput(this->LeaderPolyData);
     this->LeaderMapper3D->SetInput(this->LeaderPolyData);
-    this->LeaderPolyData->Update();
     }
 
   // assign properties

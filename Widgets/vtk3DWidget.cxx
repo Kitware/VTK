@@ -66,7 +66,7 @@ void vtk3DWidget::PlaceWidget()
     }
   else if ( this->Input )
     {
-    this->Input->Update();
+    //this->Input->Update();
     this->Input->GetBounds(bounds);
     }
   else

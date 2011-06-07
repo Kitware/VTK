@@ -15,6 +15,7 @@
 #include "vtkVolumeOutlineSource.h"
 
 #include "vtkDataSet.h"
+#include "vtkDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -23,6 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVolumeMapper.h"
 #include "vtkMath.h"
@@ -151,7 +153,9 @@ int vtkVolumeOutlineSource::ComputePipelineMTime(
       {
       mTime = mapperMTime;
       }
-    vtkImageData *input = this->VolumeMapper->GetInput();
+    vtkDemandDrivenPipeline *input =
+      vtkDemandDrivenPipeline::SafeDownCast(
+        this->VolumeMapper->GetInputExecutive());
     if (input)
       {
       // Need to do this because we are not formally connected
@@ -189,9 +193,9 @@ int vtkVolumeOutlineSource::RequestInformation(
   this->CroppingRegionFlags = this->VolumeMapper->GetCroppingRegionFlags();
   this->VolumeMapper->GetCroppingRegionPlanes(this->CroppingRegionPlanes);
 
-  vtkImageData *data = this->VolumeMapper->GetInput();
+  vtkInformation *mapInfo = this->VolumeMapper->GetInputInformation();
 
-  if (!data)
+  if (!mapInfo)
     {
     vtkWarningMacro("The VolumeMapper does not have an input set.");
     return 1;
@@ -208,9 +212,10 @@ int vtkVolumeOutlineSource::RequestInformation(
   double origin[3];
   int extent[6];
 
-  data->GetSpacing(spacing);
-  data->GetOrigin(origin);
-  data->GetWholeExtent(extent);
+  mapInfo->Get(vtkDataObject::SPACING(), spacing);
+  mapInfo->Get(vtkDataObject::ORIGIN(), origin);
+  mapInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               extent);
 
   for (int i = 0; i < 3; i++)
     {

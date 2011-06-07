@@ -15,6 +15,7 @@
 #include "vtkCheckerboardRepresentation.h"
 #include "vtkSliderRepresentation3D.h"
 #include "vtkImageCheckerboard.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 #include "vtkCommand.h"
@@ -184,7 +185,7 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
 
   double bounds[6];
   vtkImageData *image = this->ImageActor->GetInput();
-  image->Update();
+  this->ImageActor->GetMapper()->GetInputAlgorithm()->Update();
   image->GetBounds(bounds);
   if ( image->GetDataDimension() != 2 )
     {

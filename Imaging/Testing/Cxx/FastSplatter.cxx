@@ -35,10 +35,8 @@ int FastSplatter(int argc, char *argv[])
   // hand.
 
   VTK_CREATE(vtkImageData, SplatImage);
-  SplatImage->SetScalarTypeToFloat();
-  SplatImage->SetNumberOfScalarComponents(1);
   SplatImage->SetDimensions(SPLAT_IMAGE_SIZE, SPLAT_IMAGE_SIZE, 1);
-  SplatImage->AllocateScalars();
+  SplatImage->AllocateScalars(VTK_FLOAT, 1);
 
   for (int i = 0; i < SPLAT_IMAGE_SIZE; ++i)
     {

@@ -151,7 +151,6 @@ int TestBareScalarsToColors(int argc, char *argv[])
 
     vtkNew<vtkImageData> image;
     image->SetDimensions(80, 80, 1);
-    image->SetScalarTypeToUnsignedChar();
     vtkUnsignedCharArray *colors =
       table2->MapScalars(outputs[i], VTK_COLOR_MODE_DEFAULT, outputc);
     image->GetPointData()->SetScalars(colors);

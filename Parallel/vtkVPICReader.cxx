@@ -265,7 +265,6 @@ int vtkVPICReader::RequestInformation(
     this->vpicData->getGridSize(this->Dimension);
     this->vpicData->getWholeExtent(this->WholeExtent);
     output->SetDimensions(this->Dimension);
-    output->SetWholeExtent(this->WholeExtent);
 
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                  this->WholeExtent, 6);

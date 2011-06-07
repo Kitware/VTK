@@ -684,7 +684,6 @@ void vtkCubeAxesActor2D::GetBounds(double bounds[6])
 
   if ( this->Input )
     {
-    this->Input->Update();
     this->Input->GetBounds(bounds);
     for (i=0; i< 6; i++)
       {

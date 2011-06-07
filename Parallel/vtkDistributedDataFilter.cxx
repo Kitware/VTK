@@ -2766,7 +2766,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::UnMarshallDataSet(char *buf, int 
   mystring->Delete();
 
   vtkDataSet *output = reader->GetOutput();
-  output->Update();
+  reader->Update();
 
   vtkUnstructuredGrid *newGrid = vtkUnstructuredGrid::New();
 

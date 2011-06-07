@@ -143,7 +143,8 @@ void MyProcess::Execute()
   cf->SetInput(pass->GetOutput());
   cf->SetNumberOfContours(1);
   cf->SetValue(0,0.7);
-  (cf->GetInput())->RequestExactExtentOn();
+  // I don't think that this is needed
+  // (cf->GetInput())->RequestExactExtentOn();
   cf->ComputeNormalsOff();
   vtkElevationFilter *elev = vtkElevationFilter::New();
   elev->SetInput(cf->GetOutput());

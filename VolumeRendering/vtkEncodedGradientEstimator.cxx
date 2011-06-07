@@ -186,9 +186,6 @@ void vtkEncodedGradientEstimator::Update( )
        this->Input->GetMTime() > this->BuildTime ||
        !this->EncodedNormals )
     {
-    this->Input->UpdateInformation();
-    this->Input->SetUpdateExtentToWholeExtent();
-    this->Input->Update();
     
     startSeconds = vtkTimerLog::GetUniversalTime();
     startCPUSeconds = vtkTimerLog::GetCPUTime();

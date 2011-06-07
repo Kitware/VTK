@@ -256,7 +256,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
 
   if(goodSoFar)
     {
-    input->Update();
+    this->GetInputAlgorithm()->Update();
     }
 
   // If we have a timestamp change or data change then create a new clone.
@@ -312,11 +312,6 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   vtkDataArray *scalars = NULL;
   if ( goodSoFar )
     {
-    // Here is where we update the input
-    this->TransformedInput->UpdateInformation();
-    this->TransformedInput->SetUpdateExtentToWholeExtent();
-    this->TransformedInput->Update();
-
     // Now make sure we can find scalars
     scalars=this->GetScalars(this->TransformedInput,this->ScalarMode,
                              this->ArrayAccessMode,
@@ -451,9 +446,7 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
 
   vtkImageData *bigImage = vtkImageData::New();
   bigImage->SetDimensions(size[0], size[1], 1);
-  bigImage->SetScalarTypeToUnsignedChar();
-  bigImage->SetNumberOfScalarComponents(3);
-  bigImage->AllocateScalars();
+  bigImage->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   this->CanonicalViewImageData = bigImage;
 

@@ -607,10 +607,10 @@ void vtkAxesActor::UpdateProps()
         SetInputConnection( this->UserDefinedTip->GetProducerPort() );
     }
 
-  (vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper()))->
-    GetInput()->Update();
-  (vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper()))->
-    GetInput()->Update();
+  vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper())->
+    GetInputAlgorithm()->Update();
+  vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper())->
+    GetInputAlgorithm()->Update();
 
   if ( this->GetUserTransform() )
     {

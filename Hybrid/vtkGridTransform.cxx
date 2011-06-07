@@ -802,10 +802,12 @@ unsigned long vtkGridTransform::GetMTime()
   result = vtkWarpTransform::GetMTime();
   if (this->DisplacementGrid)
     {
+    /*
     this->DisplacementGrid->UpdateInformation();
 
     mtime = this->DisplacementGrid->GetPipelineMTime();
     result = ( mtime > result ? mtime : result );    
+    */
 
     mtime = this->DisplacementGrid->GetMTime();
     result = ( mtime > result ? mtime : result );
@@ -1227,7 +1229,7 @@ void vtkGridTransform::InternalUpdate()
     return;
     }
 
-  grid->UpdateInformation();
+  //grid->UpdateInformation();
 
   if (grid->GetNumberOfScalarComponents() != 3)
     {
@@ -1245,8 +1247,8 @@ void vtkGridTransform::InternalUpdate()
     return;
     }
  
-  grid->SetUpdateExtent(grid->GetWholeExtent());
-  grid->Update();
+  //grid->SetUpdateExtent(grid->GetWholeExtent());
+  //grid->Update();
 
   this->GridPointer = grid->GetScalarPointer();
   this->GridScalarType = grid->GetScalarType();

@@ -126,9 +126,7 @@ void vtkPlotHistogram2D::GenerateHistogram()
     this->Output = vtkSmartPointer<vtkImageData>::New();
     }
   this->Output->SetExtent(this->Input->GetExtent());
-  this->Output->SetNumberOfScalarComponents(4);
-  this->Output->SetScalarTypeToUnsignedChar();
-  this->Output->AllocateScalars();
+  this->Output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
   int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
   double *input = reinterpret_cast<double *>(this->Input->GetScalarPointer());

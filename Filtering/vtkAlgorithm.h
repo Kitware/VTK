@@ -371,8 +371,12 @@ public:
   virtual void Update();
 
   // Description:
-  // Backward compatibility method to invoke UpdateInformation on executive.
+  // Bring the algorithm's information up-to-date.
   virtual void UpdateInformation();
+
+  // Description::
+  // Propagate meta-data upstream.
+  virtual void PropagateUpdateExtent();
 
   // Description:
   // Bring this algorithm's outputs up-to-date.
@@ -426,6 +430,47 @@ public:
   static vtkInformationIntegerKey* PRESERVES_TOPOLOGY();
   static vtkInformationIntegerKey* PRESERVES_ATTRIBUTES();
   static vtkInformationIntegerKey* PRESERVES_RANGES();
+
+  // Description:
+  // If the whole input extent is required to generate the requested output
+  // extent, this method can be called to set the input update extent to the
+  // whole input extent. This method assumes that the whole extent is known
+  // (that UpdateInformation has been called).
+  // This function has no effect is input connection is not established.
+  int SetUpdateExtentToWholeExtent(int port, int connection);
+
+  // Description:
+  // Convenience function equivalent to SetUpdateExtentToWholeExtent(0, 0)
+  // This function has no effect is input connection is not established.
+  int SetUpdateExtentToWholeExtent();
+
+  // Description:
+  // Set the update extent in terms of piece and ghost levels.
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int port, int connection,
+                       int piece,int numPieces, int ghostLevel);
+
+  // Description:
+  // Convenience function equivalent to SetUpdateExtent(0, 0, piece,
+  // numPieces, ghostLevel)
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int piece,int numPieces, int ghostLevel)
+  {
+    this->SetUpdateExtent(0, 0, piece, numPieces, ghostLevel);
+  }
+
+  // Description:
+  // Set the update extent for data objects that use 3D extents
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int port, int connection, int extent[6]);
+
+  // Description:
+  // Convenience function equivalent to SetUpdateExtent(0, 0, extent)
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int extent[6])
+  {
+    this->SetUpdateExtent(0, 0, extent);
+  }
 
 protected:
   vtkAlgorithm();

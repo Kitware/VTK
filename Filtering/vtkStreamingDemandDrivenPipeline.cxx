@@ -78,9 +78,9 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_ID_T
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {
 public:
-  static void Crop(vtkDataObject* obj)
+  static void Crop(vtkDataObject* obj, const int* extent)
     {
-    obj->Crop();
+    obj->Crop(extent);
     }
 };
 
@@ -270,7 +270,8 @@ int vtkStreamingDemandDrivenPipeline
         if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
           {
           vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
-          vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
+          vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(
+            data, info->Get(UPDATE_EXTENT()));
           }
         // Clear combined update extent, since the update cycle has completed
         if (info->Has(COMBINED_UPDATE_EXTENT()))

@@ -41,6 +41,7 @@
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 #include "vtkRayCastImageDisplayHelper.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
@@ -1213,9 +1214,11 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
     }
   else
     {
-    input->UpdateInformation();
-    input->SetUpdateExtentToWholeExtent();
-    input->Update();
+    vtkAlgorithm* inAlg = this->GetInputAlgorithm();
+    inAlg->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+      this->GetInputInformation());
+    inAlg->Update();
     }
 
   int usingCellColors;

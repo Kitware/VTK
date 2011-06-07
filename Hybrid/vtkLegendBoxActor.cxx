@@ -688,7 +688,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       if ( this->Symbol[i] ) //if there is a symbol
         {
         symbolExists = true;
-        this->Symbol[i]->Update();
+        //this->Symbol[i]->Update();
         bounds = this->Symbol[i]->GetBounds();
         if ( (bounds[3]-bounds[2]) == 0.0 )
           {

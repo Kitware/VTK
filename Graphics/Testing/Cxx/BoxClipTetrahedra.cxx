@@ -118,8 +118,6 @@ public:
 
 static void CheckWinding(vtkUnstructuredGrid *data)
 {
-  data->Update();
-
   vtkPoints *points = data->GetPoints();
 
   vtkCellArray *cells = data->GetCells();

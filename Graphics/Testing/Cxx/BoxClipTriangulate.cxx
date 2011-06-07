@@ -124,9 +124,10 @@ class BoxClipTriangulateFailed { };
 
 //-----------------------------------------------------------------------------
 
-static void CheckWinding(vtkUnstructuredGrid *data)
+static void CheckWinding(vtkBoxClipDataSet* alg)
 {
-  data->Update();
+  alg->Update();
+  vtkUnstructuredGrid* data = alg->GetOutput();
 
   vtkPoints *points = data->GetPoints();
 
@@ -307,7 +308,7 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
   iren->Start();
 #endif
 
-  CheckWinding(output);
+  CheckWinding(clipper);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface);
   surface->SetInput(output);

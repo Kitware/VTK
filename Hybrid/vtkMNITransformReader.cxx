@@ -758,7 +758,7 @@ int vtkMNITransformReader::ReadGridTransform(
     }
 
   // Read the minc file now, rather than later
-  reader->GetOutput()->Update();
+  reader->Update();
 
   // Create the transform
   vtkGridTransform *transform = vtkGridTransform::New();

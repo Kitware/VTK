@@ -248,17 +248,16 @@ int vtkWindBladeReader::RequestInformation(
     this->GExtent[3] = this->GDimension[1] - 1;
     this->GExtent[5] = this->GDimension[2] - 1;
 
-    field->SetWholeExtent(this->WholeExtent);
     field->SetDimensions(this->Dimension);
     fieldInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    this->WholeExtent, 6);
 
-    ground->SetWholeExtent(this->GExtent);
     ground->SetDimensions(this->GDimension);
     groundInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    this->GExtent, 6);
 
-    blade->SetWholeExtent(this->WholeExtent);
+    bladeInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                   this->WholeExtent, 6);
 
     // Create the rectilinear coordinate spacing for entire problem
     CreateCoordinates();

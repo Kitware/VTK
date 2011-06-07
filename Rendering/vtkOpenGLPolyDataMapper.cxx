@@ -123,7 +123,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     if (!this->Static)
       {
-      input->Update();
+      this->GetInputAlgorithm()->Update();
       }
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 

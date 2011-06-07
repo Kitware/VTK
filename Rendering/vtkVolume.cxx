@@ -468,7 +468,7 @@ unsigned long int vtkVolume::GetRedrawMTime()
     mTime = ( time > mTime ? time : mTime );
     if (this->GetMapper()->GetDataSetInput() != NULL)
       {
-      this->GetMapper()->GetDataSetInput()->Update();
+      this->GetMapper()->GetInputAlgorithm()->Update();
       time = this->Mapper->GetDataSetInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }

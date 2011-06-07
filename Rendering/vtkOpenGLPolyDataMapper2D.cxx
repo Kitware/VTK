@@ -71,7 +71,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
   else
     {
-    input->Update();
+    this->GetInputAlgorithm()->Update();
     numPts = input->GetNumberOfPoints();
     } 
 

@@ -156,7 +156,6 @@ int TestExtraction(int argc, char *argv[])
   sampleData->SetSpacing(1.0,1.0,1.0);
   sampleData->SetOrigin(0.0,0.0,0.0);
   sampleData->SetDimensions(XCELLS+1,YCELLS+1,ZCELLS+1);
-  sampleData->SetWholeExtent(0,XCELLS+1,0,YCELLS+1,0,ZCELLS+1);
   sampleData->AllocateScalars();
 
   vtkIdTypeArray *pia = vtkIdTypeArray::New();

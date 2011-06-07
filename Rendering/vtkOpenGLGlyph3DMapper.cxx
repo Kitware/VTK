@@ -225,7 +225,6 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       defaultPointIds[1] = 1;
       defaultSource->SetPoints(defaultPoints);
       defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-      defaultSource->SetUpdateExtent(0, 1, 0);
       this->SetSource(defaultSource);
       defaultSource->Delete();
       defaultSource = NULL;

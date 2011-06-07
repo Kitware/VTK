@@ -36,7 +36,7 @@ void vtkPolyDataSourceWidget::PlaceWidget()
     }
   else if ( this->Input )
     {
-    this->Input->Update();
+    //this->Input->Update();
     this->Input->GetBounds(bounds);
     }
   else

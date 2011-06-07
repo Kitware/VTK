@@ -249,7 +249,7 @@ public:
   // Description:
   // This method crops the data object (if necesary) so that the extent
   // matches the update extent.
-  virtual void Crop();
+  virtual void Crop(const int* updateExtent);
 
   //BTX
   // Description:

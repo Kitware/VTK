@@ -395,8 +395,7 @@ void MyProcess::Execute()
           luminanceToRGB->AddInputConnection(0,converter->GetOutputPort());
           luminanceToRGB->Update();
           
-          vtkImageData *testImage=luminanceToRGB->GetOutput();
-          retVal=testing->RegressionTest(testImage,thresh);
+          retVal=testing->RegressionTest(luminanceToRGB,thresh);
           
           luminanceToRGB->Delete();
           converter->Delete();

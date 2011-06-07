@@ -38,9 +38,7 @@ int TestHistogram2D(int, char * [])
 
   vtkNew<vtkImageData> data;
   data->SetExtent(0, size-1, 0, size-1, 0, 0);
-  data->SetNumberOfScalarComponents(1);
-  data->SetScalarTypeToDouble();
-  data->AllocateScalars();
+  data->AllocateScalars(VTK_DOUBLE, 1);
 
   data->SetOrigin(100.0, 0.0, 0.0);
   data->SetSpacing(2.0, 1.0, 1.0);

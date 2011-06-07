@@ -116,9 +116,8 @@ int TestGPURayCastMIPBinaryMask(int argc, char *argv[])
     = vtkSmartPointer< vtkImageData >::New();
   mask->SetExtent(input->GetExtent());
   mask->SetSpacing(input->GetSpacing());
-  mask->SetScalarTypeToUnsignedChar();
   mask->SetOrigin(input->GetOrigin());
-  mask->AllocateScalars();
+  mask->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   // Create a simple mask that's split along the X axis
   unsigned char *ptr = static_cast< unsigned char * >(mask->GetScalarPointer());

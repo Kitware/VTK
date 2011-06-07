@@ -81,13 +81,13 @@ int TestQuadraturePoints(int argc,char *argv[])
   if (xusgr->CanReadFile(inputFileName.c_str()))
     {
     input=xusgr->GetOutput();
-    input->Update();
+    xusgr->Update();
     }
   else if (lusgr->IsFileValid("unstructured_grid"))
     {
     lusgr->SetFileName(inputFileName.c_str());
     input=lusgr->GetOutput();
-    input->Update();
+    lusgr->Update();
     }
   if (input==0)
     {
@@ -129,7 +129,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   xusgr->SetFileName(tempFile.c_str());
   input=xusgr->GetOutput();*/
   input = vtkUnstructuredGrid::SafeDownCast(fieldInterp->GetOutput());
-  input->Update();
+  fieldInterp->Update();
   input->GetPointData()->SetActiveVectors(warpName.c_str());
   input->GetPointData()->SetActiveScalars(threshName.c_str());
  // Demonstrate warp by vector.
@@ -155,7 +155,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   pointGen->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
   pointGen->SetInputConnection(thresholder->GetOutputPort());
   vtkPolyData *output=vtkPolyData::SafeDownCast(pointGen->GetOutput());
-  output->Update();
+  pointGen->Update();
   const char* activeScalars = "pressure";
   output->GetPointData()->SetActiveScalars(activeScalars);
 

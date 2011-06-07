@@ -568,7 +568,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
       vtkErrorMacro(<< "texture has no input!\n");
       return;
       }
-    aTexture->GetInput()->Update();
+    aTexture->GetInputAlgorithm()->Update();
     size = aTexture->GetInput()->GetDimensions();
     scalars = aTexture->GetInput()->GetPointData()->GetScalars();
                 

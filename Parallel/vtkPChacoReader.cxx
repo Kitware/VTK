@@ -559,7 +559,7 @@ vtkUnstructuredGrid *vtkPChacoReader::UnMarshallDataSet(char *buf, int size)
   mystring->Delete();
 
   vtkDataSet *output = reader->GetOutput();
-  output->Update();
+  reader->Update();
 
   vtkUnstructuredGrid *newGrid = vtkUnstructuredGrid::New();
 

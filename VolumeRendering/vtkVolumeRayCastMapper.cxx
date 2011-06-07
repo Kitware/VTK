@@ -34,6 +34,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastFunction.h"
 #include "vtkRayCastImageDisplayHelper.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
@@ -312,9 +313,10 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     }
   else
     {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->Update();
+    this->GetInputAlgorithm()->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+      this->GetInputInformation());
+    this->GetInputAlgorithm()->Update();
     } 
 
 

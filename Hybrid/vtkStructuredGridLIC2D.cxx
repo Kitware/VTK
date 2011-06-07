@@ -325,8 +325,7 @@ void vtkStructuredGridLIC2D::AllocateOutputData(vtkDataObject *output,
         vtkWarningMacro( "Not enough output ports." );
         return;
         }
-      out2->SetNumberOfScalarComponents(3);
-      out2->AllocateScalars();
+      out2->AllocateScalars(VTK_FLOAT, 3);
       }
     }
 }
