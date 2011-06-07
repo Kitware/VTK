@@ -270,6 +270,8 @@ public:
   // Description:
   // Reset the camera clipping range based on a bounding box.
   // This method is called from ResetCameraClippingRange()
+  // If Deering frustrum is used then the bounds get expanded
+  // by the camera's modelview matrix.
   void ResetCameraClippingRange( double bounds[6] );
   void ResetCameraClippingRange( double xmin, double xmax,
                                  double ymin, double ymax,

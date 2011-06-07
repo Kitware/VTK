@@ -1149,8 +1149,6 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     return;
     }
 
-  // Find the plane equation for the camera view plane
-
   if(!this->ActiveCamera->GetUseDeeringFrustrum())
     {
     this->ActiveCamera->GetViewPlaneNormal(vn);
