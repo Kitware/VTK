@@ -367,33 +367,39 @@ void vtkCamera::ComputeCameraLightTransform()
 //----------------------------------------------------------------------------
 void vtkCamera::ComputeScreenOrientation()
 {
-  double xAxis[3];
-  double yAxis[3];
-  double zAxis[3];
-
-  for(int i=0; i < 3; ++i)
+  // Avoid recalculating screen orientation if we don't need to.
+  if(this->ScreenOrientationMTime.GetMTime() < this->GetMTime())
     {
-    xAxis[i] = this->ScreenBottomRight[i] - this->ScreenBottomLeft[i];
-    yAxis[i] = this->ScreenTopRight[i]    - this->ScreenBottomRight[i];
+    double xAxis[3];
+    double yAxis[3];
+    double zAxis[3];
+
+    for(int i=0; i < 3; ++i)
+      {
+      xAxis[i] = this->ScreenBottomRight[i] - this->ScreenBottomLeft[i];
+      yAxis[i] = this->ScreenTopRight[i]    - this->ScreenBottomRight[i];
+      }
+
+    vtkMath::Normalize(xAxis);
+    vtkMath::Normalize(yAxis);
+    vtkMath::Cross(xAxis, yAxis, zAxis);
+    vtkMath::Normalize(zAxis);
+
+
+    this->ScreenOrientation->SetElement(0, 0, xAxis[0]);
+    this->ScreenOrientation->SetElement(0, 0, xAxis[1]);
+    this->ScreenOrientation->SetElement(0, 0, xAxis[2]);
+
+    this->ScreenOrientation->SetElement(0, 0, yAxis[0]);
+    this->ScreenOrientation->SetElement(0, 0, yAxis[1]);
+    this->ScreenOrientation->SetElement(0, 0, yAxis[2]);
+
+    this->ScreenOrientation->SetElement(0, 0, zAxis[0]);
+    this->ScreenOrientation->SetElement(0, 0, zAxis[1]);
+    this->ScreenOrientation->SetElement(0, 0, zAxis[2]);
+
+    this->ScreenOrientationMTime.Modified();
     }
-
-  vtkMath::Normalize(xAxis);
-  vtkMath::Normalize(yAxis);
-  vtkMath::Cross(xAxis, yAxis, zAxis);
-  vtkMath::Normalize(zAxis);
-
-
-  this->ScreenOrientation->SetElement(0, 0, xAxis[0]);
-  this->ScreenOrientation->SetElement(0, 0, xAxis[1]);
-  this->ScreenOrientation->SetElement(0, 0, xAxis[2]);
-
-  this->ScreenOrientation->SetElement(0, 0, yAxis[0]);
-  this->ScreenOrientation->SetElement(0, 0, yAxis[1]);
-  this->ScreenOrientation->SetElement(0, 0, yAxis[2]);
-
-  this->ScreenOrientation->SetElement(0, 0, zAxis[0]);
-  this->ScreenOrientation->SetElement(0, 0, zAxis[1]);
-  this->ScreenOrientation->SetElement(0, 0, zAxis[2]);
 }
 
 //----------------------------------------------------------------------------

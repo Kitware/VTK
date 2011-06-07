@@ -590,6 +590,8 @@ protected:
   double EyeSeparation;
 
   vtkMatrix4x4 *ScreenOrientation;
+  vtkTimeStamp  ScreenOrientationMTime;
+
   vtkMatrix4x4 *EyeTransformMatrix;
 
   vtkMatrix4x4 *ModelTransformMatrix;
