@@ -1604,6 +1604,27 @@ void vtkCamera::GetEyePosition(double eyePosition[3])
 }
 
 //-----------------------------------------------------------------------------
+void vtkCamera::GetEyePlaneNormal(double normal[3])
+{
+  if(!normal)
+    {
+    vtkErrorMacro(<< "ERROR: Invalid or NULL normal\n");
+    return;
+    }
+
+  // Get the normal from the screen orientation.
+  normal[0] = this->ScreenOrientation->GetElement(2, 0);
+  normal[1] = this->ScreenOrientation->GetElement(2, 1);
+  normal[2] = this->ScreenOrientation->GetElement(2, 2);
+
+  // Just to be sure.
+  vtkMath::Normalize(normal);
+
+  // Rotate the normal by eye trasform matrix.
+  this->EyeTransformMatrix->MultiplyPoint(normal, normal);
+}
+
+//-----------------------------------------------------------------------------
 void vtkCamera::SetModelTransformMatrix(vtkMatrix4x4 *matrix)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "

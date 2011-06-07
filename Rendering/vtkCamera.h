@@ -312,6 +312,11 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void GetEyePosition(double eyePosition[3]);
 
   // Description:
+  // Get normal to the eye.
+  // This will be used only for deering frustrum calculation.
+  void GetEyePlaneNormal(double normal[3]);
+
+  // Description:
   // Set/Get eye transformation matrix.
   // This will be used only for deering frustrum calculation.
   // This is the transformation matrix for the point between eyes.

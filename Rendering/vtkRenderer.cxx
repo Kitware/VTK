@@ -1159,11 +1159,7 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
   else
     {
     this->ActiveCamera->GetEyePosition(position);
-
-    // \TODO: Compute it
-    vn[0] = 0.0;
-    vn[1] = 0.0;
-    vn[2] = 1.0;
+    this->ActiveCamera->GetEyePlaneNormal(vn);
 
     // Expand the bounding box by model view transform matrix.
     double min[4] = {bounds[0], bounds[2], bounds[4], 1.0};
