@@ -1567,7 +1567,6 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 }
 
-
 //-----------------------------------------------------------------------------
 void vtkCamera::SetEyePosition(double eyePosition[3])
 {
@@ -1577,9 +1576,9 @@ void vtkCamera::SetEyePosition(double eyePosition[3])
     return;
     }
 
-  this->ModelTransformMatrix->SetElement(0, 3, eyePosition[0]);
-  this->ModelTransformMatrix->SetElement(1, 3, eyePosition[1]);
-  this->ModelTransformMatrix->SetElement(2, 3, eyePosition[2]);
+  this->EyeTransformMatrix->SetElement(0, 3, eyePosition[0]);
+  this->EyeTransformMatrix->SetElement(1, 3, eyePosition[1]);
+  this->EyeTransformMatrix->SetElement(2, 3, eyePosition[2]);
 
   this->Modified();
 }
@@ -1607,16 +1606,24 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
     return;
     }
 
+  // Homogeneous normal.
+  double localNormal[4];
+
   // Get the normal from the screen orientation.
-  normal[0] = this->ScreenOrientation->GetElement(2, 0);
-  normal[1] = this->ScreenOrientation->GetElement(2, 1);
-  normal[2] = this->ScreenOrientation->GetElement(2, 2);
+  localNormal[0] = this->ScreenOrientation->GetElement(2, 0);
+  localNormal[1] = this->ScreenOrientation->GetElement(2, 1);
+  localNormal[2] = this->ScreenOrientation->GetElement(2, 2);
+  localNormal[3] = 0.0;
 
   // Just to be sure.
-  vtkMath::Normalize(normal);
+  vtkMath::Normalize(localNormal);
 
   // Rotate the normal by eye trasform matrix.
-  this->EyeTransformMatrix->MultiplyPoint(normal, normal);
+  this->EyeTransformMatrix->MultiplyPoint(localNormal, localNormal);
+
+  normal[0] = localNormal[0];
+  normal[1] = localNormal[1];
+  normal[2] = localNormal[2];
 }
 
 //-----------------------------------------------------------------------------
