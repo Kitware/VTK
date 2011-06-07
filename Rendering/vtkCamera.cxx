@@ -1673,7 +1673,7 @@ vtkTransform *vtkCamera::GetModelViewTransformObject()
 //-----------------------------------------------------------------------------
 vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
 {
-  return this->GetModelTransformMatrix();
+  return this->GetModelViewTransformMatrix();
 }
 
 //-----------------------------------------------------------------------------
