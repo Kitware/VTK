@@ -260,39 +260,39 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetMacro(FocalDisk,double);
 
   // Description:
-  // Set/Get use deering frustrum.
-  // Deering frustrum is used for off-axis frustrum calculations specially
+  // Set/Get use deering frustum.
+  // Deering frustum is used for off-axis frustum calculations specially
   // for stereo rendering.
   // For reference see "High Resolution Virtual Reality", in Proc.
   // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
-  vtkSetMacro(UseDeeringFrustrum, int);
-  vtkGetMacro(UseDeeringFrustrum, int);
-  vtkBooleanMacro(UseDeeringFrustrum, int);
+  vtkSetMacro(UseDeeringFrustum, int);
+  vtkGetMacro(UseDeeringFrustum, int);
+  vtkBooleanMacro(UseDeeringFrustum, int);
 
   // Description:
   // Set/Get top left corner point of the screen.
-  // This will be used only for deering frustrum calculation.
+  // This will be used only for deering frustum calculation.
   // Default is (-1.0, -1.0, -1.0).
   vtkSetVector3Macro(ScreenBottomLeft, double);
   vtkGetVector3Macro(ScreenBottomLeft, double);
 
   // Description:
   // Set/Get bottom left corner point of the screen.
-  // This will be used only for deering frustrum calculation.
+  // This will be used only for deering frustum calculation.
   // Default is (1.0, -1.0, -1.0).
   vtkSetVector3Macro(ScreenBottomRight, double);
   vtkGetVector3Macro(ScreenBottomRight, double);
 
   // Description:
   // Set/Get top right corner point of the screen.
-  // This will be used only for deering frustrum calculation.
+  // This will be used only for deering frustum calculation.
   // Default is (1.0, 1.0, -1.0).
   vtkSetVector3Macro(ScreenTopRight, double);
   vtkGetVector3Macro(ScreenTopRight, double);
 
   // Description:
   // Set/Get distance between the eyes.
-  // This will be used only for deering frustrum calculation.
+  // This will be used only for deering frustum calculation.
   // Default is 0.06.
   vtkSetMacro(EyeSeparation, double);
   vtkGetMacro(EyeSeparation, double);
@@ -301,20 +301,20 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Set/Get the eye position (center point between two eyes).
   // This is a convenience function that sets the translation
   // component of EyeTransformMatrix.
-  // This will be used only for deering frustrum calculation.
+  // This will be used only for deering frustum calculation.
   void SetEyePosition(double eyePosition[3]);
   void GetEyePosition(double eyePosition[3]);
 
   // Description:
   // Get normal vector from eye to screen rotated by EyeTransformMatrix.
-  // This will be used only for deering frustrum calculation.
+  // This will be used only for deering frustum calculation.
   void GetEyePlaneNormal(double normal[3]);
 
   // Description:
   // Set/Get eye transformation matrix.
   // This is the transformation matrix for the point between eyes.
   // Default is identity.
-  // This will be used only for deering frustrum calculation.
+  // This will be used only for deering frustum calculation.
   void SetEyeTransformMatrix(vtkMatrix4x4* matrix);
   vtkGetObjectMacro(EyeTransformMatrix, vtkMatrix4x4);
 
@@ -548,8 +548,8 @@ protected:
   void ComputeScreenOrientation();
 
   // Description:
-  // Compute and use frustrum using deering method.
-  void ComputeDeeringFrustrum();
+  // Compute and use frustum using deering method.
+  void ComputeDeeringFrustum();
 
   // Description:
   // Compute model view matrix for the camera.
@@ -581,7 +581,7 @@ protected:
   double ViewShear[3];
   int    UseHorizontalViewAngle;
 
-  int    UseDeeringFrustrum;
+  int    UseDeeringFrustum;
 
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];

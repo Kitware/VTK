@@ -77,7 +77,7 @@ vtkCamera::vtkCamera()
   this->ViewAngle = 30.0;
   this->UseHorizontalViewAngle = 0;
 
-  this->UseDeeringFrustrum  = 0;
+  this->UseDeeringFrustum  = 0;
 
   this->ScreenBottomLeft[0] = -1.0;
   this->ScreenBottomLeft[1] = -1.0;
@@ -403,7 +403,7 @@ void vtkCamera::ComputeScreenOrientation()
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::ComputeDeeringFrustrum()
+void vtkCamera::ComputeDeeringFrustum()
 {
   this->ComputeScreenOrientation();
 
@@ -1001,9 +1001,9 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                       this->ClippingRange[0],
                                       this->ClippingRange[1] );
     }
-  else if(this->UseDeeringFrustrum)
+  else if(this->UseDeeringFrustum)
     {
-    this->ComputeDeeringFrustrum();
+    this->ComputeDeeringFrustum();
     }
   else
     {
@@ -1033,7 +1033,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                         this->ClippingRange[1] );
     }
 
-  if ( this->Stereo && !this->UseDeeringFrustrum)
+  if ( this->Stereo && !this->UseDeeringFrustum)
     {
     // set up a shear for stereo views
     if ( this->LeftEye )
@@ -1539,7 +1539,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", "
      << this->WindowCenter[1] << ")\n";
 
-  os << indent << "UseDeeringFrustrum: (" << this->UseDeeringFrustrum
+  os << indent << "UseDeeringFrustum: (" << this->UseDeeringFrustum
      << ")\n";
 
   os << indent << "ScreenBottomLeft: (" << this->ScreenBottomLeft[0]

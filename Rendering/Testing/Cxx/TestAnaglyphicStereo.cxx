@@ -80,7 +80,7 @@ int TestAnaglyphicStereo(int argc, char *argv[])
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);
-  camera->SetUseDeeringFrustrum(1);
+  camera->SetUseDeeringFrustum(1);
   camera->SetEyeTransformMatrix(eyeMatrix);
   camera->SetEyeSeparation(0.05);
 

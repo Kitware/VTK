@@ -1149,7 +1149,7 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     return;
     }
 
-  if(!this->ActiveCamera->GetUseDeeringFrustrum())
+  if(!this->ActiveCamera->GetUseDeeringFrustum())
     {
     this->ActiveCamera->GetViewPlaneNormal(vn);
     this->ActiveCamera->GetPosition(position);
