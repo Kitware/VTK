@@ -306,15 +306,15 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void GetEyePosition(double eyePosition[3]);
 
   // Description:
-  // Get normal to the eye.
+  // Get normal vector from eye to screen rotated by EyeTransformMatrix.
   // This will be used only for deering frustrum calculation.
   void GetEyePlaneNormal(double normal[3]);
 
   // Description:
   // Set/Get eye transformation matrix.
-  // This will be used only for deering frustrum calculation.
   // This is the transformation matrix for the point between eyes.
   // Default is identity.
+  // This will be used only for deering frustrum calculation.
   void SetEyeTransformMatrix(vtkMatrix4x4* matrix);
   vtkGetObjectMacro(EyeTransformMatrix, vtkMatrix4x4);
 
@@ -326,7 +326,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetObjectMacro(ModelTransformMatrix, vtkMatrix4x4);
 
   // Description:
-  // Return the model view matrix for model view transform.
+  // Return the model view matrix of model view transform.
   virtual vtkMatrix4x4 *GetModelViewTransformMatrix();
 
   // Description:
