@@ -399,8 +399,11 @@ void vtkCamera::ComputeScreenOrientation()
 //----------------------------------------------------------------------------
 void vtkCamera::ComputeDeeringFrustrum()
 {
-  // \TODO: Make it call only once.
   this->ComputeScreenOrientation();
+
+  // \NOTE: Varibles names reflect naming convention used in
+  // "High Resolution Virtual Reality", in Proc.
+  // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
 
   // Deering calculations.
   double F = this->ClippingRange[1];
