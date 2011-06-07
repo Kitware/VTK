@@ -116,7 +116,8 @@ inline void vtkTemporalStatisticsAccumulateStdDev(
   for (vtkIdType i = 0; i < arraySize; i++)
     {
     double temp = inArray[i]-previousAverage[i]/static_cast<double>(pass);
-    outArray[i] = outArray[i] + pass*temp*temp/static_cast<double>(pass+1);
+    outArray[i] = outArray[i] + static_cast<T>(
+      pass*temp*temp/static_cast<double>(pass+1) );
     }
 }
 
