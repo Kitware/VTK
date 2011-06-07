@@ -1158,14 +1158,9 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     }
   else
     {
-    // Make a convenience function like GetEyePosition and SetEyePostion
-    // that will set the element of this eye transform matrix.
-    vtkMatrix4x4* eyeMatrix = this->ActiveCamera->GetEyeTransformMatrix();
-    position[0] = eyeMatrix->GetElement(0,3);
-    position[1] = eyeMatrix->GetElement(1,3);
-    position[2] = eyeMatrix->GetElement(2,3);
+    this->ActiveCamera->GetEyePosition(position);
 
-    // Is this ever going to change?
+    // \TODO: Compute it
     vn[0] = 0.0;
     vn[1] = 0.0;
     vn[2] = 1.0;
