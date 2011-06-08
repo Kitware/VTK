@@ -967,17 +967,6 @@ private:
   void operator=(const vtkMath&);  // Not implemented.
 };
 
-//BTX
-class vtkMathInternal
-{
-public:
-  vtkMathInternal();
-  ~vtkMathInternal();
-  vtkMinimalStandardRandomSequence *Uniform;
-  vtkBoxMuellerRandomSequence *Gaussian;
-};
-//ETX
-
 //----------------------------------------------------------------------------
 inline float vtkMath::RadiansFromDegrees( float x )
 {
