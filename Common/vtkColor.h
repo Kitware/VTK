@@ -30,7 +30,7 @@ template<typename T>
 class vtkColor3 : public vtkVector<T, 3>
 {
 public:
-  vtkColor3(const T& red = 0.0, const T& green = 0.0, const T& blue = 0.0)
+  vtkColor3(const T& red = 0, const T& green = 0, const T& blue = 0)
   {
     this->Data[0] = red;
     this->Data[1] = green;
@@ -83,8 +83,8 @@ template<typename T>
 class vtkColor4 : public vtkVector<T, 4>
 {
 public:
-  vtkColor4(const T& red = 0.0, const T& green = 0.0, const T& blue = 0.0,
-            const T& alpha = 0.0)
+  vtkColor4(const T& red = 0, const T& green = 0, const T& blue = 0,
+            const T& alpha = 0)
   {
     this->Data[0] = red;
     this->Data[1] = green;
