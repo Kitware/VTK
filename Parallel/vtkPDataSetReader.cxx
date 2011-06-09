@@ -196,8 +196,8 @@ int vtkPDataSetReader::RequestDataObject(
     vtkWarningMacro("Creating a new output of type " 
                   << newOutput->GetClassName());
     }
-  
-  newOutput->SetPipelineInformation(info);
+
+  info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
   newOutput->Delete();
 
   return 1;
@@ -1016,7 +1016,7 @@ int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
       }
     else
       {
-      append->AddInput(tmp);
+      append->AddInputConnection(reader->GetOutputPort());
       }
     reader->Delete();
     }
@@ -1083,7 +1083,7 @@ int vtkPDataSetReader::UnstructuredGridExecute(
       }
     else
       {
-      append->AddInput(reader->GetUnstructuredGridOutput());
+      append->AddInputConnection(reader->GetOutputPort());
       }
     reader->Delete();
     }
@@ -1120,7 +1120,7 @@ int vtkPDataSetReader::ImageDataExecute(
   // Allocate the data object.
   vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, uExt);
   output->SetExtent(uExt);
-  output->AllocateScalars();
+  output->AllocateScalars(info);
 
   // Get the pieces that will be read.
   pieceMask = new int[this->NumberOfPieces];

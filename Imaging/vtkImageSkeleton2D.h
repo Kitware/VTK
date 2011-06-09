@@ -56,8 +56,14 @@ protected:
 
   virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id);
+  void ThreadedRequestData(
+    vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector,
+    vtkImageData ***inDataV,
+    vtkImageData **outDataV,
+    int outExt[6],
+    int id);
 private:
   vtkImageSkeleton2D(const vtkImageSkeleton2D&);  // Not implemented.
   void operator=(const vtkImageSkeleton2D&);  // Not implemented.

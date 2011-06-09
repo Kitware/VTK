@@ -72,10 +72,9 @@ void vtkImageAppend::ReplaceNthInputConnection(int idx,
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
-void vtkImageAppend::SetInput(int idx, vtkDataObject *input)
+void vtkImageAppend::SetInputData(int idx, vtkDataObject *input)
 {
-  // Ask the superclass to connect the input.
-  this->SetNthInputConnection(0, idx, (input ? input->GetProducerPort() : 0));
+  this->SetInputDataInternal(idx, input);
 }
 
 //----------------------------------------------------------------------------

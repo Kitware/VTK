@@ -283,7 +283,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
         this->Storage->SpriteTexture = vtkTexture::New();
         this->Storage->SpriteTexture->SetRepeat(false);
         }
-      this->Storage->SpriteTexture->SetInput(sprite);
+      this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
 
@@ -893,7 +893,7 @@ void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
     {
     this->Storage->Texture = vtkTexture::New();
     }
-  this->Storage->Texture->SetInput(image);
+  this->Storage->Texture->SetInputData(image);
   this->Storage->TextureProperties = properties;
   this->Storage->Texture->SetRepeat(properties & vtkContextDevice2D::Repeat);
   this->Storage->Texture->SetInterpolate(properties & vtkContextDevice2D::Linear);

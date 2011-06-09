@@ -304,7 +304,7 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkImageData* histog
     return 0;
 
   vtkSmartPointer<vtkImageMedian3D> median = vtkSmartPointer<vtkImageMedian3D>::New();
-  median->SetInputConnection(histogram->GetProducerPort());
+  median->SetInputData(histogram);
   median->SetKernelSize(3,3,1);
   median->Update();    
 

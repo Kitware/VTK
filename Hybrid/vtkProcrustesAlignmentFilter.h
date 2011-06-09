@@ -86,8 +86,8 @@ public:
   // Description:
   // Specify the input pointset with index idx.
   // Call SetNumberOfInputs before calling this function.
-  void SetInput(int idx, vtkPointSet* p);
-  void SetInput(int idx, vtkDataObject* input);
+  void SetInputData(int idx, vtkPointSet* p);
+  void SetInputData(int idx, vtkDataObject* input);
 
   // Description:
   // When on, the initial alignment is to the centroid 

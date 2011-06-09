@@ -439,7 +439,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   VTK_CREATE(vtkImageClip, ic2);
   ic2->SetClipData(1);
-  ic2->SetInput(rt_png->GetOutput());
+  ic2->SetInputConnection(rt_png->GetOutputPort());
 
   int* wExt1 = ic1->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
@@ -460,10 +460,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
                             wExt2[5]);
 
   int ext1[6], ext2[6];
-  rt_id->SetInput(ic1->GetOutput()); 
+  rt_id->SetInputConnection(ic1->GetOutputPort());
   ic1->Update();
   ic1->GetOutput()->GetExtent(ext1);
-  rt_id->SetImage(ic2->GetOutput()); 
+  rt_id->SetImageConnection(ic2->GetOutputPort());
   ic2->Update();
   ic2->GetOutput()->GetExtent(ext2);
 

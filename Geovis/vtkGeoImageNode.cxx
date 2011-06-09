@@ -179,7 +179,7 @@ void vtkGeoImageNode::CropImageForTile(
     char fn[512];
     sprintf(fn, "%s/tile_%d_%ld.vti", prefix, this->Level, this->Id);
     writer->SetFileName(fn);
-    writer->SetInput(storedImage);
+    writer->SetInputData(storedImage);
     writer->Write();
     writer->Delete();
     storedImage->Delete();

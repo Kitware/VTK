@@ -316,7 +316,7 @@ public:
   // Use a stencil to limit the calculations to a specific region of
   // the output.  Portions of the output that are 'outside' the stencil
   // will be cleared to the background color.  
-  void SetStencil(vtkImageStencilData *stencil);
+  void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 
   // Description:
@@ -394,8 +394,8 @@ protected:
                          count, idX, idY, idZ, threadId); }
 
   void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
-  virtual void AllocateOutputData(vtkImageData *output, int *uExtent);
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *);
+  virtual void AllocateOutputData(vtkImageData *output, vtkInformation *outInfo, int *uExtent);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *, vtkInformation *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
                                  vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,

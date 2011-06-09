@@ -187,7 +187,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   CREATE_NEW(probe,vtkProbeFilter);
   probe->SetSource(reader->GetOutput());
-  probe->SetInput(probeData);
+  probe->SetInputData(probeData);
   probe->Update();
   
   CREATE_NEW(renWin, vtkRenderWindow);
@@ -252,7 +252,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     
     // input is double between 0.0 and 1.0. Cast it between [0, 255].
     CREATE_NEW(caster, vtkImageShiftScale);
-    caster->SetInput(clone);
+    caster->SetInputData(clone);
     caster->SetShift(0.0);
     caster->SetScale(255.0);
     caster->SetOutputScalarTypeToUnsignedChar();

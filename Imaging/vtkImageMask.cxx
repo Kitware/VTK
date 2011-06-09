@@ -41,15 +41,15 @@ vtkImageMask::~vtkImageMask()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMask::SetImageInput(vtkImageData *in)
+void vtkImageMask::SetImageInputData(vtkImageData *in)
 {
-  this->SetInput1(in);
+  this->SetInput1Data(in);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMask::SetMaskInput(vtkImageData *in)
+void vtkImageMask::SetMaskInputData(vtkImageData *in)
 {
-  this->SetInput2(in);
+  this->SetInput2Data(in);
 }
 
 //----------------------------------------------------------------------------

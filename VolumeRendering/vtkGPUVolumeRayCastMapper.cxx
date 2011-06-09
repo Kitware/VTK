@@ -529,7 +529,7 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
 
   // Shrink to image to the desired size
   vtkImageResample *resample = vtkImageResample::New();
-  resample->SetInput( bigImage );
+  resample->SetInputData( bigImage );
   resample->SetAxisMagnificationFactor(0,scale[0]);
   resample->SetAxisMagnificationFactor(1,scale[1]);
   resample->SetAxisMagnificationFactor(2,1);

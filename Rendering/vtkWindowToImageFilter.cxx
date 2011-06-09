@@ -228,7 +228,7 @@ void vtkWindowToImageFilter::RequestData(
     vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   out->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
-  out->AllocateScalars();
+  out->AllocateScalars(outInfo);
 
   if (!this->Input)
     {

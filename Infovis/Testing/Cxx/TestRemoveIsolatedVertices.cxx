@@ -35,7 +35,7 @@ int TestRemoveIsolatedVertices(int, char *[])
 
   vtkSmartPointer<vtkRemoveIsolatedVertices> filter =
     vtkSmartPointer<vtkRemoveIsolatedVertices>::New();
-  filter->SetInputConnection(g->GetProducerPort());
+  filter->SetInputData(g);
   filter->Update();
 
   if(filter->GetOutput()->GetNumberOfVertices() != 2)

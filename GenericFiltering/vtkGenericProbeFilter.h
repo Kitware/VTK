@@ -55,7 +55,7 @@ public:
   // Description:
   // Specify the point locations used to probe input. A generic dataset
   // type is assumed.
-  void SetSource(vtkGenericDataSet *source);
+  void SetSourceData(vtkGenericDataSet *source);
   vtkGenericDataSet *GetSource();
 
   // Description:

@@ -111,7 +111,7 @@ int TestPolyPlane( int argc, char *argv[] )
 
   vtkSmartPointer<vtkImageResample>  resample =
     vtkSmartPointer<vtkImageResample>::New();
-  resample->SetInput(demReader->GetOutput());
+  resample->SetInputConnection(demReader->GetOutputPort());
   resample->SetDimensionality(2);
   resample->SetAxisMagnificationFactor(0,0.25);
   resample->SetAxisMagnificationFactor(1,0.25);
@@ -120,20 +120,20 @@ int TestPolyPlane( int argc, char *argv[] )
 
   vtkSmartPointer<vtkImageDataGeometryFilter> surface =
     vtkSmartPointer<vtkImageDataGeometryFilter>::New();
-  surface->SetInput(resample->GetOutput());
+  surface->SetInputConnection(resample->GetOutputPort());
 
   // Convert to triangle mesh
 
   vtkSmartPointer<vtkTriangleFilter> triangleFilter =
     vtkSmartPointer<vtkTriangleFilter>::New();
-  triangleFilter->SetInput( surface->GetOutput() );
+  triangleFilter->SetInputConnection( surface->GetOutputPort() );
   triangleFilter->Update();
 
   // Warp
 
   vtkSmartPointer<vtkWarpScalar> warp =
     vtkSmartPointer<vtkWarpScalar>::New();
-  warp->SetInput(triangleFilter->GetOutput());
+  warp->SetInputConnection(triangleFilter->GetOutputPort());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
   warp->SetNormal(0, 0, 1);
@@ -173,7 +173,7 @@ int TestPolyPlane( int argc, char *argv[] )
 
   vtkSmartPointer<vtkPolyDataMapper> demMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  demMapper->SetInput(warp->GetPolyDataOutput());
+  demMapper->SetInputConnection(warp->GetOutputPort());
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);
 
@@ -211,7 +211,7 @@ int TestPolyPlane( int argc, char *argv[] )
 
   vtkSmartPointer<vtkCutter> cutter =
     vtkSmartPointer<vtkCutter>::New();
-  cutter->SetInput(warp->GetPolyDataOutput());
+  cutter->SetInputConnection(warp->GetOutputPort());
 
   // Callback to update the polyplane when the contour is updated
 
@@ -283,14 +283,14 @@ int TestPolyPlane( int argc, char *argv[] )
   cb->Execute(contourWidget,0,NULL);
 
   vtkXMLPolyDataWriter *pWriter = vtkXMLPolyDataWriter::New();
-  pWriter->SetInput(cutter->GetOutput());
+  pWriter->SetInputConnection(cutter->GetOutputPort());
   cutter->Update();
   pWriter->SetFileName("CutPolyPlane.vtp");
   pWriter->Write();
-  pWriter->SetInput(warp->GetPolyDataOutput());
+  pWriter->SetInputConnection(warp->GetOutputPort());
   pWriter->SetFileName("Dataset.vtp");
   pWriter->Write();
-  pWriter->SetInput(rep->GetContourRepresentationAsPolyData());
+  pWriter->SetInputData(rep->GetContourRepresentationAsPolyData());
   pWriter->SetFileName("Contour.vtp");
   pWriter->Write();
   pWriter->Delete();

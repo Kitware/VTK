@@ -108,12 +108,12 @@ public:
 
   // Description:
   // Set the source to use for he glyph. Old style. See SetSourceConnection.
-  void SetSource(vtkPolyData *pd) {this->SetSource(0,pd);};
+  void SetSourceData(vtkPolyData *pd) {this->SetSourceData(0,pd);};
 
   // Description:
   // Specify a source object at a specified table location.
   // Old style. See SetSourceConnection.
-  void SetSource(int id, vtkPolyData *pd);
+  void SetSourceData(int id, vtkPolyData *pd);
 
   // Description:
   // Specify a source object at a specified table location. New style.

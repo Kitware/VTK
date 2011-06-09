@@ -63,18 +63,18 @@ int TestDecimatePolylineFilter(int, char *[])
   lines->Delete();
 
   vtkPolyDataMapper* c_mapper = vtkPolyDataMapper::New();
-  c_mapper->SetInput( circle );
+  c_mapper->SetInputData( circle );
 
   vtkActor* c_actor = vtkActor::New();
   c_actor->SetMapper( c_mapper );
 
   vtkDecimatePolylineFilter* decimate = vtkDecimatePolylineFilter::New();
-  decimate->SetInput( circle );
+  decimate->SetInputData( circle );
   decimate->SetTargetReduction( 0.95 );
   decimate->Update();
 
   vtkPolyDataMapper* d_mapper = vtkPolyDataMapper::New();
-  d_mapper->SetInput( decimate->GetOutput() );
+  d_mapper->SetInputConnection( decimate->GetOutputPort() );
 
   vtkActor* d_actor = vtkActor::New();
   d_actor->SetMapper( d_mapper );

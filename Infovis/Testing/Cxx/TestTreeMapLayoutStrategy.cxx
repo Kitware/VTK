@@ -97,7 +97,7 @@ int TestTreeMapLayoutStrategy(int argc, char* argv[])
     }
   
   VTK_CREATE(vtkTreeFieldAggregator, agg);
-  agg->SetInput(tree);
+  agg->SetInputData(tree);
   agg->SetField("size");
   agg->SetLeafVertexUnitSize(false);
 

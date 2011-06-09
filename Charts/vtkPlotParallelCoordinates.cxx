@@ -278,7 +278,7 @@ bool vtkPlotParallelCoordinates::ResetSelectionRange()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
+void vtkPlotParallelCoordinates::SetInputData(vtkTable* table)
 {
   if (table == this->Data->GetInput() && (!table ||
                                           table->GetMTime() < this->BuildTime))
@@ -286,7 +286,7 @@ void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
     return;
     }
 
-  this->vtkPlot::SetInput(table);
+  this->vtkPlot::SetInputData(table);
   vtkChartParallelCoordinates *parent =
       vtkChartParallelCoordinates::SafeDownCast(this->Parent);
 
@@ -336,7 +336,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
         {
         // We have a different kind of column - attempt to make it into an enum
         vtkStringToCategory* stoc = vtkStringToCategory::New();
-        stoc->SetInput(table);
+        stoc->SetInputData(table);
         stoc->SetInputArrayToProcess(0, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      cols->GetValue(i));

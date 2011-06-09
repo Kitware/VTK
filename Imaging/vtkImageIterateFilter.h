@@ -72,12 +72,8 @@ protected:
   int Iteration;
   // A list of intermediate caches that is created when 
   // is called SetNumberOfIterations()
-  vtkImageData **IterationData;
+  vtkAlgorithm **IterationData;
   
-  // returns correct vtkImageDatas based on current iteration.
-  vtkImageData *GetIterationInput();
-  vtkImageData *GetIterationOutput();
-
   vtkInformationVector* InputVector;
   vtkInformationVector* OutputVector;
 private:

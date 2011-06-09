@@ -53,7 +53,7 @@ int TestGeoAssignCoordinates(int argc, char *argv[])
   g->GetVertexData()->AddArray(longitude);
 
   VTK_CREATE(vtkGeoAssignCoordinates, assign);
-  assign->SetInput(g);
+  assign->SetInputData(g);
   assign->SetLatitudeArrayName("latitude");
   assign->SetLongitudeArrayName("longitude");
   assign->SetGlobeRadius(1.0);

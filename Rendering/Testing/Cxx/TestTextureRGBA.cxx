@@ -51,7 +51,7 @@ int TestTextureRGBA(int argc, char *argv[])
   planeSource->Update();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(planeSource->GetOutput());
+  mapper->SetInputConnection(planeSource->GetOutputPort());
   planeSource->Delete();
 
   vtkActor *actor = vtkActor::New();

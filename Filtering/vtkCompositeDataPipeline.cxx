@@ -703,7 +703,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
     if (curOutput != compositeOutput.GetPointer())
       {
-      compositeOutput->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), compositeOutput);
       }
     }
   this->ExecuteDataEnd(request,inInfoVec,outInfoVec);
@@ -759,12 +759,6 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   if (dobj)
     {
     dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
-
-    // This should not be needed but since a lot of image filters do:
-    // img->GetScalarType(), it is necessary.
-    dobj->GetProducerPort(); // make sure there is pipeline info.
-    dobj->CopyInformationToPipeline
-      (request, 0, dobj->GetPipelineInformation(), 1);
     }
 
   this->Superclass::ExecuteInformation(request,inInfoVec,outInfoVec);
@@ -961,7 +955,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithmTime(
   vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (curOutput != temporalOutput.GetPointer())
     {
-    temporalOutput->SetPipelineInformation(outInfo);
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), temporalOutput);
     }
   this->ExecuteDataEnd(request,inInfoVec,outInfoVec);
 }
@@ -1346,7 +1340,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(
         vtkDebugMacro(<< "CheckCompositeData created " <<
           output->GetClassName() << "output");
         }
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       // Copy extent type to the output port information because
       // CreateOutputCompositeDataSet() changes it and some algorithms need it.
       this->GetAlgorithm()->GetOutputPortInformation(port)->Set(

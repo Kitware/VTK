@@ -67,11 +67,11 @@ vtkImageActor::~vtkImageActor()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageActor::SetInput(vtkImageData *input)
+void vtkImageActor::SetInputData(vtkImageData *input)
 {
   if (this->Mapper && input != this->Mapper->GetInput())
     {
-    this->Mapper->SetInput(input);
+    this->Mapper->SetInputData(input);
     this->Modified();
     }
 }

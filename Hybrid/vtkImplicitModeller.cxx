@@ -182,7 +182,7 @@ void vtkImplicitModeller::StartAppend(int internal)
     vtkStreamingDemandDrivenPipeline::GetWholeExtent(this->GetOutputInformation(0)));
   
   vtkDebugMacro(<< "Initializing data");
-  this->AllocateOutputData(this->GetOutput());
+  this->AllocateOutputData(this->GetOutput(), this->GetOutputInformation(0));
   this->UpdateProgress(0.0);
   this->DataAppended = 1;
 
@@ -727,7 +727,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           minPlane[i]->SetOrigin(0.0, 0.0, minZ);
 
           minClipper[i] = vtkClipPolyData::New();
-          minClipper[i]->SetInput((vtkPolyData *)input);
+          minClipper[i]->SetInputData((vtkPolyData *)input);
           minClipper[i]->SetClipFunction(minPlane[i]);
           minClipper[i]->SetValue( 0.0 );
           minClipper[i]->InsideOutOn();
@@ -759,7 +759,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           maxPlane[i]->SetOrigin(0.0, 0.0, maxZ);
 
           maxClipper[i] = vtkClipPolyData::New();
-          maxClipper[i]->SetInput(minClipper[i]->GetOutput());
+          maxClipper[i]->SetInputConnection(minClipper[i]->GetOutputPort());
           maxClipper[i]->SetClipFunction(maxPlane[i]);
           maxClipper[i]->SetValue( 0.0 );
           maxClipper[i]->InsideOutOn();

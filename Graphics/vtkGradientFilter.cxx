@@ -361,7 +361,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       dummy->GetCellData()->AddArray(cellGradients);
 
       vtkCellDataToPointData *cd2pd = vtkCellDataToPointData::New();
-      cd2pd->SetInput(dummy);
+      cd2pd->SetInputData(dummy);
       cd2pd->PassCellDataOff();
       cd2pd->Update();
 
@@ -382,7 +382,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     dummy->GetCellData()->SetScalars(Array);
 
     vtkCellDataToPointData *cd2pd = vtkCellDataToPointData::New();
-    cd2pd->SetInput(dummy);
+    cd2pd->SetInputData(dummy);
     cd2pd->PassCellDataOff();
     cd2pd->Update();
     vtkDataArray *pointScalars

@@ -138,7 +138,7 @@ int vtkDEMReader::RequestData(
 
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
 
   if (!this->FileName)
     {

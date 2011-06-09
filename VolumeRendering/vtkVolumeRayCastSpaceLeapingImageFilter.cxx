@@ -1094,8 +1094,10 @@ unsigned long vtkVolumeRayCastSpaceLeapingImageFilter
 // invalid outputs and should be turned on, only when this filter is used
 // as an internal ivar of the vtkFixedPointVolumeRayCastMapper.
 void vtkVolumeRayCastSpaceLeapingImageFilter
-::AllocateOutputData(vtkImageData *output, int *uExtent)
-{ 
+::AllocateOutputData(vtkImageData *output,
+                     vtkInformation* outInfo,
+                     int *uExtent)
+{
   // set the extent to be the update extent
   output->SetExtent(uExtent);
 
@@ -1126,15 +1128,15 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
     }
 
   // Otherwise allocate output afresh
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkVolumeRayCastSpaceLeapingImageFilter
-::AllocateOutputData(vtkDataObject *output)
+::AllocateOutputData(vtkDataObject *output, vtkInformation *outInfo)
 { 
   // Call the superclass method
-  return vtkImageAlgorithm::AllocateOutputData(output);
+  return vtkImageAlgorithm::AllocateOutputData(output, outInfo);
 }
 
 //----------------------------------------------------------------------------

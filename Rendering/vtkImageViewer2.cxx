@@ -18,7 +18,7 @@
 #include "vtkCommand.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
-#include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkInformation.h"
 #include "vtkInteractorStyleImage.h"
@@ -614,7 +614,8 @@ void vtkImageViewer2::InstallPipeline()
 
   if (this->ImageActor && this->WindowLevel)
     {
-    this->ImageActor->SetInput(this->WindowLevel->GetOutput());
+    this->ImageActor->GetMapper()->SetInputConnection(
+      this->WindowLevel->GetOutputPort());
     }
 }
 
@@ -623,7 +624,7 @@ void vtkImageViewer2::UnInstallPipeline()
 {
   if (this->ImageActor)
     {
-    this->ImageActor->SetInput(NULL);
+    this->ImageActor->GetMapper()->SetInputConnection(NULL);
     }
 
   if (this->Renderer && this->ImageActor)
@@ -718,9 +719,9 @@ int vtkImageViewer2::GetOffScreenRendering()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetInput(vtkImageData *in) 
+void vtkImageViewer2::SetInputData(vtkImageData *in) 
 {
-  this->WindowLevel->SetInput(in);
+  this->WindowLevel->SetInputData(in);
   this->UpdateDisplayExtent();
 }
 //----------------------------------------------------------------------------

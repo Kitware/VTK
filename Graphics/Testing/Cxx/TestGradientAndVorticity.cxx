@@ -196,14 +196,14 @@ namespace
     CreatePointData(Grid, NumberOfComponents, Offset, FieldName);
     
     VTK_CREATE(vtkGradientFilter, CellGradients);
-    CellGradients->SetInput(Grid);
+    CellGradients->SetInputData(Grid);
     CellGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_CELLS, FieldName);
     const char ResultName[] = "Result";
     CellGradients->SetResultArrayName(ResultName);
     
     VTK_CREATE(vtkGradientFilter, PointGradients);
-    PointGradients->SetInput(Grid);
+    PointGradients->SetInputData(Grid);
     PointGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_POINTS, FieldName);
     PointGradients->SetResultArrayName(ResultName);
@@ -238,7 +238,7 @@ namespace
       {
       // now check on the vorticity calculations
       VTK_CREATE(vtkGradientFilter, CellVorticity);
-      CellVorticity->SetInput(Grid);
+      CellVorticity->SetInputData(Grid);
       CellVorticity->SetInputScalars(
         vtkDataObject::FIELD_ASSOCIATION_CELLS, FieldName);
       CellVorticity->SetResultArrayName(ResultName);
@@ -246,7 +246,7 @@ namespace
       CellVorticity->Update();
       
       VTK_CREATE(vtkGradientFilter, PointVorticity);
-      PointVorticity->SetInput(Grid);
+      PointVorticity->SetInputData(Grid);
       PointVorticity->SetInputScalars(
         vtkDataObject::FIELD_ASSOCIATION_POINTS, FieldName);
       PointVorticity->SetResultArrayName(ResultName);

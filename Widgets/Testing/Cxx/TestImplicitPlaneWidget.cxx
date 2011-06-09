@@ -444,7 +444,7 @@ int TestImplicitPlaneWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkGlyph3D> glyph =
     vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
@@ -453,8 +453,8 @@ int TestImplicitPlaneWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // This just makes things simpler to manage.
   vtkSmartPointer<vtkAppendPolyData> apd =
     vtkSmartPointer<vtkAppendPolyData>::New();
-  apd->AddInput(glyph->GetOutput());
-  apd->AddInput(sphere->GetOutput());
+  apd->AddInputConnection(glyph->GetOutputPort());
+  apd->AddInputConnection(sphere->GetOutputPort());
 
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -510,6 +510,7 @@ int TestImplicitPlaneWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkImplicitPlaneWidget>::New();
   planeWidget->SetInteractor(iren);
   planeWidget->SetPlaceFactor(1.25);
+  glyph->Update();
   planeWidget->SetInput(glyph->GetOutput());
   planeWidget->PlaceWidget();
   planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);

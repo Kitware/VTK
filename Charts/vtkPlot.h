@@ -135,10 +135,10 @@ public:
   // Description:
   // This is a convenience function to set the input table and the x, y column
   // for the plot.
-  virtual void SetInput(vtkTable *table);
-  virtual void SetInput(vtkTable *table, const vtkStdString &xColumn,
-                        const vtkStdString &yColumn);
-  void SetInput(vtkTable *table, vtkIdType xColumn, vtkIdType yColumn);
+  virtual void SetInputData(vtkTable *table);
+  virtual void SetInputData(vtkTable *table, const vtkStdString &xColumn,
+                            const vtkStdString &yColumn);
+  void SetInputData(vtkTable *table, vtkIdType xColumn, vtkIdType yColumn);
 
   // Description:
   // Get the input table used by the plot.

@@ -85,7 +85,7 @@ int TestQtImages( int argc, char* argv[] )
   cis->SetQImage( &image );
 
   VTK_CREATE(vtkImageActor, imgactor);
-  imgactor->SetInput(cis->GetOutput());
+  imgactor->SetInputConnection(cis->GetOutputPort());
 
   vtkImageData* id = imgactor->GetInput();
   VTK_CREATE(vtkRenderer, renderer);

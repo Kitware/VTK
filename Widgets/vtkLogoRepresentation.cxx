@@ -68,7 +68,7 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   this->TexturePolyData->GetPointData()->SetTCoords(tc);
   tc->Delete();  
   this->TextureMapper = vtkPolyDataMapper2D::New();
-  this->TextureMapper->SetInput(this->TexturePolyData);
+  this->TextureMapper->SetInputData(this->TexturePolyData);
   this->TextureActor = vtkActor2D::New();
   this->TextureActor->SetMapper(this->TextureMapper);
   this->ImageProperty->SetOpacity(0.25);
@@ -166,7 +166,7 @@ void vtkLogoRepresentation::BuildRepresentation()
       this->AdjustImageSize(o,borderSize,imageSize);
 
       // Update the points
-      this->Texture->SetInput(this->Image);
+      this->Texture->SetInputData(this->Image);
       this->TexturePoints->SetPoint(0, o[0],o[1],0.0);
       this->TexturePoints->SetPoint(1, o[0]+imageSize[0],o[1],0.0);
       this->TexturePoints->SetPoint(2, o[0]+imageSize[0],o[1]+imageSize[1],0.0);

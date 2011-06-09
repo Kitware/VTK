@@ -88,7 +88,7 @@ public:
   // Backcompatible methods.
   // It set and get the stencil on input port 1.
   // Initial value is NULL.
-  void SetStencil(vtkImageStencilData *stencil);
+  void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 
   // Description:

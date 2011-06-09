@@ -509,7 +509,7 @@ void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     {
     this->RenderColorAndLighting(1.0, 1.0, 1.0, opacity, ambient, diffuse);
 
-    this->ImageReslice->SetInput(this->GetInput());
+    this->ImageReslice->SetInputConnection(this->GetInputConnection(0, 0));
     this->ImageReslice->UpdateWholeExtent();
 
     this->RecursiveRenderTexturedPolygon(

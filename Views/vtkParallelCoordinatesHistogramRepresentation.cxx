@@ -64,7 +64,7 @@ vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRe
   this->UseHistograms = 0;
 
   this->HistogramFilter = vtkSmartPointer<vtkPairwiseExtractHistogram2D>::New();
-  this->HistogramFilter->SetInputConnection(this->InputArrayTable->GetProducerPort());
+  this->HistogramFilter->SetInputData(this->InputArrayTable);
 
   this->HistogramLookupTable = vtkSmartPointer<vtkLookupTable>::New();
   this->HistogramLookupTable->SetAlphaRange(0,1);
@@ -81,8 +81,8 @@ vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRe
   this->ShowOutliers = 0;
 
   this->OutlierFilter = vtkSmartPointer<vtkComputeHistogram2DOutliers>::New();
-  this->OutlierFilter->SetInputConnection(vtkComputeHistogram2DOutliers::INPUT_TABLE_DATA,
-                                         this->InputArrayTable->GetProducerPort());
+  this->OutlierFilter->SetInputData(vtkComputeHistogram2DOutliers::INPUT_TABLE_DATA,
+                                    this->InputArrayTable);
 //                                          this->HistogramFilter->GetOutputPort(vtkPairwiseExtractHistogram2D::REORDERED_INPUT));
   this->OutlierFilter->SetInputConnection(vtkComputeHistogram2DOutliers::INPUT_HISTOGRAMS_MULTIBLOCK,
                                           this->HistogramFilter->GetOutputPort(vtkPairwiseExtractHistogram2D::HISTOGRAM_IMAGE));

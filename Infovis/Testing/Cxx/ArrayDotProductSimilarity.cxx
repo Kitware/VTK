@@ -60,8 +60,8 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkArrayData> matrix_data_a = vtkSmartPointer<vtkArrayData>::New();
     matrix_data_a->AddArray(matrix_a);
      
-    vtkSmartPointer<vtkDotProductSimilarity> similarity = vtkSmartPointer<vtkDotProductSimilarity>::New();
-    similarity->SetInputConnection(0, matrix_data_a->GetProducerPort());
+    vtkSmartPointer<vtkDotProductSimilarity> similarity =   vtkSmartPointer<vtkDotProductSimilarity>::New();
+    similarity->SetInputData(0, matrix_data_a);
     similarity->SetVectorDimension(1);
     similarity->SetMinimumThreshold(0);
     similarity->SetMinimumCount(0);
@@ -113,7 +113,7 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkArrayData> matrix_data_b = vtkSmartPointer<vtkArrayData>::New();
     matrix_data_b->AddArray(matrix_b);
 
-    similarity->SetInputConnection(1, matrix_data_b->GetProducerPort());
+    similarity->SetInputData(1, matrix_data_b);
 
     similarity->SetFirstSecond(true);
     similarity->SetSecondFirst(false);

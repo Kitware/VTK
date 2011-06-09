@@ -46,7 +46,7 @@ int ArrayExtractFactoredArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     factored->AddArray(b);
 
     vtkSmartPointer<vtkExtractArray> extract = vtkSmartPointer<vtkExtractArray>::New();
-    extract->AddInputConnection(factored->GetProducerPort());
+    extract->SetInputData(factored);
 
     extract->SetIndex(0);
     extract->Update();

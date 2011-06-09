@@ -50,16 +50,9 @@ void vtkImageToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageToImageStencil::SetInput(vtkImageData *input)
+void vtkImageToImageStencil::SetInputData(vtkImageData *input)
 {
-  if (input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------

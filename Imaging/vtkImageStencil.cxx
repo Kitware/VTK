@@ -45,9 +45,9 @@ vtkImageStencil::~vtkImageStencil()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencil::SetStencil(vtkImageStencilData *stencil)
+void vtkImageStencil::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInput(2, stencil); 
+  this->SetInputData(2, stencil); 
 }
 
 //----------------------------------------------------------------------------
@@ -65,9 +65,9 @@ vtkImageStencilData *vtkImageStencil::GetStencil()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencil::SetBackgroundInput(vtkImageData *data)
+void vtkImageStencil::SetBackgroundInputData(vtkImageData *data)
 {
-  this->SetInput(1, data); 
+  this->SetInputData(1, data); 
 }
 
 //----------------------------------------------------------------------------

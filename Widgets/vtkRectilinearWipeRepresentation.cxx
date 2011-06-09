@@ -65,7 +65,7 @@ vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
   coordinate->SetCoordinateSystemToWorld();
 
   this->WipeMapper = vtkPolyDataMapper2D::New();
-  this->WipeMapper->SetInput(this->Wipe);
+  this->WipeMapper->SetInputData(this->Wipe);
   this->WipeMapper->SetTransformCoordinate(coordinate);
   coordinate->Delete();
   

@@ -58,7 +58,7 @@ int TestGlyph3DMapperArrow(int argc, char *argv[])
   reader->Update();
 
   vtkExtractGrid *eg=vtkExtractGrid::New();
-  eg->SetInput(reader->GetOutput()->GetBlock(0));
+  eg->SetInputData(reader->GetOutput()->GetBlock(0));
   reader->Delete();
   eg->SetSampleRate(4,4,4);
   eg->Update();

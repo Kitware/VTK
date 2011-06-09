@@ -167,7 +167,7 @@ public:
   // Specify the source object which is used to constrain smoothing. The 
   // source defines a surface that the input (as it is smoothed) is 
   // constrained to lie upon.
-  void SetSource(vtkPolyData *source);
+  void SetSourceData(vtkPolyData *source);
   vtkPolyData *GetSource();
   
 protected:

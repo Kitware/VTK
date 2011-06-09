@@ -101,7 +101,7 @@ public:
 
   // Description:
   // Specify the input data or filter.
-  virtual void SetInput(vtkUnstructuredGrid *input);
+  virtual void SetInputData(vtkUnstructuredGrid *input);
   virtual vtkUnstructuredGrid* GetInput();
 
   // Description

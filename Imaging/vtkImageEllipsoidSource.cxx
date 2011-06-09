@@ -241,7 +241,7 @@ int vtkImageEllipsoidSource::RequestData(
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),extent);
   
   data->SetExtent(extent);
-  data->AllocateScalars();
+  data->AllocateScalars(outInfo);
   
   void *ptr;  
   ptr = data->GetScalarPointerForExtent(extent);

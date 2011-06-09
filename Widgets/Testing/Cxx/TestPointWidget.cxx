@@ -565,8 +565,8 @@ int TestPointWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkProbeFilter> probe =
     vtkSmartPointer<vtkProbeFilter>::New();
-  probe->SetInput(point);
-  probe->SetSource(pl3d_block0);
+  probe->SetInputData(point);
+  probe->SetSourceData(pl3d_block0);
 
   // create glyph
   vtkSmartPointer<vtkConeSource> cone =
@@ -576,7 +576,7 @@ int TestPointWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkGlyph3D> glyph =
     vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(probe->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseVector();
   glyph->SetScaleModeToDataScalingOff();
   glyph->SetScaleFactor(pl3d_block0->GetLength() * 0.1);
@@ -593,7 +593,7 @@ int TestPointWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridOutlineFilter> outline =
     vtkSmartPointer<vtkStructuredGridOutlineFilter>::New();
-  outline->SetInput(pl3d_block0);
+  outline->SetInputData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();

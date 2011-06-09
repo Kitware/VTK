@@ -293,22 +293,26 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   // get the mappers input and matrix
   ds = anActor->GetMapper()->GetInput();
   
+  vtkAlgorithmOutput* pdProducer = 0;
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
     gf = vtkGeometryFilter::New();
-    gf->SetInput(ds);
+    gf->SetInputConnection(
+      anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
+    pdProducer = gf->GetOutputPort();
     }
   else
     {
     anActor->GetMapper()->GetInputAlgorithm()->Update();
     pd = static_cast<vtkPolyData *>(ds);
+    pdProducer = anActor->GetMapper()->GetInputConnection(0, 0);
     }
 
   pm = vtkPolyDataMapper::New();
-  pm->SetInput(pd);
+  pm->SetInputConnection(pdProducer);
   pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   pm->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
   pm->SetLookupTable(anActor->GetMapper()->GetLookupTable());

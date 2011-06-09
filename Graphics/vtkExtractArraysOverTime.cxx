@@ -875,8 +875,8 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
   vtkExtractSelection* filter = vtkExtractSelection::New();
   filter->SetPreserveTopology(0);
   filter->SetUseProbeForLocations(1);
-  filter->SetInputConnection(0, inputClone->GetProducerPort());
-  filter->SetInputConnection(1, selInputClone->GetProducerPort());
+  filter->SetInputData(0, inputClone);
+  filter->SetInputData(1, selInputClone);
 
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(

@@ -83,7 +83,8 @@ vtkSplineWidget::vtkSplineWidget()
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
     vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
-    handleMapper->SetInput(this->HandleGeometry[i]->GetOutput());
+    handleMapper->SetInputConnection(
+      this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();
@@ -114,7 +115,8 @@ vtkSplineWidget::vtkSplineWidget()
   this->ParametricFunctionSource->Update();
 
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
-  lineMapper->SetInput( this->ParametricFunctionSource->GetOutput() ) ;
+  lineMapper->SetInputConnection(
+    this->ParametricFunctionSource->GetOutputPort());
   lineMapper->ImmediateModeRenderingOn();
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
@@ -1202,7 +1204,8 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
     vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
-    handleMapper->SetInput(this->HandleGeometry[i]->GetOutput());
+    handleMapper->SetInputConnection(
+      this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();

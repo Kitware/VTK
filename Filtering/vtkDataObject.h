@@ -72,16 +72,6 @@ public:
   virtual void SetInformation(vtkInformation*);
 
   // Description:
-  // Get/Set the pipeline information object that owns this data
-  // object.
-  vtkGetObjectMacro(PipelineInformation, vtkInformation);
-  virtual void SetPipelineInformation(vtkInformation*);
-
-  // Description:
-  // Get the port currently producing this object.
-  virtual vtkAlgorithmOutput* GetProducerPort();
-
-  // Description:
   // Data objects are composite objects and need to check each part for MTime.
   // The information object also needs to be considered.
   unsigned long int GetMTime();
@@ -162,15 +152,6 @@ public:
                                          vtkInformation* input,
                                          vtkInformation* output,
                                          int forceCopy);
-
-  // Description:
-  // Calls CopyInformationToPipeline(request, input, this->PipelineInformation, 0). 
-  // Subclasses should not override this method (not virtual)
-  void CopyInformationToPipeline(vtkInformation* request,
-                                 vtkInformation* input)
-    {
-      this->CopyInformationToPipeline(request, input, this->PipelineInformation, 0);
-    }
 
   // Description:
   // Return the information object within the input information object's
@@ -387,20 +368,10 @@ protected:
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  
 
-  // Get the executive that manages this data object.
-  vtkExecutive* GetExecutive();
-
-  // Get the port number producing this data object.
-  int GetPortNumber();
-
   virtual void ReportReferences(vtkGarbageCollector*);
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;
-
-  // Reference the pipeline information object that owns this data
-  // object.
-  vtkInformation* PipelineInformation;
 
   //BTX
   friend class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;

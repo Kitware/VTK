@@ -100,7 +100,7 @@ protected:
   
   virtual void ComputeDataIncrements();
   virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
+  virtual void ExecuteData(vtkDataObject *out, vtkInformation* outInfo);
 private:
   vtkBMPReader(const vtkBMPReader&);  // Not implemented.
   void operator=(const vtkBMPReader&);  // Not implemented.

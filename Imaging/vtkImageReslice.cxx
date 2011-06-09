@@ -441,9 +441,9 @@ const char *vtkImageReslice::GetInterpolationModeAsString()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::SetStencil(vtkImageStencilData *stencil)
+void vtkImageReslice::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInput(1, stencil); 
+  this->SetInputData(1, stencil); 
 }
 
 //----------------------------------------------------------------------------
@@ -878,11 +878,12 @@ int vtkImageReslice::FillOutputPortInformation(int port, vtkInformation* info)
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::AllocateOutputData(vtkImageData *output,
+                                         vtkInformation* outInfo,
                                          int *uExtent)
 {
   // set the extent to be the update extent
   output->SetExtent(uExtent);
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
 
   vtkImageStencilData *stencil = this->GetStencilOutput();
   if (stencil && this->GenerateStencilOutput)
@@ -893,9 +894,10 @@ void vtkImageReslice::AllocateOutputData(vtkImageData *output,
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageReslice::AllocateOutputData(vtkDataObject *output)
+vtkImageData *vtkImageReslice::AllocateOutputData(vtkDataObject *output,
+                                                  vtkInformation* outInfo)
 {
-  return this->Superclass::AllocateOutputData(output);
+  return this->Superclass::AllocateOutputData(output, outInfo);
 }
 
 //----------------------------------------------------------------------------

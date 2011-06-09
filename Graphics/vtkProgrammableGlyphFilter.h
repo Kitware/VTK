@@ -78,7 +78,7 @@ public:
   // Description:
   // Set/Get the source to use for this glyph. 
   // Note: you can change the source during execution of this filter.
-  void SetSource(vtkPolyData *source);
+  void SetSourceData(vtkPolyData *source);
   vtkPolyData *GetSource();
 
   // Description:

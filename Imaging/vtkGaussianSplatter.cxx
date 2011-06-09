@@ -115,7 +115,7 @@ int vtkGaussianSplatter::RequestData(
   
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
   
   vtkIdType numPts, numNewPts, ptId, idx, i;
   int j, k;

@@ -398,19 +398,19 @@ void vtkProcrustesAlignmentFilter::SetNumberOfInputs(int n)
 }
 
 //----------------------------------------------------------------------------
-void vtkProcrustesAlignmentFilter::SetInput(int idx, vtkPointSet *p)
+void vtkProcrustesAlignmentFilter::SetInputData(int idx, vtkPointSet *p)
 {
-  this->SetNthInputConnection(0, idx, p ? p->GetProducerPort() : 0);
+  this->SetInputDataInternal(idx, p);
 }
 
 //----------------------------------------------------------------------------
-void vtkProcrustesAlignmentFilter::SetInput(int idx, vtkDataObject* input)
+void vtkProcrustesAlignmentFilter::SetInputData(int idx, vtkDataObject* input)
 {
   vtkPointSet* p = vtkPointSet::SafeDownCast(input);
 
   if (p)
     {
-    this->SetInput(idx, p);
+    this->SetInputData(idx, p);
     }
   else
     {

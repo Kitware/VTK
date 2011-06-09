@@ -62,7 +62,7 @@ vtkXMLPRectilinearGridWriter::CreateStructuredPieceWriter()
 {  
   // Create the writer for the piece.
   vtkXMLRectilinearGridWriter* pWriter = vtkXMLRectilinearGridWriter::New();
-  pWriter->SetInput(this->GetInput());
+  pWriter->SetInputConnection(this->GetInputConnection(0, 0));
   return pWriter;
 }
 

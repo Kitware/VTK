@@ -456,7 +456,7 @@ vtkTable* vtkPCAStatistics::GetSpecifiedNormalization()
 
 void vtkPCAStatistics::SetSpecifiedNormalization( vtkTable* normSpec )
 {
-  this->SetInput( 3, normSpec );
+  this->SetInputData( 3, normSpec );
 }
 
 // ----------------------------------------------------------------------

@@ -31,6 +31,7 @@
 #include "vtkStringArray.h"
 #include "vtkViewTheme.h"
 #include "vtkSmartPointer.h"
+#include "vtkTrivialProducer.h"
 
 #include <vtkstd/map>
 #include <vtkstd/string>
@@ -120,13 +121,17 @@ bool vtkView::IsRepresentationPresent(vtkDataRepresentation* rep)
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::AddRepresentationFromInput(vtkDataObject* input)
 {
-  return this->AddRepresentationFromInputConnection(input->GetProducerPort());
+  vtkSmartPointer<vtkTrivialProducer> tp = vtkSmartPointer<vtkTrivialProducer>::New();
+  tp->SetOutput(input);
+  return this->AddRepresentationFromInputConnection(tp->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::SetRepresentationFromInput(vtkDataObject* input)
 {
-  return this->SetRepresentationFromInputConnection(input->GetProducerPort());
+  vtkSmartPointer<vtkTrivialProducer> tp = vtkSmartPointer<vtkTrivialProducer>::New();
+  tp->SetOutput(input);
+  return this->SetRepresentationFromInputConnection(tp->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------

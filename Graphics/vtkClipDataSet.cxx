@@ -620,7 +620,7 @@ void vtkClipDataSet::ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output)
   vtkImageData* tmp = vtkImageData::New();
   tmp->ShallowCopy(vtkImageData::SafeDownCast(input));
   
-  clipVolume->SetInput(tmp);
+  clipVolume->SetInputData(tmp);
   double value = 0.0;
   if (this->UseValueAsOffset || !this->ClipFunction)
     {

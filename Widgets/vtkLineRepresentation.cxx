@@ -65,7 +65,8 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(5);
   this->LineMapper = vtkPolyDataMapper::New();
-  this->LineMapper->SetInput(this->LineSource->GetOutput());
+  this->LineMapper->SetInputConnection(
+    this->LineSource->GetOutputPort());
   this->LineActor = vtkActor::New();
   this->LineActor->SetMapper(this->LineMapper);
 
@@ -79,7 +80,8 @@ vtkLineRepresentation::vtkLineRepresentation()
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
     this->HandleMapper[i] = vtkPolyDataMapper::New();
-    this->HandleMapper[i]->SetInput(this->HandleGeometry[i]->GetOutput());
+    this->HandleMapper[i]->SetInputConnection(
+      this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     }
@@ -113,7 +115,8 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->TextInput = vtkVectorText::New();
   this->TextInput->SetText( "0" );
   this->TextMapper = vtkPolyDataMapper::New();
-  this->TextMapper->SetInput( this->TextInput->GetOutput() );
+  this->TextMapper->SetInputConnection(
+    this->TextInput->GetOutputPort());
   this->TextActor = vtkFollower::New();
   this->TextActor->SetMapper(this->TextMapper);
   this->TextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );  

@@ -2734,7 +2734,7 @@ char *vtkDistributedDataFilter::MarshallDataSet(vtkUnstructuredGrid *extractedGr
     writer->SetFileTypeToBinary();
     }
   writer->WriteToOutputStringOn();
-  writer->SetInput(copy);
+  writer->SetInputData(copy);
 
   writer->Write();
 
@@ -2815,7 +2815,7 @@ vtkUnstructuredGrid
 
   vtkExtractCells *extCells = vtkExtractCells::New();
 
-  extCells->SetInput(tmpInput);
+  extCells->SetInputData(tmpInput);
 
   for (int i=0; i<nlists; i++)
     {
@@ -2860,7 +2860,7 @@ vtkUnstructuredGrid
 
   vtkExtractCells *extCells = vtkExtractCells::New();
 
-  extCells->SetInput(tmpInput);
+  extCells->SetInputData(tmpInput);
 
   extCells->Update();   // extract no cells 
 
@@ -2998,7 +2998,7 @@ void vtkDistributedDataFilter::ClipWithVtkClipDataSet(
   clipped->SetValue(0.0);
   clipped->InsideOutOn();
 
-  clipped->SetInput(grid);
+  clipped->SetInputData(grid);
 
   if (outside)
     {
@@ -3036,7 +3036,7 @@ void vtkDistributedDataFilter::ClipWithBoxClipDataSet(
   clipped->SetBoxClip(bounds[0], bounds[1],
                       bounds[2], bounds[3], bounds[4], bounds[5]);
 
-  clipped->SetInput(grid);
+  clipped->SetInputData(grid);
 
   if (outside)
     {
@@ -3123,7 +3123,7 @@ void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *gri
     ep->GetExecutive()->GetOutputInformation(0)->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       this->GhostLevel);
-    ep->SetInput(combined);
+    ep->SetInputData(combined);
 
     ep->Update();
 
@@ -4745,7 +4745,7 @@ int vtkDistributedDataFilter::RequestDataObject(vtkInformation*,
         {
         newOutput = vtkUnstructuredGrid::New();
         }
-      newOutput->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
       newOutput->Delete();
       }
     return 1;

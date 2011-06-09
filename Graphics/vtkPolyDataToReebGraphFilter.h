@@ -42,7 +42,6 @@ public:
 
   vtkReebGraph* GetOutput();
 
-
 protected:
   vtkPolyDataToReebGraphFilter();
   ~vtkPolyDataToReebGraphFilter();

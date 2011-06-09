@@ -67,18 +67,20 @@ vtkEllipsoidTensorProbeRepresentation
   points->Delete();
 
   this->TensorGlypher = vtkTensorGlyph::New();
-  this->TensorGlypher->SetInput(this->TensorSource);
-  this->TensorGlypher->SetSource(sphere->GetOutput());
+  this->TensorGlypher->SetInputData(this->TensorSource);
+  this->TensorGlypher->SetSourceConnection(sphere->GetOutputPort());
   this->TensorGlypher->SetScaleFactor(10);
   this->TensorGlypher->ClampScalingOn();
   sphere->Delete();
 
   this->PolyDataNormals = vtkPolyDataNormals::New();
   this->PolyDataNormals->AutoOrientNormalsOn();
-  this->PolyDataNormals->SetInput(this->TensorGlypher->GetOutput());
+  this->PolyDataNormals->SetInputConnection(
+    this->TensorGlypher->GetOutputPort());
 
   this->EllipsoidMapper = vtkPolyDataMapper::New();
-  this->EllipsoidMapper->SetInput(this->PolyDataNormals->GetOutput());
+  this->EllipsoidMapper->SetInputConnection(
+    this->PolyDataNormals->GetOutputPort());
   this->EllipsoidActor = vtkActor::New();
   this->EllipsoidActor->SetMapper(this->EllipsoidMapper);
 

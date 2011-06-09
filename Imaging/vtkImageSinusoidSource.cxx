@@ -137,9 +137,10 @@ int vtkImageSinusoidSource::RequestInformation (
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
+void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output,
+                                         vtkInformation* outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
   double *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;

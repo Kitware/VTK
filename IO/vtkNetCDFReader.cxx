@@ -143,7 +143,7 @@ int vtkNetCDFReader::RequestDataObject(
   if (!output || !output->IsA("vtkImageData"))
     {
     output = vtkImageData::New();
-    output->SetPipelineInformation(outInfo);
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
     output->Delete();   // Not really deleted.
     }
 

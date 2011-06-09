@@ -388,7 +388,7 @@ int vtkFacetReader::RequestData(
     partGrid->GetCellData()->AddArray(materialArrayPtr);
     partGrid->GetCellData()->AddArray(relativePartArrayPtr);
     partGrid->GetCellData()->SetScalars(materialArrayPtr);
-    appendPtr->AddInput(partGrid);
+    appendPtr->AddInputData(partGrid);
 
     partNumberArray->Delete();
     partGrid->Delete();

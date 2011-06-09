@@ -63,15 +63,16 @@ vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
   cursor2D->Delete();
 
   this->Glypher = vtkGlyph2D::New();
-  this->Glypher->SetInput(this->FocalData);
-  this->Glypher->SetSource(this->CursorShape);
+  this->Glypher->SetInputData(this->FocalData);
+  this->Glypher->SetSourceData(this->CursorShape);
   this->Glypher->SetVectorModeToVectorRotationOff();
   this->Glypher->ScalingOn();
   this->Glypher->SetScaleModeToDataScalingOff();
   this->Glypher->SetScaleFactor(1.0);
 
   this->Mapper = vtkPolyDataMapper2D::New();
-  this->Mapper->SetInput(this->Glypher->GetOutput());
+  this->Mapper->SetInputConnection(
+    this->Glypher->GetOutputPort());
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -114,7 +115,7 @@ void vtkPointHandleRepresentation2D::SetCursorShape(vtkPolyData *shape)
       {
       this->CursorShape->Register(this);
       }
-    this->Glypher->SetSource(this->CursorShape);
+    this->Glypher->SetSourceData(this->CursorShape);
     this->Modified();
     }
 }

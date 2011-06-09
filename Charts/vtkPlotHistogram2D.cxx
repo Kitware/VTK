@@ -63,7 +63,7 @@ bool vtkPlotHistogram2D::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotHistogram2D::SetInput(vtkImageData *data, vtkIdType)
+void vtkPlotHistogram2D::SetInputData(vtkImageData *data, vtkIdType)
 {
   // FIXME: Store the z too, for slices.
   this->Input = data;

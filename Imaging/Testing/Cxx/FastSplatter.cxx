@@ -86,11 +86,11 @@ int FastSplatter(int argc, char *argv[])
   SplatPoints->SetPoints(Points);
 
   VTK_CREATE(vtkFastSplatter, splatter);
-  splatter->SetInput( SplatPoints );
+  splatter->SetInputData( SplatPoints );
   splatter->SetOutputDimensions( 2*SPLAT_IMAGE_SIZE,
                                  2*SPLAT_IMAGE_SIZE, 
                                  1 );
-  splatter->SetInput(1, SplatImage );
+  splatter->SetInputData(1, SplatImage );
 
   // The image viewers and writers are only happy with unsigned char
   // images.  This will convert the floats into that format.
@@ -98,7 +98,7 @@ int FastSplatter(int argc, char *argv[])
   resultScale->SetOutputScalarTypeToUnsignedChar();
   resultScale->SetShift(0);
   resultScale->SetScale(255);
-  resultScale->SetInput( splatter->GetOutput() );
+  resultScale->SetInputConnection( splatter->GetOutputPort() );
   
   splatter->Update();
   resultScale->Update();
@@ -108,7 +108,7 @@ int FastSplatter(int argc, char *argv[])
   // vtkImageMapper, vtkRenderer, and vtkRenderWindow.  All you need
   // to supply is the interactor and hooray, Bob's your uncle.
   VTK_CREATE(vtkImageViewer2, ImageViewer);
-  ImageViewer->SetInput( resultScale->GetOutput() );
+  ImageViewer->SetInputConnection( resultScale->GetOutputPort() );
   ImageViewer->SetColorLevel(127);
   ImageViewer->SetColorWindow(255);
 

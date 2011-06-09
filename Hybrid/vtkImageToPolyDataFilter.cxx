@@ -117,8 +117,8 @@ int vtkImageToPolyDataFilter::RequestData(
   totalPieces = numPieces[0]*numPieces[1];
 
   appendOutput->Initialize(); //empty the output
-  append->AddInput(tmpOutput); //output of piece
-  append->AddInput(tmpInput); //output of previoius append
+  append->AddInputData(tmpOutput); //output of piece
+  append->AddInputData(tmpInput); //output of previoius append
 
   // Loop over this many pieces
   for (pieceNum=j=0; j < numPieces[1] && !abortExecute; j++)

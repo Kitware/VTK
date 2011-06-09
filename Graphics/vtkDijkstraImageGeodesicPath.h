@@ -68,7 +68,7 @@ public:
   
   // Description:
   // Specify the image object which is used as a cost function.
-  void SetInput( vtkDataObject* );
+  void SetInputData( vtkDataObject* );
   vtkImageData* GetInputAsImageData();
 
   // Description:

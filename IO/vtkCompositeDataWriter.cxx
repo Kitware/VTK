@@ -181,7 +181,7 @@ bool vtkCompositeDataWriter::WriteBlock(ostream* fp, vtkDataObject* block)
   vtkGenericDataObjectWriter* writer = vtkGenericDataObjectWriter::New();
   writer->WriteToOutputStringOn();
   writer->SetFileType(this->FileType);
-  writer->SetInput(block);
+  writer->SetInputData(block);
   if (writer->Write())
     {
     fp->write(

@@ -77,19 +77,19 @@ int TestBarGraphHorizontal(int , char * [])
 
   plot = chart->AddPlot(vtkChart::BAR);
   barPlot = vtkPlotBar::SafeDownCast(plot);
-  barPlot->SetInput(table.GetPointer(), 0, 1);
+  barPlot->SetInputData(table.GetPointer(), 0, 1);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(0, 255, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
   barPlot = vtkPlotBar::SafeDownCast(plot);
-  barPlot->SetInput(table.GetPointer(), 0, 2);
+  barPlot->SetInputData(table.GetPointer(), 0, 2);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(255, 0, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
   barPlot = vtkPlotBar::SafeDownCast(plot);
-  barPlot->SetInput(table.GetPointer(), 0, 3);
+  barPlot->SetInputData(table.GetPointer(), 0, 3);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(0, 0, 255, 255);
 

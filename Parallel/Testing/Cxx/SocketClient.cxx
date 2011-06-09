@@ -207,7 +207,7 @@ int main(int argc, char** argv)
     }
 
   VTK_CREATE(vtkDataSetMapper, umapper);
-  umapper->SetInput(ugrid);
+  umapper->SetInputData(ugrid);
 
   VTK_CREATE(vtkActor, uactor);
   uactor->SetMapper(umapper);
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
   VTK_CREATE(vtkPolyDataMapper, pmapper);
   VTK_CREATE(vtkPolyData, pd);
   comm->Receive(pd, 1, 11);
-  pmapper->SetInput(pd);
+  pmapper->SetInputData(pd);
 
   VTK_CREATE(vtkActor, pactor);
   pactor->SetMapper(pmapper);
@@ -283,7 +283,7 @@ int main(int argc, char** argv)
   VTK_CREATE(vtkDataSetMapper, rgmapper);
   VTK_CREATE(vtkRectilinearGrid, rg);
   comm->Receive(rg, 1, 11);
-  rgmapper->SetInput(rg);
+  rgmapper->SetInputData(rg);
 
   VTK_CREATE(vtkActor, rgactor);
   rgactor->SetMapper(rgmapper);
@@ -293,7 +293,7 @@ int main(int argc, char** argv)
   VTK_CREATE(vtkContourFilter, iso2);
   VTK_CREATE(vtkStructuredGrid, sg);
   comm->Receive(sg, 1, 11);
-  iso2->SetInput(sg);
+  iso2->SetInputData(sg);
   iso2->SetValue(0, .205);
 
   VTK_CREATE(vtkPolyDataMapper, sgmapper);
@@ -308,7 +308,7 @@ int main(int argc, char** argv)
   comm->Receive(id, 1, 11);
 
   VTK_CREATE(vtkImageActor, imactor);
-  imactor->SetInput(id);
+  imactor->SetInputData(id);
   imactor->SetPosition(10, 0, 10);
   imactor->SetScale(0.02, 0.02, 0.02);
 

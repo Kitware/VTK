@@ -216,9 +216,17 @@ public:
     int x, int y, int z, int component, double v);
 
   // Description:
-  // Allocate the vtkScalars object associated with this object.
-  virtual void AllocateScalars();
+  // Allocate the point scalars for this dataset. The data type determines
+  // the type of the array (VTK_FLOAT, VTK_INT etc.) where as numComponents
+  // determines its number of components.
   virtual void AllocateScalars(int dataType, int numComponents);
+
+  // Description:
+  // Allocate the point scalars for this dataset. The data type and the
+  // number of components of the array is determined by the meta-data in
+  // the pipeline information. This is usually produced by a reader/filter
+  // upstream in the pipeline.
+  virtual void AllocateScalars(vtkInformation* pipeline_info);
 
   // Description:
   // This method is passed a input and output region, and executes the filter

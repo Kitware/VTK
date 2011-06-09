@@ -81,16 +81,9 @@ vtkPolyDataToImageStencil::~vtkPolyDataToImageStencil()
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::SetInput(vtkPolyData *input)
+void vtkPolyDataToImageStencil::SetInputData(vtkPolyData *input)
 {
-  if (input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------

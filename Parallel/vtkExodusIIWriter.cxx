@@ -630,7 +630,7 @@ void vtkExodusIIWriter::RemoveGhostCells()
     if (da)
       {
       vtkThreshold *t = vtkThreshold::New();
-      t->SetInput(this->FlattenedInput[i]);
+      t->SetInputData(this->FlattenedInput[i]);
       t->ThresholdByLower(0);
       t->SetInputArrayToProcess(
         0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "vtkGhostLevels");

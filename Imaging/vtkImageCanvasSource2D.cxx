@@ -167,7 +167,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
     }
 
   vtkImageClip* clip = vtkImageClip::New();
-  clip->SetInput(image);
+  clip->SetInputData(image);
 
   int *extent;
   int ext[6];
@@ -1531,7 +1531,9 @@ void vtkImageCanvasSource2D::SetExtent(int xMin, int xMax,
     {
     this->Modified();
     this->ImageData->SetExtent(this->WholeExtent);
-    this->ImageData->AllocateScalars();
+    this->ImageData->AllocateScalars(
+      this->ImageData->GetScalarType(),
+      this->ImageData->GetNumberOfScalarComponents());
     }
 }
 

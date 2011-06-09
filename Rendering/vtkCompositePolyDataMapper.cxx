@@ -95,7 +95,7 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
       newpd->ShallowCopy(pd);
       vtkPolyDataMapper *pdmapper = this->MakeAMapper();
       pdmapper->Register( this );
-      pdmapper->SetInput(newpd);
+      pdmapper->SetInputData(newpd);
       this->Internal->Mappers.push_back(pdmapper);
       newpd->Delete();
       pdmapper->Delete();
@@ -123,7 +123,7 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
         newpd->ShallowCopy(pd);
         vtkPolyDataMapper *pdmapper = this->MakeAMapper();
         pdmapper->Register(this);
-        pdmapper->SetInput(newpd);
+        pdmapper->SetInputData(newpd);
         this->Internal->Mappers.push_back(pdmapper);
         newpd->Delete();
         pdmapper->Delete();

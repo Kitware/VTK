@@ -70,18 +70,18 @@ int TestDensifyPolyData(int argc, char *argv[])
     boxPolydata->InsertNextCell(VTK_POLYGON, 3, ids ); }
 
   VTK_CREATE( vtkDensifyPolyData, densifyFilter );
-  densifyFilter->SetInput(boxPolydata);
+  densifyFilter->SetInputData(boxPolydata);
   densifyFilter->SetNumberOfSubdivisions(2);
 
   vtkXMLPolyDataWriter *writer = vtkXMLPolyDataWriter::New();
-  writer->SetInput(densifyFilter->GetOutput());
+  writer->SetInputConnection(densifyFilter->GetOutputPort());
   writer->SetFileName("tessellatedBox.vtp");
   writer->SetDataModeToAscii();
   writer->Update();
 
   VTK_CREATE( vtkSphereSource, sphere );
   VTK_CREATE( vtkDensifyPolyData, densifyFilter2 );
-  densifyFilter2->SetInput(sphere->GetOutput());
+  densifyFilter2->SetInputConnection(sphere->GetOutputPort());
   densifyFilter2->SetNumberOfSubdivisions(1);
   
   
@@ -94,7 +94,7 @@ int TestDensifyPolyData(int argc, char *argv[])
   iren->SetRenderWindow(renwin);
   
   VTK_CREATE(vtkPolyDataMapper, mapper1);
-  mapper1->SetInput(boxPolydata);
+  mapper1->SetInputData(boxPolydata);
 
   VTK_CREATE(vtkActor, actor1);
   actor1->SetMapper(mapper1);
@@ -108,7 +108,7 @@ int TestDensifyPolyData(int argc, char *argv[])
   actor1->GetProperty()->SetRepresentationToWireframe();
   
   VTK_CREATE(vtkPolyDataMapper, mapper2);
-  mapper2->SetInput(densifyFilter->GetOutput());
+  mapper2->SetInputConnection(densifyFilter->GetOutputPort());
 
   VTK_CREATE(vtkActor, actor2);
   actor2->SetMapper(mapper2);
@@ -122,7 +122,7 @@ int TestDensifyPolyData(int argc, char *argv[])
   actor2->GetProperty()->SetRepresentationToWireframe();
 
   VTK_CREATE(vtkPolyDataMapper, mapper3);
-  mapper3->SetInput(sphere->GetOutput());
+  mapper3->SetInputConnection(sphere->GetOutputPort());
 
   VTK_CREATE(vtkActor, actor3);
   actor3->SetMapper(mapper3);
@@ -136,7 +136,7 @@ int TestDensifyPolyData(int argc, char *argv[])
   actor3->GetProperty()->SetRepresentationToWireframe();
   
   VTK_CREATE(vtkPolyDataMapper, mapper4);
-  mapper4->SetInput(densifyFilter2->GetOutput());
+  mapper4->SetInputConnection(densifyFilter2->GetOutputPort());
 
   VTK_CREATE(vtkActor, actor4);
   actor4->SetMapper(mapper4);

@@ -157,7 +157,7 @@ int vtkSelectEnclosedPoints::IsSurfaceClosed(vtkPolyData *surface)
   checker->CopyStructure(surface);
   
   vtkFeatureEdges *features = vtkFeatureEdges::New();
-  features->SetInput(checker);
+  features->SetInputData(checker);
   features->BoundaryEdgesOn();
   features->NonManifoldEdgesOn();
   features->ManifoldEdgesOff();
@@ -321,9 +321,9 @@ void vtkSelectEnclosedPoints::SetSurfaceConnection(vtkAlgorithmOutput* algOutput
 
 //----------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkSelectEnclosedPoints::SetSurface(vtkPolyData *pd)
+void vtkSelectEnclosedPoints::SetSurfaceData(vtkPolyData *pd)
 {
-  this->SetInput(1, pd);
+  this->SetInputData(1, pd);
 }
 
 //----------------------------------------------------------------------------

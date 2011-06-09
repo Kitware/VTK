@@ -391,17 +391,20 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
 
   // get the mappers input and matrix
   vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
+  vtkAlgorithmOutput* dsProducer = 0;
   if (cd)
     {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
-    gf->SetInput(cd);
+    gf->SetInputConnection(anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     ds = gf->GetOutput();
     gf->Delete();
+    dsProducer = gf->GetOutputPort();
     }
   else
     {
     ds = anActor->GetMapper()->GetInput();
+    dsProducer = anActor->GetMapper()->GetInputConnection(0, 0);
     }
 
   if (!ds)
@@ -413,7 +416,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
     vtkSmartPointer<vtkGeometryFilter> gf = vtkSmartPointer<vtkGeometryFilter>::New();
-    gf->SetInput(ds);
+    gf->SetInputConnection(dsProducer);
     gf->Update();
     pd = gf->GetOutput();
     }

@@ -464,9 +464,9 @@ void vtkTensorGlyph::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
 }
 
 //----------------------------------------------------------------------------
-void vtkTensorGlyph::SetSource(vtkPolyData *source)
+void vtkTensorGlyph::SetSourceData(vtkPolyData *source)
 {
-  this->SetInput(1, source);
+  this->SetInputData(1, source);
 }
 
 //----------------------------------------------------------------------------

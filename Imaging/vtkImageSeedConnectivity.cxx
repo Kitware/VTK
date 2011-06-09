@@ -138,7 +138,7 @@ int vtkImageSeedConnectivity::RequestData(
 
   outData->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  outData->AllocateScalars();
+  outData->AllocateScalars(outInfo);
 
   if (inData->GetScalarType() != VTK_UNSIGNED_CHAR ||
       outData->GetScalarType() != VTK_UNSIGNED_CHAR)

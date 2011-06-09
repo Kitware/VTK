@@ -122,9 +122,9 @@ vtkStreamer::~vtkStreamer()
   this->SetIntegrator(0);
 }
 
-void vtkStreamer::SetSource(vtkDataSet *source)
+void vtkStreamer::SetSourceData(vtkDataSet *source)
 {
-  this->SetInput(1, source);
+  this->SetInputData(1, source);
 }
 
 vtkDataSet *vtkStreamer::GetSource()

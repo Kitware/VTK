@@ -50,7 +50,7 @@ public:
   // Set/Get the image data input for the image actor.  This is for
   // backwards compatibility, for a proper pipeline connection you
   // should use GetMapper()->SetInputConnection() instead.
-  virtual void SetInput(vtkImageData *);
+  virtual void SetInputData(vtkImageData *);
   virtual vtkImageData *GetInput();
 
   // Description:

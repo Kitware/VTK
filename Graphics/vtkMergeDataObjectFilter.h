@@ -49,7 +49,7 @@ public:
 
   // Description:
   // Specify the data object to merge with the input dataset.
-  void SetDataObject(vtkDataObject *object);
+  void SetDataObjectInputData(vtkDataObject *object);
   vtkDataObject *GetDataObject();
 
   // Description:

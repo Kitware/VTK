@@ -146,7 +146,7 @@ int vtkSelectPolyData::RequestData(
   // Okay, now we build unstructured representation. Make sure we're
   // working with triangles.
   vtkTriangleFilter *tf=vtkTriangleFilter::New();
-  tf->SetInput(input);
+  tf->SetInputData(input);
   tf->PassLinesOff();
   tf->PassVertsOff();
   tf->Update();

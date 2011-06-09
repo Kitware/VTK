@@ -131,7 +131,7 @@ int vtkExtractSelectedGraph::RequestDataObject(
         {
         output = input->NewInstance();
         }
-      output->SetPipelineInformation(info);
+      info->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
     return 1;

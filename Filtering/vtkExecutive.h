@@ -132,7 +132,9 @@ public:
 
   // Description:
   // Get the output port that produces the given data object.
-  virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
+  // Works only if the data was producer by this executive's
+  // algorithm.
+  // virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
 
   // Description:
   // Set a pointer to an outside instance of input or output

@@ -140,15 +140,15 @@ int vtkRemoveHiddenData::RequestData(
 
   if (graph)
     {
-    this->ExtractGraph->SetInput(input);
-    this->ExtractGraph->SetInput(1, selection);
+    this->ExtractGraph->SetInputData(input);
+    this->ExtractGraph->SetInputData(1, selection);
     this->ExtractGraph->Update();
     output->ShallowCopy(this->ExtractGraph->GetOutput());
     }
   else if (table)
     {
-    this->ExtractTable->SetInput(input);
-    this->ExtractTable->SetInput(1, selection);
+    this->ExtractTable->SetInputData(input);
+    this->ExtractTable->SetInputData(1, selection);
     this->ExtractTable->Update();
     output->ShallowCopy(this->ExtractTable->GetOutput());
     }

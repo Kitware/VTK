@@ -216,21 +216,7 @@ int vtkDataSetReader::RequestData(
       preader->SetReadAllTCoords(this->GetReadAllTCoords());
       preader->SetReadAllFields(this->GetReadAllFields());
       preader->Update();
-      // Can we use the old output?
-      if(!(output && strcmp(output->GetClassName(), "vtkStructuredPoints") == 0))
-        {
-        // Hack to make sure that the object is not modified
-        // with SetNthOutput. Otherwise, extra executions occur.
-        vtkTimeStamp ts = this->MTime;
-        output = vtkStructuredPoints::New();
-        this->GetExecutive()->SetOutputData(0, output);
-        output->Delete();
-        this->MTime = ts;
-        }
       output->ShallowCopy(preader->GetOutput());
-      output->GetPipelineInformation()->CopyEntry(
-        preader->GetOutput()->GetPipelineInformation(),
-        vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
       preader->Delete();
       return 1;
       }

@@ -57,12 +57,18 @@ public:
     }
 
   // Description:
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(vtkDataObject *);
+
+  // Description:
   // Specify a source object at a specified table location.
-  void SetSource(int idx, vtkPolyData *pd);
+  void SetSourceData(int idx, vtkPolyData *pd);
 
   // Description:
   // Set the source to use for he glyph. Old style. See SetSourceConnection.
-  void SetSource(vtkPolyData *pd);
+  void SetSourceData(vtkPolyData *pd);
 
   // Description:
   // Get a pointer to a source object at a specified table location.

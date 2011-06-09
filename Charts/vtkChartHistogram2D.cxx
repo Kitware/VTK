@@ -55,9 +55,9 @@ void vtkChartHistogram2D::Update()
   this->vtkChartXY::Update();
 }
 
-void vtkChartHistogram2D::SetInput(vtkImageData *data, vtkIdType z)
+void vtkChartHistogram2D::SetInputData(vtkImageData *data, vtkIdType z)
 {
-  this->Histogram->SetInput(data, z);
+  this->Histogram->SetInputData(data, z);
 }
 
 void vtkChartHistogram2D::SetTransferFunction(vtkScalarsToColors *function)

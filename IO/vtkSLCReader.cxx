@@ -144,14 +144,10 @@ int vtkSLCReader::RequestInformation (
 }
           
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
-void vtkSLCReader::ExecuteData(vtkDataObject* )
+void vtkSLCReader::ExecuteData(vtkDataObject *output_do,
+                               vtkInformation *outInfo)
 { 
-  vtkImageData *output = this->GetOutput();
-  
-  output->SetExtent(
-    vtkStreamingDemandDrivenPipeline::GetWholeExtent(
-      this->GetOutputInformation(0)));
-  output->AllocateScalars();
+  vtkImageData *output = this->AllocateOutputData(output_do, outInfo);
 
   if (!output->GetPointData()->GetScalars())
     {

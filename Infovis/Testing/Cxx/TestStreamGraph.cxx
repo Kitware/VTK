@@ -22,7 +22,7 @@ int TestStreamGraph(int, char*[])
   table->AddColumn(tgt);
   table->AddColumn(time);
   vtkSmartPointer<vtkTableToGraph> t2g = vtkSmartPointer<vtkTableToGraph>::New();
-  t2g->SetInput(table);
+  t2g->SetInputData(table);
   t2g->AddLinkVertex("source");
   t2g->AddLinkVertex("target");
   t2g->AddLinkEdge("source", "target");

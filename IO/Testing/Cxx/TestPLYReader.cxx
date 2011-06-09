@@ -43,7 +43,7 @@ int TestPLYReader( int argc, char *argv[] )
   
   // Create a mapper.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(reader->GetOutput());
+  mapper->SetInputConnection(reader->GetOutputPort());
   mapper->ScalarVisibilityOn();
   
   // Create the actor.

@@ -113,7 +113,7 @@ int vtkPolyDataStreamer::RequestData(
                 outNumPieces *this->NumberOfStreamDivisions);
     copy = vtkPolyData::New();
     copy->ShallowCopy(input);
-    append->AddInput(copy);
+    append->AddInputData(copy);
     copy->Delete();
     if (pieceColors)
       {

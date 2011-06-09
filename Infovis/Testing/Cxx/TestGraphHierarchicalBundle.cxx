@@ -317,11 +317,11 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   treeStrategy->SetLeafSpacing(leafSpacing);
 
   VTK_CREATE(vtkGraphLayout, treeLayout);
-  treeLayout->SetInput(realTree);
+  treeLayout->SetInputData(realTree);
   treeLayout->SetLayoutStrategy(treeStrategy);
 
   VTK_CREATE(vtkGraphHierarchicalBundle, bundle);
-  bundle->SetInput(0, graph);
+  bundle->SetInputData(0, graph);
   bundle->SetInputConnection(1, treeLayout->GetOutputPort(0));
   bundle->SetBundlingStrength(bundlingStrength);
   bundle->SetDirectMapping(true);

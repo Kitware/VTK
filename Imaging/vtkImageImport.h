@@ -275,7 +275,7 @@ protected:
   BufferPointerCallbackType         BufferPointerCallback;
   //ETX
   
-  virtual void ExecuteData(vtkDataObject *d);
+  virtual void ExecuteData(vtkDataObject *d, vtkInformation* outInfo);
 
 private:
   vtkImageImport(const vtkImageImport&);  // Not implemented.

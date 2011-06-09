@@ -85,7 +85,7 @@ public:
   // Description:
   // Specify the second input (the terrain) onto which the polyline(s) should
   // be projected.
-  void SetSource(vtkImageData *source);
+  void SetSourceData(vtkImageData *source);
   vtkImageData *GetSource();
 
 //BTX

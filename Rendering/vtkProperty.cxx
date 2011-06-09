@@ -904,7 +904,7 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     {
     reader->SetFileName(filename);
     vtkTexture* t = vtkTexture::New();
-    t->SetInput(reader->GetOutput());
+    t->SetInputConnection(reader->GetOutputPort());
     t->InterpolateOn();
     this->SetTexture(name, t);
     t->Delete();

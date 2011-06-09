@@ -154,7 +154,7 @@ int TestMeanValueCoordinatesInterpolation1( int argc, char *argv[] )
   
   vtkSmartPointer<vtkClipPolyData> clip1 = 
     vtkSmartPointer<vtkClipPolyData>::New();
-  clip1->SetInput(spherePoly);
+  clip1->SetInputData(spherePoly);
   clip1->SetClipFunction(plane1);
   
   vtkSmartPointer<vtkPolyDataMapper> sphereMapper1 = 

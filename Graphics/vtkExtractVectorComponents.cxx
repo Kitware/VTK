@@ -65,14 +65,14 @@ vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 }
 
 // Specify the input data or filter.
-void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
+void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
 {
   if (this->GetNumberOfInputConnections(0) > 0 && this->GetInput(0) == input )
     {
     return;
     }
 
-  this->Superclass::SetInput(0, input);
+  this->Superclass::SetInputData(0, input);
 
   if ( input == NULL )
     {

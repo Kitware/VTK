@@ -93,9 +93,10 @@ int vtkImageNoiseSource::RequestInformation (
   return 1;
 }
 
-void vtkImageNoiseSource::ExecuteData(vtkDataObject *output)
+void vtkImageNoiseSource::ExecuteData(vtkDataObject *output,
+                                      vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
   
   if (data->GetScalarType() != VTK_DOUBLE)
     {

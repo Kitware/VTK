@@ -40,9 +40,9 @@ vtkBlankStructuredGridWithImage::~vtkBlankStructuredGridWithImage()
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkBlankStructuredGridWithImage::SetBlankingInput(vtkImageData *input)
+void vtkBlankStructuredGridWithImage::SetBlankingInputData(vtkImageData *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------

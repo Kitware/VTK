@@ -70,7 +70,7 @@ vtkParallelCoordinatesView::vtkParallelCoordinatesView()
   
   vtkSmartPointer<vtkCoordinate> dummycoord = vtkSmartPointer<vtkCoordinate>::New();
   dummycoord->SetCoordinateSystemToNormalizedViewport();
-  this->BrushMapper->SetInput(this->BrushData);
+  this->BrushMapper->SetInputData(this->BrushData);
   this->BrushMapper->SetTransformCoordinate(dummycoord);
   this->BrushActor->SetMapper(this->BrushMapper);
   this->BrushActor->GetProperty()->SetColor(.1,1.0,1.0);

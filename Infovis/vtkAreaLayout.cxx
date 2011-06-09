@@ -113,7 +113,7 @@ int vtkAreaLayout::RequestData(
     vtkSmartPointer<vtkTree> t =
       vtkSmartPointer<vtkTree>::New();
     t->ShallowCopy(outputTree);
-    agg->SetInput(t);
+    agg->SetInputData(t);
     agg->SetField("size");
     agg->SetLeafVertexUnitSize(true);
     agg->Update();

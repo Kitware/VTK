@@ -152,15 +152,14 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
     if (this->Output->IsA("vtkImageData"))
       {
       vtkImageData* img = static_cast<vtkImageData*>(this->Output);
-      vtkInformation* pinfo = img->GetPipelineInformation();
 
       double spacing[3];
       img->GetSpacing(spacing);
-      pinfo->Set(vtkDataObject::SPACING(), spacing[0], spacing[1], spacing[2]);
+      outputInfo->Set(vtkDataObject::SPACING(), spacing[0], spacing[1], spacing[2]);
 
       double origin[3];
       img->GetOrigin(origin);
-      pinfo->Set(vtkDataObject::ORIGIN(), origin[0], origin[1], origin[2]);
+      outputInfo->Set(vtkDataObject::ORIGIN(), origin[0], origin[1], origin[2]);
       }
     }
 #if VTK_TRIVIAL_PRODUCER_CHECK_UPDATE_EXTENT

@@ -23,7 +23,6 @@
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkTrivialProducer.h"
 
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 //----------------------------------------------------------------------------
@@ -36,27 +35,6 @@ vtkCompositeDataSet::vtkCompositeDataSet()
 vtkCompositeDataSet::~vtkCompositeDataSet()
 {
   delete this->Internals;
-}
-
-//----------------------------------------------------------------------------
-vtkAlgorithmOutput* vtkCompositeDataSet::GetProducerPort()
-{  
-  // Make sure there is an executive.
-  if(!this->GetExecutive())
-    {
-    vtkTrivialProducer* tp = vtkTrivialProducer::New();
-    vtkCompositeDataPipeline* exec = vtkCompositeDataPipeline::New();
-    tp->SetExecutive(exec);
-    vtkInformation* portInfo = 
-      tp->GetOutputPortInformation(0);
-    portInfo->Set(vtkDataObject::DATA_TYPE_NAME(), this->GetClassName());
-    exec->Delete();
-    tp->SetOutput(this);
-    tp->Delete();
-    }
-
-  // Get the port from the executive.
-  return this->GetExecutive()->GetProducerPort(this);
 }
 
 //----------------------------------------------------------------------------

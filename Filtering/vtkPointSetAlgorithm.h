@@ -64,27 +64,22 @@ public:
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
 
   // Description:
-  // Set an input of this algorithm. You should not override these
-  // methods because they are not the only way to connect a pipeline.
-  // Note that these methods support old-style pipeline connections.
-  // When writing new code you should use the more general
-  // vtkAlgorithm::SetInputConnection().  These methods transform the
-  // input index to the input port index, not an index of a connection
-  // within a single port.
-  void SetInput(vtkDataObject*);
-  void SetInput(int, vtkDataObject*);
-  void SetInput(vtkPointSet*);
-  void SetInput(int, vtkPointSet*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(vtkDataObject*);
+  void SetInputData(int, vtkDataObject*);
+  void SetInputData(vtkPointSet*);
+  void SetInputData(int, vtkPointSet*);
 
   // Description:
-  // Add an input of this algorithm.  Note that these methods support
-  // old-style pipeline connections.  When writing new code you should
-  // use the more general vtkAlgorithm::AddInputConnection().  See
-  // SetInput() for details.
-  void AddInput(vtkDataObject *);
-  void AddInput(vtkPointSet*);
-  void AddInput(int, vtkPointSet*);
-  void AddInput(int, vtkDataObject*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use AddInputConnection() to
+  // setup a pipeline connection.
+  void AddInputData(vtkDataObject *);
+  void AddInputData(vtkPointSet*);
+  void AddInputData(int, vtkPointSet*);
+  void AddInputData(int, vtkDataObject*);
 
   // this method is not recommended for use, but lots of old style filters
   // use it

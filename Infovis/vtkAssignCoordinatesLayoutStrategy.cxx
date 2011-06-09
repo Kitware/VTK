@@ -76,7 +76,7 @@ const char* vtkAssignCoordinatesLayoutStrategy::GetZCoordArrayName()
 
 void vtkAssignCoordinatesLayoutStrategy::Layout()
 {
-  this->AssignCoordinates->SetInput(this->Graph);
+  this->AssignCoordinates->SetInputData(this->Graph);
   this->AssignCoordinates->Update();
   this->Graph->ShallowCopy(this->AssignCoordinates->GetOutput());
 }

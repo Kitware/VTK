@@ -514,11 +514,12 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkBMPReader::ExecuteData(vtkDataObject *output)
+void vtkBMPReader::ExecuteData(vtkDataObject *output,
+                               vtkInformation* outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
-  if (this->UpdateExtentIsEmpty(output))
+  if (this->UpdateExtentIsEmpty(outInfo, output))
     {
     return;
     }

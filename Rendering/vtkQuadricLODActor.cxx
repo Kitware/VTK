@@ -266,7 +266,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     
     vtkDebugMacro("QC bin size: " << dim);
     this->LODFilter->AutoAdjustNumberOfDivisionsOff();
-    this->LODFilter->SetInput(pd);
+    this->LODFilter->SetInputConnection(this->Mapper->GetInputConnection(0, 0));
     this->LODFilter->Update();
     nCells = this->GetDisplayListSize(this->LODFilter->GetOutput());
     this->LODMapper->SetInputConnection(this->LODFilter->GetOutputPort());

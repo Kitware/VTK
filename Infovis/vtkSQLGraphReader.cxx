@@ -139,7 +139,6 @@ int vtkSQLGraphReader::RequestData(
   vtkSmartPointer<vtkRowQueryToTable> edgeReader = vtkSmartPointer<vtkRowQueryToTable>::New();
   edgeReader->SetQuery(this->EdgeQuery);
   edgeReader->Update();
-  vtkTable* edgeTable = edgeReader->GetOutput();
   
   const char* domain = "default";
   if (this->VertexIdField)
@@ -147,7 +146,7 @@ int vtkSQLGraphReader::RequestData(
     domain = this->VertexIdField;
     }
   
-  filter->SetInput(0, edgeTable);
+  filter->SetInputConnection(edgeReader->GetOutputPort());
   filter->AddLinkVertex(this->SourceField, domain);
   filter->AddLinkVertex(this->TargetField, domain);
   filter->AddLinkEdge(this->SourceField, this->TargetField);
@@ -161,8 +160,7 @@ int vtkSQLGraphReader::RequestData(
     vtkSmartPointer<vtkRowQueryToTable> vertexReader = vtkSmartPointer<vtkRowQueryToTable>::New();
     vertexReader->SetQuery(this->VertexQuery);
     vertexReader->Update();
-    vtkTable* vertexTable = vertexReader->GetOutput();
-    filter->SetInput(1, vertexTable);
+    filter->SetInputConnection(1, vertexReader->GetOutputPort());
     if (this->XField != NULL)
       {
       assign->SetXCoordArrayName(this->XField);

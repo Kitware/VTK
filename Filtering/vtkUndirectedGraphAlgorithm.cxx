@@ -25,7 +25,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkUndirectedGraph.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkUndirectedGraphAlgorithm);
 
@@ -98,17 +97,9 @@ vtkUndirectedGraph* vtkUndirectedGraphAlgorithm::GetOutput(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkUndirectedGraphAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkUndirectedGraphAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if (input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------

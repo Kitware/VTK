@@ -20,6 +20,7 @@
 
 #include "vtkDataRepresentation.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLayers.h"
 #include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
@@ -34,6 +35,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTrivialProducer.h"
 
 #include <vtkstd/map>
 
@@ -45,11 +47,11 @@ class vtkDataRepresentation::Internals {
 public:
 
   // This is a cache of shallow copies of inputs provided for convenience.
-  // It is a map from (port index, connection index) to (original input data object, shallow copy).
-  // NOTE: The original input data object pointer is not reference counted, so it should
+  // It is a map from (port index, connection index) to (original input data port, shallow copy port).
+  // NOTE: The original input data port pointer is not reference counted, so it should
   // not be assumed to be a valid pointer. It is only used for pointer comparison.
   vtkstd::map<vtkstd::pair<int, int>,
-              vtkstd::pair<vtkDataObject*, vtkSmartPointer<vtkDataObject> > >
+              vtkstd::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkAlgorithmOutput> > >
     InputInternal;
 
   // This is a cache of vtkConvertSelectionDomain filters provided for convenience.
@@ -164,19 +166,24 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
   // changed, or the shallow copy modified time is less than the
   // input modified time.
   vtkstd::pair<int, int> p(port, conn);
-  vtkDataObject* input = this->GetInputDataObject(port, conn);
+  vtkAlgorithmOutput* input = this->GetInputConnection(port, conn);
   if (this->Implementation->InputInternal.find(p) ==
     this->Implementation->InputInternal.end() ||
     this->Implementation->InputInternal[p].first != input ||
     this->Implementation->InputInternal[p].second->GetMTime() < input->GetMTime())
     {
     this->Implementation->InputInternal[p].first = input;
-    this->Implementation->InputInternal[p].second.TakeReference(
-      input->NewInstance());
-    this->Implementation->InputInternal[p].second->ShallowCopy(input);
+    vtkDataObject* input = this->GetInputDataObject(port, conn);
+    vtkDataObject* copy = input->NewInstance();
+    copy->ShallowCopy(input);
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(copy);
+    this->Implementation->InputInternal[p].second =
+      tp->GetOutputPort();
+    tp->Delete();
     }
 
-  return this->Implementation->InputInternal[p].second->GetProducerPort();
+  return this->Implementation->InputInternal[p].second;
 }
 
 //----------------------------------------------------------------------------

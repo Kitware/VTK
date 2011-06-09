@@ -119,7 +119,7 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     // Set a second input which is a selection. Particles with the same
     // Id in the selection as the primary input will be chosen for pathlines
     // Note that you must have the same IdChannelArray in the selection as the input
-    void SetSelection(vtkDataSet *input);
+    void SetSelectionData(vtkDataSet *input);
 
   protected:
      vtkTemporalPathLineFilter();

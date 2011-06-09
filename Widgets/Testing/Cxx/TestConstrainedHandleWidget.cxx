@@ -28,6 +28,7 @@
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkVolume16Reader.h"
 #include "vtkImageShiftScale.h"
 #include "vtkTestUtilities.h"
@@ -66,7 +67,7 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   
   vtkSmartPointer<vtkImageActor> imageActor =
     vtkSmartPointer<vtkImageActor>::New();
-  imageActor->SetInput(shifter->GetOutput());
+  imageActor->GetMapper()->SetInputConnection(shifter->GetOutputPort());
   imageActor->VisibilityOn();
 //  imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
   imageActor->SetDisplayExtent(0, 63, 30, 30, 0, 92);

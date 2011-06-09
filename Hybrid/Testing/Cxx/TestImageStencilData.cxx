@@ -54,7 +54,7 @@ CreateBoxStencilData(double d1, double d2 )
 
   // Extrude the contour along the normal to the plane the contour lies on.
   vtkLinearExtrusionFilter *extrudeFilter = vtkLinearExtrusionFilter::New();
-  extrudeFilter->SetInput( pd );
+  extrudeFilter->SetInputData( pd );
   extrudeFilter->SetScaleFactor(1);
   extrudeFilter->SetExtrusionTypeToNormalExtrusion();
   extrudeFilter->SetVector( 0, 0, 1);
@@ -67,7 +67,7 @@ CreateBoxStencilData(double d1, double d2 )
   vtkMatrixToLinearTransform *linearTransform = vtkMatrixToLinearTransform::New();
   linearTransform->GetMatrix()->DeepCopy( m );
   vtkTransformPolyDataFilter *transformPolyData = vtkTransformPolyDataFilter::New();
-  transformPolyData->SetInput( extrudeFilter->GetOutput() );
+  transformPolyData->SetInputConnection( extrudeFilter->GetOutputPort() );
   transformPolyData->SetTransform( linearTransform );
   transformPolyData->Update();
   linearTransform->Delete();
@@ -76,7 +76,7 @@ CreateBoxStencilData(double d1, double d2 )
   // bounded by the extrusion) and get extents into a stencil
   vtkPolyDataToImageStencil *contourStencilFilter 
                             = vtkPolyDataToImageStencil::New();
-  contourStencilFilter->SetInput( transformPolyData->GetOutput() );
+  contourStencilFilter->SetInputConnection( transformPolyData->GetOutputPort() );
 
   vtkImageData *image = vtkImageData::New();
   image->SetSpacing( 1.0, 1.0, 1.0  );
@@ -86,8 +86,8 @@ CreateBoxStencilData(double d1, double d2 )
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   vtkImageStencil *stencil = vtkImageStencil::New();
-  stencil->SetInput( image );
-  stencil->SetStencil( contourStencilFilter->GetOutput() );
+  stencil->SetInputData( image );
+  stencil->SetStencilConnection( contourStencilFilter->GetOutputPort() );
   stencil->SetBackgroundValue(0);
   stencil->Update();
   vtkSmartPointer< vtkImageStencilData > 

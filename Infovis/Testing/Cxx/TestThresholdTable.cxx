@@ -60,7 +60,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   
   // Use the ThresholdTable
   VTK_CREATE(vtkThresholdTable, threshold);
-  threshold->SetInput(table);
+  threshold->SetInputData(table);
   
   int errors = 0;
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "intArr");

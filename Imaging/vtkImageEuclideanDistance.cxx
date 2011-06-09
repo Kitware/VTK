@@ -556,10 +556,11 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(
 }
 //----------------------------------------------------------------------------
 void vtkImageEuclideanDistance::AllocateOutputScalars(vtkImageData *outData,
-                                                      int outExt[6])
+                                                      int outExt[6],
+                                                      vtkInformation* outInfo)
 {
   outData->SetExtent(outExt);
-  outData->AllocateScalars();
+  outData->AllocateScalars(outInfo);
 }
 
 //----------------------------------------------------------------------------
@@ -579,7 +580,7 @@ int vtkImageEuclideanDistance::IterativeRequestData(
 
   int outExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outExt);
-  this->AllocateOutputScalars(outData, outExt);
+  this->AllocateOutputScalars(outData, outExt, outInfo);
   
   void *inPtr;
   void *outPtr;

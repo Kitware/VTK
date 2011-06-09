@@ -72,7 +72,7 @@ vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
   sphere->SetThetaResolution(6); 
   sphere->SetPhiResolution(6);
   vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-  sphereMapper->SetInput(sphere->GetOutput());
+  sphereMapper->SetInputConnection(sphere->GetOutputPort());
   sphere->Delete();
   
   // XXX - would like to make the focus sphere not be affected by

@@ -119,7 +119,8 @@ int vtkRTAnalyticSource::RequestInformation(
   return 1;
 }
 
-void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
+void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output,
+                                      vtkInformation *outInfo)
 {
   vtkImageData *data;
   float *outPtr;
@@ -134,7 +135,7 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
   unsigned long count = 0;
   unsigned long target;
 
-  data = this->AllocateOutputData(output);
+  data = this->AllocateOutputData(output, outInfo);
   if (data->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs floats");

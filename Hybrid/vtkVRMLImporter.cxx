@@ -5652,7 +5652,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     {
     pmap = vtkPolyDataMapper::New();
     vtkCubeSource *cube= vtkCubeSource::New();
-    pmap->SetInput(cube->GetOutput());
+    pmap->SetInputConnection(cube->GetOutputPort());
     this->CurrentActor->SetMapper(pmap);
     pmap->Delete();
     if (this->CurrentProperty)
@@ -5675,7 +5675,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     pmap = vtkPolyDataMapper::New();
     vtkConeSource *cone= vtkConeSource::New();
     cone->SetResolution(12);
-    pmap->SetInput(cone->GetOutput());
+    pmap->SetInputConnection(cone->GetOutputPort());
     this->CurrentActor->SetMapper(pmap);
     pmap->Delete();
     if (this->CurrentProperty)
@@ -5698,7 +5698,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     pmap = vtkPolyDataMapper::New();
     vtkCylinderSource *cyl= vtkCylinderSource::New();
     cyl->SetResolution(12);
-    pmap->SetInput(cyl->GetOutput());
+    pmap->SetInputConnection(cyl->GetOutputPort());
     this->CurrentActor->SetMapper(pmap);
     pmap->Delete();
     if (this->CurrentProperty)
@@ -5786,7 +5786,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     {
     pmap = vtkPolyDataMapper::New();
     vtkSphereSource *sphere = vtkSphereSource::New();
-    pmap->SetInput(sphere->GetOutput());
+    pmap->SetInputConnection(sphere->GetOutputPort());
     if (this->CurrentSource)
       {
       this->CurrentSource->Delete();
@@ -6257,7 +6257,7 @@ vtkVRMLImporter::exitField()
       pd->SetLines(cells);
       }
     
-    this->CurrentMapper->SetInput(pd);
+    this->CurrentMapper->SetInputData(pd);
     pd->Delete();
     cells->Delete();
     yylval.mfint32->Reset();this->DeleteObject(yylval.mfint32);
@@ -6322,7 +6322,7 @@ vtkVRMLImporter::exitField()
 
       pd->SetVerts(cells);
     
-      this->CurrentMapper->SetInput(pd);
+      this->CurrentMapper->SetInputData(pd);
       pd->Delete();
       cells->Delete();
       }

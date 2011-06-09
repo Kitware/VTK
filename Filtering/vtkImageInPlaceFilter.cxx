@@ -73,7 +73,7 @@ int vtkImageInPlaceFilter::RequestData(
   else
     {
     output->SetExtent(outExt);
-    output->AllocateScalars();
+    output->AllocateScalars(outInfo);
     this->CopyData(input,output,outExt);
     }
 

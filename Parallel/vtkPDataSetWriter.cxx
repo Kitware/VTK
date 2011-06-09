@@ -254,7 +254,7 @@ int vtkPDataSetWriter::Write()
     // in ParaViews release.
     copy->Crop(vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
                  this->GetInputInformation()));
-    writer->SetInput(vtkDataSet::SafeDownCast(copy));
+    writer->SetInputData(vtkDataSet::SafeDownCast(copy));
     writer->Write();
     copy->Delete();
     copy = NULL;

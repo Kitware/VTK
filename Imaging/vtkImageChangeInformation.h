@@ -35,7 +35,7 @@ public:
   // Description:
   // Copy the information from another data set.  By default,
   // the information is copied from the input.
-  virtual void SetInformationInput(vtkImageData*);
+  virtual void SetInformationInputData(vtkImageData*);
   virtual vtkImageData *GetInformationInput();
 
   // Description:

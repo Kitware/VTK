@@ -131,7 +131,7 @@ int vtkVoxelModeller::RequestData(
   // the superclasses "Execute()" method.
   output->SetExtent(outInfo->Get(
                       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
 
   vtkIdType cellNum, i;
   int j, k;

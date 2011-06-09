@@ -397,7 +397,7 @@ int vtkPStreamTracer::RequestData(
     vtkPolyData* inp = it->GetPointer();
     if ( inp->GetNumberOfCells() > 0 )
       {
-      append->AddInput(inp);
+      append->AddInputData(inp);
       }
     }
   if (append->GetNumberOfInputConnections(0) > 0)

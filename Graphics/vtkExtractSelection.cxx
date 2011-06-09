@@ -33,6 +33,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
+#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkExtractSelection);
 
@@ -213,8 +214,7 @@ int vtkExtractSelection::RequestDataObject(
     vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
     if (!output)
       {
-      output = vtkMultiBlockDataSet::New();
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
     return 1;
@@ -375,7 +375,11 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
   vtkSmartPointer<vtkSelection> tempSel =
     vtkSmartPointer<vtkSelection>::New();
   tempSel->AddNode(sel);
-  subFilter->SetInputConnection(1, tempSel->GetProducerPort());
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(tempSel);
+  subFilter->SetInputConnection(1, tp->GetOutputPort());
+  tp->Delete();
+  tp = 0;
 
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(
@@ -411,7 +415,10 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
 
   vtkDataObject* inputCopy = input->NewInstance();
   inputCopy->ShallowCopy(input);
-  subFilter->SetInputConnection(0, inputCopy->GetProducerPort());
+  tp = vtkTrivialProducer::New();
+  tp->SetOutput(inputCopy);
+  subFilter->SetInputConnection(0, tp->GetOutputPort());
+  tp->Delete();
 
   subFilter->Update();
 

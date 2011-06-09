@@ -172,7 +172,7 @@ int TestBSPTree(int argc, char* argv[])
     // Render Intersection points
     //
     vtkSmartPointer<vtkGlyph3D> iglyph = vtkSmartPointer<vtkGlyph3D>::New();
-    iglyph->SetInput(0,intersections);
+    iglyph->SetInputData(0,intersections);
     iglyph->SetSourceConnection(sphere->GetOutputPort(0));
     iglyph->SetScaling(1);
     iglyph->SetScaleFactor(0.05);

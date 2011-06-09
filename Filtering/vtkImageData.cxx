@@ -97,22 +97,6 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
     this->Origin[i] = sPts->Origin[i];
     }
   this->SetExtent(sPts->GetExtent());
-
-  vtkInformation* thisPInfo = this->GetPipelineInformation();
-  vtkInformation* thatPInfo = ds->GetPipelineInformation();
-  if(thisPInfo && thatPInfo)
-    {
-    // copy point data.
-    if (thatPInfo->Has(POINT_DATA_VECTOR()))
-      {
-      thisPInfo->CopyEntry(thatPInfo, POINT_DATA_VECTOR());
-      }
-    // copy cell data.
-    if (thatPInfo->Has(CELL_DATA_VECTOR()))
-      {
-      thisPInfo->CopyEntry(thatPInfo, CELL_DATA_VECTOR());
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -1385,7 +1369,8 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
   if (scalars == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
-    this->AllocateScalars();
+    abort();
+    //this->AllocateScalars();
     scalars = this->PointData->GetScalars();
     }
 
@@ -1423,7 +1408,8 @@ void *vtkImageData::GetScalarPointer()
   if (this->PointData->GetScalars() == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
-    this->AllocateScalars();
+    abort();
+    //this->AllocateScalars();
     }
   return this->PointData->GetScalars()->GetVoidPointer(0);
 }
@@ -1475,16 +1461,15 @@ int vtkImageData::GetScalarType(vtkInformation* meta_data)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::AllocateScalars()
+void vtkImageData::AllocateScalars(vtkInformation* pipeline_info)
 {
   int newType = VTK_DOUBLE;
   int newNumComp = 1;
 
-  // basically allocate the scalars based on the
-  this->GetProducerPort();
-  if(vtkInformation* info = this->GetPipelineInformation())
+  if(pipeline_info)
     {
-    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info,
+    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
+      pipeline_info,
       FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (scalarInfo)
       {

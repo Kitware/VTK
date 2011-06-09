@@ -149,10 +149,10 @@ int main( int argc, char *argv[] )
       cells->InsertNextCell(aPnts, cdata);
       data->SetVerts(cells);
       data->SetPoints(pnts);
-      tfilter->SetInput(cube);
+      tfilter->SetInputData(cube);
       stripper->SetInputConnection(tfilter->GetOutputPort());
-      filter->SetSource(stripper->GetOutput());
-      filter->SetInput(data);
+      filter->SetSourceConnection(stripper->GetOutputPort());
+      filter->SetInputData(data);
       mapper->SetInputConnection(filter->GetOutputPort());
       actor->SetMapper(mapper);
       ren1->AddActor(actor);

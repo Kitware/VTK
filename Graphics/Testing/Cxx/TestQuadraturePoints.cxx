@@ -107,7 +107,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   // them on the fly.
   vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator> dictGen =
     vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator>::New();
-  dictGen->SetInput(input);
+  dictGen->SetInputData(input);
 
   // Interpolate fields to the quadrature points. This generates new field data
   // arrays, but not a set of points.
@@ -134,7 +134,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   input->GetPointData()->SetActiveScalars(threshName.c_str());
  // Demonstrate warp by vector.
   vtkSmartPointer<vtkWarpVector> warper = vtkSmartPointer<vtkWarpVector>::New();
-  warper->SetInput(input);
+  warper->SetInputData(input);
   warper->SetScaleFactor(0.02);
 
   // Demonstrate clip functionality.
@@ -163,8 +163,8 @@ int TestQuadraturePoints(int argc,char *argv[])
   vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
   ss->SetRadius(0.0008);
   vtkSmartPointer<vtkGlyph3D> glyphs = vtkSmartPointer<vtkGlyph3D>::New();
-  glyphs->SetInput(output);
-  glyphs->SetSource(ss->GetOutput());
+  glyphs->SetInputConnection(pointGen->GetOutputPort());
+  glyphs->SetSourceConnection(ss->GetOutputPort());
   glyphs->ScalingOff();
   glyphs->SetColorModeToColorByScalar();
   // Map the glyphs.

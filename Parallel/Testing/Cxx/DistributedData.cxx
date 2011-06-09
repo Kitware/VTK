@@ -143,7 +143,7 @@ void MyProcess::Execute()
 
   vtkDistributedDataFilter *dd = vtkDistributedDataFilter::New();
 
-  dd->SetInput(ds);
+  dd->SetInputData(ds);
   dd->SetController(this->Controller);
 
   dd->SetBoundaryModeToSplitBoundaryCells();  // clipping

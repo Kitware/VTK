@@ -2675,7 +2675,7 @@ int TestLabelPlacementMapper2D( int argc, char* argv[] )
   tprop->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
 
   vtkPointSetToLabelHierarchy* labelHierarchy = vtkPointSetToLabelHierarchy::New();
-  labelHierarchy->SetInput( polyData );
+  labelHierarchy->SetInputData( polyData );
   labelHierarchy->SetTextProperty( tprop );
   labelHierarchy->SetPriorityArrayName( "Priorities" );
   labelHierarchy->SetLabelArrayName( "LabelText" );

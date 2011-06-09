@@ -36,7 +36,7 @@ public:
   // Description:
   // Specify object from which to extract geometry information.
   // Old style. Use SetGeometryConnection() instead.
-  void SetGeometry(vtkDataSet *input) {this->SetInput(input);};
+  void SetGeometryInputData(vtkDataSet *input) {this->SetInputData(input);};
   vtkDataSet *GetGeometry();
 
   // Description:
@@ -50,7 +50,7 @@ public:
   // Description:
   // Specify object from which to extract scalar information.
   // Old style. Use SetScalarsConnection() instead.
-  void SetScalars(vtkDataSet *);
+  void SetScalarsData(vtkDataSet *);
   vtkDataSet *GetScalars();
 
   // Description:
@@ -64,7 +64,7 @@ public:
   // Description:
   // Set / get the object from which to extract vector information.
   // Old style. Use SetVectorsConnection() instead.
-  void SetVectors(vtkDataSet *);
+  void SetVectorsData(vtkDataSet *);
   vtkDataSet *GetVectors();
 
   // Description:
@@ -78,7 +78,7 @@ public:
   // Description:
   // Set / get the object from which to extract normal information.
   // Old style. Use SetNormalsConnection() instead.
-  void SetNormals(vtkDataSet *);
+  void SetNormalsData(vtkDataSet *);
   vtkDataSet *GetNormals();
 
   // Description:
@@ -93,7 +93,7 @@ public:
   // Set / get the object from which to extract texture coordinates
   // information.
   // Old style. Use SetTCoordsConnection() instead.
-  void SetTCoords(vtkDataSet *);
+  void SetTCoordsData(vtkDataSet *);
   vtkDataSet *GetTCoords();
 
   // Description:
@@ -108,7 +108,7 @@ public:
   // Description:
   // Set / get the object from which to extract tensor data.
   // Old style. Use SetTensorsConnection() instead.
-  void SetTensors(vtkDataSet *);
+  void SetTensorsData(vtkDataSet *);
   vtkDataSet *GetTensors();
 
   // Description:

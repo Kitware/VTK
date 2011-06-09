@@ -68,14 +68,14 @@ void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
     }
 }
 
-void vtkVolumeMapper::SetInput( vtkDataSet *genericInput )
+void vtkVolumeMapper::SetInputData( vtkDataSet *genericInput )
 {
   vtkImageData *input = 
     vtkImageData::SafeDownCast( genericInput );
   
   if ( input )
     {
-    this->SetInput( input );
+    this->SetInputData( input );
     }
   else
     {
@@ -83,17 +83,9 @@ void vtkVolumeMapper::SetInput( vtkDataSet *genericInput )
     }
 }
 
-void vtkVolumeMapper::SetInput( vtkImageData *input )
+void vtkVolumeMapper::SetInputData( vtkImageData *input )
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 vtkImageData *vtkVolumeMapper::GetInput()

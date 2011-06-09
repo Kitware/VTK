@@ -78,7 +78,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   normals->Delete();
   
   this->Glypher = vtkGlyph3D::New();
-  this->Glypher->SetInput(this->FocalData);
+  this->Glypher->SetInputData(this->FocalData);
   this->Glypher->SetVectorModeToUseNormal();
   this->Glypher->OrientOn();
   this->Glypher->ScalingOn();
@@ -119,7 +119,8 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   t->Delete();
   
   this->Mapper = vtkPolyDataMapper::New();
-  this->Mapper->SetInput(this->Glypher->GetOutput());
+  this->Mapper->SetInputConnection(
+    this->Glypher->GetOutputPort());
   this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
 
@@ -199,7 +200,7 @@ void vtkConstrainedPointHandleRepresentation::SetCursorShape(vtkPolyData *shape)
     if ( this->CursorShape )
       {
       this->CursorShape->Register(this);
-      this->Glypher->SetSource(this->CursorShape);
+      this->Glypher->SetSourceData(this->CursorShape);
       }
     this->Modified();
     }
@@ -376,7 +377,7 @@ int vtkConstrainedPointHandleRepresentation::ComputeInteractionState(
   if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
     {
     this->InteractionState = vtkHandleRepresentation::Nearby;
-    this->Glypher->SetSource(this->ActiveCursorShape);
+    this->Glypher->SetSourceData(this->ActiveCursorShape);
     this->Actor->SetProperty( this->ActiveProperty );
     if ( !this->ActiveCursorShape )
       {
@@ -386,7 +387,7 @@ int vtkConstrainedPointHandleRepresentation::ComputeInteractionState(
   else
     {
     this->InteractionState = vtkHandleRepresentation::Outside;
-    this->Glypher->SetSource(this->CursorShape);
+    this->Glypher->SetSourceData(this->CursorShape);
     this->Actor->SetProperty( this->Property );
     if ( !this->CursorShape )
       {

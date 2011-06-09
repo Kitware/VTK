@@ -228,7 +228,7 @@ void vtkTransmitImageDataPiece::RootExecute(vtkImageData *input,
 
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
-  extract->SetInput(tmp);
+  extract->SetInputData(tmp);
   extractExecutive->UpdateDataObject();
 
   vtkInformation *extractOutInfo = extractExecutive->GetOutputInformation(0);

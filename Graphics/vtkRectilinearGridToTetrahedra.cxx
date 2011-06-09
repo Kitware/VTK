@@ -119,7 +119,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const double Extent[3],
   Coord[2]->Delete();
 
   // Get the reference counting right.
-  this->Superclass::SetInput(RectGrid);
+  this->Superclass::SetInputData(RectGrid);
   RectGrid->Delete();
 }
 

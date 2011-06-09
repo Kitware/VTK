@@ -99,7 +99,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   border->Delete();
 
   this->BorderMapper = vtkPolyDataMapper2D::New();
-  this->BorderMapper->SetInput(this->BorderPolyData);
+  this->BorderMapper->SetInputData(this->BorderPolyData);
   this->BorderActor = vtkActor2D::New();
   this->BorderActor->SetMapper(this->BorderMapper);
 
@@ -137,7 +137,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
 
   // Used to generate the glyph on the leader head
   this->HeadGlyph = vtkGlyph3D::New();
-  this->HeadGlyph->SetInput(this->HeadPolyData);
+  this->HeadGlyph->SetInputData(this->HeadPolyData);
   this->HeadGlyph->SetScaleModeToDataScalingOff();
   this->HeadGlyph->SetScaleFactor(0.1);
 
@@ -145,8 +145,8 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->AppendLeader = vtkAppendPolyData::New();
   this->AppendLeader->UserManagedInputsOn();
   this->AppendLeader->SetNumberOfInputs(2);
-  this->AppendLeader->SetInputByNumber(0,this->LeaderPolyData);
-  this->AppendLeader->SetInputByNumber(1,this->HeadGlyph->GetOutput());
+  this->AppendLeader->SetInputDataByNumber(0,this->LeaderPolyData);
+  this->AppendLeader->SetInputDataByNumber(1,this->HeadGlyph->GetOutput());
 
   // Used to transform from world to other coordinate systems
   this->MapperCoordinate2D = vtkCoordinate::New();
@@ -421,17 +421,19 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
     vtkDebugMacro(<<"Scale factor: " << sf);
 
-    this->HeadGlyph->SetSource(this->LeaderGlyph);
+    this->HeadGlyph->SetSourceData(this->LeaderGlyph);
     this->HeadGlyph->SetScaleFactor(sf);
 
-    this->LeaderMapper2D->SetInput(this->AppendLeader->GetOutput());
-    this->LeaderMapper3D->SetInput(this->AppendLeader->GetOutput());
+    this->LeaderMapper2D->SetInputConnection(
+      this->AppendLeader->GetOutputPort());
+    this->LeaderMapper3D->SetInputConnection(
+      this->AppendLeader->GetOutputPort());
     this->AppendLeader->Update();
     }
   else
     {
-    this->LeaderMapper2D->SetInput(this->LeaderPolyData);
-    this->LeaderMapper3D->SetInput(this->LeaderPolyData);
+    this->LeaderMapper2D->SetInputData(this->LeaderPolyData);
+    this->LeaderMapper3D->SetInputData(this->LeaderPolyData);
     }
 
   // assign properties

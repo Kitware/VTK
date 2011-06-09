@@ -443,19 +443,19 @@ void vtkPCAAnalysisFilter::SetNumberOfInputs(int n)
 }
 
 //----------------------------------------------------------------------------
-void vtkPCAAnalysisFilter::SetInput(int idx, vtkPointSet *p)
+void vtkPCAAnalysisFilter::SetInputData(int idx, vtkPointSet *p)
 {
-  this->SetNthInputConnection(0, idx, p ? p->GetProducerPort() : 0);
+  this->SetInputDataInternal(idx, p);
 }
 
 //----------------------------------------------------------------------------
-void vtkPCAAnalysisFilter::SetInput(int idx, vtkDataObject* input)
+void vtkPCAAnalysisFilter::SetInputData(int idx, vtkDataObject* input)
 {
   vtkPointSet* p = vtkPointSet::SafeDownCast(input);
 
   if (p)
     {
-    this->SetInput(idx, p);
+    this->SetInputData(idx, p);
     }
   else
     {

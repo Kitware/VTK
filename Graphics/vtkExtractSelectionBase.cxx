@@ -92,7 +92,7 @@ int vtkExtractSelectionBase::RequestDataObject(
         // The mesh will not be modified.
         newOutput = input->NewInstance();
         }
-      newOutput->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
       newOutput->Delete();
       }
     return 1;
@@ -113,7 +113,7 @@ int vtkExtractSelectionBase::RequestDataObject(
     if (!output)
       {
       output = vtkTable::New();
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
     return 1;

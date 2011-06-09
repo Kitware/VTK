@@ -538,7 +538,7 @@ int vtkPExodusReader::RequestData(
         }
 
 #ifdef APPEND
-      append->AddInput(subgrid);
+      append->AddInputData(subgrid);
       subgrid->Delete();
 #else
       totalSets++;

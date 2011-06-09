@@ -312,9 +312,10 @@ void vtkPNGReaderUpdate(vtkPNGReader *self, vtkImageData *data, OT *outPtr)
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkPNGReader::ExecuteData(vtkDataObject *output)
+void vtkPNGReader::ExecuteData(vtkDataObject *output,
+                               vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (this->InternalFileName == NULL)
     {

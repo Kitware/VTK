@@ -282,49 +282,21 @@ int vtkStructuredGridLIC2D::RequestUpdateExtent (
 //----------------------------------------------------------------------------
 // Stolen from vtkImageAlgorithm. Should be in vtkStructuredGridAlgorithm.
 void vtkStructuredGridLIC2D::AllocateOutputData(vtkDataObject *output,
-                                                 int outputPort)
+                                                vtkInformation *outInfo)
 { 
   // set the extent to be the update extent
   vtkStructuredGrid *out = vtkStructuredGrid::SafeDownCast(output);
   if (out)
     {
-    // this needs to be fixed -Ken
-    vtkStreamingDemandDrivenPipeline *sddp = 
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-    int numInfoObj = sddp->GetNumberOfOutputPorts();
-    if (sddp && outputPort<numInfoObj)
-      {
-      int extent[6];
-      sddp->GetOutputInformation(outputPort)->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),extent);
-      out->SetExtent(extent);
-      }
-    else
-      {
-      vtkWarningMacro( "Not enough output ports." );
-      return;
-      }
-    this->AllocateScalars(out);
+    out->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
+    this->AllocateScalars(out, outInfo);
     }
   else
     {
     vtkImageData *out2 = vtkImageData::SafeDownCast(output);
     if (out2)
       {
-      // this needs to be fixed -Ken
-      vtkStreamingDemandDrivenPipeline *sddp = 
-        vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-      int numInfoObj = sddp->GetNumberOfOutputPorts();
-      if (sddp && outputPort<numInfoObj)
-        {
-        int extent[6];
-        sddp->GetOutputInformation(outputPort)->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),extent);
-        out2->SetExtent(extent);
-        }
-      else
-        {
-        vtkWarningMacro( "Not enough output ports." );
-        return;
-        }
+      out2->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
       out2->AllocateScalars(VTK_FLOAT, 3);
       }
     }
@@ -332,24 +304,21 @@ void vtkStructuredGridLIC2D::AllocateOutputData(vtkDataObject *output,
 
 //----------------------------------------------------------------------------
 // Stolen from vtkImageData. Should be in vtkStructuredGrid.
-void vtkStructuredGridLIC2D::AllocateScalars(vtkStructuredGrid *sg)
+void vtkStructuredGridLIC2D::AllocateScalars(vtkStructuredGrid *sg,
+                                             vtkInformation *outInfo)
 {
   int newType = VTK_DOUBLE;
   int newNumComp = 1;
 
-  // basically allocate the scalars based on the
-  sg->GetProducerPort();
-  if(vtkInformation* info = sg->GetPipelineInformation())
+  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    outInfo,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (scalarInfo)
     {
-    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info,
-      vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
-    if (scalarInfo)
+    newType = scalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() );
+    if ( scalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) )
       {
-      newType = scalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() );
-      if ( scalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) )
-        {
-        newNumComp = scalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() );
-        }
+      newNumComp = scalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() );
       }
     }
 
@@ -476,13 +445,13 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkInformation    * outInfo = outputVector->GetInformationObject(0);
   vtkStructuredGrid * output  = vtkStructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  this->AllocateOutputData(output,0);
+  this->AllocateOutputData(output, outInfo);
   output->ShallowCopy(input);
   
   vtkInformation * outInfoTexture = outputVector->GetInformationObject(1);
   vtkImageData   * outputTexture  = vtkImageData::SafeDownCast(
     outInfoTexture->Get(vtkDataObject::DATA_OBJECT()));
-  this->AllocateOutputData(outputTexture,1);
+  this->AllocateOutputData(outputTexture, outInfoTexture);
   
   // Noise.
   vtkInformation *noiseInfo = inputVector[1]->GetInformationObject(0);

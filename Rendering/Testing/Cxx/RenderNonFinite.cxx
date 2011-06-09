@@ -165,7 +165,7 @@ static vtkSmartPointer<vtkRenderer> CreateRenderer(vtkPolyData *input,
                                                    int interpolate)
 {
   VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->SetInput(input);
+  mapper->SetInputData(input);
   mapper->SetLookupTable(lut);
   mapper->SetInterpolateScalarsBeforeMapping(interpolate);
 

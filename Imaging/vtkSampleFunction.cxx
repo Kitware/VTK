@@ -138,7 +138,7 @@ int vtkSampleFunction::RequestInformation (
 }
 
 
-void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
+void vtkSampleFunction::ExecuteData(vtkDataObject *outp, vtkInformation *outInfo)
 {
   vtkIdType idx, i, j, k;
   vtkFloatArray *newNormals=NULL;
@@ -150,7 +150,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   output->SetExtent(extent);
-  output = this->AllocateOutputData(outp);
+  output = this->AllocateOutputData(outp, outInfo);
   vtkDataArray *newScalars =output->GetPointData()->GetScalars();
 
   vtkDebugMacro(<< "Sampling implicit function");

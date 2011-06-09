@@ -59,10 +59,6 @@ public:
 //ETX
 
   // Description:
-  // Remove a dataset from the list of data to append.
-  void RemoveInput( vtkDataSet* in );
-
-  // Description:
   // Set/get whether the field data of each dataset in the composite dataset is copied to the output.
   // If AppendFieldData is non-zero, then field data arrays from all the inputs are added
   // to the output. If there are duplicates, the array on the first input encountered is taken.

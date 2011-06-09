@@ -93,7 +93,7 @@ vtkPieChartActor::vtkPieChartActor()
 
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
-  this->PlotMapper->SetInput(this->PlotData);
+  this->PlotMapper->SetInputData(this->PlotData);
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);
 
@@ -108,7 +108,7 @@ vtkPieChartActor::vtkPieChartActor()
 
   this->WebData = vtkPolyData::New();
   this->WebMapper = vtkPolyDataMapper2D::New();
-  this->WebMapper->SetInput(this->WebData);
+  this->WebMapper->SetInputData(this->WebData);
   this->WebActor = vtkActor2D::New();
   this->WebActor->SetMapper(this->WebMapper);
 

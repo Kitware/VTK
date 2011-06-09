@@ -277,8 +277,8 @@ int TestLineWidget2( int argc, char *argv[] )
 
   vtkSmartPointer<vtkStreamLine> streamer =
     vtkSmartPointer<vtkStreamLine>::New();
-  streamer->SetInput(pl3d_block0);
-  streamer->SetSource(seeds);
+  streamer->SetInputData(pl3d_block0);
+  streamer->SetSourceData(seeds);
   streamer->SetMaximumPropagationTime(100);
   streamer->SetIntegrationStepLength(.2);
   streamer->SetStepLength(.001);
@@ -308,7 +308,7 @@ int TestLineWidget2( int argc, char *argv[] )
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridOutlineFilter> outline =
     vtkSmartPointer<vtkStructuredGridOutlineFilter>::New();
-  outline->SetInput(pl3d_block0);
+  outline->SetInputData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();

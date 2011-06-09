@@ -162,9 +162,9 @@ int vtkEnSightWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInforma
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkEnSightWriter::SetInput(vtkUnstructuredGrid *input)
+void vtkEnSightWriter::SetInputData(vtkUnstructuredGrid *input)
 {
-  this->Superclass::SetInput(0, input);
+  this->SetInputDataInternal(0, input);
 }
 
 

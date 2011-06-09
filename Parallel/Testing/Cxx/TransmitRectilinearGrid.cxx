@@ -136,24 +136,24 @@ void MyProcess::Execute()
   pass->SetController(this->Controller);
   if (me == 0)
     {
-    pass->SetInput(rg); 
+    pass->SetInputData(rg); 
     }
 
   // FILTERING
   vtkContourFilter *cf = vtkContourFilter::New();
-  cf->SetInput(pass->GetOutput());
+  cf->SetInputConnection(pass->GetOutputPort());
   cf->SetNumberOfContours(1);
   cf->SetValue(0,0.1);
   // I don't think this is needed
   //(cf->GetInput())->RequestExactExtentOn();
   cf->ComputeNormalsOff();
   vtkElevationFilter *elev = vtkElevationFilter::New();
-  elev->SetInput(cf->GetOutput());
+  elev->SetInputConnection(cf->GetOutputPort());
   elev->SetScalarRange(me, me + .001);
 
   // COMPOSITE RENDER
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(vtkPolyData::SafeDownCast(elev->GetOutput()));
+  mapper->SetInputConnection(elev->GetOutputPort());
   mapper->SetScalarRange(0, numProcs);
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);

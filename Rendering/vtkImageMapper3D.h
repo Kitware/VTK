@@ -57,7 +57,7 @@ public:
 
   // Description:
   // The input data for this mapper.
-  void SetInput(vtkImageData *input);
+  void SetInputData(vtkImageData *input);
   vtkImageData *GetInput();
   vtkDataSet *GetDataSetInput();
   vtkDataObject *GetDataObjectInput();

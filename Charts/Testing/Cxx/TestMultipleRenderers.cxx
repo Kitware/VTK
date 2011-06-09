@@ -103,15 +103,15 @@ int TestMultipleRenderers(int , char * [])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 2);
+  line->SetInputData(table, 0, 2);
   line->SetColor(255, 0, 0, 255);
   line->SetWidth(5.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 3);
+  line->SetInputData(table, 0, 3);
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
 

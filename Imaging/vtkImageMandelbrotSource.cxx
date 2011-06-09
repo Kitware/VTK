@@ -345,7 +345,7 @@ int vtkImageMandelbrotSource::RequestData(
   // the superclasses "Execute()" method.
   int *ext = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   data->SetExtent(ext);
-  data->AllocateScalars();
+  data->AllocateScalars(outInfo);
   
   int a0, a1, a2;
   float *ptr;

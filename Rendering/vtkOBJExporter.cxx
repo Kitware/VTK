@@ -171,7 +171,8 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
     gf = vtkGeometryFilter::New();
-    gf->SetInput(ds);
+    gf->SetInputConnection(
+      anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
     }

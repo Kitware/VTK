@@ -66,7 +66,7 @@ int TestSurfaceConstrainedHandleWidget(int argc, char*argv[])
 
   vtkSmartPointer<vtkImageResample>  resample =
     vtkSmartPointer<vtkImageResample>::New();
-  resample->SetInput(demReader->GetOutput());
+  resample->SetInputConnection(demReader->GetOutputPort());
   resample->SetDimensionality(2);
   resample->SetAxisMagnificationFactor(0,1.0);
   resample->SetAxisMagnificationFactor(1,1.0);
@@ -74,17 +74,17 @@ int TestSurfaceConstrainedHandleWidget(int argc, char*argv[])
   // Extract geometry
   vtkSmartPointer<vtkImageDataGeometryFilter> surface =
     vtkSmartPointer<vtkImageDataGeometryFilter>::New();
-  surface->SetInput(resample->GetOutput());
+  surface->SetInputConnection(resample->GetOutputPort());
 
   // The Dijkistra interpolator will not accept cells that aren't triangles
   vtkSmartPointer<vtkTriangleFilter> triangleFilter =
     vtkSmartPointer<vtkTriangleFilter>::New();
-  triangleFilter->SetInput( surface->GetOutput() );
+  triangleFilter->SetInputConnection( surface->GetOutputPort() );
   triangleFilter->Update();
 
   vtkSmartPointer<vtkWarpScalar> warp =
     vtkSmartPointer<vtkWarpScalar>::New();
-  warp->SetInput(triangleFilter->GetOutput());
+  warp->SetInputConnection(triangleFilter->GetOutputPort());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
   warp->SetNormal(0, 0, 1);
@@ -116,7 +116,7 @@ int TestSurfaceConstrainedHandleWidget(int argc, char*argv[])
 
   if (distanceOffsetSpecified)
     {
-    normals->SetInput(warp->GetPolyDataOutput());
+    normals->SetInputConnection(warp->GetOutputPort());
     normals->SetFeatureAngle(60);
     normals->SplittingOff();
 
@@ -130,7 +130,7 @@ int TestSurfaceConstrainedHandleWidget(int argc, char*argv[])
 
   vtkSmartPointer<vtkPolyDataMapper> demMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  demMapper->SetInput(pd);
+  demMapper->SetInputData(pd);
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);
 

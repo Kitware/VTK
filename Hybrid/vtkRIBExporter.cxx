@@ -613,7 +613,8 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   if ( aDataSet->GetDataObjectType() != VTK_POLY_DATA )
     {
     geometryFilter = vtkGeometryFilter::New();
-    geometryFilter->SetInput(aDataSet);
+    geometryFilter->SetInputConnection(
+      anActor->GetMapper()->GetInputConnection(0, 0));
     geometryFilter->Update();
     polyData = geometryFilter->GetOutput();
     }
@@ -1308,15 +1309,15 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     iac2 = vtkImageAppendComponents::New();
     icp = vtkImageConstantPad::New();
 
-    iac1->SetInput(0, anImage);
-    iac1->SetInput(1, anImage);
-    iac2->SetInput(0, iac1->GetOutput ());
-    iac2->SetInput(1, anImage);
-    icp->SetInput( iac2->GetOutput ());
+    iac1->SetInputData(0, anImage);
+    iac1->SetInputData(1, anImage);
+    iac2->SetInputConnection(0, iac1->GetOutputPort());
+    iac2->SetInputData(1, anImage);
+    icp->SetInputConnection(iac2->GetOutputPort());
     icp->SetConstant(255);
     icp->SetOutputNumberOfScalarComponents(4);
 
-    aWriter->SetInput (icp->GetOutput());
+    aWriter->SetInputConnection(icp->GetOutputPort());
     }
   else if (bpp == 2) // needs intensity intensity
     {
@@ -1324,26 +1325,26 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     iac1 = vtkImageAppendComponents::New();
     iac2 = vtkImageAppendComponents::New();
 
-    iec->SetInput( anImage);
-    iec->SetComponents (0);
-    iac1->SetInput(0, iec->GetOutput ());
-    iac1->SetInput(1, anImage);
-    iac2->SetInput(0, iec->GetOutput ());
-    iac2->SetInput(1, iac1->GetOutput ());
+    iec->SetInputData(anImage);
+    iec->SetComponents(0);
+    iac1->SetInputConnection(0, iec->GetOutputPort());
+    iac1->SetInputData(1, anImage);
+    iac2->SetInputConnection(0, iec->GetOutputPort());
+    iac2->SetInputConnection(1, iac1->GetOutputPort());
 
-    aWriter->SetInput (iac2->GetOutput());
+    aWriter->SetInputConnection(iac2->GetOutputPort());
     }
   else if (bpp == 3) // needs alpha
     {
     icp = vtkImageConstantPad::New();
-    icp->SetInput( anImage);
+    icp->SetInputData(anImage);
     icp->SetConstant(255);
     icp->SetOutputNumberOfScalarComponents(4);
-    aWriter->SetInput (icp->GetOutput());
+    aWriter->SetInputConnection(icp->GetOutputPort());
     }
   else // needs nothing
     {
-    aWriter->SetInput (anImage);
+    aWriter->SetInputData(anImage);
     }
   aWriter->SetFileName (this->GetTIFFName (aTexture));
   aWriter->Write ();

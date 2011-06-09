@@ -110,7 +110,7 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
       {
       // Tell the pipeline to start looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-      this->AllocateOutputData(output);
+      this->AllocateOutputData(output, outInfo);
       }
 
     // actually copy the data

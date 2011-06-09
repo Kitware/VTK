@@ -157,7 +157,7 @@ void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
   extract->SetCreateGhostCells(this->CreateGhostCells);
-  extract->SetInput(tmp);
+  extract->SetInputData(tmp);
 
   extractExecutive->UpdateDataObject();
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),

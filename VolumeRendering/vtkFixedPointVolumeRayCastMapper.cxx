@@ -1062,7 +1062,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
 
 
   // Set the update flags, telling the filter what to update...
-  this->SpaceLeapFilter->SetInput(this->GetInput());
+  this->SpaceLeapFilter->SetInputConnection(this->GetInputConnection(0, 0));
   this->SpaceLeapFilter->SetCurrentScalars(this->CurrentScalars);
   this->SpaceLeapFilter->SetIndependentComponents(
       vol->GetProperty()->GetIndependentComponents());
@@ -1097,7 +1097,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   //  "MinMaxVolumeNewComponent0.mha");
 
   // If the line below is commented out, we get reference counting loops
-  this->SpaceLeapFilter->SetInput(NULL);
+  this->SpaceLeapFilter->SetInputConnection(NULL);
 
 
   if ( needToUpdate&0x02 )

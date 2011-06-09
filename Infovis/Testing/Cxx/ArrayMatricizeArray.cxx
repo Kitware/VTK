@@ -64,7 +64,7 @@ int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Matricize it ...
     vtkSmartPointer<vtkMatricizeArray> matricize = vtkSmartPointer<vtkMatricizeArray>::New();
-    matricize->SetInput(array_data);
+    matricize->SetInputData(array_data);
     matricize->SetSliceDimension(0);
     matricize->Update();
 

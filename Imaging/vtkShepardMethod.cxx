@@ -153,7 +153,7 @@ int vtkShepardMethod::RequestData(
   // the superclasses "Execute()" method.
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
   
   vtkIdType ptId, i;
   int j, k;

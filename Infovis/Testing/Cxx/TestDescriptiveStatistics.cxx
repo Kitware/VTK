@@ -151,7 +151,7 @@ int TestDescriptiveStatistics( int, char *[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
   // Select Columns of Interest
@@ -330,7 +330,7 @@ int TestDescriptiveStatistics( int, char *[] )
   modifiedModel->SetBlock( 1, modifiedDerived );
 
   // Run with Assess option only (do not recalculate nor rederive a model)
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, modifiedModel );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, modifiedModel );
   ds1->SetLearnOption( false );
   ds1->SetDeriveOption( false ); 
   ds1->SetTestOption( true );
@@ -408,7 +408,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds2 = vtkDescriptiveStatistics::New();
-  ds2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  ds2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
 
   // Select Columns of Interest (all of them)
   for ( int i = 0; i< nMetrics; ++ i )
@@ -445,11 +445,11 @@ int TestDescriptiveStatistics( int, char *[] )
   ds2->Delete();
 
   // Test model aggregation by adding new data to engine which already has a model
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
   datasetTable2->Delete();
   vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
   model->ShallowCopy( outputMetaDS1 );
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model );
   model->Delete();
 
   // Update with Learn and Derive options only
@@ -552,7 +552,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();
-  ds3->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
+  ds3->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
   simpleTable->Delete();
 
   // Select column of interest
@@ -677,7 +677,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
-  ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
+  ds4->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
   gaussianTable->Delete();
 
   // Select Column of Interest

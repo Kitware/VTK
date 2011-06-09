@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkPiecewiseFunctionAlgorithm);
 
@@ -117,40 +116,29 @@ int vtkPiecewiseFunctionAlgorithm::RequestData(
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* outputVector)
 {
-  return 1;
+  return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::SetInput(vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::AddInput(vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }

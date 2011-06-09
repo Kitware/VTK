@@ -69,7 +69,7 @@ void vtkRendererSource::RequestData(vtkInformation*,
   info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExtent);
   output->SetExtent(uExtent);  
 
-  output->AllocateScalars();
+  output->AllocateScalars(info);
   vtkUnsignedCharArray *outScalars = 
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
 

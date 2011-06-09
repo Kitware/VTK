@@ -74,9 +74,9 @@ void vtkProbeFilter::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 }
  
 //----------------------------------------------------------------------------
-void vtkProbeFilter::SetSource(vtkDataObject *input)
+void vtkProbeFilter::SetSourceData(vtkDataObject *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------

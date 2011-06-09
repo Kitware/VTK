@@ -109,7 +109,7 @@ int TestStackedPlot(int , char * [])
   // Books
   stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
   stack->SetUseIndexForXSeries(true);
-  stack->SetInput(table);
+  stack->SetInputData(table);
   stack->SetInputArray(1,"Books");
   stack->SetInputArray(2,"New / Popular");
   stack->SetInputArray(3,"Periodical");

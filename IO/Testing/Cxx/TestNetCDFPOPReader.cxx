@@ -51,7 +51,7 @@ int TestNetCDFPOPReader( int argc, char *argv[] )
 
   // Create a mapper.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(geometryFilter->GetOutput());
+  mapper->SetInputConnection(geometryFilter->GetOutputPort());
   mapper->ScalarVisibilityOn();
 
   // Create the actor.

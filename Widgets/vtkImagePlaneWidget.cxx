@@ -1507,7 +1507,7 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
     // If NULL is passed, remove any reference that Reslice had
     // on the old ImageData
     //
-    this->Reslice->SetInput(NULL);
+    this->Reslice->SetInputData(NULL);
     return;
     }
 
@@ -1534,14 +1534,14 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 
   this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
 
-  this->Reslice->SetInput(this->ImageData);
+  this->Reslice->SetInputData(this->ImageData);
   int interpolate = this->ResliceInterpolate;
   this->ResliceInterpolate = -1; // Force change
   this->SetResliceInterpolate(interpolate);
 
-  this->ColorMap->SetInput(this->Reslice->GetOutput());
+  this->ColorMap->SetInputConnection(this->Reslice->GetOutputPort());
 
-  this->Texture->SetInput(this->ColorMap->GetOutput());
+  this->Texture->SetInputConnection(this->ColorMap->GetOutputPort());
   this->Texture->SetInterpolate(this->TextureInterpolate);
 
   this->SetPlaneOrientation(this->PlaneOrientation);
@@ -2726,7 +2726,7 @@ void vtkImagePlaneWidget::GeneratePlaneOutline()
   cells->Delete();
 
   vtkPolyDataMapper* planeOutlineMapper = vtkPolyDataMapper::New();
-  planeOutlineMapper->SetInput( this->PlaneOutlinePolyData );
+  planeOutlineMapper->SetInputData( this->PlaneOutlinePolyData );
   planeOutlineMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->PlaneOutlineActor->SetMapper(planeOutlineMapper);
   this->PlaneOutlineActor->PickableOff();    
@@ -2745,8 +2745,8 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->ColorMap->PassAlphaToOutputOn();
 
   vtkPolyDataMapper* texturePlaneMapper = vtkPolyDataMapper::New();
-  texturePlaneMapper->SetInput(
-    vtkPolyData::SafeDownCast(this->PlaneSource->GetOutput()));
+  texturePlaneMapper->SetInputConnection(
+    this->PlaneSource->GetOutputPort());
 
   this->Texture->SetQualityTo32Bit();
   this->Texture->MapColorScalarsThroughLookupTableOff();
@@ -2790,7 +2790,7 @@ void vtkImagePlaneWidget::GenerateMargins()
   cells->Delete();
 
   vtkPolyDataMapper* marginMapper = vtkPolyDataMapper::New();
-  marginMapper->SetInput(this->MarginPolyData);
+  marginMapper->SetInputData(this->MarginPolyData);
   marginMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->MarginActor->SetMapper(marginMapper);
   this->MarginActor->PickableOff();
@@ -2825,7 +2825,7 @@ void vtkImagePlaneWidget::GenerateCursor()
   cells->Delete();
 
   vtkPolyDataMapper* cursorMapper = vtkPolyDataMapper::New();
-  cursorMapper->SetInput(this->CursorPolyData);
+  cursorMapper->SetInputData(this->CursorPolyData);
   cursorMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->CursorActor->SetMapper(cursorMapper);
   this->CursorActor->PickableOff();

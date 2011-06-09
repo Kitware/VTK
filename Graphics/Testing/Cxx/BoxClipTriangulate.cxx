@@ -234,7 +234,7 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
     = BuildInput(type, numcells, cells);
 
   VTK_CREATE(vtkBoxClipDataSet, clipper);
-  clipper->SetInput(input);
+  clipper->SetInputData(input);
   // Clip nothing.
   clipper->SetBoxClip(0.0, 2.0, 0.0, 1.0, 0.0, 1.0);
   clipper->Update();
@@ -278,7 +278,7 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
     = BuildInput(type, numcells, cells);
 
   VTK_CREATE(vtkBoxClipDataSet, clipper);
-  clipper->SetInput(input);
+  clipper->SetInputData(input);
   // Clip nothing.
   clipper->SetBoxClip(0.0, 2.0, 0.0, 1.0, 0.0, 1.0);
   clipper->Update();
@@ -311,7 +311,7 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
   CheckWinding(clipper);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface);
-  surface->SetInput(output);
+  surface->SetInputConnection(clipper->GetOutputPort());
   surface->Update();
 
   if (surface->GetOutput()->GetNumberOfCells() != numSurfacePolys)

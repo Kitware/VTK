@@ -17,6 +17,7 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
@@ -397,7 +398,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         if (ia->GetInput() && !wl)
           {
           wl = vtkImageMapToWindowLevelColors::SafeDownCast(
-            ia->GetInput()->GetProducerPort()->GetProducer());
+            ia->GetMapper()->GetInputAlgorithm());
           }
         break;
         }

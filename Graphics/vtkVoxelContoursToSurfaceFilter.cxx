@@ -564,7 +564,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
 
 
   contourFilter = vtkContourFilter::New();
-  contourFilter->SetInput( volume );
+  contourFilter->SetInputData( volume );
   contourFilter->SetNumberOfContours(1);
   contourFilter->SetValue( 0, 0.0 );
 
@@ -648,7 +648,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
     contourOutput = vtkPolyData::New();
     contourFilter->Update();
     contourOutput->ShallowCopy(contourFilter->GetOutput());
-    appendFilter->AddInput( contourOutput );
+    appendFilter->AddInputData( contourOutput );
     contourOutput->Delete();
 
 

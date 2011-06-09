@@ -47,9 +47,9 @@ vtkImageChangeInformation::vtkImageChangeInformation()
 }
 
 // Specify a source object at a specified table location.
-void vtkImageChangeInformation::SetInformationInput(vtkImageData *pd)
+void vtkImageChangeInformation::SetInformationInputData(vtkImageData *pd)
 {
-  this->SetInput(1, pd);
+  this->SetInputData(1, pd);
 }
 
 // Get a pointer to a source object at a specified table location.

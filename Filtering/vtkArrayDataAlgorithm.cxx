@@ -26,7 +26,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkArrayDataAlgorithm);
 
@@ -99,17 +98,9 @@ vtkArrayData* vtkArrayDataAlgorithm::GetOutput(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkArrayDataAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkArrayDataAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if (input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------

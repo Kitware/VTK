@@ -137,7 +137,7 @@ vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
   for (int i = 0; i < 6; i++)
     {
     vtkPolyData *edges = vtkPolyData::New();
-    this->AppendTextEdges->SetInputByNumber(i,edges);
+    this->AppendTextEdges->SetInputDataByNumber(i,edges);
     edges->Delete();
     }
 

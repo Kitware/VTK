@@ -362,7 +362,7 @@ void vtkTransformToGrid::RequestData(
 
   grid->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  grid->AllocateScalars();
+  grid->AllocateScalars(outInfo);
   int *extent = grid->GetExtent();
 
   double *gridPtr = (double *)grid->GetScalarPointerForExtent(extent);

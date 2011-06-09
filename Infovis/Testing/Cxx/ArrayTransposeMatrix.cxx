@@ -53,7 +53,7 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source_data->AddArray(source);
      
     vtkSmartPointer<vtkTransposeMatrix> transpose = vtkSmartPointer<vtkTransposeMatrix>::New();
-    transpose->AddInputConnection(source_data->GetProducerPort());
+    transpose->SetInputData(source_data);
     transpose->Update();
 
     vtkSparseArray<double>* const output = vtkSparseArray<double>::SafeDownCast(

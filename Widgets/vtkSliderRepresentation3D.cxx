@@ -62,13 +62,15 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   vtkTransform *xform = vtkTransform::New();
   xform->RotateZ(90.0);
   this->Cylinder = vtkTransformPolyDataFilter::New(); //align the axis along the x-axis
-  this->Cylinder->SetInput(this->CylinderSource->GetOutput());
+  this->Cylinder->SetInputConnection(
+    this->CylinderSource->GetOutputPort());
   this->Cylinder->SetTransform(xform);
   xform->Delete();
 
   // The tube (the slider moves along the tube)
   this->TubeMapper = vtkPolyDataMapper::New();
-  this->TubeMapper->SetInput(this->CylinderSource->GetOutput());
+  this->TubeMapper->SetInputConnection(
+    this->CylinderSource->GetOutputPort());
   
   this->TubeProperty = vtkProperty::New();
   this->TubeProperty->SetColor(1,1,1);
@@ -85,7 +87,8 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->SliderSource->SetRadius(0.5);
   
   this->SliderMapper = vtkPolyDataMapper::New();
-  this->SliderMapper->SetInput(this->SliderSource->GetOutput());
+  this->SliderMapper->SetInputConnection(
+    this->SliderSource->GetOutputPort());
   
   this->SliderProperty = vtkProperty::New();
   this->SliderProperty->SetColor(0.2000, 0.6300, 0.7900); //peacock
@@ -117,7 +120,8 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
 
   // The left cap
   this->LeftCapMapper = vtkPolyDataMapper::New();
-  this->LeftCapMapper->SetInput(this->Cylinder->GetOutput());
+  this->LeftCapMapper->SetInputConnection(
+    this->Cylinder->GetOutputPort());
   
   this->CapProperty = vtkProperty::New();
   this->CapProperty->SetColor(1,1,1);
@@ -133,7 +137,8 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   
   // The right cap
   this->RightCapMapper = vtkPolyDataMapper::New();
-  this->RightCapMapper->SetInput(this->Cylinder->GetOutput());
+  this->RightCapMapper->SetInputConnection(
+    this->Cylinder->GetOutputPort());
   
   this->RightCapActor = vtkActor::New();
   this->RightCapActor->SetMapper(this->RightCapMapper);
@@ -153,7 +158,8 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->LabelText = vtkVectorText::New();
   this->LabelText->SetText("");
   this->LabelMapper = vtkPolyDataMapper::New();
-  this->LabelMapper->SetInput(this->LabelText->GetOutput());
+  this->LabelMapper->SetInputConnection(
+    this->LabelText->GetOutputPort());
   this->LabelActor = vtkActor::New();
   this->LabelActor->SetMapper(this->LabelMapper);
   this->LabelActor->PickableOff();
@@ -162,7 +168,8 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->TitleText->SetText("");
   this->TitleHeight = 0.15;
   this->TitleMapper = vtkPolyDataMapper::New();
-  this->TitleMapper->SetInput(this->TitleText->GetOutput());
+  this->TitleMapper->SetInputConnection(
+    this->TitleText->GetOutputPort());
   this->TitleActor = vtkActor::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->PickableOff();
@@ -459,11 +466,11 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     // Update the canonical shape of the widget
     if ( this->SliderShape == vtkSliderRepresentation3D::SphereShape )
       {
-      this->SliderMapper->SetInput(this->SliderSource->GetOutput());
+      this->SliderMapper->SetInputConnection(this->SliderSource->GetOutputPort());
       }
     else
       {
-      this->SliderMapper->SetInput(this->Cylinder->GetOutput());
+      this->SliderMapper->SetInputConnection(this->Cylinder->GetOutputPort());
       }
 
     this->TubeActor->SetScale(this->TubeWidth, 1.0-(2.0*this->EndCapLength), this->TubeWidth);

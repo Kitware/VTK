@@ -407,7 +407,7 @@ public:
   // This condition is satisfied when the UpdateExtent has
   // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
   // The source uses this call to determine whether to call Execute.
-  int UpdateExtentIsEmpty(vtkDataObject *output);
+  int UpdateExtentIsEmpty(vtkInformation *pinfo, vtkDataObject *output);
   int UpdateExtentIsEmpty(vtkInformation *pinfo, int extentType);
 
   // Description:
@@ -630,6 +630,14 @@ protected:
   virtual void SetNumberOfInputConnections(int port, int n);
 
   static vtkExecutive* DefaultExecutivePrototype;
+
+  // Description:
+  // These methods are used by subclasses to implement methods to
+  // set data objects directly as input. Internally, they create
+  // a vtkTrivialProducer that has the data object as output and
+  // connect it to the algorithm.
+  void SetInputDataInternal(int port, vtkDataObject *input);
+  void AddInputDataInternal(int port, vtkDataObject *input);
 
 private:
   vtkExecutive* Executive;

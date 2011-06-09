@@ -62,15 +62,15 @@ int TestPlotMatrix( int, char * [] )
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 2);
+  line->SetInputData(table, 0, 2);
   line->SetColor(255, 0, 0, 255);
   line->SetWidth(5.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 3);
+  line->SetInputData(table, 0, 3);
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
 
@@ -82,7 +82,7 @@ int TestPlotMatrix( int, char * [] )
   vtkSmartPointer<vtkChartXY> chart2 = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart2);
   line = chart2->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 1);
+  line->SetInputData(table, 0, 1);
   chart2->SetAutoSize(false);
   chart2->SetSize(vtkRectf(200.0, 0.0, 200.0, 150.0));
 
@@ -90,7 +90,7 @@ int TestPlotMatrix( int, char * [] )
   vtkSmartPointer<vtkChartXY> chart3 = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart3);
   line = chart3->AddPlot(vtkChart::POINTS);
-  line->SetInput(table, 0, 1);
+  line->SetInputData(table, 0, 1);
   chart3->SetAutoSize(false);
   chart3->SetSize(vtkRectf(0.0, 150.0, 200.0, 150.0));
 
@@ -98,7 +98,7 @@ int TestPlotMatrix( int, char * [] )
   vtkSmartPointer<vtkChartXY> chart4 = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart4);
   line = chart4->AddPlot(vtkChart::BAR);
-  line->SetInput(table, 0, 1);
+  line->SetInputData(table, 0, 1);
   chart4->GetAxis(vtkAxis::BOTTOM)->SetBehavior(vtkAxis::FIXED);
   chart4->GetAxis(vtkAxis::BOTTOM)->SetRange(0.0, 10.0);
   chart4->SetAutoSize(false);

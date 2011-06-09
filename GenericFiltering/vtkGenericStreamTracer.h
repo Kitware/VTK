@@ -98,7 +98,7 @@ public:
 
   // Description:
   // Specify the source object used to generate starting points.
-  void SetSource(vtkDataSet *source);
+  void SetSourceData(vtkDataSet *source);
   vtkDataSet *GetSource();
   
   int FillInputPortInformation(int port, vtkInformation* info);
@@ -291,7 +291,7 @@ public:
   
   // Description:
   // Add a dataset to the list inputs
-  void AddInput(vtkGenericDataSet *in);
+  void AddInputData(vtkGenericDataSet *in);
 
   // Description:
   // The object used to interpolate the velocity field during

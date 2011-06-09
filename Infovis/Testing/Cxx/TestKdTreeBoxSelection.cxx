@@ -161,7 +161,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   selectSphere->SetRadius(1.1*glyphSize);
 
   VTK_CREATE(vtkGlyph3D, selectGlyph);
-  selectGlyph->SetInput(0, selectPoly);
+  selectGlyph->SetInputData(0, selectPoly);
   selectGlyph->SetInputConnection(1, selectSphere->GetOutputPort());
 
   VTK_CREATE(vtkPolyDataMapper, selectMapper);
@@ -205,7 +205,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
     }
 
   VTK_CREATE(vtkTreeLevelsFilter, treeLevels);
-  treeLevels->SetInput(realTree);
+  treeLevels->SetInputData(realTree);
 
   VTK_CREATE(vtkTreeMapToPolyData, treePoly);
   treePoly->SetInputConnection(treeLevels->GetOutputPort());
@@ -227,7 +227,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   //
 
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
-  graphToPoly->SetInput(g);
+  graphToPoly->SetInputData(g);
 
   VTK_CREATE(vtkTransform, transform);
   if (threedim)

@@ -73,50 +73,34 @@ int vtkPolyDataToReebGraphFilter::RequestData(vtkInformation*,
 
   vtkInformation  *inInfo = inputVector[0]->GetInformationObject(0);
 
-  if(!inInfo)
-    {
-    return 0;
-    }
-
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkPolyData::DATA_OBJECT()));
 
-  if(input)
+  vtkInformation  *outInfo = outputVector->GetInformationObject(0);
+  vtkReebGraph    *output = vtkReebGraph::SafeDownCast(
+    outInfo->Get(vtkReebGraph::DATA_OBJECT()));
+
+  // check for the presence of a scalar field
+  vtkDataArray *scalarField = input->GetPointData()->GetArray(FieldId);
+  if(!scalarField)
     {
-    vtkInformation  *outInfo = outputVector->GetInformationObject(0);
-    vtkReebGraph    *output = vtkReebGraph::SafeDownCast(
-      outInfo->Get(vtkReebGraph::DATA_OBJECT()));
-
-    // check for the presence of a scalar field
-    vtkDataArray    *scalarField = input->GetPointData()->GetArray(FieldId);
-    vtkPolyData     *newInput = NULL;
-    vtkElevationFilter  *eFilter = NULL;
-    if(!scalarField)
-      {
-      eFilter = vtkElevationFilter::New();
-      eFilter->SetInput(input);
-      eFilter->Update();
-      newInput = vtkPolyData::SafeDownCast(eFilter->GetOutput());
-      }
-
-    if(output)
-      {
-      if(scalarField) output->Build(input, FieldId);
-      else output->Build(newInput, "Elevation");
-      }
-    else
-      {
-      output = vtkReebGraph::New();
-      if(scalarField) output->Build(input, FieldId);
-      else output->Build(newInput, "Elevation");
-      output->SetPipelineInformation(outInfo);
-      output->Delete();
-      }
-
-    if(eFilter) eFilter->Delete();
-
-    return 1;
+    vtkElevationFilter* eFilter = vtkElevationFilter::New();
+    eFilter->SetInputData(input);
+    eFilter->Update();
+    output->Build(vtkPolyData::SafeDownCast(eFilter->GetOutput()),
+                  "Elevation");
+    eFilter->Delete();
+    }
+  else
+    {
+    output->Build(input, FieldId);
+    }
+  if(scalarField)
+    {
+    }
+  else
+    {
     }
 
-  return 0;
+  return 1;
 }

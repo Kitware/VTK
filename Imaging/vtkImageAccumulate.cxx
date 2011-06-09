@@ -105,9 +105,9 @@ void vtkImageAccumulate::GetComponentExtent(int extent[6])
 
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::SetStencil(vtkImageStencilData *stencil)
+void vtkImageAccumulate::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInput(1, stencil);
+  this->SetInputData(1, stencil);
 }
 
 
@@ -287,7 +287,7 @@ int vtkImageAccumulate::RequestData(
   // We need to allocate our own scalars since we are overriding
   // the superclasses "Execute()" method.
   outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  outData->AllocateScalars();
+  outData->AllocateScalars(outInfo);
 
   vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
   inPtr = inData->GetArrayPointerForExtent(inArray, uExt);

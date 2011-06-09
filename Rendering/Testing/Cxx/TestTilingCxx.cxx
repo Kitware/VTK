@@ -76,7 +76,7 @@ int TestTilingCxx(int argc, char* argv[])
 
   // mapper and actor
   VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->SetInput(randomColors->GetPolyDataOutput());
+  mapper->SetInputConnection(randomColors->GetOutputPort());
   mapper->SetScalarRange(randomColors->GetPolyDataOutput()->GetScalarRange());
 
   VTK_CREATE(vtkActor, sphereActor);
@@ -131,7 +131,7 @@ int TestTilingCxx(int argc, char* argv[])
   outputData->DeepCopy(w2i->GetOutput());
 
   VTK_CREATE(vtkImageMapper, ia);
-  ia->SetInput(outputData);
+  ia->SetInputData(outputData);
   scalarBar->ReleaseGraphicsResources(renWin);
   sphereActor->ReleaseGraphicsResources(renWin);
   ia->SetColorWindow(255);

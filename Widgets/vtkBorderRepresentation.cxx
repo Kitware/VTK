@@ -74,10 +74,11 @@ vtkBorderRepresentation::vtkBorderRepresentation()
   this->BWTransform = vtkTransform::New();
   this->BWTransformFilter = vtkTransformPolyDataFilter::New();
   this->BWTransformFilter->SetTransform(this->BWTransform);
-  this->BWTransformFilter->SetInput(this->BWPolyData);
+  this->BWTransformFilter->SetInputData(this->BWPolyData);
 
   this->BWMapper = vtkPolyDataMapper2D::New();
-  this->BWMapper->SetInput(this->BWTransformFilter->GetOutput());
+  this->BWMapper->SetInputConnection(
+    this->BWTransformFilter->GetOutputPort());
   this->BWActor = vtkActor2D::New();
   this->BWActor->SetMapper(this->BWMapper);
   

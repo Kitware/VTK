@@ -59,15 +59,21 @@ vtkDataSet *vtkAppendFilter::GetInput(int idx)
 
 //----------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
-void vtkAppendFilter::RemoveInput(vtkDataSet *ds)
+void vtkAppendFilter::RemoveInputData(vtkDataSet *ds)
 {
-  vtkAlgorithmOutput *algOutput = 0;
-  if (ds)
+  if (!ds)
     {
-    algOutput = ds->GetProducerPort();
+    return;
     }
-
-  this->RemoveInputConnection(0, algOutput);
+  int numCons = this->GetNumberOfInputConnections(0);
+  for(int i=0; i<numCons; i++)
+    {
+    if (this->GetInput(i) == ds)
+      {
+      this->RemoveInputConnection(0,
+        this->GetInputConnection(0, i));
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

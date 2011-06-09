@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkDataObjectAlgorithm);
 
@@ -137,36 +136,25 @@ int vtkDataObjectAlgorithm::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectAlgorithm::SetInput(vtkDataObject* input)
+void vtkDataObjectAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkDataObjectAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectAlgorithm::AddInput(vtkDataObject* input)
+void vtkDataObjectAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkDataObjectAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }

@@ -239,7 +239,7 @@ bool vtkDataTransferHelper::Upload(int components,
   vtkSmartPointer<vtkImageData> tempImg = vtkSmartPointer<vtkImageData>::New();
   tempImg->SetDimensions(1, 1, 1);
   // scalars are needed for ComputeIncrements().
-  tempImg->AllocateScalars();
+  tempImg->AllocateScalars(VTK_DOUBLE, 1);
   tempImg->SetExtent(this->CPUExtent);
   
   vtkIdType continuousInc[3];
@@ -526,7 +526,7 @@ bool vtkDataTransferHelper::DownloadAsync2()
   vtkSmartPointer<vtkImageData> tempImg = vtkSmartPointer<vtkImageData>::New();
   tempImg->SetDimensions(1, 1, 1);
   // scalars are needed for ComputeIncrements().
-  tempImg->AllocateScalars();
+  tempImg->AllocateScalars(VTK_DOUBLE, 1);
   tempImg->SetExtent(this->CPUExtent);
   
   vtkIdType continuousInc[3];

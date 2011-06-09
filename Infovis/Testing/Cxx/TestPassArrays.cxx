@@ -65,7 +65,7 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cerr << "... done" << endl;
   
   int errors = 0;
-  pass->SetInput(pd);
+  pass->SetInputData(pd);
 
   for (int type = 0; type < 3; type++)
     {

@@ -65,7 +65,7 @@ int TestPieChart(int , char * [])
   // Add multiple line plots, setting the colors etc
   vtkPlotPie *pie = vtkPlotPie::SafeDownCast(chart->AddPlot(0));
   pie->SetColorSeries(colorSeries.GetPointer());
-  pie->SetInput(table.GetPointer());
+  pie->SetInputData(table.GetPointer());
   pie->SetInputArray(0, "2008 Circulation");
   pie->SetLabels(labelArray.GetPointer());
 

@@ -65,7 +65,7 @@ int TestPruneTreeFilter(int argc, char* argv[])
   tree->GetVertexData()->AddArray(idArr);
   
   VTK_CREATE(vtkPruneTreeFilter, prune);
-  prune->SetInput(tree);
+  prune->SetInputData(tree);
   prune->SetParentVertex(2);
 
   VTK_CREATE(vtkTreeLayoutStrategy, strategy);

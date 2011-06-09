@@ -49,7 +49,7 @@ int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     b->AddArray(a);
 
     vtkSmartPointer<vtkArrayToTable> c = vtkSmartPointer<vtkArrayToTable>::New();
-    c->SetInputConnection(0, b->GetProducerPort());
+    c->SetInputData(0, b);
     c->Update();
 
     test_expression(c->GetOutput()->GetNumberOfColumns() == 1);
@@ -67,7 +67,7 @@ int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     e->AddArray(d);
 
     vtkSmartPointer<vtkArrayToTable> f = vtkSmartPointer<vtkArrayToTable>::New();
-    f->SetInputConnection(0, e->GetProducerPort());
+    f->SetInputData(0, e);
     f->Update();
 
     test_expression(f->GetOutput()->GetNumberOfColumns() == 2);

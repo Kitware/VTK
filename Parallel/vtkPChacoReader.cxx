@@ -503,7 +503,7 @@ vtkUnstructuredGrid  *
   
     vtkExtractCells *ec = vtkExtractCells::New();
     ec->AddCellRange(from, to);
-    ec->SetInput(tmp);
+    ec->SetInputData(tmp);
     ec->Update();
   
     tmp->Initialize();
@@ -529,7 +529,7 @@ char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &
     writer->SetFileTypeToBinary();
     }
   writer->WriteToOutputStringOn();
-  writer->SetInput(copy);
+  writer->SetInputData(copy);
   
   writer->Write();
     

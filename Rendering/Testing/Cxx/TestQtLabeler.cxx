@@ -149,7 +149,7 @@ int TestQtLabeler(int argc, char *argv[])
   
   polyData->GetPointData()->AddArray(stringData);
   
-  labelSizeCalculator->SetInput(polyData);
+  labelSizeCalculator->SetInputData(polyData);
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
   labelSizeCalculator->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
   labelSizeCalculator->GetFontProperty()->SetColor(1., 0., 0.);
@@ -208,7 +208,7 @@ int TestQtLabeler(int argc, char *argv[])
   actor2->SetMapper( polyDataMapper2 );
   cairoLabelPlacer->Update();
   VTK_CREATE( vtkTexture, texture );
-  texture->SetInput( cairoLabelPlacer->GetOutput() );
+  texture->SetInputConnection( cairoLabelPlacer->GetOutputPort() );
   texture->SetBlendingMode( vtkTexture::VTK_TEXTURE_BLENDING_MODE_NONE );
   actor2->SetTexture( texture );
   VTK_CREATE( vtkPNGWriter, pngw );

@@ -31,14 +31,14 @@ vtkUnstructuredGridVolumeMapper::~vtkUnstructuredGridVolumeMapper()
 {  
 }
 
-void vtkUnstructuredGridVolumeMapper::SetInput( vtkDataSet *genericInput )
+void vtkUnstructuredGridVolumeMapper::SetInputData( vtkDataSet *genericInput )
 {
   vtkUnstructuredGrid *input = 
     vtkUnstructuredGrid::SafeDownCast( genericInput );
   
   if ( input )
     {
-    this->SetInput( input );
+    this->SetInputData( input );
     }
   else
     {
@@ -46,17 +46,9 @@ void vtkUnstructuredGridVolumeMapper::SetInput( vtkDataSet *genericInput )
     }
 }
 
-void vtkUnstructuredGridVolumeMapper::SetInput( vtkUnstructuredGrid *input )
+void vtkUnstructuredGridVolumeMapper::SetInputData( vtkUnstructuredGrid *input )
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 vtkUnstructuredGrid *vtkUnstructuredGridVolumeMapper::GetInput()

@@ -53,31 +53,6 @@ void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
   // this->Iteration
 }
 
-
-//----------------------------------------------------------------------------
-vtkImageData *vtkImageIterateFilter::GetIterationInput()
-{
-  if (this->IterationData == NULL || this->Iteration == 0)
-    {
-    // error, or return input ???
-    return vtkImageData::SafeDownCast(this->GetInput());
-    }
-  return this->IterationData[this->Iteration];
-}
-
-
-//----------------------------------------------------------------------------
-vtkImageData *vtkImageIterateFilter::GetIterationOutput()
-{
-  if (this->IterationData == NULL || 
-      this->Iteration == this->NumberOfIterations-1)
-    {
-    // error, or return output ???
-    return this->GetOutput();
-    }
-  return this->IterationData[this->Iteration+1];
-}
-
 //----------------------------------------------------------------------------
 int
 vtkImageIterateFilter
@@ -87,22 +62,22 @@ vtkImageIterateFilter
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkImageData* input =
-    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData* output =
-    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  this->IterationData[0] = input;
-  this->IterationData[this->NumberOfIterations] = output;
 
   vtkInformation* in = inInfo;
   for(int i=0; i < this->NumberOfIterations; ++i)
     {
     this->Iteration = i;
 
-    vtkInformation* out = this->IterationData[i+1]->GetPipelineInformation();
-    vtkDataObject* outData = out->Get(vtkDataObject::DATA_OBJECT());
-    outData->CopyInformationToPipeline(request, in);
+    int next = i + 1;
+    vtkInformation* out;
+    if (next == this->NumberOfIterations)
+      {
+      out = outInfo;
+      }
+    else
+      {
+      vtkInformation* out = this->IterationData[next]->GetOutputInformation(0);
+      }
     out->CopyEntry(in, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     if (!this->IterativeRequestInformation(in, out))
@@ -120,15 +95,24 @@ vtkImageIterateFilter
 int
 vtkImageIterateFilter
 ::RequestUpdateExtent(vtkInformation*,
-                      vtkInformationVector**,
+                      vtkInformationVector** inputVector,
                       vtkInformationVector* outputVector)
 {
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* out = outputVector->GetInformationObject(0);
   for(int i=this->NumberOfIterations-1; i >= 0; --i)
     {
     this->Iteration = i;
 
-    vtkInformation* in = this->IterationData[i]->GetPipelineInformation();
+    vtkInformation* in;
+    if (i == 0)
+      {
+      in = inInfo;
+      }
+    else
+      {
+      in = this->IterationData[i]->GetInputInformation(0, 0);
+      }
     in->CopyEntry(out, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
     if (!this->IterativeRequestUpdateExtent(in, out))
@@ -148,13 +132,23 @@ int vtkImageIterateFilter::RequestData(vtkInformation* request,
                                         vtkInformationVector* outputVector)
 {
   vtkInformation* in = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   for(int i=0; i < this->NumberOfIterations; ++i)
     {
     this->Iteration = i;
 
-    vtkInformation* out = this->IterationData[i+1]->GetPipelineInformation();
+    int next = i + 1;
+    vtkInformation* out;
+    if (next == this->NumberOfIterations)
+      {
+      out = outInfo;
+      }
+    else
+      {
+      vtkInformation* out = this->IterationData[next]->GetOutputInformation(0);
+      }
     vtkDataObject* outData = out->Get(vtkDataObject::DATA_OBJECT());
-    outData->CopyInformationFromPipeline(request, out);
 
     this->InputVector->SetInformationObject(0, in);
     this->OutputVector->SetInformationObject(0, out);
@@ -239,14 +233,16 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
   
   // create new ones (first and last set later to input and output)
   this->IterationData =
-    reinterpret_cast<vtkImageData **>( new void *[num + 1]);
+    reinterpret_cast<vtkAlgorithm **>( new void *[num + 1]);
   this->IterationData[0] = this->IterationData[num] = NULL;
   for (idx = 1; idx < num; ++idx)
     {
-    this->IterationData[idx] = vtkImageData::New();
+    vtkImageData* cache = vtkImageData::New();
     vtkTrivialProducer* tp = vtkTrivialProducer::New();
     tp->ReleaseDataFlagOn();
-    tp->SetOutput(this->IterationData[idx]);
+    tp->SetOutput(cache);
+    this->IterationData[idx] = tp;
+    cache->Delete();
     }
 
   this->NumberOfIterations = num;

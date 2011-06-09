@@ -42,7 +42,7 @@ vtkSphereHandleRepresentation::vtkSphereHandleRepresentation()
   this->Sphere->SetPhiResolution(8);
   
   this->Mapper = vtkPolyDataMapper::New();
-  this->Mapper->SetInput(this->Sphere->GetOutput());
+  this->Mapper->SetInputConnection(this->Sphere->GetOutputPort());
 
   // Set up the initial properties
   this->CreateDefaultProperties();

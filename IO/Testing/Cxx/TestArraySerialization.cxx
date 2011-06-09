@@ -183,7 +183,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     
     vtkNew<vtkArrayWriter> jw;
     jw->WriteToOutputStringOn();
-    jw->SetInput(j1d.GetPointer());
+    jw->SetInputData(j1d.GetPointer());
     jw->Write();
     vtkStdString js = jw->GetOutputString();
 

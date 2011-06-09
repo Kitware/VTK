@@ -331,7 +331,7 @@ int vtkImageSeparableConvolution::IterativeRequestData(
 
   outData->SetExtent(outInfo->Get(
                        vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  outData->AllocateScalars();
+  outData->AllocateScalars(outInfo);
 
   if ( XKernel )
     {

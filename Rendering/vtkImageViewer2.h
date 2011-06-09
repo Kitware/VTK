@@ -33,7 +33,8 @@
 //
 // It is possible to mix images and geometry, using the methods:
 //
-// viewer->SetInput( myImage );
+// viewer->SetInputConnection( imageSource->GetOutputPort() );
+// // or viewer->SetInputData ( image );
 // viewer->GetRenderer()->AddActor( myActor );
 //
 // This can be used to annotate an image with a PolyData of "edges" or
@@ -84,7 +85,7 @@ public:
   
   // Description:
   // Set/Get the input image to the viewer.
-  virtual void SetInput(vtkImageData *in);
+  virtual void SetInputData(vtkImageData *in);
   virtual vtkImageData *GetInput();
   virtual void SetInputConnection(vtkAlgorithmOutput* input);
   

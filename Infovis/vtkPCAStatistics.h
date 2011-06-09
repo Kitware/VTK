@@ -122,6 +122,9 @@ public:
   // Any missing entries will be set to 1.0 and a warning issued.
   // An error will occur if the third input to the filter is not set and the
   // NormalizationScheme is DIAGONAL_SPECIFIED or TRIANGLE_SPECIFIED.
+  //
+  // NOTE: SetSpecifiedNormalization( table ) is equivalent to SetInputData(3, table)
+  // and therefore does not make a pipeline connection.
   virtual vtkTable* GetSpecifiedNormalization();
   virtual void SetSpecifiedNormalization( vtkTable* );
 

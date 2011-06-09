@@ -224,8 +224,11 @@ protected:
   // Allocate the output data. If we have a cache with the same metadata as
   // the output we are going to generate, re-use the cache as we may not be
   // updating all data in the min-max structure.
-  virtual void AllocateOutputData( vtkImageData *out, int *uExtent );
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
+  virtual void AllocateOutputData(vtkImageData *out,
+                                  vtkInformation* outInfo,
+                                  int *uExtent);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out,
+                                           vtkInformation *outInfo);
   
 private:
   vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.

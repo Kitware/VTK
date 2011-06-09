@@ -48,9 +48,9 @@ vtkGenericProbeFilter::~vtkGenericProbeFilter()
 
 
 //----------------------------------------------------------------------------
-void vtkGenericProbeFilter::SetSource(vtkGenericDataSet *input)
+void vtkGenericProbeFilter::SetSourceData(vtkGenericDataSet *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------

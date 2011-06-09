@@ -1518,7 +1518,7 @@ int vtkDataObjectToDataSetFilter::RequestDataObject(
       }
     if (output)
       {
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
     }

@@ -138,7 +138,7 @@ int vtkGraphToGlyphs::RequestData(
   this->DistanceToCamera->SetScreenSize(this->ScreenSize);
   this->GlyphSource->SetFilled(this->Filled);
 
-  this->GraphToPoints->SetInput(inputCopy);
+  this->GraphToPoints->SetInputData(inputCopy);
   vtkAbstractArray* arr = this->GetInputArrayToProcess(0, inputVector);
   if (arr)
     {

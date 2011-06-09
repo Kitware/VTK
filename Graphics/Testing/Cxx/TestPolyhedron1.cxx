@@ -195,7 +195,7 @@ int TestPolyhedron1( int argc, char* argv[] )
   // create actors
   vtkSmartPointer<vtkDataSetMapper> mapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInput(polyhedron->GetPolyData());
+  mapper->SetInputData(polyhedron->GetPolyData());
 
   vtkSmartPointer<vtkActor> actor = 
     vtkSmartPointer<vtkActor>::New();
@@ -203,7 +203,7 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   vtkSmartPointer<vtkDataSetMapper> planeMapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  planeMapper->SetInput(planePoly);
+  planeMapper->SetInputData(planePoly);
 
   vtkSmartPointer<vtkActor> planeActor = 
     vtkSmartPointer<vtkActor>::New();
@@ -212,7 +212,7 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   vtkSmartPointer<vtkDataSetMapper> contourMapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  contourMapper->SetInput(contourResult);
+  contourMapper->SetInputData(contourResult);
 
   vtkSmartPointer<vtkActor> contourActor = 
     vtkSmartPointer<vtkActor>::New();
@@ -220,7 +220,7 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   vtkSmartPointer<vtkDataSetMapper> clipPolyhedronMapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  clipPolyhedronMapper->SetInput(clipResult);
+  clipPolyhedronMapper->SetInputData(clipResult);
 
   vtkSmartPointer<vtkActor> clipPolyhedronActor = 
     vtkSmartPointer<vtkActor>::New();

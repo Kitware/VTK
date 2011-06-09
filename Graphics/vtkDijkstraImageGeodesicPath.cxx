@@ -70,7 +70,7 @@ void vtkDijkstraImageGeodesicPath::SetEdgeLengthWeight( double w)
 }
 
 //----------------------------------------------------------------------------
-void vtkDijkstraImageGeodesicPath::SetInput( vtkDataObject *input )
+void vtkDijkstraImageGeodesicPath::SetInputData( vtkDataObject *input )
 {
   vtkImageData* image = vtkImageData::SafeDownCast( input );
   if ( !image )
@@ -97,7 +97,7 @@ void vtkDijkstraImageGeodesicPath::SetInput( vtkDataObject *input )
 
   double* spacing = image->GetSpacing();
   this->PixelSize = sqrt(spacing[u[0]]*spacing[u[0]] + spacing[u[1]]*spacing[u[1]]);
-  this->Superclass::SetInput( image );
+  this->Superclass::SetInputData( image );
 }
 
 //----------------------------------------------------------------------------

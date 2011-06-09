@@ -43,6 +43,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
+#include "vtkDataSetWriter.h"
+
 char TestSphereHandleWidgetEventLog[] =
 "# StreamVersion 1\n"
 "MouseMoveEvent 181 152 0 0 0 0 0\n"
@@ -253,7 +255,7 @@ int TestSphereHandleWidget(int argc, char*argv[])
 
   vtkSmartPointer<vtkImageResample>  resample =
     vtkSmartPointer<vtkImageResample>::New();
-  resample->SetInput(demReader->GetOutput());
+  resample->SetInputConnection(demReader->GetOutputPort());
   resample->SetDimensionality(2);
   resample->SetAxisMagnificationFactor(0,1);
   resample->SetAxisMagnificationFactor(1,1);
@@ -261,21 +263,29 @@ int TestSphereHandleWidget(int argc, char*argv[])
   // Extract geometry
   vtkSmartPointer<vtkImageDataGeometryFilter> surface =
     vtkSmartPointer<vtkImageDataGeometryFilter>::New();
-  surface->SetInput(resample->GetOutput());
+  surface->SetInputConnection(resample->GetOutputPort());
 
   // The Dijkistra interpolator will not accept cells that aren't triangles
   vtkSmartPointer<vtkTriangleFilter> triangleFilter =
     vtkSmartPointer<vtkTriangleFilter>::New();
-  triangleFilter->SetInput( surface->GetOutput() );
+  triangleFilter->SetInputConnection( surface->GetOutputPort() );
   triangleFilter->Update();
 
   vtkSmartPointer<vtkWarpScalar> warp =
     vtkSmartPointer<vtkWarpScalar>::New();
-  warp->SetInput(triangleFilter->GetOutput());
+  warp->SetInputConnection(triangleFilter->GetOutputPort());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
   warp->SetNormal(0, 0, 1);
   warp->Update();
+
+  // cout << warp->GetOutput()->GetNumberOfCells() << endl;
+
+  // vtkSmartPointer<vtkDataSetWriter> writer =
+  //   vtkSmartPointer<vtkDataSetWriter>::New();
+  // writer->SetInputConnection(resample->GetOutputPort());
+  // writer->SetFileName("foo.vtk");
+  // writer->Write();
 
   // Define a LUT mapping for the height field
 
@@ -293,7 +303,7 @@ int TestSphereHandleWidget(int argc, char*argv[])
 
   vtkSmartPointer<vtkPolyDataMapper> demMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  demMapper->SetInput(warp->GetPolyDataOutput());
+  demMapper->SetInputConnection(warp->GetOutputPort());
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);
 
@@ -326,7 +336,7 @@ int TestSphereHandleWidget(int argc, char*argv[])
 
   vtkSmartPointer<vtkHandleWidget> widget =
     vtkSmartPointer<vtkHandleWidget>::New();
-  widget->SetInteractor(iren);
+  //widget->SetInteractor(iren);
   vtkSmartPointer<vtkSphereHandleRepresentation> rep =
     vtkSmartPointer<vtkSphereHandleRepresentation>::New();
   widget->SetRepresentation( rep );
@@ -346,7 +356,7 @@ int TestSphereHandleWidget(int argc, char*argv[])
   renWin->Render();
   
   iren->Initialize();
-  widget->EnabledOn();
+  //widget->EnabledOn();
   renWin->Render();
   ren1->ResetCamera();
   ren1->ResetCameraClippingRange();

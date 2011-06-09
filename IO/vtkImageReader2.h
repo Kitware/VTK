@@ -247,7 +247,7 @@ protected:
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
   virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteData(vtkDataObject *data, vtkInformation *outInfo);
   virtual void ComputeDataIncrements();
 private:
   vtkImageReader2(const vtkImageReader2&);  // Not implemented.

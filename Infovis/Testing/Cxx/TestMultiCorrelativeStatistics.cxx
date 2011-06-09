@@ -99,7 +99,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  mcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  mcs->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
 
   datasetTable->Delete();
 
@@ -149,7 +149,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
-  mcs->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
+  mcs->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
 
   // Test Assess only (Do not recalculate nor rederive a model)

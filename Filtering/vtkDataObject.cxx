@@ -26,8 +26,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
-#include "vtkInformationExecutivePortKey.h"
-#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerPointerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
@@ -91,8 +89,6 @@ const char vtkDataObject
 //----------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
 {
-  this->PipelineInformation = 0;
-
   this->Information = vtkInformation::New();
 
   // We have to assume that if a user is creating the data on their own,
@@ -108,7 +104,6 @@ vtkDataObject::vtkDataObject()
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
-  this->SetPipelineInformation(0);
   this->SetInformation(0);
   this->SetFieldData(NULL);
 }
@@ -136,59 +131,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
-}
-
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
-{
-  vtkInformation* oldInfo = this->PipelineInformation;
-  if(newInfo != oldInfo)
-    {
-    if(newInfo)
-      {
-      // Reference the new information.
-      newInfo->Register(this);
-
-      // Detach the output that used to be held by the new information.
-      if(vtkDataObject* oldData = newInfo->Get(vtkDataObject::DATA_OBJECT()))
-        {
-        oldData->Register(this);
-        oldData->SetPipelineInformation(0);
-        oldData->UnRegister(this);
-        }
-
-      // Tell the new information about this object.
-      newInfo->Set(vtkDataObject::DATA_OBJECT(), this);
-      }
-
-    // Save the pointer to the new information.
-    this->PipelineInformation = newInfo;
-
-    if(oldInfo)
-      {
-      // Remove the old information's reference to us.
-      oldInfo->Set(vtkDataObject::DATA_OBJECT(), 0);
-
-      // Remove our reference to the old information.
-      oldInfo->UnRegister(this);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkAlgorithmOutput* vtkDataObject::GetProducerPort()
-{  
-  // Make sure there is an executive.
-  if(!this->GetExecutive())
-    {
-    vtkTrivialProducer* tp = vtkTrivialProducer::New();
-    tp->SetOutput(this);
-    tp->FastDelete();
-    }
-
-  // Get the port from the executive.
-  return this->GetExecutive()->GetProducerPort(this);
 }
 
 //----------------------------------------------------------------------------
@@ -629,26 +571,6 @@ unsigned long vtkDataObject::GetUpdateTime()
 }
 
 //----------------------------------------------------------------------------
-vtkExecutive* vtkDataObject::GetExecutive()
-{
-  if(this->PipelineInformation)
-    {
-    return vtkExecutive::PRODUCER()->GetExecutive(this->PipelineInformation);
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::GetPortNumber()
-{
-  if(this->PipelineInformation)
-    {
-    return vtkExecutive::PRODUCER()->GetPort(this->PipelineInformation);
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 
 unsigned long vtkDataObject::GetActualMemorySize()
 {
@@ -761,8 +683,6 @@ void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->Information, "Information");
-  vtkGarbageCollectorReport(collector, this->PipelineInformation,
-                            "PipelineInformation");
 }
 
 

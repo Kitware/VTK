@@ -426,7 +426,7 @@ int vtkReflectionFilter::RequestDataObject(
         {
         newOutput = vtkUnstructuredGrid::New();
         }
-      newOutput->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataSet::DATA_OBJECT(), newOutput);
       newOutput->Delete();
       }
     return 1;

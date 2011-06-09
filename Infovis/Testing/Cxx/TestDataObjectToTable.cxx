@@ -65,7 +65,7 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cerr << "... done" << endl;
   
   int errors = 0;
-  toTable->SetInput(pd);
+  toTable->SetInputData(pd);
   for (int type = 0; type < 3; type++)
     {
     cerr << "Converting ";

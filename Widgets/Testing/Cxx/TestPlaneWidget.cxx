@@ -432,12 +432,12 @@ int TestPlaneWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkProbeFilter> probe =
     vtkSmartPointer<vtkProbeFilter>::New();
-  probe->SetInput(plane);
-  probe->SetSource(pl3d_block0);
+  probe->SetInputData(plane);
+  probe->SetSourceData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> probeMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  probeMapper->SetInput(probe->GetPolyDataOutput());
+  probeMapper->SetInputConnection(probe->GetOutputPort());
   double tmp[2];
   pl3d_block0->GetScalarRange(tmp);
   probeMapper->SetScalarRange(tmp[0], tmp[1]);
@@ -450,7 +450,7 @@ int TestPlaneWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridOutlineFilter> outline =
     vtkSmartPointer<vtkStructuredGridOutlineFilter>::New();
-  outline->SetInput(pl3d_block0);
+  outline->SetInputData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();

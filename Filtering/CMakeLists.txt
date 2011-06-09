@@ -77,7 +77,6 @@ vtkGenericAttribute.cxx
 vtkGenericCell.cxx
 vtkGenericCellIterator.cxx
 vtkGenericCellTessellator.cxx
-vtkGenericDataSetAlgorithm.cxx
 vtkGenericDataSet.cxx
 vtkGenericEdgeTable.cxx
 vtkGenericInterpolatedVelocityField.cxx
@@ -239,7 +238,6 @@ vtkGenericAttribute
 vtkGenericCellIterator
 vtkGenericCellTessellator
 vtkGenericDataSet
-vtkGenericDataSetAlgorithm
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
 vtkGraph

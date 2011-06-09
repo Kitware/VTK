@@ -3583,7 +3583,7 @@ void vtkExodusReader::AddDisplacements(vtkUnstructuredGrid* output)
   vtkUnstructuredGrid *geom = vtkUnstructuredGrid::New();
   geom->ShallowCopy(output);
 
-  warp->SetInput(geom);
+  warp->SetInputData(geom);
   warp->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, arrayName);
   if (this->HasModeShapes)

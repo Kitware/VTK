@@ -95,9 +95,9 @@ int vtkCompositeDataGeometryFilter::RequestCompositeData(
     if (ds)
       {
       vtkGeometryFilter* geom = vtkGeometryFilter::New();
-      geom->SetInput(ds);
+      geom->SetInputData(ds);
       geom->Update();
-      append->AddInput(geom->GetOutput());
+      append->AddInputConnection(geom->GetOutputPort());
       geom->Delete();
       added = true;
       }

@@ -164,9 +164,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Instantiate a parallel KMeans statistics engine and set its ports
   vtkPKMeansStatistics* pks = vtkPKMeansStatistics::New();
-  pks->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  pks->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   pks->SetMaxNumIterations( 10 );
-  pks->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
+  pks->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
 
   // Select columns for testing
   pks->SetColumnStatus( inputData->GetColumnName( 0 ) , 1 );

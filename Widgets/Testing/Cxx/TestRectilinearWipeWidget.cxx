@@ -24,6 +24,7 @@
 #include "vtkImageCanvasSource2D.h"
 #include "vtkImageRectilinearWipe.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -476,7 +477,7 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkImageWrapPad> pad1 =
     vtkSmartPointer<vtkImageWrapPad>::New();
-  pad1->SetInput(image1->GetOutput());
+  pad1->SetInputConnection(image1->GetOutputPort());
   pad1->SetOutputWholeExtent(0,511,0,511,0,0);
 
   vtkSmartPointer<vtkImageCanvasSource2D> image2 =
@@ -489,19 +490,19 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkImageWrapPad> pad2 =
     vtkSmartPointer<vtkImageWrapPad>::New();
-  pad2->SetInput(image2->GetOutput());
+  pad2->SetInputConnection(image2->GetOutputPort());
   pad2->SetOutputWholeExtent(0,511,0,511,0,0);
 
   vtkSmartPointer<vtkImageRectilinearWipe> wipe =
     vtkSmartPointer<vtkImageRectilinearWipe>::New();
-  wipe->SetInput(0,pad1->GetOutput());
-  wipe->SetInput(1,pad2->GetOutput());
+  wipe->SetInputConnection(0,pad1->GetOutputPort());
+  wipe->SetInputConnection(1,pad2->GetOutputPort());
   wipe->SetPosition(100,256);
   wipe->SetWipe(wipeMode);
 
   vtkSmartPointer<vtkImageActor> wipeActor =
     vtkSmartPointer<vtkImageActor>::New();
-  wipeActor->SetInput(wipe->GetOutput());
+  wipeActor->GetMapper()->SetInputConnection(wipe->GetOutputPort());
 
   // VTK widgets consist of two parts: the widget part that handles
   // event processing; and the widget representation that defines how

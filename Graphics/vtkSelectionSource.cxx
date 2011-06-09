@@ -25,7 +25,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkTrivialProducer.h"
 #include "vtkUnsignedIntArray.h"
 
 #include "vtkstd/vector"

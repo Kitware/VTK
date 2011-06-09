@@ -99,7 +99,7 @@ int vtkCirclePackToPolyData::RequestData(
                        circle[2],
                        this->Resolution,
                        circlePData);
-    appendFilter->AddInput(circlePData);
+    appendFilter->AddInputData(circlePData);
 
     if ( i%1000 == 0 )
       {

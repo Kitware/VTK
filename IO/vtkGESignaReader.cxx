@@ -477,9 +477,10 @@ void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data,
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkGESignaReader::ExecuteData(vtkDataObject *output)
+void vtkGESignaReader::ExecuteData(vtkDataObject *output,
+                                   vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (this->InternalFileName == NULL)
     {

@@ -172,17 +172,9 @@ vtkTextProperty* vtkLabeledDataMapper::GetLabelTextProperty(int type)
 }
 
 //----------------------------------------------------------------------------
-void vtkLabeledDataMapper::SetInput(vtkDataObject* input)
+void vtkLabeledDataMapper::SetInputData(vtkDataObject* input)
 {
-  if (input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------

@@ -39,6 +39,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
+#include "vtkTrivialProducer.h"
 
 #include <vtkstd/set>
 #include <vtkstd/vector>
@@ -1449,7 +1450,8 @@ int vtkAlgorithm::GetReleaseDataFlag()
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
+int vtkAlgorithm::UpdateExtentIsEmpty(vtkInformation *pinfo,
+                                      vtkDataObject *output)
 {
   if (output == NULL)
     {
@@ -1458,11 +1460,9 @@ int vtkAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
 
   // get the pinfo object then call the info signature
   return this->UpdateExtentIsEmpty(
-    output->GetPipelineInformation(),
+    pinfo,
     output->GetInformation()->Get(vtkDataObject::DATA_EXTENT_TYPE()));
 }
-
-
 //----------------------------------------------------------------------------
 int vtkAlgorithm::UpdateExtentIsEmpty(vtkInformation *info, int extentType)
 {
@@ -1591,5 +1591,34 @@ void vtkAlgorithm::SetUpdateExtent(int port,
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
       this->GetInputInformation(port, connection),
       extent);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::SetInputDataInternal(int port, vtkDataObject *input)
+{
+  if(input)
+    {
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(input);
+    this->SetInputConnection(port, tp->GetOutputPort());
+    tp->Delete();
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(port, 0);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::AddInputDataInternal(int port, vtkDataObject *input)
+{
+  if(input)
+    {
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(input);
+    this->AddInputConnection(port, tp->GetOutputPort());
+    tp->Delete();
     }
 }

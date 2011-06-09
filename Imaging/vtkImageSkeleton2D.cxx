@@ -315,10 +315,17 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 //----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData, 
-                                         vtkImageData *outData, 
-                                         int outExt[6], int id)
+void vtkImageSkeleton2D::ThreadedRequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector ),
+  vtkImageData ***inDataV,
+  vtkImageData **outDataV,
+  int outExt[6],
+  int id)
 {
+  vtkImageData* inData = inDataV[0][0];
+  vtkImageData* outData = outDataV[0];
   void *inPtr;
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *tempData;
@@ -332,7 +339,7 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
     return;
     }
 
-  vtkInformation* inInfo = inData->GetPipelineInformation();
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
 

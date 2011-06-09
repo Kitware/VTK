@@ -266,8 +266,8 @@ int TestSplineWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkProbeFilter> probe =
     vtkSmartPointer<vtkProbeFilter>::New();
-  probe->SetInput(poly);
-  probe->SetSource(v16->GetOutput());
+  probe->SetInputData(poly);
+  probe->SetSourceConnection(v16->GetOutputPort());
 
   vtkSmartPointer<vtkIPWCallback> ipwcb =
     vtkSmartPointer<vtkIPWCallback>::New();

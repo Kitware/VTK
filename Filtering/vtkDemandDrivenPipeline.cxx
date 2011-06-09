@@ -481,14 +481,6 @@ int vtkDemandDrivenPipeline::ExecuteInformation
     {
     inInfo = inInfoVec[0]->GetInformationObject(0);
     }
-  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-    {
-    vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
-    if(vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT()))
-      {
-      outData->CopyInformationToPipeline(request, inInfo);
-      }
-    }
 
   // Invoke the request on the algorithm.
   return this->CallAlgorithm(request, vtkExecutive::RequestDownstream,

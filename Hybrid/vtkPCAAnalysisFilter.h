@@ -77,8 +77,8 @@ class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkPointSetAlgorithm
   // Description:
   // Specify the input pointset with index idx.
   // Call SetNumberOfInputs before calling this function.
-  void SetInput(int idx, vtkPointSet* p);
-  void SetInput(int idx, vtkDataObject* input);
+  void SetInputData(int idx, vtkPointSet* p);
+  void SetInputData(int idx, vtkDataObject* input);
 
   // Description:
   // Retrieve the input with index idx (usually only used for pipeline

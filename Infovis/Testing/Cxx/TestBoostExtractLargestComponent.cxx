@@ -64,7 +64,7 @@ int TestNormal(vtkMutableUndirectedGraph* g)
   // Test normal operation (extract largest connected component)
   vtkSmartPointer<vtkBoostExtractLargestComponent> filter =
     vtkSmartPointer<vtkBoostExtractLargestComponent>::New();
-  filter->SetInputConnection(g->GetProducerPort());
+  filter->SetInputData(g);
   filter->Update();
 
   if(filter->GetOutput()->GetNumberOfVertices() != 3)
@@ -81,7 +81,7 @@ int TestInverse(vtkMutableUndirectedGraph* g)
   // Test inverse operation (extract everything but largest connected component)
   vtkSmartPointer<vtkBoostExtractLargestComponent> filter =
     vtkSmartPointer<vtkBoostExtractLargestComponent>::New();
-  filter->SetInputConnection(g->GetProducerPort());
+  filter->SetInputData(g);
   filter->SetInvertSelection(true);
   filter->Update();
 

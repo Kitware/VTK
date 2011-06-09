@@ -111,7 +111,7 @@ int TestGraphAlgorithms(int argc, char* argv[])
 
   // Test vertex degree
   VTK_CREATE(vtkVertexDegree, degree);
-  degree->SetInput(g);
+  degree->SetInputData(g);
   PerformAlgorithm(ren, degree, 0, 0, "VertexDegree", 0, 4);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);

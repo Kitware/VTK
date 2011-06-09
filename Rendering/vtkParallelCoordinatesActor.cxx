@@ -61,7 +61,7 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->PlotData = vtkPolyData::New();
 
   this->PlotMapper = vtkPolyDataMapper2D::New();
-  this->PlotMapper->SetInput(this->PlotData);
+  this->PlotMapper->SetInputData(this->PlotData);
 
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);

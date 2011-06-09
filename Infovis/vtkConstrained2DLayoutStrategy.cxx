@@ -271,7 +271,7 @@ void vtkConstrained2DLayoutStrategy::Initialize()
   
   // Set up the image splatter
   this->GenerateGaussianSplat(this->SplatImage, 41, 41);
-  this->DensityGrid->SetInput(1, this->SplatImage);
+  this->DensityGrid->SetInputData(1, this->SplatImage);
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
 
 }
@@ -290,7 +290,7 @@ void vtkConstrained2DLayoutStrategy::Layout()
     }
     
   // Set my graph as input into the density grid
-  this->DensityGrid->SetInput(this->Graph);
+  this->DensityGrid->SetInputData(this->Graph);
   
   // Set up some variables
   vtkPoints* pts = this->Graph->GetPoints();

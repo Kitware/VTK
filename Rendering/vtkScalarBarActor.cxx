@@ -81,7 +81,7 @@ vtkScalarBarActor::vtkScalarBarActor()
 
   this->ScalarBar = vtkPolyData::New();
   this->ScalarBarMapper = vtkPolyDataMapper2D::New();
-  this->ScalarBarMapper->SetInput(this->ScalarBar);
+  this->ScalarBarMapper->SetInputData(this->ScalarBar);
   this->ScalarBarActor = vtkActor2D::New();
   this->ScalarBarActor->SetMapper(this->ScalarBarMapper);
   this->ScalarBarActor->GetPositionCoordinate()->
@@ -98,7 +98,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   
   this->TexturePolyData = vtkPolyData::New();
   vtkPolyDataMapper2D * textureMapper = vtkPolyDataMapper2D::New();
-  textureMapper->SetInput(this->TexturePolyData);
+  textureMapper->SetInputData(this->TexturePolyData);
   this->TextureActor = vtkActor2D::New();
   this->TextureActor->SetMapper(textureMapper);
   textureMapper->Delete();
@@ -147,7 +147,7 @@ vtkScalarBarActor::vtkScalarBarActor()
     }
 
   this->Texture = vtkTexture::New();
-  this->Texture->SetInput( image );
+  this->Texture->SetInputData( image );
   this->Texture->RepeatOn();
   image->Delete();
 

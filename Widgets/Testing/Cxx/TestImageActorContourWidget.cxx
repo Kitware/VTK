@@ -853,7 +853,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   
   vtkSmartPointer<vtkImageViewer2> imageViewer =
     vtkSmartPointer<vtkImageViewer2>::New();
-  imageViewer->SetInput(shifter->GetOutput());
+  imageViewer->SetInputConnection(shifter->GetOutputPort());
   imageViewer->SetColorLevel(127);
   imageViewer->SetColorWindow(255);
 

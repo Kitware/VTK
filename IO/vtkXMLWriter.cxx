@@ -365,23 +365,15 @@ void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::SetInput(vtkDataObject* input)
+void vtkXMLWriter::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::SetInput(int index, vtkDataObject* input)
+void vtkXMLWriter::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------

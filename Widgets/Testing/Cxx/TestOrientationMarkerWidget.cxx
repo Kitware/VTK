@@ -339,7 +339,7 @@ int TestOrientationMarkerWidget( int, char *[] )
 
   vtkSmartPointer<vtkTubeFilter> tube =
     vtkSmartPointer<vtkTubeFilter>::New();
-  tube->SetInput( wiggle );
+  tube->SetInputData( wiggle );
   tube->SetGenerateTCoordsToOff();
   tube->CappingOff();
   tube->SetVaryRadiusToVaryRadiusOff();
@@ -388,7 +388,7 @@ int TestOrientationMarkerWidget( int, char *[] )
       vtkPolyData* poly = vtkPolyData::SafeDownCast(node->GetMapper()->GetInput());
       if ( poly )
         {
-        transformFilter->SetInput( poly );
+        transformFilter->SetInputData( poly );
         transform->Identity();
         transform->SetMatrix( node->GetMatrix() );
         transform->Scale( 2.0, 2.0, 2.0 );
@@ -397,7 +397,7 @@ int TestOrientationMarkerWidget( int, char *[] )
         vtkSmartPointer<vtkPolyData> newpoly =
           vtkSmartPointer<vtkPolyData>::New();
         newpoly->DeepCopy( transformFilter->GetOutput() );
-        append->AddInput( newpoly );
+        append->AddInputData( newpoly );
         }
       }
     }

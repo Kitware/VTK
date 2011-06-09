@@ -533,7 +533,7 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 
   vtkPNGWriter* writer = vtkPNGWriter::New();
   writer->SetFileName(filename);
-  writer->SetInput(img);
+  writer->SetInputData(img);
   writer->Write();
   writer->Delete();
   img->Delete();

@@ -148,7 +148,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // For verification, instantiate a serial descriptive statistics engine and set its ports
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
-  ds->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  ds->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
   // Select all columns
   for ( int c = 0; c < nVariables; ++ c )
@@ -341,7 +341,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   
   // Instantiate a parallel descriptive statistics engine and set its input data
   vtkPDescriptiveStatistics* pds = vtkPDescriptiveStatistics::New();
-  pds->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  pds->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
   // Select all columns
   for ( int c = 0; c < nVariables; ++ c )
@@ -515,7 +515,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Instantiate a parallel correlative statistics engine and set its input
   vtkPCorrelativeStatistics* pcs = vtkPCorrelativeStatistics::New();
-  pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  pcs->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcs->AddColumnPair( columnNames[0], columnNames[1] );
@@ -587,7 +587,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Instantiate a parallel correlative statistics engine and set its ports
   vtkPMultiCorrelativeStatistics* pmcs = vtkPMultiCorrelativeStatistics::New();
-  pmcs->SetInput( 0, inputData );
+  pmcs->SetInputData( 0, inputData );
   outputData = pmcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
@@ -649,7 +649,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Instantiate a parallel pca statistics engine and set its ports
   vtkPPCAStatistics* pcas = vtkPPCAStatistics::New();
-  pcas->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  pcas->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   outputData = pcas->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)

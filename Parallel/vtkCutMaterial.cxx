@@ -104,7 +104,7 @@ int vtkCutMaterial::RequestData(
   
   // It would be nice to get rid of this in the future.
   thresh = vtkThreshold::New();
-  thresh->SetInput(input);
+  thresh->SetInputData(input);
   thresh->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_CELLS,
                                  this->MaterialArrayName);
   thresh->ThresholdBetween(this->Material-0.5, this->Material+0.5);
@@ -122,7 +122,7 @@ int vtkCutMaterial::RequestData(
   this->PlaneFunction->SetNormal(this->Normal);
   
   cutter = vtkCutter::New();
-  cutter->SetInput(thresh->GetOutput());
+  cutter->SetInputConnection(thresh->GetOutputPort());
   cutter->SetCutFunction(this->PlaneFunction);
   cutter->SetValue(0, 0.0);
   cutter->Update();

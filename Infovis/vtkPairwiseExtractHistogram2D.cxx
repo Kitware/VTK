@@ -139,7 +139,7 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
       // create a new histogram filter
       vtkSmartPointer<vtkExtractHistogram2D> f;
       f.TakeReference(this->NewHistogramFilter());
-      f->SetInput(inDataCopy);
+      f->SetInputData(inDataCopy);
       f->SetNumberOfBins(this->NumberOfBins);
       vtkstd::pair<vtkStdString,vtkStdString> colpair(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
       f->AddColumnPair(colpair.first.c_str(),colpair.second.c_str());

@@ -599,9 +599,10 @@ void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkTIFFReaderInternal *reader,
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkTIFFReader::ExecuteData(vtkDataObject *output)
+void vtkTIFFReader::ExecuteData(vtkDataObject *output,
+                                vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
   vtkTIFFReaderInternal *reader = this->GetInternalImage();
 
   if (this->InternalFileName == NULL)

@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkAnnotationLayers.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkAnnotationLayersAlgorithm);
 
@@ -93,17 +92,9 @@ vtkAnnotationLayers* vtkAnnotationLayersAlgorithm::GetOutput(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnnotationLayersAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkAnnotationLayersAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if (input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------

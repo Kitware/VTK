@@ -51,8 +51,8 @@ public:
 
   // Description:
   // Specify the point locations used to probe input. Any geometry
-  // can be used. Old style. Do not use unless for backwards compatibility.
-  void SetSource(vtkDataObject *source);
+  // can be used.
+  void SetSourceData(vtkDataObject *source);
   vtkDataObject *GetSource();
 
   // Description:

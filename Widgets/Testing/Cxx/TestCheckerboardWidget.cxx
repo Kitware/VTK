@@ -25,6 +25,7 @@
 #include "vtkImageCanvasSource2D.h"
 #include "vtkImageCheckerboard.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -262,7 +263,7 @@ int TestCheckerboardWidget( int, char *[] )
 
   vtkSmartPointer<vtkImageWrapPad> pad1 =
     vtkSmartPointer<vtkImageWrapPad>::New();
-  pad1->SetInput(image1->GetOutput());
+  pad1->SetInputConnection(image1->GetOutputPort());
   pad1->SetOutputWholeExtent(0,511,0,511,0,0);
 
   vtkSmartPointer<vtkImageCanvasSource2D> image2 =
@@ -275,18 +276,18 @@ int TestCheckerboardWidget( int, char *[] )
 
   vtkSmartPointer<vtkImageWrapPad> pad2 =
     vtkSmartPointer<vtkImageWrapPad>::New();
-  pad2->SetInput(image2->GetOutput());
+  pad2->SetInputConnection(image2->GetOutputPort());
   pad2->SetOutputWholeExtent(0,511,0,511,0,0);
 
   vtkSmartPointer<vtkImageCheckerboard> checkers =
     vtkSmartPointer<vtkImageCheckerboard>::New();
-  checkers->SetInput(0,pad1->GetOutput());
-  checkers->SetInput(1,pad2->GetOutput());
+  checkers->SetInputConnection(0,pad1->GetOutputPort());
+  checkers->SetInputConnection(1,pad2->GetOutputPort());
   checkers->SetNumberOfDivisions(10,6,1);
  
   vtkSmartPointer<vtkImageActor> checkerboardActor =
     vtkSmartPointer<vtkImageActor>::New();
-  checkerboardActor->SetInput(checkers->GetOutput());
+  checkerboardActor->GetMapper()->SetInputConnection(checkers->GetOutputPort());
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
   // and the widget representation that defines how the widget appears in the scene 

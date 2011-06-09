@@ -224,7 +224,7 @@ public:
       {
       poly->SetPolys(cells);
       }
-    mapper->SetInput(poly);
+    mapper->SetInputData(poly);
     actor->SetMapper(mapper);
     actor->GetProperty()->SetColor(color);
     actor->GetProperty()->SetOpacity(opacity);
@@ -875,7 +875,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     vtkSmartPointer<vtkActor2D> boundsActor = vtkSmartPointer<vtkActor2D>::New();
     trans->SetInputCoordinateSystemToWorld();
     trans->SetOutputCoordinateSystemToDisplay();
-    trans->SetInput( boundsPoly );
+    trans->SetInputData( boundsPoly );
     trans->SetViewport( ren );
     boundsMapper->SetInputConnection( trans->GetOutputPort() );
     boundsMapper->RenderOverlay( ren, boundsActor );

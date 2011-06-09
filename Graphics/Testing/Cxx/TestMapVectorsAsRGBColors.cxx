@@ -148,7 +148,7 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
       vtkSmartPointer<vtkImageMapper>::New();
     mapper->SetColorWindow(255.0);
     mapper->SetColorLevel(127.5);
-    mapper->SetInput(image);
+    mapper->SetInputData(image);
 
     vtkSmartPointer<vtkActor2D> actor =
       vtkSmartPointer<vtkActor2D>::New();

@@ -75,12 +75,12 @@ int TestArcEdges(int argc, char* argv[])
     }
   delete [] pts;
 
-  graphToPoly->SetInput(g);
+  graphToPoly->SetInputData(g);
   edgeMapper->SetInputConnection(graphToPoly->GetOutputPort());
   edgeActor->SetMapper(edgeMapper);
   ren->AddActor(edgeActor);
 
-  vertGlyph->SetInput(g);
+  vertGlyph->SetInputData(g);
   vertMapper->SetInputConnection(vertGlyph->GetOutputPort());
   vertActor->SetMapper(vertMapper);
   vertActor->GetProperty()->SetPointSize(1);

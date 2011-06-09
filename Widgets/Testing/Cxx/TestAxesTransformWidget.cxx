@@ -57,7 +57,7 @@ int TestAxesTransformWidget( int , char *[] )
   ss->Update();
 
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInput(ss->GetOutput());
+  mapper->SetInputConnection(ss->GetOutputPort());
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 

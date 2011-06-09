@@ -210,7 +210,7 @@ int vtkTextActor3D::UpdateImageActor()
     {
     if (this->ImageActor)
       {
-      this->ImageActor->SetInput(NULL);
+      this->ImageActor->SetInputData(0);
       }
     return 1;
     }
@@ -251,7 +251,7 @@ int vtkTextActor3D::UpdateImageActor()
     // Associate the image data (should be up to date now) to the image actor
     if (this->ImageActor)
       {
-      this->ImageActor->SetInput(this->ImageData);
+      this->ImageActor->SetInputData(this->ImageData);
       this->ImageActor->SetDisplayExtent(this->ImageData->GetExtent());
       }
 

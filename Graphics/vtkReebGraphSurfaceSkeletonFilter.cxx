@@ -269,13 +269,15 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
             contourFilter->SetNumberOfContours(1);
             contourFilter->SetValue(i, minValue + 
               (i + 1.0)*(maxValue - minValue)/(((double)NumberOfSamples) + 1.0));
-            contourFilter->SetInput(subMesh);
+            contourFilter->SetInputData(subMesh);
             contourFilter->Update();
 
             vtkPolyData *contourMesh = contourFilter->GetOutput();
             std::vector<double> baryCenter(3);
             for(int j = 0; j < 3; j++)
+              {
               baryCenter[j] = 0.0;
+              }
 
             if(contourMesh->GetNumberOfPoints() > 1)
               {

@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderedHierarchyRepresentation.h"
 #include "vtkTree.h"
+#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
@@ -56,7 +57,7 @@ vtkRenderedGraphRepresentation* vtkHierarchicalGraphView::GetGraphRepresentation
     graphRep = vtkRenderedHierarchyRepresentation::SafeDownCast(
       this->AddRepresentationFromInput(t));
     vtkSmartPointer<vtkDirectedGraph> g = vtkSmartPointer<vtkDirectedGraph>::New();
-    graphRep->SetInput(1, g);
+    graphRep->SetInputData(1, g);
     }
   return graphRep;
 }
@@ -86,7 +87,9 @@ vtkDataRepresentation* vtkHierarchicalGraphView::SetHierarchyFromInputConnection
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkHierarchicalGraphView::SetHierarchyFromInput(vtkDataObject* input)
 {
-  return this->SetHierarchyFromInputConnection(input->GetProducerPort());
+  vtkSmartPointer<vtkTrivialProducer> tp = vtkSmartPointer<vtkTrivialProducer>::New();
+  tp->SetOutput(input);
+  return this->SetHierarchyFromInputConnection(tp->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------
@@ -99,7 +102,9 @@ vtkDataRepresentation* vtkHierarchicalGraphView::SetGraphFromInputConnection(vtk
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkHierarchicalGraphView::SetGraphFromInput(vtkDataObject* input)
 {
-  return this->SetGraphFromInputConnection(input->GetProducerPort());
+  vtkSmartPointer<vtkTrivialProducer> tp = vtkSmartPointer<vtkTrivialProducer>::New();
+  tp->SetOutput(input);
+  return this->SetGraphFromInputConnection(tp->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------

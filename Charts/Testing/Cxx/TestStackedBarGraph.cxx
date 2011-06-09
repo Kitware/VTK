@@ -115,7 +115,7 @@ int TestStackedBarGraph(int , char * [])
 
   bar = vtkPlotBar::SafeDownCast(chart->AddPlot(vtkChart::BAR));
   bar->SetColorSeries(colorSeries1);
-  bar->SetInput(table, "Month", "Books 2008");
+  bar->SetInputData(table, "Month", "Books 2008");
   bar->SetInputArray(2,"New / Popular 2008");
   bar->SetInputArray(3,"Periodical 2008");
   bar->SetInputArray(4,"Audiobook 2008");
@@ -126,7 +126,7 @@ int TestStackedBarGraph(int , char * [])
 
   bar = vtkPlotBar::SafeDownCast(chart->AddPlot(vtkChart::BAR));
   bar->SetColorSeries(colorSeries2);
-  bar->SetInput(table, "Month", "Books 2009");
+  bar->SetInputData(table, "Month", "Books 2009");
   bar->SetInputArray(2,"New / Popular 2009");
   bar->SetInputArray(3,"Periodical 2009");
   bar->SetInputArray(4,"Audiobook 2009");

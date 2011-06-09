@@ -108,7 +108,7 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cvs->SetVerticesCollapsedArray("weight_vertices");
   cvs->SetVertexArray("owner_company");
   cvs->AddAggregateEdgeArray("data_transfer");
-  cvs->SetInput(inGraph);
+  cvs->SetInputData(inGraph);
   cvs->Update();
 
   // Check values here.

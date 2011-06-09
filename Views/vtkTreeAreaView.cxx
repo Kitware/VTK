@@ -90,7 +90,7 @@ vtkDataRepresentation* vtkTreeAreaView::SetTreeFromInputConnection(vtkAlgorithmO
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkTreeAreaView::SetTreeFromInput(vtkTree* input)
 {
-  this->GetTreeAreaRepresentation()->SetInput(input);
+  this->GetTreeAreaRepresentation()->SetInputData(input);
   return this->GetTreeAreaRepresentation();
 }
 
@@ -104,7 +104,7 @@ vtkDataRepresentation* vtkTreeAreaView::SetGraphFromInputConnection(vtkAlgorithm
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkTreeAreaView::SetGraphFromInput(vtkGraph* input)
 {
-  this->GetTreeAreaRepresentation()->SetInput(1, input);
+  this->GetTreeAreaRepresentation()->SetInputData(1, input);
   return this->GetTreeAreaRepresentation();
 }
 

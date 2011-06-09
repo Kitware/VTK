@@ -77,17 +77,9 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataMapper::SetInput(vtkPolyData *input)
+void vtkPolyDataMapper::SetInputData(vtkPolyData *input)
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -172,7 +164,7 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
   vtkPolyDataMapper *m = vtkPolyDataMapper::SafeDownCast(mapper);
   if ( m != NULL )
     {
-    this->SetInput(m->GetInput());
+    this->SetInputConnection(m->GetInputConnection(0, 0));
     this->SetGhostLevel(m->GetGhostLevel());
     this->SetNumberOfPieces(m->GetNumberOfPieces());
     this->SetNumberOfSubPieces(m->GetNumberOfSubPieces());

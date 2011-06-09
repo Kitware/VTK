@@ -114,7 +114,7 @@ public:
   // Description:
   // Specify the source object used to generate starting points (seeds).
   // Old style. Do not use.
-  void SetSource(vtkDataSet *source);
+  void SetSourceData(vtkDataSet *source);
   vtkDataSet *GetSource();
 
   // Description:

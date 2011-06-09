@@ -149,7 +149,7 @@ public:
   // points in the input point set (i.e. point ids are identical in the
   // input and source).
   // Old style. See SetSourceConnection.
-  void SetSource(vtkPolyData *);
+  void SetSourceData(vtkPolyData *);
 
   // Description:
   // Specify the source object used to specify constrained edges and loops.

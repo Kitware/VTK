@@ -43,7 +43,7 @@ vtkAppendSelection::~vtkAppendSelection()
 
 //----------------------------------------------------------------------------
 // Add a dataset to the list of data to append.
-void vtkAppendSelection::AddInput(vtkSelection *ds)
+void vtkAppendSelection::AddInputData(vtkSelection *ds)
 {
   if (this->UserManagedInputs)
     {
@@ -51,12 +51,12 @@ void vtkAppendSelection::AddInput(vtkSelection *ds)
       "AddInput is not supported if UserManagedInputs is true");
     return;
     }
-  this->Superclass::AddInputConnection(ds->GetProducerPort());
+  this->AddInputDataInternal(0, ds);
 }
 
 //----------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
-void vtkAppendSelection::RemoveInput(vtkSelection *ds)
+void vtkAppendSelection::RemoveInputData(vtkSelection *ds)
 {
   if (this->UserManagedInputs)
     {
@@ -65,13 +65,19 @@ void vtkAppendSelection::RemoveInput(vtkSelection *ds)
     return;
     }
 
-  vtkAlgorithmOutput *algOutput = 0;
-  if (ds)
+  if (!ds)
     {
-    algOutput = ds->GetProducerPort();
+    return;
     }
-
-  this->RemoveInputConnection(0, algOutput);
+  int numCons = this->GetNumberOfInputConnections(0);
+  for(int i=0; i<numCons; i++)
+    {
+    if (this->GetInput(i) == ds)
+      {
+      this->RemoveInputConnection(0,
+        this->GetInputConnection(0, i));
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -92,7 +98,8 @@ void vtkAppendSelection::SetNumberOfInputs(int num)
 
 //----------------------------------------------------------------------------
 // Set Nth input, should only be used when UserManagedInputs is true.
-void vtkAppendSelection::SetInputByNumber(int num, vtkSelection *input)
+void vtkAppendSelection::SetInputConnectionByNumber(int num,
+                                                    vtkAlgorithmOutput *input)
 {
   if (!this->UserManagedInputs)
     {
@@ -102,7 +109,7 @@ void vtkAppendSelection::SetInputByNumber(int num, vtkSelection *input)
     }
 
   // Ask the superclass to connect the input.
-  this->SetNthInputConnection(0, num, input? input->GetProducerPort() : 0);
+  this->SetNthInputConnection(0, num, input);
 }
 
 //----------------------------------------------------------------------------

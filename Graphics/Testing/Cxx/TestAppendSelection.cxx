@@ -127,8 +127,8 @@ int TestAppendSelectionCase(
   vtkSelection* correct)
 {
   VTK_CREATE(vtkAppendSelection, append);
-  append->AddInput(input1);
-  append->AddInput(input2);
+  append->AddInputData(input1);
+  append->AddInputData(input2);
   append->Update();
   vtkSelection* output = append->GetOutput();
   return SelectionCompare(output, correct);

@@ -59,7 +59,7 @@ int TestAssignAttribute(int, char *[])
   poly->GetCellData()->AddArray(scalars);
   VTK_CREATE(vtkAssignAttribute, assign);
 
-  assign->SetInput(graph);
+  assign->SetInputData(graph);
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::VERTEX_DATA);  
   assign->Update();  
   vtkGraph *output = vtkGraph::SafeDownCast(assign->GetOutput());
@@ -77,7 +77,7 @@ int TestAssignAttribute(int, char *[])
     ++errors;
     }
 
-  assign->SetInput(poly);
+  assign->SetInputData(poly);
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::POINT_DATA);  
   assign->Update();  
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());

@@ -25,7 +25,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkGraph.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkGraphAlgorithm);
 
@@ -104,17 +103,9 @@ vtkGraph* vtkGraphAlgorithm::GetOutput(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkGraphAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if (input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
@@ -183,10 +174,8 @@ int vtkGraphAlgorithm::RequestDataObject(
       if (!output || !output->IsA(input->GetClassName())) 
         {
         output = input->NewInstance();
-        output->SetPipelineInformation(info);
+        info->Set(vtkDataObject::DATA_OBJECT(), output);
         output->Delete();
-        this->GetOutputPortInformation(i)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
         }
       }
     return 1;

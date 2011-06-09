@@ -67,9 +67,9 @@ vtkProjectedTerrainPath::~vtkProjectedTerrainPath()
 }
 
 //-----------------------------------------------------------------------------
-void vtkProjectedTerrainPath::SetSource(vtkImageData *source)
+void vtkProjectedTerrainPath::SetSourceData(vtkImageData *source)
 {
-  this->SetInput(1, source);
+  this->SetInputDataInternal(1, source);
 }
 
 //-----------------------------------------------------------------------------

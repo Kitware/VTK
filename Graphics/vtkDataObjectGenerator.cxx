@@ -339,7 +339,6 @@ int vtkDataObjectGenerator::RequestDataObject(vtkInformation *,
   outData = this->CreateOutputDataObjects(this->Structure);
   if (outData)
     {
-    outData->SetPipelineInformation(outInfo);
     outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);
     outData->Delete();
     }

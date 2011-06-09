@@ -639,7 +639,7 @@ int vtkDelimitedTextReader::RequestData(
       vtkStringToNumeric* convertor = vtkStringToNumeric::New();
       vtkTable* clone = output_table->NewInstance();
       clone->ShallowCopy(output_table);
-      convertor->SetInput(clone);
+      convertor->SetInputData(clone);
       convertor->Update();
       clone->Delete();
       output_table->ShallowCopy(convertor->GetOutputDataObject(0));

@@ -156,7 +156,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   
   // Create the filter
   vtkGenericDataSetTessellator *tessellator = vtkGenericDataSetTessellator::New();
-  tessellator->SetInput(ds);
+  tessellator->SetInputData(ds);
 
   tessellator->Update(); //So that we can call GetRange() on the scalars
   

@@ -61,7 +61,8 @@ vtkAbstractPolygonalHandleRepresentation3D
   
   this->Mapper = vtkPolyDataMapper::New();
   this->Mapper->ScalarVisibilityOff();
-  this->Mapper->SetInput(this->HandleTransformFilter->GetOutput());
+  this->Mapper->SetInputConnection(
+    this->HandleTransformFilter->GetOutputPort());
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -89,7 +90,8 @@ vtkAbstractPolygonalHandleRepresentation3D
   this->LabelTextInput = vtkVectorText::New();
   this->LabelTextInput->SetText( "0" );
   this->LabelTextMapper = vtkPolyDataMapper::New();
-  this->LabelTextMapper->SetInput( this->LabelTextInput->GetOutput() );
+  this->LabelTextMapper->SetInputConnection(
+    this->LabelTextInput->GetOutputPort());
   this->LabelTextActor = vtkFollower::New();
   this->LabelTextActor->SetMapper(this->LabelTextMapper);
   this->LabelTextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );  
@@ -115,7 +117,7 @@ vtkAbstractPolygonalHandleRepresentation3D
 //----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetHandle( vtkPolyData * pd )
 {
-  this->HandleTransformFilter->SetInput( pd );
+  this->HandleTransformFilter->SetInputData( pd );
 }
 
 //----------------------------------------------------------------------
@@ -616,8 +618,8 @@ void vtkAbstractPolygonalHandleRepresentation3D::ShallowCopy(vtkProp *prop)
     this->Actor->SetProperty(this->Property);
 
     // copy the handle shape
-    this->HandleTransformFilter->SetInput(
-        rep->HandleTransformFilter->GetInput());
+    this->HandleTransformFilter->SetInputConnection(
+      rep->HandleTransformFilter->GetInputConnection(0, 0));
 
     this->LabelVisibility = rep->LabelVisibility;
     this->SetLabelText( rep->GetLabelText() );
@@ -639,7 +641,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::DeepCopy(vtkProp *prop)
     // copy the handle shape
     vtkPolyData *pd = vtkPolyData::New();
     pd->DeepCopy( rep->HandleTransformFilter->GetInput() );
-    this->HandleTransformFilter->SetInput(pd);
+    this->HandleTransformFilter->SetInputData(pd);
     pd->Delete();
 
     this->LabelVisibility = rep->LabelVisibility;

@@ -243,7 +243,7 @@ void vtkSpanTreeLayoutStrategy::Layout()
   
   //  Layout the tree using the layout filter provided.
   layoutWorker->SetLayoutStrategy(this->TreeLayout);
-  layoutWorker->SetInput(spanningDAG);
+  layoutWorker->SetInputData(spanningDAG);
   layoutWorker->Update();
   layout = layoutWorker->GetOutput()->GetPoints();
   

@@ -4794,7 +4794,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
   vtkUnstructuredGrid* temp = vtkUnstructuredGrid::New();
   temp->ShallowCopy( target );
 
-  thresh->SetInput( temp );
+  thresh->SetInputData( temp );
   vtkstd::vector<int> partSetIds;
   int partSetId;
   for ( m = 0; m < (int) p->MaterialsOrdered.size(); ++m )

@@ -84,7 +84,7 @@ int TestTStripsNormalsColorsTCoords(int argc, char *argv[])
   colors->Delete();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(polyData);
+  mapper->SetInputData(polyData);
   polyData->Delete();
 
   vtkActor *actor = vtkActor::New();

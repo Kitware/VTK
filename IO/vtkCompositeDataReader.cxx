@@ -117,7 +117,9 @@ int vtkCompositeDataReader::RequestDataObject(vtkInformation *,
     !output->IsA(vtkDataObjectTypes::GetClassNameFromTypeId(output_type)))
     {
     output = vtkDataObjectTypes::NewDataObject(output_type);
-    output->SetPipelineInformation(outputVector->GetInformationObject(0));
+    outputVector->GetInformationObject(0)->Set(
+      vtkDataObject::DATA_OBJECT(),
+      output);
     output->FastDelete();
     }
   return 1;

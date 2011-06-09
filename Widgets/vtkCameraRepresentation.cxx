@@ -114,10 +114,11 @@ vtkCameraRepresentation::vtkCameraRepresentation()
 
   this->TransformFilter = vtkTransformPolyDataFilter::New();
   this->TransformFilter->SetTransform(this->BWTransform);
-  this->TransformFilter->SetInput(this->PolyData);
+  this->TransformFilter->SetInputData(this->PolyData);
 
   this->Mapper = vtkPolyDataMapper2D::New();
-  this->Mapper->SetInput(this->TransformFilter->GetOutput());
+  this->Mapper->SetInputConnection(
+    this->TransformFilter->GetOutputPort());
   this->Property = vtkProperty2D::New();
   this->Actor = vtkActor2D::New();
   this->Actor->SetMapper(this->Mapper);

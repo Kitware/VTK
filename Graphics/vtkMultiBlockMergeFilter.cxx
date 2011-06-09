@@ -185,18 +185,15 @@ int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo
 
 
 //-----------------------------------------------------------------------------
-void vtkMultiBlockMergeFilter::AddInput(vtkDataObject* input)
+void vtkMultiBlockMergeFilter::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //-----------------------------------------------------------------------------
-void vtkMultiBlockMergeFilter::AddInput(int index, vtkDataObject* input)
+void vtkMultiBlockMergeFilter::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }
 
 //-----------------------------------------------------------------------------

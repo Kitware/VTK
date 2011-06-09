@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
+#include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkGlyph3D);
@@ -242,7 +243,6 @@ int vtkGlyph3D::RequestData(
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    this->SetSource(defaultSource);
     defaultSource->Delete();
     defaultSource = NULL;
     defaultPoints->Delete();
@@ -256,6 +256,7 @@ int vtkGlyph3D::RequestData(
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
       {
+      source = this->GetSource(i, inputVector[1]);
       if ( source != NULL )
         {
         if (source->GetNumberOfPoints() > numSourcePts)
@@ -462,7 +463,8 @@ int vtkGlyph3D::RequestData(
       index = static_cast<int>((value - this->Range[0])*numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
-      
+
+      source = this->GetSource(index, inputVector[1]);
       if ( source != NULL )
         {
         sourcePts = source->GetPoints();
@@ -717,36 +719,42 @@ void vtkGlyph3D::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
 
 //----------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
+void vtkGlyph3D::SetSourceData(int id, vtkPolyData *pd)
 {
-  if (id < 0)
+  int numConnections = this->GetNumberOfInputConnections(1);
+
+  if (id < 0 || id > numConnections)
     {
     vtkErrorMacro("Bad index " << id << " for source.");
     return;
     }
 
-  int numConnections = this->GetNumberOfInputConnections(1);
-  vtkAlgorithmOutput *algOutput = 0;
+  vtkTrivialProducer* tp = 0;
   if (pd)
     {
-    algOutput = pd->GetProducerPort();
-    }
-  else
-    {
-    vtkErrorMacro("Cannot set NULL source.");
-    return;
+    tp = vtkTrivialProducer::New();
+    tp->SetOutput(pd);
     }
 
   if (id < numConnections)
     {
-    if (algOutput)
+    if (tp)
       {
-      this->SetNthInputConnection(1, id, algOutput);
+      this->SetNthInputConnection(1, id, tp->GetOutputPort());
+      }
+    else
+      {
+      this->SetNthInputConnection(1, id, 0);
       }
     }
-  else if (id == numConnections && algOutput)
+  else if (id == numConnections && tp)
     {
-    this->AddInputConnection(1, algOutput);
+    this->AddInputConnection(1, tp->GetOutputPort());
+    }
+
+  if (tp)
+    {
+    tp->Delete();
     }
 }
 

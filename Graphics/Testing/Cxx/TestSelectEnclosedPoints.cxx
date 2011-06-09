@@ -73,7 +73,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   profile->SetPoints(points);
   
   vtkSelectEnclosedPoints *select = vtkSelectEnclosedPoints::New();
-  select->SetInput(profile);
+  select->SetInputData(profile);
   select->SetSurfaceConnection(ss->GetOutputPort());
 //  select->InsideOutOn();
 

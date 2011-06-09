@@ -3536,7 +3536,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
 #ifdef READ_FILE
   geom->SetInputConnection(0,reader->GetOutputPort(0));
 #else
-  geom->SetInput(grid);
+  geom->SetInputData(grid);
 #endif
   geom->Update(); //So that we can call GetRange() on the scalars
   

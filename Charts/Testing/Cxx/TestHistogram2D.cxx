@@ -52,7 +52,7 @@ int TestHistogram2D(int, char * [])
           cos(vtkMath::RadiansFromDegrees(double(j)));
       }
     }
-  chart->SetInput(data.GetPointer());
+  chart->SetInputData(data.GetPointer());
 
   vtkNew<vtkColorTransferFunction> transferFunction;
   transferFunction->AddHSVSegment(0.0, 0.0, 1.0, 1.0,

@@ -93,7 +93,7 @@ int TestPassThrough(int , char* [])
   cerr << "... done" << endl;
 
   VTK_CREATE(vtkPassThrough, pass);
-  pass->SetInput(g);
+  pass->SetInputData(g);
   pass->Update();
   vtkGraph *output = vtkGraph::SafeDownCast(pass->GetOutput());
 

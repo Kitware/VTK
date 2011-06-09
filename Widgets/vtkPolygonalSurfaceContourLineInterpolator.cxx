@@ -119,7 +119,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   if (this->LastInterpolatedVertexIds[0] != beginVertId || 
       this->LastInterpolatedVertexIds[1] != endVertId)
     {
-    this->DijkstraGraphGeodesicPath->SetInput( nodeBegin->PolyData );
+    this->DijkstraGraphGeodesicPath->SetInputData( nodeBegin->PolyData );
     this->DijkstraGraphGeodesicPath->SetStartVertex( endVertId );
     this->DijkstraGraphGeodesicPath->SetEndVertex( beginVertId );
     this->DijkstraGraphGeodesicPath->Update();

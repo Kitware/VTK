@@ -82,7 +82,7 @@ int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUs
 
   renWin->AddRenderer(ren);
   iren->SetRenderWindow(renWin);
-  mapper->SetInput(ss->GetOutput());
+  mapper->SetInputConnection(ss->GetOutputPort());
   actor->SetMapper(mapper);
   ren->AddActor(actor);
   ren->SetBackground(0.1, 0.2, 0.4);

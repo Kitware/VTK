@@ -253,7 +253,7 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep =
     vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
-  graphRep->SetInput(graph);
+  graphRep->SetInputData(graph);
   graphRep->SetVertexColorArrayName("stuff");
   graphRep->SetColorVerticesByArray(true);
   graphRep->SetLayoutStrategyToAssignCoordinates("longitude", "latitude");

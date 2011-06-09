@@ -19,6 +19,7 @@
 #include "vtkCellPicker.h"
 #include "vtkCommand.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImagePlaneWidget.h"
 #include "vtkImageReader.h"
@@ -490,13 +491,13 @@ int ImagePlaneWidget( int argc, char *argv[] )
   colorMap->PassAlphaToOutputOff();
   colorMap->SetActiveComponent(0);
   colorMap->SetOutputFormatToLuminance();
-  colorMap->SetInput(planeWidgetZ->GetResliceOutput());
+  colorMap->SetInputData(planeWidgetZ->GetResliceOutput());
   colorMap->SetLookupTable(planeWidgetX->GetLookupTable());
 
   vtkSmartPointer<vtkImageActor> imageActor =
     vtkSmartPointer<vtkImageActor>::New();
   imageActor->PickableOff();
-  imageActor->SetInput(colorMap->GetOutput());
+  imageActor->GetMapper()->SetInputConnection(colorMap->GetOutputPort());
 
   // Add the actors
   //

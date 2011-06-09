@@ -40,22 +40,14 @@ vtkWriter::~vtkWriter()
 {
 }
 
-void vtkWriter::SetInput(vtkDataObject *input)
+void vtkWriter::SetInputData(vtkDataObject *input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
-void vtkWriter::SetInput(int index, vtkDataObject *input)
+void vtkWriter::SetInputData(int index, vtkDataObject *input)
 {
-  if (input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input remove the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 vtkDataObject *vtkWriter::GetInput()

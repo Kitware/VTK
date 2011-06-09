@@ -84,7 +84,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
   graph->DeepCopy(output);
 
   VTK_CREATE(vtkGraphLayout, layout);
-  layout->SetInput(graph);
+  layout->SetInputData(graph);
   if (circular)
     {
     VTK_CREATE(vtkCircularLayoutStrategy, strategy);

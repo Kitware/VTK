@@ -169,7 +169,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   
   polyData->GetPointData()->AddArray(stringData);
   
-  labelSizeCalculator->SetInput(polyData);
+  labelSizeCalculator->SetInputData(polyData);
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
   labelSizeCalculator->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
   labelSizeCalculator->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "PlaceNames" );
@@ -189,7 +189,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   labelPlacer->SetMaximumLabelFraction( labelRatio );
   //labelPlacer->SetIteratorType(1); // Quadtree is only available type for 2-D.
 
-  polyDataMapper->SetInput(polyData);
+  polyDataMapper->SetInputData(polyData);
   //polyDataMapper2->SetInputConnection(labelPlacer->GetOutputPort(2));
 
   actor->SetMapper(polyDataMapper);

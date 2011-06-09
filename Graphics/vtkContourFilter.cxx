@@ -372,7 +372,7 @@ int vtkContourFilter::RequestData(
     vtkContourGrid *cgrid;
 
     cgrid = vtkContourGrid::New();
-    cgrid->SetInput(input);
+    cgrid->SetInputData(input);
     if ( this->Locator )
       {
       cgrid->SetLocator( this->Locator );
@@ -391,7 +391,6 @@ int vtkContourFilter::RequestData(
     cgrid->SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
     cgrid->Update();
     output->ShallowCopy(cgrid->GetOutput());
-    cgrid->SetInput(0);
     cgrid->Delete();
     } //if type VTK_UNSTRUCTURED_GRID
   else

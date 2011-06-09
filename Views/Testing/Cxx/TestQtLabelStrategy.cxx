@@ -101,7 +101,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
   pd->GetPointData()->AddArray(orient);
 
   VTK_CREATE(vtkPointSetToLabelHierarchy, hier);
-  hier->SetInput(pd);
+  hier->SetInputData(pd);
   hier->SetOrientationArrayName("orientation");
   hier->SetLabelArrayName("label");
   hier->GetTextProperty()->SetColor(0.0, 0.0, 0.0);
@@ -124,7 +124,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
   lactor->SetMapper(lmapper);
 
   VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->SetInput(pd);
+  mapper->SetInputData(pd);
   VTK_CREATE(vtkActor, actor);
   actor->SetMapper(mapper);
 

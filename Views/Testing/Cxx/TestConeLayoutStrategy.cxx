@@ -76,7 +76,7 @@ int TestConeLayoutStrategy(int argc, char* argv[])
   t->GetEdgeData()->AddArray(label);
   
   VTK_CREATE(vtkStringToNumeric, numeric);
-  numeric->SetInput(t);
+  numeric->SetInputData(t);
   
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);

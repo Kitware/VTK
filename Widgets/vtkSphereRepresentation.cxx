@@ -70,7 +70,8 @@ vtkSphereRepresentation::vtkSphereRepresentation()
   this->SphereSource->SetPhiResolution(8);
   this->SphereSource->LatLongTessellationOn();
   this->SphereMapper = vtkPolyDataMapper::New();
-  this->SphereMapper->SetInput(this->SphereSource->GetOutput());
+  this->SphereMapper->SetInputConnection(
+    this->SphereSource->GetOutputPort());
   this->SphereActor = vtkActor::New();
   this->SphereActor->SetMapper(this->SphereMapper);
 
@@ -83,7 +84,8 @@ vtkSphereRepresentation::vtkSphereRepresentation()
   this->HandleSource->SetThetaResolution(16);
   this->HandleSource->SetPhiResolution(8);
   this->HandleMapper = vtkPolyDataMapper::New();
-  this->HandleMapper->SetInput(this->HandleSource->GetOutput());
+  this->HandleMapper->SetInputConnection(
+    this->HandleSource->GetOutputPort());
   this->HandleActor = vtkActor::New();
   this->HandleActor->SetMapper(this->HandleMapper);
   

@@ -163,7 +163,7 @@ int SurfaceLIC( int argc, char * argv[] )
   painter->SetStepSize(step_size);
 
   // Set the mapper input
-  mapper->SetInput(polydata);
+  mapper->SetInputData(polydata);
 
   VTK_CREATE_NEW(actor, vtkActor);
   actor->SetMapper(mapper);

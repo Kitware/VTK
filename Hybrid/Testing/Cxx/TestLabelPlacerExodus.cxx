@@ -181,7 +181,7 @@ int TestLabelPlacerExodus(int argc, char *argv[])
 
   /// Label ///
 
-  labelSizeCalculator->SetInput(temp);
+  labelSizeCalculator->SetInputData(temp);
   labelSizeCalculator->GetFontProperty()->SetFontSize( 14 );
   labelSizeCalculator->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
   labelSizeCalculator->GetFontProperty()->ShadowOn();

@@ -101,7 +101,7 @@ int vtkSectorSource::RequestData(
   
   VTK_CREATE(vtkRotationalExtrusionFilter, rotateFilter);
   rotateFilter->SetResolution( this->CircumferentialResolution );
-  rotateFilter->SetInput(lineSource->GetOutput());
+  rotateFilter->SetInputConnection(lineSource->GetOutputPort());
   rotateFilter->SetAngle( this->EndAngle - this->StartAngle );
   
   if (piece == 0 && numPieces > 0)

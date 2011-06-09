@@ -94,7 +94,7 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
 {
   // Set up test of normal box.
   VTK_CREATE(vtkBoxClipDataSet, clipper1);
-  clipper1->SetInput(data);
+  clipper1->SetInputData(data);
   clipper1->GenerateClippedOutputOff();
   clipper1->SetBoxClip(minBoxPoint[0], maxBoxPoint[0],
                        minBoxPoint[1], maxBoxPoint[1],
@@ -119,7 +119,7 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
 
   // Set up test of normal box with generation of clipped output.
   VTK_CREATE(vtkBoxClipDataSet, clipper2);
-  clipper2->SetInput(data);
+  clipper2->SetInputData(data);
   clipper2->GenerateClippedOutputOn();
   clipper2->SetBoxClip(minBoxPoint[0], maxBoxPoint[0],
                        minBoxPoint[1], maxBoxPoint[1],
@@ -136,7 +136,7 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   actor2_1->GetProperty()->SetPointSize(3.0f);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface2_2);
-  surface2_2->SetInput(clipper2->GetClippedOutput());
+  surface2_2->SetInputConnection(clipper2->GetOutputPort(1));
 
   VTK_CREATE(vtkPolyDataMapper, mapper2_2);
   mapper2_2->SetInputConnection(0, surface2_2->GetOutputPort(0));
@@ -156,7 +156,7 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
 
   // Set up test of an oriented box.
   VTK_CREATE(vtkBoxClipDataSet, clipper3);
-  clipper3->SetInput(data);
+  clipper3->SetInputData(data);
   clipper3->GenerateClippedOutputOff();
   clipper3->SetBoxClip(minusx, minBoxPoint,
                        minusy, minBoxPoint,
@@ -184,7 +184,7 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
 
   // Set up test of an oriented box with generation of clipped output.
   VTK_CREATE(vtkBoxClipDataSet, clipper4);
-  clipper4->SetInput(data);
+  clipper4->SetInputData(data);
   clipper4->GenerateClippedOutputOn();
   clipper4->SetBoxClip(minusx, minBoxPoint,
                        minusy, minBoxPoint,
@@ -204,7 +204,7 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   actor4_1->GetProperty()->SetPointSize(3.0f);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface4_2);
-  surface4_2->SetInput(clipper4->GetClippedOutput());
+  surface4_2->SetInputConnection(clipper4->GetOutputPort(1));
 
   VTK_CREATE(vtkPolyDataMapper, mapper4_2);
   mapper4_2->SetInputConnection(0, surface4_2->GetOutputPort(0));
@@ -287,7 +287,7 @@ int BoxClipPolyData(int argc, char *argv[])
   plane->SetNormal(0.0, 0.0, 1.0);
 
   VTK_CREATE(vtkCutter, cutter);
-  cutter->SetInput(sphereNoNormals);
+  cutter->SetInputData(sphereNoNormals);
   cutter->SetCutFunction(plane);
   cutter->Update();
 

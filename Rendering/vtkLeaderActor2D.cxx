@@ -85,7 +85,7 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->Leader->SetPolys(this->LeaderArrows);
   
   this->LeaderMapper = vtkPolyDataMapper2D::New();
-  this->LeaderMapper->SetInput(this->Leader);
+  this->LeaderMapper->SetInputData(this->Leader);
   this->LeaderActor = vtkActor2D::New();
   this->LeaderActor->SetMapper(this->LeaderMapper);
   

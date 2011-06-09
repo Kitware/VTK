@@ -107,7 +107,7 @@ vtkTexturedButtonRepresentation::~vtkTexturedButtonRepresentation()
 void vtkTexturedButtonRepresentation::
 SetButtonGeometry(vtkPolyData *pd)
 {
-  this->Mapper->SetInput(pd);
+  this->Mapper->SetInputData(pd);
 }
 
 
@@ -341,11 +341,11 @@ void vtkTexturedButtonRepresentation::BuildRepresentation()
     vtkTextureArrayIterator iter = this->TextureArray->find(this->State);
     if ( iter != this->TextureArray->end() )
       {
-      this->Texture->SetInput((*iter).second);
+      this->Texture->SetInputData((*iter).second);
       }
     else
       {
-      this->Texture->SetInput(NULL);
+      this->Texture->SetInputData(NULL);
       }
 
     this->BuildTime.Modified();

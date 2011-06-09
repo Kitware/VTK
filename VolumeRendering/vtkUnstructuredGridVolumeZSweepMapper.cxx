@@ -3512,7 +3512,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
   
   vtkXMLPolyDataWriter *writer=vtkXMLPolyDataWriter::New();
   writer->SetFileName("pixellistframe.vtp");
-  writer->SetInput(dataset);
+  writer->SetInputData(dataset);
   writer->SetIdTypeToInt32();
   dataset->Delete();
   writer->Write();

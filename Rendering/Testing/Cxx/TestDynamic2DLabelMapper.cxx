@@ -67,12 +67,12 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   poly->GetPointData()->AddArray(nameArray);
 
   VTK_CREATE(vtkDynamic2DLabelMapper, mapper);
-  mapper->SetInput(poly);
+  mapper->SetInputData(poly);
   VTK_CREATE(vtkActor2D, actor);
   actor->SetMapper(mapper);
   
   VTK_CREATE(vtkPolyDataMapper, polyMapper);
-  polyMapper->SetInput(poly);
+  polyMapper->SetInputData(poly);
   VTK_CREATE(vtkActor, polyActor);
   polyActor->SetMapper(polyMapper);
   

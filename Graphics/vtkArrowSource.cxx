@@ -74,7 +74,7 @@ int vtkArrowSource::RequestData(
 
   trans0->RotateZ(-90.0);
   tf0->SetTransform(trans0);
-  tf0->SetInput(cyl->GetOutput());
+  tf0->SetInputConnection(cyl->GetOutputPort());
 
   cone->SetResolution(this->TipResolution);
   cone->SetHeight(this->TipLength);
@@ -82,10 +82,10 @@ int vtkArrowSource::RequestData(
 
   trans1->Translate(1.0-this->TipLength*0.5, 0.0, 0.0);
   tf1->SetTransform(trans1);
-  tf1->SetInput(cone->GetOutput());
+  tf1->SetInputConnection(cone->GetOutputPort());
 
-  append->AddInput(tf0->GetPolyDataOutput());
-  append->AddInput(tf1->GetPolyDataOutput());
+  append->AddInputConnection(tf0->GetOutputPort());
+  append->AddInputConnection(tf1->GetOutputPort());
 
  // used only when this->Invert is true.
  trans2->Translate(1, 0, 0);
