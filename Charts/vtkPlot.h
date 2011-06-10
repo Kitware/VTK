@@ -25,11 +25,11 @@
 #define __vtkPlot_h
 
 #include "vtkContextItem.h"
+#include "vtkStdString.h" // Needed to hold TooltipLabelFormat ivar
 #include "vtkSmartPointer.h"  // Needed to hold SP ivars
 
 class vtkVariant;
 class vtkTable;
-class vtkStdString;
 class vtkIdTypeArray;
 class vtkContextMapper2D;
 class vtkPen;
@@ -54,7 +54,28 @@ public:
   virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
                            int legendIndex);
 
+  // Description:
+  // Sets/gets a printf-style string to build custom tooltip labels from.
+  // An empty string generates the default tooltip labels.
+  // The following case-sensitive format tags (without quotes) are recognized:
+  //   '%x' The X value of the plot element
+  //   '%y' The Y value of the plot element
+  //   '%i' The IndexedLabels entry for the plot element
+  //   '%l' The value of the plot's GetLabel() function
+  //   '%s' (vtkPlotBar only) The Labels entry for the bar segment
+  // Any other characters or unrecognized format tags are printed in the
+  // tooltip label verbatim.
+  virtual void SetTooltipLabelFormat(const vtkStdString &label);
+  virtual vtkStdString GetTooltipLabelFormat();
+
 //BTX
+  // Description:
+  // Generate and return the tooltip label string for this plot
+  // The segmentIndex parameter is ignored, except for vtkPlotBar
+  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+                                       vtkIdType seriesIndex,
+                                       vtkIdType segmentIndex);
+
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated, or
@@ -95,19 +116,21 @@ public:
   vtkGetObjectMacro(Brush, vtkBrush);
 
   // Description:
-  // Set a single label on this plot.
+  // Set the label of this plot.
   virtual void SetLabel(const vtkStdString &label);
 
   // Description:
-  // Get the single label of this plot.
+  // Get the label of this plot.
   virtual vtkStdString GetLabel();
 
   // Description:
-  // Set the plot labels.
+  // Set the plot labels, these are used for stacked chart variants, with the
+  // index referring to the stacking index.
   virtual void SetLabels(vtkStringArray *labels);
 
   // Description:
-  // Get the plot labels.
+  // Get the plot labels. If this array has a length greater than 1 the index
+  // refers to the stacked objects in the plot. See vtkPlotBar for example.
   virtual vtkStringArray *GetLabels();
 
   // Description:
@@ -192,6 +215,10 @@ protected:
   ~vtkPlot();
 
   // Description:
+  // Get the properly formatted number for the supplied position and axis.
+  vtkStdString GetNumber(double position, vtkAxis *axis);
+
+  // Description:
   // This object stores the vtkPen that controls how the plot is drawn.
   vtkPen* Pen;
 
@@ -232,6 +259,16 @@ protected:
   // Description:
   // The X axis associated with this plot.
   vtkAxis* YAxis;
+
+  // Description:
+  // A printf-style string to build custom tooltip labels from.
+  // See the accessor/mutator functions for full documentation.
+  vtkStdString TooltipLabelFormat;
+
+  // Description:
+  // The default printf-style string to build custom tooltip labels from.
+  // See the accessor/mutator functions for full documentation.
+  vtkStdString TooltipDefaultLabelFormat;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.

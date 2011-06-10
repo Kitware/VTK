@@ -761,7 +761,7 @@ int main( int argc, char** argv )
   clArgs.Initialize( argc, argv );
   clArgs.StoreUnusedArguments( false );
 
-  // Parse per-process cardinality in each pseudo-random sample
+  // Parse per-process cardinality of each pseudo-random sample
   clArgs.AddArgument("--n-per-proc",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");

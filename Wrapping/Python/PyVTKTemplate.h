@@ -15,9 +15,9 @@
 /*-----------------------------------------------------------------------
   The PyVTKTemplate was created in May 2011 by David Gobbi.
 
-  This object is a container for specializations of templated types.
-  Essentially, it is a "dict" that accepts specialized template args
-  as keys, and provides the corresponding specialized type.
+  This object is a container for instantiations of templated types.
+  Essentially, it is a "dict" that accepts template args as keys,
+  and provides the corresponding python type.
 -----------------------------------------------------------------------*/
 
 #ifndef __PyVTKTemplate_h
@@ -46,7 +46,7 @@ PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
                             const char *docstring[]);
 
 VTK_PYTHON_EXPORT
-int PyVTKTemplate_AddSpecialization(PyObject *self, PyObject *val);
+int PyVTKTemplate_AddItem(PyObject *self, PyObject *val);
 }
 
 #endif

@@ -23,8 +23,9 @@
 #include "vtkIdTypeArray.h"
 #include "vtkContextMapper2D.h"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtkNew.h"
+#include "vtksys/ios/sstream"
 
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
@@ -42,6 +43,8 @@ vtkPlot::vtkPlot()
   this->Selection = NULL;
   this->XAxis = NULL;
   this->YAxis = NULL;
+
+  this->TooltipDefaultLabelFormat = "%l: %x,  %y";
 }
 
 //-----------------------------------------------------------------------------
@@ -83,6 +86,88 @@ vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
                                    vtkVector2f*)
 {
   return -1;
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2f &plotPos,
+                                      vtkIdType seriesIndex,
+                                      vtkIdType)
+{
+  vtkStdString tooltipLabel;
+  vtkStdString &format = this->TooltipLabelFormat.empty() ?
+        this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
+  // Parse TooltipLabelFormat and build tooltipLabel
+  bool escapeNext = false;
+  for (size_t i = 0; i < format.length(); ++i)
+    {
+    if (escapeNext)
+      {
+      switch (format[i])
+        {
+        case 'x':
+          tooltipLabel += this->GetNumber(plotPos.X(), this->XAxis);
+          break;
+        case 'y':
+          tooltipLabel += this->GetNumber(plotPos.Y(), this->YAxis);
+          break;
+        case 'i':
+          if (this->IndexedLabels &&
+              seriesIndex >= 0 &&
+              seriesIndex < this->IndexedLabels->GetNumberOfTuples())
+            {
+            tooltipLabel += this->IndexedLabels->GetValue(seriesIndex);
+            }
+          break;
+        case 'l':
+          // GetLabel() is GetLabel(0) in this implementation
+          tooltipLabel += this->GetLabel();
+          break;
+        default: // If no match, insert the entire format tag
+          tooltipLabel += "%";
+          tooltipLabel += format[i];
+          break;
+        }
+      escapeNext = false;
+      }
+    else
+      {
+      if (format[i] == '%')
+        {
+        escapeNext = true;
+        }
+      else
+        {
+        tooltipLabel += format[i];
+        }
+      }
+    }
+  return tooltipLabel;
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
+{
+  // Determine and format the X and Y position in the chart
+  vtksys_ios::ostringstream ostr;
+  ostr.imbue(vtkstd::locale::classic());
+  ostr.setf(ios::fixed, ios::floatfield);
+
+  if (axis)
+    {
+    ostr.precision(this->XAxis->GetPrecision());
+    }
+
+  if (axis && axis->GetLogScale())
+    {
+    // If axes are set to logarithmic scale we need to convert the
+    // axis value using 10^(axis value)
+    ostr << pow(double(10.0), double(position));
+    }
+  else
+    {
+    ostr << position;
+    }
+  return ostr.str();
 }
 
 //-----------------------------------------------------------------------------
@@ -135,14 +220,12 @@ float vtkPlot::GetWidth()
 //-----------------------------------------------------------------------------
 void vtkPlot::SetLabel(const vtkStdString& label)
 {
-  vtkStringArray *labels = vtkStringArray::New();
+  vtkNew<vtkStringArray> labels;
   labels->InsertNextValue(label);
-  this->SetLabels(labels);
-  labels->Delete();
+  this->SetLabels(labels.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
-
 vtkStdString vtkPlot::GetLabel()
 {
   return this->GetLabel(0);
@@ -206,6 +289,15 @@ void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
     return;
     }
 
+  if (labels)
+    {
+    this->TooltipDefaultLabelFormat = "%i: %x,  %y";
+    }
+  else
+    {
+    this->TooltipDefaultLabelFormat = "%l: %x,  %y";
+    }
+
   this->IndexedLabels = labels;
   this->Modified();
 }
@@ -214,6 +306,24 @@ void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
 vtkStringArray * vtkPlot::GetIndexedLabels()
 {
   return this->IndexedLabels.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetTooltipLabelFormat(const vtkStdString &labelFormat)
+{
+  if (this->TooltipLabelFormat == labelFormat)
+    {
+    return;
+    }
+
+  this->TooltipLabelFormat = labelFormat;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlot::GetTooltipLabelFormat()
+{
+  return this->TooltipLabelFormat;
 }
 
 //-----------------------------------------------------------------------------

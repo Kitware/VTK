@@ -53,7 +53,6 @@
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
 
-#include "vtksys/ios/sstream"
 #include "vtkDataArray.h"
 #include "vtkStringArray.h"
 
@@ -1261,6 +1260,25 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
                 plotIndex.Index = seriesIndex;
                 // Invoke an event, with the client data supplied
                 this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
+
+                if (invokeEvent == vtkCommand::SelectionChangedEvent)
+                  {
+                  vtkNew<vtkIdTypeArray> selectionIds;
+                  selectionIds->InsertNextValue(seriesIndex);
+                  plot->SetSelection(selectionIds.GetPointer());
+
+                  if (this->AnnotationLink)
+                    {
+                    vtkNew<vtkSelection> selection;
+                    vtkNew<vtkSelectionNode> node;
+                    selection->AddNode(node.GetPointer());
+                    node->SetContentType(vtkSelectionNode::INDICES);
+                    node->SetFieldType(vtkSelectionNode::POINT);
+                    node->SetSelectionList(selectionIds.GetPointer());
+                    this->AnnotationLink
+                        ->SetCurrentSelection(selection.GetPointer());
+                    }
+                  }
                 }
               return true;
               }
@@ -1277,42 +1295,12 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 vtkIdType seriesIndex, vtkPlot* plot,
                                 vtkIdType segmentIndex)
 {
-  vtkStdString label;
-  // Check for group names if we are plotting stacked bars
-  if (segmentIndex > 0)
-    {
-    vtkPlotBar *bar = vtkPlotBar::SafeDownCast(plot);
-    if (bar && bar->GetLabels() &&
-        segmentIndex < bar->GetLabels()->GetNumberOfTuples())
-      {
-      label += bar->GetLabels()->GetValue(segmentIndex) + ": ";
-      }
-    }
-  vtkStringArray *labels = plot->GetIndexedLabels();
-  if (labels && seriesIndex < labels->GetNumberOfTuples())
-    {
-    label += labels->GetValue(seriesIndex) + ": ";
-    }
-  else
-    {
-    label += plot->GetLabel(0) + ": ";
-    }
-  // If axes are set to logarithmic scale we need to convert the
-  // axis value using 10^(axis value)
-  vtksys_ios::ostringstream ostr;
-  ostr << label;
-  ostr.imbue(vtkstd::locale::classic());
-  ostr.setf(ios::fixed, ios::floatfield);
-  ostr.precision(ChartPrivate->axes[vtkAxis::BOTTOM]->GetPrecision());
-  ostr << (this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetLogScale()?
-    pow(double(10.0), double(plotPos.X())):
-    plotPos.X());
-  ostr << ",  ";
-  ostr.precision(ChartPrivate->axes[vtkAxis::LEFT]->GetPrecision());
-  ostr << (this->ChartPrivate->axes[vtkAxis::LEFT]->GetLogScale()?
-    pow(double(10.0), double(plotPos.Y())):
-    plotPos.Y());
-  this->Tooltip->SetText(ostr.str().c_str());
+  // Have the plot generate its tooltip label
+  vtkStdString tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex,
+                                                    segmentIndex);
+
+  // Set the tooltip
+  this->Tooltip->SetText(tooltipLabel);
   this->Tooltip->SetPosition(mouse.ScreenPos[0]+2,
                              mouse.ScreenPos[1]+2);
 }
@@ -1352,6 +1340,11 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
     this->DrawBox = true;
     return true;
     }
+  else if (mouse.Button == this->ActionsClick.Select() ||
+           mouse.Button == this->ActionsClick.Notify())
+    {
+    return true;
+    }
   else
     {
     return false;
@@ -1378,12 +1371,24 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
         && (mouse.Button == this->Actions.Select() ||
             mouse.Button == this->Actions.Pan()))
       {
-      // Invalid box size - treat as a point click event
+      // Invalid box size - treat as a single clicke event
       this->MouseBox.SetWidth(0.0);
       this->MouseBox.SetHeight(0.0);
       this->DrawBox = false;
-      this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
-      return true;
+      if (mouse.Button == this->ActionsClick.Notify())
+        {
+        this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
+        return true;
+        }
+      else if (mouse.Button == this->ActionsClick.Select())
+        {
+        this->LocatePointInPlots(mouse, vtkCommand::SelectionChangedEvent);
+        return true;
+        }
+      else
+        {
+        return false;
+        }
       }
     }
   if (mouse.Button == this->Actions.Select())
