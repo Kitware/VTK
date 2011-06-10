@@ -39,6 +39,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     PyVTKClass.h
     PyVTKObject.h
     PyVTKSpecialObject.h
+    PyVTKTemplate.h
     PyVTKMutableObject.h
   )
   INSTALL(FILES ${__inst_files}
