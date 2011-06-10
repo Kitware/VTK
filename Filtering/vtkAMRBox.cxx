@@ -77,25 +77,25 @@ vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
   this->BuildAMRBox( lo[0], lo[1], lo[2], hi[0], hi[1], hi[2] );
   assert( "post: AMR box dimension does not match expected dimension" &&
            (dim==this->GetDimensionality() ) );
-  assert( "post: Dimension expected to <= 2" &&
-      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
+  assert( "post: Dimension expected to be 2 or 3" &&
+      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==3) ) );
 }
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const int *dims)
 {
   this->BuildAMRBox(dims[0],dims[2],dims[4],dims[1],dims[3],dims[5] );
-  assert( "post: Dimension expected to <= 2" &&
-      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
-//  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
+  assert( "post: Dimension expected to be 2 or 3" &&
+      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==3) ) );
+
 }
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(int dim, const int *dims)
 {
   this->BuildAMRBox( dims[0], dims[2],dims[4], dims[1],dims[3],dims[5] );
-  assert( "post: Dimension expected to <= 2" &&
-      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
+  assert( "post: Dimension expected to be 2 or 3" &&
+      ( (this->GetDimensionality()==2) || (this->GetDimensionality()==3) ) );
 //  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
   assert( "post: AMR box dimension does not match expected dimension" &&
           (dim==this->GetDimensionality() ) );
