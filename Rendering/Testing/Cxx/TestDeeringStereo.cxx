@@ -66,17 +66,14 @@ int TestDeeringStereo(int argc, char *argv[])
   renderer->AddActor(actor2);
   renderer->SetAmbient(1.0, 1.0, 1.0);
 
-  VTK_CREATE(vtkMatrix4x4, eyeMatrix);
-  eyeMatrix->SetElement(0, 3, 0.0);
-  eyeMatrix->SetElement(1, 3, 0.0);
-  eyeMatrix->SetElement(2, 3, 10.0);
+  double eyePosition[3] = {0.0, 0.0, 10.0};
 
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);
   camera->SetUseDeeringFrustum(1);
-  camera->SetEyeTransformMatrix(eyeMatrix);
+  camera->SetEyePosition(eyePosition);
   camera->SetEyeSeparation(0.05);
 
   VTK_CREATE(vtkRenderWindow, renwin);
