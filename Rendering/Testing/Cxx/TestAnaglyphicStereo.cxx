@@ -12,14 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
 
-// This test draws a sphere with the edges shown.  It also turns on coincident
-// topology resolution with a z-shift to both make sure the wireframe is
-// visible and to exercise that type of coincident topology resolution.
+// This test draws a sphere in anaglyphic stereo (red-blue) mode using deering
+// frustum.
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -86,7 +81,7 @@ int TestAnaglyphicStereo(int argc, char *argv[])
 
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->AddRenderer(renderer);
-  renwin->SetSize(1080, 1080);
+  renwin->SetSize(400, 400);
   renwin->SetStereoRender(1);
   renwin->SetStereoCapableWindow(1);
   renwin->SetStereoTypeToRedBlue();
