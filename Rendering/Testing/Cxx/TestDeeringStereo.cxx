@@ -83,15 +83,13 @@ int TestDeeringStereo(int argc, char *argv[])
   renwin->SetStereoCapableWindow(1);
   renwin->SetStereoTypeToRedBlue();
 
-  renderer->Render();
+  VTK_CREATE(vtkRenderWindowInteractor, iren);
+  iren->SetRenderWindow(renwin);
+  renwin->Render();
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    VTK_CREATE(vtkRenderWindowInteractor, iren);
-    iren->SetRenderWindow(renwin);
-    iren->Initialize();
-
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
     }
