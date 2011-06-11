@@ -313,8 +313,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set/Get eye transformation matrix.
   // This is the transformation matrix for the point between eyes.
-  // Default is identity.
   // This will be used only for deering frustum calculation.
+  // Default is identity.
   void SetEyeTransformMatrix(vtkMatrix4x4* matrix);
   vtkGetObjectMacro(EyeTransformMatrix, vtkMatrix4x4);
 

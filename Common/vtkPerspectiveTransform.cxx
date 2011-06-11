@@ -323,45 +323,6 @@ void vtkPerspectiveTransform::Frustum(double xmin, double xmax,
   this->Concatenate(*matrix);
 }
 
-
-void vtkPerspectiveTransform::DeeringFrustum(double xmin, double xmax,
-                                             double ymin, double ymax,
-                                             double F, double B,
-                                             double E[3])
-{
-  const int x =0, y=1, z=2;
-
-  double L[2] = {xmin, ymin};
-  double H[2] = {xmax, ymax};
-
-  double matrix[4][4];
-  double width = H[x] - L[x];
-  double height = H[y] - L[y];
-  double depth = B - F;
-
-  matrix[0][0] =  ( 2*E[z] )/width;
-  matrix[1][0] =  0;
-  matrix[2][0] =  0;
-  matrix[3][0] =  0;
-
-  matrix[0][1] =  0;
-  matrix[1][1] =  ( 2*E[z] )/ height;
-  matrix[2][1] =  0;
-  matrix[3][1] =  0;
-
-  matrix[0][2] = ( H[x]+L[x] - 2*E[x] )/width;
-  matrix[1][2] = ( H[y]+L[y] - 2*E[y] )/height;
-  matrix[2][2] = ( B+F-2*E[z] )/depth;
-  matrix[3][2] = -1;
-
-  matrix[0][3] = ( -E[z]*( H[x]+L[x] ) )/width;
-  matrix[1][3] = ( -E[z]*( H[y]+L[y] ) )/height;
-  matrix[2][3] = B-E[z]- ( B *( B+F - 2*E[z] )/depth );
-  matrix[3][3] = E[z];
-
-  this->Concatenate(*matrix);
-}
-
 //----------------------------------------------------------------------------
 // For convenience, an easy way to set up a symmetrical frustum.
 void vtkPerspectiveTransform::Perspective(double angle, double aspect,
