@@ -18,9 +18,9 @@ IF(VTK_USE_DISPLAY)
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
     TestActorLightingFlag.cxx
-    TestAnaglyphicStereo.cxx
     TestAnimationScene.cxx
     TestBlurAndSobelPasses.cxx
+    TestDeeringStereo.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
     TestFollowerPicking.cxx
