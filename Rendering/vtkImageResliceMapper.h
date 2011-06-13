@@ -51,6 +51,22 @@ public:
   virtual void SetSlicePlane(vtkPlane *plane);
 
   // Description:
+  // Automatically reduce the rendering quality for greater speed
+  // when doing an interactive render.  This is on by default.
+  vtkSetMacro(AutoAdjustImageQuality, int);
+  vtkBooleanMacro(AutoAdjustImageQuality, int);
+  vtkGetMacro(AutoAdjustImageQuality, int);
+
+  // Description:
+  // Resample the image directly to the screen pixels, instead of
+  // using a texture to scale the image after resampling.  This is
+  // slower and uses more memory, but provides high-quality results.
+  // It is On by default.
+  vtkSetMacro(ResampleToScreenPixels, int);
+  vtkBooleanMacro(ResampleToScreenPixels, int);
+  vtkGetMacro(ResampleToScreenPixels, int);
+
+  // Description:
   // This should only be called by the renderer.
   virtual void Render(vtkRenderer *renderer, vtkImageSlice *prop);
 
@@ -96,6 +112,10 @@ protected:
   void UpdateWorldToDataMatrix(vtkImageSlice *prop);
 
   // Description:
+  // Update the reslice matrix, which is the slice-to-data matrix.
+  void UpdateResliceMatrix(vtkRenderer *ren, vtkImageSlice *prop);
+
+  // Description:
   // Set all of the reslicing parameters.  This requires that
   // the SliceToWorld and WorldToData matrices are up-to-date.
   void UpdateResliceInformation(vtkRenderer *ren);
@@ -122,6 +142,9 @@ protected:
   // Garbage collection for reference loops.
   void ReportReferences(vtkGarbageCollector*);
 
+  int AutoAdjustImageQuality; // LOD-style behavior
+  int ResampleToScreenPixels; // Use software interpolation only
+  int InternalResampleToScreenPixels; // Use software interpolation only
   vtkImageResliceToColors *ImageReslice; // For software interpolation
   vtkMatrix4x4 *ResliceMatrix; // Cached reslice matrix
   vtkMatrix4x4 *WorldToDataMatrix; // World to Data transform matrix
