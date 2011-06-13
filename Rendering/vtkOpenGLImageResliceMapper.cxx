@@ -15,6 +15,7 @@
 #include "vtkOpenGLImageResliceMapper.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkImageResliceToColors.h"
 #include "vtkImageData.h"
 #include "vtkImageSlice.h"
 #include "vtkImageProperty.h"
@@ -27,7 +28,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
-#include "vtkImageResliceToColors.h"
+#include "vtkTextureBicubicARB_fp.h"
 #include "vtkTimerLog.h"
 #include "vtkGarbageCollector.h"
 #include "vtkTemplateAliasMacro.h"
@@ -46,6 +47,7 @@ vtkStandardNewMacro(vtkOpenGLImageResliceMapper);
 vtkOpenGLImageResliceMapper::vtkOpenGLImageResliceMapper()
 {
   this->Index = 0;
+  this->FragmentShaderIndex = 0;
   this->RenderWindow = 0;
   this->TextureSize[0] = 0;
   this->TextureSize[1] = 0;
@@ -53,6 +55,13 @@ vtkOpenGLImageResliceMapper::vtkOpenGLImageResliceMapper()
 
   this->UseClampToEdge = false;
   this->UsePowerOfTwoTextures = true;
+
+  // Use GL_ARB_fragment_program, which is an extension to OpenGL 1.3
+  // that is compatible with very old drivers and hardware, and is still
+  // fully supported on modern hardware.  The only caveat is that it is
+  // automatically disabled if any modern shaders (e.g. depth peeling)
+  // are simultaneously loaded, so it will not interfere with them.
+  this->UseFragmentProgram = false;
 }
 
 //----------------------------------------------------------------------------
@@ -79,6 +88,14 @@ void vtkOpenGLImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
       glDisable(GL_TEXTURE_2D);
       glDeleteTextures(1, &tempIndex);
       }
+    if (this->UseFragmentProgram &&
+        vtkgl::IsProgramARB(this->FragmentShaderIndex))
+      {
+      GLuint tempIndex;
+      tempIndex = this->FragmentShaderIndex;
+      glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
+      vtkgl::DeleteProgramsARB(1, &tempIndex);
+      }
 #else
     if (glIsList(this->Index))
       {
@@ -90,14 +107,14 @@ void vtkOpenGLImageResliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
     this->TextureBytesPerPixel = 1;
     }
   this->Index = 0;
+  this->FragmentShaderIndex = 0;
   this->RenderWindow = NULL;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 // Render the backing polygon
-void vtkOpenGLImageResliceMapper::RenderBackingPolygon(
-  vtkRenderer *vtkNotUsed(ren))
+void vtkOpenGLImageResliceMapper::RenderBackingPolygon()
 {
   static double normal[3] = { 0.0, 0.0, 1.0 };
 
@@ -121,6 +138,12 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
 {
   vtkOpenGLRenderWindow *renWin =
     static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow());
+
+  // check whether to use a shader for bicubic interpolation
+  bool useFragmentProgram =
+    (this->UseFragmentProgram &&
+     property->GetInterpolationType() == VTK_CUBIC_INTERPOLATION &&
+     !this->InternalResampleToScreenPixels);
 
   // Get the mtime of the property, including the lookup table
   unsigned long propertyMTime = 0;
@@ -213,8 +236,15 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
         ->RegisterTextureResource(this->Index);
       }
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLenum interp = GL_LINEAR;
+    if (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION &&
+        !this->InternalResampleToScreenPixels)
+      {
+      interp = GL_NEAREST;
+      }
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
 
     GLenum wrap = (this->UseClampToEdge ? vtkgl::CLAMP_TO_EDGE : GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
@@ -240,6 +270,30 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
       case 4: internalFormat = GL_RGBA8; break;
       }
 #endif
+
+    if (useFragmentProgram && this->FragmentShaderIndex == 0)
+      {
+      // Use the the ancient ARB_fragment_program extension, it works
+      // reliably even with very old hardware and drivers
+      vtkgl::GenProgramsARB(1, &tempIndex);
+      this->FragmentShaderIndex = static_cast<long>(tempIndex);
+
+      vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
+                            this->FragmentShaderIndex);
+      const char *prog = vtkTextureBicubicARB_fp;
+      vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
+                              vtkgl::PROGRAM_FORMAT_ASCII_ARB,
+                              static_cast<GLsizei>(strlen(prog)), prog);
+
+      GLint erri;
+      glGetIntegerv(vtkgl::PROGRAM_ERROR_POSITION_ARB, &erri);
+      if (erri != -1)
+        {
+        vtkErrorMacro("Failed to load bicubic shader program: "
+                      << reinterpret_cast<const char *>(
+                           glGetString(vtkgl::PROGRAM_ERROR_STRING_ARB)));
+        }
+      }
 
 #ifdef GL_VERSION_1_1
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -280,6 +334,20 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
   glCallList(static_cast<GLuint>(this->Index));
 #endif
 
+  if (useFragmentProgram)
+    {
+    // Bind the bicubic interpolation fragment program, it will
+    // not do anything if modern shader objects are also in play.
+    vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
+                          this->FragmentShaderIndex);
+    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
+                          static_cast<float>(this->TextureSize[0]),
+                          static_cast<float>(this->TextureSize[1]),
+                          static_cast<float>(1.0/this->TextureSize[0]),
+                          static_cast<float>(1.0/this->TextureSize[1]));
+    glEnable(vtkgl::FRAGMENT_PROGRAM_ARB);
+    }
+
   glEnable(GL_TEXTURE_2D);
 
   // modulate the texture with the fragment for lighting effects
@@ -287,7 +355,7 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
 
   static double normal[3] = { 0.0, 0.0, 1.0 };
 
-  if (this->SliceFacesCamera)
+  if (this->SliceFacesCamera && this->InternalResampleToScreenPixels)
     {
     // use a full-screen quad if slice faces camera, this ensures that all
     // images showing the same "slice" use exactly the same geometry, which
@@ -317,6 +385,11 @@ void vtkOpenGLImageResliceMapper::RenderTexturedPolygon(
       glVertex3dv(&this->Coords[i*3]);
       }
     glEnd();
+    }
+
+  if (useFragmentProgram)
+    {
+    glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
 }
 
@@ -388,23 +461,17 @@ bool vtkOpenGLImageResliceMapper::TextureSizeOK(const int size[2])
 // Set the modelview transform and load the texture
 void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
-  vtkImageProperty *property = prop->GetProperty();
+  // do everything that isn't OpenGL-specific
+  this->Superclass::Render(ren, prop);
 
-  // set the matrices
-  this->UpdateWorldToDataMatrix(prop);
-  this->UpdateSliceToWorldMatrix(ren->GetActiveCamera());
-
-  // update the coords for the polygon to be textured
-  this->UpdatePolygonCoords(ren);
-
-  // set the reslice spacing/origin/extent/axes
-  this->UpdateResliceInformation(ren);
-
-  // set the reslice bits related to the property
-  this->UpdateResliceInterpolation(property);
-
-  // update anything related to the image coloring
-  this->UpdateColorInformation(property);
+  // check OpenGL capabilities if context has changed
+  vtkOpenGLRenderWindow *renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  if (renWin && (renWin != this->RenderWindow ||
+      renWin->GetContextCreationTime() > this->LoadTime.GetMTime()))
+    {
+    this->CheckOpenGLCapabilities(renWin);
+    }
 
   // time the render
   this->Timer->StartTimer();
@@ -488,6 +555,7 @@ void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     }
 
   // color and lighting related items
+  vtkImageProperty *property = prop->GetProperty();
   double opacity = property->GetOpacity();
   double ambient = property->GetAmbient();
   double diffuse = property->GetDiffuse();
@@ -501,7 +569,7 @@ void vtkOpenGLImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     // the backing polygon is always opaque
     this->RenderColorAndLighting(
       bcolor[0], bcolor[1], bcolor[2], 1.0, ambient, diffuse);
-    this->RenderBackingPolygon(ren);
+    this->RenderBackingPolygon();
     }
 
   // render the texture
@@ -584,18 +652,21 @@ void vtkOpenGLImageResliceMapper::CheckOpenGLCapabilities(
 
   if (renWin && manager)
     {
-    this->UsePowerOfTwoTextures =
-      !(manager->ExtensionSupported("GL_VERSION_2_0") ||
-        manager->ExtensionSupported("GL_ARB_texture_non_power_of_two"));
-
     this->UseClampToEdge =
       (manager->ExtensionSupported("GL_VERSION_1_2") ||
        manager->ExtensionSupported("GL_EXT_texture_edge_clamp"));
+    this->UsePowerOfTwoTextures =
+      !(manager->ExtensionSupported("GL_VERSION_2_0") ||
+        manager->ExtensionSupported("GL_ARB_texture_non_power_of_two"));
+    this->UseFragmentProgram =
+      (manager->ExtensionSupported("GL_VERSION_1_3") &&
+       manager->LoadSupportedExtension("GL_ARB_fragment_program"));
     }
   else
     {
-    this->UsePowerOfTwoTextures = true;
     this->UseClampToEdge = false;
+    this->UsePowerOfTwoTextures = true;
+    this->UseFragmentProgram = false;
     }
 }
 
