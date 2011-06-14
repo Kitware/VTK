@@ -126,7 +126,7 @@ run_KWStyle() {
 	while read f; do
 		if run_style_on_file "$f" KWStyle; then
 			run_KWStyle_on_file "$f"
-		fi
+		fi || return
 	done
 }
 
@@ -237,7 +237,7 @@ For more information, see
 	merge_keep_temporaries="$(git config --bool mergetool.keepTemporaries || echo false)"
 	git diff-index --cached --diff-filter=ACMR --name-only $against -- |
 	while read MERGED; do
-		run_uncrustify_on_file "$MERGED"
+		run_uncrustify_on_file "$MERGED" || return
 	done # end for changed files
 }
 
@@ -254,12 +254,12 @@ elif $do_uncrustify; then
 		status=0
 	}
 	check_for_uncrustify
-	run_uncrustify
+	run_uncrustify || exit 1
 # do_uncrustify will run KWStyle on the files incrementally so excessive
 # uncrustify merges do not have to occur.
 elif $do_KWStyle; then
 	if check_for_KWStyle; then
-		run_KWStyle
+		run_KWStyle || exit 1
 	fi
 fi
 
