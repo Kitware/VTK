@@ -45,6 +45,7 @@ struct RandomSampleStatisticsArgs
 {
   int nVals;
   int nProcs;
+  int nVariables
   int nClusters;
   double meanFactor;
   double stdev;
@@ -68,11 +69,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
-  // Generate an input table that contains samples of mutually independent random variables over [0, 1]
   int nVariables = 6;
 
-  vtksys_stl::vector<vtkStdString> columnNames;
   // Generate column names
+  vtksys_stl::vector<vtkStdString> columnNames;
   for ( int v = 0; v < nVariables; ++ v )
     {
     vtksys_ios::ostringstream columnName;
@@ -80,6 +80,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     columnNames.push_back( columnName.str() );
     }
 
+  // Generate an input table that contains samples of mutually independent Gaussian random variables
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray;
 
