@@ -70,7 +70,7 @@ protected:
   // Non-recursive internal method, generate a single texture
   // and its corresponding geometry.
   void RenderTexturedPolygon(
-    vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
+    vtkRenderer *ren, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
@@ -91,10 +91,6 @@ protected:
   // Description:
   // Check various OpenGL capabilities
   void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
-
-  // Description:
-  // Garbage collection for reference loops.
-  void ReportReferences(vtkGarbageCollector*);
 
   vtkTimeStamp LoadTime;
   long Index; // OpenGL ID for texture or display list

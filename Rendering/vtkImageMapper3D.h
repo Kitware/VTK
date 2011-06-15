@@ -31,6 +31,7 @@
 
 class vtkRenderer;
 class vtkProp3D;
+class vtkPoints;
 class vtkMatrix4x4;
 class vtkLookupTable;
 class vtkScalarsToColors;
@@ -175,7 +176,7 @@ protected:
   // Description:
   // Called by RecursiveRenderTexturedPolygon, overriden by subclasses.
   virtual void RenderTexturedPolygon(
-    vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
+    vtkRenderer *ren, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
@@ -183,7 +184,7 @@ protected:
   // as many times as necessary if the texture must be broken up into
   // pieces that are small enough for the GPU to render
   virtual void RecursiveRenderTexturedPolygon(
-    vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
+    vtkRenderer *ren, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
