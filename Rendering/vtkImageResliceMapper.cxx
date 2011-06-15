@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageResliceMapper.h"
 
+#include "vtkImageSliceMapper.h"
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageSlice.h"
@@ -21,6 +22,7 @@
 #include "vtkImageProperty.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkPoints.h"
 #include "vtkMatrix4x4.h"
 #include "vtkAbstractTransform.h"
 #include "vtkPlane.h"
@@ -29,23 +31,14 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkImageResliceToColors.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkImageResliceMapper);
-
-//----------------------------------------------------------------------------
-vtkImageResliceMapper* vtkImageResliceMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkImageResliceMapper");
-  return static_cast<vtkImageResliceMapper *>(ret);
-}
+vtkStandardNewMacro(vtkImageResliceMapper);
 
 //----------------------------------------------------------------------------
 vtkImageResliceMapper::vtkImageResliceMapper()
 {
+  this->SliceMapper = vtkImageSliceMapper::New();
   this->ImageReslice = vtkImageResliceToColors::New();
   this->ResliceMatrix = vtkMatrix4x4::New();
   this->WorldToDataMatrix = vtkMatrix4x4::New();
@@ -59,6 +52,10 @@ vtkImageResliceMapper::vtkImageResliceMapper()
 //----------------------------------------------------------------------------
 vtkImageResliceMapper::~vtkImageResliceMapper()
 {
+  if (this->SliceMapper)
+    {
+    this->SliceMapper->Delete();
+    }
   if (this->ImageReslice)
     {
     this->ImageReslice->Delete();
@@ -102,9 +99,9 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *)
+void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
-  // see OpenGL subclass for implementation
+  this->SliceMapper->ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------------
@@ -123,7 +120,8 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     int *isize = this->GetInput()->GetDimensions();
     int maxisize = (isize[0] > isize[1] ? isize[0] : isize[1]);
     maxisize = (isize[2] > maxisize ? isize[2] : maxisize);
-    if (maxisize <= maxrsize && maxisize <= 1024)
+    if (maxisize <= maxrsize && maxisize <= 1024 &&
+        prop->GetRedrawMTime() > this->SliceMapper->LoadTime)
       {
       this->InternalResampleToScreenPixels =
         (prop->GetAllocatedRenderTime() >= 1.0);
@@ -144,6 +142,36 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
   // update anything related to the image coloring
   this->UpdateColorInformation(property);
+
+  // perform the reslicing
+  this->ImageReslice->SetInput(this->GetInput());
+  this->ImageReslice->UpdateWholeExtent();
+ 
+  // apply checkerboard pattern (should have timestamps)
+  if (property && property->GetCheckerboard())
+    {
+    this->CheckerboardImage(this->ImageReslice->GetOutput(),
+      ren->GetActiveCamera(), property);
+    }
+
+  // everything else is delegated
+  this->SliceMapper->SetInput(this->ImageReslice->GetOutput());
+  this->SliceMapper->GetDataToWorldMatrix()->DeepCopy(
+    this->SliceToWorldMatrix);
+  this->SliceMapper->SetSliceFacesCamera(this->SliceFacesCamera);
+  this->SliceMapper->SetExactPixelMatch(this->InternalResampleToScreenPixels);
+  this->SliceMapper->SetBorder( (this->Border ||
+                                 this->InternalResampleToScreenPixels) );
+  this->SliceMapper->SetPassColorData(true);
+  this->SliceMapper->SetDisplayExtent(this->ImageReslice->GetOutputExtent());
+
+  // render pass info for members of vtkImageStack
+  this->SliceMapper->MatteEnable = this->MatteEnable;
+  this->SliceMapper->ColorEnable = this->ColorEnable;
+  this->SliceMapper->DepthEnable = this->DepthEnable;
+
+  // let vtkImageSliceMapper do the rest of the work
+  this->SliceMapper->Render(ren, prop);
 }
 
 //----------------------------------------------------------------------------
@@ -591,24 +619,27 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     double ymin = VTK_DOUBLE_MAX;
     double ymax = -VTK_DOUBLE_MAX;
 
-    for (int k = 0; k < this->NCoords; k++)
+    vtkPoints *points = this->SliceMapper->GetPoints();
+    vtkIdType n = points->GetNumberOfPoints();
+    if (n == 0)
       {
-      if (this->Coords[3*k + 0] < xmin)
-        {
-        xmin = this->Coords[3*k + 0];
-        }
-      if (this->Coords[3*k + 0] > xmax)
-        {
-        xmax = this->Coords[3*k + 0];
-        }
-      if (this->Coords[3*k + 1] < ymin)
-        {
-        ymin = this->Coords[3*k + 1];
-        }
-      if (this->Coords[3*k + 1] > ymax)
-        {
-        ymax = this->Coords[3*k + 1];
-        }
+      double inputOrigin[3];
+      this->GetInput()->GetOrigin(inputOrigin);
+      xmin = inputOrigin[0];
+      xmax = inputOrigin[0];
+      ymin = inputOrigin[1];
+      ymax = inputOrigin[1];
+      }
+
+    for (vtkIdType k = 0; k < n; k++)
+      {
+      double point[3];
+      points->GetPoint(k, point);
+
+      xmin = ((xmin < point[0]) ? xmin : point[0]);
+      xmax = ((xmax > point[0]) ? xmax : point[0]);
+      ymin = ((ymin < point[1]) ? ymin : point[1]);
+      ymax = ((ymax > point[1]) ? ymax : point[1]);
       }
 
     double tol = 7.62939453125e-06;
@@ -911,8 +942,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
                   "6 points, please report a bug!");
     }
 
-  double *coords = this->Coords;
-  this->NCoords = n;
+  double coords[18];
 
   if (n > 0)
     {
@@ -947,36 +977,20 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       coords[kk3+2] = z;
       }
     }
-}
 
-//----------------------------------------------------------------------------
-// Compute the texture coordinates for the cut polygon
-void vtkImageResliceMapper::ComputeTCoords(
-  vtkImageData *input, const int extent[6], int ncoords,
-  const double *coords, double *tcoords)
-{
-  // info about the texture, based on the provided extent
-  int xdim, ydim;
-  int imageSize[2];
-  int textureSize[2];
-
-  // compute image size and texture size from extent
-  this->ComputeTextureSize(
-    extent, xdim, ydim, imageSize, textureSize);
-
-  // now get the info about the image
-  double *spacing = input->GetSpacing();
-  double *origin = input->GetOrigin();
-
-  // compute the texture coords
-  for (int k = 0; k < ncoords; k++)
+  vtkPoints *points = this->SliceMapper->GetPoints();
+  if (!points)
     {
-    int k2 = k*2;
-    int k3 = k*3;
-    tcoords[k2]   = ((coords[k3]   - origin[0] + 0.5*spacing[0])/
-                     (textureSize[0]*spacing[0]));
-    tcoords[k2+1] = ((coords[k3+1] - origin[1] + 0.5*spacing[1])/
-                     (textureSize[1]*spacing[1]));
+    points = vtkPoints::New();
+    points->SetDataTypeToDouble();
+    this->SliceMapper->SetPoints(points);
+    points->Delete();
+    }
+
+  points->SetNumberOfPoints(n);
+  for (int k = 0; k < n; k++)
+    {
+    points->SetPoint(k, &coords[3*k]);
     }
 }
 
@@ -1063,4 +1077,5 @@ void vtkImageResliceMapper::ReportReferences(vtkGarbageCollector* collector)
   // These filters share our input and are therefore involved in a
   // reference loop.
   vtkGarbageCollectorReport(collector, this->ImageReslice, "ImageReslice");
+  vtkGarbageCollectorReport(collector, this->SliceMapper, "SliceMapper");
 }

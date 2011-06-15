@@ -28,6 +28,7 @@
 
 #include "vtkImageMapper3D.h"
 
+class vtkImageSliceMapper;
 class vtkRenderer;
 class vtkCamera;
 class vtkLookupTable;
@@ -133,14 +134,10 @@ protected:
   void UpdatePolygonCoords(vtkRenderer *ren);
 
   // Description:
-  // Compute the texcoords for the image poly.
-  void ComputeTCoords(
-    vtkImageData *input, const int extent[6], int ncoords,
-    const double *coords, double *tcoords);
-
-  // Description:
   // Garbage collection for reference loops.
   void ReportReferences(vtkGarbageCollector*);
+
+  vtkImageSliceMapper *SliceMapper;
 
   int AutoAdjustImageQuality; // LOD-style behavior
   int ResampleToScreenPixels; // Use software interpolation only
@@ -151,7 +148,6 @@ protected:
   vtkMatrix4x4 *SliceToWorldMatrix; // Slice to World transform matrix
 
   double Coords[18];
-  double TCoords[12];
   int NCoords;
  
 private:
