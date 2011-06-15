@@ -175,7 +175,7 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->SetLearnOption( true );
   cs1->SetDeriveOption( true );
   cs1->SetAssessOption( true );
-  cs1->SetTestOption( true );
+  cs1->SetTestOption( false );
   cs1->Update();
 
   // Get output data and meta tables
@@ -252,7 +252,8 @@ int TestCorrelativeStatistics( int, char *[] )
       }
 
     double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
-    if ( fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
+    if ( ( vtkMath::IsNan( testPearsonR ) != vtkMath::IsNan( correlations1[r] ) )
+         || fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
