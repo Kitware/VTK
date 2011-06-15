@@ -127,7 +127,7 @@ Closed(bool close)
 }
  
 bool MetaContour
-::Closed()
+::Closed() const
 {
   return m_Closed;
 }
@@ -242,7 +242,7 @@ AttachedToSlice(long int slice)
 
 /** Get if the contour is pinned to a particulare slice */
 long int MetaContour::
-AttachedToSlice()
+AttachedToSlice() const
 {
   return m_AttachedToSlice;
 }
@@ -255,7 +255,7 @@ DisplayOrientation(int display)
 }
  
 int MetaContour::
-DisplayOrientation()
+DisplayOrientation() const
 {
   return m_DisplayOrientation;
 }

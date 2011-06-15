@@ -65,7 +65,7 @@ protected:
   // Description:
   // Render an opaque polygon behind the image.  This is also used
   // in multi-pass rendering to render into the depth buffer.
-  void RenderBackingPolygon(vtkRenderer *ren);
+  void RenderBackingPolygon();
 
   // Description:
   // Non-recursive internal method, generate a single texture
@@ -95,13 +95,15 @@ protected:
 
   vtkTimeStamp LoadTime;
   long Index; // OpenGL ID for texture or display list
+  long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
- 
+
   int TextureSize[2];
   int TextureBytesPerPixel;
 
   bool UsePowerOfTwoTextures;
   bool UseClampToEdge;
+  bool UseFragmentProgram;
 
 private:
   vtkOpenGLImageResliceMapper(const vtkOpenGLImageResliceMapper&);  // Not implemented.
