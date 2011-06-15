@@ -251,6 +251,7 @@ int TestCorrelativeStatistics( int, char *[] )
       testStatus = 1;
       }
 
+    // Special treatment as some values of Pearson r are Nan, resulting in an exception on VS
     double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
     if ( ( vtkMath::IsNan( testPearsonR ) != vtkMath::IsNan( correlations1[r] ) )
          || fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
