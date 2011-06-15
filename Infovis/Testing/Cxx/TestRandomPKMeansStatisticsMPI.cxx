@@ -167,18 +167,17 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pks->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
 
   // Select columns for testing
-  pks->SetColumnStatus( inputData->GetColumnName( 0 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 1 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 2 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 3 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 4 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 5 ) , 1 );
+  for ( int v = 0; v < nVariables; ++ v )
+    {
+    pks->SetColumnStatus( inputData->GetColumnName( v ) , 1 );
+    }
   pks->RequestSelectedColumns();
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pks->SetLearnOption( true );
   pks->SetDeriveOption( true );
   pks->SetAssessOption( true );
+  pks->SetTestOption( false );
   pks->Update();
 
   // Synchronize and stop clock
