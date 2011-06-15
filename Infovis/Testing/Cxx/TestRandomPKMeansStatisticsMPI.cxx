@@ -44,6 +44,7 @@ struct RandomSampleStatisticsArgs
   int nProcs;
   int nClusters;
   double meanFactor;
+  double stdev;
   int* retVal;
   int ioRank;
 };
@@ -91,7 +92,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       double x;
       for ( int r = 0; r < observationsPerCluster; ++ r )
         {
-        x = vtkMath::Gaussian( c * args->meanFactor, 1.0 );
+        x = vtkMath::Gaussian( c * args->meanFactor, args->stdev );
         doubleArray->InsertNextValue( x );
         }
       }
@@ -313,6 +314,7 @@ int main( int argc, char** argv )
   args.nProcs = numProcs;
   args.nClusters = 8;
   args.meanFactor = 7.;
+  args.stdev = 1.;
   args.retVal = &testValue;
   args.ioRank = ioRank;
 
