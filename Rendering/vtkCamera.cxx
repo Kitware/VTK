@@ -374,7 +374,7 @@ void vtkCamera::ComputeScreenOrientation()
     double yAxis[3];
     double zAxis[3];
 
-    for(int i=0; i < 3; ++i)
+    for(int i = 0; i < 3; ++i)
       {
       xAxis[i] = this->ScreenBottomRight[i] - this->ScreenBottomLeft[i];
       yAxis[i] = this->ScreenTopRight[i]    - this->ScreenBottomRight[i];
@@ -384,7 +384,6 @@ void vtkCamera::ComputeScreenOrientation()
     vtkMath::Normalize(yAxis);
     vtkMath::Cross(xAxis, yAxis, zAxis);
     vtkMath::Normalize(zAxis);
-
 
     this->ScreenOrientation->SetElement(0, 0, xAxis[0]);
     this->ScreenOrientation->SetElement(0, 1, xAxis[1]);
