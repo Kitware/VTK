@@ -387,16 +387,16 @@ void vtkCamera::ComputeScreenOrientation()
 
 
     this->ScreenOrientation->SetElement(0, 0, xAxis[0]);
-    this->ScreenOrientation->SetElement(0, 0, xAxis[1]);
-    this->ScreenOrientation->SetElement(0, 0, xAxis[2]);
+    this->ScreenOrientation->SetElement(0, 1, xAxis[1]);
+    this->ScreenOrientation->SetElement(0, 2, xAxis[2]);
 
-    this->ScreenOrientation->SetElement(0, 0, yAxis[0]);
-    this->ScreenOrientation->SetElement(0, 0, yAxis[1]);
-    this->ScreenOrientation->SetElement(0, 0, yAxis[2]);
+    this->ScreenOrientation->SetElement(1, 0, yAxis[0]);
+    this->ScreenOrientation->SetElement(1, 1, yAxis[1]);
+    this->ScreenOrientation->SetElement(1, 2, yAxis[2]);
 
-    this->ScreenOrientation->SetElement(0, 0, zAxis[0]);
-    this->ScreenOrientation->SetElement(0, 0, zAxis[1]);
-    this->ScreenOrientation->SetElement(0, 0, zAxis[2]);
+    this->ScreenOrientation->SetElement(2, 0, zAxis[0]);
+    this->ScreenOrientation->SetElement(2, 1, zAxis[1]);
+    this->ScreenOrientation->SetElement(2, 2, zAxis[2]);
 
     this->ScreenOrientationMTime.Modified();
     }
