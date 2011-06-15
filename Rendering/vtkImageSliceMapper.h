@@ -160,6 +160,7 @@ protected:
     unsigned char *data, int xsize, int ysize,
     const double imageSpacing[3], vtkImageProperty *property);
 
+  vtkTimeStamp LoadTime;
   int SliceNumber;
   int SliceNumberMinValue;
   int SliceNumberMaxValue;
