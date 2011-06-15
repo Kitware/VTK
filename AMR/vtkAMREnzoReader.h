@@ -23,6 +23,8 @@
 
 #include "vtkAMRBaseReader.h"
 
+#include "vtkstd/map"     // For STL map
+
 class vtkHierarchicalBoxDataSet;
 class vtkEnzoReaderInternal;
 
@@ -34,12 +36,45 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
     void PrintSelf(std::ostream &os, vtkIndent indent );
 
     // Description:
+    // Set/Get whether data should be converted to CGS
+    vtkSetMacro( ConvertToCGS, int );
+    vtkGetMacro( ConvertToCGS, int );
+    vtkBooleanMacro( ConvertToCGS, int );
+
+    // Description:
     // See vtkAMRBaseReader::SetFileName
     void SetFileName( const char* fileName );
 
   protected:
     vtkAMREnzoReader();
     ~vtkAMREnzoReader();
+
+    // Description:
+    // Parses the parameters file and extracts the
+    // conversion factors that are used to convert
+    // to CGS units.
+    void ParseConversionFactors();
+
+    // Description:
+    // Given an array name of the form "array[idx]" this method
+    // extracts and returns the corresponding index idx.
+    int GetIndexFromArrayName( std::string arrayName );
+
+    // Description:
+    // Given the label string, this method parses the attribute label and
+    // the string index.
+    void ParseLabel(const std::string labelString,int &idx,std::string &label);
+
+    // Description:
+    // Given the label string, this method parses the corresponding attribute
+    // index and conversion factor
+    void ParseCFactor(const std::string labelString, int &idx, double &factor );
+
+    // Description:
+    // Given the variable name, return the conversion factor used to convert
+    // the data to CGS. These conversion factors are read directly from the
+    // parameters file when the filename is set.
+    double GetConversionFactor( const std::string name );
 
     // Description:
     // See vtkAMRBaseReader::ReadMetaData
@@ -71,11 +106,16 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
     // See vtkAMRBaseReader::SetUpDataArraySelections
     void SetUpDataArraySelections();
 
+    int ConvertToCGS;
+
   private:
     vtkAMREnzoReader( const vtkAMREnzoReader& ); // Not Implemented
     void operator=(const vtkAMREnzoReader& ); // Not Implemented
 
     vtkEnzoReaderInternal *Internal;
+
+    vtkstd::map< vtkstd::string, int > label2idx;
+    vtkstd::map< int, double >    conversionFactors;
 };
 
 #endif /* VTKAMRENZOREADER_H_ */

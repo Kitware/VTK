@@ -39,12 +39,12 @@
 #define H5_USE_16_API
 #include <hdf5.h>
 
+#include <sstream>
 #include <vtkstd/vector>
 #include <vtkstd/string>
 #include <cassert>
 
 #include "vtkAMREnzoReaderInternal.h"
-
 
 vtkStandardNewMacro(vtkAMREnzoReader);
 
@@ -74,6 +74,124 @@ vtkAMREnzoReader::~vtkAMREnzoReader()
 void vtkAMREnzoReader::PrintSelf( std::ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+}
+
+//-----------------------------------------------------------------------------
+int vtkAMREnzoReader::GetIndexFromArrayName( std::string arrayName )
+{
+  char stringIdx = arrayName.at( arrayName.size()-2 );
+  return( atoi( &stringIdx ) );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMREnzoReader::GetConversionFactor( const std::string name )
+{
+  if( this->label2idx.find( name ) != this->label2idx.end() )
+    {
+      int idx = this->label2idx[ name ];
+      if( this->conversionFactors.find( idx ) != this->conversionFactors.end() )
+        return( this->conversionFactors[ idx ] );
+      else
+        return( 1.0 );
+    }
+  else
+    return( 1.0 );
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMREnzoReader::ParseLabel(
+    const std::string labelString, int &idx, std::string &label)
+{
+
+  std::vector< std::string > strings;
+
+  std::istringstream iss( labelString );
+  std::string word;
+  while ( iss >> word )
+    {
+      if( ! vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
+        strings.push_back( word );
+    }
+
+  idx   = this->GetIndexFromArrayName( strings[0] );
+  label = strings[ strings.size()-1 ];
+
+//
+//  for( unsigned int i=0; i < strings.size(); ++i )
+//    std::cout << "[ " << strings[ i ] << " ] ";
+//  std::cout << "idx: " << idx << std::endl;
+//  std::cout.flush();
+//
+//  this->label2idx[ label ] = idx;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMREnzoReader::ParseCFactor(
+    const std::string labelString, int &idx, double &factor )
+{
+  std::vector< std::string > strings;
+
+  std::istringstream iss( labelString );
+  std::string word;
+  while( iss >> word )
+    {
+      if( ! vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
+        strings.push_back( word );
+    }
+
+  idx    = this->GetIndexFromArrayName( strings[0] );
+  factor = atof( strings[ strings.size()-1 ].c_str() );
+
+//  for( unsigned int i=0; i < strings.size(); ++i )
+//    std::cout << "[ " << strings[ i ] << " ] ";
+//  std::cout << " idx: "     << idx    << std::endl;
+//  std::cout << " factor:  " << factor << std::endl;
+//
+//  this->conversionFactors[ idx ] = factor;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMREnzoReader::ParseConversionFactors( )
+{
+  assert( "pre: FileName should not be NULL" && (this->FileName != NULL) );
+
+  // STEP 0: Extract the parameters file from the user-supplied filename
+  std::string baseDir =
+      vtksys::SystemTools::GetFilenamePath(
+          std::string( this->FileName ) );
+
+  std::string paramsFile = baseDir + "/" +
+      vtksys::SystemTools::GetFilenameWithoutExtension(
+          std::string( this->FileName ) );
+
+  // STEP 1: Open Parameters file
+  std::ifstream ifs;
+  ifs.open( paramsFile.c_str() );
+  assert( "pre: Cannot open parameters file" && ( ifs.is_open() ) );
+
+  // STEP 2: Parsing parameters file
+  std::string line;  // temp string to store a line read from the params file
+  std::string label; // stores the attribute name
+  double cf;         // stores the conversion factor
+  int    idx;        // stores the attribute label index
+  while( getline(ifs, line) )
+    {
+      if( vtksys::SystemTools::StringStartsWith(
+          line.c_str(), "DataLabel" ) )
+        {
+          this->ParseLabel( line, idx, label );
+          this->label2idx[ label ] = idx;
+        }
+      else if( vtksys::SystemTools::StringStartsWith(
+               line.c_str(), "#DataCGSConversionFactor" ) )
+        {
+          this->ParseCFactor( line, idx, cf );
+          this->conversionFactors[ idx ] = cf;
+        }
+    }
+
+  // STEP 3: Close parameters file
+  ifs.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -130,11 +248,13 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
         delete [] this->FileName;
         this->FileName = NULL;
         this->Internal->SetFileName( NULL );
+        this->ParseConversionFactors( );
       }
       this->FileName = new char[  strlen( fileName ) + 1  ];
       strcpy( this->FileName, fileName );
       this->FileName[ strlen( fileName ) ] = '\0';
       this->Internal->SetFileName( this->FileName );
+      this->ParseConversionFactors( );
     }
 
   this->Internal->ReadMetaData();
@@ -245,6 +365,32 @@ void vtkAMREnzoReader::GetBlock(
         this->Internal->GetBlockAttribute(
           this->Internal->BlockAttributeNames[ i ].c_str(),
           blockIdx, ug );
+
+        if( this->ConvertToCGS == 1 )
+          {
+            double conversionFactor = this->GetConversionFactor(
+                this->Internal->BlockAttributeNames[ i ].c_str() );
+
+            if( conversionFactor != 1.0 )
+              {
+
+                vtkDataArray *data = ug->GetCellData()->GetArray(
+                    this->Internal->BlockAttributeNames[ i ].c_str() );
+
+                vtkIdType numTuples = data->GetNumberOfTuples();
+                for( vtkIdType t=0; t < numTuples; ++t )
+                  {
+                    int numComp = data->GetNumberOfComponents();
+                    for( int c=0; c < numComp; ++c )
+                      {
+                        double f = data->GetComponent( t, c );
+                        data->SetComponent( t, c, f*conversionFactor );
+                      } // END for all components
+                  } // END for all tuples
+              }
+
+          } // END if convert to CGS
+
       }
 
     }
