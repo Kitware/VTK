@@ -42,6 +42,7 @@ struct RandomSampleStatisticsArgs
 {
   int nVals;
   int nProcs;
+  int nClusters;
   double meanFactor;
   int* retVal;
   int ioRank;
@@ -75,8 +76,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                                  "Normal 4",
                                  "Normal 5"};
 
-  int numClusters = 8;
-  int observationsPerCluster = args->nVals/numClusters;
+  int nClusters = args->nClusters;
+  int observationsPerCluster = args->nVals / nClusters;
 
   // Generate samples
   for ( int v = 0; v < nVariables; ++ v )
@@ -85,7 +86,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     doubleArray->SetNumberOfComponents( 1 );
     doubleArray->SetName( columnNames[v] );
 
-    for ( int c = 0; c < numClusters; ++ c )
+    for ( int c = 0; c < nClusters; ++ c )
       {
       double x;
       for ( int r = 0; r < observationsPerCluster; ++ r )
@@ -106,15 +107,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   paramCluster = vtkIdTypeArray::New();
   paramCluster->SetName( "K" );
 
-  for( int nInRun = 0; nInRun < numClusters; nInRun++ )
+  for( int nInRun = 0; nInRun < nClusters; nInRun++ )
     {
-    paramCluster->InsertNextValue( numClusters );
+    paramCluster->InsertNextValue( nClusters );
     }
 
   paramData->AddColumn( paramCluster );
   paramCluster->Delete();
 
-  int nClusterCoords = (numClusters)*nVariables;
+  int nClusterCoords = nClusters * nVariables;
   double* clusterCoords = new double[nClusterCoords];
 
   // generate data on one node only
@@ -123,9 +124,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     int cIndex = 0;
     for ( int v = 0; v < nVariables; ++ v )
       {
-      for ( int c = 0; c < (numClusters); ++ c )
+      for ( int c = 0; c < nClusters; ++ c )
         {
-        double x = inputData->GetValue((c%numClusters)*observationsPerCluster, v).ToDouble();
+        double x = inputData->GetValue( ( c % nClusters ) * observationsPerCluster, v ).ToDouble();
         clusterCoords[cIndex++] = x;
         }
       }
@@ -143,8 +144,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     paramArray = vtkDoubleArray::New();
     paramArray->SetName( columnNames[c] );
-    paramArray->SetNumberOfTuples( numClusters );
-    memcpy( paramArray->GetPointer( 0 ), &(clusterCoords[c*(numClusters)]), (numClusters)*sizeof( double ) );
+    paramArray->SetNumberOfTuples( nClusters );
+    memcpy( paramArray->GetPointer( 0 ), &( clusterCoords[c * ( nClusters )]), nClusters * sizeof( double ) );
     paramData->AddColumn( paramArray );
     paramArray->Delete();
     }
@@ -310,6 +311,7 @@ int main( int argc, char** argv )
   RandomSampleStatisticsArgs args;
   args.nVals = 10000;
   args.nProcs = numProcs;
+  args.nClusters = 8;
   args.meanFactor = 7.;
   args.retVal = &testValue;
   args.ioRank = ioRank;
