@@ -38,6 +38,9 @@
 #include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 
+#include <vtksys/ios/sstream>
+#include <vtksys/stl/vector>
+
 struct RandomSampleStatisticsArgs
 {
   int nVals;
@@ -68,14 +71,17 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Generate an input table that contains samples of mutually independent random variables over [0, 1]
   int nVariables = 6;
 
+  vtksys_stl::vector<vtkStdString> columnNames;
+  // Generate column names
+  for ( int v = 0; v < nVariables; ++ v )
+    {
+    vtksys_ios::ostringstream columnName;
+    columnName << "Variable " << v;
+    columnNames.push_back( columnName.str() );
+    }
+
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray;
-  vtkStdString columnNames[] = { "Normal 0",
-                                 "Normal 1",
-                                 "Normal 2",
-                                 "Normal 3",
-                                 "Normal 4",
-                                 "Normal 5"};
 
   int nClusters = args->nClusters;
   int observationsPerCluster = args->nVals / nClusters;
@@ -85,7 +91,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     doubleArray = vtkDoubleArray::New();
     doubleArray->SetNumberOfComponents( 1 );
-    doubleArray->SetName( columnNames[v] );
+    doubleArray->SetName( columnNames.at( v ) );
 
     for ( int c = 0; c < nClusters; ++ c )
       {
@@ -141,12 +147,12 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     return;
     }
 
-  for ( int c = 0; c < nVariables; ++ c )
+  for ( int v = 0; v < nVariables; ++ v )
     {
     paramArray = vtkDoubleArray::New();
-    paramArray->SetName( columnNames[c] );
+    paramArray->SetName( columnNames[v] );
     paramArray->SetNumberOfTuples( nClusters );
-    memcpy( paramArray->GetPointer( 0 ), &( clusterCoords[c * ( nClusters )]), nClusters * sizeof( double ) );
+    memcpy( paramArray->GetPointer( 0 ), &( clusterCoords[v * ( nClusters )]), nClusters * sizeof( double ) );
     paramData->AddColumn( paramArray );
     paramArray->Delete();
     }
