@@ -423,7 +423,7 @@ int main( int argc, char** argv )
 
   // **************************** Parse command line ***************************
   // Set default argument values
-  int nVals = 1000000;
+  int nVals = 100000;
   double stdev = 5.;
   double absTol = 1.e-6;
 
