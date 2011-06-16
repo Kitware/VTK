@@ -46,8 +46,6 @@ struct RealDataDescriptiveStatisticsArgs
   vtkStdString fileName;
   int* dataDim;
   int* procDim;
-  int argc;
-  char** argv;
 };
 
 // Calculate the processor id (integer triple), given its rank
@@ -598,9 +596,6 @@ int main( int argc, char** argv )
   procDimPtr[1] = procDim.at( 1 );
   procDimPtr[2] = procDim.at( 2 );
   args.procDim = procDimPtr;
-
-  args.argc = argc;
-  args.argv = argv;
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RealDataDescriptiveStatistics, &args );
