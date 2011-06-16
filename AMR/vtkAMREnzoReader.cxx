@@ -322,6 +322,49 @@ int vtkAMREnzoReader::GetNumberOfLevels()
 }
 
 //-----------------------------------------------------------------------------
+int vtkAMREnzoReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
+{
+  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+
+  this->Internal->ReadMetaData();
+  std::vector< int > b2level;
+  b2level.resize( this->Internal->NumberOfLevels, 0 );
+
+  // this->Internal->Blocks includes a pseudo block -- the root as block #0
+  for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
+    {
+      vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ i+1 ];
+      int level                   = theBlock.Level;
+
+      double blockMin[ 3 ];
+      double blockMax[ 3 ];
+      double spacings[ 3 ];
+
+      for( int j=0; j < 3; ++j )
+        {
+          blockMin[j] = theBlock.MinBounds[j];
+          blockMax[j] = theBlock.MaxBounds[j];
+          spacings[j] = (theBlock.BlockNodeDimensions[j] > 1)?
+          (blockMax[j]-blockMin[j]/(theBlock.BlockNodeDimensions[j]-1.0)):1.0;
+        }
+
+      vtkUniformGrid *ug = vtkUniformGrid::New();
+      ug->SetDimensions( theBlock.BlockNodeDimensions );
+      ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
+      ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
+
+      metadata->SetDataSet( level, b2level[ level ], ug );
+      ug->Delete();
+      b2level[ level ]++;
+    } // END for all blocks
+
+  // NOTE: the controller here is null since each process loads its own metadata
+  vtkAMRUtilities::GenerateMetaData( metadata, NULL );
+  return( 1 );
+}
+
+//-----------------------------------------------------------------------------
 void vtkAMREnzoReader::GetBlock(
     int index, vtkHierarchicalBoxDataSet *hbds,
     vtkstd::vector< int > &idxcounter)

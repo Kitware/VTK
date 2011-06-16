@@ -147,6 +147,49 @@ int vtkAMRFlashReader::GetNumberOfLevels()
 }
 
 //-----------------------------------------------------------------------------
+int vtkAMRFlashReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
+{
+  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+
+  this->Internal->ReadMetaData();
+
+  std::vector< int > b2level;
+  b2level.resize( this->Internal->NumberOfLevels, 0 );
+
+  for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
+    {
+      // Start numbering levels from 0!
+      int level = this->Internal->Blocks[ i ].Level-1;
+
+      double blockMin[3];
+      double blockMax[3];
+      double spacings[3];
+      for( int j=0; j < 3; ++j )
+        {
+          blockMin[j] = this->Internal->Blocks[i].MinBounds[j];
+          blockMax[j] = this->Internal->Blocks[i].MaxBounds[j];
+          spacings[j] = (this->Internal->BlockGridDimensions[j] > 1)?
+          (blockMax[j]-blockMin[j])/(this->Internal->BlockGridDimensions[j]-1.0):1.0;
+        }
+
+      vtkUniformGrid *ug = vtkUniformGrid::New();
+      ug->SetDimensions( this->Internal->BlockGridDimensions );
+      ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
+      ug->SetSpacing( spacings );
+
+      metadata->SetDataSet( level, b2level[level], ug );
+      ug->Delete();
+      b2level[ level ]++;
+    } // END for all blocks
+
+  // NOTE: The communicator here is NULL since each process loads all the
+  // metadata.
+  vtkAMRUtilities::GenerateMetaData( metadata, NULL );
+  return( 1 );
+}
+
+//-----------------------------------------------------------------------------
 void vtkAMRFlashReader::GetBlock(
     int index, vtkHierarchicalBoxDataSet *hbds,
     vtkstd::vector< int > &idxcounter)

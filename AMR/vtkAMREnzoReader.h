@@ -97,6 +97,10 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
     int GetNumberOfLevels();
 
     // Description:
+    // See vtkAMRBaseReader::FillMetaData
+    int FillMetaData( vtkHierarchicalBoxDataSet *metadata );
+
+    // Description:
     // See vtkAMRBaseReader::GetBlock
     void GetBlock(
         int index, vtkHierarchicalBoxDataSet *hbds,

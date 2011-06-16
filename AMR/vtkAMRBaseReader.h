@@ -147,6 +147,10 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     virtual int GetNumberOfLevels() = 0;
 
     // Description:
+    // Loads all the AMR metadata
+    virtual int FillMetaData( vtkHierarchicalBoxDataSet* metadata ) = 0;
+
+    // Description:
     // Loads the block according to the index w.r.t. the generated BlockMap.
     virtual void GetBlock(
         int index, vtkHierarchicalBoxDataSet *hbds,
