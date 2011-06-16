@@ -49,9 +49,10 @@ struct RandomSampleStatisticsArgs
 {
   int nVals;
   bool skipDescriptive;
-  bool skipCorrelative;
-  bool skipMultiCorrelative;
-  bool skipPCA;
+  bool skipPDescriptive;
+  bool skipPCorrelative;
+  bool skipPMultiCorrelative;
+  bool skipPPCA;
   int* retVal;
   int ioRank;
 };
@@ -123,31 +124,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Create timer to be used by all tests
   vtkTimerLog *timer=vtkTimerLog::New();
 
-  // ************************** Descriptive Statistics **************************
+  // ************************** Serial descriptive Statistics **************************
 
-  // Skip descriptive statistics if requested
+  // Skip serial descriptive statistics if requested
   if ( ! args->skipDescriptive )
     {
-    // "68-95-99.7 rule"
-    // Actually testing for 1, ..., numRuleVal standard deviations
-    int numRuleVal = 6;
-
-    // Reference values
-    double sigmaRuleVal[] = { 68.2689492137,
-                              95.4499736104,
-                              99.7300203937,
-                              99.9936657516,
-                              99.9999426697,
-                              99.9999998027 };
-
-    // Tolerances
-    double sigmaRuleTol[] = { 1.,
-                              .5,
-                              .1,
-                              .05,
-                              .01,
-                              .005 };
-
     // Synchronize and start clock
     com->Barrier();
     timer->StartTimer();
@@ -162,9 +143,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       ds->AddColumn( columnNames[c] );
       }
 
-    // Test (serially) with Learn and Derive options only
+    // Test (serially) with Learn operation only (this is only to verify parallel statistics)
     ds->SetLearnOption( true );
-    ds->SetDeriveOption( true );
+    ds->SetDeriveOption( false );
     ds->SetAssessOption( false );
     ds->SetTestOption( false );
     ds->Update();
@@ -172,7 +153,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Get output data and meta tables
     vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( ds->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
     vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-    vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
     // Collect (local) cardinalities, extrema, and means
     int nRows = outputPrimary->GetNumberOfRows();
@@ -262,7 +242,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     if ( com->GetLocalProcessId() == args->ioRank )
       {
-      cout << "\n## Completed serial calculations of descriptive statistics (with assessment):\n"
+      cout << "\n## Completed serial calculations of descriptive statistics:\n"
            << "   With partial aggregation calculated on process "
            << calcProc
            << "\n"
@@ -270,6 +250,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
            << timer->GetElapsedTime()
            << " sec.\n";
 
+      cout << "   Calculated the following primary statistics:\n";
       for ( vtkIdType r = 0; r < nRows; ++ r )
         {
         cout << "   "
@@ -304,8 +285,37 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     delete [] extrema_g;
 
     ds->Delete();
+    } // if ( ! args->skipDescriptive )
+  else if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Skipped serial calculations of descriptive statistics.\n";
+    }
 
+  // ************************** Parallel Descriptive Statistics **************************
+
+  // Skip parallel descriptive statistics if requested
+  if ( ! args->skipPDescriptive )
+    {
     // Now on to the actual parallel descriptive engine
+    // "68-95-99.7 rule" for 1 up to numRuleVal standard deviations
+    int numRuleVal = 6;
+
+    // Reference values
+    double sigmaRuleVal[] = { 68.2689492137,
+                              95.4499736104,
+                              99.7300203937,
+                              99.9936657516,
+                              99.9999426697,
+                              99.9999998027 };
+
+    // Tolerances
+    double sigmaRuleTol[] = { 1.,
+                              .5,
+                              .1,
+                              .05,
+                              .01,
+                              .005 };
+
 
     // Synchronize and start clock
     com->Barrier();
@@ -321,7 +331,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       pds->AddColumn( columnNames[c] );
       }
 
-    // Test (in parallel) with Learn, Derive, and Assess options turned on
+    // Test (in parallel) with Learn, Derive, and Assess operations turned on
     pds->SetLearnOption( true );
     pds->SetDeriveOption( true );
     pds->SetAssessOption( true );
@@ -334,9 +344,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     timer->StopTimer();
 
     // Get output data and meta tables
-    outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pds->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-    outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-    outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pds->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+    vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+    vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
     vtkTable* outputData = pds->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
     if ( com->GetLocalProcessId() == args->ioRank )
@@ -481,12 +491,16 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Clean up
     pds->Delete();
 
-    } // if ( ! args->skipDescriptive )
+    } // if ( ! args->skipPDescriptive )
+  else if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Skipped calculation of parallel descriptive statistics.\n";
+    }
 
-  // ************************** Correlative Statistics **************************
+  // ************************** Parallel Correlative Statistics **************************
 
-  // Skip correlative statistics if requested
-  if ( ! args->skipCorrelative )
+  // Skip parallel correlative statistics if requested
+  if ( ! args->skipPCorrelative )
     {
     // Synchronize and start clock
     com->Barrier();
@@ -500,7 +514,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     pcs->AddColumnPair( columnNames[0], columnNames[1] );
     pcs->AddColumnPair( columnNames[2], columnNames[3] );
 
-    // Test (in parallel) with Learn, Derive options turned on
+    // Test (in parallel) with Learn, Derive operations turned on
     pcs->SetLearnOption( true );
     pcs->SetDeriveOption( true );
     pcs->SetAssessOption( false );
@@ -557,12 +571,16 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Clean up
     pcs->Delete();
-    } // if ( ! args->skipCorrelative )
+    } // if ( ! args->skipPCorrelative )
+  else if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Skipped calculation of parallel correlative statistics.\n";
+    }
 
-  // ************************** Multi-Correlative Statistics **************************
+  // ************************** Parallel Multi-Correlative Statistics **************************
 
-  // Skip multi-correlative statistics if requested
-  if ( ! args->skipMultiCorrelative )
+  // Skip parallel multi-correlative statistics if requested
+  if ( ! args->skipPMultiCorrelative )
     {
     // Synchronize and start clock
     com->Barrier();
@@ -589,10 +607,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     pmcs->SetColumnStatus( columnNames[3], true );
     pmcs->RequestSelectedColumns();
 
-    // Test (in parallel) with Learn, Derive, and Assess options turned on
+    // Test (in parallel) with Learn, Derive, and Assess operations turned on
     pmcs->SetLearnOption( true );
     pmcs->SetDeriveOption( true );
     pmcs->SetAssessOption( true );
+    pmcs->SetTestOption( false );
     pmcs->Update();
 
     // Get output meta tables
@@ -622,12 +641,16 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Clean up
     pmcs->Delete();
-    } //   if ( ! args->skipMultiCorrelative )
+    } // if ( ! args->skipPMultiCorrelative )
+  else if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Skipped calculation of parallel multi-correlative statistics.\n";
+    }
 
-  // ************************** PCA Statistics **************************
+  // ************************** Parallel PCA Statistics **************************
 
-  // Skip PCA statistics if requested
-  if ( ! args->skipPCA )
+  // Skip parallel PCA statistics if requested
+  if ( ! args->skipPPCA )
     {
     // Synchronize and start clock
     com->Barrier();
@@ -654,7 +677,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     pcas->SetColumnStatus( columnNames[3], true );
     pcas->RequestSelectedColumns();
 
-    // Test (in parallel) with Learn, Derive, and Assess options turned on
+    // Test (in parallel) with all operations turned on (because Test for parallel PCA allows to detect problems)
     pcas->SetLearnOption( true );
     pcas->SetDeriveOption( true );
     pcas->SetAssessOption( true );
@@ -688,7 +711,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Clean up
     pcas->Delete();
-    } // if ( ! args->skipPCA )
+    } // if ( ! args->skipPPCA )
+  else if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Skipped calculation of parallel PCA statistics.\n";
+    }
 
   // Clean up
   inputData->Delete();
@@ -772,9 +799,10 @@ int main( int argc, char** argv )
   // Set default argument values
   int nVals = 100000;
   bool skipDescriptive = false;
-  bool skipCorrelative = false;
-  bool skipMultiCorrelative = false;
-  bool skipPCA = false;
+  bool skipPDescriptive = false;
+  bool skipPCorrelative = false;
+  bool skipPMultiCorrelative = false;
+  bool skipPPCA = false;
 
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;
@@ -786,25 +814,30 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");
 
-  // Parse whether descriptive statistics should be skipped (for faster testing)
-  clArgs.AddArgument("--skip-descriptive",
+  // Parse whether serial descriptive statistics should be skipped (for faster testing)
+  clArgs.AddArgument("--skip-Descriptive",
                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipDescriptive, "Skip descriptive statistics");
+                     &skipDescriptive, "Skip serial descriptive statistics");
 
-  // Parse whether correlative statistics should be skipped (for faster testing)
-  clArgs.AddArgument("--skip-correlative",
+  // Parse whether parallel descriptive statistics should be skipped (for faster testing)
+  clArgs.AddArgument("--skip-PDescriptive",
                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipCorrelative, "Skip correlative statistics");
+                     &skipPDescriptive, "Skip parallel descriptive statistics");
 
-  // Parse whether multi-correlative statistics should be skipped (for faster testing)
-  clArgs.AddArgument("--skip-multi-correlative",
+  // Parse whether parallel correlative statistics should be skipped (for faster testing)
+  clArgs.AddArgument("--skip-PCorrelative",
                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipMultiCorrelative, "Skip multi-correlative statistics");
+                     &skipPCorrelative, "Skip parallel correlative statistics");
 
-  // Parse whether PCA statistics should be skipped (for faster testing)
-  clArgs.AddArgument("--skip-PCA",
+  // Parse whether parallel multi-correlative statistics should be skipped (for faster testing)
+  clArgs.AddArgument("--skip-PMultiCorrelative",
                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipPCA, "Skip PCA statistics");
+                     &skipPMultiCorrelative, "Skip parallel multi-correlative statistics");
+
+  // Parse whether parallel PCA statistics should be skipped (for faster testing)
+  clArgs.AddArgument("--skip-PPCA",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &skipPPCA, "Skip parallel PCA statistics");
 
   // If incorrect arguments were provided, terminate in error.
   if ( ! clArgs.Parse() )
@@ -819,9 +852,10 @@ int main( int argc, char** argv )
   RandomSampleStatisticsArgs args;
   args.nVals = nVals;
   args.skipDescriptive = skipDescriptive;
-  args.skipCorrelative = skipCorrelative;
-  args.skipMultiCorrelative = skipMultiCorrelative;
-  args.skipPCA = skipPCA;
+  args.skipPDescriptive = skipPDescriptive;
+  args.skipPCorrelative = skipPCorrelative;
+  args.skipPMultiCorrelative = skipPMultiCorrelative;
+  args.skipPPCA = skipPPCA;
   args.retVal = &testValue;
   args.ioRank = ioRank;
 
