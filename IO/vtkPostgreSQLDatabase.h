@@ -71,7 +71,7 @@ public:
   // Description:
   // Close the connection to the database.
   void Close();
-  
+
   // Description:
   // Return whether the database has an open connection
   bool IsOpen();
@@ -79,11 +79,11 @@ public:
   // Description:
   // Return an empty query on this database.
   vtkSQLQuery* GetQueryInstance();
-  
+
   // Description:
   // Did the last operation generate an error
   virtual bool HasError();
-  
+
   // Description:
   // Get the last error text from the database
   const char* GetLastErrorText();
@@ -128,7 +128,7 @@ public:
     return VTK_INT_MAX;
     }
   vtkGetMacro(ServerPort, int);
-  
+
   // Description:
   // Get a URL referencing the current database connection.
   // This is not well-defined if the HostName and DatabaseName
@@ -139,7 +139,7 @@ public:
   // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
-    
+
   // Description:
   // Get the list of fields for a particular table
   vtkStringArray* GetRecord( const char* table );
@@ -169,7 +169,13 @@ public:
   // <column name> <column type> <column attributes>
   virtual vtkStdString GetColumnSpecification(
     vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle );
- 
+
+  // Description:
+  // Overridden to determine connection parameters given the URL.
+  // This is called by CreateFromURL() to initialize the instance.
+  // Look at CreateFromURL() for details about the URL format.
+  virtual bool ParseURL(const char* url);
+
 protected:
   vtkPostgreSQLDatabase();
   ~vtkPostgreSQLDatabase();
@@ -189,19 +195,13 @@ protected:
   // database connection is initiated.
   void UpdateDataTypeMap();
 
-  // Description:
-  // Overridden to determine connection parameters given the URL. 
-  // This is called by CreateFromURL() to initialize the instance.
-  // Look at CreateFromURL() for details about the URL format.
-  virtual bool ParseURL(const char* url);
-
   vtkSetStringMacro(DatabaseType);
   vtkSetStringMacro(LastErrorText);
   void NullTrailingWhitespace( char* msg );
   bool OpenInternal( const char* connectionOptions );
 
   vtkTimeStamp URLMTime;
-  vtkPostgreSQLDatabasePrivate *Connection; 
+  vtkPostgreSQLDatabasePrivate *Connection;
   vtkTimeStamp ConnectionMTime;
   vtkStringArray *Tables;
   char* DatabaseType;
@@ -212,7 +212,7 @@ protected:
   int ServerPort;
   char* ConnectOptions;
   char* LastErrorText;
-  
+
 private:
   vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ); // Not implemented.
   void operator = ( const vtkPostgreSQLDatabase& ); // Not implemented.
