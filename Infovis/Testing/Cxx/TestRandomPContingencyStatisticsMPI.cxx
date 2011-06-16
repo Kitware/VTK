@@ -268,7 +268,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     {
     cout << "\n## Verifying that local and global CDFs sum to 1 (within "
          << args->absTol
-         << " relative tolerance).\n";
+         << " absolute tolerance).\n";
     }
   
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
