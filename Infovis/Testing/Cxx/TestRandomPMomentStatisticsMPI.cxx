@@ -120,26 +120,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     doubleArray[c]->Delete();
     }
 
-  // "68-95-99.7 rule"
-  // Actually testing for 1, ..., numRuleVal standard deviations
-  int numRuleVal = 6;
-
-  // Reference values
-  double sigmaRuleVal[] = { 68.2689492137,
-                            95.4499736104,
-                            99.7300203937,
-                            99.9936657516,
-                            99.9999426697,
-                            99.9999998027 };
-
-  // Tolerances
-  double sigmaRuleTol[] = { 1.,
-                            .5,
-                            .1,
-                            .05,
-                            .01,
-                            .005 };
-
   // Create timer to be used by all tests
   vtkTimerLog *timer=vtkTimerLog::New();
 
@@ -148,6 +128,26 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Skip descriptive statistics if requested
   if ( ! args->skipDescriptive )
     {
+    // "68-95-99.7 rule"
+    // Actually testing for 1, ..., numRuleVal standard deviations
+    int numRuleVal = 6;
+
+    // Reference values
+    double sigmaRuleVal[] = { 68.2689492137,
+                              95.4499736104,
+                              99.7300203937,
+                              99.9936657516,
+                              99.9999426697,
+                              99.9999998027 };
+
+    // Tolerances
+    double sigmaRuleTol[] = { 1.,
+                              .5,
+                              .1,
+                              .05,
+                              .01,
+                              .005 };
+
     // Synchronize and start clock
     com->Barrier();
     timer->StartTimer();
