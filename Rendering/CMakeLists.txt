@@ -253,7 +253,6 @@ SET( KitOpenGL_SRCS
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageMapper.cxx
-  vtkOpenGLImageResliceMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLLightingPainter.cxx
@@ -714,7 +713,6 @@ IF (VTK_USE_MANGLED_MESA)
                  vtkMesaCoincidentTopologyResolutionPainter.cxx
                  vtkMesaDisplayListPainter.cxx
                  vtkMesaImageMapper.cxx
-                 vtkMesaImageResliceMapper.cxx
                  vtkMesaImageSliceMapper.cxx
                  vtkMesaLight.cxx
                  vtkMesaLightingPainter.cxx

@@ -251,11 +251,19 @@ int TestCorrelativeStatistics( int, char *[] )
       testStatus = 1;
       }
 
-    // Special treatment as some values of Pearson r are Nan, resulting in an exception on VS
     double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
-    if ( ( vtkMath::IsNan( testPearsonR ) != vtkMath::IsNan( correlations1[r] ) )
-         //         || fabs ( testPearsonR - correlations1[r] ) > 1.e-6 
-         )
+    // Special treatment as some values of Pearson r are Nan, resulting in an exception on VS for <
+    int isNanTest = vtkMath::IsNan( testPearsonR );
+    int isNanCorr = vtkMath::IsNan( correlations1[r] );
+    if ( isNanTest || isNanCorr )
+      {
+      if ( isNanTest != isNanCorr )
+        {
+        vtkGenericWarningMacro("Incorrect correlation coefficient");
+        testStatus = 1;
+        }
+      }
+    else if ( fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;

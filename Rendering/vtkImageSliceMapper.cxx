@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageSliceMapper.h"
 
+#include "vtkPoints.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPlane.h"
@@ -26,6 +27,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+
+vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -57,6 +60,10 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->CroppingRegion[4] = 0;
   this->CroppingRegion[5] = 0;
 
+  this->Points = NULL;
+  this->ExactPixelMatch = false;
+  this->PassColorData = false;
+
   // streaming misbehaves if there is no output port
   this->SetNumberOfOutputPorts(1);
 }
@@ -64,6 +71,10 @@ vtkImageSliceMapper::vtkImageSliceMapper()
 //----------------------------------------------------------------------------
 vtkImageSliceMapper::~vtkImageSliceMapper()
 {
+  if (this->Points)
+    {
+    this->Points->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -228,6 +239,7 @@ void vtkImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->CroppingRegion[0] << " " << this->CroppingRegion[1] << " "
      << this->CroppingRegion[2] << " " << this->CroppingRegion[3] << " "
      << this->CroppingRegion[4] << " " << this->CroppingRegion[5] << "\n";
+  os << indent << "Points: " << this->Points << "\n";
 }
 
 //----------------------------------------------------------------------------

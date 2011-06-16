@@ -30,6 +30,7 @@
 #include "vtkImageMapper3D.h"
 
 class vtkCamera;
+class vtkPoints;
 
 class VTK_RENDERING_EXPORT vtkImageSliceMapper : public vtkImageMapper3D
 {
@@ -111,6 +112,35 @@ protected:
   ~vtkImageSliceMapper();
 
   // Description:
+  // Set points that describe a polygon on which the slice will
+  // be rendered.
+  void SetPoints(vtkPoints *points);
+  vtkPoints *GetPoints() { return this->Points; }
+
+  // Description:
+  // Force linear interpolation.  Internal method, for when this
+  // mapper is used as a helper class.
+  void SetExactPixelMatch(int v) {
+    this->ExactPixelMatch = (v != 0); }
+
+  // Description:
+  // Pass color data.  Internal method, for when this mapper is
+  // used as a helper class.
+  void SetPassColorData(int v) {
+    this->PassColorData = (v != 0); }
+
+  // Description:
+  // Set the display extent.  Internal method, for when this mapper
+  // is used as a helper class.
+  void SetDisplayExtent(int extent[6]) {
+    this->DisplayExtent[0] = extent[0];
+    this->DisplayExtent[1] = extent[1];
+    this->DisplayExtent[2] = extent[2];
+    this->DisplayExtent[3] = extent[3];
+    this->DisplayExtent[4] = extent[4];
+    this->DisplayExtent[5] = extent[5]; }
+
+  // Description:
   // Get the camera orientation as a simple integer [0,1,2,3,4,5]
   // that indicates one of the six major directions.  The integers
   // 0,1,2 are x,y,z and 3,4,5 are -x,-y,-z.
@@ -127,9 +157,10 @@ protected:
   // Description:
   // Do a checkerboard pattern to the alpha of an RGBA image
   void CheckerboardImage(
-  unsigned char *data, int xsize, int ysize,
-  const double imageSpacing[3], vtkImageProperty *property);
+    unsigned char *data, int xsize, int ysize,
+    const double imageSpacing[3], vtkImageProperty *property);
 
+  vtkTimeStamp LoadTime;
   int SliceNumber;
   int SliceNumberMinValue;
   int SliceNumberMaxValue;
@@ -137,10 +168,15 @@ protected:
   int Cropping;
   int CroppingRegion[6];
   int DisplayExtent[6];
+  int ExactPixelMatch;
+  int PassColorData;
+  vtkPoints *Points;
 
 private:
   vtkImageSliceMapper(const vtkImageSliceMapper&);  // Not implemented.
   void operator=(const vtkImageSliceMapper&);  // Not implemented.
+
+  friend class vtkImageResliceMapper;
 };
 
 #endif
