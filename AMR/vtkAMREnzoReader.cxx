@@ -346,7 +346,7 @@ int vtkAMREnzoReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
           blockMin[j] = theBlock.MinBounds[j];
           blockMax[j] = theBlock.MaxBounds[j];
           spacings[j] = (theBlock.BlockNodeDimensions[j] > 1)?
-          (blockMax[j]-blockMin[j]/(theBlock.BlockNodeDimensions[j]-1.0)):1.0;
+          (blockMax[j]-blockMin[j])/(theBlock.BlockNodeDimensions[j]-1.0):1.0;
         }
 
       vtkUniformGrid *ug = vtkUniformGrid::New();
