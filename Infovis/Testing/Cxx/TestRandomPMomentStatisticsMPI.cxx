@@ -69,7 +69,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
-  // Generate an input table that contains samples of mutually independent random variables over [0, 1]
+  // Generate an input table that contains samples of mutually independent random variables
   int nUniform = 2;
   int nNormal  = 2;
   int nVariables = nUniform + nNormal;
@@ -118,7 +118,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // "68-95-99.7 rule"
-  // Actually testing for 1, ..., numRuleVa standard deviations
+  // Actually testing for 1, ..., numRuleVal standard deviations
   int numRuleVal = 6;
 
   // Reference values
@@ -452,7 +452,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
         cout << "      "
              << testVal
-             << "\\% within "
+             << "% within "
              << i + 1
              << " standard deviation(s) from the mean.\n";
 
@@ -645,6 +645,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcas->SetLearnOption( true );
   pcas->SetDeriveOption( true );
   pcas->SetAssessOption( true );
+  pcas->SetTestOption( true );
   pcas->Update();
 
   // Get output meta tables
