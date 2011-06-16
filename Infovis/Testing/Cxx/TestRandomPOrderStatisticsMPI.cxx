@@ -355,7 +355,7 @@ int main( int argc, char** argv )
   // Parse absolute tolerance to verify extrema
   clArgs.AddArgument("--abs-tol",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &stdev, "Absolute tolerance to verify extrema");
+                     &absTol, "Absolute tolerance to verify extrema");
 
   // If incorrect arguments were provided, terminate in error.
   if ( ! clArgs.Parse() )
