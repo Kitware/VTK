@@ -839,10 +839,19 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::NO_ARGUMENT,
                      &skipPPCA, "Skip parallel PCA statistics");
 
-  // If incorrect arguments were provided, terminate in error.
+  // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
     {
-    vtkGenericWarningMacro("Incorrect input data arguments were provided.");
+    if ( com->GetLocalProcessId() == ioRank )
+      {
+      cerr << "Usage: " 
+           << clArgs.GetHelp()
+           << "\n";
+      }
+
+    controller->Finalize();
+    controller->Delete();
+
     return 1;
     }
 
