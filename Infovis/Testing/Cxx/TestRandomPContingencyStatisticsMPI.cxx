@@ -445,7 +445,7 @@ int main( int argc, char** argv )
   // Parse absolute tolerance to verify that final CDF is 1
   clArgs.AddArgument("--abs-tol",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &stdev, "Absolute tolerance to verify that final CDF is 1");
+                     &absTol, "Absolute tolerance to verify that final CDF is 1");
 
   // If incorrect arguments were provided, terminate in error.
   if ( ! clArgs.Parse() )
