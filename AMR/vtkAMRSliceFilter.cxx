@@ -28,6 +28,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkCompositeDataPipeline.h"
 
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -139,46 +140,16 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
         // X-Normal
         pl->SetNormal(1.0,0.0,0.0);
         porigin[0] += this->OffSetFromOrigin;
-//        if( porigin[0] < minBounds[0] )
-//          {
-//            double dx  = abs( minBounds[0]-porigin[0] );
-//            porigin[0] = maxBounds[0]-dx;
-//          }
-//        else if( porigin[0] > maxBounds[0] )
-//          {
-//            double dx = abs( porigin[0]-maxBounds[0] );
-//            porigin[0] = minBounds[0]+dx;
-//          }
         break;
       case 2:
         // Y-Normal
         pl->SetNormal(0.0,1.0,0.0);
         porigin[1] += this->OffSetFromOrigin;
-//        if( porigin[1] < minBounds[1] )
-//         {
-//          double dx  = abs( minBounds[1]-porigin[1] );
-//          porigin[1] = maxBounds[1]-dx;
-//         }
-//       else if( porigin[1] > maxBounds[1] )
-//         {
-//           double dx = abs( porigin[1]-maxBounds[1] );
-//           porigin[1] = minBounds[1]+dx;
-//         }
         break;
       case 3:
         // Z-Normal
         pl->SetNormal(0.0,0.0,1.0);
         porigin[2] += this->OffSetFromOrigin;
-//        if( porigin[2] < minBounds[2] )
-//         {
-//           double dx  = abs( minBounds[2]-porigin[2] );
-//           porigin[2] = maxBounds[2]-dx;
-//         }
-//       else if( porigin[2] > maxBounds[2] )
-//         {
-//           double dx = abs( porigin[2]-maxBounds[2] );
-//           porigin[2] = minBounds[2]+dx;
-//         }
         break;
       default:
         vtkErrorMacro( "Undefined plane normal" );
@@ -485,13 +456,26 @@ void vtkAMRSliceFilter::GetSliceCellData(
 }
 
 //------------------------------------------------------------------------------
+int vtkAMRSliceFilter::RequestInformation(
+    vtkInformation *rqst,
+    vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector )
+{
+  std::cout << "FILE: " << __FILE__ << " - RequestInformation\n";
+  std::cout.flush();
+
+  // TODO: implement this
+  this->Modified();
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkAMRSliceFilter::RequestUpdateExtent(
     vtkInformation*, vtkInformationVector **inputVector,
     vtkInformationVector *outputVector )
 {
-//  std::cout << "RequestUpdate Extent is called!!!!\n";
-//  std::cout << "Resolution: " << this->MaxResolution << std::endl;
-//  std::cout.flush();
+  std::cout << "FILE: " << __FILE__ << " - RequestUpdateExtent\n";
+  std::cout.flush();
 
   vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
   assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
@@ -509,9 +493,23 @@ int vtkAMRSliceFilter::RequestData(
     vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )
 {
+  std::cout << "FILE: " << __FILE__ << " - RequestData\n";
+  std::cout.flush();
+
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: input information object is NULL" && (input != NULL) );
+
+  if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+    {
+      std::cout << "Got Metadata!\n";
+      std::cout.flush();
+
+      vtkHierarchicalBoxDataSet *metadata =
+          vtkHierarchicalBoxDataSet::SafeDownCast(
+              input->Get(
+                  vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
+    }
   vtkHierarchicalBoxDataSet *inputAMR=
       vtkHierarchicalBoxDataSet::SafeDownCast(
           input->Get(vtkDataObject::DATA_OBJECT() ) );
