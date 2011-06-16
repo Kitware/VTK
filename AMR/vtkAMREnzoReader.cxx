@@ -329,7 +329,7 @@ int vtkAMREnzoReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
 
   this->Internal->ReadMetaData();
   std::vector< int > b2level;
-  b2level.resize( this->Internal->NumberOfLevels, 0 );
+  b2level.resize( this->Internal->NumberOfLevels+1, 0 );
 
   // this->Internal->Blocks includes a pseudo block -- the root as block #0
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
