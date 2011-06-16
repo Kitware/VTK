@@ -120,8 +120,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     int *isize = this->GetInput()->GetDimensions();
     int maxisize = (isize[0] > isize[1] ? isize[0] : isize[1]);
     maxisize = (isize[2] > maxisize ? isize[2] : maxisize);
-    if (maxisize <= maxrsize && maxisize <= 1024 &&
-        prop->GetRedrawMTime() > this->SliceMapper->LoadTime)
+    if (maxisize <= maxrsize && maxisize <= 1024)
       {
       this->InternalResampleToScreenPixels =
         (prop->GetAllocatedRenderTime() >= 1.0);
