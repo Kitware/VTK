@@ -468,9 +468,9 @@ int main( int argc, char** argv )
   RandomContingencyStatisticsArgs args;
   args.nVals = nVals;
   args.stdev = stdev;
-  args.absTol = absTol;
   args.retVal = &testValue;
   args.ioRank = ioRank;
+  args.absTol = absTol;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
