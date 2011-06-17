@@ -147,7 +147,9 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   this->ImageReslice->UpdateWholeExtent();
  
   // apply checkerboard pattern (should have timestamps)
-  if (property && property->GetCheckerboard())
+  if (property && property->GetCheckerboard() &&
+      this->InternalResampleToScreenPixels &&
+      this->SliceFacesCamera)
     {
     this->CheckerboardImage(this->ImageReslice->GetOutput(),
       ren->GetActiveCamera(), property);
