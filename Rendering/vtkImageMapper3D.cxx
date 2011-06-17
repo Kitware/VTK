@@ -839,8 +839,12 @@ void vtkImageMapper3D::CheckerboardRGBA(
   unsigned char *data, int xsize, int ysize,
   double originx, double originy, double spacingx, double spacingy)
 {
+  static double tol = 7.62939453125e-06;
   static double maxval = 2147483647;
   static double minval = -2147483647;
+
+  originx += 1.0 + tol;
+  originy += 1.0 + tol;
 
   originx = (originx > minval ? originx : minval);
   originx = (originx < maxval ? originx : maxval);
@@ -855,8 +859,8 @@ void vtkImageMapper3D::CheckerboardRGBA(
   spacingx = (spacingx != 0 ? spacingx : maxval);
   spacingy = (spacingy != 0 ? spacingy : maxval);
 
-  int xn = static_cast<int>(spacingx);
-  int yn = static_cast<int>(spacingy);
+  int xn = static_cast<int>(spacingx + tol);
+  int yn = static_cast<int>(spacingy + tol);
   double fx = spacingx - xn;
   double fy = spacingy - yn;
 
