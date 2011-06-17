@@ -284,10 +284,6 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
       this->DataToWorldMatrix->DeepCopy(mat);
       }
     }
-  else
-    {
-    this->DataToWorldMatrix->Identity();
-    }
 
   return this->DataToWorldMatrix;
 }
@@ -295,7 +291,7 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
 //----------------------------------------------------------------------------
 // Subdivide the image until the pieces fit into texture memory
 void vtkImageMapper3D::RecursiveRenderTexturedPolygon(
-  vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
+  vtkRenderer *ren, vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
   int xdim, ydim;
@@ -311,7 +307,7 @@ void vtkImageMapper3D::RecursiveRenderTexturedPolygon(
     {
     // We can fit it - render
     this->RenderTexturedPolygon(
-      ren, prop, property, input, extent, recursive);
+      ren, property, input, extent, recursive);
     }
 
   // If the texture does not fit, then subdivide and render
@@ -341,19 +337,18 @@ void vtkImageMapper3D::RecursiveRenderTexturedPolygon(
     subExtent[idx*2] = extent[idx*2];
     subExtent[idx*2 + 1] = extent[idx*2] + tsize - 1;
     this->RecursiveRenderTexturedPolygon(
-      ren, prop, property, input, subExtent, true);
+      ren, property, input, subExtent, true);
 
     subExtent[idx*2] = subExtent[idx*2] + tsize;
     subExtent[idx*2 + 1] = extent[idx*2 + 1];
     this->RecursiveRenderTexturedPolygon(
-      ren, prop, property, input, subExtent, true);
+      ren, property, input, subExtent, true);
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageMapper3D::RenderTexturedPolygon(
-  vtkRenderer *, vtkProp3D *, vtkImageProperty *,
-  vtkImageData *, int [6], bool)
+  vtkRenderer *, vtkImageProperty *, vtkImageData *, int [6], bool)
 {
   // implemented in subclasses
 }
@@ -965,9 +960,6 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
   this->ComputeTextureSize(
     extent, xdim, ydim, imageSize, textureSize);
 
-  // will be set if the extent represents contiguous memory
-  bool contiguous = false;
-
   // number of components
   int numComp = input->GetNumberOfScalarComponents();
   int scalarType = input->GetScalarType();
@@ -1031,7 +1023,6 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
          (xdim == 0 && ydim == 2 && dataExtent[2] == dataExtent[3] &&
           extent[0] == dataExtent[0] && extent[1] == dataExtent[1]) )
       {
-      contiguous = true;
       // if contiguous and correct data type, use data as-is
       if (inputIsColors && reuseData)
         {

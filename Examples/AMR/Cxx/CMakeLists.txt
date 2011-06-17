@@ -30,6 +30,19 @@ TARGET_LINK_LIBRARIES(HierarchicalBoxPipeline vtkRendering vtkIO)
 ADD_EXECUTABLE(TestAMRBoxGhostCellExtrusion TestAMRBoxGhostCellExtrusion.cxx)
 TARGET_LINK_LIBRARIES(TestAMRBoxGhostCellExtrusion vtkFiltering)
 
+## Add AMRResamplingToUniformGrid executable
+ADD_EXECUTABLE(AMRResamplingToUniformGrid AMRResamplingToUniformGrid.cxx)
+TARGET_LINK_LIBRARIES( AMRResamplingToUniformGrid 
+             vtkGraphics
+             vtkFiltering
+             vtkRendering 
+             vtkIO 
+             vtkAMR 
+             vtkParallel
+             ${MPI_LIBRARIES} 
+             ${VTK_HDF5_LIBRARIES}
+             )
+
 ## Add AMRDataTransferPipeline executable
 ADD_EXECUTABLE(AMRDataTransferPipeline AMRDataTransferPipeline.cxx)
 TARGET_LINK_LIBRARIES( AMRDataTransferPipeline 

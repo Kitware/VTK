@@ -21,8 +21,10 @@
 #include "vtkDataArraySelection.h"
 #include "vtkCallbackCommand.h"
 #include "vtkIndent.h"
+#include "vtkSmartPointer.h"
+#include "vtkCompositeDataPipeline.h"
 
-#include "vtkAMRSliceFilter.h"
+//#include "vtkAMRSliceFilter.h"
 
 #include "vtkAMRUtilities.h"
 
@@ -210,8 +212,20 @@ int vtkAMRBaseReader::RequestInformation(
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector )
 {
-//  std::cout << "Called RequestInformation..." << std::endl;
-//  std::cout.flush();
+  this->Superclass::RequestInformation( rqst, inputVector, outputVector );
+
+  std::cout << "FILE: " << __FILE__ << " - RequestInformation\n";
+  std::cout.flush();
+
+  vtkSmartPointer<vtkHierarchicalBoxDataSet> metadata =
+     vtkSmartPointer<vtkHierarchicalBoxDataSet>::New();
+
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  assert( "pre: output information object is NULL" && (info != NULL) );
+
+  this->FillMetaData( metadata );
+  info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(), metadata );
+
   this->Modified();
   return 1;
 }
@@ -222,22 +236,22 @@ int vtkAMRBaseReader::RequestData(
         vtkInformationVector** vtkNotUsed(inputVector),
         vtkInformationVector* outputVector )
 {
+  std::cout << "FILE: " << __FILE__ << " - RequestData\n";
+  std::cout.flush();
+
+
   vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
   vtkHierarchicalBoxDataSet *output =
     vtkHierarchicalBoxDataSet::SafeDownCast(
      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
 
-//  std::cout <<  __FILE__ << "::RequestData is called....";
   if( outInf->Has(
       vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() ) )
     {
       this->MaxLevel = outInf->Get(
           vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() );
-//      std::cout << "\nSetting NEW max level: " << this->MaxLevel << std::endl;
     }
-//  std::cout.flush();
-//  std::cout << std::endl;
 
   this->ReadMetaData();
   this->GenerateBlockMap();

@@ -26,17 +26,39 @@
 
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkMultiBlockDataSet.h"
-
+#include "vtkUniformGrid.h"
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkXMLHierarchicalBoxDataReader.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkUniformGrid.h"
 #include "vtkCell.h"
+#include "vtkImageToStructuredGrid.h"
+#include "vtkStructuredGridWriter.h"
+#include "vtkXMLImageDataWriter.h"
 
 namespace AMRCommon {
 
 
 
+//------------------------------------------------------------------------------
+// Description:
+// Writes a uniform grid as a structure grid
+void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
+{
+  assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
+
+  vtkXMLImageDataWriter *imgWriter = vtkXMLImageDataWriter::New();
+
+  std::ostringstream oss;
+  oss << prefix << "." << imgWriter->GetDefaultFileExtension();
+  imgWriter->SetFileName( oss.str().c_str() );
+  imgWriter->SetInput( g );
+  imgWriter->Write();
+
+  imgWriter->Delete();
+}
+
+//------------------------------------------------------------------------------
 // Description:
 // Writes the given AMR dataset to a *.vth file with the given prefix.
 void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )

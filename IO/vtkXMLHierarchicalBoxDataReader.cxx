@@ -128,6 +128,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
       }
     dataSetIndex++;
     }
+  this->SetMetaData( hbox );
   hbox->GenerateVisibilityArrays();
 }
 
@@ -196,6 +197,16 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         }
       int box[6];
       vtkAMRBox amrBox;
+
+      // Note: the dimensionality is auto-detected by the AMR box now
+      int dimensionality = 3;
+      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
+        {
+        // default.
+        dimensionality = 3;
+        }
+      amrBox.SetDimensionality(dimensionality);
+
       if (datasetXML->GetVectorAttribute("amr_box", 6, box))
         {
         amrBox.SetDimensions(box[0],box[2],box[4],box[1],box[3],box[5]);
@@ -205,14 +216,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         vtkWarningMacro("Missing amr box for level " << level << ",  dataset " << index);
         }
 
-// Note: the dimensionality is auto-detected by the AMR box now
-      int dimensionality = 3;
-      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
-        {
-        // default.
-        dimensionality = 3;
-        }
-      amrBox.SetDimensionality(dimensionality);
+
 
       vtkSmartPointer<vtkUniformGrid> childDS = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
@@ -227,11 +231,13 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
         }
       amrBox.SetGridDescription( childDS->GetGridDescription( ) );
-      hbox->SetDataSet(level, index, amrBox, childDS); 
+//      hbox->SetDataSet( level, index, childDS );
+      hbox->SetDataSet(level, index, amrBox, childDS);
       dataSetIndex++;
       }
     }
 
+//  vtkAMRUtilities::GenerateMetaData( hbox, NULL );
   this->SetMetaData( hbox );
   hbox->GenerateVisibilityArrays();
 }

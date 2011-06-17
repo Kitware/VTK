@@ -68,6 +68,13 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
       virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
       // Description:
+      // TODO:
+      virtual int RequestInformation(
+          vtkInformation *rqst,
+          vtkInformationVector **inputVector,
+          vtkInformationVector *outputVector );
+
+      // Description:
       // Performs upstream requests to the reader
       virtual int RequestUpdateExtent(
           vtkInformation*, vtkInformationVector**,vtkInformationVector* );

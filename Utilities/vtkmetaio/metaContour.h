@@ -119,13 +119,13 @@ public:
   const char* InterpolatedPointDim(void) const;
 
   void Closed(bool close);
-  bool Closed();
+  bool Closed() const;
 
   void     AttachedToSlice(long int slice);
-  long int AttachedToSlice();
+  long int AttachedToSlice() const;
 
   void DisplayOrientation(int display);
-  int  DisplayOrientation();
+  int  DisplayOrientation() const;
 
   void  Clear(void);
 
