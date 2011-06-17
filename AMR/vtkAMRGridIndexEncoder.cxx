@@ -13,7 +13,8 @@
 
 =========================================================================*/
 #include "vtkAMRGridIndexEncoder.h"
-#include "vtkAssertUtils.hpp"
+
+#include <cassert>
 
 vtkAMRGridIndexEncoder::vtkAMRGridIndexEncoder()
 {
@@ -29,10 +30,11 @@ vtkAMRGridIndexEncoder::~vtkAMRGridIndexEncoder()
 
 //-----------------------------------------------------------------------------
 unsigned int
-vtkAMRGridIndexEncoder::encode( const int level, const int blockidx )
+vtkAMRGridIndexEncoder::Encode( const int level, const int blockidx )
 {
-  vtkAssertUtils::assertInRange( level, 0, 65535, __FILE__, __LINE__ );
-  vtkAssertUtils::assertInRange( blockidx, 0, 65535, __FILE__, __LINE__ );
+  assert( "pre: 0 <= level <= 65535" && ( 0 <= level && level <= 65535) );
+  assert( "pre: 0 <= blockIdx <= 65535" &&
+      ( 0 <= blockidx && blockidx <= 65535) );
 
   unsigned int encodeIdx;
   encodeIdx = ( level << 16 ) | blockidx;
@@ -42,11 +44,12 @@ vtkAMRGridIndexEncoder::encode( const int level, const int blockidx )
 //-----------------------------------------------------------------------------
 
 void
-vtkAMRGridIndexEncoder::decode(
+vtkAMRGridIndexEncoder::Decode(
     const unsigned int gridIdx, int &level, int &blockIdx )
 {
   level    = ( gridIdx >> 16 );
   blockIdx = ( ( gridIdx << 16 ) >> 16 );
-  vtkAssertUtils::assertInRange( level, 0, 65535, __FILE__, __LINE__ );
-  vtkAssertUtils::assertInRange( blockIdx, 0, 65535, __FILE__, __LINE__ );
+  assert( "pre: 0 <= level <= 65535" && ( 0 <= level && level <= 65535) );
+  assert( "pre: 0 <= blockIdx <= 65535" &&
+      ( 0 <= blockIdx && blockIdx <= 65535) );
 }
