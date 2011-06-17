@@ -21,7 +21,9 @@
 #define VTKAMRBASEREADER_H_
 
 #include "vtkHierarchicalBoxDataSetAlgorithm.h"
-#include <vtkstd/vector> // STL vector Header
+#include <vtkstd/vector>    // STL vector header
+#include <vtkstd/map>       // STL map header
+#include <vtkstd/utility>   // for STL pair
 
 // Forward Declarations
 class vtkHierarchicalBoxDataSet;
@@ -147,7 +149,9 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     virtual int GetNumberOfLevels() = 0;
 
     // Description:
-    // Loads all the AMR metadata
+    // Loads all the AMR metadata & constructs the LevelIdxPair12InternalIdx
+    // datastructure which maps (level,id) pairs to an internal linear index
+    // used to identify the corresponding block.
     virtual int FillMetaData( vtkHierarchicalBoxDataSet* metadata ) = 0;
 
     // Description:
@@ -196,6 +200,9 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
     //BTX
       vtkstd::vector<int> BlockMap;
+
+      vtkstd::map< vtkstd::pair<unsigned int, unsigned int>, int >
+      LevelIdxPair2InternalIdx;
     //ETX
 
   private:
