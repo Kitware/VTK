@@ -128,7 +128,7 @@ void vtkAMRProbeFilter::ExtractAMRBlocks(
       unsigned int gridIdx = *iter;
       int blockId = -1;
       int levelId = -1;
-      vtkAMRGridIndexEncoder::decode( gridIdx, levelId, blockId );
+      vtkAMRGridIndexEncoder::Decode( gridIdx, levelId, blockId );
       assert( "level index out-of-bounds" &&
           ( (levelId >= 0) && ( levelId < amrds->GetNumberOfLevels())));
       assert( "block index out-of-bounds" &&
@@ -198,7 +198,7 @@ void vtkAMRProbeFilter::ProbeAMR(
 
               int level            = static_cast< int >( currentLevel );
               unsigned int grididx =
-               vtkAMRGridIndexEncoder::encode(level,blockId);
+               vtkAMRGridIndexEncoder::Encode(level,blockId);
               blocksToExtract.insert( grididx );
               isBlockFound = true;
               break;

@@ -49,7 +49,7 @@ void vtkAMRInterBlockConnectivity::PrintSelf(
       unsigned int idx = iter->first;
       int level        = -1;
       int block        = -1;
-      vtkAMRGridIndexEncoder::decode( idx, level, block );
+      vtkAMRGridIndexEncoder::Decode( idx, level, block );
       vtkAssertUtils::assertTrue( (level>=0),__FILE__,__LINE__ );
       vtkAssertUtils::assertTrue( (block>=0),__FILE__,__LINE__ );
 
@@ -75,7 +75,7 @@ void vtkAMRInterBlockConnectivity::InsertConnection(
        const int connectingBlockIdx, const int connectingBlockLevel,
        const int connectingBlockProcess )
 {
-  unsigned int idx = vtkAMRGridIndexEncoder::encode( myLevelId, myBlockId );
+  unsigned int idx = vtkAMRGridIndexEncoder::Encode( myLevelId, myBlockId );
   if( this->HasBlockConnections( idx ) )
     {
       this->connectivity[ idx ].push_back(
@@ -99,7 +99,7 @@ void vtkAMRInterBlockConnectivity::InsertConnection(
 int vtkAMRInterBlockConnectivity::GetNumberOfConnections(
                       const int myBlockId, const int myLevelId )
 {
-  unsigned int idx = vtkAMRGridIndexEncoder::encode( myLevelId, myBlockId );
+  unsigned int idx = vtkAMRGridIndexEncoder::Encode( myLevelId, myBlockId );
   return( this->GetNumberOfConnections( idx ) );
 }
 
@@ -115,7 +115,7 @@ int vtkAMRInterBlockConnectivity::GetNumberOfConnections(const unsigned int idx)
 bool vtkAMRInterBlockConnectivity::HasBlockConnections(
     const int myBlockId, const int myLevelId )
 {
-  unsigned int idx = vtkAMRGridIndexEncoder::encode( myLevelId, myBlockId );
+  unsigned int idx = vtkAMRGridIndexEncoder::Encode( myLevelId, myBlockId );
   if( this->HasBlockConnections( idx ) )
     return true;
   return false;
@@ -155,7 +155,7 @@ vtkUnsignedIntArray* vtkAMRInterBlockConnectivity::GetEncodedGridKeys()
 vtkAMRLink vtkAMRInterBlockConnectivity::GetConnection(
     const int myBlockId, const int myLevelId, const int idx )
 {
-  unsigned int blockidx=vtkAMRGridIndexEncoder::encode( myLevelId, myBlockId );
+  unsigned int blockidx=vtkAMRGridIndexEncoder::Encode( myLevelId, myBlockId );
   return( this->GetConnection(blockidx,idx));
 }
 
