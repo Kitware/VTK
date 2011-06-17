@@ -29,6 +29,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkIdList.h"
+#include "vtkAMRGridIndexEncoder.h"
 
 #include <cmath>
 #include <limits>
@@ -738,15 +739,40 @@ unsigned int vtkHierarchicalBoxDataSet::GetFlatIndex(unsigned int level,
     return 0;
     }
 
-  unsigned int findex=0;
-  for (unsigned int l=0; l < level; l++)
+  unsigned int findex = 0;
+  for( unsigned int l=0; l < level; l++ )
+    findex += this->GetNumberOfDataSets( l );
+  for( int i=0; i < index; ++i )
+    findex++;
+
+  return( findex );
+//  unsigned int findex=0;
+//  for (unsigned int l=0; l < level; l++)
+//    {
+//    findex += 1;
+//    findex += this->GetNumberOfDataSets(l);
+//    }
+//  findex += 1;
+//  findex += (index + 1);
+//  return findex;
+
+
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
+    const unsigned int flatIdx, unsigned int &level, unsigned int &idx )
+{
+  unsigned int counter = 0;
+  for( level=0; level < this->GetNumberOfLevels(); ++level )
     {
-    findex += 1;
-    findex += this->GetNumberOfDataSets(l);
-    }
-  findex += 1;
-  findex += (index + 1);
-  return findex;
+      for( idx=0; idx < this->GetNumberOfDataSets( level ); ++idx)
+        {
+          ++counter;
+          if( counter == flatIdx )
+            return;
+        } // END for all ids
+    } // END for all levels
 }
 
 //----------------------------------------------------------------------------

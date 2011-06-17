@@ -252,6 +252,12 @@ public:
   unsigned int GetFlatIndex(unsigned int level, unsigned int index);
 
   // Description:
+  // Given the flat index, returns the corresponding level and index, idx,
+  // of the dataset.
+  void GetLevelAndIndex(
+      const unsigned int flatIdx, unsigned int &level, unsigned int &idx );
+
+  // Description:
   // In-line Set & Get
   vtkSetMacro( PadCellVisibility, bool );
   vtkGetMacro( PadCellVisibility, bool );
