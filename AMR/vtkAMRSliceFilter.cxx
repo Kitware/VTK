@@ -262,6 +262,52 @@ bool vtkAMRSliceFilter::PlaneIntersectsAMRBox(double plane[4],double bounds[6])
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
+    vtkPlane *p, vtkHierarchicalBoxDataSet *metadata )
+{
+  assert( "pre: plane object is NULL" && (p != NULL) );
+  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+
+  // Store A,B,C,D from the plane equation
+  double plane[4];
+  plane[0] = p->GetNormal()[0];
+  plane[1] = p->GetNormal()[1];
+  plane[2] = p->GetNormal()[2];
+  plane[3] = p->GetNormal()[0]*p->GetOrigin()[0] +
+             p->GetNormal()[1]*p->GetOrigin()[1] +
+             p->GetNormal()[2]*p->GetOrigin()[2];
+
+  double bounds[6];
+
+  unsigned int level=0;
+  for( ; level < metadata->GetNumberOfLevels(); ++level )
+    {
+      unsigned int dataIdx = 0;
+      for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
+        {
+          vtkAMRBox box;
+          metadata->GetMetaData( level, dataIdx, box  );
+          bounds[0] = box.GetMinX();
+          bounds[1] = box.GetMaxX();
+          bounds[2] = box.GetMinY();
+          bounds[3] = box.GetMaxY();
+          bounds[4] = box.GetMinZ();
+          bounds[5] = box.GetMaxZ();
+
+          if( this->PlaneIntersectsAMRBox( plane, bounds ) )
+            {
+              unsigned int amrGridIdx = metadata->GetFlatIndex(level,dataIdx);
+              this->blocksToLoad.push_back( amrGridIdx );
+            }
+
+        } // END for all data
+    } // END for all levels
+
+    std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
+
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRSliceFilter::GetAMRSliceInPlane(
     vtkPlane *p, vtkHierarchicalBoxDataSet *inp,
     vtkHierarchicalBoxDataSet *out )
