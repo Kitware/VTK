@@ -74,6 +74,10 @@ protected:
     vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
+  // Build the fragment program to use with the texture.
+  vtkStdString BuildFragmentProgram(vtkImageProperty *property);
+
+  // Description:
   // Given an extent that describes a slice (it must have unit thickness
   // in one of the three directions), return the dimension indices that
   // correspond to the texture "x" and "y", provide the x, y image size,
@@ -95,8 +99,6 @@ protected:
   long Index; // OpenGL ID for texture or display list
   long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
-  double Coords[12];
-  double TCoords[8];
   int TextureSize[2];
   int TextureBytesPerPixel;
   int LastOrientation;

@@ -28,7 +28,7 @@
 class vtkWindow;
 class vtkRenderer;
 class vtkRenderWindow;
-class vtkOpenGLRenderWindow;
+class vtkMesaRenderWindow;
 class vtkImageSlice;
 class vtkImageProperty;
 class vtkImageData;
@@ -56,15 +56,26 @@ protected:
   ~vtkMesaImageSliceMapper();
 
   // Description:
-  // Load the texture and geometry.
-  void Load(vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property);
+  // Call the OpenGL code that does color and lighting.
+  void RenderColorAndLighting(
+    double red, double green, double blue,
+    double alpha, double ambient, double diffuse);
+
+  // Description:
+  // Render an opaque polygon behind the image.  This is also used
+  // in multi-pass rendering to render into the depth buffer.
+  void RenderBackingPolygon();
 
   // Description:
   // Non-recursive internal method, generate a single texture
   // and its corresponding geometry.
-  void InternalLoad(
-    vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
+  void RenderTexturedPolygon(
+    vtkRenderer *ren, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
+
+  // Description:
+  // Build the fragment program to use with the texture.
+  vtkStdString BuildFragmentProgram(vtkImageProperty *property);
 
   // Description:
   // Given an extent that describes a slice (it must have unit thickness
@@ -83,18 +94,11 @@ protected:
 
   // Description:
   // Check various OpenGL capabilities
-  void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
+  void CheckOpenGLCapabilities(vtkMesaRenderWindow *renWin);
 
-  // Description:
-  // Garbage collection for reference loops.
-  void ReportReferences(vtkGarbageCollector*);
-
-  vtkTimeStamp LoadTime;
   long Index; // OpenGL ID for texture or display list
   long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
-  double Coords[12];
-  double TCoords[8];
   int TextureSize[2];
   int TextureBytesPerPixel;
   int LastOrientation;
