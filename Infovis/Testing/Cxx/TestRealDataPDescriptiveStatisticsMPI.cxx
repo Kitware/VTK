@@ -69,11 +69,11 @@ int CalculateProcessorRank( int *procDim, int *procId )
 
 // Read a block of data bounded by [low, high] from file into buffer.
 // The entire data has dimensions dim
-void ReadFloatDataBlockFromFile( ifstream& ifs,
-                                 int *dim,
-                                 int *low,
-                                 int *high,
-                                 float *buffer )
+int ReadFloatDataBlockFromFile( ifstream& ifs,
+                                int *dim,
+                                int *low,
+                                int *high,
+                                float *buffer )
 {
   vtkIdType dimXY = dim[0] * dim[1];
   vtkIdType dimX  = dim[0];
@@ -96,12 +96,12 @@ void ReadFloatDataBlockFromFile( ifstream& ifs,
   vtkIdType sizeXY = sizeX * sizeY;
 
   // Next position to start writing
-  pbuffer += (bounds[0][0] - low[0] );
+  pbuffer += ( bounds[0][0] - low[0] );
 
   // Iterate over 'z'
-  for (int z = low[2]; z <= high[2]; z++)
+  for ( int z = low[2]; z <= high[2]; z++ )
     {
-    if (z >= bounds[0][2] && z <= bounds[1][2] )
+    if ( z >= bounds[0][2] && z <= bounds[1][2] )
       {
       vtkIdType offsetZ = z * dimXY;
 
@@ -125,8 +125,7 @@ void ReadFloatDataBlockFromFile( ifstream& ifs,
 
           if ( ifs.fail() || ifs.eof() )
             {
-            vtkGenericWarningMacro("Failed to read data or reached EOF.");
-            exit( -1 );
+            return 1;
             }
           }
         else
@@ -142,25 +141,23 @@ void ReadFloatDataBlockFromFile( ifstream& ifs,
       pbuffer += sizeXY;
       }
     }
+  return 0;
 }
 
 // Given the data dimensions dataDim, the process dimensions procDim, my
 // process id myProcId, set the block bounding box myBlockBounds for my data.
 // Also open the data file as filestream ifs.
-void SetDataParameters( int *dataDim,
-                        int *procDim,
-                        int *myProcId,
-                        const char* fileName,
-                        ifstream& ifs,
-                        int myBlockBounds[2][3] )
+int SetDataParameters( int *dataDim,
+                       int *procDim,
+                       int *myProcId,
+                       const char* fileName,
+                       ifstream& ifs,
+                       int myBlockBounds[2][3] )
 {
   vtkIdType myDim[3];
   myDim[0] = static_cast<int>( ceil( dataDim[0] / ( 1. * procDim[0] ) ) );
   myDim[1] = static_cast<int>( ceil( dataDim[1] / ( 1. * procDim[1] ) ) );
   myDim[2] = static_cast<int>( ceil( dataDim[2] / ( 1. * procDim[2] ) ) );
-
-  // cout << "My data dim = " << myDim[0] << " x " << myDim[1] <<
-  //   " x " << myDim[2] << endl;
 
   // Determine data bounds
   myBlockBounds[0][0] = myProcId[0] * myDim[0];
@@ -182,13 +179,7 @@ void SetDataParameters( int *dataDim,
   // Open file
   ifs.open( fileName, ios::in | ios::binary );
 
-  if( ifs.fail() )
-    {
-    vtkGenericWarningMacro("Error opening file:"
-                           << fileName
-                           <<".");
-    exit( -1 );
-    }
+  return ( ifs.fail() );
 }
 
 // This will be called by all processes
@@ -214,12 +205,25 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   // ************************** Read input data file ****************************
   ifstream ifs;
   int myBlockBounds[2][3];
-  SetDataParameters( args->dataDim,
-                     args->procDim,
-                     myProcId,
-                     args->fileName,
-                     ifs,
-                     myBlockBounds );
+  if ( SetDataParameters( args->dataDim,
+                          args->procDim,
+                          myProcId,
+                          args->fileName,
+                          ifs,
+                          myBlockBounds ) )
+    {
+    // If failed to open file with given name, exit in error
+    vtkGenericWarningMacro("Process "
+                           << myRank
+                           << " could not open file with name "
+                           << args->fileName
+                           <<", exiting.");
+
+    // Exit cleanly
+    timer->Delete();
+    *(args->retVal) = 1;
+    return;
+    }
 
   vtkIdType myDataDim[3];
   myDataDim[0] = myBlockBounds[1][0] - myBlockBounds[0][0] + 1;
@@ -228,11 +232,24 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   vtkIdType card_l = myDataDim[0] * myDataDim[1] * myDataDim[2];
   float* buffer = new float[card_l];
 
-  ReadFloatDataBlockFromFile( ifs,
-                              args->dataDim,
-                              myBlockBounds[0],
-                              myBlockBounds[1],
-                              buffer );
+  if (   ReadFloatDataBlockFromFile( ifs,
+                                     args->dataDim,
+                                     myBlockBounds[0],
+                                     myBlockBounds[1],
+                                     buffer ) )
+    {
+    // If failed to read data block from file, exit in error
+    vtkGenericWarningMacro("Process "
+                           << myRank
+                           << " failed to read data or reached EOF in file "
+                           << args->fileName
+                           <<", exiting.");
+
+    // Exit cleanly
+    timer->Delete();
+    *(args->retVal) = 1;
+    return;
+    }
 
   // ************************** Create input data table *************************
   vtkStdString varName( "Chi" );
