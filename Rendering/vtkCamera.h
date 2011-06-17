@@ -191,6 +191,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // plane can make a very big difference. Setting it to 0.01 when it
   // really could be 1.0 can have a big impact on your z-buffer resolution
   // farther away.  The default clipping range is (0.1,1000).
+  // Clipping distance is measured in world coordinate unless a scale factor
+  // exists in camera's ModelTransformMatrix.
   void SetClippingRange(double dNear, double dFar);
   void SetClippingRange(const double a[2]) {
     this->SetClippingRange(a[0], a[1]); };
