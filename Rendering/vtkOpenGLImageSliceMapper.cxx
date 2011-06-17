@@ -232,27 +232,18 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       renWin->GetContextCreationTime() > loadTime ||
       recursive)
     {
-    // whether to try to use the input data directly as the texture
-    bool reuseData = true;
-    if (checkerboard && !useFragmentProgram && !this->ExactPixelMatch)
-      {
-      reuseData = false;
-      }
-
     // get the data to load as a texture
     int xsize = this->TextureSize[0];
     int ysize = this->TextureSize[1];
     int bytesPerPixel = this->TextureBytesPerPixel;
 
+    // whether to try to use the input data directly as the texture
+    bool reuseData = true;
+
+    // generate the data to be used as a texture
     unsigned char *data = this->MakeTextureData(
       (this->PassColorData ? 0 : property), input, extent, xsize, ysize,
       bytesPerPixel, reuseTexture, reuseData);
-
-    // software fallback for checkerboarding the image
-    if (checkerboard && !useFragmentProgram && !this->ExactPixelMatch)
-      {
-      this->CheckerboardImage(data, xsize, ysize, spacing, property);
-      }
 
     GLuint tempIndex = 0;
 
