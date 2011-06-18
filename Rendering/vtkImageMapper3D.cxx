@@ -51,7 +51,7 @@ vtkImageMapper3D::vtkImageMapper3D()
 
   this->DataToWorldMatrix = vtkMatrix4x4::New();
   this->CurrentProp = 0;
-  this->InRender = false;
+  this->CurrentRenderer = 0;
 
   this->MatteEnable = true;
   this->ColorEnable = true;
@@ -246,8 +246,13 @@ void vtkImageMapper3DComputeMatrix(vtkProp *prop, double mat[16])
 vtkRenderer *vtkImageMapper3D::GetCurrentRenderer()
 {
   vtkImageSlice *prop = this->CurrentProp;
-  vtkRenderer *ren = 0;
+  vtkRenderer *ren = this->CurrentRenderer;
   int count = 0;
+
+  if (ren)
+    {
+    return ren;
+    }
 
   if (!prop)
     {
@@ -273,7 +278,7 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
 
   if (prop)
     {
-    if (this->InRender)
+    if (this->CurrentRenderer)
       {
       this->DataToWorldMatrix->DeepCopy(prop->GetMatrix());
       }
