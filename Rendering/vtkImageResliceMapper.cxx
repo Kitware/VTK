@@ -24,7 +24,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 #include "vtkMatrix4x4.h"
-#include "vtkAbstractTransform.h"
+#include "vtkLinearTransform.h"
 #include "vtkPlane.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkGarbageCollector.h"
@@ -44,9 +44,16 @@ vtkImageResliceMapper::vtkImageResliceMapper()
   this->WorldToDataMatrix = vtkMatrix4x4::New();
   this->SliceToWorldMatrix = vtkMatrix4x4::New();
 
+  vtkImageData *data = vtkImageData::New();
+  this->ImageReslice->SetInput(data);
+  data->Delete();
+
   this->AutoAdjustImageQuality = 1;
   this->ResampleToScreenPixels = 1;
   this->InternalResampleToScreenPixels = 1;
+
+  // streaming requires an output port
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -109,41 +116,10 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
   vtkImageProperty *property = prop->GetProperty();
 
-  this->InternalResampleToScreenPixels = this->ResampleToScreenPixels;
-  if (this->AutoAdjustImageQuality &&
-      this->InternalResampleToScreenPixels)
-    {
-    // only use image-size texture if image is smaller than render window,
-    // since otherwise there is far less advantage in doing so
-    int *rsize = ren->GetSize();
-    int maxrsize = (rsize[0] > rsize[1] ? rsize[0] : rsize[1]);
-    int *isize = this->GetInput()->GetDimensions();
-    int maxisize = (isize[0] > isize[1] ? isize[0] : isize[1]);
-    maxisize = (isize[2] > maxisize ? isize[2] : maxisize);
-    if (maxisize <= maxrsize && maxisize <= 1024)
-      {
-      this->InternalResampleToScreenPixels =
-        (prop->GetAllocatedRenderTime() >= 1.0);
-      }
-    }
-
-  // set the matrices
-  this->UpdateResliceMatrix(ren, prop);
-
-  // update the coords for the polygon to be textured
-  this->UpdatePolygonCoords(ren);
-
-  // set the reslice spacing/origin/extent/axes
-  this->UpdateResliceInformation(ren);
-
-  // set the reslice bits related to the property
-  this->UpdateResliceInterpolation(property);
-
   // update anything related to the image coloring
   this->UpdateColorInformation(property);
 
-  // perform the reslicing
-  this->ImageReslice->SetInput(this->GetInput());
+  // reslice the data
   this->ImageReslice->UpdateWholeExtent();
  
   // apply checkerboard pattern (should have timestamps)
@@ -155,7 +131,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
       ren->GetActiveCamera(), property);
     }
 
-  // everything else is delegated
+  // delegate to vtkImageSliceMapper
   this->SliceMapper->SetInput(this->ImageReslice->GetOutput());
   this->SliceMapper->GetDataToWorldMatrix()->DeepCopy(
     this->SliceToWorldMatrix);
@@ -176,18 +152,83 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageResliceMapper::Update()
+{
+  // I don't like to override Update, or call Modified() in Update,
+  // but this allows updates to be forced where MTimes can't be used
+  bool resampleToScreenPixels = this->ResampleToScreenPixels;
+  vtkRenderer *ren = NULL;
+
+  if (this->AutoAdjustImageQuality && resampleToScreenPixels)
+    {
+    // only use image-size texture if image is smaller than render window,
+    // since otherwise there is far less advantage in doing so
+    ren = this->GetCurrentRenderer();
+    vtkImageSlice *prop = this->GetCurrentProp();
+    if (ren && prop)
+      {
+      int *rsize = ren->GetSize();
+      int maxrsize = (rsize[0] > rsize[1] ? rsize[0] : rsize[1]);
+      int *isize = this->GetInput()->GetDimensions();
+      int maxisize = (isize[0] > isize[1] ? isize[0] : isize[1]);
+      maxisize = (isize[2] > maxisize ? isize[2] : maxisize);
+      if (maxisize <= maxrsize && maxisize <= 1024)
+        {
+        resampleToScreenPixels = (prop->GetAllocatedRenderTime() >= 1.0);
+        }
+      }
+    }
+
+  if (resampleToScreenPixels)
+    {
+    // force update if quality has increased to "ResampleToScreenPixels"
+    if (!this->InternalResampleToScreenPixels)
+      {
+      this->Modified();
+      }
+    else
+      {
+      // force update if renderer size has changes, since the texture
+      // size is equal to the renderer size for "ResampleToScreenPixels"
+      if (!ren)
+        {
+        ren = this->GetCurrentRenderer();
+        }
+      if (ren)
+        {
+        int *extent = this->ImageReslice->GetOutputExtent();
+        int *size = ren->GetSize();
+        if (size[0] != (extent[1] - extent[0] + 1) ||
+            size[1] != (extent[3] - extent[2] + 1))
+          {
+          this->Modified();
+          }
+        }
+      }
+    }
+  this->InternalResampleToScreenPixels = resampleToScreenPixels;
+
+  this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
 int vtkImageResliceMapper::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    // Get point/normal from camera
-    if (this->SliceFacesCamera || this->SliceAtFocalPoint)
-      {
-      vtkRenderer *ren = this->GetCurrentRenderer();
+    // use superclass method to update some info 
+    this->Superclass::ProcessRequest(request, inputVector, outputVector);
 
-      if (ren)
+    // need the prop and renderer
+    vtkImageSlice *prop = this->GetCurrentProp();
+    vtkRenderer *ren = this->GetCurrentRenderer();
+
+    if (ren && prop)
+      {
+      // Get point/normal from camera
+      if (this->SliceFacesCamera || this->SliceAtFocalPoint)
         {
         vtkCamera *camera = ren->GetActiveCamera();
 
@@ -205,11 +246,39 @@ int vtkImageResliceMapper::ProcessRequest(
           this->SlicePlane->SetNormal(normal);
           }
         }
+
+      // set the matrices
+      this->UpdateResliceMatrix(ren, prop);
+
+      // update the coords for the polygon to be textured
+      this->UpdatePolygonCoords(ren);
+
+      // set the reslice spacing/origin/extent/axes
+      this->UpdateResliceInformation(ren);
+
+      // set the reslice bits related to the property
+      this->UpdateResliceInterpolation(prop->GetProperty());
       }
 
-    // use superclass method to update other important info
-    return this->Superclass::ProcessRequest(
+    // delegate request to vtkImageReslice (generally not a good thing to
+    // do, but I'm familiar with the vtkImageReslice code that gets called).
+    return this->ImageReslice->ProcessRequest(
       request, inputVector, outputVector);
+    }
+
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    // delegate request to vtkImageReslice (generally not a good thing to
+    // do, but I'm familiar with the vtkImageReslice code that gets called).
+    return this->ImageReslice->ProcessRequest(
+      request, inputVector, outputVector);
+    }
+
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    // sets the reslice input, leaves the rest to Render()
+    this->ImageReslice->GetInput()->ShallowCopy(this->GetInput());
+    return 1;
     }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
@@ -1020,19 +1089,46 @@ unsigned long vtkImageResliceMapper::GetMTime()
       {
       vtkCamera *camera = ren->GetActiveCamera();
       unsigned long mTime2 = camera->GetMTime();
-      if (mTime2 > mTime)
-        {
-        mTime = mTime2;
-        }
+      mTime = (mTime2 > mTime ? mTime2 : mTime);
       }
     }
 
   if (!this->SliceFacesCamera || !this->SliceAtFocalPoint)
     {
     unsigned long sTime = this->SlicePlane->GetMTime();
-    if (sTime > mTime)
+    mTime = (sTime > mTime ? sTime : mTime);
+    }
+
+  vtkImageSlice *prop = this->GetCurrentProp();
+  if (prop != NULL)
+    {
+    vtkMatrix4x4 *matrix = prop->GetUserMatrix();
+    if (matrix != NULL)
       {
-      mTime = sTime;
+      unsigned long mTime2 = matrix->GetMTime();
+      mTime = (mTime2 > mTime ? mTime2 : mTime);
+      }
+
+    vtkLinearTransform *transform = prop->GetUserTransform();
+    if (transform != NULL)
+      {
+      unsigned long mTime2 = transform->GetMTime();
+      mTime = (mTime2 > mTime ? mTime2 : mTime);
+      }
+
+    vtkImageProperty *property = prop->GetProperty();
+    if (property != NULL)
+      {
+      unsigned long mTime2 = property->GetMTime();
+      mTime = (mTime2 > mTime ? mTime2 : mTime);
+
+      vtkScalarsToColors *lookupTable = property->GetLookupTable();
+      if (lookupTable != NULL)
+        {
+        // check the lookup table mtime
+        mTime2 = lookupTable->GetMTime();
+        mTime = (mTime2 > mTime ? mTime2 : mTime);
+        }
       }
     }
 

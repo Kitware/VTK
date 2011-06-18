@@ -134,6 +134,10 @@ protected:
   void UpdatePolygonCoords(vtkRenderer *ren);
 
   // Description:
+  // Override Update to handle some tricky details.
+  void Update();
+
+  // Description:
   // Garbage collection for reference loops.
   void ReportReferences(vtkGarbageCollector*);
 
