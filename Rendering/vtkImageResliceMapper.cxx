@@ -156,7 +156,7 @@ void vtkImageResliceMapper::Update()
 {
   // I don't like to override Update, or call Modified() in Update,
   // but this allows updates to be forced where MTimes can't be used
-  bool resampleToScreenPixels = this->ResampleToScreenPixels;
+  bool resampleToScreenPixels = (this->ResampleToScreenPixels != 0);
   vtkRenderer *ren = NULL;
 
   if (this->AutoAdjustImageQuality && resampleToScreenPixels)
