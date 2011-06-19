@@ -93,6 +93,8 @@ IF (VTK_DATA_ROOT)
     TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
+    TestResliceCursorWidget2.cxx
+    TestResliceCursorWidget3.cxx
     TestScalarBarWidget.cxx
     TestSeedWidget2.cxx
     TestSplineWidget.cxx
