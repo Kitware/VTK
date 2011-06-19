@@ -164,6 +164,8 @@ SET( Kit_SRCS
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
   vtkRepresentationPainter.cxx
+  vtkResliceCursorActor.cxx
+  vtkResliceCursorPicker.cxx
   vtkScalarBarActor.cxx
   vtkScalarsToColorsPainter.cxx
   vtkScaledTextActor.cxx
