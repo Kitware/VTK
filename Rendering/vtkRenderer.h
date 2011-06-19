@@ -495,6 +495,11 @@ protected:
   virtual void PickRender(vtkPropCollection *props);
   virtual void PickGeometry();
 
+  // internal method to expand bounding box to consider model transform
+  // matrix or model view transform matrix based on whether or not deering
+  // frustum is used.
+  virtual void ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix);
+
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
 

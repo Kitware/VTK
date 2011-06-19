@@ -1035,6 +1035,8 @@ void vtkRenderer::ResetCamera(double bounds[6])
     return;
     }
 
+  this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
+
   center[0] = (bounds[0] + bounds[1])/2.0;
   center[1] = (bounds[2] + bounds[3])/2.0;
   center[2] = (bounds[4] + bounds[5])/2.0;
@@ -1153,27 +1155,13 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     {
     this->ActiveCamera->GetViewPlaneNormal(vn);
     this->ActiveCamera->GetPosition(position);
+    this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
     }
   else
     {
     this->ActiveCamera->GetEyePosition(position);
     this->ActiveCamera->GetEyePlaneNormal(vn);
-
-    // Expand the bounding box by model view transform matrix.
-    double min[4] = {bounds[0], bounds[2], bounds[4], 1.0};
-    double max[4] = {bounds[1], bounds[3], bounds[5], 1.0};
-
-    this->ActiveCamera->GetModelViewTransformMatrix()->MultiplyPoint(min, min);
-    this->ActiveCamera->GetModelViewTransformMatrix()->MultiplyPoint(max, max);
-
-    // Copy the values back.
-    bounds[0] = min[0];
-    bounds[2] = min[1];
-    bounds[4] = min[2];
-
-    bounds[1] = max[0];
-    bounds[3] = max[1];
-    bounds[5] = max[2];
+    this->ExpandBounds(bounds, this->ActiveCamera->GetModelViewTransformMatrix());
     }
 
   a = -vn[0];
@@ -1835,6 +1823,37 @@ void vtkRenderer::PickGeometry()
   vtkDebugMacro( << "Pick Rendered " <<
                     this->NumberOfPropsRendered << " actors" );
 
+}
+
+void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix)
+{
+  if(!bounds)
+    {
+    vtkErrorMacro(<<"ERROR: Invalid bounds\n");
+    return;
+    }
+
+  if(!matrix)
+    {
+    vtkErrorMacro("<<ERROR: Invalid matrix \n");
+    return;
+    }
+
+  // Expand the bounding box by model view transform matrix.
+  double min[4] = {bounds[0], bounds[2], bounds[4], 1.0};
+  double max[4] = {bounds[1], bounds[3], bounds[5], 1.0};
+
+  matrix->MultiplyPoint(min, min);
+  matrix->MultiplyPoint(max, max);
+
+  // Copy values back to bounds.
+  bounds[0] = min[0];
+  bounds[2] = min[1];
+  bounds[4] = min[2];
+
+  bounds[1] = max[0];
+  bounds[3] = max[1];
+  bounds[5] = max[2];
 }
 
 int  vtkRenderer::Transparent()

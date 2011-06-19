@@ -68,6 +68,13 @@ int TestDeeringStereo(int argc, char *argv[])
 
   double eyePosition[3] = {0.0, 0.0, 10.0};
 
+  // Introduce scale to test out calculation of clipping range
+  // by vtkRenderer.
+  VTK_CREATE(vtkMatrix4x4, scaleMatrix);
+  scaleMatrix->SetElement(0, 0, 1);
+  scaleMatrix->SetElement(1, 1, 2);
+  scaleMatrix->SetElement(2, 2, 1);
+
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
@@ -75,6 +82,7 @@ int TestDeeringStereo(int argc, char *argv[])
   camera->SetUseDeeringFrustum(1);
   camera->SetEyePosition(eyePosition);
   camera->SetEyeSeparation(0.05);
+  camera->SetModelTransformMatrix(scaleMatrix);
 
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->AddRenderer(renderer);
