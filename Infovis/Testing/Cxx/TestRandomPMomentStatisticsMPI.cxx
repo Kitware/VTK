@@ -423,9 +423,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
           {
           // Allocate and initialize counters
           int* outsideStdv_l = new int[numRuleVal];
-          for ( int i = 0; i < numRuleVal; ++ i )
+          for ( int d = 0; d < numRuleVal; ++ d )
             {
-            outsideStdv_l[i] = 0;
+            outsideStdv_l[d] = 0;
             }
           
           // Count outliers
@@ -435,30 +435,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
             {
             dev = relDev->GetValue( r );
             
-            if ( dev >= 1. )
+            // Count for all deviations from 1 to numRuleVal
+            for ( int d = 0; d < numRuleVal; ++ d )
               {
-              ++ outsideStdv_l[0];
-              
-              if ( dev >= 2. )
+              if ( dev >= 1. + d )
                 {
-                ++ outsideStdv_l[1];
-                
-                if ( dev >= 3. )
-                  {
-                  ++ outsideStdv_l[2];
-                  
-                  if ( dev >= 4. )
-                    {
-                    ++ outsideStdv_l[3];
-                    
-                    if ( dev >= 5. )
-                      {
-                      ++ outsideStdv_l[4];
-                      } // if ( dev >= 5. )
-                    } // if ( dev >= 4. )
-                  } // if ( dev >= 3. )
-                } // if ( dev >= 2. )
-              } // if ( dev >= 1. )
+                ++ outsideStdv_l[d];  
+                }
+              } // 
             } // for ( vtkIdType r = 0; r < n; ++ r )
           
           // Sum all local counters
@@ -474,18 +458,18 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
             cout << "   "
                  << outputData->GetColumnName( nUniform + c )
                  << ":\n";
-            for ( int i = 0; i < numRuleVal; ++ i )
+            for ( int d = 0; d < numRuleVal; ++ d )
               {
-              double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
+              double testVal = ( 1. - outsideStdv_g[d] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
               
               cout << "      "
                    << testVal
                    << "% within "
-                   << i + 1
+                   << d + 1
                    << " standard deviation(s) from the mean.\n";
               
               // Test some statistics
-              if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
+              if ( fabs ( testVal - sigmaRuleVal[d] ) > sigmaRuleTol[d] )
                 {
                 vtkGenericWarningMacro("Incorrect value.");
                 *(args->retVal) = 1;
