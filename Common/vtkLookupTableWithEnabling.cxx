@@ -546,38 +546,6 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
 }
 
 //----------------------------------------------------------------------------
-// Although this is a relatively expensive calculation,
-// it is only done on the first render. Colors are cached
-// for subsequent renders.
-template<class T>
-void vtkLookupTableWithEnablingMapMag(vtkLookupTableWithEnabling *self, T *input, 
-                          unsigned char *output, int length, 
-                          int inIncr, int outFormat)
-{
-  double tmp, sum;
-  double *mag;
-  int i, j;
-
-  mag = new double[length];
-  for (i = 0; i < length; ++i)
-    {
-    sum = 0;
-    for (j = 0; j < inIncr; ++j)
-      {
-      tmp = static_cast<double>(*input);  
-      sum += (tmp * tmp);
-      ++input;
-      }
-    mag[i] = sqrt(sum);
-    }
-
-  vtkLookupTableWithEnablingMapData(self, mag, output, length, 1, outFormat);
-
-  delete [] mag;
-}
-
-
-//----------------------------------------------------------------------------
 void vtkLookupTableWithEnabling::MapScalarsThroughTable2(void *input, 
                                              unsigned char *output,
                                              int inputDataType, 
@@ -585,23 +553,6 @@ void vtkLookupTableWithEnabling::MapScalarsThroughTable2(void *input,
                                              int inputIncrement,
                                              int outputFormat)
 {
-  if (this->UseMagnitude && inputIncrement > 1)
-    {
-    switch (inputDataType)
-      {
-      vtkTemplateMacro(
-        vtkLookupTableWithEnablingMapMag(this,static_cast<VTK_TT*>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return
-        );
-      case VTK_BIT:
-        vtkErrorMacro("Cannot comput magnitude of bit array.");
-        break;
-      default:
-        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-      }
-    }
-
   switch (inputDataType)
     {
     case VTK_BIT:
