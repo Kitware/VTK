@@ -7,6 +7,7 @@ SET(Kit_SRCS
   vtkBlueObeliskData.cxx
   vtkBlueObeliskDataParser.cxx
   vtkCMLMoleculeReader.cxx
+  vtkMoleculeMapper.cxx
   vtkMoleculeToAtomBallFilter.cxx
   vtkMoleculeToBondStickFilter.cxx
   vtkMoleculeToPolyDataFilter.cxx

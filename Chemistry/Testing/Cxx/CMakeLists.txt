@@ -3,13 +3,26 @@ IF (VTK_USE_RENDERING AND VTK_USE_CHEMISTRY)
   SET(KIT Chemistry)
 
   SET(MyTests
+    TestBallAndStick.cxx
     TestPeriodicTable.cxx
+    TestBondColorModeDiscreteByAtom.cxx
+    TestBondColorModeSingleColor.cxx
+    TestBondColorModeSmoothByAtom.cxx
+    TestMolecule.cxx
+    TestMoleculeSelection.cxx
+    TestMultiCylinderOn.cxx
+    TestMultiCylinderOff.cxx
+    TestCompositeRender.cxx
+    TestVDWSpheres.cxx
+    TestLiqouriceSticks.cxx
+    TestFastRender.cxx
     )
 
   # Tests with data
   IF(VTK_DATA_ROOT)
     SET(MyTests
       ${MyTests}
+      TestCMLMoleculeReader.cxx
       )
   ENDIF(VTK_DATA_ROOT)
 
