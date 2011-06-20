@@ -200,7 +200,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                         args->ioRank,
                         65 ) )
         {
-        vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
+        vtkGenericWarningMacro("MPI error: process "
+                               <<myRank
+                               << "could not send global results. Serial/parallel sanity check will be meaningless.");
         *(args->retVal) = 1;
         }
 
@@ -209,7 +211,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                         args->ioRank,
                         66 ) )
         {
-        vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
+        vtkGenericWarningMacro("MPI error: process "
+                               <<myRank
+                               << "could not send global results. Serial/parallel sanity check will be meaningless.");
         *(args->retVal) = 1;
         }
       }
@@ -222,7 +226,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                            calcProc,
                            65 ) )
         {
-        vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
+        vtkGenericWarningMacro("MPI error: I/O process "
+                               <<args->ioRank
+                               <<" could not receive global results. Serial/parallel sanity check will be meaningless.");
         *(args->retVal) = 1;
         }
 
@@ -231,7 +237,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                            calcProc,
                            66 ) )
         {
-        vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
+        vtkGenericWarningMacro("MPI error: I/O process "
+                               <<args->ioRank
+                               <<" could not receive global results. Serial/parallel sanity check will be meaningless.");
         *(args->retVal) = 1;
         }
       }
@@ -395,98 +403,98 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
 
     vtkDoubleArray* relDev[2];
-    relDev[0] = vtkDoubleArray::SafeDownCast(
-                                             outputData->GetColumnByName( "d(Standard Normal 0)" ) );
-    relDev[1] = vtkDoubleArray::SafeDownCast(
-                                             outputData->GetColumnByName( "d(Standard Normal 1)" ) );
+    relDev[0] = vtkDoubleArray::SafeDownCast( outputData->GetColumnByName( "d(Standard Normal 0)" ) );
+    relDev[1] = vtkDoubleArray::SafeDownCast( outputData->GetColumnByName( "d(Standard Normal 1)" ) );
 
-    if ( !relDev[0] || ! relDev[1] )
+    relDev[0] = 0;
+    if ( ! relDev[0] || ! relDev[1] )
       {
-      cout << "*** Error: "
-           << "Empty output column(s) on process "
-           << com->GetLocalProcessId()
-           << ".\n";
+      vtkGenericWarningMacro("Empty output column(s) on process "
+                             << com->GetLocalProcessId());
+      *(args->retVal) = 1;
       }
-
-    // For each normal variable, count deviations of more than 1, ..., numRuleVal standard deviations from the mean
-    for ( int c = 0; c < nNormal; ++ c )
+    else
       {
-      // Allocate and initialize counters
-      int* outsideStdv_l = new int[numRuleVal];
-      for ( int i = 0; i < numRuleVal; ++ i )
+      // For each normal variable, count deviations of more than 1, ..., numRuleVal standard deviations from the mean
+      for ( int c = 0; c < nNormal; ++ c )
         {
-        outsideStdv_l[i] = 0;
-        }
-
-      // Count outliers
-      double dev;
-      int n = outputData->GetNumberOfRows();
-      for ( vtkIdType r = 0; r < n; ++ r )
-        {
-        dev = relDev[c]->GetValue( r );
-
-        if ( dev >= 1. )
-          {
-          ++ outsideStdv_l[0];
-
-          if ( dev >= 2. )
-            {
-            ++ outsideStdv_l[1];
-
-            if ( dev >= 3. )
-              {
-              ++ outsideStdv_l[2];
-
-              if ( dev >= 4. )
-                {
-                ++ outsideStdv_l[3];
-
-                if ( dev >= 5. )
-                  {
-                  ++ outsideStdv_l[4];
-                  } // if ( dev >= 5. )
-                } // if ( dev >= 4. )
-              } // if ( dev >= 3. )
-            } // if ( dev >= 2. )
-          } // if ( dev >= 1. )
-        }
-
-      // Sum all local counters
-      int* outsideStdv_g = new int[numRuleVal];
-      com->AllReduce( outsideStdv_l,
-                      outsideStdv_g,
-                      numRuleVal,
-                      vtkCommunicator::SUM_OP );
-
-      // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
-      if ( com->GetLocalProcessId() == args->ioRank )
-        {
-        cout << "   "
-             << outputData->GetColumnName( nUniform + c )
-             << ":\n";
+        // Allocate and initialize counters
+        int* outsideStdv_l = new int[numRuleVal];
         for ( int i = 0; i < numRuleVal; ++ i )
           {
-          double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
+          outsideStdv_l[i] = 0;
+          }
 
-          cout << "      "
-               << testVal
-               << "% within "
-               << i + 1
-               << " standard deviation(s) from the mean.\n";
+        // Count outliers
+        double dev;
+        int n = outputData->GetNumberOfRows();
+        for ( vtkIdType r = 0; r < n; ++ r )
+          {
+          dev = relDev[c]->GetValue( r );
 
-          // Test some statistics
-          if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
+          if ( dev >= 1. )
             {
-            vtkGenericWarningMacro("Incorrect value.");
-            *(args->retVal) = 1;
+            ++ outsideStdv_l[0];
+
+            if ( dev >= 2. )
+              {
+              ++ outsideStdv_l[1];
+
+              if ( dev >= 3. )
+                {
+                ++ outsideStdv_l[2];
+
+                if ( dev >= 4. )
+                  {
+                  ++ outsideStdv_l[3];
+
+                  if ( dev >= 5. )
+                    {
+                    ++ outsideStdv_l[4];
+                    } // if ( dev >= 5. )
+                  } // if ( dev >= 4. )
+                } // if ( dev >= 3. )
+              } // if ( dev >= 2. )
+            } // if ( dev >= 1. )
+          }
+
+        // Sum all local counters
+        int* outsideStdv_g = new int[numRuleVal];
+        com->AllReduce( outsideStdv_l,
+                        outsideStdv_g,
+                        numRuleVal,
+                        vtkCommunicator::SUM_OP );
+
+        // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
+        if ( com->GetLocalProcessId() == args->ioRank )
+          {
+          cout << "   "
+               << outputData->GetColumnName( nUniform + c )
+               << ":\n";
+          for ( int i = 0; i < numRuleVal; ++ i )
+            {
+            double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
+
+            cout << "      "
+                 << testVal
+                 << "% within "
+                 << i + 1
+                 << " standard deviation(s) from the mean.\n";
+
+            // Test some statistics
+            if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
+              {
+              vtkGenericWarningMacro("Incorrect value.");
+              *(args->retVal) = 1;
+              }
             }
           }
-        }
 
-      // Clean up
-      delete [] outsideStdv_l;
-      delete [] outsideStdv_g;
-      } // for ( int c = 0; c < nNormal; ++ c )
+        // Clean up
+        delete [] outsideStdv_l;
+        delete [] outsideStdv_g;
+        } // for ( int c = 0; c < nNormal; ++ c )
+      } // else
 
     // Clean up
     pds->Delete();
