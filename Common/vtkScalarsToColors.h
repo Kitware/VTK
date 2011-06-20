@@ -134,6 +134,15 @@ public:
   vtkGetMacro(VectorComponent, int);
 
   // Description:
+  // When mapping vectors, consider only the number of components selected
+  // by VectorSize to be part of the vector, and ignore any other
+  // components.  Set to -1 to map all components.  If this is not set
+  // to -1, then you can use SetVectorComponent to set which scalar
+  // component will be the first component in the vector to be mapped.
+  vtkSetMacro(VectorSize, int);
+  vtkGetMacro(VectorSize, int);
+
+  // Description:
   // Map vectors through the lookup table.  Unlike MapScalarsThroughTable,
   // this method will use the VectorMode to decide how to map vectors.
   // The output format can be set to VTK_RGBA (4 components),
@@ -141,7 +150,13 @@ public:
   // or VTK_LUMINANCE_ALPHA (2 components)
   void MapVectorsThroughTable(void *input, unsigned char *output,
                               int inputDataType, int numberOfValues,
-                              int inputIncrement, int outputFormat);
+                              int inputIncrement, int outputFormat,
+                              int vectorComponent, int vectorSize);
+  void MapVectorsThroughTable(void *input, unsigned char *output,
+                              int inputDataType, int numberOfValues,
+                              int inputIncrement, int outputFormat)
+    { this->MapVectorsThroughTable(input, output, inputDataType, numberOfValues,
+                                   inputIncrement, outputFormat, -1, -1); }
 
   // Description:
   // Map a set of scalars through the lookup table in a single operation. 
@@ -160,12 +175,13 @@ public:
                               int inputDataType, int numberOfValues,
                               int inputIncrement,
                               int outputFormat)
-    {this->UseMagnitude = 0;
-     this->MapScalarsThroughTable2(input, output, inputDataType,
+    {this->MapScalarsThroughTable2(input, output, inputDataType,
        numberOfValues, inputIncrement, outputFormat);}
 
   // Description:
-  // An internal method typically not used in applications.
+  // An internal method typically not used in applications.  This should
+  // be a protected function, but it must be kept public for backwards
+  // compatibility.  Never call this method directly.
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
                                        int inputIncrement, 
@@ -208,17 +224,25 @@ protected:
   // Any components past the fourth component will be ignored.
   void MapColorsToColors(void *input, unsigned char *output,
                          int inputDataType, int numberOfValues,
-                         int numberOfComponents, int outputFormat);
+                         int numberOfComponents, int vectorSize,
+                         int outputFormat);
+
+  // Description:
+  // An internal method for converting vectors to magnitudes, used as
+  // a preliminary step before doing magnitude mapping.
+  void MapVectorsToMagnitude(void *input, double *output,
+                             int inputDataType, int numberOfValues,
+                             int numberOfComponents, int vectorSize);
 
   double Alpha;
 
   // How to map arrays with multiple components.
   int VectorMode;
-  // Internal flag used to togle between vector and component mode.
-  // We need this flag because the mapper can override our mode, and
-  // I do not want to change the interface to the map scalars methods.
-  int UseMagnitude;
   int VectorComponent;
+  int VectorSize;
+
+  // Obsolete, kept so subclasses will still compile
+  int UseMagnitude;
 
 private:
   double RGB[3];
