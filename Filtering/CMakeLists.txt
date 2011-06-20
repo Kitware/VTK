@@ -21,11 +21,13 @@ vtkAMRBox.cxx
 vtkAnnotation.cxx
 vtkAnnotationLayers.cxx
 vtkAnnotationLayersAlgorithm.cxx
+vtkAtom.cxx
 vtkAttributesErrorMetric.cxx
 vtkBiQuadraticQuad.cxx
 vtkBiQuadraticQuadraticHexahedron.cxx
 vtkBiQuadraticQuadraticWedge.cxx
 vtkBiQuadraticTriangle.cxx
+vtkBond.cxx
 vtkBSPCuts.cxx
 vtkBSPIntersections.cxx
 vtkCachedStreamingDemandDrivenPipeline.cxx
@@ -151,6 +153,7 @@ vtkMeanValueCoordinatesInterpolator.cxx
 vtkMergePoints.cxx
 vtkMarchingSquaresLineCases.cxx
 vtkMarchingCubesTriangleCases.cxx
+vtkMolecule.cxx
 vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataSet.cxx
 vtkMultiPieceDataSet.cxx
@@ -269,6 +272,8 @@ vtkAbstractImageInterpolator
 vtkAbstractInterpolatedVelocityField
 vtkAbstractMapper
 vtkAbstractPointLocator
+vtkAtom
+vtkBond
 vtkCell
 vtkCell3D
 vtkCompositeDataIterator
@@ -412,4 +417,3 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
