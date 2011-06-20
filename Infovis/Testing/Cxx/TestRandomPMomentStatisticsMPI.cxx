@@ -45,6 +45,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtksys/CommandLineArguments.hxx"
 
+#include <vtksys/ios/sstream>
+
 struct RandomSampleStatisticsArgs
 {
   int nVals;
@@ -402,100 +404,119 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
       }
 
-    // Use assessed values (relative deviations) to check distribution
-    vtkDoubleArray* relDev[2];
-    relDev[0] = vtkDoubleArray::SafeDownCast( outputData->GetColumnByName( "d(Standard Normal 0)" ) );
-    relDev[1] = vtkDoubleArray::SafeDownCast( outputData->GetColumnByName( "d(Standard Normal 1)" ) );
-
-    // Verification can be done only if assessed columns are present
-    if ( ! relDev[0] || ! relDev[1] )
+    // For each normal variable, count deviations of more than 1, ..., numRuleVal standard deviations from the mean
+    for ( int c = 0; c < nNormal; ++ c )
       {
-      vtkGenericWarningMacro("Empty output column(s) on process "
-                             << myRank);
-      *(args->retVal) = 1;
-      }
-    else
-      {
-      // For each normal variable, count deviations of more than 1, ..., numRuleVal standard deviations from the mean
-      for ( int c = 0; c < nNormal; ++ c )
+      // Use assessed values (relative deviations) to check distribution
+      vtksys_ios::ostringstream relDevName;
+      relDevName << "d(Standard Normal "
+                 << c
+                 << ")";
+      
+      // Verification can be done only if assessed column is present
+      vtkAbstractArray* relDevArr = outputData->GetColumnByName( relDevName.str().c_str() );
+      if ( relDevArr )
         {
-        // Allocate and initialize counters
-        int* outsideStdv_l = new int[numRuleVal];
-        for ( int i = 0; i < numRuleVal; ++ i )
+        // Assessed column should be an array of doubles
+        vtkDoubleArray* relDev = vtkDoubleArray::SafeDownCast( relDevArr );
+        if ( relDev )
           {
-          outsideStdv_l[i] = 0;
-          }
-
-        // Count outliers
-        double dev;
-        int n = outputData->GetNumberOfRows();
-        for ( vtkIdType r = 0; r < n; ++ r )
-          {
-          dev = relDev[c]->GetValue( r );
-
-          if ( dev >= 1. )
-            {
-            ++ outsideStdv_l[0];
-
-            if ( dev >= 2. )
-              {
-              ++ outsideStdv_l[1];
-
-              if ( dev >= 3. )
-                {
-                ++ outsideStdv_l[2];
-
-                if ( dev >= 4. )
-                  {
-                  ++ outsideStdv_l[3];
-
-                  if ( dev >= 5. )
-                    {
-                    ++ outsideStdv_l[4];
-                    } // if ( dev >= 5. )
-                  } // if ( dev >= 4. )
-                } // if ( dev >= 3. )
-              } // if ( dev >= 2. )
-            } // if ( dev >= 1. )
-          }
-
-        // Sum all local counters
-        int* outsideStdv_g = new int[numRuleVal];
-        com->AllReduce( outsideStdv_l,
-                        outsideStdv_g,
-                        numRuleVal,
-                        vtkCommunicator::SUM_OP );
-
-        // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
-        if ( myRank == args->ioRank )
-          {
-          cout << "   "
-               << outputData->GetColumnName( nUniform + c )
-               << ":\n";
+          // Allocate and initialize counters
+          int* outsideStdv_l = new int[numRuleVal];
           for ( int i = 0; i < numRuleVal; ++ i )
             {
-            double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
-
-            cout << "      "
-                 << testVal
-                 << "% within "
-                 << i + 1
-                 << " standard deviation(s) from the mean.\n";
-
-            // Test some statistics
-            if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
+            outsideStdv_l[i] = 0;
+            }
+          
+          // Count outliers
+          double dev;
+          int n = outputData->GetNumberOfRows();
+          for ( vtkIdType r = 0; r < n; ++ r )
+            {
+            dev = relDev->GetValue( r );
+            
+            if ( dev >= 1. )
               {
-              vtkGenericWarningMacro("Incorrect value.");
-              *(args->retVal) = 1;
+              ++ outsideStdv_l[0];
+              
+              if ( dev >= 2. )
+                {
+                ++ outsideStdv_l[1];
+                
+                if ( dev >= 3. )
+                  {
+                  ++ outsideStdv_l[2];
+                  
+                  if ( dev >= 4. )
+                    {
+                    ++ outsideStdv_l[3];
+                    
+                    if ( dev >= 5. )
+                      {
+                      ++ outsideStdv_l[4];
+                      } // if ( dev >= 5. )
+                    } // if ( dev >= 4. )
+                  } // if ( dev >= 3. )
+                } // if ( dev >= 2. )
+              } // if ( dev >= 1. )
+            } // for ( vtkIdType r = 0; r < n; ++ r )
+          
+          // Sum all local counters
+          int* outsideStdv_g = new int[numRuleVal];
+          com->AllReduce( outsideStdv_l,
+                          outsideStdv_g,
+                          numRuleVal,
+                          vtkCommunicator::SUM_OP );
+          
+          // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
+          if ( myRank == args->ioRank )
+            {
+            cout << "   "
+                 << outputData->GetColumnName( nUniform + c )
+                 << ":\n";
+            for ( int i = 0; i < numRuleVal; ++ i )
+              {
+              double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
+              
+              cout << "      "
+                   << testVal
+                   << "% within "
+                   << i + 1
+                   << " standard deviation(s) from the mean.\n";
+              
+              // Test some statistics
+              if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
+                {
+                vtkGenericWarningMacro("Incorrect value.");
+                *(args->retVal) = 1;
+                }
               }
             }
+        
+          // Clean up
+          delete [] outsideStdv_l;
+          delete [] outsideStdv_g;
+          } // if ( relDev )
+        else
+          {
+          vtkGenericWarningMacro("Column "
+                                 << relDevName.str().c_str()
+                                 << " on process "
+                                 << myRank
+                                 << " is not of type double." );
+          *(args->retVal) = 1;
           }
 
-        // Clean up
-        delete [] outsideStdv_l;
-        delete [] outsideStdv_g;
-        } // for ( int c = 0; c < nNormal; ++ c )
-      } // else
+        } // if ( relDevArr )
+      else
+        {
+        vtkGenericWarningMacro("No assessment column called "
+                               << relDevName.str().c_str()
+                               << " on process "
+                               << myRank);
+        *(args->retVal) = 1;
+        }
+      } // for ( int c = 0; c < nNormal; ++ c )
 
     // Clean up
     pds->Delete();
