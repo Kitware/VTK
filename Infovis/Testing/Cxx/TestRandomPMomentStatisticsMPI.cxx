@@ -248,7 +248,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed serial calculations of descriptive statistics:\n"
            << "   With partial aggregation calculated on process "
@@ -294,7 +294,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     ds->Delete();
     } // if ( ! args->skipDescriptive )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped serial calculations of descriptive statistics.\n";
     }
@@ -357,7 +357,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
     vtkTable* outputData = pds->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
            << "   Total sample size: "
@@ -397,20 +397,21 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
 
     // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
       }
 
+    // Use assessed values (relative deviations) to check distribution
     vtkDoubleArray* relDev[2];
     relDev[0] = vtkDoubleArray::SafeDownCast( outputData->GetColumnByName( "d(Standard Normal 0)" ) );
     relDev[1] = vtkDoubleArray::SafeDownCast( outputData->GetColumnByName( "d(Standard Normal 1)" ) );
 
-    relDev[0] = 0;
+    // Verification can be done only if assessed columns are present
     if ( ! relDev[0] || ! relDev[1] )
       {
       vtkGenericWarningMacro("Empty output column(s) on process "
-                             << com->GetLocalProcessId());
+                             << myRank);
       *(args->retVal) = 1;
       }
     else
@@ -466,7 +467,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                         vtkCommunicator::SUM_OP );
 
         // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
-        if ( com->GetLocalProcessId() == args->ioRank )
+        if ( myRank == args->ioRank )
           {
           cout << "   "
                << outputData->GetColumnName( nUniform + c )
@@ -500,7 +501,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     pds->Delete();
 
     } // if ( ! args->skipPDescriptive )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel descriptive statistics.\n";
     }
@@ -538,7 +539,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
            << "   Total sample size: "
@@ -580,7 +581,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Clean up
     pcs->Delete();
     } // if ( ! args->skipPCorrelative )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel correlative statistics.\n";
     }
@@ -629,7 +630,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of multi-correlative statistics (with assessment):\n"
            << "   Total sample size: "
@@ -650,7 +651,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Clean up
     pmcs->Delete();
     } // if ( ! args->skipPMultiCorrelative )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel multi-correlative statistics.\n";
     }
@@ -699,7 +700,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
            << "   Total sample size: "
@@ -720,7 +721,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Clean up
     pcas->Delete();
     } // if ( ! args->skipPPCA )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel PCA statistics.\n";
     }
@@ -787,7 +788,9 @@ int main( int argc, char** argv )
       }
     }
 
-  if ( com->GetLocalProcessId() == ioRank )
+  // Get local rank and print out of I/O node
+  int myRank = com->GetLocalProcessId();
+  if ( myRank == ioRank )
     {
     cout << "\n# Process "
          << ioRank
@@ -796,7 +799,7 @@ int main( int argc, char** argv )
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
-  if ( controller->GetLocalProcessId() == ioRank )
+  if ( myRank == ioRank )
     {
     cout << "\n# Running test with "
          << numProcs
@@ -850,7 +853,7 @@ int main( int argc, char** argv )
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
     {
-    if ( com->GetLocalProcessId() == ioRank )
+    if ( myRank == ioRank )
       {
       cerr << "Usage: " 
            << clArgs.GetHelp()
