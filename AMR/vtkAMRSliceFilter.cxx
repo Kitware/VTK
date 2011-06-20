@@ -33,6 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkAMRSliceFilter);
 
