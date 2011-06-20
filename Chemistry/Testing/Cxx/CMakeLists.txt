@@ -3,7 +3,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_CHEMISTRY)
   SET(KIT Chemistry)
 
   SET(MyTests
-
+    TestPeriodicTable.cxx
     )
 
   # Tests with data
