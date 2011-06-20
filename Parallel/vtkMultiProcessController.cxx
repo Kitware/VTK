@@ -31,6 +31,7 @@
 #endif
 
 #include "vtkSmartPointer.h"
+#include "vtkWeakPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -657,8 +658,7 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
 
 //============================================================================
 // The intent is to give access to a processes controller from a static method.
-
-vtkMultiProcessController *VTK_GLOBAL_MULTI_PROCESS_CONTROLLER = NULL;
+vtkWeakPointer<vtkMultiProcessController> VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
 {
