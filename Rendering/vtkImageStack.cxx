@@ -332,8 +332,8 @@ int vtkImageStack::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
-    image->SetAllocatedRenderTime(renderTime, viewport);
     image = this->Images->GetNextImage(pit);
+    image->SetAllocatedRenderTime(renderTime, viewport);
     return image->RenderTranslucentPolygonalGeometry(viewport);
     }
 
@@ -377,8 +377,8 @@ int vtkImageStack::RenderOverlay(vtkViewport* viewport)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
-    image->SetAllocatedRenderTime(renderTime, viewport);
     image = this->Images->GetNextImage(pit);
+    image->SetAllocatedRenderTime(renderTime, viewport);
     return image->RenderOverlay(viewport);
     }
 
