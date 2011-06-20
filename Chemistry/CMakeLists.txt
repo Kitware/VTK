@@ -6,6 +6,7 @@ SET(KIT_LIBS vtkRendering vtkFiltering)
 SET(Kit_SRCS
   vtkBlueObeliskData.cxx
   vtkBlueObeliskDataParser.cxx
+  vtkCMLMoleculeReader.cxx
   vtkPeriodicTable.cxx
   )
 
