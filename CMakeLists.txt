@@ -350,6 +350,9 @@ VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support
 VTK_DEPENDENT_OPTION(VTK_USE_CHARTS "Build VTK chart support (OpenGL based)" ON
   "VTK_USE_RENDERING;VTK_USE_VIEWS" OFF)
 
+VTK_DEPENDENT_OPTION(VTK_USE_CHEMISTRY "Build VTK chemistry support" OFF
+  "VTK_USE_RENDERING" OFF)
+
 SET(VTK_DEFAULT_SHADERS_DIR
    "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
    CACHE INTERNAL
@@ -462,6 +465,10 @@ ENDIF(VTK_USE_MFC)
 IF(VTK_USE_CHARTS)
   SET(VTK_KITS ${VTK_KITS} CHARTS)
 ENDIF(VTK_USE_CHARTS)
+
+IF(VTK_USE_CHEMISTRY)
+  SET(VTK_KITS ${VTK_KITS} CHEMISTRY)
+ENDIF(VTK_USE_CHEMISTRY)
 
 #-----------------------------------------------------------------------------
 # Determine GUI.
@@ -1366,6 +1373,9 @@ ENDIF(VTK_USE_GUISUPPORT)
 IF(VTK_USE_CHARTS)
   ADD_SUBDIRECTORY(Charts)
 ENDIF(VTK_USE_CHARTS)
+IF(VTK_USE_CHEMISTRY)
+  ADD_SUBDIRECTORY(Chemistry)
+ENDIF(VTK_USE_CHEMISTRY)
 
 # Wrapping.
 IF(VTK_WRAP_TCL)
@@ -1413,8 +1423,10 @@ IF(BUILD_TESTING)
   IF(VTK_USE_CHARTS)
     ADD_SUBDIRECTORY(Charts/Testing)
   ENDIF(VTK_USE_CHARTS)
+  IF(VTK_USE_CHEMISTRY)
+    ADD_SUBDIRECTORY(Chemistry/Testing)
+  ENDIF(VTK_USE_CHEMISTRY)
 ENDIF(BUILD_TESTING)
-
 
 # Include the examples if they are enabled.  Note that the in-tree
 # build adds tests and a custom target to build the examples project
