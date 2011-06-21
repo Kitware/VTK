@@ -124,12 +124,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Create timer to be used by all tests
-  vtkTimerLog *timer=vtkTimerLog::New();
+  vtkTimerLog *timer = vtkTimerLog::New();
 
   // Storage for cross-checking between aggregated serial vs. parallel descriptive statistics
   int n2Rows = 2 * nVariables;
-  double* extrema_g = new double[n2Rows];
-  double* cardsAndMeans_g = new double[n2Rows];
+  double* extrema_agg = new double[n2Rows];
+  double* extrema_par = new double[n2Rows];
+  double* cardsAndMeans_agg = new double[n2Rows];
+  double* cardsAndMeans_par = new double[n2Rows];
 
   // ************************** Serial descriptive Statistics **************************
 
@@ -175,6 +177,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       *(args->retVal) = 1;
       }
 
+    // Aggregate serial results
     double* extrema_l = new double[n2Rows];
     double* cardsAndMeans_l = new double[n2Rows];
     double dn;
@@ -193,13 +196,13 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     int calcProc = np - 1;
 
     com->Reduce( extrema_l,
-                 extrema_g,
+                 extrema_agg,
                  n2Rows,
                  vtkCommunicator::MIN_OP,
                  calcProc );
 
     com->Reduce( cardsAndMeans_l,
-                 cardsAndMeans_g,
+                 cardsAndMeans_agg,
                  n2Rows,
                  vtkCommunicator::SUM_OP,
                  calcProc );
@@ -207,7 +210,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Have process calcProc calculate global cardinality and mean, and send all results to I/O process
     if ( myRank == calcProc )
       {
-      if ( ! com->Send( extrema_g,
+      if ( ! com->Send( extrema_agg,
                         n2Rows,
                         args->ioRank,
                         65 ) )
@@ -218,7 +221,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
         *(args->retVal) = 1;
         }
 
-      if ( ! com->Send( cardsAndMeans_g,
+      if ( ! com->Send( cardsAndMeans_agg,
                         n2Rows,
                         args->ioRank,
                         66 ) )
@@ -233,7 +236,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Have I/O process receive results from process calcProc
     if ( myRank == args->ioRank )
       {
-      if ( ! com->Receive( extrema_g,
+      if ( ! com->Receive( extrema_agg,
                            n2Rows,
                            calcProc,
                            65 ) )
@@ -244,7 +247,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
         *(args->retVal) = 1;
         }
 
-      if ( ! com->Receive( cardsAndMeans_g,
+      if ( ! com->Receive( cardsAndMeans_agg,
                            n2Rows,
                            calcProc,
                            66 ) )
@@ -280,19 +283,19 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
              << "  "
              << "Cardinality"
              << "="
-             << cardsAndMeans_g[2 * r]
+             << cardsAndMeans_agg[2 * r]
              << "  "
              << "Minimum"
              << "="
-             << extrema_g[2 * r]
+             << extrema_agg[2 * r]
              << "  "
              << "Maximum"
              << "="
-             << - extrema_g[2 * r + 1]
+             << - extrema_agg[2 * r + 1]
              << "  "
              << "Mean"
              << "="
-             << cardsAndMeans_g[2 * r + 1] / cardsAndMeans_g[2 * r]
+             << cardsAndMeans_agg[2 * r + 1] / cardsAndMeans_agg[2 * r]
              << "\n";
         }
       }
@@ -387,6 +390,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                << "  ";
           }
         cout << "\n";
+
+        // Store cardinalities, extremal and means for cross-verification
+        double dn = outputPrimary->GetValueByName( r, "Cardinality" ).ToDouble();
+        
+        cardsAndMeans_par[2 * r] = dn;
+        cardsAndMeans_par[2 * r + 1] = dn * outputPrimary->GetValueByName( r, "Mean" ).ToDouble();
+        
+        extrema_par[2 * r] = outputPrimary->GetValueByName( r, "Minimum" ).ToDouble();
+        extrema_par[2 * r + 1] = - outputPrimary->GetValueByName( r, "Maximum" ).ToDouble();
         }
 
       cout << "   Calculated the following derived statistics:\n";
@@ -519,7 +531,29 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Cross-verify aggregated serial vs. parallel results only if both were calculated
   if ( ! args->skipDescriptive && ! args->skipPDescriptive )
     {
-
+    if ( myRank == args->ioRank )
+      {
+      cout << "\n## Cross-verifying aggregated serial vs. parallel descriptive statistics:\n";
+      for ( int i = 0; i < n2Rows; ++ i )
+        {
+        if ( cardsAndMeans_agg[i] != cardsAndMeans_par[i] )
+          {          
+          vtkGenericWarningMacro("Incorrect value(s) : "
+                                 << cardsAndMeans_agg[i]
+                                 << " <> "
+                                 << cardsAndMeans_par[i]);
+          *(args->retVal) = 1;
+          }
+        if ( extrema_agg[i] != extrema_par[i] )
+          {          
+          vtkGenericWarningMacro("Incorrect value(s) : "
+                                 << extrema_agg[i]
+                                 << " <> "
+                                 << extrema_par[i]);
+          *(args->retVal) = 1;
+          }
+        } // for ( int i = 0; i < n2Rows; ++ i )
+      } // if ( myRank == args->ioRank )
     } // if ( ! args->skipPDescriptive && ! args->skipPDescriptive )
   else if ( myRank == args->ioRank )
     {
@@ -528,8 +562,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
 
   // Clean up
-  delete [] cardsAndMeans_g;
-  delete [] extrema_g;
+  delete [] cardsAndMeans_agg;
+  delete [] cardsAndMeans_par;
+  delete [] extrema_agg;
+  delete [] extrema_par;
 
   // ************************** Parallel Correlative Statistics **************************
 
