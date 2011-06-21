@@ -126,6 +126,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Create timer to be used by all tests
   vtkTimerLog *timer=vtkTimerLog::New();
 
+  // Storage for cross-checking between aggregated serial vs. parallel descriptive statistics
+  int n2Rows = 2 * args->nVals;
+  
+  double* extrema_l = new double[n2Rows];
+  double* extrema_g = new double[n2Rows];
+  
+  double* cardsAndMeans_l = new double[n2Rows];
+  double* cardsAndMeans_g = new double[n2Rows];
+
   // ************************** Serial descriptive Statistics **************************
 
   // Skip serial descriptive statistics if requested
@@ -156,17 +165,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( ds->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
     vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
-    // Collect (local) cardinalities, extrema, and means
-    int nRows = outputPrimary->GetNumberOfRows();
+    // Collect and aggregate serial cardinalities, extrema, and means
     int np = com->GetNumberOfProcesses();
-    int n2Rows = 2 * nRows;
-
-    double* extrema_l = new double[n2Rows];
-    double* extrema_g = new double[n2Rows];
-
-    double* cardsAndMeans_l = new double[n2Rows];
-    double* cardsAndMeans_g = new double[n2Rows];
-
+    int nRows = outputPrimary->GetNumberOfRows();
     double dn;
     for ( vtkIdType r = 0; r < nRows; ++ r )
       {
@@ -288,12 +289,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
 
     // Clean up
-    delete [] cardsAndMeans_l;
-    delete [] cardsAndMeans_g;
-
-    delete [] extrema_l;
-    delete [] extrema_g;
-
     ds->Delete();
     } // if ( ! args->skipDescriptive )
   else if ( myRank == args->ioRank )
@@ -510,6 +505,24 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "\n## Skipped calculation of parallel descriptive statistics.\n";
     }
+  
+  // Cross-verify aggregated serial vs. parallel results only if both were calculated
+  if ( ! args->skipDescriptive && ! args->skipPDescriptive )
+    {
+
+    } // if ( ! args->skipPDescriptive && ! args->skipPDescriptive )
+  else if ( myRank == args->ioRank )
+    {
+    cout << "\n## Skipped cross-verification of aggregated serial vs. parallel descriptive statistics.\n";
+    }
+
+
+  // Clean up
+  delete [] cardsAndMeans_l;
+  delete [] cardsAndMeans_g;
+  
+  delete [] extrema_l;
+  delete [] extrema_g;
 
   // ************************** Parallel Correlative Statistics **************************
 
