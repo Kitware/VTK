@@ -251,7 +251,6 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int NumberOfCellVars;
   int NumberOfPointVars;
   double* PointVarData;
-  double* CellVarData;
 
   void SetDefaults();
   int GetNcDims();

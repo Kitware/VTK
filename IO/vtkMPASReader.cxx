@@ -110,13 +110,20 @@ double PI = 3.141592;
 
 class vtkMPASReader::Internal {
   public:
-    Internal() :
-      ncFile(NULL)
+  Internal() :
+    ncFile(NULL)
   {
     for (int i = 0; i < MAX_VARS; i++)
       {
-      cellVars[i] = NULL;
-      pointVars[i] = NULL;
+      this->cellVars[i] = NULL;
+      this->pointVars[i] = NULL;
+      }
+  };
+  ~Internal()
+  {
+    if(this->ncFile)
+      {
+      delete ncFile;
       }
   };
 
@@ -334,7 +341,7 @@ void vtkMPASReader::DestroyData()
 
   if (this->PointVarData)
     {
-    free(this->PointVarData);
+    delete []this->PointVarData;
     this->PointVarData = NULL;
     }
 
@@ -352,7 +359,7 @@ void vtkMPASReader::DestroyData()
 
   if (this->MaximumLevelPoint)
     {
-    free (this->MaximumLevelPoint);
+    free(this->MaximumLevelPoint);
     this->MaximumLevelPoint = NULL;
     }
 }
@@ -365,15 +372,12 @@ vtkMPASReader::~vtkMPASReader()
 {
   vtkDebugMacro(<< "Destructing vtkMPASReader..." << endl);
 
-
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  this->SetFileName(NULL);
 
   if (this->Internals->ncFile)
     {
     delete this->Internals->ncFile;
+    this->Internals->ncFile = NULL;
     }
 
   this->DestroyData();
@@ -405,6 +409,11 @@ vtkMPASReader::~vtkMPASReader()
     {
     this->SelectionObserver->Delete();
     this->SelectionObserver = NULL;
+    }
+  if(this->TimeSteps)
+    {
+    delete []this->TimeSteps;
+    this->TimeSteps = NULL;
     }
 
   delete this->Internals;
@@ -448,6 +457,10 @@ int vtkMPASReader::RequestInformation(
     this->InfoRequested = true;
 
     vtkDebugMacro(<< "FileName: " << this->FileName << endl);
+    if(this->Internals->ncFile)
+      {
+      delete this->Internals->ncFile;
+      }
     this->Internals->ncFile = new NcFile(this->FileName);
 
     if (!this->Internals->ncFile->is_valid())
@@ -480,10 +493,18 @@ int vtkMPASReader::RequestInformation(
 
 
     // Allocate the ParaView data arrays which will hold the variables
+    if(this->PointVarDataArray)
+      {
+      delete []this->PointVarDataArray;
+      }
     this->PointVarDataArray = new vtkDoubleArray*[this->NumberOfPointVars];
     for (int i = 0; i < this->NumberOfPointVars; i++)
       {
       this->PointVarDataArray[i] = NULL;
+      }
+    if(this->CellVarDataArray)
+      {
+      delete []this->CellVarDataArray;
       }
     this->CellVarDataArray = new vtkDoubleArray*[this->NumberOfCellVars];
     for (int i = 0; i < this->NumberOfCellVars; i++)
@@ -501,7 +522,8 @@ int vtkMPASReader::RequestInformation(
     // the number of the step, so that is what I store here for TimeSteps.
     if (this->TimeSteps != NULL)
       {
-      delete[] this->TimeSteps;
+      delete []this->TimeSteps;
+      this->TimeSteps = NULL;
       }
     this->TimeSteps = new double[this->NumberOfTimeSteps];
     for (int step = 0; step < this->NumberOfTimeSteps; step++)
@@ -656,10 +678,8 @@ void vtkMPASReader::SetDefaults() {
   this->DTime = 0;
   this->CellVarDataArray = NULL;
   this->PointVarDataArray = NULL;
-  this->CellVarData = NULL;
   this->PointVarData = NULL;
   this->TimeSteps = NULL;
-
 }
 
 //----------------------------------------------------------------------------
@@ -902,12 +922,12 @@ int vtkMPASReader::ReadAndOutputGrid(bool init)
   OutputCells(init);
 
   // Allocate the data arrays which will hold the NetCDF var data
-  //vtkDebugMacro(<<"cellVarData: Alloc " << maxCells << " doubles" << endl);
-  //this->cellVarData = (double*) malloc(sizeof(double)*maxCells);
-  //CHECK_MALLOC(this->cellVarData);
   vtkDebugMacro(<<"pointVarData: Alloc " << this->MaximumPoints << " doubles" << endl);
-  this->PointVarData = (double*) malloc(sizeof(double)*this->MaximumPoints);
-  CHECK_MALLOC(this->PointVarData);
+  if(this->PointVarData)
+    {
+    delete []this->PointVarData;
+    }
+  this->PointVarData = new double[this->MaximumPoints];
 
   vtkDebugMacro(<< "Leaving vtkMPASReader::ReadAndOutputGrid" << endl);
 
@@ -1509,8 +1529,6 @@ unsigned char vtkMPASReader::GetCellType()
 void vtkMPASReader::OutputCells(bool init)
 {
   vtkDebugMacro(<< "In OutputCells..." << endl);
-
-
   vtkUnstructuredGrid* output = GetOutput();
 
   if (init)
@@ -1528,7 +1546,7 @@ void vtkMPASReader::OutputCells(bool init)
   int val;
 
   int pointsPerPolygon;
-  if (ShowMultilayerView)
+  if (this->ShowMultilayerView)
     {
     pointsPerPolygon = 2 * this->PointsPerCell;
     }
@@ -1541,15 +1559,15 @@ void vtkMPASReader::OutputCells(bool init)
     (<< "OutputCells: init: " << init << " this->MaximumCells: " << this->MaximumCells
      << " cellType: " << cellType << " this->MaximumNVertLevels: " << this->MaximumNVertLevels
      << " LayerThickness: " << LayerThickness << " ProjectLatLon: "
-     << ProjectLatLon << " ShowMultilayerView: " << ShowMultilayerView << endl);
+     << ProjectLatLon << " ShowMultilayerView: " << ShowMultilayerView);
 
-  vtkIdType* polygon = new vtkIdType[pointsPerPolygon];
+  std::vector<vtkIdType> polygon(pointsPerPolygon);
 
   for (int j = 0; j < this->CurrentExtraCell ; j++)
     {
 
     int* conns;
-    if (ProjectLatLon)
+    if (this->ProjectLatLon)
       {
       conns = this->ModConnections + (j * this->PointsPerCell);
       }
@@ -1589,12 +1607,12 @@ void vtkMPASReader::OutputCells(bool init)
       }
 
     // singlelayer
-    if (!ShowMultilayerView)
+    if (!this->ShowMultilayerView)
       {
       // If that min is greater than or equal to this output level,
       // include the cell, otherwise set all points to zero.
 
-      if (this->IncludeTopography && ((minLevel-1) < VerticalLevelSelected))
+      if (this->IncludeTopography && ((minLevel-1) < this->VerticalLevelSelected))
         {
         //cerr << "Setting all points to zero" << endl;
         val = 0;
@@ -1610,7 +1628,7 @@ void vtkMPASReader::OutputCells(bool init)
           polygon[k] = conns[k];
           }
         }
-      output->InsertNextCell(cellType, pointsPerPolygon, polygon);
+      output->InsertNextCell(cellType, pointsPerPolygon, &polygon[0]);
 
     }
     else
@@ -1643,15 +1661,13 @@ void vtkMPASReader::OutputCells(bool init)
           }
         //vtkDebugMacro
         //("InsertingCell j: " << j << " level: " << levelNum << endl);
-        output->InsertNextCell(cellType, pointsPerPolygon, polygon);
+        output->InsertNextCell(cellType, pointsPerPolygon, &polygon[0]);
         }
       }
     }
 
-  //cma check these frees
   free(this->ModConnections); this->ModConnections = NULL;
   free(this->OrigConnections); this->OrigConnections = NULL;
-  free(polygon); polygon = NULL;
 
   vtkDebugMacro(<< "Leaving OutputCells..." << endl);
 }
@@ -2321,17 +2337,17 @@ void vtkMPASReader::SetShowMultilayerView(bool val)
 
 int vtkMPASReader::CanReadFile(const char *filename)
 {
-  NcFile* ncFile = new NcFile(filename);
-  if (!ncFile->is_valid())
+  NcFile ncFile(filename);
+  if (!ncFile.is_valid())
     {
     return 0;
     }
   bool ret = true;
-  ret &= isNcDim(ncFile, "nCells");
-  ret &= isNcDim(ncFile, "nVertices");
-  ret &= isNcDim(ncFile, "vertexDegree");
-  ret &= isNcDim(ncFile, "Time");
-  ret &= isNcDim(ncFile, "nVertLevels");
+  ret &= isNcDim(&ncFile, "nCells");
+  ret &= isNcDim(&ncFile, "nVertices");
+  ret &= isNcDim(&ncFile, "vertexDegree");
+  ret &= isNcDim(&ncFile, "Time");
+  ret &= isNcDim(&ncFile, "nVertLevels");
   return ret;
 }
 
