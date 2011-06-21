@@ -50,6 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 struct RandomSampleStatisticsArgs
 {
   int nVals;
+  double absTol;
   bool skipDescriptive;
   bool skipPDescriptive;
   bool skipPCorrelative;
@@ -533,10 +534,12 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     if ( myRank == args->ioRank )
       {
-      cout << "\n## Cross-verifying aggregated serial vs. parallel descriptive statistics:\n";
+      cout << "\n## Cross-verifying aggregated serial vs. parallel descriptive statistics (within "
+           << args->absTol
+           << " absolute tolerance).\n";
       for ( int i = 0; i < n2Rows; ++ i )
         {
-        if ( cardsAndMeans_agg[i] != cardsAndMeans_par[i] )
+        if ( fabs( cardsAndMeans_agg[i] - cardsAndMeans_par[i] ) > args->absTol )
           {          
           vtkGenericWarningMacro("Incorrect value(s) : "
                                  << cardsAndMeans_agg[i]
@@ -870,6 +873,7 @@ int main( int argc, char** argv )
   // **************************** Parse command line ***************************
   // Set default argument values
   int nVals = 100000;
+  double absTol = 1.e-6;
   bool skipDescriptive = false;
   bool skipPDescriptive = false;
   bool skipPCorrelative = false;
@@ -885,6 +889,11 @@ int main( int argc, char** argv )
   clArgs.AddArgument("--n-per-proc",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse absolute tolerance to cross-verify aggregated serial vs. parallel descriptive stats
+  clArgs.AddArgument("--abs-tol",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &absTol, "Absolute tolerance to cross-verify aggregated serial and parallel descriptive statistics");
 
   // Parse whether serial descriptive statistics should be skipped (for faster testing)
   clArgs.AddArgument("--skip-Descriptive",
@@ -932,6 +941,7 @@ int main( int argc, char** argv )
   int testValue = 0;
   RandomSampleStatisticsArgs args;
   args.nVals = nVals;
+  args.absTol = absTol;
   args.skipDescriptive = skipDescriptive;
   args.skipPDescriptive = skipPDescriptive;
   args.skipPCorrelative = skipPCorrelative;
