@@ -29,6 +29,19 @@
 //                for the visualization of large scale networks", by
 //                Ignacio Alvarez-Hamelin et. al.
 //
+//                This graph algorithm appends either polar coordinates or cartesian coordinates
+//                as vertex attributes to the graph giving the position of the vertex in a layout.
+//                Input graphs must have the k-core number assigned to each vertex (default
+//                attribute array storing kcore numbers is "kcore").
+//
+//                Epsilon - this factor is used to adjust the amount vertices are 'pulled' out of
+//                          their default ring radius based on the number of neighbors in higher
+//                          cores.  Default=0.2
+//                UnitRadius - Tweaks the base unit radius value.  Default=1.0
+//
+//                Still TODO: Still need to work on the connected-components within each shell and
+//                            associated layout issues with that.
+//
 // Input port 0: graph
 
 #ifndef __vtkKCoreLayout_h
