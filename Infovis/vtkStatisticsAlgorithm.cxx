@@ -28,6 +28,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkSmartPointer.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -284,8 +285,8 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
-    // Storage for variable names of the request
-    vtkStringArray* varNames = vtkStringArray::New();
+    // Storage for variable names of the request (smart pointer because of several exit points)
+    vtkSmartPointer<vtkStringArray> varNames = vtkSmartPointer<vtkStringArray>::New();
     varNames->SetNumberOfValues( numVariables );
 
     // Each request must contain numVariables columns of interest (additional columns are ignored)
@@ -334,21 +335,22 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
     vtkIdType nRowData = inData->GetNumberOfRows();
     for ( int a = 0; a < nAssessments; ++ a )
       {
+      // Prepare string for numVariables-tuple of variable names
       vtksys_ios::ostringstream assessColName;
       assessColName << this->AssessNames->GetValue( a )
                     << "(";
       for ( int i = 0 ; i < numVariables ; ++ i )
         {
-        cerr << varNames[i];
-        if ( numVariables > 1 && i < numVariables - 1 )
+        // Insert comma before each variable name, save the first one
+        if ( i > 0 )
           {
-          cerr << ",";
+          assessColName << ",";
           }
+        assessColName << varNames->GetValue( i );
         }
       assessColName << ")";
 
       names[a] = assessColName.str().c_str(); 
-      cerr << "**** " << names[a] << "\n";
 
       vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
       assessValues->SetName( names[a] ); 
@@ -387,6 +389,5 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
 
     delete dfunc;
     delete [] names;
-    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
     }
 }
