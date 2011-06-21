@@ -352,11 +352,12 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
 
       names[a] = assessColName.str().c_str(); 
 
-      vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
-      assessValues->SetName( names[a] ); 
-      assessValues->SetNumberOfTuples( nRowData  ); 
-      outData->AddColumn( assessValues ); 
-      assessValues->Delete(); 
+      // Create assessment columns with names <AssessmentName>(var1,...,varN)
+      vtkDoubleArray* assessColumn = vtkDoubleArray::New(); 
+      assessColumn->SetName( names[a] ); 
+      assessColumn->SetNumberOfTuples( nRowData  ); 
+      outData->AddColumn( assessColumn ); 
+      assessColumn->Delete(); 
       }
 
     // Select assess functor
@@ -377,10 +378,14 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
       vtkVariantArray* assessResult = vtkVariantArray::New();
       for ( vtkIdType r = 0; r < nRowData; ++ r )
         {
+        // Apply functor
         (*dfunc)( assessResult, r );
         for ( int a = 0; a < nAssessments; ++ a )
           {
-          outData->SetValueByName( r, names[a], assessResult->GetValue( a ) );
+          // Store each assessment value in corresponding assessment column
+          outData->SetValueByName( r, 
+                                   names[a], 
+                                   assessResult->GetValue( a ) );
           }
         }
 
