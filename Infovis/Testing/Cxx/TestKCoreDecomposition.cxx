@@ -27,7 +27,7 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int TestKCoreDecomposition(int argc, char* argv[])
+int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   VTK_CREATE(vtkMutableDirectedGraph, dg);
   VTK_CREATE(vtkMutableUndirectedGraph, ug);
