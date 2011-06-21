@@ -127,7 +127,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   vtkTimerLog *timer=vtkTimerLog::New();
 
   // Storage for cross-checking between aggregated serial vs. parallel descriptive statistics
-  int n2Rows = 2 * args->nVals;
+  int n2Rows = 2 * nVariables;
   double* extrema_g = new double[n2Rows];
   double* cardsAndMeans_g = new double[n2Rows];
 
@@ -164,6 +164,16 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Collect and aggregate serial cardinalities, extrema, and means
     int np = com->GetNumberOfProcesses();
     int nRows = outputPrimary->GetNumberOfRows();
+
+    // Make sure that the correct number of rows were retrieved
+    if ( nRows != nVariables )
+      {
+      vtkGenericWarningMacro("Incorrect number of retrieved variables: "
+                             << nRows
+                             << " <> "
+                             << nVariables);
+      *(args->retVal) = 1;
+      }
 
     double* extrema_l = new double[n2Rows];
     double* cardsAndMeans_l = new double[n2Rows];
