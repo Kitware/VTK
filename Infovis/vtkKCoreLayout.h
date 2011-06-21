@@ -16,7 +16,6 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
 // .NAME vtkKCoreLayout - Produces a layout for a graph labeled with K-Core
 //                        information.
 // .SECTION Description
@@ -43,6 +42,11 @@
 //                            associated layout issues with that.
 //
 // Input port 0: graph
+//
+// .SECTION Thanks
+// Thanks to William McLendon from Sandia National Laboratories for providing this
+// implementation.
+
 
 #ifndef __vtkKCoreLayout_h
 #define __vtkKCoreLayout_h
