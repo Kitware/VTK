@@ -257,6 +257,7 @@ public:
       {
       return(this->_array->GetNumberOfTuples());
       }
+    return 0;
     }
 
   void setNewArray(int n)
