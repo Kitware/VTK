@@ -2904,7 +2904,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
           for (; idX <= idXmax && isInBounds == wasInBounds; idX++)
             {
             // convert to data coordinates
-            double point[3];
+            double point[4];
             point[0] = idX*outSpacing[0] + outOrigin[0];
             point[1] = idY*outSpacing[1] + outOrigin[1];
             point[2] = idZ*outSpacing[2] + outOrigin[2];
