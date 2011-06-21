@@ -71,6 +71,7 @@ vtkKCoreLayout::~vtkKCoreLayout()
 }
 
 
+// -------------------------------------------------------------------------------------------------
 void vtkKCoreLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -86,12 +87,14 @@ void vtkKCoreLayout::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+// -------------------------------------------------------------------------------------------------
 void vtkKCoreLayout::SetGraphConnection(vtkAlgorithmOutput* input)
 {
   this->SetInputConnection(0, input);
 }
 
 
+// -------------------------------------------------------------------------------------------------
 int vtkKCoreLayout::FillInputPortInformation(int port, vtkInformation* info)
 {
   if(port == 0)
@@ -132,7 +135,6 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
   // graph size
   vtkIdType num_verts = output->GetNumberOfVertices();
   vtkIdType num_edges = output->GetNumberOfEdges();
-
 
   if(this->KCoreLabelArrayName)
     {
