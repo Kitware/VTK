@@ -50,6 +50,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestChacoGraphReader
       TestDelimitedTextReader
       TestDIMACSGraphReader
+      TestKCoreLayout
       TestMergeTables
       TestISIReader
       TestFixedWidthTextReader
