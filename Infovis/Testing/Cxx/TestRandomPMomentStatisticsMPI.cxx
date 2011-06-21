@@ -193,17 +193,30 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
 
     // Reduce all extremal values, and gather all cardinalities and means, directly on I/O node
-    com->Reduce( extrema_l,
-                 extrema_agg,
-                 n2Rows,
-                 vtkCommunicator::MIN_OP,
-                 args->ioRank );
+    if ( ! com->Reduce( extrema_l,
+                        extrema_agg,
+                        n2Rows,
+                        vtkCommunicator::MIN_OP,
+                        args->ioRank ) )
+        {
+        vtkGenericWarningMacro("MPI error: process "
+                               <<myRank
+                               << "could not reduce extrema. Serial vs. parallel cross-check will be meaningless.");
+        *(args->retVal) = 1;
+        }
 
-    com->Reduce( cardsAndMeans_l,
-                 cardsAndMeans_agg,
-                 n2Rows,
-                 vtkCommunicator::SUM_OP,
-                 args->ioRank );
+    if ( ! com->Reduce( cardsAndMeans_l,
+                        cardsAndMeans_agg,
+                        n2Rows,
+                        vtkCommunicator::SUM_OP,
+                        args->ioRank ) )
+        {
+        vtkGenericWarningMacro("MPI error: process "
+                               <<myRank
+                               << "could not reduce cardinalities and means. Serial vs. parallel cross-check will be meaningless.");
+        *(args->retVal) = 1;
+        }
+
 
     // Synchronize and stop clock
     com->Barrier();
