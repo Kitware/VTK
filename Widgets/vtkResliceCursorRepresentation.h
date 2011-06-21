@@ -43,6 +43,8 @@ class vtkImageActor;
 class vtkTexture;
 class vtkTextActor;
 class vtkImageAlgorithm;
+class vtkOutlineSource;
+class vtkCutter;
 
 class VTK_WIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
 {
@@ -170,6 +172,11 @@ public:
   void ActivateText(int);
   void ManageTextDisplay();
 
+  // Description:
+  // Initialize the reslice planes. This is done automatically, the
+  // first time we render.
+  virtual void InitializeReslicePlane();
+
 protected:
   vtkResliceCursorRepresentation();
   ~vtkResliceCursorRepresentation();
@@ -191,9 +198,6 @@ protected:
   // Description:
   // Update the reslice plane
   virtual void UpdateReslicePlane();
-
-  // Description:
-  virtual void InitializeReslicePlane();
 
   // for negative window values.
   void InvertTable();
@@ -244,6 +248,12 @@ protected:
 
   vtkLookupTable          * CreateDefaultLookupTable();
   void                      GenerateText();
+
+  vtkCutter               * PlaneCutter;
+  vtkOutlineSource        * OutlineSource;
+  void ComputeResliceImageExtent(
+      double spacing[2], int e[2], double newOrigin[3] );
+
 
 private:
   vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&);  //Not implemented
