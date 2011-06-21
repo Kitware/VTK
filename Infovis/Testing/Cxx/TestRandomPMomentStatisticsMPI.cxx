@@ -128,11 +128,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Storage for cross-checking between aggregated serial vs. parallel descriptive statistics
   int n2Rows = 2 * args->nVals;
-  
-  double* extrema_l = new double[n2Rows];
   double* extrema_g = new double[n2Rows];
-  
-  double* cardsAndMeans_l = new double[n2Rows];
   double* cardsAndMeans_g = new double[n2Rows];
 
   // ************************** Serial descriptive Statistics **************************
@@ -168,6 +164,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Collect and aggregate serial cardinalities, extrema, and means
     int np = com->GetNumberOfProcesses();
     int nRows = outputPrimary->GetNumberOfRows();
+
+    double* extrema_l = new double[n2Rows];
+    double* cardsAndMeans_l = new double[n2Rows];
     double dn;
     for ( vtkIdType r = 0; r < nRows; ++ r )
       {
@@ -289,6 +288,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
 
     // Clean up
+    delete [] cardsAndMeans_l;
+    delete [] extrema_l;
     ds->Delete();
     } // if ( ! args->skipDescriptive )
   else if ( myRank == args->ioRank )
@@ -499,7 +500,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Clean up
     pds->Delete();
-
     } // if ( ! args->skipPDescriptive )
   else if ( myRank == args->ioRank )
     {
@@ -518,10 +518,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
 
   // Clean up
-  delete [] cardsAndMeans_l;
   delete [] cardsAndMeans_g;
-  
-  delete [] extrema_l;
   delete [] extrema_g;
 
   // ************************** Parallel Correlative Statistics **************************
