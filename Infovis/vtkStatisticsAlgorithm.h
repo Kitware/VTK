@@ -254,6 +254,13 @@ protected:
                        vtkTable* ) = 0; 
 
   // Description:
+  // A convenience implementation for generic assessment with variable number of variables.
+  void Assess( vtkTable*,
+               vtkMultiBlockDataSet*,
+               vtkTable*,
+               int ); 
+
+  // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
