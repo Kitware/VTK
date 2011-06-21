@@ -353,6 +353,7 @@ protected:
   double OutputOrigin[3];
   double OutputSpacing[3];
   int OutputExtent[6];
+  int OutputScalarType;
   int OutputDimensionality;
   int TransformInputSampling;
   int AutoCropOutput;

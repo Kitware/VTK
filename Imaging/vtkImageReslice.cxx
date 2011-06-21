@@ -173,6 +173,8 @@ vtkImageReslice::vtkImageReslice()
   this->OutputExtent[3] = 0;
   this->OutputExtent[5] = 0;
 
+  this->OutputScalarType = -1;
+
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
   this->Border = 1; // apply a border
@@ -594,13 +596,11 @@ int vtkImageReslice::ConvertScalarInfo(
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::ConvertScalars(
-  void *inPtr, void *outPtr, int inputType, int inputComponents, int count,
-  int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
-  int vtkNotUsed(threadId))
+  void *vtkNotUsed(inPtr), void *vtkNotUsed(outPtr),
+  int vtkNotUsed(inputType), int vtkNotUsed(inputComponents),
+  int vtkNotUsed(count), int vtkNotUsed(idX), int vtkNotUsed(idY),
+  int vtkNotUsed(idZ), int vtkNotUsed(threadId))
 {
-  size_t bytecount = count*inputComponents;
-  bytecount *= vtkDataArray::GetDataTypeSize(inputType);
-  memcpy(outPtr, inPtr, bytecount);
 }
 
 //----------------------------------------------------------------------------
@@ -626,31 +626,26 @@ int vtkImageReslice::RequestUpdateExtent(
       }
     }
 
-  int i,j,k;
-  int idX,idY,idZ;
+  int wrap = this->Wrap || this->Mirror;
+
+  double *inOrigin = inInfo->Get(vtkDataObject::ORIGIN());
+  double *inSpacing = inInfo->Get(vtkDataObject::SPACING());
+  double *outOrigin = outInfo->Get(vtkDataObject::ORIGIN());
+  double *outSpacing = outInfo->Get(vtkDataObject::SPACING());
+
   double xAxis[4], yAxis[4], zAxis[4], origin[4];
-  double inPoint0[4];
-  double inPoint1[4];
-  double point[4],f;
-  double *inSpacing,*inOrigin,*outSpacing,*outOrigin,inInvSpacing[3];
+  double inInvSpacing[3];
 
   inInvSpacing[0] = 0.0;
   inInvSpacing[1] = 0.0;
   inInvSpacing[2] = 0.0;
-
-  int wrap = this->Wrap || this->Mirror;
-
-  inOrigin = inInfo->Get(vtkDataObject::ORIGIN());
-  inSpacing = inInfo->Get(vtkDataObject::SPACING());
-  outOrigin = outInfo->Get(vtkDataObject::ORIGIN());
-  outSpacing = outInfo->Get(vtkDataObject::SPACING());
 
   if (this->Optimization)
     {
     vtkMatrix4x4 *matrix = this->GetIndexMatrix(inInfo, outInfo);
 
     // convert matrix from world coordinates to pixel indices
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
       {
       xAxis[i] = matrix->GetElement(i,0);
       yAxis[i] = matrix->GetElement(i,1);
@@ -666,7 +661,7 @@ int vtkImageReslice::RequestUpdateExtent(
     inInvSpacing[2] = 1.0/inSpacing[2];
     }
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     {
     inExt[2*i] = VTK_INT_MAX;
     inExt[2*i+1] = VTK_INT_MIN;
@@ -675,20 +670,24 @@ int vtkImageReslice::RequestUpdateExtent(
   // check the coordinates of the 8 corners of the output extent
   // (this must be done exactly the same as the calculation in
   // vtkImageResliceExecute)
-  for (i = 0; i < 8; i++)
+  for (int j = 0; j < 8; j++)
     {
     // get output coords
-    idX = outExt[i%2];
-    idY = outExt[2+(i/2)%2];
-    idZ = outExt[4+(i/4)%2];
+    int idX = outExt[j%2];
+    int idY = outExt[2+(j/2)%2];
+    int idZ = outExt[4+(j/4)%2];
+
+    double point[4];
 
     if (this->Optimization)
       {
+      double inPoint0[4];
       inPoint0[0] = origin[0] + idZ*zAxis[0]; // incremental transform
       inPoint0[1] = origin[1] + idZ*zAxis[1];
       inPoint0[2] = origin[2] + idZ*zAxis[2];
       inPoint0[3] = origin[3] + idZ*zAxis[3];
 
+      double inPoint1[4];
       inPoint1[0] = inPoint0[0] + idY*yAxis[0]; // incremental transform
       inPoint1[1] = inPoint0[1] + idY*yAxis[1];
       inPoint1[2] = inPoint0[2] + idY*yAxis[2];
@@ -701,7 +700,7 @@ int vtkImageReslice::RequestUpdateExtent(
 
       if (point[3] != 1.0)
         {
-        f = 1/point[3];
+        double f = 1/point[3];
         point[0] *= f;
         point[1] *= f;
         point[2] *= f;
@@ -712,12 +711,12 @@ int vtkImageReslice::RequestUpdateExtent(
       point[0] = idX*outSpacing[0] + outOrigin[0];
       point[1] = idY*outSpacing[1] + outOrigin[1];
       point[2] = idZ*outSpacing[2] + outOrigin[2];
+      point[3] = 1.0;
 
       if (this->ResliceAxes)
         {
-        point[3] = 1.0;
         this->ResliceAxes->MultiplyPoint(point, point);
-        f = 1.0/point[3];
+        double f = 1.0/point[3];
         point[0] *= f;
         point[1] *= f;
         point[2] *= f;
@@ -748,9 +747,10 @@ int vtkImageReslice::RequestUpdateExtent(
           break;
         }
 
-      for (j = 0; j < 3; j++)
+      for (int j = 0; j < 3; j++)
         {
-        k = vtkResliceFloor(point[j], f);
+        double f;
+        int k = vtkResliceFloor(point[j], f);
         if (f == 0)
           {
           if (k < inExt[2*j])
@@ -777,9 +777,9 @@ int vtkImageReslice::RequestUpdateExtent(
       }
     else
       {
-      for (j = 0; j < 3; j++)
+      for (int j = 0; j < 3; j++)
         {
-        k = vtkResliceRound(point[j]);
+        int k = vtkResliceRound(point[j]);
         if (k < inExt[2*j])
           {
           inExt[2*j] = k;
@@ -797,37 +797,37 @@ int vtkImageReslice::RequestUpdateExtent(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   this->HitInputExtent = 1;
 
-  for (i = 0; i < 3; i++)
+  for (int k = 0; k < 3; k++)
     {
-    if (inExt[2*i] < wholeExtent[2*i])
+    if (inExt[2*k] < wholeExtent[2*k])
       {
-      inExt[2*i] = wholeExtent[2*i];
+      inExt[2*k] = wholeExtent[2*k];
       if (wrap)
         {
-        inExt[2*i+1] = wholeExtent[2*i+1];
+        inExt[2*k+1] = wholeExtent[2*k+1];
         }
-      else if (inExt[2*i+1] < wholeExtent[2*i])
+      else if (inExt[2*k+1] < wholeExtent[2*k])
         {
         // didn't hit any of the input extent
-        inExt[2*i+1] = wholeExtent[2*i];
+        inExt[2*k+1] = wholeExtent[2*k];
         this->HitInputExtent = 0;
         }
       }
-    if (inExt[2*i+1] > wholeExtent[2*i+1])
+    if (inExt[2*k+1] > wholeExtent[2*k+1])
       {
-      inExt[2*i+1] = wholeExtent[2*i+1];
+      inExt[2*k+1] = wholeExtent[2*k+1];
       if (wrap)
         {
-        inExt[2*i] = wholeExtent[2*i];
+        inExt[2*k] = wholeExtent[2*k];
         }
-      else if (inExt[2*i] > wholeExtent[2*i+1])
+      else if (inExt[2*k] > wholeExtent[2*k+1])
         {
         // didn't hit any of the input extent
-        inExt[2*i] = wholeExtent[2*i+1];
+        inExt[2*k] = wholeExtent[2*k+1];
         // finally, check for null input extent
-        if (inExt[2*i] < wholeExtent[2*i])
+        if (inExt[2*k] < wholeExtent[2*k])
           {
-          inExt[2*i] = wholeExtent[2*i];
+          inExt[2*k] = wholeExtent[2*k];
           }
         this->HitInputExtent = 0;
         }
@@ -1137,6 +1137,11 @@ int vtkImageReslice::RequestInformation(
 
     vtkDataObject::SetPointDataActiveScalarInfo(
         outInfo, scalarType, numComponents);
+    }
+  else
+    {
+    vtkDataObject::SetPointDataActiveScalarInfo(
+      outInfo, this->OutputScalarType, -1);
     }
 
   this->GetIndexMatrix(inInfo, outInfo);
@@ -2593,34 +2598,30 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
                                  vtkImageData *outData, void *outPtr,
                                  int outExt[6], int threadId)
 {
-  int numscalars;
-  int idY, idZ;
-  vtkIdType outIncX, outIncY, outIncZ;
-  int scalarSize;
-  unsigned long count = 0;
-  unsigned long target;
-  void *background;
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
 
   // for the progress meter
-  target = static_cast<unsigned long>
+  unsigned long count = 0;
+  unsigned long target = static_cast<unsigned long>
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
 
   // Get Increments to march through data
+  vtkIdType outIncX, outIncY, outIncZ;
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  scalarSize = outData->GetScalarSize();
-  numscalars = outData->GetNumberOfScalarComponents();
+  int scalarSize = outData->GetScalarSize();
+  int numscalars = outData->GetNumberOfScalarComponents();
 
   // allocate a voxel to copy into the background (out-of-bounds) regions
+  void *background;
   vtkAllocBackgroundPixel(self, &background, numscalars);
   // get the appropriate function for pixel copying
   vtkGetSetPixelsFunc(self, &setpixels);
 
   // Loop through output voxels
-  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+  for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
     {
-    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+    for (int idY = outExt[2]; idY <= outExt[3]; idY++)
       {
       if (threadId == 0)
         { // update the progress if this is the main thread
@@ -2651,26 +2652,18 @@ void vtkImageResliceExecute(vtkImageReslice *self,
                             vtkImageResliceConvertScalarsType convertScalars,
                             int outExt[6], int threadId)
 {
-  int inComponents, outComponents, numpixels;
-  int idX, idY, idZ;
-  int startIdX, endIdX, idXmin, idXmax, iter;
-  int isInBounds, wasInBounds;
-  vtkIdType outIncX, outIncY, outIncZ;
-  int scalarSize;
-  int inExt[6];
-  vtkIdType inInc[3];
-  unsigned long count = 0;
-  unsigned long target;
-  double point[4];
-  double f;
-  double *inSpacing, *inOrigin, *outSpacing, *outOrigin, inInvSpacing[3];
-  void *background;
-  double *floatPtr, *tmpPtr;
+  // type-specific functions
   void (*interpolate)(double *outPtr, const void *inPtr,
                       const int inExt[6], const vtkIdType inInc[3],
                       int numscalars, const double point[3], int mode);
   void (*convertpixels)(void *&out, const double *in, int numscalars, int n);
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
+
+  // for the progress meter
+  unsigned long count = 0;
+  unsigned long target = static_cast<unsigned long>
+    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
+  target++;
 
   // the 'mode' species what to do with the 'pad' (out-of-bounds) area
   int mode = vtkResliceGetMode(self);
@@ -2680,35 +2673,33 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   vtkMatrix4x4 *matrix = self->GetResliceAxes();
 
   // for conversion to data coordinates
-  inOrigin = inData->GetOrigin();
-  inSpacing = inData->GetSpacing();
-  outOrigin = outData->GetOrigin();
-  outSpacing = outData->GetSpacing();
+  double *inOrigin = inData->GetOrigin();
+  double *inSpacing = inData->GetSpacing();
+  double *outOrigin = outData->GetOrigin();
+  double *outSpacing = outData->GetSpacing();
 
   // save effor later: invert inSpacing
+  double inInvSpacing[3];
   inInvSpacing[0] = 1.0/inSpacing[0];
   inInvSpacing[1] = 1.0/inSpacing[1];
   inInvSpacing[2] = 1.0/inSpacing[2];
 
   // find maximum input range
+  int inExt[6];
   inData->GetExtent(inExt);
 
-  // for the progress meter
-  target = static_cast<unsigned long>
-    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
-  target++;
-
   // Get Increments to march through data
+  vtkIdType inInc[3];
   inData->GetIncrements(inInc);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  scalarSize = outData->GetScalarSize();
-  outComponents = outData->GetNumberOfScalarComponents();
-  inComponents = inData->GetNumberOfScalarComponents();
+  int scalarSize = outData->GetScalarSize();
+  int outComponents = outData->GetNumberOfScalarComponents();
+  int inComponents = inData->GetNumberOfScalarComponents();
 
   // allocate an output row of type double
-  floatPtr = new double [inComponents*(outExt[1] - outExt[0] + 1)];
+  double *floatPtr = new double [inComponents*(outExt[1] - outExt[0] + 1)];
 
   // allocate a voxel to copy into the background (out-of-bounds) regions
+  void *background;
   vtkAllocBackgroundPixel(self, &background, outComponents);
 
   // get the appropriate functions for interpolation and pixel copying
@@ -2730,46 +2721,50 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   vtkResliceGetStructuredBounds(self, inExt, bounds);
 
   // Loop through output voxels
-  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+  vtkIdType outIncX, outIncY, outIncZ;
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
     {
-    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+    for (int idY = outExt[2]; idY <= outExt[3]; idY++)
       {
       if (threadId == 0)
         { // update the progress if this is the main thread
         if (!(count%target))
           {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count/(target + 1.0));
           }
         count++;
         }
 
-      iter = 0; // if there is a stencil, it is applied here
+      int iter = 0; // if there is a stencil, it is applied here
+      int idXmin, idXmax;
       while (vtkResliceGetNextExtent(stencil, idXmin, idXmax,
                                      outExt[0], outExt[1], idY, idZ,
                                      outPtr, background, outComponents,
                                      setpixels, iter))
         {
-        wasInBounds = 1;
-        isInBounds = 1;
-        startIdX = idXmin;
-        idX = idXmin;
-        tmpPtr = floatPtr;
+        bool wasInBounds = 1;
+        bool isInBounds = 1;
+        int startIdX = idXmin;
+        int idX = idXmin;
+        double *tmpPtr = floatPtr;
 
         while (startIdX <= idXmax)
           {
           for (; idX <= idXmax && isInBounds == wasInBounds; idX++)
             {
             // convert to data coordinates
+            double point[3];
             point[0] = idX*outSpacing[0] + outOrigin[0];
             point[1] = idY*outSpacing[1] + outOrigin[1];
             point[2] = idZ*outSpacing[2] + outOrigin[2];
+            point[3] = 1.0;
 
             // apply ResliceAxes matrix
             if (matrix)
               {
-              point[3] = 1.0;
               matrix->MultiplyPoint(point, point);
-              f = 1.0/point[3];
+              double f = 1.0/point[3];
               point[0] *= f;
               point[1] *= f;
               point[2] *= f;
@@ -2801,8 +2796,8 @@ void vtkImageResliceExecute(vtkImageReslice *self,
             }
 
           // write a segment to the output
-          endIdX = idX - 1 - (isInBounds != wasInBounds);
-          numpixels = endIdX - startIdX + 1;
+          int endIdX = idX - 1 - (isInBounds != wasInBounds);
+          int numpixels = endIdX - startIdX + 1;
 
           if (wasInBounds)
             {
@@ -2835,6 +2830,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
           wasInBounds = isInBounds;
           }
         }
+
       outPtr = static_cast<void *>(
         static_cast<char *>(outPtr) + outIncY*scalarSize);
       }
@@ -2886,29 +2882,17 @@ void vtkOptimizedExecute(vtkImageReslice *self,
                          int outExt[6], int threadId, F newmat[4][4],
                          vtkAbstractTransform *newtrans)
 {
-  int i, inComponents, outComponents, numpixels;
-  int idX, idY, idZ;
-  vtkIdType outIncX, outIncY, outIncZ;
-  int scalarSize, inputScalarSize;
-  int inExt[6];
-  vtkIdType inInc[3];
-  unsigned long count = 0;
-  unsigned long target;
-  int iter, startIdX, endIdX, idXmin, idXmax;
-  int isInBounds, wasInBounds;
-  double temp[3];
-  F inOrigin[3], inInvSpacing[3];
-  F xAxis[4], yAxis[4], zAxis[4], origin[4];
-  F inPoint0[4];
-  F inPoint1[4];
-  F inPoint[4], f;
-  void *background;
-  F *floatPtr, *tmpPtr;
   void (*interpolate)(F *outPtr, const void *inPtr,
                       const int inExt[6], const vtkIdType inInc[3],
                       int numscalars, const F point[3], int mode);
   void (*convertpixels)(void *&out, const F *in, int numscalars, int n);
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
+
+  // for the progress meter
+  unsigned long count = 0;
+  unsigned long target = static_cast<unsigned long>
+    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
+  target++;
 
   int mode = vtkResliceGetMode(self);
   int wrap = (self->GetWrap() || self->GetMirror());
@@ -2930,23 +2914,23 @@ void vtkOptimizedExecute(vtkImageReslice *self,
     }
 
   // find maximum input range
+  int inExt[6];
   inData->GetExtent(inExt);
 
-  target = static_cast<unsigned long>
-    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
-  target++;
-
   // Get Increments to march through data
+  vtkIdType inInc[3];
   inData->GetIncrements(inInc);
+  vtkIdType outIncX, outIncY, outIncZ;
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  scalarSize = outData->GetScalarSize();
-  inputScalarSize = inData->GetScalarSize();
-  inComponents= inData->GetNumberOfScalarComponents();
-  outComponents= outData->GetNumberOfScalarComponents();
+  int scalarSize = outData->GetScalarSize();
+  int inputScalarSize = inData->GetScalarSize();
+  int inComponents = inData->GetNumberOfScalarComponents();
+  int outComponents = outData->GetNumberOfScalarComponents();
 
   // break matrix into a set of axes plus an origin
   // (this allows us to calculate the transform Incrementally)
-  for (i = 0; i < 4; i++)
+  F xAxis[4], yAxis[4], zAxis[4], origin[4];
+  for (int i = 0; i < 4; i++)
     {
     xAxis[i] = newmat[i][0];
     yAxis[i] = newmat[i][1];
@@ -2955,24 +2939,28 @@ void vtkOptimizedExecute(vtkImageReslice *self,
     }
 
   // get the input origin and spacing for conversion purposes
+  double temp[3];
+  F inOrigin[3];
   inData->GetOrigin(temp);
   inOrigin[0] = F(temp[0]);
   inOrigin[1] = F(temp[1]);
   inOrigin[2] = F(temp[2]);
 
+  F inInvSpacing[3];
   inData->GetSpacing(temp);
   inInvSpacing[0] = F(1.0/temp[0]);
   inInvSpacing[1] = F(1.0/temp[1]);
   inInvSpacing[2] = F(1.0/temp[2]);
 
   // allocate an output row of type double
-  floatPtr = 0;
+  F *floatPtr = 0;
   if (!optimizeNearest)
     {
     floatPtr = new F [inComponents*(outExt[1] - outExt[0] + 1)];
     }
 
   // set color for area outside of input volume extent
+  void *background;
   vtkAllocBackgroundPixel(self, &background, outComponents);
 
   // Set interpolation method
@@ -2994,15 +2982,17 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   vtkResliceGetStructuredBounds(self, inExt, bounds);
 
   // Loop through output pixels
-  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+  for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
     {
+    F inPoint0[4];
     inPoint0[0] = origin[0] + idZ*zAxis[0]; // incremental transform
     inPoint0[1] = origin[1] + idZ*zAxis[1];
     inPoint0[2] = origin[2] + idZ*zAxis[2];
     inPoint0[3] = origin[3] + idZ*zAxis[3];
 
-    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+    for (int idY = outExt[2]; idY <= outExt[3]; idY++)
       {
+      F inPoint1[4];
       inPoint1[0] = inPoint0[0] + idY*yAxis[0]; // incremental transform
       inPoint1[1] = inPoint0[1] + idY*yAxis[1];
       inPoint1[2] = inPoint0[2] + idY*yAxis[2];
@@ -3017,7 +3007,8 @@ void vtkOptimizedExecute(vtkImageReslice *self,
         count++;
         }
 
-      iter = 0;
+      int iter = 0;
+      int idXmin, idXmax;
       while (vtkResliceGetNextExtent(stencil, idXmin, idXmax,
                                      outExt[0], outExt[1], idY, idZ,
                                      outPtr, background, outComponents,
@@ -3025,24 +3016,27 @@ void vtkOptimizedExecute(vtkImageReslice *self,
         {
         if (!optimizeNearest)
           {
-          wasInBounds = 1;
-          isInBounds = 1;
-          startIdX = idXmin;
-          idX = idXmin;
-          tmpPtr = floatPtr;
+          bool wasInBounds = 1;
+          bool isInBounds = 1;
+          int startIdX = idXmin;
+          int idX = idXmin;
+          F *tmpPtr = floatPtr;
 
           while (startIdX <= idXmax)
             {
             for (; idX <= idXmax && isInBounds == wasInBounds; idX++)
               {
+              F inPoint[4];
               inPoint[0] = inPoint1[0] + idX*xAxis[0];
               inPoint[1] = inPoint1[1] + idX*xAxis[1];
               inPoint[2] = inPoint1[2] + idX*xAxis[2];
+              inPoint[3] = inPoint1[3] + idX*xAxis[3];
+
+              isInBounds = 0;
 
               if (perspective)
                 { // only do perspective if necessary
-                inPoint[3] = inPoint1[3] + idX*xAxis[3];
-                f = 1/inPoint[3];
+                F f = 1/inPoint[3];
                 inPoint[0] *= f;
                 inPoint[1] *= f;
                 inPoint[2] *= f;
@@ -3054,7 +3048,6 @@ void vtkOptimizedExecute(vtkImageReslice *self,
                                          inInvSpacing);
                 }
 
-              isInBounds = 0;
               if (inPoint[0] >= bounds[0] && inPoint[0] <= bounds[1] &&
                   inPoint[1] >= bounds[2] && inPoint[1] <= bounds[3] &&
                   inPoint[2] >= bounds[4] && inPoint[2] <= bounds[5])
@@ -3068,8 +3061,8 @@ void vtkOptimizedExecute(vtkImageReslice *self,
               }
 
             // write a segment to the output
-            endIdX = idX - 1 - (isInBounds != wasInBounds);
-            numpixels = endIdX - startIdX + 1;
+            int endIdX = idX - 1 - (isInBounds != wasInBounds);
+            int numpixels = endIdX - startIdX + 1;
 
             if (wasInBounds)
               {
@@ -3114,6 +3107,7 @@ void vtkOptimizedExecute(vtkImageReslice *self,
             {
             void *inPtrTmp = background;
 
+            F inPoint[3];
             inPoint[0] = inPoint1[0] + iidX*xAxis[0];
             inPoint[1] = inPoint1[1] + iidX*xAxis[1];
             inPoint[2] = inPoint1[2] + iidX*xAxis[2];
@@ -4175,29 +4169,18 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
                               vtkImageResliceConvertScalarsType convertScalars,
                               int outExt[6], int threadId, F newmat[4][4])
 {
-  vtkIdType outInc[3];
-  int scalarSize, inComponents, outComponents;
-  vtkIdType inInc[3];
-  int inExt[6], clipExt[6];
-  vtkIdType *traversal[3];
-  F *constants[3];
-  int i;
-
   // find maximum input range
+  int inExt[6];
   inData->GetExtent(inExt);
 
   // Get Increments to march through data
+  vtkIdType inInc[3];
   inData->GetIncrements(inInc);
-  outData->GetContinuousIncrements(outExt, outInc[0], outInc[1], outInc[2]);
-  scalarSize = outData->GetScalarSize();
-  inComponents = inData->GetNumberOfScalarComponents();
-  outComponents = outData->GetNumberOfScalarComponents();
-
-  for (i = 0; i < 3; i++)
-    {
-    clipExt[2*i] = outExt[2*i];
-    clipExt[2*i+1] = outExt[2*i+1];
-    }
+  vtkIdType outIncX, outIncY, outIncZ;
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  int scalarSize = outData->GetScalarSize();
+  int inComponents = inData->GetNumberOfScalarComponents();
+  int outComponents = outData->GetNumberOfScalarComponents();
 
   int interpolationMode = self->GetInterpolationMode();
   if (vtkCanUseNearestNeighbor(newmat, outExt))
@@ -4205,12 +4188,12 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     interpolationMode = VTK_RESLICE_NEAREST;
     }
 
-  int doConversion = 1;
+  bool doConversion = true;
   if (interpolationMode == VTK_RESLICE_NEAREST &&
       inData->GetScalarType() == outData->GetScalarType() &&
       !convertScalars && inComponents <= 4)
     {
-    doConversion = 0;
+    doConversion = false;
     }
 
   // the step size is the number of coefficients per dimension
@@ -4234,7 +4217,9 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     }
 
   // allocate the interpolation tables
-  for (i = 0; i < 3; i++)
+  vtkIdType *traversal[3];
+  F *constants[3];
+  for (int i = 0; i < 3; i++)
     {
     int outExtI = outExt[2*i+1] - outExt[2*i] + 1;
 
@@ -4250,6 +4235,14 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   // compute the bounds in structured coords
   F bounds[6];
   vtkResliceGetStructuredBounds(self, inExt, bounds);
+
+  // clipExt will be set to portion of outExt that matches bounds
+  int clipExt[6];
+  for (int j = 0; j < 3; j++)
+    {
+    clipExt[2*j] = outExt[2*j];
+    clipExt[2*j+1] = outExt[2*j+1];
+    }
 
   // fill in the interpolation tables
   switch (interpolationMode)
@@ -4392,10 +4385,10 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
         }
 
       outPtr = static_cast<void *>(
-        static_cast<char *>(outPtr) + outInc[1]*scalarSize);
+        static_cast<char *>(outPtr) + outIncY*scalarSize);
       }
     outPtr = static_cast<void *>(
-      static_cast<char *>(outPtr) + outInc[2]*scalarSize);
+      static_cast<char *>(outPtr) + outIncZ*scalarSize);
     }
 
   vtkFreeBackgroundPixel(self, &background);
@@ -4405,12 +4398,12 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     delete [] floatPtr;
     }
 
-  for (i = 0; i < 3; i++)
+  for (int k = 0; k < 3; k++)
     {
-    traversal[i] += step*outExt[2*i];
-    constants[i] += step*outExt[2*i];
-    delete [] traversal[i];
-    delete [] constants[i];
+    traversal[k] += step*outExt[2*k];
+    constants[k] += step*outExt[2*k];
+    delete [] traversal[k];
+    delete [] constants[k];
     }
 }
 
