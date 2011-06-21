@@ -91,6 +91,10 @@ public:
     };
   //ETX
 
+  // Description:
+  // Reset the cursor back to its initial state
+  virtual void ResetResliceCursor();
+
 protected:
   vtkResliceCursorWidget();
   ~vtkResliceCursorWidget();

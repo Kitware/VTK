@@ -93,6 +93,10 @@ public:
   virtual void SetThickMode( int );
   virtual int GetThickMode();
 
+  // Description:
+  // Reset all views back to initial state
+  virtual void Reset();
+
 protected:
   vtkResliceImageViewer();
   ~vtkResliceImageViewer();
