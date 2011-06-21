@@ -178,7 +178,10 @@ public:
       {
       return(this->_array->GetNumberOfTuples());
       }
-    return 0;
+    else
+      {
+      return(0);
+      }
     }
 
   void setNewArray(int n)
@@ -199,10 +202,8 @@ public:
       cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
       return(this->_array->GetValue(0));
       }
-    else
-      {
-      return(this->_array->GetValue(vtkIdType(idx - 1)));
-      }
+
+    return(this->_array->GetValue(vtkIdType(idx - 1)));
     }
 
   int& operator[]( int idx )
@@ -213,10 +214,8 @@ public:
       cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
       return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
       }
-    else
-      {
-      return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx - 1]);
-      }
+
+    return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx - 1]);
     }
 
 private:
@@ -258,7 +257,10 @@ public:
       {
       return(this->_array->GetNumberOfTuples());
       }
-    return 0;
+    else
+      {
+      return(0);
+      }
     }
 
   void setNewArray(int n)
@@ -279,10 +281,8 @@ public:
       cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
       return(this->_array->GetValue(0));
       }
-    else
-      {
-      return(this->_array->GetValue(vtkIdType(idx)));
-      }
+
+    return(this->_array->GetValue(vtkIdType(idx)));
     }
 
   int& operator[]( int idx )
@@ -293,10 +293,8 @@ public:
       cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
       return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
       }
-    else
-      {
-      return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx]);
-      }
+
+    return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx]);
     }
 
 private:
@@ -500,6 +498,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
       }
 
     it->Delete();
+    hmap.clear();
 
     if(foundLoops || foundParallelEdges)
       {
