@@ -100,16 +100,16 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   // Description:
   // Get the number of data cells
-  vtkGetMacro(maxCells, int);
+  vtkGetMacro(MaximumCells, int);
 
   // Description:
   // Get the number of points
-  vtkGetMacro(maxPoints, int);
+  vtkGetMacro(MaximumPoints, int);
 
   // Description:
   // Get the number of data variables at the cell centers and points
-  vtkGetMacro(numCellVars, int);
-  vtkGetMacro(numPointVars, int);
+  vtkGetMacro(NumberOfCellVars, int);
+  vtkGetMacro(NumberOfPointVars, int);
 
   // Description:
   // Get the reader's output
@@ -178,7 +178,7 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   int NumberOfTimeSteps;      // Temporal domain
   double* TimeSteps;          // Times available for request
-  double dTime;
+  double DTime;
 
 
   // Observer to modify this object when array selections are modified
@@ -193,8 +193,8 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   static void SelectionCallback(vtkObject* caller, unsigned long eid,
                                 void* clientdata, void* calldata);
 
-  bool infoRequested;
-  bool dataRequested;
+  bool InfoRequested;
+  bool DataRequested;
 
   // params
 
@@ -202,8 +202,8 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
 
-  vtkDoubleArray** cellVarDataArray;    // Actual data arrays
-  vtkDoubleArray** pointVarDataArray;   // Actual data arrays
+  vtkDoubleArray** CellVarDataArray;    // Actual data arrays
+  vtkDoubleArray** PointVarDataArray;   // Actual data arrays
 
   int VerticalLevelSelected;
   int VerticalLevelRange[2];
@@ -219,39 +219,39 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   bool IsZeroCentered;
   bool ShowMultilayerView;
 
-  bool includeTopography;
-  bool doBugFix;
-  double centerRad;
+  bool IncludeTopography;
+  bool DoBugFix;
+  double CenterRad;
 
 
   // geometry
-  int maxNVertLevels;
-  int numCells;
-  int numPoints;
-  int cellOffset;
-  int pointOffset;
-  int pointsPerCell;
-  int currentExtraPoint;  // current extra point
-  int currentExtraCell;   // current extra  cell
-  double* pointX;      // x coord of point
-  double* pointY;      // y coord of point
-  double* pointZ;      // z coord of point
-  int modNumPoints;
-  int modNumCells;
-  int* origConnections;   // original connections
-  int* modConnections;    // modified connections
-  int* cellMap;           // maps from added cell to original cell #
-  int* pointMap;          // maps from added point to original point #
-  int* maxLevelPoint;      //
-  int maxCells;           // max cells
-  int maxPoints;          // max points
-  int verticalIndex;      // for singleLayer, which vertical level
+  int MaximumNVertLevels;
+  int NumberOfCells;
+  int NumberOfPoints;
+  int CellOffset;
+  int PointOffset;
+  int PointsPerCell;
+  int CurrentExtraPoint;  // current extra point
+  int CurrentExtraCell;   // current extra  cell
+  double* PointX;      // x coord of point
+  double* PointY;      // y coord of point
+  double* PointZ;      // z coord of point
+  int ModNumPoints;
+  int ModNumCells;
+  int* OrigConnections;   // original connections
+  int* ModConnections;    // modified connections
+  int* CellMap;           // maps from added cell to original cell #
+  int* PointMap;          // maps from added point to original point #
+  int* MaximumLevelPoint;      //
+  int MaximumCells;           // max cells
+  int MaximumPoints;          // max points
+  int VerticalIndex;      // for singleLayer, which vertical level
 
   // vars
-  int numCellVars;
-  int numPointVars;
-  double* pointVarData;
-  double* cellVarData;
+  int NumberOfCellVars;
+  int NumberOfPointVars;
+  double* PointVarData;
+  double* CellVarData;
 
   void SetDefaults();
   int GetNcDims();
