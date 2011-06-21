@@ -196,6 +196,7 @@ public:
       {
       cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
+      return(this->_array->GetValue(0));
       }
     else
       {
@@ -209,6 +210,7 @@ public:
       {
       cerr << "Write Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
+      return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
       }
     else
       {
@@ -273,6 +275,7 @@ public:
       {
       cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
+      return(this->_array->GetValue(0));
       }
     else
       {
@@ -286,6 +289,7 @@ public:
       {
       cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
+      return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
       }
     else
       {
@@ -458,7 +462,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
       {
       vtkEdgeType e = it->Next();
       // Cantor pairing function
-      int id = 0.5*(e.Source + e.Target)*(e.Source + e.Target + 1) + e.Target;
+      int id = int(0.5*(e.Source + e.Target)*(e.Source + e.Target + 1) + e.Target);
       if(hmap.find(id) == hmap.end())
         {
         hmap[id] = true;
@@ -471,7 +475,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
 
       if(vtkUndirectedGraph::SafeDownCast(input))
         {
-        id = 0.5*(e.Target + e.Source)*(e.Target + e.Source + 1) + e.Source;
+        id = int(0.5*(e.Target + e.Source)*(e.Target + e.Source + 1) + e.Source);
         if(hmap.find(id) == hmap.end())
           {
           hmap[id] = true;
@@ -541,4 +545,10 @@ void vtkKCoreDecomposition::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OutputArrayName: "
      << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
+  os << indent << "UseInDegreeNeighbors: "
+     << (this->UseInDegreeNeighbors ? "on" : "off") << endl;
+  os << indent << "UseOutDegreeNeighbors: "
+     << (this->UseOutDegreeNeighbors ? "on" : "off") << endl;
+  os << indent << "CheckInputGraph: "
+     << (this->CheckInputGraph ? "on" : "off") << endl;
 }
