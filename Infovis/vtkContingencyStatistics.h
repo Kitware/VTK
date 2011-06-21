@@ -61,9 +61,9 @@ protected:
 
   // Description:
   // Execute the calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Derive option.
@@ -71,15 +71,15 @@ protected:
 
   // Description:
   // Execute the calculations required by the Test option.
-  virtual void Test( vtkTable* inData,
-                     vtkMultiBlockDataSet* inMeta,
-                     vtkTable* outMeta ); 
+  virtual void Test( vtkTable*,
+                     vtkMultiBlockDataSet*,
+                     vtkTable* ); 
 
   // Description:
   // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData );
+  virtual void Assess( vtkTable*,
+                       vtkMultiBlockDataSet*,
+                       vtkTable* );
 
 //BTX  
   // Description:
