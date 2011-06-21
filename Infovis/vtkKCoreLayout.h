@@ -57,9 +57,17 @@ public:
   vtkSetStringMacro(KCoreLabelArrayName);
 
   // Description:
+  // Output polar coordinates for vertices if True.  Default column names are
+  // coord_radius, coord_angle.
+  // Default: False
+  vtkGetMacro( Polar, bool );
+  vtkSetMacro( Polar, bool );
+  vtkBooleanMacro( Polar, bool );
+
+  // Description:
   // Set whether or not to convert output to cartesian coordinates.  If false, coordinates
   // will be returned in polar coordinates (radius, angle).
-  // Default: False
+  // Default: True
   vtkGetMacro( Cartesian, bool );
   vtkSetMacro( Cartesian, bool );
   vtkBooleanMacro( Cartesian, bool );
@@ -92,6 +100,19 @@ public:
   vtkSetStringMacro(CartesianCoordsYArrayName);
   vtkGetStringMacro(CartesianCoordsYArrayName);
 
+  // Description:
+  // Epsilon value used in the algorithm.
+  // Default = 0.2
+  vtkSetMacro( Epsilon, float );
+  vtkGetMacro( Epsilon, float );
+
+  // Description:
+  // Unit Radius value used in the algorithm.
+  // Default = 1.0
+  vtkSetMacro( UnitRadius, float );
+  vtkGetMacro( UnitRadius, float );
+
+
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
 protected:
@@ -104,6 +125,10 @@ protected:
   char * CartesianCoordsYArrayName;
 
   bool Cartesian;
+  bool Polar;
+
+  float Epsilon;
+  float UnitRadius;
 
 private:
   vtkKCoreLayout(const vtkKCoreLayout&);   // Not implemented

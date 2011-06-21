@@ -20,9 +20,7 @@
 
 #include <vtkAdjacentVertexIterator.h>
 #include <vtkDataSetAttributes.h>
-#include <vtkDirectedGraph.h>
 #include <vtkDoubleArray.h>
-#include <vtkEdgeListIterator.h>
 #include <vtkGraph.h>
 #include <vtkIdTypeArray.h>
 #include <vtkInEdgeIterator.h>
@@ -32,10 +30,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkSelection.h>
 #include <vtkSmartPointer.h>
-#include <vtkUndirectedGraph.h>
 
-//#include <vtkstd/iterator>
-//#include <vtkstd/vector>
 #include <iostream>
 
 #define _USE_MATH_DEFINES
@@ -50,8 +45,8 @@ using std::endl;
 
 ///////////////////////////////////////////////////////////////////////////////////
 // vtkKCoreLayout
-
 vtkStandardNewMacro(vtkKCoreLayout);
+
 
 // Default Constructor
 vtkKCoreLayout::vtkKCoreLayout()
@@ -62,8 +57,12 @@ vtkKCoreLayout::vtkKCoreLayout()
   this->PolarCoordsAngleArrayName  = NULL;
   this->CartesianCoordsXArrayName  = NULL;
   this->CartesianCoordsYArrayName  = NULL;
-  this->Cartesian = false;
+  this->Cartesian  = true;
+  this->Polar      = false;
+  this->Epsilon    = 0.2f;
+  this->UnitRadius = 1.0f;
 }
+
 
 // Default Destructor
 vtkKCoreLayout::~vtkKCoreLayout()
@@ -71,15 +70,27 @@ vtkKCoreLayout::~vtkKCoreLayout()
   this->KCoreLabelArrayName = NULL;
 }
 
+
 void vtkKCoreLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "KCoreLabelArrayName : " << this->KCoreLabelArrayName << endl;
+  os << indent << "Polar               : " << this->Polar << endl;
+  os << indent << "Cartesian           : " << this->Cartesian << endl;
+  os << indent << "PolarCoordsRadiusArrayName: " << this->PolarCoordsRadiusArrayName << endl;
+  os << indent << "PolarCoordsAngleArrayName : " << this->PolarCoordsAngleArrayName << endl;
+  os << indent << "CartesianCoordsXArrayName : " << this->CartesianCoordsXArrayName << endl;
+  os << indent << "CartesianCoordsYArrayName : " << this->CartesianCoordsYArrayName << endl;
+  os << indent << "Epsilon    : " << this->Epsilon << endl;
+  os << indent << "UnitRadius : " << this->UnitRadius << endl;
 }
+
 
 void vtkKCoreLayout::SetGraphConnection(vtkAlgorithmOutput* input)
 {
   this->SetInputConnection(0, input);
 }
+
 
 int vtkKCoreLayout::FillInputPortInformation(int port, vtkInformation* info)
 {
@@ -92,6 +103,7 @@ int vtkKCoreLayout::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
+
 // -------------------------------------------------------------------------------------------------
 int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
                                 vtkInformationVector** inputVector,
@@ -99,11 +111,12 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 {
   float radius = 0.0f;
   float angle = 0.0f;
-  float unit_radius = 1.0f;
-  float epsilon = 0.2f;
   int   max_core_level = -1;
 
-  std::cout << ">\tvtkKCoreLayout.RequestData()" << std::endl;
+  float epsilon = this->Epsilon;
+  float unit_radius = this->UnitRadius;
+
+  //cout << ">\tvtkKCoreLayout.RequestData()" << endl;
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -115,11 +128,6 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Send the data to output
   output->ShallowCopy(input);
-
-//  vtkGraph* const input  = vtkGraph::GetData(inputVector[0]);
-//  vtkGraph* const output = vtkGraph::GetData(outputVector);
-
-//  output->CheckedShallowCopy(input);
 
   // graph size
   vtkIdType num_verts = output->GetNumberOfVertices();
@@ -169,12 +177,13 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
       }
     else
       {
-      arrayY->SetName("coord_x");
+      arrayY->SetName("coord_y");
       }
     output->GetVertexData()->AddArray( arrayX );
     output->GetVertexData()->AddArray( arrayY );
     }
-  else
+
+  if(this->Polar)
     {
     arrayRadius->SetNumberOfTuples( output->GetNumberOfVertices() );
 
@@ -196,11 +205,15 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
       {
       arrayAngle->SetName("coord_angle");
       }
-
     output->GetVertexData()->AddArray( arrayRadius );
     output->GetVertexData()->AddArray( arrayAngle );
     }
 
+  if( !this->Polar && !this->Cartesian )
+    {
+    vtkWarningMacro(<< "Neither Polar nor Cartesian output coordinate type specified.  Operating as a Pass-Through filter");
+    return 1;
+    }
 
   // find the maximum core level
   for(vtkIdType i=0; i<kcore_array->GetNumberOfTuples(); i++)
@@ -208,7 +221,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
     max_core_level = max_core_level < kcore_array->GetValue(i) ? kcore_array->GetValue(i) : max_core_level;
     }
 
-  cout << "max core level: " << max_core_level << endl;
+  //cout << "max core level: " << max_core_level << endl;
 
   // Loop over each vertex and calculate its position
   for(vtkIdType vidx=0; vidx<num_verts; vidx++)
@@ -219,13 +232,13 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
       double radius = unit_radius;
       double angle  = float(rand()%100000)/100000 * 2.0 * M_PI;
 
-      cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
+      //cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
       if(this->Cartesian)
         {
         arrayX->SetValue(vidx, radius * cos(angle) );
         arrayY->SetValue(vidx, radius * sin(angle) );
         }
-      else
+      if(this->Polar)
         {
         arrayRadius->SetValue(vidx, radius);
         arrayAngle->SetValue(vidx, angle);
@@ -255,7 +268,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
         }
       it->Delete();
 
-//      cout << vidx << "\tneighbors_same_or_higher = " << neighbors_same_or_higher->GetNumberOfTuples() << endl;
+      //cout << vidx << "\tneighbors_same_or_higher = " << neighbors_same_or_higher->GetNumberOfTuples() << endl;
 
       int neighbor_average_ring = 0;
       if( neighbors_same_or_higher->GetNumberOfTuples() > 0 )
@@ -272,16 +285,18 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
         // ring anyway.
         neighbor_average_ring = vertex_native_ring;
         }
-//      cout << vidx << "\tneighbor_average_ring = " << neighbor_average_ring << endl;
+      //cout << vidx << "\tneighbor_average_ring = " << neighbor_average_ring << endl;
 
       // Use epsilon as an interpolation factor between the two ring levels
       radius = (1-epsilon) * vertex_native_ring + epsilon * neighbor_average_ring;
       radius *= unit_radius;
 
+#ifdef DEBUG_KCORELAYOUT
       cout << "DEBUG: Vertex in shell level "<< current_level << " (native ring " << vertex_native_ring
            << ", max core level " << max_core_level << ") and average neighbor ring " << neighbor_average_ring
            << " (" << neighbors_same_or_higher->GetNumberOfTuples() << " neighbor(s)) is at radius "
            << radius << " with epsilon " << epsilon << endl;
+#endif
 
       // Need the angle.
       angle = float(rand()%100000)/100000 * (2.0 * M_PI);
@@ -292,7 +307,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
         arrayX->SetValue(vidx, radius * cos(angle) );
         arrayY->SetValue(vidx, radius * sin(angle) );
         }
-      else
+      if(this->Polar)
         {
         arrayRadius->SetValue(vidx, radius);
         arrayAngle->SetValue(vidx, angle);
@@ -301,24 +316,5 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
       neighbors_same_or_higher->Delete();
       }
     }
-
-
-  for(vtkIdType vidx=0; vidx<num_verts; vidx++)
-    {
-
-    //cout << vidx << "\t";
-    if(this->Cartesian)
-      {
-      printf("%d\t%.4f\t%.4f\n", vidx, arrayX->GetValue(vidx), arrayY->GetValue(vidx));
-      //cout << arrayX->GetValue(vidx) << "\t" << arrayY->GetValue(vidx);
-      }
-    else
-      {
-      printf("%d\t%.4f\t%.4f\n", vidx, arrayRadius->GetValue(vidx), arrayRadius->GetValue(vidx));
-      //cout << arrayRadius->GetValue(vidx) << "\t" << arrayAngle->GetValue(vidx);
-      }
-    //cout << endl;
-    }
-
   return 1;
 }
