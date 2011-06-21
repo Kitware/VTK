@@ -106,7 +106,8 @@ void vtkContextInteractorStyle::OnSceneModified()
   if (!this->Scene
       || !this->Scene->GetDirty()
       || this->ProcessingEvents
-      || this->Scene->GetMTime() == this->LastSceneRepaintMTime)
+      || this->Scene->GetMTime() == this->LastSceneRepaintMTime
+      || !this->Interactor->GetInitialized())
     {
     return;
     }
