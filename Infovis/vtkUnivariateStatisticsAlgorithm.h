@@ -42,9 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
-class vtkMultiBlockDataSet;
-class vtkTable;
-
 class VTK_INFOVIS_EXPORT vtkUnivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
 {
 public:
