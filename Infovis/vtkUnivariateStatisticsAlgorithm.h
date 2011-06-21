@@ -70,12 +70,6 @@ protected:
   vtkUnivariateStatisticsAlgorithm();
   ~vtkUnivariateStatisticsAlgorithm();
 
-  // Description:
-  // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ); 
-
 private:
   vtkUnivariateStatisticsAlgorithm(const vtkUnivariateStatisticsAlgorithm&); // Not implemented
   void operator=(const vtkUnivariateStatisticsAlgorithm&);   // Not implemented

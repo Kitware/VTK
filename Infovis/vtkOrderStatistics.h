@@ -120,6 +120,13 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* );
 
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData ) 
+  { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
+
 //BTX
   // Description:
   // Provide the appropriate assessment functor.

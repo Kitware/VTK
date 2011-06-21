@@ -117,6 +117,13 @@ protected:
                      vtkMultiBlockDataSet* inMeta,
                      vtkTable* outMeta ); 
 
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData ) 
+  { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
+
   int UnbiasedVariance;
   int G1Skewness;
   int G2Kurtosis;
