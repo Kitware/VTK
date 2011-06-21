@@ -19,19 +19,7 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkUnivariateStatisticsAlgorithm.h"
-
-#include "vtkDoubleArray.h"
-#include "vtkInformation.h"
-#include "vtkObjectFactory.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
-#include "vtkStdString.h"
-#include "vtkStringArray.h"
-#include "vtkTable.h"
-#include "vtkVariantArray.h"
-
-#include <vtksys/stl/set>
-#include <vtksys/ios/sstream>
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
