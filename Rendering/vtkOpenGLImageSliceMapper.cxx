@@ -154,7 +154,65 @@ void vtkOpenGLImageSliceMapper::RenderBackingPolygon()
     glEnd();
     }
 }
- 
+
+ //----------------------------------------------------------------------------
+// Subdivide the image until the pieces fit into texture memory
+void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
+  vtkRenderer *ren, vtkImageProperty *property,
+  vtkImageData *input, int extent[6], bool recursive)
+{
+  int xdim, ydim;
+  int imageSize[2];
+  int textureSize[2];
+
+  // compute image size and texture size from extent
+  this->ComputeTextureSize(
+    extent, xdim, ydim, imageSize, textureSize);
+
+  // Check if we can fit this texture in memory
+  if (this->TextureSizeOK(textureSize))
+    {
+    // We can fit it - render
+    this->RenderTexturedPolygon(
+      ren, property, input, extent, recursive);
+    }
+
+  // If the texture does not fit, then subdivide and render
+  // each half.  Unless the graphics card couldn't handle
+  // a texture a small as 256x256, because if it can't handle
+  // that, then something has gone horribly wrong.
+  else if (textureSize[0] > 256 || textureSize[1] > 256)
+    {
+    int subExtent[6];
+    subExtent[0] = extent[0]; subExtent[1] = extent[1];
+    subExtent[2] = extent[2]; subExtent[3] = extent[3];
+    subExtent[4] = extent[4]; subExtent[5] = extent[5];
+
+    // Which is larger, x or y?
+    int idx = ydim;
+    int tsize = textureSize[1];
+    if (textureSize[0] > textureSize[1])
+      {
+      idx = xdim;
+      tsize = textureSize[0];
+      }
+
+    // Divide size by two
+    tsize /= 2;
+
+    // Render each half recursively
+    subExtent[idx*2] = extent[idx*2];
+    subExtent[idx*2 + 1] = extent[idx*2] + tsize - 1;
+    this->RecursiveRenderTexturedPolygon(
+      ren, property, input, subExtent, true);
+
+    subExtent[idx*2] = subExtent[idx*2] + tsize;
+    subExtent[idx*2 + 1] = extent[idx*2 + 1];
+    this->RecursiveRenderTexturedPolygon(
+      ren, property, input, subExtent, true);
+    }
+}
+
 //----------------------------------------------------------------------------
 // Load the given image extent into a texture and render it
 void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(

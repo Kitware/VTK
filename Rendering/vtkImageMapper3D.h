@@ -170,24 +170,6 @@ protected:
     int imageSize[2], int textureSize[2]);
 
   // Description:
-  // Check the texture size.
-  virtual bool TextureSizeOK(const int size[2]);
-
-  // Description:
-  // Called by RecursiveRenderTexturedPolygon, overriden by subclasses.
-  virtual void RenderTexturedPolygon(
-    vtkRenderer *ren, vtkImageProperty *property,
-    vtkImageData *image, int extent[6], bool recursive);
-
-  // Description:
-  // Recursive internal method, will call the non-recursive method
-  // as many times as necessary if the texture must be broken up into
-  // pieces that are small enough for the GPU to render
-  virtual void RecursiveRenderTexturedPolygon(
-    vtkRenderer *ren, vtkImageProperty *property,
-    vtkImageData *image, int extent[6], bool recursive);
-
-  // Description:
   // Get the renderer associated with this mapper, or zero if none.
   // This will raise an error if multiple renderers are found.
   vtkRenderer *GetCurrentRenderer();
