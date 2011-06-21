@@ -330,6 +330,12 @@ void vtkResliceImageViewer::SetColorLevel( double w )
 }
 
 //----------------------------------------------------------------------------
+void vtkResliceImageViewer::Reset()
+{
+  this->ResliceCursorWidget->ResetResliceCursor();
+}
+
+//----------------------------------------------------------------------------
 void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

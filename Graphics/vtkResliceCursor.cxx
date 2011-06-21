@@ -200,6 +200,9 @@ void vtkResliceCursor::Reset()
     this->GetPlane(i)->SetNormal(normal);
     }
 
+  this->BuildCursorTopology();
+  this->BuildCursorGeometry();
+
   this->Modified();
 }
 

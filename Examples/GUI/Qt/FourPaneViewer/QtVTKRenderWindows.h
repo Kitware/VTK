@@ -27,6 +27,8 @@ public slots:
   virtual void SetBlendModeToMinIP();
   virtual void SetBlendModeToMeanIP();
   virtual void SetBlendMode(int);
+  virtual void ResetViews();
+  virtual void Render();
 
 protected:
   vtkSmartPointer< vtkResliceImageViewer > riw[3];

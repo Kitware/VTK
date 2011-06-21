@@ -349,8 +349,20 @@ void vtkResliceCursorWidget::EndSelectAction(vtkAbstractWidget *w)
 void vtkResliceCursorWidget::ResetResliceCursorAction(vtkAbstractWidget *w)
 {
   vtkResliceCursorWidget *self = reinterpret_cast<vtkResliceCursorWidget*>(w);
+  self->ResetResliceCursor();
+
+  // Render in response to changes
+  self->Render();
+
+  // Invoke a reslice cursor event
+  self->InvokeEvent( vtkResliceCursorWidget::ResetCursorEvent, NULL );
+}
+
+//-------------------------------------------------------------------------
+void vtkResliceCursorWidget::ResetResliceCursor()
+{
   vtkResliceCursorRepresentation *rep =
-    reinterpret_cast<vtkResliceCursorRepresentation*>(self->WidgetRep);
+    reinterpret_cast<vtkResliceCursorRepresentation*>(this->WidgetRep);
 
   if (!rep->GetResliceCursor())
     {
@@ -359,12 +371,7 @@ void vtkResliceCursorWidget::ResetResliceCursorAction(vtkAbstractWidget *w)
 
   // Reset the reslice cursor
   rep->GetResliceCursor()->Reset();
-
-  // Render in response to changes
-  self->Render();
-
-  // Invoke a reslice cursor event
-  self->InvokeEvent( vtkResliceCursorWidget::ResetCursorEvent, NULL );
+  rep->InitializeReslicePlane();  
 }
 
 //----------------------------------------------------------------------------

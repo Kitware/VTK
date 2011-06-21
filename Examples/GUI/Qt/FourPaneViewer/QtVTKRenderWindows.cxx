@@ -229,6 +229,8 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
   connect(this->ui->radioButton_Min, SIGNAL(pressed()), this, SLOT(SetBlendModeToMinIP()));
   connect(this->ui->radioButton_Mean, SIGNAL(pressed()), this, SLOT(SetBlendModeToMeanIP()));
   this->ui->blendModeGroupBox->setEnabled(0);
+
+  connect(this->ui->resetButton, SIGNAL(pressed()), this, SLOT(ResetViews()));
 };
 
 void QtVTKRenderWindows::slotExit()
@@ -283,4 +285,38 @@ void QtVTKRenderWindows::SetBlendModeToMinIP()
 void QtVTKRenderWindows::SetBlendModeToMeanIP()
 {
   this->SetBlendMode(VTK_IMAGESLAB_BLEND_MEAN);
+}
+
+void QtVTKRenderWindows::ResetViews()
+{
+  // Reset the reslice image views
+  for (int i = 0; i < 3; i++)
+    {
+    riw[i]->Reset();
+    }
+
+  // Also sync the Image plane widget on the 3D top right view with any
+  // changes to the reslice cursor.
+  for (int i = 0; i < 3; i++)
+    {
+    vtkPlaneSource *ps = static_cast< vtkPlaneSource * >(
+        planeWidget[i]->GetPolyDataAlgorithm());
+    ps->SetNormal(riw[0]->GetResliceCursor()->GetPlane(i)->GetNormal());
+    ps->SetCenter(riw[0]->GetResliceCursor()->GetPlane(i)->GetOrigin());
+
+    // If the reslice plane has modified, update it on the 3D widget
+    this->planeWidget[i]->UpdatePlacement();
+    }
+
+  // Render in response to changes.
+  this->Render();
+}
+
+void QtVTKRenderWindows::Render()
+{
+  for (int i = 0; i < 3; i++)
+    {
+    riw[i]->Render();
+    }
+  this->ui->view3->GetRenderWindow()->Render();
 }
