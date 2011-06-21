@@ -91,8 +91,6 @@ vtkImageRange3D.cxx
 vtkImageRectilinearWipe.cxx
 vtkImageResample.cxx
 vtkImageReslice.cxx
-vtkImageResliceBase.cxx
-vtkImageResliceDetail.cxx
 vtkImageResliceToColors.cxx
 vtkImageSeedConnectivity.cxx
 vtkImageSeparableConvolution.cxx
@@ -141,7 +139,6 @@ vtkImageStencilIterator
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkImageStencilIterator
-vtkImageResliceDetail
   WRAP_EXCLUDE
 )
 

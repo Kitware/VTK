@@ -121,7 +121,9 @@ public:
 
 
 protected:
-  vtkPExodusReader();
+  // Description:
+  // @deprecated Replaced by vtkPExodusIIReader as of VTK 5.8.
+  VTK_LEGACY(vtkPExodusReader());
   ~vtkPExodusReader();
 
 //begin USE_EXO_DSP_FILTERS

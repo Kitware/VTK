@@ -35,11 +35,6 @@
 // SetBackgroundColor or SetBackgroundLevel. The SetResliceAxesOrigin()
 // method can also be used to provide an (x,y,z) point that the slice will
 // pass through.
-// <p> The interpolation mode may be set via SetInterpolationMode. Only
-// nearest neighbor, trilinear and cubic interpolations are supported. Kaiser
-// and Lanczos are not supported by the filter, although the API of
-// the superclass vtkImageResliceBase, allows one to set these interpolation
-// modes.
 // .SECTION see also
 // vtkImageReslice
 
@@ -47,18 +42,18 @@
 #ifndef __vtkImageSlabReslice_h
 #define __vtkImageSlabReslice_h
 
-#include "vtkImageResliceBase.h"
+#include "vtkImageReslice.h"
 
 #define VTK_IMAGESLAB_BLEND_MIN  0
 #define VTK_IMAGESLAB_BLEND_MAX  1
 #define VTK_IMAGESLAB_BLEND_MEAN 2
 
-class VTK_IMAGING_EXPORT vtkImageSlabReslice : public vtkImageResliceBase
+class VTK_IMAGING_EXPORT vtkImageSlabReslice : public vtkImageReslice
 {
 public:
 
   static vtkImageSlabReslice *New();
-  vtkTypeMacro(vtkImageSlabReslice, vtkImageResliceBase);
+  vtkTypeMacro(vtkImageSlabReslice, vtkImageReslice);
 
   // Description:
   // Printself method.
@@ -93,16 +88,6 @@ public:
 protected:
   vtkImageSlabReslice();
   ~vtkImageSlabReslice();
-
-  // Description:
-  // This method is called from ThreadedRequestData implemented in
-  // vtkImageResliceBase.
-  virtual void InternalThreadedRequestData(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector,
-                                 vtkImageData ***inData,
-                                 vtkImageData **outData, int ext[6], int id);
-
 
   // Description:
   // This method simply calls the superclass method. In addition, it also

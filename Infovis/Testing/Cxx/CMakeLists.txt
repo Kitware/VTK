@@ -23,6 +23,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestGraphHierarchicalBundle
     TestGraphLayoutStrategy
     TestGroupLeafVertices
+    TestKCoreDecomposition
     TestKdTreeBoxSelection
     TestKMeansStatistics
     TestMergeGraphs

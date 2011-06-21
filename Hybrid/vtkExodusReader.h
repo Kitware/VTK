@@ -55,9 +55,7 @@ class vtkExodusXMLParser;
 class VTK_HYBRID_EXPORT vtkExodusReader : public vtkUnstructuredGridAlgorithm 
 {
 public:
-  // Description:
-  // @deprecated Replaced by vtkExodusIIReader::Append() as of VTK 5.8.
-  VTK_LEGACY(static vtkExodusReader *New());
+  static vtkExodusReader *New();
   vtkTypeMacro(vtkExodusReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -413,7 +411,9 @@ public:
 
 
 protected:
-  vtkExodusReader();
+  // Description:
+  // @deprecated Replaced by vtkExodusIIReader as of VTK 5.8.
+  VTK_LEGACY(vtkExodusReader());
   ~vtkExodusReader();
 
   void NewExodusModel();

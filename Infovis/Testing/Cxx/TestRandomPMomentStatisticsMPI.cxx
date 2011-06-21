@@ -45,9 +45,12 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtksys/CommandLineArguments.hxx"
 
+#include <vtksys/ios/sstream>
+
 struct RandomSampleStatisticsArgs
 {
   int nVals;
+  double absTol;
   bool skipDescriptive;
   bool skipPDescriptive;
   bool skipPCorrelative;
@@ -122,7 +125,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Create timer to be used by all tests
-  vtkTimerLog *timer=vtkTimerLog::New();
+  vtkTimerLog *timer = vtkTimerLog::New();
+
+  // Storage for cross-checking between aggregated serial vs. parallel descriptive statistics
+  int n2Rows = 2 * nVariables;
+  double* extrema_agg = new double[n2Rows];
+  double* extrema_par = new double[n2Rows];
+  double* cardsAndMeans_agg = new double[n2Rows];
+  double* cardsAndMeans_par = new double[n2Rows];
 
   // ************************** Serial descriptive Statistics **************************
 
@@ -154,17 +164,22 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( ds->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
     vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
-    // Collect (local) cardinalities, extrema, and means
+    // Collect and aggregate serial cardinalities, extrema, and means
     int nRows = outputPrimary->GetNumberOfRows();
-    int np = com->GetNumberOfProcesses();
-    int n2Rows = 2 * nRows;
 
+    // Make sure that the correct number of rows were retrieved
+    if ( nRows != nVariables )
+      {
+      vtkGenericWarningMacro("Incorrect number of retrieved variables: "
+                             << nRows
+                             << " <> "
+                             << nVariables);
+      *(args->retVal) = 1;
+      }
+
+    // Aggregate serial results
     double* extrema_l = new double[n2Rows];
-    double* extrema_g = new double[n2Rows];
-
     double* cardsAndMeans_l = new double[n2Rows];
-    double* cardsAndMeans_g = new double[n2Rows];
-
     double dn;
     for ( vtkIdType r = 0; r < nRows; ++ r )
       {
@@ -177,74 +192,41 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       extrema_l[2 * r + 1] = - outputPrimary->GetValueByName( r, "Maximum" ).ToDouble();
       }
 
-    // Reduce all extremal values, and gather all cardinalities and means, on process calcProc
-    int calcProc = np - 1;
-
-    com->Reduce( extrema_l,
-                 extrema_g,
-                 n2Rows,
-                 vtkCommunicator::MIN_OP,
-                 calcProc );
-
-    com->Reduce( cardsAndMeans_l,
-                 cardsAndMeans_g,
-                 n2Rows,
-                 vtkCommunicator::SUM_OP,
-                 calcProc );
-
-    // Have process calcProc calculate global cardinality and mean, and send all results to I/O process
-    if ( myRank == calcProc )
-      {
-      if ( ! com->Send( extrema_g,
+    // Reduce all extremal values, and gather all cardinalities and means, directly on I/O node
+    if ( ! com->Reduce( extrema_l,
+                        extrema_agg,
                         n2Rows,
-                        args->ioRank,
-                        65 ) )
+                        vtkCommunicator::MIN_OP,
+                        args->ioRank ) )
         {
-        vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
+        vtkGenericWarningMacro("MPI error: process "
+                               <<myRank
+                               << "could not reduce extrema. Serial vs. parallel cross-check will be meaningless.");
         *(args->retVal) = 1;
         }
 
-      if ( ! com->Send( cardsAndMeans_g,
+    if ( ! com->Reduce( cardsAndMeans_l,
+                        cardsAndMeans_agg,
                         n2Rows,
-                        args->ioRank,
-                        66 ) )
+                        vtkCommunicator::SUM_OP,
+                        args->ioRank ) )
         {
-        vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
-        *(args->retVal) = 1;
-        }
-      }
-
-    // Have I/O process receive results from process calcProc
-    if ( myRank == args->ioRank )
-      {
-      if ( ! com->Receive( extrema_g,
-                           n2Rows,
-                           calcProc,
-                           65 ) )
-        {
-        vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
+        vtkGenericWarningMacro("MPI error: process "
+                               <<myRank
+                               << "could not reduce cardinalities and means. Serial vs. parallel cross-check will be meaningless.");
         *(args->retVal) = 1;
         }
 
-      if ( ! com->Receive( cardsAndMeans_g,
-                           n2Rows,
-                           calcProc,
-                           66 ) )
-        {
-        vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
-        *(args->retVal) = 1;
-        }
-      }
 
     // Synchronize and stop clock
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed serial calculations of descriptive statistics:\n"
            << "   With partial aggregation calculated on process "
-           << calcProc
+           << args->ioRank
            << "\n"
            << "   Wall time: "
            << timer->GetElapsedTime()
@@ -260,33 +242,29 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
              << "  "
              << "Cardinality"
              << "="
-             << cardsAndMeans_g[2 * r]
+             << cardsAndMeans_agg[2 * r]
              << "  "
              << "Minimum"
              << "="
-             << extrema_g[2 * r]
+             << extrema_agg[2 * r]
              << "  "
              << "Maximum"
              << "="
-             << - extrema_g[2 * r + 1]
+             << - extrema_agg[2 * r + 1]
              << "  "
              << "Mean"
              << "="
-             << cardsAndMeans_g[2 * r + 1] / cardsAndMeans_g[2 * r]
+             << cardsAndMeans_agg[2 * r + 1] / cardsAndMeans_agg[2 * r]
              << "\n";
         }
       }
 
     // Clean up
     delete [] cardsAndMeans_l;
-    delete [] cardsAndMeans_g;
-
     delete [] extrema_l;
-    delete [] extrema_g;
-
     ds->Delete();
     } // if ( ! args->skipDescriptive )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped serial calculations of descriptive statistics.\n";
     }
@@ -349,7 +327,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
     vtkTable* outputData = pds->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
            << "   Total sample size: "
@@ -371,6 +349,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                << "  ";
           }
         cout << "\n";
+
+        // Store cardinalities, extremal and means for cross-verification
+        double dn = outputPrimary->GetValueByName( r, "Cardinality" ).ToDouble();
+        
+        cardsAndMeans_par[2 * r] = dn;
+        cardsAndMeans_par[2 * r + 1] = dn * outputPrimary->GetValueByName( r, "Mean" ).ToDouble();
+        
+        extrema_par[2 * r] = outputPrimary->GetValueByName( r, "Minimum" ).ToDouble();
+        extrema_par[2 * r + 1] = - outputPrimary->GetValueByName( r, "Maximum" ).ToDouble();
         }
 
       cout << "   Calculated the following derived statistics:\n";
@@ -389,113 +376,157 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
 
     // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
-      }
-
-    vtkDoubleArray* relDev[2];
-    relDev[0] = vtkDoubleArray::SafeDownCast(
-                                             outputData->GetColumnByName( "d(Standard Normal 0)" ) );
-    relDev[1] = vtkDoubleArray::SafeDownCast(
-                                             outputData->GetColumnByName( "d(Standard Normal 1)" ) );
-
-    if ( !relDev[0] || ! relDev[1] )
-      {
-      cout << "*** Error: "
-           << "Empty output column(s) on process "
-           << com->GetLocalProcessId()
-           << ".\n";
       }
 
     // For each normal variable, count deviations of more than 1, ..., numRuleVal standard deviations from the mean
     for ( int c = 0; c < nNormal; ++ c )
       {
-      // Allocate and initialize counters
-      int* outsideStdv_l = new int[numRuleVal];
-      for ( int i = 0; i < numRuleVal; ++ i )
+      // Use assessed values (relative deviations) to check distribution
+      vtksys_ios::ostringstream relDevName;
+      relDevName << "d(Standard Normal "
+                 << c
+                 << ")";
+      
+      // Verification can be done only if assessed column is present
+      vtkAbstractArray* relDevArr = outputData->GetColumnByName( relDevName.str().c_str() );
+      if ( relDevArr )
         {
-        outsideStdv_l[i] = 0;
-        }
-
-      // Count outliers
-      double dev;
-      int n = outputData->GetNumberOfRows();
-      for ( vtkIdType r = 0; r < n; ++ r )
-        {
-        dev = relDev[c]->GetValue( r );
-
-        if ( dev >= 1. )
+        // Assessed column should be an array of doubles
+        vtkDoubleArray* relDev = vtkDoubleArray::SafeDownCast( relDevArr );
+        if ( relDev )
           {
-          ++ outsideStdv_l[0];
-
-          if ( dev >= 2. )
+          // Allocate and initialize counters
+          int* outsideStdv_l = new int[numRuleVal];
+          for ( int d = 0; d < numRuleVal; ++ d )
             {
-            ++ outsideStdv_l[1];
-
-            if ( dev >= 3. )
-              {
-              ++ outsideStdv_l[2];
-
-              if ( dev >= 4. )
-                {
-                ++ outsideStdv_l[3];
-
-                if ( dev >= 5. )
-                  {
-                  ++ outsideStdv_l[4];
-                  } // if ( dev >= 5. )
-                } // if ( dev >= 4. )
-              } // if ( dev >= 3. )
-            } // if ( dev >= 2. )
-          } // if ( dev >= 1. )
-        }
-
-      // Sum all local counters
-      int* outsideStdv_g = new int[numRuleVal];
-      com->AllReduce( outsideStdv_l,
-                      outsideStdv_g,
-                      numRuleVal,
-                      vtkCommunicator::SUM_OP );
-
-      // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
-      if ( com->GetLocalProcessId() == args->ioRank )
-        {
-        cout << "   "
-             << outputData->GetColumnName( nUniform + c )
-             << ":\n";
-        for ( int i = 0; i < numRuleVal; ++ i )
-          {
-          double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
-
-          cout << "      "
-               << testVal
-               << "% within "
-               << i + 1
-               << " standard deviation(s) from the mean.\n";
-
-          // Test some statistics
-          if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
-            {
-            vtkGenericWarningMacro("Incorrect value.");
-            *(args->retVal) = 1;
+            outsideStdv_l[d] = 0;
             }
+          
+          // Count outliers
+          double dev;
+          int n = outputData->GetNumberOfRows();
+          for ( vtkIdType r = 0; r < n; ++ r )
+            {
+            dev = relDev->GetValue( r );
+            
+            // Count for all deviations from 1 to numRuleVal
+            for ( int d = 0; d < numRuleVal; ++ d )
+              {
+              if ( dev >= 1. + d )
+                {
+                ++ outsideStdv_l[d];  
+                }
+              } // 
+            } // for ( vtkIdType r = 0; r < n; ++ r )
+          
+          // Sum all local counters
+          int* outsideStdv_g = new int[numRuleVal];
+          com->AllReduce( outsideStdv_l,
+                          outsideStdv_g,
+                          numRuleVal,
+                          vtkCommunicator::SUM_OP );
+          
+          // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
+          if ( myRank == args->ioRank )
+            {
+            cout << "   "
+                 << outputData->GetColumnName( nUniform + c )
+                 << ":\n";
+            for ( int d = 0; d < numRuleVal; ++ d )
+              {
+              double testVal = ( 1. - outsideStdv_g[d] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
+              
+              cout << "      "
+                   << testVal
+                   << "% within "
+                   << d + 1
+                   << " standard deviation(s) from the mean.\n";
+              
+              // Test some statistics
+              if ( fabs ( testVal - sigmaRuleVal[d] ) > sigmaRuleTol[d] )
+                {
+                vtkGenericWarningMacro("Incorrect value.");
+                *(args->retVal) = 1;
+                }
+              }
+            }
+        
+          // Clean up
+          delete [] outsideStdv_l;
+          delete [] outsideStdv_g;
+          } // if ( relDev )
+        else
+          {
+          vtkGenericWarningMacro("Column "
+                                 << relDevName.str().c_str()
+                                 << " on process "
+                                 << myRank
+                                 << " is not of type double." );
+          *(args->retVal) = 1;
           }
-        }
 
-      // Clean up
-      delete [] outsideStdv_l;
-      delete [] outsideStdv_g;
+        } // if ( relDevArr )
+      else
+        {
+        vtkGenericWarningMacro("No assessment column called "
+                               << relDevName.str().c_str()
+                               << " on process "
+                               << myRank);
+        *(args->retVal) = 1;
+        }
       } // for ( int c = 0; c < nNormal; ++ c )
 
     // Clean up
     pds->Delete();
-
     } // if ( ! args->skipPDescriptive )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel descriptive statistics.\n";
     }
+  
+  // Cross-verify aggregated serial vs. parallel results only if both were calculated
+  if ( ! args->skipDescriptive && ! args->skipPDescriptive )
+    {
+    if ( myRank == args->ioRank )
+      {
+      cout << "\n## Cross-verifying aggregated serial vs. parallel descriptive statistics (within "
+           << args->absTol
+           << " absolute tolerance).\n";
+      for ( int i = 0; i < n2Rows; ++ i )
+        {
+        if ( fabs( cardsAndMeans_agg[i] - cardsAndMeans_par[i] ) > args->absTol )
+          {          
+          vtkGenericWarningMacro("Incorrect value(s) : "
+                                 << cardsAndMeans_agg[i]
+                                 << " <> "
+                                 << cardsAndMeans_par[i]);
+          *(args->retVal) = 1;
+          }
+        if ( extrema_agg[i] != extrema_par[i] )
+          {          
+          vtkGenericWarningMacro("Incorrect value(s) : "
+                                 << extrema_agg[i]
+                                 << " <> "
+                                 << extrema_par[i]);
+          *(args->retVal) = 1;
+          }
+        } // for ( int i = 0; i < n2Rows; ++ i )
+      } // if ( myRank == args->ioRank )
+    } // if ( ! args->skipPDescriptive && ! args->skipPDescriptive )
+  else if ( myRank == args->ioRank )
+    {
+    cout << "\n## Skipped cross-verification of aggregated serial vs. parallel descriptive statistics.\n";
+    }
+
+
+  // Clean up
+  delete [] cardsAndMeans_agg;
+  delete [] cardsAndMeans_par;
+  delete [] extrema_agg;
+  delete [] extrema_par;
 
   // ************************** Parallel Correlative Statistics **************************
 
@@ -530,7 +561,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
            << "   Total sample size: "
@@ -572,7 +603,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Clean up
     pcs->Delete();
     } // if ( ! args->skipPCorrelative )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel correlative statistics.\n";
     }
@@ -621,7 +652,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of multi-correlative statistics (with assessment):\n"
            << "   Total sample size: "
@@ -642,7 +673,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Clean up
     pmcs->Delete();
     } // if ( ! args->skipPMultiCorrelative )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel multi-correlative statistics.\n";
     }
@@ -691,7 +722,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     com->Barrier();
     timer->StopTimer();
 
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
            << "   Total sample size: "
@@ -712,7 +743,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     // Clean up
     pcas->Delete();
     } // if ( ! args->skipPPCA )
-  else if ( com->GetLocalProcessId() == args->ioRank )
+  else if ( myRank == args->ioRank )
     {
     cout << "\n## Skipped calculation of parallel PCA statistics.\n";
     }
@@ -779,7 +810,9 @@ int main( int argc, char** argv )
       }
     }
 
-  if ( com->GetLocalProcessId() == ioRank )
+  // Get local rank and print out of I/O node
+  int myRank = com->GetLocalProcessId();
+  if ( myRank == ioRank )
     {
     cout << "\n# Process "
          << ioRank
@@ -788,7 +821,7 @@ int main( int argc, char** argv )
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
-  if ( controller->GetLocalProcessId() == ioRank )
+  if ( myRank == ioRank )
     {
     cout << "\n# Running test with "
          << numProcs
@@ -798,6 +831,7 @@ int main( int argc, char** argv )
   // **************************** Parse command line ***************************
   // Set default argument values
   int nVals = 100000;
+  double absTol = 1.e-6;
   bool skipDescriptive = false;
   bool skipPDescriptive = false;
   bool skipPCorrelative = false;
@@ -813,6 +847,11 @@ int main( int argc, char** argv )
   clArgs.AddArgument("--n-per-proc",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse absolute tolerance to cross-verify aggregated serial vs. parallel descriptive stats
+  clArgs.AddArgument("--abs-tol",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &absTol, "Absolute tolerance to cross-verify aggregated serial and parallel descriptive statistics");
 
   // Parse whether serial descriptive statistics should be skipped (for faster testing)
   clArgs.AddArgument("--skip-Descriptive",
@@ -842,7 +881,7 @@ int main( int argc, char** argv )
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
     {
-    if ( com->GetLocalProcessId() == ioRank )
+    if ( myRank == ioRank )
       {
       cerr << "Usage: " 
            << clArgs.GetHelp()
@@ -860,6 +899,7 @@ int main( int argc, char** argv )
   int testValue = 0;
   RandomSampleStatisticsArgs args;
   args.nVals = nVals;
+  args.absTol = absTol;
   args.skipDescriptive = skipDescriptive;
   args.skipPDescriptive = skipPDescriptive;
   args.skipPCorrelative = skipPCorrelative;

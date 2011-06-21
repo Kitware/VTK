@@ -42,6 +42,8 @@
 #include "vtkInteractorObserver.h"
 #include "vtkActor.h"
 #include "vtkTexture.h"
+#include "vtkCutter.h"
+#include "vtkOutlineSource.h"
 #include "vtkImageActor.h"
 
 #include <vtksys/ios/sstream>
@@ -119,6 +121,9 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   this->DisplayText = 1;
   this->TextActor = vtkTextActor::New();
   this->GenerateText();
+
+  this->OutlineSource = vtkOutlineSource::New();
+  this->PlaneCutter = vtkCutter::New();
 }
 
 //----------------------------------------------------------------------
@@ -144,6 +149,8 @@ vtkResliceCursorRepresentation::~vtkResliceCursorRepresentation()
   this->Texture->Delete();
   this->TexturePlaneActor->Delete();
   this->TextActor->Delete();
+  this->OutlineSource->Delete();
+  this->PlaneCutter->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -407,8 +414,20 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
      this->NewResliceAxes->SetElement(2,i,normal[i]);
      }
 
+  double spacingX = fabs(planeAxis1[0]*spacing[0])+
+                   fabs(planeAxis1[1]*spacing[1])+
+                   fabs(planeAxis1[2]*spacing[2]);
+
+  double spacingY = fabs(planeAxis2[0]*spacing[0])+
+                   fabs(planeAxis2[1]*spacing[1])+
+                   fabs(planeAxis2[2]*spacing[2]);
+
   double planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
+
+  //double sp[2] = { spacingX, spacingY };
+  //int newExt[2];
+  //this->ComputeResliceImageExtent( sp, newExt, planeOrigin );
 
   planeOrigin[3] = 1.0;
   double originXYZW[4];
@@ -422,13 +441,10 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   this->NewResliceAxes->SetElement(1,3,neworiginXYZW[1]);
   this->NewResliceAxes->SetElement(2,3,neworiginXYZW[2]);
 
-  double spacingX = fabs(planeAxis1[0]*spacing[0])+
-                   fabs(planeAxis1[1]*spacing[1])+
-                   fabs(planeAxis1[2]*spacing[2]);
+  //this->NewResliceAxes->Print(cout);
 
-  double spacingY = fabs(planeAxis2[0]*spacing[0])+
-                   fabs(planeAxis2[1]*spacing[1])+
-                   fabs(planeAxis2[2]*spacing[2]);
+  // Compute a new set of resliced extents
+  int extentX, extentY;
 
 
   // Pad extent up to a power of two for efficient texture mapping
@@ -436,7 +452,6 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   // make sure we're working with valid values
   double realExtentX = ( spacingX == 0 ) ? VTK_INT_MAX : planeSizeX / spacingX;
 
-  int extentX;
 
   // Sanity check the input data:
   // * if realExtentX is too large, extentX will wrap
@@ -458,7 +473,6 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   // make sure extentY doesn't wrap during padding
   double realExtentY = ( spacingY == 0 ) ? VTK_INT_MAX : planeSizeY / spacingY;
 
-  int extentY;
   if (realExtentY > (VTK_INT_MAX >> 1))
     {
     vtkErrorMacro(<<"Invalid Y extent: " << realExtentY);
@@ -497,6 +511,61 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
 
   this->SetResliceParameters( outputSpacingX, outputSpacingY,
       extentX, extentY );
+}
+
+//----------------------------------------------------------------------------
+void vtkResliceCursorRepresentation::
+ComputeResliceImageExtent( double spacing[2], int e[2], double newOrigin[3] )
+{
+  const int planeOrientation =
+    this->GetCursorAlgorithm()->GetReslicePlaneNormal();
+  vtkPlane *plane = this->GetResliceCursor()->GetPlane(planeOrientation);
+
+  this->OutlineSource->SetBounds(
+      this->GetResliceCursor()->GetImage()->GetBounds() );
+  this->OutlineSource->Update();
+
+  this->PlaneCutter->SetInput( this->OutlineSource->GetOutput() );
+  this->PlaneCutter->SetCutFunction(plane);
+  this->PlaneCutter->Update();
+
+  double p[3], pVecToCenter[3], center[3], axis[2][3], dotMin, dotMax;
+  this->GetResliceCursor()->GetCenter(center);
+  this->GetVector1(axis[0]);
+  this->GetVector2(axis[1]);
+
+  vtkPoints *cutPoints = this->PlaneCutter->GetOutput()->GetPoints();
+
+  double newBounds[6] = { center[0], center[1], center[2],
+                          center[0], center[1], center[2] };
+  for (int k = 0; k < 2; k++)
+    {
+
+    dotMin = (cutPoints->GetNumberOfPoints()) ? VTK_DOUBLE_MAX : 0;
+    dotMax = (cutPoints->GetNumberOfPoints()) ? VTK_DOUBLE_MIN : 0;
+    for (int i = 0; i < cutPoints->GetNumberOfPoints(); i++)
+      {
+
+      cutPoints->GetPoint(i,p);
+      vtkMath::Subtract(p, center, pVecToCenter);
+      const double dot = vtkMath::Dot(pVecToCenter, axis[k]);
+      dotMin = (dot < dotMin ? dot : dotMin);
+      dotMax = (dot > dotMax ? dot : dotMax);
+      }
+
+    for (int j = 0; j < 3; j++)
+      {
+      newBounds[2*j] += (dotMin * axis[k][j]);
+      newBounds[2*j+1] += (dotMax * axis[k][j]);
+      }
+
+    e[k] = (int)((dotMax - dotMin)/spacing[k]);
+    }
+
+  for (int j = 0; j < 3; j++)
+    {
+    newOrigin[j] = newBounds[2*j];
+    }
 }
 
 //----------------------------------------------------------------------------

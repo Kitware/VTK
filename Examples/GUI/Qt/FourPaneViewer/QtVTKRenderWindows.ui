@@ -95,7 +95,7 @@
        <x>10</x>
        <y>120</y>
        <width>141</width>
-       <height>161</height>
+       <height>91</height>
       </rect>
      </property>
      <property name="title">
@@ -140,6 +140,19 @@
        <string>Mean Blend</string>
       </property>
      </widget>
+    </widget>
+    <widget class="QPushButton" name="resetButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Reset</string>
+     </property>
     </widget>
    </widget>
   </widget>

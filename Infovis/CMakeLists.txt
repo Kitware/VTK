@@ -69,6 +69,7 @@ vtkGraphLayoutStrategy.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
 vtkKCoreLayout.cxx
+vtkKCoreDecomposition.cxx
 vtkKMeansDistanceFunctor.cxx
 vtkKMeansDistanceFunctorCalculator.cxx
 vtkKMeansStatistics.cxx
