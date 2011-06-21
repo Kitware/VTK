@@ -61,6 +61,12 @@
 #define VTK_RESLICE_LANCZOS 4
 #define VTK_RESLICE_KAISER 5
 
+// slab mode constants
+#define VTK_RESLICE_SLAB_MEAN 0
+#define VTK_RESLICE_SLAB_SUM 1
+#define VTK_RESLICE_SLAB_MIN 2
+#define VTK_RESLICE_SLAB_MAX 3
+
 class vtkImageData;
 class vtkAbstractTransform;
 class vtkMatrix4x4;
@@ -229,6 +235,25 @@ public:
   vtkGetMacro(InterpolationSizeParameter, int);
 
   // Description:
+  // Set the slab mode, the default is average.
+  vtkSetClampMacro(SlabMode, int, VTK_RESLICE_SLAB_MEAN, VTK_RESLICE_SLAB_MAX);
+  vtkGetMacro(SlabMode, int);
+  void SetSlabModeToMean() {
+    this->SetSlabMode(VTK_RESLICE_SLAB_MEAN); };
+  void SetSlabModeToSum() {
+    this->SetSlabMode(VTK_RESLICE_SLAB_SUM); };
+  void SetSlabModeToMin() {
+    this->SetSlabMode(VTK_RESLICE_SLAB_MIN); };
+  void SetSlabModeToMax() {
+    this->SetSlabMode(VTK_RESLICE_SLAB_MAX); };
+  virtual const char *GetSlabModeAsString();
+
+  // Description:
+  // Set the number of slices that will be combined to create the slab.
+  vtkSetMacro(SlabNumberOfSlices, int);
+  vtkGetMacro(SlabNumberOfSlices, int);
+
+  // Description:
   // Turn on and off optimizations (default on, they should only be
   // turned off for testing purposes).
   vtkSetMacro(Optimization, int);
@@ -349,6 +374,8 @@ protected:
   int InterpolationSizeParameter;
   int BSplineCheck;
   int Optimization;
+  int SlabMode;
+  int SlabNumberOfSlices;
   double BackgroundColor[4];
   double OutputOrigin[3];
   double OutputSpacing[3];
