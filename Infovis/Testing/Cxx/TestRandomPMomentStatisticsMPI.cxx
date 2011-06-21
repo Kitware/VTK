@@ -165,7 +165,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
     // Collect and aggregate serial cardinalities, extrema, and means
-    int np = com->GetNumberOfProcesses();
     int nRows = outputPrimary->GetNumberOfRows();
 
     // Make sure that the correct number of rows were retrieved
@@ -193,72 +192,18 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       extrema_l[2 * r + 1] = - outputPrimary->GetValueByName( r, "Maximum" ).ToDouble();
       }
 
-    // Reduce all extremal values, and gather all cardinalities and means, on process calcProc
-    int calcProc = np - 1;
-
+    // Reduce all extremal values, and gather all cardinalities and means, directly on I/O node
     com->Reduce( extrema_l,
                  extrema_agg,
                  n2Rows,
                  vtkCommunicator::MIN_OP,
-                 calcProc );
+                 args->ioRank );
 
     com->Reduce( cardsAndMeans_l,
                  cardsAndMeans_agg,
                  n2Rows,
                  vtkCommunicator::SUM_OP,
-                 calcProc );
-
-    // Have process calcProc calculate global cardinality and mean, and send all results to I/O process
-    if ( myRank == calcProc )
-      {
-      if ( ! com->Send( extrema_agg,
-                        n2Rows,
-                        args->ioRank,
-                        65 ) )
-        {
-        vtkGenericWarningMacro("MPI error: process "
-                               <<myRank
-                               << "could not send global results. Serial/parallel sanity check will be meaningless.");
-        *(args->retVal) = 1;
-        }
-
-      if ( ! com->Send( cardsAndMeans_agg,
-                        n2Rows,
-                        args->ioRank,
-                        66 ) )
-        {
-        vtkGenericWarningMacro("MPI error: process "
-                               <<myRank
-                               << "could not send global results. Serial/parallel sanity check will be meaningless.");
-        *(args->retVal) = 1;
-        }
-      }
-
-    // Have I/O process receive results from process calcProc
-    if ( myRank == args->ioRank )
-      {
-      if ( ! com->Receive( extrema_agg,
-                           n2Rows,
-                           calcProc,
-                           65 ) )
-        {
-        vtkGenericWarningMacro("MPI error: I/O process "
-                               <<args->ioRank
-                               <<" could not receive global results. Serial/parallel sanity check will be meaningless.");
-        *(args->retVal) = 1;
-        }
-
-      if ( ! com->Receive( cardsAndMeans_agg,
-                           n2Rows,
-                           calcProc,
-                           66 ) )
-        {
-        vtkGenericWarningMacro("MPI error: I/O process "
-                               <<args->ioRank
-                               <<" could not receive global results. Serial/parallel sanity check will be meaningless.");
-        *(args->retVal) = 1;
-        }
-      }
+                 args->ioRank );
 
     // Synchronize and stop clock
     com->Barrier();
@@ -268,7 +213,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       {
       cout << "\n## Completed serial calculations of descriptive statistics:\n"
            << "   With partial aggregation calculated on process "
-           << calcProc
+           << args->ioRank
            << "\n"
            << "   Wall time: "
            << timer->GetElapsedTime()
