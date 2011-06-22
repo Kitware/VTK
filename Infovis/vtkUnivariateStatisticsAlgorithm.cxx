@@ -38,15 +38,6 @@ void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent 
 }
 
 // ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::AddColumn( const char* namCol )
-{
-  if ( this->Internals->SetBufferColumnStatus( namCol, 1 ) )
-    {
-    this->Modified();
-    }
-}
-
-// ----------------------------------------------------------------------
 int vtkUnivariateStatisticsAlgorithm::RequestSelectedColumns()
 {
   return this->Internals->AddBufferEntriesToRequests();

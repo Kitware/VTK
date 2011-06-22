@@ -49,14 +49,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Convenience method to create a request with a single column name \p namCol in a single
-  // call; this is the preferred method to select columns, ensuring selection consistency
-  // (a single column per request).
-  // Warning: no name checking is performed on \p namCol; it is the user's
-  // responsibility to use valid column names.
-  void AddColumn( const char* namCol );
-
-  // Description:
   // Use the current column status values to produce a new request for statistics
   // to be produced when RequestData() is called.
   // Unlike the superclass implementation, this version adds a new request for each selected column

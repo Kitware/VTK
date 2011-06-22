@@ -50,17 +50,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Convenience method to create a request with a single column name pair 
-  //  (\p namColX, \p namColY) in a single call; this is the preferred method to select 
-  // columns pairs, ensuring selection consistency (a pair of columns per request).
-  //
-  // Unlike SetColumnStatus(), you need not call RequestSelectedColumns() after AddColumnPair().
-  //
-  // Warning: \p namColX and \p namColY are only checked for their validity as strings;
-  // no check is made that either are valid column names.
-  void AddColumnPair( const char* namColX, const char* namColY );
-
-  // Description:
   // Use the current column status values to produce a new request for statistics
   // to be produced when RequestData() is called.
   // Unlike the superclass implementation, this version adds a new request for every
