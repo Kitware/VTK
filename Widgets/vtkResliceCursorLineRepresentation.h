@@ -37,7 +37,6 @@ class vtkResliceCursorActor;
 class vtkResliceCursorPolyDataAlgorithm;
 class vtkResliceCursorPicker;
 class vtkResliceCursor;
-class vtkResliceCursorPicker;
 
 
 class VTK_WIDGETS_EXPORT vtkResliceCursorLineRepresentation : public vtkResliceCursorRepresentation

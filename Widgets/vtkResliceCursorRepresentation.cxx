@@ -251,31 +251,10 @@ void vtkResliceCursorRepresentation::InitializeReslicePlane()
 
   this->GetResliceCursor()->GetImage()->UpdateInformation();
 
-  double bounds[6], center[3];
-  this->GetResliceCursor()->GetImage()->GetBounds(bounds);
-  this->GetResliceCursor()->GetCenter(center);
+  // Initialize the reslice plane origins. Offset should be zero within
+  // this function here.
 
-  const int planeOrientation =
-    this->GetCursorAlgorithm()->GetReslicePlaneNormal();
-
-  if ( planeOrientation == 1 )
-    {
-    this->PlaneSource->SetOrigin(bounds[0],center[1],bounds[4]);
-    this->PlaneSource->SetPoint1(bounds[1],center[1],bounds[4]);
-    this->PlaneSource->SetPoint2(bounds[0],center[1],bounds[5]);
-    }
-  else if ( planeOrientation == 2 )
-    {
-    this->PlaneSource->SetOrigin(bounds[0],bounds[2],center[2]);
-    this->PlaneSource->SetPoint1(bounds[1],bounds[2],center[2]);
-    this->PlaneSource->SetPoint2(bounds[0],bounds[3],center[2]);
-    }
-  else if ( planeOrientation == 0 )
-    {
-    this->PlaneSource->SetOrigin(center[0],bounds[2],bounds[4]);
-    this->PlaneSource->SetPoint1(center[0],bounds[3],bounds[4]);
-    this->PlaneSource->SetPoint2(center[0],bounds[2],bounds[5]);
-    }
+  this->ComputeReslicePlaneOrigin();
 }
 
 //----------------------------------------------------------------------------
@@ -316,6 +295,53 @@ void vtkResliceCursorRepresentation::GetVector2(double v2[3])
 
   vtkMath::Cross( planeNormal, v1, v2 );
   vtkMath::Normalize(v2);
+}
+
+//----------------------------------------------------------------------
+// Compute the origin of the reslice plane prior to transformations.
+//
+void vtkResliceCursorRepresentation::ComputeReslicePlaneOrigin()
+{
+  double bounds[6];
+  this->GetResliceCursor()->GetImage()->GetBounds(bounds);
+
+
+  double center[3], imageCenter[3], offset[3];
+  this->GetResliceCursor()->GetCenter(center);
+  this->GetResliceCursor()->GetImage()->GetCenter(imageCenter);
+
+  // Offset based on the center of the image and how far from it the
+  // reslice cursor is. This allows us to capture the whole image even
+  // if we resliced in awkward places.
+
+  for (int i = 0; i < 3; i++)
+    {
+    offset[i] = -fabs(center[i] - imageCenter[i]);
+    }
+
+  // Now resize the plane based on these offsets.
+
+  const int planeOrientation =
+    this->GetCursorAlgorithm()->GetReslicePlaneNormal();
+
+  if ( planeOrientation == 1 )
+    {
+    this->PlaneSource->SetOrigin(bounds[0]+offset[0],center[1],bounds[4]+offset[2]);
+    this->PlaneSource->SetPoint1(bounds[1]-offset[0],center[1],bounds[4]+offset[2]);
+    this->PlaneSource->SetPoint2(bounds[0]+offset[0],center[1],bounds[5]-offset[2]);
+    }
+  else if ( planeOrientation == 2 )
+    {
+    this->PlaneSource->SetOrigin(bounds[0]+offset[0],bounds[2]+offset[1],center[2]);
+    this->PlaneSource->SetPoint1(bounds[1]-offset[0],bounds[2]+offset[1],center[2]);
+    this->PlaneSource->SetPoint2(bounds[0]+offset[0],bounds[3]-offset[1],center[2]);
+    }
+  else if ( planeOrientation == 0 )
+    {
+    this->PlaneSource->SetOrigin(center[0],bounds[2]+offset[1],bounds[4]+offset[2]);
+    this->PlaneSource->SetPoint1(center[0],bounds[3]-offset[1],bounds[4]+offset[2]);
+    this->PlaneSource->SetPoint2(center[0],bounds[2]+offset[1],bounds[5]-offset[2]);
+    }
 }
 
 //----------------------------------------------------------------------
@@ -362,6 +388,12 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   vtkPlane *plane = this->GetResliceCursor()->GetPlane(planeOrientation);
   double planeNormal[3];
   plane->GetNormal(planeNormal);
+
+
+  // Compute the origin of the reslice plane prior to transformations.
+
+  this->ComputeReslicePlaneOrigin();
+
   this->PlaneSource->SetNormal(planeNormal);
   this->PlaneSource->SetCenter(plane->GetOrigin());
 
@@ -369,8 +401,6 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   double planeAxis1[3];
   double planeAxis2[3];
 
-  //this->GetVector1(planeAxis1);
-  //this->GetVector2(planeAxis2);
 
   double* p1 = this->PlaneSource->GetPoint1();
   double* o =  this->PlaneSource->GetOrigin();
@@ -381,30 +411,14 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   planeAxis2[0] = p2[0] - o[0];
   planeAxis2[1] = p2[1] - o[1];
   planeAxis2[2] = p2[2] - o[2];
-  // The x,y dimensions of the plane
-  //
-  double planeSizeX = vtkMath::Normalize(planeAxis1);
-  double planeSizeY = vtkMath::Normalize(planeAxis2);
-
 
   // The x,y dimensions of the plane
   //
-  double bounds[6];
-  this->GetResliceCursor()->GetImage()->GetBounds(bounds);
-  //double planeSizeX = (planeAxis1[0] * (bounds[1]-bounds[0]) +
-  //                     planeAxis1[1] * (bounds[3]-bounds[2]) +
-  //                     planeAxis1[2] * (bounds[5]-bounds[4]));
-  //double planeSizeY = (planeAxis2[0] * (bounds[1]-bounds[0]) +
-  //                     planeAxis2[1] * (bounds[3]-bounds[2]) +
-  //                     planeAxis2[2] * (bounds[5]-bounds[4]));
+  const double planeSizeX = vtkMath::Normalize(planeAxis1);
+  const double planeSizeY = vtkMath::Normalize(planeAxis2);
 
   double normal[3];
   this->PlaneSource->GetNormal(normal);
-
-  //std::cout << "Reslice" << std::endl;
-  //this->PlaneSource->Print(cout);
-  // Generate the slicing matrix
-  //
 
   this->NewResliceAxes->Identity();
   for ( int i = 0; i < 3; i++ )
@@ -414,20 +428,16 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
      this->NewResliceAxes->SetElement(2,i,normal[i]);
      }
 
-  double spacingX = fabs(planeAxis1[0]*spacing[0])+
-                   fabs(planeAxis1[1]*spacing[1])+
-                   fabs(planeAxis1[2]*spacing[2]);
+  const double spacingX = fabs(planeAxis1[0]*spacing[0])+
+                          fabs(planeAxis1[1]*spacing[1])+
+                          fabs(planeAxis1[2]*spacing[2]);
 
-  double spacingY = fabs(planeAxis2[0]*spacing[0])+
-                   fabs(planeAxis2[1]*spacing[1])+
-                   fabs(planeAxis2[2]*spacing[2]);
+  const double spacingY = fabs(planeAxis2[0]*spacing[0])+
+                          fabs(planeAxis2[1]*spacing[1])+
+                          fabs(planeAxis2[2]*spacing[2]);
 
   double planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
-
-  //double sp[2] = { spacingX, spacingY };
-  //int newExt[2];
-  //this->ComputeResliceImageExtent( sp, newExt, planeOrigin );
 
   planeOrigin[3] = 1.0;
   double originXYZW[4];
@@ -440,6 +450,8 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   this->NewResliceAxes->SetElement(0,3,neworiginXYZW[0]);
   this->NewResliceAxes->SetElement(1,3,neworiginXYZW[1]);
   this->NewResliceAxes->SetElement(2,3,neworiginXYZW[2]);
+
+  // this->ComputeOrigin(this->NewResliceAxes);
 
   //this->NewResliceAxes->Print(cout);
 
@@ -514,9 +526,26 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
 }
 
 //----------------------------------------------------------------------------
+void vtkResliceCursorRepresentation::ComputeOrigin(vtkMatrix4x4 *m)
+{
+  double center[4] = {0,0,0,1};
+  double centerTransformed[4];
+  this->GetResliceCursor()->GetCenter(center);
+  m->MultiplyPoint(center, centerTransformed);
+  for (int i = 0; i < 3; i++)
+    {
+    m->SetElement(i, 3,
+        m->GetElement(i,3) + center[i] - centerTransformed[i]);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkResliceCursorRepresentation::
 ComputeResliceImageExtent( double spacing[2], int e[2], double newOrigin[3] )
 {
+  
+
+
   const int planeOrientation =
     this->GetCursorAlgorithm()->GetReslicePlaneNormal();
   vtkPlane *plane = this->GetResliceCursor()->GetPlane(planeOrientation);
@@ -536,8 +565,8 @@ ComputeResliceImageExtent( double spacing[2], int e[2], double newOrigin[3] )
 
   vtkPoints *cutPoints = this->PlaneCutter->GetOutput()->GetPoints();
 
-  double newBounds[6] = { center[0], center[1], center[2],
-                          center[0], center[1], center[2] };
+  double newBounds[6] = { center[0], center[0], center[1],
+                          center[1], center[2], center[2] };
   for (int k = 0; k < 2; k++)
     {
 
@@ -558,7 +587,10 @@ ComputeResliceImageExtent( double spacing[2], int e[2], double newOrigin[3] )
       newBounds[2*j] += (dotMin * axis[k][j]);
       newBounds[2*j+1] += (dotMax * axis[k][j]);
       }
+    }
 
+  for (int k = 0; k < 2; k++)
+    {
     e[k] = (int)((dotMax - dotMin)/spacing[k]);
     }
 
@@ -566,6 +598,8 @@ ComputeResliceImageExtent( double spacing[2], int e[2], double newOrigin[3] )
     {
     newOrigin[j] = newBounds[2*j];
     }
+  std::cout << "Recomputed extent = " << e[0] << "," << e[1] << std::endl;
+  std::cout << "Recomputed origin = " << newOrigin[0] << "," << newOrigin[1] << "," << newOrigin[2] << std::endl;
 }
 
 //----------------------------------------------------------------------------

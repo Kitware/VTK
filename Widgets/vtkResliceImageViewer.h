@@ -32,6 +32,7 @@
 class vtkResliceCursorWidget;
 class vtkResliceCursor;
 class vtkLookupTable;
+class vtkBoundedPlanePointPlacer;
 
 class VTK_WIDGETS_EXPORT vtkResliceImageViewer : public vtkImageViewer2
 {
@@ -45,7 +46,7 @@ public:
 
   // Description:
   // Render the resulting image.
-  virtual void Render(void);
+  virtual void Render();
 
   // Description:
   // Set/Get the input image to the viewer.
@@ -97,6 +98,10 @@ public:
   // Reset all views back to initial state
   virtual void Reset();
 
+  // Description:
+  // Get the point placer.
+  vtkGetObjectMacro( PointPlacer, vtkBoundedPlanePointPlacer );
+
 protected:
   vtkResliceImageViewer();
   ~vtkResliceImageViewer();
@@ -105,8 +110,10 @@ protected:
   virtual void UnInstallPipeline();
   virtual void UpdateOrientation();
   virtual void UpdateDisplayExtent();
+  virtual void UpdatePointPlacer();
 
   vtkResliceCursorWidget * ResliceCursorWidget;
+  vtkBoundedPlanePointPlacer * PointPlacer;
   int                      ResliceMode;
 
 private:
