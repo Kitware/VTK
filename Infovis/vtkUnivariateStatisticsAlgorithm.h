@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -42,9 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
-class vtkMultiBlockDataSet;
-class vtkTable;
-
 class VTK_INFOVIS_EXPORT vtkUnivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
 {
 public:
@@ -69,12 +66,6 @@ public:
 protected:
   vtkUnivariateStatisticsAlgorithm();
   ~vtkUnivariateStatisticsAlgorithm();
-
-  // Description:
-  // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ); 
 
 private:
   vtkUnivariateStatisticsAlgorithm(const vtkUnivariateStatisticsAlgorithm&); // Not implemented

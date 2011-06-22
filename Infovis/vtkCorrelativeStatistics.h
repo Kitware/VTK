@@ -65,9 +65,9 @@ protected:
 
   // Description:
   // Execute the calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Derive option.
@@ -83,7 +83,8 @@ protected:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ); 
+                       vtkTable* outData ) 
+  { this->Superclass::Assess( inData, inMeta, outData, 2 ); }
 
 //BTX  
   // Description:

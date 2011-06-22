@@ -21,17 +21,6 @@
 #include "vtkBivariateStatisticsAlgorithm.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 
-#include "vtkDoubleArray.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
-#include "vtkStdString.h"
-#include "vtkStringArray.h"
-#include "vtkTable.h"
-#include "vtkVariantArray.h"
-
-#include <vtksys/stl/set>
-#include <vtksys/ios/sstream>
-
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
 {

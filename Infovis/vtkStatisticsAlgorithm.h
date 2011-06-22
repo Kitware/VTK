@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -252,6 +252,13 @@ protected:
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
                        vtkTable* ) = 0; 
+
+  // Description:
+  // A convenience implementation for generic assessment with variable number of variables.
+  void Assess( vtkTable*,
+               vtkMultiBlockDataSet*,
+               vtkTable*,
+               int ); 
 
   // Description:
   // Execute the calculations required by the Test option.
