@@ -177,11 +177,13 @@ public:
   // first time we render.
   virtual void InitializeReslicePlane();
 
+  // Description:
+  // Get the underlying cursor source.
+  virtual vtkResliceCursorPolyDataAlgorithm * GetCursorAlgorithm() = 0;
+
 protected:
   vtkResliceCursorRepresentation();
   ~vtkResliceCursorRepresentation();
-
-  virtual vtkResliceCursorPolyDataAlgorithm * GetCursorAlgorithm() = 0;
 
   // Description:
   // Create New Reslice plane. Allows subclasses to override and crate
@@ -199,8 +201,16 @@ protected:
   // Update the reslice plane
   virtual void UpdateReslicePlane();
 
+  // Description:
+  // Compute the origin of the planes so as to capture the entire image.
+  virtual void ComputeReslicePlaneOrigin();
+
   // for negative window values.
   void InvertTable();
+
+  // recompute origin to make the location of the reslice cursor consistent
+  // with its physical location
+  virtual void ComputeOrigin( vtkMatrix4x4 * );
 
   // Description:
   void GetVector1( double d[3] );

@@ -154,6 +154,35 @@
       <string>Reset</string>
      </property>
     </widget>
+    <widget class="QFrame" name="frame_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>250</y>
+       <width>161</width>
+       <height>211</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QPushButton" name="AddDistance1Button">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>131</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Add Distance On View 1</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <action name="actionOpenFile">

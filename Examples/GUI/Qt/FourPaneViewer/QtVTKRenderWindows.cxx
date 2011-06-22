@@ -21,6 +21,10 @@
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkImageSlabReslice.h"
+#include "vtkBoundedPlanePointPlacer.h"
+#include "vtkDistanceWidget.h"
+#include "vtkDistanceRepresentation.h"
+#include "vtkHandleRepresentation.h"
 
 
 //----------------------------------------------------------------------------
@@ -111,7 +115,7 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
 
   vtkSmartPointer< vtkDICOMImageReader > reader =
     vtkSmartPointer< vtkDICOMImageReader >::New();
-  reader->SetDirectoryName(argv[1]); //"/mnt/IOMegaFAT32USB/Kitware/VolView/src/VolViewData/Data/Osirix/AGECANONIX/Specials-1CoronaryCTA_with_spiral_CTA_pre/CorCTA-w-c-1.0-B20f");
+  reader->SetDirectoryName(argv[1]);
   reader->Update();
   int imageDims[3];
   reader->GetOutput()->GetDimensions(imageDims);
@@ -135,7 +139,7 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
       this->ui->view3->GetRenderWindow()->GetInteractor());
 
   for (int i = 0; i < 3; i++)
-    {      
+    {
     // make them all share the same reslice cursor object.
     vtkResliceCursorLineRepresentation *rep =
       vtkResliceCursorLineRepresentation::SafeDownCast(
@@ -178,7 +182,7 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
     color[1] /= 4.0;
     color[2] /= 4.0;
     riw[i]->GetRenderer()->SetBackground( color );
-    
+
     planeWidget[i]->SetTexturePlaneProperty(ipwProp);
     planeWidget[i]->TextureInterpolateOff();
     planeWidget[i]->SetResliceInterpolateToLinear();
@@ -231,6 +235,7 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
   this->ui->blendModeGroupBox->setEnabled(0);
 
   connect(this->ui->resetButton, SIGNAL(pressed()), this, SLOT(ResetViews()));
+  connect(this->ui->AddDistance1Button, SIGNAL(pressed()), this, SLOT(AddDistanceMeasurementToView1()));
 };
 
 void QtVTKRenderWindows::slotExit()
@@ -319,4 +324,31 @@ void QtVTKRenderWindows::Render()
     riw[i]->Render();
     }
   this->ui->view3->GetRenderWindow()->Render();
+}
+
+void QtVTKRenderWindows::AddDistanceMeasurementToView1()
+{
+  this->AddDistanceMeasurementToView(1);
+}
+
+void QtVTKRenderWindows::AddDistanceMeasurementToView(int i)
+{
+  // remove existing widgets.
+  if (this->DistanceWidget[i])
+    {
+    this->DistanceWidget[i]->SetEnabled(0);
+    this->DistanceWidget[i] = NULL;
+    }
+
+  // add new widget
+  this->DistanceWidget[i] = vtkSmartPointer< vtkDistanceWidget >::New();
+  this->DistanceWidget[i]->SetInteractor(
+    this->riw[i]->GetResliceCursorWidget()->GetInteractor());
+
+  // Set a priority higher than our reslice cursor widget
+  this->DistanceWidget[i]->SetPriority(
+    this->riw[i]->GetResliceCursorWidget()->GetPriority() + 0.01);
+
+  this->DistanceWidget[i]->CreateDefaultRepresentation();
+  this->DistanceWidget[i]->EnabledOn();
 }
