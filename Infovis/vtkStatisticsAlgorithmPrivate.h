@@ -84,22 +84,6 @@ public:
     return result ? 1 : 0;
     }
   // --------------------------------------------------------------------
-  int AddBufferEntriesToRequests()
-    {
-    int count = 0;
-    vtksys_stl::set<vtkStdString>::iterator it;
-    for ( it = this->Buffer.begin(); it != this->Buffer.end(); ++ it )
-      {
-      vtksys_stl::set<vtkStdString> tmp;
-      tmp.insert( *it );
-      if ( this->Requests.insert( tmp ).second )
-        {
-        ++ count;
-        }
-      }
-    return count;
-    }
-  // --------------------------------------------------------------------
   int AddBufferEntryPairsToRequests()
     {
     int count = 0;
