@@ -38,6 +38,7 @@ class vtkScalarsToColors;
 class vtkImageSlice;
 class vtkImageProperty;
 class vtkImageData;
+class vtkMultiThreader;
 class vtkImageToImageMapper3DFriendship;
 
 class VTK_RENDERING_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
@@ -103,6 +104,11 @@ public:
   virtual void GetSlicePlaneInDataCoords(vtkMatrix4x4 *propMatrix,
                                          double plane[4]);
 
+  // Description:
+  // The number of threads to create when rendering.
+  vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
+  vtkGetMacro(NumberOfThreads, int);
+
 protected:
   vtkImageMapper3D();
   ~vtkImageMapper3D();
@@ -117,24 +123,6 @@ protected:
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
-
-
-  // Description:
-  // Apply a lookup table to the slice specified by the extent, and
-  // put only that slice into the output as RGBA.
-  static void ApplyLookupTableToImageScalars(
-    void *inPtr, unsigned char *outPtr, const int extent[6],
-    int numComponents, int inIncY, int inIncZ, int outIncY, int outIncZ,
-    int scalarType, vtkScalarsToColors *lookupTable);
-
-  // Description:
-  // Copy the specified extent from the input to the output, and convert
-  // to RGBA at the same time by adjusting the scalar range to [0,255]
-  // and adding an alpha component.
-  static void ConvertImageScalarsToRGBA(
-    void *inPtr, unsigned char *outPtr, const int extent[6],
-    int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
-    int scalarType, double scalarRange[2]);
 
   // Description:
   // Checkerboard the alpha component of an RGBA image.  The origin and
@@ -170,24 +158,6 @@ protected:
     int imageSize[2], int textureSize[2]);
 
   // Description:
-  // Check the texture size.
-  virtual bool TextureSizeOK(const int size[2]);
-
-  // Description:
-  // Called by RecursiveRenderTexturedPolygon, overriden by subclasses.
-  virtual void RenderTexturedPolygon(
-    vtkRenderer *ren, vtkImageProperty *property,
-    vtkImageData *image, int extent[6], bool recursive);
-
-  // Description:
-  // Recursive internal method, will call the non-recursive method
-  // as many times as necessary if the texture must be broken up into
-  // pieces that are small enough for the GPU to render
-  virtual void RecursiveRenderTexturedPolygon(
-    vtkRenderer *ren, vtkImageProperty *property,
-    vtkImageData *image, int extent[6], bool recursive);
-
-  // Description:
   // Get the renderer associated with this mapper, or zero if none.
   // This will raise an error if multiple renderers are found.
   vtkRenderer *GetCurrentRenderer();
@@ -202,7 +172,9 @@ protected:
   vtkMatrix4x4 *GetDataToWorldMatrix();
 
   int Border;
-  vtkLookupTable *DefaultLookupTable;
+  vtkScalarsToColors *DefaultLookupTable;
+  vtkMultiThreader *Threader;
+  int NumberOfThreads;
 
   // The slice.
   vtkPlane *SlicePlane;
