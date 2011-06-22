@@ -144,6 +144,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
   // perform the reslicing
   this->ImageReslice->SetInput(this->GetInput());
+  this->ImageReslice->SetNumberOfThreads(this->NumberOfThreads);
   this->ImageReslice->UpdateWholeExtent();
  
   // apply checkerboard pattern (should have timestamps)
@@ -172,6 +173,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   this->SliceMapper->DepthEnable = this->DepthEnable;
 
   // let vtkImageSliceMapper do the rest of the work
+  this->SliceMapper->SetNumberOfThreads(this->NumberOfThreads);
   this->SliceMapper->Render(ren, prop);
 }
 
