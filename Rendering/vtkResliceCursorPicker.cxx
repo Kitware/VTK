@@ -27,10 +27,13 @@
 #include "vtkResliceCursor.h"
 #include "vtkResliceCursorPolyDataAlgorithm.h"
 #include "vtkPlane.h"
+#include "vtkMatrix4x4.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkResliceCursorPicker);
 vtkCxxSetObjectMacro(vtkResliceCursorPicker,
     ResliceCursorAlgorithm, vtkResliceCursorPolyDataAlgorithm);
+vtkCxxSetObjectMacro(vtkResliceCursorPicker, TransformMatrix, vtkMatrix4x4 );
 
 //----------------------------------------------------------------------------
 vtkResliceCursorPicker::vtkResliceCursorPicker()
@@ -44,6 +47,7 @@ vtkResliceCursorPicker::vtkResliceCursorPicker()
   this->PickedAxis1 = this->PickedAxis2 = 0;
 
   this->ResliceCursorAlgorithm = NULL;
+  this->TransformMatrix = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -51,7 +55,10 @@ vtkResliceCursorPicker::~vtkResliceCursorPicker()
 {
   this->Cell->Delete();
   this->SetResliceCursorAlgorithm(NULL);
+  this->SetTransformMatrix(NULL);
 }
+
+#define sign(x) ((x) >= 0 ? 1 : 0)
 
 //----------------------------------------------------------------------------
 int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
@@ -217,8 +224,12 @@ int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
   if (this->PickedAxis1 || this->PickedAxis2 || this->PickedCenter)
     {
     double t;
-    rc->GetPlane(axis3)->IntersectWithLine(
-                  p1World, p2World, t, this->PickPosition);
+    vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
+    plane->SetOrigin(rc->GetPlane(axis3)->GetOrigin());
+    double planeNormal[3] = {0,0,0};
+    planeNormal[axis3] = sign(rc->GetPlane(axis3)->GetNormal()[axis3]) * 1;
+    plane->SetNormal(planeNormal);
+    plane->IntersectWithLine(p1World, p2World, t, this->PickPosition);
     }
 
 
@@ -245,6 +256,19 @@ int vtkResliceCursorPicker::IntersectPolyDataWithLine(
       {
       data->GetCell(cellId, this->Cell);
 
+      // Transform the points using any transform matrix that may be set.
+
+      for (int i = 0; i < this->Cell->GetPoints()->GetNumberOfPoints(); i++)
+        {
+        if (this->TransformMatrix)
+          {
+          double pIn[4] = {0,0,0,1}, pOut[4];
+          this->Cell->GetPoints()->GetPoint(i,pIn);
+          this->TransformMatrix->MultiplyPoint(pIn,pOut);
+          this->Cell->GetPoints()->SetPoint(i,pOut);
+          }
+        }
+
       int cellPicked = 0;
       cellPicked = this->Cell->IntersectWithLine(
                        const_cast<double *>(p1), const_cast<double *>(p2),
@@ -263,8 +287,16 @@ int vtkResliceCursorPicker::IntersectPolyDataWithLine(
 
 //----------------------------------------------------------------------------
 int vtkResliceCursorPicker::IntersectPointWithLine(
-    double p1[3], double p2[3], double X[3], double tol )
+    double p1[3], double p2[3], double x[3], double tol )
 {
+
+  double X[4] = {x[0], x[1], x[2], 1};
+  if (this->TransformMatrix)
+    {
+    double pIn[4] = {x[0], x[1], x[2], 1};
+    this->TransformMatrix->MultiplyPoint(pIn,X);
+    }
+
   int i;
   double ray[3], rayFactor, projXYZ[3];
 

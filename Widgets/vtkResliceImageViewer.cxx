@@ -34,6 +34,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkImageReslice.h"
 #include "vtkLookupTable.h"
+#include "vtkBoundedPlanePointPlacer.h"
+#include "vtkPlane.h"
 
 vtkStandardNewMacro(vtkResliceImageViewer);
 
@@ -62,6 +64,8 @@ vtkResliceImageViewer::vtkResliceImageViewer()
       GetCursorAlgorithm()->SetReslicePlaneNormal(this->SliceOrientation);
   this->ResliceCursorWidget->SetRepresentation(resliceCursorRep);
 
+  this->PointPlacer = vtkBoundedPlanePointPlacer::New();
+
   this->InstallPipeline();
 }
 
@@ -73,6 +77,8 @@ vtkResliceImageViewer::~vtkResliceImageViewer()
     this->ResliceCursorWidget->Delete();
     this->ResliceCursorWidget = NULL;
     }
+
+  this->PointPlacer->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -161,10 +167,32 @@ vtkLookupTable * vtkResliceImageViewer::GetLookupTable()
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::UpdateOrientation()
 {
-  if (this->ResliceMode == RESLICE_AXIS_ALIGNED)
-    {
-    this->Superclass::UpdateOrientation();
-    }
+    // Set the camera position
+
+    vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
+    if (cam)
+      {
+      switch (this->SliceOrientation)
+        {
+        case vtkImageViewer2::SLICE_ORIENTATION_XY:
+          cam->SetFocalPoint(0,0,0);
+          cam->SetPosition(0,0,1); // -1 if medical ?
+          cam->SetViewUp(0,1,0);
+          break;
+          
+        case vtkImageViewer2::SLICE_ORIENTATION_XZ:
+          cam->SetFocalPoint(0,0,0);
+          cam->SetPosition(0,1,0); // 1 if medical ?
+          cam->SetViewUp(0,0,1);
+          break;
+          
+        case vtkImageViewer2::SLICE_ORIENTATION_YZ:
+          cam->SetFocalPoint(0,0,0);
+          cam->SetPosition(1,0,0); // -1 if medical ?
+          cam->SetViewUp(0,0,1);
+          break;
+        }
+      }
 }
 
 //----------------------------------------------------------------------------
@@ -197,7 +225,7 @@ void vtkResliceImageViewer::InstallPipeline()
     {
     this->ResliceCursorWidget->SetEnabled(1);
     this->ImageActor->SetVisibility(0);
-    this->Superclass::UpdateOrientation();
+    this->UpdateOrientation();
 
     double bounds[6];
 
@@ -214,13 +242,15 @@ void vtkResliceImageViewer::InstallPipeline()
     {
     this->ResliceCursorWidget->SetEnabled(0);
     this->ImageActor->SetVisibility(1);
-    this->Superclass::UpdateOrientation();
+    this->UpdateOrientation();
     }
 
   if (this->WindowLevel)
     {
     this->WindowLevel->SetLookupTable(this->GetLookupTable());
     }
+
+  this->UpdatePointPlacer();
 }
 
 //----------------------------------------------------------------------------
@@ -229,6 +259,67 @@ void vtkResliceImageViewer::UnInstallPipeline()
   this->ResliceCursorWidget->SetEnabled(0);
 
   this->Superclass::UnInstallPipeline();
+}
+
+//----------------------------------------------------------------------------
+void vtkResliceImageViewer::UpdatePointPlacer()
+{
+  if (this->ResliceMode == RESLICE_OBLIQUE)
+    {
+    this->PointPlacer->SetProjectionNormalToOblique();
+    if (vtkResliceCursorRepresentation *rep =
+        vtkResliceCursorRepresentation::SafeDownCast(
+          this->ResliceCursorWidget->GetRepresentation()))
+      {
+      const int planeOrientation =
+        rep->GetCursorAlgorithm()->GetReslicePlaneNormal();
+      vtkPlane *plane = this->GetResliceCursor()->GetPlane(planeOrientation);
+      this->PointPlacer->SetObliquePlane(plane);
+      }
+    }
+  else
+    {
+
+    vtkImageData *input = this->ImageActor->GetInput();
+    if ( !input )
+      {
+      return;
+      }
+
+    double spacing[3];
+    input->GetSpacing(spacing);
+
+    double origin[3];
+    input->GetOrigin(origin);
+
+    double bounds[6];
+    this->ImageActor->GetBounds(bounds);
+
+    int displayExtent[6];
+    this->ImageActor->GetDisplayExtent(displayExtent);
+
+    int axis;
+    double position;
+    if ( displayExtent[0] == displayExtent[1] )
+      {
+      axis = vtkBoundedPlanePointPlacer::XAxis;
+      position = origin[0] + displayExtent[0]*spacing[0];
+      }
+    else if ( displayExtent[2] == displayExtent[3] )
+      {
+      axis = vtkBoundedPlanePointPlacer::YAxis;
+      position = origin[1] + displayExtent[2]*spacing[1];
+      }
+    else if ( displayExtent[4] == displayExtent[5] )
+      {
+      axis = vtkBoundedPlanePointPlacer::ZAxis;
+      position = origin[2] + displayExtent[4]*spacing[2];
+      }
+
+    this->PointPlacer->SetProjectionNormal(axis);
+    this->PointPlacer->SetProjectionPosition(position);
+    }
+
 }
 
 //----------------------------------------------------------------------------
