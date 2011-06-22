@@ -181,9 +181,10 @@ int vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c, vtkSt
 // ----------------------------------------------------------------------
 void vtkStatisticsAlgorithm::AddColumn( const char* namCol )
 {
-  if ( this->Internals->SetBufferColumnStatus( namCol, 1 ) )
+//  if ( this->Internals->SetBufferColumnStatus( namCol, 1 ) )
+  if ( this->Internals->AddColumnToRequests( namCol ) )
     {
-      this->Modified();
+    this->Modified();
     }
 }
 
@@ -192,7 +193,7 @@ void vtkStatisticsAlgorithm::AddColumnPair( const char* namColX, const char* nam
 {
   if ( this->Internals->AddColumnPairToRequests( namColX, namColY ) )
     {
-      this->Modified();
+    this->Modified();
     }
 }
 

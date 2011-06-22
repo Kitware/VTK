@@ -124,6 +124,22 @@ public:
   // --------------------------------------------------------------------
   // Description:
   // This function does not use the buffer like other column selection methods.
+  int AddColumnToRequests( const char* col )
+    {
+    if ( col && strlen( col ) )
+      {
+      vtksys_stl::set<vtkStdString> tmp;
+      tmp.insert( col );
+      if ( this->Requests.insert( tmp ).second )
+        {
+        return 1;
+        }
+      }
+    return 0;
+    }
+  // --------------------------------------------------------------------
+  // Description:
+  // This function does not use the buffer like other column selection methods.
   int AddColumnPairToRequests( const char* cola, const char* colb )
     {
     if ( cola && colb && strlen( cola ) && strlen( colb ) )

@@ -40,5 +40,5 @@ void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent 
 // ----------------------------------------------------------------------
 int vtkUnivariateStatisticsAlgorithm::RequestSelectedColumns()
 {
-  return this->Internals->AddBufferEntriesToRequests();
+  return this->Internals->AddBufferToRequests();
 }
