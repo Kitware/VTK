@@ -143,7 +143,7 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     vtkMultiProcessController *Controller;
 
     // BTX
-      vtkstd::vector< unsigned int > blocksToLoad;
+      vtkstd::vector< int > blocksToLoad;
     // ETX
 
   private:

@@ -162,6 +162,10 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
     // Description:
     // Standard Pipeline methods, subclasses may override this method if needed.
+    virtual int RequestUpdateExtent(
+        vtkInformation* rqst,
+        vtkInformationVector** inputVector,
+        vtkInformationVector* outputVector );
     virtual int RequestData(
         vtkInformation* vtkNotUsed(request),
         vtkInformationVector** vtkNotUsed(inputVector),

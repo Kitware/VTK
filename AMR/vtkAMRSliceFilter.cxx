@@ -98,6 +98,11 @@ void vtkAMRSliceFilter::InitializeOffSet(
   if( !this->initialRequest )
     return;
 
+  // Catch case where the normal is not set, this happens when the slice filter
+  // is called from within RequestInformation.
+  if( this->Normal == 0 )
+    this->Normal=1;
+
   switch( this->Normal )
     {
       case 1:
@@ -511,7 +516,29 @@ int vtkAMRSliceFilter::RequestInformation(
   std::cout << "FILE: " << __FILE__ << " - RequestInformation\n";
   std::cout.flush();
 
-  // TODO: implement this
+  this->blocksToLoad.clear();
+
+  vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
+  assert( "pre: input information object is NULL" && (input != NULL) );
+
+  // Check if metadata are passed downstream
+  if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+    {
+      std::cout << "Got Metadata!\n";
+      std::cout.flush();
+
+      vtkHierarchicalBoxDataSet *metadata =
+          vtkHierarchicalBoxDataSet::SafeDownCast(
+              input->Get(
+                  vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
+
+      vtkPlane *cutPlane = this->GetCutPlane( metadata );
+      assert( "Cut plane is NULL" && (cutPlane != NULL) );
+
+      this->ComputeAMRBlocksToLoad( cutPlane, metadata );
+      cutPlane->Delete();
+    }
+
   this->Modified();
   return 1;
 }
@@ -527,10 +554,12 @@ int vtkAMRSliceFilter::RequestUpdateExtent(
   vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
   assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
 
+  std::cout << "Number of blocks to load: " <<
+      this->blocksToLoad.size() << std::endl;
   // Send upstream request for higher resolution
   inInfo->Set(
-   vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL(),
-   this->MaxResolution );
+   vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
+   &this->blocksToLoad[0], this->blocksToLoad.size() );
 
   return 1;
 }
@@ -547,16 +576,7 @@ int vtkAMRSliceFilter::RequestData(
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: input information object is NULL" && (input != NULL) );
 
-  if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
-    {
-      std::cout << "Got Metadata!\n";
-      std::cout.flush();
 
-      vtkHierarchicalBoxDataSet *metadata =
-          vtkHierarchicalBoxDataSet::SafeDownCast(
-              input->Get(
-                  vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
-    }
   vtkHierarchicalBoxDataSet *inputAMR=
       vtkHierarchicalBoxDataSet::SafeDownCast(
           input->Get(vtkDataObject::DATA_OBJECT() ) );

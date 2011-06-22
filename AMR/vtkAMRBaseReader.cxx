@@ -23,12 +23,10 @@
 #include "vtkIndent.h"
 #include "vtkSmartPointer.h"
 #include "vtkCompositeDataPipeline.h"
-
-//#include "vtkAMRSliceFilter.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkAMRUtilities.h"
 
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
 
@@ -231,6 +229,32 @@ int vtkAMRBaseReader::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
+int vtkAMRBaseReader::RequestUpdateExtent(
+        vtkInformation* rqst,
+        vtkInformationVector** inputVector,
+        vtkInformationVector* outputVector )
+{
+  vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
+   vtkHierarchicalBoxDataSet *output =
+     vtkHierarchicalBoxDataSet::SafeDownCast(
+      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
+   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
+  if( outInf->Has(
+      vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
+    {
+      std::cout << "Got composite indices in RequestUpdateExtent()!\n";
+      std::cout.flush();
+    }
+  else
+    {
+      std::cout << "No UPDATE_COMPOSITE_INDICES() in RequestUpdateExtent()!\n";
+      std::cout.flush();
+    }
+
+  return( 1 );
+}
+
+//------------------------------------------------------------------------------
 int vtkAMRBaseReader::RequestData(
         vtkInformation* vtkNotUsed(request),
         vtkInformationVector** vtkNotUsed(inputVector),
@@ -247,11 +271,23 @@ int vtkAMRBaseReader::RequestData(
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
 
   if( outInf->Has(
-      vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() ) )
+      vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
     {
-      this->MaxLevel = outInf->Get(
-          vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() );
+      std::cout << "Got composite indices in RequestData()!\n";
+      std::cout.flush();
     }
+  else
+    {
+      std::cout << "No UPDATE_COMPOSITE_INDICES() in RequestData()!\n";
+      std::cout.flush();
+    }
+
+//  if( outInf->Has(
+//      vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() ) )
+//    {
+//      this->MaxLevel = outInf->Get(
+//          vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() );
+//    }
 
   this->ReadMetaData();
   this->GenerateBlockMap();
