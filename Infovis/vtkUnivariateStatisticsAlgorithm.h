@@ -48,13 +48,6 @@ public:
   vtkTypeMacro(vtkUnivariateStatisticsAlgorithm, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Use the current column status values to produce a new request for statistics
-  // to be produced when RequestData() is called.
-  // Unlike the superclass implementation, this version adds a new request for each selected column
-  // instead of a single request containing all the columns.
-  virtual int RequestSelectedColumns();
-
 protected:
   vtkUnivariateStatisticsAlgorithm();
   ~vtkUnivariateStatisticsAlgorithm();

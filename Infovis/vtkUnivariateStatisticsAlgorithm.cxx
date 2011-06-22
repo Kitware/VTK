@@ -36,9 +36,3 @@ void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent 
 {
   this->Superclass::PrintSelf( os, indent );
 }
-
-// ----------------------------------------------------------------------
-int vtkUnivariateStatisticsAlgorithm::RequestSelectedColumns()
-{
-  return this->Internals->AddBufferToRequests();
-}
