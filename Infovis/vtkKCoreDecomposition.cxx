@@ -30,6 +30,7 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkUndirectedGraph.h"
 #include "vtkDirectedGraph.h"
+#include "vtkType.h"
 #include <vtksys/hash_map.hxx>
 
 vtkStandardNewMacro(vtkKCoreDecomposition);
@@ -84,23 +85,20 @@ public:
       {
       return(this->iti->HasNext());
       }
-    else
+
+    if(this->UseInDegreeNeighbors &&
+      !this->UseOutDegreeNeighbors)
       {
-      if(this->UseInDegreeNeighbors &&
-        !this->UseOutDegreeNeighbors)
-        {
-        return(this->iti->HasNext());
-        }
-      else if(!this->UseInDegreeNeighbors &&
-               this->UseOutDegreeNeighbors)
-        {
-        return(this->ito->HasNext());
-        }
-      else
-        {
-        return(this->iti->HasNext() || this->ito->HasNext());
-        }
+      return(this->iti->HasNext());
       }
+
+    if(!this->UseInDegreeNeighbors &&
+        this->UseOutDegreeNeighbors)
+      {
+      return(this->ito->HasNext());
+      }
+
+    return(this->iti->HasNext() || this->ito->HasNext());
     }
 
   int Next()
@@ -109,30 +107,25 @@ public:
       {
       return(int(this->iti->Next().Source) + 1);
       }
-    else
+
+    if(this->UseInDegreeNeighbors &&
+      !this->UseOutDegreeNeighbors)
       {
-      if(this->UseInDegreeNeighbors &&
-        !this->UseOutDegreeNeighbors)
-        {
-        return(int(this->iti->Next().Source) + 1);
-        }
-      else if(!this->UseInDegreeNeighbors &&
-               this->UseOutDegreeNeighbors)
-        {
-        return(int(this->ito->Next().Target) + 1);
-        }
-      else
-        {
-        if(this->iti->HasNext())
-          {
-          return(int(this->iti->Next().Source) + 1);
-          }
-        else
-          {
-          return(int(this->ito->Next().Target) + 1);
-          }
-        }
+      return(int(this->iti->Next().Source) + 1);
       }
+
+    if(!this->UseInDegreeNeighbors &&
+       this->UseOutDegreeNeighbors)
+      {
+      return(int(this->ito->Next().Target) + 1);
+      }
+
+    if(this->iti->HasNext())
+      {
+      return(int(this->iti->Next().Source) + 1);
+      }
+
+    return(int(this->ito->Next().Target) + 1);
     }
 
 private:
@@ -178,10 +171,7 @@ public:
       {
       return(this->_array->GetNumberOfTuples());
       }
-    else
-      {
-      return(0);
-      }
+    return(0);
     }
 
   void setNewArray(int n)
@@ -194,7 +184,7 @@ public:
     this->_array->SetNumberOfTuples(n);
     }
 
-  const int operator[]( int idx ) const
+  int operator[]( int idx ) const
     {
     if(idx < 1 || idx > this->_array->GetNumberOfTuples())
       {
@@ -257,10 +247,7 @@ public:
       {
       return(this->_array->GetNumberOfTuples());
       }
-    else
-      {
-      return(0);
-      }
+    return(0);
     }
 
   void setNewArray(int n)
@@ -273,7 +260,7 @@ public:
     this->_array->SetNumberOfTuples(n);
     }
 
-  const int operator[]( int idx ) const
+  int operator[]( int idx ) const
     {
     if(idx < 0 || idx >= this->_array->GetNumberOfTuples())
       {
@@ -454,7 +441,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
     // <source, target> pair.  This unique integer is used as a key in a hash map
     // to keep track of all of the unique edges we have seen so far.
     vtkEdgeListIterator* it = vtkEdgeListIterator::New();
-    vtksys::hash_map<int, bool> hmap;
+    vtksys::hash_map<unsigned long int, bool> hmap;
     input->GetEdges(it);
     bool foundParallelEdges = false;
     bool foundLoops = false;
@@ -462,7 +449,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
       {
       vtkEdgeType e = it->Next();
       // Cantor pairing function
-      int id = int(0.5*(e.Source + e.Target)*(e.Source + e.Target + 1) + e.Target);
+      unsigned long int id = (unsigned long int) (0.5*(e.Source + e.Target)*(e.Source + e.Target + 1.0) + e.Target);
       if(hmap.find(id) == hmap.end())
         {
         hmap[id] = true;
@@ -475,7 +462,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
 
       if(vtkUndirectedGraph::SafeDownCast(input))
         {
-        id = int(0.5*(e.Target + e.Source)*(e.Target + e.Source + 1) + e.Source);
+        id = (unsigned long int) (0.5*(e.Target + e.Source)*(e.Target + e.Source + 1.0) + e.Source);
         if(hmap.find(id) == hmap.end())
           {
           hmap[id] = true;
