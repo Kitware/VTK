@@ -194,12 +194,10 @@ protected:
 private:
   // The prop this mapper is attached to, or zero if none.
   vtkImageSlice *CurrentProp;
+  vtkRenderer *CurrentRenderer;
 
   // The cached data-to-world matrix
   vtkMatrix4x4 *DataToWorldMatrix;
-
-  // Set by vtkImageSlice if a render is in progress
-  bool InRender;
 
   vtkImageMapper3D(const vtkImageMapper3D&);  // Not implemented.
   void operator=(const vtkImageMapper3D&);  // Not implemented.
