@@ -45,17 +45,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkDescriptiveStatistics_h
 #define __vtkDescriptiveStatistics_h
 
-#include "vtkUnivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDescriptiveStatistics, vtkUnivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkDescriptiveStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDescriptiveStatistics* New();
 
