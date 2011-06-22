@@ -33,6 +33,7 @@ class vtkPolyData;
 class vtkGenericCell;
 class vtkResliceCursorPolyDataAlgorithm;
 class vtkIdList;
+class vtkMatrix4x4;
 
 class VTK_RENDERING_EXPORT vtkResliceCursorPicker : public vtkPicker
 {
@@ -62,6 +63,8 @@ public:
   vtkGetObjectMacro( ResliceCursorAlgorithm,
                      vtkResliceCursorPolyDataAlgorithm );
 
+  virtual void SetTransformMatrix( vtkMatrix4x4 * );
+
 protected:
   vtkResliceCursorPicker();
   ~vtkResliceCursorPicker();
@@ -80,6 +83,7 @@ private:
   int PickedAxis2;
   int PickedCenter;
   vtkIdList *PointIds;
+  vtkMatrix4x4 * TransformMatrix;
 
 private:
   vtkResliceCursorPicker(const vtkResliceCursorPicker&);  // Not implemented.
