@@ -36,9 +36,3 @@ void vtkBivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
 }
-
-// ----------------------------------------------------------------------
-int vtkBivariateStatisticsAlgorithm::RequestSelectedColumns()
-{
-  return this->Internals->AddBufferEntryPairsToRequests();
-}

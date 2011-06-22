@@ -181,7 +181,6 @@ int vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c, vtkSt
 // ----------------------------------------------------------------------
 void vtkStatisticsAlgorithm::AddColumn( const char* namCol )
 {
-//  if ( this->Internals->SetBufferColumnStatus( namCol, 1 ) )
   if ( this->Internals->AddColumnToRequests( namCol ) )
     {
     this->Modified();

@@ -84,28 +84,6 @@ public:
     return result ? 1 : 0;
     }
   // --------------------------------------------------------------------
-  int AddBufferEntryPairsToRequests()
-    {
-    int count = 0;
-    vtksys_stl::pair<vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator,bool> result;
-    vtksys_stl::set<vtkStdString>::iterator it;
-    for ( it = this->Buffer.begin(); it != this->Buffer.end(); ++ it )
-      {
-      vtksys_stl::set<vtkStdString>::iterator it2 = it;
-      for ( ++ it2; it2 != this->Buffer.end(); ++ it2 )
-        {
-        vtksys_stl::set<vtkStdString> tmp;
-        tmp.insert( *it );
-        tmp.insert( *it2 );
-        if ( this->Requests.insert( tmp ).second )
-          {
-          ++ count;
-          }
-        }
-      }
-    return count;
-    }
-  // --------------------------------------------------------------------
   // Description:
   // This function does not use the buffer like other column selection methods.
   int AddColumnToRequests( const char* col )
