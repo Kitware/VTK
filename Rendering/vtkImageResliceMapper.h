@@ -157,6 +157,7 @@ protected:
   int SeparateWindowLevelOperation; // Do window/level as a separate step
   int ResampleToScreenPixels; // Use software interpolation only
   int InternalResampleToScreenPixels; // Use software interpolation only
+  int ResliceNeedUpdate; // Execute reslice on next render
   vtkImageResliceToColors *ImageReslice; // For software interpolation
   vtkMatrix4x4 *ResliceMatrix; // Cached reslice matrix
   vtkMatrix4x4 *WorldToDataMatrix; // World to Data transform matrix
