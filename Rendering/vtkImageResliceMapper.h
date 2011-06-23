@@ -30,6 +30,7 @@
 
 class vtkImageSliceMapper;
 class vtkRenderer;
+class vtkRenderWindow;
 class vtkCamera;
 class vtkLookupTable;
 class vtkImageSlice;
@@ -66,6 +67,15 @@ public:
   vtkSetMacro(ResampleToScreenPixels, int);
   vtkBooleanMacro(ResampleToScreenPixels, int);
   vtkGetMacro(ResampleToScreenPixels, int);
+
+  // Description:
+  // Keep the color mapping stage distinct from the reslicing stage.
+  // This will improve the quality and possibly the speed of interactive
+  // window/level operations, but it uses more memory and might slow down
+  // interactive slicing operations.  On by default.
+  vtkSetMacro(SeparateWindowLevelOperation, int);
+  vtkBooleanMacro(SeparateWindowLevelOperation, int);
+  vtkGetMacro(SeparateWindowLevelOperation, int);
 
   // Description:
   // This should only be called by the renderer.
@@ -141,19 +151,18 @@ protected:
   // Garbage collection for reference loops.
   void ReportReferences(vtkGarbageCollector*);
 
-  vtkImageSliceMapper *SliceMapper;
+  vtkImageSliceMapper *SliceMapper; // Does the OpenGL rendering
 
   int AutoAdjustImageQuality; // LOD-style behavior
+  int SeparateWindowLevelOperation; // Do window/level as a separate step
   int ResampleToScreenPixels; // Use software interpolation only
   int InternalResampleToScreenPixels; // Use software interpolation only
   vtkImageResliceToColors *ImageReslice; // For software interpolation
   vtkMatrix4x4 *ResliceMatrix; // Cached reslice matrix
   vtkMatrix4x4 *WorldToDataMatrix; // World to Data transform matrix
   vtkMatrix4x4 *SliceToWorldMatrix; // Slice to World transform matrix
+  vtkTimeStamp UpdateTime;
 
-  double Coords[18];
-  int NCoords;
- 
 private:
   vtkImageResliceMapper(const vtkImageResliceMapper&);  // Not implemented.
   void operator=(const vtkImageResliceMapper&);  // Not implemented.
