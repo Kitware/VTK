@@ -47,6 +47,12 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
       vtkGetMacro(OffSetFromOrigin,double);
 
       // Description:
+      // Set/Get ForwardUpstream property
+      vtkSetMacro( ForwardUpstream, int );
+      vtkGetMacro( ForwardUpstream, int );
+      vtkBooleanMacro( ForwardUpstream, int );
+
+      // Description:
       // Set/Get the maximum resolution used in this instance.
       vtkSetMacro(MaxResolution,int);
       vtkGetMacro(MaxResolution,int);
@@ -141,6 +147,8 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     bool   initialRequest;
     int    MaxResolution;
     vtkMultiProcessController *Controller;
+
+    int ForwardUpstream;
 
     // BTX
       vtkstd::vector< int > blocksToLoad;

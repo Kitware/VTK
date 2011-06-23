@@ -43,6 +43,7 @@ vtkAMRSliceFilter::vtkAMRSliceFilter()
   this->SetNumberOfOutputPorts( 1 );
   this->OffSetFromOrigin = 0.0;
   this->Normal           = 1;
+  this->ForwardUpstream  = 1;
   this->Controller       = NULL;
   this->initialRequest   = true;
 }
@@ -286,7 +287,7 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
   double bounds[6];
 
   unsigned int level=0;
-  for( ; level < metadata->GetNumberOfLevels(); ++level )
+  for( ; level < this->MaxResolution; ++level )
     {
       unsigned int dataIdx = 0;
       for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
@@ -513,30 +514,27 @@ int vtkAMRSliceFilter::RequestInformation(
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector )
 {
-  std::cout << "FILE: " << __FILE__ << " - RequestInformation\n";
-  std::cout.flush();
-
   this->blocksToLoad.clear();
 
-  vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-  assert( "pre: input information object is NULL" && (input != NULL) );
-
-  // Check if metadata are passed downstream
-  if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+  if( this->ForwardUpstream == 1 )
     {
-      std::cout << "Got Metadata!\n";
-      std::cout.flush();
+      vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
+      assert( "pre: input information object is NULL" && (input != NULL) );
 
-      vtkHierarchicalBoxDataSet *metadata =
-          vtkHierarchicalBoxDataSet::SafeDownCast(
-              input->Get(
-                  vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
+      // Check if metadata are passed downstream
+      if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+        {
+          vtkHierarchicalBoxDataSet *metadata =
+              vtkHierarchicalBoxDataSet::SafeDownCast(
+                  input->Get(
+                      vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
 
-      vtkPlane *cutPlane = this->GetCutPlane( metadata );
-      assert( "Cut plane is NULL" && (cutPlane != NULL) );
+          vtkPlane *cutPlane = this->GetCutPlane( metadata );
+          assert( "Cut plane is NULL" && (cutPlane != NULL) );
 
-      this->ComputeAMRBlocksToLoad( cutPlane, metadata );
-      cutPlane->Delete();
+          this->ComputeAMRBlocksToLoad( cutPlane, metadata );
+          cutPlane->Delete();
+        }
     }
 
   this->Modified();
@@ -548,18 +546,17 @@ int vtkAMRSliceFilter::RequestUpdateExtent(
     vtkInformation*, vtkInformationVector **inputVector,
     vtkInformationVector *outputVector )
 {
-  std::cout << "FILE: " << __FILE__ << " - RequestUpdateExtent\n";
-  std::cout.flush();
 
-  vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
-  assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
+  if( this->ForwardUpstream == 1 )
+    {
+      vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
+      assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
 
-  std::cout << "Number of blocks to load: " <<
-      this->blocksToLoad.size() << std::endl;
-  // Send upstream request for higher resolution
-  inInfo->Set(
-   vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-   &this->blocksToLoad[0], this->blocksToLoad.size() );
+      // Send upstream request for higher resolution
+      inInfo->Set(
+       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
+       &this->blocksToLoad[0], this->blocksToLoad.size() );
+    }
 
   return 1;
 }
@@ -569,8 +566,6 @@ int vtkAMRSliceFilter::RequestData(
     vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )
 {
-  std::cout << "FILE: " << __FILE__ << " - RequestData\n";
-  std::cout.flush();
 
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );

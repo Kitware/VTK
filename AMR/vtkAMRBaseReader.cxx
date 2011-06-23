@@ -212,9 +212,6 @@ int vtkAMRBaseReader::RequestInformation(
 {
   this->Superclass::RequestInformation( rqst, inputVector, outputVector );
 
-  std::cout << "FILE: " << __FILE__ << " - RequestInformation\n";
-  std::cout.flush();
-
   vtkSmartPointer<vtkHierarchicalBoxDataSet> metadata =
      vtkSmartPointer<vtkHierarchicalBoxDataSet>::New();
 
@@ -229,40 +226,11 @@ int vtkAMRBaseReader::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkAMRBaseReader::RequestUpdateExtent(
-        vtkInformation* rqst,
-        vtkInformationVector** inputVector,
-        vtkInformationVector* outputVector )
-{
-  vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
-   vtkHierarchicalBoxDataSet *output =
-     vtkHierarchicalBoxDataSet::SafeDownCast(
-      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
-   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
-  if( outInf->Has(
-      vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
-    {
-      std::cout << "Got composite indices in RequestUpdateExtent()!\n";
-      std::cout.flush();
-    }
-  else
-    {
-      std::cout << "No UPDATE_COMPOSITE_INDICES() in RequestUpdateExtent()!\n";
-      std::cout.flush();
-    }
-
-  return( 1 );
-}
-
-//------------------------------------------------------------------------------
 int vtkAMRBaseReader::RequestData(
         vtkInformation* vtkNotUsed(request),
         vtkInformationVector** vtkNotUsed(inputVector),
         vtkInformationVector* outputVector )
 {
-  std::cout << "FILE: " << __FILE__ << " - RequestData\n";
-  std::cout.flush();
-
 
   vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
   vtkHierarchicalBoxDataSet *output =
@@ -273,24 +241,26 @@ int vtkAMRBaseReader::RequestData(
   if( outInf->Has(
       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
     {
-      std::cout << "Got composite indices in RequestData()!\n";
-      std::cout.flush();
+      output->Clear();
+      this->ReadMetaData();
+      int size = outInf->Length(
+        vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
+      int *indices = outInf->Get(
+        vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
+
+      this->BlockMap.clear();
+      this->BlockMap.resize( size );
+
+      for( int i=0; i < size; ++i )
+        {
+          this->BlockMap[ i ] = indices[ i ];
+        }
     }
   else
     {
-      std::cout << "No UPDATE_COMPOSITE_INDICES() in RequestData()!\n";
-      std::cout.flush();
+     this->ReadMetaData();
+     this->GenerateBlockMap();
     }
-
-//  if( outInf->Has(
-//      vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() ) )
-//    {
-//      this->MaxLevel = outInf->Get(
-//          vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() );
-//    }
-
-  this->ReadMetaData();
-  this->GenerateBlockMap();
 
   // Initialize counter of the number of blocks at each level.
   // This counter is used to compute the block index w.r.t. the
