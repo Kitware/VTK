@@ -776,6 +776,20 @@ void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
 }
 
 //----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::Clear()
+{
+  this->Superclass::Initialize();
+//  unsigned int level = 0;
+//  for( ; level < this->GetNumberOfLevels(); ++level )
+//    {
+//      vtkMultiPieceDataSet* levelDS =
+//       vtkMultiPieceDataSet::SafeDownCast(this->Superclass::GetChild(level));
+//      levelDS->Delete();
+//    } // END for all levels
+//  this->SetNumberOfLevels( 0 );
+}
+
+//----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
   vtkInformation* info)
 {

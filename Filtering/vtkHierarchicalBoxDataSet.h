@@ -258,6 +258,11 @@ public:
       const unsigned int flatIdx, unsigned int &level, unsigned int &idx );
 
   // Description:
+  // Removes all AMR data stored in this instance of the vtkHierarchicalBoxDataSet
+  void Clear();
+
+
+  // Description:
   // In-line Set & Get
   vtkSetMacro( PadCellVisibility, bool );
   vtkGetMacro( PadCellVisibility, bool );
