@@ -55,6 +55,8 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   this->LastOrientation = -1;
   this->LastSliceNumber = VTK_INT_MAX;
 
+  this->LoadCount = 0;
+
   this->UseClampToEdge = false;
   this->UsePowerOfTwoTextures = true;
 
@@ -236,6 +238,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   if (renWin != this->RenderWindow ||
       renWin->GetContextCreationTime() > loadTime)
     {
+    // force two initial loads for each new context
+    this->LoadCount = 0;
     this->CheckOpenGLCapabilities(renWin);
     reuseTexture = false;
     }
@@ -286,10 +290,10 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       propertyMTime > loadTime ||
       input->GetMTime() > loadTime ||
       orientationChanged || sliceChanged ||
-      renWin != this->RenderWindow ||
-      renWin->GetContextCreationTime() > loadTime ||
-      recursive)
+      this->LoadCount < 2 || recursive)
     {
+    this->LoadCount++;
+
     // get the data to load as a texture
     int xsize = this->TextureSize[0];
     int ysize = this->TextureSize[1];

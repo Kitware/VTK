@@ -65,6 +65,15 @@ public:
     this->OutputFormat = VTK_LUMINANCE; };
 
   // Description:
+  // Bypass the color mapping operation and output the scalar
+  // values directly.  The output values will be float, rather
+  // than the input data type.
+  void SetBypass(int bypass);
+  void BypassOn() { this->SetBypass(1); }
+  void BypassOff() { this->SetBypass(0); }
+  int GetBypass() { return this->Bypass; }
+
+  // Description:
   // When determining the modified time of the filter,
   // this check the modified time of the transform and matrix.
   unsigned long int GetMTime();
@@ -76,6 +85,7 @@ protected:
   vtkScalarsToColors *LookupTable;
   vtkScalarsToColors *DefaultLookupTable;
   int OutputFormat;
+  int Bypass;
 
   int ConvertScalarInfo(int &scalarType, int &numComponents);
 

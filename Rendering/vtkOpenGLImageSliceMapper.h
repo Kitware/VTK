@@ -112,6 +112,9 @@ protected:
   int LastOrientation;
   int LastSliceNumber;
 
+  vtkTimeStamp LoadTime;
+  int LoadCount;
+
   bool UsePowerOfTwoTextures;
   bool UseClampToEdge;
   bool UseFragmentProgram;

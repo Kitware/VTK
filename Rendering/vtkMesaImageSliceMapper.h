@@ -67,6 +67,14 @@ protected:
   void RenderBackingPolygon();
 
   // Description:
+  // Recursive internal method, will call the non-recursive method
+  // as many times as necessary if the texture must be broken up into
+  // pieces that are small enough for the GPU to render
+  void RecursiveRenderTexturedPolygon(
+    vtkRenderer *ren, vtkImageProperty *property,
+    vtkImageData *image, int extent[6], bool recursive);
+
+  // Description:
   // Non-recursive internal method, generate a single texture
   // and its corresponding geometry.
   void RenderTexturedPolygon(
@@ -103,6 +111,9 @@ protected:
   int TextureBytesPerPixel;
   int LastOrientation;
   int LastSliceNumber;
+
+  vtkTimeStamp LoadTime;
+  int LoadCount;
 
   bool UsePowerOfTwoTextures;
   bool UseClampToEdge;
