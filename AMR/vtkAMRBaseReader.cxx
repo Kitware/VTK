@@ -66,7 +66,6 @@ void vtkAMRBaseReader::Initialize()
   this->SetNumberOfInputPorts( 0 );
   this->FileName       = NULL;
   this->MaxLevel       = 0;
-  this->LoadParticles  = 1;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
   this->InitialRequest = true;
 

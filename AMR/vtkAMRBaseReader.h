@@ -55,12 +55,6 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     vtkSetMacro( MaxLevel,int);
 
     // Description:
-    // Set/Get whether the particles, if any, are loaded
-    vtkSetMacro( LoadParticles, int );
-    vtkGetMacro( LoadParticles, int );
-    vtkBooleanMacro( LoadParticles, int );
-
-    // Description:
     // Get the data array selection tables used to configure which data
     // arrays are loaded by the reader.
     vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
@@ -90,6 +84,14 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     // the SetFileName method accordingly.
     vtkGetStringMacro( FileName );
     virtual void SetFileName( const char *fileName ) = 0;
+
+    // Description:
+    // Returns the total number of blocks. Implemented by concrete instances.
+    virtual int GetNumberOfBlocks() = 0;
+
+    // Description:
+    // Returns the total number of levels. Implemented by concrete instances.
+    virtual int GetNumberOfLevels() = 0;
 
   protected:
     vtkAMRBaseReader();
@@ -141,14 +143,6 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     virtual int GetBlockLevel( const int blockIdx ) = 0;
 
     // Description:
-    // Returns the total number of blocks. Implemented by concrete instances.
-    virtual int GetNumberOfBlocks() = 0;
-
-    // Description:
-    // Returns the total number of levels. Implemented by concrete instances.
-    virtual int GetNumberOfLevels() = 0;
-
-    // Description:
     // Loads all the AMR metadata & constructs the LevelIdxPair12InternalIdx
     // datastructure which maps (level,id) pairs to an internal linear index
     // used to identify the corresponding block.
@@ -193,7 +187,6 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
       vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
 
     bool InitialRequest;
-    int LoadParticles;
     int MaxLevel;
     char *FileName;
     vtkMultiProcessController *Controller;
