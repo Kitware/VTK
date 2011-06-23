@@ -43,8 +43,6 @@ class vtkImageActor;
 class vtkTexture;
 class vtkTextActor;
 class vtkImageAlgorithm;
-class vtkOutlineSource;
-class vtkCutter;
 
 class VTK_WIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
 {
@@ -258,12 +256,6 @@ protected:
 
   vtkLookupTable          * CreateDefaultLookupTable();
   void                      GenerateText();
-
-  vtkCutter               * PlaneCutter;
-  vtkOutlineSource        * OutlineSource;
-  void ComputeResliceImageExtent(
-      double spacing[2], int e[2], double newOrigin[3] );
-
 
 private:
   vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&);  //Not implemented
