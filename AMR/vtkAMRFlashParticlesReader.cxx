@@ -174,6 +174,13 @@ void vtkAMRFlashParticlesReader::ReadMetaData()
 }
 
 //------------------------------------------------------------------------------
+int vtkAMRFlashParticlesReader::GetTotalNumberOfParticles()
+{
+  assert( "Internal reader is null" && (this->Internal!=NULL) );
+  return( this->Internal->NumberOfParticles );
+}
+
+//------------------------------------------------------------------------------
 vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
     const char *file, const int blkidx )
 {
