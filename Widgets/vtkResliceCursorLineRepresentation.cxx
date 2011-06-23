@@ -57,6 +57,10 @@ vtkResliceCursorLineRepresentation::vtkResliceCursorLineRepresentation()
 
   this->Picker = vtkResliceCursorPicker::New();
   this->Picker->SetTolerance(0.025);
+
+  this->MatrixReslice      = vtkMatrix4x4::New();
+  this->MatrixView         = vtkMatrix4x4::New();
+  this->MatrixReslicedView = vtkMatrix4x4::New();
 }
 
 //----------------------------------------------------------------------
@@ -64,6 +68,9 @@ vtkResliceCursorLineRepresentation::~vtkResliceCursorLineRepresentation()
 {
   this->ResliceCursorActor->Delete();
   this->Picker->Delete();
+  this->MatrixReslice->Delete();
+  this->MatrixView->Delete();
+  this->MatrixReslicedView->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -502,41 +509,49 @@ int vtkResliceCursorLineRepresentation
 
   // Use the reslice matrix to orient our actors onto an axis-aligned
   // viewing plane.
+  //
+  // MatrixReslicedView = MatrixResliceZeroOffset^T x MatrixViewZeroOffset^T
 
-  vtkSmartPointer< vtkMatrix4x4 > m = vtkSmartPointer< vtkMatrix4x4 >::New();
-  m->DeepCopy(this->ResliceAxes);
-  m->SetElement(0,3,0);
-  m->SetElement(1,3,0);
-  m->SetElement(2,3,0);
-  m->Transpose();
+  this->MatrixReslice->DeepCopy(this->ResliceAxes);
+  this->MatrixReslice->SetElement(0,3,0);
+  this->MatrixReslice->SetElement(1,3,0);
+  this->MatrixReslice->SetElement(2,3,0);
+  this->MatrixReslice->Transpose();
 
   // Now orient onto the viewing plane
 
-  vtkSmartPointer< vtkMatrix4x4 > mView = vtkSmartPointer< vtkMatrix4x4 >::New();
-  mView->Identity();
-  mView->DeepCopy(this->Renderer->GetActiveCamera()->GetViewTransformMatrix());
+  this->MatrixView->Identity();
+  this->MatrixView->DeepCopy(
+      this->Renderer->GetActiveCamera()->GetViewTransformMatrix());
+
   for ( int i = 0; i < 3; i++)
     {
-    mView->SetElement(i,3,0);
-    mView->SetElement(3,i,0);
+    this->MatrixView->SetElement(i,3,0);
+    this->MatrixView->SetElement(3,i,0);
     }
-  mView->Transpose();
-  vtkSmartPointer< vtkMatrix4x4 > mReslicedView = vtkSmartPointer< vtkMatrix4x4 >::New();
-  vtkMatrix4x4::Multiply4x4(mView, m, mReslicedView);
+  this->MatrixView->Transpose();
 
-  this->Picker->SetTransformMatrix(mReslicedView);
-  this->TexturePlaneActor->SetUserMatrix(mReslicedView);
-  this->ResliceCursorActor->SetUserMatrix(mReslicedView);
+  vtkMatrix4x4::Multiply4x4(this->MatrixView,
+      this->MatrixReslice, this->MatrixReslicedView);
+  this->MatrixReslicedView->Modified();
+
+  // Set the matrix on our actors and on the picker, so that we pick transfomed
+  // coordinates
+
+  this->Picker->SetTransformMatrix(this->MatrixReslicedView);
+  this->TexturePlaneActor->SetUserMatrix(this->MatrixReslicedView);
+  this->ResliceCursorActor->SetUserMatrix(this->MatrixReslicedView);
 
 
   // Compute the origin in the transformed view space so that the location
   // of the reslice cursor is mapped in world coordinates to the same
   // location, ie the center on the resliced image of the cursor is the same
   // as its center in physical coordinates.
-  this->ComputeOrigin(mReslicedView);
+
+  this->ComputeOrigin(this->MatrixReslicedView);
 
 
-  // Render all the actors.
+  // Now Render all the actors.
 
   int count = 0;
   if (this->TexturePlaneActor->GetVisibility() && !this->UseImageActor)

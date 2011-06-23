@@ -108,6 +108,13 @@ protected:
   double                   StartPickPosition[3];
   double                   StartCenterPosition[3];
 
+  // Transformation matrices. These have no offset. Offset is recomputed
+  // based on the cursor, so that the center of the cursor has the same
+  // location in transformed space as it does in physical space.
+  vtkMatrix4x4           * MatrixReslice;
+  vtkMatrix4x4           * MatrixView;
+  vtkMatrix4x4           * MatrixReslicedView;
+
 private:
   vtkResliceCursorLineRepresentation(const vtkResliceCursorLineRepresentation&);  //Not implemented
   void operator=(const vtkResliceCursorLineRepresentation&);  //Not implemented
