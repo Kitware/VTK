@@ -154,7 +154,6 @@ protected:
   // Get the dimension indices according to the orientation.
   static void GetDimensionIndices(int orientation, int &xdim, int &ydim);
 
-  vtkTimeStamp LoadTime;
   int SliceNumber;
   int SliceNumberMinValue;
   int SliceNumberMaxValue;

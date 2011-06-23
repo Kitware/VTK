@@ -198,6 +198,8 @@ void vtkResliceImageViewer::UpdateOrientation()
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::UpdateDisplayExtent()
 {
+  // Only update the display extent in axis aligned mode
+
   if (this->ResliceMode == RESLICE_AXIS_ALIGNED)
     {
     this->Superclass::UpdateDisplayExtent();
@@ -249,8 +251,6 @@ void vtkResliceImageViewer::InstallPipeline()
     {
     this->WindowLevel->SetLookupTable(this->GetLookupTable());
     }
-
-  this->UpdatePointPlacer();
 }
 
 //----------------------------------------------------------------------------
@@ -325,6 +325,8 @@ void vtkResliceImageViewer::UpdatePointPlacer()
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::Render()
 {
+  this->UpdatePointPlacer();
+
   this->Superclass::Render();
 }
 
@@ -434,4 +436,6 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ResliceCursorWidget:\n";
   this->ResliceCursorWidget->PrintSelf(os,indent.GetNextIndent());
   os << indent << "ResliceMode: " << this->ResliceMode << endl;
+  os << indent << "Point Placer: ";
+  this->PointPlacer->PrintSelf(os,indent.GetNextIndent());
 }
