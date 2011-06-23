@@ -169,7 +169,7 @@ int TestCorrelativeStatistics( int, char *[] )
   // 2: another valid pair
   cs1->AddColumnPair( "M2", "M1" ); 
   // 3: an invalid pair
-  cs1->AddColumnPair( "M1", "M3" ); 
+  cs1->AddColumnPair( "M1", "M3" );
 
   // Test Learn, Derive, Test, and Assess options
   cs1->SetLearnOption( true );

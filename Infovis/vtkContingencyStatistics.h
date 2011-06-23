@@ -35,17 +35,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkContingencyStatistics_h
 #define __vtkContingencyStatistics_h
 
-#include "vtkBivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkContingencyStatistics : public vtkBivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkContingencyStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkContingencyStatistics, vtkBivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkContingencyStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkContingencyStatistics* New();
 

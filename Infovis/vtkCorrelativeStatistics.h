@@ -40,17 +40,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkCorrelativeStatistics_h
 #define __vtkCorrelativeStatistics_h
 
-#include "vtkBivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkBivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCorrelativeStatistics, vtkBivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkCorrelativeStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCorrelativeStatistics* New();
 
