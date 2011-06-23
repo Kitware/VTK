@@ -216,6 +216,14 @@ int vtkImageSliceMapper::ProcessRequest(
   // just a dummy, does not do anything
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
     {
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+    vtkImageData *output = vtkImageData::SafeDownCast(
+      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+    // set output extent to avoid re-execution
+    output->GetInformation()->Set(vtkDataObject::DATA_EXTENT(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
+
     return 1;
     }
 
