@@ -95,7 +95,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
   protected:
     vtkAMRBaseReader();
-    ~vtkAMRBaseReader();
+    virtual ~vtkAMRBaseReader();
 
     // Desscription:
     // Checks if this reader instance is attached to a communicator
@@ -190,6 +190,8 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     int MaxLevel;
     char *FileName;
     vtkMultiProcessController *Controller;
+
+    vtkHierarchicalBoxDataSet *metadata;
 
     //BTX
       vtkstd::vector<int> BlockMap;

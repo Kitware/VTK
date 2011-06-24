@@ -44,6 +44,8 @@ vtkAMRBaseReader::~vtkAMRBaseReader()
   this->SelectionObserver->Delete( );
   this->CellDataArraySelection->Delete( );
   this->PointDataArraySelection->Delete( );
+  if( this->metadata != NULL )
+    this->metadata->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -66,6 +68,7 @@ void vtkAMRBaseReader::Initialize()
   this->SetNumberOfInputPorts( 0 );
   this->FileName       = NULL;
   this->MaxLevel       = 0;
+  this->metadata       = NULL;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
   this->InitialRequest = true;
 
@@ -211,14 +214,15 @@ int vtkAMRBaseReader::RequestInformation(
 {
   this->Superclass::RequestInformation( rqst, inputVector, outputVector );
 
-  vtkSmartPointer<vtkHierarchicalBoxDataSet> metadata =
-     vtkSmartPointer<vtkHierarchicalBoxDataSet>::New();
-
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  assert( "pre: output information object is NULL" && (info != NULL) );
-
-  this->FillMetaData( metadata );
-  info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(), metadata );
+  if( this->metadata == NULL )
+    {
+      this->metadata = vtkHierarchicalBoxDataSet::New();
+      vtkInformation* info = outputVector->GetInformationObject(0);
+      assert( "pre: output information object is NULL" && (info != NULL) );
+      this->FillMetaData( this->metadata );
+      info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
+          this->metadata );
+    }
 
   this->Modified();
   return 1;
@@ -240,19 +244,30 @@ int vtkAMRBaseReader::RequestData(
   if( outInf->Has(
       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
     {
+      assert( "Metadata should not be null" && (this->metadata!=NULL) );
       output->Clear();
+
       this->ReadMetaData();
-      int size = outInf->Length(
-        vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
-      int *indices = outInf->Get(
-        vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
+
+      int size =
+       outInf->Length(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
+      int *indices =
+        outInf->Get(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
 
       this->BlockMap.clear();
       this->BlockMap.resize( size );
 
       for( int i=0; i < size; ++i )
         {
-          this->BlockMap[ i ] = indices[ i ];
+          unsigned int levelIdx = 0;
+          unsigned int dataIdx  = 0;
+          this->metadata->GetLevelAndIndex( indices[i], levelIdx, dataIdx );
+
+          vtkstd::pair<unsigned int, unsigned int > pair;
+          pair.first  = levelIdx;
+          pair.second = dataIdx;
+          unsigned int internalIdx = this->LevelIdxPair2InternalIdx[ pair ];
+          this->BlockMap[ i ] = internalIdx;
         }
     }
   else
@@ -295,5 +310,6 @@ int vtkAMRBaseReader::RequestData(
 
   outInf = NULL;
   output = NULL;
+  this->Modified();
   return 1;
 }
