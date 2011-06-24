@@ -287,7 +287,7 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
   double bounds[6];
 
   unsigned int level=0;
-  for( ; level < this->MaxResolution; ++level )
+  for( ; level <= this->MaxResolution; ++level )
     {
       unsigned int dataIdx = 0;
       for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
