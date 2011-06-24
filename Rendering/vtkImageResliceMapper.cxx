@@ -9,7 +9,7 @@
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+     PURPOSE.  See the side copyright notice for more information.
 
 =========================================================================*/
 #include "vtkImageResliceMapper.h"
@@ -46,6 +46,10 @@ vtkImageResliceMapper::vtkImageResliceMapper()
 
   this->AutoAdjustImageQuality = 1;
   this->SeparateWindowLevelOperation = 1;
+  this->SlabType = VTK_IMAGE_SLAB_MEAN;
+  this->SlabThickness = 0.0;
+  this->SlabSampleFactor = 2;
+  this->ImageSampleFactor = 1;
   this->ResampleToScreenPixels = 1;
   this->InternalResampleToScreenPixels = 0;
   this->ResliceNeedUpdate = 0;
@@ -684,7 +688,6 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     // Find the spacing
     spacing[0] = (xmax - xmin)/xsize;
     spacing[1] = (ymax - ymin)/ysize;
-    spacing[2] = 1.0;
 
     // Corner of resliced plane, including half-pixel offset to
     // exactly match texels to pixels in the final rendering
@@ -705,16 +708,11 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
       double xc = this->ResliceMatrix->Element[j][0];
       double yc = this->ResliceMatrix->Element[j][1];
       double zc = this->ResliceMatrix->Element[j][2];
-      xc *= xc;
-      yc *= yc;
-      zc *= zc;
-      spacing[j] = (xc*inputSpacing[0] +
-                    yc*inputSpacing[1] +
-                    zc*inputSpacing[2]);
+      spacing[j] = (xc*xc*inputSpacing[0] +
+                    yc*yc*inputSpacing[1] +
+                    zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
+      spacing[j] /= this->ImageSampleFactor;
       }
-
-    // Always set z spacing to unity
-    spacing[2] = 1.0;
 
     // Find the bounds for the texture
     double xmin = VTK_DOUBLE_MAX;
@@ -768,13 +766,17 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     origin[2] = z;
     }
 
+  // Keep the Z output spacing (it is set elsewhere)
+  spacing[2] = this->ImageReslice->GetOutputSpacing()[2];
+
   // Prepare for reslicing
   reslice->SetResliceAxes(resliceMatrix);
   reslice->SetOutputExtent(extent);
   reslice->SetOutputSpacing(spacing);
   reslice->SetOutputOrigin(origin);
 
-  if (this->SliceFacesCamera && this->InternalResampleToScreenPixels)
+  if ((this->SliceFacesCamera && this->InternalResampleToScreenPixels) ||
+      this->SlabThickness > 0)
     {
     // if slice follows camera, use reslice to set the border
     reslice->SetBorder(this->Border);
@@ -821,12 +823,14 @@ void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty *property)
 }
 
 //----------------------------------------------------------------------------
-// Do all the fancy math to set up the reslicing
+// Set the reslice interpolation and slab thickness
 void vtkImageResliceMapper::UpdateResliceInterpolation(
   vtkImageProperty *property)
 {
   // set the interpolation mode and border
   int interpMode = VTK_RESLICE_NEAREST;
+  int slabMode = VTK_RESLICE_SLAB_MEAN;
+  int slabSlices = 1;
 
   if (property)
     {
@@ -842,9 +846,47 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
         interpMode = VTK_RESLICE_CUBIC;
         break;
       }
+
+    switch(this->SlabType)
+      {
+      case VTK_IMAGE_SLAB_MEAN:
+        slabMode = VTK_RESLICE_SLAB_MEAN;
+        break;
+      case VTK_IMAGE_SLAB_MIN:
+        slabMode = VTK_RESLICE_SLAB_MIN;
+        break;
+      case VTK_IMAGE_SLAB_MAX:
+        slabMode = VTK_RESLICE_SLAB_MAX;
+        break;
+      }
+
+    double spacing[3], inputSpacing[3];
+    this->ImageReslice->GetOutputSpacing(spacing);
+    this->GetInput()->GetSpacing(inputSpacing);
+    inputSpacing[0] = fabs(inputSpacing[0]);
+    inputSpacing[1] = fabs(inputSpacing[1]);
+    inputSpacing[2] = fabs(inputSpacing[2]);
+    double xc = this->ResliceMatrix->Element[2][0];
+    double yc = this->ResliceMatrix->Element[2][1];
+    double zc = this->ResliceMatrix->Element[2][2];
+    spacing[2] = (xc*xc*inputSpacing[0] +
+                  yc*yc*inputSpacing[1] +
+                  zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
+
+    // this->Slab slice spacing is half the input slice spacing
+    int n = vtkMath::Ceil(this->SlabThickness/spacing[2]);
+    slabSlices = 1 + this->SlabSampleFactor*n; 
+    if (slabSlices > 1)
+      {
+      spacing[2] = this->SlabThickness/(slabSlices - 1);
+      }
+    this->ImageReslice->SetOutputSpacing(spacing);
     }
 
   this->ImageReslice->SetInterpolationMode(interpMode);
+  this->ImageReslice->SetSlabMode(slabMode);
+  this->ImageReslice->SetSlabNumberOfSlices(slabSlices);
+  this->ImageReslice->SlabTrapezoidIntegrationOn();
 }
 
 //----------------------------------------------------------------------------
@@ -991,14 +1033,20 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
     }
 
   // transform the vertices to the slice coord system
-  double xpoints[8];
-  double ypoints[8];
-  double weights[8];
-  bool above[8];
+  double xpoints[8], ypoints[8];
+  double weights1[8], weights2[8];
+  bool above[8], below[8];
   double mat[16];
   vtkMatrix4x4::Multiply4x4(*this->WorldToDataMatrix->Element,
                             *this->SliceToWorldMatrix->Element, mat);
   vtkMatrix4x4::Invert(mat, mat);
+
+  // arrays for the list of polygon points
+  int n = 0;
+  double newxpoints[32];
+  double newypoints[32];
+  double cx = 0.0;
+  double cy = 0.0;
 
   for (int i = 0; i < 8; i++)
     {
@@ -1010,42 +1058,51 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
     vtkMatrix4x4::MultiplyPoint(mat, point, point);
     xpoints[i] = point[0]/point[3];
     ypoints[i] = point[1]/point[3];
-    weights[i] = point[2]/point[3] - z;
-    above[i] = (weights[i] >= 0);
+    weights1[i] = point[2]/point[3] - z - 0.5*this->SlabThickness;
+    weights2[i] = weights1[i] + this->SlabThickness;
+    below[i] = (weights1[i] < 0);
+    above[i] = (weights2[i] >= 0);
+
+    if (this->SlabThickness > 0 && above[i] && below[i])
+      {
+      newxpoints[n] = xpoints[i];
+      newypoints[n] = ypoints[i];
+      cx += xpoints[i];
+      cy += ypoints[i];
+      n++;
+      }
     }
 
   // go through the edges and find the new points 
-  double newxpoints[12];
-  double newypoints[12];
-  double cx = 0.0;
-  double cy = 0.0;
-  int n = 0;
   for (int j = 0; j < 12; j++)
     {
     // verts from edges (sorry about this..)
     int i1 = (j & 3) | (((j<<1) ^ (j<<2)) & 4);
     int i2 = (i1 ^ (1 << (j>>2)));
 
-    if (above[i1] ^ above[i2])
+    double *weights = weights2;
+    bool *side = above; 
+    int m = 1 + (this->SlabThickness > 0);
+    for (int k = 0; k < m; k++)
       {
-      double w1 = weights[i2];
-      double w2 = -weights[i1];
-      newxpoints[n] = (w1*xpoints[i1] + w2*xpoints[i2])/(w1 + w2);
-      newypoints[n] = (w1*ypoints[i1] + w2*ypoints[i2])/(w1 + w2);
-      cx += newxpoints[n];
-      cy += newypoints[n];
-      n++;
+      if (side[i1] ^ side[i2])
+        {
+        double w1 = weights[i2];
+        double w2 = -weights[i1];
+        double x = (w1*xpoints[i1] + w2*xpoints[i2])/(w1 + w2);
+        double y = (w1*ypoints[i1] + w2*ypoints[i2])/(w1 + w2);
+        newxpoints[n] = x;
+        newypoints[n] = y;
+        cx += x;
+        cy += y;
+        n++;
+        }
+      weights = weights1;
+      side = below;
       }
     }
 
-  // n should never exceed six
-  if (n > 6)
-    {
-    vtkErrorMacro("UpdateCutPolygon generated more than "
-                  "6 points, please report a bug!");
-    }
-
-  double coords[18];
+  double coords[96];
 
   if (n > 0)
     {
@@ -1081,6 +1138,69 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       }
     }
 
+  // remove degenerate points
+  if (n > 0)
+    {
+    bool found = true;
+    int m = 0;
+    do
+      {
+      m = 0;
+      double xl = coords[3*(n-1)+0];
+      double yl = coords[3*(n-1)+1];
+      for (int k = 0; k < n; k++)
+        {
+        double x = coords[3*k+0];
+        double y = coords[3*k+1];
+
+        if (((x - xl)*(x - xl) + (y - yl)*(y - yl)) > tol*tol)
+          {
+          coords[3*m+0] = x;
+          coords[3*m+1] = y;
+          xl = x;
+          yl = y;
+          m++;
+          }
+        }
+      found = (m < n);
+      n = m;
+      }
+    while (found && n > 0);
+    }
+
+  // find convex hull
+  if (this->SlabThickness > 0 && n > 0)
+    {
+    bool found = true;
+    int m = 0;
+    do
+      {
+      m = 0;
+      double xl = coords[3*(n-1)+0];
+      double yl = coords[3*(n-1)+1];
+      for (int k = 0; k < n; k++)
+        {
+        double x = coords[3*k+0];
+        double y = coords[3*k+1];
+        int k1 = (k + 1) % n;
+        double xn = coords[3*k1+0];
+        double yn = coords[3*k1+1];
+
+        if ((xn-xl)*(y-yl) - (yn-yl)*(x-xl) < tol*tol)
+          {
+          coords[3*m+0] = x;
+          coords[3*m+1] = y;
+          xl = x;
+          yl = y;
+          m++;
+          }
+        }
+      found = (m < n);
+      n = m;
+      }
+    while (found && n > 0);
+    }
+
   vtkPoints *points = this->SliceMapper->GetPoints();
   if (!points)
     {
@@ -1108,6 +1228,25 @@ void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
      << (this->SeparateWindowLevelOperation ? "On\n" : "Off\n");
   os << indent << "ResampleToScreenPixels: "
      << (this->ResampleToScreenPixels ? "On\n" : "Off\n");
+  os << indent << "SlabThickness: " << this->SlabThickness << "\n";
+  os << indent << "SlabType: " << this->GetSlabTypeAsString() << "\n";
+  os << indent << "SlabSampleFactor: " << this->SlabSampleFactor << "\n";
+  os << indent << "ImageSampleFactor: " << this->ImageSampleFactor << "\n";
+}
+
+//----------------------------------------------------------------------------
+const char *vtkImageResliceMapper::GetSlabTypeAsString()
+{
+  switch (this->SlabType)
+    {
+    case VTK_IMAGE_SLAB_MEAN:
+      return "Mean";
+    case VTK_IMAGE_SLAB_MIN:
+      return "Min";
+    case VTK_IMAGE_SLAB_MAX:
+      return "Max";
+    }
+  return "";
 }
 
 //----------------------------------------------------------------------------

@@ -28,6 +28,11 @@
 
 #include "vtkImageMapper3D.h"
 
+// slab mode constants
+#define VTK_IMAGE_SLAB_MEAN 0
+#define VTK_IMAGE_SLAB_MIN 1
+#define VTK_IMAGE_SLAB_MAX 2
+
 class vtkImageSliceMapper;
 class vtkRenderer;
 class vtkRenderWindow;
@@ -51,6 +56,38 @@ public:
   // data coordinates.  Use SliceFacesCamera and SliceAtFocalPoint
   // if you want the slice to automatically follow the camera.
   virtual void SetSlicePlane(vtkPlane *plane);
+
+  // Description:
+  // The slab thickness, for thick slicing (default: zero)
+  vtkSetMacro(SlabThickness, double);
+  vtkGetMacro(SlabThickness, double);
+
+  // Description:
+  // The slab type, for thick slicing (default: mean)
+  vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MEAN, VTK_IMAGE_SLAB_MAX);
+  vtkGetMacro(SlabType, int);
+  void SetSlabTypeToMean() {
+    this->SetSlabType(VTK_IMAGE_SLAB_MEAN); };
+  void SetSlabTypeToMin() {
+    this->SetSlabType(VTK_IMAGE_SLAB_MIN); };
+  void SetSlabTypeToMax() {
+    this->SetSlabType(VTK_IMAGE_SLAB_MAX); };
+  virtual const char *GetSlabTypeAsString();
+
+  // Description:
+  // Set the number of slab samples to use as a factor of the number
+  // of input slices within the slab thickness.  The default value
+  // is 2, but 1 will increase speed with very little loss of quality.
+  vtkSetClampMacro(SlabSampleFactor, int, 1, 2);
+  vtkGetMacro(SlabSampleFactor, int);
+
+  // Description:
+  // Set the reslice sample frequency as in relation to the input image
+  // sample frequency.  The default value is 1, but higher values can be
+  // used to improve the results.  This is cheaper than turning on
+  // ResampleToScreenPixels.
+  vtkSetClampMacro(ImageSampleFactor, int, 1, 16);
+  vtkGetMacro(ImageSampleFactor, int);
 
   // Description:
   // Automatically reduce the rendering quality for greater speed
@@ -155,6 +192,10 @@ protected:
 
   int AutoAdjustImageQuality; // LOD-style behavior
   int SeparateWindowLevelOperation; // Do window/level as a separate step
+  double SlabThickness; // Current slab thickness
+  int SlabType; // Current slab mode
+  int SlabSampleFactor; // Sampling factor for slab mode
+  int ImageSampleFactor; // Sampling factor for image pixels
   int ResampleToScreenPixels; // Use software interpolation only
   int InternalResampleToScreenPixels; // Use software interpolation only
   int ResliceNeedUpdate; // Execute reslice on next render
