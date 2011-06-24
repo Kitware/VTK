@@ -63,9 +63,9 @@
 
 // slab mode constants
 #define VTK_RESLICE_SLAB_MEAN 0
-#define VTK_RESLICE_SLAB_SUM 1
-#define VTK_RESLICE_SLAB_MIN 2
-#define VTK_RESLICE_SLAB_MAX 3
+#define VTK_RESLICE_SLAB_MIN 1
+#define VTK_RESLICE_SLAB_MAX 2
+#define VTK_RESLICE_SLAB_SUM 3
 
 class vtkImageData;
 class vtkAbstractTransform;
@@ -254,6 +254,14 @@ public:
   vtkGetMacro(SlabNumberOfSlices, int);
 
   // Description:
+  // Use trapezoid integration for slab computation.  All this does is
+  // weigh the first and last slices by half when doing sum and mean.
+  // It is off by default.
+  vtkSetMacro(SlabTrapezoidIntegration, int);
+  vtkBooleanMacro(SlabTrapezoidIntegration, int);
+  vtkGetMacro(SlabTrapezoidIntegration, int);
+
+  // Description:
   // Turn on and off optimizations (default on, they should only be
   // turned off for testing purposes).
   vtkSetMacro(Optimization, int);
@@ -376,6 +384,7 @@ protected:
   int Optimization;
   int SlabMode;
   int SlabNumberOfSlices;
+  int SlabTrapezoidIntegration;
   double BackgroundColor[4];
   double OutputOrigin[3];
   double OutputSpacing[3];

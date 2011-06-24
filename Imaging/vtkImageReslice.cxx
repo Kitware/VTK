@@ -183,6 +183,7 @@ vtkImageReslice::vtkImageReslice()
 
   this->SlabMode = VTK_RESLICE_SLAB_MEAN;
   this->SlabNumberOfSlices = 1;
+  this->SlabTrapezoidIntegration = 0;
 
   this->Optimization = 1; // turn off when you're paranoid
 
@@ -309,6 +310,8 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InterpolationSizeParameter: " << this->InterpolationSizeParameter << "\n";
   os << indent << "SlabMode: " << this->GetSlabModeAsString() << "\n";
   os << indent << "SlabNumberOfSlices: " << this->SlabNumberOfSlices << "\n";
+  os << indent << "SlabTrapezoidIntegration: "
+     << (this->SlabTrapezoidIntegration ? "On\n" : "Off\n");
   os << indent << "Optimization: " << (this->Optimization ? "On\n":"Off\n");
   os << indent << "BackgroundColor: " <<
     this->BackgroundColor[0] << " " << this->BackgroundColor[1] << " " <<
@@ -1529,15 +1532,16 @@ template<class F>
 struct vtkImageResliceComposite
 {
   static void MeanValue(F *inPtr, int numscalars, int n);
+  static void MeanTrap(F *inPtr, int numscalars, int n);
   static void SumValues(F *inPtr, int numscalars, int n);
+  static void SumTrap(F *inPtr, int numscalars, int n);
   static void MinValue(F *inPtr, int numscalars, int n);
   static void MaxValue(F *inPtr, int numscalars, int n);
 };
 
-template <class F>
-void vtkImageResliceComposite<F>::MeanValue(F *inPtr, int numscalars, int n)
+template<class F>
+void vtkImageResliceSlabSum(F *inPtr, int numscalars, int n, F f)
 {
-  double f = 1.0/n;
   int m = numscalars;
   --n;
   do
@@ -1556,25 +1560,51 @@ void vtkImageResliceComposite<F>::MeanValue(F *inPtr, int numscalars, int n)
   while (--m);
 }
 
-template <class F>
-void vtkImageResliceComposite<F>::SumValues(F *inPtr, int numscalars, int n)
+template<class F>
+void vtkImageResliceSlabTrap(F *inPtr, int numscalars, int n, F f)
 {
   int m = numscalars;
   --n;
   do
     {
-    F result = *inPtr;
-    int k = n;
-    do
+    F result = *inPtr*0.5;
+    for (int k = n-1; k != 0; --k)
       {
       inPtr += numscalars;
       result += *inPtr;
       }
-    while (--k);
+    inPtr += numscalars;
+    result += *inPtr*0.5;
     inPtr -= n*numscalars;
-    *inPtr++ = result;
+    *inPtr++ = result*f;
     }
   while (--m);
+}
+
+template <class F>
+void vtkImageResliceComposite<F>::MeanValue(F *inPtr, int numscalars, int n)
+{
+  F f = 1.0/n;
+  vtkImageResliceSlabSum(inPtr, numscalars, n, f);
+}
+
+template <class F>
+void vtkImageResliceComposite<F>::MeanTrap(F *inPtr, int numscalars, int n)
+{
+  F f = 1.0/(n-1);
+  vtkImageResliceSlabTrap(inPtr, numscalars, n, f);
+}
+
+template <class F>
+void vtkImageResliceComposite<F>::SumValues(F *inPtr, int numscalars, int n)
+{
+  vtkImageResliceSlabSum(inPtr, numscalars, n, static_cast<F>(1.0));
+}
+
+template <class F>
+void vtkImageResliceComposite<F>::SumTrap(F *inPtr, int numscalars, int n)
+{
+  vtkImageResliceSlabTrap(inPtr, numscalars, n, static_cast<F>(1.0));
 }
 
 template <class F>
@@ -1625,14 +1655,17 @@ void vtkGetCompositeFunc(vtkImageReslice *self,
                          void (**composite)(F *in, int numscalars, int n))
 {
   int slabMode = self->GetSlabMode();
+  int trpz = self->GetSlabTrapezoidIntegration();
 
   switch (slabMode)
     {
     case VTK_RESLICE_SLAB_MEAN:
-      *composite = &(vtkImageResliceComposite<F>::MeanValue);
+      if (trpz) { *composite = &(vtkImageResliceComposite<F>::MeanTrap); }
+      else { *composite = &(vtkImageResliceComposite<F>::MeanValue); }
       break;
     case VTK_RESLICE_SLAB_SUM:
-      *composite = &(vtkImageResliceComposite<F>::SumValues);
+      if (trpz) { *composite = &(vtkImageResliceComposite<F>::SumTrap); }
+      else { *composite = &(vtkImageResliceComposite<F>::SumValues); }
       break;
     case VTK_RESLICE_SLAB_MIN:
       *composite = &(vtkImageResliceComposite<F>::MinValue);
