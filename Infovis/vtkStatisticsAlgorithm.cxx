@@ -179,6 +179,24 @@ int vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c, vtkSt
 }
 
 // ----------------------------------------------------------------------
+void vtkStatisticsAlgorithm::AddColumn( const char* namCol )
+{
+  if ( this->Internals->AddColumnToRequests( namCol ) )
+    {
+    this->Modified();
+    }
+}
+
+// ----------------------------------------------------------------------
+void vtkStatisticsAlgorithm::AddColumnPair( const char* namColX, const char* namColY )
+{
+  if ( this->Internals->AddColumnPairToRequests( namColX, namColY ) )
+    {
+    this->Modified();
+    }
+}
+
+// ----------------------------------------------------------------------
 bool vtkStatisticsAlgorithm::SetParameter( const char* vtkNotUsed(parameter),
                                            int vtkNotUsed(index),
                                            vtkVariant vtkNotUsed(value) )

@@ -37,17 +37,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkOrderStatistics_h
 #define __vtkOrderStatistics_h
 
-#include "vtkUnivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkOrderStatistics : public vtkUnivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkOrderStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkOrderStatistics, vtkUnivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkOrderStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkOrderStatistics* New();
 

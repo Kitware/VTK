@@ -29,7 +29,6 @@ vtkAreaLayoutStrategy.cxx
 vtkAssignCoordinates.cxx
 vtkAssignCoordinatesLayoutStrategy.cxx
 vtkBivariateLinearTableThreshold.cxx
-vtkBivariateStatisticsAlgorithm.cxx
 vtkBoxLayoutStrategy.cxx
 vtkChacoGraphReader.cxx
 vtkCirclePackFrontChainLayoutStrategy.cxx
@@ -121,7 +120,6 @@ vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeRingToPolyData.cxx
 vtkTulipReader.cxx
-vtkUnivariateStatisticsAlgorithm.cxx
 vtkAttributeClustering2DLayoutStrategy.cxx
 vtkVertexDegree.cxx
 vtkXGMLReader.cxx
@@ -256,13 +254,11 @@ ENDIF(VTK_HAS_UINT64_ARRAY)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAreaLayoutStrategy.cxx
-vtkBivariateStatisticsAlgorithm.cxx
 vtkCirclePackLayoutStrategy.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx
-vtkUnivariateStatisticsAlgorithm.cxx
 ABSTRACT
 )
 

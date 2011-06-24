@@ -44,14 +44,11 @@ vtkImageResliceMapper::vtkImageResliceMapper()
   this->WorldToDataMatrix = vtkMatrix4x4::New();
   this->SliceToWorldMatrix = vtkMatrix4x4::New();
 
-  vtkImageData *data = vtkImageData::New();
-  this->ImageReslice->SetInput(data);
-  data->Delete();
-
   this->AutoAdjustImageQuality = 1;
   this->SeparateWindowLevelOperation = 1;
   this->ResampleToScreenPixels = 1;
   this->InternalResampleToScreenPixels = 0;
+  this->ResliceNeedUpdate = 0;
 
   // streaming requires an output port
   this->SetNumberOfOutputPorts(1);
@@ -115,6 +112,13 @@ void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *win)
 //----------------------------------------------------------------------------
 void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
+  if (this->ResliceNeedUpdate)
+    {
+    this->ImageReslice->SetInput(this->GetInput());
+    this->ImageReslice->UpdateWholeExtent();
+    this->ResliceNeedUpdate = 1;
+    }
+
   // apply checkerboard pattern (should have timestamps)
   vtkImageProperty *property = prop->GetProperty();
   if (property && property->GetCheckerboard() &&
@@ -296,16 +300,17 @@ int vtkImageResliceMapper::ProcessRequest(
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
     {
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    vtkImageData *input = vtkImageData::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
     vtkImageData *output = vtkImageData::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-    this->ImageReslice->GetInput()->ShallowCopy(input);
-    this->ImageReslice->UpdateWholeExtent();
-    output->ShallowCopy(this->ImageReslice->GetOutput());
+    // set output extent to avoid re-execution
+    output->GetInformation()->Set(vtkDataObject::DATA_EXTENT(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
+
+    // do an update of Reslice on the next render
+    this->ResliceNeedUpdate = 1;
+
     return 1;
     }
 
