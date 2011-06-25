@@ -67,8 +67,8 @@ vtkImageMapper mapper1
 
 vtkImageMapper mapper2
   mapper2 SetInputConnection [reslice2 GetOutputPort]
-  mapper2 SetColorWindow 50000
-  mapper2 SetColorLevel 25000
+  mapper2 SetColorWindow 3000
+  mapper2 SetColorLevel 1500
   mapper2 SetZSlice 0
 
 vtkImageMapper mapper3
