@@ -1295,7 +1295,7 @@ unsigned long vtkImageResliceMapper::GetMTime()
         }
       if (useMTime)
         {
-        unsigned long mTime2 = property->GetMTime();
+        mTime2 = property->GetMTime();
         mTime = (mTime2 > mTime ? mTime2 : mTime);
 
         vtkScalarsToColors *lookupTable = property->GetLookupTable();
