@@ -1673,6 +1673,8 @@ void vtkGetCompositeFunc(vtkImageReslice *self,
     case VTK_RESLICE_SLAB_MAX:
       *composite = &(vtkImageResliceComposite<F>::MaxValue);
       break;
+    default:
+      *composite = 0;
     }
 }
 
@@ -4337,6 +4339,179 @@ void vtkPermuteGeneralTable(const int outExt[6], const int inExt[6],
 }
 
 //----------------------------------------------------------------------------
+template<class F>
+struct vtkImageResliceRowComp
+{
+  static void SumRow(F *op, const F *ip, int nc, int m, int i, int n);
+  static void SumRowTrap(F *op, const F *ip, int nc, int m, int i, int n);
+  static void MeanRow(F *op, const F *ip, int nc, int m, int i, int n);
+  static void MeanRowTrap(F *op, const F *ip, int nc, int m, int i, int n);
+  static void MinRow(F *op, const F *ip, int nc, int m, int i, int n);
+  static void MaxRow(F *op, const F *ip, int nc, int m, int i, int n);
+};
+
+template<class F>
+void vtkImageResliceRowComp<F>::SumRow(
+  F *outPtr, const F *inPtr, int numComp, int count, int i, int)
+{
+  int m = count*numComp;
+  if (m)
+    {
+    if (i == 0)
+      {
+      do { *outPtr++ = *inPtr++; } while (--m);
+      }
+    else
+      {
+      do { *outPtr++ += *inPtr++; } while (--m);
+      }
+    }
+}
+
+template<class F>
+void vtkImageResliceRowComp<F>::SumRowTrap(
+  F *outPtr, const F *inPtr, int numComp, int count, int i, int n)
+{
+  int m = count*numComp;
+  if (m)
+    {
+    if (i == 0)
+      {
+      do { *outPtr++ = 0.5*(*inPtr++); } while (--m);
+      }
+    else if (i == n-1)
+      {
+      do { *outPtr++ += 0.5*(*inPtr++); } while (--m);
+      }
+    else
+      {
+      do { *outPtr++ += *inPtr++; } while (--m);
+      }
+    }
+}
+
+template<class F>
+void vtkImageResliceRowComp<F>::MeanRow(
+  F *outPtr, const F *inPtr, int numComp, int count, int i, int n)
+{
+  int m = count*numComp;
+  if (m)
+    {
+    if (i == 0)
+      {
+      do { *outPtr++ = *inPtr++; } while (--m);
+      }
+    else if (i == n-1)
+      {
+      F f = F(1.0/n);
+      do { *outPtr += *inPtr++; *outPtr *= f; outPtr++; } while (--m);
+      }
+    else
+      {
+      do { *outPtr++ += *inPtr++; } while (--m);
+      }
+    }
+}
+
+template<class F>
+void vtkImageResliceRowComp<F>::MeanRowTrap(
+  F *outPtr, const F *inPtr, int numComp, int count, int i, int n)
+{
+  int m = count*numComp;
+  if (m)
+    {
+    if (i == 0)
+      {
+      do { *outPtr++ = 0.5*(*inPtr++); } while (--m);
+      }
+    else if (i == n-1)
+      {
+      F f = F(1.0/(n-1));
+      do { *outPtr += 0.5*(*inPtr++); *outPtr *= f; outPtr++; } while (--m);
+      }
+    else
+      {
+      do { *outPtr++ += *inPtr++; } while (--m);
+      }
+    }
+}
+
+template<class F>
+void vtkImageResliceRowComp<F>::MinRow(
+  F *outPtr, const F *inPtr, int numComp, int count, int i, int)
+{
+  int m = count*numComp;
+  if (m)
+    {
+    if (i == 0)
+      {
+      do { *outPtr++ = *inPtr++; } while (--m);
+      }
+    else
+      {
+      do
+        {
+        *outPtr = ((*outPtr < *inPtr) ? *outPtr : *inPtr);
+        *outPtr++; *inPtr++;
+        }
+      while (--m);
+      }
+    }
+}
+
+template<class F>
+void vtkImageResliceRowComp<F>::MaxRow(
+  F *outPtr, const F *inPtr, int numComp, int count, int i, int)
+{
+  int m = count*numComp;
+  if (m)
+    {
+    if (i == 0)
+      {
+      do { *outPtr++ = *inPtr++; } while (--m);
+      }
+    else
+      {
+      do
+        {
+        *outPtr = ((*outPtr >= *inPtr) ? *outPtr : *inPtr);
+        *outPtr++; *inPtr++;
+        }
+      while (--m);
+      }
+    }
+}
+
+// get the composite function
+template<class F>
+void vtkGetRowCompositeFunc(vtkImageReslice *self,
+  void (**composite)(F *op, const F *ip, int nc, int count, int i, int n))
+{
+  int slabMode = self->GetSlabMode();
+  int trpz = self->GetSlabTrapezoidIntegration();
+
+  switch (slabMode)
+    {
+    case VTK_RESLICE_SLAB_MEAN:
+      if (trpz) { *composite = &(vtkImageResliceRowComp<F>::MeanRowTrap); }
+      else { *composite = &(vtkImageResliceRowComp<F>::MeanRow); }
+      break;
+    case VTK_RESLICE_SLAB_SUM:
+      if (trpz) { *composite = &(vtkImageResliceRowComp<F>::SumRowTrap); }
+      else { *composite = &(vtkImageResliceRowComp<F>::SumRow); }
+      break;
+    case VTK_RESLICE_SLAB_MIN:
+      *composite = &(vtkImageResliceRowComp<F>::MinRow);
+      break;
+    case VTK_RESLICE_SLAB_MAX:
+      *composite = &(vtkImageResliceRowComp<F>::MaxRow);
+      break;
+    default:
+      *composite = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
 // Check to see if we can do nearest-neighbor instead of linear or cubic.
 // This check only works on permutation+scale+translation matrices.
 template <class F>
@@ -4379,7 +4554,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
                               vtkImageData *inData, void *inPtr,
                               vtkImageData *outData, void *outPtr,
                               vtkImageResliceConvertScalarsType convertScalars,
-                              int outExt[6], int threadId, F newmat[4][4])
+                              int outExt[6], int threadId, F matrix[4][4])
 {
   // find maximum input range
   int inExt[6];
@@ -4394,6 +4569,35 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   int inComponents = inData->GetNumberOfScalarComponents();
   int outComponents = outData->GetNumberOfScalarComponents();
 
+  // slab mode
+  int nsamples = self->GetSlabNumberOfSlices();
+  nsamples = ((nsamples > 0) ? nsamples : 1);
+  F (*newmat)[4];
+  newmat = matrix;
+  F smatrix[4][4];
+  int *extent = outExt;
+  int sextent[6];
+  if (nsamples > 1)
+    {
+    F *tmpm1 = *matrix;
+    F *tmpm2 = *smatrix;
+    for (int ii = 0; ii < 16; ii++)
+      {
+      *tmpm2++ = *tmpm1++;
+      }
+    smatrix[0][3] -= 0.5*smatrix[0][2]*nsamples;
+    smatrix[1][3] -= 0.5*smatrix[1][2]*nsamples;
+    smatrix[2][3] -= 0.5*smatrix[2][2]*nsamples;
+    newmat = smatrix;
+    for (int jj = 0; jj < 6; jj++)
+      {
+      sextent[jj] = outExt[jj];
+      }
+    sextent[5] += nsamples-1;
+    extent = sextent; 
+    }
+
+  // interpolation mode
   int interpolationMode = self->GetInterpolationMode();
   if (vtkCanUseNearestNeighbor(newmat, outExt))
     {
@@ -4403,7 +4607,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   bool doConversion = true;
   if (interpolationMode == VTK_RESLICE_NEAREST &&
       inData->GetScalarType() == outData->GetScalarType() &&
-      !convertScalars && inComponents <= 4)
+      !convertScalars && nsamples == 1 && inComponents <= 4)
     {
     doConversion = false;
     }
@@ -4433,12 +4637,12 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   F *constants[3];
   for (int i = 0; i < 3; i++)
     {
-    int outExtI = outExt[2*i+1] - outExt[2*i] + 1;
+    int extentI = extent[2*i+1] - extent[2*i] + 1;
 
-    traversal[i] = new vtkIdType[outExtI*step];
-    traversal[i] -= step*outExt[2*i];
-    constants[i] = new F[outExtI*step];
-    constants[i] -= step*outExt[2*i];
+    traversal[i] = new vtkIdType[extentI*step];
+    traversal[i] -= step*extent[2*i];
+    constants[i] = new F[extentI*step];
+    constants[i] -= step*extent[2*i];
     }
 
   // this 'mode' species what to do with the 'pad' (out-of-bounds) area
@@ -4448,32 +4652,31 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   F bounds[6];
   vtkResliceGetStructuredBounds(self, inExt, bounds);
 
-  // clipExt will be set to portion of outExt that matches bounds
+  // clipExt will be set to portion of extent that matches bounds
   int clipExt[6];
-  for (int j = 0; j < 3; j++)
+  for (int j = 0; j < 6; j++)
     {
-    clipExt[2*j] = outExt[2*j];
-    clipExt[2*j+1] = outExt[2*j+1];
+    clipExt[j] = extent[j];
     }
 
   // fill in the interpolation tables
   switch (interpolationMode)
     {
     case VTK_RESLICE_NEAREST:
-      vtkPermuteNearestTable(outExt, inExt, inInc, clipExt,
+      vtkPermuteNearestTable(extent, inExt, inInc, clipExt,
                              traversal, constants, &mode, newmat, bounds);
       break;
     case VTK_RESLICE_LINEAR:
     case VTK_RESLICE_RESERVED_2:
-      vtkPermuteLinearTable(outExt, inExt, inInc, clipExt,
+      vtkPermuteLinearTable(extent, inExt, inInc, clipExt,
                             traversal, constants, &mode, newmat, bounds);
       break;
     case VTK_RESLICE_CUBIC:
-      vtkPermuteCubicTable(outExt, inExt, inInc, clipExt,
+      vtkPermuteCubicTable(extent, inExt, inInc, clipExt,
                            traversal, constants, &mode, newmat, bounds);
       break;
     default:
-      vtkPermuteGeneralTable(outExt, inExt, inInc, clipExt,
+      vtkPermuteGeneralTable(extent, inExt, inInc, clipExt,
                              traversal, constants, &mode, newmat, bounds);
       break;
     }
@@ -4490,11 +4693,20 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   vtkGetConversionFunc(self, &conversion);
   vtkGetSetPixelsFunc(self, &setpixels);
 
+  // get the slab compositing function
+  void (*composite)(F *op, const F *ip, int nc, int count, int i, int n);
+  vtkGetRowCompositeFunc(self, &composite);
+
   // get temp float space for type conversion
   F *floatPtr = 0;
+  F *floatSumPtr = 0;
   if (doConversion)
     {
     floatPtr = new F [inComponents*(outExt[1] - outExt[0] + 1)];
+    }
+  if (nsamples > 1)
+    {
+    floatSumPtr = new F [inComponents*(outExt[1] - outExt[0] + 1)];
     }
 
   // set color for area outside of input volume extent
@@ -4535,7 +4747,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
         }
 
       // do extent check
-      if (idZ < clipExt[4] || idZ > clipExt[5] ||
+      if (idZ < clipExt[4]-(nsamples-1) || idZ > clipExt[5]+(nsamples-1) ||
           idY < clipExt[2] || idY > clipExt[3])
         { // just clear, we're completely outside
         setpixels(outPtr, background, outComponents, outExt[1] - outExt[0] + 1);
@@ -4543,7 +4755,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
       else
         {
         // clear pixels to left of input extent
-        setpixels(outPtr, background, outComponents, clipExt[0] - outExt[0]);
+        setpixels(outPtr, background, outComponents, clipExt[0]-outExt[0]);
 
         int iter = 0;
         int idXmin, idXmax;
@@ -4556,12 +4768,30 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
           if (doConversion)
             {
-            void *tmpPtr = floatPtr;
+            // these six lines are for handling incomplete slabs
+            int lowerSkip = clipExt[4] - idZ;
+            lowerSkip = (lowerSkip >= 0 ? lowerSkip : 0);
+            int upperSkip = idZ + (nsamples-1) - clipExt[5];
+            upperSkip = (upperSkip >= 0 ? upperSkip : 0);
+            int idZ1 = idZ0 + step*lowerSkip;
+            int nsamples1 = nsamples - lowerSkip - upperSkip;  
 
-            summation(tmpPtr, inPtr, inComponents, idXmax - idXmin + 1, mode,
-                      &traversal[0][idX0], &constants[0][idX0],
-                      &traversal[1][idY0], &constants[1][idY0],
-                      &traversal[2][idZ0], &constants[2][idZ0]);
+            for (int isample = 0; isample < nsamples1; isample++)
+              {
+              void *tmpPtr = ((nsamples1 > 1) ? floatSumPtr : floatPtr);
+              summation(tmpPtr, inPtr, inComponents, idXmax - idXmin + 1, mode,
+                        &traversal[0][idX0], &constants[0][idX0],
+                        &traversal[1][idY0], &constants[1][idY0],
+                        &traversal[2][idZ1], &constants[2][idZ1]);
+
+              if (nsamples1 > 1)
+                {
+                composite(floatPtr, floatSumPtr, inComponents,
+                          idXmax - idXmin + 1, isample, nsamples1);
+                }
+
+              idZ1 += step;
+              }
 
             if (outputStencil)
               {
@@ -4609,11 +4839,15 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     {
     delete [] floatPtr;
     }
+  if (nsamples > 1)
+    {
+    delete [] floatSumPtr;
+    }
 
   for (int k = 0; k < 3; k++)
     {
-    traversal[k] += step*outExt[2*k];
-    constants[k] += step*outExt[2*k];
+    traversal[k] += step*extent[2*k];
+    constants[k] += step*extent[2*k];
     delete [] traversal[k];
     delete [] constants[k];
     }
@@ -4838,8 +5072,7 @@ void vtkImageReslice::ThreadedRequestData(
       newmat[i][3] = matrix->GetElement(i,3);
       }
 
-    if (vtkIsPermutationMatrix(newmat) && newtrans == NULL &&
-        this->SlabNumberOfSlices <= 1)
+    if (vtkIsPermutationMatrix(newmat) && newtrans == NULL)
       {
       vtkReslicePermuteExecute(this, inData[0][0], inPtr, outData[0], outPtr,
                                (this->HasConvertScalars ?
