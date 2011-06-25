@@ -1640,7 +1640,7 @@ void vtkImageResliceComposite<F>::MaxValue(F *inPtr, int numscalars, int n)
     do
       {
       inPtr += numscalars;
-      result = (result >= *inPtr ? result : *inPtr);
+      result = (result > *inPtr ? result : *inPtr);
       }
     while (--k);
     inPtr -= n*numscalars;
@@ -3253,9 +3253,9 @@ void vtkOptimizedExecute(vtkImageReslice *self,
                                            inInvSpacing);
                   }
 
-                if (inPoint[0] >= bounds[0] && inPoint[0] <= bounds[1] &&
-                    inPoint[1] >= bounds[2] && inPoint[1] <= bounds[3] &&
-                    inPoint[2] >= bounds[4] && inPoint[2] <= bounds[5])
+                if ((inPoint[0] >= bounds[0]) & (inPoint[0] <= bounds[1]) &
+                    (inPoint[1] >= bounds[2]) & (inPoint[1] <= bounds[3]) &
+                    (inPoint[2] >= bounds[4]) & (inPoint[2] <= bounds[5]))
                   {
                   // do the interpolation
                   sampleCount++;
@@ -3313,13 +3313,16 @@ void vtkOptimizedExecute(vtkImageReslice *self,
           }
         else // optimize for nearest-neighbor interpolation
           {
+          char *outPtrTmp = static_cast<char *>(outPtr);
+
           int inExtX = inExt[1] - inExt[0] + 1;
           int inExtY = inExt[3] - inExt[2] + 1;
           int inExtZ = inExt[5] - inExt[4] + 1;
 
           for (int iidX = idXmin; iidX <= idXmax; iidX++)
             {
-            void *inPtrTmp = background;
+            char *inPtrTmp = static_cast<char *>(background);
+            int bytesPerPixel = inputScalarSize*inComponents;
 
             F inPoint[3];
             inPoint[0] = inPoint1[0] + iidX*xAxis[0];
@@ -3330,18 +3333,19 @@ void vtkOptimizedExecute(vtkImageReslice *self,
             int inIdY = vtkResliceRound(inPoint[1]) - inExt[2];
             int inIdZ = vtkResliceRound(inPoint[2]) - inExt[4];
 
-            if (inIdX >= 0 && inIdX < inExtX &&
-                inIdY >= 0 && inIdY < inExtY &&
-                inIdZ >= 0 && inIdZ < inExtZ)
+            if ((inIdX >= 0) & (inIdX < inExtX) &
+                (inIdY >= 0) & (inIdY < inExtY) &
+                (inIdZ >= 0) & (inIdZ < inExtZ))
               {
-              inPtrTmp = static_cast<void *>(static_cast<char *>(inPtr) +
-                                             (inIdX*inInc[0] +
-                                              inIdY*inInc[1] +
-                                              inIdZ*inInc[2])*inputScalarSize);
+              inPtrTmp = static_cast<char *>(inPtr) +
+                (inIdX*inInc[0] + inIdY*inInc[1] + inIdZ*inInc[2])*
+                  inputScalarSize;
               }
 
-            setpixels(outPtr, inPtrTmp, outComponents, 1);
+            int oc = bytesPerPixel;
+            do { *outPtrTmp++ = *inPtrTmp++; } while (--oc);
             }
+          outPtr = outPtrTmp;
           }
         }
       outPtr = static_cast<void *>(
@@ -4452,7 +4456,7 @@ void vtkImageResliceRowComp<F>::MinRow(
       do
         {
         *outPtr = ((*outPtr < *inPtr) ? *outPtr : *inPtr);
-        *outPtr++; *inPtr++;
+        outPtr++; inPtr++;
         }
       while (--m);
       }
@@ -4474,8 +4478,8 @@ void vtkImageResliceRowComp<F>::MaxRow(
       {
       do
         {
-        *outPtr = ((*outPtr >= *inPtr) ? *outPtr : *inPtr);
-        *outPtr++; *inPtr++;
+        *outPtr = ((*outPtr > *inPtr) ? *outPtr : *inPtr);
+        outPtr++; inPtr++;
         }
       while (--m);
       }
