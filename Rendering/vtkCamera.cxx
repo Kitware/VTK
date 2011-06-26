@@ -29,6 +29,7 @@
 vtkInstantiatorNewMacro(vtkCamera);
 
 vtkCxxSetObjectMacro(vtkCamera, EyeTransformMatrix, vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkCamera, ModelTransformMatrix, vtkMatrix4x4);
 
 //-----------------------------------------------------------------------------
 class vtkCameraCallbackCommand : public vtkCommand
@@ -1623,36 +1624,6 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
   normal[0] = localNormal[0];
   normal[1] = localNormal[1];
   normal[2] = localNormal[2];
-}
-
-//-----------------------------------------------------------------------------
-void vtkCamera::SetModelTransformMatrix(vtkMatrix4x4 *matrix)
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
-                << ModelTransformMatrix << " to " << matrix );
-
-  if(!matrix)
-    {
-    return;
-    }
-
-  if (this->ModelTransformMatrix != matrix)
-    {
-    vtkMatrix4x4* temp = this->ModelTransformMatrix;
-    this->ModelTransformMatrix = matrix;
-    if (this->ModelTransformMatrix != NULL)
-      {
-      this->ModelTransformMatrix->Register(this);
-
-      vtkMatrix4x4::Multiply4x4(this->ModelTransformMatrix, this->ViewTransform->GetMatrix(),
-                                this->ModelViewTransform->GetMatrix());
-      }
-    if (temp != NULL)
-      {
-      temp->UnRegister(this);
-      }
-    this->Modified();
-    }
 }
 
 //-----------------------------------------------------------------------------
