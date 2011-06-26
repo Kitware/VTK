@@ -570,6 +570,11 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   double spacing[3];
   double origin[3];
 
+  // Get current spacing and origin
+  reslice->GetOutputSpacing(spacing);
+  reslice->GetOutputOrigin(origin);
+  reslice->GetOutputExtent(extent);
+
   // Get the view matrix
   vtkCamera *camera = ren->GetActiveCamera();
   vtkMatrix4x4 *viewMatrix = camera->GetViewTransformMatrix();
@@ -708,10 +713,15 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
       double xc = this->ResliceMatrix->Element[j][0];
       double yc = this->ResliceMatrix->Element[j][1];
       double zc = this->ResliceMatrix->Element[j][2];
-      spacing[j] = (xc*xc*inputSpacing[0] +
-                    yc*yc*inputSpacing[1] +
-                    zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
-      spacing[j] /= this->ImageSampleFactor;
+      double s = (xc*xc*inputSpacing[0] +
+                  yc*yc*inputSpacing[1] +
+                  zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
+      s /= this->ImageSampleFactor;
+      // only modify if difference is greater than roundoff tolerance
+      if (fabs((s - spacing[j])/s) > 1e-5)
+        {
+        spacing[j] = s;
+        }
       }
 
     // Find the bounds for the texture
@@ -754,20 +764,35 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     if (xsize < 1) { xsize = 1; }
     if (ysize < 1) { ysize = 1; }
 
-    extent[0] = 0;
-    extent[1] = xsize - 1;
-    extent[2] = 0;
-    extent[3] = ysize - 1;
-    extent[4] = 0;
-    extent[5] = 0;
+    // Keep old extent if possible, to avoid memory reallocation
+    if ((xsize - 1) > extent[1] || (ysize - 1) >= extent[3] ||
+        extent[0] != 0 || extent[2] != 0 ||
+        extent[4] != 0 || extent[5] != 0 ||
+        (0.9*extent[1]/xsize) < 1.0 || (0.9*extent[3]/ysize) < 1.0)
+      {
+      extent[0] = 0;
+      extent[1] = xsize - 1;
+      extent[2] = 0;
+      extent[3] = ysize - 1;
+      extent[4] = 0;
+      extent[5] = 0;
+      }
 
-    origin[0] = xmin + 0.5*spacing[0]*(this->Border != 0);
-    origin[1] = ymin + 0.5*spacing[1]*(this->Border != 0);
-    origin[2] = z;
+    double x0 = xmin + 0.5*spacing[0]*(this->Border != 0);
+    double y0 = ymin + 0.5*spacing[1]*(this->Border != 0);
+
+    double dx = x0 - origin[0];
+    double dy = y0 - origin[1];
+    double dz = z - origin[2];
+
+    // only modify origin if it has changed by tolerance
+    if (dx*dx + dy*dy + dz*dz > tol*tol*spacing[0]*spacing[1])
+      {
+      origin[0] = x0;
+      origin[1] = y0;
+      origin[2] = z;
+      }
     }
-
-  // Keep the Z output spacing (it is set elsewhere)
-  spacing[2] = this->ImageReslice->GetOutputSpacing()[2];
 
   // Prepare for reslicing
   reslice->SetResliceAxes(resliceMatrix);
@@ -1013,7 +1038,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   // height of view in pixels
   int height = ren->GetSize()[1];
 
-  double tol = (height == 0 ? 0.5 : viewHeight*0.5/height); 
+  double tol = (height == 0 ? 0.5 : viewHeight*0.5/height);
 
   // make the data bounding box (with or without border)
   int border = this->Border;
