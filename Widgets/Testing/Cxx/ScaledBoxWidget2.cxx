@@ -35,13 +35,13 @@
 class vtkSBWCallback2 : public vtkCommand
 {
 public:
-  static vtkSBWCallback2 *New() 
+  static vtkSBWCallback2 *New()
   { return new vtkSBWCallback2; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
-    vtkBoxWidget2 *boxWidget = 
+    vtkBoxWidget2 *boxWidget =
       reinterpret_cast<vtkBoxWidget2*>(caller);
-    vtkBoxRepresentation *boxRep = 
+    vtkBoxRepresentation *boxRep =
       reinterpret_cast<vtkBoxRepresentation*>(boxWidget->GetRepresentation());
     boxRep->GetTransform(this->Transform);
 
@@ -84,24 +84,24 @@ int ScaledBoxWidget2( int , char *[] )
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
   glyph->Update();
-                                                        
+
   vtkSmartPointer<vtkAppendPolyData> append =
     vtkSmartPointer<vtkAppendPolyData>::New();
   append->AddInput(glyph->GetOutput());
   append->AddInput(sphere->GetOutput());
 
 
-  vtkSmartPointer<vtkTransform> dataTransform = 
+  vtkSmartPointer<vtkTransform> dataTransform =
     vtkSmartPointer<vtkTransform>::New();
   dataTransform->Identity();
-  dataTransform->Scale(1,100,1);
+  dataTransform->Scale(1,2,1);
 
   vtkSmartPointer<vtkTransformFilter> tf =
     vtkSmartPointer<vtkTransformFilter>::New();
   tf->SetTransform(dataTransform);
   tf->SetInputConnection(append->GetOutputPort());
   tf->Update();
-  
+
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   maceMapper->SetInputConnection(tf->GetOutputPort());
@@ -136,17 +136,16 @@ int ScaledBoxWidget2( int , char *[] )
 
   // Introduce scale to test out calculation of clipping range
   // by vtkRenderer.
-  vtkSmartPointer<vtkTransform> scaleTransform = 
+  vtkSmartPointer<vtkTransform> scaleTransform =
     vtkSmartPointer<vtkTransform>::New();
   scaleTransform->SetInput(dataTransform);
-  scaleTransform->Inverse();
 
   vtkCamera *camera = renderer->GetActiveCamera();
 
   int cameraScale = 1;
   if ( cameraScale == 0 )
     {
-    maceActor->SetUserTransform(scaleTransform);  
+    maceActor->SetUserTransform(scaleTransform);
     boxRep->SetTransform(scaleTransform);
     }
   else if ( cameraScale == 1)
@@ -166,7 +165,7 @@ int ScaledBoxWidget2( int , char *[] )
   // record events
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren);  
+  recorder->SetInteractor(iren);
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(ScaledBoxWidgetEventLog2);
 
@@ -186,9 +185,9 @@ int ScaledBoxWidget2( int , char *[] )
 
   boxRep->SetPlaceFactor( 1.25 );
   boxRep->HandlesOn();
-  
+
   renderer->ResetCamera();
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 }
