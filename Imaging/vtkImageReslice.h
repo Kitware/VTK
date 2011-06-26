@@ -452,8 +452,6 @@ protected:
 
   void BuildInterpolationTables();
 
-  int DoBSplineCheck(vtkImageData *inData);
-
 private:
   vtkImageReslice(const vtkImageReslice&);  // Not implemented.
   void operator=(const vtkImageReslice&);  // Not implemented.
