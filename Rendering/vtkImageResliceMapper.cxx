@@ -718,7 +718,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
                   zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
       s /= this->ImageSampleFactor;
       // only modify if difference is greater than roundoff tolerance
-      if (fabs((s - spacing[j])/s) > 1e-5)
+      if (fabs((s - spacing[j])/s) > 1e-12)
         {
         spacing[j] = s;
         }
@@ -764,19 +764,17 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     if (xsize < 1) { xsize = 1; }
     if (ysize < 1) { ysize = 1; }
 
-    // Keep old extent if possible, to avoid memory reallocation
-    if ((xsize - 1) > extent[1] || (ysize - 1) >= extent[3] ||
-        extent[0] != 0 || extent[2] != 0 ||
-        extent[4] != 0 || extent[5] != 0 ||
-        (0.9*extent[1]/xsize) < 1.0 || (0.9*extent[3]/ysize) < 1.0)
+    // Keep old size if possible, to avoid memory reallocation
+    if ((xsize - 1) > extent[1] || (ysize - 1) > extent[3] ||
+        (0.9*extent[1]/xsize) > 1.0 || (0.9*extent[3]/ysize) > 1.0)
       {
-      extent[0] = 0;
       extent[1] = xsize - 1;
-      extent[2] = 0;
       extent[3] = ysize - 1;
-      extent[4] = 0;
-      extent[5] = 0;
       }
+    extent[0] = 0;
+    extent[2] = 0;
+    extent[4] = 0;
+    extent[5] = 0;
 
     double x0 = xmin + 0.5*spacing[0]*(this->Border != 0);
     double y0 = ymin + 0.5*spacing[1]*(this->Border != 0);
