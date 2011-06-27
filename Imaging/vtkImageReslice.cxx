@@ -1496,7 +1496,7 @@ void vtkGetConversionFunc(vtkImageReslice *self,
   int dataType = self->GetOutput()->GetScalarType();
 
   if (self->GetInterpolationMode() <= VTK_RESLICE_LINEAR &&
-      self->GetSlabMode() != VTK_IMAGE_SLAB_MAX &&
+      self->GetSlabMode() != VTK_IMAGE_SLAB_SUM &&
       vtkDataArray::GetDataTypeMin(dataType) <=
         vtkDataArray::GetDataTypeMin(inputType) &&
       vtkDataArray::GetDataTypeMax(dataType) >=
