@@ -13,6 +13,10 @@ reader SetDataOrigin -100.8 -100.8 -70.5
 reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
+vtkImageCast caster
+caster SetInputConnection [reader GetOutputPort]
+caster SetOutputScalarTypeToFloat
+
 vtkImageReslice reslice1
 reslice1 SetInputConnection [reader GetOutputPort]
 reslice1 SetSlabModeToMean
@@ -24,7 +28,7 @@ reslice1 SetOutputSpacing 3.2 3.2 1.5
 reslice1 SetOutputExtent 0 63 0 63 0 0
 
 vtkImageReslice reslice2
-reslice2 SetInputConnection [reader GetOutputPort]
+reslice2 SetInputConnection [caster GetOutputPort]
 reslice2 SetSlabModeToSum
 reslice2 SetSlabNumberOfSlices 93
 reslice2 SetInterpolationModeToLinear
@@ -61,8 +65,8 @@ vtkImageMapper mapper1
 
 vtkImageMapper mapper2
   mapper2 SetInputConnection [reslice2 GetOutputPort]
-  mapper2 SetColorWindow 3000
-  mapper2 SetColorLevel 1500
+  mapper2 SetColorWindow 50000
+  mapper2 SetColorLevel 100000
   mapper2 SetZSlice 0
 
 vtkImageMapper mapper3
