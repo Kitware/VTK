@@ -36,6 +36,10 @@ class VTK_AMR_EXPORT vtkAMRFlashParticlesReader :
     vtkTypeMacro( vtkAMRFlashParticlesReader, vtkAMRBaseParticlesReader );
     void PrintSelf( std::ostream &os, vtkIndent indent );
 
+    // Description:
+    // See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
+    int GetTotalNumberOfParticles();
+
   protected:
     vtkAMRFlashParticlesReader();
     virtual ~vtkAMRFlashParticlesReader();

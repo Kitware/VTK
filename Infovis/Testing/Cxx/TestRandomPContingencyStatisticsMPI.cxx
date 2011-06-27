@@ -447,10 +447,19 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &absTol, "Absolute tolerance to verify that final CDF is 1");
 
-  // If incorrect arguments were provided, terminate in error.
+  // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
     {
-    vtkGenericWarningMacro("Incorrect input data arguments were provided.");
+    if ( com->GetLocalProcessId() == ioRank )
+      {
+      cerr << "Usage: " 
+           << clArgs.GetHelp()
+           << "\n";
+      }
+
+    controller->Finalize();
+    controller->Delete();
+
     return 1;
     }
 

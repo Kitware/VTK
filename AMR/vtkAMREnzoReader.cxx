@@ -335,7 +335,9 @@ int vtkAMREnzoReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
     {
       vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ i+1 ];
-      int level                   = theBlock.Level;
+      int level                    = theBlock.Level;
+      int id                       = b2level[ level ];
+      int internalIdx              = i;
 
       double blockMin[ 3 ];
       double blockMax[ 3 ];
@@ -354,7 +356,12 @@ int vtkAMREnzoReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
       ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
       ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
 
-      metadata->SetDataSet( level, b2level[ level ], ug );
+      vtkstd::pair< unsigned int, unsigned int > pair;
+      pair.first  = level;
+      pair.second = id;
+      this->LevelIdxPair2InternalIdx[ pair ] = internalIdx;
+
+      metadata->SetDataSet( level, id, ug );
       ug->Delete();
       b2level[ level ]++;
     } // END for all blocks

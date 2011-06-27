@@ -160,7 +160,9 @@ int vtkAMRFlashReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
     {
       // Start numbering levels from 0!
-      int level = this->Internal->Blocks[ i ].Level-1;
+      int level       = this->Internal->Blocks[ i ].Level-1;
+      int id          = b2level[level];
+      int internalIdx = i;
 
       double blockMin[3];
       double blockMax[3];
@@ -170,13 +172,19 @@ int vtkAMRFlashReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
           blockMin[j] = this->Internal->Blocks[i].MinBounds[j];
           blockMax[j] = this->Internal->Blocks[i].MaxBounds[j];
           spacings[j] = (this->Internal->BlockGridDimensions[j] > 1)?
-          (blockMax[j]-blockMin[j])/(this->Internal->BlockGridDimensions[j]-1.0):1.0;
+              (blockMax[j]-blockMin[j]) /
+              (this->Internal->BlockGridDimensions[j]-1.0) : 1.0;
         }
 
       vtkUniformGrid *ug = vtkUniformGrid::New();
       ug->SetDimensions( this->Internal->BlockGridDimensions );
       ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
       ug->SetSpacing( spacings );
+
+      vtkstd::pair< unsigned int, unsigned int > pair;
+      pair.first  = level;
+      pair.second = id;
+      this->LevelIdxPair2InternalIdx[ pair ] = internalIdx;
 
       metadata->SetDataSet( level, b2level[level], ug );
       ug->Delete();

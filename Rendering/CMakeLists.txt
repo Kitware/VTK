@@ -164,6 +164,8 @@ SET( Kit_SRCS
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
   vtkRepresentationPainter.cxx
+  vtkResliceCursorActor.cxx
+  vtkResliceCursorPicker.cxx
   vtkScalarBarActor.cxx
   vtkScalarsToColorsPainter.cxx
   vtkScaledTextActor.cxx
@@ -477,7 +479,6 @@ SET(shader_files
   vtkSurfaceLICPainter_fs1.glsl
   vtkSurfaceLICPainter_fs2.glsl
   vtkSurfaceLICPainter_vs1.glsl
-  vtkTextureBicubicARB_fp.asm
   )
 
 # Create custom commands to encode each assembly file into a C string

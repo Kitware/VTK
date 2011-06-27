@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ResliceOptimizationOff
         ReslicePermutations
         ReslicePermuteResample
+        ResliceSlabModes
         ResliceToColors
         ResliceWrapOblique
         ResliceWrapPad

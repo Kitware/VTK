@@ -67,11 +67,23 @@ protected:
   void RenderBackingPolygon();
 
   // Description:
+  // Recursive internal method, will call the non-recursive method
+  // as many times as necessary if the texture must be broken up into
+  // pieces that are small enough for the GPU to render
+  void RecursiveRenderTexturedPolygon(
+    vtkRenderer *ren, vtkImageProperty *property,
+    vtkImageData *image, int extent[6], bool recursive);
+
+  // Description:
   // Non-recursive internal method, generate a single texture
   // and its corresponding geometry.
   void RenderTexturedPolygon(
     vtkRenderer *ren, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
+
+  // Description:
+  // Build the fragment program to use with the texture.
+  vtkStdString BuildFragmentProgram(vtkImageProperty *property);
 
   // Description:
   // Given an extent that describes a slice (it must have unit thickness
@@ -95,12 +107,13 @@ protected:
   long Index; // OpenGL ID for texture or display list
   long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
-  double Coords[12];
-  double TCoords[8];
   int TextureSize[2];
   int TextureBytesPerPixel;
   int LastOrientation;
   int LastSliceNumber;
+
+  vtkTimeStamp LoadTime;
+  int LoadCount;
 
   bool UsePowerOfTwoTextures;
   bool UseClampToEdge;

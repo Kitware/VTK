@@ -391,6 +391,16 @@ void vtkAMREnzoParticlesReader::SetupParticleDataSelections()
 }
 
 //------------------------------------------------------------------------------
+int vtkAMREnzoParticlesReader::GetTotalNumberOfParticles( )
+{
+  assert( "Internal reader is null" && (this->Internal!=NULL) );
+  int numParticles = 0;
+  for( int blockIdx=0; blockIdx < this->NumberOfBlocks; ++blockIdx )
+      numParticles += this->Internal->Blocks[ blockIdx ].NumberOfParticles;
+  return( numParticles );
+}
+
+//------------------------------------------------------------------------------
 vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
 {
   // this->Internal->Blocks includes a pseudo block -- the roo as block #0

@@ -23,13 +23,18 @@
 #include "vtkStatisticsAlgorithm.h"
 
 #include "vtkDataObjectCollection.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkSmartPointer.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkVariantArray.h"
+
+#include <vtksys/ios/sstream>
 
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -174,6 +179,24 @@ int vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c, vtkSt
 }
 
 // ----------------------------------------------------------------------
+void vtkStatisticsAlgorithm::AddColumn( const char* namCol )
+{
+  if ( this->Internals->AddColumnToRequests( namCol ) )
+    {
+    this->Modified();
+    }
+}
+
+// ----------------------------------------------------------------------
+void vtkStatisticsAlgorithm::AddColumnPair( const char* namColX, const char* namColY )
+{
+  if ( this->Internals->AddColumnPairToRequests( namColX, namColY ) )
+    {
+    this->Modified();
+    }
+}
+
+// ----------------------------------------------------------------------
 bool vtkStatisticsAlgorithm::SetParameter( const char* vtkNotUsed(parameter),
                                            int vtkNotUsed(index),
                                            vtkVariant vtkNotUsed(value) )
@@ -260,4 +283,134 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   return 1;
 }
 
+// ----------------------------------------------------------------------
+void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
+                                     vtkMultiBlockDataSet* inMeta,
+                                     vtkTable* outData,
+                                     int numVariables )
+{
+  if ( ! inData )
+    {
+    return;
+    }
 
+  if ( ! inMeta )
+    {
+    return;
+    }
+
+  // Loop over requests
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Storage for variable names of the request (smart pointer because of several exit points)
+    vtkSmartPointer<vtkStringArray> varNames = vtkSmartPointer<vtkStringArray>::New();
+    varNames->SetNumberOfValues( numVariables );
+
+    // Each request must contain numVariables columns of interest (additional columns are ignored)
+    bool invalidRequest = false;
+    int v = 0;
+    for ( vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+          v < numVariables && it != rit->end(); ++ v, ++ it )
+      {
+      // Try to retrieve column with corresponding name in input data
+      vtkStdString varName = *it;
+
+      // If requested column does not exist in input, ignore request
+      if ( ! inData->GetColumnByName( varName ) )
+        {
+        vtkWarningMacro( "InData table does not have a column "
+                         << varName.c_str()
+                         << ". Ignoring request containing it." );
+        
+        invalidRequest = true;
+        break;
+        }
+
+      // If column with corresponding name was found, store name
+      varNames->SetValue( v, varName );
+      }
+    if ( invalidRequest )
+      {
+      continue;
+      }
+    
+    // If request is too short, it must also be ignored
+    if ( v < numVariables )
+      {
+      vtkWarningMacro( "Only "
+                       << v 
+                       << " variables in the request while "
+                       << numVariables 
+                       << "are needed. Ignoring request." );
+      
+      continue;
+      }
+
+    // Store names to be able to use SetValueByName, and create the outData columns
+    int nAssessments = this->AssessNames->GetNumberOfValues();
+    vtkStdString* names = new vtkStdString[nAssessments];
+    vtkIdType nRowData = inData->GetNumberOfRows();
+    for ( int a = 0; a < nAssessments; ++ a )
+      {
+      // Prepare string for numVariables-tuple of variable names
+      vtksys_ios::ostringstream assessColName;
+      assessColName << this->AssessNames->GetValue( a )
+                    << "(";
+      for ( int i = 0 ; i < numVariables ; ++ i )
+        {
+        // Insert comma before each variable name, save the first one
+        if ( i > 0 )
+          {
+          assessColName << ",";
+          }
+        assessColName << varNames->GetValue( i );
+        }
+      assessColName << ")";
+
+      names[a] = assessColName.str().c_str(); 
+
+      // Create assessment columns with names <AssessmentName>(var1,...,varN)
+      vtkDoubleArray* assessColumn = vtkDoubleArray::New(); 
+      assessColumn->SetName( names[a] ); 
+      assessColumn->SetNumberOfTuples( nRowData  ); 
+      outData->AddColumn( assessColumn ); 
+      assessColumn->Delete(); 
+      }
+
+    // Select assess functor
+    AssessFunctor* dfunc;
+    this->SelectAssessFunctor( outData,
+                               inMeta,
+                               varNames,
+                               dfunc );
+
+    if ( ! dfunc )
+      {
+      // Functor selection did not work. Do nothing.
+      vtkWarningMacro( "AssessFunctors could not be allocated. Ignoring request." );
+      }
+    else
+      {
+      // Assess each entry of the column
+      vtkVariantArray* assessResult = vtkVariantArray::New();
+      for ( vtkIdType r = 0; r < nRowData; ++ r )
+        {
+        // Apply functor
+        (*dfunc)( assessResult, r );
+        for ( int a = 0; a < nAssessments; ++ a )
+          {
+          // Store each assessment value in corresponding assessment column
+          outData->SetValueByName( r, 
+                                   names[a], 
+                                   assessResult->GetValue( a ) );
+          }
+        }
+
+      assessResult->Delete();
+      }
+
+    delete dfunc;
+    delete [] names;
+    }
+}

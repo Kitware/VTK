@@ -36,6 +36,7 @@ SET(Kit_SRCS
   vtkContextBufferId.cxx
   vtkContextClip.cxx
   vtkContextDevice2D.cxx
+  vtkContextInteractorStyle.cxx
   vtkContextItem.cxx
   vtkContextMapper2D.cxx
   vtkContextMouseEvent.h

@@ -23,12 +23,10 @@
 #include "vtkIndent.h"
 #include "vtkSmartPointer.h"
 #include "vtkCompositeDataPipeline.h"
-
-//#include "vtkAMRSliceFilter.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkAMRUtilities.h"
 
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
 
@@ -46,6 +44,8 @@ vtkAMRBaseReader::~vtkAMRBaseReader()
   this->SelectionObserver->Delete( );
   this->CellDataArraySelection->Delete( );
   this->PointDataArraySelection->Delete( );
+  if( this->metadata != NULL )
+    this->metadata->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void vtkAMRBaseReader::Initialize()
   this->SetNumberOfInputPorts( 0 );
   this->FileName       = NULL;
   this->MaxLevel       = 0;
-  this->LoadParticles  = 1;
+  this->metadata       = NULL;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
   this->InitialRequest = true;
 
@@ -214,17 +214,15 @@ int vtkAMRBaseReader::RequestInformation(
 {
   this->Superclass::RequestInformation( rqst, inputVector, outputVector );
 
-  std::cout << "FILE: " << __FILE__ << " - RequestInformation\n";
-  std::cout.flush();
-
-  vtkSmartPointer<vtkHierarchicalBoxDataSet> metadata =
-     vtkSmartPointer<vtkHierarchicalBoxDataSet>::New();
-
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  assert( "pre: output information object is NULL" && (info != NULL) );
-
-  this->FillMetaData( metadata );
-  info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(), metadata );
+  if( this->metadata == NULL )
+    {
+      this->metadata = vtkHierarchicalBoxDataSet::New();
+      vtkInformation* info = outputVector->GetInformationObject(0);
+      assert( "pre: output information object is NULL" && (info != NULL) );
+      this->FillMetaData( this->metadata );
+      info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
+          this->metadata );
+    }
 
   this->Modified();
   return 1;
@@ -236,9 +234,6 @@ int vtkAMRBaseReader::RequestData(
         vtkInformationVector** vtkNotUsed(inputVector),
         vtkInformationVector* outputVector )
 {
-  std::cout << "FILE: " << __FILE__ << " - RequestData\n";
-  std::cout.flush();
-
 
   vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
   vtkHierarchicalBoxDataSet *output =
@@ -247,14 +242,39 @@ int vtkAMRBaseReader::RequestData(
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
 
   if( outInf->Has(
-      vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() ) )
+      vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
     {
-      this->MaxLevel = outInf->Get(
-          vtkStreamingDemandDrivenPipeline::UPDATE_AMR_LEVEL() );
-    }
+      assert( "Metadata should not be null" && (this->metadata!=NULL) );
+      output->Clear();
 
-  this->ReadMetaData();
-  this->GenerateBlockMap();
+      this->ReadMetaData();
+
+      int size =
+       outInf->Length(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
+      int *indices =
+        outInf->Get(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() );
+
+      this->BlockMap.clear();
+      this->BlockMap.resize( size );
+
+      for( int i=0; i < size; ++i )
+        {
+          unsigned int levelIdx = 0;
+          unsigned int dataIdx  = 0;
+          this->metadata->GetLevelAndIndex( indices[i], levelIdx, dataIdx );
+
+          vtkstd::pair<unsigned int, unsigned int > pair;
+          pair.first  = levelIdx;
+          pair.second = dataIdx;
+          unsigned int internalIdx = this->LevelIdxPair2InternalIdx[ pair ];
+          this->BlockMap[ i ] = internalIdx;
+        }
+    }
+  else
+    {
+     this->ReadMetaData();
+     this->GenerateBlockMap();
+    }
 
   // Initialize counter of the number of blocks at each level.
   // This counter is used to compute the block index w.r.t. the
@@ -290,5 +310,6 @@ int vtkAMRBaseReader::RequestData(
 
   outInf = NULL;
   output = NULL;
+  this->Modified();
   return 1;
 }

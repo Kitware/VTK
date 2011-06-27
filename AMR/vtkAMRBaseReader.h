@@ -21,7 +21,9 @@
 #define VTKAMRBASEREADER_H_
 
 #include "vtkHierarchicalBoxDataSetAlgorithm.h"
-#include <vtkstd/vector> // STL vector Header
+#include <vtkstd/vector>    // STL vector header
+#include <vtkstd/map>       // STL map header
+#include <vtkstd/utility>   // for STL pair
 
 // Forward Declarations
 class vtkHierarchicalBoxDataSet;
@@ -51,12 +53,6 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     // Description:
     // Set the level, up to which the blocks are loaded.
     vtkSetMacro( MaxLevel,int);
-
-    // Description:
-    // Set/Get whether the particles, if any, are loaded
-    vtkSetMacro( LoadParticles, int );
-    vtkGetMacro( LoadParticles, int );
-    vtkBooleanMacro( LoadParticles, int );
 
     // Description:
     // Get the data array selection tables used to configure which data
@@ -89,9 +85,17 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     vtkGetStringMacro( FileName );
     virtual void SetFileName( const char *fileName ) = 0;
 
+    // Description:
+    // Returns the total number of blocks. Implemented by concrete instances.
+    virtual int GetNumberOfBlocks() = 0;
+
+    // Description:
+    // Returns the total number of levels. Implemented by concrete instances.
+    virtual int GetNumberOfLevels() = 0;
+
   protected:
     vtkAMRBaseReader();
-    ~vtkAMRBaseReader();
+    virtual ~vtkAMRBaseReader();
 
     // Desscription:
     // Checks if this reader instance is attached to a communicator
@@ -139,15 +143,9 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     virtual int GetBlockLevel( const int blockIdx ) = 0;
 
     // Description:
-    // Returns the total number of blocks. Implemented by concrete instances.
-    virtual int GetNumberOfBlocks() = 0;
-
-    // Description:
-    // Returns the total number of levels. Implemented by concrete instances.
-    virtual int GetNumberOfLevels() = 0;
-
-    // Description:
-    // Loads all the AMR metadata
+    // Loads all the AMR metadata & constructs the LevelIdxPair12InternalIdx
+    // datastructure which maps (level,id) pairs to an internal linear index
+    // used to identify the corresponding block.
     virtual int FillMetaData( vtkHierarchicalBoxDataSet* metadata ) = 0;
 
     // Description:
@@ -158,7 +156,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
     // Description:
     // Standard Pipeline methods, subclasses may override this method if needed.
-    virtual int RequestData(
+   virtual int RequestData(
         vtkInformation* vtkNotUsed(request),
         vtkInformationVector** vtkNotUsed(inputVector),
         vtkInformationVector* outputVector );
@@ -189,13 +187,17 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
       vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
 
     bool InitialRequest;
-    int LoadParticles;
     int MaxLevel;
     char *FileName;
     vtkMultiProcessController *Controller;
 
+    vtkHierarchicalBoxDataSet *metadata;
+
     //BTX
       vtkstd::vector<int> BlockMap;
+
+      vtkstd::map< vtkstd::pair<unsigned int, unsigned int>, int >
+      LevelIdxPair2InternalIdx;
     //ETX
 
   private:

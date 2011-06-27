@@ -45,6 +45,10 @@ class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
     vtkSetMacro( ParticleType, int );
     vtkGetMacro( ParticleType, int );
 
+    // Description:
+    // See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
+    int GetTotalNumberOfParticles();
+
   protected:
     vtkAMREnzoParticlesReader();
     virtual ~vtkAMREnzoParticlesReader();

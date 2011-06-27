@@ -63,17 +63,21 @@ int main( int argc, char **argv )
   std::cout << "Reading input data...";
   std::cout.flush();
 
-  vtkAMREnzoReader *myReader = vtkAMREnzoReader::New();
-  myReader->SetMaxLevel( atoi(argv[2] )  );
-  myReader->SetFileName( argv[1] );
-  myReader->Update();
+//  vtkAMREnzoReader *myReader = vtkAMREnzoReader::New();
+//  myReader->SetMaxLevel( atoi(argv[2] )  );
+//  myReader->SetFileName( argv[1] );
+//  myReader->Update();
+//
+//  myReader->SetCellArrayStatus( "y-velocity", 1 );
+//  myReader->Update();
+//
+//  assert( myReader->GetCellArrayStatus( "y-velocity" ) == 1 );
+//
+//  vtkHierarchicalBoxDataSet *amrds = myReader->GetOutput();
 
-  myReader->SetCellArrayStatus( "y-velocity", 1 );
-  myReader->Update();
+  vtkHierarchicalBoxDataSet *amrds =
+      AMRCommon::ReadAMRData( std::string( argv[1] ) );
 
-  assert( myReader->GetCellArrayStatus( "y-velocity" ) == 1 );
-
-  vtkHierarchicalBoxDataSet *amrds = myReader->GetOutput();
   std::cout << "[DONE]\n";
   std::cout.flush();
 
@@ -133,7 +137,7 @@ bool FoundDonor(
       vtkIdType cellIdx = vtkStructuredData::ComputeCellId(
           donorGrid->GetDimensions(), ijk );
       yvel = donorGrid->GetCellData()->
-          GetArray( "y-velocity" )->GetComponent( cellIdx, 0 );
+          GetArray( "GaussianPulse" )->GetComponent( cellIdx, 0 );
       return true;
     }
 
@@ -149,7 +153,7 @@ void TransferSolution( vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
 
   // NOTE: We assume y-velocity as the only attribute
   vtkFloatArray *da = vtkFloatArray::New();
-  da->SetName( "y-velocity" );
+  da->SetName( "GaussianPulse" );
   da->SetNumberOfComponents( 1 );
   da->SetNumberOfTuples( g->GetNumberOfPoints() );
   g->GetPointData()->AddArray( da );

@@ -1652,6 +1652,7 @@ int vtkExodusReader::CanReadFile(const char* fname)
 // Instantiate object with NULL filename.
 vtkExodusReader::vtkExodusReader()
 {
+  VTK_LEGACY_BODY(vtkExodusReader, "VTK 5.8");
   this->FileName = NULL;
   this->XMLFileName=NULL;
 

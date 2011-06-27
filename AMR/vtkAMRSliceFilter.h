@@ -24,6 +24,8 @@
 
 #include "vtkHierarchicalBoxDataSetAlgorithm.h"
 
+#include <vtkstd/vector> // For STL vector
+
 class vtkInformation;
 class vtkInformationVector;
 class vtkHierarchicalBoxDataSet;
@@ -43,6 +45,12 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
       // Inline Gettters & Setters
       vtkSetMacro(OffSetFromOrigin,double);
       vtkGetMacro(OffSetFromOrigin,double);
+
+      // Description:
+      // Set/Get ForwardUpstream property
+      vtkSetMacro( ForwardUpstream, int );
+      vtkGetMacro( ForwardUpstream, int );
+      vtkBooleanMacro( ForwardUpstream, int );
 
       // Description:
       // Set/Get the maximum resolution used in this instance.
@@ -108,6 +116,13 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     bool PlaneIntersectsAMRBox( double plane[4], double bounds[6] );
 
     // Description:
+    // Given the cut-plane and the metadata provided by a module upstream,
+    // this method generates the list of linear AMR block indices that need
+    // to be loaded.
+    void ComputeAMRBlocksToLoad(
+        vtkPlane *p, vtkHierarchicalBoxDataSet *metadata );
+
+    // Description:
     // Extracts a 2-D AMR slice from the dataset.
     void GetAMRSliceInPlane(
         vtkPlane *p, vtkHierarchicalBoxDataSet *inp,
@@ -132,6 +147,12 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     bool   initialRequest;
     int    MaxResolution;
     vtkMultiProcessController *Controller;
+
+    int ForwardUpstream;
+
+    // BTX
+      vtkstd::vector< int > blocksToLoad;
+    // ETX
 
   private:
     vtkAMRSliceFilter( const vtkAMRSliceFilter& ); // Not implemented

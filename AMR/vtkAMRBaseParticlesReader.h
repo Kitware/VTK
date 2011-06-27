@@ -98,6 +98,10 @@ class VTK_AMR_EXPORT vtkAMRBaseParticlesReader :
           this->MaxLocation[ 2 ] = maxz;
         }
 
+      // Description:
+      // Returns the total number of particles
+      virtual int GetTotalNumberOfParticles() = 0;
+
   protected:
     vtkAMRBaseParticlesReader();
     virtual ~vtkAMRBaseParticlesReader();

@@ -31,6 +31,19 @@ ADD_EXECUTABLE(TestAMRBoxGhostCellExtrusion TestAMRBoxGhostCellExtrusion.cxx)
 TARGET_LINK_LIBRARIES(TestAMRBoxGhostCellExtrusion vtkFiltering)
 
 ## Add AMRResamplingToUniformGrid executable
+ADD_EXECUTABLE(EnzoDumpVariable EnzoDumpVariable.cxx)
+TARGET_LINK_LIBRARIES( EnzoDumpVariable 
+             vtkGraphics
+             vtkFiltering
+             vtkRendering 
+             vtkIO 
+             vtkAMR 
+             vtkParallel
+             ${MPI_LIBRARIES} 
+             ${VTK_HDF5_LIBRARIES}
+             )
+             
+## Add AMRResamplingToUniformGrid executable
 ADD_EXECUTABLE(AMRResamplingToUniformGrid AMRResamplingToUniformGrid.cxx)
 TARGET_LINK_LIBRARIES( AMRResamplingToUniformGrid 
              vtkGraphics

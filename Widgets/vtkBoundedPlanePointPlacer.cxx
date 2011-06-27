@@ -416,4 +416,13 @@ void vtkBoundedPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << " (none)\n";
     }
+  os << indent << "Oblique plane:\n";
+  if ( this->ObliquePlane )
+    {
+    this->ObliquePlane->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << " (none)\n";
+    }
 }

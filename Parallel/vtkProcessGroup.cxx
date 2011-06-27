@@ -89,8 +89,11 @@ void vtkProcessGroup::SetCommunicator(vtkCommunicator *communicator)
       newNumberOfProcessIds = this->NumberOfProcessIds;
       }
     }
-  vtkstd::copy(newProcessIds, newProcessIds+newNumberOfProcessIds,
+  if (this->ProcessIds)
+    {
+    vtkstd::copy(newProcessIds, newProcessIds+newNumberOfProcessIds,
                this->ProcessIds);
+    }
   if (this->Communicator) delete[] this->ProcessIds;
   this->ProcessIds = newProcessIds;
   this->NumberOfProcessIds = newNumberOfProcessIds;

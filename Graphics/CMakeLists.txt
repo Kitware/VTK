@@ -211,6 +211,8 @@ vtkReebGraphSurfaceSkeletonFilter.cxx
 vtkReebGraphVolumeSkeletonFilter.cxx
 vtkReflectionFilter.cxx
 vtkRegularPolygonSource.cxx
+vtkResliceCursor.cxx
+vtkResliceCursorPolyDataAlgorithm.cxx
 vtkReverseSense.cxx
 vtkRibbonFilter.cxx
 vtkRotationalExtrusionFilter.cxx

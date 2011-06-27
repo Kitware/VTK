@@ -154,13 +154,6 @@ protected:
   // Get the dimension indices according to the orientation.
   static void GetDimensionIndices(int orientation, int &xdim, int &ydim);
 
-  // Description:
-  // Do a checkerboard pattern to the alpha of an RGBA image
-  void CheckerboardImage(
-    unsigned char *data, int xsize, int ysize,
-    const double imageSpacing[3], vtkImageProperty *property);
-
-  vtkTimeStamp LoadTime;
   int SliceNumber;
   int SliceNumberMinValue;
   int SliceNumberMaxValue;

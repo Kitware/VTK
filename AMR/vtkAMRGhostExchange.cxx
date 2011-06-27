@@ -180,7 +180,7 @@ void vtkAMRGhostExchange::WriteReceivers( )
     {
       int level = -1;
       int idx   = -1;
-      vtkAMRGridIndexEncoder::decode( it->first,level,idx );
+      vtkAMRGridIndexEncoder::Decode( it->first,level,idx );
 
       oss.str( "" ); oss.clear();
       oss << "Receivers_" << level << "_" << idx << ".vtk";
@@ -256,7 +256,7 @@ void vtkAMRGhostExchange::GetReceivers( )
           vtkUniformGrid *gridPtr = this->ExtrudedData->GetDataSet(level,idx);
           if( gridPtr != NULL )
             {
-              unsigned int gridIdx = vtkAMRGridIndexEncoder::encode(level,idx);
+              unsigned int gridIdx = vtkAMRGridIndexEncoder::Encode(level,idx);
               if(this->ReceiverList.find( gridIdx )!=this->ReceiverList.end())
                 {
                   this->ReceiverList[ gridIdx ]->Delete();
@@ -353,7 +353,7 @@ void vtkAMRGhostExchange::FindDonors(
     return;
 
   unsigned int encodedDonorGridIdx=
-   vtkAMRGridIndexEncoder::encode( donorGridLevel, donorBlockIdx );
+   vtkAMRGridIndexEncoder::Encode( donorGridLevel, donorBlockIdx );
 
   vtkUniformGrid *ug=
    this->AMRDataSet->GetDataSet( donorGridLevel,donorBlockIdx );
@@ -431,7 +431,7 @@ void vtkAMRGhostExchange::LocalDonorSearch()
       unsigned int idx= cons->GetValue( con );
       int level       = -1;
       int blockIdx    = -1;
-      vtkAMRGridIndexEncoder::decode(idx,level,blockIdx);
+      vtkAMRGridIndexEncoder::Decode(idx,level,blockIdx);
 
       int nCons=this->LocalConnectivity->GetNumberOfConnections(blockIdx,level);
       for( int i=0; i < nCons; ++i )
@@ -461,7 +461,7 @@ void vtkAMRGhostExchange::LocalDataTransfer()
 
       int receiverLevel    = -1;
       int receiverBlockIdx = -1;
-      vtkAMRGridIndexEncoder::decode( rIdx,receiverLevel,receiverBlockIdx );
+      vtkAMRGridIndexEncoder::Decode( rIdx,receiverLevel,receiverBlockIdx );
 
       vtkUniformGrid *receiverGrid=
        this->ExtrudedData->GetDataSet(receiverLevel,receiverBlockIdx);
@@ -524,7 +524,7 @@ void vtkAMRGhostExchange::LocalDataTransfer()
 
           int donorGridLevel    = -1;
           int donorGridBlockIdx = -1;
-          vtkAMRGridIndexEncoder::decode(
+          vtkAMRGridIndexEncoder::Decode(
            donorGridIdx,donorGridLevel,donorGridBlockIdx);
 
          assert( "post: donor grid level mismatch!" &&
@@ -625,7 +625,7 @@ void vtkAMRGhostExchange::CheckOwnershipAtSameLevel(
 
           int donorGridBlock = -1;
           int donorLevel     = -1;
-          vtkAMRGridIndexEncoder::decode(
+          vtkAMRGridIndexEncoder::Decode(
            donorGridInfo->GetValue(cellIdx),donorLevel,donorGridBlock );
           assert("post: level mismatch" && (donorLevel==level) );
 

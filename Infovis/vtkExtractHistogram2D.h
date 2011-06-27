@@ -44,17 +44,17 @@
 #ifndef __vtkExtractHistogram2D_h
 #define __vtkExtractHistogram2D_h
 
-#include "vtkBivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkImageData;
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 
-class VTK_INFOVIS_EXPORT vtkExtractHistogram2D : public vtkBivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkExtractHistogram2D : public vtkStatisticsAlgorithm
 {
 public:
   static vtkExtractHistogram2D* New();
-  vtkTypeMacro(vtkExtractHistogram2D, vtkBivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkExtractHistogram2D, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

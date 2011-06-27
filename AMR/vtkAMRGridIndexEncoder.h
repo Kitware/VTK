@@ -34,11 +34,11 @@ class VTK_AMR_EXPORT vtkAMRGridIndexEncoder
 
     // Description:
     // Returns the encoded AMR index based on the provided level and block ID
-    static unsigned int encode( const int level, const int blockidx );
+    static unsigned int Encode( const int level, const int blockidx );
 
     // Description:
     // Decodes the given AMR grid index into the given level and block ID.
-    static void decode(
+    static void Decode(
         const unsigned int gridIdx, int &level, int &blockIdx );
 
   protected:

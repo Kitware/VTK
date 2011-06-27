@@ -107,6 +107,7 @@ vtkImageStencilToImage.cxx
 vtkImageStencilAlgorithm.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
+vtkImageSlabReslice.cxx
 vtkImageThreshold.cxx
 vtkImageToImageStencil.cxx
 vtkImageTranslateExtent.cxx

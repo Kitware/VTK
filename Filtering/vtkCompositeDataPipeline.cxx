@@ -1199,6 +1199,38 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
 
   if(request->Has(REQUEST_UPDATE_EXTENT()))
     {
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    if(outInfoVec->GetNumberOfInformationObjects() > 0)
+      {
+      // Copy information from the output port that made the request.
+      // Since VerifyOutputInformation has already been called we know
+      // there is output information with a data object.
+      vtkInformation* outInfo =
+        outInfoVec->GetInformationObject((outputPort >= 0)? outputPort : 0);
+
+      // Loop over all input ports.
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        // Loop over all connections on this input port.
+        int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
+        for (int j=0; j<numInConnections; j++)
+          {
+          // Get the pipeline information for this input connection.
+          vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
+          inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
+          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
+          inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
+          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
+          inInfo->CopyEntry(outInfo, UPDATE_COMPOSITE_INDICES());
+          }
+        }
+      }
+
     // Find the port that has a data that we will iterator over.
     // If there is one, make sure that we use piece extent for
     // that port. Composite data pipeline works with piece extents
@@ -1231,17 +1263,12 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           vtkInformation* inInfo = 
             inInfoVec[compositePort]->GetInformationObject(j);
             
-          inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
-          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
-          inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
-          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
           vtkDebugMacro(<< "CopyEntry UPDATE_PIECE_NUMBER() " << outInfo->Get(UPDATE_PIECE_NUMBER()) << " " << outInfo);
 
           inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
           inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
-          inInfo->CopyEntry(outInfo, UPDATE_COMPOSITE_INDICES());
           }
         }
       }
