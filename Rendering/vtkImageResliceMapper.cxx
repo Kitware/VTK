@@ -852,7 +852,6 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
 {
   // set the interpolation mode and border
   int interpMode = VTK_RESLICE_NEAREST;
-  int slabMode = VTK_RESLICE_SLAB_MEAN;
   int slabSlices = 1;
 
   if (property)
@@ -869,42 +868,31 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
         interpMode = VTK_RESLICE_CUBIC;
         break;
       }
-
-    switch(this->SlabType)
-      {
-      case VTK_IMAGE_SLAB_MEAN:
-        slabMode = VTK_RESLICE_SLAB_MEAN;
-        break;
-      case VTK_IMAGE_SLAB_MIN:
-        slabMode = VTK_RESLICE_SLAB_MIN;
-        break;
-      case VTK_IMAGE_SLAB_MAX:
-        slabMode = VTK_RESLICE_SLAB_MAX;
-        break;
-      }
-
-    double spacing[3], inputSpacing[3];
-    this->ImageReslice->GetOutputSpacing(spacing);
-    this->GetInput()->GetSpacing(inputSpacing);
-    inputSpacing[0] = fabs(inputSpacing[0]);
-    inputSpacing[1] = fabs(inputSpacing[1]);
-    inputSpacing[2] = fabs(inputSpacing[2]);
-    double xc = this->ResliceMatrix->Element[2][0];
-    double yc = this->ResliceMatrix->Element[2][1];
-    double zc = this->ResliceMatrix->Element[2][2];
-    spacing[2] = (xc*xc*inputSpacing[0] +
-                  yc*yc*inputSpacing[1] +
-                  zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
-
-    // this->Slab slice spacing is half the input slice spacing
-    int n = vtkMath::Ceil(this->SlabThickness/spacing[2]);
-    slabSlices = 1 + this->SlabSampleFactor*n; 
-    if (slabSlices > 1)
-      {
-      spacing[2] = this->SlabThickness/(slabSlices - 1);
-      }
-    this->ImageReslice->SetOutputSpacing(spacing);
     }
+
+  // set up the slice spacing for slab views
+  double spacing[3], inputSpacing[3];
+  this->ImageReslice->GetOutputSpacing(spacing);
+  this->GetInput()->GetSpacing(inputSpacing);
+  inputSpacing[0] = fabs(inputSpacing[0]);
+  inputSpacing[1] = fabs(inputSpacing[1]);
+  inputSpacing[2] = fabs(inputSpacing[2]);
+  double xc = this->ResliceMatrix->Element[2][0];
+  double yc = this->ResliceMatrix->Element[2][1];
+  double zc = this->ResliceMatrix->Element[2][2];
+  spacing[2] = (xc*xc*inputSpacing[0] +
+                yc*yc*inputSpacing[1] +
+                zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
+
+  // slab slice spacing is half the input slice spacing
+  int n = vtkMath::Ceil(this->SlabThickness/spacing[2]);
+  slabSlices = 1 + this->SlabSampleFactor*n;
+  if (slabSlices > 1)
+    {
+    spacing[2] = this->SlabThickness/(slabSlices - 1);
+    }
+  this->ImageReslice->SetOutputSpacing(spacing);
+  int slabMode = this->SlabType;
 
   this->ImageReslice->SetInterpolationMode(interpMode);
   this->ImageReslice->SetSlabMode(slabMode);
@@ -1262,12 +1250,12 @@ const char *vtkImageResliceMapper::GetSlabTypeAsString()
 {
   switch (this->SlabType)
     {
-    case VTK_IMAGE_SLAB_MEAN:
-      return "Mean";
     case VTK_IMAGE_SLAB_MIN:
       return "Min";
     case VTK_IMAGE_SLAB_MAX:
       return "Max";
+    case VTK_IMAGE_SLAB_MEAN:
+      return "Mean";
     }
   return "";
 }
