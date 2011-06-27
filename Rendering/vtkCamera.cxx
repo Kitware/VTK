@@ -386,6 +386,8 @@ void vtkCamera::ComputeScreenOrientation()
     vtkMath::Cross(xAxis, yAxis, zAxis);
     vtkMath::Normalize(zAxis);
 
+    this->ScreenOrientation->Identity();
+
     this->ScreenOrientation->SetElement(0, 0, xAxis[0]);
     this->ScreenOrientation->SetElement(0, 1, xAxis[1]);
     this->ScreenOrientation->SetElement(0, 2, xAxis[2]);
@@ -438,8 +440,8 @@ void vtkCamera::ComputeDeeringFrustum()
   double origin[3] = {0.0, 0.0, 0.0};
 
   double screenNormal[3];
-  screenNormal[0] = this->ScreenOrientation->GetElement(0, 2);
-  screenNormal[1] = this->ScreenOrientation->GetElement(1, 2);
+  screenNormal[0] = this->ScreenOrientation->GetElement(2, 0);
+  screenNormal[1] = this->ScreenOrientation->GetElement(2, 1);
   screenNormal[2] = this->ScreenOrientation->GetElement(2, 2);
 
   double planeDCoordinate = -vtkMath::Dot(screenNormal, this->ScreenBottomLeft);
@@ -454,13 +456,13 @@ void vtkCamera::ComputeDeeringFrustum()
 
   // Now transform the eye to screen coordinate system.
   this->ScreenOrientation->MultiplyPoint(E, E);
- this->ScreenOrientation->MultiplyPoint(H, H);
+  this->ScreenOrientation->MultiplyPoint(H, H);
   this->ScreenOrientation->MultiplyPoint(L, L);
-
 
   double matrix[4][4];
   double width  = H[0] - L[0];
   double height = H[1] - L[1];
+
   B = E[2] - B;
   F = E[2] - F;
 
@@ -492,6 +494,10 @@ void vtkCamera::ComputeDeeringFrustum()
       this->ProjectionTransform->GetMatrix()->SetElement( i,j,  matrix[i][j] ) ;
       }
     }
+
+  //  Now move the into display space.
+  vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(), this->ScreenOrientation,
+                            this->ProjectionTransform->GetMatrix());
 }
 
 //----------------------------------------------------------------------------
