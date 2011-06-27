@@ -27,10 +27,10 @@
 
 #include "vtkThreadedImageAlgorithm.h"
 
-#define VTK_IMAGE_SLAB_MEAN  0
-#define VTK_IMAGE_SLAB_SUM  1
-#define VTK_IMAGE_SLAB_MIN  2
-#define VTK_IMAGE_SLAB_MAX  3
+#define VTK_IMAGE_SLAB_MIN  0
+#define VTK_IMAGE_SLAB_MAX  1
+#define VTK_IMAGE_SLAB_MEAN 2
+#define VTK_IMAGE_SLAB_SUM  3
 
 class VTK_IMAGING_EXPORT vtkImageSlab : public vtkThreadedImageAlgorithm
 {
