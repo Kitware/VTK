@@ -299,48 +299,51 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
 
   // Read the corresponding cell types.
   vtkIdType numberOfCells = this->NumberOfCells[this->Piece];
-  vtkXMLDataElement* eTypes = this->FindDataArrayWithName(eCells, "types");
-  if(!eTypes)
+  if (numberOfCells > 0) 
     {
-    vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"types\" array could not be found.");
-    return 0;
-    }
-  vtkAbstractArray* ac2 = this->CreateArray(eTypes);
-  vtkDataArray* c2 = vtkDataArray::SafeDownCast(ac2);
-  if(!c2 || (c2->GetNumberOfComponents() != 1))
-    {
-    vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"types\" array could not be created"
-                  << " with one component.");
-    if (ac2) { ac2->Delete(); }
-    return 0;
-    }
-  c2->SetNumberOfTuples(numberOfCells);
-  if(!this->ReadArrayValues(eTypes, 0, c2, 0, numberOfCells))
-    {
-    vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"types\" array is not long enough.");
-    return 0;
-    }
-  vtkUnsignedCharArray* cellTypes = this->ConvertToUnsignedCharArray(c2);
-  if(!cellTypes)
-    {
-    vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"types\" array could not be converted"
-                  << " to a vtkUnsignedCharArray.");
-    return 0;
-    }
+    vtkXMLDataElement* eTypes = this->FindDataArrayWithName(eCells, "types");
+    if(!eTypes)
+      {
+      vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"types\" array could not be found.");
+      return 0;
+      }
+    vtkAbstractArray* ac2 = this->CreateArray(eTypes);
+    vtkDataArray* c2 = vtkDataArray::SafeDownCast(ac2);
+    if(!c2 || (c2->GetNumberOfComponents() != 1))
+      {
+      vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"types\" array could not be created"
+                    << " with one component.");
+      if (ac2) { ac2->Delete(); }
+      return 0;
+      }
+    c2->SetNumberOfTuples(numberOfCells);
+    if(!this->ReadArrayValues(eTypes, 0, c2, 0, numberOfCells))
+      {
+      vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"types\" array is not long enough.");
+      return 0;
+      }
+    vtkUnsignedCharArray* cellTypes = this->ConvertToUnsignedCharArray(c2);
+    if(!cellTypes)
+      {
+      vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"types\" array could not be converted"
+                    << " to a vtkUnsignedCharArray.");
+      return 0;
+      }
 
-  // Copy the cell type data.
-  memcpy(output->GetCellTypesArray()->GetPointer(this->StartCell),
-         cellTypes->GetPointer(0), numberOfCells);
+    // Copy the cell type data.
+    memcpy(output->GetCellTypesArray()->GetPointer(this->StartCell),
+           cellTypes->GetPointer(0), numberOfCells);
 
-  cellTypes->Delete();
+    cellTypes->Delete();
+    }
 
   // Set the range of progress for the faces.
   this->SetProgressRange(progressRange, 3, fractions);
