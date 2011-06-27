@@ -28,11 +28,6 @@
 
 #include "vtkImageMapper3D.h"
 
-// slab mode constants
-#define VTK_IMAGE_SLAB_MEAN 0
-#define VTK_IMAGE_SLAB_MIN 1
-#define VTK_IMAGE_SLAB_MAX 2
-
 class vtkImageSliceMapper;
 class vtkRenderer;
 class vtkRenderWindow;
@@ -64,14 +59,14 @@ public:
 
   // Description:
   // The slab type, for thick slicing (default: mean)
-  vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MEAN, VTK_IMAGE_SLAB_MAX);
+  vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_MEAN);
   vtkGetMacro(SlabType, int);
-  void SetSlabTypeToMean() {
-    this->SetSlabType(VTK_IMAGE_SLAB_MEAN); };
   void SetSlabTypeToMin() {
     this->SetSlabType(VTK_IMAGE_SLAB_MIN); };
   void SetSlabTypeToMax() {
     this->SetSlabType(VTK_IMAGE_SLAB_MAX); };
+  void SetSlabTypeToMean() {
+    this->SetSlabType(VTK_IMAGE_SLAB_MEAN); };
   virtual const char *GetSlabTypeAsString();
 
   // Description:

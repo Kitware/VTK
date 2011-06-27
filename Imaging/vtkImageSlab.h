@@ -27,11 +27,6 @@
 
 #include "vtkThreadedImageAlgorithm.h"
 
-#define VTK_IMAGE_SLAB_MIN  0
-#define VTK_IMAGE_SLAB_MAX  1
-#define VTK_IMAGE_SLAB_MEAN 2
-#define VTK_IMAGE_SLAB_SUM  3
-
 class VTK_IMAGING_EXPORT vtkImageSlab : public vtkThreadedImageAlgorithm
 {
 public:
@@ -60,7 +55,7 @@ public:
   // Description:
   // Set the operation to use when combining slices.  The choices are
   // "Mean", "Sum", "Min", "Max".  The default is "Mean".
-  vtkSetClampMacro(Operation, int, 0, 3);
+  vtkSetClampMacro(Operation, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   void SetOperationToMin() {
     this->SetOperation(VTK_IMAGE_SLAB_MIN); };
   void SetOperationToMax() {

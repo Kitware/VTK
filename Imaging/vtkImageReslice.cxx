@@ -181,7 +181,7 @@ vtkImageReslice::vtkImageReslice()
   this->InterpolationMode = VTK_RESLICE_NEAREST; // no interpolation
   this->InterpolationSizeParameter = 3; // for Lanczos and Kaiser
 
-  this->SlabMode = VTK_RESLICE_SLAB_MEAN;
+  this->SlabMode = VTK_IMAGE_SLAB_MEAN;
   this->SlabNumberOfSlices = 1;
   this->SlabTrapezoidIntegration = 0;
 
@@ -456,14 +456,14 @@ const char *vtkImageReslice::GetSlabModeAsString()
 {
   switch (this->SlabMode)
     {
-    case VTK_RESLICE_SLAB_MEAN:
-      return "Mean";
-    case VTK_RESLICE_SLAB_SUM:
-      return "Sum";
-    case VTK_RESLICE_SLAB_MIN:
+    case VTK_IMAGE_SLAB_MIN:
       return "Min";
-    case VTK_RESLICE_SLAB_MAX:
+    case VTK_IMAGE_SLAB_MAX:
       return "Max";
+    case VTK_IMAGE_SLAB_MEAN:
+      return "Mean";
+    case VTK_IMAGE_SLAB_SUM:
+      return "Sum";
     }
   return "";
 }
@@ -1496,7 +1496,7 @@ void vtkGetConversionFunc(vtkImageReslice *self,
   int dataType = self->GetOutput()->GetScalarType();
 
   if (self->GetInterpolationMode() <= VTK_RESLICE_LINEAR &&
-      self->GetSlabMode() != VTK_RESLICE_SLAB_MAX &&
+      self->GetSlabMode() != VTK_IMAGE_SLAB_MAX &&
       vtkDataArray::GetDataTypeMin(dataType) <=
         vtkDataArray::GetDataTypeMin(inputType) &&
       vtkDataArray::GetDataTypeMax(dataType) >=
@@ -1659,19 +1659,19 @@ void vtkGetCompositeFunc(vtkImageReslice *self,
 
   switch (slabMode)
     {
-    case VTK_RESLICE_SLAB_MEAN:
+    case VTK_IMAGE_SLAB_MIN:
+      *composite = &(vtkImageResliceComposite<F>::MinValue);
+      break;
+    case VTK_IMAGE_SLAB_MAX:
+      *composite = &(vtkImageResliceComposite<F>::MaxValue);
+      break;
+    case VTK_IMAGE_SLAB_MEAN:
       if (trpz) { *composite = &(vtkImageResliceComposite<F>::MeanTrap); }
       else { *composite = &(vtkImageResliceComposite<F>::MeanValue); }
       break;
-    case VTK_RESLICE_SLAB_SUM:
+    case VTK_IMAGE_SLAB_SUM:
       if (trpz) { *composite = &(vtkImageResliceComposite<F>::SumTrap); }
       else { *composite = &(vtkImageResliceComposite<F>::SumValues); }
-      break;
-    case VTK_RESLICE_SLAB_MIN:
-      *composite = &(vtkImageResliceComposite<F>::MinValue);
-      break;
-    case VTK_RESLICE_SLAB_MAX:
-      *composite = &(vtkImageResliceComposite<F>::MaxValue);
       break;
     default:
       *composite = 0;
@@ -4496,19 +4496,19 @@ void vtkGetRowCompositeFunc(vtkImageReslice *self,
 
   switch (slabMode)
     {
-    case VTK_RESLICE_SLAB_MEAN:
+    case VTK_IMAGE_SLAB_MIN:
+      *composite = &(vtkImageResliceRowComp<F>::MinRow);
+      break;
+    case VTK_IMAGE_SLAB_MAX:
+      *composite = &(vtkImageResliceRowComp<F>::MaxRow);
+      break;
+    case VTK_IMAGE_SLAB_MEAN:
       if (trpz) { *composite = &(vtkImageResliceRowComp<F>::MeanRowTrap); }
       else { *composite = &(vtkImageResliceRowComp<F>::MeanRow); }
       break;
-    case VTK_RESLICE_SLAB_SUM:
+    case VTK_IMAGE_SLAB_SUM:
       if (trpz) { *composite = &(vtkImageResliceRowComp<F>::SumRowTrap); }
       else { *composite = &(vtkImageResliceRowComp<F>::SumRow); }
-      break;
-    case VTK_RESLICE_SLAB_MIN:
-      *composite = &(vtkImageResliceRowComp<F>::MinRow);
-      break;
-    case VTK_RESLICE_SLAB_MAX:
-      *composite = &(vtkImageResliceRowComp<F>::MaxRow);
       break;
     default:
       *composite = 0;

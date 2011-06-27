@@ -61,12 +61,6 @@
 #define VTK_RESLICE_LANCZOS 4
 #define VTK_RESLICE_KAISER 5
 
-// slab mode constants
-#define VTK_RESLICE_SLAB_MEAN 0
-#define VTK_RESLICE_SLAB_MIN 1
-#define VTK_RESLICE_SLAB_MAX 2
-#define VTK_RESLICE_SLAB_SUM 3
-
 class vtkImageData;
 class vtkAbstractTransform;
 class vtkMatrix4x4;
@@ -236,16 +230,16 @@ public:
 
   // Description:
   // Set the slab mode, the default is average.
-  vtkSetClampMacro(SlabMode, int, VTK_RESLICE_SLAB_MEAN, VTK_RESLICE_SLAB_MAX);
+  vtkSetClampMacro(SlabMode, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   vtkGetMacro(SlabMode, int);
-  void SetSlabModeToMean() {
-    this->SetSlabMode(VTK_RESLICE_SLAB_MEAN); };
-  void SetSlabModeToSum() {
-    this->SetSlabMode(VTK_RESLICE_SLAB_SUM); };
   void SetSlabModeToMin() {
-    this->SetSlabMode(VTK_RESLICE_SLAB_MIN); };
+    this->SetSlabMode(VTK_IMAGE_SLAB_MIN); };
   void SetSlabModeToMax() {
-    this->SetSlabMode(VTK_RESLICE_SLAB_MAX); };
+    this->SetSlabMode(VTK_IMAGE_SLAB_MAX); };
+  void SetSlabModeToMean() {
+    this->SetSlabMode(VTK_IMAGE_SLAB_MEAN); };
+  void SetSlabModeToSum() {
+    this->SetSlabMode(VTK_IMAGE_SLAB_SUM); };
   virtual const char *GetSlabModeAsString();
 
   // Description:
