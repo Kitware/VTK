@@ -547,7 +547,7 @@ protected:
   // Description:
   // Given screen screen top, bottom left and top right
   // calculate screen rotation.
-  void ComputeScreenOrientation();
+  void ComputeWorldToScreen();
 
   // Description:
   // Compute and use frustum using deering method.
@@ -591,8 +591,8 @@ protected:
 
   double EyeSeparation;
 
-  vtkMatrix4x4 *ScreenOrientation;
-  vtkTimeStamp  ScreenOrientationMTime;
+  vtkMatrix4x4 *WorldToScreen;
+  vtkTimeStamp  WorldToScreenMTime;
 
   vtkMatrix4x4 *EyeTransformMatrix;
 
