@@ -402,8 +402,8 @@ void vtkImageSlabExecute(vtkImageSlab *self,
             for (int i = 0; i < rowlen; i++)
               {
               *outPtrX = ((*outPtrX < *inPtrX) ? *outPtrX : *inPtrX);
-              *inPtrX++;
-              *outPtrX++;
+              inPtrX++;
+              outPtrX++;
               }
 
             inSlicePtr += inInc[dimIndex];
