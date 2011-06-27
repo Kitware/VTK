@@ -421,6 +421,7 @@ void vtkCamera::ComputeDeeringFrustum()
   double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
   double H[2] = {this->ScreenTopRight[0],   this->ScreenTopRight[1]};
 
+
   if(this->LeftEye)
     {
     E[0] -= this->EyeSeparation / 2.0;
@@ -433,8 +434,29 @@ void vtkCamera::ComputeDeeringFrustum()
   // First tranform the eye to new position.
   this->EyeTransformMatrix->MultiplyPoint(E, E);
 
+  // Define world origin.
+  double origin[3] = {0.0, 0.0, 0.0};
+
+  double screenNormal[3];
+  screenNormal[0] = this->ScreenOrientation->GetElement(0, 2);
+  screenNormal[1] = this->ScreenOrientation->GetElement(1, 2);
+  screenNormal[2] = this->ScreenOrientation->GetElement(2, 2);
+
+  double planeDCoordinate = -vtkMath::Dot(screenNormal, this->ScreenBottomLeft);
+  double screen2originDistance = vtkMath::Dot(screenNormal, origin) + planeDCoordinate;
+
+  // Now transform the eye into the screen coordinate system.
+  this->ScreenOrientation->MultiplyPoint(E, E);
+  this->ScreenOrientation->MultiplyPoint(H, H);
+  this->ScreenOrientation->MultiplyPoint(L, L);
+
+  E[2] += screen2originDistance;
+
   // Now transform the eye to screen coordinate system.
   this->ScreenOrientation->MultiplyPoint(E, E);
+ this->ScreenOrientation->MultiplyPoint(H, H);
+  this->ScreenOrientation->MultiplyPoint(L, L);
+
 
   double matrix[4][4];
   double width  = H[0] - L[0];
@@ -1610,8 +1632,8 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
   double localNormal[4];
 
   // Get the normal from the screen orientation.
-  localNormal[0] = this->ScreenOrientation->GetElement(2, 0);
-  localNormal[1] = this->ScreenOrientation->GetElement(2, 1);
+  localNormal[0] = this->ScreenOrientation->GetElement(0, 2);
+  localNormal[1] = this->ScreenOrientation->GetElement(1, 2);
   localNormal[2] = this->ScreenOrientation->GetElement(2, 2);
   localNormal[3] = 0.0;
 
