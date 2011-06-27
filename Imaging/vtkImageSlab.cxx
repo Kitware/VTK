@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageProjection.cxx
+  Module:    vtkImageSlab.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkImageProjection.h"
+#include "vtkImageSlab.h"
 
 #include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -33,13 +33,14 @@
 
 #include <math.h>
 
-vtkStandardNewMacro(vtkImageProjection);
+vtkStandardNewMacro(vtkImageSlab);
 
 //----------------------------------------------------------------------------
-vtkImageProjection::vtkImageProjection()
+vtkImageSlab::vtkImageSlab()
 {
-  this->Operation = VTK_PROJECTION_AVERAGE;
-  this->SliceDirection = 2;
+  this->Operation = VTK_IMAGE_SLAB_MEAN;
+  this->TrapezoidIntegration = 0;
+  this->Orientation = 2;
   this->SliceRange[0] = VTK_INT_MIN;
   this->SliceRange[1] = VTK_INT_MAX;
   this->OutputScalarType = 0;
@@ -47,12 +48,12 @@ vtkImageProjection::vtkImageProjection()
 }
 
 //----------------------------------------------------------------------------
-vtkImageProjection::~vtkImageProjection()
+vtkImageSlab::~vtkImageSlab()
 {
 }
 
 //----------------------------------------------------------------------------
-int vtkImageProjection::RequestInformation(
+int vtkImageSlab::RequestInformation(
   vtkInformation *, vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -72,7 +73,7 @@ int vtkImageProjection::RequestInformation(
   inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
   // get the direction along which to sum slices
-  dimIndex = this->GetSliceDirection();
+  dimIndex = this->GetOrientation();
 
   // clamp the range to the whole extent
   this->GetSliceRange(range);
@@ -122,7 +123,7 @@ int vtkImageProjection::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageProjection::RequestUpdateExtent(
+int vtkImageSlab::RequestUpdateExtent(
   vtkInformation *, vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -147,7 +148,7 @@ int vtkImageProjection::RequestUpdateExtent(
   inExt[5] = outExt[5];
 
   // get the direction along which to sum slices
-  dimIndex = this->GetSliceDirection();
+  dimIndex = this->GetOrientation();
 
   // clamp the range to the whole extent
   this->GetSliceRange(range);
@@ -169,29 +170,32 @@ int vtkImageProjection::RequestUpdateExtent(
   return 1;
 }
 
+// anonymous namespace to limit visibility
+namespace {
+
 //----------------------------------------------------------------------------
 // rounding functions for each type
 
 template<class T>
-void vtkProjectionRound(double val, T& rnd)
+void vtkSlabRound(double val, T& rnd)
 {
   rnd = static_cast<T>(vtkMath::Floor(val + 0.5));
 }
 
 template<>
-void vtkProjectionRound<vtkTypeUInt32>(double val, vtkTypeUInt32& rnd)
+void vtkSlabRound<vtkTypeUInt32>(double val, vtkTypeUInt32& rnd)
 {
   rnd = static_cast<vtkTypeUInt32>(val + 0.5);
 }
 
 template<>
-void vtkProjectionRound<vtkTypeFloat32>(double val, vtkTypeFloat32& rnd)
+void vtkSlabRound<vtkTypeFloat32>(double val, vtkTypeFloat32& rnd)
 {
   rnd = val;
 }
 
 template<>
-void vtkProjectionRound<vtkTypeFloat64>(double val, vtkTypeFloat64& rnd)
+void vtkSlabRound<vtkTypeFloat64>(double val, vtkTypeFloat64& rnd)
 {
   rnd = val;
 }
@@ -200,40 +204,33 @@ void vtkProjectionRound<vtkTypeFloat64>(double val, vtkTypeFloat64& rnd)
 // clamping functions for each type
 
 template<class T>
-void vtkProjectionClamp(double val, T& clamp)
+void vtkSlabClamp(double val, T& clamp)
 {
-  if (val >= vtkTypeTraits<T>::Min())
-    {
-    if (val <= vtkTypeTraits<T>::Max())
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = vtkTypeTraits<T>::Max();
-    return;
-    }
-  clamp = vtkTypeTraits<T>::Min();
-  return;
+  double minval = static_cast<double>(vtkTypeTraits<T>::Min());
+  double maxval = static_cast<double>(vtkTypeTraits<T>::Max());
+  val = (val > minval ? val : minval);
+  val = (val < maxval ? val : maxval);
+  vtkSlabRound(val, clamp);
 }
 
 template<>
-void vtkProjectionClamp<vtkTypeFloat32>(double val, float& clamp)
+void vtkSlabClamp<vtkTypeFloat32>(double val, float& clamp)
 {
   clamp = val;
 }
 
 template<>
-void vtkProjectionClamp<vtkTypeFloat64>(double val, double& clamp)
+void vtkSlabClamp<vtkTypeFloat64>(double val, double& clamp)
 {
   clamp = val;
 }
 
 //----------------------------------------------------------------------------
 template <class T1, class T2>
-void vtkImageProjectionExecute(vtkImageProjection *self,
-                               vtkImageData *inData, T1 *inPtr,
-                               vtkImageData *outData, T2 *outPtr,
-                               int outExt[6], int id)
+void vtkImageSlabExecute(vtkImageSlab *self,
+                         vtkImageData *inData, T1 *inPtr,
+                         vtkImageData *outData, T2 *outPtr,
+                         int outExt[6], int id)
 {
   vtkIdType outIncX, outIncY, outIncZ;
   vtkIdType inInc[3];
@@ -248,9 +245,10 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
 
   // get the operation
   int operation = self->GetOperation();
+  int trapezoid = self->GetTrapezoidIntegration();
 
   // get the dimension along which to do the projection
-  int dimIndex = self->GetSliceDirection();
+  int dimIndex = self->GetOrientation();
   if (dimIndex < 0)
     {
     dimIndex = 0;
@@ -273,10 +271,16 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
     }
   int numSlices = range[1] - range[0] + 1;
 
+  // trapezoid integration is impossible if only one slice
+  if (numSlices <= 1)
+    {
+    trapezoid = 0;
+    }
+
   // averaging requires double precision summation
   double *rowBuffer = 0;
-  if (operation == VTK_PROJECTION_AVERAGE ||
-      operation == VTK_PROJECTION_SUM)
+  if (operation == VTK_IMAGE_SLAB_MEAN ||
+      operation == VTK_IMAGE_SLAB_SUM)
     {
     rowBuffer = new double[rowlen];
     }
@@ -302,22 +306,34 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
         }
 
       // ====== code for handling average and sum ======
-      if (operation == VTK_PROJECTION_AVERAGE ||
-          operation == VTK_PROJECTION_SUM)
+      if (operation == VTK_IMAGE_SLAB_MEAN ||
+          operation == VTK_IMAGE_SLAB_SUM)
         {
         T1 *inSlicePtr = inPtrY;
         double *rowPtr = rowBuffer;
 
         // initialize using first row
         T1 *inPtrX = inSlicePtr;
-        for (int j = 0; j < rowlen; j++)
+        if (trapezoid)
           {
-          *rowPtr++ = *inPtrX++;
+          double f = 0.5;
+          for (int j = 0; j < rowlen; j++)
+            {
+            *rowPtr++ = f*(*inPtrX++);
+            }
+          }
+        else
+          {
+          for (int j = 0; j < rowlen; j++)
+            {
+            *rowPtr++ = *inPtrX++;
+            }
           }
         inSlicePtr += inInc[dimIndex];
 
         // perform the summation
-        for (int sliceIdx = 1; sliceIdx < numSlices; sliceIdx++)
+        int sumSlices = (trapezoid ? (numSlices-1) : numSlices);
+        for (int sliceIdx = 1; sliceIdx < sumSlices; sliceIdx++)
           {
           inPtrX = inSlicePtr;
           rowPtr = rowBuffer;
@@ -329,22 +345,35 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
           inSlicePtr += inInc[dimIndex];
           }
 
+        if (trapezoid)
+          {
+          inPtrX = inSlicePtr;
+          rowPtr = rowBuffer;
+
+          double f = 0.5;
+          for (int i = 0; i < rowlen; i++)
+            {
+            *rowPtr++ += f*(*inPtrX++);
+            }
+          inSlicePtr += inInc[dimIndex];
+          }
+
         rowPtr = rowBuffer;
-        if (operation == VTK_PROJECTION_AVERAGE)
+        if (operation == VTK_IMAGE_SLAB_MEAN)
           {
           // do the division via multiplication
-          double factor = 1.0/numSlices;
+          double factor = 1.0/sumSlices;
           for (int k = 0; k < rowlen; k++)
             {
-            vtkProjectionRound((*rowPtr++)*factor, *outPtr++);
+            vtkSlabRound((*rowPtr++)*factor, *outPtr++);
             }
           }
-        else // VTK_PROJECTION_SUM
+        else // VTK_IMAGE_SLAB_SUM
           {
           // clamp to limits of numeric type
           for (int k = 0; k < rowlen; k++)
             {
-            vtkProjectionClamp(*rowPtr++, *outPtr++);
+            vtkSlabClamp(*rowPtr++, *outPtr++);
             }
           }
         }
@@ -363,7 +392,7 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
           }
         inSlicePtr += inInc[dimIndex];
 
-        if (operation == VTK_PROJECTION_MINIMUM)
+        if (operation == VTK_IMAGE_SLAB_MIN)
           {
           for (int sliceIdx = 1; sliceIdx < numSlices; sliceIdx++)
             {
@@ -372,21 +401,15 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
 
             for (int i = 0; i < rowlen; i++)
               {
-              // branch prediction: most often, output is not changed
-              T2 inVal = *inPtrX++;
-              T2 outVal = *outPtrX;
-              if (inVal > outVal)
-                {
-                outPtrX++;
-                continue;
-                }
-              *outPtrX++ = inVal;
+              *outPtrX = ((*outPtrX < *inPtrX) ? *outPtrX : *inPtrX);
+              inPtrX++;
+              outPtrX++;
               }
 
             inSlicePtr += inInc[dimIndex];
             }
           }
-        else // VTK_PROJECTION_MAXIMUM
+        else // VTK_IMAGE_SLAB_MAX
           {
           for (int sliceIdx = 1; sliceIdx < numSlices; sliceIdx++)
             {
@@ -395,15 +418,9 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
 
             for (int i = 0; i < rowlen; i++)
               {
-              // branch prediction: most often, output is not changed
-              T2 inVal = *inPtrX++;
-              T2 outVal = *outPtrX;
-              if (inVal < outVal)
-                {
-                outPtrX++;
-                continue;
-                }
-              *outPtrX++ = inVal;
+              *outPtrX = ((*outPtrX > *inPtrX) ? *outPtrX : *inPtrX);
+              inPtrX++;
+              outPtrX++;
               }
 
             inSlicePtr += inInc[dimIndex];
@@ -423,16 +440,17 @@ void vtkImageProjectionExecute(vtkImageProjection *self,
     inPtr += inInc[2];
     }
 
-  if (operation == VTK_PROJECTION_AVERAGE ||
-      operation == VTK_PROJECTION_SUM)
+  if (operation == VTK_IMAGE_SLAB_MEAN ||
+      operation == VTK_IMAGE_SLAB_SUM)
     {
     delete [] rowBuffer;
     }
 }
 
+} // end of anonymous namespace
 
 //----------------------------------------------------------------------------
-void vtkImageProjection::ThreadedRequestData(vtkInformation *,
+void vtkImageSlab::ThreadedRequestData(vtkInformation *,
   vtkInformationVector **inVector, vtkInformationVector *,
   vtkImageData ***inData, vtkImageData **outData, int outExt[6], int id)
 {
@@ -446,7 +464,7 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
   vtkDebugMacro("Execute: inData = " << inData << ", outData = " << outData);
 
   // get the direction along which to sum slices
-  dimIndex = this->GetSliceDirection();
+  dimIndex = this->GetOrientation();
 
   // clamp the range to the whole extent
   vtkInformation *inInfo = inVector[0]->GetInformationObject(0);
@@ -487,7 +505,7 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
     switch (inScalarType)
       {
       vtkTemplateAliasMacro(
-        vtkImageProjectionExecute(this,
+        vtkImageSlabExecute(this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
           outData[0], static_cast<VTK_TT *>(outPtr), outExt, id));
       default:
@@ -500,7 +518,7 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
     switch (inScalarType)
       {
       vtkTemplateAliasMacro(
-        vtkImageProjectionExecute( this,
+        vtkImageSlabExecute( this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
           outData[0], static_cast<float *>(outPtr), outExt, id));
       default:
@@ -513,7 +531,7 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
     switch (inScalarType)
       {
       vtkTemplateAliasMacro(
-        vtkImageProjectionExecute(this,
+        vtkImageSlabExecute(this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
           outData[0], static_cast<double *>(outPtr), outExt, id));
       default:
@@ -529,12 +547,14 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageProjection::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageSlab::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Operation: " << this->GetOperationAsString() << "\n";
-  os << indent << "SliceDirection: " << this->GetSliceDirection() << "\n";
+  os << indent << "TrapezoidIntegration: "
+     << (this->TrapezoidIntegration ? "On\n" : "Off\n");
+  os << indent << "Orientation: " << this->GetOrientation() << "\n";
   os << indent << "SliceRange: " << this->GetSliceRange()[0] << " "
      << this->GetSliceRange()[1] << "\n";
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
@@ -543,18 +563,18 @@ void vtkImageProjection::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-const char *vtkImageProjection::GetOperationAsString()
+const char *vtkImageSlab::GetOperationAsString()
 {
   switch (this->Operation)
     {
-    case VTK_PROJECTION_AVERAGE:
-      return "Average";
-    case VTK_PROJECTION_SUM:
+    case VTK_IMAGE_SLAB_MIN:
+      return "Min";
+    case VTK_IMAGE_SLAB_MAX:
+      return "Max";
+    case VTK_IMAGE_SLAB_MEAN:
+      return "Mean";
+    case VTK_IMAGE_SLAB_SUM:
       return "Sum";
-    case VTK_PROJECTION_MINIMUM:
-      return "Minimum";
-    case VTK_PROJECTION_MAXIMUM:
-      return "Maximum";
     default:
       return "";
     }

@@ -17,15 +17,10 @@ vtkImageCast caster
 caster SetInputConnection [reader GetOutputPort]
 caster SetOutputScalarTypeToFloat
 
-vtkTransform t1
-t1 RotateY 75
-
-vtkTransform t2
-t2 RotateZ 90
-
 vtkImageReslice reslice1
 reslice1 SetInputConnection [reader GetOutputPort]
 reslice1 SetSlabModeToMean
+reslice1 SlabTrapezoidIntegrationOn
 reslice1 SetSlabNumberOfSlices 45
 reslice1 SetInterpolationModeToLinear
 reslice1 SetOutputDimensionality 2
@@ -37,31 +32,30 @@ reslice2 SetInputConnection [caster GetOutputPort]
 reslice2 SetSlabModeToSum
 reslice2 SetSlabNumberOfSlices 93
 reslice2 SetInterpolationModeToLinear
-reslice2 SetResliceAxes [t1 GetMatrix]
 reslice2 SetOutputDimensionality 2
 reslice2 SetOutputSpacing 3.2 3.2 1.5
 reslice2 SetOutputExtent 0 63 0 63 0 0
+reslice2 SetResliceAxesDirectionCosines  1 0 0   0 0 -1   0 1 0
 
 vtkImageReslice reslice3
 reslice3 SetInputConnection [reader GetOutputPort]
 reslice3 SetSlabModeToMax
-reslice3 SetInterpolationModeToLinear
+reslice3 SetInterpolationModeToNearestNeighbor
 reslice3 SetSlabNumberOfSlices 50
-reslice3 SetResliceAxes [t1 GetMatrix]
-reslice3 SetResliceTransform t2
 reslice3 SetOutputDimensionality 2
 reslice3 SetOutputSpacing 3.2 3.2 1.5
 reslice3 SetOutputExtent 0 63 0 63 0 0
+reslice3 SetResliceAxesDirectionCosines  0 +1 0   0 0 -1   -1 0 0
 
 vtkImageReslice reslice4
 reslice4 SetInputConnection [reader GetOutputPort]
 reslice4 SetSlabModeToMin
-reslice4 SetSlabNumberOfSlices 11
+reslice4 SetSlabNumberOfSlices 2
 reslice4 SetInterpolationModeToCubic
-reslice4 SetResliceTransform t2
 reslice4 SetOutputDimensionality 2
 reslice4 SetOutputSpacing 3.2 3.2 1.5
 reslice4 SetOutputExtent 0 63 0 63 0 0
+reslice4 SetResliceAxesDirectionCosines  0 0 1   0 1 0   -1 0 0
 
 vtkImageMapper mapper1
   mapper1 SetInputConnection [reslice1 GetOutputPort]

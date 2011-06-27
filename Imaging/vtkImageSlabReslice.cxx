@@ -33,7 +33,7 @@ vtkImageSlabReslice::vtkImageSlabReslice()
   this->NumBlendSamplePoints = 1;
 
   // Default blend mode is maximum intensity projection through the data.
-  this->BlendMode = VTK_IMAGESLAB_BLEND_MAX;
+  this->BlendMode = VTK_IMAGE_SLAB_MAX;
 
   this->SlabThickness = 10; // mm or world coords
   this->SlabResolution = 1; // mm or world coords
@@ -54,18 +54,7 @@ int vtkImageSlabReslice::RequestInformation(
       int >(this->SlabThickness/(2.0 * this->SlabResolution))) + 1;
 
   this->SlabNumberOfSlices = this->NumBlendSamplePoints;
-  switch (this->BlendMode)
-    {
-    case VTK_IMAGESLAB_BLEND_MAX:
-      this->SlabMode = VTK_RESLICE_SLAB_MAX;
-      break;
-    case VTK_IMAGESLAB_BLEND_MIN:
-      this->SlabMode = VTK_RESLICE_SLAB_MIN;
-      break;
-    case VTK_IMAGESLAB_BLEND_MEAN:
-      this->SlabMode = VTK_RESLICE_SLAB_MEAN;
-      break;
-    }
+  this->SlabMode = this->BlendMode;
 
   this->Superclass::RequestInformation(request, inputVector, outputVector);
 
