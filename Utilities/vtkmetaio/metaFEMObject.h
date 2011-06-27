@@ -232,9 +232,16 @@ class METAIO_EXPORT MetaFEMObject : public MetaObject
 
 	/** Access methods*/
 	NodeListType & GetNodeList(void) {return m_NodeList;}
+	const NodeListType & GetNodeList(void) const {return m_NodeList;}
+
 	ElementListType & GetElementList(void) {return m_ElementList;}
+	const ElementListType & GetElementList(void) const {return m_ElementList;}
+
 	MaterialListType & GetMaterialList(void) {return m_MaterialList;}
+	const MaterialListType & GetMaterialList(void) const {return m_MaterialList;}
+
 	LoadListType & GetLoadList(void) {return m_LoadList;}
+	const LoadListType & GetLoadList(void) const {return m_LoadList;}
 
   protected:
 
