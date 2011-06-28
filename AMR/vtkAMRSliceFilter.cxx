@@ -44,7 +44,7 @@ vtkAMRSliceFilter::vtkAMRSliceFilter()
   this->OffSetFromOrigin = 0.0;
   this->Normal           = 1;
   this->ForwardUpstream  = 1;
-  this->Controller       = NULL;
+  this->Controller       = vtkMultiProcessController::GetGlobalController();
   this->initialRequest   = true;
 }
 
