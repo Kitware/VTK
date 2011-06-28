@@ -224,7 +224,7 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
     // center by.
 
     double intersectionPos[3], newCenter[3];
-    this->DisplayToReslicePlaneIntersection( e, intersectionPos );
+    this->Picker->Pick( e, intersectionPos, this->Renderer );
 
     // Offset the center by this vector.
 
@@ -232,6 +232,11 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
       {
       newCenter[i] = this->StartCenterPosition[i] +
         intersectionPos[i] - this->StartPickPosition[i];
+      }
+
+    if (fabs(newCenter[1]) > 1000000) 
+      {
+      this->PlaneSource->Print(cout);
       }
 
     rc->SetCenter(newCenter);
@@ -393,7 +398,7 @@ void vtkResliceCursorLineRepresentation
          v[2] * (1            -    w * (l[1]*l[1] + l[0]*l[0]));
 }
 
-#define sign(x) ((x) >= 0 ? 1 : 0)
+#define sign(x) (((x)<0) ? (-1) : (1))
 
 //----------------------------------------------------------------------
 int vtkResliceCursorLineRepresentation
@@ -535,6 +540,7 @@ int vtkResliceCursorLineRepresentation
       this->MatrixReslice, this->MatrixReslicedView);
   this->MatrixReslicedView->Modified();
 
+
   // Set the matrix on our actors and on the picker, so that we pick transfomed
   // coordinates
 
@@ -630,29 +636,41 @@ void vtkResliceCursorLineRepresentation::Highlight(int )
 }
 
 //----------------------------------------------------------------------
-// Prints an object if it exists.
-#define vtkPrintMemberObjectMacro( obj, os, indent ) \
-  os << indent << #obj << ": "; \
-  if (this->obj) \
-    { \
-    os << this->obj << "\n"; \
-    } \
-  else \
-    { \
-    os << "(null)\n"; \
-    }
-
-
-//----------------------------------------------------------------------
 void vtkResliceCursorLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
 
-  vtkPrintMemberObjectMacro( ResliceCursorActor, os, indent );
-  vtkPrintMemberObjectMacro( Picker, os, indent );
+  os << indent << "ResliceCursorActor: " << this->ResliceCursorActor << "\n";
+  if (this->ResliceCursorActor)
+    {
+    this->ResliceCursorActor->PrintSelf(os, indent);
+    }  
+
+  os << indent << "Picker: " << this->Picker << "\n";
+  if (this->Picker)
+    {
+    this->Picker->PrintSelf(os, indent);
+    }  
+  
+  os << indent << "MatrixReslicedView: " << this->MatrixReslicedView << "\n";
+  if (this->MatrixReslicedView)
+    {
+    this->MatrixReslicedView->PrintSelf(os, indent);
+    }  
+
+  os << indent << "MatrixView: " << this->MatrixView << "\n";
+  if (this->MatrixView)
+    {
+    this->MatrixView->PrintSelf(os, indent);
+    }  
+  
+  os << indent << "MatrixReslice: " << this->MatrixReslice << "\n";
+  if (this->MatrixReslice)
+    {
+    this->MatrixReslice->PrintSelf(os, indent);
+    }  
 
   // this->StartPickPosition;
   // this->StartCenterPosition;
-  // this->ResliceCursorActor;
 }
