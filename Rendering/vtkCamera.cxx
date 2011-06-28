@@ -400,9 +400,20 @@ void vtkCamera::ComputeWorldToScreen()
     this->WorldToScreen->SetElement(2, 1, zAxis[1]);
     this->WorldToScreen->SetElement(2, 2, zAxis[2]);
 
+    // Define world origin.
+    double origin[3] = {0.0, 0.0, 0.0};
+
+    double screenNormal[3];
+    screenNormal[0] = this->WorldToScreen->GetElement(2, 0);
+    screenNormal[1] = this->WorldToScreen->GetElement(2, 1);
+    screenNormal[2] = this->WorldToScreen->GetElement(2, 2);
+
+    double planeDCoordinate = -vtkMath::Dot(screenNormal, this->ScreenBottomLeft);
+    double screen2originDistance = vtkMath::Dot(screenNormal, origin) + planeDCoordinate;
+
     this->WorldToScreen->SetElement(3, 0, 0.0);
     this->WorldToScreen->SetElement(3, 1, 0.0);
-    this->WorldToScreen->SetElement(3, 2, 0.0);
+    this->WorldToScreen->SetElement(3, 2, screen2originDistance);
 
     this->WorldToScreen->SetElement(3, 3, 1.0);
 
@@ -441,24 +452,13 @@ void vtkCamera::ComputeDeeringFrustum()
   // First tranform the eye to new position.
   this->EyeTransformMatrix->MultiplyPoint(E, E);
 
-  // Define world origin.
-  double origin[3] = {0.0, 0.0, 0.0};
-
-  double screenNormal[3];
-  screenNormal[0] = this->WorldToScreen->GetElement(2, 0);
-  screenNormal[1] = this->WorldToScreen->GetElement(2, 1);
-  screenNormal[2] = this->WorldToScreen->GetElement(2, 2);
-
-  double planeDCoordinate = -vtkMath::Dot(screenNormal, this->ScreenBottomLeft);
-  double screen2originDistance = vtkMath::Dot(screenNormal, origin) + planeDCoordinate;
-
   // Now transform the eye and screen corner points into the screen
   // coordinate system.
   this->WorldToScreen->MultiplyPoint(E, E);
   this->WorldToScreen->MultiplyPoint(H, H);
   this->WorldToScreen->MultiplyPoint(L, L);
 
-  E[2] += screen2originDistance;
+//  E[2] += screen2originDistance;
 
   double matrix[4][4];
   double width  = H[0] - L[0];
