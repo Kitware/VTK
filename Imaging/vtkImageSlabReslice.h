@@ -44,6 +44,11 @@
 
 #include "vtkImageReslice.h"
 
+// For backwards compatibility
+#define VTK_IMAGESLAB_BLEND_MIN VTK_IMAGE_SLAB_MIN
+#define VTK_IMAGESLAB_BLEND_MAX VTK_IMAGE_SLAB_MAX
+#define VTK_IMAGESLAB_BLEND_MEAN VTK_IMAGE_SLAB_MEAN
+
 class VTK_IMAGING_EXPORT vtkImageSlabReslice : public vtkImageReslice
 {
 public:

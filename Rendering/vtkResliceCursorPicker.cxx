@@ -48,6 +48,9 @@ vtkResliceCursorPicker::vtkResliceCursorPicker()
 
   this->ResliceCursorAlgorithm = NULL;
   this->TransformMatrix = NULL;
+
+  // Plane on which the cursor lies. This is the picked plane.
+  this->Plane = vtkPlane::New();
 }
 
 //----------------------------------------------------------------------------
@@ -56,9 +59,10 @@ vtkResliceCursorPicker::~vtkResliceCursorPicker()
   this->Cell->Delete();
   this->SetResliceCursorAlgorithm(NULL);
   this->SetTransformMatrix(NULL);
+  this->Plane->Delete();
 }
 
-#define sign(x) ((x) >= 0 ? 1 : 0)
+#define sign(x) (((x)<0) ? (-1) : (1))
 
 //----------------------------------------------------------------------------
 int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
@@ -210,7 +214,7 @@ int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
     this->ResliceCursorAlgorithm->GetResliceCursor();
   const int axis1 = this->ResliceCursorAlgorithm->GetAxis1();
   const int axis2 = this->ResliceCursorAlgorithm->GetAxis2();
-  const int axis3 = this->ResliceCursorAlgorithm->GetReslicePlaneNormal();
+  //const int axis3 = this->ResliceCursorAlgorithm->GetReslicePlaneNormal();
 
   double center[3];
   rc->GetCenter(center);
@@ -223,17 +227,185 @@ int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
 
   if (this->PickedAxis1 || this->PickedAxis2 || this->PickedCenter)
     {
-    double t;
-    vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
-    plane->SetOrigin(rc->GetPlane(axis3)->GetOrigin());
-    double planeNormal[3] = {0,0,0};
-    planeNormal[axis3] = sign(rc->GetPlane(axis3)->GetNormal()[axis3]) * 1;
-    plane->SetNormal(planeNormal);
-    plane->IntersectWithLine(p1World, p2World, t, this->PickPosition);
+
+    // Pick on transformed plane coords and get the real coords back after
+    // inverse transformation.
+
+    double t, pickPosT[4], pickPos[4];
+    this->TransformPlane();
+    this->Plane->IntersectWithLine(p1World, p2World, t, pickPosT);
+    pickPosT[3] = 1.0;
+    this->InverseTransformPoint( pickPosT, pickPos );
+
+    this->PickPosition[0] = pickPos[0];
+    this->PickPosition[1] = pickPos[1];
+    this->PickPosition[2] = pickPos[2];
     }
 
 
   return this->PickedAxis1 + this->PickedAxis2 + this->PickedCenter;
+}
+
+//----------------------------------------------------------------------------
+// Pick a display coordinate and return the picked world coordinates
+//
+void vtkResliceCursorPicker::Pick(
+    double displayPos[2], double world[3], vtkRenderer *ren )
+{
+  // First compute the equivalent of this display point on the focal plane
+
+  double fp[4], tmp1[4], camPos[4], eventFPpos[4];
+  ren->GetActiveCamera()->GetFocalPoint(fp);
+  ren->GetActiveCamera()->GetPosition(camPos);
+  fp[3] = 1.0;
+  ren->SetWorldPoint(fp);
+  ren->WorldToDisplay();
+  ren->GetDisplayPoint(tmp1);
+
+  tmp1[0] = displayPos[0];
+  tmp1[1] = displayPos[1];
+
+  this->Renderer->SetDisplayPoint(tmp1);
+  this->Renderer->DisplayToWorld();
+
+  // This is the world coordinates of the point on the focal plane.
+
+  this->Renderer->GetWorldPoint(eventFPpos);
+
+
+  // Now construct the pick ray
+
+  double cameraDOP[3];
+  for (int i=0; i<3; i++)
+    {
+    cameraDOP[i] = fp[i] - camPos[i];
+    }
+
+  double otherPoint[3] = { eventFPpos[0] + cameraDOP[0],
+                           eventFPpos[1] + cameraDOP[1],
+                           eventFPpos[2] + cameraDOP[2] };
+
+  double t, pickPosT[4], pickPos[4];
+
+  // Transform the plane into one that lies on the resliced plane
+  this->TransformPlane();
+
+  // Pick it
+  this->Plane->IntersectWithLine(eventFPpos, otherPoint, t, pickPosT);
+
+  // Transform it back from the resliced plane coords to actual world coords
+  pickPosT[3] = 1.0;
+  this->InverseTransformPoint( pickPosT, pickPos );
+
+  // Copy the result
+  for (int i=0; i<3; i++)
+    {
+    world[i] = pickPos[i];
+    }
+}
+
+//----------------------------------------------------------------------------
+// Helper function for sanity check - to see if one point is different from
+// another.
+//
+bool vtkResliceCursorPickerIsDifferentSanityCheck(
+    const double a[3], const double b[3] )
+{
+  // Tolerance of 0.0001 needs some fluff..
+
+  return (fabs(a[0] - b[0]) > 0.0001 ||
+          fabs(a[1] - b[1]) > 0.0001 ||
+          fabs(a[2] - b[2]) > 0.0001);
+}
+
+//----------------------------------------------------------------------------
+// Transform the reslice plane onto the co-ordinate system its displayed in.
+//
+void vtkResliceCursorPicker::TransformPlane()
+{
+  vtkResliceCursor *rc =
+    this->ResliceCursorAlgorithm->GetResliceCursor();
+  const int axis3 = this->ResliceCursorAlgorithm->GetReslicePlaneNormal();
+
+  double origin[4] = {0,0,0,1}, originT[4];
+  double normal[3];
+  rc->GetPlane(axis3)->GetOrigin(origin);
+  rc->GetPlane(axis3)->GetNormal(normal);
+
+  double normalPoint[4] = { origin[0] + normal[0],
+                            origin[1] + normal[1],
+                            origin[2] + normal[2],
+                            1.0 };
+  double normalPointT[4];
+
+  this->TransformPoint(origin, originT);
+
+  // Sanity check
+  if (vtkResliceCursorPickerIsDifferentSanityCheck(origin,originT))
+    {
+    vtkErrorMacro( "Reslice cursor after transformation (" << originT[0]
+        << "," << originT[1] << "," << originT[2] << ") is not equal to before "
+        << "transformation along axis " << axis3 << " of (" << origin[0]
+        << "," << origin[1] << "," << origin[2] << ").");
+    }
+
+  this->TransformPoint(normalPoint, normalPointT);
+
+  double normalT[3];
+  vtkMath::Subtract( normalPointT, originT, normalT );
+  vtkMath::Normalize(normalT);
+
+  // The origin of the reslice cursor will remain untransformed.
+  double center[3];
+  rc->GetCenter(center);
+
+  // Sanity check
+  if (vtkResliceCursorPickerIsDifferentSanityCheck(origin,center))
+    {
+    vtkErrorMacro( "Reslice cursor center of (" << center[0]
+        << "," << center[1] << "," << center[2] << ") is not equal to plane "
+        << "origin along axis " << axis3 << " of (" << origin[0]
+        << "," << origin[1] << "," << origin[2] << ").");
+    }
+
+
+  this->Plane->SetOrigin(originT);
+  this->Plane->SetNormal(normalT);
+}
+
+//----------------------------------------------------------------------------
+void vtkResliceCursorPicker::TransformPoint( double pIn[4], double pOut[4] )
+{
+  this->TransformMatrix->MultiplyPoint(pIn, pOut);
+}
+
+//----------------------------------------------------------------------------
+void vtkResliceCursorPicker::InverseTransformPoint( double pIn[4], double pOut[4] )
+{
+  // Maintain a copy of the existing elements.
+  double elements[4][4];
+  for (int i = 0; i < 4; i++)
+    {
+    for (int j = 0; j < 4; j++)
+      {
+      elements[i][j] = this->TransformMatrix->Element[i][j];
+      }
+    }
+
+  // Invert matrix
+  this->TransformMatrix->Invert();
+
+  // Transform point
+  this->TransformPoint(pIn, pOut);
+
+  // Copy back the elements.
+  for (int i = 0; i < 4; i++)
+    {
+    for (int j = 0; j < 4; j++)
+      {
+      this->TransformMatrix->Element[i][j] = elements[i][j];
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -344,12 +516,18 @@ void vtkResliceCursorPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PickedAxis1: " << this->PickedAxis1 << endl;
   os << indent << "PickedAxis2: " << this->PickedAxis2 << endl;
   os << indent << "PickedCenter: " << this->PickedCenter << endl;
-  // this->PointIds;
   os << indent << "ResliceCursorAlgorithm: " <<
         this->ResliceCursorAlgorithm << "\n";
   if (this->ResliceCursorAlgorithm)
     {
     this->ResliceCursorAlgorithm->PrintSelf(os, indent);
     }
+  os << indent << "TransformMatrix: " << this->TransformMatrix << "\n";
+  if (this->TransformMatrix)
+    {
+    this->TransformMatrix->PrintSelf(os, indent);
+    }
+  // this->PointIds;
+  // this->Plane;
   // this->Cell;
 }

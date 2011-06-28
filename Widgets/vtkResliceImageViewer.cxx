@@ -182,7 +182,7 @@ void vtkResliceImageViewer::UpdateOrientation()
           
         case vtkImageViewer2::SLICE_ORIENTATION_XZ:
           cam->SetFocalPoint(0,0,0);
-          cam->SetPosition(0,1,0); // 1 if medical ?
+          cam->SetPosition(0,-1,0); // 1 if medical ?
           cam->SetViewUp(0,0,1);
           break;
           
