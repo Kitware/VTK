@@ -30,6 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkIdList.h"
 #include "vtkAMRGridIndexEncoder.h"
+#include "vtkMath.h"
 
 #include <cmath>
 #include <limits>
@@ -402,7 +403,7 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 
   // Dimension based on CELLS and start number from 0.
   for( int i=0; i < 3; ++i )
-   hi[ i ] = round( (max[i]-min[i])/spacing[i] )-1;
+   hi[ i ] = vtkMath::Round( (max[i]-min[i])/spacing[i] )-1;
 
   root.SetDimensionality( dimension );
   root.SetDataSetOrigin( min );
@@ -432,7 +433,7 @@ void vtkHierarchicalBoxDataSet::GetGlobalAMRBoxWithSpacing(
       // Note -1 is subtracted here because the data
       // is cell-centered and we downshift to number
       // from 0.
-      ndim[ i ] = round( (max[i]-min[i])/h[i] )-1;
+      ndim[ i ] = vtkMath::Round( (max[i]-min[i])/h[i] )-1;
     }
 
   int lo[3];
