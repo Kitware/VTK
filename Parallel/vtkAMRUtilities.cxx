@@ -19,6 +19,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkMPIController.h"
 #include "vtkCommunicator.h"
+#include "vtkMath.h"
 
 #include <cmath>
 #include <limits>
@@ -367,8 +368,8 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
   switch( myGrid->GetDataDimension() )
     {
       case 1:
-        lo[0]   = round( (gridOrigin[0]-origin[0])/h[0] );
-        hi[0]   = round( lo[0] + ( ndim[0]-1 ) );
+        lo[0]   = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
+        hi[0]   = vtkMath::Round( static_cast<double>(lo[0] + ( ndim[0]-1 )) );
         for(i=1; i < 3; ++i )
          lo[i] = hi[i] = 0;
         break;
@@ -378,37 +379,42 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
             // YZ plane
             for( i=1; i < 3; ++i )
               {
-                lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
-                hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+                lo[i]   = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
+                hi[i]   = vtkMath::Round(
+                    static_cast<double>(lo[i] + ( ndim[i]-1 )) );
               }
-            lo[0] = hi[0] = round( (gridOrigin[0]-origin[0])/h[0] );
+            lo[0] = hi[0] = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
           }
         else if( myGrid->GetGridDescription() == VTK_XZ_PLANE )
           {
             // XZ plane
-            lo[1]   = hi[1] = round( (gridOrigin[1]-origin[1])/h[1] );
+            lo[1]   = hi[1] = vtkMath::Round( (gridOrigin[1]-origin[1])/h[1] );
 
-            lo[0]   = round( (gridOrigin[0]-origin[0])/h[0] );
-            hi[0]   = round( lo[0] + ( ndim[0]-1 ) );
-            lo[2]   = round( (gridOrigin[2]-origin[2])/h[2] );
-            hi[2]   = round( lo[2] + ( ndim[2]-1 ) );
+            lo[0]   = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
+            hi[0]   = vtkMath::Round(
+                          static_cast<double>(lo[0] + ( ndim[0]-1 )) );
+            lo[2]   = vtkMath::Round( (gridOrigin[2]-origin[2])/h[2] );
+            hi[2]   = vtkMath::Round(
+                         static_cast<double>(lo[2] + ( ndim[2]-1 )) );
           }
         else if( myGrid->GetGridDescription() == VTK_XY_PLANE )
           {
             // XY plane
             for( i=0; i < 2; ++i )
               {
-                lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
-                hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+                lo[i]   = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
+                hi[i]   = vtkMath::Round(
+                              static_cast<double>(lo[i] + ( ndim[i]-1 )) );
               }
-            lo[2] = hi[2] = round( (gridOrigin[2]-origin[2])/h[2] );
+            lo[2] = hi[2] = vtkMath::Round( (gridOrigin[2]-origin[2])/h[2] );
           }
         break;
       case 3:
         for( i=0; i < 3; ++i )
           {
-            lo[i]   = round( (gridOrigin[i]-origin[i])/h[i] );
-            hi[i]   = round( lo[i] + ( ndim[i]-1 ) );
+            lo[i]   = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
+            hi[i]   = vtkMath::Round(
+                          static_cast<double>(lo[i] + ( ndim[i]-1 )) );
           }
         break;
       default:
@@ -500,7 +506,7 @@ void vtkAMRUtilities::ComputeLevelRefinementRatio(
 
        // Note current implementation assumes uniform spacing. The
        // refinement ratio is the same in each dimension i,j,k.
-       int ratio = round(parentSpacing[0]/currentSpacing[0]);
+       int ratio = vtkMath::Round(parentSpacing[0]/currentSpacing[0]);
 
        // Set the ratio at the root level, i.e., level 0, to be the same as
        // the ratio at level 1,since level 0 doesn't really have a refinement

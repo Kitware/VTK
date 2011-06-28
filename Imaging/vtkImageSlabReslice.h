@@ -44,9 +44,10 @@
 
 #include "vtkImageReslice.h"
 
-#define VTK_IMAGESLAB_BLEND_MIN  0
-#define VTK_IMAGESLAB_BLEND_MAX  1
-#define VTK_IMAGESLAB_BLEND_MEAN 2
+// For backwards compatibility
+#define VTK_IMAGESLAB_BLEND_MIN VTK_IMAGE_SLAB_MIN
+#define VTK_IMAGESLAB_BLEND_MAX VTK_IMAGE_SLAB_MAX
+#define VTK_IMAGESLAB_BLEND_MEAN VTK_IMAGE_SLAB_MEAN
 
 class VTK_IMAGING_EXPORT vtkImageSlabReslice : public vtkImageReslice
 {
@@ -63,9 +64,9 @@ public:
   // Set/Get the blend mode. Default is MIP (ie Max)
   vtkSetMacro( BlendMode, int );
   vtkGetMacro( BlendMode, int );
-  void SetBlendModeToMin()  { this->SetBlendMode(VTK_IMAGESLAB_BLEND_MIN ); }
-  void SetBlendModeToMax()  { this->SetBlendMode(VTK_IMAGESLAB_BLEND_MAX ); }
-  void SetBlendModeToMean() { this->SetBlendMode(VTK_IMAGESLAB_BLEND_MEAN); }
+  void SetBlendModeToMin()  { this->SetBlendMode(VTK_IMAGE_SLAB_MIN ); }
+  void SetBlendModeToMax()  { this->SetBlendMode(VTK_IMAGE_SLAB_MAX ); }
+  void SetBlendModeToMean() { this->SetBlendMode(VTK_IMAGE_SLAB_MEAN); }
 
   // Description:
   // Number of sample points used across the slab cross-section. If equal to

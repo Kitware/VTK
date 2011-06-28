@@ -7,7 +7,28 @@ SET(KIT_JAVA_LIBS vtkCommonJava vtkFilteringJava vtkParallelJava vtkGenericFilte
 SET(KIT_INTERFACE_LIBRARIES vtkCommon vtkFiltering vtkParallel vtkGenericFiltering )
 
 ## Get the kit sources
-FILE( GLOB Kit_SRCS *.cxx )
+#FILE( GLOB Kit_SRCS *.cxx )
+SET(Kit_SRCS
+    vtkAMRBaseParticlesReader.cxx
+    vtkAMRBaseReader.cxx
+    vtkAMRConnectivityFilter.cxx
+    vtkAMRContourFilter.cxx
+    vtkAMRDualMeshExtractor.cxx
+    vtkAMREnzoParticlesReader.cxx
+    vtkAMREnzoReader.cxx
+    vtkAMREnzoReaderInternal.cxx
+    vtkAMRFlashParticlesReader.cxx
+    vtkAMRFlashReader.cxx
+    vtkAMRFlashReaderInternal.cxx
+    vtkAMRGhostCellExtruder.cxx
+    vtkAMRGhostExchange.cxx
+    vtkAMRGridIndexEncoder.cxx
+    vtkAMRHomogenizationFilter.cxx
+    vtkAMRInterBlockConnectivity.cxx
+    vtkAMRLink.cxx
+    vtkAMRProbeFilter.cxx
+    vtkAMRSliceFilter.cxx
+    )
 
 ## Set the libraries required by this kit
 SET(KIT_LIBS vtkParallel vtkCommon vtkFiltering vtkGenericFiltering ${VTK_HDF5_LIBRARIES})

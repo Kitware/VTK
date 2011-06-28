@@ -53,6 +53,38 @@ public:
   virtual void SetSlicePlane(vtkPlane *plane);
 
   // Description:
+  // The slab thickness, for thick slicing (default: zero)
+  vtkSetMacro(SlabThickness, double);
+  vtkGetMacro(SlabThickness, double);
+
+  // Description:
+  // The slab type, for thick slicing (default: mean)
+  vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_MEAN);
+  vtkGetMacro(SlabType, int);
+  void SetSlabTypeToMin() {
+    this->SetSlabType(VTK_IMAGE_SLAB_MIN); };
+  void SetSlabTypeToMax() {
+    this->SetSlabType(VTK_IMAGE_SLAB_MAX); };
+  void SetSlabTypeToMean() {
+    this->SetSlabType(VTK_IMAGE_SLAB_MEAN); };
+  virtual const char *GetSlabTypeAsString();
+
+  // Description:
+  // Set the number of slab samples to use as a factor of the number
+  // of input slices within the slab thickness.  The default value
+  // is 2, but 1 will increase speed with very little loss of quality.
+  vtkSetClampMacro(SlabSampleFactor, int, 1, 2);
+  vtkGetMacro(SlabSampleFactor, int);
+
+  // Description:
+  // Set the reslice sample frequency as in relation to the input image
+  // sample frequency.  The default value is 1, but higher values can be
+  // used to improve the results.  This is cheaper than turning on
+  // ResampleToScreenPixels.
+  vtkSetClampMacro(ImageSampleFactor, int, 1, 16);
+  vtkGetMacro(ImageSampleFactor, int);
+
+  // Description:
   // Automatically reduce the rendering quality for greater speed
   // when doing an interactive render.  This is on by default.
   vtkSetMacro(AutoAdjustImageQuality, int);
@@ -155,6 +187,10 @@ protected:
 
   int AutoAdjustImageQuality; // LOD-style behavior
   int SeparateWindowLevelOperation; // Do window/level as a separate step
+  double SlabThickness; // Current slab thickness
+  int SlabType; // Current slab mode
+  int SlabSampleFactor; // Sampling factor for slab mode
+  int ImageSampleFactor; // Sampling factor for image pixels
   int ResampleToScreenPixels; // Use software interpolation only
   int InternalResampleToScreenPixels; // Use software interpolation only
   int ResliceNeedUpdate; // Execute reslice on next render

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageProjection.h
+  Module:    vtkImageSlab.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,45 +12,39 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageProjection - project an image along the Z direction
+// .NAME vtkImageSlab - combine image slices to form a slab image
 // .SECTION Description
-// vtkImageProjection will combine all of the slices of an image to
+// vtkImageSlab will combine all of the slices of an image to
 // create a single slice.  The slices can be combined with the
 // following operations: averaging, summation, minimum, maximum.
 // If you require an arbitrary angle of projection, you can use
-// vtkImageReslice to rotate the image before applying this filter.
+// vtkImageReslice.
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkImageProjection_h
-#define __vtkImageProjection_h
+#ifndef __vtkImageSlab_h
+#define __vtkImageSlab_h
 
 #include "vtkThreadedImageAlgorithm.h"
 
-
-#define VTK_PROJECTION_AVERAGE  0
-#define VTK_PROJECTION_SUM      1
-#define VTK_PROJECTION_MINIMUM  2
-#define VTK_PROJECTION_MAXIMUM  3
-
-class VTK_IMAGING_EXPORT vtkImageProjection : public vtkThreadedImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageSlab : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageProjection *New();
-  vtkTypeMacro(vtkImageProjection, vtkThreadedImageAlgorithm);
+  static vtkImageSlab *New();
+  vtkTypeMacro(vtkImageSlab, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the slice direction: zero for x, 1 for y, 2 for z.
   // The default is the Z direction.
-  vtkSetClampMacro(SliceDirection, int, 0, 2);
-  void SetSliceDirectionToX() {
-    this->SetSliceDirection(0); };
-  void SetSliceDirectionToY() {
-    this->SetSliceDirection(1); };
-  void SetSliceDirectionToZ() {
-    this->SetSliceDirection(2); };
-  vtkGetMacro(SliceDirection, int);
+  vtkSetClampMacro(Orientation, int, 0, 2);
+  void SetOrientationToX() {
+    this->SetOrientation(0); };
+  void SetOrientationToY() {
+    this->SetOrientation(1); };
+  void SetOrientationToZ() {
+    this->SetOrientation(2); };
+  vtkGetMacro(Orientation, int);
 
   // Description:
   // Set the range of slices to combine. The default is to project
@@ -60,18 +54,27 @@ public:
 
   // Description:
   // Set the operation to use when combining slices.  The choices are
-  // "Average", "Sum", "Maximum", "Minimum".  The default is "Average".
-  vtkSetClampMacro(Operation, int, 0, 3);
-  void SetOperationToAverage() {
-    this->SetOperation(VTK_PROJECTION_AVERAGE); };
+  // "Mean", "Sum", "Min", "Max".  The default is "Mean".
+  vtkSetClampMacro(Operation, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
+  void SetOperationToMin() {
+    this->SetOperation(VTK_IMAGE_SLAB_MIN); };
+  void SetOperationToMax() {
+    this->SetOperation(VTK_IMAGE_SLAB_MAX); };
+  void SetOperationToMean() {
+    this->SetOperation(VTK_IMAGE_SLAB_MEAN); };
   void SetOperationToSum() {
-    this->SetOperation(VTK_PROJECTION_SUM); };
-  void SetOperationToMinimum() {
-    this->SetOperation(VTK_PROJECTION_MINIMUM); };
-  void SetOperationToMaximum() {
-    this->SetOperation(VTK_PROJECTION_MAXIMUM); };
+    this->SetOperation(VTK_IMAGE_SLAB_SUM); };
   vtkGetMacro(Operation, int);
   const char *GetOperationAsString();
+
+  // Description:
+  // Use trapezoid integration for slab computation.  This weighs the
+  // first and last slices by half when doing sum and mean, as compared
+  // to the default midpoint integration that weighs all slices equally.
+  // It is off by default.
+  vtkSetMacro(TrapezoidIntegration, int);
+  vtkBooleanMacro(TrapezoidIntegration, int);
+  vtkGetMacro(TrapezoidIntegration, int);
 
   // Description:
   // Turn on multi-slice output.  Each slice of the output will be
@@ -97,8 +100,8 @@ public:
   vtkGetMacro(OutputScalarType, int);
 
 protected:
-  vtkImageProjection();
-  ~vtkImageProjection();
+  vtkImageSlab();
+  ~vtkImageSlab();
 
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
                                  vtkInformationVector *);
@@ -113,14 +116,15 @@ protected:
   vtkSetMacro(OutputScalarType, int);
 
   int Operation;
-  int SliceDirection;
+  int Orientation;
   int SliceRange[2];
   int OutputScalarType;
   int MultiSliceOutput;
+  int TrapezoidIntegration;
 
 private:
-  vtkImageProjection(const vtkImageProjection&);  // Not implemented.
-  void operator=(const vtkImageProjection&);  // Not implemented.
+  vtkImageSlab(const vtkImageSlab&);  // Not implemented.
+  void operator=(const vtkImageSlab&);  // Not implemented.
 };
 
 #endif
