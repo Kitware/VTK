@@ -34,6 +34,7 @@ class vtkGenericCell;
 class vtkResliceCursorPolyDataAlgorithm;
 class vtkIdList;
 class vtkMatrix4x4;
+class vtkPlane;
 
 class VTK_RENDERING_EXPORT vtkResliceCursorPicker : public vtkPicker
 {
@@ -65,6 +66,12 @@ public:
 
   virtual void SetTransformMatrix( vtkMatrix4x4 * );
 
+  // Description:
+  // Overloaded pick method that returns the picked coordinates of the current
+  // resliced  plane in world coordinates when given a display position
+  void Pick(
+    double displayPos[2], double world[3], vtkRenderer *ren );
+
 protected:
   vtkResliceCursorPicker();
   ~vtkResliceCursorPicker();
@@ -73,6 +80,10 @@ protected:
       double p1[3], double p2[3], vtkPolyData *, double tol );
   virtual int IntersectPointWithLine(
     double p1[3], double p2[3], double X[3], double tol );
+
+  void TransformPlane();
+  void TransformPoint( double pIn[4], double pOut[4] );
+  void InverseTransformPoint( double pIn[4], double pOut[4] );
 
 private:
 
@@ -84,6 +95,7 @@ private:
   int PickedCenter;
   vtkIdList *PointIds;
   vtkMatrix4x4 * TransformMatrix;
+  vtkPlane     * Plane;
 
 private:
   vtkResliceCursorPicker(const vtkResliceCursorPicker&);  // Not implemented.

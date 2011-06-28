@@ -77,11 +77,6 @@ vtkResliceCursor::vtkResliceCursor()
   for (int i = 0; i < 3; i++)
     {
     vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
-    double normal[3] = {0.0, 0.0, 0.0};
-    plane->SetOrigin(0,0,0);
-    normal[i] = 1.0;
-    plane->SetNormal(normal);
-
     this->ReslicePlanes->AddItem(plane);
 
     // Centerline polydata.
@@ -97,6 +92,10 @@ vtkResliceCursor::vtkResliceCursor()
     this->CenterlineAxis[i]->SetLines(linesc);
 
     }
+
+  this->ReslicePlanes->GetItem(0)->SetNormal(1,0,0);
+  this->ReslicePlanes->GetItem(1)->SetNormal(0,-1,0);
+  this->ReslicePlanes->GetItem(2)->SetNormal(0,0,1);
 
   this->BuildCursorTopology();
 }
@@ -194,11 +193,12 @@ void vtkResliceCursor::Reset()
 
   for (int i = 0; i < 3; i++)
     {
-    double normal[3] = {0.0, 0.0, 0.0};
-    normal[i] = 1.0;
     this->GetPlane(i)->SetOrigin(this->Center);
-    this->GetPlane(i)->SetNormal(normal);
     }
+
+  this->ReslicePlanes->GetItem(0)->SetNormal(1,0,0);
+  this->ReslicePlanes->GetItem(1)->SetNormal(0,-1,0);
+  this->ReslicePlanes->GetItem(2)->SetNormal(0,0,1);
 
   this->BuildCursorTopology();
   this->BuildCursorGeometry();
