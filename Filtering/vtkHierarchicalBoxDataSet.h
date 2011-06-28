@@ -261,6 +261,9 @@ public:
   // Removes all AMR data stored in this instance of the vtkHierarchicalBoxDataSet
   void Clear();
 
+  // Description:
+  // Returns the total number of blocks
+  int GetTotalNumberOfBlocks();
 
   // Description:
   // In-line Set & Get

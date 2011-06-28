@@ -665,6 +665,17 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 }
 
 //----------------------------------------------------------------------------
+int vtkHierarchicalBoxDataSet::GetTotalNumberOfBlocks( )
+{
+  int totalNumBlocks     = 0;
+  unsigned int numLevels = this->GetNumberOfLevels();
+  for( unsigned int levelIdx=0; levelIdx < numLevels; ++levelIdx )
+    totalNumBlocks += this->GetNumberOfDataSets( levelIdx );
+
+  return( totalNumBlocks );
+}
+
+//----------------------------------------------------------------------------
 vtkAMRBox vtkHierarchicalBoxDataSet::GetAMRBox(vtkCompositeDataIterator* iter)
 {
   vtkAMRBox box;
