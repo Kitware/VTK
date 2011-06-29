@@ -29,7 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkCompositeDataPipeline.h"
-
+#include "vtkMultiProcessController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
