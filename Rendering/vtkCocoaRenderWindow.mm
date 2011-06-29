@@ -32,7 +32,6 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 @interface vtkCocoaFullScreenWindow : NSWindow
 {
 }
-- (BOOL)canBecomeKeyWindow;
 @end
 
 @implementation vtkCocoaFullScreenWindow
@@ -561,7 +560,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // SetRootWindow() and SetWindowId() so that a window is not created here.
   if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId())
     {
-    NSWindow* theWindow = NULL;
+    NSWindow* theWindow = nil;
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     if (this->FullScreen && screen)
