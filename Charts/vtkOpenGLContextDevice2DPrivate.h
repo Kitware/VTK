@@ -56,6 +56,9 @@ public:
   // CacheElement associates a unique key to some cache.
   struct CacheElement: public std::pair<Key, CacheData>
   {
+    // Default constructor
+    CacheElement()
+      : std::pair<Key, CacheData>(Key(), CacheData()){}
     // Construct a partial CacheElement with no CacheData
     // This can be used for temporary CacheElement used to search a given
     // key into the cache list.
