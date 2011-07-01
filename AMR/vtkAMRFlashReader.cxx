@@ -147,10 +147,10 @@ int vtkAMRFlashReader::GetNumberOfLevels()
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRFlashReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
+int vtkAMRFlashReader::FillMetaData( )
 {
   assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+  assert( "pre: metadata object is NULL" && (this->metadata != NULL) );
 
   this->Internal->ReadMetaData();
 
@@ -181,19 +181,15 @@ int vtkAMRFlashReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
       ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
       ug->SetSpacing( spacings );
 
-      vtkstd::pair< unsigned int, unsigned int > pair;
-      pair.first  = level;
-      pair.second = id;
-      this->LevelIdxPair2InternalIdx[ pair ] = internalIdx;
-
-      metadata->SetDataSet( level, b2level[level], ug );
+      this->metadata->SetDataSet( level, b2level[level], ug );
+      this->metadata->SetCompositeIndex( level, b2level[level], internalIdx );
       ug->Delete();
       b2level[ level ]++;
     } // END for all blocks
 
   // NOTE: The communicator here is NULL since each process loads all the
   // metadata.
-  vtkAMRUtilities::GenerateMetaData( metadata, NULL );
+  vtkAMRUtilities::GenerateMetaData( this->metadata, NULL );
   return( 1 );
 }
 

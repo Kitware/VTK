@@ -29,7 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkCompositeDataPipeline.h"
-
+#include "vtkMultiProcessController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
@@ -303,7 +303,16 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
 
           if( this->PlaneIntersectsAMRBox( plane, bounds ) )
             {
-              unsigned int amrGridIdx = metadata->GetFlatIndex(level,dataIdx);
+              std::cout << "REQUEST: (" << level << ", " << dataIdx;
+              std::cout << ") " << std::endl;
+              std::cout.flush();
+
+              unsigned int amrGridIdx =
+                  metadata->GetCompositeIndex(level,dataIdx);
+
+              std::cout << "AMR GridIdx: " << amrGridIdx << std::endl;
+              std::cout.flush();
+
               this->blocksToLoad.push_back( amrGridIdx );
             }
 

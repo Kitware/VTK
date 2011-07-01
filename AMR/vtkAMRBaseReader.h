@@ -146,7 +146,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     // Loads all the AMR metadata & constructs the LevelIdxPair12InternalIdx
     // datastructure which maps (level,id) pairs to an internal linear index
     // used to identify the corresponding block.
-    virtual int FillMetaData( vtkHierarchicalBoxDataSet* metadata ) = 0;
+    virtual int FillMetaData( ) = 0;
 
     // Description:
     // Loads the block according to the index w.r.t. the generated BlockMap.
@@ -195,9 +195,6 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
     //BTX
       vtkstd::vector<int> BlockMap;
-
-      vtkstd::map< vtkstd::pair<unsigned int, unsigned int>, int >
-      LevelIdxPair2InternalIdx;
     //ETX
 
   private:

@@ -322,10 +322,10 @@ int vtkAMREnzoReader::GetNumberOfLevels()
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMREnzoReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
+int vtkAMREnzoReader::FillMetaData( )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+  assert( "pre: metadata object is NULL" && (this->metadata != NULL) );
 
   this->Internal->ReadMetaData();
   std::vector< int > b2level;
@@ -356,18 +356,14 @@ int vtkAMREnzoReader::FillMetaData( vtkHierarchicalBoxDataSet *metadata )
       ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
       ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
 
-      vtkstd::pair< unsigned int, unsigned int > pair;
-      pair.first  = level;
-      pair.second = id;
-      this->LevelIdxPair2InternalIdx[ pair ] = internalIdx;
-
-      metadata->SetDataSet( level, id, ug );
+      this->metadata->SetDataSet( level, id, ug );
+      this->metadata->SetCompositeIndex( level, id, internalIdx );
       ug->Delete();
       b2level[ level ]++;
     } // END for all blocks
 
   // NOTE: the controller here is null since each process loads its own metadata
-  vtkAMRUtilities::GenerateMetaData( metadata, NULL );
+  vtkAMRUtilities::GenerateMetaData( this->metadata, NULL );
   return( 1 );
 }
 

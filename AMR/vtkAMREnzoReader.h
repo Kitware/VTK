@@ -98,7 +98,7 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
 
     // Description:
     // See vtkAMRBaseReader::FillMetaData
-    int FillMetaData( vtkHierarchicalBoxDataSet *metadata );
+    int FillMetaData( );
 
     // Description:
     // See vtkAMRBaseReader::GetBlock

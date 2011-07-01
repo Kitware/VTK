@@ -63,7 +63,7 @@ class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 
     // Description:
     // See vtkAMRBaseReader::FillMetaData
-    int FillMetaData( vtkHierarchicalBoxDataSet *metadata );
+    int FillMetaData( );
 
     // Description:
     // See vtkAMRBaseReader::GetBlock

@@ -219,7 +219,7 @@ int vtkAMRBaseReader::RequestInformation(
       this->metadata = vtkHierarchicalBoxDataSet::New();
       vtkInformation* info = outputVector->GetInformationObject(0);
       assert( "pre: output information object is NULL" && (info != NULL) );
-      this->FillMetaData( this->metadata );
+      this->FillMetaData( );
       info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
           this->metadata );
     }
@@ -259,15 +259,7 @@ int vtkAMRBaseReader::RequestData(
 
       for( int i=0; i < size; ++i )
         {
-          unsigned int levelIdx = 0;
-          unsigned int dataIdx  = 0;
-          this->metadata->GetLevelAndIndex( indices[i], levelIdx, dataIdx );
-
-          vtkstd::pair<unsigned int, unsigned int > pair;
-          pair.first  = levelIdx;
-          pair.second = dataIdx;
-          unsigned int internalIdx = this->LevelIdxPair2InternalIdx[ pair ];
-          this->BlockMap[ i ] = internalIdx;
+          this->BlockMap[ i ] = indices[ i ];
         }
     }
   else
@@ -288,16 +280,25 @@ int vtkAMRBaseReader::RequestData(
   // has all the blocks that are to be processesed and may be
   // less than or equal to this->GetNumberOfBlocks(), i.e., the
   // total number of blocks.
+  std::cout << "=====\n";
+  std::cout.flush();
+  std::cout << "Total Number of blocks: ";
+  std::cout << output->GetTotalNumberOfBlocks() << std::endl;
+  std::cout.flush();
   int numBlocks = static_cast< int >( this->BlockMap.size() );
   for( int block=0; block < numBlocks; ++block )
     {
 
       if( this->IsBlockMine(block) )
         {
+          std::cout << "Loading block: " << this->BlockMap[ block ] << "\n";
+          std::cout.flush();
           this->GetBlock( block, output, idxcounter );
         }
 
     } // END for all blocks
+  std::cout << "=====\n";
+  std::cout.flush();
 
   // Generate all the AMR metadata & the visibility arrays
   vtkAMRUtilities::GenerateMetaData( output, this->Controller );
