@@ -1239,7 +1239,7 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
     if (this->ShouldIterateOverInput(compositePort))
       {
       // Get the output port from which to copy the extent.
-      int outputPort = -1;
+      outputPort = -1;
       if(request->Has(FROM_OUTPUT_PORT()))
         {
         outputPort = request->Get(FROM_OUTPUT_PORT());
