@@ -64,6 +64,8 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     mConnect->Disconnect(mWin, vtkCommand::EndEvent, this, SLOT(End()));
     mConnect->Disconnect(mWin, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
     mConnect->Disconnect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Disconnect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Disconnect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
   }
 
   mIren->SetRenderWindow(win);
@@ -83,6 +85,8 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     mConnect->Connect(mWin, vtkCommand::EndEvent, this, SLOT(End()));
     mConnect->Connect(mWin, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
     mConnect->Connect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Connect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Connect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
   }
 }
 
@@ -154,6 +158,19 @@ void QVTKGraphicsItem::IsCurrent(vtkObject*, unsigned long, void*, void* call_da
     *ptr = QGLContext::currentContext() == mContext && mFBO->isBound();
   }
 }
+
+void QVTKGraphicsItem::IsDirect(vtkObject*, unsigned long, void*, void* call_data)
+{
+  int* ptr = reinterpret_cast<int*>(call_data);
+  *ptr = 1;
+}
+
+void QVTKGraphicsItem::SupportsOpenGL(vtkObject*, unsigned long, void*, void* call_data)
+{
+  int* ptr = reinterpret_cast<int*>(call_data);
+  *ptr = QGLFormat::hasOpenGL();
+}
+
 
 #if QT_VERSION >= 0x040600
 void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
