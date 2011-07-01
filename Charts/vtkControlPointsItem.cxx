@@ -87,6 +87,7 @@ void vtkControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::GetBounds(double bounds[4])
 {
+  // valid user bounds ? use them
   if (this->UserBounds[0] <= this->UserBounds[1] &&
       this->UserBounds[2] <= this->UserBounds[3])
     {
@@ -96,8 +97,9 @@ void vtkControlPointsItem::GetBounds(double bounds[4])
     bounds[3] = this->UserBounds[3];
     return;
     }
-  if (this->Bounds[0] > this->Bounds[1] ||
-      this->Bounds[2] > this->Bounds[3])
+  // invalid bounds ? compute them
+  if (!(this->Bounds[0] <= this->Bounds[1] &&
+        this->Bounds[2] > this->Bounds[3]))
     {
     this->ComputeBounds();
     }
@@ -119,17 +121,36 @@ void vtkControlPointsItem::ResetBounds()
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::ComputeBounds()
 {
-  this->Bounds[0] = this->Bounds[2] =  VTK_DOUBLE_MAX;
-  this->Bounds[1] = this->Bounds[3] = -VTK_DOUBLE_MAX;
+  double oldBounds[4];
+  oldBounds[0] = this->Bounds[0];
+  oldBounds[1] = this->Bounds[1];
+  oldBounds[2] = this->Bounds[2];
+  oldBounds[3] = this->Bounds[3];
+
+  this->ComputeBounds(this->Bounds);
+
+  if (this->Bounds[0] != oldBounds[0] ||
+      this->Bounds[1] != oldBounds[1] ||
+      this->Bounds[2] != oldBounds[2] ||
+      this->Bounds[3] != oldBounds[3])
+    {
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::ComputeBounds( double* bounds)
+{
+  bounds[0] = bounds[2] =  VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = -VTK_DOUBLE_MAX;
   for (vtkIdType i=0; i < this->GetNumberOfPoints(); ++i)
     {
     double point[4];
     this->GetControlPoint(i, point);
-    this->Bounds[0] = std::min(this->Bounds[0], point[0]);
-    this->Bounds[1] = std::max(this->Bounds[1], point[0]);
-    this->Bounds[2] = std::min(this->Bounds[2], point[1]);
-    this->Bounds[3] = std::max(this->Bounds[3], point[1]);
-    this->Modified();
+    bounds[0] = std::min(bounds[0], point[0]);
+    bounds[1] = std::max(bounds[1], point[0]);
+    bounds[2] = std::min(bounds[2], point[1]);
+    bounds[3] = std::max(bounds[3], point[1]);
     }
 }
 

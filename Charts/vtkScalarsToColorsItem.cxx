@@ -85,6 +85,21 @@ void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkScalarsToColorsItem::GetBounds(double bounds[4])
 {
+  if (this->UserBounds[1] > this->UserBounds[0] &&
+      this->UserBounds[3] > this->UserBounds[2])
+    {
+    bounds[0] = this->UserBounds[0];
+    bounds[1] = this->UserBounds[1];
+    bounds[2] = this->UserBounds[2];
+    bounds[3] = this->UserBounds[3];
+    return;
+    }
+  this->ComputeBounds(bounds);
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarsToColorsItem::ComputeBounds(double bounds[4])
+{
   bounds[0] = 0.;
   bounds[1] = 1.;
   bounds[2] = 0.;

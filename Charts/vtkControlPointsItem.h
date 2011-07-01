@@ -242,6 +242,7 @@ private:
 
   vtkIdType RemovePointId(vtkIdType pointId);
   void      ComputeBounds();
+  void      ComputeBounds(double* bounds);
 };
 
 #endif

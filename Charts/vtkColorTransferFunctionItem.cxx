@@ -62,9 +62,9 @@ void vtkColorTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkColorTransferFunctionItem::GetBounds(double* bounds)
+void vtkColorTransferFunctionItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->ColorTransferFunction)
     {
     double* range = this->ColorTransferFunction->GetRange();

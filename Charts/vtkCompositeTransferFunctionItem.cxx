@@ -65,9 +65,9 @@ void vtkCompositeTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeTransferFunctionItem::GetBounds(double* bounds)
+void vtkCompositeTransferFunctionItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->OpacityFunction)
     {
     double* opacityRange = this->OpacityFunction->GetRange();

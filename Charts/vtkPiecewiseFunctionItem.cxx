@@ -64,9 +64,9 @@ void vtkPiecewiseFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPiecewiseFunctionItem::GetBounds(double* bounds)
+void vtkPiecewiseFunctionItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->PiecewiseFunction)
     {
     double* range = this->PiecewiseFunction->GetRange();
@@ -74,6 +74,7 @@ void vtkPiecewiseFunctionItem::GetBounds(double* bounds)
     bounds[1] = range[1];
     }
 }
+
 //-----------------------------------------------------------------------------
 void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
