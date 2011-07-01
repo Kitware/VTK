@@ -76,6 +76,10 @@ class QVTK_EXPORT QVTKGraphicsItem : public QGraphicsWidget
     virtual void End();
     // slot called when vtk wants to know if the context is current
     virtual void IsCurrent(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
+    // slot called when vtk wants to know if a window is direct
+    virtual void IsDirect(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
+    // slot called when vtk wants to know if a window supports OpenGL
+    virtual void SupportsOpenGL(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
 
   protected:
 
