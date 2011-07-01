@@ -42,7 +42,6 @@
 class QVTKInteractorAdapter;
 
 class vtkRenderWindow;
-#include <vtkCommand.h>
 #include <vtkConfigure.h>
 #include <vtkToolkits.h>
 class vtkImageData;
@@ -106,11 +105,11 @@ public:
   // These events can be picked up by command observers on the interactor
   enum vtkCustomEvents
   {
-    ContextMenuEvent = vtkCommand::UserEvent + 100,
-    DragEnterEvent,
-    DragMoveEvent,
-    DragLeaveEvent,
-    DropEvent
+    ContextMenuEvent = QVTKInteractor::ContextMenuEvent,
+    DragEnterEvent = QVTKInteractor::DragEnterEvent,
+    DragMoveEvent = QVTKInteractor::DragMoveEvent,
+    DragLeaveEvent = QVTKInteractor::DragLeaveEvent,
+    DropEvent = QVTKInteractor::DropEvent
   };
 
   // Description:
