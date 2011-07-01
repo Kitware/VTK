@@ -364,6 +364,8 @@ public:
     WindowIsCurrentEvent,
     WindowFrameEvent,
     HighlightEvent,
+    WindowSupportsOpenGLEvent,
+    WindowIsDirectEvent,
     UserEvent = 1000
   };
 //ETX
