@@ -44,6 +44,12 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
      // All concrete instances must call this method in their constructor.
      void Initialize();
 
+     // Description:
+     // Set/Get Reader caching property
+     vtkSetMacro( EnableCaching, int );
+     vtkGetMacro( EnableCaching, int );
+     vtkBooleanMacro( EnableCaching, int );
+
     // Description:
     // Set/Get a multiprocess-controller for reading in parallel.
     // By default this parameter is set to NULL by the constructor.
@@ -190,6 +196,8 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     int MaxLevel;
     char *FileName;
     vtkMultiProcessController *Controller;
+
+    int EnableCaching;
 
     vtkHierarchicalBoxDataSet *metadata;
 
