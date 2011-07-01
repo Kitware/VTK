@@ -30,6 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkIdList.h"
 #include "vtkAMRGridIndexEncoder.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkMath.h"
 
 #include <cmath>
@@ -449,6 +450,46 @@ void vtkHierarchicalBoxDataSet::GetGlobalAMRBoxWithSpacing(
 }
 
 //----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::SetCompositeIndex(
+      const unsigned int level, const unsigned int index, const int idx )
+{
+  assert( "pre: level is out-of-bounds" &&
+          ( level < this->GetNumberOfLevels() ) );
+  assert( "pre: index is out-of-bounds" &&
+          ( index < this->GetNumberOfDataSets( level ) )  );
+
+  vtkInformation *metadata = this->GetMetaData( level, index );
+  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+
+  vtkstd::pair< unsigned int, unsigned int > p;
+  p.first  = level;
+  p.second = index;
+  this->CompositeIndex2LevelIdPair[ idx ] = p;
+  metadata->Set( vtkCompositeDataPipeline::COMPOSITE_INDEX(), idx );
+}
+
+
+//----------------------------------------------------------------------------
+int vtkHierarchicalBoxDataSet::GetCompositeIndex(
+    const unsigned int level, const unsigned int index )
+{
+
+  assert( "pre: level is out-of-bounds" &&
+           ( level < this->GetNumberOfLevels() ) );
+  assert( "pre: index is out-of-bounds" &&
+           ( index < this->GetNumberOfDataSets( level ) )  );
+
+  vtkInformation *metadata = this->GetMetaData( level, index );
+  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+
+  int idx = -1;
+  if( metadata->Has( vtkCompositeDataPipeline::COMPOSITE_INDEX() ) )
+    idx = metadata->Get( vtkCompositeDataPipeline::COMPOSITE_INDEX() );
+
+  return( idx );
+}
+
+//----------------------------------------------------------------------------
 int vtkHierarchicalBoxDataSet::GetMetaData(
     unsigned int level, unsigned int index, vtkAMRBox &box)
 {
@@ -751,22 +792,16 @@ unsigned int vtkHierarchicalBoxDataSet::GetFlatIndex(unsigned int level,
     return 0;
     }
 
-  unsigned int findex = 0;
-  for( unsigned int l=0; l < level; l++ )
-    findex += this->GetNumberOfDataSets( l );
-  for( int i=0; i < index; ++i )
-    findex++;
 
-  return( findex );
-//  unsigned int findex=0;
-//  for (unsigned int l=0; l < level; l++)
-//    {
-//    findex += 1;
-//    findex += this->GetNumberOfDataSets(l);
-//    }
-//  findex += 1;
-//  findex += (index + 1);
-//  return findex;
+  unsigned int findex=0;
+  for (unsigned int l=0; l < level; l++)
+    {
+    findex += 1;
+    findex += this->GetNumberOfDataSets(l);
+    }
+  findex += 1;
+  findex += (index + 1);
+  return findex;
 
 
 }
@@ -775,30 +810,23 @@ unsigned int vtkHierarchicalBoxDataSet::GetFlatIndex(unsigned int level,
 void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
     const unsigned int flatIdx, unsigned int &level, unsigned int &idx )
 {
-  unsigned int counter = 0;
-  for( level=0; level < this->GetNumberOfLevels(); ++level )
+
+  level = -1;
+  idx   = -1;
+  if( this->CompositeIndex2LevelIdPair.find( flatIdx ) !=
+      this->CompositeIndex2LevelIdPair.end() )
     {
-      for( idx=0; idx < this->GetNumberOfDataSets( level ); ++idx)
-        {
-          ++counter;
-          if( counter == flatIdx )
-            return;
-        } // END for all ids
-    } // END for all levels
+      vtkstd::pair< unsigned int, unsigned int > p=
+            this->CompositeIndex2LevelIdPair[ flatIdx ];
+      level = p.first;
+      idx   = p.first;
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::Clear()
 {
   this->Superclass::Initialize();
-//  unsigned int level = 0;
-//  for( ; level < this->GetNumberOfLevels(); ++level )
-//    {
-//      vtkMultiPieceDataSet* levelDS =
-//       vtkMultiPieceDataSet::SafeDownCast(this->Superclass::GetChild(level));
-//      levelDS->Delete();
-//    } // END for all levels
-//  this->SetNumberOfLevels( 0 );
 }
 
 //----------------------------------------------------------------------------

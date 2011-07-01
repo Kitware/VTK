@@ -41,7 +41,9 @@
 #define __vtkHierarchicalBoxDataSet_h
 
 #include "vtkCompositeDataSet.h"
-#include <vtkstd/vector> // For STL vector
+#include <vtkstd/vector>    // For STL vector
+#include <vtkstd/map>       // For STL map
+#include <vtkstd/utility>   // For STL pair
 
 class vtkAMRBox;
 class vtkInformationIdTypeKey;
@@ -168,6 +170,16 @@ public:
     { return this->HasChildMetaData(level); }
 
   // Description:
+  // Sets the composite index of the data at the given (level,index) pair.
+  void SetCompositeIndex(
+      const unsigned int level, const unsigned int index, const int idx );
+
+  // Description:
+  // Retrieves the composite index  associated with the data at the given
+  // (level,index) pair.
+  int GetCompositeIndex( const unsigned int level, const unsigned int index );
+
+  // Description:
   // Get meta-data associated with a dataset.  This may allocate a new
   // vtkInformation object if none is already present. Use HasMetaData to
   // avoid unnecessary allocations.
@@ -247,15 +259,15 @@ public:
     { return this->Superclass::HasMetaData(iter); }
  
   // Description:
-  // Given the level and dataset index, returns the flat index provided level
-  // and dataset index are valid.
+  // Given the level and dataset index, returns the flat index in pre-order
+  // traversal.
   unsigned int GetFlatIndex(unsigned int level, unsigned int index);
 
   // Description:
-  // Given the flat index, returns the corresponding level and index, idx,
-  // of the dataset.
+  // Given the composite Idx (as set by SetCompositeIdx) this method returns the
+  // corresponding level and dataset index within the level.
   void GetLevelAndIndex(
-      const unsigned int flatIdx, unsigned int &level, unsigned int &idx );
+      const unsigned int compositeIdx, unsigned int &level, unsigned int &idx );
 
   // Description:
   // Removes all AMR data stored in this instance of the vtkHierarchicalBoxDataSet
@@ -298,6 +310,10 @@ protected:
 
   // Global Origin
   double origin[3];
+
+  // Mapping of composite indices to the (level,id) pair.
+  vtkstd::map< int, vtkstd::pair<unsigned int,unsigned int> >
+    CompositeIndex2LevelIdPair;
 
 private:
 
