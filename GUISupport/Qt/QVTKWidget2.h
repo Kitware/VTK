@@ -88,6 +88,10 @@ protected Q_SLOTS:
   virtual void Start();
   // slot called when vtk wants to end the render
   virtual void End();
+  // slot called when vtk wants to know if a window is direct
+  virtual void IsDirect(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
+  // slot called when vtk wants to know if a window supports OpenGL
+  virtual void SupportsOpenGL(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
 
 protected:
   // overloaded resize handler

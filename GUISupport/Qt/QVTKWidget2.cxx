@@ -139,6 +139,8 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Disconnect(mRenWin, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
     mConnect->Disconnect(mRenWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Disconnect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
+    mConnect->Disconnect(mRenWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Disconnect(mRenWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
     }
 
   // now set the window
@@ -178,6 +180,8 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Connect(mRenWin, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
     mConnect->Connect(mRenWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Connect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
+    mConnect->Connect(mRenWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Connect(mRenWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
     }
 }
 
@@ -410,6 +414,18 @@ void QVTKWidget2::IsCurrent(vtkObject*, unsigned long, void*, void* call_data)
 {
   bool* ptr = reinterpret_cast<bool*>(call_data);
   *ptr = QGLContext::currentContext() == this->context();
+}
+
+void QVTKWidget2::IsDirect(vtkObject*, unsigned long, void*, void* call_data)
+{
+  int* ptr = reinterpret_cast<int*>(call_data);
+  *ptr = this->context()->format().directRendering();
+}
+
+void QVTKWidget2::SupportsOpenGL(vtkObject*, unsigned long, void*, void* call_data)
+{
+  int* ptr = reinterpret_cast<int*>(call_data);
+  *ptr = QGLFormat::hasOpenGL();
 }
 
 void QVTKWidget2::Frame()

@@ -107,6 +107,20 @@ bool vtkGenericOpenGLRenderWindow::IsCurrent()
   return current;
 }
 
+int vtkGenericOpenGLRenderWindow::SupportsOpenGL()
+{
+  int supports_ogl = 0;
+  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &supports_ogl);
+  return supports_ogl;
+}
+
+int vtkGenericOpenGLRenderWindow::IsDirect()
+{
+  int is_direct = 0;
+  this->InvokeEvent(vtkCommand::WindowIsDirectEvent, &is_direct);
+  return is_direct;
+}
+
 void vtkGenericOpenGLRenderWindow::PushState()
 {
   glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
