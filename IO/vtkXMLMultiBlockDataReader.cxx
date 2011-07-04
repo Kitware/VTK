@@ -145,19 +145,23 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     if (strcmp(tagName, "DataSet") == 0)
       {
       vtkSmartPointer<vtkDataSet> childDS;
+      const char* name = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
         {
         // Read
         childDS.TakeReference(this->ReadDataset(childXML, filePath));
+        name = childXML->GetAttribute("name");
         }
       // insert
       if (mblock)
         {
         mblock->SetBlock(index, childDS);
+        mblock->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
         }
       else if (mpiece)
         {
         mpiece->SetPiece(index, childDS);
+        mpiece->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
         }
       dataSetIndex++;
       }
@@ -167,7 +171,9 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();;
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
+      const char* name = childXML->GetAttribute("name");
       mblock->SetBlock(index, childDS);
+      mblock->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
       childDS->Delete();
       }
     // Child is a multipiece dataset. Create it.
@@ -176,7 +182,9 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       {
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
+      const char* name = childXML->GetAttribute("name");
       mblock->SetBlock(index, childDS);
+      mblock->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
       childDS->Delete();
       }
     else
