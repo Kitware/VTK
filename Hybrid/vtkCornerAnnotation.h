@@ -17,6 +17,16 @@
 // This is an annotation object that manages four text actors / mappers
 // to provide annotation in the four corners of a viewport
 //
+// .SECTION Special input text:
+// - <image> : will be replaced with slice number (relative number)
+// - <slice> : will be replaced with slice number (relative number)
+// - <image_and_max> : will be replaced with slice number and slice max (relative)
+// - <slice_and_max> : will be replaced with slice number and slice max (relative)
+// - <slice_pos> : will be replaced by the position of the current slice
+// - <window> : will be replaced with window value
+// - <level> : will be replaced with level value
+// - <window_level> : will be replaced with window and level value
+//
 // .SECTION See Also
 // vtkActor2D vtkTextMapper
 
