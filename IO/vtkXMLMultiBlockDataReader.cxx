@@ -167,15 +167,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();;
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
-      if (mblock)
-        {
-        mblock->SetBlock(index, childDS);
-        }
-      else if (mpiece)
-        {
-        vtkErrorMacro("Multipiece data can't have composite children.");
-        return;
-        }
+      mblock->SetBlock(index, childDS);
       childDS->Delete();
       }
     // Child is a multipiece dataset. Create it.
