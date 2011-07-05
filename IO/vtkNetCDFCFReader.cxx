@@ -359,10 +359,8 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
 
   if(numGridDimensions == 0)
     {
-    char name[NC_MAX_NAME+1];
-    CALL_NETCDF_GW(nc_inq_varname(ncFD, varId, name));
-    vtkGenericWarningMacro("Variable " << name << " does not have any"
-                           << " dimensions and will not be loaded.");
+    // If a variable has no dimensions, there is no reason to have dependent
+    // dimension variables. Just exit here for safety.
     return 0;
     }
 
@@ -375,6 +373,12 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
     {
     this->GridDimensions->RemoveTuple(0);
     numGridDimensions--;
+    if(numGridDimensions == 0)
+      {
+      // If a variable has no dimensions (ignoring time), there is no reason
+      // to have dependent dimension variables. Just exit here for safety.
+      return 0;
+      }
     }
 
   // Most coordinate variables are defined by a variable the same name as the
