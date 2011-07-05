@@ -356,6 +356,16 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   // Anyone who disagrees should write their own reader class.
   int numGridDimensions;
   CALL_NETCDF_GW(nc_inq_varndims(ncFD, varId, &numGridDimensions));
+
+  if(numGridDimensions == 0)
+    {
+    char name[NC_MAX_NAME+1];
+    CALL_NETCDF_GW(nc_inq_varname(ncFD, varId, name));
+    vtkGenericWarningMacro("Variable " << name << " does not have any"
+                           << " dimensions and will not be loaded.");
+    return 0;
+    }
+
   this->GridDimensions->SetNumberOfTuples(numGridDimensions);
   CALL_NETCDF_GW(nc_inq_vardimid(ncFD, varId,
                                  this->GridDimensions->GetPointer(0)));
