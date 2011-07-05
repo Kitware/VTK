@@ -12,6 +12,8 @@ SET(QVTKLibSrcs
     QVTKPaintEngine.h
     vtkQtAbstractModelAdapter.cxx
     vtkQtAnnotationLayersModelAdapter.cxx
+    vtkQtDebugLeaksModel.cxx
+    vtkQtDebugLeaksView.cxx
     vtkQtSQLDatabase.cxx
     vtkQtSQLQuery.cxx
     vtkQtTableModelAdapter.cxx
@@ -28,6 +30,8 @@ SET(QVTKMocHeaders
     QFilterTreeProxyModel.h
     vtkQtAbstractModelAdapter.h
     vtkQtAnnotationLayersModelAdapter.h
+    vtkQtDebugLeaksModel.h
+    vtkQtDebugLeaksView.h
     vtkQtTableModelAdapter.h
     vtkQtTreeModelAdapter.h
     )
