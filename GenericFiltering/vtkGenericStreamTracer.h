@@ -100,6 +100,11 @@ public:
   // Specify the source object used to generate starting points.
   void SetSource(vtkDataSet *source);
   vtkDataSet *GetSource();
+
+  // Description:
+  // Specify the source object used to generate starting points (seeds).
+  // New style.
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput);
   
   int FillInputPortInformation(int port, vtkInformation* info);
   
