@@ -46,20 +46,20 @@ namespace
       }
     if(v1 == 0.0)
       {
-      if(fabs(v2) < ::Tolerance)
+      if(fabs(v2) < Tolerance)
         {
         return true;
         }
       cout << fabs(v2) << " (fabs(v2)) should be less than " 
-           << ::Tolerance << endl;
+           << Tolerance << endl;
       return false;
       }
-    if(fabs(v1/v2) < ::Tolerance)
+    if(fabs(v1/v2) < Tolerance)
       {
         return true;
         }
     cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than " 
-         << ::Tolerance << endl;
+         << Tolerance << endl;
     return false;
   }
 
@@ -125,14 +125,14 @@ namespace
           {
           if((origComp-gradDir+offset)%3 == 0)
             {
-            if(fabs(values[origComp*3+gradDir]-1.) > ::Tolerance)
+            if(fabs(values[origComp*3+gradDir]-1.) > Tolerance)
               {
               vtkGenericWarningMacro("Gradient value should be one but is "
                                      << values[origComp*3+gradDir]);
               return 0;
               }
             }
-          else if(fabs(values[origComp*3+gradDir]) > ::Tolerance)
+          else if(fabs(values[origComp*3+gradDir]) > Tolerance)
             {
             vtkGenericWarningMacro("Gradient value should be zero but is "
                                    << values[origComp*3+gradDir]);
