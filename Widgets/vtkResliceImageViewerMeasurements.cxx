@@ -88,10 +88,13 @@ void vtkResliceImageViewerMeasurements
   // Weak reference. No need to delete
   this->ResliceImageViewer = i;
 
-  // Add the observer
-  i->GetResliceCursor()
-    ->AddObserver( vtkResliceCursorWidget::ResliceAxesChangedEvent,
-      this->EventCallbackCommand );
+  if(i)
+    {
+    // Add the observer
+    i->GetResliceCursor()
+      ->AddObserver( vtkResliceCursorWidget::ResliceAxesChangedEvent,
+        this->EventCallbackCommand );
+    }
 }
 
 //----------------------------------------------------------------------------
