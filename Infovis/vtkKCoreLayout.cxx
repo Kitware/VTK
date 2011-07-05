@@ -75,13 +75,54 @@ vtkKCoreLayout::~vtkKCoreLayout()
 void vtkKCoreLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "KCoreLabelArrayName : " << this->KCoreLabelArrayName << endl;
+  if(this->KCoreLabelArrayName)
+    {
+    os << indent << "KCoreLabelArrayName : " << this->KCoreLabelArrayName << endl;
+    }
+  else
+    {
+    os << indent << "KCoreLabelArrayName : NULL" << endl;
+    }
+
   os << indent << "Polar               : " << this->Polar << endl;
   os << indent << "Cartesian           : " << this->Cartesian << endl;
-  os << indent << "PolarCoordsRadiusArrayName: " << this->PolarCoordsRadiusArrayName << endl;
-  os << indent << "PolarCoordsAngleArrayName : " << this->PolarCoordsAngleArrayName << endl;
-  os << indent << "CartesianCoordsXArrayName : " << this->CartesianCoordsXArrayName << endl;
-  os << indent << "CartesianCoordsYArrayName : " << this->CartesianCoordsYArrayName << endl;
+
+  if(this->PolarCoordsRadiusArrayName)
+    {
+    os << indent << "PolarCoordsRadiusArrayName: " << this->PolarCoordsRadiusArrayName << endl;
+    }
+  else
+    {
+    os << indent << "PolarCoordsRadiusArrayName: (none)" << endl;
+    }
+
+  if(this->PolarCoordsAngleArrayName)
+    {
+    os << indent << "PolarCoordsAngleArrayName : " << this->PolarCoordsAngleArrayName << endl;
+    }
+  else
+    {
+    os << indent << "PolarCoordsAngleArrayName : (none)" << endl;
+    }
+
+  if(this->CartesianCoordsXArrayName)
+    {
+    os << indent << "CartesianCoordsXArrayName : " << this->CartesianCoordsXArrayName << endl;
+    }
+  else
+    {
+    os << indent << "CartesianCoordsXArrayName : (none)" << endl;
+    }
+
+  if(this->CartesianCoordsYArrayName)
+    {
+    os << indent << "CartesianCoordsYArrayName : " << this->CartesianCoordsYArrayName << endl;
+    }
+  else
+    {
+    os << indent << "CartesianCoordsYArrayName : (none)" << endl;
+    }
+
   os << indent << "Epsilon    : " << this->Epsilon << endl;
   os << indent << "UnitRadius : " << this->UnitRadius << endl;
 }
