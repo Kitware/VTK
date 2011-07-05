@@ -105,6 +105,7 @@ vtkResliceCursorLineRepresentation.cxx
 vtkResliceCursorRepresentation.cxx
 vtkResliceCursorWidget.cxx
 vtkResliceImageViewer.cxx
+vtkResliceImageViewerMeasurements.cxx
 vtkScalarBarRepresentation.cxx
 vtkScalarBarWidget.cxx
 vtkSeedRepresentation.cxx

@@ -36,6 +36,7 @@
 #include "vtkLookupTable.h"
 #include "vtkBoundedPlanePointPlacer.h"
 #include "vtkPlane.h"
+#include "vtkResliceImageViewerMeasurements.h"
 
 vtkStandardNewMacro(vtkResliceImageViewer);
 
@@ -66,12 +67,17 @@ vtkResliceImageViewer::vtkResliceImageViewer()
 
   this->PointPlacer = vtkBoundedPlanePointPlacer::New();
 
+  this->Measurements = vtkResliceImageViewerMeasurements::New();
+  this->Measurements->SetResliceImageViewer(this);
+
   this->InstallPipeline();
 }
 
 //----------------------------------------------------------------------------
 vtkResliceImageViewer::~vtkResliceImageViewer()
 {
+  this->Measurements->Delete();
+
   if (this->ResliceCursorWidget)
     {
     this->ResliceCursorWidget->Delete();
@@ -124,6 +130,18 @@ void vtkResliceImageViewer::SetThickMode( int t )
       resliceCursorRepOld->GetLevel(), 1);
 
   this->ResliceCursorWidget->SetEnabled(e);
+}
+
+//----------------------------------------------------------------------------
+void vtkResliceImageViewer::SetResliceCursor( vtkResliceCursor * rc )
+{
+  vtkResliceCursorRepresentation *rep =
+    vtkResliceCursorRepresentation::SafeDownCast(
+          this->GetResliceCursorWidget()->GetRepresentation());
+  rep->GetCursorAlgorithm()->SetResliceCursor(rc);
+
+  // Rehook the observer to this reslice cursor.
+  this->Measurements->SetResliceImageViewer(this);
 }
 
 //----------------------------------------------------------------------------
@@ -438,4 +456,6 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ResliceMode: " << this->ResliceMode << endl;
   os << indent << "Point Placer: ";
   this->PointPlacer->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Measurements: ";
+  this->Measurements->PrintSelf(os,indent.GetNextIndent());
 }

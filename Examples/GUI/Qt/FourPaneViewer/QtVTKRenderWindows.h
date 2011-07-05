@@ -5,6 +5,7 @@
 #include "vtkResliceImageViewer.h"
 #include "vtkImagePlaneWidget.h"
 #include "vtkDistanceWidget.h"
+#include "vtkResliceImageViewerMeasurements.h"
 #include <QMainWindow>
 
 // Forward Qt class declarations
@@ -37,6 +38,7 @@ protected:
   vtkSmartPointer< vtkResliceImageViewer > riw[3];
   vtkSmartPointer< vtkImagePlaneWidget > planeWidget[3];
   vtkSmartPointer< vtkDistanceWidget > DistanceWidget[3];
+  vtkSmartPointer< vtkResliceImageViewerMeasurements > ResliceMeasurements;
 
 protected slots:
 

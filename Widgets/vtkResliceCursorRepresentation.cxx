@@ -43,6 +43,7 @@
 #include "vtkActor.h"
 #include "vtkTexture.h"
 #include "vtkImageActor.h"
+#include "vtkCamera.h"
 
 #include <vtksys/ios/sstream>
 
@@ -248,6 +249,34 @@ void vtkResliceCursorRepresentation::InitializeReslicePlane()
   // this function here.
 
   this->ComputeReslicePlaneOrigin();
+
+  // Finally reset the camera to whatever orientation they were staring in
+
+  this->ResetCamera();
+}
+
+//----------------------------------------------------------------------------
+void vtkResliceCursorRepresentation::ResetCamera()
+{
+
+  // Reset the camera back to the default and the focal point to where
+  // the cursor center is
+
+  if (this->Renderer)
+    {
+    double center[3], camPos[3], n[3];
+    this->GetResliceCursor()->GetCenter(center);
+    this->Renderer->GetActiveCamera()->SetFocalPoint(center);
+
+    const int normalAxis = this->GetCursorAlgorithm()->GetReslicePlaneNormal();
+    this->GetResliceCursor()->GetPlane(normalAxis)->GetNormal(n);
+    vtkMath::Add( center, n, camPos );
+    this->Renderer->GetActiveCamera()->SetPosition(camPos);
+
+    // Reset the camera in response to changes.
+    this->Renderer->ResetCamera();
+    this->Renderer->ResetCameraClippingRange();
+    }
 }
 
 //----------------------------------------------------------------------------
