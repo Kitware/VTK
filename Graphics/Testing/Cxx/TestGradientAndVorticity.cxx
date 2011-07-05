@@ -113,29 +113,29 @@ namespace
   }
   
 //-----------------------------------------------------------------------------
-  int IsGradientCorrect(vtkDoubleArray* Gradients, int Offset)
+  int IsGradientCorrect(vtkDoubleArray* gradients, int offset)
   {
-    int NumberOfComponents = Gradients->GetNumberOfComponents();
-    for(vtkIdType i=0;i<Gradients->GetNumberOfTuples();i++)
+    int numberOfComponents = gradients->GetNumberOfComponents();
+    for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
       {
-      double* Values = Gradients->GetTuple(i);
-      for(int OrigComp=0;OrigComp<NumberOfComponents/3;OrigComp++)
+      double* values = gradients->GetTuple(i);
+      for(int origComp=0;origComp<numberOfComponents/3;origComp++)
         {
-        for(int GradDir=0;GradDir<3;GradDir++)
+        for(int gradDir=0;gradDir<3;gradDir++)
           {
-          if((OrigComp-GradDir+Offset)%3 == 0)
+          if((origComp-gradDir+offset)%3 == 0)
             {
-            if(fabs(Values[OrigComp*3+GradDir]-1.) > Tolerance)
+            if(fabs(values[origComp*3+gradDir]-1.) > Tolerance)
               {
               vtkGenericWarningMacro("Gradient value should be one but is "
-                                     << Values[OrigComp*3+GradDir]);
+                                     << values[origComp*3+gradDir]);
               return 0;
               }
             }
-          else if(fabs(Values[OrigComp*3+GradDir]) > Tolerance)
+          else if(fabs(values[origComp*3+gradDir]) > Tolerance)
             {
             vtkGenericWarningMacro("Gradient value should be zero but is "
-                                   << Values[OrigComp*3+GradDir]);
+                                   << values[origComp*3+gradDir]);
             return 0;
             }
           }
