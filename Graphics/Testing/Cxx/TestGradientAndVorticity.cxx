@@ -183,6 +183,43 @@ namespace
   }
 
 //-----------------------------------------------------------------------------
+// we assume that the gradients are correct and so we can compute the "real"
+// vorticity from it
+  int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
+  {
+    if(gradients->GetNumberOfComponents() != 9 ||
+       qCriterion->GetNumberOfComponents() != 1)
+      {
+      vtkGenericWarningMacro("Bad number of components.");
+      return 0;
+      }
+    for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
+      {
+      double* g = gradients->GetTuple(i);
+      double qc = qCriterion->GetValue(i);
+
+      double t1 = .5*(
+        (g[7]-g[5])*(g[7]-g[5]) +
+        (g[3]-g[1])*(g[3]-g[1]) +
+        (g[2]-g[6])*(g[2]-g[6]) );
+      double t2 = g[0]*g[0]+g[4]*g[4]+
+        g[8]*g[8]+ .5 *(
+          (g[3]+g[1])*(g[3]+g[1]) +
+          (g[6]+g[2])*(g[6]+g[2]) +
+          (g[7]+g[5])*(g[7]+g[5]) );
+
+      if(!ArePointsWithinTolerance(qc, t1 - t2))
+        {
+        vtkGenericWarningMacro("Bad Q-criterion value " << qc << " " <<
+                               t1-t2 << " difference is " << (qc-t1+t2));
+        return 0;
+        }
+      }
+
+    return 1;
+  }
+
+//-----------------------------------------------------------------------------
   int PerformTest(vtkDataSet* grid)
   {
     // Cleaning out the existing field data so that I can replace it with 
@@ -251,6 +288,7 @@ namespace
         vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
       pointVorticity->SetResultArrayName(resultName);
       pointVorticity->SetComputeVorticity(1);
+      pointVorticity->SetComputeQCriterion(1);
       pointVorticity->Update();
       
       // cell stuff
@@ -269,6 +307,13 @@ namespace
           pointVorticity->GetOutput())->GetPointData()->GetArray(resultName));
       
       if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
+        {
+        return 1;
+        }
+      vtkDoubleArray* qCriterionPointArray = vtkDoubleArray::SafeDownCast(
+        vtkDataSet::SafeDownCast(
+          pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
+      if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
         {
         return 1;
         }
