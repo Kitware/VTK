@@ -25,6 +25,10 @@
 #include "vtkDistanceWidget.h"
 #include "vtkDistanceRepresentation.h"
 #include "vtkHandleRepresentation.h"
+#include "vtkResliceImageViewerMeasurements.h"
+#include "vtkDistanceRepresentation2D.h"
+#include "vtkPointHandleRepresentation3D.h"
+#include "vtkPointHandleRepresentation2D.h"
 
 
 //----------------------------------------------------------------------------
@@ -144,8 +148,7 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
     vtkResliceCursorLineRepresentation *rep =
       vtkResliceCursorLineRepresentation::SafeDownCast(
           riw[i]->GetResliceCursorWidget()->GetRepresentation());
-    rep->GetResliceCursorActor()->
-      GetCursorAlgorithm()->SetResliceCursor(riw[0]->GetResliceCursor());
+    riw[i]->SetResliceCursor(riw[0]->GetResliceCursor());
 
     rep->GetResliceCursorActor()->
       GetCursorAlgorithm()->SetReslicePlaneNormal(i);
@@ -217,6 +220,7 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
     // Make them all share the same color map.
     riw[i]->SetLookupTable(riw[0]->GetLookupTable());
     planeWidget[i]->GetColorMap()->SetLookupTable(riw[0]->GetLookupTable());
+
     }
 
   this->ui->view1->show();
@@ -348,6 +352,20 @@ void QtVTKRenderWindows::AddDistanceMeasurementToView(int i)
   // Set a priority higher than our reslice cursor widget
   this->DistanceWidget[i]->SetPriority(
     this->riw[i]->GetResliceCursorWidget()->GetPriority() + 0.01);
+
+  vtkSmartPointer< vtkPointHandleRepresentation2D > handleRep =
+    vtkSmartPointer< vtkPointHandleRepresentation2D >::New();
+  vtkSmartPointer< vtkDistanceRepresentation2D > distanceRep =
+    vtkSmartPointer< vtkDistanceRepresentation2D >::New();
+  distanceRep->SetHandleRepresentation(handleRep);
+  this->DistanceWidget[i]->SetRepresentation(distanceRep);
+  distanceRep->InstantiateHandleRepresentation();
+  distanceRep->GetPoint1Representation()->SetPointPlacer(riw[i]->GetPointPlacer());
+  distanceRep->GetPoint2Representation()->SetPointPlacer(riw[i]->GetPointPlacer());
+
+  // Add the distance to the list of widgets whose visibility is managed based
+  // on the reslice plane by the ResliceImageViewerMeasurements class
+  this->riw[i]->GetMeasurements()->AddItem(this->DistanceWidget[i]);
 
   this->DistanceWidget[i]->CreateDefaultRepresentation();
   this->DistanceWidget[i]->EnabledOn();

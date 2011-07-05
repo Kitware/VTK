@@ -33,6 +33,7 @@ class vtkResliceCursorWidget;
 class vtkResliceCursor;
 class vtkLookupTable;
 class vtkBoundedPlanePointPlacer;
+class vtkResliceImageViewerMeasurements;
 
 class VTK_WIDGETS_EXPORT vtkResliceImageViewer : public vtkImageViewer2
 {
@@ -81,8 +82,9 @@ public:
     { this->SetResliceMode(vtkResliceImageViewer::RESLICE_OBLIQUE); };
 
   // Description:
-  // Get the reslice cursor.
+  // Set/Get the reslice cursor.
   vtkResliceCursor * GetResliceCursor();
+  void SetResliceCursor( vtkResliceCursor * rc );
 
   // Description:
   // Set the lookup table
@@ -102,6 +104,14 @@ public:
   // Get the point placer.
   vtkGetObjectMacro( PointPlacer, vtkBoundedPlanePointPlacer );
 
+  // Description:
+  // Get the measurements manager
+  vtkGetObjectMacro( Measurements, vtkResliceImageViewerMeasurements );
+
+  // Description:
+  // Get the render window interactor
+  vtkGetObjectMacro( Interactor, vtkRenderWindowInteractor );
+
 protected:
   vtkResliceImageViewer();
   ~vtkResliceImageViewer();
@@ -112,9 +122,10 @@ protected:
   virtual void UpdateDisplayExtent();
   virtual void UpdatePointPlacer();
 
-  vtkResliceCursorWidget * ResliceCursorWidget;
-  vtkBoundedPlanePointPlacer * PointPlacer;
-  int                      ResliceMode;
+  vtkResliceCursorWidget            * ResliceCursorWidget;
+  vtkBoundedPlanePointPlacer        * PointPlacer;
+  int                                 ResliceMode;
+  vtkResliceImageViewerMeasurements * Measurements;
 
 private:
   vtkResliceImageViewer(const vtkResliceImageViewer&);  // Not implemented.
