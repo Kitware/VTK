@@ -16,6 +16,7 @@
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -109,6 +110,7 @@ void vtkScalarsToColorsItem::ComputeBounds(double bounds[4])
 //-----------------------------------------------------------------------------
 bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 {
+  this->TextureWidth = this->GetScene()->GetViewWidth();
   if (this->Texture == 0 ||
       this->Texture->GetMTime() < this->GetMTime())
     {

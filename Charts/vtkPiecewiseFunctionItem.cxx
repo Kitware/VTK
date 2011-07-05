@@ -101,7 +101,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
     this->Texture = vtkImageData::New();
     }
 
-  const int dimension = 256;
+  const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
   // should depends on the true size on screen
   this->Texture->SetExtent(0, dimension-1,

@@ -100,7 +100,7 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     }
 
   // Could depend of the screen resolution
-  const int dimension = 256;
+  const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
   // Texture 1D
   this->Texture->SetExtent(0, dimension-1,
@@ -117,7 +117,7 @@ void vtkColorTransferFunctionItem::ComputeTexture()
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   this->ColorTransferFunction->MapScalarsThroughTable2(
-    values, ptr, VTK_DOUBLE, dimension, 1, 4);
+    values, ptr, VTK_DOUBLE, dimension, VTK_LUMINANCE, VTK_RGBA);
   if (this->Opacity != 1.0)
     {
     for (int i = 0; i < dimension; ++i)

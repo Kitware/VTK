@@ -88,6 +88,8 @@ protected:
   // Return false if no texture is generated.
   virtual void ComputeTexture() = 0;
 
+  vtkGetMacro(TextureWidth, int);
+
   // Description:
   // Called whenever the ScalarsToColors function(s) is modified. It internally
   // calls Modified(). Can be reimplemented by subclasses
@@ -96,6 +98,7 @@ protected:
 
   double              UserBounds[4];
 
+  int                 TextureWidth;
   vtkImageData*       Texture;
   bool                Interpolate;
   vtkPoints2D*        Shape;
