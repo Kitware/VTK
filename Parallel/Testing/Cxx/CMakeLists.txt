@@ -115,12 +115,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(TransmitStructuredGrid TransmitStructuredGrid.cxx)
     TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel ${MPI_LIBRARIES})
 
-    ADD_EXECUTABLE(PSLACReaderLinear PSLACReaderLinear.cxx)
-    TARGET_LINK_LIBRARIES(PSLACReaderLinear vtkParallel)
-
-    ADD_EXECUTABLE(PSLACReaderQuadratic PSLACReaderQuadratic.cxx)
-    TARGET_LINK_LIBRARIES(PSLACReaderQuadratic vtkParallel)
-
     ADD_EXECUTABLE(TestParallelRendering TestParallelRendering.cxx)
     TARGET_LINK_LIBRARIES(TestParallelRendering vtkParallel ${MPI_LIBRARIES})
 
