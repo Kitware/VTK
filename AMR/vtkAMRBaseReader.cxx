@@ -280,11 +280,6 @@ int vtkAMRBaseReader::RequestData(
   // has all the blocks that are to be processesed and may be
   // less than or equal to this->GetNumberOfBlocks(), i.e., the
   // total number of blocks.
-  std::cout << "=====\n";
-  std::cout.flush();
-  std::cout << "Total Number of blocks: ";
-  std::cout << output->GetTotalNumberOfBlocks() << std::endl;
-  std::cout.flush();
   int numBlocks = static_cast< int >( this->BlockMap.size() );
   for( int block=0; block < numBlocks; ++block )
     {
@@ -297,8 +292,6 @@ int vtkAMRBaseReader::RequestData(
         }
 
     } // END for all blocks
-  std::cout << "=====\n";
-  std::cout.flush();
 
   // Generate all the AMR metadata & the visibility arrays
   vtkAMRUtilities::GenerateMetaData( output, this->Controller );
