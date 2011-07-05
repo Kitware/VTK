@@ -303,16 +303,8 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
 
           if( this->PlaneIntersectsAMRBox( plane, bounds ) )
             {
-              std::cout << "REQUEST: (" << level << ", " << dataIdx;
-              std::cout << ") " << std::endl;
-              std::cout.flush();
-
               unsigned int amrGridIdx =
                   metadata->GetCompositeIndex(level,dataIdx);
-
-              std::cout << "AMR GridIdx: " << amrGridIdx << std::endl;
-              std::cout.flush();
-
               this->blocksToLoad.push_back( amrGridIdx );
             }
 
