@@ -35,6 +35,7 @@ class vtkBiDimensionalWidget;
 class vtkHandleRepresentation;
 class vtkCaptionWidget;
 class vtkContourWidget;
+class vtkSeedWidget;
 
 class VTK_WIDGETS_EXPORT vtkResliceImageViewerMeasurements : public vtkObject
 {
@@ -88,6 +89,7 @@ protected:
   bool IsWidgetOnReslicedPlane( vtkBiDimensionalWidget * w );
   bool IsWidgetOnReslicedPlane( vtkCaptionWidget * w );
   bool IsWidgetOnReslicedPlane( vtkContourWidget * w );
+  bool IsWidgetOnReslicedPlane( vtkSeedWidget * w );
   bool IsPointOnReslicedPlane( vtkHandleRepresentation * h );
   bool IsPositionOnReslicedPlane( double p[3] );
 
