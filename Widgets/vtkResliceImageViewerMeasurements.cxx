@@ -26,9 +26,12 @@
 #include "vtkCaptionRepresentation.h"
 #include "vtkAngleWidget.h"
 #include "vtkAngleRepresentation.h"
+#include "vtkHandleWidget.h"
 #include "vtkBiDimensionalWidget.h"
 #include "vtkBiDimensionalRepresentation.h"
 #include "vtkPointHandleRepresentation3D.h"
+#include "vtkSeedWidget.h"
+#include "vtkSeedRepresentation.h"
 #include "vtkContourWidget.h"
 #include "vtkContourRepresentation.h"
 #include "vtkHandleRepresentation.h"
@@ -148,6 +151,10 @@ bool vtkResliceImageViewerMeasurements
     {
     return this->IsWidgetOnReslicedPlane(capw);
     }
+  if (vtkSeedWidget *s = vtkSeedWidget::SafeDownCast( w ))
+    {
+    return this->IsWidgetOnReslicedPlane(s);
+    }
 
   return true;
 }
@@ -250,6 +257,29 @@ bool vtkResliceImageViewerMeasurements
         {
         return false;
         }
+      }
+    }
+
+  return true;
+}
+
+//-------------------------------------------------------------------------
+bool vtkResliceImageViewerMeasurements
+::IsWidgetOnReslicedPlane( vtkSeedWidget * w )
+{
+  if (w->GetWidgetState() <= vtkSeedWidget::PlacingSeeds)
+    {
+    return true; // widget is not yet defined.
+    }
+
+  if (vtkSeedRepresentation *rep =
+      vtkSeedRepresentation::SafeDownCast(w->GetRepresentation()))
+    {
+    const int nNodes = rep->GetNumberOfSeeds();
+    for (int i = 0; i < nNodes; i++)
+      {
+      w->GetSeed(i)->SetEnabled(this->IsPointOnReslicedPlane(
+            w->GetSeed(i)->GetHandleRepresentation()));
       }
     }
 
