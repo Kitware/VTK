@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   METAIO_STREAM::cout << "Creating test file ..." << METAIO_STREAM::endl;
 
   //MetaTubeNet* tubenet = new MetaTubeNet();
-  
+
   // add two tube to the list of tubenet
   METAIO_STREAM::cout << "  Creating first tube ..." << METAIO_STREAM::endl;
   MetaTube* tube1 = new MetaTube(3);
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     pnt->m_R=i;
     tube1->GetPoints().push_back(pnt);
   }
-  
+
   METAIO_STREAM::cout << "  Creating second tube ..." << METAIO_STREAM::endl;
   MetaTube* tube2 = new MetaTube(3);
   tube2->ID(1);
@@ -58,14 +58,14 @@ int main(int argc, char **argv)
   METAIO_STREAM::cout << "done" << METAIO_STREAM::endl;
   METAIO_STREAM::cout << "Reading test file ..." << METAIO_STREAM::endl;
 
-  // Read the result 
+  // Read the result
   MetaScene myScene2 = MetaScene();
   myScene2.InitializeEssential(3);
- 
+
   METAIO_STREAM::cout << "  ... reading scene " << METAIO_STREAM::endl;
   myScene2.Read("test.scn");
   METAIO_STREAM::cout << "  ... read scene " << METAIO_STREAM::endl;
-  
+
   typedef  MetaScene::ObjectListType ListType;
   ListType * list = myScene2.GetObjectList();
   ListType::iterator it = list->begin();
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
   METAIO_STREAM::cout << "  ... beginning loop " << METAIO_STREAM::endl;
   for(i=0;i< list->size();i++)
   {
-    
+
     (*it)->PrintInfo();
     if(!strncmp((*it)->ObjectTypeName(),"Tube",4))
     {
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 
       for(unsigned int j=0;j< tube->GetPoints().size();j++)
       {
-        METAIO_STREAM::cout << (*it2)->m_X[0] 
+        METAIO_STREAM::cout << (*it2)->m_X[0]
         << " " << (*it2)->m_X[1] << " " << (*it2)->m_X[2] << METAIO_STREAM::endl;
         it2++;
       }

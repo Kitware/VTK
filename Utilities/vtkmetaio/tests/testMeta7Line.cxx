@@ -19,9 +19,9 @@ int main(int argc, char **argv)
     pnt->m_V[1][0]=(float)0.4;pnt->m_V[1][1]=i+1;pnt->m_V[1][2]=i+1;
     Line->GetPoints().push_back(pnt);
   }
-  
+
   METAIO_STREAM::cout << "Writing test file ...";
-   
+
   Line->BinaryData(true);
 
   Line->Write("myLine.meta");
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 
   MetaLine::PointListType list =  Line->GetPoints();
   MetaLine::PointListType::const_iterator it = list.begin();
-  
+
   i=0;
   while(it != list.end())
   {

@@ -33,9 +33,9 @@ namespace METAIO_NAMESPACE {
  *    Reads and Writes MetaContour Files.
  *
  * \author Julien Jomier
- * 
+ *
  * \date March 2006
- * 
+ *
  */
 class METAIO_EXPORT ContourControlPnt
 {
@@ -43,7 +43,7 @@ public:
 
   ContourControlPnt(int dim);
   ~ContourControlPnt();
-  
+
   unsigned int m_Dim;
   unsigned int m_Id;
   float* m_X;
@@ -73,7 +73,7 @@ public:
     {
     delete []m_X;
     };
-  
+
   unsigned int m_Dim;
   float* m_X;
   unsigned int  m_Id;
@@ -90,8 +90,8 @@ public:
  typedef METAIO_STL::list<ContourInterpolatedPnt*> InterpolatedPointListType;
 
  MetaContour(void);
- MetaContour(const char *_headerName);   
- MetaContour(const MetaContour *_Contour);    
+ MetaContour(const char *_headerName);
+ MetaContour(const MetaContour *_Contour);
  MetaContour(unsigned int dim);
 
  ~MetaContour(void);
@@ -129,14 +129,14 @@ public:
 
   void  Clear(void);
 
-  ControlPointListType & GetControlPoints(void) 
+  ControlPointListType & GetControlPoints(void)
     {return m_ControlPointsList;}
-  const ControlPointListType & GetControlPoints(void) const 
+  const ControlPointListType & GetControlPoints(void) const
     {return m_ControlPointsList;}
-   
-  InterpolatedPointListType & GetInterpolatedPoints(void) 
+
+  InterpolatedPointListType & GetInterpolatedPoints(void)
     {return m_InterpolatedPointsList;}
-  const InterpolatedPointListType & GetInterpolatedPoints(void) const 
+  const InterpolatedPointListType & GetInterpolatedPoints(void) const
     {return m_InterpolatedPointsList;}
 
 protected:
