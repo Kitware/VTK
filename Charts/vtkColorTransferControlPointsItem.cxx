@@ -162,15 +162,11 @@ vtkIdType vtkColorTransferControlPointsItem::AddPoint(double* newPos)
     {
     return -1;
     }
-#ifndef NDEBUG
-  vtkIdType expectedPoint =
-#endif
-    this->vtkControlPointsItem::AddPoint(newPos);
   double rgb[3] = {0., 0., 0.};
   this->ColorTransferFunction->GetColor(newPos[0], rgb);
   vtkIdType addedPoint =
     this->ColorTransferFunction->AddRGBPoint(newPos[0], rgb[0], rgb[1], rgb[2]);
-  assert(addedPoint == expectedPoint);
+  this->vtkControlPointsItem::AddPointId(addedPoint);
   return addedPoint;
 }
 

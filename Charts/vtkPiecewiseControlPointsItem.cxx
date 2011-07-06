@@ -140,12 +140,8 @@ vtkIdType vtkPiecewiseControlPointsItem::AddPoint(double* newPos)
     {
     return -1;
     }
-#ifndef NDEBUG
-  vtkIdType expectedPoint =
-#endif
-    this->vtkControlPointsItem::AddPoint(newPos);
   vtkIdType addedPoint = this->PiecewiseFunction->AddPoint(newPos[0], newPos[1]);
-  assert(addedPoint == expectedPoint);
+  this->Superclass::AddPointId(addedPoint);
   return addedPoint;
 }
 

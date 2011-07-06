@@ -138,13 +138,13 @@ public:
   // Add a point to the function. Returns the index of the point (0 based),
   // or -1 on error.
   // Subclasses should reimplement this function to do the actual work.
-  virtual vtkIdType AddPoint(double* newPos);
+  virtual vtkIdType AddPoint(double* newPos) = 0;
 
   // Description:
   // Remove a point of the function. Returns the index of the point (0 based),
   // or -1 on error.
   // Subclasses should reimplement this function to do the actual work.
-  virtual vtkIdType RemovePoint(double* pos);
+  virtual vtkIdType RemovePoint(double* pos) = 0;
 
   // Description:
   // Returns the total number of points
@@ -218,6 +218,8 @@ protected:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
+  void AddPointId(vtkIdType addedPointId);
+  
   vtkCallbackCommand* Callback;
   vtkIdType           CurrentPoint;
 
@@ -240,9 +242,10 @@ private:
   vtkControlPointsItem(const vtkControlPointsItem &); // Not implemented.
   void operator=(const vtkControlPointsItem &);   // Not implemented.
 
-  vtkIdType RemovePointId(vtkIdType pointId);
   void      ComputeBounds();
   void      ComputeBounds(double* bounds);
+
+  vtkIdType RemovePointId(vtkIdType removedPointId);
 };
 
 #endif

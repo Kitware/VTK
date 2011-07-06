@@ -601,40 +601,23 @@ vtkIdType vtkControlPointsItem::GetControlPointId(double* point)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkControlPointsItem::AddPoint(double* newPos)
+void vtkControlPointsItem::AddPointId(vtkIdType addedPointId)
 {
+  assert(addedPointId != -1);
   // offset all the point ids
-  const int pointsCount = this->GetNumberOfPoints();
-  vtkIdType previousPointId = pointsCount;
-  for (vtkIdType i = 0; i < pointsCount; ++i)
-    {
-    double point[4];
-    this->GetControlPoint(i, point);
-    if (point[0] >= newPos[0])
-      {
-      previousPointId = i - 1;
-      break;
-      }
-    }
-  if (previousPointId == pointsCount)
-    {
-    return previousPointId;
-    }
   const int selectionCount = this->Selection->GetNumberOfTuples();
   for (vtkIdType i = 0; i < selectionCount; ++i)
     {
     vtkIdType pointId = this->Selection->GetValue(i);
-    if (pointId > previousPointId)
+    if (pointId >= addedPointId)
       {
       this->Selection->SetValue(i, ++pointId);
       }
     }
-  if (this->CurrentPoint != -1
-      && this->CurrentPoint >= previousPointId)
+  if (this->CurrentPoint >= addedPointId)
     {
     this->SetCurrentPoint(this->CurrentPoint + 1);
     }
-  return previousPointId + 1;
 }
 
 //-----------------------------------------------------------------------------
