@@ -36,6 +36,7 @@
 #include "vtkLookupTable.h"
 #include "vtkBoundedPlanePointPlacer.h"
 #include "vtkPlane.h"
+#include "vtkResliceImageViewerMeasurements.h"
 
 vtkStandardNewMacro(vtkResliceImageViewer);
 
@@ -66,12 +67,17 @@ vtkResliceImageViewer::vtkResliceImageViewer()
 
   this->PointPlacer = vtkBoundedPlanePointPlacer::New();
 
+  this->Measurements = vtkResliceImageViewerMeasurements::New();
+  this->Measurements->SetResliceImageViewer(this);
+
   this->InstallPipeline();
 }
 
 //----------------------------------------------------------------------------
 vtkResliceImageViewer::~vtkResliceImageViewer()
 {
+  this->Measurements->Delete();
+
   if (this->ResliceCursorWidget)
     {
     this->ResliceCursorWidget->Delete();
@@ -127,6 +133,18 @@ void vtkResliceImageViewer::SetThickMode( int t )
 }
 
 //----------------------------------------------------------------------------
+void vtkResliceImageViewer::SetResliceCursor( vtkResliceCursor * rc )
+{
+  vtkResliceCursorRepresentation *rep =
+    vtkResliceCursorRepresentation::SafeDownCast(
+          this->GetResliceCursorWidget()->GetRepresentation());
+  rep->GetCursorAlgorithm()->SetResliceCursor(rc);
+
+  // Rehook the observer to this reslice cursor.
+  this->Measurements->SetResliceImageViewer(this);
+}
+
+//----------------------------------------------------------------------------
 int vtkResliceImageViewer::GetThickMode()
 {
   return (vtkResliceCursorThickLineRepresentation::
@@ -179,13 +197,13 @@ void vtkResliceImageViewer::UpdateOrientation()
           cam->SetPosition(0,0,1); // -1 if medical ?
           cam->SetViewUp(0,1,0);
           break;
-          
+
         case vtkImageViewer2::SLICE_ORIENTATION_XZ:
           cam->SetFocalPoint(0,0,0);
           cam->SetPosition(0,-1,0); // 1 if medical ?
           cam->SetViewUp(0,0,1);
           break;
-          
+
         case vtkImageViewer2::SLICE_ORIENTATION_YZ:
           cam->SetFocalPoint(0,0,0);
           cam->SetPosition(1,0,0); // -1 if medical ?
@@ -346,6 +364,11 @@ vtkResliceCursor * vtkResliceImageViewer::GetResliceCursor()
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::SetInput(vtkImageData *in)
 {
+  if(!in)
+    {
+    return;
+    }
+
   this->WindowLevel->SetInput(in);
   this->GetResliceCursor()->SetImage(in);
   this->GetResliceCursor()->SetCenter(in->GetCenter());
@@ -438,4 +461,6 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ResliceMode: " << this->ResliceMode << endl;
   os << indent << "Point Placer: ";
   this->PointPlacer->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Measurements: ";
+  this->Measurements->PrintSelf(os,indent.GetNextIndent());
 }

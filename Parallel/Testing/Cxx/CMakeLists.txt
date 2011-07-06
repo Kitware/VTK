@@ -118,12 +118,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(TransmitStructuredGrid TransmitStructuredGrid.cxx)
     TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel ${MPI_LIBRARIES})
 
-    ADD_EXECUTABLE(PSLACReaderLinear PSLACReaderLinear.cxx)
-    TARGET_LINK_LIBRARIES(PSLACReaderLinear vtkParallel)
-
-    ADD_EXECUTABLE(PSLACReaderQuadratic PSLACReaderQuadratic.cxx)
-    TARGET_LINK_LIBRARIES(PSLACReaderQuadratic vtkParallel)
-
     ADD_EXECUTABLE(TestParallelRendering TestParallelRendering.cxx)
     TARGET_LINK_LIBRARIES(TestParallelRendering vtkParallel ${MPI_LIBRARIES})
 
@@ -387,21 +381,21 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         IF (VTK_MPIRUN_EXE)
           ADD_TEST(TestCommunicator 
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-            ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
+            ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPIRUN_EXE)
     ENDIF (VTK_DATA_ROOT)
     IF (VTK_LARGE_DATA_ROOT)
       IF (VTK_MPIRUN_EXE)
         ADD_TEST(PSLACReaderLinear
           ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-          ${CXX_TEST_PATH}/PSLACReaderLinear
+          ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/PSLACReaderLinear
           -D ${VTK_LARGE_DATA_ROOT}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V ${VTK_LARGE_DATA_ROOT}/Baseline/Parallel/PSLACReaderLinear.png
           ${VTK_MPI_POSTFLAGS})
         ADD_TEST(PSLACReaderQuadratic
           ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-          ${CXX_TEST_PATH}/PSLACReaderQuadratic
+          ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/PSLACReaderQuadratic
           -D ${VTK_LARGE_DATA_ROOT}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V ${VTK_LARGE_DATA_ROOT}/Baseline/Parallel/PSLACReaderQuadratic.png

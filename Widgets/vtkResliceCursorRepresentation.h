@@ -171,9 +171,10 @@ public:
   void ManageTextDisplay();
 
   // Description:
-  // Initialize the reslice planes. This is done automatically, the
-  // first time we render.
+  // Initialize the reslice planes and the camera center. This is done
+  // automatically, the first time we render.
   virtual void InitializeReslicePlane();
+  virtual void ResetCamera();
 
   // Description:
   // Get the underlying cursor source.
