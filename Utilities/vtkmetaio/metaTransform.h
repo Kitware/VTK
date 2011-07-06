@@ -26,9 +26,9 @@
  *    Reads and Writes MetaTransformFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date Feb 14, 2005
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaObject.h
@@ -56,9 +56,9 @@ class METAIO_EXPORT MetaTransform : public MetaObject
     ////
     MetaTransform(void);
 
-    MetaTransform(const char *_headerName);   
+    MetaTransform(const char *_headerName);
 
-    MetaTransform(const MetaTransform *_group);    
+    MetaTransform(const MetaTransform *_group);
 
     MetaTransform(unsigned int dim);
 

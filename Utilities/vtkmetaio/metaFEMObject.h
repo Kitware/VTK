@@ -43,7 +43,7 @@
  * Depends on:
  *    MetaUtils.h
  */
- 
+
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {
 #endif
@@ -56,14 +56,14 @@ public:
 
   FEMObjectNode(int dim);
   ~FEMObjectNode();
-  
+
   unsigned int m_Dim; //Element Dimension
   float* m_X;         // Node Coordinates
-  int m_GN;	          // global number used in FEM namespace
+  int m_GN;               // global number used in FEM namespace
 };
 
 
-/** Define a mesh Element 
+/** Define a mesh Element
  *  An element contains the following items:
  *    1) CLass name
  *    2) Number of dimensions
@@ -77,7 +77,7 @@ public:
 
   FEMObjectElement(int dim);
   ~FEMObjectElement();
-  
+
   int m_GN;
   char m_ElementName[256]; // class name
   unsigned int m_Dim;
@@ -86,7 +86,7 @@ public:
   int* m_NodesId;
 };
 
-/** Define a FE Mesh Material 
+/** Define a FE Mesh Material
  *  The material contains the following items:
  *    1) Global ID number
  *    2) Material Class Name
@@ -106,7 +106,7 @@ public:
   ~FEMObjectMaterial()
   {
   }
-  
+
   int m_GN;
   char m_MaterialName[256]; // material name
   double E;
@@ -117,7 +117,7 @@ public:
   double RhoC;
 };
 
-/** Define a FE Mesh FEMObjectMFCTerm 
+/** Define a FE Mesh FEMObjectMFCTerm
  *  The material contains the following items:
  *    1) VAM
  */
@@ -147,7 +147,7 @@ public:
 };
 
 /** Define a FE Mesh Load - This is a general purpose container
- *  able to hold information for any Load Type. The Load contains 
+ *  able to hold information for any Load Type. The Load contains
  *  the following items:
  *    1) Global Model number
  *    2) Load Class Name (i.e. Type)
@@ -157,9 +157,9 @@ public:
  *    6) Degrees of freedom
  *    7) Node Number
  *    8) Number of Right Hand Side components
- *    9) Right Hand Side 
+ *    9) Right Hand Side
  *    10) Number of Left Hand Side components
- *    11) Left Hand Side 
+ *    11) Left Hand Side
  *    12) Number of Elements
  *    13) Element Ids
  *    14) Force Matrix
@@ -172,27 +172,27 @@ class METAIO_EXPORT FEMObjectLoad
 {
 public:
 
-	FEMObjectLoad();
-	~FEMObjectLoad();
+        FEMObjectLoad();
+        ~FEMObjectLoad();
 
-	int m_GN;
-	char m_LoadName[256]; // load name
-	int m_ElementGN;
-	int m_Dim;
-	METAIO_STL::vector<float> m_ForceVector;
-	int m_DOF;
-	int m_NodeNumber;
-	int m_NumRHS;
-	METAIO_STL::vector<float> m_RHS;
-	int m_NumLHS;
-	METAIO_STL::vector<FEMObjectMFCTerm*> m_LHS;
-	int m_NumElements;
-	METAIO_STL::vector<int> m_Elements;
-	METAIO_STL::vector< METAIO_STL::vector<float> > m_ForceMatrix;
-	int m_EdgeNumber;
-	METAIO_STL::vector<float> m_Undeformed;
-	METAIO_STL::vector<float> m_Deformed;
-	float m_Variance;
+        int m_GN;
+        char m_LoadName[256]; // load name
+        int m_ElementGN;
+        int m_Dim;
+        METAIO_STL::vector<float> m_ForceVector;
+        int m_DOF;
+        int m_NodeNumber;
+        int m_NumRHS;
+        METAIO_STL::vector<float> m_RHS;
+        int m_NumLHS;
+        METAIO_STL::vector<FEMObjectMFCTerm*> m_LHS;
+        int m_NumElements;
+        METAIO_STL::vector<int> m_Elements;
+        METAIO_STL::vector< METAIO_STL::vector<float> > m_ForceMatrix;
+        int m_EdgeNumber;
+        METAIO_STL::vector<float> m_Undeformed;
+        METAIO_STL::vector<float> m_Deformed;
+        float m_Variance;
 };
 
 
@@ -221,27 +221,27 @@ class METAIO_EXPORT MetaFEMObject : public MetaObject
     /** Clear the MetaFEMObject */
     void  Clear(void);
 
-	/** List of valid class name types from FEM namespace*/
-	typedef METAIO_STL::list<std::string> ClassNameListType;
+        /** List of valid class name types from FEM namespace*/
+        typedef METAIO_STL::list<std::string> ClassNameListType;
 
-	/** List of Node, Element, Material and Load*/
-	typedef METAIO_STL::list<FEMObjectNode*> NodeListType;
-	typedef METAIO_STL::list<FEMObjectElement*>  ElementListType;
-	typedef METAIO_STL::list<FEMObjectMaterial*>  MaterialListType;
-	typedef METAIO_STL::list<FEMObjectLoad*>  LoadListType;
+        /** List of Node, Element, Material and Load*/
+        typedef METAIO_STL::list<FEMObjectNode*> NodeListType;
+        typedef METAIO_STL::list<FEMObjectElement*>  ElementListType;
+        typedef METAIO_STL::list<FEMObjectMaterial*>  MaterialListType;
+        typedef METAIO_STL::list<FEMObjectLoad*>  LoadListType;
 
-	/** Access methods*/
-	NodeListType & GetNodeList(void) {return m_NodeList;}
-	const NodeListType & GetNodeList(void) const {return m_NodeList;}
+        /** Access methods*/
+        NodeListType & GetNodeList(void) {return m_NodeList;}
+        const NodeListType & GetNodeList(void) const {return m_NodeList;}
 
-	ElementListType & GetElementList(void) {return m_ElementList;}
-	const ElementListType & GetElementList(void) const {return m_ElementList;}
+        ElementListType & GetElementList(void) {return m_ElementList;}
+        const ElementListType & GetElementList(void) const {return m_ElementList;}
 
-	MaterialListType & GetMaterialList(void) {return m_MaterialList;}
-	const MaterialListType & GetMaterialList(void) const {return m_MaterialList;}
+        MaterialListType & GetMaterialList(void) {return m_MaterialList;}
+        const MaterialListType & GetMaterialList(void) const {return m_MaterialList;}
 
-	LoadListType & GetLoadList(void) {return m_LoadList;}
-	const LoadListType & GetLoadList(void) const {return m_LoadList;}
+        LoadListType & GetLoadList(void) {return m_LoadList;}
+        const LoadListType & GetLoadList(void) const {return m_LoadList;}
 
   protected:
 
@@ -255,55 +255,55 @@ class METAIO_EXPORT MetaFEMObject : public MetaObject
 
     bool  M_Write(void);
 
-	/** For reading and writing in node details */
-	bool  M_Read_Node();
+        /** For reading and writing in node details */
+        bool  M_Read_Node();
 
-	void M_Write_Node(FEMObjectNode *Node);
+        void M_Write_Node(FEMObjectNode *Node);
 
-	void M_Write_Material(FEMObjectMaterial *Material);
+        void M_Write_Material(FEMObjectMaterial *Material);
 
-	void M_Write_Element(FEMObjectElement *Element);
+        void M_Write_Element(FEMObjectElement *Element);
 
-	void M_Write_Load(FEMObjectLoad *Load);
+        void M_Write_Load(FEMObjectLoad *Load);
 
-	/** For reading in element details. The input is the name of the element from FEM namespace */
-	bool  M_Read_Element(std::string element_name);
+        /** For reading in element details. The input is the name of the element from FEM namespace */
+        bool  M_Read_Element(std::string element_name);
 
-	/** For reading in element details. The input is the name of the element from FEM namespace */
-	bool  M_Read_Material(std::string material_name);
+        /** For reading in element details. The input is the name of the element from FEM namespace */
+        bool  M_Read_Material(std::string material_name);
 
-	/** For reading in element details. The input is the name of the element from FEM namespace */
-	bool  M_Read_Load(std::string load_name);
+        /** For reading in element details. The input is the name of the element from FEM namespace */
+        bool  M_Read_Load(std::string load_name);
 
-	/** Read in only the keywords that are in the  'ClassNameListType' list container*/
-	bool IsClassNamePresent(std::string c_string);
+        /** Read in only the keywords that are in the  'ClassNameListType' list container*/
+        bool IsClassNamePresent(std::string c_string);
 
-	/** Global number is common for all entity lists of FEM*/
-	int ReadGlobalNumber();
+        /** Global number is common for all entity lists of FEM*/
+        int ReadGlobalNumber();
 
-	void  SkipWhiteSpace();
+        void  SkipWhiteSpace();
 
-	/** Based on the element name get the number of nodes and the dimension*/
-	int* GetElementDimensionAndNumberOfNodes(std::string c_string, int info[2]); 
+        /** Based on the element name get the number of nodes and the dimension*/
+        int* GetElementDimensionAndNumberOfNodes(std::string c_string, int info[2]);
 
-	// variables
-	static const std::string whitespaces;
+        // variables
+        static const std::string whitespaces;
 
-	ClassNameListType m_ClassNameList;
-	ElementListType m_ElementList;
-	NodeListType m_NodeList;
-	MaterialListType m_MaterialList;
-	LoadListType m_LoadList;
+        ClassNameListType m_ClassNameList;
+        ElementListType m_ElementList;
+        NodeListType m_NodeList;
+        MaterialListType m_MaterialList;
+        LoadListType m_LoadList;
 
-	std::string  m_ElementDataFileName;
+        std::string  m_ElementDataFileName;
 
-	// to keep track of the type element created
-	enum{
-		NODE            = 0,
-		MATERIAL        = 1,
-		ELEMENT         = 2,
-		LOAD            = 3
-	};
+        // to keep track of the type element created
+        enum{
+                NODE            = 0,
+                MATERIAL        = 1,
+                ELEMENT         = 2,
+                LOAD            = 3
+        };
 
   };
 

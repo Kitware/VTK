@@ -30,7 +30,7 @@
  *    Reads and Writes MetaVesselTubeFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date May 22, 2002
  */
 
@@ -44,7 +44,7 @@ public:
 
   VesselTubePnt(int dim);
   ~VesselTubePnt();
-  
+
   unsigned int m_Dim;
   float* m_V1;
   float* m_V2;
@@ -83,10 +83,10 @@ class METAIO_EXPORT MetaVesselTube : public MetaObject
     ////
     MetaVesselTube(void);
 
-    MetaVesselTube(const char *_headerName);   
+    MetaVesselTube(const char *_headerName);
 
-    MetaVesselTube(const MetaVesselTube *_VesselTube); 
-    
+    MetaVesselTube(const MetaVesselTube *_VesselTube);
+
     MetaVesselTube(unsigned int dim);
 
     ~MetaVesselTube(void);
@@ -130,7 +130,7 @@ class METAIO_EXPORT MetaVesselTube : public MetaObject
 
     PointListType &  GetPoints(void) {return m_PointList;}
     const PointListType &  GetPoints(void) const {return m_PointList;}
-    
+
     MET_ValueEnumType ElementType(void) const;
     void  ElementType(MET_ValueEnumType _elementType);
 

@@ -26,9 +26,9 @@
  *    Reads and Writes MetaGaussianFiles.
  *
  * \author Mark Foskey
- * 
+ *
  * \date February 12, 2004
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaObject.h
@@ -55,9 +55,9 @@ class METAIO_EXPORT MetaGaussian : public MetaObject
     ////
     MetaGaussian();
 
-    MetaGaussian(const char *_headerName);   
+    MetaGaussian(const char *_headerName);
 
-    MetaGaussian(const MetaGaussian *_gaussian);    
+    MetaGaussian(const MetaGaussian *_gaussian);
 
     MetaGaussian(unsigned int dim);
 

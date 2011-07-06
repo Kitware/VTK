@@ -30,9 +30,9 @@
  *    Reads and Writes MetaLandmarkFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date July 02, 2002
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaFileLib.h
@@ -48,7 +48,7 @@ public:
 
   LandmarkPnt(int dim);
   ~LandmarkPnt();
-  
+
   unsigned int m_Dim;
   float* m_X;
   float  m_Color[4];
@@ -75,10 +75,10 @@ class METAIO_EXPORT MetaLandmark : public MetaObject
     ////
     MetaLandmark(void);
 
-    MetaLandmark(const char *_headerName);   
+    MetaLandmark(const char *_headerName);
 
-    MetaLandmark(const MetaLandmark *_tube); 
-    
+    MetaLandmark(const MetaLandmark *_tube);
+
     MetaLandmark(unsigned int dim);
 
     ~MetaLandmark(void);
@@ -104,7 +104,7 @@ class METAIO_EXPORT MetaLandmark : public MetaObject
 
     PointListType & GetPoints(void) {return m_PointList;}
     const PointListType & GetPoints(void) const  {return m_PointList;}
- 
+
     MET_ValueEnumType ElementType(void) const;
     void  ElementType(MET_ValueEnumType _elementType);
 
