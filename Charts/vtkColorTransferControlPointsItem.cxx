@@ -80,6 +80,10 @@ unsigned long int vtkColorTransferControlPointsItem::GetControlPointsMTime()
 //-----------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::SetColorTransferFunction(vtkColorTransferFunction* t)
 {
+  if (this->ColorTransferFunction)
+    {
+    this->ColorTransferFunction->RemoveObserver(this->Callback);
+    }
   vtkSetObjectBodyMacro(ColorTransferFunction, vtkColorTransferFunction, t);
   if (this->ColorTransferFunction)
     {
