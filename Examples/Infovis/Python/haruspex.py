@@ -369,7 +369,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
                 print "  Requesting column", colName
             haruspex.AddColumn( colName )
 
-    elif haruspex.IsA( "vtkBivariateStatisticsAlgorithm" ):
+    elif haruspex.IsA( "vtkCorrelativeStatistics" ) or haruspex.IsA( "vtkContingencyStatistics" ):
         # Bivariate case: generate all possible pairs
         for i in range( 0, n ):
             colNameX = inData.GetColumnName( columnsList[i] )
