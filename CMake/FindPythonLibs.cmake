@@ -8,6 +8,12 @@
 #  PYTHON_INCLUDE_PATH        - path to where Python.h is found (deprecated)
 #  PYTHON_INCLUDE_DIRS        - path to where Python.h is found
 #  PYTHON_DEBUG_LIBRARIES     - path to the debug library
+#  PYTHON_VERSION             - python version string e.g. 2.7.1
+#  PYTHON_MAJOR_VERSION       - python major version number
+#  PYTHON_MINOR_VERSION       - python minor version number
+#  PYTHON_MICRO_VERSION       - python release version number
+#
+# This code uses the following variables:
 #  Python_ADDITIONAL_VERSIONS - list of additional Python versions to search for
 
 #=============================================================================
@@ -102,7 +108,7 @@ MARK_AS_ADVANCED(
 # PYTHON_MAJOR_VERSION, PYTHON_MINOR_VERSION, PYTHON_MICRO_VERSION.
 IF(PYTHON_INCLUDE_DIR)
   SET(_VERSION_REGEX
-      "^#define[ \t]+PY([A-Z_]*_VERSION)[ \t]+[\"]*([0-9\\.]+)[\"]*[ \t]*$")
+      "^#define[ \t]+PY([A-Z_]*_VERSION)[ \t]+[\"]*([[0-9A-Za-z\\.]+)[\"]*[ \t]*$")
   FILE(STRINGS "${PYTHON_INCLUDE_DIR}/patchlevel.h" _VERSION_STRINGS
        LIMIT_COUNT 10 REGEX ${_VERSION_REGEX})
   FOREACH(_VERSION_STRING ${_VERSION_STRINGS})
