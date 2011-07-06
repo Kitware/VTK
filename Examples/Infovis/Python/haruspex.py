@@ -361,7 +361,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
     n = len( columnsList )
     
     # Generate list of columns of interest, depending on number of variables
-    if haruspex.IsA( "vtkUnivariateStatisticsAlgorithm" ):
+    if haruspex.IsA( "vtkDescriptiveStatistics" ) or haruspex.IsA( "vtkOrderStatistics" ):
         # Univariate case: one request for each columns
         for i in range( 0, n ):
             colName = inData.GetColumnName( columnsList[i] )
