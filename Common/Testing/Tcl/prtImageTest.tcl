@@ -22,7 +22,6 @@ for {set i  1} {$i < [expr $argc - 1]} {incr i} {
 
 vtkMPIController mpc
 set gc [mpc GetGlobalController]
-mpc Delete
 
 vtkCompositeRenderManager compManager
 
@@ -45,7 +44,8 @@ proc ExitMaster { code } {
         set contr [ compManager GetController ]
         catch [ $contr TriggerRMI $i [$contr GetBreakRMITag] ]
     }
-    
+    mpc Finalize
+    mpc Delete
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
@@ -68,12 +68,15 @@ if { $myProcId != 0 } {
     #puts "Done on the slave node"
     #puts "**********************************"
 
-
+    mpc Finalize
+    mpc Delete
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
     exit 0
 }
+
+
 
 # set the default threshold, the Tcl script may change this
 set threshold -1
@@ -126,6 +129,7 @@ if {[rtTester IsValidImageSpecified] != 0} {
    }
    set rtResult [rtTester RegressionTest $threshold]
 }
+
 
 if {$rtResult == 0} {ExitMaster 1}
 ExitMaster 0
