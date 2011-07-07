@@ -16,7 +16,6 @@
 #define __vtkPython_h
 
 #include "vtkPythonConfigure.h"
-#include "vtkConfigure.h"
 #include "vtkABI.h"
 
 #if defined(WIN32)
