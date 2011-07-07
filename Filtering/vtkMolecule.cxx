@@ -13,6 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkMolecule.h"
 
+#include "vtkAbstractElectronicData.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkIdTypeArray.h"
@@ -65,12 +66,16 @@ void vtkMolecule::Initialize()
 
   this->UpdateBondList();
 
+  // Electronic data
+  this->ElectronicData = NULL;
+
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 vtkMolecule::~vtkMolecule()
 {
+  this->SetElectronicData(NULL);
   this->Points->Delete();
 }
 
@@ -318,6 +323,10 @@ vtkIdType vtkMolecule::GetNumberOfBonds()
   return this->GetNumberOfEdges();
 }
 
+//----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkMolecule, ElectronicData, vtkAbstractElectronicData);
+
+//----------------------------------------------------------------------------
 void vtkMolecule::UpdateBondList()
 {
   this->BuildEdgeList();

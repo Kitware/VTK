@@ -4,6 +4,7 @@ SET(UKIT CHEMISTRY)
 SET(KIT_LIBS vtkRendering vtkFiltering)
 
 SET(Kit_SRCS
+  vtkAbstractElectronicData.cxx
   vtkBlueObeliskData.cxx
   vtkBlueObeliskDataParser.cxx
   vtkCMLMoleculeReader.cxx
@@ -15,6 +16,7 @@ SET(Kit_SRCS
   )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkAbstractElectronicData.cxx
   vtkMoleculeToPolyDataFilter.cxx
   ABSTRACT
   )

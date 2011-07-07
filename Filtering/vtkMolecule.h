@@ -67,11 +67,13 @@
 #define __vtkMolecule_h
 
 #include "vtkUndirectedGraph.h"
+
 #include "vtkAtom.h" // Simple proxy class dependent on vtkMolecule
 #include "vtkBond.h" // Simple proxy class dependent on vtkMolecule
 #include "vtkVector.h" // Small templated vector convenience class
 
 class vtkPlane;
+class vtkAbstractElectronicData;
 class vtkPoints;
 class vtkUnsignedShortArray;
 
@@ -205,6 +207,11 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   vtkUnsignedShortArray * GetAtomicNumberArray();
 
   // Description:
+  // Set/Get the AbstractElectronicData-subclassed object for this molecule.
+  vtkGetObjectMacro(ElectronicData, vtkAbstractElectronicData);
+  virtual void SetElectronicData(vtkAbstractElectronicData*);
+
+  // Description:
   // Obtain the plane that passes through the indicated bond with the given
   // normal. If the plane is set successfully, the function return true.
   //
@@ -313,6 +320,8 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
 
   friend class vtkAtom;
   friend class vtkBond;
+
+  vtkAbstractElectronicData *ElectronicData;
 
  private:
   vtkMolecule(const vtkMolecule&);    // Not implemented.
