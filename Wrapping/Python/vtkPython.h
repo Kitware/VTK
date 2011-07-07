@@ -16,16 +16,18 @@
 #define __vtkPython_h
 
 #include "vtkPythonConfigure.h"
-
-/* Undefine macros that Python.h defines to avoid redefinition warning.  */
-#undef _POSIX_C_SOURCE
-#undef _POSIX_THREADS
-#if VTK_PYTHON_VERSION_HEX >= 0x02030000
-#undef _XOPEN_SOURCE
-#endif
-
 #include "vtkConfigure.h"
 #include "vtkABI.h"
+
+/* Undefine macros that Python.h defines to avoid redefinition warning.  */
+#undef _POSIX_THREADS
+#if VTK_PYTHON_VERSION_HEX >= 0x02020000
+#undef _LARGEFILE_SOURCE
+#endif
+#if VTK_PYTHON_VERSION_HEX >= 0x02030000
+#undef _POSIX_C_SOURCE
+#undef _XOPEN_SOURCE
+#endif
 
 #if defined(WIN32)
 # if defined(vtkPythonCore_EXPORTS)
