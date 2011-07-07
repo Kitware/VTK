@@ -6,6 +6,7 @@ if { [ info command vtkMesaRenderer ] != "" } {
     _graphics_fact Delete
 }
 
+
 # create a rendering window and renderer
 vtkRenderer Ren1
 	Ren1 SetBackground .5 .8 1
@@ -91,4 +92,4 @@ wm withdraw .
 if { $numProcs < 2 } {
     renWin Render
 }
-
+controler Barrier
