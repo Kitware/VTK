@@ -175,7 +175,6 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 
   // graph size
   vtkIdType num_verts = output->GetNumberOfVertices();
-  vtkIdType num_edges = output->GetNumberOfEdges();
 
   if(this->KCoreLabelArrayName)
     {
@@ -272,8 +271,8 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
     int current_level = kcore_array->GetValue(vidx);
     if(current_level == max_core_level)
       {
-      double radius = unit_radius;
-      double angle  = float(rand()%100000)/100000 * 2.0 * M_PI;
+      radius = unit_radius;
+      angle  = float(rand()%100000)/100000 * 2.0 * M_PI;
 
       //cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
       if(this->Cartesian)
