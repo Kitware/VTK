@@ -31,7 +31,7 @@
 
 class vtkResliceCursorWidget;
 class vtkResliceCursor;
-class vtkLookupTable;
+class vtkScalarsToColors;
 class vtkBoundedPlanePointPlacer;
 class vtkResliceImageViewerMeasurements;
 
@@ -88,8 +88,8 @@ public:
 
   // Description:
   // Set the lookup table
-  virtual void SetLookupTable( vtkLookupTable * );
-  vtkLookupTable * GetLookupTable();
+  virtual void SetLookupTable( vtkScalarsToColors * );
+  vtkScalarsToColors * GetLookupTable();
 
   // Description:
   // Switch to / from thick mode

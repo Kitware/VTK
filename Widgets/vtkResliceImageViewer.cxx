@@ -33,7 +33,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageReslice.h"
-#include "vtkLookupTable.h"
+#include "vtkScalarsToColors.h"
 #include "vtkBoundedPlanePointPlacer.h"
 #include "vtkPlane.h"
 #include "vtkResliceImageViewerMeasurements.h"
@@ -152,7 +152,7 @@ int vtkResliceImageViewer::GetThickMode()
 }
 
 //----------------------------------------------------------------------------
-void vtkResliceImageViewer::SetLookupTable( vtkLookupTable * l )
+void vtkResliceImageViewer::SetLookupTable( vtkScalarsToColors * l )
 {
   if (vtkResliceCursorRepresentation *rep =
         vtkResliceCursorRepresentation::SafeDownCast(
@@ -170,7 +170,7 @@ void vtkResliceImageViewer::SetLookupTable( vtkLookupTable * l )
 }
 
 //----------------------------------------------------------------------------
-vtkLookupTable * vtkResliceImageViewer::GetLookupTable()
+vtkScalarsToColors * vtkResliceImageViewer::GetLookupTable()
 {
   if (vtkResliceCursorRepresentation *rep =
         vtkResliceCursorRepresentation::SafeDownCast(
@@ -428,7 +428,7 @@ void vtkResliceImageViewer::SetColorWindow( double w )
 {
   double rmin = this->GetColorLevel() - 0.5*fabs( w );
   double rmax = rmin + fabs( w );
-  this->GetLookupTable()->SetTableRange( rmin, rmax );
+  this->GetLookupTable()->SetRange( rmin, rmax );
 
   this->WindowLevel->SetWindow(w);
   if (vtkResliceCursorRepresentation *rep =
@@ -444,7 +444,7 @@ void vtkResliceImageViewer::SetColorLevel( double w )
 {
   double rmin = w - 0.5*fabs( this->GetColorWindow() );
   double rmax = rmin + fabs( this->GetColorWindow() );
-  this->GetLookupTable()->SetTableRange( rmin, rmax );
+  this->GetLookupTable()->SetRange( rmin, rmax );
 
   this->WindowLevel->SetLevel(w);
   if (vtkResliceCursorRepresentation *rep =
