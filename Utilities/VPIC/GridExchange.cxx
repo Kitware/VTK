@@ -566,32 +566,32 @@ void GridExchange::initialize()
 //
 /////////////////////////////////////////////////////////////////////////////
 
-void GridExchange::setSendOrigin(int neighbor, int x, int y, int z)
+void GridExchange::setSendOrigin(int Neighbor, int x, int y, int z)
 {
-  this->sendOrigin[neighbor][0] = x;
-  this->sendOrigin[neighbor][1] = y;
-  this->sendOrigin[neighbor][2] = z;
+  this->sendOrigin[Neighbor][0] = x;
+  this->sendOrigin[Neighbor][1] = y;
+  this->sendOrigin[Neighbor][2] = z;
 }
 
-void GridExchange::setRecvOrigin(int neighbor, int x, int y, int z)
+void GridExchange::setRecvOrigin(int Neighbor, int x, int y, int z)
 {
-  this->recvOrigin[neighbor][0] = x;
-  this->recvOrigin[neighbor][1] = y;
-  this->recvOrigin[neighbor][2] = z;
+  this->recvOrigin[Neighbor][0] = x;
+  this->recvOrigin[Neighbor][1] = y;
+  this->recvOrigin[Neighbor][2] = z;
 }
 
-void GridExchange::setSendSize(int neighbor, int x, int y, int z)
+void GridExchange::setSendSize(int Neighbor, int x, int y, int z)
 {
-  this->sendSize[neighbor][0] = x;
-  this->sendSize[neighbor][1] = y;
-  this->sendSize[neighbor][2] = z;
+  this->sendSize[Neighbor][0] = x;
+  this->sendSize[Neighbor][1] = y;
+  this->sendSize[Neighbor][2] = z;
 }
 
-void GridExchange::setRecvSize(int neighbor, int x, int y, int z)
+void GridExchange::setRecvSize(int Neighbor, int x, int y, int z)
 {
-  this->recvSize[neighbor][0] = x;
-  this->recvSize[neighbor][1] = y;
-  this->recvSize[neighbor][2] = z;
+  this->recvSize[Neighbor][0] = x;
+  this->recvSize[Neighbor][1] = y;
+  this->recvSize[Neighbor][2] = z;
 }
 
 /////////////////////////////////////////////////////////////////////////////
