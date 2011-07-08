@@ -36,6 +36,7 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    1st bit: assess"
     print "\t                    2nd bit: test"
     print "\t [-m <prefix>]    prefix of CSV input model file(s). Default: calculate model from scratch"
+    print "\t [-p <number>]    number of primary tables in input model (only used for order statistics)"
     print "\t [-u]             update input model (if data are provided as well). NB: update happens before assessment"
     print "\t [-s <prefix>]    prefix of CSV output model (statistics) file(s)"
     print "\t [-a <filename>]  name of CSV output data (annotated) file"
@@ -54,6 +55,7 @@ def ParseCommandLine():
     options = 0
     inDataName = ""
     inModelPrefix = ""
+    inModelTables = 0
     updateModel = False
     haruspexName = ""
     outModelPrefix = ""
@@ -63,7 +65,7 @@ def ParseCommandLine():
     
     # Try to hash command line with respect to allowable flags
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:us:a:t:c:v')
+        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:p:us:a:t:c:v')
     except getopt.GetoptError:
         Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
@@ -84,6 +86,8 @@ def ParseCommandLine():
             options = a
         elif o == "-m":
             inModelPrefix = a
+        elif o == "-p":
+            inModelTables = a
         elif o == "-u":
             updateModel = True
         elif o == "-s":
@@ -111,6 +115,8 @@ def ParseCommandLine():
         print "  Input data file:", inDataName
         if inModelPrefix != "":
             print "  Input model file prefix:", inModelPrefix
+            if inModelTables > 0:
+                print "  Specified input model tables:", inModelTables
         else:
             print "  No input model"
 
@@ -127,6 +133,7 @@ def ParseCommandLine():
 
     return [ inDataName, \
              inModelPrefix, \
+             inModelTables, \
              updateModel, \
              columnsListName, \
              haruspexName, \
@@ -342,7 +349,7 @@ def WriteOutModel( haruspex, outModelPrefix ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, haruspex, options ):
+def CalculateStatistics( inDataReader, inModelReader, nPrimaryTables, updateModel, columnsList, haruspex, options ):
     # Declare use of global variable
     global verbosity
 
@@ -420,9 +427,6 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         haruspex.SetAssessOption( assessOption )
         haruspex.Update()
     else:
-        # Model readers are available: decide how many tables will be fetched
-        nPrimaryTables = haruspex.GetNumberOfPrimaryTables()
-
         # Then create vtkMultiBlockDataSet with correspondingly many blocks
         inModel = vtkMultiBlockDataSet()
         inModel.SetNumberOfBlocks( nPrimaryTables )
@@ -578,6 +582,7 @@ def main():
     # Parse command line
     [ inDataName, \
       inModelPrefix, \
+      inModelTables, \
       updateModel, \
       columnsListName, \
       haruspexName, \
@@ -596,12 +601,18 @@ def main():
     if inModelPrefix != "":
         inModelReader = []
         nPrimaryTables = haruspex.GetNumberOfPrimaryTables()
+        # Handle special case of variable number of tables which must be specified
+        if nPrimaryTables == -1:
+            nPrimaryTables = int( inModelTables )
+        print nPrimaryTables
+        # Now loop over all primary tables
         for t in range( 0, nPrimaryTables ):
             tableReader = ReadInModelTable( inModelPrefix, t )
             inModelReader.append( tableReader )
 
     else:
         inModelReader = None
+        nPrimaryTables = 0
         
     # Read list of columns of interest
     if columnsListName:
@@ -610,7 +621,7 @@ def main():
         columnsList = []
         
     # Calculate statistics
-    CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, haruspex, options )
+    CalculateStatistics( inDataReader, inModelReader, nPrimaryTables, updateModel, columnsList, haruspex, options )
 
     # Save output (annotated) data
     WriteOutTable( haruspex, 0, outDataName, "annotated data", 2 )
