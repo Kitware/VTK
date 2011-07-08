@@ -52,6 +52,7 @@ vtkCxxSetObjectMacro(vtkResliceCursorRepresentation, ColorMap, vtkImageMapToColo
 //----------------------------------------------------------------------
 vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
 {
+  this->ManipulationMode = None;
   this->Modifier = 0;
   this->Tolerance = 5;
   this->ShowReslicedImage = 1;
@@ -216,6 +217,7 @@ void vtkResliceCursorRepresentation::SetManipulationMode( int m )
 void vtkResliceCursorRepresentation::BuildRepresentation()
 {
   this->Reslice->SetInput(this->GetResliceCursor()->GetImage());
+
   this->TexturePlaneActor->SetVisibility(
       this->GetResliceCursor()->GetImage() ?
         (this->ShowReslicedImage && !this->UseImageActor): 0);
@@ -576,6 +578,12 @@ void vtkResliceCursorRepresentation
 
   if (reslice)
     {
+    // Set the default color the minimum scalar value
+    double range[2];
+    vtkImageData::SafeDownCast(reslice->GetInput())->
+      GetScalarRange( range );
+    reslice->SetBackgroundLevel(range[0]);
+      
     this->ColorMap->SetInput(reslice->GetOutput());
     reslice->TransformInputSamplingOff();
     reslice->AutoCropOutputOn();

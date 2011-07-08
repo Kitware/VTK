@@ -298,6 +298,11 @@ void vtkResliceImageViewer::UpdatePointPlacer()
   else
     {
 
+    if (!this->WindowLevel->GetInput())
+      {
+      return;
+      }
+
     vtkImageData *input = this->ImageActor->GetInput();
     if ( !input )
       {
@@ -343,6 +348,11 @@ void vtkResliceImageViewer::UpdatePointPlacer()
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::Render()
 {
+  if (!this->WindowLevel->GetInput())
+    {
+    return;
+    }
+
   this->UpdatePointPlacer();
 
   this->Superclass::Render();

@@ -90,8 +90,12 @@ public:
         {
         vtkPlaneSource *ps = static_cast< vtkPlaneSource * >(
             this->IPW[i]->GetPolyDataAlgorithm());
-        ps->SetNormal(rc->GetPlane(i)->GetNormal());
-        ps->SetCenter(rc->GetPlane(i)->GetOrigin());
+        ps->SetOrigin(this->RCW[i]->GetResliceCursorRepresentation()->
+                                          GetPlaneSource()->GetOrigin());
+        ps->SetPoint1(this->RCW[i]->GetResliceCursorRepresentation()->
+                                          GetPlaneSource()->GetPoint1());
+        ps->SetPoint2(this->RCW[i]->GetResliceCursorRepresentation()->
+                                          GetPlaneSource()->GetPoint2());
 
         // If the reslice plane has modified, update it on the 3D widget
         this->IPW[i]->UpdatePlacement();
@@ -220,6 +224,8 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
     // Make them all share the same color map.
     riw[i]->SetLookupTable(riw[0]->GetLookupTable());
     planeWidget[i]->GetColorMap()->SetLookupTable(riw[0]->GetLookupTable());
+    //planeWidget[i]->GetColorMap()->SetInput(riw[i]->GetResliceCursorWidget()->GetResliceCursorRepresentation()->GetColorMap()->GetInput());
+    planeWidget[i]->SetColorMap(riw[i]->GetResliceCursorWidget()->GetResliceCursorRepresentation()->GetColorMap());
 
     }
 

@@ -31,6 +31,7 @@
 #include "vtkBiDimensionalRepresentation.h"
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkSeedWidget.h"
+#include "vtkHandleWidget.h"
 #include "vtkSeedRepresentation.h"
 #include "vtkContourWidget.h"
 #include "vtkContourRepresentation.h"
@@ -94,6 +95,9 @@ void vtkResliceImageViewerMeasurements
     i->GetResliceCursor()
       ->AddObserver( vtkResliceCursorWidget::ResliceAxesChangedEvent,
         this->EventCallbackCommand );
+    i->GetResliceCursor()
+      ->AddObserver( vtkResliceCursorWidget::ResliceAxesChangedEvent,
+        this->EventCallbackCommand );
     }
 }
 
@@ -118,14 +122,33 @@ void vtkResliceImageViewerMeasurements
     {
     return;
     }
+  
+  self->Update();
+}
 
-  const int nItems = self->WidgetCollection->GetNumberOfItems();
+//-------------------------------------------------------------------------
+void vtkResliceImageViewerMeasurements::Update()
+{
+  if (this->ResliceImageViewer->GetResliceMode() != 
+    vtkResliceImageViewer::RESLICE_OBLIQUE)
+    {
+    return; // nothing to do.
+    }
+
+  const int nItems = this->WidgetCollection->GetNumberOfItems();
   for (int i = 0; i < nItems; i++)
     {
     vtkAbstractWidget *a = vtkAbstractWidget::SafeDownCast(
-                        self->WidgetCollection->GetItemAsObject(i) );
+                        this->WidgetCollection->GetItemAsObject(i) );
 
-    a->SetEnabled(self->IsItemOnReslicedPlane(a));
+    vtkSeedWidget *s = vtkSeedWidget::SafeDownCast( a );
+
+    // seed is handled differently since its really a collection of several
+    // markers which may exist on different planes.
+    if (!s)
+      {
+      a->SetEnabled(this->IsItemOnReslicedPlane(a));
+      }
     }
 }
 
@@ -155,6 +178,10 @@ bool vtkResliceImageViewerMeasurements
     return this->IsWidgetOnReslicedPlane(capw);
     }
   if (vtkSeedWidget *s = vtkSeedWidget::SafeDownCast( w ))
+    {
+    return this->IsWidgetOnReslicedPlane(s);
+    }
+  if (vtkHandleWidget *s = vtkHandleWidget::SafeDownCast( w ))
     {
     return this->IsWidgetOnReslicedPlane(s);
     }
@@ -227,6 +254,13 @@ bool vtkResliceImageViewerMeasurements
 
 //-------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements
+::IsWidgetOnReslicedPlane( vtkHandleWidget * w )
+{
+  return this->IsPointOnReslicedPlane(w->GetHandleRepresentation());
+}
+
+//-------------------------------------------------------------------------
+bool vtkResliceImageViewerMeasurements
 ::IsWidgetOnReslicedPlane( vtkCaptionWidget * w )
 {
   if (vtkCaptionRepresentation *rep =
@@ -270,19 +304,16 @@ bool vtkResliceImageViewerMeasurements
 bool vtkResliceImageViewerMeasurements
 ::IsWidgetOnReslicedPlane( vtkSeedWidget * w )
 {
-  if (w->GetWidgetState() <= vtkSeedWidget::PlacingSeeds)
-    {
-    return true; // widget is not yet defined.
-    }
-
   if (vtkSeedRepresentation *rep =
       vtkSeedRepresentation::SafeDownCast(w->GetRepresentation()))
     {
     const int nNodes = rep->GetNumberOfSeeds();
     for (int i = 0; i < nNodes; i++)
       {
-      w->GetSeed(i)->SetEnabled(this->IsPointOnReslicedPlane(
+      w->GetSeed(i)->GetHandleRepresentation()->SetVisibility(
+          w->GetEnabled() && this->IsPointOnReslicedPlane(
             w->GetSeed(i)->GetHandleRepresentation()));
+
       }
     }
 
@@ -342,11 +373,6 @@ void vtkResliceImageViewerMeasurements::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ResliceImageViewer: " << this->ResliceImageViewer << "\n";
-  if (this->ResliceImageViewer)
-    {
-    this->ResliceImageViewer->PrintSelf(os,indent.GetNextIndent());
-    }
-
   os << indent << "WidgetCollection: " << this->WidgetCollection << endl;
   this->WidgetCollection->PrintSelf(os,indent.GetNextIndent());
 
