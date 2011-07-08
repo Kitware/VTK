@@ -299,6 +299,9 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), col );
     outMeta->SetBlock( nBlocks, histogramTab );
 
+    // Set number of primary tables
+    this->NumberOfPrimaryTables = nBlocks;
+
     // Clean up
     histogramTab->Delete();
     row->Delete();
