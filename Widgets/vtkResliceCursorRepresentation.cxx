@@ -38,6 +38,7 @@
 #include "vtkPlaneSource.h"
 #include "vtkPlane.h"
 #include "vtkLookupTable.h"
+#include "vtkScalarsToColors.h"
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkInteractorObserver.h"
 #include "vtkActor.h"
@@ -149,9 +150,9 @@ vtkResliceCursorRepresentation::~vtkResliceCursorRepresentation()
 }
 
 //----------------------------------------------------------------------
-void vtkResliceCursorRepresentation::SetLookupTable(vtkLookupTable *l)
+void vtkResliceCursorRepresentation::SetLookupTable(vtkScalarsToColors *l)
 {
-  vtkSetObjectBodyMacro(LookupTable, vtkLookupTable, l);
+  vtkSetObjectBodyMacro(LookupTable, vtkScalarsToColors, l);
   this->LookupTable = l;
   if (this->ColorMap)
     {
@@ -622,7 +623,7 @@ void vtkResliceCursorRepresentation
 
   double rmin = this->CurrentLevel - 0.5*fabs( this->CurrentWindow );
   double rmax = rmin + fabs( this->CurrentWindow );
-  this->LookupTable->SetTableRange( rmin, rmax );
+  this->LookupTable->SetRange( rmin, rmax );
 
   this->Modified();
 }
@@ -703,7 +704,7 @@ void vtkResliceCursorRepresentation::WindowLevel(double X, double Y)
 
   double rmin = newLevel - 0.5*fabs( newWindow );
   double rmax = rmin + fabs( newWindow );
-  this->LookupTable->SetTableRange( rmin, rmax );
+  this->LookupTable->SetRange( rmin, rmax );
 
   if (this->DisplayText && (this->CurrentWindow != newWindow ||
         this->CurrentLevel != newLevel) )
@@ -716,22 +717,27 @@ void vtkResliceCursorRepresentation::WindowLevel(double X, double Y)
 //----------------------------------------------------------------------------
 void vtkResliceCursorRepresentation::InvertTable()
 {
-  int index = this->LookupTable->GetNumberOfTableValues();
-  unsigned char swap[4];
-  size_t num = 4*sizeof(unsigned char);
-  vtkUnsignedCharArray* table = this->LookupTable->GetTable();
-  for ( int count = 0; count < --index; count++ )
-    {
-    unsigned char *rgba1 = table->GetPointer(4*count);
-    unsigned char *rgba2 = table->GetPointer(4*index);
-    memcpy( swap,  rgba1, num );
-    memcpy( rgba1, rgba2, num );
-    memcpy( rgba2, swap,  num );
-    }
+  vtkLookupTable *lut = vtkLookupTable::SafeDownCast(this->LookupTable);
 
-  // force the lookuptable to update its InsertTime to avoid
-  // rebuilding the array
-  this->LookupTable->SetTableValue( 0, this->LookupTable->GetTableValue( 0 ) );
+  if ( lut )
+    {
+    int index = lut->GetNumberOfTableValues();
+    unsigned char swap[4];
+    size_t num = 4*sizeof(unsigned char);
+    vtkUnsignedCharArray* table = lut->GetTable();
+    for ( int count = 0; count < --index; count++ )
+      {
+      unsigned char *rgba1 = table->GetPointer(4*count);
+      unsigned char *rgba2 = table->GetPointer(4*index);
+      memcpy( swap,  rgba1, num );
+      memcpy( rgba1, rgba2, num );
+      memcpy( rgba2, swap,  num );
+      }
+
+    // force the lookuptable to update its InsertTime to avoid
+    // rebuilding the array
+    lut->SetTableValue( 0, lut->GetTableValue( 0 ) );
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -746,7 +752,7 @@ void vtkResliceCursorRepresentation::CreateDefaultResliceAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkLookupTable* vtkResliceCursorRepresentation::CreateDefaultLookupTable()
+vtkScalarsToColors* vtkResliceCursorRepresentation::CreateDefaultLookupTable()
 {
   vtkLookupTable* lut = vtkLookupTable::New();
   lut->Register(this);
