@@ -180,6 +180,11 @@ public:
   // Get the underlying cursor source.
   virtual vtkResliceCursorPolyDataAlgorithm * GetCursorAlgorithm() = 0;
 
+  // Description:
+  // Get the plane source on which the texture (the thin/thick resliced
+  // image is displayed)
+  vtkGetObjectMacro( PlaneSource, vtkPlaneSource );
+
 protected:
   vtkResliceCursorRepresentation();
   ~vtkResliceCursorRepresentation();
