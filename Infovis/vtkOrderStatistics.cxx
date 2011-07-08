@@ -46,6 +46,8 @@ vtkOrderStatistics::vtkOrderStatistics()
   this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
   this->Quantize = false; // By default, do not force quantization
   this->MaximumHistogramSize = 1000; // A large value by default
+  // Number of primary tables is variable
+  this->NumberOfPrimaryTables = -1;
 
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "Quantile" );
@@ -298,9 +300,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     outMeta->SetNumberOfBlocks( nBlocks + 1 );
     outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), col );
     outMeta->SetBlock( nBlocks, histogramTab );
-
-    // Set number of primary tables
-    this->NumberOfPrimaryTables = nBlocks;
 
     // Clean up
     histogramTab->Delete();
