@@ -436,55 +436,6 @@ def CalculateStatistics( inDataReader, inModelReader, nPrimaryTables, updateMode
             inTableReader = inModelReader[t]
             inTable = inTableReader.GetOutput()
 
-            # Handle special case of second table of order statistics
-            if ( t > 0 and haruspex.GetClassName() == "vtkOrderStatistics" ):
-                if verbosity > 0:
-                    print "# Converting input order table to appropriate column types"
-
-                # Create a programmable filter whose input is the order table
-                convertOrderTab = vtkProgrammableFilter()
-                convertOrderTab.SetInput( inTable )
-
-                # Define table converter callback for programmable filter
-                def ConvertOrderTableCallback():
-                    readTable = convertOrderTab.GetInput()
-                    convTable = convertOrderTab.GetOutput()
-
-                    # Create columns with appropriate names and formats
-                    kCol = vtkIdTypeArray()
-                    kCol.SetName( "Key" )
-                    convTable.AddColumn( kCol )
-                    xCol = vtkStringArray()
-                    xCol.SetName( "Value" )
-                    convTable.AddColumn( xCol )
-                    cCol = vtkIdTypeArray()
-                    cCol.SetName( "Cardinality" )
-                    convTable.AddColumn( cCol )
-
-                    # Loop over all input rows and create output rows
-                    nRow = readTable.GetNumberOfRows()
-                    row = vtkVariantArray()
-                    row.SetNumberOfValues( 3 )
-                    for r in range( 0, nRow ):
-                        # Retrieve primary statistics and convert to correct type
-                        k = readTable.GetValueByName( r, "Key" ).ToInt()
-                        row.SetValue( 0, k )
-                        x = readTable.GetValueByName( r, "Value" ).ToString()
-                        row.SetValue( 1, x )
-                        c = readTable.GetValueByName( r, "Cardinality" ).ToInt()
-                        row.SetValue( 2, c )
-
-                        convTable.InsertNextRow( row )
-
-                # Set callback and run programmable filer
-                convertOrderTab.SetExecuteMethod( ConvertOrderTableCallback )
-                convertOrderTab.Update()
-
-                # Retrieve converted table from filter output
-                inTable = convertOrderTab.GetOutput()
-                if verbosity > 1:
-                    inTable.Dump( 16 )
-
             # Handle special case of second table of contingency statistics
             if ( t > 0 and haruspex.GetClassName() == "vtkContingencyStatistics" ):
                 if verbosity > 0:
@@ -604,7 +555,10 @@ def main():
         # Handle special case of variable number of tables which must be specified
         if nPrimaryTables == -1:
             nPrimaryTables = int( inModelTables )
-        print nPrimaryTables
+            if ( haruspexName == "order" and nPrimaryTables < 1 ):
+                print "ERROR: a number of primary tables must be given for order statistics"
+                sys.exit( 1 )
+
         # Now loop over all primary tables
         for t in range( 0, nPrimaryTables ):
             tableReader = ReadInModelTable( inModelPrefix, t )
