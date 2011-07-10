@@ -547,11 +547,11 @@ protected:
   // Description:
   // Given screen screen top, bottom left and top right
   // calculate screen rotation.
-  void ComputeWorldToScreen();
+  void ComputeWorldToScreenMatrix();
 
   // Description:
   // Compute and use frustum using deering method.
-  void ComputeOffAxisFrustum();
+  void ComputeOffAxisProjectionFrustum();
 
   // Description:
   // Compute model view matrix for the camera.
@@ -591,8 +591,8 @@ protected:
 
   double EyeSeparation;
 
-  vtkMatrix4x4 *WorldToScreen;
-  vtkTimeStamp  WorldToScreenMTime;
+  vtkMatrix4x4 *WorldToScreenMatrix;
+  vtkTimeStamp  WorldToScreenMatrixMTime;
 
   vtkMatrix4x4 *EyeTransformMatrix;
 

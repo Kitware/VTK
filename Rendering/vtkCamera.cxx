@@ -94,8 +94,8 @@ vtkCamera::vtkCamera()
 
   this->EyeSeparation = 0.06;
 
-  this->WorldToScreen = vtkMatrix4x4::New();
-  this->WorldToScreen->Identity();
+  this->WorldToScreenMatrix = vtkMatrix4x4::New();
+  this->WorldToScreenMatrix->Identity();
 
   this->EyeTransformMatrix = vtkMatrix4x4::New();
   this->EyeTransformMatrix->Identity();
@@ -141,8 +141,8 @@ vtkCamera::vtkCamera()
 //----------------------------------------------------------------------------
 vtkCamera::~vtkCamera()
 {
-  this->WorldToScreen->Delete();
-  this->WorldToScreen = NULL;
+  this->WorldToScreenMatrix->Delete();
+  this->WorldToScreenMatrix = NULL;
 
   this->EyeTransformMatrix->Delete();
   this->EyeTransformMatrix = NULL;
@@ -366,10 +366,10 @@ void vtkCamera::ComputeCameraLightTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::ComputeWorldToScreen()
+void vtkCamera::ComputeWorldToScreenMatrix()
 {
   // Avoid recalculating screen orientation if we don't need to.
-  if(this->WorldToScreenMTime.GetMTime() < this->GetMTime())
+  if(this->WorldToScreenMatrixMTime.GetMTime() < this->GetMTime())
     {
     double xAxis[3];
     double yAxis[3];
@@ -386,45 +386,45 @@ void vtkCamera::ComputeWorldToScreen()
     vtkMath::Cross(xAxis, yAxis, zAxis);
     vtkMath::Normalize(zAxis);
 
-    this->WorldToScreen->Identity();
+    this->WorldToScreenMatrix->Identity();
 
-    this->WorldToScreen->SetElement(0, 0, xAxis[0]);
-    this->WorldToScreen->SetElement(0, 1, xAxis[1]);
-    this->WorldToScreen->SetElement(0, 2, xAxis[2]);
+    this->WorldToScreenMatrix->SetElement(0, 0, xAxis[0]);
+    this->WorldToScreenMatrix->SetElement(0, 1, xAxis[1]);
+    this->WorldToScreenMatrix->SetElement(0, 2, xAxis[2]);
 
-    this->WorldToScreen->SetElement(1, 0, yAxis[0]);
-    this->WorldToScreen->SetElement(1, 1, yAxis[1]);
-    this->WorldToScreen->SetElement(1, 2, yAxis[2]);
+    this->WorldToScreenMatrix->SetElement(1, 0, yAxis[0]);
+    this->WorldToScreenMatrix->SetElement(1, 1, yAxis[1]);
+    this->WorldToScreenMatrix->SetElement(1, 2, yAxis[2]);
 
-    this->WorldToScreen->SetElement(2, 0, zAxis[0]);
-    this->WorldToScreen->SetElement(2, 1, zAxis[1]);
-    this->WorldToScreen->SetElement(2, 2, zAxis[2]);
+    this->WorldToScreenMatrix->SetElement(2, 0, zAxis[0]);
+    this->WorldToScreenMatrix->SetElement(2, 1, zAxis[1]);
+    this->WorldToScreenMatrix->SetElement(2, 2, zAxis[2]);
 
     // Define world origin.
     double origin[3] = {0.0, 0.0, 0.0};
 
     double screenNormal[3];
-    screenNormal[0] = this->WorldToScreen->GetElement(2, 0);
-    screenNormal[1] = this->WorldToScreen->GetElement(2, 1);
-    screenNormal[2] = this->WorldToScreen->GetElement(2, 2);
+    screenNormal[0] = this->WorldToScreenMatrix->GetElement(2, 0);
+    screenNormal[1] = this->WorldToScreenMatrix->GetElement(2, 1);
+    screenNormal[2] = this->WorldToScreenMatrix->GetElement(2, 2);
 
     double planeDCoordinate = -vtkMath::Dot(screenNormal, this->ScreenBottomLeft);
     double screen2originDistance = vtkMath::Dot(screenNormal, origin) + planeDCoordinate;
 
-    this->WorldToScreen->SetElement(3, 0, 0.0);
-    this->WorldToScreen->SetElement(3, 1, 0.0);
-    this->WorldToScreen->SetElement(3, 2, screen2originDistance);
+    this->WorldToScreenMatrix->SetElement(3, 0, 0.0);
+    this->WorldToScreenMatrix->SetElement(3, 1, 0.0);
+    this->WorldToScreenMatrix->SetElement(3, 2, screen2originDistance);
 
-    this->WorldToScreen->SetElement(3, 3, 1.0);
+    this->WorldToScreenMatrix->SetElement(3, 3, 1.0);
 
-    this->WorldToScreenMTime.Modified();
+    this->WorldToScreenMatrixMTime.Modified();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::ComputeOffAxisFrustum()
+void vtkCamera::ComputeOffAxisProjectionFrustum()
 {
-  this->ComputeWorldToScreen();
+  this->ComputeWorldToScreenMatrix();
 
   // \NOTE: Varibles names reflect naming convention used in
   // "High Resolution Virtual Reality", in Proc.
@@ -454,9 +454,9 @@ void vtkCamera::ComputeOffAxisFrustum()
 
   // Now transform the eye and screen corner points into the screen
   // coordinate system.
-  this->WorldToScreen->MultiplyPoint(E, E);
-  this->WorldToScreen->MultiplyPoint(H, H);
-  this->WorldToScreen->MultiplyPoint(L, L);
+  this->WorldToScreenMatrix->MultiplyPoint(E, E);
+  this->WorldToScreenMatrix->MultiplyPoint(H, H);
+  this->WorldToScreenMatrix->MultiplyPoint(L, L);
 
 //  E[2] += screen2originDistance;
 
@@ -497,7 +497,7 @@ void vtkCamera::ComputeOffAxisFrustum()
     }
 
   //  Now move the into display space.
-  vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(), this->WorldToScreen,
+  vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(), this->WorldToScreenMatrix,
                             this->ProjectionTransform->GetMatrix());
 }
 
@@ -1032,7 +1032,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
     }
   else if(this->UseOffAxisFrustum)
     {
-    this->ComputeOffAxisFrustum();
+    this->ComputeOffAxisProjectionFrustum();
     }
   else
     {
@@ -1586,7 +1586,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EyeSeparation: (" << this->EyeSeparation
      << ")\n";
 
-  os << indent << "WorldToScreen: (" << this->WorldToScreen
+  os << indent << "WorldToScreenMatrix: (" << this->WorldToScreenMatrix
      << ")\n";
 
   os << indent << "EyeTransformMatrix: (" << this->EyeTransformMatrix
@@ -1639,9 +1639,9 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
   double localNormal[4];
 
   // Get the normal from the screen orientation.
-  localNormal[0] = this->WorldToScreen->GetElement(0, 2);
-  localNormal[1] = this->WorldToScreen->GetElement(1, 2);
-  localNormal[2] = this->WorldToScreen->GetElement(2, 2);
+  localNormal[0] = this->WorldToScreenMatrix->GetElement(0, 2);
+  localNormal[1] = this->WorldToScreenMatrix->GetElement(1, 2);
+  localNormal[2] = this->WorldToScreenMatrix->GetElement(2, 2);
   localNormal[3] = 0.0;
 
   // Just to be sure.
