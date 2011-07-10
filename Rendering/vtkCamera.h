@@ -263,13 +263,13 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Set/Get use deering frustum.
-  // Deering frustum is used for off-axis frustum calculations specially
+  // OffAxis frustum is used for off-axis frustum calculations specificly
   // for stereo rendering.
   // For reference see "High Resolution Virtual Reality", in Proc.
   // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
-  vtkSetMacro(UseDeeringFrustum, int);
-  vtkGetMacro(UseDeeringFrustum, int);
-  vtkBooleanMacro(UseDeeringFrustum, int);
+  vtkSetMacro(UseOffAxisFrustum, int);
+  vtkGetMacro(UseOffAxisFrustum, int);
+  vtkBooleanMacro(UseOffAxisFrustum, int);
 
   // Description:
   // Set/Get top left corner point of the screen.
@@ -551,7 +551,7 @@ protected:
 
   // Description:
   // Compute and use frustum using deering method.
-  void ComputeDeeringFrustum();
+  void ComputeOffAxisFrustum();
 
   // Description:
   // Compute model view matrix for the camera.
@@ -583,7 +583,7 @@ protected:
   double ViewShear[3];
   int    UseHorizontalViewAngle;
 
-  int    UseDeeringFrustum;
+  int    UseOffAxisFrustum;
 
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];

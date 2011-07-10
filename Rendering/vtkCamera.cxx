@@ -78,7 +78,7 @@ vtkCamera::vtkCamera()
   this->ViewAngle = 30.0;
   this->UseHorizontalViewAngle = 0;
 
-  this->UseDeeringFrustum  = 0;
+  this->UseOffAxisFrustum  = 0;
 
   this->ScreenBottomLeft[0] = -1.0;
   this->ScreenBottomLeft[1] = -1.0;
@@ -422,7 +422,7 @@ void vtkCamera::ComputeWorldToScreen()
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::ComputeDeeringFrustum()
+void vtkCamera::ComputeOffAxisFrustum()
 {
   this->ComputeWorldToScreen();
 
@@ -430,7 +430,7 @@ void vtkCamera::ComputeDeeringFrustum()
   // "High Resolution Virtual Reality", in Proc.
   // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
 
-  // Deering calculations.
+  // OffAxis calculations.
   double F = this->ClippingRange[1];
   double B = this->ClippingRange[0];
 
@@ -1030,9 +1030,9 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                       this->ClippingRange[0],
                                       this->ClippingRange[1] );
     }
-  else if(this->UseDeeringFrustum)
+  else if(this->UseOffAxisFrustum)
     {
-    this->ComputeDeeringFrustum();
+    this->ComputeOffAxisFrustum();
     }
   else
     {
@@ -1062,7 +1062,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                         this->ClippingRange[1] );
     }
 
-  if ( this->Stereo && !this->UseDeeringFrustum)
+  if ( this->Stereo && !this->UseOffAxisFrustum)
     {
     // set up a shear for stereo views
     if ( this->LeftEye )
@@ -1568,7 +1568,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", "
      << this->WindowCenter[1] << ")\n";
 
-  os << indent << "UseDeeringFrustum: (" << this->UseDeeringFrustum
+  os << indent << "UseOffAxisFrustum: (" << this->UseOffAxisFrustum
      << ")\n";
 
   os << indent << "ScreenBottomLeft: (" << this->ScreenBottomLeft[0]

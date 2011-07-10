@@ -79,7 +79,7 @@ int TestDeeringStereo(int argc, char *argv[])
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);
-  camera->SetUseDeeringFrustum(1);
+  camera->SetUseOffAxisFrustum(1);
   camera->SetEyePosition(eyePosition);
   camera->SetEyeSeparation(0.05);
   camera->SetModelTransformMatrix(scaleMatrix);
