@@ -386,36 +386,35 @@ void vtkCamera::ComputeWorldToScreenMatrix()
     vtkMath::Cross(xAxis, yAxis, zAxis);
     vtkMath::Normalize(zAxis);
 
-    this->WorldToScreenMatrix->Identity();
+    // Setting individual elements of the matrix.
 
+    // Make it column major and then invert it to make sure the translation is correct
+    // This is using column major (vectors are copied into the column)
+    // \Note: while the initial element assignments are made in column-major
+    // ordering, the matrix will be inverted, resulting in a row-major
+    // matrix that provides the transformation from World to Screen space.
     this->WorldToScreenMatrix->SetElement(0, 0, xAxis[0]);
-    this->WorldToScreenMatrix->SetElement(0, 1, xAxis[1]);
-    this->WorldToScreenMatrix->SetElement(0, 2, xAxis[2]);
+    this->WorldToScreenMatrix->SetElement(1, 0, xAxis[1]);
+    this->WorldToScreenMatrix->SetElement(2, 0, xAxis[2]);
 
-    this->WorldToScreenMatrix->SetElement(1, 0, yAxis[0]);
+    this->WorldToScreenMatrix->SetElement(0, 1, yAxis[0]);
     this->WorldToScreenMatrix->SetElement(1, 1, yAxis[1]);
-    this->WorldToScreenMatrix->SetElement(1, 2, yAxis[2]);
+    this->WorldToScreenMatrix->SetElement(2, 1, yAxis[2]);
 
-    this->WorldToScreenMatrix->SetElement(2, 0, zAxis[0]);
-    this->WorldToScreenMatrix->SetElement(2, 1, zAxis[1]);
+    this->WorldToScreenMatrix->SetElement(0, 2, zAxis[0]);
+    this->WorldToScreenMatrix->SetElement(1, 2, zAxis[1]);
     this->WorldToScreenMatrix->SetElement(2, 2, zAxis[2]);
 
-    // Define world origin.
-    double origin[3] = {0.0, 0.0, 0.0};
-
-    double screenNormal[3];
-    screenNormal[0] = this->WorldToScreenMatrix->GetElement(2, 0);
-    screenNormal[1] = this->WorldToScreenMatrix->GetElement(2, 1);
-    screenNormal[2] = this->WorldToScreenMatrix->GetElement(2, 2);
-
-    double planeDCoordinate = -vtkMath::Dot(screenNormal, this->ScreenBottomLeft);
-    double screen2originDistance = vtkMath::Dot(screenNormal, origin) + planeDCoordinate;
-
-    this->WorldToScreenMatrix->SetElement(3, 0, 0.0);
-    this->WorldToScreenMatrix->SetElement(3, 1, 0.0);
-    this->WorldToScreenMatrix->SetElement(3, 2, screen2originDistance);
+    this->WorldToScreenMatrix->SetElement(0, 3, this->ScreenBottomLeft[0]);
+    this->WorldToScreenMatrix->SetElement(1, 3, this->ScreenBottomLeft[1]);
+    this->WorldToScreenMatrix->SetElement(2, 3, this->ScreenBottomLeft[2]);
 
     this->WorldToScreenMatrix->SetElement(3, 3, 1.0);
+
+    // The reason for doing this as an Invert as the goal here is to put
+    // the translation through the rotation that we've just assigned ie.
+    // the translation has to be put into screen space too.
+    this->WorldToScreenMatrix->Invert();
 
     this->WorldToScreenMatrixMTime.Modified();
     }
@@ -458,8 +457,6 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
   this->WorldToScreenMatrix->MultiplyPoint(H, H);
   this->WorldToScreenMatrix->MultiplyPoint(L, L);
 
-//  E[2] += screen2originDistance;
-
   double matrix[4][4];
   double width  = H[0] - L[0];
   double height = H[1] - L[1];
@@ -496,7 +493,7 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
       }
     }
 
-  //  Now move the into display space.
+  //  Now move the world into display space.
   vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(), this->WorldToScreenMatrix,
                             this->ProjectionTransform->GetMatrix());
 }
