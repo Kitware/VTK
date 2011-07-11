@@ -27,6 +27,7 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkIntArray.h>
+#include <vtkMath.h>
 #include <vtkObjectFactory.h>
 #include <vtkSelection.h>
 #include <vtkSmartPointer.h>
@@ -35,7 +36,6 @@
 
 #define _USE_MATH_DEFINES
 #include <cstdlib>
-#include <math.h>
 
 using std::cout;
 using std::endl;
@@ -272,7 +272,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
     if(current_level == max_core_level)
       {
       radius = unit_radius;
-      angle  = float(rand()%100000)/100000 * 2.0 * M_PI;
+      angle  = float(rand()%100000)/100000 * 2.0 * vtkMath::Pi();
 
       //cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
       if(this->Cartesian)
@@ -341,7 +341,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 #endif
 
       // Need the angle.
-      angle = float(rand()%100000)/100000 * (2.0 * M_PI);
+      angle = float(rand()%100000)/100000 * (2.0 * vtkMath::Pi());
 
       // set the values
       if(this->Cartesian)
