@@ -68,6 +68,11 @@ public:
   void SetUseTDx(bool useTDx);
   bool GetUseTDx() const;
 
+  // Description:
+  // Make the swap buffers functions public
+  void setAutoBufferSwap(bool);
+  bool autoBufferSwap() const;
+
 public Q_SLOTS:
 
   // Description:

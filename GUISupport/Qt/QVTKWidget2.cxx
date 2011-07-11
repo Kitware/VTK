@@ -434,3 +434,13 @@ void QVTKWidget2::Frame()
   // 5. overload QVTKWidget2::paintGL() to call mRenWin->Render() instead iren->Render()
 
 }
+
+void QVTKWidget2::setAutoBufferSwap(bool f)
+{
+  QGLWidget::setAutoBufferSwap(f);
+}
+  
+bool QVTKWidget2::autoBufferSwap() const
+{
+  return QGLWidget::autoBufferSwap();
+}
