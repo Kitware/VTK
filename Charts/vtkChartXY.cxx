@@ -1274,7 +1274,7 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
 
 void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 const vtkVector2f &plotPos,
-                                int seriesIndex, vtkPlot* plot,
+                                vtkIdType seriesIndex, vtkPlot* plot,
                                 vtkIdType segmentIndex)
 {
   vtkStdString label;
