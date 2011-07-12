@@ -19,13 +19,20 @@
 #include <vtkImageAppendComponents.h>
 #include <vtkSmartPointer.h>
 
-int TestUpdateExtentReset(int argc, char * argv [] )
+int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
 {
   vtkSmartPointer<vtkImageData> img = vtkSmartPointer<vtkImageData>::New();
   img->SetDimensions(100, 100, 100);
   img->SetScalarTypeToFloat();
   img->SetNumberOfScalarComponents(1);
   img->AllocateScalars();
+
+  float *scalars = static_cast<float *>(img->GetScalarPointer());
+  vtkIdType n = 100*100*100;
+  for (vtkIdType i = 0; i < n; i++)
+    {
+    scalars[i] = 0.0;
+    }
 
   vtkSmartPointer<vtkImageReslice> reslicer = vtkSmartPointer<vtkImageReslice>::New();
   reslicer->SetInput(img);
