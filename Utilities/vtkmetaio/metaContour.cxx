@@ -37,7 +37,7 @@ ContourControlPnt(int dim)
     m_X[i] = 0;
     m_XPicked[i] = 0;
     m_V[i] = 0;
-    } 
+    }
   //Color is red by default
   m_Color[0]=1.0f;
   m_Color[1]=0.0f;
@@ -125,7 +125,7 @@ Closed(bool close)
 {
   m_Closed = close;
 }
- 
+
 bool MetaContour
 ::Closed() const
 {
@@ -138,7 +138,7 @@ ControlPointDim(const char* pointDim)
 {
   strcpy(m_ControlPointDim,pointDim);
 }
-    
+
 const char* MetaContour::
 ControlPointDim(void) const
 {
@@ -150,7 +150,7 @@ InterpolatedPointDim(const char* pointDim)
 {
   strcpy(m_InterpolatedPointDim,pointDim);
 }
-    
+
 const char* MetaContour::
 InterpolatedPointDim(void) const
 {
@@ -169,13 +169,13 @@ NInterpolatedPoints(void) const
   return m_NInterpolatedPoints;
 }
 
-  
-MET_InterpolationEnumType  
+
+MET_InterpolationEnumType
 MetaContour::Interpolation(void) const
 {
   return m_InterpolationType;
 }
-  
+
 void MetaContour::Interpolation(MET_InterpolationEnumType _interpolation)
 {
   m_InterpolationType = _interpolation;
@@ -186,7 +186,7 @@ void MetaContour::Interpolation(MET_InterpolationEnumType _interpolation)
 void MetaContour::
 Clear(void)
 {
-  if(META_DEBUG) 
+  if(META_DEBUG)
     {
     METAIO_STREAM::cout << "MetaContour: Clear" << METAIO_STREAM::endl;
     }
@@ -225,14 +225,14 @@ Clear(void)
   m_DisplayOrientation = -1;
   m_AttachedToSlice = -1;
 }
-        
+
 /** Destroy Contour information */
 void MetaContour::
 M_Destroy(void)
 {
   MetaObject::M_Destroy();
 }
-  
+
 /** Set if the contour is pinned to a particulare slice */
 void MetaContour::
 AttachedToSlice(long int slice)
@@ -253,7 +253,7 @@ DisplayOrientation(int display)
 {
   m_DisplayOrientation = display;
 }
- 
+
 int MetaContour::
 DisplayOrientation() const
 {
@@ -355,9 +355,9 @@ M_Read(void)
   }
 
   if(META_DEBUG) METAIO_STREAM::cout << "MetaContour: M_Read: Parsing Header" << METAIO_STREAM::endl;
- 
+
   MET_FieldRecordType * mF;
- 
+
   mF = MET_GetFieldRecord("Closed", &m_Fields);
   if(mF->defined)
     {
@@ -399,7 +399,7 @@ M_Read(void)
 
   int pntDim;
   char** pntVal = NULL;
-  MET_StringToWordArray(m_ControlPointDim, &pntDim, &pntVal); 
+  MET_StringToWordArray(m_ControlPointDim, &pntDim, &pntVal);
 
   int i;
   for(i=0;i<pntDim;i++)
@@ -420,9 +420,9 @@ M_Read(void)
     int gc = m_ReadStream->gcount();
     if(gc != readSize)
       {
-      METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely" 
+      METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely"
                           << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc 
+      METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc
                           << METAIO_STREAM::endl;
       delete [] _data;
       return false;
@@ -431,10 +431,10 @@ M_Read(void)
     int d;
     i = 0;
     unsigned int k;
-    for(int j=0; j<m_NControlPoints; j++) 
+    for(int j=0; j<m_NControlPoints; j++)
       {
       ContourControlPnt* pnt = new ContourControlPnt(m_NDims);
-     
+
       char* num = new char[sizeof(int)];
       for(k=0;k<sizeof(int);k++)
         {
@@ -442,7 +442,7 @@ M_Read(void)
         }
       int id = (int)((int*)num)[0];
       MET_SwapByteIfSystemMSB(&id,MET_INT);
-      i+=sizeof(int); 
+      i+=sizeof(int);
       pnt->m_Id = id;
       delete [] num;
 
@@ -455,7 +455,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_X[d] = td;
         delete [] num;
         }
@@ -469,7 +469,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_XPicked[d] = td;
         delete [] num;
         }
@@ -483,7 +483,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_V[d] = td;
         delete [] num;
         }
@@ -497,17 +497,17 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_Color[d] = td;
         delete [] num;
-        }  
+        }
       m_ControlPointsList.push_back(pnt);
       }
     delete [] _data;
     }
   else
     {
-    for(int j=0; j<m_NControlPoints; j++) 
+    for(int j=0; j<m_NControlPoints; j++)
       {
       ContourControlPnt* pnt = new ContourControlPnt(m_NDims);
 
@@ -548,7 +548,7 @@ M_Read(void)
 
       m_ControlPointsList.push_back(pnt);
       }
-    
+
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
       {
@@ -601,7 +601,7 @@ M_Read(void)
       strcpy(m_InterpolatedPointDim,(char *)(mF->value));
       }
 
-    MET_StringToWordArray(m_InterpolatedPointDim, &pntDim, &pntVal); 
+    MET_StringToWordArray(m_InterpolatedPointDim, &pntDim, &pntVal);
 
     for(i=0;i<pntDim;i++)
       {
@@ -619,7 +619,7 @@ M_Read(void)
       int gc = m_ReadStream->gcount();
       if(gc != readSize)
         {
-        METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely" 
+        METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely"
                             << METAIO_STREAM::endl;
         METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc
                             << METAIO_STREAM::endl;
@@ -630,10 +630,10 @@ M_Read(void)
       int d;
       unsigned int k;
       i=0;
-      for(int j=0; j<m_NInterpolatedPoints; j++) 
+      for(int j=0; j<m_NInterpolatedPoints; j++)
         {
         ContourInterpolatedPnt* pnt = new ContourInterpolatedPnt(m_NDims);
-       
+
         char* num = new char[sizeof(int)];
         for(k=0;k<sizeof(int);k++)
           {
@@ -641,7 +641,7 @@ M_Read(void)
           }
         int id = (int)((int*)num)[0];
         MET_SwapByteIfSystemMSB(&id,MET_INT);
-        i+=sizeof(int); 
+        i+=sizeof(int);
         pnt->m_Id = id;
         delete [] num;
 
@@ -654,7 +654,7 @@ M_Read(void)
             }
           float x = (float)((float*)num)[0];
           MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
-          i+=sizeof(float); 
+          i+=sizeof(float);
           pnt->m_X[d] = x;
           delete [] num;
           }
@@ -668,46 +668,46 @@ M_Read(void)
             }
           float x = (float)((float*)num)[0];
           MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
-          i+=sizeof(float); 
+          i+=sizeof(float);
           pnt->m_Color[d] = x;
           delete [] num;
-          }  
+          }
         m_InterpolatedPointsList.push_back(pnt);
         }
       delete [] _data;
       }
     else
       {
-      for(int j=0; j<m_NInterpolatedPoints; j++) 
+      for(int j=0; j<m_NInterpolatedPoints; j++)
         {
         ContourInterpolatedPnt* pnt = new ContourInterpolatedPnt(m_NDims);
-  
+
         for(int k=0; k<pntDim; k++)
           {
           *m_ReadStream >> v[k];
           m_ReadStream->get(); // char c =
           }
-  
+
         unsigned long pos = 0;
         pnt->m_Id = (unsigned long)v[pos];
         pos++;
-  
+
         int d;
         for(d=0; d<m_NDims; d++)
           {
           pnt->m_X[d] = v[pos];
           pos++;
           }
-  
+
         for(d=0; d<4; d++)
           {
           pnt->m_Color[d] = v[pos];
           pos++;
           }
-  
+
         m_InterpolatedPointsList.push_back(pnt);
         }
-      
+
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
         {
@@ -723,31 +723,31 @@ M_Read(void)
 bool MetaContour::
 M_Write(void)
 {
-  if(META_DEBUG) 
+  if(META_DEBUG)
     {
     METAIO_STREAM::cout << "MetaContour: M_Write" << METAIO_STREAM::endl;
     }
 
   if(!MetaObject::M_Write())
     {
-    METAIO_STREAM::cout << "MetaContour: M_Read: Error parsing file" 
+    METAIO_STREAM::cout << "MetaContour: M_Read: Error parsing file"
                         << METAIO_STREAM::endl;
     return false;
     }
 
-  /** Then write the control points */ 
+  /** Then write the control points */
   if(m_BinaryData)
     {
     ControlPointListType::const_iterator it = m_ControlPointsList.begin();
     ControlPointListType::const_iterator itEnd = m_ControlPointsList.end();
-  
+
     char* data = new char[(m_NDims*3+5)*m_NControlPoints*4];
     int i=0;
     int d;
     while(it != itEnd)
       {
       unsigned int id = (*it)->m_Id;
-      MET_SwapByteIfSystemMSB(&id,MET_UINT);    
+      MET_SwapByteIfSystemMSB(&id,MET_UINT);
       MET_DoubleToValue((double)id,MET_UINT,data,i++);
 
       for(d = 0; d < m_NDims; d++)
@@ -770,7 +770,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&pntX,MET_FLOAT);
         MET_DoubleToValue((double)pntX,MET_FLOAT,data,i++);
         }
-      
+
       for(d=0; d<4; d++)
         {
         float pntX = (*it)->m_Color[d];
@@ -779,7 +779,7 @@ M_Write(void)
         }
       it++;
       }
-   
+
     m_WriteStream->write((char *)data,(m_NDims*3+5)*m_NControlPoints*4);
     m_WriteStream->write("\n",1);
     delete [] data;
@@ -788,7 +788,7 @@ M_Write(void)
     {
     ControlPointListType::const_iterator it = m_ControlPointsList.begin();
     ControlPointListType::const_iterator itEnd = m_ControlPointsList.end();
-  
+
     int d;
     while(it != itEnd)
       {
@@ -817,10 +817,10 @@ M_Write(void)
       it++;
       }
     }
-  
+
   this->ClearFields();
   MET_FieldRecordType * mF;
-  
+
   if(m_InterpolationType != MET_NO_INTERPOLATION)
     {
     char s[255];
@@ -847,23 +847,23 @@ M_Write(void)
     MET_InitWriteField(mF, "InterpolatedPoints", MET_NONE);
     m_Fields.push_back(mF);
     }
-  
+
   MET_Write(*m_WriteStream,&m_Fields);
 
   if(m_BinaryData)
     {
-    InterpolatedPointListType::const_iterator it = 
+    InterpolatedPointListType::const_iterator it =
                                               m_InterpolatedPointsList.begin();
-    InterpolatedPointListType::const_iterator itEnd = 
+    InterpolatedPointListType::const_iterator itEnd =
                                               m_InterpolatedPointsList.end();
-  
+
     char* data = new char[(m_NDims+5)*m_NInterpolatedPoints*4];
     int i=0;
     int d;
     while(it != itEnd)
       {
       unsigned int id = (*it)->m_Id;
-      MET_SwapByteIfSystemMSB(&id,MET_UINT);  
+      MET_SwapByteIfSystemMSB(&id,MET_UINT);
       MET_DoubleToValue((double)id,MET_UINT,data,i++);
 
       for(d = 0; d < m_NDims; d++)
@@ -880,7 +880,7 @@ M_Write(void)
         }
       it++;
       }
-   
+
     m_WriteStream->write((char *)data,(m_NDims+5)*m_NInterpolatedPoints*4);
     m_WriteStream->write("\n",1);
     delete [] data;
@@ -891,7 +891,7 @@ M_Write(void)
                                               m_InterpolatedPointsList.begin();
     InterpolatedPointListType::const_iterator itEnd =
                                               m_InterpolatedPointsList.end();
-  
+
     int d;
     while(it != itEnd)
       {

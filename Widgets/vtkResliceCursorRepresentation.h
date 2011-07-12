@@ -36,7 +36,7 @@ class vtkPlaneSource;
 class vtkResliceCursorPolyDataAlgorithm;
 class vtkResliceCursor;
 class vtkMatrix4x4;
-class vtkLookupTable;
+class vtkScalarsToColors;
 class vtkImageMapToColors;
 class vtkActor;
 class vtkImageActor;
@@ -115,8 +115,8 @@ public:
   // a set of three orthogonal planes can share the same lut so that
   // window-levelling is performed uniformly among planes.  The default
   // internal lut can be re- set/allocated by setting to 0 (NULL).
-  virtual void SetLookupTable(vtkLookupTable*);
-  vtkGetObjectMacro(LookupTable,vtkLookupTable);
+  virtual void SetLookupTable(vtkScalarsToColors*);
+  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
   // Description:
   // Convenience method to get the vtkImageMapToColors filter used by this
@@ -171,13 +171,19 @@ public:
   void ManageTextDisplay();
 
   // Description:
-  // Initialize the reslice planes. This is done automatically, the
-  // first time we render.
+  // Initialize the reslice planes and the camera center. This is done
+  // automatically, the first time we render.
   virtual void InitializeReslicePlane();
+  virtual void ResetCamera();
 
   // Description:
   // Get the underlying cursor source.
   virtual vtkResliceCursorPolyDataAlgorithm * GetCursorAlgorithm() = 0;
+
+  // Description:
+  // Get the plane source on which the texture (the thin/thick resliced
+  // image is displayed)
+  vtkGetObjectMacro( PlaneSource, vtkPlaneSource );
 
 protected:
   vtkResliceCursorRepresentation();
@@ -240,7 +246,7 @@ protected:
   vtkImageMapToColors     * ColorMap;
   vtkActor                * TexturePlaneActor;
   vtkTexture              * Texture;
-  vtkLookupTable          * LookupTable;
+  vtkScalarsToColors      * LookupTable;
   vtkImageActor           * ImageActor;
   vtkTextActor            * TextActor;
   double                    OriginalWindow;
@@ -254,7 +260,7 @@ protected:
   char                      TextBuff[128];
   int                       DisplayText;
 
-  vtkLookupTable          * CreateDefaultLookupTable();
+  vtkScalarsToColors      * CreateDefaultLookupTable();
   void                      GenerateText();
 
 private:

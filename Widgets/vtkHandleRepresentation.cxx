@@ -146,6 +146,7 @@ void vtkHandleRepresentation::DeepCopy(vtkProp *prop)
     this->SetTolerance(rep->GetTolerance());
     this->SetActiveRepresentation(rep->GetActiveRepresentation());
     this->SetConstrained(rep->GetConstrained());
+    this->SetPointPlacer(rep->GetPointPlacer());
     }
   this->Superclass::ShallowCopy(prop);
 }

@@ -61,6 +61,12 @@ void vtkResliceCursorThickLineRepresentation
   if (thickReslice)
     {
 
+    // Set the default color the minimum scalar value
+    double range[2];
+    vtkImageData::SafeDownCast(thickReslice->GetInput())->
+      GetScalarRange( range );
+    thickReslice->SetBackgroundLevel(range[0]);
+
     // Set the usual parameters.
 
     this->ColorMap->SetInput(thickReslice->GetOutput());

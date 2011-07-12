@@ -15,11 +15,7 @@
 #ifndef __vtkPython_h
 #define __vtkPython_h
 
-/* Undefine macros that Python.h defines to avoid redefinition warning.  */
-#undef _POSIX_C_SOURCE
-#undef _POSIX_THREADS
-
-#include "vtkConfigure.h"
+#include "vtkPythonConfigure.h"
 #include "vtkABI.h"
 
 #if defined(WIN32)
@@ -49,10 +45,8 @@
    check is performed in the same compilation unit, and the flags are found,
    and error is triggered. Let's prevent that by setting _CRT_NOFORCE_MANIFEST.
 */
-#if defined(VTK_WINDOWS_PYTHON_DEBUGGABLE)
-# include <Python.h>
-#else
-# ifdef _DEBUG
+#if defined(_DEBUG) && !defined(VTK_WINDOWS_PYTHON_DEBUGGABLE)
+# define VTK_PYTHON_UNDEF_DEBUG
 // Include these low level headers before undefing _DEBUG. Otherwise when doing
 // a debug build against a release build of python the compiler will end up 
 // including these low level headers without DEBUG enabled, causing it to try 
@@ -72,15 +66,31 @@
 # include <sys/stat.h>
 # include <time.h>
 # include <wchar.h>
-#  undef _DEBUG
-#  if defined(_MSC_VER) && _MSC_VER >= 1400
-#    define _CRT_NOFORCE_MANIFEST 1
-#  endif
-#  include <Python.h>
-#  define _DEBUG
-# else
-#  include <Python.h>
+# undef _DEBUG
+# if defined(_MSC_VER) && _MSC_VER >= 1400
+#  define _CRT_NOFORCE_MANIFEST 1
 # endif
+#endif
+
+/* Undefine macros that Python.h defines to avoid redefinition warning.  */
+#undef _POSIX_THREADS
+#if VTK_PYTHON_VERSION_HEX >= 0x02020000
+#undef _LARGEFILE_SOURCE
+#endif
+#if VTK_PYTHON_VERSION_HEX >= 0x02030000
+#undef _POSIX_C_SOURCE
+#undef _XOPEN_SOURCE
+#endif
+
+#include <Python.h>
+
+#ifdef VTK_PYTHON_UNDEF_DEBUG
+# define _DEBUG
+# undef VTK_PYTHON_UNDEF_DEBUG
+#endif
+
+#if (PY_VERSION_HEX & 0xFFFF0000) != (VTK_PYTHON_VERSION_HEX & 0xFFFF0000)
+#error "Python.h is different version from what VTK was configured with!!"
 #endif
 
 #endif

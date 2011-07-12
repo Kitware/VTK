@@ -95,18 +95,18 @@ PrintInfo(void) const
   {
   int i;
 
-  METAIO_STREAM::cout << "ReadStream = " 
+  METAIO_STREAM::cout << "ReadStream = "
                       << ((m_ReadStream==NULL)?"NULL":"Set")
                       << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "WriteStream = " 
+  METAIO_STREAM::cout << "WriteStream = "
                       << ((m_WriteStream==NULL)?"NULL":"Set")
                       << METAIO_STREAM::endl;
 
-  METAIO_STREAM::cout << "FileName = _" << m_FileName << "_" 
+  METAIO_STREAM::cout << "FileName = _" << m_FileName << "_"
                       << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "Comment = _" << m_Comment << "_" 
+  METAIO_STREAM::cout << "Comment = _" << m_Comment << "_"
                       << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "FormTypeName = _" << m_FormTypeName << "_" 
+  METAIO_STREAM::cout << "FormTypeName = _" << m_FormTypeName << "_"
                       << METAIO_STREAM::endl;
   METAIO_STREAM::cout << "Name = " << m_Name << METAIO_STREAM::endl;
   if(m_BinaryData)
@@ -119,12 +119,12 @@ PrintInfo(void) const
     }
   if(m_BinaryDataByteOrderMSB)
     {
-    METAIO_STREAM::cout << "BinaryDataByteOrderMSB = True" 
+    METAIO_STREAM::cout << "BinaryDataByteOrderMSB = True"
                         << METAIO_STREAM::endl;
     }
   else
     {
-    METAIO_STREAM::cout << "BinaryDataByteOrderMSB = False" 
+    METAIO_STREAM::cout << "BinaryDataByteOrderMSB = False"
                         << METAIO_STREAM::endl;
     }
   if(m_CompressedData)
@@ -137,26 +137,26 @@ PrintInfo(void) const
     }
   METAIO_STREAM::cout << "DoublePrecision = " << m_DoublePrecision
                       << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "Event = " 
+  METAIO_STREAM::cout << "Event = "
                       << ((m_Event==NULL)?"NULL":"Set")
                       << METAIO_STREAM::endl;
 
-  // Print User's fields : 
+  // Print User's fields :
   FieldsContainerType::const_iterator  itw = m_UserDefinedWriteFields.begin();
   FieldsContainerType::const_iterator  itr  = m_UserDefinedReadFields.begin();
   FieldsContainerType::const_iterator  endw = m_UserDefinedWriteFields.end();
   FieldsContainerType::const_iterator it;
   while( itw != endw )
-    { 
+    {
     if((*itw)->defined)
       {
       it=itw;
       }
     else
       {
-      it=itr; 
+      it=itr;
       }
-     
+
     printf("%s: ",(*it)->name);
 
     if((*it)->type == MET_STRING)
@@ -177,7 +177,7 @@ PrintInfo(void) const
       {
       printf("%s : %f\n",(*it)->name,(*it)->value[0]);
       }
-    else if( (*it)->type ==MET_CHAR_ARRAY || 
+    else if( (*it)->type ==MET_CHAR_ARRAY ||
              (*it)->type ==MET_UCHAR_ARRAY ||
              (*it)->type ==MET_SHORT_ARRAY ||
              (*it)->type ==MET_USHORT_ARRAY ||
@@ -189,7 +189,7 @@ PrintInfo(void) const
       for(i=0; i<(*it)->length; i++)
         {
         printf("%f ",(*it)->value[i]);
-        }    
+        }
       }
     else if((*it)->type == MET_FLOAT_MATRIX)
       {
@@ -204,7 +204,7 @@ PrintInfo(void) const
         }
       }
     METAIO_STREAM::cout << METAIO_STREAM::endl;
-     
+
     itw++;
     itr++;
     }
@@ -269,7 +269,7 @@ ClearFields()
     {
     MET_FieldRecordType* field = *it;
     it++;
-    
+
     // Check if the pointer is not in one of the user's list
     bool exists = false;
     FieldsContainerType::iterator  it2  = m_UserDefinedWriteFields.begin();
@@ -298,7 +298,7 @@ ClearFields()
         it2++;
         }
       }
-      
+
     if(!exists)
       {
       delete field;
@@ -426,7 +426,7 @@ BinaryData(bool _binaryData)
   {
   m_BinaryData = _binaryData;
   }
-      
+
 bool MetaForm::
 BinaryDataByteOrderMSB(void) const
   {
@@ -453,7 +453,7 @@ CompressedData(bool _compressedData)
   {
   m_CompressedData = _compressedData;
   }
-      
+
 //
 //
 //
@@ -506,7 +506,7 @@ ClearUserFields()
   while( it != end )
     {
     MET_FieldRecordType* field = *it;
-    
+
     // check if the pointer has not been deleted yet
     bool deleted = false;
     FieldsContainerType::iterator  it2  = m_UserDefinedWriteFields.begin();
@@ -515,12 +515,12 @@ ClearUserFields()
       {
       if(*it2 == *it)
         {
-        deleted = true;  
+        deleted = true;
         break;
         }
-      it2++; 
+      it2++;
       }
-    
+
     it++;
 
     if(!deleted)
@@ -536,14 +536,14 @@ ClearUserFields()
 // Get the user field
 void* MetaForm::
 GetUserField(const char* _name)
-  { 
+  {
   FieldsContainerType::iterator  it  = m_UserDefinedWriteFields.begin();
   FieldsContainerType::iterator  end = m_UserDefinedWriteFields.end();
   while( it != end )
     {
     int eSize;
     MET_SizeOfType((*it)->type, &eSize);
-    const unsigned int itLength = 
+    const unsigned int itLength =
                 static_cast<unsigned int>( (*it)->length );
     void * out;
     if(!strcmp((*it)->name,_name))
@@ -607,7 +607,7 @@ CanRead(const char *_fileName) const
 bool MetaForm::
 Read(const char *_fileName)
   {
-  if(META_DEBUG)  
+  if(META_DEBUG)
     {
     METAIO_STREAM::cout << "MetaForm: Read" << METAIO_STREAM::endl;
     }
@@ -627,7 +627,7 @@ Read(const char *_fileName)
 
   if(!tmpReadStream->rdbuf()->is_open())
     {
-    METAIO_STREAM::cout << "MetaForm: Read: Cannot open file" 
+    METAIO_STREAM::cout << "MetaForm: Read: Cannot open file"
                         << METAIO_STREAM::endl;
     delete tmpReadStream;
     return false;
@@ -670,13 +670,13 @@ ReadStream(METAIO_STREAM::ifstream * _stream)
     }
 
   M_Destroy();
-  
+
   fflush(NULL);
-  
+
   Clear();
-  
+
   M_SetupReadFields();
- 
+
   if(m_ReadStream)
     {
     delete m_ReadStream;
@@ -706,7 +706,7 @@ Write(const char *_fileName)
   {
   // Create the file. This is required on some older sgi's
   METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
-  tFile.close();                    
+  tFile.close();
   }
   tmpWriteStream->open(_fileName, METAIO_STREAM::ios::out);
 #else
@@ -735,7 +735,7 @@ WriteStream(METAIO_STREAM::ofstream * _stream)
   M_SetupWriteFields();
 
   m_WriteStream = _stream;
- 
+
   bool result = M_Write();
 
   m_WriteStream = NULL;
@@ -759,9 +759,9 @@ void MetaForm::
 M_SetupReadFields(void)
   {
   this->ClearFields();
-  if(META_DEBUG) 
+  if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaForm: M_SetupReadFields" 
+    METAIO_STREAM::cout << "MetaForm: M_SetupReadFields"
                         << METAIO_STREAM::endl;
     }
 
@@ -796,7 +796,7 @@ M_SetupReadFields(void)
   FieldsContainerType::iterator  end = m_UserDefinedReadFields.end();
   while( it != end )
     {
-    m_Fields.push_back(*it); 
+    m_Fields.push_back(*it);
     it++;
     }
   }
@@ -805,15 +805,15 @@ M_SetupReadFields(void)
 void MetaForm::
 M_SetupWriteFields(void)
   {
-  if(META_DEBUG) 
+  if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaForm: M_SetupWriteFields" 
+    METAIO_STREAM::cout << "MetaForm: M_SetupWriteFields"
                         << METAIO_STREAM::endl;
     }
 
   this->ClearFields();
 
-  if(META_DEBUG) 
+  if(META_DEBUG)
     {
     METAIO_STREAM::cout << "MetaForm: M_SetupWriteFields: Creating Fields"
                         << METAIO_STREAM::endl;
@@ -884,7 +884,7 @@ M_SetupWriteFields(void)
   FieldsContainerType::iterator  end = m_UserDefinedWriteFields.end();
   while( it != end )
     {
-    m_Fields.push_back(*it); 
+    m_Fields.push_back(*it);
     it++;
     }
   }
@@ -895,7 +895,7 @@ M_Read(void)
 
   if(!MET_Read(*m_ReadStream, & m_Fields))
     {
-    METAIO_STREAM::cout << "MetaForm: Read: MET_Read Failed" 
+    METAIO_STREAM::cout << "MetaForm: Read: MET_Read Failed"
                         << METAIO_STREAM::endl;
     return false;
     }
@@ -915,7 +915,7 @@ M_Read(void)
     {
     strcpy(m_FormTypeName, (char *)(mF->value));
     }
- 
+
   mF = MET_GetFieldRecord("Name", &m_Fields);
   if(mF && mF->defined)
     {
@@ -984,7 +984,7 @@ M_Read(void)
     m_UserDefinedWriteFields.push_back(mF);
     it++;
     }
-  
+
   return true;
   }
 
@@ -995,7 +995,7 @@ M_Write(void)
 
   if(!MET_Write(*m_WriteStream, & m_Fields))
     {
-    METAIO_STREAM::cout << "MetaForm: Write: MET_Write Failed" 
+    METAIO_STREAM::cout << "MetaForm: Write: MET_Write Failed"
                         << METAIO_STREAM::endl;
     return false;
     }

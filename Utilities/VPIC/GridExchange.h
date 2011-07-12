@@ -85,10 +85,10 @@ public:
   // Set the processor neighbors of this processor
   void setNeighbors();
 
-  void setSendOrigin(int neighbor, int x, int y, int z);
-  void setRecvOrigin(int neighbor, int x, int y, int z);
-  void setSendSize(int neighbor, int x, int y, int z);
-  void setRecvSize(int neighbor, int x, int y, int z);
+  void setSendOrigin(int Neighbor, int x, int y, int z);
+  void setRecvOrigin(int Neighbor, int x, int y, int z);
+  void setSendSize(int Neighbor, int x, int y, int z);
+  void setRecvSize(int Neighbor, int x, int y, int z);
 
   // Exchange sections of a grid with all neighbors
   void exchangeGrid(GRID_T* data);

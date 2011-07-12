@@ -33,9 +33,10 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageReslice.h"
-#include "vtkLookupTable.h"
+#include "vtkScalarsToColors.h"
 #include "vtkBoundedPlanePointPlacer.h"
 #include "vtkPlane.h"
+#include "vtkResliceImageViewerMeasurements.h"
 
 vtkStandardNewMacro(vtkResliceImageViewer);
 
@@ -66,12 +67,17 @@ vtkResliceImageViewer::vtkResliceImageViewer()
 
   this->PointPlacer = vtkBoundedPlanePointPlacer::New();
 
+  this->Measurements = vtkResliceImageViewerMeasurements::New();
+  this->Measurements->SetResliceImageViewer(this);
+
   this->InstallPipeline();
 }
 
 //----------------------------------------------------------------------------
 vtkResliceImageViewer::~vtkResliceImageViewer()
 {
+  this->Measurements->Delete();
+
   if (this->ResliceCursorWidget)
     {
     this->ResliceCursorWidget->Delete();
@@ -127,6 +133,18 @@ void vtkResliceImageViewer::SetThickMode( int t )
 }
 
 //----------------------------------------------------------------------------
+void vtkResliceImageViewer::SetResliceCursor( vtkResliceCursor * rc )
+{
+  vtkResliceCursorRepresentation *rep =
+    vtkResliceCursorRepresentation::SafeDownCast(
+          this->GetResliceCursorWidget()->GetRepresentation());
+  rep->GetCursorAlgorithm()->SetResliceCursor(rc);
+
+  // Rehook the observer to this reslice cursor.
+  this->Measurements->SetResliceImageViewer(this);
+}
+
+//----------------------------------------------------------------------------
 int vtkResliceImageViewer::GetThickMode()
 {
   return (vtkResliceCursorThickLineRepresentation::
@@ -134,7 +152,7 @@ int vtkResliceImageViewer::GetThickMode()
 }
 
 //----------------------------------------------------------------------------
-void vtkResliceImageViewer::SetLookupTable( vtkLookupTable * l )
+void vtkResliceImageViewer::SetLookupTable( vtkScalarsToColors * l )
 {
   if (vtkResliceCursorRepresentation *rep =
         vtkResliceCursorRepresentation::SafeDownCast(
@@ -152,7 +170,7 @@ void vtkResliceImageViewer::SetLookupTable( vtkLookupTable * l )
 }
 
 //----------------------------------------------------------------------------
-vtkLookupTable * vtkResliceImageViewer::GetLookupTable()
+vtkScalarsToColors * vtkResliceImageViewer::GetLookupTable()
 {
   if (vtkResliceCursorRepresentation *rep =
         vtkResliceCursorRepresentation::SafeDownCast(
@@ -179,13 +197,13 @@ void vtkResliceImageViewer::UpdateOrientation()
           cam->SetPosition(0,0,1); // -1 if medical ?
           cam->SetViewUp(0,1,0);
           break;
-          
+
         case vtkImageViewer2::SLICE_ORIENTATION_XZ:
           cam->SetFocalPoint(0,0,0);
           cam->SetPosition(0,-1,0); // 1 if medical ?
           cam->SetViewUp(0,0,1);
           break;
-          
+
         case vtkImageViewer2::SLICE_ORIENTATION_YZ:
           cam->SetFocalPoint(0,0,0);
           cam->SetPosition(1,0,0); // -1 if medical ?
@@ -280,6 +298,11 @@ void vtkResliceImageViewer::UpdatePointPlacer()
   else
     {
 
+    if (!this->WindowLevel->GetInput())
+      {
+      return;
+      }
+
     vtkImageData *input = this->ImageActor->GetInput();
     if ( !input )
       {
@@ -325,6 +348,11 @@ void vtkResliceImageViewer::UpdatePointPlacer()
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::Render()
 {
+  if (!this->WindowLevel->GetInput())
+    {
+    return;
+    }
+
   this->UpdatePointPlacer();
 
   this->Superclass::Render();
@@ -346,6 +374,11 @@ vtkResliceCursor * vtkResliceImageViewer::GetResliceCursor()
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::SetInput(vtkImageData *in)
 {
+  if(!in)
+    {
+    return;
+    }
+
   this->WindowLevel->SetInput(in);
   this->GetResliceCursor()->SetImage(in);
   this->GetResliceCursor()->SetCenter(in->GetCenter());
@@ -395,7 +428,7 @@ void vtkResliceImageViewer::SetColorWindow( double w )
 {
   double rmin = this->GetColorLevel() - 0.5*fabs( w );
   double rmax = rmin + fabs( w );
-  this->GetLookupTable()->SetTableRange( rmin, rmax );
+  this->GetLookupTable()->SetRange( rmin, rmax );
 
   this->WindowLevel->SetWindow(w);
   if (vtkResliceCursorRepresentation *rep =
@@ -411,7 +444,7 @@ void vtkResliceImageViewer::SetColorLevel( double w )
 {
   double rmin = w - 0.5*fabs( this->GetColorWindow() );
   double rmax = rmin + fabs( this->GetColorWindow() );
-  this->GetLookupTable()->SetTableRange( rmin, rmax );
+  this->GetLookupTable()->SetRange( rmin, rmax );
 
   this->WindowLevel->SetLevel(w);
   if (vtkResliceCursorRepresentation *rep =
@@ -438,4 +471,6 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ResliceMode: " << this->ResliceMode << endl;
   os << indent << "Point Placer: ";
   this->PointPlacer->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Measurements: ";
+  this->Measurements->PrintSelf(os,indent.GetNextIndent());
 }

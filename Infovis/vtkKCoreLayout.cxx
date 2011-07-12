@@ -27,6 +27,7 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkIntArray.h>
+#include <vtkMath.h>
 #include <vtkObjectFactory.h>
 #include <vtkSelection.h>
 #include <vtkSmartPointer.h>
@@ -35,7 +36,6 @@
 
 #define _USE_MATH_DEFINES
 #include <cstdlib>
-#include <math.h>
 
 using std::cout;
 using std::endl;
@@ -75,13 +75,54 @@ vtkKCoreLayout::~vtkKCoreLayout()
 void vtkKCoreLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "KCoreLabelArrayName : " << this->KCoreLabelArrayName << endl;
+  if(this->KCoreLabelArrayName)
+    {
+    os << indent << "KCoreLabelArrayName : " << this->KCoreLabelArrayName << endl;
+    }
+  else
+    {
+    os << indent << "KCoreLabelArrayName : NULL" << endl;
+    }
+
   os << indent << "Polar               : " << this->Polar << endl;
   os << indent << "Cartesian           : " << this->Cartesian << endl;
-  os << indent << "PolarCoordsRadiusArrayName: " << this->PolarCoordsRadiusArrayName << endl;
-  os << indent << "PolarCoordsAngleArrayName : " << this->PolarCoordsAngleArrayName << endl;
-  os << indent << "CartesianCoordsXArrayName : " << this->CartesianCoordsXArrayName << endl;
-  os << indent << "CartesianCoordsYArrayName : " << this->CartesianCoordsYArrayName << endl;
+
+  if(this->PolarCoordsRadiusArrayName)
+    {
+    os << indent << "PolarCoordsRadiusArrayName: " << this->PolarCoordsRadiusArrayName << endl;
+    }
+  else
+    {
+    os << indent << "PolarCoordsRadiusArrayName: (none)" << endl;
+    }
+
+  if(this->PolarCoordsAngleArrayName)
+    {
+    os << indent << "PolarCoordsAngleArrayName : " << this->PolarCoordsAngleArrayName << endl;
+    }
+  else
+    {
+    os << indent << "PolarCoordsAngleArrayName : (none)" << endl;
+    }
+
+  if(this->CartesianCoordsXArrayName)
+    {
+    os << indent << "CartesianCoordsXArrayName : " << this->CartesianCoordsXArrayName << endl;
+    }
+  else
+    {
+    os << indent << "CartesianCoordsXArrayName : (none)" << endl;
+    }
+
+  if(this->CartesianCoordsYArrayName)
+    {
+    os << indent << "CartesianCoordsYArrayName : " << this->CartesianCoordsYArrayName << endl;
+    }
+  else
+    {
+    os << indent << "CartesianCoordsYArrayName : (none)" << endl;
+    }
+
   os << indent << "Epsilon    : " << this->Epsilon << endl;
   os << indent << "UnitRadius : " << this->UnitRadius << endl;
 }
@@ -134,7 +175,6 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 
   // graph size
   vtkIdType num_verts = output->GetNumberOfVertices();
-  vtkIdType num_edges = output->GetNumberOfEdges();
 
   if(this->KCoreLabelArrayName)
     {
@@ -231,8 +271,8 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
     int current_level = kcore_array->GetValue(vidx);
     if(current_level == max_core_level)
       {
-      double radius = unit_radius;
-      double angle  = float(rand()%100000)/100000 * 2.0 * M_PI;
+      radius = unit_radius;
+      angle  = float(rand()%100000)/100000 * 2.0 * vtkMath::Pi();
 
       //cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
       if(this->Cartesian)
@@ -301,7 +341,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 #endif
 
       // Need the angle.
-      angle = float(rand()%100000)/100000 * (2.0 * M_PI);
+      angle = float(rand()%100000)/100000 * (2.0 * vtkMath::Pi());
 
       // set the values
       if(this->Cartesian)

@@ -371,7 +371,7 @@ void vtkResliceCursorWidget::ResetResliceCursor()
 
   // Reset the reslice cursor
   rep->GetResliceCursor()->Reset();
-  rep->InitializeReslicePlane();  
+  rep->InitializeReslicePlane();
 }
 
 //----------------------------------------------------------------------------
@@ -399,6 +399,9 @@ void vtkResliceCursorWidget::StartWindowLevel()
 //----------------------------------------------------------------------------
 void vtkResliceCursorWidget::InvokeAnEvent()
 {
+  // We invoke the appropriate event. In cases where the cursor is moved
+  // around, or rotated, also have the reslice cursor invoke an event.
+
   vtkResliceCursorRepresentation *rep =
     reinterpret_cast<vtkResliceCursorRepresentation*>(this->WidgetRep);
   if (rep)
@@ -411,14 +414,17 @@ void vtkResliceCursorWidget::InvokeAnEvent()
     else if (mode == vtkResliceCursorRepresentation::PanAndRotate)
       {
       this->InvokeEvent(ResliceAxesChangedEvent,NULL);
+      rep->GetResliceCursor()->InvokeEvent(ResliceAxesChangedEvent,NULL);
       }
     else if (mode == vtkResliceCursorRepresentation::RotateBothAxes)
       {
       this->InvokeEvent(ResliceAxesChangedEvent,NULL);
+      rep->GetResliceCursor()->InvokeEvent(ResliceAxesChangedEvent,NULL);
       }
     else if (mode == vtkResliceCursorRepresentation::ResizeThickness)
       {
       this->InvokeEvent(ResliceThicknessChangedEvent,NULL);
+      rep->GetResliceCursor()->InvokeEvent(ResliceAxesChangedEvent,NULL);
       }
     }
 }

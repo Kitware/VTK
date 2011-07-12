@@ -332,6 +332,27 @@ void vtkResliceCursorPicker::TransformPlane()
   rc->GetPlane(axis3)->GetOrigin(origin);
   rc->GetPlane(axis3)->GetNormal(normal);
 
+  if (!this->TransformMatrix)
+    {
+    this->Plane->SetOrigin(origin);
+    this->Plane->SetNormal(normal);
+
+    // The origin of the reslice cursor will remain untransformed.
+    double center[3];
+    rc->GetCenter(center);
+
+    // Sanity check
+    if (vtkResliceCursorPickerIsDifferentSanityCheck(origin,center))
+      {
+      vtkErrorMacro( "Reslice cursor center of (" << center[0]
+          << "," << center[1] << "," << center[2] << ") is not equal to plane "
+          << "origin along axis " << axis3 << " of (" << origin[0]
+          << "," << origin[1] << "," << origin[2] << ").");
+      }
+
+    return;
+    }
+
   double normalPoint[4] = { origin[0] + normal[0],
                             origin[1] + normal[1],
                             origin[2] + normal[2],
@@ -382,6 +403,16 @@ void vtkResliceCursorPicker::TransformPoint( double pIn[4], double pOut[4] )
 //----------------------------------------------------------------------------
 void vtkResliceCursorPicker::InverseTransformPoint( double pIn[4], double pOut[4] )
 {
+  if (!this->TransformMatrix)
+    {
+    for (int i = 0; i < 3; i++)
+      {
+      pOut[i] = pIn[i];
+      }
+    return;
+    }
+
+
   // Maintain a copy of the existing elements.
   double elements[4][4];
   for (int i = 0; i < 4; i++)

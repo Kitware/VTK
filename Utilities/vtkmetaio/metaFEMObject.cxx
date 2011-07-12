@@ -605,11 +605,10 @@ void MetaFEMObject::M_Write_Load(FEMObjectLoad *Load)
 		{
 			*this->m_WriteStream << Load->m_Deformed[i] << " ";
 		}
-		*this->m_WriteStream << "\t % Dimension , undeformed state local coordinates";
+		*this->m_WriteStream << "\t % Dimension , deformed state local coordinates";
 		*this->m_WriteStream << "\n";
 
 		// print square root of Variance
-		*this->m_WriteStream << "\t" << dim;
 		*this->m_WriteStream << Load->m_Variance;
 		*this->m_WriteStream << "\t % Square root of the landmark variance ";
 		*this->m_WriteStream << "\n";
@@ -1245,6 +1244,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		{
 			this->SkipWhiteSpace();  
 			*this->m_ReadStream >> load->m_Undeformed[i]; 
+			std::cout << "  " << load->m_Undeformed[i] << std::endl;
 			if(!this->m_ReadStream)
 			{
 				delete load;
@@ -1262,6 +1262,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		{
 			this->SkipWhiteSpace();  
 			*this->m_ReadStream >> load->m_Deformed[i]; 
+			std::cout << "  " << load->m_Deformed[i] << std::endl;
 			if(!this->m_ReadStream)
 			{
 				delete load;
