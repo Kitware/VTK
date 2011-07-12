@@ -151,7 +151,7 @@ public:
   vtkGetMacro(BarWidthFraction, float);
 
   // Description:
-  // Set the information passed to the tooltip
+  // Set the information passed to the tooltip.
   virtual void SetTooltipInfo(const vtkContextMouseEvent &,
                               const vtkVector2f &,
                               vtkIdType, vtkPlot*,

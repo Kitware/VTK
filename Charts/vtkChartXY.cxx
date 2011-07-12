@@ -53,7 +53,6 @@
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
 
-#include "vtksys/ios/sstream"
 #include "vtkDataArray.h"
 #include "vtkStringArray.h"
 
@@ -1277,42 +1276,12 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 vtkIdType seriesIndex, vtkPlot* plot,
                                 vtkIdType segmentIndex)
 {
-  vtkStdString label;
-  // Check for group names if we are plotting stacked bars
-  if (segmentIndex > 0)
-    {
-    vtkPlotBar *bar = vtkPlotBar::SafeDownCast(plot);
-    if (bar && bar->GetLabels() &&
-        segmentIndex < bar->GetLabels()->GetNumberOfTuples())
-      {
-      label += bar->GetLabels()->GetValue(segmentIndex) + ": ";
-      }
-    }
-  vtkStringArray *labels = plot->GetIndexedLabels();
-  if (labels && seriesIndex < labels->GetNumberOfTuples())
-    {
-    label += labels->GetValue(seriesIndex) + ": ";
-    }
-  else
-    {
-    label += plot->GetLabel(0) + ": ";
-    }
-  // If axes are set to logarithmic scale we need to convert the
-  // axis value using 10^(axis value)
-  vtksys_ios::ostringstream ostr;
-  ostr << label;
-  ostr.imbue(vtkstd::locale::classic());
-  ostr.setf(ios::fixed, ios::floatfield);
-  ostr.precision(ChartPrivate->axes[vtkAxis::BOTTOM]->GetPrecision());
-  ostr << (this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetLogScale()?
-    pow(double(10.0), double(plotPos.X())):
-    plotPos.X());
-  ostr << ",  ";
-  ostr.precision(ChartPrivate->axes[vtkAxis::LEFT]->GetPrecision());
-  ostr << (this->ChartPrivate->axes[vtkAxis::LEFT]->GetLogScale()?
-    pow(double(10.0), double(plotPos.Y())):
-    plotPos.Y());
-  this->Tooltip->SetText(ostr.str().c_str());
+  // Have the plot generate its tooltip label
+  vtkStdString tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex,
+                                                    segmentIndex);
+
+  // Set the tooltip
+  this->Tooltip->SetText(tooltipLabel);
   this->Tooltip->SetPosition(mouse.ScreenPos[0]+2,
                              mouse.ScreenPos[1]+2);
 }

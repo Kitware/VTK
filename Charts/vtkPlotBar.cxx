@@ -782,6 +782,18 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
     prev = this->Private->AddSegment(x,y,prev);
     }
 
+  this->TooltipDefaultLabelFormat.clear();
+  // Set the default tooltip according to the segments
+  if (this->Private->Segments.size() > 1)
+    {
+    this->TooltipDefaultLabelFormat = "%s: ";
+    }
+  if (this->IndexedLabels)
+    {
+    this->TooltipDefaultLabelFormat += "%i: ";
+    }
+  this->TooltipDefaultLabelFormat += "%x,  %y";
+
   this->BuildTime.Modified();
   return true;
 }
@@ -837,4 +849,48 @@ bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
   return this->Private->SelectPoints(min, max, this->Width, this->Offset,
                                                 this->Orientation,
                                                 this->Selection);
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlotBar::GetTooltipLabel(const vtkVector2f &plotPos,
+                                         vtkIdType seriesIndex,
+                                         vtkIdType segmentIndex)
+{
+  vtkStdString baseLabel = Superclass::GetTooltipLabel(plotPos, seriesIndex,
+                                                       segmentIndex);
+  vtkStdString tooltipLabel;
+  bool escapeNext = false;
+  for (size_t i = 0; i < baseLabel.length(); ++i)
+    {
+    if (escapeNext)
+      {
+      switch (baseLabel[i])
+        {
+        case 's':
+          if (segmentIndex >= 0 && this->GetLabels() &&
+              segmentIndex < this->GetLabels()->GetNumberOfTuples())
+            {
+            tooltipLabel += this->GetLabels()->GetValue(segmentIndex);
+            }
+          break;
+        default: // If no match, insert the entire format tag
+          tooltipLabel += "%";
+          tooltipLabel += baseLabel[i];
+          break;
+        }
+      escapeNext = false;
+      }
+    else
+      {
+      if (baseLabel[i] == '%')
+        {
+        escapeNext = true;
+        }
+      else
+        {
+        tooltipLabel += baseLabel[i];
+        }
+      }
+    }
+  return tooltipLabel;
 }
