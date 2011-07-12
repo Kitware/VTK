@@ -53,6 +53,16 @@ public:
   //! responsibility to watch for WindowIsCurrentEvent and set the bool* flag
   //! passed through the call data parameter.
   bool IsCurrent();
+ 
+  //! Returns if OpenGL is supported.  It is the class user's
+  //! responsibility to watch for WindowSupportsOpenGLEvent and set the int* flag
+  //! passed through the call data parameter.
+  int SupportsOpenGL();
+
+  //! Returns if the context is direct.  It is the class user's
+  //! responsibility to watch for WindowIsDirectEvent and set the int* flag
+  //! passed through the call data parameter.
+  int IsDirect();
 
   // {@
   //! set the drawing buffers to use
