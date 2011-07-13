@@ -436,6 +436,53 @@ def CalculateStatistics( inDataReader, inModelReader, nPrimaryTables, updateMode
             inTableReader = inModelReader[t]
             inTable = inTableReader.GetOutput()
 
+            # Handle special case of primary tables of order statistics
+            if ( haruspex.GetClassName() == "vtkOrderStatistics" ):
+                if verbosity > 0:
+                    if ( t == 0 ):
+                        if ( nPrimaryTables > 1 ):
+                            print "# Converting cardinality column of", nPrimaryTables, "input histograms"
+                        else:
+                            print "# Converting cardinality column of 1 input histogram"
+
+                # Create a programmable filter whose input is the histogram
+                convertOrderTab = vtkProgrammableFilter()
+                convertOrderTab.SetInput( inTable )
+
+                # Define table converter callback for programmable filter
+                def ConvertOrderTableCallback():
+                    readTable = convertOrderTab.GetInput()
+                    convTable = convertOrderTab.GetOutput()
+
+                    # Create cardinality column with appropriate type
+                    nRow = readTable.GetNumberOfRows()
+                    vCol = readTable.GetColumnByName( "Value" )
+                    convTable.AddColumn( vCol )
+                    cCol = vtkIdTypeArray()
+                    cCol.SetName( "Cardinality" )
+                    cCol.SetNumberOfValues( nRow )
+                    convTable.AddColumn( cCol )
+
+                    # Loop over all input rows and create output rows
+                    for r in range( 0, nRow ):
+                        # Retrieve cardinalities and save them as vtkIdTypes
+                        c = readTable.GetValueByName( r, "Cardinality" ).ToInt()
+                        cCol.SetValue( r, c )
+
+                # Set callback and run programmable filer
+                convertOrderTab.SetExecuteMethod( ConvertOrderTableCallback )
+                convertOrderTab.Update()
+
+                # Retrieve converted table from filter output
+                colName = inData.GetColumnName( columnsList[t] )
+                inModel.GetMetaData( t ).Set( vtkCompositeDataSet.NAME(), colName )
+                inTable = convertOrderTab.GetOutput()
+
+                if verbosity > 0:
+                    print "  Variable", colName, "converted"
+                    if verbosity > 1:
+                        inTable.Dump( 16 )
+
             # Handle special case of second table of contingency statistics
             if ( t > 0 and haruspex.GetClassName() == "vtkContingencyStatistics" ):
                 if verbosity > 0:
