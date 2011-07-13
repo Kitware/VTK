@@ -32,7 +32,7 @@
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-int TestDeeringStereo(int argc, char *argv[])
+int TestOffAxisStereo(int argc, char *argv[])
 {
   double bottomLeft[3]  = {-1.0, -1.0, -1.0};
   double bottomRight[3] = { 1.0, -1.0, -1.0};
