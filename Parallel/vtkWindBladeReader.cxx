@@ -204,13 +204,63 @@ void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+int vtkWindBladeReader::ProcessRequest(vtkInformation* reqInfo,
+                                       vtkInformationVector** inputVector,
+                                       vtkInformationVector* outputVector)
+{
+  if(reqInfo->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
+    {
+    int port = reqInfo->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
+    if(port != 0)
+      {
+      vtkInformation* fieldInfo = outputVector->GetInformationObject(0);
+      fieldInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+      }
+    if(port != 1)
+      {
+      vtkInformation* bladeInfo = outputVector->GetInformationObject(1);
+      bladeInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+      }
+    if(port != 2)
+      {
+      vtkInformation* groundInfo = outputVector->GetInformationObject(2);
+      groundInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+      }
+    return 1;
+    }
+  return this->Superclass::ProcessRequest(reqInfo, inputVector, outputVector);
+}
+
+//----------------------------------------------------------------------------
 // RequestInformation supplies global meta information
 //----------------------------------------------------------------------------
 int vtkWindBladeReader::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
+  vtkInformation* reqInfo,
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
+  int port = reqInfo->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
+  if(port == 0)
+    {
+    vtkInformation* bladeInfo = outputVector->GetInformationObject(1);
+    bladeInfo->Set(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED());
+    vtkInformation* groundInfo = outputVector->GetInformationObject(2);
+    groundInfo->Set(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED());
+    }
+  else if(port == 1)
+    {
+    vtkInformation* fieldInfo = outputVector->GetInformationObject(0);
+    fieldInfo->Set(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED());
+    vtkInformation* groundInfo = outputVector->GetInformationObject(2);
+    groundInfo->Set(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED());
+    }
+  else if(port == 2)
+    {
+    vtkInformation* fieldInfo = outputVector->GetInformationObject(0);
+    fieldInfo->Set(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED());
+    vtkInformation* bladeInfo = outputVector->GetInformationObject(1);
+    bladeInfo->Set(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED());
+    }
   // Verify that file exists
   if ( !this->Filename )
     {
@@ -447,11 +497,12 @@ int vtkWindBladeReader::RequestData(
       }
     // Close file after all data is read
     fclose(this->FilePtr);
+    return 1;
     }
 
   // Request data is on blade and is displayed only by processor 0
   // Even if the blade is turned off, it must update with time along with field
-  if (port == 0 || port == 1)
+  if (port == 1)
     {
     if (this->UseTurbineFile == 1 && this->Rank == 0)
       {
@@ -484,11 +535,12 @@ int vtkWindBladeReader::RequestData(
         timeStep++;
         }
       this->LoadBladeData(timeStep);
+      }
+    return 1;
     }
-  }
 
   // Request data in on ground and is displayed only by processor 0
-  if (port == 0 || port == 2)
+  if (port == 2)
     {
     vtkInformation* groundInfo = outVector->GetInformationObject(2);
     vtkStructuredGrid *ground = this->GetGroundOutput();
