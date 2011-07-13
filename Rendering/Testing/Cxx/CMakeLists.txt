@@ -20,7 +20,6 @@ IF(VTK_USE_DISPLAY)
     TestActorLightingFlag.cxx
     TestAnimationScene.cxx
     TestBlurAndSobelPasses.cxx
-    TestDeeringStereo.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
     TestFollowerPicking.cxx
@@ -52,6 +51,7 @@ IF(VTK_USE_DISPLAY)
     TestLightActor.cxx
     TestLODActor.cxx
     TestManyActors.cxx
+    TestOffAxisStereo.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestOpenGLPolyDataMapper.cxx
