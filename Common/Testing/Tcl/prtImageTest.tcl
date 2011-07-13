@@ -68,6 +68,8 @@ if { $myProcId != 0 } {
     #puts "Done on the slave node"
     #puts "**********************************"
 
+    [mpc GetGlobalController] Finalize
+
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
