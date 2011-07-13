@@ -466,7 +466,7 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
   double width  = H[0] - L[0];
   double height = H[1] - L[1];
 
-  // Back and front are not traditional near and far plane.
+  // Back and front are not traditional near and far.
   // Front (aka near)
   double F = E[2] - this->ClippingRange[1];
   // Back (aka far)
@@ -1651,16 +1651,13 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
   double localNormal[4];
 
   // Get the normal from the screen orientation.
-  localNormal[0] = this->WorldToScreenMatrix->GetElement(0, 2);
-  localNormal[1] = this->WorldToScreenMatrix->GetElement(1, 2);
+  localNormal[0] = this->WorldToScreenMatrix->GetElement(2, 0);
+  localNormal[1] = this->WorldToScreenMatrix->GetElement(2, 1);
   localNormal[2] = this->WorldToScreenMatrix->GetElement(2, 2);
   localNormal[3] = 0.0;
 
   // Just to be sure.
   vtkMath::Normalize(localNormal);
-
-  // Rotate the normal by eye trasform matrix.
-  this->EyeTransformMatrix->MultiplyPoint(localNormal, localNormal);
 
   normal[0] = localNormal[0];
   normal[1] = localNormal[1];
