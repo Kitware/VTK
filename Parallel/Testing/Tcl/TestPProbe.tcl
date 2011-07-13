@@ -92,4 +92,3 @@ wm withdraw .
 if { $numProcs < 2 } {
     renWin Render
 }
-controler Barrier
