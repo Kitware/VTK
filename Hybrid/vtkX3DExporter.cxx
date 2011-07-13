@@ -368,7 +368,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
 {
   vtkSmartPointer<vtkDataSet> ds;
   vtkPolyData *pd;
-  vtkSmartPointer<vtkGeometryFilter> gf;
   vtkPointData *pntData;
   vtkCellData *cellData;
   vtkPoints *points;
@@ -413,7 +412,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
-    gf = vtkSmartPointer<vtkGeometryFilter>::New();
+    vtkSmartPointer<vtkGeometryFilter> gf = vtkSmartPointer<vtkGeometryFilter>::New();
     gf->SetInput(ds);
     gf->Update();
     pd = gf->GetOutput();
