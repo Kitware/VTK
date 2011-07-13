@@ -400,6 +400,12 @@ void vtkCamera::ComputeWorldToScreen()
     this->WorldToScreen->SetElement(2, 1, zAxis[1]);
     this->WorldToScreen->SetElement(2, 2, zAxis[2]);
 
+    this->WorldToScreen->SetElement(3, 0, 0.0);
+    this->WorldToScreen->SetElement(3, 1, 0.0);
+    this->WorldToScreen->SetElement(3, 2, 0.0);
+
+    this->WorldToScreen->SetElement(3, 3, 1.0);
+
     this->WorldToScreenMTime.Modified();
     }
 }
@@ -420,9 +426,8 @@ void vtkCamera::ComputeDeeringFrustum()
   // vtkMatrix::MultiplyPoint expect homogeneous coordinate.
   double E[4] = {0.0, 0.0, 0.0, 1.0};
 
-  double L[2] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1]};
-  double H[2] = {this->ScreenTopRight[0],   this->ScreenTopRight[1]};
-
+  double L[4] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1], this->ScreenBottomLeft[2], 1.0};
+  double H[4] = {this->ScreenTopRight[0],   this->ScreenTopRight[1], this->ScreenTopRight[2], 1.0};
 
   if(this->LeftEye)
     {
@@ -447,17 +452,13 @@ void vtkCamera::ComputeDeeringFrustum()
   double planeDCoordinate = -vtkMath::Dot(screenNormal, this->ScreenBottomLeft);
   double screen2originDistance = vtkMath::Dot(screenNormal, origin) + planeDCoordinate;
 
-  // Now transform the eye into the screen coordinate system.
+  // Now transform the eye and screen corner points into the screen
+  // coordinate system.
   this->WorldToScreen->MultiplyPoint(E, E);
   this->WorldToScreen->MultiplyPoint(H, H);
   this->WorldToScreen->MultiplyPoint(L, L);
 
   E[2] += screen2originDistance;
-
-  // Now transform the eye to screen coordinate system.
-  this->WorldToScreen->MultiplyPoint(E, E);
-  this->WorldToScreen->MultiplyPoint(H, H);
-  this->WorldToScreen->MultiplyPoint(L, L);
 
   double matrix[4][4];
   double width  = H[0] - L[0];
