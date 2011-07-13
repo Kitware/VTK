@@ -112,19 +112,20 @@ def ParseCommandLine():
     if verbosity > 0:
         print "# Parsed command line:"
 
-        print "  Input data file:", inDataName
-        if inModelPrefix != "":
-            print "  Input model file prefix:", inModelPrefix
-            if inModelTables > 0:
-                print "  Specified input model tables:", inModelTables
-        else:
-            print "  No input model"
+        print "  Type of statistics:", haruspexName
 
-        print "  Statistics:", haruspexName
         if columnsListName != "":
             print "  Columns of interest in file:", columnsListName
         else:
             print "  Columns of interest: all"
+
+        print "  Input data file:", inDataName
+        if inModelPrefix != "":
+            print "  Input model file prefix:", inModelPrefix
+            if inModelTables > 0:
+                print "  Specified input model tables :", inModelTables
+        else:
+            print "  No input model"
 
         print "  Output data file:", outDataName
         print "  Output model file prefix:", outModelPrefix
