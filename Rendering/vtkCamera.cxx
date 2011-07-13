@@ -436,8 +436,7 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
   // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
 
   // OffAxis calculations.
-  double F = this->ClippingRange[1];
-  double B = this->ClippingRange[0];
+
 
   // vtkMatrix::MultiplyPoint expect homogeneous coordinate.
   double E[4] = {0.0, 0.0, 0.0, 1.0};
@@ -467,8 +466,11 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
   double width  = H[0] - L[0];
   double height = H[1] - L[1];
 
-  B = E[2] - B;
-  F = E[2] - F;
+  // Back and front are not traditional near and far plane.
+  // Front (aka near)
+  double F = E[2] - this->ClippingRange[1];
+  // Back (aka far)
+  double B = E[2] - this->ClippingRange[0];
 
   double depth = B - F;
   matrix[0][0] =  ( 2*E[2] ) / width;
