@@ -39,7 +39,7 @@ int TestDeeringStereo(int argc, char *argv[])
   double topRight[3]    = { 1.0,  1.0, -1.0};
 
   VTK_CREATE(vtkSphereSource, sphere1);
-  sphere1->SetCenter(0.5, 0.0, -4.0);
+  sphere1->SetCenter(0.0, 0.0, -4.0);
   sphere1->SetThetaResolution(100);
   sphere1->SetPhiResolution(100.0);
 
@@ -72,7 +72,7 @@ int TestDeeringStereo(int argc, char *argv[])
   // by vtkRenderer.
   VTK_CREATE(vtkMatrix4x4, scaleMatrix);
   scaleMatrix->SetElement(0, 0, 1);
-  scaleMatrix->SetElement(1, 1, 2);
+  scaleMatrix->SetElement(1, 1, 1);
   scaleMatrix->SetElement(2, 2, 1);
 
   vtkCamera *camera = renderer->GetActiveCamera();
