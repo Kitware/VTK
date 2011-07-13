@@ -100,9 +100,6 @@ vtkCamera::vtkCamera()
   this->EyeTransformMatrix = vtkMatrix4x4::New();
   this->EyeTransformMatrix->Identity();
 
-  this->EyeTranslateMatrix = vtkMatrix4x4::New();
-  this->EyeTranslateMatrix->Identity();
-
   this->ModelTransformMatrix = vtkMatrix4x4::New();
   this->ModelTransformMatrix->Identity();
 
@@ -149,9 +146,6 @@ vtkCamera::~vtkCamera()
 
   this->EyeTransformMatrix->Delete();
   this->EyeTransformMatrix = NULL;
-
-  this->EyeTranslateMatrix->Delete();
-  this->EyeTranslateMatrix = NULL;
 
   this->ModelTransformMatrix->Delete();
   this->ModelTransformMatrix = NULL;
@@ -500,13 +494,6 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
       this->ProjectionTransform->GetMatrix()->SetElement( i,j,  matrix[i][j] ) ;
       }
     }
-
-  this->EyeTranslateMatrix->Identity();
-  this->EyeTranslateMatrix->SetElement(0, 3, -E[0]);
-  this->EyeTranslateMatrix->SetElement(1, 3, -E[1]);
-  this->EyeTranslateMatrix->SetElement(2, 3, -E[2]);
-  vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(), this->EyeTranslateMatrix,
-    this->ProjectionTransform->GetMatrix());
 
   //  Now move the world into display space.
   vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(), this->WorldToScreenMatrix,

@@ -596,10 +596,6 @@ protected:
 
   vtkMatrix4x4 *EyeTransformMatrix;
 
-  // Internal variable to keep track of eye translation.
-  // Used only for off axis frustum.
-  vtkMatrix4x4 *EyeTranslateMatrix;
-
   vtkMatrix4x4 *ModelTransformMatrix;
 
   vtkHomogeneousTransform *UserTransform;
