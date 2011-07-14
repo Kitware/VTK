@@ -87,6 +87,7 @@ void vtkControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::GetBounds(double bounds[4])
 {
+  // valid user bounds ? use them
   if (this->UserBounds[0] <= this->UserBounds[1] &&
       this->UserBounds[2] <= this->UserBounds[3])
     {
@@ -96,8 +97,9 @@ void vtkControlPointsItem::GetBounds(double bounds[4])
     bounds[3] = this->UserBounds[3];
     return;
     }
-  if (this->Bounds[0] > this->Bounds[1] ||
-      this->Bounds[2] > this->Bounds[3])
+  // invalid bounds ? compute them
+  if (!(this->Bounds[0] <= this->Bounds[1] &&
+        this->Bounds[2] > this->Bounds[3]))
     {
     this->ComputeBounds();
     }
@@ -119,17 +121,36 @@ void vtkControlPointsItem::ResetBounds()
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::ComputeBounds()
 {
-  this->Bounds[0] = this->Bounds[2] =  VTK_DOUBLE_MAX;
-  this->Bounds[1] = this->Bounds[3] = -VTK_DOUBLE_MAX;
+  double oldBounds[4];
+  oldBounds[0] = this->Bounds[0];
+  oldBounds[1] = this->Bounds[1];
+  oldBounds[2] = this->Bounds[2];
+  oldBounds[3] = this->Bounds[3];
+
+  this->ComputeBounds(this->Bounds);
+
+  if (this->Bounds[0] != oldBounds[0] ||
+      this->Bounds[1] != oldBounds[1] ||
+      this->Bounds[2] != oldBounds[2] ||
+      this->Bounds[3] != oldBounds[3])
+    {
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::ComputeBounds( double* bounds)
+{
+  bounds[0] = bounds[2] =  VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = -VTK_DOUBLE_MAX;
   for (vtkIdType i=0; i < this->GetNumberOfPoints(); ++i)
     {
     double point[4];
     this->GetControlPoint(i, point);
-    this->Bounds[0] = std::min(this->Bounds[0], point[0]);
-    this->Bounds[1] = std::max(this->Bounds[1], point[0]);
-    this->Bounds[2] = std::min(this->Bounds[2], point[1]);
-    this->Bounds[3] = std::max(this->Bounds[3], point[1]);
-    this->Modified();
+    bounds[0] = std::min(bounds[0], point[0]);
+    bounds[1] = std::max(bounds[1], point[0]);
+    bounds[2] = std::min(bounds[2], point[1]);
+    bounds[3] = std::max(bounds[3], point[1]);
     }
 }
 
@@ -580,40 +601,23 @@ vtkIdType vtkControlPointsItem::GetControlPointId(double* point)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkControlPointsItem::AddPoint(double* newPos)
+void vtkControlPointsItem::AddPointId(vtkIdType addedPointId)
 {
+  assert(addedPointId != -1);
   // offset all the point ids
-  const int pointsCount = this->GetNumberOfPoints();
-  vtkIdType previousPointId = pointsCount;
-  for (vtkIdType i = 0; i < pointsCount; ++i)
-    {
-    double point[4];
-    this->GetControlPoint(i, point);
-    if (point[0] >= newPos[0])
-      {
-      previousPointId = i - 1;
-      break;
-      }
-    }
-  if (previousPointId == pointsCount)
-    {
-    return previousPointId;
-    }
   const int selectionCount = this->Selection->GetNumberOfTuples();
   for (vtkIdType i = 0; i < selectionCount; ++i)
     {
     vtkIdType pointId = this->Selection->GetValue(i);
-    if (pointId > previousPointId)
+    if (pointId >= addedPointId)
       {
       this->Selection->SetValue(i, ++pointId);
       }
     }
-  if (this->CurrentPoint != -1
-      && this->CurrentPoint >= previousPointId)
+  if (this->CurrentPoint >= addedPointId)
     {
     this->SetCurrentPoint(this->CurrentPoint + 1);
     }
-  return previousPointId + 1;
 }
 
 //-----------------------------------------------------------------------------
