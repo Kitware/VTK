@@ -83,10 +83,10 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
 }
 
 //----------------------------------------------------------------------------
-void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject* object,
+void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject* vtkNotUsed(object),
                                                    unsigned long event,
                                                    void* clientdata,
-                                                   void* calldata)
+                                                   void* vtkNotUsed(calldata))
 {
   vtkContextInteractorStyle* self =
     reinterpret_cast<vtkContextInteractorStyle *>( clientdata );
