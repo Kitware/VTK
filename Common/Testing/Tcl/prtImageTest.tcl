@@ -44,7 +44,7 @@ proc ExitMaster { code } {
         set contr [ compManager GetController ]
         catch [ $contr TriggerRMI $i [$contr GetBreakRMITag] ]
     }
-    mpc Finalize
+    [mpc GetGlobalController] Finalize
     mpc Delete
     vtkCommand DeleteAllObjects
     catch {destroy .top}
@@ -68,8 +68,8 @@ if { $myProcId != 0 } {
     #puts "Done on the slave node"
     #puts "**********************************"
 
-    mpc Finalize
-    mpc Delete
+    [mpc GetGlobalController] Finalize
+
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
@@ -129,7 +129,6 @@ if {[rtTester IsValidImageSpecified] != 0} {
    }
    set rtResult [rtTester RegressionTest $threshold]
 }
-
 
 if {$rtResult == 0} {ExitMaster 1}
 ExitMaster 0

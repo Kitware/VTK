@@ -408,4 +408,6 @@ void vtkSeedWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "WidgetState: " << this->WidgetState << endl;
 }
