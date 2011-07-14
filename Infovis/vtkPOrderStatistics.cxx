@@ -71,6 +71,20 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+static void PackValues( const vtkstd::vector<vtkStdString>& values,
+                 vtkStdString& buffer )
+{
+  buffer.clear();
+
+  for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
+       it != values.end(); ++ it )
+    {
+    buffer.append( *it );
+    buffer.push_back( 0 );
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkPOrderStatisticsDataArrayReduce( vtkIdTypeArray* card_g,
                                         vtkDataArray* dvals_g )
 {
@@ -294,10 +308,40 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       } // if ( vals->IsA("vtkDataArray") )
     else if ( vals->IsA("vtkStringArray") )
       {
-      // Packing step: concatenate all x and c values
-      vtkstd::vector<vtkIdType> cValues_l;
+      // Downcast column to string array for subsequent typed message passing
+      vtkStringArray* svals = vtkStringArray::SafeDownCast( vals );
 
-      // (All) gather all x and c sizes
+      // Packing step: concatenate all string values
+      vtkStdString xPacked_l;
+      if ( this->Pack( svals,
+                       xPacked_l ) )
+        {
+        vtkErrorMacro("Packing error on process "
+                      << myRank
+                      << ".");
+
+        return;
+        }
+
+      // (All) gather all string sizes
+      vtkIdType xSize_l = xPacked_l.size();
+      vtkIdType* xSize_g = new vtkIdType[np];
+
+      com->AllGather( &xSize_l,
+                      xSize_g,
+                      1 );
+
+      // Calculate total size and displacement arrays
+      vtkIdType* xOffset = new vtkIdType[np];
+      vtkIdType xSizeTotal = 0;
+
+      for ( vtkIdType i = 0; i < np; ++ i )
+        {
+        xOffset[i] = xSizeTotal;
+        xSizeTotal += xSize_g[i];
+        }
+
+      // (All) gather all values in a single string
 
       // Calculate total size and displacement arrays
 
@@ -353,4 +397,23 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     // Clean up
     histoTab_g->Delete();
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
+}
+
+// ----------------------------------------------------------------------
+bool vtkPOrderStatistics::Pack( vtkStringArray* svals,
+                                vtkStdString& xPacked )
+{
+  vtkstd::vector<vtkStdString> xValues; // consecutive strings
+
+  vtkIdType nv = svals->GetNumberOfValues();
+  for ( vtkIdType i = 0; i < nv; ++ i )
+    {
+    // Push back current string value
+    xValues.push_back( svals->GetValue( i ) );
+    }
+
+  // Concatenate vector of strings into single string
+  PackValues( xValues, xPacked );
+
+  return false;
 }

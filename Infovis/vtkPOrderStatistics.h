@@ -61,13 +61,21 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
 
   // Description:
   // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
  protected:
   vtkPOrderStatistics();
   ~vtkPOrderStatistics();
+
+//BTX
+  // Description:
+  // Pack all string entries of a histogram in a single string
+  bool Pack( vtkStringArray*,
+             vtkStdString& );
+
+//ETX
 
   vtkMultiProcessController* Controller;
  private:
