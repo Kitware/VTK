@@ -473,4 +473,9 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   this->PointPlacer->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Measurements: ";
   this->Measurements->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Interactor: " << this->Interactor << "\n";
+  if (this->Interactor)
+    {
+    this->Interactor->PrintSelf(os,indent.GetNextIndent());
+    }
 }
