@@ -287,6 +287,13 @@ double vtkResliceCursorLineRepresentation
   this->DisplayToReslicePlaneIntersection(
       this->LastEventPosition, lastIntersectionPos );
 
+  if (lastIntersectionPos[0] == currIntersectionPos[0] &&
+      lastIntersectionPos[1] == currIntersectionPos[1] &&
+      lastIntersectionPos[2] == currIntersectionPos[2])
+    {
+    return 0;
+    }
+
   double lastVector[3], currVector[3];
   for (int i = 0; i < 3; i++)
     {
@@ -311,6 +318,11 @@ double vtkResliceCursorLineRepresentation
   const double align = vtkMath::Dot(aboutAxis, crossVector);
   const double sign = align > 0 ? 1.0 : -1.0;
   angle *= sign;
+
+  if (angle == 0)
+    {
+    return 0;
+    }
 
   this->RotateAxis( axis, angle );
 
