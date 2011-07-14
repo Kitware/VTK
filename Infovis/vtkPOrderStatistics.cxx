@@ -127,6 +127,52 @@ int vtkPOrderStatisticsDataArrayReduce( vtkIdTypeArray* card_g,
   return 1;
 }
 
+//-----------------------------------------------------------------------------
+int vtkPOrderStatisticsStringArrayReduce( vtkIdTypeArray* card_g,
+                                          char* xPacked_g )
+{
+  // First, unpack the packet of strings
+  vtkStringArray* svals_g;
+
+  // Check consistency: we must have as many values as cardinality entries
+  vtkIdType nRow_g = card_g->GetNumberOfTuples();
+  if ( nRow_g != svals_g->GetNumberOfTuples() )
+    {
+    return 0;
+    }
+
+  // Reduce to the global histogram table
+  vtkstd::map<vtkStdString,vtkIdType> histogram;
+  vtkStdString x;
+  vtkIdType c;
+  for ( vtkIdType r = 0; r < nRow_g; ++ r )
+    {
+    // First, fetch value
+    x = svals_g->GetValue( r );
+
+    // Then, retrieve corresponding cardinality
+    c = card_g->GetValue( r );
+
+    // Last, update histogram count for corresponding value
+    histogram[x] += c;
+    }
+
+  // Now resize global histogram arrays to reduced size
+  nRow_g = static_cast<vtkIdType>( histogram.size() );
+  svals_g->SetNumberOfValues( nRow_g );
+  card_g->SetNumberOfTuples( nRow_g );
+
+  // Then store reduced histogram into array
+  vtkstd::map<vtkStdString,vtkIdType>::iterator hit = histogram.begin();
+  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
+    {
+    svals_g->SetValue( r, hit->first );
+    card_g->SetValue( r, hit->second );
+    }
+
+  return 1;
+}
+
 // ----------------------------------------------------------------------
 void vtkPOrderStatistics::Learn( vtkTable* inData,
                                  vtkTable* inParameters,
@@ -279,16 +325,16 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         } // if ( myRank == reduceProc )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->StopTimer();
-
-    cout << "## Process "
-         << myRank
-         << ( myRank == reduceProc ? " gathered and reduced in " : " gathered in " )
-         << timer->GetElapsedTime()
-         << " seconds."
-         << "\n";
-
-    timer->StartTimer();
+      timer->StopTimer();
+      
+      cout << "## Process "
+           << myRank
+           << ( myRank == reduceProc ? " gathered and reduced in " : " gathered in " )
+           << timer->GetElapsedTime()
+           << " seconds."
+           << "\n";
+      
+      timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
       // Finally broadcast reduced histogram values
@@ -341,15 +387,56 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         xSizeTotal += xSize_g[i];
         }
 
-      // (All) gather all values in a single string
+      // Allocate receive buffer on reducer process, based on the global size obtained above
+      char* xPacked_g = 0;
+      if ( myRank == reduceProc )
+        {
+        xPacked_g = new char[xSizeTotal];
+        }
 
-      // Calculate total size and displacement arrays
-
-      // Allocate receive buffers on reducer process, based on the global sizes obtained above
-
-      // Gather all xPacked and cValues on process reduceProc
+      // Gather all xPacked on process reduceProc
       // NB: GatherV because the packets have variable lengths
+      if ( ! com->GatherV( &(*xPacked_l.begin()),
+                           xPacked_g,
+                           xSize_l,
+                           xSize_g,
+                           xOffset,
+                           reduceProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << myRank
+                      << "could not gather string values.");
+        
+        return;
+        }
 
+      // Reduce to global histogram table on process reduceProc
+      if ( myRank == reduceProc )
+        {
+        if ( ! vtkPOrderStatisticsStringArrayReduce( card_g, xPacked_g ) )
+          {
+          vtkErrorMacro("Gathering error on process "
+                        << this->Controller->GetCommunicator()->GetLocalProcessId()
+                        << ": inconsistent number of values and cardinality entries: "
+                        << card_g->GetNumberOfTuples()
+                        << ".");
+
+          return;
+          }
+        } // if ( myRank == reduceProc )
+
+#if DEBUG_PARALLEL_ORDER_STATISTICS
+      timer->StopTimer();
+      
+      cout << "## Process "
+           << myRank
+           << ( myRank == reduceProc ? " gathered and reduced in " : " gathered in " )
+           << timer->GetElapsedTime()
+           << " seconds."
+           << "\n";
+      
+      timer->StartTimer();
+#endif //DEBUG_PARALLEL_ORDER_STATISTICS
       }
     else if ( vals->IsA("vtkVariantArray") )
       {
