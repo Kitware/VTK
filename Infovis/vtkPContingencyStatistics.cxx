@@ -70,11 +70,11 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void PackValues( const vtkstd::vector<vtkStdString>& values,
-                 vtkStdString& buffer )
+static void PackValues( const vtkstd::vector<vtkStdString>& values,
+                        vtkStdString& buffer )
 {
   buffer.clear();
-
+  
   for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
        it != values.end(); ++ it )
     {
