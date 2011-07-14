@@ -1029,6 +1029,8 @@ void vtkAlgorithm::AddInputConnection(vtkAlgorithmOutput* input)
 {
   this->AddInputConnection(0, input);
 }
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 {
   if(!this->InputPortIndexInRange(port, "connect"))
