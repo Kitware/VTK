@@ -856,9 +856,14 @@ void vtkResliceCursorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Thickness Label Text: " << this->GetThicknessLabelText() << "\n";
+  os << indent << "PlaneSource: " << this->PlaneSource << "\n";
+  if (this->PlaneSource)
+    {
+    this->PlaneSource->PrintSelf(os,indent.GetNextIndent());
+    }
+  os << indent << "PlaneSource: " << this->PlaneSource << "\n";
   vtkPrintMemberObjectMacro( ThicknessLabelFormat, os, indent );
   vtkPrintMemberObjectMacro( Reslice, os, indent );
-  vtkPrintMemberObjectMacro( PlaneSource, os, indent );
   vtkPrintMemberObjectMacro( ThicknessTextProperty, os, indent );
   vtkPrintMemberObjectMacro( ThicknessTextMapper, os, indent );
   vtkPrintMemberObjectMacro( ThicknessTextActor, os, indent );
@@ -899,4 +904,11 @@ void vtkResliceCursorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this->ThicknessLabelFormat;
   // this->ColorMap;
   // this->ImageActor;
+  // this->ThicknessTextProperty;
+  // this->ThicknessTextMapper;
+  // this->ThicknessTextActor;
+  // this->NewResliceAxes;
+  // this->TexturePlaneActor;
+  // this->Texture;
+  // this->TextActor;
 }
