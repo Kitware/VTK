@@ -17,11 +17,8 @@
 // vtkMaskPoints is a filter that passes through points and point attributes 
 // from input dataset. (Other geometry is not passed through.) It is 
 // possible to mask every nth point, and to specify an initial offset
-// to begin masking from.  
-// It is possible to also generate different random selections
-// (jittered strides, real random samples, and spatially stratified
-// random samples) from the input data.
-// The filter can also generate vertices (topological
+// to begin masking from. A special random mode feature enables random 
+// selection of points. The filter can also generate vertices (topological
 // primitives) as well as points. This is useful because vertices are
 // rendered while points are not.
 
@@ -29,8 +26,6 @@
 #define __vtkMaskPoints_h
 
 #include "vtkPolyDataAlgorithm.h"
-
-class vtkMultiProcessController;
 
 class VTK_GRAPHICS_EXPORT vtkMaskPoints : public vtkPolyDataAlgorithm
 {
@@ -40,62 +35,26 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Turn on every nth point (strided sampling), ignored by random modes.
+  // Turn on every nth point.
   vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(OnRatio,int);
 
   // Description:
-  // Limit the number of points that can be passed through (i.e.,
-  // sets the output sample size).
+  // Limit the number of points that can be passed through.
   vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,0,VTK_LARGE_ID);
   vtkGetMacro(MaximumNumberOfPoints,vtkIdType);
 
   // Description:
-  // Start sampling with this point. Ignored by certain random modes.
+  // Start with this point.
   vtkSetClampMacro(Offset,vtkIdType,0,VTK_LARGE_ID);
   vtkGetMacro(Offset,vtkIdType);
 
   // Description:
-  // Special flag causes randomization of point selection.
+  // Special flag causes randomization of point selection. If this mode is on,
+  // statistically every nth point (i.e., OnRatio) will be displayed.
   vtkSetMacro(RandomMode,int);
   vtkGetMacro(RandomMode,int);
   vtkBooleanMacro(RandomMode,int);
-
-  // Description:
-  // Special mode selector that switches between random mode types.
-  // 0 - randomized strides: randomly strides through the data (default);
-  //     fairly certain that this is not a statistically random sample 
-  //     because the output depends on the order of the input and 
-  //     the input points do not have an equal chance to appear in the output 
-  //     (plus Vitter's incremental random algorithms are more complex
-  //      than this, while not a proof it is good indication this isn't
-  //      a statistically random sample - the closest would be algorithm S)
-  // 1 - random sample: create a statistically random sample using Vitter's
-  //     incremental algorithm D without A described in Vitter 
-  //     "Faster Mthods for Random Sampling", Communications of the ACM 
-  //     Volume 27, Issue 7, 1984
-  //     (OnRatio and Offset are ignored) O(sample size)
-  // 2 - spatially stratified random sample: create a spatially
-  //     stratified random sample using the first method described in 
-  //     Woodring et al. "In-situ Sampling of a Large-Scale Particle 
-  //     Simulation for Interactive Visualization and Analysis", 
-  //     Computer Graphics Forum, 2011 (EuroVis 2011). 
-  //     (OnRatio and Offset are ignored) O(N log N)
-  vtkSetClampMacro(RandomModeType, int, 0, 2);
-  vtkGetMacro(RandomModeType, int);
-
-  // Description:
-  // Determines whether maximum number of points is taken per processor
-  // (default) or if the maximum number of points is proportionally
-  // taken across processors (i.e., number of points per
-  // processor = points on a processor * maximum number of points /
-  // total points across all processors).  In the first case,
-  // the total number of points = maximum number of points *
-  // number of processors.  In the second case, the total number of
-  // points = maximum number of points.  
-  vtkSetMacro(ProportionalMaximumNumberOfPoints, int);
-  vtkGetMacro(ProportionalMaximumNumberOfPoints, int);
-  vtkBooleanMacro(ProportionalMaximumNumberOfPoints, int);
 
   // Description:
   // Generate output polydata vertices as well as points. A useful
@@ -107,23 +66,17 @@ public:
 
   // Description:
   // When vertex generation is enabled, by default vertices are produced
-  // as multi-vertex cells (more than one per cell), if you wish to have 
-  // a single vertex per cell, enable this flag.
+  // as multi-vertex cells (more than one per cell), if you wish to have a single
+  // vertex per cell, enable this flag.
   vtkSetMacro(SingleVertexPerCell,int);
   vtkGetMacro(SingleVertexPerCell,int);
   vtkBooleanMacro(SingleVertexPerCell,int);
-
-  // Description:
-  // Set the communicator object for interprocess communication
-  virtual vtkMultiProcessController* GetController();
-  virtual void SetController(vtkMultiProcessController*);
 
 protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
-                          vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int OnRatio;     // every OnRatio point is on; all others are off.
@@ -132,10 +85,6 @@ protected:
   vtkIdType MaximumNumberOfPoints;
   int GenerateVertices; //generate polydata verts
   int SingleVertexPerCell;
-  int RandomModeType; // choose the random sampling mode
-  int ProportionalMaximumNumberOfPoints;  
-
-  vtkMultiProcessController* Controller;
 private:
   vtkMaskPoints(const vtkMaskPoints&);  // Not implemented.
   void operator=(const vtkMaskPoints&);  // Not implemented.

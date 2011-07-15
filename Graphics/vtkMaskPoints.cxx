@@ -24,11 +24,6 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-#include "vtkMultiProcessController.h"
-#include "vtkDummyController.h"
-#include "vtkSmartPointer.h"
-#include "vtkCommunicator.h"
-
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -40,212 +35,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->MaximumNumberOfPoints = VTK_LARGE_ID;
   this->GenerateVertices = 0;
   this->SingleVertexPerCell = 0;
-  this->RandomModeType = 0;
-  this->ProportionalMaximumNumberOfPoints = 0;
-
-  this->Controller = 0;
-  this->SetController(vtkMultiProcessController::GetGlobalController());
-  if(!this->Controller)
-    {
-      this->SetController(vtkSmartPointer<vtkDummyController>::New());
-    }
 }
-
-void vtkMaskPoints::SetController(vtkMultiProcessController *c)
-{
-  if(this->Controller == c)
-    {
-    return;
-    }
-
-  this->Modified();
-
-  if(this->Controller != 0)
-    {
-    this->Controller->UnRegister(this);
-    this->Controller = 0;
-    }
-
-  if(c == 0)
-    {
-    return;
-    }
-
-  this->Controller = c;
-  c->Register(this);
-}
-
-vtkMultiProcessController* vtkMaskPoints::GetController()
-{
-  return (vtkMultiProcessController*)this->Controller;
-}
-
-
-inline void SwapPoint(vtkPoints* points,
-                      vtkPointData* data,
-                      vtkPointData* temp,
-                      vtkIdType a, vtkIdType b)
-{
-  double ta[3];
-
-  // a -> temp
-  points->GetPoint(a, ta);
-  temp->CopyData(data, a, 0);
-
-  // b -> a
-  points->SetPoint(a, points->GetPoint(b));
-  data->CopyData(data, b, a);
-
-  // temp -> b
-  points->SetPoint(b, ta);
-  data->CopyData(temp, 0, b);
-}
-
-// AKA select, quickselect, nth_element: 
-// this is average case linear, worse case quadratic implementation
-// (i.e., just like quicksort) -- there is the median of 5 or 
-// median of medians algorithm, but I'm too lazy to implement it
-void QuickSelect(vtkPoints* points,
-                 vtkPointData* data,
-                 vtkPointData* temp,
-                 vtkIdType start,
-                 vtkIdType end,
-                 vtkIdType nth,
-                 int axis)
-{
-  // base case
-  if(end - start < 2)
-    {
-    return;
-    }
-
-  // pick a pivot 
-  vtkIdType pivot = (vtkIdType)(lrand48() % (end - start)) + start;
-  double value = points->GetPoint(pivot)[axis];
-
-  // swap the pivot to end 
-  end = end - 1;
-  SwapPoint(points, data, temp, pivot, end);
-
-  // partition by pivot
-  vtkIdType left = start;
-  int allequal = 1;
-  for(vtkIdType i = start; i < end; i = i + 1)
-    {
-    allequal = allequal && (points->GetPoint(i)[axis] == value);
-
-    if(points->GetPoint(i)[axis] < value)
-      {
-      SwapPoint(points, data, temp, i, left);
-      left = left + 1;
-      }
-    }
-
-  // swap pivot to correct position
-  SwapPoint(points, data, temp, left, end);
-  end = end + 1;
-
-  // recurse if we didn't find it
-  if((left != nth) && !allequal)
-    {
-    if(left < nth) // it's in the right half
-      {
-      QuickSelect(points, data, temp, left, end, nth, axis);
-      }
-    else // it's in the left half 
-      {
-      QuickSelect(points, data, temp, start, left, nth, axis);
-      }
-    }
-}
-
-// divide the data into sampling strata and randomly sample it
-// (one sample per stratum)
-void SortAndSample(vtkPoints* points, vtkPointData* data,
-                   vtkPointData* temp,
-                   vtkIdType start, vtkIdType end, 
-                   vtkIdType size, int depth)
-{
-  // if size >= end - start return them all
-  if(size >= (end - start))
-    {
-    return;
-    }
-
-  // if size == 1 return it (get one sample from a stratum)
-  if(size < 2)
-    {
-    vtkIdType pick = (vtkIdType)(lrand48() % (end - start)) + start;
-    SwapPoint(points, data, temp, start, pick);
-    return;
-    } 
-
-  // do median split of left and right (AKA select, quickselect, nth_element)
-  vtkIdType half = start + (end - start) / 2;
-  int bigger = 0;
-  // randomly make one side bigger if it doesn't split evenly
-  if((end - start) % 2)
-    {
-      if(lrand48() % 2)
-        {
-          bigger = 1;
-          half = half + 1;
-        }
-      else
-        {
-          bigger = 2;
-        }
-    }
-
-  QuickSelect(points, data, temp, start, end, half, depth % 3);
-
-  // sample the left and right halves
-  vtkIdType leftsize, rightsize;
-  if(size % 2)
-    {
-      if(bigger)
-        {
-          if(bigger == 1)
-            {
-              leftsize = size / 2 + 1;
-              rightsize = size / 2;
-            }
-          else
-            {
-              leftsize = size / 2;
-              rightsize = size / 2 + 1;
-            }
-        }
-      // randomly make a sample size bigger if it doesn't split evenly
-      else if(lrand48() % 2)
-        {
-          leftsize = size / 2 + 1;
-          rightsize = size / 2;
-        }
-      else
-        {
-          leftsize = size / 2;
-          rightsize = size / 2 + 1;
-        }
-    }
-  else
-    {
-      leftsize = size / 2;
-      rightsize = size / 2;
-    }
-
-  // get samples from children
-  SortAndSample(points, data, temp, start, half, leftsize, depth + 1);
-  SortAndSample(points, data, temp, half, end, rightsize, depth + 1);
-
-  // combine the two halves
-  for(vtkIdType i = 0; i < rightsize; i = i + 1)
-    {
-      SwapPoint(points, data, temp, start + leftsize + i, half + i);
-    }
-}
-
-
 
 //----------------------------------------------------------------------------
 int vtkMaskPoints::RequestData(
@@ -270,258 +60,65 @@ int vtkMaskPoints::RequestData(
   vtkIdType ptId, id;
   vtkPointData *outputPD = output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
-
-  // figure out how many points per process
-  int np = this->Controller->GetNumberOfProcesses();
-  vtkIdType localMaxPts = this->MaximumNumberOfPoints;
-  if(this->ProportionalMaximumNumberOfPoints && np > 1)
-    {
-    // send number of points to process 0
-    unsigned long send = numPts;
-    unsigned long* recv = new unsigned long[np];
-    Controller->Gather(&send, recv, 1, 0);
-
-    // process 0 figures it out
-    unsigned long* dist = new unsigned long[np];
-    if(this->Controller->GetLocalProcessId() == 0)
-      {
-      // sum them
-      unsigned long total = 0;
-      for(int i = 0; i < np; i = i + 1)
-        {
-        total = total + recv[i];
-        }      
-
-      // if it's greater than 0
-      if(total > 0)
-        {
-        // each process gets a proportional fraction
-        vtkIdType left = this->MaximumNumberOfPoints;
-        double ratio = this->MaximumNumberOfPoints / (double)total; 
-        for(int i = 0; i < np; i = i + 1)
-          {
-          dist[i] = (unsigned long)(recv[i] * ratio);
-          left = left - dist[i]; 
-          }
-
-        // if it didn't evenly divide, we need to assign the remaining
-        // samples -- doing it completely randomly, though probably a better 
-        // way is to weight the randomness by the size of the remaining fraction
-        if(left > 0)
-          {
-          unsigned long* rem = new unsigned long[np];
-
-          for(int i = 0; i < np; i = i + 1)
-            {
-            rem[i] = i < left ? 1 : 0; 
-            }
-
-          for(int i = 0; i < np; i = i + 1)
-            {
-            vtkIdType index = (vtkIdType)(lrand48() % np);
-            unsigned long temp = rem[index];
-            rem[index] = rem[i];
-            rem[i] = temp;
-            }
-
-          for(int i = 0; i < np; i = i + 1)
-            {
-            dist[i] = dist[i] + rem[i];
-            } 
-
-          delete [] rem;
-          }
-        }
-      // no points
-      else
-        {
-        for(int i = 0; i < np; i = i + 1)
-          {
-          dist[i] = 0;
-          }
-        } 
-      }
-
-    // process 0 sends the fraction to each process
-    Controller->Scatter(dist, recv, 1, 0); 
-    localMaxPts = (vtkIdType)recv[0];
-
-    delete [] dist;
-    delete [] recv;
-    }
-
-  vtkDebugMacro(<<"Masking points");
   
-  // make sure new points aren't too big
-  numNewPts = numPts / this->OnRatio;
-  numNewPts = numNewPts > numPts ? numPts : numNewPts;
-  if(numNewPts > localMaxPts || this->RandomMode)
+  // Check input
+  //
+  vtkDebugMacro(<<"Masking points");
+
+  if ( numPts < 1 )
     {
-    numNewPts = localMaxPts;
+    return 1;
     }
 
-  // Allocate space
-  newPts = vtkPoints::New();
-  newPts->Allocate(numNewPts);
-  outputPD->CopyAllocate(pd, numNewPts);
-
-  // Traverse points and copy
   pd = input->GetPointData();
   id = 0;
+  
+  // Allocate space
+  //
+  numNewPts = numPts / this->OnRatio;
+  if (numNewPts > this->MaximumNumberOfPoints)
+    {
+    numNewPts = this->MaximumNumberOfPoints;
+    }
+  newPts = vtkPoints::New();
+  newPts->Allocate(numNewPts);
+  outputPD->CopyAllocate(pd);
+
+  // Traverse points and copy
+  //
   int abort=0;
   vtkIdType progressInterval=numPts/20 +1;
-  if ( this->RandomMode ) // random modes
+  if ( this->RandomMode ) // retro mode
     {
-    if(this->RandomModeType == 0)
+    double cap;
+    
+    if ((static_cast<double>(numPts)/this->OnRatio) > this->MaximumNumberOfPoints)
       {
-      // original random mode
-      double cap;
-      
-      if ((static_cast<double>(numPts)/this->OnRatio) > localMaxPts)
-        {
-        cap = 2.0*numPts/localMaxPts - 1;
-        }
-      else 
-        {
-        cap = 2.0*this->OnRatio - 1;
-        }
-
-      for (ptId = this->Offset; 
-      (ptId < numPts) && (id < localMaxPts) && !abort;  
-           ptId += (1 + static_cast<int>(static_cast<double>(vtkMath::Random())*cap)) )
-        {
-        input->GetPoint(ptId, x);
-        id = newPts->InsertNextPoint(x);
-        outputPD->CopyData(pd,ptId,id);
-        if ( ! (id % progressInterval) ) //abort/progress
-          {
-          this->UpdateProgress (0.5*id/numPts);
-          abort = this->GetAbortExecute();
-          }
-        }
+      cap = 2.0*numPts/this->MaximumNumberOfPoints - 1;
       }
-    else if(this->RandomModeType == 1)
+    else 
       {
-      // Vitter's algorithm D (without A)
-      // for generating random samples incrementally: O(samplesize)
-      ptId = -1;
-      double vprime = log(drand48());
-      vtkIdType size = numPts;
-      vtkIdType samplesize = localMaxPts;
-      vtkIdType q1 = size - samplesize + 1;
+      cap = 2.0*this->OnRatio - 1;
+      }
 
-      while(samplesize > 1)
-        {
-        double q2 = (q1 - 1.0) / (size - 1.0);
-        double q3 = log(q2);
-        vtkIdType s;
-
-        while(1)
-          {
-          while(1)
-            {
-            s = (vtkIdType)(vprime / q3);
-            if(s < q1)
-              {
-              break;
-              }
-            vprime = log(drand48());
-            }
-
-          double lhs = log(drand48());
-          double rhs = s * (log((double)(q1 - s) / (size - s)) - q3);
-
-          if(lhs <= rhs)
-            {
-            vprime = lhs - rhs;
-            break;
-            }
-
-          double y = 1.0;
-          vtkIdType bottom;
-          vtkIdType limit;
-          if(samplesize - 1 > s)
-            {
-            bottom = size - samplesize;
-            limit = size - s;
-            }
-          else
-            {
-            bottom = size - s - 1;
-            limit = q1;
-            }
-
-          for(vtkIdType top = size - 1; top >= limit; top = top - 1)
-            {
-            y = y * top / bottom;
-            bottom = bottom - 1;
-            }
-
-          vprime = log(drand48());
-          if(q3 <= -(log(y) + lhs) / s)
-            {
-            break;
-            }
-          }
-            
-        // add a point  
-        ptId = ptId + s + 1;
-        input->GetPoint(ptId, x);
-        id = newPts->InsertNextPoint(x);
-        outputPD->CopyData(pd, ptId, id);
-
-        size = size - s - 1;
-        samplesize = samplesize - 1;
-        q1 = q1 - s;
-        }
-            
-      // add last point 
-      ptId = ptId + (vtkIdType)(drand48() * size) + 1;
+    for (ptId = this->Offset; 
+    (ptId < numPts) && (id < this->MaximumNumberOfPoints) && !abort;  
+         ptId += (1 + static_cast<int>(static_cast<double>(vtkMath::Random())*cap)) )
+      {
       input->GetPoint(ptId, x);
       id = newPts->InsertNextPoint(x);
-      outputPD->CopyData(pd, ptId, id);
-      }
-    else if(this->RandomModeType == 2)
-      {
-      // need to copy the entire data to sort it, to leave original in tact 
-      vtkPoints* pointCopy = vtkPoints::New();
-      vtkPointData* dataCopy = vtkPointData::New();
-      vtkPointData* tempData = vtkPointData::New();
-
-      pointCopy->Allocate(numPts);
-      dataCopy->CopyAllocate(pd, numPts);
-      for(vtkIdType i = 0; i < numPts; i = i + 1)
+      outputPD->CopyData(pd,ptId,id);
+      if ( ! (id % progressInterval) ) //abort/progress
         {
-        input->GetPoint(i, x);
-        id = pointCopy->InsertNextPoint(x);
-        dataCopy->CopyData(pd, i, id);
+        this->UpdateProgress (0.5*id/numPts);
+        abort = this->GetAbortExecute();
         }
-      tempData->CopyAllocate(dataCopy, 1);
-
-      // Woodring's spatially stratified random sampling: O(N log N) 
-      SortAndSample(pointCopy, dataCopy, tempData, 0, numPts, 
-                    numNewPts, 0);
-      
-      // copy the results back
-      for(vtkIdType i = 0; i < numNewPts; i = i + 1)
-        {
-        pointCopy->GetPoint(i, x);
-        id = newPts->InsertNextPoint(x);
-        outputPD->CopyData(dataCopy, i, id);
-        }
-
-      tempData->Delete();
-      dataCopy->Delete();
-      pointCopy->Delete();
-
-      // need this barrier or the communicator fails for some reason
-      this->Controller->Barrier();
       }
     }
-  else // striding mode
+  else // a.r. mode
     {
     for ( ptId = this->Offset; 
-    (ptId < numPts) && (id < (localMaxPts-1)) && !abort;
+    (ptId < numPts) && (id < (this->MaximumNumberOfPoints-1)) && !abort;
     ptId += this->OnRatio )
       {
       input->GetPoint(ptId, x);
@@ -536,6 +133,7 @@ int vtkMaskPoints::RequestData(
     }
 
   // Generate vertices if requested
+  //
   if ( this->GenerateVertices )
     {
     vtkCellArray *verts = vtkCellArray::New();
@@ -570,6 +168,7 @@ int vtkMaskPoints::RequestData(
     }
 
   // Update ourselves
+  //
   output->SetPoints(newPts);
   newPts->Delete();
   
@@ -593,14 +192,6 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->Controller)
-    {
-    os << indent << "Controller: " << this->Controller << endl;
-    }
-  else
-    {
-    os << indent << "Controller: (null)\n";
-    }
   os << indent << "Generate Vertices: " 
      << (this->GenerateVertices ? "On\n" : "Off\n");
   os << indent << "SingleVertexPerCell: " 
@@ -610,7 +201,4 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Random Mode: " << (this->RandomMode ? "On\n" : "Off\n");
-  os << indent << "Random Mode Type: " << this->RandomModeType << "\n";
-  os << indent << "Proportional Maximum Number of Points: " << 
-                  this->ProportionalMaximumNumberOfPoints << "\n";
 }
