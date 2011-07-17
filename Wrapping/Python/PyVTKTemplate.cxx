@@ -443,7 +443,7 @@ int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
   PyObject *keys[16];
   PyObject *key;
   int i, n;
-  size_t j;
+  size_t j = 0;
 
   if (PyVTKClass_Check(val))
     {
