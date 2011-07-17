@@ -77,9 +77,17 @@ int TestWindBladeReader( int argc, char *argv[] )
   inputVector->GetInformationObject(0)->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &timeReq, 1);
 
+  bladeGeometryFilter->UpdateInformation();
+  executive = bladeGeometryFilter->GetExecutive();
+  inputVector = executive->GetInputInformation(0);
+  inputVector->GetInformationObject(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &timeReq, 1);
+
   reader->Update();
-  AddColor(reader->GetBladeOutput());
-  AddColor(reader->GetGroundOutput());
+  bladeGeometryFilter->Update();
+  groundGeometryFilter->Update();
+  AddColor(bladeGeometryFilter->GetOutput());
+  AddColor(groundGeometryFilter->GetOutput());
 
   // Create a mapper.
   vtkPolyDataMapper* fieldMapper = vtkPolyDataMapper::New();
