@@ -9,7 +9,7 @@ IF(VTK_USE_DISPLAY)
 SET(MyTests
   BoxWidget.cxx
   BoxWidget2.cxx
-  ScaledBoxWidget2.cxx
+#  ScaledBoxWidget2.cxx
   TestAffineWidget.cxx
   TestAngleWidget2D.cxx
   TestAngleWidget3D.cxx
