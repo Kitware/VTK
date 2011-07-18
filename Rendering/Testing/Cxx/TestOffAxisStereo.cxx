@@ -41,7 +41,7 @@ int TestOffAxisStereo(int argc, char *argv[])
   VTK_CREATE(vtkSphereSource, sphere1);
   sphere1->SetCenter(0.0, 0.0, -4.0);
   sphere1->SetThetaResolution(100);
-  sphere1->SetPhiResolution(100.0);
+  sphere1->SetPhiResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper1);
   mapper1->SetInputConnection(sphere1->GetOutputPort());
@@ -52,7 +52,7 @@ int TestOffAxisStereo(int argc, char *argv[])
 
   VTK_CREATE(vtkConeSource, cone1);
   cone1->SetCenter(0.0, 0.0, -10.0);
-  cone1->SetResolution(100.0);
+  cone1->SetResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper2);
   mapper2->SetInputConnection(cone1->GetOutputPort());
