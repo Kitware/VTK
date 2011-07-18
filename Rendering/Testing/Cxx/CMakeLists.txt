@@ -52,6 +52,7 @@ IF(VTK_USE_DISPLAY)
     TestLightActor.cxx
     TestLODActor.cxx
     TestManyActors.cxx
+    TestOffAxisStereo.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestOpenGLPolyDataMapper.cxx

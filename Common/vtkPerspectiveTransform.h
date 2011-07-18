@@ -102,18 +102,6 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
                double znear, double zfar);
 
   // Description:
-  // Create an deering perspective projection matrix and concatenate it by the
-  // current transformation. This is used for head tracking. So the position of
-  // the eye in the screen coordinate space should also be provided.  The matrix
-  // maps a frustum with a back plane at -zfar and a front plane at -znear with
-  // extent if the window provided by [xmin,xmax],[ymin,ymax] to [-1,+1], [-1,+1], [+1,-1] incorporatin
-  // the posision of the eye given by eyePos[3] in screen (or window) coordinates.
-  void DeeringFrustum(double xmin, double xmax,
-                      double ymin, double ymax,
-                      double znear, double zfar,
-                      double eyePos[3]);
-
-  // Description:
   // Create a perspective projection matrix by specifying the view angle
   // (this angle is in the y direction), the aspect ratio, and the near
   // and far clipping range.  The projection matrix is concatenated

@@ -123,13 +123,6 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->vtkViewport::GetAspect(aspect2);
   double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
 
-  // Check if headtracked
-  if(this->HeadTracked)
-    {
-    this->ComputeProjAndViewParams();
-    this->ComputeViewTransform();
-    }
-
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
     {
@@ -141,34 +134,34 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     {
     int size[2]; size[0] = usize; size[1] = vsize;
     glLoadIdentity();
-    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(),
+    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(), 
                      ren->GetPickWidth(), ren->GetPickHeight(),
                      lowerLeft, size);
     glMultMatrixd(matrix->Element[0]);
     }
   else
     {
-    // insert camera view transformation
+    // insert camera view transformation 
     glLoadMatrixd(matrix->Element[0]);
     }
-
-  // push the model view matrix onto the stack, make sure we
+  
+  // push the model view matrix onto the stack, make sure we 
   // adjust the mode first
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
   matrix->DeepCopy(this->GetViewTransformMatrix());
   matrix->Transpose();
-
-  // insert camera view transformation
+  
+  // insert camera view transformation 
   glMultMatrixd(matrix->Element[0]);
 
-  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
+  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase() 
       && !ren->GetIsPicking())
     {
     ren->Clear();
     }
-
+  
   matrix->Delete();
 }
 
