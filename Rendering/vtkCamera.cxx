@@ -78,7 +78,7 @@ vtkCamera::vtkCamera()
   this->ViewAngle = 30.0;
   this->UseHorizontalViewAngle = 0;
 
-  this->UseOffAxisFrustum  = 0;
+  this->UseOffAxisProjection  = 0;
 
   this->ScreenBottomLeft[0] = -1.0;
   this->ScreenBottomLeft[1] = -1.0;
@@ -1029,7 +1029,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                       this->ClippingRange[0],
                                       this->ClippingRange[1] );
     }
-  else if(this->UseOffAxisFrustum)
+  else if(this->UseOffAxisProjection)
     {
     this->ComputeOffAxisProjectionFrustum();
     }
@@ -1061,7 +1061,7 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                         this->ClippingRange[1] );
     }
 
-  if ( this->Stereo && !this->UseOffAxisFrustum)
+  if ( this->Stereo && !this->UseOffAxisProjection)
     {
     // set up a shear for stereo views
     if ( this->LeftEye )
@@ -1567,7 +1567,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", "
      << this->WindowCenter[1] << ")\n";
 
-  os << indent << "UseOffAxisFrustum: (" << this->UseOffAxisFrustum
+  os << indent << "UseOffAxisProjection: (" << this->UseOffAxisProjection
      << ")\n";
 
   os << indent << "ScreenBottomLeft: (" << this->ScreenBottomLeft[0]

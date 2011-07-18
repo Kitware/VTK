@@ -267,9 +267,9 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // for stereo rendering.
   // For reference see "High Resolution Virtual Reality", in Proc.
   // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
-  vtkSetMacro(UseOffAxisFrustum, int);
-  vtkGetMacro(UseOffAxisFrustum, int);
-  vtkBooleanMacro(UseOffAxisFrustum, int);
+  vtkSetMacro(UseOffAxisProjection, int);
+  vtkGetMacro(UseOffAxisProjection, int);
+  vtkBooleanMacro(UseOffAxisProjection, int);
 
   // Description:
   // Set/Get top left corner point of the screen.
@@ -583,7 +583,7 @@ protected:
   double ViewShear[3];
   int    UseHorizontalViewAngle;
 
-  int    UseOffAxisFrustum;
+  int    UseOffAxisProjection;
 
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];

@@ -79,7 +79,7 @@ int TestOffAxisStereo(int argc, char *argv[])
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);
-  camera->SetUseOffAxisFrustum(1);
+  camera->SetUseOffAxisProjection(1);
   camera->SetEyePosition(eyePosition);
   camera->SetEyeSeparation(0.05);
   camera->SetModelTransformMatrix(scaleMatrix);
