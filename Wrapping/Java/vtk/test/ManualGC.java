@@ -1,7 +1,5 @@
 package vtk.test;
 
-import java.util.concurrent.TimeUnit;
-
 import vtk.vtkIdTypeArray;
 import vtk.vtkJavaTesting;
 import vtk.vtkObject;
@@ -32,9 +30,8 @@ public class ManualGC {
         try {
             vtkJavaTesting.Initialize(args, true);
             int count = 0;
-            vtkJavaTesting.StartTimeoutExit(1, TimeUnit.MINUTES);
-            //vtkJavaTesting.StartGCInEDT(100, TimeUnit.MILLISECONDS);
-            while (true) {
+            long timeout = System.currentTimeMillis() + 60000; // +1 minute
+            while (System.currentTimeMillis() < timeout) {
                 // When the selection is deleted,
                 // it will decrement the array's reference count.
                 // If GC is done on a different thread, this will
@@ -59,6 +56,7 @@ public class ManualGC {
                     System.out.println(infos.toString());
                 }
             }
+            vtkJavaTesting.Exit(vtkJavaTesting.PASSED);
         } catch (Throwable e) {
             e.printStackTrace();
             vtkJavaTesting.Exit(vtkJavaTesting.FAILED);

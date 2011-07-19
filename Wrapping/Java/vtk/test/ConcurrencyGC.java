@@ -31,7 +31,8 @@ public class ConcurrencyGC {
                         vtkUnstructuredGrid grid = new vtkUnstructuredGrid();
                         grid.SetPoints(new vtkPoints());
                         vtkPoints p;
-                        while (true) {
+                        long timeout = System.currentTimeMillis() + 60000; // +1 minute
+                        while (System.currentTimeMillis() < timeout) {
                             p = grid.GetPoints();
                             if (p == null) {
                                 throw new RuntimeException("Invalid pointer null");
@@ -48,15 +49,22 @@ public class ConcurrencyGC {
             };
 
             // Start threads for concurrency (2xwork + 1xGC + 1xGCinEDT)
-            new Thread(workingJob).start(); // Start working thread
-            new Thread(workingJob).start(); // Start working thread
+            Thread worker1 = new Thread(workingJob);
+            Thread worker2 = new Thread(workingJob);
+
+            // Start working thread
+            worker1.start();
+            worker2.start();
 
             // Setup GC
             vtkJavaGarbageCollector gc = vtkJavaTesting.StartGCInEDT(10, TimeUnit.MILLISECONDS); // Start periodic GC in EDT
             new Thread(gc.GetDeleteRunnable()).start();                                          // Start GC in tight loop
 
-            // Start timeout exit thread
-            vtkJavaTesting.StartTimeoutExit(1, TimeUnit.MINUTES);
+            // If worker finished close everything
+            worker1.join();
+            worker2.join();
+            gc.Stop();
+            vtkJavaTesting.Exit(vtkJavaTesting.PASSED);
 
         } catch (Throwable e) {
             e.printStackTrace();
