@@ -361,9 +361,6 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
 
        vtksys_ios::ostringstream ostFS;
-       //ostFS << "#define VTK_LIGHTING_NUMBER_OF_LIGHTS " << nbLights
-       //      << endl;
-       //ostFS << vtkShadowMapPassShader_fs;
 
        vtkStdString fragShader(vtkShadowMapPassShader_fs);
        version_loc = fragShader.find("#version 110");
