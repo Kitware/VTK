@@ -37,6 +37,7 @@ public class JavaGCAndDelete {
 				i = 0;
 			}
 		}
+		vtkJavaTesting.Exit(vtkJavaTesting.PASSED);
 	}
 
 }
