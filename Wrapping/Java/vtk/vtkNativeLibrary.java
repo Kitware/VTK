@@ -60,6 +60,22 @@ public enum vtkNativeLibrary {
         }
     }
 
+    /**
+     * Disable the pop-in vtkErrorWindow by writing the error to a log file.
+     * If the provided logFile is null the default "vtkError.txt" file will be
+     * used.
+     *
+     * @param logFile
+     */
+    public static void DisableOutputWindow(File logFile) {
+        if(logFile == null) {
+           logFile = new File("vtkError.txt");
+        }
+        vtkFileOutputWindow outputError = new vtkFileOutputWindow();
+        outputError.SetFileName(logFile.getAbsolutePath());
+        outputError.SetInstance(outputError);
+    }
+
     private vtkNativeLibrary(String nativeLibraryName) {
         this.nativeLibraryName = nativeLibraryName;
         this.loaded = false;
