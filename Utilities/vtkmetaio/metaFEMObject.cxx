@@ -68,6 +68,12 @@ FEMObjectLoad::FEMObjectLoad()
 
 FEMObjectLoad::~FEMObjectLoad()
 {
+  for(METAIO_STL::vector<FEMObjectMFCTerm *>::iterator it = this->m_LHS.begin();
+      it != this->m_LHS.end();
+      ++it)
+    {
+    delete (*it);
+    }
   this->m_LHS.clear();
   this->m_RHS.clear();
   this->m_ForceMatrix.clear();
