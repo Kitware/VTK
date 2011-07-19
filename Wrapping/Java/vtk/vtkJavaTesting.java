@@ -79,6 +79,10 @@ public class vtkJavaTesting {
     }
 
     public static void Exit(int retVal) {
+        vtkJavaTesting.Tester = null;
+        System.gc();
+        vtkObject.JAVA_OBJECT_MANAGER.gc(true);
+
         if (retVal == vtkJavaTesting.FAILED || retVal == vtkJavaTesting.NOT_RUN) {
             System.out.println("Test failed or was not run");
             System.exit(1);
