@@ -1,7 +1,5 @@
 package vtk.test;
 
-import java.util.concurrent.TimeUnit;
-
 import vtk.vtkActor;
 import vtk.vtkArrowSource;
 import vtk.vtkJavaTesting;
@@ -16,10 +14,10 @@ public class JavaGCAndDelete {
 
 	public static void main(final String[] args) {
 	    vtkJavaTesting.Initialize(args);
-	    vtkJavaTesting.StartTimeoutExit(1, TimeUnit.MINUTES);
+	    long timeout = System.currentTimeMillis() + 60000; // +1 minute
 		int i = 0;
 		int k = 0;
-		while (true) {
+		while (System.currentTimeMillis() < timeout) {
 			final vtkArrowSource arrowSource = new vtkArrowSource();
 			final vtkPolyDataMapper mapper = new vtkPolyDataMapper();
 			mapper.SetInput(arrowSource.GetOutput());
