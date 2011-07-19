@@ -41,7 +41,7 @@ for(unsigned int i=0;i<m_Dim;i++)
 FEMObjectNode::
 ~FEMObjectNode()
 { 
-delete []m_X;
+  delete []m_X;
 }
 
 FEMObjectElement::
@@ -148,6 +148,12 @@ MetaFEMObject(unsigned int dim)
 MetaFEMObject::
 ~MetaFEMObject()
 {
+  for(LoadListType::iterator it = this->m_LoadList.begin();
+      it != this->m_LoadList.end();
+      it++)
+    {
+    delete [] (*it);
+    }
   Clear();
   M_Destroy();
 }
@@ -885,7 +891,7 @@ bool MetaFEMObject::M_Read_Element(std::string element_name)
 	  this->SkipWhiteSpace(); *this->m_ReadStream >> n; 
     if ( !this->m_ReadStream ) 
     { 
-      delete NodesId;
+      delete [] NodesId;
       METAIO_STREAM::cout << "Error reading Element node numbers" << METAIO_STREAM::endl;
       return false;
     }
@@ -896,7 +902,7 @@ bool MetaFEMObject::M_Read_Element(std::string element_name)
   this->SkipWhiteSpace(); *this->m_ReadStream >> materialGN; 
   if ( !this->m_ReadStream ) 
   { 
-    delete NodesId;
+    delete [] NodesId;
     METAIO_STREAM::cout << "Error reading Element global number" << METAIO_STREAM::endl;
     return false;
   }
@@ -912,7 +918,7 @@ bool MetaFEMObject::M_Read_Element(std::string element_name)
   element->m_Dim = info[1];
   strcpy(element->m_ElementName, element_name.c_str());
 
-  delete NodesId;
+  delete [] NodesId;
   this->m_ElementList.push_back(element);
   return true;
 }
@@ -934,7 +940,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 	GN = this->ReadGlobalNumber();
 	if (GN == -1)
 	{
-		delete load;
+		delete [] load;
 		METAIO_STREAM::cout << "Error reading Load definition - global number" << METAIO_STREAM::endl;
 		return false;
 	}
@@ -948,7 +954,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> elementGN; 
 		if(!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading Load definition - Element Global Number" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -959,7 +965,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> DOF; 
 		if(!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading Load definition - Degrees of Freedom" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -970,7 +976,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> NumRHS; 
 		if(!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading Load definition - Number of fixed degrees of freedom" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -983,7 +989,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> load->m_RHS[i]; 
 			if(!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading Load definition - Fixed degree of freedom" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -997,7 +1003,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> elementGN; 
 		if(!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadNode definition - Element Global Number" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1008,7 +1014,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> NodeNumber; 
 		if(!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadNode definition - Node Number" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1018,7 +1024,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> Dim; 
 		if(!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadNode definition - Dimension" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1031,7 +1037,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> load->m_ForceVector[i]; 
 			if(!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadNode definition - Force Vector" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -1045,7 +1051,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> NumLHS; 
 		if(!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadBCMFC definition - Number of LHS terms" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1058,7 +1064,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> elementGN; 
 			if(!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadBCMFC definition - Element Global Number" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -1068,7 +1074,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> DOF; 
 			if(!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadBCMFC definition - Element Degree of Freedom" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -1078,7 +1084,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> Value; 
 			if(!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadBCMFC definition - Weight" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -1093,7 +1099,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> NumRHS; 
 		if (!this->m_ReadStream)
 	  {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadBCMFC definition - Number of RHS terms" << METAIO_STREAM::endl;
 		    return false;
 	  }
@@ -1106,7 +1112,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> load->m_RHS[i]; 
 			if(!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadBCMFC definition - RHS Term" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -1122,7 +1128,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> elementGN; 
 		if (!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadEdge definition - Element Global Number" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1133,7 +1139,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> edgeNum; 
 		if (!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadEdge definition - Edge Number" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1144,7 +1150,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> numRows; 
 		if (!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadEdge definition - Number of Rows" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1154,7 +1160,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> numCols; 
 		if (!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadEdge definition - Number of Columns" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1168,7 +1174,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 				*this->m_ReadStream >> F[j];
 				if (!this->m_ReadStream)
 	      {
-		      delete load;
+		      delete [] load;
 		      METAIO_STREAM::cout << "Error reading LoadEdge definition - Force Matrix" << METAIO_STREAM::endl;
 		      return false;
 	      }
@@ -1185,7 +1191,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> load->m_NumElements ; 
 		if (!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadGravConst definition - Number of Elements" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1197,7 +1203,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> elementGN ; 
 			if (!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadGravConst definition - Element Global Number" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -1209,7 +1215,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 		*this->m_ReadStream >> load->m_Dim; 
 		if (!this->m_ReadStream)
 	  {
-		  delete load;
+		  delete [] load;
 		  METAIO_STREAM::cout << "Error reading LoadGravConst definition - Dimension" << METAIO_STREAM::endl;
 		  return false;
 	  }
@@ -1222,7 +1228,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			*this->m_ReadStream >> loadcomp; 
 			if (!this->m_ReadStream)
 	    {
-		    delete load;
+		    delete [] load;
 		    METAIO_STREAM::cout << "Error reading LoadGravConst definition - Force Vector" << METAIO_STREAM::endl;
 		    return false;
 	    }
@@ -1247,7 +1253,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			std::cout << "  " << load->m_Undeformed[i] << std::endl;
 			if(!this->m_ReadStream)
 			{
-				delete load;
+				delete [] load;
 				METAIO_STREAM::cout << "Error reading Loadlandmark definition - Undeformed point" << METAIO_STREAM::endl;
 				return false;
 			}
@@ -1265,7 +1271,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 			std::cout << "  " << load->m_Deformed[i] << std::endl;
 			if(!this->m_ReadStream)
 			{
-				delete load;
+				delete [] load;
 				METAIO_STREAM::cout << "Error reading Loadlandmark definition - Undeformed point" << METAIO_STREAM::endl;
 				return false;
 			}
@@ -1273,7 +1279,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 
 		// Verify that the undeformed and deformed points are of the same size.
 		if ( n1 != n2 ) {
-			delete load;
+			delete [] load;
 			METAIO_STREAM::cout << "Error reading Loadlandmark definition - Undeformed point and deformed point should have same dimension" << METAIO_STREAM::endl;
 			return false; 
 		}
@@ -1283,7 +1289,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
 	}
 	if(!this->m_ReadStream)
 	{
-		delete load;
+		delete [] load;
 		METAIO_STREAM::cout << "Error reading Load definition" << METAIO_STREAM::endl;
 		return false;
 	}
