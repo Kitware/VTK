@@ -1,7 +1,5 @@
 package vtk.test;
 
-import java.util.concurrent.TimeUnit;
-
 import vtk.vtkDoubleArray;
 import vtk.vtkJavaTesting;
 import vtk.vtkObject;
@@ -17,11 +15,9 @@ public class JavaDelete {
         try {
             vtkJavaTesting.Initialize(args, true);
 
-            // Start exit code
-            vtkJavaTesting.StartTimeoutExit(1, TimeUnit.MINUTES);
-
             // Start working code
-            while (true) {
+            long timeout = System.currentTimeMillis() + 60000; // +1 minute
+            while (System.currentTimeMillis() < timeout) {
                 vtkDoubleArray arr = new vtkDoubleArray();
                 arr.Delete();
 
@@ -39,6 +35,8 @@ public class JavaDelete {
                     throw new RuntimeException("There shouldn't have any VTK object inside the map as we are using Delete().");
                 }
             }
+
+            vtkJavaTesting.Exit(vtkJavaTesting.PASSED);
         } catch (Throwable e) {
             e.printStackTrace();
             vtkJavaTesting.Exit(vtkJavaTesting.FAILED);
