@@ -35,6 +35,7 @@ public class ImagePlaneWidget extends vtkCanvas {
                 }
             }
         }
+        vtkNativeLibrary.DisableOutputWindow(null);
     }
 
     // -----------------------------------------------------------------

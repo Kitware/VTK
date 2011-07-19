@@ -28,6 +28,7 @@ public class VTKCanvas extends JPanel {
                 }
             }
         }
+        vtkNativeLibrary.DisableOutputWindow(null);
     }
 
     // -----------------------------------------------------------------

@@ -34,6 +34,7 @@ public class SimpleVTK extends JPanel implements ActionListener {
                 }
             }
         }
+        vtkNativeLibrary.DisableOutputWindow(null);
     }
 
     // -----------------------------------------------------------------

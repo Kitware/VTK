@@ -39,6 +39,7 @@ public class ReleaseVtkPanel {
 				}
 			}
 		}
+		vtkNativeLibrary.DisableOutputWindow(null);
 	}
 
 	// -----------------------------------------------------------------

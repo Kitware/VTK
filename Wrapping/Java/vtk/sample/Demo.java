@@ -57,6 +57,7 @@ public class Demo extends JPanel {
                 }
             }
         }
+        vtkNativeLibrary.DisableOutputWindow(null);
     }
 
     // -----------------------------------------------------------------

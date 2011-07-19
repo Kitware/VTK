@@ -36,6 +36,7 @@ public class InternalFrames extends JFrame {
                 }
             }
         }
+        vtkNativeLibrary.DisableOutputWindow(null);
     }
 
     // -----------------------------------------------------------------
