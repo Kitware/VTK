@@ -362,6 +362,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->DiskWordSize = 8;
 
   this->Cache = vtkExodusIICache::New();
+  this->CacheSize = 0;
 
   this->TimeStep = 0;
   this->HasModeShapes = 0;
@@ -399,6 +400,7 @@ vtkExodusIIReaderPrivate::~vtkExodusIIReaderPrivate()
 {
   this->CloseFile();
   this->Cache->Delete();
+  this->CacheSize = 0;
   this->ClearConnectivityCaches();
   this->SetFastPathIdType( 0 );
   if(this->Parser)
@@ -4827,7 +4829,7 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 void vtkExodusIIReaderPrivate::ResetCache()
 {
   this->Cache->Clear();
-  this->Cache->SetCacheCapacity( 0.0 ); // FIXME: Perhaps Cache should have a Reset and a Clear method?  
+  this->Cache->SetCacheCapacity(this->CacheSize); // FIXME: Perhaps Cache should have a Reset and a Clear method?  
   this->ClearConnectivityCaches();
 }
 
@@ -5324,6 +5326,7 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->XMLFileName = 0;
   this->Metadata = vtkExodusIIReaderPrivate::New();
   this->Metadata->Parent = this;
+  this->Metadata->SetCacheSize(0.0);
   this->TimeStep = 0;
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
@@ -6588,6 +6591,16 @@ void vtkExodusIIReader::Reset()
 void vtkExodusIIReader::ResetSettings()
 {
   this->Metadata->ResetSettings();
+}
+
+void vtkExodusIIReader::SetCacheSize(double CacheSize)
+{
+  this->Metadata->SetCacheSize(CacheSize);
+}
+
+double vtkExodusIIReader::GetCacheSize()
+{
+  return this->Metadata->GetCacheSize();
 }
 
 void vtkExodusIIReader::ResetCache()
