@@ -1029,8 +1029,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
         }
       }
     }
-
-  if(load_name == "LoadNode")
+  else if(load_name == "LoadNode")
     {
     /* read and set pointer to element that we're applying the load to */
     this->SkipWhiteSpace();
@@ -1077,8 +1076,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
         }
       }
     }
-
-  if(load_name == "LoadBCMFC")
+  else if(load_name == "LoadBCMFC")
     {
     /** read number of terms in lhs of MFC equation */
     this->SkipWhiteSpace();
@@ -1152,8 +1150,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
         }
       }
     }
-
-  if(load_name == "LoadEdge")
+  else if(load_name == "LoadEdge")
     {
     int edgeNum, numRows, numCols;
 
@@ -1217,8 +1214,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
       load->m_ForceMatrix.push_back(F);
       }
     }
-
-  if(load_name == "LoadGravConst")
+  else if(load_name == "LoadGravConst")
     {
     // read in the list of elements on which the load acts
     this->SkipWhiteSpace();
@@ -1230,7 +1226,6 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
       return false;
       }
 
-    int elementGN;
     for (int i=0; i<load->m_NumElements; i++)
       {
       this->SkipWhiteSpace();
@@ -1269,8 +1264,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
       load->m_ForceVector.push_back(loadcomp);
       }
     }
-
-  if(load_name == "LoadLandmark")
+  else if(load_name == "LoadLandmark")
     {
     this->SkipWhiteSpace();
     int n1, n2;
