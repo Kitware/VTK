@@ -485,8 +485,58 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, bool *ptr,int size)
   return ret;
 }
 
+// http://java.sun.com/docs/books/jni/html/pitfalls.html#12400
+void JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
+{
+  jclass cls = env->FindClass(name);
+  /* if cls is NULL, an exception has already been thrown */
+  if (cls != NULL) {
+    env->ThrowNew(cls, msg);
+  }
+  /* free the local ref */
+  env->DeleteLocalRef(cls);
+}
+
+char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr)
+{
+  if (jstr == NULL) {
+    return NULL;
+  }
+  jbyteArray bytes = 0;
+  jthrowable exc;
+  char *result = 0;
+  if (env->EnsureLocalCapacity(2) < 0) {
+    return 0; /* out of memory error */
+  }
+  jclass Class_java_lang_String = env->FindClass("java/lang/String");
+  jmethodID MID_String_getBytes = env->GetMethodID(
+    Class_java_lang_String, "getBytes", "()[B");
+  bytes = (jbyteArray) env->CallObjectMethod(jstr,
+    MID_String_getBytes);
+  exc = env->ExceptionOccurred();
+  if (!exc) {
+    jint len = env->GetArrayLength(bytes);
+    result = new char [len + 1];
+
+    if (result == 0) {
+      JNU_ThrowByName(env, "java/lang/OutOfMemoryError",
+        0);
+      env->DeleteLocalRef(bytes);
+      return 0;
+    }
+    env->GetByteArrayRegion(bytes, 0, len,
+      (jbyte *)result);
+    result[len] = 0; /* NULL-terminate */
+  } else {
+    env->DeleteLocalRef(exc);
+  }
+  env->DeleteLocalRef(bytes);
+  return result;
+}
+
 JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
 {
+#if 0
   char *result;
   const char *inBytes;
   int length, i;
@@ -518,6 +568,9 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
   result[resultLength] = '\0';
   env->ReleaseStringUTFChars(in,inBytes);
   return result;
+#else
+  return JNU_GetStringNativeChars(env, in);
+#endif
 }
 
 JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString &out)
