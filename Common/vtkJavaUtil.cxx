@@ -545,6 +545,7 @@ JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString &out)
   if( cstring )
     {
     out = cstring;
+    delete[] cstring;
     return true;
     }
 
