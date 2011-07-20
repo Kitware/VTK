@@ -92,6 +92,18 @@ vtkRenderWindow::~vtkRenderWindow()
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
+
+  vtkCollectionSimpleIterator rsit;
+  this->Renderers->InitTraversal(rsit);
+  vtkRenderer *aren;
+  while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
+    {
+    if (aren->GetRenderWindow() == this)
+      {
+      vtkErrorMacro("Window destructed with renderer still associated with it!");
+      }
+    }
+
   this->Renderers->Delete();
 
   this->PainterDeviceAdapter->Delete();
@@ -763,6 +775,10 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
   // we are its parent
   this->Renderers->RemoveItem(ren);
+  if (ren->GetRenderWindow() == this)
+    {
+    ren->SetRenderWindow(NULL);
+    }
 }
 
 int vtkRenderWindow::HasRenderer(vtkRenderer *ren)
