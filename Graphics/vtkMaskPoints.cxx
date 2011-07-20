@@ -24,11 +24,6 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-#include "vtkMultiProcessController.h"
-#include "vtkDummyController.h"
-#include "vtkSmartPointer.h"
-#include "vtkCommunicator.h"
-
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -42,44 +37,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->SingleVertexPerCell = 0;
   this->RandomModeType = 0;
   this->ProportionalMaximumNumberOfPoints = 0;
-
-  this->Controller = 0;
-  this->SetController(vtkMultiProcessController::GetGlobalController());
-  if(!this->Controller)
-    {
-      this->SetController(vtkSmartPointer<vtkDummyController>::New());
-    }
 }
-
-void vtkMaskPoints::SetController(vtkMultiProcessController *c)
-{
-  if(this->Controller == c)
-    {
-    return;
-    }
-
-  this->Modified();
-
-  if(this->Controller != 0)
-    {
-    this->Controller->UnRegister(this);
-    this->Controller = 0;
-    }
-
-  if(c == 0)
-    {
-    return;
-    }
-
-  this->Controller = c;
-  c->Register(this);
-}
-
-vtkMultiProcessController* vtkMaskPoints::GetController()
-{
-  return (vtkMultiProcessController*)this->Controller;
-}
-
 
 inline void SwapPoint(vtkPoints* points,
                       vtkPointData* data,
@@ -271,19 +229,20 @@ int vtkMaskPoints::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
 
+  // THIS IS THE ONLY TRULY PARALLEL CODE IN THE CLASS
   // figure out how many points per process
-  int np = this->Controller->GetNumberOfProcesses();
+  int np = this->InternalGetNumberOfProcesses();
   vtkIdType localMaxPts = this->MaximumNumberOfPoints;
   if(this->ProportionalMaximumNumberOfPoints && np > 1)
     {
     // send number of points to process 0
     unsigned long send = numPts;
     unsigned long* recv = new unsigned long[np];
-    Controller->Gather(&send, recv, 1, 0);
+    this->InternalGather(&send, recv, 1, 0);
 
     // process 0 figures it out
     unsigned long* dist = new unsigned long[np];
-    if(this->Controller->GetLocalProcessId() == 0)
+    if(this->InternalGetLocalProcessId() == 0)
       {
       // sum them
       unsigned long total = 0;
@@ -343,12 +302,13 @@ int vtkMaskPoints::RequestData(
       }
 
     // process 0 sends the fraction to each process
-    Controller->Scatter(dist, recv, 1, 0); 
+    this->InternalScatter(dist, recv, 1, 0); 
     localMaxPts = (vtkIdType)recv[0];
 
     delete [] dist;
     delete [] recv;
     }
+  // END PARALLEL CODE
 
   vtkDebugMacro(<<"Masking points");
   
@@ -514,8 +474,9 @@ int vtkMaskPoints::RequestData(
       dataCopy->Delete();
       pointCopy->Delete();
 
+      // PARALLEL CODE
       // need this barrier or the communicator fails for some reason
-      this->Controller->Barrier();
+      this->InternalBarrier();
       }
     }
   else // striding mode
@@ -593,14 +554,6 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->Controller)
-    {
-    os << indent << "Controller: " << this->Controller << endl;
-    }
-  else
-    {
-    os << indent << "Controller: (null)\n";
-    }
   os << indent << "Generate Vertices: " 
      << (this->GenerateVertices ? "On\n" : "Off\n");
   os << indent << "SingleVertexPerCell: " 

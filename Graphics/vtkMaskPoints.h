@@ -30,8 +30,6 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-class vtkMultiProcessController;
-
 class VTK_GRAPHICS_EXPORT vtkMaskPoints : public vtkPolyDataAlgorithm
 {
 public:
@@ -85,6 +83,9 @@ public:
   vtkGetMacro(RandomModeType, int);
 
   // Description:
+  // THIS ONLY WORKS WITH THE PARALLEL IMPLEMENTATION vtkPMaskPoints RUNNING
+  // IN PARALLEL.
+  // NOTHING WILL CHANGE IF THIS IS NOT THE PARALLEL vtkPMaskPoints.
   // Determines whether maximum number of points is taken per processor
   // (default) or if the maximum number of points is proportionally
   // taken across processors (i.e., number of points per
@@ -113,11 +114,6 @@ public:
   vtkGetMacro(SingleVertexPerCell,int);
   vtkBooleanMacro(SingleVertexPerCell,int);
 
-  // Description:
-  // Set the communicator object for interprocess communication
-  virtual vtkMultiProcessController* GetController();
-  virtual void SetController(vtkMultiProcessController*);
-
 protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
@@ -135,7 +131,12 @@ protected:
   int RandomModeType; // choose the random sampling mode
   int ProportionalMaximumNumberOfPoints;  
 
-  vtkMultiProcessController* Controller;
+  virtual void InternalScatter(unsigned long*, unsigned long *, int, int) {};
+  virtual void InternalGather(unsigned long*, unsigned long*, int, int) {};
+  virtual int InternalGetNumberOfProcesses() { return 1; };
+  virtual int InternalGetLocalProcessId() { return 0; };
+  virtual void InternalBarrier() {};
+
 private:
   vtkMaskPoints(const vtkMaskPoints&);  // Not implemented.
   void operator=(const vtkMaskPoints&);  // Not implemented.
