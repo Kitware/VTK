@@ -486,7 +486,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, bool *ptr,int size)
 }
 
 // http://java.sun.com/docs/books/jni/html/pitfalls.html#12400
-void JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
+static void JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
 {
   jclass cls = env->FindClass(name);
   /* if cls is NULL, an exception has already been thrown */
@@ -497,7 +497,7 @@ void JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
   env->DeleteLocalRef(cls);
 }
 
-char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr)
+static char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr)
 {
   if (jstr == NULL) {
     return NULL;
@@ -536,69 +536,19 @@ char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr)
 
 JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
 {
-#if 0
-  char *result;
-  const char *inBytes;
-  int length, i;
-  int resultLength = 1;
-
-  if( in == NULL )
-    {
-    return NULL;
-    }
-
-  length = env->GetStringUTFLength(in);
-  inBytes = env->GetStringUTFChars(in,NULL);
-
-  for (i = 0; i < length; i++)
-    {
-    if ((inBytes[i] & 0x80) == 0) resultLength++;
-    }
-  result = new char [resultLength];
-
-  resultLength = 0; // the 0 versus 1 up above is on purpose
-  for (i = 0; i < length; i++)
-    {
-    if ((inBytes[i] & 0x80) == 0)
-      {
-      result[resultLength] = inBytes[i];
-      resultLength++;
-      }
-    }
-  result[resultLength] = '\0';
-  env->ReleaseStringUTFChars(in,inBytes);
-  return result;
-#else
   return JNU_GetStringNativeChars(env, in);
-#endif
 }
 
 JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString &out)
 {
-  const char *inBytes;
-  int length, i;
-
-  if( in == NULL )
+  const char *cstring = JNU_GetStringNativeChars(env, in);
+  if( cstring )
     {
-    return false;
+    out = cstring;
+    return true;
     }
 
-  length = env->GetStringUTFLength(in);
-  inBytes = env->GetStringUTFChars(in,NULL);
-
-  out.reserve(out.size() + length);
-
-  for (i = 0; i < length; i++)
-    {
-    if ((inBytes[i] & 0x80) == 0)
-      {
-      out.push_back(inBytes[i]);
-      }
-    }
-
-  env->ReleaseStringUTFChars(in,inBytes);
-
-  return true;
+  return false;
 }
 
 JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
