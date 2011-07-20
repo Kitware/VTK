@@ -156,9 +156,17 @@ vtkAxisActor2D *vtkDistanceRepresentation2D::GetAxis()
 }
 
 //----------------------------------------------------------------------
+vtkProperty2D *vtkDistanceRepresentation2D::GetAxisProperty()
+{
+  return this->AxisActor->GetProperty();
+}
+
+//----------------------------------------------------------------------
 void vtkDistanceRepresentation2D::BuildRepresentation()
 {
   if ( this->GetMTime() > this->BuildTime ||
+       this->AxisActor->GetMTime() > this->BuildTime ||
+       this->AxisActor->GetTitleTextProperty()->GetMTime()  > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
