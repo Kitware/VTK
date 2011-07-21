@@ -73,100 +73,77 @@ SET( KitOpenGL_SRCS
   vtkOpenGLVolumeTextureMapper3D.cxx
 )
 
-#-------------------------------------------------
-# Stuff we need for the vtkVolumeTextureMapper3D
-#-------------------------------------------------
-
-# The set of source files to be encoded.
-SET(asm_files
-  vtkHAVSVolumeMapper_kbufferVP
-  vtkHAVSVolumeMapper_k2FP
-  vtkHAVSVolumeMapper_k2BeginFP
-  vtkHAVSVolumeMapper_k2EndFP
-  vtkHAVSVolumeMapper_k6FP
-  vtkHAVSVolumeMapper_k6BeginFP
-  vtkHAVSVolumeMapper_k6EndFP
-  vtkVolumeTextureMapper3D_FourDependentNoShadeFP
-  vtkVolumeTextureMapper3D_FourDependentShadeFP
-  vtkVolumeTextureMapper3D_OneComponentNoShadeFP
-  vtkVolumeTextureMapper3D_OneComponentShadeFP
-  vtkVolumeTextureMapper3D_TwoDependentNoShadeFP
-  vtkVolumeTextureMapper3D_TwoDependentShadeFP
-  )
-
 # -----------------------------------------------------------------------------
-# Set of GLSL source files
+# Set of GPU shader source files
 # -----------------------------------------------------------------------------
-set(KIT_GLSL_SRCS
-  vtkGPUVolumeRayCastMapper_AdditiveFS
-  vtkGPUVolumeRayCastMapper_AdditiveCroppingFS
-  vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS
-  vtkGPUVolumeRayCastMapper_CompositeFS
-  vtkGPUVolumeRayCastMapper_CompositeMaskFS
-  vtkGPUVolumeRayCastMapper_CompositeBinaryMaskFS
-  vtkGPUVolumeRayCastMapper_CompositeCroppingFS
-  vtkGPUVolumeRayCastMapper_CompositeNoCroppingFS
-  vtkGPUVolumeRayCastMapper_HeaderFS
-  vtkGPUVolumeRayCastMapper_MIPCroppingFS
-  vtkGPUVolumeRayCastMapper_MIPFS
-  vtkGPUVolumeRayCastMapper_MIPBinaryMaskFS
-  vtkGPUVolumeRayCastMapper_MIPFourDependentFS
-  vtkGPUVolumeRayCastMapper_MIPFourDependentCroppingFS
-  vtkGPUVolumeRayCastMapper_MIPFourDependentNoCroppingFS
-  vtkGPUVolumeRayCastMapper_MIPNoCroppingFS
-  vtkGPUVolumeRayCastMapper_MinIPCroppingFS
-  vtkGPUVolumeRayCastMapper_MinIPFS
-  vtkGPUVolumeRayCastMapper_MinIPBinaryMaskFS
-  vtkGPUVolumeRayCastMapper_MinIPFourDependentFS
-  vtkGPUVolumeRayCastMapper_MinIPFourDependentCroppingFS
-  vtkGPUVolumeRayCastMapper_MinIPFourDependentNoCroppingFS
-  vtkGPUVolumeRayCastMapper_MinIPNoCroppingFS
-  vtkGPUVolumeRayCastMapper_ParallelProjectionFS
-  vtkGPUVolumeRayCastMapper_PerspectiveProjectionFS
-  vtkGPUVolumeRayCastMapper_ScaleBiasFS
-  vtkGPUVolumeRayCastMapper_OneComponentFS
-  vtkGPUVolumeRayCastMapper_FourComponentsFS
-  vtkGPUVolumeRayCastMapper_NoShadeFS
-  vtkGPUVolumeRayCastMapper_ShadeFS
-  vtkProjectedAAHexahedraMapper_VS
-  vtkProjectedAAHexahedraMapper_GS
-  vtkProjectedAAHexahedraMapper_FS
+set(shader_files
+  vtkGPUVolumeRayCastMapper_AdditiveFS.glsl
+  vtkGPUVolumeRayCastMapper_AdditiveCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_CompositeFS.glsl
+  vtkGPUVolumeRayCastMapper_CompositeMaskFS.glsl
+  vtkGPUVolumeRayCastMapper_CompositeBinaryMaskFS.glsl
+  vtkGPUVolumeRayCastMapper_CompositeCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_CompositeNoCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_HeaderFS.glsl
+  vtkGPUVolumeRayCastMapper_MIPCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_MIPFS.glsl
+  vtkGPUVolumeRayCastMapper_MIPBinaryMaskFS.glsl
+  vtkGPUVolumeRayCastMapper_MIPFourDependentFS.glsl
+  vtkGPUVolumeRayCastMapper_MIPFourDependentCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_MIPFourDependentNoCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_MIPNoCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_MinIPCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_MinIPFS.glsl
+  vtkGPUVolumeRayCastMapper_MinIPBinaryMaskFS.glsl
+  vtkGPUVolumeRayCastMapper_MinIPFourDependentFS.glsl
+  vtkGPUVolumeRayCastMapper_MinIPFourDependentCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_MinIPFourDependentNoCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_MinIPNoCroppingFS.glsl
+  vtkGPUVolumeRayCastMapper_ParallelProjectionFS.glsl
+  vtkGPUVolumeRayCastMapper_PerspectiveProjectionFS.glsl
+  vtkGPUVolumeRayCastMapper_ScaleBiasFS.glsl
+  vtkGPUVolumeRayCastMapper_OneComponentFS.glsl
+  vtkGPUVolumeRayCastMapper_FourComponentsFS.glsl
+  vtkGPUVolumeRayCastMapper_NoShadeFS.glsl
+  vtkGPUVolumeRayCastMapper_ShadeFS.glsl
+  vtkHAVSVolumeMapper_kbufferVP.asm
+  vtkHAVSVolumeMapper_k2FP.asm
+  vtkHAVSVolumeMapper_k2BeginFP.asm
+  vtkHAVSVolumeMapper_k2EndFP.asm
+  vtkHAVSVolumeMapper_k6FP.asm
+  vtkHAVSVolumeMapper_k6BeginFP.asm
+  vtkHAVSVolumeMapper_k6EndFP.asm
+  vtkProjectedAAHexahedraMapper_VS.glsl
+  vtkProjectedAAHexahedraMapper_GS.glsl
+  vtkProjectedAAHexahedraMapper_FS.glsl
+  vtkVolumeTextureMapper3D_FourDependentNoShadeFP.asm
+  vtkVolumeTextureMapper3D_FourDependentShadeFP.asm
+  vtkVolumeTextureMapper3D_OneComponentNoShadeFP.asm
+  vtkVolumeTextureMapper3D_OneComponentShadeFP.asm
+  vtkVolumeTextureMapper3D_TwoDependentNoShadeFP.asm
+  vtkVolumeTextureMapper3D_TwoDependentShadeFP.asm
   )
-
-# Create custom commands to encode each assembly file into a C string
-# literal in a header file.
-
-SET(asm_h_files)
-FOREACH(file ${asm_files})
-  SET(src ${VTK_SOURCE_DIR}/VolumeRendering/${file}.asm)
-  SET(res ${VTK_BINARY_DIR}/VolumeRendering/${file}.cxx)
-  SET(resh ${VTK_BINARY_DIR}/VolumeRendering/${file}.h)
-  SET(asm_h_files ${asm_h_files} "${resh}")
-  ADD_CUSTOM_COMMAND(
-    OUTPUT ${res} ${resh}
-    DEPENDS ${src} vtkEncodeString
-    COMMAND ${VTK_ENCODESTRING_EXE}
-    ARGS ${res} ${src} ${file} --build-header VTK_VOLUMERENDERING_EXPORT vtkSystemIncludes.h
-    )
-  SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
-ENDFOREACH(file)
 
 # -----------------------------------------------------------------------------
 # Create custom commands to encode each glsl file into a C string literal
 # in a header file
 # -----------------------------------------------------------------------------
 
-foreach(file ${KIT_GLSL_SRCS})
-  set(src ${VTK_SOURCE_DIR}/VolumeRendering/${file}.glsl)
-  set(res ${VTK_BINARY_DIR}/VolumeRendering/${file}.cxx)
-  set(resh ${VTK_BINARY_DIR}/VolumeRendering/${file}.h)
+set(shader_h_files)
+foreach(file ${shader_files})
+  GET_FILENAME_COMPONENT(file_we ${file} NAME_WE)
+  set(src ${VTK_SOURCE_DIR}/VolumeRendering/${file})
+  set(res ${VTK_BINARY_DIR}/VolumeRendering/${file_we}.cxx)
+  set(resh ${VTK_BINARY_DIR}/VolumeRendering/${file_we}.h)
   add_custom_command(
     OUTPUT ${res} ${resh}
     DEPENDS ${src} vtkEncodeString
     COMMAND ${VTK_ENCODESTRING_EXE}
-    ARGS ${res} ${src} ${file} --build-header VTK_VOLUMERENDERING_EXPORT vtkSystemIncludes.h
+    ARGS ${res} ${src} ${file_we} --build-header VTK_VOLUMERENDERING_EXPORT vtkSystemIncludes.h
     )
   set(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
+  set(shader_h_files ${shader_h_files} ${resh})
 endforeach(file)
 
 # needed by some external projects
@@ -176,7 +153,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVolumeRenderingToolkit.h.in
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    ${asm_h_files}
+    ${shader_h_files}
     ${CMAKE_CURRENT_BINARY_DIR}/vtkVolumeRenderingToolkit.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development)

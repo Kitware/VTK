@@ -303,7 +303,13 @@ int vtkFunctionParser::DisambiguateOperators()
         tempStackPtr--;
         break;
       case VTK_PARSER_DIVIDE:
-        if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
+        if (tempStack[tempStackPtr-1] == 1 && tempStack[tempStackPtr] == 0)
+          {
+          // vector / scalar.
+          this->ByteCode[i] = VTK_PARSER_VECTOR_OVER_SCALAR;
+          tempStack[tempStackPtr-1] = 1;
+          }
+        else if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
           vtkErrorMacro("can't divide vectors");
           return 0;
@@ -449,6 +455,18 @@ int vtkFunctionParser::DisambiguateOperators()
           this->ByteCode[i] = VTK_PARSER_SCALAR_TIMES_VECTOR;
           }
         else
+          {
+          vtkErrorMacro("expecting a vector followed by a scalar");
+          return 0;
+          }
+        tempStackPtr--;
+        break;
+      case VTK_PARSER_VECTOR_OVER_SCALAR:
+        if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
+          {
+          this->ByteCode[i] = VTK_PARSER_DIVIDE;
+          }
+        else if (tempStack[tempStackPtr-1] == 0 && tempStack[tempStackPtr] == 1)
           {
           vtkErrorMacro("expecting a vector followed by a scalar");
           return 0;
@@ -846,6 +864,12 @@ bool vtkFunctionParser::Evaluate()
         this->Stack[stackPosition-3] *= this->Stack[stackPosition];
         this->Stack[stackPosition-2] *= this->Stack[stackPosition];
         this->Stack[stackPosition-1] *= this->Stack[stackPosition];
+        stackPosition--;
+        break;
+      case VTK_PARSER_VECTOR_OVER_SCALAR:
+        this->Stack[stackPosition-3] /= this->Stack[stackPosition];
+        this->Stack[stackPosition-2] /= this->Stack[stackPosition];
+        this->Stack[stackPosition-1] /= this->Stack[stackPosition];
         stackPosition--;
         break;
       case VTK_PARSER_MAGNITUDE:

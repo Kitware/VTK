@@ -756,8 +756,14 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->TableScale[3] = 1;
 
   this->SpaceLeapFilter = vtkVolumeRayCastSpaceLeapingImageFilter::New();
+
+  // Cached space leaping output. This is shared between runs. The output
+  // of the last run is passed back to the SpaceLeapFilter and its reused
+  // since we may not be updating every flag in this structure.
+  this->MinMaxVolumeCache = vtkImageData::New();
 }
 
+//----------------------------------------------------------------------------
 // Destruct a vtkFixedPointVolumeRayCastMapper - clean up any memory used
 vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
 {
@@ -843,6 +849,8 @@ vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
   delete [] this->TransformedClippingPlanes;
 
   this->ImageDisplayHelper->Delete();
+
+  this->MinMaxVolumeCache->Delete();
 }
 
 float vtkFixedPointVolumeRayCastMapper::ComputeRequiredImageSampleDistance( float desiredTime,
@@ -1051,13 +1059,16 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
     return;
     }
 
+
   // Set the update flags, telling the filter what to update...
   this->SpaceLeapFilter->SetInput(this->GetInput());
   this->SpaceLeapFilter->SetCurrentScalars(this->CurrentScalars);
   this->SpaceLeapFilter->SetIndependentComponents(
       vol->GetProperty()->GetIndependentComponents());
-  this->SpaceLeapFilter->SetComputeMinMax(needToUpdate&0x02);
-  this->SpaceLeapFilter->SetComputeGradientOpacity(needToUpdate&0x04);
+  this->SpaceLeapFilter->SetComputeMinMax((needToUpdate&0x02) ? 1 : 0);
+  this->SpaceLeapFilter->SetComputeGradientOpacity((needToUpdate&0x04)? 1 : 0);
+  this->SpaceLeapFilter->SetUpdateGradientOpacityFlags(
+      (this->GradientOpacityRequired && (needToUpdate&0x01)) ? 1 : 0 );
   this->SpaceLeapFilter->SetGradientMagnitude(this->GradientMagnitude);
   this->SpaceLeapFilter->SetTableSize(this->TableSize);
   this->SpaceLeapFilter->SetTableShift(this->TableShift);
@@ -1069,15 +1080,25 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
     this->SpaceLeapFilter->SetGradientOpacityTable(
           compIdx, this->GradientOpacityTable[compIdx]);
     }
+  this->SpaceLeapFilter->SetCache(this->MinMaxVolumeCache);
   this->SpaceLeapFilter->Update();
   this->MinMaxVolume =
     this->SpaceLeapFilter->GetMinMaxVolume(this->MinMaxVolumeSize);
+
+  // Cached space leaping output. This is shared between runs. The output
+  // of the last run is passed back to the SpaceLeapFilter and its reused
+  // since we may not be updating every flag in this structure.
+  this->MinMaxVolumeCache->ShallowCopy(this->SpaceLeapFilter->GetOutput());
+
+  // For debugging if necessary, write the min-max-volume components.
+  //vtkVolumeRayCastSpaceLeapingImageFilter::WriteMinMaxVolume(
+  //  0,this->MinMaxVolume,this->MinMaxVolumeSize,
+  //  "MinMaxVolumeNewComponent0.mha");
 
   // If the line below is commented out, we get reference counting loops
   this->SpaceLeapFilter->SetInput(NULL);
 
 
-  // Regenerate the min max values if necessary
   if ( needToUpdate&0x02 )
     {
     this->SavedMinMaxInput = input;

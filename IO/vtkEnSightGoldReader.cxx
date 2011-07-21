@@ -2137,7 +2137,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
             theFaces[ arrayIdx ++ ] = intIds[ nodeIndx ++ ] - 1;
             }
           }
-        //*//// yyy end
+        // yyy end
 
         faceCount += numFacesPerElement[i];
 
@@ -2153,10 +2153,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
             elementNodeCount += 1;
             }
           }
-        /*/ xxx begin
-        cellId = output->InsertNextCell( VTK_CONVEX_POINT_SET,
-                                         elementNodeCount, nodeIds );
-        //*//// xxx end
+        // xxx begin
+        //cellId = output->InsertNextCell( VTK_CONVEX_POINT_SET,
+        //                                 elementNodeCount, nodeIds );
+        //xxx end
 
         // insert the cell as a vtkPolyhedron object yyy begin
         cellId = output->InsertNextCell( VTK_POLYHEDRON, elementNodeCount,
@@ -2164,7 +2164,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
                                          theFaces );
         delete [] theFaces;
         theFaces = NULL;
-        //*//// yyy end
+        // yyy end
 
         this->GetCellIds(idx, vtkEnSightReader::NFACED)->InsertNextId(cellId);
         delete [] nodeIds;

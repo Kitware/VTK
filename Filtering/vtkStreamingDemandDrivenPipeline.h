@@ -164,6 +164,7 @@ public:
   // Key defining a request to propagate information about the update
   // extent downstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT_INFORMATION();
+  static vtkInformationRequestKey* REQUEST_MANAGE_INFORMATION();
 
   // Description:
   // Key defining to propagate resolution changes up the pipeline.
@@ -185,6 +186,10 @@ public:
   static vtkInformationIntegerKey* UPDATE_PIECE_NUMBER();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
+
+  // Description:
+  // Key to store an update in the AMR level of resolution.
+  static vtkInformationIntegerKey* UPDATE_AMR_LEVEL();
 
   // Description:
   // Key for combining the update extents requested by all consumers,

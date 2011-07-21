@@ -30,7 +30,7 @@
  *    Reads and Writes MetaTubeFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date July, 2002
  *
  */
@@ -50,7 +50,7 @@ class METAIO_EXPORT MetaScene : public MetaObject
   public:
 
    typedef METAIO_STL::list<MetaObject*>    ObjectListType;
-   
+
    ////
     //
     // Constructors & Destructor
@@ -59,7 +59,7 @@ class METAIO_EXPORT MetaScene : public MetaObject
     MetaScene(void);
 
     MetaScene(const MetaScene *_scene);
-    
+
     MetaScene(unsigned int dim);
 
     ~MetaScene(void);
@@ -82,7 +82,7 @@ class METAIO_EXPORT MetaScene : public MetaObject
 
     void  Clear(void);
 
-    
+
     //    NObjects(...)
     //       Required Field
     //       Number of points wich compose the tube
@@ -114,7 +114,7 @@ class METAIO_EXPORT MetaScene : public MetaObject
     int m_NObjects;      // "NObjects = "         0
 
     ObjectListType    m_ObjectList;
-    
+
   };
 
 #if (METAIO_USE_NAMESPACE)

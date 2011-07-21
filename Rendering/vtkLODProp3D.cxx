@@ -22,6 +22,8 @@
 #include "vtkPropCollection.h"
 #include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkImageSlice.h"
+#include "vtkImageMapper3D.h"
 #include "vtkLinearTransform.h"
 
 #include <math.h>
@@ -34,6 +36,7 @@ vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_LOD_ACTOR_TYPE       1
 #define VTK_LOD_VOLUME_TYPE      2
+#define VTK_LOD_IMAGE_TYPE       3
 
 class vtkLODProp3DCallback : public vtkCommand
 {
@@ -86,6 +89,7 @@ vtkLODProp3D::~vtkLODProp3D()
     {
     if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE )
       {
+      this->LODs[i].Prop3D->RemoveConsumer(this);
       this->LODs[i].Prop3D->RemoveObserver(this->PickCallback);
       this->LODs[i].Prop3D->Delete();
       }
@@ -234,7 +238,8 @@ void vtkLODProp3D::RemoveLOD( int id )
     {
     return;
     }
-  
+
+  this->LODs[index].Prop3D->RemoveConsumer(this);
   this->LODs[index].Prop3D->RemoveObserver(this->PickCallback);
   this->LODs[index].Prop3D->Delete();
   this->LODs[index].ID = VTK_INDEX_NOT_IN_USE;
@@ -357,6 +362,8 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
     actor->SetTexture( t );
     }
 
+  actor->AddConsumer(this);
+
   this->LODs[index].Prop3D        = actor;
   this->LODs[index].Prop3DType    = VTK_LOD_ACTOR_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
@@ -400,6 +407,8 @@ int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
     volume->SetProperty( p );
     }
 
+  volume->AddConsumer(this);
+
   this->LODs[index].Prop3D        = volume;
   this->LODs[index].Prop3DType    = VTK_LOD_VOLUME_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
@@ -414,6 +423,52 @@ int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
   
   return this->LODs[index].ID;
 }
+
+// Convenience method to set a volume LOD without a property.
+// Needed from tcl (for example) where null pointers are not possible
+int vtkLODProp3D::AddLOD( vtkImageMapper3D *m, double time )
+{
+  return this->AddLOD( m, NULL, time );
+}
+
+// The real method for adding a volume LOD.
+int vtkLODProp3D::AddLOD( vtkImageMapper3D *m, vtkImageProperty *p,
+                          double time )
+{
+  int           index;
+  vtkImageSlice *image;
+  vtkMatrix4x4  *matrix;
+
+  index = this->GetNextEntryIndex();
+
+  image = vtkImageSlice::New();
+  matrix = vtkMatrix4x4::New();
+  this->GetMatrix(matrix);
+  image->SetUserMatrix( matrix );
+  matrix->Delete();
+  image->SetMapper( m );
+  if ( p )
+    {
+    image->SetProperty( p );
+    }
+
+  image->AddConsumer(this);
+
+  this->LODs[index].Prop3D        = image;
+  this->LODs[index].Prop3DType    = VTK_LOD_IMAGE_TYPE;
+  this->LODs[index].ID            = this->CurrentIndex++;
+  this->LODs[index].EstimatedTime = time;
+  this->LODs[index].Level         = 0.0;
+  this->LODs[index].State         = 1;
+  this->LODs[index].Prop3D->AddObserver(vtkCommand::PickEvent,
+                                        this->PickCallback);
+  this->NumberOfLODs++;
+
+  image->SetEstimatedRenderTime(time);
+
+  return this->LODs[index].ID;
+}
+
 
 // Set the mapper for an LOD that is an actor
 void vtkLODProp3D::SetLODMapper( int id, vtkMapper *m )
@@ -496,6 +551,46 @@ void vtkLODProp3D::GetLODMapper( int id, vtkAbstractVolumeMapper **m )
   *m = static_cast<vtkVolume *>(this->LODs[index].Prop3D)->GetMapper();
 }
 
+// Set the mapper for an LOD that is an image
+void vtkLODProp3D::SetLODMapper( int id, vtkImageMapper3D *m )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX )
+    {
+    return;
+    }
+
+  if ( this->LODs[index].Prop3DType != VTK_LOD_IMAGE_TYPE )
+    {
+    vtkErrorMacro( << "Error: Cannot set an image mapper on a non-image!");
+    return;
+    }
+
+  static_cast<vtkImageSlice *>(this->LODs[index].Prop3D)->SetMapper( m );
+}
+
+// Get the mapper for an LOD that is an image
+void vtkLODProp3D::GetLODMapper( int id, vtkImageMapper3D **m )
+{
+  *m = NULL;
+
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX )
+    {
+    return;
+    }
+
+  if ( this->LODs[index].Prop3DType != VTK_LOD_IMAGE_TYPE )
+    {
+    vtkErrorMacro( << "Error: Cannot get an image mapper on a non-image!");
+    return;
+    }
+
+  *m = static_cast<vtkImageSlice *>(this->LODs[index].Prop3D)->GetMapper();
+}
+
 // Get the mapper for an LOD that is an AbstractMapper3D
 vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper( int id )
 {
@@ -510,11 +605,15 @@ vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper( int id )
 
   if ( this->LODs[index].Prop3DType == VTK_LOD_ACTOR_TYPE )
     {
-        m = static_cast<vtkActor *>(this->LODs[index].Prop3D)->GetMapper();
+    m = static_cast<vtkActor *>(this->LODs[index].Prop3D)->GetMapper();
     }
   else if ( this->LODs[index].Prop3DType == VTK_LOD_VOLUME_TYPE )
     {
-        m = static_cast<vtkVolume *>(this->LODs[index].Prop3D)->GetMapper();
+    m = static_cast<vtkVolume *>(this->LODs[index].Prop3D)->GetMapper();
+    }
+  else if ( this->LODs[index].Prop3DType == VTK_LOD_IMAGE_TYPE )
+    {
+    m = static_cast<vtkImageSlice *>(this->LODs[index].Prop3D)->GetMapper();
     }
 
   return m;
@@ -594,6 +693,44 @@ void vtkLODProp3D::GetLODProperty( int id, vtkVolumeProperty **p )
     }
 
   *p = static_cast<vtkVolume *>(this->LODs[index].Prop3D)->GetProperty();
+}
+
+// Set the property for an LOD that is an image
+void vtkLODProp3D::SetLODProperty( int id, vtkImageProperty *p )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX )
+    {
+    return;
+    }
+
+  if ( this->LODs[index].Prop3DType != VTK_LOD_IMAGE_TYPE )
+    {
+    vtkErrorMacro( << "Error: Cannot set an image property on a non-image!");
+    return;
+    }
+
+  static_cast<vtkImageSlice *>(this->LODs[index].Prop3D)->SetProperty( p );
+}
+
+// Get the property for an LOD that is an image
+void vtkLODProp3D::GetLODProperty( int id, vtkImageProperty **p )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX )
+    {
+    return;
+    }
+
+  if ( this->LODs[index].Prop3DType != VTK_LOD_IMAGE_TYPE )
+    {
+    vtkErrorMacro( << "Error: Cannot get an image property on a non-image!");
+    return;
+    }
+
+  *p = static_cast<vtkImageSlice *>(this->LODs[index].Prop3D)->GetProperty();
 }
 
 // Set the texture for an LOD that is an actor

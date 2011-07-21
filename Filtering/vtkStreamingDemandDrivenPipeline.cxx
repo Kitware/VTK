@@ -39,6 +39,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Int
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, EXACT_EXTENT, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT_INFORMATION, Request);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_MANAGE_INFORMATION, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_RESOLUTION_PROPAGATE, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, MAXIMUM_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_INITIALIZED, Integer);
@@ -71,6 +72,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, FAST_PATH_OBJECT_ID, Id
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_OBJECT_ID, IdType);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_OBJECT_TYPE, String);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_ID_TYPE, String);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_AMR_LEVEL, Integer );
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
@@ -146,7 +148,8 @@ int vtkStreamingDemandDrivenPipeline
     // UPDATE_EXTENT is not an empty extent
     int *updateExtent = 0;
     if (outInfo &&
-        (updateExtent = outInfo->Get(UPDATE_EXTENT())) != 0)
+        ((updateExtent = outInfo->Get(UPDATE_EXTENT())) != 0) &&
+        !outInfo->Has(UPDATE_RESOLUTION()))
       {
       // Downstream algorithms can set UPDATE_EXTENT_INITIALIZED to
       // REPLACE if they do not want to combine with previous extents
@@ -649,75 +652,119 @@ vtkStreamingDemandDrivenPipeline
         // Copy the priority result always, algorithms can modify it in RUEI if needed
         outInfo->CopyEntry(inInfo, PRIORITY());
 
-        // Copy the attribute meta information when algorithm is known not to modify it
         vtkInformation *algsProps = this->GetAlgorithm()->GetInformation();
-        if (
-            algsProps->Has(vtkAlgorithm::PRESERVES_RANGES()) ||
-            algsProps->Has(vtkAlgorithm::PRESERVES_ATTRIBUTES()) ||
-            algsProps->Has(vtkAlgorithm::PRESERVES_DATASET())
-            )
+        if (algsProps->Has(vtkAlgorithm::MANAGES_METAINFORMATION()))
           {
-          if (inInfo->Has(vtkDataObject::CELL_DATA_VECTOR()))
+          //Let the algorithm decide what to do with the met informaiton
+          this->InAlgorithm = 1;
+          vtkInformation *newrequest = vtkInformation::New();
+          newrequest->Set(REQUEST_MANAGE_INFORMATION());
+          this->Algorithm->ProcessRequest(newrequest, inInfoVec, outInfoVec);
+          this->InAlgorithm = 0;
+
+          //if algorithm said to, remove the attribute range information downstream
+          if(newrequest->Has(REMOVE_ATTRIBUTE_INFORMATION()))
             {
-            outInfo->CopyEntry(inInfo, vtkDataObject::CELL_DATA_VECTOR(), 1);
+            request->Set(REMOVE_ATTRIBUTE_INFORMATION(), 1);
+
+            //remove the attribute range information downstream
+            vtkInformationVector *miv;
+            miv = outInfo->Get(vtkDataObject::CELL_DATA_VECTOR());
+            if (miv)
+              {
+              int nArrays = miv->GetNumberOfInformationObjects();
+              for (int n = 0; n < nArrays; n++)
+                {
+                vtkInformation *oArray = miv->GetInformationObject(n);
+                oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
+                oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
+                }
+              }
+            miv = outInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
+            if (miv)
+              {
+              int nArrays = miv->GetNumberOfInformationObjects();
+              for (int n = 0; n < nArrays; n++)
+                {
+                vtkInformation *oArray = miv->GetInformationObject(n);
+                oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
+                oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
+                }
+              }
             }
-          if (inInfo->Has(vtkDataObject::POINT_DATA_VECTOR()))
-            {
-            outInfo->CopyEntry(inInfo, vtkDataObject::POINT_DATA_VECTOR(), 1);
-            }
+          newrequest->Delete();
           }
         else
           {
-          //RI normally passes it on always, so this flag says remove it downstream
-          request->Set(REMOVE_ATTRIBUTE_INFORMATION(), 1);
-          }
-
-        //remove the attribute range information downstream
-        if(request->Has(REMOVE_ATTRIBUTE_INFORMATION()))
-          {
-          vtkInformationVector *miv;
-          miv = outInfo->Get(vtkDataObject::CELL_DATA_VECTOR());
-          if (miv)
+          //Copy the attribute meta information when algorithm is known not to modify it
+          if (
+              algsProps->Has(vtkAlgorithm::PRESERVES_RANGES()) ||
+              algsProps->Has(vtkAlgorithm::PRESERVES_ATTRIBUTES()) ||
+              algsProps->Has(vtkAlgorithm::PRESERVES_DATASET())
+              )
             {
-            int nArrays = miv->GetNumberOfInformationObjects();
-            for (int n = 0; n < nArrays; n++)
+            if (inInfo->Has(vtkDataObject::CELL_DATA_VECTOR()))
               {
-              vtkInformation *oArray = miv->GetInformationObject(n);
-              oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
-              oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
+              outInfo->CopyEntry(inInfo, vtkDataObject::CELL_DATA_VECTOR(), 1);
+              }
+            if (inInfo->Has(vtkDataObject::POINT_DATA_VECTOR()))
+              {
+              outInfo->CopyEntry(inInfo, vtkDataObject::POINT_DATA_VECTOR(), 1);
               }
             }
-          miv = outInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
-          if (miv)
+          else
             {
-            int nArrays = miv->GetNumberOfInformationObjects();
-            for (int n = 0; n < nArrays; n++)
+            //RI normally passes it on always, so this flag says remove it downstream
+            request->Set(REMOVE_ATTRIBUTE_INFORMATION(), 1);
+            }
+
+          //remove the attribute range information downstream
+          if(request->Has(REMOVE_ATTRIBUTE_INFORMATION()))
+            {
+            vtkInformationVector *miv;
+            miv = outInfo->Get(vtkDataObject::CELL_DATA_VECTOR());
+            if (miv)
               {
-              vtkInformation *oArray = miv->GetInformationObject(n);
-              oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
-              oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
+              int nArrays = miv->GetNumberOfInformationObjects();
+              for (int n = 0; n < nArrays; n++)
+                {
+                vtkInformation *oArray = miv->GetInformationObject(n);
+                oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
+                oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
+                }
+              }
+            miv = outInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
+            if (miv)
+              {
+              int nArrays = miv->GetNumberOfInformationObjects();
+              for (int n = 0; n < nArrays; n++)
+                {
+                vtkInformation *oArray = miv->GetInformationObject(n);
+                oArray->Remove(vtkDataObject::FIELD_ARRAY_NAME());
+                oArray->Remove(vtkDataObject::PIECE_FIELD_RANGE());
+                }
               }
             }
+
+          // Copy the geometric meta information when algorithm is known not to modify it
+          if (
+              algsProps->Has(vtkAlgorithm::PRESERVES_BOUNDS()) ||
+              algsProps->Has(vtkAlgorithm::PRESERVES_GEOMETRY()) ||
+              algsProps->Has(vtkAlgorithm::PRESERVES_DATASET())
+              )
+            {
+            outInfo->CopyEntry(inInfo, PIECE_BOUNDING_BOX());
+            }
+
+          // Copy the topological meta information when algorithm is known not to modify it
+          if (
+              algsProps->Has(vtkAlgorithm::PRESERVES_TOPOLOGY()) ||
+              algsProps->Has(vtkAlgorithm::PRESERVES_DATASET())
+              )
+            {
+            outInfo->CopyEntry(inInfo, vtkDataObject::DATA_GEOMETRY_UNMODIFIED());
+            }
           }
-
-        // Copy the geometric meta information when algorithm is known not to modify it
-        if (
-            algsProps->Has(vtkAlgorithm::PRESERVES_BOUNDS()) ||
-            algsProps->Has(vtkAlgorithm::PRESERVES_GEOMETRY()) ||
-            algsProps->Has(vtkAlgorithm::PRESERVES_DATASET())
-            )
-          {
-          outInfo->CopyEntry(inInfo, PIECE_BOUNDING_BOX());          
-          }        
-
-        // Copy the topological meta information when algorithm is known not to modify it
-        if (
-            algsProps->Has(vtkAlgorithm::PRESERVES_TOPOLOGY()) ||
-            algsProps->Has(vtkAlgorithm::PRESERVES_DATASET())
-            )
-          {
-          outInfo->CopyEntry(inInfo, vtkDataObject::DATA_GEOMETRY_UNMODIFIED());
-          }        
         }
       }
     }
@@ -1238,6 +1285,13 @@ int vtkStreamingDemandDrivenPipeline
   if (dataResolution == -1.0 || updateResolution > dataResolution)
     {
     return 1;
+    }
+
+  if( outInfo->Has( UPDATE_AMR_LEVEL() ) )
+    {
+      std::cout << "EXECUTING.....\n";
+      std::cout.flush();
+      return 1;
     }
 
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT

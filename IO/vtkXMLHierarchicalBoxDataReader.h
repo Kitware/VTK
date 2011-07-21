@@ -28,7 +28,10 @@
 
 #include "vtkXMLCompositeDataReader.h"
 
-class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLCompositeDataReader
+class vtkHierarchicalBoxDataSet;
+
+class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader :
+  public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLHierarchicalBoxDataReader* New();
@@ -58,6 +61,14 @@ protected:
     vtkCompositeDataSet* composite, const char* filePath, 
     unsigned int &dataSetIndex);
 
+  // Description:
+  // Loops through the data in level 0 and computes the global physical origin.
+  // The origin is subsequently used to properly construct the AMR boxes.
+  void GetDataSetOrigin( vtkHierarchicalBoxDataSet *hbox, double origin[3] );
+
+  // Descritpion:
+  // This method sets the metadata for the partially build AMR dataset.
+  void SetMetaData( vtkHierarchicalBoxDataSet *hbox );
 
 private:
   vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.

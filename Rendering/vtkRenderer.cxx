@@ -1306,16 +1306,16 @@ void vtkRenderer::ViewToWorld()
 
 void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
 {
-  vtkMatrix4x4 *mat = vtkMatrix4x4::New();
+  double mat[16];
   double result[4];
 
   // get the perspective transformation from the active camera
-  mat->DeepCopy(this->ActiveCamera->
+  vtkMatrix4x4 *matrix = this->ActiveCamera->
                 GetCompositeProjectionTransformMatrix(
-                  this->GetTiledAspectRatio(),0,1));
+                  this->GetTiledAspectRatio(),0,1);
 
   // use the inverse matrix
-  mat->Invert();
+  vtkMatrix4x4::Invert(*matrix->Element, mat);
 
   // Transform point to world coordinates
   result[0] = x;
@@ -1323,7 +1323,7 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
   result[2] = z;
   result[3] = 1.0;
 
-  mat->MultiplyPoint(result,result);
+  vtkMatrix4x4::MultiplyPoint(mat,result,result);
 
   // Get the transformed vector & set WorldPoint
   // while we are at it try to keep w at one
@@ -1333,7 +1333,6 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
     y = result[1] / result[3];
     z = result[2] / result[3];
     }
-  mat->Delete();
 }
 
 // Convert world point coordinates to view coordinates.
@@ -1350,7 +1349,7 @@ void vtkRenderer::WorldToView()
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView(double &x, double &y, double &z)
 {
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  double     mat[16];
   double     view[4];
 
   // get the perspective transformation from the active camera
@@ -1360,18 +1359,14 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
     x = y = z = 0.0;
     return;
     }
-  matrix->DeepCopy(this->ActiveCamera->
+  vtkMatrix4x4::DeepCopy(mat, this->ActiveCamera->
                 GetCompositeProjectionTransformMatrix(
                   this->GetTiledAspectRatio(),0,1));
 
-  view[0] = x*matrix->Element[0][0] + y*matrix->Element[0][1] +
-    z*matrix->Element[0][2] + matrix->Element[0][3];
-  view[1] = x*matrix->Element[1][0] + y*matrix->Element[1][1] +
-    z*matrix->Element[1][2] + matrix->Element[1][3];
-  view[2] = x*matrix->Element[2][0] + y*matrix->Element[2][1] +
-    z*matrix->Element[2][2] + matrix->Element[2][3];
-  view[3] = x*matrix->Element[3][0] + y*matrix->Element[3][1] +
-    z*matrix->Element[3][2] + matrix->Element[3][3];
+  view[0] = x*mat[0] + y*mat[1] + z*mat[2] + mat[3];
+  view[1] = x*mat[4] + y*mat[5] + z*mat[6] + mat[7];
+  view[2] = x*mat[8] + y*mat[9] + z*mat[10] + mat[11];
+  view[3] = x*mat[12] + y*mat[13] + z*mat[14] + mat[15];
 
   if (view[3] != 0.0)
     {
@@ -1379,7 +1374,6 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
     y = view[1]/view[3];
     z = view[2]/view[3];
     }
-  matrix->Delete();
 }
 
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)

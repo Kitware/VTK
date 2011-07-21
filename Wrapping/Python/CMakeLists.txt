@@ -81,6 +81,27 @@ IF(UNIX)
   MARK_AS_ADVANCED(PYTHON_UTIL_LIBRARY)
 ENDIF(UNIX)
 
+# Python multithreading support
+SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 0)
+IF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
+  SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 1)
+ENDIF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
+OPTION(VTK_NO_PYTHON_THREADS "Disable multithreading support in the Python bindings" ${_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT})
+MARK_AS_ADVANCED(VTK_NO_PYTHON_THREADS)
+
+# create vtkPythonConfigure.h
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonConfigure.h.in
+               ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonConfigure.h)
+
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  SET(__inst_files
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonConfigure.h
+  )
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
 PYTHON_WRITE_MODULES_HEADER("${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -124,7 +145,8 @@ SET(VTKPYTHON_LINK_LIBS
   vtkFiltering
   vtkIO
   vtkGraphics
-  vtkImaging )
+  vtkImaging 
+  vtkAMR )
 
 SET (vtkpython_pyc_depends
     vtkCommonPython
@@ -132,10 +154,11 @@ SET (vtkpython_pyc_depends
     vtkIOPython
     vtkGraphicsPython
     vtkImagingPython
+    vtkAMRPython
     )
 
 IF(BORLAND)
-  SET(KITS Common Filtering Graphics IO Imaging)
+  SET(KITS Common Filtering Graphics IO Imaging AMR)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
   ENDIF(VTK_USE_PARALLEL)
@@ -435,6 +458,8 @@ IF(PYTHON_EXECUTABLE)
     vtk/gtk/GtkVTKRenderWindow
     vtk/gtk/__init__
     vtk/gtk/GtkVTKRenderWindowInteractor
+    vtk/gtk/GtkGLExtVTKRenderWindow
+    vtk/gtk/GtkGLExtVTKRenderWindowInteractor
     )
 
 # Done listing of files.

@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*
- * Copyright 2009 Sandia Corporation.
+ * Copyright 2011 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
  * U.S. Government. Redistribution and use in source and binary forms, with
@@ -28,7 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 #include "vtkPOrderStatistics.h"
 
-#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
@@ -39,15 +38,17 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
+#include "vtksys/CommandLineArguments.hxx"
+
 struct RandomOrderStatisticsArgs
 {
   int nVals;
   double stdev;
+  bool quantize;
+  int maxHistoSize;
   double absTol;
   int* retVal;
   int ioRank;
-  int argc;
-  char** argv;
 };
 
 // This will be called by all processes
@@ -66,10 +67,14 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
-  // Generate an input table that contains samples of mutually independent discrete random variables
+  // Generate an input table that contains samples of a truncated Gaussian pseudo-random variable
   int nVariables = 1;
   vtkIntArray* intArray[1];
   vtkStdString columnNames[] = { "Rounded Normal" };
+
+  // Storage for local extrema
+  int* min_l = new int[nVariables];
+  int* max_l = new int[nVariables];
 
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
@@ -79,13 +84,57 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     intArray[c]->SetNumberOfComponents( 1 );
     intArray[c]->SetName( columnNames[c] );
 
-    for ( int r = 0; r < args->nVals; ++ r )
+    // Store first value
+    int v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+    intArray[c]->InsertNextValue( v );
+
+    // Initialize local extrema
+    min_l[c] = v;
+    max_l[c] = v;
+
+    // Continue up to nVals values have been generated
+    for ( int r = 1; r < args->nVals; ++ r )
       {
-      intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) ) );
+      // Store new value
+      v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+      intArray[c]->InsertNextValue( v );
+
+      // Update local extrema
+      if ( v < min_l[c] )
+        {
+        min_l[c] = v;
+        }
+      else if ( v > max_l[c] )
+        {
+        max_l[c] = v;
+        }
       }
 
     inputData->AddColumn( intArray[c] );
     intArray[c]->Delete();
+    }
+
+  // Reduce all minima for this variable
+  int min_g;
+  com->AllReduce( min_l,
+                  &min_g,
+                  1,
+                  vtkCommunicator::MIN_OP );
+
+  // Reduce all maxima for this variable
+  int max_g;
+  com->AllReduce( max_l,
+                  &max_g,
+                  1,
+                  vtkCommunicator::MAX_OP );
+
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Generated pseudo-random sample which globally ranges from "
+         << min_g
+         << " to "
+         << max_g
+         << ".\n";
     }
 
   // ************************** Order Statistics **************************
@@ -98,7 +147,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel order statistics engine and set its ports
   vtkPOrderStatistics* pos = vtkPOrderStatistics::New();
   pos->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pos->AddColumn( columnNames[0] );
@@ -106,9 +155,10 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pos->SetLearnOption( true );
   pos->SetDeriveOption( true );
-  pos->SetAssessOption( true );
+  pos->SetAssessOption( false );
   pos->SetTestOption( false );
-  pos->SetNumericType( true ); // Data set is numeric
+  pos->SetQuantize( args->quantize );
+  pos->SetMaximumHistogramSize( args->maxHistoSize );
   pos->Update();
 
   // Synchronize and stop clock
@@ -124,11 +174,10 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Now perform verifications
-  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
-
-  int testIntValue;
-  int numProcs = controller->GetNumberOfProcesses();
+  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
+  unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
+  vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq - 1 ) );
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   // Verify that all processes have the same grand total and histograms size
   if ( com->GetLocalProcessId() == args->ioRank )
@@ -136,38 +185,78 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     cout << "\n## Verifying that all processes have the same grand total and histograms size.\n";
     }
 
-  // Gather all grand totals
-  int GT_l = outputQuantiles->GetValueByName( 0, "Cardinality" ).ToInt();
-  int* GT_g = new int[numProcs];
-  com->AllGather( &GT_l,
-                  GT_g,
+  // Gather all cardinalities
+  int numProcs = controller->GetNumberOfProcesses();
+  int card_l = outputCard->GetValueByName( 0, "Cardinality" ).ToInt();
+  int* card_g = new int[numProcs];
+  com->AllGather( &card_l,
+                  card_g,
                   1 );
 
-  // Use the first grand total as reference (as they all must be equal)
-  testIntValue = GT_g[0];
+  // Known global cardinality
+  int testIntValue = args->nVals * numProcs;
 
-  // Print out all grand totals
+  // Print out and verify all cardinalities
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     for ( int i = 0; i < numProcs; ++ i )
       {
-      cout << "     On process "
+      cout << "   On process "
            << i
-           << ", grand total = "
-           << GT_g[i]
+           << ", cardinality = "
+           << card_g[i]
            << ", histogram size = "
            << outputHistogram->GetNumberOfRows()
            << "\n";
 
-      if ( GT_g[i] != testIntValue )
+      if ( card_g[i] != testIntValue )
         {
-        vtkGenericWarningMacro("Incorrect CDF.");
+        vtkGenericWarningMacro("Incorrect cardinality:"
+                               << card_g[i]
+                               << " <> "
+                               << testIntValue
+                               << ")");
         *(args->retVal) = 1;
         }
       }
     }
 
+  // Print out and verify global extrema
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Verifying that calculated global extrema are correct (within "
+         << args->absTol
+         << " absolute tolerance).\n";
+
+    double min_c = outputQuantiles->GetValueByName( 0,
+                                                    columnNames[0] ).ToDouble();
+
+    double max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
+                                                    columnNames[0] ).ToDouble();
+
+    cout << "   Calculated minimum = "
+           << min_c
+           << ", maximum = "
+           << max_c
+           << "\n";
+
+    if ( fabs( min_c - min_g ) > args->absTol )
+        {
+        vtkGenericWarningMacro("Incorrect minimum.");
+        *(args->retVal) = 1;
+        }
+
+    if ( fabs( max_c - max_g ) > args->absTol )
+        {
+        vtkGenericWarningMacro("Incorrect maximum.");
+        *(args->retVal) = 1;
+        }
+    }
+
   // Clean up
+  delete [] card_g;
+  delete [] min_l;
+  delete [] max_l;
   pos->Delete();
   inputData->Delete();
   timer->Delete();
@@ -230,6 +319,60 @@ int main( int argc, char** argv )
       }
     }
 
+  // **************************** Parse command line ***************************
+  // Set default argument values
+  int nVals = 100000;
+  double stdev = 50.;
+  bool quantize = false;
+  int maxHistoSize = 500;
+  double absTol = 1.e-6;
+
+  // Initialize command line argument parser
+  vtksys::CommandLineArguments clArgs;
+  clArgs.Initialize( argc, argv );
+  clArgs.StoreUnusedArguments( false );
+
+  // Parse per-process cardinality of each pseudo-random sample
+  clArgs.AddArgument("--n-per-proc",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse standard deviation of each pseudo-random sample
+  clArgs.AddArgument("--std-dev",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &stdev, "Standard deviation of each pseudo-random sample");
+
+  // Parse maximum histogram size
+  clArgs.AddArgument("--max-histo-size",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &maxHistoSize, "Maximum histogram size (when re-quantizing is allowed)");
+
+  // Parse whether quantization should be used (to reduce histogram size)
+  clArgs.AddArgument("--quantize",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &quantize, "Allow re-quantizing");
+
+  // Parse absolute tolerance to verify extrema
+  clArgs.AddArgument("--abs-tol",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &absTol, "Absolute tolerance to verify extrema");
+
+  // If incorrect arguments were provided, provide some help and terminate in error.
+  if ( ! clArgs.Parse() )
+    {
+    if ( com->GetLocalProcessId() == ioRank )
+      {
+      cerr << "Usage: " 
+           << clArgs.GetHelp()
+           << "\n";
+      }
+
+    controller->Finalize();
+    controller->Delete();
+
+    return 1;
+    }
+
   // ************************** Initialize test *********************************
   if ( com->GetLocalProcessId() == ioRank )
     {
@@ -242,14 +385,13 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomOrderStatisticsArgs args;
-
-  args.nVals = 1000000;
-  args.stdev = 5.;
-  args.absTol = 1.e-6;
+  args.nVals = nVals;
+  args.stdev = stdev;
+  args.quantize = quantize;
+  args.maxHistoSize = maxHistoSize;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.argc = argc;
-  args.argv = argv;
+  args.absTol = absTol;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();

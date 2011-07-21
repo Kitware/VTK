@@ -177,7 +177,6 @@ public:
 #endif
 
 //ETX
-
   static const char* GetProcessorName();
 
   // Description:

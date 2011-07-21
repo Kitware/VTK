@@ -18,8 +18,6 @@
 #include "vtkImageData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlane.h"
-#include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
@@ -104,16 +102,15 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
     }
 
     
-  vtkMatrix4x4       *matrix = vtkMatrix4x4::New();
-  vtkPlaneCollection *clipPlanes;
-  vtkPlane           *plane;
+  vtkMatrix4x4       *matrix;
+  double             matrixForGL[16];
   int                numClipPlanes = 0;
   double             planeEquation[4];
 
 
   // build transformation 
-  vol->GetMatrix(matrix);
-  matrix->Transpose();
+  matrix = vol->GetMatrix();
+  vtkMatrix4x4::Transpose(*matrix->Element, matrixForGL);
 
   glPushAttrib(GL_ENABLE_BIT   | 
                GL_COLOR_BUFFER_BIT   |
@@ -124,38 +121,25 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   
   int i;
   
-  // Use the OpenGL clip planes
-  clipPlanes = this->ClippingPlanes;
-  if ( clipPlanes )
-    {
-    numClipPlanes = clipPlanes->GetNumberOfItems();
-    if (numClipPlanes > 6)
-      {
-      vtkErrorMacro(<< "OpenGL guarantees only 6 additional clipping planes");
-      }
-
-    for (i = 0; i < numClipPlanes; i++)
-      {
-      glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
-
-      plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
-
-      planeEquation[0] = plane->GetNormal()[0]; 
-      planeEquation[1] = plane->GetNormal()[1]; 
-      planeEquation[2] = plane->GetNormal()[2];
-      planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
-                           planeEquation[1]*plane->GetOrigin()[1]+
-                           planeEquation[2]*plane->GetOrigin()[2]);
-      glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
-      }
-    }
-
-
-  
   // insert model transformation 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
-  glMultMatrixd(matrix->Element[0]);
+  glMultMatrixd(matrixForGL);
+
+  // use the OpenGL clip planes
+  numClipPlanes = this->GetNumberOfClippingPlanes();
+  if (numClipPlanes > 6)
+    {
+    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+    numClipPlanes = 6;
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {
+    glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
+    this->GetClippingPlaneInDataCoords(matrix, i, planeEquation);
+    glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i), planeEquation);
+    }
 
   // If an actor turned on culling, it must be turned off here
   glDisable (GL_CULL_FACE);
@@ -195,7 +179,6 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
-  matrix->Delete();
   glPopAttrib();
 
 

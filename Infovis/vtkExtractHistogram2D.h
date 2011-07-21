@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -44,17 +44,17 @@
 #ifndef __vtkExtractHistogram2D_h
 #define __vtkExtractHistogram2D_h
 
-#include "vtkBivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkImageData;
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 
-class VTK_INFOVIS_EXPORT vtkExtractHistogram2D : public vtkBivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkExtractHistogram2D : public vtkStatisticsAlgorithm
 {
 public:
   static vtkExtractHistogram2D* New();
-  vtkTypeMacro(vtkExtractHistogram2D, vtkBivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkExtractHistogram2D, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
@@ -182,6 +182,12 @@ protected:
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
                      vtkTable* ) { return; }; 
+
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable*,
+                       vtkMultiBlockDataSet*,
+                       vtkTable* ) { return; }; 
 
   // Description:
   // Provide the appropriate assessment functor. Not used.

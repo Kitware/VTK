@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sandia Corporation.
+ * Copyright 2011 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
  * U.S. Government. Redistribution and use in source and binary forms, with
@@ -97,15 +97,15 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
-  dataset1Arr->SetName( "Metric 0" );
+  dataset1Arr->SetName( "M0" );
 
   vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
-  dataset2Arr->SetName( "Metric 1" );
+  dataset2Arr->SetName( "M1" );
 
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents( 1 );
-  dataset3Arr->SetName( "Metric 2" );
+  dataset3Arr->SetName( "M2" );
 
   for ( int i = 0; i < nVals1; ++ i )
     {
@@ -127,8 +127,8 @@ int TestCorrelativeStatistics( int, char *[] )
   int nMetricPairs = 2;
   vtkStdString columnPairs[] = 
     { 
-      "Metric 0", "Metric 1", // First pair
-      "Metric 2", "Metric 1"  // Second pair
+      "M0", "M1", // First pair
+      "M2", "M1"  // Second pair
     };
 
   // Reference values
@@ -140,14 +140,14 @@ int TestCorrelativeStatistics( int, char *[] )
   double meansY1[] = { 49.5, -1. };
   double varsY1[] = { 7.548397, 0. };
 
-  // Covariance matrix of (metric 0, metric 1) pair
-  double covariance1[] = { 5.98286, 7.54839, 6.14516 }; 
+  // Covariance matrix of (metric 0, metric 1) and (metric 1, metric 2) pairs
+  double covariances1[] = { 6.14516, 0. }; 
 
-  // Pearson r for each of the three pairs
-  double correlations1[] = { 0.914433, 0. }; 
+  // Pearson r for each of the pairs
+  double correlations1[] = { 0.914433, vtkMath::Nan() }; 
 
-  // Threshold for outlier detection
-  double threshold = 4.;
+  // Thresholds for outlier detection
+  double threshold[] = { 4., 1.8, 1.8 };
 
   // Set correlative statistics algorithm and its input data port
   vtkCorrelativeStatistics* cs1 = vtkCorrelativeStatistics::New();
@@ -163,19 +163,19 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Select Column Pairs of Interest ( Learn Mode ) 
   // 1.1: a valid pair
-  cs1->AddColumnPair( "Metric 0", "Metric 1" ); 
+  cs1->AddColumnPair( "M0", "M1" ); 
   // 1.2: the same valid pair, just reversed -- should thus be ignored
-  cs1->AddColumnPair( "Metric 1", "Metric 0" );
+  cs1->AddColumnPair( "M1", "M0" );
   // 2: another valid pair
-  cs1->AddColumnPair( "Metric 2", "Metric 1" ); 
+  cs1->AddColumnPair( "M2", "M1" ); 
   // 3: an invalid pair
-  cs1->AddColumnPair( "Metric 1", "Metric 3" ); 
+  cs1->AddColumnPair( "M1", "M3" );
 
   // Test Learn, Derive, Test, and Assess options
   cs1->SetLearnOption( true );
   cs1->SetDeriveOption( true );
   cs1->SetAssessOption( true );
-  cs1->SetTestOption( true );
+  cs1->SetTestOption( false );
   cs1->Update();
 
   // Get output data and meta tables
@@ -198,13 +198,15 @@ int TestCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated primary statistics
-    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble() - meansX1[r] ) > 1.e-6 )
+    double testMeanX = outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble();
+    if ( fabs ( testMeanX - meansX1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean for X");
       testStatus = 1;
       }
 
-    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble() - meansY1[r] ) > 1.e-6 )
+    double testMeanY = outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble();
+    if ( fabs ( testMeanY - meansY1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean for Y");
       testStatus = 1;
@@ -225,23 +227,68 @@ int TestCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated derived statistics
-    if ( fabs ( outputDerived1->GetValueByName( r, "Variance X" ).ToDouble() - varsX1[r] ) > 1.e-5 )
+    double testMeanX = outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble();
+    double testMeanY = outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble();
+
+    double testVarX = outputDerived1->GetValueByName( r, "Variance X" ).ToDouble();
+    if ( fabs ( testVarX - varsX1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for X");
       testStatus = 1;
       }
 
-    if ( fabs ( outputDerived1->GetValueByName( r, "Variance Y" ).ToDouble() - varsY1[r] ) > 1.e-5 )
+    double testVarY = outputDerived1->GetValueByName( r, "Variance Y" ).ToDouble();
+    if ( fabs ( testVarY - varsY1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for Y");
       testStatus = 1;
       }
 
-    if ( fabs ( outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble() - correlations1[r] ) > 1.e-6 )
+    double testCovariance = outputDerived1->GetValueByName( r, "Covariance" ).ToDouble();
+    if ( fabs ( testCovariance - covariances1[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect covariance");
+      testStatus = 1;
+      }
+
+    double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
+    // Special treatment as some values of Pearson r are Nan, resulting in an exception on VS for <
+    int isNanTest = vtkMath::IsNan( testPearsonR );
+    int isNanCorr = vtkMath::IsNan( correlations1[r] );
+    if ( isNanTest || isNanCorr )
+      {
+      if ( isNanTest != isNanCorr )
+        {
+        vtkGenericWarningMacro("Incorrect correlation coefficient");
+        testStatus = 1;
+        }
+      }
+    else if ( fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
       }
+
+    // Test regression lines if linear regression is valid
+    if ( outputDerived1->GetValueByName( r, "Linear Correlation").ToString() == "valid" )
+      {
+      double testSlopeYX = outputDerived1->GetValueByName( r, "Slope Y/X" ).ToDouble();
+      double testInterceptYX = outputDerived1->GetValueByName( r, "Intercept Y/X" ).ToDouble();
+      if ( fabs ( testSlopeYX * testMeanX + testInterceptYX - testMeanY ) > 1.e-8 )
+        {
+        vtkGenericWarningMacro("Incorrect linear regression of Y on X");
+        testStatus = 1;
+        }
+      
+      double testSlopeXY = outputDerived1->GetValueByName( r, "Slope X/Y" ).ToDouble();
+      double testInterceptXY = outputDerived1->GetValueByName( r, "Intercept X/Y" ).ToDouble();
+      if ( fabs ( testSlopeXY * testMeanY + testInterceptXY - testMeanX ) > 1.e-8 )
+        {
+        vtkGenericWarningMacro("Incorrect linear regression of X on Y");
+        testStatus = 1;
+        }
+      }
+
     cout << "\n";
     }
 
@@ -265,57 +312,46 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->ResetRequests(); // Clear existing pairs
   cs1->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
-  cout << "\n## Searching for outliers with respect to this bivariate Gaussian distribution:\n"
-       << "   (X, Y) = ("
-       << columnPairs[0]
-       << ", "
-       << columnPairs[1]
-       << "), mean=("
-       << meansX1[0]
-       << ", "
-       << meansY1[0]
-       << "), covariance=["
-       << covariance1[0]
-       << ", "
-       << covariance1[2]
-       << " ; "
-       << covariance1[2]
-       << ", "
-       << covariance1[1]
-       << "], Squared Mahalanobis > "
-       << threshold
-       << "\n";
-
-  int nOutliers = 0;
-  int tableIdx[] = { 0, 1, 3 };
-  cout << "   Found the following outliers:\n";
+  cout << "\n## Searching for outliers with respect to various criteria:\n";
+  int assessIdx[] = { 3, 4, 5 };
+  int testIntValue[] = { 3, 3, 4 };
   for ( int i = 0; i < 3; ++ i )
     {
-    cout << "   "
-         << outputData1->GetColumnName( tableIdx[i] );
-    }
-  cout << "\n";
+    cerr << "   For |"
+         <<  outputData1->GetColumnName( assessIdx[i] )
+         << "| > "
+         << threshold[i]
+         << ", found the following outliers:\n";
 
-  for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
-    {
-    if ( outputData1->GetValue( r, tableIdx[2] ).ToDouble() > threshold )
+    int nOutliers = 0;
+
+    for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
       {
-      ++ nOutliers;
-
-      for ( int i = 0; i < 3; ++ i )
+      double assessed = outputData1->GetValue( r, assessIdx[i] ).ToDouble();
+      if ( fabs( assessed ) > threshold[i] )
         {
-        cout << "     "
-             << outputData1->GetValue( r,  tableIdx[i] ).ToDouble()
-             << "    ";
+        ++ nOutliers;
+        
+        cout << "     ("
+             << outputData1->GetValueByName( r, columnPairs[0] ).ToDouble()
+             << ","
+             << outputData1->GetValueByName( r, columnPairs[1] ).ToDouble()
+             << "): "
+           << assessed
+             << "\n";
         }
-      cout << "\n";
-      }
-    }
+      } // r
 
-  if ( nOutliers != 3 )
-    {
-    vtkGenericWarningMacro("Expected 3 outliers, found " << nOutliers << ".");
-    testStatus = 1;
+    // Verify that number of found outliers is correct
+    if ( nOutliers != testIntValue[i] )
+      {
+      vtkGenericWarningMacro("Expected "
+                             <<testIntValue[i]
+                             <<" outliers, found " 
+                             << nOutliers 
+                             << ".");
+      testStatus = 1;
+      }
     }
 
   // Test with a slight variation of initial data set (to test model aggregation)
@@ -323,15 +359,15 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
   dataset4Arr->SetNumberOfComponents( 1 );
-  dataset4Arr->SetName( "Metric 0" );
+  dataset4Arr->SetName( "M0" );
 
   vtkDoubleArray* dataset5Arr = vtkDoubleArray::New();
   dataset5Arr->SetNumberOfComponents( 1 );
-  dataset5Arr->SetName( "Metric 1" );
+  dataset5Arr->SetName( "M1" );
 
   vtkDoubleArray* dataset6Arr = vtkDoubleArray::New();
   dataset6Arr->SetNumberOfComponents( 1 );
-  dataset6Arr->SetName( "Metric 2" );
+  dataset6Arr->SetName( "M2" );
 
   for ( int i = 0; i < nVals2; ++ i )
     {

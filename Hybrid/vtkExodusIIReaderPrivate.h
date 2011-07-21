@@ -55,9 +55,10 @@ public:
   /// Read requested data and store in unstructured grid.
   int RequestData( vtkIdType timeStep, vtkMultiBlockDataSet* output );
 
-  // Description:
-  // Prepare a data set with the proper structure and arrays but no cells.
-  // This is used by the parallel reader when a process has no files assigned to it.
+  /** Description:
+    * Prepare a data set with the proper structure and arrays but no cells.
+    * This is used by the parallel reader when a process has no files assigned to it.
+    */
   int SetUpEmptyGrid( vtkMultiBlockDataSet* output );
 
   /** Reset the class so that another file may be read.
@@ -270,12 +271,6 @@ public:
   vtkGetMacro(AnimateModeShapes, int);
 
   vtkDataArray* FindDisplacementVectors( int timeStep );
-
-  vtkSetMacro(EdgeFieldDecorations,int);
-  vtkGetMacro(EdgeFieldDecorations,int);
-
-  vtkSetMacro(FaceFieldDecorations,int);
-  vtkGetMacro(FaceFieldDecorations,int);
 
   const struct ex_init_params* GetModelParams() const 
     { return &this->ModelParameters; }
@@ -580,12 +575,6 @@ protected:
     */
   int AssembleArraysOverTime(vtkMultiBlockDataSet* output);
 
-  // Generate the decorations for edge fields.
-  void AssembleOutputEdgeDecorations();
-
-  // Generate the decorations for face fields.
-  void AssembleOutputFaceDecorations();
-
   /// Insert cells from a specified block into a mesh
   void InsertBlockCells(
     int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfop );
@@ -806,14 +795,6 @@ protected:
   float DisplacementMagnitude;
   int HasModeShapes;
   int AnimateModeShapes;
-
-  // Specify how to decorate edge and face variables.
-  int EdgeFieldDecorations;
-  int FaceFieldDecorations;
-
-  // Meshes to support edge and face glyph decorations.
-  vtkPolyData* EdgeDecorationMesh;
-  vtkPolyData* FaceDecorationMesh;
 
   /** Should the reader output only points used by elements in the output mesh, 
     * or all the points. Outputting all the points is much faster since the 

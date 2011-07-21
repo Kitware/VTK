@@ -17,6 +17,7 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCollection.h"
+#include "vtkCommand.h"
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
@@ -30,11 +31,12 @@
 #endif
 
 #include "vtkSmartPointer.h"
+#include "vtkWeakPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtkstd/list>
-#include <vtkstd/vector>
+#include <list>
+#include <vector>
 #include <vtksys/hash_map.hxx>
 
 //----------------------------------------------------------------------------
@@ -58,7 +60,7 @@ public:
     void* LocalArgument;
     };
 
-  typedef vtkstd::vector<vtkRMICallback> RMICallbackVector;
+  typedef std::vector<vtkRMICallback> RMICallbackVector;
 
   // key == tag, value == vector of vtkRMICallback instances.
   typedef vtksys::hash_map<int, RMICallbackVector> RMICallbackMap;
@@ -67,14 +69,13 @@ public:
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
-void vtkMultiProcessControllerBreakRMI(void *localArg, 
-                                       void *remoteArg, int remoteArgLength, 
+void vtkMultiProcessControllerBreakRMI(void *localArg,
+                                       void *remoteArg, int remoteArgLength,
                                        int vtkNotUsed(remoteId))
 {
-  vtkMultiProcessController *controller;
-  remoteArg = remoteArg;
-  remoteArgLength = remoteArgLength;
-  controller = (vtkMultiProcessController*)(localArg);
+  (void)remoteArg;
+  (void)remoteArgLength;
+  vtkMultiProcessController *controller = (vtkMultiProcessController*)(localArg);
   controller->SetBreakFlag(1);
 }
 
@@ -307,25 +308,25 @@ vtkMultiProcessController *vtkMultiProcessController::PartitionController(
 
   int numProc = this->GetNumberOfProcesses();
 
-  vtkstd::vector<int> allColors(numProc);
+  std::vector<int> allColors(numProc);
   this->AllGather(&localColor, &allColors[0], 1);
 
-  vtkstd::vector<int> allKeys(numProc);
+  std::vector<int> allKeys(numProc);
   this->AllGather(&localKey, &allKeys[0], 1);
 
-  vtkstd::vector<bool> inPartition;
+  std::vector<bool> inPartition;
   inPartition.assign(numProc, false);
 
   for (int i = 0; i < numProc; i++)
     {
     if (inPartition[i]) continue;
     int targetColor = allColors[i];
-    vtkstd::list<int> partitionIds;     // Make sorted list, then put in group.
+    std::list<int> partitionIds;     // Make sorted list, then put in group.
     for (int j = i; j < numProc; j++)
       {
       if (allColors[j] != targetColor) continue;
       inPartition[j] = true;
-      vtkstd::list<int>::iterator iter = partitionIds.begin();
+      std::list<int>::iterator iter = partitionIds.begin();
       while ((iter != partitionIds.end()) && (allKeys[*iter] <= allKeys[j]))
         {
         iter++;
@@ -336,7 +337,7 @@ vtkMultiProcessController *vtkMultiProcessController::PartitionController(
     VTK_CREATE(vtkProcessGroup, group);
     group->Initialize(this);
     group->RemoveAllProcessIds();
-    for (vtkstd::list<int>::iterator iter = partitionIds.begin();
+    for (std::list<int>::iterator iter = partitionIds.begin();
          iter != partitionIds.end(); iter++)
       {
       group->AddProcessId(*iter);
@@ -533,6 +534,7 @@ int vtkMultiProcessController::ProcessRMIs()
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 {
+  this->InvokeEvent(vtkCommand::StartEvent);
   int triggerMessage[128];
   unsigned char *arg = NULL;
   int error = RMI_NO_ERROR;
@@ -612,6 +614,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       }
     } while (!dont_loop);
 
+  this->InvokeEvent(vtkCommand::EndEvent);
   return error;
 }
 
@@ -621,34 +624,41 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
                                            void *arg, int argLength,
                                            int rmiTag)
 {
-  bool found = false;
+  // we build the list of callbacks to call and then invoke them to handle the
+  // case where the callback removes the callback.
+  std::vector<vtkInternal::vtkRMICallback> callbacks;
+
   vtkInternal::RMICallbackMap::iterator iter =
     this->Internal->RMICallbacks.find(rmiTag);
   if (iter != this->Internal->RMICallbacks.end())
     {
     vtkInternal::RMICallbackVector::iterator iterVec;
     for (iterVec = iter->second.begin();
-      iterVec != iter->second.end(); ++iterVec)
+      iterVec != iter->second.end(); iterVec++)
       {
-      found = true;
       if (iterVec->Function)
         {
-        (*iterVec->Function)(iterVec->LocalArgument, arg, argLength, remoteProcessId);
+        callbacks.push_back(*iterVec);
         }
       }
     }
 
-  if ( ! found)
+  if (callbacks.size()==0)
     {
     vtkErrorMacro("Process " << this->GetLocalProcessId() << 
                   " Could not find RMI with tag " << rmiTag);
+    }
+  
+  std::vector<vtkInternal::vtkRMICallback>::iterator citer;
+  for (citer = callbacks.begin(); citer != callbacks.end(); citer++)
+    {
+    (*citer->Function)(citer->LocalArgument, arg, argLength, remoteProcessId);
     }
 }
 
 //============================================================================
 // The intent is to give access to a processes controller from a static method.
-
-vtkMultiProcessController *VTK_GLOBAL_MULTI_PROCESS_CONTROLLER = NULL;
+vtkWeakPointer<vtkMultiProcessController> VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
 {

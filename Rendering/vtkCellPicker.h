@@ -18,7 +18,7 @@
 // about the first object that the ray hits.  It works for all Prop3Ds.
 // For vtkVolume objects, it shoots a ray into the volume and returns
 // the point where the ray intersects an isosurface of a chosen opacity.
-// For vtkImageActor objects, it intersects the ray with the displayed
+// For vtkImage objects, it intersects the ray with the displayed
 // slice. For vtkActor objects, it intersects the actor's polygons.
 // If the object's mapper has ClippingPlanes, then it takes the clipping
 // into account, and will return the Id of the clipping plane that was
@@ -43,7 +43,7 @@
 class vtkMapper;
 class vtkTexture;
 class vtkAbstractVolumeMapper;
-class vtkImageActor;
+class vtkImageMapper3D;
 class vtkPlaneCollection;
 class vtkPiecewiseFunction;
 class vtkDataArray;
@@ -54,6 +54,7 @@ class vtkGenericCell;
 class vtkImageData;
 class vtkAbstractCellLocator;
 class vtkCollection;
+class vtkMatrix4x4;
 
 class VTK_RENDERING_EXPORT vtkCellPicker : public vtkPicker
 {
@@ -119,8 +120,7 @@ public:
   // and Mapper that the clipping plane belongs to.  The
   // GetClippingPlaneId() method will return the index of the clipping
   // plane so that you can retrieve it from the mapper, or -1 if no
-  // clipping plane was picked. The picking of vtkImageActors is not
-  // influenced by this setting, since they have no clipping planes.
+  // clipping plane was picked.
   vtkSetMacro(PickClippingPlanes, int);
   vtkBooleanMacro(PickClippingPlanes, int);
   vtkGetMacro(PickClippingPlanes, int);
@@ -216,10 +216,11 @@ protected:
                                          vtkProp3D *prop, 
                                          vtkAbstractVolumeMapper *mapper);
 
-  virtual double IntersectImageActorWithLine(const double p1[3],
-                                             const double p2[3],
-                                             double t1, double t2,
-                                             vtkImageActor *imageActor);
+  virtual double IntersectImageWithLine(const double p1[3],
+                                        const double p2[3],
+                                        double t1, double t2,
+                                        vtkProp3D *prop,
+                                        vtkImageMapper3D *mapper);
 
   virtual double IntersectProp3DWithLine(const double p1[3],
                                          const double p2[3],
@@ -227,7 +228,8 @@ protected:
                                          vtkProp3D *prop,
                                          vtkAbstractMapper3D *mapper);
 
-  static int ClipLineWithPlanes(vtkPlaneCollection *planes,
+  static int ClipLineWithPlanes(vtkAbstractMapper3D *mapper,
+                                vtkMatrix4x4 *propMatrix,
                                 const double p1[3], const double p2[3],
                                 double &t1, double &t2, int& planeId);
 

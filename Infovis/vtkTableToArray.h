@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkTableToArray_h
-#define __vtkTableToArray_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkTableToArray - converts a vtkTable to a matrix.
 //
 // .SECTION Description
@@ -39,6 +34,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkTableToArray_h
+#define __vtkTableToArray_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkTableToArray : public vtkArrayDataAlgorithm
 {

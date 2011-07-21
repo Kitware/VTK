@@ -24,10 +24,7 @@
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRegressionTestImage.h"
-
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
+#include "vtkNew.h"
 
 // Monthly circulation data
 static int data_2008[] = {10822, 10941, 9979, 10370, 9460, 11228,
@@ -41,30 +38,30 @@ static int data_2010[] = {9058, 10941, 9979, 10270, 8900, 11228,
 int TestBarGraph(int , char * [])
 {
   // Set up a 2D scene, add an XY chart to it
-  VTK_CREATE(vtkContextView, view);
+  vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
-  VTK_CREATE(vtkChartXY, chart);
-  view->GetScene()->AddItem(chart);
+  vtkNew<vtkChartXY> chart;
+  view->GetScene()->AddItem(chart.GetPointer());
 
   // Create a table with some points in it...
-  VTK_CREATE(vtkTable, table);
+  vtkNew<vtkTable> table;
 
-  VTK_CREATE(vtkIntArray, arrMonth);
+  vtkNew<vtkIntArray> arrMonth;
   arrMonth->SetName("Month");
-  table->AddColumn(arrMonth);
+  table->AddColumn(arrMonth.GetPointer());
 
-  VTK_CREATE(vtkIntArray, arr2008);
+  vtkNew<vtkIntArray> arr2008;
   arr2008->SetName("2008");
-  table->AddColumn(arr2008);
+  table->AddColumn(arr2008.GetPointer());
 
-  VTK_CREATE(vtkIntArray, arr2009);
+  vtkNew<vtkIntArray> arr2009;
   arr2009->SetName("2009");
-  table->AddColumn(arr2009);
+  table->AddColumn(arr2009.GetPointer());
 
-  VTK_CREATE(vtkIntArray, arr2010);
+  vtkNew<vtkIntArray> arr2010;
   arr2010->SetName("2010");
-  table->AddColumn(arr2010);
+  table->AddColumn(arr2010.GetPointer());
 
   table->SetNumberOfRows(12);
   for (int i = 0; i < 12; i++)

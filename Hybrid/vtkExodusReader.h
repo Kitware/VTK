@@ -411,7 +411,9 @@ public:
 
 
 protected:
-  vtkExodusReader();
+  // Description:
+  // @deprecated Replaced by vtkExodusIIReader as of VTK 5.8.
+  VTK_LEGACY(vtkExodusReader());
   ~vtkExodusReader();
 
   void NewExodusModel();

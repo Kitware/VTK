@@ -16,7 +16,7 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkQtLineChartView - Wraps a vtkQtChartArea into a VTK view.
+// .NAME vtkQtLineChartView - Wraps a vtkQtLineChart into a VTK view.
 //
 // .SECTION Description
 // vtkQtLineChartView is a type vtkQtChartView designed for line charts.

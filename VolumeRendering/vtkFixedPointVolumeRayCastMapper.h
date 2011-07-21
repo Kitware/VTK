@@ -482,6 +482,7 @@ protected:
   unsigned short *MinMaxVolume;
   int             MinMaxVolumeSize[4];
   vtkImageData   *SavedMinMaxInput;
+  vtkImageData   *MinMaxVolumeCache;
   vtkVolumeRayCastSpaceLeapingImageFilter * SpaceLeapFilter;
 
   void            UpdateMinMaxVolume( vtkVolume *vol );

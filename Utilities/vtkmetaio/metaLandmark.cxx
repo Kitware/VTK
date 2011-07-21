@@ -26,14 +26,14 @@ namespace METAIO_NAMESPACE {
 
 LandmarkPnt::
 LandmarkPnt(int dim)
-{ 
+{
   m_Dim = dim;
   m_X = new float[m_Dim];
   for(unsigned int i=0;i<m_Dim;i++)
     {
     m_X[i] = 0;
     }
-    
+
   //Color is red by default
   m_Color[0]=1.0f;
   m_Color[1]=0.0f;
@@ -43,7 +43,7 @@ LandmarkPnt(int dim)
 
 LandmarkPnt::
 ~LandmarkPnt()
-{ 
+{
   delete []m_X;
 };
 
@@ -119,14 +119,14 @@ CopyInfo(const MetaObject * _object)
   MetaObject::CopyInfo(_object);
 }
 
-    
+
 
 void MetaLandmark::
 PointDim(const char* pointDim)
 {
   strcpy(m_PointDim,pointDim);
 }
-    
+
 const char* MetaLandmark::
 PointDim(void) const
 {
@@ -160,13 +160,13 @@ Clear(void)
     LandmarkPnt* pnt = *it;
     it++;
     delete pnt;
-  }  
+  }
   m_PointList.clear();
   m_NPoints = 0;
   strcpy(m_PointDim, "x y z red green blue alpha");
   m_ElementType = MET_FLOAT;
 }
-        
+
 /** Destroy tube information */
 void MetaLandmark::
 M_Destroy(void)
@@ -191,7 +191,7 @@ M_SetupReadFields(void)
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "NPoints", MET_INT, true);
   m_Fields.push_back(mF);
- 
+
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "ElementType", MET_STRING, true);
   mF->required = true;
@@ -264,9 +264,9 @@ M_Read(void)
   }
 
   if(META_DEBUG) METAIO_STREAM::cout << "MetaLandmark: M_Read: Parsing Header" << METAIO_STREAM::endl;
- 
+
   MET_FieldRecordType * mF;
- 
+
   mF = MET_GetFieldRecord("NPoints", &m_Fields);
   if(mF->defined)
   {
@@ -295,11 +295,11 @@ M_Read(void)
 
   int pntDim;
   char** pntVal = NULL;
-  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal); 
- 
-    
+  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
+
+
   int j;
-  for(j = 0; j < pntDim; j++) 
+  for(j = 0; j < pntDim; j++)
   {
     if(!strcmp(pntVal[j], "x") || !strcmp(pntVal[j], "X"))
     {
@@ -323,29 +323,30 @@ M_Read(void)
   delete [] pntVal;
 
   float v[16];
-  
+
   if(m_BinaryData)
   {
     int elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
     METAIO_STL::streamsize readSize = m_NPoints*(m_NDims+4)*elementSize;
-    
+
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
     METAIO_STL::streamsize gc = m_ReadStream->gcount();
     if(gc != readSize)
     {
-      METAIO_STREAM::cout << "MetaLandmark: m_Read: data not read completely" 
+      METAIO_STREAM::cout << "MetaLandmark: m_Read: data not read completely"
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
+      delete [] _data;
       return false;
     }
 
     i=0;
     int d;
     unsigned int k;
-    for(j=0; j<(int)m_NPoints; j++) 
+    for(j=0; j<(int)m_NPoints; j++)
     {
       LandmarkPnt* pnt = new LandmarkPnt(m_NDims);
 
@@ -358,7 +359,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_X[d] = (float)td;
         delete [] num;
       }
@@ -372,7 +373,7 @@ M_Read(void)
           }
         float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
+        i+=sizeof(float);
         pnt->m_Color[d] = (float)td;
         delete [] num;
       }
@@ -383,14 +384,14 @@ M_Read(void)
   }
   else
   {
-    for(j=0; j<(int)m_NPoints; j++) 
+    for(j=0; j<(int)m_NPoints; j++)
     {
       LandmarkPnt* pnt = new LandmarkPnt(m_NDims);
-      
+
       for(int k=0; k<pntDim; k++)
       {
         *m_ReadStream >> v[k];
-        m_ReadStream->get(); 
+        m_ReadStream->get();
       }
 
       int d;
@@ -403,18 +404,18 @@ M_Read(void)
       {
         pnt->m_Color[d] = v[d+m_NDims];
       }
-     
+
       m_PointList.push_back(pnt);
     }
 
-      
+
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
     {
       c = m_ReadStream->get();// to avoid unrecognize charactere
     }
   }
-  
+
   delete [] posDim;
   return true;
 }
@@ -457,7 +458,7 @@ M_Write(void)
         MET_DoubleToValue((double)c,m_ElementType,data,i++);
       }
       it++;
-    }  
+    }
     m_WriteStream->write((char *)data,(m_NDims+4)*m_NPoints*elementSize);
     m_WriteStream->write("\n",1);
     delete [] data;
@@ -466,7 +467,7 @@ M_Write(void)
   {
     PointListType::const_iterator it = m_PointList.begin();
     PointListType::const_iterator itEnd = m_PointList.end();
-  
+
     int d;
     while(it != itEnd)
     {

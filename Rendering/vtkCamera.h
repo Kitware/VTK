@@ -424,10 +424,14 @@ public:
   void ComputeProjAndViewParams( );
 
   // Description:
-  // Setting the configuration parameters for head tracked camera
-  void SetConfigParams( double o2screen, double o2right, double o2left,
-                        double o2top, double o2bottom , double interOccDist,
-                        double scale, vtkMatrix4x4 * surfaceRot );
+  // Setting configuration for the physical screen (physical window). The
+  // configuration takes only two parameters the LowerLeft coordinate of the
+  // screen and the UpperRight coordinate
+  void SetScreenConfig( double LowerLeft[4],
+                        double LowerRight[4],
+                        double UpperRight[4] ,
+                        double interOccDist, double scale);
+
   // Description:
   // This function is a convinience function intended for the Paraview
   // ServerManager
@@ -435,6 +439,11 @@ public:
                     double x10,  double x11,  double x12, double x13,
                     double x20,  double x21,  double x22, double x23,
                     double x30,  double x31,  double x32, double x33 );
+
+  // Description:
+  // This is a convenience function to get the current head position. This is
+  // typically used by ParaView for head-tracking support
+  void GetHeadPose( double *x );
 
   // Description:
   // HeadTracker mode. It impacts on the computation of the transforms.
@@ -460,6 +469,7 @@ public:
 protected:
   vtkCamera();
   ~vtkCamera();
+
 
   // Description:
   // These methods should only be used within vtkCamera.cxx.
@@ -504,6 +514,27 @@ protected:
   // This method is used to set the transfromation matrix from Display
   // Surface coordinates wrt the Room Base coordinates
   void SetSurface2Base( vtkMatrix4x4 *head );
+
+  // Description:
+  // This sets the SurfaceRot transfromation based on the screen
+  // basis vectors
+  void SetSurfaceRotation( double xBase[3], double yBase[3], double zBase[3]);
+
+  // Description:
+  // Setting the configuration of the display VRJuggler style. This is to set
+  // the screen coordinaates for head tracking
+  void JugglerConfig( double LowerLeft[4],
+                      double LowerRight[4],
+                      double UpperRight[4] ,
+                      double interOccDist, double scale);
+
+  // Description
+  // Setting the configuration of the display Deering style. This is used to set
+  // teh screen coordinates for head tracking.
+  void DeeringConfig( double LowerLeft[4],
+                      double LowerRight[4],
+                      double UpperRight[4] ,
+                      double interOccDist, double scale);
 
   // Description:
   // Copy the ivars. Do nothing for the matrices.
@@ -554,6 +585,7 @@ protected:
   vtkMatrix4x4 *HeadPose;
   vtkTransform *Surface2Base;
   vtkMatrix4x4 *HeadTrackedViewMat;
+  vtkTransform *PreViewTransform;
 
   double AsymLeft, AsymRight,  AsymBottom,  AsymTop;
   double EyePos[3];
@@ -564,6 +596,7 @@ protected:
   double O2Bottom;
   double EyeOffset;
   double ScaleFactor;
+  vtkMatrix4x4 *SurfaceRot;
 
   // temp
   vtkMatrix4x4 *eyePosMat;

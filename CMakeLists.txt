@@ -81,7 +81,7 @@ endif()
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
-SET(VTK_MINOR_VERSION 8)
+SET(VTK_MINOR_VERSION 9)
 SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
@@ -356,14 +356,6 @@ SET(VTK_MATERIALS_DIRS
 
 MARK_AS_ADVANCED(VTK_USE_CG_SHADERS VTK_USE_GLSL_SHADERS VTK_MATERIALS_DIRS)
 
-# Python multithreading support
-SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 0)
-IF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
-  SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 1)
-ENDIF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
-OPTION(VTK_NO_PYTHON_THREADS "Disable multithreading support in the Python bindings" ${_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT})
-MARK_AS_ADVANCED(VTK_NO_PYTHON_THREADS)
-
 # Add Option to enable Qt Support.
 OPTION(VTK_USE_QT "Build Qt support" OFF)
 
@@ -521,6 +513,9 @@ INCLUDE(vtkTestFullSpecialization)
 
 # Check for explicit template instantiation support by compiler.
 INCLUDE(vtkTestExplicitInstantiation)
+
+# Test for atomics and other compiler intrinsics
+INCLUDE(vtkTestBuiltins)
 
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
@@ -1333,6 +1328,7 @@ ADD_SUBDIRECTORY(  Imaging )
 ADD_SUBDIRECTORY(  Graphics )
 ADD_SUBDIRECTORY(  GenericFiltering )
 ADD_SUBDIRECTORY(  IO )
+ADD_SUBDIRECTORY(  AMR )
 
 IF(VTK_USE_RENDERING)
   ADD_SUBDIRECTORY(Rendering)

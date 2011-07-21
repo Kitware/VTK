@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkCommand.h"
 #include "vtkDebugLeaks.h"
 
@@ -121,7 +120,6 @@ vtkCommand::vtkCommand():AbortFlag(0),PassiveObserver(0)
 #endif
 }
 
-
 //----------------------------------------------------------------
 void vtkCommand::UnRegister()
 {
@@ -139,46 +137,37 @@ void vtkCommand::UnRegister()
 //----------------------------------------------------------------
 const char *vtkCommand::GetStringFromEventId(unsigned long event)
 {
-  static unsigned long numevents = 0;
-  
   // find length of table
-  if (!numevents)
-    {
-    while (vtkCommandEventStrings[numevents] != NULL)
-      {
-      numevents++;
-      }
-    }
+  static unsigned long numevents = sizeof( vtkCommandEventStrings )
+    / sizeof( *vtkCommandEventStrings ) - 1; // do not count NULL sentinel
 
   if (event < numevents)
     {
     return vtkCommandEventStrings[event];
     }
-  else if (event == vtkCommand::UserEvent)
+  if (event == vtkCommand::UserEvent)
     {
     return "UserEvent";
     }
-  else
-    {
-    return "NoEvent";
-    }
+  return "NoEvent";
 }
   
 //----------------------------------------------------------------
 unsigned long vtkCommand::GetEventIdFromString(const char *event)
 {  
-  unsigned long i;
-
-  for (i = 0; vtkCommandEventStrings[i] != NULL; i++)
-    { 
-    if (!strcmp(vtkCommandEventStrings[i],event))
-      {
-      return i;
-      }
-    }
-  if (!strcmp("UserEvent",event))
+  if (event)
     {
-    return vtkCommand::UserEvent;
+    for (unsigned long i = 0; vtkCommandEventStrings[i] != NULL; i++)
+      { 
+      if (!strcmp(vtkCommandEventStrings[i],event))
+        {
+        return i;
+        }
+      }
+    if (!strcmp("UserEvent",event))
+      {
+      return vtkCommand::UserEvent;
+      }
     }
   return vtkCommand::NoEvent;
 }

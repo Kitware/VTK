@@ -381,12 +381,6 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
 
   this->SqueezePoints = 1;
 
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
-
-  this->EdgeDecorationMesh = 0;
-  this->FaceDecorationMesh = 0;
-  
   this->Parser = 0;
 
   this->FastPathObjectType = vtkExodusIIReader::NODAL;
@@ -1114,28 +1108,6 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
 }
 
 //-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputEdgeDecorations()
-{
-  if ( this->EdgeFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-
-}
-
-//-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputFaceDecorations()
-{
-  if ( this->FaceFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-  
-}
-
-//-----------------------------------------------------------------------------
 void vtkExodusIIReaderPrivate::InsertBlockCells(
   int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfo )
 {
@@ -1169,6 +1141,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       binfo->Status = 0;
       return;
       }
+    ent->Register (this);
     }
 
   vtkIntArray* arr;
@@ -1253,6 +1226,10 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       }
 #endif // VTK_USE_64BIT_IDS
     }
+    if (ent) 
+      {
+      ent->UnRegister (this);
+      }
 }
 
 //-----------------------------------------------------------------------------
@@ -4659,10 +4636,6 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
   // option is available:
   this->ProducedFastPathOutput = (this->AssembleArraysOverTime(output) != 0);
 
-  // Finally, generate the decorations for edge and face fields.
-  this->AssembleOutputEdgeDecorations();
-  this->AssembleOutputFaceDecorations();
-
   this->CloseFile();
 
   return 0;
@@ -4842,9 +4815,6 @@ void vtkExodusIIReaderPrivate::ResetSettings()
   this->AnimateModeShapes = 1;
 
   this->SqueezePoints = 1;
-
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
 
   this->InitialArrayInfo.clear();
   this->InitialObjectInfo.clear();
@@ -5585,8 +5555,6 @@ int vtkExodusIIReader::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Check if a particular time was requested.
-  int timeStep = this->TimeStep;
-
   if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
     { // Get the requested time step. We only support requests of a single time step in this reader right now
     double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
@@ -5662,8 +5630,8 @@ int vtkExodusIIReader::RequestData(
     haveFastPath = true;
     }
 
-  //cout << "Requesting step " << timeStep << " for output " << output << "\n";
-  this->Metadata->RequestData( timeStep, output );
+  //cout << "Requesting step " << this->TimeStep << " for output " << output << "\n";
+  this->Metadata->RequestData( this->TimeStep, output );
   this->ProducedFastPathOutput = this->Metadata->ProducedFastPathOutput;
 
   // Restore previous fastpath values so we don't respond to old pipeline requests
@@ -5770,26 +5738,6 @@ void vtkExodusIIReader::SetAnimateModeShapes(int flag)
 int vtkExodusIIReader::GetAnimateModeShapes()
 {
   return this->Metadata->GetAnimateModeShapes();
-}
-
-void vtkExodusIIReader::SetEdgeFieldDecorations( int d )
-{
-  this->Metadata->SetEdgeFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetEdgeFieldDecorations()
-{
-  return this->Metadata->GetEdgeFieldDecorations();
-}
-
-void vtkExodusIIReader::SetFaceFieldDecorations( int d )
-{
-  this->Metadata->SetFaceFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetFaceFieldDecorations()
-{
-  return this->Metadata->GetFaceFieldDecorations();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }

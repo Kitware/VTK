@@ -18,17 +18,17 @@ int main(int , char * [])
     pnt->m_X[0]=(float)0.2;pnt->m_X[1]=i;pnt->m_X[2]=i;
     Landmark.GetPoints().push_back(pnt);
   }
-  
+
   METAIO_STREAM::cout << "Writing test file ..." << METAIO_STREAM::endl;
-   
+
   Landmark.BinaryData(true);
   Landmark.ElementType(MET_FLOAT);
   Landmark.Write("Landmarks.meta");
 
   METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
- 
+
   METAIO_STREAM::cout << "Reading test file ..." << METAIO_STREAM::endl;
-  Landmark.Read("Landmarks.meta"); 
+  Landmark.Read("Landmarks.meta");
 
   METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
 
@@ -38,7 +38,7 @@ int main(int , char * [])
 
   MetaLandmark::PointListType plist =  Landmark.GetPoints();
   MetaLandmark::PointListType::const_iterator it = plist.begin();
-  
+
   while(it != plist.end())
   {
     for(unsigned int d = 0; d < 3; d++)

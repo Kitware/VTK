@@ -40,6 +40,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkStdString);
 #include <vtkstd/utility>
 #include <vtkstd/algorithm>
 #include <vtkstd/map>
+#include <vtkstd/vector>
 
 // Map containing updates to a vtkStringArray that have occurred
 // since we last build the vtkStringArrayLookup.
@@ -652,14 +653,21 @@ void vtkStringArray::UpdateLookup()
     {
     int numComps = this->GetNumberOfComponents();
     vtkIdType numTuples = this->GetNumberOfTuples();
-    this->Lookup->SortedArray->DeepCopy(this);
+    this->Lookup->SortedArray->Initialize();
+    this->Lookup->SortedArray->SetNumberOfComponents(numComps);
+    this->Lookup->SortedArray->SetNumberOfTuples(numTuples);
     this->Lookup->IndexArray->SetNumberOfIds(numComps*numTuples);
+    vtkstd::vector<vtkstd::pair<vtkStdString, vtkIdType> > v;
     for (vtkIdType i = 0; i < numComps*numTuples; i++)
       {
-      this->Lookup->IndexArray->SetId(i, i);
+      v.push_back(vtkstd::pair<vtkStdString, vtkIdType>(this->Array[i], i));
       }
-    vtkSortDataArray::Sort(this->Lookup->SortedArray,
-                           this->Lookup->IndexArray);
+    vtkstd::sort(v.begin(), v.end());
+    for (vtkIdType i = 0; i < numComps*numTuples; i++)
+      {
+      this->Lookup->SortedArray->SetValue(i, v[i].first);
+      this->Lookup->IndexArray->SetId(i, v[i].second);
+      }
     this->Lookup->Rebuild = false;
     this->Lookup->CachedUpdates.clear();
     }
@@ -857,12 +865,18 @@ void vtkStringArray::ClearLookup()
 
 void vtkStringArray::SetValue( vtkIdType id, const char *value )
 {
-  this->SetValue( id, vtkStdString(value) );
+  if( value )
+    {
+    this->SetValue( id, vtkStdString(value) );
+    }
 }
 
 void vtkStringArray::InsertValue( vtkIdType id, const char *value )
 {
-  this->InsertValue( id, vtkStdString( value ) );
+  if( value )
+    {
+    this->InsertValue( id, vtkStdString( value ) );
+    }
 }
 
 void vtkStringArray::SetVariantValue( vtkIdType id, vtkVariant value )
@@ -872,17 +886,30 @@ void vtkStringArray::SetVariantValue( vtkIdType id, vtkVariant value )
 
 vtkIdType vtkStringArray::InsertNextValue( const char *value )
 {
-  return this->InsertNextValue( vtkStdString( value ) );
+  if( value )
+    {
+    return this->InsertNextValue( vtkStdString( value ) );
+    }
+  return this->MaxId;
 }
 
 vtkIdType vtkStringArray::LookupValue( const char *value )
 {
-  return this->LookupValue( vtkStdString( value ) );
+  if( value )
+    {
+    return this->LookupValue( vtkStdString( value ) );
+    }
+  return -1;
 }
 
 void vtkStringArray::LookupValue( const char *value, vtkIdList* ids)
 {
-  this->LookupValue( vtkStdString( value ), ids);
+  if( value )
+    {
+    this->LookupValue( vtkStdString( value ), ids);
+    return;
+    }
+  ids->Reset();
 }
 
 // ----------------------------------------------------------------------------

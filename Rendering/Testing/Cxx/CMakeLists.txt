@@ -31,6 +31,18 @@ IF(VTK_USE_DISPLAY)
     TestGPUInfo.cxx
     TestGradientBackground.cxx
     TestHomogeneousTransformOfActor.cxx
+    TestImageResliceMapperAlpha.cxx
+    TestImageResliceMapperBorder.cxx
+    TestImageResliceMapperInterpolation.cxx
+    TestImageResliceMapperOffAxis.cxx
+    TestImageResliceMapperOrient3D.cxx
+    TestImageResliceMapperSlab.cxx
+    TestImageSliceMapperAlpha.cxx
+    TestImageSliceMapperBorder.cxx
+    TestImageSliceMapperOrient2D.cxx
+    TestImageSliceMapperOrient3D.cxx
+    TestImageSliceMapperInterpolation.cxx
+    TestImageStack.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
     TestLabelPlacer2D.cxx

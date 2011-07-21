@@ -62,6 +62,22 @@
 "Undefined"))))))))))))))))))))))
   
 //
+// Set built-in type. Creates member Set"name"() & Get"name"()
+// Note: This method can be used by objects that do not inherit
+// by vtkObject.
+//
+#define vtkSetNGetMacro(name,type) \
+virtual void Set##name( type _arg ) \
+  { \
+    this->name = _arg; \
+  } \
+virtual type Get##name( ) \
+  { \
+    return this->name; \
+  }
+
+
+//
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //
 #define vtkSetMacro(name,type) \
@@ -505,7 +521,7 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
      }                                                          \
    }
 
-#ifdef VTK_LEAN_AND_MEAN
+#ifdef NDEBUG
 # define vtkDebugWithObjectMacro(self, x)
 #else
 # define vtkDebugWithObjectMacro(self, x)                                     \
@@ -780,7 +796,7 @@ virtual double *Get##name() \
 #endif
 
 // Old-style legacy code marker macro.
-#if !defined(VTK_LEGACY_REMOVE) && !defined(VTK_LEAN_AND_MEAN)
+#if !defined(VTK_LEGACY_REMOVE) && !defined(NDEBUG)
 #define VTK_LEGACY_METHOD(oldMethod,versionStringMadeLegacy) \
   vtkErrorMacro(<< #oldMethod \
                 << " was obsoleted for version " << #versionStringMadeLegacy \

@@ -58,7 +58,7 @@ int TestArrayCalculator(int argc, char *argv[])
   calc2->AddScalarArrayName("Pres");
   calc2->AddScalarArrayName("Temp");
   calc2->AddScalarArrayName("norm");
-  calc2->SetFunction("Temp*iHat + Pres*jHat + norm*kHat");
+  calc2->SetFunction("(2 * (Temp*iHat + Pres*jHat + norm*kHat))/2.0");
   calc2->SetResultArrayName("PresVector");
   calc2->Update();
 

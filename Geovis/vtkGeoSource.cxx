@@ -34,32 +34,6 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-// For vtkSleep
-#include "vtkWindows.h"
-#include <ctype.h>
-#include <time.h>
-#if _WIN32
-#include "windows.h"
-#endif
-
-//-----------------------------------------------------------------------------
-// Cross platform sleep
-inline void vtkSleep(double duration)
-{
-  // sleep according to OS
-#ifdef _WIN32
-  Sleep( (int)( 1000 * duration ) );
-#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi) || defined(__APPLE__)
-  struct timespec sleep_time, dummy;
-  sleep_time.tv_sec = static_cast<int>( duration );
-  sleep_time.tv_nsec = static_cast<int>( 1000000000 * ( duration - sleep_time.tv_sec ) );
-  nanosleep( &sleep_time, &dummy );
-#else
-  (void)duration;
-  #warning Missing sleep implementation
-#endif
-}
-
 VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 {
   vtkGeoSource* self;

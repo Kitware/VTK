@@ -76,7 +76,6 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering/vtkMarchingSquaresCases.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering/vtkMarchingCubesCases.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkWindows.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkWinCE.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTcl.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTk.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \

@@ -96,6 +96,7 @@ vtkCamera::vtkCamera()
   this->FocalDisk = 1.0;
 
   this->Transform = vtkPerspectiveTransform::New();
+  this->SurfaceRot = vtkMatrix4x4::New();
   this->ViewTransform = vtkTransform::New();
   this->ProjectionTransform = vtkPerspectiveTransform::New();
   this->CameraLightTransform = vtkTransform::New();
@@ -106,7 +107,7 @@ vtkCamera::vtkCamera()
   // Head tracking
   this->HeadTracked = 0;
   this->HeadPose = vtkMatrix4x4::New();
-
+  this->PreViewTransform = vtkTransform::New();
   // HeadTracked Projection parameters
   this->AsymLeft  = 0.0;
   this->AsymRight = 0.0;
@@ -164,11 +165,13 @@ vtkCamera::~vtkCamera()
     this->UserViewTransformCallbackCommand->Delete();
     }
   this->HeadPose->Delete();
+  this->SurfaceRot->Delete();
   this->Surface2Base->Delete();
   this->HeadTrackedViewMat->Delete();
   this->eyePosMat->Delete();
   this->negEyePosMat->Delete();
   this->eyeOffsetMat->Delete();
+  this->PreViewTransform->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -343,10 +346,25 @@ void vtkCamera::ComputeViewTransform()
     }
   if ( this->HeadTracked )
     {
+    this->PreViewTransform->Identity();
     this->ViewTransform->Identity();
-    this->ViewTransform->SetMatrix(this->HeadTrackedViewMat);
+    this->HeadTrackedViewMat->SetElement( 0, 3,
+                                             this->HeadTrackedViewMat->GetElement( 0, 3 )
+                                             + this->Position[0] );
+    this->HeadTrackedViewMat->SetElement( 1, 3,
+                                             this->HeadTrackedViewMat->GetElement( 1, 3 )
+                                             +this->Position[1] );
+    this->HeadTrackedViewMat->SetElement( 2, 3,
+                                             this->HeadTrackedViewMat->GetElement( 2, 3 )
+                                             + this->Position[2] );
+    this->PreViewTransform->SetMatrix(this->HeadTrackedViewMat);
     this->Transform->SetupCamera(this->Position,this->FocalPoint,this->ViewUp);
-    this->ViewTransform->Concatenate(this->Transform->GetMatrix());
+    this->Transform->GetMatrix()->SetElement( 0, 3, -this->Position[0] );
+    this->Transform->GetMatrix()->SetElement( 1, 3, -this->Position[1] );
+    this->Transform->GetMatrix()->SetElement( 2, 3, -this->Position[2] );
+    this->ViewTransform->SetMatrix( this->Transform->GetMatrix() );
+    this->PreViewTransform->Concatenate( this->ViewTransform->GetMatrix() );
+    this->ViewTransform->SetMatrix( this->PreViewTransform->GetMatrix() );
     }
   else
     {
@@ -864,8 +882,13 @@ void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
                             double x20,  double x21,  double x22, double x23,
                             double x30,  double x31,  double x32, double x33 )
 {
-
-
+  vtkDebugMacro( <<"vtkCamera::HeadTracked = " << this->HeadTracked );
+  vtkDebugMacro( << "vtkCamera::SetHeadPose( "
+                 << x00 << " " << x01 << " " << x02 << " " << x03
+                 << x10 << " " << x11 << " " << x12 << " " << x13
+                 << x20 << " " << x21 << " " << x22 << " " << x23
+                 << x30 << " " << x31 << " " << x32 << " " << x33
+                 << ")" );
   this->HeadPose->SetElement( 0,0,x00 );
   this->HeadPose->SetElement( 0,1,x01 );
   this->HeadPose->SetElement( 0,2,x02 );
@@ -885,8 +908,30 @@ void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
   this->HeadPose->SetElement( 3,1,x31 );
   this->HeadPose->SetElement( 3,2,x32 );
   this->HeadPose->SetElement( 3,3,x33 );
-  // this->ComputeProjAndViewParams();
-  // this->ComputeViewTransform();
+}
+
+// -----------------------------------------------------------------HeadTracked
+void vtkCamera::GetHeadPose( double x[16] )
+{
+  x[0] = this->HeadPose->GetElement( 0,0 );
+  x[1] = this->HeadPose->GetElement( 0,1 );
+  x[2] = this->HeadPose->GetElement( 0,2 );
+  x[3] = this->HeadPose->GetElement( 0,3 );
+
+  x[4] = this->HeadPose->GetElement( 1,0 );
+  x[5] = this->HeadPose->GetElement( 1,1 );
+  x[6] = this->HeadPose->GetElement( 1,2 );
+  x[7] = this->HeadPose->GetElement( 1,3 );
+
+  x[8] = this->HeadPose->GetElement( 2,0 );
+  x[9] = this->HeadPose->GetElement( 2,1 );
+  x[10] = this->HeadPose->GetElement( 2,2 );
+  x[11] = this->HeadPose->GetElement( 2,3 );
+
+  x[12] = this->HeadPose->GetElement( 3,0 );
+  x[13] = this->HeadPose->GetElement( 3,1 );
+  x[14] = this->HeadPose->GetElement( 3,2 );
+  x[15] = this->HeadPose->GetElement( 3,3 );
 }
 
 //------------------------------------------------------------------HeadTracked
@@ -952,18 +997,77 @@ void vtkCamera::ComputeProjAndViewParams()
 }
 
 //------------------------------------------------------------------HeadTracked
-void vtkCamera::SetConfigParams( double o2screen, double o2right, double o2left,
-                                 double o2top, double o2bottom , double interOccDist,
-                                 double scale, vtkMatrix4x4 * surfaceRot )
+void vtkCamera::SetScreenConfig( double LowerLeft[3],
+                                 double LowerRight[3],
+                                 double UpperRight[3],
+                                 double interOccDist, double scale)
 {
-  this->O2Screen = o2screen;
-  this->O2Right = o2right;
-  this->O2Left = o2left;
-  this->O2Top = o2top;
-  this->O2Bottom = o2bottom;
-  this->SetSurface2Base( surfaceRot );
+  this->JugglerConfig( LowerLeft, LowerRight, UpperRight, interOccDist, scale );
+  this->DeeringConfig( LowerLeft, LowerRight, UpperRight, interOccDist, scale );
+}
+
+// ----------------------------------------------------------------DeeringLogic
+void vtkCamera::DeeringConfig ( double LowerLeft[3],
+                                double LowerRight[3],
+                                double UpperRight[3],
+                                double interOccDist, double scale)
+{
+
+}
+
+// ----------------------------------------------------------------JugglerLogic
+void vtkCamera::JugglerConfig ( double DisplayOrigin[3],
+                                double DisplayX[3],
+                                double DisplayY[3],
+                                double interOccDist, double scale)
+{
+  // Base coordinates of the screen
+  double xBase[3], yBase[3], zBase[3];
+  for (int i = 0; i < 3; ++i)
+    {
+    xBase[i] = DisplayX[i]-DisplayOrigin[i];
+    yBase[i] = DisplayY[i]-DisplayX[i];
+    }
+  vtkMath::Cross( xBase, yBase, zBase );
+
+  this->SetSurfaceRotation( xBase, yBase, zBase);
+
+  // Get the new DisplayOrigin, DisplayX and DisplayY after transfromation
+  this->SurfaceRot->MultiplyPoint( DisplayOrigin, DisplayOrigin );
+  this->SurfaceRot->MultiplyPoint( DisplayX, DisplayX );
+  this->SurfaceRot->MultiplyPoint( DisplayY, DisplayY );
+
+  // Set O2Screen, O2Right, O2Left, O2Bottom, O2Top
+  this->O2Screen = - DisplayOrigin[2];
+  this->O2Right  =   DisplayX[0];
+  this->O2Left   = - DisplayOrigin[0];
+  this->O2Top    =   DisplayY[1];
+  this->O2Bottom = - DisplayX[1];
+  this->SetSurface2Base( this->SurfaceRot );
   this->ScaleFactor = scale;
   this->EyeOffset = ( interOccDist*scale )/2.0;
+}
+
+//------------------------------------------------------------------HeadTracked
+void vtkCamera::SetSurfaceRotation( double xBase[3],
+                                    double yBase[3],
+                                    double zBase[3])
+{
+  vtkMath::Normalize( xBase );
+  vtkMath::Normalize( yBase );
+  vtkMath::Normalize( zBase );
+
+  this->SurfaceRot->SetElement( 0, 0, xBase[0] );
+  this->SurfaceRot->SetElement( 0, 1, xBase[1] );
+  this->SurfaceRot->SetElement( 0, 2, xBase[2] );
+
+  this->SurfaceRot->SetElement( 1, 0, yBase[0] );
+  this->SurfaceRot->SetElement( 1, 1, yBase[1] );
+  this->SurfaceRot->SetElement( 1, 2, yBase[2] );
+
+  this->SurfaceRot->SetElement( 2, 0, zBase[0]);
+  this->SurfaceRot->SetElement( 2, 1, zBase[1]);
+  this->SurfaceRot->SetElement( 2, 2, zBase[2]);
 }
 
 //------------------------------------------------------------------HeadTracked
@@ -971,7 +1075,7 @@ void vtkCamera::SetSurface2Base( vtkMatrix4x4 *surfaceRot )
 {
   // Invert the surfaceRot matrix to get Surface2Base
   this->Surface2Base->SetMatrix( surfaceRot );
-  //  this->Surface2Base->Inverse();
+  //this->Surface2Base->Inverse();
 }
 
 

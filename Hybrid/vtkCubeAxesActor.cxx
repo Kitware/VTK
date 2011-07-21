@@ -15,14 +15,17 @@
  =========================================================================*/
 #include "vtkCubeAxesActor.h"
 
+#include "vtkAxisActor.h"
+#include "vtkAxisFollower.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
-#include "vtkAxisActor.h"
+#include "vtkFollower.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
 #include "vtkViewport.h"
+
 
 // *************************************************************************
 // Modifications:
@@ -66,17 +69,18 @@ vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 //
 // *************************************************************************
 
-vtkCubeAxesActor::vtkCubeAxesActor()
+vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 {
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
-  this->TickLocation = VTK_TICKS_INSIDE;
   this->Camera = NULL;
+
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
+
   int i;
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i] = vtkAxisActor::New();
     this->XAxes[i]->SetTickVisibility(1);
@@ -85,6 +89,8 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->XAxes[i]->SetTitleVisibility(1);
     this->XAxes[i]->SetAxisTypeToX();
     this->XAxes[i]->SetAxisPosition(i);
+    this->XAxes[i]->SetCalculateTitleOffset(0);
+    this->XAxes[i]->SetCalculateLabelOffset(0);
 
     this->YAxes[i] = vtkAxisActor::New();
     this->YAxes[i]->SetTickVisibility(1);
@@ -93,6 +99,8 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->YAxes[i]->SetTitleVisibility(1);
     this->YAxes[i]->SetAxisTypeToY();
     this->YAxes[i]->SetAxisPosition(i);
+    this->YAxes[i]->SetCalculateTitleOffset(0);
+    this->YAxes[i]->SetCalculateLabelOffset(0);
 
     this->ZAxes[i] = vtkAxisActor::New();
     this->ZAxes[i]->SetTickVisibility(1);
@@ -101,17 +109,41 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->ZAxes[i]->SetTitleVisibility(1);
     this->ZAxes[i]->SetAxisTypeToZ();
     this->ZAxes[i]->SetAxisPosition(i);
+    this->ZAxes[i]->SetCalculateTitleOffset(0);
+    this->ZAxes[i]->SetCalculateLabelOffset(0);
+
+    this->ScreenSize = 10.0;
+
+    this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
+    this->TitleScreenOffset =
+      this->LabelScreenOffset * 2.0 + this->ScreenSize * 0.5;
+
+    // Pass information to axes followers.
+    this->XAxes[i]->GetTitleActor()->SetAxis(this->XAxes[i]);
+    this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+
+    this->YAxes[i]->GetTitleActor()->SetAxis(this->YAxes[i]);
+    this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+
+    this->ZAxes[i]->GetTitleActor()->SetAxis(this->ZAxes[i]);
+    this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
     }
 
-  this->XLabelFormat = new char[8];
-  sprintf(this->XLabelFormat, "%s", "%-#6.3g");
-  this->YLabelFormat = new char[8];
-  sprintf(this->YLabelFormat, "%s", "%-#6.3g");
-  this->ZLabelFormat = new char[8];
-  sprintf(this->ZLabelFormat, "%s", "%-#6.3g");
-  this->CornerOffset = 0.0;
-  this->Inertia = 1;
-  this->RenderCount = 0;
+  this->XTitle = new char[7];
+  sprintf(this->XTitle, "%s", "X-Axis");
+  this->XUnits = NULL;
+  this->YTitle = new char[7];
+  sprintf(this->YTitle, "%s", "Y-Axis");
+  this->YUnits = NULL;
+  this->ZTitle = new char[7];
+  sprintf(this->ZTitle, "%s", "Z-Axis");
+  this->ZUnits = NULL;
+
+  this->ActualXLabel = 0;
+  this->ActualYLabel = 0;
+  this->ActualZLabel = 0;
+
+  this->TickLocation = VTK_TICKS_INSIDE;
 
   this->XAxisVisibility = 1;
   this->YAxisVisibility = 1;
@@ -133,23 +165,33 @@ vtkCubeAxesActor::vtkCubeAxesActor()
   this->DrawYGridlines = 0;
   this->DrawZGridlines = 0;
 
-  this->XTitle = new char[7];
-  sprintf(this->XTitle, "%s", "X-Axis");
-  this->XUnits = NULL;
-  this->YTitle = new char[7];
-  sprintf(this->YTitle, "%s", "Y-Axis");
-  this->YUnits = NULL;
-  this->ZTitle = new char[7];
-  sprintf(this->ZTitle, "%s", "Z-Axis");
-  this->ZUnits = NULL;
+  this->XLabelFormat = new char[8];
+  sprintf(this->XLabelFormat, "%s", "%-#6.3g");
+  this->YLabelFormat = new char[8];
+  sprintf(this->YLabelFormat, "%s", "%-#6.3g");
+  this->ZLabelFormat = new char[8];
+  sprintf(this->ZLabelFormat, "%s", "%-#6.3g");
 
-  this->ActualXLabel = 0;
-  this->ActualYLabel = 0;
-  this->ActualZLabel = 0;
+  this->CornerOffset = 0.0;
+
+  this->Inertia = 1;
+
+  this->RenderCount = 0;
+
+  this->InertiaLocs[0] = this->InertiaLocs[1] = this->InertiaLocs[2] = -1;
+
+  this->RenderSomething = 0;
 
   this->LastXPow = 0;
   this->LastYPow = 0;
   this->LastZPow = 0;
+
+  this->UserXPow = 0;
+  this->UserYPow = 0;
+  this->UserZPow = 0;
+
+  this->AutoLabelScaling = true;
+
   this->LastXAxisDigits = 3;
   this->LastYAxisDigits = 3;
   this->LastZAxisDigits = 3;
@@ -162,7 +204,8 @@ vtkCubeAxesActor::vtkCubeAxesActor()
   this->LastZRange[1] = VTK_FLOAT_MAX;
 
   this->LastFlyMode = -1;
-  for (i = 0; i < 4; i++)
+
+  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->RenderAxesX[i] = i;
     this->RenderAxesY[i] = i;
@@ -178,17 +221,15 @@ vtkCubeAxesActor::vtkCubeAxesActor()
   this->ForceYLabelReset = false;
   this->ForceZLabelReset = false;
 
-  this->AutoLabelScaling = true;
-  this->UserXPow = 0;
-  this->UserYPow = 0;
-  this->UserZPow = 0;
-
   this->XAxisRange[0] = VTK_DOUBLE_MAX;
   this->XAxisRange[1] = VTK_DOUBLE_MAX;
   this->YAxisRange[0] = VTK_DOUBLE_MAX;
   this->YAxisRange[1] = VTK_DOUBLE_MAX;
   this->ZAxisRange[0] = VTK_DOUBLE_MAX;
   this->ZAxisRange[1] = VTK_DOUBLE_MAX;
+
+  this->LabelScale = -1.0;
+  this->TitleScale = -1.0;
 }
 
 // ****************************************************************************
@@ -228,6 +269,10 @@ void vtkCubeAxesActor::ShallowCopy(vtkCubeAxesActor *actor)
   this->ForceXLabelReset = actor->ForceXLabelReset;
   this->ForceYLabelReset = actor->ForceYLabelReset;
   this->ForceZLabelReset = actor->ForceZLabelReset;
+
+  this->LabelScreenOffset = actor->LabelScreenOffset;
+  this->TitleScreenOffset = actor->TitleScreenOffset;
+  this->ScreenSize        = actor->ScreenSize;
 }
 
 // ****************************************************************************
@@ -245,7 +290,7 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
 {
   this->SetCamera(NULL);
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     if (this->XAxes[i])
       {
@@ -365,7 +410,7 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   if (initialRender)
     {
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
       {
       this->XAxes[i]->BuildAxis(viewport, true);
       this->YAxes[i]->BuildAxis(viewport, true);
@@ -407,8 +452,10 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 }
 
 // Do final adjustment of axes to control offset, etc.
-void vtkCubeAxesActor::AdjustAxes(double bounds[6], double xCoords[4][6],
-                                  double yCoords[4][6], double zCoords[4][6],
+void vtkCubeAxesActor::AdjustAxes(double bounds[6],
+                                  double xCoords[NUMBER_OF_ALIGNED_AXIS][6],
+                                  double yCoords[NUMBER_OF_ALIGNED_AXIS][6],
+                                  double zCoords[NUMBER_OF_ALIGNED_AXIS][6],
                                   double xRange[2], double yRange[2],
                                   double zRange[2])
 {
@@ -432,7 +479,7 @@ void vtkCubeAxesActor::AdjustAxes(double bounds[6], double xCoords[4][6],
   // Pull back the corners if specified
   if (this->CornerOffset > 0.0)
     {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
       {
       double ave;
 
@@ -490,12 +537,54 @@ void vtkCubeAxesActor::AdjustAxes(double bounds[6], double xCoords[4][6],
     }
 }
 
+// *************************************************************************
+// Screen size affects the screen offset as well.
+// *************************************************************************
+void vtkCubeAxesActor::SetScreenSize(double screenSize)
+{
+this->ScreenSize = screenSize;
+// Considering pivot point at center of the geometry hence (this->ScreenSize * 0.5).
+this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
+this->TitleScreenOffset = this->LabelScreenOffset * 2.0 +
+  this->ScreenSize * 0.5;
+
+for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  {
+  this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+  this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+  this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+
+  int numberOfLabelsBuild = this->XAxes[i]->GetNumberOfLabelsBuilt();
+  vtkAxisFollower **labelActors = this->XAxes[i]->GetLabelActors();
+  for(int k=0; k < numberOfLabelsBuild; ++k)
+    {
+    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+    }
+
+  numberOfLabelsBuild = this->YAxes[i]->GetNumberOfLabelsBuilt();
+  labelActors = this->YAxes[i]->GetLabelActors();
+  for(int k=0; k < numberOfLabelsBuild; ++k)
+    {
+    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+    }
+
+  numberOfLabelsBuild = this->ZAxes[i]->GetNumberOfLabelsBuilt();
+  labelActors = this->ZAxes[i]->GetLabelActors();
+  for(int k=0; k < numberOfLabelsBuild; ++k)
+    {
+    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+    }
+  }
+
+this->Modified();
+}
+
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
 void vtkCubeAxesActor::ReleaseGraphicsResources(vtkWindow *win)
 {
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->ReleaseGraphicsResources(win);
     this->YAxes[i]->ReleaseGraphicsResources(win);
@@ -566,6 +655,8 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     << this->YAxisRange[1] << "] " << endl;
   os << indent << "ZAxisRange: [" << this->ZAxisRange[0] << ", "
     << this->ZAxisRange[1] << "] " << endl;
+
+  os << indent << "ScreenSize: (" << this->ScreenSize << ")\n";
 
   if (this->Camera)
     {
@@ -724,16 +815,19 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
     {
     this->AdjustTicksComputeRange(this->XAxes, bounds[0], bounds[1]);
     this->BuildLabels(this->XAxes);
+    this->UpdateLabels(this->XAxes, 0);
     }
   if (yRangeChanged)
     {
     this->AdjustTicksComputeRange(this->YAxes, bounds[2], bounds[3]);
     this->BuildLabels(this->YAxes);
+    this->UpdateLabels(this->YAxes, 1);
     }
   if (zRangeChanged)
     {
     this->AdjustTicksComputeRange(this->ZAxes, bounds[4], bounds[5]);
     this->BuildLabels(this->ZAxes);
+    this->UpdateLabels(this->ZAxes, 2);
     }
 
   this->LastXRange[0] = (this->XAxisRange[0] == VTK_DOUBLE_MAX ?
@@ -751,7 +845,7 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
 
   double major = 0.02 * (xExt + yExt + zExt) / 3.;
   double minor = 0.5 * major;
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->SetMajorTickSize(major);
     this->XAxes[i]->SetMinorTickSize(minor);
@@ -1240,6 +1334,7 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 
   if ((this->GetMTime() < this->BuildTime.GetMTime()))
     {
+    this->AutoScale(viewport);
     return;
     }
 
@@ -1253,13 +1348,14 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
   this->TransformBounds(viewport, bounds, pts);
 
   // Setup the axes for plotting
-  double xCoords[4][6], yCoords[4][6], zCoords[4][6];
+  double xCoords[NUMBER_OF_ALIGNED_AXIS][6], yCoords[NUMBER_OF_ALIGNED_AXIS][6],
+    zCoords[NUMBER_OF_ALIGNED_AXIS][6];
 
   // these arrays are accessed by 'location':  mm, mX, XX, or Xm.
   int mm1[4] = { 0, 0, 1, 1 };
   int mm2[4] = { 0, 1, 1, 0 };
 
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->SetAxisPosition(i);
     xCoords[i][0] = bounds[0];
@@ -1292,7 +1388,7 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
   this->AdjustRange(this->Bounds);
 
   // Prepare axes for rendering with user-definable options
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->GetPoint1Coordinate()->SetValue(xCoords[i][0],
                                                     xCoords[i][1],
@@ -1334,14 +1430,17 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     if (this->ForceXLabelReset)
       {
       this->BuildLabels(this->XAxes);
+      this->UpdateLabels(this->XAxes, 0);
       }
     if (this->ForceYLabelReset)
       {
       this->BuildLabels(this->YAxes);
+      this->UpdateLabels(this->YAxes, 1);
       }
     if (this->ForceZLabelReset)
       {
       this->BuildLabels(this->ZAxes);
+      this->UpdateLabels(this->ZAxes, 2);
       }
     }
 
@@ -1369,16 +1468,16 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     double bLength = sqrt(bWidth*bWidth + bHeight*bHeight);
 
     double target = bLength *0.04;
-    double labelscale = 1.;
+    this->LabelScale = 1.;
     if (maxLabelLength != 0.)
       {
-      labelscale = target / maxLabelLength;
+      this->LabelScale = target / maxLabelLength;
       }
     target = bLength *0.10;
-    double titlescale = 1.;
+    this->TitleScale = 1.;
     if (maxTitleLength != 0.)
       {
-      titlescale = target / maxTitleLength;
+      this->TitleScale = target / maxTitleLength;
       }
 
     //
@@ -1387,19 +1486,23 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     //
     if (XUnits != NULL && XUnits[0] != '\0')
       {
-      titlescale *= 2;
+      this->TitleScale *= 2;
       }
 
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
       {
-      this->XAxes[i]->SetLabelScale(labelscale);
-      this->YAxes[i]->SetLabelScale(labelscale);
-      this->ZAxes[i]->SetLabelScale(labelscale);
-      this->XAxes[i]->SetTitleScale(titlescale);
-      this->YAxes[i]->SetTitleScale(titlescale);
-      this->ZAxes[i]->SetTitleScale(titlescale);
+      this->XAxes[i]->SetLabelScale(this->LabelScale);
+      this->YAxes[i]->SetLabelScale(this->LabelScale);
+      this->ZAxes[i]->SetLabelScale(this->LabelScale);
+      this->XAxes[i]->SetTitleScale(this->TitleScale);
+      this->YAxes[i]->SetTitleScale(this->TitleScale);
+      this->ZAxes[i]->SetTitleScale(this->TitleScale);
       }
     }
+
+  // Scale appropriately.
+  this->AutoScale(viewport);
+
   this->RenderSomething = 1;
   this->BuildTime.Modified();
   this->LastFlyMode = this->FlyMode;
@@ -1424,7 +1527,7 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
   vtkProperty *prop = this->GetProperty();
   prop->SetAmbient(1.0);
   prop->SetDiffuse(0.0);
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->SetCamera(this->Camera);
     this->XAxes[i]->SetProperty(prop);
@@ -1499,13 +1602,13 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
 
   if (this->FlyMode == VTK_FLY_STATIC_EDGES)
     {
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
       {
       this->RenderAxesX[i] = i;
       this->RenderAxesY[i] = i;
       this->RenderAxesZ[i] = i;
       }
-    this->NumberOfAxesX = this->NumberOfAxesY = this->NumberOfAxesZ = 4;
+    this->NumberOfAxesX = this->NumberOfAxesY = this->NumberOfAxesZ = NUMBER_OF_ALIGNED_AXIS;
     return;
     }
   if (this->FlyMode == VTK_FLY_STATIC_TRIAD)
@@ -1724,10 +1827,10 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     zloc = this->InertiaLocs[2];
     }
 
-  this->RenderAxesX[0] = xloc % 4;
+  this->RenderAxesX[0] = xloc % NUMBER_OF_ALIGNED_AXIS;
   if (this->DrawXGridlines)
     {
-    this->RenderAxesX[1] = (xloc + 2) % 4;
+    this->RenderAxesX[1] = (xloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesX = 2;
     this->XAxes[RenderAxesX[1]]->SetTickVisibility(0);
     this->XAxes[RenderAxesX[1]]->SetLabelVisibility(0);
@@ -1739,10 +1842,10 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     this->NumberOfAxesX = 1;
     }
 
-  this->RenderAxesY[0] = yloc % 4;
+  this->RenderAxesY[0] = yloc % NUMBER_OF_ALIGNED_AXIS;
   if (this->DrawYGridlines)
     {
-    this->RenderAxesY[1] = (yloc + 2) % 4;
+    this->RenderAxesY[1] = (yloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesY = 2;
     this->YAxes[RenderAxesY[1]]->SetTickVisibility(0);
     this->YAxes[RenderAxesY[1]]->SetLabelVisibility(0);
@@ -1754,10 +1857,10 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     this->NumberOfAxesY = 1;
     }
 
-  this->RenderAxesZ[0] = zloc % 4;
+  this->RenderAxesZ[0] = zloc % NUMBER_OF_ALIGNED_AXIS;
   if (this->DrawZGridlines)
     {
-    this->RenderAxesZ[1] = (zloc + 2) % 4;
+    this->RenderAxesZ[1] = (zloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesZ = 2;
     this->ZAxes[RenderAxesZ[1]]->SetTickVisibility(0);
     this->ZAxes[RenderAxesZ[1]]->SetLabelVisibility(0);
@@ -1839,7 +1942,7 @@ inline double vtkCubeAxesActor::FSign(double value, double sign)
 //
 // *******************************************************************
 
-void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[4],
+void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS],
     double boundsMin, double boundsMax)
 {
   double sortedRange[2], range;
@@ -1910,7 +2013,7 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[4],
     minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 1.);
     }
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     axes[i]->SetMinorRangeStart(minorStart);
     axes[i]->SetMajorRangeStart(majorStart);
@@ -1927,7 +2030,7 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[4],
   minor *= scale;
   major *= scale;
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     axes[i]->SetMinorStart(minorStart);
     axes[i]->SetMajorStart(majorStart);
@@ -1935,6 +2038,66 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[4],
     axes[i]->SetDeltaMinor(minor);
     axes[i]->SetDeltaMajor(major);
     }
+}
+
+// ****************************************************************
+//
+// ****************************************************************
+void vtkCubeAxesActor::AutoScale(vtkViewport *viewport)
+{
+  // Current implementation only for perspective projections.
+  this->AutoScale(viewport, this->XAxes);
+  this->AutoScale(viewport, this->YAxes);
+  this->AutoScale(viewport, this->ZAxes);
+}
+
+// ****************************************************************
+//
+// ****************************************************************
+void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBER_OF_ALIGNED_AXIS])
+{
+  double newTitleScale = this->TitleScale;
+
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+    {
+    newTitleScale = this->AutoScale(viewport, this->ScreenSize,
+                                    axis[i]->GetTitleActor()->GetPosition());
+
+    axis[i]->SetTitleScale(newTitleScale);
+
+    // Now labels.
+    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
+
+    for(int j=0; j < axis[i]->GetNumberOfLabelsBuilt(); ++j)
+      {
+      double newLabelScale = this->AutoScale(viewport, this->ScreenSize,
+                                             labelActors[j]->GetPosition());
+
+      labelActors[j]->SetScale(newLabelScale);
+      }
+    }
+}
+
+// ****************************************************************
+//
+// ****************************************************************
+double vtkCubeAxesActor::AutoScale(vtkViewport *viewport, double screenSize,
+                                   double position[3])
+{
+  double factor = 1;
+  if (viewport->GetSize()[1] > 0)
+    {
+    factor = 2.0 * screenSize
+      * tan(vtkMath::RadiansFromDegrees(this->Camera->GetViewAngle()/2.0))
+      / viewport->GetSize()[1];
+    }
+
+    double dist = sqrt(
+          vtkMath::Distance2BetweenPoints(position,
+                                          this->Camera->GetPosition()));
+    double newScale = factor * dist;
+
+    return newScale;
 }
 
 // ****************************************************************
@@ -1952,7 +2115,7 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[4],
 //
 // ****************************************************************
 
-void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[4])
+void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
 {
   char label[64];
   int i, labelCount = 0;
@@ -2056,7 +2219,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[4])
     labels->SetValue(i, label);
     val += deltaMajor;
     }
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     axes[i]->SetLabels(labels);
     }
@@ -2080,3 +2243,37 @@ void vtkCubeAxesActor::SetLabelScaling(bool autoscale, int upowX, int upowY,
     this->Modified();
     }
 }
+
+// ****************************************************************************
+//  Set axes and screen size of the labels.
+//
+// ****************************************************************************
+void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
+  {
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+    {
+    int numberOfLabelsBuild = axis[i]->GetNumberOfLabelsBuilt();
+    vtkAxisFollower **labelActors = axis[i]->GetLabelActors();
+    for(int k=0; k < numberOfLabelsBuild; ++k)
+      {
+      if(index == 0)
+        {
+        labelActors[k]->SetAxis(this->XAxes[i]);
+        }
+      else if(index == 1)
+        {
+        labelActors[k]->SetAxis(this->YAxes[i]);
+        }
+      else if(index == 2)
+        {
+        labelActors[k]->SetAxis(this->ZAxes[i]);
+        }
+      else
+        {
+        // Do nothing.
+        }
+
+      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+      }
+    }
+  }

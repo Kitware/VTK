@@ -57,6 +57,8 @@ All rights reserve
 #define VTK_TICKS_OUTSIDE       1
 #define VTK_TICKS_BOTH          2
 
+#define NUMBER_OF_ALIGNED_AXIS 4
+
 #include "vtkActor.h"
 
 class vtkAxisActor;
@@ -102,6 +104,13 @@ public:
   vtkGetVector2Macro( XAxisRange, double );
   vtkGetVector2Macro( YAxisRange, double );
   vtkGetVector2Macro( ZAxisRange, double );
+
+  // Description:
+  // Explicitly specify the screen size of title and label text.
+  // ScreenSize detemines the size of the text in terms of screen
+  // pixels. Default is 10.0.
+  void SetScreenSize(double screenSize);
+  vtkGetMacro(ScreenSize, double);
 
   // Description:
   // Set/Get the camera to perform scaling and translation of the
@@ -260,22 +269,28 @@ protected:
   ~vtkCubeAxesActor();
 
   int LabelExponent(double min, double max);
+
   int Digits(double min, double max);
+
   double MaxOf(double, double);
   double MaxOf(double, double, double, double);
+
   double FFix(double);
   double FSign(double, double);
 
-  double       Bounds[6]; //Define bounds explicitly
+  void UpdateLabels(vtkAxisActor **axis, int index);
+
+  double Bounds[6]; //Define bounds explicitly
 
   vtkCamera *Camera;
+
   int FlyMode;
 
   // to control all axes
   // [0] always for 'Major' axis during non-static fly modes.
-  vtkAxisActor *XAxes[4];
-  vtkAxisActor *YAxes[4];
-  vtkAxisActor *ZAxes[4];
+  vtkAxisActor *XAxes[NUMBER_OF_ALIGNED_AXIS];
+  vtkAxisActor *YAxes[NUMBER_OF_ALIGNED_AXIS];
+  vtkAxisActor *ZAxes[NUMBER_OF_ALIGNED_AXIS];
 
   char *XTitle;
   char *XUnits;
@@ -313,12 +328,19 @@ protected:
   char  *XLabelFormat;
   char  *YLabelFormat;
   char  *ZLabelFormat;
+
   double CornerOffset;
+
   int   Inertia;
+
   int   RenderCount;
+
   int   InertiaLocs[3];
 
   int RenderSomething;
+
+  double LabelScreenOffset;
+  double TitleScreenOffset;
 
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
@@ -332,21 +354,27 @@ private:
   int LastXPow;
   int LastYPow;
   int LastZPow;
+
   int UserXPow;
   int UserYPow;
   int UserZPow;
+
   bool AutoLabelScaling;
+
   int LastXAxisDigits;
   int LastYAxisDigits;
   int LastZAxisDigits;
+
   double LastXRange[2];
   double LastYRange[2];
   double LastZRange[2];
-  int   LastFlyMode;
 
-  int   RenderAxesX[4];
-  int   RenderAxesY[4];
-  int   RenderAxesZ[4];
+  int    LastFlyMode;
+
+  int   RenderAxesX[NUMBER_OF_ALIGNED_AXIS];
+  int   RenderAxesY[NUMBER_OF_ALIGNED_AXIS];
+  int   RenderAxesZ[NUMBER_OF_ALIGNED_AXIS];
+
   int   NumberOfAxesX;
   int   NumberOfAxesY;
   int   NumberOfAxesZ;
@@ -354,6 +382,7 @@ private:
   bool MustAdjustXValue;
   bool MustAdjustYValue;
   bool MustAdjustZValue;
+
   bool ForceXLabelReset;
   bool ForceYLabelReset;
   bool ForceZLabelReset;
@@ -362,12 +391,18 @@ private:
   double YAxisRange[2];
   double ZAxisRange[2];
 
+  double LabelScale;
+  double TitleScale;
+
+  double ScreenSize;
+
   // various helper methods
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
                         double pts[8][3]);
   void  AdjustAxes(double bounds[6],
-                   double xCoords[4][6], double yCoords[4][6],
-                   double zCoords[4][6],
+                   double xCoords[NUMBER_OF_ALIGNED_AXIS][6],
+                   double yCoords[NUMBER_OF_ALIGNED_AXIS][6],
+                   double zCoords[NUMBER_OF_ALIGNED_AXIS][6],
                    double xRange[2], double yRange[2], double zRange[2]);
 
   bool  ComputeTickSize(double bounds[6]);
@@ -378,9 +413,13 @@ private:
   void  BuildAxes(vtkViewport *);
   void  DetermineRenderAxes(vtkViewport *);
   void  SetNonDependentAttributes(void);
-  void  BuildLabels(vtkAxisActor *axes[4]);
-  void  AdjustTicksComputeRange(vtkAxisActor *axes[4],
+  void  BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS]);
+  void  AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS],
       double rangeMin, double rangeMax);
+
+  void    AutoScale(vtkViewport *viewport);
+  void    AutoScale(vtkViewport *viewport, vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS]);
+  double  AutoScale(vtkViewport *viewport, double screenSize, double position[3]);
 
   // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };

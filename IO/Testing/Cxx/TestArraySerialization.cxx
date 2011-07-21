@@ -22,6 +22,7 @@
 #include <vtkArrayReader.h>
 #include <vtkArrayWriter.h>
 #include <vtkDenseArray.h>
+#include <vtkNew.h>
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
 
@@ -168,6 +169,37 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(i1->GetNonNullSize() == 1);
     test_expression(i1->GetVariantValue(0, 0).ToDouble() == 5);
     test_expression(i1->GetVariantValue(1, 0).ToDouble() == 0);
+
+    // Test writing to string and reading back ...
+    vtkNew<vtkSparseArray<vtkUnicodeString> > j1;
+    j1->Resize(3);
+    j1->SetNullValue(vtkUnicodeString::from_utf8("nothing here"));
+    j1->SetValue(0, vtkUnicodeString::from_utf8("The"));
+    j1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
+    j1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
+    
+    vtkNew<vtkArrayData> j1d;
+    j1d->AddArray(j1.GetPointer());
+    
+    vtkNew<vtkArrayWriter> jw;
+    jw->WriteToOutputStringOn();
+    jw->SetInput(j1d.GetPointer());
+    jw->Write();
+    vtkStdString js = jw->GetOutputString();
+
+    vtkNew<vtkArrayReader> jr;
+    jr->ReadFromInputStringOn();
+    jr->SetInputString(js);
+    jr->Update();
+    vtkArray* j2 = jr->GetOutput()->GetArray(0);
+
+    test_expression(j2);
+    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(j2));
+    test_expression(j2->GetNonNullSize() == 3);
+    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(j2)->GetNullValue() == vtkUnicodeString::from_utf8("nothing here"));
+    test_expression(j2->GetVariantValue(0).ToUnicodeString() == vtkUnicodeString::from_utf8("The"));
+    test_expression(j2->GetVariantValue(1).ToUnicodeString() == vtkUnicodeString::from_utf8("quick brown"));
+    test_expression(j2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
 
     // Test Read and Write in Binary mode
     // Test sparse-array round-trip ...

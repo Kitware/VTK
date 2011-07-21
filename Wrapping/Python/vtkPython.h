@@ -15,9 +15,14 @@
 #ifndef __vtkPython_h
 #define __vtkPython_h
 
+#include "vtkPythonConfigure.h"
+
 /* Undefine macros that Python.h defines to avoid redefinition warning.  */
 #undef _POSIX_C_SOURCE
 #undef _POSIX_THREADS
+#if VTK_PYTHON_VERSION_HEX >= 0x02030000
+#undef _XOPEN_SOURCE
+#endif
 
 #include "vtkConfigure.h"
 #include "vtkABI.h"
@@ -81,6 +86,10 @@
 # else
 #  include <Python.h>
 # endif
+#endif
+
+#if (PY_VERSION_HEX & 0xFFFF0000) != (VTK_PYTHON_VERSION_HEX & 0xFFFF0000)
+#error "Python.h is different version from what VTK was configured with!!"
 #endif
 
 #endif

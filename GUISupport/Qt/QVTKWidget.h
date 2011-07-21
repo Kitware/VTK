@@ -231,6 +231,11 @@ protected:
   // overload drop event
   virtual void dropEvent(QDropEvent*);
 
+  // method called in paintEvent() to render the image cache on to the device.
+  // return false, if cache couldn;t be used for painting. In that case, the
+  // paintEvent() method will continue with the default painting code.
+  virtual bool paintCachedImage();
+
   // the vtk render window
   vtkRenderWindow* mRenWin;
   bool UseTDx;

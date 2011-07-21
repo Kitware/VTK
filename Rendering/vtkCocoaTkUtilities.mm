@@ -17,12 +17,13 @@
 #define MAC_OSX_TK 1
 #endif
 
-#include "vtkTcl.h"
-#include "vtkCocoaMacOSXSDKCompatibility.h"
-#include "tkMacOSXInt.h"
+#import <Cocoa/Cocoa.h>
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 
-#include "vtkCocoaTkUtilities.h"
-#include "vtkObjectFactory.h"
+#import "vtkCocoaTkUtilities.h"
+#import "vtkObjectFactory.h"
+#import "vtkTcl.h"
+#import "tkMacOSXInt.h"
 
 vtkStandardNewMacro(vtkCocoaTkUtilities);
 

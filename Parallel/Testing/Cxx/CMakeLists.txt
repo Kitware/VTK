@@ -23,12 +23,18 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         )
     ENDIF(NOT CMAKE_GENERATOR MATCHES "Visual Studio 6")
   ENDIF (VTK_DATA_ROOT)
+  IF (VTK_LARGE_DATA_ROOT)
+    # add tests that require data
+    SET(MyTests ${MyTests}
+      TestWindBladeReader.cxx
+      )
+  ENDIF (VTK_LARGE_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ExerciseMultiProcessController.cxx)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO vtkParallel vtkHybrid)
   SET (TestsToRun ${Tests})
-  REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+  REMOVE (TestsToRun ${KIT}CxxTests.cxx TestWindBladeReader.cxx)
 
   # Add all the standard tests
   FOREACH (test ${TestsToRun})
@@ -66,6 +72,9 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
     TARGET_LINK_LIBRARIES(ParallelIsoTest vtkVolumeRendering vtkParallel vtkHybrid vtkWidgets ${MPI_LIBRARIES})
 
+    ADD_EXECUTABLE(TestAMRUtilities TestAMRUtilities.cxx)
+    TARGET_LINK_LIBRARIES(TestAMRUtilities vtkParallel ${MPI_LIBRARIES} )
+    
     ADD_EXECUTABLE(TestMPIController MPIController.cxx
       ExerciseMultiProcessController.cxx)
     TARGET_LINK_LIBRARIES(TestMPIController vtkParallel ${MPI_LIBRARIES})
@@ -109,12 +118,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(TransmitStructuredGrid TransmitStructuredGrid.cxx)
     TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel ${MPI_LIBRARIES})
 
-    ADD_EXECUTABLE(PSLACReaderLinear PSLACReaderLinear.cxx)
-    TARGET_LINK_LIBRARIES(PSLACReaderLinear vtkParallel)
-
-    ADD_EXECUTABLE(PSLACReaderQuadratic PSLACReaderQuadratic.cxx)
-    TARGET_LINK_LIBRARIES(PSLACReaderQuadratic vtkParallel)
-
     ADD_EXECUTABLE(TestParallelRendering TestParallelRendering.cxx)
     TARGET_LINK_LIBRARIES(TestParallelRendering vtkParallel ${MPI_LIBRARIES})
 
@@ -132,7 +135,11 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestProcess
             ${VTK_MPI_POSTFLAGS})
-
+            
+      ADD_TEST(TestAMRUtilities
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TestAMRUtilities
+            ${VTK_MPI_POSTFLAGS} )
 
     ENDIF (VTK_MPIRUN_EXE)
 
@@ -374,21 +381,21 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         IF (VTK_MPIRUN_EXE)
           ADD_TEST(TestCommunicator 
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-            ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
+            ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPIRUN_EXE)
     ENDIF (VTK_DATA_ROOT)
     IF (VTK_LARGE_DATA_ROOT)
       IF (VTK_MPIRUN_EXE)
         ADD_TEST(PSLACReaderLinear
           ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-          ${CXX_TEST_PATH}/PSLACReaderLinear
+          ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/PSLACReaderLinear
           -D ${VTK_LARGE_DATA_ROOT}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V ${VTK_LARGE_DATA_ROOT}/Baseline/Parallel/PSLACReaderLinear.png
           ${VTK_MPI_POSTFLAGS})
         ADD_TEST(PSLACReaderQuadratic
           ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-          ${CXX_TEST_PATH}/PSLACReaderQuadratic
+          ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/PSLACReaderQuadratic
           -D ${VTK_LARGE_DATA_ROOT}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V ${VTK_LARGE_DATA_ROOT}/Baseline/Parallel/PSLACReaderQuadratic.png
@@ -396,6 +403,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ENDIF (VTK_MPIRUN_EXE)
     ENDIF (VTK_LARGE_DATA_ROOT)
   ENDIF (VTK_USE_MPI)
+
+  IF (VTK_LARGE_DATA_ROOT)
+    ADD_TEST(TestWindBladeReader ${CXX_TEST_PATH}/${KIT}CxxTests
+      TestWindBladeReader -D ${VTK_LARGE_DATA_ROOT}
+      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestWindBladeReader.png)
+  ENDIF (VTK_LARGE_DATA_ROOT)
 
   # For now this test is only available on Unix because
   # on Windows, python does not support forking/killing processes

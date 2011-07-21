@@ -100,6 +100,12 @@ vtkPolygonalSurfaceContourLineInterpolator.cxx
 vtkProp3DButtonRepresentation.cxx
 vtkRectilinearWipeRepresentation.cxx
 vtkRectilinearWipeWidget.cxx
+vtkResliceCursorThickLineRepresentation.cxx
+vtkResliceCursorLineRepresentation.cxx
+vtkResliceCursorRepresentation.cxx
+vtkResliceCursorWidget.cxx
+vtkResliceImageViewer.cxx
+vtkResliceImageViewerMeasurements.cxx
 vtkScalarBarRepresentation.cxx
 vtkScalarBarWidget.cxx
 vtkSeedRepresentation.cxx
@@ -148,6 +154,7 @@ vtkDistanceRepresentation
 vtkHandleRepresentation
 vtkPolyDataContourLineInterpolator
 vtkPolyDataSourceWidget
+vtkResliceCursorRepresentation
 vtkSliderRepresentation
 vtkTensorProbeRepresentation
 vtkWidgetRepresentation

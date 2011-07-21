@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     pnt->m_V[2]=i;
     surface->GetPoints().push_back(pnt);
   }
-  
+
 
   METAIO_STREAM::cout << "Writing ASCII test file ...";
 
@@ -37,11 +37,11 @@ int main(int argc, char **argv)
 
   MetaSurface::PointListType list =  surface->GetPoints();
   MetaSurface::PointListType::const_iterator it = list.begin();
-  
+
   unsigned int d=0;
   while(it != list.end())
   {
-    
+
     for(d = 0; d < 3; d++)
     {
       METAIO_STREAM::cout << (*it)->m_X[d] << " ";
@@ -66,10 +66,10 @@ int main(int argc, char **argv)
   surface->Clear();
   surface->Read("mySurface.meta");
   surface->PrintInfo();
-  
+
   MetaSurface::PointListType list2 =  surface->GetPoints();
   it = list2.begin();
-  
+
   while(it != list2.end())
   {
     for(d = 0; d < 3; d++)
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
     METAIO_STREAM::cout << METAIO_STREAM::endl;
     it++;
   }
-  
+
   METAIO_STREAM::cout << "done" << METAIO_STREAM::endl;
   return 1;
 }

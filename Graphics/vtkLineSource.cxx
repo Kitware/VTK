@@ -130,6 +130,24 @@ int vtkLineSource::RequestData(
   return 1;
 }
 
+void vtkLineSource::SetPoint1(float point1f[3])
+{
+  double point1d[3];
+  point1d[0] = point1f[0];
+  point1d[1] = point1f[1];
+  point1d[2] = point1f[2];
+  SetPoint1(point1d);
+}
+
+void vtkLineSource::SetPoint2(float point2f[3])
+{
+  double point2d[3];
+  point2d[0] = point2f[0];
+  point2d[1] = point2f[1];
+  point2d[2] = point2f[2];
+  SetPoint2(point2d);
+}
+
 void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

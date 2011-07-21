@@ -185,8 +185,11 @@ protected:
   double Range[2];
 
   // Internal method to sort the vector and update the
-  // Range whenever a node is added or removed
+  // Range whenever a node is added, edited or removed.
+  // It always calls Modified().
   void SortAndUpdateRange();
+  // Returns true if the range has been updated and Modified() has been called
+  bool UpdateRange();
   
   int AllowDuplicateScalars;
 

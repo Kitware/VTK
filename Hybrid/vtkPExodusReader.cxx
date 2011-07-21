@@ -45,6 +45,7 @@
 
 #include "vtk_netcdf.h"
 #include "vtk_exodusII.h"
+
 #include <sys/stat.h>
 #include <ctype.h>
 #include <vtkstd/vector>
@@ -137,6 +138,7 @@ protected:
 // Instantiate object with NULL filename.
 vtkPExodusReader::vtkPExodusReader()
 {
+  VTK_LEGACY_BODY(vtkPExodusReader, "VTK 5.8");
   this->FilePattern   = 0;
   this->CurrentFilePattern   = 0;
   this->FilePrefix    = 0;

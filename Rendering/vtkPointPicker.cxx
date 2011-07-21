@@ -16,9 +16,10 @@
 
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkProp3D.h"
 #include "vtkMapper.h"
 #include "vtkAbstractVolumeMapper.h"
-#include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkPointPicker);
@@ -38,8 +39,8 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   double ray[3], rayFactor, tMin, x[3], t, projXYZ[3], minXYZ[3];
   vtkDataSet *input;
   vtkMapper *mapper;
-  vtkAbstractVolumeMapper *volumeMapper;
-  vtkImageActor *imageActor = NULL;
+  vtkAbstractVolumeMapper *volumeMapper = 0;
+  vtkImageMapper3D *imageMapper = 0;
 
   // Get the underlying dataset
   //
@@ -51,9 +52,9 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     input = volumeMapper->GetDataSetInput();
     }
-  else if ( (imageActor=vtkImageActor::SafeDownCast(p)) != NULL )
+  else if ( (imageMapper=vtkImageMapper3D::SafeDownCast(m)) != NULL )
     {
-    input = imageActor->GetInput();
+    input = imageMapper->GetInput();
     }
   else
     {
@@ -62,23 +63,6 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
 
   ptId = 0;
   numPts = input->GetNumberOfPoints();
-
-  if ( imageActor != NULL )
-    {
-    // Restrict the search to the points in the displayed slice
-    int extent[6], displayExtent[6], kMin, kMax;
-    vtkImageData *imageData = static_cast<vtkImageData *>(input);
-    imageData->GetExtent(extent);
-    imageActor->GetDisplayExtent(displayExtent);
-    kMin = ((displayExtent[4] > extent[4]) ? displayExtent[4] : extent[4]); 
-    kMax = ((displayExtent[5] < extent[5]) ? displayExtent[5] : extent[5]); 
-    ptId = kMin - extent[4];
-    ptId *= extent[3] - extent[2] + 1;
-    ptId *= extent[1] - extent[0] + 1;
-    numPts = kMax - extent[4] + 1;
-    numPts *= extent[3] - extent[2] + 1;
-    numPts *= extent[1] - extent[0] + 1;
-    }
 
   if ( numPts <= ptId )
     {
@@ -95,6 +79,34 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     vtkErrorMacro("Cannot process points");
     return 2.0;
+    }
+
+  //   For image, find the single intersection point
+  //
+  if ( imageMapper != NULL )
+    {
+    // Get the slice plane for the image and intersect with ray
+    double normal[4];
+    imageMapper->GetSlicePlaneInDataCoords(p->GetMatrix(), normal);
+    double w1 = vtkMath::Dot(p1, normal) + normal[3];
+    double w2 = vtkMath::Dot(p2, normal) + normal[3];
+    if (w1*w2 >= 0)
+      {
+      w1 = 0.0;
+      w2 = 1.0;
+      }
+    double w = (w2 - w1);
+    x[0] = (p1[0]*w2 - p2[0]*w1)/w;
+    x[1] = (p1[1]*w2 - p2[1]*w1)/w;
+    x[2] = (p1[2]*w2 - p2[2]*w1)/w;
+
+    // Get the one point that will be checked
+    ptId = input->FindPoint(x);
+    numPts = ptId + 1;
+    if (ptId < 0)
+      {
+      return VTK_DOUBLE_MAX;
+      }
     }
 
   //  Project each point onto ray.  Keep track of the one within the

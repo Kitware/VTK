@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+#import <Cocoa/Cocoa.h>
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
+
 #import "vtkCocoaGLView.h"
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCocoaRenderWindowInteractor.h"
@@ -617,16 +620,19 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
                   (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
+  int clickCount = static_cast<int>([theEvent clickCount]);
+  int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the
   // scaling factor.
   interactor->SetEventInformation((int)round(mouseLoc.x * factor),
                                   (int)round(mouseLoc.y * factor),
-                                  controlDown, shiftDown);
+                                  controlDown, shiftDown,
+                                  0, repeatCount);
   interactor->SetAltKey(altDown);
 
   interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-    
+
   NSDate*  infinity = [NSDate distantFuture];
   do
     {
@@ -698,12 +704,15 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
                   (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
+  int clickCount = [theEvent clickCount];
+  int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the
   // scaling factor.
   interactor->SetEventInformation((int)round(mouseLoc.x * factor),
                                   (int)round(mouseLoc.y * factor),
-                                  controlDown, shiftDown);
+                                  controlDown, shiftDown,
+                                  0, repeatCount);
   interactor->SetAltKey(altDown);
 
   interactor->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
@@ -779,12 +788,15 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
                   (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
+  int clickCount = [theEvent clickCount];
+  int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the
   // scaling factor.
   interactor->SetEventInformation((int)round(mouseLoc.x * factor),
                                   (int)round(mouseLoc.y * factor),
-                                  controlDown, shiftDown);
+                                  controlDown, shiftDown,
+                                  0, repeatCount);
   interactor->SetAltKey(altDown);
 
   interactor->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);

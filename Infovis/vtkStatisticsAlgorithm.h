@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -139,22 +139,9 @@ public:
   vtkGetMacro( NumberOfPrimaryTables, vtkIdType );
 
   // Description:
-  // Set/get assessment parameters.
-  virtual void SetAssessParameters( vtkStringArray* );
-  vtkGetObjectMacro(AssessParameters,vtkStringArray);
-
-  // Description:
   // Set/get assessment names.
   virtual void SetAssessNames( vtkStringArray* );
   vtkGetObjectMacro(AssessNames,vtkStringArray);
-
-  // Description:
-  // Set the name of a parameter of the Assess option
-  void SetAssessOptionParameter( vtkIdType id, vtkStdString name );
-
-  // Description:
-  // Get the name of a parameter of the Assess option
-  vtkStdString GetAssessParameter( vtkIdType id );
 
 //BTX
   // Description:
@@ -224,6 +211,25 @@ public:
   //ETX
 
   // Description:
+  // Convenience method to create a request with a single column name \p namCol in a single
+  // call; this is the preferred method to select columns, ensuring selection consistency
+  // (a single column per request).
+  // Warning: no name checking is performed on \p namCol; it is the user's
+  // responsibility to use valid column names.
+  void AddColumn( const char* namCol );
+
+  // Description:
+  // Convenience method to create a request with a single column name pair 
+  //  (\p namColX, \p namColY) in a single call; this is the preferred method to select 
+  // columns pairs, ensuring selection consistency (a pair of columns per request).
+  //
+  // Unlike SetColumnStatus(), you need not call RequestSelectedColumns() after AddColumnPair().
+  //
+  // Warning: \p namColX and \p namColY are only checked for their validity as strings;
+  // no check is made that either are valid column names.
+  void AddColumnPair( const char* namColX, const char* namColY );
+
+  // Description:
   // A convenience method (in particular for access from other applications) to 
   // set parameter values of Learn mode.
   // Return true if setting of requested parameter name was excuted, false otherwise.
@@ -252,7 +258,6 @@ protected:
 
   // Description:
   // Execute the calculations required by the Learn option, given some input Data
-  // NB: input parameters are unused.
   virtual void Learn( vtkTable*,
                       vtkTable*,
                       vtkMultiBlockDataSet* ) = 0;
@@ -266,6 +271,13 @@ protected:
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
                        vtkTable* ) = 0; 
+
+  // Description:
+  // A convenience implementation for generic assessment with variable number of variables.
+  void Assess( vtkTable*,
+               vtkMultiBlockDataSet*,
+               vtkTable*,
+               int ); 
 
   // Description:
   // Execute the calculations required by the Test option.
@@ -287,7 +299,6 @@ protected:
   bool DeriveOption;
   bool AssessOption;
   bool TestOption;
-  vtkStringArray* AssessParameters;
   vtkStringArray* AssessNames;
   vtkStatisticsAlgorithmPrivate* Internals;
 

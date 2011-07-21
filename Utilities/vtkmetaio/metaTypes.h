@@ -26,7 +26,7 @@
  *
  * \author Stephen R. Aylward
  * \date August 29, 1999
- * 
+ *
  */
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {
@@ -63,31 +63,31 @@ typedef char *              MET_STRING_TYPE;
 typedef enum
    {
    MET_NONE,
-   MET_ASCII_CHAR, 
-   MET_CHAR, 
-   MET_UCHAR, 
+   MET_ASCII_CHAR,
+   MET_CHAR,
+   MET_UCHAR,
    MET_SHORT,
    MET_USHORT,
-   MET_INT, 
+   MET_INT,
    MET_UINT,
    MET_LONG,
    MET_ULONG,
    MET_LONG_LONG,
    MET_ULONG_LONG,
-   MET_FLOAT, 
+   MET_FLOAT,
    MET_DOUBLE,
-   MET_STRING, 
-   MET_CHAR_ARRAY, 
-   MET_UCHAR_ARRAY, 
+   MET_STRING,
+   MET_CHAR_ARRAY,
+   MET_UCHAR_ARRAY,
    MET_SHORT_ARRAY,
    MET_USHORT_ARRAY,
-   MET_INT_ARRAY, 
+   MET_INT_ARRAY,
    MET_UINT_ARRAY,
    MET_LONG_ARRAY,
    MET_ULONG_ARRAY,
    MET_LONG_LONG_ARRAY,
    MET_ULONG_LONG_ARRAY,
-   MET_FLOAT_ARRAY, 
+   MET_FLOAT_ARRAY,
    MET_DOUBLE_ARRAY,
    MET_FLOAT_MATRIX,
    MET_OTHER
@@ -149,7 +149,7 @@ const char MET_OrientationTypeName[MET_NUM_ORIENTATION_TYPES][3] = {
    {'S','I','\0'},
    {'I','S','\0'},
    {'?','?','\0'}};
-   
+
 //
 //
 //
@@ -185,21 +185,21 @@ const char MET_InterpolationTypeName[MET_NUM_INTERPOLATION_TYPES][17] = {
 
 //
 //
-// Structure used to define a field 
+// Structure used to define a field
 // (variable = value definition) in a MetaFile
 typedef struct
    {
    char           name[255];  // Fieldname / keyword to designate a variable
    MET_ValueEnumType  type;   // Expected value type of the field
    bool           required;   // Is this field a required field in a metaFile
-   int            dependsOn;  // If value type is an array, the size of this 
+   int            dependsOn;  // If value type is an array, the size of this
                               //    array can be defined by a different field
                               //    (e.g., DimSize array depends on NDims)
    bool           defined;    // Has this field already been defined in the
                               //    MetaFile being parsed
    int            length;     // Actual/expect length of an array
-   double         value[255]; // Memory and pointers for the field's value(s).
-   bool           terminateRead;  // Set to true if field indicates end of 
+   double         value[4096]; // Memory and pointers for the field's value(s).
+   bool           terminateRead;  // Set to true if field indicates end of
                                   //   meta data
    } MET_FieldRecordType;
 

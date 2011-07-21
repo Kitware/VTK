@@ -21,6 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkErrorCode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
@@ -508,9 +509,15 @@ int vtkImageReader2::RequestInformation (
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)
 {
+  this->SetErrorCode( vtkErrorCode::NoError );
   // call for backwards compatibility
   this->ExecuteInformation();
-  
+  // Check for any error set by downstream filter (IO in most case)
+  if ( this->GetErrorCode() )
+    {
+    return 0;
+    }
+
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 

@@ -16,11 +16,15 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ResliceInformationInput
         ResliceInterpolationModes
         ResliceInterpolationOblique
+        ResliceLanczosKaiser
         ResliceMirrorOblique
         ResliceMirrorPad
         ResliceOptimizationOff
         ReslicePermutations
         ReslicePermuteResample
+        ReslicePermuteSlab
+        ResliceSlabModes
+        ResliceToColors
         ResliceWrapOblique
         ResliceWrapPad
         Spectrum

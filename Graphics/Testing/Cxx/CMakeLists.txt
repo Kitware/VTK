@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestAppendSelection.cxx
 #    TestAppendPolyData.cxx #pending a bug fix
     TestAssignAttribute.cxx
+    TestBareScalarsToColors.cxx
     TestBSPTree.cxx
     TestCellDataToPointData.cxx
     TestDensifyPolyData.cxx
@@ -26,6 +27,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeDual.cxx
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
+    TestLineSource.cxx
+    TestMapVectorsAsRGBColors.cxx
+    TestMapVectorsToColors.cxx
     TestNamedComponents.cxx
     TestMeanValueCoordinatesInterpolation1.cxx
     TestMeanValueCoordinatesInterpolation2.cxx

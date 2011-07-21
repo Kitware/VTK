@@ -293,7 +293,7 @@ public:
     typedef ComponentBase::iterator iterator;
     ComponentType(): NetCount(0), Identifier(0) {}
     ~ComponentType()
-      { for(iterator i = begin(); i != end(); ++i) { (*i)->Component = 0; } }
+      { for(iterator i = begin(), iend = end(); i != iend; ++i) { (*i)->Component = 0; } }
 
     // The net reference count of the component.
     int NetCount;
@@ -421,16 +421,16 @@ vtkGarbageCollectorImpl::~vtkGarbageCollectorImpl()
   assert(this->LeakedComponents.empty());
 
   // Clear component list.
-  for(ComponentsType::iterator c = this->ReferencedComponents.begin();
-      c != this->ReferencedComponents.end(); ++c)
+  for(ComponentsType::iterator c = this->ReferencedComponents.begin(), cend = this->ReferencedComponents.end();
+      c != cend; ++c)
     {
     delete *c;
     }
   this->ReferencedComponents.clear();
 
   // Clear visited list.
-  for(VisitedType::iterator v = this->Visited.begin();
-      v != this->Visited.end();)
+  for(VisitedType::iterator v = this->Visited.begin(), vend = this->Visited.end();
+      v != vend;)
     {
     // Increment the iterator before deleting because the hash table
     // compare function dereferences the pointer.
@@ -476,19 +476,22 @@ void vtkGarbageCollectorImpl::CollectInternal(vtkObjectBase* root)
     delete c;
     }
 
+#ifndef NDEBUG
   // Print remaining referenced components for debugging.
-  for(ComponentsType::iterator i = this->ReferencedComponents.begin();
-      i != this->ReferencedComponents.end(); ++i)
+  for(ComponentsType::iterator i = this->ReferencedComponents.begin(), iend = this->ReferencedComponents.end();
+      i != iend; ++i)
     {
     this->PrintComponent(*i);
     }
+#endif
 
   // Flush remaining references owned by entries in referenced
   // components.
-  for(ComponentsType::iterator c = this->ReferencedComponents.begin();
-      c != this->ReferencedComponents.end(); ++c)
+  for(ComponentsType::iterator c = this->ReferencedComponents.begin(), cend = this->ReferencedComponents.end();
+      c != cend; ++c)
     {
-    for(ComponentType::iterator j = (*c)->begin(); j != (*c)->end(); ++j)
+    for(ComponentType::iterator j = (*c)->begin(), jend = (*c)->end();
+        j != jend; ++j)
       {
       this->FlushEntryReferences(*j);
       }
@@ -584,7 +587,7 @@ vtkGarbageCollectorImpl::VisitTarjan(vtkObjectBase* obj)
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_LEAN_AND_MEAN
+#ifdef NDEBUG
 void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr,
                                      const char*)
 {
@@ -648,20 +651,20 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr)
 //----------------------------------------------------------------------------
 void vtkGarbageCollectorImpl::CollectComponent(ComponentType* c)
 {
-  ComponentType::iterator e;
+  ComponentType::iterator e, eend;
 
   // Print out the component for debugging.
   this->PrintComponent(c);
 
   // Get an extra reference to all objects in the component so that
   // they are not deleted until all references are removed.
-  for(e = c->begin(); e != c->end(); ++e)
+  for(e = c->begin(), eend = c->end(); e != eend; ++e)
     {
     vtkGarbageCollectorToObjectBaseFriendship::Register((*e)->Object, this);
     }
 
   // Disconnect the reference graph.
-  for(e = c->begin(); e != c->end(); ++e)
+  for(e = c->begin(), eend = c->end(); e != eend; ++e)
     {
     // Loop over all references made by this entry's object.
     Entry* entry = *e;
@@ -686,14 +689,14 @@ void vtkGarbageCollectorImpl::CollectComponent(ComponentType* c)
     }
 
   // Remove the Entries' references to objects.
-  for(e = c->begin(); e != c->end(); ++e)
+  for(e = c->begin(), eend = c->end(); e != eend; ++e)
     {
     this->FlushEntryReferences(*e);
     }
 
   // Only our extra reference to each object remains.  Delete the
   // objects.
-  for(e = c->begin(); e != c->end(); ++e)
+  for(e = c->begin(), eend = c->end(); e != eend; ++e)
     {
     assert((*e)->Object->GetReferenceCount() == 1);
     vtkGarbageCollectorToObjectBaseFriendship::UnRegister((*e)->Object, this);
@@ -701,7 +704,7 @@ void vtkGarbageCollectorImpl::CollectComponent(ComponentType* c)
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEAN_AND_MEAN
+#ifndef NDEBUG
 void vtkGarbageCollectorImpl::PrintComponent(ComponentType* c)
 {
   if(this->Debug && vtkObject::GetGlobalWarningDisplay())
@@ -710,7 +713,7 @@ void vtkGarbageCollectorImpl::PrintComponent(ComponentType* c)
     msg << "Identified strongly connected component "
         << c->Identifier << " with net reference count "
         << c->NetCount << ":";
-    for(ComponentType::iterator i = c->begin(); i != c->end(); ++i)
+    for(ComponentType::iterator i = c->begin(), iend = c->end(); i != iend; ++i)
       {
       vtkObjectBase* obj = (*i)->Object;
       int count = (*i)->Count;
@@ -731,13 +734,13 @@ void vtkGarbageCollectorImpl::PrintComponent(ComponentType*)
 void vtkGarbageCollectorImpl::SubtractInternalReferences(ComponentType* c)
 {
   // Loop over all members of the component.
-  for(ComponentType::iterator i = c->begin(); i != c->end(); ++i)
+  for(ComponentType::iterator i = c->begin(), iend = c->end(); i != iend; ++i)
     {
     Entry* v = *i;
 
     // Loop over all references from this member.
-    for(Entry::ReferencesType::iterator r = v->References.begin();
-        r != v->References.end(); ++r)
+    for(Entry::ReferencesType::iterator r = v->References.begin(), rend = v->References.end();
+        r != rend; ++r)
       {
       Entry* w = r->Reference;
 
@@ -754,13 +757,13 @@ void vtkGarbageCollectorImpl::SubtractInternalReferences(ComponentType* c)
 void vtkGarbageCollectorImpl::SubtractExternalReferences(ComponentType* c)
 {
   // Loop over all members of the component.
-  for(ComponentType::iterator i = c->begin(); i != c->end(); ++i)
+  for(ComponentType::iterator i = c->begin(), iend = c->end(); i != iend; ++i)
     {
     Entry* v = *i;
 
     // Loop over all references from this member.
-    for(Entry::ReferencesType::iterator r = v->References.begin();
-        r != v->References.end(); ++r)
+    for(Entry::ReferencesType::iterator r = v->References.begin(), rend = v->References.end();
+        r != rend; ++r)
       {
       Entry* w = r->Reference;
 

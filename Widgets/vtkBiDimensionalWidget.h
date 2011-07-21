@@ -15,33 +15,33 @@
 // .NAME vtkBiDimensionalWidget - measure the bi-dimensional lengths of an object
 // .SECTION Description
 // The vtkBiDimensionalWidget is used to measure the bi-dimensional length of
-// an object. The bi-dimensional measure is defined by two finite,
-// orthogonal lines that intersect within the finite extent of both lines.
+// an object. The bi-dimensional measure is defined by two finite, orthogonal
+// lines that intersect within the finite extent of both lines.
 // The lengths of these two lines gives the bi-dimensional measure. Each line
 // is defined by two handle widgets at the end points of each line.
 //
-// The orthognal constraint on the two lines limits how the four end points
-// can be positioned. The first two points can be placed arbitrarily to
-// define the first line (similar to vtkDistanceWidget). The placement of the
-// third point is limited by the finite extent of the first line. As the
-// third point is placed, the fourth point is placed on the opposite side of
-// the first line. Once the third point is placed, the second line is defined
-// since the fourth point is defined at the same time, but the fourth point
-// can be moved along the second line (i.e., maintaining the orthogonal
-// relationship between the two lines). Onced defined, any of the four points
-// can be moved along their constraint lines. Also, each line can be translated
-// along the other line (in an orthogonal direction), and the whole
-// bi-dimensional widget can be rotated about its center point (see the description
-// of the event bindings). Finally, selecting the point where the two orthogonal
-// axes intersect, the entire widget can be translated in any direction.
+// The orthogonal constraint on the two lines limits how the four end points
+// can be positioned. The first two points can be placed arbitrarily to define
+// the first line (similar to vtkDistanceWidget). The placement of the third
+// point is limited by the finite extent of the first line. As the third point
+// is placed, the fourth point is placed on the opposite side of the first
+// line. Once the third point is placed, the second line is defined since the
+// fourth point is defined at the same time, but the fourth point can be moved
+// along the second line (i.e., maintaining the orthogonal relationship between
+// the two lines). Once defined, any of the four points can be moved along
+// their constraint lines. Also, each line can be translated along the other
+// line (in an orthogonal direction), and the whole bi-dimensional widget can
+// be rotated about its center point (see the description of the event
+// bindings). Finally, selecting the point where the two orthogonal axes
+// intersect, the entire widget can be translated in any direction.
 //
 // Placement of any point results in a special PlacePointEvent invocation so
-// that special operations may be performed to reposition the point. Motion
-// of any point, moving the lines, or rotating the widget cause
-// InteractionEvents to be invoked. Note that the widget has two fundamental
-// modes: a define mode (when initially placing the points) and a manipulate
-// mode (after the points are placed). Line translation and rotation are only
-// possible in manipulate mode.
+// that special operations may be performed to reposition the point. Motion of
+// any point, moving the lines, or rotating the widget cause InteractionEvents
+// to be invoked. Note that the widget has two fundamental modes: a define mode
+// (when initially placing the points) and a manipulate mode (after the points
+// are placed). Line translation and rotation are only possible in manipulate
+// mode.
 //
 // To use this widget, specify an instance of vtkBiDimensionalWidget and a
 // representation (e.g., vtkBiDimensionalRepresentation2D). The widget is
@@ -110,7 +110,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The method for activiating and deactiviating this widget. This method
+  // The method for activating and deactivating this widget. This method
   // must be overridden because it is a composite widget and does more than
   // its superclasses' vtkAbstractWidget::SetEnabled() method.
   virtual void SetEnabled(int);

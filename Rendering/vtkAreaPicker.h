@@ -51,7 +51,6 @@ class vtkAbstractMapper3D;
 class vtkDataSet;
 class vtkExtractSelectedFrustum;
 class vtkProp;
-class vtkImageActor;
 
 class VTK_RENDERING_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
 {
@@ -116,7 +115,7 @@ protected:
   virtual void Initialize();
   void DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer *renderer);
   virtual int PickProps(vtkRenderer *renderer);  
-  int TypeDecipher(vtkProp *, vtkImageActor **, vtkAbstractMapper3D **);
+  int TypeDecipher(vtkProp *, vtkAbstractMapper3D **);
 
   int ABoxFrustumIsect(double bounds[], double &mindist);
 

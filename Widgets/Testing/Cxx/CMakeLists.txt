@@ -41,6 +41,7 @@ SET(MyTests
   TestDijkstraGraphGeodesicPath.cxx
   TestParallelopipedWidget.cxx
   TestSeedWidgetNonUniformRepresentations.cxx
+  TestPolyPlane.cxx
   vtkAngleWidgetTest1.cxx
   vtkBiDimensionalWidgetTest1.cxx
   vtkImplicitPlaneWidget2Test1.cxx
@@ -92,6 +93,8 @@ IF (VTK_DATA_ROOT)
     TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
+    TestResliceCursorWidget2.cxx
+    TestResliceCursorWidget3.cxx
     TestScalarBarWidget.cxx
     TestSeedWidget2.cxx
     TestSplineWidget.cxx
