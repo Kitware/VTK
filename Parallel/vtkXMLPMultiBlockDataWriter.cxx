@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
+#include "vtkInformation.h"
 
 #include <vtksys/ios/sstream>
 #include <vtkstd/vector>
@@ -185,16 +186,29 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
       // if node is a supported composite dataset
       // note in structure file and recurse.
       vtkXMLDataElement* tag = vtkXMLDataElement::New();
+
+      const char *name =
+        compositeData->GetMetaData(iter)->Get(vtkCompositeDataSet::NAME());
       
       if (curDO->IsA("vtkMultiPieceDataSet"))
         {
         tag->SetName("Piece");
         tag->SetIntAttribute("index", indexCounter);
+
+        if(name)
+          {
+          tag->SetAttribute("name", name);
+          }
         }
       else if (curDO->IsA("vtkMultiBlockDataSet"))
         {
         tag->SetName("Block");
         tag->SetIntAttribute("index", indexCounter);
+
+        if(name)
+          {
+          tag->SetAttribute("name", name);
+          }
         }
       vtkCompositeDataSet* curCD
         = vtkCompositeDataSet::SafeDownCast(curDO);
