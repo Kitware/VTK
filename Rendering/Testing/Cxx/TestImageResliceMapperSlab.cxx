@@ -67,6 +67,7 @@ int TestImageResliceMapperSlab(int argc, char* argv[])
     vtkImageResliceMapper *imageMapper = vtkImageResliceMapper::New();
     imageMapper->SetInputConnection(reader->GetOutputPort());
     imageMapper->SetSlabThickness(20);
+    imageMapper->SeparateWindowLevelOperationOff();
     imageMapper->SliceFacesCameraOn();
 
     vtkImageSlice *image = vtkImageSlice::New();
