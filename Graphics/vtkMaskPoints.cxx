@@ -285,7 +285,7 @@ unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
     }
   else
     {
-    return numPts;
+    return this->MaximumNumberOfPoints;
     }
 }
 
@@ -311,8 +311,8 @@ int vtkMaskPoints::RequestData(
   double x[3];
   vtkIdType ptId, id = 0;
   vtkPointData *outputPD = output->GetPointData();
-  vtkIdType numPts=input->GetNumberOfPoints();
-  int abort=0;
+  vtkIdType numPts = input->GetNumberOfPoints();
+  int abort = 0;
 
   // figure out how many sample points per process
   vtkIdType localMaxPts = this->MaximumNumberOfPoints;
