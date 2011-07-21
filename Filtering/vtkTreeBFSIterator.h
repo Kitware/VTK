@@ -89,7 +89,6 @@ protected:
   vtkTree* Tree;
   int Mode;
   vtkIdType StartVertex;
-  vtkIdType CurRoot;
   vtkTreeBFSIteratorInternals* Internals;
   vtkIntArray* Color;
   vtkIdType NextId;

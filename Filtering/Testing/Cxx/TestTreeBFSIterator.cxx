@@ -1,6 +1,6 @@
 #include <vtkMutableDirectedGraph.h>
 #include <vtkTree.h>
-#include <vtkSmartPointer.h>
+#include <vtkNew.h>
 
 #include <vtkstd/vector>
 
@@ -8,48 +8,66 @@
 
 int TestTreeBFSIterator(int, char *[])
 {
-  vtkSmartPointer<vtkMutableDirectedGraph> g =
-    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkNew<vtkMutableDirectedGraph> g;
 
-  //create 3 vertices
+  // Create vertices:
+  // Level 0
   vtkIdType v0 = g->AddVertex();
+  // Level 1
   vtkIdType v1 = g->AddVertex();
   vtkIdType v2 = g->AddVertex();
+  // Level 2
   vtkIdType v3 = g->AddVertex();
+  vtkIdType v4 = g->AddVertex();
+  vtkIdType v5 = g->AddVertex();
+  // Level 3
+  vtkIdType v6 = g->AddVertex();
+  vtkIdType v7 = g->AddVertex();
+  vtkIdType v8 = g->AddVertex();
 
   //create a fully connected graph
   g->AddEdge(v0, v1);
   g->AddEdge(v0, v2);
   g->AddEdge(v1, v3);
+  g->AddEdge(v2, v4);
+  g->AddEdge(v2, v5);
+  g->AddEdge(v4, v6);
+  g->AddEdge(v4, v7);
+  g->AddEdge(v5, v8);
 
-  vtkSmartPointer<vtkTree> tree =
-      vtkSmartPointer<vtkTree>::New();
-  tree->CheckedShallowCopy(g);
+  vtkNew<vtkTree> tree;
+  tree->CheckedShallowCopy(g.GetPointer());
 
   vtkstd::vector<int> correctSequence;
-  correctSequence.push_back(0);
-  correctSequence.push_back(1);
-  correctSequence.push_back(2);
-  correctSequence.push_back(3);
-
-  vtkIdType root = tree->GetRoot();
-
-  vtkSmartPointer<vtkTreeBFSIterator> bfsIterator =
-      vtkSmartPointer<vtkTreeBFSIterator>::New();
-  bfsIterator->SetStartVertex(root);
-  bfsIterator->SetTree(tree);
-
-  int i = 0;
-  //traverse the tree in a depth first fashion
-  while(bfsIterator->HasNext())
+  for(int i = 0; i <= 8; i++)
     {
+    correctSequence.push_back(i);
+    }
+
+  vtkNew<vtkTreeBFSIterator> bfsIterator;
+  bfsIterator->SetTree(tree.GetPointer());
+
+  if(bfsIterator->GetStartVertex() != tree->GetRoot())
+    {
+    cout << "StartVertex is not defaulting to root" << endl;
+    return EXIT_FAILURE;
+    }
+
+  //traverse the tree in a depth first fashion
+  for(int i = 0; i < correctSequence.size(); i++)
+    {
+    if(!bfsIterator->HasNext())
+      {
+      cout << "HasNext() returned false before the end of the tree" << endl;
+      return EXIT_FAILURE;
+      }
+
     vtkIdType nextVertex = bfsIterator->Next();
     if(nextVertex != correctSequence[i])
       {
       cout << "Next vertex should be " << correctSequence[i] << " but it is " << nextVertex << endl;
       return EXIT_FAILURE;
       }
-    i++;
     }
 
   return EXIT_SUCCESS;
