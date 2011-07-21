@@ -1585,14 +1585,17 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EyeSeparation: (" << this->EyeSeparation
      << ")\n";
 
-  os << indent << "WorldToScreenMatrix: (" << this->WorldToScreenMatrix
-     << ")\n";
+  os << indent << "WorldToScreenMatrix: (" << this->WorldToScreenMatrix << "\n";
+  this->WorldToScreenMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << ")\n";
 
-  os << indent << "EyeTransformMatrix: (" << this->EyeTransformMatrix
-     << ")\n";
+  os << indent << "EyeTransformMatrix: (" << this->EyeTransformMatrix << "\n";
+  this->EyeTransformMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << ")\n";
 
-  os << indent << "ModelTransformMatrix: (" << this->ModelTransformMatrix
-     << ")\n";
+  os << indent << "ModelTransformMatrix: (" << this->ModelTransformMatrix << "\n";
+  this->ModelTransformMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << ")\n";
 }
 
 //-----------------------------------------------------------------------------
