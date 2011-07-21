@@ -323,7 +323,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set the eye transform matrix.
   // This is the transformation matrix for the point between eyes.
-  // This will be used only for deering frustum calculation.
+  // This will be used only for offaxis frustum calculation.
   // Default is identity.
   void SetEyeTransformMatrix( double x00,  double x01,  double x02,  double x03,
                               double x10,  double x11,  double x12,  double x13,
