@@ -14,10 +14,10 @@
 =========================================================================*/
 
 #include "vtkTreeBFSIterator.h"
-#include "vtkTree.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkIntArray.h"
-#include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+#include "vtkTree.h"
 
 #include <vtkstd/queue>
 using vtkstd::queue;
@@ -33,10 +33,7 @@ vtkStandardNewMacro(vtkTreeBFSIterator);
 vtkTreeBFSIterator::vtkTreeBFSIterator()
 {
   this->Internals = new vtkTreeBFSIteratorInternals();
-  this->Tree = NULL;
   this->Color = vtkIntArray::New();
-  this->StartVertex = -1;
-  this->Mode = 0;
 }
 
 vtkTreeBFSIterator::~vtkTreeBFSIterator()
@@ -45,11 +42,6 @@ vtkTreeBFSIterator::~vtkTreeBFSIterator()
     {
     delete this->Internals;
     this->Internals = NULL;
-    }
-  if (this->Tree)
-    {
-    this->Tree->Delete();
-    this->Tree = NULL;
     }
   if (this->Color)
     {
@@ -61,8 +53,6 @@ vtkTreeBFSIterator::~vtkTreeBFSIterator()
 void vtkTreeBFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Mode: " << this->Mode << endl;
-  os << indent << "StartVertex: " << this->StartVertex << endl;
 }
 
 void vtkTreeBFSIterator::Initialize()
@@ -97,55 +87,6 @@ void vtkTreeBFSIterator::Initialize()
     }
 }
 
-void vtkTreeBFSIterator::SetTree(vtkTree* tree)
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting Tree to " << tree );
-  if (this->Tree != tree)
-    {
-    vtkTree* temp = this->Tree;
-    this->Tree = tree;
-    if (this->Tree != NULL) { this->Tree->Register(this); }
-    if (temp != NULL)
-      {
-      temp->UnRegister(this);
-      }
-    this->StartVertex = -1;
-    this->Initialize();
-    this->Modified();
-    }
-}
-
-void vtkTreeBFSIterator::SetStartVertex(vtkIdType vertex)
-{
-  if (this->StartVertex != vertex)
-    {
-    this->StartVertex = vertex;
-    this->Initialize();
-    this->Modified();
-    }
-}
-
-void vtkTreeBFSIterator::SetMode(int mode)
-{
-  if (this->Mode != mode)
-    {
-    this->Mode = mode;
-    this->Initialize();
-    this->Modified();
-    }
-}
-
-vtkIdType vtkTreeBFSIterator::Next()
-{
-  vtkIdType last = this->NextId;
-  if(last != -1)
-    {
-    this->NextId = this->NextInternal();
-    }
-  return last;
-}
-
 vtkIdType vtkTreeBFSIterator::NextInternal()
 {
   if(this->Color->GetValue(this->StartVertex) == this->WHITE)
@@ -174,9 +115,4 @@ vtkIdType vtkTreeBFSIterator::NextInternal()
     return currentId;
     }
   return -1;
-}
-
-bool vtkTreeBFSIterator::HasNext()
-{
-  return this->NextId != -1;
 }
