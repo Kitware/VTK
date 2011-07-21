@@ -1585,14 +1585,17 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EyeSeparation: (" << this->EyeSeparation
      << ")\n";
 
-  os << indent << "WorldToScreenMatrix: (" << this->WorldToScreenMatrix
-     << ")\n";
+  os << indent << "WorldToScreenMatrix: (" << this->WorldToScreenMatrix << "\n";
+  this->WorldToScreenMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << ")\n";
 
-  os << indent << "EyeTransformMatrix: (" << this->EyeTransformMatrix
-     << ")\n";
+  os << indent << "EyeTransformMatrix: (" << this->EyeTransformMatrix << "\n";
+  this->EyeTransformMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << ")\n";
 
-  os << indent << "ModelTransformMatrix: (" << this->ModelTransformMatrix
-     << ")\n";
+  os << indent << "ModelTransformMatrix: (" << this->ModelTransformMatrix << "\n";
+  this->ModelTransformMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << ")\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -1686,3 +1689,61 @@ double *vtkCamera::GetOrientation()
 //-----------------------------------------------------------------------------
 double *vtkCamera::GetOrientationWXYZ()
 { return this->ViewTransform->GetOrientationWXYZ(); };
+
+// ----------------------------------------------------------------------------
+void vtkCamera::SetEyeTransformMatrix( double x00, double x01, double x02, double x03,
+                                       double x10, double x11, double x12, double x13,
+                                       double x20, double x21, double x22, double x23,
+                                       double x30, double x31, double x32, double x33)
+{
+  this->EyeTransformMatrix->Element[0][0] = x00;
+  this->EyeTransformMatrix->Element[0][1] = x01;
+  this->EyeTransformMatrix->Element[0][2] = x02;
+  this->EyeTransformMatrix->Element[0][3] = x03;
+
+  this->EyeTransformMatrix->Element[1][0] = x10;
+  this->EyeTransformMatrix->Element[1][1] = x11;
+  this->EyeTransformMatrix->Element[1][2] = x12;
+  this->EyeTransformMatrix->Element[1][3] = x13;
+
+  this->EyeTransformMatrix->Element[2][0] = x20;
+  this->EyeTransformMatrix->Element[2][1] = x21;
+  this->EyeTransformMatrix->Element[2][2] = x22;
+  this->EyeTransformMatrix->Element[2][3] = x23;
+
+  this->EyeTransformMatrix->Element[3][0] = x30;
+  this->EyeTransformMatrix->Element[3][1] = x31;
+  this->EyeTransformMatrix->Element[3][2] = x32;
+  this->EyeTransformMatrix->Element[3][3] = x33;
+
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------------
+void vtkCamera::SetModelTransformMatrix( double x00, double x01, double x02, double x03,
+                                         double x10, double x11, double x12, double x13,
+                                         double x20, double x21, double x22, double x23,
+                                         double x30, double x31, double x32, double x33)
+{
+  this->ModelTransformMatrix->Element[0][0] = x00;
+  this->ModelTransformMatrix->Element[0][1] = x01;
+  this->ModelTransformMatrix->Element[0][2] = x02;
+  this->ModelTransformMatrix->Element[0][3] = x03;
+
+  this->ModelTransformMatrix->Element[1][0] = x10;
+  this->ModelTransformMatrix->Element[1][1] = x11;
+  this->ModelTransformMatrix->Element[1][2] = x12;
+  this->ModelTransformMatrix->Element[1][3] = x13;
+
+  this->ModelTransformMatrix->Element[2][0] = x20;
+  this->ModelTransformMatrix->Element[2][1] = x21;
+  this->ModelTransformMatrix->Element[2][2] = x22;
+  this->ModelTransformMatrix->Element[2][3] = x23;
+
+  this->ModelTransformMatrix->Element[3][0] = x30;
+  this->ModelTransformMatrix->Element[3][1] = x31;
+  this->ModelTransformMatrix->Element[3][2] = x32;
+  this->ModelTransformMatrix->Element[3][3] = x33;
+
+  this->Modified();
+}
