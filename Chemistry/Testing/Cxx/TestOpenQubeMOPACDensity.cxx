@@ -29,6 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkSimpleBondPerceiver.h"
 #include "vtkSmartPointer.h"
 #include "vtkSmartVolumeMapper.h"
 #include "vtkVolume.h"
@@ -50,6 +51,17 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
 
   vtkSmartPointer<vtkMolecule> mol = vtkSmartPointer<vtkMolecule>::New();
   mol = oq->GetOutput();
+
+  // If there aren't any bonds, attempt to perceive them
+  if (mol->GetNumberOfBonds() == 0)
+    {
+    cout << "No bonds found. Running simple bond perception...\n";
+    vtkNew<vtkSimpleBondPerceiver> bonder;
+    bonder->SetInput(mol);
+    bonder->Update();
+    mol = bonder->GetOutput();
+    cout << "Bonds found: " << mol->GetNumberOfBonds() << "\n";
+    }
 
   vtkNew<vtkMoleculeMapper> molMapper;
   molMapper->SetInput(mol);

@@ -17,6 +17,7 @@ SET(Kit_SRCS
   vtkMoleculeToPolyDataFilter.cxx
   vtkPeriodicTable.cxx
   vtkProgrammableElectronicData.cxx
+  vtkSimpleBondPerceiver.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(

@@ -16,6 +16,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_CHEMISTRY)
     TestMultiCylinderOff.cxx
     TestPeriodicTable.cxx
     TestProgrammableElectronicData.cxx
+    TestSimpleBondPerceiver.cxx
     TestVDWSpheres.cxx
     )
 
