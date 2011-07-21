@@ -204,39 +204,12 @@ void SortAndSample(vtkPoints* points, vtkPointData* data,
 }
 
 
-
-//----------------------------------------------------------------------------
-int vtkMaskPoints::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  vtkPoints *newPts;
-  vtkPointData *pd;
-  vtkIdType numNewPts;
-  double x[3];
-  vtkIdType ptId, id;
-  vtkPointData *outputPD = output->GetPointData();
-  vtkIdType numPts=input->GetNumberOfPoints();
-
-  // THIS IS THE ONLY TRULY PARALLEL CODE IN THE CLASS
-  // figure out how many points per process
-  int np = this->InternalGetNumberOfProcesses();
-  vtkIdType localMaxPts = this->MaximumNumberOfPoints;
-  if(this->ProportionalMaximumNumberOfPoints && np > 1)
+  if(np > 1)
     {
     // send number of points to process 0
-    unsigned long send = numPts;
+    unsigned long send = (unsigned long)numPts;
     unsigned long* recv = new unsigned long[np];
     this->InternalGather(&send, recv, 1, 0);
 
@@ -303,12 +276,50 @@ int vtkMaskPoints::RequestData(
 
     // process 0 sends the fraction to each process
     this->InternalScatter(dist, recv, 1, 0); 
-    localMaxPts = (vtkIdType)recv[0];
+    unsigned long retval = (vtkIdType)recv[0];
 
     delete [] dist;
     delete [] recv;
+
+    return retval;
     }
-  // END PARALLEL CODE
+  else
+    {
+    return numPts;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkMaskPoints::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkPoints *newPts;
+  vtkPointData *pd;
+  vtkIdType numNewPts;
+  double x[3];
+  vtkIdType ptId, id;
+  vtkPointData *outputPD = output->GetPointData();
+  vtkIdType numPts=input->GetNumberOfPoints();
+
+  // figure out how many sample points per process
+  vtkIdType localMaxPts = this->MaximumNumberOfPoints;
+  if(this->ProportionalMaximumNumberOfPoints)
+    {
+    localMaxPts = this->GetLocalSampleSize(numPts, 
+                  this->InternalGetNumberOfProcesses());
+    }
 
   vtkDebugMacro(<<"Masking points");
   

@@ -136,6 +136,7 @@ protected:
   virtual int InternalGetNumberOfProcesses() { return 1; };
   virtual int InternalGetLocalProcessId() { return 0; };
   virtual void InternalBarrier() {};
+  unsigned long GetLocalSampleSize(vtkIdType, int);
 
 private:
   vtkMaskPoints(const vtkMaskPoints&);  // Not implemented.
