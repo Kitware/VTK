@@ -1686,3 +1686,63 @@ double *vtkCamera::GetOrientation()
 //-----------------------------------------------------------------------------
 double *vtkCamera::GetOrientationWXYZ()
 { return this->ViewTransform->GetOrientationWXYZ(); };
+
+// ----------------------------------------------------------------------------
+void vtkCamera::SetEyeTransformMatrix( double x00, double x01, double x02, double x03,
+                                       double x10, double x11, double x12, double x13,
+                                       double x20, double x21, double x22, double x23,
+                                       double x30, double x31, double x32, double x33)
+{
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  matrix->Element[0][0] = x00;
+  matrix->Element[0][1] = x01;
+  matrix->Element[0][2] = x02;
+  matrix->Element[0][3] = x03;
+
+  matrix->Element[1][0] = x10;
+  matrix->Element[1][1] = x11;
+  matrix->Element[1][2] = x12;
+  matrix->Element[1][3] = x13;
+
+  matrix->Element[2][0] = x20;
+  matrix->Element[2][1] = x21;
+  matrix->Element[2][2] = x22;
+  matrix->Element[2][3] = x23;
+
+  matrix->Element[3][0] = x30;
+  matrix->Element[3][1] = x31;
+  matrix->Element[3][2] = x32;
+  matrix->Element[3][3] = x33;
+  this->SetEyeTransformMatrix( matrix );
+  matrix->Delete();
+}
+
+
+void vtkCamera::SetModelTransformMatrix( double x00, double x01, double x02, double x03,
+                                         double x10, double x11, double x12, double x13,
+                                         double x20, double x21, double x22, double x23,
+                                         double x30, double x31, double x32, double x33)
+{
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  matrix->Element[0][0] = x00;
+  matrix->Element[0][1] = x01;
+  matrix->Element[0][2] = x02;
+  matrix->Element[0][3] = x03;
+
+  matrix->Element[1][0] = x10;
+  matrix->Element[1][1] = x11;
+  matrix->Element[1][2] = x12;
+  matrix->Element[1][3] = x13;
+
+  matrix->Element[2][0] = x20;
+  matrix->Element[2][1] = x21;
+  matrix->Element[2][2] = x22;
+  matrix->Element[2][3] = x23;
+
+  matrix->Element[3][0] = x30;
+  matrix->Element[3][1] = x31;
+  matrix->Element[3][2] = x32;
+  matrix->Element[3][3] = x33;
+  this->SetModelTransformMatrix( matrix );
+  matrix->Delete();
+}

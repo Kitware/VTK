@@ -321,11 +321,30 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetObjectMacro(EyeTransformMatrix, vtkMatrix4x4);
 
   // Description:
+  // Set the eye transform matrix.
+  // This is the transformation matrix for the point between eyes.
+  // This will be used only for deering frustum calculation.
+  // Default is identity.
+  void SetEyeTransformMatrix( double x00,  double x01,  double x02,  double x03,
+                              double x10,  double x11,  double x12,  double x13,
+                              double x20,  double x21,  double x22,  double x23,
+                              double x30,  double x31,  double x32,  double x33);
+
+  // Description:
   // Set/Get model transformation matrix.
   // This matrix could be used for model related transformations
   // such as scale, shear, roations and translations.
   void SetModelTransformMatrix(vtkMatrix4x4 *matrix);
   vtkGetObjectMacro(ModelTransformMatrix, vtkMatrix4x4);
+
+  // Description:
+  // Set model transformation matrix.
+  // This matrix could be used for model related transformations
+  // such as scale, shear, roations and translations.
+  void SetModelTransformMatrix( double x00,  double x01,  double x02,  double x03,
+                                double x10,  double x11,  double x12,  double x13,
+                                double x20,  double x21,  double x22,  double x23,
+                                double x30,  double x31,  double x32,  double x33);
 
   // Description:
   // Return the model view matrix of model view transform.
