@@ -306,12 +306,13 @@ int vtkMaskPoints::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkPoints *newPts;
-  vtkPointData *pd;
+  vtkPointData *pd = input->GetPointData();
   vtkIdType numNewPts;
   double x[3];
-  vtkIdType ptId, id;
+  vtkIdType ptId, id = 0;
   vtkPointData *outputPD = output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
+  int abort=0;
 
   // figure out how many sample points per process
   vtkIdType localMaxPts = this->MaximumNumberOfPoints;
@@ -337,9 +338,6 @@ int vtkMaskPoints::RequestData(
   outputPD->CopyAllocate(pd, numNewPts);
 
   // Traverse points and copy
-  pd = input->GetPointData();
-  id = 0;
-  int abort=0;
   vtkIdType progressInterval=numPts/20 +1;
   if ( this->RandomMode ) // random modes
     {
