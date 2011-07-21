@@ -20,4 +20,7 @@
 #define VTK_BODR_DATA_PATH "@CMAKE_INSTALL_PREFIX@/@VTK_INSTALL_SHARE_DIR_CM24@/vtkChemistry/vtkBODRData"
 #define VTK_BODR_DATA_PATH_BUILD "@VTK_SOURCE_DIR@/Chemistry/vtkBODRData"
 
+/* Whether OpenQube is enabled */
+#cmakedefine VTK_USE_OPENQUBE
+
 #endif

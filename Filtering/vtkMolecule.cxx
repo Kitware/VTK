@@ -327,6 +327,85 @@ vtkIdType vtkMolecule::GetNumberOfBonds()
 vtkCxxSetObjectMacro(vtkMolecule, ElectronicData, vtkAbstractElectronicData);
 
 //----------------------------------------------------------------------------
+void vtkMolecule::ShallowCopy(vtkDataObject *obj)
+{
+  vtkMolecule *m = vtkMolecule::SafeDownCast(obj);
+  if (!m)
+    {
+    vtkErrorMacro("Can only shallow copy from vtkMolecule or subclass.");
+    return;
+    }
+  this->ShallowCopyStructure(m);
+  this->ShallowCopyAttributes(m);
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::DeepCopy(vtkDataObject *obj)
+{
+  vtkMolecule *m = vtkMolecule::SafeDownCast(obj);
+  if (!m)
+    {
+    vtkErrorMacro("Can only deel copy from vtkMolecule or subclass.");
+    return;
+    }
+  this->DeepCopyStructure(m);
+  this->DeepCopyAttributes(m);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkMolecule::ShallowCopyStructure(vtkMolecule *m)
+{
+  this->CopyStructureInternal(m, false);
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::DeepCopyStructure(vtkMolecule *m)
+{
+  this->CopyStructureInternal(m, true);
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::ShallowCopyAttributes(vtkMolecule *m)
+{
+  this->CopyAttributesInternal(m, false);
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::DeepCopyAttributes(vtkMolecule *m)
+{
+  this->CopyAttributesInternal(m, true);
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::CopyStructureInternal(vtkMolecule *m, bool deep)
+{
+  // Call superclass
+  if (deep)
+    {
+    this->Superclass::DeepCopy(m);
+    }
+  else
+    {
+    this->Superclass::ShallowCopy(m);
+    }
+  }
+
+//----------------------------------------------------------------------------
+void vtkMolecule::CopyAttributesInternal(vtkMolecule *m, bool deep)
+{
+  if (deep)
+    {
+    if (m->ElectronicData)
+      this->ElectronicData->DeepCopy(m->ElectronicData);
+    }
+  else
+    {
+    this->SetElectronicData(m->ElectronicData);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkMolecule::UpdateBondList()
 {
   this->BuildEdgeList();

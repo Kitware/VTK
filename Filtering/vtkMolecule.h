@@ -212,6 +212,32 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   virtual void SetElectronicData(vtkAbstractElectronicData*);
 
   // Description:
+  // Shallow copies the data object into this molecule.
+  virtual void ShallowCopy(vtkDataObject *obj);
+
+  // Description:
+  // Deep copies the data object into this molecule.
+  virtual void DeepCopy(vtkDataObject *obj);
+
+  // Description:
+  // Shallow copies the atoms and bonds from @a m into @a this.
+  virtual void ShallowCopyStructure(vtkMolecule *m);
+
+  // Description:
+  // Deep copies the atoms and bonds from @a m into @a this.
+  virtual void DeepCopyStructure(vtkMolecule *m);
+
+  // Description:
+  // Shallow copies attributes (i.e. everything besides atoms and bonds) from
+  // @a m into @a this.
+  virtual void ShallowCopyAttributes(vtkMolecule *m);
+
+  // Description:
+  // Deep copies attributes (i.e. everything besides atoms and bonds) from
+  // @a m into @a this.
+  virtual void DeepCopyAttributes(vtkMolecule *m);
+
+  // Description:
   // Obtain the plane that passes through the indicated bond with the given
   // normal. If the plane is set successfully, the function return true.
   //
@@ -308,6 +334,14 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
  protected:
   vtkMolecule();
   ~vtkMolecule();
+
+  // Description:
+  // Copy bonds and atoms.
+  virtual void CopyStructureInternal(vtkMolecule *m, bool deep);
+
+  // Description:
+  // Copy everything but bonds and atoms.
+  virtual void CopyAttributesInternal(vtkMolecule *m, bool deep);
 
   // Description:
   // The graph superclass does not provide fast random access to the

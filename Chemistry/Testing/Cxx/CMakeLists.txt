@@ -4,18 +4,18 @@ IF (VTK_USE_RENDERING AND VTK_USE_CHEMISTRY)
 
   SET(MyTests
     TestBallAndStick.cxx
-    TestPeriodicTable.cxx
     TestBondColorModeDiscreteByAtom.cxx
     TestBondColorModeSingleColor.cxx
     TestBondColorModeSmoothByAtom.cxx
+    TestCompositeRender.cxx
+    TestFastRender.cxx
+    TestLiqouriceSticks.cxx
     TestMolecule.cxx
     TestMoleculeSelection.cxx
     TestMultiCylinderOn.cxx
     TestMultiCylinderOff.cxx
-    TestCompositeRender.cxx
+    TestPeriodicTable.cxx
     TestVDWSpheres.cxx
-    TestLiqouriceSticks.cxx
-    TestFastRender.cxx
     )
 
   # Tests with data
@@ -24,6 +24,16 @@ IF (VTK_USE_RENDERING AND VTK_USE_CHEMISTRY)
       ${MyTests}
       TestCMLMoleculeReader.cxx
       )
+    IF(VTK_USE_OPENQUBE)
+      # Add Eigen to the include path for the OpenQube headers
+      INCLUDE_DIRECTORIES(${EIGEN2_INCLUDE_DIR})
+      SET(MyTests
+        ${MyTests}
+        TestOpenQubeElectronicData.cxx
+        TestOpenQubeMOPACDensity.cxx
+        TestOpenQubeMOPACOrbital.cxx
+      )
+    ENDIF(VTK_USE_OPENQUBE)
   ENDIF(VTK_DATA_ROOT)
 
   # Use the testing object factory, to reduce boilerplate code in tests.
