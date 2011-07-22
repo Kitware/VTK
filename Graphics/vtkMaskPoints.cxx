@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include <stdlib.h>
 
 vtkStandardNewMacro(vtkMaskPoints);
 
@@ -37,6 +38,11 @@ vtkMaskPoints::vtkMaskPoints()
   this->SingleVertexPerCell = 0;
   this->RandomModeType = 0;
   this->ProportionalMaximumNumberOfPoints = 0;
+}
+
+inline double d_rand()
+{
+  return rand() / (double)(RAND_MAX + 1);
 }
 
 inline void SwapPoint(vtkPoints* points,
@@ -78,7 +84,7 @@ void QuickSelect(vtkPoints* points,
     }
 
   // pick a pivot 
-  vtkIdType pivot = (vtkIdType)(lrand48() % (end - start)) + start;
+  vtkIdType pivot = (vtkIdType)(rand() % (end - start)) + start;
   double value = points->GetPoint(pivot)[axis];
 
   // swap the pivot to end 
@@ -133,7 +139,7 @@ void SortAndSample(vtkPoints* points, vtkPointData* data,
   // if size == 1 return it (get one sample from a stratum)
   if(size < 2)
     {
-    vtkIdType pick = (vtkIdType)(lrand48() % (end - start)) + start;
+    vtkIdType pick = (vtkIdType)(rand() % (end - start)) + start;
     SwapPoint(points, data, temp, start, pick);
     return;
     } 
@@ -144,7 +150,7 @@ void SortAndSample(vtkPoints* points, vtkPointData* data,
   // randomly make one side bigger if it doesn't split evenly
   if((end - start) % 2)
     {
-      if(lrand48() % 2)
+      if(rand() % 2)
         {
           bigger = 1;
           half = half + 1;
@@ -175,7 +181,7 @@ void SortAndSample(vtkPoints* points, vtkPointData* data,
             }
         }
       // randomly make a sample size bigger if it doesn't split evenly
-      else if(lrand48() % 2)
+      else if(rand() % 2)
         {
           leftsize = size / 2 + 1;
           rightsize = size / 2;
@@ -250,7 +256,7 @@ unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
 
           for(int i = 0; i < np; i = i + 1)
             {
-            vtkIdType index = (vtkIdType)(lrand48() % np);
+            vtkIdType index = (vtkIdType)(rand() % np);
             unsigned long temp = rem[index];
             rem[index] = rem[i];
             rem[i] = temp;
@@ -374,7 +380,7 @@ int vtkMaskPoints::RequestData(
       // Vitter's algorithm D (without A)
       // for generating random samples incrementally: O(samplesize)
       ptId = -1;
-      double vprime = log(drand48());
+      double vprime = log(d_rand());
       vtkIdType size = numPts;
       vtkIdType samplesize = localMaxPts;
       vtkIdType q1 = size - samplesize + 1;
@@ -394,10 +400,10 @@ int vtkMaskPoints::RequestData(
               {
               break;
               }
-            vprime = log(drand48());
+            vprime = log(d_rand());
             }
 
-          double lhs = log(drand48());
+          double lhs = log(d_rand());
           double rhs = s * (log((double)(q1 - s) / (size - s)) - q3);
 
           if(lhs <= rhs)
@@ -426,7 +432,7 @@ int vtkMaskPoints::RequestData(
             bottom = bottom - 1;
             }
 
-          vprime = log(drand48());
+          vprime = log(d_rand());
           if(q3 <= -(log(y) + lhs) / s)
             {
             break;
@@ -445,7 +451,7 @@ int vtkMaskPoints::RequestData(
         }
             
       // add last point 
-      ptId = ptId + (vtkIdType)(drand48() * size) + 1;
+      ptId = ptId + (vtkIdType)(d_rand() * size) + 1;
       input->GetPoint(ptId, x);
       id = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd, ptId, id);
