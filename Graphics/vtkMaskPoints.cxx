@@ -42,7 +42,7 @@ vtkMaskPoints::vtkMaskPoints()
 
 inline double d_rand()
 {
-  return rand() / (double)(RAND_MAX + 1);
+  return rand() / (double)((unsigned long)RAND_MAX + 1);
 }
 
 inline void SwapPoint(vtkPoints* points,
