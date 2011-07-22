@@ -46,6 +46,8 @@ vtkOrderStatistics::vtkOrderStatistics()
   this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
   this->Quantize = false; // By default, do not force quantization
   this->MaximumHistogramSize = 1000; // A large value by default
+  // Number of primary tables is variable
+  this->NumberOfPrimaryTables = -1;
 
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "Quantile" );

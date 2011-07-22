@@ -33,6 +33,7 @@ class vtkDistanceWidget;
 class vtkAngleWidget;
 class vtkBiDimensionalWidget;
 class vtkHandleRepresentation;
+class vtkHandleWidget;
 class vtkCaptionWidget;
 class vtkContourWidget;
 class vtkSeedWidget;
@@ -77,6 +78,11 @@ public:
   virtual void SetResliceImageViewer( vtkResliceImageViewer * );
   vtkGetObjectMacro( ResliceImageViewer, vtkResliceImageViewer );
 
+  // Description:
+  // Update the measurements. This is automatically called when the reslice
+  // cursor's axes are change.
+  virtual void Update();
+
 protected:
   vtkResliceImageViewerMeasurements();
   ~vtkResliceImageViewerMeasurements();
@@ -90,6 +96,7 @@ protected:
   bool IsWidgetOnReslicedPlane( vtkCaptionWidget * w );
   bool IsWidgetOnReslicedPlane( vtkContourWidget * w );
   bool IsWidgetOnReslicedPlane( vtkSeedWidget * w );
+  bool IsWidgetOnReslicedPlane( vtkHandleWidget * w );
   bool IsPointOnReslicedPlane( vtkHandleRepresentation * h );
   bool IsPositionOnReslicedPlane( double p[3] );
 

@@ -389,11 +389,11 @@ void vtkAxis::SetMinimumLimit(double lowest)
     {
     return;
     }
+  this->MinimumLimit = lowest;
   if (this->Minimum < lowest )
     {
     this->SetMinimum(lowest);
     }
-  this->MinimumLimit = lowest;
 }
 
 //-----------------------------------------------------------------------------
@@ -417,11 +417,11 @@ void vtkAxis::SetMaximumLimit(double highest)
     {
     return;
     }
-  if (this->Maximum < highest )
+  this->MaximumLimit = highest;
+  if (this->Maximum > highest)
     {
     this->SetMaximum(highest);
     }
-  this->MaximumLimit = highest;
 }
 
 //-----------------------------------------------------------------------------

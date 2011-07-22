@@ -83,6 +83,12 @@ public:
   /// Clears out any data in the cache and restores it to its initial state.
   void ResetCache();
 
+  /// Set the size of the cache in MiB.
+  vtkSetMacro(CacheSize, double);
+
+  /// Get the size of the cache in MiB.
+  vtkGetMacro(CacheSize, double);
+
   /** Return the number of time steps in the open file.
     * You must have called RequestInformation() before 
     * invoking this member function.
@@ -790,6 +796,9 @@ protected:
 
   /// A least-recently-used cache to hold raw arrays.
   vtkExodusIICache* Cache;
+  //
+  /// The size of the cache in MiB.
+  double CacheSize;
 
   int ApplyDisplacements;
   float DisplacementMagnitude;

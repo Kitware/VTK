@@ -951,6 +951,8 @@ void vtkImageResliceMapper::CheckerboardImage(
 
 //----------------------------------------------------------------------------
 // Compute the vertices of the polygon in the slice coordinate system
+#define VTK_IRM_MAX_VERTS 32
+#define VTK_IRM_MAX_COORDS 96
 void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
 {
   // Get the projection matrix
@@ -1054,8 +1056,8 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
 
   // arrays for the list of polygon points
   int n = 0;
-  double newxpoints[32];
-  double newypoints[32];
+  double newxpoints[VTK_IRM_MAX_VERTS];
+  double newypoints[VTK_IRM_MAX_VERTS];
   double cx = 0.0;
   double cy = 0.0;
 
@@ -1113,7 +1115,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       }
     }
 
-  double coords[96];
+  double coords[VTK_IRM_MAX_COORDS];
 
   if (n > 0)
     {
@@ -1122,7 +1124,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
     cy /= n;
 
     // sort the points to make a convex polygon
-    double angles[6];
+    double angles[VTK_IRM_MAX_VERTS];
     for (int k = 0; k < n; k++)
       {
       double x = newxpoints[k];

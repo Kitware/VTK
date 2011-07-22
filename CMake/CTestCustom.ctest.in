@@ -84,6 +84,7 @@ ENDIF("@CMAKE_SYSTEM@" MATCHES "OSF")
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "Utilities/vtktiff/"
+  "list.[0-9]+. : warning C4702: unreachable code"
   "xtree.[0-9]+. : warning C4702: unreachable code"
   "vector.[0-9]+. : warning C4702: unreachable code"
   "warning LNK4221"

@@ -287,6 +287,13 @@ double vtkResliceCursorLineRepresentation
   this->DisplayToReslicePlaneIntersection(
       this->LastEventPosition, lastIntersectionPos );
 
+  if (lastIntersectionPos[0] == currIntersectionPos[0] &&
+      lastIntersectionPos[1] == currIntersectionPos[1] &&
+      lastIntersectionPos[2] == currIntersectionPos[2])
+    {
+    return 0;
+    }
+
   double lastVector[3], currVector[3];
   for (int i = 0; i < 3; i++)
     {
@@ -311,6 +318,11 @@ double vtkResliceCursorLineRepresentation
   const double align = vtkMath::Dot(aboutAxis, crossVector);
   const double sign = align > 0 ? 1.0 : -1.0;
   angle *= sign;
+
+  if (angle == 0)
+    {
+    return 0;
+    }
 
   this->RotateAxis( axis, angle );
 
@@ -421,13 +433,6 @@ int vtkResliceCursorLineRepresentation
 
   double t;
   
-  //  vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
-  //  plane->SetOrigin(normalPlane->GetOrigin());
-  //  double planeNormal[3] = {0,0,0};
-  //  planeNormal[rcPlaneIdx] = sign(normalPlane->GetNormal()[rcPlaneIdx]) * 1;
-  //  plane->SetNormal(planeNormal);
-  //  return plane->IntersectWithLine(eventFPpos, camPos, t, intersectionPos);
-
   return normalPlane->IntersectWithLine(eventFPpos, camPos, t, intersectionPos);
 }
 
@@ -513,52 +518,8 @@ int vtkResliceCursorLineRepresentation
     IntersectWithLine(fp, newCamPos, t, intersectionPos);
   this->Renderer->GetActiveCamera()->SetFocalPoint(intersectionPos);
 
-
-
-  //// Use the reslice matrix to orient our actors onto an axis-aligned
-  //// viewing plane.
-  ////
-  //// MatrixReslicedView = MatrixResliceZeroOffset^T x MatrixViewZeroOffset^T
-
-  //this->MatrixReslice->DeepCopy(this->ResliceAxes);
-  //this->MatrixReslice->SetElement(0,3,0);
-  //this->MatrixReslice->SetElement(1,3,0);
-  //this->MatrixReslice->SetElement(2,3,0);
-  //this->MatrixReslice->Transpose();
-
-  //// Now orient onto the viewing plane
-
-  //this->MatrixView->Identity();
-  //this->MatrixView->DeepCopy(
-  //    this->Renderer->GetActiveCamera()->GetViewTransformMatrix());
-
-  //for ( int i = 0; i < 3; i++)
-  //  {
-  //  this->MatrixView->SetElement(i,3,0);
-  //  this->MatrixView->SetElement(3,i,0);
-  //  }
-  //this->MatrixView->Transpose();
-
-  //vtkMatrix4x4::Multiply4x4(this->MatrixView,
-  //    this->MatrixReslice, this->MatrixReslicedView);
-  //this->MatrixReslicedView->Modified();
-
-
-  //// Set the matrix on our actors and on the picker, so that we pick transfomed
-  //// coordinates
-
-  //this->Picker->SetTransformMatrix(this->MatrixReslicedView);
-  //this->TexturePlaneActor->SetUserMatrix(this->MatrixReslicedView);
-  //this->ResliceCursorActor->SetUserMatrix(this->MatrixReslicedView);
-
-
-  //// Compute the origin in the transformed view space so that the location
-  //// of the reslice cursor is mapped in world coordinates to the same
-  //// location, ie the center on the resliced image of the cursor is the same
-  //// as its center in physical coordinates.
-
-  //this->ComputeOrigin(this->MatrixReslicedView);
-
+  // Don't clip away any part of the data.
+  this->Renderer->ResetCameraClippingRange();
 
   // Now Render all the actors.
 
