@@ -48,6 +48,10 @@ vtkAMRBaseReader::~vtkAMRBaseReader()
   this->SelectionObserver->Delete( );
   this->CellDataArraySelection->Delete( );
   this->PointDataArraySelection->Delete( );
+
+  if( this->amrCache != NULL )
+    this->amrCache->Delete();
+
   if( this->metadata != NULL )
     this->metadata->Delete();
 }
@@ -341,6 +345,38 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRBaseReader::LoadPointData(
+    const int blockIdx, vtkUniformGrid *block )
+{
+  // TODO: implement this
+//  for( int i=0; i < this->GetNumberOfPointArrays(); ++i )
+//    {
+//      if( this->GetPointArrayStatus( this->GetPointArrayName(i) ) )
+//        {
+//          // TODO: load point data
+//        }
+//    }
+
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRBaseReader::LoadCellData(
+    const int blockIdx, vtkUniformGrid *block )
+{
+  // Sanity check!
+  assert( "pre: AMR block should not be NULL" && (block != NULL) );
+
+  for( int i=0; i < this->GetNumberOfCellArrays(); ++i )
+    {
+      if( this->GetCellArrayStatus( this->GetCellArrayName( i ) ) )
+        {
+          this->GetAMRData(
+              blockIdx, block, this->GetCellArrayName( i ) );
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
 int vtkAMRBaseReader::RequestData(
         vtkInformation* vtkNotUsed(request),
         vtkInformationVector** vtkNotUsed(inputVector),
@@ -377,30 +413,17 @@ int vtkAMRBaseReader::RequestData(
 
       if( this->IsBlockMine(block) )
         {
-
           // STEP 0: Get the AMR block
           vtkUniformGrid *amrBlock = this->GetAMRBlock( blockIdx );
           assert( "pre: AMR block is NULL" && (amrBlock != NULL) );
 
           // STEP 2: Load any point-data
-          for( int i=0; i < this->GetNumberOfPointArrays(); ++i )
-            {
-              if( this->GetPointArrayStatus( this->GetPointArrayName(i) ) )
-                {
-                  // TODO: load point data
-                }
-            }
+          this->LoadPointData( blockIdx, amrBlock );
 
-          // STEP 3: Load any cell-data
-          for( int i=0; i < this->GetNumberOfCellArrays(); ++i )
-            {
-              if( this->GetCellArrayStatus( this->GetCellArrayName( i ) ) )
-                {
-                  this->GetAMRData(
-                      blockIdx,amrBlock,this->GetCellArrayName( i ) );
-                }
-            }
+          // STEP 3: Load any cell data
+          this->LoadCellData( blockIdx, amrBlock );
 
+          // STEP 4: Add dataset
           output->SetDataSet( level,idxcounter[level],amrBlock );
           idxcounter[level]++;
         } // END if the block belongs to this process

@@ -118,13 +118,29 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     bool IsBlockMine( const int blockIdx );
 
     // Description:
-    // TODO: implement this
+    // Loads the AMR block corresponding to the given index. The block
+    // is either loaded from the file, or, from the cache if caching is
+    // enabled.
     vtkUniformGrid* GetAMRBlock( const int blockIdx );
 
     // Description:
-    // TODO: implement this
+    // Loads the AMR data corresponding to the given field name.
+    // NOTE: Currently, only cell-data are supported.
     void GetAMRData(
       const int blockIdx, vtkUniformGrid *block, const char *fieldName );
+
+    // Description:
+    // A wrapper that loops over point arrays and load the point
+    // arrays that are enabled, i.e., selected for the given block.
+    // NOTE: This method is currently not implemented.
+    void LoadPointData( const int blockIdx, vtkUniformGrid *block );
+
+    // Description:
+    // A wrapper that loops over all cell arrays and loads the cell
+    // arrays that are enabled, i.e., selected for the given block.
+    // The data are either loaded from the file, or, from the cache if
+    // caching is enabled.
+    void LoadCellData( const int blockIdx, vtkUniformGrid *block );
 
     // Description:
     // Returns the block process ID for the block corresponding to the
