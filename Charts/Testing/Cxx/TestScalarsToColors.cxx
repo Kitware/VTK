@@ -17,6 +17,8 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositeControlPointsItem.h"
 #include "vtkCompositeTransferFunctionItem.h"
+#include "vtkContext2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkLookupTable.h"
@@ -71,10 +73,17 @@ int TestScalarsToColors(int ,  char * [])
   item5->SetColorTransferFunction(colorTransferFunction);
   chart->AddPlot(item5);
 
-  //Finally render the scene and compare the image to a reference image
-  view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetInteractor()->Initialize();
-  view->GetInteractor()->Start();
+  // Finally render the scene and compare the image to a reference image
+  view->GetRenderWindow()->SetMultiSamples(1);
+  if (view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
+    {
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
+    }
+  else
+    {
+    cout << "GL version 2 or higher is required." << endl;
+    }
 
   return EXIT_SUCCESS;
 }
