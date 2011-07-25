@@ -437,7 +437,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       
       timer->StartTimer();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
-      }
+      } // else if ( vals->IsA("vtkStringArray") )
     else if ( vals->IsA("vtkVariantArray") )
       {
       }
