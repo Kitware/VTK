@@ -240,5 +240,20 @@ used when the shared library is loaded/unloaded from an executable.
 #define resize_buffer vtk_exodus_resize_buffer
 #define rm_stat_ptr vtk_exodus_rm_stat_ptr
 #define update_internal_structs vtk_exodus_update_internal_structs
+#define file_list vtk_exodus_file_list
+#define exerrval vtk_exodus_exerrval
+#define exoptval vtk_exodus_exoptval
+#define exoII_eb vtk_exodus_exoII_eb
+#define exoII_ed vtk_exodus_exoII_ed
+#define exoII_edm vtk_exodus_exoII_edm
+#define exoII_els vtk_exodus_exoII_els
+#define exoII_em vtk_exodus_exoII_em
+#define exoII_es vtk_exodus_exoII_es
+#define exoII_fa vtk_exodus_exoII_fa
+#define exoII_fam vtk_exodus_exoII_fam
+#define exoII_fs vtk_exodus_exoII_fs
+#define exoII_nm vtk_exodus_exoII_nm
+#define exoII_ns vtk_exodus_exoII_ns
+#define exoII_ss vtk_exodus_exoII_ss
 
 #endif /* vtk_exodus2_mangle.h */
