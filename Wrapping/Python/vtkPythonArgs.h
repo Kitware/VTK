@@ -29,8 +29,9 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKTemplate.h"
 
 #include "vtkConfigure.h"
-#include "vtkStdString.h"
 #include "vtkUnicodeString.h"
+
+#include <string>
 
 class VTK_PYTHON_EXPORT vtkPythonArgs
 {
@@ -195,8 +196,8 @@ public:
   static bool GetValue(PyObject *o, const char *&v);
   bool GetValue(char *&v);
   static bool GetValue(PyObject *o, char *&v);
-  bool GetValue(vtkStdString &v);
-  static bool GetValue(PyObject *o, vtkStdString &v);
+  bool GetValue(std::string &v);
+  static bool GetValue(PyObject *o, std::string &v);
   bool GetValue(vtkUnicodeString &v);
   static bool GetValue(PyObject *o, vtkUnicodeString &v);
 
@@ -290,7 +291,7 @@ public:
 
   // Description:
   // Set the value of an argument if it is an assignable type.
-  bool SetArgValue(int i, const vtkStdString &v);
+  bool SetArgValue(int i, const std::string &v);
   bool SetArgValue(int i, const vtkUnicodeString &v);
   bool SetArgValue(int i, char v);
   bool SetArgValue(int i, float v);
@@ -393,7 +394,7 @@ public:
   // Description:
   // Build a string return value.
   static PyObject *BuildValue(const char *v);
-  static PyObject *BuildValue(const vtkStdString &v);
+  static PyObject *BuildValue(const std::string &v);
   static PyObject *BuildValue(const vtkUnicodeString &v);
 
   // Description:
@@ -674,7 +675,7 @@ PyObject *vtkPythonArgs::BuildValue(const char *a)
 }
 
 inline
-PyObject *vtkPythonArgs::BuildValue(const vtkStdString &a)
+PyObject *vtkPythonArgs::BuildValue(const std::string &a)
 {
   return PyString_FromString(a.c_str());
 }
