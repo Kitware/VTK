@@ -84,8 +84,8 @@ static void PackValues( const vtkstd::vector<vtkStdString>& values,
 }
 
 //-----------------------------------------------------------------------------
-void UnpackValues( const vtkStdString& buffer,
-                   vtkstd::vector<vtkStdString>& values )
+static void UnpackValues( const vtkStdString& buffer,
+                          vtkstd::vector<vtkStdString>& values )
 {
     values.clear();
 
