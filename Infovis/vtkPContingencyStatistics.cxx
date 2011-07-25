@@ -88,7 +88,7 @@ static void UnpackValues( const vtkStdString& buffer,
                           vtkstd::vector<vtkStdString>& values )
 {
   values.clear();
-
+  
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
   for( const char* start = &buffer[0]; start != bufferEnd; ++ start )
@@ -441,17 +441,6 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
                                         vtkIdType*  kcValues_g,
                                         vtkstd::vector<vtkIdType>& kcValues_l )
 {
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  vtkTimerLog *timer=vtkTimerLog::New();
-  timer->StartTimer();
-
-  cout << "\n## Reduce received character string of size "
-       << xySizeTotal
-       << " and integer array of size "
-       << kcSizeTotal
-       << "... ";
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-
   // First, unpack the packet of strings
   vtkstd::vector<vtkStdString> xyValues_g;
   UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
@@ -514,17 +503,6 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
   // Last, update xy and kc buffer sizes (which have changed because of the reduction)
   xySizeTotal = xyPacked_l.size();
   kcSizeTotal = kcValues_l.size();
-
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  timer->StopTimer();
-
-  cout<< " and completed in "
-      << timer->GetElapsedTime()
-      << " seconds."
-      << "\n\n";
-
-  timer->Delete();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   return false;
 }
