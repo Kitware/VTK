@@ -75,6 +75,7 @@ void vtkAMRBaseReader::Initialize()
   this->metadata       = NULL;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
   this->InitialRequest = true;
+  this->amrCache       = vtkAMRDataSetCache::New();
 
   this->CellDataArraySelection  = vtkDataArraySelection::New();
   this->PointDataArraySelection = vtkDataArraySelection::New();
@@ -298,7 +299,6 @@ void vtkAMRBaseReader::GetAMRData(
           blockIdx, block->GetCellData()->GetArray( fieldName ) );
     }
 
-  assert( "Code should never reach here!" && (false) );
 }
 
 //------------------------------------------------------------------------------
