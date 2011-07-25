@@ -440,6 +440,10 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       } // else if ( vals->IsA("vtkStringArray") )
     else if ( vals->IsA("vtkVariantArray") )
       {
+      vtkErrorMacro( "Unsupported data type (variant array) for column "
+                       << vals->GetName()
+                       << ". Ignoring it." );
+      return;
       }
     else
       {
