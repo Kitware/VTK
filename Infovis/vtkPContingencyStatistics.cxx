@@ -296,7 +296,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Reduction step: have process reduceProc perform the reduction of the global contingency table
+  // Reduce to global contingency table on process reduceProc
   if ( myRank == reduceProc )
     {
     if ( this->Reduce( xySizeTotal,

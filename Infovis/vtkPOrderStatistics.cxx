@@ -410,7 +410,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         return;
         }
 
-      // Reduce to global histogram table on process reduceProc
+      // Reduce to global histogram on process reduceProc
       if ( myRank == reduceProc )
         {
         if ( ! vtkPOrderStatisticsStringArrayReduce( card_g, xPacked_g ) )
