@@ -87,7 +87,7 @@ static void PackValues( const vtkstd::vector<vtkStdString>& values,
 static void UnpackValues( const vtkStdString& buffer,
                           vtkstd::vector<vtkStdString>& values )
 {
-    values.clear();
+  values.clear();
 
   const char* const bufferEnd = &buffer[0] + buffer.size();
 

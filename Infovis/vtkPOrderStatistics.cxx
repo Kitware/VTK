@@ -72,7 +72,7 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 static void PackValues( const vtkstd::vector<vtkStdString>& values,
-                 vtkStdString& buffer )
+                        vtkStdString& buffer )
 {
   buffer.clear();
 
@@ -81,6 +81,28 @@ static void PackValues( const vtkstd::vector<vtkStdString>& values,
     {
     buffer.append( *it );
     buffer.push_back( 0 );
+    }
+}
+
+//-----------------------------------------------------------------------------
+static void UnpackValues( const vtkStdString& buffer,
+                          vtkstd::vector<vtkStdString>& values )
+{
+  values.clear();
+  
+  const char* const bufferEnd = &buffer[0] + buffer.size();
+  
+  for( const char* start = &buffer[0]; start != bufferEnd; ++ start )
+    {
+    for( const char* finish = start; finish != bufferEnd; ++ finish )
+      {
+      if( ! *finish )
+        {
+        values.push_back( vtkStdString( start ) );
+        start = finish;
+        break;
+        }
+      }
     }
 }
 
