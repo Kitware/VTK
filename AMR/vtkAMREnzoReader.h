@@ -101,10 +101,13 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
     int FillMetaData( );
 
     // Description:
-    // See vtkAMRBaseReader::GetBlock
-    void GetBlock(
-        int index, vtkHierarchicalBoxDataSet *hbds,
-        vtkstd::vector< int > &idxcounter);
+    // See vtkAMRBaseReader::GetAMRGrid
+    vtkUniformGrid* GetAMRGrid( const int blockIdx );
+
+    // Description:
+    // See vtkAMRBaseReader::GetAMRGridData
+    void GetAMRGridData(
+        const int blockIdx, vtkUniformGrid *block, const char *field);
 
     // Description:
     // See vtkAMRBaseReader::SetUpDataArraySelections

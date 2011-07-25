@@ -31,6 +31,9 @@ class vtkMultiProcessController;
 class vtkDataArraySelection;
 class vtkCallbackCommand;
 class vtkIndent;
+class vtkAMRDataSetCache;
+class vtkUniformGrid;
+class vtkDataArray;
 
 class VTK_AMR_EXPORT vtkAMRBaseReader :
   public vtkHierarchicalBoxDataSetAlgorithm
@@ -49,6 +52,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
      vtkSetMacro( EnableCaching, int );
      vtkGetMacro( EnableCaching, int );
      vtkBooleanMacro( EnableCaching, int );
+     inline bool IsCachingEnabled()const{return((EnableCaching)?true:false);};
 
     // Description:
     // Set/Get a multiprocess-controller for reading in parallel.
@@ -114,6 +118,15 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     bool IsBlockMine( const int blockIdx );
 
     // Description:
+    // TODO: implement this
+    vtkUniformGrid* GetAMRBlock( const int blockIdx );
+
+    // Description:
+    // TODO: implement this
+    void GetAMRData(
+      const int blockIdx, vtkUniformGrid *block, const char *fieldName );
+
+    // Description:
     // Returns the block process ID for the block corresponding to the
     // given block index. If this reader instance is serial, i.e., there
     // is no controller associated, the method returns 0. Otherwise, static
@@ -121,6 +134,14 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     // a process according to blockIdx%N, where N is the total number of
     // processes.
     int GetBlockProcessId( const int blockIdx );
+
+    // Description:
+    // Initializes the request of blocks to be loaded. This method checks
+    // if an upstream request has been issued from a downstream module which
+    // specifies which blocks are to be loaded, otherwise, it uses the max
+    // level associated with this reader instance to determine which blocks
+    // are to be loaded.
+    void SetupBlockRequest( vtkInformation *outputInfo );
 
     // Description:
     // Reads all the metadata from the file. Implemented by concrete classes.
@@ -156,9 +177,12 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
     // Description:
     // Loads the block according to the index w.r.t. the generated BlockMap.
-    virtual void GetBlock(
-        int index, vtkHierarchicalBoxDataSet *hbds,
-        vtkstd::vector< int > &idxcounter ) = 0;
+    virtual vtkUniformGrid* GetAMRGrid( const int blockIdx ) = 0;
+
+    // Description:
+    // Loads the block data
+    virtual void GetAMRGridData(
+        const int blockIdx, vtkUniformGrid *block, const char *field ) = 0;
 
     // Description:
     // Standard Pipeline methods, subclasses may override this method if needed.
@@ -198,8 +222,11 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     vtkMultiProcessController *Controller;
 
     int EnableCaching;
+    vtkAMRDataSetCache *amrCache;
+
 
     vtkHierarchicalBoxDataSet *metadata;
+
 
     //BTX
       vtkstd::vector<int> BlockMap;

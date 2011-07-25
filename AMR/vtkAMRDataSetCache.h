@@ -24,11 +24,12 @@
 #define VTKAMRDATASETCACHE_H_
 
 #include "vtkObject.h"
-#include <vtkstd/map> // For STL map
+#include <set> // For STL set
 
 class vtkUniformGrid;
 class vtkAMRBox;
 class vtkDataArray;
+class vtkMultiBlockDataSet;
 
 class VTK_AMR_EXPORT vtkAMRDataSetCache : public vtkObject
 {
@@ -36,11 +37,6 @@ class VTK_AMR_EXPORT vtkAMRDataSetCache : public vtkObject
     static vtkAMRDataSetCache* New();
     vtkTypeMacro( vtkAMRDataSetCache, vtkObject );
     void PrintSelf( std::ostream &os, vtkIndent indent );
-
-    // Description:
-    // Set/Get Size of the cache.
-    vtkSetMacro( Size, int );
-    vtkGetMacro( Size, int );
 
     // Description:
     // Inserts an AMR block to the cache
@@ -95,8 +91,8 @@ class VTK_AMR_EXPORT vtkAMRDataSetCache : public vtkObject
     vtkAMRDataSetCache();
     virtual ~vtkAMRDataSetCache();
 
-    int Size;
-    vtkstd::map< int, vtkUniformGrid* > Cache;
+    vtkMultiBlockDataSet *Cache;
+    std::set< int > history;
 
   private:
     vtkAMRDataSetCache( const vtkAMRDataSetCache& ); // Not implemented

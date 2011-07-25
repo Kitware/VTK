@@ -18,6 +18,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkUniformGrid.h"
+#include "vtkMultiBlockDataSet.h"
 
 #include <cassert>
 
@@ -26,19 +27,13 @@ vtkStandardNewMacro( vtkAMRDataSetCache );
 
 vtkAMRDataSetCache::vtkAMRDataSetCache()
 {
-  this->Size = 100; // Cache 100 blocks by default
+  this->Cache = vtkMultiBlockDataSet::New();
 }
 
 //------------------------------------------------------------------------------
 vtkAMRDataSetCache::~vtkAMRDataSetCache()
 {
-  vtkstd::map< int, vtkUniformGrid* >::iterator iter;
-  for( iter = this->Cache.begin(); iter != this->Cache.end(); ++iter )
-    {
-      if( iter->second != NULL )
-        iter->second->Delete();
-    }
-  this->Cache.clear();
+  this->Cache->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -55,7 +50,8 @@ void vtkAMRDataSetCache::InsertAMRBlock(
 
   if( !this->HasAMRBlock( compositeIdx ) )
     {
-      this->Cache[ compositeIdx ] = amrGrid;
+      this->Cache->SetBlock( compositeIdx, amrGrid );
+      this->history.insert( compositeIdx );
     }
 }
 
@@ -140,7 +136,10 @@ vtkDataArray* vtkAMRDataSetCache::GetAMRBlockPointData(
 vtkUniformGrid* vtkAMRDataSetCache::GetAMRBlock( const int compositeIdx )
 {
   if( this->HasAMRBlock( compositeIdx ) )
-    return this->Cache[ compositeIdx ];
+    {
+      return( vtkUniformGrid::SafeDownCast(
+                  this->Cache->GetBlock( compositeIdx ) ) );
+    }
   return NULL;
 }
 
@@ -152,7 +151,10 @@ bool vtkAMRDataSetCache::HasAMRBlockCellData(
 
   if( this->HasAMRBlock( compositeIdx ) )
     {
-      vtkCellData *CD = this->Cache[ compositeIdx ]->GetCellData();
+      vtkUniformGrid *gridPtr = this->GetAMRBlock( compositeIdx );
+      assert( "pre: cachedk block is NULL!" && (gridPtr != NULL) );
+
+      vtkCellData *CD = gridPtr->GetCellData();
       assert( "pre: cell data is NULL" && (CD != NULL) );
 
       if( CD->HasArray( name ) )
@@ -171,7 +173,10 @@ bool vtkAMRDataSetCache::HasAMRBlockPointData(
 
   if( this->HasAMRBlock( compositeIdx ) )
     {
-      vtkPointData *PD = this->Cache[ compositeIdx ]->GetPointData();
+      vtkUniformGrid *gridPtr = this->GetAMRBlock( compositeIdx );
+      assert( "pre: cachedk block is NULL!" && (gridPtr != NULL) );
+
+      vtkPointData *PD = gridPtr->GetPointData();
       assert( "pre: point data is NULL" && (PD != NULL) );
 
       if( PD->HasArray( name ) )
@@ -185,7 +190,10 @@ bool vtkAMRDataSetCache::HasAMRBlockPointData(
 //------------------------------------------------------------------------------
 bool vtkAMRDataSetCache::HasAMRBlock(const int compositeIdx )
 {
-  if( this->Cache.find( compositeIdx) != this->Cache.end() )
+  if( this->history.empty( ) )
+    return false;
+
+  if( this->history.find( compositeIdx) != this->history.end() )
    return true;
   return false;
 }

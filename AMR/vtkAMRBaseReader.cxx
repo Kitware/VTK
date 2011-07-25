@@ -24,7 +24,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-
+#include "vtkAMRDataSetCache.h"
+#include "vtkUniformGrid.h"
+#include "vtkDataArray.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
 #include "vtkAMRUtilities.h"
 
 
@@ -229,24 +233,14 @@ int vtkAMRBaseReader::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkAMRBaseReader::RequestData(
-        vtkInformation* vtkNotUsed(request),
-        vtkInformationVector** vtkNotUsed(inputVector),
-        vtkInformationVector* outputVector )
+void vtkAMRBaseReader::SetupBlockRequest( vtkInformation *outInf )
 {
-
-  vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
-  vtkHierarchicalBoxDataSet *output =
-    vtkHierarchicalBoxDataSet::SafeDownCast(
-     outInf->Get( vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
+  assert( "pre: output information is NULL" && (outInf != NULL) );
 
   if( outInf->Has(
       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
     {
       assert( "Metadata should not be null" && (this->metadata!=NULL) );
-      output->Clear();
-
       this->ReadMetaData();
 
       int size =
@@ -268,6 +262,100 @@ int vtkAMRBaseReader::RequestData(
      this->GenerateBlockMap();
     }
 
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRBaseReader::GetAMRData(
+    const int blockIdx, vtkUniformGrid *block, const char *fieldName )
+{
+  assert( "pre: AMR block is NULL" && (block != NULL) );
+  assert( "pre: field name is NULL" && (fieldName != NULL) );
+
+  // If caching is disabled load the data from file
+  if( !this->IsCachingEnabled() )
+    {
+      this->GetAMRGridData( blockIdx, block, fieldName );
+      return;
+    }
+
+  // Caching is enabled.
+  // Check the cache to see if the data has already been read.
+  // Otherwise, read it and cache it.
+  if( this->amrCache->HasAMRBlockCellData( blockIdx, fieldName ) )
+    {
+     vtkDataArray *data =
+         this->amrCache->GetAMRBlockCellData( blockIdx, fieldName );
+     assert( "pre: cached data is NULL!" && (data != NULL) );
+
+     block->GetCellData()->AddArray( data );
+    }
+  else
+    {
+      this->GetAMRGridData( blockIdx, block, fieldName );
+      std::cout << "Inserting data to cache....\n";
+      std::cout.flush();
+      this->amrCache->InsertAMRBlockCellData(
+          blockIdx, block->GetCellData()->GetArray( fieldName ) );
+    }
+
+  assert( "Code should never reach here!" && (false) );
+}
+
+//------------------------------------------------------------------------------
+vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
+{
+
+  // If caching is disabled load the data from file
+  if( !this->IsCachingEnabled() )
+    {
+      vtkUniformGrid *gridPtr = this->GetAMRGrid( blockIdx );
+      assert( "pre: grid pointer is NULL" && (gridPtr != NULL) );
+      return( gridPtr );
+    }
+
+  // Caching is enabled.
+  // Check the cache to see if the block has already been read.
+  // Otherwise, read it and cache it.
+  if( this->amrCache->HasAMRBlock( blockIdx ) )
+    {
+      vtkUniformGrid *gridPtr    = vtkUniformGrid::New();
+      vtkUniformGrid *cachedGrid = this->amrCache->GetAMRBlock( blockIdx );
+      gridPtr->CopyStructure( cachedGrid );
+      return( gridPtr );
+    }
+  else
+    {
+      vtkUniformGrid *cachedGrid = vtkUniformGrid::New();
+      vtkUniformGrid *gridPtr    = this->GetAMRGrid( blockIdx );
+      assert( "pre: grid pointer is NULL" && (gridPtr != NULL) );
+      cachedGrid->CopyStructure( gridPtr );
+
+      std::cout << "Inserting block to cache...";
+      std::cout.flush();
+      this->amrCache->InsertAMRBlock( blockIdx, cachedGrid );
+      return( gridPtr );
+    }
+
+  assert( "Code should never reach here!" && (false) );
+  return NULL;
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRBaseReader::RequestData(
+        vtkInformation* vtkNotUsed(request),
+        vtkInformationVector** vtkNotUsed(inputVector),
+        vtkInformationVector* outputVector )
+{
+
+  vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
+  vtkHierarchicalBoxDataSet *output =
+    vtkHierarchicalBoxDataSet::SafeDownCast(
+     outInf->Get( vtkDataObject::DATA_OBJECT() ) );
+  assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
+
+  // Setup the block request
+  this->SetupBlockRequest( outInf );
+
   // Initialize counter of the number of blocks at each level.
   // This counter is used to compute the block index w.r.t. the
   // hierarchical box data-structure. Note that then number of blocks
@@ -284,11 +372,42 @@ int vtkAMRBaseReader::RequestData(
   for( int block=0; block < numBlocks; ++block )
     {
 
+      int blockIdx = this->BlockMap[ block ];
+      int level    = this->GetBlockLevel( blockIdx );
+
       if( this->IsBlockMine(block) )
         {
-          std::cout << "Loading block: " << this->BlockMap[ block ] << "\n";
-          std::cout.flush();
-          this->GetBlock( block, output, idxcounter );
+
+          // STEP 0: Get the AMR block
+          vtkUniformGrid *amrBlock = this->GetAMRBlock( blockIdx );
+          assert( "pre: AMR block is NULL" && (amrBlock != NULL) );
+
+          // STEP 2: Load any point-data
+          for( int i=0; i < this->GetNumberOfPointArrays(); ++i )
+            {
+              if( this->GetPointArrayStatus( this->GetPointArrayName(i) ) )
+                {
+                  // TODO: load point data
+                }
+            }
+
+          // STEP 3: Load any cell-data
+          for( int i=0; i < this->GetNumberOfCellArrays(); ++i )
+            {
+              if( this->GetCellArrayStatus( this->GetCellArrayName( i ) ) )
+                {
+                  this->GetAMRData(
+                      blockIdx,amrBlock,this->GetCellArrayName( i ) );
+                }
+            }
+
+          output->SetDataSet( level,idxcounter[level],amrBlock );
+          idxcounter[level]++;
+        } // END if the block belongs to this process
+      else
+        {
+          output->SetDataSet( idxcounter[level],level,NULL );
+          idxcounter[level]++;
         }
 
     } // END for all blocks
