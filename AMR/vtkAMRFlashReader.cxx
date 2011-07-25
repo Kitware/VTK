@@ -84,6 +84,7 @@ void vtkAMRFlashReader::SetFileName( const char* fileName )
       this->FileName[ strlen( fileName ) ] = '\0';
 
       this->Internal->SetFileName( this->FileName );
+      this->LoadedMetaData = false;
     }
 
   this->SetUpDataArraySelections();

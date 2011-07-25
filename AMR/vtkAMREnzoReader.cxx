@@ -242,6 +242,7 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
       this->BlockMap.clear();
       this->Internal->Blocks.clear();
       this->Internal->NumberOfBlocks = 0;
+      this->LoadedMetaData = false;
 
       if ( this->FileName )
       {

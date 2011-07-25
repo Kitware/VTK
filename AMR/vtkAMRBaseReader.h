@@ -242,6 +242,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
 
     vtkHierarchicalBoxDataSet *metadata;
+    bool LoadedMetaData;
 
 
     //BTX

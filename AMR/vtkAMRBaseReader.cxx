@@ -31,13 +31,15 @@
 #include "vtkPointData.h"
 #include "vtkAMRUtilities.h"
 
+#include "vtkTimerLog.h"
+
 
 #include <cassert>
 
 
 vtkAMRBaseReader::vtkAMRBaseReader()
 {
-
+  this->LoadedMetaData = false;
 }
 
 //------------------------------------------------------------------------------
@@ -73,6 +75,8 @@ void vtkAMRBaseReader::PrintSelf( std::ostream &os, vtkIndent indent )
 //------------------------------------------------------------------------------
 void vtkAMRBaseReader::Initialize()
 {
+  vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::Initialize" );
+
   this->SetNumberOfInputPorts( 0 );
   this->FileName       = NULL;
   this->MaxLevel       = 0;
@@ -92,6 +96,7 @@ void vtkAMRBaseReader::Initialize()
   this->PointDataArraySelection->AddObserver(
      vtkCommand::ModifiedEvent, this->SelectionObserver );
 
+  vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::Initialize" );
 }
 
 //----------------------------------------------------------------------------
@@ -221,8 +226,11 @@ int vtkAMRBaseReader::RequestInformation(
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector )
 {
-  this->Superclass::RequestInformation( rqst, inputVector, outputVector );
+  if( this->LoadedMetaData )
+    return( 1 );
 
+  vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::GenerateMetadata" );
+  this->Superclass::RequestInformation( rqst, inputVector, outputVector );
   if( this->metadata == NULL )
     {
       this->metadata = vtkHierarchicalBoxDataSet::New();
@@ -232,8 +240,9 @@ int vtkAMRBaseReader::RequestInformation(
       info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
           this->metadata );
     }
-
   this->Modified();
+
+  vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::GenerateMetadata" );
   return 1;
 }
 
@@ -279,7 +288,9 @@ void vtkAMRBaseReader::GetAMRData(
   // If caching is disabled load the data from file
   if( !this->IsCachingEnabled() )
     {
+      vtkTimerLog::MarkStartEvent( "GetAMRGridDataFromFile" );
       this->GetAMRGridData( blockIdx, block, fieldName );
+      vtkTimerLog::MarkEndEvent( "GetAMRGridDataFromFile" );
       return;
     }
 
@@ -288,19 +299,24 @@ void vtkAMRBaseReader::GetAMRData(
   // Otherwise, read it and cache it.
   if( this->amrCache->HasAMRBlockCellData( blockIdx, fieldName ) )
     {
-     vtkDataArray *data =
+      vtkTimerLog::MarkStartEvent( "GetAMRGridDataFromCache" );
+      vtkDataArray *data =
          this->amrCache->GetAMRBlockCellData( blockIdx, fieldName );
-     assert( "pre: cached data is NULL!" && (data != NULL) );
+      assert( "pre: cached data is NULL!" && (data != NULL) );
+      vtkTimerLog::MarkEndEvent( "GetAMRGridDataFromCache" );
 
-     block->GetCellData()->AddArray( data );
+      block->GetCellData()->AddArray( data );
     }
   else
     {
+      vtkTimerLog::MarkStartEvent( "GetAMRGridDataFromFile" );
       this->GetAMRGridData( blockIdx, block, fieldName );
-      std::cout << "Inserting data to cache....\n";
-      std::cout.flush();
+      vtkTimerLog::MarkEndEvent( "GetAMRGridDataFromFile" );
+
+      vtkTimerLog::MarkStartEvent( "CacheAMRData" );
       this->amrCache->InsertAMRBlockCellData(
           blockIdx, block->GetCellData()->GetArray( fieldName ) );
+      vtkTimerLog::MarkEndEvent( "CacheAMRData" );
     }
 
 }
@@ -312,7 +328,9 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
   // If caching is disabled load the data from file
   if( !this->IsCachingEnabled() )
     {
+      vtkTimerLog::MarkStartEvent( "ReadAMRBlockFromFile" );
       vtkUniformGrid *gridPtr = this->GetAMRGrid( blockIdx );
+      vtkTimerLog::MarkEndEvent( "ReadAMRBlockFromFile" );
       assert( "pre: grid pointer is NULL" && (gridPtr != NULL) );
       return( gridPtr );
     }
@@ -322,21 +340,26 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
   // Otherwise, read it and cache it.
   if( this->amrCache->HasAMRBlock( blockIdx ) )
     {
+      vtkTimerLog::MarkStartEvent("ReadAMRBlockFromCache");
       vtkUniformGrid *gridPtr    = vtkUniformGrid::New();
       vtkUniformGrid *cachedGrid = this->amrCache->GetAMRBlock( blockIdx );
       gridPtr->CopyStructure( cachedGrid );
+      vtkTimerLog::MarkEndEvent( "ReadAMRBlockFromCache" );
       return( gridPtr );
     }
   else
     {
+      vtkTimerLog::MarkStartEvent( "ReadAMRBlockFromFile" );
       vtkUniformGrid *cachedGrid = vtkUniformGrid::New();
       vtkUniformGrid *gridPtr    = this->GetAMRGrid( blockIdx );
       assert( "pre: grid pointer is NULL" && (gridPtr != NULL) );
-      cachedGrid->CopyStructure( gridPtr );
+      vtkTimerLog::MarkEndEvent( "ReadAMRBlockFromFile" );
 
-      std::cout << "Inserting block to cache...";
-      std::cout.flush();
+      vtkTimerLog::MarkStartEvent( "CacheAMRBlock" );
+      cachedGrid->CopyStructure( gridPtr );
       this->amrCache->InsertAMRBlock( blockIdx, cachedGrid );
+      vtkTimerLog::MarkEndEvent( "CacheAMRBlock" );
+
       return( gridPtr );
     }
 
@@ -382,6 +405,7 @@ int vtkAMRBaseReader::RequestData(
         vtkInformationVector** vtkNotUsed(inputVector),
         vtkInformationVector* outputVector )
 {
+  vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::RqstData" );
 
   vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
   vtkHierarchicalBoxDataSet *output =
@@ -390,7 +414,9 @@ int vtkAMRBaseReader::RequestData(
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
 
   // Setup the block request
+  vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::SetupBlockRequest" );
   this->SetupBlockRequest( outInf );
+  vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::SetupBlockRequest" );
 
   // Initialize counter of the number of blocks at each level.
   // This counter is used to compute the block index w.r.t. the
@@ -414,14 +440,20 @@ int vtkAMRBaseReader::RequestData(
       if( this->IsBlockMine(block) )
         {
           // STEP 0: Get the AMR block
+          vtkTimerLog::MarkStartEvent( "GetAMRBlock" );
           vtkUniformGrid *amrBlock = this->GetAMRBlock( blockIdx );
+          vtkTimerLog::MarkEndEvent( "GetAMRBlock" );
           assert( "pre: AMR block is NULL" && (amrBlock != NULL) );
 
           // STEP 2: Load any point-data
+          vtkTimerLog::MarkStartEvent( "vtkARMBaseReader::LoadPointData" );
           this->LoadPointData( blockIdx, amrBlock );
+          vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::LoadPointData" );
 
           // STEP 3: Load any cell data
+          vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::LoadCellData" );
           this->LoadCellData( blockIdx, amrBlock );
+          vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::LoadCellData" );
 
           // STEP 4: Add dataset
           output->SetDataSet( level,idxcounter[level],amrBlock );
@@ -436,8 +468,17 @@ int vtkAMRBaseReader::RequestData(
     } // END for all blocks
 
   // Generate all the AMR metadata & the visibility arrays
+  vtkTimerLog::MarkStartEvent( "AMRUtilities::GenerateMetaData" );
   vtkAMRUtilities::GenerateMetaData( output, this->Controller );
-  output->GenerateVisibilityArrays();
+  vtkTimerLog::MarkEndEvent( "AMRUtilities::GenerateMetaData" );
+
+  // If there is a downstream module, do not generate visibility arrays here.
+  if( ! outInf->Has( vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
+    {
+      vtkTimerLog::MarkStartEvent( "AMR::GenerateVisibilityArrays" );
+      output->GenerateVisibilityArrays();
+      vtkTimerLog::MarkEndEvent( "AMR::GenerateVisibilityArrays" );
+    }
 
   // If this instance of the reader is not parallel, block until all processes
   // read their blocks.
@@ -447,5 +488,7 @@ int vtkAMRBaseReader::RequestData(
   outInf = NULL;
   output = NULL;
   this->Modified();
+
+  vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::RqstData" );
   return 1;
 }
