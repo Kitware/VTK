@@ -39,7 +39,9 @@
 
 vtkAMRBaseReader::vtkAMRBaseReader()
 {
-  this->LoadedMetaData = false;
+  this->LoadedMetaData     = false;
+  this->numBlocksFromCache = 0;
+  this->numBlocksFromFile  = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -328,6 +330,7 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
   // If caching is disabled load the data from file
   if( !this->IsCachingEnabled() )
     {
+      ++this->numBlocksFromFile;
       vtkTimerLog::MarkStartEvent( "ReadAMRBlockFromFile" );
       vtkUniformGrid *gridPtr = this->GetAMRGrid( blockIdx );
       vtkTimerLog::MarkEndEvent( "ReadAMRBlockFromFile" );
@@ -340,6 +343,7 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
   // Otherwise, read it and cache it.
   if( this->amrCache->HasAMRBlock( blockIdx ) )
     {
+      ++this->numBlocksFromCache;
       vtkTimerLog::MarkStartEvent("ReadAMRBlockFromCache");
       vtkUniformGrid *gridPtr    = vtkUniformGrid::New();
       vtkUniformGrid *cachedGrid = this->amrCache->GetAMRBlock( blockIdx );
@@ -349,6 +353,7 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
     }
   else
     {
+      ++this->numBlocksFromFile;
       vtkTimerLog::MarkStartEvent( "ReadAMRBlockFromFile" );
       vtkUniformGrid *cachedGrid = vtkUniformGrid::New();
       vtkUniformGrid *gridPtr    = this->GetAMRGrid( blockIdx );
@@ -406,6 +411,8 @@ int vtkAMRBaseReader::RequestData(
         vtkInformationVector* outputVector )
 {
   vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::RqstData" );
+  this->numBlocksFromCache = 0;
+  this->numBlocksFromFile  = 0;
 
   vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
   vtkHierarchicalBoxDataSet *output =
@@ -490,5 +497,9 @@ int vtkAMRBaseReader::RequestData(
   this->Modified();
 
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::RqstData" );
+
+  std::cout << "NUMBLOCKS from file: "  << this->numBlocksFromFile << std::endl;
+  std::cout << "NUMBLOCKS from cache: " << this->numBlocksFromCache << std::endl;
+  std::cout.flush();
   return 1;
 }
