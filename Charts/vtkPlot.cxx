@@ -154,7 +154,12 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
 
   if (axis)
     {
-    ostr.precision(this->XAxis->GetPrecision());
+    ostr.precision(axis->GetPrecision());
+
+    if(axis->GetNotation() == vtkAxis::SCIENTIFIC)
+      {
+      ostr.setf(ios::scientific, ios::floatfield);
+      }
     }
 
   if (axis && axis->GetLogScale())
