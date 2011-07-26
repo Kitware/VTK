@@ -224,7 +224,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
     }
 
   // NB: Use process 0 as sole reducer for now
-  vtkIdType reduceProc = 0;
+  vtkIdType rProc = 0;
 
   // (All) gather all xy and kc sizes
   vtkIdType xySize_l = xyPacked_l.size();
@@ -260,20 +260,20 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
   char* xyPacked_g = 0;
   vtkIdType*  kcValues_g = 0;
-  if ( myRank == reduceProc )
+  if ( myRank == rProc )
     {
     xyPacked_g = new char[xySizeTotal];
     kcValues_g = new vtkIdType[kcSizeTotal];
     }
 
-  // Gather all xyPacked and kcValues on process reduceProc
+  // Gather all xyPacked and kcValues on process rProc
   // NB: GatherV because the packets have variable lengths
   if ( ! com->GatherV( &(*xyPacked_l.begin()),
                        xyPacked_g,
                        xySize_l,
                        xySize_g,
                        xyOffset,
-                       reduceProc ) )
+                       rProc ) )
     {
     vtkErrorMacro("Process "
                   << myRank
@@ -287,7 +287,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                        kcSize_l,
                        kcSize_g,
                        kcOffset,
-                       reduceProc ) )
+                       rProc ) )
     {
     vtkErrorMacro("Process "
                   << myRank
@@ -296,8 +296,8 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Reduce to global contingency table on process reduceProc
-  if ( myRank == reduceProc )
+  // Reduce to global contingency table on process rProc
+  if ( myRank == rProc )
     {
     if ( this->Reduce( xySizeTotal,
                        xyPacked_g,
@@ -308,7 +308,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
       {
       return;
       }
-    } // if ( myRank == reduceProc )
+    } // if ( myRank == rProc )
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   vtkTimerLog *timerB=vtkTimerLog::New();
@@ -322,7 +322,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                         xyValues_l,
                         kcSizeTotal,
                         kcValues_l,
-                        reduceProc ) )
+                        rProc ) )
     {
     return;
     }
@@ -373,7 +373,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   // Clean up
   row4->Delete();
 
-  if ( myRank == reduceProc )
+  if ( myRank == rProc )
     {
     delete [] xyPacked_g;
     delete [] kcValues_g;
@@ -463,9 +463,9 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
   typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
   typedef vtkstd::map<vtkStdString,Distribution> Bidistribution;
   vtkstd::map<vtkIdType,Bidistribution> contingencyTable;
-
   vtkIdType i = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_g.begin(); vit != xyValues_g.end(); vit += 2, i += 2 )
+  for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_g.begin(); 
+        vit != xyValues_g.end(); vit += 2, i += 2 )
     {
     contingencyTable
       [kcValues_g[i]]
@@ -514,14 +514,14 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
                                            vtkstd::vector<vtkStdString>& xyValues,
                                            vtkIdType kcSizeTotal,
                                            vtkstd::vector<vtkIdType>& kcValues,
-                                           vtkIdType reduceProc )
+                                           vtkIdType rProc )
 {
   vtkCommunicator* com = this->Controller->GetCommunicator();
 
   // Broadcast the xy and kc buffer sizes
   if ( ! com->Broadcast( &xySizeTotal,
                          1,
-                         reduceProc ) )
+                         rProc ) )
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
@@ -532,7 +532,7 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
 
   if ( ! com->Broadcast( &kcSizeTotal,
                          1,
-                         reduceProc ) )
+                         rProc ) )
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
@@ -548,7 +548,7 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
   // Broadcast the contents of contingency table to everyone
   if ( ! com->Broadcast( &(*xyPacked.begin()),
                          xySizeTotal,
-                         reduceProc ) )
+                         rProc ) )
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
@@ -559,7 +559,7 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
 
   if ( ! com->Broadcast( &(*kcValues.begin()),
                          kcSizeTotal,
-                         reduceProc ) )
+                         rProc ) )
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
