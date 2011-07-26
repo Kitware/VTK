@@ -36,6 +36,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <sstream>
 
 vtkStandardNewMacro(vtkAMRSliceFilter);
 
@@ -43,11 +44,12 @@ vtkAMRSliceFilter::vtkAMRSliceFilter()
 {
   this->SetNumberOfInputPorts( 1 );
   this->SetNumberOfOutputPorts( 1 );
-  this->OffSetFromOrigin = 0.0;
-  this->Normal           = 1;
-  this->ForwardUpstream  = 1;
-  this->Controller       = vtkMultiProcessController::GetGlobalController();
-  this->initialRequest   = true;
+  this->OffSetFromOrigin  = 0.0;
+  this->Normal            = 1;
+  this->ForwardUpstream   = 1;
+  this->EnablePrefetching = 1;
+  this->Controller        = vtkMultiProcessController::GetGlobalController();
+  this->initialRequest    = true;
 }
 
 //------------------------------------------------------------------------------
@@ -181,7 +183,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
   assert( "pre: input grid is NULL" && (grid != NULL) );
   assert( "pre: input grid must be a 3-D grid"&&(grid->GetDataDimension()==3));
 
-  vtkTimerLog::MarkStartEvent( "AMRSlice::GetSlice" );
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GetSliceForBlock" );
 
   vtkUniformGrid *slice = vtkUniformGrid::New();
 
@@ -244,7 +246,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       vtkErrorMacro( "Undefined normal" );
     }
 
-  vtkTimerLog::MarkEndEvent( "AMRSlice::GetSlice" );
+  vtkTimerLog::MarkEndEvent( "AMRSlice::GetSliceForBlock" );
 
   return( slice );
 }
@@ -300,8 +302,11 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
 
   double bounds[6];
 
+  int maxLevelToLoad =
+      (this->EnablePrefetching==1)? this->MaxResolution+1 : this->MaxResolution;
+
   unsigned int level=0;
-  for( ; level <= this->MaxResolution; ++level )
+  for( ; level <= maxLevelToLoad; ++level )
     {
       unsigned int dataIdx = 0;
       for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
@@ -328,6 +333,10 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
     std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
 
     vtkTimerLog::MarkEndEvent( "AMRSlice::ComputeAMRBlocksToLoad" );
+
+    std::cout << "Resolution-" << this->MaxResolution << ": ";
+    std::cout << this->blocksToLoad.size() << std::endl;
+    std::cout.flush();
 }
 
 //------------------------------------------------------------------------------
@@ -353,8 +362,12 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   // Storage for the AMR box bounds
   double bounds[6];
 
+  int maxLevel =
+    (this->MaxResolution < inp->GetNumberOfLevels() )?
+        this->MaxResolution+1 : inp->GetNumberOfLevels();
+
   unsigned int level=0;
-  for( ; level < inp->GetNumberOfLevels(); ++level )
+  for( ; level < maxLevel; ++level )
     {
       unsigned int dataIdx=0;
       for( ; dataIdx < inp->GetNumberOfDataSets(level); ++dataIdx )
@@ -463,6 +476,8 @@ void vtkAMRSliceFilter::GetSliceCellData(
   assert( "pre: AMR slice grid is NULL" && (slice != NULL) );
   assert( "pre: 3-D AMR slice grid is NULL" && (grid3D != NULL) );
 
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GetDataForBlock" );
+
   // STEP 1: Allocate data-structures
   vtkCellData *sourceCD = grid3D->GetCellData();
   assert( "pre: source cell data is NULL" && ( sourceCD != NULL ) );
@@ -529,6 +544,8 @@ void vtkAMRSliceFilter::GetSliceCellData(
             "Orphans: " << numOrphans << " / " << numCells );
       }
 
+    vtkTimerLog::MarkEndEvent( "AMRSlice::GetDataForBlock" );
+
 }
 
 //------------------------------------------------------------------------------
@@ -589,6 +606,12 @@ int vtkAMRSliceFilter::RequestData(
     vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )
 {
+  std::ostringstream oss;
+  oss.clear();
+  oss << "AMRSlice::Request-" << this->MaxResolution;
+
+  std::string eventName = oss.str();
+  vtkTimerLog::MarkStartEvent( eventName.c_str() );
 
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
@@ -620,5 +643,6 @@ int vtkAMRSliceFilter::RequestData(
   this->GetAMRSliceInPlane( cutPlane, inputAMR, outputAMR );
   cutPlane->Delete();
 
+  vtkTimerLog::MarkEndEvent( eventName.c_str() );
   return 1;
 }
