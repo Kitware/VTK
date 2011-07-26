@@ -77,16 +77,16 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
              vtkStdString& );
 
   // Description:
-  // Reduce the collection of local histograms to the global one for data types
-  bool ReduceData( vtkIdTypeArray*,
-                   vtkDataArray* );
+  // Reduce the collection of local histograms to the global one for data inputs
+  bool Reduce( vtkIdTypeArray*,
+               vtkDataArray* );
 
   // Description:
-  // Reduce the collection of local histograms to the global one for string types
-  bool ReduceString( vtkIdTypeArray*,
-                     vtkIdType&,
-                     char*,
-                     vtkStringArray* );
+  // Reduce the collection of local histograms to the global one for string inputs
+  bool Reduce( vtkIdTypeArray*,
+               vtkIdType&,
+               char*,
+               vtkStringArray* );
 
 //ETX
 

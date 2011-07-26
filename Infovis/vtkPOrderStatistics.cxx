@@ -105,112 +105,6 @@ static void UnpackValues( const vtkStdString& buffer,
     }
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPOrderStatistics::ReduceData( vtkIdTypeArray* card_g,
-                                      vtkDataArray* dVals_g )
-{
-  // Check consistency: we must have as many values as cardinality entries
-  vtkIdType nRow_g = card_g->GetNumberOfTuples();
-  if ( dVals_g->GetNumberOfTuples() != nRow_g )
-    {
-    vtkErrorMacro("Gathering error on process "
-                  << this->Controller->GetCommunicator()->GetLocalProcessId()
-                  << ": inconsistent number of values and cardinality entries: "
-                  << dVals_g->GetNumberOfTuples()
-                  << " <> "
-                  << nRow_g
-                  << ".");
-    
-    return true;
-    }
-
-  // Reduce to the global histogram table
-  vtkstd::map<double,vtkIdType> histogram;
-  double x;
-  vtkIdType c;
-  for ( vtkIdType r = 0; r < nRow_g; ++ r )
-    {
-    // First, fetch value
-    x = dVals_g->GetTuple1( r );
-
-    // Then, retrieve corresponding cardinality
-    c = card_g->GetValue( r );
-
-    // Last, update histogram count for corresponding value
-    histogram[x] += c;
-    }
-
-  // Now resize global histogram arrays to reduced size
-  nRow_g = static_cast<vtkIdType>( histogram.size() );
-  dVals_g->SetNumberOfTuples( nRow_g );
-  card_g->SetNumberOfTuples( nRow_g );
-
-  // Then store reduced histogram into array
-  vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
-  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
-    {
-    dVals_g->SetTuple1( r, hit->first );
-    card_g->SetValue( r, hit->second );
-    }
-
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPOrderStatistics::ReduceString( vtkIdTypeArray* card_g,
-                                        vtkIdType& ncTot,
-                                        char* sPack_g,
-                                        vtkStringArray* sVals_g )
-{
-  // First, unpack the packet of strings
-  vtkstd::vector<vtkStdString> sVect_g;
-  UnpackValues( vtkStdString ( sPack_g, ncTot ), sVect_g );
-
-  // Second, check consistency: we must have as many values as cardinality entries
-  vtkIdType nRow_g = card_g->GetNumberOfTuples();
-  if ( vtkIdType( sVect_g.size() ) != nRow_g )
-    {
-    vtkErrorMacro("Gathering error on process "
-                  << this->Controller->GetCommunicator()->GetLocalProcessId()
-                  << ": inconsistent number of values and cardinality entries: "
-                  << sVect_g.size()
-                  << " <> "
-                  << nRow_g
-                  << ".");
-
-    return true;
-    }
-
-  // Third, reduce to the global histogram
-  vtkstd::map<vtkStdString,vtkIdType> histogram;
-  vtkIdType c;
-  vtkIdType i = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = sVect_g.begin(); 
-        vit != sVect_g.end(); ++ vit , ++ i )
-    {
-    // First, retrieve cardinality
-    c = card_g->GetValue( i );
-
-    // Then, update histogram count for corresponding value
-    histogram[*vit] += c;
-    }
-
-  // Now resize global histogram arrays to reduced size
-  nRow_g = static_cast<vtkIdType>( histogram.size() );
-  sVals_g->SetNumberOfValues( nRow_g );
-  card_g->SetNumberOfTuples( nRow_g );
-
-  // Then store reduced histogram into array
-  vtkstd::map<vtkStdString,vtkIdType>::iterator hit = histogram.begin();
-  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
-    {
-    sVals_g->SetValue( r, hit->first );
-    card_g->SetValue( r, hit->second );
-    }
-
-  return false;
-}
-
 // ----------------------------------------------------------------------
 void vtkPOrderStatistics::Learn( vtkTable* inData,
                                  vtkTable* inParameters,
@@ -344,7 +238,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       // Reduce to global histogram table on process rProc
       if ( myRank == rProc )
         {
-        if ( this->ReduceData( card_g, dVals_g ) )
+        if ( this->Reduce( card_g, dVals_g ) )
           {
           return;
           }
@@ -435,7 +329,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       // Reduce to global histogram on process rProc
       if ( myRank == rProc )
         {
-        if ( this->ReduceString( card_g, ncTot, sPack_g, sVals_g ) )
+        if ( this->Reduce( card_g, ncTot, sPack_g, sVals_g ) )
           {
           return;
           }
@@ -526,6 +420,112 @@ bool vtkPOrderStatistics::Pack( vtkStringArray* sVals,
 
   // Concatenate vector of strings into single string
   PackValues( sVect, sPack );
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
+                                  vtkDataArray* dVals_g )
+{
+  // Check consistency: we must have as many values as cardinality entries
+  vtkIdType nRow_g = card_g->GetNumberOfTuples();
+  if ( dVals_g->GetNumberOfTuples() != nRow_g )
+    {
+    vtkErrorMacro("Gathering error on process "
+                  << this->Controller->GetCommunicator()->GetLocalProcessId()
+                  << ": inconsistent number of values and cardinality entries: "
+                  << dVals_g->GetNumberOfTuples()
+                  << " <> "
+                  << nRow_g
+                  << ".");
+    
+    return true;
+    }
+
+  // Reduce to the global histogram table
+  vtkstd::map<double,vtkIdType> histogram;
+  double x;
+  vtkIdType c;
+  for ( vtkIdType r = 0; r < nRow_g; ++ r )
+    {
+    // First, fetch value
+    x = dVals_g->GetTuple1( r );
+
+    // Then, retrieve corresponding cardinality
+    c = card_g->GetValue( r );
+
+    // Last, update histogram count for corresponding value
+    histogram[x] += c;
+    }
+
+  // Now resize global histogram arrays to reduced size
+  nRow_g = static_cast<vtkIdType>( histogram.size() );
+  dVals_g->SetNumberOfTuples( nRow_g );
+  card_g->SetNumberOfTuples( nRow_g );
+
+  // Then store reduced histogram into array
+  vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
+  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
+    {
+    dVals_g->SetTuple1( r, hit->first );
+    card_g->SetValue( r, hit->second );
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
+                                  vtkIdType& ncTot,
+                                  char* sPack_g,
+                                  vtkStringArray* sVals_g )
+{
+  // First, unpack the packet of strings
+  vtkstd::vector<vtkStdString> sVect_g;
+  UnpackValues( vtkStdString ( sPack_g, ncTot ), sVect_g );
+
+  // Second, check consistency: we must have as many values as cardinality entries
+  vtkIdType nRow_g = card_g->GetNumberOfTuples();
+  if ( vtkIdType( sVect_g.size() ) != nRow_g )
+    {
+    vtkErrorMacro("Gathering error on process "
+                  << this->Controller->GetCommunicator()->GetLocalProcessId()
+                  << ": inconsistent number of values and cardinality entries: "
+                  << sVect_g.size()
+                  << " <> "
+                  << nRow_g
+                  << ".");
+
+    return true;
+    }
+
+  // Third, reduce to the global histogram
+  vtkstd::map<vtkStdString,vtkIdType> histogram;
+  vtkIdType c;
+  vtkIdType i = 0;
+  for ( vtkstd::vector<vtkStdString>::iterator vit = sVect_g.begin(); 
+        vit != sVect_g.end(); ++ vit , ++ i )
+    {
+    // First, retrieve cardinality
+    c = card_g->GetValue( i );
+
+    // Then, update histogram count for corresponding value
+    histogram[*vit] += c;
+    }
+
+  // Now resize global histogram arrays to reduced size
+  nRow_g = static_cast<vtkIdType>( histogram.size() );
+  sVals_g->SetNumberOfValues( nRow_g );
+  card_g->SetNumberOfTuples( nRow_g );
+
+  // Then store reduced histogram into array
+  vtkstd::map<vtkStdString,vtkIdType>::iterator hit = histogram.begin();
+  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
+    {
+    sVals_g->SetValue( r, hit->first );
+    card_g->SetValue( r, hit->second );
+    }
 
   return false;
 }
