@@ -158,13 +158,13 @@ bool vtkPOrderStatistics::ReduceData( vtkIdTypeArray* card_g,
 
 //-----------------------------------------------------------------------------
 bool vtkPOrderStatistics::ReduceString( vtkIdTypeArray* card_g,
-                                        vtkIdType& nCharTot,
+                                        vtkIdType& ncTot,
                                         char* spack_g,
                                         vtkStringArray* svals_g )
 {
   // First, unpack the packet of strings
   vtkstd::vector<vtkStdString> svect_g;
-  UnpackValues( vtkStdString ( spack_g, nCharTot ), svect_g );
+  UnpackValues( vtkStdString ( spack_g, ncTot ), svect_g );
 
   // Second, check consistency: we must have as many values as cardinality entries
   vtkIdType nRow_g = card_g->GetNumberOfTuples();
@@ -402,19 +402,19 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
       // Calculate total size and displacement arrays
       vtkIdType* offsets = new vtkIdType[np];
-      vtkIdType nCharTot = 0;
+      vtkIdType ncTot = 0;
 
       for ( vtkIdType i = 0; i < np; ++ i )
         {
-        offsets[i] = nCharTot;
-        nCharTot += nc_g[i];
+        offsets[i] = ncTot;
+        ncTot += nc_g[i];
         }
 
       // Allocate receive buffer on reducer process, based on the global size obtained above
       char* spack_g = 0;
       if ( myRank == rProc )
         {
-        spack_g = new char[nCharTot];
+        spack_g = new char[ncTot];
         }
 
       // Create column for global histogram values of the same type as the values
@@ -435,7 +435,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       // Reduce to global histogram on process rProc
       if ( myRank == rProc )
         {
-        if ( this->ReduceString( card_g, nCharTot, spack_g, svals_g ) )
+        if ( this->ReduceString( card_g, ncTot, spack_g, svals_g ) )
           {
           return;
           }
