@@ -43,6 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector> // STL Header
 //ETX
 
+class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
@@ -74,6 +75,18 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
   // Pack all string entries of a histogram in a single string
   bool Pack( vtkStringArray*,
              vtkStdString& );
+
+  // Description:
+  // Reduce the collection of local histograms to the global one for data types
+  bool ReduceData( vtkIdTypeArray*,
+                   vtkDataArray* );
+
+  // Description:
+  // Reduce the collection of local histograms to the global one for string types
+  bool ReduceString( vtkIdTypeArray*,
+                     vtkIdType&,
+                     char*,
+                     vtkStringArray* );
 
 //ETX
 

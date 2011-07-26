@@ -74,9 +74,9 @@ protected:
   // Pack all entries of a contingency table in:
   // 1. a single string for all realizations of pairs of categorical variables, and
   // 2. a single vector for the corresponding keys and cardinalities
-  bool Pack( vtkTable* contingencyTab,
-             vtkStdString& xyPacked,
-             vtkstd::vector<vtkIdType>& kcValues );
+  bool Pack( vtkTable*,
+             vtkStdString&,
+             vtkstd::vector<vtkIdType>& );
 
   // Description:
   // Reduce the collection of local contingency tables to the global one
