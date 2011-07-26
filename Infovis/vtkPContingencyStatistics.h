@@ -80,21 +80,21 @@ protected:
 
   // Description:
   // Reduce the collection of local contingency tables to the global one
-  bool Reduce( vtkIdType& xySizeTotal,
-               char* xyPacked_g,
-               vtkStdString& xyPacked_l,
-               vtkIdType& kcSizeTotal,
-               vtkIdType*  kcValues_g,
-               vtkstd::vector<vtkIdType>& kcValues_l );
+  bool Reduce( vtkIdType&,
+               char*,
+               vtkStdString&,
+               vtkIdType&,
+               vtkIdType*,
+               vtkstd::vector<vtkIdType>& );
 
   // Description:
   // Broadcast reduced contingency table to all processes
-  bool Broadcast( vtkIdType xySizeTotal,
-                  vtkStdString& xyPacked,
-                  vtkstd::vector<vtkStdString>& xyValues,
-                  vtkIdType kcSizeTotal,
-                  vtkstd::vector<vtkIdType>& kcValues,
-                  vtkIdType reduceProc );
+  bool Broadcast( vtkIdType,
+                  vtkStdString&,
+                  vtkstd::vector<vtkStdString>&,
+                  vtkIdType,
+                  vtkstd::vector<vtkIdType>&,
+                  vtkIdType );
 //ETX
 
   vtkMultiProcessController* Controller;
