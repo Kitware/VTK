@@ -21,8 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #pragma warning (disable:4503)
 #endif
 
-#include "vtkToolkits.h"
-
+#include "vtkToolkits.h" 
 #include "vtkPOrderStatistics.h"
 
 #include "vtkCommunicator.h"
@@ -159,22 +158,22 @@ bool vtkPOrderStatistics::ReduceData( vtkIdTypeArray* card_g,
 
 //-----------------------------------------------------------------------------
 bool vtkPOrderStatistics::ReduceString( vtkIdTypeArray* card_g,
-                                        vtkIdType& xSizeTotal,
-                                        char* xPacked_g,
+                                        vtkIdType& nCharTot,
+                                        char* spack_g,
                                         vtkStringArray* svals_g )
 {
   // First, unpack the packet of strings
-  vtkstd::vector<vtkStdString> xValues_g;
-  UnpackValues( vtkStdString ( xPacked_g, xSizeTotal ), xValues_g );
+  vtkstd::vector<vtkStdString> svect_g;
+  UnpackValues( vtkStdString ( spack_g, nCharTot ), svect_g );
 
   // Second, check consistency: we must have as many values as cardinality entries
   vtkIdType nRow_g = card_g->GetNumberOfTuples();
-  if ( vtkIdType( xValues_g.size() ) != nRow_g )
+  if ( vtkIdType( svect_g.size() ) != nRow_g )
     {
     vtkErrorMacro("Gathering error on process "
                   << this->Controller->GetCommunicator()->GetLocalProcessId()
                   << ": inconsistent number of values and cardinality entries: "
-                  << xValues_g.size()
+                  << svect_g.size()
                   << " <> "
                   << nRow_g
                   << ".");
@@ -186,8 +185,8 @@ bool vtkPOrderStatistics::ReduceString( vtkIdTypeArray* card_g,
   vtkstd::map<vtkStdString,vtkIdType> histogram;
   vtkIdType c;
   vtkIdType i = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = xValues_g.begin(); 
-        vit != xValues_g.end(); ++ vit , ++ i )
+  for ( vtkstd::vector<vtkStdString>::iterator vit = svect_g.begin(); 
+        vit != svect_g.end(); ++ vit , ++ i )
     {
     // First, retrieve cardinality
     c = card_g->GetValue( i );
@@ -274,7 +273,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
   vtkIdType myRank = com->GetLocalProcessId();
 
   // NB: Use process 0 as sole reducer for now
-  vtkIdType reduceProc = 0;
+  vtkIdType rProc = 0;
 
   // Iterate over primary tables
   unsigned int nBlocks = outMeta->GetNumberOfBlocks();
@@ -310,11 +309,9 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     vtkIdTypeArray* card_g = vtkIdTypeArray::New();
     card_g->SetName( "Cardinality" );
 
-    // Gather all histogram cardinalities on process reduceProc
+    // Gather all histogram cardinalities on process rProc
     // NB: GatherV because the arrays have variable lengths
-    if ( ! com->GatherV( card,
-                         card_g,
-                         reduceProc ) )
+    if ( ! com->GatherV( card, card_g, rProc ) )
         {
         vtkErrorMacro("Process "
                       << com->GetLocalProcessId()
@@ -323,7 +320,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         return;
         }
 
-    // Gather all histogram values on reduceProc and perform reduction of the global histogram table
+    // Gather all histogram values on rProc and perform reduction of the global histogram table
     if ( vals->IsA("vtkDataArray") )
       {
       // Downcast column to data array for subsequent typed message passing
@@ -333,11 +330,9 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       vtkDataArray* dvals_g = vtkDataArray::CreateDataArray( dvals->GetDataType() );
       dvals_g->SetName( "Value" );
 
-      // Gather all histogram values on process reduceProc
+      // Gather all histogram values on process rProc
       // NB: GatherV because the arrays have variable lengths
-      if ( ! com->GatherV( dvals,
-                           dvals_g,
-                           reduceProc ) )
+      if ( ! com->GatherV( dvals, dvals_g, rProc ) )
         {
         vtkErrorMacro("Process "
                       << com->GetLocalProcessId()
@@ -346,22 +341,21 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         return;
         }
 
-      // Reduce to global histogram table on process reduceProc
-      if ( myRank == reduceProc )
+      // Reduce to global histogram table on process rProc
+      if ( myRank == rProc )
         {
-        if ( this->ReduceData( card_g, 
-                               dvals_g ) )
+        if ( this->ReduceData( card_g, dvals_g ) )
           {
           return;
           }
-        } // if ( myRank == reduceProc )
+        } // if ( myRank == rProc )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
       timer->StopTimer();
       
       cout << "## Process "
            << myRank
-           << ( myRank == reduceProc ? " gathered and reduced in " : " gathered in " )
+           << ( myRank == rProc ? " gathered and reduced in " : " gathered in " )
            << timer->GetElapsedTime()
            << " seconds."
            << "\n";
@@ -370,8 +364,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
       // Finally broadcast reduced histogram values
-      if ( ! com->Broadcast( dvals_g,
-                             reduceProc ) )
+      if ( ! com->Broadcast( dvals_g, rProc ) )
         {
         vtkErrorMacro("Process "
                       << com->GetLocalProcessId()
@@ -392,9 +385,8 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       vtkStringArray* svals = vtkStringArray::SafeDownCast( vals );
 
       // Packing step: concatenate all string values
-      vtkStdString xPacked_l;
-      if ( this->Pack( svals,
-                       xPacked_l ) )
+      vtkStdString spack_l;
+      if ( this->Pack( svals, spack_l ) )
         {
         vtkErrorMacro("Packing error on process "
                       << myRank
@@ -404,42 +396,34 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         }
 
       // (All) gather all string sizes
-      vtkIdType xSize_l = xPacked_l.size();
-      vtkIdType* xSize_g = new vtkIdType[np];
-
-      com->AllGather( &xSize_l,
-                      xSize_g,
-                      1 );
+      vtkIdType nc_l = spack_l.size();
+      vtkIdType* nc_g = new vtkIdType[np];
+      com->AllGather( &nc_l, nc_g, 1 );
 
       // Calculate total size and displacement arrays
-      vtkIdType* xOffset = new vtkIdType[np];
-      vtkIdType xSizeTotal = 0;
+      vtkIdType* offsets = new vtkIdType[np];
+      vtkIdType nCharTot = 0;
 
       for ( vtkIdType i = 0; i < np; ++ i )
         {
-        xOffset[i] = xSizeTotal;
-        xSizeTotal += xSize_g[i];
+        offsets[i] = nCharTot;
+        nCharTot += nc_g[i];
         }
 
       // Allocate receive buffer on reducer process, based on the global size obtained above
-      char* xPacked_g = 0;
-      if ( myRank == reduceProc )
+      char* spack_g = 0;
+      if ( myRank == rProc )
         {
-        xPacked_g = new char[xSizeTotal];
+        spack_g = new char[nCharTot];
         }
 
       // Create column for global histogram values of the same type as the values
       vtkStringArray* svals_g = vtkStringArray::New();
       svals_g->SetName( "Value" );
 
-      // Gather all xPacked on process reduceProc
+      // Gather all spack on process rProc
       // NB: GatherV because the packets have variable lengths
-      if ( ! com->GatherV( &(*xPacked_l.begin()),
-                           xPacked_g,
-                           xSize_l,
-                           xSize_g,
-                           xOffset,
-                           reduceProc ) )
+      if ( ! com->GatherV( &(*spack_l.begin()), spack_g, nc_l, nc_g, offsets, rProc ) )
         {
         vtkErrorMacro("Process "
                       << myRank
@@ -448,24 +432,21 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         return;
         }
 
-      // Reduce to global histogram on process reduceProc
-      if ( myRank == reduceProc )
+      // Reduce to global histogram on process rProc
+      if ( myRank == rProc )
         {
-        if ( this->ReduceString( card_g,
-                                 xSizeTotal,
-                                 xPacked_g,
-                                 svals_g ) )
+        if ( this->ReduceString( card_g, nCharTot, spack_g, svals_g ) )
           {
           return;
           }
-        } // if ( myRank == reduceProc )
+        } // if ( myRank == rProc )
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
       timer->StopTimer();
       
       cout << "## Process "
            << myRank
-           << ( myRank == reduceProc ? " gathered and reduced in " : " gathered in " )
+           << ( myRank == rProc ? " gathered and reduced in " : " gathered in " )
            << timer->GetElapsedTime()
            << " seconds."
            << "\n";
@@ -496,8 +477,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
 
     // Finally broadcast reduced histogram cardinalities
-    if ( ! com->Broadcast( card_g,
-                           reduceProc ) )
+    if ( ! com->Broadcast( card_g, rProc ) )
       {
       vtkErrorMacro("Process "
                     << com->GetLocalProcessId()
@@ -533,19 +513,19 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
 // ----------------------------------------------------------------------
 bool vtkPOrderStatistics::Pack( vtkStringArray* svals,
-                                vtkStdString& xPacked )
+                                vtkStdString& spack )
 {
-  vtkstd::vector<vtkStdString> xValues; // consecutive strings
+  vtkstd::vector<vtkStdString> svect; // consecutive strings
 
   vtkIdType nv = svals->GetNumberOfValues();
   for ( vtkIdType i = 0; i < nv; ++ i )
     {
     // Push back current string value
-    xValues.push_back( svals->GetValue( i ) );
+    svect.push_back( svals->GetValue( i ) );
     }
 
   // Concatenate vector of strings into single string
-  PackValues( xValues, xPacked );
+  PackValues( svect, spack );
 
   return false;
 }
