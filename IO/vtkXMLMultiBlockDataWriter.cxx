@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
+#include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
 //----------------------------------------------------------------------------
@@ -71,15 +72,28 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       {
       vtkXMLDataElement* tag = vtkXMLDataElement::New();
 
+      const char *name =
+        compositeData->GetMetaData(iter)->Get(vtkCompositeDataSet::NAME());
+
       if (curDO->IsA("vtkMultiPieceDataSet"))
         {
         tag->SetName("Piece");
         tag->SetIntAttribute("index", index);
+
+        if(name)
+          {
+          tag->SetAttribute("name", name);
+          }
         }
       else if (curDO->IsA("vtkMultiBlockDataSet"))
         {
         tag->SetName("Block");
         tag->SetIntAttribute("index", index);
+
+        if(name)
+          {
+          tag->SetAttribute("name", name);
+          }
         }
       vtkCompositeDataSet* curCD
         = vtkCompositeDataSet::SafeDownCast(curDO);

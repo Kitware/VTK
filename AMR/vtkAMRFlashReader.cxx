@@ -84,6 +84,7 @@ void vtkAMRFlashReader::SetFileName( const char* fileName )
       this->FileName[ strlen( fileName ) ] = '\0';
 
       this->Internal->SetFileName( this->FileName );
+      this->LoadedMetaData = false;
     }
 
   this->SetUpDataArraySelections();
@@ -126,7 +127,7 @@ int vtkAMRFlashReader::GetBlockLevel( const int blockIdx )
       vtkErrorMacro( "Block Index (" << blockIdx << ") is out-of-bounds!" );
       return( -1 );
     }
-  return( this->Internal->Blocks[ blockIdx ].Level );
+  return( this->Internal->Blocks[ blockIdx ].Level-1 );
 }
 
 //-----------------------------------------------------------------------------
@@ -194,49 +195,35 @@ int vtkAMRFlashReader::FillMetaData( )
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRFlashReader::GetBlock(
-    int index, vtkHierarchicalBoxDataSet *hbds,
-    vtkstd::vector< int > &idxcounter)
+vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid( const int blockIdx )
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: Output AMR dataset is NULL" && (hbds != NULL)  );
 
-  this->Internal->ReadMetaData();
-
-  int blockIdx = this->BlockMap[ index ];
-
-  // Start numbering levels from 0!
-  int level    = this->Internal->Blocks[ blockIdx ].Level-1;
   double blockMin[3];
   double blockMax[3];
   double spacings[3];
+
   for( int i=0; i < 3; ++i )
     {
-     blockMin[i] = this->Internal->Blocks[ blockIdx ].MinBounds[i];
-     blockMax[i] = this->Internal->Blocks[ blockIdx ].MaxBounds[i];
-     spacings[i] = (this->Internal->BlockGridDimensions[i] > 1)?
-     (blockMax[i]-blockMin[i])/(this->Internal->BlockGridDimensions[i]-1.0):1.0;
+      blockMin[i] = this->Internal->Blocks[ blockIdx ].MinBounds[ i ];
+      blockMax[i] = this->Internal->Blocks[ blockIdx ].MaxBounds[ i ];
+      spacings[i] = (this->Internal->BlockGridDimensions[i]>1)?
+          (blockMax[i]-blockMin[i])/
+          (this->Internal->BlockGridDimensions[i]-1.0) : 1.0;
     }
 
   vtkUniformGrid *ug = vtkUniformGrid::New();
   ug->SetDimensions( this->Internal->BlockGridDimensions );
   ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
   ug->SetSpacing( spacings );
+  return( ug );
+}
 
-  int numAttrs = static_cast< int >( this->Internal->AttributeNames.size() );
-  for( int i=0; i < numAttrs; ++i )
-    {
-      if( this->GetCellArrayStatus(
-            this->Internal->AttributeNames[i].c_str() ) )
-        {
-          this->Internal->GetBlockAttribute(
-              this->Internal->AttributeNames[i].c_str(),blockIdx, ug );
-        }
-    }
-
-  hbds->SetDataSet(level,idxcounter[level],ug);
-  ug->Delete();
-  idxcounter[ level ]++;
+//-----------------------------------------------------------------------------
+void  vtkAMRFlashReader::GetAMRGridData(
+    const int blockIdx, vtkUniformGrid *block, const char *field)
+{
+  assert( "pre: AMR block is NULL" && (block != NULL) );
+  this->Internal->GetBlockAttribute( field, blockIdx, block );
 }
 
 //-----------------------------------------------------------------------------

@@ -74,14 +74,13 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     this->ShowCursor();
     }
   this->Finalize();
-  
-  vtkRenderer *renderer;
-  vtkCollectionSimpleIterator rsit;
 
-  for ( this->Renderers->InitTraversal(rsit);
-        (renderer = this->Renderers->GetNextRenderer(rsit));)
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
     {
-    renderer->SetRenderWindow(0);
+    ren->SetRenderWindow(NULL);
     }
 
   if (this->Capabilities)
@@ -89,7 +88,7 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     delete[] this->Capabilities;
     this->Capabilities = 0;
     }
-  
+
   // Release the cocoa object manager.
   this->SetCocoaManager(NULL);
 }

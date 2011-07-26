@@ -242,6 +242,7 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
       this->BlockMap.clear();
       this->Internal->Blocks.clear();
       this->Internal->NumberOfBlocks = 0;
+      this->LoadedMetaData = false;
 
       if ( this->FileName )
       {
@@ -368,83 +369,63 @@ int vtkAMREnzoReader::FillMetaData( )
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMREnzoReader::GetBlock(
-    int index, vtkHierarchicalBoxDataSet *hbds,
-    vtkstd::vector< int > &idxcounter)
+vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid( const int blockIdx )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: Output AMR dataset is NULL" && (hbds != NULL)  );
 
   this->Internal->ReadMetaData();
-  int blockIdx                 = this->BlockMap[ index ];
-  int N                        = this->Internal->Blocks.size();
-  assert( "block index out-of-bounds!" &&
-    (blockIdx+1 >= 0) && (blockIdx+1 < N ) );
 
   // this->Internal->Blocks includes a pseudo block --- the root as block #0
   vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ blockIdx+1 ];
-  int level                    = theBlock.Level;
-
   double blockMin[3];
   double blockMax[3];
   double spacings[3];
 
   for( int i=0; i < 3; ++i )
     {
-      blockMin[i] = theBlock.MinBounds[i];
-      blockMax[i] = theBlock.MaxBounds[i];
-      spacings[i] = ( theBlock.BlockNodeDimensions[i] > 1 )?
-       (blockMax[i]-blockMin[i])/(theBlock.BlockNodeDimensions[i]-1.0) : 1.0;
+      blockMin[ i ] = theBlock.MinBounds[ i ];
+      blockMax[ i ] = theBlock.MaxBounds[ i ];
+      spacings[ i ] = (theBlock.BlockNodeDimensions[i] > 1)?
+          (blockMax[i]-blockMin[i])/(theBlock.BlockNodeDimensions[i]-1.0) : 1.0;
     }
 
   vtkUniformGrid *ug = vtkUniformGrid::New();
   ug->SetDimensions( theBlock.BlockNodeDimensions );
-  ug->SetOrigin( blockMin[0],blockMin[1],blockMin[2] );
-  ug->SetSpacing( spacings[0],spacings[1],spacings[2] );
-
-  int numAttrs = static_cast< int >(this->Internal->BlockAttributeNames.size());
-  for( int i=0; i < numAttrs; ++i )
-    {
-      if(this->GetCellArrayStatus(
-          this->Internal->BlockAttributeNames[ i ].c_str()))
-      {
-        this->Internal->GetBlockAttribute(
-          this->Internal->BlockAttributeNames[ i ].c_str(),
-          blockIdx, ug );
-
-        if( this->ConvertToCGS == 1 )
-          {
-            double conversionFactor = this->GetConversionFactor(
-                this->Internal->BlockAttributeNames[ i ].c_str() );
-
-            if( conversionFactor != 1.0 )
-              {
-
-                vtkDataArray *data = ug->GetCellData()->GetArray(
-                    this->Internal->BlockAttributeNames[ i ].c_str() );
-
-                vtkIdType numTuples = data->GetNumberOfTuples();
-                for( vtkIdType t=0; t < numTuples; ++t )
-                  {
-                    int numComp = data->GetNumberOfComponents();
-                    for( int c=0; c < numComp; ++c )
-                      {
-                        double f = data->GetComponent( t, c );
-                        data->SetComponent( t, c, f*conversionFactor );
-                      } // END for all components
-                  } // END for all tuples
-              }
-
-          } // END if convert to CGS
-
-      }
-
-    }
-
-  hbds->SetDataSet(level,idxcounter[level],ug);
-  ug->Delete();
-  idxcounter[ level ]++;
+  ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
+  ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
+  return( ug );
 }
+
+//-----------------------------------------------------------------------------
+void vtkAMREnzoReader::GetAMRGridData(
+    const int blockIdx, vtkUniformGrid *block, const char *field)
+{
+  assert( "pre: AMR block is NULL" && (block != NULL));
+
+  this->Internal->GetBlockAttribute( field, blockIdx, block );
+  if( this->ConvertToCGS == 1 )
+    {
+      double conversionFactor = this->GetConversionFactor(field);
+      if( conversionFactor != 1.0 )
+        {
+          vtkDataArray *data = block->GetCellData()->GetArray( field );
+          assert( "pre: data array is NULL!" && (data != NULL) );
+
+          vtkIdType numTuples = data->GetNumberOfTuples();
+          for( vtkIdType t=0; t < numTuples; ++t )
+            {
+              int numComp = data->GetNumberOfComponents();
+              for( int c=0; c < numComp; ++c )
+               {
+                 double f = data->GetComponent( t, c );
+                 data->SetComponent( t, c, f*conversionFactor );
+               } // END for all components
+            } // END for all tuples
+
+        } // END if the conversion factor is not 1.0
+    } // END if conversion to CGS units is requested
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::SetUpDataArraySelections()

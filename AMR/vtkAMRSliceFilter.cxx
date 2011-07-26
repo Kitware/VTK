@@ -32,6 +32,8 @@
 #include "vtkMultiProcessController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include "vtkTimerLog.h"
+
 #include <cassert>
 #include <algorithm>
 
@@ -124,6 +126,10 @@ void vtkAMRSliceFilter::InitializeOffSet(
 //------------------------------------------------------------------------------
 vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
 {
+  assert( "pre: AMR dataset should not be NULL" && (inp != NULL) );
+
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GetCutPlane" );
+
   vtkPlane *pl = vtkPlane::New();
 
   // Get global bounds
@@ -162,6 +168,8 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
         vtkErrorMacro( "Undefined plane normal" );
     }
   pl->SetOrigin( porigin );
+
+  vtkTimerLog::MarkEndEvent( "AMRSlice::GetCutPlane" );
   return( pl );
 
 }
@@ -172,6 +180,8 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
 {
   assert( "pre: input grid is NULL" && (grid != NULL) );
   assert( "pre: input grid must be a 3-D grid"&&(grid->GetDataDimension()==3));
+
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GetSlice" );
 
   vtkUniformGrid *slice = vtkUniformGrid::New();
 
@@ -234,6 +244,8 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       vtkErrorMacro( "Undefined normal" );
     }
 
+  vtkTimerLog::MarkEndEvent( "AMRSlice::GetSlice" );
+
   return( slice );
 }
 
@@ -275,6 +287,8 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
   assert( "pre: plane object is NULL" && (p != NULL) );
   assert( "pre: metadata object is NULL" && (metadata != NULL) );
 
+  vtkTimerLog::MarkStartEvent( "AMRSlice::ComputeAMRBlocksToLoad" );
+
   // Store A,B,C,D from the plane equation
   double plane[4];
   plane[0] = p->GetNormal()[0];
@@ -303,16 +317,8 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
 
           if( this->PlaneIntersectsAMRBox( plane, bounds ) )
             {
-              std::cout << "REQUEST: (" << level << ", " << dataIdx;
-              std::cout << ") " << std::endl;
-              std::cout.flush();
-
               unsigned int amrGridIdx =
                   metadata->GetCompositeIndex(level,dataIdx);
-
-              std::cout << "AMR GridIdx: " << amrGridIdx << std::endl;
-              std::cout.flush();
-
               this->blocksToLoad.push_back( amrGridIdx );
             }
 
@@ -321,6 +327,7 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
 
     std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
 
+    vtkTimerLog::MarkEndEvent( "AMRSlice::ComputeAMRBlocksToLoad" );
 }
 
 //------------------------------------------------------------------------------
@@ -331,6 +338,8 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   assert( "pre: input AMR dataset is NULL" && (inp != NULL) );
   assert( "pre: output AMR dataset is NULL" && (out != NULL) );
   assert( "pre: cut plane is NULL" && (p != NULL) );
+
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GetAMRSliceInPlane" );
 
   // Store A,B,C,D from the plane equation
   double plane[4];
@@ -380,10 +389,15 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
 
         } // END for all data
     } // END for all levels
+  vtkTimerLog::MarkEndEvent( "AMRSlice::GetAMRSliceInPlane" );
 
-
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GenerateMetaData" );
   vtkAMRUtilities::GenerateMetaData( out, this->Controller );
+  vtkTimerLog::MarkEndEvent( "AMRSlice::GenerateMetaData");
+
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GenerateVisibility" );
   out->GenerateVisibilityArrays();
+  vtkTimerLog::MarkEndEvent( "AMRSlice::GenerateVisibility" );
 }
 
 //------------------------------------------------------------------------------
