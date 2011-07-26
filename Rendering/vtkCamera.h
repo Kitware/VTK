@@ -325,10 +325,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // This is the transformation matrix for the point between eyes.
   // This will be used only for offaxis frustum calculation.
   // Default is identity.
-  void SetEyeTransformMatrix( double x00,  double x01,  double x02,  double x03,
-                              double x10,  double x11,  double x12,  double x13,
-                              double x20,  double x21,  double x22,  double x23,
-                              double x30,  double x31,  double x32,  double x33);
+  void SetEyeTransformMatrix(const double elements[16]);
 
   // Description:
   // Set/Get model transformation matrix.
@@ -341,10 +338,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Set model transformation matrix.
   // This matrix could be used for model related transformations
   // such as scale, shear, roations and translations.
-  void SetModelTransformMatrix( double x00,  double x01,  double x02,  double x03,
-                                double x10,  double x11,  double x12,  double x13,
-                                double x20,  double x21,  double x22,  double x23,
-                                double x30,  double x31,  double x32,  double x33);
+  void SetModelTransformMatrix(const double elements[16]);
 
   // Description:
   // Return the model view matrix of model view transform.

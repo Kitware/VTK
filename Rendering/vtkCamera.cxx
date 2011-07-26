@@ -1691,59 +1691,53 @@ double *vtkCamera::GetOrientationWXYZ()
 { return this->ViewTransform->GetOrientationWXYZ(); };
 
 // ----------------------------------------------------------------------------
-void vtkCamera::SetEyeTransformMatrix( double x00, double x01, double x02, double x03,
-                                       double x10, double x11, double x12, double x13,
-                                       double x20, double x21, double x22, double x23,
-                                       double x30, double x31, double x32, double x33)
+void vtkCamera::SetEyeTransformMatrix(const double elements[16])
 {
-  this->EyeTransformMatrix->Element[0][0] = x00;
-  this->EyeTransformMatrix->Element[0][1] = x01;
-  this->EyeTransformMatrix->Element[0][2] = x02;
-  this->EyeTransformMatrix->Element[0][3] = x03;
+  this->EyeTransformMatrix->Element[0][0] = elements[0];
+  this->EyeTransformMatrix->Element[0][1] = elements[1];
+  this->EyeTransformMatrix->Element[0][2] = elements[2];
+  this->EyeTransformMatrix->Element[0][3] = elements[3];
 
-  this->EyeTransformMatrix->Element[1][0] = x10;
-  this->EyeTransformMatrix->Element[1][1] = x11;
-  this->EyeTransformMatrix->Element[1][2] = x12;
-  this->EyeTransformMatrix->Element[1][3] = x13;
+  this->EyeTransformMatrix->Element[1][0] = elements[4];
+  this->EyeTransformMatrix->Element[1][1] = elements[5];
+  this->EyeTransformMatrix->Element[1][2] = elements[6];
+  this->EyeTransformMatrix->Element[1][3] = elements[7];
 
-  this->EyeTransformMatrix->Element[2][0] = x20;
-  this->EyeTransformMatrix->Element[2][1] = x21;
-  this->EyeTransformMatrix->Element[2][2] = x22;
-  this->EyeTransformMatrix->Element[2][3] = x23;
+  this->EyeTransformMatrix->Element[2][0] = elements[8];
+  this->EyeTransformMatrix->Element[2][1] = elements[9];
+  this->EyeTransformMatrix->Element[2][2] = elements[10];
+  this->EyeTransformMatrix->Element[2][3] = elements[11];
 
-  this->EyeTransformMatrix->Element[3][0] = x30;
-  this->EyeTransformMatrix->Element[3][1] = x31;
-  this->EyeTransformMatrix->Element[3][2] = x32;
-  this->EyeTransformMatrix->Element[3][3] = x33;
+  this->EyeTransformMatrix->Element[3][0] = elements[12];
+  this->EyeTransformMatrix->Element[3][1] = elements[13];
+  this->EyeTransformMatrix->Element[3][2] = elements[14];
+  this->EyeTransformMatrix->Element[3][3] = elements[15];
 
   this->Modified();
 }
 
 // ----------------------------------------------------------------------------
-void vtkCamera::SetModelTransformMatrix( double x00, double x01, double x02, double x03,
-                                         double x10, double x11, double x12, double x13,
-                                         double x20, double x21, double x22, double x23,
-                                         double x30, double x31, double x32, double x33)
+void vtkCamera::SetModelTransformMatrix(const double elements[16])
 {
-  this->ModelTransformMatrix->Element[0][0] = x00;
-  this->ModelTransformMatrix->Element[0][1] = x01;
-  this->ModelTransformMatrix->Element[0][2] = x02;
-  this->ModelTransformMatrix->Element[0][3] = x03;
+  this->ModelTransformMatrix->Element[0][0] = elements[0];
+  this->ModelTransformMatrix->Element[0][1] = elements[1];
+  this->ModelTransformMatrix->Element[0][2] = elements[2];
+  this->ModelTransformMatrix->Element[0][3] = elements[3];
 
-  this->ModelTransformMatrix->Element[1][0] = x10;
-  this->ModelTransformMatrix->Element[1][1] = x11;
-  this->ModelTransformMatrix->Element[1][2] = x12;
-  this->ModelTransformMatrix->Element[1][3] = x13;
+  this->ModelTransformMatrix->Element[1][0] = elements[4];
+  this->ModelTransformMatrix->Element[1][1] = elements[5];
+  this->ModelTransformMatrix->Element[1][2] = elements[6];
+  this->ModelTransformMatrix->Element[1][3] = elements[7];
 
-  this->ModelTransformMatrix->Element[2][0] = x20;
-  this->ModelTransformMatrix->Element[2][1] = x21;
-  this->ModelTransformMatrix->Element[2][2] = x22;
-  this->ModelTransformMatrix->Element[2][3] = x23;
+  this->ModelTransformMatrix->Element[2][0] = elements[8];
+  this->ModelTransformMatrix->Element[2][1] = elements[9];
+  this->ModelTransformMatrix->Element[2][2] = elements[10];
+  this->ModelTransformMatrix->Element[2][3] = elements[11];
 
-  this->ModelTransformMatrix->Element[3][0] = x30;
-  this->ModelTransformMatrix->Element[3][1] = x31;
-  this->ModelTransformMatrix->Element[3][2] = x32;
-  this->ModelTransformMatrix->Element[3][3] = x33;
+  this->ModelTransformMatrix->Element[3][0] = elements[12];
+  this->ModelTransformMatrix->Element[3][1] = elements[13];
+  this->ModelTransformMatrix->Element[3][2] = elements[14];
+  this->ModelTransformMatrix->Element[3][3] = elements[15];
 
   this->Modified();
 }
