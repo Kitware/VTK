@@ -45,17 +45,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkDescriptiveStatistics_h
 #define __vtkDescriptiveStatistics_h
 
-#include "vtkUnivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDescriptiveStatistics, vtkUnivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkDescriptiveStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDescriptiveStatistics* New();
 
@@ -103,9 +103,9 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option, given some input Data
   // NB: input parameters are unused.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Derive option.
@@ -113,14 +113,16 @@ protected:
 
   // Description:
   // Execute the calculations required by the Test option.
-  virtual void Test( vtkTable* inData,
-                     vtkMultiBlockDataSet* inMeta,
-                     vtkTable* outMeta ); 
+  virtual void Test( vtkTable*,
+                     vtkMultiBlockDataSet*,
+                     vtkTable* ); 
 
-  int UnbiasedVariance;
-  int G1Skewness;
-  int G2Kurtosis;
-  int SignedDeviations;
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData ) 
+  { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
 //BTX  
   // Description:
@@ -130,6 +132,11 @@ protected:
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
 //ETX
+
+  int UnbiasedVariance;
+  int G1Skewness;
+  int G2Kurtosis;
+  int SignedDeviations;
 
 private:
   vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ); // Not implemented

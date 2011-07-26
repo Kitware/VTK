@@ -157,12 +157,6 @@
 /* Whether N-way arrays are being used */
 #cmakedefine VTK_USE_N_WAY_ARRAYS
 
-/* E.g. on BlueGene and Cray there is no multithreading */
-#cmakedefine VTK_NO_PYTHON_THREADS
-
-/* Whether the real python debug library has been provided.  */
-#cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
-
 /*--------------------------------------------------------------------------*/
 /* VTK Versioning                                                           */
 

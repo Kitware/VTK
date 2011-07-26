@@ -65,9 +65,9 @@ void vtkCompositeTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeTransferFunctionItem::GetBounds(double* bounds)
+void vtkCompositeTransferFunctionItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->OpacityFunction)
     {
     double* opacityRange = this->OpacityFunction->GetRange();
@@ -103,7 +103,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     this->Texture = vtkImageData::New();
     }
 
-  const int dimension = this->Texture->GetExtent()[1] + 1;
+  const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
   this->OpacityFunction->GetTable(bounds[0], bounds[1], dimension, values);
   unsigned char* ptr =

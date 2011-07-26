@@ -46,6 +46,7 @@ struct RandomOrderStatisticsArgs
   double stdev;
   bool quantize;
   int maxHistoSize;
+  double absTol;
   int* retVal;
   int ioRank;
 };
@@ -223,7 +224,10 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Print out and verify global extrema
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Verifying that calculated global extrema are correct.\n";
+    cout << "\n## Verifying that calculated global extrema are correct (within "
+         << args->absTol
+         << " absolute tolerance).\n";
+
     double min_c = outputQuantiles->GetValueByName( 0,
                                                     columnNames[0] ).ToDouble();
 
@@ -236,13 +240,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
            << max_c
            << "\n";
 
-    if ( fabs( min_c - min_g ) > 1.e-6 )
+    if ( fabs( min_c - min_g ) > args->absTol )
         {
         vtkGenericWarningMacro("Incorrect minimum.");
         *(args->retVal) = 1;
         }
 
-    if ( fabs( max_c - max_g ) > 1.e-6 )
+    if ( fabs( max_c - max_g ) > args->absTol )
         {
         vtkGenericWarningMacro("Incorrect maximum.");
         *(args->retVal) = 1;
@@ -321,6 +325,7 @@ int main( int argc, char** argv )
   double stdev = 50.;
   bool quantize = false;
   int maxHistoSize = 500;
+  double absTol = 1.e-6;
 
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;
@@ -347,10 +352,24 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::NO_ARGUMENT,
                      &quantize, "Allow re-quantizing");
 
-  // If incorrect arguments were provided, terminate in error.
+  // Parse absolute tolerance to verify extrema
+  clArgs.AddArgument("--abs-tol",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &absTol, "Absolute tolerance to verify extrema");
+
+  // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
     {
-    vtkGenericWarningMacro("Incorrect input data arguments were provided.");
+    if ( com->GetLocalProcessId() == ioRank )
+      {
+      cerr << "Usage: " 
+           << clArgs.GetHelp()
+           << "\n";
+      }
+
+    controller->Finalize();
+    controller->Delete();
+
     return 1;
     }
 
@@ -372,6 +391,7 @@ int main( int argc, char** argv )
   args.maxHistoSize = maxHistoSize;
   args.retVal = &testValue;
   args.ioRank = ioRank;
+  args.absTol = absTol;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();

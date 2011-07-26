@@ -44,6 +44,7 @@ vtkImageResliceToColors::vtkImageResliceToColors()
   this->LookupTable = NULL;
   this->DefaultLookupTable = NULL;
   this->OutputFormat = VTK_RGBA;
+  this->Bypass = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -71,6 +72,7 @@ void vtkImageResliceToColors::PrintSelf(ostream& os, vtkIndent indent)
       (this->OutputFormat == VTK_LUMINANCE_ALPHA ? "LuminanceAlpha" :
        (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
     << "\n";
+  os << indent << "Bypass: " << (this->Bypass ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
@@ -79,7 +81,7 @@ unsigned long int vtkImageResliceToColors::GetMTime()
   unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
-  if ( this->LookupTable != NULL)
+  if (this->LookupTable && !this->Bypass)
     {
     time = this->LookupTable->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -88,6 +90,25 @@ unsigned long int vtkImageResliceToColors::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
+void vtkImageResliceToColors::SetBypass(int bypass)
+{
+  bypass = (bypass != 0);
+  if (bypass != this->Bypass)
+    {
+    this->Bypass = bypass;
+    if (bypass)
+      {
+      this->HasConvertScalars = 0;
+      this->OutputScalarType = VTK_FLOAT;
+      }
+    else
+      {
+      this->HasConvertScalars = 1;
+      this->OutputScalarType = -1;
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 int vtkImageResliceToColors::ConvertScalarInfo(

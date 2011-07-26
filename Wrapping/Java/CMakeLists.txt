@@ -43,6 +43,7 @@ IF(JAVA_COMPILE)
     STRING(REGEX REPLACE "\\.java" ".class;" CLASS_FILES ${VTK_JAVA_DEPENDENCIES})
     ADD_CUSTOM_TARGET(VTKJava ALL)
     ADD_CUSTOM_TARGET(VTKJavaJar ALL)
+    ADD_CUSTOM_TARGET(VTKJavaSampleJar ALL)
 
     SET(KITS Common Filtering IO Graphics GenericFiltering Imaging)
     IF (VTK_USE_RENDERING)
@@ -158,18 +159,29 @@ IF(JAVA_COMPILE)
 
     SET(VTK_JAVA_DEPENDENCIES
       CellType
-      DynamicClassLoader
-      vtkGlobalJavaHash
+      vtkReferenceInformation
       vtkJavaGarbageCollector
+      vtkJavaMemoryManager
+      vtkJavaMemoryManagerImpl
       vtkNativeLibrary
       vtkSettings
-      vtkTesting2
+      vtkJavaTesting
+      AxesActor
     )
+    SET(VTK_JAVA_SAMPLE_DEPENDENCIES)
     IF(VTK_USE_RENDERING)
       SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
         vtkCanvas
         vtkPanel
         vtkRenderWindowPanel
+      )
+      SET(VTK_JAVA_SAMPLE_DEPENDENCIES ${VTK_JAVA_SAMPLE_DEPENDENCIES}
+        ImagePlaneWidget
+        InternalFrames
+        Demo
+        SimpleVTK
+        VTKCanvas
+        ReleaseVtkPanel
       )
       ADD_DEPENDENCIES(VTKJavaRendering VTKJavaGraphics VTKJavaImaging)
       ADD_DEPENDENCIES(VTKJavaVolumeRendering VTKJavaRendering)
@@ -210,6 +222,25 @@ IF(JAVA_COMPILE)
       SET(CLASS_FILES ${CLASS_FILES} ${class})
     ENDFOREACH(jfile)
     ADD_DEPENDENCIES(VTKJava VTKJavaJar)
+    
+    FOREACH(jfile ${VTK_JAVA_SAMPLE_DEPENDENCIES})
+      SET(src ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/sample/${jfile}.java)
+      SET(dst ${VTK_JAVA_HOME}/sample/${jfile}.java)
+      SET(class ${VTK_JAVA_HOME}/sample/${jfile}.class)
+      CONFIGURE_FILE(${src} ${dst} COPYONLY)
+
+      ADD_CUSTOM_COMMAND(
+        TARGET VTKJavaSampleJar
+        SOURCE ${dst}
+        OUTPUTS ${class}
+        DEPENDS ${VTK_JAVA_HOME}/vtkPanel.class
+        COMMAND ${JAVA_COMPILE}
+        ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
+        )
+
+      SET(CLASS_FILES ${CLASS_FILES} ${class})
+    ENDFOREACH(jfile)
+    ADD_DEPENDENCIES(VTKJava VTKJavaSampleJar)
 
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
       COMMAND ${JAVA_ARCHIVE}
@@ -233,38 +264,58 @@ IF(JAVA_COMPILE)
       ENDIF(WIN32)
 
       FOREACH(jfile
-          SimpleVTK
           Regression
-          AxesActor
-          TestVTKCanvas
-          TestInternalFrames
-          ImagePlaneWidget)
+          ConcurrencyGC
+          JavaDelete
+          ManualGC
+          JavaGCAndDelete)
         ADD_CUSTOM_COMMAND(
-          SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+          SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
           COMMAND ${JAVA_COMPILE}
           ARGS -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
           -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
           -d ${VTK_BINARY_DIR}/Wrapping/Java
-          ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+          ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
           TARGET VTKJava
           DEPENDS ${VTK_JAR_PATH}/vtk.jar
-          OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class
+          OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/vtk/test/${jfile}.class
           COMMENT "Java Test")
-        SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
+        SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/vtk/test/${jfile}.class)
       ENDFOREACH(jfile)
-
+      
       # Since vtkTesting is within vtkRendering we need blockers
       IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
         # If JAVA_DATAMODEL_FLAG is set, pass it as first argument. Otherwise, it's empty.
-        # For exampel, use "-d64" to force 64-bit java jvm.
+        # For example, use "-d64" to force 64-bit java jvm.
         #
         ADD_TEST(JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
           -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-          Regression -D ${VTK_DATA_ROOT}
+          vtk.test.Regression -D ${VTK_DATA_ROOT}
           -V Baseline/Graphics/Cone.png 
           -T ${VTK_BINARY_DIR}/Testing/Temporary)
       ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+      
+      ADD_TEST(JavaGCRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.ConcurrencyGC
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+          
+      ADD_TEST(JavaDeleteRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.JavaDelete
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+          
+      ADD_TEST(JavaManualGC ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.ManualGC
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+          
+      ADD_TEST(JavaDeleteAndGC ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.JavaGCAndDelete
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+          
     ENDIF(BUILD_TESTING)
 
     ADD_CUSTOM_COMMAND( 
@@ -302,22 +353,22 @@ IF(JAVA_COMPILE)
         ENDIF(WIN32)
 
         FOREACH(jfile
-            SimpleVTK
             Regression
-            AxesActor
-            TestVTKCanvas
-            TestInternalFrames
-            ImagePlaneWidget)
+            ConcurrencyGC
+            JavaDelete
+            JavaGCAndDelete
+            ManualGC
+            vtkJavaTesting)
           ADD_CUSTOM_COMMAND(
-            SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+            SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
             COMMAND ${JAVA_COMPILE}
             ARGS -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
             -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
             -d ${VTK_BINARY_DIR}/Wrapping/Java
-            ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+            ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
             TARGET VTKJava
             DEPENDS ${VTK_JAR_PATH}/vtk.jar
-            OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
+            OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/vtk/test/${jfile}.class)
           SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
         ENDFOREACH(jfile)
 
@@ -325,10 +376,31 @@ IF(JAVA_COMPILE)
         IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
             -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-            Regression -D ${VTK_DATA_ROOT}
+            vtk.test.Regression -D ${VTK_DATA_ROOT}
             -V Baseline/Graphics/Cone.png 
             -T ${VTK_BINARY_DIR}/Testing/Temporary)
         ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+        
+        ADD_TEST(JavaGCRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.ConcurrencyGC
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+          
+        ADD_TEST(JavaDeleteRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.JavaDelete
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+        
+        ADD_TEST(JavaManualGC ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.ManualGC
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+          
+        ADD_TEST(JavaDeleteAndGC ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          vtk.test.JavaGCAndDelete
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
+          
       ENDIF(BUILD_TESTING)
 
       ADD_CUSTOM_COMMAND( 

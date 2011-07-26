@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -44,6 +44,23 @@ public:
   ~vtkStatisticsAlgorithmPrivate()
     {
     }
+  // --------------------------------------------------------------------
+  // Description:
+  // Empty current set of requests
+  void ResetRequests()
+    {
+    this->Requests.clear();
+    }
+  // --------------------------------------------------------------------
+  // Description:
+  // Empty current buffer
+  int ResetBuffer()
+    {
+    int rval = this->Buffer.empty() ? 0 : 1;
+    this->Buffer.clear();
+    return rval;
+    }
+  // --------------------------------------------------------------------
   int SetBufferColumnStatus( const char* colName, int status )
     {
     if ( status )
@@ -55,6 +72,7 @@ public:
       return this->Buffer.erase( colName ) ? 1 : 0;
       }
     }
+  // --------------------------------------------------------------------
   int AddBufferToRequests()
     {
     bool result = false;
@@ -65,43 +83,25 @@ public:
       }
     return result ? 1 : 0;
     }
-  int AddBufferEntriesToRequests()
+  // --------------------------------------------------------------------
+  // Description:
+  // This function does not use the buffer like other column selection methods.
+  int AddColumnToRequests( const char* col )
     {
-    int count = 0;
-    vtksys_stl::set<vtkStdString>::iterator it;
-    for ( it = this->Buffer.begin(); it != this->Buffer.end(); ++ it )
+    if ( col && strlen( col ) )
       {
       vtksys_stl::set<vtkStdString> tmp;
-      tmp.insert( *it );
+      tmp.insert( col );
       if ( this->Requests.insert( tmp ).second )
         {
-        ++ count;
+        return 1;
         }
       }
-    return count;
+    return 0;
     }
-  int AddBufferEntryPairsToRequests()
-    {
-    int count = 0;
-    vtksys_stl::pair<vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator,bool> result;
-    vtksys_stl::set<vtkStdString>::iterator it;
-    for ( it = this->Buffer.begin(); it != this->Buffer.end(); ++ it )
-      {
-      vtksys_stl::set<vtkStdString>::iterator it2 = it;
-      for ( ++ it2; it2 != this->Buffer.end(); ++ it2 )
-        {
-        vtksys_stl::set<vtkStdString> tmp;
-        tmp.insert( *it );
-        tmp.insert( *it2 );
-        if ( this->Requests.insert( tmp ).second )
-          {
-          ++ count;
-          }
-        }
-      }
-    return count;
-    }
-  /// This function doesn't use the buffer like other column selection methods.
+  // --------------------------------------------------------------------
+  // Description:
+  // This function does not use the buffer like other column selection methods.
   int AddColumnPairToRequests( const char* cola, const char* colb )
     {
     if ( cola && colb && strlen( cola ) && strlen( colb ) )
@@ -116,22 +116,16 @@ public:
       }
     return 0;
     }
-  void ResetRequests()
-    {
-    this->Requests.clear();
-    }
-  int ResetBuffer()
-    {
-    int rval = this->Buffer.empty() ? 0 : 1;
-    this->Buffer.clear();
-    return rval;
-    }
-  /// Return the number of currently-defined requests
+  // --------------------------------------------------------------------
+  // Description:
+  // Return the number of currently-defined requests
   vtkIdType GetNumberOfRequests()
     {
     return static_cast<vtkIdType>( this->Requests.size() );
     }
-  /// Return the number of columns associated with request \a r.
+  // --------------------------------------------------------------------
+  // Description:
+  // Return the number of columns associated with request \a r.
   vtkIdType GetNumberOfColumnsForRequest( vtkIdType r )
     {
     if ( r < 0 || r > static_cast<vtkIdType>( this->Requests.size() ) )
@@ -145,9 +139,10 @@ public:
       }
     return it->size();
     }
-  /**\brief Provide the name of the \a c-th column of the \a r-th request in \a columnName.
-    * Returns false if the request or column does not exist and true otherwise.
-    */
+  // --------------------------------------------------------------------
+  // Description:
+  // Provide the name of the \a c-th column of the \a r-th request in \a columnName.
+  // Returns false if the request or column does not exist and true otherwise.
   bool GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName )
     {
     if ( r < 0 || r > static_cast<vtkIdType>( this->Requests.size() ) || c < 0 )

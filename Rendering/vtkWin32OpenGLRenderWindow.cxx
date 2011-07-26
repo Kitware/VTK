@@ -60,11 +60,11 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 {
   this->Finalize();
-  
+
   vtkRenderer *ren;
-  vtkCollectionSimpleIterator rsit;
-  for (this->Renderers->InitTraversal(rsit); 
-       (ren = this->Renderers->GetNextRenderer(rsit));)
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
     {
     ren->SetRenderWindow(NULL);
     }

@@ -27,6 +27,19 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
+//----------------------------------------------------------------------------
+// For fullscreen, an NSWindow that captures key events even when borderless
+@interface vtkCocoaFullScreenWindow : NSWindow
+{
+}
+@end
+
+@implementation vtkCocoaFullScreenWindow
+- (BOOL)canBecomeKeyWindow
+{
+  return YES;
+}
+@end
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindow::vtkCocoaRenderWindow()
@@ -61,14 +74,13 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     this->ShowCursor();
     }
   this->Finalize();
-  
-  vtkRenderer *renderer;
-  vtkCollectionSimpleIterator rsit;
 
-  for ( this->Renderers->InitTraversal(rsit);
-        (renderer = this->Renderers->GetNextRenderer(rsit));)
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
     {
-    renderer->SetRenderWindow(0);
+    ren->SetRenderWindow(NULL);
     }
 
   if (this->Capabilities)
@@ -76,7 +88,7 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     delete[] this->Capabilities;
     this->Capabilities = 0;
     }
-  
+
   // Release the cocoa object manager.
   this->SetCocoaManager(NULL);
 }
@@ -518,7 +530,11 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // Get the screen's scale factor.
   // It will be used to create the window if not created yet.
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
-  this->ScaleFactor = [[NSScreen mainScreen] userSpaceScaleFactor];
+  NSScreen *screen = [NSScreen mainScreen];
+  if (screen)
+    {
+    this->ScaleFactor = [screen userSpaceScaleFactor];
+    }
 #endif
 
   // As vtk is both crossplatform and a library, we don't know if it is being
@@ -543,31 +559,56 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // SetRootWindow() and SetWindowId() so that a window is not created here.
   if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId())
     {
-    if ((this->Size[0]+this->Size[1]) == 0)
+    NSWindow* theWindow = nil;
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+    if (this->FullScreen && screen)
       {
-      this->Size[0] = 300;
-      this->Size[1] = 300;
+      NSRect ctRect = [screen frame];
+      this->Size[0] = (int)round(NSWidth(ctRect) * this->ScaleFactor);
+      this->Size[1] = (int)round(NSHeight(ctRect) * this->ScaleFactor);
+
+      theWindow = [[[vtkCocoaFullScreenWindow alloc]
+                    initWithContentRect:ctRect
+                    styleMask:NSBorderlessWindowMask
+                    backing:NSBackingStoreBuffered
+                    defer:NO] autorelease];
+
+      // This will hide the menu and the dock
+      [theWindow setLevel:NSMainMenuWindowLevel+1];
+      // This will show the menu and the dock
+      //[theWindow setLevel:NSFloatingWindowLevel];
       }
-    if ((this->Position[0]+this->Position[1]) == 0)
+    else
+#endif
       {
-      this->Position[0] = 50;
-      this->Position[1] = 50;
+      if ((this->Size[0]+this->Size[1]) == 0)
+        {
+        this->Size[0] = 300;
+        this->Size[1] = 300;
+        }
+      if ((this->Position[0]+this->Position[1]) == 0)
+        {
+        this->Position[0] = 50;
+        this->Position[1] = 50;
+        }
+
+      // VTK measures in pixels, but NSWindow/NSView measure in points
+      NSRect ctRect = NSMakeRect((CGFloat)this->Position[0],
+                                 (CGFloat)this->Position[1],
+                                 (CGFloat)this->Size[0] / this->ScaleFactor,
+                                 (CGFloat)this->Size[1] / this->ScaleFactor);
+
+      theWindow = [[[NSWindow alloc]
+                    initWithContentRect:ctRect
+                    styleMask:NSTitledWindowMask |
+                              NSClosableWindowMask |
+                              NSMiniaturizableWindowMask |
+                              NSResizableWindowMask
+                    backing:NSBackingStoreBuffered
+                    defer:NO] autorelease];
       }
 
-    // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
-    NSRect ctRect = NSMakeRect((CGFloat)this->Position[0],
-                               (CGFloat)this->Position[1],
-                               (CGFloat)this->Size[0] / this->ScaleFactor,
-                               (CGFloat)this->Size[1] / this->ScaleFactor);
-
-    NSWindow* theWindow = [[[NSWindow alloc]
-                           initWithContentRect:ctRect
-                           styleMask:NSTitledWindowMask |
-                                     NSClosableWindowMask |
-                                     NSMiniaturizableWindowMask |
-                                     NSResizableWindowMask
-                           backing:NSBackingStoreBuffered
-                           defer:NO] autorelease];
     if (!theWindow)
       {
       vtkErrorMacro("Could not create window, serious error!");
@@ -579,7 +620,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
     [theWindow makeKeyAndOrderFront:nil];
     [theWindow setAcceptsMouseMovedEvents:YES];
-  }
+    }
   
   // Always use the scaling factor from the window once it is created.
   // The screen and the window might possibly have different scaling factors, though unlikely.
@@ -878,7 +919,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
 
   if (!this->Mapped)
     {
-    this->PrefFullScreen();
+    this->FullScreen = arg;
     return;
     }
 
@@ -935,7 +976,7 @@ void vtkCocoaRenderWindow::SetStereoCapableWindow(int capable)
 void vtkCocoaRenderWindow::PrefFullScreen()
 {
   int *size = this->GetScreenSize();
-  vtkWarningMacro(<< "Can't get full screen window of size "
+  vtkWarningMacro(<< "Can only set FullScreen before showing window: "
                   << size[0] << 'x' << size[1] << ".");
 }
 

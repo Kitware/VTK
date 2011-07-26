@@ -30,9 +30,9 @@
  *    Reads and Writes MetaBlobFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date July 02, 2002
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaFileLib.h
@@ -48,7 +48,7 @@ public:
 
   BlobPnt(int dim);
   ~BlobPnt();
-  
+
   unsigned int m_Dim;
   float* m_X;
   float  m_Color[4];
@@ -75,10 +75,10 @@ class METAIO_EXPORT MetaBlob : public MetaObject
     ////
     MetaBlob(void);
 
-    MetaBlob(const char *_headerName);   
+    MetaBlob(const char *_headerName);
 
-    MetaBlob(const MetaBlob *_blob); 
-    
+    MetaBlob(const MetaBlob *_blob);
+
     MetaBlob(unsigned int dim);
 
     ~MetaBlob(void);
@@ -104,7 +104,7 @@ class METAIO_EXPORT MetaBlob : public MetaObject
 
     PointListType & GetPoints(void) {return m_PointList;}
     const PointListType & GetPoints(void) const  {return m_PointList;}
- 
+
     MET_ValueEnumType ElementType(void) const;
     void  ElementType(MET_ValueEnumType _elementType);
 
