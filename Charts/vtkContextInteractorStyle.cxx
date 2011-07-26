@@ -309,7 +309,7 @@ void vtkContextInteractorStyle::OnMouseWheelForward()
     int x = this->Interactor->GetEventPosition()[0];
     int y = this->Interactor->GetEventPosition()[1];
     eatEvent =
-      this->Scene->MouseWheelEvent(+1.0 * this->MouseWheelMotionFactor, x, y);
+      this->Scene->MouseWheelEvent(static_cast<int>(this->MouseWheelMotionFactor), x, y);
     }
   if (!eatEvent)
     {
@@ -329,7 +329,7 @@ void vtkContextInteractorStyle::OnMouseWheelBackward()
     int x = this->Interactor->GetEventPosition()[0];
     int y = this->Interactor->GetEventPosition()[1];
     eatEvent =
-      this->Scene->MouseWheelEvent(-1.0 * this->MouseWheelMotionFactor , x, y);
+      this->Scene->MouseWheelEvent(-static_cast<int>(this->MouseWheelMotionFactor), x, y);
     }
   if (!eatEvent)
     {
