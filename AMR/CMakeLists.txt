@@ -7,7 +7,6 @@ SET(KIT_JAVA_LIBS vtkCommonJava vtkFilteringJava vtkParallelJava vtkGenericFilte
 SET(KIT_INTERFACE_LIBRARIES vtkCommon vtkFiltering vtkParallel vtkGenericFiltering )
 
 ## Get the kit sources
-#FILE( GLOB Kit_SRCS *.cxx )
 SET(Kit_SRCS
     vtkAMRBaseParticlesReader.cxx
     vtkAMRBaseReader.cxx
@@ -29,6 +28,7 @@ SET(Kit_SRCS
     vtkAMRLink.cxx
     vtkAMRProbeFilter.cxx
     vtkAMRSliceFilter.cxx
+    vtkAMRToGrid.cxx
     )
 
 ## Set the libraries required by this kit

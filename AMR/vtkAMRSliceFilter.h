@@ -53,6 +53,12 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
       vtkBooleanMacro( ForwardUpstream, int );
 
       // Description:
+      // Set/Get EnablePrefetching property
+      vtkSetMacro( EnablePrefetching, int );
+      vtkGetMacro( EnablePrefetching, int );
+      vtkBooleanMacro( EnablePrefetching, int );
+
+      // Description:
       // Set/Get the maximum resolution used in this instance.
       vtkSetMacro(MaxResolution,int);
       vtkGetMacro(MaxResolution,int);
@@ -149,7 +155,7 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     vtkMultiProcessController *Controller;
 
     int ForwardUpstream;
-
+    int EnablePrefetching;
     // BTX
       vtkstd::vector< int > blocksToLoad;
     // ETX
