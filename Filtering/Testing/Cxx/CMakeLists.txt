@@ -26,6 +26,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestPolygon.cxx
   TestSelectionSubtract.cxx
   TestTreeBFSIterator.cxx
+  TestTreeDFSIterator.cxx
   TestTriangle.cxx
   TestImageDataToStructuredGrid.cxx
 

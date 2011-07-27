@@ -17,15 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkTreeDFSIterator - depth first seedgeh iterator through a vtkGraph
+// .NAME vtkTreeDFSIterator - depth first iterator through a vtkGraph
 //
 // .SECTION Description
-// vtkTreeDFSIterator performs a depth first seedgeh of a tree.  First,
-// you must set the tree on which you are going to iterate, and set
-// the starting vertex and mode.  The mode is either DISCOVER, in which
-// case vertices are visited as they are first reached, or FINISH, in which
-// case vertices are visited when they are done, i.e. all adjacent vertices
-// have been discovered already.
+// vtkTreeDFSIterator performs a depth first search traversal of a tree.
+//
+// First, you must set the tree on which you are going to iterate, and then
+// optionally set the starting vertex and mode. The mode is either
+// DISCOVER (default), in which case vertices are visited as they are first
+// reached, or FINISH, in which case vertices are visited when they are
+// done, i.e. all adjacent vertices have been discovered already.
 //
 // After setting up the iterator, the normal mode of operation is to
 // set up a <code>while(iter->HasNext())</code> loop, with the statement
@@ -35,19 +36,17 @@
 #ifndef __vtkTreeDFSIterator_h
 #define __vtkTreeDFSIterator_h
 
-#include "vtkObject.h"
+#include "vtkTreeIterator.h"
 
-class vtkTree;
 class vtkTreeDFSIteratorInternals;
 class vtkIntArray;
-class vtkIdList;
 
-class VTK_FILTERING_EXPORT vtkTreeDFSIterator : public vtkObject
+class VTK_FILTERING_EXPORT vtkTreeDFSIterator : public vtkTreeIterator
 {
 public:
   static vtkTreeDFSIterator* New();
-  vtkTypeMacro(vtkTreeDFSIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkTreeDFSIterator, vtkTreeIterator);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX
   enum ModeType
@@ -56,10 +55,6 @@ public:
     FINISH
     };
   //ETX
-
-  // Description:
-  // Set the graph to iterate over.
-  void SetTree(vtkTree* graph);
 
   // Description:
   // Set the visit mode of the iterator.  Mode can be
@@ -71,35 +66,17 @@ public:
   void SetMode(int mode);
   vtkGetMacro(Mode, int);
 
-  // Description:
-  // The start vertex of the seedgeh.
-  // The tree iterator will only iterate over the subtree rooted at vertex.
-  // If not set (or set to a negative value), starts at the root of the tree.
-  void SetStartVertex(vtkIdType vertex);
-  vtkGetMacro(StartVertex, vtkIdType);
-
-  // Description:
-  // The next vertex visited in the graph.
-  vtkIdType Next();
-
-  // Description:
-  // Return true when all vertices have been visited.
-  bool HasNext();
-
 protected:
   vtkTreeDFSIterator();
   ~vtkTreeDFSIterator();
 
-  void Initialize();
-  vtkIdType NextInternal();
+  virtual void Initialize();
+  virtual vtkIdType NextInternal();
 
-  vtkTree* Tree;
   int Mode;
-  vtkIdType StartVertex;
   vtkIdType CurRoot;
   vtkTreeDFSIteratorInternals* Internals;
   vtkIntArray* Color;
-  vtkIdType NextId;
 
   //BTX
   enum ColorType
