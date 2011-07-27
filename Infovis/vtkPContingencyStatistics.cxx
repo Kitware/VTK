@@ -70,13 +70,13 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-static void PackStringVector( const vtkstd::vector<vtkStdString>& values,
+static void PackStringVector( const vtkstd::vector<vtkStdString>& strings,
                         vtkStdString& buffer )
 {
   buffer.clear();
   
-  for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
-       it != values.end(); ++ it )
+  for( vtkstd::vector<vtkStdString>::const_iterator it = strings.begin();
+       it != strings.end(); ++ it )
     {
     buffer.append( *it );
     buffer.push_back( 0 );
@@ -85,9 +85,9 @@ static void PackStringVector( const vtkstd::vector<vtkStdString>& values,
 
 //-----------------------------------------------------------------------------
 static void UnpackStringBuffer( const vtkStdString& buffer,
-                          vtkstd::vector<vtkStdString>& values )
+                          vtkstd::vector<vtkStdString>& strings )
 {
-  values.clear();
+  strings.clear();
   
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
@@ -97,7 +97,7 @@ static void UnpackStringBuffer( const vtkStdString& buffer,
       {
       if( ! *finish )
         {
-        values.push_back( vtkStdString( start ) );
+        strings.push_back( vtkStdString( start ) );
         start = finish;
         break;
         }
