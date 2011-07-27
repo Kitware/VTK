@@ -71,19 +71,26 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Generate an input table that contains samples of:
   // 1. A truncated Gaussian pseudo-random variable (vtkIntArray)
   // 2. A uniform pseudo-random variable of characters (vtkStringArray)
-  vtkIntArray* intArray;
-  vtkStringArray* strArray;
   vtkStdString columnNames[] = { "Rounded Normal", "Uniform" };
 
-  vtkTable* inputData = vtkTable::New();
-  intArray = vtkIntArray::New();
+  // Prepare column of integers
+  vtkIntArray* intArray = vtkIntArray::New();
   intArray->SetNumberOfComponents( 1 );
   intArray->SetName( columnNames[0] );
   
-  // Store first value
+  // Prepare column of strings
+  vtkStringArray* strArray = vtkStringArray::New();
+  strArray->SetNumberOfComponents( 1 );
+  strArray->SetName( columnNames[1] );
+  
+  // Store first values
   int v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
   intArray->InsertNextValue( v );
   
+  char c = static_cast<char>( 96 + vtkMath::Ceil( vtkMath::Random() * 26 ) );
+  vtkStdString s( &c, 1 );
+  strArray->InsertNextValue( s );
+
   // Initialize local extrema
   int min_l = v;
   int max_l = v;
@@ -91,10 +98,14 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
     {
-    // Store new value
+    // Store new values
     v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
     intArray->InsertNextValue( v );
     
+    c = static_cast<char>( 96 + vtkMath::Ceil( vtkMath::Random() * 26 ) );
+    s = vtkStdString( &c, 1 );
+    strArray->InsertNextValue( s );
+
     // Update local extrema
     if ( v < min_l )
       {
@@ -105,9 +116,15 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
       max_l = v;
       }
     }
-  
+
+  // Create input table
+  vtkTable* inputData = vtkTable::New();
   inputData->AddColumn( intArray );
+  inputData->AddColumn( strArray );
+
+  // Clean up
   intArray->Delete();
+  strArray->Delete();
 
   // Reduce all minima for this variable
   int min_g;
@@ -144,8 +161,9 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   pos->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
-  // Select column pairs (uniform vs. uniform, normal vs. normal)
+  // Select columns of interest
   pos->AddColumn( columnNames[0] );
+  pos->AddColumn( columnNames[1] );
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pos->SetLearnOption( true );

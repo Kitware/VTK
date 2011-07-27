@@ -331,7 +331,10 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
     // Add column of cardinalities to histogram table
     histoTab_g->AddColumn( card_g );
-
+    if ( myRank == 1 )
+      {
+      histoTab_g->Dump();
+      }
     // Replace local histogram table with globally reduced one
     outMeta->SetBlock( b, histoTab_g );
 
