@@ -84,7 +84,7 @@ static void PackStringVector( const vtkstd::vector<vtkStdString>& values,
 }
 
 //-----------------------------------------------------------------------------
-static void UnpackValues( const vtkStdString& buffer,
+static void UnpackStringBuffer( const vtkStdString& buffer,
                           vtkstd::vector<vtkStdString>& values )
 {
   values.clear();
@@ -443,7 +443,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
 {
   // First, unpack the packet of strings
   vtkstd::vector<vtkStdString> xyValues_g;
-  UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
+  UnpackStringBuffer( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
 
   // Second, check consistency: we must have the same number of xy and kc entries
   if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
@@ -569,7 +569,7 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
     }
 
   // Unpack the packet of strings
-  UnpackValues( xyPacked, xyValues );
+  UnpackStringBuffer( xyPacked, xyValues );
 
   return false;
 }
