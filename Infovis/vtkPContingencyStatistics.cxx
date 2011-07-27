@@ -70,7 +70,7 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-static void PackValues( const vtkstd::vector<vtkStdString>& values,
+static void PackStringVector( const vtkstd::vector<vtkStdString>& values,
                         vtkStdString& buffer )
 {
   buffer.clear();
@@ -428,7 +428,7 @@ bool vtkPContingencyStatistics::Pack( vtkTable* contingencyTab,
     }
 
   // Concatenate vector of strings into single string
-  PackValues( xyValues, xyPacked );
+  PackStringVector( xyValues, xyPacked );
 
   return false;
 }
@@ -498,7 +498,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
         }
       }
     }
-  PackValues( xyValues_l, xyPacked_l );
+  PackStringVector( xyValues_l, xyPacked_l );
 
   // Last, update xy and kc buffer sizes (which have changed because of the reduction)
   xySizeTotal = xyPacked_l.size();
