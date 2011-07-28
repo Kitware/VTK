@@ -40,6 +40,9 @@ class vtkUniformGrid;
 class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
+class vtkFieldData;
+class vtkCellData;
+class vtkPointData;
 class vtkIndent;
 
 class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
@@ -74,6 +77,27 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     vtkSetMacro(Controller, vtkMultiProcessController*);
     vtkGetMacro(Controller, vtkMultiProcessController*);
 
+    // Standard pipeline routines
+
+    // Description:
+    // Gets the metadata from upstream module and determines which blocks
+    // should be loaded by this instance.
+    virtual int RequestInformation(
+        vtkInformation *rqst,
+        vtkInformationVector **inputVector,
+        vtkInformationVector *outputVector );
+
+    virtual int RequestData(
+         vtkInformation*,vtkInformationVector**,vtkInformationVector*);
+    virtual int FillInputPortInformation(int port, vtkInformation *info);
+    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+
+    // Description:
+    // Performs upstream requests to the reader
+    virtual int RequestUpdateExtent(
+        vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+
+
   protected:
     vtkAMRToGrid();
     virtual ~vtkAMRToGrid();
@@ -83,14 +107,43 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     int NumberOfSubdivisions;
     int TransferToNodes;
     int LevelOfResolution;
-    bool initializedRegion;
-    bool subdividedRegion;
+//    bool initializedRegion;
+//    bool subdividedRegion;
     vtkMultiProcessController *Controller;
 
-// BTX
-    vtkstd::vector< int > blocksToLoad; // Holds the ids of the blocks to load.
-    vtkstd::vector< double > boxes; // uniform grid regions strided by 6.
-// ETX
+    // Description:
+    // Given the source cell data of an AMR grid, this method initializes the
+    // field values, i.e., the number of arrays with the prescribed size. Note,
+    // the size must correspond to the number of points if node-centered or the
+    // the number of cells if cell-centered.
+    void InitializeFields( vtkFieldData *f, vtkIdType size, vtkCellData *src );
+
+    // Description:
+    // Copies the data to the target from the given source.
+    void CopyData( vtkFieldData *target, vtkIdType targetIdx,
+                   vtkCellData *src, vtkIdType srcIdx );
+
+    // Description:
+    // Given a query point q and a candidate donor grid, this method checks for
+    // the corresponding donor cell containing the point in the given grid.
+    bool FoundDonor(double q[3],vtkUniformGrid *donorGrid,int &cellIdx);
+
+    // Description:
+    // Transfers the solution from the AMR dataset to the cell-centers of
+    // the given uniform grid.
+    void TransferToCellCenters(
+        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds );
+
+    // Description:
+    // Transfer the solution from the AMR dataset to the nodes of the
+    // given uniform grid.
+    void TransferToGridNodes(
+        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds );
+
+    // Description:
+    // Transfers the solution
+    void TransferSolution(
+        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds);
 
     // Description:
     // Extract the region (as a multiblock) from the given AMR dataset.
@@ -117,25 +170,10 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     // Computes the extraction region bounds based on the input AMR dataset.
     void InitializeRegionBounds( vtkHierarchicalBoxDataSet *inp );
 
-    // Standard pipeline routines
-
-    // Description:
-    // Gets the metadata from upstream module and determines which blocks
-    // should be loaded by this instance.
-    virtual int RequestInformation(
-        vtkInformation *rqst,
-        vtkInformationVector **inputVector,
-        vtkInformationVector *outputVector );
-
-    virtual int RequestData(
-         vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-    virtual int FillInputPortInformation(int port, vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
-
-    // Description:
-    // Performs upstream requests to the reader
-    virtual int RequestUpdateExtent(
-        vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+// BTX
+    vtkstd::vector< int > blocksToLoad; // Holds the ids of the blocks to load.
+    vtkstd::vector< double > boxes; // uniform grid regions strided by 6.
+// ETX
 
   private:
     vtkAMRToGrid(const vtkAMRToGrid&); // Not implemented

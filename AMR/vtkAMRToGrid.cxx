@@ -26,6 +26,9 @@
 #include "vtkBoundingBox.h"
 #include "vtkMath.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkFieldData.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
 
 #include <cassert>
 #include <algorithm>
@@ -38,8 +41,8 @@ vtkAMRToGrid::vtkAMRToGrid()
   this->TransferToNodes      = 1;
   this->LevelOfResolution    = 1;
   this->NumberOfSubdivisions = 0;
-  this->initializedRegion    = false;
-  this->subdividedRegion     = false;
+//  this->initializedRegion    = false;
+//  this->subdividedRegion     = false;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->SetNumberOfInputPorts( 1 );
   this->SetNumberOfOutputPorts( 1 );
@@ -50,6 +53,10 @@ vtkAMRToGrid::~vtkAMRToGrid()
 {
   this->blocksToLoad.clear();
   this->boxes.clear();
+
+  if( this->Controller != NULL)
+    this->Controller->Delete();
+  this->Controller = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,8 +87,9 @@ int vtkAMRToGrid::FillOutputPortInformation(
 //-----------------------------------------------------------------------------
 int vtkAMRToGrid::RequestUpdateExtent(
     vtkInformation*, vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector )
+    vtkInformationVector* vtkNotUsed(outputVector) )
 {
+  assert( "pre: inputVector is NULL" && (inputVector != NULL) );
   vtkInformation *info = inputVector[0]->GetInformationObject(0);
   assert( "pre: info is NULL" && (info != NULL) );
 
@@ -98,17 +106,19 @@ int vtkAMRToGrid::RequestInformation(
     vtkInformationVector **inputVector,
     vtkInformationVector* vtkNotUsed(outputVector) )
 {
+  assert( "pre: inputVector is NULL" && (inputVector != NULL) );
+
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: input is NULL" && (input != NULL)  );
 
   if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
       vtkHierarchicalBoxDataSet *metadata =
-          vtkHierarchicalBoxDataSet::SafeDownCast(
-              input->Get(
-                 vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
+        vtkHierarchicalBoxDataSet::SafeDownCast(
+          input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
+      assert( "pre: medata is NULL" && (metadata != NULL)  );
 
-      this->InitializeRegionBounds( metadata );
+//      this->InitializeRegionBounds( metadata );
       this->SubdivideExtractionRegion();
 
       this->ComputeAMRBlocksToLoad( metadata );
@@ -118,7 +128,7 @@ int vtkAMRToGrid::RequestInformation(
 
 //-----------------------------------------------------------------------------
 int vtkAMRToGrid::RequestData(
-    vtkInformation *rqst, vtkInformationVector** inputVector,
+    vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )
 {
   // STEP 0: Get input object
@@ -139,12 +149,156 @@ int vtkAMRToGrid::RequestData(
 
   // STEP 2: Initialize input
 //  this->InitializeRegionBounds(amrds);
-//  this->SubdivideExtractionRegion();
+  this->SubdivideExtractionRegion();
 
   // STEP 3: Extract region
   this->ExtractRegion( amrds, mbds );
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAMRToGrid::FoundDonor(
+    double q[3],vtkUniformGrid *donorGrid,int &cellIdx)
+{
+  assert( "pre: donor grid is NULL" && (donorGrid != NULL) );
+
+  int ijk[3];
+  double pcoords[3];
+  int status = donorGrid->ComputeStructuredCoordinates( q, ijk, pcoords );
+  if( status == 1 )
+    {
+      cellIdx=vtkStructuredData::ComputeCellId(donorGrid->GetDimensions(),ijk);
+      return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::InitializeFields(
+      vtkFieldData *f, vtkIdType size, vtkCellData *src )
+{
+  assert( "pre: field data is NULL!" && (f != NULL) );
+  assert( "pre: source cell data is NULL" && (src != NULL) );
+
+  for( int arrayIdx=0; arrayIdx < src->GetNumberOfArrays(); ++arrayIdx )
+    {
+      int dataType        = src->GetArray( arrayIdx )->GetDataType();
+      vtkDataArray *array = vtkDataArray::CreateDataArray( dataType );
+      assert( "" && (array != NULL) );
+
+      array->SetName( src->GetArray(arrayIdx)->GetName() );
+      array->SetNumberOfTuples( size );
+      array->SetNumberOfComponents(
+         src->GetArray(arrayIdx)->GetNumberOfComponents() );
+
+      f->AddArray( array );
+      array->Delete();
+    } // END for all arrays
+
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::CopyData(
+    vtkFieldData *target, vtkIdType targetIdx,
+    vtkCellData *src, vtkIdType srcIdx )
+{
+  assert( "pre: target field data is NULL" && (target != NULL) );
+  assert( "pre: source field data is NULL" && (src != NULL) );
+  assert( "pre: number of arrays does not match" &&
+           (target->GetNumberOfArrays() == src->GetNumberOfArrays() ) );
+
+  int arrayIdx = 0;
+  for( ; arrayIdx < src->GetNumberOfArrays(); ++arrayIdx )
+    {
+      vtkDataArray *targetArray = target->GetArray( arrayIdx );
+      vtkDataArray *srcArray    = src->GetArray( arrayIdx );
+      assert( "pre: targer/source array number of components mismatch!" &&
+       (targetArray->GetNumberOfComponents()==
+        srcArray->GetNumberOfComponents() ) );
+      assert( "pre: target/source array names mismatch!" &&
+       (strcmp(targetArray->GetName(),srcArray->GetName()) == 0) );
+
+      int c=0;
+      for( ; c < srcArray->GetNumberOfComponents(); ++c )
+        {
+          double f = targetArray->GetComponent( targetIdx, c );
+          srcArray->SetComponent( srcIdx, c, f );
+        } // END for all componenents
+
+    } // END for all arrays
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::TransferToCellCenters(
+        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
+{
+  assert( "pre: uniform grid is NULL" && (g != NULL) );
+  assert( "pre: AMR data-strucutre is NULL" && (amrds != NULL) );
+
+  // TODO: implement this
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::TransferToGridNodes(
+    vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
+{
+  assert( "pre: uniform grid is NULL" && (g != NULL) );
+  assert( "pre: AMR data-structure is NULL" && (amrds != NULL) );
+
+  vtkUniformGrid *refGrid = amrds->GetDataSet(0,0);
+  assert( "pre: Block(0,0) is NULL!" && (refGrid != NULL) );
+
+  vtkCellData *CD = refGrid->GetCellData();
+  assert( "pre: Donor CellData is NULL!" && (CD != NULL)  );
+
+  vtkPointData *PD = g->GetPointData();
+  assert( "pre: Target PointData is NULL!" && (PD != NULL) );
+
+  // STEP 0: Initialize the fields on the grid
+  this->InitializeFields( PD, g->GetNumberOfPoints(), CD );
+
+  // STEP 1: Loop through all the points and find the donors.
+  vtkIdType pIdx = 0;
+  for( ; pIdx < g->GetNumberOfPoints(); ++pIdx )
+    {
+      double qPoint[3];
+      g->GetPoint( pIdx, qPoint );
+
+      unsigned int level=0;
+      for( ; level < amrds->GetNumberOfLevels(); ++level )
+        {
+          unsigned int dataIdx = 0;
+          for( ; dataIdx < amrds->GetNumberOfDataSets( level ); ++dataIdx )
+            {
+               int donorCellIdx = -1;
+               vtkUniformGrid *donorGrid = amrds->GetDataSet(level,dataIdx);
+               if( (donorGrid!=NULL) &&
+                   this->FoundDonor(qPoint,donorGrid,donorCellIdx) )
+                 {
+                   assert( "pre: donorCellIdx is invalid" &&
+                           (donorCellIdx >= 0) &&
+                           (donorCellIdx < donorGrid->GetNumberOfCells()) );
+                   this->CopyData( PD, pIdx, CD, donorCellIdx );
+                 } // END if
+
+            } // END for all datasets at the current level
+        } // END for all levels
+
+    } // END for all grid nodes
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::TransferSolution(
+    vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds)
+{
+  assert( "pre: uniform grid is NULL" && (g != NULL) );
+  assert( "pre: AMR data-strucutre is NULL" && (amrds != NULL) );
+
+  if( this->TransferToNodes == 1 )
+    this->TransferToGridNodes( g, amrds );
+  else
+    this->TransferToCellCenters( g, amrds );
 }
 
 //-----------------------------------------------------------------------------
@@ -155,10 +309,6 @@ void vtkAMRToGrid::ExtractRegion(
   assert( "pre: output data-structure is NULL" && (mbds != NULL) );
 
   int numBoxes = this->boxes.size()/6;
-
-  std::cout << "Number of blocks: " << numBoxes << std::endl;
-  std::cout.flush();
-
   mbds->SetNumberOfBlocks( numBoxes );
 
   unsigned int maxLevelToLoad = 0;
@@ -170,7 +320,6 @@ void vtkAMRToGrid::ExtractRegion(
   double spacings[3];
   vtkUniformGrid *dummyGrid = amrds->GetDataSet( maxLevelToLoad, 0 );
   dummyGrid->GetSpacing( spacings );
-  dummyGrid->Delete();
 
   for(int box=0; box < numBoxes; ++box )
     {
@@ -191,6 +340,8 @@ void vtkAMRToGrid::ExtractRegion(
       grd->SetOrigin( xMin, yMin, zMin );
       grd->SetSpacing( spacings );
 
+      this->TransferSolution( grd, amrds );
+
       mbds->SetBlock( box, grd );
       grd->Delete();
     } // END for all boxes in the multi-block
@@ -201,6 +352,8 @@ void vtkAMRToGrid::ExtractRegion(
 void vtkAMRToGrid::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata )
 {
   assert( "pre: metadata is NULL" && (metadata != NULL) );
+
+  this->blocksToLoad.clear();
 
   unsigned int maxLevelToLoad = 0;
   if( this->LevelOfResolution < metadata->GetNumberOfLevels() )
@@ -266,8 +419,9 @@ bool vtkAMRToGrid::IsBlockWithinBounds( vtkUniformGrid *grd )
 //-----------------------------------------------------------------------------
 void vtkAMRToGrid::SubdivideExtractionRegion()
 {
-  if( this->subdividedRegion )
-    return;
+  this->boxes.resize(0);
+//  if( this->subdividedRegion )
+//    return;
 
   // Currently we do not subdivide, and just do this in a single process.
   this->boxes.push_back( this->Min[0] );
@@ -278,7 +432,7 @@ void vtkAMRToGrid::SubdivideExtractionRegion()
   this->boxes.push_back( this->Max[1] );
   this->boxes.push_back( this->Max[2] );
 
-  this->subdividedRegion = true;
+//  this->subdividedRegion = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -286,8 +440,8 @@ void vtkAMRToGrid::InitializeRegionBounds( vtkHierarchicalBoxDataSet *inp )
 {
    assert( "pre: input AMR dataset is NULL" && (inp != NULL) );
 
-   if( this->initializedRegion )
-     return;
+//   if( this->initializedRegion )
+//     return;
 
    double bounds[6];
    vtkAMRUtilities::ComputeGlobalBounds( bounds, inp, this->Controller);
@@ -303,5 +457,5 @@ void vtkAMRToGrid::InitializeRegionBounds( vtkHierarchicalBoxDataSet *inp )
    this->Max[0]= bounds[3] - vtkMath::Floor( (bounds[3]-offset[0])/2.0 );
    this->Max[1]= bounds[4] - vtkMath::Floor( (bounds[4]-offset[1])/2.0 );
    this->Max[2]= bounds[5] - vtkMath::Floor( (bounds[5]-offset[2])/2.0 );
-   this->initializedRegion = true;
+//   this->initializedRegion = true;
 }
