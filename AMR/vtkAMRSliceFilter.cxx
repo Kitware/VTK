@@ -550,9 +550,9 @@ void vtkAMRSliceFilter::GetSliceCellData(
 
 //------------------------------------------------------------------------------
 int vtkAMRSliceFilter::RequestInformation(
-    vtkInformation *rqst,
+    vtkInformation* vtkNotUsed(rqst),
     vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector )
+    vtkInformationVector* vtkNotUsed(outputVector) )
 {
   this->blocksToLoad.clear();
 
