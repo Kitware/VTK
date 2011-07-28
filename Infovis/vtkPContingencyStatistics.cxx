@@ -70,8 +70,8 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-static void PackStringVector( const vtkstd::vector<vtkStdString>& strings,
-                        vtkStdString& buffer )
+static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& strings,
+                                        vtkStdString& buffer )
 {
   buffer.clear();
   
@@ -84,8 +84,8 @@ static void PackStringVector( const vtkstd::vector<vtkStdString>& strings,
 }
 
 //-----------------------------------------------------------------------------
-static void UnpackStringBuffer( const vtkStdString& buffer,
-                          vtkstd::vector<vtkStdString>& strings )
+static void StringBufferToStringVector( const vtkStdString& buffer,
+                                        vtkstd::vector<vtkStdString>& strings )
 {
   strings.clear();
   
@@ -428,7 +428,7 @@ bool vtkPContingencyStatistics::Pack( vtkTable* contingencyTab,
     }
 
   // Concatenate vector of strings into single string
-  PackStringVector( xyValues, xyPacked );
+  StringVectorToStringBuffer( xyValues, xyPacked );
 
   return false;
 }
@@ -443,7 +443,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
 {
   // First, unpack the packet of strings
   vtkstd::vector<vtkStdString> xyValues_g;
-  UnpackStringBuffer( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
+  StringBufferToStringVector( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
 
   // Second, check consistency: we must have the same number of xy and kc entries
   if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
@@ -498,7 +498,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
         }
       }
     }
-  PackStringVector( xyValues_l, xyPacked_l );
+  StringVectorToStringBuffer( xyValues_l, xyPacked_l );
 
   // Last, update xy and kc buffer sizes (which have changed because of the reduction)
   xySizeTotal = xyPacked_l.size();
@@ -569,7 +569,7 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
     }
 
   // Unpack the packet of strings
-  UnpackStringBuffer( xyPacked, xyValues );
+  StringBufferToStringVector( xyPacked, xyValues );
 
   return false;
 }

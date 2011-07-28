@@ -63,8 +63,8 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-static void PackStringVector( const vtkstd::vector<vtkStdString>& strings,
-                              vtkStdString& buffer )
+static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& strings,
+                                        vtkStdString& buffer )
 {
   buffer.clear();
 
@@ -77,9 +77,9 @@ static void PackStringVector( const vtkstd::vector<vtkStdString>& strings,
 }
 
 //-----------------------------------------------------------------------------
-static void PackStringHisto( const vtkstd::map<vtkStdString,vtkIdType>& histo,
-                           vtkStdString& buffer,
-                           vtkIdTypeArray* card )
+static void StringHistoToBuffers( const vtkstd::map<vtkStdString,vtkIdType>& histo,
+                                  vtkStdString& buffer,
+                                  vtkIdTypeArray* card )
 {
   buffer.clear();
 
@@ -96,8 +96,8 @@ static void PackStringHisto( const vtkstd::map<vtkStdString,vtkIdType>& histo,
 }
 
 //-----------------------------------------------------------------------------
-static void UnpackStringBuffer( const vtkStdString& buffer,
-                          vtkstd::vector<vtkStdString>& strings )
+static void StringBufferToStringVector( const vtkStdString& buffer,
+                                        vtkstd::vector<vtkStdString>& strings )
 {
   strings.clear();
   
@@ -374,7 +374,7 @@ bool vtkPOrderStatistics::Pack( vtkStringArray* sVals,
     }
 
   // Concatenate vector of strings into single string
-  PackStringVector( sVect, sPack );
+  StringVectorToStringBuffer( sVect, sPack );
 
   return false;
 }
@@ -438,7 +438,7 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
 {
   // First, unpack the packet of strings
   vtkstd::vector<vtkStdString> sVect_g;
-  UnpackStringBuffer( vtkStdString ( sPack_g, ncTotal ), sVect_g );
+  StringBufferToStringVector( vtkStdString ( sPack_g, ncTotal ), sVect_g );
 
   // Second, check consistency: we must have as many values as cardinality entries
   vtkIdType nRow_g = card_g->GetNumberOfTuples();
@@ -481,7 +481,7 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
 
   // Concatenate string keys of histogram into single string and put values into resized array
   vtkStdString sPack;
-  PackStringHisto( histogram, sPack, card );
+  StringHistoToBuffers( histogram, sPack, card );
 
   // Broadcast size of string buffer
   vtkIdType nc = sPack.size();
@@ -509,7 +509,7 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
 
   // Unpack the packet of strings
   vtkstd::vector<vtkStdString> sVect;
-  UnpackStringBuffer( sPack, sVect );
+  StringBufferToStringVector( sPack, sVect );
 
   // Broadcast histogram cardinalities
   if ( ! com->Broadcast( card, rProc ) )
