@@ -72,11 +72,6 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
 
 //BTX
   // Description:
-  // Pack all string entries of a histogram in a single string
-  bool Pack( vtkStringArray*,
-             vtkStdString& );
-
-  // Description:
   // Reduce the collection of local histograms to the global one for data inputs
   bool Reduce( vtkIdTypeArray*,
                vtkDataArray* );

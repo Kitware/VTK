@@ -76,6 +76,23 @@ static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& stri
     }
 }
 
+// ----------------------------------------------------------------------
+static void StringArrayToStringBuffer( vtkStringArray* sVals,
+                                       vtkStdString& sPack )
+{
+  vtkstd::vector<vtkStdString> sVect; // consecutive strings
+
+  vtkIdType nv = sVals->GetNumberOfValues();
+  for ( vtkIdType i = 0; i < nv; ++ i )
+    {
+    // Push back current string value
+    sVect.push_back( sVals->GetValue( i ) );
+    }
+
+  // Concatenate vector of strings into single string
+  StringVectorToStringBuffer( sVect, sPack );
+}
+
 //-----------------------------------------------------------------------------
 static void StringHistoToBuffers( const vtkstd::map<vtkStdString,vtkIdType>& histo,
                                   vtkStdString& buffer,
@@ -261,14 +278,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
       // Packing step: concatenate all string values
       vtkStdString sPack_l;
-      if ( this->Pack( sVals, sPack_l ) )
-        {
-        vtkErrorMacro("Packing error on process "
-                      << myRank
-                      << ".");
-
-        return;
-        }
+      StringArrayToStringBuffer( sVals, sPack_l );
 
       // (All) gather all string sizes
       vtkIdType nc_l = sPack_l.size();
@@ -358,25 +368,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     card_g->Delete();
     histoTab_g->Delete();
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
-}
-
-// ----------------------------------------------------------------------
-bool vtkPOrderStatistics::Pack( vtkStringArray* sVals,
-                                vtkStdString& sPack )
-{
-  vtkstd::vector<vtkStdString> sVect; // consecutive strings
-
-  vtkIdType nv = sVals->GetNumberOfValues();
-  for ( vtkIdType i = 0; i < nv; ++ i )
-    {
-    // Push back current string value
-    sVect.push_back( sVals->GetValue( i ) );
-    }
-
-  // Concatenate vector of strings into single string
-  StringVectorToStringBuffer( sVect, sPack );
-
-  return false;
 }
 
 //-----------------------------------------------------------------------------
