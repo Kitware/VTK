@@ -87,10 +87,10 @@ static void PackStringHisto( const vtkstd::map<vtkStdString,vtkIdType>& histo,
 
   vtkIdType r = 0;
   for( vtkstd::map<vtkStdString,vtkIdType>::const_iterator it = histo.begin();
-       it != histo.end(); ++ it )
+       it != histo.end(); ++ it, ++ r )
     {
     buffer.append( it->first );
-    card->SetValue( r ++, it->second );
+    card->SetValue( r, it->second );
     buffer.push_back( 0 );
     }
 }
@@ -522,12 +522,12 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
     }
 
   // Now resize global histogram arrays to reduced size
-  vtkIdType nRow = static_cast<vtkIdType>( sVect.size() );
-  sVals->SetNumberOfValues( nRow );
+  sVals->SetNumberOfValues( sVect.size() );
 
   // Then store reduced histogram into array
-  vtkstd::vector<vtkStdString>::iterator vit = sVect.begin();
-  for ( vtkIdType r = 0; r < nRow; ++ r, ++ vit )
+  vtkIdType r = 0;
+  for ( vtkstd::vector<vtkStdString>::iterator vit = sVect.begin(); 
+        vit != sVect.end(); ++ vit, ++ r )
     {
     sVals->SetValue( r, *vit );
     }
