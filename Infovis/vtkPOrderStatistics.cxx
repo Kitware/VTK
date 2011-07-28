@@ -63,13 +63,13 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-static void PackValues( const vtkstd::vector<vtkStdString>& values,
-                        vtkStdString& buffer )
+static void PackStringVector( const vtkstd::vector<vtkStdString>& strings,
+                              vtkStdString& buffer )
 {
   buffer.clear();
 
-  for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
-       it != values.end(); ++ it )
+  for( vtkstd::vector<vtkStdString>::const_iterator it = strings.begin();
+       it != strings.end(); ++ it )
     {
     buffer.append( *it );
     buffer.push_back( 0 );
@@ -77,10 +77,24 @@ static void PackValues( const vtkstd::vector<vtkStdString>& values,
 }
 
 //-----------------------------------------------------------------------------
-static void UnpackValues( const vtkStdString& buffer,
-                          vtkstd::vector<vtkStdString>& values )
+static void PackStringMap( const vtkstd::map<vtkStdString,vtkIdType>& strings,
+                           vtkStdString& buffer )
 {
-  values.clear();
+  buffer.clear();
+
+  for( vtkstd::map<vtkStdString,vtkIdType>::const_iterator it = strings.begin();
+       it != strings.end(); ++ it )
+    {
+    buffer.append( it->first );
+    buffer.push_back( 0 );
+    }
+}
+
+//-----------------------------------------------------------------------------
+static void UnpackStringBuffer( const vtkStdString& buffer,
+                          vtkstd::vector<vtkStdString>& strings )
+{
+  strings.clear();
   
   const char* const bufferEnd = &buffer[0] + buffer.size();
   
@@ -90,7 +104,7 @@ static void UnpackValues( const vtkStdString& buffer,
       {
       if( ! *finish )
         {
-        values.push_back( vtkStdString( start ) );
+        strings.push_back( vtkStdString( start ) );
         start = finish;
         break;
         }
@@ -273,10 +287,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         sPack_g = new char[ncTotal];
         }
 
-      // Create column for global histogram values of the same type as the values
-      vtkStringArray* sVals_g = vtkStringArray::New();
-      sVals_g->SetName( "Value" );
-
       // Gather all sPack on process rProc
       // NB: GatherV because the packets have variable lengths
       if ( ! com->GatherV( &(*sPack_l.begin()), sPack_g, nc_l, nc_g, offsets, rProc ) )
@@ -297,6 +307,10 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
           return;
           }
         } // if ( myRank == rProc )
+
+      // Create column for global histogram values of the same type as the values
+      vtkStringArray* sVals_g = vtkStringArray::New();
+      sVals_g->SetName( "Value" );
 
       // Finally broadcast reduced histogram
       if ( this->Broadcast( histogram, card_g, sVals_g, rProc ) )
@@ -331,7 +345,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
     // Add column of cardinalities to histogram table
     histoTab_g->AddColumn( card_g );
-    if ( myRank == 1 )
+    if ( myRank == 0 )
       {
       histoTab_g->Dump();
       }
@@ -358,7 +372,7 @@ bool vtkPOrderStatistics::Pack( vtkStringArray* sVals,
     }
 
   // Concatenate vector of strings into single string
-  PackValues( sVect, sPack );
+  PackStringVector( sVect, sPack );
 
   return false;
 }
@@ -422,7 +436,7 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
 {
   // First, unpack the packet of strings
   vtkstd::vector<vtkStdString> sVect_g;
-  UnpackValues( vtkStdString ( sPack_g, ncTotal ), sVect_g );
+  UnpackStringBuffer( vtkStdString ( sPack_g, ncTotal ), sVect_g );
 
   // Second, check consistency: we must have as many values as cardinality entries
   vtkIdType nRow_g = card_g->GetNumberOfTuples();
@@ -463,16 +477,9 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
 {
   vtkCommunicator* com = this->Controller->GetCommunicator();
 
-  // Packing step: concatenate array of strings
+  // Concatenate string keys of histogram into single string
   vtkStdString sPack;
-  if ( this->Pack( sVals, sPack ) )
-    {
-    vtkErrorMacro("Packing error on process "
-                  << com->GetLocalProcessId()
-                  << ".");
-    
-    return true;
-    }
+  PackStringMap( histogram, sPack );
 
   // Broadcast size of string buffer
   vtkIdType nc = sPack.size();
@@ -485,7 +492,7 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
     return true;
     }
 
-  // Resize string it can receive the broadcasted string buffer
+  // Resize string so it can receive the broadcasted string buffer
   sPack.resize( nc );
 
   // Broadcast histogram values
@@ -500,7 +507,7 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
 
   // Unpack the packet of strings
   vtkstd::vector<vtkStdString> sVect;
-  UnpackValues( sPack, sVect );
+  UnpackStringBuffer( sPack, sVect );
 
   // Broadcast histogram cardinalities
   if ( ! com->Broadcast( card, rProc ) )
@@ -513,16 +520,15 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
     }
 
   // Now resize global histogram arrays to reduced size
-  vtkIdType nRow = static_cast<vtkIdType>( histogram.size() );
+  vtkIdType nRow = static_cast<vtkIdType>( sVect.size() );
   sVals->SetNumberOfValues( nRow );
   card->SetNumberOfTuples( nRow );
 
   // Then store reduced histogram into array
-  vtkstd::map<vtkStdString,vtkIdType>::iterator hit = histogram.begin();
-  for ( vtkIdType r = 0; r < nRow; ++ r, ++ hit )
+  vtkstd::vector<vtkStdString>::iterator vit = sVect.begin();
+  for ( vtkIdType r = 0; r < nRow; ++ r, ++ vit )
     {
-    sVals->SetValue( r, hit->first );
-    card->SetValue( r, hit->second );
+    sVals->SetValue( r, *vit );
     }
 
   return false;
