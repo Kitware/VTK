@@ -83,6 +83,41 @@ static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& stri
     }
 }
 
+// ----------------------------------------------------------------------
+static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
+                                       vtkStdString& xyPacked,
+                                       vtkstd::vector<vtkIdType>& kcValues )
+{
+  // Downcast meta columns to string arrays for efficient data access
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+  vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+  vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
+  if ( ! keys || ! valx || ! valy || ! card )
+    {
+    return true;
+    }
+
+  vtkstd::vector<vtkStdString> xyValues; // consecutive (x,y) pairs
+
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
+  for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
+    {
+    // Push back x and y to list of strings
+    xyValues.push_back( valx->GetValue( r ) );
+    xyValues.push_back( valy->GetValue( r ) );
+
+    // Push back (X,Y) index and #(x,y) to list of strings
+    kcValues.push_back( keys->GetValue( r ) );
+    kcValues.push_back( card->GetValue( r ) );
+    }
+
+  // Concatenate vector of strings into single string
+  StringVectorToStringBuffer( xyValues, xyPacked );
+
+  return false;
+}
+
 //-----------------------------------------------------------------------------
 static void StringBufferToStringVector( const vtkStdString& buffer,
                                         vtkstd::vector<vtkStdString>& strings )
@@ -212,9 +247,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   // Packing step: concatenate all (x,y) pairs in a single string and all (k,c) pairs in single vector
   vtkStdString xyPacked_l;
   vtkstd::vector<vtkIdType> kcValues_l;
-  if ( this->Pack( contingencyTab,
-                   xyPacked_l,
-                   kcValues_l ) )
+  if ( StringArrayToStringBuffer( contingencyTab, xyPacked_l, kcValues_l ) )
     {
     vtkErrorMacro("Packing error on process "
                   << myRank
@@ -396,41 +429,6 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
 
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-}
-
-// ----------------------------------------------------------------------
-bool vtkPContingencyStatistics::Pack( vtkTable* contingencyTab,
-                                      vtkStdString& xyPacked,
-                                      vtkstd::vector<vtkIdType>& kcValues )
-{
-  // Downcast meta columns to string arrays for efficient data access
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
-  vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
-  vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
-  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
-  if ( ! keys || ! valx || ! valy || ! card )
-    {
-    return true;
-    }
-
-  vtkstd::vector<vtkStdString> xyValues; // consecutive (x,y) pairs
-
-  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
-    {
-    // Push back x and y to list of strings
-    xyValues.push_back( valx->GetValue( r ) );
-    xyValues.push_back( valy->GetValue( r ) );
-
-    // Push back (X,Y) index and #(x,y) to list of strings
-    kcValues.push_back( keys->GetValue( r ) );
-    kcValues.push_back( card->GetValue( r ) );
-    }
-
-  // Concatenate vector of strings into single string
-  StringVectorToStringBuffer( xyValues, xyPacked );
-
-  return false;
 }
 
 // ----------------------------------------------------------------------
