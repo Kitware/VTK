@@ -77,15 +77,20 @@ static void PackStringVector( const vtkstd::vector<vtkStdString>& strings,
 }
 
 //-----------------------------------------------------------------------------
-static void PackStringMap( const vtkstd::map<vtkStdString,vtkIdType>& strings,
-                           vtkStdString& buffer )
+static void PackStringHisto( const vtkstd::map<vtkStdString,vtkIdType>& histo,
+                           vtkStdString& buffer,
+                           vtkIdTypeArray* card )
 {
   buffer.clear();
 
-  for( vtkstd::map<vtkStdString,vtkIdType>::const_iterator it = strings.begin();
-       it != strings.end(); ++ it )
+  card->SetNumberOfTuples( histo.size() );
+
+  vtkIdType r = 0;
+  for( vtkstd::map<vtkStdString,vtkIdType>::const_iterator it = histo.begin();
+       it != histo.end(); ++ it )
     {
     buffer.append( it->first );
+    card->SetValue( r ++, it->second );
     buffer.push_back( 0 );
     }
 }
@@ -345,10 +350,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
     // Add column of cardinalities to histogram table
     histoTab_g->AddColumn( card_g );
-    if ( myRank == 0 )
-      {
-      histoTab_g->Dump();
-      }
+
     // Replace local histogram table with globally reduced one
     outMeta->SetBlock( b, histoTab_g );
 
@@ -477,9 +479,9 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
 {
   vtkCommunicator* com = this->Controller->GetCommunicator();
 
-  // Concatenate string keys of histogram into single string
+  // Concatenate string keys of histogram into single string and put values into resized array
   vtkStdString sPack;
-  PackStringMap( histogram, sPack );
+  PackStringHisto( histogram, sPack, card );
 
   // Broadcast size of string buffer
   vtkIdType nc = sPack.size();
@@ -522,7 +524,6 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
   // Now resize global histogram arrays to reduced size
   vtkIdType nRow = static_cast<vtkIdType>( sVect.size() );
   sVals->SetNumberOfValues( nRow );
-  card->SetNumberOfTuples( nRow );
 
   // Then store reduced histogram into array
   vtkstd::vector<vtkStdString>::iterator vit = sVect.begin();
