@@ -254,32 +254,67 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Print out and verify global extrema
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Verifying that calculated global extrema are correct.\n";
+    cout << "\n## Verifying that calculated global ranges are correct:\n";
 
-    int min_c = outputQuantiles->GetValueByName( 0,
-                                                    columnNames[0] ).ToInt();
-
-    int max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
-                                                    columnNames[0] ).ToInt();
-
-    cout << "   Calculated minimum = "
+    for ( int i = 0; i < nVariables; ++ i )
+      {
+      vtkVariant min_c = outputQuantiles->GetValueByName( 0,
+                                                   columnNames[i] );
+      
+      vtkVariant max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
+                                                   columnNames[i] );
+      
+      cout << "   "
+           << columnNames[i]
+           << ": "
            << min_c
-           << ", maximum = "
+           << " to "
            << max_c
            << "\n";
 
-    if ( min_c != min_g[0] )
+      // Check minimum
+      if ( min_c.IsString() )
         {
-        vtkGenericWarningMacro("Incorrect minimum.");
-        *(args->retVal) = 1;
-        }
-
-    if ( max_c != max_g[0] )
+        c = static_cast<char>( min_g[i] );
+        if ( min_c.ToString() != vtkStdString( &c, 1 ) )
+          {
+          vtkGenericWarningMacro("Incorrect minimum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          }
+        } // if ( min_c.IsString() )
+      else
         {
-        vtkGenericWarningMacro("Incorrect maximum.");
-        *(args->retVal) = 1;
+        if ( min_c != min_g[i] )
+          {
+          vtkGenericWarningMacro("Incorrect minimum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          }
+        } // else
+      
+      // Check maximum
+      if ( max_c.IsString() )
+        {
+        c = static_cast<char>( max_g[i] );
+        if ( max_c.ToString() != vtkStdString( &c, 1 ) )
+          {
+          vtkGenericWarningMacro("Incorrect maximum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          }
         }
-    }
+      else
+        {
+        if ( max_c != max_g[i] )
+          {
+          vtkGenericWarningMacro("Incorrect maximum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          } //  ( max_c.IsString() )
+        } // else
+      } // i
+    } // if ( com->GetLocalProcessId() == args->ioRank )
 
   // Clean up
   delete [] card_g;
