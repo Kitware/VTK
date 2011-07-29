@@ -47,7 +47,6 @@ struct RandomOrderStatisticsArgs
   double stdev;
   bool quantize;
   int maxHistoSize;
-  double absTol;
   int* retVal;
   int ioRank;
 };
@@ -71,7 +70,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Generate an input table that contains samples of:
   // 1. A truncated Gaussian pseudo-random variable (vtkIntArray)
   // 2. A uniform pseudo-random variable of characters (vtkStringArray)
-  vtkStdString columnNames[] = { "Rounded Normal", "Uniform" };
+  vtkStdString columnNames[] = { "Rounded Normal Integer", "Uniform Character" };
+  int nVariables = 2;
 
   // Prepare column of integers
   vtkIntArray* intArray = vtkIntArray::New();
@@ -84,38 +84,44 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   strArray->SetName( columnNames[1] );
   
   // Store first values
-  int v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
-  intArray->InsertNextValue( v );
+  int v[2];
+  v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+  intArray->InsertNextValue( v[0] );
   
-  char c = static_cast<char>( 96 + vtkMath::Ceil( vtkMath::Random() * 26 ) );
+  v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
+  char c = static_cast<char>( v[1] );
   vtkStdString s( &c, 1 );
   strArray->InsertNextValue( s );
 
   // Initialize local extrema
-  int min_l = v;
-  int max_l = v;
+  int min_l[] = { v[0], v[1] };
+  int max_l[] = { v[0], v[1] };
   
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
     {
     // Store new values
-    v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
-    intArray->InsertNextValue( v );
+    v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+    intArray->InsertNextValue( v[0] );
     
-    c = static_cast<char>( 96 + vtkMath::Ceil( vtkMath::Random() * 26 ) );
+    v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
+    c = static_cast<char>( v[1] );
     s = vtkStdString( &c, 1 );
     strArray->InsertNextValue( s );
 
     // Update local extrema
-    if ( v < min_l )
+    for ( int i = 0; i < nVariables; ++ i )
       {
-      min_l = v;
-      }
-    else if ( v > max_l )
-      {
-      max_l = v;
-      }
-    }
+      if ( v[i] < min_l[i] )
+        {
+        min_l[i] = v[i];
+        }
+      else if ( v[i] > max_l[i] )
+        {
+        max_l[i] = v[i];
+        }
+      } // i
+    } // r
 
   // Create input table
   vtkTable* inputData = vtkTable::New();
@@ -126,27 +132,38 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   intArray->Delete();
   strArray->Delete();
 
-  // Reduce all minima for this variable
-  int min_g;
-  com->AllReduce( &min_l,
-                  &min_g,
-                  1,
-                  vtkCommunicator::MIN_OP );
-
-  // Reduce all maxima for this variable
-  int max_g;
-  com->AllReduce( &max_l,
-                  &max_g,
-                  1,
-                  vtkCommunicator::MAX_OP );
-
-  if ( com->GetLocalProcessId() == args->ioRank )
+  // Reduce extrema for all variables
+  int min_g[2];
+  int max_g[2];
+  for ( int i = 0; i < nVariables; ++ i )
     {
-    cout << "\n## Generated pseudo-random sample which globally ranges from "
-         << min_g
+    com->AllReduce( &min_l[i],
+                    &min_g[i],
+                    1,
+                    vtkCommunicator::MIN_OP );
+
+    com->AllReduce( &max_l[i],
+                    &max_g[i],
+                    1,
+                    vtkCommunicator::MAX_OP );
+    } // i
+
+  if ( myRank == args->ioRank )
+    {
+    cout << "\n## Generated pseudo-random samples with following ranges:"
+         << "\n   "
+         << columnNames[0]
+         << ": "
+         << min_g[0]
          << " to "
-         << max_g
-         << ".\n";
+         << max_g[0]
+         << "\n   "
+         << columnNames[1]
+         << ": "
+         << static_cast<char>( min_g[1] )
+         << " to "
+         << static_cast<char>( max_g[1] )
+         << "\n";
     }
 
   // ************************** Order Statistics **************************
@@ -178,7 +195,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   com->Barrier();
   timer->StopTimer();
 
-  if ( com->GetLocalProcessId() == args->ioRank )
+  if ( myRank == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of order statistics (with assessment):\n"
          << "   Wall time: "
@@ -187,13 +204,11 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Now perform verifications
-  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
   unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
   vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq - 1 ) );
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   // Verify that all processes have the same grand total and histograms size
-  if ( com->GetLocalProcessId() == args->ioRank )
+  if ( myRank == args->ioRank )
     {
     cout << "\n## Verifying that all processes have the same grand total and histograms size.\n";
     }
@@ -209,62 +224,108 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Known global cardinality
   int testIntValue = args->nVals * numProcs;
 
-  // Print out and verify all cardinalities
-  if ( com->GetLocalProcessId() == args->ioRank )
+  // Verify histogram cardinalities for each variable
+  for ( int i = 0; i < nVariables; ++ i )
     {
-    for ( int i = 0; i < numProcs; ++ i )
+    if ( myRank == args->ioRank )
       {
-      cout << "   On process "
-           << i
-           << ", cardinality = "
-           << card_g[i]
-           << ", histogram size = "
-           << outputHistogram->GetNumberOfRows()
-           << "\n";
+      cout << "   "
+           << columnNames[i]
+           << ":\n";
+      }  // if ( myRank == args->ioRank )
 
-      if ( card_g[i] != testIntValue )
+    vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( i ) );
+    // Print out and verify all cardinalities
+    if ( myRank == args->ioRank )
+      {
+      for ( int p = 0; p < numProcs; ++ p )
         {
-        vtkGenericWarningMacro("Incorrect cardinality:"
-                               << card_g[i]
-                               << " <> "
-                               << testIntValue
-                               << ")");
-        *(args->retVal) = 1;
-        }
-      }
-    }
+        cout << "     On process "
+             << p
+             << ", cardinality = "
+             << card_g[p]
+             << ", histogram size = "
+             << outputHistogram->GetNumberOfRows()
+             << "\n";
+        
+        if ( card_g[p] != testIntValue )
+          {
+          vtkGenericWarningMacro("Incorrect cardinality:"
+                                 << card_g[p]
+                                 << " <> "
+                                 << testIntValue
+                                 << ")");
+          *(args->retVal) = 1;
+          }
+        } // p
+      } // if ( myRank == args->ioRank )
+    } // i
 
   // Print out and verify global extrema
-  if ( com->GetLocalProcessId() == args->ioRank )
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
+  if ( myRank == args->ioRank )
     {
-    cout << "\n## Verifying that calculated global extrema are correct (within "
-         << args->absTol
-         << " absolute tolerance).\n";
+    cout << "\n## Verifying that calculated global ranges are correct:\n";
 
-    double min_c = outputQuantiles->GetValueByName( 0,
-                                                    columnNames[0] ).ToDouble();
-
-    double max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
-                                                    columnNames[0] ).ToDouble();
-
-    cout << "   Calculated minimum = "
+    for ( int i = 0; i < nVariables; ++ i )
+      {
+      vtkVariant min_c = outputQuantiles->GetValueByName( 0,
+                                                   columnNames[i] );
+      
+      vtkVariant max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
+                                                   columnNames[i] );
+      
+      cout << "   "
+           << columnNames[i]
+           << ": "
            << min_c
-           << ", maximum = "
+           << " to "
            << max_c
            << "\n";
 
-    if ( fabs( min_c - min_g ) > args->absTol )
+      // Check minimum
+      if ( min_c.IsString() )
         {
-        vtkGenericWarningMacro("Incorrect minimum.");
-        *(args->retVal) = 1;
-        }
-
-    if ( fabs( max_c - max_g ) > args->absTol )
+        c = static_cast<char>( min_g[i] );
+        if ( min_c.ToString() != vtkStdString( &c, 1 ) )
+          {
+          vtkGenericWarningMacro("Incorrect minimum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          }
+        } // if ( min_c.IsString() )
+      else
         {
-        vtkGenericWarningMacro("Incorrect maximum.");
-        *(args->retVal) = 1;
+        if ( min_c != min_g[i] )
+          {
+          vtkGenericWarningMacro("Incorrect minimum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          }
+        } // else
+      
+      // Check maximum
+      if ( max_c.IsString() )
+        {
+        c = static_cast<char>( max_g[i] );
+        if ( max_c.ToString() != vtkStdString( &c, 1 ) )
+          {
+          vtkGenericWarningMacro("Incorrect maximum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          }
         }
-    }
+      else
+        {
+        if ( max_c != max_g[i] )
+          {
+          vtkGenericWarningMacro("Incorrect maximum for variable "
+                                 << columnNames[i]);
+          *(args->retVal) = 1;
+          } //  ( max_c.IsString() )
+        } // else
+      } // i
+    } // if ( myRank == args->ioRank )
 
   // Clean up
   delete [] card_g;
@@ -336,7 +397,6 @@ int main( int argc, char** argv )
   double stdev = 50.;
   bool quantize = false;
   int maxHistoSize = 500;
-  double absTol = 1.e-6;
 
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;
@@ -348,10 +408,10 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");
 
-  // Parse standard deviation of each pseudo-random sample
+  // Parse standard deviation of pseudo-random Gaussian sample
   clArgs.AddArgument("--std-dev",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &stdev, "Standard deviation of each pseudo-random sample");
+                     &stdev, "Standard deviation of pseudo-random Gaussian sample");
 
   // Parse maximum histogram size
   clArgs.AddArgument("--max-histo-size",
@@ -363,10 +423,6 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::NO_ARGUMENT,
                      &quantize, "Allow re-quantizing");
 
-  // Parse absolute tolerance to verify extrema
-  clArgs.AddArgument("--abs-tol",
-                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &absTol, "Absolute tolerance to verify extrema");
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
@@ -402,7 +458,6 @@ int main( int argc, char** argv )
   args.maxHistoSize = maxHistoSize;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.absTol = absTol;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
@@ -412,7 +467,7 @@ int main( int argc, char** argv )
          << numProcs
          << " processes and standard deviation = "
          << args.stdev
-         << ".\n";
+         << " for rounded Gaussian variable.\n";
     }
 
   // Execute the function named "process" on both processes
