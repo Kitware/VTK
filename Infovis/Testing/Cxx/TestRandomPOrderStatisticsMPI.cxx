@@ -148,7 +148,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
                     vtkCommunicator::MAX_OP );
     } // i
 
-  if ( com->GetLocalProcessId() == args->ioRank )
+  if ( myRank == args->ioRank )
     {
     cout << "\n## Generated pseudo-random samples with following ranges:"
          << "\n   "
@@ -195,7 +195,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   com->Barrier();
   timer->StopTimer();
 
-  if ( com->GetLocalProcessId() == args->ioRank )
+  if ( myRank == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of order statistics (with assessment):\n"
          << "   Wall time: "
@@ -208,7 +208,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq - 1 ) );
 
   // Verify that all processes have the same grand total and histograms size
-  if ( com->GetLocalProcessId() == args->ioRank )
+  if ( myRank == args->ioRank )
     {
     cout << "\n## Verifying that all processes have the same grand total and histograms size.\n";
     }
@@ -227,16 +227,16 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Verify histogram cardinalities for each variable
   for ( int i = 0; i < nVariables; ++ i )
     {
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       cout << "   "
            << columnNames[i]
            << ":\n";
-      }  // if ( com->GetLocalProcessId() == args->ioRank )
+      }  // if ( myRank == args->ioRank )
 
     vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( i ) );
     // Print out and verify all cardinalities
-    if ( com->GetLocalProcessId() == args->ioRank )
+    if ( myRank == args->ioRank )
       {
       for ( int p = 0; p < numProcs; ++ p )
         {
@@ -258,12 +258,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
           *(args->retVal) = 1;
           }
         } // p
-      } // if ( com->GetLocalProcessId() == args->ioRank )
+      } // if ( myRank == args->ioRank )
     } // i
 
   // Print out and verify global extrema
   vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
-  if ( com->GetLocalProcessId() == args->ioRank )
+  if ( myRank == args->ioRank )
     {
     cout << "\n## Verifying that calculated global ranges are correct:\n";
 
@@ -325,7 +325,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
           } //  ( max_c.IsString() )
         } // else
       } // i
-    } // if ( com->GetLocalProcessId() == args->ioRank )
+    } // if ( myRank == args->ioRank )
 
   // Clean up
   delete [] card_g;
