@@ -259,7 +259,11 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
   cellPtIds = vtkIdList::New();
 
   // Create an array of points
-  outCD->CopyAllocate(inCD,input->GetNumberOfCells()*5);
+  vtkCellData *tempCD = vtkCellData::New();
+  tempCD->ShallowCopy(inCD);
+  tempCD->SetActiveGlobalIds(NULL);
+
+  outCD->CopyAllocate(tempCD, input->GetNumberOfCells()*5);
   output->Allocate(input->GetNumberOfCells()*5);
   
   // Points are passed through
@@ -296,7 +300,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
           }
         // copy cell data
         newCellId = output->InsertNextCell(type, dim, pts);
-        outCD->CopyData(inCD, cellId, newCellId);
+        outCD->CopyData(tempCD, cellId, newCellId);
         }
       }
 
@@ -327,7 +331,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
         
       for (j=0; j < numTets; j++)
         {
-        outCD->CopyData(inCD, cellId, ncells+j);
+        outCD->CopyData(tempCD, cellId, ncells+j);
         }
       }
 
@@ -357,7 +361,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
           }
         // copy cell data
         newCellId = output->InsertNextCell(type, dim, pts);
-        outCD->CopyData(inCD, cellId, newCellId);
+        outCD->CopyData(tempCD, cellId, newCellId);
         }
       } //if 2D or less cell
     } //for all cells
@@ -365,6 +369,8 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
   // Update output
   output->Squeeze();
   
+  tempCD->Delete();
+
   cellPts->Delete();
   cellPtIds->Delete();
   cell->Delete();
