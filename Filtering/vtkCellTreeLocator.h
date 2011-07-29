@@ -58,17 +58,15 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
      // Description:
     // Test a point to find if it is inside a cell. Returns the cellId if inside
     // or -1 if not.
-    vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,  double pcoords[3], 
+    virtual vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,  double pcoords[3], 
                                        double* weights );
 
-
-        
     // Description:
     // Return intersection point (if any) AND the cell which was intersected by
     // the finite line. The cell is returned as a cell id and as a generic cell.
-    // This function is a modification from the vtkModifiedBSPTree class using the
-    // data structures in the paper to find intersections.
-    int IntersectWithLine(double a0[3], double a1[3], double tol,
+        
+    
+    virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
                                       double& t, double x[3], double pcoords[3],
                                       int &subId, vtkIdType &cellId,
                                       vtkGenericCell *cell);
@@ -78,6 +76,47 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
     // user must provide the vtkIdList to populate. This method returns data
     // only after the locator has been built.
     virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
+
+    //BTX
+    /*
+      if the borland compiler is ever removed, we can use these declarations
+      instead of reimplementaing the calls in this subclass
+      using vtkAbstractCellLocator::IntersectWithLine;
+      using vtkAbstractCellLocator::FindClosestPoint;
+      using vtkAbstractCellLocator::FindClosestPointWithinRadius;
+    */
+    //ETX
+    // Description:
+    // reimplemented from vtkAbstractCellLocator to support bad compilers
+    virtual int IntersectWithLine(
+      double p1[3], double p2[3], double tol, double& t, double x[3],
+      double pcoords[3], int &subId)
+      { return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId); }
+
+    // Description:
+    // Return intersection point (if any) AND the cell which was intersected by
+    // the finite line. The cell is returned as a cell id and as a generic cell.
+    // This function is a modification from the vtkModifiedBSPTree class using the
+    // data structures in the paper to find intersections.
+    virtual int IntersectWithLine(
+      double p1[3], double p2[3], double tol, double &t, double x[3],
+      double pcoords[3], int &subId, vtkIdType &cellId);
+
+    // Description:
+    // reimplemented from vtkAbstractCellLocator to support bad compilers
+    virtual int IntersectWithLine(
+      const double p1[3], const double p2[3],
+      vtkPoints *points, vtkIdList *cellIds)
+      { return this->Superclass::IntersectWithLine(p1, p2, points, cellIds); }
+
+    // Description:
+    // reimplemented from vtkAbstractCellLocator to support bad compilers
+    virtual vtkIdType FindCell(double x[3])
+      { return this->Superclass::FindCell(x); }
+
+   
+
+ 
 
 
     // Description:

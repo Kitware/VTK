@@ -339,7 +339,7 @@ class CellTreeBuilder
         {
         unsigned int sum = 0;
 
-        for( unsigned int n=0; n<nbuckets-1; ++n )
+        for( unsigned int n=0; n< (unsigned int)nbuckets-1; ++n )
           {
           float lmax = -std::numeric_limits<float>::max();
           float rmin =  std::numeric_limits<float>::max();
@@ -352,7 +352,7 @@ class CellTreeBuilder
               }
             }
 
-          for( unsigned int m=n+1; m<nbuckets; ++m )
+          for( unsigned int m=n+1; m< (unsigned int) nbuckets; ++m )
             {
             if( b[d][m].Min < rmin )
               {
@@ -603,7 +603,7 @@ void vtkCellTreeLocator::BuildLocator()
 
 //----------------------------------------------------------------------------
 
-vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double vtkNotUsed, vtkGenericCell *cell,  double pcoords[3], 
+vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *cell,  double pcoords[3], 
   double* weights )
 {
   if( this->Tree == 0 )
@@ -617,7 +617,7 @@ vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double vtkNotUsed, vtkGen
   const float _pos[3] = { pos[0], pos[1], pos[2] };
   PointTraversal pt( *(this->Tree), _pos );
 
-  bool found = false;
+  //bool found = false;
 
   while( const CellTreeNode* n = pt.Next() )
     {
@@ -666,10 +666,27 @@ double _getMinDistNEG_Z(const double origin[3], const double dir[3], const doubl
 
 typedef std::pair<double, int> Intersection;
 
+int vtkCellTreeLocator::IntersectWithLine(double p1[3],
+                                          double p2[3],
+                                          double tol,
+                                          double &t,
+                                          double x[3],
+                                          double pcoords[3],
+                                          int &subId,
+                                          vtkIdType &cellId,
+                                          vtkGenericCell *cell)
+{
+  int hit = this->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId);
+  if (hit)
+    {
+    this->DataSet->GetCell(cellId, cell);
+    }
+  return hit;
+}
+
 int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol,
   double& t, double x[3], double pcoords[3],
-  int &subId, vtkIdType &cellIds,
-  vtkGenericCell *cell)
+  int &subId, vtkIdType &cellIds)
 {
   //
   CellTreeNode  *node, *Near, *Far;
