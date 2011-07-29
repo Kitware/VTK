@@ -204,10 +204,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Now perform verifications
-  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
   unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
   vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq - 1 ) );
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
 
   // Verify that all processes have the same grand total and histograms size
   if ( com->GetLocalProcessId() == args->ioRank )
@@ -226,32 +224,45 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Known global cardinality
   int testIntValue = args->nVals * numProcs;
 
-  // Print out and verify all cardinalities
-  if ( com->GetLocalProcessId() == args->ioRank )
+  // Verify histogram cardinalities for each variable
+  for ( int i = 0; i < nVariables; ++ i )
     {
-    for ( int i = 0; i < numProcs; ++ i )
+    if ( com->GetLocalProcessId() == args->ioRank )
       {
-      cout << "   On process "
-           << i
-           << ", cardinality = "
-           << card_g[i]
-           << ", histogram size = "
-           << outputHistogram->GetNumberOfRows()
-           << "\n";
+      cout << "   "
+           << columnNames[i]
+           << ":\n";
+      }  // if ( com->GetLocalProcessId() == args->ioRank )
 
-      if ( card_g[i] != testIntValue )
+    vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( i ) );
+    // Print out and verify all cardinalities
+    if ( com->GetLocalProcessId() == args->ioRank )
+      {
+      for ( int p = 0; p < numProcs; ++ p )
         {
-        vtkGenericWarningMacro("Incorrect cardinality:"
-                               << card_g[i]
-                               << " <> "
-                               << testIntValue
-                               << ")");
-        *(args->retVal) = 1;
-        }
-      }
-    }
+        cout << "     On process "
+             << p
+             << ", cardinality = "
+             << card_g[p]
+             << ", histogram size = "
+             << outputHistogram->GetNumberOfRows()
+             << "\n";
+        
+        if ( card_g[p] != testIntValue )
+          {
+          vtkGenericWarningMacro("Incorrect cardinality:"
+                                 << card_g[p]
+                                 << " <> "
+                                 << testIntValue
+                                 << ")");
+          *(args->retVal) = 1;
+          }
+        } // p
+      } // if ( com->GetLocalProcessId() == args->ioRank )
+    } // i
 
   // Print out and verify global extrema
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Verifying that calculated global ranges are correct:\n";
