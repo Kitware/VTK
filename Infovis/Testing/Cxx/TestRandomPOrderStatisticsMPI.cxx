@@ -71,7 +71,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Generate an input table that contains samples of:
   // 1. A truncated Gaussian pseudo-random variable (vtkIntArray)
   // 2. A uniform pseudo-random variable of characters (vtkStringArray)
-  vtkStdString columnNames[] = { "Rounded Normal", "Uniform" };
+  vtkStdString columnNames[] = { "Rounded Normal Integer", "Uniform Character" };
+  int nVariables = 2;
 
   // Prepare column of integers
   vtkIntArray* intArray = vtkIntArray::New();
@@ -84,38 +85,44 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   strArray->SetName( columnNames[1] );
   
   // Store first values
-  int v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
-  intArray->InsertNextValue( v );
+  int v[2];
+  v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+  intArray->InsertNextValue( v[0] );
   
-  char c = static_cast<char>( 96 + vtkMath::Ceil( vtkMath::Random() * 26 ) );
+  v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
+  char c = static_cast<char>( v[1] );
   vtkStdString s( &c, 1 );
   strArray->InsertNextValue( s );
 
   // Initialize local extrema
-  int min_l = v;
-  int max_l = v;
+  int min_l[] = { v[0], v[1] };
+  int max_l[] = { v[0], v[1] };
   
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
     {
     // Store new values
-    v = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
-    intArray->InsertNextValue( v );
+    v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+    intArray->InsertNextValue( v[0] );
     
-    c = static_cast<char>( 96 + vtkMath::Ceil( vtkMath::Random() * 26 ) );
+    v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
+    c = static_cast<char>( v[1] );
     s = vtkStdString( &c, 1 );
     strArray->InsertNextValue( s );
 
     // Update local extrema
-    if ( v < min_l )
+    for ( int i = 0; i < nVariables; ++ i )
       {
-      min_l = v;
-      }
-    else if ( v > max_l )
-      {
-      max_l = v;
-      }
-    }
+      if ( v[i] < min_l[i] )
+        {
+        min_l[i] = v[i];
+        }
+      else if ( v[i] > max_l[i] )
+        {
+        max_l[i] = v[i];
+        }
+      } // i
+    } // r
 
   // Create input table
   vtkTable* inputData = vtkTable::New();
@@ -126,27 +133,38 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   intArray->Delete();
   strArray->Delete();
 
-  // Reduce all minima for this variable
-  int min_g;
-  com->AllReduce( &min_l,
-                  &min_g,
-                  1,
-                  vtkCommunicator::MIN_OP );
+  // Reduce extrema for all variables
+  int min_g[2];
+  int max_g[2];
+  for ( int i = 0; i < nVariables; ++ i )
+    {
+    com->AllReduce( &min_l[i],
+                    &min_g[i],
+                    1,
+                    vtkCommunicator::MIN_OP );
 
-  // Reduce all maxima for this variable
-  int max_g;
-  com->AllReduce( &max_l,
-                  &max_g,
-                  1,
-                  vtkCommunicator::MAX_OP );
+    com->AllReduce( &max_l[i],
+                    &max_g[i],
+                    1,
+                    vtkCommunicator::MAX_OP );
+    } // i
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Generated pseudo-random sample which globally ranges from "
-         << min_g
+    cout << "\n## Generated pseudo-random samples with following ranges:"
+         << "\n   "
+         << columnNames[0]
+         << ": "
+         << min_g[0]
          << " to "
-         << max_g
-         << ".\n";
+         << max_g[0]
+         << "\n   "
+         << columnNames[1]
+         << ": "
+         << static_cast<char>( min_g[1] )
+         << " to "
+         << static_cast<char>( max_g[1] )
+         << "\n";
     }
 
   // ************************** Order Statistics **************************
@@ -253,13 +271,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
            << max_c
            << "\n";
 
-    if ( fabs( min_c - min_g ) > args->absTol )
+    if ( fabs( min_c - min_g[0] ) > args->absTol )
         {
         vtkGenericWarningMacro("Incorrect minimum.");
         *(args->retVal) = 1;
         }
 
-    if ( fabs( max_c - max_g ) > args->absTol )
+    if ( fabs( max_c - max_g[0] ) > args->absTol )
         {
         vtkGenericWarningMacro("Incorrect maximum.");
         *(args->retVal) = 1;
