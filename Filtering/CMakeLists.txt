@@ -231,6 +231,7 @@ vtkTreeAlgorithm.cxx
 vtkTree.cxx
 vtkTreeBFSIterator.cxx
 vtkTreeDFSIterator.cxx
+vtkTreeIterator.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
 vtkTriQuadraticHexahedron.cxx
@@ -320,6 +321,7 @@ vtkStructuredPointsToPolyDataFilter
 vtkStructuredPointsToStructuredPointsFilter
 vtkStructuredPointsToUnstructuredGridFilter
 vtkThreadedImageAlgorithm
+vtkTreeIterator
 vtkUnstructuredGridSource
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter
