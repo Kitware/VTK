@@ -422,10 +422,33 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     pd = static_cast<vtkPolyData *>(ds.GetPointer());
     }
 
+  // Create a temporary poly-data mapper that we use.
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+
+  mapper->SetInput(pd);
+  mapper->SetScalarRange(anActor->GetMapper()->GetScalarRange());
+  mapper->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
+  mapper->SetLookupTable(anActor->GetMapper()->GetLookupTable());
+  mapper->SetScalarMode(anActor->GetMapper()->GetScalarMode());
+
   // Essential to turn of interpolate scalars otherwise GetScalars() may return
   // NULL. We restore value before returning.
-  int isbm = anActor->GetMapper()->GetInterpolateScalarsBeforeMapping();
-  anActor->GetMapper()->SetInterpolateScalarsBeforeMapping(0);
+  mapper->SetInterpolateScalarsBeforeMapping(0);
+  if ( mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
+    mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+    {
+    if ( anActor->GetMapper()->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
+      {
+      mapper->ColorByArrayComponent(anActor->GetMapper()->GetArrayId(),
+        anActor->GetMapper()->GetArrayComponent());
+      }
+    else
+      {
+      mapper->ColorByArrayComponent(anActor->GetMapper()->GetArrayName(),
+        anActor->GetMapper()->GetArrayComponent());
+      }
+    }
 
   // first stuff out the transform
   trans = vtkSmartPointer<vtkTransform>::New();
@@ -442,7 +465,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   tcoords = pntData->GetTCoords();
   cellData = pd->GetCellData();
 
-  colors  = anActor->GetMapper()->MapScalars(255.0);
+  colors  = mapper->MapScalars(255.0);
 
   // Are we using cell colors.
   bool cell_colors = vtkX3DExporterWriterUsingCellColors(anActor);
@@ -553,7 +576,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
 
     }
   writer->EndNode(); // close the original transform
-  anActor->GetMapper()->SetInterpolateScalarsBeforeMapping(isbm);
 }
 
 //----------------------------------------------------------------------------
