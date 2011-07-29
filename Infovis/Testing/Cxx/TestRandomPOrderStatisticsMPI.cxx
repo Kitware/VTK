@@ -408,10 +408,10 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");
 
-  // Parse standard deviation of each pseudo-random sample
+  // Parse standard deviation of pseudo-random Gaussian sample
   clArgs.AddArgument("--std-dev",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &stdev, "Standard deviation of each pseudo-random sample");
+                     &stdev, "Standard deviation of pseudo-random Gaussian sample");
 
   // Parse maximum histogram size
   clArgs.AddArgument("--max-histo-size",
@@ -467,7 +467,7 @@ int main( int argc, char** argv )
          << numProcs
          << " processes and standard deviation = "
          << args.stdev
-         << ".\n";
+         << " for rounded Gaussian variable.\n";
     }
 
   // Execute the function named "process" on both processes
