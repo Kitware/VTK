@@ -47,7 +47,6 @@ struct RandomOrderStatisticsArgs
   double stdev;
   bool quantize;
   int maxHistoSize;
-  double absTol;
   int* retVal;
   int ioRank;
 };
@@ -255,15 +254,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Print out and verify global extrema
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Verifying that calculated global extrema are correct (within "
-         << args->absTol
-         << " absolute tolerance).\n";
+    cout << "\n## Verifying that calculated global extrema are correct.\n";
 
-    double min_c = outputQuantiles->GetValueByName( 0,
-                                                    columnNames[0] ).ToDouble();
+    int min_c = outputQuantiles->GetValueByName( 0,
+                                                    columnNames[0] ).ToInt();
 
-    double max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
-                                                    columnNames[0] ).ToDouble();
+    int max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
+                                                    columnNames[0] ).ToInt();
 
     cout << "   Calculated minimum = "
            << min_c
@@ -271,13 +268,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
            << max_c
            << "\n";
 
-    if ( fabs( min_c - min_g[0] ) > args->absTol )
+    if ( min_c != min_g[0] )
         {
         vtkGenericWarningMacro("Incorrect minimum.");
         *(args->retVal) = 1;
         }
 
-    if ( fabs( max_c - max_g[0] ) > args->absTol )
+    if ( max_c != max_g[0] )
         {
         vtkGenericWarningMacro("Incorrect maximum.");
         *(args->retVal) = 1;
@@ -354,7 +351,6 @@ int main( int argc, char** argv )
   double stdev = 50.;
   bool quantize = false;
   int maxHistoSize = 500;
-  double absTol = 1.e-6;
 
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;
@@ -381,10 +377,6 @@ int main( int argc, char** argv )
                      vtksys::CommandLineArguments::NO_ARGUMENT,
                      &quantize, "Allow re-quantizing");
 
-  // Parse absolute tolerance to verify extrema
-  clArgs.AddArgument("--abs-tol",
-                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &absTol, "Absolute tolerance to verify extrema");
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
@@ -420,7 +412,6 @@ int main( int argc, char** argv )
   args.maxHistoSize = maxHistoSize;
   args.retVal = &testValue;
   args.ioRank = ioRank;
-  args.absTol = absTol;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
