@@ -32,30 +32,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgmap - ex_get_map
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*
-* exit conditions - 
-*       int*    elem_map                element order map array
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include <stdlib.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
 
 /*!
- *  reads the element order map from the database
- * \deprecated Use ex_get_num_map() instead.
+\deprecated Use ex_get_num_map() instead.
+
+The function ex_get_map() reads the element order mapelement order map
+from the database. See #ElementOrderMap for a description of the
+element order map. If an element order map is not stored in the data
+file, a default array (1,2,3,. .. \c num_elem) is returned. Memory
+must be allocated for the element map array ({num_elem} in length)
+before this call is made.
+
+\return In case of an error, ex_get_map() returns a negative number; a
+warning will return a positive number. Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  if an element order map is not stored, a default map and a
+     warning value are returned.
+
+\param[in]  exoid      exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[out] elem_map   Returned element order map.
+
+The following code will read an element order map from an open exodus
+file :
+
+\code
+int *elem_map, error, exoid;
+
+\comment{read element order map}
+elem_map = (int *)calloc(num_elem, sizeof(int));
+
+error = ex_get_map(exoid, elem_map);
+\endcode
+
  */
 
 int ex_get_map (int  exoid,

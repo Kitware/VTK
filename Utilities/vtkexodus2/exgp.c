@@ -32,36 +32,49 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expp - ex_get_prop: read object property 
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       ex_entity_type obj_type                type of object (element block, node
-*                                               set or side set)
-*       int     obj_id                  id of object for which value 
-*                                               is desired
-*       char*   prop_name               name of the property for which 
-*                                               value is desired
-*       
-* exit conditions - 
-*       int*    value                   returned value of the property
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include <string.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
- * reads an object property 
- */
+/*!
+
+The function ex_get_prop() reads an integer object property value
+stored for a single element block, node set, or side set.
+
+\return In case of an error, ex_get_prop() returns a negative number; a
+warning will return a positive number.  Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  invalid object type specified.
+  -  a warning value is returned if a property with the specified name is not found.
+
+\param[in] exoid      exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in] obj_type   Type of object; use one of the options in the table below.
+\param[in] obj_id     The element block, node set, or side set ID.
+\param[in] prop_name  The name of the property (maximum length is \p MAX_STR_LENGTH ) for
+                      which the value is desired.
+\param[out]  value    Returned value of the property.
+
+<table>
+<tr><td> \c EX_NODE_SET   </td><td>  Node Set entity type     </td></tr>
+<tr><td> \c EX_EDGE_BLOCK </td><td>  Edge Block entity type   </td></tr>
+<tr><td> \c EX_EDGE_SET   </td><td>  Edge Set entity type     </td></tr>
+<tr><td> \c EX_FACE_BLOCK </td><td>  Face Block entity type   </td></tr>
+<tr><td> \c EX_FACE_SET   </td><td>  Face Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_BLOCK </td><td>  Element Block entity type</td></tr>
+<tr><td> \c EX_ELEM_SET   </td><td>  Element Set entity type  </td></tr>
+<tr><td> \c EX_SIDE_SET   </td><td>  Side Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_MAP   </td><td>  Element Map entity type  </td></tr>
+<tr><td> \c EX_NODE_MAP   </td><td>  Node Map entity type     </td></tr>
+<tr><td> \c EX_EDGE_MAP   </td><td>  Edge Map entity type     </td></tr>
+<tr><td> \c EX_FACE_MAP   </td><td>  Face Map entity type     </td></tr>
+</table>
+
+For an example of code to read an object property, refer to the
+description for ex_get_prop_names().
+
+*/
 
 int ex_get_prop (int   exoid,
                  ex_entity_type obj_type,
@@ -81,8 +94,7 @@ int ex_get_prop (int   exoid,
 
    exerrval  = 0; /* clear error code */
 
-/* open appropriate variable, depending on obj_type and prop_name */
-
+   /* open appropriate variable, depending on obj_type and prop_name */
    num_props = ex_get_num_props(exoid,obj_type);
 
    for (i=1; i<=num_props; i++) {
@@ -156,21 +168,19 @@ int ex_get_prop (int   exoid,
      }
    }
 
-/* if property is not found, return warning */
-
+   /* if property is not found, return warning */
    if (!found) {
      exerrval = EX_BADPARAM;
      sprintf(errmsg,
        "Warning: %s property %s not defined in file id %d",
-             ex_name_of_object(obj_type), prop_name, exoid);
+       ex_name_of_object(obj_type), prop_name, exoid);
      ex_err("ex_get_prop",errmsg,exerrval);
      return (EX_WARN);
    }
 
-/* find index into property array using obj_id; read value from property */
-/* array at proper index; ex_id_lkup returns an index that is 1-based,   */
-/* but netcdf expects 0-based arrays so subtract 1                       */
-
+   /* find index into property array using obj_id; read value from property */
+   /* array at proper index; ex_id_lkup returns an index that is 1-based,   */
+   /* but netcdf expects 0-based arrays so subtract 1                       */
    start[0] = ex_id_lkup (exoid, obj_type, obj_id);
    if (exerrval != 0)  {
      if (exerrval == EX_NULLENTITY) {

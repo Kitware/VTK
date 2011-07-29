@@ -36,23 +36,12 @@
 *
 * exodusII_int.h - ExodusII header file for internal Exodus call use only
 *
-* author - Sandia National Laboratories
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
-* revision history - 
-*
-*  Id
-*
-****************************************************************************
 */
 
 #ifndef EXODUS_II_INT_HDR
 #define EXODUS_II_INT_HDR
 
-#include "vtk_netcdf.h"
+#include "netcdf.h"
 
 #ifndef __APPLE__
 #if defined __STDC__ || defined __cplusplus
@@ -73,7 +62,7 @@
 
 #include <stdio.h>
 
-#define MAX_VAR_NAME_LENGTH     20   /**< Internal use only */
+#define MAX_VAR_NAME_LENGTH     32   /**< Internal use only */
 
 /* this should be defined in ANSI C and C++, but just in case ... */
 #ifndef NULL
@@ -123,6 +112,8 @@
                                                 /* point numbers in file     */
                                                 /* used for db version 2.01  */
                                                 /* and earlier               */
+#define ATT_MAX_NAME_LENGTH "maximum_name_length"
+
 #define DIM_NUM_NODES           "num_nodes"     /* # of nodes                */
 #define DIM_NUM_DIM             "num_dim"       /* # of dimensions; 2- or 3-d*/
 #define DIM_NUM_EDGE            "num_edge"      /* # of edges (over all blks)*/
@@ -198,7 +189,7 @@
                                                 /*   element block num       */
 #define VAR_EBEPEC(num)          ex_catstr("ebepecnt",num)
                                                 /* array containing number of entity per */
-                                                /*  entity for n-sided face/element blocks */
+            /*  entity for n-sided face/element blocks */
 #define VAR_ATTRIB(num)         ex_catstr("attrib",num)
                                                 /* list of attributes for    */
                                                 /*   element block num       */
@@ -255,7 +246,7 @@
                                                 /*   face block num          */
 #define VAR_FBEPEC(num)           ex_catstr("fbepecnt",num)
                                                 /* array containing number of entity per */
-                                                /*  entity for n-sided face/element blocks */
+            /*  entity for n-sided face/element blocks */
 #define VAR_FATTRIB(num)          ex_catstr("fattrb",num)
                                                 /* list of attributes for    */
                                                 /*   face block num          */
@@ -452,6 +443,9 @@
 #define VAR_HIS_VAR             "vals_his_var"  /* obsolete                  */
 #define DIM_STR                 "len_string"    /* general dimension of      */
                                                 /*   length MAX_STR_LENGTH   */
+                                                /*   used for some string lengths   */
+#define DIM_STR_NAME            "len_name"      /* general dimension of      */
+                                                /*   length MAX_NAME_LENGTH  */
                                                 /*   used for name lengths   */
 #define DIM_LIN                 "len_line"      /* general dimension of      */
                                                 /*   length MAX_LINE_LENGTH  */
@@ -504,7 +498,6 @@
 #define VAR_FRAME_IDS    "frame_ids"
 #define VAR_FRAME_TAGS   "frame_tags"
 
-
 enum ex_element_type {
   EX_EL_UNK         =  -1,     /**< unknown entity */
   EX_EL_NULL_ELEMENT=   0,     
@@ -522,6 +515,13 @@ enum ex_element_type {
   EX_EL_PYRAMID     =  12      /**< Pyramid entity */
 }; 
 typedef enum ex_element_type ex_element_type;
+
+enum ex_coordinate_frame_type {
+  EX_CF_RECTANGULAR =   1,
+  EX_CF_CYLINDRICAL =   2,
+  EX_CF_SPHERICAL   =   3
+}; 
+typedef enum ex_coordinate_frame_type ex_coordinate_frame_type;
 
 /* Internal structure declarations */
 
@@ -593,5 +593,16 @@ void ex_rm_stat_ptr  (int exoid, struct obj_stats** obj_ptr);
 
 int ex_id_lkup  (int exoid, ex_entity_type id_type, int num);
 int ex_get_dimension(int exoid, const char *dimtype, const char *label,
-                     size_t *count, int *dimid, const char *routine);
+         size_t *count, int *dimid, const char *routine);
+
+int ex_get_name_internal(int exoid, int varid, size_t index, char *name,
+       ex_entity_type type, const char *routine);
+int ex_get_names_internal(int exoid, int varid, size_t count, char**names,
+        ex_entity_type type, const char *routine);
+int ex_put_name_internal(int exoid, int varid, size_t index, const char *name,
+        ex_entity_type type, const char *subtype, const char *routine);
+int ex_put_names_internal(int exoid, int varid, size_t count, char**names,
+        ex_entity_type type, const char *subtype, const char *routine);
+void ex_trim_internal(char *name);
+void ex_update_max_name_length(int exoid, int length);
 #endif

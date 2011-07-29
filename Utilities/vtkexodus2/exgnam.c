@@ -47,7 +47,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -59,14 +58,12 @@
  */
 
 int ex_get_name (int   exoid,
-                 ex_entity_type obj_type,
-                 int   entity_id, 
-                 char *name)
+     ex_entity_type obj_type,
+     int   entity_id, 
+     char *name)
 {
   int status;
-  int j, varid, ent_ndx;
-  size_t start[2];
-  char *ptr;
+  int varid, ent_ndx;
   char errmsg[MAX_ERR_LENGTH];
   char *vobj = NULL;
   const char *routine = "ex_get_name";
@@ -126,36 +123,10 @@ int ex_get_name (int   exoid,
     if (ent_ndx < 0) ent_ndx = -ent_ndx;
     
     /* read the name */
-    start[0] = ent_ndx-1;
-    start[1] = 0;
-       
-    j = 0;
-    ptr = name;
-       
-    if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-      exerrval = status;
-      sprintf(errmsg,
-              "Error: failed to get entity name for id %d in file id %d",
-              ent_ndx, exoid);
-      ex_err(routine,errmsg,exerrval);
+    status = ex_get_name_internal(exoid, varid, ent_ndx-1, name, obj_type, routine);
+    if (status != NC_NOERR) {
       return (EX_FATAL);
     }
-       
-    while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
-      start[1] = ++j;
-      if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to get name in file id %d", exoid);
-        ex_err(routine,errmsg,exerrval);
-        return (EX_FATAL);
-      }
-    }
-    --ptr;
-    if (ptr > name) {
-      while (--ptr >= name && *ptr == ' ');      /*    get rid of trailing blanks */
-    }
-    *(++ptr) = '\0';
   } else {
     /* Name variable does not exist on the database; probably since this is an
      * older version of the database.  Return an empty array...

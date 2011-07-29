@@ -36,7 +36,6 @@
 *
 * exutils - utility routines
 *
-*  Id
 *****************************************************************************/
 
 #if defined(DEBUG_QSORT)
@@ -80,6 +79,214 @@ struct obj_stats*  exoII_nm = 0;
 static char ret_string[10*(MAX_VAR_NAME_LENGTH+1)];
 static char* cur_string = &ret_string[0];
 
+int ex_set_max_name_length(int exoid, int length)
+{
+  char errmsg[MAX_ERR_LENGTH];
+  if (length <= 0) {
+    exerrval = NC_EMAXNAME;
+    sprintf(errmsg, "Error: Max name length must be positive.");
+    ex_err("ex_set_max_name_length",errmsg,exerrval);
+    return (EX_FATAL);
+  }
+  else if (length > NC_MAX_NAME) {
+    exerrval = NC_EMAXNAME;
+    sprintf(errmsg, "Error: Max name length (%d) exceeds netcdf max name size (%d).",
+      length, NC_MAX_NAME);
+    ex_err("ex_set_max_name_length",errmsg,exerrval);
+    return (EX_FATAL);
+  }
+  else {
+    ex_max_name_length = length;
+  }
+  return EX_NOERR;
+}
+
+void ex_update_max_name_length(int exoid, int length)
+{
+  int status;
+  int db_length = 0;
+  /* Get current value of the maximum_name_length attribute... */
+  if ((status = nc_get_att_int(exoid, NC_GLOBAL, ATT_MAX_NAME_LENGTH, &db_length)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
+    exerrval = status;
+    sprintf(errmsg,
+      "Error: failed to update 'max_name_length' attribute in file id %d",
+      exoid);
+  ex_err("ex_update_max_name_length",errmsg,exerrval);
+  }
+
+  if (length > db_length) {
+    /* Update with new value... */
+    nc_put_att_int(exoid, NC_GLOBAL, ATT_MAX_NAME_LENGTH, NC_INT, 1, &length);
+  }
+}
+
+int ex_put_names_internal(int exoid, int varid, size_t num_entity, char **names,
+        ex_entity_type obj_type, const char *subtype, const char *routine)
+{
+  size_t i;
+  int status;
+  size_t start[2], count[2];
+  char errmsg[MAX_ERR_LENGTH];
+  int max_name_len = 0;
+  size_t name_length;
+
+  /* inquire previously defined dimensions  */
+  name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_ALLOWED_NAME_LENGTH)+1;
+
+  for (i=0; i<num_entity; i++) {
+    if (names[i] != '\0') {
+      int too_long = 0;
+      start[0] = i;
+      start[1] = 0;
+       
+      count[0] = 1;
+      count[1] = strlen(names[i]) + 1;
+       
+      if (count[1] > name_length) {
+  fprintf(stderr,
+    "Warning: The %s %s name '%s' is too long.\n\tIt will be truncated from %d to %d characters\n",
+    ex_name_of_object(obj_type), subtype, names[i], (int)strlen(names[i]), (int)name_length-1);
+  count[1] = name_length;
+  too_long = 1;
+      }
+
+      if (count[1] > max_name_len)
+  max_name_len = count[1];
+
+      if ((status = nc_put_vara_text(exoid, varid, start, count, names[i])) != NC_NOERR) {
+  exerrval = status;
+  sprintf(errmsg,
+    "Error: failed to store %s names in file id %d",
+    ex_name_of_object(obj_type), exoid);
+  ex_err(routine,errmsg,exerrval);
+  return (EX_FATAL);
+      }
+
+      /* Add the trailing null if the variable name was too long */
+      if (too_long) {
+  start[1] = name_length-1;
+  nc_put_var1_text(exoid, varid, start, "\0");
+      }
+    }
+  }
+
+  /* Update the maximum_name_length attribute on the file. */
+  ex_update_max_name_length(exoid, max_name_len-1);
+
+  return (EX_NOERR);
+}
+
+int ex_put_name_internal(int exoid, int varid, size_t index, const char *name,
+       ex_entity_type obj_type, const char *subtype, const char *routine)
+{
+  int status;
+  size_t start[2], count[2];
+  char errmsg[MAX_ERR_LENGTH];
+  size_t name_length;
+
+  /* inquire previously defined dimensions  */
+  name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_ALLOWED_NAME_LENGTH)+1;
+
+  if (name != '\0') {
+    int too_long = 0;
+    start[0] = index;
+    start[1] = 0;
+       
+    count[0] = 1;
+    count[1] = strlen(name) + 1;
+       
+    if (count[1] > name_length) {
+      fprintf(stderr,
+        "Warning: The %s %s name '%s' is too long.\n\tIt will be truncated from %d to %d characters\n",
+        ex_name_of_object(obj_type), subtype, name, (int)strlen(name), (int)name_length-1);
+      count[1] = name_length;
+      too_long = 1;
+    }
+
+    if ((status = nc_put_vara_text(exoid, varid, start, count, name)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+        "Error: failed to store %s name in file id %d",
+        ex_name_of_object(obj_type), exoid);
+      ex_err(routine,errmsg,exerrval);
+      return (EX_FATAL);
+    }
+
+    /* Add the trailing null if the variable name was too long */
+    if (too_long) {
+      start[1] = name_length-1;
+      nc_put_var1_text(exoid, varid, start, "\0");
+    }
+
+    /* Update the maximum_name_length attribute on the file. */
+    ex_update_max_name_length(exoid, count[1]-1);
+  }
+
+  return (EX_NOERR);
+}
+
+int ex_get_names_internal(int exoid, int varid, size_t num_entity, char **names,
+        ex_entity_type obj_type, const char *routine)
+{
+  size_t i;
+  int status;
+
+  /* read the names */
+  for (i=0; i<num_entity; i++) {
+    status = ex_get_name_internal(exoid, varid, i, names[i], obj_type, routine);
+    if (status != NC_NOERR)
+      return status;
+  }
+  return EX_NOERR;
+}
+
+int ex_get_name_internal(int exoid, int varid, size_t index, char *name,
+       ex_entity_type obj_type, const char *routine)
+{
+  size_t start[2], count[2];
+  int status;
+  char errmsg[MAX_ERR_LENGTH];
+
+  /* read the name */
+  start[0] = index;  count[0] = 1;
+  start[1] = 0;      count[1] = ex_max_name_length+1;
+
+  status = nc_get_vara_text(exoid, varid, start, count, name);
+  if (status != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg, "Error: failed to get %s name at index %d from file id %d",
+      ex_name_of_object(obj_type), (int)index, exoid);
+    ex_err(routine,errmsg,exerrval);
+    return (EX_FATAL);
+  }
+
+  name[ex_max_name_length] = '\0';
+  
+  ex_trim_internal(name);
+  return EX_NOERR;
+}
+
+void ex_trim_internal(char *name)
+{
+  /* Trim trailing spaces... */
+  size_t size;
+  char *end;
+  
+  if (name == NULL)
+    return;
+  
+  size = strlen(name);
+  if (size==0)
+    return;
+  
+  end = name + size - 1;
+  while (end >= name && isspace(*end))
+    end--;
+
+  *(end+1) = '\0';
+}
+
 /** ex_catstr  - concatenate  string/number (where number is converted to ASCII) */
 char *ex_catstr (const char *string,
                  int   num)
@@ -108,6 +315,8 @@ char *ex_catstr2 (const char *string1,
 char* ex_name_of_object(ex_entity_type obj_type)
 {
   switch (obj_type) {
+  case EX_COORDINATE: /* kluge so some wrapper functions work */
+    return "coordinate";
   case EX_NODAL:
     return "nodal";
   case EX_EDGE_BLOCK:
@@ -143,7 +352,7 @@ char* ex_name_of_object(ex_entity_type obj_type)
 
 ex_entity_type ex_var_type_to_ex_entity_type(char var_type)
 {
-  char var_lower = (char)tolower(var_type);
+  char var_lower = tolower(var_type);
   if (var_lower == 'n')
     return EX_NODAL;
   else if (var_lower == 'l')
@@ -201,12 +410,12 @@ char* ex_dim_num_objects(ex_entity_type obj_type)
        return DIM_NUM_NM;
      default:
        {
-         char errmsg[MAX_ERR_LENGTH];
-         exerrval = EX_BADPARAM;
-         sprintf(errmsg, "Error: object type %d not supported in call to ex_dim_num_objects",
-                 obj_type);
-         ex_err("ex_dim_num_objects",errmsg,exerrval);
-         return (NULL);
+   char errmsg[MAX_ERR_LENGTH];
+   exerrval = EX_BADPARAM;
+   sprintf(errmsg, "Error: object type %d not supported in call to ex_dim_num_objects",
+     obj_type);
+   ex_err("ex_dim_num_objects",errmsg,exerrval);
+   return (NULL);
        }
    }
 }
@@ -239,7 +448,7 @@ char* ex_dim_num_entries_in_object( ex_entity_type obj_type,
 }
 
 char* ex_name_var_of_object(ex_entity_type obj_type,
-                            int i, int j)
+          int i, int j)
 {
   switch (obj_type) {
   case EX_EDGE_BLOCK:
@@ -465,7 +674,7 @@ int ex_id_lkup( int exoid,
     /* check if values in stored arrays are filled with non-zeroes */
     filled = TRUE;
     for (i=0;i<dim_len;i++) {
-      if (id_vals[i] == 0 || id_vals[i] == NC_FILL_INT) {
+      if (id_vals[i] == EX_INVALID_ID || id_vals[i] == NC_FILL_INT) {
         filled = FALSE;
         break; /* id array hasn't been completely filled with valid ids yet */
       }
@@ -473,7 +682,7 @@ int ex_id_lkup( int exoid,
 
     if (filled) {
       tmp_stats->valid_ids = TRUE;
-      tmp_stats->num = (long)dim_len;
+      tmp_stats->num = dim_len;
       tmp_stats->id_vals = id_vals;
     }
 
@@ -547,14 +756,14 @@ int ex_id_lkup( int exoid,
       if ( !(tmp_stats->valid_ids) ) {
         if (id_vals) free (id_vals); 
       }
-      return(-(((int)i)+1)); /* return index into id array (1-based) */
+      return(-((int)i+1)); /* return index into id array (1-based) */
     }
   }
   if ( !(tmp_stats->valid_ids) ) {
     if (id_vals) free (id_vals);
     if (stat_vals) free (stat_vals);
   }
-  return(((int)i)+1); /* return index into id array (1-based) */
+  return(i+1); /* return index into id array (1-based) */
 }
 
 /******************************************************************************
@@ -891,55 +1100,55 @@ int ex_get_num_props (int exoid, ex_entity_type obj_type)
   while (TRUE)
     {
       switch (obj_type)
-        {
-        case EX_ELEM_BLOCK:
-          strcpy (var_name, VAR_EB_PROP(cntr+1));
-          break;
-        case EX_EDGE_BLOCK:
-          strcpy (var_name, VAR_ED_PROP(cntr+1));
-          break;
-        case EX_FACE_BLOCK:
-          strcpy (var_name, VAR_FA_PROP(cntr+1));
-          break;
-        case EX_NODE_SET:
-          strcpy (var_name, VAR_NS_PROP(cntr+1));
-          break;
-        case EX_EDGE_SET:
-          strcpy (var_name, VAR_ES_PROP(cntr+1));
-          break;
-        case EX_FACE_SET:
-          strcpy (var_name, VAR_FS_PROP(cntr+1));
-          break;
-        case EX_SIDE_SET:
-          strcpy (var_name, VAR_SS_PROP(cntr+1));
-          break;
-        case EX_ELEM_SET:
-          strcpy (var_name, VAR_ELS_PROP(cntr+1));
-          break;
-        case EX_ELEM_MAP:
-          strcpy (var_name, VAR_EM_PROP(cntr+1));
-          break;
-        case EX_FACE_MAP:
-          strcpy (var_name, VAR_FAM_PROP(cntr+1));
-          break;
-        case EX_EDGE_MAP:
-          strcpy (var_name, VAR_EDM_PROP(cntr+1));
-          break;
-        case EX_NODE_MAP:
-          strcpy (var_name, VAR_NM_PROP(cntr+1));
-          break;
-        default:
-          exerrval = EX_BADPARAM;
-          sprintf(errmsg, "Error: object type %d not supported; file id %d",
-                  obj_type, exoid);
-          ex_err("ex_get_prop_names",errmsg,exerrval);
-          return(EX_FATAL);
-        }
+  {
+  case EX_ELEM_BLOCK:
+    strcpy (var_name, VAR_EB_PROP(cntr+1));
+    break;
+  case EX_EDGE_BLOCK:
+    strcpy (var_name, VAR_ED_PROP(cntr+1));
+    break;
+  case EX_FACE_BLOCK:
+    strcpy (var_name, VAR_FA_PROP(cntr+1));
+    break;
+  case EX_NODE_SET:
+    strcpy (var_name, VAR_NS_PROP(cntr+1));
+    break;
+  case EX_EDGE_SET:
+    strcpy (var_name, VAR_ES_PROP(cntr+1));
+    break;
+  case EX_FACE_SET:
+    strcpy (var_name, VAR_FS_PROP(cntr+1));
+    break;
+  case EX_SIDE_SET:
+    strcpy (var_name, VAR_SS_PROP(cntr+1));
+    break;
+  case EX_ELEM_SET:
+    strcpy (var_name, VAR_ELS_PROP(cntr+1));
+    break;
+  case EX_ELEM_MAP:
+    strcpy (var_name, VAR_EM_PROP(cntr+1));
+    break;
+  case EX_FACE_MAP:
+    strcpy (var_name, VAR_FAM_PROP(cntr+1));
+    break;
+  case EX_EDGE_MAP:
+    strcpy (var_name, VAR_EDM_PROP(cntr+1));
+    break;
+  case EX_NODE_MAP:
+    strcpy (var_name, VAR_NM_PROP(cntr+1));
+    break;
+  default:
+    exerrval = EX_BADPARAM;
+    sprintf(errmsg, "Error: object type %d not supported; file id %d",
+      obj_type, exoid);
+    ex_err("ex_get_prop_names",errmsg,exerrval);
+    return(EX_FATAL);
+  }
 
       if (nc_inq_varid (exoid, var_name, &varid) != NC_NOERR) {
-        /*   no variable with this name; return cntr which is now the number of */
-        /*   properties for this type of entity */
-        return (cntr);
+  /*   no variable with this name; return cntr which is now the number of */
+  /*   properties for this type of entity */
+  return (cntr);
       }
       cntr++;
     }
@@ -1076,18 +1285,18 @@ int ex_large_model(int exoid)
     char *option = getenv("EXODUS_LARGE_MODEL");
     if (option != NULL) {
       if (option[0] == 'n' || option[0] == 'N') {
-        if (!message_output) {
-          fprintf(stderr,
-                  "EXODUSII: Small model size selected via EXODUS_LARGE_MODEL environment variable\n");
-          message_output = TRUE;
-        }
+  if (!message_output) {
+    fprintf(stderr,
+      "EXODUSII: Small model size selected via EXODUS_LARGE_MODEL environment variable\n");
+    message_output = TRUE;
+  }
         return 0;
       } else {
-        if (!message_output) {
-          fprintf(stderr,
-                  "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
-          message_output = TRUE;
-        }
+  if (!message_output) {
+    fprintf(stderr,
+      "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
+    message_output = TRUE;
+  }
         return 1;
       }
     } else {

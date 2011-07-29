@@ -48,7 +48,6 @@
 * revision history - 
 *   20061003 - David Thompson - moved to ex_put_one_attr
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -66,9 +65,9 @@
  */
 
 int ex_put_one_elem_attr (int   exoid,
-                          int   elem_blk_id,
-                          int   attrib_index,
-                          const void *attrib)
+        int   elem_blk_id,
+        int   attrib_index,
+        const void *attrib)
 {
   return ex_put_one_attr( exoid, EX_ELEM_BLOCK, elem_blk_id, attrib_index, attrib );
 }

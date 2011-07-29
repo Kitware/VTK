@@ -32,26 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exppa - ex_put_prop_array: write object property array
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     obj_type                type of object (element block, node
-*                                               set or side set)
-*       char*   prop_name               name of the property for which the
-*                                               values will be stored
-*       int*    values                  array of property values
-*       
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
@@ -59,11 +39,60 @@
 #include <stdlib.h> /* for free() */
 
 /*!
- * writes an array of object properties
- * \param      exoid                   exodus file id
- * \param      obj_type                type of object (element block, node set or side set)
- * \param      prop_name               name of the property for which the values will be stored
- * \param      values                  array of property values
+
+The function ex_put_prop_array() stores an array of ({num_elem_blk},
+\c num_node_sets, or \c num_side_sets) integer property values for all
+element blocks, node sets, or side sets. The order of the values in
+the array must correspond to the order in which the element blocks,
+node sets, or side sets were introduced into the file. For instance,
+if the parameters for element block with ID 20 were written to a file
+(via ex_put_elem_block()), and then parameters for element block with
+ID 10, followed by the parameters for element block with ID 30, the
+first, second, and third elements in the property array would
+correspond to element block 20, element block 10, and element block
+30, respectively.
+
+One should note that this same functionality (writing properties to
+multiple objects) can be accomplished with multiple calls to
+ex_put_prop().
+
+Although it is not necessary to invoke ex_put_prop_names(), since
+ex_put_prop_array() will allocate space within the data file if it
+hasn't been previously allocated, it is more efficient to use
+ex_put_prop_names() if there is more than one property to store. \see
+See Efficiency for a discussion of efficiency issues.
+
+\return In case of an error, ex_put_prop_array() returns a negative
+number; a warning will return a positive number. Possible causes of
+errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  data file not initialized properly with call to ex_put_init().
+  -  invalid object type specified.
+
+\param[in] exoid      exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in] obj_type   Type of object; use one of the options in the table below.
+\param[in] prop_name  The name of the property for which the values will be stored. Maximum
+                      length of this string is \p MAX_STR_LENGTH .
+\param[in] values     An array of property values.
+
+<table>
+<tr><td> \c EX_NODE_SET   </td><td>  Node Set entity type     </td></tr>
+<tr><td> \c EX_EDGE_BLOCK </td><td>  Edge Block entity type   </td></tr>
+<tr><td> \c EX_EDGE_SET   </td><td>  Edge Set entity type     </td></tr>
+<tr><td> \c EX_FACE_BLOCK </td><td>  Face Block entity type   </td></tr>
+<tr><td> \c EX_FACE_SET   </td><td>  Face Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_BLOCK </td><td>  Element Block entity type</td></tr>
+<tr><td> \c EX_ELEM_SET   </td><td>  Element Set entity type  </td></tr>
+<tr><td> \c EX_SIDE_SET   </td><td>  Side Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_MAP   </td><td>  Element Map entity type  </td></tr>
+<tr><td> \c EX_NODE_MAP   </td><td>  Node Map entity type     </td></tr>
+<tr><td> \c EX_EDGE_MAP   </td><td>  Edge Map entity type     </td></tr>
+<tr><td> \c EX_FACE_MAP   </td><td>  Face Map entity type     </td></tr>
+</table>
+
+For an example of code to write an array of object properties, refer
+to the description for ex_put_prop_names().
  */
 
 int ex_put_prop_array (int   exoid,
@@ -88,7 +117,7 @@ int ex_put_prop_array (int   exoid,
 
   /* inquire id of previously defined dimension (number of objects) */
   status = ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type),
-                            &num_obj, &dimid, "ex_put_prop_array");
+          &num_obj, &dimid, "ex_put_prop_array");
   if (status != NC_NOERR) return status;
 
   for (i=1; i<=num_props; i++) {
@@ -132,7 +161,7 @@ int ex_put_prop_array (int   exoid,
     default:
       exerrval = EX_BADPARAM;
       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-              obj_type, exoid);
+        obj_type, exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       return(EX_FATAL);
     }
@@ -140,8 +169,8 @@ int ex_put_prop_array (int   exoid,
     if ((status = nc_inq_varid(exoid, name, &propid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to get property array id in file id %d",
-              exoid);
+        "Error: failed to get property array id in file id %d",
+        exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -215,7 +244,7 @@ int ex_put_prop_array (int   exoid,
     default:
       exerrval = EX_BADPARAM;
       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-              obj_type, exoid);
+        obj_type, exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       goto error_ret;        /* Exit define mode and return */
     }
@@ -226,8 +255,8 @@ int ex_put_prop_array (int   exoid,
     if ((status = nc_def_var(exoid, name, NC_INT, 1, dims, &propid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to create property array variable in file id %d",
-              exoid);
+        "Error: failed to create property array variable in file id %d",
+        exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       goto error_ret;  /* Exit define mode and return */
     }
@@ -236,11 +265,11 @@ int ex_put_prop_array (int   exoid,
 
     /*   store property name as attribute of property array variable */
     if ((status = nc_put_att_text(exoid, propid, ATT_PROP_NAME, 
-                                  strlen(prop_name)+1, prop_name)) != NC_NOERR) {
+          strlen(prop_name)+1, prop_name)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
               "Error: failed to store property name %s in file id %d",
-              prop_name,exoid);
+        prop_name,exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       goto error_ret;  /* Exit define mode and return */
     }
@@ -250,8 +279,8 @@ int ex_put_prop_array (int   exoid,
     if ((status = nc_enddef (exoid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to leave define mode in file id %d",
-              exoid);
+        "Error: failed to leave define mode in file id %d",
+        exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -263,8 +292,8 @@ int ex_put_prop_array (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store property values in file id %d",
-            exoid);
+      "Error: failed to store property values in file id %d",
+      exoid);
     ex_err("ex_put_prop_array",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -276,8 +305,8 @@ int ex_put_prop_array (int   exoid,
   nc_set_fill(exoid, oldfill, &temp); /* default: nofill */
   if (nc_enddef (exoid) != NC_NOERR) {    /* exit define mode */
     sprintf(errmsg,
-            "Error: failed to complete definition for file id %d",
-            exoid);
+      "Error: failed to complete definition for file id %d",
+      exoid);
     ex_err("ex_put_prop_array",errmsg,exerrval);
   }
   return (EX_FATAL);
