@@ -1,6 +1,0 @@
-ParaView VTK
-
-This version of VTK is meant for use inside ParaView.
-See development instructions here:
-
-  http://www.paraview.org/Wiki/ParaView/Git/Develop/PVVTK

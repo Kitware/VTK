@@ -183,7 +183,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
   assert( "pre: input grid is NULL" && (grid != NULL) );
   assert( "pre: input grid must be a 3-D grid"&&(grid->GetDataDimension()==3));
 
-  vtkTimerLog::MarkStartEvent( "AMRSlice::GetSliceForBlock" );
+//  vtkTimerLog::MarkStartEvent( "AMRSlice::GetSliceForBlock" );
 
   vtkUniformGrid *slice = vtkUniformGrid::New();
 
@@ -246,7 +246,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       vtkErrorMacro( "Undefined normal" );
     }
 
-  vtkTimerLog::MarkEndEvent( "AMRSlice::GetSliceForBlock" );
+//  vtkTimerLog::MarkEndEvent( "AMRSlice::GetSliceForBlock" );
 
   return( slice );
 }
@@ -476,7 +476,7 @@ void vtkAMRSliceFilter::GetSliceCellData(
   assert( "pre: AMR slice grid is NULL" && (slice != NULL) );
   assert( "pre: 3-D AMR slice grid is NULL" && (grid3D != NULL) );
 
-  vtkTimerLog::MarkStartEvent( "AMRSlice::GetDataForBlock" );
+//  vtkTimerLog::MarkStartEvent( "AMRSlice::GetDataForBlock" );
 
   // STEP 1: Allocate data-structures
   vtkCellData *sourceCD = grid3D->GetCellData();
@@ -544,7 +544,7 @@ void vtkAMRSliceFilter::GetSliceCellData(
             "Orphans: " << numOrphans << " / " << numCells );
       }
 
-    vtkTimerLog::MarkEndEvent( "AMRSlice::GetDataForBlock" );
+//    vtkTimerLog::MarkEndEvent( "AMRSlice::GetDataForBlock" );
 
 }
 

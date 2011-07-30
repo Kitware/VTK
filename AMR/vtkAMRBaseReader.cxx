@@ -468,7 +468,7 @@ int vtkAMRBaseReader::RequestData(
         } // END if the block belongs to this process
       else
         {
-          output->SetDataSet( idxcounter[level],level,NULL );
+          output->SetDataSet( level, idxcounter[level], NULL );
           idxcounter[level]++;
         }
 

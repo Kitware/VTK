@@ -4,36 +4,32 @@
 
 #include <vtkstd/vector>
 
-#include "vtkTreeBFSIterator.h"
+#include "vtkTreeDFSIterator.h"
 
-int TestTreeBFSIterator(int, char *[])
+int TestTreeDFSIterator(int, char *[])
 {
   vtkNew<vtkMutableDirectedGraph> g;
 
   // Create vertices:
-  // Level 0
-  vtkIdType v0 = g->AddVertex();
-  // Level 1
-  vtkIdType v1 = g->AddVertex();
-  vtkIdType v2 = g->AddVertex();
-  // Level 2
-  vtkIdType v3 = g->AddVertex();
-  vtkIdType v4 = g->AddVertex();
-  vtkIdType v5 = g->AddVertex();
-  // Level 3
-  vtkIdType v6 = g->AddVertex();
-  vtkIdType v7 = g->AddVertex();
-  vtkIdType v8 = g->AddVertex();
+  vtkIdType v0 = g->AddVertex(); // Level 0
+  vtkIdType v1 = g->AddVertex(); // Level 1
+  vtkIdType v2 = g->AddVertex(); // Level 2
+  vtkIdType v3 = g->AddVertex(); // Level 2
+  vtkIdType v4 = g->AddVertex(); // Level 1
+  vtkIdType v5 = g->AddVertex(); // Level 2
+  vtkIdType v6 = g->AddVertex(); // Level 1
+  vtkIdType v7 = g->AddVertex(); // Level 2
+  vtkIdType v8 = g->AddVertex(); // Level 3
 
   //create a fully connected graph
   g->AddEdge(v0, v1);
-  g->AddEdge(v0, v2);
+  g->AddEdge(v1, v2);
   g->AddEdge(v1, v3);
-  g->AddEdge(v2, v4);
-  g->AddEdge(v2, v5);
-  g->AddEdge(v4, v6);
-  g->AddEdge(v4, v7);
-  g->AddEdge(v5, v8);
+  g->AddEdge(v0, v4);
+  g->AddEdge(v4, v5);
+  g->AddEdge(v0, v6);
+  g->AddEdge(v6, v7);
+  g->AddEdge(v7, v8);
 
   vtkNew<vtkTree> tree;
   tree->CheckedShallowCopy(g.GetPointer());
@@ -44,10 +40,10 @@ int TestTreeBFSIterator(int, char *[])
     correctSequence.push_back(i);
     }
 
-  vtkNew<vtkTreeBFSIterator> bfsIterator;
-  bfsIterator->SetTree(tree.GetPointer());
+  vtkNew<vtkTreeDFSIterator> dfsIterator;
+  dfsIterator->SetTree(tree.GetPointer());
 
-  if(bfsIterator->GetStartVertex() != tree->GetRoot())
+  if(dfsIterator->GetStartVertex() != tree->GetRoot())
     {
     cout << "StartVertex is not defaulting to root" << endl;
     return EXIT_FAILURE;
@@ -56,13 +52,13 @@ int TestTreeBFSIterator(int, char *[])
   //traverse the tree in a depth first fashion
   for(int i = 0; i < correctSequence.size(); i++)
     {
-    if(!bfsIterator->HasNext())
+    if(!dfsIterator->HasNext())
       {
       cout << "HasNext() returned false before the end of the tree" << endl;
       return EXIT_FAILURE;
       }
 
-    vtkIdType nextVertex = bfsIterator->Next();
+    vtkIdType nextVertex = dfsIterator->Next();
     if(nextVertex != correctSequence[i])
       {
       cout << "Next vertex should be " << correctSequence[i] << " but it is " << nextVertex << endl;
