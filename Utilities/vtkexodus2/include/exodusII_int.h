@@ -41,7 +41,7 @@
 #ifndef EXODUS_II_INT_HDR
 #define EXODUS_II_INT_HDR
 
-#include "netcdf.h"
+#include "vtk_netcdf.h"
 
 #ifndef __APPLE__
 #if defined __STDC__ || defined __cplusplus
