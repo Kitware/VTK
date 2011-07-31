@@ -1438,3 +1438,8 @@ void vtkGenericStreamTracer::PrintSelf(ostream& os,
     os << indent << "InputVectorsSelection: " << this->InputVectorsSelection;
     } 
 }
+//-----------------------------------------------------------------------------
+void vtkGenericStreamTracer::SetSourceConnection(vtkAlgorithmOutput* algOutput)
+{
+  this->SetInputConnection(1, algOutput);
+}

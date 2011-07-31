@@ -22,7 +22,7 @@
 #ifndef __vtkSimplePointsWriter_h
 #define __vtkSimplePointsWriter_h
 
-#include <vtkDataSetWriter.h>
+#include "vtkDataSetWriter.h"
 
 class VTK_IO_EXPORT vtkSimplePointsWriter : public vtkDataSetWriter
 {

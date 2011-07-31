@@ -434,50 +434,16 @@ PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
 }
 
 //--------------------------------------------------------------------
-/* skip over an expression in brackets */
-static size_t template_bracket_len(const char *text)
-{
-  size_t i = 0;
-  size_t j = 1;
-  char bc = text[0];
-  char tc = 0;
-  char c;
-
-  if (bc == '(') { tc = ')'; }
-  else if (bc == '[') { tc = ']'; }
-  else if (bc == '{') { tc = '}'; }
-  else { return 0; }
-
-  do
-    {
-    i += j;
-    j = 1;
-    c = text[i];
-    if (c == '(' || c == '[' || c == '{')
-      {
-      j = template_bracket_len(&text[i]);
-      }
-    }
-  while (c != ')' && c != ']' && c != '}' && c != '\0' && j != 0);
-
-  if (c == tc)
-    {
-    i++;
-    }
-
-  return i;
-}
-
-//--------------------------------------------------------------------
 int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
 {
   const char *name = NULL;
   const char *cp;
+  char *dp;
+  const char *ptype;
   PyObject *keys[16];
   PyObject *key;
   int i, n;
-  size_t j;
-  bool isnumber;
+  size_t j = 0;
 
   if (PyVTKClass_Check(val))
     {
@@ -493,44 +459,127 @@ int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
     return -1;
     }
 
+  /* find the underscore that precedes the template args */
   cp = name;
-  while (*cp != '[' && *cp != '\0') { cp++; }
+  while (*cp != '_' && *cp != '\0') { cp++; }
 
-  if (*cp == '[')
+  if (*cp++ != '_')
     {
-    cp++;
+    PyErr_SetString(PyExc_TypeError, "name has no underscore");
+    return -1;
     }
 
-  for (i = 0; *cp != ']' && *cp != '\0' && i < 16; i++)
+  /* go through the mangled template arg list */
+  if (*cp++ != 'I')
     {
-    isnumber = true;
-    j = 0;
-    while (cp[j] != ',' && cp[j] != '[' && cp[j] != ']' && cp[j] != '\0')
+    PyErr_SetString(PyExc_TypeError, "badly formed mangled name");
+    return -1;
+    }
+
+  for (i = 0; *cp != 'E' && *cp != '\0' && i < 16; i++)
+    {
+    /* check for literal */
+    if (*cp == 'L')
       {
-      if (cp[j] < '0' || cp[j] > '9') { isnumber = false; }
-      j++;
-      }
-    if (cp[j] == '[')
-      {
-      isnumber = false;
-      j += template_bracket_len(&cp[j]);
-      }
-    if (j == 0)
-      {
-      break;
-      }
-    if (isnumber)
-      {
+      cp++;
+      if (*cp != 'i' && *cp != 'j' && *cp != 'l' && *cp != 'm')
+        {
+        PyErr_SetString(PyExc_TypeError, "non-integer template arg constant.");
+        return -1;
+        }
+      cp++;
       keys[i] = PyInt_FromLong(strtol(cp, NULL, 0));
+      while (*cp != 'E' && *cp != '\0') { cp++; }
       }
     else
       {
-      keys[i] = PyString_FromStringAndSize(cp, (Py_ssize_t)j);
-      }
-    cp += j;
-    if (*cp == ',')
-      {
-      cp++;
+      ptype = NULL;
+      switch (*cp)
+        {
+        case 'b':
+          ptype = "bool";
+          break;
+        case 'c':
+          ptype = "char";
+          break;
+        case 'a':
+          ptype = "int8";
+          break;
+        case 'h':
+          ptype = "uint8";
+          break;
+        case 's':
+          ptype = "int16";
+          break;
+        case 't':
+          ptype = "uint16";
+          break;
+        case 'i':
+          ptype = "int32";
+          break;
+        case 'j':
+          ptype = "uint32";
+          break;
+        case 'l':
+          ptype = "int"; /* python int is C long */
+          break;
+        case 'm':
+          ptype = "uint";
+          break;
+        case 'x':
+          ptype = "int64";
+          break;
+        case 'y':
+          ptype = "uint64";
+          break;
+        case 'f':
+          ptype = "float32";
+          break;
+        case 'd':
+          ptype = "float64";
+          break;
+        }
+
+      if (ptype)
+        {
+        j = strlen(ptype);
+        cp++;
+        }
+      else if (*cp >= '1' && *cp <= '9')
+        {
+        j = strtol(cp, &dp, 10);
+        cp = dp;
+        for (size_t k = 0; k < j; k++)
+          {
+          if (*dp++ == '\0')
+            {
+            PyErr_SetString(PyExc_TypeError, "badly formed mangled name");
+            return -1;
+            }
+          }
+        if (j == 16 && strncmp(cp, "vtkUnicodeString", 16) == 0)
+          {
+          ptype = "unicode";
+          j = 7;
+          }
+        else if (j == 12 && strncmp(cp, "vtkStdString", 12) == 0)
+          {
+          ptype = "str";
+          j = 3;
+          }
+        else
+          {
+          ptype = cp;
+          }
+        cp = dp;
+        }
+
+      if (ptype == NULL)
+        {
+        PyErr_SetString(PyExc_TypeError, "unrecognized mangled type.");
+        return -1;
+        }
+      keys[i] = PyString_FromStringAndSize((char *)ptype, (Py_ssize_t)j);
       }
     }
 

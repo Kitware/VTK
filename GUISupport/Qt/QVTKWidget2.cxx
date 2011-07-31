@@ -42,6 +42,7 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
   this->setMouseTracking(true);       
+  this->setAutoBufferSwap(false);
 }
 
 QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
@@ -51,6 +52,7 @@ QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidg
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
   this->setMouseTracking(true);       
+  this->setAutoBufferSwap(false);
 }
 
 QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
@@ -60,6 +62,7 @@ QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shar
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
   this->setMouseTracking(true);       
+  this->setAutoBufferSwap(false);
 }
 
 /*! destructor */
@@ -139,6 +142,8 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Disconnect(mRenWin, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
     mConnect->Disconnect(mRenWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Disconnect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
+    mConnect->Disconnect(mRenWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Disconnect(mRenWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
     }
 
   // now set the window
@@ -178,6 +183,8 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Connect(mRenWin, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
     mConnect->Connect(mRenWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Connect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
+    mConnect->Connect(mRenWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Connect(mRenWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
     }
 }
 
@@ -249,20 +256,7 @@ void QVTKWidget2::paintGL()
     return;
     }
 
-  // A callback from VTK will call swapBuffers() for us
-  // this is because sometimes VTK does a render without coming through this paintGL()
-
-  // if you want paintGL to always be called for each time VTK renders
-  // 1. turn off EnableRender on the interactor,
-  // 2. turn off SwapBuffers on the render window,
-  // 3. add an observer for the RenderEvent coming from the interactor
-  // 4. implement the callback on the observer to call updateGL() on this widget
-  // 5. implement this function to call mRenWin->Render() instead of going through interactor
-
-  bool autoswap = this->autoBufferSwap();
-  this->setAutoBufferSwap(false);
   iren->Render();
-  this->setAutoBufferSwap(autoswap);
 }
 
 /*! handle mouse press event
@@ -412,8 +406,41 @@ void QVTKWidget2::IsCurrent(vtkObject*, unsigned long, void*, void* call_data)
   *ptr = QGLContext::currentContext() == this->context();
 }
 
+void QVTKWidget2::IsDirect(vtkObject*, unsigned long, void*, void* call_data)
+{
+  int* ptr = reinterpret_cast<int*>(call_data);
+  *ptr = this->context()->format().directRendering();
+}
+
+void QVTKWidget2::SupportsOpenGL(vtkObject*, unsigned long, void*, void* call_data)
+{
+  int* ptr = reinterpret_cast<int*>(call_data);
+  *ptr = QGLFormat::hasOpenGL();
+}
+
 void QVTKWidget2::Frame()
 {
   if(mRenWin->GetSwapBuffers())
     this->swapBuffers();
+  
+  // This callback will call swapBuffers() for us
+  // because sometimes VTK does a render without coming through this paintGL()
+
+  // if you want paintGL to always be called for each time VTK renders
+  // 1. turn off EnableRender on the interactor,
+  // 2. turn off SwapBuffers on the render window,
+  // 3. add an observer for the RenderEvent coming from the interactor
+  // 4. implement the callback on the observer to call updateGL() on this widget
+  // 5. overload QVTKWidget2::paintGL() to call mRenWin->Render() instead iren->Render()
+
+}
+
+void QVTKWidget2::setAutoBufferSwap(bool f)
+{
+  QGLWidget::setAutoBufferSwap(f);
+}
+  
+bool QVTKWidget2::autoBufferSwap() const
+{
+  return QGLWidget::autoBufferSwap();
 }

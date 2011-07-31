@@ -1802,6 +1802,7 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
         // We have a match.
         quad->SourceId = -1;
         // That is all we need to do. Hide any tri shared by two or more cells.
+        delete [] tab;
         return;
         }
     quad = *end;

@@ -35,9 +35,9 @@
  *    REQUIRED: NDims, ByteOrderMSB, ElementDataType, DataFileName
  *
  * \author Stephen R. Aylward
- * 
+ *
  * \date August 29, 1999
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaForm.h
@@ -63,13 +63,13 @@ class METAIO_EXPORT MetaArray : public MetaForm
     ////
     MetaArray(void);
 
-    MetaArray(const char *_headerName);   
+    MetaArray(const char *_headerName);
 
-    MetaArray(MetaArray *_vector, 
+    MetaArray(MetaArray *_vector,
               bool _allocateElementData=false,
               bool _autoFreeElementData=false);
 
-    MetaArray(int _length, 
+    MetaArray(int _length,
               MET_ValueEnumType _elementType,
               int _elementNumberOfChannels=1,
               void *_elementData=NULL,
@@ -84,7 +84,7 @@ class METAIO_EXPORT MetaArray : public MetaForm
 
     void  Clear(void);
 
-    bool  InitializeEssential(int _nDims, 
+    bool  InitializeEssential(int _nDims,
                               MET_ValueEnumType _elementType,
                               int _elementNumberOfChannels=1,
                               void *_elementData=NULL,
@@ -160,11 +160,11 @@ class METAIO_EXPORT MetaArray : public MetaForm
 
     virtual bool Write(const char *_headName=NULL,
                        const char *_dataName=NULL,
-                       bool _writeElements=true, 
+                       bool _writeElements=true,
                        const void * _constElementData=NULL);
 
     virtual bool WriteStream(METAIO_STREAM::ofstream * _stream,
-                             bool _writeElements=true, 
+                             bool _writeElements=true,
                              const void * _constElementData=NULL);
 
   ////

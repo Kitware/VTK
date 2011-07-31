@@ -84,7 +84,7 @@ MetaTubeGraph::
     TubeGraphPnt* pnt = *it;
     it++;
     delete pnt;
-    }  
+    }
   m_PointList.clear();
   M_Destroy();
 }
@@ -108,14 +108,14 @@ CopyInfo(const MetaObject * _object)
   MetaObject::CopyInfo(_object);
 }
 
-    
+
 
 void MetaTubeGraph::
 PointDim(const char* pointDim)
 {
   strcpy(m_PointDim,pointDim);
 }
-    
+
 const char* MetaTubeGraph::
 PointDim(void) const
 {
@@ -139,8 +139,8 @@ Root(int root)
 {
   m_Root = root;
 }
-    
-int MetaTubeGraph:: 
+
+int MetaTubeGraph::
 Root(void) const
 {
   return m_Root;
@@ -163,7 +163,7 @@ Clear(void)
     TubeGraphPnt* pnt = *it;
     it++;
     delete pnt;
-  }  
+  }
   m_PointList.clear();
 
   m_Root = 0;
@@ -171,7 +171,7 @@ Clear(void)
   strcpy(m_PointDim, "Node r p txx txy txz tyx tyy tyz tzx tzy tzz");
   m_ElementType = MET_FLOAT;
 }
-        
+
 /** Destroy tube information */
 void MetaTubeGraph::
 M_Destroy(void)
@@ -185,7 +185,7 @@ M_SetupReadFields(void)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_SetupReadFields" 
+    METAIO_STREAM::cout << "MetaTubeGraph: M_SetupReadFields"
                         << METAIO_STREAM::endl;
     }
 
@@ -302,31 +302,31 @@ M_Read(void)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Loading Header" 
+    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Loading Header"
                         << METAIO_STREAM::endl;
     }
 
   if(!MetaObject::M_Read())
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Error parsing file" 
+    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Error parsing file"
                         << METAIO_STREAM::endl;
     return false;
     }
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Parsing Header" 
+    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Parsing Header"
                         << METAIO_STREAM::endl;
     }
- 
+
   MET_FieldRecordType * mF;
- 
+
   mF = MET_GetFieldRecord("Root", &m_Fields);
   if(mF->defined)
     {
     m_Root= (int)mF->value[0];
     }
-  
+
   mF = MET_GetFieldRecord("NPoints", &m_Fields);
   if(mF->defined)
     {
@@ -348,16 +348,16 @@ M_Read(void)
 
   int pntDim;
   char** pntVal = NULL;
-  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal); 
- 
+  MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
+
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: Parsing point dim" 
+    METAIO_STREAM::cout << "MetaTubeGraph: Parsing point dim"
                         << METAIO_STREAM::endl;
     }
 
   unsigned int j;
-  for(j = 0; j < (unsigned int)pntDim; j++) 
+  for(j = 0; j < (unsigned int)pntDim; j++)
     {
     if(!strcmp(pntVal[j], "node") || !strcmp(pntVal[j], "Node"))
       {
@@ -387,7 +387,7 @@ M_Read(void)
   delete [] pntVal;
 
   float v[30];
-  
+
   if(m_Event)
     {
     m_Event->StartReading(m_NPoints);
@@ -405,7 +405,7 @@ M_Read(void)
     int gc = m_ReadStream->gcount();
     if(gc != readSize)
       {
-      METAIO_STREAM::cout << "MetaLine: m_Read: data not read completely" 
+      METAIO_STREAM::cout << "MetaLine: m_Read: data not read completely"
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc
                 << METAIO_STREAM::endl;
@@ -414,10 +414,10 @@ M_Read(void)
       }
 
     double td;
-    for(j=0; j<(unsigned int)m_NPoints; j++) 
+    for(j=0; j<(unsigned int)m_NPoints; j++)
       {
       TubeGraphPnt* pnt = new TubeGraphPnt(m_NDims);
-      
+
       MET_ValueToDouble(m_ElementType,_data,posGraphNode,&td);
       pnt->m_GraphNode=(int)td;
 
@@ -447,7 +447,7 @@ M_Read(void)
     }
   else
     {
-    for(j=0; j<(unsigned int)m_NPoints; j++) 
+    for(j=0; j<(unsigned int)m_NPoints; j++)
       {
       if(m_Event)
         {
@@ -474,7 +474,7 @@ M_Read(void)
        pnt->m_P = v[posP];
        }
 
-      if(posTx >= 0 && posTx<pntDim) 
+      if(posTx >= 0 && posTx<pntDim)
         {
         for(int r=0; r<m_NDims*m_NDims; r++)
           {
@@ -485,14 +485,14 @@ M_Read(void)
       m_PointList.push_back(pnt);
       }
 
-      
+
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
       {
       c = m_ReadStream->get();// to avoid unrecognize charactere
       }
     }
-  
+
   if(m_Event)
     {
     m_Event->StopReading();
@@ -519,7 +519,7 @@ M_Write(void)
 
   if(!MetaObject::M_Write())
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Error parsing file" 
+    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Error parsing file"
                         << METAIO_STREAM::endl;
     return false;
     }
@@ -539,13 +539,13 @@ M_Write(void)
       {
       MET_DoubleToValue((double)(*it)->m_GraphNode,m_ElementType,data,i++);
 
-      MET_DoubleToValue((double)(*it)->m_R,m_ElementType,data,i++);  
+      MET_DoubleToValue((double)(*it)->m_R,m_ElementType,data,i++);
 
-      MET_DoubleToValue((double)(*it)->m_P,m_ElementType,data,i++);  
-      
+      MET_DoubleToValue((double)(*it)->m_P,m_ElementType,data,i++);
+
       for(d = 0; d < m_NDims*m_NDims; d++)
         {
-        MET_DoubleToValue((double)(*it)->m_T[d],m_ElementType,data,i++);  
+        MET_DoubleToValue((double)(*it)->m_T[d],m_ElementType,data,i++);
         }
 
       it++;
@@ -560,7 +560,7 @@ M_Write(void)
     {
     PointListType::const_iterator it = m_PointList.begin();
     PointListType::const_iterator itEnd = m_PointList.end();
-  
+
     int d;
     while(it != itEnd)
       {

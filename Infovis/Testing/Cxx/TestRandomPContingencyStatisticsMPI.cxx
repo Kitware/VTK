@@ -39,6 +39,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
+#include "vtksys/CommandLineArguments.hxx"
+
 struct RandomContingencyStatisticsArgs
 {
   int nVals;
@@ -266,7 +268,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     {
     cout << "\n## Verifying that local and global CDFs sum to 1 (within "
          << args->absTol
-         << " relative tolerance).\n";
+         << " absolute tolerance).\n";
     }
   
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
@@ -419,6 +421,48 @@ int main( int argc, char** argv )
       }
     }
 
+  // **************************** Parse command line ***************************
+  // Set default argument values
+  int nVals = 100000;
+  double stdev = 5.;
+  double absTol = 1.e-6;
+
+  // Initialize command line argument parser
+  vtksys::CommandLineArguments clArgs;
+  clArgs.Initialize( argc, argv );
+  clArgs.StoreUnusedArguments( false );
+
+  // Parse per-process cardinality of each pseudo-random sample
+  clArgs.AddArgument("--n-per-proc",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse standard deviation of each pseudo-random sample
+  clArgs.AddArgument("--std-dev",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &stdev, "Standard deviation of each pseudo-random sample");
+
+  // Parse absolute tolerance to verify that final CDF is 1
+  clArgs.AddArgument("--abs-tol",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &absTol, "Absolute tolerance to verify that final CDF is 1");
+
+  // If incorrect arguments were provided, provide some help and terminate in error.
+  if ( ! clArgs.Parse() )
+    {
+    if ( com->GetLocalProcessId() == ioRank )
+      {
+      cerr << "Usage: " 
+           << clArgs.GetHelp()
+           << "\n";
+      }
+
+    controller->Finalize();
+    controller->Delete();
+
+    return 1;
+    }
+
   // ************************** Initialize test ********************************* 
   if ( com->GetLocalProcessId() == ioRank )
     {
@@ -431,12 +475,11 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomContingencyStatisticsArgs args;
-
-  args.nVals = 1000000;
-  args.stdev = 5.;
-  args.absTol = 1.e-6;
+  args.nVals = nVals;
+  args.stdev = stdev;
   args.retVal = &testValue;
   args.ioRank = ioRank;
+  args.absTol = absTol;
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();

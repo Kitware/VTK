@@ -381,6 +381,11 @@ void vtkCosmicTreeLayoutStrategy::PrintSelf( ostream& os, vtkIndent indent )
 
 void vtkCosmicTreeLayoutStrategy::Layout()
 {
+  if ( ! this->Graph || this->Graph->GetNumberOfVertices() <= 0 || this->Graph->GetNumberOfEdges() <= 0 )
+    { // fail silently if the graph is empty in some way.
+    return;
+    }
+
   vtkTree* tree = vtkTree::SafeDownCast( this->Graph );
   bool input_is_tree = ( tree != NULL );
   if ( ! input_is_tree )

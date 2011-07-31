@@ -280,12 +280,15 @@ int vtkImageStack::RenderOpaqueGeometry(vtkViewport* viewport)
   int rendered = 0;
   vtkImageSlice *image = 0;
   vtkCollectionSimpleIterator pit;
+  vtkIdType n = this->Images->GetNumberOfItems();
+  double renderTime = this->AllocatedRenderTime/(n + (n == 0));
 
-  if (this->Images->GetNumberOfItems() == 1)
+  if (n == 1)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
     image = this->Images->GetNextImage(pit);
+    image->SetAllocatedRenderTime(renderTime, viewport);
     return image->RenderOpaqueGeometry(viewport);
     }
 
@@ -294,6 +297,7 @@ int vtkImageStack::RenderOpaqueGeometry(vtkViewport* viewport)
     this->Images->InitTraversal(pit);
     while ( (image = this->Images->GetNextImage(pit)) != 0)
       {
+      image->SetAllocatedRenderTime(renderTime, viewport);
       image->SetStackedImagePass(pass);
       rendered |= image->RenderOpaqueGeometry(viewport);
       image->SetStackedImagePass(-1);
@@ -321,12 +325,15 @@ int vtkImageStack::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   int rendered = 0;
   vtkImageSlice *image = 0;
   vtkCollectionSimpleIterator pit;
+  vtkIdType n = this->Images->GetNumberOfItems();
+  double renderTime = this->AllocatedRenderTime/(n + (n == 0));
 
-  if (this->Images->GetNumberOfItems() == 1)
+  if (n == 1)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
     image = this->Images->GetNextImage(pit);
+    image->SetAllocatedRenderTime(renderTime, viewport);
     return image->RenderTranslucentPolygonalGeometry(viewport);
     }
 
@@ -335,6 +342,7 @@ int vtkImageStack::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
     this->Images->InitTraversal(pit);
     while ( (image = this->Images->GetNextImage(pit)) != 0)
       {
+      image->SetAllocatedRenderTime(renderTime, viewport);
       image->SetStackedImagePass(pass);
       rendered |= image->RenderTranslucentPolygonalGeometry(viewport);
       image->SetStackedImagePass(-1);
@@ -362,12 +370,15 @@ int vtkImageStack::RenderOverlay(vtkViewport* viewport)
   int rendered = 0;
   vtkImageSlice *image = 0;
   vtkCollectionSimpleIterator pit;
+  vtkIdType n = this->Images->GetNumberOfItems();
+  double renderTime = this->AllocatedRenderTime/(n + (n == 0));
 
-  if (this->Images->GetNumberOfItems() == 1)
+  if (n == 1)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
     image = this->Images->GetNextImage(pit);
+    image->SetAllocatedRenderTime(renderTime, viewport);
     return image->RenderOverlay(viewport);
     }
 
@@ -376,6 +387,7 @@ int vtkImageStack::RenderOverlay(vtkViewport* viewport)
     this->Images->InitTraversal(pit);
     while ( (image = this->Images->GetNextImage(pit)) != 0)
       {
+      image->SetAllocatedRenderTime(renderTime, viewport);
       image->SetStackedImagePass(pass);
       rendered |= image->RenderOverlay(viewport);
       image->SetStackedImagePass(-1);

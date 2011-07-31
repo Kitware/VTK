@@ -38,10 +38,19 @@
 #include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 
+#include "vtksys/CommandLineArguments.hxx"
+
+#include <vtksys/ios/sstream>
+#include <vtksys/stl/vector>
+
 struct RandomSampleStatisticsArgs
 {
-  int nVals;
+  int nObsPerCluster;
   int nProcs;
+  int nVariables;
+  int nClusters;
+  double meanFactor;
+  double stdev;
   int* retVal;
   int ioRank;
 };
@@ -62,34 +71,37 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
-  // Generate an input table that contains samples of mutually independent random variables over [0, 1]
-  int nVariables = 6;
+  // Generate column names
+  int nVariables = args->nVariables;
+  vtksys_stl::vector<vtkStdString> columnNames;
+  for ( int v = 0; v < nVariables; ++ v )
+    {
+    vtksys_ios::ostringstream columnName;
+    columnName << "Variable " << v;
+    columnNames.push_back( columnName.str() );
+    }
 
+  // Generate an input table that contains samples of mutually independent Gaussian random variables
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray;
-  vtkStdString columnNames[] = { "Normal 0",
-                                 "Normal 1",
-                                 "Normal 2",
-                                 "Normal 3",
-                                 "Normal 4",
-                                 "Normal 5"};
 
-  int numClusters = 8;
-  int observationsPerCluster = args->nVals/numClusters;
+  int obsPerCluster = args->nObsPerCluster;
+  int nClusters = args->nClusters;
+  int nVals = obsPerCluster * nClusters;
 
   // Generate samples
   for ( int v = 0; v < nVariables; ++ v )
     {
     doubleArray = vtkDoubleArray::New();
     doubleArray->SetNumberOfComponents( 1 );
-    doubleArray->SetName( columnNames[v] );
+    doubleArray->SetName( columnNames.at( v ) );
 
-    for ( int c = 0; c < numClusters; ++ c )
+    for ( int c = 0; c < nClusters; ++ c )
       {
       double x;
-      for ( int r = 0; r < observationsPerCluster; ++ r )
+      for ( int r = 0; r < obsPerCluster; ++ r )
         {
-        x = vtkMath::Gaussian(c*7.0, 1.0);
+        x = vtkMath::Gaussian( c * args->meanFactor, args->stdev );
         doubleArray->InsertNextValue( x );
         }
       }
@@ -105,15 +117,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   paramCluster = vtkIdTypeArray::New();
   paramCluster->SetName( "K" );
 
-  for( int nInRun = 0; nInRun < numClusters; nInRun++ )
+  for( int nInRun = 0; nInRun < nClusters; nInRun++ )
     {
-    paramCluster->InsertNextValue( numClusters );
+    paramCluster->InsertNextValue( nClusters );
     }
 
   paramData->AddColumn( paramCluster );
   paramCluster->Delete();
 
-  int nClusterCoords = (numClusters)*nVariables;
+  int nClusterCoords = nClusters * nVariables;
   double* clusterCoords = new double[nClusterCoords];
 
   // generate data on one node only
@@ -122,9 +134,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     int cIndex = 0;
     for ( int v = 0; v < nVariables; ++ v )
       {
-      for ( int c = 0; c < (numClusters); ++ c )
+      for ( int c = 0; c < nClusters; ++ c )
         {
-        double x = inputData->GetValue((c%numClusters)*observationsPerCluster, v).ToDouble();
+        double x = inputData->GetValue( ( c % nClusters ) * obsPerCluster, v ).ToDouble();
         clusterCoords[cIndex++] = x;
         }
       }
@@ -138,12 +150,12 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     return;
     }
 
-  for ( int c = 0; c < nVariables; ++ c )
+  for ( int v = 0; v < nVariables; ++ v )
     {
     paramArray = vtkDoubleArray::New();
-    paramArray->SetName( columnNames[c] );
-    paramArray->SetNumberOfTuples( numClusters );
-    memcpy( paramArray->GetPointer( 0 ), &(clusterCoords[c*(numClusters)]), (numClusters)*sizeof( double ) );
+    paramArray->SetName( columnNames[v] );
+    paramArray->SetNumberOfTuples( nClusters );
+    memcpy( paramArray->GetPointer( 0 ), &( clusterCoords[v * ( nClusters )]), nClusters * sizeof( double ) );
     paramData->AddColumn( paramArray );
     paramArray->Delete();
     }
@@ -164,18 +176,17 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pks->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
 
   // Select columns for testing
-  pks->SetColumnStatus( inputData->GetColumnName( 0 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 1 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 2 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 3 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 4 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 5 ) , 1 );
+  for ( int v = 0; v < nVariables; ++ v )
+    {
+    pks->SetColumnStatus( inputData->GetColumnName( v ) , 1 );
+    }
   pks->RequestSelectedColumns();
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pks->SetLearnOption( true );
   pks->SetDeriveOption( true );
   pks->SetAssessOption( true );
+  pks->SetTestOption( false );
   pks->Update();
 
   // Synchronize and stop clock
@@ -193,7 +204,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
       {
       vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
-      if ( b == 0 )
+      if ( ! b )
         {
         vtkIdType testIntValue = 0;
         for( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++ )
@@ -201,16 +212,16 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
           testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
           }
 
-        cout << "## Computed clusters (cardinality: "
+        cout << "\n## Computed clusters (cardinality: "
              << testIntValue
              << " / run):\n";
 
-        if ( testIntValue != args->nVals*args->nProcs )
+        if ( testIntValue != nVals * args->nProcs )
           {
           vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
                                << testIntValue
                                << " != "
-                               << args->nVals * args->nProcs
+                               << nVals * args->nProcs
                                << ".");
           *(args->retVal) = 1;
           }
@@ -287,7 +298,6 @@ int main( int argc, char** argv )
       }
     }
 
-  // ************************** Initialize test *********************************
   if ( com->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Process "
@@ -304,11 +314,70 @@ int main( int argc, char** argv )
          << " processes...\n";
     }
 
+  // **************************** Parse command line ***************************
+  // Set default argument values
+  int nObsPerCluster = 1000;
+  int nVariables = 6;
+  int nClusters = 8;
+  double meanFactor = 7.;
+  double stdev = 1.;
+
+  // Initialize command line argument parser
+  vtksys::CommandLineArguments clArgs;
+  clArgs.Initialize( argc, argv );
+  clArgs.StoreUnusedArguments( false );
+
+  // Parse per-process cardinality of each pseudo-random sample
+  clArgs.AddArgument("--n-per-proc-per-cluster",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nObsPerCluster, "Per-process number of observations per cluster");
+
+  // Parse number of variables
+  clArgs.AddArgument("--n-variables",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nVariables, "Number of variables");
+
+  // Parse number of clusters
+  clArgs.AddArgument("--n-clusters",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &nClusters, "Number of clusters");
+
+  // Parse mean factor of each pseudo-random sample
+  clArgs.AddArgument("--mean-factor",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &meanFactor, "Mean factor of each pseudo-random sample");
+
+  // Parse standard deviation of each pseudo-random sample
+  clArgs.AddArgument("--std-dev",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &stdev, "Standard deviation of each pseudo-random sample");
+
+  // If incorrect arguments were provided, provide some help and terminate in error.
+  if ( ! clArgs.Parse() )
+    {
+    if ( com->GetLocalProcessId() == ioRank )
+      {
+      cerr << "Usage: " 
+           << clArgs.GetHelp()
+           << "\n";
+      }
+
+    controller->Finalize();
+    controller->Delete();
+
+    return 1;
+    }
+
+  // ************************** Initialize test *********************************
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 10000;
+  args.nObsPerCluster = nObsPerCluster;
   args.nProcs = numProcs;
+  args.nVariables = nVariables;
+  args.nClusters = nClusters;
+  args.meanFactor = meanFactor;
+  args.stdev = stdev;
   args.retVal = &testValue;
   args.ioRank = ioRank;
 

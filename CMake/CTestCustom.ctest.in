@@ -84,6 +84,7 @@ ENDIF("@CMAKE_SYSTEM@" MATCHES "OSF")
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "Utilities/vtktiff/"
+  "list.[0-9]+. : warning C4702: unreachable code"
   "xtree.[0-9]+. : warning C4702: unreachable code"
   "vector.[0-9]+. : warning C4702: unreachable code"
   "warning LNK4221"
@@ -122,6 +123,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkfreetype.*warning: .* may be used uninitialized in this function"
   "vtkfreetype.*note: .* was declared here"
   "vtkfreetype/.*warning: .* set but not used"
+  "vtkfreetype/.*warning: .* defined but not used"
+  "WARNING: While resolving call to function .*FTC_GNode_Compare.* arguments were dropped!"
   # vtknetcdf occasionally has warnings for things that are not a problem.
   "vtknetcdf.*warning: dereferencing type-punned pointer"
   "vtknetcdf.*warning: passing argument .* of .* as .*signed due to prototype"

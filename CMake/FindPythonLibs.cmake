@@ -8,6 +8,12 @@
 #  PYTHON_INCLUDE_PATH        - path to where Python.h is found (deprecated)
 #  PYTHON_INCLUDE_DIRS        - path to where Python.h is found
 #  PYTHON_DEBUG_LIBRARIES     - path to the debug library
+#  PYTHON_VERSION             - python version string e.g. 2.7.1
+#  PYTHON_MAJOR_VERSION       - python major version number
+#  PYTHON_MINOR_VERSION       - python minor version number
+#  PYTHON_MICRO_VERSION       - python release version number
+#
+# This code uses the following variables:
 #  Python_ADDITIONAL_VERSIONS - list of additional Python versions to search for
 
 #=============================================================================
@@ -94,6 +100,26 @@ MARK_AS_ADVANCED(
   PYTHON_LIBRARY
   PYTHON_INCLUDE_DIR
 )
+
+
+# look in PYTHON_INCLUDE_DIR for patchlevel.h, which contains the
+# version number macros in all versions of python from 1.5 through
+# at least version 3.2, and set these vars:  PYTHON_VERSION,
+# PYTHON_MAJOR_VERSION, PYTHON_MINOR_VERSION, PYTHON_MICRO_VERSION.
+IF(PYTHON_INCLUDE_DIR)
+  SET(_VERSION_REGEX
+      "^#define[ \t]+PY([A-Z_]*_VERSION)[ \t]+[\"]*([[0-9A-Za-z\\.]+)[\"]*[ \t]*$")
+  FILE(STRINGS "${PYTHON_INCLUDE_DIR}/patchlevel.h" _VERSION_STRINGS
+       LIMIT_COUNT 10 REGEX ${_VERSION_REGEX})
+  FOREACH(_VERSION_STRING ${_VERSION_STRINGS})
+    STRING(REGEX REPLACE ${_VERSION_REGEX} "PYTHON\\1"
+           _VERSION_VARIABLE "${_VERSION_STRING}")
+    STRING(REGEX REPLACE ${_VERSION_REGEX} "\\2"
+           _VERSION_NUMBER "${_VERSION_STRING}")
+    SET(${_VERSION_VARIABLE} ${_VERSION_NUMBER})
+  ENDFOREACH(_VERSION_STRING ${_VERSION_STRINGS})
+ENDIF(PYTHON_INCLUDE_DIR)
+
 
 # We use PYTHON_INCLUDE_DIR, PYTHON_LIBRARY and PYTHON_DEBUG_LIBRARY for the
 # cache entries because they are meant to specify the location of a single

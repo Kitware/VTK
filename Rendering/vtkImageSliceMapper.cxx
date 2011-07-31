@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageSliceMapper.h"
 
+#include "vtkPoints.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPlane.h"
@@ -26,6 +27,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+
+vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -57,6 +60,10 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->CroppingRegion[4] = 0;
   this->CroppingRegion[5] = 0;
 
+  this->Points = NULL;
+  this->ExactPixelMatch = false;
+  this->PassColorData = false;
+
   // streaming misbehaves if there is no output port
   this->SetNumberOfOutputPorts(1);
 }
@@ -64,6 +71,10 @@ vtkImageSliceMapper::vtkImageSliceMapper()
 //----------------------------------------------------------------------------
 vtkImageSliceMapper::~vtkImageSliceMapper()
 {
+  if (this->Points)
+    {
+    this->Points->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -205,6 +216,14 @@ int vtkImageSliceMapper::ProcessRequest(
   // just a dummy, does not do anything
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
     {
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+    vtkImageData *output = vtkImageData::SafeDownCast(
+      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+    // set output extent to avoid re-execution
+    output->GetInformation()->Set(vtkDataObject::DATA_EXTENT(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
+
     return 1;
     }
 
@@ -228,6 +247,7 @@ void vtkImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->CroppingRegion[0] << " " << this->CroppingRegion[1] << " "
      << this->CroppingRegion[2] << " " << this->CroppingRegion[3] << " "
      << this->CroppingRegion[4] << " " << this->CroppingRegion[5] << "\n";
+  os << indent << "Points: " << this->Points << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -414,33 +434,4 @@ void vtkImageSliceMapper::GetDimensionIndices(
       ydim = 1;
       }
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageSliceMapper::CheckerboardImage(
-  unsigned char *data, int xsize, int ysize,
-  const double imageSpacing[3], vtkImageProperty *property)
-{
-  // Get the imagedata dims that correspond to the texture "x" and "y"
-  int xdim, ydim;
-  this->GetDimensionIndices(this->Orientation, xdim, ydim);
-
-  // Get the checkerboard spacing and the offset fraction
-  double spacing[2], offset[2];
-  property->GetCheckerboardSpacing(spacing);
-  property->GetCheckerboardOffset(offset);
-
-  // Adjust the spacing according to the image data spacing, add a tolerance
-  // to prefer rounding up since ties happen often and can cause different
-  // platforms/compilers to give different results
-  spacing[0] = floor(spacing[0]/imageSpacing[xdim] + 0.50000762939453125);
-  spacing[1] = floor(spacing[1]/imageSpacing[ydim] + 0.50000762939453125);
-
-  // Center the checkerboard at the image center, because it looks nice
-  offset[0] = floor(0.5*xsize + spacing[0]*offset[0] + 0.50000762939453125);
-  offset[1] = floor(0.5*ysize + spacing[1]*offset[1] + 0.50000762939453125);
-
-  // Note that spacing has been converted to integer spacing
-  vtkImageMapper3D::CheckerboardRGBA(
-    data, xsize, ysize, offset[0], offset[1], spacing[0], spacing[1]);
 }

@@ -19,6 +19,7 @@
 #include "vtkCommand.h"
 #include "vtkCommunicator.h"
 #include "vtkImageData.h"
+#include "vtkMatrix4x4.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
@@ -494,7 +495,15 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   cam->GetClippingRange(this->CameraClippingRange);
   this->CameraViewAngle = cam->GetViewAngle();
   this->CameraParallelScale = cam->GetParallelScale();
-  cam->GetHeadPose( this->HeadPose );
+
+  vtkMatrix4x4 *headMatrix = cam->GetEyeTransformMatrix();
+  for(int i=0; i < 4; ++i)
+    {
+    for(int j=0; j < 4; ++j)
+      {
+       this->HeadPose[i*4 + j] = headMatrix->GetElement(i, j);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -512,22 +521,17 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetClippingRange(this->CameraClippingRange);
   cam->SetViewAngle(this->CameraViewAngle);
   cam->SetParallelScale(this->CameraParallelScale);
-  cam->SetHeadPose(this->HeadPose[0],
-                   this->HeadPose[1],
-                   this->HeadPose[2],
-                   this->HeadPose[3],
-                   this->HeadPose[4],
-                   this->HeadPose[5],
-                   this->HeadPose[6],
-                   this->HeadPose[7],
-                   this->HeadPose[8],
-                   this->HeadPose[9],
-                   this->HeadPose[10],
-                   this->HeadPose[11],
-                   this->HeadPose[12],
-                   this->HeadPose[13],
-                   this->HeadPose[14],
-                   this->HeadPose[15] );
+
+  vtkMatrix4x4 *headMatrix = vtkMatrix4x4::New();
+  for(int i=0; i < 4; ++i)
+    {
+    for(int j=0; j < 4; ++j)
+      {
+      headMatrix->SetElement(i, j, this->HeadPose[i * 4 + j]);
+      }
+    }
+  cam->SetEyeTransformMatrix(headMatrix);
+  headMatrix->Delete();
 }
 
 

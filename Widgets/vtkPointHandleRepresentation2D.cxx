@@ -138,6 +138,12 @@ void vtkPointHandleRepresentation2D::SetDisplayPosition(double p[3])
   this->FocalPoint->SetPoint(0, p);
   this->FocalPoint->Modified();
 
+  if (this->PointPlacer)
+    {
+    // The point placer will compute the world position for us.
+    return;
+    }
+
   double w[4];
   if( this->Renderer )
     {

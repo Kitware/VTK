@@ -169,6 +169,13 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph     * output,
         case 'e':
             {
             iss >> iEdgeU >> iEdgeV >> value;
+
+            if(iEdgeU==0 || iEdgeV==0)
+              {
+              vtkErrorMacro(<<"DIMACS graph vertices are numbered 1..n; 0 is not allowed");
+              return 0;
+              }
+
             vtkEdgeType edgeObj = builder->AddEdge(iEdgeU-1, iEdgeV-1);
             ArrayEdgeAttributes->SetValue(edgeObj.Id, value);
             edgePedigreeIds->SetValue(currentEdgeId, currentEdgeId+baseEdgeId);
@@ -301,6 +308,13 @@ int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph * output)
             {
             int edgeCapacity;
             iss >> iEdgeU >> iEdgeV >> edgeCapacity;
+
+            if(iEdgeU==0 || iEdgeV==0)
+              {
+              vtkErrorMacro(<<"DIMACS graph vertices are numbered 1..n; 0 is not allowed");
+              return 0;
+              }
+
             vtkEdgeType edgeObj = builder->AddEdge(iEdgeU-1, iEdgeV-1);
             edgeCapacityArray->SetValue(edgeObj.Id, edgeCapacity);
             edgePedigreeIds->SetValue(currentEdgeId, currentEdgeId+baseEdgeId);
@@ -380,6 +394,13 @@ int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph * output)
         case 'e':  /* edge arc */
             {
             iss >> iEdgeU >> iEdgeV;
+
+            if(iEdgeU==0 || iEdgeV==0)
+              {
+              vtkErrorMacro(<<"DIMACS graph vertices are numbered 1..n; 0 is not allowed");
+              return 0;
+              }
+
             vtkEdgeType edgeObj = builder->AddEdge(iEdgeU-1, iEdgeV-1);
             edgePedigreeIds->SetValue(currentEdgeId, currentEdgeId+baseEdgeId);
             currentEdgeId++;

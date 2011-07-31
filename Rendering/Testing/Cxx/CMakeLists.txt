@@ -36,6 +36,7 @@ IF(VTK_USE_DISPLAY)
     TestImageResliceMapperInterpolation.cxx
     TestImageResliceMapperOffAxis.cxx
     TestImageResliceMapperOrient3D.cxx
+    TestImageResliceMapperSlab.cxx
     TestImageSliceMapperAlpha.cxx
     TestImageSliceMapperBorder.cxx
     TestImageSliceMapperOrient2D.cxx
@@ -51,6 +52,7 @@ IF(VTK_USE_DISPLAY)
     TestLightActor.cxx
     TestLODActor.cxx
     TestManyActors.cxx
+#    TestOffAxisStereo.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestOpenGLPolyDataMapper.cxx

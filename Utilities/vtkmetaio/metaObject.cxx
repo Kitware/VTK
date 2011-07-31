@@ -1772,13 +1772,13 @@ M_Read(void)
      // causes a double free, and an abort.
      FieldsContainerType::iterator dup;
      for(dup = m_UserDefinedWriteFields.begin();
-	 dup != m_UserDefinedWriteFields.end();
-	 dup++)
+         dup != m_UserDefinedWriteFields.end();
+         dup++)
        {
        if( (*dup) == mF )
-	 {
-	 break;
-	 }
+         {
+         break;
+         }
        }
      if(dup == m_UserDefinedWriteFields.end())
        {

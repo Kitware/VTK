@@ -27,6 +27,13 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
   img->SetNumberOfScalarComponents(1);
   img->AllocateScalars();
 
+  float *scalars = static_cast<float *>(img->GetScalarPointer());
+  vtkIdType n = 100*100*100;
+  for (vtkIdType i = 0; i < n; i++)
+    {
+    scalars[i] = 0.0;
+    }
+
   vtkSmartPointer<vtkImageReslice> reslicer = vtkSmartPointer<vtkImageReslice>::New();
   reslicer->SetInput(img);
   reslicer->SetOutputExtent(0, 100, 0, 100, 0, 0);
