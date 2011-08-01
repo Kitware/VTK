@@ -150,15 +150,18 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
   // Determine and format the X and Y position in the chart
   vtksys_ios::ostringstream ostr;
   ostr.imbue(vtkstd::locale::classic());
-  ostr.setf(ios::fixed, ios::floatfield);
 
   if (axis)
     {
     ostr.precision(axis->GetPrecision());
 
-    if(axis->GetNotation() == vtkAxis::SCIENTIFIC)
+    if(axis->GetNotation() == vtkAxis::SCIENTIFIC_NOTATION)
       {
       ostr.setf(ios::scientific, ios::floatfield);
+      }
+    else if(axis->GetNotation() == vtkAxis::FIXED_NOTATION)
+      {
+      ostr.setf(ios::fixed, ios::floatfield);
       }
     }
 
