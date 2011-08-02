@@ -85,8 +85,10 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   strArray->SetNumberOfComponents( 1 );
   strArray->SetName( columnNames[1] );
 
-  // Storage for pseudo-random values
+  // Storage for pseudo-random values and local extrema
   int* v = new int[nVariables];
+  int* min_l = new int[nVariables];
+  int* max_l = new int[nVariables];
   
   // Store first integer value
   v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
@@ -99,8 +101,11 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   strArray->InsertNextValue( s );
 
   // Initialize local extrema
-  int min_l[] = { v[0], v[1] };
-  int max_l[] = { v[0], v[1] };
+  for ( int i = 0; i < nVariables; ++ i )
+    {
+    min_l[i] = v[i];
+    max_l[i] = v[i];
+    }
   
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
@@ -134,26 +139,20 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   inputData->AddColumn( intArray );
   inputData->AddColumn( strArray );
 
-  // Clean up
-  delete [] v;
-  intArray->Delete();
-  strArray->Delete();
+  // Storage for global extrema
+  int* min_g = new int[nVariables];
+  int* max_g = new int[nVariables];
 
   // Reduce extrema for all variables
-  int min_g[2];
-  int max_g[2];
-  for ( int i = 0; i < nVariables; ++ i )
-    {
-    com->AllReduce( &min_l[i],
-                    &min_g[i],
-                    1,
-                    vtkCommunicator::MIN_OP );
-
-    com->AllReduce( &max_l[i],
-                    &max_g[i],
-                    1,
-                    vtkCommunicator::MAX_OP );
-    } // i
+  com->AllReduce( min_l,
+                  min_g,
+                  nVariables,
+                  vtkCommunicator::MIN_OP );
+  
+  com->AllReduce( max_l,
+                  max_g,
+                  nVariables,
+                  vtkCommunicator::MAX_OP );
 
   if ( myRank == args->ioRank )
     {
@@ -172,6 +171,14 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
          << static_cast<char>( max_g[1] )
          << "\n";
     }
+
+  // Clean up
+  delete [] v;  
+  delete [] min_l;
+  delete [] max_l;
+  intArray->Delete();
+  strArray->Delete();
+
 
   // ************************** Order Statistics **************************
 
@@ -296,8 +303,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
         c = static_cast<char>( min_g[i] );
         if ( min_c.ToString() != vtkStdString( &c, 1 ) )
           {
-          vtkGenericWarningMacro("Incorrect minimum for variable "
-                                 << columnNames[i]);
+          vtkGenericWarningMacro("Incorrect calculated minimum for variable "
+                                 << columnNames[i]
+                                 << ": "
+                                 << min_c.ToString()
+                                 << " <> "
+                                 << vtkStdString( &c, 1 ) );
           *(args->retVal) = 1;
           }
         } // if ( min_c.IsString() )
@@ -305,8 +316,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
         {
         if ( min_c != min_g[i] )
           {
-          vtkGenericWarningMacro("Incorrect minimum for variable "
-                                 << columnNames[i]);
+          vtkGenericWarningMacro("Incorrect calculated minimum for variable "
+                                 << columnNames[i]
+                                 << ": "
+                                 << min_c
+                                 << " <> "
+                                 << min_g[i]);
           *(args->retVal) = 1;
           }
         } // else
@@ -317,8 +332,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
         c = static_cast<char>( max_g[i] );
         if ( max_c.ToString() != vtkStdString( &c, 1 ) )
           {
-          vtkGenericWarningMacro("Incorrect maximum for variable "
-                                 << columnNames[i]);
+          vtkGenericWarningMacro("Incorrect calculated maximum for variable "
+                                 << columnNames[i]
+                                 << ": "
+                                 << max_c.ToString()
+                                 << " <> "
+                                 << vtkStdString( &c, 1 ) );
           *(args->retVal) = 1;
           }
         }
@@ -326,8 +345,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
         {
         if ( max_c != max_g[i] )
           {
-          vtkGenericWarningMacro("Incorrect maximum for variable "
-                                 << columnNames[i]);
+          vtkGenericWarningMacro("Incorrect calculated maximum for variable "
+                                 << columnNames[i]
+                                 << ": "
+                                 << max_c
+                                 << " <> "
+                                 << max_g[i]);
           *(args->retVal) = 1;
           } //  ( max_c.IsString() )
         } // else
@@ -336,6 +359,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Clean up
   delete [] card_g;
+  delete [] min_g;
+  delete [] max_g;
   pos->Delete();
   inputData->Delete();
   timer->Delete();
