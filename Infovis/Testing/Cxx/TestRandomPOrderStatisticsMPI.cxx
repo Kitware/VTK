@@ -45,6 +45,8 @@ struct RandomOrderStatisticsArgs
 {
   int nVals;
   double stdev;
+  bool skipInt;
+  bool skipString;
   bool quantize;
   int maxHistoSize;
   int* retVal;
@@ -82,12 +84,15 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   vtkStringArray* strArray = vtkStringArray::New();
   strArray->SetNumberOfComponents( 1 );
   strArray->SetName( columnNames[1] );
+
+  // Storage for pseudo-random values
+  int* v = new int[nVariables];
   
-  // Store first values
-  int v[2];
+  // Store first integer value
   v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
   intArray->InsertNextValue( v[0] );
   
+  // Store first string value
   v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
   char c = static_cast<char>( v[1] );
   vtkStdString s( &c, 1 );
@@ -100,10 +105,11 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
     {
-    // Store new values
+    // Store current integer value
     v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
     intArray->InsertNextValue( v[0] );
     
+    // Store current string value
     v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
     c = static_cast<char>( v[1] );
     s = vtkStdString( &c, 1 );
@@ -129,6 +135,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   inputData->AddColumn( strArray );
 
   // Clean up
+  delete [] v;
   intArray->Delete();
   strArray->Delete();
 
