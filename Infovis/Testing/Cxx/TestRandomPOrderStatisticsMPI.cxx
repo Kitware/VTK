@@ -394,6 +394,8 @@ int main( int argc, char** argv )
   // **************************** Parse command line ***************************
   // Set default argument values
   int nVals = 100000;
+  bool skipInt = false;
+  bool skipString = false;
   double stdev = 50.;
   bool quantize = false;
   int maxHistoSize = 500;
@@ -407,6 +409,16 @@ int main( int argc, char** argv )
   clArgs.AddArgument("--n-per-proc",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &nVals, "Per-process cardinality of each pseudo-random sample");
+
+  // Parse whether integer variable should be skipped
+  clArgs.AddArgument("--skip-int",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &skipInt, "Skip integer variable");
+
+  // Parse whether string variable should be skipped
+  clArgs.AddArgument("--skip-string",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &skipString, "Skip string variable");
 
   // Parse standard deviation of pseudo-random Gaussian sample
   clArgs.AddArgument("--std-dev",
@@ -454,6 +466,8 @@ int main( int argc, char** argv )
   RandomOrderStatisticsArgs args;
   args.nVals = nVals;
   args.stdev = stdev;
+  args.skipInt = skipInt;
+  args.skipString = skipString;
   args.quantize = quantize;
   args.maxHistoSize = maxHistoSize;
   args.retVal = &testValue;
