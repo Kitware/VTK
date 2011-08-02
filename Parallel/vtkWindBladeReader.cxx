@@ -15,12 +15,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWindBladeReader.h"
 
 #include "vtkCallbackCommand.h"
-#include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataArraySelection.h"
 #include "vtkFloatArray.h"
-#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
