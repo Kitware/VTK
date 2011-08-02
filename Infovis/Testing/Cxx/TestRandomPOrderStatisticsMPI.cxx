@@ -73,7 +73,20 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // 1. A truncated Gaussian pseudo-random variable (vtkIntArray)
   // 2. A uniform pseudo-random variable of characters (vtkStringArray)
   vtkStdString columnNames[] = { "Rounded Normal Integer", "Uniform Character" };
-  int nVariables = 2;
+
+  // Infer number and type of generated variables based on command line options
+  int nVariables = 0;
+  vtksys_stl::map<int,bool> isVariableAString;
+  if ( ! args->skipInt )
+    {
+    isVariableAString[nVariables] = false;
+    ++ nVariables;
+    }
+  if ( ! args->skipString )
+    {
+    isVariableAString[nVariables] = true;
+    ++ nVariables;
+    }
 
   // Prepare column of integers
   vtkIntArray* intArray = vtkIntArray::New();
@@ -90,15 +103,25 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   int* min_l = new int[nVariables];
   int* max_l = new int[nVariables];
   
+  // Initial current variable index
+  int idx = 0;
+
   // Store first integer value
-  v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
-  intArray->InsertNextValue( v[0] );
+  if ( ! args->skipInt )
+    {
+    v[idx] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+    intArray->InsertNextValue( v[idx] );
+    ++ idx;
+    }
   
   // Store first string value
-  v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
-  char c = static_cast<char>( v[1] );
-  vtkStdString s( &c, 1 );
-  strArray->InsertNextValue( s );
+  if ( ! args->skipString )
+    {
+    v[idx] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
+    char c = static_cast<char>( v[idx] );
+    vtkStdString s( &c, 1 );
+    strArray->InsertNextValue( s );
+    }
 
   // Initialize local extrema
   for ( int i = 0; i < nVariables; ++ i )
@@ -110,15 +133,25 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
     {
+    // Initial current variable index
+    idx = 0;
+
     // Store current integer value
-    v[0] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
-    intArray->InsertNextValue( v[0] );
-    
+    if ( ! args->skipInt )
+      {
+      v[idx] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+      intArray->InsertNextValue( v[idx] );
+      ++ idx;
+      }
+
     // Store current string value
-    v[1] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
-    c = static_cast<char>( v[1] );
-    s = vtkStdString( &c, 1 );
-    strArray->InsertNextValue( s );
+    if ( ! args->skipString )
+      {
+      v[idx] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
+      char c = static_cast<char>( v[idx] );
+      vtkStdString s( &c, 1 );
+      strArray->InsertNextValue( s );
+      }
 
     // Update local extrema
     for ( int i = 0; i < nVariables; ++ i )
@@ -136,8 +169,14 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Create input table
   vtkTable* inputData = vtkTable::New();
-  inputData->AddColumn( intArray );
-  inputData->AddColumn( strArray );
+  if ( ! args->skipInt )
+    {
+    inputData->AddColumn( intArray );
+    }
+  if ( ! args->skipString )
+    {
+    inputData->AddColumn( strArray );
+    }
 
   // Storage for global extrema
   int* min_g = new int[nVariables];
@@ -156,21 +195,27 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   if ( myRank == args->ioRank )
     {
-    cout << "\n## Generated pseudo-random samples with following ranges:"
-         << "\n   "
-         << columnNames[0]
-         << ": "
-         << min_g[0]
-         << " to "
-         << max_g[0]
-         << "\n   "
-         << columnNames[1]
-         << ": "
-         << static_cast<char>( min_g[1] )
-         << " to "
-         << static_cast<char>( max_g[1] )
-         << "\n";
-    }
+    cout << "\n## Generated pseudo-random samples with following ranges:\n";
+    for ( int i = 0; i < nVariables; ++ i )
+      {
+      cout << "   "
+           << columnNames[i]
+           << ": ";
+      if ( isVariableAString[i] )
+        {
+        cout << static_cast<char>( min_g[i] )
+             << " to "
+             << static_cast<char>( max_g[i] );
+        }
+      else
+        {
+        cout <<  min_g[i]
+             << " to "
+             << max_g[i];
+        }
+      cout << "\n";
+      } // i
+    } // if ( myRank == args->ioRank )
 
   // Clean up
   delete [] v;  
@@ -192,9 +237,15 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   pos->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
-  // Select columns of interest
-  pos->AddColumn( columnNames[0] );
-  pos->AddColumn( columnNames[1] );
+  // Select columns of interest depending on command line choices
+  if ( ! args->skipInt )
+    {
+    pos->AddColumn( columnNames[0] );
+    }
+  if ( ! args->skipString )
+    {
+    pos->AddColumn( columnNames[1] );
+    }
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pos->SetLearnOption( true );
@@ -217,9 +268,18 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
          << " sec.\n";
     }
 
+  // If no variables were requested, terminate here (only made sure that empty input worked)
+  if ( ! nVariables )
+    {
+    pos->Delete();
+    inputData->Delete();
+    timer->Delete();
+
+    return;
+    }
+
   // Now perform verifications
-  unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
-  vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq - 1 ) );
+  vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nVariables ) );
 
   // Verify that all processes have the same grand total and histograms size
   if ( myRank == args->ioRank )
@@ -231,9 +291,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   int numProcs = controller->GetNumberOfProcesses();
   int card_l = outputCard->GetValueByName( 0, "Cardinality" ).ToInt();
   int* card_g = new int[numProcs];
-  com->AllGather( &card_l,
-                  card_g,
-                  1 );
+  com->AllGather( &card_l, card_g, 1 );
 
   // Known global cardinality
   int testIntValue = args->nVals * numProcs;
@@ -276,19 +334,19 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     } // i
 
   // Print out and verify global extrema
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nbq ) );
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nVariables + 1 ) );
   if ( myRank == args->ioRank )
     {
     cout << "\n## Verifying that calculated global ranges are correct:\n";
-
     for ( int i = 0; i < nVariables; ++ i )
       {
-      vtkVariant min_c = outputQuantiles->GetValueByName( 0,
-                                                   columnNames[i] );
+      vtkVariant min_c = outputQuantiles->GetValue( 0, 
+                                                    i + 1 );
       
-      vtkVariant max_c = outputQuantiles->GetValueByName( outputQuantiles->GetNumberOfRows() - 1 ,
-                                                   columnNames[i] );
+      vtkVariant max_c = outputQuantiles->GetValue( outputQuantiles->GetNumberOfRows() - 1 ,
+                                                    i + 1 );
       
+      // Print out computed range
       cout << "   "
            << columnNames[i]
            << ": "
@@ -300,7 +358,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
       // Check minimum
       if ( min_c.IsString() )
         {
-        c = static_cast<char>( min_g[i] );
+        char c = static_cast<char>( min_g[i] );
         if ( min_c.ToString() != vtkStdString( &c, 1 ) )
           {
           vtkGenericWarningMacro("Incorrect calculated minimum for variable "
@@ -329,7 +387,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
       // Check maximum
       if ( max_c.IsString() )
         {
-        c = static_cast<char>( max_g[i] );
+        char c = static_cast<char>( max_g[i] );
         if ( max_c.ToString() != vtkStdString( &c, 1 ) )
           {
           vtkGenericWarningMacro("Incorrect calculated maximum for variable "
