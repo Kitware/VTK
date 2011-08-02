@@ -37,15 +37,15 @@
 #include "vtkAbstractCellLocator.h"
 #include <vector>
 
-class PointTraversal;
+class vtkCellPointTraversal;
 class vtkIdTypeArray;
 class vtkCellArray;
 
 class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
 {
   public:
-    class CellTree;
-    class CellTreeNode;
+    class vtkCellTree;
+    class vtkCellTreeNode;
 
     vtkTypeMacro(vtkCellTreeLocator,vtkAbstractCellLocator);
     void PrintSelf(ostream& os, vtkIndent indent);
@@ -91,7 +91,9 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
     virtual int IntersectWithLine(
       double p1[3], double p2[3], double tol, double& t, double x[3],
       double pcoords[3], int &subId)
-      { return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId); }
+    {
+      return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId); 
+    }
 
     // Description:
     // Return intersection point (if any) AND the cell which was intersected by
@@ -107,17 +109,14 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
     virtual int IntersectWithLine(
       const double p1[3], const double p2[3],
       vtkPoints *points, vtkIdList *cellIds)
-      { return this->Superclass::IntersectWithLine(p1, p2, points, cellIds); }
+    { 
+      return this->Superclass::IntersectWithLine(p1, p2, points, cellIds); 
+    }
 
     // Description:
     // reimplemented from vtkAbstractCellLocator to support bad compilers
     virtual vtkIdType FindCell(double x[3])
-      { return this->Superclass::FindCell(x); }
-
-   
-
- 
-
+    { return this->Superclass::FindCell(x); }
 
     // Description:
     // Satisfy vtkLocator abstract interface.
@@ -133,14 +132,14 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
     // Description:
     // Internal classes made public to allow subclasses to create
     // customized some traversal algorithms  
-    class VTK_FILTERING_EXPORT CellTree
+    class VTK_FILTERING_EXPORT vtkCellTree
     {
       public:
-        std::vector<CellTreeNode>  Nodes;
+        std::vector<vtkCellTreeNode>  Nodes;
         std::vector<unsigned int> Leaves;
-        friend class PointTraversal;
-        friend class CellTreeNode;
-        friend class CellTreeBuilder;
+        friend class vtkCellPointTraversal;
+        friend class vtkCellTreeNode;
+        friend class vtkCellTreeBuilder;
         //friend class vtkCellTreeLocator;
 
       public:
@@ -153,7 +152,7 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
     // LeftMax and RightMin defines the bounding planes.
     // start is the location in the cell tree. e.g. for root node start is zero.
     // size is the number of the nodes under the tree 
-    class VTK_FILTERING_EXPORT CellTreeNode
+    class VTK_FILTERING_EXPORT vtkCellTreeNode
     {
       public:
        
@@ -165,9 +164,9 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
         unsigned int Sz; // size
         unsigned int St; // start 
 
-        friend class CellTree;
-        friend class PointTraversal;
-        friend class CellTreeBuilder;
+        friend class vtkCellTree;
+        friend class vtkCellPointTraversal;
+        friend class vtkCellTreeBuilder;
         
       public:
         void MakeNode( unsigned int left, unsigned int d, float b[2] );
@@ -207,8 +206,8 @@ protected:
   void Classify(const double origin[3],
     const double dir[3],
     double &rDist,
-    CellTreeNode *&Near, CellTreeNode *&Mid,
-    CellTreeNode *&Far, int &mustCheck);
+    vtkCellTreeNode *&near, vtkCellTreeNode *&mid,
+    vtkCellTreeNode *&far, int &mustCheck);
 
   // From vtkModifiedBSPTRee
   // We provide a function which does the cell/ray test so that
@@ -227,11 +226,11 @@ protected:
     int MaxCellsPerLeaf;
     int NumberOfBuckets;
 
-    CellTree* Tree;
+    vtkCellTree* Tree;
 
-    friend class PointTraversal;
-    friend class CellTreeNode;
-    friend class CellTreeBuilder;
+    friend class vtkCellPointTraversal;
+    friend class vtkCellTreeNode;
+    friend class vtkCellTreeBuilder;
     //friend class vtkCellTreeLocator;
 
 private:
