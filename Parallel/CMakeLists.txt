@@ -63,6 +63,7 @@ vtkPieceScalars.cxx
 vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPMaskPoints.cxx
+vtkPNetCDFPOPReader.cxx
 vtkPNrrdReader.cxx
 vtkPOPReader.cxx
 vtkPOpenFOAMReader.cxx
