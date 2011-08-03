@@ -3,9 +3,9 @@ import os.path
 
 # Set database parameters
 data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
-if not os.path.exists(data_dir):
+if not os.path.exists( data_dir):
   data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
-if not os.path.exists(data_dir):
+if not os.path.exists( data_dir):
   data_dir = "../../../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "temperatures.db"
 databaseToTable = vtkSQLDatabaseTableSource()
@@ -17,7 +17,7 @@ databaseToTable.SetQuery("select * from main_tbl where CompId==2")
 # Calculate primary descriptive statistics for first batch
 print "# Calculate primary model of descriptive statistics for first data set:"
 ds1 = vtkDescriptiveStatistics()
-ds1.AddInputConnection(databaseToTable.GetOutputPort())
+ds1.AddInputConnection( databaseToTable.GetOutputPort() )
 ds1.AddColumn("Temp1")
 ds1.AddColumn("Temp2")
 ds1.SetLearnOption( 1 )
@@ -38,7 +38,7 @@ databaseToTable.SetQuery("select * from main_tbl where CompId==3")
 # Calculate primary descriptive statistics for second batch
 print "# Calculate primary model of descriptive statistics for second data set:"
 ds2 = vtkDescriptiveStatistics()
-ds2.AddInputConnection(databaseToTable.GetOutputPort())
+ds2.AddInputConnection( databaseToTable.GetOutputPort() )
 ds2.AddColumn("Temp1")
 ds2.AddColumn("Temp2")
 ds2.SetLearnOption( 1 )
@@ -84,7 +84,7 @@ databaseToTable.SetQuery("select * from main_tbl")
 # Verify with calculation for whole ensemble at once
 print "# Finally verifying by directly calculating statistics for whole ensemble:"
 ds0 = vtkDescriptiveStatistics()
-ds0.AddInputConnection(databaseToTable.GetOutputPort())
+ds0.AddInputConnection( databaseToTable.GetOutputPort() )
 ds0.AddColumn("Temp1")
 ds0.AddColumn("Temp2")
 ds0.SetLearnOption( 1 )
