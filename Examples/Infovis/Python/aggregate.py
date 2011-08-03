@@ -65,7 +65,7 @@ dPrimary = aggregated.GetBlock( 0 )
 dPrimary.Dump( 15 )
 print
 
-# Calculated derived model for whole ensemble
+# Calculate derived model for whole ensemble
 print "# Now calculating derived statistics for whole ensemble:"
 ds.SetInput( 2, aggregated )
 ds.SetLearnOption( 0 )
@@ -76,4 +76,27 @@ ds.Update()
 dStats = ds.GetOutputDataObject( 1 )
 dDerived = dStats.GetBlock( 1 )
 dDerived.Dump( 15 )
+print
+
+# Pull entire data set from the database
+databaseToTable.SetQuery("select * from main_tbl")
+
+# Verify with calculation for whole ensemble at once
+print "# Finally verifying by directly calculating statistics for whole ensemble:"
+ds0 = vtkDescriptiveStatistics()
+ds0.AddInputConnection(databaseToTable.GetOutputPort())
+ds0.AddColumn("Temp1")
+ds0.AddColumn("Temp2")
+ds0.SetLearnOption( 1 )
+ds0.SetDeriveOption( 1 )
+ds0.SetAssessOption( 0 )
+ds0.SetTestOption( 0 )
+ds0.Update()
+
+# Show all descriptive statistics for whole ensemble
+dStats0 = ds0.GetOutputDataObject( 1 )
+dPrimary0 = dStats0.GetBlock( 0 )
+dPrimary0.Dump( 15 )
+dDerived0 = dStats0.GetBlock( 1 )
+dDerived0.Dump( 15 )
 print
