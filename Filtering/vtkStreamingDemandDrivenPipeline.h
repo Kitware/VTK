@@ -31,11 +31,12 @@
 class vtkExtentTranslator;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
+class vtkInformationIdTypeKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
-class vtkInformationIdTypeKey;
+class vtkInformationUnsignedLongKey;
 
 class VTK_FILTERING_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
 {
@@ -239,10 +240,15 @@ public:
   static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
   // Description:
-  // Key that specifies from 0.0 to 1.0 the pipeline computed priority 
-  // of this update extent. 0.0 means does not contribute and can 
+  // Key that specifies from 0.0 to 1.0 the pipeline computed priority
+  // of this update extent. 0.0 means does not contribute and can
   // be skipped.
   static vtkInformationDoubleKey* PRIORITY();
+
+  // Description:
+  // Key that specifies how many cells were in the piece at the head of the
+  // pipeline, so that work estimates can be made.
+  static vtkInformationUnsignedLongKey* ORIGINAL_NUMBER_OF_CELLS();
 
   // Description:
   // Key that specifies a requested resolution level for this update
