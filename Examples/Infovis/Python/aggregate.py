@@ -2,7 +2,11 @@ from vtk import *
 import os.path
 
 # Set database parameters
-data_dir = "./"
+data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
+if not os.path.exists(data_dir):
+  data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
+if not os.path.exists(data_dir):
+  data_dir = "../../../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "temperatures.db"
 databaseToTable = vtkSQLDatabaseTableSource()
 databaseToTable.SetURL("sqlite://" + sqlite_file)
