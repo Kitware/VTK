@@ -23,6 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -990,18 +991,17 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     // Since this filter only properly subdivides 2D cells past
     // level 1, we convert 3D cells to 2D by using
     // vtkUnstructuredGridGeometryFilter.
-    vtkUnstructuredGridGeometryFilter* uggf =
-      vtkUnstructuredGridGeometryFilter::New();
-    vtkUnstructuredGrid* clone = vtkUnstructuredGrid::New();
+    vtkNew<vtkUnstructuredGridGeometryFilter> uggf;
+    vtkNew<vtkUnstructuredGrid> clone;
     clone->ShallowCopy(input);
     uggf->SetInputConnection(clone->GetProducerPort());
     uggf->SetPassThroughCellIds(this->PassThroughCellIds);
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
     uggf->Update();
-    clone->ShallowCopy(uggf->GetOutputDataObject(0));
-    tempInput.TakeReference(clone);
+
+    tempInput = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    tempInput->ShallowCopy(uggf->GetOutputDataObject(0));
     input = tempInput;
-    uggf->Delete();
     }
 
   vtkCellArray *newVerts;
