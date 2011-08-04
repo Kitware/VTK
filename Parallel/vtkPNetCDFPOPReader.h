@@ -63,8 +63,8 @@ public:
   // Set/Get the vtkMultiProcessController which will handle communications
   // for the parallel rendering.
   vtkGetObjectMacro(Controller, vtkMPIController);
-  virtual void SetController(vtkMPIController *controller);
-  
+  void SetController(vtkMPIController *controller);
+
 protected:
   vtkPNetCDFPOPReader();
   ~vtkPNetCDFPOPReader();
@@ -75,22 +75,22 @@ protected:
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
 
-  
+
   // Functions added by RGM....
 
   // Helper function for RequestData:  Reads part of the netCDF
   // file and sends sub-arrays to all ranks that need that data
-  int ReadAndSend( vtkInformation* outInfo, int varID);  
+  int ReadAndSend( vtkInformation* outInfo, int varID);
 
   // Returns the MPI rank of the process that should read the specified depth
   int ReaderForDepth( unsigned depth);
-  
-  void SetReaderRanks();
+
+  void SetReaderRanks(vtkIdList*);
   bool IsReaderRank();
   bool IsFirstReaderRank();
-  
+
   // end of functions added by RGM...
-  
+
   static void SelectionModifiedCallback(vtkObject *caller, unsigned long eid,
                                         void *clientdata, void *calldata);
 
@@ -100,11 +100,13 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   char *FileName;
+  char *OpenedFileName;
+  vtkSetStringMacro(OpenedFileName);
 
   int NCDFFD; //netcdf file descriptor
 
   int Stride[3];
-  
+
   vtkMPIController *Controller;
 
 private:
