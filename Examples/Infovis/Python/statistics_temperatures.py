@@ -2,9 +2,9 @@ from vtk import *
 import os.path
 
 data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
-if not os.path.exists(data_dir):
+if not os.path.exists( data_dir ):
   data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
-if not os.path.exists(data_dir):
+if not os.path.exists( data_dir ):
   data_dir = "../../../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "temperatures.db"
 
@@ -16,7 +16,7 @@ databaseToTable.SetQuery("select * from main_tbl")
 # Calculate descriptive statistics
 print "# Calculate descriptive statistics:"
 ds = vtkDescriptiveStatistics()
-ds.AddInputConnection(databaseToTable.GetOutputPort())
+ds.AddInputConnection( databaseToTable.GetOutputPort() )
 ds.AddColumn("Temp1")
 ds.AddColumn("Temp2")
 ds.Update()
@@ -31,7 +31,7 @@ print
 print "# Calculate 5-point statistics:"
 # Calculate 5-point statistics
 os = vtkOrderStatistics()
-os.AddInputConnection(databaseToTable.GetOutputPort())
+os.AddInputConnection( databaseToTable.GetOutputPort() )
 os.AddColumn("Temp1")
 os.AddColumn("Temp2")
 os.Update()
@@ -54,7 +54,7 @@ print
 print "# Calculate correlation and linear regression:"
 # Calculate correlation and linear regression
 cs = vtkCorrelativeStatistics()
-cs.AddInputConnection(databaseToTable.GetOutputPort())
+cs.AddInputConnection( databaseToTable.GetOutputPort() )
 cs.AddColumnPair("Temp1","Temp2")
 cs.SetAssessOption(1)
 cs.Update()

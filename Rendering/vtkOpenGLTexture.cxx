@@ -572,8 +572,8 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
       ysize /= 2;
       }
     }
-  hx = (xs - 1.0) / (xsize - 1.0);
-  hy = (ys - 1.0) / (ysize - 1.0);
+  hx = xsize > 1 ? (xs - 1.0) / (xsize - 1.0) : 0;
+  hy = ysize > 1 ? (ys - 1.0) / (ysize - 1.0) : 0;
 
   tptr = p = new unsigned char[xsize*ysize*bpp];
 

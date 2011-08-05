@@ -134,6 +134,9 @@ protected:
   // overload drop event
   virtual void dropEvent(QDropEvent*);
 
+  // overload focus handling so tab key is passed to VTK
+  virtual bool focusNextPrevChild(bool);
+
   // the vtk render window
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> mRenWin;
   bool UseTDx;
