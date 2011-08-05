@@ -164,9 +164,14 @@ public:
   // Description:
   // Enumeration of the axis notations available.
   enum {
-    STANDARD = 0,
-    SCIENTIFIC,
-    MIXED
+    STANDARD_NOTATION = 0,
+    SCIENTIFIC_NOTATION,
+    FIXED_NOTATION,
+
+    // deprecated, use the *_NOTATION versions above
+    STANDARD = STANDARD_NOTATION,
+    SCIENTIFIC = SCIENTIFIC_NOTATION,
+    MIXED = FIXED_NOTATION
   };
 
   // Description:
