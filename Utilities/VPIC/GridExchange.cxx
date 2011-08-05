@@ -387,8 +387,8 @@ void GridExchange::initialize()
                 this->ghost0,
                 this->ghost0 + this->mine[1],
                 0);
-  setSendSize(Y0_Z1, this->mine[0], this->ghost0, this->ghost1);
-  setRecvSize(Y1_Z0, this->mine[0], this->ghost0, this->ghost1);
+  setSendSize(Y0_Z1, this->mine[0], this->ghost1, this->ghost0);
+  setRecvSize(Y1_Z0, this->mine[0], this->ghost1, this->ghost0);
 
   // Send top front edge and receive bottom back edge
   setSendOrigin(Y1_Z0,
