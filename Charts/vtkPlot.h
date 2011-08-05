@@ -68,6 +68,16 @@ public:
   virtual void SetTooltipLabelFormat(const vtkStdString &label);
   virtual vtkStdString GetTooltipLabelFormat();
 
+  // Description:
+  // Sets/gets the tooltip notation style.
+  virtual void SetTooltipNotation(int notation);
+  virtual int GetTooltipNotation();
+
+  // Description:
+  // Sets/gets the tooltip precision.
+  virtual void SetTooltipPrecision(int precision);
+  virtual int GetTooltipPrecision();
+
 //BTX
   // Description:
   // Generate and return the tooltip label string for this plot
@@ -269,6 +279,9 @@ protected:
   // The default printf-style string to build custom tooltip labels from.
   // See the accessor/mutator functions for full documentation.
   vtkStdString TooltipDefaultLabelFormat;
+
+  int TooltipNotation;
+  int TooltipPrecision;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.
