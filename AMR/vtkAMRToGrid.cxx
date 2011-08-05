@@ -118,7 +118,6 @@ int vtkAMRToGrid::RequestInformation(
           input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
       assert( "pre: medata is NULL" && (metadata != NULL)  );
 
-//      this->InitializeRegionBounds( metadata );
       this->SubdivideExtractionRegion();
 
       this->ComputeAMRBlocksToLoad( metadata );
@@ -185,7 +184,7 @@ void vtkAMRToGrid::InitializeFields(
     {
       int dataType        = src->GetArray( arrayIdx )->GetDataType();
       vtkDataArray *array = vtkDataArray::CreateDataArray( dataType );
-      assert( "" && (array != NULL) );
+      assert( "pre: failed to create array!" && (array != NULL) );
 
       array->SetName( src->GetArray(arrayIdx)->GetName() );
       array->SetNumberOfTuples( size );
@@ -213,17 +212,25 @@ void vtkAMRToGrid::CopyData(
     {
       vtkDataArray *targetArray = target->GetArray( arrayIdx );
       vtkDataArray *srcArray    = src->GetArray( arrayIdx );
+      assert( "pre: target array is NULL!" && (targetArray != NULL) );
+      assert( "pre: source array is NULL!" && (srcArray != NULL) );
       assert( "pre: targer/source array number of components mismatch!" &&
-       (targetArray->GetNumberOfComponents()==
-        srcArray->GetNumberOfComponents() ) );
+              (targetArray->GetNumberOfComponents()==
+               srcArray->GetNumberOfComponents() ) );
       assert( "pre: target/source array names mismatch!" &&
-       (strcmp(targetArray->GetName(),srcArray->GetName()) == 0) );
+              (strcmp(targetArray->GetName(),srcArray->GetName()) == 0) );
+      assert( "pre: source index is out-of-bounds" &&
+              (srcIdx >=0) &&
+              (srcIdx < srcArray->GetNumberOfTuples() ) );
+      assert( "pre: target index is out-of-bounds" &&
+              (targetIdx >= 0) &&
+              (targetIdx < targetArray->GetNumberOfTuples() ) );
 
       int c=0;
       for( ; c < srcArray->GetNumberOfComponents(); ++c )
         {
-          double f = targetArray->GetComponent( targetIdx, c );
-          srcArray->SetComponent( srcIdx, c, f );
+          double f = srcArray->GetComponent( srcIdx, c );
+          targetArray->SetComponent( targetIdx, c, f );
         } // END for all componenents
 
     } // END for all arrays
@@ -258,6 +265,9 @@ void vtkAMRToGrid::TransferToGridNodes(
   // STEP 0: Initialize the fields on the grid
   this->InitializeFields( PD, g->GetNumberOfPoints(), CD );
 
+  if(PD->GetNumberOfArrays() == 0)
+    return;
+
   // STEP 1: Loop through all the points and find the donors.
   vtkIdType pIdx = 0;
   for( ; pIdx < g->GetNumberOfPoints(); ++pIdx )
@@ -279,6 +289,7 @@ void vtkAMRToGrid::TransferToGridNodes(
                    assert( "pre: donorCellIdx is invalid" &&
                            (donorCellIdx >= 0) &&
                            (donorCellIdx < donorGrid->GetNumberOfCells()) );
+                   CD = donorGrid->GetCellData();
                    this->CopyData( PD, pIdx, CD, donorCellIdx );
                  } // END if
 
