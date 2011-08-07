@@ -31,6 +31,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkImageResliceToColors.h"
+#include "vtkAbstractImageInterpolator.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageResliceMapper);
@@ -105,6 +106,26 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
     }
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageResliceMapper::SetInterpolator(
+  vtkAbstractImageInterpolator *interpolator)
+{
+  unsigned long mtime = this->ImageReslice->GetMTime();
+
+  this->ImageReslice->SetInterpolator(interpolator);
+
+  if (this->ImageReslice->GetMTime() > mtime)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractImageInterpolator *vtkImageResliceMapper::GetInterpolator()
+{
+  return this->ImageReslice->GetInterpolator();
 }
 
 //----------------------------------------------------------------------------
@@ -1245,6 +1266,7 @@ void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SlabType: " << this->GetSlabTypeAsString() << "\n";
   os << indent << "SlabSampleFactor: " << this->SlabSampleFactor << "\n";
   os << indent << "ImageSampleFactor: " << this->ImageSampleFactor << "\n";
+  os << indent << "Interpolator: " << this->GetInterpolator() << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -1266,6 +1288,18 @@ const char *vtkImageResliceMapper::GetSlabTypeAsString()
 unsigned long vtkImageResliceMapper::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
+
+  // Check whether interpolator has changed
+  vtkAbstractImageInterpolator *interpolator =
+    this->ImageReslice->GetInterpolator();
+  if (interpolator)
+    {
+    unsigned long mTime2 = interpolator->GetMTime();
+    if (mTime2 > mTime)
+      {
+      mTime = mTime2;
+      }
+    }
 
   // Include camera in MTime so that REQUEST_INFORMATION
   // will be called if the camera changes

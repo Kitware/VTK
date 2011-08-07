@@ -30,9 +30,9 @@
 
 class vtkImageData;
 
-#define VTK_GRID_NEAREST 0
-#define VTK_GRID_LINEAR 1
-#define VTK_GRID_CUBIC 3
+#define VTK_GRID_NEAREST VTK_NEAREST_INTERPOLATION
+#define VTK_GRID_LINEAR VTK_LINEAR_INTERPOLATION
+#define VTK_GRID_CUBIC VTK_CUBIC_INTERPOLATION
 
 class VTK_HYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
 {
@@ -69,11 +69,11 @@ public:
   void SetInterpolationMode(int mode);
   vtkGetMacro(InterpolationMode,int);
   void SetInterpolationModeToNearestNeighbor()
-    { this->SetInterpolationMode(VTK_GRID_NEAREST); };
+    { this->SetInterpolationMode(VTK_NEAREST_INTERPOLATION); };
   void SetInterpolationModeToLinear()
-    { this->SetInterpolationMode(VTK_GRID_LINEAR); };
+    { this->SetInterpolationMode(VTK_LINEAR_INTERPOLATION); };
   void SetInterpolationModeToCubic()
-    { this->SetInterpolationMode(VTK_GRID_CUBIC); };
+    { this->SetInterpolationMode(VTK_CUBIC_INTERPOLATION); };
   const char *GetInterpolationModeAsString();
 
   // Description:
