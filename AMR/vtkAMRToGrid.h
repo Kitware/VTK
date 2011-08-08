@@ -112,6 +112,11 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     vtkMultiProcessController *Controller;
 
     // Description:
+    // Given a cell index and a grid, this method computes the cell centroid.
+    void ComputeCellCentroid(
+        vtkUniformGrid *g, const vtkIdType cellIdx, double c[3] );
+
+    // Description:
     // Given the source cell data of an AMR grid, this method initializes the
     // field values, i.e., the number of arrays with the prescribed size. Note,
     // the size must correspond to the number of points if node-centered or the

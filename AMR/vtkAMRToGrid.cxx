@@ -29,6 +29,7 @@
 #include "vtkFieldData.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
+#include "vtkCell.h"
 
 #include <cassert>
 #include <algorithm>
@@ -237,13 +238,79 @@ void vtkAMRToGrid::CopyData(
 }
 
 //-----------------------------------------------------------------------------
+void vtkAMRToGrid::ComputeCellCentroid(
+    vtkUniformGrid *g, const vtkIdType cellIdx, double c[3] )
+{
+  assert( "pre: uniform grid is NULL" && (g != NULL) );
+  assert( "pre: centroid is NULL" && (c != NULL) );
+  assert( "pre: cell index out-of-bounds" &&
+           (cellIdx >= 0) && (cellIdx < g->GetNumberOfCells()) );
+
+
+  vtkCell *myCell = g->GetCell( cellIdx );
+  assert( "post: cell is NULL!" && (myCell != NULL) );
+
+  double pc[3]; // the parametric center
+  double *weights = new double[ myCell->GetNumberOfPoints() ];
+  assert( "post: weights vector is NULL" && (weights != NULL) );
+
+  int subId = myCell->GetParametricCenter( pc );
+  myCell->EvaluateLocation( subId, pc, c, weights );
+  delete [] weights;
+}
+
+//-----------------------------------------------------------------------------
 void vtkAMRToGrid::TransferToCellCenters(
         vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
 {
   assert( "pre: uniform grid is NULL" && (g != NULL) );
   assert( "pre: AMR data-strucutre is NULL" && (amrds != NULL) );
 
-  // TODO: implement this
+  // STEP 0: Get the first block so that we know the arrays
+  vtkUniformGrid *refGrid = amrds->GetDataSet(0,0);
+  assert( "pre: Block(0,0) is NULL!" && (refGrid != NULL) );
+
+  // STEP 1: Get the cell-data of the reference grid
+  vtkCellData *CD = refGrid->GetCellData();
+  assert( "pre: Donor CellData is NULL!" && (CD != NULL)  );
+
+  // STEP 2: Get the cell data of the resampled grid
+  vtkCellData *fieldData = g->GetCellData();
+  assert( "pre: Target PointData is NULL!" && (fieldData != NULL) );
+
+  // STEP 3: Initialize the fields on the resampled grid
+  this->InitializeFields( fieldData, g->GetNumberOfCells(), CD );
+
+  if(fieldData->GetNumberOfArrays() == 0)
+   return;
+
+  vtkIdType cellIdx = 0;
+  for( ; cellIdx < g->GetNumberOfCells(); ++cellIdx )
+    {
+      double qPoint[3];
+      this->ComputeCellCentroid( g, cellIdx, qPoint );
+
+      unsigned int level=0;
+      for( ; level < amrds->GetNumberOfDataSets( level ); ++level )
+        {
+          unsigned int dataIdx = 0;
+          for( ; dataIdx < amrds->GetNumberOfDataSets( level ); ++dataIdx )
+            {
+              int donorCellIdx = -1;
+              vtkUniformGrid *donorGrid = amrds->GetDataSet(level,dataIdx);
+              if( (donorGrid!=NULL) &&
+                  this->FoundDonor(qPoint,donorGrid,donorCellIdx) )
+                {
+                  assert( "pre: donorCellIdx is invalid" &&
+                          (donorCellIdx >= 0) &&
+                          (donorCellIdx < donorGrid->GetNumberOfCells()) );
+                  CD = donorGrid->GetCellData();
+                  this->CopyData( fieldData, cellIdx, CD, donorCellIdx );
+                } // END if
+
+            } // END for all datasets
+        } // END for all levels
+    } // END for all cells
 }
 
 //-----------------------------------------------------------------------------
