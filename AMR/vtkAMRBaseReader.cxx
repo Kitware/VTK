@@ -498,8 +498,8 @@ int vtkAMRBaseReader::RequestData(
 
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::RqstData" );
 
-  std::cout << "NUMBLOCKS from file: "  << this->numBlocksFromFile << std::endl;
-  std::cout << "NUMBLOCKS from cache: " << this->numBlocksFromCache << std::endl;
-  std::cout.flush();
+//  std::cout << "NUMBLOCKS from file: "  << this->numBlocksFromFile << std::endl;
+//  std::cout << "NUMBLOCKS from cache: " << this->numBlocksFromCache << std::endl;
+//  std::cout.flush();
   return 1;
 }
