@@ -377,28 +377,33 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
 
           vtkUniformGrid *grid = inp->GetDataSet( level, dataIdx );
           if( grid != NULL )
-          {
-            bounds[0] = box.GetMinX();
-            bounds[1] = box.GetMaxX();
-            bounds[2] = box.GetMinY();
-            bounds[3] = box.GetMaxY();
-            bounds[4] = box.GetMinZ();
-            bounds[5] = box.GetMaxZ();
+            {
+              bounds[0] = box.GetMinX();
+              bounds[1] = box.GetMaxX();
+              bounds[2] = box.GetMinY();
+              bounds[3] = box.GetMaxY();
+              bounds[4] = box.GetMinZ();
+              bounds[5] = box.GetMaxZ();
 
-            if( this->PlaneIntersectsAMRBox( plane, bounds ) )
-              {
-                vtkUniformGrid *slice = this->GetSlice( p->GetOrigin(), grid );
-                assert( "Dimension of slice must be 2-D" &&
-                         (slice->GetDataDimension()==2) );
-                assert( "2-D slice is NULL" && (slice != NULL) );
-                this->GetSliceCellData( slice, grid );
-                unsigned int blockIdx =
-                    out->GetNumberOfDataSets( box.GetLevel() );
-                out->SetDataSet( box.GetLevel(), blockIdx, slice );
-                slice->Delete();
-              }
-
-          }
+              if( this->PlaneIntersectsAMRBox( plane, bounds ) )
+                {
+                  vtkUniformGrid *slice = this->GetSlice( p->GetOrigin(), grid );
+                  assert( "Dimension of slice must be 2-D" &&
+                           (slice->GetDataDimension()==2) );
+                  assert( "2-D slice is NULL" && (slice != NULL) );
+                  this->GetSliceCellData( slice, grid );
+                  unsigned int blockIdx =
+                      out->GetNumberOfDataSets( box.GetLevel() );
+                  out->SetDataSet( box.GetLevel(), blockIdx, slice );
+                  slice->Delete();
+                } // END if plane intersects
+            } // END if grid is not NULL
+          else
+            {
+              // This belongs to another process
+              unsigned int blockIdx=out->GetNumberOfDataSets( box.GetLevel() );
+              out->SetDataSet( box.GetLevel(), blockIdx, NULL );
+            }
 
         } // END for all data
     } // END for all levels
