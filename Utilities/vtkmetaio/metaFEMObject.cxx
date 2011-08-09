@@ -604,8 +604,8 @@ void MetaFEMObject::M_Write_Load(FEMObjectLoad *Load)
     *this->m_WriteStream << "\t" << Load->m_EdgeNumber << "\t% Edge number" << "\n";
 
     /** ... force matrix */
-    int numRows = Load->m_ForceMatrix.size();
-    int numCols = Load->m_ForceMatrix[0].size();
+    size_t numRows = Load->m_ForceMatrix.size();
+    size_t numCols = Load->m_ForceMatrix[0].size();
 
     *this->m_WriteStream << "\t" << numRows << "\t% # rows in force matrix" << "\n";
     *this->m_WriteStream << "\t" << numCols << "\t% # cols in force matrix" << "\n";
@@ -653,7 +653,7 @@ void MetaFEMObject::M_Write_Load(FEMObjectLoad *Load)
   if(std::string(Load->m_LoadName) == "LoadLandmark")
     {
     // print undeformed coordinates
-    int dim = Load->m_Undeformed.size();
+    size_t dim = Load->m_Undeformed.size();
 
     *this->m_WriteStream << "\t" << dim;
     for ( int i = 0; i < dim; i++ )
