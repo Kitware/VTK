@@ -59,9 +59,9 @@ public:
   virtual int GetVariableArrayStatus(const char *name);
   virtual void SetVariableArrayStatus(const char *name, int status);
 
-  // Added by RGM
+  // Description:
   // Set/Get the vtkMultiProcessController which will handle communications
-  // for the parallel rendering.
+  // for the parallel rendering.  Added by RGM.
   vtkGetObjectMacro(Controller, vtkMPIController);
   void SetController(vtkMPIController *controller);
 
@@ -78,10 +78,12 @@ protected:
 
   // Functions added by RGM....
 
+  // Description:
   // Helper function for RequestData:  Reads part of the netCDF
   // file and sends sub-arrays to all ranks that need that data
   int ReadAndSend( vtkInformation* outInfo, int varID);
 
+  // Description:
   // Returns the MPI rank of the process that should read the specified depth
   int ReaderForDepth( unsigned depth);
 
