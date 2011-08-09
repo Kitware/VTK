@@ -974,7 +974,7 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
       }
     if (w1*w2 < 0)
       {
-      tMin = w1/(w2 - w1);
+      tMin = w1/(w1 - w2);
       }
     }
 
