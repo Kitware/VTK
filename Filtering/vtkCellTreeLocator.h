@@ -23,6 +23,8 @@
 // aligned bounding planes (left max and right min) are stored for each node along a 
 // dimension. This class implements the data structure (Cell Tree Node) and its build 
 // and traversal algorithms described in the paper.  
+// Some methods in building and traversing the cell tree in this class were derived 
+// avtCellLocatorBIH class in the VisIT Visualization Tool
 
 // .SECTION Caveats
 // 
