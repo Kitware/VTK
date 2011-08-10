@@ -940,25 +940,22 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
   double bounds[6];
   imageMapper->GetBounds(bounds);
 
-  int croppedExtent[6];
-  for (int k = 0; k < 6; k++)
+  // Convert bounds to structured coords
+  for (int k = 0; k < 3; k++)
     {
-    double d = (bounds[k] - origin[k>>1])/spacing[k>>1];
-    if (d > 0)
-      {
-      croppedExtent[k] = static_cast<int>(d + VTKCELLPICKER_VOXEL_TOL);
-      }
-    else
-      {
-      croppedExtent[k] = static_cast<int>(d - VTKCELLPICKER_VOXEL_TOL);
-      }
+    bounds[2*k] = (bounds[2*k] - origin[k])/spacing[k];
+    bounds[2*k+1] = (bounds[2*k+1] - origin[k])/spacing[k];
+    // It should be a multiple of 0.5, so round to closest multiple of 0.5
+    // (this reduces the impact of roundoff error from the above computation)
+    bounds[2*k] = 0.5*vtkMath::Round(2.0*(bounds[2*k]));
+    bounds[2*k+1] = 0.5*vtkMath::Round(2.0*(bounds[2*k+1]));
     }
 
   // Clip the ray with the extent
-  int planeId;
+  int planeId, plane2Id;
   double tMin, tMax;
-  if (!this->ClipLineWithExtent(croppedExtent, x1, x2, tMin, tMax, planeId)
-      || tMin < t1 || tMin > t2)
+  if (!vtkBox::IntersectWithLine(bounds, x1, x2, tMin, tMax, 0, 0,
+        planeId, plane2Id) || tMin < t1 || tMin > t2)
     {
     return VTK_DOUBLE_MAX;
     }
@@ -989,21 +986,21 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
       // Do a bounds check.  If beyond tolerance of bound, then
       // pick failed, but if within tolerance, clamp the coord
       // to the bound for robustness against roundoff errors.
-      if (x[j] < croppedExtent[2*j])
+      if (x[j] < bounds[2*j])
         {
-        if (x[j] < croppedExtent[2*j] - VTKCELLPICKER_VOXEL_TOL)
+        if (x[j] < bounds[2*j] - VTKCELLPICKER_VOXEL_TOL)
           {
           return VTK_DOUBLE_MAX;
           }
-        x[j] = croppedExtent[2*j];
+        x[j] = bounds[2*j];
         }
-      else if (x[j] > croppedExtent[2*j+1])
+      else if (x[j] > bounds[2*j+1])
         {
-        if (x[j] > croppedExtent[2*j+1] + VTKCELLPICKER_VOXEL_TOL)
+        if (x[j] > bounds[2*j+1] + VTKCELLPICKER_VOXEL_TOL)
           {
           return VTK_DOUBLE_MAX;
           }
-        x[j] = croppedExtent[2*j + 1];
+        x[j] = bounds[2*j + 1];
         }
       }
 
