@@ -610,11 +610,11 @@ void MetaFEMObject::M_Write_Load(FEMObjectLoad *Load)
     *this->m_WriteStream << "\t" << numRows << "\t% # rows in force matrix" << "\n";
     *this->m_WriteStream << "\t" << numCols << "\t% # cols in force matrix" << "\n";
     *this->m_WriteStream << "\t% force matrix\n";
-    for ( int i = 0; i < numRows; i++ )
+    for ( size_t i = 0; i < numRows; i++ )
       {
       *this->m_WriteStream << "\t";
       METAIO_STL::vector<float> F = Load->m_ForceMatrix[i];
-      for ( int j = 0; j < numCols; j++ )
+      for ( size_t j = 0; j < numCols; j++ )
         {
         *this->m_WriteStream << F[j] << " ";
         }
@@ -656,7 +656,7 @@ void MetaFEMObject::M_Write_Load(FEMObjectLoad *Load)
     size_t dim = Load->m_Undeformed.size();
 
     *this->m_WriteStream << "\t" << dim;
-    for ( int i = 0; i < dim; i++ )
+    for ( size_t i = 0; i < dim; i++ )
       {
       *this->m_WriteStream << Load->m_Undeformed[i] << " ";
       }
@@ -665,7 +665,7 @@ void MetaFEMObject::M_Write_Load(FEMObjectLoad *Load)
 
     // print deformed coordinates
     *this->m_WriteStream << "\t" << dim;
-    for ( int i = 0; i < dim; i++ )
+    for ( size_t i = 0; i < dim; i++ )
       {
       *this->m_WriteStream << Load->m_Deformed[i] << " ";
       }
