@@ -140,18 +140,20 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
         friend class vtkCellPointTraversal;
         friend class vtkCellTreeNode;
         friend class vtkCellTreeBuilder;
-        //friend class vtkCellTreeLocator;
 
       public:
         float DataBBox[6]; // This store the bounding values of the dataset
     };
 
     // Description:
-    // This class is the basic building block of the cell tree.  There is a node per dimension. i.e. There are 3 CellTreeNodes
-    // in x,y,z directions.  In contrast, vtkModifiedBSPTree class stores the bounding planes for all 3 dimensions in a single node.
-    // LeftMax and RightMin defines the bounding planes.
+    // This class is the basic building block of the cell tree. 
+    // Nodes consist of two split planes, LeftMax and RightMin, 
+    // one which holds all cells assigned to the left, one for the right. 
+    // The planes may overlap in the box, but cells are only assigned 
+    // to one side, so some searches must traverse both leaves until they have eliminated
+    // candidates.
     // start is the location in the cell tree. e.g. for root node start is zero.
-    // size is the number of the nodes under the tree
+    // size is the number of the nodes under the (sub-)tree
     class VTK_FILTERING_EXPORT vtkCellTreeNode
     {
       public:
@@ -223,7 +225,6 @@ protected:
     int &subId);
 
 
-    int MaxCellsPerLeaf;
     int NumberOfBuckets;
 
     vtkCellTree* Tree;

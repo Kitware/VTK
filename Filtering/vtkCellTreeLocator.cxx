@@ -551,9 +551,9 @@ typedef std::stack<vtkCellTreeLocator::vtkCellTreeNode*, std::vector<vtkCellTree
 
 vtkCellTreeLocator::vtkCellTreeLocator( )
 {
-  this->MaxCellsPerLeaf = 8;
-  this->NumberOfBuckets = 5;
-  this->Tree            = NULL;
+  this->NumberOfCellsPerNode = 8;
+  this->NumberOfBuckets      = 5;
+  this->Tree                 = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -618,7 +618,7 @@ void vtkCellTreeLocator::BuildLocatorInternal()
   //
   this->Tree = new vtkCellTree;
   vtkCellTreeBuilder builder;
-  builder.m_leafsize = MaxCellsPerLeaf;
+  builder.m_leafsize = this->NumberOfCellsPerNode;
   builder.m_buckets  = NumberOfBuckets;
   builder.Build( this, *(Tree), this->DataSet );
   this->BuildTime.Modified();
