@@ -980,26 +980,38 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
 
   if (tMin < this->GlobalTMin)
     {
+    // Compute the pick position in structured coords
+    double x[3];
+    for (int j = 0; j < 3; j++)
+      {
+      x[j] = x1[j]*(1.0 - tMin) + x2[j]*tMin;
+
+      // Do a bounds check.  If beyond tolerance of bound, then
+      // pick failed, but if within tolerance, clamp the coord
+      // to the bound for robustness against roundoff errors.
+      if (x[j] < croppedExtent[2*j])
+        {
+        if (x[j] < croppedExtent[2*j] - VTKCELLPICKER_VOXEL_TOL)
+          {
+          return VTK_DOUBLE_MAX;
+          }
+        x[j] = croppedExtent[2*j];
+        }
+      else if (x[j] > croppedExtent[2*j+1])
+        {
+        if (x[j] > croppedExtent[2*j+1] + VTKCELLPICKER_VOXEL_TOL)
+          {
+          return VTK_DOUBLE_MAX;
+          }
+        x[j] = croppedExtent[2*j + 1];
+        }
+      }
+
     this->ResetPickInfo();
     this->Mapper = 0;
     this->DataSet = data;
 
     // Compute all the pick values
-    double x[3];
-    for (int j = 0; j < 3; j++)
-      {
-      x[j] = x1[j]*(1.0 - tMin) + x2[j]*tMin;
-      // Avoid out-of-bounds due to roundoff error
-      if (x[j] < croppedExtent[2*j])
-        {
-        x[j] = croppedExtent[2*j];
-        } 
-      else if (x[j] > croppedExtent[2*j+1])
-        {
-        x[j] = croppedExtent[2*j + 1];
-        }
-      }
-
     this->SetImageDataPickInfo(x, extent);
 
     this->MapperPosition[0] = origin[0] + x[0]*spacing[0];
