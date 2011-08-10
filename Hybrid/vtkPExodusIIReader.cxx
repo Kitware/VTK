@@ -162,6 +162,8 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->MultiFileName = new char[vtkPExodusIIReaderMAXPATHLEN];
   this->XMLFileName=NULL;
   this->LastCommonTimeStep = -1;
+  this->UseVariableCache = 0;
+  this->VariableCacheSize = 0;
 }
  
 //----------------------------------------------------------------------------
@@ -476,7 +478,7 @@ int vtkPExodusIIReader::RequestData(
       progress->SetReader( this );
       progress->SetIndex( reader_idx );
       er->AddObserver( vtkCommand::ProgressEvent, progress );
-      progress->Delete();
+      progress->Delete();      
 
       this->ReaderList.push_back( er );
       }
@@ -505,6 +507,16 @@ int vtkPExodusIIReader::RequestData(
   cout << "\n\n ************************************* Parallel master reader dump\n";
   this->Dump();
 #endif // DBG_PEXOIIRDR
+
+  //setup the cache size for each reader
+  double cacheSize = 0;
+  if ( this->UseVariableCache && this->VariableCacheSize > 0 )
+    {
+    cacheSize = this->VariableCacheSize / static_cast<int>( this->ReaderList.size() );
+    //now we have to convert the cachesize to mebibytes
+    cacheSize *= 1024;
+    }
+
   // This constructs the filenames
   int fast_path_reader_index = -1;
   for ( fileIndex = min, reader_idx=0; fileIndex <= max; ++fileIndex, ++reader_idx )
@@ -583,6 +595,8 @@ int vtkPExodusIIReader::RequestData(
       this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
       }
 
+
+    this->ReaderList[reader_idx]->SetCacheSize(cacheSize);
     this->ReaderList[reader_idx]->SetGenerateObjectIdCellArray( this->GetGenerateObjectIdCellArray() );
     this->ReaderList[reader_idx]->SetGenerateGlobalElementIdArray( this->GetGenerateGlobalElementIdArray() );
     this->ReaderList[reader_idx]->SetGenerateGlobalNodeIdArray( this->GetGenerateGlobalNodeIdArray() );

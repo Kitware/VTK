@@ -116,6 +116,18 @@ public:
   // through this API) from the rank 0 node to all other processes in a job.
   virtual void Broadcast( vtkMultiProcessController* ctrl );
 
+  //Description:
+  //Enables the ability for the PExousIIReader to cache variables.
+  //The cache
+  vtkGetMacro(UseVariableCache,int);
+  vtkSetMacro(UseVariableCache,int);
+  
+  //Description:
+  //The size of the variable cache in GigaBytes. The total size of the cache
+  //will be equally divided between all exodus readers that this reader creates
+  vtkGetMacro(VariableCacheSize,double);
+  vtkSetMacro(VariableCacheSize,double);
+
 protected:
   vtkPExodusIIReader();
   ~vtkPExodusIIReader();
@@ -124,6 +136,12 @@ protected:
   // Try to "guess" the pattern of files.
   int DeterminePattern( const char* file );
   static int DetermineFileId( const char* file );
+
+  //enable/disable the use of caching in each ExodusIIReader
+  int UseVariableCache;
+
+  //holds the size of the variable cache in GigaBytes
+  double VariableCacheSize;
 
   // **KEN** Previous discussions concluded with std classes in header
   // files is bad.  Perhaps we should change ReaderList.

@@ -4833,6 +4833,16 @@ void vtkExodusIIReaderPrivate::ResetCache()
   this->ClearConnectivityCaches();
 }
 
+void vtkExodusIIReaderPrivate::SetCacheSize( double size )
+{
+  if (this->CacheSize != size)
+    {
+    this->CacheSize = size;
+    this->Cache->SetCacheCapacity(this->CacheSize);
+    this->Modified();
+    }
+}
+
 bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
 {
   // Make sure that each block id referred to in the metadata arrays exist
