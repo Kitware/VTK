@@ -83,7 +83,8 @@ PURPOSE.  See the above copyright notice for more information.
 */
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
-vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, LOAD_REQUESTED_BLOCKS, Integer);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, REQUIRES_TIME_DOWNSTREAM, Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_DATA_META_DATA, ObjectBase);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, UPDATE_COMPOSITE_INDICES, IntegerVector);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_INDICES, IntegerVector);
@@ -160,6 +161,7 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
     {
     return 0;
     }
+
 
   // Check if REQUIRES_TIME_DOWNSTREAM() key is in the output. If yes,
   // pass it to inputs.
@@ -1227,6 +1229,7 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
           inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
           inInfo->CopyEntry(outInfo, UPDATE_COMPOSITE_INDICES());
+          inInfo->CopyEntry(outInfo, LOAD_REQUESTED_BLOCKS());
           }
         }
       }
@@ -1269,6 +1272,7 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
           inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
+          inInfo->CopyEntry(outInfo, LOAD_REQUESTED_BLOCKS());
           }
         }
       }
@@ -1288,6 +1292,7 @@ void vtkCompositeDataPipeline::ResetPipelineInformation(int port,
   info->Remove(REQUIRES_TIME_DOWNSTREAM());
   info->Remove(COMPOSITE_DATA_META_DATA());
   info->Remove(UPDATE_COMPOSITE_INDICES());
+  info->Remove(LOAD_REQUESTED_BLOCKS());
 }
 
 //----------------------------------------------------------------------------
