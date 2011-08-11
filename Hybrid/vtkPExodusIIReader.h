@@ -117,14 +117,14 @@ public:
   virtual void Broadcast( vtkMultiProcessController* ctrl );
 
   //Description:
-  //Enables the ability for the PExousIIReader to cache variables.
-  //The cache
-  vtkGetMacro(UseVariableCache,int);
-  vtkSetMacro(UseVariableCache,int);
-  
-  //Description:
-  //The size of the variable cache in GigaBytes. The total size of the cache
-  //will be equally divided between all exodus readers that this reader creates
+  //The size of the variable cache in MegaByes. This represents the maximum
+  //size of cache that a single partition reader can have while reading. When
+  //a reader is finished its cache size will be set to a fraction of this based
+  //on the number of partitions.
+  //The Default for this is 100MiB.
+  //Note that because each reader still holds
+  //a fraction of the cache size after reading the total amount of data cached
+  //can be at most twice this size.
   vtkGetMacro(VariableCacheSize,double);
   vtkSetMacro(VariableCacheSize,double);
 
@@ -136,9 +136,6 @@ protected:
   // Try to "guess" the pattern of files.
   int DeterminePattern( const char* file );
   static int DetermineFileId( const char* file );
-
-  //enable/disable the use of caching in each ExodusIIReader
-  int UseVariableCache;
 
   //holds the size of the variable cache in GigaBytes
   double VariableCacheSize;

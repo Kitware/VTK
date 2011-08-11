@@ -162,8 +162,7 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->MultiFileName = new char[vtkPExodusIIReaderMAXPATHLEN];
   this->XMLFileName=NULL;
   this->LastCommonTimeStep = -1;
-  this->UseVariableCache = 0;
-  this->VariableCacheSize = 0;
+  this->VariableCacheSize = 100;
 }
  
 //----------------------------------------------------------------------------
@@ -509,12 +508,10 @@ int vtkPExodusIIReader::RequestData(
 #endif // DBG_PEXOIIRDR
 
   //setup the cache size for each reader
-  double cacheSize = 0;
-  if ( this->UseVariableCache && this->VariableCacheSize > 0 )
+  double fractionalCacheSize = 0;
+  if (this->VariableCacheSize > 0 )
     {
-    cacheSize = this->VariableCacheSize / static_cast<int>( this->ReaderList.size() );
-    //now we have to convert the cachesize to mebibytes
-    cacheSize *= 1024;
+    fractionalCacheSize = this->VariableCacheSize / static_cast<int>( this->ReaderList.size() );
     }
 
   // This constructs the filenames
@@ -595,8 +592,6 @@ int vtkPExodusIIReader::RequestData(
       this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
       }
 
-
-    this->ReaderList[reader_idx]->SetCacheSize(cacheSize);
     this->ReaderList[reader_idx]->SetGenerateObjectIdCellArray( this->GetGenerateObjectIdCellArray() );
     this->ReaderList[reader_idx]->SetGenerateGlobalElementIdArray( this->GetGenerateGlobalElementIdArray() );
     this->ReaderList[reader_idx]->SetGenerateGlobalNodeIdArray( this->GetGenerateGlobalNodeIdArray() );
@@ -678,7 +673,15 @@ int vtkPExodusIIReader::RequestData(
       this->ReaderList[reader_idx]->SetFastPathIdType(0);
       }
 
+    //set this reader to use the full amount of the cache
+    this->ReaderList[reader_idx]->SetCacheSize(this->VariableCacheSize);
+
+    //call the reader
     this->ReaderList[reader_idx]->Update();
+
+    //set the reader back to the fractional amount
+    this->ReaderList[reader_idx]->SetCacheSize(fractionalCacheSize);
+
     if (this->ReaderList[reader_idx]->GetProducedFastPathOutput())
       {
       //if (fast_path_reader_index != -1)
