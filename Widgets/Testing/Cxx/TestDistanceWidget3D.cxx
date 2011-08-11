@@ -936,14 +936,14 @@ int TestDistanceWidget3D( int argc, char *argv[] )
   rep->SetGlyphScale(0.1);
   if (rep->GetGlyphScale() != 0.1)
     {
-    std:cerr << "Error setting glyph scale to 0.1, returned " << rep->GetGlyphScale() << std::endl;
+    cerr << "Error setting glyph scale to 0.1, returned " << rep->GetGlyphScale() << std::endl;
     return EXIT_FAILURE;
     }
 
   
   if (!rep->GetLineProperty())
     {
-    std::cerr << "Error getting representation line property" << std::endl;
+    std::cerr << "Error getting representation line property" << endl;
     return EXIT_FAILURE;
     }
   rep->GetLineProperty()->SetColor(1.0, 0.0, 1.0);
