@@ -2,6 +2,7 @@ SET(KIT Filtering)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
+  CellTreeLocator.cxx
   otherCellArray.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx
