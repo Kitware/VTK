@@ -153,7 +153,8 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Extract the region (as a multiblock) from the given AMR dataset.
     void ExtractRegion(
-        vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds );
+        vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
+        vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
     // Checks if the AMR block, described by a uniform grid, is within the

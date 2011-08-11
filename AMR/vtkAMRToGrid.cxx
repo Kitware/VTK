@@ -94,6 +94,10 @@ int vtkAMRToGrid::RequestUpdateExtent(
   vtkInformation *info = inputVector[0]->GetInformationObject(0);
   assert( "pre: info is NULL" && (info != NULL) );
 
+  // Tell reader to load all requested blocks.
+  info->Set( vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1 );
+
+  // Tell reader which blocks this process requires
   info->Set(
       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
       &this->blocksToLoad[0], this->blocksToLoad.size() );
@@ -139,7 +143,15 @@ int vtkAMRToGrid::RequestData(
       input->Get(vtkDataObject::DATA_OBJECT()));
   assert( "pre: input AMR dataset is NULL" && (amrds != NULL) );
 
-  // STEP 1: Get output object
+  // STEP 1: Get Metadata
+  assert( "pre: No metadata!" &&
+    input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
+  vtkHierarchicalBoxDataSet *metadata =
+      vtkHierarchicalBoxDataSet::SafeDownCast(
+        input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
+  assert( "pre: medata is NULL" && (metadata != NULL)  );
+
+  // STEP 2: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
   assert( "pre: Null output information object!" && (output != NULL) );
   vtkMultiBlockDataSet *mbds=
@@ -147,12 +159,12 @@ int vtkAMRToGrid::RequestData(
       output->Get(vtkDataObject::DATA_OBJECT()));
   assert( "pre: ouput multi-block dataset is NULL" && (mbds != NULL) );
 
-  // STEP 2: Initialize input
+  // STEP 3: Initialize input
 //  this->InitializeRegionBounds(amrds);
   this->SubdivideExtractionRegion();
 
-  // STEP 3: Extract region
-  this->ExtractRegion( amrds, mbds );
+  // STEP 4: Extract region
+  this->ExtractRegion( amrds, mbds, metadata );
 
   return 1;
 }
@@ -381,10 +393,12 @@ void vtkAMRToGrid::TransferSolution(
 
 //-----------------------------------------------------------------------------
 void vtkAMRToGrid::ExtractRegion(
-    vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds )
+    vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
+    vtkHierarchicalBoxDataSet *metadata )
 {
   assert( "pre: input AMR data-structure is NULL" && (amrds != NULL) );
   assert( "pre: output data-structure is NULL" && (mbds != NULL) );
+  assert( "pre: metatadata is NULL" && (metadata != NULL) );
 
   int numBoxes = this->boxes.size()/6;
   mbds->SetNumberOfBlocks( numBoxes );
@@ -396,7 +410,7 @@ void vtkAMRToGrid::ExtractRegion(
     maxLevelToLoad = amrds->GetNumberOfLevels()-1;
 
   double spacings[3];
-  vtkUniformGrid *dummyGrid = amrds->GetDataSet( maxLevelToLoad, 0 );
+  vtkUniformGrid *dummyGrid = metadata->GetDataSet( maxLevelToLoad, 0 );
   dummyGrid->GetSpacing( spacings );
 
   for(int box=0; box < numBoxes; ++box )
