@@ -190,7 +190,7 @@ int ex_put_name_internal(int exoid, int varid, size_t ind, const char *name,
 
   if (name != '\0') {
     int too_long = 0;
-    start[0] = index;
+    start[0] = ind;
     start[1] = 0;
        
     count[0] = 1;
