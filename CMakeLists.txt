@@ -6,6 +6,12 @@ FOREACH(policy CMP0012 CMP0013 CMP0014)
   ENDIF()
 ENDFOREACH()
 
+FOREACH(policy CMP0017)
+  IF(POLICY ${policy})
+    CMAKE_POLICY(SET ${policy} OLD)
+  ENDIF()
+ENDFOREACH()
+
 PROJECT(VTK)
 
 # Objective C compile flags, future CMake versions might make this obsolete
