@@ -177,7 +177,7 @@ int ex_put_names_internal(int exoid, int varid, size_t num_entity, char **names,
   return (EX_NOERR);
 }
 
-int ex_put_name_internal(int exoid, int varid, size_t index, const char *name,
+int ex_put_name_internal(int exoid, int varid, size_t ind, const char *name,
        ex_entity_type obj_type, const char *subtype, const char *routine)
 {
   int status;
