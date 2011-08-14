@@ -318,7 +318,7 @@ class vtkCellTreeBuilder
         }
 
       PerCell* begin = &(this->m_pc[start]);
-      PerCell* end   = &(this->m_pc[start + size]);
+      PerCell* end   = &(this->m_pc[0])+start + size;
       PerCell* mid = begin;
 
       const int nbuckets = 6;
@@ -445,7 +445,10 @@ class vtkCellTreeBuilder
     void Build( vtkCellTreeLocator *ctl, vtkCellTreeLocator::vtkCellTree& ct, vtkDataSet* ds )
       {
       const vtkIdType size = ds->GetNumberOfCells();
-      assert( size <= std::numeric_limits<unsigned int>::max() );
+      if( size > std::numeric_limits<vtkIdType>::max() )
+        {
+        vtkGenericWarningMacro("Too many cells.");
+        }
       double cellBounds[6];
       this->m_pc.resize(size);
 
@@ -463,7 +466,7 @@ class vtkCellTreeBuilder
         -std::numeric_limits<float>::max(),
         };
 
-      for( unsigned int i=0; i<size; ++i )
+      for( vtkIdType i=0; i<size; ++i )
         {
         this->m_pc[i].Ind = i;
 
