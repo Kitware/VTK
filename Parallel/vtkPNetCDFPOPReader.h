@@ -65,6 +65,20 @@ public:
   vtkGetObjectMacro(Controller, vtkMPIController);
   void SetController(vtkMPIController *controller);
 
+  // Description:
+  // Set the list of processes that will actually open the file.
+  void SetReaderRanks(vtkIdList*);
+
+  // Description:
+  // Set the number of processes that will actually read the file.
+  // If this is less than 1 it will be set to 1 and if it is greater
+  // than the number of processes in the communicator than it will
+  // be set to the number of processes in the communicator.
+  // The reader processes will be set in a round robin fashion (e.g.
+  // if number = 5 and number of processes = 14 then processes
+  // 0, 3, 6, 9, and 12 will be the reader processes.
+  void SetNumberOfReaderProcesses(int number);
+
 protected:
   vtkPNetCDFPOPReader();
   ~vtkPNetCDFPOPReader();
@@ -75,6 +89,11 @@ protected:
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
 
+  // Description:
+  // Given the number of processes that should be assigned as
+  // reader processes, generate a list of ranks of those
+  // processes in a round robin fashion.
+  void AssignRoundRobin(int numReaders, vtkIdList* readerRanks);
 
   // Functions added by RGM....
 
@@ -85,7 +104,6 @@ protected:
   // Returns the MPI rank of the process that should read the specified depth
   int ReaderForDepth( unsigned depth);
 
-  void SetReaderRanks(vtkIdList*);
   bool IsReaderRank();
   bool IsFirstReaderRank();
 

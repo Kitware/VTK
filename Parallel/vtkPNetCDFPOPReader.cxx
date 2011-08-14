@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
@@ -51,9 +52,8 @@ vtkStandardNewMacro(vtkPNetCDFPOPReader);
     return 0; \
   } \
 }
+
 //============================================================================
-
-
 class vtkPNetCDFPOPReaderInternal
 {
 public:
@@ -113,6 +113,7 @@ vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
   this->Controller = NULL;
   this->SetController(vtkMPIController::SafeDownCast(
                         vtkMultiProcessController::GetGlobalController()));
+  this->SetReaderRanks(NULL);
   this->NCDFFD = -1;
 }
 
@@ -642,7 +643,7 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
 // object.
 void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
 {
-  std::set<int>readerRanks;  // temporary holder for the values.
+  vtkNew<vtkIdList> readerRanks;  // temporary holder for the values.
   // We use a set so that ranks are automatically ordered and duplicates
   // are skipped.  Once the set is created, it's copied over to a vector
   // because I want to be able to use operator[] to access the values.
@@ -656,14 +657,16 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
       vtkIdType rank = ranks->GetId(i);
       if(rank >= 0 && rank < numProcs)
         {
-        readerRanks.insert(rank);
+        readerRanks->InsertNextId(rank);
         }
       }
     }
 
-  if (readerRanks.empty())  // Either nobody set the env var or it had bogus values
-                            //  in it.  Try to pick a reasonable default.
+  if (readerRanks->GetNumberOfIds() == 0)
     {
+    // Either nobody set the env var or it had bogus values
+    //  in it.  Try to pick a reasonable default.
+
     // This is somewhat arbritrary:  below 24 processes, we'll use 4 readers.
     // More than 24 processes, we'll use 8.  (>24 processes, I'm assuming we're
     // running on Jaguar where 2 readers per OSS seems to work well).
@@ -671,26 +674,14 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
     // are working on this file
 
     int numReaders = numProcs < 24 ? 4 : 8;
-
-    if (numProcs < numReaders)  // sanity check
-      {
-      numReaders = numProcs;
-      }
-    int proc = 0;
-    while (proc < numProcs)
-      {
-      readerRanks.insert( proc);
-      proc += (numProcs / numReaders);
-      }
+    this->AssignRoundRobin(numReaders, readerRanks.GetPointer());
     }
 
   // Copy the contents of the set into its permanent location...
   this->Internals->ReaderRanks.clear();
-  std::set<int>::iterator it = readerRanks.begin();
-  while (it != readerRanks.end())
+  for(vtkIdType i=0;i<readerRanks->GetNumberOfIds();i++)
     {
-    this->Internals->ReaderRanks.push_back( *it);
-    it++;
+    this->Internals->ReaderRanks.push_back(readerRanks->GetId(i));
     }
 }
 
@@ -733,8 +724,8 @@ bool vtkPNetCDFPOPReader::IsFirstReaderRank()
   int rank = this->Controller->GetLocalProcessId();
   return (rank == this->Internals->ReaderRanks[0]);
 }
+
 //----------------------------------------------------------------------------
-//
 void vtkPNetCDFPOPReader::SetController(vtkMPIController *controller)
 {
   if(this->Controller != controller)
@@ -746,3 +737,35 @@ void vtkPNetCDFPOPReader::SetController(vtkMPIController *controller)
       }
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkPNetCDFPOPReader::SetNumberOfReaderProcesses(int numReaders)
+{
+  vtkNew<vtkIdList> ranks;
+  this->AssignRoundRobin(numReaders, ranks.GetPointer());
+  this->SetReaderRanks(ranks.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkPNetCDFPOPReader::AssignRoundRobin(int numReaders,
+                                           vtkIdList* readerRanks)
+{
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  if(numReaders < 1)
+    {
+    numReaders = 1;
+    }
+  else if(numReaders > numProcs)
+    {
+    numReaders = numProcs;
+    }
+  readerRanks->SetNumberOfIds(numReaders);
+  int proc = 0;
+  int counter = 0;
+  while (proc < numProcs)
+    {
+    readerRanks->SetId(counter, proc);
+    proc += (numProcs / numReaders);
+    counter++;
+    }
+  }
