@@ -37,7 +37,7 @@
 #define __vtkCellTreeLocator_h
 
 #include "vtkAbstractCellLocator.h"
-#include <vector>
+#include <vector> // Needed for internal class
 
 class vtkCellPointTraversal;
 class vtkIdTypeArray;
