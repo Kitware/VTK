@@ -439,7 +439,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
 
       // Number of values stored for each depth
       //unsigned long oneDepthSize = (subext[3]-subext[2]+1) * (subext[5]-subext[4]+1);
-      unsigned long oneDepthSize = static_cast<unsigned long>(count[1])*(count[2]);  // should be the same value as the line above...
+      unsigned long oneDepthSize = static_cast<unsigned long>(count[1]*count[2]);  // should be the same value as the line above...
 
       for (int curDepth = subext[4]; curDepth <= subext[5]; curDepth++)
         {
