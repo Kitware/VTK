@@ -152,6 +152,14 @@ void vtkPNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Stride: {" << this->Stride[0] << ", "
      << this->Stride[1] << ", " << this->Stride[2] << ", "
      << "}" << endl;
+  if(this->Controller)
+    {
+    os << indent << "Controller: " << this->Controller << endl;
+    }
+  else
+    {
+    os << indent << "Controller: (NULL)" << endl;
+    }
   os << indent << "NCDFFD: " << this->NCDFFD << endl;
 
   this->Internals->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
@@ -253,7 +261,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
       }
 
     // Send out the variable map data
-    int numVariables = this->Internals->VariableMap.size();
+    int numVariables = static_cast<int>(this->Internals->VariableMap.size());
     this->Controller->Broadcast( &numVariables, 1,
                                  this->Internals->ReaderRanks[0]);
     this->Controller->Broadcast( &this->Internals->VariableMap[0], numVariables,
@@ -431,7 +439,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
 
       // Number of values stored for each depth
       //unsigned long oneDepthSize = (subext[3]-subext[2]+1) * (subext[5]-subext[4]+1);
-      unsigned long oneDepthSize = (count[1])*(count[2]);  // should be the same value as the line above...
+      unsigned long oneDepthSize = static_cast<unsigned long>(count[1])*(count[2]);  // should be the same value as the line above...
 
       for (int curDepth = subext[4]; curDepth <= subext[5]; curDepth++)
         {
@@ -461,7 +469,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
       // Wait for all the sends to complete
       if (this->Internals->SendReqs.size() > 0)
         {
-        MPI_Waitall( this->Internals->SendReqs.size(), &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
+        MPI_Waitall( static_cast<int>(this->Internals->SendReqs.size()), &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
 
         // Now that all the sends are complete, it's safe to free the buffers
         for (size_t j= 0; j < this->Internals->SendBufs.size(); j++)
@@ -472,7 +480,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         this->Internals->SendReqs.clear();
         }
 
-      MPI_Waitall( recvReqs.size(), &recvReqs[0], MPI_STATUSES_IGNORE);
+      MPI_Waitall( static_cast<int>(recvReqs.size()), &recvReqs[0], MPI_STATUSES_IGNORE);
       recvReqs.clear();
 
 
@@ -625,7 +633,7 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
         // except call it in a loop.
         do
           {
-          MPI_Testany( this->Internals->SendReqs.size(), &this->Internals->SendReqs[0],
+          MPI_Testany( static_cast<int>(this->Internals->SendReqs.size()), &this->Internals->SendReqs[0],
                        &reqIndex, &foundOne, &status);
           } while (foundOne && reqIndex != MPI_UNDEFINED);
         }
@@ -693,7 +701,7 @@ int vtkPNetCDFPOPReader::ReaderForDepth( unsigned depth)
   // NOTE: This is a very simple algorithm - each rank in readerRanks will
   // read single depth in a round-robbin fashion.  There might be a more
   // efficient way to do this...
-  int numReaders = this->Internals->ReaderRanks.size();
+  size_t numReaders = this->Internals->ReaderRanks.size();
   return this->Internals->ReaderRanks[(depth % numReaders)];
 }
 
