@@ -247,11 +247,16 @@ void vtkResliceImageViewer::InstallPipeline()
     this->ImageActor->SetVisibility(0);
     this->UpdateOrientation();
 
-    double bounds[6];
+    double bounds[6] = {0, 1, 0, 1, 0, 1};
 
     vtkCamera *cam = this->Renderer->GetActiveCamera();
-    this->GetResliceCursor()->GetImage()->GetBounds(bounds);
-    double *spacing = this->GetResliceCursor()->GetImage()->GetSpacing();
+    double onespacing[3] = {1, 1, 1};
+    double *spacing = onespacing;
+    if (this->GetResliceCursor()->GetImage())
+      {
+      this->GetResliceCursor()->GetImage()->GetBounds(bounds);
+      spacing = this->GetResliceCursor()->GetImage()->GetSpacing();
+      }
     double avg_spacing =
       (spacing[0] + spacing[1] + spacing[2]) / 3.0;
     cam->SetClippingRange(

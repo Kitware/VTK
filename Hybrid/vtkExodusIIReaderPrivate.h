@@ -84,7 +84,7 @@ public:
   void ResetCache();
 
   /// Set the size of the cache in MiB.
-  vtkSetMacro(CacheSize, double);
+  void SetCacheSize(double size);  
 
   /// Get the size of the cache in MiB.
   vtkGetMacro(CacheSize, double);

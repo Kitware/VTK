@@ -23,7 +23,7 @@ SET(MyTests
   TestCheckerboardWidget.cxx
   TestContourWidget2.cxx
   TestDistanceWidget.cxx
-#  TestDistanceWidget3D.cxx
+  TestDistanceWidget3D.cxx
   TestHandleWidget.cxx
   TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx

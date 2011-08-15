@@ -29,6 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationRequestKey.h"
+#include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -62,6 +63,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVecto
 
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, PIECE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PRIORITY, Double);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, ORIGINAL_NUMBER_OF_CELLS, UnsignedLong);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_RESOLUTION, Double);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REMOVE_ATTRIBUTE_INFORMATION, Integer);
 
@@ -649,8 +651,10 @@ vtkStreamingDemandDrivenPipeline
         {
         vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
 
-        // Copy the priority result always, algorithms can modify it in RUEI if needed
+        // Copy these things across always, and let algorithms modify in RUEI
+        // if they need to.
         outInfo->CopyEntry(inInfo, PRIORITY());
+        outInfo->CopyEntry(inInfo, ORIGINAL_NUMBER_OF_CELLS());
 
         vtkInformation *algsProps = this->GetAlgorithm()->GetInformation();
         if (algsProps->Has(vtkAlgorithm::MANAGES_METAINFORMATION()))
