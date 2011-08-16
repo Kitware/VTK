@@ -37,6 +37,7 @@ vtkTreeIterator::~vtkTreeIterator()
 void vtkTreeIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Tree: " << this->Tree << endl;
   os << indent << "StartVertex: " << this->StartVertex << endl;
   os << indent << "NextId: " << this->NextId << endl;
 }
