@@ -30,6 +30,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkCell.h"
+#include "vtkExtentRCBPartitioner.h"
 
 #include <cassert>
 #include <algorithm>
@@ -875,4 +876,3 @@ double vtkAMRToGrid::GetZMax(const int boxIdx)
       (idx >= 0 ) && (idx < this->boxes.size() ) );
   return( this->boxes[ idx ] );
 }
-
