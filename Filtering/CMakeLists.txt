@@ -241,6 +241,7 @@ vtkUndirectedGraphAlgorithm.cxx
 vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGridAlgorithm.cxx
+vtkUniformGridPartitioner.cxx
 vtkUnstructuredGrid.cxx
 vtkUnstructuredGridSource.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx
