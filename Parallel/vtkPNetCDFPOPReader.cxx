@@ -29,7 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkMPI.h"  // added by RGM
 #include "vtkMPIController.h" // added by RGM
-#include "vtkTimerLog.h" // added by RGM for debugging
 
 #include "vtk_netcdf.h"
 #include <string>
@@ -185,15 +184,21 @@ int vtkPNetCDFPOPReader::RequestInformation(
   // every rank that is a reader process needs to open the file
   if (this->IsReaderRank())
     {
-    if(strcmp(this->OpenedFileName, this->FileName) != 0)
+    bool openFile = true;
+    if(this->OpenedFileName != NULL)
       {
-      if(this->OpenedFileName)
+      if(strcmp(this->OpenedFileName, this->FileName) == 0)
+        {
+        openFile = false;
+        }
+      else
         {
         nc_close(this->NCDFFD);
         }
-      vtkTimerLog::MarkStartEvent( "nc_open()"); // RGM
+      }
+    if(openFile)
+      {
       int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
-      vtkTimerLog::MarkEndEvent( "nc_open()"); // RGM
       if (retval != NC_NOERR)//checks if read file error
         {
         vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
@@ -246,29 +251,32 @@ int vtkPNetCDFPOPReader::RequestInformation(
     // We've read in all the metadata.  Now broadcast it to the other ranks
 
     // There's probably only 1 variable name, but we'll allow for more just in case
-    int numNames = this->Internals->VariableArraySelection->GetNumberOfArrays();
-    this->Controller->Broadcast( &numNames, 1,
-                                 this->Internals->ReaderRanks[0]);
-    for (int i = 0; i < numNames; i++)
+    if(this->Controller)
       {
-      // I don't really like this extra strcpy, but I want to broadcast a string of
-      // known, fixed size and the pointer retrurned by GetArrayName could point to
-      // considerably less than NC_MAX_NAME chars, which means I'd risk a segfault if
-      // I didn't do the copy.
-      strcpy( variableName, this->Internals->VariableArraySelection->GetArrayName( i));
-      this->Controller->Broadcast( variableName, NC_MAX_NAME+1,
+      int numNames = this->Internals->VariableArraySelection->GetNumberOfArrays();
+      this->Controller->Broadcast( &numNames, 1,
                                    this->Internals->ReaderRanks[0]);
+      for (int i = 0; i < numNames; i++)
+        {
+        // I don't really like this extra strcpy, but I want to broadcast a string of
+        // known, fixed size and the pointer retrurned by GetArrayName could point to
+        // considerably less than NC_MAX_NAME chars, which means I'd risk a segfault if
+        // I didn't do the copy.
+        strcpy( variableName, this->Internals->VariableArraySelection->GetArrayName( i));
+        this->Controller->Broadcast( variableName, NC_MAX_NAME+1,
+                                     this->Internals->ReaderRanks[0]);
+        }
+
+      // Send out the variable map data
+      int numVariables = static_cast<int>(this->Internals->VariableMap.size());
+      this->Controller->Broadcast( &numVariables, 1,
+                                   this->Internals->ReaderRanks[0]);
+      this->Controller->Broadcast( &this->Internals->VariableMap[0], numVariables,
+                                   this->Internals->ReaderRanks[0]);
+
+      // send out the extents data
+      this->Controller->Broadcast( extent, 6, this->Internals->ReaderRanks[0]);
       }
-
-    // Send out the variable map data
-    int numVariables = static_cast<int>(this->Internals->VariableMap.size());
-    this->Controller->Broadcast( &numVariables, 1,
-                                 this->Internals->ReaderRanks[0]);
-    this->Controller->Broadcast( &this->Internals->VariableMap[0], numVariables,
-                                 this->Internals->ReaderRanks[0]);
-
-    // send out the extents data
-    this->Controller->Broadcast( extent, 6, this->Internals->ReaderRanks[0]);
     }
   else  // everyone else listens for the broadcasted metadata and fills in
         // Internals->VariableMap and extent[]
@@ -332,7 +340,6 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
   size_t count[]= { subext[5]-subext[4]+1, subext[3]-subext[2]+1,
                     subext[1]-subext[0]+1};
 
-
   //initialize memory (raw data space, x y z axis space) and rectilinear grid
   bool firstPass = true;
   for(size_t i=0;i<this->Internals->VariableMap.size();i++)
@@ -390,8 +397,11 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
                             rStride+2, &p_buff[wholeCount[0] + wholeCount[1]]);
           }
 
-        this->Controller->Broadcast( p_buff, (wholeCount[0] + wholeCount[1] + wholeCount[2]),
-                                     this->Internals->ReaderRanks[0]);
+        if(this->Controller)
+          {
+          this->Controller->Broadcast( p_buff, (wholeCount[0] + wholeCount[1] + wholeCount[2]),
+                                       this->Internals->ReaderRanks[0]);
+          }
 
         // Extract the values we need out of p_buff and store them in the x, y & z buffers
         float* x = new float[count[0]];
@@ -425,64 +435,74 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
       vtkIdType numberOfTuples = (count[0])*(count[1])*(count[2]);
       float* data = new float[numberOfTuples];
 
-
-      // Do a gather of all process' sub-extents so that the reader processes will know
-      // who needs what data.  (An AllGather() operation is somewhat wasteful, because
-      // even processes that aren't readers will still receive the data, but it's still
-      // more efficient than having everyone send extents to each individual reader process.)
-      int mpiNumProcs = this->Controller->GetNumberOfProcesses();
-      this->Internals->P_allExtents = new int[ 6 * mpiNumProcs];
-      this->Controller->AllGather(subext, this->Internals->P_allExtents, 6);
-
-      // First, post all the receive requests
-      std::vector <MPI_Request> recvReqs;  // should be 1 recv for each depth
-
-      // Number of values stored for each depth
-      //unsigned long oneDepthSize = (subext[3]-subext[2]+1) * (subext[5]-subext[4]+1);
-      unsigned long oneDepthSize = static_cast<unsigned long>(count[1]*count[2]);  // should be the same value as the line above...
-
-      for (int curDepth = subext[4]; curDepth <= subext[5]; curDepth++)
+      if(this->Controller == NULL)
         {
-        float *p_depthStart = data + ((curDepth-subext[4])*oneDepthSize);  // Where this data should start
-        int sourceRank =  ReaderForDepth( curDepth);
-        //      cerr << "Rank " << mpiRank << ": Expecting depth " << curDepth << " from rank " << sourceRank << endl;
-        // We could probably use vtkMPIController::NoBlockReceive(), but but I'm not sure
-        // how it will behave since we're calling MPI_Isend() directly.  So, I'm going
-        // to call MPI_Irecv directly, too...
+        size_t start[]= {subext[4]*this->Stride[2], subext[2]*this->Stride[1],
+                         subext[0]*this->Stride[0]};
 
-        MPI_Comm *p_comm = ((vtkMPICommunicator *)this->Controller->GetCommunicator())->GetMPIComm()->GetHandle();
-        MPI_Request recvReq;
-        MPI_Irecv( p_depthStart, oneDepthSize, MPI_FLOAT, sourceRank, curDepth, *p_comm, &recvReq);
-        recvReqs.push_back( recvReq);
+        ptrdiff_t rStride[3] = { (ptrdiff_t)this->Stride[2], (ptrdiff_t)this->Stride[1],
+                                 (ptrdiff_t)this->Stride[0] };
+
+        nc_get_vars_float(this->NCDFFD, varidp, start, count, rStride, data);
         }
-
-
-      if (IsReaderRank())
+      else // parallel communication of point/cell data arrays
         {
-        // Reads part of the netCDF file and sends subarrays out to all the ranks
-        ReadAndSend( outInfo, varidp);
-        }
+        // Do a gather of all process' sub-extents so that the reader processes will know
+        // who needs what data.  (An AllGather() operation is somewhat wasteful, because
+        // even processes that aren't readers will still receive the data, but it's still
+        // more efficient than having everyone send extents to each individual reader process.)
+        int mpiNumProcs = this->Controller->GetNumberOfProcesses();
+        this->Internals->P_allExtents = new int[ 6 * mpiNumProcs];
+        this->Controller->AllGather(subext, this->Internals->P_allExtents, 6);
 
-      delete[] this->Internals->P_allExtents;
+        // First, post all the receive requests
+        std::vector <MPI_Request> recvReqs;  // should be 1 recv for each depth
 
+        // Number of values stored for each depth
+        //unsigned long oneDepthSize = (subext[3]-subext[2]+1) * (subext[5]-subext[4]+1);
+        unsigned long oneDepthSize = static_cast<unsigned long>(count[1]*count[2]);  // should be the same value as the line above...
 
-      // Wait for all the sends to complete
-      if (this->Internals->SendReqs.size() > 0)
-        {
-        MPI_Waitall( static_cast<int>(this->Internals->SendReqs.size()), &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
-
-        // Now that all the sends are complete, it's safe to free the buffers
-        for (size_t j= 0; j < this->Internals->SendBufs.size(); j++)
+        for (int curDepth = subext[4]; curDepth <= subext[5]; curDepth++)
           {
-          delete[] this->Internals->SendBufs[j];
+          float *p_depthStart = data + ((curDepth-subext[4])*oneDepthSize);  // Where this data should start
+          int sourceRank =  ReaderForDepth( curDepth);
+
+          // We could probably use vtkMPIController::NoBlockReceive(), but but I'm not sure
+          // how it will behave since we're calling MPI_Isend() directly.  So, I'm going
+          // to call MPI_Irecv directly, too...
+
+          MPI_Comm *p_comm = ((vtkMPICommunicator *)this->Controller->GetCommunicator())->GetMPIComm()->GetHandle();
+          MPI_Request recvReq;
+          MPI_Irecv( p_depthStart, oneDepthSize, MPI_FLOAT, sourceRank, curDepth, *p_comm, &recvReq);
+          recvReqs.push_back( recvReq);
           }
-        this->Internals->SendBufs.clear();
-        this->Internals->SendReqs.clear();
+
+
+        if (this->IsReaderRank())
+          {
+          // Reads part of the netCDF file and sends subarrays out to all the ranks
+          this->ReadAndSend( outInfo, varidp);
+          }
+
+        delete[] this->Internals->P_allExtents;
+
+        // Wait for all the sends to complete
+        if (this->Internals->SendReqs.size() > 0)
+          {
+          MPI_Waitall( static_cast<int>(this->Internals->SendReqs.size()), &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
+
+          // Now that all the sends are complete, it's safe to free the buffers
+          for (size_t j= 0; j < this->Internals->SendBufs.size(); j++)
+            {
+            delete[] this->Internals->SendBufs[j];
+            }
+          this->Internals->SendBufs.clear();
+          this->Internals->SendReqs.clear();
+          }
+
+        MPI_Waitall( static_cast<int>(recvReqs.size()), &recvReqs[0], MPI_STATUSES_IGNORE);
+        recvReqs.clear();
         }
-
-      MPI_Waitall( static_cast<int>(recvReqs.size()), &recvReqs[0], MPI_STATUSES_IGNORE);
-      recvReqs.clear();
-
 
       scalars->SetArray(data, numberOfTuples, 0, 1);
       //set list of variables to display data on rectilinear grid
@@ -587,7 +607,7 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
       int ncErr = nc_get_vars_float( this->NCDFFD, varID, start, count, rStride, p_buf);
       if (ncErr != NC_NOERR)
         {
-        cerr << "!!!nc_get_vars_float() returned error code " << ncErr << endl;
+        vtkErrorMacro("nc_get_vars_float() returned error code " << ncErr);
         }
 
       // Create sub arrays and send to all processes
@@ -611,7 +631,6 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
           MPI_Request sendReq;
           MPI_Type_create_subarray( 2, subarray_sizes, subarray_subsizes, subarray_starts, MPI_ORDER_C, MPI_FLOAT, &subArrayType);
           MPI_Type_commit( &subArrayType);
-          // cerr << "Rank " << mpiRank << ": Sending depth " << curDepth << " to rank " << destRank << endl;
 
           // vtkMPICommunicator can't handle arbitrary types, so we'll have to do it ourselves
           MPI_Comm *p_comm = ((vtkMPICommunicator *)this->Controller->GetCommunicator())->GetMPIComm()->GetHandle();
@@ -651,6 +670,13 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
 // object.
 void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
 {
+  if(this->Controller == NULL)
+    {
+    this->Internals->ReaderRanks.clear();
+    this->Internals->ReaderRanks.push_back(0);
+    return;
+    }
+
   vtkNew<vtkIdList> readerRanks;  // temporary holder for the values.
   // We use a set so that ranks are automatically ordered and duplicates
   // are skipped.  Once the set is created, it's copied over to a vector
@@ -709,6 +735,10 @@ int vtkPNetCDFPOPReader::ReaderForDepth( unsigned depth)
 // Returns true if the calling process should read data from the netCDF file
 bool vtkPNetCDFPOPReader::IsReaderRank()
 {
+  if(this->Controller == NULL)
+    {
+    return true;
+    }
   int rank = this->Controller->GetLocalProcessId();
   for (unsigned i = 0; i < this->Internals->ReaderRanks.size(); i++)
     {
@@ -728,7 +758,10 @@ bool vtkPNetCDFPOPReader::IsFirstReaderRank()
     {
     return false; // sanity check
     }
-
+  if(this->Controller == NULL)
+    {
+    return true;
+    }
   int rank = this->Controller->GetLocalProcessId();
   return (rank == this->Internals->ReaderRanks[0]);
 }
@@ -758,7 +791,7 @@ void vtkPNetCDFPOPReader::SetNumberOfReaderProcesses(int numReaders)
 void vtkPNetCDFPOPReader::AssignRoundRobin(int numReaders,
                                            vtkIdList* readerRanks)
 {
-  int numProcs = this->Controller->GetNumberOfProcesses();
+  int numProcs = this->Controller == NULL ? 1 : this->Controller->GetNumberOfProcesses();
   if(numReaders < 1)
     {
     numReaders = 1;
