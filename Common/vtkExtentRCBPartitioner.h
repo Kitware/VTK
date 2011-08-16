@@ -44,6 +44,10 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     vtkGetVector6Macro(GlobalExtent,int);
 
     // Description:
+    // Returns the number of extents.
+    vtkGetMacro(NumExtents,int);
+
+    // Description:
     // Partitions the extent
     void Partition();
 
