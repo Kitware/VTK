@@ -570,16 +570,25 @@ int vtkContourRepresentation::GetNthNodeDisplayPosition(
 //----------------------------------------------------------------------
 int vtkContourRepresentation::GetNthNodeWorldPosition( int n, double worldPos[3] )
 {
+  if ( vtkContourRepresentationNode *node = this->GetNthNode(n) )
+    {
+    worldPos[0] = node->WorldPosition[0];
+    worldPos[1] = node->WorldPosition[1];
+    worldPos[2] = node->WorldPosition[2];
+    }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------
+vtkContourRepresentationNode * vtkContourRepresentation::GetNthNode( int n )
+{
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
     {
     return 0;
     }
-
-  worldPos[0] = this->Internal->Nodes[n]->WorldPosition[0];
-  worldPos[1] = this->Internal->Nodes[n]->WorldPosition[1];
-  worldPos[2] = this->Internal->Nodes[n]->WorldPosition[2];
-  return 1;
+  return this->Internal->Nodes[n];
 }
 
 //----------------------------------------------------------------------
@@ -1013,6 +1022,13 @@ void vtkContourRepresentation::UpdateLines( int index )
 int vtkContourRepresentation::AddIntermediatePointWorldPosition( int n,
                                                                  double pos[3] )
 {
+  return this->AddIntermediatePointWorldPosition(n, pos, 0);
+}
+
+//----------------------------------------------------------------------
+int vtkContourRepresentation
+::AddIntermediatePointWorldPosition( int n, double pos[3], vtkIdType ptId )
+{
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
     {
@@ -1023,6 +1039,7 @@ int vtkContourRepresentation::AddIntermediatePointWorldPosition( int n,
   point->WorldPosition[0] = pos[0];
   point->WorldPosition[1] = pos[1];
   point->WorldPosition[2] = pos[2];
+  point->PointId = ptId;
 
   double worldOrient[9] = {1.0,0.0,0.0,
                            0.0,1.0,0.0,
