@@ -45,13 +45,12 @@ vtkImageThresholdConnectivity::vtkImageThresholdConnectivity()
   this->ReplaceOut = 0;
   this->OutValue = 0.0;
 
-  this->FloodLimits[0] = -VTK_INT_MAX;
-  this->FloodLimits[2] = -VTK_INT_MAX;
-  this->FloodLimits[4] = -VTK_INT_MAX;
-
-  this->FloodLimits[1] = VTK_INT_MAX;
-  this->FloodLimits[3] = VTK_INT_MAX;
-  this->FloodLimits[5] = VTK_INT_MAX;
+  this->SliceRangeX[0] = -VTK_INT_MAX;
+  this->SliceRangeX[1] = VTK_INT_MAX;
+  this->SliceRangeY[0] = -VTK_INT_MAX;
+  this->SliceRangeY[1] = VTK_INT_MAX;
+  this->SliceRangeZ[0] = -VTK_INT_MAX;
+  this->SliceRangeZ[1] = VTK_INT_MAX;
 
   this->ActiveComponent = -1;
 
@@ -382,7 +381,9 @@ void vtkImageThresholdConnectivityExecute(
   // Get the extent for the flood fill, and clip with the input extent
   int extent[6];
   int inExt[6];
-  self->GetFloodLimits(extent);
+  self->GetSliceRangeX(&extent[0]);
+  self->GetSliceRangeY(&extent[2]);
+  self->GetSliceRangeZ(&extent[4]);
   inData->GetExtent(inExt);
   int outCheck = 0;
   for (int ii = 0; ii < 3; ii++)
@@ -577,9 +578,14 @@ int vtkImageThresholdConnectivity::RequestUpdateExtent(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *stencilInfo = inputVector[1]->GetInformationObject(0);
 
-  int extent[6], inExt[6];
-  this->GetFloodLimits(extent);
+  int inExt[6], extent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
+  extent[0] = this->SliceRangeX[0];
+  extent[1] = this->SliceRangeX[1];
+  extent[2] = this->SliceRangeY[0];
+  extent[3] = this->SliceRangeY[1];
+  extent[4] = this->SliceRangeZ[0];
+  extent[5] = this->SliceRangeZ[1];
 
   // Clip the extent to the inExt
   for (int i = 0; i < 3; i++)
@@ -673,10 +679,13 @@ void vtkImageThresholdConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UpperThreshold: " << this->UpperThreshold << "\n";
   os << indent << "ReplaceIn: " << this->ReplaceIn << "\n";
   os << indent << "ReplaceOut: " << this->ReplaceOut << "\n";
-  os << indent << "FloodLimits: " << this->FloodLimits[0] << " " <<
-    this->FloodLimits[1] << " " << this->FloodLimits[2] << " " <<
-    this->FloodLimits[3] << " " << this->FloodLimits[4] << " " <<
-    this->FloodLimits[5] << "\n";
+  os << indent << "NumberOfInVoxels: " << this->NumberOfInVoxels << "\n";
+  os << indent << "SliceRangeX: "
+     << this->SliceRangeX[0] << " " << this->SliceRangeX[1] << "\n";
+  os << indent << "SliceRangeY: "
+     << this->SliceRangeY[0] << " " << this->SliceRangeY[1] << "\n";
+  os << indent << "SliceRangeZ: "
+     << this->SliceRangeZ[0] << " " << this->SliceRangeZ[1] << "\n";
   os << indent << "SeedPoints: " << this->SeedPoints << "\n";
   if (this->SeedPoints)
     {

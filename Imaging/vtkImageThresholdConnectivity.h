@@ -20,7 +20,7 @@
 // to limit the threshold operation to contiguous regions of the image.
 // The filled region, or the "inside", will be passed through to the
 // output by default, while the "outside" will be replaced with zeros.
-// This behavior can be change by using the ReplaceIn() and ReplaceOut()
+// This behavior can be changed by using the ReplaceIn() and ReplaceOut()
 // methods.  The scalar type of the output is the same as the input.
 // .SECTION see also
 // vtkImageThreshold
@@ -91,9 +91,13 @@ public:
   vtkGetMacro(LowerThreshold, double);
 
   // Description:
-  // Limit the flood to the specified region of the image.
-  vtkSetVector6Macro(FloodLimits, int);
-  vtkGetVector6Macro(FloodLimits, int);
+  // Limit the flood to a range of slices in the specified direction.
+  vtkSetVector2Macro(SliceRangeX, int);
+  vtkGetVector2Macro(SliceRangeX, int);
+  vtkSetVector2Macro(SliceRangeY, int);
+  vtkGetVector2Macro(SliceRangeY, int);
+  vtkSetVector2Macro(SliceRangeZ, int);
+  vtkGetVector2Macro(SliceRangeZ, int);
 
   // Description:
   // Specify a stencil that will be used to limit the flood fill to
@@ -128,7 +132,10 @@ protected:
   double OutValue;
 
   vtkPoints *SeedPoints;
-  int FloodLimits[6];
+
+  int SliceRangeX[2];
+  int SliceRangeY[2];
+  int SliceRangeZ[2];
 
   int NumberOfInVoxels;
 
