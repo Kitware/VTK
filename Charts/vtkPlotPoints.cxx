@@ -125,6 +125,7 @@ void vtkPlotPoints::Update()
     }
   else if(this->Data->GetMTime() > this->BuildTime ||
           table->GetMTime() > this->BuildTime ||
+          (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
           this->MTime > this->BuildTime)
     {
     vtkDebugMacro(<< "Updating cached values.");
