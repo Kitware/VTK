@@ -107,9 +107,60 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     int NumberOfSubdivisions;
     int TransferToNodes;
     int LevelOfResolution;
-//    bool initializedRegion;
-//    bool subdividedRegion;
     vtkMultiProcessController *Controller;
+
+    // Description:
+    // Checks if this filter instance is running on more than one processes
+    bool IsParallel();
+
+    // Description:
+    // Given the Region ID this function returns whether or not the region
+    // belongs to this process or not.
+    bool IsRegionMine( const int regionIdx );
+
+    // Description:
+    // Given the Region ID, this method computes the corresponding process ID
+    // that owns the region based on static block-cyclic distribution.
+    int GetRegionProcessId( const int regionIdx );
+
+    // Description:
+    // Returns the total number of boxes
+    inline int GetNumberOfBoxes() {return this->boxes.size()/6; };
+
+    // Description:
+    // Sets the min/max of the box corresponding to the given box ID.
+    void SetXMin(const int boxIdx, const double minx );
+    void SetYMin(const int boxIdx, const double miny );
+    void SetZMin(const int boxIdx, const double minz );
+    void SetXMax(const int boxIdx, const double maxx );
+    void SetYMax(const int boxIdx, const double maxy );
+    void SetZMax(const int boxIdx, const double maxz );
+
+    // Description:
+    // Returns the min/max of the box corresponding to the given box ID.
+    double GetXMin(const int boxIdx);
+    double GetYMin(const int boxIdx);
+    double GetZMin(const int boxIdx);
+    double GetXMax(const int boxIdx);
+    double GetYMax(const int boxIdx);
+    double GetZMax(const int boxIdx);
+
+    // Description:
+    // This method splits a box corresponding to the given box
+    // Id in two sub-boxes.
+    void SplitBox(
+     const int boxIdx, vtkstd::vector<double> &newboxes);
+
+    // Description:
+    // Returns the longest dimensions of the box.
+    // The list of valid return values has as follows:
+    // 1 -- indicates the x-dimension is the longest
+    // 2 -- indicates the y-dimension is the longest
+    // 3 -- indicates the z-dimension is the longest
+    int GetLongestDimension(
+        double minx, double miny, double minz,
+        double maxx, double maxy, double maxz  );
+
 
     // Description:
     // Given a cell index and a grid, this method computes the cell centroid.
@@ -171,6 +222,10 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     // This method subdivides the region using Recursive Coordinate Bisection
     // (RCB) to a set of boxes.
     void SubdivideExtractionRegion();
+
+    // Description:
+    // This method gets the region of interest as perscribed by the user.
+    void GetRegion();
 
     // Description:
     // Computes the extraction region bounds based on the input AMR dataset.

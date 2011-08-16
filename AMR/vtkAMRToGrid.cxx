@@ -42,8 +42,6 @@ vtkAMRToGrid::vtkAMRToGrid()
   this->TransferToNodes      = 1;
   this->LevelOfResolution    = 1;
   this->NumberOfSubdivisions = 0;
-//  this->initializedRegion    = false;
-//  this->subdividedRegion     = false;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->SetNumberOfInputPorts( 1 );
   this->SetNumberOfOutputPorts( 1 );
@@ -415,27 +413,36 @@ void vtkAMRToGrid::ExtractRegion(
 
   for(int box=0; box < numBoxes; ++box )
     {
-      double xMin = this->boxes[ box*6 ];
-      double yMin = this->boxes[ box*6+1 ];
-      double zMin = this->boxes[ box*6+2 ];
-      double xMax = this->boxes[ box*6+3 ];
-      double yMax = this->boxes[ box*6+4 ];
-      double zMax = this->boxes[ box*6+5 ];
 
-      int dims[3];
-      dims[0] = ( ( xMax-xMin ) / spacings[0] ) + 1;
-      dims[1] = ( ( yMax-yMin ) / spacings[1] ) + 1;
-      dims[2] = ( ( zMax-zMin ) / spacings[2] ) + 1;
+      if( this->IsRegionMine( box ) )
+        {
+          double xMin = this->boxes[ box*6 ];
+          double yMin = this->boxes[ box*6+1 ];
+          double zMin = this->boxes[ box*6+2 ];
+          double xMax = this->boxes[ box*6+3 ];
+          double yMax = this->boxes[ box*6+4 ];
+          double zMax = this->boxes[ box*6+5 ];
 
-      vtkUniformGrid *grd = vtkUniformGrid::New();
-      grd->SetDimensions( dims );
-      grd->SetOrigin( xMin, yMin, zMin );
-      grd->SetSpacing( spacings );
+          int dims[3];
+          dims[0] = ( ( xMax-xMin ) / spacings[0] ) + 1;
+          dims[1] = ( ( yMax-yMin ) / spacings[1] ) + 1;
+          dims[2] = ( ( zMax-zMin ) / spacings[2] ) + 1;
 
-      this->TransferSolution( grd, amrds );
+          vtkUniformGrid *grd = vtkUniformGrid::New();
+          grd->SetDimensions( dims );
+          grd->SetOrigin( xMin, yMin, zMin );
+          grd->SetSpacing( spacings );
 
-      mbds->SetBlock( box, grd );
-      grd->Delete();
+//          this->TransferSolution( grd, amrds );
+
+          mbds->SetBlock( box, grd );
+          grd->Delete();
+        }
+      else
+        {
+          mbds->SetBlock( box, NULL );
+        }
+
     } // END for all boxes in the multi-block
 
 }
@@ -487,34 +494,202 @@ bool vtkAMRToGrid::IsBlockWithinBounds( vtkUniformGrid *grd )
   vtkBoundingBox gridBoundingBox;
   gridBoundingBox.SetBounds( gridBounds );
 
-  int numBoxes = this->boxes.size()/6;
+  int numBoxes = this->GetNumberOfBoxes();
   for( int box=0; box < numBoxes; ++box )
     {
-       // [xmim,xmax,ymin,ymax,zmin,zmax]
-       double regionBounds[6];
-       regionBounds[0] = this->boxes[ box*6   ]; // xmin
-       regionBounds[1] = this->boxes[ box*6+3 ]; // xmax
-       regionBounds[2] = this->boxes[ box*6+1 ]; // ymin
-       regionBounds[3] = this->boxes[ box*6+4 ]; // ymax
-       regionBounds[4] = this->boxes[ box*6+2 ]; // zmin
-       regionBounds[5] = this->boxes[ box*6+5 ]; // zmax
+       if( this->IsRegionMine( box ) )
+         {
+           // [xmim,xmax,ymin,ymax,zmin,zmax]
+           double regionBounds[6];
+           regionBounds[0] = this->boxes[ box*6   ]; // xmin
+           regionBounds[1] = this->boxes[ box*6+3 ]; // xmax
+           regionBounds[2] = this->boxes[ box*6+1 ]; // ymin
+           regionBounds[3] = this->boxes[ box*6+4 ]; // ymax
+           regionBounds[4] = this->boxes[ box*6+2 ]; // zmin
+           regionBounds[5] = this->boxes[ box*6+5 ]; // zmax
 
-       vtkBoundingBox regionBox;
-       regionBox.SetBounds( regionBounds );
+           vtkBoundingBox regionBox;
+           regionBox.SetBounds( regionBounds );
 
-       if( gridBoundingBox.IntersectBox( regionBox ) )
-         return true;
+           if( gridBoundingBox.IntersectBox( regionBox ) )
+             return true;
+         }
     } // END for all boxes
   return false;
+}
+
+//-----------------------------------------------------------------------------
+int vtkAMRToGrid::GetRegionProcessId( const int regionIdx )
+{
+  if( !this->IsParallel() )
+    return 0;
+
+  int N = this->Controller->GetNumberOfProcesses();
+  return( regionIdx%N );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAMRToGrid::IsRegionMine( const int regionIdx )
+{
+  if( !this->IsParallel() )
+    return true;
+
+  int myRank = this->Controller->GetLocalProcessId();
+  if( myRank == this->GetRegionProcessId( regionIdx ) )
+    return true;
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAMRToGrid::IsParallel()
+{
+  if( this->Controller == NULL )
+    return false;
+
+  if( this->Controller->GetNumberOfProcesses() > 1 )
+    return true;
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::SplitBox(
+    const int boxIdx, vtkstd::vector<double> &newboxes )
+{
+    newboxes.resize(12);
+
+    // STEP 0: Get longest dimension
+    int ldim = this->GetLongestDimension(
+        this->GetXMin(boxIdx), this->GetYMin(boxIdx), this->GetZMin(boxIdx),
+        this->GetXMax(boxIdx), this->GetYMax(boxIdx), this->GetZMax(boxIdx) );
+
+    // STEP 1: Split box
+    switch( ldim )
+      {
+        case 1:
+          {
+            std::cout << "Split box in x-dimension...\n";
+            std::cout.flush();
+            double midx  = 0.5*(this->GetXMax(boxIdx)+this->GetXMin(boxIdx));
+            std::cout << "midx: " << midx << std::endl;
+            std::cout.flush();
+
+            // BOX 1
+            newboxes[0]  = this->GetXMin(boxIdx);
+            newboxes[1]  = this->GetYMin(boxIdx);
+            newboxes[2]  = this->GetZMin(boxIdx);
+            newboxes[3]  = midx;
+            newboxes[4]  = this->GetYMax(boxIdx);
+            newboxes[5]  = this->GetZMax(boxIdx);
+
+            // BOX 2
+            newboxes[6]  = midx;
+            newboxes[7]  = this->GetYMin(boxIdx);
+            newboxes[8]  = this->GetZMin(boxIdx);
+            newboxes[9]  = this->GetXMax(boxIdx);
+            newboxes[10] = this->GetYMax(boxIdx);
+            newboxes[11] = this->GetZMax(boxIdx);
+          }
+          break;
+        case 2:
+          {
+            std::cout << "Split box in y-dimension...\n";
+            std::cout.flush();
+            double midy = 0.5*(this->GetYMax(boxIdx)+this->GetYMin(boxIdx));
+            std::cout << "midy: " << midy << std::endl;
+            std::cout.flush();
+
+            // BOX 1
+            newboxes[0]  = this->GetXMin(boxIdx);
+            newboxes[1]  = this->GetYMin(boxIdx);
+            newboxes[2]  = this->GetZMin(boxIdx);
+            newboxes[3]  = this->GetXMax(boxIdx);
+            newboxes[4]  = midy;
+            newboxes[5]  = this->GetZMax(boxIdx);
+
+            // BOX 2
+            newboxes[6]  = this->GetXMin(boxIdx);
+            newboxes[7]  = midy;
+            newboxes[8]  = this->GetZMin(boxIdx);
+            newboxes[9]  = this->GetXMax(boxIdx);
+            newboxes[10] = this->GetYMax(boxIdx);
+            newboxes[11] = this->GetZMax(boxIdx);
+          }
+          break;
+        case 3:
+          {
+            std::cout << "Split box in z-dimension...\n";
+            std::cout.flush();
+            double midz = 0.5*(this->GetZMax(boxIdx)+this->GetZMin(boxIdx));
+            std::cout << "midz: " << midz << std::endl;
+            std::cout.flush();
+
+            // BOX 1
+            newboxes[0]  = this->GetXMin(boxIdx);
+            newboxes[1]  = this->GetYMin(boxIdx);
+            newboxes[2]  = this->GetZMin(boxIdx);
+            newboxes[3]  = this->GetXMax(boxIdx);
+            newboxes[4]  = this->GetYMax(boxIdx);
+            newboxes[5]  = midz;
+
+
+            // BOX 2
+            newboxes[6]  = this->GetXMin(boxIdx);
+            newboxes[7]  = this->GetYMin(boxIdx);
+            newboxes[8]  = midz;
+            newboxes[9]  = this->GetXMax(boxIdx);
+            newboxes[10] = this->GetYMax(boxIdx);
+            newboxes[11] = this->GetZMax(boxIdx);
+          }
+          break;
+        default:
+          assert( "pre: Undefined split dimension" && false);
+      }
+
+}
+
+//-----------------------------------------------------------------------------
+int vtkAMRToGrid::GetLongestDimension(
+    double minx, double miny, double minz,
+    double maxx, double maxy, double maxz )
+{
+   double dx = maxx-minx;
+   double dy = maxy-miny;
+   double dz = maxz-minz;
+
+   if( (dx >= dy) && (dx >= dz) )
+     return 1;
+   else if( (dy >= dx) && (dy >= dz) )
+     return 2;
+   else if( (dz >= dx) && (dz >= dy) )
+     return 3;
+   else
+     assert( "pre: Code should not reach here!" && false );
+   return( -1);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::GetRegion()
+{
+  this->boxes.resize(0);
+
+  // Setup initial box
+  // Currently we do not subdivide, and just do this in a single process.
+  this->boxes.push_back( this->Min[0] );
+  this->boxes.push_back( this->Min[1] );
+  this->boxes.push_back( this->Min[2] );
+
+  this->boxes.push_back( this->Max[0] );
+  this->boxes.push_back( this->Max[1] );
+  this->boxes.push_back( this->Max[2] );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRToGrid::SubdivideExtractionRegion()
 {
   this->boxes.resize(0);
-//  if( this->subdividedRegion )
-//    return;
 
+  // Setup initial box
   // Currently we do not subdivide, and just do this in a single process.
   this->boxes.push_back( this->Min[0] );
   this->boxes.push_back( this->Min[1] );
@@ -524,7 +699,35 @@ void vtkAMRToGrid::SubdivideExtractionRegion()
   this->boxes.push_back( this->Max[1] );
   this->boxes.push_back( this->Max[2] );
 
-//  this->subdividedRegion = true;
+  for( int i=0; i < this->NumberOfSubdivisions; ++i )
+    {
+      int NumBoxes = this->GetNumberOfBoxes();
+      for( int box=0; box < NumBoxes; ++box )
+        {
+          // storage for the boxes resulting from the bisection
+          vtkstd::vector<double> childBoxes;
+
+          // split the box
+          this->SplitBox( box, childBoxes );
+
+          // Replace parent box with one of the children
+          this->SetXMin(box,childBoxes[0]);
+          this->SetYMin(box,childBoxes[1]);
+          this->SetZMin(box,childBoxes[2]);
+          this->SetXMax(box,childBoxes[3]);
+          this->SetYMax(box,childBoxes[4]);
+          this->SetZMax(box,childBoxes[5]);
+
+          // Insert 2nd child at the end of the vector
+          this->boxes.push_back(childBoxes[6]);
+          this->boxes.push_back(childBoxes[7]);
+          this->boxes.push_back(childBoxes[8]);
+          this->boxes.push_back(childBoxes[9]);
+          this->boxes.push_back(childBoxes[10]);
+          this->boxes.push_back(childBoxes[11]);
+        } // END for all boxes
+    } // END for all subdivisions
+
 }
 
 //-----------------------------------------------------------------------------
@@ -549,5 +752,127 @@ void vtkAMRToGrid::InitializeRegionBounds( vtkHierarchicalBoxDataSet *inp )
    this->Max[0]= bounds[3] - vtkMath::Floor( (bounds[3]-offset[0])/2.0 );
    this->Max[1]= bounds[4] - vtkMath::Floor( (bounds[4]-offset[1])/2.0 );
    this->Max[2]= bounds[5] - vtkMath::Floor( (bounds[5]-offset[2])/2.0 );
-//   this->initializedRegion = true;
 }
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::SetXMin( const int boxIdx, const double minx )
+{
+  int idx = boxIdx*6;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  this->boxes[ idx ] = minx;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::SetYMin( const int boxIdx, const double miny )
+{
+  int idx = boxIdx*6+1;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  this->boxes[ idx ] = miny;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::SetZMin( const int boxIdx, const double minz )
+{
+  int idx = boxIdx*6+2;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  this->boxes[ idx ] = minz;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::SetXMax(const int boxIdx, const double maxx )
+{
+  int idx = boxIdx*6+3;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  this->boxes[ idx ] = maxx;
+
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::SetYMax(const int boxIdx, const double maxy )
+{
+  int idx = boxIdx*6+4;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  this->boxes[ idx ] = maxy;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRToGrid::SetZMax(const int boxIdx, const double maxz )
+{
+  int idx = boxIdx*6+5;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  this->boxes[ idx ] = maxz;
+
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRToGrid::GetXMin(const int boxIdx)
+{
+  int idx = boxIdx*6;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  return( this->boxes[ idx ] );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRToGrid::GetYMin(const int boxIdx)
+{
+  int idx = boxIdx*6+1;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  return( this->boxes[ idx ] );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRToGrid::GetZMin(const int boxIdx)
+{
+  int idx = boxIdx*6+2;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  return( this->boxes[ idx ] );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRToGrid::GetXMax(const int boxIdx)
+{
+  int idx = boxIdx*6+3;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  return( this->boxes[ idx ] );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRToGrid::GetYMax(const int boxIdx)
+{
+  int idx = boxIdx*6+4;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  return( this->boxes[ idx ] );
+}
+
+//-----------------------------------------------------------------------------
+double vtkAMRToGrid::GetZMax(const int boxIdx)
+{
+  int idx = boxIdx*6+5;
+  assert(
+      "pre: array index out-of-bounds" &&
+      (idx >= 0 ) && (idx < this->boxes.size() ) );
+  return( this->boxes[ idx ] );
+}
+
