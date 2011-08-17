@@ -442,4 +442,6 @@ void vtkDistanceRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Label Position: " << this->LabelPosition << endl;
   os << indent << "Maximum Number Of Ticks: " << this->MaximumNumberOfRulerTicks << endl;
   os << indent << "Glyph Scale: " << this->GlyphScale << endl;
+  os << indent << "LabelActor: " << this->LabelActor << endl;
+  os << indent << "GlyphActor: " << this->GlyphActor << endl;
 }

@@ -1046,6 +1046,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "NumberOfFiles: " << this->NumberOfFiles << endl;
   os << indent << "Controller: " << this->Controller << endl;
+  os << indent << "VariableCacheSize: " << this->VariableCacheSize << endl;
 }
 
 vtkIdType vtkPExodusIIReader::GetTotalNumberOfElements()

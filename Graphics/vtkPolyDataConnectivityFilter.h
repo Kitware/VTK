@@ -31,10 +31,16 @@
 // on the boolean ivar ScalarConnectivity. If this flag is on, the
 // connectivity algorithm is modified so that cells are considered connected
 // only if 1) they are geometrically connected (share a point) and 2) the
-// scalar values of one of the cell's points falls in the scalar range
-// specified. This use of ScalarConnectivity is particularly useful for
-// selecting cells for later processing.
-
+// scalar values of the cell's points falls in the scalar range specified.
+// If ScalarConnectivity and FullScalarConnectivity is ON, all the cell's
+// points must lie in the scalar range specified for the cell to qualify as
+// being connected. If FullScalarConnectivity is OFF, any one of the cell's
+// points may lie in the user specified scalar range for the cell to qualify
+// as being connected.
+//
+// This use of ScalarConnectivity is particularly useful for selecting cells
+// for later processing.
+//
 // .SECTION See Also
 // vtkConnectivityFilter
 
@@ -72,6 +78,18 @@ public:
   vtkGetMacro(ScalarConnectivity,int);
   vtkBooleanMacro(ScalarConnectivity,int);
 
+  // Description:
+  // Turn on/off the use of Fully connected scalar connectivity. This is off
+  // by default. The flag is used only if ScalarConnectivity is on. If
+  // FullScalarConnectivity is ON, all the cell's points must lie in the
+  // scalar range specified for the cell to qualify as being connected. If
+  // FullScalarConnectivity is OFF, any one of the cell's points may lie in
+  // the user specified scalar range for the cell to qualify as being
+  // connected.
+  vtkSetMacro(FullScalarConnectivity,int);
+  vtkGetMacro(FullScalarConnectivity,int);
+  vtkBooleanMacro(FullScalarConnectivity,int);
+  
   // Description:
   // Set the scalar range to use to extract cells based on scalar connectivity.
   vtkSetVector2Macro(ScalarRange,double);
@@ -153,6 +171,11 @@ protected:
   double ClosestPoint[3];
 
   int ScalarConnectivity;
+  int FullScalarConnectivity;
+
+  // Does this cell qualify as being scalar connected ?
+  int IsScalarConnected( vtkIdType cellId );
+  
   double ScalarRange[2];
 
   void TraverseAndMark();
@@ -172,6 +195,7 @@ protected:
   vtkIdList *Wave2;
   vtkIdList *PointIds;
   vtkIdList *CellIds;
+
 private:
   vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&);  // Not implemented.
   void operator=(const vtkPolyDataConnectivityFilter&);  // Not implemented.
