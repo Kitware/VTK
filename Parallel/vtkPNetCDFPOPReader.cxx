@@ -349,8 +349,8 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
          this->Internals->VariableMap[i]) != 0)
       {
       // varidp is probably i in which case nc_inq_varid isn't needed
-      int varidp;
-      if (IsReaderRank())
+      int varidp = -1;
+      if (this->IsReaderRank())
         {
         nc_inq_varid(this->NCDFFD,
                      this->Internals->VariableArraySelection->GetArrayName(
@@ -385,7 +385,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
                                 wholeExtent[0]*this->Stride[0]};
 
         float *p_buff = new float[wholeCount[0] + wholeCount[1] + wholeCount[2]];
-        if (IsFirstReaderRank())
+        if (this->IsFirstReaderRank())
           {
           int dimidsp[3];
           nc_inq_vardimid(this->NCDFFD, varidp, dimidsp);
