@@ -75,6 +75,38 @@ public:
   virtual vtkRectf GetPosition();
 
 //BTX
+  // Description:
+  // Generate and return the tooltip label string for this plot
+  // The segmentIndex parameter is ignored.
+  // The member variable TooltipLabelFormat can be set as a
+  // printf-style string to build custom tooltip labels from,
+  // and may contain:
+  // An empty string generates the default tooltip labels.
+  // The following case-sensitive format tags (without quotes) are recognized:
+  //   '%x' The X position of the histogram cell
+  //   '%y' The Y position of the histogram cell
+  //   '%v' The scalar value of the histogram cell
+  //   Note: the %i and %j tags are valid only if there is a 1:1 correspondence
+  //         between individual histogram cells and axis tick marks
+  //   '%i' The X axis tick label for the histogram cell
+  //   '%j' The Y axis tick label for the histogram cell
+  // Any other characters or unrecognized format tags are printed in the
+  // tooltip label verbatim.
+  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+                                       vtkIdType seriesIndex,
+                                       vtkIdType segmentIndex);
+
+  // Description:
+  // Function to query a plot for the nearest point to the specified coordinate.
+  // Returns an index between 0 and (number of histogram cells - 1), or -1.
+  // The index 0 is at cell x=0, y=0 of the histogram, and the index increases
+  // in a minor fashon with x and in a major fashon with y.
+  // The referent of "location" is set to the x and y integer indices of the
+  // histogram cell.
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f& tolerance,
+                                    vtkVector2f* location);
+
 protected:
   vtkPlotHistogram2D();
   ~vtkPlotHistogram2D();
