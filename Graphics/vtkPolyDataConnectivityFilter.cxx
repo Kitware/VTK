@@ -593,6 +593,12 @@ void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Connectivity: " 
      << (this->ScalarConnectivity ? "On\n" : "Off\n");
 
+  if (this->ScalarConnectivity)
+    {
+    os << indent << "Full Connectivity: " 
+       << (this->FullScalarConnectivity ? "On\n" : "Off\n");
+    }  
+
   double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
 }
