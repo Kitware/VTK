@@ -165,6 +165,10 @@ void vtkExtentRCBPartitioner::SplitExtent(
   s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
   s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
 
+//  this->PrintExtent( "Parent", parent );
+//  this->PrintExtent( "s1", s1 );
+//  this->PrintExtent( "s2", s2 );
+
 }
 
 //------------------------------------------------------------------------------
@@ -182,4 +186,13 @@ int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
      return 3;
   assert( "pre: could not find longest dimension" && false );
   return 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkExtentRCBPartitioner::PrintExtent( std::string name, int ext[6] )
+{
+  std::cout << name << ": [";
+  for( int i=0; i < 6; std::cout << ext[i++] << " " );
+  std::cout << "]\n";
+  std::cout.flush();
 }

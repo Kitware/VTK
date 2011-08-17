@@ -19,8 +19,13 @@
 #include "vtkExtentRCBPartitioner.h"
 #include "vtkUniformGrid.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkStructuredData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
-vtkStandardNewMacro( vtkUniformGridPartioner );
+#include <cassert>
+
+vtkStandardNewMacro( vtkUniformGridPartitioner );
 
 //------------------------------------------------------------------------------
 vtkUniformGridPartitioner::vtkUniformGridPartitioner()
@@ -44,7 +49,7 @@ void vtkUniformGridPartitioner::PrintSelf(std::ostream &oss, vtkIndent indent)
 int vtkUniformGridPartitioner::FillInputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkUniformGrid" );
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkImageData" );
   return 1;
 }
 
@@ -65,14 +70,15 @@ int vtkUniformGridPartitioner::RequestData(
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: input information object is NULL" && (input != NULL) );
 
-  vtkUniformGrid *grd =
-    vtkUniformGrid::SafeDownCast( input->Get(vtkDataObject::DATA_OBJECT() ) );
+  vtkImageData *grd =
+    vtkImageData::SafeDownCast( input->Get(vtkDataObject::DATA_OBJECT() ) );
+  assert( "pre: input grid is NULL!" && (grd != NULL));
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
   assert( "pre: output information object is NULL" && (output != NULL) );
   vtkMultiBlockDataSet *multiblock =
-      vtkHierarchicalBoxDataSet::SafeDownCast(
+      vtkMultiBlockDataSet::SafeDownCast(
         output->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: multiblock grid is NULL!" && (multiblock != NULL) );
 
@@ -102,7 +108,27 @@ int vtkUniformGridPartitioner::RequestData(
       int ext[6];
       extentPartitioner->GetPartitionExtent( blockIdx, ext );
 
+      double origin[3];
+      int ijk[3];
+      ijk[0] = ext[0];
+      ijk[1] = ext[1];
+      ijk[2] = ext[2];
 
+      int subdims[3];
+      subdims[0] = ext[3]-ext[0]+1;
+      subdims[1] = ext[4]-ext[1]+1;
+      subdims[2] = ext[5]-ext[2]+1;
+      int pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
+
+      grd->GetPoint( pntIdx, origin );
+
+      vtkUniformGrid *subgrid = vtkUniformGrid::New();
+      subgrid->SetOrigin( origin );
+      subgrid->SetSpacing( grd->GetSpacing() );
+      subgrid->SetDimensions( subdims );
+
+      multiblock->SetBlock( blockIdx, subgrid );
+      subgrid->Delete();
     } // END for all blocks
 
   extentPartitioner->Delete();

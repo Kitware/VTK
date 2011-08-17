@@ -12,10 +12,13 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkUniformGridPartitioner.h -- {Enter documentation here!}
+// .NAME vtkUniformGridPartitioner.h -- Partitions a uniform grid by RCB
 //
 // .SECTION Description
-//  TODO: Enter documentation here!
+//  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
+//  functionality for partitioning a uniform grid. The partitioning method
+//  that is used is Recursive Coordinate Bisection (RCB) where each time
+//  the longest dimension is split.
 
 #ifndef VTKUNIFORMGRIDPARTITIONER_H_
 #define VTKUNIFORMGRIDPARTITIONER_H_
@@ -30,8 +33,8 @@ class VTK_FILTERING_EXPORT vtkUniformGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
 {
   public:
-      static vtkUniformGridPartioner *New();
-      vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAglorithm);
+      static vtkUniformGridPartitioner *New();
+      vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
       void PrintSelf( std::ostream &oss, vtkIndent indent );
 
       // Description:

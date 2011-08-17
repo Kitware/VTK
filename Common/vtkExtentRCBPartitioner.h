@@ -86,6 +86,10 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      // Returns the longest edge
      int GetLongestDimension( int ext[6] );
 
+     // Description:
+     // A convenience method for debugging purposes.
+     void PrintExtent( std::string name, int ext[6] );
+
      int GlobalExtent[6];
      int NumberOfSubdivisions;
      int NumExtents;
