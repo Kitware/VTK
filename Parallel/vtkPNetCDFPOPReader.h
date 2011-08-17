@@ -32,7 +32,7 @@
 
 class vtkDataArraySelection;
 class vtkCallbackCommand;
-class vtkMPIController;
+class vtkMultiProcessController;
 class vtkPNetCDFPOPReaderInternal;
 
 class VTK_PARALLEL_EXPORT vtkPNetCDFPOPReader : public vtkRectilinearGridAlgorithm
@@ -62,8 +62,8 @@ public:
   // Description:
   // Set/Get the vtkMultiProcessController which will handle communications
   // for the parallel rendering.  Added by RGM.
-  vtkGetObjectMacro(Controller, vtkMPIController);
-  void SetController(vtkMPIController *controller);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  void SetController(vtkMultiProcessController *controller);
 
   // Description:
   // Set the list of processes that will actually open the file.
@@ -127,7 +127,7 @@ protected:
 
   int Stride[3];
 
-  vtkMPIController *Controller;
+  vtkMultiProcessController *Controller;
 
 private:
   vtkPNetCDFPOPReader(const vtkPNetCDFPOPReader&);  // Not implemented.
