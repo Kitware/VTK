@@ -28,7 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkMPI.h"  // added by RGM
-#include "vtkDummyController.h"
 #include "vtkMPIController.h" // added by RGM
 #include "vtkTimerLog.h" // added by RGM for debugging
 
@@ -112,11 +111,8 @@ vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
   this->Internals->VariableArraySelection->AddObserver(
     vtkCommand::ModifiedEvent, this->SelectionObserver);
   this->Controller = NULL;
-  this->SetController(vtkMultiProcessController::GetGlobalController());
-  if(!this->Controller)
-    {
-      this->Controller = vtkDummyController::New();
-    }
+  this->SetController(vtkMPIController::SafeDownCast(
+                        vtkMultiProcessController::GetGlobalController()));
   this->SetReaderRanks(NULL);
   this->NCDFFD = -1;
 }
@@ -454,9 +450,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         // how it will behave since we're calling MPI_Isend() directly.  So, I'm going
         // to call MPI_Irecv directly, too...
 
-        vtkMPIController * p_mpi_controller = vtkMPIController::SafeDownCast(this->Controller);
-
-        MPI_Comm *p_comm = ((vtkMPICommunicator *)p_mpi_controller)->GetMPIComm()->GetHandle();
+        MPI_Comm *p_comm = ((vtkMPICommunicator *)this->Controller->GetCommunicator())->GetMPIComm()->GetHandle();
         MPI_Request recvReq;
         MPI_Irecv( p_depthStart, oneDepthSize, MPI_FLOAT, sourceRank, curDepth, *p_comm, &recvReq);
         recvReqs.push_back( recvReq);
@@ -740,7 +734,7 @@ bool vtkPNetCDFPOPReader::IsFirstReaderRank()
 }
 
 //----------------------------------------------------------------------------
-void vtkPNetCDFPOPReader::SetController(vtkMultiProcessController *controller)
+void vtkPNetCDFPOPReader::SetController(vtkMPIController *controller)
 {
   if(this->Controller != controller)
     {
