@@ -575,6 +575,7 @@ int vtkContourRepresentation::GetNthNodeWorldPosition( int n, double worldPos[3]
     worldPos[0] = node->WorldPosition[0];
     worldPos[1] = node->WorldPosition[1];
     worldPos[2] = node->WorldPosition[2];
+    return 1;
     }
 
   return 0;
