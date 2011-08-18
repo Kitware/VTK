@@ -188,6 +188,10 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     // Checks if two uniform grids intersect.
     bool GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 );
 
+    // Description:
+    // Returns a reference grid from the amrdataset.
+    vtkUniformGrid* GetReferenceGrid( vtkHierarchicalBoxDataSet *amrds );
+
 // BTX
     vtkstd::vector< int > blocksToLoad; // Holds the ids of the blocks to load.
 // ETX
