@@ -102,6 +102,7 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     vtkAMRToGrid();
     virtual ~vtkAMRToGrid();
 
+    vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
     double Min[3];
     double Max[3];
     int NumberOfSubdivisions;
@@ -122,45 +123,6 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     // Given the Region ID, this method computes the corresponding process ID
     // that owns the region based on static block-cyclic distribution.
     int GetRegionProcessId( const int regionIdx );
-
-    // Description:
-    // Returns the total number of boxes
-    inline int GetNumberOfBoxes() {return this->boxes.size()/6; };
-
-    // Description:
-    // Sets the min/max of the box corresponding to the given box ID.
-    void SetXMin(const int boxIdx, const double minx );
-    void SetYMin(const int boxIdx, const double miny );
-    void SetZMin(const int boxIdx, const double minz );
-    void SetXMax(const int boxIdx, const double maxx );
-    void SetYMax(const int boxIdx, const double maxy );
-    void SetZMax(const int boxIdx, const double maxz );
-
-    // Description:
-    // Returns the min/max of the box corresponding to the given box ID.
-    double GetXMin(const int boxIdx);
-    double GetYMin(const int boxIdx);
-    double GetZMin(const int boxIdx);
-    double GetXMax(const int boxIdx);
-    double GetYMax(const int boxIdx);
-    double GetZMax(const int boxIdx);
-
-    // Description:
-    // This method splits a box corresponding to the given box
-    // Id in two sub-boxes.
-    void SplitBox(
-     const int boxIdx, vtkstd::vector<double> &newboxes);
-
-    // Description:
-    // Returns the longest dimensions of the box.
-    // The list of valid return values has as follows:
-    // 1 -- indicates the x-dimension is the longest
-    // 2 -- indicates the y-dimension is the longest
-    // 3 -- indicates the z-dimension is the longest
-    int GetLongestDimension(
-        double minx, double miny, double minz,
-        double maxx, double maxy, double maxz  );
-
 
     // Description:
     // Given a cell index and a grid, this method computes the cell centroid.
@@ -219,21 +181,15 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     void ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
-    // This method subdivides the region using Recursive Coordinate Bisection
-    // (RCB) to a set of boxes.
-    void SubdivideExtractionRegion();
-
-    // Description:
     // This method gets the region of interest as perscribed by the user.
-    void GetRegion();
+    void GetRegion( double h[3] );
 
     // Description:
-    // Computes the extraction region bounds based on the input AMR dataset.
-    void InitializeRegionBounds( vtkHierarchicalBoxDataSet *inp );
+    // Checks if two uniform grids intersect.
+    bool GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 );
 
 // BTX
     vtkstd::vector< int > blocksToLoad; // Holds the ids of the blocks to load.
-    vtkstd::vector< double > boxes; // uniform grid regions strided by 6.
 // ETX
 
   private:
