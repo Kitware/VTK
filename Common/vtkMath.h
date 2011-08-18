@@ -569,6 +569,11 @@ public:
   static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
 
   // Description:
+  // Multiply two quaternions. This is used to concatenate rotations
+  static void MultiplyQuaternion( const float q1[4], const float q2[4],  float q[4] );
+  static void MultiplyQuaternion( const double q1[4], const double q2[4],  double q[4] );
+
+  // Description:
   // Orthogonalize a 3x3 matrix and put the result in B.  If matrix A
   // has a negative determinant, then B will be a rotation plus a flip
   // i.e. it will have a determinant of -1.

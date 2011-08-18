@@ -1857,6 +1857,51 @@ void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
 }
 
 //----------------------------------------------------------------------------
+// Multiplying two quaternions
+template <class T>
+inline void vtkQuaternionMultiplication( const T q1[4],
+                                         const T q2[4],
+                                         T q[4] )
+{
+  T ww = q1[0]*q2[0];
+  T wx = q1[0]*q2[1];
+  T wy = q1[0]*q2[2];
+  T wz = q1[0]*q2[3];
+
+  T xw = q1[1]*q2[0];
+  T xx = q1[1]*q2[1];
+  T xy = q1[1]*q2[2];
+  T xz = q1[1]*q2[3];
+
+  T yw = q1[2]*q2[0];
+  T yx = q1[2]*q2[1];
+  T yy = q1[2]*q2[2];
+  T yz = q1[2]*q2[3];
+
+  T zw = q1[3]*q2[0];
+  T zx = q1[3]*q2[1];
+  T zy = q1[3]*q2[2];
+  T zz = q1[3]*q2[3];
+
+  q[0] = ww-xx-yy-zz;
+  q[1] = wx+xw+yz-zy;
+  q[2] = wy-xz+yw+zx;
+  q[3] = wz+xy-yx+zw;
+}
+
+//----------------------------------------------------------------------------
+void vtkMath::MultiplyQuaternion( const float q1[4], const float q2[4], float q[4] )
+{
+  vtkQuaternionMultiplication( q1, q2, q );
+}
+
+//----------------------------------------------------------------------------
+void vtkMath::MultiplyQuaternion( const double q1[4], const double q2[4], double q[4] )
+{
+  vtkQuaternionMultiplication( q1, q2, q );
+}
+
+//----------------------------------------------------------------------------
 //  The orthogonalization is done via quaternions in order to avoid
 //  having to use a singular value decomposition algorithm.
 template <class T1, class T2>
