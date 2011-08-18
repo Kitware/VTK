@@ -411,14 +411,12 @@ int vtkWindBladeReader::RequestData(
 
     // Collect the time step requested
     double* requestedTimeSteps = NULL;
-    int numRequestedTimeSteps = 0;
     vtkInformationDoubleVectorKey* timeKey =
       static_cast<vtkInformationDoubleVectorKey*>
         (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
 
     if (fieldInfo->Has(timeKey))
       {
-      numRequestedTimeSteps = fieldInfo->Length(timeKey);
       requestedTimeSteps = fieldInfo->Get(timeKey);
       }
 
@@ -511,7 +509,6 @@ int vtkWindBladeReader::RequestData(
 
       // Collect the time step requested
       double* requestedTimeSteps = NULL;
-      int numRequestedTimeSteps = 0;
       vtkInformationDoubleVectorKey* timeKey =
         static_cast<vtkInformationDoubleVectorKey*>
           (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
@@ -519,7 +516,6 @@ int vtkWindBladeReader::RequestData(
       double dTime = 0.0;
       if (bladeInfo->Has(timeKey))
         {
-        numRequestedTimeSteps = bladeInfo->Length(timeKey);
         requestedTimeSteps = bladeInfo->Get(timeKey);
         dTime = requestedTimeSteps[0];
         }

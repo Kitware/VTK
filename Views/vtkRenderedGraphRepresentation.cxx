@@ -1322,7 +1322,6 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
   vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasEdges = false;
   vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
-  bool hasVertices = false;
   for( unsigned int m = 0; m < converted->GetNumberOfNodes(); ++m)
     {
     vtkSelectionNode* node = converted->GetNode(m);
@@ -1330,7 +1329,6 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
     if (node->GetFieldType() == vtkSelectionNode::VERTEX)
       {
       list = vertexList;
-      hasVertices = true;
       }
     else if (node->GetFieldType() == vtkSelectionNode::EDGE)
       {

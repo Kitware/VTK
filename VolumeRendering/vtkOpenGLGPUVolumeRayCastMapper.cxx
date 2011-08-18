@@ -2654,8 +2654,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
 
     } // endif OpenGLObjectsCreated
 
-
-  int result=1;
   int size[2];
   int i=0;
 
@@ -2723,7 +2721,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
         this->LastSize[1]=size[1];
         }
       }
-    result=errorCode==GL_NO_ERROR;
+    errorCode==GL_NO_ERROR;
     }
 
 
@@ -5420,13 +5418,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         // 5. loading the subvolume failed: stream the subvolume
         // 5.1 do zslabs first, if too large then cut with x or y with the
         // largest dimension. order of zlabs depends on sign of spacing[2]
-        int streamTextureExtent[6];
-        i=0;
-        while(i<6)
-          {
-          streamTextureExtent[i]=subvolumeTextureExtent[i];
-          ++i;
-          }
 
         unsigned int internalFormat;
         unsigned int format;

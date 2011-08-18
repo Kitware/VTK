@@ -284,16 +284,15 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
-  int retVal = 0;
   if(output->IsA("vtkImageData") || output->IsA("vtkStructuredGrid") ||
           output->IsA("vtkRectilinearGrid") )
     {
-    retVal = this->ComputeRegularGridGradient(
+    this->ComputeRegularGridGradient(
       array, fieldAssociation, output);
     }
   else
     {
-    retVal = this->ComputeUnstructuredGridGradient(
+    this->ComputeUnstructuredGridGradient(
       array, fieldAssociation, input, output);
     }
 

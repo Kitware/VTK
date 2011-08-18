@@ -401,7 +401,7 @@ int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph * output)
               return 0;
               }
 
-            vtkEdgeType edgeObj = builder->AddEdge(iEdgeU-1, iEdgeV-1);
+            builder->AddEdge(iEdgeU-1, iEdgeV-1);
             edgePedigreeIds->SetValue(currentEdgeId, currentEdgeId+baseEdgeId);
             currentEdgeId++;
             }
