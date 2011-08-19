@@ -689,6 +689,8 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   assert(this->StartPiece + 1== this->EndPiece);
   assert(totalNumberOfCells == numberOfCells);
 
+  static_cast<void>(totalNumberOfCells);
+
   // Allocate memory in the output connectivity array.
   vtkIdType newSize = numberOfCells + cellPoints->GetNumberOfTuples();
   vtkIdType* cptr = outCells->WritePointer(numberOfCells, newSize);
