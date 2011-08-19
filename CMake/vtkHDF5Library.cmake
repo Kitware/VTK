@@ -1,11 +1,7 @@
 #########################################################################
 # Configure HDF5
 
-IF(VTK_USE_SYSTEM_HDF5)
-  find_package(HDF5 REQUIRED)
-  find_package(ZLIB)
-  SET(VTK_HDF5_LIBRARIES ${HDF5_LIBRARIES})
-ELSE(VTK_USE_SYSTEM_HDF5)
+IF(NOT VTK_USE_SYSTEM_HDF5)
 
   # Tell hdf5 that we are manually overriding certain settings
   SET(HDF5_EXTERNALLY_CONFIGURED ON)
@@ -81,4 +77,4 @@ ELSE(VTK_USE_SYSTEM_HDF5)
     HDF5_PACKAGE_EXTLIBS
     )
 
-ENDIF(VTK_USE_SYSTEM_HDF5)
+ENDIF(NOT VTK_USE_SYSTEM_HDF5)
