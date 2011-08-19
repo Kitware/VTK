@@ -80,14 +80,14 @@ static void *plyAllocateMemory(size_t n)
 }
 
 
-const char *type_names[] = {
+static const char *type_names[] = {
 "invalid",
 "char", "short", "int", "int32",
 "uchar", "ushort", "uint", "uint8",
 "float", "float32", "double",
 };
 
-int ply_type_size[] = {
+static const int ply_type_size[] = {
   0, 1, 2, 4, 4, 1, 2, 4, 1, 4, 4, 8
 };
 
@@ -537,7 +537,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         elem_data = (char *)elem_ptr;
       if (prop->is_list) {
         item = elem_data + prop->count_offset;
-        get_stored_item ((void *) item, prop->count_internal,
+        get_stored_item (item, prop->count_internal,
                          &int_val, &uint_val, &double_val);
         write_ascii_item (fp, int_val, uint_val, double_val,
                           prop->count_external);
@@ -546,7 +546,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         item = item_ptr[0];
        item_size = ply_type_size[prop->internal_type];
         for (k = 0; k < list_count; k++) {
-          get_stored_item ((void *) item, prop->internal_type,
+          get_stored_item (item, prop->internal_type,
                            &int_val, &uint_val, &double_val);
           write_ascii_item (fp, int_val, uint_val, double_val,
                             prop->external_type);
@@ -555,7 +555,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
       }
       else {
         item = elem_data + prop->offset;
-        get_stored_item ((void *) item, prop->internal_type,
+        get_stored_item (item, prop->internal_type,
                          &int_val, &uint_val, &double_val);
         write_ascii_item (fp, int_val, uint_val, double_val,
                           prop->external_type);
@@ -578,7 +578,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
       if (prop->is_list) {
         item = elem_data + prop->count_offset;
         //item_size = ply_type_size[prop->count_internal];
-        get_stored_item ((void *) item, prop->count_internal,
+        get_stored_item (item, prop->count_internal,
                          &int_val, &uint_val, &double_val);
         write_binary_item (plyfile, int_val, uint_val, double_val,
                            prop->count_external);
@@ -587,7 +587,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         item = item_ptr[0];
         item_size = ply_type_size[prop->internal_type];
         for (k = 0; k < list_count; k++) {
-          get_stored_item ((void *) item, prop->internal_type,
+          get_stored_item (item, prop->internal_type,
                            &int_val, &uint_val, &double_val);
           write_binary_item (plyfile, int_val, uint_val, double_val,
                              prop->external_type);
@@ -596,7 +596,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
       }
       else {
         item = elem_data + prop->offset;
-        get_stored_item ((void *) item, prop->internal_type,
+        get_stored_item (item, prop->internal_type,
                          &int_val, &uint_val, &double_val);
         write_binary_item (plyfile, int_val, uint_val, double_val,
                            prop->external_type);
@@ -1848,54 +1848,58 @@ Exit:
 
 double vtkPLY::get_item_value(const char *item, int type)
 {
-  const unsigned char *puchar;
-  const char *pchar;
-  const short int *pshort;
-  const unsigned short int *pushort;
-  const int *pint;
-  const unsigned int *puint;
-  const float *pfloat;
-  const double *pdouble;
-  int int_value;
-  unsigned int uint_value;
-  double double_value;
-
   switch (type) {
     case PLY_CHAR:
-      pchar = (const char *) item;
-      int_value = *pchar;
-      return ((double) int_value);
+    {
+      vtkTypeInt8 value;
+      memcpy(&value, item, sizeof(value));
+      return ((double) value);
+    }
     case PLY_UCHAR:
     case PLY_UINT8:
-      puchar = (const unsigned char *) item;
-      uint_value = *puchar;
-      return ((double) uint_value);
+    {
+      vtkTypeUInt8 value;
+      memcpy(&value, item, sizeof(value));
+      return ((double) value);
+    }
     case PLY_SHORT:
-      pshort = (const short int *) item;
-      int_value = *pshort;
-      return ((double) int_value);
+    {
+      vtkTypeInt16 value;
+      memcpy(&value, item, sizeof(value));
+      return ((double) value);
+    }
     case PLY_USHORT:
-      pushort = (const unsigned short int *) item;
-      uint_value = *pushort;
-      return ((double) uint_value);
+    {
+      vtkTypeUInt16 value;
+      memcpy(&value, item, sizeof(value));
+      return ((double) value);
+    }
     case PLY_INT:
     case PLY_INT32:
-      pint = (const int *) item;
-      int_value = *pint;
-      return ((double) int_value);
+    {
+      vtkTypeInt32 value;
+      memcpy(&value, item, sizeof(value));
+      return ((double) value);
+    }
     case PLY_UINT:
-      puint = (const unsigned int *) item;
-      uint_value = *puint;
-      return ((double) uint_value);
+    {
+      vtkTypeUInt32 value;
+      memcpy(&value, item, sizeof(value));
+      return ((double) value);
+    }
     case PLY_FLOAT:
     case PLY_FLOAT32:
-      pfloat = (const float *) item;
-      double_value = *pfloat;
-      return (double_value);
+    {
+      vtkTypeFloat32 value;
+      memcpy(&value, item, sizeof(value));
+      return ((double) value);
+    }
     case PLY_DOUBLE:
-      pdouble = (const double *) item;
-      double_value = *pdouble;
-      return (double_value);
+    {
+      vtkTypeFloat64 value;
+      memcpy(&value, item, sizeof(value));
+      return (value);
+    }
   }
   fprintf (stderr, "get_item_value: bad type = %d\n", type);
   return 0;
@@ -2120,7 +2124,7 @@ Exit:
 ******************************************************************************/
 
 void vtkPLY::get_stored_item(
-  void *ptr,
+  const void *ptr,
   int type,
   int *int_val,
   unsigned int *uint_val,
@@ -2129,48 +2133,80 @@ void vtkPLY::get_stored_item(
 {
   switch (type) {
     case PLY_CHAR:
-      *int_val = *((char *) ptr);
-      *uint_val = *int_val;
-      *double_val = *int_val;
+    {
+      vtkTypeInt8 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     case PLY_UCHAR:
     case PLY_UINT8:
-      *uint_val = *((unsigned char *) ptr);
-      *int_val = *uint_val;
-      *double_val = *uint_val;
+    {
+      vtkTypeUInt8 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     case PLY_SHORT:
-      *int_val = *((short int *) ptr);
-      *uint_val = *int_val;
-      *double_val = *int_val;
+    {
+      vtkTypeInt16 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     case PLY_USHORT:
-      *uint_val = *((unsigned short int *) ptr);
-      *int_val = *uint_val;
-      *double_val = *uint_val;
+    {
+      vtkTypeUInt16 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     case PLY_INT:
     case PLY_INT32:
-      *int_val = *((int *) ptr);
-      *uint_val = *int_val;
-      *double_val = *int_val;
+    {
+      vtkTypeInt32 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     case PLY_UINT:
-      *uint_val = *((unsigned int *) ptr);
-      *int_val = *uint_val;
-      *double_val = *uint_val;
+    {
+      vtkTypeUInt32 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     case PLY_FLOAT:
     case PLY_FLOAT32:
-      *double_val = *((float *) ptr);
-      *int_val = (int) *double_val;
-      *uint_val = (unsigned int) *double_val;
+    {
+      vtkTypeFloat32 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     case PLY_DOUBLE:
-      *double_val = *((double *) ptr);
-      *int_val = (int) *double_val;
-      *uint_val = (unsigned int) *double_val;
+    {
+      vtkTypeFloat64 value;
+      memcpy(&value, ptr, sizeof(value));
+      *uint_val = value;
+      *int_val = value;
+      *double_val = value;
       break;
+    }
     default:
       fprintf (stderr, "get_stored_item: bad type = %d\n", type);
       assert (0);
