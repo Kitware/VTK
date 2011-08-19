@@ -2721,7 +2721,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
         this->LastSize[1]=size[1];
         }
       }
-    errorCode==GL_NO_ERROR;
     }
 
 
