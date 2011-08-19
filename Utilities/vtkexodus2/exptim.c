@@ -32,35 +32,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exptim - ex_put_time
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     time_step               time step number
-*       float   time_value              simulation time at specified step
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include <string.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
 
 /*!
- * writes the time value for a whole time step;
- * assume the first time step is 1
- * \param       exoid                   exodus file id
- * \param       time_step               time step number (1...)
- * \param       time_value              simulation time at specified step
- */
+
+The function ex_put_time() writes the time value for a specified time
+step.
+
+Because time values are floating point values, the application code
+must declare the array passed to be the appropriate type (\c float or
+\c double) to match the compute word size passed in ex_create() or
+ex_open().
+
+\return In case of an error, ex_put_time() returns a negative number;
+a warning will return a positive number. Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+
+\param[in]  exoid         exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in]  time_step     The time step number. This is essentially a counter that is
+                          incremented only when results variables are output to the data
+        file. The first time step is 1.
+\param[in]  time_value    The time at the specified time step.
+
+The following code segment will write out the simulation time value at
+simulation time step n:
+
+\code
+int error, exoid, n;
+float time_value;
+
+\comment{write time value}
+error = ex_put_time (exoid, n, &time_value);
+\endcode
+
+*/
 
 int ex_put_time (int   exoid,
                  int   time_step,
