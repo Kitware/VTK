@@ -344,8 +344,7 @@ void vtkAMRToGrid::TransferToGridNodes(
   assert( "pre: uniform grid is NULL" && (g != NULL) );
   assert( "pre: AMR data-structure is NULL" && (amrds != NULL) );
 
-  vtkUniformGrid *refGrid = amrds->GetDataSet(0,0);
-  assert( "pre: Block(0,0) is NULL!" && (refGrid != NULL) );
+  vtkUniformGrid *refGrid = this->GetReferenceGrid( amrds );
 
   vtkCellData *CD = refGrid->GetCellData();
   assert( "pre: Donor CellData is NULL!" && (CD != NULL)  );
@@ -474,13 +473,6 @@ void vtkAMRToGrid::GetRegion( double h[3] )
   int dims[3];
   for( int i=0; i < 3; ++i )
       dims[ i ] = ( (this->Max[ i ] - this->Min[ i ] )) / h[ i ];
-
-//  for( int i=0; i < 3; ++ i )
-//    {
-//      std::cout << "[" << this->Min[ i ] << ", " << this->Max[ i ] << "] ";
-//      std::cout << "h=" << h[i] << " NDIM=" << dims[i] << std::endl;
-//      std::cout.flush();
-//    }
 
   grd->SetOrigin( this->Min );
   grd->SetSpacing( h );
