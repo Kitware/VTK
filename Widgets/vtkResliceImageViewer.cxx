@@ -326,8 +326,8 @@ void vtkResliceImageViewer::UpdatePointPlacer()
     int displayExtent[6];
     this->ImageActor->GetDisplayExtent(displayExtent);
 
-    int axis;
-    double position;
+    int axis = vtkBoundedPlanePointPlacer::XAxis;
+    double position = 0.0;
     if ( displayExtent[0] == displayExtent[1] )
       {
       axis = vtkBoundedPlanePointPlacer::XAxis;
