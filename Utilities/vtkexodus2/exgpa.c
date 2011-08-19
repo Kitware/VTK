@@ -49,7 +49,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -58,9 +57,57 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
- * reads an array of object properties
- */
+/*!
+  
+The function ex_get_prop_array() reads an array of integer property
+values for all element blocks, node sets, or side sets. The order of
+the values in the array correspond to the order in which the element
+blocks, node sets, or side sets were introduced into the file. Before
+this function is invoked, memory must be allocated for the returned
+array of(\c num_elem_blk, \c num_node_sets, or {num_side_sets})
+integer values.
+
+
+This function can be used in place of
+ - ex_get_elem_blk_ids(), 
+ - ex_get_node_set_ids(), and 
+ - ex_get_side_set_ids()
+to get element block, node set, and side set IDs, respectively, by
+requesting the property name \b ID. One should also note that this
+same function can be accomplished with multiple calls to
+ex_get_prop().
+
+\return In case of an error, ex_get_prop_array() returns a negative
+number; a warning will return a positive number.  Possible causes of
+errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  invalid object type specified.
+  -  a warning value is returned if a property with the specified name is not found.
+
+\param[in]  exoid      exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in]  obj_type   Type of object; use one of the options in the table below.
+\param[in]  prop_name  The name of the property (maximum length of \p MAX_STR_LENGTH )
+                       for which the values are desired.
+\param[out]  values    Returned array of property values.
+
+<table>
+<tr><td> \c EX_NODE_SET   </td><td>  Node Set entity type     </td></tr>
+<tr><td> \c EX_EDGE_BLOCK </td><td>  Edge Block entity type   </td></tr>
+<tr><td> \c EX_EDGE_SET   </td><td>  Edge Set entity type     </td></tr>
+<tr><td> \c EX_FACE_BLOCK </td><td>  Face Block entity type   </td></tr>
+<tr><td> \c EX_FACE_SET   </td><td>  Face Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_BLOCK </td><td>  Element Block entity type</td></tr>
+<tr><td> \c EX_ELEM_SET   </td><td>  Element Set entity type  </td></tr>
+<tr><td> \c EX_SIDE_SET   </td><td>  Side Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_MAP   </td><td>  Element Map entity type  </td></tr>
+<tr><td> \c EX_NODE_MAP   </td><td>  Node Map entity type     </td></tr>
+<tr><td> \c EX_EDGE_MAP   </td><td>  Edge Map entity type     </td></tr>
+<tr><td> \c EX_FACE_MAP   </td><td>  Face Map entity type     </td></tr>
+</table>
+
+For an example of code to read an array of object properties, refer to
+the description for ex_get_prop_names().
+*/
 
 int ex_get_prop_array (int   exoid,
                        ex_entity_type obj_type,

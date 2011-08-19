@@ -46,7 +46,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -148,9 +147,9 @@ int ex_get_side_set_node_list_len(int exoid,
   if (tot_num_ss_elem == 0) /* NULL side set? */
     return (EX_NOERR); /* return zero */
 
-  /* Minor optimization/kluge -- If num_df is nonzero, then assume
-     that it matches the number of nodes in the sideset... */
-  if (num_df > 0) {
+  /* Minor optimization/kluge -- If num_df is nonzero, or 1 per face
+     then assume that it matches the number of nodes in the sideset... */
+  if (num_df > 0 && num_df != tot_num_ss_elem) {
     *side_set_node_list_len = num_df;
     return(EX_NOERR);
   }
