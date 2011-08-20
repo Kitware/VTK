@@ -528,9 +528,9 @@ void vtkImageThresholdConnectivityExecute(
                               seed[2]*outInc[2]);
 
       if (outCheck == 0 ||
-          seed[0] >= minOutIdX && seed[0] <= maxOutIdX &&
-          seed[1] >= minOutIdY && seed[1] <= maxOutIdY &&
-          seed[2] >= minOutIdZ && seed[2] <= maxOutIdZ)
+          (seed[0] >= minOutIdX && seed[0] <= maxOutIdX &&
+           seed[1] >= minOutIdY && seed[1] <= maxOutIdY &&
+           seed[2] >= minOutIdZ && seed[2] <= maxOutIdZ))
         {
         *outPtr1 = (replaceIn ? inValue : static_cast<OT>(temp));
         }
