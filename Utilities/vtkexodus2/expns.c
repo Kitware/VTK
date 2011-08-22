@@ -32,39 +32,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expns - ex_put_node_set
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     node_set_id             node set id
-*       int*    node_set_node_list      node list array for the node set
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
-#include "exodusII_int.h"
 
 /*!
- * writes the node list for a single node set
- * \param   exoid                   exodus file id
- * \param   node_set_id             node set id
- * \param   node_set_node_list      node list array for the node set
- * \deprecated Use ex_put_set()(exoid, EX_NODE_SET, node_set_id, node_set_node_list, NULL)
- */
+\deprecated Use ex_put_set()(exoid, EX_NODE_SET, node_set_id, node_set_node_list, NULL)
+
+The function ex_put_node_set() writes the node list for a single node
+set. The function ex_put_node_set_param() must be called before this
+routine is invoked.
+
+\return In case of an error, ex_put_node_set() returns a negative
+number; a warning will return a positive number.  Possible causes of
+errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  data file not initialized properly with call to ex_put_init().
+  -  ex_put_node_set_param() not called previously.
+
+\param[in] exoid              exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in] node_set_id        The node set ID.
+\param[in] node_set_node_list Array containing the node list for the node set. Internal node IDs are
+                              used in this list (See Section LocalNodeIds).
+
+Refer to the description of ex_put_node_set_param() for a sample code
+segment to write out a node set.
+*/
 
 int ex_put_node_set (int   exoid,
                      int   node_set_id,
                      const int  *node_set_node_list)
 {
   return ex_put_set(exoid, EX_NODE_SET, node_set_id,
-                    node_set_node_list, NULL);
+        node_set_node_list, NULL);
 }

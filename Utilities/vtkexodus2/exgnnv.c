@@ -68,11 +68,11 @@
  */
 
 int ex_get_n_nodal_var (int   exoid,
-                        int   time_step,
-                        int   nodal_var_index,
-                        int   start_node,
-                        int   num_nodes, 
-                        void *var_vals)
+      int   time_step,
+      int   nodal_var_index,
+      int   start_node,
+      int   num_nodes, 
+      void *var_vals)
 {
   int varid;
   int status;

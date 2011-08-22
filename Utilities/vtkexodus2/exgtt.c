@@ -45,7 +45,6 @@
 * exit conditions - 
 *       int*    var_tab            element variable truth table array
 *
-*  Id
 *
 *****************************************************************************/
 

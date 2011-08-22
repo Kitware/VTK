@@ -46,7 +46,6 @@
 *
 * exit conditions - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -85,17 +84,17 @@ int ex_put_one_attr( int   exoid,
     obj_id_ndx = ex_id_lkup(exoid,obj_type,obj_id);
     if (exerrval != 0) {
       if (exerrval == EX_NULLENTITY) {
-        sprintf(errmsg,
-                "Warning: no attributes allowed for NULL %s %d in file id %d",
-                ex_name_of_object(obj_type),obj_id,exoid);
-        ex_err("ex_put_one_attr",errmsg,EX_MSG);
-        return (EX_WARN);              /* no attributes for this element block */
+  sprintf(errmsg,
+    "Warning: no attributes allowed for NULL %s %d in file id %d",
+    ex_name_of_object(obj_type),obj_id,exoid);
+  ex_err("ex_put_one_attr",errmsg,EX_MSG);
+  return (EX_WARN);              /* no attributes for this element block */
       } else {
-        sprintf(errmsg,
-                "Error: no %s id %d in id array in file id %d",
-                ex_name_of_object(obj_type), obj_id, exoid);
-        ex_err("ex_put_one_attr",errmsg,exerrval);
-        return (EX_FATAL);
+  sprintf(errmsg,
+    "Error: no %s id %d in id array in file id %d",
+    ex_name_of_object(obj_type), obj_id, exoid);
+  ex_err("ex_put_one_attr",errmsg,exerrval);
+  return (EX_FATAL);
       }
     }
   }
@@ -149,8 +148,8 @@ int ex_put_one_attr( int   exoid,
   default:
     exerrval = 1005;
     sprintf(errmsg,
-            "Internal Error: unrecognized object type in switch: %d in file id %d",
-            obj_type,exoid);
+      "Internal Error: unrecognized object type in switch: %d in file id %d",
+      obj_type,exoid);
     ex_err("ex_put_one_attr",errmsg,EX_MSG);
     return (EX_FATAL);              /* number of attributes not defined */
   }
@@ -174,8 +173,8 @@ int ex_put_one_attr( int   exoid,
   if ((status = nc_inq_varid(exoid, vattrbname, &attrid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate attribute variable for %s %d in file id %d",
-            ex_name_of_object(obj_type),obj_id,exoid);
+      "Error: failed to locate attribute variable for %s %d in file id %d",
+      ex_name_of_object(obj_type),obj_id,exoid);
     ex_err("ex_put_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }

@@ -32,35 +32,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgatm - get all time values
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*
-* exit conditions - 
-*       float*  time_values             array of simulation time values
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include <string.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
 
 /*!
- * reads the time values for all time steps. Memory must be allocated
- * for the time values array before this function is invoked. The
- * storage requirements (equal to the number of time steps) can be
- * determined by using the ex_inquire() routine.
- * \param       exoid        exodus file id
- * \param[out]  time_values  Returned array of time values at all time steps. 
- */
+
+The function ex_get_all_times() reads the time values for all time
+steps. Memory must be allocated for the time values array before this
+function is invoked. The storage requirements (equal to the number of
+time steps) can be determined by using the ex_inquire() or
+ex_inquire_int() routines.
+
+Because time values are floating point values, the application code
+must declare the array passed to be the appropriate type (\c float or
+\c double) to match the compute word size passed in ex_create() or
+ex_open().
+
+\return In case of an error, ex_get_all_times() returns a negative
+number; a warning will return a positive number. Possible causes of
+errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  no time steps have been stored in the file.
+
+\param[in]   exoid        exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[out]  time_values  Returned array of times. These are the time values at all time steps.
+
+The following code segment will read the time values for all time
+steps stored in the data file:
+
+\code
+#include "exodusII.h"
+int error, exoid, num_time_steps;
+float *time_values;
+
+\comment{determine how many time steps are stored}
+num_time_steps = ex_inquire_int(exoid, EX_INQ_TIME);
+
+\comment{read time values at all time steps}
+time_values = (float *) calloc(num_time_steps, sizeof(float));
+
+error = ex_get_all_times(exoid, time_values);
+\endcode
+
+*/
 
 int ex_get_all_times (int   exoid,
                       void *time_values)
