@@ -42,7 +42,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -83,9 +82,9 @@ struct file_item* file_list = NULL;
                           }
 
 int ex_conv_ini( int  exoid,
-                 int* comp_wordsize,
-                 int* io_wordsize,
-                 int  file_wordsize )
+     int* comp_wordsize,
+     int* io_wordsize,
+     int  file_wordsize )
 {
   char errmsg[MAX_ERR_LENGTH];
   struct file_item* new_file;
@@ -122,7 +121,7 @@ int ex_conv_ini( int  exoid,
       (sizeof(double) != 4 && sizeof(double) != 8 ) )
     {
       sprintf(errmsg,"Error: unsupported compute word size for file id: %d",
-              exoid);
+        exoid);
       ex_err("ex_conv_ini",errmsg,EX_FATAL);
       return(EX_FATAL);
     }
@@ -145,12 +144,12 @@ int ex_conv_ini( int  exoid,
   else if (file_wordsize && *io_wordsize != file_wordsize ) {
     *io_wordsize = file_wordsize;
     sprintf(errmsg,
-            "Error: invalid I/O word size specified for existing file id: %d",
+      "Error: invalid I/O word size specified for existing file id: %d",
             exoid);
     ex_err("ex_conv_ini",errmsg,EX_MSG);
     ex_err("ex_conv_ini",
            "       Requested I/O word size overridden.",
-           EX_MSG);
+     EX_MSG);
   }
 
   if (!*comp_wordsize ) {

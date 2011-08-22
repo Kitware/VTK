@@ -32,35 +32,70 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgnvt - ex_get_nodal_var_time
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     nodal_var_index         index of desired nodal variable
-*       int     node_number             number of desired node
-*       int     beg_time_step           starting time step
-*       int     end_time_step           finishing time step
-*
-* exit conditions - 
-*       float*  nodal_var_vals          array of nodal variable values
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
- * reads the values of a nodal variable for a single node through a 
- * specified number of time steps in the database; assume the first time
- * step, nodal variable index, and node are numbered 1
- */
+/*!
+The function ex_get_nodal_var_time() reads the values of a nodal
+variable for a single node through a specified number of time
+steps. Memory must be allocated for the nodal variable values array
+before this function is invoked.
+
+Because nodal variables are floating point values, the application
+code must declare the array passed to be the appropriate type (\c
+float or ``double'') to match the compute word size passed in
+ex_create() or ex_open().
+
+\return In case of an error, ex_get_nodal_var_time() returns a
+negative number; a warning will return a positive number. Possible
+causes of errors include:
+  -  specified nodal variable does not exist.
+  -  a warning value is returned if no nodal variables are stored in the file.
+
+\param[in] exoid             exodus file ID returned from a previous call to ex_create() or
+                             ex_open().
+
+\param[in] nodal_var_index   The index of the desired nodal variable. The first variable has an
+                             index of 1.
+
+\param[in] node_number       The internal ID (see  Section LocalNodeIds) of the desired 
+                             node. The first node is 1.
+
+\param[in] beg_time_step     The beginning time step for which a nodal variable value 
+                             is desired. This is not a time value but rather a time step number, 
+           as described under ex_put_time(). The first time step is 1.
+
+\param[in] end_time_step     The last time step for which a nodal variable value is desired. If
+                             negative, the last time step in the database will be used. The first
+           time step is 1.
+
+\param[out]  nodal_var_vals  Returned array of(\c end_time_step {-} \c beg_time_step +1) values
+                             of the \c node_number-th node for the \c nodal_var_index-th nodal
+           variable.
+
+
+For example, the following code segment will read the values of the
+first nodal variable for node number one for all time steps stored in
+the data file:
+
+\code
+#include "exodusII.h"
+int num_time_steps, var_index, node_num, beg_time, end_time, error, exoid;
+float *var_values;
+
+\comment{determine how many time steps are stored}
+num_time_steps = ex_inquire_int(exoid, EX_INQ_TIME);
+
+\comment{read a nodal variable through time}
+var_values = (float *) calloc (num_time_steps, sizeof(float));
+
+var_index = 1; node_num = 1; beg_time = 1; end_time = -1;
+error = ex_get_nodal_var_time(exoid, var_index, node_num, beg_time,
+                              end_time, var_values);
+
+\endcode
+*/
 
 int ex_get_nodal_var_time (int   exoid,
                            int   nodal_var_index,
@@ -86,8 +121,8 @@ int ex_get_nodal_var_time (int   exoid,
     if ((status = ex_inquire (exoid, EX_INQ_TIME, &end_time_step, &fdum, cdum)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to get number of time steps in file id %d",
-              exoid);
+        "Error: failed to get number of time steps in file id %d",
+        exoid);
       ex_err("ex_get_nodal_var_time",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -147,8 +182,8 @@ int ex_get_nodal_var_time (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to get nodal variables in file id %d",
-            exoid);
+      "Error: failed to get nodal variables in file id %d",
+      exoid);
     ex_err("ex_get_nodal_var_time",errmsg,exerrval);
     return (EX_FATAL);
   }

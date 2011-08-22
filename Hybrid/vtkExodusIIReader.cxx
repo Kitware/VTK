@@ -2752,6 +2752,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetSortedObj
   if ( k < 0 || k >= N )
     {
     const char* otname = i >= 0 ? objtype_names[i] : "object";
+    static_cast<void>(otname); // not referenced warning
     vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
     return 0;
     }
@@ -2771,6 +2772,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetUnsortedO
   if ( k < 0 || k >= N )
     {
     const char* otname = i >= 0 ? objtype_names[i] : "object";
+    static_cast<void>(otname); // not referenced warning
     vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
     return 0;
     }
@@ -5151,6 +5153,7 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
       {
       int otypIdx = this->GetObjectTypeIndexFromObjectType(otyp);
       const char* btname = otypIdx >= 0 ? objtype_names[otypIdx] : "block";
+      static_cast<void>(btname); // not referenced warning
       vtkDebugMacro( "You requested " << btname << " " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
