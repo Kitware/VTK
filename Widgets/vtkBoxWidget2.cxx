@@ -326,6 +326,7 @@ void vtkBoxWidget2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Translation Enabled: " << (this->TranslationEnabled ? "On\n" : "Off\n");
   os << indent << "Scaling Enabled: " << (this->ScalingEnabled ? "On\n" : "Off\n");
   os << indent << "Rotation Enabled: " << (this->RotationEnabled ? "On\n" : "Off\n");
+  os << indent << "Rotation Enabled: " << (this->MoveFacesEnabled ? "On\n" : "Off\n");
 }
 
 
