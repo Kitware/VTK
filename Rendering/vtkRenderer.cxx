@@ -970,6 +970,7 @@ double *vtkRenderer::ComputeVisiblePropBounds()
 // camera position to focal point) so that all of the actors can be seen.
 void vtkRenderer::ResetCamera()
 {
+#if 0
   double      allBounds[6];
 
   this->ComputeVisiblePropBounds( allBounds );
@@ -986,6 +987,7 @@ void vtkRenderer::ResetCamera()
   // Here to let parallel/distributed compositing intercept
   // and do the right thing.
   this->InvokeEvent(vtkCommand::ResetCameraEvent,this);
+#endif
 }
 
 // Automatically set the clipping range of the camera based on the
