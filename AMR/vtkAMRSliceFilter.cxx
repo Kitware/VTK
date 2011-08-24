@@ -334,9 +334,9 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
 
     vtkTimerLog::MarkEndEvent( "AMRSlice::ComputeAMRBlocksToLoad" );
 
-    std::cout << "Resolution-" << this->MaxResolution << ": ";
-    std::cout << this->blocksToLoad.size() << std::endl;
-    std::cout.flush();
+//    std::cout << "Resolution-" << this->MaxResolution << ": ";
+//    std::cout << this->blocksToLoad.size() << std::endl;
+//    std::cout.flush();
 }
 
 //------------------------------------------------------------------------------
