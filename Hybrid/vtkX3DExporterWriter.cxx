@@ -19,11 +19,19 @@
 //----------------------------------------------------------------------------
 vtkX3DExporterWriter::vtkX3DExporterWriter()
 {
+  this->WriteToOutputString = 0;
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkX3DExporterWriter::~vtkX3DExporterWriter()
 {
+  if(this->OutputString)
+    {
+    delete[] this->OutputString;
+    this->OutputString = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -32,3 +40,13 @@ void vtkX3DExporterWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
+char *vtkX3DExporterWriter::RegisterAndGetOutputString()
+{
+  char *tmp = this->OutputString;
+
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
+
+  return tmp;
+}

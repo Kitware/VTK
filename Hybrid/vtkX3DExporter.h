@@ -64,9 +64,37 @@ public:
   vtkBooleanMacro(Fastest, int);
   vtkGetMacro(Fastest, int);
 
+  // Description:
+  // Enable writing to an OutputString instead of the default, a file.
+  vtkSetMacro(WriteToOutputString,int);
+  vtkGetMacro(WriteToOutputString,int);
+  vtkBooleanMacro(WriteToOutputString,int);
+
+  // Description:
+  // When WriteToOutputString in on, then a string is allocated, written to,
+  // and can be retrieved with these methods.  The string is deleted during
+  // the next call to write ...
+  vtkGetMacro(OutputStringLength, int);
+  vtkGetStringMacro(OutputString);
+  unsigned char *GetBinaryOutputString()
+    {
+      return reinterpret_cast<unsigned char *>(this->OutputString);
+    }
+
+  // Description:
+  // This convenience method returns the string, sets the IVAR to NULL,
+  // so that the user is responsible for deleting the string.
+  // I am not sure what the name should be, so it may change in the future.
+  char *RegisterAndGetOutputString();
+
 protected:
   vtkX3DExporter();
   ~vtkX3DExporter();
+
+  // Stream management
+  int WriteToOutputString;
+  char *OutputString;
+  int OutputStringLength;
 
   // Description:
   // Write data to output.

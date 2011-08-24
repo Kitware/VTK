@@ -87,11 +87,20 @@ vtkX3DExporter::vtkX3DExporter()
   this->FileName = NULL;
   this->Binary = 0;
   this->Fastest = 0;
+  this->WriteToOutputString = 0;
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
 }
 //----------------------------------------------------------------------------
 vtkX3DExporter::~vtkX3DExporter()
 {
   this->SetFileName(0);
+  if (this->OutputString)
+    {
+    delete [] this->OutputString;
+    this->OutputString = NULL;
+    this->OutputStringLength = 0;
+    }
 }
 
 
@@ -109,7 +118,7 @@ void vtkX3DExporter::WriteData()
   vtkCamera *cam;
 
   // make sure the user specified a FileName or FilePointer
-  if (this->FileName == NULL)
+  if (this->FileName == NULL && (!this->WriteToOutputString))
     {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -146,10 +155,21 @@ void vtkX3DExporter::WriteData()
     }
 
 
-  if (!writer->OpenFile(this->FileName))
+  if(this->WriteToOutputString)
     {
-    vtkErrorMacro(<< "unable to open X3D file " << this->FileName);
-    return;
+    if (!writer->OpenStream())
+      {
+      vtkErrorMacro(<< "unable to open X3D stream");
+      return;
+      }
+    }
+  else
+    {
+    if (!writer->OpenFile(this->FileName))
+      {
+      vtkErrorMacro(<< "unable to open X3D file " << this->FileName);
+      return;
+      }
     }
 
   //
@@ -167,7 +187,7 @@ void vtkX3DExporter::WriteData()
 
   writer->StartNode(meta);
   writer->SetField(name, "filename");
-  writer->SetField(content, this->FileName);
+  writer->SetField(content, this->FileName ? this->FileName : "Stream");
   writer->EndNode();
 
   writer->StartNode(meta);
@@ -313,8 +333,13 @@ void vtkX3DExporter::WriteData()
   writer->Flush();
   writer->EndDocument();
   writer->CloseFile();
-}
 
+  if(this->WriteToOutputString)
+    {
+    this->OutputStringLength = writer->GetOutputStringLength();
+    this->OutputString = writer->RegisterAndGetOutputString();
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkX3DExporter::WriteALight(vtkLight *aLight,
@@ -1219,4 +1244,13 @@ static bool vtkX3DExporterWriterRenderPoints(
   writer->EndNode(); // PointSet
   return true; 
 }
+//----------------------------------------------------------------------------
+char *vtkX3DExporter::RegisterAndGetOutputString()
+{
+  char *tmp = this->OutputString;
 
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
+
+  return tmp;
+}
