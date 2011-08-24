@@ -147,10 +147,12 @@
 
 #include <vtkMultiBlockDataSetAlgorithm.h>
 
-class vtkLSDynaReaderPrivate;
+class LSDynaMetaData;
 class vtkPoints;
 class vtkDataArray;
 class vtkUnstructuredGrid;
+
+#include <vector>
 
 class VTK_HYBRID_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -158,26 +160,6 @@ public:
   vtkTypeMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkLSDynaReader *New();
-
-  //BTX
-  /** LS-Dyna cell types.
-   * These may be used as values for the \a cellType argument in member functions.
-   * One dataset is created for each cell type so that cells can have different
-   * attributes (temperature, pressure, etc.) defined over them.
-   * Note that \a NUM_CELL_TYPES is not a cell type, but an enumerant that
-   * specifies the total number of cell types. It is used to size arrays.
-   */
-  enum {
-    PARTICLE = 0,
-    BEAM = 1,
-    SHELL = 2,
-    THICK_SHELL = 3,
-    SOLID = 4,
-    RIGID_BODY = 5,
-    ROAD_SURFACE = 6,
-    NUM_CELL_TYPES
-  };
-  //ETX
 
   // Description:
   // Print out more complete information about the dataset
@@ -474,14 +456,16 @@ public:
   int GetPartArrayStatus( const char* partName );
 
 protected:
-  // All the output grids (one for each possible combination of cell attributes)
-  vtkUnstructuredGrid* OutputParticles; // have radius of influence
-  vtkUnstructuredGrid* OutputBeams; // have TNB frame
-  vtkUnstructuredGrid* OutputShell; // integration points are different than 3D
-  vtkUnstructuredGrid* OutputThickShell; // integration points are different than planar 2D
-  vtkUnstructuredGrid* OutputSolid; // integration points are different than 2D
-  vtkUnstructuredGrid* OutputRigidBody; // can't have deflection, only velocity, accel, ...
-  vtkUnstructuredGrid* OutputRoadSurface; // can't have deflection, only velocity, accel, ...
+  //all the part grids.
+  //it might be better to have this as a vector
+  //that we can resize for faster lookup time
+  std::vector<vtkUnstructuredGrid*> PartGrids;
+
+  void InsertPartCell(const int& partIdx, const int& type, const vtkIdType& npts, vtkIdType conn[8]);
+
+  //the collection of global points
+  vtkPoints* CommonPoints;
+  vtkPoints* RoadSurfacePoints;
 
   // Description:
   // Should deflected coordinates be used, or should the mesh remain
@@ -568,7 +552,6 @@ protected:
   // part names for materials.
   int WriteInputDeckSummary( const char* fname );
 
-  void PartFilter( vtkMultiBlockDataSet* mbds, int celltype );
   // Description:
   // Read an array of deletion data.
   // This is used by ReadDeletion to actually read the data from the file
@@ -585,7 +568,7 @@ private:
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.
 
-  vtkLSDynaReaderPrivate* P;
+  LSDynaMetaData* P;
 };
 
 inline void vtkLSDynaReader::SetPointArrayStatus( const char* arrName, int status )
