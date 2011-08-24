@@ -22,6 +22,17 @@
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+#include <vtkstd/vector> // For STL vector
+
+class vtkMultiBlockDataSet;
+class vtkHierarchicalBoxDataSet;
+class vtkMultiProcessController;
+class vtkInformation;
+class vtkInformationVector;
+class vtkIndent;
+class vtkPlane;
+class vtkPointLocator;
+
 class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 {
   public:
@@ -40,8 +51,27 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Sets the level of resolution
     vtkSetMacro(LevelOfResolution, int);
+    vtkGetMacro(LevelOfResolution, int);
+
+    // Description:
+    //
+    vtkSetMacro(UseNativeCutter, int);
+    vtkGetMacro(UseNativeCutter, int);
+    vtkBooleanMacro(UseNativeCutter,int);
+
+    // Description:
+    // Set/Get a multiprocess controller for paralle processing.
+    // By default this parameter is set to NULL by the constructor.
+    vtkSetMacro( Controller, vtkMultiProcessController* );
+    vtkGetMacro( Controller, vtkMultiProcessController* );
 
     // Standard pipeline routines
+
+    virtual int RequestData(
+         vtkInformation*,vtkInformationVector**,vtkInformationVector*);
+    virtual int FillInputPortInformation(int port, vtkInformation *info);
+    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+
 
     // Description:
     // Gets the metadata from upstream module and determines which blocks
@@ -50,11 +80,6 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
         vtkInformation *rqst,
         vtkInformationVector **inputVector,
         vtkInformationVector *outputVector );
-
-    virtual int RequestData(
-         vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-    virtual int FillInputPortInformation(int port, vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
     // Description:
     // Performs upstream requests to the reader
@@ -65,9 +90,41 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     vtkAMRCutPlane();
     virtual ~vtkAMRCutPlane();
 
+    // Description:
+    // Returns the cut-plane defined by a vtkCutPlane instance based on the
+    // user-supplied center and normal.
+    vtkPlane* GetCutPlane( vtkHierarchicalBoxDataSet *metadata );
+
+    // Description:
+    // Given a cut-plane, p, and the metadata, m, this method computes which
+    // blocks need to be loaded. The corresponding block IDs are stored in
+    // the internal STL vector, blocksToLoad, which is then propagated upstream
+    // in the RequestUpdateExtent.
+    void ComputeAMRBlocksToLoad( vtkPlane* p, vtkHierarchicalBoxDataSet* m);
+
+    // Descriription:
+    // Initializes the cut-plane center given the min/max bounds.
+    void InitializeCenter( double min[3], double max[3] );
+
+    // Description:
+    // Determines if a plane intersects with an AMR box
+    bool PlaneIntersectsAMRBox( double plane[4], double bounds[6] );
+
+    // Description:
+    // A utility function that checks if the input AMR data is 2-D.
+    bool IsAMRData2D( vtkHierarchicalBoxDataSet *input );
+
     int    LevelOfResolution;
     double Center[3];
     double Normal[3];
+    bool initialRequest;
+    bool UseNativeCutter;
+    vtkMultiProcessController *Controller;
+    vtkPlane *plane;
+    vtkPointLocator *Locator;
+// BTX
+    vtkstd::vector<int> blocksToLoad;
+// ETX
 
   private:
     vtkAMRCutPlane(const vtkAMRCutPlane& ); // Not implemented
