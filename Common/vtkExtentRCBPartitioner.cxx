@@ -125,7 +125,9 @@ void vtkExtentRCBPartitioner::GetPartitionExtent( const int idx, int ext[6] )
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetNumberOfTotalExtents()
 {
-  int N = std::pow( 2,this->NumberOfSubdivisions );
+  int N = std::pow( 
+      static_cast<double>(2),
+      static_cast<double>(this->NumberOfSubdivisions) );
   assert( "pre: N >= 1" && (N >= 1) );
   return N;
 }
