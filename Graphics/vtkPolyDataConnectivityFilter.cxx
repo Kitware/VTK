@@ -37,6 +37,7 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
   this->ColorRegions = 0;
 
   this->ScalarConnectivity = 0;
+  this->FullScalarConnectivity = 0;
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
 
@@ -451,29 +452,7 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
             cellId = cells[k];
             if ( this->InScalars )
               {
-              int numScalars, ii;
-              double s, range[2];
-
-              this->Mesh->GetCellPoints(cellId, this->NeighborCellPointIds);
-              numScalars = this->NeighborCellPointIds->GetNumberOfIds();
-              this->CellScalars->SetNumberOfTuples(numScalars);
-              this->InScalars->GetTuples(this->NeighborCellPointIds,
-                                         this->CellScalars);
-              range[0] = VTK_DOUBLE_MAX; range[1] = -VTK_DOUBLE_MAX;
-              for (ii=0; ii < numScalars;  ii++)
-                {
-                s = this->CellScalars->GetComponent(ii, 0);
-                if ( s < range[0] )
-                  {
-                  range[0] = s;
-                  }
-                if ( s > range[1] )
-                  {
-                  range[1] = s;
-                  }
-                }
-              if ( range[1] >= this->ScalarRange[0] && 
-              range[0] <= this->ScalarRange[1] )
+              if (this->IsScalarConnected(cellId))
                 {
                 this->Wave2->InsertNextId(cellId);
                 }
@@ -496,6 +475,61 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
   return;
 }
 
+// --------------------------------------------------------------------------
+int vtkPolyDataConnectivityFilter::IsScalarConnected( vtkIdType cellId )
+{
+  double s;
+
+  this->Mesh->GetCellPoints(cellId, this->NeighborCellPointIds);
+  const int numScalars = this->NeighborCellPointIds->GetNumberOfIds();
+
+  this->CellScalars->SetNumberOfTuples(numScalars);
+  this->InScalars->GetTuples(this->NeighborCellPointIds,
+                             this->CellScalars);
+
+  double range[2] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN};
+
+  // Loop through the cell points.
+  for (int ii=0; ii < numScalars;  ii++)
+    {
+    s = this->CellScalars->GetComponent(ii, 0);
+    if ( s < range[0] )
+      {
+      range[0] = s;
+      }
+    if ( s > range[1] )
+      {
+      range[1] = s;
+      }
+    }
+
+  // Check if the scalars lie within the user supplied scalar range.
+
+  if ( this->FullScalarConnectivity )
+    {
+    // All points in this cell must lie in the user supplied scalar range
+    // for this cell to qualify as being connected.
+    if (range[0] >= this->ScalarRange[0] &&
+        range[1] <= this->ScalarRange[1])
+      {
+      return 1;
+      }
+    }
+  else
+    {
+    // Any point from this cell must lie is the user supplied scalar range
+    // for this cell to qualify as being connected
+    if ( range[1] >= this->ScalarRange[0] && 
+         range[0] <= this->ScalarRange[1] )
+      {
+      return 1;
+      }
+    }
+
+  return 0;
+} 
+
+// --------------------------------------------------------------------------
 // Obtain the number of connected regions.
 int vtkPolyDataConnectivityFilter::GetNumberOfExtractedRegions()
 {
@@ -558,6 +592,12 @@ void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scalar Connectivity: " 
      << (this->ScalarConnectivity ? "On\n" : "Off\n");
+
+  if (this->ScalarConnectivity)
+    {
+    os << indent << "Full Connectivity: " 
+       << (this->FullScalarConnectivity ? "On\n" : "Off\n");
+    }  
 
   double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";

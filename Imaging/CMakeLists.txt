@@ -109,6 +109,7 @@ vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
 vtkImageSlabReslice.cxx
 vtkImageThreshold.cxx
+vtkImageThresholdConnectivity.cxx
 vtkImageToImageStencil.cxx
 vtkImageTranslateExtent.cxx
 vtkImageVariance3D.cxx

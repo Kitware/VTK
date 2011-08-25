@@ -36,6 +36,7 @@ vtkCell.cxx
 vtkCellData.cxx
 vtkCellLinks.cxx
 vtkCellLocator.cxx
+vtkCellTreeLocator.cxx
 vtkCellTypes.cxx
 vtkColorTransferFunction.cxx
 vtkCompositeDataIterator.cxx
@@ -240,6 +241,7 @@ vtkUndirectedGraphAlgorithm.cxx
 vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGridAlgorithm.cxx
+vtkUniformGridPartitioner.cxx
 vtkUnstructuredGrid.cxx
 vtkUnstructuredGridSource.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx

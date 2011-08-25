@@ -12,6 +12,7 @@ SET(Kit_SRCS
     vtkAMRBaseReader.cxx
     vtkAMRConnectivityFilter.cxx
     vtkAMRContourFilter.cxx
+    vtkAMRCutPlane.cxx
     vtkAMRDataSetCache.cxx
     vtkAMRDualMeshExtractor.cxx
     vtkAMREnzoParticlesReader.cxx

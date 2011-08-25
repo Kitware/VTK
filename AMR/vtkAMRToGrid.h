@@ -102,14 +102,32 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     vtkAMRToGrid();
     virtual ~vtkAMRToGrid();
 
+    vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
     double Min[3];
     double Max[3];
     int NumberOfSubdivisions;
     int TransferToNodes;
     int LevelOfResolution;
-//    bool initializedRegion;
-//    bool subdividedRegion;
     vtkMultiProcessController *Controller;
+
+    // Description:
+    // Checks if this filter instance is running on more than one processes
+    bool IsParallel();
+
+    // Description:
+    // Given the Region ID this function returns whether or not the region
+    // belongs to this process or not.
+    bool IsRegionMine( const int regionIdx );
+
+    // Description:
+    // Given the Region ID, this method computes the corresponding process ID
+    // that owns the region based on static block-cyclic distribution.
+    int GetRegionProcessId( const int regionIdx );
+
+    // Description:
+    // Given a cell index and a grid, this method computes the cell centroid.
+    void ComputeCellCentroid(
+        vtkUniformGrid *g, const vtkIdType cellIdx, double c[3] );
 
     // Description:
     // Given the source cell data of an AMR grid, this method initializes the
@@ -148,7 +166,8 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Extract the region (as a multiblock) from the given AMR dataset.
     void ExtractRegion(
-        vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds );
+        vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
+        vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
     // Checks if the AMR block, described by a uniform grid, is within the
@@ -162,17 +181,19 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     void ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
-    // This method subdivides the region using Recursive Coordinate Bisection
-    // (RCB) to a set of boxes.
-    void SubdivideExtractionRegion();
+    // This method gets the region of interest as perscribed by the user.
+    void GetRegion( double h[3] );
 
     // Description:
-    // Computes the extraction region bounds based on the input AMR dataset.
-    void InitializeRegionBounds( vtkHierarchicalBoxDataSet *inp );
+    // Checks if two uniform grids intersect.
+    bool GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 );
+
+    // Description:
+    // Returns a reference grid from the amrdataset.
+    vtkUniformGrid* GetReferenceGrid( vtkHierarchicalBoxDataSet *amrds );
 
 // BTX
     vtkstd::vector< int > blocksToLoad; // Holds the ids of the blocks to load.
-    vtkstd::vector< double > boxes; // uniform grid regions strided by 6.
 // ETX
 
   private:

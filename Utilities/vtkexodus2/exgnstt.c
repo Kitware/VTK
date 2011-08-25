@@ -45,7 +45,6 @@
 * exit conditions - 
 *       int*    nset_var_tab            nodeset variable truth table array
 *
-*  Id
 *
 *****************************************************************************/
 

@@ -67,6 +67,7 @@ IF(VTK_USE_DISPLAY)
     TestTextActor3DAlphaBlending.cxx
     TestTextActor3DDepthPeeling.cxx
     TestTexturedBackground.cxx
+    TestTextureSize.cxx
     TestTDx.cxx
     TestTilingCxx.cxx
     TestTranslucentLUTAlphaBlending.cxx

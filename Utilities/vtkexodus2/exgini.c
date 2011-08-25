@@ -52,7 +52,6 @@
 * revision history - 
 *          David Thompson  - Moved to exginix.c (exgini.c now a special case)
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -61,17 +60,42 @@
 #include <string.h>
 
 /*!
- * reads the initialization parameters from an opened EXODUS II file
- * \param exoid exodus file id
- * \param[out] title             Title of the mesh, String length may be up to #MAX_LINE_LENGTH characters.
- * \param[out] num_dim           Dimensionality of the database. This is the number of coordinates per node.
- * \param[out] num_nodes         Number of nodes
- * \param[out] num_elem          Number of elements
- * \param[out] num_elem_blk      Number of element blocks
- * \param[out] num_node_sets     Number of node sets
- * \param[out] num_side_sets     Number of side sets
- * \sa ex_get_init_ext()
-  */
+
+The function ex_get_init() reads the initializationinitialization
+parameters from an opened exodus file.
+
+\return In case of an error, ex_get_init() returns a negative number;
+a warning will return a positive number. Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open().
+
+\param exoid              exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[out] title         Returned database title. String length may be up to \c MAX_LINE_LENGTH bytes.
+\param[out] num_dim       Returned dimensionality of the database. This is the number of coordinates per node.
+\param[out] num_nodes     Returned number of nodal points.
+\param[out] num_elem      Returned number of elements
+\param[out] num_elem_blk  Returned number of element blocks
+\param[out] num_node_sets Returned number of node sets
+\param[out] num_side_sets Returned number of side sets
+
+\sa ex_get_init_ext()
+
+The following code segment will read the initialization parameters
+from the open exodus file:
+
+\code
+#include "exodusII.h"
+int num_dim, num_nodes, num_elem, num_elem_blk,
+    num_node_sets, num_side_sets, error, exoid;
+
+char title[MAX_LINE_LENGTH+1];
+
+\comment{read database parameters}
+error = ex_get_init (exoid, title, &num_dim, &num_nodes, 
+                     &num_elem, &num_elem_blk, &num_node_sets, &num_side_sets);
+\endcode
+
+*/
 
 int ex_get_init (int   exoid,
                  char *title,

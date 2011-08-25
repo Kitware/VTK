@@ -52,13 +52,13 @@
 #include "exodusII_int.h"
 
 /*!
- * retrieves the number of attributes.
+ * \undoc retrieves the number of attributes.
  */
 
 int ex_get_attr_param (int   exoid,
-                       ex_entity_type obj_type,
-                       int   obj_id,
-                       int*  num_attrs)
+           ex_entity_type obj_type,
+           int   obj_id,
+           int*  num_attrs)
 {
   int status;
   int dimid;
@@ -77,14 +77,14 @@ int ex_get_attr_param (int   exoid,
     
     if (exerrval != 0) {
       if (exerrval == EX_NULLENTITY) {
-        *num_attrs = 0;
-        return (EX_NOERR);
+  *num_attrs = 0;
+  return (EX_NOERR);
       } else {
-        sprintf(errmsg,
-                "Warning: failed to locate %s id %d in id array in file id %d",
-                ex_name_of_object(obj_type),obj_id,exoid);
-        ex_err("ex_get_attr_param",errmsg,exerrval);
-        return (EX_WARN);
+  sprintf(errmsg,
+    "Warning: failed to locate %s id %d in id array in file id %d",
+    ex_name_of_object(obj_type),obj_id,exoid);
+  ex_err("ex_get_attr_param",errmsg,exerrval);
+  return (EX_WARN);
       }
     }
   }
@@ -120,7 +120,7 @@ int ex_get_attr_param (int   exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf(errmsg, "Error: Bad block type (%d) specified for file id %d",
-            obj_type, exoid );
+      obj_type, exoid );
     ex_err("ex_get_attr_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -134,12 +134,12 @@ int ex_get_attr_param (int   exoid,
     if ((status = nc_inq_dimlen(exoid, dimid, &lnum_attr_per_entry)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to get number of attributes in %s %d in file id %d",
-              ex_name_of_object(obj_type),obj_id, exoid);
+        "Error: failed to get number of attributes in %s %d in file id %d",
+        ex_name_of_object(obj_type),obj_id, exoid);
       ex_err("ex_get_attr_param",errmsg, exerrval);
       return(EX_FATAL);
     }
-    *num_attrs = (int)lnum_attr_per_entry;
+    *num_attrs = lnum_attr_per_entry;
   }
   return (EX_NOERR);
 }
