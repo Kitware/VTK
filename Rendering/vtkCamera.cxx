@@ -23,7 +23,6 @@
 
 #include <math.h>
 
-
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkCamera);
@@ -1694,23 +1693,23 @@ double *vtkCamera::GetOrientationWXYZ()
 void vtkCamera::SetEyeTransformMatrix(const double elements[16])
 {
   this->EyeTransformMatrix->Element[0][0] = elements[0];
-  this->EyeTransformMatrix->Element[0][1] = elements[1];
-  this->EyeTransformMatrix->Element[0][2] = elements[2];
-  this->EyeTransformMatrix->Element[0][3] = elements[3];
+  this->EyeTransformMatrix->Element[1][0] = elements[1];
+  this->EyeTransformMatrix->Element[2][0] = elements[2];
+  this->EyeTransformMatrix->Element[3][0] = elements[3];
 
-  this->EyeTransformMatrix->Element[1][0] = elements[4];
+  this->EyeTransformMatrix->Element[0][1] = elements[4];
   this->EyeTransformMatrix->Element[1][1] = elements[5];
-  this->EyeTransformMatrix->Element[1][2] = elements[6];
-  this->EyeTransformMatrix->Element[1][3] = elements[7];
+  this->EyeTransformMatrix->Element[2][1] = elements[6];
+  this->EyeTransformMatrix->Element[3][1] = elements[7];
 
-  this->EyeTransformMatrix->Element[2][0] = elements[8];
-  this->EyeTransformMatrix->Element[2][1] = elements[9];
+  this->EyeTransformMatrix->Element[0][2] = elements[8];
+  this->EyeTransformMatrix->Element[1][2] = elements[9];
   this->EyeTransformMatrix->Element[2][2] = elements[10];
-  this->EyeTransformMatrix->Element[2][3] = elements[11];
+  this->EyeTransformMatrix->Element[3][2] = elements[11];
 
-  this->EyeTransformMatrix->Element[3][0] = elements[12];
-  this->EyeTransformMatrix->Element[3][1] = elements[13];
-  this->EyeTransformMatrix->Element[3][2] = elements[14];
+  this->EyeTransformMatrix->Element[0][3] = elements[12];
+  this->EyeTransformMatrix->Element[1][3] = elements[13];
+  this->EyeTransformMatrix->Element[2][3] = elements[14];
   this->EyeTransformMatrix->Element[3][3] = elements[15];
 
   this->Modified();
@@ -1719,24 +1718,25 @@ void vtkCamera::SetEyeTransformMatrix(const double elements[16])
 // ----------------------------------------------------------------------------
 void vtkCamera::SetModelTransformMatrix(const double elements[16])
 {
+
   this->ModelTransformMatrix->Element[0][0] = elements[0];
-  this->ModelTransformMatrix->Element[0][1] = elements[1];
-  this->ModelTransformMatrix->Element[0][2] = elements[2];
-  this->ModelTransformMatrix->Element[0][3] = elements[3];
+  this->ModelTransformMatrix->Element[1][0] = elements[1];
+  this->ModelTransformMatrix->Element[2][0] = elements[2];
+  this->ModelTransformMatrix->Element[3][0] = elements[3];
 
-  this->ModelTransformMatrix->Element[1][0] = elements[4];
+  this->ModelTransformMatrix->Element[0][1] = elements[4];
   this->ModelTransformMatrix->Element[1][1] = elements[5];
-  this->ModelTransformMatrix->Element[1][2] = elements[6];
-  this->ModelTransformMatrix->Element[1][3] = elements[7];
+  this->ModelTransformMatrix->Element[2][1] = elements[6];
+  this->ModelTransformMatrix->Element[3][1] = elements[7];
 
-  this->ModelTransformMatrix->Element[2][0] = elements[8];
-  this->ModelTransformMatrix->Element[2][1] = elements[9];
+  this->ModelTransformMatrix->Element[0][2] = elements[8];
+  this->ModelTransformMatrix->Element[1][2] = elements[9];
   this->ModelTransformMatrix->Element[2][2] = elements[10];
-  this->ModelTransformMatrix->Element[2][3] = elements[11];
+  this->ModelTransformMatrix->Element[3][2] = elements[11];
 
-  this->ModelTransformMatrix->Element[3][0] = elements[12];
-  this->ModelTransformMatrix->Element[3][1] = elements[13];
-  this->ModelTransformMatrix->Element[3][2] = elements[14];
+  this->ModelTransformMatrix->Element[0][3] = elements[12];
+  this->ModelTransformMatrix->Element[1][3] = elements[13];
+  this->ModelTransformMatrix->Element[2][3] = elements[14];
   this->ModelTransformMatrix->Element[3][3] = elements[15];
 
   this->Modified();
