@@ -59,6 +59,7 @@ vtkIterativeClosestPointTransform.cxx
 vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
 vtkLegendScaleActor.cxx
+vtkLSDynaPartCollection.cxx
 vtkLSDynaReader.cxx
 vtkLSDynaSummaryParser.cxx
 vtkMNIObjectReader.cxx
@@ -152,6 +153,7 @@ vtkX3DExporterFIWriter
 vtkX3DExporterXMLWriter
 vtkExodusIIReaderParser
 vtkExodusIIReaderVariableCheck
+vtkLSDynaPartCollection
 WRAP_EXCLUDE)
 
 # for vtkStructuredGridLIC2D

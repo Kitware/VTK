@@ -55,7 +55,7 @@ public:
    * Note that \a NUM_CELL_TYPES is not a cell type, but an enumerant that
    * specifies the total number of cell types. It is used to size arrays.
    */
-  enum {
+  enum LSDYNA_TYPES{
     PARTICLE = 0,
     BEAM = 1,
     SHELL = 2,

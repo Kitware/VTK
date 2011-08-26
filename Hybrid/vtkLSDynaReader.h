@@ -148,11 +148,10 @@
 #include <vtkMultiBlockDataSetAlgorithm.h>
 
 class LSDynaMetaData;
+class vtkLSDynaPartCollection;
 class vtkPoints;
 class vtkDataArray;
 class vtkUnstructuredGrid;
-
-#include <vector>
 
 class VTK_HYBRID_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -419,14 +418,6 @@ public:
   vtkBooleanMacro(RemoveDeletedCells,int);
 
   // Description:
-  // Split each part into submeshes based on material ID.
-  // By default, this is false and all cells of a given
-  // type (solid, thick shell, shell, ...) are in a single mesh.
-  vtkSetMacro(SplitByMaterialId,int);
-  vtkGetMacro(SplitByMaterialId,int);
-  vtkBooleanMacro(SplitByMaterialId,int);
-
-  // Description:
   // The name of the input deck corresponding to the current database.
   // This is used to determine the part names associated with each material ID.
   // This file may be in two formats: a valid LSDyna input deck or a 
@@ -456,12 +447,8 @@ public:
   int GetPartArrayStatus( const char* partName );
 
 protected:
-  //all the part grids.
-  //it might be better to have this as a vector
-  //that we can resize for faster lookup time
-  std::vector<vtkUnstructuredGrid*> PartGrids;
-
-  void InsertPartCell(const int& partIdx, const int& type, const vtkIdType& npts, vtkIdType conn[8]);
+  //holds all the parts and all the properties for each part
+  vtkLSDynaPartCollection* Parts;
 
   //the collection of global points
   vtkPoints* CommonPoints;
@@ -476,10 +463,6 @@ protected:
   // Should cells marked as deleted be removed from the mesh?
   // By default, this is true.
   int RemoveDeletedCells;
-
-  // Description:
-  // Split each mesh into submeshes based on the material ID of each cell.
-  int SplitByMaterialId;
 
   // Description:
   // The range of time steps available within a database.

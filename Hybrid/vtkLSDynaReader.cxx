@@ -43,6 +43,7 @@
 #include <vtkConfigure.h>
 #include "vtkLSDynaReader.h"
 #include "vtkLSDynaSummaryParser.h"
+#include "vtkLSDynaPartCollection.h"
 #include "LSDynaFamily.h"
 #include "LSDynaMetaData.h"
 
@@ -279,7 +280,6 @@ vtkLSDynaReader::vtkLSDynaReader()
   this->TimeStepRange[1] = 0;
   this->DeformedMesh = 1;
   this->RemoveDeletedCells = 1;
-  this->SplitByMaterialId = 0;
   this->InputDeck = 0;
 
   this->CommonPoints = 0;
@@ -288,8 +288,14 @@ vtkLSDynaReader::vtkLSDynaReader()
 
 vtkLSDynaReader::~vtkLSDynaReader()
 {
-  this->CommonPoints = 0;
-  this->RoadSurfacePoints = 0;
+  if (this->CommonPoints)
+    {
+    this->CommonPoints->Delete();
+    }
+  if ( this->RoadSurfacePoints )
+    {
+    this->RoadSurfacePoints->Delete();
+    }  
   this->SetInputDeck(0);
   delete this->P;
   this->P = 0;
@@ -303,7 +309,6 @@ void vtkLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "InputDeck: " << (this->InputDeck ? this->InputDeck : "(null)") << endl;
   os << indent << "DeformedMesh: " << (this->DeformedMesh ? "On" : "Off") << endl;
   os << indent << "RemoveDeletedCells: " << (this->RemoveDeletedCells ? "On" : "Off") << endl;
-  os << indent << "SplitByMaterialId: " << (this->SplitByMaterialId ? "On" : "Off") << endl;
   os << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << endl;
 
   if (this->P)
@@ -2102,7 +2107,8 @@ int vtkLSDynaReader::ReadNodes()
   this->CommonPoints->SetNumberOfPoints( p->NumberOfNodes );
 
   // Skip reading coordinates if we are deflecting the mesh... they would be replaced anyway.
-  // Note that we still have to read the rigid road coordinates.
+  // Note that we still have to read the rigid road coordinates.  
+  // If the mesh is deformed each state will have the points so see ReadState
   double pt[3];
   if ( ! this->DeformedMesh || ! this->GetPointArrayStatus( LS_ARRAYNAME_DEFLECTION ) )
     {
@@ -2188,20 +2194,6 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
 {
   LSDynaMetaData* p = this->P;
 
-  //move the partIds from a vector to a map. This is done so that we 
-  //can efficently search to see if the part we are loading is active
-  std::set<int> activeParts;
-  for (std::vector<int>::const_iterator partIt = p->PartIds.begin();
-        partIt != p->PartIds.end();
-        ++partIt)
-    {
-    if (!p->PartStatus[partIt - p->PartIds.begin()])
-      {
-      continue;
-      }
-    activeParts.insert(*partIt);
-    }
-
   vtkIdType nc;
   vtkIntArray* matl = 0;
   vtkIdType conn[8];
@@ -2245,36 +2237,14 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
       type = VTK_HEXAHEDRON;
       npts = 8;
       }
-    std::set<int>::const_iterator partMapIt = activeParts.find(
-                                          p->MaterialsOrdered[matlId - 1]);
-    if (partMapIt != activeParts.end())
-      {
-      //push this cell back into the unstructured grid for this part
-      this->InsertPartCell(*partMapIt,type,npts,conn);
-      }
+
+    //push this cell back into the unstructured grid for this part(if the part is active)
+    this->Parts->InsertCell(LSDynaMetaData::SOLID,t,matlId,type,npts,conn);
     }
 
   return 0;
 }
 
-//-----------------------------------------------------------------------------
-void vtkLSDynaReader::InsertPartCell(const int& partIdx, const int& type, const vtkIdType& npts, vtkIdType conn[8])
-{
-  std::vector<vtkUnstructuredGrid*>::iterator partUGIt;
-  if (partIdx >= this->PartGrids.size())
-    {
-    this->PartGrids.resize(partIdx+1,NULL);
-    }
-
-  vtkUnstructuredGrid *grid = this->PartGrids[partIdx];
-  if (grid==NULL)
-    {
-    this->PartGrids[partIdx] = vtkUnstructuredGrid::New();
-    this->PartGrids[partIdx]->SetPoints(this->CommonPoints);
-    grid = this->PartGrids[partIdx];
-    }
-  grid->InsertNextCell(type,npts,conn);
-}
 
 //
 //int vtkLSDynaReader::ReadConnectivityAndMaterial()
@@ -2789,8 +2759,142 @@ int vtkLSDynaReader::ReadDeletionArray( vtkDataArray* array, int& anyZeros )
 
 int vtkLSDynaReader::ReadState( vtkIdType step )
 {
+  LSDynaMetaData* p = this->P;
+  // Skip global variables for now
+  p->Fam.SkipToWord( LSDynaFamily::TimeStepSection, step, 1 + p->Dict["NGLBV"] );
 
-return 0;
+  // Read nodal data ===========================================================
+  vtkDataArray* var;
+  vtkstd::vector<vtkDataArray*> vars;
+  vtkstd::vector<int> cmps;
+  // Important: push_back in the order these are interleaved on disk
+  // Note that temperature and deflection are swapped relative to the order they
+  // are specified in the header section.
+  const char * aNames[] = {
+    LS_ARRAYNAME_DEFLECTION,
+    LS_ARRAYNAME_TEMPERATURE,
+    LS_ARRAYNAME_VELOCITY,
+    LS_ARRAYNAME_ACCELERATION,
+    LS_ARRAYNAME_PRESSURE,
+    LS_ARRAYNAME_VORTICITY "_X",
+    LS_ARRAYNAME_VORTICITY "_Y",
+    LS_ARRAYNAME_VORTICITY "_Z",
+    LS_ARRAYNAME_RESULTANTVORTICITY,
+    LS_ARRAYNAME_ENSTROPHY,
+    LS_ARRAYNAME_HELICITY,
+    LS_ARRAYNAME_STREAMFUNCTION,
+    LS_ARRAYNAME_ENTHALPY,
+    LS_ARRAYNAME_DENSITY,
+    LS_ARRAYNAME_TURBULENTKE,
+    LS_ARRAYNAME_DISSIPATION,
+    LS_ARRAYNAME_EDDYVISCOSITY,
+    LS_ARRAYNAME_SPECIES_01,
+    LS_ARRAYNAME_SPECIES_02,
+    LS_ARRAYNAME_SPECIES_03,
+    LS_ARRAYNAME_SPECIES_04,
+    LS_ARRAYNAME_SPECIES_05,
+    LS_ARRAYNAME_SPECIES_06,
+    LS_ARRAYNAME_SPECIES_07,
+    LS_ARRAYNAME_SPECIES_08,
+    LS_ARRAYNAME_SPECIES_09,
+    LS_ARRAYNAME_SPECIES_10
+  };
+
+  const char* aDictNames[] = {
+    "IU",
+    "IT",
+    "IV",
+    "IA",
+    "cfdPressure",
+    "cfdXVort",
+    "cfdYVort",
+    "cfdZVort",
+    "cfdRVort",
+    "cfdEnstrophy",
+    "cfdHelicity",
+    "cfdStream",
+    "cfdEnthalpy",
+    "cfdDensity",
+    "cfdTurbKE",
+    "cfdDiss",
+    "cfdEddyVisc",
+    "cfdSpec01",
+    "cfdSpec02",
+    "cfdSpec03",
+    "cfdSpec04",
+    "cfdSpec05",
+    "cfdSpec06",
+    "cfdSpec07",
+    "cfdSpec08",
+    "cfdSpec09",
+    "cfdSpec10"
+  };
+  int aComponents[] = {
+    -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+  };
+  int vppt = 0; // values per point
+  int allVortPresent = p->Dict["cfdXVort"] && p->Dict["cfdYVort"] && p->Dict["cfdZVort"];
+
+  for ( int nvnum = 0; nvnum < (int) (sizeof(aComponents)/sizeof(aComponents[0])); ++nvnum )
+    {
+    if ( p->Dict[ aDictNames[nvnum] ] )
+      {
+      if ( allVortPresent && ! strncmp( LS_ARRAYNAME_VORTICITY, aNames[ nvnum ], sizeof(LS_ARRAYNAME_VORTICITY) ) )
+        {
+        // turn the vorticity components from individual scalars into one vector (with a hack)
+        if ( nvnum < 7 )
+          continue;
+        aComponents[ nvnum ] = 3;
+        aNames[ nvnum ] = LS_ARRAYNAME_VORTICITY;
+        }
+      var = p->Fam.GetWordSize() == 4 ? (vtkDataArray*) vtkFloatArray::New() : (vtkDataArray*) vtkDoubleArray::New();
+      var->SetName( aNames[ nvnum ] );
+      var->SetNumberOfComponents( aComponents[ nvnum ] == -1 ? 3 : aComponents[ nvnum ] ); // Always make vectors length 3, even for 2D data
+      vars.push_back( var );
+      cmps.push_back( aComponents[ nvnum ] == -1 ? p->Dimensionality : aComponents[ nvnum ] );
+      vppt += cmps.back();
+      }
+    }
+
+  if ( vppt != 0 )
+    {
+    vtkstd::vector<int>::iterator arc = cmps.begin();
+    for ( vtkstd::vector<vtkDataArray*>::iterator arr=vars.begin();
+          arr != vars.end(); ++arr, ++arc )
+      {
+      if ( this->GetPointArrayStatus( (*arr)->GetName() ) != 0 )
+        {
+        (*arr)->SetNumberOfTuples( p->NumberOfNodes );
+        p->Fam.BufferChunk(LSDynaFamily::Float, p->NumberOfNodes*(*arc) );
+        vtkIdType pt;
+        double tuple[3] = { 0., 0., 0. };
+        for ( pt=0; pt<p->NumberOfNodes; ++pt )
+          {
+          for ( int c=0; c<*arc; ++c )
+            {
+            tuple[c] = p->Fam.GetNextWordAsFloat();
+            }
+          (*arr)->SetTuple( pt, tuple );
+          }
+        if ( this->DeformedMesh && ! strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION) )
+          {
+          // Replace point coordinates with deflection (don't add to points).
+          // The name "deflection" is misleading.
+          this->CommonPoints->SetData(*arr);
+          }
+        (*arr)->Delete();
+        }
+      else
+        {
+        // don't read arrays the user didn't request, just delete them
+        (*arr)->Delete();
+        p->Fam.SkipWords( p->NumberOfNodes*(*arc) );
+        }
+      }
+    }
+
+
+  return 0;
 }
 //int vtkLSDynaReader::ReadState( vtkIdType step )
 //{
@@ -3727,6 +3831,7 @@ int vtkLSDynaReader::RequestData(
     }
 
   // Always read connectivity info
+  this->Parts->SetMetaData(this->P);
   if ( this->ReadConnectivityAndMaterial() )
     {
     vtkErrorMacro( "Could not read connectivity." );
@@ -3783,16 +3888,19 @@ int vtkLSDynaReader::RequestData(
     }
 
   //add all the parts as child blocks to the output
-  std::vector<vtkUnstructuredGrid*>::iterator gridIt;
   vtkIdType nextId = 0;
-  for(gridIt=this->PartGrids.begin();gridIt!=this->PartGrids.end();++gridIt)
+  int size = this->Parts->GetNumberOfParts();
+  for(int i=0; i < size;++i)
     {
-    if (*gridIt != NULL && (*gridIt)->GetNumberOfCells() > 0 )
+    if (this->Parts->IsActivePart(i))
       {
-      mbds->SetBlock(nextId++,*gridIt);
-      (*gridIt)->FastDelete();
+      mbds->SetBlock(nextId,this->Parts->GetGridForPart(i));
+      ++nextId;
       }
     }
+
+  //clear the parts so we can use it again
+  this->Parts->Reset();
 
 #ifdef VTK_LSDYNA_DBG_MULTIBLOCK
   // Print the hierarchy of meshes that is about to be returned as output.
