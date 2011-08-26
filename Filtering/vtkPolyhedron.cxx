@@ -2366,7 +2366,6 @@ int vtkPolyhedron::InternalContour(double value,
     // to contour point map then continue
     if (!pointLabelVector[p0] || !pointLabelVector[p1])
       {
-      vtkIdType flag = 0;
       vtkIdType contourVertexIds[2];
       contourVertexIds[0] = -1;
       contourVertexIds[1] = -1;
@@ -2381,7 +2380,6 @@ int vtkPolyhedron::InternalContour(double value,
           pointIdMap.insert(vtkIdToIdPairType(p0, outPid));
           contourVertexIds[0] = p0;
           }
-        flag = 1;
         }
       if (pointLabelVector[p1] == 0)
         {
@@ -2394,7 +2392,6 @@ int vtkPolyhedron::InternalContour(double value,
           pointIdMap.insert(vtkIdToIdPairType(p1, outPid));
           contourVertexIds[1] = p1;
           }
-        flag = 1;
         }
       
       for (int i = 0; i < 2; i++)
