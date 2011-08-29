@@ -461,9 +461,9 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
 
   // Back and front are not traditional near and far.
   // Front (aka near)
-  double F = E[2] - this->ClippingRange[1];
+  double F = E[2] - 10000.0;//this->ClippingRange[1];
   // Back (aka far)
-  double B = E[2] - this->ClippingRange[0];
+  double B = E[2] - .1;//this->ClippingRange[0];
 
   double depth = B - F;
   matrix[0][0] =  ( 2*E[2] ) / width;
