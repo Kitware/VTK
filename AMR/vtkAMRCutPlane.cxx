@@ -28,7 +28,17 @@
 #include "vtkAMRUtilities.h"
 #include "vtkUniformGrid.h"
 #include "vtkCutter.h"
+#include "vtkLocator.h"
 #include "vtkPointLocator.h"
+#include "vtkPolyData.h"
+#include "vtkContourValues.h"
+#include "vtkIdList.h"
+#include "vtkDoubleArray.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkPoints.h"
 
 #include <cassert>
 #include <algorithm>
@@ -50,16 +60,22 @@ vtkAMRCutPlane::vtkAMRCutPlane()
   this->Controller       = vtkMultiProcessController::GetGlobalController();
   this->plane            = NULL;
   this->UseNativeCutter  = 1;
-  this->Locator          = vtkPointLocator::New();
+  this->contourValues    = vtkContourValues::New();
 }
 
 //------------------------------------------------------------------------------
 vtkAMRCutPlane::~vtkAMRCutPlane()
 {
+
   this->blocksToLoad.clear();
-  if( this->Locator != NULL )
-    this->Locator->Delete();
-  this->Locator = NULL;
+
+  if( this->contourValues != NULL )
+    this->contourValues->Delete();
+  this->contourValues = NULL;
+
+  if( this->plane != NULL )
+    this->plane->Delete();
+  this->plane = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -162,9 +178,10 @@ int vtkAMRCutPlane::RequestData(
       for( ; dataIdx < inputAMR->GetNumberOfDataSets( level ); ++dataIdx )
         {
 
+          vtkUniformGrid *grid = inputAMR->GetDataSet( level, dataIdx );
           if( this->UseNativeCutter == 1 )
             {
-              vtkUniformGrid *grid = inputAMR->GetDataSet( level, dataIdx );
+
               if( grid != NULL )
                 {
                   vtkCutter *myCutter = vtkCutter::New();
@@ -177,12 +194,12 @@ int vtkAMRCutPlane::RequestData(
                 }
               else
                 {
-                  // TODO: implement this
+
                 }
             }
           else
             {
-
+              this->CutAMRBlock( grid, mbds );
             }
 
         } // END for all data
@@ -190,6 +207,84 @@ int vtkAMRCutPlane::RequestData(
 
   this->Modified();
   return 1;
+}
+
+//------------------------------------------------------------------------------
+//void vtkAMRCutPlane::CutAMRBlock(
+//    vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
+//{
+//  if( grid == NULL )
+//    return NULL;
+
+//  vtkPointLocator *myLocator = vtkPointLocator::New();
+//  vtkPolyData *slice = vtkPolyData::New();
+//
+//  vtkDoubleArray *cutScalars = vtkDoubleArray::New();
+//  cutScalars->SetName( "Fx");
+//  cutScalars->SetNumberOfTuples( grid->GetNumberOfPoints() );
+//  cutScalars->SetNumberOfComponents( 1 );
+//  vtkIdType ptIdx = 0;
+//  for( ; ptIdx < grid->GetNumberOfPoints(); ++ptIdx )
+//    {
+//     double val = this->plane->EvaluateFunction( grid->GetPoint(ptIdx) );
+//     cutScalars->SetComponent( ptIdx, 0, val );
+//    } // END for all cells
+//  grid->GetPointData()->AddArray( cutScalars );
+//  unsigned int blockIdx = output->GetNumberOfBlocks( );
+//  output->SetBlock( blockIdx, grid );
+//}
+
+//------------------------------------------------------------------------------
+void vtkAMRCutPlane::CutAMRBlock(
+    vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
+{
+
+  // Locator, used for detecting duplicate points
+  vtkPointLocator *locator = vtkPointLocator::New();
+
+
+  vtkPolyData *mesh   = vtkPolyData::New();
+  vtkPoints *meshPts  = vtkPoints::New();
+  vtkCellArray *verts = vtkCellArray::New();
+  vtkCellArray *cells = vtkCellArray::New();
+
+
+  vtkIdType cellIdx = 0;
+  for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
+    {
+
+      if( grid->IsCellVisible( cellIdx ) &&
+          this->PlaneIntersectsCell( grid->GetCell(cellIdx) ) )
+        {
+          this->ExtractCellFromGrid(
+              grid,grid->GetCell(cellIdx),locator,meshPts,cells );
+        } // END if
+
+    } // END for all cells
+
+  locator->Delete();
+  unsigned int blockIdx = output->GetNumberOfBlocks();
+  output->SetBlock( blockIdx, mesh );
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRCutPlane::ExtractCellFromGrid(
+            vtkUniformGrid *grid,
+            vtkCell* cell, vtkLocator *loc,
+            vtkPoints *pts, vtkCellArray *cells)
+{
+  assert( "pre: grid is NULL"  && (grid != NULL)  );
+  assert( "pre: cell is NULL"  && (cell != NULL)  );
+  assert( "pre: loc is NULL"   && (loc != NULL)   );
+  assert( "pre: pts is NULL"   && (pts != NULL)   );
+  assert( "pre: cells is NULL" && (cells != NULL) );
+
+  vtkIdType nodeIdx = 0;
+  for( ; nodeIdx < cell->GetNumberOfPoints(); ++nodeIdx )
+    {
+
+    } // END for all nodes
+
 }
 
 //------------------------------------------------------------------------------
@@ -273,6 +368,27 @@ void vtkAMRCutPlane::InitializeCenter( double min[3], double max[3] )
   this->Center[1] = 0.5*( max[1]-min[1] );
   this->Center[2] = 0.5*( max[2]-min[2] );
   this->initialRequest = false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkAMRCutPlane::PlaneIntersectsCell( vtkCell *cell )
+{
+  assert( "pre: cell is NULL!" && (cell != NULL) );
+  return( this->PlaneIntersectsAMRBox( cell->GetBounds() ) );
+}
+//------------------------------------------------------------------------------
+bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double bounds[6] )
+{
+  // Store A,B,C,D from the plane equation
+  double plane[4];
+  plane[0] = this->plane->GetNormal()[0];
+  plane[1] = this->plane->GetNormal()[1];
+  plane[2] = this->plane->GetNormal()[2];
+  plane[3] = this->plane->GetNormal()[0]*this->plane->GetOrigin()[0] +
+             this->plane->GetNormal()[1]*this->plane->GetOrigin()[1] +
+             this->plane->GetNormal()[2]*this->plane->GetOrigin()[2];
+
+ return( this->PlaneIntersectsAMRBox( plane,bounds) );
 }
 
 //------------------------------------------------------------------------------
