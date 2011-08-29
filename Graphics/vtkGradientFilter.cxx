@@ -284,16 +284,15 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
-  int retVal = 0;
   if(output->IsA("vtkImageData") || output->IsA("vtkStructuredGrid") ||
           output->IsA("vtkRectilinearGrid") )
     {
-    retVal = this->ComputeRegularGridGradient(
+    this->ComputeRegularGridGradient(
       array, fieldAssociation, output);
     }
   else
     {
-    retVal = this->ComputeUnstructuredGridGradient(
+    this->ComputeUnstructuredGridGradient(
       array, fieldAssociation, input, output);
     }
 
@@ -539,7 +538,6 @@ int vtkGradientFilter::ComputeRegularGridGradient(
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0)))));
       }
     }
-  int retVal = 1;
   if(fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     output->GetPointData()->AddArray(gradients);
@@ -559,7 +557,6 @@ int vtkGradientFilter::ComputeRegularGridGradient(
   else
     {
     vtkErrorMacro("Bad fieldAssociation value " << fieldAssociation << endl);
-    retVal = 0;
     }
   gradients->Delete();
 
