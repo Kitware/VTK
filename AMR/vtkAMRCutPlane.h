@@ -32,6 +32,12 @@ class vtkInformationVector;
 class vtkIndent;
 class vtkPlane;
 class vtkPointLocator;
+class vtkContourValues;
+class vtkUniformGrid;
+class vtkCell;
+class vtkPoints;
+class vtkLocator;
+class vtkCellArray;
 
 class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 {
@@ -96,6 +102,13 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     vtkPlane* GetCutPlane( vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
+    // Extracts cell
+    void ExtractCellFromGrid(
+        vtkUniformGrid *grid,
+        vtkCell* cell, vtkLocator *loc,
+        vtkPoints *pts, vtkCellArray *cells );
+
+    // Description:
     // Given a cut-plane, p, and the metadata, m, this method computes which
     // blocks need to be loaded. The corresponding block IDs are stored in
     // the internal STL vector, blocksToLoad, which is then propagated upstream
@@ -108,11 +121,20 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Determines if a plane intersects with an AMR box
+    bool PlaneIntersectsAMRBox( double bounds[6] );
     bool PlaneIntersectsAMRBox( double plane[4], double bounds[6] );
+
+    // Description:
+    // Determines if a plane intersects with a grid cell
+    bool PlaneIntersectsCell( vtkCell *cell );
 
     // Description:
     // A utility function that checks if the input AMR data is 2-D.
     bool IsAMRData2D( vtkHierarchicalBoxDataSet *input );
+
+    // Description:
+    // Applies cutting to an AMR block
+    void CutAMRBlock( vtkUniformGrid *grid, vtkMultiBlockDataSet *dataSet );
 
     int    LevelOfResolution;
     double Center[3];
@@ -121,7 +143,8 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     bool UseNativeCutter;
     vtkMultiProcessController *Controller;
     vtkPlane *plane;
-    vtkPointLocator *Locator;
+    vtkContourValues *contourValues;
+
 // BTX
     vtkstd::vector<int> blocksToLoad;
 // ETX
