@@ -31,6 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
+
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -808,11 +809,25 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
       }
     }
 
-  // NOTE: Do not use the Voxel ivar for this. That ivar may be NULL
-  // if the dimensionality of the image data is less than 3.
   if (weights)
     {
-    vtkVoxel::InterpolationFunctions(pcoords,weights);
+    // Shift parametric coordinates for XZ/YZ planes
+    if( this->DataDescription == VTK_XZ_PLANE )
+      {
+      pcoords[1] = pcoords[2];
+      pcoords[2] = 0.0;
+      }
+    else if( this->DataDescription == VTK_YZ_PLANE )
+      {
+      pcoords[0] = pcoords[1];
+      pcoords[1] = pcoords[2];
+      pcoords[2] = 0.0;  
+      }
+    else if( this->DataDescription == VTK_XY_PLANE )
+      {
+      pcoords[2] = 0.0;
+      }
+    vtkVoxel::InterpolationFunctions( pcoords, weights );
     }
 
   //
@@ -1069,6 +1084,7 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     // Floor for negative indexes.
     ijk[i] = vtkMath::Floor(doubleLoc);
     pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
+
     int tmpInBounds = 0;
     int minExt = extent[i*2];
     int maxExt = extent[i*2 + 1];
