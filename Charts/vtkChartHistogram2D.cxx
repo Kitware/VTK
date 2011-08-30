@@ -55,11 +55,13 @@ void vtkChartHistogram2D::Update()
   this->vtkChartXY::Update();
 }
 
+//-----------------------------------------------------------------------------
 void vtkChartHistogram2D::SetInput(vtkImageData *data, vtkIdType z)
 {
   this->Histogram->SetInput(data, z);
 }
 
+//-----------------------------------------------------------------------------
 void vtkChartHistogram2D::SetTransferFunction(vtkScalarsToColors *function)
 {
   this->Histogram->SetTransferFunction(function);
@@ -99,6 +101,17 @@ bool vtkChartHistogram2D::Hit(const vtkContextMouseEvent &mouse)
     {
     return false;
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkPlot* vtkChartHistogram2D::GetPlot(vtkIdType index)
+{
+  if (index == 0)
+    {
+    return this->Histogram;
+    }
+
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
