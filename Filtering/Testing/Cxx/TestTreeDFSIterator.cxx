@@ -50,7 +50,7 @@ int TestTreeDFSIterator(int, char *[])
     }
 
   //traverse the tree in a depth first fashion
-  for(int i = 0; i < correctSequence.size(); i++)
+  for(size_t i = 0; i < correctSequence.size(); i++)
     {
     if(!dfsIterator->HasNext())
       {
