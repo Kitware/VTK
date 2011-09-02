@@ -749,7 +749,7 @@ void DICOMParser::GetGroupsElementsDatatypes(dicom_stl::vector<doublebyte>& grou
   dicom_stl::vector<DICOMParser::VRTypes>::iterator diter; // = this->Datatypes.begin();
   
   for (giter = this->Implementation->Groups.begin(), eiter = this->Implementation->Elements.begin(), diter = this->Implementation->Datatypes.begin();
-       giter != this->Implementation->Groups.end(), eiter != this->Implementation->Elements.end(), diter != this->Implementation->Datatypes.end();
+       (giter != this->Implementation->Groups.end()) && (eiter != this->Implementation->Elements.end()) && (diter != this->Implementation->Datatypes.end());
        giter++, eiter++, diter++)
     {
     groups.push_back(*giter);
