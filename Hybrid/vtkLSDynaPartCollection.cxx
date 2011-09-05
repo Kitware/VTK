@@ -16,53 +16,78 @@
 
 #include "LSDynaMetaData.h"
 
+#include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vector>
+#include <map>
 
-class vtkLSDynaPartCollection::LSDynaPartVector
+//-----------------------------------------------------------------------------
+namespace
+  {
+  typedef std::map<vtkIdType,vtkIdType> IdTypeMap;
+  typedef std::vector<vtkIdType> IdTypeVector;
+  typedef std::vector<vtkLSDynaPartCollection::LSDynaPart*> PartVector;
+  }
+
+//-----------------------------------------------------------------------------
+struct vtkLSDynaPartCollection::LSDynaPart
+  {
+  LSDynaPart()
+    {
+    Grid = vtkUnstructuredGrid::New();
+    NextPointId = 0;
+    }
+  vtkUnstructuredGrid *Grid;
+  vtkIdType NextPointId;
+  };
+
+//-----------------------------------------------------------------------------
+class vtkLSDynaPartCollection::LSDynaPartStorage
 {
 public:
-  LSDynaPartVector()
+  LSDynaPartStorage()
     {
     this->CellIndexToPart = new IdTypeVector[LSDynaMetaData::NUM_CELL_TYPES];
     }
-  ~LSDynaPartVector()
+  ~LSDynaPartStorage()
     {
     delete[] this->CellIndexToPart;
     }
 
-  typedef std::vector<vtkUnstructuredGrid*> GridVector;
-  typedef std::vector<vtkIdType> IdTypeVector;
-  GridVector Grids;
-  IdTypeVector *CellIndexToPart;
-
+  PartVector Parts;
+  //maps cell indexes which are tracked by output type to the part
+  //Since cells are ordered the same between the cell connectivity data block
+  //and the state block in the d3plot format we only need to know which part
+  //the cell is part of.
+  IdTypeVector *CellIndexToPart; 
 };
 
 vtkStandardNewMacro(vtkLSDynaPartCollection);
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkLSDynaPartCollection::vtkLSDynaPartCollection()
 {
   this->MetaData = NULL;
-  this->Parts = new LSDynaPartVector();
+  this->Storage = new LSDynaPartStorage();
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkLSDynaPartCollection::~vtkLSDynaPartCollection()
 {
   this->Reset();
-  delete this->Parts;
+  delete this->Storage;
   this->MetaData = NULL;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::PrintSelf(ostream &os, vtkIndent indent)
 {
 
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::SetMetaData(LSDynaMetaData *metaData)
 {
   if(metaData)
@@ -72,7 +97,7 @@ void vtkLSDynaPartCollection::SetMetaData(LSDynaMetaData *metaData)
     }
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::InsertCell(const int& partType,
                                          const vtkIdType& cellIndex,
                                          const vtkIdType& matId,
@@ -80,74 +105,76 @@ void vtkLSDynaPartCollection::InsertCell(const int& partType,
                                          const vtkIdType& npts,
                                          vtkIdType conn[8])
 {
-  if (!this->IsActivePart(matId))
+  vtkLSDynaPartCollection::LSDynaPart *part = this->Storage->Parts[matId-1];
+  if (!part)
     {
     return;
     }
 
   //setup the cell index to part lookup table
-  this->Parts->CellIndexToPart[partType][cellIndex] = matId;
+  this->Storage->CellIndexToPart[partType][cellIndex] = matId;
 
   //push back the cell into the proper part grid
-  vtkUnstructuredGrid *part = this->Parts->Grids[matId];
-  part->InsertNextCell(cellType,npts,conn);
+  part->Grid->InsertNextCell(cellType,npts,conn);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bool vtkLSDynaPartCollection::IsActivePart(const int& id) const
 {
-  if (id < 0 || id >= this->Parts->Grids.size())
+  if (id < 0 || id >= this->Storage->Parts.size())
     {
     return false;
     }
 
-  //only considered a valid part if it has cells added to it.
-  return this->Parts->Grids[id] != NULL && this->Parts->Grids[id]->GetNumberOfCells() > 0;
+  return this->Storage->Parts[id] != NULL;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 int vtkLSDynaPartCollection::PartIdForCellIndex(const int& partType,
                                                 const int& index) const
 {
-  return this->Parts->CellIndexToPart[partType][index];
+  return this->Storage->CellIndexToPart[partType][index];
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkLSDynaPartCollection::GetGridForPart(
   const int& index) const
 {
-  return this->Parts->Grids[index];
+  return this->Storage->Parts[index]->Grid;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 int vtkLSDynaPartCollection::GetNumberOfParts() const
 {
-  return this->Parts->Grids.size();
+  return static_cast<int>(this->Storage->Parts.size());
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::Reset()
 {
   for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
     {
-    this->Parts->CellIndexToPart[i].clear();
+    this->Storage->CellIndexToPart[i].clear();
     }
 
-  std::vector<vtkUnstructuredGrid*>::iterator it;
-  for(it=this->Parts->Grids.begin();
-      it!=this->Parts->Grids.end();
+  PartVector::iterator it;
+  for(it=this->Storage->Parts.begin();
+      it!=this->Storage->Parts.end();
       ++it)
     {
-    vtkUnstructuredGrid *grid = (*it);
+    vtkUnstructuredGrid *grid = (*it)->Grid;
     if(grid)
       {
       grid->Delete();
+      grid = NULL;
       }
+    delete (*it);
     (*it)=NULL;
     }
+  this->Storage->Parts.clear();
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::BuildPartInfo()
 {
   //fill the vector of parts up, if the part is active
@@ -156,12 +183,11 @@ void vtkLSDynaPartCollection::BuildPartInfo()
   //reserve enough space for cell index to part
   for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
     {
-    this->Parts->CellIndexToPart[i].reserve(this->MetaData->NumberOfCells[i]);
-    }
-
+    this->Storage->CellIndexToPart[i].resize(this->MetaData->NumberOfCells[i],-1);
+    }  
   //reserve enough space for the grids
   size_t size = this->MetaData->PartIds.size();
-  this->Parts->Grids.resize(size,NULL);
+  this->Storage->Parts.resize(size,NULL);
 
   std::vector<int>::const_iterator partIt;
   std::vector<int>::const_iterator start = this->MetaData->PartIds.begin();
@@ -172,7 +198,115 @@ void vtkLSDynaPartCollection::BuildPartInfo()
     if (this->MetaData->PartStatus[partIt - start])
       {
       //make the index contain a part
-      this->Parts->Grids[partIt - start] = vtkUnstructuredGrid::New();
+      this->Storage->Parts[partIt - start] =
+        new vtkLSDynaPartCollection::LSDynaPart();
       }
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints)
+{
+  PartVector::iterator partIt;
+  for (partIt = this->Storage->Parts.begin();
+       partIt != this->Storage->Parts.end();
+       ++partIt)
+    {
+    if ( (*partIt))
+      {
+      //create the point set for this grid
+      this->ConstructPointSet(*partIt,commonPoints);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::ConstructPointSet(LSDynaPart *part,
+                                vtkPoints *commonPoints)
+{
+  vtkPoints *points = vtkPoints::New();
+
+  //take the cell array and find all the unique points
+  //once that is done convert them
+  IdTypeVector lookup;
+  lookup.resize(this->MetaData->NumberOfNodes,-1);
+  
+  double pos[3];
+ 
+  vtkIdType npts,*pts;
+  vtkCellArray *cells = part->Grid->GetCells();
+  cells->InitTraversal();
+  while(cells->GetNextCell(npts,pts))
+    {
+    for(vtkIdType i=0;i<npts;++i)
+      {
+      const vtkIdType idx(pts[i]);
+      if(lookup[idx] != -1)
+        {
+        pts[i] = lookup[idx];
+        }
+      else
+        {
+        //add the point to points array
+        commonPoints->GetPoint(idx,pos);
+        points->InsertNextPoint(pos);
+
+        //update the cell array and lookup table
+        lookup[idx] = part->NextPointId;
+        pts[i] = part->NextPointId;
+        ++part->NextPointId;
+        }
+      }
+    }
+
+  points->Squeeze();
+  part->Grid->SetPoints(points);
+  points->FastDelete();
+}
+
+/*
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::ConstructPointSet(LSDynaPart *part,
+                                vtkPoints *commonPoints)
+{
+  vtkPoints *points = vtkPoints::New();
+
+  //take the cell array and find all the unique points
+  //once that is done convert them
+  IdTypeVector lookup;
+  lookup.resize(this->MetaData->NumberOfNodes,0);
+
+
+  //if this becomes a bottleneck we need to use a vector lookup
+  std::pair<IdTypeMap::iterator,bool> ret;
+  for(vtkIdType i=0; i < npts; ++i)
+    {
+    ret = part->PointIdLookup.insert(
+      std::pair<vtkIdType,vtkIdType>(conn[i],part->NextPointId));
+    //replace the cell id with the updated id.
+    conn[i] = ret.first->second;
+    if (ret.second)
+      {
+      //if we actually added this point to the map update the nextpointid
+      ++part->NextPointId;
+      }
+    }
+
+
+
+  points->SetNumberOfPoints(part->PointIdLookup.size());
+
+  //take the point id mapping from this part and construct a pointset
+  //with it
+  double pos[3];
+  IdTypeMap::const_iterator it;
+  for(it=part->PointIdLookup.begin();it!=part->PointIdLookup.end();++it)
+    {
+    commonPoints->GetPoint(it->first,pos);
+    points->SetPoint(it->second,pos);
+    }
+    
+  part->Grid->SetPoints(points);
+  points->FastDelete();
+}
+*/

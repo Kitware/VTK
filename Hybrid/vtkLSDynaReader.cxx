@@ -282,8 +282,9 @@ vtkLSDynaReader::vtkLSDynaReader()
   this->RemoveDeletedCells = 1;
   this->InputDeck = 0;
 
-  this->CommonPoints = 0;
-  this->RoadSurfacePoints = 0;
+  this->CommonPoints = NULL;
+  this->RoadSurfacePoints = NULL;
+  this->Parts = NULL;
 }
 
 vtkLSDynaReader::~vtkLSDynaReader()
@@ -292,10 +293,14 @@ vtkLSDynaReader::~vtkLSDynaReader()
     {
     this->CommonPoints->Delete();
     }
-  if ( this->RoadSurfacePoints )
+  if (this->RoadSurfacePoints)
     {
     this->RoadSurfacePoints->Delete();
-    }  
+    }
+  if (this->Parts)
+    {
+    this->Parts->Delete();
+    }
   this->SetInputDeck(0);
   delete this->P;
   this->P = 0;
@@ -2199,7 +2204,6 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
   vtkIdType conn[8];
   vtkIdType matlId;
   vtkIdType c, t, i;
-  int matlStatus;
   c = 0;
 
   p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), p->NumberOfNodes*p->Dimensionality );
@@ -3831,12 +3835,18 @@ int vtkLSDynaReader::RequestData(
     }
 
   // Always read connectivity info
+  if (!this->Parts)
+    {
+    this->Parts = vtkLSDynaPartCollection::New();
+    }
+
   this->Parts->SetMetaData(this->P);
   if ( this->ReadConnectivityAndMaterial() )
     {
     vtkErrorMacro( "Could not read connectivity." );
     return 1;
     }
+  //now that the cells have 
   this->UpdateProgress( 0.5 );
 
   // Adapted element parent list
@@ -3886,6 +3896,10 @@ int vtkLSDynaReader::RequestData(
     vtkErrorMacro( "Rigid surfaces not implemented." );
     return 1;
     }
+
+  //now that the reading has finished we need to finalize the parts
+  //this means get the subset of points for each part, and fixup all the cells
+  this->Parts->Finalize(this->CommonPoints);
 
   //add all the parts as child blocks to the output
   vtkIdType nextId = 0;

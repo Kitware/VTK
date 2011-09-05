@@ -19,16 +19,19 @@
 
 #include "vtkObject.h"
 class vtkUnstructuredGrid;
+class vtkPoints;
 
 class VTK_HYBRID_EXPORT vtkLSDynaPartCollection: public vtkObject
 {
 public:
+  struct LSDynaPart;
   static vtkLSDynaPartCollection *New();
 
   vtkTypeMacro(vtkLSDynaPartCollection,vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   void SetMetaData(LSDynaMetaData *metaData);
+  void Finalize(vtkPoints *commonPoints);
 
   void InsertCell(const int& partType, const vtkIdType& cellIndex, const vtkIdType& matIdx,
                       const int& cellType, const vtkIdType& npts, vtkIdType conn[8]);
@@ -55,14 +58,19 @@ protected:
 
   void BuildPartInfo();
 
+  //Description:
+  //build a point set for the unstructured grid which will be the subset
+  //of the point set passed in
+  void ConstructPointSet(LSDynaPart *part, vtkPoints *commonPoints);
+
 private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
   void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.
 
   LSDynaMetaData *MetaData;
-
-  class LSDynaPartVector;
-  LSDynaPartVector* Parts;
+  
+  class LSDynaPartStorage;
+  LSDynaPartStorage* Storage;
 };
 
 #endif // LSDYNAPARTS_H
