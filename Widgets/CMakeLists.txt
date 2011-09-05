@@ -64,6 +64,7 @@ vtkHandleRepresentation.cxx
 vtkHandleWidget.cxx
 vtkHoverWidget.cxx
 vtkImageActorPointPlacer.cxx
+vtkImageCroppingRegionsWidget.cxx
 vtkImageOrthoPlanes.cxx
 vtkImagePlaneWidget.cxx
 vtkImageTracerWidget.cxx
