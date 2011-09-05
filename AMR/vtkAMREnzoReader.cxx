@@ -167,7 +167,11 @@ void vtkAMREnzoReader::ParseConversionFactors( )
   // STEP 1: Open Parameters file
   std::ifstream ifs;
   ifs.open( paramsFile.c_str() );
-  assert( "pre: Cannot open parameters file" && ( ifs.is_open() ) );
+  if( !ifs.is_open( ) )
+    {
+      vtkWarningMacro( "Cannot open ENZO parameters file!\n" );
+      return;
+    }
 
   // STEP 2: Parsing parameters file
   std::string line;  // temp string to store a line read from the params file
@@ -244,12 +248,11 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
       this->Internal->NumberOfBlocks = 0;
       this->LoadedMetaData = false;
 
-      if ( this->FileName )
+      if ( this->FileName != NULL)
       {
         delete [] this->FileName;
         this->FileName = NULL;
         this->Internal->SetFileName( NULL );
-        this->ParseConversionFactors( );
       }
       this->FileName = new char[  strlen( fileName ) + 1  ];
       strcpy( this->FileName, fileName );
