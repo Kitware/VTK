@@ -1856,7 +1856,7 @@ TIFFInitJPEG(TIFF* tif, int scheme)
 {
         JPEGState* sp;
 
-        assert(scheme == COMPRESSION_JPEG);
+        assert(scheme == COMPRESSION_JPEG); (void)scheme;
 
         /*
          * Allocate state block so tag methods have storage to record values.
