@@ -33,7 +33,6 @@
 #include "vtkContextBufferId.h"
 #include "vtkOpenGLContextBufferId.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkSmartPointer.h"
 
 // My STL containers
 #include <assert.h>
@@ -52,9 +51,12 @@ public:
     {
     }
 
-  vtkSmartPointer<vtkAbstractContextItem> itemMousePressCurrent; // Index of the item with a current mouse down
-  vtkSmartPointer<vtkAbstractContextItem> itemPicked; // Item the mouse was last over
-  vtkContextMouseEvent Event; // Mouse event structure
+  // The item with a current mouse down
+  vtkWeakPointer<vtkAbstractContextItem> itemMousePressCurrent;
+  // Item the mouse was last over
+  vtkWeakPointer<vtkAbstractContextItem> itemPicked;
+  // Mouse event structure
+  vtkContextMouseEvent Event;
   bool IsDirty;
 };
 
@@ -227,16 +229,6 @@ int vtkContextScene::GetSceneWidth()
 int vtkContextScene::GetSceneHeight()
 {
   return this->Geometry[1];
-}
-
-//-----------------------------------------------------------------------------
-void vtkContextScene::ProcessEvents(vtkObject* caller, 
-                             unsigned long eventId, void*)
-{
-  (void)caller; (void)eventId; // unused warning
-  vtkDebugMacro("ProcessEvents called! " << caller->GetClassName() << "\t"
-                << vtkCommand::GetStringFromEventId(eventId)
-                << "\n\t");
 }
 
 //-----------------------------------------------------------------------------

@@ -176,12 +176,6 @@ protected:
   ~vtkContextScene();
 
   // Description:
-  // Called to process events - figure out what child(ren) to propagate events
-  // to.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void* callData);
-
-  // Description:
   // Process a rubber band selection event.
   virtual bool ProcessSelectionEvent(unsigned int rect[5]);
 
