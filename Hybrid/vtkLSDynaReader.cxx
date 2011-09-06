@@ -2198,6 +2198,12 @@ int vtkLSDynaReader::ReadNodes()
 int vtkLSDynaReader::ReadConnectivityAndMaterial()
 {
   LSDynaMetaData* p = this->P;
+  if ( p->ConnectivityUnpacked == 0 )
+    {
+    // FIXME
+    vtkErrorMacro( "Packed connectivity isn't supported yet." );
+    return 1;
+    }
 
   vtkIdType nc;
   vtkIntArray* matl = 0;
@@ -2206,6 +2212,20 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
   vtkIdType c, t, i;
   c = 0;
 
+  //READ PARTICLES
+  p->Fam.SkipToWord( LSDynaFamily::SPHNodeData, p->Fam.GetCurrentAdaptLevel(), 0 );
+  nc = p->NumberOfCells[ LSDynaMetaData::PARTICLE ];
+  t = p->Dict["NMSPH"];
+  
+  p->Fam.BufferChunk( LSDynaFamily::Int, 2 * t );
+  for ( i = 0; i < t; ++i )
+    {
+    conn[0] = p->Fam.GetNextWordAsInt() - 1;
+    matlId = p->Fam.GetNextWordAsInt();
+    this->Parts->InsertCell(LSDynaMetaData::PARTICLE,t,matlId,VTK_VERTEX,1,conn);
+    }
+
+  //READ SOLIDS
   p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), p->NumberOfNodes*p->Dimensionality );
 
   nc = p->NumberOfCells[ LSDynaMetaData::SOLID ];  
@@ -2246,205 +2266,60 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
     this->Parts->InsertCell(LSDynaMetaData::SOLID,t,matlId,type,npts,conn);
     }
 
+  //READ THICK_SHELL
+  nc = p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ];
+  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::THICK_SHELL] );
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::THICK_SHELL]; ++t )
+    {
+    for ( i=0; i<8; ++i )
+      {
+      conn[i] = p->Fam.GetNextWordAsInt() - 1;
+      }
+    matlId = p->Fam.GetNextWordAsInt();
+    this->Parts->InsertCell(LSDynaMetaData::THICK_SHELL,t,matlId,VTK_QUADRATIC_QUAD,8,conn);
+    }
+
+  //READ BEAM
+  nc = p->NumberOfCells[ LSDynaMetaData::BEAM ];
+  p->Fam.BufferChunk( LSDynaFamily::Int, 6*p->NumberOfCells[LSDynaMetaData::BEAM] );
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::BEAM]; ++t )
+    {
+    for ( i=0; i<5; ++i )
+      {
+      conn[i] = p->Fam.GetNextWordAsInt() - 1;
+      }
+    matlId = p->Fam.GetNextWordAsInt();
+    this->Parts->InsertCell(LSDynaMetaData::BEAM,t,matlId,VTK_LINE,2,conn);
+    }
+  
+  //READ SHELL and RIGID_BODY
+  bool haveRigidMaterials = (p->Dict["MATTYP"] != 0) && p->RigidMaterials.size();
+  vtkIdType nrFound = 0;
+  vtkIdType nsFound = 0;
+  // FIXME: Should this include p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ] or should matl->SetNumberOfTuples() use different number?
+  p->Fam.BufferChunk( LSDynaFamily::Int, 5*p->NumberOfCells[LSDynaMetaData::SHELL] );
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SHELL]; ++t )
+    {
+    for ( i=0; i<4; ++i )
+      {
+      conn[i] = p->Fam.GetNextWordAsInt() - 1;
+      }
+    matlId = p->Fam.GetNextWordAsInt();
+    if ( haveRigidMaterials && p->RigidMaterials.find( matlId ) == p->RigidMaterials.end() )
+      {
+      this->Parts->InsertCell(LSDynaMetaData::RIGID_BODY,t,matlId,VTK_QUAD,4,conn);
+      }
+    else
+      {
+      this->Parts->InsertCell(LSDynaMetaData::SHELL,t,matlId,VTK_QUAD,4,conn);
+      }
+    }
+
+  //ToDO: Read Road Surface as an exception
+
   return 0;
 }
 
-
-//
-//int vtkLSDynaReader::ReadConnectivityAndMaterial()
-//{
-//  LSDynaMetaData* p = this->P;
-//  if ( p->ConnectivityUnpacked == 0 )
-//    {
-//    // FIXME
-//    vtkErrorMacro( "Packed connectivity isn't supported yet." );
-//    return 1;
-//    }
-//
-//  vtkIdType nc;
-//  vtkIntArray* matl = 0;
-//  vtkIdType conn[8];
-//  vtkIdType matlId;
-//  vtkIdType c, t, i;
-//  int matlStatus;
-//  c = 0;
-//
-//  nc = p->NumberOfCells[ LSDynaMetaData::PARTICLE ];
-//  //this->OutputParticles->Allocate( nc );
-//  matlStatus = this->GetCellArrayStatus( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL );
-//  if ( matlStatus )
-//    {
-//    matl = vtkIntArray::New();
-//    matl->SetNumberOfComponents( 1 );
-//    matl->SetNumberOfTuples( nc );
-//    matl->SetName( LS_ARRAYNAME_MATERIAL );
-//    this->OutputParticles->GetCellData()->AddArray( matl );
-//    matl->FastDelete();
-//    }
-//  t = p->Dict["NMSPH"];
-//  p->Fam.SkipToWord( LSDynaFamily::SPHNodeData, p->Fam.GetCurrentAdaptLevel(), 0 );
-//  p->Fam.BufferChunk( LSDynaFamily::Int, 2 * t );
-//  for ( i = 0; i < t; ++i )
-//    {
-//    conn[0] = p->Fam.GetNextWordAsInt() - 1;
-//    matlId = p->Fam.GetNextWordAsInt();
-//    this->OutputParticles->InsertNextCell( VTK_VERTEX, 1, conn );
-//    if ( matlStatus ) matl->SetTuple1( i, p->MaterialsOrdered[matlId - 1] );
-//    }
-//
-//  p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), p->NumberOfNodes*p->Dimensionality );
-//
-//  nc = p->NumberOfCells[ LSDynaMetaData::SOLID ];
-//  this->OutputSolid->Allocate( nc );
-//  matlStatus = this->GetCellArrayStatus( LSDynaMetaData::SOLID, LS_ARRAYNAME_MATERIAL );
-//  if ( matlStatus )
-//    {
-//    matl = vtkIntArray::New();
-//    matl->SetNumberOfComponents( 1 );
-//    matl->SetNumberOfTuples( nc );
-//    matl->SetName( LS_ARRAYNAME_MATERIAL );
-//    this->OutputSolid->GetCellData()->AddArray( matl );
-//    matl->FastDelete();
-//    }
-//  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::SOLID] );
-//  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SOLID]; ++t )
-//    {
-//    for ( i=0; i<8; ++i )
-//      {
-//      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-//      }
-//    matlId = p->Fam.GetNextWordAsInt();
-//    // Detect repeated connectivity entries to determine element type
-//    if ( conn[7] == conn[6] )
-//      { // conn[6] == conn[5] is implied since there are no 7-node elements
-//      if ( conn[5] == conn[4] )
-//        {
-//        if ( conn[4] == conn[3] )
-//          {
-//          this->OutputSolid->InsertNextCell( VTK_TETRA, 4, conn );
-//          }
-//        else
-//          {
-//          this->OutputSolid->InsertNextCell( VTK_PYRAMID, 5, conn );
-//          }
-//        }
-//      else
-//        {
-//        this->OutputSolid->InsertNextCell( VTK_WEDGE, 6, conn );
-//        }
-//      }
-//    else
-//      {
-//      this->OutputSolid->InsertNextCell( VTK_HEXAHEDRON, 8, conn );
-//      }
-//    if ( matlStatus )
-//      {
-//      matl->SetTuple1( t, p->MaterialsOrdered[matlId - 1] );
-//      }
-//    }
-//
-//  nc = p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ];
-//  this->OutputThickShell->Allocate( nc );
-//  matlStatus = this->GetCellArrayStatus( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_MATERIAL );
-//  if ( matlStatus )
-//    {
-//    matl = vtkIntArray::New();
-//    matl->SetNumberOfComponents( 1 );
-//    matl->SetNumberOfTuples( nc );
-//    matl->SetName( LS_ARRAYNAME_MATERIAL );
-//    this->OutputThickShell->GetCellData()->AddArray( matl );
-//    matl->FastDelete();
-//    }
-//  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::THICK_SHELL] );
-//  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::THICK_SHELL]; ++t )
-//    {
-//    for ( i=0; i<8; ++i )
-//      {
-//      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-//      }
-//    matlId = p->Fam.GetNextWordAsInt();
-//    this->OutputThickShell->InsertNextCell( VTK_QUADRATIC_QUAD, 8, conn );
-//    if ( matlStatus ) matl->SetTuple1( t, p->MaterialsOrdered[matlId - 1] );
-//    }
-//
-//  nc = p->NumberOfCells[ LSDynaMetaData::BEAM ];
-//  this->OutputBeams->Allocate( nc );
-//  matlStatus = this->GetCellArrayStatus( LSDynaMetaData::BEAM, LS_ARRAYNAME_MATERIAL );
-//  if ( matlStatus )
-//    {
-//    matl = vtkIntArray::New();
-//    matl->SetNumberOfComponents( 1 );
-//    matl->SetNumberOfTuples( nc );
-//    matl->SetName( LS_ARRAYNAME_MATERIAL );
-//    this->OutputBeams->GetCellData()->AddArray( matl );
-//    matl->FastDelete();
-//    }
-//  p->Fam.BufferChunk( LSDynaFamily::Int, 6*p->NumberOfCells[LSDynaMetaData::BEAM] );
-//  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::BEAM]; ++t )
-//    {
-//    for ( i=0; i<5; ++i )
-//      {
-//      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-//      }
-//    matlId = p->Fam.GetNextWordAsInt();
-//    this->OutputBeams->InsertNextCell( VTK_LINE, 2, conn );
-//    if ( matlStatus ) matl->SetTuple1( t, p->MaterialsOrdered[matlId - 1] );
-//    }
-//
-//
-//  nc = p->NumberOfCells[ LSDynaMetaData::SHELL ];
-//  this->OutputShell->Allocate( nc );
-//  bool haveRigidMaterials = (p->Dict["MATTYP"] != 0) && p->RigidMaterials.size();
-//
-//  matlStatus = this->GetCellArrayStatus( LSDynaMetaData::SHELL, LS_ARRAYNAME_MATERIAL );
-//  if ( matlStatus )
-//    {
-//    matl = vtkIntArray::New();
-//    matl->SetNumberOfComponents( 1 );
-//    matl->SetNumberOfTuples( nc );
-//    matl->SetName( LS_ARRAYNAME_MATERIAL );
-//    this->OutputShell->GetCellData()->AddArray( matl );
-//    matl->FastDelete();
-//    }
-//
-//  nc = p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ];
-//  this->OutputRigidBody->Allocate( nc );
-//  int rmatStatus = this->GetCellArrayStatus( LSDynaMetaData::RIGID_BODY, LS_ARRAYNAME_MATERIAL );
-//  vtkIntArray* rmat = 0;
-//  if ( rmatStatus )
-//    {
-//    rmat = vtkIntArray::New();
-//    rmat->SetNumberOfComponents( 1 );
-//    rmat->SetNumberOfTuples( nc );
-//    rmat->SetName( LS_ARRAYNAME_MATERIAL );
-//    this->OutputRigidBody->GetCellData()->AddArray( rmat );
-//    rmat->FastDelete();
-//    }
-//  vtkIdType nrFound = 0;
-//  vtkIdType nsFound = 0;
-//
-//  // FIXME: Should this include p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ] or should matl->SetNumberOfTuples() use different number?
-//  p->Fam.BufferChunk( LSDynaFamily::Int, 5*p->NumberOfCells[LSDynaMetaData::SHELL] );
-//  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SHELL]; ++t )
-//    {
-//    for ( i=0; i<4; ++i )
-//      {
-//      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-//      }
-//    matlId = p->Fam.GetNextWordAsInt();
-//    if ( haveRigidMaterials && p->RigidMaterials.find( matlId ) == p->RigidMaterials.end() )
-//      {
-//      this->OutputRigidBody->InsertNextCell( VTK_QUAD, 4, conn );
-//      if ( rmatStatus ) rmat->SetTuple1( nrFound++, p->MaterialsOrdered[matlId - 1] );
-//      }
-//    else
-//      {
-//      this->OutputShell->InsertNextCell( VTK_QUAD, 4, conn );
-//      if ( matlStatus ) matl->SetTuple1( nsFound++, p->MaterialsOrdered[matlId - 1] );
-//      }
-//    }
-//  //fprintf( stdout, "haveRigid: %d nrFound: %d nsFound: %d numRBE: %d\n", haveRigidMaterials, (int) nrFound, (int) nsFound, (int) p->Dict["NUMRBE"] );
-//
 //  // Always call allocate so that cell array is created.
 //  nc = p->NumberOfCells[ LSDynaMetaData::ROAD_SURFACE ];
 //  this->OutputRoadSurface->Allocate( nc );
