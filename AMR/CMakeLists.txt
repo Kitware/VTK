@@ -30,6 +30,7 @@ SET(Kit_SRCS
     vtkAMRProbeFilter.cxx
     vtkAMRSliceFilter.cxx
     vtkAMRToGrid.cxx
+    vtkAMRToMultiBlockFilter.cxx
     )
 
 ## Set the libraries required by this kit
