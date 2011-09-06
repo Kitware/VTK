@@ -24,6 +24,7 @@
 #include "vtkAxis.h"
 #include "vtkPlotHistogram2D.h"
 #include "vtkColorLegend.h"
+#include "vtkTooltipItem.h"
 #include "vtkSmartPointer.h"
 #include "vtkObjectFactory.h"
 
@@ -40,6 +41,10 @@ vtkChartHistogram2D::vtkChartHistogram2D()
   this->RemoveItem(this->Legend);
   this->Legend = vtkSmartPointer<vtkColorLegend>::New();
   this->AddItem(this->Legend);
+
+  // Re-add tooltip, making it the last ContextItem to be painted
+  this->RemoveItem(this->Tooltip);
+  this->AddItem(this->Tooltip);
 }
 
 //-----------------------------------------------------------------------------
