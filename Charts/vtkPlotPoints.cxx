@@ -455,19 +455,6 @@ bool compVector3fX(const vtkIndexedVector2f& v1,
     }
 }
 
-// Compare the two vectors, in X component only
-bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
-{
-  if (v1.X() < v2.X())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
 // See if the point is within tolerance.
 bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
              const vtkVector2f& current)
