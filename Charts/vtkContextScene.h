@@ -30,6 +30,7 @@ class vtkContext2D;
 class vtkAbstractContextItem;
 class vtkTransform2D;
 class vtkContextMouseEvent;
+class vtkContextKeyEvent;
 class vtkContextScenePrivate;
 class vtkContextInteractorStyle;
 
@@ -198,6 +199,14 @@ protected:
   // Description:
   // Process a mouse wheel event where delta is the movement forward or back.
   virtual bool MouseWheelEvent(int delta, int x, int y);
+
+  // Description:
+  // Process a key press event.
+  virtual bool KeyPressEvent(const vtkContextKeyEvent& keyEvent);
+
+  // Description:
+  // Process a key release event.
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent& keyEvent);
 
   // Description:
   // Paint the scene in a special mode to build a cache for picking.
