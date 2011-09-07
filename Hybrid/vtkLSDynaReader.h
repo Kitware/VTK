@@ -151,6 +151,7 @@ class LSDynaMetaData;
 class vtkLSDynaPartCollection;
 class vtkPoints;
 class vtkDataArray;
+class vtkIntArray;
 class vtkUnstructuredGrid;
 
 class VTK_HYBRID_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
@@ -543,9 +544,7 @@ protected:
   // The array passed to this routine is filled with deletion data.
   // The number of tuples must be set on the array previous to calling
   // this routine.
-  // The \a anyDeleted argument is set to 0 if no cells in the array are
-  // marked deleted, or 1 if any cells are marked for deletion.
-  virtual int ReadDeletionArray( vtkDataArray* arr, int& anyDeleted );
+  virtual void ReadDeletionArray(vtkIntArray* arr);
 
 private:
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.

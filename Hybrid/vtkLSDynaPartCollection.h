@@ -20,6 +20,7 @@
 #include "vtkObject.h"
 class vtkUnstructuredGrid;
 class vtkPoints;
+class vtkIntArray;
 
 class VTK_HYBRID_EXPORT vtkLSDynaPartCollection: public vtkObject
 {
@@ -31,22 +32,22 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   void SetMetaData(LSDynaMetaData *metaData);
-  void Finalize(vtkPoints *commonPoints);
+  void Finalize(vtkPoints *commonPoints,const int& removeDeletedCells);
 
+  //Description: Insert a cell of a given type and material index to the 
+  //collection.
   void InsertCell(const int& partType, const vtkIdType& cellIndex, const vtkIdType& matIdx,
                       const int& cellType, const vtkIdType& npts, vtkIdType conn[8]);
+
+  //Description:
+  //Set for each part type what cells are deleted/dead
+  void SetCellDeadFlags(const int& partType, vtkIntArray *death);
 
   bool IsActivePart(const int& id) const;
 
   //Description:
-  //Given the part type (ie solid, road surface, etc) and the cell index
-  //return the part grid id. This is useful when you have properties and
-  //you need to relate a property to a part grid
-  //Note this method does not out of bounds checks!
-  int PartIdForCellIndex(const int& partType,const int& index) const;
-
-  //Description:
-  //Given a part
+  //Given a part will return the unstructured grid for the part.
+  //Note: You must call finalize before using this method
   vtkUnstructuredGrid* GetGridForPart(const int& index) const;
 
   int GetNumberOfParts() const;
@@ -59,13 +60,20 @@ protected:
   void BuildPartInfo();
 
   //Description:
-  //build a point set for the unstructured grid which will be the subset
-  //of the point set passed in
-  void ConstructPointSet(LSDynaPart *part, vtkPoints *commonPoints);
+  //builds the unstructured grid which represents the part
+  //will clear out all the temporary storage for the part when this happens
+  //the point set passed in is all the world points, we will construct a subset
+
+  void ConstructGridCellsWithoutDeadCells(LSDynaPart *part);
+  void ConstructGridCells(LSDynaPart *part);
+  void ConstructGridPoints(LSDynaPart *part, vtkPoints *commonPoints);
 
 private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
   void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.
+
+  //holds if the class has been finalized
+  bool Finalized;
 
   LSDynaMetaData *MetaData;
   

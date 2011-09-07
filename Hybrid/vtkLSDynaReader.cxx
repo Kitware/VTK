@@ -2492,148 +2492,63 @@ int vtkLSDynaReader::ReadUserIds()
 
 int vtkLSDynaReader::ReadDeletion()
 {
+  enum LSDynaMetaData::LSDYNA_TYPES validCellTypes[4] = {
+        LSDynaMetaData::SOLID,
+        LSDynaMetaData::THICK_SHELL,
+        LSDynaMetaData::SHELL,
+        LSDynaMetaData::BEAM};
 
+  LSDynaMetaData* p = this->P;
+  vtkIntArray* death;
+  switch ( p->Dict["MDLOPT"] )
+    {
+  case LS_MDLOPT_POINT:
+    vtkErrorMacro("We currently only support cell death");
+    break;
+  case LS_MDLOPT_CELL:    
+    for(int i=0; i < 4; ++i)
+      {
+      LSDynaMetaData::LSDYNA_TYPES type = validCellTypes[i];
+      if ( this->GetCellArrayStatus(type, LS_ARRAYNAME_DEATH ) == 0 )
+        {
+        p->Fam.SkipWords( this->GetNumberOfSolidCells() );
+        }
+      else
+        {
+        death = vtkIntArray::New();
+        death->SetName( LS_ARRAYNAME_DEATH );
+        death->SetNumberOfComponents( 1 );
+        death->SetNumberOfTuples( p->NumberOfCells[type] );
+        this->ReadDeletionArray(death);
+        this->Parts->SetCellDeadFlags(type,death);
+        death->Delete();
+        }
+      }
+    // LSDynaMetaData::PARTICLE deletion states are read by ReadSPHState() along with
+    // other SPH state information.
+    break;
+  case LS_MDLOPT_NONE:
+  default:
+    // do nothing.
+    break;
+    }
   return 0;
 }
-//int vtkLSDynaReader::ReadDeletion()
-//{
-//  int errnum = 0;
-//  int tmp;
-//  LSDynaMetaData* p = this->P;
-//  vtkDataArray* death;
-//  switch ( p->Dict["MDLOPT"] )
-//    {
-//  case LS_MDLOPT_POINT:
-//    if ( this->GetPointArrayStatus( LS_ARRAYNAME_DEATH ) )
-//      {
-//      p->Fam.SkipWords( this->GetNumberOfNodes() );
-//      return 0;
-//      }
-//    death =  p->Fam.GetWordSize() == 4 ?
-//            (vtkDataArray*) vtkFloatArray::New() :
-//            (vtkDataArray*) vtkDoubleArray::New();
-//    death->SetName( LS_ARRAYNAME_DEATH );
-//    death->SetNumberOfComponents( 1 );
-//    death->SetNumberOfTuples( this->GetNumberOfNodes() );
-//    errnum = this->ReadDeletionArray( death, tmp /*dummy*/ );
-//    if ( ! errnum )
-//      {
-//      this->OutputBeams->GetPointData()->AddArray( death );
-//      // Intentionally omitting this->OutputRigidBody.
-//      this->OutputShell->GetPointData()->AddArray( death );
-//      this->OutputThickShell->GetPointData()->AddArray( death );
-//      this->OutputSolid->GetPointData()->AddArray( death );
-//      }
-//    death->Delete();
-//    break;
-//  case LS_MDLOPT_CELL:
-//    if ( this->GetCellArrayStatus( LSDynaMetaData::SOLID, LS_ARRAYNAME_DEATH ) == 0 )
-//      {
-//      p->Fam.SkipWords( this->GetNumberOfSolidCells() );
-//      }
-//    else
-//      {
-//      death =  p->Fam.GetWordSize() == 4 ?
-//        (vtkDataArray*) vtkFloatArray::New() :
-//          (vtkDataArray*) vtkDoubleArray::New();
-//      death->SetName( LS_ARRAYNAME_DEATH );
-//      death->SetNumberOfComponents( 1 );
-//      death->SetNumberOfTuples( p->NumberOfCells[ LSDynaMetaData::SOLID ] );
-//      errnum += (tmp = this->ReadDeletionArray( death, p->AnyDeletedCells[ LSDynaMetaData::SOLID ] ));
-//      if ( ! tmp )
-//        {
-//        this->OutputSolid->GetCellData()->AddArray( death );
-//        }
-//      death->Delete();
-//      }
-//
-//    if ( this->GetCellArrayStatus( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_DEATH ) == 0 )
-//      {
-//      p->Fam.SkipWords( this->GetNumberOfThickShellCells() );
-//      }
-//    else
-//      {
-//      death =  p->Fam.GetWordSize() == 4 ?
-//        (vtkDataArray*) vtkFloatArray::New() :
-//          (vtkDataArray*) vtkDoubleArray::New();
-//      death->SetName( LS_ARRAYNAME_DEATH );
-//      death->SetNumberOfComponents( 1 );
-//      death->SetNumberOfTuples( p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ] );
-//      errnum += (tmp = this->ReadDeletionArray( death, p->AnyDeletedCells[ LSDynaMetaData::THICK_SHELL ] ));
-//      if ( ! tmp )
-//        {
-//        this->OutputThickShell->GetCellData()->AddArray( death );
-//        }
-//      death->Delete();
-//      }
-//
-//    if ( this->GetCellArrayStatus( LSDynaMetaData::SHELL, LS_ARRAYNAME_DEATH ) == 0 )
-//      {
-//      p->Fam.SkipWords( this->GetNumberOfShellCells() );
-//      }
-//    else
-//      {
-//      death =  p->Fam.GetWordSize() == 4 ?
-//        (vtkDataArray*) vtkFloatArray::New() :
-//          (vtkDataArray*) vtkDoubleArray::New();
-//      death->SetName( LS_ARRAYNAME_DEATH );
-//      death->SetNumberOfComponents( 1 );
-//      death->SetNumberOfTuples( p->NumberOfCells[ LSDynaMetaData::SHELL ] );
-//      errnum += (tmp = this->ReadDeletionArray( death, p->AnyDeletedCells[ LSDynaMetaData::SHELL ] ));
-//      if ( ! tmp )
-//        {
-//        this->OutputShell->GetCellData()->AddArray( death );
-//        }
-//      death->Delete();
-//      }
-//
-//    if ( this->GetCellArrayStatus( LSDynaMetaData::BEAM, LS_ARRAYNAME_DEATH ) == 0 )
-//      {
-//      p->Fam.SkipWords( this->GetNumberOfBeamCells() );
-//      }
-//    else
-//      {
-//      death =  p->Fam.GetWordSize() == 4 ?
-//        (vtkDataArray*) vtkFloatArray::New() :
-//          (vtkDataArray*) vtkDoubleArray::New();
-//      death->SetName( LS_ARRAYNAME_DEATH );
-//      death->SetNumberOfComponents( 1 );
-//      death->SetNumberOfTuples( p->NumberOfCells[ LSDynaMetaData::BEAM ] );
-//      errnum += (tmp = this->ReadDeletionArray( death, p->AnyDeletedCells[ LSDynaMetaData::BEAM ] ));
-//      if ( ! tmp )
-//        {
-//        this->OutputBeams->GetCellData()->AddArray( death );
-//        }
-//      death->Delete();
-//      }
-//
-//    // LSDynaMetaData::PARTICLE deletion states are read by ReadSPHState() along with
-//    // other SPH state information.
-//
-//    break;
-//  case LS_MDLOPT_NONE:
-//  default:
-//    // do nothing.
-//    errnum = 0;
-//    }
-//  return errnum;
-//}
 
-int vtkLSDynaReader::ReadDeletionArray( vtkDataArray* array, int& anyZeros )
+void vtkLSDynaReader::ReadDeletionArray( vtkIntArray* array)
 {
-  double val;
-  anyZeros = 0;
+  int val;
   vtkIdType n = array->GetNumberOfTuples();
   LSDynaMetaData* p = this->P;
   p->Fam.BufferChunk( LSDynaFamily::Float, n );
   for ( vtkIdType i=0; i<n; ++i )
     {
-    val = p->Fam.GetNextWordAsFloat();
-    if ( val == 0. )
-      anyZeros = 1;
+    //Quote from LSDyna Manual:
+    //"each value is set to the element material number or =0, 
+    //if the element is deleted"
+    val = (p->Fam.GetNextWordAsFloat() == 0.0) ? 1 : 0;    
     array->SetTuple1( i, val );
     }
-  return 0;
 }
 
 int vtkLSDynaReader::ReadState( vtkIdType step )
@@ -2773,150 +2688,16 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
     }
 
 
+  // Read element data==========================================================
+  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::SOLID ] * p->Dict["NV3D"] );
+  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ] * p->Dict["NV3DT"] );
+  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::BEAM ] * p->Dict["NV1D"] );
+  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::SHELL ] * p->Dict["NV2D"] );
+ 
+
   return 0;
 }
-//int vtkLSDynaReader::ReadState( vtkIdType step )
-//{
-//  LSDynaMetaData* p = this->P;
-//  // Skip global variables for now
-//  p->Fam.SkipToWord( LSDynaFamily::TimeStepSection, step, 1 + p->Dict["NGLBV"] );
-//
-//  // Read nodal data ===========================================================
-//  vtkDataArray* var;
-//  vtkstd::vector<vtkDataArray*> vars;
-//  vtkstd::vector<int> cmps;
-//  // Important: push_back in the order these are interleaved on disk
-//  // Note that temperature and deflection are swapped relative to the order they
-//  // are specified in the header section.
-//  const char * aNames[] = {
-//    LS_ARRAYNAME_DEFLECTION,
-//    LS_ARRAYNAME_TEMPERATURE,
-//    LS_ARRAYNAME_VELOCITY,
-//    LS_ARRAYNAME_ACCELERATION,
-//    LS_ARRAYNAME_PRESSURE,
-//    LS_ARRAYNAME_VORTICITY "_X",
-//    LS_ARRAYNAME_VORTICITY "_Y",
-//    LS_ARRAYNAME_VORTICITY "_Z",
-//    LS_ARRAYNAME_RESULTANTVORTICITY,
-//    LS_ARRAYNAME_ENSTROPHY,
-//    LS_ARRAYNAME_HELICITY,
-//    LS_ARRAYNAME_STREAMFUNCTION,
-//    LS_ARRAYNAME_ENTHALPY,
-//    LS_ARRAYNAME_DENSITY,
-//    LS_ARRAYNAME_TURBULENTKE,
-//    LS_ARRAYNAME_DISSIPATION,
-//    LS_ARRAYNAME_EDDYVISCOSITY,
-//    LS_ARRAYNAME_SPECIES_01,
-//    LS_ARRAYNAME_SPECIES_02,
-//    LS_ARRAYNAME_SPECIES_03,
-//    LS_ARRAYNAME_SPECIES_04,
-//    LS_ARRAYNAME_SPECIES_05,
-//    LS_ARRAYNAME_SPECIES_06,
-//    LS_ARRAYNAME_SPECIES_07,
-//    LS_ARRAYNAME_SPECIES_08,
-//    LS_ARRAYNAME_SPECIES_09,
-//    LS_ARRAYNAME_SPECIES_10
-//  };
-//  const char* aDictNames[] = {
-//    "IU",
-//    "IT",
-//    "IV",
-//    "IA",
-//    "cfdPressure",
-//    "cfdXVort",
-//    "cfdYVort",
-//    "cfdZVort",
-//    "cfdRVort",
-//    "cfdEnstrophy",
-//    "cfdHelicity",
-//    "cfdStream",
-//    "cfdEnthalpy",
-//    "cfdDensity",
-//    "cfdTurbKE",
-//    "cfdDiss",
-//    "cfdEddyVisc",
-//    "cfdSpec01",
-//    "cfdSpec02",
-//    "cfdSpec03",
-//    "cfdSpec04",
-//    "cfdSpec05",
-//    "cfdSpec06",
-//    "cfdSpec07",
-//    "cfdSpec08",
-//    "cfdSpec09",
-//    "cfdSpec10"
-//  };
-//  int aComponents[] = {
-//    -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-//  };
-//  int vppt = 0; // values per point
-//  int allVortPresent = p->Dict["cfdXVort"] && p->Dict["cfdYVort"] && p->Dict["cfdZVort"];
-//
-//  for ( int nvnum = 0; nvnum < (int) (sizeof(aComponents)/sizeof(aComponents[0])); ++nvnum )
-//    {
-//    if ( p->Dict[ aDictNames[nvnum] ] )
-//      {
-//      if ( allVortPresent && ! strncmp( LS_ARRAYNAME_VORTICITY, aNames[ nvnum ], sizeof(LS_ARRAYNAME_VORTICITY) ) )
-//        {
-//        // turn the vorticity components from individual scalars into one vector (with a hack)
-//        if ( nvnum < 7 )
-//          continue;
-//        aComponents[ nvnum ] = 3;
-//        aNames[ nvnum ] = LS_ARRAYNAME_VORTICITY;
-//        }
-//      var = p->Fam.GetWordSize() == 4 ? (vtkDataArray*) vtkFloatArray::New() : (vtkDataArray*) vtkDoubleArray::New();
-//      var->SetName( aNames[ nvnum ] );
-//      var->SetNumberOfComponents( aComponents[ nvnum ] == -1 ? 3 : aComponents[ nvnum ] ); // Always make vectors length 3, even for 2D data
-//      vars.push_back( var );
-//      cmps.push_back( aComponents[ nvnum ] == -1 ? p->Dimensionality : aComponents[ nvnum ] );
-//      vppt += cmps.back();
-//      }
-//    }
-//
-//  if ( vppt != 0 )
-//    {
-//    vtkstd::vector<int>::iterator arc = cmps.begin();
-//    for ( vtkstd::vector<vtkDataArray*>::iterator arr=vars.begin(); arr != vars.end(); ++arr, ++arc )
-//      {
-//      if ( this->GetPointArrayStatus( (*arr)->GetName() ) == 0 )
-//        { // don't read arrays the user didn't request, just delete them
-//        (*arr)->Delete();
-//        p->Fam.SkipWords( p->NumberOfNodes*(*arc) );
-//        }
-//      else
-//        {
-//        (*arr)->SetNumberOfTuples( p->NumberOfNodes );
-//        this->OutputParticles->GetPointData()->AddArray( *arr );
-//        this->OutputBeams->GetPointData()->AddArray( *arr );
-//        this->OutputShell->GetPointData()->AddArray( *arr );
-//        this->OutputThickShell->GetPointData()->AddArray( *arr );
-//        this->OutputSolid->GetPointData()->AddArray( *arr );
-//        (*arr)->FastDelete();
-//        p->Fam.BufferChunk( LSDynaFamily::Float, p->NumberOfNodes*(*arc) );
-//        vtkIdType pt;
-//        double tuple[3] = { 0., 0., 0. };
-//        for ( pt=0; pt<p->NumberOfNodes; ++pt )
-//          {
-//          for ( int c=0; c<*arc; ++c )
-//            {
-//            tuple[c] = p->Fam.GetNextWordAsFloat();
-//            }
-//          (*arr)->SetTuple( pt, tuple );
-//          }
-//        if ( this->DeformedMesh && ! strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION) )
-//          {
-//          // Replace point coordinates with deflection (don't add to points).
-//          // The name "deflection" is misleading.
-//          this->OutputParticles->GetPoints()->SetData( *arr );
-//          this->OutputBeams->GetPoints()->SetData( *arr );
-//          this->OutputShell->GetPoints()->SetData( *arr );
-//          this->OutputThickShell->GetPoints()->SetData( *arr );
-//          this->OutputSolid->GetPoints()->SetData( *arr );
-//          }
-//        }
-//      }
-//    }
-//
+
 //  // Read element data==========================================================
 //
 //  // The element data is unfortunately interleaved so that all arrays for a single element
@@ -3095,9 +2876,8 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
 //
 //#undef VTK_LS_CELLARRAY
 //#undef VTK_LS_READCELLS
-//
-//  return 0;
-//}
+
+
 
 
 int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
@@ -3737,9 +3517,6 @@ int vtkLSDynaReader::RequestData(
     }
   this->UpdateProgress( 0.6 );
 
-  // Debug sanity check:
-  //p->DumpDict( cout );
-
   // Start of state data ===================
   // I. Node and Cell State
   if ( this->ReadState( p->CurrentState ) )
@@ -3774,7 +3551,7 @@ int vtkLSDynaReader::RequestData(
 
   //now that the reading has finished we need to finalize the parts
   //this means get the subset of points for each part, and fixup all the cells
-  this->Parts->Finalize(this->CommonPoints);
+  this->Parts->Finalize(this->CommonPoints,this->RemoveDeletedCells);
 
   //add all the parts as child blocks to the output
   vtkIdType nextId = 0;

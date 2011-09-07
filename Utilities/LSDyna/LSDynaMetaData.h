@@ -80,7 +80,6 @@ public:
   vtkIdType CurrentState; // time step
   vtkIdType NumberOfNodes;
   vtkIdType NumberOfCells[LSDynaMetaData::NUM_CELL_TYPES];
-  int AnyDeletedCells[LSDynaMetaData::NUM_CELL_TYPES]; // Are any cells of this type deleted in the current time step? 0=no, 1=yes
   int ReadRigidRoadMvmt; // Are some of the quads rigid? (eliminating a lot of state)
   int ConnectivityUnpacked; // Is the connectivity packed, 3 to a word?
   std::map<std::string,vtkIdType> Dict;

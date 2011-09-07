@@ -33,7 +33,6 @@ LSDynaMetaData::LSDynaMetaData()
   for ( int cellType = 0; cellType < LSDynaMetaData::NUM_CELL_TYPES; ++cellType )
     {
     this->NumberOfCells[cellType] = 0;
-    this->AnyDeletedCells[cellType] = 0;
     this->CellArrayNames[cellType] = blankNames;
     this->CellArrayComponents[cellType] = blankNumbers;
     this->CellArrayStatus[cellType] = blankNumbers;
@@ -108,7 +107,6 @@ void LSDynaMetaData::Reset()
     this->CellArrayNames[cellType].clear();
     this->CellArrayComponents[cellType].clear();
     this->CellArrayStatus[cellType].clear();
-    this->AnyDeletedCells[cellType] = 0;
     }
 
   this->PartNames.clear();
