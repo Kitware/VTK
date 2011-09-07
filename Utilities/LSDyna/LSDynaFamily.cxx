@@ -117,11 +117,7 @@ LSDynaFamily::~LSDynaFamily()
     {
     if ( ! VTK_LSDYNA_ISBADFILE(this->FD) )
       {
-#ifndef WIN32
-      close( this->FD );
-#else
-      fclose( this->FD );
-#endif // WIN32
+      VTK_LSDYNA_CLOSEFILE(this->FD);
       }
 
     if ( this->Chunk )
@@ -254,18 +250,10 @@ int LSDynaFamily::SkipToWord( SectionType sType, vtkIdType sId, vtkIdType wordNu
       {
       if ( ! VTK_LSDYNA_ISBADFILE(this->FD) )
         {
-#ifndef WIN32
-        close( this->FD );
-#else
-        fclose( this->FD );
-#endif // WIN32
+        VTK_LSDYNA_CLOSEFILE(this->FD);
         }
       }
-#ifndef WIN32
-    this->FD = open( this->Files[ mark.FileNumber ].c_str(), O_RDONLY );
-#else
-    this->FD = fopen( this->Files[ mark.FileNumber ].c_str(), "rb" );
-#endif // WIN32
+    this->FD = VTK_LSDYNA_OPENFILE(this->Files[mark.FileNumber].c_str());
     if ( VTK_LSDYNA_ISBADFILE(this->FD) )
       {
       return errno;
@@ -297,7 +285,6 @@ int LSDynaFamily::MarkTimeStep()
   return 0;
   }
 
-// FIXME: Assumes you never skip past EOF
 //-----------------------------------------------------------------------------
 int LSDynaFamily::SkipWords( vtkIdType numWords )
   {
@@ -306,10 +293,38 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
     return -1;
     }
   vtkIdType offset = numWords*this->WordSize;
-  if ( VTK_LSDYNA_SEEKTELL(this->FD,offset,SEEK_CUR) != offset )
+
+  //determine where we are currently in the file
+  vtkIdType currentPos = VTK_LSDYNA_TELL(this->FD);
+  VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
+  vtkIdType amountMoved = VTK_LSDYNA_TELL(this->FD) - currentPos;
+  
+  offset -= amountMoved;
+  while(offset!=0)
     {
-    return errno;
+    // try advancing to next file
+    VTK_LSDYNA_CLOSEFILE(this->FD);
+    if ( ++this->FNum == (vtkIdType) this->Files.size() )
+      { // no more files to read. Oops.
+      this->FNum = -1;
+      this->FAdapt = -1;
+      return 1;
+      }
+    this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
+    this->FWord = 0;
+    if ( VTK_LSDYNA_ISBADFILE(this->FD) )
+      { // bad file (permissions, deleted) or request (too big)
+      this->FNum = -1;
+      this->FAdapt = -1;
+      return errno;
+      }
+
+    //seek into the file the current offset amount
+    VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
+    amountMoved = VTK_LSDYNA_TELL(this->FD);
+    offset -= amountMoved;
     }
+
   this->FWord = VTK_LSDYNA_TELL(this->FD);
   return 0;
   }
@@ -348,22 +363,14 @@ int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
       {
       if ( bytesRead <= 0 )
         { // try advancing to next file
-#ifndef WIN32
-        close( this->FD );
-#else
-        fclose( this->FD );
-#endif // WIN32
+        VTK_LSDYNA_CLOSEFILE(this->FD);
         if ( ++this->FNum == (vtkIdType) this->Files.size() )
           { // no more files to read. Oops.
           this->FNum = -1;
           this->FAdapt = -1;
           return 1;
           }
-#ifndef WIN32
-        this->FD = open( this->Files[ this->FNum ].c_str(), O_RDONLY );
-#else
-        this->FD = fopen( this->Files[ this->FNum ].c_str(), "rb" );
-#endif // WIN32
+        this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
         this->FWord = 0;
         if ( VTK_LSDYNA_ISBADFILE(this->FD) )
           { // bad file (permissions, deleted) or request (too big)
@@ -442,11 +449,7 @@ int LSDynaFamily::AdvanceFile()
     }
   if ( ! VTK_LSDYNA_ISBADFILE(this->FD) )
     {
-#ifndef WIN32
-    close( this->FD );
-#else
-    fclose( this->FD );
-#endif // WIN32
+    VTK_LSDYNA_CLOSEFILE(this->FD);
     //this->FD = VTK_LSDYNA_BADFILE;
     }
   this->FWord = 0;
@@ -461,11 +464,7 @@ int LSDynaFamily::AdvanceFile()
     this->FD = VTK_LSDYNA_BADFILE;
     return 1;
     }
-#ifndef WIN32
-  this->FD = open( this->Files[ this->FNum ].c_str(), O_RDONLY );
-#else
-  this->FD = fopen( this->Files[ this->FNum ].c_str(), "rb" );
-#endif // WIN32
+  this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
   if ( VTK_LSDYNA_ISBADFILE(this->FD) )
     {
     return errno;
@@ -551,11 +550,7 @@ int LSDynaFamily::DetermineStorageModel()
     }
 
   // Oops, couldn't identify storage model
-#ifndef WIN32
-  close( this->FD );
-#else
-  fclose( this->FD );
-#endif // WIN32
+  VTK_LSDYNA_CLOSEFILE(this->FD);
   this->FNum = -1;
   this->FAdapt = -1;
   return 1;
@@ -598,11 +593,7 @@ void LSDynaFamily::Reset()
 {
   if ( ! VTK_LSDYNA_ISBADFILE(this->FD) )
     {
-#ifndef WIN32
-    close( this->FD );
-#else
-    fclose( this->FD );
-#endif // WIN32
+    VTK_LSDYNA_CLOSEFILE(this->FD);
     this->FD = VTK_LSDYNA_BADFILE;
     }
 
