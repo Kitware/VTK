@@ -23,6 +23,7 @@
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkContextKeyEvent.h"
 #include "vtkContextTransform.h"
 #include "vtkContextClip.h"
 #include "vtkPoints2D.h"
@@ -1566,6 +1567,21 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::KeyPressEvent(const vtkContextKeyEvent &key)
+{
+  switch (key.GetKeyCode())
+    {
+    // Reset the chart axes
+    case 'r':
+    case 'R':
+      this->RecalculateBounds();
+      this->Scene->SetDirty(true);
+    }
 
   return true;
 }
