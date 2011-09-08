@@ -2282,8 +2282,8 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
-      *int_val = value;
-      *uint_val = value;
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
       *double_val = value;
       }
       break;
@@ -2294,8 +2294,8 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap8BE(&value) :
         vtkByteSwap::Swap8LE(&value);
-      *int_val = value;
-      *uint_val = value;
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
       *double_val = value;
       }
       break;
