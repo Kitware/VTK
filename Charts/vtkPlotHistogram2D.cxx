@@ -129,6 +129,7 @@ vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
                                               const vtkVector2f& tolerance,
                                               vtkVector2f* location)
 {
+  (void)tolerance;
   double bounds[4];
   this->GetBounds(bounds);
   double spacing[3];
