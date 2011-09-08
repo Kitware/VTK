@@ -162,6 +162,7 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->MultiFileName = new char[vtkPExodusIIReaderMAXPATHLEN];
   this->XMLFileName=NULL;
   this->LastCommonTimeStep = -1;
+  this->VariableCacheSize = 100;
 }
  
 //----------------------------------------------------------------------------
@@ -476,7 +477,7 @@ int vtkPExodusIIReader::RequestData(
       progress->SetReader( this );
       progress->SetIndex( reader_idx );
       er->AddObserver( vtkCommand::ProgressEvent, progress );
-      progress->Delete();
+      progress->Delete();      
 
       this->ReaderList.push_back( er );
       }
@@ -505,6 +506,14 @@ int vtkPExodusIIReader::RequestData(
   cout << "\n\n ************************************* Parallel master reader dump\n";
   this->Dump();
 #endif // DBG_PEXOIIRDR
+
+  //setup the cache size for each reader
+  double fractionalCacheSize = 0;
+  if (this->VariableCacheSize > 0 )
+    {
+    fractionalCacheSize = this->VariableCacheSize / static_cast<int>( this->ReaderList.size() );
+    }
+
   // This constructs the filenames
   int fast_path_reader_index = -1;
   for ( fileIndex = min, reader_idx=0; fileIndex <= max; ++fileIndex, ++reader_idx )
@@ -664,7 +673,15 @@ int vtkPExodusIIReader::RequestData(
       this->ReaderList[reader_idx]->SetFastPathIdType(0);
       }
 
+    //set this reader to use the full amount of the cache
+    this->ReaderList[reader_idx]->SetCacheSize(this->VariableCacheSize);
+
+    //call the reader
     this->ReaderList[reader_idx]->Update();
+
+    //set the reader back to the fractional amount
+    this->ReaderList[reader_idx]->SetCacheSize(fractionalCacheSize);
+
     if (this->ReaderList[reader_idx]->GetProducedFastPathOutput())
       {
       //if (fast_path_reader_index != -1)
@@ -1029,6 +1046,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "NumberOfFiles: " << this->NumberOfFiles << endl;
   os << indent << "Controller: " << this->Controller << endl;
+  os << indent << "VariableCacheSize: " << this->VariableCacheSize << endl;
 }
 
 vtkIdType vtkPExodusIIReader::GetTotalNumberOfElements()

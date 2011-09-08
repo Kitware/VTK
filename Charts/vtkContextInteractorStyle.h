@@ -98,6 +98,18 @@ public:
   // Default behavior forwards the event to the observed scene.
   virtual void OnSelection(unsigned int rect[5]);
 
+  // Description:
+  // Handle key presses.
+  virtual void OnChar();
+
+  // Description:
+  // Called when the user presses a key.
+  virtual void OnKeyPress();
+
+  // Description:
+  // Called when the user releases a key.
+  virtual void OnKeyRelease();
+
 protected:
   vtkContextInteractorStyle();
   ~vtkContextInteractorStyle();

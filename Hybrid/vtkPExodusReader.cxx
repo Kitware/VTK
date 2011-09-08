@@ -17,7 +17,7 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
+#define VTK_LEGACY_SILENT
 #include "vtkPExodusReader.h"
 
 #ifndef MERGE_CELLS

@@ -411,14 +411,12 @@ int vtkWindBladeReader::RequestData(
 
     // Collect the time step requested
     double* requestedTimeSteps = NULL;
-    int numRequestedTimeSteps = 0;
     vtkInformationDoubleVectorKey* timeKey =
       static_cast<vtkInformationDoubleVectorKey*>
         (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
 
     if (fieldInfo->Has(timeKey))
       {
-      numRequestedTimeSteps = fieldInfo->Length(timeKey);
       requestedTimeSteps = fieldInfo->Get(timeKey);
       }
 
@@ -511,7 +509,6 @@ int vtkWindBladeReader::RequestData(
 
       // Collect the time step requested
       double* requestedTimeSteps = NULL;
-      int numRequestedTimeSteps = 0;
       vtkInformationDoubleVectorKey* timeKey =
         static_cast<vtkInformationDoubleVectorKey*>
           (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
@@ -519,7 +516,6 @@ int vtkWindBladeReader::RequestData(
       double dTime = 0.0;
       if (bladeInfo->Has(timeKey))
         {
-        numRequestedTimeSteps = bladeInfo->Length(timeKey);
         requestedTimeSteps = bladeInfo->Get(timeKey);
         dTime = requestedTimeSteps[0];
         }
@@ -1564,9 +1560,11 @@ void vtkWindBladeReader::SetupBladeData()
     std::cout << fileName.str().c_str() << " is empty!\n";
     }
   // reset seek position
-  inStr.seekg(std::ios_base::beg);
+  inStr.seekg(0, std::ios_base::beg);
+  inStr.clear();
 
-  while (inStr.getline(inBuf, LINE_SIZE))
+  // make sure we skip lines with one character (\n)
+  while (inStr.getline(inBuf, LINE_SIZE) && inStr.gcount() > 1)
     {
     std::istringstream line(inBuf);
     line >> towerID >> hubHeight >> bladeLength >> numberOfBlades >> maxRPM;
@@ -1577,7 +1575,7 @@ void vtkWindBladeReader::SetupBladeData()
     this->YPosition->InsertNextValue(yPos);
     this->HubHeight->InsertNextValue(hubHeight);
     this->BladeCount->InsertNextValue(numberOfBlades);
-  }
+    }
   this->NumberOfBladeTowers = XPosition->GetNumberOfTuples();
   inStr.close();
 
@@ -1623,7 +1621,7 @@ void vtkWindBladeReader::SetupBladeData()
     this->NumberOfLinesToSkip = this->NumberOfBladeTowers*(int)ceil(numColumns/5.0);
     // now skip the first few lines based on header, if that applies
     while(inStr2.getline(inBuf, LINE_SIZE) &&
-          linesSkipped < this->NumberOfLinesToSkip)
+          linesSkipped < this->NumberOfLinesToSkip-1)
       {
       linesSkipped++;
       }
@@ -1666,26 +1664,26 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   blade->SetPoints(this->BPoints);
 
   // Allocate space for data
-  vtkFloatArray* axialForce = vtkFloatArray::New();
-  axialForce->SetName("Axial Force");
-  axialForce->SetNumberOfTuples(this->NumberOfBladeCells);
-  axialForce->SetNumberOfComponents(1);
-  blade->GetCellData()->AddArray(axialForce);
-  float* aBlock = axialForce->GetPointer(0);
+  vtkFloatArray* force1 = vtkFloatArray::New();
+  force1->SetName("Force 1");
+  force1->SetNumberOfTuples(this->NumberOfBladeCells);
+  force1->SetNumberOfComponents(1);
+  blade->GetCellData()->AddArray(force1);
+  float* aBlock = force1->GetPointer(0);
 
-  vtkFloatArray* radialForce = vtkFloatArray::New();
-  radialForce->SetName("Radial Force");
-  radialForce->SetNumberOfTuples(this->NumberOfBladeCells);
-  radialForce->SetNumberOfComponents(1);
-  blade->GetCellData()->AddArray(radialForce);
-  float* rBlock = radialForce->GetPointer(0);
+  vtkFloatArray* force2 = vtkFloatArray::New();
+  force2->SetName("Force 2");
+  force2->SetNumberOfTuples(this->NumberOfBladeCells);
+  force2->SetNumberOfComponents(1);
+  blade->GetCellData()->AddArray(force2);
+  float* bBlock = force2->GetPointer(0);
 
-  vtkFloatArray* test = vtkFloatArray::New();
-  test->SetName("Test");
-  test->SetNumberOfTuples(this->NumberOfBladeCells);
-  test->SetNumberOfComponents(1);
-  blade->GetCellData()->AddArray(test);
-  float* tBlock = test->GetPointer(0);
+  vtkFloatArray* bladeComp = vtkFloatArray::New();
+  bladeComp->SetName("Blade Component");
+  bladeComp->SetNumberOfTuples(this->NumberOfBladeCells);
+  bladeComp->SetNumberOfComponents(1);
+  blade->GetCellData()->AddArray(bladeComp);
+  float* compBlock = bladeComp->GetPointer(0);
 
   // File is ASCII text so read until EOF
   int index = 0;
@@ -1708,6 +1706,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     line >> turbineID >> bladeID >> partID;
 
     firstPoint = index;
+      
     for (int side = 0; side < NUM_PART_SIDES; side++)
       {
       line >> x >> y >> z;
@@ -1722,8 +1721,8 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     index += NUM_PART_SIDES;
     blade->InsertNextCell(VTK_POLYGON, NUM_PART_SIDES, cell);
 
-    line >> aBlock[indx] >> rBlock[indx];
-    tBlock[indx] = turbineID * bladeID;
+    line >> aBlock[indx] >> bBlock[indx];
+    compBlock[indx] = turbineID * bladeID;
     indx++;
   }
 
@@ -1748,14 +1747,15 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     index += NUM_BASE_SIDES;
     blade->InsertNextCell(VTK_PYRAMID, NUM_BASE_SIDES, cell);
 
-    aBlock[indx] = 0.0;
-    rBlock[indx] = 0.0;
-    tBlock[indx] = 0.0;
+    aBlock[indx]    = 0.0;
+    bBlock[indx]    = 0.0;
+    compBlock[indx] = 0.0;
     indx++;
     }
-  axialForce->Delete();
-  radialForce->Delete();
-  test->Delete();
+  
+  force1->Delete();
+  force2->Delete();
+  bladeComp->Delete();
 }
 
 //----------------------------------------------------------------------------

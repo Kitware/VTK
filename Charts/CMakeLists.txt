@@ -38,6 +38,7 @@ SET(Kit_SRCS
   vtkContextDevice2D.cxx
   vtkContextInteractorStyle.cxx
   vtkContextItem.cxx
+  vtkContextKeyEvent.cxx
   vtkContextMapper2D.cxx
   vtkContextMouseEvent.h
   vtkContextScene.cxx
@@ -85,6 +86,7 @@ SET_SOURCE_FILES_PROPERTIES(
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
   vtkContextBufferId
+  vtkContextKeyEvent
   vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId

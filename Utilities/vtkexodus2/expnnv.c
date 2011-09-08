@@ -68,11 +68,11 @@
  */
 
 int ex_put_n_nodal_var (int   exoid,
-                        int   time_step,
-                        int   nodal_var_index,
-                        int   start_node,
-                        int   num_nodes, 
-                        const void *nodal_var_vals)
+      int   time_step,
+      int   nodal_var_index,
+      int   start_node,
+      int   num_nodes, 
+      const void *nodal_var_vals)
 
 {
   int status;
@@ -127,8 +127,8 @@ int ex_put_n_nodal_var (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store nodal variables in file id %d",
-            exoid);
+      "Error: failed to store nodal variables in file id %d",
+      exoid);
     ex_err("ex_put_n_nodal_var",errmsg,exerrval);
     return (EX_FATAL);
   }

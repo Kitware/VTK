@@ -64,7 +64,7 @@ vtkAxis::vtkAxis()
   this->GridVisible = true;
   this->LabelsVisible = true;
   this->Precision = 2;
-  this->Notation = 0; // Mixed - do the right thing...
+  this->Notation = STANDARD_NOTATION;
   this->Behavior = 0;
   this->Pen = vtkPen::New();
   this->Pen->SetColor(0, 0, 0);
@@ -771,12 +771,12 @@ void vtkAxis::GenerateTickLabels(double min, double max)
         {
         ostr.precision(this->Precision);
         }
-      if (this->Notation == 1)
+      if (this->Notation == SCIENTIFIC_NOTATION)
         {
         // Scientific notation
         ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
         }
-      else if (this->Notation == 2)
+      else if (this->Notation == FIXED_NOTATION)
         {
         ostr.setf(ios::fixed, ios::floatfield);
         }
@@ -806,12 +806,11 @@ void vtkAxis::GenerateTickLabels()
       {
       ostr.precision(this->Precision);
       }
-    if (this->Notation == 1)
+    if (this->Notation == SCIENTIFIC_NOTATION)
       {
-      // Scientific notation
       ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
       }
-    else if (this->Notation == 2)
+    else if (this->Notation == FIXED_NOTATION)
       {
       ostr.setf(ios::fixed, ios::floatfield);
       }
@@ -1063,12 +1062,11 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
       {
       ostr.precision(this->Precision);
       }
-    if (this->Notation == 1)
+    if (this->Notation == SCIENTIFIC_NOTATION)
       {
-      // Scientific notation
       ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
       }
-    else if (this->Notation == 2)
+    else if (this->Notation == FIXED_NOTATION)
       {
       ostr.setf(ios::fixed, ios::floatfield);
       }

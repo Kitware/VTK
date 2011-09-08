@@ -1206,7 +1206,6 @@ void vtkCellLocator::BuildLocatorInternal()
   int parentOffset;
   vtkIdList *octant;
   int numCellsPerBucket = this->NumberOfCellsPerNode;
-  typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
   double hTol[3];
   

@@ -46,7 +46,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -62,10 +61,8 @@ int ex_get_names (int exoid,
                   char **names)
 {
   int status;
-  int j, varid, temp;
+  int varid, temp;
   size_t num_entity, i;
-  size_t start[2];
-  char *ptr;
   char errmsg[MAX_ERR_LENGTH];
   const char *routine = "ex_get_names";
    
@@ -132,45 +129,16 @@ int ex_get_names (int exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf(errmsg, "Error: Invalid type specified in file id %d",
-            exoid);
+      exoid);
     ex_err(routine,errmsg,exerrval);
     return(EX_FATAL);
   }
    
   if (status == NC_NOERR) {
-    /* read the names */
-    for (i=0; i<num_entity; i++) {
-      start[0] = i;
-      start[1] = 0;
-       
-      j = 0;
-      ptr = names[i];
-       
-      if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to get names in file id %d", exoid);
-        ex_err("ex_get_names",errmsg,exerrval);
-        return (EX_FATAL);
-      }
-       
-       
-      while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
-        start[1] = ++j;
-        if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-          exerrval = status;
-          sprintf(errmsg,
-                  "Error: failed to get names in file id %d", exoid);
-          ex_err("ex_get_names",errmsg,exerrval);
-          return (EX_FATAL);
-        }
-      }
-      --ptr;
-      if (ptr > names[i]) {
-        while (--ptr >= names[i] && *ptr == ' ');      /*    get rid of trailing blanks */
-      }
-      *(++ptr) = '\0';
-    }
+    if ((status = ex_get_names_internal(exoid, varid, num_entity, names,
+          obj_type, "ex_get_names")) != EX_NOERR) {
+      return status;
+    }         
   } else {
     /* Names variable does not exist on the database; probably since this is an
      * older version of the database.  Return an empty array...

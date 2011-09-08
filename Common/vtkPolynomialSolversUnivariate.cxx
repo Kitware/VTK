@@ -543,7 +543,6 @@ int vtkGetHabichtSequence(
   t[1] = s[1] = SSS[offset];
 
   int j = 0;
-  int i = -1;
   int k = 0;
 
   int deg = d;
@@ -596,7 +595,6 @@ int vtkGetHabichtSequence(
       offsets[k + 1] = offsets[k] + 2 * degrees[k] - degrees[k + 1];
       }
     t[k + 1] = SSS[offsets[k + 1]];
-    i = j;
     ip1 = jp1;
     j = k;
     jp1 = j+1;

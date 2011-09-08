@@ -125,6 +125,7 @@ void vtkPlotPoints::Update()
     }
   else if(this->Data->GetMTime() > this->BuildTime ||
           table->GetMTime() > this->BuildTime ||
+          (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
           this->MTime > this->BuildTime)
     {
     vtkDebugMacro(<< "Updating cached values.");
@@ -445,19 +446,6 @@ bool compVector3fX(const vtkIndexedVector2f& v1,
                    const vtkIndexedVector2f& v2)
 {
   if (v1.pos.X() < v2.pos.X())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
-// Compare the two vectors, in X component only
-bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
-{
-  if (v1.X() < v2.X())
     {
     return true;
     }

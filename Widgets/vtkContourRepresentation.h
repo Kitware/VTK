@@ -68,6 +68,10 @@ class vtkContourRepresentationPoint
 public:
   double        WorldPosition[3];
   double        NormalizedDisplayPosition[2];
+
+  // The point id. This is blank except in the case of
+  // vtkPolygonalSurfaceContourLineInterpolator
+  vtkIdType     PointId;
 };
 
 class vtkContourRepresentationNode
@@ -78,6 +82,10 @@ public:
   double        NormalizedDisplayPosition[2];
   int           Selected;
   vtkstd::vector<vtkContourRepresentationPoint*> Points;
+
+  // The point id. This is blank except in the case of
+  // vtkPolygonalSurfaceContourLineInterpolator
+  vtkIdType     PointId;
 };
 
 class vtkContourRepresentationInternals
@@ -193,6 +201,12 @@ public:
   // 1 on success, or 0 if there are not at least 
   // (n+1) nodes (0 based counting).
   virtual int GetNthNodeWorldPosition( int n, double pos[3] );
+
+  //BTX
+  // Description:
+  // Get the nth node.
+  virtual vtkContourRepresentationNode *GetNthNode(int n);
+  //ETX
   
   // Description:
   // Get the nth node's world orientation. Will return
@@ -250,6 +264,14 @@ public:
   // Returns 1 on success or 0 if n is out of range.
   virtual int AddIntermediatePointWorldPosition( int n, 
                                                  double point[3] );
+
+  // Description:
+  // Add an intermediate point between node n and n+1
+  // (or n and 0 if n is the last node and the loop is closed).
+  // Returns 1 on success or 0 if n is out of range. The added point is
+  // assigned a ptId as supplied.
+  virtual int AddIntermediatePointWorldPosition( int n,
+                               double point[3], vtkIdType ptId );
 
   // Description:
   // Delete the last node. Returns 1 on success or 0 if 

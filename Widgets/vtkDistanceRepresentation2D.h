@@ -70,8 +70,10 @@ public:
 
   // Description:
   // Retrieve the vtkAxisActor2D used to draw the measurement axis. With this
-  // properties can be set and so on.
+  // properties can be set and so on. There is also a convenience method to
+  // get the axis property.
   vtkAxisActor2D *GetAxis();
+  vtkProperty2D  *GetAxisProperty();
 
   // Description:
   // Method to satisfy superclasses' API.

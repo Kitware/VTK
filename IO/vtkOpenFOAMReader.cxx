@@ -5278,7 +5278,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         else if (pivotPoint == -1)
           {
           const int *faceIPoints = facePoints[cellFaceI];
-          bool found0Dup = false, found2Dup = false;
+          bool found0Dup = false;
           int pointI = 0;
           for (; pointI < 4; pointI++) // each point
             {
@@ -5293,7 +5293,6 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               }
             else if (baseFacePoint2 == faceIPointI)
               {
-              found2Dup = true;
               break;
               }
             }
