@@ -147,6 +147,15 @@ public:
   virtual vtkIdType RemovePoint(double* pos) = 0;
 
   // Description:
+  // Remove a point give its id. It is a utility function that internally call
+  // the virtual method RemovePoint(double*) and return its result.
+  vtkIdType RemovePoint(vtkIdType pointId);
+
+  // Description:
+  // Remove the current point.
+  inline void RemoveCurrentPoint();
+
+  // Description:
   // Returns the total number of points
   virtual int GetNumberOfPoints()const = 0;
 
@@ -171,6 +180,9 @@ public:
   // Recompute the bounds next time they are requested.
   // You shouldn't have to call it but it is provided for rare cases.
   void ResetBounds();
+
+  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
 
 protected:
   vtkControlPointsItem();
@@ -247,5 +259,11 @@ private:
 
   vtkIdType RemovePointId(vtkIdType removedPointId);
 };
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::RemoveCurrentPoint()
+{
+  this->RemovePoint(this->GetCurrentPoint());
+}
 
 #endif

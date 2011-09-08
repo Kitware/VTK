@@ -16,6 +16,7 @@
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextKeyEvent.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkControlPointsItem.h"
@@ -23,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
 
@@ -627,6 +629,14 @@ vtkIdType vtkControlPointsItem::RemovePoint(double* point)
 }
 
 //-----------------------------------------------------------------------------
+vtkIdType vtkControlPointsItem::RemovePoint(vtkIdType pointId)
+{
+  double point[4];
+  this->GetControlPoint(pointId, point);
+  return this->RemovePoint(point);
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkControlPointsItem::RemovePointId(vtkIdType pointId)
 {
   assert(pointId != -1);
@@ -1055,4 +1065,26 @@ bool vtkControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &m
     return true;
     }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent &key)
+{
+  return this->Superclass::KeyPressEvent(key);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkControlPointsItem::KeyReleaseEvent(const vtkContextKeyEvent &key)
+{
+  if (key.GetInteractor()->GetKeySym() == std::string("Delete") ||
+      key.GetInteractor()->GetKeySym() == std::string("BackSpace"))
+    {
+    vtkIdType removedPoint = this->RemovePoint(this->GetCurrentPoint());
+    if (key.GetInteractor()->GetKeySym() == std::string("BackSpace"))
+      {
+      this->SetCurrentPoint(removedPoint > 0 ? removedPoint - 1 : 0);
+      }
+    return true;
+    }
+  return this->Superclass::KeyPressEvent(key);
 }
