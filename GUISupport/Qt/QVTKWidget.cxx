@@ -473,7 +473,7 @@ void QVTKWidget::paintEvent(QPaintEvent* )
     }
 
   iren->Render();
-  
+
   // In Qt 4.1+ let's support redirected painting
   // if redirected, let's grab the image from VTK, and paint it to the device
   QPaintDevice* device = QPainter::redirected(this);
@@ -517,6 +517,9 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* e)
   if(this->mRenWin)
     {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
+
+    // Emit a mouse press event for anyone who might be interested
+    emit mouseEvent(e);
     }
 }
 
@@ -548,6 +551,9 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
   if(this->mRenWin)
     {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
+
+    // Emit a mouse press event for anyone who might be interested
+    emit mouseEvent(e);
     }
 }
 
