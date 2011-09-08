@@ -196,7 +196,7 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(
     {
     cellToPartCell pc =  this->Storage->CellIndexToPart[partType][i];
     deleted = death->GetValue(i);
-    if(deleted)
+    if(deleted && pc.part > -1)
       {
       //only store the deleted cells.
       this->Storage->Parts[pc.part]->DeadCells.push_back(pc.cell);
