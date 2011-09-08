@@ -2676,7 +2676,8 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
           // The name "deflection" is misleading.
           this->CommonPoints->SetData(*arr);
           }
-        (*arr)->Delete();
+        this->Parts->AddPointArray(*arr);
+        (*arr)->FastDelete();
         }
       else
         {
@@ -2687,13 +2688,31 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
       }
     }
 
+  //  // 3D element data=======================================
+  vppt = 0;
+  vars.clear();
+  cmps.clear();
 
-  // Read element data==========================================================
-  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::SOLID ] * p->Dict["NV3D"] );
-  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ] * p->Dict["NV3DT"] );
-  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::BEAM ] * p->Dict["NV1D"] );
-  p->Fam.SkipWords( p->NumberOfCells[ LSDynaMetaData::SHELL ] * p->Dict["NV2D"] );
+#define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
+  if ( cond && this->GetCellArrayStatus( celltype, arrayname ) ) \
+    { \
+    this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
+    } \
+  startPos+=numComps;
+
+  int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
+  VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRESS,6);
+  VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_EPSTRAIN,1);
+  VTK_LS_CELLARRAY(p->Dict["NEIPH" ] > 0,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPH"]);
+  VTK_LS_CELLARRAY(p->Dict["ISTRN" ],LSDynaMetaData::SOLID,LS_ARRAYNAME_STRAIN,6);
+  this->Parts->ReadProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"]);
+
+  startPos=0;
+  this->Parts->ReadProperties(LSDynaMetaData::THICK_SHELL, p->Dict["NV3DT"]);
+  this->Parts->ReadProperties(LSDynaMetaData::BEAM, p->Dict["NV1D"]);
+  this->Parts->ReadProperties(LSDynaMetaData::SHELL, p->Dict["NV2D"]);
  
+#undef VTK_LS_CELLARRAY
 
   return 0;
 }
@@ -3017,6 +3036,7 @@ int vtkLSDynaReader::ReadInputDeck()
   p->PartIds.clear();
   p->PartMaterials.clear();
   p->PartStatus.clear();
+  p->PartTypes.clear();
 
   // Create simple part names as place holders
   int mat = 1;
@@ -3025,7 +3045,7 @@ int vtkLSDynaReader::ReadInputDeck()
   char partLabel[64];
   int arbitraryMaterials = p->Dict["NMMAT"];
 
-#define VTK_LSDYNA_PARTLABEL(dict,fmt) \
+#define VTK_LSDYNA_PARTLABEL(dict,type,fmt) \
   N = p->Dict[dict]; \
   for ( i = 0; i < N; ++i, ++mat ) \
     { \
@@ -3037,15 +3057,16 @@ int vtkLSDynaReader::ReadInputDeck()
     p->PartIds.push_back( arbitraryMaterials ? p->MaterialsOrdered[mat - 1] : mat ); \
     p->PartMaterials.push_back( mat ); /* PartMaterials currently unused, so this is irrevelant */ \
     p->PartStatus.push_back( 1 ); \
+    p->PartTypes.push_back(type); \
     }
 
-  VTK_LSDYNA_PARTLABEL("NUMMAT8","Part%d"); // was "PartSolid%d
-  VTK_LSDYNA_PARTLABEL("NUMMATT","Part%d"); // was "PartThickShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT4","Part%d"); // was "PartShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT2","Part%d"); // was "PartBeam%d
-  VTK_LSDYNA_PARTLABEL("NGPSPH", "Part%d"); // was "PartParticle%d
-  VTK_LSDYNA_PARTLABEL("NSURF",  "Part%d"); // was "PartRoadSurface%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT", "Part%d"); // was "PartRigidBody%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT8",LSDynaMetaData::SOLID,"Part%d"); // was "PartSolid%d
+  VTK_LSDYNA_PARTLABEL("NUMMATT",LSDynaMetaData::THICK_SHELL,"Part%d"); // was "PartThickShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT4",LSDynaMetaData::SHELL,"Part%d"); // was "PartShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT2",LSDynaMetaData::BEAM,"Part%d"); // was "PartBeam%d
+  VTK_LSDYNA_PARTLABEL("NGPSPH",LSDynaMetaData::PARTICLE,"Part%d"); // was "PartParticle%d
+  VTK_LSDYNA_PARTLABEL("NSURF",LSDynaMetaData::ROAD_SURFACE,"Part%d"); // was "PartRoadSurface%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT",LSDynaMetaData::RIGID_BODY,"Part%d"); // was "PartRigidBody%d
 
 #undef VTK_LSDYNA_PARTLABEL
 
@@ -3394,17 +3415,21 @@ int vtkLSDynaReader::RequestData(
     }
 
   // Always read connectivity info
+  //ToDo: Parts has to be deleted if file name is changed
+  //ToDo: Parts has to be deleted if a parts status is changed
   if (!this->Parts)
     {
     this->Parts = vtkLSDynaPartCollection::New();
+    this->Parts->SetMetaData(this->P);
+    if ( this->ReadConnectivityAndMaterial() )
+      {
+      vtkErrorMacro( "Could not read connectivity." );
+      return 1;
+      }
+    this->Parts->FinalizeTopology();
     }
 
-  this->Parts->SetMetaData(this->P);
-  if ( this->ReadConnectivityAndMaterial() )
-    {
-    vtkErrorMacro( "Could not read connectivity." );
-    return 1;
-    }
+
   //now that the cells have 
   this->UpdateProgress( 0.5 );
 

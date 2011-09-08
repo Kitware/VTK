@@ -101,6 +101,7 @@ public:
   std::vector<int> PartIds;
   std::vector<int> PartMaterials;
   std::vector<int> PartStatus;
+  std::vector<LSDynaMetaData::LSDYNA_TYPES> PartTypes;
 
   std::vector<int> MaterialsOrdered;
   std::vector<int> MaterialsUnordered;

@@ -18,6 +18,8 @@
 #include "LSDynaMetaData.h"
 
 #include "vtkObject.h"
+
+class vtkDataArray;
 class vtkUnstructuredGrid;
 class vtkPoints;
 class vtkIntArray;
@@ -32,12 +34,14 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   void SetMetaData(LSDynaMetaData *metaData);
+  void FinalizeTopology();
   void Finalize(vtkPoints *commonPoints,const int& removeDeletedCells);
 
   //Description: Insert a cell of a given type and material index to the 
   //collection.
-  void InsertCell(const int& partType, const vtkIdType& cellIndex, const vtkIdType& matIdx,
-                      const int& cellType, const vtkIdType& npts, vtkIdType conn[8]);
+  void InsertCell(const int& partType, const vtkIdType& cellIndex,
+                  const vtkIdType& matIdx, const int& cellType,
+                  const vtkIdType& npts, vtkIdType conn[8]);
 
   //Description:
   //Set for each part type what cells are deleted/dead
@@ -52,7 +56,26 @@ public:
 
   int GetNumberOfParts() const;
 
+  //Description:
+  //Clears all storage information
   void Reset();
+
+  //Description:
+  //Adds a complete point data array to the storage.
+  //This array will be split up to be the subset needed for each part
+  //once the collection is finalized.
+  void AddPointArray(vtkDataArray* data);
+
+  //Description:
+  //Adds a property for all parts of a certain type
+  void AddProperty(const LSDynaMetaData::LSDYNA_TYPES& type, const char* name,
+                    const int& offset, const int& numComps);
+
+  //Description:
+  //Actually reads from the file the needed properties for all parts
+  //of a given type of lsdyna cell
+  void ReadProperties(const LSDynaMetaData::LSDYNA_TYPES& type,
+                      const int& numTuples);
 protected:
   vtkLSDynaPartCollection();
   ~vtkLSDynaPartCollection();
