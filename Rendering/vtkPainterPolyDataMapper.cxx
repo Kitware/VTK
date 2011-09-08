@@ -36,7 +36,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
 #include "vtkStandardPolyDataPainter.h"
-#include "vtkgl.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
 //-----------------------------------------------------------------------------
