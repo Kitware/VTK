@@ -2688,7 +2688,7 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
       }
     }
 
-  //  // 3D element data=======================================
+  // 3D element data=======================================
   vppt = 0;
   vars.clear();
   cmps.clear();
@@ -2700,203 +2700,122 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
     } \
   startPos+=numComps;
 
+  // Solid element data========================================================
   int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
+
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRESS,6);
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_EPSTRAIN,1);
   VTK_LS_CELLARRAY(p->Dict["NEIPH" ] > 0,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPH"]);
   VTK_LS_CELLARRAY(p->Dict["ISTRN" ],LSDynaMetaData::SOLID,LS_ARRAYNAME_STRAIN,6);
   this->Parts->ReadProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"]);
 
+  // Thick Shell element data==================================================
   startPos=0;
+  // Mid-surface data
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRESS,6);
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_EPSTRAIN,1);
+  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPS"]);
+
+  // Inner surface data
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRESS "InnerSurf",6);
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_EPSTRAIN "InnerSurf",1);
+  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf",p->Dict["NEIPS"]);
+
+  // Outer surface data
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRESS "OuterSurf",6);
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_EPSTRAIN "OuterSurf",1);
+  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf",p->Dict["NEIPS"]);
+
+  VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "InnerSurf",6);
+  VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "OuterSurf",6);
+
+  // If _MAXINT_ > 3, there will be additional fields. They are other
+  // integration point values. There are (_MAXINT_ - 3) extra
+  // integration points, each of which has a stress (6 vals),
+  // an effective plastic strain (1 val), and extra integration
+  // point values (NEIPS vals).
+  int itmp;
+  char ctmp[128];
+  for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
+    {
+    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
+    VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,6);
+
+    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
+    VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,1);
+
+    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
+    VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,ctmp,p->Dict["NEIPS"]);
+    }
   this->Parts->ReadProperties(LSDynaMetaData::THICK_SHELL, p->Dict["NV3DT"]);
+
+
+  // Beam element data=========================================================
+  startPos=0;
+  VTK_LS_CELLARRAY(1,LSDynaMetaData::BEAM,LS_ARRAYNAME_AXIALFORCE,1);
+  VTK_LS_CELLARRAY(1,LSDynaMetaData::BEAM,LS_ARRAYNAME_SHEARRESULTANT,2);
+  VTK_LS_CELLARRAY(1,LSDynaMetaData::BEAM,LS_ARRAYNAME_BENDINGRESULTANT,2);
+  VTK_LS_CELLARRAY(1,LSDynaMetaData::BEAM,LS_ARRAYNAME_TORSIONRESULTANT,2);
+
+  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,LSDynaMetaData::BEAM,LS_ARRAYNAME_SHEARSTRESS,2);
+  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,LSDynaMetaData::BEAM,LS_ARRAYNAME_AXIALSTRESS,1);
+  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,LSDynaMetaData::BEAM,LS_ARRAYNAME_AXIALSTRAIN,1);
+  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,LSDynaMetaData::BEAM,LS_ARRAYNAME_PLASTICSTRAIN,1);
   this->Parts->ReadProperties(LSDynaMetaData::BEAM, p->Dict["NV1D"]);
+
+
+  // Shell element data========================================================
+  startPos=0;
+
+  // Mid-surface data
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRESS,6);
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_EPSTRAIN,1);
+  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPS"]);
+
+  // Inner surface data
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRESS "InnerSurf",6);
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_EPSTRAIN "InnerSurf",1);
+  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf",p->Dict["NEIPS"]);
+
+  // Outer surface data
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRESS "OuterSurf",6);
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_EPSTRAIN "OuterSurf",1);
+  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf",p->Dict["NEIPS"]);
+
+  // If _MAXINT_ > 3, there will be additional fields. They are other
+  // integration point values. There are (_MAXINT_ - 3) extra
+  // integration points, each of which has a stress (6 vals),
+  // an effective plastic strain (1 val), and extra integration
+  // point values (NEIPS vals).
+  for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
+    {
+    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
+    VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::SHELL,ctmp,6);
+
+    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
+    VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::SHELL,ctmp,1);
+
+    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
+    VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::SHELL,ctmp,p->Dict["NEIPS"]);
+    }
+
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],LSDynaMetaData::SHELL,LS_ARRAYNAME_BENDINGRESULTANT,3); // Bending Mx, My, Mxy
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],LSDynaMetaData::SHELL,LS_ARRAYNAME_SHEARRESULTANT,2); // Shear Qx, Qy
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],LSDynaMetaData::SHELL,LS_ARRAYNAME_NORMALRESULTANT,3); // Normal Nx, Ny, Nxy
+
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(4)"],LSDynaMetaData::SHELL,LS_ARRAYNAME_THICKNESS,1);
+  VTK_LS_CELLARRAY(p->Dict["IOSHL(4)"],LSDynaMetaData::SHELL,LS_ARRAYNAME_ELEMENTMISC,2);
+
+  VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::SHELL,LS_ARRAYNAME_STRAIN "InnerSurf",6);
+  VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::SHELL,LS_ARRAYNAME_STRAIN "OuterSurf",6);
+  VTK_LS_CELLARRAY(! p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45),
+    LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
+
   this->Parts->ReadProperties(LSDynaMetaData::SHELL, p->Dict["NV2D"]);
  
 #undef VTK_LS_CELLARRAY
-
   return 0;
 }
-
-//  // Read element data==========================================================
-//
-//  // The element data is unfortunately interleaved so that all arrays for a single element
-//  // are lumped together. This makes reading in a selected subset of arrays difficult.
-//  // These macros greatly reduce the amount of code to read.
-//#define VTK_LS_CELLARRAY(cond,mesh,celltype,arrayname,components)\
-//  if ( cond ) \
-//    { \
-//    if ( this->GetCellArrayStatus( celltype, arrayname ) ) \
-//      { \
-//      var = p->Fam.GetWordSize() == 4 ? (vtkDataArray*) vtkFloatArray::New() : (vtkDataArray*) vtkDoubleArray::New(); \
-//      var->SetName( arrayname ); \
-//      var->SetNumberOfComponents( components ); \
-//      var->SetNumberOfTuples( p->NumberOfCells[ celltype ] ); \
-//      this->mesh->GetCellData()->AddArray( var ); \
-//      var->FastDelete(); \
-//      vars.push_back( var ); \
-//      cmps.push_back( vppt ); \
-//      } \
-//    vppt += components; \
-//    }
-//
-//#define VTK_LS_READCELLS(numtuples,celltype)\
-//  ts = numtuples; \
-//  if ( vars.size() != 0 ) \
-//    { \
-//    double* tuple = new double[ ts ]; \
-//    memset( tuple, 0, ts*sizeof(double*) ); \
-//    \
-//    for ( vtkIdType e=0; e<p->NumberOfCells[ celltype ]; ++e ) \
-//      { \
-//      p->Fam.BufferChunk( LSDynaFamily::Float, ts ); \
-//      for ( int i=0; i<ts; ++i ) \
-//        { \
-//        tuple[i] = p->Fam.GetNextWordAsFloat(); \
-//        } \
-//      vtkstd::vector<int>::iterator arc = cmps.begin(); \
-//      for ( vtkstd::vector<vtkDataArray*>::iterator arr=vars.begin(); arr != vars.end(); ++arr, ++arc ) \
-//        { \
-//        (*arr)->SetTuple( e, tuple + *arc ); \
-//        } \
-//      } \
-//    delete [] tuple; \
-//    } \
-//  else \
-//    { \
-//    p->Fam.SkipWords( p->NumberOfCells[ celltype ] * ts ); \
-//    }
-//
-//  // 3D element data=======================================
-//  vppt = 0;
-//  vars.clear();
-//  cmps.clear();
-//
-//  VTK_LS_CELLARRAY(1,OutputSolid,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRESS,6);
-//  VTK_LS_CELLARRAY(1,OutputSolid,LSDynaMetaData::SOLID,LS_ARRAYNAME_EPSTRAIN,1);
-//  VTK_LS_CELLARRAY(p->Dict["NEIPH" ] > 0,OutputSolid,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPH"]);
-//  VTK_LS_CELLARRAY(p->Dict["ISTRN" ],OutputSolid,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRAIN,6);
-//
-//  int ts;
-//  VTK_LS_READCELLS(p->Dict["NV3D"],LSDynaMetaData::SOLID);
-//
-//  // Thick shell element data==============================
-//  vppt = 0;
-//  vars.clear();
-//  cmps.clear();
-//
-//  // Mid-surface data
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRESS,6);
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_EPSTRAIN,1);
-//  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPS"]);
-//
-//  // Inner surface data
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRESS "InnerSurf",6);
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_EPSTRAIN "InnerSurf",1);
-//  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf",p->Dict["NEIPS"]);
-//
-//  // Outer surface data
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRESS "OuterSurf",6);
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_EPSTRAIN "OuterSurf",1);
-//  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf",p->Dict["NEIPS"]);
-//
-//  VTK_LS_CELLARRAY(p->Dict["ISTRN"],OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "InnerSurf",6);
-//  VTK_LS_CELLARRAY(p->Dict["ISTRN"],OutputThickShell,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "OuterSurf",6);
-//
-//  // If _MAXINT_ > 3, there will be additional fields. They are other
-//  // integration point values. There are (_MAXINT_ - 3) extra
-//  // integration points, each of which has a stress (6 vals),
-//  // an effective plastic strain (1 val), and extra integration
-//  // point values (NEIPS vals).
-//  //vppt += ( p->Dict["_MAXINT_"] - 3 ) * ( 6 * p->Dict["IOSHL(1)"] + p->Dict["IOSHL(1)"] + p->Dict["NEIPS"] );
-//  int itmp;
-//  char ctmp[128];
-//  for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-//    {
-//    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
-//    VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,ctmp,6);
-//
-//    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
-//    VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,ctmp,1);
-//
-//    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
-//    VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputThickShell,LSDynaMetaData::THICK_SHELL,ctmp,p->Dict["NEIPS"]);
-//    }
-//
-//  VTK_LS_READCELLS(p->Dict["NV3DT"],LSDynaMetaData::THICK_SHELL);
-//
-//  // Beam element data=====================================
-//  vppt = 0;
-//  vars.clear();
-//  cmps.clear();
-//
-//  VTK_LS_CELLARRAY(1,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_AXIALFORCE,1);
-//  VTK_LS_CELLARRAY(1,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_SHEARRESULTANT,2);
-//  VTK_LS_CELLARRAY(1,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_BENDINGRESULTANT,2);
-//  VTK_LS_CELLARRAY(1,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_TORSIONRESULTANT,2);
-//
-//  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_SHEARSTRESS,2);
-//  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_AXIALSTRESS,1);
-//  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_AXIALSTRAIN,1);
-//  VTK_LS_CELLARRAY(p->Dict["NV1D"] > 6,OutputBeams,LSDynaMetaData::BEAM,LS_ARRAYNAME_PLASTICSTRAIN,1);
-//
-//  VTK_LS_READCELLS(p->Dict["NV1D"],LSDynaMetaData::BEAM);
-//
-//  // Shell element data====================================
-//  vppt = 0;
-//  vars.clear();
-//  cmps.clear();
-//
-//  // Mid-surface data
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRESS,6);
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_EPSTRAIN,1);
-//  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPS"]);
-//
-//  // Inner surface data
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRESS "InnerSurf",6);
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_EPSTRAIN "InnerSurf",1);
-//  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf",p->Dict["NEIPS"]);
-//
-//  // Outer surface data
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRESS "OuterSurf",6);
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_EPSTRAIN "OuterSurf",1);
-//  VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf",p->Dict["NEIPS"]);
-//
-//  // If _MAXINT_ > 3, there will be additional fields. They are other
-//  // integration point values. There are (_MAXINT_ - 3) extra
-//  // integration points, each of which has a stress (6 vals),
-//  // an effective plastic strain (1 val), and extra integration
-//  // point values (NEIPS vals).
-//  //vppt += ( p->Dict["_MAXINT_"] - 3 ) * ( 6 * p->Dict["IOSHL(1)"] + p->Dict["IOSHL(2)"] + p->Dict["NEIPS"] );
-//  for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-//    {
-//    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
-//    VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,OutputShell,LSDynaMetaData::SHELL,ctmp,6);
-//
-//    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
-//    VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,OutputShell,LSDynaMetaData::SHELL,ctmp,1);
-//
-//    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
-//    VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,OutputShell,LSDynaMetaData::SHELL,ctmp,p->Dict["NEIPS"]);
-//    }
-//
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_BENDINGRESULTANT,3); // Bending Mx, My, Mxy
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_SHEARRESULTANT,2); // Shear Qx, Qy
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_NORMALRESULTANT,3); // Normal Nx, Ny, Nxy
-//
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(4)"],OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_THICKNESS,1);
-//  VTK_LS_CELLARRAY(p->Dict["IOSHL(4)"],OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_ELEMENTMISC,2);
-//
-//  VTK_LS_CELLARRAY(p->Dict["ISTRN"],OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRAIN "InnerSurf",6);
-//  VTK_LS_CELLARRAY(p->Dict["ISTRN"],OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_STRAIN "OuterSurf",6);
-//  VTK_LS_CELLARRAY(! p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45),
-//    OutputShell,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
-//
-//  VTK_LS_READCELLS(p->Dict["NV2D"],LSDynaMetaData::SHELL);
-//
-//#undef VTK_LS_CELLARRAY
-//#undef VTK_LS_READCELLS
-
-
 
 
 int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
