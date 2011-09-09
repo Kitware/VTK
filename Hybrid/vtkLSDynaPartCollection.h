@@ -57,10 +57,6 @@ public:
   int GetNumberOfParts() const;
 
   //Description:
-  //Clears all storage information
-  void Reset();
-
-  //Description:
   //Adds a complete point data array to the storage.
   //This array will be split up to be the subset needed for each part
   //once the collection is finalized.
@@ -80,6 +76,11 @@ protected:
   vtkLSDynaPartCollection();
   ~vtkLSDynaPartCollection();
 
+  //Description:
+  //Clears all storage information
+  void ResetTimeStepInfo();
+
+  //Builds up the basic meta information needed for topology storage
   void BuildPartInfo();
 
   //Description:

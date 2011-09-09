@@ -3496,9 +3496,6 @@ int vtkLSDynaReader::RequestData(
       }
     }
 
-  //clear the parts so we can use it again
-  this->Parts->Reset();
-
 #ifdef VTK_LSDYNA_DBG_MULTIBLOCK
   // Print the hierarchy of meshes that is about to be returned as output.
   vtkIndent indent;
