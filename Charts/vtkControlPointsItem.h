@@ -106,6 +106,10 @@ public:
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 
   // Description:
+  // Return the number of selected points.
+  vtkIdType GetNumberOfSelectedPoints()const;
+
+  // Description:
   // Returns the vtkIdType of the point given its coordinates and a tolerance
   // based on the screen point size.
   vtkIdType FindPoint(double* pos);
@@ -157,7 +161,7 @@ public:
 
   // Description:
   // Returns the total number of points
-  virtual int GetNumberOfPoints()const = 0;
+  virtual vtkIdType GetNumberOfPoints()const = 0;
 
   // Description:
   // Returns the x and y coordinates as well as the midpoint and sharpness
@@ -221,9 +225,16 @@ protected:
   // Mouse move event.
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
 
-  void MoveCurrentPoint(const vtkVector2f& newPos);
-  vtkIdType MovePoint(vtkIdType point, const vtkVector2f& newPos);
-  void MovePoints(float tX, float tY);
+  void SetCurrentPointPos(const vtkVector2f& newPos);
+  vtkIdType SetPointPos(vtkIdType point, const vtkVector2f& newPos);
+  void MoveSelectedPoints(const vtkVector2f& translation);
+  void MoveCurrentPoint(const vtkVector2f& translation);
+  vtkIdType MovePoint(vtkIdType point, const vtkVector2f& translation);
+
+  inline vtkVector2f GetSelectionCenterOfMass()const;
+  vtkVector2f GetCenterOfMass(vtkIdTypeArray* pointIDs)const;
+  
+  void SpreadSelectedPoints(float factor);
   void Stroke(const vtkVector2f& newPos);
   virtual void EditPoint(float vtkNotUsed(tX), float vtkNotUsed(tY));
   // Description:
@@ -264,6 +275,12 @@ private:
 void vtkControlPointsItem::RemoveCurrentPoint()
 {
   this->RemovePoint(this->GetCurrentPoint());
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2f vtkControlPointsItem::GetSelectionCenterOfMass()const
+{
+  return this->GetCenterOfMass(this->Selection);
 }
 
 #endif

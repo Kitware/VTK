@@ -89,9 +89,10 @@ void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t
 }
 
 //-----------------------------------------------------------------------------
-int vtkPiecewiseControlPointsItem::GetNumberOfPoints()const
+vtkIdType vtkPiecewiseControlPointsItem::GetNumberOfPoints()const
 {
-  return this->PiecewiseFunction ? this->PiecewiseFunction->GetSize() : 0;
+  return this->PiecewiseFunction ?
+    static_cast<vtkIdType>(this->PiecewiseFunction->GetSize()) : 0;
 }
 
 //-----------------------------------------------------------------------------

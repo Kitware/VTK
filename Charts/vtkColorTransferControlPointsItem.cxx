@@ -106,9 +106,10 @@ void vtkColorTransferControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdTy
 }
 
 //-----------------------------------------------------------------------------
-int vtkColorTransferControlPointsItem::GetNumberOfPoints()const
+vtkIdType vtkColorTransferControlPointsItem::GetNumberOfPoints()const
 {
-  return this->ColorTransferFunction ? this->ColorTransferFunction->GetSize() : 0;
+  return this->ColorTransferFunction ?
+    static_cast<vtkIdType>(this->ColorTransferFunction->GetSize()) : 0;
 }
 
 //-----------------------------------------------------------------------------

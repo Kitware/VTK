@@ -151,7 +151,7 @@ void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType i
 }
 
 //-----------------------------------------------------------------------------
-int vtkCompositeControlPointsItem::GetNumberOfPoints()const
+vtkIdType vtkCompositeControlPointsItem::GetNumberOfPoints()const
 {
   if (this->ColorTransferFunction &&
       (this->PointsFunction == ColorPointsFunction ||
@@ -163,7 +163,7 @@ int vtkCompositeControlPointsItem::GetNumberOfPoints()const
       (this->PointsFunction == OpacityPointsFunction ||
        this->PointsFunction == ColorAndOpacityPointsFunction))
     {
-    return this->OpacityFunction->GetSize();
+    return static_cast<vtkIdType>(this->OpacityFunction->GetSize());
     }
   return 0;
 }
