@@ -348,9 +348,7 @@ void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice *prop)
 // Update the SliceToWorld transformation matrix
 void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
 {
-  // NOTE: This method is only called if InternalResampleToScreenPixels is On
-
-  // Get slice plane in world coords by passing null as the prop matrix 
+  // Get slice plane in world coords by passing null as the prop matrix
   double plane[4];
   this->GetSlicePlaneInDataCoords(0, plane);
 
@@ -432,8 +430,29 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
   // Get world-to-data matrix from the prop matrix
   this->UpdateWorldToDataMatrix(prop);
 
-  // Compute SliceToWorld matrix from camera if InternalResampleToScreenPixels
-  if (this->InternalResampleToScreenPixels)
+  // Check if prop matrix is orthonormal
+  bool propMatrixIsOrthonormal = false;
+  vtkMatrix4x4 *propMatrix = 0;
+  if (!this->InternalResampleToScreenPixels)
+    {
+    static double tol = 1e-12;
+    propMatrix = prop->GetMatrix();
+    double *row0 = propMatrix->Element[0];
+    double *row1 = propMatrix->Element[1];
+    double *row2 = propMatrix->Element[2];
+    propMatrixIsOrthonormal = (
+      fabs(vtkMath::Dot(row0, row0) - 1.0) < tol &&
+      fabs(vtkMath::Dot(row1, row1) - 1.0) < tol &&
+      fabs(vtkMath::Dot(row2, row2) - 1.0) < tol &&
+      fabs(vtkMath::Dot(row0, row1)) < tol &&
+      fabs(vtkMath::Dot(row0, row2)) < tol &&
+      fabs(vtkMath::Dot(row1, row2)) < tol);
+    }
+
+  // Compute SliceToWorld matrix from camera if prop matrix is not
+  // orthonormal or if InternalResampleToScreenPixels is set
+  if (this->InternalResampleToScreenPixels ||
+      !propMatrixIsOrthonormal)
     {
     this->UpdateSliceToWorldMatrix(ren->GetActiveCamera());
     vtkMatrix4x4::Multiply4x4(
@@ -444,7 +463,6 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
 
   // Get the matrices used to compute the reslice matrix
   vtkMatrix4x4 *resliceMatrix = this->ResliceMatrix;
-  vtkMatrix4x4 *propMatrix = prop->GetMatrix();
   vtkMatrix4x4 *viewMatrix = ren->GetActiveCamera()->GetViewTransformMatrix();
 
   // Get slice plane in world coords by passing null as the matrix
