@@ -232,7 +232,7 @@ public:
 
   // Description:
   // Disable clipping of the display.
-  virtual void DisableClipping() = 0;
+  virtual void EnableClipping(bool enable) = 0;
 
   // Description:
   // Begin drawing, pass in the viewport to set up the view.
