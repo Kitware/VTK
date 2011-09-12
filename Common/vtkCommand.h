@@ -342,6 +342,7 @@ public:
     ConnectionClosedEvent,
     DomainModifiedEvent,
     PropertyModifiedEvent,
+    UncheckedPropertyModifiedEvent,
     UpdateEvent,
     RegisterEvent,
     UnRegisterEvent,
