@@ -2120,25 +2120,15 @@ int vtkLSDynaReader::ReadNodes()
     p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), 0 );
     p->Fam.BufferChunk( LSDynaFamily::Float, p->NumberOfNodes * p->Dimensionality );
 
-    if ( p->Dimensionality == 3 )
+    if(p->Fam.GetWordSize() == 4)
       {
-      for ( vtkIdType i=0; i<p->NumberOfNodes; ++i )
-        {
-        pt[0] = p->Fam.GetNextWordAsFloat();
-        pt[1] = p->Fam.GetNextWordAsFloat();
-        pt[2] = p->Fam.GetNextWordAsFloat();
-        this->CommonPoints->SetPoint( i, pt );
-        }
+      float* fbuf = p->Fam.GetBufferAsFloat();
+      this->FillPointsData(fbuf,this->CommonPoints);
       }
     else
       {
-      pt[2] = 0.;
-      for ( vtkIdType i=0; i<p->NumberOfNodes; ++i )
-        {
-        pt[0] = p->Fam.GetNextWordAsFloat();
-        pt[1] = p->Fam.GetNextWordAsFloat();
-        this->CommonPoints->SetPoint( i, pt );
-        }
+      double* dbuf = p->Fam.GetBufferAsDouble();
+      this->FillPointsData(dbuf,this->CommonPoints);
       }
     }
 
@@ -2519,6 +2509,7 @@ int vtkLSDynaReader::ReadDeletion()
         death->SetName( LS_ARRAYNAME_DEATH );
         death->SetNumberOfComponents( 1 );
         death->SetNumberOfTuples( p->NumberOfCells[type] );
+
         this->ReadDeletionArray(death);
         this->Parts->SetCellDeadFlags(type,death);
         death->Delete();
@@ -2535,21 +2526,27 @@ int vtkLSDynaReader::ReadDeletion()
   return 0;
 }
 
-void vtkLSDynaReader::ReadDeletionArray( vtkIntArray* array)
+
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaReader::ReadDeletionArray(vtkIntArray* arr)
 {
-  int val;
-  vtkIdType n = array->GetNumberOfTuples();
+  //setup to do a block read, way faster than converting each
+  //float/double individually
   LSDynaMetaData* p = this->P;
-  p->Fam.BufferChunk( LSDynaFamily::Float, n );
-  for ( vtkIdType i=0; i<n; ++i )
+  p->Fam.BufferChunk( LSDynaFamily::Float, arr->GetNumberOfTuples() );
+  if(p->Fam.GetWordSize() == 4)
     {
-    //Quote from LSDyna Manual:
-    //"each value is set to the element material number or =0, 
-    //if the element is deleted"
-    val = (p->Fam.GetNextWordAsFloat() == 0.0) ? 1 : 0;    
-    array->SetTuple1( i, val );
+    float *fbuf = p->Fam.GetBufferAsFloat();
+    this->FillDeletionArray(fbuf,arr);
+    }
+  else
+    {
+    double *dbuf = p->Fam.GetBufferAsDouble();
+    this->FillDeletionArray(dbuf,arr);
     }
 }
+
 
 int vtkLSDynaReader::ReadState( vtkIdType step )
 {
@@ -2658,18 +2655,19 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
       {
       if ( this->GetPointArrayStatus( (*arr)->GetName() ) != 0 )
         {
-        (*arr)->SetNumberOfTuples( p->NumberOfNodes );
+        (*arr)->SetNumberOfTuples( p->NumberOfNodes );                
         p->Fam.BufferChunk(LSDynaFamily::Float, p->NumberOfNodes*(*arc) );
-        vtkIdType pt;
-        double tuple[3] = { 0., 0., 0. };
-        for ( pt=0; pt<p->NumberOfNodes; ++pt )
+        if(p->Fam.GetWordSize() == 4)
           {
-          for ( int c=0; c<*arc; ++c )
-            {
-            tuple[c] = p->Fam.GetNextWordAsFloat();
-            }
-          (*arr)->SetTuple( pt, tuple );
+          float* buf = p->Fam.GetBufferAsFloat();
+          this->FillArray(buf,*arr,p->NumberOfNodes, *arc);
           }
+        else
+          {
+          double* buf = p->Fam.GetBufferAsDouble();
+          this->FillArray(buf,*arr,p->NumberOfNodes, *arc);
+          }
+        
         if ( this->DeformedMesh && ! strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION) )
           {
           // Replace point coordinates with deflection (don't add to points).
@@ -3475,3 +3473,78 @@ static void vtkDebugMultiBlockStructure( vtkIndent indent, vtkMultiGroupDataSet*
     }
 }
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkLSDynaReader::FillDeletionArray(T *buffer, vtkIntArray* arr)
+{
+  int val;
+  vtkIdType n = arr->GetNumberOfTuples();
+  for ( vtkIdType i=0; i<n; ++i )
+    {
+    //Quote from LSDyna Manual:
+    //"each value is set to the element material number or =0, 
+    //if the element is deleted"
+    val = (buffer[i] == 0.0) ? 1 : 0;    
+    arr->SetTuple1( i, val );
+    }
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkLSDynaReader::FillArray(T *buffer, vtkDataArray* arr,
+  const vtkIdType& numTuples, const vtkIdType& numComps)
+{
+  LSDynaMetaData *p = this->P;
+  if(numComps==arr->GetNumberOfComponents())
+    {    
+    //if the numComps of the binary file and the number of components
+    //of the destination in memory match ( ie we aren't a 2d binary d3plot file)
+    //we can do a direct memcpy
+    void *dest = arr->GetVoidPointer(0);
+    void *src = buffer;
+    vtkIdType size = (numTuples * numComps) * p->Fam.GetWordSize();
+    memcpy(dest,src,size);    
+    }
+  else
+    {
+    double tuple[3] = {0.0,0.0,0.0};
+    const vtkIdType size(numTuples*numComps);
+    for (vtkIdType pt=0; pt<size; pt+=numComps)
+      {
+      //in some use cases we have a 3 dimension tuple that we need to fill
+      //that is coming from a 2 dimension buffer
+      for ( int c=0; c<numComps; ++c )
+        {
+        tuple[c] = buffer[pt+c];
+        }
+      arr->SetTuple( pt, tuple );
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkLSDynaReader::FillPointsData(T *buffer, vtkPoints* points)
+{
+  LSDynaMetaData *p = this->P;
+  if(p->Dimensionality == 3)
+    {
+    //we have a 1 to 1 mapping so memcpy for optimization
+    void *dest = points->GetData()->GetVoidPointer(0);
+    void *src = buffer;
+    size_t size = (p->NumberOfNodes * 3) * p->Fam.GetWordSize();
+    memcpy(dest,src,size);
+    }
+  else
+    {
+    double pt[3] = {-1.,-1,0.0}; //have to fill z with 0.0
+    const vtkIdType size(p->NumberOfNodes*2);
+    for ( vtkIdType i=0; i<size; i+=2 )
+      {
+      pt[0] = buffer[i];
+      pt[1] = buffer[i+1];
+      this->CommonPoints->SetPoint(i, pt);
+      }
+    }
+}

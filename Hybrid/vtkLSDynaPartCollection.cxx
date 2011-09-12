@@ -306,17 +306,29 @@ void vtkLSDynaPartCollection::ReadProperties(
   const vtkIdType numCells(this->MetaData->NumberOfCells[type]);
   this->MetaData->Fam.BufferChunk(LSDynaFamily::Float, numCells * numTuples);
 
-  double* tuple = new double[numTuples];
+  if(this->MetaData->Fam.GetWordSize() == 4)
+    {
+    float *fbuf = this->MetaData->Fam.GetBufferAsFloat();
+    this->FillPropertyArray(fbuf,type,numCells,numTuples);
+    }
+  else
+    {
+    double *dbuf = this->MetaData->Fam.GetBufferAsDouble();
+    this->FillPropertyArray(dbuf,type,numCells,numTuples);
+    }
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkLSDynaPartCollection::FillPropertyArray(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& numCells, const int& numTuples)
+{
   for(vtkIdType i=0;i<numCells;++i)
     {
     cellToPartCell pc = this->Storage->CellIndexToPart[type][i];
-    if(pc.part > -1)
+    if(pc.part > -1) 
       {
       //read the next chunk from the buffer
-      for(int j=0; j<numTuples; j++)
-        {
-        tuple[j] = this->MetaData->Fam.GetNextWordAsFloat();
-        }
+      T* tuple = &buffer[i*numTuples];      
 
       //take that chunk and move it to the properties that are active
       vtkLSDynaPartCollection::LSDynaPart* part = this->Storage->Parts[pc.part];
@@ -332,7 +344,6 @@ void vtkLSDynaPartCollection::ReadProperties(
 
       }
     }
-  delete[] tuple;
 }
 
 //-----------------------------------------------------------------------------

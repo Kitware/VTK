@@ -541,12 +541,27 @@ protected:
   // This is used by ReadDeletion to actually read the data from the file
   // (as opposed to attach it to the proper place in the VTK dataset)
   // depending on the value of "MDLOPT".
-  // The array passed to this routine is filled with deletion data.
+  // The array passed to this routine is filled with ones if deleted, zero
+  // it is not deleted
   // The number of tuples must be set on the array previous to calling
   // this routine.
   virtual void ReadDeletionArray(vtkIntArray* arr);
 
 private:
+
+  //Helper templated methods to optimze reading. We cast the entire buffer
+  //to a given type instead of casting each element to improve performance
+  template<typename T>
+  void FillDeletionArray(T* buffer, vtkIntArray* arr);
+
+  template<typename T>
+  void FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& numTuples, const vtkIdType& numComps);
+
+  template<typename T>
+  void FillPointsData(T* buffer, vtkPoints *points);
+
+
+
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.
 

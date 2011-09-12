@@ -92,6 +92,9 @@ protected:
   void ConstructGridCells(LSDynaPart *part);
   void ConstructGridPoints(LSDynaPart *part, vtkPoints *commonPoints);
 
+  template<typename T>
+  void FillPropertyArray(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& numCells, const int& numTuples);
+
 private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
   void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.

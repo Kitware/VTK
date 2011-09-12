@@ -151,6 +151,10 @@ public:
   inline double GetNextWordAsFloat();
   inline vtkIdType GetNextWordAsInt();
 
+  //Get the raw chunk buffer as a buffer of type float
+  float* GetBufferAsFloat();
+  double* GetBufferAsDouble();
+
   // Not needed (yet):
   // void GetCurrentWord( SectionType& stype, vtkIdType& sId, vtkIdType& wN );
   int AdvanceFile();
@@ -246,6 +250,7 @@ inline char* LSDynaFamily::GetNextWordAsChars()
 inline double LSDynaFamily::GetNextWordAsFloat()
   {
   if ( this->ChunkWord >= this->ChunkValid ) fprintf( stderr, "Read float past end of buffer\n" );
+  int pos = 0;
   switch (this->WordSize)
     {
   case 4:
@@ -272,5 +277,17 @@ inline vtkIdType LSDynaFamily::GetNextWordAsInt()
     return *(vtkIdType*)(&this->Chunk[ this->ChunkWord++ << 3 ]);
     }
   }
+
+//-----------------------------------------------------------------------------
+inline float* LSDynaFamily::GetBufferAsFloat()
+{
+  return (float*)this->Chunk;
+}
+
+//-----------------------------------------------------------------------------
+inline double* LSDynaFamily::GetBufferAsDouble()
+{
+  return (double*)this->Chunk;
+}
 
 #endif // __LSDynaFamily_h
