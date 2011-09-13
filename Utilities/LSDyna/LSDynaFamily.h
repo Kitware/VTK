@@ -88,7 +88,6 @@ public:
     vtkIdType Offset;
     };
 
-
   void SetDatabaseDirectory( std::string dd );
   std::string GetDatabaseDirectory();
 
@@ -165,6 +164,8 @@ public:
   //Get the raw chunk buffer as a buffer of type float
   float* GetBufferAsFloat();
   double* GetBufferAsDouble();
+  int* GetBufferAsInt();
+  vtkIdType* GetBufferAsIdType();
 
   // Not needed (yet):
   // void GetCurrentWord( SectionType& stype, vtkIdType& sId, vtkIdType& wN );
@@ -299,6 +300,18 @@ inline float* LSDynaFamily::GetBufferAsFloat()
 inline double* LSDynaFamily::GetBufferAsDouble()
 {
   return (double*)this->Chunk;
+}
+
+//-----------------------------------------------------------------------------
+inline int* LSDynaFamily::GetBufferAsInt()
+{
+  return (int*)this->Chunk;
+}
+
+//-----------------------------------------------------------------------------
+inline vtkIdType* LSDynaFamily::GetBufferAsIdType()
+{
+  return (vtkIdType*)this->Chunk;
 }
 
 #endif // __LSDynaFamily_h

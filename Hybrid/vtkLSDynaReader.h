@@ -560,7 +560,8 @@ private:
   template<typename T>
   void FillPointsData(T* buffer, vtkPoints *points);
 
-
+  template<typename T>
+  int FillCells(T* buffer);
 
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.

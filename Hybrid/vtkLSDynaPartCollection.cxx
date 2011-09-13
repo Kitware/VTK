@@ -237,7 +237,8 @@ void vtkLSDynaPartCollection::InsertCell(const int& partType,
   //now push back the rest of the cell structure
   for(int i=0; i<npts; ++i)
     {
-    part->CellStructure.push_back(conn[i]);
+    //LSDyna usin Fortran indexes (starts at 1)
+    part->CellStructure.push_back(conn[i]-1);
     }
 
    //setup the cell index to part lookup table

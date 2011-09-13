@@ -2200,188 +2200,6 @@ int vtkLSDynaReader::ReadNodes()
   return 0;
 }
 
-//-----------------------------------------------------------------------------
-int vtkLSDynaReader::ReadConnectivityAndMaterial()
-{
-  LSDynaMetaData* p = this->P;
-  if ( p->ConnectivityUnpacked == 0 )
-    {
-    // FIXME
-    vtkErrorMacro( "Packed connectivity isn't supported yet." );
-    return 1;
-    }
-
-  vtkIdType nc;
-  vtkIntArray* matl = 0;
-  vtkIdType conn[8];
-  vtkIdType matlId;
-  vtkIdType c, t, i;
-  c = 0;
-
-  //READ PARTICLES
-  p->Fam.SkipToWord( LSDynaFamily::SPHNodeData, p->Fam.GetCurrentAdaptLevel(), 0 );
-  nc = p->NumberOfCells[ LSDynaMetaData::PARTICLE ];
-  t = p->Dict["NMSPH"];
-  
-  p->Fam.BufferChunk( LSDynaFamily::Int, 2 * t );
-  for ( i = 0; i < t; ++i )
-    {
-    conn[0] = p->Fam.GetNextWordAsInt() - 1;
-    matlId = p->Fam.GetNextWordAsInt();
-    this->Parts->InsertCell(LSDynaMetaData::PARTICLE,t,matlId,VTK_VERTEX,1,conn);
-    }
-
-  //READ SOLIDS
-  p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), p->NumberOfNodes*p->Dimensionality );
-
-  nc = p->NumberOfCells[ LSDynaMetaData::SOLID ];  
-  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::SOLID] );
-  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SOLID]; ++t )
-    {
-    for ( i=0; i<8; ++i )
-      {
-      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-      }
-    matlId = p->Fam.GetNextWordAsInt();
-    
-    vtkIdType npts = 0;
-    int type = 0;
-    // Detect repeated connectivity entries to determine element type
-    if (conn[3] == conn[7])
-      {
-      type = VTK_TETRA;
-      npts = 4;
-      }
-    else if (conn[4] == conn[7])
-      {
-      type = VTK_PYRAMID;
-      npts = 5;
-      }
-    else if (conn[5] == conn[7])
-      {
-      type = VTK_WEDGE;
-      npts = 6;
-      }
-    else
-      {
-      type = VTK_HEXAHEDRON;
-      npts = 8;
-      }
-
-    //push this cell back into the unstructured grid for this part(if the part is active)
-    this->Parts->InsertCell(LSDynaMetaData::SOLID,t,matlId,type,npts,conn);
-    }
-
-  //READ THICK_SHELL
-  nc = p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ];
-  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::THICK_SHELL] );
-  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::THICK_SHELL]; ++t )
-    {
-    for ( i=0; i<8; ++i )
-      {
-      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-      }
-    matlId = p->Fam.GetNextWordAsInt();
-    this->Parts->InsertCell(LSDynaMetaData::THICK_SHELL,t,matlId,VTK_QUADRATIC_QUAD,8,conn);
-    }
-
-  //READ BEAM
-  nc = p->NumberOfCells[ LSDynaMetaData::BEAM ];
-  p->Fam.BufferChunk( LSDynaFamily::Int, 6*p->NumberOfCells[LSDynaMetaData::BEAM] );
-  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::BEAM]; ++t )
-    {
-    for ( i=0; i<5; ++i )
-      {
-      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-      }
-    matlId = p->Fam.GetNextWordAsInt();
-    this->Parts->InsertCell(LSDynaMetaData::BEAM,t,matlId,VTK_LINE,2,conn);
-    }
-  
-  //READ SHELL and RIGID_BODY
-  bool haveRigidMaterials = (p->Dict["MATTYP"] != 0) && p->RigidMaterials.size();
-  vtkIdType nrFound = 0;
-  vtkIdType nsFound = 0;
-  // FIXME: Should this include p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ] or should matl->SetNumberOfTuples() use different number?
-  p->Fam.BufferChunk( LSDynaFamily::Int, 5*p->NumberOfCells[LSDynaMetaData::SHELL] );
-  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SHELL]; ++t )
-    {
-    for ( i=0; i<4; ++i )
-      {
-      conn[i] = p->Fam.GetNextWordAsInt() - 1;
-      }
-    matlId = p->Fam.GetNextWordAsInt();
-    if ( haveRigidMaterials && p->RigidMaterials.find( matlId ) == p->RigidMaterials.end() )
-      {
-      this->Parts->InsertCell(LSDynaMetaData::RIGID_BODY,t,matlId,VTK_QUAD,4,conn);
-      }
-    else
-      {
-      this->Parts->InsertCell(LSDynaMetaData::SHELL,t,matlId,VTK_QUAD,4,conn);
-      }
-    }
-
-  //ToDO: Read Road Surface as an exception
-
-  return 0;
-}
-
-//  // Always call allocate so that cell array is created.
-//  nc = p->NumberOfCells[ LSDynaMetaData::ROAD_SURFACE ];
-//  this->OutputRoadSurface->Allocate( nc );
-//  if ( p->ReadRigidRoadMvmt )
-//    {
-//    /* FIXME: There is no material, just segment ID, for road surfaces?
-//    matl = vtkIntArray::New();
-//    matl->SetNumberOfComponents( 1 );
-//    matl->SetNumberOfTuples( nc );
-//    matl->SetName( LS_ARRAYNAME_MATERIAL );
-//    this->OutputRoadSurface->GetCellData()->AddArray( matl );
-//    matl->FastDelete();
-//    */
-//
-//    vtkIntArray* segn = 0;
-//    if ( this->GetCellArrayStatus( LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_SEGMENTID ) )
-//      {
-//      segn = vtkIntArray::New();
-//      segn->SetNumberOfComponents( 1 );
-//      segn->SetNumberOfTuples( nc );
-//      segn->SetName( LS_ARRAYNAME_SEGMENTID );
-//      this->OutputRoadSurface->GetCellData()->AddArray( segn );
-//      segn->FastDelete();
-//
-//      // FIXME: We're skipping road surface node ids
-//      p->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData, p->Fam.GetCurrentAdaptLevel(), 4 + 4*p->Dict["NNODE"] );
-//      for ( c=0; c<p->Dict["NSURF"]; ++c )
-//        {
-//        p->Fam.BufferChunk( LSDynaFamily::Int, 2 );
-//        vtkIdType segId = p->Fam.GetNextWordAsInt();
-//        vtkIdType segSz = p->Fam.GetNextWordAsInt();
-//        p->Fam.BufferChunk( LSDynaFamily::Int, 4*segSz );
-//        for ( t=0; t<segSz; ++t )
-//          {
-//          for ( i=0; i<4; ++i )
-//            {
-//            conn[i] = p->Fam.GetNextWordAsInt() - 1;
-//            }
-//          this->OutputRoadSurface->InsertNextCell( VTK_QUAD, 4, conn );
-//          }
-//        for ( t=0; t<segSz; ++t )
-//          {
-//          segn->SetTuple1( t, segId );
-//          }
-//        }
-//      }
-//    else
-//      {
-//      p->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData, p->Fam.GetCurrentAdaptLevel(),
-//        4 + 4 * p->Dict["NNODE"] + 2 * p->Dict["NSEG"] + 4 * p->Dict["NSURF"] );
-//      }
-//    }
-//
-//  return 0;
-//}
-
 int vtkLSDynaReader::ReadUserIds()
 {
   LSDynaMetaData* p = this->P;
@@ -3562,5 +3380,328 @@ void vtkLSDynaReader::FillPointsData(T *buffer, vtkPoints* points)
       pt[1] = buffer[i+1];
       this->CommonPoints->SetPoint(i, pt);
       }
+    }
+}
+
+//-----------------------------------------------------------------------------
+template<class T>
+int vtkLSDynaReader::FillCells(T* buffer)
+{
+  LSDynaMetaData *p = this->P;
+  vtkIdType nc;
+  vtkIntArray* matl = 0;
+  vtkIdType conn[8];
+  vtkIdType matlId;
+  vtkIdType c, t, i;
+  c = 0;
+
+  //READ PARTICLES
+  p->Fam.SkipToWord( LSDynaFamily::SPHNodeData, p->Fam.GetCurrentAdaptLevel(), 0 );
+  nc = p->NumberOfCells[ LSDynaMetaData::PARTICLE ];
+  t = p->Dict["NMSPH"];
+  
+  p->Fam.BufferChunk( LSDynaFamily::Int, 2 * t );
+  for ( i = 0; i < t; ++i )
+    {
+    conn[0] = p->Fam.GetNextWordAsInt() - 1;
+    matlId = p->Fam.GetNextWordAsInt();
+    this->Parts->InsertCell(LSDynaMetaData::PARTICLE,t,matlId,VTK_VERTEX,1,conn);
+    }
+
+  //READ SOLIDS
+  p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), p->NumberOfNodes*p->Dimensionality );
+
+  nc = p->NumberOfCells[ LSDynaMetaData::SOLID ];  
+  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::SOLID] );
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SOLID]; ++t )
+    {
+    for ( i=0; i<8; ++i )
+      {
+      conn[i] = p->Fam.GetNextWordAsInt() - 1;
+      }
+    matlId = p->Fam.GetNextWordAsInt();
+    
+    vtkIdType npts = 0;
+    int type = 0;
+    // Detect repeated connectivity entries to determine element type
+    if (conn[3] == conn[7])
+      {
+      type = VTK_TETRA;
+      npts = 4;
+      }
+    else if (conn[4] == conn[7])
+      {
+      type = VTK_PYRAMID;
+      npts = 5;
+      }
+    else if (conn[5] == conn[7])
+      {
+      type = VTK_WEDGE;
+      npts = 6;
+      }
+    else
+      {
+      type = VTK_HEXAHEDRON;
+      npts = 8;
+      }
+
+    //push this cell back into the unstructured grid for this part(if the part is active)
+    this->Parts->InsertCell(LSDynaMetaData::SOLID,t,matlId,type,npts,conn);
+    }
+
+  //READ THICK_SHELL
+  nc = p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ];
+  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::THICK_SHELL] );
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::THICK_SHELL]; ++t )
+    {
+    for ( i=0; i<8; ++i )
+      {
+      conn[i] = p->Fam.GetNextWordAsInt() - 1;
+      }
+    matlId = p->Fam.GetNextWordAsInt();
+    this->Parts->InsertCell(LSDynaMetaData::THICK_SHELL,t,matlId,VTK_QUADRATIC_QUAD,8,conn);
+    }
+
+  //READ BEAM
+  nc = p->NumberOfCells[ LSDynaMetaData::BEAM ];
+  p->Fam.BufferChunk( LSDynaFamily::Int, 6*p->NumberOfCells[LSDynaMetaData::BEAM] );
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::BEAM]; ++t )
+    {
+    for ( i=0; i<5; ++i )
+      {
+      conn[i] = p->Fam.GetNextWordAsInt() - 1;
+      }
+    matlId = p->Fam.GetNextWordAsInt();
+    this->Parts->InsertCell(LSDynaMetaData::BEAM,t,matlId,VTK_LINE,2,conn);
+    }
+  
+  //READ SHELL and RIGID_BODY
+  bool haveRigidMaterials = (p->Dict["MATTYP"] != 0) && p->RigidMaterials.size();
+  vtkIdType nrFound = 0;
+  vtkIdType nsFound = 0;
+  // FIXME: Should this include p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ] or should matl->SetNumberOfTuples() use different number?
+  p->Fam.BufferChunk( LSDynaFamily::Int, 5*p->NumberOfCells[LSDynaMetaData::SHELL] );
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SHELL]; ++t )
+    {
+    for ( i=0; i<4; ++i )
+      {
+      conn[i] = p->Fam.GetNextWordAsInt() - 1;
+      }
+    matlId = p->Fam.GetNextWordAsInt();
+    if ( haveRigidMaterials && p->RigidMaterials.find( matlId ) == p->RigidMaterials.end() )
+      {
+      this->Parts->InsertCell(LSDynaMetaData::RIGID_BODY,t,matlId,VTK_QUAD,4,conn);
+      }
+    else
+      {
+      this->Parts->InsertCell(LSDynaMetaData::SHELL,t,matlId,VTK_QUAD,4,conn);
+      }
+    }
+
+  //ToDO: Read Road Surface as an exception
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+int vtkLSDynaReader::FillCells(vtkIdType *buff)
+{
+  //the passed in buffer is null, and only used to specialze the method
+  //as pure method specialization isn't support by some compilers
+  LSDynaMetaData *p = this->P;
+  vtkIdType nc;
+  vtkIntArray* matl = 0;
+  vtkIdType* conn;
+  vtkIdType c, t, i, matlId;
+  c = 0;
+
+  //READ PARTICLES
+  p->Fam.SkipToWord( LSDynaFamily::SPHNodeData, p->Fam.GetCurrentAdaptLevel(), 0 );
+  nc = p->NumberOfCells[ LSDynaMetaData::PARTICLE ];
+  t = p->Dict["NMSPH"];
+  
+
+  p->Fam.BufferChunk( LSDynaFamily::Int, 2 * t );
+  buff = p->Fam.GetBufferAsIdType();
+  for ( i = 0; i < t; ++i)
+    {
+    conn = buff++;
+    matlId = *buff;
+    ++buff;
+    this->Parts->InsertCell(LSDynaMetaData::PARTICLE,t,matlId,VTK_VERTEX,1,conn);
+    }
+
+  //READ SOLIDS
+  p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), p->NumberOfNodes*p->Dimensionality );
+
+  nc = p->NumberOfCells[ LSDynaMetaData::SOLID ];  
+  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::SOLID] );
+  buff = p->Fam.GetBufferAsIdType();
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SOLID]; ++t)
+    {
+    conn = buff;
+    buff+=8;
+    matlId = *buff;
+    ++buff;
+    
+    vtkIdType npts = 0;
+    int type = 0;
+    // Detect repeated connectivity entries to determine element type
+    if (conn[3] == conn[7])
+      {
+      type = VTK_TETRA;
+      npts = 4;
+      }
+    else if (conn[4] == conn[7])
+      {
+      type = VTK_PYRAMID;
+      npts = 5;
+      }
+    else if (conn[5] == conn[7])
+      {
+      type = VTK_WEDGE;
+      npts = 6;
+      }
+    else
+      {
+      type = VTK_HEXAHEDRON;
+      npts = 8;
+      }
+
+    //push this cell back into the unstructured grid for this part(if the part is active)
+    this->Parts->InsertCell(LSDynaMetaData::SOLID,t,matlId,type,npts,conn);
+    }
+
+  //READ THICK_SHELL
+  nc = p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ];
+  p->Fam.BufferChunk( LSDynaFamily::Int, 9*p->NumberOfCells[LSDynaMetaData::THICK_SHELL] );
+  buff = p->Fam.GetBufferAsIdType();
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::THICK_SHELL]; ++t )
+    {
+    conn = buff;
+    buff+=8;
+    matlId = *buff;
+    ++buff;
+    this->Parts->InsertCell(LSDynaMetaData::THICK_SHELL,t,matlId,VTK_QUADRATIC_QUAD,8,conn);
+    }
+
+  //READ BEAM
+  nc = p->NumberOfCells[ LSDynaMetaData::BEAM ];
+  p->Fam.BufferChunk( LSDynaFamily::Int, 6*p->NumberOfCells[LSDynaMetaData::BEAM] );
+  buff = p->Fam.GetBufferAsIdType();
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::BEAM]; ++t )
+    {
+    conn = buff;
+    buff+=5;
+    matlId = *buff;
+    ++buff;
+    this->Parts->InsertCell(LSDynaMetaData::BEAM,t,matlId,VTK_LINE,2,conn);
+    }
+  
+  //READ SHELL and RIGID_BODY
+  bool haveRigidMaterials = (p->Dict["MATTYP"] != 0) && p->RigidMaterials.size();
+  vtkIdType nrFound = 0;
+  vtkIdType nsFound = 0;
+  // FIXME: Should this include p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ] or should matl->SetNumberOfTuples() use different number?
+  p->Fam.BufferChunk( LSDynaFamily::Int, 5*p->NumberOfCells[LSDynaMetaData::SHELL] );
+  buff = p->Fam.GetBufferAsIdType();
+  for ( t=0; t<p->NumberOfCells[LSDynaMetaData::SHELL]; ++t )
+    {
+    conn = buff;
+    buff+=4;
+    matlId = *buff;
+    ++buff;
+    if ( haveRigidMaterials && p->RigidMaterials.find( matlId ) == p->RigidMaterials.end() )
+      {
+      this->Parts->InsertCell(LSDynaMetaData::RIGID_BODY,t,matlId,VTK_QUAD,4,conn);
+      }
+    else
+      {
+      this->Parts->InsertCell(LSDynaMetaData::SHELL,t,matlId,VTK_QUAD,4,conn);
+      }
+    }
+
+  //ToDO: Read Road Surface as an exception
+
+  return 0;
+}
+
+//  // Always call allocate so that cell array is created.
+//  nc = p->NumberOfCells[ LSDynaMetaData::ROAD_SURFACE ];
+//  this->OutputRoadSurface->Allocate( nc );
+//  if ( p->ReadRigidRoadMvmt )
+//    {
+//    /* FIXME: There is no material, just segment ID, for road surfaces?
+//    matl = vtkIntArray::New();
+//    matl->SetNumberOfComponents( 1 );
+//    matl->SetNumberOfTuples( nc );
+//    matl->SetName( LS_ARRAYNAME_MATERIAL );
+//    this->OutputRoadSurface->GetCellData()->AddArray( matl );
+//    matl->FastDelete();
+//    */
+//
+//    vtkIntArray* segn = 0;
+//    if ( this->GetCellArrayStatus( LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_SEGMENTID ) )
+//      {
+//      segn = vtkIntArray::New();
+//      segn->SetNumberOfComponents( 1 );
+//      segn->SetNumberOfTuples( nc );
+//      segn->SetName( LS_ARRAYNAME_SEGMENTID );
+//      this->OutputRoadSurface->GetCellData()->AddArray( segn );
+//      segn->FastDelete();
+//
+//      // FIXME: We're skipping road surface node ids
+//      p->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData, p->Fam.GetCurrentAdaptLevel(), 4 + 4*p->Dict["NNODE"] );
+//      for ( c=0; c<p->Dict["NSURF"]; ++c )
+//        {
+//        p->Fam.BufferChunk( LSDynaFamily::Int, 2 );
+//        vtkIdType segId = p->Fam.GetNextWordAsInt();
+//        vtkIdType segSz = p->Fam.GetNextWordAsInt();
+//        p->Fam.BufferChunk( LSDynaFamily::Int, 4*segSz );
+//        for ( t=0; t<segSz; ++t )
+//          {
+//          for ( i=0; i<4; ++i )
+//            {
+//            conn[i] = p->Fam.GetNextWordAsInt() - 1;
+//            }
+//          this->OutputRoadSurface->InsertNextCell( VTK_QUAD, 4, conn );
+//          }
+//        for ( t=0; t<segSz; ++t )
+//          {
+//          segn->SetTuple1( t, segId );
+//          }
+//        }
+//      }
+//    else
+//      {
+//      p->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData, p->Fam.GetCurrentAdaptLevel(),
+//        4 + 4 * p->Dict["NNODE"] + 2 * p->Dict["NSEG"] + 4 * p->Dict["NSURF"] );
+//      }
+//    }
+//
+//  return 0;
+//}
+
+//-----------------------------------------------------------------------------
+int vtkLSDynaReader::ReadConnectivityAndMaterial()
+{
+  LSDynaMetaData* p = this->P;
+  if ( p->ConnectivityUnpacked == 0 )
+    {
+    // FIXME
+    vtkErrorMacro( "Packed connectivity isn't supported yet." );
+    return 1;
+    }
+  
+  if(p->Fam.GetWordSize() == 8)
+    {
+    vtkIdType *buf=NULL;
+    return this->FillCells(buf);
+    }
+  else
+    {
+    int *buf=NULL;
+    return this->FillCells(buf);
     }
 }
