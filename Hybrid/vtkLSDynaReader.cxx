@@ -546,6 +546,14 @@ void vtkLSDynaReader::SetFileName( const char* f )
 
   this->SetDatabaseDirectory( dbDir.c_str() );
 
+  //if the filename is being set we need to clear the parts collection
+  //as the cache of topology information is invalid
+  if(this->Parts)
+    {
+    this->Parts->Delete();
+    this->Parts=NULL;
+    }
+
   if ( dbExt == ".k" || dbExt == ".lsdyna" )
     {
     this->SetInputDeck( f );
@@ -1159,6 +1167,14 @@ void vtkLSDynaReader::SetPartArrayStatus( int a, int stat )
 
   if ( stat == this->P->PartStatus[a] )
     return;
+
+  //we have a part being modified reset the part toplogy cache, it
+  //has been invalidated
+  if(this->Parts)
+    {
+    this->Parts->Delete();
+    this->Parts=NULL;
+    }
 
   this->P->PartStatus[a] = stat;
   this->Modified();
@@ -3331,13 +3347,13 @@ int vtkLSDynaReader::RequestData(
     return 1;
     }
 
-  // Always read connectivity info
-  //ToDo: Parts has to be deleted if file name is changed
-  //ToDo: Parts has to be deleted if a parts status is changed
+  
   if (!this->Parts)
     {
     this->Parts = vtkLSDynaPartCollection::New();
     this->Parts->SetMetaData(this->P);
+    //Read connectivity info once per simulation run and cache it.
+    //if the filename or a part/material array is modified the cache is deleted
     if ( this->ReadConnectivityAndMaterial() )
       {
       vtkErrorMacro( "Could not read connectivity." );
