@@ -159,6 +159,7 @@ public:
   int MarkTimeStep();
   int SkipWords( vtkIdType numWords );
   int BufferChunk( WordType wType, vtkIdType chunkSizeInWords );
+  int ClearBuffer();
 
   inline char* GetNextWordAsChars();
   inline double GetNextWordAsFloat();

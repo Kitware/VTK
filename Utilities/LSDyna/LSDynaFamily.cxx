@@ -429,6 +429,20 @@ int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
   }
 
 //-----------------------------------------------------------------------------
+int LSDynaFamily::ClearBuffer()
+{
+  if ( this->Chunk )
+    {
+    this->ChunkAlloc = 0;
+    delete [] this->Chunk;
+    this->Chunk = NULL;
+    }
+
+  return 0;
+}
+
+
+//-----------------------------------------------------------------------------
 int LSDynaFamily::AdvanceFile()
   {
   if ( this->FNum < 0 && VTK_LSDYNA_ISBADFILE(this->FD) )

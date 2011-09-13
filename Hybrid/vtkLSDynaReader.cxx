@@ -2521,6 +2521,8 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
     }
 
   // 3D element data=======================================
+  p->Fam.ClearBuffer(); //clear the buffer as it will be way larger than needed
+  //and we need more free memory
   vppt = 0;
   vars.clear();
   cmps.clear();
@@ -2644,6 +2646,9 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
     LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
 
   this->Parts->ReadProperties(LSDynaMetaData::SHELL, p->Dict["NV2D"]);
+
+  //clear the buffer as it will very large and not needed
+  p->Fam.ClearBuffer();
  
 #undef VTK_LS_CELLARRAY
   return 0;
@@ -3704,4 +3709,5 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
     int *buf=NULL;
     return this->FillCells(buf);
     }
+  p->Fam.ClearBuffer();
 }
