@@ -47,7 +47,6 @@ typedef int vtkLSDynaFile_t;
 #  define VTK_LSDYNA_READ(fid,ptr,cnt) read(fid,ptr,cnt)
 #  define VTK_LSDYNA_ISBADFILE(fid) (fid < 0)
 #  define VTK_LSDYNA_CLOSEFILE(fid) close(fid)
-#  define VTK_LSDYNA_OPENFILE(fname) open(fname, O_RDONLY);
 #else // WIN32
 #  include <stdio.h>
 typedef long vtkLSDynaOff_t; // insanity
@@ -59,11 +58,23 @@ typedef FILE* vtkLSDynaFile_t;
 #  define VTK_LSDYNA_READ(fid,ptr,cnt) fread(ptr,1,cnt,fid)
 #  define VTK_LSDYNA_ISBADFILE(fid) (fid == 0)
 #  define VTK_LSDYNA_CLOSEFILE(fid) fclose(fid)
-#  define VTK_LSDYNA_OPENFILE(fname) fopen(fname, "rb")
 #endif
 #ifdef VTKSNL_HAVE_ERRNO_H
 #  include <errno.h>
 #endif
+
+
+static vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
+{
+#ifndef WIN32
+  vtkLSDynaFile_t f = open(fname, O_RDONLY);
+  return f;
+#else
+  vtkLSDynaFile_t f = fopen(fname, "rb");
+  setvbuf(f,NULL,_IONBF,0); //disable buffer
+  return f;
+#endif
+}
 
 class LSDyna_EXPORT LSDynaFamily
 {
