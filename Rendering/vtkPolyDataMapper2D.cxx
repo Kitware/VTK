@@ -43,6 +43,7 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
   
   this->TransformCoordinate = NULL;
+  this->TransformCoordinateUseDouble = false;
 
   strcpy(this->ArrayName, "");
   this->ArrayId = -1;
