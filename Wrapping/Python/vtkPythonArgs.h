@@ -679,17 +679,18 @@ PyObject *vtkPythonArgs::BuildValue(const char *a)
 inline
 PyObject *vtkPythonArgs::BuildValue(const std::string &a)
 {
-  return PyString_FromString(a.c_str());
+  return PyString_FromStringAndSize(a.c_str(), static_cast<Py_ssize_t>(a.size()));
 }
 
 inline
 PyObject *vtkPythonArgs::BuildValue(const vtkUnicodeString &a)
 {
-  const char *s = a.utf8_str();
+  std::string s;
+  a.utf8_str(s);
 #ifdef Py_USING_UNICODE
-  return PyUnicode_DecodeUTF8(s, strlen(s), NULL);
+  return PyUnicode_DecodeUTF8(s.c_str(), static_cast<Py_ssize_t>(s.size()), NULL);
 #else
-  return PyString_FromString(s);
+  return PyString_FromStringAndSize(s.c_str(), static_cast<Py_ssize_t>(s.size()));
 #endif
 }
 
