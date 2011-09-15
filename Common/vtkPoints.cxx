@@ -91,7 +91,6 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *fp)
 void vtkPoints::ComputeBounds()
 {
   vtkIdType i;
-  int j;
   double *x;
 
   if ( this->GetMTime() > this->ComputeTime )
