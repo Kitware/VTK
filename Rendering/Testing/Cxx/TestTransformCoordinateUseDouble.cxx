@@ -63,6 +63,11 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
   double y = 1. / 8.;
   double width = 1. / 4.;
   double height = 1. / 8.;
+
+  vtkNew<vtkRenderer> emptyRenderer;
+  emptyRenderer->SetViewport(0 , 0 , width, height);
+  renderWindow->AddRenderer(emptyRenderer.GetPointer());
+
   while (--i)
     {
     vtkNew<vtkRenderer> renderer;
@@ -83,7 +88,6 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
     renderer->AddActor2D(boxActor.GetPointer());
 
     renderWindow->AddRenderer(renderer.GetPointer());
-    renderer->SetLayer(0);
 
     if ( i % 2 )
       {
