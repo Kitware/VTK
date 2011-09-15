@@ -589,6 +589,27 @@ void vtkWrap_FindCountHints(
       }
     }
 
+  /* add hints for interpolator Interpolate methods */
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractImageInterpolator"))
+    {
+    countMethod = "GetNumberOfComponents()";
+
+    for (i = 0; i < data->NumberOfFunctions; i++)
+      {
+      theFunc = data->Functions[i];
+
+      if (strcmp(theFunc->Name, "Interpolate") == 0 &&
+           theFunc->NumberOfArguments == 2 &&
+           theFunc->Arguments[0]->Type == (VTK_PARSE_DOUBLE_PTR|VTK_PARSE_CONST) &&
+           theFunc->Arguments[0]->Count == 3 &&
+           theFunc->Arguments[1]->Type == VTK_PARSE_DOUBLE_PTR &&
+           theFunc->Arguments[1]->Count == 0)
+        {
+        theFunc->Arguments[1]->CountHint = countMethod;
+        }
+      }
+    }
+
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     theFunc = data->Functions[i];
