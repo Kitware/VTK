@@ -185,6 +185,10 @@ public:
   // Description:
   // Mouse wheel event, positive delta indicates forward movement of the wheel.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+
+  // Description:
+  // Key press event.
+  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
 //ETX
 
 //BTX
