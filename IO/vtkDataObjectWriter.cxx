@@ -38,6 +38,8 @@ void vtkDataObjectWriter::WriteData()
 
   vtkDebugMacro(<<"Writing vtk FieldData data...");
 
+  this->Writer->SetInput(this->GetInput());
+
   if ( !(fp=this->Writer->OpenVTKFile()) || !this->Writer->WriteHeader(fp) )
     {
     return;
@@ -48,6 +50,8 @@ void vtkDataObjectWriter::WriteData()
   this->Writer->WriteFieldData(fp, f);
   
   this->Writer->CloseVTKFile(fp);  
+
+  this->Writer->SetInput(NULL);
 }
 
 void vtkDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
