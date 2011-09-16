@@ -179,6 +179,44 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
   return false;
 }
 
+inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *exctext)
+{
+  if (PyString_Check(o))
+    {
+    char* val;
+    Py_ssize_t len;
+    PyString_AsStringAndSize(o, &val, &len);
+    a = std::string(val, len);
+    return true;
+    }
+#ifdef Py_USING_UNICODE
+  else if (PyUnicode_Check(o))
+    {
+#ifdef _PyUnicode_AsDefaultEncodedString
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
+#else
+    PyObject *s = PyUnicode_AsEncodedString(o, 0, NULL);
+#endif
+    if (s)
+      {
+      char* val;
+      Py_ssize_t len;
+      PyString_AsStringAndSize(s, &val, &len);
+      a = std::string(val, len);
+#ifndef _PyUnicode_AsDefaultEncodedString
+      Py_DECREF(s);
+#endif
+      return true;
+      }
+
+    exctext = "(unicode conversion error)";
+    }
+#endif
+
+  PyErr_SetString(PyExc_TypeError, exctext);
+  return false;
+}
+
 //--------------------------------------------------------------------
 // Overloaded methods, mostly based on the above templates
 
@@ -251,10 +289,8 @@ bool vtkPythonGetValue(PyObject *o, char *&a)
 inline
 bool vtkPythonGetValue(PyObject *o, std::string &a)
 {
-  const char *b;
-  if (vtkPythonGetStringValue(o, b, "string is required"))
+  if (vtkPythonGetStdStringValue(o, a, "string is required"))
     {
-    a = b;
     return true;
     }
   return false;
