@@ -51,11 +51,11 @@ public:
   void SetWriteToOutputString(int b) {this->Writer->SetWriteToOutputString(b);};
   void WriteToOutputStringOn() {this->Writer->WriteToOutputStringOn();};
   void WriteToOutputStringOff() {this->Writer->WriteToOutputStringOff();};
-  int GetWriteToOutputString() {this->Writer->GetWriteToOutputString();};
-  char* GetOutputString() {this->Writer->GetOutputString();};
-  vtkStdString GetOutputStdString() {this->Writer->GetOutputStdString();};
-  int GetOutputStringLength() {this->Writer->GetOutputStringLength();};
-  unsigned char* GetBinaryOutputString() {this->Writer->GetBinaryOutputString();};
+  int GetWriteToOutputString() {return this->Writer->GetWriteToOutputString();};
+  char* GetOutputString() {return this->Writer->GetOutputString();};
+  vtkStdString GetOutputStdString() {return this->Writer->GetOutputStdString();};
+  int GetOutputStringLength() {return this->Writer->GetOutputStringLength();};
+  unsigned char* GetBinaryOutputString() {return this->Writer->GetBinaryOutputString();};
   void SetFieldDataName(const char *fieldname) {this->Writer->SetFieldDataName(fieldname);};
   char *GetFieldDataName() {return this->Writer->GetFieldDataName();};
 
