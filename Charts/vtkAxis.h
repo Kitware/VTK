@@ -45,7 +45,7 @@ public:
   // Description:
   // Enumeration of the axis locations in a conventional XY chart. Other
   // layouts are possible.
-  enum { 
+  enum {
     LEFT = 0,
     BOTTOM,
     RIGHT,
@@ -332,8 +332,8 @@ protected:
   int Notation;        // The notation to use (standard, scientific, mixed)
   int Behavior;        // The behaviour of the axis (auto, fixed, custom).
   float MaxLabel[2];   // The widest/tallest axis label.
-  bool TitleAppended;  // THis keeps track if the title is updated when the label formats are changed
-                       // in Extended Axis Labeling algorithm
+  bool TitleAppended;  // Track if the title is updated when the label formats
+                       // are changed in the Extended Axis Labeling algorithm
 
   // Description:
   // This object stores the vtkPen that controls how the axis is drawn.

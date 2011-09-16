@@ -20,14 +20,14 @@
 // .SECTION Caveats
 
 // .SECTION See Also
-// vtkAxis 
+// vtkAxis
 
 #ifndef __vtkAxisExtended_h
 #define __vtkAxisExtended_h
 #endif
 
 #include "vtkObject.h"
-#include "vtkVector.h"
+#include "vtkVector.h" // Needed for vtkVector
 //
 #ifndef DBL_EPSILON
 #  define VTK_DBL_EPSILON    2.2204460492503131e-16
@@ -35,91 +35,94 @@
 #  define VTK_DBL_EPSILON    DBL_EPSILON
 #endif  // DBL_EPSILON
 
-
-
 class VTK_CHARTS_EXPORT vtkAxisExtended : public vtkObject
-{ 
-  public:
-    static vtkAxisExtended *New();
+{
+public:
+   vtkTypeMacro(vtkAxisExtended, vtkObject);
+   static vtkAxisExtended *New();
 
-    // Description:
-    // This method return a value to make step sizes corresponding to low q and j values more preferable
-    static double Simplicity(int qIndex, int qLength, int j, double lmin, double lmax, double lstep);
+   // Description:
+   // This method return a value to make step sizes corresponding to low q
+   // and j values more preferable
+   static double Simplicity(int qIndex, int qLength, int j, double lmin,
+                            double lmax, double lstep);
 
-    // Description:
-    // This method returns the maximum possible value of simplicity value given q and j
-    static double SimplicityMax(int qIndex, int qLength, int j);
+   // Description:
+   // This method returns the maximum possible value of simplicity value given
+   // q and j
+   static double SimplicityMax(int qIndex, int qLength, int j);
 
-    // Description:
-    // This method makes the data range approximately same as the labeling range more preferable
-    static double Coverage(double dmin, double dmax, double lmin, double lmax);
+   // Description:
+   // This method makes the data range approximately same as the labeling
+   // range more preferable
+   static double Coverage(double dmin, double dmax, double lmin, double lmax);
 
-    // Description:
-    //This gives the maximum possible value of coverage given the step size
-    static double CoverageMax(double dmin, double dmax, double span);
+   // Description:
+   //This gives the maximum possible value of coverage given the step size
+   static double CoverageMax(double dmin, double dmax, double span);
 
-    // Description:
-    // This method return a value to make the density of the labels close to the user given value
-    static double Density(int k, double m, double dmin, double dmax, double lmin, double lmax);
+   // Description:
+   // This method return a value to make the density of the labels close to
+   // the user given value
+   static double Density(int k, double m, double dmin, double dmax,
+                         double lmin, double lmax);
 
-    // Description:
-    // Derives the maximum values for density given k (number of ticks) and m (user given)
-    static double DensityMax(int k, double m);
+   // Description:
+   // Derives the maximum values for density given k (number of ticks) and
+   // m (user given)
+   static double DensityMax(int k, double m);
 
-    // Description:
-    // This method implements an exhaustive search for the legibilty parametes
-    vtkVector<double, 4> Legibility(double lmin, double lmax, double lstep, double scaling);
+   // Description:
+   // This method implements an exhaustive search for the legibilty parametes
+   vtkVector<double, 4> Legibility(double lmin, double lmax, double lstep,
+                                   double scaling);
 
-    // Description:
-    // This methods return the legibility score of differnt formats
-    static double FormatLegibilityScore(double n, int format);
+   // Description:
+   // This methods return the legibility score of differnt formats
+   static double FormatLegibilityScore(double n, int format);
 
-    // Description:
-    // This method returns the string length of differnt format notations.
-    static int FormatStringLength(int format, double n, int precision);
+   // Description:
+   // This method returns the string length of differnt format notations.
+   static int FormatStringLength(int format, double n, int precision);
 
-    // Description:
-    // This method implements the algorithm given in the paper
-    // The method return the minimum tick position, maximum tick postion and the tick spacing
-    vtkVector3d GenerateExtendedTickLabels(double dmin, double dmax, double m, double scaling);
+   // Description:
+   // This method implements the algorithm given in the paper
+   // The method return the minimum tick position, maximum tick postion and
+   // the tick spacing
+   vtkVector3d GenerateExtendedTickLabels(double dmin, double dmax, double m,
+                                          double scaling);
 
-    // Description:
-    // Set/Get methods for variables
+   // Description:
+   // Set/Get methods for variables
+   vtkGetMacro(FontSize, int);
+   vtkSetMacro(FontSize, int);
 
-    vtkGetMacro(FontSize, int);
-    vtkSetMacro(FontSize, int);
+   vtkGetMacro(DesiredFontSize, int);
+   vtkSetMacro(DesiredFontSize, int);
 
-    vtkGetMacro(DesiredFontSize, int);
-    vtkSetMacro(DesiredFontSize, int);
+   vtkSetMacro(Precision, double);
+   vtkGetMacro(LabelFormat, int);
+   vtkSetMacro(LabelFormat, int);
 
-   
-    vtkSetMacro(Precision, double);
+   vtkGetMacro(Orientation, int);
+   vtkSetMacro(Orientation, int);
 
-    vtkGetMacro(LabelFormat, int);
-    vtkSetMacro(LabelFormat, int);
+   //vtkGetMacro(FontSize, int);
+   vtkSetMacro(IsAxisVertical, bool);
 
-    vtkGetMacro(Orientation, int);
-    vtkSetMacro(Orientation, int);
+protected:
+  vtkAxisExtended();
+  ~vtkAxisExtended();
 
-     //vtkGetMacro(FontSize, int);
-    vtkSetMacro(IsAxisVertical, bool);
+  int Orientation;
+  int FontSize;
+  int DesiredFontSize;
+  double Precision;
+  int LabelFormat;
+  bool LabelLegibilityChanged;
+  bool IsAxisVertical;
 
-
-
-  protected:
-    vtkAxisExtended() {};
-    ~vtkAxisExtended() {};
-
-    int Orientation;
-    int FontSize;
-    int DesiredFontSize;
-    double Precision;
-    int LabelFormat;
-    bool LabelLegibilityChanged;
-    bool IsAxisVertical;
-
-  private:
-    vtkAxisExtended(const vtkAxisExtended&);  // Not implemented.
-    void operator=(const vtkAxisExtended&);  // Not implemented.
-
+private:
+  vtkAxisExtended(const vtkAxisExtended&); // Not implemented.
+  void operator=(const vtkAxisExtended&);  // Not implemented.
 };

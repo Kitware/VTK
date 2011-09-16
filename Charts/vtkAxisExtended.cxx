@@ -13,54 +13,64 @@
 
 =========================================================================*/
 
-#include "math.h"
-#include <algorithm>
 #include "vtkAxisExtended.h"
 #include "vtkStdString.h"
-#include "vtksys/ios/sstream"
 #include "vtkObjectFactory.h"
 
+#include <vtksys/ios/sstream>
 
+#include <cmath>
+#include <algorithm>
 
 
 vtkStandardNewMacro(vtkAxisExtended);
+
+vtkAxisExtended::vtkAxisExtended()
+{
+}
+
+vtkAxisExtended::~vtkAxisExtended()
+{
+}
+
 // This method return a value to make step sizes corresponding to low q and j values more preferable
-double vtkAxisExtended::Simplicity(int qIndex, int qLength, int j, double lmin, double lmax, double lstep)
+double vtkAxisExtended::Simplicity(int qIndex, int qLength, int j, double lmin,
+                                   double lmax, double lstep)
 {
   double eps = VTK_DBL_EPSILON * 100;
   int v = 1 ;
-  qIndex++;
-
+  ++qIndex;
 
   double rem = fmod(lmin,lstep);
-  if((rem < eps || (lstep - rem ) < eps ) &&  lmin <=0 && lmax >=0 )
+  if((rem < eps || (lstep - rem ) < eps ) &&  lmin <= 0 && lmax >= 0)
     {
-    v =0;
+    v = 0;
     }
   else
     {
-    v=1;  // v is 1 is lebelling includes zero
+    v = 1;  // v is 1 is lebelling includes zero
     }
 
-  return 1 - (qIndex-1)/(qLength-1) - j + v; 
-
+  return 1 - (qIndex - 1) / (qLength - 1) - j + v;
 }
 
-// This method returns the maximum possible value of simplicity value given q and j
+// This method returns the maximum possible value of simplicity value given q
+// and j
 double vtkAxisExtended::SimplicityMax(int qIndex, int qLength, int j)
 {
   int v =1;
-  qIndex++;
-  return 1 - (qIndex-1)/(qLength-1) - j + v; 
-
+  ++qIndex;
+  return 1 - (qIndex-1)/(qLength-1) - j + v;
 }
 
-// This method makes the data range approximately same as the labeling range more preferable
-double vtkAxisExtended::Coverage(double dmin, double dmax, double lmin, double lmax)
+// This method makes the data range approximately same as the labeling range
+// more preferable
+double vtkAxisExtended::Coverage(double dmin, double dmax, double lmin,
+                                 double lmax)
 {
-  double coverage = 1- 0.5 * (pow(dmax- lmax, 2) + pow(dmin- lmin, 2) / pow(0.1*(dmax-dmin),2));
+  double coverage = 1- 0.5 * (pow(dmax- lmax, 2) + pow(dmin- lmin, 2)
+                              / pow(0.1*(dmax-dmin),2));
   return coverage;
-
 }
 
 
@@ -77,25 +87,26 @@ double vtkAxisExtended::CoverageMax(double dmin, double dmax, double span)
     {
     return 1.0;
     }
-
 }
 
-// This method return a value to make the density of the labels close to the user given value
-double vtkAxisExtended::Density(int k, double m, double dmin, double dmax, double lmin, double lmax)
+// This method return a value to make the density of the labels close to the
+// user given value
+double vtkAxisExtended::Density(int k, double m, double dmin, double dmax,
+                                double lmin, double lmax)
 {
   double r = (k-1)/(lmax-lmin);
   double rt = (m-1) / (std::max(lmax,dmax) - std::min(dmin,lmin));
 
-  return 2 - std::max(r/rt , rt/r);
-
+  return 2 - std::max(r/rt, rt/r);
 }
 
-// Derives the maximum values for density given k (number of ticks) and m (user given)
+// Derives the maximum values for density given k (number of ticks) and m
+// (user given)
 double vtkAxisExtended::DensityMax(int k, double m)
 {
   if(k >= m)
     {
-    return 2 - (k-1)/(m-1);
+    return 2 - (k-1) / (m-1);
     }
   else
     {
@@ -103,19 +114,16 @@ double vtkAxisExtended::DensityMax(int k, double m)
     }
 }
 
-
 // This methods gives a weighing factor for each label depending on the range
-// The coding for the different formats 
+// The coding for the different formats
 //   1 - Scientific 5 * 10^6
 //   2 - Decimal e.g. 5000
 //   3 - K e.g. 5K
 //   4 - Factored K e.g. 5(K)
 //   5 - M e.g. 5M
 //   6 - Factored M e.g. 5(M)
-//   7 - Factored Decimals e.g. 5 (thousands) 
+//   7 - Factored Decimals e.g. 5 (thousands)
 //   8 - Factored Scientific 5 (10^6)
-
-
 double vtkAxisExtended::FormatLegibilityScore(double n, int format)
 {
   switch(format)
@@ -132,7 +140,7 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
         {
         return 0.0;
         }
-      break; 
+      break;
     case 3:
       if( abs(n)>1000 &&  abs(n) < 1000000)
         {
@@ -152,7 +160,7 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
         {
         return 0.0;
         }
-      break; 
+      break;
     case 5:
       if( abs(n)>1000000 &&  abs(n) < 1000000000)
         {
@@ -190,27 +198,27 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
 int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
 {
   vtksys_ios::ostringstream ostr;
-  ostr.imbue(vtkstd::locale::classic()); 
-  int numSize(0);      
+  ostr.imbue(vtkstd::locale::classic());
+  int numSize(0);
 
   switch(format)
-  {
+    {
     case 1:
       ostr.precision(precision);
       ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
       ostr<<n;
       numSize = (int) ostr.str().length();
       return numSize;
-      break;
     case 2:
       ostr << n;
       if((std::ceil(n)-std::floor(n)) != 0.0 )
         {
         ostr.precision(precision);
         }
-      numSize = (int) ostr.str().length()-1;  // Gets the length of the string with the current format without the end character
+      // Gets the length of the string with the current format without the end
+      // character
+      numSize = (int) ostr.str().length()-1;
       return numSize;
-      break;
     case 3:
       ostr.setf(ios::fixed, ios::floatfield);
       ostr << n/1000;
@@ -220,27 +228,24 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
         }
       numSize = (int) ostr.str().length()-1;
       return numSize+1; // minus three zeros + K
-      break;
     case 4:
       ostr.setf(ios::fixed, ios::floatfield);
       ostr << n/1000;
-      if((std::ceil(n/1000.0)-std::floor(n/1000.0)) != 0.0 )
+      if((std::ceil(n/1000.0)-std::floor(n/1000.0)) != 0.0)
         {
         ostr.precision(precision);
         }
-      numSize = (int) ostr.str().length()-1;
+      numSize = static_cast<int>(ostr.str().length() - 1);
       return numSize; // minus three zeros
-      break;
     case 5:
       ostr.setf(ios::fixed, ios::floatfield);
       ostr << n/1000000;
-      if((std::ceil(n/1000000.0)-std::floor(n/1000000.0)) != 0.0 )
+      if((std::ceil(n/1000000.0) - std::floor(n/1000000.0)) != 0.0)
         {
         ostr.precision(precision);
         }
       numSize = (int) ostr.str().length()-1;
-      return numSize; // minus six zeros 
-      break;
+      return numSize; // minus six zeros
     case 6:
       ostr.setf(ios::fixed, ios::floatfield);
       ostr << n/1000000;
@@ -250,7 +255,6 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
         }
       numSize = (int) ostr.str().length()-1;
       return numSize+1; // minus six zeros + M
-      break;
     case 7:
       ostr.setf(ios::fixed, ios::floatfield);
       ostr << n/1000;
@@ -260,55 +264,52 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
         }
       numSize = (int) ostr.str().length()-1;
       return numSize;  // Three 0's get reduced
-      break;
     case 8:
       ostr.precision(precision);
       ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
       ostr<<n/1000;
       numSize = (int) ostr.str().length();
       return numSize;
-      break;
     default:
       return 0;
-      break;
-  }
-
+    }
 }
 
-
-// This methods determines the optimum notation, font size and orientation of labels from an exhaustive search
-vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax, double lstep, double scaling)
+// This methods determines the optimum notation, font size and orientation of
+// labels from an exhaustive search
+vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax,
+                                                 double lstep, double scaling)
 {
   int numTicks = floor((lmax-lmin)/lstep);
   double* tickPositions = new double[numTicks];
-  int fontSizes[8] = { 8, 9, 10, 12, 14, 18, 20, 24 }; 
-  for(int i = 0; i< numTicks; i++)
+  int fontSizes[8] = { 8, 9, 10, 12, 14, 18, 20, 24 };
+  for(int i = 0; i< numTicks; ++i)
     {
     tickPositions[i] = lmax + i*lstep;
     }
-  
- // this->LabelLegibilityChanged = true;
 
+ // this->LabelLegibilityChanged = true;
   int bestFormat = 1;
   int bestOrientation = 0;
   int bestFontSize = this->DesiredFontSize;
 
   double bestLegScore = 0.0;
 
-  for(int iFormat = 1; iFormat<9 ; iFormat++ )
-  {
+  for(int iFormat = 1; iFormat < 9; ++iFormat)
+    {
     double formatLegSum = 0.0;
-    for(int i = 0; i<numTicks; i++)
+    for(int i = 0; i<numTicks; ++i)
       {
       formatLegSum += FormatLegibilityScore(tickPositions[i], iFormat);
       }
 
-    formatLegSum = formatLegSum / numTicks;  // Average of label legibility scores
+    // Average of label legibility scores
+    formatLegSum = formatLegSum / numTicks;
 
     double eps = VTK_DBL_EPSILON * 100;
     int v = 1 ;
     double rem = fmod(lmin,lstep);
-    if((rem < eps || (lstep - rem ) < eps ) &&  lmin <=0 && lmax >=0 )
+    if((rem < eps || (lstep - rem ) < eps ) &&  lmin <=0 && lmax >=0)
       {
       v = 0;
       }
@@ -317,54 +318,61 @@ vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax, doubl
       v = 1;  // v is 1 is lebelling includes zero
       }
 
-    formatLegSum = 0.9 * formatLegSum + 0.1 * v; 
-    
+    formatLegSum = 0.9 * formatLegSum + 0.1 * v;
+
     double fontLegSum = 0.0;
-    
-    for (int fontIndex = 0; fontIndex < 8 ; fontIndex++ ) // 8 font sizes are checked
+
+    // 8 font sizes are checked
+    for (int fontIndex = 0; fontIndex < 8 ; ++fontIndex)
       {
       int iFont = fontSizes[fontIndex];
       if(iFont == this->DesiredFontSize)
         {
         fontLegSum = 1.0;
         }
-      else if ( iFont<this->DesiredFontSize && iFont >= fontSizes[0])  // fontSizes[0] is the minimum font size
+      // fontSizes[0] is the minimum font size
+      else if ( iFont<this->DesiredFontSize && iFont >= fontSizes[0])
         {
-        fontLegSum = 0.2 * (iFont - fontSizes[0] + 1) / (this->DesiredFontSize - fontSizes[0]);
+        fontLegSum = 0.2 * (iFont - fontSizes[0] + 1)
+            / (this->DesiredFontSize - fontSizes[0]);
         }
       else
         {
-        fontLegSum = -100.0 ;
+        fontLegSum = -100.0;
         }
-        
-      for(int iOrientation = 0 ; iOrientation <2 ; iOrientation++)
-        {
-        double orientLegSum = (iOrientation == 0) ? 1 : -0.5; 
 
+      for(int iOrientation = 0 ; iOrientation <2 ; ++iOrientation)
+        {
+        double orientLegSum = (iOrientation == 0) ? 1 : -0.5;
         // Here the gap between two consecutive labels is calculated as:
-        // 2*Actual distance (in pixels) among two ticks - string lengths of the two largest labels
-       
+        // 2*Actual distance (in pixels) among two ticks - string lengths of
+        // the two largest labels
         double overlapLegSum = 1.0;
 
-        double legScore = (formatLegSum + fontLegSum + orientLegSum + overlapLegSum)/4;
-
+        double legScore = (formatLegSum + fontLegSum + orientLegSum
+                           + overlapLegSum)/4;
         if(legScore > bestLegScore )
           {
-
           if(numTicks>1)
             {
             double fontExtent;
-            if((this->IsAxisVertical && iOrientation) || (!this->IsAxisVertical && !iOrientation) )
+            if((this->IsAxisVertical && iOrientation) ||
+               (!this->IsAxisVertical && !iOrientation) )
               {
-              fontExtent = (FormatStringLength(iFormat,tickPositions[numTicks-1],this->Precision) + FormatStringLength(iFormat,tickPositions[numTicks-2],this->Precision))*iFont;
+              fontExtent =
+                  (FormatStringLength(iFormat,tickPositions[numTicks-1],
+                                      this->Precision) +
+                   FormatStringLength(iFormat,tickPositions[numTicks-2],
+                                      this->Precision))*iFont;
               }
             else
               {
-              fontExtent = iFont*2;
+              fontExtent = iFont * 2;
               }
             double tickDistance = lstep * scaling;
             double labelingGap= 2*(tickDistance) - fontExtent;
-            overlapLegSum = std::min(1.0,2 - 3* iFont *1.1 / labelingGap );  // 1.1 for line spacing
+            // 1.1 for line spacing
+            overlapLegSum = std::min(1.0,2 - 3* iFont *1.1 / labelingGap );
             /*if(labelingGap > 3*iFont)
               {
               overlapLegSum = 1.0;
@@ -373,13 +381,14 @@ vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax, doubl
               {
               overlapLegSum = 2 - 3* iFont / labelingGap ;
               }
-            else 
+            else
               {
               overlapLegSum = -100;
               }*/
             }
 
-          legScore = (formatLegSum + fontLegSum + orientLegSum + overlapLegSum)/4;
+          legScore = (formatLegSum + fontLegSum + orientLegSum +
+                      overlapLegSum)/4;
 
           if ( legScore > bestLegScore)
             {
@@ -391,9 +400,7 @@ vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax, doubl
           }
         }
       }
-
-      
-  }
+    }
 
   vtkVector<double, 4> LegParameters;
   LegParameters[0] = bestLegScore;
@@ -402,11 +409,12 @@ vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax, doubl
   LegParameters[3] = bestOrientation;
   delete [] tickPositions;
   return LegParameters;
-
 }
 
 // This method implements the algorithm given in the paper
-vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin, double dmax, double m, double scaling)
+vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
+                                                        double dmax, double m,
+                                                        double scaling)
 {
   double Q[] = {1, 5, 2, 2.5, 4, 3};
   double w[] = {0.25, 0.2, 0.5, 0.05};
@@ -431,16 +439,16 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin, double dmax
 
   int qLength = 6;//Q.Length(); // Hard Coded
 
-  //list<double> best; 
+  //list<double> best;
   double bestScore = -2;
-  double bestLmin(0),bestLmax(0), bestLstep(0);
+  double bestLmin(0), bestLmax(0), bestLstep(0);
 
   const int INF = 100; //INT_MAX;  Again 100 is hard coded
 
-  int j =1;
+  int j = 1;
   while(j < INF)
     {
-    for(int qIndex = 0; qIndex < qLength; qIndex++)
+    for(int qIndex = 0; qIndex < qLength; ++qIndex)
       {
       double sm = SimplicityMax(qIndex, qLength, j);
       if((w[0]*sm + w[1] + w[2] + w[3]) < bestScore)
@@ -459,25 +467,25 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin, double dmax
           }
         double delta = (dmax- dmin)/((k+1)*j*Q[qIndex]) ;
         double z = ceil(log10(delta));
-        while( z < INF)
+        while(z < INF)
           {
           double step = j*Q[qIndex]*pow(10,z);
-          double cm = CoverageMax(dmin, dmax, step*(k-1));
+          //double cm = CoverageMax(dmin, dmax, step*(k-1));
           if((w[0]*sm + w[1] + w[2]*dm + w[3]) < bestScore)
             {
             break;
             }
 
-          double minStart = floor(dmax/step)*j - (k-1)*j;
-          double maxStart = ceil(dmin/step)*j;
+          double minStart = std::floor(dmax/step) * j - (k-1) * j;
+          double maxStart = std::ceil(dmin/step) * j;
 
           if(minStart > maxStart)
             {
-            z++;
+            ++z;
             continue;
             }
 
-          for(int start = minStart; start <=maxStart; start++)
+          for(int start = minStart; start <=maxStart; ++start)
             {
             double lmin = start * (step/j);
             double lmax = lmin + step*(k-1);
@@ -486,18 +494,16 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin, double dmax
             double s = Simplicity(qIndex, qLength, j, lmin, lmax, lstep);
             double c = Coverage(dmin, dmax, lmin, lmax);
             double g = Density(k,m,dmin, dmax, lmin, lmax);
-            
 
             double score = w[0]*s + w[1]*c + w[2]*g + w[3];
 
             if(score < bestScore)
                continue;
 
-            vtkVector<double,4> l = Legibility(lmin,lmax,lstep,scaling);  
+            vtkVector<double,4> l = Legibility(lmin,lmax,lstep,scaling);
 
             score = w[0]*s + w[1]*c + w[2]*g + w[3]*l[0];
 
-            
             if(score > bestScore)
               {
               bestScore = score;
@@ -506,17 +512,17 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin, double dmax
               bestLstep = lstep;
               this->LabelFormat = l[1]; // label format
               this->FontSize = l[2]; // label font size
-              this->Orientation = l[3]; // label orientation            
+              this->Orientation = l[3]; // label orientation
               }
             }
-          z++;
+          ++z;
           }
-        k++;
+        ++k;
 
 
         }
       }
-    j++;
+    ++j;
 
     }
   ans[0] = bestLmin;
