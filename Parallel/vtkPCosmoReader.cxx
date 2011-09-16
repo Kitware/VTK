@@ -302,7 +302,7 @@ int vtkPCosmoReader::RequestData(
   points->SetDataTypeToFloat();
   points->Allocate(numberOfParticles);
   vtkCellArray* cells = vtkCellArray::New();
-  cells->EstimateSize(numberOfParticles, 1);
+  cells->Allocate(cells->EstimateSize(numberOfParticles, 1));
 
   vtkFloatArray* vel = vtkFloatArray::New();
   vel->SetName("velocity");
