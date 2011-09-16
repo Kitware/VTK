@@ -51,7 +51,7 @@ public:
   // NOTE: The original input data port pointer is not reference counted, so it should
   // not be assumed to be a valid pointer. It is only used for pointer comparison.
   vtkstd::map<vtkstd::pair<int, int>,
-              vtkstd::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkAlgorithmOutput> > >
+              vtkstd::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> > >
     InputInternal;
 
   // This is a cache of vtkConvertSelectionDomain filters provided for convenience.
@@ -178,12 +178,11 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
     copy->ShallowCopy(input);
     vtkTrivialProducer* tp = vtkTrivialProducer::New();
     tp->SetOutput(copy);
-    this->Implementation->InputInternal[p].second =
-      tp->GetOutputPort();
+    this->Implementation->InputInternal[p].second = tp;
     tp->Delete();
     }
 
-  return this->Implementation->InputInternal[p].second;
+  return this->Implementation->InputInternal[p].second->GetOutputPort();
 }
 
 //----------------------------------------------------------------------------

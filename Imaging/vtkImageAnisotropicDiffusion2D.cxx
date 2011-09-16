@@ -141,6 +141,8 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
   // make the temporary regions to iterate over.
   vtkImageData *in = vtkImageData::New();
   in->SetExtent(inExt);
+  in->AllocateScalars(VTK_DOUBLE,
+                      inData[0][0]->GetNumberOfScalarComponents());
   in->CopyAndCastFrom(inData[0][0],inExt);
   
   vtkImageData *out = vtkImageData::New();

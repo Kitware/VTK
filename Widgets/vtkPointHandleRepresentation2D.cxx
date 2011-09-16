@@ -58,6 +58,7 @@ vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
   cursor2D->AllOff();
   cursor2D->AxesOn();
   cursor2D->PointOn();
+  cursor2D->Update();
   this->CursorShape = cursor2D->GetOutput();
   this->CursorShape->Register(this);
   cursor2D->Delete();

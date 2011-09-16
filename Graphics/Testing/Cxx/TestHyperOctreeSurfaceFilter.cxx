@@ -84,7 +84,6 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   cout<<"source3d time="<<timer->GetElapsedTime()<<" s"<<endl;
   
   hds->SetBlock(0,source3d->GetOutput());
-  source3d->Delete();
   
   // 2D
   vtkHyperOctreeSampleFunction *source2d=vtkHyperOctreeSampleFunction::New();
@@ -173,7 +172,9 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
+  source3d->Delete();
+
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);

@@ -77,6 +77,7 @@ int TestLogoWidgetAlphaBlending( int argc, char *argv[] )
   */
   image1->SetOrientationType( 4 );
   delete [] fname;
+  image1->Update();
 
   // Create a test pipeline
   //

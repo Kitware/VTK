@@ -55,6 +55,9 @@
 
 #include "vtkProcess.h"
 
+
+#include "vtkPolyDataWriter.h"
+
 class MyProcess : public vtkProcess
 {
 public:
@@ -176,6 +179,9 @@ void MyProcess::Execute()
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(elev->GetOutputPort());
   mapper->SetScalarRange(0, numProcs);
+  mapper->SetPiece(me);
+  mapper->SetNumberOfPieces(numProcs);
+  // mapper->SetNumberOfPieces(2);
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   vtkRenderer *renderer = prm->MakeRenderer();
@@ -241,10 +247,18 @@ void MyProcess::Execute()
   // If it executes here, dd will be up-to-date won't have to 
   // execute in GetActiveCamera.
 
-  mapper->SetPiece(me);
-  mapper->SetNumberOfPieces(numProcs);
+  // mapper->SetPiece(me);
+  // mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
-  
+
+  if (me ==1)
+    {
+    vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
+    writer->SetInputConnection(elev->GetOutputPort());
+    writer->SetFileName("contour1.vtk");
+    writer->Write();
+    }
+
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)

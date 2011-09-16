@@ -44,6 +44,7 @@
 #include "vtkTesting.h"
 
 #include "vtkDataSetWriter.h"
+#include "vtkMultiThreader.h"
 
 char TestSphereHandleWidgetEventLog[] =
 "# StreamVersion 1\n"
@@ -246,6 +247,8 @@ int TestSphereHandleWidget(int argc, char*argv[])
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
 
+  vtkMultiThreader::SetGlobalMaximumNumberOfThreads(1);
+
   // Read height field.
   //
   vtkSmartPointer<vtkDEMReader> demReader =
@@ -336,7 +339,7 @@ int TestSphereHandleWidget(int argc, char*argv[])
 
   vtkSmartPointer<vtkHandleWidget> widget =
     vtkSmartPointer<vtkHandleWidget>::New();
-  //widget->SetInteractor(iren);
+  widget->SetInteractor(iren);
   vtkSmartPointer<vtkSphereHandleRepresentation> rep =
     vtkSmartPointer<vtkSphereHandleRepresentation>::New();
   widget->SetRepresentation( rep );
@@ -356,7 +359,7 @@ int TestSphereHandleWidget(int argc, char*argv[])
   renWin->Render();
   
   iren->Initialize();
-  //widget->EnabledOn();
+  widget->EnabledOn();
   renWin->Render();
   ren1->ResetCamera();
   ren1->ResetCameraClippingRange();

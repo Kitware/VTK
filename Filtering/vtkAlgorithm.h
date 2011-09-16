@@ -368,7 +368,9 @@ public:
 
   // Description:
   // Bring this algorithm's outputs up-to-date.
+  virtual void Update(int port);
   virtual void Update();
+
 
   // Description:
   // Bring the algorithm's information up-to-date.

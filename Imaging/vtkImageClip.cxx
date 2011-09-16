@@ -88,7 +88,7 @@ void vtkImageClip::SetOutputWholeExtent(int extent[6], vtkInformation *outInfo)
       {
       outInfo = this->GetExecutive()->GetOutputInformation(0);
       }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
     }
 }
 

@@ -345,6 +345,7 @@ int TestOrientationMarkerWidget( int, char *[] )
   tube->SetVaryRadiusToVaryRadiusOff();
   tube->SetRadius( 0.02 );
   tube->SetNumberOfSides( 5 );
+  tube->Update();
 
   // part 2 is generated from vtkAnnotatedCubeActor to test
   // vtkAxesActor SetUserDefinedTip
@@ -388,7 +389,7 @@ int TestOrientationMarkerWidget( int, char *[] )
       vtkPolyData* poly = vtkPolyData::SafeDownCast(node->GetMapper()->GetInput());
       if ( poly )
         {
-        transformFilter->SetInputData( poly );
+        transformFilter->SetInputConnection( node->GetMapper()->GetInputConnection(0, 0) );
         transform->Identity();
         transform->SetMatrix( node->GetMatrix() );
         transform->Scale( 2.0, 2.0, 2.0 );
@@ -401,6 +402,8 @@ int TestOrientationMarkerWidget( int, char *[] )
         }
       }
     }
+
+  append->Update();
 
   // the final actor the widget will follow
   //

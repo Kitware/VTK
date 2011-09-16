@@ -18,6 +18,7 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
@@ -424,6 +425,11 @@ vtkStreamingDemandDrivenPipeline
       {
       if(vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0))
         {
+        vtkInformation* scalarInfo =
+          vtkDataObject::GetActiveFieldInformation(
+            inInfo,
+            vtkDataObject::FIELD_ASSOCIATION_POINTS,
+            vtkDataSetAttributes::SCALARS);
         // Copy information from the first input to all outputs.
         for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
           {
@@ -434,6 +440,23 @@ vtkStreamingDemandDrivenPipeline
           outInfo->CopyEntry(inInfo, EXTENT_TRANSLATOR());
           outInfo->CopyEntry(inInfo, TIME_STEPS());
           outInfo->CopyEntry(inInfo, TIME_RANGE());
+          outInfo->CopyEntry(inInfo, vtkDataObject::ORIGIN());
+          outInfo->CopyEntry(inInfo, vtkDataObject::SPACING());
+          if (scalarInfo)
+            {
+            int scalarType = VTK_DOUBLE;
+            if (scalarInfo->Has(vtkDataObject::FIELD_ARRAY_TYPE()))
+              {
+              scalarType = scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+              }
+            int numComp = 1;
+            if (scalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()))
+              {
+              numComp = scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+              }
+            vtkDataObject::SetPointDataActiveScalarInfo(
+              outInfo, scalarType, numComp);
+            }
           }
         }
       }
@@ -1083,7 +1106,7 @@ vtkStreamingDemandDrivenPipeline
             outInfo->Get(UPDATE_PIECE_NUMBER()),
             outInfo->Get(UPDATE_NUMBER_OF_PIECES()),
             outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS()),
-            outInfo->Get(UPDATE_EXTENT()),
+            outInfo->Get(WHOLE_EXTENT()),
             vtkExtentTranslator::SafeDownCast(outInfo->Get(EXTENT_TRANSLATOR())));
           }
         }

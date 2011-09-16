@@ -77,6 +77,7 @@ int TestLegendBoxActor( int argc, char * argv [] )
   for(int i=0; i < 5; ++i)
     {
     vtkSmartPointer<vtkLineSource> ls (vtkSmartPointer<vtkLineSource>::New());
+    ls->Update();
     vtkSmartPointer<vtkPolyData> pd = ls->GetOutput();
     actor->SetEntry(i, pd, text[i], textColor[i]);
     }

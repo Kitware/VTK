@@ -101,6 +101,7 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cursor2D->AxesOn();
   cursor2D->OutlineOn();
   cursor2D->SetRadius(4);
+  cursor2D->Update();
 
   vtkSmartPointer<vtkPointHandleRepresentation2D> handleRep =
     vtkSmartPointer<vtkPointHandleRepresentation2D>::New();

@@ -82,7 +82,7 @@ int vtkTransmitImageDataPiece::RequestInformation(
         inInfo->Get(vtkDataObject::DATA_OBJECT()));
       input->GetDimensions(dims);
       input->GetSpacing(spacing);
-      input->GetSpacing(origin);
+      input->GetOrigin(origin);
 
       int numProcs = this->Controller->GetNumberOfProcesses();
       for (int i = 1; i < numProcs; ++i)
@@ -235,7 +235,7 @@ void vtkTransmitImageDataPiece::RootExecute(vtkImageData *input,
 
   extractOutInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
     6);
   extractOutInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),

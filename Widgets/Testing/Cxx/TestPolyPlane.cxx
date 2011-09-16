@@ -228,7 +228,7 @@ int TestPolyPlane( int argc, char *argv[] )
 
   vtkSmartPointer<vtkXYPlotActor> profile =
     vtkSmartPointer<vtkXYPlotActor>::New();
-  profile->AddInput(cutter->GetOutput());
+  profile->AddInputConnection(cutter->GetOutputPort());
   profile->GetPositionCoordinate()->SetValue( 0.05, 0.05, 0);
   profile->GetPosition2Coordinate()->SetValue( 0.95, 0.95, 0);
   profile->SetXValuesToArcLength();

@@ -160,6 +160,11 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
       double origin[3];
       img->GetOrigin(origin);
       outputInfo->Set(vtkDataObject::ORIGIN(), origin[0], origin[1], origin[2]);
+
+      vtkDataObject::SetPointDataActiveScalarInfo(outputInfo,
+                                                  img->GetScalarType(),
+                                                  img->GetNumberOfScalarComponents());
+
       }
     }
 #if VTK_TRIVIAL_PRODUCER_CHECK_UPDATE_EXTENT

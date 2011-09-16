@@ -57,6 +57,7 @@ int TestLogoWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkTIFFReader>::New();
   image1->SetFileName(fname);
   image1->SetOrientationType( 4 );
+  image1->Update();
 
   // Create a test pipeline
   //

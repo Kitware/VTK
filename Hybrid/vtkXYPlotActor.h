@@ -89,6 +89,8 @@
 
 #include "vtkActor2D.h"
 
+class vtkXYPlotActorConnections;
+class vtkAlgorithmOutput;
 class vtkAppendPolyData;
 class vtkAxisActor2D;
 class vtkDataObject;
@@ -129,22 +131,18 @@ public:
   // a numeric array. If the array name is NULL, then the default
   // scalars are used.  The array can have multiple components, but only the
   // first component is ploted.
-  void AddInput(vtkDataSet *in, const char* arrayName, int component);
-  void AddInput(vtkDataSet *in) {this->AddInput(in, NULL, 0);}
+  void AddInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
+  void AddInputConnection(vtkAlgorithmOutput *in) {this->AddInputConnection(in, NULL, 0);}
 
   // Description:
   // Remove a dataset from the list of data to append.
-  void RemoveInput(vtkDataSet *in, const char* arrayName, int component);
-  void RemoveInput(vtkDataSet *in) {this->RemoveInput(in, NULL, 0);}
+  void RemoveInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
+  void RemoveInputConnection(vtkAlgorithmOutput *in) {this->RemoveInputConnection(in, NULL, 0);}
 
   // Description:
   // This removes all of the data set inputs, 
   // but does not change the data object inputs.
-  void RemoveAllInputs();
-
-  // Description:
-  // Return the list of inputs to this filter.
-  vtkDataSetCollection *GetInputList() {return this->InputList;}
+  void RemoveAllInputConnections();
 
   // Description:
   // If plotting points by value, which component to use to determine the
@@ -585,7 +583,7 @@ protected:
   vtkXYPlotActor();
   ~vtkXYPlotActor();
 
-  vtkDataSetCollection *InputList; //list of data sets to plot
+  vtkXYPlotActorConnections* InputConnectionHolder;
   char** SelectedInputScalars; // list of data set arrays to plot
   vtkIntArray* SelectedInputScalarsComponent; // list of componenents
   vtkDataObjectCollection *DataObjectInputList; //list of data objects to plot
@@ -697,6 +695,12 @@ protected:
 private:
   vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
   void operator=(const vtkXYPlotActor&);  // Not implemented.
+
+  int IsInputConnectionPresent(vtkAlgorithmOutput* in);
+
+  int IsInputPresent(vtkAlgorithmOutput* in,
+                     const char* arrayName,
+                     int component);
 };
 
 
