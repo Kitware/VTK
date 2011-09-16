@@ -53,7 +53,7 @@
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkPolygonalSurfacePointPlacer.h"
 #include "vtkTestUtilities.h"
-
+#include "vtkTesting.h"
 
 char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
   "# StreamVersion 1 i\n"
@@ -339,6 +339,4 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
 
   return vtkTesting::InteractorEventLoop(
       argc, argv, iren, TestPolygonalSurfaceConstrainedDistanceWidgetLog );
-
-  return EXIT_SUCCESS;
 }
