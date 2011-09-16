@@ -16,6 +16,7 @@
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkControlPointsItem.h"
@@ -157,6 +158,7 @@ void vtkControlPointsItem::ComputeBounds( double* bounds)
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::Paint(vtkContext2D* painter)
 {
+  painter->GetDevice()->EnableClipping(false);
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
   this->DrawUnselectedPoints(painter);
@@ -199,6 +201,7 @@ bool vtkControlPointsItem::Paint(vtkContext2D* painter)
   this->ScreenPointRadius = oldScreenPointRadius;
   this->Transform->SetMatrix(painter->GetTransform()->GetMatrix());
 
+  painter->GetDevice()->EnableClipping(true);
   return true;
 }
 
@@ -255,10 +258,12 @@ bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
   // the bounds because of the screen point size).
   pos[0] = mouse.Pos[0];
   pos[1] = mouse.Pos[1];
-  if (this->IsOverPoint(pos, 0) ||
-      this->IsOverPoint(pos, this->GetNumberOfPoints() - 1))
+  for (int i = 0; i < this->GetNumberOfPoints(); ++i)
     {
-    return true;
+    if (this->IsOverPoint(pos, i))
+      {
+      return true;
+      }
     }
   return false;
 }

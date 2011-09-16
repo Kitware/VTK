@@ -133,6 +133,14 @@ public:
   vtkGetMacro(MaximumLimit, double);
 
   // Description:
+  // Get the margins of the axis, in pixels.
+  vtkGetVector2Macro(Margins, int);
+
+  // Description:
+  // Set the margins of the axis, in pixels.
+  vtkSetVector2Macro(Margins, int);
+
+  // Description:
   // Get/set the title text of the axis.
   virtual void SetTitle(const vtkStdString &title);
   virtual vtkStdString GetTitle();
@@ -312,6 +320,7 @@ protected:
   double Maximum;      // Maximum values of the axis
   double MinimumLimit; // Lowest possible value for Minimum
   double MaximumLimit; // Highest possible value for Maximum
+  int Margins[2];      // Horizontal/vertical margins for the axis
   vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
