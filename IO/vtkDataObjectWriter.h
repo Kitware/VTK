@@ -28,7 +28,8 @@
 #define __vtkDataObjectWriter_h
 
 #include "vtkWriter.h"
-#include "vtkDataWriter.h" // Neds data because it calls methods on it
+#include "vtkDataWriter.h" // Needs data because it calls methods on it
+#include "vtkStdString.h" // For string used in api
 
 class VTK_IO_EXPORT vtkDataObjectWriter : public vtkWriter
 {
@@ -47,6 +48,14 @@ public:
   int GetFileType() {return this->Writer->GetFileType();};
   void SetFileTypeToASCII() {this->Writer->SetFileType(VTK_ASCII);};
   void SetFileTypeToBinary() {this->Writer->SetFileType(VTK_BINARY);};
+  void SetWriteToOutputString(int b) {this->Writer->SetWriteToOutputString(b);};
+  void WriteToOutputStringOn() {this->Writer->WriteToOutputStringOn();};
+  void WriteToOutputStringOff() {this->Writer->WriteToOutputStringOff();};
+  int GetWriteToOutputString() {this->Writer->GetWriteToOutputString();};
+  char* GetOutputString() {this->Writer->GetOutputString();};
+  vtkStdString GetOutputStdString() {this->Writer->GetOutputStdString();};
+  int GetOutputStringLength() {this->Writer->GetOutputStringLength();};
+  unsigned char* GetBinaryOutputString() {this->Writer->GetBinaryOutputString();};
   void SetFieldDataName(const char *fieldname) {this->Writer->SetFieldDataName(fieldname);};
   char *GetFieldDataName() {return this->Writer->GetFieldDataName();};
 
