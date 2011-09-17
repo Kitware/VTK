@@ -390,7 +390,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkCellType.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageIterator.txx
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageProgressIterator.txx
-    ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageInterpolatorInternal.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageInterpolatorInternals.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development
     )
