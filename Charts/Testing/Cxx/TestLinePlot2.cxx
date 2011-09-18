@@ -14,7 +14,6 @@
 =========================================================================*/
 
 #include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
@@ -22,16 +21,21 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkAxis.h"
 #include "vtkNew.h"
 
 // Traced data from Talbot et. al paper
-static double data_x[] = {8.1, 8.6, 8.65, 8.9, 8.95, 9.2, 9.4, 9.6, 9.9, 10, 10.1, 10.1, 10.15, 10.3, 10.35, 10.5, 10.52, 10.55,
-  10.85, 10.95, 11.05, 11.07, 11.15, 11.3, 11.4, 11.6, 11.95, 12.6, 12.85, 13.1, 14.1};
-static double data_y[] = {59.9, 60.5, 54.1, 54.25, 49, 50, 48, 45.2, 51.1, 47, 51, 45.8, 51.1, 47.2, 52, 46, 48, 47.6, 49, 41.5, 45.5, 44.7,
-     46.5, 44.1, 48.5, 44.8, 45.1, 39, 38.7, 38.9, 37.8};
+static double data_x[] = {8.1, 8.6, 8.65, 8.9, 8.95, 9.2, 9.4, 9.6, 9.9, 10,
+                          10.1, 10.1, 10.15, 10.3, 10.35, 10.5, 10.52, 10.55,
+                          10.85, 10.95, 11.05, 11.07, 11.15, 11.3, 11.4, 11.6,
+                          11.95, 12.6, 12.85, 13.1, 14.1};
+static double data_y[] = {59.9, 60.5, 54.1, 54.25, 49, 50, 48, 45.2, 51.1, 47,
+                          51, 45.8, 51.1, 47.2, 52, 46, 48, 47.6, 49, 41.5,
+                          45.5, 44.7, 46.5, 44.1, 48.5, 44.8, 45.1, 39, 38.7,
+                          38.9, 37.8};
 
 //----------------------------------------------------------------------------
-int TestLinePlot2( int, char * [] )
+int TestLinePlot2(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -60,7 +64,14 @@ int TestLinePlot2( int, char * [] )
   line->SetInput(table.GetPointer(), 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
-  //Finally render the scene
+
+  // Tell the axes to use the new tick label placement algorithm.
+  chart->GetAxis(vtkAxis::LEFT)
+      ->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON);
+  chart->GetAxis(vtkAxis::BOTTOM)
+      ->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON);
+
+  // Finally, render the scene.
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

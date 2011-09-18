@@ -214,6 +214,15 @@ public:
   vtkGetObjectMacro(GridPen, vtkPen);
 
   // Description:
+  // Get/set the tick label algorithm that is used to calculate the min, max
+  // and tick spacing. There are currently two algoriths, vtkAxis::TICK_SIMPLE
+  // is the default and uses a simple algorithm. The second option is
+  // vtkAxis::TICK_WILKINSON which uses an extended Wilkinson algorithm to find
+  // the optimal range, spacing and font parameters.
+  vtkSetMacro(TickLabelAlgorithm, int)
+  vtkGetMacro(TickLabelAlgorithm, int)
+
+  // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
   // locations etc. Should be called by the scene before rendering.
   virtual void Update();
