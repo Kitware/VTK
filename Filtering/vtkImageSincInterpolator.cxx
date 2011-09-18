@@ -898,13 +898,12 @@ void vtkImageSincRowInterpolate<F, T>::General(
           const F *tmpfX = fX;
           const vtkIdType *tmpfactX = factX;
           F tmpval = 0;
-          int l = (stepX >> 1);
+          int l = stepX;
           do
             {
             tmpval += tmpfX[0]*tmpPtr[tmpfactX[0]];
-            tmpval += tmpfX[1]*tmpPtr[tmpfactX[1]];
-            tmpfX += 2;
-            tmpfactX += 2;
+            tmpfX++;
+            tmpfactX++;
             }
           while (--l);
           val += fzy*tmpval;
