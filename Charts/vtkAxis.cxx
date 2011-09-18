@@ -87,6 +87,7 @@ vtkAxis::vtkAxis()
   this->MaxLabel[0] = this->MaxLabel[1] = 0.0;
   this->Resized = true;
   this->SetPosition(vtkAxis::LEFT);
+  this->TickLabelAlgorithm = vtkAxis::TICK_SIMPLE;
 }
 
 //-----------------------------------------------------------------------------
@@ -481,7 +482,11 @@ void vtkAxis::SetNotation(int notation)
 void vtkAxis::AutoScale()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing
-  //this->TickInterval = this->CalculateNiceMinMax(this->Minimum, this->Maximum);
+  if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
+    {
+    this->TickInterval = this->CalculateNiceMinMax(this->Minimum,
+                                                   this->Maximum);
+    }
   this->UsingNiceMinMax = true;
   this->GenerateTickLabels(this->Minimum, this->Maximum);
 }
@@ -495,7 +500,10 @@ void vtkAxis::RecalculateTickSpacing()
     {
     double min = this->Minimum;
     double max = this->Maximum;
-   // this->TickInterval = this->CalculateNiceMinMax(min, max);  // Tharindu shifted to log scales only, in GenerateTickLabels(,)
+    if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
+      {
+      this->TickInterval = this->CalculateNiceMinMax(min, max);
+      }
 
     if (this->UsingNiceMinMax)
       {
@@ -725,64 +733,68 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     }
   else
     {
-    // Now calculate the tick labels, and positions within the axis range
-    //This gets the tick interval and max, min of labeling from the Extended
-    // algorithm
-    double scaling = 0.0;
-    bool axisVertical = false;
+    if (this->TickLabelAlgorithm == vtkAxis::TICK_WILKINSON)
+      {
+      // Now calculate the tick labels, and positions within the axis range
+      //This gets the tick interval and max, min of labeling from the Extended
+      // algorithm
+      double scaling = 0.0;
+      bool axisVertical = false;
 
-    // When the axis is not initialized
-    if(this->Point1[0] == 0 && this->Point2[0] == 0)
-      {
-      // 500 is an intial guess for the length of the axis in pixels
-      scaling = 500 / (this->Maximum - this->Minimum);
-      }
-    else
-      {
-      if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
+      // When the axis is not initialized
+      if(this->Point1[0] == 0 && this->Point2[0] == 0)
         {
-        scaling = (this->Point2[1] - this->Point1[1]) /
-                  (this->Maximum - this->Minimum);
-        axisVertical = true;
+        // 500 is an intial guess for the length of the axis in pixels
+        scaling = 500 / (this->Maximum - this->Minimum);
         }
       else
         {
-        scaling = (this->Point2[0] - this->Point1[0]) /
-                  (this->Maximum - this->Minimum);
+        if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
+          {
+          scaling = (this->Point2[1] - this->Point1[1]) /
+                    (this->Maximum - this->Minimum);
+          axisVertical = true;
+          }
+        else
+          {
+          scaling = (this->Point2[0] - this->Point1[0]) /
+                    (this->Maximum - this->Minimum);
+          }
         }
-      }
 
-    int fontSize = this->LabelProperties->GetFontSize();
-    vtkNew<vtkAxisExtended> tickPositionExtended;
+      int fontSize = this->LabelProperties->GetFontSize();
+      vtkNew<vtkAxisExtended> tickPositionExtended;
 
-    // The following parameters are required for the legibility part in the
-    // optimization tickPositionExtended->SetFontSize(fontSize);
-    tickPositionExtended->SetDesiredFontSize(fontSize);
-    tickPositionExtended->SetPrecision(this->Precision);
-    tickPositionExtended->SetIsAxisVertical(axisVertical);
+      // The following parameters are required for the legibility part in the
+      // optimization tickPositionExtended->SetFontSize(fontSize);
+      tickPositionExtended->SetDesiredFontSize(fontSize);
+      tickPositionExtended->SetPrecision(this->Precision);
+      tickPositionExtended->SetIsAxisVertical(axisVertical);
 
-    // Value 4 is hard coded for the user desired tick spacing
-    vtkVector3d values =
-        tickPositionExtended->GenerateExtendedTickLabels(min, max, 4, scaling);
-    min = values[0];
-    max = values[1];
-    this->TickInterval = values[2];
+      // Value 4 is hard coded for the user desired tick spacing
+      vtkVector3d values =
+          tickPositionExtended->GenerateExtendedTickLabels(min, max, 4,
+                                                           scaling);
+      min = values[0];
+      max = values[1];
+      this->TickInterval = values[2];
 
-    if(min < this->Minimum)
-      {
-      this->Minimum = min;
-      }
-    if(max > this->Maximum)
-      {
-      this->Maximum = max;
-      }
+      if(min < this->Minimum)
+        {
+        this->Minimum = min;
+        }
+      if(max > this->Maximum)
+        {
+        this->Maximum = max;
+        }
 
-    this->Notation = tickPositionExtended->GetLabelFormat();
-    this->LabelProperties->SetFontSize(tickPositionExtended->GetFontSize());
-    if(tickPositionExtended->GetOrientation() == 1)
-      {
-      // Set this to 90 to make the labels vertical
-      this->LabelProperties->SetOrientation(90);
+      this->Notation = tickPositionExtended->GetLabelFormat();
+      this->LabelProperties->SetFontSize(tickPositionExtended->GetFontSize());
+      if(tickPositionExtended->GetOrientation() == 1)
+        {
+        // Set this to 90 to make the labels vertical
+        this->LabelProperties->SetOrientation(90);
+        }
       }
 
     double mult = max > min ? 1.0 : -1.0;
@@ -833,25 +845,31 @@ void vtkAxis::GenerateTickLabels(double min, double max)
         value = pow(double(10.0), double(value));
         }
       // Now create a label for the tick position
-      GenerateLabelFormat(this->Notation,value);
-      //vtksys_ios::ostringstream ostr;
-      //ostr.imbue(vtkstd::locale::classic());
-      //if (this->Notation > 0)
-      //  {
-      //  ostr.precision(this->Precision);
-      //  }
-      //if (this->Notation == 1)
-      //  {
-      //  // Scientific notation
-      //  ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
-      //  }
-      //else if (this->Notation == 2)
-      //  {
-      //  ostr.setf(ios::fixed, ios::floatfield);
-      //  }
-      //ostr << value;
+      if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
+        {
+        vtksys_ios::ostringstream ostr;
+        ostr.imbue(vtkstd::locale::classic());
+        if (this->Notation > 0)
+          {
+          ostr.precision(this->Precision);
+          }
+        if (this->Notation == 1)
+          {
+          // Scientific notation
+          ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+          }
+        else if (this->Notation == 2)
+          {
+          ostr.setf(ios::fixed, ios::floatfield);
+          }
+        ostr << value;
 
-      //this->TickLabels->InsertNextValue(ostr.str());
+        this->TickLabels->InsertNextValue(ostr.str());
+        }
+      else
+        {
+        this->GenerateLabelFormat(this->Notation, value);
+        }
       }
 
     }

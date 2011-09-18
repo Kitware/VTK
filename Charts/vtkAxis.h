@@ -53,6 +53,11 @@ public:
     PARALLEL
   };
 
+  enum {
+    TICK_SIMPLE = 0,
+    TICK_WILKINSON
+  };
+
   // Description:
   // Creates a 2D Chart object.
   static vtkAxis *New();
@@ -371,6 +376,10 @@ protected:
   // Description:
   // Hint as to whether a logarithmic scale is reasonable or not.
   bool LogScaleReasonable;
+
+  // Description:
+  // The algorithm being used to tick label placement.
+  int TickLabelAlgorithm;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.

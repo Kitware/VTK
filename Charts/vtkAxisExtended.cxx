@@ -51,16 +51,16 @@ double vtkAxisExtended::Simplicity(int qIndex, int qLength, int j, double lmin,
     v = 1;  // v is 1 is lebelling includes zero
     }
 
-  return 1 - (qIndex - 1) / (qLength - 1) - j + v;
+  return 1.0 - (qIndex - 1.0) / (qLength - 1.0) - j + v;
 }
 
 // This method returns the maximum possible value of simplicity value given q
 // and j
 double vtkAxisExtended::SimplicityMax(int qIndex, int qLength, int j)
 {
-  int v =1;
+  int v = 1;
   ++qIndex;
-  return 1 - (qIndex-1)/(qLength-1) - j + v;
+  return 1.0 - (qIndex - 1.0) / (qLength - 1.0) - j + v;
 }
 
 // This method makes the data range approximately same as the labeling range
@@ -68,8 +68,8 @@ double vtkAxisExtended::SimplicityMax(int qIndex, int qLength, int j)
 double vtkAxisExtended::Coverage(double dmin, double dmax, double lmin,
                                  double lmax)
 {
-  double coverage = 1- 0.5 * (pow(dmax- lmax, 2) + pow(dmin- lmin, 2)
-                              / pow(0.1*(dmax-dmin),2));
+  double coverage = 1.0 - 0.5 * (pow(dmax - lmax, 2) + pow(dmin - lmin, 2)
+                                 / pow(0.1 * (dmax - dmin), 2));
   return coverage;
 }
 
