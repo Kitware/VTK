@@ -42,8 +42,49 @@ PURPOSE.  See the above copyright notice for more information.
 #include <iostream>
 
 #include "vtkMultiProcessController.h"
+#include "vtkToolkits.h"
 
-#define VTK_USE_MPI
+#ifdef VTK_USE_MPI
+
+#include "vtkMPI.h"
+
+// copied from MPIImageReader
+#ifdef MPI_VERSION
+#  if (MPI_VERSION >= 2)
+#    define VTK_USE_MPI_IO 1
+#  endif
+#endif
+#if !defined(VTK_USE_MPI_IO) && defined(ROMIO_VERSION)
+#  define VTK_USE_MPI_IO 1
+#endif
+#if !defined(VTK_USE_MPI_IO) && defined(MPI_SEEK_SET)
+#  define VTK_USE_MPI_IO 1
+#endif
+
+#endif
+
+
+#ifdef VTK_USE_MPI_IO
+
+// This macro can be wrapped around MPI function calls to easily report errors.
+// Reporting errors is more important with file I/O because, unlike network I/O,
+// they usually don't terminate the program.
+#define MPICall(funcall) \
+  { \
+  int __my_result = funcall; \
+  if (__my_result != MPI_SUCCESS) \
+    { \
+    char errormsg[MPI_MAX_ERROR_STRING]; \
+    int dummy; \
+    MPI_Error_string(__my_result, errormsg, &dummy); \
+    vtkErrorMacro(<< "Received error when calling" << endl \
+                  << #funcall << endl << endl \
+                  << errormsg); \
+    } \
+  }
+
+#endif // VTK_USE_MPI_IO
+
 
 namespace
 {
@@ -437,7 +478,16 @@ int vtkWindBladeReader::RequestData(
     fileName << this->RootDirectory << "/"
              << this->DataDirectory << "/" << this->DataBaseName
              << this->TimeSteps[timeStep];
+
+#ifndef VTK_USE_MPI_IO
     this->FilePtr = fopen(fileName.str().c_str(), "rb");
+#else
+    char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+    strcpy(cchar, fileName.str().c_str());
+    MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->FilePtr));
+    delete [] cchar;
+#endif
+
     if (this->FilePtr == NULL)
       {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
@@ -494,7 +544,12 @@ int vtkWindBladeReader::RequestData(
       field->GetPointData()->AddArray(this->Data[vort]);
       }
     // Close file after all data is read
+#ifndef VTK_USE_MPI_IO
     fclose(this->FilePtr);
+#else
+    MPICall(MPI_File_close(&this->FilePtr));
+#endif
+
     return 1;
     }
 
@@ -535,7 +590,7 @@ int vtkWindBladeReader::RequestData(
     return 1;
     }
 
-  // Request data in on ground and is displayed only by processor 0
+  // Request data in on ground 
   if (port == 2)
     {
     vtkInformation* groundInfo = outVector->GetInformationObject(2);
@@ -598,10 +653,21 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
   // Read tempg and Density components from file
   float* tempgData = new float[this->BlockSize];
   float* densityData = new float[this->BlockSize];
+
+#ifndef VTK_USE_MPI_IO
   fseek(this->FilePtr, this->VariableOffset[tempg], SEEK_SET);
   fread(tempgData, sizeof(float), this->BlockSize, this->FilePtr);
   fseek(this->FilePtr, this->VariableOffset[density], SEEK_SET);
   fread(densityData, sizeof(float), this->BlockSize, this->FilePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+
+  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[tempg], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read(this->FilePtr, tempgData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
   // Entire block of data is read so to calculate index into that data we
   // must use the entire Dimension and not the SubDimension
@@ -656,15 +722,32 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   // Read U and V components (two int block sizes in between)
   float* uData = new float[this->BlockSize];
   float* vData = new float[this->BlockSize];
+
+#ifndef VTK_USE_MPI_IO
   fseek(this->FilePtr, this->VariableOffset[uvw], SEEK_SET);
   fread(uData, sizeof(float), this->BlockSize, this->FilePtr);
   fseek(this->FilePtr, (2 * sizeof(int)), SEEK_SET);
   fread(vData, sizeof(float), this->BlockSize, this->FilePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+
+  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[uvw], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read(this->FilePtr, uData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->FilePtr, (2 * sizeof(int)), MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read(this->FilePtr, vData, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
   // Read Density component
   float* densityData = new float[this->BlockSize];
+
+#ifndef VTK_USE_MPI_IO
   fseek(this->FilePtr, this->VariableOffset[density], SEEK_SET);
   fread(densityData, sizeof(float), this->BlockSize, this->FilePtr);
+#else
+  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
   // Divide U and V components by Density
   for (int i = 0; i < this->BlockSize; i++)
@@ -739,7 +822,12 @@ void vtkWindBladeReader::LoadVariableData(int var)
 
   // Skip to the appropriate variable block and read byte count
   // not used? int byteCount;
+#ifndef VTK_USE_MPI_IO
   fseek(this->FilePtr, this->VariableOffset[var], SEEK_SET);
+#else
+  char native[7] = "native";
+  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[var], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+#endif
 
   // Set the number of components for this variable
   int numberOfComponents = 0;
@@ -770,7 +858,12 @@ void vtkWindBladeReader::LoadVariableData(int var)
   for (int comp = 0; comp < numberOfComponents; comp++)
     {
     // Read the block of data
+#ifndef VTK_USE_MPI_IO
     fread(block, sizeof(float), this->BlockSize, this->FilePtr);
+#else
+    MPI_Status status;
+    MPICall(MPI_File_read(this->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
     int pos = comp;
     for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
@@ -787,7 +880,11 @@ void vtkWindBladeReader::LoadVariableData(int var)
       }
 
     // Skip closing and opening byte sizes
+#ifndef VTK_USE_MPI_IO
     fseek(this->FilePtr, (2 * sizeof(int)), SEEK_CUR);
+#else
+    MPICall(MPI_File_seek(this->FilePtr, (2 * sizeof(int)), MPI_SEEK_CUR));
+#endif
   }
   delete [] block;
 }
@@ -1055,7 +1152,16 @@ bool vtkWindBladeReader::FindVariableOffsets()
   fileName << this->RootDirectory << "/"
            << this->DataDirectory << "/"
            << this->DataBaseName << this->TimeStepFirst;
+
+#ifndef VTK_USE_MPI_IO
   this->FilePtr = fopen(fileName.str().c_str(), "rb");
+#else
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->FilePtr));
+  delete [] cchar;
+#endif
+
   if (this->FilePtr == NULL)
     {
     vtkErrorMacro("Could not open file " << fileName.str());
@@ -1064,12 +1170,28 @@ bool vtkWindBladeReader::FindVariableOffsets()
 
   // Scan file recording offsets which points to the first data value
   int byteCount;
+
+#ifndef VTK_USE_MPI_IO
   fread(&byteCount, sizeof(int), 1, this->FilePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+
+  MPICall(MPI_File_set_view(this->FilePtr, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read(this->FilePtr, &byteCount, 1, MPI_INT, &status));
+#endif
+
   this->BlockSize = byteCount / BYTES_PER_DATA;
 
   for (int var = 0; var < this->NumberOfFileVariables; var++)
     {
+#ifndef VTK_USE_MPI_IO
     this->VariableOffset[var] = ftell(this->FilePtr);
+#else
+    MPI_Offset offset;
+    MPICall(MPI_File_get_position(this->FilePtr, &offset));
+    this->VariableOffset[var] = offset; 
+#endif
 
     // Skip over the SCALAR or VECTOR components for this variable
     int numberOfComponents = 1;
@@ -1081,10 +1203,19 @@ bool vtkWindBladeReader::FindVariableOffsets()
     for (int comp = 0; comp < numberOfComponents; comp++)
       {
       // Skip data plus two integer byte counts
+#ifndef VTK_USE_MPI_IO
       fseek(this->FilePtr, (byteCount+(2 * sizeof(int))), SEEK_CUR);
+#else
+      MPICall(MPI_File_seek(this->FilePtr, (byteCount+(2 * sizeof(int))), MPI_SEEK_CUR));
+#endif
       }
     }
+#ifndef VTK_USE_MPI_IO
   fclose(this->FilePtr);
+#else
+  MPICall(MPI_File_close(&this->FilePtr));
+#endif
+
   return true;
 }
 
@@ -1268,12 +1399,29 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   std::ostringstream fileName;
   fileName << this->RootDirectory << "/"
            << this->TopographyFile;
-  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
+
   int blockSize = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
 
+#ifndef VTK_USE_MPI_IO
+  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
+#else
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->FilePtr));
+  delete [] cchar;
+#endif
+
+#ifndef VTK_USE_MPI_IO
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET);  // Fortran byte count
   fread(topoData, sizeof(float), blockSize, filePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+  
+  MPICall(MPI_File_set_view(this->FilePtr, BYTES_PER_DATA, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read(this->FilePtr, &topoData, blockSize, MPI_FLOAT, &status));
+#endif
 
   // Initial z coordinate processing
   float* zedge = new float[this->Dimension[2] + 1];
@@ -1363,6 +1511,13 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   delete [] z;
   delete [] zdata;
   delete [] zcoeff;
+
+#ifndef VTK_USE_MPI_IO
+  fclose(filePtr);
+#else
+  MPICall(MPI_File_close(&this->FilePtr));
+#endif
+
 }
 
 //----------------------------------------------------------------------------

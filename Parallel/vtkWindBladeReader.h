@@ -29,6 +29,26 @@
 
 
 #include "vtkStructuredGridAlgorithm.h"
+#include "vtkToolkits.h"
+
+#ifdef VTK_USE_MPI
+
+#include "vtkMPI.h"
+
+// copied from MPIImageReader
+#ifdef MPI_VERSION
+#  if (MPI_VERSION >= 2)
+#    define VTK_USE_MPI_IO 1
+#  endif
+#endif
+#if !defined(VTK_USE_MPI_IO) && defined(ROMIO_VERSION)
+#  define VTK_USE_MPI_IO 1
+#endif
+#if !defined(VTK_USE_MPI_IO) && defined(MPI_SEEK_SET)
+#  define VTK_USE_MPI_IO 1
+#endif
+
+#endif
 
 class vtkWindBladeReaderPiece;
 class vtkDataArraySelection;
@@ -92,7 +112,12 @@ protected:
   ~vtkWindBladeReader();
 
   char* Filename;   // Base file name
+
+#ifndef VTK_USE_MPI_IO
   FILE* FilePtr;   // Open file pointer
+#else
+  MPI_File FilePtr;
+#endif
 
   int Rank;    // Number of this processor
   int TotalRank;   // Number of processors
