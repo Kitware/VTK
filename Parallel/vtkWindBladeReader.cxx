@@ -172,6 +172,20 @@ vtkWindBladeReader::vtkWindBladeReader()
     this->TotalRank = 1;
     }
 
+// make it run on 0 processors (since ParaView doesn't seem to initialize
+// when it is single process)
+#ifdef VTK_USE_MPI
+  if(this->TotalRank == 1)
+    {
+    int flag;
+    MPICall(MPI_Initialized(&flag));
+    if(!flag)
+      {
+      MPICall(MPI_Init(0, 0));
+      }
+    }
+#endif
+
   // by default don't skip any lines because normal wind files do not
   // have a header
   this->NumberOfLinesToSkip = 0;
