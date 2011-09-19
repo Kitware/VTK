@@ -135,6 +135,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   void PrintNodeData(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
+  // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
+  // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
+  // THIS METHOD IS THREAD SAFE
+  virtual int GetDataObjectType() {return VTK_REEB_GRAPH;}
+
+
   enum
   {
     ERR_INCORRECT_FIELD = -1,

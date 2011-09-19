@@ -197,6 +197,11 @@ int vtkExtractCells::RequestData(
   newCD->CopyAllocate(CD, numCells);
 
   vtkPoints *pts = vtkPoints::New();
+  if(vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input))
+    {
+    // preserve input datatype
+    pts->SetDataType(inputPS->GetPoints()->GetDataType());
+    }
   pts->SetNumberOfPoints(numPoints);
 
   for (vtkIdType newId =0; newId<numPoints; newId++)  
