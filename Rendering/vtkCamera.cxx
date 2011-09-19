@@ -79,17 +79,17 @@ vtkCamera::vtkCamera()
 
   this->UseOffAxisProjection  = 0;
 
-  this->ScreenBottomLeft[0] = -1.0;
-  this->ScreenBottomLeft[1] = -1.0;
-  this->ScreenBottomLeft[2] = -1.0;
+  this->ScreenBottomLeft[0] = -0.5;
+  this->ScreenBottomLeft[1] = -0.5;
+  this->ScreenBottomLeft[2] = -0.5;
 
-  this->ScreenBottomRight[0] =  1.0;
-  this->ScreenBottomRight[1] = -1.0;
-  this->ScreenBottomRight[2] = -1.0;
+  this->ScreenBottomRight[0] =  0.5;
+  this->ScreenBottomRight[1] = -0.5;
+  this->ScreenBottomRight[2] = -0.5;
 
-  this->ScreenTopRight[0] =  1.0;
-  this->ScreenTopRight[1] =  1.0;
-  this->ScreenTopRight[2] = -1.0;
+  this->ScreenTopRight[0] =  0.5;
+  this->ScreenTopRight[1] =  0.5;
+  this->ScreenTopRight[2] = -0.5;
 
   this->EyeSeparation = 0.06;
 
