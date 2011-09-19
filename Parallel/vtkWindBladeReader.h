@@ -208,7 +208,7 @@ protected:
 
   // Read the header file describing the dataset
   bool ReadGlobalData();
-  void ReadDataVariables(ifstream& inStr);
+  void ReadDataVariables(istream& inStr);
   bool FindVariableOffsets();
 
   // Turbine methods

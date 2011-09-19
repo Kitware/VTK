@@ -585,6 +585,7 @@ int vtkWindBladeReader::RequestData(
         {
         timeStep++;
         }
+      // only rank 0 reads this so we have to be careful with MPI-IO
       this->LoadBladeData(timeStep);
       }
     return 1;
@@ -897,7 +898,43 @@ bool vtkWindBladeReader::ReadGlobalData()
   //kwsys_stl::string fileName = this->Filename;
   std::string fileName = this->Filename;
   vtksys::SystemTools::ConvertToUnixSlashes(fileName);
+
+  char inBuf[LINE_SIZE];
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr(fileName.c_str());
+#else
+  MPI_File tempFile;
+  char native[7] = "native";
+  char* cchar = new char[strlen(fileName.c_str()) + 1];
+  strcpy(cchar, fileName.c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr;
+  MPI_Offset i, tempSize;
+  MPI_Status status;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
+
   if (!inStr)
     {
     vtkWarningMacro("Could not open the global .wind file " << fileName);
@@ -910,7 +947,6 @@ bool vtkWindBladeReader::ReadGlobalData()
     }
   this->RootDirectory = std::string(fileName).substr(0, dirPos);
 
-  char inBuf[LINE_SIZE];
   std::string keyword;
   std::string rest;
   std::string headerVersion;
@@ -1040,7 +1076,7 @@ bool vtkWindBladeReader::ReadGlobalData()
 // Read the field variable information
 //
 //----------------------------------------------------------------------------
-void vtkWindBladeReader::ReadDataVariables(ifstream& inStr)
+void vtkWindBladeReader::ReadDataVariables(istream& inStr)
 {
   char inBuf[LINE_SIZE];
   std::string structType, basicType;
@@ -1679,13 +1715,48 @@ void vtkWindBladeReader::SetupBladeData()
   fileName << this->RootDirectory << "/"
            << this->TurbineDirectory << "/"
            << this->TurbineTowerName;
+  char inBuf[LINE_SIZE];
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr(fileName.str().c_str());
+#else
+  MPI_File tempFile;
+  char native[7] = "native";
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr;
+  MPI_Offset i, tempSize;
+  MPI_Status status;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
+
   if (!inStr)
     {
     vtkWarningMacro("Could not open " << fileName.str() << endl);
     }
+
   // File is ASCII text so read until EOF
-  char inBuf[LINE_SIZE];
   float hubHeight, bladeLength, maxRPM, xPos, yPos, yawAngle;
   float angularVelocity, angleBlade1;
   int numberOfBlades;
@@ -1732,14 +1803,47 @@ void vtkWindBladeReader::SetupBladeData()
     this->BladeCount->InsertNextValue(numberOfBlades);
     }
   this->NumberOfBladeTowers = XPosition->GetNumberOfTuples();
+
+#ifndef VTK_USE_MPI_IO
   inStr.close();
+#endif
 
   // Calculate the number of cells in unstructured turbine blades
   std::ostringstream fileName2;
   fileName2 << this->RootDirectory << "/"
             << this->TurbineDirectory << "/"
             << this->TurbineBladeName << this->TimeStepFirst;
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr2(fileName2.str().c_str());
+#else
+  cchar = new char[strlen(fileName2.str().c_str()) + 1];
+  strcpy(cchar, fileName2.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr2;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr2.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr2.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
+
   if (!inStr2)
     {
     vtkWarningMacro("Could not open blade file: " << fileName2.str().c_str() <<
@@ -1752,7 +1856,38 @@ void vtkWindBladeReader::SetupBladeData()
                 << this->TurbineDirectory << "/"
                 << this->TurbineBladeName << i;
       //std::cout << "Trying " << fileName3.str().c_str() << "...";
+
+#ifndef VTK_USE_MPI_IO
       inStr2.open(fileName3.str().c_str());
+#else
+      cchar = new char[strlen(fileName3.str().c_str()) + 1];
+      strcpy(cchar, fileName3.str().c_str());
+      MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+      delete [] cchar;
+
+      inStr2.clear();
+      inStr2.str("");
+
+      MPICall(MPI_File_get_size(tempFile, &tempSize));
+      MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+      for(i = 0; i < tempSize; i = i + LINE_SIZE)
+        {
+        if(i + LINE_SIZE > tempSize)
+          {
+          MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+          inStr2.write(inBuf, tempSize - i);
+          }
+        else
+          {
+          MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+          inStr2.write(inBuf, LINE_SIZE);
+          }
+        }
+
+      MPICall(MPI_File_close(&tempFile));
+#endif
+
       if(inStr2.good())
         {
         vtkWarningMacro("Success with " << fileName3.str());
@@ -1783,7 +1918,9 @@ void vtkWindBladeReader::SetupBladeData()
     }
   while (inStr2.getline(inBuf, LINE_SIZE))
     this->NumberOfBladeCells++;
+#ifndef VTK_USE_MPI_IO
   inStr2.close();
+#endif
   this->NumberOfBladePoints = this->NumberOfBladeCells * NUM_PART_SIDES;
 
   // Points and cells needed for constant towers
@@ -1805,12 +1942,47 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
            << this->TurbineDirectory << "/"
            << this->TurbineBladeName
            << this->TimeSteps[timeStep];
+  char inBuf[LINE_SIZE];
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr(fileName.str().c_str());
+#else
+  // only rank 0 reads this so we have to be careful
+  MPI_File tempFile;
+  char native[7] = "native";
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  // here only rank 0 opens it : MPI_COMM_SELF
+  MPICall(MPI_File_open(MPI_COMM_SELF, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr;
+  MPI_Offset i, tempSize;
+  MPI_Status status;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
   /*
   if (this->Rank == 0)
     cout << "Load file " << fileName.str() << endl;
   */
-  char inBuf[LINE_SIZE];
 
   // Allocate space for points and cells
   this->BPoints->Allocate(this->NumberOfBladePoints, this->NumberOfBladePoints);
