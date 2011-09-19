@@ -80,7 +80,7 @@ public:
   vtkGetMacro(InputStringLength, int);
   void SetBinaryInputString(const char *, int len);
   void SetInputString(const vtkStdString& input)
-    { this->SetBinaryInputString(input.c_str(), input.length()); }
+    { this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length())); }
 
   // Description:
   // Specify the vtkCharArray to be used  when reading from a string.
