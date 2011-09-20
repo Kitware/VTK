@@ -2111,7 +2111,7 @@ int vtkLSDynaReader::ReadNodes()
   // Note that we still have to read the rigid road coordinates.  
   // If the mesh is deformed each state will have the points so see ReadState
   double pt[3];
-  if ( ! this->DeformedMesh || ! this->GetPointArrayStatus( LS_ARRAYNAME_DEFLECTION ) )
+  if ( ! this->DeformedMesh )
     {
     p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), 0 );
     p->Fam.BufferChunk( LSDynaFamily::Float, p->NumberOfNodes * p->Dimensionality );
@@ -2483,7 +2483,12 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
     for ( vtkstd::vector<vtkDataArray*>::iterator arr=vars.begin();
           arr != vars.end(); ++arr, ++arc )
       {
-      if ( this->GetPointArrayStatus( (*arr)->GetName() ) != 0 )
+      //special case if the user has said they want a deformed mesh
+      //we have to read in the deflection array
+      bool valid = this->GetPointArrayStatus( (*arr)->GetName() ) != 0;
+      bool isDeflectionArray = this->DeformedMesh &&
+                           strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION);
+      if ( valid || isDeflectionArray)
         {
         (*arr)->SetNumberOfTuples( p->NumberOfNodes );
       
@@ -2516,14 +2521,21 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
           this->FillArray(buf,*arr,offset,leftOver, *arc);
           }
 
-        if ( this->DeformedMesh && ! strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION) )
+        if (isDeflectionArray)
           {
           // Replace point coordinates with deflection (don't add to points).
           // The name "deflection" is misleading.
           this->CommonPoints->SetData(*arr);
           }
-        this->Parts->AddPointArray(*arr);
-        (*arr)->FastDelete();
+        if(valid)
+          {
+          this->Parts->AddPointArray(*arr);
+          (*arr)->FastDelete();
+          }
+        else
+          {
+          (*arr)->Delete();
+          }
         }
       else
         {
@@ -3170,25 +3182,24 @@ int vtkLSDynaReader::RequestData(
     }
   this->UpdateProgress( 0.15 );
 
-  // Always read nodes
-  if ( this->ReadNodes() )
-    {
-    vtkErrorMacro( "Could not read nodal coordinates." );
-    return 1;
-    }
-  this->UpdateProgress( 0.25 );
-
-  // Do something with user-specified node/element/material numbering
-  if ( this->ReadUserIds() )
-    {
-    vtkErrorMacro( "Could not read user node/element IDs." );
-    return 1;
-    }
-
   if (!this->Parts)
     {
     this->Parts = vtkLSDynaPartCollection::New();
     this->Parts->SetMetaData(this->P);
+    if ( this->ReadNodes() )
+      {
+      vtkErrorMacro( "Could not read nodal coordinates." );
+      return 1;
+      }
+    this->UpdateProgress( 0.25 );
+
+    // Do something with user-specified node/element/material numbering
+    if ( this->ReadUserIds() )
+      {
+      vtkErrorMacro( "Could not read user node/element IDs." );
+      return 1;
+      }
+
     //Read connectivity info once per simulation run and cache it.
     //if the filename or a part/material array is modified the cache is deleted
     if ( this->ReadConnectivityAndMaterial() )
