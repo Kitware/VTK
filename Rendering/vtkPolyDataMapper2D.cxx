@@ -332,6 +332,8 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No Transform Coordinate\n";
     }
+  os << indent << "Transform Coordinate use double: " 
+     << (this->TransformCoordinateUseDouble  ? "True\n" : "False\n") << "\n";
 }
 
 void vtkPolyDataMapper2D::SetColorModeToDefault() 
