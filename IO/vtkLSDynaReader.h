@@ -549,6 +549,16 @@ protected:
   // this routine.
   virtual void ReadDeletionArray(vtkIntArray* arr);
 
+  //Description:
+  // Read all the cell properties of a given part type
+  virtual void ReadCellProperties(const int& type,const int& numTuples);
+  
+  //Description:
+  // Read a point property from the file
+  virtual void ReadPointProperty(vtkDataArray *arr,
+    const vtkIdType& numTuples, const vtkIdType& numComps, const bool &valid,
+    const bool& isDeflectionArray);
+
   LSDynaMetaData* P;
 private:
 
@@ -566,6 +576,8 @@ private:
 
   template<typename T>
   int FillCells(T* buffer);
+
+  void ResetPartsCache();
 
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.

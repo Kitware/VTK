@@ -285,6 +285,11 @@ int LSDynaFamily::MarkTimeStep()
 //-----------------------------------------------------------------------------
 int LSDynaFamily::SkipWords( vtkIdType numWords )
   {
+  if(numWords<=0)
+    {
+    return 0;
+    }
+
   if ( this->FNum < 0 || VTK_LSDYNA_ISBADFILE(this->FD) )
     {
     return -1;

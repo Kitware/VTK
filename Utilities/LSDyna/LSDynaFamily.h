@@ -170,6 +170,7 @@ public:
   double* GetBufferAsDouble();
   int* GetBufferAsInt();
   vtkIdType* GetBufferAsIdType();
+  unsigned char* GetRawBuffer();
 
   // Not needed (yet):
   // void GetCurrentWord( SectionType& stype, vtkIdType& sId, vtkIdType& wN );
@@ -317,5 +318,12 @@ inline vtkIdType* LSDynaFamily::GetBufferAsIdType()
 {
   return (vtkIdType*)this->Chunk;
 }
+
+//-----------------------------------------------------------------------------
+inline unsigned char* LSDynaFamily::GetRawBuffer()
+{
+  return this->Chunk;
+}
+
 
 #endif // __LSDynaFamily_h

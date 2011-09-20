@@ -26,8 +26,10 @@
 
 #include "vtkPLSDynaReader.h"
 #include "LSDynaMetaData.h"
+#include "LSDynaFamily.h"
 #include "vtkLSDynaPartCollection.h"
 
+#include "vtkIntArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -219,16 +221,20 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
 
   //add all the parts as child blocks to the output
   vtkIdType nextId = 0;
-  int size = this->Parts->GetNumberOfParts();
-  for(int i=0; i < size;++i)
+  int size = static_cast<int>(this->P->PartIds.size());
+  for(int i=0; i < size;++i,++nextId)
     {
     if (this->Parts->IsActivePart(i))
       {
       mbds->SetBlock(nextId,this->Parts->GetGridForPart(i));
-      mbds->GetMetaData(nextId)->Set(vtkCompositeDataSet::NAME(),
-        this->P->PartNames[i].c_str());
-      ++nextId;
       }
+    else
+      {
+      //some other process is reading it
+      mbds->SetBlock(nextId,NULL);
+      }
+    mbds->GetMetaData(nextId)->Set(vtkCompositeDataSet::NAME(),
+        this->P->PartNames[i].c_str());
     }
 
   this->UpdateProgress( 1.0 );
@@ -258,7 +264,20 @@ int vtkPLSDynaReader::ReadStaticNodes()
       vtkErrorMacro( "Could not read user node/element IDs." );
       return 1;
       } 
-    }  
+    }
+  else if(!this->CommonPoints)
+    {
+    this->CommonPoints = vtkPoints::New();
+      if (this->P->Fam.GetWordSize() == 4 )
+      {
+      this->CommonPoints->SetDataTypeToFloat();
+      }
+   else
+      {
+      this->CommonPoints->SetDataTypeToDouble();
+      }  
+    this->CommonPoints->SetNumberOfPoints( this->P->NumberOfNodes );
+    }
   return 0;
 }
 
@@ -270,76 +289,189 @@ int vtkPLSDynaReader::ReadTopology()
     {
     readTopology=true;
     this->Parts = vtkLSDynaPartCollection::New();
-    this->Parts->SetMetaData(this->P);
-    this->GetPartRange(this->Parts->GetNumberOfParts());
+    vtkIdType* minCellIds = new vtkIdType[LSDynaMetaData::NUM_CELL_TYPES];
+    vtkIdType* maxCellIds = new vtkIdType[LSDynaMetaData::NUM_CELL_TYPES];
+    this->GetPartRanges(minCellIds,maxCellIds);
+
+    this->Parts->InitCollection(this->P,minCellIds,maxCellIds);
+    delete[] minCellIds;
+    delete[] maxCellIds;
     }
   if(!readTopology)
     {
     return 0;
     }
 
-  if(this->Internal->ProcessRank==0)
+  //Read connectivity info once per simulation run and cache it.
+  //if the filename or a part/material array is modified the cache is deleted
+  //Each node will only read the subset of the files that it needs to construct
+  //the topology it needs
+  if ( this->ReadConnectivityAndMaterial() )
     {
-    //Read connectivity info once per simulation run and cache it.
-    //if the filename or a part/material array is modified the cache is deleted
-    if ( this->ReadConnectivityAndMaterial() )
-      {
-      vtkErrorMacro( "Could not read connectivity." );
-      return 1;
-      }
+    vtkErrorMacro( "Could not read connectivity." );
+    return 1;
     }
 
-  if(this->Internal->NumProcesses > 1)
-    {
-    //currently the master node has all the topology information.
-    //what we are going to do next is is send the information for each part
-    //to all processes. Than during FinalizeTopology the part will remove
-    //any part information it doesn't need to store.
-    const int size(this->Parts->GetNumberOfParts());
-    vtkIdType cellSizes[2]; //number of cells, and total cell array size
-
-    for(int i=0; i<size; ++i)
-      {
-      this->Parts->SpaceNeededForBroadcast(i,cellSizes[0],cellSizes[1]);
-      this->Controller->Broadcast(cellSizes,2,0);
-
-      //reserve the space on each 
-      this->Parts->ReserveSpace(i,cellSizes[0],cellSizes[1]);
-    
-      //send out the topology info now
-      unsigned char* types=NULL;
-      vtkIdType *loc=NULL, *structure=NULL;
-      this->Parts->GetInfoForBroadcast(i,types,loc,structure);
-
-      //broadcast the topology
-      this->Controller->Broadcast(types,cellSizes[0],0);
-      this->Controller->Broadcast(loc,cellSizes[0],0);
-      this->Controller->Broadcast(structure,cellSizes[1],0);
-      }
-    }
-  
   //finalize the topology on each process, each process will  remove
-  //any information it was sent that it doesn't need based on the 
-  //parts it is supposed to load
+  //any part that it doesn't have a cell for.
   this->Parts->FinalizeTopology();
-
 
   return 0;
 }
 
+//-----------------------------------------------------------------------------
+void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
+  const vtkIdType& numTuples, const vtkIdType& numComps, const bool &valid,
+  const bool& isDeflectionArray)
+{
+  if(this->Internal->NumProcesses == 1)
+    {
+    //we only have the root so just call the serial code
+    this->Superclass::ReadPointProperty(arr,numTuples,numComps,valid,
+                                        isDeflectionArray);
+    return;
+    }
+  
+  if ( valid || isDeflectionArray)
+    {
+    arr->SetNumberOfTuples( numTuples );  
+    
+    const vtkIdType numPointsToRead(262144);
+    const vtkIdType loopTimes(numTuples/numPointsToRead);
+    const vtkIdType leftOver(numTuples%numPointsToRead);
+    const vtkIdType len (this->P->Fam.GetWordSize()*numPointsToRead*numComps);
+
+    //setup the buffer on the non reading node
+    unsigned char* buffer = NULL;
+    if(this->Internal->ProcessRank>0)
+      {
+      buffer=new unsigned char[len];
+      }
+    
+    if(this->P->Fam.GetWordSize() == 8)
+      {
+      this->ReadPointPropertyChunks((double*)buffer,arr,
+           numComps,loopTimes,numPointsToRead,leftOver);
+      }
+    else
+      {
+      this->ReadPointPropertyChunks((float*)buffer,arr,
+           numComps,loopTimes,numPointsToRead,leftOver);
+      }
+    
+    if(this->Internal->ProcessRank>0 && buffer)
+      {
+      delete[] buffer;
+      }
+    
+    if (isDeflectionArray)
+      {
+      // Replace point coordinates with deflection (don't add to points).
+      // The name "deflection" is misleading.
+      this->CommonPoints->SetData(arr);
+      }
+    if(valid)
+      {
+      this->Parts->AddPointArray(arr);
+      }    
+    }
+  else if (this->Internal->ProcessRank==0)
+    {
+    //skip on the file reading node only
+    this->P->Fam.SkipWords(numTuples * numComps);
+    }
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkPLSDynaReader::ReadPointPropertyChunks(T* buffer, vtkDataArray *arr,
+  const vtkIdType& numComps, const vtkIdType& loopTimes,
+  const vtkIdType& numPointsToRead, const vtkIdType& leftOver)
+{
+
+  const vtkIdType bufferSize(numPointsToRead*numComps);
+  vtkIdType offset=0;
+  for(vtkIdType i=0;i<loopTimes;++i,offset+=bufferSize)
+    {
+    if(this->Internal->ProcessRank==0)
+      {
+      this->P->Fam.BufferChunk(LSDynaFamily::Float,bufferSize);
+      buffer = (T*)this->P->Fam.GetRawBuffer();
+      }
+    //broadcast the buffer from the root node to all other nodes
+    this->Controller->Broadcast(buffer,bufferSize,0);
+    this->FillArray(buffer,arr,offset,numPointsToRead,numComps);
+    }
+    
+  //read the last amount
+  if(this->Internal->ProcessRank==0)
+    { 
+    this->P->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
+    buffer = (T*)this->P->Fam.GetRawBuffer();
+    }
+  this->Controller->Broadcast(buffer,leftOver*numComps,0);
+  this->FillArray(buffer,arr,offset,leftOver,numComps);
+}
+
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkPLSDynaReader::FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,
+  const vtkIdType& numTuples, const vtkIdType& numComps)
+{
+  LSDynaMetaData *p = this->P;
+  if(numComps==arr->GetNumberOfComponents())
+    {    
+    //if the numComps of the binary file and the number of components
+    //of the destination in memory match ( ie we aren't a 2d binary d3plot file)
+    //we can do a direct memcpy
+    void *dest = arr->GetVoidPointer(offset);
+    void *src = buffer;
+    vtkIdType size = (numTuples * numComps) * p->Fam.GetWordSize();
+    memcpy(dest,src,size);    
+    }
+  else
+    {
+    double tuple[3] = {0.0,0.0,0.0};
+    const vtkIdType startPos(offset/numComps);
+    const vtkIdType size(numTuples*numComps);
+    
+    for (vtkIdType pt=0; pt<size; pt+=numComps)
+      {
+      //in some use cases we have a 3 dimension tuple that we need to fill
+      //that is coming from a 2 dimension buffer
+      for ( int c=0; c<numComps; ++c )
+        {
+        tuple[c] = buffer[pt+c];
+        }
+      arr->SetTuple(pt+startPos, tuple );
+      }
+    }
+}
+
 //----------------------------------------------------------------------------
 //determine which parts will be read by this processor
-void vtkPLSDynaReader::GetPartRange(const vtkIdType& numParts)
+void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
 {
-  this->Parts->PartMinId = 0;
-  this->Parts->PartMaxId = numParts;
-
   //1 == load the whole data
+  //determine which domains in this mesh this processor is responsible for
   if ( this->Internal->UpdateNumPieces > 1 )
     {
-    //determine which domains in this mesh this processor is responsible for
-    float percent = (1.0 / this->Internal->UpdateNumPieces) * numParts;
-    this->Parts->PartMinId = percent * this->Internal->UpdatePiece;
-    this->Parts->PartMaxId = (percent * this->Internal->UpdatePiece) + percent;
+    vtkIdType numCells;
+    for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
+      {
+      numCells = this->P->NumberOfCells[i];
+      float percent = (1.0 / this->Internal->UpdateNumPieces) * numCells;
+      mins[i] = percent * this->Internal->UpdatePiece;
+      maxs[i] = (percent * this->Internal->UpdatePiece) + percent;
+      }
+    }
+  else
+    {
+    for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
+      {
+      mins[i] = 0;
+      maxs[i] = this->P->NumberOfCells[i];
+      }
     }
 }
