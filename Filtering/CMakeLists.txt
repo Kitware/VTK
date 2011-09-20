@@ -144,6 +144,8 @@ vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMeanValueCoordinatesInterpolator.cxx
 vtkMergePoints.cxx
+vtkMarchingSquaresLineCases.cxx
+vtkMarchingCubesTriangleCases.cxx
 vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataSet.cxx
 vtkMultiPieceDataSet.cxx
@@ -341,6 +343,8 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkImageIterator.cxx
   vtkInformation.cxx
   vtkImageProgressIterator.cxx
+  vtkMarchingSquaresLineCases.cxx
+  vtkMarchingCubesTriangleCases.cxx
   WRAP_EXCLUDE
 )
 
