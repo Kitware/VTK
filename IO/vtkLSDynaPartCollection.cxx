@@ -169,6 +169,8 @@ vtkLSDynaPartCollection::vtkLSDynaPartCollection():
 {
   this->MetaData = NULL;
   this->Storage = new LSDynaPartStorage();
+  this->PartMinId = 0;
+  this->PartMaxId = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -408,6 +410,10 @@ void vtkLSDynaPartCollection::BuildPartInfo()
       new vtkLSDynaPartCollection::LSDynaPart(*typeIt);
       }
     }
+
+  //setup by default that this collection should read all parts
+  this->PartMinId = 0;
+  this->PartMaxId = size;
 }
 
 
@@ -434,11 +440,20 @@ void vtkLSDynaPartCollection::FinalizeTopology()
 
   PartVector::iterator partIt;
 
+  //make sure to only build topology info the parts we are loading
+  vtkIdType index = 0;
   for (partIt = this->Storage->Parts.begin();
        partIt != this->Storage->Parts.end();
-       ++partIt)
+       ++partIt,++index)
     {
-    if (*partIt)
+    if((*partIt) && (this->PartMinId > index || this->PartMaxId <= index))
+      {
+      //this part information isn't needed. Most likely it was
+      //sent from the root process as now needs to be delted
+      delete (*partIt);
+      (*partIt)=NULL;
+      }
+    else if (*partIt)
       {
       inputToMap.clear();
 
@@ -718,4 +733,34 @@ void vtkLSDynaPartCollection::ResetTimeStepInfo()
   this->Storage->PointProperties.clear();
 
   this->Finalized = false;
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::SpaceNeededForBroadcast(const vtkIdType& partId,
+  vtkIdType& numCells, vtkIdType& cellStructureSize)
+{
+  LSDynaPart *part = this->Storage->Parts[partId];
+  numCells = static_cast<vtkIdType>(part->CellTypes.size());
+  cellStructureSize = static_cast<vtkIdType>(part->CellStructure.size());
+}
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::ReserveSpace(const vtkIdType& partId,
+      const vtkIdType& numCells, const vtkIdType& cellStructureSize)
+{
+  LSDynaPart *part = this->Storage->Parts[partId];
+  part->CellTypes.reserve(numCells);
+  part->CellLocation.reserve(numCells);
+  part->CellStructure.reserve(cellStructureSize);
+}
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::GetInfoForBroadcast(const vtkIdType& partId,
+      unsigned char* cellTypes, vtkIdType* locations, vtkIdType* structure)
+{
+  LSDynaPart *part = this->Storage->Parts[partId];
+  cellTypes = &part->CellTypes[0];
+  locations = &part->CellLocation[0];
+  structure = &part->CellStructure[0];
 }

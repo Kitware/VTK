@@ -35,8 +35,22 @@ public:
   void SetMetaData(LSDynaMetaData *metaData);
   void FinalizeTopology();
   void Finalize(vtkPoints *commonPoints,const int& removeDeletedCells);
-
-
+  
+  //Description:
+  //gets all the info needed to copy the topology information to other
+  //processes
+  void SpaceNeededForBroadcast(const vtkIdType& partId, vtkIdType& numCells, vtkIdType& cellStructureSize);
+  
+  //Description:
+  //Reserves space if you know the number of total cells and the type of each cell
+  //Mainly this is used to setup size when running in parallel where another process
+  //is sending the info over to this process
+  void ReserveSpace(const vtkIdType& partId, const vtkIdType& numCells, const vtkIdType& cellStructureSize);
+  
+  //Description:
+  //Get the pointers for broadcasting the info to all other processes
+  //Make sure to call ReserveSpace on all processes you are copying too first
+  void GetInfoForBroadcast(const vtkIdType& partId, unsigned char* cellTypes, vtkIdType* locations, vtkIdType* structure);
 
   //Description: Insert a cell of a given type and material index to the 
   //collection.
@@ -73,6 +87,12 @@ public:
   //of a given type of lsdyna cell
   void ReadProperties(const LSDynaMetaData::LSDYNA_TYPES& type,
                       const int& numTuples);
+
+  //these are used to determine which parts each process should read from
+  //the valid parts
+  vtkIdType PartMinId; 
+  vtkIdType PartMaxId;
+
 protected:
   vtkLSDynaPartCollection();
   ~vtkLSDynaPartCollection();

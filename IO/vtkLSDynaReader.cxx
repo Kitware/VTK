@@ -2487,7 +2487,7 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
       //we have to read in the deflection array
       bool valid = this->GetPointArrayStatus( (*arr)->GetName() ) != 0;
       bool isDeflectionArray = this->DeformedMesh &&
-                           strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION);
+                    strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION)==0;
       if ( valid || isDeflectionArray)
         {
         (*arr)->SetNumberOfTuples( p->NumberOfNodes );
