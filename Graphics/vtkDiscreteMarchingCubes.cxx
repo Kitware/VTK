@@ -23,7 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
-#include "vtkMarchingCubesCases.h"
+#include "vtkMarchingCubesTriangleCases.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"

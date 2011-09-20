@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkHyperOctreeDualGridContourFilter.h"
-#include "vtkMarchingCubesCases.h"
+#include "vtkMarchingCubesTriangleCases.h"
 
 #include "vtkHyperOctree.h"
 #include "vtkCellArray.h"
