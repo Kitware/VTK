@@ -679,9 +679,9 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
   char native[7] = "native";
 
   MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[tempg], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read(this->FilePtr, tempgData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_read_all(this->FilePtr, tempgData, this->BlockSize, MPI_FLOAT, &status));
   MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_read_all(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
   // Entire block of data is read so to calculate index into that data we
@@ -748,9 +748,9 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   char native[7] = "native";
 
   MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[uvw], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read(this->FilePtr, uData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_read_all(this->FilePtr, uData, this->BlockSize, MPI_FLOAT, &status));
   MPICall(MPI_File_set_view(this->FilePtr, (2 * sizeof(int)), MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read(this->FilePtr, vData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_read_all(this->FilePtr, vData, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
   // Read Density component
@@ -761,7 +761,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   fread(densityData, sizeof(float), this->BlockSize, this->FilePtr);
 #else
   MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_read_all(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
   // Divide U and V components by Density
@@ -877,7 +877,7 @@ void vtkWindBladeReader::LoadVariableData(int var)
     fread(block, sizeof(float), this->BlockSize, this->FilePtr);
 #else
     MPI_Status status;
-    MPICall(MPI_File_read(this->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
+    MPICall(MPI_File_read_all(this->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
     int pos = comp;
@@ -936,12 +936,12 @@ bool vtkWindBladeReader::ReadGlobalData()
     {
     if(i + LINE_SIZE > tempSize)
       {
-      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
       inStr.write(inBuf, tempSize - i);
       }
     else
       {
-      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
       inStr.write(inBuf, LINE_SIZE);
       }
     }
@@ -1228,7 +1228,7 @@ bool vtkWindBladeReader::FindVariableOffsets()
   char native[7] = "native";
 
   MPICall(MPI_File_set_view(this->FilePtr, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read(this->FilePtr, &byteCount, 1, MPI_INT, &status));
+  MPICall(MPI_File_read_all(this->FilePtr, &byteCount, 1, MPI_INT, &status));
 #endif
 
   this->BlockSize = byteCount / BYTES_PER_DATA;
@@ -1470,7 +1470,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   char native[7] = "native";
   
   MPICall(MPI_File_set_view(this->FilePtr, BYTES_PER_DATA, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read(this->FilePtr, &topoData, blockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_read_all(this->FilePtr, &topoData, blockSize, MPI_FLOAT, &status));
 #endif
 
   // Initial z coordinate processing
@@ -1752,12 +1752,12 @@ void vtkWindBladeReader::SetupBladeData()
     {
     if(i + LINE_SIZE > tempSize)
       {
-      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
       inStr.write(inBuf, tempSize - i);
       }
     else
       {
-      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
       inStr.write(inBuf, LINE_SIZE);
       }
     }
@@ -1845,12 +1845,12 @@ void vtkWindBladeReader::SetupBladeData()
     {
     if(i + LINE_SIZE > tempSize)
       {
-      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
       inStr2.write(inBuf, tempSize - i);
       }
     else
       {
-      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
       inStr2.write(inBuf, LINE_SIZE);
       }
     }
@@ -1889,12 +1889,12 @@ void vtkWindBladeReader::SetupBladeData()
         {
         if(i + LINE_SIZE > tempSize)
           {
-          MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+          MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
           inStr2.write(inBuf, tempSize - i);
           }
         else
           {
-          MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+          MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
           inStr2.write(inBuf, LINE_SIZE);
           }
         }
