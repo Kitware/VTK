@@ -126,7 +126,11 @@ public:
   vtkTypeMacro(vtkPLSDynaReader,vtkLSDynaReader);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkPLSDynaReader *New();
-
+  
+  // Description:
+  // Determine if the file can be readed with this reader.
+  virtual int CanReadFile( const char* fname );
+  
   // Description:
   //Set/Get the communicator object. By default we use the world controller
   void SetController(vtkMultiProcessController *c);
@@ -139,13 +143,19 @@ protected:
   virtual int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
   virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
 
+  virtual int ReadTopology();
+  virtual int ReadStaticNodes();
+
 private:
   vtkPLSDynaReader( const vtkPLSDynaReader& ); // Not implemented.
   void operator = ( const vtkPLSDynaReader& ); // Not implemented.
 
-  int NumProcesses;
-  int MyId;
+  void GetPartRange(const vtkIdType& numParts);
+
   vtkMultiProcessController *Controller;
+
+  struct vtkPLSDynaReaderInternal;
+  vtkPLSDynaReaderInternal *Internal;
 };
 
 #endif // __vtkPLSDynaReader_h
