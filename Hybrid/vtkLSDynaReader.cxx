@@ -2381,10 +2381,21 @@ void vtkLSDynaReader::ReadDeletionArray(vtkIntArray* arr)
     }
 }
 
-
+//-----------------------------------------------------------------------------
 int vtkLSDynaReader::ReadState( vtkIdType step )
 {
+  if(this->ReadNodeStateInfo(step))
+    {
+    return this->ReadCellStateInfo( step );
+    }
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
+{
   LSDynaMetaData* p = this->P;
+
   // Skip global variables for now
   p->Fam.SkipToWord( LSDynaFamily::TimeStepSection, step, 1 + p->Dict["NGLBV"] );
 
@@ -2542,13 +2553,13 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
       }
     }
 
+  return 0;
+}
 
-  // 3D element data=======================================
-  p->Fam.ClearBuffer(); //clear the buffer as it will be way larger than needed
-  //and we need more free memory
-  vppt = 0;
-  vars.clear();
-  cmps.clear();
+//-----------------------------------------------------------------------------
+int vtkLSDynaReader::ReadCellStateInfo( vtkIdType step )
+{
+  LSDynaMetaData* p = this->P;
 
 #define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
   if ( cond && this->GetCellArrayStatus( celltype, arrayname ) ) \

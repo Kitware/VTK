@@ -511,6 +511,8 @@ protected:
   virtual int ReadConnectivityAndMaterial();
   virtual int ReadUserIds();
   virtual int ReadState( vtkIdType );
+  virtual int ReadNodeStateInfo( vtkIdType );
+  virtual int ReadCellStateInfo( vtkIdType );
   virtual int ReadDeletion();
   virtual int ReadSPHState( vtkIdType );
 
