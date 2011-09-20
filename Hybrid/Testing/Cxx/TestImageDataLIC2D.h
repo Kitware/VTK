@@ -37,6 +37,7 @@
 #include <vtksys/CommandLineArguments.hxx>
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
+#include "vtkTrivialProducer.h"
 
 #define CREATE_NEW(var, class) vtkSmartPointer<class> var = vtkSmartPointer<class>::New();
 
@@ -186,7 +187,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     }
 
   CREATE_NEW(probe,vtkProbeFilter);
-  probe->SetSource(reader->GetOutput());
+  probe->SetSourceConnection(reader->GetOutputPort());
   probe->SetInputData(probeData);
   probe->Update();
   
@@ -197,9 +198,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   output->SetDimensions(width * magnification, height * magnification, 1);
   output->SetSpacing(probeData->GetSpacing());
   output->SetOrigin(probeData->GetOrigin());
-  output->SetScalarTypeToUnsignedChar();
-  output->SetNumberOfScalarComponents(3);
-  output->AllocateScalars();
+  output->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
   
   CREATE_NEW( filter, vtkImageDataLIC2D );
   if (  filter->SetContext( renWin ) == 0  )
@@ -287,12 +286,16 @@ int ImageDataLIC2D(int argc, char* argv[])
     {
     CREATE_NEW(writer, vtkPNGWriter);
     writer->SetFileName(outputpath.c_str());
-    writer->SetInput(output);
+    writer->SetInputData(output);
     writer->Write();
     }
 
-  return (!tester->IsValidImageSpecified() || 
-    (tester->RegressionTest(output, 10) == vtkTesting::PASSED))? /*success*/ 0 : /*failure*/ 1;
+  CREATE_NEW(tp, vtkTrivialProducer);
+  tp->SetOutput(output);
+  int retVal = (!tester->IsValidImageSpecified() || 
+    (tester->RegressionTest(tp, 10) == vtkTesting::PASSED))? /*success*/ 0 : /*failure*/ 1;
+  tp->Delete();
+  return retVal;
 }
 
 #endif
