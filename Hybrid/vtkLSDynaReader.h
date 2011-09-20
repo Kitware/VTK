@@ -555,7 +555,8 @@ private:
   void FillDeletionArray(T* buffer, vtkIntArray* arr);
 
   template<typename T>
-  void FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& numTuples, const vtkIdType& numComps);
+  void FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,
+    const vtkIdType& numTuples, const vtkIdType& numComps);
 
   template<typename T>
   void FillPointsData(T* buffer, vtkPoints *points);

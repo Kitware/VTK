@@ -2483,25 +2483,47 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
 
   if ( vppt != 0 )
     {
+    const vtkIdType numPointsToRead(262144);
+    const vtkIdType loopTimes(p->NumberOfNodes/numPointsToRead);
+    const vtkIdType leftOver(p->NumberOfNodes%numPointsToRead);
+
     vtkstd::vector<int>::iterator arc = cmps.begin();
     for ( vtkstd::vector<vtkDataArray*>::iterator arr=vars.begin();
           arr != vars.end(); ++arr, ++arc )
       {
       if ( this->GetPointArrayStatus( (*arr)->GetName() ) != 0 )
         {
-        (*arr)->SetNumberOfTuples( p->NumberOfNodes );                
-        p->Fam.BufferChunk(LSDynaFamily::Float, p->NumberOfNodes*(*arc) );
+        (*arr)->SetNumberOfTuples( p->NumberOfNodes );
+      
+        const vtkIdType bufferChunkSize(numPointsToRead*(*arc));
+        vtkIdType offset = 0;
         if(p->Fam.GetWordSize() == 4)
           {
-          float* buf = p->Fam.GetBufferAsFloat();
-          this->FillArray(buf,*arr,p->NumberOfNodes, *arc);
+          float* buf = NULL;
+          for(vtkIdType j=0;j<loopTimes;++j,offset+=bufferChunkSize)
+            {
+            p->Fam.BufferChunk(LSDynaFamily::Float,bufferChunkSize);       
+            buf = p->Fam.GetBufferAsFloat();
+            this->FillArray(buf,*arr,offset,numPointsToRead, *arc);
+            }
+          p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*(*arc));
+          buf = p->Fam.GetBufferAsFloat();
+          this->FillArray(buf,*arr,offset,leftOver, *arc);
           }
         else
           {
-          double* buf = p->Fam.GetBufferAsDouble();
-          this->FillArray(buf,*arr,p->NumberOfNodes, *arc);
+          double* buf = NULL;
+          for(vtkIdType j=0;j<loopTimes;++j,offset+=bufferChunkSize)
+            {
+            p->Fam.BufferChunk(LSDynaFamily::Float,bufferChunkSize);       
+            buf = p->Fam.GetBufferAsDouble();
+            this->FillArray(buf,*arr,offset,numPointsToRead, *arc);
+            }
+          p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*(*arc));
+          buf = p->Fam.GetBufferAsDouble();
+          this->FillArray(buf,*arr,offset,leftOver, *arc);
           }
-        
+
         if ( this->DeformedMesh && ! strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION) )
           {
           // Replace point coordinates with deflection (don't add to points).
@@ -2519,6 +2541,7 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
         }
       }
     }
+
 
   // 3D element data=======================================
   p->Fam.ClearBuffer(); //clear the buffer as it will be way larger than needed
@@ -3170,7 +3193,6 @@ int vtkLSDynaReader::RequestData(
     return 1;
     }
 
-  
   if (!this->Parts)
     {
     this->Parts = vtkLSDynaPartCollection::New();
@@ -3184,8 +3206,7 @@ int vtkLSDynaReader::RequestData(
       }
     this->Parts->FinalizeTopology();
     }
-
-
+  
   //now that the cells have 
   this->UpdateProgress( 0.5 );
 
@@ -3331,7 +3352,7 @@ void vtkLSDynaReader::FillDeletionArray(T *buffer, vtkIntArray* arr)
 
 //-----------------------------------------------------------------------------
 template<typename T>
-void vtkLSDynaReader::FillArray(T *buffer, vtkDataArray* arr,
+void vtkLSDynaReader::FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,
   const vtkIdType& numTuples, const vtkIdType& numComps)
 {
   LSDynaMetaData *p = this->P;
@@ -3340,7 +3361,7 @@ void vtkLSDynaReader::FillArray(T *buffer, vtkDataArray* arr,
     //if the numComps of the binary file and the number of components
     //of the destination in memory match ( ie we aren't a 2d binary d3plot file)
     //we can do a direct memcpy
-    void *dest = arr->GetVoidPointer(0);
+    void *dest = arr->GetVoidPointer(offset);
     void *src = buffer;
     vtkIdType size = (numTuples * numComps) * p->Fam.GetWordSize();
     memcpy(dest,src,size);    
@@ -3348,7 +3369,9 @@ void vtkLSDynaReader::FillArray(T *buffer, vtkDataArray* arr,
   else
     {
     double tuple[3] = {0.0,0.0,0.0};
+    const vtkIdType startPos(offset/numComps);
     const vtkIdType size(numTuples*numComps);
+    
     for (vtkIdType pt=0; pt<size; pt+=numComps)
       {
       //in some use cases we have a 3 dimension tuple that we need to fill
@@ -3357,7 +3380,7 @@ void vtkLSDynaReader::FillArray(T *buffer, vtkDataArray* arr,
         {
         tuple[c] = buffer[pt+c];
         }
-      arr->SetTuple( pt, tuple );
+      arr->SetTuple(pt+startPos, tuple );
       }
     }
 }

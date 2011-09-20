@@ -669,6 +669,9 @@ void vtkLSDynaPartCollection::ConstructGridPoints(LSDynaPart *part, vtkPoints *c
     (*newArrayIt)->SetName((*ppArrayIt)->GetName());
     (*newArrayIt)->SetNumberOfComponents((*ppArrayIt)->GetNumberOfComponents());
     (*newArrayIt)->SetNumberOfTuples(size);
+
+    part->Grid->GetPointData()->AddArray((*newArrayIt));
+    (*newArrayIt)->FastDelete();
     }
 
   //fill the points and point property classes
@@ -691,15 +694,6 @@ void vtkLSDynaPartCollection::ConstructGridPoints(LSDynaPart *part, vtkPoints *c
 
   part->Grid->SetPoints(points);
   points->FastDelete();
-
-  for(newArrayIt=newArrays.begin();
-      newArrayIt!=newArrays.end();
-      ++newArrayIt)
-    {
-    part->Grid->GetPointData()->AddArray((*newArrayIt));
-    (*newArrayIt)->FastDelete();
-    }
-
 }
 
 //-----------------------------------------------------------------------------
