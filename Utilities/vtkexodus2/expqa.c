@@ -32,33 +32,56 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expqa = ex_put_qa
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     num_qa_records          number of qa records to be written
-*       char*   qa_record[][4])         qa record array
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
 #include <string.h>
 
 /*!
- * writes the QA records to the database
- * \param  exoid                   exodus file id
- * \param  num_qa_records          number of qa records to be written
- * \param *qa_record               qa record array
+
+The function ex_put_qa() writes the QA records to the database. Each
+QA record contains four \c MAX_STR_LENGTH-byte character
+strings. The character strings are:
+
+ -  the analysis code name
+ -  the analysis code QA descriptor
+ -  the analysis date
+ -  the analysis time
+
+\return In case of an error, ex_put_qa() returns a negative number; a
+        warning will return a positive number. Possible causes of errors
+        include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  QA records already exist in file.
+
+\param[in] exoid            exodus file ID returned from a previous call to ex_create() or ex_open().
+
+\param[in] num_qa_records   The number of QA records.
+\param[in]  qa_record       Array containing the QA records.
+
+The following code segment will write out two QA records:
+
+\code
+#include "exodusII.h"
+int num_qa_rec, error, exoid;
+char *qa_record[2][4];
+
+\comment{write QA records}
+num_qa_rec = 2;
+
+qa_record[0][0] = "TESTWT1";
+qa_record[0][1] = "testwt1";
+qa_record[0][2] = "07/07/93";
+qa_record[0][3] = "15:41:33";
+qa_record[1][0] = "FASTQ";
+qa_record[1][1] = "fastq";
+qa_record[1][2] = "07/07/93";
+qa_record[1][3] = "16:41:33";
+
+error = ex_put_qa (exoid, num_qa_rec, qa_record);
+\endcode
+
  */
 
 int ex_put_qa (int   exoid,
@@ -89,7 +112,7 @@ int ex_put_qa (int   exoid,
     if ((status = nc_inq_dimid(exoid, DIM_N4, &n4dim)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to locate record length in file id %d", exoid);
+        "Error: failed to locate record length in file id %d", exoid);
       ex_err("ex_put_qa",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -98,7 +121,7 @@ int ex_put_qa (int   exoid,
     if ((status = nc_redef(exoid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to put file id %d into define mode", exoid);
+        "Error: failed to put file id %d into define mode", exoid);
       ex_err("ex_put_qa",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -107,15 +130,15 @@ int ex_put_qa (int   exoid,
     /*   define dimensions */
     if ((status = nc_def_dim(exoid,DIM_NUM_QA,num_qa_records, &num_qa_dim)) != NC_NOERR) {
       if (status == NC_ENAMEINUSE) {     /* duplicate entry? */
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: qa records already exist in file id %d", exoid);
-        ex_err("ex_put_qa",errmsg,exerrval);
+  exerrval = status;
+  sprintf(errmsg,
+    "Error: qa records already exist in file id %d", exoid);
+  ex_err("ex_put_qa",errmsg,exerrval);
       } else {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to define qa record array size in file id %d", exoid);
-        ex_err("ex_put_qa",errmsg,exerrval);
+  exerrval = status;
+  sprintf(errmsg,
+    "Error: failed to define qa record array size in file id %d", exoid);
+  ex_err("ex_put_qa",errmsg,exerrval);
       }
 
       goto error_ret;         /* exit define mode and return */
@@ -129,7 +152,7 @@ int ex_put_qa (int   exoid,
     if ((status = nc_def_var(exoid, VAR_QA_TITLE, NC_CHAR, 3, dims, &varid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to define qa record array in file id %d", exoid);
+        "Error: failed to define qa record array in file id %d", exoid);
       ex_err("ex_put_qa",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -138,7 +161,7 @@ int ex_put_qa (int   exoid,
     if ((status = nc_enddef (exoid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to complete definition in file id %d", exoid);
+        "Error: failed to complete definition in file id %d", exoid);
       ex_err("ex_put_qa",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -148,21 +171,21 @@ int ex_put_qa (int   exoid,
 
     for (i=0; i<num_qa_records; i++) {
       for (j=0; j<4; j++) {
-        start[0] = i;
-        start[1] = j;
-        start[2] = 0;
+  start[0] = i;
+  start[1] = j;
+  start[2] = 0;
 
-        count[0] = 1;
-        count[1] = 1;
-        count[2] = strlen(qa_record[i][j]) + 1;
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = strlen(qa_record[i][j]) + 1;
 
-        if ((status = nc_put_vara_text(exoid, varid, start, count, qa_record[i][j])) != NC_NOERR) {
-          exerrval = status;
-          sprintf(errmsg,
-                  "Error: failed to store qa record in file id %d", exoid);
-          ex_err("ex_put_qa",errmsg,exerrval);
-          return (EX_FATAL);
-        }
+  if ((status = nc_put_vara_text(exoid, varid, start, count, qa_record[i][j])) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+      "Error: failed to store qa record in file id %d", exoid);
+    ex_err("ex_put_qa",errmsg,exerrval);
+    return (EX_FATAL);
+  }
       }
     }
   }
@@ -172,8 +195,8 @@ int ex_put_qa (int   exoid,
  error_ret:
   if (nc_enddef (exoid) != NC_NOERR) {    /* exit define mode */
     sprintf(errmsg,
-            "Error: failed to complete definition for file id %d",
-            exoid);
+      "Error: failed to complete definition for file id %d",
+      exoid);
     ex_err("ex_put_qa",errmsg,exerrval);
   }
   return (EX_FATAL);

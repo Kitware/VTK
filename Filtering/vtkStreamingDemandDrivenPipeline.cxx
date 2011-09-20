@@ -62,6 +62,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_UPDATE_TIME_ST
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVector);
 
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, PIECE_BOUNDING_BOX, DoubleVector, 6);
+vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, PIECE_NORMAL, DoubleVector, 3);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PRIORITY, Double);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, ORIGINAL_NUMBER_OF_CELLS, UnsignedLong);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_RESOLUTION, Double);
@@ -654,6 +655,7 @@ vtkStreamingDemandDrivenPipeline
         // if they need to.
         outInfo->CopyEntry(inInfo, PRIORITY());
         outInfo->CopyEntry(inInfo, ORIGINAL_NUMBER_OF_CELLS());
+        outInfo->CopyEntry(inInfo, PIECE_NORMAL());
 
         vtkInformation *algsProps = this->GetAlgorithm()->GetInformation();
         if (algsProps->Has(vtkAlgorithm::MANAGES_METAINFORMATION()))

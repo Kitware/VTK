@@ -64,12 +64,12 @@
  */
 
 int ex_put_n_one_attr( int   exoid,
-                       ex_entity_type obj_type,
-                       int   obj_id,
-                       int   start_num,
-                       int   num_ent,
-                       int   attrib_index,
-                       const void *attrib )
+           ex_entity_type obj_type,
+           int   obj_id,
+           int   start_num,
+           int   num_ent,
+           int   attrib_index,
+           const void *attrib )
 {
   int status;
   int attrid, obj_id_ndx, temp;
@@ -88,17 +88,17 @@ int ex_put_n_one_attr( int   exoid,
     obj_id_ndx = ex_id_lkup(exoid,obj_type,obj_id);
     if (exerrval != 0) {
       if (exerrval == EX_NULLENTITY) {
-        sprintf(errmsg,
-                "Warning: no attributes allowed for NULL %s %d in file id %d",
-                ex_name_of_object(obj_type),obj_id,exoid);
-        ex_err("ex_put_n_one_attr",errmsg,EX_MSG);
-        return (EX_WARN);              /* no attributes for this element block */
+  sprintf(errmsg,
+    "Warning: no attributes allowed for NULL %s %d in file id %d",
+    ex_name_of_object(obj_type),obj_id,exoid);
+  ex_err("ex_put_n_one_attr",errmsg,EX_MSG);
+  return (EX_WARN);              /* no attributes for this element block */
       } else {
-        sprintf(errmsg,
-                "Error: no %s id %d in id array in file id %d",
-                ex_name_of_object(obj_type), obj_id, exoid);
-        ex_err("ex_put_n_one_attr",errmsg,exerrval);
-        return (EX_FATAL);
+  sprintf(errmsg,
+    "Error: no %s id %d in id array in file id %d",
+    ex_name_of_object(obj_type), obj_id, exoid);
+  ex_err("ex_put_n_one_attr",errmsg,exerrval);
+  return (EX_FATAL);
       }
     }
   }
@@ -152,8 +152,8 @@ int ex_put_n_one_attr( int   exoid,
   default:
     exerrval = 1005;
     sprintf(errmsg,
-            "Internal Error: unrecognized object type in switch: %d in file id %d",
-            obj_type,exoid);
+      "Internal Error: unrecognized object type in switch: %d in file id %d",
+      obj_type,exoid);
     ex_err("ex_putt_n_one_attr",errmsg,EX_MSG);
     return (EX_FATAL);
   }
@@ -165,8 +165,8 @@ int ex_put_n_one_attr( int   exoid,
   if (start_num + num_ent -1 > (int)num_entries_this_obj) {
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
-            "Error: start index (%d) + count (%d) is larger than total number of entities (%d) in file id %d",
-            start_num, num_ent, (int)num_entries_this_obj, exoid);
+      "Error: start index (%d) + count (%d) is larger than total number of entities (%d) in file id %d",
+      start_num, num_ent, (int)num_entries_this_obj, exoid);
     ex_err("ex_put_n_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -186,8 +186,8 @@ int ex_put_n_one_attr( int   exoid,
   if ((status = nc_inq_varid(exoid, vattrbname, &attrid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate attribute variable for %s %d in file id %d",
-            ex_name_of_object(obj_type),obj_id,exoid);
+      "Error: failed to locate attribute variable for %s %d in file id %d",
+      ex_name_of_object(obj_type),obj_id,exoid);
     ex_err("ex_put_n_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }

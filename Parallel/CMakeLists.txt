@@ -158,6 +158,7 @@ IF (VTK_USE_MPI)
     ${Kit_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
+    vtkPNetCDFPOPReader.cxx
     )
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")

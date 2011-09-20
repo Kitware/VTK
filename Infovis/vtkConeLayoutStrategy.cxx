@@ -247,7 +247,7 @@ void vtkConeLayoutStrategy::Layout()
     {
     if (superGraph->GetInDegree(node) == 0)
       {
-      vtkEdgeType ignored = superGraph->AddEdge(root,node);
+      superGraph->AddEdge(root,node);
       nrRoots++;
       }
     }
