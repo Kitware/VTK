@@ -581,15 +581,16 @@ void vtkInteractorStyleImage::SetImageOrientation(
 {
   if (this->CurrentRenderer)
     {
+    // the cross product points out of the screen
     double vector[3];
     vtkMath::Cross(leftToRight, viewUp, vector);
     double focus[3];
     vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
     camera->GetFocalPoint(focus);
     double d = camera->GetDistance();
-    camera->SetPosition(focus[0] - d*vector[0],
-                        focus[1] - d*vector[1],
-                        focus[2] - d*vector[2]);
+    camera->SetPosition(focus[0] + d*vector[0],
+                        focus[1] + d*vector[1],
+                        focus[2] + d*vector[2]);
     camera->SetFocalPoint(focus);
     camera->SetViewUp(viewUp);
     }
