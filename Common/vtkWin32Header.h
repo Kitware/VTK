@@ -102,9 +102,15 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #  define vtkGetWindowLong GetWindowLong
 #  define vtkSetWindowLong SetWindowLong
 #  define vtkLONG LONG
+#  ifdef _WIN64
+#    define vtkGWL_WNDPROC GWLP_WNDPROC
+#    define vtkGWL_HINSTANCE GWLP_HINSTANCE
+#    define vtkGWL_USERDATA GWLP_USERDATA
+#  else
 #  define vtkGWL_WNDPROC GWL_WNDPROC
 #  define vtkGWL_HINSTANCE GWL_HINSTANCE
 #  define vtkGWL_USERDATA GWL_USERDATA
+#  endif
 #endif //
 
 #endif
