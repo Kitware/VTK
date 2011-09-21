@@ -23,6 +23,7 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkQuad.h"
+#include "vtkMarchingCubesTriangleCases.h"
 
 vtkStandardNewMacro(vtkHexahedron);
 

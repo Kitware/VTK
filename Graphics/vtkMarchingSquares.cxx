@@ -22,7 +22,7 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
-#include "vtkMarchingSquaresCases.h"
+#include "vtkMarchingSquaresLineCases.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
