@@ -14,15 +14,11 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkDataObject.h"
 
-#include "vtkAlgorithmOutput.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkTrivialProducer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -178,60 +174,6 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
     return;
     }
   vtkDataObjectGlobalReleaseDataFlag = val;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyInformationToPipeline(vtkInformation *request, 
-                                              vtkInformation *input,
-                                              vtkInformation *output,
-                                              int vtkNotUsed(forceCopy))
-{
-  // Set default pipeline information during a request for information.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    // Copy point and cell data from the input if available.  Otherwise use our
-    // current settings.
-
-    if (input)
-      {
-      // copy point data.
-      if (input->Has(POINT_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, POINT_DATA_VECTOR(), 1);
-        }
-      // copy cell data.
-      if (input && input->Has(CELL_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, CELL_DATA_VECTOR(), 1);
-        }
-      // copy vertex data.
-      if (input->Has(VERTEX_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, VERTEX_DATA_VECTOR(), 1);
-        }
-      // copy edge data.
-      if (input && input->Has(EDGE_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, EDGE_DATA_VECTOR(), 1);
-        }
-
-      // copy the actual time
-      if (input->Has(DATA_TIME_STEPS()))
-        {
-        output->CopyEntry(input, DATA_TIME_STEPS());
-        }
-      }
-    }
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    if (input)
-      {
-      if (input->Has(DATA_RESOLUTION()))
-        {
-        output->CopyEntry(input, DATA_RESOLUTION());
-        }
-      }
-    }
 }
 
 //----------------------------------------------------------------------------

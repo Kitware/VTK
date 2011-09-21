@@ -24,7 +24,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredVisibilityConstraint.h"
 #include "vtkQuad.h"
 #include "vtkVertex.h"

@@ -27,9 +27,10 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
+
+#include "vtkDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageData);
 
@@ -110,78 +111,12 @@ void vtkImageData::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
-                                             vtkInformation* input,
-                                             vtkInformation* output,
-                                             int forceCopy)
+void vtkImageData::CopyInformationFromPipeline(vtkInformation* information)
 {
   // Let the superclass copy whatever it wants.
-  this->Superclass::CopyInformationToPipeline(request, input, output, forceCopy);
+  this->Superclass::CopyInformationFromPipeline(information);
 
-  // Set default pipeline information during a request for information.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    // Copy settings from the input if available.  Otherwise use our
-    // current settings.
-
-    if(input && input->Has(ORIGIN()))
-      {
-      output->CopyEntry(input, ORIGIN());
-      }
-    else if (!output->Has(ORIGIN()) || forceCopy)
-      {
-      // Set origin (only if it is not set).
-      output->Set(ORIGIN(), this->GetOrigin(), 3);
-      }
-
-    if(input && input->Has(SPACING()))
-      {
-      output->CopyEntry(input, SPACING());
-      }
-    else if (!output->Has(SPACING()) || forceCopy)
-      {
-      // Set spacing (only if it is not set).
-      output->Set(SPACING(), this->GetSpacing(), 3);
-      }
-
-    // copy of input to output (if input exists) occurs in vtkDataObject, so
-    // only to to check need to check if the scalar info exists in the field
-    // data info of the output.  If it exists, then we assume the type and
-    // number of components are set; if not, set type and number of components
-    // to default values
-    vtkInformation *scalarInfo =
-      vtkDataObject::GetActiveFieldInformation(output,
-                                               FIELD_ASSOCIATION_POINTS,
-                                               vtkDataSetAttributes::SCALARS);
-    if (!scalarInfo || forceCopy)
-      {
-      vtkDataArray* scalars = this->GetPointData()->GetScalars();
-      if (scalars)
-        {
-        vtkDataObject::SetPointDataActiveScalarInfo(
-          output, scalars->GetDataType(), scalars->GetNumberOfComponents());
-        }
-      else
-        {
-        vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_DOUBLE, 1);
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::CopyInformationFromPipeline(vtkInformation* request,
-                                               vtkInformation* information)
-{
-  // Let the superclass copy whatever it wants.
-  this->Superclass::CopyInformationFromPipeline(request, information);
-
-  // Copy pipeline information to data information before the producer
-  // executes.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    this->CopyOriginAndSpacingFromPipeline(information);
-    }
+  this->CopyOriginAndSpacingFromPipeline(information);
 }
 
 //----------------------------------------------------------------------------

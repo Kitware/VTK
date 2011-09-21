@@ -755,11 +755,12 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   
   request->Set(REQUEST_INFORMATION());
 
-  // Make sure that pipeline informations is in sync with the data
-  if (dobj)
-    {
-    dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
-    }
+  // Berk TODO: Replace with a trivial producer
+  // // Make sure that pipeline informations is in sync with the data
+  // if (dobj)
+  //   {
+  //   dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
+  //   }
 
   this->Superclass::ExecuteInformation(request,inInfoVec,outInfoVec);
   request->Remove(REQUEST_INFORMATION());

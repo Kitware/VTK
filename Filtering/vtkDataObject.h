@@ -35,14 +35,9 @@
 #include "vtkObject.h"
 
 class vtkAbstractArray;
-class vtkAlgorithmOutput;
 class vtkDataSetAttributes;
-class vtkExecutive;
 class vtkFieldData;
 class vtkInformation;
-class vtkProcessObject;
-class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
-class vtkExtentTranslator;
 class vtkInformationDataObjectKey;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
@@ -51,7 +46,6 @@ class vtkInformationIntegerPointerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationStringKey;
 class vtkInformationVector;
-class vtkStreamingDemandDrivenPipeline;
 class vtkInformationInformationVectorKey;
 
 #define VTK_PIECES_EXTENT   0
@@ -134,24 +128,12 @@ public:
   virtual void CopyTypeSpecificInformation( vtkDataObject *data ) 
     {}
 
-  // Description:
-  // Copy information about this data object from the
-  // PipelineInformation to its own Information for the given request.
-  virtual void CopyInformationFromPipeline(vtkInformation* vtkNotUsed(request),
-                                           vtkInformation* vtkNotUsed(info))
+   // Description:
+   // Copy information about this data object from the
+   // pipeline information to its own Information.
+  // Called right before the main execution pass..
+  virtual void CopyInformationFromPipeline(vtkInformation* vtkNotUsed(info))
   {}
-
-  // Description:
-  // Copy information about this data object to the output
-  // information from its own Information for the given
-  // request.  If the second argument is not NULL then it is the
-  // pipeline information object for the input to this data object's
-  // producer. If forceCopy is true, information is copied even
-  // if it exists in the output.
-  virtual void CopyInformationToPipeline(vtkInformation* request,
-                                         vtkInformation* input,
-                                         vtkInformation* output,
-                                         int forceCopy);
 
   // Description:
   // Return the information object within the input information object's
@@ -372,10 +354,6 @@ protected:
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;
-
-  //BTX
-  friend class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
-  //ETX
 
   static const char AssociationNames[NUMBER_OF_ASSOCIATIONS][55];
 
