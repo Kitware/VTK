@@ -338,19 +338,17 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
   tmpOutput->GetPoint(numPoints-1, lastPoint);
 
   vtkInitialValueProblemSolver* ivp = this->Integrator;
-  ivp->Register(this);
   
   vtkRungeKutta2* tmpSolver = vtkRungeKutta2::New();
-  this->SetIntegrator(tmpSolver);
-  tmpSolver->Delete();
+  this->Integrator = tmpSolver;
 
   double tmpseed[3];
   memcpy(tmpseed, lastPoint, 3*sizeof(double));
   this->SimpleIntegrate(tmpseed, lastPoint, this->LastUsedStepSize, func);
   func->Delete();
 
-  this->SetIntegrator(ivp);
-  ivp->UnRegister(this);
+  this->Integrator = ivp;
+  tmpSolver->Delete();
   
   double* lastNormal = 0;
   vtkDataArray* normals = tmpOutput->GetPointData()->GetArray("Normals");
