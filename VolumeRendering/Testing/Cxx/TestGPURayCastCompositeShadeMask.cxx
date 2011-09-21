@@ -115,7 +115,6 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
   grid->SetGridSpacing(5,5,5);
   grid->Update();
   mapper->SetMaskInput(grid->GetOutput());
-  grid->Delete();
 
   vtkImageGridSource *grid2 = vtkImageGridSource::New();
   grid2->SetDataScalarTypeToUnsignedChar();
@@ -132,6 +131,7 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
   
   vtkImageCheckerboard *checkerboard=vtkImageCheckerboard::New();
   checkerboard->SetInputConnection(0,grid->GetOutputPort());
+  grid->Delete();
   
   checkerboard->SetInputConnection(1,grid2->GetOutputPort());
   grid2->Delete();
