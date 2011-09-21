@@ -31,7 +31,9 @@ IF(PYTHON_EXECUTABLE)
     vtkImageIterator.h
     vtkImageProgressIterator.h
     vtkMarchingCubesCases.h
+    vtkMarchingCubesTriangleCases.h
     vtkMarchingSquaresCases.h
+    vtkMarchingSquaresLineCases.h
     vtkStructuredPoints.h
     )
 ENDIF(PYTHON_EXECUTABLE)
