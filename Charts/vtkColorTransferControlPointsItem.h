@@ -73,7 +73,7 @@ protected:
 
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
   virtual vtkIdType GetNumberOfPoints()const;
-  virtual void GetControlPoint(vtkIdType index, double *point);
+  virtual void GetControlPoint(vtkIdType index, double *point)const;
   virtual void SetControlPoint(vtkIdType index, double *point);
   virtual void EditPoint(float tX, float tY);
 

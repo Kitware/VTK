@@ -166,7 +166,7 @@ public:
   // Description:
   // Returns the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
-  virtual void GetControlPoint(vtkIdType index, double *point) = 0;
+  virtual void GetControlPoint(vtkIdType index, double *point)const = 0;
   // Description:
   // Sets the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.

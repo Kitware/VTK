@@ -96,6 +96,7 @@ void vtkColorTransferControlPointsItem::SetColorTransferFunction(vtkColorTransfe
 //-----------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 {
+  assert(index != -1);
   if (this->ColorFill)
     {
     double xrgbms[6];
@@ -113,10 +114,11 @@ vtkIdType vtkColorTransferControlPointsItem::GetNumberOfPoints()const
 }
 
 //-----------------------------------------------------------------------------
-void vtkColorTransferControlPointsItem::GetControlPoint(vtkIdType index, double* pos)
+void vtkColorTransferControlPointsItem::GetControlPoint(vtkIdType index, double* pos)const
 {
   double xrgbms[6];
-  this->ColorTransferFunction->GetNodeValue(index, xrgbms);
+  const_cast<vtkColorTransferFunction*>(this->ColorTransferFunction)
+    ->GetNodeValue(index, xrgbms);
   pos[0] = xrgbms[0];
   pos[1] = 0.5;
   pos[2] = xrgbms[4];

@@ -322,6 +322,7 @@ void vtkControlPointsItem::DrawSelectedPoints(vtkContext2D* painter)
   for (vtkIdType i = 0; i < count; ++i)
     {
     vtkIdType index = this->Selection->GetValue(i);
+    assert(index != -1);
     if (index == this->CurrentPoint ||
         (index == this->PointToDelete && this->PointAboutToBeDeleted) ||
         (index == this->PointToToggle && this->PointAboutToBeToggled))
@@ -336,6 +337,7 @@ void vtkControlPointsItem::DrawSelectedPoints(vtkContext2D* painter)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 {
+  assert(index != -1);
   double point[4];
   this->GetControlPoint(index, point);
 
@@ -424,7 +426,12 @@ void vtkControlPointsItem::DeselectPoint(vtkIdType pointId)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::DeselectAllPoints()
 {
+  if (this->GetNumberOfSelectedPoints() == 0)
+    {
+    return;
+    }
   this->Selection->SetNumberOfTuples(0);
+  this->GetScene()->SetDirty(true);
 }
 
 //-----------------------------------------------------------------------------

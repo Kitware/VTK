@@ -96,9 +96,10 @@ vtkIdType vtkPiecewiseControlPointsItem::GetNumberOfPoints()const
 }
 
 //-----------------------------------------------------------------------------
-void vtkPiecewiseControlPointsItem::GetControlPoint(vtkIdType index, double* pos)
+void vtkPiecewiseControlPointsItem::GetControlPoint(vtkIdType index, double* pos)const
 {
-  this->PiecewiseFunction->GetNodeValue(index, pos);
+  const_cast<vtkPiecewiseFunction*>(this->PiecewiseFunction)
+    ->GetNodeValue(index, pos);
 }
 
 //-----------------------------------------------------------------------------

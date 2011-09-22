@@ -185,7 +185,7 @@ void vtkCompositeControlPointsItem::SetControlPoint(vtkIdType index, double* new
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeControlPointsItem::GetControlPoint(vtkIdType index, double* pos)
+void vtkCompositeControlPointsItem::GetControlPoint(vtkIdType index, double* pos)const
 {
   if (!this->OpacityFunction ||
       this->PointsFunction == ColorPointsFunction)
@@ -193,11 +193,13 @@ void vtkCompositeControlPointsItem::GetControlPoint(vtkIdType index, double* pos
     this->Superclass::GetControlPoint(index, pos);
     if (this->OpacityFunction)
       {
-      pos[1] = this->OpacityFunction->GetValue(pos[0]);
+      pos[1] = const_cast<vtkPiecewiseFunction*>(this->OpacityFunction)
+        ->GetValue(pos[0]);
       }
     return;
     }
-  this->OpacityFunction->GetNodeValue(index, pos);
+  const_cast<vtkPiecewiseFunction*>(this->OpacityFunction)
+    ->GetNodeValue(index, pos);
 }
 
 //-----------------------------------------------------------------------------
