@@ -25,8 +25,9 @@
 #ifndef __vtkControlPointsItem_h
 #define __vtkControlPointsItem_h
 
-#include "vtkPlot.h"
 #include "vtkCommand.h" // For vtkCommand enum
+#include "vtkPlot.h"
+#include "vtkVector.h"
 
 class vtkCallbackCommand;
 class vtkContext2D;
