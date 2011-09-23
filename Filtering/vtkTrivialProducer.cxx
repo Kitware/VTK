@@ -214,8 +214,77 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()) && this->Output)
     {
-    // Pretend we generated the output.
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
+
+    // If downstream wants exact structured extent that is less than
+    // whole, we need make a copy of the original dataset and crop it
+    // - if EXACT_EXTENT() is specified.
+    vtkInformation* dataInfo = this->Output->GetInformation();
+    if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+      {
+      int wholeExt[6];
+      outputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                      wholeExt);
+      int updateExt[6];
+      outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                      updateExt);
+
+      if(outputInfo->Has(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()) &&
+         outputInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
+        {
+
+        if(updateExt[0] != wholeExt[0] ||
+           updateExt[1] != wholeExt[1] ||
+           updateExt[2] != wholeExt[2] ||
+           updateExt[3] != wholeExt[3] ||
+           updateExt[4] != wholeExt[4] ||
+           updateExt[5] != wholeExt[5])
+          {
+          vtkDataObject* newOutput = this->Output->NewInstance();
+          newOutput->ShallowCopy(this->Output);
+          newOutput->Crop(
+            outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
+          outputInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+          newOutput->Delete();
+          }
+        else
+          {
+          // If we didn't replace the output, it should be same as original
+          // dataset. If not, fix it.
+          vtkDataObject* output = outputInfo->Get(vtkDataObject::DATA_OBJECT());
+          if (output != this->Output)
+            {
+            outputInfo->Set(vtkDataObject::DATA_OBJECT(), this->Output);
+            }
+          }
+        }
+      else
+        {
+        // If EXACT_EXTENT() is not there,
+        // make sure that we provide requested extent or more
+        int dataExt[6];
+        vtkDataObject* output = outputInfo->Get(vtkDataObject::DATA_OBJECT());
+        output->GetInformation()->Get(vtkDataObject::DATA_EXTENT(), dataExt);
+        if (updateExt[0] < dataExt[0] ||
+            updateExt[1] > dataExt[1] ||
+            updateExt[2] < dataExt[2] ||
+            updateExt[3] > dataExt[3] ||
+            updateExt[4] < dataExt[4] ||
+            updateExt[5] > dataExt[5])
+          {
+          if (output != this->Output)
+            {
+            outputInfo->Set(vtkDataObject::DATA_OBJECT(), this->Output);
+            }
+          else
+            {
+            vtkErrorMacro("This data object does not contain the requested extent.");
+            }
+          }
+        }
+      }
+
+    // Pretend we generated the output.
     outputInfo->Remove(vtkDemandDrivenPipeline::DATA_NOT_GENERATED());
     }
 
