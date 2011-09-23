@@ -30,7 +30,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTextProperty.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkTDxInteractorStyleCamera.h"
 

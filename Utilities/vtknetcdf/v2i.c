@@ -73,8 +73,6 @@ nvdims(int ncid, int varid)
 
 #endif
 
-typedef signed char schar;
-
 /*
  * Computes number of record variables in an open netCDF file, and an array of
  * the record variable ids, if the array parameter is non-null.

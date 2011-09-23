@@ -54,18 +54,16 @@
 #include "vtkThreadedImageAlgorithm.h"
 
 // interpolation mode constants
-#define VTK_RESLICE_NEAREST 0
-#define VTK_RESLICE_LINEAR 1
-#define VTK_RESLICE_RESERVED_2 2
-#define VTK_RESLICE_CUBIC 3
-#define VTK_RESLICE_LANCZOS 4
-#define VTK_RESLICE_KAISER 5
+#define VTK_RESLICE_NEAREST VTK_NEAREST_INTERPOLATION
+#define VTK_RESLICE_LINEAR VTK_LINEAR_INTERPOLATION
+#define VTK_RESLICE_CUBIC VTK_CUBIC_INTERPOLATION
 
 class vtkImageData;
 class vtkAbstractTransform;
 class vtkMatrix4x4;
 class vtkImageStencilData;
 class vtkScalarsToColors;
+class vtkAbstractImageInterpolator;
 
 class VTK_IMAGING_EXPORT vtkImageReslice : public vtkThreadedImageAlgorithm
 {
@@ -197,12 +195,9 @@ public:
   vtkBooleanMacro(Border, int);
 
   // Description:
-  // Set interpolation mode (default: nearest neighbor).  Also
-  // see SetInterpolationSizeParameter, which is valid for the
-  // Lanczos and Kaiser windowed sinc interpolation interpolation
-  // methods.
+  // Set interpolation mode (default: nearest neighbor).
   vtkSetClampMacro(InterpolationMode, int,
-                   VTK_RESLICE_NEAREST, VTK_RESLICE_KAISER);
+                   VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC);
   vtkGetMacro(InterpolationMode, int);
   void SetInterpolationModeToNearestNeighbor() {
     this->SetInterpolationMode(VTK_RESLICE_NEAREST); };
@@ -210,23 +205,13 @@ public:
     this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
   void SetInterpolationModeToCubic() {
     this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
-  void SetInterpolationModeToLanczos() {
-    this->SetInterpolationMode(VTK_RESLICE_LANCZOS); };
-  void SetInterpolationModeToKaiser() {
-    this->SetInterpolationMode(VTK_RESLICE_KAISER); };
   virtual const char *GetInterpolationModeAsString();
 
   // Description:
-  // Set the size parameter for any interpolation kernel
-  // that takes such a parameter.  For windowed sinc methods
-  // such as Lanczos and Kaiser, this is the half-width of
-  // the kernel.  This parameter must be an integer between
-  // 1 and 7, and it has a default value of 3.  Note that
-  // the alpha parameter for Kaiser is automatically forced
-  // to three times this value, and cannot be modified
-  // independently.
-  vtkSetClampMacro(InterpolationSizeParameter, int, 1, 7);
-  vtkGetMacro(InterpolationSizeParameter, int);
+  // Set the interpolator to use.  The default interpolator
+  // supports the Nearest, Linear, and Cubic interpolation modes.
+  virtual void SetInterpolator(vtkAbstractImageInterpolator *sampler);
+  virtual vtkAbstractImageInterpolator *GetInterpolator();
 
   // Description:
   // Set the slab mode, the default is average.
@@ -368,13 +353,12 @@ protected:
   double ResliceAxesDirectionCosines[9];
   double ResliceAxesOrigin[3];
   vtkAbstractTransform *ResliceTransform;
+  vtkAbstractImageInterpolator *Interpolator;
   vtkImageData *InformationInput;
   int Wrap;
   int Mirror;
   int Border;
   int InterpolationMode;
-  int InterpolationSizeParameter;
-  int BSplineCheck;
   int Optimization;
   int SlabMode;
   int SlabNumberOfSlices;
@@ -388,6 +372,7 @@ protected:
   int TransformInputSampling;
   int AutoCropOutput;
   int HitInputExtent;
+  int UsePermuteExecute;
   int ComputeOutputSpacing;
   int ComputeOutputOrigin;
   int ComputeOutputExtent;
@@ -431,6 +416,8 @@ protected:
                                  vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
   virtual void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
@@ -443,8 +430,6 @@ protected:
                                vtkInformation *outInfo);
   vtkAbstractTransform *GetOptimizedTransform() {
     return this->OptimizedTransform; };
-
-  void BuildInterpolationTables();
 
 private:
   vtkImageReslice(const vtkImageReslice&);  // Not implemented.

@@ -12,21 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkMarchingCubesCases_h
-#define __vtkMarchingCubesCases_h
-//
-// marching cubes case table for generating isosurfaces
-//
-typedef int EDGE_LIST;
-struct VTK_FILTERING_EXPORT vtkMarchingCubesTriangleCases 
-{
-  EDGE_LIST edges[16];
-  static vtkMarchingCubesTriangleCases* GetCases();
-};
- 
-//
-// Edges to intersect.  Three at a time form a triangle. Comments at 
-// end of line indicate case number (0->255) and base case number (0->15).
-//
 
+#include "vtkSystemIncludes.h"
+// Retained for compatibility, deprecated in VTK 5.10, remove in VTK 6.0.
+#ifndef VTK_LEGACY_REMOVE
+# include "vtkMarchingCubesTriangleCases.h"
 #endif

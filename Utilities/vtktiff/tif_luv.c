@@ -190,7 +190,7 @@ LogL16Decode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
         int16 b;
         int cc, rc;
 
-        assert(s == 0);
+        assert(s == 0); (void)s;
         assert(sp != NULL);
 
         npixels = occ / sp->pixel_size;
@@ -245,7 +245,7 @@ LogLuvDecode24(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
         unsigned char* bp;
         uint32* tp;
 
-        assert(s == 0);
+        assert(s == 0); (void)s;
         assert(sp != NULL);
 
         npixels = occ / sp->pixel_size;
@@ -289,7 +289,7 @@ LogLuvDecode32(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
         uint32 b;
         int cc, rc;
 
-        assert(s == 0);
+        assert(s == 0); (void)s;
         sp = DecoderState(tif);
         assert(sp != NULL);
 
@@ -379,7 +379,7 @@ LogL16Encode(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
         int16 b;
         int occ, rc=0, mask, beg;
 
-        assert(s == 0);
+        assert(s == 0); (void)s;
         assert(sp != NULL);
         npixels = cc / sp->pixel_size;
 
@@ -465,7 +465,7 @@ LogLuvEncode24(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
         tidata_t op;
         uint32* tp;
 
-        assert(s == 0);
+        assert(s == 0); (void)s;
         assert(sp != NULL);
         npixels = cc / sp->pixel_size;
 
@@ -512,7 +512,7 @@ LogLuvEncode32(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
         uint32 b;
         int occ, rc=0, mask, beg;
 
-        assert(s == 0);
+        assert(s == 0); (void)s;
         assert(sp != NULL);
 
         npixels = cc / sp->pixel_size;

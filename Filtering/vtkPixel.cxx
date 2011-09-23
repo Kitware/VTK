@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPoints.h"
+#include "vtkMarchingSquaresLineCases.h"
 
 vtkStandardNewMacro(vtkPixel);
 

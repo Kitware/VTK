@@ -60,6 +60,8 @@ vtkAxis::vtkAxis()
   this->Maximum = 6.66;
   this->MinimumLimit = std::numeric_limits<double>::max() * -1.;
   this->MaximumLimit = std::numeric_limits<double>::max();
+  this->Margins[0] = 15;
+  this->Margins[1] = 5;
   this->LogScale = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
@@ -647,17 +649,17 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   if (vertical)
     {
-    bounds.SetWidth(widest + titleBounds.GetWidth() + 15);
+    bounds.SetWidth(widest + titleBounds.GetWidth() + this->Margins[0]);
     float range = this->Point1[1] < this->Point2[1] ?
           this->Point2[1] - this->Point1[1] : this->Point1[1] - this->Point2[1];
-    bounds.SetHeight(range + tallest + 5);
+    bounds.SetHeight(range + tallest + this->Margins[1]);
     }
   else
     {
+    bounds.SetHeight(tallest + titleBounds.GetHeight() + this->Margins[0]);
     float range = this->Point1[0] < this->Point2[0] ?
           this->Point2[0] - this->Point1[0] : this->Point1[0] - this->Point2[0];
-    bounds.SetWidth(range + widest + 5);
-    bounds.SetHeight(tallest + titleBounds.GetHeight() + 15);
+    bounds.SetWidth(range + widest + this->Margins[1]);
     }
   return bounds;
 }

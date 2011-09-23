@@ -83,6 +83,7 @@ IF (VTK_DATA_ROOT)
     TestSurfaceConstrainedHandleWidget.cxx
     TestPolygonalRepresentationHandleWidget.cxx
     TestPolygonalHandleRepresentations.cxx
+    TestPolygonalSurfaceConstrainedDistanceWidget.cxx
     TestSphereHandleWidget.cxx
     TestFocalPlaneContour.cxx
     #TestOrientedGlyphContour.cxx

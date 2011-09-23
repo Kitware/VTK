@@ -27,6 +27,7 @@
 #define __vtkDataReader_h
 
 #include "vtkAlgorithm.h"
+#include "vtkStdString.h" // For API using strings
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
@@ -78,6 +79,8 @@ public:
   void SetInputString(const char *in, int len);
   vtkGetMacro(InputStringLength, int);
   void SetBinaryInputString(const char *, int len);
+  void SetInputString(const vtkStdString& input)
+    { this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length())); }
 
   // Description:
   // Specify the vtkCharArray to be used  when reading from a string.
