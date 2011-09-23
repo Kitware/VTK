@@ -98,6 +98,8 @@ void vtkPolyDataMapper::Update()
     return;
     }
 
+  this->UpdateInformation();
+
   int currentPiece, nPieces = this->NumberOfPieces;
   vtkInformation* inInfo = this->GetInputInformation();
 
