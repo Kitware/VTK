@@ -298,6 +298,7 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
 
   //determine where we are currently in the file
   vtkIdType currentPos = VTK_LSDYNA_TELL(this->FD);
+
   VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
   vtkIdType amountMoved = VTK_LSDYNA_TELL(this->FD) - currentPos;
   
@@ -385,6 +386,7 @@ int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
     bytesLeft -= bytesRead;
     buf += bytesRead;
     }
+  this->FWord = VTK_LSDYNA_TELL(this->FD);
 
   if ( this->SwapEndian && wType != LSDynaFamily::Char )
     {

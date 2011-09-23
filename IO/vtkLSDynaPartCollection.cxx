@@ -100,17 +100,10 @@ struct vtkLSDynaPartCollection::LSDynaPart
   void ResetTimeStepInfo()
     {
     DeadCells.clear();
-    CPIVector::iterator it;
-    for(it=CellPropertyInfo.begin();
-        it!=CellPropertyInfo.end();
-        ++it)
-        {
-        (*it)->Data->Delete();
-        }
     CellPropertyInfo.clear();
     }
   
-  //temporary storage of information to build the grid before we call finalize
+  //Storage of information to build the grid before we call finalize
   //these are constant across all timesteps
   UCharVector CellTypes;
   IdTypeVector CellLocation;
@@ -261,17 +254,19 @@ void vtkLSDynaPartCollection::BuildPartInfo(vtkIdType* mins, vtkIdType* maxs)
   size_t size = this->MetaData->PartIds.size();
   this->Storage->Parts.resize(size,NULL);
 
-  std::vector<int>::const_iterator partIt;
+  //we iterate on part materials as those are those are from 1 to num Parts.
+  //the part ids are the user part numbers
+  std::vector<int>::const_iterator partMIt;
   std::vector<int>::const_iterator statusIt = this->MetaData->PartStatus.begin();
   std::vector<LSDynaMetaData::LSDYNA_TYPES>::const_iterator typeIt = this->MetaData->PartTypes.begin();
-  for (partIt = this->MetaData->PartIds.begin();
-       partIt != this->MetaData->PartIds.end();
-       ++partIt,++statusIt,++typeIt)
+  for (partMIt = this->MetaData->PartMaterials.begin();
+       partMIt != this->MetaData->PartMaterials.end();
+       ++partMIt,++statusIt,++typeIt)
     {
     if (*statusIt)
       {
       //make the index contain a part
-      this->Storage->Parts[*partIt-1] =
+      this->Storage->Parts[*partMIt-1] =
       new vtkLSDynaPartCollection::LSDynaPart(*typeIt);
       }
     }  
@@ -355,7 +350,6 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(
 void vtkLSDynaPartCollection::AddPointArray(vtkDataArray* data)
 {
   this->Storage->PointProperties.push_back(data);
-  data->Register(this); //we up the ref count
 }
 
 //-----------------------------------------------------------------------------
@@ -669,6 +663,7 @@ void vtkLSDynaPartCollection::ConstructGridCells(LSDynaPart *part)
       ++it)
       {
       gridData->AddArray((*it)->Data);
+      (*it)->Data->FastDelete();
       }
 }
 
@@ -701,6 +696,7 @@ void vtkLSDynaPartCollection::ConstructGridCellsWithoutDeadCells(LSDynaPart *par
     (*newArrayIt)->SetName(d->GetName());
     (*newArrayIt)->SetNumberOfComponents(d->GetNumberOfComponents());
     (*newArrayIt)->SetNumberOfTuples(numCells-numDeadCells);
+
     cd->AddArray(*newArrayIt);
     (*newArrayIt)->FastDelete();
     }
@@ -820,7 +816,8 @@ void vtkLSDynaPartCollection::ResetTimeStepInfo()
     doIt!=this->Storage->PointProperties.end();
     ++doIt)
     {
-    (*doIt)->Delete();
+    vtkDataArray* da = vtkDataArray::SafeDownCast(*doIt);
+    da->Delete();
     }
   this->Storage->PointProperties.clear();
 

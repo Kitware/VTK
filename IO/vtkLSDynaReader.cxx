@@ -1430,7 +1430,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   int mdlopt;
   int intpts2;
   mdlopt = p->Dict["MAXINT"];
-  if ( mdlopt >= 0 )
+  if ( mdlopt >= 0 && mdlopt <= 10000)
     {
     intpts2 = mdlopt;
     mdlopt = LS_MDLOPT_NONE;
@@ -1438,6 +1438,14 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   else if ( mdlopt < -10000 )
     {
     intpts2 = -mdlopt -10000;
+    mdlopt = LS_MDLOPT_CELL;
+
+    // WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
+    p->StateSize += this->GetNumberOfContinuumCells() * p->Fam.GetWordSize();
+    }
+  else if ( mdlopt > 10000)
+    {
+    intpts2 = mdlopt -10000;
     mdlopt = LS_MDLOPT_CELL;
 
     // WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
@@ -2492,7 +2500,6 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
       bool isDeflectionArray = this->DeformedMesh &&
                     strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION)==0;
       this->ReadPointProperty(*arr,p->NumberOfNodes,(*arc),valid,isDeflectionArray);
-      (*arr)->Delete();
       }
     //clear the buffer as it will be very large and not needed
     p->Fam.ClearBuffer();
@@ -2685,9 +2692,6 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType step )
     LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
 
   this->ReadCellProperties(LSDynaMetaData::SHELL, p->Dict["NV2D"]);
-
-  //clear the buffer as it will be very large and not needed
-  p->Fam.ClearBuffer();
  
 #undef VTK_LS_CELLARRAY
   return 0;
@@ -2701,7 +2705,7 @@ void vtkLSDynaReader::ReadCellProperties(const int& type,const int& numTuples)
   vtkIdType numCells,numSkipStart,numSkipEnd;
   this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
 
-  this->P->Fam.SkipWords(numSkipStart);
+  this->P->Fam.SkipWords(numSkipStart * numTuples);
   this->P->Fam.BufferChunk(LSDynaFamily::Float, numCells * numTuples);
   if(this->P->Fam.GetWordSize() == 8 && numCells > 0)
     {
@@ -2713,7 +2717,10 @@ void vtkLSDynaReader::ReadCellProperties(const int& type,const int& numTuples)
     float *fbuf = this->P->Fam.GetBufferAsFloat();
     this->Parts->FillCellProperties(fbuf,t,numCells,numTuples);
     }
-  this->P->Fam.SkipWords(numSkipEnd);
+  this->P->Fam.SkipWords(numSkipEnd * numTuples);
+  
+  //clear the buffer as it will be very large and not needed
+  this->P->Fam.ClearBuffer();
 }
 
 

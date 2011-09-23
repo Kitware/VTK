@@ -188,8 +188,7 @@ public:
 
   int GetCurrentAdaptLevel() const { return this->FAdapt; }
   int TimeAdaptLevel( int i ) const { return this->TimeAdaptLevels[i]; }
-
-  /// FIXME: Remove this when done debugging.
+ 
   vtkIdType GetCurrentFWord() const { return this->FWord; }
 
   int GetWordSize() const;

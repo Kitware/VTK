@@ -237,6 +237,11 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
         this->P->PartNames[i].c_str());
     }
 
+  this->Parts->Delete();
+  this->Parts=NULL;
+
+  this->P->Fam.ClearBuffer();
+
   this->UpdateProgress( 1.0 );
   return 1;
 
@@ -329,10 +334,8 @@ void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
     //we only have the root so just call the serial code
     this->Superclass::ReadPointProperty(arr,numTuples,numComps,valid,
                                         isDeflectionArray);
-    return;
     }
-  
-  if ( valid || isDeflectionArray)
+  else if ( valid || isDeflectionArray)
     {
     arr->SetNumberOfTuples( numTuples );  
     
@@ -359,7 +362,7 @@ void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
            numComps,loopTimes,numPointsToRead,leftOver);
       }
     
-    if(this->Internal->ProcessRank>0 && buffer)
+    if(this->Internal->ProcessRank>0)
       {
       delete[] buffer;
       }
@@ -375,9 +378,8 @@ void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
       this->Parts->AddPointArray(arr);
       }    
     }
-  else if (this->Internal->ProcessRank==0)
+  else
     {
-    //skip on the file reading node only
     this->P->Fam.SkipWords(numTuples * numComps);
     }
 }
@@ -398,6 +400,10 @@ void vtkPLSDynaReader::ReadPointPropertyChunks(T* buffer, vtkDataArray *arr,
       this->P->Fam.BufferChunk(LSDynaFamily::Float,bufferSize);
       buffer = (T*)this->P->Fam.GetRawBuffer();
       }
+    else
+      {
+      this->P->Fam.SkipWords(bufferSize);
+      }
     //broadcast the buffer from the root node to all other nodes
     this->Controller->Broadcast(buffer,bufferSize,0);
     this->FillArray(buffer,arr,offset,numPointsToRead,numComps);
@@ -408,6 +414,10 @@ void vtkPLSDynaReader::ReadPointPropertyChunks(T* buffer, vtkDataArray *arr,
     { 
     this->P->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
     buffer = (T*)this->P->Fam.GetRawBuffer();
+    }
+  else
+    {
+    this->P->Fam.SkipWords(leftOver*numComps);
     }
   this->Controller->Broadcast(buffer,leftOver*numComps,0);
   this->FillArray(buffer,arr,offset,leftOver,numComps);
