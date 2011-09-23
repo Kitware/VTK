@@ -93,12 +93,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(
     Plot3D0->GetOutput()->GetBlock(0));
-  // TODO: Currently, this does not work in parallel. I need
-  // to fix the trivial producer such that it creates a new
-  // output and shallow copies the ivar to it. Otherwise, the Crop
-  // called by vtkStreamingDemandDrivenPipeline ends up cropping
-  // the ivar, which effects the next whole extent, which is really
-  // bad.
+
   vtkTrivialProducer* tv = vtkTrivialProducer::New();
   tv->SetOutput(sg);
 
