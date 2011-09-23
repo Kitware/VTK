@@ -106,6 +106,10 @@ public:
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 
   // Description:
+  // Return the number of selected points.
+  vtkIdType GetNumberOfSelectedPoints()const;
+
+  // Description:
   // Returns the vtkIdType of the point given its coordinates and a tolerance
   // based on the screen point size.
   vtkIdType FindPoint(double* pos);
@@ -147,13 +151,22 @@ public:
   virtual vtkIdType RemovePoint(double* pos) = 0;
 
   // Description:
+  // Remove a point give its id. It is a utility function that internally call
+  // the virtual method RemovePoint(double*) and return its result.
+  vtkIdType RemovePoint(vtkIdType pointId);
+
+  // Description:
+  // Remove the current point.
+  inline void RemoveCurrentPoint();
+
+  // Description:
   // Returns the total number of points
-  virtual int GetNumberOfPoints()const = 0;
+  virtual vtkIdType GetNumberOfPoints()const = 0;
 
   // Description:
   // Returns the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
-  virtual void GetControlPoint(vtkIdType index, double *point) = 0;
+  virtual void GetControlPoint(vtkIdType index, double *point)const = 0;
   // Description:
   // Sets the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
@@ -168,9 +181,21 @@ public:
   void SetCurrentPoint(vtkIdType index);
 
   // Description:
+  // Gets the selected point pen and brush.
+  vtkGetObjectMacro(SelectedPointPen, vtkPen);
+
+  // Description:
+  // Depending on the control points item, the brush might not be taken into
+  // account.
+  vtkGetObjectMacro(SelectedPointBrush, vtkBrush);
+
+  // Description:
   // Recompute the bounds next time they are requested.
   // You shouldn't have to call it but it is provided for rare cases.
   void ResetBounds();
+
+  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
 
 protected:
   vtkControlPointsItem();
@@ -209,9 +234,17 @@ protected:
   // Mouse move event.
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
 
-  void MoveCurrentPoint(const vtkVector2f& newPos);
-  vtkIdType MovePoint(vtkIdType point, const vtkVector2f& newPos);
-  void MovePoints(float tX, float tY);
+  void SetCurrentPointPos(const vtkVector2f& newPos);
+  vtkIdType SetPointPos(vtkIdType point, const vtkVector2f& newPos);
+  void MoveSelectedPoints(const vtkVector2f& translation);
+  void MoveCurrentPoint(const vtkVector2f& translation);
+  vtkIdType MovePoint(vtkIdType point, const vtkVector2f& translation);
+
+  inline vtkVector2f GetSelectionCenterOfMass()const;
+  vtkVector2f GetCenterOfMass(vtkIdTypeArray* pointIDs)const;
+  
+  void SpreadSelectedPoints(float factor);
+  
   void Stroke(const vtkVector2f& newPos);
   virtual void EditPoint(float vtkNotUsed(tX), float vtkNotUsed(tY));
   // Description:
@@ -221,6 +254,8 @@ protected:
   void AddPointId(vtkIdType addedPointId);
   
   vtkCallbackCommand* Callback;
+  vtkPen*             SelectedPointPen;
+  vtkBrush*           SelectedPointBrush;
   vtkIdType           CurrentPoint;
 
   double              Bounds[4];
@@ -238,6 +273,7 @@ protected:
   bool                PointAboutToBeDeleted;
   vtkIdType           PointToToggle;
   bool                PointAboutToBeToggled;
+  bool                InvertShadow;
 private:
   vtkControlPointsItem(const vtkControlPointsItem &); // Not implemented.
   void operator=(const vtkControlPointsItem &);   // Not implemented.
@@ -247,5 +283,17 @@ private:
 
   vtkIdType RemovePointId(vtkIdType removedPointId);
 };
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::RemoveCurrentPoint()
+{
+  this->RemovePoint(this->GetCurrentPoint());
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2f vtkControlPointsItem::GetSelectionCenterOfMass()const
+{
+  return this->GetCenterOfMass(this->Selection);
+}
 
 #endif
