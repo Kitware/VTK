@@ -35,9 +35,17 @@
 vtkControlPointsItem::vtkControlPointsItem()
 {
   this->Pen->SetLineType(vtkPen::SOLID_LINE);
-  this->Pen->SetWidth(1.);
-  this->Pen->SetColorF(1., 1., 1.);
-  this->Brush->SetColorF(0.85, 0.85, 1., 0.75);
+  this->Pen->SetWidth(2.);
+  this->Pen->SetColor(140, 144, 125, 200);
+  this->Brush->SetColor(125, 135, 144, 200);
+
+  this->SelectedPointPen = vtkPen::New();
+  this->SelectedPointPen->SetWidth(2.);
+  // 98, 140, 178
+  this->SelectedPointPen->SetColor(63, 90, 115, 200);
+  //this->SelectedPointPen->SetColor(98, 140, 178, 200);
+  this->SelectedPointBrush = vtkBrush::New();
+  this->SelectedPointBrush->SetColor(58, 121, 178, 200);
 
   this->Selection = vtkIdTypeArray::New();
   this->CurrentPoint = -1;
@@ -63,6 +71,7 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->PointAboutToBeDeleted = false;
   this->PointToToggle = -1;
   this->PointAboutToBeToggled = false;
+  this->InvertShadow = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -72,6 +81,16 @@ vtkControlPointsItem::~vtkControlPointsItem()
     {
     this->Callback->Delete();
     this->Callback = 0;
+    }
+  if (this->SelectedPointPen)
+    {
+    this->SelectedPointPen->Delete();
+    this->SelectedPointPen = 0;
+    }
+  if (this->SelectedPointBrush)
+    {
+    this->SelectedPointBrush->Delete();
+    this->SelectedPointBrush = 0;
     }
   if (this->Transform)
     {
@@ -161,42 +180,22 @@ bool vtkControlPointsItem::Paint(vtkContext2D* painter)
 {
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
+  this->InvertShadow = false;
   this->DrawUnselectedPoints(painter);
 
   painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
-  painter->GetPen()->SetColorF(0.87, 0.87, 1.);
-  painter->GetBrush()->SetColorF(0.75, 0.75, 0.95, 0.65);
-  float oldPenWidth = painter->GetPen()->GetWidth();
+  //painter->GetPen()->SetColorF(0.87, 0.87, 1.);
+  //painter->GetBrush()->SetColorF(0.75, 0.75, 0.95, 0.65);
+  //float oldPenWidth = painter->GetPen()->GetWidth();
+  painter->ApplyPen(this->SelectedPointPen);
+  painter->ApplyBrush(this->SelectedPointBrush);
+  this->InvertShadow = true;
   float oldScreenPointRadius = this->ScreenPointRadius;
   if (this->Selection->GetNumberOfTuples())
     {
-    painter->GetPen()->SetWidth(oldPenWidth * 1.4);
-    this->ScreenPointRadius = oldScreenPointRadius * 1.1;
+    //painter->GetPen()->SetWidth(oldPenWidth * 1.4);
+    //this->ScreenPointRadius = oldScreenPointRadius * 1.1;
     this->DrawSelectedPoints(painter);
-    }
-  if (this->PointToToggle != -1 && this->PointAboutToBeToggled)
-    {
-    painter->GetPen()->SetWidth(oldPenWidth);
-    this->ScreenPointRadius = oldScreenPointRadius / 1.2;
-    this->DrawPoint(painter, this->PointToToggle);
-    }
-  if (this->PointToDelete != -1 && this->PointAboutToBeDeleted)
-    {
-    painter->GetPen()->SetColorF(1., 0., 0.);
-    painter->GetPen()->SetWidth(oldPenWidth * 2.);
-    this->ScreenPointRadius = oldScreenPointRadius * 1.2;
-    this->DrawPoint(painter, this->PointToDelete);
-    painter->GetPen()->SetColorF(0.87, 0.87, 1.);
-    }
-  if (this->CurrentPoint != -1 &&
-      (!this->PointAboutToBeDeleted || this->CurrentPoint != this->PointToDelete ) &&
-      (!this->PointAboutToBeToggled || this->CurrentPoint != this->PointToToggle ))
-    {
-    painter->GetPen()->SetColorF(0.55, 0.55, 0.75);
-    painter->GetBrush()->SetColorF(0.65, 0.65, 0.95, 0.55);
-    painter->GetPen()->SetWidth(oldPenWidth * 2.);
-    this->ScreenPointRadius = oldScreenPointRadius * 1.2;
-    this->DrawPoint(painter, this->CurrentPoint);
     }
   this->ScreenPointRadius = oldScreenPointRadius;
   this->Transform->SetMatrix(painter->GetTransform()->GetMatrix());
@@ -300,12 +299,6 @@ void vtkControlPointsItem::DrawUnselectedPoints(vtkContext2D* painter)
   const int count = this->GetNumberOfPoints();
   for (vtkIdType i = 0; i < count; ++i)
     {
-    if (i == this->CurrentPoint ||
-        (i == this->PointToDelete && this->PointAboutToBeDeleted) ||
-        (i == this->PointToToggle && this->PointAboutToBeToggled))
-      {
-      continue;
-      }
     vtkIdType idx = this->Selection ? this->Selection->LookupValue(i) : -1;
     if (idx != -1)
       {
@@ -323,13 +316,6 @@ void vtkControlPointsItem::DrawSelectedPoints(vtkContext2D* painter)
     {
     vtkIdType index = this->Selection->GetValue(i);
     assert(index != -1);
-    if (index == this->CurrentPoint ||
-        (index == this->PointToDelete && this->PointAboutToBeDeleted) ||
-        (index == this->PointToToggle && this->PointAboutToBeToggled))
-
-      {
-      continue;
-      }
     this->DrawPoint(painter, index);
     }
 }
@@ -351,15 +337,68 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 
   painter->PushMatrix();
   painter->SetTransform(translation);
-  painter->DrawWedge(0.f, 0.f, this->ScreenPointRadius, 0.f, 0.f, 360.f);
-  painter->DrawArc(0.f, 0.f, this->ScreenPointRadius, 0.f, 360.f);
-  if (index == this->PointToDelete && this->PointAboutToBeDeleted)
+
+  unsigned char brushOpacity = painter->GetBrush()->GetOpacity();
+  unsigned char penColor[3];
+  painter->GetPen()->GetColor(penColor);
+  unsigned char penOpacity = painter->GetPen()->GetOpacity();
+  //float width = painter->GetPen()->GetWidth();
+
+  float radius = this->ScreenPointRadius;
+  bool invertShadow = this->InvertShadow;
+  unsigned char color[3] = {penColor[0], penColor[1], penColor[2]};
+
+  if (this->PointToToggle == index && this->PointAboutToBeToggled)
     {
-    painter->DrawLine(-this->ScreenPointRadius, -this->ScreenPointRadius,
-                      this->ScreenPointRadius, this->ScreenPointRadius);
-    painter->DrawLine(-this->ScreenPointRadius, this->ScreenPointRadius,
-                      this->ScreenPointRadius, -this->ScreenPointRadius);
+    invertShadow = !invertShadow;
     }
+  if (this->PointToDelete == index && this->PointAboutToBeDeleted)
+    {
+    invertShadow = !invertShadow;
+    color[0] = 255;
+    color[1] = 0;
+    color[2] = 0;
+    }
+  if (this->CurrentPoint == index)
+    {
+    radius = this->ScreenPointRadius * 1.3;
+    }
+
+  painter->GetPen()->SetColor(color);
+  painter->DrawArc(0.f, 0.f, radius, 0.f, 360.f);
+
+  painter->GetBrush()->SetOpacity(0);
+  //painter->GetPen()->SetWidth(2.0f);
+
+  unsigned char lightPenColor[4];
+  lightPenColor[0] = std::min(color[0] + 100, 255);
+  lightPenColor[1] = std::min(color[1] + 100, 255);
+  lightPenColor[2] = std::min(color[2] + 100, 255);
+  lightPenColor[3] = penOpacity;
+  
+  unsigned char darkPenColor[4];
+  darkPenColor[0] = std::max(color[0] - 50, 0);
+  darkPenColor[1] = std::max(color[1] - 50, 0);
+  darkPenColor[2] = std::max(color[2] - 50, 0);
+  darkPenColor[3] = penOpacity;
+
+  painter->GetPen()->SetColor(invertShadow ? lightPenColor : darkPenColor);
+  painter->DrawArc(0.f, 0.f, radius - 1.0, 200.f, 380.f);
+  painter->GetPen()->SetColor(invertShadow ? darkPenColor : lightPenColor);
+  painter->DrawArc(0.f, 0.f, radius - 1.0, 20.f, 200.f);
+  
+  painter->GetPen()->SetColor(color);
+  if (this->PointToDelete == index && this->PointAboutToBeDeleted)
+    {
+    painter->DrawLine(-radius, -radius, radius, radius);
+    painter->DrawLine(-radius, radius, radius, -radius);
+    }
+
+  painter->GetPen()->SetColor(penColor);
+  painter->GetPen()->SetOpacity(penOpacity);
+  //painter->GetPen()->SetWidth(width);
+  painter->GetBrush()->SetOpacity(brushOpacity);
+  
   painter->PopMatrix();
 }
 

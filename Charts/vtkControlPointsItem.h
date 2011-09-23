@@ -181,6 +181,15 @@ public:
   void SetCurrentPoint(vtkIdType index);
 
   // Description:
+  // Gets the selected point pen and brush.
+  vtkGetObjectMacro(SelectedPointPen, vtkPen);
+
+  // Description:
+  // Depending on the control points item, the brush might not be taken into
+  // account.
+  vtkGetObjectMacro(SelectedPointBrush, vtkBrush);
+
+  // Description:
   // Recompute the bounds next time they are requested.
   // You shouldn't have to call it but it is provided for rare cases.
   void ResetBounds();
@@ -235,6 +244,7 @@ protected:
   vtkVector2f GetCenterOfMass(vtkIdTypeArray* pointIDs)const;
   
   void SpreadSelectedPoints(float factor);
+  
   void Stroke(const vtkVector2f& newPos);
   virtual void EditPoint(float vtkNotUsed(tX), float vtkNotUsed(tY));
   // Description:
@@ -244,6 +254,8 @@ protected:
   void AddPointId(vtkIdType addedPointId);
   
   vtkCallbackCommand* Callback;
+  vtkPen*             SelectedPointPen;
+  vtkBrush*           SelectedPointBrush;
   vtkIdType           CurrentPoint;
 
   double              Bounds[4];
@@ -261,6 +273,7 @@ protected:
   bool                PointAboutToBeDeleted;
   vtkIdType           PointToToggle;
   bool                PointAboutToBeToggled;
+  bool                InvertShadow;
 private:
   vtkControlPointsItem(const vtkControlPointsItem &); // Not implemented.
   void operator=(const vtkControlPointsItem &);   // Not implemented.
