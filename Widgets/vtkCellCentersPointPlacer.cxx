@@ -136,7 +136,7 @@ int vtkCellCentersPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
             pickedCell->GetParametricCenter(pcoords);
             double *weights = new double[pickedCell->GetNumberOfPoints()];
 
-            vtkIdType subId;
+            int subId;
             pickedCell->EvaluateLocation( subId, pcoords, worldPos, weights );
             delete [] weights;
             }
