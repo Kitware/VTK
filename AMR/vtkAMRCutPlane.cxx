@@ -170,6 +170,10 @@ int vtkAMRCutPlane::RequestData(
           output->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: output multi-block dataset is NULL" && (mbds != NULL) );
 
+  if( this->IsAMRData2D( inputAMR ) )
+    {
+      // TODO: implemment this
+    }
   unsigned int blockIdx = 0;
   unsigned int level    = 0;
   for( ; level < inputAMR->GetNumberOfLevels(); ++level )
@@ -194,7 +198,7 @@ int vtkAMRCutPlane::RequestData(
                 }
               else
                 {
-
+                  // TODO: handle the case where the dataset is distributed
                 }
             }
           else
