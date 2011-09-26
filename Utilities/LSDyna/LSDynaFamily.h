@@ -66,6 +66,30 @@ typedef FILE* vtkLSDynaFile_t;
 #  include <errno.h>
 #endif
 
+#if (VTK_SIZEOF_ID_TYPE==8)
+//64bit
+#ifndef WIN32
+static int LS_DYNA_STAT(const char* fname, struct stat64& s)
+{
+  //POSIX
+  return stat64(fname,&s);
+}
+#else
+static int LS_DYNA_STAT(const char* fname, struct __stat64& s)
+{
+  //windows
+  return __stat64(fname, &s);
+}
+#endif
+
+#else
+//32bit
+static int LS_DYNA_STAT(const char* fname, struct stat& s)
+{
+  //POSIX
+  return stat(fname,&s);
+}
+#endif
 
 static vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
 {

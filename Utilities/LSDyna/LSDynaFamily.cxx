@@ -161,14 +161,20 @@ int LSDynaFamily::ScanDatabaseDirectory()
   int adaptLevel = 0;
   int tryAdapt = 0; // don't try an adaptive step unless we have one good file at the current level.
   bool adapted = true; // true when advancing over a mesh adaptation.
+#if defined (WIN32) && VTK_SIZEOF_ID_TYPE==8
+  struct __stat64 st;
+#elif VTK_SIZEOF_ID_TYPE==8
+  struct stat64 st;
+#else
   struct stat st;
+#endif
   while ( tryAdapt >= 0 )
     {
     tmpFile = vtkLSGetFamilyFileName( this->DatabaseDirectory.c_str(),
                                       this->DatabaseBaseName,
                                       adaptLevel,
                                       filenum );
-    if ( stat( tmpFile.c_str(), &st ) == 0 )
+    if ( LS_DYNA_STAT( tmpFile.c_str(), st) == 0 )
       {
       if ( adapted )
         {
