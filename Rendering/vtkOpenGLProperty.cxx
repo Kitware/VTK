@@ -103,6 +103,11 @@ vtkOpenGLProperty::~vtkOpenGLProperty()
     }
 }
 
+vtkShaderDeviceAdapter2* vtkOpenGLProperty::GetShaderDeviceAdapter2()
+{
+  return this->ShaderDeviceAdapter2;
+}
+
 // ----------------------------------------------------------------------------
 void vtkOpenGLProperty::AddShaderVariable(const char *name,
                                           int numVars,
