@@ -41,6 +41,7 @@ vtkCameraRepresentation.cxx
 vtkCameraWidget.cxx
 vtkCaptionRepresentation.cxx
 vtkCaptionWidget.cxx
+vtkCellCentersPointPlacer.cxx
 vtkCenteredSliderRepresentation.cxx
 vtkCenteredSliderWidget.cxx
 vtkContinuousValueWidget.cxx

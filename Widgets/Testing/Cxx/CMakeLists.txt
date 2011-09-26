@@ -19,6 +19,7 @@ SET(MyTests
   TestButtonWidget.cxx
   TestCameraWidget.cxx
 #  TestCaptionWidget.cxx
+  TestCellCentersPointPlacer.cxx
   TestCenteredSliderWidget2D.cxx
   TestCheckerboardWidget.cxx
   TestContourWidget2.cxx
