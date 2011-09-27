@@ -447,9 +447,18 @@ public:
   int GetPartArrayStatus( int arr );
   int GetPartArrayStatus( const char* partName );
 
+  //Description:
+  //These methods allow you to enable and disable topology caching.
+  //Recommended to keep this setting off for large datasets.
+  vtkSetMacro(CacheTopology,int);
+  vtkGetMacro(CacheTopology,int);
+
 protected:
   //holds all the parts and all the properties for each part
   vtkLSDynaPartCollection* Parts;
+
+  //Tells if the reader should do topology caching
+  int CacheTopology;
 
   //the collection of global points
   vtkPoints* CommonPoints;

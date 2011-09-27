@@ -265,6 +265,7 @@ vtkLSDynaReader::vtkLSDynaReader()
   this->CommonPoints = NULL;
   this->RoadSurfacePoints = NULL;
   this->Parts = NULL;
+  this->CacheTopology = false;
 }
 
 vtkLSDynaReader::~vtkLSDynaReader()
@@ -3407,60 +3408,18 @@ int vtkLSDynaReader::RequestData(
       }
     }
 
+  this->P->Fam.ClearBuffer();
+  if(this->CacheTopology==0)
+    {
+    this->Parts->Delete();
+    this->Parts=NULL;
+
+    this->CommonPoints->Delete();
+    this->CommonPoints=NULL;
+    }
   this->UpdateProgress( 1.0 );
   return 1;
 }
-
-#ifdef VTK_LSDYNA_DBG_MULTIBLOCK
-static void vtkDebugMultiBlockStructure( vtkIndent indent, vtkMultiGroupDataSet* mbds )
-{
-  vtkMultiGroupDataInformation* info;
-  vtkDataObject* child;
-
-  if ( ! mbds )
-    return;
-
-  info = mbds->GetMultiGroupDataInformation();
-  if ( ! info )
-    {
-    cerr << "xxx" << mbds->GetClassName() << " had NULL group information.\n";
-    return;
-    }
-
-  int ngroup = info->GetNumberOfGroups();
-  cout << indent << mbds->GetClassName() << " with " << ngroup << " groups. (" << mbds << ")\n";
-  for ( int g = 0; g < ngroup; ++g )
-    {
-    vtkIndent l2indent = indent.GetNextIndent();
-    int nchildren = mbds->GetNumberOfDataSets( g );
-    cout << l2indent << "Group " << g << " has " << nchildren << " children:\n";
-    vtkIndent l3indent = l2indent.GetNextIndent();
-    for ( int c = 0; c < nchildren; ++c )
-      {
-      child = mbds->GetDataSet( g, c );
-      if ( ! child )
-        {
-        cout << l3indent << "NULL entry\n";
-        }
-      else if ( child->IsA( "vtkMultiGroupDataSet" ) )
-        {
-        vtkMultiGroupDataSet* gchild = vtkMultiGroupDataSet::SafeDownCast(child);
-        vtkDebugMultiBlockStructure( l3indent, gchild );
-        }
-      else if ( child->IsA( "vtkPointSet" ) )
-        {
-        vtkPointSet* pchild = vtkPointSet::SafeDownCast(child);
-        cout << l3indent << pchild->GetClassName() << " with " << pchild->GetNumberOfPoints() << " points and "
-          << pchild->GetNumberOfCells() << " cells.\n";
-        }
-      else
-        {
-        cout << l3indent << child->GetClassName() << "\n";
-        }
-      }
-    }
-}
-#endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 //-----------------------------------------------------------------------------
 template<typename T>

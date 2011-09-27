@@ -236,11 +236,17 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
     mbds->GetMetaData(nextId)->Set(vtkCompositeDataSet::NAME(),
         this->P->PartNames[i].c_str());
     }
-
-  this->Parts->Delete();
-  this->Parts=NULL;
-
   this->P->Fam.ClearBuffer();
+
+  if(this->CacheTopology==0)
+    {
+    this->Parts->Delete();
+    this->Parts=NULL;
+
+    this->CommonPoints->Delete();
+    this->CommonPoints=NULL;
+    }
+
 
   this->UpdateProgress( 1.0 );
   return 1;
