@@ -271,7 +271,7 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
 vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax,
                                                  double lstep, double scaling)
 {
-  int numTicks = floor((lmax-lmin)/lstep);
+  int numTicks = static_cast<int>((lmax - lmin) / lstep);
   double* tickPositions = new double[numTicks];
   int fontSizes[8] = { 8, 9, 10, 12, 14, 18, 20, 24 };
   for(int i = 0; i< numTicks; ++i)
@@ -467,8 +467,8 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
             break;
             }
 
-          double minStart = std::floor(dmax/step) * j - (k-1) * j;
-          double maxStart = std::ceil(dmin/step) * j;
+          int minStart = static_cast<int>(std::floor(dmax / step) * j - (k-1) * j);
+          int maxStart = static_cast<int>(std::ceil(dmin/step) * j);
 
           if(minStart > maxStart)
             {
@@ -476,7 +476,7 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
             continue;
             }
 
-          for(int start = minStart; start <=maxStart; ++start)
+          for(int start = minStart; start <= maxStart; ++start)
             {
             double lmin = start * (step/j);
             double lmax = lmin + step*(k-1);
@@ -509,12 +509,9 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
           ++z;
           }
         ++k;
-
-
         }
       }
     ++j;
-
     }
   ans[0] = bestLmin;
   ans[1] = bestLmax;
