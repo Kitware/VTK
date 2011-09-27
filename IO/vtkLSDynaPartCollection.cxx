@@ -26,6 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -37,6 +38,16 @@
 //-----------------------------------------------------------------------------
 namespace
   {
+  static const char* TypeNames[] = {
+    "PARTICLE",
+    "BEAM",
+    "SHELL",
+    "THICK_SHELL",
+    "SOLID",
+    "RIGID_BODY",
+    "ROAD_SURFACE",
+    NULL};
+
   //stores the mapping from cell to part index and cell index
   struct cellToPartCell
     {
@@ -82,9 +93,10 @@ namespace
   }
 
 //-----------------------------------------------------------------------------
-struct vtkLSDynaPartCollection::LSDynaPart
+class vtkLSDynaPartCollection::LSDynaPart
   {
-  LSDynaPart(LSDynaMetaData::LSDYNA_TYPES t):Type(t)
+  public:
+  LSDynaPart(LSDynaMetaData::LSDYNA_TYPES t, std::string n):Type(t),Name(n)
     {
     Grid = NULL;
     NextPointId = 0;
@@ -97,6 +109,35 @@ struct vtkLSDynaPartCollection::LSDynaPart
       Grid=NULL;
       }
     }
+
+  void InitGrid()
+    {
+    if(this->Grid != NULL)
+      {
+      this->Grid->Delete();
+      }
+    //currently construcutGridwithoutdeadcells calls insertnextcell
+    this->Grid = vtkUnstructuredGrid::New();
+
+
+    //now add in the field data to the grid. Data is the name and type
+    vtkFieldData *fd = this->Grid->GetFieldData();
+
+    vtkStringArray *partName = vtkStringArray::New();
+    partName->SetName("Name");
+    partName->SetNumberOfValues(1);
+    partName->SetValue(0,this->Name);
+    fd->AddArray(partName);
+    partName->FastDelete();
+
+    vtkStringArray *partType = vtkStringArray::New();
+    partType->SetName("Type");
+    partType->SetNumberOfValues(1);
+    partType->SetValue(0,TypeNames[this->Type]);
+    fd->AddArray(partType);
+    partType->Delete();
+    }
+
   void ResetTimeStepInfo()
     {
     DeadCells.clear();
@@ -124,6 +165,7 @@ struct vtkLSDynaPartCollection::LSDynaPart
 
   //Information of the part type
   const LSDynaMetaData::LSDYNA_TYPES Type;
+  const std::string Name;
   };
 
 //-----------------------------------------------------------------------------
@@ -259,15 +301,17 @@ void vtkLSDynaPartCollection::BuildPartInfo(vtkIdType* mins, vtkIdType* maxs)
   std::vector<int>::const_iterator partMIt;
   std::vector<int>::const_iterator statusIt = this->MetaData->PartStatus.begin();
   std::vector<LSDynaMetaData::LSDYNA_TYPES>::const_iterator typeIt = this->MetaData->PartTypes.begin();
+  std::vector<std::string>::const_iterator nameIt = this->MetaData->PartNames.begin();
+
   for (partMIt = this->MetaData->PartMaterials.begin();
        partMIt != this->MetaData->PartMaterials.end();
-       ++partMIt,++statusIt,++typeIt)
+       ++partMIt,++statusIt,++typeIt,++nameIt)
     {
     if (*statusIt)
       {
       //make the index contain a part
       this->Storage->Parts[*partMIt-1] =
-      new vtkLSDynaPartCollection::LSDynaPart(*typeIt);
+      new vtkLSDynaPartCollection::LSDynaPart(*typeIt,*nameIt);
       }
     }  
 }
@@ -586,13 +630,7 @@ void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints,
     {
     if ( (*partIt))
       {
-      if((*partIt)->Grid != NULL)
-        {
-        (*partIt)->Grid->Delete();
-        }
-      //currently construcutGridwithoutdeadcells calls insertnextcell
-      (*partIt)->Grid = vtkUnstructuredGrid::New();
-
+      (*partIt)->InitGrid();
       if(removeDeletedCells && (*partIt)->DeadCells.size() > 0)
         {
         this->ConstructGridCellsWithoutDeadCells(*partIt);

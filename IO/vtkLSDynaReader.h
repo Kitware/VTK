@@ -516,10 +516,20 @@ protected:
   virtual int ReadDeletion();
   virtual int ReadSPHState( vtkIdType );
 
+  //Description:
+  // Resets the Part information to the default state
+  virtual void ResetPartInfo();
+
   // Description:
   // Called from within ReadHeaderInformation() to read part names
   // associated with material IDs.
   virtual int ReadInputDeck();
+
+  //Description:
+  // Called from within ReadHeaderInformation to read part names
+  // from the end of the first d3plot file. Used if ReadInputDeck
+  // fails.
+  virtual int ReadPartTitlesFromRootFile();
 
   // Description:
   // Called from within ReadHeaderInformation() to read arbitrary material

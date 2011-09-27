@@ -605,6 +605,12 @@ std::string LSDynaFamily::GetFileName( int i )
   }
 
 //-----------------------------------------------------------------------------
+vtkLSDynaOff_t LSDynaFamily::GetFileSize( int i )
+{
+  return this->FileSizes[i];
+}
+
+//-----------------------------------------------------------------------------
 int LSDynaFamily::GetWordSize() const
   {
   return this->WordSize;

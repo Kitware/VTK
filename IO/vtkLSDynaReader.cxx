@@ -1930,7 +1930,15 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // Only try reading the keyword file if we don't have part names. 
   if ( curAdapt == 0 && p->PartNames.size() == 0 )
     {
-    this->ReadInputDeck();
+    this->ResetPartInfo();
+
+    int result = this->ReadInputDeck();
+
+    if (result == 0)
+      {
+      //we failed to read the input deck so we are going to read the first binary file for part names
+      this->ReadPartTitlesFromRootFile();
+      }
     }
 
   return -1;
@@ -2853,10 +2861,97 @@ int vtkLSDynaReader::ReadUserMaterialIds()
   return 0;
 }
 
-int vtkLSDynaReader::ReadInputDeck()
+int vtkLSDynaReader::ReadPartTitlesFromRootFile()
+{
+  /*
+  The extra data is written at the end of the following files:
+  d3plot, d3part and intfor files, and the header and part titles are written directly after the
+  EOF (= -999999.0) marker.
+  Value Length Description
+  -------------------------------
+
+  NTYPE 1 entity type = 90001
+  NUMPROP 1 number of parts
+
+  For NUMPROP parts:
+  IDP 1 part id
+  PTITLE 18 Part title (72 characters)
+
+  For NUMPROP parts:
+  NTYPE 1 entity type = 90000
+  HEAD 18 Header title (72 characters)
+  */
+
+  LSDynaMetaData* p = this->P;
+  if ( p->PreStateSize <= 0 )
+    {
+    vtkErrorMacro( "Database has bad pre state size(" << p->PreStateSize << ")." );
+    return 1;
+    }
+
+  //Disocver the EOF marker position
+  //The preState size is actually 10 words to large. Subtract that at you get
+  //the position of the eof record
+
+  //we are going to open this as a separate file handler to make sure we don't
+  //move off this file
+  vtkIdType offset = (p->PreStateSize/p->Fam.GetWordSize())-10;
+  vtkIdType currentFileLoc = p->Fam.GetCurrentFWord();
+  vtkIdType currentAdaptLevel = p->Fam.GetCurrentAdaptLevel();
+
+  p->Fam.SkipToWord(LSDynaFamily::ControlSection,0,offset);
+  p->Fam.BufferChunk( LSDynaFamily::Float, 1 );
+  double eofM = p->Fam.GetNextWordAsFloat();
+  if(eofM !=LSDynaFamily::EOFMarker)
+    {
+    //we failed to find a marker stop on the part names
+    p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
+    return 1;
+    }
+
+  //make sure that the root files has room left for the amount of data we are going to request
+  //if it doesn't we know it can't have part names
+  vtkIdType numParts = p->PartIds.size();
+  vtkIdType partTitlesByteSize = p->Fam.GetWordSize() * (2 + numParts*2); //NType + NUMPRop + (header and part ids)
+  partTitlesByteSize += (numParts * 72 * 2); //names are constant at 72 bytes each independent of word size
+
+  vtkIdType fileSize = p->Fam.GetFileSize(0);
+  if ( fileSize < partTitlesByteSize + (offset * p->Fam.GetWordSize()))
+    {
+    //this root file doesn't part names
+    p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
+    return 1;
+    }
+
+  //we can now safely read the part titles
+  p->Fam.SkipWords(2); //skip types and num of parts
+  vtkIdType nameWordSize = 72 / p->Fam.GetWordSize();
+  for(vtkIdType i=0; i < numParts; ++i)
+    {
+    p->Fam.BufferChunk(LSDynaFamily::Int, 1);
+    vtkIdType partId = p->Fam.GetNextWordAsInt();
+
+    p->Fam.BufferChunk( LSDynaFamily::Char, nameWordSize);
+    std::string name(p->Fam.GetNextWordAsChars());
+    if(name.size() > 0 && name[0]!=' ')
+      {
+      //strip the name to the subset that
+      size_t found = name.find_last_not_of(' ');
+      if(found != std::string::npos)
+        {
+        name = name.substr(0,found);
+        }
+      //get the right part id
+      p->PartNames[partId-1] = name;
+      }
+    }
+  p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
+  return 0;
+}
+
+void vtkLSDynaReader::ResetPartInfo()
 {
   LSDynaMetaData* p = this->P;
-
   p->PartNames.clear();
   p->PartIds.clear();
   p->PartMaterials.clear();
@@ -2880,21 +2975,24 @@ int vtkLSDynaReader::ReadInputDeck()
       sprintf( partLabel, fmt, mat );  \
     p->PartNames.push_back( partLabel ); \
     p->PartIds.push_back( arbitraryMaterials ? p->MaterialsOrdered[mat - 1] : mat ); \
-    p->PartMaterials.push_back( mat ); /* PartMaterials currently unused, so this is irrevelant */ \
+    p->PartMaterials.push_back( mat ); \
     p->PartStatus.push_back( 1 ); \
     p->PartTypes.push_back(type); \
     }
 
-  VTK_LSDYNA_PARTLABEL("NUMMAT8",LSDynaMetaData::SOLID,"Part%d"); // was "PartSolid%d
-  VTK_LSDYNA_PARTLABEL("NUMMATT",LSDynaMetaData::THICK_SHELL,"Part%d"); // was "PartThickShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT4",LSDynaMetaData::SHELL,"Part%d"); // was "PartShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT2",LSDynaMetaData::BEAM,"Part%d"); // was "PartBeam%d
-  VTK_LSDYNA_PARTLABEL("NGPSPH",LSDynaMetaData::PARTICLE,"Part%d"); // was "PartParticle%d
-  VTK_LSDYNA_PARTLABEL("NSURF",LSDynaMetaData::ROAD_SURFACE,"Part%d"); // was "PartRoadSurface%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT",LSDynaMetaData::RIGID_BODY,"Part%d"); // was "PartRigidBody%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT8",LSDynaMetaData::SOLID,"Part ID %d"); // was "PartSolid%d
+  VTK_LSDYNA_PARTLABEL("NUMMATT",LSDynaMetaData::THICK_SHELL,"Part ID %d"); // was "PartThickShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT4",LSDynaMetaData::SHELL,"Part ID %d"); // was "PartShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT2",LSDynaMetaData::BEAM,"Part ID %d"); // was "PartBeam%d
+  VTK_LSDYNA_PARTLABEL("NGPSPH",LSDynaMetaData::PARTICLE,"Part ID %d"); // was "PartParticle%d
+  VTK_LSDYNA_PARTLABEL("NSURF",LSDynaMetaData::ROAD_SURFACE,"Part ID %d"); // was "PartRoadSurface%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT",LSDynaMetaData::RIGID_BODY,"Part ID %d"); // was "PartRigidBody%d
 
 #undef VTK_LSDYNA_PARTLABEL
+}
 
+int vtkLSDynaReader::ReadInputDeck()
+{
   if ( ! this->InputDeck )
     {
     // nothing more we can do
@@ -2931,13 +3029,8 @@ int vtkLSDynaReader::ReadInputDeckXML( ifstream& deck )
   // We must be able to parse the file and end up with 1 part per material ID
   if ( ! parser->Parse() || this->P->GetTotalMaterialCount() != (int)this->P->PartNames.size() )
     {
-    // We had a problem identifying a part, give up and start over,
-    // pretending that InputDeck was NULL so as to get the automatically
-    // generated part names.
-    char* inputDeckTmp = this->InputDeck;
-    this->InputDeck = 0;
-    this->ReadInputDeck();
-    this->InputDeck = inputDeckTmp;
+    // We had a problem identifying a part, give up and start over by reseting the parts
+    this->ResetPartInfo();
     }
   parser->Delete();
 
@@ -3102,12 +3195,8 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
     }
   else
     {
-    // We had a problem identifying a part, give up and start over, pretending
-    // that InputDeck was NULL so as to get the automatically generated part names.
-    char* inputDeckTmp = this->InputDeck;
-    this->InputDeck = 0;
-    this->ReadInputDeck();
-    this->InputDeck = inputDeckTmp;
+    // We had a problem identifying a part, give up and reset part info
+    this->ResetPartInfo();
     }
 
   return ! success;
@@ -3317,12 +3406,6 @@ int vtkLSDynaReader::RequestData(
       ++nextId;
       }
     }
-
-#ifdef VTK_LSDYNA_DBG_MULTIBLOCK
-  // Print the hierarchy of meshes that is about to be returned as output.
-  vtkIndent indent;
-  vtkDebugMultiBlockStructure( indent, mbds );
-#endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
   this->UpdateProgress( 1.0 );
   return 1;

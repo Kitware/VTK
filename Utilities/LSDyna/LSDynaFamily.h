@@ -209,6 +209,7 @@ public:
 
   vtkIdType GetNumberOfFiles();
   std::string GetFileName( int i );
+  vtkLSDynaOff_t GetFileSize( int i );
 
   int GetCurrentAdaptLevel() const { return this->FAdapt; }
   int TimeAdaptLevel( int i ) const { return this->TimeAdaptLevels[i]; }
