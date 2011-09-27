@@ -427,7 +427,7 @@ double vtkAbstractImageInterpolator::Interpolate(
                      size*component);
     iinfo.NumberOfComponents = 1;
 
-    this->InterpolationFuncDouble(&iinfo, point, &value);
+    this->InterpolationFuncDouble(&iinfo, p, &value);
     }
 
   return value;
