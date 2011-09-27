@@ -733,7 +733,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     }
   else
     {
-    if (this->TickLabelAlgorithm == vtkAxis::TICK_WILKINSON)
+    if (this->TickLabelAlgorithm == vtkAxis::TICK_WILKINSON_EXTENDED)
       {
       // Now calculate the tick labels, and positions within the axis range
       //This gets the tick interval and max, min of labeling from the Extended

@@ -55,7 +55,7 @@ public:
 
   enum {
     TICK_SIMPLE = 0,
-    TICK_WILKINSON
+    TICK_WILKINSON_EXTENDED
   };
 
   // Description:

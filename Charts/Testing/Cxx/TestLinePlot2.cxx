@@ -67,9 +67,9 @@ int TestLinePlot2(int, char * [])
 
   // Tell the axes to use the new tick label placement algorithm.
   chart->GetAxis(vtkAxis::LEFT)
-      ->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON);
+      ->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON_EXTENDED);
   chart->GetAxis(vtkAxis::BOTTOM)
-      ->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON);
+      ->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON_EXTENDED);
 
   // Finally, render the scene.
   view->GetRenderWindow()->SetMultiSamples(0);
