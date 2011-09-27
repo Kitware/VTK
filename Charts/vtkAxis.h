@@ -53,6 +53,11 @@ public:
     PARALLEL
   };
 
+  enum {
+    TICK_SIMPLE = 0,
+    TICK_WILKINSON_EXTENDED
+  };
+
   // Description:
   // Creates a 2D Chart object.
   static vtkAxis *New();
@@ -209,6 +214,15 @@ public:
   vtkGetObjectMacro(GridPen, vtkPen);
 
   // Description:
+  // Get/set the tick label algorithm that is used to calculate the min, max
+  // and tick spacing. There are currently two algoriths, vtkAxis::TICK_SIMPLE
+  // is the default and uses a simple algorithm. The second option is
+  // vtkAxis::TICK_WILKINSON which uses an extended Wilkinson algorithm to find
+  // the optimal range, spacing and font parameters.
+  vtkSetMacro(TickLabelAlgorithm, int)
+  vtkGetMacro(TickLabelAlgorithm, int)
+
+  // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
   // locations etc. Should be called by the scene before rendering.
   virtual void Update();
@@ -271,6 +285,8 @@ protected:
   // Generate tick labels from the supplied double array of tick positions.
   void GenerateTickLabels();
 
+  void GenerateLabelFormat(int notation, double n);
+
   // Description:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
@@ -330,6 +346,8 @@ protected:
   int Notation;        // The notation to use (standard, scientific, mixed)
   int Behavior;        // The behaviour of the axis (auto, fixed, custom).
   float MaxLabel[2];   // The widest/tallest axis label.
+  bool TitleAppended;  // Track if the title is updated when the label formats
+                       // are changed in the Extended Axis Labeling algorithm
 
   // Description:
   // This object stores the vtkPen that controls how the axis is drawn.
@@ -367,6 +385,10 @@ protected:
   // Description:
   // Hint as to whether a logarithmic scale is reasonable or not.
   bool LogScaleReasonable;
+
+  // Description:
+  // The algorithm being used to tick label placement.
+  int TickLabelAlgorithm;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
