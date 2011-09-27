@@ -96,6 +96,10 @@ vtkAbstractImageInterpolator::~vtkAbstractImageInterpolator()
     {
     this->Scalars->Delete();
     }
+  if (this->InterpolationInfo)
+    {
+    delete this->InterpolationInfo;
+    }
 }
 
 //----------------------------------------------------------------------------
