@@ -27,7 +27,7 @@
 
 #include "vtkCommand.h" // For vtkCommand enum
 #include "vtkPlot.h"
-#include "vtkVector.h"
+#include "vtkVector.h" // For vtkVector2f
 
 class vtkCallbackCommand;
 class vtkContext2D;
