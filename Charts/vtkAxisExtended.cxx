@@ -127,12 +127,11 @@ double vtkAxisExtended::DensityMax(int k, double m)
 double vtkAxisExtended::FormatLegibilityScore(double n, int format)
 {
   switch(format)
-  {
+    {
     case 1:
       return 0.25;
-      break;
     case 2:
-      if( abs(n)>0.0001 &&  abs(n) < 1000000)
+      if(std::abs(n) > 0.0001 && std::abs(n) < 1000000)
         {
         return 1.0;
         }
@@ -140,9 +139,8 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
         {
         return 0.0;
         }
-      break;
     case 3:
-      if( abs(n)>1000 &&  abs(n) < 1000000)
+      if(std::abs(n) > 1000 &&  std::abs(n) < 1000000)
         {
         return 0.75;
         }
@@ -150,9 +148,8 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
         {
         return 0.0;
         }
-      break;
     case 4:
-      if( abs(n)>1000 &&  abs(n) < 1000000)
+      if(std::abs(n) > 1000 && std::abs(n) < 1000000)
         {
         return 0.4;
         }
@@ -160,9 +157,8 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
         {
         return 0.0;
         }
-      break;
     case 5:
-      if( abs(n)>1000000 &&  abs(n) < 1000000000)
+      if(std::abs(n) > 1000000 && std::abs(n) < 1000000000)
         {
         return 0.75;
         }
@@ -170,9 +166,8 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
         {
         return 0.0;
         }
-      break;
     case 6:
-      if( abs(n)>1000000 &&  abs(n) < 1000000000)
+      if(std::abs(n) > 1000000 && std::abs(n) < 1000000000)
         {
         return 0.4;
         }
@@ -180,17 +175,13 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
         {
         return 0.0;
         }
-      break;
     case 7:
       return 0.5;
-      break;
     case 8:
       return 0.3;
-      break;
     default:
       return 0.0;
-      break;
-  }
+    }
 }
 
 
