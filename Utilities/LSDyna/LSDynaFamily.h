@@ -224,6 +224,13 @@ public:
   /// Print all adaptation and time step marker information.
   void DumpMarks( std::ostream& os );
 
+  //Closes the current file descripter. This is called after
+  //we are done reading in request data
+  void CloseFileHandles();
+
+  //Reopens a closed file handle
+  void ReopenFileHandles();
+
 protected:
   /// The directory containing d3plot files
   std::string DatabaseDirectory;

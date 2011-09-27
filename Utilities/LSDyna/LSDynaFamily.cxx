@@ -677,3 +677,24 @@ void LSDynaFamily::DumpMarks( std::ostream& os )
        << std::endl;
     }
 }
+
+//-----------------------------------------------------------------------------
+void LSDynaFamily::CloseFileHandles()
+{
+  if ( ! VTK_LSDYNA_ISBADFILE(this->FD) )
+    {
+    VTK_LSDYNA_CLOSEFILE(this->FD);
+    this->FD = VTK_LSDYNA_BADFILE;
+    this->ClearBuffer();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void LSDynaFamily::ReopenFileHandles()
+{
+  if (VTK_LSDYNA_ISBADFILE(this->FD))
+    {
+    VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
+    VTK_LSDYNA_SEEK(this->FD,this->FWord,SEEK_CUR);
+    }
+}

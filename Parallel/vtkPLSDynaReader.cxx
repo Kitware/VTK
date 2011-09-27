@@ -164,6 +164,9 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
     return 0;
     }
 
+  //We now close the file handle at the end of request data
+  this->P->Fam.ReopenFileHandles();
+
   vtkMultiBlockDataSet* mbds = NULL;
   mbds = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()) );
@@ -189,6 +192,7 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
   if(this->ReadStaticNodes())
     {
     vtkErrorMacro( "Problem reading nodal info " << p->CurrentState );
+    this->P->Fam.CloseFileHandles();
     return 1;
     }
 
@@ -196,6 +200,7 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
   if(this->ReadTopology())
     {
     vtkErrorMacro( "Problem reading topology info " << p->CurrentState );
+    this->P->Fam.CloseFileHandles();
     return 1;
     }
 
@@ -203,6 +208,7 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
   if ( this->ReadState( p->CurrentState ) )
     {
     vtkErrorMacro( "Problem reading state data for time step " << p->CurrentState );
+    this->P->Fam.CloseFileHandles();
     return 1;
     }
   
@@ -211,6 +217,7 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
   if ( this->ReadDeletion() )
     {
     vtkErrorMacro( "Problem reading deletion state." );
+    this->P->Fam.CloseFileHandles();
     return 1;
     }
 
@@ -236,8 +243,8 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
     mbds->GetMetaData(nextId)->Set(vtkCompositeDataSet::NAME(),
         this->P->PartNames[i].c_str());
     }
-  this->P->Fam.ClearBuffer();
 
+  this->P->Fam.CloseFileHandles();
   if(this->CacheTopology==0)
     {
     this->Parts->Delete();
