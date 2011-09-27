@@ -100,7 +100,8 @@ public:
    vtkGetMacro(DesiredFontSize, int);
    vtkSetMacro(DesiredFontSize, int);
 
-   vtkSetMacro(Precision, double);
+   vtkGetMacro(Precision, int);
+   vtkSetMacro(Precision, int);
    vtkGetMacro(LabelFormat, int);
    vtkSetMacro(LabelFormat, int);
 
@@ -117,7 +118,7 @@ protected:
   int Orientation;
   int FontSize;
   int DesiredFontSize;
-  double Precision;
+  int Precision;
   int LabelFormat;
   bool LabelLegibilityChanged;
   bool IsAxisVertical;
