@@ -58,6 +58,12 @@ public:
     SELECT,
     NOTIFY
     };
+
+  // Description:
+  // Enum of event type that are triggered by the charts
+  enum EventIds {
+    UpdateRange = 1002
+  };
 //ETX
 
   // Description:
@@ -249,6 +255,12 @@ protected:
   // perpendicular.
   bool CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
                               vtkTransform2D *transform);
+
+  // Description:
+  // Attach axis range listener so we can forward those events at the chart level
+  void AttachAxisRangeListener(vtkAxis*);
+
+  void AxisRangeForwarderCallback(vtkObject*,unsigned long, void*);
 
   // Description:
   // Our annotation link, used for sharing selections etc.
