@@ -8,6 +8,8 @@ CONFIGURE_FILE (${LSDyna_SOURCE_DIR}/LSDynaExport.h.in
  
  
 SET(LSDyna_SOURCES
+  LSDynaFamily.h
+  LSDynaMetaData.h
   LSDynaFamily.cxx
   LSDynaMetaData.cxx
 )
