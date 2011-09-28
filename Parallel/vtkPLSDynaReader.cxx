@@ -163,9 +163,7 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
     // This should have been set in RequestInformation()
     return 0;
     }
-
-  //We now close the file handle at the end of request data
-  this->P->Fam.ReopenFileHandles();
+  p->Fam.OpenFileHandles();
 
   vtkMultiBlockDataSet* mbds = NULL;
   mbds = vtkMultiBlockDataSet::SafeDownCast(
@@ -211,20 +209,11 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
     this->P->Fam.CloseFileHandles();
     return 1;
     }
-  
-  // II. Cell Death State
-  this->UpdateProgress( 0.6 );
-  if ( this->ReadDeletion() )
-    {
-    vtkErrorMacro( "Problem reading deletion state." );
-    this->P->Fam.CloseFileHandles();
-    return 1;
-    }
 
   //now that the reading has finished we need to finalize the parts
   //this means get the subset of points for each part, and fixup all the cells
   this->UpdateProgress( 0.8 );
-  this->Parts->Finalize(this->CommonPoints,this->RemoveDeletedCells);
+  this->Parts->Finalize(this->CommonPoints);
 
   //add all the parts as child blocks to the output
   vtkIdType nextId = 0;
@@ -244,17 +233,20 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
         this->P->PartNames[i].c_str());
     }
 
-  this->P->Fam.CloseFileHandles();
-  if(this->CacheTopology==0)
-    {
-    this->Parts->Delete();
-    this->Parts=NULL;
+  this->ResetPartsCache();
+  p->Fam.CloseFileHandles();
 
+  if(this->CommonPoints)
+    {
     this->CommonPoints->Delete();
     this->CommonPoints=NULL;
     }
 
-
+  if(this->RoadSurfacePoints)
+    {
+    this->RoadSurfacePoints->Delete();
+    this->RoadSurfacePoints=NULL;
+    }
   this->UpdateProgress( 1.0 );
   return 1;
 
@@ -320,10 +312,15 @@ int vtkPLSDynaReader::ReadTopology()
     return 0;
     }
 
-  //Read connectivity info once per simulation run and cache it.
-  //if the filename or a part/material array is modified the cache is deleted
-  //Each node will only read the subset of the files that it needs to construct
-  //the topology it needs
+  // We read deletion first even though it requires
+  // file skipping so that we don't have to store all the topology
+  // information intill the end of the state info
+  if ( this->ReadDeletion() )
+    {
+    vtkErrorMacro( "Problem reading deletion state." );
+    return 1;
+    }
+
   if ( this->ReadConnectivityAndMaterial() )
     {
     vtkErrorMacro( "Could not read connectivity." );
@@ -342,6 +339,7 @@ void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
   const vtkIdType& numTuples, const vtkIdType& numComps, const bool &valid,
   const bool& isDeflectionArray)
 {
+  this->UpdateProgress( 0.4 );
   if(this->Internal->NumProcesses == 1)
     {
     //we only have the root so just call the serial code
@@ -389,12 +387,14 @@ void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
     if(valid)
       {
       this->Parts->AddPointArray(arr);
-      }    
+      }
     }
   else
     {
+    // don't read arrays the user didn't request, just delete them
     this->P->Fam.SkipWords(numTuples * numComps);
     }
+  this->UpdateProgress( 0.6 );
 }
 
 //-----------------------------------------------------------------------------
@@ -412,14 +412,12 @@ void vtkPLSDynaReader::ReadPointPropertyChunks(T* buffer, vtkDataArray *arr,
       {
       this->P->Fam.BufferChunk(LSDynaFamily::Float,bufferSize);
       buffer = (T*)this->P->Fam.GetRawBuffer();
+      this->FillArray(buffer,arr,offset,numPointsToRead,numComps);
       }
     else
       {
       this->P->Fam.SkipWords(bufferSize);
       }
-    //broadcast the buffer from the root node to all other nodes
-    this->Controller->Broadcast(buffer,bufferSize,0);
-    this->FillArray(buffer,arr,offset,numPointsToRead,numComps);
     }
     
   //read the last amount
@@ -427,13 +425,15 @@ void vtkPLSDynaReader::ReadPointPropertyChunks(T* buffer, vtkDataArray *arr,
     { 
     this->P->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
     buffer = (T*)this->P->Fam.GetRawBuffer();
+    this->FillArray(buffer,arr,offset,leftOver,numComps);
     }
   else
     {
     this->P->Fam.SkipWords(leftOver*numComps);
     }
-  this->Controller->Broadcast(buffer,leftOver*numComps,0);
-  this->FillArray(buffer,arr,offset,leftOver,numComps);
+
+  //now broadcast the final array to every other process
+  this->Controller->Broadcast(arr,0);
 }
 
 

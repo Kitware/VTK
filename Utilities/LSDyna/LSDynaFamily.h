@@ -185,6 +185,15 @@ public:
   int BufferChunk( WordType wType, vtkIdType chunkSizeInWords );
   int ClearBuffer();
 
+  //Description:
+  //Setup reading of a number of words to be split across multiple
+  //bufferChunk. This is used to read really large buffer sections
+  //in more reasonable sizes. The paramters are used to specify the total buffer
+  //size. The buffer size will always be evenly divisable by numComps and total
+  //word size of all buffers will be numTuples*numComps
+  vtkIdType InitPartialChunkBuffering(const vtkIdType& numTuples, const vtkIdType& numComps );
+  vtkIdType GetNextChunk( const WordType& wType);
+
   inline char* GetNextWordAsChars();
   inline double GetNextWordAsFloat();
   inline vtkIdType GetNextWordAsInt();
@@ -228,8 +237,7 @@ public:
   //we are done reading in request data
   void CloseFileHandles();
 
-  //Reopens a closed file handle
-  void ReopenFileHandles();
+  void OpenFileHandles();
 
 protected:
   /// The directory containing d3plot files
@@ -285,6 +293,10 @@ protected:
   vtkIdType ChunkValid;
   /// The allocated size (in words) of Chunk.
   vtkIdType ChunkAlloc;
+
+  bool FileHandlesClosed;
+  struct BufferingInfo;
+  BufferingInfo* BufferInfo;  
 };
 
 //-----------------------------------------------------------------------------

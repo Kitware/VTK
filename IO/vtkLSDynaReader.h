@@ -447,18 +447,9 @@ public:
   int GetPartArrayStatus( int arr );
   int GetPartArrayStatus( const char* partName );
 
-  //Description:
-  //These methods allow you to enable and disable topology caching.
-  //Recommended to keep this setting off for large datasets.
-  vtkSetMacro(CacheTopology,int);
-  vtkGetMacro(CacheTopology,int);
-
 protected:
   //holds all the parts and all the properties for each part
   vtkLSDynaPartCollection* Parts;
-
-  //Tells if the reader should do topology caching
-  int CacheTopology;
 
   //the collection of global points
   vtkPoints* CommonPoints;
@@ -579,24 +570,30 @@ protected:
     const bool& isDeflectionArray);
 
   LSDynaMetaData* P;
+
+  void ResetPartsCache();
 private:
 
   //Helper templated methods to optimze reading. We cast the entire buffer
   //to a given type instead of casting each element to improve performance
   template<typename T>
-  void FillDeletionArray(T* buffer, vtkIntArray* arr);
+  void FillDeletionArray(T* buffer, vtkIntArray* arr, const vtkIdType& start, const vtkIdType& size);
 
   template<typename T>
   void FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,
     const vtkIdType& numTuples, const vtkIdType& numComps);
 
   template<typename T>
-  void FillPointsData(T* buffer, vtkPoints *points);
+  void FillPointsData(T* buffer, vtkPoints *points, const vtkIdType& start, const vtkIdType& size);
+
+  template<int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>  
+  void FillBlockType(vtkIdType* buffer);
+  
+  template<int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>  
+  void FillBlockType(int* buffer);
 
   template<typename T>
-  int FillCells(T* buffer);
-
-  void ResetPartsCache();
+  int FillTopology(T* buffer);
 
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.

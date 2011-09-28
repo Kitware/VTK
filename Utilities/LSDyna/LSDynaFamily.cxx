@@ -89,6 +89,20 @@ const char* LSDynaFamily::SectionTypeNames[] =
 
 const float LSDynaFamily::EOFMarker = -999999.0f;
 
+struct LSDynaFamily::BufferingInfo
+{
+    BufferingInfo():
+      numWordsToRead(0),
+      loopTimes(0),
+      leftOver(0),
+      size(524288)
+      {};
+    vtkIdType numWordsToRead;
+    vtkIdType loopTimes;
+    vtkIdType leftOver;
+    vtkIdType size; //deafult buffer size
+};
+
 //-----------------------------------------------------------------------------
 LSDynaFamily::LSDynaFamily()
     {
@@ -107,6 +121,10 @@ LSDynaFamily::LSDynaFamily()
     this->Chunk = 0;
     this->ChunkWord = 0;
     this->ChunkAlloc = 0;
+
+    this->FileHandlesClosed = false;
+
+    this->BufferInfo = new LSDynaFamily::BufferingInfo();
     }
 
 //-----------------------------------------------------------------------------
@@ -121,6 +139,8 @@ LSDynaFamily::~LSDynaFamily()
       {
       delete [] this->Chunk;
       }
+
+    delete this->BufferInfo;
     }
 
 //-----------------------------------------------------------------------------
@@ -454,6 +474,40 @@ int LSDynaFamily::ClearBuffer()
   return 0;
 }
 
+//-----------------------------------------------------------------------------
+vtkIdType LSDynaFamily::InitPartialChunkBuffering( const vtkIdType& numTuples,
+  const vtkIdType& numComps )
+{
+  const vtkIdType size(this->BufferInfo->size);
+  this->BufferInfo->numWordsToRead = (size * numComps);
+  this->BufferInfo->leftOver=(numTuples%size) * numComps;
+
+  this->BufferInfo->loopTimes=(numTuples/size);
+  return this->BufferInfo->loopTimes+1; //1 is the leftover
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType LSDynaFamily::GetNextChunk( const WordType& wType)
+{
+  vtkIdType size;
+  if(this->BufferInfo->loopTimes > 0)
+    {
+    size = this->BufferInfo->numWordsToRead;
+    }
+  else if(this->BufferInfo->loopTimes == 0)
+    {
+    size = this->BufferInfo->leftOver;
+    }
+  else
+    {
+    size = 0;
+    }
+
+  this->BufferChunk(wType,size);
+  --this->BufferInfo->loopTimes;
+  return size;
+}
+
 
 //-----------------------------------------------------------------------------
 int LSDynaFamily::AdvanceFile()
@@ -640,6 +694,10 @@ void LSDynaFamily::Reset()
   this->FWord = 0;
   this->TimeStep = -1;
   this->ChunkValid = 0;
+  this->FileHandlesClosed = false;
+
+  delete this->BufferInfo;
+  this->BufferInfo = new LSDynaFamily::BufferingInfo();
 }
 
 //-----------------------------------------------------------------------------
@@ -681,20 +739,22 @@ void LSDynaFamily::DumpMarks( std::ostream& os )
 //-----------------------------------------------------------------------------
 void LSDynaFamily::CloseFileHandles()
 {
-  if ( ! VTK_LSDYNA_ISBADFILE(this->FD) )
+  if (!VTK_LSDYNA_ISBADFILE(this->FD) && !this->FileHandlesClosed)
     {
     VTK_LSDYNA_CLOSEFILE(this->FD);
     this->FD = VTK_LSDYNA_BADFILE;
     this->ClearBuffer();
+    this->FileHandlesClosed=true;
     }
 }
 
 //-----------------------------------------------------------------------------
-void LSDynaFamily::ReopenFileHandles()
+void LSDynaFamily::OpenFileHandles()
 {
-  if (VTK_LSDYNA_ISBADFILE(this->FD))
+  if (VTK_LSDYNA_ISBADFILE(this->FD) && this->FileHandlesClosed)
     {
-    VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
-    VTK_LSDYNA_SEEK(this->FD,this->FWord,SEEK_CUR);
+    this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
+    VTK_LSDYNA_SEEK(this->FD,this->FWord,SEEK_SET);
+    this->FileHandlesClosed=false;
     }
 }

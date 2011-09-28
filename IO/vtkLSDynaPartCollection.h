@@ -26,7 +26,7 @@ class vtkIntArray;
 class VTK_IO_EXPORT vtkLSDynaPartCollection: public vtkObject
 {
 public:
-  struct LSDynaPart;
+  class LSDynaPart;
   static vtkLSDynaPartCollection *New();
 
   vtkTypeMacro(vtkLSDynaPartCollection,vtkObject);
@@ -54,10 +54,8 @@ public:
   void FinalizeTopology();
 
   //Description:
-  //Given a point set and having the dead flags set for a time step
   //this will construct that valid unstructured grid for each part
-  //that this collection has
-  void Finalize(vtkPoints *commonPoints,const int& removeDeletedCells);
+  void Finalize(vtkPoints *commonPoints);
 
   //Description: Insert a cell of a given type and material index to the 
   //collection.
@@ -94,9 +92,9 @@ public:
                     const int& offset, const int& numComps);
 
   void FillCellProperties(float *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-    const vtkIdType& numCells, const int& numTuples);
+    const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
   void FillCellProperties(double *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-    const vtkIdType& numCells, const int& numTuples);
+    const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
 
 protected:
   vtkLSDynaPartCollection();
@@ -114,9 +112,6 @@ protected:
 
   //Description:
   //builds the unstructured grid which represents the part
-  //will clear out all the temporary storage for the part when this happens
-  //the point set passed in is all the world points, we will construct a subset
-  void ConstructGridCellsWithoutDeadCells(LSDynaPart *part);
   void ConstructGridCells(LSDynaPart *part);
   void ConstructGridPoints(LSDynaPart *part, vtkPoints *commonPoints);
 
@@ -126,7 +121,7 @@ protected:
   //for parts we are not loading
   template<typename T>
   void FillCellArray(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-    const vtkIdType& numCells, const int& numTuples);
+     const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
 
 private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.

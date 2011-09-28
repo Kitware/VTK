@@ -85,11 +85,11 @@ namespace
   typedef std::vector<cellToPartCell> CTPCVector;
   typedef std::vector<cellPropertyInfo*> CPIVector;
 
-  typedef std::vector<int> IntVector;
-  typedef std::vector<unsigned char> UCharVector;
+  typedef std::vector<bool> BitVector;
   typedef std::vector<vtkIdType> IdTypeVector;
   typedef std::vector<vtkLSDynaPartCollection::LSDynaPart*> PartVector;
   typedef std::vector<vtkDataArray*> DataArrayVector;
+
   }
 
 //-----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ class vtkLSDynaPartCollection::LSDynaPart
   public:
   LSDynaPart(LSDynaMetaData::LSDYNA_TYPES t, std::string n):Type(t),Name(n)
     {
-    Grid = NULL;
+    Grid = vtkUnstructuredGrid::New();
     NextPointId = 0;
     }
   ~LSDynaPart()
@@ -140,24 +140,16 @@ class vtkLSDynaPartCollection::LSDynaPart
 
   void ResetTimeStepInfo()
     {
-    DeadCells.clear();
     CellPropertyInfo.clear();
     }
   
   //Storage of information to build the grid before we call finalize
   //these are constant across all timesteps
-  UCharVector CellTypes;
-  IdTypeVector CellLocation;
-  IdTypeVector CellStructure;
   IdTypeMap PointIds; //maps local point id to global point id
   vtkIdType NextPointId;
 
   //These need to be cleared every time step
-  IntVector DeadCells;
   CPIVector CellPropertyInfo;
-
-  //these are handled by finalize to determine the proper lifespan
-  
   //Used to hold the grid representation of this part.
   //Only is valid afer finalize has been called on a timestep
   vtkUnstructuredGrid* Grid;
@@ -175,10 +167,12 @@ public:
   LSDynaPartStorage(const int& size )
     {
     this->CellIndexToPart = new CTPCVector[size];
+    this->DeadCells = new BitVector[size];
     }
   ~LSDynaPartStorage()
     {
     delete[] this->CellIndexToPart;
+    delete[] this->DeadCells;
     }
 
   //Stores the information needed to construct an unstructured grid of the part
@@ -190,6 +184,8 @@ public:
   //the cell is part of.
   //This info is constant for each time step so it can't be cleared.
   CTPCVector *CellIndexToPart; 
+
+  BitVector *DeadCells;
 
   //Stores all the point properties for all the parts.
   //When we finalize each part we will split these property arrays up
@@ -278,6 +274,7 @@ void vtkLSDynaPartCollection::InitCollection(LSDynaMetaData *metaData,
     this->MaxIds[i]= (maxs!=NULL) ? maxs[i] : metaData->NumberOfCells[i];
     const vtkIdType reservedSpaceSize(this->MaxIds[i]-this->MinIds[i]);
     this->Storage->CellIndexToPart[i].resize(reservedSpaceSize,t);
+    this->Storage->DeadCells[i].resize(reservedSpaceSize,false);
     }
 
   if(metaData && !this->Finalized)
@@ -336,25 +333,12 @@ void vtkLSDynaPartCollection::InsertCell(const int& partType,
     return;
     }
 
-  //push back the cell into the proper part grid for storage
-  part->CellTypes.push_back(static_cast<unsigned char>(cellType));  
-  
-  part->CellStructure.push_back(npts);
-  //compute the direct postion this is needed when we finalize the data into
-  //a unstructured grid. We need to find the size after we push back the npts
-  part->CellLocation.push_back(
-    static_cast<vtkIdType>(part->CellStructure.size()-1));
-  
-  //now push back the rest of the cell structure
-  for(int i=0; i<npts; ++i)
+  if(!this->Storage->DeadCells[partType][cellIndex])
     {
-    //LSDyna usin Fortran indexes (starts at 1)
-    part->CellStructure.push_back(conn[i]-1);
+    vtkIdType pos = part->Grid->InsertNextCell(cellType,npts,conn);
+    this->Storage->CellIndexToPart[partType][cellIndex] =
+      cellToPartCell(matId-1,pos);
     }
-
-
-  this->Storage->CellIndexToPart[partType][cellIndex] =
-    cellToPartCell(matId-1,part->CellTypes.size()-1); 
 }
 
 //-----------------------------------------------------------------------------
@@ -367,26 +351,16 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(
     {
     return;
     }
-  if(this->Storage->CellIndexToPart[partType].size() == 0)
-    {
-    //we aren't storing any cells for this part so ignore it
-    return;
-    }
 
   //The array that passed in from the reader only contains the subset
   //of the full data that we are interested in so we don't have to adjust
   //any indices
   vtkIdType size = death->GetNumberOfTuples();
-  int deleted = 0;
+  bool deleted = false;
   for(vtkIdType i=0;i<size;++i)
     {
-    cellToPartCell pc =  this->Storage->CellIndexToPart[partType][i];
-    deleted = death->GetValue(i);
-    if(deleted && pc.part > -1)
-      {
-      //only store the deleted cells.
-      this->Storage->Parts[pc.part]->DeadCells.push_back(pc.cell);
-      }
+    deleted = (death->GetValue(i)==1);
+    this->Storage->DeadCells[partType][i]=deleted;
     }
 }
 
@@ -394,6 +368,7 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(
 void vtkLSDynaPartCollection::AddPointArray(vtkDataArray* data)
 {
   this->Storage->PointProperties.push_back(data);
+  data->Register(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -426,7 +401,7 @@ void vtkLSDynaPartCollection::AddProperty(
     vtkLSDynaPartCollection::LSDynaPart* part = *partIt;    
     if (part && part->Type == type)
       {
-      numTuples = part->CellTypes.size();
+      numTuples = part->Grid->GetNumberOfCells();
       cellPropertyInfo* t = new cellPropertyInfo(name,offset,numTuples,numComps,
         this->MetaData->Fam.GetWordSize());
       part->CellPropertyInfo.push_back(t);
@@ -436,25 +411,25 @@ void vtkLSDynaPartCollection::AddProperty(
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FillCellProperties(float *buffer,
-  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& numCells,
-  const int& numTuples)
+  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
+  const vtkIdType& numCells, const int& numTuples)
 {
-  this->FillCellArray(buffer,type,numCells,numTuples);
+  this->FillCellArray(buffer,type,startId,numCells,numTuples);
 }
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FillCellProperties(double *buffer,
-  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& numCells,
-  const int& numTuples)
+  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
+  const vtkIdType& numCells, const int& numTuples)
 {
-  this->FillCellArray(buffer,type,numCells,numTuples);
+  this->FillCellArray(buffer,type,startId,numCells,numTuples);
 }
 
 //-----------------------------------------------------------------------------
 template<typename T>
 void vtkLSDynaPartCollection::FillCellArray(T *buffer,
-  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& numCells,
-  const int& numTuples)
+  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
+  const vtkIdType& numCells, const int& numTuples)
 {
   //we only need to iterate the array for the subsection we need
   if(this->Storage->CellIndexToPart[type].size() == 0)
@@ -462,10 +437,9 @@ void vtkLSDynaPartCollection::FillCellArray(T *buffer,
     return;
     }
 
-  vtkIdType size = this->MaxIds[type] - this->MinIds[type];
-  for(vtkIdType i=0;i<size;++i)
+  for(vtkIdType i=0;i<numCells;++i)
     {
-    cellToPartCell pc = this->Storage->CellIndexToPart[type][i];
+    cellToPartCell pc = this->Storage->CellIndexToPart[type][startId+i];
     if(pc.part > -1)
       {
       //read the next chunk from the buffer
@@ -555,10 +529,8 @@ void vtkLSDynaPartCollection::FinalizeTopology()
   //will be used to create the map which means it the map will be constructed
   //in linear time.
 
-  //Note the trade off here is that removing dead points will be really hard,
-  //so we wont!
-
-  //we are making the PointId map be new maps to old.
+  //Note the cell ids are fortran ordered so we are going to change
+  //them to C ordered at the same time
 
   std::list< std::pair<vtkIdType,vtkIdType> > inputToMap;
   IdTypeVector lookup;
@@ -572,7 +544,7 @@ void vtkLSDynaPartCollection::FinalizeTopology()
        partIt != this->Storage->Parts.end();
        ++partIt,++index)
     {
-    if((*partIt) && (*partIt)->CellStructure.size() == 0)
+    if((*partIt) && (*partIt)->Grid->GetNumberOfCells() == 0)
       {
       //this part wasn't valid given the cells we read in so we have to remove it
       //this is really only happens when running in parallel and if a node
@@ -587,41 +559,42 @@ void vtkLSDynaPartCollection::FinalizeTopology()
       //take the cell array and find all the unique points
       //once that is done convert them into a map
       
-      vtkIdType nextPointId=0, npts=0;
-      IdTypeVector::iterator csIt;
-      
-      for(csIt=(*partIt)->CellStructure.begin();
-          csIt!=(*partIt)->CellStructure.end();)
+      vtkIdType nextPointId=0;
+      vtkIdType npts,*pts;
+
+      vtkCellArray *cells = (*partIt)->Grid->GetCells();
+      cells->InitTraversal();
+      while(cells->GetNextCell(npts,pts))
         {
-        npts = (*csIt);
-        ++csIt; //move to the first point for this cell
-        for(vtkIdType i=0;i<npts;++i,++csIt)
+        for(vtkIdType i=0;i<npts;++i)
           {
-          if(lookup[*csIt] == -1)
+          const vtkIdType Cid(pts[i]-1);
+          if(lookup[Cid] == -1)
             {
             //update the lookup table
-            std::pair<vtkIdType,vtkIdType> pair(nextPointId,*csIt);
-            lookup[*csIt] = nextPointId;            
+            std::pair<vtkIdType,vtkIdType> pair(nextPointId,Cid);
+            lookup[Cid] = nextPointId;
             ++nextPointId;
             inputToMap.push_back(pair);
             }
-          *csIt = lookup[*csIt];
+          pts[i] = lookup[Cid];
           }
         }
-
       //create the mapping from new ids to old ids for the points
       //this constructor will be linear time since the list is already sorted
       (*partIt)->PointIds = IdTypeMap(inputToMap.begin(),inputToMap.end());
 
       //reset the lookup table
       std::fill(lookup.begin(),lookup.end(),-1);
+
+      //remove any unused allocations
+      (*partIt)->Grid->Squeeze();
       }
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints,
-  const int& removeDeletedCells)
+void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints)
 {
   PartVector::iterator partIt;
   for (partIt = this->Storage->Parts.begin();
@@ -630,15 +603,7 @@ void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints,
     {
     if ( (*partIt))
       {
-      (*partIt)->InitGrid();
-      if(removeDeletedCells && (*partIt)->DeadCells.size() > 0)
-        {
-        this->ConstructGridCellsWithoutDeadCells(*partIt);
-        }
-      else
-        {
-        this->ConstructGridCells(*partIt);
-        }
+      this->ConstructGridCells(*partIt);
       //now construct the points for the grid
       this->ConstructGridPoints(*partIt,commonPoints);
       }
@@ -651,49 +616,10 @@ void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints,
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::ConstructGridCells(LSDynaPart *part)
-{  
-  if(part->CellTypes.size() == 0 )
-    {
-    //the part is empty
-    return;
-    }  
-  
-  //needed info
-  vtkIdType numCells = static_cast<vtkIdType>(part->CellTypes.size());
-  vtkIdType sizeOfCellStruct = static_cast<vtkIdType>(part->CellStructure.size());
-
-  //copy the contents from the part into a cell array.  
-  vtkIdTypeArray *cellArray = vtkIdTypeArray::New();
-  cellArray->SetNumberOfValues(sizeOfCellStruct);
-  std::copy(part->CellStructure.begin(),part->CellStructure.end(),
-    reinterpret_cast<vtkIdType*>(cellArray->GetVoidPointer(0)));
-
-  //set the idtype aray as the cellarray
-  vtkCellArray *cells = vtkCellArray::New();
-  cells->SetCells(numCells,cellArray);
-  cellArray->FastDelete();
-
-  //now copy the cell types from the vector to 
-  vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
-  cellTypes->SetNumberOfValues(numCells);
-  std::copy(part->CellTypes.begin(),part->CellTypes.end(),
-     reinterpret_cast<unsigned char*>(cellTypes->GetVoidPointer(0)));
-
-  //last is the cell locations
-  vtkIdTypeArray *cellLocation = vtkIdTypeArray::New();
-  cellLocation->SetNumberOfValues(numCells);
-  std::copy(part->CellLocation.begin(),part->CellLocation.end(),
-     reinterpret_cast<vtkIdType*>(cellLocation->GetVoidPointer(0)));
-
-  //actually set up the grid
-  part->Grid->SetCells(cellTypes,cellLocation,cells,NULL,NULL);
-
-  //remove references
-  cellTypes->FastDelete();
-  cellLocation->FastDelete();
-  cells->FastDelete();
-
-  //now copy the cell data into the part
+{
+  //now copy the cell data into the part and delete the gird data
+  //the delete is here instead of reset time step so that we can
+  //call fast delete instead of delete
   vtkCellData *gridData = part->Grid->GetCellData();
   CPIVector::iterator it;
   for(it=part->CellPropertyInfo.begin();
@@ -703,87 +629,6 @@ void vtkLSDynaPartCollection::ConstructGridCells(LSDynaPart *part)
       gridData->AddArray((*it)->Data);
       (*it)->Data->FastDelete();
       }
-}
-
-//-----------------------------------------------------------------------------
-void vtkLSDynaPartCollection::ConstructGridCellsWithoutDeadCells(LSDynaPart *part)
-{
-  if(part->CellTypes.size() == 0 )
-    {
-    //the part is empty
-    return;
-    }
-  vtkUnstructuredGrid *grid = part->Grid;
-  vtkIdType numCells = static_cast<vtkIdType>(part->CellTypes.size());
-  vtkIdType numDeadCells = part->DeadCells.size();
-
-  //setup the cell properties
-  CPIVector::iterator oldArrayIt;
-  DataArrayVector::iterator newArrayIt;
-  
-  DataArrayVector newArrays;
-  newArrays.resize(part->CellPropertyInfo.size());
-
-  oldArrayIt = part->CellPropertyInfo.begin();
-  vtkCellData *cd = grid->GetCellData();
-  for(newArrayIt=newArrays.begin();newArrayIt!=newArrays.end();
-    ++newArrayIt,++oldArrayIt)
-    {
-    vtkDataArray *d = (*oldArrayIt)->Data;
-    (*newArrayIt)=d->NewInstance();
-    (*newArrayIt)->SetName(d->GetName());
-    (*newArrayIt)->SetNumberOfComponents(d->GetNumberOfComponents());
-    (*newArrayIt)->SetNumberOfTuples(numCells-numDeadCells);
-
-    cd->AddArray(*newArrayIt);
-    (*newArrayIt)->FastDelete();
-    }
- 
-  //this has a totally different method since we can't use the clean implementation
-  //of copying the memory right from the vectors. Instead we have to skip
-  //the chunks that have been deleted. For te cell location and cell types this
-  //is fairly easy for the cell structure it is a bit more complicated
-
-  //needed infos  
-  vtkIdType currentDeadCellPos=0;
-  UCharVector::iterator typeIt = part->CellTypes.begin();
-  IdTypeVector::iterator locIt = part->CellLocation.begin();
-  vtkIdType i=0,idx=0;
-  for(; i<numCells && currentDeadCellPos<numDeadCells ;++i,++typeIt,++locIt)
-    {
-    if(part->DeadCells[currentDeadCellPos] != i)
-      {
-      grid->InsertNextCell(*typeIt,part->CellStructure[*locIt],&part->CellStructure[*locIt+1]);
-
-      oldArrayIt = part->CellPropertyInfo.begin();
-      for(newArrayIt=newArrays.begin();
-      newArrayIt!=newArrays.end();
-      ++newArrayIt,++oldArrayIt)
-        {
-        (*newArrayIt)->SetTuple(idx, (*oldArrayIt)->Data->GetTuple(i));
-        }
-      ++idx;
-      }
-    else
-      {
-      ++currentDeadCellPos;
-      }
-    }
-
-  //we have all the dead cells tight loop the rest
-  for(; i<numCells;++i,++typeIt,++locIt)
-    {
-    grid->InsertNextCell(*typeIt,part->CellStructure[*locIt],&part->CellStructure[*locIt+1]);
-    oldArrayIt = part->CellPropertyInfo.begin();
-    for(newArrayIt=newArrays.begin();
-      newArrayIt!=newArrays.end();
-      ++newArrayIt,++oldArrayIt)
-      {
-      (*newArrayIt)->SetTuple(idx, (*oldArrayIt)->Data->GetTuple(i));
-      }
-    ++idx;        
-    }
-
 }
 
 //-----------------------------------------------------------------------------
