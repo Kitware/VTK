@@ -17,6 +17,7 @@
 
 #include "vtkContext2D.h"
 #include "vtkPen.h"
+#include "vtkChart.h"
 #include "vtkTextProperty.h"
 #include "vtkVector.h"
 #include "vtkFloatArray.h"
@@ -56,8 +57,8 @@ vtkAxis::vtkAxis()
   this->TitleProperties->SetFontFamilyToArial();
   this->TitleProperties->SetBold(1);
   this->TitleProperties->SetJustificationToCentered();
-  this->Minimum = 0.0;
-  this->Maximum = 6.66;
+  this->Range[0] = this->Minimum = 0.0;
+  this->Range[1] = this->Maximum = 6.66;
   this->MinimumLimit = std::numeric_limits<double>::max() * -1.;
   this->MaximumLimit = std::numeric_limits<double>::max();
   this->LogScale = false;
@@ -376,10 +377,11 @@ void vtkAxis::SetMinimum(double minimum)
     {
     return;
     }
-  this->Minimum = minimum;
+  this->Range[0] = this->Minimum = minimum;
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
   this->Modified();
+  this->InvokeEvent(vtkChart::UpdateRange, this->Range);
 }
 
 //-----------------------------------------------------------------------------
@@ -404,10 +406,11 @@ void vtkAxis::SetMaximum(double maximum)
     {
     return;
     }
-  this->Maximum = maximum;
+  this->Range[1] = this->Maximum = maximum;
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
   this->Modified();
+  this->InvokeEvent(vtkChart::UpdateRange, this->Range);
 }
 
 //-----------------------------------------------------------------------------
@@ -475,7 +478,10 @@ void vtkAxis::SetNotation(int notation)
 void vtkAxis::AutoScale()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing
-  this->TickInterval = this->CalculateNiceMinMax(this->Minimum, this->Maximum);
+  double min = this->Minimum;
+  double max = this->Maximum;
+  this->TickInterval = this->CalculateNiceMinMax(min, max);
+  this->SetRange(min, max);
   this->UsingNiceMinMax = true;
   this->GenerateTickLabels(this->Minimum, this->Maximum);
 }

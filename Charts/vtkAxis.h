@@ -115,6 +115,7 @@ public:
   // Description:
   // Get the logical range of the axis, in plot coordinates.
   virtual void SetRange(double minimum, double maximum);
+  vtkGetVector2Macro(Range, double);
 
   // Description:
   // Set the logical lowest possible value for \a Minimum, in plot coordinates.
@@ -310,6 +311,7 @@ protected:
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
+  double Range[2];     // [Minimum, Maximum] of the axis => Used in InvokeEvent
   double MinimumLimit; // Lowest possible value for Minimum
   double MaximumLimit; // Highest possible value for Maximum
   vtkStdString Title;  // The text label drawn on the axis
