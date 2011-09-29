@@ -173,7 +173,9 @@ public:
   // Description:
   // Returns the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
+  // point must be a double array of size 4.
   virtual void GetControlPoint(vtkIdType index, double *point)const = 0;
+
   // Description:
   // Sets the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
@@ -195,6 +197,8 @@ public:
   void SpreadPoints(float factor, vtkIdTypeArray* pointIds);
 
   // Description:
+  // Returns the current point ID selected or -1 if there is no point current.
+  // No current point by default.
   vtkIdType GetCurrentPoint()const;
 
   // Description:
