@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================
-  Copyright 2005 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
   U.S. Government. Redistribution and use in source and binary forms, with
@@ -25,7 +25,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
-#include "vtkPoints.h"
 #include <assert.h>
 #include <cmath>
 
@@ -35,10 +34,19 @@
 
 vtkStandardNewMacro(vtkMath);
 
+class vtkMathInternal
+{
+public:
+  vtkMathInternal();
+  ~vtkMathInternal();
+  vtkMinimalStandardRandomSequence *Uniform;
+  vtkBoxMuellerRandomSequence *Gaussian;
+};
+
 vtkMathInternal::vtkMathInternal()
 {
   this->Gaussian=vtkBoxMuellerRandomSequence::New();
-  
+
   // This line assumes the current vtkBoxMuellerRandomSequence behavior:
   // an initial vtkMinimalStandardRandomSequence is created.
   this->Uniform=static_cast<vtkMinimalStandardRandomSequence *>(
@@ -130,7 +138,7 @@ inline bool vtkMathIsNan(double x)
 // avoid dll boundary problems
 
 //----------------------------------------------------------------------------
-// Generate pseudo-random numbers distributed according to the uniform 
+// Generate pseudo-random numbers distributed according to the uniform
 // distribution between 0.0 and 1.0.
 // This is used to provide portability across different systems.
 double vtkMath::Random()
@@ -140,10 +148,10 @@ double vtkMath::Random()
 }
 
 //----------------------------------------------------------------------------
-// Initialize seed value. NOTE: Random() has the bad property that 
-// the first random number returned after RandomSeed() is called 
-// is proportional to the seed value! To help solve this, call 
-// RandomSeed() a few times inside seed. This doesn't ruin the 
+// Initialize seed value. NOTE: Random() has the bad property that
+// the first random number returned after RandomSeed() is called
+// is proportional to the seed value! To help solve this, call
+// RandomSeed() a few times inside seed. This doesn't ruin the
 // repeatability of Random().
 //
 void vtkMath::RandomSeed(int s)
@@ -216,7 +224,7 @@ vtkTypeInt64 vtkMath::Binomial( int m, int n )
 //----------------------------------------------------------------------------
 // Start iterating over "m choose n" objects.
 // This function returns an array of n integers, each from 0 to m-1.
-// These integers represent the n items chosen from the set [0,m[. 
+// These integers represent the n items chosen from the set [0,m[.
 //
 int* vtkMath::BeginCombination( int m, int n )
 {
@@ -295,11 +303,11 @@ inline void vtkMathPerpendiculars(const T1 x[3], T2 y[3], T3 z[3],
     {
     dx = 0; dy = 1; dz = 2;
     }
-  else if (y2 > z2) 
+  else if (y2 > z2)
     {
     dx = 1; dy = 2; dz = 0;
     }
-  else 
+  else
     {
     dx = 2; dy = 0; dz = 1;
     }
@@ -344,7 +352,7 @@ inline void vtkMathPerpendiculars(const T1 x[3], T2 y[3], T3 z[3],
       z[dy] = tmp;
       z[dz] = -b*c/tmp;
       }
-    }      
+    }
 }
 
 void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
@@ -395,7 +403,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
       // Unable to solve linear system
       return 0;
       }
-    
+
     x[0] /= A[0][0];
     return 1;
     }
@@ -403,7 +411,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
   //
   // System of equations is not trivial, use Crout's method
   //
-  
+
   // Check on allocation of working vectors
   //
   int *index, scratch[10];
@@ -433,7 +441,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 
   // Check on allocation of working vectors
   //
-  if ( size <= 10 ) 
+  if ( size <= 10 )
     {
     index = iScratch;
     column = dScratch;
@@ -446,21 +454,21 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 
   int retVal = vtkMath::InvertMatrix(A, AI, size, index, column);
 
-  if ( size > 10 ) 
+  if ( size > 10 )
     {
     delete [] index;
     delete [] column;
-    } 
-  
+    }
+
   return retVal;
 }
 
 //----------------------------------------------------------------------------
 // Factor linear equations Ax = b using LU decompostion A = LU where L is
-// lower triangular matrix and U is upper triangular matrix. Input is 
+// lower triangular matrix and U is upper triangular matrix. Input is
 // square matrix A, integer array of pivot indices index[0->n-1], and size
-// of square matrix n. Output factorization LU is in matrix A. If error is 
-// found, method returns 0. 
+// of square matrix n. Output factorization LU is in matrix A. If error is
+// found, method returns 0.
 int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 {
   double scratch[10];
@@ -473,9 +481,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
   //
   // Loop over rows to get implicit scaling information
   //
-  for ( i = 0; i < size; i++ ) 
+  for ( i = 0; i < size; i++ )
     {
-    for ( largest = 0.0, j = 0; j < size; j++ ) 
+    for ( largest = 0.0, j = 0; j < size; j++ )
       {
       if ( (temp2 = fabs(A[i][j])) > largest )
         {
@@ -493,9 +501,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
   //
   // Loop over all columns using Crout's method
   //
-  for ( j = 0; j < size; j++ ) 
+  for ( j = 0; j < size; j++ )
     {
-    for (i = 0; i < j; i++) 
+    for (i = 0; i < j; i++)
       {
       sum = A[i][j];
       for ( k = 0; k < i; k++ )
@@ -507,7 +515,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
     //
     // Begin search for largest pivot element
     //
-    for ( largest = 0.0, i = j; i < size; i++ ) 
+    for ( largest = 0.0, i = j; i < size; i++ )
       {
       sum = A[i][j];
       for ( k = 0; k < j; k++ )
@@ -516,7 +524,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
         }
       A[i][j] = sum;
 
-      if ( (temp1 = scale[i]*fabs(sum)) >= largest ) 
+      if ( (temp1 = scale[i]*fabs(sum)) >= largest )
         {
         largest = temp1;
         maxI = i;
@@ -525,9 +533,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
     //
     // Check for row interchange
     //
-    if ( j != maxI ) 
+    if ( j != maxI )
       {
-      for ( k = 0; k < size; k++ ) 
+      for ( k = 0; k < size; k++ )
         {
         temp1 = A[maxI][k];
         A[maxI][k] = A[j][k];
@@ -546,7 +554,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
       return 0;
       }
 
-    if ( j != (size-1) ) 
+    if ( j != (size-1) )
       {
       temp1 = 1.0 / A[j][j];
       for ( i = j + 1; i < size; i++ )
@@ -563,12 +571,12 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 
 //----------------------------------------------------------------------------
 // Solve linear equations Ax = b using LU decompostion A = LU where L is
-// lower triangular matrix and U is upper triangular matrix. Input is 
+// lower triangular matrix and U is upper triangular matrix. Input is
 // factored matrix A=LU, integer array of pivot indices index[0->n-1],
 // load vector x[0->n-1], and size of square matrix n. Note that A=LU and
 // index[] are generated from method LUFactorLinearSystem). Also, solution
 // vector is written directly over input load vector.
-void vtkMath::LUSolveLinearSystem(double **A, int *index, 
+void vtkMath::LUSolveLinearSystem(double **A, int *index,
                                   double *x, int size)
 {
   int i, j, ii, idx;
@@ -577,7 +585,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
 // Proceed with forward and backsubstitution for L and U
 // matrices.  First, forward substitution.
 //
-  for ( ii = -1, i = 0; i < size; i++ ) 
+  for ( ii = -1, i = 0; i < size; i++ )
     {
     idx = index[i];
     sum = x[idx];
@@ -600,7 +608,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
 //
 // Now, back substitution
 //
-  for ( i = size-1; i >= 0; i-- ) 
+  for ( i = size-1; i >= 0; i-- )
     {
     sum = x[i];
     for ( j = i + 1; j < size; j++ )
@@ -640,11 +648,11 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
   if (n > 4)
     {
     b = new T[n];
-    z = new T[n]; 
+    z = new T[n];
     }
 
   // initialize
-  for (ip=0; ip<n; ip++) 
+  for (ip=0; ip<n; ip++)
     {
     for (iq=0; iq<n; iq++)
       {
@@ -652,17 +660,17 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
       }
     v[ip][ip] = 1.0;
     }
-  for (ip=0; ip<n; ip++) 
+  for (ip=0; ip<n; ip++)
     {
     b[ip] = w[ip] = a[ip][ip];
     z[ip] = 0.0;
     }
 
   // begin rotation sequence
-  for (i=0; i<VTK_MAX_ROTATIONS; i++) 
+  for (i=0; i<VTK_MAX_ROTATIONS; i++)
     {
     sm = 0.0;
-    for (ip=0; ip<n-1; ip++) 
+    for (ip=0; ip<n-1; ip++)
       {
       for (iq=ip+1; iq<n; iq++)
         {
@@ -683,9 +691,9 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
       tresh = 0.0;
       }
 
-    for (ip=0; ip<n-1; ip++) 
+    for (ip=0; ip<n-1; ip++)
       {
-      for (iq=ip+1; iq<n; iq++) 
+      for (iq=ip+1; iq<n; iq++)
         {
         g = 100.0*fabs(a[ip][iq]);
 
@@ -695,14 +703,14 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
           {
           a[ip][iq] = 0.0;
           }
-        else if (fabs(a[ip][iq]) > tresh) 
+        else if (fabs(a[ip][iq]) > tresh)
           {
           h = w[iq] - w[ip];
           if ( (fabs(h)+g) == fabs(h))
             {
             t = (a[ip][iq]) / h;
             }
-          else 
+          else
             {
             theta = 0.5*h / (a[ip][iq]);
             t = 1.0 / (fabs(theta)+sqrt(1.0+theta*theta));
@@ -722,21 +730,21 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
           a[ip][iq]=0.0;
 
           // ip already shifted left by 1 unit
-          for (j = 0;j <= ip-1;j++) 
+          for (j = 0;j <= ip-1;j++)
             {
             VTK_ROTATE(a,j,ip,j,iq);
             }
           // ip and iq already shifted left by 1 unit
-          for (j = ip+1;j <= iq-1;j++) 
+          for (j = ip+1;j <= iq-1;j++)
             {
             VTK_ROTATE(a,ip,j,j,iq);
             }
           // iq already shifted left by 1 unit
-          for (j=iq+1; j<n; j++) 
+          for (j=iq+1; j<n; j++)
             {
             VTK_ROTATE(a,ip,j,iq,j);
             }
-          for (j=0; j<n; j++) 
+          for (j=0; j<n; j++)
             {
             VTK_ROTATE(v,j,ip,j,iq);
             }
@@ -744,7 +752,7 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
         }
       }
 
-    for (ip=0; ip<n; ip++) 
+    for (ip=0; ip<n; ip++)
       {
       b[ip] += z[ip];
       w[ip] = b[ip];
@@ -760,7 +768,7 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
     return 0;
     }
 
-  // sort eigenfunctions                 these changes do not affect accuracy 
+  // sort eigenfunctions                 these changes do not affect accuracy
   for (j=0; j<n-1; j++)                  // boundary incorrect
     {
     k = j;
@@ -773,11 +781,11 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
         tmp = w[k];
         }
       }
-    if (k != j) 
+    if (k != j)
       {
       w[k] = w[j];
       w[j] = tmp;
-      for (i=0; i<n; i++) 
+      for (i=0; i<n; i++)
         {
         tmp = v[i][j];
         v[i][j] = v[i][k];
@@ -895,8 +903,8 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
 
 //----------------------------------------------------------------------------
 // Solves for the least squares best fit matrix for the homogeneous equation X'M' = 0'.
-// Uses the method described on pages 40-41 of Computer Vision by 
-// Forsyth and Ponce, which is that the solution is the eigenvector 
+// Uses the method described on pages 40-41 of Computer Vision by
+// Forsyth and Ponce, which is that the solution is the eigenvector
 // associated with the minimum eigenvalue of T(X)X, where T(X) is the
 // transpose of X.
 // The inputs and output are transposed matrices.
@@ -961,7 +969,7 @@ int vtkMath::SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int 
   vtkMath::JacobiN(XXt, xOrder, eigenvals, eigenvecs);
 
   // Smallest eigenval is at the end of the list (xOrder-1), and solution is
-  // corresponding eigenvec. 
+  // corresponding eigenvec.
   for (i=0; i<xOrder; i++)
     {
     mt[i][0] = eigenvecs[i][xOrder-1];
@@ -976,14 +984,14 @@ int vtkMath::SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int 
   delete [] XXt;
   delete [] eigenvecs;
   delete [] eigenvals;
-  
+
   return 1;
   }
 #define VTK_SMALL_NUMBER 1.0e-12
 
 //----------------------------------------------------------------------------
 // Solves for the least squares best fit matrix for the equation X'M' = Y'.
-// Uses pseudoinverse to get the ordinary least squares. 
+// Uses pseudoinverse to get the ordinary least squares.
 // The inputs and output are transposed matrices.
 //    Dimensions: X' is numberOfSamples by xOrder,
 //                Y' is numberOfSamples by yOrder,
@@ -1049,7 +1057,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 
 
     // Ok, we've got more than one system of equations.
-    // Figure out if we need to calculate the homogeneous equation solution for 
+    // Figure out if we need to calculate the homogeneous equation solution for
     // any of them.
     if (allHomogeneous)
       {
@@ -1076,13 +1084,13 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
       {
       // Only allocate 1 here, not yOrder, because here we're going to solve
       // just the one homogeneous equation subset of the entire problem
-      hmt[j] = new double [1]; 
+      hmt[j] = new double [1];
       }
 
     // Ok, solve the homogeneous problem
     homogRC = vtkMath::SolveHomogeneousLeastSquares(numberOfSamples, xt, xOrder, hmt);
     }
-  
+
 
   // set up intermediate variables
   double **XXt = new double *[xOrder];     // size x by x
@@ -1124,7 +1132,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
         }
       }
     }
-  
+
   // now fill in the lower half of the XXt matrix
   for (i = 0; i < xOrder; i++)
     {
@@ -1133,13 +1141,13 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
       XXt[i][j] = XXt[j][i];
       }
     }
-  
+
   // next get the inverse of XXt
   if (!(vtkMath::InvertMatrix(XXt, XXtI, xOrder)))
     {
     return 0;
     }
-  
+
   // next get m
   for (i = 0; i < xOrder; i++)
     {
@@ -1190,7 +1198,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
   delete [] XXtI;
   delete [] XYt;
   delete [] homogenFlags;
-  
+
   if (someHomogeneous)
     {
     return homogRC;
@@ -1226,7 +1234,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size,
     {
     return 0;
     }
-  
+
   for ( j=0; j < size; j++ )
     {
     for ( i=0; i < size; i++ )
@@ -1250,9 +1258,9 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size,
 
 
 // Factor linear equations Ax = b using LU decompostion A = LU where L is
-// lower triangular matrix and U is upper triangular matrix. Input is 
+// lower triangular matrix and U is upper triangular matrix. Input is
 // square matrix A, integer array of pivot indices index[0->n-1], and size
-// of square matrix n. Output factorization LU is in matrix A. If error is 
+// of square matrix n. Output factorization LU is in matrix A. If error is
 // found, method returns 0.
 //------------------------------------------------------------------
 // For thread safe, temporary memory array tmpSize of length size
@@ -1267,9 +1275,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
   //
   // Loop over rows to get implicit scaling information
   //
-  for ( i = 0; i < size; i++ ) 
+  for ( i = 0; i < size; i++ )
     {
-    for ( largest = 0.0, j = 0; j < size; j++ ) 
+    for ( largest = 0.0, j = 0; j < size; j++ )
       {
       if ( (temp2 = fabs(A[i][j])) > largest )
         {
@@ -1287,9 +1295,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
   //
   // Loop over all columns using Crout's method
   //
-  for ( j = 0; j < size; j++ ) 
+  for ( j = 0; j < size; j++ )
     {
-    for (i = 0; i < j; i++) 
+    for (i = 0; i < j; i++)
       {
       sum = A[i][j];
       for ( k = 0; k < i; k++ )
@@ -1301,7 +1309,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
     //
     // Begin search for largest pivot element
     //
-    for ( largest = 0.0, i = j; i < size; i++ ) 
+    for ( largest = 0.0, i = j; i < size; i++ )
       {
       sum = A[i][j];
       for ( k = 0; k < j; k++ )
@@ -1310,7 +1318,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
         }
       A[i][j] = sum;
 
-      if ( (temp1 = tmpSize[i]*fabs(sum)) >= largest ) 
+      if ( (temp1 = tmpSize[i]*fabs(sum)) >= largest )
         {
         largest = temp1;
         maxI = i;
@@ -1319,9 +1327,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
     //
     // Check for row interchange
     //
-    if ( j != maxI ) 
+    if ( j != maxI )
       {
-      for ( k = 0; k < size; k++ ) 
+      for ( k = 0; k < size; k++ )
         {
         temp1 = A[maxI][k];
         A[maxI][k] = A[j][k];
@@ -1340,7 +1348,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
       return 0;
       }
 
-    if ( j != (size-1) ) 
+    if ( j != (size-1) )
       {
       temp1 = 1.0 / A[j][j];
       for ( i = j + 1; i < size; i++ )
@@ -1385,7 +1393,7 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
 
   // Loop over rows to get implicit scaling information
 
-  for ( i = 0; i < 3; i++ ) 
+  for ( i = 0; i < 3; i++ )
     {
     largest =  fabs(A[i][0]);
     if ((tmp = fabs(A[i][1])) > largest)
@@ -1398,22 +1406,22 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
       }
     scale[i] = T(1.0)/largest;
     }
-  
+
   // Loop over all columns using Crout's method
 
   // first column
   largest = scale[0]*fabs(A[0][0]);
   maxI = 0;
-  if ((tmp = scale[1]*fabs(A[1][0])) >= largest) 
+  if ((tmp = scale[1]*fabs(A[1][0])) >= largest)
     {
     largest = tmp;
     maxI = 1;
     }
-  if ((tmp = scale[2]*fabs(A[2][0])) >= largest) 
+  if ((tmp = scale[2]*fabs(A[2][0])) >= largest)
     {
     maxI = 2;
     }
-  if (maxI != 0) 
+  if (maxI != 0)
     {
     vtkSwapVectors3(A[maxI],A[0]);
     scale[maxI] = scale[0];
@@ -1422,13 +1430,13 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
 
   A[1][0] /= A[0][0];
   A[2][0] /= A[0][0];
-    
+
   // second column
   A[1][1] -= A[1][0]*A[0][1];
   A[2][1] -= A[2][0]*A[0][1];
   largest = scale[1]*fabs(A[1][1]);
   maxI = 1;
-  if ((tmp = scale[2]*fabs(A[2][1])) >= largest) 
+  if ((tmp = scale[2]*fabs(A[2][1])) >= largest)
     {
     maxI = 2;
     vtkSwapVectors3(A[2],A[1]);
@@ -1464,7 +1472,7 @@ inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
   T2 sum;
 
   // forward substitution
-  
+
   sum = x[index[0]];
   x[index[0]] = x[0];
   x[0] = sum;
@@ -1478,21 +1486,21 @@ inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
   x[2] = sum - A[2][0]*x[0] - A[2][1]*x[1];
 
   // back substitution
-  
+
   x[2] = x[2]/A[2][2];
   x[1] = (x[1] - A[1][2]*x[2])/A[1][1];
   x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])/A[0][0];
-}  
+}
 
 //----------------------------------------------------------------------------
-void vtkMath::LUSolve3x3(const float A[3][3], 
+void vtkMath::LUSolve3x3(const float A[3][3],
                          const int index[3], float x[3])
 {
   vtkLUSolve3x3(A,index,x);
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::LUSolve3x3(const double A[3][3], 
+void vtkMath::LUSolve3x3(const double A[3][3],
                          const int index[3], double x[3])
 {
   vtkLUSolve3x3(A,index,x);
@@ -1535,14 +1543,14 @@ inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::LinearSolve3x3(const float A[3][3], 
+void vtkMath::LinearSolve3x3(const float A[3][3],
                              const float x[3], float y[3])
 {
   vtkLinearSolve3x3(A,x,y);
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::LinearSolve3x3(const double A[3][3], 
+void vtkMath::LinearSolve3x3(const double A[3][3],
                              const double x[3], double y[3])
 {
   vtkLinearSolve3x3(A,x,y);
@@ -1596,14 +1604,14 @@ inline void vtkMultiplyMatrix3x3(const T A[3][3], const T2 B[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::Multiply3x3(const float A[3][3], 
+void vtkMath::Multiply3x3(const float A[3][3],
                           const float B[3][3], float C[3][3])
 {
   vtkMultiplyMatrix3x3(A,B,C);
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::Multiply3x3(const double A[3][3], 
+void vtkMath::Multiply3x3(const double A[3][3],
                           const double B[3][3], double C[3][3])
 {
   vtkMultiplyMatrix3x3(A,B,C);
@@ -1611,20 +1619,20 @@ void vtkMath::Multiply3x3(const double A[3][3],
 
 //----------------------------------------------------------------------------
 void vtkMath::MultiplyMatrix(const double **A, const double **B,
-                             unsigned int rowA, unsigned int colA, 
+                             unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C)
 {
-  // we need colA == rowB 
+  // we need colA == rowB
   if (colA != rowB)
     {
     vtkGenericWarningMacro(
       "Number of columns of A must match number of rows of B.");
     }
-  
+
   // output matrix is rowA*colB
 
-  // output row 
+  // output row
   for (unsigned int i=0; i < rowA; i++)
     {
     // output col
@@ -1675,7 +1683,7 @@ void vtkMath::Transpose3x3(const double A[3][3], double AT[3][3])
 //----------------------------------------------------------------------------
 template<class T1, class T2>
 inline void vtkInvert3x3(const T1 A[3][3], T2 AI[3][3])
-{ 
+{
   double a1 = A[0][0]; double b1 = A[0][1]; double c1 = A[0][2];
   double a2 = A[1][0]; double b2 = A[1][1]; double c2 = A[1][2];
   double a3 = A[2][0]; double b3 = A[2][1]; double c3 = A[2][2];
@@ -1818,7 +1826,7 @@ inline void vtkMatrix3x3ToQuaternion(const T1 A[3][3], T2 quat[4])
   N[2][3] = N[3][2] = A[2][1]+A[1][2];
 
   T2 eigenvectors[4][4],eigenvalues[4];
-  
+
   // convert into format that JacobiN can use,
   // then use Jacobi to find eigenvalues and eigenvectors
   T2 *NTemp[4],*eigenvectorsTemp[4];
@@ -1828,14 +1836,14 @@ inline void vtkMatrix3x3ToQuaternion(const T1 A[3][3], T2 quat[4])
     eigenvectorsTemp[i] = eigenvectors[i];
     }
   vtkMath::JacobiN(NTemp,4,eigenvalues,eigenvectorsTemp);
-  
+
   // the first eigenvector is the one we want
   quat[0] = eigenvectors[0][0];
   quat[1] = eigenvectors[1][0];
   quat[2] = eigenvectors[2][0];
   quat[3] = eigenvectors[3][0];
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkMath::Matrix3x3ToQuaternion(const float A[3][3], float quat[4])
 {
@@ -1847,10 +1855,10 @@ void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
 {
   vtkMatrix3x3ToQuaternion(A,quat);
 }
-  
+
 //----------------------------------------------------------------------------
 //  The orthogonalization is done via quaternions in order to avoid
-//  having to use a singular value decomposition algorithm.  
+//  having to use a singular value decomposition algorithm.
 template <class T1, class T2>
 inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
 {
@@ -1890,16 +1898,16 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   T2 x3 = fabs(B[2][0])*scale[2];
   index[0] = 0;
   largest = x1;
-  if (x2 >= largest) 
+  if (x2 >= largest)
     {
     largest = x2;
     index[0] = 1;
     }
-  if (x3 >= largest) 
+  if (x3 >= largest)
     {
     index[0] = 2;
     }
-  if (index[0] != 0) 
+  if (index[0] != 0)
     {
     vtkSwapVectors3(B[index[0]],B[0]);
     scale[index[0]] = scale[0];
@@ -1910,7 +1918,7 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   T2 y3 = fabs(B[2][1])*scale[2];
   index[1] = 1;
   largest = y2;
-  if (y3 >= largest) 
+  if (y3 >= largest)
     {
     index[1] = 2;
     vtkSwapVectors3(B[2],B[1]);
@@ -2096,7 +2104,7 @@ bool vtkMath::ProjectVector2D(const double a[2], const double b[2], double proje
 
 //----------------------------------------------------------------------------
 // Extract the eigenvalues and eigenvectors from a 3x3 matrix.
-// The eigenvectors (the columns of V) will be normalized. 
+// The eigenvectors (the columns of V) will be normalized.
 // The eigenvectors are aligned optimally with the x, y, and z
 // axes respectively.
 template <class T1, class T2>
@@ -2119,7 +2127,7 @@ inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
 
   // diagonalize using Jacobi
   vtkMath::JacobiN(ATemp,3,w,VTemp);
-  
+
   // if all the eigenvalues are the same, return identity matrix
   if (w[0] == w[1] && w[0] == w[2])
     {
@@ -2162,13 +2170,13 @@ inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
         V[maxI][1] = -V[maxI][1];
         V[maxI][2] = -V[maxI][2];
         }
-      
+
       // re-orthogonalize the other two eigenvectors
       j = (maxI+1)%3;
       k = (maxI+2)%3;
 
-      V[j][0] = 0.0; 
-      V[j][1] = 0.0; 
+      V[j][0] = 0.0;
+      V[j][1] = 0.0;
       V[j][2] = 0.0;
       V[j][j] = 1.0;
       vtkMath::Cross(V[maxI],V[j],V[k]);
@@ -2264,7 +2272,7 @@ void vtkMath::Diagonalize3x3(const double A[3][3],double w[3],double V[3][3])
 //
 // Contributed by David Gobbi (dgobbi@irus.rri.on.ca)
 template <class T1, class T2>
-inline void vtkSingularValueDecomposition3x3(const T1 A[3][3], 
+inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
                                                     T2 U[3][3], T2 w[3],
                                                     T2 VT[3][3])
 {
@@ -2348,7 +2356,7 @@ inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::SingularValueDecomposition3x3(const float A[3][3], 
+void vtkMath::SingularValueDecomposition3x3(const float A[3][3],
                                             float U[3][3], float w[3],
                                             float VT[3][3])
 {
@@ -2356,7 +2364,7 @@ void vtkMath::SingularValueDecomposition3x3(const float A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::SingularValueDecomposition3x3(const double A[3][3], 
+void vtkMath::SingularValueDecomposition3x3(const double A[3][3],
                                             double U[3][3], double w[3],
                                             double VT[3][3])
 {
@@ -2364,7 +2372,7 @@ void vtkMath::SingularValueDecomposition3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::RGBToHSV(float r, float g, float b, 
+void vtkMath::RGBToHSV(float r, float g, float b,
                        float *h, float *s, float *v)
 {
   double dh,ds,dv;
@@ -2389,7 +2397,7 @@ double* vtkMath::RGBToHSV(double r, double g, double b)
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::RGBToHSV(double r, double g, double b, 
+void vtkMath::RGBToHSV(double r, double g, double b,
                        double *h, double *s, double *v)
 {
   double onethird = 1.0 / 3.0;
@@ -2397,7 +2405,7 @@ void vtkMath::RGBToHSV(double r, double g, double b,
   double twothird = 2.0 / 3.0;
 
   double cmax, cmin;
-  
+
   cmax = r;
   cmin = r;
   if (g > cmax)
@@ -2422,7 +2430,7 @@ void vtkMath::RGBToHSV(double r, double g, double b,
     {
     *s = (cmax - cmin) / cmax;
     }
-  else 
+  else
     {
     *s = 0.0;
     }
@@ -2452,7 +2460,7 @@ void vtkMath::RGBToHSV(double r, double g, double b,
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::HSVToRGB(float h, float s, float v, 
+void vtkMath::HSVToRGB(float h, float s, float v,
                        float *r, float *g, float *b)
 {
   double dr,dg,db;
@@ -2477,7 +2485,7 @@ double* vtkMath::HSVToRGB(double h, double s, double v)
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::HSVToRGB(double h, double s, double v, 
+void vtkMath::HSVToRGB(double h, double s, double v,
                        double *r, double *g, double *b)
 {
   const double onethird = 1.0 / 3.0;
@@ -2522,12 +2530,12 @@ void vtkMath::HSVToRGB(double h, double s, double v,
     *g = h / onesixth;
     *b = 0.0;
     }
-  
+
   // add Saturation to the equation.
   *r = (s * *r + (1.0 - s));
   *g = (s * *g + (1.0 - s));
   *b = (s * *b + (1.0 - s));
-  
+
   *r *= v;
   *g *= v;
   *b *= v;
@@ -2541,10 +2549,10 @@ void vtkMath::LabToXYZ(double L, double a, double b,
   double var_Y = ( L + 16 ) / 116;
   double var_X = a / 500 + var_Y;
   double var_Z = var_Y - b / 200;
-    
+
   if ( pow(var_Y,3) > 0.008856 ) var_Y = pow(var_Y,3);
   else var_Y = ( var_Y - 16.0 / 116.0 ) / 7.787;
-                                                            
+
   if ( pow(var_X,3) > 0.008856 ) var_X = pow(var_X,3);
   else var_X = ( var_X - 16.0 / 116.0 ) / 7.787;
 
@@ -2604,7 +2612,7 @@ void vtkMath::XYZToRGB(double x, double y, double z,
   //double ref_X = 0.9505;        //Observer = 2 deg Illuminant = D65
   //double ref_Y = 1.000;
   //double ref_Z = 1.089;
- 
+
   *r = x *  3.2406 + y * -1.5372 + z * -0.4986;
   *g = x * -0.9689 + y *  1.8758 + z *  0.0415;
   *b = x *  0.0557 + y * -0.2040 + z *  1.0570;
@@ -2623,7 +2631,7 @@ void vtkMath::XYZToRGB(double x, double y, double z,
   else  *g = 12.92 * (*g);
   if (*b > 0.0031308) *b = 1.055 * (pow(*b, ( 1 / 2.4 ))) - 0.055;
   else *b = 12.92 * (*b);
-  
+
   // Clip colors. ideally we would do something that is perceptually closest
   // (since we can see colors outside of the display gamut), but this seems to
   // work well enough.
@@ -2714,8 +2722,8 @@ double *vtkMath::LabToRGB(const double lab[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::ClampValues(double *values, 
-                          int nb_values, 
+void vtkMath::ClampValues(double *values,
+                          int nb_values,
                           const double range[2])
 {
   if (!values || nb_values <= 0 || !range)
@@ -2739,8 +2747,8 @@ void vtkMath::ClampValues(double *values,
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::ClampValues(const double *values, 
-                          int nb_values, 
+void vtkMath::ClampValues(const double *values,
+                          int nb_values,
                           const double range[2],
                           double *clamped_values)
 {
@@ -2781,13 +2789,13 @@ int vtkMath::GetScalarTypeFittingRange(
     double Max;
   };
 
-  TypeRange FloatTypes[] = 
+  TypeRange FloatTypes[] =
     {
       { VTK_FLOAT,          VTK_FLOAT_MIN,          VTK_FLOAT_MAX },
       { VTK_DOUBLE,         VTK_DOUBLE_MIN,         VTK_DOUBLE_MAX }
     };
 
-  TypeRange IntTypes[] = 
+  TypeRange IntTypes[] =
     {
       { VTK_BIT,            VTK_BIT_MIN,            VTK_BIT_MAX },
       { VTK_CHAR,           VTK_CHAR_MIN,           VTK_CHAR_MAX },
@@ -2859,7 +2867,7 @@ int vtkMath::GetAdjustedScalarRange(
     {
     return 0;
     }
-  
+
   array->GetRange(range, comp);
 
   switch (array->GetDataType())
@@ -2898,7 +2906,7 @@ int vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
     {
     return 0;
     }
-  
+
   int i;
   for (i = 0; i < 6; i += 2)
     {
@@ -2922,7 +2930,7 @@ int vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], dou
     }
   for(int i=0;i<6;i+=2)
     {
-    
+
     if(bounds1[i]+delta[i/2] < bounds2[i] || bounds1[i]-delta[i/2] > bounds2[i+1] ||
        bounds1[i+1]+delta[i/2] < bounds2[i] || bounds1[i+1]-delta[i/2] > bounds2[i+1])
       return 0;
@@ -2945,7 +2953,7 @@ int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta
       }
     }
   return 1;
-  
+
 }
 
 //----------------------------------------------------------------------------
@@ -2975,42 +2983,7 @@ double vtkMath::GaussianWeight(const double mean, const double variance, const d
 }
 
 //----------------------------------------------------------------------------
-// vtkSpiralkVertices - calculate points at a regular interval along a parametric
-// spiral.
-void vtkMath::SpiralPoints(vtkIdType num, vtkPoints * offsets)
-{
-  int maxIter = 10;
-  double pi = vtkMath::Pi();
-  double a = 1/(4*pi*pi);
-  offsets->Initialize();
-  offsets->SetNumberOfPoints(num);
-  
-  for (vtkIdType i = 0; i < num; i++)
-    {
-    double d = 2.0*i/sqrt(3.0);
-    // We are looking for points at regular intervals along the parametric spiral
-    // x = t*cos(2*pi*t)
-    // y = t*sin(2*pi*t)
-    // We cannot solve this equation exactly, so we use newton's method.
-    // Using an Excel trendline, we find that 
-    // t = 0.553*d^0.502
-    // is an excellent starting point./g 
-    double t = 0.553*pow(d, 0.502);
-    for (int iter = 0; iter < maxIter; iter++)
-      {
-      double r = sqrt(t*t+a*a);
-      double f = pi*(t*r+a*a*log(t+r)) - d;
-      double df = 2*pi*r;
-      t = t - f/df;
-      }
-    double x = t*cos(2*pi*t);
-    double y = t*sin(2*pi*t);
-    offsets->SetPoint(i, x, y, 0);
-    }
-}
-
-//----------------------------------------------------------------------------
-double vtkMath::Solve3PointCircle(const double p1[3], const double p2[3], 
+double vtkMath::Solve3PointCircle(const double p1[3], const double p2[3],
                                const double p3[3], double center[3])
 {
   double v21[3], v32[3], v13[3];
@@ -3033,7 +3006,7 @@ double vtkMath::Solve3PointCircle(const double p1[3], const double p2[3],
   vtkMath::Cross(v21, v32, crossv21v32);
   double normCross = vtkMath::Norm(crossv21v32);
 
-  double radius = (norm12 * norm23 * norm13) / (2. * normCross);  
+  double radius = (norm12 * norm23 * norm13) / (2. * normCross);
 
   double alpha = ((norm23 * norm23) * vtkMath::Dot(v21, v31)) /
     (2. * normCross * normCross);
@@ -3041,7 +3014,7 @@ double vtkMath::Solve3PointCircle(const double p1[3], const double p2[3],
     (2. * normCross * normCross);
   double gamma = ((norm12 * norm12) * vtkMath::Dot(v13, v23)) /
     (2. * normCross * normCross);
-  
+
   for (int i = 0; i < 3; ++i)
     {
     center[i] = alpha * p1[i] + beta * p2[i] + gamma * p3[i];
@@ -3053,7 +3026,7 @@ double vtkMath::Solve3PointCircle(const double p1[3], const double p2[3],
 void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Seed: " << vtkMath::Internal.Uniform->GetSeed() << "\n";
 }
 

@@ -18,17 +18,23 @@ transform Translate +100.8 +100.8 +69.0
 transform RotateWXYZ 10 1 1 0
 transform Translate -100.8 -100.8 -69.0
 
+vtkImageSincInterpolator lanczos
+lanczos SetWindowFunctionToLanczos
+
+vtkImageSincInterpolator kaiser
+kaiser SetWindowFunctionToKaiser
+
 vtkImageReslice reslice1
 reslice1 SetInputConnection [reader GetOutputPort]
 reslice1 SetResliceTransform transform
-reslice1 SetInterpolationModeToLanczos
+reslice1 SetInterpolator lanczos
 reslice1 SetOutputSpacing 2.0 2.0 1.5
 reslice1 SetOutputOrigin -32 -32 40
 reslice1 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice2
 reslice2 SetInputConnection [reader GetOutputPort]
-reslice2 SetInterpolationModeToLanczos
+reslice2 SetInterpolator lanczos
 reslice2 SetOutputSpacing 2.0 2.0 1.5
 reslice2 SetOutputOrigin -32 -32 40
 reslice2 SetOutputExtent 0 127 0 127 0 0
@@ -36,14 +42,14 @@ reslice2 SetOutputExtent 0 127 0 127 0 0
 vtkImageReslice reslice3
 reslice3 SetInputConnection [reader GetOutputPort]
 reslice3 SetResliceTransform transform
-reslice3 SetInterpolationModeToKaiser
+reslice3 SetInterpolator kaiser
 reslice3 SetOutputSpacing 2.0 2.0 1.5
 reslice3 SetOutputOrigin -32 -32 40
 reslice3 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice4
 reslice4 SetInputConnection [reader GetOutputPort]
-reslice4 SetInterpolationModeToKaiser
+reslice4 SetInterpolator kaiser
 reslice4 SetOutputSpacing 2.0 2.0 1.5
 reslice4 SetOutputOrigin -32 -32 40
 reslice4 SetOutputExtent 0 127 0 127 0 0

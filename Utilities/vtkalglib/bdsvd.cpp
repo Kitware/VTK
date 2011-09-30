@@ -254,7 +254,6 @@ bool bidiagonalsvddecompositioninternal(ap::real_1d_array& d,
     double smax;
     double smin;
     double sminl;
-    double sminlo;
     double sminoa;
     double sn;
     double thresh;
@@ -272,7 +271,6 @@ bool bidiagonalsvddecompositioninternal(ap::real_1d_array& d,
     ap::real_1d_array vttemp;
     ap::real_1d_array ctemp;
     ap::real_1d_array etemp;
-    bool rightside;
     bool fwddir;
     double tmp;
     int mm1;
@@ -314,7 +312,6 @@ bool bidiagonalsvddecompositioninternal(ap::real_1d_array& d,
     vttemp.setbounds(vstart, vend);
     ctemp.setbounds(cstart, cend);
     maxitr = 12;
-    rightside = true;
     fwddir = true;
     
     //
@@ -631,7 +628,6 @@ bool bidiagonalsvddecompositioninternal(ap::real_1d_array& d,
                         iterflag = true;
                         break;
                     }
-                    sminlo = sminl;
                     mu = fabs(d(lll+1))*(mu/(mu+fabs(e(lll))));
                     sminl = ap::minreal(sminl, mu);
                 }
@@ -671,7 +667,6 @@ bool bidiagonalsvddecompositioninternal(ap::real_1d_array& d,
                         iterflag = true;
                         break;
                     }
-                    sminlo = sminl;
                     mu = fabs(d(lll))*(mu/(mu+fabs(e(lll))));
                     sminl = ap::minreal(sminl, mu);
                 }

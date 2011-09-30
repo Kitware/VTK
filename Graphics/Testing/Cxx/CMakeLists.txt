@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDelaunay2D.cxx
     TestExtraction.cxx
     TestExtractSelection.cxx
+    TestExtractSurfaceNonLinearSubdivision.cxx
     TestHyperOctreeContourFilter.cxx
     TestHyperOctreeCutter.cxx
     TestHyperOctreeDual.cxx
@@ -29,6 +30,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeToUniformGrid.cxx
     TestLineSource.cxx
     TestMapVectorsAsRGBColors.cxx
+    TestMapVectorsToColors.cxx
     TestNamedComponents.cxx
     TestMeanValueCoordinatesInterpolation1.cxx
     TestMeanValueCoordinatesInterpolation2.cxx

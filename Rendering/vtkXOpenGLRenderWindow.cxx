@@ -442,18 +442,16 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
 {
   // close-down all system-specific drawing resources
   this->Finalize();
-  
-  vtkRenderer* ren;
-  this->Renderers->InitTraversal();
-  for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-        ren != NULL;
-        ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
     {
     ren->SetRenderWindow(NULL);
     }
 
   delete this->Internal;
-
 }
 
 // End the rendering process and display the image.
@@ -1010,12 +1008,26 @@ void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
     return;
     }
 
+  // Generally, we simply destroy and recreate the offscreen window/contexts.
+  // However, that's totally unnecessary for OSMesa. So we avoid that.
+#ifdef VTK_OPENGL_HAS_OSMESA
+  if (this->Internal->OffScreenContextId && this->Internal->OffScreenWindow)
+    {
+    vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
+    this->Internal->OffScreenWindow = NULL;
+
+    // allocate new one.
+    this->Internal->OffScreenWindow = vtkOSMesaCreateWindow(width,height);
+    this->Size[0] = width;
+    this->Size[1] = height;      
+    this->OwnWindow = 1;
+    return;
+    }
+#endif
+
   if(this->Internal->PixmapContextId ||
      this->Internal->PbufferContextId || 
      this->OffScreenUseFrameBuffer 
-#ifdef VTK_OPENGL_HAS_OSMESA
-     || this->Internal->OffScreenContextId
-#endif
     )
     {
     this->DestroyOffScreenWindow();

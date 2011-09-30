@@ -26,7 +26,7 @@ int main(int argc, char **argv)
   for(i=0; i<4; i++)
     {
     myMatrix[i] = (float)i;
-    } 
+    }
   tObj.AddUserField("MyMatrix", MET_FLOAT_MATRIX,2,myMatrix);
 
   tObj.PrintInfo();
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
   tObj.Clear();
   tObj.ClearUserFields();
-  
+
   tObj.AddUserField("MyName", MET_STRING);
   tObj.AddUserField("MyArray", MET_INT_ARRAY,3);
   tObj.AddUserField("MyMatrix", MET_FLOAT_MATRIX,2);
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     {
       METAIO_STREAM::cout << "MyMatrix: FAIL" << METAIO_STREAM::endl;
     }
-  } 
+  }
 
   METAIO_STREAM::cout << "PASSED!" << METAIO_STREAM::endl;
 

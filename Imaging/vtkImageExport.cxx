@@ -75,7 +75,7 @@ vtkImageData *vtkImageExport::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageExport::GetDataMemorySize()
+vtkIdType vtkImageExport::GetDataMemorySize()
 {
   vtkImageData* input = this->GetInput();
   if (input == NULL)
@@ -163,10 +163,10 @@ void vtkImageExport::Export(void *output)
     int csize = this->GetInput()->GetScalarSize()* \
                 this->GetInput()->GetNumberOfScalarComponents();
 
-    for (int i = 0; i < zsize; i++)
+    for (vtkIdType i = 0; i < zsize; i++)
       {
       ptr = static_cast<void *>(static_cast<char *>(ptr) + ysize*xsize*csize);
-      for (int j = 0; j < ysize; j++)
+      for (vtkIdType j = 0; j < ysize; j++)
         {
         ptr = static_cast<void *>(static_cast<char *>(ptr) - xsize*csize);
         memcpy(output, ptr, xsize*csize);

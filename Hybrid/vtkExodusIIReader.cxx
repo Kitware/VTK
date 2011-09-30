@@ -362,6 +362,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->DiskWordSize = 8;
 
   this->Cache = vtkExodusIICache::New();
+  this->CacheSize = 0;
 
   this->TimeStep = 0;
   this->HasModeShapes = 0;
@@ -381,12 +382,6 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
 
   this->SqueezePoints = 1;
 
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
-
-  this->EdgeDecorationMesh = 0;
-  this->FaceDecorationMesh = 0;
-  
   this->Parser = 0;
 
   this->FastPathObjectType = vtkExodusIIReader::NODAL;
@@ -405,6 +400,7 @@ vtkExodusIIReaderPrivate::~vtkExodusIIReaderPrivate()
 {
   this->CloseFile();
   this->Cache->Delete();
+  this->CacheSize = 0;
   this->ClearConnectivityCaches();
   this->SetFastPathIdType( 0 );
   if(this->Parser)
@@ -640,7 +636,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointArrays(
     vtkDataArray* src = this->GetCacheOrRead( key );
     if ( !src )
       {
-      vtkWarningMacro( "Unable to read point array " << ai->Name.c_str() << " at time step " << timeStep );
+      vtkDebugMacro( "Unable to read point array " << ai->Name.c_str() << " at time step " << timeStep );
       status = 0;
       continue;
       }
@@ -881,7 +877,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     vtkDataArray* temporalData = this->GetCacheOrRead( tdKey );
     if ( ! temporalData )
       {
-      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
+      vtkDebugMacro( "Unable to read array " << ai->Name.c_str() );
       status = 0;
       continue;
       }
@@ -940,7 +936,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep,
         vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_MAP, 0, midx ) ) );
     if ( !src )
       {
-      vtkWarningMacro(
+      vtkDebugMacro(
         "Unable to read point map array \""
         << mi->Name.c_str() << "\" (" << midx << ")" );
       status = 0;
@@ -1052,7 +1048,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
           vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
         break;
       default:
-        vtkWarningMacro( "Unsupported object type for fast path." );
+        vtkDebugMacro( "Unsupported object type for fast path." );
         return 0;
       }
 
@@ -1073,7 +1069,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
   // This will happen if the data does not reside in this file
   if (internalExodusId < 0)
     {
-    //vtkWarningMacro( "Unable to map id to internal exodus id." );
+    //vtkDebugMacro( "Unable to map id to internal exodus id." );
     return 0;
     }
 
@@ -1103,7 +1099,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
     vtkDataArray* temporalData = this->GetCacheOrRead( temporalDataKey );
     if ( !temporalData )
       {
-      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
+      vtkDebugMacro( "Unable to read array " << ai->Name.c_str() );
       status = 0;
       continue;
       }
@@ -1111,28 +1107,6 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
     }
 
   return status;
-}
-
-//-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputEdgeDecorations()
-{
-  if ( this->EdgeFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-
-}
-
-//-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputFaceDecorations()
-{
-  if ( this->FaceFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-  
 }
 
 //-----------------------------------------------------------------------------
@@ -2771,14 +2745,15 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetSortedObj
   int i = this->GetObjectTypeIndexFromObjectType( otyp );
   if ( i < 0 )
     {
-    vtkWarningMacro( "Could not find collection of objects with type " << otyp << "." );
+    vtkDebugMacro( "Could not find collection of objects with type " << otyp << "." );
     return 0;
     }
   int N = this->GetNumberOfObjectsAtTypeIndex( i );
   if ( k < 0 || k >= N )
     {
     const char* otname = i >= 0 ? objtype_names[i] : "object";
-    vtkWarningMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
+    static_cast<void>(otname); // not referenced warning
+    vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
     return 0;
     }
   return this->GetObjectInfo( i, this->SortedObjectIndices[otyp][k] );
@@ -2790,14 +2765,15 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetUnsortedO
   int i = this->GetObjectTypeIndexFromObjectType( otyp );
   if ( i < 0 )
     {
-    vtkWarningMacro( "Could not find collection of objects with type " << otyp << "." );
+    vtkDebugMacro( "Could not find collection of objects with type " << otyp << "." );
     return 0;
     }
   int N = this->GetNumberOfObjectsAtTypeIndex( i );
   if ( k < 0 || k >= N )
     {
     const char* otname = i >= 0 ? objtype_names[i] : "object";
-    vtkWarningMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
+    static_cast<void>(otname); // not referenced warning
+    vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
     return 0;
     }
   return this->GetObjectInfo( i, k );
@@ -4664,10 +4640,6 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
   // option is available:
   this->ProducedFastPathOutput = (this->AssembleArraysOverTime(output) != 0);
 
-  // Finally, generate the decorations for edge and face fields.
-  this->AssembleOutputEdgeDecorations();
-  this->AssembleOutputFaceDecorations();
-
   this->CloseFile();
 
   return 0;
@@ -4848,9 +4820,6 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 
   this->SqueezePoints = 1;
 
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
-
   this->InitialArrayInfo.clear();
   this->InitialObjectInfo.clear();
 
@@ -4862,8 +4831,18 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 void vtkExodusIIReaderPrivate::ResetCache()
 {
   this->Cache->Clear();
-  this->Cache->SetCacheCapacity( 0.0 ); // FIXME: Perhaps Cache should have a Reset and a Clear method?  
+  this->Cache->SetCacheCapacity(this->CacheSize); // FIXME: Perhaps Cache should have a Reset and a Clear method?  
   this->ClearConnectivityCaches();
+}
+
+void vtkExodusIIReaderPrivate::SetCacheSize( double size )
+{
+  if (this->CacheSize != size)
+    {
+    this->CacheSize = size;
+    this->Cache->SetCacheCapacity(this->CacheSize);
+    this->Modified();
+    }
 }
 
 bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
@@ -5060,12 +5039,12 @@ const char* vtkExodusIIReaderPrivate::GetObjectArrayName( int otyp, int i )
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return 0;
       }
     return it->second[i].Name.c_str();
     }
-  vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
@@ -5078,12 +5057,12 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectArrayComponents( int otyp, int i 
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return 0;
       }
     return it->second[i].Components;
     }
-  vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
@@ -5096,12 +5075,12 @@ int vtkExodusIIReaderPrivate::GetObjectArrayStatus( int otyp, int i )
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return 0;
       }
     return it->second[i].Status;
     }
-  vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
@@ -5128,7 +5107,7 @@ void vtkExodusIIReaderPrivate::SetObjectArrayStatus( int otyp, int i, int stat )
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return;
       }
     if ( it->second[i].Status == stat )
@@ -5151,7 +5130,7 @@ void vtkExodusIIReaderPrivate::SetObjectArrayStatus( int otyp, int i, int stat )
     }
   else
     {
-    vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+    vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
       " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
     }
 }
@@ -5174,7 +5153,8 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
       {
       int otypIdx = this->GetObjectTypeIndexFromObjectType(otyp);
       const char* btname = otypIdx >= 0 ? objtype_names[otypIdx] : "block";
-      vtkWarningMacro( "You requested " << btname << " " << oi << " in a collection of only " << N << " blocks." );
+      static_cast<void>(btname); // not referenced warning
+      vtkDebugMacro( "You requested " << btname << " " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
@@ -5191,14 +5171,14 @@ const char* vtkExodusIIReaderPrivate::GetObjectAttributeName( int otyp, int oi, 
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     N = (int) it->second[oi].AttributeNames.size();
     if ( ai < 0 || ai >= N )
       {
-      vtkWarningMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
+      vtkDebugMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
       return 0;
       }
     else
@@ -5206,7 +5186,7 @@ const char* vtkExodusIIReaderPrivate::GetObjectAttributeName( int otyp, int oi, 
       return it->second[oi].AttributeNames[ai].c_str();
       }
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
@@ -5219,7 +5199,7 @@ int vtkExodusIIReaderPrivate::GetObjectAttributeIndex( int otyp, int oi, const c
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return -1;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
@@ -5234,7 +5214,7 @@ int vtkExodusIIReaderPrivate::GetObjectAttributeIndex( int otyp, int oi, const c
       }
     return -1;
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return -1;
 }
@@ -5247,14 +5227,14 @@ int vtkExodusIIReaderPrivate::GetObjectAttributeStatus( int otyp, int oi, int ai
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     N = (int) it->second[oi].AttributeStatus.size();
     if ( ai < 0 || ai >= N )
       {
-      vtkWarningMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
+      vtkDebugMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
       return 0;
       }
     else
@@ -5262,7 +5242,7 @@ int vtkExodusIIReaderPrivate::GetObjectAttributeStatus( int otyp, int oi, int ai
       return it->second[oi].AttributeStatus[ai];
       }
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
@@ -5276,14 +5256,14 @@ void vtkExodusIIReaderPrivate::SetObjectAttributeStatus( int otyp, int oi, int a
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     N = (int) it->second[oi].AttributeStatus.size();
     if ( ai < 0 || ai >= N )
       {
-      vtkWarningMacro( "You requested attribute " << ai << " in a collection of only " << N << " attribute." );
+      vtkDebugMacro( "You requested attribute " << ai << " in a collection of only " << N << " attribute." );
       return;
       }
     else
@@ -5296,7 +5276,7 @@ void vtkExodusIIReaderPrivate::SetObjectAttributeStatus( int otyp, int oi, int a
       this->Modified();
       }
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
 }
 
@@ -5359,6 +5339,7 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->XMLFileName = 0;
   this->Metadata = vtkExodusIIReaderPrivate::New();
   this->Metadata->Parent = this;
+  this->Metadata->SetCacheSize(0.0);
   this->TimeStep = 0;
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
@@ -5590,8 +5571,6 @@ int vtkExodusIIReader::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Check if a particular time was requested.
-  int timeStep = this->TimeStep;
-
   if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
     { // Get the requested time step. We only support requests of a single time step in this reader right now
     double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
@@ -5667,8 +5646,8 @@ int vtkExodusIIReader::RequestData(
     haveFastPath = true;
     }
 
-  //cout << "Requesting step " << timeStep << " for output " << output << "\n";
-  this->Metadata->RequestData( timeStep, output );
+  //cout << "Requesting step " << this->TimeStep << " for output " << output << "\n";
+  this->Metadata->RequestData( this->TimeStep, output );
   this->ProducedFastPathOutput = this->Metadata->ProducedFastPathOutput;
 
   // Restore previous fastpath values so we don't respond to old pipeline requests
@@ -5775,26 +5754,6 @@ void vtkExodusIIReader::SetAnimateModeShapes(int flag)
 int vtkExodusIIReader::GetAnimateModeShapes()
 {
   return this->Metadata->GetAnimateModeShapes();
-}
-
-void vtkExodusIIReader::SetEdgeFieldDecorations( int d )
-{
-  this->Metadata->SetEdgeFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetEdgeFieldDecorations()
-{
-  return this->Metadata->GetEdgeFieldDecorations();
-}
-
-void vtkExodusIIReader::SetFaceFieldDecorations( int d )
-{
-  this->Metadata->SetFaceFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetFaceFieldDecorations()
-{
-  return this->Metadata->GetFaceFieldDecorations();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }
@@ -5954,7 +5913,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
   int nObj = this->GetNumberOfObjects( objectType );
   if ( nObj == 0 )
     {
-    vtkWarningMacro( "No objects of that type (" << objectType << ") to find index for given name " << objectName << "." );
+    vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given name " << objectName << "." );
     return -1;
     }
   for ( int obj = 0; obj < nObj; ++obj )
@@ -5964,7 +5923,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
       return obj;
       }
     }
-  vtkWarningMacro( "No objects named \"" << objectName << "\" of the specified type (" << objectType <<  ")." );
+  vtkDebugMacro( "No objects named \"" << objectName << "\" of the specified type (" << objectType <<  ")." );
   return -1;
 }
 
@@ -5973,7 +5932,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, int id )
   int nObj = this->GetNumberOfObjects( objectType );
   if ( nObj == 0 )
     {
-    vtkWarningMacro( "No objects of that type (" << objectType << ") to find index for given id " << id << "." );
+    vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given id " << id << "." );
     return -1;
     }
   for ( int obj = 0; obj < nObj; ++obj )
@@ -5983,7 +5942,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, int id )
       return obj;
       }
     }
-  vtkWarningMacro( "No objects with id \"" << id << "\" of the specified type (" << objectType <<  ")." );
+  vtkDebugMacro( "No objects with id \"" << id << "\" of the specified type (" << objectType <<  ")." );
   return -1;
 }
 
@@ -6063,7 +6022,7 @@ int vtkExodusIIReader::GetObjectArrayIndex( int objectType, const char* arrayNam
   int nObj = this->GetNumberOfObjectArrays( objectType );
   if ( nObj == 0 )
     {
-    vtkWarningMacro( "No objects of that type (" << objectType << ") to find index for given array " << arrayName << "." );
+    vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given array " << arrayName << "." );
     return -1;
     }
   for ( int obj = 0; obj < nObj; ++obj )
@@ -6073,7 +6032,7 @@ int vtkExodusIIReader::GetObjectArrayIndex( int objectType, const char* arrayNam
       return obj;
       }
     }
-  vtkWarningMacro( "No arrays named \"" << arrayName << "\" of the specified type (" << objectType <<  ")." );
+  vtkDebugMacro( "No arrays named \"" << arrayName << "\" of the specified type (" << objectType <<  ")." );
   return -1;
 }
 
@@ -6645,6 +6604,16 @@ void vtkExodusIIReader::Reset()
 void vtkExodusIIReader::ResetSettings()
 {
   this->Metadata->ResetSettings();
+}
+
+void vtkExodusIIReader::SetCacheSize(double CacheSize)
+{
+  this->Metadata->SetCacheSize(CacheSize);
+}
+
+double vtkExodusIIReader::GetCacheSize()
+{
+  return this->Metadata->GetCacheSize();
 }
 
 void vtkExodusIIReader::ResetCache()

@@ -55,6 +55,7 @@ int TestCubeAxes3( int argc, char * argv [] )
 
   vtkNew<vtkLODActor> foheActor;
   foheActor->SetMapper(foheMapper.GetPointer());
+  foheActor->GetProperty()->SetDiffuseColor(0.7, 0.3, 0.0);
 
   vtkNew<vtkOutlineFilter> outline;
   outline->SetInputConnection(normals->GetOutputPort());
@@ -67,10 +68,9 @@ int TestCubeAxes3( int argc, char * argv [] )
   outlineActor->GetProperty()->SetColor(0.0 ,0.0 ,0.0);
 
   vtkNew<vtkCamera> camera;
-  camera->SetClippingRange(1.60187, 20.0842);
-  camera->SetFocalPoint(0.21406, 1.5, 0.0);
-  camera->SetPosition(11.63, 6.32, 5.77);
-  camera->SetViewUp(0.180325, 0.549245, -0.815974);
+  camera->SetClippingRange(1.0, 100.0);
+  camera->SetFocalPoint(0.9, 1.0, 0.0);
+  camera->SetPosition(11.63, 6.0, 10.77);
 
   vtkNew<vtkLight> light;
   light->SetFocalPoint(0.21406, 1.5, 0.0);
@@ -103,11 +103,9 @@ int TestCubeAxes3( int argc, char * argv [] )
   axes2->SetXLabelFormat("%6.1f");
   axes2->SetYLabelFormat("%6.1f");
   axes2->SetZLabelFormat("%6.1f");
+  axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
-
-  axes2->DrawXGridlinesOn();
-  axes2->DrawYGridlinesOn();
-  axes2->DrawZGridlinesOn();
+  axes2->SetCornerOffset(0.0);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();

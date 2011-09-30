@@ -28,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkAppendCompositeDataLeaves);
@@ -160,6 +161,15 @@ int vtkAppendCompositeDataLeaves::RequestData(
     if ( pd )
       {
       this->AppendPolyData( i - 1, numInputs, iter, output );
+      continue;
+      }
+    vtkTable *table = vtkTable::SafeDownCast(obj);
+    if(table)
+      {
+      vtkTable *newTable = vtkTable::New();
+      newTable->ShallowCopy(table);
+      output->SetDataSet(iter, newTable);
+      newTable->Delete();
       continue;
       }
     if ( first )

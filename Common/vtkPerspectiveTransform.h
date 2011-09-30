@@ -17,23 +17,23 @@
 // .SECTION Description
 // A vtkPerspectiveTransform can be used to describe the full range of
 // homogeneous transformations.  It was designed in particular
-// to describe a camera-view of a scene.  
-// <P>The order in which you set up the display coordinates (via 
-// AdjustZBuffer() and AdjustViewport()), the projection (via Perspective(), 
+// to describe a camera-view of a scene.
+// <P>The order in which you set up the display coordinates (via
+// AdjustZBuffer() and AdjustViewport()), the projection (via Perspective(),
 // Frustum(), or Ortho()) and the camera view (via SetupCamera()) are
-// important.  If the transform is in PreMultiply mode, which is the 
+// important.  If the transform is in PreMultiply mode, which is the
 // default, set the Viewport and ZBuffer first, then the projection, and
 // finally the camera view.  Once the view is set up, the Translate
 // and Rotate methods can be used to move the camera around in world
-// coordinates.  If the Oblique() or Stereo() methods are used, they 
+// coordinates.  If the Oblique() or Stereo() methods are used, they
 // should be called just before SetupCamera().
 // <P>In PostMultiply mode, you must perform all transformations
 // in the opposite order.  This is necessary, for example, if you
 // already have a perspective transformation set up but must adjust
 // the viewport.  Another example is if you have a view transformation,
-// and wish to perform translations and rotations in the camera's 
+// and wish to perform translations and rotations in the camera's
 // coordinate system rather than in world coordinates.
-// <P>The SetInput and Concatenate methods can be used to create 
+// <P>The SetInput and Concatenate methods can be used to create
 // a transformation pipeline with vtkPerspectiveTransform.  See vtkTransform
 // for more information on the transformation pipeline.
 // .SECTION See Also
@@ -54,7 +54,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set this transformation to the identity transformation.  If 
+  // Set this transformation to the identity transformation.  If
   // the transform has an Input, then the transformation will be
   // reset so that it is the same as the Input.
   void Identity() { this->Concatenation->Identity(); this->Modified(); };
@@ -72,9 +72,9 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // or Perspective.  In PostMultiply mode you can call it after.  Note
   // that if you must apply both AdjustZBuffer and AdjustViewport, it
   // makes no difference which order you apply them in.
-  void AdjustViewport(double oldXMin, double oldXMax, 
+  void AdjustViewport(double oldXMin, double oldXMax,
                       double oldYMin, double oldYMax,
-                      double newXMin, double newXMax, 
+                      double newXMin, double newXMax,
                       double newYMin, double newYMax);
 
   // Description:
@@ -88,23 +88,23 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 
   // Description:
   // Create an orthogonal projection matrix and concatenate it by the
-  // current transformation.  The matrix maps [xmin,xmax], [ymin,ymax], 
-  // [-znear,-zfar] to [-1,+1], [-1,+1], [+1,-1]. 
-  void Ortho(double xmin, double xmax, double ymin, double ymax, 
+  // current transformation.  The matrix maps [xmin,xmax], [ymin,ymax],
+  // [-znear,-zfar] to [-1,+1], [-1,+1], [+1,-1].
+  void Ortho(double xmin, double xmax, double ymin, double ymax,
              double znear, double zfar);
 
   // Description:
   // Create an perspective projection matrix and concatenate it by the
   // current transformation.  The matrix maps a frustum with a back
-  // plane at -zfar and a front plane at -znear with extent 
+  // plane at -zfar and a front plane at -znear with extent
   // [xmin,xmax],[ymin,ymax] to [-1,+1], [-1,+1], [+1,-1].
-  void Frustum(double xmin, double xmax, double ymin, double ymax, 
+  void Frustum(double xmin, double xmax, double ymin, double ymax,
                double znear, double zfar);
 
   // Description:
   // Create a perspective projection matrix by specifying the view angle
-  // (this angle is in the y direction), the aspect ratio, and the near 
-  // and far clipping range.  The projection matrix is concatenated 
+  // (this angle is in the y direction), the aspect ratio, and the near
+  // and far clipping range.  The projection matrix is concatenated
   // with the current transformation.  This method works via Frustum.
   void Perspective(double angle, double aspect, double znear, double zfar);
 
@@ -115,7 +115,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // the distance from the camera to the plane at which the shear
   // causes zero displacement.  Generally you want this plane to be the
   // focal plane.
-  // This transformation can be used in combination with Ortho to create 
+  // This transformation can be used in combination with Ortho to create
   // an oblique projection.  It can also be used in combination with
   // Perspective to provide correct stereo views when the eye is at
   // arbitrary but known positions relative to the center of a flat
@@ -124,7 +124,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 
   // Description:
   // Create a stereo shear matrix and concatenate it with the
-  // current transformation.  This can be applied in conjunction with either a 
+  // current transformation.  This can be applied in conjunction with either a
   // perspective transformation (via Frustum or Projection) or an
   // orthographic projection.  You must specify the distance from
   // the camera plane to the focal plane, and the angle between
@@ -156,7 +156,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // Create a rotation matrix and concatenate it with the current
   // transformation according to PreMultiply or PostMultiply semantics.
   // The angle is in degrees, and (x,y,z) specifies the axis that the
-  // rotation will be performed around. 
+  // rotation will be performed around.
   void RotateWXYZ(double angle, double x, double y, double z) {
     this->Concatenation->Rotate(angle,x,y,z); };
   void RotateWXYZ(double angle, const double axis[3]) {
@@ -184,15 +184,15 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // Description:
   // Set the current matrix directly.  This actually calls Identity(),
   // followed by Concatenate(matrix).
-  void SetMatrix(vtkMatrix4x4 *matrix) { 
+  void SetMatrix(vtkMatrix4x4 *matrix) {
     this->SetMatrix(*matrix->Element); };
-  void SetMatrix(const double elements[16]) { 
+  void SetMatrix(const double elements[16]) {
     this->Identity(); this->Concatenate(elements); };
 
   // Description:
   // Concatenates the matrix with the current transformation according
   // to PreMultiply or PostMultiply semantics.
-  void Concatenate(vtkMatrix4x4 *matrix) { 
+  void Concatenate(vtkMatrix4x4 *matrix) {
     this->Concatenate(*matrix->Element); };
   void Concatenate(const double elements[16]) {
     this->Concatenation->Concatenate(elements); };
@@ -211,7 +211,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // current transformation.  In homogeneous matrix notation, M = M*A where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
-  void PreMultiply() { 
+  void PreMultiply() {
     if (this->Concatenation->GetPreMultiplyFlag()) { return; }
     this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); };
 
@@ -221,7 +221,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // current transformation.  In homogeneous matrix notation, M = A*M where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
-  void PostMultiply()  { 
+  void PostMultiply()  {
     if (!this->Concatenation->GetPreMultiplyFlag()) { return; }
     this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); };
 
@@ -229,12 +229,12 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // Get the total number of transformations that are linked into this
   // one via Concatenate() operations or via SetInput().
   int GetNumberOfConcatenatedTransforms() {
-    return this->Concatenation->GetNumberOfTransforms() + 
+    return this->Concatenation->GetNumberOfTransforms() +
       (this->Input == NULL ? 0 : 1); };
 
   // Description
   // Get one of the concatenated transformations as a vtkAbstractTransform.
-  // These transformations are applied, in series, every time the 
+  // These transformations are applied, in series, every time the
   // transformation of a coordinate occurs.  This method is provided
   // to make it possible to decompose a transformation into its
   // constituents, for example to save a transformation to a file.
@@ -285,13 +285,13 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 
   // Description:
   // Pushes the current transformation onto the transformation stack.
-  void Push() { if (this->Stack == NULL) { 
+  void Push() { if (this->Stack == NULL) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
-                this->Stack->Push(&this->Concatenation); 
+                this->Stack->Push(&this->Concatenation);
                 this->Modified(); };
 
   // Description:
-  // Deletes the transformation on the top of the stack and sets the top 
+  // Deletes the transformation on the top of the stack and sets the top
   // to the next transformation on the stack.
   void Pop() { if (this->Stack == NULL) { return; }
                this->Stack->Pop(&this->Concatenation);

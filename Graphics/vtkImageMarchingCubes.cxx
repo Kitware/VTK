@@ -21,7 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationVector.h"
-#include "vtkMarchingCubesCases.h"
+#include "vtkMarchingCubesTriangleCases.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"

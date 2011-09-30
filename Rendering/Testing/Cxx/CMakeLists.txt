@@ -36,6 +36,7 @@ IF(VTK_USE_DISPLAY)
     TestImageResliceMapperInterpolation.cxx
     TestImageResliceMapperOffAxis.cxx
     TestImageResliceMapperOrient3D.cxx
+    TestImageResliceMapperSlab.cxx
     TestImageSliceMapperAlpha.cxx
     TestImageSliceMapperBorder.cxx
     TestImageSliceMapperOrient2D.cxx
@@ -51,6 +52,7 @@ IF(VTK_USE_DISPLAY)
     TestLightActor.cxx
     TestLODActor.cxx
     TestManyActors.cxx
+#    TestOffAxisStereo.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestOpenGLPolyDataMapper.cxx
@@ -58,6 +60,7 @@ IF(VTK_USE_DISPLAY)
     TestPOVExporter.cxx
     TestResetCameraVerticalAspectRatio.cxx
     TestResetCameraVerticalAspectRatioParallel.cxx
+    TestSetImageOrientation.cxx
     TestSobelGradientMagnitudePass.cxx
     TestShadowMapPass.cxx
     TestTextActorAlphaBlending.cxx
@@ -65,8 +68,10 @@ IF(VTK_USE_DISPLAY)
     TestTextActor3DAlphaBlending.cxx
     TestTextActor3DDepthPeeling.cxx
     TestTexturedBackground.cxx
+    TestTextureSize.cxx
     TestTDx.cxx
     TestTilingCxx.cxx
+    TestTransformCoordinateUseDouble.cxx
     TestTranslucentLUTAlphaBlending.cxx
     TestTranslucentLUTDepthPeeling.cxx
     TestTranslucentLUTDepthPeelingPass.cxx

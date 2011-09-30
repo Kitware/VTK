@@ -73,6 +73,7 @@ All rights reserved.
 //
 // ****************************************************************************
 
+class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
 class vtkFollower;
@@ -254,7 +255,6 @@ public:
   void SetLabelScale(const double);
   void SetTitleScale(const double);
 
-
   // Description:
   // Set/Get the starting position for minor and major tick points,
   // and the delta values that determine their spacing.
@@ -286,6 +286,40 @@ public:
 //ETX
 
   void BuildAxis(vtkViewport *viewport, bool);
+
+//BTX
+  // Description:
+  // Get title actor and it is responsible for drawing
+  // title text.
+  vtkGetObjectMacro(TitleActor,  vtkAxisFollower);
+
+  // Description:
+  // Get label actors responsigle for drawing label text.
+  inline vtkAxisFollower** GetLabelActors()
+    {
+    return this->LabelActors;
+    }
+//ETX
+
+  // Description:
+  // Get total numbe of labels built. Once built
+  // this count does not change.
+  vtkGetMacro(NumberOfLabelsBuilt, int);
+
+  // Description
+  // Set/Get flag whether to calculate title offset.
+  // Default is true.
+  vtkSetMacro(CalculateTitleOffset, int);
+  vtkGetMacro(CalculateTitleOffset, int);
+  vtkBooleanMacro(CalculateTitleOffset, int);
+
+  // Description
+  // Set/Get flag whether to calculate label offset.
+  // Default is true.
+  vtkSetMacro(CalculateLabelOffset, int);
+  vtkGetMacro(CalculateLabelOffset, int);
+  vtkBooleanMacro(CalculateLabelOffset, int);
+
 
 protected:
   vtkAxisActor();
@@ -356,7 +390,7 @@ private:
   int    LastAxisPosition;
   int    LastAxisType;
   int    LastTickLocation;
-  double  LastLabelStart;
+  double LastLabelStart;
 
   vtkPoints         *MinorTickPts;
   vtkPoints         *MajorTickPts;
@@ -364,11 +398,11 @@ private:
 
   vtkVectorText     *TitleVector;
   vtkPolyDataMapper *TitleMapper;
-  vtkFollower       *TitleActor;
+  vtkAxisFollower   *TitleActor;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
-  vtkFollower       **LabelActors;
+  vtkAxisFollower   **LabelActors;
 
   vtkPolyData        *Axis;
   vtkPolyDataMapper  *AxisMapper;
@@ -381,6 +415,9 @@ private:
   vtkTimeStamp        TitleTextTime;
 
   int                 AxisHasZeroLength;
+
+  int                 CalculateTitleOffset;
+  int                 CalculateLabelOffset;
 };
 
 

@@ -222,7 +222,7 @@ vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
   // Map the ID to a text property
   vtkSmartPointer<vtkTextProperty> tprop =
       vtkSmartPointer<vtkTextProperty>::New();
-  self->MapIdToTextProperty(reinterpret_cast<unsigned long>(face_id), tprop);
+  self->MapIdToTextProperty(reinterpret_cast<intptr_t>(face_id), tprop);
 
   // Fonts, organized by [Family][Bold][Italic]
   static EmbeddedFontStruct EmbeddedFonts[3][2][2] =

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
   U.S. Government. Redistribution and use in source and binary forms, with
@@ -24,9 +24,9 @@
 =========================================================================*/
 // .NAME vtkMath - performs common math operations
 // .SECTION Description
-// vtkMath provides methods to perform common math operations. These 
-// include providing constants such as Pi; conversion from degrees to 
-// radians; vector operations such as dot and cross products and vector 
+// vtkMath provides methods to perform common math operations. These
+// include providing constants such as Pi; conversion from degrees to
+// radians; vector operations such as dot and cross products and vector
 // norm; matrix determinant for 2x2 and 3x3 matrices; univariate polynomial
 // solvers; and for random number generation (for backward compatibility only).
 // .SECTION See Also
@@ -36,9 +36,17 @@
 #define __vtkMath_h
 
 #include "vtkObject.h"
-#include "vtkPolynomialSolversUnivariate.h" // For backwards compatibility of old solvers
+#ifndef VTK_LEGACY_REMOVE
+# include "vtkPolynomialSolversUnivariate.h" // For backwards compatibility of old solvers
+#endif
 
 #include <assert.h> // assert() in inline implementations.
+
+#ifndef DBL_MIN
+#  define VTK_DBL_MIN    2.2250738585072014e-308
+#else  // DBL_MIN
+#  define VTK_DBL_MIN    DBL_MIN
+#endif  // DBL_MIN
 
 #ifndef DBL_EPSILON
 #  define VTK_DBL_EPSILON    2.2204460492503131e-16
@@ -64,7 +72,7 @@ public:
   static float Pi() { return 3.14159265358979f; };
 
   // Description:
-  // A mathematical constant (double-precision version). This version 
+  // A mathematical constant (double-precision version). This version
   // is 6.283185307179586.
   static double DoubleTwoPi() { return  6.283185307179586; };
 
@@ -84,16 +92,6 @@ public:
   static double DegreesFromRadians( double radians);
 
   // Description:
-  // @deprecated Replaced by vtkMath::RadiansFromDegrees() as of VTK 5.4.
-  VTK_LEGACY(static float DegreesToRadians());
-  VTK_LEGACY(static double DoubleDegreesToRadians());
-
-  // Description:
-  // @deprecated Replaced by vtkMath::DegreesFromRadians() as of VTK 5.4.
-  VTK_LEGACY(static float RadiansToDegrees());
-  VTK_LEGACY(static double DoubleRadiansToDegrees());
-
-  // Description:
   // Rounds a float to the nearest integer.
   static int Round(float f) {
     return static_cast<int>( f + ( f >= 0 ? 0.5 : -0.5 ) ); }
@@ -111,7 +109,7 @@ public:
   // This is faster than ceil() but provides undefined output on
   // overflow.
   static int Ceil(double x);
-  
+
   // Description:
   // Compute N factorial, N! = N*(N-1) * (N-2)...*3*2*1.
   // 0! is taken to be 1.
@@ -126,7 +124,7 @@ public:
   // Description:
   // Start iterating over "m choose n" objects.
   // This function returns an array of n integers, each from 0 to m-1.
-  // These integers represent the n items chosen from the set [0,m[. 
+  // These integers represent the n items chosen from the set [0,m[.
   //
   // You are responsible for calling vtkMath::FreeCombination() once the iterator is no longer needed.
   //
@@ -150,10 +148,10 @@ public:
   static void FreeCombination( int* combination);
 
   // Description:
-  // Initialize seed value. NOTE: Random() has the bad property that 
-  // the first random number returned after RandomSeed() is called 
-  // is proportional to the seed value! To help solve this, call 
-  // RandomSeed() a few times inside seed. This doesn't ruin the 
+  // Initialize seed value. NOTE: Random() has the bad property that
+  // the first random number returned after RandomSeed() is called
+  // is proportional to the seed value! To help solve this, call
+  // RandomSeed() a few times inside seed. This doesn't ruin the
   // repeatability of Random().
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
@@ -163,7 +161,7 @@ public:
   // create a vtkMinimalStandardRandomSequence object.
   // For a sequence of random numbers with a gaussian/normal distribution
   // create a vtkBoxMuellerRandomSequence object.
-  static void RandomSeed(int s);  
+  static void RandomSeed(int s);
 
   // Description:
   // Return the current seed used by the random number generator.
@@ -176,9 +174,9 @@ public:
   // For a sequence of random numbers with a gaussian/normal distribution
   // create a vtkBoxMuellerRandomSequence object.
   static int GetSeed();
-  
+
   // Description:
-  // Generate pseudo-random numbers distributed according to the uniform 
+  // Generate pseudo-random numbers distributed according to the uniform
   // distribution between 0.0 and 1.0.
   // This is used to provide portability across different systems.
   //
@@ -189,10 +187,10 @@ public:
   // create a vtkMinimalStandardRandomSequence object.
   // For a sequence of random numbers with a gaussian/normal distribution
   // create a vtkBoxMuellerRandomSequence object.
-  static double Random();  
+  static double Random();
 
   // Description:
-  // Generate  pseudo-random numbers distributed according to the uniform 
+  // Generate  pseudo-random numbers distributed according to the uniform
   // distribution between \a min and \a max.
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
@@ -215,7 +213,7 @@ public:
   // create a vtkMinimalStandardRandomSequence object.
   // For a sequence of random numbers with a gaussian/normal distribution
   // create a vtkBoxMuellerRandomSequence object.
-  static double Gaussian();  
+  static double Gaussian();
 
   // Description:
   // Generate  pseudo-random numbers distributed according to the Gaussian
@@ -299,7 +297,7 @@ public:
   // Dot product of two 3-vectors (double-precision version).
   static double Dot(const double x[3], const double y[3]) {
     return ( x[0] * y[0] + x[1] * y[1] + x[2] * y[2] );};
-  
+
   // Description:
   // Outer product of two 3-vectors (float version).
   static void Outer(const float x[3], const float y[3], float A[3][3]) {
@@ -326,19 +324,19 @@ public:
 
   // Description:
   // Compute the norm of n-vector. x is the vector, n is its length.
-  static float Norm(const float* x, int n); 
-  static double Norm(const double* x, int n); 
+  static float Norm(const float* x, int n);
+  static double Norm(const double* x, int n);
 
   // Description:
   // Compute the norm of 3-vector.
   static float Norm(const float x[3]) {
     return static_cast<float> (sqrt( x[0] * x[0] + x[1] * x[1] + x[2] * x[2] ) );};
-  
+
   // Description:
   // Compute the norm of 3-vector (double-precision version).
   static double Norm(const double x[3]) {
     return sqrt( x[0] * x[0] + x[1] * x[1] + x[2] * x[2] );};
-  
+
   // Description:
   // Normalize (in place) a 3-vector. Returns norm of vector.
   static float Normalize(float x[3]);
@@ -349,12 +347,12 @@ public:
   static double Normalize(double x[3]);
 
   // Description:
-  // Given a unit vector x, find two unit vectors y and z such that 
+  // Given a unit vector x, find two unit vectors y and z such that
   // x cross y = z (i.e. the vectors are perpendicular to each other).
-  // There is an infinite number of such vectors, specify an angle theta 
-  // to choose one set.  If you want only one perpendicular vector, 
+  // There is an infinite number of such vectors, specify an angle theta
+  // to choose one set.  If you want only one perpendicular vector,
   // specify NULL for z.
-  static void Perpendiculars(const double x[3], double y[3], double z[3], 
+  static void Perpendiculars(const double x[3], double y[3], double z[3],
                              double theta);
   static void Perpendiculars(const float x[3], float y[3], float z[3],
                              double theta);
@@ -408,7 +406,7 @@ public:
   // Dot product of two 2-vectors.
   static float Dot2D(const float x[2], const float y[2]) {
     return ( x[0] * y[0] + x[1] * y[1] );};
-  
+
   // Description:
   // Dot product of two 2-vectors. (double-precision version).
   static double Dot2D(const double x[2], const double y[2]) {
@@ -416,7 +414,7 @@ public:
 
   // Description:
   // Outer product of two 2-vectors (float version).
-  static void Outer2D(const float x[2], const float y[2], float A[2][2]) 
+  static void Outer2D(const float x[2], const float y[2], float A[2][2])
     {
     for (int i=0; i < 2; i++)
       {
@@ -428,7 +426,7 @@ public:
     }
   // Description:
   // Outer product of two 2-vectors (float version).
-  static void Outer2D(const double x[2], const double y[2], double A[2][2]) 
+  static void Outer2D(const double x[2], const double y[2], double A[2][2])
     {
     for (int i=0; i < 2; i++)
       {
@@ -478,31 +476,31 @@ public:
 
   // Description:
   // LU back substitution for a 3x3 matrix.
-  static void LUSolve3x3(const float A[3][3], const int index[3], 
+  static void LUSolve3x3(const float A[3][3], const int index[3],
                          float x[3]);
-  static void LUSolve3x3(const double A[3][3], const int index[3], 
+  static void LUSolve3x3(const double A[3][3], const int index[3],
                          double x[3]);
 
   // Description:
   // Solve Ay = x for y and place the result in y.  The matrix A is
   // destroyed in the process.
-  static void LinearSolve3x3(const float A[3][3], const float x[3], 
+  static void LinearSolve3x3(const float A[3][3], const float x[3],
                              float y[3]);
-  static void LinearSolve3x3(const double A[3][3], const double x[3], 
+  static void LinearSolve3x3(const double A[3][3], const double x[3],
                              double y[3]);
 
   // Description:
   // Multiply a vector by a 3x3 matrix.  The result is placed in out.
-  static void Multiply3x3(const float A[3][3], const float in[3], 
+  static void Multiply3x3(const float A[3][3], const float in[3],
                           float out[3]);
-  static void Multiply3x3(const double A[3][3], const double in[3], 
+  static void Multiply3x3(const double A[3][3], const double in[3],
                           double out[3]);
-  
+
   // Description:
   // Multiply one 3x3 matrix by another according to C = AB.
-  static void Multiply3x3(const float A[3][3], const float B[3][3], 
+  static void Multiply3x3(const float A[3][3], const float B[3][3],
                           float C[3][3]);
-  static void Multiply3x3(const double A[3][3], const double B[3][3], 
+  static void Multiply3x3(const double A[3][3], const double B[3][3],
                           double C[3][3]);
 
   // Description:
@@ -510,7 +508,7 @@ public:
   // colA == rowB
   // and matrix C is rowA x colB
   static void MultiplyMatrix(const double **A, const double **B,
-                             unsigned int rowA, unsigned int colA, 
+                             unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C);
 
@@ -538,14 +536,14 @@ public:
 
   // Description:
   // Compute determinant of 3x3 matrix. Three columns of matrix are input.
-  static float Determinant3x3(const float c1[3], 
-                              const float c2[3], 
+  static float Determinant3x3(const float c1[3],
+                              const float c2[3],
                               const float c3[3]);
 
   // Description:
   // Compute determinant of 3x3 matrix. Three columns of matrix are input.
-  static double Determinant3x3(const double c1[3], 
-                               const double c2[3], 
+  static double Determinant3x3(const double c1[3],
+                               const double c2[3],
                                const double c3[3]);
 
   // Description:
@@ -553,15 +551,15 @@ public:
   //     | a1,  b1,  c1 |
   //     | a2,  b2,  c2 |
   //     | a3,  b3,  c3 |
-  static double Determinant3x3(double a1, double a2, double a3, 
-                               double b1, double b2, double b3, 
+  static double Determinant3x3(double a1, double a2, double a3,
+                               double b1, double b2, double b3,
                                double c1, double c2, double c3);
 
   // Description:
   // Convert a quaternion to a 3x3 rotation matrix.  The quaternion
   // does not have to be normalized beforehand.
-  static void QuaternionToMatrix3x3(const float quat[4], float A[3][3]); 
-  static void QuaternionToMatrix3x3(const double quat[4], double A[3][3]); 
+  static void QuaternionToMatrix3x3(const float quat[4], float A[3][3]);
+  static void QuaternionToMatrix3x3(const double quat[4], double A[3][3]);
 
   // Description:
   // Convert a 3x3 matrix into a quaternion.  This will provide the
@@ -569,7 +567,7 @@ public:
   // The method used is that of B.K.P. Horn.
   static void Matrix3x3ToQuaternion(const float A[3][3], float quat[4]);
   static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
-  
+
   // Description:
   // Orthogonalize a 3x3 matrix and put the result in B.  If matrix A
   // has a negative determinant, then B will be a rotation plus a flip
@@ -579,7 +577,7 @@ public:
 
   // Description:
   // Diagonalize a symmetric 3x3 matrix and return the eigenvalues in
-  // w and the eigenvectors in the columns of V.  The matrix V will 
+  // w and the eigenvectors in the columns of V.  The matrix V will
   // have a positive determinant, and the three eigenvectors will be
   // aligned as closely as possible with the x, y, and z axes.
   static void Diagonalize3x3(const float A[3][3], float w[3], float V[3][3]);
@@ -608,7 +606,7 @@ public:
   static int SolveLinearSystem(double **A, double *x, int size);
 
   // Description:
-  // Invert input square matrix A into matrix AI. 
+  // Invert input square matrix A into matrix AI.
   // Note that A is modified during
   // the inversion. The size variable is the dimension of the matrix. Returns 0
   // if inverse not computed.
@@ -623,10 +621,10 @@ public:
 
   // Description:
   // Factor linear equations Ax = b using LU decomposition A = LU where L is
-  // lower triangular matrix and U is upper triangular matrix. Input is 
+  // lower triangular matrix and U is upper triangular matrix. Input is
   // square matrix A, integer array of pivot indices index[0->n-1], and size
-  // of square matrix n. Output factorization LU is in matrix A. If error is 
-  // found, method returns 0. 
+  // of square matrix n. Output factorization LU is in matrix A. If error is
+  // found, method returns 0.
   static int LUFactorLinearSystem(double **A, int *index, int size);
 
   // Description:
@@ -638,12 +636,12 @@ public:
 
   // Description:
   // Solve linear equations Ax = b using LU decomposition A = LU where L is
-  // lower triangular matrix and U is upper triangular matrix. Input is 
+  // lower triangular matrix and U is upper triangular matrix. Input is
   // factored matrix A=LU, integer array of pivot indices index[0->n-1],
   // load vector x[0->n-1], and size of square matrix n. Note that A=LU and
   // index[] are generated from method LUFactorLinearSystem). Also, solution
   // vector is written directly over input load vector.
-  static void LUSolveLinearSystem(double **A, int *index, 
+  static void LUSolveLinearSystem(double **A, int *index,
                                   double *x, int size);
 
   // Description:
@@ -679,7 +677,9 @@ public:
   // roots as one) followed by roots themselves. The value in roots[4] is a
   // integer giving further information about the roots (see return codes for
   // int SolveCubic() ).
-  static double* SolveCubic(double c0, double c1, double c2, double c3);
+  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveCubic() as of
+  // VTK 5.8.
+  VTK_LEGACY(static double* SolveCubic(double c0, double c1, double c2, double c3));
 
   // Description:
   // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and c3
@@ -688,13 +688,17 @@ public:
   // one) followed by roots themselves. Note that roots[3] contains a return
   // code further describing solution - see documentation for SolveCubic()
   // for meaning of return codes.
-  static double* SolveQuadratic(double c0, double c1, double c2);
+  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveQuadratic() as
+  // of VTK 5.8.
+  VTK_LEGACY(static double* SolveQuadratic(double c0, double c1, double c2));
 
   // Description:
   // Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
   // Return array contains number of roots followed by roots themselves.
-  static double* SolveLinear(double c0, double c1);
+  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveLinear() as of
+  // VTK 5.8.
+  VTK_LEGACY(static double* SolveLinear(double c0, double c1));
 
   // Description:
   // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
@@ -708,37 +712,45 @@ public:
   // with complex conjugate solution (real part of root returned in r1,
   // imaginary in r2); (-3)-one real root and a complex conjugate pair
   // (real root in r1 and real part of pair in r2 and imaginary in r3).
-  static int SolveCubic(double c0, double c1, double c2, double c3, 
-                        double *r1, double *r2, double *r3, int *num_roots);
+  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveCubic() as of
+  // VTK 5.8.
+  VTK_LEGACY(static int SolveCubic(double c0, double c1, double c2, double c3,
+                        double *r1, double *r2, double *r3, int *num_roots));
 
   // Description:
-  // Solves a quadratic equation c1*t^2  + c2*t  + c3 = 0 when 
+  // Solves a quadratic equation c1*t^2  + c2*t  + c3 = 0 when
   // c1, c2, and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
   // Roots and number of roots are stored in user provided variables
   // r1, r2, num_roots
-  static int SolveQuadratic(double c0, double c1, double c2, 
-                            double *r1, double *r2, int *num_roots);
-  
+  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveQuadratic() as
+  // of VTK 5.8.
+  VTK_LEGACY(static int SolveQuadratic(double c0, double c1, double c2,
+                            double *r1, double *r2, int *num_roots));
+
   // Description:
-  // Algebraically extracts REAL roots of the quadratic polynomial with 
+  // Algebraically extracts REAL roots of the quadratic polynomial with
   // REAL coefficients c[0] X^2 + c[1] X + c[2]
   // and stores them (when they exist) and their respective multiplicities
   // in the \a r and \a m arrays.
   // Returns either the number of roots, or -1 if ininite number of roots.
-  static int SolveQuadratic( double* c, double* r, int* m );
+  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveQuadratic() as
+  // of VTK 5.8.
+  VTK_LEGACY(static int SolveQuadratic( double* c, double* r, int* m ));
 
   // Description:
   // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
   // Root and number of (real) roots are stored in user provided variables
   // r2 and num_roots.
-  static int SolveLinear(double c0, double c1, double *r1, int *num_roots);
+  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveLinear() as
+  // of VTK 5.8.
+  VTK_LEGACY(static int SolveLinear(double c0, double c1, double *r1, int *num_roots));
 
   // Description:
   // Solves for the least squares best fit matrix for the homogeneous equation X'M' = 0'.
-  // Uses the method described on pages 40-41 of Computer Vision by 
-  // Forsyth and Ponce, which is that the solution is the eigenvector 
+  // Uses the method described on pages 40-41 of Computer Vision by
+  // Forsyth and Ponce, which is that the solution is the eigenvector
   // associated with the minimum eigenvalue of T(X)X, where T(X) is the
   // transpose of X.
   // The inputs and output are transposed matrices.
@@ -753,7 +765,7 @@ public:
 
   // Description:
   // Solves for the least squares best fit matrix for the equation X'M' = Y'.
-  // Uses pseudoinverse to get the ordinary least squares. 
+  // Uses pseudoinverse to get the ordinary least squares.
   // The inputs and output are transposed matrices.
   //    Dimensions: X' is numberOfSamples by xOrder,
   //                Y' is numberOfSamples by yOrder,
@@ -855,7 +867,7 @@ public:
     bounds[4] = 1.0;
     bounds[5] = -1.0;
   }
-  
+
   // Description:
   // Are the bounds initialized?
   static int AreBoundsInitialized(double bounds[6]){
@@ -885,37 +897,37 @@ public:
                                        const double range[2]);
 
   // Description:
-  // Return the scalar type that is most likely to have enough precision 
-  // to store a given range of data once it has been scaled and shifted 
-  // (i.e. [range_min * scale + shift, range_max * scale + shift]. 
+  // Return the scalar type that is most likely to have enough precision
+  // to store a given range of data once it has been scaled and shifted
+  // (i.e. [range_min * scale + shift, range_max * scale + shift].
   // If any one of the parameters is not an integer number (decimal part != 0),
   // the search will default to float types only (float or double)
   // Return -1 on error or no scalar type found.
   static int GetScalarTypeFittingRange(
-    double range_min, double range_max, 
+    double range_min, double range_max,
     double scale = 1.0, double shift = 0.0);
 
   // Description:
-  // Get a vtkDataArray's scalar range for a given component. 
+  // Get a vtkDataArray's scalar range for a given component.
   // If the vtkDataArray's data type is unsigned char (VTK_UNSIGNED_CHAR)
-  // the range is adjusted to the whole data type range [0, 255.0]. 
-  // Same goes for unsigned short (VTK_UNSIGNED_SHORT) but the upper bound 
+  // the range is adjusted to the whole data type range [0, 255.0].
+  // Same goes for unsigned short (VTK_UNSIGNED_SHORT) but the upper bound
   // is also adjusted down to 4095.0 if was between ]255, 4095.0].
   // Return 1 on success, 0 otherwise.
   static int GetAdjustedScalarRange(
     vtkDataArray *array, int comp, double range[2]);
- 
+
   // Description:
   // Return true if first 3D extent is within second 3D extent
   // Extent is x-min, x-max, y-min, y-max, z-min, z-max
   static int ExtentIsWithinOtherExtent(int extent1[6], int extent2[6]);
-  
+
   // Description:
   // Return true if first 3D bounds is within the second 3D bounds
   // Bounds is x-min, x-max, y-min, y-max, z-min, z-max
   // Delta is the error margin along each axis (usually a small number)
   static int BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3]);
-  
+
   // Description:
   // Return true if point is within the given 3D bounds
   // Bounds is x-min, x-max, y-min, y-max, z-min, z-max
@@ -923,18 +935,12 @@ public:
   static int PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
 
   // Description:
-  // Calculate \a num points, at a regular interval, along a parametric 
-  // spiral. Note this spiral is only in two dimensions having a constant
-  // z value.
-  static void SpiralPoints(vtkIdType num, vtkPoints * offsets);
-  
-  // Description:
-  // In Euclidean space, there is a unique circle passing through any given 
-  // three non-collinear points P1, P2, and P3. Using Cartesian coordinates 
-  // to represent these points as spatial vectors, it is possible to use the 
-  // dot product and cross product to calculate the radius and center of the 
+  // In Euclidean space, there is a unique circle passing through any given
+  // three non-collinear points P1, P2, and P3. Using Cartesian coordinates
+  // to represent these points as spatial vectors, it is possible to use the
+  // dot product and cross product to calculate the radius and center of the
   // circle. See: http://en.wikipedia.org/wiki/Circumcircle and more
-  // specifically the section Barycentric coordinates from cross- and 
+  // specifically the section Barycentric coordinates from cross- and
   // dot-products
   static double Solve3PointCircle(const double p1[3], const double p2[3], const double p3[3], double center[3]);
 
@@ -960,23 +966,12 @@ public:
 protected:
   vtkMath() {};
   ~vtkMath() {};
-  
+
   static vtkMathInternal Internal;
 private:
   vtkMath(const vtkMath&);  // Not implemented.
   void operator=(const vtkMath&);  // Not implemented.
 };
-
-//BTX
-class vtkMathInternal
-{
-public:
-  vtkMathInternal();
-  ~vtkMathInternal();
-  vtkMinimalStandardRandomSequence *Uniform;
-  vtkBoxMuellerRandomSequence *Gaussian;
-};
-//ETX
 
 //----------------------------------------------------------------------------
 inline float vtkMath::RadiansFromDegrees( float x )
@@ -1002,45 +997,6 @@ inline double vtkMath::DegreesFromRadians( double x )
   return x * 57.29577951308232;
 }
 
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-inline float vtkMath::DegreesToRadians()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::DegreesToRadians, "VTK 5.4",
-                           vtkMath::RadiansFromDegrees);
-
-  return vtkMath::RadiansFromDegrees( 1.f );
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::DoubleDegreesToRadians()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::DoubleDegreesToRadians, "VTK 5.4",
-                           vtkMath::RadiansFromDegrees);
-
-
-  return vtkMath::RadiansFromDegrees( 1. );
-}
-
-//----------------------------------------------------------------------------
-inline float vtkMath::RadiansToDegrees()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::RadiansToDegrees, "VTK 5.4",
-                           vtkMath::DegreesFromRadians);
-
-  return vtkMath::DegreesFromRadians( 1.f );
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::DoubleRadiansToDegrees()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::DoubleRadiansToDegrees, "VTK 5.4",
-                           vtkMath::DegreesFromRadians);
-
-  return vtkMath::DegreesFromRadians( 1. );
-}
-#endif // #ifndef VTK_LEGACY_REMOVE
-
 //----------------------------------------------------------------------------
 inline vtkTypeInt64 vtkMath::Factorial( int N )
 {
@@ -1053,6 +1009,9 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
 }
 
 //----------------------------------------------------------------------------
+// Modify the trunc() operation provided by static_cast<int>() to get floor(),
+// if x<0 (condition g) and x!=trunc(x) (condition n) then floor(x)=trunc(x)-1
+// Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Floor(double x)
 {
   const int r = static_cast<int>(x);
@@ -1062,6 +1021,9 @@ inline int vtkMath::Floor(double x)
 }
 
 //----------------------------------------------------------------------------
+// Modify the trunc() operation provided by static_cast<int>() to get ceil(),
+// if x>=0 (condition g) and x!=trunc(x) (condition n) then ceil(x)=trunc(x)+1
+// Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Ceil(double x)
 {
   const int r = static_cast<int>(x);
@@ -1073,7 +1035,7 @@ inline int vtkMath::Ceil(double x)
 //----------------------------------------------------------------------------
 inline float vtkMath::Normalize(float x[3])
 {
-  float den; 
+  float den;
   if ( ( den = vtkMath::Norm( x ) ) != 0.0 )
     {
     for (int i=0; i < 3; i++)
@@ -1087,7 +1049,7 @@ inline float vtkMath::Normalize(float x[3])
 //----------------------------------------------------------------------------
 inline double vtkMath::Normalize(double x[3])
 {
-  double den; 
+  double den;
   if ( ( den = vtkMath::Norm( x ) ) != 0.0 )
     {
     for (int i=0; i < 3; i++)
@@ -1101,7 +1063,7 @@ inline double vtkMath::Normalize(double x[3])
 //----------------------------------------------------------------------------
 inline float vtkMath::Normalize2D(float x[3])
 {
-  float den; 
+  float den;
   if ( ( den = vtkMath::Norm2D( x ) ) != 0.0 )
     {
     for (int i=0; i < 2; i++)
@@ -1115,7 +1077,7 @@ inline float vtkMath::Normalize2D(float x[3])
 //----------------------------------------------------------------------------
 inline double vtkMath::Normalize2D(double x[3])
 {
-  double den; 
+  double den;
   if ( ( den = vtkMath::Norm2D( x ) ) != 0.0 )
     {
     for (int i=0; i < 2; i++)
@@ -1127,8 +1089,8 @@ inline double vtkMath::Normalize2D(double x[3])
 }
 
 //----------------------------------------------------------------------------
-inline float vtkMath::Determinant3x3(const float c1[3], 
-                                     const float c2[3], 
+inline float vtkMath::Determinant3x3(const float c1[3],
+                                     const float c2[3],
                                      const float c3[3])
 {
   return c1[0] * c2[1] * c3[2] + c2[0] * c3[1] * c1[2] + c3[0] * c1[1] * c2[2] -
@@ -1136,8 +1098,8 @@ inline float vtkMath::Determinant3x3(const float c1[3],
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Determinant3x3(const double c1[3], 
-                                      const double c2[3], 
+inline double vtkMath::Determinant3x3(const double c1[3],
+                                      const double c2[3],
                                       const double c3[3])
 {
   return c1[0] * c2[1] * c3[2] + c2[0] * c3[1] * c1[2] + c3[0] * c1[1] * c2[2] -
@@ -1145,8 +1107,8 @@ inline double vtkMath::Determinant3x3(const double c1[3],
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Determinant3x3(double a1, double a2, double a3, 
-                                      double b1, double b2, double b3, 
+inline double vtkMath::Determinant3x3(double a1, double a2, double a3,
+                                      double b1, double b2, double b3,
                                       double c1, double c2, double c3)
 {
     return ( a1 * vtkMath::Determinant2x2( b2, b3, c2, c3 )
@@ -1155,20 +1117,20 @@ inline double vtkMath::Determinant3x3(double a1, double a2, double a3,
 }
 
 //----------------------------------------------------------------------------
-inline float vtkMath::Distance2BetweenPoints(const float x[3], 
+inline float vtkMath::Distance2BetweenPoints(const float x[3],
                                              const float y[3])
 {
-  return ( ( x[0] - y[0] ) * ( x[0] - y[0] ) 
-           + ( x[1] - y[1] ) * ( x[1] - y[1] ) 
+  return ( ( x[0] - y[0] ) * ( x[0] - y[0] )
+           + ( x[1] - y[1] ) * ( x[1] - y[1] )
            + ( x[2] - y[2] ) * ( x[2] - y[2] ) );
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Distance2BetweenPoints(const double x[3], 
+inline double vtkMath::Distance2BetweenPoints(const double x[3],
                                               const double y[3])
 {
-  return ( ( x[0] - y[0] ) * ( x[0] - y[0] ) 
-           + ( x[1] - y[1] ) * ( x[1] - y[1] ) 
+  return ( ( x[0] - y[0] ) * ( x[0] - y[0] )
+           + ( x[1] - y[1] ) * ( x[1] - y[1] )
            + ( x[2] - y[2] ) * ( x[2] - y[2] ) );
 }
 
@@ -1176,20 +1138,20 @@ inline double vtkMath::Distance2BetweenPoints(const double x[3],
 // Cross product of two 3-vectors. Result (a x b) is stored in z[3].
 inline void vtkMath::Cross(const float x[3], const float y[3], float z[3])
 {
-  float Zx = x[1] * y[2] - x[2] * y[1]; 
+  float Zx = x[1] * y[2] - x[2] * y[1];
   float Zy = x[2] * y[0] - x[0] * y[2];
   float Zz = x[0] * y[1] - x[1] * y[0];
-  z[0] = Zx; z[1] = Zy; z[2] = Zz; 
+  z[0] = Zx; z[1] = Zy; z[2] = Zz;
 }
 
 //----------------------------------------------------------------------------
 // Cross product of two 3-vectors. Result (a x b) is stored in z[3].
 inline void vtkMath::Cross(const double x[3], const double y[3], double z[3])
 {
-  double Zx = x[1] * y[2] - x[2] * y[1]; 
+  double Zx = x[1] * y[2] - x[2] * y[1];
   double Zy = x[2] * y[0] - x[0] * y[2];
   double Zz = x[0] * y[1] - x[1] * y[0];
-  z[0] = Zx; z[1] = Zy; z[2] = Zz; 
+  z[0] = Zx; z[1] = Zy; z[2] = Zz;
 }
 
 //BTX
@@ -1197,8 +1159,8 @@ inline void vtkMath::Cross(const double x[3], const double y[3], double z[3])
 template<class T>
 inline double vtkDeterminant3x3(T A[3][3])
 {
-  return A[0][0] * A[1][1] * A[2][2] + A[1][0] * A[2][1] * A[0][2] + 
-         A[2][0] * A[0][1] * A[1][2] - A[0][0] * A[2][1] * A[1][2] - 
+  return A[0][0] * A[1][1] * A[2][2] + A[1][0] * A[2][1] * A[0][2] +
+         A[2][0] * A[0][1] * A[1][2] - A[0][0] * A[2][1] * A[1][2] -
          A[1][0] * A[0][1] * A[2][2] - A[2][0] * A[1][1] * A[0][2];
 }
 //ETX
@@ -1215,49 +1177,65 @@ inline double vtkMath::Determinant3x3(double A[3][3])
   return vtkDeterminant3x3( A );
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 inline double* vtkMath::SolveCubic(double c0, double c1, double c2, double c3)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveCubic, "VTK 5.8",
+                           vtkPolynomialSolversUnivariate::SolveCubic);
   return vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3 );
 }
 
 //----------------------------------------------------------------------------
 inline double* vtkMath::SolveQuadratic(double c0, double c1, double c2)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveQuadratic, "VTK 5.8",
+                           vtkPolynomialSolversUnivariate::SolveQuadratic);
   return vtkPolynomialSolversUnivariate::SolveQuadratic( c0, c1, c2 );
 }
 
 //----------------------------------------------------------------------------
 inline double* vtkMath::SolveLinear(double c0, double c1)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveLinear, "VTK 5.8",
+                           vtkPolynomialSolversUnivariate::SolveLinear);
   return vtkPolynomialSolversUnivariate::SolveLinear( c0, c1 );
 }
 
 //----------------------------------------------------------------------------
-inline int vtkMath::SolveCubic(double c0, double c1, double c2, double c3, 
+inline int vtkMath::SolveCubic(double c0, double c1, double c2, double c3,
                                double *r1, double *r2, double *r3, int *num_roots)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveCubic, "VTK 5.8",
+                           vtkPolynomialSolversUnivariate::SolveCubic);
   return vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3, r1, r2, r3, num_roots );
 }
 
 //----------------------------------------------------------------------------
-inline int vtkMath::SolveQuadratic(double c0, double c1, double c2, 
+inline int vtkMath::SolveQuadratic(double c0, double c1, double c2,
                                    double *r1, double *r2, int *num_roots)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveQuadratic, "VTK 5.8",
+                           vtkPolynomialSolversUnivariate::SolveQuadratic);
   return vtkPolynomialSolversUnivariate::SolveQuadratic( c0, c1, c2, r1, r2, num_roots );
 }
-  
+
 //----------------------------------------------------------------------------
 inline int vtkMath::SolveQuadratic( double* c, double* r, int* m )
 {
+  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveQuadratic, "VTK 5.8",
+                           vtkPolynomialSolversUnivariate::SolveQuadratic);
   return vtkPolynomialSolversUnivariate::SolveQuadratic( c, r, m );
 }
 
 //----------------------------------------------------------------------------
 inline int vtkMath::SolveLinear(double c0, double c1, double *r1, int *num_roots)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveLinear, "VTK 5.8",
+                           vtkPolynomialSolversUnivariate::SolveLinear);
   return vtkPolynomialSolversUnivariate::SolveLinear( c0, c1, r1, num_roots );
 }
+#endif
 
 //----------------------------------------------------------------------------
 inline void vtkMath::ClampValue(double *value, const double range[2])
@@ -1301,7 +1279,7 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
                                               const double range[2])
 {
   assert("pre: valid_range" && range[0]<=range[1]);
-  
+
   double result;
   if(range[0]==range[1])
     {

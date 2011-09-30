@@ -13,27 +13,21 @@
 
 =========================================================================*/
 
-#include "vtkAxis.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
 #include "vtkChartXY.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkColorTransferFunctionItem.h"
+#include "vtkCompositeControlPointsItem.h"
 #include "vtkCompositeTransferFunctionItem.h"
+#include "vtkContext2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
-#include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
-#include "vtkLookupTableItem.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkPiecewiseFunctionItem.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTextProperty.h"
-#include "vtkIntArray.h"
 
 //----------------------------------------------------------------------------
 int TestScalarsToColors(int ,  char * [])
@@ -45,6 +39,7 @@ int TestScalarsToColors(int ,  char * [])
   view->GetRenderWindow()->SetSize(400, 300);
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   chart->SetTitle("Chart");
+  chart->ForceAxesToBoundsOn();
   view->GetScene()->AddItem(chart);
 
   vtkSmartPointer<vtkLookupTable> lookupTable =
@@ -71,24 +66,24 @@ int TestScalarsToColors(int ,  char * [])
   item3->SetOpacityFunction(opacityFunction);
   item3->SetMaskAboveCurve(true);
   chart->AddPlot(item3);
-  /*
-  vtkSmartPointer<vtkPiecewiseFunctionItem> item3 =
-    vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
-  item3->SetPiecewiseFunction(opacityFunction);
-  item3->SetColor(247,180,0,255);
-  item3->SetMaskAboveCurve(true);
-  chart->AddPlot(item3);
-  */
 
-  vtkSmartPointer<vtkPiecewiseControlPointsItem> item5 =
-    vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
-  item5->SetPiecewiseFunction(opacityFunction);
+  vtkSmartPointer<vtkCompositeControlPointsItem> item5 =
+    vtkSmartPointer<vtkCompositeControlPointsItem>::New();
+  item5->SetOpacityFunction(opacityFunction);
+  item5->SetColorTransferFunction(colorTransferFunction);
   chart->AddPlot(item5);
 
-  //Finally render the scene and compare the image to a reference image
-  view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetInteractor()->Initialize();
-  view->GetInteractor()->Start();
+  // Finally render the scene and compare the image to a reference image
+  view->GetRenderWindow()->SetMultiSamples(1);
+  if (view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
+    {
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
+    }
+  else
+    {
+    cout << "GL version 2 or higher is required." << endl;
+    }
 
   return EXIT_SUCCESS;
 }

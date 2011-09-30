@@ -75,32 +75,32 @@ void vtkPerspectiveTransform::Concatenate(vtkHomogeneousTransform *transform)
   if (transform->CircuitCheck(this))
     {
     vtkErrorMacro("Concatenate: this would create a circular reference.");
-    return; 
+    return;
     }
-  this->Concatenation->Concatenate(transform); 
-  this->Modified(); 
+  this->Concatenation->Concatenate(transform);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransform::SetInput(vtkHomogeneousTransform *input)
 {
-  if (this->Input == input) 
-    { 
-    return; 
+  if (this->Input == input)
+    {
+    return;
     }
-  if (input && input->CircuitCheck(this)) 
+  if (input && input->CircuitCheck(this))
     {
     vtkErrorMacro("SetInput: this would create a circular reference.");
-    return; 
+    return;
     }
-  if (this->Input) 
-    { 
-    this->Input->Delete(); 
+  if (this->Input)
+    {
+    this->Input->Delete();
     }
   this->Input = input;
-  if (this->Input) 
-    { 
-    this->Input->Register(this); 
+  if (this->Input)
+    {
+    this->Input->Register(this);
     }
   this->Modified();
 }
@@ -211,10 +211,10 @@ void vtkPerspectiveTransform::InternalUpdate()
   int nTransforms = this->Concatenation->GetNumberOfTransforms();
   int nPreTransforms = this->Concatenation->GetNumberOfPreTransforms();
 
-  // concatenate PreTransforms 
+  // concatenate PreTransforms
   for (i = nPreTransforms-1; i >= 0; i--)
     {
-    vtkHomogeneousTransform *transform = 
+    vtkHomogeneousTransform *transform =
       static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
                               this->Matrix);
@@ -223,20 +223,20 @@ void vtkPerspectiveTransform::InternalUpdate()
   // concatenate PostTransforms
   for (i = nPreTransforms; i < nTransforms; i++)
     {
-    vtkHomogeneousTransform *transform = 
+    vtkHomogeneousTransform *transform =
       static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
                               this->Matrix);
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 // Utility for adjusting the window range to a new one.  Usually the
 // previous range was ([-1,+1],[-1,+1]) as per Ortho and Frustum, and you
 // are mapping to the display coordinate range ([0,width-1],[0,height-1]).
-void vtkPerspectiveTransform::AdjustViewport(double oldXMin, double oldXMax, 
+void vtkPerspectiveTransform::AdjustViewport(double oldXMin, double oldXMax,
                                              double oldYMin, double oldYMax,
-                                             double newXMin, double newXMax, 
+                                             double newXMin, double newXMax,
                                              double newYMin, double newYMax)
 {
   double matrix[4][4];
@@ -249,7 +249,7 @@ void vtkPerspectiveTransform::AdjustViewport(double oldXMin, double oldXMax,
   matrix[1][3] = (newYMin*oldYMax - newYMax*oldYMin)/(oldYMax - oldYMin);
 
   this->Concatenate(*matrix);
-}  
+}
 
 //----------------------------------------------------------------------------
 // Utility for adjusting the min/max range of the Z buffer.  Usually
@@ -281,7 +281,7 @@ void vtkPerspectiveTransform::Ortho(double xmin, double xmax,
   matrix[0][0] = 2/(xmax - xmin);
   matrix[1][1] = 2/(ymax - ymin);
   matrix[2][2] = -2/(zfar - znear);
-  
+
   matrix[0][3] = -(xmin + xmax)/(xmax - xmin);
   matrix[1][3] = -(ymin + ymax)/(ymax - ymin);
   matrix[2][3] = -(znear + zfar)/(zfar - znear);
@@ -329,7 +329,7 @@ void vtkPerspectiveTransform::Perspective(double angle, double aspect,
                                           double znear, double zfar)
 {
   double ymax =  tan( vtkMath::RadiansFromDegrees( angle ) / 2 ) * znear;
-  double ymin = -ymax; 
+  double ymin = -ymax;
 
   double xmax =  ymax*aspect;
   double xmin = -xmax;
@@ -351,9 +351,9 @@ void vtkPerspectiveTransform::Perspective(double angle, double aspect,
 //
 //  - Decide on a real-world-coords to virtual-world-coords conversion
 //    factor that is appropriate for the scene you are viewing.
-//  - The screen is the focal plane, the near clipping plane lies in 
-//    front of the screen and far clipping plane lies behind.  
-//    Measure the (x,y,z) displacent from the center of the screen to 
+//  - The screen is the focal plane, the near clipping plane lies in
+//    front of the screen and far clipping plane lies behind.
+//    Measure the (x,y,z) displacent from the center of the screen to
 //    your eye.  Scale these by the factor you chose.
 //  - After you have scaled x, y, and z call Shear(x/z,y/z,z).
 //
@@ -364,22 +364,22 @@ void vtkPerspectiveTransform::Perspective(double angle, double aspect,
 //    that it looks at the screen straight-on.  I.e. it must lie along
 //    the ray perpendicular to the screen which passes through the center
 //    of screen (i.e. the center of the screen, in world coords, corresponds
-//    to the focal point).  Whatever 'z' you used in Shear(), the 
-//    camera->focalpoint distance should be the same.   If you are 
+//    to the focal point).  Whatever 'z' you used in Shear(), the
+//    camera->focalpoint distance should be the same.   If you are
 //    wondering why you don't set the camera position to be the eye
 //    position, don't worry -- the combination of SetupCamera() and
 //    an Oblique() shear about the focal plane does precisely that.
-//  
+//
 //  - When you set up the view frustum using Perspective(),
 //    set the angle to  2*atan(0.5*height/z)  where 'height' is
 //    the height of your screen multiplied by the real-to-virtual
 //    scale factor.  Don't forget to convert the angle to degrees.
-//  - Though it is not absolutely necessary, you might want to 
+//  - Though it is not absolutely necessary, you might want to
 //    keep your near and far clipping planes at constant distances
 //    from the focal point.  By default, they are set up relative
 //    to the camera position.
 //
-//  The order in which you apply the transformations, in 
+//  The order in which you apply the transformations, in
 //  PreMultiply mode, is:
 //    1) Perspective(),  2) Shear(),  3) SetupCamera()
 //
@@ -429,7 +429,7 @@ void vtkPerspectiveTransform::SetupCamera(const double position[3],
   // so we'll make the connection explicit
   double *viewSideways =    matrix[0];
   double *orthoViewUp =     matrix[1];
-  double *viewPlaneNormal = matrix[2]; 
+  double *viewPlaneNormal = matrix[2];
 
   // set the view plane normal from the view vector
   viewPlaneNormal[0] = position[0] - focalPoint[0];
@@ -451,9 +451,9 @@ void vtkPerspectiveTransform::SetupCamera(const double position[3],
 
   vtkMatrix4x4::MultiplyPoint(*matrix,delta,delta);
 
-  matrix[0][3] = delta[0]; 
-  matrix[1][3] = delta[1]; 
-  matrix[2][3] = delta[2]; 
+  matrix[0][3] = delta[0];
+  matrix[1][3] = delta[1];
+  matrix[2][3] = delta[2];
 
   // apply the transformation
   this->Concatenate(*matrix);
@@ -464,16 +464,16 @@ void vtkPerspectiveTransform::SetupCamera(double p0, double p1, double p2,
                                           double vup0, double vup1, double vup2)
 {
   double p[3], fp[3], vup[3];
-  p[0] = p0; 
-  p[1] = p1; 
+  p[0] = p0;
+  p[1] = p1;
   p[2] = p2;
-  fp[0] = fp0; 
-  fp[1] = fp1; 
+  fp[0] = fp0;
+  fp[1] = fp1;
   fp[2] = fp2;
-  vup[0] = vup0; 
-  vup[1] = vup1; 
+  vup[0] = vup0;
+  vup[1] = vup1;
   vup[2] = vup2;
 
   this->SetupCamera(p, fp, vup);
 }
-  
+

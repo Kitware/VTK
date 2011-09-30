@@ -31,11 +31,12 @@
 class vtkExtentTranslator;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
+class vtkInformationIdTypeKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
-class vtkInformationIdTypeKey;
+class vtkInformationUnsignedLongKey;
 
 class VTK_FILTERING_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
 {
@@ -164,6 +165,7 @@ public:
   // Key defining a request to propagate information about the update
   // extent downstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT_INFORMATION();
+  static vtkInformationRequestKey* REQUEST_MANAGE_INFORMATION();
 
   // Description:
   // Key defining to propagate resolution changes up the pipeline.
@@ -217,9 +219,13 @@ public:
   static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
 
   // Description:
-  // Key to store the bounding box of a portion of the data set in 
+  // Key to store the bounding box of a portion of the data set in
   // pipeline information.
   static vtkInformationDoubleVectorKey* PIECE_BOUNDING_BOX();
+
+  // Description:
+  // Key used to reject unimportant pieces in streaming.
+  static vtkInformationDoubleVectorKey* PIECE_NORMAL();
 
   // Description:
   // Key to specify the request for exact extent in pipeline information.
@@ -238,10 +244,15 @@ public:
   static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
   // Description:
-  // Key that specifies from 0.0 to 1.0 the pipeline computed priority 
-  // of this update extent. 0.0 means does not contribute and can 
+  // Key that specifies from 0.0 to 1.0 the pipeline computed priority
+  // of this update extent. 0.0 means does not contribute and can
   // be skipped.
   static vtkInformationDoubleKey* PRIORITY();
+
+  // Description:
+  // Key that specifies how many cells were in the piece at the head of the
+  // pipeline, so that work estimates can be made.
+  static vtkInformationUnsignedLongKey* ORIGINAL_NUMBER_OF_CELLS();
 
   // Description:
   // Key that specifies a requested resolution level for this update

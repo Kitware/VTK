@@ -24,6 +24,7 @@
 #include "vtkMath.h"
 #include "vtkCellLocator.h"
 #include "vtkPolygonalSurfacePointPlacer.h"
+#include "vtkIdList.h"
 #include "vtkDijkstraGraphGeodesicPath.h"
 
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
@@ -145,25 +146,67 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     for (int n = 0; n < npts; n++)
       {
       pd->GetPoint( pts[n], p );
+
+      // This is the id of the point on the polygonal surface.
+      const vtkIdType ptId = vertexIds->GetId(n);
+
+      // Offset the point in the direction of the normal, if a distance
+      // offset is specified.
       if (vertexNormals)
         {
-        vertexNormals->GetTuple( vertexIds->GetId(n), vertexNormal );
+        vertexNormals->GetTuple( ptId, vertexNormal );
         p[0] += vertexNormal[0] * this->DistanceOffset;
         p[1] += vertexNormal[1] * this->DistanceOffset;
         p[2] += vertexNormal[2] * this->DistanceOffset;
-        rep->AddIntermediatePointWorldPosition( idx1, p );
         }
-      else
-        {
-        rep->AddIntermediatePointWorldPosition( idx1, p );
-        }
+
+      // Add this point as an intermediate node of the contour. Store tehe
+      // ptId if necessary.
+      rep->AddIntermediatePointWorldPosition( idx1, p, ptId );
       }
 
-      this->LastInterpolatedVertexIds[0] = beginVertId;
-      this->LastInterpolatedVertexIds[1] = endVertId;
+    this->LastInterpolatedVertexIds[0] = beginVertId;
+    this->LastInterpolatedVertexIds[1] = endVertId;
+
+    // Also set the start and end node on the contour rep
+    rep->GetNthNode(idx1)->PointId = beginVertId;
+    rep->GetNthNode(idx2)->PointId = endVertId;
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------
+void vtkPolygonalSurfaceContourLineInterpolator
+::GetContourPointIds( vtkContourRepresentation *rep, vtkIdList *ids )
+{
+  // Get the number of points in the contour and pre-allocate size
+
+  const int nNodes = rep->GetNumberOfNodes();
+
+  int nPoints = 0;
+  for (int i = 0; i < nNodes; i++)
+    {
+    // 1 for the node and then the number of points.
+    nPoints += (rep->GetNthNode(i)->Points.size() + 1);
+    }
+
+  ids->SetNumberOfIds(nPoints);
+
+  // Now fill the point ids
+
+  int idx = 0;
+  for (int i = 0; i < nNodes; i++)
+    {
+    vtkContourRepresentationNode *node = rep->GetNthNode(i);
+    ids->SetId(idx++, node->PointId);
+    const int nIntermediatePts = static_cast< int >(node->Points.size());
+
+    for (int j = 0; j < nIntermediatePts; j++)
+      {
+      ids->SetId(idx++, node->Points[j]->PointId);
+      }
+    }
 }
 
 //----------------------------------------------------------------------

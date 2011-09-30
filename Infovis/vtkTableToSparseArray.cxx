@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTableToSparseArray.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -32,13 +32,15 @@
 #include "vtkTable.h"
 #include "vtkTableToSparseArray.h"
 
-#include <vtksys/stl/algorithm>
+#include <algorithm>
 
 class vtkTableToSparseArray::implementation
 {
 public:
-  vtkstd::vector<vtkStdString> Coordinates;
+  std::vector<vtkStdString> Coordinates;
   vtkStdString Values;
+  vtkArrayExtents OutputExtents;
+  bool ExplicitOutputExtents;
 };
 
 // ----------------------------------------------------------------------
@@ -50,6 +52,8 @@ vtkStandardNewMacro(vtkTableToSparseArray);
 vtkTableToSparseArray::vtkTableToSparseArray() :
   Implementation(new implementation())
 {
+  this->Implementation->ExplicitOutputExtents = false;
+
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
@@ -69,6 +73,11 @@ void vtkTableToSparseArray::PrintSelf(ostream& os, vtkIndent indent)
   for(size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
     os << indent << "CoordinateColumn: " << this->Implementation->Coordinates[i] << endl;
   os << indent << "ValueColumn: " << this->Implementation->Values << endl;
+  os << indent << "OutputExtents: ";
+  if(this->Implementation->ExplicitOutputExtents)
+    os << this->Implementation->OutputExtents << endl;
+  else
+    os << "<none>" << endl;
 }
 
 void vtkTableToSparseArray::ClearCoordinateColumns()
@@ -84,7 +93,7 @@ void vtkTableToSparseArray::AddCoordinateColumn(const char* name)
     vtkErrorMacro(<< "cannot add coordinate column with NULL name");
     return;
     }
-    
+
   this->Implementation->Coordinates.push_back(name);
   this->Modified();
 }
@@ -106,6 +115,19 @@ const char* vtkTableToSparseArray::GetValueColumn()
   return this->Implementation->Values.c_str();
 }
 
+void vtkTableToSparseArray::ClearOutputExtents()
+{
+  this->Implementation->ExplicitOutputExtents = false;
+  this->Modified();
+}
+
+void vtkTableToSparseArray::SetOutputExtents(const vtkArrayExtents& extents)
+{
+  this->Implementation->ExplicitOutputExtents = true;
+  this->Implementation->OutputExtents = extents;
+  this->Modified();
+}
+
 int vtkTableToSparseArray::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
@@ -121,13 +143,13 @@ int vtkTableToSparseArray::FillInputPortInformation(int port, vtkInformation* in
 // ----------------------------------------------------------------------
 
 int vtkTableToSparseArray::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkTable* const table = vtkTable::GetData(inputVector[0]);
 
-  vtkstd::vector<vtkAbstractArray*> coordinates(this->Implementation->Coordinates.size());
+  std::vector<vtkAbstractArray*> coordinates(this->Implementation->Coordinates.size());
   for(size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
     {
     coordinates[i] = table->GetColumnByName(this->Implementation->Coordinates[i].c_str());
@@ -141,15 +163,15 @@ int vtkTableToSparseArray::RequestData(
 // Workaround
   int n=0;
 #ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
-  vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0),n);
+  std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0),n);
 #else
-  n=vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0));
+  n=std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0));
 #endif
   if(n!=0)
     {
     return 0;
     }
-  
+
   vtkAbstractArray* const values = table->GetColumnByName(this->Implementation->Values.c_str());
   if(!values)
     {
@@ -174,7 +196,14 @@ int vtkTableToSparseArray::RequestData(
     array->AddValue(output_coordinates, values->GetVariantValue(i).ToDouble());
     }
 
-  array->SetExtentsFromContents();
+  if(this->Implementation->ExplicitOutputExtents)
+    {
+    array->SetExtents(this->Implementation->OutputExtents);
+    }
+  else
+    {
+    array->SetExtentsFromContents();
+    }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();

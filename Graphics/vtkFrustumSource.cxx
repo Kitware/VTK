@@ -82,8 +82,6 @@ int vtkFrustumSource::RequestData(
   double n0[3];
   double n1[3];
   double c[3];
-  double cosAngle;
-  double sinAngle;
   
   // angle between left and right planes
   this->Planes->GetPlane(0)->GetNormal(n0);
@@ -91,10 +89,10 @@ int vtkFrustumSource::RequestData(
   
   vtkMath::Normalize(n0);
   vtkMath::Normalize(n1);
-  cosAngle=vtkMath::Dot(n0,n1);
+  vtkMath::Dot(n0,n1);
   
   vtkMath::Cross(n0,n1,c);
-  sinAngle=vtkMath::Norm(c);
+  vtkMath::Norm(c);
   
    // angle between bottom and top planes
   this->Planes->GetPlane(2)->GetNormal(n0);
@@ -102,10 +100,10 @@ int vtkFrustumSource::RequestData(
   
   vtkMath::Normalize(n0);
   vtkMath::Normalize(n1);
-  cosAngle=vtkMath::Dot(n0,n1);
+  vtkMath::Dot(n0,n1);
   
   vtkMath::Cross(n0,n1,c);
-  sinAngle=vtkMath::Norm(c);
+  vtkMath::Norm(c);
   
   if(this->ShowLines)
     {

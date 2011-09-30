@@ -30,7 +30,7 @@
  *    Reads and Writes MetaTubeGraph Files.
  *
  * \author Julien Jomier
- * 
+ *
  * \date May 22, 2002
  */
 
@@ -43,7 +43,7 @@ class TubeGraphPnt
 public:
 
   TubeGraphPnt(int dim)
-  { 
+  {
     m_Dim = dim;
     m_GraphNode = -1;
     m_R = 0;
@@ -53,9 +53,9 @@ public:
 
   ~TubeGraphPnt()
   {
-    delete m_T;
+    delete [] m_T;
   };
-  
+
   unsigned int m_Dim;
   int    m_GraphNode;
   float  m_R;
@@ -84,10 +84,10 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
     ////
     MetaTubeGraph(void);
 
-    MetaTubeGraph(const char *_headerName);   
+    MetaTubeGraph(const char *_headerName);
 
-    MetaTubeGraph(const MetaTubeGraph *_tube); 
-    
+    MetaTubeGraph(const MetaTubeGraph *_tube);
+
     MetaTubeGraph(unsigned int dim);
 
     ~MetaTubeGraph(void);
@@ -119,7 +119,7 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
 
     PointListType &  GetPoints(void) {return m_PointList;}
     const PointListType &  GetPoints(void) const {return m_PointList;}
-    
+
     MET_ValueEnumType ElementType(void) const;
     void  ElementType(MET_ValueEnumType _elementType);
 

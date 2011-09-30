@@ -35,6 +35,7 @@
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkProperty.h"
 #include "vtkCamera.h"
+#include "vtkFollower.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -919,7 +920,63 @@ int TestDistanceWidget3D( int argc, char *argv[] )
   rep->RulerModeOn();
   rep->SetRulerDistance(0.1);
   rep->SetNumberOfRulerTicks(4);
+  double glyphScale = rep->GetGlyphScale();
+  rep->SetGlyphScale(2.0);
+  if (rep->GetGlyphScale() != 2.0)
+    {
+    std::cerr << "Error setting glyph scale to 2.0, returned " << rep->GetGlyphScale() << std::endl;
+    return EXIT_FAILURE;
+    }
+  rep->SetGlyphScale(glyphScale);
+  if (rep->GetGlyphScale() != glyphScale)
+    {
+    std::cerr << "Error setting glyph scale to " << glyphScale << ", returned " << rep->GetGlyphScale() << std::endl;
+    return EXIT_FAILURE;
+    }
+  rep->SetGlyphScale(0.1);
+  if (rep->GetGlyphScale() != 0.1)
+    {
+    cerr << "Error setting glyph scale to 0.1, returned " << rep->GetGlyphScale() << std::endl;
+    return EXIT_FAILURE;
+    }
 
+  
+  if (!rep->GetLineProperty())
+    {
+    std::cerr << "Error getting representation line property" << endl;
+    return EXIT_FAILURE;
+    }
+  rep->GetLineProperty()->SetColor(1.0, 0.0, 1.0);
+  rep->SetLabelPosition(0.45);
+  if (rep->GetLabelPosition() != 0.45)
+    {
+    std::cerr << "Error setting label position to 0.45, returned : " << rep->GetLabelPosition() << std::endl;
+    return EXIT_FAILURE;
+    }
+  for (int maxTicks = 1; maxTicks < 100; maxTicks += 10)
+    {
+    rep->SetMaximumNumberOfRulerTicks(maxTicks);
+    if (rep->GetMaximumNumberOfRulerTicks() != maxTicks)
+      {
+      std::cerr << "Error setting maximum number of ruler ticks to " << maxTicks << ", get returned " << rep->GetMaximumNumberOfRulerTicks() << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+  vtkActor *glyphActor = rep->GetGlyphActor();
+  if (!glyphActor)
+    {
+    std::cerr << "Error getting glyph actor" << std::endl;
+    return EXIT_FAILURE;
+    }
+  glyphActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+  vtkFollower *labelActor = rep->GetLabelActor();
+  if (!labelActor)
+    {
+    std::cerr << "Error getting label actor" << std::endl;
+    return EXIT_FAILURE;
+    }
+  labelActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
+  
   VTK_CREATE(vtkDistanceWidget, widget);
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
@@ -951,7 +1008,7 @@ int TestDistanceWidget3D( int argc, char *argv[] )
   renWin->Render();
   widget->On();
   renWin->Render();
-//  recorder->Play();
+  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.

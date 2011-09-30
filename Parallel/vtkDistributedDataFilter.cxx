@@ -3652,26 +3652,23 @@ vtkIdTypeArray **vtkDistributedDataFilter::MakeProcessLists(
 
         mapIt = procs->IntMultiMap.find(gid);
 
-        if (mapIt != procs->IntMultiMap.end())
+        while (mapIt != procs->IntMultiMap.end() && mapIt->first == gid)
           {
-          while (mapIt->first == gid)
+          int processId = mapIt->second;
+
+          if (processId != i)
             {
-            int processId = mapIt->second;
-  
-            if (processId != i)
+            // Process "i" needs to know that process
+            // "processId" also has cells using this point
+
+            if (processList[i] == NULL)
               {
-              // Process "i" needs to know that process
-              // "processId" also has cells using this point
-  
-              if (processList[i] == NULL)
-                {
-                processList[i] = vtkIdTypeArray::New();
-                }
-              processList[i]->InsertNextValue(gid);
-              processList[i]->InsertNextValue(processId);
+              processList[i] = vtkIdTypeArray::New();
               }
-            ++mapIt;
+            processList[i]->InsertNextValue(gid);
+            processList[i]->InsertNextValue(processId);
             }
+          ++mapIt;
           }
         j += (2 + ncells);
         }

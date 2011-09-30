@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkAppendFilter.h"
 
-#include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCell.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDataSetCollection.h"
 #include "vtkExecutive.h"
+#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkIncrementalOctreePointLocator.h"
 
 vtkStandardNewMacro(vtkAppendFilter);
 
@@ -108,14 +108,22 @@ int vtkAppendFilter::RequestData(
    if (this->MergePoints == 1 &&
      inputVector[0]->GetNumberOfInformationObjects() > 0 )
      {
-     vtkDataSet * tempData = 
-     vtkDataSet::SafeDownCast
-                 (  inputVector[0]->GetInformationObject( 0 )
-                                  ->Get( vtkDataObject::DATA_OBJECT() )  );
-     if (  tempData && tempData->GetCellData() &&
-          !tempData->GetCellData()->GetArray( "vtkGhostLevels" )  ) 
+     // ensure that none of the inputs has ghost-cells.
+     // (originally the code was checking for ghost cells only on 1st input,
+     // that's not sufficient).
+     bool has_ghost_cells = false;
+     for (int cc=0; (has_ghost_cells == false) && 
+       cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
        {
-       tempData = NULL;
+       vtkDataSet * tempData = vtkDataSet::GetData(inputVector[0], cc);
+       if (tempData && tempData->GetCellData() &&
+         tempData->GetCellData()->GetArray("vtkGhostLevels") != NULL)
+         {
+         has_ghost_cells = true;
+         }
+       }
+     if (!has_ghost_cells)
+       {
        return this->AppendBlocksWithPointLocator( inputVector, outputVector );
        }
      }

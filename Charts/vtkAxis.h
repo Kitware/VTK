@@ -26,6 +26,7 @@
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkVector.h"       // For position variables
+#include "vtkRect.h"         // For bounding rect
 #include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkContext2D;
@@ -50,6 +51,11 @@ public:
     RIGHT,
     TOP,
     PARALLEL
+  };
+
+  enum {
+    TICK_SIMPLE = 0,
+    TICK_WILKINSON_EXTENDED
   };
 
   // Description:
@@ -116,6 +122,30 @@ public:
   virtual void SetRange(double minimum, double maximum);
 
   // Description:
+  // Set the logical lowest possible value for \a Minimum, in plot coordinates.
+  virtual void SetMinimumLimit(double lowest);
+
+  // Description:
+  // Get the logical lowest possible value for \a Minimum, in plot coordinates.
+  vtkGetMacro(MinimumLimit, double);
+
+  // Description:
+  // Set the logical highest possible value for \a Maximum, in plot coordinates.
+  virtual void SetMaximumLimit(double highest);
+
+  // Description:
+  // Get the logical highest possible value for \a Maximum, in plot coordinates.
+  vtkGetMacro(MaximumLimit, double);
+
+  // Description:
+  // Get the margins of the axis, in pixels.
+  vtkGetVector2Macro(Margins, int);
+
+  // Description:
+  // Set the margins of the axis, in pixels.
+  vtkSetVector2Macro(Margins, int);
+
+  // Description:
   // Get/set the title text of the axis.
   virtual void SetTitle(const vtkStdString &title);
   virtual vtkStdString GetTitle();
@@ -147,9 +177,14 @@ public:
   // Description:
   // Enumeration of the axis notations available.
   enum {
-    STANDARD = 0,
-    SCIENTIFIC,
-    MIXED
+    STANDARD_NOTATION = 0,
+    SCIENTIFIC_NOTATION,
+    FIXED_NOTATION,
+
+    // deprecated, use the *_NOTATION versions above
+    STANDARD = STANDARD_NOTATION,
+    SCIENTIFIC = SCIENTIFIC_NOTATION,
+    MIXED = FIXED_NOTATION
   };
 
   // Description:
@@ -179,6 +214,15 @@ public:
   vtkGetObjectMacro(GridPen, vtkPen);
 
   // Description:
+  // Get/set the tick label algorithm that is used to calculate the min, max
+  // and tick spacing. There are currently two algoriths, vtkAxis::TICK_SIMPLE
+  // is the default and uses a simple algorithm. The second option is
+  // vtkAxis::TICK_WILKINSON which uses an extended Wilkinson algorithm to find
+  // the optimal range, spacing and font parameters.
+  vtkSetMacro(TickLabelAlgorithm, int)
+  vtkGetMacro(TickLabelAlgorithm, int)
+
+  // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
   // locations etc. Should be called by the scene before rendering.
   virtual void Update();
@@ -206,7 +250,7 @@ public:
 
   // Description:
   // Set the tick positions (in plot coordinates).
-  virtual void SetTickPositions(vtkDoubleArray*);
+  virtual void SetTickPositions(vtkDoubleArray* positions);
 
   // Description:
   // An array with the positions of the tick marks along the axis line.
@@ -219,11 +263,11 @@ public:
 
   // Description:
   // Set the tick labels for the axis.
-  virtual void SetTickLabels(vtkStringArray*);
+  virtual void SetTickLabels(vtkStringArray* labels);
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a
-  // vtkRect4f, with the corner being the offset from Point1, and the width/
+  // vtkRectf, with the corner being the offset from Point1, and the width/
   // height being the total width/height required by the axis. In order to
   // ensure the numbers are correct, Update() should be called on the axis.
   vtkRectf GetBoundingRect(vtkContext2D* painter);
@@ -240,6 +284,8 @@ protected:
   // Description:
   // Generate tick labels from the supplied double array of tick positions.
   void GenerateTickLabels();
+
+  void GenerateLabelFormat(int notation, double n);
 
   // Description:
   // Calculate the next "nicest" numbers above and below the current minimum.
@@ -288,6 +334,9 @@ protected:
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
+  double MinimumLimit; // Lowest possible value for Minimum
+  double MaximumLimit; // Highest possible value for Maximum
+  int Margins[2];      // Horizontal/vertical margins for the axis
   vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
@@ -297,6 +346,8 @@ protected:
   int Notation;        // The notation to use (standard, scientific, mixed)
   int Behavior;        // The behaviour of the axis (auto, fixed, custom).
   float MaxLabel[2];   // The widest/tallest axis label.
+  bool TitleAppended;  // Track if the title is updated when the label formats
+                       // are changed in the Extended Axis Labeling algorithm
 
   // Description:
   // This object stores the vtkPen that controls how the axis is drawn.
@@ -334,6 +385,10 @@ protected:
   // Description:
   // Hint as to whether a logarithmic scale is reasonable or not.
   bool LogScaleReasonable;
+
+  // Description:
+  // The algorithm being used to tick label placement.
+  int TickLabelAlgorithm;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.

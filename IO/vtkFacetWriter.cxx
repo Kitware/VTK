@@ -20,7 +20,6 @@
 #include "vtkCellType.h"
 #include "vtkCellArray.h"
 #include "vtkGarbageCollector.h"
-#include "vtkAppendFilter.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkInformationVector.h"
@@ -96,7 +95,7 @@ int vtkFacetWriter::RequestData(
   for ( cc =0; cc < len; cc ++ )
     {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(cc);
-    vtkPolyData *input = 
+    vtkPolyData *input =
       vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if ( !this->WriteDataToStream(this->OutputStream, input) )
       {
@@ -320,7 +319,7 @@ void vtkFacetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
     << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 

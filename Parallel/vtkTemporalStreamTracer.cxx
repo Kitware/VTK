@@ -605,13 +605,13 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   if (this->UpdateNumPieces>1) {
     // Gather all seed particles to all processes
     this->TransmitReceiveParticles(candidates, allCandidates, false);
-    numTested = allCandidates.size();
+    numTested = static_cast<int>(allCandidates.size());
     vtkDebugMacro(<< "Local Particles " << numSeeds << " TransmitReceive Total " << numTested);
     // Test to see which ones belong to us
     this->TestParticles(allCandidates, LocalSeedPoints, LocalAssignedCount);
   } 
   else {
-    numTested = candidates.size();
+    numTested = static_cast<int>(candidates.size());
     this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
   }
   int TotalAssigned = 0; 

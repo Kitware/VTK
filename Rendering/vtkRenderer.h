@@ -270,6 +270,8 @@ public:
   // Description:
   // Reset the camera clipping range based on a bounding box.
   // This method is called from ResetCameraClippingRange()
+  // If Deering frustrum is used then the bounds get expanded
+  // by the camera's modelview matrix.
   void ResetCameraClippingRange( double bounds[6] );
   void ResetCameraClippingRange( double xmin, double xmax,
                                  double ymin, double ymax,
@@ -492,6 +494,11 @@ protected:
   // internal method for doing a render for picking purposes
   virtual void PickRender(vtkPropCollection *props);
   virtual void PickGeometry();
+
+  // internal method to expand bounding box to consider model transform
+  // matrix or model view transform matrix based on whether or not deering
+  // frustum is used.
+  virtual void ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix);
 
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;

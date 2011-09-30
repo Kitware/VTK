@@ -38,9 +38,9 @@ public:
     {
     mapper->CurrentProp = prop;
     }
-  static void SetInRender(vtkImageMapper3D *mapper, bool inRender)
+  static void SetCurrentRenderer(vtkImageMapper3D *mapper, vtkRenderer *ren)
     {
-    mapper->InRender = inRender;
+    mapper->CurrentRenderer = ren;
     }
   static void SetStackedImagePass(vtkImageMapper3D *mapper, int pass)
     {
@@ -310,7 +310,7 @@ void vtkImageSlice::Render(vtkRenderer *ren)
     return;
     }
 
-  vtkImageToImageMapper3DFriendship::SetInRender(this->Mapper, true);
+  vtkImageToImageMapper3DFriendship::SetCurrentRenderer(this->Mapper, ren);
 
   this->Update();
 
@@ -321,7 +321,7 @@ void vtkImageSlice::Render(vtkRenderer *ren)
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
     }
 
-  vtkImageToImageMapper3DFriendship::SetInRender(this->Mapper, false);
+  vtkImageToImageMapper3DFriendship::SetCurrentRenderer(this->Mapper, NULL);
 }
 
 //----------------------------------------------------------------------------

@@ -8,6 +8,7 @@ IF (VTK_PYTHON_EXE)
       TestGhost
       TestMutable
       TestSubClass
+      TestTemplates
       TestWeakref
       TestNumpySupport
       TestTerminationCrash
@@ -21,6 +22,7 @@ IF (VTK_PYTHON_EXE)
     FOREACH ( tfile
       TestStrings
       TestVariant
+      TestOperators
       )
       ADD_TEST(${tfile}Python ${VTK_PYTHON_EXE}
         ${VTK_SOURCE_DIR}/Common/Testing/Python/${tfile}.py)

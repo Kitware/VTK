@@ -91,6 +91,7 @@ vtkMINCImageWriter.cxx
 vtkMPASReader.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
+vtkNetCDFCAMReader.cxx
 vtkNetCDFCFReader.cxx
 vtkNetCDFPOPReader.cxx
 vtkNetCDFReader.cxx
@@ -426,6 +427,8 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ${Kit_SRCS}
     vtkArrayReader.cxx
     vtkArrayWriter.cxx
+    vtkArrayDataReader.cxx
+    vtkArrayDataWriter.cxx
     )
 
 ENDIF(VTK_USE_N_WAY_ARRAYS)

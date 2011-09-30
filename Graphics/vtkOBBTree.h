@@ -57,7 +57,7 @@ class vtkMatrix4x4;
 //
 //BTX
 //
-class vtkOBBNode { //;prevent man page generation
+class VTK_GRAPHICS_EXPORT vtkOBBNode { //;prevent man page generation
 public:
   vtkOBBNode();
   ~vtkOBBNode();

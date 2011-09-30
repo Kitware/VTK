@@ -214,7 +214,7 @@ protected:
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void Derive( vtkMultiBlockDataSet* inMeta );
+  virtual void Derive( vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Test option.

@@ -28,7 +28,13 @@ Changes by Phil Thompson, Mar. 2008
 """
 
 
-from PyQt4 import QtCore, QtGui
+try:
+    from PyQt4 import QtCore, QtGui
+except ImportError:
+    try:
+        from PySide import QtCore, QtGui
+    except ImportError as err:
+        raise ImportError("Cannot load either PyQt or PySide")
 import vtk
 
 
@@ -211,7 +217,7 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         """Shows the cursor."""
         vtk_cursor = self._Iren.GetRenderWindow().GetCurrentCursor()
         qt_cursor = self._CURSOR_MAP.get(vtk_cursor, QtCore.Qt.ArrowCursor)
-        self.setCursor(cursor)
+        self.setCursor(qt_cursor)
 
     def sizeHint(self):
         return QtCore.QSize(400, 400)

@@ -100,6 +100,11 @@ public:
   // Specify the source object used to generate starting points.
   void SetSourceData(vtkDataSet *source);
   vtkDataSet *GetSource();
+
+  // Description:
+  // Specify the source object used to generate starting points (seeds).
+  // New style.
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput);
   
   int FillInputPortInformation(int port, vtkInformation* info);
   
@@ -245,6 +250,15 @@ public:
   // is terminated.
   vtkSetMacro(TerminalSpeed, double);
   vtkGetMacro(TerminalSpeed, double);
+
+  // Description:
+  // Simplified API to set an homogeneous unit across Min/Max/Init IntegrationStepUnit
+  void SetIntegrationStepUnit(int unit)
+    {
+    this->SetInitialIntegrationStepUnit(unit);
+    this->SetMinimumIntegrationStepUnit(unit);
+    this->SetMaximumIntegrationStepUnit(unit);
+    }
 
 //BTX
   enum

@@ -285,12 +285,12 @@ ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
 # Compiler specific flags : Shouldn't there be compiler tests for these
 #-----------------------------------------------------------------------------
 IF (NOT WIN32)
-  include(CheckCXXCompilerFlag)
+  include(CheckCCompilerFlag)
   
-  check_cxx_compiler_flag(-std=c99 HAVE_STD_C99)
-  check_cxx_compiler_flag(-fomit-frame-pointer HAVE_OMIT_FRAME_POINTER)
-  check_cxx_compiler_flag(-finline-functions HAVE_INLINE_FUNCTIONS)
-  check_cxx_compiler_flag(-fno-common HAVE_NO_COMMON)
+  check_c_compiler_flag(-std=c99 HAVE_STD_C99)
+  check_c_compiler_flag(-fomit-frame-pointer HAVE_OMIT_FRAME_POINTER)
+  check_c_compiler_flag(-finline-functions HAVE_INLINE_FUNCTIONS)
+  check_c_compiler_flag(-fno-common HAVE_NO_COMMON)
   if(HAVE_STD_C99)
     set(STD_C99 "-std=c99")
   endif()

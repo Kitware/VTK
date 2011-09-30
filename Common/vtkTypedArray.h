@@ -56,7 +56,7 @@ public:
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::SizeT SizeT;
 
-#if defined(_MSC_VER) && _MSC_VER < 1400
+#if (defined(_MSC_VER) && _MSC_VER < 1400) || defined(__WRAP__)
   vtkVariant GetVariantValue(vtkIdType i) { return this->vtkArray::GetVariantValue(i); }
   vtkVariant GetVariantValue(vtkIdType i, vtkIdType j) { return this->vtkArray::GetVariantValue(i,j); }
   vtkVariant GetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k) { return this->vtkArray::GetVariantValue(i,j,k); }

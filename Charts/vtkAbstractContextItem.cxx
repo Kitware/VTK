@@ -126,13 +126,31 @@ bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
+bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent&)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAbstractContextItem::MouseDoubleClickEvent(const vtkContextMouseEvent&)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAbstractContextItem::KeyPressEvent(const vtkContextKeyEvent&)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAbstractContextItem::KeyReleaseEvent(const vtkContextKeyEvent&)
 {
   return false;
 }

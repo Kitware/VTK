@@ -51,10 +51,10 @@ void vtkOBJExporter::WriteData()
   FILE *fpObj, *fpMtl;
   vtkActorCollection *ac;
   vtkActor *anActor, *aPart;
-  char nameObj[80];
-  char nameMtl[80];
+  char nameObj[2048];
+  char nameMtl[2048];
   int idStart = 1;
-  
+
   // make sure the user specified a filename
   if ( this->FilePrefix == NULL)
     {
@@ -71,14 +71,14 @@ void vtkOBJExporter::WriteData()
 
   // get the renderer
   ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
-  
+
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
     {
     vtkErrorMacro(<< "no actors found for writing .obj file.");
     return;
     }
-    
+
   // try opening the files
   sprintf(nameObj,"%s.obj",this->FilePrefix);
   sprintf(nameMtl,"%s.mtl",this->FilePrefix);
@@ -89,17 +89,17 @@ void vtkOBJExporter::WriteData()
     vtkErrorMacro(<< "unable to open .obj and .mtl files ");
     return;
     }
-  
+
   //
   //  Write header
   //
   vtkDebugMacro("Writing wavefront files");
-  fprintf(fpObj, 
+  fprintf(fpObj,
           "# wavefront obj file written by the visualization toolkit\n\n");
   fprintf(fpObj, "mtllib %s\n\n", nameMtl);
-  fprintf(fpMtl, 
+  fprintf(fpMtl,
           "# wavefront mtl file written by the visualization toolkit\n\n");
-  
+
   ac = ren->GetActors();
   vtkAssemblyPath *apath;
   vtkCollectionSimpleIterator ait;
@@ -111,7 +111,7 @@ void vtkOBJExporter::WriteData()
       this->WriteAnActor(aPart, fpObj, fpMtl, idStart);
       }
     }
-  
+
   fclose(fpObj);
   fclose(fpMtl);
 }
@@ -134,7 +134,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   vtkTransform *trans = vtkTransform::New();
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
-  
+
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
     {
@@ -166,7 +166,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     }
   anActor->GetMapper()->GetInputAlgorithm()->Update();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
-    
+
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
@@ -191,7 +191,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     }
   idNext = idStart + static_cast<int>(points->GetNumberOfPoints());
   points->Delete();
-  
+
   // write out the point data
   pntData = pd->GetPointData();
   if (pntData->GetNormals())
@@ -205,7 +205,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
       fprintf (fpObj, "vn %g %g %g\n", p[0], p[1], p[2]);
       }
     }
-  
+
   tcoords = pntData->GetTCoords();
   if (tcoords)
     {
@@ -215,11 +215,11 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
       fprintf (fpObj, "vt %g %g\n", p[0], p[1]);
       }
     }
-  
+
   // write out a group name and material
   fprintf (fpObj, "\ng grp%i\n", idStart);
   fprintf (fpObj, "usemtl mtl%i\n", idStart);
-  
+
   // write out verts if any
   if (pd->GetNumberOfVerts() > 0)
     {
@@ -278,7 +278,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           if (tcoords)
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"%i/%i/%i ", static_cast<int>(indx[i])+idStart, 
+            fprintf(fpObj,"%i/%i/%i ", static_cast<int>(indx[i])+idStart,
                     static_cast<int>(indx[i])+ idStart,
                     static_cast<int>(indx[i]) + idStart);
             }
@@ -294,7 +294,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           if (tcoords)
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"%i/%i ", static_cast<int>(indx[i])+idStart, 
+            fprintf(fpObj,"%i/%i ", static_cast<int>(indx[i])+idStart,
                     static_cast<int>(indx[i]) + idStart);
             }
           else
@@ -331,11 +331,11 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           if (tcoords)
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"f %i/%i/%i ", static_cast<int>(indx[i1]) + idStart, 
+            fprintf(fpObj,"f %i/%i/%i ", static_cast<int>(indx[i1]) + idStart,
                     static_cast<int>(indx[i1]) + idStart, static_cast<int>(indx[i1]) + idStart);
-            fprintf(fpObj,"%i/%i/%i ", static_cast<int>(indx[i2])+ idStart, 
+            fprintf(fpObj,"%i/%i/%i ", static_cast<int>(indx[i2])+ idStart,
                     static_cast<int>(indx[i2]) + idStart, static_cast<int>(indx[i2]) + idStart);
-            fprintf(fpObj,"%i/%i/%i\n", static_cast<int>(indx[i]) + idStart, 
+            fprintf(fpObj,"%i/%i/%i\n", static_cast<int>(indx[i]) + idStart,
                     static_cast<int>(indx[i]) + idStart, static_cast<int>(indx[i]) + idStart);
             }
           else
@@ -364,14 +364,14 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           else
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"f %i %i %i\n", static_cast<int>(indx[i1]) + idStart, 
+            fprintf(fpObj,"f %i %i %i\n", static_cast<int>(indx[i1]) + idStart,
                     static_cast<int>(indx[i2]) + idStart, static_cast<int>(indx[i]) + idStart);
             }
           }
         }
       }
     }
-  
+
   idStart = idNext;
   trans->Delete();
   if (normals)
@@ -389,14 +389,14 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
 void vtkOBJExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   if (this->FilePrefix)
     {
     os << indent << "FilePrefix: " << this->FilePrefix << "\n";
     }
   else
     {
-    os << indent << "FilePrefix: (null)\n";      
+    os << indent << "FilePrefix: (null)\n";
     }
 }
 

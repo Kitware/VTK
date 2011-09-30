@@ -1033,7 +1033,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
     }
 
   // For each request, add a column to the output data related to the likelihood of each input datum wrt the model in the request.
-  // Column names of the metadata and input data are assumed to match (no mapping using AssessNames or AssessParameters is done).
+  // Column names of the metadata and input data are assumed to match.
   // The output columns will be named "RelDevSq(A,B,C)" where "A", "B", and "C" are the column names specified in the
   // per-request metadata tables.
   vtkIdType nRow = inData->GetNumberOfRows();

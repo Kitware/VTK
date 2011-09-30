@@ -23,10 +23,14 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkQuad.h"
+#include "vtkMarchingCubesTriangleCases.h"
 
 vtkStandardNewMacro(vtkHexahedron);
 
 static const double VTK_DIVERGED = 1.e6;
+static const int VTK_HEX_MAX_ITERATION=10;
+static const double VTK_HEX_CONVERGED=1.e-03;
+static const double VTK_HEX_OUTSIDE_CELL_TOLERANCE=1.e-06;
 
 //----------------------------------------------------------------------------
 // Construct the hexahedron with eight points.
@@ -55,9 +59,6 @@ vtkHexahedron::~vtkHexahedron()
 //  Method to calculate parametric coordinates in an eight noded
 //  linear hexahedron element from global coordinates.
 //
-static const int VTK_HEX_MAX_ITERATION=10;
-static const double VTK_HEX_CONVERGED=1.e-03;
-
 int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
                                    int& subId, double pcoords[3], 
                                    double& dist2, double *weights)
@@ -148,9 +149,11 @@ int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
 
   this->InterpolationFunctions(pcoords, weights);
 
-  if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
-  pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
-  pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
+  double lowerlimit = 0.0-VTK_HEX_OUTSIDE_CELL_TOLERANCE;
+  double upperlimit = 1.0+VTK_HEX_OUTSIDE_CELL_TOLERANCE;
+  if ( pcoords[0] >= lowerlimit && pcoords[0] <= upperlimit &&
+       pcoords[1] >= lowerlimit && pcoords[1] <= upperlimit &&
+       pcoords[2] >= lowerlimit && pcoords[2] <= upperlimit )
     {
     if (closestPoint)
       {

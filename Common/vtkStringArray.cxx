@@ -865,12 +865,18 @@ void vtkStringArray::ClearLookup()
 
 void vtkStringArray::SetValue( vtkIdType id, const char *value )
 {
-  this->SetValue( id, vtkStdString(value) );
+  if( value )
+    {
+    this->SetValue( id, vtkStdString(value) );
+    }
 }
 
 void vtkStringArray::InsertValue( vtkIdType id, const char *value )
 {
-  this->InsertValue( id, vtkStdString( value ) );
+  if( value )
+    {
+    this->InsertValue( id, vtkStdString( value ) );
+    }
 }
 
 void vtkStringArray::SetVariantValue( vtkIdType id, vtkVariant value )
@@ -880,17 +886,30 @@ void vtkStringArray::SetVariantValue( vtkIdType id, vtkVariant value )
 
 vtkIdType vtkStringArray::InsertNextValue( const char *value )
 {
-  return this->InsertNextValue( vtkStdString( value ) );
+  if( value )
+    {
+    return this->InsertNextValue( vtkStdString( value ) );
+    }
+  return this->MaxId;
 }
 
 vtkIdType vtkStringArray::LookupValue( const char *value )
 {
-  return this->LookupValue( vtkStdString( value ) );
+  if( value )
+    {
+    return this->LookupValue( vtkStdString( value ) );
+    }
+  return -1;
 }
 
 void vtkStringArray::LookupValue( const char *value, vtkIdList* ids)
 {
-  this->LookupValue( vtkStdString( value ), ids);
+  if( value )
+    {
+    this->LookupValue( vtkStdString( value ), ids);
+    return;
+    }
+  ids->Reset();
 }
 
 // ----------------------------------------------------------------------------

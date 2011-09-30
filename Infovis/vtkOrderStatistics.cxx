@@ -13,11 +13,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-
 #include "vtkToolkits.h"
 
 #include "vtkOrderStatistics.h"
@@ -45,6 +44,10 @@ vtkOrderStatistics::vtkOrderStatistics()
 {
   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
   this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
+  this->Quantize = false; // By default, do not force quantization
+  this->MaximumHistogramSize = 1000; // A large value by default
+  // Number of primary tables is variable
+  this->NumberOfPrimaryTables = -1;
 
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "Quantile" );
@@ -61,6 +64,8 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "NumberOfIntervals: " << this->NumberOfIntervals << endl;
   os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
+  os << indent << "Quantize: " << this->Quantize << endl;
+  os << indent << "MaximumHistogramSize: " << this->MaximumHistogramSize << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -109,7 +114,7 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::Learn( vtkTable* inData,
-                                vtkTable* vtkNotUsed( inParameters ),
+                                vtkTable*  vtkNotUsed( inParameters ),
                                 vtkMultiBlockDataSet* outMeta )
 {
   if ( ! inData )
@@ -195,6 +200,39 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       for ( vtkIdType r = 0; r < nRow; ++ r )
         {
         ++ histogram[dvals->GetTuple1( r )];
+        }
+
+      // If maximum size was requested, make sure it is satisfied
+      if ( this->Quantize )
+        {
+        // Retrieve achieved histogram size
+        vtkIdType Nq = histogram.size();
+
+        // If histogram is too big, quantization will have to occur
+        while ( Nq > this->MaximumHistogramSize )
+          {
+          // Retrieve extremal values
+          double mini = histogram.begin()->first;
+          double maxi = histogram.rbegin()->first;
+
+          // Create bucket width based on target histogram size
+          // FIXME: .5 is arbitrary at this point
+          double width = ( maxi - mini ) / vtkMath::Round(  Nq / 2. );
+          
+          // Now re-calculate histogram by quantizing values
+          histogram.clear();
+          double reading;
+          double quantum;
+          for ( vtkIdType r = 0; r < nRow; ++ r )
+            {
+            reading = dvals->GetTuple1( r );
+            quantum = mini + vtkMath::Round( ( reading - mini ) / width ) * width;
+            ++ histogram[quantum];
+            }
+
+          // Update histogram size for conditional clause
+          Nq = histogram.size();
+          }
         }
 
       // Store histogram

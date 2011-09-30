@@ -43,6 +43,7 @@
 class vtkActor;
 class vtkRenderer;
 class vtkShaderProgram;
+class vtkShaderDeviceAdapter2;
 class vtkTexture;
 class vtkWindow;
 class vtkXMLDataElement;
@@ -257,6 +258,10 @@ public:
   // Get the Shader program. If Material is not set/or not loaded properly,
   // this will return null.
   vtkGetObjectMacro(ShaderProgram, vtkShaderProgram);
+
+  // Description:
+  // Get the vtkShaderDeviceAdapter2 if set, returns null otherwise.
+  virtual vtkShaderDeviceAdapter2* GetShaderDeviceAdapter2() { return NULL; }
 
   // Description:
   // Provide values to initialize shader variables.

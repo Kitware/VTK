@@ -334,27 +334,40 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
         this->ShadowMapBakerPass->GetShadowMaps()->Vector.size();
        vtksys_ios::ostringstream ostVS;
 
-       ostVS << "#define VTK_LIGHTING_NUMBER_OF_LIGHTS " << nbLights
-             << endl;
-       ostVS << vtkShadowMapPassShader_vs;
+       vtksys_ios::ostringstream numLights;
+       numLights << endl << "#define VTK_LIGHTING_NUMBER_OF_LIGHTS " << nbLights << endl;
+
+       vtkStdString vertShader(vtkShadowMapPassShader_vs);
+       size_t version_loc = vertShader.find("#version 110");
+
+       vertShader.insert(version_loc + 13, numLights.str());
+
+       ostVS << vertShader;
 
        vtkStdString *vsCode=new vtkStdString;
        (*vsCode)=ostVS.str();
 
        vtksys_ios::ostringstream ostLightingVS;
 
-       ostLightingVS << "#define VTK_LIGHTING_NUMBER_OF_LIGHTS " << nbLights
-                     << endl;
-       ostLightingVS << vtkLighting_s;
+       vtkStdString lightShader(vtkLighting_s);
+       version_loc = lightShader.find("#version 110");
+
+       lightShader.insert(version_loc + 13, numLights.str());
+
+       ostLightingVS << lightShader;
 
        vtkStdString *lightingVsCode=new vtkStdString;
        (*lightingVsCode)=ostLightingVS.str();
 
 
        vtksys_ios::ostringstream ostFS;
-       ostFS << "#define VTK_LIGHTING_NUMBER_OF_LIGHTS " << nbLights
-             << endl;
-       ostFS << vtkShadowMapPassShader_fs;
+
+       vtkStdString fragShader(vtkShadowMapPassShader_fs);
+       version_loc = fragShader.find("#version 110");
+
+       fragShader.insert(version_loc + 13, numLights.str());
+
+       ostFS << fragShader;
 
        vtkStdString *fsCode=new vtkStdString;
        (*fsCode)=ostFS.str();

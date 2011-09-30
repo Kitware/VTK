@@ -15,9 +15,7 @@
 #include "vtkCell.h"
 
 #include "vtkMath.h"
-#include "vtkMarchingSquaresCases.h"
 #include "vtkPoints.h"
-
 
 //----------------------------------------------------------------------------
 // Construct cell.
@@ -31,7 +29,7 @@ vtkCell::vtkCell()
   this->Points->Delete();
   this->PointIds->Register(this);
   this->PointIds->Delete();
-}  
+}
 
 //----------------------------------------------------------------------------
 vtkCell::~vtkCell()
@@ -54,7 +52,7 @@ void vtkCell::Initialize(int npts, vtkIdType *pts, vtkPoints *p)
     this->Points->InsertPoint(i,p->GetPoint(pts[i]));
     }
 }
- 
+
 //----------------------------------------------------------------------------
 void vtkCell::ShallowCopy(vtkCell *c)
 {
@@ -139,7 +137,7 @@ double vtkCell::GetLength2 ()
 
 //----------------------------------------------------------------------------
 // Return center of the cell in parametric coordinates.
-// Note that the parametric center is not always located 
+// Note that the parametric center is not always located
 // at (0.5,0.5,0.5). The return value is the subId that
 // the center is in (if a composite cell). If you want the
 // center in x-y-z space, invoke the EvaluateLocation() method.
@@ -159,11 +157,11 @@ double vtkCell::GetParametricDistance(double pcoords[3])
 
   for (i=0; i<3; i++)
     {
-    if ( pcoords[i] < 0.0 ) 
+    if ( pcoords[i] < 0.0 )
       {
       pDist = -pcoords[i];
       }
-    else if ( pcoords[i] > 1.0 ) 
+    else if ( pcoords[i] > 1.0 )
       {
       pDist = pcoords[i] - 1.0;
       }
@@ -184,9 +182,9 @@ double vtkCell::GetParametricDistance(double pcoords[3])
 void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   int numIds=this->PointIds->GetNumberOfIds();
-  
+
   os << indent << "Number Of Points: " << numIds << "\n";
 
   if ( numIds > 0 )
@@ -216,32 +214,6 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
       }
     os << indent << "\n";
     }
-}
-
-// Note: the following code is placed here to deal with cross-library
-// symbol export and import on Microsoft compilers.
-static vtkMarchingSquaresLineCases VTK_MARCHING_SQUARES_LINECASES[] = { 
-  {{-1, -1, -1, -1, -1}},
-  {{0, 3, -1, -1, -1}},
-  {{1, 0, -1, -1, -1}},
-  {{1, 3, -1, -1, -1}},
-  {{2, 1, -1, -1, -1}},
-  {{0, 3, 2, 1, -1}},
-  {{2, 0, -1, -1, -1}},
-  {{2, 3, -1, -1, -1}},
-  {{3, 2, -1, -1, -1}},
-  {{0, 2, -1, -1, -1}},
-  {{1, 0, 3, 2, -1}},
-  {{1, 2, -1, -1, -1}},
-  {{3, 1, -1, -1, -1}},
-  {{0, 1, -1, -1, -1}},
-  {{3, 0, -1, -1, -1}},
-  {{-1, -1, -1, -1, -1}}
-};
-
-vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()
-{
-  return VTK_MARCHING_SQUARES_LINECASES;
 }
 
 // Usually overridden. Only composite cells do not override this.

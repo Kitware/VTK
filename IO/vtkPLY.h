@@ -157,7 +157,7 @@ class VTK_IO_EXPORT vtkPLY
 public:
   //standard PLY library interface
   static PlyFile *ply_write(FILE *, int, const char **, int);
-  static PlyFile *ply_open_for_writing(char *, int, const char **, int, float *);
+  static PlyFile *ply_open_for_writing(const char *, int, const char **, int, float *);
   static void ply_describe_element(PlyFile *, const char *, int, int, PlyProperty *);
   static void ply_describe_property(PlyFile *, const char *, PlyProperty *);
   static void ply_element_count(PlyFile *, const char *, int);
@@ -167,17 +167,17 @@ public:
   static void ply_put_comment(PlyFile *, const char *);
   static void ply_put_obj_info(PlyFile *, const char *);
   static PlyFile *ply_read(FILE *, int *, char ***);
-  static PlyFile *ply_open_for_reading( char *, int *, char ***, int *, float *);
+  static PlyFile *ply_open_for_reading( const char *, int *, char ***, int *, float *);
   static PlyElement *ply_get_element_description(PlyFile *, char *, int*, int*);
-  static void ply_get_element_setup( PlyFile *, char *, int, PlyProperty *);
-  static void ply_get_property(PlyFile *, char *, PlyProperty *);
-  static PlyOtherProp *ply_get_other_properties(PlyFile *, char *, int);
+  static void ply_get_element_setup( PlyFile *, const char *, int, PlyProperty *);
+  static void ply_get_property(PlyFile *, const char *, PlyProperty *);
+  static PlyOtherProp *ply_get_other_properties(PlyFile *, const char *, int);
   static void ply_get_element(PlyFile *, void *);
   static char **ply_get_comments(PlyFile *, int *);
   static char **ply_get_obj_info(PlyFile *, int *);
   static void ply_close(PlyFile *);
   static void ply_get_info(PlyFile *, float *, int *);
-  static PlyOtherElems *ply_get_other_element (PlyFile *, char *, int);
+  static PlyOtherElems *ply_get_other_element (PlyFile *, const char *, int);
   static void ply_describe_other_elements ( PlyFile *, PlyOtherElems *);
   static void ply_put_other_elements (PlyFile *);
   static void ply_free_other_elements (PlyOtherElems *);
@@ -185,7 +185,7 @@ public:
 
   // These methods are internal to the PLY library in the normal distribution
   // They should be used carefully
-  static int equal_strings(const char *, const char *);
+  static bool equal_strings(const char *, const char *);
   static PlyElement *find_element(PlyFile *, const char *);
   static PlyProperty *find_property(PlyElement *, const char *, int *);
   static void write_scalar_type (FILE *, int);
@@ -198,16 +198,16 @@ public:
   static void add_property(PlyFile *, char **, int);
   static void add_comment(PlyFile *, char *);
   static void add_obj_info(PlyFile *, char *);
-  static void copy_property(PlyProperty *, PlyProperty *);
+  static void copy_property(PlyProperty *, const PlyProperty *);
   static void store_item(char *, int, int, unsigned int, double);
   static void get_stored_item( void *, int, int *, unsigned int *, double *);
-  static double get_item_value(char *, int);
-  static void get_ascii_item(char *, int, int *, unsigned int *, double *);
+  static double get_item_value(const char *, int);
+  static void get_ascii_item(const char *, int, int *, unsigned int *, double *);
   static void get_binary_item(PlyFile *, int, int *, unsigned int *, double *);
   static void ascii_get_element(PlyFile *, char *);
   static void binary_get_element(PlyFile *, char *);
-  static char *my_alloc(int, int, const char *);
-  static int get_prop_type(char *);
+  static char *my_alloc(size_t, int, const char *);
+  static int get_prop_type(const char *);
   
 };
 

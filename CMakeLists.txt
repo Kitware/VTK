@@ -6,6 +6,12 @@ FOREACH(policy CMP0012 CMP0013 CMP0014)
   ENDIF()
 ENDFOREACH()
 
+FOREACH(policy CMP0017)
+  IF(POLICY ${policy})
+    CMAKE_POLICY(SET ${policy} OLD)
+  ENDIF()
+ENDFOREACH()
+
 PROJECT(VTK)
 
 # Objective C compile flags, future CMake versions might make this obsolete
@@ -355,14 +361,6 @@ SET(VTK_MATERIALS_DIRS
   "; separated directories to search for materials/shaders")
 
 MARK_AS_ADVANCED(VTK_USE_CG_SHADERS VTK_USE_GLSL_SHADERS VTK_MATERIALS_DIRS)
-
-# Python multithreading support
-SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 0)
-IF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
-  SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 1)
-ENDIF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
-OPTION(VTK_NO_PYTHON_THREADS "Disable multithreading support in the Python bindings" ${_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT})
-MARK_AS_ADVANCED(VTK_NO_PYTHON_THREADS)
 
 # Add Option to enable Qt Support.
 OPTION(VTK_USE_QT "Build Qt support" OFF)

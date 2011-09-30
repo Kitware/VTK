@@ -23,18 +23,21 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStructuredGrid.h"
 #include "vtkStructuredGridGeometryFilter.h"
+#include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTetra.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGridGeometryFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
@@ -964,6 +967,46 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                                                      vtkPolyData *output,
                                                      int updateGhostLevel)
 {
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
+
+  // Before we start doing anything interesting, check if we need handle
+  // non-linear cells using sub-division.
+  bool handleSubdivision = false;
+  if (this->NonlinearSubdivisionLevel >= 1)
+    {
+    // Check to see if the data actually has nonlinear cells.  Handling
+    // nonlinear cells adds unnecessary work if we only have linear cells.
+    vtkIdType numCells = input->GetNumberOfCells();
+    unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
+    for (vtkIdType i = 0; i < numCells; i++)
+      {
+      if (!vtkCellTypes::IsLinear(cellTypes[i]))
+        {
+        handleSubdivision = true;
+        break;
+        }
+      }
+    }
+
+  vtkSmartPointer<vtkUnstructuredGrid> tempInput;
+  if (handleSubdivision)
+    {
+    // Since this filter only properly subdivides 2D cells past
+    // level 1, we convert 3D cells to 2D by using
+    // vtkUnstructuredGridGeometryFilter.
+    vtkNew<vtkUnstructuredGridGeometryFilter> uggf;
+    vtkNew<vtkUnstructuredGrid> clone;
+    clone->ShallowCopy(input);
+    uggf->SetInputConnection(clone->GetProducerPort());
+    uggf->SetPassThroughCellIds(this->PassThroughCellIds);
+    uggf->SetPassThroughPointIds(this->PassThroughPointIds);
+    uggf->Update();
+
+    tempInput = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    tempInput->ShallowCopy(uggf->GetOutputDataObject(0));
+    input = tempInput;
+    }
+
   vtkCellArray *newVerts;
   vtkCellArray *newLines;
   vtkCellArray *newPolys;
@@ -974,7 +1017,6 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   int i, j;
   vtkIdType *cellPointer;
   int cellType;
-  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkGenericCell *cell;
@@ -1024,7 +1066,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   newVerts = vtkCellArray::New();
   newLines = vtkCellArray::New();
 
-  if (this->NonlinearSubdivisionLevel <= 1)
+  if (handleSubdivision == false)
     {
     outputPD->CopyGlobalIdsOn();
     outputPD->CopyAllocate(inputPD, numPts, numPts/2);
@@ -1804,6 +1846,7 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
         // We have a match.
         quad->SourceId = -1;
         // That is all we need to do. Hide any tri shared by two or more cells.
+        delete [] tab;
         return;
         }
     quad = *end;

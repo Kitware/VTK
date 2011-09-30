@@ -16,6 +16,7 @@ SET(Kit_SRCS
   vtkAbstractContextBufferId.cxx
   vtkAbstractContextItem.cxx
   vtkAxis.cxx
+  vtkAxisExtended.cxx
   vtkBlockItem.cxx
   vtkBrush.cxx
   vtkChart.cxx
@@ -26,16 +27,19 @@ SET(Kit_SRCS
   vtkChartPie.cxx
   vtkColorLegend.cxx
   vtkPlotPie.cxx
-  vtkColor.h
   vtkColorSeries.cxx
   vtkColorTransferFunctionItem.cxx
+  vtkColorTransferControlPointsItem.cxx
+  vtkCompositeControlPointsItem.cxx
   vtkCompositeTransferFunctionItem.cxx
   vtkContext2D.cxx
   vtkContextActor.cxx
   vtkContextBufferId.cxx
   vtkContextClip.cxx
   vtkContextDevice2D.cxx
+  vtkContextInteractorStyle.cxx
   vtkContextItem.cxx
+  vtkContextKeyEvent.cxx
   vtkContextMapper2D.cxx
   vtkContextMouseEvent.h
   vtkContextScene.cxx
@@ -60,13 +64,10 @@ SET(Kit_SRCS
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
   vtkTooltipItem.cxx
-  vtkVector.h
   )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkColor
   vtkContextMouseEvent
-  vtkVector
   HEADER_FILE_ONLY
 )
 
@@ -74,27 +75,24 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
   vtkAbstractContextItem
   vtkChart
-  vtkColor
   vtkContextDevice2D
   vtkContextItem
   vtkContextMapper2D
   vtkControlPointsItem
   vtkPlot
   vtkScalarsToColorsItem
-  vtkVector
   ABSTRACT
   )
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
-  vtkColor
   vtkContextBufferId
+  vtkContextKeyEvent
   vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId
   vtkOpenGL2ContextDevice2D
   vtkOpenGLContextDevice2D
-  vtkVector
   WRAP_EXCLUDE
 )
 

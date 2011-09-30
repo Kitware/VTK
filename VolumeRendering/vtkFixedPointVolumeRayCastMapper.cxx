@@ -685,6 +685,7 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
     this->SavedGradientOpacityFunction[i] = NULL;
     this->SavedColorChannels[i]           = 0;
     this->SavedScalarOpacityDistance[i]   = 0;
+    this->TableSize[i]                    = 0;
     }
 
   this->SavedSampleDistance          = 0;

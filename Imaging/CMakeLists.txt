@@ -82,7 +82,7 @@ vtkImageNormalize.cxx
 vtkImageOpenClose3D.cxx
 vtkImagePadFilter.cxx
 vtkImagePermute.cxx
-vtkImageProjection.cxx
+vtkImageSlab.cxx
 vtkImageQuantizeRGBToIndex.cxx
 vtkImageRFFT.cxx
 vtkImageRGBToHSI.cxx
@@ -107,7 +107,9 @@ vtkImageStencilToImage.cxx
 vtkImageStencilAlgorithm.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
+vtkImageSlabReslice.cxx
 vtkImageThreshold.cxx
+vtkImageThresholdConnectivity.cxx
 vtkImageToImageStencil.cxx
 vtkImageTranslateExtent.cxx
 vtkImageVariance3D.cxx

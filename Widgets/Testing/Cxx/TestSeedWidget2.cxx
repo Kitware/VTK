@@ -95,11 +95,11 @@ int TestSeedWidget2( int argc, char *argv[] )
     v16->SetImageRange(1, 93);
     v16->SetDataSpacing (3.2, 3.2, 1.5);
   delete[] fname;
-  vtkSmartPointer<vtkImageMapToColors> saggitalColors =
+  vtkSmartPointer<vtkImageMapToColors> sagittalColors =
     vtkSmartPointer<vtkImageMapToColors>::New();
-    saggitalColors->SetInputConnection(v16->GetOutputPort());
-    saggitalColors->SetLookupTable(bwLut);
-  vtkSmartPointer<vtkImageActor> saggital =
+    sagittalColors->SetInputConnection(v16->GetOutputPort());
+    sagittalColors->SetLookupTable(bwLut);
+  vtkSmartPointer<vtkImageActor> sagittal =
     vtkSmartPointer<vtkImageActor>::New();
     saggital->GetMapper()->SetInputConnection(saggitalColors->GetOutputPort());
     saggital->SetDisplayExtent(32,32, 0,63, 0,92);
@@ -124,7 +124,7 @@ int TestSeedWidget2( int argc, char *argv[] )
 
   // Add the actors to the renderer, set the background and size
   //
-  ren1->AddActor(saggital);
+  ren1->AddActor(sagittal);
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
 

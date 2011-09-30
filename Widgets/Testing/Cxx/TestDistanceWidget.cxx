@@ -914,17 +914,38 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   handle->GetProperty()->SetColor(1,0,0);
   VTK_CREATE(vtkDistanceRepresentation2D, rep);
   rep->SetHandleRepresentation(handle);
-  rep->GetAxis()->SetNumberOfMinorTicks(4);
-  rep->GetAxis()->SetTickLength(9);
-  rep->GetAxis()->SetTitlePosition(0.2);
+  vtkAxisActor2D *axis = rep->GetAxis();
+  if (!axis)
+    {
+    std::cerr << "Error getting representation's axis" << std::endl;
+    return EXIT_FAILURE;
+    }
+  axis->SetNumberOfMinorTicks(4);
+  axis->SetTickLength(9);
+  axis->SetTitlePosition(0.2);
   rep->RulerModeOn();
   rep->SetRulerDistance(0.25);
-
+  if (rep->GetRulerDistance() != 0.25)
+    {
+    std::cerr << "Error setting ruler distance to 0.25, get returned " << rep->GetRulerDistance() << std::endl;
+    return EXIT_FAILURE;
+    }
+  
+  vtkProperty2D *prop2D = rep->GetAxisProperty();
+  if (!prop2D)
+    {
+    std::cerr << "Error getting widget axis property" << std::endl;
+    return EXIT_FAILURE;
+    }
+  prop2D->SetColor(1.0, 0.0, 1.0);
+  
   VTK_CREATE(vtkDistanceWidget, widget);
   widget->SetInteractor(iren);
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
+ 
+  
   VTK_CREATE(vtkDistanceCallback, mcbk);
   mcbk->Renderer = ren1;
   mcbk->RenderWindow = renWin;
@@ -960,6 +981,76 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   iren->Start();
 
   recorder->Off();
+
+  double *p1w = rep->GetPoint1WorldPosition();
+  if (p1w)
+    {
+    std::cout << "Point 1 World Position: " << p1w[0] << ", " << p1w[1] << ", " << p1w[2] << std::endl;
+    }
+  else
+    {
+    std::cout << "Error getting point 1 world position" << std::endl;
+    return EXIT_FAILURE;
+    }
+  double *p2w = rep->GetPoint2WorldPosition();
+  if (p2w)
+    {
+    std::cout << "Point 2 World Position: " << p2w[0] << ", " << p2w[1] << ", " << p2w[2] << std::endl;
+    }
+  else
+    {
+    std::cout << "Error getting point 2 world position" << std::endl;
+    return EXIT_FAILURE;
+    }
+  double distance = rep->GetDistance();
+  std::cout << "Distance: " << distance << std::endl;
+  double pointDistance = vtkMath::Distance2BetweenPoints(p1w, p2w);
+  pointDistance = sqrt(pointDistance);
+  if (fabs(pointDistance - distance) > 0.01)
+    {
+    std::cerr << "Error: distance between the world positions of the end points = " << pointDistance << ", while the representation's distance is " << distance << std::endl;
+    return EXIT_FAILURE;
+    }
+  // now set it and test again
+  double p1wSet[3] = {10.0, 10.0, 10.0};
+  double p2wSet[3] = {-10.0, -10.0, -10.0};
+  rep->SetPoint1WorldPosition(p1wSet);
+  p1w = rep->GetPoint1WorldPosition();
+  if (p1w)
+    {
+    std::cout << "Point 1 World Position: " << p1w[0] << ", " << p1w[1] << ", " << p1w[2] << std::endl;
+    }
+  else
+    {
+    std::cout << "Error getting point 1 world position" << std::endl;
+    return EXIT_FAILURE;
+    }
+  rep->SetPoint2WorldPosition(p2wSet);
+  p2w = rep->GetPoint2WorldPosition();
+  if (p2w)
+    {
+    std::cout << "Point 2 World Position: " << p2w[0] << ", " << p2w[1] << ", " << p2w[2] << std::endl;
+    }
+  else
+    {
+    std::cout << "Error getting point 2 world position" << std::endl;
+    return EXIT_FAILURE;
+    }
+  distance = rep->GetDistance();
+  pointDistance = vtkMath::Distance2BetweenPoints(p1wSet, p2wSet);
+  pointDistance = sqrt(pointDistance);
+  if (fabs(pointDistance - distance) > 0.01)
+    {
+    std::cerr << "Error: distance between the new world positions of the end points = " << pointDistance << ", while the representation's distance is " << distance << std::endl;
+    return EXIT_FAILURE;
+    }
+  std::cout << "New distance = " << distance << std::endl;
   
+  double p1d[3];
+  rep->GetPoint1DisplayPosition(p1d);
+  std::cout << "Point 1 Display Position: " << p1d[0] << ", " << p1d[1] << ", " << p1d[2] << std::endl;
+  double p2d[3];
+  rep->GetPoint2DisplayPosition(p2d);
+  std::cout << "Point 2 Display Position: " << p2d[0] << ", " << p2d[1] << ", " << p2d[2] << std::endl;
   return EXIT_SUCCESS;
 }

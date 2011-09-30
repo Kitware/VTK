@@ -17,28 +17,18 @@
 // vtkWindBladeReader is a source object that reads WindBlade files
 // which are block binary files with tags before and after each block
 // giving the number of bytes within the block.  The number of data 
-// variables dumped varies.  The data is 3D rectilinear with irregular
-// spacing on the Z dimension.
-//
+// variables dumped varies.  There are 3 output ports with the first
+// being a structured grid with irregular spacing in the Z dimension.
+// The second is an unstructured grid only read on on process 0 and
+// used to represent the blade.  The third is also a structured grid
+// with irregular spacing on the Z dimension.  Only the first and
+// second output ports have time dependent data.
 
 #ifndef __vtkWindBladeReader_h
 #define __vtkWindBladeReader_h
 
 
 #include "vtkStructuredGridAlgorithm.h"
-
-#define VTK_USE_MPI
-
-const float DRY_AIR_CONSTANT = 287.04;
-const int NUM_PART_SIDES = 4;  // Blade parts rhombus
-const int NUM_BASE_SIDES = 5;  // Base pyramid
-const int LINE_SIZE             = 256;
-const int DIMENSION             = 3;
-const int BYTES_PER_DATA = 4;
-const int SCALAR  = 1;
-const int VECTOR  = 2;
-const int FLOAT   = 1;
-const int INTEGER  = 2;
 
 class vtkWindBladeReaderPiece;
 class vtkDataArraySelection;
@@ -88,6 +78,15 @@ public:
   void DisableAllPointArrays();
   void EnableAllPointArrays();
 
+  // Description:
+  // We intercept the requests to check for which port
+  // information is being requested for and if there is
+  // a REQUEST_DATA_NOT_GENERATED request then we mark
+  // which ports won't have data generated for that request.
+  virtual int ProcessRequest(vtkInformation *request,
+                             vtkInformationVector **inInfo,
+                             vtkInformationVector *outInfo);
+
 protected:
   vtkWindBladeReader();
   ~vtkWindBladeReader();
@@ -123,11 +122,11 @@ protected:
   float Fit;    // Cubic or quadratic [0,1]
 
   // Rectilinear coordinate spacing
-  vtkFloatArray* xSpacing;
-  vtkFloatArray* ySpacing;
-  vtkFloatArray* zSpacing;
-  float* zTopographicValues;
-  float zMinValue;
+  vtkFloatArray* XSpacing;
+  vtkFloatArray* YSpacing;
+  vtkFloatArray* ZSpacing;
+  float* ZTopographicValues;
+  float ZMinValue;
 
   // Variable information
   int NumberOfFileVariables;  // Number of variables in data file
@@ -144,7 +143,7 @@ protected:
   int BlockSize;   // Size of every data block
   int GBlockSize;  // Size of every data block
 
-  vtkFloatArray** data;   // Actual data arrays
+  vtkFloatArray** Data;   // Actual data arrays
   vtkStdString RootDirectory; // Directory where the .wind file is.
   vtkStdString DataDirectory;  // Location of actual data
   vtkStdString DataBaseName;  // Base name of files
@@ -170,6 +169,8 @@ protected:
   vtkStdString TurbineDirectory; // Turbine unstructured data
   vtkStdString TurbineTowerName; // Name of tower file
   vtkStdString TurbineBladeName; // Base name of time series blade data
+  int NumberOfLinesToSkip;  // New format has lines that need to be skipped in
+                            // blade files
 
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
@@ -181,9 +182,9 @@ protected:
   vtkMultiProcessController * MPIController; 
 
   // Read the header file describing the dataset
-  void ReadGlobalData();
+  bool ReadGlobalData();
   void ReadDataVariables(ifstream& inStr);
-  void FindVariableOffsets();
+  bool FindVariableOffsets();
 
   // Turbine methods
   void SetupBladeData();
@@ -195,8 +196,8 @@ protected:
   void CreateCoordinates();
   void CreateZTopography(float* zdata);
   float GDeform(float sigma, float sigmaMax, int flag);
-  void spline(float* x, float* y, int n, float yp1, float ypn, float* y2);
-  void splint(float* xa, float* ya, float* y2a, int n, float x, float* y, int);
+  void Spline(float* x, float* y, int n, float yp1, float ypn, float* y2);
+  void Splint(float* xa, float* ya, float* y2a, int n, float x, float* y, int);
 
   // Load a variable from data file
   void LoadVariableData(int var);

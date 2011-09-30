@@ -1272,6 +1272,20 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     fprintf(fp,"  op->Delete();\n");
     fprintf(fp,"}\n");
 
+    fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_%s_VTKGetClassNameFromReference(JNIEnv *env,jclass,jlong id)\n",
+            data->Name);
+    fprintf(fp,"{\n");
+    fprintf(fp,"  const char* name = \"\";\n");
+    fprintf(fp,"  %s *op;\n", data->Name);
+    fprintf(fp,"  if(id != 0)\n");
+    fprintf(fp,"    {\n");
+    fprintf(fp,"    op = reinterpret_cast<%s*>(id);\n", data->Name);
+    //fprintf(fp,"    std::cout << \"cast pointer \" << id << std::endl;\n");
+    fprintf(fp,"    name = op->GetClassName();\n");
+    fprintf(fp,"    }\n");
+    fprintf(fp,"  return vtkJavaMakeJavaString(env,name);\n");
+    fprintf(fp,"}\n");
+
     fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
             data->Name);
     fprintf(fp,"{\n  %s *op;\n",data->Name);

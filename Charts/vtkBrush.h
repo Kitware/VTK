@@ -59,6 +59,10 @@ public:
   void SetOpacityF(double a);
 
   // Description:
+  // Get the opacity ranging from 0.0 (transparent) to 1.0(opaque).
+  double GetOpacityF();
+
+  // Description:
   // Set the color of the brush with three component unsigned chars (RGB),
   // ranging from 0 to 255.
   void SetColor(unsigned char color[3]);
@@ -79,6 +83,10 @@ public:
   // Set the opacity with an unsigned char, ranging from 0 (transparent) to 255
   // (opaque).
   void SetOpacity(unsigned char a);
+
+  // Description:
+  // Get the opacity ranging from 0 (transparent) to 255(opaque).
+  unsigned char GetOpacity();
 
   // Description:
   // Get the color of the brush - expects a double of length 4 to copy into.

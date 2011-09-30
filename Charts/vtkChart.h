@@ -22,7 +22,7 @@
 #define __vtkChart_h
 
 #include "vtkContextItem.h"
-#include "vtkVector.h"      // For vtkRectf
+#include "vtkRect.h"        // For vtkRectf
 #include "vtkStdString.h"   // For vtkStdString ivars
 
 class vtkTransform2D;
@@ -53,9 +53,10 @@ public:
   // Description:
   // Enum of valid chart action types
   enum {
-    PAN,
+    PAN = 0,
     ZOOM,
-    SELECT
+    SELECT,
+    NOTIFY
     };
 //ETX
 
@@ -203,6 +204,18 @@ public:
   // enum is from vtkContextMouseEvent, and the action enum is from vtkChart.
   virtual int GetActionToButton(int action);
 
+  // Description:
+  // Assign action types to single mouse clicks. Available action types are
+  // SELECT and NOTIFY in the chart enum. The default assigns the LEFT_BUTTON
+  // to NOTIFY, and the RIGHT_BUTTON to SELECT.
+  virtual void SetClickActionToButton(int action, int button);
+
+  // Description:
+  // Get the mouse button associated with the supplied click action. The mouse
+  // button enum is from vtkContextMouseEvent, and the action enum is from
+  // vtkChart.
+  virtual int GetClickActionToButton(int action);
+
 protected:
   vtkChart();
   ~vtkChart();
@@ -259,8 +272,18 @@ protected:
     short& operator[](int index) { return Data[index]; }
     short Data[3];
     };
+  class MouseClickActions
+    {
+  public:
+    MouseClickActions();
+    short& Notify() { return Data[0]; }
+    short& Select() { return Data[1]; }
+    short& operator[](int index) { return Data[index]; }
+    short Data[2];
+    };
 
   MouseActions Actions;
+  MouseClickActions ActionsClick;
 
 private:
   vtkChart(const vtkChart &); // Not implemented.

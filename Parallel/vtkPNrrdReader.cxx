@@ -321,7 +321,6 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
     }
 
   this->DataFiles->Initialize();
-  int byteskip = 0;
   int numDimensions = 0;
   int subDimension = -1;
   vtkstd::vector<int> dimSizes;
@@ -507,7 +506,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if ((field == "byte skip") || (field == "byteskip"))
         {
-        byteskip = atoi(description.c_str());
+        atoi(description.c_str());
         }
       else if (   (field == "space units")
                || (field == "sample units") || (field == "sampleunits")

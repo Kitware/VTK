@@ -432,6 +432,7 @@ public:
   static vtkInformationIntegerKey* PRESERVES_TOPOLOGY();
   static vtkInformationIntegerKey* PRESERVES_ATTRIBUTES();
   static vtkInformationIntegerKey* PRESERVES_RANGES();
+  static vtkInformationIntegerKey* MANAGES_METAINFORMATION();
 
   // Description:
   // If the whole input extent is required to generate the requested output

@@ -1441,38 +1441,6 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 }
 
 //----------------------------------------------------------------------------
-// An expensive magnitude calculation (similar to
-// vtkLookupTable.cxx (vtkLookupTableMapMag).
-template <class T>
-void vtkColorTransferFunctionMagMapData(vtkColorTransferFunction* self,
-                                     T* input,
-                                     unsigned char* output,
-                                     int length, int inIncr,
-                                     int outFormat, int v)
-{
-  double tmp, sum;
-  double *mag;
-  int i, j;
-
-  mag = new double[length];
-  for (i = 0; i < length; ++i)
-    {
-    sum = 0;
-    for (j = 0; j < inIncr; ++j)
-      {
-      tmp = static_cast<double>(*input);  
-      sum += (tmp * tmp);
-      ++input;
-      }
-    mag[i] = sqrt(sum);
-    }
-
-  vtkColorTransferFunctionMapData(self, mag, output, length, 1, outFormat, v);
-
-  delete [] mag;
-}
-
-//----------------------------------------------------------------------------
 void vtkColorTransferFunction::MapScalarsThroughTable2(void *input, 
                                                        unsigned char *output,
                                                        int inputDataType, 
@@ -1480,23 +1448,6 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
                                                        int inputIncrement,
                                                        int outputFormat)
 {
-  if (this->UseMagnitude && inputIncrement > 1)
-    {
-    switch (inputDataType)
-      {
-      vtkTemplateMacro(
-        vtkColorTransferFunctionMagMapData(this, static_cast<VTK_TT*>(input),
-          output, numberOfValues, inputIncrement, outputFormat, 1);
-        return
-      );
-    case VTK_BIT:
-      vtkErrorMacro("Cannot compute magnitude of bit array.");
-      break;
-    default:
-      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-      }
-    }
-
   switch (inputDataType)
     {
     vtkTemplateMacro(

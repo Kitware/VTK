@@ -1021,7 +1021,7 @@ LZWCleanup(TIFF* tif)
 int
 TIFFInitLZW(TIFF* tif, int scheme)
 {
-        assert(scheme == COMPRESSION_LZW);
+        assert(scheme == COMPRESSION_LZW); (void)scheme;
         /*
          * Allocate state block so tag methods have storage to record values.
          */

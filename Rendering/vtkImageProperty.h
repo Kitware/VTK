@@ -105,6 +105,7 @@ public:
 
   // Description:
   // Make a checkerboard pattern where the black squares are transparent.
+  // The pattern is aligned with the camera, and centered by default.
   vtkSetMacro(Checkerboard, int);
   vtkBooleanMacro(Checkerboard, int);
   vtkGetMacro(Checkerboard, int);
@@ -116,7 +117,7 @@ public:
 
   // Description:
   // The phase offset for checkerboarding, in units of spacing.  Use a
-  // value between 0 and 2, where 2 is an offset of two squares.
+  // value between -1 and +1, where 1 is an offset of one squares.
   vtkSetVector2Macro(CheckerboardOffset, double);
   vtkGetVector2Macro(CheckerboardOffset, double);
 

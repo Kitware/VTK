@@ -356,6 +356,14 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   // Anyone who disagrees should write their own reader class.
   int numGridDimensions;
   CALL_NETCDF_GW(nc_inq_varndims(ncFD, varId, &numGridDimensions));
+
+  if(numGridDimensions == 0)
+    {
+    // If a variable has no dimensions, there is no reason to have dependent
+    // dimension variables. Just exit here for safety.
+    return 0;
+    }
+
   this->GridDimensions->SetNumberOfTuples(numGridDimensions);
   CALL_NETCDF_GW(nc_inq_vardimid(ncFD, varId,
                                  this->GridDimensions->GetPointer(0)));
@@ -365,6 +373,12 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
     {
     this->GridDimensions->RemoveTuple(0);
     numGridDimensions--;
+    if(numGridDimensions == 0)
+      {
+      // If a variable has no dimensions (ignoring time), there is no reason
+      // to have dependent dimension variables. Just exit here for safety.
+      return 0;
+      }
     }
 
   // Most coordinate variables are defined by a variable the same name as the

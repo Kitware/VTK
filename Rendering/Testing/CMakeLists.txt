@@ -24,7 +24,6 @@ IF(PYTHON_EXECUTABLE)
     vtkOpenGL.h
     vtkOpenGLExtensionManagerConfigure.h
     vtkOpenGLState.h
-    vtkOpenGLStateCache.h
     vtkPythagoreanQuadruples.h
     vtkRenderState.h
     vtkShadowMapPassInternal.h

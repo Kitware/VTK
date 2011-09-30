@@ -25,11 +25,14 @@
 #ifndef __vtkControlPointsItem_h
 #define __vtkControlPointsItem_h
 
+#include "vtkCommand.h" // For vtkCommand enum
 #include "vtkPlot.h"
+#include "vtkVector.h" // For vtkVector2f
 
 class vtkCallbackCommand;
 class vtkContext2D;
 class vtkPoints2D;
+class vtkTransform2D;
 
 class VTK_CHARTS_EXPORT vtkControlPointsItem: public vtkPlot
 {
@@ -37,9 +40,22 @@ public:
   vtkTypeMacro(vtkControlPointsItem, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  enum {
+    CurrentPointChangedEvent = vtkCommand::UserEvent,
+    CurrentPointEditEvent
+  };
+
   // Description:
   // Bounds of the item, typically the bound of all the control points
+  // except if custom bounds have been set \sa SetUserBounds.
   virtual void GetBounds(double bounds[4]);
+
+  // Description:
+  // Set custom bounds, except if bounds are invalid, bounds will be
+  // automatically computed based on the range of the control points
+  // Invalid bounds by default.
+  vtkSetVector4Macro(UserBounds, double);
+  vtkGetVector4Macro(UserBounds, double)
 
   // Description:
   // Paint the points with a fixed size (cosmetic) which doesn't depend
@@ -56,6 +72,10 @@ public:
   // To be found, the position of the point must be no further away than its
   // painted point size
   void SelectPoint(double* currentPoint);
+
+  // Description:
+  // Select all the points
+  void SelectAllPoints();
 
   // Description:
   // Unselect a point by its ID
@@ -83,10 +103,100 @@ public:
   void ToggleSelectPoint(double* currentPoint);
 
   // Description:
-  // Return the vtkIdType of the point given its coordinates and a tolerance.
-  // If tolerance is -1, to be found, the position of the point must be no
-  // further away than its painted point size (ItemPointSize)
-  vtkIdType GetPointId(double* pos, double tolerance = -1.);
+  // Select all points in the specified rectangle.
+  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+
+  // Description:
+  // Return the number of selected points.
+  vtkIdType GetNumberOfSelectedPoints()const;
+
+  // Description:
+  // Returns the vtkIdType of the point given its coordinates and a tolerance
+  // based on the screen point size.
+  vtkIdType FindPoint(double* pos);
+
+  // Description:
+  // Returns true if pos is above the pointId point, false otherwise.
+  // It uses the size of the drawn point. To search what point is under the pos,
+  // use the more efficient \sa FindPoint() instead.
+  bool IsOverPoint(double* pos, vtkIdType pointId);
+
+  // Description:
+  // Returns the id of the control point exactly matching pos, -1 if not found.
+  vtkIdType GetControlPointId(double* pos);
+
+  // Description:
+  // Controls whether or not control points are drawn (true) or clicked and
+  // moved (false).
+  // False by default.
+  vtkGetMacro(StrokeMode, bool);
+
+  // Description:
+  // If DrawPoints is false, SwitchPoints controls the behavior when a control
+  // point is dragged past another point. The crossed point becomes current
+  // (true) or the current point is blocked/stopped (false).
+  // False by default.
+  vtkSetMacro(SwitchPointsMode, bool);
+  vtkGetMacro(SwitchPointsMode, bool);
+
+  // Description:
+  // Add a point to the function. Returns the index of the point (0 based),
+  // or -1 on error.
+  // Subclasses should reimplement this function to do the actual work.
+  virtual vtkIdType AddPoint(double* newPos) = 0;
+
+  // Description:
+  // Remove a point of the function. Returns the index of the point (0 based),
+  // or -1 on error.
+  // Subclasses should reimplement this function to do the actual work.
+  virtual vtkIdType RemovePoint(double* pos) = 0;
+
+  // Description:
+  // Remove a point give its id. It is a utility function that internally call
+  // the virtual method RemovePoint(double*) and return its result.
+  vtkIdType RemovePoint(vtkIdType pointId);
+
+  // Description:
+  // Remove the current point.
+  inline void RemoveCurrentPoint();
+
+  // Description:
+  // Returns the total number of points
+  virtual vtkIdType GetNumberOfPoints()const = 0;
+
+  // Description:
+  // Returns the x and y coordinates as well as the midpoint and sharpness
+  // of the control point corresponding to the index.
+  virtual void GetControlPoint(vtkIdType index, double *point)const = 0;
+  // Description:
+  // Sets the x and y coordinates as well as the midpoint and sharpness
+  // of the control point corresponding to the index.
+  virtual void SetControlPoint(vtkIdType index, double *point) = 0;
+
+  // Description:
+  // Returns the current point selected.
+  vtkIdType GetCurrentPoint()const;
+
+  // Description:
+  // Sets the current point selected.
+  void SetCurrentPoint(vtkIdType index);
+
+  // Description:
+  // Gets the selected point pen and brush.
+  vtkGetObjectMacro(SelectedPointPen, vtkPen);
+
+  // Description:
+  // Depending on the control points item, the brush might not be taken into
+  // account.
+  vtkGetObjectMacro(SelectedPointBrush, vtkBrush);
+
+  // Description:
+  // Recompute the bounds next time they are requested.
+  // You shouldn't have to call it but it is provided for rare cases.
+  void ResetBounds();
+
+  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
 
 protected:
   vtkControlPointsItem();
@@ -98,21 +208,93 @@ protected:
   // Must be reimplemented by subclasses to calculate the points to draw.
   // It's subclass responsibility to call ComputePoints() via the callback
   virtual void ComputePoints();
+  virtual unsigned long int GetControlPointsMTime() =0;
+
+  // Description:
+  // Returns true if the supplied x, y coordinate is on a control point.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Clamp the given 2D pos into the bounds of the function.
+  // Return true if the pos has been clamped, false otherwise.
+  bool ClampPos(double pos[2]);
 
   // Description:
   // Internal function that paints a collection of points and optionally
   // excludes some.
-  void DrawPoints(vtkContext2D* painter, vtkPoints2D* points, vtkIdTypeArray* excludePoints = 0);
+  void DrawUnselectedPoints(vtkContext2D* painter);
+  void DrawSelectedPoints(vtkContext2D* painter);
+  virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
 
-  vtkPoints2D*        Points;
-  vtkPoints2D*        SelectedPoints;
+  // Description:
+  // Mouse button down event.
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  void SetCurrentPointPos(const vtkVector2f& newPos);
+  vtkIdType SetPointPos(vtkIdType point, const vtkVector2f& newPos);
+  void MoveSelectedPoints(const vtkVector2f& translation);
+  void MoveCurrentPoint(const vtkVector2f& translation);
+  vtkIdType MovePoint(vtkIdType point, const vtkVector2f& translation);
+
+  inline vtkVector2f GetSelectionCenterOfMass()const;
+  vtkVector2f GetCenterOfMass(vtkIdTypeArray* pointIDs)const;
+  
+  void SpreadSelectedPoints(float factor);
+  
+  void Stroke(const vtkVector2f& newPos);
+  virtual void EditPoint(float vtkNotUsed(tX), float vtkNotUsed(tY));
+  // Description:
+  // Mouse button release event.
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
+  void AddPointId(vtkIdType addedPointId);
+  
   vtkCallbackCommand* Callback;
+  vtkPen*             SelectedPointPen;
+  vtkBrush*           SelectedPointBrush;
+  vtkIdType           CurrentPoint;
 
+  double              Bounds[4];
+  double              UserBounds[4];
+
+  vtkTransform2D*     Transform;
   float               ScreenPointRadius;
   float               ItemPointRadius2;
+
+  bool                StrokeMode;
+  bool                SwitchPointsMode;
+  bool                MouseMoved;
+  bool                EnforceValidFunction;
+  vtkIdType           PointToDelete;
+  bool                PointAboutToBeDeleted;
+  vtkIdType           PointToToggle;
+  bool                PointAboutToBeToggled;
+  bool                InvertShadow;
 private:
   vtkControlPointsItem(const vtkControlPointsItem &); // Not implemented.
   void operator=(const vtkControlPointsItem &);   // Not implemented.
+
+  void      ComputeBounds();
+  void      ComputeBounds(double* bounds);
+
+  vtkIdType RemovePointId(vtkIdType removedPointId);
 };
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::RemoveCurrentPoint()
+{
+  this->RemovePoint(this->GetCurrentPoint());
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2f vtkControlPointsItem::GetSelectionCenterOfMass()const
+{
+  return this->GetCenterOfMass(this->Selection);
+}
 
 #endif

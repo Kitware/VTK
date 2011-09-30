@@ -64,14 +64,6 @@ public:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   virtual void GetBounds(double bounds[4]);
 
-//BTX
-  // Description:
-  // Function to query a plot for the nearest point to the specified coordinate.
-  virtual int GetNearestPoint(const vtkVector2f& point,
-                               const vtkVector2f& tolerance,
-                               vtkVector2f* location);
-//ETX
-
   // Description:
   // Set the selection criteria on the given axis in normalized space (0.0 - 1.0).
   bool SetSelectionRange(int Axis, float low, float high);

@@ -874,6 +874,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -1034,7 +1035,7 @@ bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum( NodePointer node )
   * of nodes at level M exist, this means the list of children will be
   * (2**D)**(M+1) long.
   * For a quadtree, D = 2.
-  * 
+  *
   * Instead of limiting the Queue size, we limit the total number of nodes queued.
   * Since nodes are popped off the front of the queue as they are pushed onto the
   * back, this is a stricter limit. It is also more closely related to the actual
@@ -1199,6 +1200,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -1414,7 +1416,7 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum( NodePointer node )
   * of nodes at level M exist, this means the list of children will be
   * (2**D)**(M+1) long.
   * For an octree, D = 3.
-  * 
+  *
   * Instead of limiting the Queue size, we limit the total number of nodes queued.
   * Since nodes are popped off the front of the queue as they are pushed onto the
   * back, this is a stricter limit. It is also more closely related to the actual
@@ -1571,6 +1573,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = vs / this->BucketSize[1];
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = 0.1 * tva / vsr;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -1930,13 +1933,13 @@ void vtkLabelHierarchyBuildCoincidenceMap(
       setCount = 0;
       for( ; setIter != (*mapIter).second.second.end(); ++setIter )
         {
-        impl->CoincidenceMap[(*setIter)] = 
+        impl->CoincidenceMap[(*setIter)] =
           lh->GetCenterPts()->InsertNextPoint( point );
         lh->GetPoints()->SetPoint( (*setIter),
           point[0] + offsets[setCount + 1].first * scale,
           point[1] + offsets[setCount + 1].second * scale,
           point[2] );
-        //cout << "Point: " << point[0] + offsets[setCount].first*scale << " " << 
+        //cout << "Point: " << point[0] + offsets[setCount].first*scale << " " <<
         //  point[1] + offsets[setCount].second*scale << endl;
         ++setCount;
         }
@@ -2034,13 +2037,13 @@ void vtkLabelHierarchy::ComputeHierarchy()
     {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
-    vtkMath::SpiralPoints( numCoincidentPoints + 1, offsets );
+    vtkCoincidentPoints::SpiralPoints( numCoincidentPoints + 1, offsets );
     for(int i = 0; i < numCoincidentPoints; ++i)
       {
       Id = coincidentPoints->GetId( i );
       this->Points->GetPoint( Id, point );
       // save center points for drawing spokes.
-      /*this->Implementation->CoincidenceMap[i] = 
+      /*this->Implementation->CoincidenceMap[i] =
         this->CenterPts->InsertNextPoint(point);*/
       offsets->GetPoint( i + 1, spiralPoint );
       this->Points->SetPoint( Id,
