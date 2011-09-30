@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkWindBladeReader is a source object that reads WindBlade files
 // which are block binary files with tags before and after each block
-// giving the number of bytes within the block.  The number of data 
+// giving the number of bytes within the block.  The number of data
 // variables dumped varies.  There are 3 output ports with the first
 // being a structured grid with irregular spacing in the Z dimension.
 // The second is an unstructured grid only read on on process 0 and
@@ -31,25 +31,6 @@
 #include "vtkStructuredGridAlgorithm.h"
 #include "vtkToolkits.h"
 
-#ifdef VTK_USE_MPI
-
-#include "vtkMPI.h"
-
-// copied from MPIImageReader
-#ifdef MPI_VERSION
-#  if (MPI_VERSION >= 2)
-#    define VTK_USE_MPI_IO 1
-#  endif
-#endif
-#if !defined(VTK_USE_MPI_IO) && defined(ROMIO_VERSION)
-#  define VTK_USE_MPI_IO 1
-#endif
-#if !defined(VTK_USE_MPI_IO) && defined(MPI_SEEK_SET)
-#  define VTK_USE_MPI_IO 1
-#endif
-
-#endif
-
 class vtkWindBladeReaderPiece;
 class vtkDataArraySelection;
 class vtkCallbackCommand;
@@ -62,14 +43,15 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkMultiBlockDataSetAglorithm;
 class vtkStructuredGridAlgorithm;
+class WindBladeReaderInternal;
 
-class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm 
+class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkWindBladeReader *New();
   vtkTypeMacro(vtkWindBladeReader,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
 
@@ -81,9 +63,9 @@ public:
 
   // Description:
   // Get the reader's output
-  vtkStructuredGrid *GetFieldOutput();		// Output port 0
-  vtkUnstructuredGrid *GetBladeOutput();	// Output port 1
-  vtkStructuredGrid *GetGroundOutput();		// Output port 2
+  vtkStructuredGrid *GetFieldOutput();    // Output port 0
+  vtkUnstructuredGrid *GetBladeOutput();  // Output port 1
+  vtkStructuredGrid *GetGroundOutput();    // Output port 2
 
   // Description:
   // The following methods allow selective reading of solutions fields.
@@ -112,12 +94,6 @@ protected:
   ~vtkWindBladeReader();
 
   char* Filename;   // Base file name
-
-#ifndef VTK_USE_MPI_IO
-  FILE* FilePtr;   // Open file pointer
-#else
-  MPI_File FilePtr;
-#endif
 
   int Rank;    // Number of this processor
   int TotalRank;   // Number of processors
@@ -204,7 +180,7 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   // Controlls initializing and querrying MPI
-  vtkMultiProcessController * MPIController; 
+  vtkMultiProcessController * MPIController;
 
   // Read the header file describing the dataset
   bool ReadGlobalData();
@@ -235,7 +211,7 @@ protected:
   void CalculatePressure(int pres, int prespre, int tempg, int density);
 
   virtual int RequestData(
-    vtkInformation* request, 
+    vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
@@ -245,17 +221,19 @@ protected:
     vtkInformationVector* outputVector);
 
   static void SelectionCallback(
-    vtkObject *caller, 
+    vtkObject *caller,
     unsigned long eid,
-    void *clientdata, 
+    void *clientdata,
     void *calldata);
 
   static void EventCallback(
-    vtkObject* caller, 
+    vtkObject* caller,
     unsigned long eid,
     void* clientdata, void* calldata);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
+
+  WindBladeReaderInternal * Internal;
 
 private:
   vtkWindBladeReader(const vtkWindBladeReader&);  // Not implemented.

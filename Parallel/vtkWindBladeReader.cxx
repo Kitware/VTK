@@ -101,6 +101,15 @@ namespace
 }
 
 
+class WindBladeReaderInternal {
+public:
+#ifndef VTK_USE_MPI_IO
+  FILE* FilePtr;   // Open file pointer
+#else
+  MPI_File FilePtr;
+#endif
+};
+
 vtkStandardNewMacro(vtkWindBladeReader);
 
 //----------------------------------------------------------------------------
@@ -186,6 +195,8 @@ vtkWindBladeReader::vtkWindBladeReader()
     }
 #endif
 
+  this->Internal = new WindBladeReaderInternal();
+
   // by default don't skip any lines because normal wind files do not
   // have a header
   this->NumberOfLinesToSkip = 0;
@@ -230,6 +241,8 @@ vtkWindBladeReader::~vtkWindBladeReader()
     }
 
   this->SelectionObserver->Delete();
+
+  delete this->Internal;
 
   // Do not delete the MPIController it is Singleton like and will
   // cleanup itself;
@@ -494,15 +507,15 @@ int vtkWindBladeReader::RequestData(
              << this->TimeSteps[timeStep];
 
 #ifndef VTK_USE_MPI_IO
-    this->FilePtr = fopen(fileName.str().c_str(), "rb");
+    this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
 #else
     char* cchar = new char[strlen(fileName.str().c_str()) + 1];
     strcpy(cchar, fileName.str().c_str());
-    MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->FilePtr));
+    MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
     delete [] cchar;
 #endif
 
-    if (this->FilePtr == NULL)
+    if (this->Internal->FilePtr == NULL)
       {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
       }
@@ -559,9 +572,9 @@ int vtkWindBladeReader::RequestData(
       }
     // Close file after all data is read
 #ifndef VTK_USE_MPI_IO
-    fclose(this->FilePtr);
+    fclose(this->Internal->FilePtr);
 #else
-    MPICall(MPI_File_close(&this->FilePtr));
+    MPICall(MPI_File_close(&this->Internal->FilePtr));
 #endif
 
     return 1;
@@ -605,7 +618,7 @@ int vtkWindBladeReader::RequestData(
     return 1;
     }
 
-  // Request data in on ground 
+  // Request data in on ground
   if (port == 2)
     {
     vtkInformation* groundInfo = outVector->GetInformationObject(2);
@@ -670,18 +683,18 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
   float* densityData = new float[this->BlockSize];
 
 #ifndef VTK_USE_MPI_IO
-  fseek(this->FilePtr, this->VariableOffset[tempg], SEEK_SET);
-  fread(tempgData, sizeof(float), this->BlockSize, this->FilePtr);
-  fseek(this->FilePtr, this->VariableOffset[density], SEEK_SET);
-  fread(densityData, sizeof(float), this->BlockSize, this->FilePtr);
+  fseek(this->Internal->FilePtr, this->VariableOffset[tempg], SEEK_SET);
+  fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
+  fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
   MPI_Status status;
   char native[7] = "native";
 
-  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[tempg], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->FilePtr, tempgData, this->BlockSize, MPI_FLOAT, &status));
-  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[tempg], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, tempgData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
   // Entire block of data is read so to calculate index into that data we
@@ -739,29 +752,29 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   float* vData = new float[this->BlockSize];
 
 #ifndef VTK_USE_MPI_IO
-  fseek(this->FilePtr, this->VariableOffset[uvw], SEEK_SET);
-  fread(uData, sizeof(float), this->BlockSize, this->FilePtr);
-  fseek(this->FilePtr, (2 * sizeof(int)), SEEK_SET);
-  fread(vData, sizeof(float), this->BlockSize, this->FilePtr);
+  fseek(this->Internal->FilePtr, this->VariableOffset[uvw], SEEK_SET);
+  fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_SET);
+  fread(vData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
   MPI_Status status;
   char native[7] = "native";
 
-  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[uvw], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->FilePtr, uData, this->BlockSize, MPI_FLOAT, &status));
-  MPICall(MPI_File_set_view(this->FilePtr, (2 * sizeof(int)), MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->FilePtr, vData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[uvw], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, uData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, (2 * sizeof(int)), MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, vData, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
   // Read Density component
   float* densityData = new float[this->BlockSize];
 
 #ifndef VTK_USE_MPI_IO
-  fseek(this->FilePtr, this->VariableOffset[density], SEEK_SET);
-  fread(densityData, sizeof(float), this->BlockSize, this->FilePtr);
+  fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
+  fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
-  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
   // Divide U and V components by Density
@@ -838,10 +851,10 @@ void vtkWindBladeReader::LoadVariableData(int var)
   // Skip to the appropriate variable block and read byte count
   // not used? int byteCount;
 #ifndef VTK_USE_MPI_IO
-  fseek(this->FilePtr, this->VariableOffset[var], SEEK_SET);
+  fseek(this->Internal->FilePtr, this->VariableOffset[var], SEEK_SET);
 #else
   char native[7] = "native";
-  MPICall(MPI_File_set_view(this->FilePtr, this->VariableOffset[var], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[var], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
 #endif
 
   // Set the number of components for this variable
@@ -874,10 +887,10 @@ void vtkWindBladeReader::LoadVariableData(int var)
     {
     // Read the block of data
 #ifndef VTK_USE_MPI_IO
-    fread(block, sizeof(float), this->BlockSize, this->FilePtr);
+    fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
     MPI_Status status;
-    MPICall(MPI_File_read_all(this->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
+    MPICall(MPI_File_read_all(this->Internal->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
 #endif
 
     int pos = comp;
@@ -896,9 +909,9 @@ void vtkWindBladeReader::LoadVariableData(int var)
 
     // Skip closing and opening byte sizes
 #ifndef VTK_USE_MPI_IO
-    fseek(this->FilePtr, (2 * sizeof(int)), SEEK_CUR);
+    fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_CUR);
 #else
-    MPICall(MPI_File_seek(this->FilePtr, (2 * sizeof(int)), MPI_SEEK_CUR));
+    MPICall(MPI_File_seek(this->Internal->FilePtr, (2 * sizeof(int)), MPI_SEEK_CUR));
 #endif
   }
   delete [] block;
@@ -1204,15 +1217,15 @@ bool vtkWindBladeReader::FindVariableOffsets()
            << this->DataBaseName << this->TimeStepFirst;
 
 #ifndef VTK_USE_MPI_IO
-  this->FilePtr = fopen(fileName.str().c_str(), "rb");
+  this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
 #else
   char* cchar = new char[strlen(fileName.str().c_str()) + 1];
   strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->FilePtr));
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
   delete [] cchar;
 #endif
 
-  if (this->FilePtr == NULL)
+  if (this->Internal->FilePtr == NULL)
     {
     vtkErrorMacro("Could not open file " << fileName.str());
     return false;
@@ -1222,13 +1235,13 @@ bool vtkWindBladeReader::FindVariableOffsets()
   int byteCount;
 
 #ifndef VTK_USE_MPI_IO
-  fread(&byteCount, sizeof(int), 1, this->FilePtr);
+  fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr);
 #else
   MPI_Status status;
   char native[7] = "native";
 
-  MPICall(MPI_File_set_view(this->FilePtr, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->FilePtr, &byteCount, 1, MPI_INT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, &byteCount, 1, MPI_INT, &status));
 #endif
 
   this->BlockSize = byteCount / BYTES_PER_DATA;
@@ -1236,11 +1249,11 @@ bool vtkWindBladeReader::FindVariableOffsets()
   for (int var = 0; var < this->NumberOfFileVariables; var++)
     {
 #ifndef VTK_USE_MPI_IO
-    this->VariableOffset[var] = ftell(this->FilePtr);
+    this->VariableOffset[var] = ftell(this->Internal->FilePtr);
 #else
     MPI_Offset offset;
-    MPICall(MPI_File_get_position(this->FilePtr, &offset));
-    this->VariableOffset[var] = offset; 
+    MPICall(MPI_File_get_position(this->Internal->FilePtr, &offset));
+    this->VariableOffset[var] = offset;
 #endif
 
     // Skip over the SCALAR or VECTOR components for this variable
@@ -1254,16 +1267,16 @@ bool vtkWindBladeReader::FindVariableOffsets()
       {
       // Skip data plus two integer byte counts
 #ifndef VTK_USE_MPI_IO
-      fseek(this->FilePtr, (byteCount+(2 * sizeof(int))), SEEK_CUR);
+      fseek(this->Internal->FilePtr, (byteCount+(2 * sizeof(int))), SEEK_CUR);
 #else
-      MPICall(MPI_File_seek(this->FilePtr, (byteCount+(2 * sizeof(int))), MPI_SEEK_CUR));
+      MPICall(MPI_File_seek(this->Internal->FilePtr, (byteCount+(2 * sizeof(int))), MPI_SEEK_CUR));
 #endif
       }
     }
 #ifndef VTK_USE_MPI_IO
-  fclose(this->FilePtr);
+  fclose(this->Internal->FilePtr);
 #else
-  MPICall(MPI_File_close(&this->FilePtr));
+  MPICall(MPI_File_close(&this->Internal->FilePtr));
 #endif
 
   return true;
@@ -1458,7 +1471,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 #else
   char* cchar = new char[strlen(fileName.str().c_str()) + 1];
   strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->FilePtr));
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
   delete [] cchar;
 #endif
 
@@ -1468,9 +1481,9 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 #else
   MPI_Status status;
   char native[7] = "native";
-  
-  MPICall(MPI_File_set_view(this->FilePtr, BYTES_PER_DATA, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->FilePtr, &topoData, blockSize, MPI_FLOAT, &status));
+
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, BYTES_PER_DATA, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, &topoData, blockSize, MPI_FLOAT, &status));
 #endif
 
   // Initial z coordinate processing
@@ -1565,7 +1578,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 #ifndef VTK_USE_MPI_IO
   fclose(filePtr);
 #else
-  MPICall(MPI_File_close(&this->FilePtr));
+  MPICall(MPI_File_close(&this->Internal->FilePtr));
 #endif
 
 }
@@ -2047,7 +2060,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     line >> turbineID >> bladeID >> partID;
 
     firstPoint = index;
-      
+
     for (int side = 0; side < NUM_PART_SIDES; side++)
       {
       line >> x >> y >> z;
@@ -2093,7 +2106,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     compBlock[indx] = 0.0;
     indx++;
     }
-  
+
   force1->Delete();
   force2->Delete();
   bladeComp->Delete();
