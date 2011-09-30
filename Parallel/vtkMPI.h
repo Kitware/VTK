@@ -18,10 +18,10 @@
 
 #ifndef USE_STDARG
  #define USE_STDARG
- #include <mpi.h>
+ #include "mpi.h"
  #undef USE_STDARG
 #else
- #include <mpi.h>
+ #include "mpi.h"
 #endif
 
 #include "vtkSystemIncludes.h"
