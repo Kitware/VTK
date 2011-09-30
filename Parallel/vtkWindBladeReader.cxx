@@ -1862,13 +1862,13 @@ void vtkWindBladeReader::SetupBladeData()
     {
     vtkWarningMacro("Could not open blade file: " << fileName2.str().c_str() <<
                     " to calculate blade cells.");
-    for (int i = this->TimeStepFirst + this->TimeStepDelta; i <= this->TimeStepLast;
-         i += this->TimeStepDelta)
+    for (int j = this->TimeStepFirst + this->TimeStepDelta; j <= this->TimeStepLast;
+         j += this->TimeStepDelta)
       {
       std::ostringstream fileName3;
       fileName3 << this->RootDirectory << "/"
                 << this->TurbineDirectory << "/"
-                << this->TurbineBladeName << i;
+                << this->TurbineBladeName << j;
       //std::cout << "Trying " << fileName3.str().c_str() << "...";
 
 #ifndef VTK_USE_MPI_IO
