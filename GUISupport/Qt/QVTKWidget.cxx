@@ -79,8 +79,10 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
   this->UseTDx=false;
   // no background
   this->setAttribute(Qt::WA_NoBackground);
-  // no double buffering
+  // no double buffering (only supported by X11)
+#ifdef Q_WS_X11
   this->setAttribute(Qt::WA_PaintOnScreen);
+#endif
 
   // default to strong focus
   this->setFocusPolicy(Qt::StrongFocus);
