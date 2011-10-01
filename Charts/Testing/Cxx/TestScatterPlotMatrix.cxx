@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestChartMatrix.cxx
+  Module:    TestScatterPlotMatrix.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkChartMatrix.h"
+#include "vtkScatterPlotMatrix.h"
 #include "vtkRenderWindow.h"
-#include "vtkChartXY.h"
+#include "vtkChart.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
@@ -25,16 +25,13 @@
 #include "vtkNew.h"
 
 //----------------------------------------------------------------------------
-int TestChartMatrix( int, char * [] )
+int TestScatterPlotMatrix(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
-  vtkNew<vtkChartMatrix> matrix;
+  vtkNew<vtkScatterPlotMatrix> matrix;
   view->GetScene()->AddItem(matrix.GetPointer());
-  matrix->SetSize(vtkVector2i(2, 2));
-
-  vtkChart *chart = matrix->GetChart(vtkVector2i(0, 0));
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -66,24 +63,7 @@ int TestChartMatrix( int, char * [] )
     table->SetValue(i, 4, tan(i * inc));
     }
 
-  // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table.GetPointer(), 0, 1);
-  line->SetColor(0, 255, 0, 255);
-
-  chart = matrix->GetChart(vtkVector2i(0, 1));
-  line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table.GetPointer(), 0, 2);
-  line->SetColor(255, 0, 0, 255);
-
-  chart = matrix->GetChart(vtkVector2i(1, 0));
-  line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table.GetPointer(), 0, 3);
-  line->SetColor(0, 0, 255, 255);
-
-  chart = matrix->GetChart(vtkVector2i(1, 1));
-  line = chart->AddPlot(vtkChart::BAR);
-  line->SetInput(table.GetPointer(), 0, 4);
+  matrix->SetInput(table.GetPointer());
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
