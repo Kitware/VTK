@@ -16,6 +16,7 @@
 #include "vtkChartMatrix.h"
 
 #include "vtkChartXY.h"
+#include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
@@ -120,9 +121,9 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i &position)
     size_t index = position.Y() * this->Size.X() + position.X();
     if (this->Private->Charts[index] == NULL)
       {
-      vtkChart *chart = vtkChartXY::New();
-      this->Private->Charts[index] = chart;
-      this->AddItem(chart);
+      vtkNew<vtkChartXY> chart;
+      this->Private->Charts[index] = chart.GetPointer();
+      this->AddItem(chart.GetPointer());
       chart->SetAutoSize(false);
       }
     return this->Private->Charts[index];
