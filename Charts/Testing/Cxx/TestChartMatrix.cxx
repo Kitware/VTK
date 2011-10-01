@@ -54,7 +54,7 @@ int TestChartMatrix( int, char * [] )
   tangent->SetName("Tangent");
   table->AddColumn(tangent.GetPointer());
   // Test charting with a few more points...
-  int numPoints = 69;
+  int numPoints = 42;
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
@@ -82,7 +82,7 @@ int TestChartMatrix( int, char * [] )
   line->SetColor(0, 0, 255, 255);
 
   chart = matrix->GetChart(vtkVector2i(1, 1));
-  line = chart->AddPlot(vtkChart::POINTS);
+  line = chart->AddPlot(vtkChart::BAR);
   line->SetInput(table.GetPointer(), 0, 4);
 
   //Finally render the scene and compare the image to a reference image
