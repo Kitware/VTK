@@ -29,7 +29,7 @@ int TestScatterPlotMatrix(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
-  view->GetRenderWindow()->SetSize(400, 300);
+  view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<vtkScatterPlotMatrix> matrix;
   view->GetScene()->AddItem(matrix.GetPointer());
 

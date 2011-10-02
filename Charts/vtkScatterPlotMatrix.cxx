@@ -16,9 +16,14 @@
 #include "vtkScatterPlotMatrix.h"
 
 #include "vtkTable.h"
-#include "vtkChart.h"
+#include "vtkFloatArray.h"
+#include "vtkIntArray.h"
+#include "vtkChartXY.h"
 #include "vtkPlot.h"
 #include "vtkAxis.h"
+#include "vtkStdString.h"
+#include "vtkNew.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
 
 class vtkScatterPlotMatrix::PIMPL
@@ -26,16 +31,91 @@ class vtkScatterPlotMatrix::PIMPL
 public:
   PIMPL() {}
   ~PIMPL() {}
+
+  vtkNew<vtkTable> Histogram;
 };
+
+namespace
+{
+
+int NumberOfBins = 10;
+
+// This is just here for now - quick and dirty historgram calculations...
+bool PopulateHistograms(vtkTable *input, vtkTable *output)
+{
+  // The output table will have the twice the number of columns, they will be
+  // the x and y for input column. This is the bin centers, and the population.
+  for (vtkIdType i = output->GetNumberOfColumns() - 1; i >= 0; --i)
+    {
+    output->RemoveColumn(i);
+    }
+  for (vtkIdType i = 0; i < input->GetNumberOfColumns(); ++i)
+    {
+    double minmax[2] = { 0.0, 0.0 };
+    vtkDataArray *in = vtkDataArray::SafeDownCast(input->GetColumn(i));
+    if (in)
+      {
+      // The bin values are the centers, extending +/- half an inc either side
+      in->GetRange(minmax);
+      if (minmax[0] == minmax[1])
+        {
+        minmax[1] = minmax[0] + 1.0;
+        }
+      double inc = (minmax[1] - minmax[0]) / NumberOfBins;
+      double halfInc = inc / 2.0;
+      vtkStdString name(input->GetColumnName(i));
+      vtkNew<vtkFloatArray> extents;
+      extents->SetName(vtkStdString(name + "_extents").c_str());
+      extents->SetNumberOfTuples(NumberOfBins);
+      float *centers = static_cast<float *>(extents->GetVoidPointer(0));
+      for (int j = 0; j < NumberOfBins; ++j)
+        {
+        extents->SetValue(j, j * inc);
+        }
+      vtkNew<vtkIntArray> populations;
+      populations->SetName(vtkStdString(name + "_pops").c_str());
+      populations->SetNumberOfTuples(NumberOfBins);
+      int *pops = static_cast<int *>(populations->GetVoidPointer(0));
+      for (int k = 0; k < NumberOfBins; ++k)
+        {
+        pops[k] = 0;
+        }
+      cout << "Attempting to bin " << name << "(" << minmax[0] <<
+              "->" << minmax[1] << ")" << endl;
+      cout << "inc: " << inc << " / 2 -> " << halfInc << endl;
+      for (vtkIdType j = 0; j < in->GetNumberOfTuples(); ++j)
+        {
+        double v(0.0);
+        in->GetTuple(j, &v);
+        for (int k = 0; k < NumberOfBins; ++k)
+          {
+          if (vtkFuzzyCompare(v, double(centers[k]), halfInc))
+            {
+            cout << "FuzzyCompare true: " << v << ", " << centers[k] << ": "
+                    << halfInc << endl;
+            ++pops[k];
+            break;
+            }
+          }
+        }
+      output->AddColumn(extents.GetPointer());
+      output->AddColumn(populations.GetPointer());
+      }
+    }
+  return true;
+}
+}
 
 vtkStandardNewMacro(vtkScatterPlotMatrix)
 
 vtkScatterPlotMatrix::vtkScatterPlotMatrix()
 {
+  this->Private = new PIMPL;
 }
 
 vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
 {
+  delete this->Private;
 }
 
 void vtkScatterPlotMatrix::Update()
@@ -61,6 +141,9 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
       this->SetSize(vtkVector2i(0, 0));
       return;
       }
+
+    // Build up our histograms
+    PopulateHistograms(table, this->Private->Histogram.GetPointer());
 
     int n = static_cast<int>(this->Input->GetNumberOfColumns());
     this->SetSize(vtkVector2i(n, n));
@@ -88,8 +171,18 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
         else if (i == n - j - 1)
           {
           // We are on the diagonal - need a histogram plot.
-          vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::LINE);
-          plot->SetInput(table, i, n - j - 1);
+          vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
+          vtkStdString name(table->GetColumnName(i));
+          plot->SetInput(this->Private->Histogram.GetPointer(),
+                         name + "_extents", name + "_pops");
+          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
+          axis->SetTitle(name.c_str());
+          // Set the plot corner to the top-right
+          vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
+          if (xy)
+            {
+            xy->SetPlotCorner(plot, 2);
+            }
           }
         // Only show bottom axis label for bottom plots
         if (j > 0)
