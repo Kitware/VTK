@@ -111,6 +111,7 @@ vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkLookupTableWithEnabling.cxx
 vtkMath.cxx
+vtkMathUtilities.h
 vtkMatrix3x3.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
@@ -396,6 +397,7 @@ ABSTRACT
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkColor
+  vtkMathUtilities
   vtkRect
   vtkVector
   HEADER_FILE_ONLY
@@ -416,6 +418,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkIOStream.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx
+  vtkMathUtilities.h
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
