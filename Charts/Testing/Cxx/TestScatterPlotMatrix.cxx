@@ -36,21 +36,21 @@ int TestScatterPlotMatrix(int, char * [])
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
-  arrX->SetName("X Axis");
+  arrX->SetName("x");
   table->AddColumn(arrX.GetPointer());
   vtkNew<vtkFloatArray> arrC;
-  arrC->SetName("Cosine");
+  arrC->SetName("cos(x)");
   table->AddColumn(arrC.GetPointer());
   vtkNew<vtkFloatArray> arrS;
-  arrS->SetName("Sine");
+  arrS->SetName("sin(x)");
   table->AddColumn(arrS.GetPointer());
   vtkNew<vtkFloatArray> arrS2;
-  arrS2->SetName("Sine2");
+  arrS2->SetName("sin(x + 0.5)");
   table->AddColumn(arrS2.GetPointer());
   vtkNew<vtkFloatArray> tangent;
-  tangent->SetName("Tangent");
+  tangent->SetName("tan(x)");
   table->AddColumn(tangent.GetPointer());
-  // Test charting with a few more points...
+  // Test the chart scatter plot matrix
   int numPoints = 42;
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
@@ -63,6 +63,7 @@ int TestScatterPlotMatrix(int, char * [])
     table->SetValue(i, 4, tan(i * inc));
     }
 
+  // Set the scatter plot matrix up to analyze all columns in the table.
   matrix->SetInput(table.GetPointer());
 
   //Finally render the scene and compare the image to a reference image

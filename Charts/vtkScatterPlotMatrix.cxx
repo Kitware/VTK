@@ -51,12 +51,19 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
 {
   if (this->Input != table)
     {
-    // Set the input, then update the size of the scatter plot matrix, set their
-    // inputs and all the other stuff needed.
+    // Set the input, then update the size of the scatter plot matrix, set
+    // their inputs and all the other stuff needed.
     this->Input = table;
+    this->Modified();
 
-    this->SetSize(vtkVector2i(this->Input->GetNumberOfColumns(),
-                              this->Input->GetNumberOfColumns()));
+    if (table == NULL)
+      {
+      this->SetSize(vtkVector2i(0, 0));
+      return;
+      }
+
+    int n = static_cast<int>(this->Input->GetNumberOfColumns());
+    this->SetSize(vtkVector2i(n, n));
     // We want scatter plots on the lower-left triangle, then histograms along
     // the diagonal and a big plot in the top-right. The basic layout is,
     //
@@ -68,15 +75,21 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
     //
     // Where the indices are those of the columns. The indices of the charts
     // originate in the bottom-left.
-    for (int i = 0; i < this->Size.X(); ++i)
+    for (int i = 0; i < n; ++i)
       {
-      for (int j = 0; j < this->Size.Y(); ++j)
+      for (int j = 0; j < n; ++j)
         {
         vtkVector2i pos(i, j);
-        if (this->Size.X() - j > 0)
+        if (i + j + 1 < n)
           {
           vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
-          plot->SetInput(table, i, this->Size.X() - j - 1);
+          plot->SetInput(table, i, n - j - 1);
+          }
+        else if (i == n - j - 1)
+          {
+          // We are on the diagonal - need a histogram plot.
+          vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::LINE);
+          plot->SetInput(table, i, n - j - 1);
           }
         // Only show bottom axis label for bottom plots
         if (j > 0)
@@ -85,6 +98,11 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
           axis->SetTitle("");
           axis->SetLabelsVisible(false);
           }
+        else
+          {
+          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
+          axis->SetTitle(table->GetColumnName(i));
+          }
         // Only show the left axis labels for left-most plots
         if (i > 0)
           {
@@ -92,10 +110,13 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
           axis->SetTitle("");
           axis->SetLabelsVisible(false);
           }
+        else
+          {
+          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
+          axis->SetTitle(table->GetColumnName(n - j - 1));
+          }
         }
       }
-
-    this->Modified();
     }
 }
 
