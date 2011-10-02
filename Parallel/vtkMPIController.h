@@ -145,6 +145,10 @@ public:
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
+  int NoBlockSend(const double* data, int length, int remoteProcessId, 
+                  int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
+        (data, length, remoteProcessId, tag, req); }
 
   // Description:
   // This method receives data from a corresponding send (non-blocking). 
@@ -166,6 +170,10 @@ public:
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
+                     int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+        (data, length, remoteProcessId, tag, req); }
+  int NoBlockReceive(double* data, int length, int remoteProcessId, 
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }

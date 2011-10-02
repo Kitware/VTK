@@ -906,6 +906,17 @@ int vtkMPICommunicator::NoBlockSend(const float* data, int length,
                                       tag, MPI_FLOAT, req, 
                                       this->MPIComm->Handle));
 }
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::NoBlockSend(const double* data, int length, 
+                                    int remoteProcessId, int tag, Request& req)
+{
+
+  return CheckForMPIError(
+    vtkMPICommunicatorNoBlockSendData(data, 
+                                      length, remoteProcessId, 
+                                      tag, MPI_DOUBLE, req, 
+                                      this->MPIComm->Handle));
+}
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(int* data, int length, 
@@ -956,6 +967,19 @@ int vtkMPICommunicator::NoBlockReceive(float* data, int length,
     vtkMPICommunicatorNoBlockReceiveData(data, 
                                          length, remoteProcessId, 
                                          tag, MPI_FLOAT, req, 
+                                         this->MPIComm->Handle));
+
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::NoBlockReceive(double* data, int length, 
+                                       int remoteProcessId, int tag,
+                                       Request& req)
+{
+
+  return CheckForMPIError(
+    vtkMPICommunicatorNoBlockReceiveData(data, 
+                                         length, remoteProcessId, 
+                                         tag, MPI_DOUBLE, req, 
                                          this->MPIComm->Handle));
 
 }

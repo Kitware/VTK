@@ -107,6 +107,8 @@ public:
                   int tag, Request& req);
   int NoBlockSend(const float* data, int length, int remoteProcessId, 
                   int tag, Request& req);
+  int NoBlockSend(const double* data, int length, int remoteProcessId, 
+                  int tag, Request& req);
 
   // Description:
   // This method receives data from a corresponding send (non-blocking). 
@@ -120,6 +122,8 @@ public:
   int NoBlockReceive(char* data, int length, int remoteProcessId, 
                      int tag, Request& req);
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
+                     int tag, Request& req);
+  int NoBlockReceive(double* data, int length, int remoteProcessId, 
                      int tag, Request& req);
 #ifdef VTK_USE_64BIT_IDS
   int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, 
