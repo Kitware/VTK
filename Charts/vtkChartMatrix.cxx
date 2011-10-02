@@ -85,6 +85,14 @@ void vtkChartMatrix::SetSize(const vtkVector2i &size)
   if (this->Size.X() != size.X() || this->Size.Y() != size.Y())
     {
     this->Size = size;
+    if (size.X() * size.Y() < static_cast<int>(this->Private->Charts.size()))
+      {
+      for (int i = static_cast<int>(this->Private->Charts.size() - 1);
+           i >= size.X() * size.Y(); --i)
+        {
+        this->RemoveItem(this->Private->Charts[i]);
+        }
+      }
     this->Private->Charts.resize(size.X() * size.Y());
     }
 }
