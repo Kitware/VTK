@@ -105,17 +105,17 @@ int TestChartsOn3D(int , char * [])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *points = chart->AddPlot(vtkChart::POINTS);
-  points->SetInput(table.GetPointer(), 0, 1);
+  points->SetInputData(table.GetPointer(), 0, 1);
   points->SetColor(0, 0, 0, 255);
   points->SetWidth(1.0);
   vtkPlotPoints::SafeDownCast(points)->SetMarkerStyle(vtkPlotPoints::CROSS);
   points = chart->AddPlot(vtkChart::POINTS);
-  points->SetInput(table.GetPointer(), 0, 2);
+  points->SetInputData(table.GetPointer(), 0, 2);
   points->SetColor(0, 0, 0, 255);
   points->SetWidth(1.0);
   vtkPlotPoints::SafeDownCast(points)->SetMarkerStyle(vtkPlotPoints::PLUS);
   points = chart->AddPlot(vtkChart::POINTS);
-  points->SetInput(table.GetPointer(), 0, 3);
+  points->SetInputData(table.GetPointer(), 0, 3);
   points->SetColor(0, 0, 255, 255);
   points->SetWidth(4.0);
 

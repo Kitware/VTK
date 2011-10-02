@@ -272,7 +272,7 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
 
   // Instantiate a parallel descriptive statistics engine and set its input
   vtkPDescriptiveStatistics* pcs = vtkPDescriptiveStatistics::New();
-  pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  pcs->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
 
   // Select column of interest
   pcs->AddColumn( varName );

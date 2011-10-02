@@ -69,7 +69,7 @@ void vtkResliceCursorThickLineRepresentation
 
     // Set the usual parameters.
 
-    this->ColorMap->SetInput(thickReslice->GetOutput());
+    this->ColorMap->SetInputConnection(thickReslice->GetOutputPort());
     thickReslice->TransformInputSamplingOff();
     thickReslice->SetResliceAxes(this->ResliceAxes);
     thickReslice->SetOutputSpacing(outputSpacingX, outputSpacingY, 1);

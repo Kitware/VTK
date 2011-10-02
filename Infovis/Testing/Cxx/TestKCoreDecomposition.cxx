@@ -79,7 +79,7 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   dg->AddEdge(18,19);
   dg->AddEdge(19,20);
 
-  kcp->SetInput(dg);
+  kcp->SetInputData(dg);
 
   kcp->Update();
 
@@ -130,7 +130,7 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   ug->AddEdge(18,19);
   ug->AddEdge(19,20);
 
-  kcp->SetInput(ug);
+  kcp->SetInputData(ug);
 
   kcp->Update();
 
@@ -161,7 +161,7 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   sug->AddEdge(0,2);
   sug->AddEdge(1,0);
 
-  kcp->SetInput(sug);
+  kcp->SetInputData(sug);
 
   kcp->UseInDegreeNeighborsOff();
 
@@ -194,7 +194,7 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   sdg->AddEdge(0,2);
   sdg->AddEdge(1,0);
 
-  kcp->SetInput(sdg);
+  kcp->SetInputData(sdg);
 
   kcp->UseInDegreeNeighborsOn();
 

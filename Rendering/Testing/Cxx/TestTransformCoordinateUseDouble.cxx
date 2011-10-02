@@ -78,7 +78,7 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
     boxCoordinate->SetViewport(renderer.GetPointer());
 
     vtkNew<vtkPolyDataMapper2D> polyDataMapper;
-    polyDataMapper->SetInput(poly.GetPointer());
+    polyDataMapper->SetInputData(poly.GetPointer());
     polyDataMapper->SetTransformCoordinate(boxCoordinate.GetPointer());
     polyDataMapper->SetTransformCoordinateUseDouble(true);
 

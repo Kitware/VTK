@@ -93,7 +93,7 @@ vtkAxisActor::vtkAxisActor()
   this->TitleMapper = vtkPolyDataMapper::New();
   this->TitleMapper->SetInputConnection(
     this->TitleVector->GetOutputPort());
-  this->TitleActor = vtkFollower::New();
+  this->TitleActor = vtkAxisFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->SetEnableDistanceLOD(0);
 
@@ -911,7 +911,7 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
       this->LabelMappers[i] = vtkPolyDataMapper::New();
       this->LabelMappers[i]->SetInputConnection(
         this->LabelVectors[i]->GetOutputPort());
-      this->LabelActors[i] = vtkFollower::New();
+      this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
       this->LabelActors[i]->SetEnableDistanceLOD(0);
       }

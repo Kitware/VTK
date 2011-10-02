@@ -147,7 +147,7 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
   CacheData cacheData;
   cacheData.ImageData = vtkSmartPointer<vtkImageData>::New();
   cacheData.Texture = vtkSmartPointer<vtkTexture>::New();
-  cacheData.Texture->SetInput(cacheData.ImageData);
+  cacheData.Texture->SetInputData(cacheData.ImageData);
   return this->AddCacheData(key, cacheData);
 }
 

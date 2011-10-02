@@ -33,7 +33,7 @@ int TestArrayDataWriter(int, char*[])
   d->AddArray(sa.GetPointer());
 
   vtkNew<vtkArrayDataWriter> w;
-  w->SetInput(d.GetPointer());
+  w->SetInputData(d.GetPointer());
   w->WriteToOutputStringOn();
   w->Write();
   vtkStdString s = w->GetOutputString();

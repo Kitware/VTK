@@ -28,9 +28,7 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
 {
   vtkSmartPointer<vtkImageData> img = vtkSmartPointer<vtkImageData>::New();
   img->SetDimensions(100, 100, 100);
-  img->SetScalarTypeToFloat();
-  img->SetNumberOfScalarComponents(1);
-  img->AllocateScalars();
+  img->AllocateScalars(VTK_FLOAT, 1);
 
   float *scalars = static_cast<float *>(img->GetScalarPointer());
   vtkIdType n = 100*100*100;
@@ -40,12 +38,12 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
     }
 
   vtkSmartPointer<vtkImageReslice> reslicer = vtkSmartPointer<vtkImageReslice>::New();
-  reslicer->SetInput(img);
+  reslicer->SetInputData(img);
   reslicer->SetOutputExtent(0, 100, 0, 100, 0, 0);
 
   vtkSmartPointer<vtkImageMapToColors> colors =
     vtkSmartPointer<vtkImageMapToColors>::New();
-  colors->SetInput(reslicer->GetOutput());
+  colors->SetInputConnection(reslicer->GetOutputPort());
 
   vtkSmartPointer<vtkColorTransferFunction> ctf =
     vtkSmartPointer<vtkColorTransferFunction>::New();
@@ -54,7 +52,7 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
 
   vtkSmartPointer<vtkImageAppendComponents> append =
     vtkSmartPointer<vtkImageAppendComponents>::New();
-  append->SetInputConnection(0 ,colors->GetOutput()->GetProducerPort());
+  append->SetInputConnection(0 ,colors->GetOutputPort());
 
   colors->Update();
   append->Update();
@@ -67,9 +65,9 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
   colors->Update();
 
   vtkNew<vtkGlyph3D> polyDataFilter;
-  polyDataFilter->SetInputConnection(0, colors->GetOutput()->GetProducerPort());
+  polyDataFilter->SetInputConnection(0, colors->GetOutputPort());
   vtkNew<vtkSphereSource> sphere;
-  polyDataFilter->SetSourceConnection(sphere->GetOutput()->GetProducerPort());
+  polyDataFilter->SetSourceConnection(sphere->GetOutputPort());
   polyDataFilter->Update();
   // After Update(), the COMBINED_UPDATE_EXTENT of the output of reslicer must be
   // reset to {0, -1, 0, -1, 0, -1}, otherwise, the following will fail because

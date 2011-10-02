@@ -997,7 +997,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     vtkNew<vtkUnstructuredGridGeometryFilter> uggf;
     vtkNew<vtkUnstructuredGrid> clone;
     clone->ShallowCopy(input);
-    uggf->SetInputConnection(clone->GetProducerPort());
+    uggf->SetInputData(clone.GetPointer());
     uggf->SetPassThroughCellIds(this->PassThroughCellIds);
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
     uggf->Update();

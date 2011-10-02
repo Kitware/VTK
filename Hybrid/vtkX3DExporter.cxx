@@ -429,7 +429,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
 
-  mapper->SetInput(pd);
+  mapper->SetInputData(pd);
   mapper->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   mapper->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
   mapper->SetLookupTable(anActor->GetMapper()->GetLookupTable());

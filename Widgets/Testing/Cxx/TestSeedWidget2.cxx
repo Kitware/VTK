@@ -101,8 +101,8 @@ int TestSeedWidget2( int argc, char *argv[] )
     sagittalColors->SetLookupTable(bwLut);
   vtkSmartPointer<vtkImageActor> sagittal =
     vtkSmartPointer<vtkImageActor>::New();
-    saggital->GetMapper()->SetInputConnection(saggitalColors->GetOutputPort());
-    saggital->SetDisplayExtent(32,32, 0,63, 0,92);
+    sagittal->GetMapper()->SetInputConnection(sagittalColors->GetOutputPort());
+    sagittal->SetDisplayExtent(32,32, 0,63, 0,92);
 
   // Create the widget and its representation
   vtkSmartPointer<vtkPointHandleRepresentation2D> handle =

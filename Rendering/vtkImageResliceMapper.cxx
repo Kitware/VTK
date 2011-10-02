@@ -139,7 +139,8 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
   if (this->ResliceNeedUpdate)
     {
-    this->ImageReslice->SetInput(this->GetInput());
+    this->ImageReslice->SetInputConnection(
+      this->GetInputConnection(0, 0));
     this->ImageReslice->UpdateWholeExtent();
     this->ResliceNeedUpdate = 1;
     }
@@ -156,7 +157,8 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     }
      
   // delegate to vtkImageSliceMapper
-  this->SliceMapper->SetInput(this->ImageReslice->GetOutput());
+  this->SliceMapper->SetInputConnection(
+    this->ImageReslice->GetOutputPort());
   vtkMatrix4x4::DeepCopy(
     *this->SliceMapper->GetDataToWorldMatrix()->Element,
     *this->SliceToWorldMatrix->Element);

@@ -54,7 +54,7 @@ int TestNetCDFCAMReader( int argc, char *argv[] )
 
   // Create a mapper and LUT.
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInput(geometryFilter->GetOutput());
+  mapper->SetInputConnection(geometryFilter->GetOutputPort());
   mapper->ScalarVisibilityOn();
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarRange(205, 250);

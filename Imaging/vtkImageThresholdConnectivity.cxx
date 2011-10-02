@@ -55,7 +55,6 @@ vtkImageThresholdConnectivity::vtkImageThresholdConnectivity()
   this->ActiveComponent = -1;
 
   this->ImageMask = vtkImageData::New();
-  this->ImageMask->SetScalarTypeToUnsignedChar();
 
   this->NumberOfInVoxels = 0;
 
@@ -151,9 +150,9 @@ int vtkImageThresholdConnectivity::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageThresholdConnectivity::SetStencil(vtkImageStencilData *stencil)
+void vtkImageThresholdConnectivity::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInput(1, stencil);
+  this->SetInputData(1, stencil);
 }
 
 //----------------------------------------------------------------------------
@@ -427,11 +426,10 @@ void vtkImageThresholdConnectivityExecute(
 
 
   // Setup the mask
-  maskData->SetWholeExtent(inData->GetWholeExtent());
   maskData->SetOrigin(inData->GetOrigin());
   maskData->SetSpacing(inData->GetSpacing());
   maskData->SetExtent(extent);
-  maskData->AllocateScalars();
+  maskData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   unsigned char *maskPtr =
     static_cast<unsigned char *>(maskData->GetScalarPointerForExtent(extent));
@@ -635,7 +633,7 @@ int vtkImageThresholdConnectivity::RequestData(
 
   int outExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
-  this->AllocateOutputData(outData, outExt);
+  this->AllocateOutputData(outData, outInfo, outExt);
 
   // get scalar pointers
   void *inPtr = inData->GetScalarPointerForExtent(outExt);

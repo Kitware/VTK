@@ -102,7 +102,7 @@ public:
   // Description:
   // Specify a stencil that will be used to limit the flood fill to
   // an arbitrarily-shaped region of the image.
-  virtual void SetStencil(vtkImageStencilData *stencil);
+  virtual void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 
   // Description:

@@ -103,7 +103,7 @@ int TestMPASReader( int argc, char *argv[] )
 
     // Create a mapper and LUT.
     vtkNew<vtkPolyDataMapper> mapper;
-    mapper->SetInput(geometryFilter->GetOutput());
+    mapper->SetInputConnection(geometryFilter->GetOutputPort());
     mapper->ScalarVisibilityOn();
     mapper->SetColorModeToMapScalars();
     mapper->SetScalarRange(0.0116, 199.9);

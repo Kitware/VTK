@@ -61,7 +61,7 @@ int TestLinePlot2(int, char * [])
 
   // Add a plot of points, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table.GetPointer(), 0, 1);
+  line->SetInputData(table.GetPointer(), 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
 

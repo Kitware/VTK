@@ -45,9 +45,7 @@ vtkImageData* createTexture2D(int width, int height, int comp)
   image->SetExtent(0, width - 1,
                    0, height - 1,
                    0, 0);
-  image->SetNumberOfScalarComponents(comp);
-  image->SetScalarTypeToUnsignedChar();
-  image->AllocateScalars();
+  image->AllocateScalars(VTK_UNSIGNED_CHAR, comp);
 
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(image->GetScalarPointer(0,0,0));
@@ -102,7 +100,7 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   textureCoords->GetPointData()->SetTCoords(tcoords.GetPointer());
 
   vtkNew<vtkPolyDataMapper2D> polyDataMapper; 
-  polyDataMapper->SetInput( textureCoords.GetPointer() );
+  polyDataMapper->SetInputData( textureCoords.GetPointer() );
 
   int textureSizes[23][2] =
     {{1,2}, {1,3}, {1,4}, {1,5}, {1,255}, {1,256}, {257,1}, 
@@ -123,7 +121,7 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         return EXIT_SUCCESS;
         }
       vtkNew<vtkTexture> texture;
-      texture->SetInput(image);
+      texture->SetInputData(image);
       // You can play with the parameters
       //texture->SetRepeat(false);
       //texture->SetEdgeClamp(true);
