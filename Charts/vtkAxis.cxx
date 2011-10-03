@@ -59,8 +59,8 @@ vtkAxis::vtkAxis()
   this->TitleProperties->SetFontFamilyToArial();
   this->TitleProperties->SetBold(1);
   this->TitleProperties->SetJustificationToCentered();
-  this->Range[0] = this->Minimum = 0.0;
-  this->Range[1] = this->Maximum = 6.66;
+  this->Minimum = 0.0;
+  this->Maximum = 6.66;
   this->MinimumLimit = std::numeric_limits<double>::max() * -1.;
   this->MaximumLimit = std::numeric_limits<double>::max();
   this->Margins[0] = 15;
@@ -384,11 +384,11 @@ void vtkAxis::SetMinimum(double minimum)
     {
     return;
     }
-  this->Range[0] = this->Minimum = minimum;
+  this->Minimum = minimum;
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
   this->Modified();
-  this->InvokeEvent(vtkChart::UpdateRange, this->Range);
+  this->InvokeEvent(vtkChart::UpdateRange);
 }
 
 //-----------------------------------------------------------------------------
@@ -413,11 +413,11 @@ void vtkAxis::SetMaximum(double maximum)
     {
     return;
     }
-  this->Range[1] = this->Maximum = maximum;
+  this->Maximum = maximum;
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
   this->Modified();
-  this->InvokeEvent(vtkChart::UpdateRange, this->Range);
+  this->InvokeEvent(vtkChart::UpdateRange);
 }
 
 //-----------------------------------------------------------------------------
@@ -439,6 +439,13 @@ void vtkAxis::SetRange(double minimum, double maximum)
 {
   this->SetMinimum(minimum);
   this->SetMaximum(maximum);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::GetRange(double *range)
+{
+  range[0] = this->Minimum;
+  range[1] = this->Maximum;
 }
 
 //-----------------------------------------------------------------------------
