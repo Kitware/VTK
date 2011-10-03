@@ -442,6 +442,13 @@ void vtkAxis::SetRange(double minimum, double maximum)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAxis::SetRange(double *range)
+{
+  this->SetMinimum(range[0]);
+  this->SetMaximum(range[1]);
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::GetRange(double *range)
 {
   range[0] = this->Minimum;

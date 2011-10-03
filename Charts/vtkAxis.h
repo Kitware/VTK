@@ -120,6 +120,7 @@ public:
   // Description:
   // Set the logical range of the axis, in plot coordinates.
   virtual void SetRange(double minimum, double maximum);
+  virtual void SetRange(double range[2]);
 
   // Description:
   // Get the logical range of the axis, in plot coordinates.
