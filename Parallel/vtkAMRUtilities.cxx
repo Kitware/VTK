@@ -255,6 +255,9 @@ void vtkAMRUtilities::DeserializeMetaData(
   assert( "Buffer to deserialize is NULL" && (buffer != NULL) );
   assert( "Expected numBytes > 0" && (numBytes > 0) );
 
+  // Avoid compiler warnings when compiled in Release
+  static_cast<void>(numBytes);
+
   unsigned char *ptr = buffer;
   int N              = 0;
 
