@@ -256,7 +256,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   vtkVector2i geometry;
   bool recalculateTransform = false;
-  if (this->AutoSize)
+  if (this->LayoutStrategy == vtkChart::FILL_SCENE)
     {
     geometry = vtkVector2i(this->GetScene()->GetSceneWidth(),
                            this->GetScene()->GetSceneHeight());

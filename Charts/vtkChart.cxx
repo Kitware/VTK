@@ -57,7 +57,7 @@ vtkChart::vtkChart()
   this->TitleProperties->SetFontSize(12);
   this->TitleProperties->SetFontFamilyToArial();
   this->AnnotationLink = NULL;
-  this->AutoSize = true;
+  this->LayoutStrategy = vtkChart::FILL_SCENE;
   this->RenderEmpty = false;
 }
 

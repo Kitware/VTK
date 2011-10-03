@@ -173,10 +173,32 @@ public:
   vtkRectf GetSize();
 
   // Description:
+  // Enum of the available layout strategies for the charts.
+  enum {
+    FILL_SCENE,  // Attempt to fill the entire scene.
+    FILL_RECT,   // Attempt to supply the supplied vtkRectf in Size.
+    AXIS_TO_RECT // Put the corners of the axes on the vtkRectf in Size.
+  };
+
+  // Description:
+  // Set/get the layout strategy that should be used by the chart. As we don't
+  // support enums this can take any value in the integer range, but the only
+  // valid enums are FILL_SCENE, FILL_RECT and AXES_TO_RECT.
+  vtkSetMacro(LayoutStrategy, int);
+  vtkGetMacro(LayoutStrategy, int);
+
+  // Description:
   // Set/get whether the chart should automatically resize to fill the current
   // render window. Default is true.
-  vtkSetMacro(AutoSize, bool);
-  vtkGetMacro(AutoSize, bool);
+  virtual void SetAutoSize(bool isAutoSized)
+  {
+    this->LayoutStrategy = isAutoSized ? vtkChart::FILL_SCENE :
+                                         vtkChart::FILL_RECT;
+  }
+  virtual bool GetAutoSize()
+  {
+    return this->LayoutStrategy == vtkChart::FILL_SCENE ? true : false;
+  }
 
   // Description:
   // Set/get whether the chart should still render its axes and decorations
@@ -257,7 +279,8 @@ protected:
   vtkTextProperty* TitleProperties;
 
   vtkRectf Size;
-  bool AutoSize;
+  // The layout strategy to employ when fitting the chart into the space.
+  int LayoutStrategy;
   bool RenderEmpty;
 
   // Description:
