@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestScatterPlotMatrix.cxx
+  Module:    TestScatterPlotMatrixVisible.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -25,9 +25,9 @@
 #include "vtkNew.h"
 
 //----------------------------------------------------------------------------
-int TestScatterPlotMatrix(int, char * [])
+int TestScatterPlotMatrixVisible(int, char * [])
 {
-  // Set up a 2D scene, add a chart to it
+  // Set up a 2D scene, add a chart to it.
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<vtkScatterPlotMatrix> matrix;
@@ -63,8 +63,13 @@ int TestScatterPlotMatrix(int, char * [])
     table->SetValue(i, 4, tan(i * inc));
     }
 
-  // Set the scatter plot matrix up to analyze all columns in the table.
+  // Select a few columns in the table to analyze.
   matrix->SetInput(table.GetPointer());
+  matrix->SetColumnVisibilityAll(false);
+  matrix->SetColumnVisibility("x", true);
+  matrix->SetColumnVisibility("sin(x)", true);
+  matrix->SetColumnVisibility("cos(x)", true);
+  matrix->SetColumnVisibility("tan(x)", true);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

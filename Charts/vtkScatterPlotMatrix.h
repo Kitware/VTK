@@ -25,7 +25,9 @@
 
 #include "vtkChartMatrix.h"
 #include "vtkSmartPointer.h" // For ivars
+#include "vtkNew.h" // For ivars
 
+class vtkStringArray;
 class vtkTable;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
@@ -51,14 +53,38 @@ public:
   // columns to be plotted against each other - a square scatter plot matrix.
   virtual void SetInput(vtkTable *table);
 
+  // Description:
+  // Set the visibility of the specified column.
+  void SetColumnVisibility(const vtkStdString& name, bool visible);
+
+  // Description:
+  // Get the visibility of the specified column.
+  bool GetColumnVisibility(const vtkStdString& name);
+
+  // Description:
+  // Set the visibility of all columns (true will make them all visible, false
+  // will remove all visible columns).
+  void SetColumnVisibilityAll(bool visible);
+
+  // Description:
+  // Get a list of the columns, and the order in which they are displayed.
+  virtual vtkStringArray* GetVisibleColumns();
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
 
+  // Description:
+  // Internal helper to do the layout of the charts in the scatter plot matrix.
+  void UpdateLayout();
+
   class PIMPL;
   PIMPL *Private;
 
+  // Weakly owned input data for the scatter plot matrix.
   vtkSmartPointer<vtkTable> Input;
+  // Strongly owned internal data for the column visibility.
+  vtkNew<vtkStringArray> VisibleColumns;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.

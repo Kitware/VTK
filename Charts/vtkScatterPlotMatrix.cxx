@@ -22,6 +22,7 @@
 #include "vtkPlot.h"
 #include "vtkAxis.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkNew.h"
 #include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
@@ -29,10 +30,16 @@
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
-  PIMPL() {}
-  ~PIMPL() {}
+  PIMPL() : VisibleColumnsModified(true)
+  {
+  }
+
+  ~PIMPL()
+  {
+  }
 
   vtkNew<vtkTable> Histogram;
+  bool VisibleColumnsModified;
 };
 
 namespace
@@ -80,9 +87,6 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output)
         {
         pops[k] = 0;
         }
-      cout << "Attempting to bin " << name << "(" << minmax[0] <<
-              "->" << minmax[1] << ")" << endl;
-      cout << "inc: " << inc << " / 2 -> " << halfInc << endl;
       for (vtkIdType j = 0; j < in->GetNumberOfTuples(); ++j)
         {
         double v(0.0);
@@ -91,8 +95,6 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output)
           {
           if (vtkFuzzyCompare(v, double(centers[k]), halfInc))
             {
-            cout << "FuzzyCompare true: " << v << ", " << centers[k] << ": "
-                    << halfInc << endl;
             ++pops[k];
             break;
             }
@@ -120,10 +122,20 @@ vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
 
 void vtkScatterPlotMatrix::Update()
 {
+  if (this->Private->VisibleColumnsModified)
+    {
+    // We need to handle layout changes due to modified visibility.
+    // Build up our histograms data before updating the layout.
+    PopulateHistograms(this->Input.GetPointer(),
+                       this->Private->Histogram.GetPointer());
+    this->UpdateLayout();
+    this->Private->VisibleColumnsModified = false;
+    }
 }
 
 bool vtkScatterPlotMatrix::Paint(vtkContext2D *painter)
 {
+  this->Update();
   return Superclass::Paint(painter);
 }
 
@@ -139,75 +151,160 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
     if (table == NULL)
       {
       this->SetSize(vtkVector2i(0, 0));
+      this->SetColumnVisibilityAll(true);
       return;
       }
 
-    // Build up our histograms
-    PopulateHistograms(table, this->Private->Histogram.GetPointer());
-
     int n = static_cast<int>(this->Input->GetNumberOfColumns());
+    this->SetColumnVisibilityAll(true);
     this->SetSize(vtkVector2i(n, n));
-    // We want scatter plots on the lower-left triangle, then histograms along
-    // the diagonal and a big plot in the top-right. The basic layout is,
-    //
-    // 0 H   +++
-    // 1 S H +++
-    // 2 S S H
-    // 3 S S S H
-    //   0 1 2 3
-    //
-    // Where the indices are those of the columns. The indices of the charts
-    // originate in the bottom-left.
-    for (int i = 0; i < n; ++i)
+    }
+}
+
+void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
+                                               bool visible)
+{
+  if (visible)
+    {
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
       {
-      for (int j = 0; j < n; ++j)
+      if (this->VisibleColumns->GetValue(i) == name)
         {
-        vtkVector2i pos(i, j);
-        if (i + j + 1 < n)
+        // Already there, nothing more needs to be done
+        return;
+        }
+      }
+    // Add the column to the end of the list
+    this->VisibleColumns->InsertNextValue(name);
+    this->Private->VisibleColumnsModified = true;
+    this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
+                              this->VisibleColumns->GetNumberOfTuples()));
+    this->Modified();
+    }
+  else
+    {
+    // Remove the value if present
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+      {
+      if (this->VisibleColumns->GetValue(i) == name)
+        {
+        // Move all the later elements down by one, and reduce the size
+        while (i < this->VisibleColumns->GetNumberOfTuples()-1)
           {
-          vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
-          plot->SetInput(table, i, n - j - 1);
+          this->VisibleColumns->SetValue(i,
+                                         this->VisibleColumns->GetValue(i+1));
+          ++i;
           }
-        else if (i == n - j - 1)
+        this->VisibleColumns->SetNumberOfTuples(
+            this->VisibleColumns->GetNumberOfTuples()-1);
+        this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
+                                  this->VisibleColumns->GetNumberOfTuples()));
+        this->Private->VisibleColumnsModified = true;
+        this->Modified();
+        return;
+        }
+      }
+    }
+}
+
+bool vtkScatterPlotMatrix::GetColumnVisibility(const vtkStdString &name)
+{
+  for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    {
+    if (this->VisibleColumns->GetValue(i) == name)
+      {
+      return true;
+      }
+    }
+  return false;
+}
+
+void vtkScatterPlotMatrix::SetColumnVisibilityAll(bool visible)
+{
+  if (visible && this->Input)
+    {
+    vtkIdType n = this->Input->GetNumberOfColumns();
+    this->VisibleColumns->SetNumberOfTuples(n);
+    for (vtkIdType i = 0; i < n; ++i)
+      {
+      this->VisibleColumns->SetValue(i, this->Input->GetColumnName(i));
+      }
+    }
+  else
+    {
+    this->SetSize(vtkVector2i(0, 0));
+    this->VisibleColumns->SetNumberOfTuples(0);
+    }
+}
+
+vtkStringArray* vtkScatterPlotMatrix::GetVisibleColumns()
+{
+  return this->VisibleColumns.GetPointer();
+}
+
+void vtkScatterPlotMatrix::UpdateLayout()
+{
+  // We want scatter plots on the lower-left triangle, then histograms along
+  // the diagonal and a big plot in the top-right. The basic layout is,
+  //
+  // 0 H   +++
+  // 1 S H +++
+  // 2 S S H
+  // 3 S S S H
+  //   0 1 2 3
+  //
+  // Where the indices are those of the columns. The indices of the charts
+  // originate in the bottom-left.
+  int n = this->Size.X();
+  for (int i = 0; i < n; ++i)
+    {
+    for (int j = 0; j < n; ++j)
+      {
+      vtkVector2i pos(i, j);
+      if (i + j + 1 < n)
+        {
+        vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
+        plot->SetInput(this->Input.GetPointer(), i, n - j - 1);
+        }
+      else if (i == n - j - 1)
+        {
+        // We are on the diagonal - need a histogram plot.
+        vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
+        vtkStdString name(this->VisibleColumns->GetValue(i));
+        plot->SetInput(this->Private->Histogram.GetPointer(),
+                       name + "_extents", name + "_pops");
+        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
+        axis->SetTitle(name.c_str());
+        // Set the plot corner to the top-right
+        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
+        if (xy)
           {
-          // We are on the diagonal - need a histogram plot.
-          vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
-          vtkStdString name(table->GetColumnName(i));
-          plot->SetInput(this->Private->Histogram.GetPointer(),
-                         name + "_extents", name + "_pops");
-          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
-          axis->SetTitle(name.c_str());
-          // Set the plot corner to the top-right
-          vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
-          if (xy)
-            {
-            xy->SetPlotCorner(plot, 2);
-            }
+          xy->SetPlotCorner(plot, 2);
           }
-        // Only show bottom axis label for bottom plots
-        if (j > 0)
-          {
-          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
-          axis->SetTitle("");
-          axis->SetLabelsVisible(false);
-          }
-        else
-          {
-          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
-          axis->SetTitle(table->GetColumnName(i));
-          }
-        // Only show the left axis labels for left-most plots
-        if (i > 0)
-          {
-          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
-          axis->SetTitle("");
-          axis->SetLabelsVisible(false);
-          }
-        else
-          {
-          vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
-          axis->SetTitle(table->GetColumnName(n - j - 1));
-          }
+        }
+      // Only show bottom axis label for bottom plots
+      if (j > 0)
+        {
+        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
+        axis->SetTitle("");
+        axis->SetLabelsVisible(false);
+        }
+      else
+        {
+        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
+        axis->SetTitle(this->VisibleColumns->GetValue(i));
+        }
+      // Only show the left axis labels for left-most plots
+      if (i > 0)
+        {
+        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
+        axis->SetTitle("");
+        axis->SetLabelsVisible(false);
+        }
+      else
+        {
+        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
+        axis->SetTitle(this->VisibleColumns->GetValue(n - j - 1));
         }
       }
     }

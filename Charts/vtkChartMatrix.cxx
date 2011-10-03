@@ -59,20 +59,23 @@ bool vtkChartMatrix::Paint(vtkContext2D *painter)
     // Update the chart element positions
     this->Private->Geometry.Set(this->GetScene()->GetSceneWidth(),
                                 this->GetScene()->GetSceneHeight());
-    vtkVector2f increments(this->Private->Geometry.X() / this->Size.X(),
-                           this->Private->Geometry.Y() / this->Size.Y());
-    for (int i = 0; i < this->Size.X(); ++i)
+    if (this->Size.X() > 0 && this->Size.Y() > 0)
       {
-      for (int j = 0; j < this->Size.Y(); ++j)
+      vtkVector2f increments(this->Private->Geometry.X() / this->Size.X(),
+                             this->Private->Geometry.Y() / this->Size.Y());
+      for (int i = 0; i < this->Size.X(); ++i)
         {
-        size_t index = j * this->Size.X() + i;
-        if (this->Private->Charts[index])
+        for (int j = 0; j < this->Size.Y(); ++j)
           {
-          vtkChart *chart = this->Private->Charts[index];
-          chart->SetSize(vtkRectf(i * increments.X(),
-                                  j * increments.Y(),
-                                  increments.X(),
-                                  increments.Y()));
+          size_t index = j * this->Size.X() + i;
+          if (this->Private->Charts[index])
+            {
+            vtkChart *chart = this->Private->Charts[index];
+            chart->SetSize(vtkRectf(i * increments.X(),
+                                    j * increments.Y(),
+                                    increments.X(),
+                                    increments.Y()));
+            }
           }
         }
       }
