@@ -29,6 +29,7 @@
 
 class vtkStringArray;
 class vtkTable;
+class vtkAxis;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
@@ -77,6 +78,11 @@ protected:
   // Description:
   // Internal helper to do the layout of the charts in the scatter plot matrix.
   void UpdateLayout();
+
+  // Description:
+  // Attach axis range listener so we can forward to dependent axes in matrix.
+  void AttachAxisRangeListener(vtkAxis*);
+  void AxisRangeForwarderCallback(vtkObject*, unsigned long, void*);
 
   class PIMPL;
   PIMPL *Private;

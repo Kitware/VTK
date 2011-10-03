@@ -48,7 +48,7 @@ namespace
 int NumberOfBins = 10;
 
 // This is just here for now - quick and dirty historgram calculations...
-bool PopulateHistograms(vtkTable *input, vtkTable *output)
+bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s)
 {
   // The output table will have the twice the number of columns, they will be
   // the x and y for input column. This is the bin centers, and the population.
@@ -56,10 +56,12 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output)
     {
     output->RemoveColumn(i);
     }
-  for (vtkIdType i = 0; i < input->GetNumberOfColumns(); ++i)
+  for (vtkIdType i = 0; i < s->GetNumberOfTuples(); ++i)
     {
     double minmax[2] = { 0.0, 0.0 };
-    vtkDataArray *in = vtkDataArray::SafeDownCast(input->GetColumn(i));
+    vtkStdString name(s->GetValue(i));
+    vtkDataArray *in =
+        vtkDataArray::SafeDownCast(input->GetColumnByName(name.c_str()));
     if (in)
       {
       // The bin values are the centers, extending +/- half an inc either side
@@ -70,14 +72,13 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output)
         }
       double inc = (minmax[1] - minmax[0]) / NumberOfBins;
       double halfInc = inc / 2.0;
-      vtkStdString name(input->GetColumnName(i));
       vtkNew<vtkFloatArray> extents;
       extents->SetName(vtkStdString(name + "_extents").c_str());
       extents->SetNumberOfTuples(NumberOfBins);
       float *centers = static_cast<float *>(extents->GetVoidPointer(0));
       for (int j = 0; j < NumberOfBins; ++j)
         {
-        extents->SetValue(j, j * inc);
+        extents->SetValue(j, minmax[0] + j * inc);
         }
       vtkNew<vtkIntArray> populations;
       populations->SetName(vtkStdString(name + "_pops").c_str());
@@ -127,7 +128,8 @@ void vtkScatterPlotMatrix::Update()
     // We need to handle layout changes due to modified visibility.
     // Build up our histograms data before updating the layout.
     PopulateHistograms(this->Input.GetPointer(),
-                       this->Private->Histogram.GetPointer());
+                       this->Private->Histogram.GetPointer(),
+                       this->VisibleColumns.GetPointer());
     this->UpdateLayout();
     this->Private->VisibleColumnsModified = false;
     }
@@ -275,6 +277,10 @@ void vtkScatterPlotMatrix::UpdateLayout()
                        name + "_extents", name + "_pops");
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name.c_str());
+        if (i != n - 1)
+          {
+          axis->SetBehavior(vtkAxis::FIXED);
+          }
         // Set the plot corner to the top-right
         vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
         if (xy)
@@ -288,11 +294,13 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
         axis->SetTitle("");
         axis->SetLabelsVisible(false);
+        axis->SetBehavior(vtkAxis::FIXED);
         }
       else
         {
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
         axis->SetTitle(this->VisibleColumns->GetValue(i));
+        this->AttachAxisRangeListener(axis);
         }
       // Only show the left axis labels for left-most plots
       if (i > 0)
@@ -300,12 +308,42 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
         axis->SetTitle("");
         axis->SetLabelsVisible(false);
+        axis->SetBehavior(vtkAxis::FIXED);
         }
       else
         {
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
         axis->SetTitle(this->VisibleColumns->GetValue(n - j - 1));
+        this->AttachAxisRangeListener(axis);
         }
+      }
+    }
+}
+
+void vtkScatterPlotMatrix::AttachAxisRangeListener(vtkAxis* axis)
+{
+  axis->AddObserver(vtkChart::UpdateRange, this,
+                    &vtkScatterPlotMatrix::AxisRangeForwarderCallback);
+}
+
+void vtkScatterPlotMatrix::AxisRangeForwarderCallback(vtkObject*,
+                                                      unsigned long, void*)
+{
+  // Only set on the end axes, and propagated to all other matching axes.
+  double r[2];
+  int n = this->GetSize().X() - 1;
+  for (int i = 0; i < n; ++i)
+    {
+    this->GetChart(vtkVector2i(i, 0))->GetAxis(vtkAxis::BOTTOM)->GetRange(r);
+    for (int j = 1; j < n - i; ++j)
+      {
+      this->GetChart(vtkVector2i(i, j))->GetAxis(vtkAxis::BOTTOM)->SetRange(r);
+      }
+    this->GetChart(vtkVector2i(i, n-i))->GetAxis(vtkAxis::TOP)->SetRange(r);
+    this->GetChart(vtkVector2i(0, i))->GetAxis(vtkAxis::LEFT)->GetRange(r);
+    for (int j = 1; j < n - i; ++j)
+      {
+      this->GetChart(vtkVector2i(j, i))->GetAxis(vtkAxis::LEFT)->SetRange(r);
       }
     }
 }
