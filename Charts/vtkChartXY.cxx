@@ -743,6 +743,10 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
       if (this->LayoutStrategy == vtkChart::AXES_TO_RECT)
         {
         this->SetBorders(0, 0, 0, 0);
+        this->ChartPrivate->axes[0]->GetBoundingRect(painter);
+        this->ChartPrivate->axes[1]->GetBoundingRect(painter);
+        this->ChartPrivate->axes[2]->GetBoundingRect(painter);
+        this->ChartPrivate->axes[3]->GetBoundingRect(painter);
         }
       else
         {
