@@ -667,29 +667,34 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
   bool changed = false;
 
   // Axes
-  for (int i = 0; i < 4; ++i)
+  if (this->LayoutStrategy == vtkChart::FILL_SCENE ||
+      this->LayoutStrategy == vtkChart::FILL_RECT)
     {
-    int border = 0;
-    vtkAxis* axis = this->ChartPrivate->axes[i];
-    axis->Update();
-    if (axis->GetVisible())
+    for (int i = 0; i < 4; ++i)
       {
-      vtkRectf bounds = axis->GetBoundingRect(painter);
-      if (i == 1 || i == 3)
-        {// Horizontal axes
-        border = int(bounds.GetHeight());
+      int border = 0;
+      vtkAxis* axis = this->ChartPrivate->axes[i];
+      axis->Update();
+      if (axis->GetVisible())
+        {
+        vtkRectf bounds = axis->GetBoundingRect(painter);
+        if (i == 1 || i == 3)
+          {// Horizontal axes
+          border = int(bounds.GetHeight());
+          }
+        else
+          {// Vertical axes
+          border = int(bounds.GetWidth());
+          }
         }
-      else
-        {// Vertical axes
-        border = int(bounds.GetWidth());
+      border += this->GetLegendBorder(painter, i);
+      border = border < this->HiddenAxisBorder ? this->HiddenAxisBorder :
+                                                 border;
+      if (this->ChartPrivate->Borders[i] != border)
+        {
+        this->ChartPrivate->Borders[i] = border;
+        changed = true;
         }
-      }
-    border += this->GetLegendBorder(painter, i);
-    border = border < this->HiddenAxisBorder ? this->HiddenAxisBorder : border;
-    if (this->ChartPrivate->Borders[i] != border)
-      {
-      this->ChartPrivate->Borders[i] = border;
-      changed = true;
       }
     }
 
@@ -735,10 +740,17 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
       }
     else
       {
-      this->SetBorders(this->ChartPrivate->Borders[0],
-                       this->ChartPrivate->Borders[1],
-                       this->ChartPrivate->Borders[2],
-                       this->ChartPrivate->Borders[3]);
+      if (this->LayoutStrategy == vtkChart::AXES_TO_RECT)
+        {
+        this->SetBorders(0, 0, 0, 0);
+        }
+      else
+        {
+        this->SetBorders(this->ChartPrivate->Borders[0],
+                         this->ChartPrivate->Borders[1],
+                         this->ChartPrivate->Borders[2],
+                         this->ChartPrivate->Borders[3]);
+        }
       // This is where we set the axes up too
       // Y axis (left)
       this->ChartPrivate->axes[0]->SetPoint1(this->Point1[0], this->Point1[1]);

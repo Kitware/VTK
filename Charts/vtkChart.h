@@ -177,7 +177,7 @@ public:
   enum {
     FILL_SCENE,  // Attempt to fill the entire scene.
     FILL_RECT,   // Attempt to supply the supplied vtkRectf in Size.
-    AXIS_TO_RECT // Put the corners of the axes on the vtkRectf in Size.
+    AXES_TO_RECT // Put the corners of the axes on the vtkRectf in Size.
   };
 
   // Description:

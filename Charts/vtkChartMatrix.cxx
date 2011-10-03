@@ -116,7 +116,7 @@ bool vtkChartMatrix::SetChart(const vtkVector2i &position, vtkChart *chart)
       }
     this->Private->Charts[index] = chart;
     this->AddItem(chart);
-    chart->SetAutoSize(false);
+    chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
     return true;
     }
   else
@@ -135,7 +135,7 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i &position)
       vtkNew<vtkChartXY> chart;
       this->Private->Charts[index] = chart.GetPointer();
       this->AddItem(chart.GetPointer());
-      chart->SetAutoSize(false);
+      chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
       }
     return this->Private->Charts[index];
     }
