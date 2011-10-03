@@ -265,6 +265,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
       vtkVector2i pos(i, j);
       if (i + j + 1 < n)
         {
+        // Lower-left triangle - scatter plots.
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
         plot->SetInput(this->Input.GetPointer(), i, n - j - 1);
         }
@@ -287,6 +288,12 @@ void vtkScatterPlotMatrix::UpdateLayout()
           {
           xy->SetPlotCorner(plot, 2);
           }
+        }
+      else if (i == static_cast<int>(n / 2.0) + n % 2 && i == j)
+        {
+        // This big plot in the top-right
+        vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
+        plot->SetInput(this->Input.GetPointer(), i, n - j - 1);
         }
       // Only show bottom axis label for bottom plots
       if (j > 0)
