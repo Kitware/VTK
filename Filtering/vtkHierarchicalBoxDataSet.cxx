@@ -811,8 +811,8 @@ void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
     const unsigned int flatIdx, unsigned int &level, unsigned int &idx )
 {
 
-  level = -1;
-  idx   = -1;
+  level = 0;
+  idx   = 0;
   if( this->CompositeIndex2LevelIdPair.find( flatIdx ) !=
       this->CompositeIndex2LevelIdPair.end() )
     {
