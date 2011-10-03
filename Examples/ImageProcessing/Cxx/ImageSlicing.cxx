@@ -35,6 +35,7 @@
 #include "vtkInteractorStyleImage.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
 
 // The mouse motion callback, to turn "Slicing" on and off
 class vtkImageInteractionCallback : public vtkCommand
@@ -87,7 +88,7 @@ public:
         // Increment slice position by deltaY of mouse
         int deltaY = lastPos[1] - currPos[1];
 
-        reslice->GetOutput()->UpdateInformation();
+        reslice->Update();
         double sliceSpacing = reslice->GetOutput()->GetSpacing()[2];
         vtkMatrix4x4 *matrix = reslice->GetResliceAxes();
         // move the center point that we are slicing through
@@ -148,11 +149,12 @@ int main (int argc, char *argv[])
   reader->UpdateWholeExtent();
 
   // Calculate the center of the volume
-  reader->GetOutput()->UpdateInformation();
+  reader->Update();
   int extent[6];
   double spacing[3];
   double origin[3];
-  reader->GetOutput()->GetWholeExtent(extent);
+ 
+  reader->GetOutput()->GetWholeExtent();
   reader->GetOutput()->GetSpacing(spacing);
   reader->GetOutput()->GetOrigin(origin);
 
@@ -221,7 +223,7 @@ int main (int argc, char *argv[])
   // Display the image
   vtkSmartPointer<vtkImageActor> actor =
     vtkSmartPointer<vtkImageActor>::New();
-  actor->SetInput(color->GetOutput());
+  actor->GetMapper()->SetInputConnection(color->GetOutputPort());
 
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();

@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 
   // outline
   vtkStructuredGridOutlineFilter* of = vtkStructuredGridOutlineFilter::New();
-  of->SetInput(mb);
+  of->SetInputData(mb);
 
   // geometry filter
   // This filter is multi-block aware and will request blocks from the
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 
   // cell 2 point and contour
   vtkCellDataToPointData* c2p = vtkCellDataToPointData::New();
-  c2p->SetInput(mb);
+  c2p->SetInputData(mb);
 
   vtkContourFilter* contour = vtkContourFilter::New();
   contour->SetInputConnection(0, c2p->GetOutputPort(0));

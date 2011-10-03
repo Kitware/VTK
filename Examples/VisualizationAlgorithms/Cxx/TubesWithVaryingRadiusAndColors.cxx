@@ -96,7 +96,7 @@ int main (int, char *[])
 
   vtkSmartPointer<vtkTubeFilter> tube
     = vtkSmartPointer<vtkTubeFilter>::New();
-  tube->SetInput(polyData);
+  tube->SetInputData(polyData);
   tube->SetNumberOfSides(nTv);
   tube->SetVaryRadiusToVaryRadiusByAbsoluteScalar();
 

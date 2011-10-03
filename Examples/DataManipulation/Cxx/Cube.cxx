@@ -55,7 +55,7 @@ int main()
 
   // Now we'll look at it.
   vtkPolyDataMapper *cubeMapper = vtkPolyDataMapper::New();
-      cubeMapper->SetInput(cube);
+      cubeMapper->SetInputData(cube);
       cubeMapper->SetScalarRange(0,7);
   vtkActor *cubeActor = vtkActor::New();
       cubeActor->SetMapper(cubeMapper);

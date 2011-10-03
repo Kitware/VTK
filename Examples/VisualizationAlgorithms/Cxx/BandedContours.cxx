@@ -64,7 +64,8 @@ int main (int argc, char *argv[])
 
   vtkSmartPointer<vtkPolyDataMapper> contourLineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  contourLineMapper->SetInput(bandedContours->GetContourEdgesOutput());
+ 
+  contourLineMapper->SetInputData(bandedContours->GetContourEdgesOutput());
   contourLineMapper->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourLineMapper->ScalarVisibilityOff();
 

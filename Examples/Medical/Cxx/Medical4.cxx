@@ -72,7 +72,7 @@ int main (int argc, char *argv[])
 
   vtkSmartPointer<vtkVolumeRayCastMapper> volumeMapper =
     vtkSmartPointer<vtkVolumeRayCastMapper>::New();
-  volumeMapper->SetInput(v16->GetOutput());
+  volumeMapper->SetInputConnection(v16->GetOutputPort());
   volumeMapper->SetVolumeRayCastFunction(rayCastFunction);
 
   // The color transfer function maps voxel intensities to colors.
