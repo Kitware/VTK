@@ -1800,9 +1800,9 @@ void vtkWindBladeReader::SetupBladeData()
     {
     size_t len = strlen(inBuf);
     // number of lines corresponds to number of spaces
-    for (size_t i = 0; i < len; i++)
+    for (size_t j = 0; j < len; j++)
       {
-      if (inBuf[i] == ' ')
+      if (inBuf[j] == ' ')
         {
         numColumns++;
         }
