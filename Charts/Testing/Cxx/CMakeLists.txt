@@ -7,7 +7,6 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestContextScene.cxx
     TestControlPointsItem.cxx
     TestControlPointsItemEvents.cxx
-    TestVector.cxx
     )
 
   IF (VTK_DATA_ROOT)

@@ -28,6 +28,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestUnicodeStringAPI.cxx
   TestUnicodeStringArrayAPI.cxx
   TestVariantComparison.cxx
+  TestVector.cxx
   TestWeakPointer.cxx
   TestSystemInformation.cxx
   EXTRA_INCLUDE vtkTestDriver.h
