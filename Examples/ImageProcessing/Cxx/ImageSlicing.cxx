@@ -157,9 +157,7 @@ int main (int argc, char *argv[])
   double origin[3];
  
  
-  reader->GetOutputInformation(0)->Get(
-vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent );  
-//   reader->GetOutput()->GetWholeExtent(extent);
+  reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   reader->GetOutput()->GetSpacing(spacing);
   reader->GetOutput()->GetOrigin(origin);
 
