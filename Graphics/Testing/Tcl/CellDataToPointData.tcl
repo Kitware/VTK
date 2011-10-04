@@ -14,13 +14,13 @@ vtkRenderWindowInteractor iren
 
 # create a 2*2 cell/3*3 pt structuredgrid
 vtkPoints points
-  points InsertNextPoint    -1  1  0   
+  points InsertNextPoint    -1  1  0
   points InsertNextPoint     0  1  0
   points InsertNextPoint     1  1  0
   points InsertNextPoint    -1  0  0
   points InsertNextPoint     0  0  0
   points InsertNextPoint     1  0  0
-  points InsertNextPoint    -1 -1  0 
+  points InsertNextPoint    -1 -1  0
   points InsertNextPoint     0 -1  0
   points InsertNextPoint     1 -1  0
 
@@ -36,11 +36,12 @@ vtkStructuredGrid sgrid
   [sgrid GetCellData] SetScalars faceColors
 
 vtkCellDataToPointData Cell2Point
-  Cell2Point SetInput sgrid
+  Cell2Point SetInputData sgrid
   Cell2Point PassCellDataOn
+  Cell2Point Update
 
 vtkDataSetMapper mapper
-  mapper SetInput [Cell2Point GetStructuredGridOutput]
+  mapper SetInputData [Cell2Point GetStructuredGridOutput]
   mapper SetScalarModeToUsePointData
   mapper SetScalarRange 0 2
 
