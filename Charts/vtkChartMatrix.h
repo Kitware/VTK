@@ -81,6 +81,17 @@ public:
   // this point.
   virtual vtkChart* GetChart(const vtkVector2i& position);
 
+  // Description:
+  // Set the span of a chart in the matrix. This defaults to 1x1, and cannot
+  // exceed the remaining space in x or y.
+  // \return false If the span is not possible.
+  virtual bool SetChartSpan(const vtkVector2i& position,
+                            const vtkVector2i& span);
+
+  // Description:
+  // Get the span of the specified chart.
+  virtual vtkVector2i GetChartSpan(const vtkVector2i& position);
+
 protected:
   vtkChartMatrix();
   ~vtkChartMatrix();

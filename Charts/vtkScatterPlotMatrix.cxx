@@ -294,6 +294,12 @@ void vtkScatterPlotMatrix::UpdateLayout()
         // This big plot in the top-right
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
         plot->SetInput(this->Input.GetPointer(), i, n - j - 1);
+        this->SetChartSpan(pos, vtkVector2i(n - i, n - i));
+        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
+        if (xy)
+          {
+          xy->SetPlotCorner(plot, 2);
+          }
         }
       // Only show bottom axis label for bottom plots
       if (j > 0)
