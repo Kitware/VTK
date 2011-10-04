@@ -64,6 +64,7 @@ SET(Kit_SRCS
   vtkPlotParallelCoordinates.cxx
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
+  vtkScatterPlotMatrix.cxx
   vtkTooltipItem.cxx
   )
 

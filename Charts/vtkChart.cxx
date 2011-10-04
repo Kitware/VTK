@@ -57,13 +57,20 @@ vtkChart::vtkChart()
   this->TitleProperties->SetFontSize(12);
   this->TitleProperties->SetFontFamilyToArial();
   this->AnnotationLink = NULL;
-  this->AutoSize = true;
+  this->LayoutStrategy = vtkChart::FILL_SCENE;
   this->RenderEmpty = false;
 }
 
 //-----------------------------------------------------------------------------
 vtkChart::~vtkChart()
 {
+  for(int i=0; i < 4; i++)
+    {
+    if(this->GetAxis(i))
+      {
+      this->GetAxis(i)->RemoveObservers(vtkChart::UpdateRange);
+      }
+    }
   this->TitleProperties->Delete();
   if (this->AnnotationLink)
     {
@@ -140,7 +147,6 @@ void vtkChart::RecalculateBounds()
 {
   return;
 }
-
 //-----------------------------------------------------------------------------
 void vtkChart::SetShowLegend(bool visible)
 {
@@ -314,4 +320,20 @@ void vtkChart::PrintSelf(ostream &os, vtkIndent indent)
      << endl;
   os << indent << "Width: " << this->Geometry[0] << endl
      << indent << "Height: " << this->Geometry[1] << endl;
+}
+//-----------------------------------------------------------------------------
+void vtkChart::AttachAxisRangeListener(vtkAxis* axis)
+{
+  axis->AddObserver(vtkChart::UpdateRange, this, &vtkChart::AxisRangeForwarderCallback);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
+{
+  double fullAxisRange[8];
+  for(int i=0; i < 4; i++)
+    {
+    this->GetAxis(i)->GetRange(&fullAxisRange[i*2]);
+    }
+  this->InvokeEvent(vtkChart::UpdateRange, fullAxisRange);
 }

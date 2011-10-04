@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestChartMatrix.cxx
+  Module:    TestScatterPlotMatrixVisible.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkChartMatrix.h"
+#include "vtkScatterPlotMatrix.h"
 #include "vtkRenderWindow.h"
-#include "vtkChartXY.h"
+#include "vtkChart.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
@@ -25,36 +25,32 @@
 #include "vtkNew.h"
 
 //----------------------------------------------------------------------------
-int TestChartMatrix( int, char * [] )
+int TestScatterPlotMatrixVisible(int, char * [])
 {
-  // Set up a 2D scene, add an XY chart to it
+  // Set up a 2D scene, add a chart to it.
   vtkNew<vtkContextView> view;
-  view->GetRenderWindow()->SetSize(400, 300);
-  vtkNew<vtkChartMatrix> matrix;
+  view->GetRenderWindow()->SetSize(800, 600);
+  vtkNew<vtkScatterPlotMatrix> matrix;
   view->GetScene()->AddItem(matrix.GetPointer());
-  matrix->SetSize(vtkVector2i(2, 2));
-  matrix->SetGutter(vtkVector2f(30.0, 30.0));
-
-  vtkChart *chart = matrix->GetChart(vtkVector2i(0, 0));
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
-  arrX->SetName("X Axis");
+  arrX->SetName("x");
   table->AddColumn(arrX.GetPointer());
   vtkNew<vtkFloatArray> arrC;
-  arrC->SetName("Cosine");
+  arrC->SetName("cos(x)");
   table->AddColumn(arrC.GetPointer());
   vtkNew<vtkFloatArray> arrS;
-  arrS->SetName("Sine");
+  arrS->SetName("sin(x)");
   table->AddColumn(arrS.GetPointer());
   vtkNew<vtkFloatArray> arrS2;
-  arrS2->SetName("Sine2");
+  arrS2->SetName("sin(x + 0.5)");
   table->AddColumn(arrS2.GetPointer());
   vtkNew<vtkFloatArray> tangent;
-  tangent->SetName("Tangent");
+  tangent->SetName("tan(x)");
   table->AddColumn(tangent.GetPointer());
-  // Test charting with a few more points...
+  // Test the chart scatter plot matrix
   int numPoints = 42;
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
@@ -67,24 +63,13 @@ int TestChartMatrix( int, char * [] )
     table->SetValue(i, 4, tan(i * inc));
     }
 
-  // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table.GetPointer(), 0, 1);
-  line->SetColor(0, 255, 0, 255);
-
-  chart = matrix->GetChart(vtkVector2i(0, 1));
-  line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table.GetPointer(), 0, 2);
-  line->SetColor(255, 0, 0, 255);
-
-  chart = matrix->GetChart(vtkVector2i(1, 0));
-  line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table.GetPointer(), 0, 3);
-  line->SetColor(0, 0, 255, 255);
-
-  chart = matrix->GetChart(vtkVector2i(1, 1));
-  line = chart->AddPlot(vtkChart::BAR);
-  line->SetInput(table.GetPointer(), 0, 4);
+  // Select a few columns in the table to analyze.
+  matrix->SetInput(table.GetPointer());
+  matrix->SetColumnVisibilityAll(false);
+  matrix->SetColumnVisibility("x", true);
+  matrix->SetColumnVisibility("sin(x)", true);
+  matrix->SetColumnVisibility("cos(x)", true);
+  matrix->SetColumnVisibility("tan(x)", true);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

@@ -35,6 +35,8 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestPlotMatrix.cxx
       TestScalarsToColors.cxx
       TestScatterPlot.cxx
+      TestScatterPlotMatrix.cxx
+      TestScatterPlotMatrixVisible.cxx
       TestScientificPlot.cxx
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx

@@ -57,6 +57,14 @@ public:
   virtual vtkVector2i GetSize() const { return this->Size; }
 
   // Description:
+  // Set the gutter that should be left between the charts in the matrix.
+  virtual void SetGutter(const vtkVector2f& gutter);
+
+  // Description:
+  // Get the gutter that should be left between the charts in the matrix.
+  virtual vtkVector2f GetGutter() const { return this->Gutter; }
+
+  // Description:
   // Allocate the charts, this will cause any null chart to be allocated.
   virtual void Allocate();
 
@@ -73,6 +81,17 @@ public:
   // this point.
   virtual vtkChart* GetChart(const vtkVector2i& position);
 
+  // Description:
+  // Set the span of a chart in the matrix. This defaults to 1x1, and cannot
+  // exceed the remaining space in x or y.
+  // \return false If the span is not possible.
+  virtual bool SetChartSpan(const vtkVector2i& position,
+                            const vtkVector2i& span);
+
+  // Description:
+  // Get the span of the specified chart.
+  virtual vtkVector2i GetChartSpan(const vtkVector2i& position);
+
 protected:
   vtkChartMatrix();
   ~vtkChartMatrix();
@@ -80,7 +99,12 @@ protected:
   class PIMPL;
   PIMPL *Private;
 
+  // The number of charts in x and y.
   vtkVector2i Size;
+
+  // The gutter between each chart.
+  vtkVector2f Gutter;
+  int Borders[4];
 
 private:
   vtkChartMatrix(const vtkChartMatrix &); // Not implemented.

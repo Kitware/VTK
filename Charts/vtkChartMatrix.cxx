@@ -20,6 +20,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
+#include "vtkAxis.h"
 #include "vtkObjectFactory.h"
 
 #include <vector>
@@ -30,15 +31,22 @@ public:
   PIMPL() {}
   ~PIMPL() {}
 
+  // Container for the vtkChart objects that make up the matrix.
   std::vector< vtkSmartPointer<vtkChart> > Charts;
+  // Spans of the charts in the matrix, default is 1x1.
+  std::vector< vtkVector2i > Spans;
   vtkVector2i Geometry;
 };
 
 vtkStandardNewMacro(vtkChartMatrix)
 
-vtkChartMatrix::vtkChartMatrix()
+vtkChartMatrix::vtkChartMatrix() : Gutter(15.0, 15.0)
 {
   this->Private = new PIMPL;
+  this->Borders[vtkAxis::LEFT] = 50;
+  this->Borders[vtkAxis::BOTTOM] = 40;
+  this->Borders[vtkAxis::RIGHT] = 50;
+  this->Borders[vtkAxis::TOP] = 40;
 }
 
 vtkChartMatrix::~vtkChartMatrix()
@@ -59,20 +67,48 @@ bool vtkChartMatrix::Paint(vtkContext2D *painter)
     // Update the chart element positions
     this->Private->Geometry.Set(this->GetScene()->GetSceneWidth(),
                                 this->GetScene()->GetSceneHeight());
-    vtkVector2f increments(this->Private->Geometry.X() / this->Size.X(),
-                           this->Private->Geometry.Y() / this->Size.Y());
-    for (int i = 0; i < this->Size.X(); ++i)
+    if (this->Size.X() > 0 && this->Size.Y() > 0)
       {
-      for (int j = 0; j < this->Size.Y(); ++j)
+      // Calculate the increments without the gutters/borders that must be left
+      vtkVector2f increments;
+      increments.SetX((this->Private->Geometry.X() - (this->Size.X() - 1) *
+                       this->Gutter.X() - this->Borders[vtkAxis::LEFT] -
+                       this->Borders[vtkAxis::RIGHT]) /
+                      this->Size.X());
+      increments.SetY((this->Private->Geometry.Y() - (this->Size.Y() - 1) *
+                       this->Gutter.Y() - this->Borders[vtkAxis::TOP] -
+                       this->Borders[vtkAxis::BOTTOM]) /
+                      this->Size.Y());
+
+      float x = this->Borders[vtkAxis::LEFT];
+      float y = this->Borders[vtkAxis::BOTTOM];
+      for (int i = 0; i < this->Size.X(); ++i)
         {
-        size_t index = j * this->Size.X() + i;
-        if (this->Private->Charts[index])
+        if (i > 0)
           {
-          vtkChart *chart = this->Private->Charts[index];
-          chart->SetSize(vtkRectf(i * increments.X(),
-                                  j * increments.Y(),
-                                  increments.X(),
-                                  increments.Y()));
+          x += increments.X() + this->Gutter.X();
+          }
+        for (int j = 0; j < this->Size.Y(); ++j)
+          {
+          if (j > 0)
+            {
+            y += increments.Y() + this->Gutter.Y();
+            }
+          else
+            {
+            y = this->Borders[vtkAxis::BOTTOM];
+            }
+          size_t index = j * this->Size.X() + i;
+          if (this->Private->Charts[index])
+            {
+            vtkChart *chart = this->Private->Charts[index];
+            vtkVector2i &span = this->Private->Spans[index];
+            chart->SetSize(vtkRectf(x, y,
+                                    increments.X() * span.X() +
+                                    (span.X() - 1) * this->Gutter.X(),
+                                    increments.Y() * span.Y() +
+                                    (span.Y() - 1) * this->Gutter.Y()));
+            }
           }
         }
       }
@@ -85,8 +121,22 @@ void vtkChartMatrix::SetSize(const vtkVector2i &size)
   if (this->Size.X() != size.X() || this->Size.Y() != size.Y())
     {
     this->Size = size;
+    if (size.X() * size.Y() < static_cast<int>(this->Private->Charts.size()))
+      {
+      for (int i = static_cast<int>(this->Private->Charts.size() - 1);
+           i >= size.X() * size.Y(); --i)
+        {
+        this->RemoveItem(this->Private->Charts[i]);
+        }
+      }
     this->Private->Charts.resize(size.X() * size.Y());
+    this->Private->Spans.resize(size.X() * size.Y(), vtkVector2i(1, 1));
     }
+}
+
+void vtkChartMatrix::SetGutter(const vtkVector2f &gutter)
+{
+  this->Gutter = gutter;
 }
 
 void vtkChartMatrix::Allocate()
@@ -105,7 +155,7 @@ bool vtkChartMatrix::SetChart(const vtkVector2i &position, vtkChart *chart)
       }
     this->Private->Charts[index] = chart;
     this->AddItem(chart);
-    chart->SetAutoSize(false);
+    chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
     return true;
     }
   else
@@ -124,13 +174,41 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i &position)
       vtkNew<vtkChartXY> chart;
       this->Private->Charts[index] = chart.GetPointer();
       this->AddItem(chart.GetPointer());
-      chart->SetAutoSize(false);
+      chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
       }
     return this->Private->Charts[index];
     }
   else
     {
     return NULL;
+    }
+}
+
+bool vtkChartMatrix::SetChartSpan(const vtkVector2i& position,
+                                  const vtkVector2i& span)
+{
+  if (this->Size.X() - position.X() - span.X() < 0 ||
+      this->Size.Y() - position.Y() - span.Y() < 0)
+    {
+    return false;
+    }
+  else
+    {
+    this->Private->Spans[position.Y() * this->Size.X() + position.X()] = span;
+    return true;
+    }
+}
+
+vtkVector2i vtkChartMatrix::GetChartSpan(const vtkVector2i& position)
+{
+  size_t index = position.Y() * this->Size.X() + position.X();
+  if (position.X() < this->Size.X() && position.Y() < this->Size.Y())
+    {
+    return this->Private->Spans[index];
+    }
+  else
+    {
+    return vtkVector2i(0, 0);
     }
 }
 
