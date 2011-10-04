@@ -2206,120 +2206,50 @@ int vtkLSDynaReader::ReadNodes()
   return 0;
 }
 
+//-----------------------------------------------------------------------------
 int vtkLSDynaReader::ReadUserIds()
 {
-  LSDynaMetaData* p = this->P;
-  if ( p->Dict["NARBS"] <= 0 )
+  // Below here is code that runs when user node or element numbers are present
+  int arbitraryMaterials = this->P->Dict["NSORT"] < 0 ? 1 : 0;
+  vtkIdType isz = this->GetNumberOfNodes();
+  if ( arbitraryMaterials )
     {
-    return 0; // Nothing to do
+    this->P->Fam.SkipToWord( LSDynaFamily::UserIdData,
+                             this->P->Fam.GetCurrentAdaptLevel(), 16 );
+    }
+  else
+    {
+    this->P->Fam.SkipToWord( LSDynaFamily::UserIdData,
+                             this->P->Fam.GetCurrentAdaptLevel(), 10 );
     }
 
+  // Node numbers
+  bool nodeIdStatus = this->GetPointArrayStatus( LS_ARRAYNAME_USERID ) == 1;
+  vtkIdTypeArray* userNodeIds = vtkIdTypeArray::New();
+  if(nodeIdStatus)
+    {
+    userNodeIds->SetNumberOfComponents(1);
+    userNodeIds->SetNumberOfTuples( isz );
+    userNodeIds->SetName( LS_ARRAYNAME_USERID );
+    }
+  this->ReadPointProperty(userNodeIds,isz,1,nodeIdStatus,false);
+  userNodeIds->Delete();
+
+  // FIXME: This won't work if Rigid Body and Shell elements are interleaved (which I now believe they are)
+  this->Parts->ReadCellUserIds(LSDynaMetaData::BEAM,
+              this->GetCellArrayStatus(LSDynaMetaData::BEAM, LS_ARRAYNAME_USERID));
+  this->Parts->ReadCellUserIds(LSDynaMetaData::SHELL,
+              this->GetCellArrayStatus(LSDynaMetaData::SHELL, LS_ARRAYNAME_USERID));
+  this->Parts->ReadCellUserIds(LSDynaMetaData::THICK_SHELL,
+              this->GetCellArrayStatus(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_USERID));
+  this->Parts->ReadCellUserIds(LSDynaMetaData::SOLID,
+              this->GetCellArrayStatus(LSDynaMetaData::SOLID, LS_ARRAYNAME_USERID));
+  this->Parts->ReadCellUserIds(LSDynaMetaData::RIGID_BODY,
+              this->GetCellArrayStatus(LSDynaMetaData::RIGID_BODY, LS_ARRAYNAME_USERID));
   return 0;
 }
-//int vtkLSDynaReader::ReadUserIds()
-//{
 
-//
-//  // Below here is code that runs when user node or element numbers are present
-//  int arbitraryMaterials = p->Dict["NSORT"] < 0 ? 1 : 0;
-//  vtkIdType isz = this->GetNumberOfNodes();
-//  if ( arbitraryMaterials )
-//    {
-//    p->Fam.SkipToWord( LSDynaFamily::UserIdData, p->Fam.GetCurrentAdaptLevel(), 16 );
-//    }
-//  else
-//    {
-//    p->Fam.SkipToWord( LSDynaFamily::UserIdData, p->Fam.GetCurrentAdaptLevel(), 10 );
-//    }
-//
-//  // Node numbers
-//  vtkIdTypeArray* userNodeIds = 0;
-//  int nodeIdStatus = this->GetPointArrayStatus( LS_ARRAYNAME_USERID );
-//  if ( nodeIdStatus )
-//    {
-//    userNodeIds = vtkIdTypeArray::New();
-//    userNodeIds->SetNumberOfComponents(1);
-//    userNodeIds->SetNumberOfTuples( isz );
-//    userNodeIds->SetName( LS_ARRAYNAME_USERID );
-//    // all outputs except OutputRoadSurface share the same set of nodes:
-//    this->OutputSolid->GetPointData()->AddArray( userNodeIds );
-//    this->OutputThickShell->GetPointData()->AddArray( userNodeIds );
-//    this->OutputShell->GetPointData()->AddArray( userNodeIds );
-//    this->OutputRigidBody->GetPointData()->AddArray( userNodeIds );
-//    //this->OutputRoadSurface->GetPointData()->AddArray( userNodeIds );
-//    this->OutputBeams->GetPointData()->AddArray( userNodeIds );
-//    userNodeIds->Delete();
-//    }
-//
-//  // Element numbers
-//  vtkIdTypeArray* userElemIds[LSDynaMetaData::NUM_CELL_TYPES];
-//  int eleIdStatus[LSDynaMetaData::NUM_CELL_TYPES];
-//
-//#define VTK_LS_READCELLUSERID(mesh,celltype) \
-//  eleIdStatus[celltype] = this->GetCellArrayStatus( celltype, LS_ARRAYNAME_USERID ); \
-//  if ( eleIdStatus[celltype] ) \
-//    { \
-//    userElemIds[celltype] = vtkIdTypeArray::New(); \
-//    userElemIds[celltype]->SetNumberOfComponents(1); \
-//    userElemIds[celltype]->SetNumberOfTuples( this->P->NumberOfCells[celltype] ); \
-//    userElemIds[celltype]->SetName( LS_ARRAYNAME_USERID ); \
-//    mesh->GetCellData()->AddArray( userElemIds[celltype] ); \
-//    userElemIds[celltype]->Delete(); \
-//    }
-//
-//  VTK_LS_READCELLUSERID(this->OutputSolid,LSDynaMetaData::SOLID);
-//  VTK_LS_READCELLUSERID(this->OutputThickShell,LSDynaMetaData::THICK_SHELL);
-//  VTK_LS_READCELLUSERID(this->OutputShell,LSDynaMetaData::SHELL);
-//  VTK_LS_READCELLUSERID(this->OutputRigidBody,LSDynaMetaData::RIGID_BODY);
-//  VTK_LS_READCELLUSERID(this->OutputBeams,LSDynaMetaData::BEAM);
-//
-//  eleIdStatus[LSDynaMetaData::PARTICLE] = false;
-//  userElemIds[LSDynaMetaData::PARTICLE] = 0;
-//
-//  eleIdStatus[LSDynaMetaData::ROAD_SURFACE] = false;
-//  userElemIds[LSDynaMetaData::ROAD_SURFACE] = 0;
-//
-//#undef VTK_LS_READCELLUSERID
-//
-//  vtkIdType c;
-//  vtkIdType e;
-//
-//  c = 0;
-//  e = 0;
-//
-//  if ( nodeIdStatus )
-//    {
-//    p->Fam.BufferChunk( LSDynaFamily::Int, isz );
-//    for ( c=0; c<isz; ++c )
-//      {
-//      userNodeIds->SetTuple1( c, p->Fam.GetNextWordAsInt() );
-//      }
-//    }
-//  else
-//    {
-//    p->Fam.SkipWords( isz );
-//    }
-//
-//  // FIXME: This loop won't work if Rigid Body and Shell elements are interleaved (which I now believe they are)
-//  for ( int s=LSDynaMetaData::PARTICLE; s<LSDynaMetaData::NUM_CELL_TYPES; ++s )
-//    {
-//    vtkIdTypeArray* ueids = userElemIds[s];
-//    if ( (! eleIdStatus[s]) || (! ueids) )
-//      {
-//      p->Fam.SkipWords( this->P->NumberOfCells[s] );
-//      continue; // skip arrays the user doesn't want to load
-//      }
-//
-//    p->Fam.BufferChunk( LSDynaFamily::Int, this->P->NumberOfCells[s] );
-//    for ( e=0; e<this->P->NumberOfCells[s]; ++e )
-//      {
-//      ueids->SetTuple1( e, p->Fam.GetNextWordAsInt() );
-//      }
-//    }
-//
-//  return 0;
-//}
-
+//-----------------------------------------------------------------------------
 int vtkLSDynaReader::ReadDeletion()
 {
   enum LSDynaMetaData::LSDYNA_TYPES validCellTypes[4] = {
@@ -3335,13 +3265,6 @@ int vtkLSDynaReader::RequestData(
     }
   this->UpdateProgress( 0.25 );
 
-  // Do something with user-specified node/element/material numbering
-  if ( this->ReadUserIds() )
-    {
-    vtkErrorMacro( "Could not read user node/element IDs." );
-    return 1;
-    }
-
   // We read deletion first even though it requires
   // file skipping so that we don't have to store all the topology
   // information intill the end of the state info
@@ -3363,6 +3286,15 @@ int vtkLSDynaReader::RequestData(
   //now that the cells have 
   this->UpdateProgress( 0.5 );
 
+  // Do something with user-specified node/element/material numbering
+  // we need to read the user ids after we have read the topology
+  // so we know how many cells are in each part
+  if ( this->ReadUserIds() )
+    {
+    vtkErrorMacro( "Could not read user node/element IDs." );
+    return 1;
+    }
+
   // Adapted element parent list
   // This isn't even implemented by LS-Dyna yet
 
@@ -3370,6 +3302,7 @@ int vtkLSDynaReader::RequestData(
 
   // Start of state data ===================
   // I. Node and Cell State
+  this->UpdateProgress( 0.6 );
   if ( this->ReadState( p->CurrentState ) )
     {
     vtkErrorMacro( "Problem reading state data for time step " << p->CurrentState );
@@ -3377,6 +3310,7 @@ int vtkLSDynaReader::RequestData(
     }
 
   // III. SPH Node State
+  this->UpdateProgress( 0.7 );
   if ( this->GetNumberOfParticleCells() )
     {
     if ( this->ReadSPHState( p->CurrentState ) )
@@ -3386,10 +3320,12 @@ int vtkLSDynaReader::RequestData(
       }
     }
 
+  this->UpdateProgress( 0.8 );
   //now that the reading has finished we need to finalize the parts
   this->Parts->Finalize(this->CommonPoints,this->RoadSurfacePoints);
 
   //add all the parts as child blocks to the output
+  this->UpdateProgress( 0.9 );
   vtkIdType nextId = 0;
   int size = this->Parts->GetNumberOfParts();
   for(int i=0; i < size;++i)

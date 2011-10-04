@@ -100,6 +100,7 @@ class vtkLSDynaPartCollection::LSDynaPart
       Type(t),Name(n), MaterialId(mId)
     {
     this->Grid = NULL;
+    this->UserIds = NULL;
     this->InitGrid();
     NextPointId = 0;
     }
@@ -109,6 +110,11 @@ class vtkLSDynaPartCollection::LSDynaPart
       {
       Grid->Delete();
       Grid=NULL;
+      }
+    if(UserIds)
+      {
+      UserIds->Delete();
+      UserIds=NULL;
       }
     }
 
@@ -120,7 +126,6 @@ class vtkLSDynaPartCollection::LSDynaPart
       }
     //currently construcutGridwithoutdeadcells calls insertnextcell
     this->Grid = vtkUnstructuredGrid::New();
-
 
     //now add in the field data to the grid.
     //Data is the name, type, and material id
@@ -138,19 +143,38 @@ class vtkLSDynaPartCollection::LSDynaPart
     partType->SetNumberOfValues(1);
     partType->SetValue(0,TypeNames[this->Type]);
     fd->AddArray(partType);
-    partType->Delete();
+    partType->FastDelete();
 
     vtkIntArray *materialId = vtkIntArray::New();
     materialId->SetName("Material Id");
     materialId->SetNumberOfValues(1);
     materialId->SetValue(0,this->MaterialId);
     fd->AddArray(materialId);
-    materialId->Delete();
+    materialId->FastDelete();
     }
 
   void ResetTimeStepInfo()
     {
+    CPIVector::iterator it;
+    for(it=CellPropertyInfo.begin();
+        it!=CellPropertyInfo.end();
+        ++it)
+      {
+      if(*it)
+        {
+        delete (*it);
+        (*it)=NULL;
+        }
+      }
     CellPropertyInfo.clear();
+    }
+
+  void InitUserIds()
+    {
+    //setup the user Ids
+    this->UserIds = vtkIdTypeArray::New();
+    this->UserIds->SetName("UserIds");
+    this->UserIds->SetNumberOfValues(Grid->GetNumberOfCells());
     }
   
   //Storage of information to build the grid before we call finalize
@@ -159,7 +183,14 @@ class vtkLSDynaPartCollection::LSDynaPart
   vtkIdType NextPointId;
 
   //These need to be cleared every time step
+
+  //cell properties
   CPIVector CellPropertyInfo;
+
+  //exception to the normal cell properties
+  //since it is contained in a different location in the binary files
+  vtkIdTypeArray* UserIds;
+
   //Used to hold the grid representation of this part.
   //Only is valid afer finalize has been called on a timestep
   vtkUnstructuredGrid* Grid;
@@ -472,6 +503,101 @@ void vtkLSDynaPartCollection::FillCellArray(T *buffer,
 }
 
 //-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::ReadCellUserIds(
+    const LSDynaMetaData::LSDYNA_TYPES& type, const int& status)
+{
+
+  vtkIdType numCells,numSkipStart,numSkipEnd;
+  this->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
+
+  if(!status)
+    {
+    //skip this part type
+    this->MetaData->Fam.SkipWords(numSkipStart + numCells + numSkipEnd);
+    return;
+    }
+
+  this->MetaData->Fam.SkipWords(numSkipStart);
+  vtkIdType numChunks = this->MetaData->Fam.InitPartialChunkBuffering(numCells,1);
+  vtkIdType startId = 0;
+  if(this->MetaData->Fam.GetWordSize() == 8 && numCells > 0)
+    {
+    for(vtkIdType i=0; i < numChunks; ++i)
+      {
+      vtkIdType chunkSize = this->MetaData->Fam.GetNextChunk( LSDynaFamily::Float);
+      vtkIdType numCellsInChunk = chunkSize;
+      vtkIdType *buf = this->MetaData->Fam.GetBufferAsIdType();
+      this->FillCellUserId(buf,type,startId,numCellsInChunk);
+      startId += numCellsInChunk;
+      }
+    }
+  else if (numCells > 0)
+    {
+    for(vtkIdType i=0; i < numChunks; ++i)
+      {
+      vtkIdType chunkSize = this->MetaData->Fam.GetNextChunk( LSDynaFamily::Float);
+      vtkIdType numCellsInChunk = chunkSize;
+      int *buf = this->MetaData->Fam.GetBufferAsInt();
+      this->FillCellUserId(buf,type,startId,numCellsInChunk);
+      startId += numCellsInChunk;
+      }
+    }
+  this->MetaData->Fam.SkipWords(numSkipEnd);
+
+  //clear the buffer as it will be very large and not needed
+  this->MetaData->Fam.ClearBuffer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::FillCellUserId(int *buffer,
+  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
+  const vtkIdType& numCells)
+{
+  this->FillCellUserIdArray(buffer,type,startId,numCells);
+}
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::FillCellUserId(vtkIdType *buffer,
+  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
+  const vtkIdType& numCells)
+{
+  this->FillCellUserIdArray(buffer,type,startId,numCells);
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkLSDynaPartCollection::FillCellUserIdArray(T *buffer,
+  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
+  const vtkIdType& numCells)
+{
+  //we only need to iterate the array for the subsection we need
+  if(this->Storage->CellIndexToPart[type].size() == 0)
+    {
+    return;
+    }
+
+  for(vtkIdType i=0;i<numCells;++i)
+    {
+    cellToPartCell pc = this->Storage->CellIndexToPart[type][startId+i];
+    if(pc.part > -1)
+      {
+      //read the next chunk from the buffer
+      vtkLSDynaPartCollection::LSDynaPart* part = this->Storage->Parts[pc.part];
+      if(!part)
+        {
+        continue;
+        }
+      //if the user id array doesn't exist create it to be the correct size
+      if(!part->UserIds)
+        {
+        part->InitUserIds();
+        }
+      part->UserIds->SetValue(pc.cell,(vtkIdType)buffer[i]);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkLSDynaPartCollection::IsActivePart(const int& id) const
 {
   if (id < 0 || id >= this->Storage->Parts.size())
@@ -484,8 +610,7 @@ bool vtkLSDynaPartCollection::IsActivePart(const int& id) const
 
 //-----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkLSDynaPartCollection::GetGridForPart(
-  const int& index) const
-{
+  const int& index) const{
   return this->Storage->Parts[index]->Grid;
 }
 
@@ -632,8 +757,13 @@ void vtkLSDynaPartCollection::ConstructGridCells(LSDynaPart *part)
       ++it)
       {
       gridData->AddArray((*it)->Data);
-      (*it)->Data->FastDelete();
       }
+  if(part->UserIds)
+    {
+    gridData->AddArray(part->UserIds);
+    part->UserIds->FastDelete();
+    part->UserIds = NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------

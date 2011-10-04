@@ -267,13 +267,6 @@ int vtkPLSDynaReader::ReadStaticNodes()
       vtkErrorMacro( "Could not read nodal coordinates." );
       return 1;
       }
-    
-    // Do something with user-specified node/element/material numbering
-    if ( this->ReadUserIds() )
-      {
-      vtkErrorMacro( "Could not read user node/element IDs." );
-      return 1;
-      } 
     }
   else if(!this->CommonPoints)
     {
@@ -330,6 +323,15 @@ int vtkPLSDynaReader::ReadTopology()
   //finalize the topology on each process, each process will  remove
   //any part that it doesn't have a cell for.
   this->Parts->FinalizeTopology();
+
+  // Do something with user-specified node/element/material numbering
+  // we need to read the user ids after we have read the topology
+  // so we know how many cells are in each part
+  if ( this->ReadUserIds() )
+    {
+    vtkErrorMacro( "Could not read user node/element IDs." );
+    return 1;
+    }
 
   return 0;
 }

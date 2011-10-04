@@ -89,12 +89,20 @@ public:
   //Description:
   //Adds a property for all parts of a certain type
   void AddProperty(const LSDynaMetaData::LSDYNA_TYPES& type, const char* name,
-                    const int& offset, const int& numComps);
-
+                    const int& offset, const int& numComps);  
   void FillCellProperties(float *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
     const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
   void FillCellProperties(double *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
     const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
+
+  //Description:
+  //Adds User Ids for all parts of a certain type
+  void ReadCellUserIds(
+      const LSDynaMetaData::LSDYNA_TYPES& type, const int& status);
+  void FillCellUserId(int *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
+    const vtkIdType& startId, const vtkIdType& numCells);
+  void FillCellUserId(vtkIdType *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
+    const vtkIdType& startId, const vtkIdType& numCells);
 
 protected:
   vtkLSDynaPartCollection();
@@ -122,6 +130,11 @@ protected:
   template<typename T>
   void FillCellArray(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
      const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
+
+  template<typename T>
+  void FillCellUserIdArray(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
+     const vtkIdType& startId, const vtkIdType& numCells);
+
 
 private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
