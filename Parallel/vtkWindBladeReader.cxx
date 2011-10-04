@@ -2081,11 +2081,11 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   }
 
   // Add the towers to the geometry
-  for (int i = 0; i < this->NumberOfBladeTowers; i++)
+  for (int j = 0; j < this->NumberOfBladeTowers; j++)
     {
-    x = this->XPosition->GetValue(i);
-    y = this->YPosition->GetValue(i);
-    z = this->HubHeight->GetValue(i);
+    x = this->XPosition->GetValue(j);
+    y = this->YPosition->GetValue(j);
+    z = this->HubHeight->GetValue(j);
 
     this->BPoints->InsertNextPoint(x-2, y-2, 0.0);
     this->BPoints->InsertNextPoint(x+2, y-2, 0.0);
