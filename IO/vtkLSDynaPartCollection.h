@@ -127,9 +127,6 @@ private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
   void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.
 
-  //holds if the class has been finalized
-  bool Finalized;
-
   LSDynaMetaData *MetaData;
   
   class LSDynaPartStorage;

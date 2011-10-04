@@ -195,8 +195,7 @@ public:
 
 vtkStandardNewMacro(vtkLSDynaPartCollection);
 //-----------------------------------------------------------------------------
-vtkLSDynaPartCollection::vtkLSDynaPartCollection():
-  Finalized(false)
+vtkLSDynaPartCollection::vtkLSDynaPartCollection()
 {
   this->MetaData = NULL;
   this->Storage = NULL;
@@ -278,7 +277,7 @@ void vtkLSDynaPartCollection::InitCollection(LSDynaMetaData *metaData,
     this->Storage->DeadCells[i].resize(reservedSpaceSize,false);
     }
 
-  if(metaData && !this->Finalized)
+  if(metaData)
     {
     this->MetaData = metaData;
     this->BuildPartInfo(mins,maxs);
@@ -322,12 +321,6 @@ void vtkLSDynaPartCollection::InsertCell(const int& partType,
                                          const vtkIdType& npts,
                                          vtkIdType conn[8])
 {
-  if (this->Finalized)
-    {
-    //you cant add cells after calling finalize
-    return;
-    }
-
   vtkLSDynaPartCollection::LSDynaPart *part = this->Storage->Parts[matId-1];
   if (!part)
     {
@@ -481,13 +474,6 @@ bool vtkLSDynaPartCollection::IsActivePart(const int& id) const
 vtkUnstructuredGrid* vtkLSDynaPartCollection::GetGridForPart(
   const int& index) const
 {
-
-  if (!this->Finalized)
-    {
-    //you have to call finalize first
-    return NULL;
-    }
-
   return this->Storage->Parts[index]->Grid;
 }
 
@@ -618,7 +604,6 @@ void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints, vtkPoints *roadP
     }
 
   this->ResetTimeStepInfo();
-  this->Finalized = true;
 }
 
 
@@ -711,6 +696,4 @@ void vtkLSDynaPartCollection::ResetTimeStepInfo()
     da->Delete();
     }
   this->Storage->PointProperties.clear();
-
-  this->Finalized = false;
 }
