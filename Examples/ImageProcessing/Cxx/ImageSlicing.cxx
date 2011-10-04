@@ -36,6 +36,8 @@
 #include "vtkCommand.h"
 #include "vtkImageData.h"
 #include "vtkImageMapper3D.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 
 // The mouse motion callback, to turn "Slicing" on and off
 class vtkImageInteractionCallback : public vtkCommand
@@ -154,7 +156,10 @@ int main (int argc, char *argv[])
   double spacing[3];
   double origin[3];
  
-  reader->GetOutput()->GetWholeExtent();
+ 
+  reader->GetOutputInformation(0)->Get(
+vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent );  
+//   reader->GetOutput()->GetWholeExtent(extent);
   reader->GetOutput()->GetSpacing(spacing);
   reader->GetOutput()->GetOrigin(origin);
 

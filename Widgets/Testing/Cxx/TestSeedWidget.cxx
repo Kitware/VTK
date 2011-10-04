@@ -35,6 +35,8 @@
 #include "vtkAxisActor2D.h"
 #include "vtkProperty2D.h"
 
+#include "vtkInteractorStyleTrackballCamera.h"
+
 
 char TestSeedWidgetEventLog[] =
   "# StreamVersion 1 i\n"
@@ -480,6 +482,10 @@ int TestSeedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
+  vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
+    vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+  iren->SetInteractorStyle(style);
+
   // Create a test pipeline
   //
   vtkSmartPointer<vtkSphereSource> ss =
@@ -556,7 +562,8 @@ int TestSeedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         widget->GetRepresentation());
       const int widgetStartNumSeeds = seedRep->GetNumberOfSeeds();
       std::cerr << "Still have a seed 0 after deleting all seeds, "
-                << "widget thinks it's rep has " << widgetStartNumSeeds << std::endl;
+                << "widget thinks it's rep has " << widgetStartNumSeeds <<
+                  std::endl;
       }
 
     }
