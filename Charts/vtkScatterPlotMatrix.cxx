@@ -95,7 +95,7 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s)
         in->GetTuple(j, &v);
         for (int k = 0; k < NumberOfBins; ++k)
           {
-          if (vtkFuzzyCompare(v, double(centers[k]), halfInc))
+          if (vtkMathUtilities::FuzzyCompare(v, double(centers[k]), halfInc))
             {
             ++pops[k];
             break;
