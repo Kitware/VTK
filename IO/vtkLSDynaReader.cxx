@@ -72,9 +72,8 @@
 vtkStandardNewMacro(vtkLSDynaReader);
 
 // Names of vtkDataArrays provided with grid:
-#define LS_ARRAYNAME_USERID             "UserID"
-#define LS_ARRAYNAME_MATERIAL           "Material"
 #define LS_ARRAYNAME_DEATH              "Death"
+#define LS_ARRAYNAME_USERID             "UserID"
 #define LS_ARRAYNAME_SPECIES_BLNK       "SpeciesXX"
 #define LS_ARRAYNAME_SPECIES_FMT        "Species%02d"
 #define LS_ARRAYNAME_SPECIES_01         "Species01"
@@ -1478,7 +1477,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     {
     intpts2 = -mdlopt;
     mdlopt = LS_MDLOPT_POINT;
-    p->AddPointArray( LS_ARRAYNAME_DEATH, 1, 1 );
+    //p->AddPointArray( LS_ARRAYNAME_DEATH, 1, 1 );
     p->StateSize += this->GetNumberOfNodes() * p->Fam.GetWordSize();
     }
   p->Dict["MDLOPT"] = mdlopt;
@@ -1699,8 +1698,8 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
   if ( p->NumberOfCells[ LSDynaMetaData::PARTICLE ] )
     {
-    p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL, 1, 1 );
-    p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DEATH, 1, 1 );
+    //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL, 1, 1 );
+    //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DEATH, 1, 1 );
     if ( p->Dict["isphfg(2)"] == 1 )
       {
       p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_RADIUSOFINFLUENCE, 1, 1 );
@@ -1737,11 +1736,11 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
   if ( p->NumberOfCells[ LSDynaMetaData::BEAM ] )
     {
-    p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_MATERIAL, 1, 1 );
-    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-      {
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_DEATH, 1, 1 );
-      }
+//    p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_MATERIAL, 1, 1 );
+//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+//      {
+//      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_DEATH, 1, 1 );
+//      }
 
     if ( p->Dict["NARBS"] != 0 )
       {
@@ -1765,11 +1764,11 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
   if ( p->NumberOfCells[ LSDynaMetaData::SHELL ] )
     {
-    p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
-    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-      {
-      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
-      }
+//    p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
+//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+//      {
+//      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
+//      }
     if ( p->Dict["NARBS"] != 0 )
       {
       p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_USERID, 1, 1 );
@@ -1842,11 +1841,11 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
   if ( p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ] )
     {
-    p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
-    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-      {
-      p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
-      }
+//    p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
+//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+//      {
+//      p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
+//      }
     if ( p->Dict["NARBS"] != 0 )
       {
       p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_USERID, 1, 1 );
@@ -1904,11 +1903,11 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
   if ( p->NumberOfCells[ LSDynaMetaData::SOLID ] )
     {
-    p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_MATERIAL, 1, 1 );
-    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-      {
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DEATH, 1, 1 );
-      }
+//    p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_MATERIAL, 1, 1 );
+//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+//      {
+//      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DEATH, 1, 1 );
+//      }
     if ( p->Dict["NARBS"] != 0 )
       {
       p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_USERID, 1, 1 );
@@ -2329,6 +2328,13 @@ int vtkLSDynaReader::ReadDeletion()
         LSDynaMetaData::SHELL,
         LSDynaMetaData::BEAM};
 
+  if(!this->RemoveDeletedCells)
+    {
+    //this functions doesn't have to lead the reader at a certain
+    //position in the files
+    return 0;
+    }
+
   LSDynaMetaData* p = this->P;
   vtkIntArray* death;
   switch ( p->Dict["MDLOPT"] )
@@ -2342,55 +2348,41 @@ int vtkLSDynaReader::ReadDeletion()
     for(int i=0; i < 4; ++i)
       {
       const LSDynaMetaData::LSDYNA_TYPES type = validCellTypes[i];
-      if ( this->GetCellArrayStatus(type, LS_ARRAYNAME_DEATH ) == 0 )
-        {
-        p->Fam.SkipWords( p->NumberOfCells[type] );
-        }
-      else
-        {
-        vtkIdType numCells,numSkipStart,numSkipEnd;
-        this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
+      vtkIdType numCells,numSkipStart,numSkipEnd;
+      this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
 
-        death = vtkIntArray::New();
-        death->SetName( LS_ARRAYNAME_DEATH );
-        death->SetNumberOfComponents( 1 );
-        death->SetNumberOfTuples(numCells);
+      death = vtkIntArray::New();
+      death->SetName( LS_ARRAYNAME_DEATH );
+      death->SetNumberOfComponents( 1 );
+      death->SetNumberOfTuples(numCells);
 
-        p->Fam.SkipWords(numSkipStart);
-        this->ReadDeletionArray(death,0,1);
-        p->Fam.SkipWords(numSkipEnd);
-        this->Parts->SetCellDeadFlags(type,death);
-        death->Delete();
-        }
+      p->Fam.SkipWords(numSkipStart);
+      this->ReadDeletionArray(death,0,1);
+      p->Fam.SkipWords(numSkipEnd);
+      this->Parts->SetCellDeadFlags(type,death);
+      death->Delete();
       }
 
     //we are now at the position to read the SPH deletion info from the sph state info
     if(p->NumberOfCells[LSDynaMetaData::PARTICLE]>0)
       {
       const LSDynaMetaData::LSDYNA_TYPES type = LSDynaMetaData::PARTICLE;
-      if ( this->GetCellArrayStatus(type, LS_ARRAYNAME_DEATH ) == 0 )
-        {
-        p->Fam.SkipWords( p->NumberOfCells[type] );
-        }
-      else
-        {
-        vtkIdType numCells,numSkipStart,numSkipEnd;
-        this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
+      vtkIdType numCells,numSkipStart,numSkipEnd;
+      this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
 
-        death = vtkIntArray::New();
-        death->SetName( LS_ARRAYNAME_DEATH );
-        death->SetNumberOfComponents( 1 );
-        death->SetNumberOfTuples(numCells);
+      death = vtkIntArray::New();
+      death->SetName( LS_ARRAYNAME_DEATH );
+      death->SetNumberOfComponents( 1 );
+      death->SetNumberOfTuples(numCells);
 
-        p->Fam.SkipWords(numSkipStart);
-        //we are really reading the material id as the death flag
-        //and each particle has twenty words of info, so we have to skip 19
-        //since luckily material id is first
-        this->ReadDeletionArray(death,0,20);
-        p->Fam.SkipWords(numSkipEnd);
-        this->Parts->SetCellDeadFlags(type,death);
-        death->Delete();
-        }
+      p->Fam.SkipWords(numSkipStart);
+      //we are really reading the material id as the death flag
+      //and each particle has twenty words of info, so we have to skip 19
+      //since luckily material id is first
+      this->ReadDeletionArray(death,0,20);
+      p->Fam.SkipWords(numSkipEnd);
+      this->Parts->SetCellDeadFlags(type,death);
+      death->Delete();
       }
     break;
   case LS_MDLOPT_NONE:

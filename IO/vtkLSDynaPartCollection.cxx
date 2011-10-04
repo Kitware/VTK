@@ -96,7 +96,8 @@ namespace
 class vtkLSDynaPartCollection::LSDynaPart
   {
   public:
-  LSDynaPart(LSDynaMetaData::LSDYNA_TYPES t, std::string n):Type(t),Name(n)
+  LSDynaPart(LSDynaMetaData::LSDYNA_TYPES t, std::string n, const int& mId):
+      Type(t),Name(n), MaterialId(mId)
     {
     this->Grid = NULL;
     this->InitGrid();
@@ -121,7 +122,8 @@ class vtkLSDynaPartCollection::LSDynaPart
     this->Grid = vtkUnstructuredGrid::New();
 
 
-    //now add in the field data to the grid. Data is the name and type
+    //now add in the field data to the grid.
+    //Data is the name, type, and material id
     vtkFieldData *fd = this->Grid->GetFieldData();
 
     vtkStringArray *partName = vtkStringArray::New();
@@ -137,6 +139,13 @@ class vtkLSDynaPartCollection::LSDynaPart
     partType->SetValue(0,TypeNames[this->Type]);
     fd->AddArray(partType);
     partType->Delete();
+
+    vtkIntArray *materialId = vtkIntArray::New();
+    materialId->SetName("Material Id");
+    materialId->SetNumberOfValues(1);
+    materialId->SetValue(0,this->MaterialId);
+    fd->AddArray(materialId);
+    materialId->Delete();
     }
 
   void ResetTimeStepInfo()
@@ -159,6 +168,7 @@ class vtkLSDynaPartCollection::LSDynaPart
   //Information of the part type
   const LSDynaMetaData::LSDYNA_TYPES Type;
   const std::string Name;
+  const int MaterialId;
   };
 
 //-----------------------------------------------------------------------------
@@ -294,21 +304,23 @@ void vtkLSDynaPartCollection::BuildPartInfo(vtkIdType* mins, vtkIdType* maxs)
   this->Storage->Parts.resize(size,NULL);
 
   //we iterate on part materials as those are those are from 1 to num Parts.
-  //the part ids are the user part numbers
+  //the part ids are the user material ids
+
   std::vector<int>::const_iterator partMIt;
+  std::vector<int>::const_iterator materialIdIt = this->MetaData->PartIds.begin();
   std::vector<int>::const_iterator statusIt = this->MetaData->PartStatus.begin();
   std::vector<LSDynaMetaData::LSDYNA_TYPES>::const_iterator typeIt = this->MetaData->PartTypes.begin();
   std::vector<std::string>::const_iterator nameIt = this->MetaData->PartNames.begin();
 
   for (partMIt = this->MetaData->PartMaterials.begin();
        partMIt != this->MetaData->PartMaterials.end();
-       ++partMIt,++statusIt,++typeIt,++nameIt)
+       ++partMIt,++statusIt,++typeIt,++nameIt,++materialIdIt)
     {
     if (*statusIt)
       {
       //make the index contain a part
       this->Storage->Parts[*partMIt-1] =
-      new vtkLSDynaPartCollection::LSDynaPart(*typeIt,*nameIt);
+      new vtkLSDynaPartCollection::LSDynaPart(*typeIt,*nameIt,*materialIdIt);
       }
     }  
 }
