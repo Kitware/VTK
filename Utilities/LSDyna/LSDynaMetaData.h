@@ -118,6 +118,12 @@ public:
   vtkIdType PreStateSize;
   // Number of bytes required to store a single timestep
   vtkIdType StateSize;
+
+  //Number of words into the state that the element deletion starts at
+  vtkIdType ElementDeletionOffset;
+
+  //Number of words into the state that the SPH state data starts at
+  vtkIdType SPHStateOffset;
 };
 
 #endif // __LSDynaMetaData_h

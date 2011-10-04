@@ -213,7 +213,7 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
   //now that the reading has finished we need to finalize the parts
   //this means get the subset of points for each part, and fixup all the cells
   this->UpdateProgress( 0.8 );
-  this->Parts->Finalize(this->CommonPoints);
+  this->Parts->Finalize(this->CommonPoints, this->RoadSurfacePoints);
 
   //add all the parts as child blocks to the output
   vtkIdType nextId = 0;

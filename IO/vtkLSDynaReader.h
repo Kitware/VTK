@@ -557,7 +557,8 @@ protected:
   // it is not deleted
   // The number of tuples must be set on the array previous to calling
   // this routine.
-  virtual void ReadDeletionArray(vtkIntArray* arr);
+  //Note: pos is the position in the size that the death value is store at
+  virtual void ReadDeletionArray(vtkIntArray* arr, const int& pos, const int& size);
 
   //Description:
   // Read all the cell properties of a given part type
@@ -577,7 +578,8 @@ private:
   //Helper templated methods to optimze reading. We cast the entire buffer
   //to a given type instead of casting each element to improve performance
   template<typename T>
-  void FillDeletionArray(T* buffer, vtkIntArray* arr, const vtkIdType& start, const vtkIdType& size);
+  void FillDeletionArray(T* buffer, vtkIntArray* arr, const vtkIdType& start, const vtkIdType& numCells,
+                         const int& deathPos, const int& cellSize);
 
   template<typename T>
   void FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,

@@ -27,6 +27,8 @@ LSDynaMetaData::LSDynaMetaData()
   this->PreStateSize = 0;
   this->StateSize = 0;
   this->CurrentState = 0;
+  this->ElementDeletionOffset = 0;
+  this->SPHStateOffset = 0;
 
   std::vector<std::string> blankNames;
   std::vector<int> blankNumbers;

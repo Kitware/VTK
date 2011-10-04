@@ -98,7 +98,8 @@ class vtkLSDynaPartCollection::LSDynaPart
   public:
   LSDynaPart(LSDynaMetaData::LSDYNA_TYPES t, std::string n):Type(t),Name(n)
     {
-    Grid = vtkUnstructuredGrid::New();
+    this->Grid = NULL;
+    this->InitGrid();
     NextPointId = 0;
     }
   ~LSDynaPart()
@@ -594,7 +595,7 @@ void vtkLSDynaPartCollection::FinalizeTopology()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints)
+void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints, vtkPoints *roadPoints)
 {
   PartVector::iterator partIt;
   for (partIt = this->Storage->Parts.begin();
@@ -605,7 +606,14 @@ void vtkLSDynaPartCollection::Finalize(vtkPoints *commonPoints)
       {
       this->ConstructGridCells(*partIt);
       //now construct the points for the grid
-      this->ConstructGridPoints(*partIt,commonPoints);
+      if ((*partIt)->Type != LSDynaMetaData::ROAD_SURFACE)
+        {
+        this->ConstructGridPoints(*partIt,commonPoints);
+        }
+      else
+        {
+        this->ConstructGridPoints(*partIt,roadPoints);
+        }
       }
     }
 

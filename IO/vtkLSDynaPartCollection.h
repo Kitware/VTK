@@ -55,7 +55,7 @@ public:
 
   //Description:
   //this will construct that valid unstructured grid for each part
-  void Finalize(vtkPoints *commonPoints);
+  void Finalize(vtkPoints *commonPoints, vtkPoints *roadPoints);
 
   //Description: Insert a cell of a given type and material index to the 
   //collection.
