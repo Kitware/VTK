@@ -33,6 +33,7 @@ int TestChartMatrix( int, char * [] )
   vtkNew<vtkChartMatrix> matrix;
   view->GetScene()->AddItem(matrix.GetPointer());
   matrix->SetSize(vtkVector2i(2, 2));
+  matrix->SetGutter(vtkVector2f(30.0, 30.0));
 
   vtkChart *chart = matrix->GetChart(vtkVector2i(0, 0));
 
