@@ -45,7 +45,7 @@ vtkChartMatrix::vtkChartMatrix() : Gutter(15.0, 15.0)
   this->Private = new PIMPL;
   this->Borders[vtkAxis::LEFT] = 50;
   this->Borders[vtkAxis::BOTTOM] = 40;
-  this->Borders[vtkAxis::RIGHT] = 20;
+  this->Borders[vtkAxis::RIGHT] = 50;
   this->Borders[vtkAxis::TOP] = 40;
 }
 

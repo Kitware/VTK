@@ -30,7 +30,7 @@
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
-  PIMPL() : VisibleColumnsModified(true)
+  PIMPL() : VisibleColumnsModified(true), BigChart(NULL)
   {
   }
 
@@ -40,6 +40,7 @@ public:
 
   vtkNew<vtkTable> Histogram;
   bool VisibleColumnsModified;
+  vtkChart* BigChart;
 };
 
 namespace
@@ -139,6 +140,43 @@ bool vtkScatterPlotMatrix::Paint(vtkContext2D *painter)
 {
   this->Update();
   return Superclass::Paint(painter);
+}
+
+bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
+{
+  if (pos.X() + pos.Y() + 1 < this->Size.X() && pos.X() < this->Size.X() &&
+      pos.Y() < this->Size.Y())
+    {
+    // The supplied index is valid (in the lower quadrant).
+    this->ActivePlot = pos;
+    if (this->Private->BigChart)
+      {
+      vtkPlot *plot = this->Private->BigChart->GetPlot(0);
+      if (!plot)
+        {
+        plot = this->Private->BigChart->AddPlot(vtkChart::POINTS);
+        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
+        if (xy)
+          {
+          xy->SetPlotCorner(plot, 2);
+          }
+        }
+      plot->SetInput(this->Input.GetPointer(),
+                     this->VisibleColumns->GetValue(pos.X()),
+                     this->VisibleColumns->GetValue(this->Size.X() -
+                                                    pos.Y() - 1));
+      }
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
+{
+  return this->ActivePlot;
 }
 
 void vtkScatterPlotMatrix::SetInput(vtkTable *table)
@@ -292,14 +330,9 @@ void vtkScatterPlotMatrix::UpdateLayout()
       else if (i == static_cast<int>(n / 2.0) + n % 2 && i == j)
         {
         // This big plot in the top-right
-        vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
-        plot->SetInput(this->Input.GetPointer(), i, n - j - 1);
-        this->SetChartSpan(pos, vtkVector2i(n - i, n - i));
-        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
-        if (xy)
-          {
-          xy->SetPlotCorner(plot, 2);
-          }
+        this->Private->BigChart = this->GetChart(pos);
+        this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
+        this->SetActivePlot(vtkVector2i(0, n - 2));
         }
       // Only show bottom axis label for bottom plots
       if (j > 0)

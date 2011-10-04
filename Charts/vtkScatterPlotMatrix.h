@@ -50,6 +50,16 @@ public:
   virtual bool Paint(vtkContext2D *painter);
 
   // Description:
+  // Set the active plot, the one that will be displayed in the top-right.
+  // This defaults to (0, n-2), the plot below the first histogram on the left.
+  // \return false is the position specified is not valid.
+  virtual bool SetActivePlot(const vtkVector2i& position);
+
+  // Description:
+  // Get the position of the active plot.
+  virtual vtkVector2i GetActivePlot();
+
+  // Description:
   // Set the input table for the scatter plot matrix. This will cause all
   // columns to be plotted against each other - a square scatter plot matrix.
   virtual void SetInput(vtkTable *table);
@@ -86,6 +96,9 @@ protected:
 
   class PIMPL;
   PIMPL *Private;
+
+  // The position of the active plot (defaults to 0, 1).
+  vtkVector2i ActivePlot;
 
   // Weakly owned input data for the scatter plot matrix.
   vtkSmartPointer<vtkTable> Input;
