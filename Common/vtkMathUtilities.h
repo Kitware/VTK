@@ -27,18 +27,25 @@
 #include <cmath>
 #include <limits>
 
-// Perform a fuzzy compare of floats/doubles
+namespace vtkMathUtilities
+{
+
+// Description:
+// Perform a fuzzy compare of floats/doubles.
 template<class A>
-bool vtkFuzzyCompare(A a, A b)
+bool FuzzyCompare(A a, A b)
 {
   return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
 }
 
+//Description:
 // Perform a fuzzy compare of floats/doubles, specify the allowed tolerance
 template<class A>
-bool vtkFuzzyCompare(A a, A b, A epsilon)
+bool FuzzyCompare(A a, A b, A epsilon)
 {
   return fabs(a - b) < epsilon;
 }
+
+} // End vtkMathUtilities namespace.
 
 #endif // __vtkMathUtilities_h
