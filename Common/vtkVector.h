@@ -226,14 +226,4 @@ public:
   explicit vtkVector3d(const double *init) : vtkVector3<double>(init) {}
 };
 
-// Some operators for easy addition etc
-inline const vtkVector2f operator+(const vtkVector2f &lhs, const vtkVector2f &rhs)
-{
-  return vtkVector2f(lhs[0] + rhs[0], lhs[1] + rhs[1]);
-}
-inline const vtkVector2f operator-(const vtkVector2f &lhs, const vtkVector2f &rhs)
-{
-  return vtkVector2f(lhs[0] - rhs[0], lhs[1] - rhs[1]);
-}
-
 #endif // __vtkVector_h
