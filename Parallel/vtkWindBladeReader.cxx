@@ -2143,12 +2143,11 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     // start from a valid index
     if (turbineID != lastTurbineID)
       { 
-      bladeComponentCount = compBlock[indx-1];
+      bladeComponentCount = (int)compBlock[indx-1];
       lastTurbineID       = turbineID;
       }
     // turbineID start from 1, but float array starts from 0
     float angularVelocity = this->AngularVeloc->GetTuple1(turbineID-1);
-    float lengthOfBlade   = this->BladeLength->GetTuple1(turbineID-1);
     // where blades connect to
     hubPnt[0] = this->XPosition->GetValue(turbineID-1);
     hubPnt[1] = this->YPosition->GetValue(turbineID-1);
