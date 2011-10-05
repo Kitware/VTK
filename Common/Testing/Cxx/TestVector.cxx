@@ -21,13 +21,13 @@
 //----------------------------------------------------------------------------
 int TestVector(int, char*[])
 {
+  // Store up any errors, return non-zero if something fails.
+  int retVal = 0;
+
   // Test out the general vector data types, give nice API and great memory use
   vtkVector2i vec2i;
-  cout << "Size of vtkVector2i: " << sizeof(vec2i) << endl;
   int arr2i[2] = { 0, 0 };
   vec2i.Set(arr2i[0], arr2i[1]);
-
-  cout << "Size of int[2]: " << sizeof(arr2i) << endl;
 
   if (sizeof(vec2i) != sizeof(arr2i))
     {
@@ -35,7 +35,7 @@ int TestVector(int, char*[])
     cerr << "vtkVector2i should be the same size as int[2]." << endl
         << "sizeof(vec2i) = " << sizeof(vec2i) << endl
         << "sizeof(int[2]) = " << sizeof(arr2i) << endl;
-    return 1;
+    ++retVal;
     }
 
   vtkVector<float, 3> vector3f;
@@ -43,7 +43,7 @@ int TestVector(int, char*[])
     {
     cerr << "Incorrect size of vector3f, should be 3, but is "
         << vector3f.GetSize() << endl;
-    return 1;
+    ++retVal;
     }
 
   // Test out vtkVector3i and ensure the various access methods are the same
@@ -53,21 +53,21 @@ int TestVector(int, char*[])
     cerr << "vec3i.X() should equal vec3i.GetData()[0] which should equal 0."
         << "\nvec3i.X() = " << vec3i.X() << endl
         << "vec3i[0] = " << vec3i[0] << endl;
-    return 1;
+    ++retVal;
     }
   if (vec3i.Y() != vec3i[1] || vec3i.Y() != 6)
     {
     cerr << "vec3i.Y() should equal vec3i.GetData()[1] which should equal 6."
         << "\nvec3i.Y() = " << vec3i.Y() << endl
         << "vec3i[1] = " << vec3i[1] << endl;
-    return 1;
+    ++retVal;
     }
   if (vec3i.Z() != vec3i[2] || vec3i.Z() != 9)
     {
     cerr << "vec3i.Z() should equal vec3i.GetData()[2] which should equal 9."
         << "\nvec3i.Z() = " << vec3i.Z() << endl
         << "vec3i[2] = " << vec3i[2] << endl;
-    return 1;
+    ++retVal;
     }
 
   // Assign the data to an int array and ensure the two ways of referencing are
@@ -80,7 +80,7 @@ int TestVector(int, char*[])
       cerr << "Error: vec3i[i] != intPtr[i]" << endl
           << "vec3i[i] = " << vec3i[i] << endl
           << "intPtr[i] = " << intPtr[i] << endl;
-      return 1;
+      ++retVal;
       }
     }
 
@@ -92,7 +92,7 @@ int TestVector(int, char*[])
     // Then the number did not make it through within reasonable precision.
     cerr << "Error: castVecd value incorrect. Should be ~0.0 for component 1."
          << "\ncastVecd[0] = " << castVecd[0] << endl;
-    return 1;
+    ++retVal;
   }
   cout << "castVecd[0] = " << castVecd[0] << endl;
 
@@ -109,14 +109,14 @@ int TestVector(int, char*[])
         {
         cerr << "Initializer problem in vtkColor3ub - should be zero, but = "
             << color[i][j] << endl;
-        return 1;
+        ++retVal;
         }
       if (color[i][j] != colorPtr[i*3+j])
         {
         cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
             << "color[i][j] = " << color[i][j] << endl
             << "colorPtr[i*3+j] = " << colorPtr[i*3+j] << endl;
-        return 1;
+        ++retVal;
         }
       color[i][j] = static_cast<unsigned char>(i * 2 + i);
       }
@@ -131,10 +131,10 @@ int TestVector(int, char*[])
         cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
             << "color[i][j] = " << color[i][j] << endl
             << "colorPtr[i*3+j] = " << colorPtr[i*3+j] << endl;
-        return 1;
+        ++retVal;
         }
       }
     }
 
-  return 0;
+  return retVal;
 }
