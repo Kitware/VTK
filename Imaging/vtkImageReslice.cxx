@@ -582,11 +582,6 @@ int vtkImageReslice::RequestUpdateExtent(
   bool wrap = (this->Wrap || this->Mirror);
 
   double xAxis[4], yAxis[4], zAxis[4], origin[4];
-  double inInvSpacing[3];
-
-  inInvSpacing[0] = 0.0;
-  inInvSpacing[1] = 0.0;
-  inInvSpacing[2] = 0.0;
 
   vtkMatrix4x4 *matrix = this->GetIndexMatrix(inInfo, outInfo);
 
@@ -1949,6 +1944,15 @@ void vtkImageResliceExecute(vtkImageReslice *self,
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
 
+  // get the input stencil
+  vtkImageStencilData *stencil = self->GetStencil();
+  // get the output stencil
+  vtkImageStencilData *outputStencil = 0;
+  if (self->GetGenerateStencilOutput())
+    {
+    outputStencil = self->GetStencilOutput();
+    }
+
   // multiple samples for thick slabs
   int nsamples = self->GetSlabNumberOfSlices();
   nsamples = ((nsamples > 1) ? nsamples : 1);
@@ -1996,7 +2000,8 @@ void vtkImageResliceExecute(vtkImageReslice *self,
       !(newtrans || perspective || convertScalars) &&
       inputScalarType == outData->GetScalarType() &&
       fullSize == scalars->GetNumberOfTuples() &&
-      self->GetBorder() == 1 && nsamples <= 1)
+      self->GetBorder() == 1 && nsamples <= 1 &&
+      outputStencil == 0)
     {
     optimizeNearest = 1;
     }
@@ -2055,15 +2060,6 @@ void vtkImageResliceExecute(vtkImageReslice *self,
     scalarType, scalarSize, outComponents, outPtr);
   vtkGetCompositeFunc(&composite,
     self->GetSlabMode(), self->GetSlabTrapezoidIntegration());
-
-  // get the input
-  vtkImageStencilData *stencil = self->GetStencil();
-  // get the output stencil
-  vtkImageStencilData *outputStencil = 0;
-  if (self->GetGenerateStencilOutput())
-    {
-    outputStencil = self->GetStencilOutput();
-    }
 
   // Loop through output pixels
   for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
@@ -2163,6 +2159,9 @@ void vtkImageResliceExecute(vtkImageReslice *self,
                 composite(tmpPtr, inComponents, sampleCount);
                 }
               tmpPtr += inComponents;
+
+              // set "was in" to "is in" if first pixel
+              wasInBounds = ((idX > idXmin) ? wasInBounds : isInBounds);
               }
 
             // write a segment to the output
@@ -2713,13 +2712,23 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     extent = sextent;
     }
 
+  // get the input stencil
+  vtkImageStencilData *stencil = self->GetStencil();
+  // get the output stencil
+  vtkImageStencilData *outputStencil = 0;
+  if (self->GetGenerateStencilOutput())
+    {
+    outputStencil = self->GetStencilOutput();
+    }
+
   // if doConversion is false, a special fast-path will be used
   int interpolationMode = self->GetInterpolationMode();
   bool doConversion = true;
   int inputScalarType = scalars->GetDataType();
   if (interpolationMode == VTK_NEAREST_INTERPOLATION &&
       interpolator->IsA("vtkImageInterpolator") &&
-      inputScalarType == scalarType && !convertScalars && nsamples == 1)
+      inputScalarType == scalarType && !convertScalars && nsamples == 1 &&
+      outputStencil == 0)
     {
     doConversion = false;
     }
@@ -2765,15 +2774,6 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   void *background;
   vtkAllocBackgroundPixel(&background,
      self->GetBackgroundColor(), scalarType, scalarSize, outComponents);
-
-  // get the input stencil
-  vtkImageStencilData *stencil = self->GetStencil();
-  // get the output stencil
-  vtkImageStencilData *outputStencil = 0;
-  if (self->GetGenerateStencilOutput())
-    {
-    outputStencil = self->GetStencilOutput();
-    }
 
   // for tracking progress
   unsigned long count = 0;
