@@ -26,6 +26,7 @@
 #define __vtkVector_h
 
 #include <cassert> // For inline assert for bounds checked methods.
+#include <cmath>   // For math functions
 
 template<typename T, int Size>
 class vtkVector
@@ -69,6 +70,50 @@ public:
   {
     assert("pre: index_in_bounds" && i >= 0 && i < Size);
     return this->Data[i];
+  }
+
+  // Description:
+  // Get the squared norm of the vector.
+  T SquaredNorm() const
+  {
+    T result = 0;
+    for (int i = 0; i < Size; ++i)
+      {
+      result += this->Data[i] * this->Data[i];
+      }
+    return result;
+  }
+
+  // Description:
+  // Get the norm of the vector, i.e. its length.
+  T Norm() const
+  {
+    return sqrt(this->SquaredNorm());
+  }
+
+  // Description:
+  // Normalize the vector in place.
+  // \return The length of the vector.
+  T Normalize()
+  {
+    const T norm(this->Norm());
+    const T inv(1.0 / norm);
+    for (int i = 0; i < Size; ++i)
+      {
+      this->Data[i] *= inv;
+      }
+    return norm;
+  }
+
+  // Description:
+  // The dot product of this and the supplied vector.
+  T Dot(const vtkVector<T, Size>& other) const
+  {
+    T result(0);
+    for (int i = 0; i < Size; ++i)
+      {
+      result += this->Data[i] * other[i];
+      }
   }
 
   // Description:
@@ -222,6 +267,7 @@ public:
   vtkVector3f(float x = 0.0, float y = 0.0, float z = 0.0)
     : vtkVector3<float>(x, y, z) {}
   explicit vtkVector3f(const float *init) : vtkVector3<float>(init) {}
+
 };
 
 class vtkVector3d : public vtkVector3<double>
@@ -231,5 +277,7 @@ public:
     : vtkVector3<double>(x, y, z) {}
   explicit vtkVector3d(const double *init) : vtkVector3<double>(init) {}
 };
+
+#include "vtkVectorOperators.h"
 
 #endif // __vtkVector_h

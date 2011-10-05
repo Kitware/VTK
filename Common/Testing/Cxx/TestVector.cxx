@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
+#include "vtkSetGet.h"
+
 #include "vtkVector.h"
 #include "vtkColor.h"
-
-#include "vtkSetGet.h"
 
 //----------------------------------------------------------------------------
 int TestVector(int, char*[])
@@ -24,11 +24,8 @@ int TestVector(int, char*[])
   // Test out the general vector data types, give nice API and great memory use
   vtkVector2i vec2i;
   cout << "Size of vtkVector2i: " << sizeof(vec2i) << endl;
-  int arr2i[2];
-
-  // just to avoid warning
-  arr2i[0]=0;
-  arr2i[1]=0;
+  int arr2i[2] = { 0, 0 };
+  vec2i.Set(arr2i[0], arr2i[1]);
 
   cout << "Size of int[2]: " << sizeof(arr2i) << endl;
 
@@ -72,6 +69,7 @@ int TestVector(int, char*[])
         << "vec3i[2] = " << vec3i[2] << endl;
     return 1;
     }
+
   // Assign the data to an int array and ensure the two ways of referencing are
   // the same.
   int *intPtr = vec3i.GetData();

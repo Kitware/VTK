@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkVectorOperators.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef __vtkVectorOperators_h
+#define __vtkVectorOperators_h
 
 // This set of operators enhance the vtkVector classes, allowing various
 // operator overloads one might expect.
@@ -110,25 +127,25 @@ vtkVector<A, Size> operator/(const vtkVector<A, Size>& v1,
 // Description:
 // Several macros to define the various operator overloads for the vectors.
 #define vtkVectorOperatorPlus(vectorType, type, size) \
-vectorType operator+(const vectorType& v1, const vectorType& v2) \
+inline vectorType operator+(const vectorType& v1, const vectorType& v2) \
 { \
   return vectorType((static_cast<vtkVector<type, size> >(v1) + \
     static_cast<vtkVector<type, size> >(v2)).GetData()); \
 }
 #define vtkVectorOperatorMinus(vectorType, type, size) \
-vectorType operator-(const vectorType& v1, const vectorType& v2) \
+inline vectorType operator-(const vectorType& v1, const vectorType& v2) \
 { \
   return vectorType((static_cast<vtkVector<type, size> >(v1) - \
     static_cast<vtkVector<type, size> >(v2)).GetData()); \
 }
 #define vtkVectorOperatorMultiply(vectorType, type, size) \
-vectorType operator*(const vectorType& v1, const vectorType& v2) \
+inline vectorType operator*(const vectorType& v1, const vectorType& v2) \
 { \
   return vectorType((static_cast<vtkVector<type, size> >(v1) * \
     static_cast<vtkVector<type, size> >(v2)).GetData()); \
 }
 #define vtkVectorOperatorDivide(vectorType, type, size) \
-vectorType operator/(const vectorType& v1, const vectorType& v2) \
+inline vectorType operator/(const vectorType& v1, const vectorType& v2) \
 { \
   return vectorType((static_cast<vtkVector<type, size> >(v1) / \
     static_cast<vtkVector<type, size> >(v2)).GetData()); \
@@ -147,3 +164,5 @@ vtkVectorOperatorMacro(vtkVector2d, double, 2)
 vtkVectorOperatorMacro(vtkVector3i, int,    3)
 vtkVectorOperatorMacro(vtkVector3f, float,  3)
 vtkVectorOperatorMacro(vtkVector3d, double, 3)
+
+#endif
