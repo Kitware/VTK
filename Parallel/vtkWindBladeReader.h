@@ -29,7 +29,6 @@
 
 
 #include "vtkStructuredGridAlgorithm.h"
-#include "vtkToolkits.h"
 
 class vtkWindBladeReaderPiece;
 class vtkDataArraySelection;
@@ -164,6 +163,8 @@ protected:
   vtkFloatArray* XPosition;  // Location of tower
   vtkFloatArray* YPosition;  // Location of tower
   vtkFloatArray* HubHeight;  // Height of tower
+  vtkFloatArray* AngularVeloc; // Angular Velocity
+  vtkFloatArray* BladeLength; // Blade length
   vtkIntArray* BladeCount;  // Number of blades per tower
 
   int UseTurbineFile;   // Turbine data available

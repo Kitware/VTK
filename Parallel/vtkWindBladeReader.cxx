@@ -15,12 +15,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWindBladeReader.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataArraySelection.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -141,6 +144,8 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->XPosition = vtkFloatArray::New();
   this->YPosition = vtkFloatArray::New();
   this->HubHeight = vtkFloatArray::New();
+  this->AngularVeloc = vtkFloatArray::New();
+  this->BladeLength  = vtkFloatArray::New();
   this->BladeCount = vtkIntArray::New();
 
   // Options to include extra files for topography and turbines
@@ -214,6 +219,8 @@ vtkWindBladeReader::~vtkWindBladeReader()
   this->XPosition->Delete();
   this->YPosition->Delete();
   this->HubHeight->Delete();
+  this->AngularVeloc->Delete();
+  this->BladeLength->Delete();
   this->BladeCount->Delete();
   this->XSpacing->Delete();
   this->YSpacing->Delete();
@@ -479,12 +486,14 @@ int vtkWindBladeReader::RequestData(
 
     // Collect the time step requested
     double* requestedTimeSteps = NULL;
+    int numRequestedTimeSteps = 0;
     vtkInformationDoubleVectorKey* timeKey =
       static_cast<vtkInformationDoubleVectorKey*>
         (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
 
     if (fieldInfo->Has(timeKey))
       {
+      numRequestedTimeSteps = fieldInfo->Length(timeKey);
       requestedTimeSteps = fieldInfo->Get(timeKey);
       }
 
@@ -591,6 +600,7 @@ int vtkWindBladeReader::RequestData(
 
       // Collect the time step requested
       double* requestedTimeSteps = NULL;
+      int numRequestedTimeSteps = 0;
       vtkInformationDoubleVectorKey* timeKey =
         static_cast<vtkInformationDoubleVectorKey*>
           (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
@@ -598,6 +608,7 @@ int vtkWindBladeReader::RequestData(
       double dTime = 0.0;
       if (bladeInfo->Has(timeKey))
         {
+        numRequestedTimeSteps = bladeInfo->Length(timeKey);
         requestedTimeSteps = bladeInfo->Get(timeKey);
         dTime = requestedTimeSteps[0];
         }
@@ -1828,6 +1839,8 @@ void vtkWindBladeReader::SetupBladeData()
     this->YPosition->InsertNextValue(yPos);
     this->HubHeight->InsertNextValue(hubHeight);
     this->BladeCount->InsertNextValue(numberOfBlades);
+    this->BladeLength->InsertNextValue(bladeLength);
+    this->AngularVeloc->InsertNextValue(angularVelocity);
     }
   this->NumberOfBladeTowers = XPosition->GetNumberOfTuples();
 
@@ -2039,25 +2052,107 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   blade->GetCellData()->AddArray(bladeComp);
   float* compBlock = bladeComp->GetPointer(0);
 
+  // blade velocity at point is angular velocity X dist from hub
+  vtkFloatArray* bladeVeloc = vtkFloatArray::New();
+  bladeVeloc->SetName("Blade Velocity");
+  bladeVeloc->SetNumberOfComponents(1);
+  bladeVeloc->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeVeloc);
+  
+  vtkFloatArray* bladeAzimUVW = vtkFloatArray::New();
+  bladeAzimUVW->SetName("Blade Azimuthal UVW");
+  bladeAzimUVW->SetNumberOfComponents(3);
+  bladeAzimUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeAzimUVW);
+  
+  vtkFloatArray* bladeAxialUVW = vtkFloatArray::New();
+  bladeAxialUVW->SetName("Blade Axial UVW");
+  bladeAxialUVW->SetNumberOfComponents(3);
+  bladeAxialUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeAxialUVW);
+  
+  vtkFloatArray* bladeDragUVW = vtkFloatArray::New();
+  bladeDragUVW->SetName("Blade Drag UVW");
+  bladeDragUVW->SetNumberOfComponents(3);
+  bladeDragUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeDragUVW);
+  
+  vtkFloatArray* bladeLiftUVW = vtkFloatArray::New();
+  bladeLiftUVW->SetName("Blade Lift UVW");
+  bladeLiftUVW->SetNumberOfComponents(3);
+  bladeLiftUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeLiftUVW);
+
   // File is ASCII text so read until EOF
   int index = 0;
   int indx = 0;
   int firstPoint;
-  int turbineID, bladeID, partID;
+  int turbineID, lastTurbineID = 1, bladeID, partID;
   float x, y, z;
   vtkIdType cell[NUM_BASE_SIDES];
 
   int linesRead = 0;
+  float bladeAzimUVWVec[3]  = { 0.0, 0.0, 0.0 },
+        bladeAxialUVWVec[3] = { 1.0, 0.0, 0.0 }, 
+        bladeDragUVWVec[3]  = { 0.0, 0.0, 0.0 },
+        bladeLiftUVWVec[3]  = { 0.0, 0.0, 0.0 };
+  int   turbineHeaderStartIndex = 0, turbineIDHeader = 0;
+  float hubPnt[3];
+  // blade component id is component count + blade ID
+  // component count is basically the number of blades thus far
+  int   bladeComponentCount = 0;
   while (inStr.getline(inBuf, LINE_SIZE))
     {
-    // continue around header if need be
+    // if header exists, grab necessary items from it
     linesRead++;
+    std::istringstream line(inBuf);
+    // if we are still in header...
     if (linesRead <= this->NumberOfLinesToSkip)
       {
+      // identify beginning of header information per
+      // turbine
+      if (!(linesRead % 3))
+        {
+        turbineHeaderStartIndex = linesRead;
+        turbineIDHeader++;
+        }
+      // second line has blade length
+      if ((linesRead - turbineHeaderStartIndex) == 1)
+        {
+        // skip data items to get to necessary field
+        float parsedItem;
+        for (int i = 0; i < 3; i++)
+          line >> parsedItem;
+        this->BladeLength->SetTuple1(turbineIDHeader, parsedItem);
+        }
+      // third line has angular velocity
+      if ((linesRead - turbineHeaderStartIndex) == 2)
+        {
+        // skip items to get to angular velocity
+        float parsedItem;
+        for (int i = 0; i < 4; i++)
+          line >> parsedItem;
+        this->AngularVeloc->SetTuple1(turbineIDHeader, parsedItem);
+        }
       continue;
       }
-    std::istringstream line(inBuf);
+
     line >> turbineID >> bladeID >> partID;
+    // if we have encountered a new turbine, make sure blade component
+    // count is updated. this ensures that the component id of future blades
+    // start from a valid index
+    if (turbineID != lastTurbineID)
+      { 
+      bladeComponentCount = compBlock[indx-1];
+      lastTurbineID       = turbineID;
+      }
+    // turbineID start from 1, but float array starts from 0
+    float angularVelocity = this->AngularVeloc->GetTuple1(turbineID-1);
+    float lengthOfBlade   = this->BladeLength->GetTuple1(turbineID-1);
+    // where blades connect to
+    hubPnt[0] = this->XPosition->GetValue(turbineID-1);
+    hubPnt[1] = this->YPosition->GetValue(turbineID-1);
+    hubPnt[2] = this->HubHeight->GetValue(turbineID-1);
 
     firstPoint = index;
 
@@ -2065,9 +2160,56 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
       {
       line >> x >> y >> z;
       this->BPoints->InsertNextPoint(x, y, z);
+      // distance to hub-blade connect point
+      float bladePnt[3] = {x, y, z};
+      float dist = vtkMath::Distance2BetweenPoints(hubPnt, bladePnt);
+      float radialVeloc = angularVelocity*sqrt(dist);
+      bladeVeloc->InsertTuple1(firstPoint + side, radialVeloc);
+      }
+    
+    // compute blade's various drag/lift/etc vectors; 
+    // re-use for all cross-sections per blade. 
+    int sectionNum = (firstPoint/NUM_PART_SIDES)%100;
+    if (sectionNum == 0)
+      {
+      vtkIdType numBPnts = this->BPoints->GetNumberOfPoints();
+      // create two vectors to calculate cross-product, to make
+      // azimuthal
+      double pntD[3], pntC[3];
+      // points from trailing edge
+      this->BPoints->GetPoint(numBPnts-1, pntD);
+      this->BPoints->GetPoint(numBPnts-2, pntC);
+      float vec1[3] = { pntD[0] - pntC[0], pntD[1] - pntC[1], 
+                        pntD[2] - pntC[2] };
+      float vec2[3] = { 1.0, 0.0, 0.0};
+      vtkMath::Cross(vec2, vec1, bladeAzimUVWVec);
+      vtkMath::Normalize(bladeAzimUVWVec);
+        
+      // for drag, we require "chord line," requires one point
+      // from leading edge
+      double pntA[3];
+      this->BPoints->GetPoint(numBPnts-4, pntA);
+      // chord line
+      bladeDragUVWVec[0] = pntC[0] - pntA[0];
+      bladeDragUVWVec[1] = pntC[1] - pntA[1];  
+      bladeDragUVWVec[2] = pntC[2] - pntA[2];
+      vtkMath::Normalize(bladeDragUVWVec);
+      vtkMath::Cross(bladeDragUVWVec, vec1, bladeLiftUVWVec);
+      vtkMath::Normalize(bladeLiftUVWVec);
+      }
+      
+    for (int side = 0; side < NUM_PART_SIDES; side++)
+      {
+      bladeAzimUVW->InsertTuple(firstPoint  + side, bladeAzimUVWVec); 
+      bladeAxialUVW->InsertTuple(firstPoint + side, bladeAxialUVWVec);
+      bladeDragUVW->InsertTuple(firstPoint  + side, bladeDragUVWVec);
+      bladeLiftUVW->InsertTuple(firstPoint  + side, bladeLiftUVWVec);
       }
 
     // Polygon points are leading edge then trailing edge so points are 0-1-3-2
+    // i.e. if "-----" denotes the edge, then the order of cross-section is:
+    // 3 ----- 2 (trailing)
+    // 1 ----- 0 (leading)
     cell[0] = firstPoint;
     cell[1] = firstPoint + 1;
     cell[2] = firstPoint + 3;
@@ -2076,7 +2218,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     blade->InsertNextCell(VTK_POLYGON, NUM_PART_SIDES, cell);
 
     line >> aBlock[indx] >> bBlock[indx];
-    compBlock[indx] = turbineID * bladeID;
+    compBlock[indx] = bladeID + bladeComponentCount;
     indx++;
   }
 
@@ -2098,6 +2240,16 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     cell[2] = firstPoint + 2;
     cell[3] = firstPoint + 3;
     cell[4] = firstPoint + 4;
+    
+    for (int k = 0; k < 5; k++)
+    {
+      bladeVeloc->InsertTuple1(k + firstPoint, 0.0);  
+      bladeAzimUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+      bladeAxialUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+      bladeDragUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+      bladeLiftUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+    }
+      
     index += NUM_BASE_SIDES;
     blade->InsertNextCell(VTK_PYRAMID, NUM_BASE_SIDES, cell);
 
@@ -2110,6 +2262,11 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   force1->Delete();
   force2->Delete();
   bladeComp->Delete();
+  bladeVeloc->Delete();
+  bladeAzimUVW->Delete();
+  bladeAxialUVW->Delete();
+  bladeDragUVW->Delete();
+  bladeLiftUVW->Delete();
 }
 
 //----------------------------------------------------------------------------
