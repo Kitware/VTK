@@ -2831,17 +2831,10 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
     return 1;
     }
 
-  //Disocver the EOF marker position
-  //The preState size is actually 10 words to large. Subtract that at you get
-  //the position of the eof record
-
-  //we are going to open this as a separate file handler to make sure we don't
-  //move off this file
-  vtkIdType offset = (p->PreStateSize/p->Fam.GetWordSize())-10;
+ //when called this method is at the right spot to read the part names 
   vtkIdType currentFileLoc = p->Fam.GetCurrentFWord();
   vtkIdType currentAdaptLevel = p->Fam.GetCurrentAdaptLevel();
 
-  p->Fam.SkipToWord(LSDynaFamily::ControlSection,0,offset);
   p->Fam.BufferChunk( LSDynaFamily::Float, 1 );
   double eofM = p->Fam.GetNextWordAsFloat();
   if(eofM !=LSDynaFamily::EOFMarker)
@@ -2854,11 +2847,11 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
   //make sure that the root files has room left for the amount of data we are going to request
   //if it doesn't we know it can't have part names
   vtkIdType numParts = p->PartIds.size();
-  vtkIdType partTitlesByteSize = p->Fam.GetWordSize() * (2 + numParts*2); //NType + NUMPRop + (header and part ids)
-  partTitlesByteSize += (numParts * 72 * 2); //names are constant at 72 bytes each independent of word size
+  vtkIdType partTitlesByteSize = p->Fam.GetWordSize() * (2 + numParts); //NType + NUMPRop + (header part ids)
+  partTitlesByteSize += (numParts * 72); //names are constant at 72 bytes each independent of word size
 
   vtkIdType fileSize = p->Fam.GetFileSize(0);
-  if ( fileSize < partTitlesByteSize + (offset * p->Fam.GetWordSize()))
+  if ( fileSize < partTitlesByteSize + p->Fam.GetCurrentFWord())
     {
     //this root file doesn't part names
     p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
@@ -2874,7 +2867,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
     vtkIdType partId = p->Fam.GetNextWordAsInt();
 
     p->Fam.BufferChunk( LSDynaFamily::Char, nameWordSize);
-    std::string name(p->Fam.GetNextWordAsChars());
+    std::string name(p->Fam.GetNextWordAsChars(),72);
     if(name.size() > 0 && name[0]!=' ')
       {
       //strip the name to the subset that
@@ -2884,7 +2877,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
         name = name.substr(0,found);
         }
       //get the right part id
-      p->PartNames[partId-1] = name;
+      p->PartNames[i] = name;
       }
     }
   p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
