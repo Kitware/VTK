@@ -53,12 +53,12 @@ p6 SetYResolution 5
 
 # append together
 vtkAppendPolyData ap
-ap AddInput [p1 GetOutput]
-ap AddInput [p2 GetOutput]
-ap AddInput [p3 GetOutput]
-ap AddInput [p4 GetOutput]
-ap AddInput [p5 GetOutput]
-ap AddInput [p6 GetOutput]
+ap AddInputConnection [p1 GetOutputPort]
+ap AddInputConnection [p2 GetOutputPort]
+ap AddInputConnection [p3 GetOutputPort]
+ap AddInputConnection [p4 GetOutputPort]
+ap AddInputConnection [p5 GetOutputPort]
+ap AddInputConnection [p6 GetOutputPort]
 
 #--------------------------
 # linear transform matrix
