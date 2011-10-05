@@ -25,6 +25,8 @@
 #ifndef __vtkVector_h
 #define __vtkVector_h
 
+#include <cassert> // For inline assert for bounds checked methods.
+
 template<typename T, int Size>
 class vtkVector
 {
@@ -63,7 +65,11 @@ public:
   // Description:
   // Get the value of the vector at the index speciifed. Does bounds checking,
   // used in much the same way as vector.at(i) is used.
-  T operator()(int i) const { return this->Data[i]; }
+  T operator()(int i) const
+  {
+    assert("pre: index_in_bounds" && i >= 0 && i < Size);
+    return this->Data[i];
+  }
 
   // Description:
   // Cast the vector to the specified type, returning the result.
