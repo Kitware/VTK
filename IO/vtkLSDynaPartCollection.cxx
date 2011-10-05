@@ -644,25 +644,9 @@ void vtkLSDynaPartCollection::GetPartReadInfo(const int& partType,
 //-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FinalizeTopology()
 {
-  //we are going to take all the old point ids and convert them to the new
-  //ids based on the point subset required for this topology.
-
-  //If you use a map while inserting cells you get really really bad performance
-  //instead we will create a lookup table of old ids to new ids. From that
-  //we will create a reduced set of pairs in sorted order. those sorted pairs
-  //will be used to create the map which means it the map will be constructed
-  //in linear time.
-
-  //Note the cell ids are fortran ordered so we are going to change
-  //them to C ordered at the same time
-
-  std::list< std::pair<vtkIdType,vtkIdType> > inputToMap;
-  IdTypeVector lookup;
-  lookup.resize(this->MetaData->NumberOfNodes,-1);
-
   PartVector::iterator partIt;
 
-  //make sure to only build topology info the parts we are loading
+  //make sure to remove all parts that don't have any cells
   vtkIdType index = 0;
   for (partIt = this->Storage->Parts.begin();
        partIt != this->Storage->Parts.end();
@@ -675,44 +659,6 @@ void vtkLSDynaPartCollection::FinalizeTopology()
       //is reading all the cells for a part, all other nodes will than delete that part
       delete (*partIt);
       (*partIt)=NULL;
-      }
-    else if (*partIt)
-      {
-      inputToMap.clear();
-
-      //take the cell array and find all the unique points
-      //once that is done convert them into a map
-      
-      vtkIdType nextPointId=0;
-      vtkIdType npts,*pts;
-
-      vtkCellArray *cells = (*partIt)->Grid->GetCells();
-      cells->InitTraversal();
-      while(cells->GetNextCell(npts,pts))
-        {
-        for(vtkIdType i=0;i<npts;++i)
-          {
-          const vtkIdType Cid(pts[i]-1);
-          if(lookup[Cid] == -1)
-            {
-            //update the lookup table
-            std::pair<vtkIdType,vtkIdType> pair(nextPointId,Cid);
-            lookup[Cid] = nextPointId;
-            ++nextPointId;
-            inputToMap.push_back(pair);
-            }
-          pts[i] = lookup[Cid];
-          }
-        }
-      //create the mapping from new ids to old ids for the points
-      //this constructor will be linear time since the list is already sorted
-      (*partIt)->PointIds = IdTypeMap(inputToMap.begin(),inputToMap.end());
-
-      //reset the lookup table
-      std::fill(lookup.begin(),lookup.end(),-1);
-
-      //remove any unused allocations
-      (*partIt)->Grid->Squeeze();
       }
     }
 }
@@ -769,11 +715,10 @@ void vtkLSDynaPartCollection::ConstructGridCells(LSDynaPart *part)
 //-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::ConstructGridPoints(LSDynaPart *part, vtkPoints *commonPoints)
 {
-  vtkIdType size = part->PointIds.size();
+  
 
   //now compute the points for the grid
   vtkPoints *points = vtkPoints::New();
-  points->SetNumberOfPoints(size);
 
   //create new property arrays
   DataArrayVector::iterator newArrayIt, ppArrayIt;
@@ -786,32 +731,51 @@ void vtkLSDynaPartCollection::ConstructGridPoints(LSDynaPart *part, vtkPoints *c
     (*newArrayIt)=(*ppArrayIt)->NewInstance();
     (*newArrayIt)->SetName((*ppArrayIt)->GetName());
     (*newArrayIt)->SetNumberOfComponents((*ppArrayIt)->GetNumberOfComponents());
-    (*newArrayIt)->SetNumberOfTuples(size);
+    //(*newArrayIt)->SetNumberOfTuples(size);
 
     part->Grid->GetPointData()->AddArray((*newArrayIt));
     (*newArrayIt)->FastDelete();
     }
 
-  //fill the points and point property classes
-  IdTypeMap::const_iterator pIt;
-  for(pIt=part->PointIds.begin();
-      pIt!=part->PointIds.end();
-      ++pIt)
+  IdTypeVector lookup;
+  lookup.resize(this->MetaData->NumberOfNodes,-1);
+
+  //take the cell array and find all the unique points
+  //at the same time fixup the cell ids to be zero based instead of 1 based
+  vtkIdType nextPointId=0;
+  vtkIdType npts,*pts;
+
+  vtkCellArray *cells = part->Grid->GetCells();
+  cells->InitTraversal();
+  while(cells->GetNextCell(npts,pts))
     {
-    //set the point
-    points->SetPoint(pIt->first,commonPoints->GetPoint(pIt->second));
-
-    //set the properties for the point
-    for(newArrayIt=newArrays.begin(),ppArrayIt=this->Storage->PointProperties.begin();
-            newArrayIt!=newArrays.end();
-            ++newArrayIt,++ppArrayIt)
+    for(vtkIdType i=0;i<npts;++i)
+      {
+      const vtkIdType Cid(pts[i]-1);
+      if(lookup[Cid] == -1)
         {
-        (*newArrayIt)->SetTuple(pIt->first, (*ppArrayIt)->GetTuple(pIt->second));
-        }
-    }
+        //update the lookup table
+        lookup[Cid] = nextPointId;
+        
+        //add the point to the subset of points we need to create this grid
+        points->InsertNextPoint(commonPoints->GetPoint(Cid));
 
+        //set the properties for the point
+        for(newArrayIt=newArrays.begin(),ppArrayIt=this->Storage->PointProperties.begin();
+                newArrayIt!=newArrays.end();
+                ++newArrayIt,++ppArrayIt)
+          {
+          (*newArrayIt)->InsertNextTuple((*ppArrayIt)->GetTuple(Cid));
+          }
+        ++nextPointId;
+        }
+      pts[i] = lookup[Cid];
+      }
+    }
+  
   part->Grid->SetPoints(points);
   points->FastDelete();
+  part->Grid->Squeeze();
 }
 
 //-----------------------------------------------------------------------------

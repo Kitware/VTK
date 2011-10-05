@@ -341,7 +341,6 @@ void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
   const vtkIdType& numTuples, const vtkIdType& numComps, const bool &valid,
   const bool& isDeflectionArray)
 {
-  this->UpdateProgress( 0.4 );
   if(this->Internal->NumProcesses == 1)
     {
     //we only have the root so just call the serial code
@@ -396,7 +395,6 @@ void vtkPLSDynaReader::ReadPointProperty(vtkDataArray *arr,
     // don't read arrays the user didn't request, just delete them
     this->P->Fam.SkipWords(numTuples * numComps);
     }
-  this->UpdateProgress( 0.6 );
 }
 
 //-----------------------------------------------------------------------------
@@ -482,11 +480,11 @@ void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
   //determine which domains in this mesh this processor is responsible for
   if ( this->Internal->UpdateNumPieces > 1 )
     {
-    vtkIdType numCells;
+    double numCells;
     for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
       {
-      numCells = this->P->NumberOfCells[i];
-      float percent = (1.0 / this->Internal->UpdateNumPieces) * numCells;
+      numCells = static_cast<double>(this->P->NumberOfCells[i]);
+      double percent = (1.0 / this->Internal->UpdateNumPieces) * numCells;
       mins[i] = percent * this->Internal->UpdatePiece;
       maxs[i] = (percent * this->Internal->UpdatePiece) + percent;
       }
