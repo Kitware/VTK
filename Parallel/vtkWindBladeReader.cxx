@@ -2120,18 +2120,22 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
       if ((linesRead - turbineHeaderStartIndex) == 1)
         {
         // skip data items to get to necessary field
-        float parsedItem;
+        float parsedItem = 0.0f;
         for (int i = 0; i < 3; i++)
+          {
           line >> parsedItem;
+          }
         this->BladeLength->SetTuple1(turbineIDHeader, parsedItem);
         }
       // third line has angular velocity
       if ((linesRead - turbineHeaderStartIndex) == 2)
         {
         // skip items to get to angular velocity
-        float parsedItem;
+        float parsedItem = 0.0f;
         for (int i = 0; i < 4; i++)
+          {
           line >> parsedItem;
+          }
         this->AngularVeloc->SetTuple1(turbineIDHeader, parsedItem);
         }
       continue;
