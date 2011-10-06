@@ -3561,6 +3561,8 @@ int vtkLSDynaReader::RequestData(
     if (this->Parts->IsActivePart(i))
       {
       mbds->SetBlock(nextId,this->Parts->GetGridForPart(i));
+      mbds->GetMetaData(nextId)->Set(vtkCompositeDataSet::NAME(),
+        this->P->PartNames[i].c_str());
       ++nextId;
       }
     }
