@@ -202,6 +202,7 @@ vtkSphereWidget                       GetCenter                         307  3
 vtkSphericalDirectionEncoder          GetDecodedGradient                301  3
 vtkSplineWidget                       GetHandlePosition                 307  3
 vtkStreamer                           GetStartPosition                  307  3
+vtkStreamingDemandDrivenPipeline      GetWholeExtent                    304  6
 vtkStructuredGrid                     GetDimensions                     304  3
 vtkStructuredGrid                     GetExtent                         304  6
 vtkStructuredGrid                     GetPoint                          307  3

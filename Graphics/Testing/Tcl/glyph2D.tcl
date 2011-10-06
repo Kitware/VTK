@@ -27,42 +27,53 @@ vtkGlyphSource2D gs
   gs SetScale 20
   gs FilledOff
   gs CrossOn
+  gs Update
+
 vtkGlyphSource2D gs1
   gs1 SetGlyphTypeToTriangle
   gs1 SetScale 20
   gs1 FilledOff
   gs1 CrossOn
+  gs1 Update
+
 vtkGlyphSource2D gs2
   gs2 SetGlyphTypeToSquare
   gs2 SetScale 20
   gs2 FilledOff
   gs2 CrossOn
+  gs2 Update
+
 vtkGlyphSource2D gs3
   gs3 SetGlyphTypeToDiamond
   gs3 SetScale 20
   gs3 FilledOff
   gs3 CrossOn
+  gs3 Update
+
 vtkGlyphSource2D gs4
   gs4 SetGlyphTypeToDiamond
   gs4 SetScale 20
   gs4 FilledOn
   gs4 DashOn
   gs4 CrossOff
+  gs4 Update
+
 vtkGlyphSource2D gs5
   gs5 SetGlyphTypeToThickArrow
   gs5 SetScale 20
   gs5 FilledOn
   gs5 CrossOff
+  gs5 Update
 
 # Create a table of glyphs
 vtkGlyph2D glypher
-  glypher SetInput pd
-  glypher SetSource 0 [gs GetOutput]
-  glypher SetSource 1 [gs1 GetOutput]
-  glypher SetSource 2 [gs2 GetOutput]
-  glypher SetSource 3 [gs3 GetOutput]
-  glypher SetSource 4 [gs4 GetOutput]
-  glypher SetSource 5 [gs5 GetOutput]
+  glypher SetInputData pd
+  glypher SetSourceData 0 [gs GetOutput]
+  glypher SetSourceData 1 [gs1 GetOutput]
+  glypher SetSourceData 2 [gs2 GetOutput]
+  glypher SetSourceData 3 [gs3 GetOutput]
+  glypher SetSourceData 4 [gs4 GetOutput]
+  glypher SetSourceData 5 [gs5 GetOutput]
   glypher SetIndexModeToScalar 
   glypher SetRange 0 5
   glypher SetScaleModeToDataScalingOff

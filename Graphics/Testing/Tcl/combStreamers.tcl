@@ -26,6 +26,7 @@ vtkPlaneSource ps
     ps SetOrigin 2 -2 26
     ps SetPoint1 2  2 26
     ps SetPoint2 2 -2 32
+
 vtkPolyDataMapper psMapper
     psMapper SetInputConnection [ps GetOutputPort]
 vtkActor psActor
@@ -35,8 +36,8 @@ vtkActor psActor
 vtkRungeKutta4 rk4
 
 vtkStreamLine streamer
-    streamer SetInput $output
-    streamer SetSource [ps GetOutput]
+    streamer SetInputData $output
+    streamer SetSourceData [ps GetOutput]
     streamer SetMaximumPropagationTime 100
     streamer SetIntegrationStepLength .2
     streamer SetStepLength .001
@@ -55,7 +56,7 @@ vtkActor streamline
     streamline SetMapper streamMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

@@ -58,7 +58,7 @@ vtkUnstructuredGrid aVoxelGrid
   [aVoxelGrid GetPointData] SetScalars voxelScalars
 
 vtkContourFilter voxelContours
-  voxelContours SetInput aVoxelGrid
+  voxelContours SetInputData aVoxelGrid
   voxelContours SetValue 0 .5
 
 vtkDataSetMapper aVoxelContourMapper
@@ -66,7 +66,7 @@ vtkDataSetMapper aVoxelContourMapper
   aVoxelContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aVoxelMapper
-  aVoxelMapper SetInput aVoxelGrid
+  aVoxelMapper SetInputData aVoxelGrid
   aVoxelMapper ScalarVisibilityOff
 
 vtkActor aVoxelActor
@@ -119,7 +119,7 @@ vtkUnstructuredGrid aHexahedronGrid
   [aHexahedronGrid GetPointData] SetScalars hexahedronScalars
 
 vtkContourFilter hexahedronContours
-  hexahedronContours SetInput aHexahedronGrid
+  hexahedronContours SetInputData aHexahedronGrid
   hexahedronContours SetValue 0 .5
 
 vtkDataSetMapper aHexahedronContourMapper
@@ -127,7 +127,7 @@ vtkDataSetMapper aHexahedronContourMapper
   aHexahedronContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aHexahedronMapper
-  aHexahedronMapper SetInput aHexahedronGrid
+  aHexahedronMapper SetInputData aHexahedronGrid
   aHexahedronMapper ScalarVisibilityOff
 
 vtkActor aHexahedronActor
@@ -168,7 +168,7 @@ vtkUnstructuredGrid aTetraGrid
   [aTetraGrid GetPointData] SetScalars tetraScalars
 
 vtkContourFilter tetraContours
-  tetraContours SetInput aTetraGrid
+  tetraContours SetInputData aTetraGrid
   tetraContours SetValue 0 .5
 
 vtkDataSetMapper aTetraContourMapper
@@ -176,7 +176,7 @@ vtkDataSetMapper aTetraContourMapper
   aTetraContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aTetraMapper
-  aTetraMapper SetInput aTetraGrid
+  aTetraMapper SetInputData aTetraGrid
   aTetraMapper ScalarVisibilityOff
 
 vtkActor aTetraContourActor
@@ -222,7 +222,7 @@ vtkUnstructuredGrid aWedgeGrid
   [aWedgeGrid GetPointData] SetScalars wedgeScalars
 
 vtkContourFilter wedgeContours
-  wedgeContours SetInput aWedgeGrid
+  wedgeContours SetInputData aWedgeGrid
   wedgeContours SetValue 0 .5
 
 vtkDataSetMapper aWedgeContourMapper
@@ -230,7 +230,7 @@ vtkDataSetMapper aWedgeContourMapper
   aWedgeContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper SetInputData aWedgeGrid
   aWedgeMapper ScalarVisibilityOff
 
 vtkActor aWedgeContourActor
@@ -273,7 +273,7 @@ vtkUnstructuredGrid aPyramidGrid
   [aPyramidGrid GetPointData] SetScalars pyramidScalars
 
 vtkContourFilter pyramidContours
-  pyramidContours SetInput aPyramidGrid
+  pyramidContours SetInputData aPyramidGrid
   pyramidContours SetValue 0 .5
 
 vtkDataSetMapper aPyramidContourMapper
@@ -281,7 +281,7 @@ vtkDataSetMapper aPyramidContourMapper
   aPyramidContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPyramidMapper
-  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper SetInputData aPyramidGrid
   aPyramidMapper ScalarVisibilityOff
 
 vtkActor aPyramidContourActor
@@ -320,7 +320,7 @@ vtkUnstructuredGrid aPixelGrid
   [aPixelGrid GetPointData] SetScalars pixelScalars
 
 vtkContourFilter pixelContours
-  pixelContours SetInput aPixelGrid
+  pixelContours SetInputData aPixelGrid
   pixelContours SetValue 0 .5
 
 vtkDataSetMapper aPixelContourMapper
@@ -328,7 +328,7 @@ vtkDataSetMapper aPixelContourMapper
   aPixelContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPixelMapper
-  aPixelMapper SetInput aPixelGrid
+  aPixelMapper SetInputData aPixelGrid
   aPixelMapper ScalarVisibilityOff
 
 vtkActor aPixelContourActor
@@ -368,7 +368,7 @@ vtkUnstructuredGrid aQuadGrid
   [aQuadGrid GetPointData] SetScalars quadScalars
 
 vtkContourFilter quadContours
-  quadContours SetInput aQuadGrid
+  quadContours SetInputData aQuadGrid
   quadContours SetValue 0 .5
 
 vtkDataSetMapper aQuadContourMapper
@@ -376,7 +376,7 @@ vtkDataSetMapper aQuadContourMapper
   aQuadContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aQuadMapper
-  aQuadMapper SetInput aQuadGrid
+  aQuadMapper SetInputData aQuadGrid
   aQuadMapper ScalarVisibilityOff
 
 vtkActor aQuadContourActor
@@ -413,7 +413,7 @@ vtkUnstructuredGrid aTriangleGrid
   [aTriangleGrid GetPointData] SetScalars triangleScalars
 
 vtkContourFilter triangleContours
-  triangleContours SetInput aTriangleGrid
+  triangleContours SetInputData aTriangleGrid
   triangleContours SetValue 0 .5
 
 vtkDataSetMapper aTriangleContourMapper
@@ -424,7 +424,7 @@ vtkActor aTriangleContourActor
   aTriangleContourActor SetMapper aTriangleContourMapper
 
 vtkDataSetMapper aTriangleMapper
-  aTriangleMapper SetInput aTriangleGrid
+  aTriangleMapper SetInputData aTriangleGrid
   aTriangleMapper ScalarVisibilityOff
 
 vtkActor aTriangleActor
@@ -462,7 +462,7 @@ vtkUnstructuredGrid aPolygonGrid
   [aPolygonGrid GetPointData] SetScalars polygonScalars
 
 vtkContourFilter polygonContours
-  polygonContours SetInput aPolygonGrid
+  polygonContours SetInputData aPolygonGrid
   polygonContours SetValue 0 .5
 
 vtkDataSetMapper aPolygonContourMapper
@@ -470,7 +470,7 @@ vtkDataSetMapper aPolygonContourMapper
   aPolygonContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPolygonMapper
-  aPolygonMapper SetInput aPolygonGrid
+  aPolygonMapper SetInputData aPolygonGrid
   aPolygonMapper ScalarVisibilityOff
 
 vtkActor aPolygonContourActor
@@ -514,11 +514,11 @@ vtkUnstructuredGrid aTriangleStripGrid
   [aTriangleStripGrid GetPointData] SetScalars triangleStripScalars
 
 vtkDataSetMapper aTriangleStripMapper
-  aTriangleStripMapper SetInput aTriangleStripGrid
+  aTriangleStripMapper SetInputData aTriangleStripGrid
   aTriangleStripMapper ScalarVisibilityOff
 
 vtkContourFilter triangleStripContours
-  triangleStripContours SetInput aTriangleStripGrid
+  triangleStripContours SetInputData aTriangleStripGrid
   triangleStripContours SetValue 0 .5
 
 vtkDataSetMapper aTriangleStripContourMapper
@@ -556,7 +556,7 @@ vtkUnstructuredGrid aLineGrid
   [aLineGrid GetPointData] SetScalars lineScalars
 
 vtkContourFilter lineContours
-  lineContours SetInput aLineGrid
+  lineContours SetInputData aLineGrid
   lineContours SetValue 0 .5
 
 vtkDataSetMapper aLineContourMapper
@@ -567,7 +567,7 @@ vtkActor aLineContourActor
   aLineContourActor SetMapper aLineContourMapper
 
 vtkDataSetMapper aLineMapper
-  aLineMapper SetInput aLineGrid
+  aLineMapper SetInputData aLineGrid
   aLineMapper ScalarVisibilityOff
 
 vtkActor aLineActor
@@ -602,7 +602,7 @@ vtkUnstructuredGrid aPolyLineGrid
   [aPolyLineGrid GetPointData] SetScalars polyLineScalars
 
 vtkContourFilter polyLineContours
-  polyLineContours SetInput aPolyLineGrid
+  polyLineContours SetInputData aPolyLineGrid
   polyLineContours SetValue 0 .5
 
 vtkDataSetMapper aPolyLineContourMapper
@@ -613,7 +613,7 @@ vtkActor aPolyLineContourActor
   aPolyLineContourActor SetMapper aPolyLineContourMapper
 
 vtkDataSetMapper aPolyLineMapper
-  aPolyLineMapper SetInput aPolyLineGrid
+  aPolyLineMapper SetInputData aPolyLineGrid
   aPolyLineMapper ScalarVisibilityOff
 
 vtkActor aPolyLineActor
@@ -641,7 +641,7 @@ vtkUnstructuredGrid aVertexGrid
   [aVertexGrid GetPointData] SetScalars vertexScalars
 
 vtkContourFilter vertexContours
-  vertexContours SetInput aVertexGrid
+  vertexContours SetInputData aVertexGrid
   vertexContours SetValue 0 1
 
 vtkDataSetMapper aVertexContourMapper
@@ -653,7 +653,7 @@ vtkActor aVertexContourActor
   [aVertexContourActor GetProperty] SetRepresentationToWireframe
 
 vtkDataSetMapper aVertexMapper
-  aVertexMapper SetInput aVertexGrid
+  aVertexMapper SetInputData aVertexGrid
   aVertexMapper ScalarVisibilityOff
 
 vtkActor aVertexActor
@@ -687,7 +687,7 @@ vtkUnstructuredGrid aPolyVertexGrid
   [aPolyVertexGrid GetPointData] SetScalars polyVertexScalars
 
 vtkContourFilter polyVertexContours
-  polyVertexContours SetInput aPolyVertexGrid
+  polyVertexContours SetInputData aPolyVertexGrid
   polyVertexContours SetValue 0 0
 
 vtkDataSetMapper aPolyVertexContourMapper
@@ -699,7 +699,7 @@ vtkActor aPolyVertexContourActor
   [aPolyVertexContourActor GetProperty] SetRepresentationToWireframe
 
 vtkDataSetMapper aPolyVertexMapper
-  aPolyVertexMapper SetInput aPolyVertexGrid
+  aPolyVertexMapper SetInputData aPolyVertexGrid
   aPolyVertexMapper ScalarVisibilityOff
 
 vtkActor aPolyVertexActor
@@ -753,7 +753,7 @@ vtkUnstructuredGrid aPentaGrid
   [aPentaGrid GetPointData] SetScalars pentaScalars
 
 vtkContourFilter pentaContours
-  pentaContours SetInput aPentaGrid
+  pentaContours SetInputData aPentaGrid
   pentaContours SetValue 0 .5
 
 vtkDataSetMapper aPentaContourMapper
@@ -761,7 +761,7 @@ vtkDataSetMapper aPentaContourMapper
   aPentaContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPentaMapper
-  aPentaMapper SetInput aPentaGrid
+  aPentaMapper SetInputData aPentaGrid
   aPentaMapper ScalarVisibilityOff
 
 vtkActor aPentaActor
@@ -828,7 +828,7 @@ vtkUnstructuredGrid aHexaGrid
   [aHexaGrid GetPointData] SetScalars hexaScalars
 
 vtkContourFilter hexaContours
-  hexaContours SetInput aHexaGrid
+  hexaContours SetInputData aHexaGrid
   hexaContours SetValue 0 .5
 
 vtkDataSetMapper aHexaContourMapper
@@ -836,7 +836,7 @@ vtkDataSetMapper aHexaContourMapper
   aHexaContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aHexaMapper
-  aHexaMapper SetInput aHexaGrid
+  aHexaMapper SetInputData aHexaGrid
   aHexaMapper ScalarVisibilityOff
 
 vtkActor aHexaActor

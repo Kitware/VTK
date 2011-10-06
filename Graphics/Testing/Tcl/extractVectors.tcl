@@ -20,9 +20,11 @@ vtkMultiBlockPLOT3DReader pl3d
     set output [[pl3d GetOutput] GetBlock 0]
 
 vtkExtractVectorComponents vx
-  vx SetInput $output
+  vx SetInputData $output
+  vx Update
+
 vtkContourFilter isoVx
-    isoVx SetInput [vx GetVxComponent]
+    isoVx SetInputData [vx GetVxComponent]
     isoVx SetValue 0 .38
 vtkPolyDataNormals normalsVx
     normalsVx SetInputConnection [isoVx GetOutputPort]
@@ -36,9 +38,11 @@ vtkActor isoVxActor
     eval [isoVxActor GetProperty] SetColor 1 0.7 0.6
 
 vtkExtractVectorComponents vy
-  vy SetInput $output
+  vy SetInputData $output
+  vy Update
+
 vtkContourFilter isoVy
-    isoVy SetInput [vy GetVyComponent]
+    isoVy SetInputData [vy GetVyComponent]
     isoVy SetValue 0 .38
 vtkPolyDataNormals normalsVy
     normalsVy SetInputConnection [isoVy GetOutputPort]
@@ -52,9 +56,11 @@ vtkActor isoVyActor
     eval [isoVyActor GetProperty] SetColor 0.7 1 0.6
 
 vtkExtractVectorComponents vz
-  vz SetInput $output
+  vz SetInputData $output
+  vz Update
+
 vtkContourFilter isoVz
-    isoVz SetInput [vz GetVzComponent]
+    isoVz SetInputData [vz GetVzComponent]
     isoVz SetValue 0 .38
 vtkPolyDataNormals normalsVz
     normalsVz SetInputConnection [isoVz GetOutputPort]
@@ -68,7 +74,7 @@ vtkActor isoVzActor
     eval [isoVzActor GetProperty] SetColor 0.4 0.5 1
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
@@ -99,5 +105,3 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-

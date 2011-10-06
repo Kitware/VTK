@@ -12,14 +12,14 @@ vtkMultiBlockPLOT3DReader pl3d
     set output [[pl3d GetOutput] GetBlock 0]
 
 vtkDataSetSurfaceFilter gf
-    gf SetInput $output
+    gf SetInputData $output
 vtkPolyDataMapper gMapper
     gMapper SetInputConnection [gf GetOutputPort]
     eval gMapper SetScalarRange [$output GetScalarRange]
 vtkActor gActor
     gActor SetMapper gMapper
 vtkDataSetSurfaceFilter gf2
-    gf2 SetInput $output
+    gf2 SetInputData $output
     gf2 UseStripsOn
 vtkPolyDataMapper g2Mapper
     g2Mapper SetInputConnection [gf2 GetOutputPort]
@@ -54,7 +54,7 @@ vtkSphere s
     eval s SetCenter [$output GetCenter]
     s SetRadius 100.0; #everything
 vtkExtractGeometry eg
-    eg SetInput $output
+    eg SetInputData $output
     eg SetImplicitFunction s
 vtkDataSetSurfaceFilter gf5
     gf5 SetInputConnection [eg GetOutputPort]

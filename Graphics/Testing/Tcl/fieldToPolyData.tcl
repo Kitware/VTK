@@ -22,6 +22,7 @@ if {[catch {set channel [open "PolyField.vtk" "w"]}] == 0 } {
 #
 vtkDataObjectReader dor
     dor SetFileName "PolyField.vtk"
+
 vtkDataObjectToDataSetFilter do2ds
     do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToPolyData
@@ -29,14 +30,17 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetPointComponent 1 "Points" 1 
     do2ds SetPointComponent 2 "Points" 2 
     do2ds SetPolysComponent "Polys" 0
+    do2ds Update
+
 vtkFieldDataToAttributeDataFilter fd2ad
-    fd2ad SetInput [do2ds GetPolyDataOutput]
+    fd2ad SetInputData [do2ds GetPolyDataOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
     fd2ad SetScalarComponent 0 "my_scalars" 0 
+    fd2ad Update
 
 vtkPolyDataMapper mapper
-    mapper SetInput [fd2ad GetPolyDataOutput]
+    mapper SetInputData [fd2ad GetPolyDataOutput]
     eval mapper SetScalarRange [[fd2ad GetOutput] GetScalarRange]
 vtkActor actor
     actor SetMapper mapper
@@ -69,5 +73,3 @@ if {[info commands "rtExMath"] != ""} {
 }
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-
