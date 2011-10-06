@@ -146,19 +146,7 @@ protected:
   virtual int ReadTopology();
   virtual int ReadStaticNodes();
 
-  virtual void ReadPointProperty(vtkDataArray *arr,
-    const vtkIdType& numTuples, const vtkIdType& numComps, const bool &valid,
-    const bool& isDeflectionArray);
-
 private:
-  template<typename T>
-  void ReadPointPropertyChunks(T* buffer, vtkDataArray *arr,
-    const vtkIdType& numComps, const vtkIdType& loopTimes,
-    const vtkIdType& numPointsToRead, const vtkIdType& leftOver);
-
-  template<typename T>
-  void FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,
-    const vtkIdType& numTuples, const vtkIdType& numComps);
 
   vtkPLSDynaReader( const vtkPLSDynaReader& ); // Not implemented.
   void operator = ( const vtkPLSDynaReader& ); // Not implemented.

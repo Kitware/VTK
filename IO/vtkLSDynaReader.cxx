@@ -57,7 +57,7 @@
 #include <vtkDataObject.h>
 #include <vtkDoubleArray.h>
 #include <vtkIdTypeArray.h>
-#include <vtkIntArray.h>
+#include <vtkUnsignedCharArray.h>
 #include <vtkFloatArray.h>
 #include <vtkPoints.h>
 #include <vtkInformation.h>
@@ -260,26 +260,12 @@ vtkLSDynaReader::vtkLSDynaReader()
   this->DeformedMesh = 1;
   this->RemoveDeletedCells = 1;
   this->InputDeck = 0;
-
-  this->CommonPoints = NULL;
-  this->RoadSurfacePoints = NULL;
   this->Parts = NULL;
 }
 
 vtkLSDynaReader::~vtkLSDynaReader()
 {
-  if (this->CommonPoints)
-    {
-    this->CommonPoints->Delete();
-    }
-  if (this->RoadSurfacePoints)
-    {
-    this->RoadSurfacePoints->Delete();
-    }
-  if (this->Parts)
-    {
-    this->Parts->Delete();
-    }
+  this->ResetPartsCache();
   this->SetInputDeck(0);
   delete this->P;
   this->P = 0;
@@ -482,6 +468,7 @@ void vtkLSDynaReader::SetDatabaseDirectory( const char* f )
       { // no string => no database directory
       this->P->Reset();
       this->SetInputDeck( 0 );
+      this->ResetPartsCache();
       this->Modified();
       }
     return;
@@ -491,6 +478,7 @@ void vtkLSDynaReader::SetDatabaseDirectory( const char* f )
     this->P->Reset();
     this->SetInputDeck( 0 );
     this->P->Fam.SetDatabaseDirectory( vtkstd::string(f) );
+    this->ResetPartsCache();
     this->Modified();
     }
 }
@@ -735,6 +723,7 @@ void vtkLSDynaReader::SetPointArrayStatus( int a, int stat )
     return;
 
   this->P->PointArrayStatus[a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -788,6 +777,7 @@ void vtkLSDynaReader::SetCellArrayStatus( int ct, int a, int stat )
     return;
 
   this->P->CellArrayStatus[ct][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -833,6 +823,7 @@ void vtkLSDynaReader::SetSolidArrayStatus( int a, int stat )
     return;
 
   this->P->CellArrayStatus[LSDynaMetaData::SOLID][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -878,6 +869,7 @@ void vtkLSDynaReader::SetThickShellArrayStatus( int a, int stat )
     return;
 
   this->P->CellArrayStatus[LSDynaMetaData::THICK_SHELL][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -923,6 +915,7 @@ void vtkLSDynaReader::SetShellArrayStatus( int a, int stat )
     return;
 
   this->P->CellArrayStatus[LSDynaMetaData::SHELL][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -968,6 +961,7 @@ void vtkLSDynaReader::SetRigidBodyArrayStatus( int a, int stat )
     return;
 
   this->P->CellArrayStatus[LSDynaMetaData::RIGID_BODY][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -1013,6 +1007,7 @@ void vtkLSDynaReader::SetRoadSurfaceArrayStatus( int a, int stat )
     return;
 
   this->P->CellArrayStatus[LSDynaMetaData::ROAD_SURFACE][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -1058,6 +1053,7 @@ void vtkLSDynaReader::SetBeamArrayStatus( int a, int stat )
     return;
 
   this->P->CellArrayStatus[LSDynaMetaData::BEAM][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -1103,6 +1099,7 @@ void vtkLSDynaReader::SetParticleArrayStatus( int a, int stat )
     return;
 
   this->P->CellArrayStatus[LSDynaMetaData::PARTICLE][a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -1140,6 +1137,7 @@ void vtkLSDynaReader::SetPartArrayStatus( int a, int stat )
     return;
 
   this->P->PartStatus[a] = stat;
+  this->ResetPartsCache();
   this->Modified();
 }
 
@@ -2083,6 +2081,7 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
     result = this->ReadHeaderInformation( newAdaptLevel );
     if ( result >= 0 )
       {
+      this->ResetPartsCache();
       return result;
       }
     }
@@ -2102,26 +2101,50 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//----------------------------------------------------------------------------
+int vtkLSDynaReader::ReadTopology()
+{
+  bool readTopology=false;
+  if(!this->Parts)
+    {
+    readTopology=true;
+    this->Parts = vtkLSDynaPartCollection::New();
+    this->Parts->InitCollection(this->P,NULL,NULL);
+    }
+  if(!readTopology)
+    {
+    return 0;
+    }
+
+  if( this->ReadPartSizes())
+    {
+    vtkErrorMacro( "Could not read cell sizes." );
+    return 1;
+    }
+
+  if ( this->ReadConnectivityAndMaterial() )
+    {
+    vtkErrorMacro( "Could not read connectivity." );
+    return 1;
+    }
+
+  this->Parts->FinalizeTopology();
+
+  // we need to read the user ids after we have read the topology
+  // so we know how many cells are in each part
+  if ( this->ReadUserIds() )
+    {
+    vtkErrorMacro( "Could not read user node/element IDs." );
+    return 1;
+    }
+
+  return 0;
+}
+
 // ============================================================= Section parsing
 int vtkLSDynaReader::ReadNodes()
 {
   LSDynaMetaData* p = this->P;
-
-  if(this->CommonPoints)
-    {
-    this->CommonPoints->Delete();
-    }
-  this->CommonPoints = vtkPoints::New();
-
-  if ( p->Fam.GetWordSize() == 4 )
-    {
-    this->CommonPoints->SetDataTypeToFloat();
-    }
-  else
-    {
-    this->CommonPoints->SetDataTypeToDouble();
-    }  
-  this->CommonPoints->SetNumberOfPoints( p->NumberOfNodes );
 
   // Skip reading coordinates if we are deflecting the mesh... they would be replaced anyway.
   // Note that we still have to read the rigid road coordinates.  
@@ -2129,78 +2152,14 @@ int vtkLSDynaReader::ReadNodes()
   if ( ! this->DeformedMesh )
     {
     p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), 0 );
-
-    vtkIdType startId = 0;
-    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering( p->NumberOfNodes, p->Dimensionality);
-    if(p->Fam.GetWordSize() == 8)
-      {
-      for(vtkIdType i=0;i<numChunks;++i)
-        {
-        vtkIdType chunkSize = p->Fam.GetNextChunk(LSDynaFamily::Float );
-        vtkIdType numCellsInChunk = chunkSize/p->Dimensionality;
-        double *dbuf = p->Fam.GetBufferAsDouble();
-        this->FillPointsData(dbuf,this->CommonPoints,startId,numCellsInChunk);
-        startId+=numCellsInChunk;
-        }
-      }
-    else
-      {
-      for(vtkIdType i=0;i<numChunks;++i)
-        {
-        vtkIdType chunkSize = p->Fam.GetNextChunk(LSDynaFamily::Float );
-        vtkIdType numCellsInChunk = chunkSize/p->Dimensionality;
-        float *fbuf = p->Fam.GetBufferAsFloat();
-        this->FillPointsData(fbuf,this->CommonPoints,startId,numCellsInChunk);
-        startId+=numCellsInChunk;
-        }
-      }    
+    this->Parts->ReadPointProperty(p->NumberOfNodes,p->Dimensionality,NULL,false,true,false);
     }
 
   if ( p->ReadRigidRoadMvmt )
     {
-    if(this->RoadSurfacePoints)
-      {
-      this->RoadSurfacePoints->Delete();
-      }
-    this->RoadSurfacePoints = vtkPoints::New();
-
-    if ( p->Fam.GetWordSize() == 4 )
-      {
-      this->RoadSurfacePoints->SetDataTypeToFloat();
-      }
-    else
-      {
-      this->RoadSurfacePoints->SetDataTypeToDouble();
-      }
-
-    vtkIdType nnode = p->Dict["NNODE"];
-    this->RoadSurfacePoints->SetNumberOfPoints( nnode );    
+    vtkIdType nnode = p->Dict["NNODE"];    
     p->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData, p->Fam.GetCurrentAdaptLevel(), 4 + nnode );
-
-    vtkIdType startId = 0;
-    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering( p->NumberOfNodes, 3);
-    if(p->Fam.GetWordSize() == 8)
-      {
-      for(vtkIdType i=0;i<numChunks;++i)
-        {
-        vtkIdType chunkSize = p->Fam.GetNextChunk(LSDynaFamily::Float );
-        vtkIdType numCellsInChunk = chunkSize/3;
-        double *dbuf = p->Fam.GetBufferAsDouble();
-        this->FillPointsData(dbuf,this->RoadSurfacePoints,startId,numCellsInChunk);
-        startId+=numCellsInChunk;
-        }
-      }
-    else
-      {
-      for(vtkIdType i=0;i<numChunks;++i)
-        {
-        vtkIdType chunkSize = p->Fam.GetNextChunk(LSDynaFamily::Float );
-        vtkIdType numCellsInChunk = chunkSize/p->Dimensionality;
-        float *fbuf = p->Fam.GetBufferAsFloat();
-        this->FillPointsData(fbuf,this->RoadSurfacePoints,startId,numCellsInChunk);
-        startId+=numCellsInChunk;
-        }
-      }
+    this->Parts->ReadPointProperty(nnode,3,NULL,false,false,true);
     }
 
   return 0;
@@ -2225,15 +2184,7 @@ int vtkLSDynaReader::ReadUserIds()
 
   // Node numbers
   bool nodeIdStatus = this->GetPointArrayStatus( LS_ARRAYNAME_USERID ) == 1;
-  vtkIdTypeArray* userNodeIds = vtkIdTypeArray::New();
-  if(nodeIdStatus)
-    {
-    userNodeIds->SetNumberOfComponents(1);
-    userNodeIds->SetNumberOfTuples( isz );
-    userNodeIds->SetName( LS_ARRAYNAME_USERID );
-    }
-  this->ReadPointProperty(userNodeIds,isz,1,nodeIdStatus,false);
-  userNodeIds->Delete();
+  this->Parts->ReadPointProperty(isz,1,LS_ARRAYNAME_USERID,nodeIdStatus);
 
   // FIXME: This won't work if Rigid Body and Shell elements are interleaved (which I now believe they are)
   this->Parts->ReadCellUserIds(LSDynaMetaData::BEAM,
@@ -2260,28 +2211,27 @@ int vtkLSDynaReader::ReadDeletion()
 
   if(!this->RemoveDeletedCells)
     {
-    //this functions doesn't have to lead the reader at a certain
+    //this functions doesn't have to lead the reader to a certain
     //position in the files
+    this->Parts->DisbleDeadCells();
     return 0;
     }
 
   LSDynaMetaData* p = this->P;
-  vtkIntArray* death;
+  vtkUnsignedCharArray* death;
   switch ( p->Dict["MDLOPT"] )
     {
   case LS_MDLOPT_POINT:
     vtkErrorMacro("We currently only support cell death");
     break;
   case LS_MDLOPT_CELL:
-    p->Fam.SkipToWord(LSDynaFamily::TimeStepSection, p->CurrentState,0);
-    p->Fam.SkipWords(p->ElementDeletionOffset);
     for(int i=0; i < 4; ++i)
       {
       const LSDynaMetaData::LSDYNA_TYPES type = validCellTypes[i];
       vtkIdType numCells,numSkipStart,numSkipEnd;
       this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
 
-      death = vtkIntArray::New();
+      death = vtkUnsignedCharArray::New();
       death->SetName( LS_ARRAYNAME_DEATH );
       death->SetNumberOfComponents( 1 );
       death->SetNumberOfTuples(numCells);
@@ -2300,7 +2250,7 @@ int vtkLSDynaReader::ReadDeletion()
       vtkIdType numCells,numSkipStart,numSkipEnd;
       this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
 
-      death = vtkIntArray::New();
+      death = vtkUnsignedCharArray::New();
       death->SetName( LS_ARRAYNAME_DEATH );
       death->SetNumberOfComponents( 1 );
       death->SetNumberOfTuples(numCells);
@@ -2324,7 +2274,7 @@ int vtkLSDynaReader::ReadDeletion()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaReader::ReadDeletionArray(vtkIntArray* arr, const int& pos, const int& size)
+void vtkLSDynaReader::ReadDeletionArray(vtkUnsignedCharArray* arr, const int& pos, const int& size)
 {
   //setup to do a block read, way faster than converting each
   //float/double individually
@@ -2359,9 +2309,20 @@ void vtkLSDynaReader::ReadDeletionArray(vtkIntArray* arr, const int& pos, const 
 int vtkLSDynaReader::ReadState( vtkIdType step )
 {
   //remember C style return so zero is pass
-  if(!this->ReadNodeStateInfo(step))
+  if(this->ReadNodeStateInfo(step))
     {
-    return this->ReadCellStateInfo( step );
+    vtkErrorMacro( "Problem reading state point information." );
+    return 1;
+    }
+  if(this->ReadCellStateInfo( step ))
+    {
+    vtkErrorMacro( "Problem reading state cell information." );
+    return 1;
+    }
+  if(this->ReadDeletion())
+    {
+    vtkErrorMacro( "Problem reading state deletion information." );
+    return 1;
     }
   return 0;
 }
@@ -2375,8 +2336,7 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
   p->Fam.SkipToWord( LSDynaFamily::TimeStepSection, step, 1 + p->Dict["NGLBV"] );
 
   // Read nodal data ===========================================================
-  vtkDataArray* var;
-  vtkstd::vector<vtkDataArray*> vars;
+  vtkstd::vector<std::string> names;
   vtkstd::vector<int> cmps;
   // Important: push_back in the order these are interleaved on disk
   // Note that temperature and deflection are swapped relative to the order they
@@ -2458,10 +2418,7 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
         aComponents[ nvnum ] = 3;
         aNames[ nvnum ] = LS_ARRAYNAME_VORTICITY;
         }
-      var = p->Fam.GetWordSize() == 4 ? (vtkDataArray*) vtkFloatArray::New() : (vtkDataArray*) vtkDoubleArray::New();
-      var->SetName( aNames[ nvnum ] );
-      var->SetNumberOfComponents( aComponents[ nvnum ] == -1 ? 3 : aComponents[ nvnum ] ); // Always make vectors length 3, even for 2D data
-      vars.push_back( var );
+      names.push_back(aNames[ nvnum ]);
       cmps.push_back( aComponents[ nvnum ] == -1 ? p->Dimensionality : aComponents[ nvnum ] );
       vppt += cmps.back();
       }
@@ -2469,83 +2426,20 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
 
   if ( vppt != 0 )
     {
-    vtkstd::vector<int>::iterator arc = cmps.begin();
-    for ( vtkstd::vector<vtkDataArray*>::iterator arr=vars.begin();
-          arr != vars.end(); ++arr, ++arc )
+    for(size_t i=0; i < cmps.size(); i++)
       {
       //special case if the user has said they want a deformed mesh
       //we have to read in the deflection array
-      bool valid = this->GetPointArrayStatus( (*arr)->GetName() ) != 0;
+      bool valid = this->GetPointArrayStatus( names[i].c_str() ) != 0;
       bool isDeflectionArray = this->DeformedMesh &&
-                    strcmp( (*arr)->GetName(), LS_ARRAYNAME_DEFLECTION)==0;
-      this->ReadPointProperty(*arr,p->NumberOfNodes,(*arc),valid,isDeflectionArray);
-      (*arr)->Delete();
+                               strcmp(names[i].c_str(), LS_ARRAYNAME_DEFLECTION)==0;
+      this->Parts->ReadPointProperty(p->NumberOfNodes,cmps[i],names[i].c_str(),
+                                     valid,isDeflectionArray);
       }
     //clear the buffer as it will be very large and not needed
     p->Fam.ClearBuffer();
     }
   return 0;
-}
-
-//-----------------------------------------------------------------------------
-void vtkLSDynaReader::ReadPointProperty(vtkDataArray *arr,
-  const vtkIdType& numTuples, const vtkIdType& numComps, const bool &valid,
-  const bool& isDeflectionArray)
-{
-  LSDynaMetaData* p = this->P;
-  if ( valid || isDeflectionArray)
-    {
-    arr->SetNumberOfTuples( numTuples );
- 
-    const vtkIdType numPointsToRead(262144);
-    const vtkIdType loopTimes(numTuples/numPointsToRead);
-    const vtkIdType leftOver(numTuples%numPointsToRead);
-    const vtkIdType bufferChunkSize(numPointsToRead*numComps);
-    
-    vtkIdType offset=0;
-    if(p->Fam.GetWordSize() == 8)
-      {
-      double* buf = NULL;
-      for(vtkIdType j=0;j<loopTimes;++j,offset+=bufferChunkSize)
-        {
-        p->Fam.BufferChunk(LSDynaFamily::Float,bufferChunkSize);       
-        buf = p->Fam.GetBufferAsDouble();
-        this->FillArray(buf,arr,offset,numPointsToRead,numComps);
-        }
-      p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
-      buf = p->Fam.GetBufferAsDouble();
-      this->FillArray(buf,arr,offset,leftOver,numComps);
-      }
-    else
-      {
-      float* buf = NULL;
-      for(vtkIdType j=0;j<loopTimes;++j,offset+=bufferChunkSize)
-        {
-        p->Fam.BufferChunk(LSDynaFamily::Float,bufferChunkSize);       
-        buf = p->Fam.GetBufferAsFloat();
-        this->FillArray(buf,arr,offset,numPointsToRead,numComps);
-        }
-      p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
-      buf = p->Fam.GetBufferAsFloat();
-      this->FillArray(buf,arr,offset,leftOver,numComps);
-      }
-
-    if (isDeflectionArray)
-      {
-      // Replace point coordinates with deflection (don't add to points).
-      // The name "deflection" is misleading.
-      this->CommonPoints->SetData(arr);
-      }
-    if(valid)
-      {
-      this->Parts->AddPointArray(arr);
-      }
-    }
-  else
-    {
-    // don't read arrays the user didn't request, just delete them
-    p->Fam.SkipWords( numTuples * numComps);
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2874,7 +2768,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
       size_t found = name.find_last_not_of(' ');
       if(found != std::string::npos)
         {
-        name = name.substr(0,found);
+        name = name.substr(0,found+1);
         }
       //get the right part id
       p->PartNames[i] = name;
@@ -3226,9 +3120,6 @@ int vtkLSDynaReader::RequestData(
     {
     return 0;
     }
-
-  mbds->SetNumberOfBlocks( 1 );
-
   this->UpdateProgress( 0.01 );
 
   if ( p->Dict["MATTYP"] )
@@ -3249,44 +3140,8 @@ int vtkLSDynaReader::RequestData(
     }
   this->UpdateProgress( 0.15 );
 
-  this->Parts = vtkLSDynaPartCollection::New();
-  this->Parts->InitCollection(this->P);
-  if ( this->ReadNodes() )
-    {
-    vtkErrorMacro( "Could not read nodal coordinates." );
-    return 1;
-    }
-  this->UpdateProgress( 0.25 );
-
-  // We read deletion first even though it requires
-  // file skipping so that we don't have to store all the topology
-  // information intill the end of the state info
-  if ( this->ReadDeletion() )
-    {
-    vtkErrorMacro( "Problem reading  state." );
-    return 1;
-    }
-
-  //Read connectivity info once per simulation run and cache it.
-  //if the filename or a part/material array is modified the cache is deleted
-  if ( this->ReadConnectivityAndMaterial() )
-    {
-    vtkErrorMacro( "Could not read connectivity." );
-    return 1;
-    }
-  this->Parts->FinalizeTopology();
-  
-  //now that the cells have 
-  this->UpdateProgress( 0.5 );
-
-  // Do something with user-specified node/element/material numbering
-  // we need to read the user ids after we have read the topology
-  // so we know how many cells are in each part
-  if ( this->ReadUserIds() )
-    {
-    vtkErrorMacro( "Could not read user node/element IDs." );
-    return 1;
-    }
+  //Read in the topology information for caching
+  this->ReadTopology();
 
   // Adapted element parent list
   // This isn't even implemented by LS-Dyna yet
@@ -3314,50 +3169,34 @@ int vtkLSDynaReader::RequestData(
     }
 
   this->UpdateProgress( 0.8 );
-  //now that the reading has finished we need to finalize the parts
-  this->Parts->Finalize(this->CommonPoints,this->RoadSurfacePoints);
-
   //add all the parts as child blocks to the output
-  this->UpdateProgress( 0.9 );
-  vtkIdType nextId = 0;
   int size = this->Parts->GetNumberOfParts();
   for(int i=0; i < size;++i)
     {
     if (this->Parts->IsActivePart(i))
       {
-      mbds->SetBlock(nextId,this->Parts->GetGridForPart(i));
-      mbds->GetMetaData(nextId)->Set(vtkCompositeDataSet::NAME(),
-        this->P->PartNames[i].c_str());
-      ++nextId;
+      mbds->SetBlock(i,this->Parts->GetGridForPart(i));
+      mbds->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(),
+        this->P->PartNames[i].c_str());      
+      }
+    else
+      {
+      mbds->SetBlock(i,NULL);
       }
     }
 
-  this->ResetPartsCache();
   this->P->Fam.ClearBuffer();
-
-  if(this->CommonPoints)
-    {
-    this->CommonPoints->Delete();
-    this->CommonPoints=NULL;
-    }
-
-  if(this->RoadSurfacePoints)
-    {
-    this->RoadSurfacePoints->Delete();
-    this->RoadSurfacePoints=NULL;
-    }
-
   this->UpdateProgress( 1.0 );
   return 1;
 }
 
 //-----------------------------------------------------------------------------
 template<typename T>
-void vtkLSDynaReader::FillDeletionArray(T *buffer, vtkIntArray* arr,
+void vtkLSDynaReader::FillDeletionArray(T *buffer, vtkUnsignedCharArray* arr,
   const vtkIdType& start, const vtkIdType& numCells,
   const int& deathPos, const int& cellSize)
 {
-  int val;
+  unsigned char val;
   for ( vtkIdType i=0; i<numCells; ++i )
     {
     //Quote from LSDyna Manual:
@@ -3370,72 +3209,11 @@ void vtkLSDynaReader::FillDeletionArray(T *buffer, vtkIntArray* arr,
 }
 
 //-----------------------------------------------------------------------------
-template<typename T>
-void vtkLSDynaReader::FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,
-  const vtkIdType& numTuples, const vtkIdType& numComps)
-{
-  LSDynaMetaData *p = this->P;
-  if(numComps==arr->GetNumberOfComponents())
-    {    
-    //if the numComps of the binary file and the number of components
-    //of the destination in memory match ( ie we aren't a 2d binary d3plot file)
-    //we can do a direct memcpy
-    void *dest = arr->GetVoidPointer(offset);
-    void *src = buffer;
-    vtkIdType size = (numTuples * numComps) * p->Fam.GetWordSize();
-    memcpy(dest,src,size);    
-    }
-  else
-    {
-    double tuple[3] = {0.0,0.0,0.0};
-    const vtkIdType startPos(offset/numComps);
-    const vtkIdType size(numTuples*numComps);
-    
-    for (vtkIdType pt=0; pt<size; pt+=numComps)
-      {
-      //in some use cases we have a 3 dimension tuple that we need to fill
-      //that is coming from a 2 dimension buffer
-      for ( int c=0; c<numComps; ++c )
-        {
-        tuple[c] = buffer[pt+c];
-        }
-      arr->SetTuple(pt+startPos, tuple );
-      }
-    }
-}
-
-//-----------------------------------------------------------------------------
-template<typename T>
-void vtkLSDynaReader::FillPointsData(T *buffer, vtkPoints* points, const vtkIdType& start, const vtkIdType& size)
-{
-  LSDynaMetaData *p = this->P;
-  if(p->Dimensionality == 3)
-    {
-    //we have a 1 to 1 mapping so memcpy for optimization
-    void *dest = points->GetData()->GetVoidPointer(start*3);
-    void *src = buffer;
-    size_t cpSize = (size * 3) * p->Fam.GetWordSize();
-    memcpy(dest,src,cpSize);
-    }
-  else
-    {
-    double pt[3] = {-1.,-1,0.0}; //have to fill z with 0.0
-    vtkIdType idx=0;
-    for (vtkIdType i=0; i<size; ++i,idx+=2)
-      {
-      pt[0] = buffer[idx];
-      pt[1] = buffer[idx+1];
-      this->CommonPoints->SetPoint(start+i, pt);
-      }
-    }
-}
-
-//-----------------------------------------------------------------------------
 template<int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>
 void vtkLSDynaReader::FillBlockType(int* buff)
 {
   LSDynaMetaData *p = this->P;
-  vtkIdType nc=0, t=0,j=0,k=0,matlId=0;
+  vtkIdType nc=0,j=0,k=0,matlId=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
   vtkIdType conn[8];
   const vtkIdType offsetToMatId(numWordsPerCell-1);
@@ -3457,7 +3235,7 @@ void vtkLSDynaReader::FillBlockType(int* buff)
         conn[i] = p->Fam.GetNextWordAsInt() - 1;
         }
       matlId = p->Fam.GetNextWordAsInt();
-      this->Parts->InsertCell(blockType,t++,matlId,cellType,cellLength,conn);
+      this->Parts->InsertCell(blockType,matlId,cellType,cellLength,conn);
       }
     }
   p->Fam.SkipWords(numWordsPerCell * numCellsToSkipEnd);
@@ -3470,7 +3248,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SOLID,9,VTK_HEXAHEDRON,8>(in
   LSDynaMetaData *p = this->P;
   //This is a read solids template specialization since it has a special use
   //case for cell length based on the connectivity mapping
-    vtkIdType nc=0, t=0,j=0,k=0,matlId=0;
+    vtkIdType nc=0,j=0,k=0,matlId=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
   vtkIdType conn[8];
   const vtkIdType offsetToMatId(8);
@@ -3517,7 +3295,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SOLID,9,VTK_HEXAHEDRON,8>(in
         }
 
       //push this cell back into the unstructured grid for this part(if the part is active)
-      this->Parts->InsertCell(LSDynaMetaData::SOLID,t,matlId,type,npts,conn);
+      this->Parts->InsertCell(LSDynaMetaData::SOLID,matlId,type,npts,conn);
       }
     }
   p->Fam.SkipWords(9 * numCellsToSkipEnd);
@@ -3532,10 +3310,8 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SHELL,5,VTK_QUAD,4>(int* buf
   //has a weird weaving of cell types
   bool haveRigidMaterials = (p->Dict["MATTYP"] != 0) && 
                             p->RigidMaterials.size();
-  vtkIdType nrFound = 0;
-  vtkIdType nsFound = 0;
 
-  vtkIdType nc=0, t=0,j=0,k=0,matlId=0;
+  vtkIdType nc=0,j=0,k=0,matlId=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
   vtkIdType conn[8];
   const vtkIdType offsetToMatId(4);
@@ -3568,7 +3344,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SHELL,5,VTK_QUAD,4>(int* buf
         {
         pType = LSDynaMetaData::SHELL;
         }
-      this->Parts->InsertCell(pType,t,matlId,VTK_QUAD,4,conn);
+      this->Parts->InsertCell(pType,matlId,VTK_QUAD,4,conn);
       }
     }
   p->Fam.SkipWords(5 * numCellsToSkipEnd);
@@ -3581,7 +3357,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>(i
   LSDynaMetaData *p = this->P;
   //This is a ROAD_SURFACE specialization
   //has a weird weaving of cell types
-  vtkIdType nc=0, t=0,segId=0,segSz=0;
+  vtkIdType nc=0,segId=0,segSz=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0;
   vtkIdType conn[4];
 
@@ -3599,7 +3375,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>(i
     segId = p->Fam.GetNextWordAsInt();
     segSz = p->Fam.GetNextWordAsInt();
     p->Fam.BufferChunk( LSDynaFamily::Int, 4*segSz );
-    for ( t=0; t<segSz; ++t, ++currentCell)
+    for (vtkIdType t=0; t<segSz; ++t, ++currentCell)
       {
       if(currentCell >= numCellsToSkip)
         {
@@ -3607,7 +3383,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>(i
           {
           conn[i] = p->Fam.GetNextWordAsInt() - 1;
           }
-        this->Parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,t,segId,VTK_QUAD,4,conn);
+        this->Parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,segId,VTK_QUAD,4,conn);
         }
       }
     }
@@ -3619,7 +3395,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>(i
 template<int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>
 void vtkLSDynaReader::FillBlockType(vtkIdType* buff)
 {
-  vtkIdType nc=0, t=0,j=0,matlId=0;
+  vtkIdType nc=0,j=0,matlId=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
   vtkIdType* conn;
   const vtkIdType offsetToMatId(numWordsPerCell-1);
@@ -3641,7 +3417,7 @@ void vtkLSDynaReader::FillBlockType(vtkIdType* buff)
       buff+=offsetToMatId;
       matlId = *buff;
       ++buff;
-      this->Parts->InsertCell(blockType,t++,matlId,cellType,cellLength,conn);
+      this->Parts->InsertCell(blockType,matlId,cellType,cellLength,conn);
       }
     }
   this->P->Fam.SkipWords(numWordsPerCell * numCellsToSkipEnd);
@@ -3653,7 +3429,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SOLID,9,VTK_HEXAHEDRON,8>(vt
 {
   //This is a read solids template specialization since it has a special use
   //case for cell length based on the connectivity mapping
-  vtkIdType nc=0, t=0,j=0,matlId=0;
+  vtkIdType nc=0,j=0,matlId=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
   vtkIdType* conn;
   const vtkIdType offsetToMatId(8);
@@ -3701,7 +3477,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SOLID,9,VTK_HEXAHEDRON,8>(vt
         }
 
       //push this cell back into the unstructured grid for this part(if the part is active)
-      this->Parts->InsertCell(LSDynaMetaData::SOLID,t++,matlId,ctype,npts,conn);
+      this->Parts->InsertCell(LSDynaMetaData::SOLID,matlId,ctype,npts,conn);
       }
     }
   this->P->Fam.SkipWords(9 * numCellsToSkipEnd);
@@ -3715,10 +3491,8 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SHELL,5,VTK_QUAD,4>(vtkIdTyp
   //has a weird weaving of cell types
   bool haveRigidMaterials = (this->P->Dict["MATTYP"] != 0) && 
                             this->P->RigidMaterials.size();
-  vtkIdType nrFound = 0;
-  vtkIdType nsFound = 0;
 
-  vtkIdType nc=0, t=0,j=0,matlId=0;
+  vtkIdType nc=0, j=0,matlId=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
   vtkIdType* conn;
   const vtkIdType offsetToMatId(4);
@@ -3751,7 +3525,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::SHELL,5,VTK_QUAD,4>(vtkIdTyp
         {
         pType = LSDynaMetaData::SHELL;
         }
-      this->Parts->InsertCell(pType,t,matlId,VTK_QUAD,4,conn);
+      this->Parts->InsertCell(pType,matlId,VTK_QUAD,4,conn);
       }
     }
   this->P->Fam.SkipWords(5 * numCellsToSkipEnd);
@@ -3764,10 +3538,9 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>(v
   LSDynaMetaData *p = this->P;
   //This is a ROAD_SURFACE specialization
   //has a weird weaving of cell types
-  vtkIdType nc=0, t=0,segId=0,segSz=0;
+  vtkIdType nc=0,segId=0,segSz=0;
   vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0;
   vtkIdType conn[4];
-
   //get from the part the read information for this lsdyna block type
   this->Parts->GetPartReadInfo(LSDynaMetaData::SHELL,nc,numCellsToSkip,numCellsToSkipEnd);
 
@@ -3782,7 +3555,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>(v
     segId = p->Fam.GetNextWordAsInt();
     segSz = p->Fam.GetNextWordAsInt();
     p->Fam.BufferChunk( LSDynaFamily::Int, 4*segSz );
-    for ( t=0; t<segSz; ++t, ++currentCell)
+    for (vtkIdType t=0; t<segSz; ++t, ++currentCell)
       {
       if(currentCell >= numCellsToSkip)
         {
@@ -3790,7 +3563,7 @@ void vtkLSDynaReader::FillBlockType<LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>(v
           {
           conn[i] = p->Fam.GetNextWordAsInt() - 1;
           }
-        this->Parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,t,segId,VTK_QUAD,4,conn);
+        this->Parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,segId,VTK_QUAD,4,conn);
         }
       }
     }
@@ -3807,6 +3580,7 @@ int vtkLSDynaReader::FillTopology(int *buff)
   //READ PARTICLES
   this->P->Fam.SkipToWord(LSDynaFamily::SPHNodeData,
                           this->P->Fam.GetCurrentAdaptLevel(), 0 );
+
   this->FillBlockType<LSDynaMetaData::PARTICLE,2,VTK_VERTEX,1>(buff);
 
   //READ SOLIDS
@@ -3892,6 +3666,7 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
     return 1;
     }
   
+  this->Parts->InitCellInsertion();
   if(p->Fam.GetWordSize() == 8)
     {
     vtkIdType *buf=NULL;
@@ -3901,6 +3676,100 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
     {
     int *buf=NULL;
     return this->FillTopology(buf);
+    }
+  p->Fam.ClearBuffer();
+}
+
+//-----------------------------------------------------------------------------
+template<typename T, int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>
+void vtkLSDynaReader::ReadBlockCellSizes()
+{
+  vtkIdType nc=0, t=0,j=0,matlId=0;
+  vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
+  const T offsetToMatId(numWordsPerCell-1);
+  T* buff = NULL;
+
+  //get from the part the read information for this lsdyna block type
+  this->Parts->GetPartReadInfo(blockType,nc,numCellsToSkip,numCellsToSkipEnd);
+
+  this->P->Fam.SkipWords( numWordsPerCell * numCellsToSkip ); //skip to the right start id
+
+  //buffer the amount in small chunks so we don't create a massive buffer
+  vtkIdType numChunks = this->P->Fam.InitPartialChunkBuffering(nc,numWordsPerCell);
+  for(vtkIdType i=0; i < numChunks; ++i)
+    {
+    chunkSize = this->P->Fam.GetNextChunk( LSDynaFamily::Int);
+    buff = this->P->Fam.GetBufferAs<T>();
+    for (j=0; j<chunkSize;j+=numWordsPerCell)
+      {
+      buff+=offsetToMatId;
+      matlId = static_cast<vtkIdType>(*buff);
+      ++buff;
+      this->Parts->RegisterCellIndexToPart(blockType,matlId,t++,cellLength);
+      }
+    }
+  this->P->Fam.SkipWords(numWordsPerCell * numCellsToSkipEnd);
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+int vtkLSDynaReader::FillPartSizes()
+{
+  //READ PARTICLES
+  this->P->Fam.SkipToWord(LSDynaFamily::SPHNodeData,
+                          this->P->Fam.GetCurrentAdaptLevel(), 0 );
+  this->ReadBlockCellSizes<T,LSDynaMetaData::PARTICLE,2,VTK_VERTEX,1>();
+
+  //READ SOLIDS
+  this->P->Fam.SkipToWord(LSDynaFamily::GeometryData,
+                          this->P->Fam.GetCurrentAdaptLevel(),
+                          this->P->NumberOfNodes*this->P->Dimensionality );
+
+  this->ReadBlockCellSizes<T,LSDynaMetaData::SOLID,9,VTK_HEXAHEDRON,8>();
+
+  //READ THICK_SHELL
+  this->ReadBlockCellSizes<T,LSDynaMetaData::THICK_SHELL,9,VTK_QUADRATIC_QUAD,8>();
+
+  //READ BEAM
+  this->ReadBlockCellSizes<T,LSDynaMetaData::BEAM,6,VTK_LINE,2>();
+
+  //READ SHELL and RIGID_BODY
+  //uses a specialization to weave SHELL and RIGID BODY cells together
+  this->ReadBlockCellSizes<T,LSDynaMetaData::SHELL,5,VTK_QUAD,4>();
+
+  //Read Road Surface
+  if ( this->P->ReadRigidRoadMvmt )
+    {
+    this->P->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData,
+                             this->P->Fam.GetCurrentAdaptLevel(),
+                             4 + 4*this->P->Dict["NNODE"] );
+    this->ReadBlockCellSizes<T,LSDynaMetaData::ROAD_SURFACE,5,VTK_QUAD,4>();
+    }
+
+  //now that all the registering is done tell the collection
+  //it can allocate the necessary space for each part
+  this->Parts->AllocateParts();
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+int vtkLSDynaReader::ReadPartSizes()
+{
+  LSDynaMetaData* p = this->P;
+  if ( p->ConnectivityUnpacked == 0 )
+    {
+    // FIXME
+    vtkErrorMacro( "Packed connectivity isn't supported yet." );
+    return 1;
+    }
+
+  if(p->Fam.GetWordSize() == 8)
+    {
+    return this->FillPartSizes<vtkIdType>();
+    }
+  else
+    {
+    return this->FillPartSizes<int>();
     }
   p->Fam.ClearBuffer();
 }

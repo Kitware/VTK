@@ -151,7 +151,7 @@ class LSDynaMetaData;
 class vtkLSDynaPartCollection;
 class vtkPoints;
 class vtkDataArray;
-class vtkIntArray;
+class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 
 class VTK_IO_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
@@ -451,10 +451,6 @@ protected:
   //holds all the parts and all the properties for each part
   vtkLSDynaPartCollection* Parts;
 
-  //the collection of global points
-  vtkPoints* CommonPoints;
-  vtkPoints* RoadSurfacePoints;
-
   // Description:
   // Should deflected coordinates be used, or should the mesh remain
   // undeflected?  By default, this is true.
@@ -507,7 +503,9 @@ protected:
   // positioned to the start of their data sections.
   // These functions should only be called from within RequestData() since
   // they require the various output meshes to exist.
+  virtual int ReadTopology();
   virtual int ReadNodes();
+  virtual int ReadPartSizes();
   virtual int ReadConnectivityAndMaterial();
   virtual int ReadUserIds();
   virtual int ReadState( vtkIdType );
@@ -558,18 +556,12 @@ protected:
   // The number of tuples must be set on the array previous to calling
   // this routine.
   //Note: pos is the position in the size that the death value is store at
-  virtual void ReadDeletionArray(vtkIntArray* arr, const int& pos, const int& size);
+  virtual void ReadDeletionArray(vtkUnsignedCharArray* arr, const int& pos, const int& size);
 
   //Description:
   // Read all the cell properties of a given part type
   virtual void ReadCellProperties(const int& type,const int& numTuples);
   
-  //Description:
-  // Read a point property from the file
-  virtual void ReadPointProperty(vtkDataArray *arr,
-    const vtkIdType& numTuples, const vtkIdType& numComps, const bool &valid,
-    const bool& isDeflectionArray);
-
   LSDynaMetaData* P;
 
   void ResetPartsCache();
@@ -578,15 +570,8 @@ private:
   //Helper templated methods to optimze reading. We cast the entire buffer
   //to a given type instead of casting each element to improve performance
   template<typename T>
-  void FillDeletionArray(T* buffer, vtkIntArray* arr, const vtkIdType& start, const vtkIdType& numCells,
+  void FillDeletionArray(T* buffer, vtkUnsignedCharArray* arr, const vtkIdType& start, const vtkIdType& numCells,
                          const int& deathPos, const int& cellSize);
-
-  template<typename T>
-  void FillArray(T *buffer, vtkDataArray* arr, const vtkIdType& offset,
-    const vtkIdType& numTuples, const vtkIdType& numComps);
-
-  template<typename T>
-  void FillPointsData(T* buffer, vtkPoints *points, const vtkIdType& start, const vtkIdType& size);
 
   template<int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>  
   void FillBlockType(vtkIdType* buffer);
@@ -596,6 +581,12 @@ private:
 
   template<typename T>
   int FillTopology(T* buffer);
+
+  template<typename T, int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>
+  void ReadBlockCellSizes();
+
+  template<typename T>
+  int FillPartSizes();
 
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.

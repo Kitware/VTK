@@ -339,7 +339,6 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz, bool useExactSize)
       return 0;
       #endif
       }
-
     // Copy the data from the old array.
     memcpy(newArray, this->Array,
            static_cast<size_t>(newSize < this->Size ? newSize : this->Size)
@@ -353,7 +352,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz, bool useExactSize)
     // Try to reallocate with minimal memory usage and possibly avoid
     // copying.
     newArray = static_cast<T*>(
-      realloc(this->Array,static_cast<size_t>(newSize)*sizeof(T)));
+      realloc(this->Array,static_cast<size_t>(newSize)*sizeof(T)));    
     if(!newArray)
       {
       vtkErrorMacro("Unable to allocate " << newSize

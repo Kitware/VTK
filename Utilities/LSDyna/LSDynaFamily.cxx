@@ -95,7 +95,7 @@ struct LSDynaFamily::BufferingInfo
       numWordsToRead(0),
       loopTimes(0),
       leftOver(0),
-      size(524288)
+      size(1048576)
       {};
     vtkIdType numWordsToRead;
     vtkIdType loopTimes;
@@ -329,16 +329,19 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
   vtkIdType amountMoved = VTK_LSDYNA_TELL(this->FD) - currentPos;
   
   offset -= amountMoved;
-  while(offset!=0)
+  if(offset>0)
     {
     // try advancing to next file
     VTK_LSDYNA_CLOSEFILE(this->FD);
-    if ( ++this->FNum == (vtkIdType) this->Files.size() )
-      { // no more files to read. Oops.
-      this->FNum = -1;
-      this->FAdapt = -1;
-      return 1;
+
+    // if the skip is too big for one file, advance to the correct file
+    ++this->FNum;
+    while ( (this->FNum < (vtkIdType) this->Files.size()) && (offset > this->FileSizes[ this->FNum ]) )
+      {
+      offset -= this->FileSizes[ this->FNum ];
+      ++this->FNum;
       }
+
     this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
     this->FWord = 0;
     if ( VTK_LSDYNA_ISBADFILE(this->FD) )
@@ -351,7 +354,7 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
     //seek into the file the current offset amount
     VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
     amountMoved = VTK_LSDYNA_TELL(this->FD);
-    offset -= amountMoved;
+    offset -= amountMoved;    
     }
 
   this->FWord = VTK_LSDYNA_TELL(this->FD);
@@ -659,7 +662,7 @@ std::string LSDynaFamily::GetFileName( int i )
   }
 
 //-----------------------------------------------------------------------------
-vtkLSDynaOff_t LSDynaFamily::GetFileSize( int i )
+vtkIdType LSDynaFamily::GetFileSize( int i )
 {
   return this->FileSizes[i];
 }

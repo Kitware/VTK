@@ -39,6 +39,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+//this is needs to be moved over to fseekpos and ftellpos
+//in the future
 #ifndef WIN32
 #   include <unistd.h>
 typedef off_t vtkLSDynaOff_t; // sanity
@@ -51,7 +53,6 @@ typedef int vtkLSDynaFile_t;
 #  define VTK_LSDYNA_ISBADFILE(fid) (fid < 0)
 #  define VTK_LSDYNA_CLOSEFILE(fid) close(fid)
 #else // WIN32
-#  include <stdio.h>
 typedef long vtkLSDynaOff_t; // insanity
 typedef FILE* vtkLSDynaFile_t;
 #  define VTK_LSDYNA_BADFILE 0
@@ -205,6 +206,9 @@ public:
   vtkIdType* GetBufferAsIdType();
   unsigned char* GetRawBuffer();
 
+  template<typename T>
+  T* GetBufferAs();
+
   // Not needed (yet):
   // void GetCurrentWord( SectionType& stype, vtkIdType& sId, vtkIdType& wN );
   int AdvanceFile();
@@ -218,7 +222,7 @@ public:
 
   vtkIdType GetNumberOfFiles();
   std::string GetFileName( int i );
-  vtkLSDynaOff_t GetFileSize( int i );
+  vtkIdType GetFileSize( int i );
 
   int GetCurrentAdaptLevel() const { return this->FAdapt; }
   int TimeAdaptLevel( int i ) const { return this->TimeAdaptLevels[i]; }
@@ -249,7 +253,7 @@ protected:
   std::vector<std::string> Files;
   /// The size of each file in the database. Note that they can be padded,
   /// so this is >= the amount of data in each file.
-  std::vector<vtkLSDynaOff_t> FileSizes;
+  std::vector<vtkIdType> FileSizes;
   /// The adaptation level associated with each file.
   std::vector<int> FileAdaptLevels;
   /// Which files mark the start of a new mesh adaptation. There is at
@@ -366,6 +370,13 @@ inline vtkIdType* LSDynaFamily::GetBufferAsIdType()
 inline unsigned char* LSDynaFamily::GetRawBuffer()
 {
   return this->Chunk;
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+inline T* LSDynaFamily::GetBufferAs()
+{
+  return (T*)this->Chunk;
 }
 
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkLSDynaReader.cxx
+  Module:    vtkLSDynaPartCollection.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -21,7 +21,8 @@
 class vtkDataArray;
 class vtkUnstructuredGrid;
 class vtkPoints;
-class vtkIntArray;
+class vtkUnsignedCharArray;
+class vtkLSDynaPart;
 
 class VTK_IO_EXPORT vtkLSDynaPartCollection: public vtkObject
 {
@@ -53,21 +54,28 @@ public:
   //to a relative number based on the cells this collection is storing
   void FinalizeTopology();
 
-  //Description:
-  //this will construct that valid unstructured grid for each part
-  void Finalize(vtkPoints *commonPoints, vtkPoints *roadPoints);
+
+  //Description: Register a cell of a given type and material index to the
+  //correct part
+  //NOTE: the cellIndex is relative to the collection. So in parallel
+  //the cellIndex will be from 0 to MaxId-MinId
+  void RegisterCellIndexToPart(const int& partType,const vtkIdType& matIdx,
+                     const vtkIdType& cellIndex,const vtkIdType& npts);
+
+  void InitCellInsertion();
+
+  void AllocateParts();
 
   //Description: Insert a cell of a given type and material index to the 
   //collection.
   //NOTE: the cellIndex is relative to the collection. So in parallel
   //the cellIndex will be from 0 to MaxId-MinId
-  void InsertCell(const int& partType, const vtkIdType& cellIndex,
-                  const vtkIdType& matIdx, const int& cellType,
-                  const vtkIdType& npts, vtkIdType conn[8]);
+  void InsertCell(const int& partType,const vtkIdType& matIdx,
+                  const int& cellType,const vtkIdType& npts, vtkIdType conn[8]);
 
   //Description:
   //Set for each part type what cells are deleted/dead
-  void SetCellDeadFlags(const int& partType, vtkIntArray *death);
+  void SetCellDeadFlags(const int& partType, vtkUnsignedCharArray *death);
 
   bool IsActivePart(const int& id) const;
 
@@ -78,22 +86,29 @@ public:
 
   int GetNumberOfParts() const;
 
+  void DisbleDeadCells();
+
   //Description:
-  //Adds a complete point data array to the storage.
-  //This array will be split up to be the subset needed for each part
-  //once the collection is finalized.
-  void AddPointArray(vtkDataArray* data);
-  int GetNumberOfPointArrays() const;
-  vtkDataArray* GetPointArray(const int& index) const;
+  //Given a collection of points add them to the correct
+  //parts that use them based on the topology
+  void ReadPointProperty(
+                         const vtkIdType& numTuples,
+                         const vtkIdType& numComps,
+                         const char* name,
+                         const bool &isProperty=true,
+                         const bool& isGeometryPoints=false,
+                         const bool& isRoadPoints=false);
 
   //Description:
   //Adds a property for all parts of a certain type
   void AddProperty(const LSDynaMetaData::LSDYNA_TYPES& type, const char* name,
                     const int& offset, const int& numComps);  
   void FillCellProperties(float *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-    const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
+                          const vtkIdType& startId, const vtkIdType& numCells,
+                          const int& numPropertiesInCell);
   void FillCellProperties(double *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-    const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
+                          const vtkIdType& startId, const vtkIdType& numCells,
+                          const int& numPropertiesInCell);
 
   //Description:
   //Adds User Ids for all parts of a certain type
@@ -111,17 +126,8 @@ protected:
   vtkIdType* MinIds;
   vtkIdType* MaxIds;
 
-  //Description:
-  //Clears all storage information
-  void ResetTimeStepInfo();
-
   //Builds up the basic meta information needed for topology storage
-  void BuildPartInfo(vtkIdType* mins, vtkIdType* maxs);
-
-  //Description:
-  //builds the unstructured grid which represents the part
-  void ConstructGridCells(LSDynaPart *part);
-  void ConstructGridPoints(LSDynaPart *part, vtkPoints *commonPoints);
+  void BuildPartInfo();
 
   //Description:
   //Breaks down the buffer of cell properties to the cell properties we
@@ -129,12 +135,19 @@ protected:
   //for parts we are not loading
   template<typename T>
   void FillCellArray(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-     const vtkIdType& startId, const vtkIdType& numCells, const int& numTuples);
+     const vtkIdType& startId, vtkIdType numCells, const int& numTuples);
 
   template<typename T>
   void FillCellUserIdArray(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-     const vtkIdType& startId, const vtkIdType& numCells);
+     const vtkIdType& startId, vtkIdType numCells);
 
+  //Description:
+  //Methods for adding points to the collection
+  //returns the void pointer to the start of the memory of the data array
+  template<typename T>
+  void ReadPointProperty(const vtkIdType& numTuples,
+                         const vtkIdType& numComps,
+                         vtkLSDynaPart** parts, const vtkIdType numParts);
 
 private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.

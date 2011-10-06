@@ -78,6 +78,7 @@ vtkInputStream.cxx
 vtkJavaScriptDataWriter.cxx
 vtkJPEGReader.cxx
 vtkJPEGWriter.cxx
+vtkLSDynaPart.cxx
 vtkLSDynaPartCollection.cxx
 vtkLSDynaReader.cxx
 vtkLSDynaSummaryParser.cxx
@@ -420,6 +421,7 @@ ENDIF(VTK_HAS_UINT64_ARRAY)
 SET_SOURCE_FILES_PROPERTIES(
   vtkPLY
   vtkXMLWriterC
+  vtkLSDynaPart
   vtkLSDynaPartCollection
   WRAP_EXCLUDE
 )
