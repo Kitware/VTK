@@ -16,7 +16,9 @@
 
 hooks_chain() {
 	hook="$1" ; shift
-	chain=$(git config --get hooks.chain-$hook) || return 0
+	chain=$(git config --get hooks.chain-$hook) ||
+	eval chain="\${hooks_chain_${hook//-/_}}"
+	test -n "$chain" || return 0
 	case "$chain" in
 	'/'*) prefix="" ;;
 	'[A-Za-z]:/'*) prefix="" ;;
