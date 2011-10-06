@@ -12,7 +12,7 @@ vtkMultiBlockPLOT3DReader pl3d
     set pl3d_output [[pl3d GetOutput] GetBlock 0]
 
 vtkGeometryFilter gf
-    gf SetInput $pl3d_output
+    gf SetInputData $pl3d_output
 vtkTriangleFilter tf
     tf SetInputConnection [gf GetOutputPort]
 vtkPolyDataMapper gMapper

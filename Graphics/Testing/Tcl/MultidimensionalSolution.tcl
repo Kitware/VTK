@@ -49,18 +49,17 @@ vtkMultiBlockPLOT3DReader pl3d_velocity
 
 # contour the scalar fields
 vtkContourFilter contour
-contour SetInput $pl3d_g_output
+contour SetInputData $pl3d_g_output
 contour SetValue 0 0.225
 
 # probe the vector fields to get data at the contour surface
 vtkProbeFilter probe_gradient
 probe_gradient SetInputConnection [contour GetOutputPort]
-probe_gradient SetSource $pl3d_g_output
+probe_gradient SetSourceData $pl3d_g_output
 
 vtkProbeFilter probe_velocity
 probe_velocity SetInputConnection [contour GetOutputPort]
-probe_velocity SetSource $pl3d_v_output
-
+probe_velocity SetSourceData $pl3d_v_output
 
 #
 # To display the vector fields, we use vtkHedgeHog to create lines.
@@ -159,7 +158,7 @@ vtkLODActor pressureGradientActor
     eval [pressureGradientActor GetProperty] SetColor 0 1 0
 
 vtkPolyDataMapper dotMapper
-    dotMapper SetInput [dotProduct GetPolyDataOutput]
+    dotMapper SetInputData [dotProduct GetPolyDataOutput]
     dotMapper SetScalarRange -1 1
 
 vtkLODActor dotActor
@@ -175,12 +174,12 @@ vtkMultiBlockPLOT3DReader pl3d
     set pl3d_output [[pl3d GetOutput] GetBlock 0]
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $pl3d_output
+    outline SetInputData $pl3d_output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
-    [outlineActor GetProperty] SetColor 0 0 0 
+    [outlineActor GetProperty] SetColor 0 0 0
 
 #
 # Add the actors to the renderer, set the background and size
@@ -208,5 +207,3 @@ renWin SetWindowName "Multidimensional Visualization Exercise"
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-

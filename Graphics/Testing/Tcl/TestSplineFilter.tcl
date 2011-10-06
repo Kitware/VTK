@@ -34,8 +34,8 @@ vtkActor psActor
 vtkRungeKutta4 rk4
 
 vtkStreamLine streamer
-    streamer SetInput $output
-    streamer SetSource [ps GetOutput]
+    streamer SetInputData $output
+    streamer SetSourceData [ps GetOutput]
     streamer SetMaximumPropagationTime 100
     streamer SetIntegrationStepLength .2
     streamer SetStepLength .001
@@ -58,7 +58,7 @@ vtkActor streamline
     streamline SetMapper streamMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

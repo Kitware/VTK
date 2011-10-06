@@ -82,7 +82,7 @@ colors SetTuple4 6 0 255 255 255
 [pd GetCellData] SetScalars colors
 
 vtkTriangleFilter tf
-tf SetInput pd
+tf SetInputData pd
 
 vtkPolyDataMapper mapper
 mapper SetInputConnection [tf GetOutputPort]

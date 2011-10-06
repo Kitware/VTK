@@ -23,9 +23,10 @@ vtkWarpScalar warp
   warp SetScaleFactor 1
   warp UseNormalOn
   warp SetNormal 0 0 1
+  warp Update
 
 vtkPolyDataNormals normals
-  normals SetInput [warp GetPolyDataOutput]
+  normals SetInputData [warp GetPolyDataOutput]
   normals SetFeatureAngle 60
   normals SplittingOff
 

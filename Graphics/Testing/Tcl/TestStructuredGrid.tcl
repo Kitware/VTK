@@ -25,7 +25,7 @@ ZeroDGrid GetCell 0 cell
 ZeroDGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter ZeroDGeom
-ZeroDGeom SetInput ZeroDGrid
+ZeroDGeom SetInputData ZeroDGrid
 ZeroDGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper ZeroDMapper
@@ -51,7 +51,7 @@ XGrid GetCell 0 cell
 XGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter XGeom
-XGeom SetInput XGrid
+XGeom SetInputData XGrid
 XGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XMapper
@@ -77,7 +77,7 @@ YGrid GetCell 0 cell
 YGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter YGeom
-YGeom SetInput YGrid
+YGeom SetInputData YGrid
 YGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper YMapper
@@ -104,7 +104,7 @@ ZGrid GetCell 0 cell
 ZGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter ZGeom
-ZGeom SetInput ZGrid
+ZGeom SetInputData ZGrid
 ZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper ZMapper
@@ -132,7 +132,7 @@ XYGrid GetCell 0 cell
 XYGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter XYGeom
-XYGeom SetInput XYGrid
+XYGeom SetInputData XYGrid
 XYGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XYMapper
@@ -160,7 +160,7 @@ YZGrid GetCell 0 cell
 YZGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter YZGeom
-YZGeom SetInput YZGrid
+YZGeom SetInputData YZGrid
 YZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper YZMapper
@@ -188,7 +188,7 @@ XZGrid GetCell 0 cell
 XZGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter XZGeom
-XZGeom SetInput XZGrid
+XZGeom SetInputData XZGrid
 XZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XZMapper
@@ -220,7 +220,7 @@ XYZGrid GetCell 0 cell
 XYZGrid GetCellPoints 0 ptIds
 
 vtkStructuredGridGeometryFilter XYZGeom
-XYZGeom SetInput XYZGrid
+XYZGeom SetInputData XYZGrid
 XYZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XYZMapper
