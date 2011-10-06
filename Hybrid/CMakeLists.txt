@@ -6,8 +6,6 @@ SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
 SET(KIT_INTERFACE_LIBRARIES vtkRendering vtkIO)
 
-#for LSDyna reader utility classes
-SET(KIT_LIBS LSDyna)
 IF(VTK_HAS_EXODUS)
   SET(KIT_LIBS ${KIT_LIBS} vtkexoIIc)
   IF(VTK_USE_PARALLEL)
@@ -59,9 +57,6 @@ vtkIterativeClosestPointTransform.cxx
 vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
 vtkLegendScaleActor.cxx
-vtkLSDynaPartCollection.cxx
-vtkLSDynaReader.cxx
-vtkLSDynaSummaryParser.cxx
 vtkMNIObjectReader.cxx
 vtkMNIObjectWriter.cxx
 vtkMNITagPointReader.cxx
@@ -153,7 +148,6 @@ vtkX3DExporterFIWriter
 vtkX3DExporterXMLWriter
 vtkExodusIIReaderParser
 vtkExodusIIReaderVariableCheck
-vtkLSDynaPartCollection
 WRAP_EXCLUDE)
 
 # for vtkStructuredGridLIC2D

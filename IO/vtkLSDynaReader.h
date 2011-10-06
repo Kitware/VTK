@@ -154,7 +154,7 @@ class vtkDataArray;
 class vtkIntArray;
 class vtkUnstructuredGrid;
 
-class VTK_HYBRID_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
+class VTK_IO_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);
@@ -173,7 +173,7 @@ public:
 
   // Description:
   // Determine if the file can be readed with this reader.
-  int CanReadFile( const char* fname );
+  virtual int CanReadFile( const char* fname );
 
   // Description:
   // Get/Set the directory containing the LS-Dyna database and determine
@@ -549,6 +549,7 @@ protected:
   // this routine.
   virtual void ReadDeletionArray(vtkIntArray* arr);
 
+  LSDynaMetaData* P;
 private:
 
   //Helper templated methods to optimze reading. We cast the entire buffer
@@ -568,8 +569,6 @@ private:
 
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.
-
-  LSDynaMetaData* P;
 };
 
 inline void vtkLSDynaReader::SetPointArrayStatus( const char* arrName, int status )

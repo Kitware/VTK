@@ -40,7 +40,6 @@
 
 // This class is preceded by some file-static constants and utility routines.
 
-#include <vtkConfigure.h>
 #include "vtkLSDynaReader.h"
 #include "vtkLSDynaSummaryParser.h"
 #include "vtkLSDynaPartCollection.h"
@@ -49,20 +48,11 @@
 
 #include "vtksys/SystemTools.hxx"
 
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <assert.h>
-
 #include <vtkstd/string>
-#include <vtkstd/set>
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 #include <vtkstd/map>
 
-#include <vtkCellData.h>
 #include <vtkCellType.h>
 #include <vtkDataObject.h>
 #include <vtkDoubleArray.h>
@@ -70,24 +60,14 @@
 #include <vtkIntArray.h>
 #include <vtkFloatArray.h>
 #include <vtkPoints.h>
-#include <vtkPointData.h>
 #include <vtkInformation.h>
 #include <vtkInformationDoubleVectorKey.h>
 #include <vtkInformationVector.h>
 #include <vtkMultiBlockDataSet.h>
-#include <vtkMultiThreshold.h>
 #include <vtkObjectFactory.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkSystemIncludes.h>
-#include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
 
-// Define this to print out information on the structure of the reader's output
-#undef VTK_LSDYNA_DBG_MULTIBLOCK
-
-#ifdef VTK_LSDYNA_DBG_MULTIBLOCK
-#include <vtkMultiGroupDataInformation.h>
-#endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
 
@@ -2384,11 +2364,12 @@ void vtkLSDynaReader::ReadDeletionArray(vtkIntArray* arr)
 //-----------------------------------------------------------------------------
 int vtkLSDynaReader::ReadState( vtkIdType step )
 {
-  if(this->ReadNodeStateInfo(step))
+  //remember C style return so zero is pass
+  if(!this->ReadNodeStateInfo(step))
     {
     return this->ReadCellStateInfo( step );
     }
-  return 1;
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

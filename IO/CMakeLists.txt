@@ -18,7 +18,7 @@ SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
 SET(KIT_INTERFACE_LIBRARIES vtkFiltering)
-SET(KIT_LIBS vtkDICOMParser vtkNetCDF vtkNetCDF_cxx
+SET(KIT_LIBS vtkDICOMParser vtkNetCDF vtkNetCDF_cxx LSDyna
   ${_VTK_METAIO_LIB} vtksqlite
   ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES} ${VTK_OGGTHEORA_LIBRARIES}
@@ -78,6 +78,9 @@ vtkInputStream.cxx
 vtkJavaScriptDataWriter.cxx
 vtkJPEGReader.cxx
 vtkJPEGWriter.cxx
+vtkLSDynaPartCollection.cxx
+vtkLSDynaReader.cxx
+vtkLSDynaSummaryParser.cxx
 vtkMFIXReader.cxx
 vtkMaterialLibrary.cxx
 vtkMCubesReader.cxx
@@ -417,6 +420,7 @@ ENDIF(VTK_HAS_UINT64_ARRAY)
 SET_SOURCE_FILES_PROPERTIES(
   vtkPLY
   vtkXMLWriterC
+  vtkLSDynaPartCollection
   WRAP_EXCLUDE
 )
 

@@ -19,7 +19,7 @@
 #include "vtkStdString.h" //needed for vtkStdString
 
 class LSDynaMetaData;
-class VTK_HYBRID_EXPORT vtkLSDynaSummaryParser : public vtkXMLParser
+class VTK_IO_EXPORT vtkLSDynaSummaryParser : public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkLSDynaSummaryParser,vtkXMLParser);

@@ -14,7 +14,6 @@
 
 #ifndef __vtkLSDynaPartCollection_h
 #define __vtkLSDynaPartCollection_h
-#include "LSDynaExport.h"
 #include "LSDynaMetaData.h"
 
 #include "vtkObject.h"
@@ -24,7 +23,7 @@ class vtkUnstructuredGrid;
 class vtkPoints;
 class vtkIntArray;
 
-class VTK_HYBRID_EXPORT vtkLSDynaPartCollection: public vtkObject
+class VTK_IO_EXPORT vtkLSDynaPartCollection: public vtkObject
 {
 public:
   struct LSDynaPart;
@@ -36,6 +35,8 @@ public:
   void SetMetaData(LSDynaMetaData *metaData);
   void FinalizeTopology();
   void Finalize(vtkPoints *commonPoints,const int& removeDeletedCells);
+
+
 
   //Description: Insert a cell of a given type and material index to the 
   //collection.
