@@ -35,6 +35,8 @@ die() {
 	exit 1
 }
 
+. "$GIT_DIR/hooks/hooks-config.bash"
+
 #-----------------------------------------------------------------------------
 # Check the commit message layout with a simple state machine.
 

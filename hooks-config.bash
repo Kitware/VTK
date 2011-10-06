@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #=============================================================================
 # Copyright 2010-2011 Kitware, Inc.
 #
@@ -15,9 +14,7 @@
 # limitations under the License.
 #=============================================================================
 
-. "$GIT_DIR/hooks/hooks-config.bash"
+# Load hooks configuration from source tree.
+config=".hooks-config.bash" && test -r "$config" && . "$config"
 
-#-----------------------------------------------------------------------------
-# Chain to project-specific hook.
-. "$GIT_DIR/hooks/hooks-chain.bash"
-hooks_chain prepare-commit-msg "$@"
+# vim: set filetype=sh tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab :
