@@ -73,6 +73,7 @@ vtkPProbeFilter.cxx
 vtkProcess.cxx
 vtkProcessGroup.cxx
 vtkProcessIdScalars.cxx
+vtkPLSDynaReader.cxx
 vtkPReflectionFilter.cxx
 vtkPSLACReader.cxx
 vtkPSphereSource.cxx
