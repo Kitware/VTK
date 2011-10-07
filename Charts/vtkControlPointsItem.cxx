@@ -51,6 +51,8 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->Selection = vtkIdTypeArray::New();
   this->CurrentPoint = -1;
 
+  this->BlockUpdates = 0;
+
   this->Callback = vtkCallbackCommand::New();
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(
@@ -208,17 +210,39 @@ bool vtkControlPointsItem::Paint(vtkContext2D* painter)
 
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::CallComputePoints(
-  vtkObject* vtkNotUsed(sender), unsigned long vtkNotUsed(event),
+  vtkObject* vtkNotUsed(sender), unsigned long event,
   void* receiver, void* vtkNotUsed(params))
 {
   vtkControlPointsItem* item =
     reinterpret_cast<vtkControlPointsItem*>(receiver);
-  item->ComputePoints();
+  switch(event)
+    {
+    case vtkCommand::StartEvent:
+      ++item->BlockUpdates;
+      break;
+    case vtkCommand::EndEvent:
+      --item->BlockUpdates;
+      if (item->BlockUpdates == 0)
+        {
+        item->ComputePoints();
+        }
+      break;
+    case vtkCommand::ModifiedEvent:
+      item->ComputePoints();
+      break;
+    default:
+      break;
+    }
 }
 
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::ComputePoints()
 {
+  if (this->BlockUpdates > 0)
+    {
+    return;
+    }
+
   if (this->GetNumberOfPoints() == 0)
     {
     this->Selection->SetNumberOfTuples(0);
@@ -992,6 +1016,7 @@ vtkIdType vtkControlPointsItem::MovePoint(vtkIdType pointId, const vtkVector2f& 
 void vtkControlPointsItem::MovePoints(const vtkVector2f& translation, vtkIdTypeArray* pointIds)
 {
   assert(pointIds);
+  this->StartChanges();
   // don't support 'switch' mode yet
   //vtkIdTypeArray* addedSelection = vtkIdTypeArray::New();
   bool oldSwitchPoints = this->SwitchPointsMode;
@@ -1027,8 +1052,8 @@ void vtkControlPointsItem::MovePoints(const vtkVector2f& translation, vtkIdTypeA
   //this->SelectPoints(addedSelection);
   this->SwitchPointsMode = oldSwitchPoints;
   // end "don't support 'switch' mode yet"
+  this->EndChanges();
 }
-
 
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
@@ -1038,6 +1063,8 @@ void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
     {
     return;
     }
+  this->StartChanges();
+
   double min[2], max[2], center[2];
   double point[4];
   vtkIdType minPointId = pointIds->GetValue(0);
@@ -1116,6 +1143,7 @@ void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
     vtkVector2f newPos(std::max(point[0] + tX, center[0]), point[1]);
     this->SetPointPos(pointId, newPos);
     }
+  this->EndChanges();
 }
 
 //-----------------------------------------------------------------------------

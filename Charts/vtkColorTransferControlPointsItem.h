@@ -85,6 +85,9 @@ protected:
   vtkColorTransferControlPointsItem();
   virtual ~vtkColorTransferControlPointsItem();
 
+  virtual void StartChanges();
+  virtual void EndChanges();
+
   virtual unsigned long int GetControlPointsMTime();
 
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);

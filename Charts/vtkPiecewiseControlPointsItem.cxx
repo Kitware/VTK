@@ -67,6 +67,24 @@ void vtkPiecewiseControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkPiecewiseControlPointsItem::StartChanges()
+{
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->InvokeEvent(vtkCommand::StartEvent);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPiecewiseControlPointsItem::EndChanges()
+{
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->InvokeEvent(vtkCommand::EndEvent);
+    }
+}
+
+//-----------------------------------------------------------------------------
 unsigned long int vtkPiecewiseControlPointsItem::GetControlPointsMTime()
 {
   if (this->PiecewiseFunction)
@@ -79,10 +97,16 @@ unsigned long int vtkPiecewiseControlPointsItem::GetControlPointsMTime()
 //-----------------------------------------------------------------------------
 void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
+  if (t == this->PiecewiseFunction)
+    {
+    return;
+    }
   vtkSetObjectBodyMacro(PiecewiseFunction, vtkPiecewiseFunction, t);
   if (this->PiecewiseFunction)
     {
+    this->PiecewiseFunction->AddObserver(vtkCommand::StartEvent, this->Callback);
     this->PiecewiseFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
+    this->PiecewiseFunction->AddObserver(vtkCommand::EndEvent, this->Callback);
     }
   this->ResetBounds();
   this->ComputePoints();

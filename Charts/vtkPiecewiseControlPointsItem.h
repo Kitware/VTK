@@ -68,6 +68,9 @@ protected:
   vtkPiecewiseControlPointsItem();
   virtual ~vtkPiecewiseControlPointsItem();
 
+  virtual void StartChanges();
+  virtual void EndChanges();
+
   virtual unsigned long int GetControlPointsMTime();
 
   virtual vtkIdType GetNumberOfPoints()const;

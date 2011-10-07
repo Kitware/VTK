@@ -226,6 +226,9 @@ protected:
   vtkControlPointsItem();
   virtual ~vtkControlPointsItem();
 
+  virtual void StartChanges()=0;
+  virtual void EndChanges()=0;
+
   static void CallComputePoints(vtkObject* sender, unsigned long event, void* receiver, void* params);
 
   // Description:
@@ -274,10 +277,11 @@ protected:
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
   void AddPointId(vtkIdType addedPointId);
-  
+
   vtkCallbackCommand* Callback;
   vtkPen*             SelectedPointPen;
   vtkBrush*           SelectedPointBrush;
+  int                 BlockUpdates;
   vtkIdType           CurrentPoint;
 
   double              Bounds[4];
