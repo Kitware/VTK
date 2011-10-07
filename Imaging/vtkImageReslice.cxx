@@ -1100,6 +1100,15 @@ int vtkImageReslice::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
 
+  if (this->GenerateStencilOutput)
+    {
+    vtkInformation *outStencilInfo = outputVector->GetInformationObject(1);
+    outStencilInfo->Set(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outWholeExt,6);
+    outStencilInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
+    outStencilInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
+    }
+
   // get the interpolator
   vtkAbstractImageInterpolator *interpolator = this->GetInterpolator();
 
