@@ -108,6 +108,7 @@ IF(PYTHON_EXECUTABLE)
     vtkVariantInlineOperators.h
     vtkVector.h
     vtkVectorIterator.h
+    vtkVectorOperators.h
     vtkVersion.h
     vtkWeakPointer.h
     vtkWeakPointerBase.h
