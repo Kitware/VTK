@@ -69,13 +69,13 @@ vtkActor tpd3Actor
     [tpd3Actor GetProperty] SetColor 0 0 0
 
 vtkAppendPolyData appendF
-    appendF AddInput [tpd1 GetOutput]
-    appendF AddInput [tpd2 GetOutput]
-    appendF AddInput [tpd3 GetOutput]
+    appendF AddInputConnection [tpd1 GetOutputPort]
+    appendF AddInputConnection [tpd2 GetOutputPort]
+    appendF AddInputConnection [tpd3 GetOutputPort]
 
 vtkProbeFilter probe
     probe SetInputConnection [appendF GetOutputPort]
-    probe SetSource $output
+    probe SetSourceData $output
 
 vtkContourFilter contour
     contour SetInputConnection [probe GetOutputPort]
@@ -88,7 +88,7 @@ vtkActor planeActor
     planeActor SetMapper contourMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

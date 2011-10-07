@@ -29,10 +29,11 @@ vtkLineSource probeLine
 
 vtkProbeFilter probe
   probe SetInputConnection [probeLine GetOutputPort]
-  probe SetSource $output
+  probe SetSourceData $output
+  probe Update
 
 vtkTubeFilter probeTube
-  probeTube SetInput [probe GetPolyDataOutput]
+  probeTube SetInputData [probe GetPolyDataOutput]
   probeTube SetNumberOfSides 5
   probeTube SetRadius .05
 
@@ -49,23 +50,25 @@ vtkLineSource displayLine
   displayLine SetResolution [probeLine GetResolution]
 
 vtkMergeFilter displayMerge
-  displayMerge SetGeometry [displayLine GetOutput]
-  displayMerge SetScalars [probe GetPolyDataOutput]
+  displayMerge SetGeometryConnection [displayLine GetOutputPort]
+  displayMerge SetScalarsData [probe GetPolyDataOutput]
+  displayMerge Update
 
 vtkWarpScalar displayWarp
-  displayWarp SetInput [displayMerge GetPolyDataOutput]
+  displayWarp SetInputData [displayMerge GetPolyDataOutput]
   displayWarp SetNormal 0 1 0
   displayWarp SetScaleFactor .000001
+  displayWarp Update
 
 vtkPolyDataMapper displayMapper
-  displayMapper SetInput [displayWarp GetPolyDataOutput]
+  displayMapper SetInputData [displayWarp GetPolyDataOutput]
 eval displayMapper SetScalarRange [$output GetScalarRange]
 
 vtkActor displayActor
   displayActor SetMapper displayMapper
 
 vtkStructuredGridOutlineFilter outline
-  outline SetInput $output
+  outline SetInputData $output
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

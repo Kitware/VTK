@@ -22,11 +22,11 @@ vtkPlane plane
     eval plane SetOrigin [$output GetCenter]
     plane SetNormal -0.287 0 0.9579
 vtkCutter planeCut
-    planeCut SetInput $output
+    planeCut SetInputData $output
     planeCut SetCutFunction plane
 vtkProbeFilter probe
     probe SetInputConnection [planeCut GetOutputPort]
-    probe SetSource $output
+    probe SetSourceData $output
 vtkDataSetMapper cutMapper
     cutMapper SetInputConnection [probe GetOutputPort]
     eval cutMapper SetScalarRange \
@@ -36,7 +36,7 @@ vtkActor cutActor
 
 #extract plane
 vtkStructuredGridGeometryFilter compPlane
-    compPlane SetInput $output
+    compPlane SetInputData $output
     compPlane SetExtent 0 100 0 100 9 9
 vtkPolyDataMapper planeMapper
     planeMapper SetInputConnection [compPlane GetOutputPort]
@@ -48,7 +48,7 @@ vtkActor planeActor
 
 #outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

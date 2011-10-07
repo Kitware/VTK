@@ -58,14 +58,15 @@ vtkUnstructuredGrid aPolyVertexGrid
 
 vtkSphereSource sphere
   sphere SetRadius 1.0
+  sphere Update
 
 vtkGlyph3D glyphs
   glyphs ScalingOn
   glyphs SetColorModeToColorByScalar
   glyphs SetScaleModeToScaleByScalar
   glyphs SetScaleFactor 1
-  glyphs SetInput aPolyVertexGrid
-  glyphs SetSource [sphere GetOutput]
+  glyphs SetInputData aPolyVertexGrid
+  glyphs SetSourceConnection [sphere GetOutputPort]
   glyphs SetInputArrayToProcess 0 0 0 0 "Sizes"
   glyphs SetInputArrayToProcess 3 0 0 0 "Colors"
 

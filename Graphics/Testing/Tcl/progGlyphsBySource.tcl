@@ -9,14 +9,13 @@ vtkElevationFilter colors
     colors SetLowPoint -0.25 -0.25 -0.25
     colors SetHighPoint 0.25 0.25 0.25
 vtkPolyDataMapper planeMapper
-    planeMapper SetInput [colors GetPolyDataOutput]
+    planeMapper SetInputConnection [colors GetOutputPort]
 vtkActor planeActor
     planeActor SetMapper planeMapper
     [planeActor GetProperty] SetRepresentationToWireframe
 
 # create simple poly data so we can apply glyph
 vtkSuperquadricSource squad
-
 vtkElevationFilter squadColors
     squadColors SetInputConnection [squad GetOutputPort]
     squadColors SetLowPoint -0.25 -0.25 -0.25
@@ -24,9 +23,11 @@ vtkElevationFilter squadColors
 vtkCastToConcrete squadCaster
   squadCaster SetInputConnection [squadColors GetOutputPort]
 vtkTransform squadTransform
+
 vtkTransformPolyDataFilter transformSquad
-  transformSquad SetInput [squadColors GetPolyDataOutput]
+  transformSquad SetInputConnection [squadColors GetOutputPort]
   transformSquad SetTransform squadTransform
+  transformSquad Update
 
 # procedure for generating glyphs
 proc Glyph {} {
@@ -49,17 +50,15 @@ proc Glyph {} {
 	squad ToroidalOff
     }
    squadTransform Scale $scale $scale $scale
-
    squad SetPhiRoundness [expr abs($x)*5.0]
    squad SetThetaRoundness [expr abs($y)*5.0]
 }
 
 vtkProgrammableGlyphFilter glypher
     glypher SetInputConnection [colors GetOutputPort]
-    glypher SetSource [transformSquad GetOutput]
+    glypher SetSourceData [transformSquad GetOutput]
     glypher SetGlyphMethod Glyph
     glypher SetColorModeToColorBySource
-
 vtkPolyDataMapper glyphMapper
     glyphMapper SetInputConnection [glypher GetOutputPort]
 vtkActor glyphActor

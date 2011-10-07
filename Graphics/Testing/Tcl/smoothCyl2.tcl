@@ -26,11 +26,11 @@ vtkBrownianPoints bump
   bump SetInputConnection [lineSweeper GetOutputPort]
 
 vtkWarpVector warp
-  warp SetInput [bump GetPolyDataOutput]
+  warp SetInputConnection [bump GetOutputPort]
   warp SetScaleFactor .2
 
 vtkWindowedSincPolyDataFilter smooth
-    smooth SetInput [warp GetPolyDataOutput]
+    smooth SetInputConnection [warp GetOutputPort]
     smooth SetNumberOfIterations 20
     smooth BoundarySmoothingOn
     smooth SetFeatureAngle 120
@@ -50,7 +50,7 @@ vtkActor cylActor
     eval [cylActor GetProperty] SetColor $beige
 
 vtkPolyDataMapper originalMapper
-    originalMapper SetInput [bump GetPolyDataOutput]
+    originalMapper SetInputConnection [bump GetOutputPort]
 
 vtkActor originalActor
     originalActor SetMapper originalMapper

@@ -25,8 +25,8 @@ vtkImageGaussianSource gs2
   gs2 SetStandardDeviation 7
 
 vtkImageAppendComponents iac
-  iac AddInput [gs1 GetOutput]
-  iac AddInput [gs2 GetOutput]
+  iac AddInputConnection [gs1 GetOutputPort]
+  iac AddInputConnection [gs2 GetOutputPort]
 
 vtkContourFilter cf1
   cf1 SetInputConnection [iac GetOutputPort]
