@@ -2121,7 +2121,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
         {
         // skip data items to get to necessary field
         float parsedItem = 0.0f;
-        for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
           {
           line >> parsedItem;
           }
@@ -2132,7 +2132,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
         {
         // skip items to get to angular velocity
         float parsedItem = 0.0f;
-        for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
           {
           line >> parsedItem;
           }
