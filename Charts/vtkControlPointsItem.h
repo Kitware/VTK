@@ -55,7 +55,14 @@ public:
   // automatically computed based on the range of the control points
   // Invalid bounds by default.
   vtkSetVector4Macro(UserBounds, double);
-  vtkGetVector4Macro(UserBounds, double)
+  vtkGetVector4Macro(UserBounds, double);
+
+  // Description:
+  // Controls the valid range for the values.
+  // An invalid value (0, -1, 0., -1, 0, -1.) indicates that the valid
+  // range is the current bounds. It is the default behavior.
+  vtkSetVector4Macro(ValidBounds, double);
+  vtkGetVector4Macro(ValidBounds, double);
 
   // Description:
   // Paint the points with a fixed size (cosmetic) which doesn't depend
@@ -244,7 +251,8 @@ protected:
   // Description:
   // Clamp the given 2D pos into the bounds of the function.
   // Return true if the pos has been clamped, false otherwise.
-  bool ClampPos(double pos[2]);
+  bool ClampPos(double pos[2], double bounds[4]);
+  bool ClampValidPos(double pos[2]);
 
   // Description:
   // Internal function that paints a collection of points and optionally
@@ -286,6 +294,7 @@ protected:
 
   double              Bounds[4];
   double              UserBounds[4];
+  double              ValidBounds[4];
 
   vtkTransform2D*     Transform;
   float               ScreenPointRadius;
