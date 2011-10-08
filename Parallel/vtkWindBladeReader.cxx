@@ -15,12 +15,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWindBladeReader.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataArraySelection.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -42,8 +45,49 @@ PURPOSE.  See the above copyright notice for more information.
 #include <iostream>
 
 #include "vtkMultiProcessController.h"
+#include "vtkToolkits.h"
 
-#define VTK_USE_MPI
+#ifdef VTK_USE_MPI
+
+#include "vtkMPI.h"
+
+// copied from MPIImageReader
+#ifdef MPI_VERSION
+#  if (MPI_VERSION >= 2)
+#    define VTK_USE_MPI_IO 1
+#  endif
+#endif
+#if !defined(VTK_USE_MPI_IO) && defined(ROMIO_VERSION)
+#  define VTK_USE_MPI_IO 1
+#endif
+#if !defined(VTK_USE_MPI_IO) && defined(MPI_SEEK_SET)
+#  define VTK_USE_MPI_IO 1
+#endif
+
+#endif
+
+
+#ifdef VTK_USE_MPI_IO
+
+// This macro can be wrapped around MPI function calls to easily report errors.
+// Reporting errors is more important with file I/O because, unlike network I/O,
+// they usually don't terminate the program.
+#define MPICall(funcall) \
+  { \
+  int __my_result = funcall; \
+  if (__my_result != MPI_SUCCESS) \
+    { \
+    char errormsg[MPI_MAX_ERROR_STRING]; \
+    int dummy; \
+    MPI_Error_string(__my_result, errormsg, &dummy); \
+    vtkErrorMacro(<< "Received error when calling" << endl \
+                  << #funcall << endl << endl \
+                  << errormsg); \
+    } \
+  }
+
+#endif // VTK_USE_MPI_IO
+
 
 namespace
 {
@@ -59,6 +103,15 @@ namespace
   const int INTEGER  = 2;
 }
 
+
+class WindBladeReaderInternal {
+public:
+#ifndef VTK_USE_MPI_IO
+  FILE* FilePtr;   // Open file pointer
+#else
+  MPI_File FilePtr;
+#endif
+};
 
 vtkStandardNewMacro(vtkWindBladeReader);
 
@@ -91,6 +144,8 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->XPosition = vtkFloatArray::New();
   this->YPosition = vtkFloatArray::New();
   this->HubHeight = vtkFloatArray::New();
+  this->AngularVeloc = vtkFloatArray::New();
+  this->BladeLength  = vtkFloatArray::New();
   this->BladeCount = vtkIntArray::New();
 
   // Options to include extra files for topography and turbines
@@ -131,6 +186,22 @@ vtkWindBladeReader::vtkWindBladeReader()
     this->TotalRank = 1;
     }
 
+// make it run on 0 processors (since ParaView doesn't seem to initialize
+// when it is single process)
+#ifdef VTK_USE_MPI
+  if(this->TotalRank == 1)
+    {
+    int flag;
+    MPICall(MPI_Initialized(&flag));
+    if(!flag)
+      {
+      MPICall(MPI_Init(0, 0));
+      }
+    }
+#endif
+
+  this->Internal = new WindBladeReaderInternal();
+
   // by default don't skip any lines because normal wind files do not
   // have a header
   this->NumberOfLinesToSkip = 0;
@@ -148,6 +219,8 @@ vtkWindBladeReader::~vtkWindBladeReader()
   this->XPosition->Delete();
   this->YPosition->Delete();
   this->HubHeight->Delete();
+  this->AngularVeloc->Delete();
+  this->BladeLength->Delete();
   this->BladeCount->Delete();
   this->XSpacing->Delete();
   this->YSpacing->Delete();
@@ -175,6 +248,8 @@ vtkWindBladeReader::~vtkWindBladeReader()
     }
 
   this->SelectionObserver->Delete();
+
+  delete this->Internal;
 
   // Do not delete the MPIController it is Singleton like and will
   // cleanup itself;
@@ -411,12 +486,14 @@ int vtkWindBladeReader::RequestData(
 
     // Collect the time step requested
     double* requestedTimeSteps = NULL;
+    int numRequestedTimeSteps = 0;
     vtkInformationDoubleVectorKey* timeKey =
       static_cast<vtkInformationDoubleVectorKey*>
         (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
 
     if (fieldInfo->Has(timeKey))
       {
+      numRequestedTimeSteps = fieldInfo->Length(timeKey);
       requestedTimeSteps = fieldInfo->Get(timeKey);
       }
 
@@ -437,8 +514,17 @@ int vtkWindBladeReader::RequestData(
     fileName << this->RootDirectory << "/"
              << this->DataDirectory << "/" << this->DataBaseName
              << this->TimeSteps[timeStep];
-    this->FilePtr = fopen(fileName.str().c_str(), "rb");
-    if (this->FilePtr == NULL)
+
+#ifndef VTK_USE_MPI_IO
+    this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
+#else
+    char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+    strcpy(cchar, fileName.str().c_str());
+    MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
+    delete [] cchar;
+#endif
+
+    if (this->Internal->FilePtr == NULL)
       {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
       }
@@ -494,7 +580,12 @@ int vtkWindBladeReader::RequestData(
       field->GetPointData()->AddArray(this->Data[vort]);
       }
     // Close file after all data is read
-    fclose(this->FilePtr);
+#ifndef VTK_USE_MPI_IO
+    fclose(this->Internal->FilePtr);
+#else
+    MPICall(MPI_File_close(&this->Internal->FilePtr));
+#endif
+
     return 1;
     }
 
@@ -509,6 +600,7 @@ int vtkWindBladeReader::RequestData(
 
       // Collect the time step requested
       double* requestedTimeSteps = NULL;
+      int numRequestedTimeSteps = 0;
       vtkInformationDoubleVectorKey* timeKey =
         static_cast<vtkInformationDoubleVectorKey*>
           (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
@@ -516,6 +608,7 @@ int vtkWindBladeReader::RequestData(
       double dTime = 0.0;
       if (bladeInfo->Has(timeKey))
         {
+        numRequestedTimeSteps = bladeInfo->Length(timeKey);
         requestedTimeSteps = bladeInfo->Get(timeKey);
         dTime = requestedTimeSteps[0];
         }
@@ -530,12 +623,13 @@ int vtkWindBladeReader::RequestData(
         {
         timeStep++;
         }
+      // only rank 0 reads this so we have to be careful with MPI-IO
       this->LoadBladeData(timeStep);
       }
     return 1;
     }
 
-  // Request data in on ground and is displayed only by processor 0
+  // Request data in on ground
   if (port == 2)
     {
     vtkInformation* groundInfo = outVector->GetInformationObject(2);
@@ -598,10 +692,21 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
   // Read tempg and Density components from file
   float* tempgData = new float[this->BlockSize];
   float* densityData = new float[this->BlockSize];
-  fseek(this->FilePtr, this->VariableOffset[tempg], SEEK_SET);
-  fread(tempgData, sizeof(float), this->BlockSize, this->FilePtr);
-  fseek(this->FilePtr, this->VariableOffset[density], SEEK_SET);
-  fread(densityData, sizeof(float), this->BlockSize, this->FilePtr);
+
+#ifndef VTK_USE_MPI_IO
+  fseek(this->Internal->FilePtr, this->VariableOffset[tempg], SEEK_SET);
+  fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
+  fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[tempg], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, tempgData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
   // Entire block of data is read so to calculate index into that data we
   // must use the entire Dimension and not the SubDimension
@@ -656,15 +761,32 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   // Read U and V components (two int block sizes in between)
   float* uData = new float[this->BlockSize];
   float* vData = new float[this->BlockSize];
-  fseek(this->FilePtr, this->VariableOffset[uvw], SEEK_SET);
-  fread(uData, sizeof(float), this->BlockSize, this->FilePtr);
-  fseek(this->FilePtr, (2 * sizeof(int)), SEEK_SET);
-  fread(vData, sizeof(float), this->BlockSize, this->FilePtr);
+
+#ifndef VTK_USE_MPI_IO
+  fseek(this->Internal->FilePtr, this->VariableOffset[uvw], SEEK_SET);
+  fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_SET);
+  fread(vData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[uvw], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, uData, this->BlockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, (2 * sizeof(int)), MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, vData, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
   // Read Density component
   float* densityData = new float[this->BlockSize];
-  fseek(this->FilePtr, this->VariableOffset[density], SEEK_SET);
-  fread(densityData, sizeof(float), this->BlockSize, this->FilePtr);
+
+#ifndef VTK_USE_MPI_IO
+  fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
+  fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+#else
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
   // Divide U and V components by Density
   for (int i = 0; i < this->BlockSize; i++)
@@ -739,7 +861,12 @@ void vtkWindBladeReader::LoadVariableData(int var)
 
   // Skip to the appropriate variable block and read byte count
   // not used? int byteCount;
-  fseek(this->FilePtr, this->VariableOffset[var], SEEK_SET);
+#ifndef VTK_USE_MPI_IO
+  fseek(this->Internal->FilePtr, this->VariableOffset[var], SEEK_SET);
+#else
+  char native[7] = "native";
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[var], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+#endif
 
   // Set the number of components for this variable
   int numberOfComponents = 0;
@@ -770,7 +897,12 @@ void vtkWindBladeReader::LoadVariableData(int var)
   for (int comp = 0; comp < numberOfComponents; comp++)
     {
     // Read the block of data
-    fread(block, sizeof(float), this->BlockSize, this->FilePtr);
+#ifndef VTK_USE_MPI_IO
+    fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+#else
+    MPI_Status status;
+    MPICall(MPI_File_read_all(this->Internal->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
+#endif
 
     int pos = comp;
     for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
@@ -787,7 +919,11 @@ void vtkWindBladeReader::LoadVariableData(int var)
       }
 
     // Skip closing and opening byte sizes
-    fseek(this->FilePtr, (2 * sizeof(int)), SEEK_CUR);
+#ifndef VTK_USE_MPI_IO
+    fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_CUR);
+#else
+    MPICall(MPI_File_seek(this->Internal->FilePtr, (2 * sizeof(int)), MPI_SEEK_CUR));
+#endif
   }
   delete [] block;
 }
@@ -800,7 +936,43 @@ bool vtkWindBladeReader::ReadGlobalData()
   //kwsys_stl::string fileName = this->Filename;
   std::string fileName = this->Filename;
   vtksys::SystemTools::ConvertToUnixSlashes(fileName);
+
+  char inBuf[LINE_SIZE];
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr(fileName.c_str());
+#else
+  MPI_File tempFile;
+  char native[7] = "native";
+  char* cchar = new char[strlen(fileName.c_str()) + 1];
+  strcpy(cchar, fileName.c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr;
+  MPI_Offset i, tempSize;
+  MPI_Status status;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
+
   if (!inStr)
     {
     vtkWarningMacro("Could not open the global .wind file " << fileName);
@@ -813,7 +985,6 @@ bool vtkWindBladeReader::ReadGlobalData()
     }
   this->RootDirectory = std::string(fileName).substr(0, dirPos);
 
-  char inBuf[LINE_SIZE];
   std::string keyword;
   std::string rest;
   std::string headerVersion;
@@ -943,7 +1114,7 @@ bool vtkWindBladeReader::ReadGlobalData()
 // Read the field variable information
 //
 //----------------------------------------------------------------------------
-void vtkWindBladeReader::ReadDataVariables(ifstream& inStr)
+void vtkWindBladeReader::ReadDataVariables(istream& inStr)
 {
   char inBuf[LINE_SIZE];
   std::string structType, basicType;
@@ -1055,8 +1226,17 @@ bool vtkWindBladeReader::FindVariableOffsets()
   fileName << this->RootDirectory << "/"
            << this->DataDirectory << "/"
            << this->DataBaseName << this->TimeStepFirst;
-  this->FilePtr = fopen(fileName.str().c_str(), "rb");
-  if (this->FilePtr == NULL)
+
+#ifndef VTK_USE_MPI_IO
+  this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
+#else
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
+  delete [] cchar;
+#endif
+
+  if (this->Internal->FilePtr == NULL)
     {
     vtkErrorMacro("Could not open file " << fileName.str());
     return false;
@@ -1064,12 +1244,28 @@ bool vtkWindBladeReader::FindVariableOffsets()
 
   // Scan file recording offsets which points to the first data value
   int byteCount;
-  fread(&byteCount, sizeof(int), 1, this->FilePtr);
+
+#ifndef VTK_USE_MPI_IO
+  fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, &byteCount, 1, MPI_INT, &status));
+#endif
+
   this->BlockSize = byteCount / BYTES_PER_DATA;
 
   for (int var = 0; var < this->NumberOfFileVariables; var++)
     {
-    this->VariableOffset[var] = ftell(this->FilePtr);
+#ifndef VTK_USE_MPI_IO
+    this->VariableOffset[var] = ftell(this->Internal->FilePtr);
+#else
+    MPI_Offset offset;
+    MPICall(MPI_File_get_position(this->Internal->FilePtr, &offset));
+    this->VariableOffset[var] = offset;
+#endif
 
     // Skip over the SCALAR or VECTOR components for this variable
     int numberOfComponents = 1;
@@ -1081,10 +1277,19 @@ bool vtkWindBladeReader::FindVariableOffsets()
     for (int comp = 0; comp < numberOfComponents; comp++)
       {
       // Skip data plus two integer byte counts
-      fseek(this->FilePtr, (byteCount+(2 * sizeof(int))), SEEK_CUR);
+#ifndef VTK_USE_MPI_IO
+      fseek(this->Internal->FilePtr, (byteCount+(2 * sizeof(int))), SEEK_CUR);
+#else
+      MPICall(MPI_File_seek(this->Internal->FilePtr, (byteCount+(2 * sizeof(int))), MPI_SEEK_CUR));
+#endif
       }
     }
-  fclose(this->FilePtr);
+#ifndef VTK_USE_MPI_IO
+  fclose(this->Internal->FilePtr);
+#else
+  MPICall(MPI_File_close(&this->Internal->FilePtr));
+#endif
+
   return true;
 }
 
@@ -1268,12 +1473,29 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   std::ostringstream fileName;
   fileName << this->RootDirectory << "/"
            << this->TopographyFile;
-  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
+
   int blockSize = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
 
+#ifndef VTK_USE_MPI_IO
+  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
+#else
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
+  delete [] cchar;
+#endif
+
+#ifndef VTK_USE_MPI_IO
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET);  // Fortran byte count
   fread(topoData, sizeof(float), blockSize, filePtr);
+#else
+  MPI_Status status;
+  char native[7] = "native";
+
+  MPICall(MPI_File_set_view(this->Internal->FilePtr, BYTES_PER_DATA, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, &topoData, blockSize, MPI_FLOAT, &status));
+#endif
 
   // Initial z coordinate processing
   float* zedge = new float[this->Dimension[2] + 1];
@@ -1363,6 +1585,13 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   delete [] z;
   delete [] zdata;
   delete [] zcoeff;
+
+#ifndef VTK_USE_MPI_IO
+  fclose(filePtr);
+#else
+  MPICall(MPI_File_close(&this->Internal->FilePtr));
+#endif
+
 }
 
 //----------------------------------------------------------------------------
@@ -1524,13 +1753,48 @@ void vtkWindBladeReader::SetupBladeData()
   fileName << this->RootDirectory << "/"
            << this->TurbineDirectory << "/"
            << this->TurbineTowerName;
+  char inBuf[LINE_SIZE];
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr(fileName.str().c_str());
+#else
+  MPI_File tempFile;
+  char native[7] = "native";
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr;
+  MPI_Offset i, tempSize;
+  MPI_Status status;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
+
   if (!inStr)
     {
     vtkWarningMacro("Could not open " << fileName.str() << endl);
     }
+
   // File is ASCII text so read until EOF
-  char inBuf[LINE_SIZE];
   float hubHeight, bladeLength, maxRPM, xPos, yPos, yawAngle;
   float angularVelocity, angleBlade1;
   int numberOfBlades;
@@ -1547,9 +1811,9 @@ void vtkWindBladeReader::SetupBladeData()
     {
     size_t len = strlen(inBuf);
     // number of lines corresponds to number of spaces
-    for (size_t i = 0; i < len; i++)
+    for (size_t j = 0; j < len; j++)
       {
-      if (inBuf[i] == ' ')
+      if (inBuf[j] == ' ')
         {
         numColumns++;
         }
@@ -1575,29 +1839,95 @@ void vtkWindBladeReader::SetupBladeData()
     this->YPosition->InsertNextValue(yPos);
     this->HubHeight->InsertNextValue(hubHeight);
     this->BladeCount->InsertNextValue(numberOfBlades);
+    this->BladeLength->InsertNextValue(bladeLength);
+    this->AngularVeloc->InsertNextValue(angularVelocity);
     }
   this->NumberOfBladeTowers = XPosition->GetNumberOfTuples();
+
+#ifndef VTK_USE_MPI_IO
   inStr.close();
+#endif
 
   // Calculate the number of cells in unstructured turbine blades
   std::ostringstream fileName2;
   fileName2 << this->RootDirectory << "/"
             << this->TurbineDirectory << "/"
             << this->TurbineBladeName << this->TimeStepFirst;
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr2(fileName2.str().c_str());
+#else
+  cchar = new char[strlen(fileName2.str().c_str()) + 1];
+  strcpy(cchar, fileName2.str().c_str());
+  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr2;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr2.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr2.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
+
   if (!inStr2)
     {
     vtkWarningMacro("Could not open blade file: " << fileName2.str().c_str() <<
                     " to calculate blade cells.");
-    for (int i = this->TimeStepFirst + this->TimeStepDelta; i <= this->TimeStepLast;
-         i += this->TimeStepDelta)
+    for (int j = this->TimeStepFirst + this->TimeStepDelta; j <= this->TimeStepLast;
+         j += this->TimeStepDelta)
       {
       std::ostringstream fileName3;
       fileName3 << this->RootDirectory << "/"
                 << this->TurbineDirectory << "/"
-                << this->TurbineBladeName << i;
+                << this->TurbineBladeName << j;
       //std::cout << "Trying " << fileName3.str().c_str() << "...";
+
+#ifndef VTK_USE_MPI_IO
       inStr2.open(fileName3.str().c_str());
+#else
+      cchar = new char[strlen(fileName3.str().c_str()) + 1];
+      strcpy(cchar, fileName3.str().c_str());
+      MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+      delete [] cchar;
+
+      inStr2.clear();
+      inStr2.str("");
+
+      MPICall(MPI_File_get_size(tempFile, &tempSize));
+      MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+      for(i = 0; i < tempSize; i = i + LINE_SIZE)
+        {
+        if(i + LINE_SIZE > tempSize)
+          {
+          MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+          inStr2.write(inBuf, tempSize - i);
+          }
+        else
+          {
+          MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+          inStr2.write(inBuf, LINE_SIZE);
+          }
+        }
+
+      MPICall(MPI_File_close(&tempFile));
+#endif
+
       if(inStr2.good())
         {
         vtkWarningMacro("Success with " << fileName3.str());
@@ -1628,7 +1958,9 @@ void vtkWindBladeReader::SetupBladeData()
     }
   while (inStr2.getline(inBuf, LINE_SIZE))
     this->NumberOfBladeCells++;
+#ifndef VTK_USE_MPI_IO
   inStr2.close();
+#endif
   this->NumberOfBladePoints = this->NumberOfBladeCells * NUM_PART_SIDES;
 
   // Points and cells needed for constant towers
@@ -1650,12 +1982,47 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
            << this->TurbineDirectory << "/"
            << this->TurbineBladeName
            << this->TimeSteps[timeStep];
+  char inBuf[LINE_SIZE];
+
+#ifndef VTK_USE_MPI_IO
   ifstream inStr(fileName.str().c_str());
+#else
+  // only rank 0 reads this so we have to be careful
+  MPI_File tempFile;
+  char native[7] = "native";
+  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
+  strcpy(cchar, fileName.str().c_str());
+  // here only rank 0 opens it : MPI_COMM_SELF
+  MPICall(MPI_File_open(MPI_COMM_SELF, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
+  delete [] cchar;
+
+  std::stringstream inStr;
+  MPI_Offset i, tempSize;
+  MPI_Status status;
+
+  MPICall(MPI_File_get_size(tempFile, &tempSize));
+  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+
+  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+    {
+    if(i + LINE_SIZE > tempSize)
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf, tempSize - i);
+      }
+    else
+      {
+      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf, LINE_SIZE);
+      }
+    }
+
+  MPICall(MPI_File_close(&tempFile));
+#endif
   /*
   if (this->Rank == 0)
     cout << "Load file " << fileName.str() << endl;
   */
-  char inBuf[LINE_SIZE];
 
   // Allocate space for points and cells
   this->BPoints->Allocate(this->NumberOfBladePoints, this->NumberOfBladePoints);
@@ -1685,35 +2052,167 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   blade->GetCellData()->AddArray(bladeComp);
   float* compBlock = bladeComp->GetPointer(0);
 
+  // blade velocity at point is angular velocity X dist from hub
+  vtkFloatArray* bladeVeloc = vtkFloatArray::New();
+  bladeVeloc->SetName("Blade Velocity");
+  bladeVeloc->SetNumberOfComponents(1);
+  bladeVeloc->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeVeloc);
+  
+  vtkFloatArray* bladeAzimUVW = vtkFloatArray::New();
+  bladeAzimUVW->SetName("Blade Azimuthal UVW");
+  bladeAzimUVW->SetNumberOfComponents(3);
+  bladeAzimUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeAzimUVW);
+  
+  vtkFloatArray* bladeAxialUVW = vtkFloatArray::New();
+  bladeAxialUVW->SetName("Blade Axial UVW");
+  bladeAxialUVW->SetNumberOfComponents(3);
+  bladeAxialUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeAxialUVW);
+  
+  vtkFloatArray* bladeDragUVW = vtkFloatArray::New();
+  bladeDragUVW->SetName("Blade Drag UVW");
+  bladeDragUVW->SetNumberOfComponents(3);
+  bladeDragUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeDragUVW);
+  
+  vtkFloatArray* bladeLiftUVW = vtkFloatArray::New();
+  bladeLiftUVW->SetName("Blade Lift UVW");
+  bladeLiftUVW->SetNumberOfComponents(3);
+  bladeLiftUVW->SetNumberOfTuples(this->NumberOfBladePoints);
+  blade->GetPointData()->AddArray(bladeLiftUVW);
+
   // File is ASCII text so read until EOF
   int index = 0;
   int indx = 0;
   int firstPoint;
-  int turbineID, bladeID, partID;
+  int turbineID, lastTurbineID = 1, bladeID, partID;
   float x, y, z;
   vtkIdType cell[NUM_BASE_SIDES];
 
   int linesRead = 0;
+  float bladeAzimUVWVec[3]  = { 0.0, 0.0, 0.0 },
+        bladeAxialUVWVec[3] = { 1.0, 0.0, 0.0 }, 
+        bladeDragUVWVec[3]  = { 0.0, 0.0, 0.0 },
+        bladeLiftUVWVec[3]  = { 0.0, 0.0, 0.0 };
+  int   turbineHeaderStartIndex = 0, turbineIDHeader = 0;
+  float hubPnt[3];
+  // blade component id is component count + blade ID
+  // component count is basically the number of blades thus far
+  int   bladeComponentCount = 0;
   while (inStr.getline(inBuf, LINE_SIZE))
     {
-    // continue around header if need be
+    // if header exists, grab necessary items from it
     linesRead++;
+    std::istringstream line(inBuf);
+    // if we are still in header...
     if (linesRead <= this->NumberOfLinesToSkip)
       {
+      // identify beginning of header information per
+      // turbine
+      if (!(linesRead % 3))
+        {
+        turbineHeaderStartIndex = linesRead;
+        turbineIDHeader++;
+        }
+      // second line has blade length
+      if ((linesRead - turbineHeaderStartIndex) == 1)
+        {
+        // skip data items to get to necessary field
+        float parsedItem = 0.0f;
+        for (int j = 0; j < 3; j++)
+          {
+          line >> parsedItem;
+          }
+        this->BladeLength->SetTuple1(turbineIDHeader, parsedItem);
+        }
+      // third line has angular velocity
+      if ((linesRead - turbineHeaderStartIndex) == 2)
+        {
+        // skip items to get to angular velocity
+        float parsedItem = 0.0f;
+        for (int j = 0; j < 4; j++)
+          {
+          line >> parsedItem;
+          }
+        this->AngularVeloc->SetTuple1(turbineIDHeader, parsedItem);
+        }
       continue;
       }
-    std::istringstream line(inBuf);
+
     line >> turbineID >> bladeID >> partID;
+    // if we have encountered a new turbine, make sure blade component
+    // count is updated. this ensures that the component id of future blades
+    // start from a valid index
+    if (turbineID != lastTurbineID)
+      { 
+      bladeComponentCount = (int)compBlock[indx-1];
+      lastTurbineID       = turbineID;
+      }
+    // turbineID start from 1, but float array starts from 0
+    float angularVelocity = this->AngularVeloc->GetTuple1(turbineID-1);
+    // where blades connect to
+    hubPnt[0] = this->XPosition->GetValue(turbineID-1);
+    hubPnt[1] = this->YPosition->GetValue(turbineID-1);
+    hubPnt[2] = this->HubHeight->GetValue(turbineID-1);
 
     firstPoint = index;
-      
+
     for (int side = 0; side < NUM_PART_SIDES; side++)
       {
       line >> x >> y >> z;
       this->BPoints->InsertNextPoint(x, y, z);
+      // distance to hub-blade connect point
+      float bladePnt[3] = {x, y, z};
+      float dist = vtkMath::Distance2BetweenPoints(hubPnt, bladePnt);
+      float radialVeloc = angularVelocity*sqrt(dist);
+      bladeVeloc->InsertTuple1(firstPoint + side, radialVeloc);
+      }
+    
+    // compute blade's various drag/lift/etc vectors; 
+    // re-use for all cross-sections per blade. 
+    int sectionNum = (firstPoint/NUM_PART_SIDES)%100;
+    if (sectionNum == 0)
+      {
+      vtkIdType numBPnts = this->BPoints->GetNumberOfPoints();
+      // create two vectors to calculate cross-product, to make
+      // azimuthal
+      double pntD[3], pntC[3];
+      // points from trailing edge
+      this->BPoints->GetPoint(numBPnts-1, pntD);
+      this->BPoints->GetPoint(numBPnts-2, pntC);
+      float vec1[3] = { pntD[0] - pntC[0], pntD[1] - pntC[1], 
+                        pntD[2] - pntC[2] };
+      float vec2[3] = { 1.0, 0.0, 0.0};
+      vtkMath::Cross(vec2, vec1, bladeAzimUVWVec);
+      vtkMath::Normalize(bladeAzimUVWVec);
+        
+      // for drag, we require "chord line," requires one point
+      // from leading edge
+      double pntA[3];
+      this->BPoints->GetPoint(numBPnts-4, pntA);
+      // chord line
+      bladeDragUVWVec[0] = pntC[0] - pntA[0];
+      bladeDragUVWVec[1] = pntC[1] - pntA[1];  
+      bladeDragUVWVec[2] = pntC[2] - pntA[2];
+      vtkMath::Normalize(bladeDragUVWVec);
+      vtkMath::Cross(bladeDragUVWVec, vec1, bladeLiftUVWVec);
+      vtkMath::Normalize(bladeLiftUVWVec);
+      }
+      
+    for (int side = 0; side < NUM_PART_SIDES; side++)
+      {
+      bladeAzimUVW->InsertTuple(firstPoint  + side, bladeAzimUVWVec); 
+      bladeAxialUVW->InsertTuple(firstPoint + side, bladeAxialUVWVec);
+      bladeDragUVW->InsertTuple(firstPoint  + side, bladeDragUVWVec);
+      bladeLiftUVW->InsertTuple(firstPoint  + side, bladeLiftUVWVec);
       }
 
     // Polygon points are leading edge then trailing edge so points are 0-1-3-2
+    // i.e. if "-----" denotes the edge, then the order of cross-section is:
+    // 3 ----- 2 (trailing)
+    // 1 ----- 0 (leading)
     cell[0] = firstPoint;
     cell[1] = firstPoint + 1;
     cell[2] = firstPoint + 3;
@@ -1722,16 +2221,16 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     blade->InsertNextCell(VTK_POLYGON, NUM_PART_SIDES, cell);
 
     line >> aBlock[indx] >> bBlock[indx];
-    compBlock[indx] = turbineID * bladeID;
+    compBlock[indx] = bladeID + bladeComponentCount;
     indx++;
   }
 
   // Add the towers to the geometry
-  for (int i = 0; i < this->NumberOfBladeTowers; i++)
+  for (int j = 0; j < this->NumberOfBladeTowers; j++)
     {
-    x = this->XPosition->GetValue(i);
-    y = this->YPosition->GetValue(i);
-    z = this->HubHeight->GetValue(i);
+    x = this->XPosition->GetValue(j);
+    y = this->YPosition->GetValue(j);
+    z = this->HubHeight->GetValue(j);
 
     this->BPoints->InsertNextPoint(x-2, y-2, 0.0);
     this->BPoints->InsertNextPoint(x+2, y-2, 0.0);
@@ -1744,6 +2243,16 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     cell[2] = firstPoint + 2;
     cell[3] = firstPoint + 3;
     cell[4] = firstPoint + 4;
+    
+    for (int k = 0; k < 5; k++)
+    {
+      bladeVeloc->InsertTuple1(k + firstPoint, 0.0);  
+      bladeAzimUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+      bladeAxialUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+      bladeDragUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+      bladeLiftUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
+    }
+      
     index += NUM_BASE_SIDES;
     blade->InsertNextCell(VTK_PYRAMID, NUM_BASE_SIDES, cell);
 
@@ -1752,10 +2261,15 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     compBlock[indx] = 0.0;
     indx++;
     }
-  
+
   force1->Delete();
   force2->Delete();
   bladeComp->Delete();
+  bladeVeloc->Delete();
+  bladeAzimUVW->Delete();
+  bladeAxialUVW->Delete();
+  bladeDragUVW->Delete();
+  bladeLiftUVW->Delete();
 }
 
 //----------------------------------------------------------------------------
