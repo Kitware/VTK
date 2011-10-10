@@ -15,7 +15,7 @@ vtkMultiBlockPLOT3DReader combReader
 
 # extract to reduce extents of grid
 vtkExtractGrid extract
-  extract SetInput $output
+  extract SetInputData $output
   extract SetVOI 0 28 0 32 0 24
   extract Update
 
@@ -26,7 +26,7 @@ vtkXMLStructuredGridWriter gridWriter
   gridWriter SetDataModeToAscii
   gridWriter Write
 
-  gridWriter SetInput $output
+  gridWriter SetInputData $output
   gridWriter SetFileName $file1
   gridWriter SetDataModeToAppended
   gridWriter SetNumberOfPieces 2
@@ -47,7 +47,7 @@ vtkStructuredGrid sg
   sg DeepCopy [reader GetOutput]
 
 vtkContourFilter cF0
-  cF0 SetInput sg
+  cF0 SetInputData sg
   cF0 SetValue 0 0.38
   
 vtkPolyDataMapper mapper0
@@ -67,7 +67,7 @@ vtkStructuredGrid sg1
   sg1 DeepCopy [reader GetOutput]
 
 vtkContourFilter cF1
-  cF1 SetInput sg1
+  cF1 SetInputData sg1
   cF1 SetValue 0 0.38
 
 vtkPolyDataMapper mapper1

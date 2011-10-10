@@ -33,7 +33,7 @@ foreach scalarFunction $scalarFunctions {
     pl3d$scalarFunction Update
     set output [[ pl3d$scalarFunction GetOutput] GetBlock 0]
 vtkStructuredGridGeometryFilter plane$scalarFunction
-    plane$scalarFunction SetInput $output
+    plane$scalarFunction SetInputData $output
     plane$scalarFunction SetExtent 25 25 0 100 0 100
 vtkPolyDataMapper mapper$scalarFunction
     mapper$scalarFunction SetInputConnection [plane$scalarFunction GetOutputPort]

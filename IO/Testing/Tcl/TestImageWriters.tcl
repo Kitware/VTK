@@ -17,12 +17,13 @@ vtkTIFFReader image1
 vtkStructuredPoints sp
 eval sp SetDimensions [[image1 GetOutput] GetDimensions]
 eval sp SetExtent [[image1 GetOutput] GetExtent]
-sp SetScalarType [[image1 GetOutput] GetScalarType] 
-sp SetNumberOfScalarComponents [[image1 GetOutput] GetNumberOfScalarComponents] 
+eval sp SetScalarType [[image1 GetOutput] GetScalarType] [image1 GetOutputInformation 0]
+
+sp SetNumberOfScalarComponents [[image1 GetOutput] GetNumberOfScalarComponents] [image1 GetOutputInformation 0]
 [sp GetPointData] SetScalars [[[image1 GetOutput] GetPointData] GetScalars]
 
 vtkImageLuminance luminance
-  luminance SetInput sp
+  luminance SetInputData sp
 
 #
 # write to the temp directory if possible, otherwise use .
