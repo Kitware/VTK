@@ -2,15 +2,10 @@ package require vtk
 
 # This script shows the magnitude of an image in frequency domain.
 
-
-
-
 # Image pipeline
 
 vtkPNGReader reader
 reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
-
-
 
 vtkImageCast cast
 cast SetInputConnection [reader GetOutputPort]
@@ -23,6 +18,7 @@ scale2 SetScale 0.05
 vtkImageGradient gradient
 gradient SetInputConnection [scale2 GetOutputPort]
 gradient SetDimensionality 3
+gradient Update
 
 vtkBMPReader pnm
 pnm SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
@@ -30,10 +26,11 @@ pnm SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 vtkImageCast cast2
 cast2 SetInputConnection [pnm GetOutputPort]
 cast2 SetOutputScalarTypeToDouble
+cast2 Update
 
 vtkImageDotProduct magnitude
-magnitude SetInput1 [cast2 GetOutput]
-magnitude SetInput2 [gradient GetOutput]
+magnitude SetInput1Data [cast2 GetOutput]
+magnitude SetInput2Data [gradient GetOutput]
 
 #vtkImageViewer viewer
 vtkImageViewer viewer
@@ -43,8 +40,3 @@ viewer SetColorLevel 300
 #viewer DebugOn
 
 viewer Render
-
-
-
-
-

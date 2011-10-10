@@ -43,8 +43,8 @@ cursor SetCursorRadius [expr 50 * $IMAGE_MAG_X]
 # put thge two together in one image
 vtkImageAppend imageAppend
 imageAppend SetAppendAxis 0
-imageAppend AddInput [magnify2 GetOutput]
-imageAppend AddInput [cursor GetOutput]
+imageAppend AddInputConnection [magnify2 GetOutputPort]
+imageAppend AddInputConnection [cursor GetOutputPort]
 
 vtkImageViewer viewer
 viewer SetInputConnection [imageAppend GetOutputPort]

@@ -16,16 +16,18 @@ foreach operator $logics {
       sphere1${operator} SetCenter 95 100 0
       sphere1${operator} SetRadius 70 70 70
       sphere1${operator} SetOutputScalarTypeTo${ScalarType}
+      sphere1${operator} Update
 
     vtkImageEllipsoidSource sphere2${operator}
       sphere2${operator} SetCenter 161 100 0
       sphere2${operator} SetRadius 70 70 70 
       sphere2${operator} SetOutputScalarTypeTo${ScalarType}
+      sphere2${operator} Update
 
     vtkImageLogic logic${operator}
-      logic${operator} SetInput1 [sphere1${operator} GetOutput]
+      logic${operator} SetInput1Data [sphere1${operator} GetOutput]
    if {$operator != "Not"} {
-      logic${operator} SetInput2 [sphere2${operator} GetOutput]
+      logic${operator} SetInput2Data [sphere2${operator} GetOutput]
    }
       logic${operator} SetOutputTrueValue 150
       logic${operator} SetOperationTo${operator}

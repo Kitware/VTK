@@ -19,7 +19,7 @@ vtkTIFFReader imageIn
 # convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
 # SetOrientationType method with parameter value of 4.
   imageIn SetOrientationType 4
-  imageIn ReleaseDataFlagOff
+  [imageIn GetExecutive] SetReleaseDataFlag 0 0
   imageIn Update
 
 proc PowerOfTwo {amt} {
@@ -43,12 +43,12 @@ vtkImageConstantPad imagePowerOf2
 
 vtkImageRGBToHSV toHSV
   toHSV SetInputConnection [imageIn GetOutputPort]
-  toHSV ReleaseDataFlagOff
+  [toHSV GetExecutive] SetReleaseDataFlag 0 0
 
 vtkImageExtractComponents extractImage
   extractImage SetInputConnection [toHSV GetOutputPort]
   extractImage SetComponents 2
-  extractImage ReleaseDataFlagOff
+  [extractImage GetExecutive] SetReleaseDataFlag 0 0
 
 vtkImageThreshold threshold1
   threshold1 SetInputConnection [extractImage GetOutputPort]

@@ -12,13 +12,12 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 reader SetDataSpacing 1 1 2 
 
-
 vtkImageAnisotropicDiffusion3D diffusion
 diffusion SetInputConnection [reader GetOutputPort]
 diffusion SetDiffusionFactor 1.0
 diffusion SetDiffusionThreshold 100.0
 diffusion SetNumberOfIterations 5
-diffusion ReleaseDataFlagOff
+[diffusion GetExecutive] SetReleaseDataFlag 0 0
 
 
 vtkImageViewer viewer
