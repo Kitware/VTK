@@ -34,7 +34,7 @@ wl SetP1 1.953e-005
 wl SetP2 -9.655e-005
 
 vtkTriangleFilter tf
-tf SetInput [wl GetPolyDataOutput]
+tf SetInputConnection [wl GetOutputPort]
 
 vtkStripper strip
 strip SetInputConnection [tf GetOutputPort]
@@ -60,8 +60,3 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-
-
-
-

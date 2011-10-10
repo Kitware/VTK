@@ -394,7 +394,7 @@ vtkPolyData model
   [model GetPointData] SetScalars vertexColors
 
 vtkTextureMapToSphere ballTC
-  ballTC SetInput model
+  ballTC SetInputData model
 
 vtkLookupTable lut
   lut SetNumberOfColors 3
