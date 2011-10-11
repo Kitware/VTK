@@ -181,6 +181,12 @@ vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
 
 void vtkScatterPlotMatrix::SetInput(vtkTable *table)
 {
+  if(table && table->GetNumberOfRows() == 0)
+    {
+    // do nothing if the table is emtpy
+    return;
+    }
+
   if (this->Input != table)
     {
     // Set the input, then update the size of the scatter plot matrix, set
@@ -275,6 +281,8 @@ void vtkScatterPlotMatrix::SetColumnVisibilityAll(bool visible)
     this->SetSize(vtkVector2i(0, 0));
     this->VisibleColumns->SetNumberOfTuples(0);
     }
+
+  this->Private->VisibleColumnsModified = true;
 }
 
 vtkStringArray* vtkScatterPlotMatrix::GetVisibleColumns()
