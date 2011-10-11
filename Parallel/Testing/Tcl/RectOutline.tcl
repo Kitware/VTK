@@ -12,9 +12,10 @@ vtkDataSetReader reader
 # here to force exact extent
 vtkElevationFilter elev
   elev SetInputConnection [reader GetOutputPort]
+  elev Update
 
 vtkRectilinearGridOutlineFilter outline
-  outline SetInput [elev GetRectilinearGridOutput]
+  outline SetInputData [elev GetRectilinearGridOutput]
 
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]

@@ -15,7 +15,7 @@ pl3d Update
 set output [[pl3d GetOutput] GetBlock 0]
 
 vtkDataSetTriangleFilter dst
-dst SetInput $output
+dst SetInputData $output
 
 vtkExtractUnstructuredGridPiece extract
 extract SetInputConnection [dst GetOutputPort]

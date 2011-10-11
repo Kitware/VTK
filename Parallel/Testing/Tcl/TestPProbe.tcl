@@ -52,8 +52,8 @@ vtkLineSource probeLine
 vtkMPIController controler
 
 vtkPProbeFilter Probe0
-	Probe0 SetSource [ironProt0 GetOutput]
-        Probe0 SetInput [ probeLine GetOutput ]
+	Probe0 SetSourceConnection [ironProt0 GetOutputPort]
+        Probe0 SetInputConnection [ probeLine GetOutputPort]
         Probe0 SetController controler
 
 vtkTubeFilter Tuber0
