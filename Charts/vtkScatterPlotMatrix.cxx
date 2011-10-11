@@ -181,6 +181,12 @@ vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
 
 void vtkScatterPlotMatrix::SetInput(vtkTable *table)
 {
+  if(table && table->GetNumberOfRows() == 0)
+    {
+    // do nothing if the table is emtpy
+    return;
+    }
+
   if (this->Input != table)
     {
     // Set the input, then update the size of the scatter plot matrix, set
