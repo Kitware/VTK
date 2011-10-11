@@ -29,18 +29,18 @@ vtkMultiBlockPLOT3DReader pl3d
     pl3d Update
 set output [[pl3d GetOutput] GetBlock 0]
 vtkContourFilter iso
-    iso SetInput $output
+    iso SetInputData $output
     iso SetValue 0 -100000
 
 vtkProbeFilter probe2
   probe2 SetInputConnection [iso GetOutputPort]
-  probe2 SetSource $output2
+  probe2 SetSourceData $output2
 
 vtkCastToConcrete cast2 
   cast2 SetInputConnection [probe2 GetOutputPort]
 
 vtkPolyDataNormals normals
-    normals SetInput [cast2 GetPolyDataOutput]
+    normals SetInputConnection [cast2 GetOutputPort]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
     isoMapper SetInputConnection [normals GetOutputPort]
@@ -52,7 +52,7 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetColor $bisque
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

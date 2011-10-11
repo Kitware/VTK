@@ -50,7 +50,7 @@ vtkUnstructuredGrid aVoxelGrid
   aVoxelGrid SetPoints voxelPoints
 
 vtkDataSetMapper aVoxelMapper
-aVoxelMapper SetInput aVoxelGrid
+aVoxelMapper SetInputData aVoxelGrid
 
 vtkActor aVoxelActor
   aVoxelActor SetMapper aVoxelMapper
@@ -88,7 +88,7 @@ vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid SetPoints hexahedronPoints
 
 vtkDataSetMapper aHexahedronMapper
-  aHexahedronMapper SetInput aHexahedronGrid
+  aHexahedronMapper SetInputData aHexahedronGrid
 
 vtkActor aHexahedronActor
   aHexahedronActor SetMapper aHexahedronMapper
@@ -122,7 +122,7 @@ vtkUnstructuredGrid aTetraCopy
   aTetraCopy ShallowCopy aTetraGrid
 
 vtkDataSetMapper aTetraMapper
-  aTetraMapper SetInput aTetraCopy
+  aTetraMapper SetInputData aTetraCopy
 
 vtkActor aTetraActor
   aTetraActor SetMapper aTetraMapper
@@ -160,7 +160,7 @@ vtkUnstructuredGrid aWedgeCopy
   aWedgeCopy DeepCopy aWedgeGrid
 
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeCopy
+  aWedgeMapper SetInputData aWedgeCopy
 
 vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
@@ -193,7 +193,7 @@ vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid SetPoints pyramidPoints
 
 vtkDataSetMapper aPyramidMapper
-  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper SetInputData aPyramidGrid
 
 vtkActor aPyramidActor
   aPyramidActor SetMapper aPyramidMapper
@@ -224,7 +224,7 @@ vtkUnstructuredGrid aPixelGrid
   aPixelGrid SetPoints pixelPoints
 
 vtkDataSetMapper aPixelMapper
-  aPixelMapper SetInput aPixelGrid
+  aPixelMapper SetInputData aPixelGrid
 
 vtkActor aPixelActor
   aPixelActor SetMapper aPixelMapper
@@ -255,7 +255,7 @@ vtkUnstructuredGrid aQuadGrid
   aQuadGrid SetPoints quadPoints
 
 vtkDataSetMapper aQuadMapper
-  aQuadMapper SetInput aQuadGrid
+  aQuadMapper SetInputData aQuadGrid
 
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
@@ -292,7 +292,7 @@ vtkUnstructuredGrid aTriangleGrid
   [aTriangleGrid GetPointData] SetTCoords triangleTCoords
 
 vtkDataSetMapper aTriangleMapper
-  aTriangleMapper SetInput aTriangleGrid
+  aTriangleMapper SetInputData aTriangleGrid
 
 vtkActor aTriangleActor
   aTriangleActor SetMapper aTriangleMapper
@@ -324,7 +324,7 @@ vtkUnstructuredGrid aPolygonGrid
   aPolygonGrid SetPoints polygonPoints
 
 vtkDataSetMapper aPolygonMapper
-  aPolygonMapper SetInput aPolygonGrid
+  aPolygonMapper SetInputData aPolygonGrid
 
 vtkActor aPolygonActor
   aPolygonActor SetMapper aPolygonMapper
@@ -368,7 +368,7 @@ vtkUnstructuredGrid aTriangleStripGrid
   [aTriangleStripGrid GetPointData] SetTCoords triangleStripTCoords
 
 vtkDataSetMapper aTriangleStripMapper
-  aTriangleStripMapper SetInput aTriangleStripGrid
+  aTriangleStripMapper SetInputData aTriangleStripGrid
 
 vtkActor aTriangleStripActor
   aTriangleStripActor SetMapper aTriangleStripMapper
@@ -395,7 +395,7 @@ vtkUnstructuredGrid aLineGrid
   aLineGrid SetPoints linePoints
 
 vtkDataSetMapper aLineMapper
-  aLineMapper SetInput aLineGrid
+  aLineMapper SetInputData aLineGrid
 
 vtkActor aLineActor
   aLineActor SetMapper aLineMapper
@@ -425,7 +425,7 @@ vtkUnstructuredGrid aPolyLineGrid
   aPolyLineGrid SetPoints polyLinePoints
 
 vtkDataSetMapper aPolyLineMapper
-  aPolyLineMapper SetInput aPolyLineGrid
+  aPolyLineMapper SetInputData aPolyLineGrid
 
 vtkActor aPolyLineActor
   aPolyLineActor SetMapper aPolyLineMapper
@@ -450,7 +450,7 @@ vtkUnstructuredGrid aVertexGrid
   aVertexGrid SetPoints vertexPoints
 
 vtkDataSetMapper aVertexMapper
-  aVertexMapper SetInput aVertexGrid
+  aVertexMapper SetInputData aVertexGrid
 
 vtkActor aVertexActor
   aVertexActor SetMapper aVertexMapper
@@ -480,7 +480,7 @@ vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid SetPoints polyVertexPoints
 
 vtkDataSetMapper aPolyVertexMapper
-  aPolyVertexMapper SetInput aPolyVertexGrid
+  aPolyVertexMapper SetInputData aPolyVertexGrid
 
 vtkActor aPolyVertexActor
   aPolyVertexActor SetMapper aPolyVertexMapper
@@ -526,7 +526,7 @@ vtkUnstructuredGrid aPentaCopy
   aPentaCopy DeepCopy aPentaGrid
 
 vtkDataSetMapper aPentaMapper
-  aPentaMapper SetInput aPentaCopy
+  aPentaMapper SetInputData aPentaCopy
 
 vtkActor aPentaActor
   aPentaActor SetMapper aPentaMapper
@@ -576,7 +576,7 @@ vtkUnstructuredGrid aHexaCopy
   aHexaCopy DeepCopy aHexaGrid
 
 vtkDataSetMapper aHexaMapper
-  aHexaMapper SetInput aHexaCopy
+  aHexaMapper SetInputData aHexaCopy
 
 vtkActor aHexaActor
   aHexaActor SetMapper aHexaMapper

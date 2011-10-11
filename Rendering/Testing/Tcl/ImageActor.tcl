@@ -22,9 +22,10 @@ pnmReader SetOrientationType 4
 
 vtkImageLuminance lum
 lum SetInputConnection [pnmReader GetOutputPort]
+lum Update
 
 vtkImageActor ia
-ia SetInput [lum GetOutput]
+[ia GetMapper] SetInputConnection [lum GetOutputPort]
 
 # Add the actors to the renderer, set the background and size
 ren1 AddActor ia
@@ -36,7 +37,7 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 # switch from greyscale input to RGB to test against an old bug
-ia SetInput [pnmReader GetOutput]
+[ia GetMapper] SetInputConnection [pnmReader GetOutputPort]
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation -30

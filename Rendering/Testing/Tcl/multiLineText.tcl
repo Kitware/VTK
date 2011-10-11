@@ -162,7 +162,7 @@ vtkCoordinate normCoords
 
 # Set up the mapper and actor (2D) for the grid.
 vtkPolyDataMapper2D mapper
-    mapper SetInput Grid
+    mapper SetInputData Grid
     mapper SetTransformCoordinate normCoords
 vtkActor2D gridActor
     gridActor SetMapper mapper

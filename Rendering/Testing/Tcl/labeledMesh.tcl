@@ -37,7 +37,7 @@ vtkPolyData selectRect
     selectRect SetPoints pts
     selectRect SetLines rect
 vtkPolyDataMapper2D rectMapper
-    rectMapper SetInput selectRect
+    rectMapper SetInputData selectRect
 vtkActor2D rectActor
     rectActor SetMapper rectMapper
 

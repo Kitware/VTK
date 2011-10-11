@@ -48,7 +48,7 @@ reader Update
 vtkSphereSource sphere
 
 vtkTexture texture
-texture SetInput [reader GetOutput]
+texture SetInputConnection [reader GetOutputPort]
 
 vtkPolyDataMapper coneMapper3
 coneMapper3 SetInputConnection [sphere GetOutputPort]
