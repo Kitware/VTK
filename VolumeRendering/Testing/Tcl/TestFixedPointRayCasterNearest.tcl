@@ -35,8 +35,8 @@ d SetKernelSize 3 3 3
 
 # Now make a two component dependent
 vtkImageAppendComponents iac
-iac AddInput [d GetOutput]
-iac AddInput [ss GetOutput]
+iac AddInputConnection [d GetOutputPort]
+iac AddInputConnection [ss GetOutputPort]
 
 # Some more gaussians for the four component indepent case
 vtkImageGaussianSource gs1
@@ -77,16 +77,16 @@ gs4 SetCenter 26 26 26
 
 # we need a few append filters ...
 vtkImageAppendComponents iac1
-iac1 AddInput [t1 GetOutput]
-iac1 AddInput [gs2 GetOutput]
+iac1 AddInputConnection [t1 GetOutputPort]
+iac1 AddInputConnection [gs2 GetOutputPort]
 
 vtkImageAppendComponents iac2
-iac2 AddInput [iac1 GetOutput]
-iac2 AddInput [t3 GetOutput]
+iac2 AddInputConnection [iac1 GetOutputPort]
+iac2 AddInputConnection [t3 GetOutputPort]
 
 vtkImageAppendComponents iac3
-iac3 AddInput [iac2 GetOutput]
-iac3 AddInput [gs4 GetOutput]
+iac3 AddInputConnection [iac2 GetOutputPort]
+iac3 AddInputConnection [gs4 GetOutputPort]
 
 # create the four component dependend - 
 # use lines in x, y, z for colors
@@ -125,16 +125,16 @@ dB SetKernelSize 2 2 2
 
 # need some appending
 vtkImageAppendComponents iacRG
-iacRG AddInput [dR GetOutput]
-iacRG AddInput [dG GetOutput]
+iacRG AddInputConnection [dR GetOutputPort]
+iacRG AddInputConnection [dG GetOutputPort]
 
 vtkImageAppendComponents iacRGB
-iacRGB AddInput [iacRG GetOutput]
-iacRGB AddInput [dB GetOutput]
+iacRGB AddInputConnection [iacRG GetOutputPort]
+iacRGB AddInputConnection [dB GetOutputPort]
 
 vtkImageAppendComponents iacRGBA
-iacRGBA AddInput [iacRGB GetOutput]
-iacRGBA AddInput [ss GetOutput]
+iacRGBA AddInputConnection [iacRGB GetOutputPort]
+iacRGBA AddInputConnection [ss GetOutputPort]
 
 # We need a bunch of opacity functions
 

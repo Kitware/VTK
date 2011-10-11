@@ -11,11 +11,11 @@ reader SetDataScalarTypeToUnsignedShort
 reader Update
 
 set readerOutput [reader GetOutput]
+puts [$readerOutput GetClassName]
 $readerOutput SetOrigin -63 -63 -46
 
 # Disconnect the output from its reader.  First get an extra reference.
 $readerOutput Register {}
-$readerOutput SetSource {}
 
 # Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction
@@ -37,7 +37,7 @@ vtkVolumeProperty volumeProperty
 
 vtkVolumeRayCastCompositeFunction f
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput $readerOutput
+    volumeMapper SetInputData $readerOutput
     volumeMapper SetVolumeRayCastFunction f
     volumeMapper SetSampleDistance 0.3
 
@@ -81,7 +81,7 @@ vtkProgrammableAttributeDataFilter randomColors
     randomColors SetExecuteMethod colorCells
 
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput  [randomColors GetPolyDataOutput]
+    sphereMapper SetInputConnection [randomColors GetOutputPort]
     
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
