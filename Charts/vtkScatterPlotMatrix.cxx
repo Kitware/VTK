@@ -192,11 +192,11 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
     // Set the input, then update the size of the scatter plot matrix, set
     // their inputs and all the other stuff needed.
     this->Input = table;
+    this->SetSize(vtkVector2i(0, 0));
     this->Modified();
 
     if (table == NULL)
       {
-      this->SetSize(vtkVector2i(0, 0));
       this->SetColumnVisibilityAll(true);
       return;
       }
@@ -223,6 +223,7 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
     // Add the column to the end of the list
     this->VisibleColumns->InsertNextValue(name);
     this->Private->VisibleColumnsModified = true;
+    this->SetSize(vtkVector2i(0, 0));
     this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
                               this->VisibleColumns->GetNumberOfTuples()));
     this->Modified();
@@ -243,6 +244,7 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
           }
         this->VisibleColumns->SetNumberOfTuples(
             this->VisibleColumns->GetNumberOfTuples()-1);
+        this->SetSize(vtkVector2i(0, 0));
         this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
                                   this->VisibleColumns->GetNumberOfTuples()));
         this->Private->VisibleColumnsModified = true;
