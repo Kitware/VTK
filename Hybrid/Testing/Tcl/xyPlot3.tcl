@@ -25,7 +25,6 @@ vtkTransformPolyDataFilter tf
 vtkProbeFilter probe
     probe SetInputConnection [tf GetOutputPort]
     probe SetSourceData $output
-    probe Update
 
 vtkTransform transL2
     transL2 Translate 9.2 0.0 31.20
@@ -37,7 +36,6 @@ vtkTransformPolyDataFilter tf2
 vtkProbeFilter probe2
     probe2 SetInputConnection [tf2 GetOutputPort]
     probe2 SetSourceData $output
-    probe2 Update
 
 vtkTransform transL3
     transL3 Translate 13.27 0.0 33.40
@@ -49,7 +47,6 @@ vtkTransformPolyDataFilter tf3
 vtkProbeFilter probe3
     probe3 SetInputConnection [tf3 GetOutputPort]
     probe3 SetSourceData $output
-    probe3 Update
 
 vtkAppendPolyData appendF
     appendF AddInputData [probe GetPolyDataOutput]
@@ -117,10 +114,13 @@ vtkXYPlotActor xyplot
 #Okay exercise data object stuff
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [probe GetOutputPort]
+    ds2do Update
 vtkDataSetToDataObjectFilter ds2do2
     ds2do2 SetInputConnection [probe GetOutputPort]
+    ds2do2 Update
 vtkDataSetToDataObjectFilter ds2do3
     ds2do3 SetInputConnection [probe GetOutputPort]
+    ds2do3 Update
 vtkXYPlotActor xyplot3
     xyplot3 AddDataObjectInput [ds2do GetOutput]
     xyplot3 SetDataObjectXComponent 0 2
