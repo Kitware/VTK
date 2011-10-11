@@ -39,9 +39,9 @@ vtkImplicitModeller blobbyK
 
 # Interpolate the data
 vtkInterpolateDataSetAttributes interpolate
-  interpolate AddInput [blobbyV GetOutput]
-  interpolate AddInput [blobbyT GetOutput]
-  interpolate AddInput [blobbyK GetOutput]
+  interpolate AddInputConnection [blobbyV GetOutputPort]
+  interpolate AddInputConnection [blobbyT GetOutputPort]
+  interpolate AddInputConnection [blobbyK GetOutputPort]
   interpolate SetT 0.0
 
 # extract an iso surface

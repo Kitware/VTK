@@ -12,7 +12,7 @@ vtkSphereSource sphere
   sphere SetPhiResolution 20
 
 vtkPolyDataNormals ap
-  ap SetInputConnection [sphere GetOutputPort]   
+  ap SetInputConnection [sphere GetOutputPort]
 
 #---------------------------
 # thin plate spline transform
@@ -98,6 +98,7 @@ gridTrans SetInput t1
 gridTrans SetGridOrigin -1.5 -1.5 -1.5
 gridTrans SetGridExtent 0 60 0 60 0 60
 gridTrans SetGridSpacing 0.05 0.05 0.05
+gridTrans Update
 
 vtkGridTransform t2
 t2 SetDisplacementGrid [gridTrans GetOutput]

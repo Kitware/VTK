@@ -24,7 +24,7 @@ vtkWarpScalar warp
   warp SetNormal 0 0 1
 
 vtkPolyDataNormals normals
-  normals SetInput [warp GetPolyDataOutput]
+  normals SetInputConnection [warp GetOutputPort]
   normals SetFeatureAngle 60
   normals SplittingOff
 
@@ -63,8 +63,8 @@ vtkPolyData terrainPaths
   terrainPaths SetLines lines
 
 vtkProjectedTerrainPath projectedPaths
-  projectedPaths SetInput terrainPaths
-  projectedPaths SetSource [demReader GetOutput]
+  projectedPaths SetInputData terrainPaths
+  projectedPaths SetSourceData [demReader GetOutput]
   projectedPaths SetHeightOffset 25
   projectedPaths SetHeightTolerance 5
   projectedPaths SetProjectionModeToNonOccluded
