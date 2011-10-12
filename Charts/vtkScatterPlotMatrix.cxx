@@ -25,6 +25,7 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkNew.h"
+#include "vtkPen.h"
 #include "vtkMathUtilities.h"
 #include "vtkAnnotationLink.h"
 #include "vtkObjectFactory.h"
@@ -49,17 +50,12 @@ public:
 namespace
 {
 
-int NumberOfBins = 10;
-
 // This is just here for now - quick and dirty historgram calculations...
-bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s)
+bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
+                        int NumberOfBins)
 {
   // The output table will have the twice the number of columns, they will be
   // the x and y for input column. This is the bin centers, and the population.
-  for (vtkIdType i = output->GetNumberOfColumns() - 1; i >= 0; --i)
-    {
-    output->RemoveColumn(i);
-    }
   for (vtkIdType i = 0; i < s->GetNumberOfTuples(); ++i)
     {
     double minmax[2] = { 0.0, 0.0 };
@@ -74,18 +70,31 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s)
         {
         minmax[1] = minmax[0] + 1.0;
         }
-      double inc = (minmax[1] - minmax[0]) / (NumberOfBins - 1);
+      double inc = (minmax[1] - minmax[0]) / (NumberOfBins) * 1.001;
       double halfInc = inc / 2.0;
-      vtkNew<vtkFloatArray> extents;
-      extents->SetName(vtkStdString(name + "_extents").c_str());
+      vtkSmartPointer<vtkFloatArray> extents =
+          vtkFloatArray::SafeDownCast(
+            output->GetColumnByName(vtkStdString(name + "_extents").c_str()));
+      if (!extents)
+        {
+        extents = vtkSmartPointer<vtkFloatArray>::New();
+        extents->SetName(vtkStdString(name + "_extents").c_str());
+        }
       extents->SetNumberOfTuples(NumberOfBins);
       float *centers = static_cast<float *>(extents->GetVoidPointer(0));
+      double min = minmax[0] - 0.0005 * inc + halfInc;
       for (int j = 0; j < NumberOfBins; ++j)
         {
-        extents->SetValue(j, minmax[0] + j * inc);
+        extents->SetValue(j, min + j * inc);
         }
-      vtkNew<vtkIntArray> populations;
-      populations->SetName(vtkStdString(name + "_pops").c_str());
+      vtkSmartPointer<vtkIntArray> populations =
+          vtkIntArray::SafeDownCast(
+            output->GetColumnByName(vtkStdString(name + "_pops").c_str()));
+      if (!populations)
+        {
+        populations = vtkSmartPointer<vtkIntArray>::New();
+        populations->SetName(vtkStdString(name + "_pops").c_str());
+        }
       populations->SetNumberOfTuples(NumberOfBins);
       int *pops = static_cast<int *>(populations->GetVoidPointer(0));
       for (int k = 0; k < NumberOfBins; ++k)
@@ -115,7 +124,7 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s)
 
 vtkStandardNewMacro(vtkScatterPlotMatrix)
 
-vtkScatterPlotMatrix::vtkScatterPlotMatrix()
+vtkScatterPlotMatrix::vtkScatterPlotMatrix() : NumberOfBins(10)
 {
   this->Private = new PIMPL;
 }
@@ -133,7 +142,8 @@ void vtkScatterPlotMatrix::Update()
     // Build up our histograms data before updating the layout.
     PopulateHistograms(this->Input.GetPointer(),
                        this->Private->Histogram.GetPointer(),
-                       this->VisibleColumns.GetPointer());
+                       this->VisibleColumns.GetPointer(),
+                       this->NumberOfBins);
     this->UpdateLayout();
     this->Private->VisibleColumnsModified = false;
     }
@@ -267,7 +277,13 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
         this->SetSize(vtkVector2i(0, 0));
         this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
                                   this->VisibleColumns->GetNumberOfTuples()));
+        if (this->ActivePlot.X() + this->ActivePlot.Y() + 1 >=
+            this->VisibleColumns->GetNumberOfTuples())
+          {
+          this->ActivePlot.Set(0, this->VisibleColumns->GetNumberOfTuples() - 1);
+          }
         this->Private->VisibleColumnsModified = true;
+
         this->Modified();
         return;
         }
@@ -312,19 +328,35 @@ vtkStringArray* vtkScatterPlotMatrix::GetVisibleColumns()
   return this->VisibleColumns.GetPointer();
 }
 
-bool vtkScatterPlotMatrix::Hit(const vtkContextMouseEvent &mouse)
+void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
+{
+  if (this->NumberOfBins != numberOfBins)
+    {
+    this->NumberOfBins = numberOfBins;
+    if (this->Input)
+      {
+      PopulateHistograms(this->Input.GetPointer(),
+                         this->Private->Histogram.GetPointer(),
+                         this->VisibleColumns.GetPointer(),
+                         this->NumberOfBins);
+      }
+    this->Modified();
+    }
+}
+
+bool vtkScatterPlotMatrix::Hit(const vtkContextMouseEvent &)
 {
   return true;
 }
 
-bool vtkScatterPlotMatrix::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+bool vtkScatterPlotMatrix::MouseMoveEvent(const vtkContextMouseEvent &)
 {
   // Eat the event, don't do anything for now...
   return true;
 }
 
 bool vtkScatterPlotMatrix::MouseButtonPressEvent(
-    const vtkContextMouseEvent &mouse)
+    const vtkContextMouseEvent &)
 {
   return true;
 }
@@ -375,12 +407,15 @@ void vtkScatterPlotMatrix::UpdateLayout()
         this->GetChart(pos)->SetActionToButton(vtkChart::ZOOM, -1);
         this->GetChart(pos)->SetActionToButton(vtkChart::SELECT, -1);
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
-        plot->SetInput(this->Input.GetPointer(), i, n - j - 1);
+        plot->SetInput(this->Input.GetPointer(),
+                       this->VisibleColumns->GetValue(i),
+                       this->VisibleColumns->GetValue(n - j - 1));
         }
       else if (i == n - j - 1)
         {
         // We are on the diagonal - need a histogram plot.
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
+        plot->GetPen()->SetColor(255, 255, 255);
         vtkStdString name(this->VisibleColumns->GetValue(i));
         plot->SetInput(this->Private->Histogram.GetPointer(),
                        name + "_extents", name + "_pops");
@@ -394,6 +429,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
         if (xy)
           {
+          xy->SetBarWidthFraction(1.0);
           xy->SetPlotCorner(plot, 2);
           }
         }
