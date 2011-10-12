@@ -21,10 +21,12 @@
 #include "vtkChartXY.h"
 #include "vtkPlot.h"
 #include "vtkAxis.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkNew.h"
 #include "vtkMathUtilities.h"
+#include "vtkAnnotationLink.h"
 #include "vtkObjectFactory.h"
 
 class vtkScatterPlotMatrix::PIMPL
@@ -41,6 +43,7 @@ public:
   vtkNew<vtkTable> Histogram;
   bool VisibleColumnsModified;
   vtkChart* BigChart;
+  vtkNew<vtkAnnotationLink> Link;
 };
 
 namespace
@@ -71,7 +74,7 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s)
         {
         minmax[1] = minmax[0] + 1.0;
         }
-      double inc = (minmax[1] - minmax[0]) / NumberOfBins;
+      double inc = (minmax[1] - minmax[0]) / (NumberOfBins - 1);
       double halfInc = inc / 2.0;
       vtkNew<vtkFloatArray> extents;
       extents->SetName(vtkStdString(name + "_extents").c_str());
@@ -148,23 +151,40 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
       pos.Y() < this->Size.Y())
     {
     // The supplied index is valid (in the lower quadrant).
+    if (this->GetChart(this->ActivePlot)->GetPlot(0))
+      {
+      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(0.0, 0.0, 0.0);
+      }
     this->ActivePlot = pos;
+    if (this->GetChart(this->ActivePlot)->GetPlot(0))
+      {
+      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(0.0, 0.0, 1.0);
+      }
     if (this->Private->BigChart)
       {
       vtkPlot *plot = this->Private->BigChart->GetPlot(0);
       if (!plot)
         {
         plot = this->Private->BigChart->AddPlot(vtkChart::POINTS);
+        vtkChart *active = this->GetChart(this->ActivePlot);
         vtkChartXY *xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
         if (xy)
           {
           xy->SetPlotCorner(plot, 2);
+          }
+        if (xy && active)
+          {
+          vtkAxis *a = active->GetAxis(vtkAxis::BOTTOM);
+          xy->GetAxis(vtkAxis::TOP)->SetRange(a->GetMinimum(), a->GetMaximum());
+          a = active->GetAxis(vtkAxis::LEFT);
+          xy->GetAxis(vtkAxis::RIGHT)->SetRange(a->GetMinimum(), a->GetMaximum());
           }
         }
       plot->SetInput(this->Input.GetPointer(),
                      this->VisibleColumns->GetValue(pos.X()),
                      this->VisibleColumns->GetValue(this->Size.X() -
                                                     pos.Y() - 1));
+      this->Private->BigChart->RecalculateBounds();
       }
     return true;
     }
@@ -292,6 +312,42 @@ vtkStringArray* vtkScatterPlotMatrix::GetVisibleColumns()
   return this->VisibleColumns.GetPointer();
 }
 
+bool vtkScatterPlotMatrix::Hit(const vtkContextMouseEvent &mouse)
+{
+  return true;
+}
+
+bool vtkScatterPlotMatrix::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  // Eat the event, don't do anything for now...
+  return true;
+}
+
+bool vtkScatterPlotMatrix::MouseButtonPressEvent(
+    const vtkContextMouseEvent &mouse)
+{
+  return true;
+}
+
+bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
+    const vtkContextMouseEvent &mouse)
+{
+  // Work out which scatter plot was clicked - make that one the active plot.
+  int n = this->GetSize().X();
+  for (int i = 0; i < n; ++i)
+    {
+    for (int j = 0; j < n; ++j)
+      {
+      if (i + j + 1 < n && this->GetChart(vtkVector2i(i, j))->Hit(mouse))
+        {
+        this->SetActivePlot(vtkVector2i(i, j));
+        return true;
+        }
+      }
+    }
+  return false;
+}
+
 void vtkScatterPlotMatrix::UpdateLayout()
 {
   // We want scatter plots on the lower-left triangle, then histograms along
@@ -313,7 +369,11 @@ void vtkScatterPlotMatrix::UpdateLayout()
       vtkVector2i pos(i, j);
       if (i + j + 1 < n)
         {
+        this->GetChart(pos)->SetAnnotationLink(this->Private->Link.GetPointer());
         // Lower-left triangle - scatter plots.
+        this->GetChart(pos)->SetActionToButton(vtkChart::PAN, -1);
+        this->GetChart(pos)->SetActionToButton(vtkChart::ZOOM, -1);
+        this->GetChart(pos)->SetActionToButton(vtkChart::SELECT, -1);
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
         plot->SetInput(this->Input.GetPointer(), i, n - j - 1);
         }
@@ -341,6 +401,8 @@ void vtkScatterPlotMatrix::UpdateLayout()
         {
         // This big plot in the top-right
         this->Private->BigChart = this->GetChart(pos);
+        this->Private->BigChart->SetAnnotationLink(
+              this->Private->Link.GetPointer());
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
         this->SetActivePlot(vtkVector2i(0, n - 2));
         }

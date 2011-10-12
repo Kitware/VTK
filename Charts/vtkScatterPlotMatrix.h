@@ -81,6 +81,22 @@ public:
   // Get a list of the columns, and the order in which they are displayed.
   virtual vtkStringArray* GetVisibleColumns();
 
+  // Description:
+  // Return true if the supplied x, y coordinate is inside the item.
+  bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button down event
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button release event.
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
@@ -102,6 +118,7 @@ protected:
 
   // Weakly owned input data for the scatter plot matrix.
   vtkSmartPointer<vtkTable> Input;
+
   // Strongly owned internal data for the column visibility.
   vtkNew<vtkStringArray> VisibleColumns;
 
