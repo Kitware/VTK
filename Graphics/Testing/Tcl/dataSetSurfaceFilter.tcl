@@ -39,7 +39,7 @@ vtkActor g3Actor
     g3Actor SetMapper g3Mapper
     g3Actor AddPosition 0 0 15
 vtkDataSetSurfaceFilter gf4
-    gf4 SetInputConnection [gf2 GetOutputPort]
+    gf4 SetInputData $output
     gf4 UseStripsOn
 vtkPolyDataMapper g4Mapper
     g4Mapper SetInputConnection [gf4 GetOutputPort]
@@ -99,7 +99,7 @@ vtkActor g8Actor
     g8Actor AddPosition 0 15 0
 
 # Create the RenderWindow, Renderer and both Actors
-#
+
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1

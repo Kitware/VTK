@@ -11,7 +11,6 @@ reader SetDataScalarTypeToUnsignedShort
 reader Update
 
 set readerOutput [reader GetOutput]
-puts [$readerOutput GetClassName]
 $readerOutput SetOrigin -63 -63 -46
 
 # Disconnect the output from its reader.  First get an extra reference.
