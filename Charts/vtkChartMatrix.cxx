@@ -47,6 +47,7 @@ vtkChartMatrix::vtkChartMatrix() : Gutter(15.0, 15.0)
   this->Borders[vtkAxis::BOTTOM] = 40;
   this->Borders[vtkAxis::RIGHT] = 50;
   this->Borders[vtkAxis::TOP] = 40;
+  this->LayoutIsDirty = true;
 }
 
 vtkChartMatrix::~vtkChartMatrix()
@@ -61,7 +62,8 @@ void vtkChartMatrix::Update()
 
 bool vtkChartMatrix::Paint(vtkContext2D *painter)
 {
-  if (this->GetScene()->GetSceneWidth() != this->Private->Geometry.X() ||
+  if (this->LayoutIsDirty ||
+      this->GetScene()->GetSceneWidth() != this->Private->Geometry.X() ||
       this->GetScene()->GetSceneHeight() != this->Private->Geometry.Y())
     {
     // Update the chart element positions
@@ -112,6 +114,7 @@ bool vtkChartMatrix::Paint(vtkContext2D *painter)
           }
         }
       }
+    this->LayoutIsDirty = false;
     }
   return Superclass::Paint(painter);
 }
@@ -131,12 +134,14 @@ void vtkChartMatrix::SetSize(const vtkVector2i &size)
       }
     this->Private->Charts.resize(size.X() * size.Y());
     this->Private->Spans.resize(size.X() * size.Y(), vtkVector2i(1, 1));
+    this->LayoutIsDirty = true;
     }
 }
 
 void vtkChartMatrix::SetGutter(const vtkVector2f &gutter)
 {
   this->Gutter = gutter;
+  this->LayoutIsDirty = true;
 }
 
 void vtkChartMatrix::Allocate()
@@ -195,6 +200,7 @@ bool vtkChartMatrix::SetChartSpan(const vtkVector2i& position,
   else
     {
     this->Private->Spans[position.Y() * this->Size.X() + position.X()] = span;
+    this->LayoutIsDirty = true;
     return true;
     }
 }

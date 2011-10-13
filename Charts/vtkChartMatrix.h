@@ -105,6 +105,7 @@ protected:
   // The gutter between each chart.
   vtkVector2f Gutter;
   int Borders[4];
+  bool LayoutIsDirty;
 
 private:
   vtkChartMatrix(const vtkChartMatrix &); // Not implemented.
