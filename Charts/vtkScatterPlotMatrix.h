@@ -81,6 +81,32 @@ public:
   // Get a list of the columns, and the order in which they are displayed.
   virtual vtkStringArray* GetVisibleColumns();
 
+  // Description:
+  // Set the number of bins in the histograms along the central diagonal of the
+  // scatter plot matrix.
+  virtual void SetNumberOfBins(int numberOfBins);
+
+  // Description:
+  // Get the number of bins the histograms along the central diagonal scatter
+  // plot matrix. The default value is 10.
+  virtual int GetNumberOfBins() const { return this->NumberOfBins; }
+
+  // Description:
+  // Return true if the supplied x, y coordinate is inside the item.
+  bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button down event
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button release event.
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
@@ -102,8 +128,12 @@ protected:
 
   // Weakly owned input data for the scatter plot matrix.
   vtkSmartPointer<vtkTable> Input;
+
   // Strongly owned internal data for the column visibility.
   vtkNew<vtkStringArray> VisibleColumns;
+
+  // The number of bins in the histograms.
+  int NumberOfBins;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.

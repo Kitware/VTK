@@ -274,7 +274,7 @@ vtkRectf vtkChart::GetSize()
 
 void vtkChart::SetActionToButton(int action, int button)
 {
-  if (action < 0 || action > 2)
+  if (action < -1 || action > 2)
     {
     vtkErrorMacro("Error, invalid action value supplied: " << action)
     return;
