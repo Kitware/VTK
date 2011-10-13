@@ -11,6 +11,7 @@ vtkPolyDataReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/polyEx.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [reader GetOutputPort]
+    ds2do Update
 if {[catch {set channel [open "PolyField.vtk" "w"]}] == 0 } {
    close $channel
    vtkDataObjectWriter writer
@@ -30,17 +31,15 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetPointComponent 1 "Points" 1 
     do2ds SetPointComponent 2 "Points" 2 
     do2ds SetPolysComponent "Polys" 0
-    do2ds Update
 
 vtkFieldDataToAttributeDataFilter fd2ad
-    fd2ad SetInputData [do2ds GetPolyDataOutput]
+    fd2ad SetInputConnection [do2ds GetOutputPort]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
     fd2ad SetScalarComponent 0 "my_scalars" 0 
-    fd2ad Update
 
 vtkPolyDataMapper mapper
-    mapper SetInputData [fd2ad GetPolyDataOutput]
+    mapper SetInputConnection [fd2ad GetOutputPort]
     eval mapper SetScalarRange [[fd2ad GetOutput] GetScalarRange]
 vtkActor actor
     actor SetMapper mapper
