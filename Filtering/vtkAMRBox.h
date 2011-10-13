@@ -25,20 +25,18 @@
 // vtkAMRBox is used in vtkHierarchicalBoxDataSet to compute cell visibilty.
 //
 // .SECTION See Also
-// vtkHierarachicalBoxDataSet, vtkAMRUtilities
+// vtkHierarachicalBoxDataSet, vtkAMRBoxUtilities.hxx
 
 #ifndef __vtkAMRBox_h
 #define __vtkAMRBox_h
 
 #include "vtkObject.h"
-#include "vtkType.h"     //For utility functions.
+#include "vtkType.h" //For utility functions.
 #include <vtkstd/vector> // STL Header
 
 class VTK_FILTERING_EXPORT vtkAMRBox
 {
-
 public:
-
   // Description:
   // Construct the empty box.
   vtkAMRBox(int dim=3);
@@ -50,7 +48,7 @@ public:
       int ihi,int jhi,int khi);
 
   // Description:
-  // Construct a specific 2D box in the XY plane.
+  // Construct a specific 2D box.
   vtkAMRBox(
       int ilo,int jlo,
       int ihi,int jhi);
@@ -65,7 +63,6 @@ public:
   vtkAMRBox(int dim, const int dims[6]);
   vtkAMRBox(const int dims[6]);
 
-
   // Description:
   // Copy construct this box from another.
   vtkAMRBox(const vtkAMRBox &other);
@@ -75,71 +72,14 @@ public:
   vtkAMRBox &operator=(const vtkAMRBox &other);
 
   // Description:
-  // Determines if two AMR boxes collide.
-  static bool Collides( vtkAMRBox &b1, vtkAMRBox &b2 );
-
-  // Description:
   // Set the box to null;
   void Invalidate();
-
-  // Description:
-  // Returns the number of ghost layes that have been extruded along
-  // each dimension.
-  void GetNumberOfGhosts( int *ng );
-
-  // Description:
-  // Get the minimum coordinates of this box instance.
-  double GetMinX() const;
-  double GetMinY() const;
-  double GetMinZ() const;
-  void GetMinBounds( double min[3] ) const;
-
-  // Description:
-  // Get the maximum coordinates of this box instance.
-  double GetMaxX() const;
-  double GetMaxY() const;
-  double GetMaxZ() const;
-  void GetMaxBounds( double max[3] ) const;
 
   // Description:
   // Get/Set the spatial dimension of the box. Only 2 and 3 
   // are valid.
   int GetDimensionality() const { return this->Dimension; }
   void SetDimensionality(int dim);
-
-  // Description:
-  // Sets the Grid topology description of this AMR box instance.
-  int GetGridDescription() const { return this->GridDescription; };
-  void SetGridDescription( const int desc );
-
-  // Description:
-  // Get/Set the process ID of the process that owns the box.
-  int GetProcessId() const { return this->ProcessId; }
-  void SetProcessId( const int pid );
-
-  // Description:
-  // Get/Set the Block ID of the AMR grid corresponding to this AMR box.
-  int GetBlockId() const { return this->BlockId; }
-  void SetBlockId( const int blockIdx );
-
-  // Description:
-  // Get/Set the Block level of the AMR grid corresponding to this AMR box.
-  int GetLevel() const { return this->BlockLevel; }
-  void SetLevel( const int level );
-
-  // Description:
-  // Returns the real extent of this AMR Box instance.
-  void GetRealExtent( int realExtent[6] ) const;
-
-  // Description:
-  // Sets the real extent of this AMR box instance.
-  void SetRealExtent( int realExtent[6] );
-  void SetRealExtent( int minijk[3], int maxijk[3] );
-
-  // Description:
-  // Checks if the point is inside this AMRBox instance.
-  // x,y,z the world point
-  bool HasPoint( const double x, const double y, const double z );
 
   // Description:
   // Set the dimensions of the box. ilo,jlo,klo,ihi,jhi,khi
@@ -227,16 +167,7 @@ public:
 
   // Description:
   // Test if this box is empty/valid.
-  // The box is empty iff all the hibounds are
-  // equal to the low bounds, i.e.,
-  // LoCorner[ i ] == HiCorner[ i ] for all i.
   bool Empty() const;
-
-  // Description:
-  // Check to see if the AMR box instance is invalid.
-  // An AMR box is invalid iff HiCorner[ i ] < LoCorner[ i ]
-  // for any i.
-  bool IsInvalid() const;
 
   // Description:
   // Test if this box has the same dimensions as another.
@@ -264,55 +195,8 @@ public:
   void Coarsen(int r);
 
   // Description:
-  // Returns the linear index of the given cell structured coordinates
-  int GetCellLinearIndex( const int i, const int j, const int k );
-
-  // Description:
-  // Checks to see if the node corresponding to the given
-  // i-j-k coordinates is a ghost node.
-  bool IsGhostNode( const int i, const int j, const int k );
-
-  // Description:
-  // Gets the real coordinates of the point within the virtual
-  // AMR box at the given ijk coordinates.
-  // ijk -- the computational coordinate of the point in query (in)
-  // pnt -- the physical (real) coordinate of the point (out)
-  void GetPoint( const int ijk[3], double pnt[3] ) const;
-  void GetPoint( const int i, const int j, const int k, double pnt[3] ) const;
-
-  // Description:
   // Send the box to a stream. "(ilo,jlo,jhi),(ihi,jhi,khi)"
   ostream &Print(ostream &os) const;
-
-  // Description:
-  // Serializes this object instance into a byte-stream.
-  // buffer   -- user-supplied pointer where the serialized object is stored.
-  // bytesize -- number of bytes, i.e., the size of the buffer.
-  // NOTE: buffer is allocated internally by this method.
-  // Pre-conditions:
-  //   buffer == NULL
-  // Post-conditions:
-  //   buffer   != NULL
-  //   bytesize != 0
-  void Serialize( unsigned char*& buffer, vtkIdType &bytesize );
-
-  // Description:
-  // Deserializes this object instance from the given byte-stream.
-  // Pre-conditions:
-  //   buffer != NULL
-  //   bytesize != 0
-  void Deserialize( unsigned char* buffer, const vtkIdType &bytesize );
-
-  // Description:
-  // Returns the number of bytes allocated by this instance. In addition,
-  // this number of bytes corresponds to the buffer size required to serialize
-  // any vtkAMRBox instance.
-  static vtkIdType GetBytesize(){return (17*sizeof(int)+6*sizeof(double)); };
-
-  // Description:
-  // Writes the AMR box in a VTK file.
-  // Note: This method is used for debugging purposes.
-  void WriteBox();
 
   //BTX
   // @deprecated Replaced by Contains() as of VTK 5.4.
@@ -324,7 +208,6 @@ public:
   //ETX
 
 public:
-
   // Description:
   // These are public for backward compatibility only. If your
   // code uses these, it will break in the future when this class
@@ -333,47 +216,10 @@ public:
   int LoCorner[3]; // lo corner cell id.
   int HiCorner[3]; // hi corner cell id.
 
-protected:
-
-  // Description:
-  // Initializes this box instance.
-  void Initialize( );
-
 private:
-  int Dimension;       // 2 or 3
-  int BlockId;         // The ID of the corresponding block
-  int ProcessId;       // The process ID that owns this block
-  int BlockLevel;      // The level of this AMR box instance
-  int NG[6];           // Number of ghosts along each dimension
-  double X0[3];        // Dataset origin (not box origin)
-  double DX[3];        // grid spacing
-  int RealExtent[6];   // Extent of the all the real nodes, i.e., not the ghosts
-  int GridDescription; // Defines whether the box is on the XY,YZ planes.
-
-
-  // Description:
-  // This method builds the AMR box with the given dimensions.
-  // Note: the dimension of the AMR box is automatically detected
-  // within this method.
-  void BuildAMRBox(
-      const int ilo, const int jlo, const int klo,
-      const int ihi, const int jhi, const int khi );
-
-  // Description:
-  // Determines the dimension of the AMR box given the
-  // box indices. Note, the AMR box can be on an arbitrary
-  // axis-aligned plane, i.e., XZ or YZ.
-//  int DetectDimension(
-//      const int ilo, const int jlo, const int klo,
-//      const int ihi, const int jhi, const int khi  );
-
-  // Description:
-  // A simple method to write a box with the given min/max
-  // coordindates for debugging.
-  void WriteBox(
-      const double x, const double y, const double z,
-      const double X, const double Y, const double Z );
-
+  int Dimension;         // 2 or 3.
+  double X0[3];          // Dataset origin (not box origin). low corner cell's, low corner node.
+  double DX[3];          // grid spacing.
 };
 
 // NOTE 2008-11-10

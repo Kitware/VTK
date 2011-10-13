@@ -23,7 +23,6 @@ IF(VTK_HAS_EXODUS)
 ENDIF(VTK_HAS_EXODUS)
 
 SET ( Kit_SRCS
-vtkAMRUtilities.cxx
 vtkBranchExtentTranslator.cxx
 vtkCachingInterpolatedVelocityField.cxx
 vtkClientServerSynchronizedRenderers.cxx
@@ -128,7 +127,6 @@ IF(VTK_HAS_EXODUS)
 ENDIF(VTK_HAS_EXODUS)
 
 SET_SOURCE_FILES_PROPERTIES(
-vtkAMRUtilities
 vtkCommunicator 
 vtkMultiProcessController
 vtkMultiProcessStream

@@ -41,9 +41,6 @@
 #define __vtkHierarchicalBoxDataSet_h
 
 #include "vtkCompositeDataSet.h"
-#include <vtkstd/vector>    // For STL vector
-#include <vtkstd/map>       // For STL map
-#include <vtkstd/utility>   // For STL pair
 
 class vtkAMRBox;
 class vtkInformationIdTypeKey;
@@ -51,20 +48,12 @@ class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkUniformGrid;
 
-typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
-
-class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet: public vtkCompositeDataSet
+class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet : public vtkCompositeDataSet
 {
 public:
   static vtkHierarchicalBoxDataSet *New();
   vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkCompositeDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Descrition:
-  // Set & Get the AMR dataset origin
-  // The origin is essentially the minimum of all the grids.
-  void SetOrigin( const double origin[3] );
-  void GetOrigin( double origin[3] );
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
@@ -102,36 +91,10 @@ public:
     { this->Superclass::SetDataSet(iter, dataObj); }
 
   // Description:
-  // This method returns the root AMR box for the entire root level.
-  // The root AMR box covers the entire domain.
-  void GetRootAMRBox( vtkAMRBox &root );
-
-  // Description:
-  // This method returns the global AMR box, covering the entire
-  // domain, with the prescribed spacing.
-  void GetGlobalAMRBoxWithSpacing( vtkAMRBox &box, double h[3] );
-
-  // Description:
   // Set the dataset pointer for a given node. This will resize the number of
   // levels and the number of datasets in the level to fit level, id requested. 
   void SetDataSet(unsigned int level, unsigned int id, 
                   int LoCorner[3], int HiCorner[3], vtkUniformGrid* dataSet);
-
-  // Description:
-  // Set the dataset pointer for a given node without any metadata. This will
-  // resize the number of levels and the number of datasets accordingly.
-  void SetDataSet(unsigned int level, unsigned int id, vtkUniformGrid* dataSet);
-
-  // Description:
-  // Appends the dataset to the given level. This will resize the
-  // number of levels and the number of datasets accordingly.
-  void AppendDataSet(unsigned int level, vtkUniformGrid* dataSet );
-
-  // Description:
-  // Sets the meta-data object at a given node. This will resize the number
-  // of levels and number of datasets acoordingly.
-  void SetMetaData(unsigned int level, unsigned int id, const vtkAMRBox &box );
-
 //BTX
   // Description:
   // Set the dataset pointer for a given node. This will resize the number of
@@ -149,7 +112,6 @@ public:
   vtkUniformGrid* GetDataSet(unsigned int level,
                              unsigned int id,
                              vtkAMRBox& box);
-  vtkUniformGrid* GetDataSet(unsigned int level,unsigned int id );
 
   // Description:
   // Returns the AMR box for the location pointer by the iterator.
@@ -170,25 +132,10 @@ public:
     { return this->HasChildMetaData(level); }
 
   // Description:
-  // Sets the composite index of the data at the given (level,index) pair.
-  void SetCompositeIndex(
-      const unsigned int level, const unsigned int index, const int idx );
-
-  // Description:
-  // Retrieves the composite index  associated with the data at the given
-  // (level,index) pair.
-  int GetCompositeIndex( const unsigned int level, const unsigned int index );
-
-  // Description:
   // Get meta-data associated with a dataset.  This may allocate a new
   // vtkInformation object if none is already present. Use HasMetaData to
   // avoid unnecessary allocations.
   vtkInformation* GetMetaData(unsigned int level, unsigned int index);
-
-  // Description:
-  // Get the AMR box meta-data associated with a given dataset.
-  // Returns 1 iff GetMetaData() was successful, else 0.
-  int GetMetaData(unsigned int level, unsigned int index, vtkAMRBox &box);
 
   // Description:
   // Returns if meta-data exists for a given dataset under a given level.
@@ -220,12 +167,6 @@ public:
   static vtkInformationIntegerKey* BOX_DIMENSIONALITY();
   static vtkInformationIntegerKey* REFINEMENT_RATIO();
   static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
-  static vtkInformationDoubleVectorKey* BOX_ORIGIN();
-  static vtkInformationDoubleVectorKey* SPACING();
-  static vtkInformationIntegerKey* RANK();
-  static vtkInformationIntegerKey* BLOCK_ID();
-  static vtkInformationIntegerVectorKey* REAL_EXTENT();
-  static vtkInformationIntegerKey* GEOMETRIC_DESCRIPTION();
 
   //BTX
   // Description:
@@ -259,42 +200,13 @@ public:
     { return this->Superclass::HasMetaData(iter); }
  
   // Description:
-  // Given the level and dataset index, returns the flat index in pre-order
-  // traversal.
+  // Given the level and dataset index, returns the flat index provided level
+  // and dataset index are valid.
   unsigned int GetFlatIndex(unsigned int level, unsigned int index);
-
-  // Description:
-  // Given the composite Idx (as set by SetCompositeIdx) this method returns the
-  // corresponding level and dataset index within the level.
-  void GetLevelAndIndex(
-      const unsigned int compositeIdx, unsigned int &level, unsigned int &idx );
-
-  // Description:
-  // Removes all AMR data stored in this instance of the vtkHierarchicalBoxDataSet
-  void Clear();
-
-  // Description:
-  // Returns the total number of blocks
-  int GetTotalNumberOfBlocks();
-
-  // Description:
-  // In-line Set & Get
-  vtkSetMacro( PadCellVisibility, bool );
-  vtkGetMacro( PadCellVisibility, bool );
 
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();
-
-  // Description:
-  // Gets the list of higher res boxes from this level at the level, l+1
-  void GetHigherResolutionCoarsenedBoxes(
-      vtkAMRBoxList &blist, const unsigned int l );
-
-  // Description:
-  // Blanks the grids at level, l, Given the list of high-res boxes at level
-  // l+1 coarsened to level l.
-  void BlankGridsAtLevel( vtkAMRBoxList &blist, const unsigned int l );
 
   // Description:
   // Compute the range of the scalars and cache it into ScalarRange
@@ -306,19 +218,7 @@ protected:
   // Time at which scalar range is computed
   vtkTimeStamp ScalarRangeComputeTime;
 
-  bool PadCellVisibility;
-
-  // Global Origin
-  double origin[3];
-
-  // Mapping of composite indices to the (level,id) pair.
-  vtkstd::map< int, vtkstd::pair<unsigned int,unsigned int> >
-    CompositeIndex2LevelIdPair;
-
 private:
-
-
-
   vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&);  // Not implemented.
   void operator=(const vtkHierarchicalBoxDataSet&);  // Not implemented.
 };
