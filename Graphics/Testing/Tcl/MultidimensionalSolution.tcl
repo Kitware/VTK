@@ -71,6 +71,7 @@ velocity SetScaleFactor 0.0015
 vtkHedgeHog pressureGradient
 pressureGradient SetInputConnection [probe_gradient GetOutputPort]
 pressureGradient SetScaleFactor 0.00002
+pressureGradient Update
 
 
 proc ExecuteDot {} {
@@ -134,6 +135,7 @@ dotProduct SetInputConnection [probe_velocity GetOutputPort]
 dotProduct AddInput [probe_velocity GetOutput]
 dotProduct AddInput [probe_gradient GetOutput]
 dotProduct SetExecuteMethod ExecuteDot
+dotProduct Update
 
 #
 # Create the mappers and actors.  Note the call to GetPolyDataOutput when
