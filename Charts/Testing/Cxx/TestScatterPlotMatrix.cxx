@@ -51,8 +51,8 @@ int TestScatterPlotMatrix(int, char * [])
   tangent->SetName("tan(x)");
   table->AddColumn(tangent.GetPointer());
   // Test the chart scatter plot matrix
-  int numPoints = 42;
-  float inc = 7.5 / (numPoints-1);
+  int numPoints = 100;
+  float inc = 4.0 * 3.14 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {
@@ -65,6 +65,8 @@ int TestScatterPlotMatrix(int, char * [])
 
   // Set the scatter plot matrix up to analyze all columns in the table.
   matrix->SetInput(table.GetPointer());
+
+  matrix->SetNumberOfBins(7);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
