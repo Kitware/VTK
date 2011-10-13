@@ -79,9 +79,6 @@ vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
            (dim==this->GetDimensionality() ) );
   assert( "post: Dimension expected to be 2 or 3" &&
       ( (this->GetDimensionality()==2) || (this->GetDimensionality()==3) ) );
-
-  // Avoid compiler warnings when compiled in Release
-  static_cast<void>(dim);
 }
 
 //-----------------------------------------------------------------------------
@@ -102,9 +99,6 @@ vtkAMRBox::vtkAMRBox(int dim, const int *dims)
 //  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
   assert( "post: AMR box dimension does not match expected dimension" &&
           (dim==this->GetDimensionality() ) );
-
-  // Avoid compiler warnings when compiled in Release
-  static_cast<void>(dim);
 }
 
 
@@ -152,7 +146,6 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   ijk[2]=k-this->LoCorner[2];
 
   int N1,N2,idx;
-  idx = 0;
   switch( this->Dimension )
     {
       case 1:
@@ -1528,9 +1521,6 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
 
   assert( "pre: input buffer is NULL" && (buffer != NULL) );
   assert( "pre: buffer bytesize is 0" && (bytesize >0) );
-
-  // Avoid compiler warning when compiled in Release
-  static_cast<void>(bytesize);
 
   // STEP 0: set pointer to traverse the buffer
   unsigned char *ptr = buffer;
