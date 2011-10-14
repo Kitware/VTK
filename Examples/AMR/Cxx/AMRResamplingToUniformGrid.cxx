@@ -157,6 +157,7 @@ void TransferSolution( vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
   da->SetNumberOfComponents( 1 );
   da->SetNumberOfTuples( g->GetNumberOfPoints() );
   g->GetPointData()->AddArray( da );
+  g->GetPointData()->SetScalars( da );
 
 
   vtkIdType pIdx = 0;
