@@ -36,7 +36,7 @@ vtkSpatialRepresentationFilter boxes
 boxes Update
 set output [[boxes GetOutput] GetBlock [expr [boxes GetMaximumLevel] + 1]]
 vtkExtractEdges boxEdges
-  boxEdges SetInput $output
+  boxEdges SetInputData $output
 vtkPolyDataMapper boxMapper
   boxMapper SetInputConnection [boxEdges GetOutputPort]
   boxMapper SetResolveCoincidentTopology 1

@@ -51,7 +51,7 @@ vtkPolyData boundaryPoly
   boundaryPoly SetPolys [[boundaryStrips GetOutput] GetLines]
 
 vtkTriangleFilter boundaryTriangles
-  boundaryTriangles SetInput boundaryPoly
+  boundaryTriangles SetInputData boundaryPoly
 
 vtkPolyDataMapper boundaryMapper
 boundaryMapper SetInputConnection [boundaryTriangles GetOutputPort]

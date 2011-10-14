@@ -11,15 +11,17 @@ reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 vtkImageCast cast
 cast SetInputConnection [reader GetOutputPort]
 cast SetOutputScalarTypeToDouble
+cast Update
 
 vtkImageLaplacian lap
 lap SetInputConnection [cast GetOutputPort]
 lap SetDimensionality 2
+lap Update
 
 vtkImageMathematics subtract
 subtract SetOperationToSubtract
-subtract SetInput1 [cast GetOutput]
-subtract SetInput2 [lap GetOutput]
+subtract SetInput1Data [cast GetOutput]
+subtract SetInput2Data [lap GetOutput]
 subtract ReleaseDataFlagOff
 #subtract BypassOn
 

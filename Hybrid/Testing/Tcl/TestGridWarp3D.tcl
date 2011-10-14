@@ -45,6 +45,7 @@ vtkTransformToGrid gridThinPlate
   gridThinPlate SetGridSpacing 3.2 3.2 3.0
   gridThinPlate SetGridOrigin -102.4 -102.4 -75
   gridThinPlate SetGridScalarTypeToUnsignedChar
+  gridThinPlate Update
 
 vtkGridTransform gridTransform
   gridTransform SetDisplacementGrid [gridThinPlate GetOutput]

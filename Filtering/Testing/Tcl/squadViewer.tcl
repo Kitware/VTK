@@ -45,7 +45,7 @@ vtkTexture atext
   atext InterpolateOn
 
 vtkAppendPolyData appendSquads
-    appendSquads AddInput [squad GetOutput]
+    appendSquads AddInputConnection [squad GetOutputPort]
    
 vtkPolyDataMapper mapper
     mapper SetInputConnection [squad GetOutputPort]

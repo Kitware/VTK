@@ -4,7 +4,7 @@ package require vtk
 # This filter is useful for converting to a lower precision data type.
 
 vtkImageReader reader
-[reader GetOutput] ReleaseDataFlagOff
+[reader GetExecutive] SetReleaseDataFlag 0 0
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 63 0 63 1 93
 reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"

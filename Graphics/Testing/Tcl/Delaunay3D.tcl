@@ -15,7 +15,7 @@ vtkPolyData profile
 # triangulate them
 #
 vtkDelaunay3D del1
-    del1 SetInput profile
+    del1 SetInputData profile
     del1 BoundingTriangulationOn
     del1 SetTolerance 0.01
     del1 SetAlpha 0.2

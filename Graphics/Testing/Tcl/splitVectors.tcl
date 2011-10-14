@@ -20,7 +20,7 @@ vtkMultiBlockPLOT3DReader pl3d
     set output [[pl3d GetOutput] GetBlock 0]
 
 vtkSplitField sf
-    sf SetInput $output
+    sf SetInputData $output
     sf SetInputField "VECTORS" "POINT_DATA"
     sf Split 0 "vx"
     sf Split 1 "vy"
@@ -113,7 +113,7 @@ vtkActor slActor
     slActor SetMapper slMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
@@ -149,5 +149,3 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-

@@ -17,7 +17,7 @@ set value [expr ($min + $max) / 2.0]
 
 #vtkGridSynchronizedTemplates3D cf
 vtkContourFilter cf
-    cf SetInput $pl3d_output
+    cf SetInputData $pl3d_output
     cf SetValue 0 $value
 	#cf ComputeNormalsOff
 
@@ -31,7 +31,7 @@ vtkActor cfActor
 
 #outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $pl3d_output
+    outline SetInputData $pl3d_output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

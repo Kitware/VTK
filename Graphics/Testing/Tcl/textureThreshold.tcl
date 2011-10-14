@@ -22,7 +22,7 @@ vtkMultiBlockPLOT3DReader pl3d
 # wall
 #
 vtkStructuredGridGeometryFilter wall
-    wall SetInput $output
+    wall SetInputData $output
     wall SetExtent 0 100 0 0 0 100
 vtkPolyDataMapper wallMap
     wallMap SetInputConnection [wall GetOutputPort]
@@ -34,7 +34,7 @@ vtkActor wallActor
 # fin
 # 
 vtkStructuredGridGeometryFilter fin
-    fin SetInput $output
+    fin SetInputData $output
     fin SetExtent 0 100 0 100 0 0
 vtkPolyDataMapper finMap
     finMap SetInputConnection [fin GetOutputPort]
@@ -52,7 +52,7 @@ vtkTexture texture
   texture RepeatOff
 
 vtkStructuredGridGeometryFilter plane1
-    plane1 SetInput $output
+    plane1 SetInputData $output
     plane1 SetExtent 10 10 0 100 0 100
 vtkThresholdTextureCoords thresh1
     thresh1 SetInputConnection [plane1 GetOutputPort]
@@ -66,7 +66,7 @@ vtkActor plane1Actor
 [plane1Actor GetProperty] SetOpacity 0.999
 
 vtkStructuredGridGeometryFilter plane2
-    plane2 SetInput $output
+    plane2 SetInputData $output
     plane2 SetExtent 30 30 0 100 0 100
 vtkThresholdTextureCoords thresh2
     thresh2 SetInputConnection [plane2 GetOutputPort]
@@ -80,7 +80,7 @@ vtkActor plane2Actor
     [plane2Actor GetProperty] SetOpacity 0.999
 
 vtkStructuredGridGeometryFilter plane3
-    plane3 SetInput $output
+    plane3 SetInputData $output
     plane3 SetExtent 35 35 0 100 0 100
 vtkThresholdTextureCoords thresh3
     thresh3 SetInputConnection [plane3 GetOutputPort]
@@ -95,7 +95,7 @@ vtkActor plane3Actor
 
 # outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

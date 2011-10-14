@@ -42,7 +42,7 @@ vtkUnstructuredGrid ug0
   ug0 DeepCopy [reader GetOutput] 
 
 vtkDataSetSurfaceFilter sF
-  sF SetInput ug0
+  sF SetInputData ug0
 
 vtkPolyDataMapper mapper0
   mapper0 SetInputConnection [sF GetOutputPort]

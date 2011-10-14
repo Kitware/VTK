@@ -36,7 +36,7 @@ foreach vectorFunction $vectorFunctions {
     pl3d$vectorFunction Update
     set output [[pl3d$vectorFunction GetOutput] GetBlock 0]
 vtkStructuredGridGeometryFilter plane$vectorFunction
-    plane$vectorFunction SetInput $output
+    plane$vectorFunction SetInputData $output
     plane$vectorFunction SetExtent 25 25 0 100 0 100
 vtkHedgeHog hog$vectorFunction
   hog$vectorFunction SetInputConnection [plane$vectorFunction GetOutputPort]

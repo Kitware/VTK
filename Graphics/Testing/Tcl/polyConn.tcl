@@ -21,7 +21,7 @@ vtkMultiBlockPLOT3DReader pl3d
 
 # planes to connect
 vtkStructuredGridGeometryFilter plane1
-    plane1 SetInput $output
+    plane1 SetInputData $output
     plane1 SetExtent 20 20 0 100 0 100
 vtkPolyDataConnectivityFilter conn
     conn SetInputConnection [plane1 GetOutputPort]
@@ -36,7 +36,7 @@ vtkActor plane1Actor
 
 # outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

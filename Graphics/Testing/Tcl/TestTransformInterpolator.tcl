@@ -76,7 +76,7 @@ vtkTransform t1
     t1 RotateX 15
     t1 Scale 4 2 1
 vtkTransformPolyDataFilter tpdf1
-    tpdf1 SetInput cube
+    tpdf1 SetInputData cube
     tpdf1 SetTransform t1
 vtkPolyDataMapper cube1Mapper
     cube1Mapper SetInputConnection [tpdf1 GetOutputPort]
@@ -90,7 +90,7 @@ vtkTransform t2
     t2 RotateZ 85
     t2 Scale 1 2 4
 vtkTransformPolyDataFilter tpdf2
-    tpdf2 SetInput cube
+    tpdf2 SetInputData cube
     tpdf2 SetTransform t2
 vtkPolyDataMapper cube2Mapper
     cube2Mapper SetInputConnection [tpdf2 GetOutputPort]
@@ -104,7 +104,7 @@ vtkTransform t3
     t3 RotateZ -15
     t3 Scale 2 4 1
 vtkTransformPolyDataFilter tpdf3
-    tpdf3 SetInput cube
+    tpdf3 SetInputData cube
     tpdf3 SetTransform t3
 vtkPolyDataMapper cube3Mapper
     cube3Mapper SetInputConnection [tpdf3 GetOutputPort]
@@ -118,7 +118,7 @@ vtkTransform t4
     t4 RotateZ 24
     t4 Scale 2 .5 1
 vtkTransformPolyDataFilter tpdf4
-    tpdf4 SetInput cube
+    tpdf4 SetInputData cube
     tpdf4 SetTransform t4
 vtkPolyDataMapper cube4Mapper
     cube4Mapper SetInputConnection [tpdf4 GetOutputPort]
@@ -127,7 +127,7 @@ vtkActor cube4
 
 # Interpolate the transformation
 vtkPolyDataMapper cubeMapper
-    cubeMapper SetInput cube
+    cubeMapper SetInputData cube
 vtkActor cubeActor
     cubeActor SetMapper cubeMapper
 

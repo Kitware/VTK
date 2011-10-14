@@ -35,7 +35,7 @@ foreach pair $types {
     puts "Attempting ${type} write with no input."
     catch {writer Write}
     puts "Attempting ${type} write with empty input."
-    writer SetInput input
+    writer SetInputData input
     writer Write
 
     vtkXML${type}Reader reader
@@ -49,7 +49,7 @@ foreach pair $types {
     puts "Attempting P${type} write with no input."
     catch {pwriter Write}
     puts "Attempting P${type} write with empty input."
-    pwriter SetInput input
+    pwriter SetInputData input
     pwriter Write
 
     vtkXMLP${type}Reader preader
@@ -92,7 +92,7 @@ foreach pair $types {
     puts "Attempting DataSet ${type} write with no input."
     catch {writer Write}
     puts "Attempting DataSet ${type} write with empty input."
-    writer SetInput input
+    writer SetInputData input
     writer Write
 
     pwriter SetFileName "emptyP${type}DataSet.p${ext}"
@@ -100,7 +100,7 @@ foreach pair $types {
     puts "Attempting DataSet P${type} write with no input."
     catch {pwriter Write}
     puts "Attempting DataSet P${type} write with empty input."
-    pwriter SetInput input
+    pwriter SetInputData input
     pwriter Write
 
     input Delete

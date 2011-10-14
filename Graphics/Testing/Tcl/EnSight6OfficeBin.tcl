@@ -19,7 +19,9 @@ reader Update
 
 # to add coverage for vtkOnePieceExtentTranslator
 vtkOnePieceExtentTranslator translator
-[reader GetOutput] SetExtentTranslator translator
+vtkStreamingDemandDrivenPipeline sddp
+set Outinfo [reader GetOutputInformation 0]
+sddp SetExtentTranslator $Outinfo translator
 
 vtkStructuredGridOutlineFilter outline
     outline SetInputConnection [reader GetOutputPort]
@@ -41,7 +43,7 @@ vtkConeSource cone
     cone SetResolution 8
 vtkGlyph3D cones
     cones SetInputConnection [streamer GetOutputPort]
-    cones SetSource [cone GetOutput]
+    cones SetSourceConnection [cone GetOutputPort]
     cones SetScaleFactor 0.9
     cones SetScaleModeToScaleByVector
 

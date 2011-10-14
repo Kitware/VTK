@@ -12,6 +12,7 @@ vtkSampleFunction sample
     sample SetModelBounds  0 2 0 2 0 2
     sample SetSampleDimensions 30 30 30
     sample ComputeNormalsOff
+    sample Update
 
 
 vtkThreshold threshold1
@@ -24,19 +25,21 @@ vtkGeometryFilter geometry
 vtkImageGradient grad
 grad SetDimensionality 3
 grad SetInputConnection [sample GetOutputPort]
+grad Update
 
 vtkImageMathematics mult
 mult SetOperationToMultiply
-mult SetInput1 [sample GetOutput]
-mult SetInput2 [sample GetOutput]
+mult SetInput1Data [sample GetOutput]
+mult SetInput2Data [sample GetOutput]
 
 vtkImageToStructuredPoints itosp
 itosp SetInputConnection [mult GetOutputPort]
-itosp SetVectorInput [grad GetOutput]
+itosp SetVectorInputData [grad GetOutput]
+itosp Update
 
 vtkSubPixelPositionEdgels sub
 sub SetInputConnection [geometry GetOutputPort]
-sub SetGradMaps [itosp GetOutput]
+sub SetGradMapsData [itosp GetOutput]
 
 
 vtkDataSetMapper mapper

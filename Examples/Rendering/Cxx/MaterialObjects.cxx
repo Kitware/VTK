@@ -49,25 +49,25 @@ vtkActor* makeActor( const char* type, const char* material )
     vtkTexturedSphereSource *sphere = vtkTexturedSphereSource::New();
     sphere->SetThetaResolution(25);
     sphere->SetPhiResolution(25);
-    mapper->SetInput(sphere->GetOutput());
+    mapper->SetInputConnection(sphere->GetOutputPort());
     sphere->Delete();
     }
   else if( strcmp(type,"cube")==0 )
     {
     vtkCubeSource *cube= vtkCubeSource::New();
-    mapper->SetInput(cube->GetOutput());
+    mapper->SetInputConnection(cube->GetOutputPort());
     cube->Delete();
     }
   else if( strcmp(type,"cylinder")==0 )
     {
     vtkCylinderSource *cylinder= vtkCylinderSource::New();
-    mapper->SetInput(cylinder->GetOutput());
+    mapper->SetInputConnection(cylinder->GetOutputPort());
     cylinder->Delete();
     }
   else if( strcmp(type,"plane")==0 )
     {
     vtkPlaneSource *plane= vtkPlaneSource::New();
-    mapper->SetInput(plane->GetOutput());
+    mapper->SetInputConnection(plane->GetOutputPort());
     plane->Delete();
     }
 

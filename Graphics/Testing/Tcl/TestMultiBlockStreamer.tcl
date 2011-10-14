@@ -30,7 +30,7 @@ Plot3D0 Update
 set output [[Plot3D0 GetOutput] GetBlock 0]
 
 vtkStructuredGridOutlineFilter Geometry5
-Geometry5 SetInput $output
+Geometry5 SetInputData $output
 
 vtkPolyDataMapper Mapper5
 Mapper5 SetInputConnection [Geometry5 GetOutputPort]
@@ -53,19 +53,19 @@ Actor5 SetMapper Mapper5
 Ren1 AddActor Actor5
 
 vtkExtractGrid ExtractGrid0
-ExtractGrid0 SetInput $output
+ExtractGrid0 SetInputData $output
 ExtractGrid0 SetVOI 0 14 0 32 0 24 
 ExtractGrid0 SetSampleRate 1 1 1 
 ExtractGrid0 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid1
-ExtractGrid1 SetInput $output
+ExtractGrid1 SetInputData $output
 ExtractGrid1 SetVOI 14 29 0 32 0 24 
 ExtractGrid1 SetSampleRate 1 1 1 
 ExtractGrid1 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid2
-ExtractGrid2 SetInput $output
+ExtractGrid2 SetInputData $output
 ExtractGrid2 SetVOI 29 56 0 32 0 24 
 ExtractGrid2 SetSampleRate 1 1 1 
 ExtractGrid2 SetIncludeBoundary 0
@@ -87,8 +87,8 @@ for {set i 0} {$i<3} {incr i 1} {
 }
 
 vtkStreamTracer Stream0
-Stream0 SetInput mbds
-Stream0 SetSource [LineSourceWidget0 GetOutput]
+Stream0 SetInputData mbds
+Stream0 SetSourceConnection [LineSourceWidget0 GetOutputPort]
 Stream0 SetIntegrationStepUnit 2
 Stream0 SetMaximumPropagation 20
 Stream0 SetInitialIntegrationStep 0.5

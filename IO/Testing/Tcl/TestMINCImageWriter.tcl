@@ -49,7 +49,7 @@ if {[catch {set channel [open "$dir/test.tmp" "w"]}] == 0 } {
    reader2 SetFileName "$dir/minc3.mnc"
    reader2 RescaleRealValuesOn
    reader2 SetTimeStep 1
-   [reader2 GetOutput] Update
+   reader2 Update
 
    set image reader2
 

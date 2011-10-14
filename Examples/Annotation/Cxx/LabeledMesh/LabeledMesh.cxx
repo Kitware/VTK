@@ -114,8 +114,8 @@ int main( int , char *[] )
 
   vtkSmartPointer<vtkPolyDataMapper2D> rectMapper =
     vtkSmartPointer<vtkPolyDataMapper2D>::New();
-  rectMapper->SetInput( selectRect );
-
+  rectMapper->SetInputData(selectRect);
+    
   vtkSmartPointer<vtkActor2D> rectActor =
     vtkSmartPointer<vtkActor2D>::New();
   rectActor->SetMapper( rectMapper );

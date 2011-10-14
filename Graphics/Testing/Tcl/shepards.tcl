@@ -29,7 +29,7 @@ vtkPolyData profile
 # triangulate them
 #
 vtkShepardMethod shepard
-    shepard SetInput profile
+    shepard SetInputData profile
     shepard SetModelBounds 0 1 0 1 .1 .5
 #    shepard SetMaximumDistance .1
     shepard SetNullValue 1

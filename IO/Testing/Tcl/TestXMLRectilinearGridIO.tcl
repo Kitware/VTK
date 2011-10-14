@@ -50,7 +50,7 @@ vtkRectilinearGrid rg0
   rg0 DeepCopy [reader GetOutput]
 
 vtkDataSetMapper mapper0
-  mapper0 SetInput rg0
+  mapper0 SetInputData rg0
 
 vtkActor actor0
   actor0 SetMapper mapper0
@@ -64,7 +64,7 @@ vtkRectilinearGrid rg1
   rg1 DeepCopy [reader GetOutput]
 
 vtkDataSetMapper mapper1
-  mapper1 SetInput rg1
+  mapper1 SetInputData rg1
 
 vtkActor actor1
   actor1 SetMapper mapper1

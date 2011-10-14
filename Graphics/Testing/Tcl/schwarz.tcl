@@ -145,34 +145,34 @@ vtkTransform t0
   t0 Identity
 vtkTransformPolyDataFilter tf0
   tf0 SetTransform t0
-  tf0 SetInput model
+  tf0 SetInputData model
 
 vtkTransform t1
   t1 Identity
   t1 RotateZ 90
 vtkTransformPolyDataFilter tf1
   tf1 SetTransform t1
-  tf1 SetInput model
+  tf1 SetInputData model
 
 vtkTransform t2
   t2 Identity
   t2 RotateZ 180
 vtkTransformPolyDataFilter tf2
   tf2 SetTransform t2
-  tf2 SetInput model
+  tf2 SetInputData model
 
 vtkTransform t3
   t3 Identity
   t3 RotateZ 270
 vtkTransformPolyDataFilter tf3
   tf3 SetTransform t3
-  tf3 SetInput model
+  tf3 SetInputData model
 
 vtkAppendPolyData af
-  af AddInput [tf0 GetOutput]
-  af AddInput [tf1 GetOutput]
-  af AddInput [tf2 GetOutput]
-  af AddInput [tf3 GetOutput]
+  af AddInputConnection [tf0 GetOutputPort]
+  af AddInputConnection [tf1 GetOutputPort]
+  af AddInputConnection [tf2 GetOutputPort]
+  af AddInputConnection [tf3 GetOutputPort]
 
 vtkTransform t4
   t4 Identity
@@ -182,8 +182,8 @@ vtkTransformPolyDataFilter tf4
   tf4 SetInputConnection [af GetOutputPort]
 
 vtkAppendPolyData af2
-  af2 AddInput [af GetOutput]
-  af2 AddInput [tf4 GetOutput]
+  af2 AddInputConnection [af GetOutputPort]
+  af2 AddInputConnection [tf4 GetOutputPort]
 
 vtkTransform t5
   t5 Identity
@@ -193,8 +193,8 @@ vtkTransformPolyDataFilter tf5
   tf5 SetInputConnection [af2 GetOutputPort]
 
 vtkAppendPolyData af3
-  af3 AddInput [af2 GetOutput]
-  af3 AddInput [tf5 GetOutput]
+  af3 AddInputConnection [af2 GetOutputPort]
+  af3 AddInputConnection [tf5 GetOutputPort]
 
 vtkTransform t6
   t6 Identity
@@ -204,8 +204,8 @@ vtkTransformPolyDataFilter tf6
   tf6 SetInputConnection [af3 GetOutputPort]
 
 vtkAppendPolyData af4
-  af4 AddInput [af3 GetOutput]
-  af4 AddInput [tf6 GetOutput]
+  af4 AddInputConnection [af3 GetOutputPort]
+  af4 AddInputConnection [tf6 GetOutputPort]
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -217,7 +217,7 @@ vtkRenderWindowInteractor iren
 
 vtkCleanPolyData clean
   clean SetTolerance .001
-  clean SetInput model
+  clean SetInputData model
   clean SetInputConnection [af2 GetOutputPort]
   clean SetInputConnection [af3 GetOutputPort]
   clean SetInputConnection [af4 GetOutputPort]

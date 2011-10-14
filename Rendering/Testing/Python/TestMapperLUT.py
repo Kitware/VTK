@@ -30,7 +30,7 @@ class TestMapperLUT(Testing.vtkTest):
         p.GetPointData().SetScalars(sc)
         l = vtk.vtkLookupTable()
         m = vtk.vtkPolyDataMapper()
-        m.SetInput(p)
+        m.SetInputData(p)
         m.SetScalarRange(0.0, 10.0)
         m.SetLookupTable(l)
         ret = m.MapScalars(0.5)
@@ -51,7 +51,7 @@ class TestMapperLUT(Testing.vtkTest):
         v16.SetDataSpacing(3.2, 3.2, 1.5)
         v16.Update()
 
-        xMin, xMax, yMin, yMax, zMin, zMax = v16.GetOutput().GetWholeExtent()
+        xMin, xMax, yMin, yMax, zMin, zMax = v16.GetExecutive().GetWholeExtent(v16.GetOutputInformation(0))
         img_data = v16.GetOutput()
         spacing = img_data.GetSpacing()
         sx, sy, sz = spacing
@@ -61,7 +61,7 @@ class TestMapperLUT(Testing.vtkTest):
 
         # An outline is shown for context.
         outline = vtk.vtkOutlineFilter()
-        outline.SetInput(img_data)
+        outline.SetInputData(img_data)
 
         outlineMapper = vtk.vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
@@ -120,7 +120,7 @@ class TestMapperLUT(Testing.vtkTest):
         p.SetPoints(pts)
         p.GetPointData().SetScalars(sc)
         m = vtk.vtkPolyDataMapper()
-        m.SetInput(p)
+        m.SetInputData(p)
         # Share the lookup table of the widgets.
         m.SetLookupTable(planeWidgetX.GetLookupTable())
         m.UseLookupTableScalarRangeOn()

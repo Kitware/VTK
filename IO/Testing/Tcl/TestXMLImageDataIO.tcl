@@ -47,7 +47,7 @@ vtkImageData id0
   id0 DeepCopy [reader GetOutput]
 
 vtkContourFilter cF0
-  cF0 SetInput id0
+  cF0 SetInputData id0
   cF0 SetValue 0 500
   
 vtkPolyDataMapper mapper0
@@ -68,7 +68,7 @@ vtkImageData id1
   id1 DeepCopy [reader GetOutput]
 
 vtkContourFilter cF1
-  cF1 SetInput id1
+  cF1 SetInputData id1
   cF1 SetValue 0 500
 
 vtkPolyDataMapper mapper1

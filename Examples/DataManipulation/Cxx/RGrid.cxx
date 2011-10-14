@@ -76,7 +76,7 @@ int main()
 
     // Extract a plane from the grid to see what we've got.
   vtkRectilinearGridGeometryFilter *plane = vtkRectilinearGridGeometryFilter::New();
-    plane->SetInput(rgrid);
+    plane->SetInputData(rgrid);
     plane->SetExtent(0,46, 16,16, 0,43);
 
   vtkPolyDataMapper *rgridMapper = vtkPolyDataMapper::New();

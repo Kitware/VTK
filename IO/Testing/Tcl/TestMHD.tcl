@@ -15,13 +15,16 @@ vtkImageReader reader
   reader SetDataSpacing 3.2 3.2 1.5
   reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
   reader SetDataMask 0x7fff
+  reader Update
 
 vtkMetaImageWriter pvTemp200
   pvTemp200 SetFileName "mhdWriter.mhd"
-  pvTemp200 SetInput [ reader GetOutput ]
+  pvTemp200 SetInputData [ reader GetOutput]
   pvTemp200 Write
 vtkMetaImageReader pvTemp90
 	pvTemp90 SetFileName "mhdWriter.mhd"
+	pvTemp90 Update
+
 vtkLookupTable pvTemp109
 	pvTemp109 SetNumberOfTableValues 256
 	pvTemp109 SetHueRange 0.6667 0
@@ -32,7 +35,7 @@ vtkLookupTable pvTemp109
 	pvTemp109 Build
 
 vtkContourFilter pvTemp110
-	pvTemp110 SetInput [pvTemp90 GetOutput 0]
+	pvTemp110 SetInputData [pvTemp90 GetOutput 0]
 	pvTemp110 SetValue 0 1150
 	pvTemp110 SetComputeNormals 1
 	pvTemp110 SetComputeGradients 0

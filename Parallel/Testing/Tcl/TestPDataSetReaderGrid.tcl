@@ -28,7 +28,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     reader Update
   vtkPDataSetWriter writer
     writer SetFileName "comb.pvtk"
-    writer SetInput [[reader GetOutput] GetBlock 0]
+    writer SetInputData [[reader GetOutput] GetBlock 0]
     writer SetNumberOfPieces 4
     writer Write
   vtkPDataSetReader pReader
@@ -64,19 +64,22 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     fractal SetWholeExtent 0 9 0 9 0 9
     fractal SetSampleCX 0.1 0.1 0.1 0.1
     fractal SetMaximumNumberOfIterations 10 
+    fractal Update
 
   vtkPDataSetWriter writer2
     writer SetFileName "fractal.pvtk"
-    writer SetInputConnection [fractal GetOutputPort]
+    writer SetInputData [fractal GetOutput]
     writer SetNumberOfPieces 4
     writer Write
 
   vtkPDataSetReader pReader2
     pReader2 SetFileName "fractal.pvtk"
- 
+    pReader2 Update
+
   vtkContourFilter iso
     iso SetInputConnection [pReader2 GetOutputPort]
     iso SetValue 0 4
+    iso Update
 
   vtkPolyDataMapper mapper2
     mapper2 SetInputConnection [iso GetOutputPort]
@@ -95,7 +98,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     actor2 SetMapper mapper2
     actor2 SetScale 5 5 5
     actor2 SetPosition 6 6 6
-    
+
   # Add the actors to the renderer, set the background and size
   #
   ren1 AddActor actor2
@@ -106,16 +109,17 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
   # First save out a grid in parallel form.
   vtkSphereSource sphere
     sphere SetRadius 2
+    sphere Update
 
   vtkPDataSetWriter writer3
     writer3 SetFileName "sphere.pvtk"
-    writer3 SetInputConnection [sphere GetOutputPort]
+    writer3 SetInputData [sphere GetOutput]
     writer3 SetNumberOfPieces 4
     writer3 Write
 
   vtkPDataSetReader pReader3
     pReader3 SetFileName "sphere.pvtk"
- 
+
   vtkPolyDataMapper mapper3
     mapper3 SetInputConnection [pReader3 GetOutputPort]
     mapper3 SetNumberOfPieces 2

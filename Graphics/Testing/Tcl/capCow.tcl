@@ -48,9 +48,9 @@ vtkPolyData cutPoly; #This trick defines polygons as polyline loop
   cutPoly SetPoints [[cutStrips GetOutput] GetPoints]
   cutPoly SetPolys [[cutStrips GetOutput] GetLines]
 vtkTriangleFilter cutTriangles; #Triangulates the polygons to create cut surface
-  cutTriangles SetInput cutPoly
+  cutTriangles SetInputData cutPoly
 vtkPolyDataMapper cutMapper
-  cutMapper SetInput cutPoly
+  cutMapper SetInputData cutPoly
   cutMapper SetInputConnection [cutTriangles GetOutputPort]
 vtkActor cutActor
   cutActor SetMapper cutMapper
@@ -58,7 +58,7 @@ vtkActor cutActor
 
 # Create the rest of the cow in wireframe
 vtkPolyDataMapper restMapper
-  restMapper SetInput [clipper GetClippedOutput]
+  restMapper SetInputData [clipper GetClippedOutput]
   restMapper ScalarVisibilityOff
 vtkActor restActor
   restActor SetMapper restMapper

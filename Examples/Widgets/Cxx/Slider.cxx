@@ -53,7 +53,7 @@ int main (int, char *[])
   sphereSource->SetThetaResolution(8);
  
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInput(sphereSource->GetOutput());
+  mapper->SetInputConnection(sphereSource->GetOutputPort());
  
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);

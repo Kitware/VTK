@@ -65,7 +65,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   // Glyph the gradient vector (with arrows)
   vtkGlyph3D* glyph = vtkGlyph3D::New();
   glyph->SetInputConnection(aa->GetOutputPort());
-  glyph->SetSource(arrow->GetOutput());
+  glyph->SetSourceConnection(arrow->GetOutputPort());
   glyph->ScalingOff();
   glyph->OrientOn();
   glyph->SetVectorModeToUseVector();

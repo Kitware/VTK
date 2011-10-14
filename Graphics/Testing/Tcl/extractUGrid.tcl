@@ -7,8 +7,10 @@ vtkDataSetReader reader
     reader SetVectorsName "displacement9"
 vtkCastToConcrete castToUnstructuredGrid
     castToUnstructuredGrid SetInputConnection [reader GetOutputPort]
+    castToUnstructuredGrid Update
+
 vtkWarpVector warp
-    warp SetInput [castToUnstructuredGrid GetUnstructuredGridOutput]
+    warp SetInputData [castToUnstructuredGrid GetUnstructuredGridOutput]
 
 # extract mold from mesh using connectivity
 vtkConnectivityFilter connect

@@ -14,7 +14,7 @@ reader SetFileName "$VTK_DATA_ROOT/Data/beach.tif"
 reader SetOrientationType 4
 
 vtkImageActor ia
-ia SetInput [reader GetOutput]
+[ia GetMapper] SetInputConnection [reader GetOutputPort]
 
 vtkRenderer ren
 ren AddActor ia

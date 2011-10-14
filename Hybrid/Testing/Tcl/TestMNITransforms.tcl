@@ -31,8 +31,8 @@ vtkBMPReader reader1
 reader1 SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 
 vtkImageBlend blend
-blend AddInput [reader1 GetOutput]
-blend AddInput [alpha GetOutput]
+blend AddInputConnection [reader1 GetOutputPort]
+blend AddInputConnection [alpha GetOutputPort]
 
 # next, create a ThinPlateSpline transform
 
@@ -97,6 +97,7 @@ vtkTransformToGrid transformToGrid
   transformToGrid SetGridSpacing 16 16 1
   transformToGrid SetGridOrigin -64.5 -64.5 0
   transformToGrid SetGridExtent 0 24 0 24 0 0
+  transformToGrid Update
 
 vtkGridTransform gridTransform
   gridTransform SetDisplacementGrid [transformToGrid GetOutput]

@@ -98,7 +98,7 @@ vtkPolyData contours
     contours SetPolys polys
 
 vtkPolyDataMapper contourMapper
-    contourMapper SetInput contours
+    contourMapper SetInputData contours
 
 vtkActor contourActor
     contourActor SetMapper contourMapper
@@ -129,7 +129,7 @@ wm withdraw .
 #
 
 vtkVoxelContoursToSurfaceFilter f
-f SetInput contours
+f SetInputData contours
 f SetMemoryLimitInBytes 100000
 
 vtkPolyDataMapper m

@@ -25,7 +25,7 @@ set max [lindex $range 1]
 set value [expr ($min + $max) / 2.0]
 
 vtkContourFilter cf
-    cf SetInput $output
+    cf SetInputData $output
     cf SetValue 0 $value
     cf UseScalarTreeOn
 
@@ -41,7 +41,7 @@ for {set i 1} { $i <= $numberOfContours } {incr i} {
     pd$i CopyStructure [cf GetOutput]
     [pd$i GetPointData] DeepCopy [[cf GetOutput] GetPointData]
   vtkPolyDataMapper mapper$i
-    mapper$i SetInput pd$i
+    mapper$i SetInputData pd$i
     eval mapper$i SetScalarRange \
       [[[$output GetPointData] GetScalars] GetRange]
   vtkActor actor$i

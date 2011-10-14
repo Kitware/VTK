@@ -68,17 +68,17 @@ int main (int argc, char *argv[])
  
   reader->SetFileName(argv[1]);
  
-  histogram->SetInput(reader->GetOutput());
+  histogram->SetInputConnection(reader->GetOutputPort());
   histogram->SetComponentExtent(0, endLabel, 0, 0, 0, 0);
   histogram->SetComponentOrigin(0, 0, 0);
   histogram->SetComponentSpacing(1, 1, 1);
   histogram->Update();
  
-  discreteCubes->SetInput(reader->GetOutput());
+  discreteCubes->SetInputConnection(reader->GetOutputPort());
   discreteCubes->GenerateValues(
     endLabel - startLabel + 1, startLabel, endLabel);
  
-  smoother->SetInput(discreteCubes->GetOutput());
+  smoother->SetInputConnection(discreteCubes->GetOutputPort());
   smoother->SetNumberOfIterations(smoothingIterations);
   smoother->BoundarySmoothingOff();
   smoother->FeatureEdgeSmoothingOff();
@@ -88,21 +88,21 @@ int main (int argc, char *argv[])
   smoother->NormalizeCoordinatesOn();
   smoother->Update();
  
-  selector->SetInput(smoother->GetOutput());
+  selector->SetInputConnection(smoother->GetOutputPort());
   selector->SetInputArrayToProcess(0, 0, 0,
                                    vtkDataObject::FIELD_ASSOCIATION_CELLS,
                                    vtkDataSetAttributes::SCALARS);
  
   // Strip the scalars from the output
-  scalarsOff->SetInput(selector->GetOutput());
+  scalarsOff->SetInputConnection(selector->GetOutputPort());
   scalarsOff->CopyAttributeOff(vtkMaskFields::POINT_DATA,
                                vtkDataSetAttributes::SCALARS);
   scalarsOff->CopyAttributeOff(vtkMaskFields::CELL_DATA,
                                vtkDataSetAttributes::SCALARS);
  
-  geometry->SetInput(scalarsOff->GetOutput());
+  geometry->SetInputConnection(scalarsOff->GetOutputPort());
  
-  writer->SetInput(geometry->GetOutput());
+  writer->SetInputConnection(geometry->GetOutputPort());
  
   for (unsigned int i = startLabel; i <= endLabel; i++)
     {

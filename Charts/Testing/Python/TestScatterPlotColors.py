@@ -73,13 +73,13 @@ class TestScatterPlotColors(vtk.test.Testing.vtkTest):
 
         # Add multiple line plots, setting the colors etc
         points0 = chart.AddPlot(vtk.vtkChart.POINTS)
-        points0.SetInput(table, 0, 1)
+        points0.SetInputData(table, 0, 1)
         points0.SetColor(0, 0, 0, 255)
         points0.SetWidth(1.0)
         points0.SetMarkerStyle(vtk.vtkPlotPoints.CROSS)
 
         points1 = chart.AddPlot(vtk.vtkChart.POINTS)
-        points1.SetInput(table, 0, 2)
+        points1.SetInputData(table, 0, 2)
         points1.SetColor(0, 0, 0, 255)
         points1.SetMarkerStyle(vtk.vtkPlotPoints.DIAMOND)
         points1.SetScalarVisibility(1)
@@ -87,7 +87,7 @@ class TestScatterPlotColors(vtk.test.Testing.vtkTest):
         points1.SelectColorArray(1)
 
         points2 = chart.AddPlot(vtk.vtkChart.POINTS)
-        points2.SetInput(table, 0, 3)
+        points2.SetInputData(table, 0, 3)
         points2.SetColor(0, 0, 0, 255)
         points2.ScalarVisibilityOn()
         points2.SetLookupTable(lut2)

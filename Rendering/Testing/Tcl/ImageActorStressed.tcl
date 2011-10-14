@@ -27,7 +27,7 @@ ssOne SetScale 1
 ssOne UpdateWholeExtent
 
 vtkImageActor iaOne
-iaOne SetInput [ssOne GetOutput]
+[iaOne GetMapper] SetInputConnection [ssOne GetOutputPort]
 
 ren1 AddActor iaOne
 
@@ -48,7 +48,7 @@ ssTwo SetScale 1
 ssTwo UpdateWholeExtent
 
 vtkImageActor iaTwo
-iaTwo SetInput [ssTwo GetOutput]
+[iaTwo GetMapper] SetInputConnection [ssTwo GetOutputPort]
 iaTwo SetScale 0.1 0.1 1.0
 iaTwo AddPosition 1000 1000 0
 
@@ -72,7 +72,7 @@ ssThree SetScale 1
 ssThree UpdateWholeExtent
 
 vtkImageActor iaThree
-iaThree SetInput [ssThree GetOutput]
+[iaThree GetMapper] SetInputConnection [ssThree GetOutputPort]
 
 ren1 AddActor iaThree
 
@@ -96,7 +96,7 @@ ssFour SetScale 1
 ssFour UpdateWholeExtent
 
 vtkImageActor iaFour
-iaFour SetInput [ssFour GetOutput]
+[iaFour GetMapper] SetInputConnection [ssFour GetOutputPort]
 
 ren1 AddActor iaFour
 
@@ -119,7 +119,7 @@ ssFive SetScale 1
 ssFive UpdateWholeExtent
 
 vtkImageActor iaFive
-iaFive SetInput [ssFive GetOutput]
+[iaFive GetMapper] SetInputConnection [ssFive GetOutputPort]
 
 ren1 AddActor iaFive
 

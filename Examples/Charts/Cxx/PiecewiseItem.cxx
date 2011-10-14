@@ -37,7 +37,7 @@ int main(int, char *[])
   source->AddPoint(200,200);
   source->AddPoint(400,500);
   source->AddPoint(700,500);
-  source->Update();
+//   source->Update();
   vtkSmartPointer<vtkPiecewiseControlPointsItem> item = vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
   item->SetPiecewiseFunction(source);
   view->GetScene()->AddItem(item);

@@ -52,17 +52,17 @@ class TestLinePlot(vtk.test.Testing.vtkTest):
 
         # Now add the line plots with appropriate colors
         line = chart.AddPlot(0)
-        line.SetInput(table,0,1)
+        line.SetInputData(table,0,1)
         line.SetColor(0,255,0,255)
         line.SetWidth(1.0)
 
         line = chart.AddPlot(0)
-        line.SetInput(table,0,2)
+        line.SetInputData(table,0,2)
         line.SetColor(255,0,0,255)
         line.SetWidth(5.0)
 
         line = chart.AddPlot(0)
-        line.SetInput(table,0,3)
+        line.SetInputData(table,0,3)
         line.SetColor(0,0,255,255)
         line.SetWidth(4.0)
 

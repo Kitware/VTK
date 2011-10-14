@@ -11,6 +11,7 @@ vtkUnstructuredGridReader reader
     reader SetScalarsName "thickness9"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [reader GetOutputPort]
+    ds2do Update
 vtkParallelCoordinatesActor actor
     actor SetInput [ds2do GetOutput]
     actor SetTitle "Parallel Coordinates Plot of blow.tcl"

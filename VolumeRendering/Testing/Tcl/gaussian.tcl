@@ -29,13 +29,13 @@ set min [lindex $range 0]
 set max [lindex $range 1]
 
 vtkImageShiftScale readerSS
-  readerSS SetInput [reader GetGridOutput]
+  readerSS SetInputData [reader GetGridOutput]
   readerSS SetShift [expr $min * -1]
   readerSS SetScale [expr 255 / ($max - $min)]
   readerSS SetOutputScalarTypeToUnsignedChar
 
 vtkOutlineFilter bounds
-    bounds SetInput [reader GetGridOutput]
+    bounds SetInputData [reader GetGridOutput]
 
 vtkPolyDataMapper boundsMapper
     boundsMapper SetInputConnection [bounds GetOutputPort]
@@ -45,7 +45,7 @@ vtkActor boundsActor
     [boundsActor GetProperty] SetColor 0 0 0
 
 vtkContourFilter contour
-    contour SetInput [reader GetGridOutput]
+    contour SetInputData [reader GetGridOutput]
     eval contour GenerateValues 5 0 .05
 
 
@@ -113,7 +113,7 @@ vtkGlyph3D Glyph
   #Glyph ScalingOn
   Glyph SetScaleMode 2
   Glyph SetScaleFactor .6
-  Glyph SetSource [Sphere GetOutput]
+  Glyph SetSourceConnection [Sphere GetOutputPort]
 
 vtkPolyDataMapper AtomsMapper
   AtomsMapper SetInputConnection [Glyph GetOutputPort]

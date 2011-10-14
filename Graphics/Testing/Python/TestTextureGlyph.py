@@ -47,8 +47,8 @@ class TestTextureGlyph(Testing.vtkTest):
         g = vtk.vtkGlyph3D()
         g.SetScaleModeToDataScalingOff()
         g.SetVectorModeToUseVector()
-        g.SetInput(pd)
-        g.SetSource(cs.GetOutput())
+        g.SetInputData(pd)
+        g.SetSourceConnection(cs.GetOutputPort())
 
         m = vtk.vtkPolyDataMapper()
         m.SetInputConnection(g.GetOutputPort())

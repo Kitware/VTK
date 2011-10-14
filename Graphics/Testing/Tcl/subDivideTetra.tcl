@@ -20,7 +20,7 @@ vtkUnstructuredGrid aTetraGrid
   aTetraGrid SetPoints tetraPoints
 
 vtkSubdivideTetra sub
-  sub SetInput aTetraGrid
+  sub SetInputData aTetraGrid
 
 vtkShrinkFilter shrinker
   shrinker SetInputConnection [sub GetOutputPort]

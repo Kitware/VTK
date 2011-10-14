@@ -11,6 +11,7 @@ vtkImageCanvasSource2D image1
   image1 SetExtent 0 79 0 79 0 0
   image1 SetDrawColor 255 255 0
   image1 FillBox 0 79 0 79
+  image1 Update
 
 vtkImageCanvasSource2D image2
   image2 SetNumberOfScalarComponents 3
@@ -18,6 +19,7 @@ vtkImageCanvasSource2D image2
   image2 SetExtent 0 79 0 79 0 0
   image2 SetDrawColor 0 255 255
   image2 FillBox 0 79 0 79
+  image2 Update
 
 vtkImageMapper mapper
   mapper SetInputConnection [image1 GetOutputPort]
@@ -35,8 +37,8 @@ set wipes "Quad Horizontal Vertical LowerLeft LowerRight UpperLeft UpperRight"
 foreach wipe $wipes {
 
     vtkImageRectilinearWipe wiper${wipe}
-      wiper${wipe} SetInput 0 [image1 GetOutput]
-      wiper${wipe} SetInput 1 [image2 GetOutput]
+      wiper${wipe} SetInput1Data [image1 GetOutput]
+      wiper${wipe} SetInput2Data [image2 GetOutput]
       wiper${wipe} SetPosition 20 20
       wiper${wipe} SetWipeTo${wipe}
   

@@ -19,7 +19,7 @@ vtkTIFFReader imageIn
 # convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
 # SetOrientationType method with parameter value of 4.
   imageIn SetOrientationType 4
-  imageIn ReleaseDataFlagOff
+  [imageIn GetExecutive] SetReleaseDataFlag 0 0
   imageIn Update
 
 proc PowerOfTwo {amt} {
@@ -32,8 +32,8 @@ proc PowerOfTwo {amt} {
   }
 }
 
-set orgX [expr [lindex [[imageIn GetOutput] GetWholeExtent] 1] - [lindex [[imageIn GetOutput] GetWholeExtent] 0] + 1]
-set orgY [expr [lindex [[imageIn GetOutput] GetWholeExtent] 3] - [lindex [[imageIn GetOutput] GetWholeExtent] 2] + 1]
+set orgX [expr [lindex [[imageIn GetExecutive] GetWholeExtent [imageIn GetOutputInformation 0]] 1] - [lindex [[imageIn GetExecutive] GetWholeExtent [imageIn GetOutputInformation 0]] 0] + 1]
+set orgY [expr [lindex [[imageIn GetExecutive] GetWholeExtent [imageIn GetOutputInformation 0]] 3] - [lindex [[imageIn GetExecutive] GetWholeExtent [imageIn GetOutputInformation 0]] 2] + 1]
 set padX [PowerOfTwo $orgX]
 set padY [PowerOfTwo $orgY]
 
@@ -43,12 +43,12 @@ vtkImageConstantPad imagePowerOf2
 
 vtkImageRGBToHSV toHSV
   toHSV SetInputConnection [imageIn GetOutputPort]
-  toHSV ReleaseDataFlagOff
+  [toHSV GetExecutive] SetReleaseDataFlag 0 0
 
 vtkImageExtractComponents extractImage
   extractImage SetInputConnection [toHSV GetOutputPort]
   extractImage SetComponents 2
-  extractImage ReleaseDataFlagOff
+  [extractImage GetExecutive] SetReleaseDataFlag 0 0
 
 vtkImageThreshold threshold1
   threshold1 SetInputConnection [extractImage GetOutputPort]
@@ -58,7 +58,7 @@ vtkImageThreshold threshold1
   threshold1 Update
 
 
-set extent [[threshold1 GetOutput] GetWholeExtent]
+set extent [[threshold1 GetExecutive] GetWholeExtent [threshold1 GetOutputInformation 0]]
 
 vtkImageSeedConnectivity connect
   connect SetInputConnection [threshold1 GetOutputPort]
@@ -91,9 +91,10 @@ vtkTextureMapToPlane geometryTexture
 
 vtkCastToConcrete geometryPD
   geometryPD SetInputConnection [geometryTexture GetOutputPort]
+  geometryPD Update
 
 vtkClipPolyData clip
-  clip SetInput [geometryPD GetPolyDataOutput]
+  clip SetInputData [geometryPD GetPolyDataOutput]
   clip SetValue 5.5
   clip GenerateClipScalarsOff
   clip InsideOutOff

@@ -9,6 +9,7 @@ package require vtk
 #
 vtkPolyDataReader cyber
     cyber SetFileName "$VTK_DATA_ROOT/Data/fran_cut.vtk"
+    cyber Update
 
 # Create a patch by manual enumeration
 vtkPoints pts
@@ -3524,10 +3525,10 @@ vtkPolyData patch
     patch SetPoints pts
     patch SetPolys ca
 vtkTriangleFilter tf
-    tf SetInput patch
+    tf SetInputData patch
 vtkSmoothPolyDataFilter smooth
     smooth SetInputConnection [tf GetOutputPort]
-    smooth SetSource [cyber GetOutput]
+    smooth SetSourceData [cyber GetOutput]
     smooth SetNumberOfIterations 50
 vtkPolyDataMapper patchMapper
     patchMapper SetInputConnection [smooth GetOutputPort]

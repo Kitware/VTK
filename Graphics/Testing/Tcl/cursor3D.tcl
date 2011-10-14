@@ -18,7 +18,7 @@ vtkMultiBlockPLOT3DReader reader
 
   # create outline
 vtkStructuredGridOutlineFilter outlineF
-  outlineF SetInput $output
+  outlineF SetInputData $output
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outlineF GetOutputPort]
 vtkActor outline
@@ -43,8 +43,8 @@ vtkActor cursorActor
 
   # create probe
 vtkProbeFilter probe
-  probe SetInput [cursor GetFocus]
-  probe SetSource $output
+  probe SetInputData [cursor GetFocus]
+  probe SetSourceData $output
 
   # create a cone geometry for glyph
 vtkConeSource cone
@@ -54,7 +54,7 @@ vtkConeSource cone
   # create glyph
 vtkGlyph3D glyph
   glyph SetInputConnection [probe GetOutputPort]
-  glyph SetSource [cone GetOutput]
+  glyph SetSourceConnection [cone GetOutputPort]
   glyph SetVectorModeToUseVector
   glyph SetScaleModeToScaleByScalar
   glyph SetScaleFactor .0002

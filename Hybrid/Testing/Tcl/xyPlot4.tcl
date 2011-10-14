@@ -29,7 +29,7 @@ vtkTransformPolyDataFilter tf
     tf SetTransform transL1
 vtkProbeFilter probe
     probe SetInputConnection [tf GetOutputPort]
-    probe SetSource $output
+    probe SetSourceData $output
 
 vtkTransform transL2
     transL2 Translate 9.2 0.0 31.20
@@ -40,7 +40,7 @@ vtkTransformPolyDataFilter tf2
     tf2 SetTransform transL2
 vtkProbeFilter probe2
     probe2 SetInputConnection [tf2 GetOutputPort]
-    probe2 SetSource $output
+    probe2 SetSourceData $output
 
 vtkTransform transL3
     transL3 Translate 13.27 0.0 33.40
@@ -51,12 +51,12 @@ vtkTransformPolyDataFilter tf3
     tf3 SetTransform transL3
 vtkProbeFilter probe3
     probe3 SetInputConnection [tf3 GetOutputPort]
-    probe3 SetSource $output
+    probe3 SetSourceData $output
 
 vtkAppendPolyData appendF
-    appendF AddInput [probe GetPolyDataOutput]
-    appendF AddInput [probe2 GetPolyDataOutput]
-    appendF AddInput [probe3 GetPolyDataOutput]
+    appendF AddInputData [probe GetPolyDataOutput]
+    appendF AddInputData [probe2 GetPolyDataOutput]
+    appendF AddInputData [probe3 GetPolyDataOutput]
 vtkTubeFilter tuber
     tuber SetInputConnection [appendF GetOutputPort]
     tuber SetRadius 0.1
@@ -71,9 +71,9 @@ vtkGlyphSource2D triangle
 vtkGlyphSource2D cross
     cross SetGlyphTypeToCross
 vtkXYPlotActor xyplot
-    xyplot AddInput [probe GetOutput]
-    xyplot AddInput [probe2 GetOutput]
-    xyplot AddInput [probe3 GetOutput]
+    xyplot AddInputConnection [probe GetOutputPort]
+    xyplot AddInputConnection [probe2 GetOutputPort]
+    xyplot AddInputConnection [probe3 GetOutputPort]
     [xyplot GetPositionCoordinate] SetValue 0.0 0.67 0
     [xyplot GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot SetXValuesToArcLength
@@ -104,9 +104,9 @@ vtkXYPlotActor xyplot
 
 vtkSphereSource vertexGlyph
 vtkXYPlotActor xyplot2
-    xyplot2 AddInput [probe GetOutput]
-    xyplot2 AddInput [probe2 GetOutput]
-    xyplot2 AddInput [probe3 GetOutput]
+    xyplot2 AddInputConnection [probe GetOutputPort]
+    xyplot2 AddInputConnection [probe2 GetOutputPort]
+    xyplot2 AddInputConnection [probe3 GetOutputPort]
     [xyplot2 GetPositionCoordinate] SetValue 0.00 0.33 0
     [xyplot2 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot2 SetXValuesToNormalizedArcLength
@@ -140,11 +140,11 @@ vtkXYPlotActor xyplot2
     xyplot2 SetLabelFormat [xyplot GetLabelFormat]
 
 vtkXYPlotActor xyplot3
-    xyplot3 AddInput [probe GetOutput] "Momentum" 0
-    xyplot3 AddInput [probe GetOutput] "Density" 0
-    xyplot3 AddInput [probe GetOutput] "Momentum" 1
-    xyplot3 AddInput [probe GetOutput] "Momentum" 2
-    xyplot3 RemoveInput [probe GetOutput] "Density" 0
+    xyplot3 AddInputConnection [probe GetOutputPort] "Momentum" 0
+    xyplot3 AddInputConnection [probe GetOutputPort] "Density" 0
+    xyplot3 AddInputConnection [probe GetOutputPort] "Momentum" 1
+    xyplot3 AddInputConnection [probe GetOutputPort] "Momentum" 2
+    xyplot3 RemoveInputConnection [probe GetOutputPort] "Density" 0
     xyplot3 SetPlotLabel 0 "Mx"
     xyplot3 SetPlotColor 0 1 0 0
     xyplot3 SetPlotLabel 1 "My"
@@ -176,7 +176,7 @@ vtkXYPlotActor xyplot3
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput $output
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
