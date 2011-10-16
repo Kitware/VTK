@@ -526,29 +526,32 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
   int &clistlen = this->ExtentListLengths[incr];
   int *&clist = this->ExtentLists[incr];
 
-  // this extent continues the previous extent
-  if (r1 == clist[clistlen-1]+1)
+  if (clistlen > 0)
     {
-    clist[clistlen-1] = r2;
-    return;
-    }
-  // check if clistlen is a power of two
-  else if (clistlen > 0 && (clistlen & (clistlen-1)) == 0)
-    {
-    // the allocated space is always the smallest power of two
-    // that is not less than the number of stored items, therefore
-    // we need to allocate space when clistlen is a power of two
-    int *newclist = new int[2*clistlen];
-    for (int k = 0; k < clistlen; k++)
+    // this extent continues the previous extent
+    if (r1 == clist[clistlen-1]+1)
       {
-      newclist[k] = clist[k];
+      clist[clistlen-1] = r2;
+      return;
       }
-    int n = this->NumberOfExtentEntries;
-    if (clist != &this->ExtentListLengths[n + 2*incr])
+    // check if clistlen is a power of two
+    else if ((clistlen & (clistlen-1)) == 0)
       {
-      delete [] clist;
+      // the allocated space is always the smallest power of two
+      // that is not less than the number of stored items, therefore
+      // we need to allocate space when clistlen is a power of two
+      int *newclist = new int[2*clistlen];
+      for (int k = 0; k < clistlen; k++)
+        {
+        newclist[k] = clist[k];
+        }
+      int n = this->NumberOfExtentEntries;
+      if (clist != &this->ExtentListLengths[n + 2*incr])
+        {
+        delete [] clist;
+        }
+      clist = newclist;
       }
-    clist = newclist;
     }
 
   clist[clistlen] = r1;
