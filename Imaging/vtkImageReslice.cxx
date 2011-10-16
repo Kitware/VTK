@@ -2000,8 +2000,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
       !(newtrans || perspective || convertScalars) &&
       inputScalarType == outData->GetScalarType() &&
       fullSize == scalars->GetNumberOfTuples() &&
-      self->GetBorder() == 1 && nsamples <= 1 &&
-      outputStencil == 0)
+      self->GetBorder() == 1 && nsamples <= 1)
     {
     optimizeNearest = 1;
     }
@@ -2209,6 +2208,10 @@ void vtkImageResliceExecute(vtkImageReslice *self,
           int inExtY = inExt[3] - inExt[2] + 1;
           int inExtZ = inExt[5] - inExt[4] + 1;
 
+          int startIdX = idXmin;
+          int endIdX = idXmin-1;
+          bool isInBounds = false;
+
           for (int iidX = idXmin; iidX <= idXmax; iidX++)
             {
             char *inPtrTmp = static_cast<char *>(background);
@@ -2230,12 +2233,22 @@ void vtkImageResliceExecute(vtkImageReslice *self,
               inPtrTmp = static_cast<char *>(inPtr) +
                 (inIdX*inInc[0] + inIdY*inInc[1] + inIdZ*inInc[2])*
                   inputScalarSize;
+
+              startIdX = (isInBounds ? startIdX : iidX);
+              endIdX = iidX;
+              isInBounds = true;
               }
 
             int oc = bytesPerPixel;
             do { *outPtrTmp++ = *inPtrTmp++; } while (--oc);
             }
+
           outPtr = outPtrTmp;
+
+          if (outputStencil && endIdX >= startIdX)
+            {
+            outputStencil->InsertNextExtent(startIdX, endIdX, idY, idZ);
+            }
           }
         }
       outPtr = static_cast<void *>(
@@ -2727,8 +2740,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   int inputScalarType = scalars->GetDataType();
   if (interpolationMode == VTK_NEAREST_INTERPOLATION &&
       interpolator->IsA("vtkImageInterpolator") &&
-      inputScalarType == scalarType && !convertScalars && nsamples == 1 &&
-      outputStencil == 0)
+      inputScalarType == scalarType && !convertScalars && nsamples == 1)
     {
     doConversion = false;
     }
@@ -2840,11 +2852,6 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
               idZ1++;
               }
 
-            if (outputStencil)
-              {
-              outputStencil->InsertNextExtent(idXmin, idXmax, idY, idZ);
-              }
-
             if (convertScalars)
               {
               (self->*convertScalars)(floatPtr, outPtr,
@@ -2865,6 +2872,11 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
             // fast path for when no conversion is necessary
             summation(outPtr, idX, idY, idZ, inComponents,
                       idXmax - idXmin + 1, weights);
+            }
+
+          if (outputStencil)
+            {
+            outputStencil->InsertNextExtent(idXmin, idXmax, idY, idZ);
             }
           }
 
