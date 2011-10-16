@@ -1073,6 +1073,14 @@ void vtkControlPointsItem::MovePoints(const vtkVector2f& translation, vtkIdTypeA
 }
 
 //-----------------------------------------------------------------------------
+void vtkControlPointsItem::MovePoints(const vtkVector2f& translation)
+{
+  vtkIdTypeArray* points = this->GetControlPointsIds();
+  this->MovePoints(translation, points);
+  points->Delete();
+}
+
+//-----------------------------------------------------------------------------
 void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
 {
   assert(pointIds);
@@ -1161,6 +1169,14 @@ void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
     this->SetPointPos(pointId, newPos);
     }
   this->EndChanges();
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::SpreadPoints(float factor)
+{
+  vtkIdTypeArray* points = this->GetControlPointsIds();
+  this->SpreadPoints(factor, points);
+  points->Delete();
 }
 
 //-----------------------------------------------------------------------------
