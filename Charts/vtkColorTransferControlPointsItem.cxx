@@ -68,20 +68,11 @@ void vtkColorTransferControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkColorTransferControlPointsItem::StartChanges()
+void vtkColorTransferControlPointsItem::emitEvent(unsigned long event, void* params)
 {
   if (this->ColorTransferFunction)
     {
-    this->ColorTransferFunction->InvokeEvent(vtkCommand::StartEvent);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkColorTransferControlPointsItem::EndChanges()
-{
-  if (this->ColorTransferFunction)
-    {
-    this->ColorTransferFunction->InvokeEvent(vtkCommand::EndEvent);
+    this->ColorTransferFunction->InvokeEvent(event, params);
     }
 }
 

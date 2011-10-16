@@ -70,23 +70,13 @@ void vtkCompositeControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeControlPointsItem::StartChanges()
+void vtkCompositeControlPointsItem::emitEvent(unsigned long event, void* params)
 {
   if (this->OpacityFunction)
     {
-    this->OpacityFunction->InvokeEvent(vtkCommand::StartEvent);
+    this->OpacityFunction->InvokeEvent(event, params);
     }
-  this->Superclass::StartChanges();
-}
-
-//-----------------------------------------------------------------------------
-void vtkCompositeControlPointsItem::EndChanges()
-{
-  if (this->OpacityFunction)
-    {
-    this->OpacityFunction->InvokeEvent(vtkCommand::EndEvent);
-    }
-  this->Superclass::EndChanges();
+  this->Superclass::emitEvent(event, params);
 }
 
 //-----------------------------------------------------------------------------

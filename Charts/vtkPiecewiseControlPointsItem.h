@@ -68,8 +68,7 @@ protected:
   vtkPiecewiseControlPointsItem();
   virtual ~vtkPiecewiseControlPointsItem();
 
-  virtual void StartChanges();
-  virtual void EndChanges();
+  virtual void emitEvent(unsigned long event, void* params = 0);
 
   virtual unsigned long int GetControlPointsMTime();
 

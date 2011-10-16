@@ -85,8 +85,7 @@ protected:
   vtkColorTransferControlPointsItem();
   virtual ~vtkColorTransferControlPointsItem();
 
-  virtual void StartChanges();
-  virtual void EndChanges();
+  virtual void emitEvent(unsigned long event, void* params);
 
   virtual unsigned long int GetControlPointsMTime();
 

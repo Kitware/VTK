@@ -67,20 +67,11 @@ void vtkPiecewiseControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPiecewiseControlPointsItem::StartChanges()
+void vtkPiecewiseControlPointsItem::emitEvent(unsigned long event, void* params)
 {
   if (this->PiecewiseFunction)
     {
-    this->PiecewiseFunction->InvokeEvent(vtkCommand::StartEvent);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkPiecewiseControlPointsItem::EndChanges()
-{
-  if (this->PiecewiseFunction)
-    {
-    this->PiecewiseFunction->InvokeEvent(vtkCommand::EndEvent);
+    this->PiecewiseFunction->InvokeEvent(event, params);
     }
 }
 

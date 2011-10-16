@@ -253,8 +253,14 @@ protected:
   vtkControlPointsItem();
   virtual ~vtkControlPointsItem();
 
-  virtual void StartChanges()=0;
-  virtual void EndChanges()=0;
+  void StartChanges();
+  void EndChanges();
+  void StartInteraction();
+  void StartInteractionIfNotStarted();
+  void Interaction();
+  void EndInteraction();
+  int GetInteractionsCount()const;
+  virtual void emitEvent(unsigned long event, void* params = 0) = 0;
 
   static void CallComputePoints(vtkObject* sender, unsigned long event, void* receiver, void* params);
 
@@ -301,6 +307,7 @@ protected:
   vtkPen*             SelectedPointPen;
   vtkBrush*           SelectedPointBrush;
   int                 BlockUpdates;
+  int                 StartedInteractions;
   vtkIdType           CurrentPoint;
 
   double              Bounds[4];
