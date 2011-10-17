@@ -1288,10 +1288,10 @@ void DICOMAppHelper::GetImagePositionPatientFilenamePairs(const dicom_stl::strin
                      * (*sn_iter).second.ImageOrientationPatient[5])
           - ((*sn_iter).second.ImageOrientationPatient[2]
              * (*sn_iter).second.ImageOrientationPatient[4]);
-        normal[1] = ((*sn_iter).second.ImageOrientationPatient[0]
-                     *(*sn_iter).second.ImageOrientationPatient[5])
-          - ((*sn_iter).second.ImageOrientationPatient[2]
-             * (*sn_iter).second.ImageOrientationPatient[3]);
+        normal[1] = ((*sn_iter).second.ImageOrientationPatient[2]
+                     *(*sn_iter).second.ImageOrientationPatient[3])
+          - ((*sn_iter).second.ImageOrientationPatient[0]
+             * (*sn_iter).second.ImageOrientationPatient[5]);
         normal[2] = ((*sn_iter).second.ImageOrientationPatient[0]
                      * (*sn_iter).second.ImageOrientationPatient[4])
           - ((*sn_iter).second.ImageOrientationPatient[1]
