@@ -44,6 +44,7 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
   this->AmoebaVertices = NULL;
   this->AmoebaValues = NULL;
   this->AmoebaSum = NULL;
+  this->AmoebaSize = 0;
   this->AmoebaNStepsNoImprovement = 0;
 }
   
@@ -320,6 +321,7 @@ void vtkAmoebaMinimizer::Initialize()
   this->NumberOfParameters = 0;
   this->Iterations = 0;
   this->FunctionEvaluations = 0;
+  this->AmoebaSize = 0;
 
   this->Modified();
 }
@@ -351,6 +353,17 @@ int vtkAmoebaMinimizer::CheckParameterTolerance()
       double d = fabs((vertex[j] - vertex0[j])/scales[j]);
       size = ((d < size) ? size : d);
       }
+    }
+
+  if (size != this->AmoebaSize)
+    {
+    this->AmoebaNStepsNoImprovement = 0;
+    }
+  this->AmoebaSize = size;
+  // if amoeba is static, only make a set number of tries
+  if (this->AmoebaNStepsNoImprovement > 20)
+    {
+    return 1;
     }
 
   return (size <= this->ParameterTolerance);
@@ -668,7 +681,7 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
   return( y_try );
 }
 
-#define  N_STEPS_NO_IMPROVEMENT  20
+#define  N_STEPS_NO_IMPROVEMENT  2
 
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : PerformAmoeba
