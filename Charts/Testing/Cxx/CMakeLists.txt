@@ -6,6 +6,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
   SET(MyTests
     TestContextScene.cxx
     TestControlPointsItem.cxx
+    TestControlPointsItemEvents.cxx
     TestVector.cxx
     )
 

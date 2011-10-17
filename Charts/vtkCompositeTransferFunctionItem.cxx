@@ -116,7 +116,11 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     for (int i = 0; i < dimension; ++i)
       {
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
-      assert(values[i] <= 1. && values[i] >= 0.);
+      if (values[i] < 0. || values[i] > 1.)
+        {
+        vtkWarningMacro( << "Opacity at point " << i << " is " << values[i]
+                         << " wich is outside the valid range of [0,1]");
+        }
       this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
       ptr+=4;
       }

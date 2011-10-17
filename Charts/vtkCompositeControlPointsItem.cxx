@@ -40,7 +40,6 @@ vtkCompositeControlPointsItem::vtkCompositeControlPointsItem()
 {
   this->PointsFunction = ColorAndOpacityPointsFunction;
   this->OpacityFunction = 0;
-  this->Updating = false;
   this->ColorFill = true;
 }
 
@@ -71,6 +70,16 @@ void vtkCompositeControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkCompositeControlPointsItem::emitEvent(unsigned long event, void* params)
+{
+  if (this->OpacityFunction)
+    {
+    this->OpacityFunction->InvokeEvent(event, params);
+    }
+  this->Superclass::emitEvent(event, params);
+}
+
+//-----------------------------------------------------------------------------
 unsigned long int vtkCompositeControlPointsItem::GetControlPointsMTime()
 {
   unsigned long int mTime = this->Superclass::GetControlPointsMTime();
@@ -84,6 +93,10 @@ unsigned long int vtkCompositeControlPointsItem::GetControlPointsMTime()
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* function)
 {
+  if (function == this->OpacityFunction)
+    {
+    return;
+    }
   if (this->OpacityFunction)
     {
     this->OpacityFunction->RemoveObserver(this->Callback);
@@ -95,7 +108,9 @@ void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* fun
     }
   if (this->OpacityFunction)
     {
+    this->OpacityFunction->AddObserver(vtkCommand::StartEvent, this->Callback);
     this->OpacityFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
+    this->OpacityFunction->AddObserver(vtkCommand::EndEvent, this->Callback);
     }
   this->ResetBounds();
   this->ComputePoints();
@@ -104,6 +119,10 @@ void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* fun
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFunction* c)
 {
+  if (c == this->ColorTransferFunction)
+    {
+    return;
+    }
   // Observation will be set Superclass::SetColorTransferFunction
   if (this->ColorTransferFunction)
     {
@@ -118,15 +137,6 @@ void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFun
     this->SilentMergeTransferFunctions();
     }
   this->Superclass::SetColorTransferFunction(c);
-}
-//-----------------------------------------------------------------------------
-void vtkCompositeControlPointsItem::ComputePoints()
-{
-  if (this->Updating)
-    {
-    return;
-    }
-  this->Superclass::ComputePoints();
 }
 
 //-----------------------------------------------------------------------------
@@ -234,28 +244,23 @@ void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
 vtkIdType vtkCompositeControlPointsItem::AddPoint(double* newPos)
 {
   vtkIdType addedPoint = -1;
+  this->StartChanges();
   if (this->OpacityFunction &&
       (this->PointsFunction == OpacityPointsFunction ||
        this->PointsFunction == ColorAndOpacityPointsFunction))
     {
-    bool oldUpdating = this->Updating;
-    if (this->PointsFunction == ColorAndOpacityPointsFunction)
-      {
-      this->Updating = true;
-      }
     addedPoint = this->OpacityFunction->AddPoint(newPos[0], newPos[1]);
     if (this->PointsFunction == OpacityPointsFunction)
       {
       this->vtkControlPointsItem::AddPointId(addedPoint);
       }
-    this->Updating = oldUpdating;
     }
   if (this->PointsFunction == ColorPointsFunction ||
       this->PointsFunction == ColorAndOpacityPointsFunction)
     {
     addedPoint = this->Superclass::AddPoint(newPos);
     }
-
+  this->EndChanges();
   return addedPoint;
 }
 
@@ -263,16 +268,11 @@ vtkIdType vtkCompositeControlPointsItem::AddPoint(double* newPos)
 vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
 {
   vtkIdType removedPoint = -1;
+  this->StartChanges();
   if (this->PointsFunction == ColorPointsFunction ||
       this->PointsFunction == ColorAndOpacityPointsFunction)
     {
-    bool oldUpdating = this->Updating;
-    if (this->PointsFunction == ColorAndOpacityPointsFunction)
-      {
-      this->Updating = true;
-      }
     removedPoint = this->Superclass::RemovePoint(currentPoint);
-    this->Updating = oldUpdating;
     }
   if (this->OpacityFunction &&
       (this->PointsFunction == OpacityPointsFunction ||
@@ -280,6 +280,7 @@ vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
     {
     removedPoint = this->OpacityFunction->RemovePoint(currentPoint[0]);
     }
+  this->EndChanges();
   return removedPoint;
 }
 
@@ -318,7 +319,7 @@ void vtkCompositeControlPointsItem::MergeTransferFunctions()
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SilentMergeTransferFunctions()
 {
-  bool wasUpdating = this->Updating;
+  this->StartChanges();
   this->MergeTransferFunctions();
-  this->Updating = wasUpdating;
+  this->EndChanges();
 }
