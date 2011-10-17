@@ -180,6 +180,7 @@ private:
   double **AmoebaVertices;
   double *AmoebaValues;
   double *AmoebaSum;
+  double AmoebaSize;
   int AmoebaNStepsNoImprovement;
   
   void InitializeAmoeba();
