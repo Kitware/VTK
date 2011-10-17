@@ -156,7 +156,7 @@ int TestControlPointsItemEvents(int, char*[])
     "LeftButtonPressEvent 55 1 0 0 0 0 0\n" // select the first point
     "LeftButtonReleaseEvent 55 1 0 0 0 0 0\n"
     "LeftButtonPressEvent 55 1 0 0 0 1 0\n" // dbl click
-    "MouseMoveEvent 56 1 0 0 0 0 0\n" // shouldn't move the point
+    "LeftButtonReleaseEvent 55 1 0 0 0 0 0\n" // must be followed by release
     ;
 
   recorder->SetInputString(dblClickEvents);
