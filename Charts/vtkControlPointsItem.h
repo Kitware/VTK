@@ -126,6 +126,12 @@ public:
   vtkIdType GetControlPointId(double* pos);
 
   // Description:
+  // Utility function that returns an array of all the control points IDs
+  // Typically: [0, 1, 2, ... n -1] where n is the point count
+  // You are responsible for deleting the array.
+  vtkIdTypeArray* GetControlPointsIds()const;
+
+  // Description:
   // Controls whether or not control points are drawn (true) or clicked and
   // moved (false).
   // False by default.
@@ -167,14 +173,32 @@ public:
   // Description:
   // Returns the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
+  // point must be a double array of size 4.
   virtual void GetControlPoint(vtkIdType index, double *point)const = 0;
+
   // Description:
   // Sets the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
   virtual void SetControlPoint(vtkIdType index, double *point) = 0;
 
   // Description:
-  // Returns the current point selected.
+  // Move the points referred by pointIds by a given translation.
+  // The new positions won't be outside the bounds.
+  // Warning: if you pass this->GetSelection(), the array is deleted after
+  // each individual point move. Increase the reference count of the array.
+  void MovePoints(const vtkVector2f& translation, vtkIdTypeArray* pointIds);
+
+  // Description:
+  // Spread the points referred by pointIds
+  // If factor > 0, points are moved away from each other.
+  // If factor < 0, points are moved closer to each other
+  // Warning: if you pass this->GetSelection(), the array is deleted after
+  // each individual point move. Increase the reference count of the array.
+  void SpreadPoints(float factor, vtkIdTypeArray* pointIds);
+
+  // Description:
+  // Returns the current point ID selected or -1 if there is no point current.
+  // No current point by default.
   vtkIdType GetCurrentPoint()const;
 
   // Description:
@@ -237,15 +261,12 @@ protected:
 
   void SetCurrentPointPos(const vtkVector2f& newPos);
   vtkIdType SetPointPos(vtkIdType point, const vtkVector2f& newPos);
-  void MoveSelectedPoints(const vtkVector2f& translation);
   void MoveCurrentPoint(const vtkVector2f& translation);
   vtkIdType MovePoint(vtkIdType point, const vtkVector2f& translation);
 
   inline vtkVector2f GetSelectionCenterOfMass()const;
   vtkVector2f GetCenterOfMass(vtkIdTypeArray* pointIDs)const;
-  
-  void SpreadSelectedPoints(float factor);
-  
+
   void Stroke(const vtkVector2f& newPos);
   virtual void EditPoint(float vtkNotUsed(tX), float vtkNotUsed(tY));
   // Description:
@@ -264,7 +285,6 @@ protected:
 
   vtkTransform2D*     Transform;
   float               ScreenPointRadius;
-  float               ItemPointRadius2;
 
   bool                StrokeMode;
   bool                SwitchPointsMode;

@@ -660,6 +660,19 @@ vtkIdType vtkControlPointsItem::GetControlPointId(double* point)
 }
 
 //-----------------------------------------------------------------------------
+vtkIdTypeArray* vtkControlPointsItem::GetControlPointsIds()const
+{
+  vtkIdTypeArray* points = vtkIdTypeArray::New();
+  const int numberOfPoints = this->GetNumberOfPoints();
+  points->SetNumberOfTuples(numberOfPoints);
+  for(vtkIdType i = 0; i < numberOfPoints; ++i)
+    {
+    points->SetValue(i, i);
+    }
+  return points;
+}
+
+//-----------------------------------------------------------------------------
 void vtkControlPointsItem::AddPointId(vtkIdType addedPointId)
 {
   assert(addedPointId != -1);
@@ -823,8 +836,12 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       }
     else if (this->CurrentPoint == -1 && this->Selection->GetNumberOfTuples() > 1)
       {
-      this->MoveSelectedPoints(
-        vtkVector2f(mouse.Pos[0] - mouse.LastPos[0], mouse.Pos[1] - mouse.LastPos[1]));
+      vtkIdTypeArray* points = this->GetSelection();
+      points->Register(this);// must stay valid after each individual point move
+      this->MovePoints(
+        vtkVector2f(mouse.Pos[0] - mouse.LastPos[0], mouse.Pos[1] - mouse.LastPos[1]),
+        points);
+      points->UnRegister(this);
       }
     else if (this->CurrentPoint != -1)
       {
@@ -972,14 +989,15 @@ vtkIdType vtkControlPointsItem::MovePoint(vtkIdType pointId, const vtkVector2f& 
 }
 
 //-----------------------------------------------------------------------------
-void vtkControlPointsItem::MoveSelectedPoints(const vtkVector2f& translation)
+void vtkControlPointsItem::MovePoints(const vtkVector2f& translation, vtkIdTypeArray* pointIds)
 {
+  assert(pointIds);
   // don't support 'switch' mode yet
   //vtkIdTypeArray* addedSelection = vtkIdTypeArray::New();
   bool oldSwitchPoints = this->SwitchPointsMode;
   this->SwitchPointsMode = false;
   // end "don't support 'switch' mode yet"
-  const int count = this->Selection->GetNumberOfTuples();
+  const int count = pointIds->GetNumberOfTuples();
   float tX = translation.GetX();
   float tY = translation.GetY();
   int start = tX >= 0.f ? 0 : count - 1;
@@ -987,12 +1005,12 @@ void vtkControlPointsItem::MoveSelectedPoints(const vtkVector2f& translation)
   int step = tX >= 0.f ? 1 : -1;
   for (vtkIdType i = start; i != end; i+=step)
     {
-    vtkIdType point = this->Selection->GetValue(i);
+    vtkIdType pointId = pointIds->GetValue(i);
     double currentPoint[4] = {0.0, 0.0, 0.0, 0.0};
-    this->GetControlPoint(point, currentPoint);
+    this->GetControlPoint(pointId, currentPoint);
     vtkVector2f newPos(currentPoint[0] + tX, currentPoint[1] + tY);
     //vtkIdType newIdx =
-      this->SetPointPos(point, newPos);
+      this->SetPointPos(pointId, newPos);
     // don't support 'switch' mode yet
     //if (newIdx != point)
     //  {
@@ -1013,19 +1031,20 @@ void vtkControlPointsItem::MoveSelectedPoints(const vtkVector2f& translation)
 
 
 //-----------------------------------------------------------------------------
-void vtkControlPointsItem::SpreadSelectedPoints(float factor)
+void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
 {
-  if (this->Selection->GetNumberOfTuples() == 0)
+  assert(pointIds);
+  if (pointIds->GetNumberOfTuples() == 0)
     {
     return;
     }
   double min[2], max[2], center[2];
   double point[4];
-  vtkIdType minPointId = this->Selection->GetValue(0);
+  vtkIdType minPointId = pointIds->GetValue(0);
   this->GetControlPoint(minPointId, point);
   min[0] = point[0];
   min[1] = point[1];
-  vtkIdType maxPointId = this->Selection->GetValue(this->Selection->GetNumberOfTuples() - 1);
+  vtkIdType maxPointId = pointIds->GetValue(pointIds->GetNumberOfTuples() - 1);
   this->GetControlPoint(maxPointId, point);
   max[0] = point[0];
   max[1] = point[1];
@@ -1034,7 +1053,7 @@ void vtkControlPointsItem::SpreadSelectedPoints(float factor)
 
   // Left part
   vtkIdType start = 0;
-  vtkIdType end = this->Selection->GetNumberOfTuples();
+  vtkIdType end = pointIds->GetNumberOfTuples();
   vtkIdType step = 1;
   vtkIdType median = -1; // not needed when factor >= 0
   if (factor < 0.f)
@@ -1042,7 +1061,7 @@ void vtkControlPointsItem::SpreadSelectedPoints(float factor)
     // search median
     for (vtkIdType i = 0; i < end; ++i)
       {
-      vtkIdType pointId = this->Selection->GetValue(i);
+      vtkIdType pointId = pointIds->GetValue(i);
       this->GetControlPoint(pointId, point);
       if (point[0] > center[0])
         {
@@ -1052,7 +1071,7 @@ void vtkControlPointsItem::SpreadSelectedPoints(float factor)
       }
     if (median == -1)
       {
-      median = this->Selection->GetNumberOfTuples() - 1;
+      median = pointIds->GetNumberOfTuples() - 1;
       }
     start = median - 1;
     end = -1;
@@ -1061,7 +1080,7 @@ void vtkControlPointsItem::SpreadSelectedPoints(float factor)
   vtkIdType i;
   for (i = start; i != end; i+=step)
     {
-    vtkIdType pointId = this->Selection->GetValue(i);
+    vtkIdType pointId = pointIds->GetValue(i);
     this->GetControlPoint(pointId, point);
     if (point[0] > center[0] ||
         (i != start && point[0] == center[0]))
@@ -1076,18 +1095,18 @@ void vtkControlPointsItem::SpreadSelectedPoints(float factor)
     this->SetPointPos(pointId, newPos);
     }
   // Right part
-  start = this->Selection->GetNumberOfTuples() - 1;
+  start = pointIds->GetNumberOfTuples() - 1;
   end = i - 1;
   step = -1;
   if (factor < 0.f)
     {
     start = median;
-    end = this->Selection->GetNumberOfTuples();
+    end = pointIds->GetNumberOfTuples();
     step = 1;
     }
   for (i = start; i != end; i+=step)
     {
-    vtkIdType pointId = this->Selection->GetValue(i);
+    vtkIdType pointId = pointIds->GetValue(i);
     this->GetControlPoint(pointId, point);
     assert(point[0] >= center[0]);
     double tX = factor;
@@ -1347,7 +1366,10 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent &key)
       translate.SetY( translate.GetY() * (bounds[3] - bounds[2]) * step);
       if (this->GetNumberOfSelectedPoints())
         {
-        this->MoveSelectedPoints(translate);
+        vtkIdTypeArray* points = this->GetSelection();
+        points->Register(this); // must stay valid after each individual move
+        this->MovePoints(translate, points);
+        points->UnRegister(this);
         }
       else
         {
@@ -1356,11 +1378,17 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent &key)
       }
     else if (key.GetInteractor()->GetKeySym() == std::string("plus"))
       {
-      this->SpreadSelectedPoints(1.);
+      vtkIdTypeArray* pointIds = this->GetSelection();
+      pointIds->Register(this); // must stay valid after each individual move
+      this->SpreadPoints(1., pointIds);
+      pointIds->UnRegister(this);
       }
     else if (key.GetInteractor()->GetKeySym() == std::string("minus"))
       {
-      this->SpreadSelectedPoints(-1.);
+      vtkIdTypeArray* pointIds = this->GetSelection();
+      pointIds->Register(this); // must stay valid after each individual move
+      this->SpreadPoints(-1., pointIds);
+      pointIds->UnRegister(this);
       }
     }
   else if (control)

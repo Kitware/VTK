@@ -5,6 +5,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
   # add tests that do not require data
   SET(MyTests
     TestContextScene.cxx
+    TestControlPointsItem.cxx
     TestVector.cxx
     )
 
