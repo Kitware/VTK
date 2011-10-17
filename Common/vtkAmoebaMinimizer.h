@@ -108,9 +108,27 @@ public:
   double GetFunctionValue() { return this->FunctionValue; };
 
   // Description:
-  // Specify the fractional tolerance to aim for during the minimization.
+  // Set the amoeba contraction ratio.  The default value of 0.5 gives
+  // fast convergence, but larger values such as 0.6 or 0.7 provide
+  // greater stability.
+  vtkSetClampMacro(ContractionRatio,double,0.5,1.0);
+  vtkGetMacro(ContractionRatio,double);
+
+  // Description:
+  // Set the amoeba expansion ratio.  The default value is 2.0, which
+  // provides rapid expansion.  Values between 1.1 and 2.0 are valid.
+  vtkSetClampMacro(ExpansionRatio,double,1.0,2.0);
+  vtkGetMacro(ExpansionRatio,double);
+
+  // Description:
+  // Specify the value tolerance to aim for during the minimization.
   vtkSetMacro(Tolerance,double);
   vtkGetMacro(Tolerance,double);
+
+  // Description:
+  // Specify the parameter tolerance to aim for during the minimization.
+  vtkSetMacro(ParameterTolerance,double);
+  vtkGetMacro(ParameterTolerance,double);
 
   // Description:
   // Specify the maximum number of iterations to try before giving up.
@@ -147,7 +165,11 @@ protected:
   double *ParameterScales;
   double FunctionValue;
 
+  double ContractionRatio;
+  double ExpansionRatio;
+
   double Tolerance;
+  double ParameterTolerance;
   int MaxIterations;
   int Iterations;
   int FunctionEvaluations;
@@ -165,6 +187,7 @@ private:
   void TerminateAmoeba();
   double TryAmoeba(double sum[], int high, double fac);
   int PerformAmoeba();
+  int CheckParameterTolerance();
 //ETX
 
   vtkAmoebaMinimizer(const vtkAmoebaMinimizer&);  // Not implemented.
