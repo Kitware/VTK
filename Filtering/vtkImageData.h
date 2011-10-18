@@ -189,10 +189,15 @@ public:
   // Description:
   // Different ways to get the increments for moving around the data.
   // GetIncrements() calls ComputeIncrements() to ensure the increments are
-  // up to date.
+  // up to date.  The first three methods compute the increments based on the
+  // active scalar field while the next three, the scalar field is passed in.
   virtual vtkIdType *GetIncrements();
   virtual void GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
   virtual void GetIncrements(vtkIdType inc[3]);
+  virtual vtkIdType *GetIncrements(vtkDataArray *scalars);
+  virtual void GetIncrements(vtkDataArray *scalars, 
+                             vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
+  virtual void GetIncrements(vtkDataArray *scalars, vtkIdType inc[3]);
 
   // Description:
   // Different ways to get the increments for moving around the data.
@@ -204,7 +209,11 @@ public:
   // over Z, Y, X, C, incrementing the pointer by 1 after each
   // component.  When the end of the component is reached, the pointer
   // is set to the beginning of the next pixel, thus incX is properly set to 0.
+  // The first form of GetContinuousIncrements uses the active scalar field
+  // while the second form allows the scalar array to be passed in.
   virtual void GetContinuousIncrements(
+    int extent[6], vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
+  virtual void GetContinuousIncrements(vtkDataArray *scalars,
     int extent[6], vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
 
   // Description:
@@ -376,8 +385,19 @@ protected:
 
   int Extent[6];
 
+  // The first method assumes Active Scalars
   void ComputeIncrements();
+  // This one is given the number of components of the
+  // scalar field explicitly
+  void ComputeIncrements(int numberOfComponents);
+  void ComputeIncrements(vtkDataArray *scalars);
+
+  // The first method assumes Acitive Scalars
   void ComputeIncrements(vtkIdType inc[3]);
+  // This one is given the number of components of the
+  // scalar field explicitly
+  void ComputeIncrements(int numberOfComponents, vtkIdType inc[3]);
+  void ComputeIncrements(vtkDataArray *scalars, vtkIdType inc[3]);
   void CopyOriginAndSpacingFromPipeline();
 
   vtkTimeStamp ExtentComputeTime;
@@ -410,6 +430,18 @@ private:
 inline void vtkImageData::ComputeIncrements()
 {
   this->ComputeIncrements(this->Increments);
+}
+
+//----------------------------------------------------------------------------
+inline void vtkImageData::ComputeIncrements(int numberOfComponents)
+{
+  this->ComputeIncrements(numberOfComponents, this->Increments);
+}
+
+//----------------------------------------------------------------------------
+inline void vtkImageData::ComputeIncrements(vtkDataArray *scalars)
+{
+  this->ComputeIncrements(scalars, this->Increments);
 }
 
 //----------------------------------------------------------------------------

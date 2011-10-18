@@ -1194,7 +1194,7 @@ void vtkImageData::SetNumberOfScalarComponents(int num)
     vtkErrorMacro("SetNumberOfScalarComponents called with no "
                   "executive producing this image data object.");
     }
-  this->ComputeIncrements();
+  this->ComputeIncrements(num);
 }
 
 //----------------------------------------------------------------------------
@@ -1224,10 +1224,31 @@ vtkIdType *vtkImageData::GetIncrements()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType *vtkImageData::GetIncrements(vtkDataArray *scalars)
+{
+  // Make sure the increments are up to date. The filter bypass and update
+  // mechanism make it tricky to update the increments anywhere other than here
+  this->ComputeIncrements(scalars);
+
+  return this->Increments;
+}
+
+//----------------------------------------------------------------------------
 void vtkImageData::GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ)
 {
   vtkIdType inc[3];
   this->ComputeIncrements(inc);
+  incX = inc[0];
+  incY = inc[1];
+  incZ = inc[2];
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::GetIncrements(vtkDataArray *scalars,
+                                 vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ)
+{
+  vtkIdType inc[3];
+  this->ComputeIncrements(scalars, inc);
   incX = inc[0];
   incY = inc[1];
   incZ = inc[2];
@@ -1241,7 +1262,22 @@ void vtkImageData::GetIncrements(vtkIdType inc[3])
 
 
 //----------------------------------------------------------------------------
+void vtkImageData::GetIncrements(vtkDataArray *scalars, vtkIdType inc[3])
+{
+  this->ComputeIncrements(inc);
+}
+
+
+//----------------------------------------------------------------------------
 void vtkImageData::GetContinuousIncrements(int extent[6], vtkIdType &incX,
+                                           vtkIdType &incY, vtkIdType &incZ)
+{
+  this->GetContinuousIncrements(this->GetPointData()->GetScalars(),
+                                extent, incX, incY, incZ);
+}
+//----------------------------------------------------------------------------
+void vtkImageData::GetContinuousIncrements(vtkDataArray *scalars,
+                                           int extent[6], vtkIdType &incX,
                                            vtkIdType &incY, vtkIdType &incZ)
 {
   int e0, e1, e2, e3;
@@ -1272,7 +1308,7 @@ void vtkImageData::GetContinuousIncrements(int extent[6], vtkIdType &incX,
 
   // Make sure the increments are up to date
   vtkIdType inc[3];
-  this->ComputeIncrements(inc);
+  this->ComputeIncrements(scalars, inc);
 
   incY = inc[1] - (e1 - e0 + 1)*inc[0];
   incZ = inc[2] - (e3 - e2 + 1)*inc[1];
@@ -1281,15 +1317,32 @@ void vtkImageData::GetContinuousIncrements(int extent[6], vtkIdType &incX,
 
 //----------------------------------------------------------------------------
 // This method computes the increments from the MemoryOrder and the extent.
+// This version assumes we are using the Active Scalars
 void vtkImageData::ComputeIncrements(vtkIdType inc[3])
 {
-  int idx;
-  // make sure we have data before computing incrments to traverse it
-  if (!this->GetPointData()->GetScalars())
+  this->ComputeIncrements(this->GetPointData()->GetScalars(), inc);
+}
+
+//----------------------------------------------------------------------------
+// This method computes the increments from the MemoryOrder and the extent.
+void vtkImageData::ComputeIncrements(vtkDataArray *scalars, vtkIdType inc[3])
+{
+  if (!scalars)
     {
-    return;
+    vtkErrorMacro("No Scalar Field has been specified - assuming 1 component!");
+    this->ComputeIncrements(1, inc);
     }
-  vtkIdType incr = this->GetPointData()->GetScalars()->GetNumberOfComponents();
+  else
+    {
+    this->ComputeIncrements(scalars->GetNumberOfComponents(), inc);
+    }
+}
+//----------------------------------------------------------------------------
+// This method computes the increments from the MemoryOrder and the extent.
+void vtkImageData::ComputeIncrements(int numberOfComponents, vtkIdType inc[3])
+{
+  int idx;
+  vtkIdType incr = numberOfComponents;
   const int* extent = this->Extent;
 
   for (idx = 0; idx < 3; ++idx)
