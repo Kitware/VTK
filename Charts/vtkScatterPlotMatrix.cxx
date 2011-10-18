@@ -30,6 +30,7 @@
 #include "vtkAnnotationLink.h"
 #include "vtkObjectFactory.h"
 #include "vtkBrush.h"
+#include "vtkPlotPoints.h"
 
 class vtkScatterPlotMatrix::PIMPL
 {
@@ -43,6 +44,11 @@ public:
       this->ActivePlotColor[i] = 0.0;
       this->HistogramColor[i] = 0.0;
       }
+
+    this->ScatterPlotMarkerSize = 5;
+    this->ActivePlotMarkerSize = 8;
+    this->ScatterPlotMarkerStyle = vtkPlotPoints::CIRCLE;
+    this->ActivePlotMarkerStyle = vtkPlotPoints::CIRCLE;
   }
 
   ~PIMPL()
@@ -56,6 +62,10 @@ public:
   double ScatterPlotColor[3];
   double ActivePlotColor[3];
   double HistogramColor[3];
+  int ScatterPlotMarkerStyle;
+  int ActivePlotMarkerStyle;
+  double ScatterPlotMarkerSize;
+  double ActivePlotMarkerSize;
 };
 
 namespace
@@ -212,6 +222,12 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
       plot->SetColor(this->Private->ActivePlotColor[0],
                      this->Private->ActivePlotColor[1],
                      this->Private->ActivePlotColor[2]);
+
+      // set marker size and style
+      vtkPlotPoints *plotPoints = vtkPlotPoints::SafeDownCast(plot);
+      plotPoints->SetMarkerSize(this->Private->ActivePlotMarkerSize);
+      plotPoints->SetMarkerStyle(this->Private->ActivePlotMarkerStyle);
+
       this->Private->BigChart->RecalculateBounds();
       }
     return true;
@@ -424,6 +440,96 @@ void vtkScatterPlotMatrix::SetHistogramColor(double r, double g, double b)
   this->Modified();
 }
 
+void vtkScatterPlotMatrix::SetMarkerStyle(int style)
+{
+  if(style != this->Private->ScatterPlotMarkerStyle)
+    {
+    this->Private->ScatterPlotMarkerStyle = style;
+
+    int plotCount = this->GetSize().X();
+
+    for(int i = 0; i < plotCount - 1; i++)
+      {
+      for(int j = 0; j < plotCount - 1; j++)
+        {
+        if(i + j + 1 < plotCount)
+          {
+          vtkChart *chart = this->GetChart(vtkVector2i(i, j));
+          vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+          plot->SetMarkerStyle(style);
+          plot->Update();
+          }
+        }
+      }
+
+    this->Modified();
+    }
+}
+
+void vtkScatterPlotMatrix::SetActivePlotMarkerStyle(int style)
+{
+  if(style != this->Private->ActivePlotMarkerStyle)
+    {
+    this->Private->ActivePlotMarkerStyle = style;
+
+    // update marker style on current active plot
+    vtkChart *chart = this->Private->BigChart;
+    if(chart)
+      {
+      vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+      plot->SetMarkerStyle(style);
+      plot->Update();
+      }
+
+    this->Modified();
+    }
+}
+
+void vtkScatterPlotMatrix::SetMarkerSize(double size)
+{
+  if(size != this->Private->ScatterPlotMarkerSize)
+    {
+    this->Private->ScatterPlotMarkerSize = size;
+
+    int plotCount = this->GetSize().X();
+
+    for(int i = 0; i < plotCount - 1; i++)
+      {
+      for(int j = 0; j < plotCount - 1; j++)
+        {
+        if(i + j + 1 < plotCount)
+          {
+          vtkChart *chart = this->GetChart(vtkVector2i(i, j));
+          vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+          plot->SetMarkerSize(size);
+          plot->Update();
+          }
+        }
+      }
+
+    this->Modified();
+    }
+}
+
+void vtkScatterPlotMatrix::SetActivePlotMarkerSize(double size)
+{
+  if(size != this->Private->ActivePlotMarkerSize)
+    {
+    this->Private->ActivePlotMarkerSize = size;
+
+    // update marker size on current active plot
+    vtkChart *chart = this->Private->BigChart;
+    if(chart)
+      {
+      vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+      plot->SetMarkerSize(size);
+      plot->Update();
+      }
+
+    this->Modified();
+    }
+}
+
 bool vtkScatterPlotMatrix::Hit(const vtkContextMouseEvent &)
 {
   return true;
@@ -493,6 +599,11 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plot->SetColor(this->Private->ScatterPlotColor[0],
                        this->Private->ScatterPlotColor[1],
                        this->Private->ScatterPlotColor[2]);
+
+        // set plot marker size and style
+        vtkPlotPoints *plotPoints = vtkPlotPoints::SafeDownCast(plot);
+        plotPoints->SetMarkerSize(this->Private->ScatterPlotMarkerSize);
+        plotPoints->SetMarkerStyle(this->Private->ScatterPlotMarkerStyle);
         }
       else if (i == n - j - 1)
         {

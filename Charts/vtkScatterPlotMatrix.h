@@ -104,6 +104,22 @@ public:
   void SetHistogramColor(double r, double g, double b);
 
   // Description:
+  // Sets the marker style for the scatter plots.
+  void SetMarkerStyle(int style);
+
+  // Description:
+  // Sets the marker style for the active plots.
+  void SetActivePlotMarkerStyle(int style);
+
+  // Description:
+  // Sets the marker size for the scatter plots.
+  void SetMarkerSize(double size);
+
+  // Description:
+  // Sets the marker size for the active plot.
+  void SetActivePlotMarkerSize(double size);
+
+  // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   bool Hit(const vtkContextMouseEvent &mouse);
 
