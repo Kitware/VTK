@@ -29,12 +29,20 @@
 #include "vtkMathUtilities.h"
 #include "vtkAnnotationLink.h"
 #include "vtkObjectFactory.h"
+#include "vtkBrush.h"
 
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
   PIMPL() : VisibleColumnsModified(true), BigChart(NULL)
   {
+    // default colors to black
+    for(int i = 0; i < 3; i++)
+      {
+      this->ScatterPlotColor[i] = 0.0;
+      this->ActivePlotColor[i] = 0.0;
+      this->HistogramColor[i] = 0.0;
+      }
   }
 
   ~PIMPL()
@@ -45,6 +53,9 @@ public:
   bool VisibleColumnsModified;
   vtkChart* BigChart;
   vtkNew<vtkAnnotationLink> Link;
+  double ScatterPlotColor[3];
+  double ActivePlotColor[3];
+  double HistogramColor[3];
 };
 
 namespace
@@ -163,11 +174,15 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
     // The supplied index is valid (in the lower quadrant).
     if (this->GetChart(this->ActivePlot)->GetPlot(0))
       {
-      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(0.0, 0.0, 0.0);
+      // reset the previous active plot to the default color
+      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(this->Private->ScatterPlotColor[0],
+                                                             this->Private->ScatterPlotColor[1],
+                                                             this->Private->ScatterPlotColor[2]);
       }
     this->ActivePlot = pos;
     if (this->GetChart(this->ActivePlot)->GetPlot(0))
       {
+      // set the new active plot color to blue
       this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(0.0, 0.0, 1.0);
       }
     if (this->Private->BigChart)
@@ -194,6 +209,9 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
                      this->VisibleColumns->GetValue(pos.X()),
                      this->VisibleColumns->GetValue(this->Size.X() -
                                                     pos.Y() - 1));
+      plot->SetColor(this->Private->ActivePlotColor[0],
+                     this->Private->ActivePlotColor[1],
+                     this->Private->ActivePlotColor[2]);
       this->Private->BigChart->RecalculateBounds();
       }
     return true;
@@ -344,6 +362,68 @@ void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
     }
 }
 
+void vtkScatterPlotMatrix::SetColor(double r, double g, double b)
+{
+  this->Private->ScatterPlotColor[0] = r;
+  this->Private->ScatterPlotColor[1] = g;
+  this->Private->ScatterPlotColor[2] = b;
+
+  int plotCount = this->GetSize().X();
+
+  for(int i = 0; i < plotCount - 1; i++)
+    {
+    for(int j = 0; j < plotCount - 1; j++)
+      {
+      if(i + j + 1 < plotCount)
+        {
+        vtkChart *chart = this->GetChart(vtkVector2i(i, j));
+        vtkPlot *plot = chart->GetPlot(0);
+        plot->SetColor(r, g, b);
+        plot->Update();
+        }
+      }
+    }
+
+  this->Modified();
+}
+
+void vtkScatterPlotMatrix::SetActivePlotColor(double r, double g, double b)
+{
+  this->Private->ActivePlotColor[0] = r;
+  this->Private->ActivePlotColor[1] = g;
+  this->Private->ActivePlotColor[2] = b;
+
+  // update color on current active plot
+  vtkChart *chart = this->Private->BigChart;
+  if(chart)
+    {
+    chart->GetPlot(0)->SetColor(r, g, b);
+    chart->GetPlot(0)->Update();
+    }
+
+  this->Modified();
+}
+
+void vtkScatterPlotMatrix::SetHistogramColor(double r, double g, double b)
+{
+  this->Private->HistogramColor[0] = r;
+  this->Private->HistogramColor[1] = g;
+  this->Private->HistogramColor[2] = b;
+
+  int plotCount = this->GetSize().X();
+
+  for(int i = 0; i < plotCount; i++)
+    {
+    vtkChart *chart = this->GetChart(vtkVector2i(i, plotCount - i - 1));
+    vtkPlot *plot = chart->GetPlot(0);
+
+    plot->GetBrush()->SetColorF(this->Private->HistogramColor);
+    plot->Update();
+    }
+
+  this->Modified();
+}
+
 bool vtkScatterPlotMatrix::Hit(const vtkContextMouseEvent &)
 {
   return true;
@@ -385,10 +465,10 @@ void vtkScatterPlotMatrix::UpdateLayout()
   // We want scatter plots on the lower-left triangle, then histograms along
   // the diagonal and a big plot in the top-right. The basic layout is,
   //
-  // 0 H   +++
-  // 1 S H +++
-  // 2 S S H
-  // 3 S S S H
+  // 3 H   +++
+  // 2 S H +++
+  // 1 S S H
+  // 0 S S S H
   //   0 1 2 3
   //
   // Where the indices are those of the columns. The indices of the charts
@@ -410,11 +490,15 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plot->SetInput(this->Input.GetPointer(),
                        this->VisibleColumns->GetValue(i),
                        this->VisibleColumns->GetValue(n - j - 1));
+        plot->SetColor(this->Private->ScatterPlotColor[0],
+                       this->Private->ScatterPlotColor[1],
+                       this->Private->ScatterPlotColor[2]);
         }
       else if (i == n - j - 1)
         {
         // We are on the diagonal - need a histogram plot.
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
+        plot->GetBrush()->SetColorF(this->Private->HistogramColor);
         plot->GetPen()->SetColor(255, 255, 255);
         vtkStdString name(this->VisibleColumns->GetValue(i));
         plot->SetInput(this->Private->Histogram.GetPointer(),

@@ -92,6 +92,18 @@ public:
   virtual int GetNumberOfBins() const { return this->NumberOfBins; }
 
   // Description:
+  // Set the color for the scatter plots.
+  void SetColor(double r, double g, double b);
+
+  // Description:
+  // Set the color for the active plot.
+  void SetActivePlotColor(double r, double g, double b);
+
+  // Description:
+  // Set the color for the histogram.
+  void SetHistogramColor(double r, double g, double b);
+
+  // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   bool Hit(const vtkContextMouseEvent &mouse);
 
