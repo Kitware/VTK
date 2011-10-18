@@ -74,11 +74,18 @@ public:
   vtkSetMacro(ImageHeight,int);
   vtkGetMacro(ImageHeight,int);
 
+  int FillInputPortInformation(int port, vtkInformation *info);
+
 protected:
   vtkWarpLens();
   ~vtkWarpLens() {};
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestDataObject(vtkInformation *request,
+                        vtkInformationVector **inputVector,
+                        vtkInformationVector *outputVector);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
+                  vtkInformationVector *);
 
   double PrincipalPoint[2];      // The calibrated principal point of camera/lens in mm
   double K1;                     // Symmetric radial distortion parameters

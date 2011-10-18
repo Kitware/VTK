@@ -106,7 +106,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           TestTriangleFilter
           TransformConcatenation
           TransformCoverage
+          TransformImageData
           TransformPolyData
+          WarpToImage
 
           blankGrid
           capCow

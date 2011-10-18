@@ -28,6 +28,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeDual.cxx
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
+    TestImageDataToPointSet.cxx
     TestLineSource.cxx
     TestMapVectorsAsRGBColors.cxx
     TestMapVectorsToColors.cxx
@@ -37,6 +38,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestPolyDataPointSampler.cxx
     TestPolyhedron0.cxx
     TestPolyhedron1.cxx
+    TestRectilinearGridToPointSet.cxx
     TestSelectEnclosedPoints.cxx
     TestTessellatedBoxSource.cxx
     TestTessellator.cxx
