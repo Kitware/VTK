@@ -15,6 +15,9 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
+#define  N_STEPS_NO_VALUE_IMPROVEMENT  2
+#define  N_STEPS_NO_PARAM_IMPROVEMENT  18
+
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -357,11 +360,12 @@ int vtkAmoebaMinimizer::CheckParameterTolerance()
 
   if (size != this->AmoebaSize)
     {
-    this->AmoebaNStepsNoImprovement = 0;
+    this->AmoebaNStepsNoImprovement = N_STEPS_NO_VALUE_IMPROVEMENT-1;
     }
   this->AmoebaSize = size;
   // if amoeba is static, only make a set number of tries
-  if (this->AmoebaNStepsNoImprovement > 20)
+  if (this->AmoebaNStepsNoImprovement >
+      (N_STEPS_NO_VALUE_IMPROVEMENT + N_STEPS_NO_PARAM_IMPROVEMENT))
     {
     return 1;
     }
@@ -681,8 +685,6 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
   return( y_try );
 }
 
-#define  N_STEPS_NO_IMPROVEMENT  2
-
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : PerformAmoeba
 @INPUT      : 
@@ -744,7 +746,7 @@ int vtkAmoebaMinimizer::PerformAmoeba()
                                  this->Tolerance ) )
     {
     ++this->AmoebaNStepsNoImprovement;
-    if( this->AmoebaNStepsNoImprovement >= N_STEPS_NO_IMPROVEMENT )
+    if( this->AmoebaNStepsNoImprovement >= N_STEPS_NO_VALUE_IMPROVEMENT )
       {
       improvement_found = 0;
       }
