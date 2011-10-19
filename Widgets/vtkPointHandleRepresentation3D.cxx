@@ -677,6 +677,26 @@ void vtkPointHandleRepresentation3D::ShallowCopy(vtkProp *prop)
 }
 
 //----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::DeepCopy(vtkProp *prop)
+{
+  vtkPointHandleRepresentation3D *rep =
+    vtkPointHandleRepresentation3D::SafeDownCast(prop);
+  if ( rep )
+    {
+    this->SetOutline(rep->GetOutline());
+    this->SetXShadows(rep->GetXShadows());
+    this->SetYShadows(rep->GetYShadows());
+    this->SetZShadows(rep->GetZShadows());
+    this->SetTranslationMode(rep->GetTranslationMode());
+    this->SetProperty(rep->GetProperty());
+    this->Actor->SetProperty(rep->GetProperty());
+    this->SetSelectedProperty(rep->GetSelectedProperty());
+    this->SetHotSpotSize(rep->GetHotSpotSize());
+    }
+  this->Superclass::DeepCopy(prop);
+}
+
+//----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::GetActors(vtkPropCollection *pc)
 {
   this->Actor->GetActors(pc);
