@@ -12,8 +12,7 @@
 /*                                                                         */
 /*    User-selectable configuration macros (specification only).           */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,   */
-/*            2010 by                                                      */
+/*  Copyright 1996-2011 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -141,7 +140,7 @@ FT_BEGIN_HEADER
   /*         file `ftconfig.h' either statically or through the            */
   /*         `configure' script on supported platforms.                    */
   /*                                                                       */
-#undef  FT_CONFIG_OPTION_FORCE_INT64
+#undef FT_CONFIG_OPTION_FORCE_INT64
 
 
   /*************************************************************************/
@@ -216,7 +215,34 @@ FT_BEGIN_HEADER
   /*   Do not #undef this macro here since the build system might define   */
   /*   it for certain configurations only.                                 */
   /*                                                                       */
-/* #define  FT_CONFIG_OPTION_SYSTEM_ZLIB */
+/* #define FT_CONFIG_OPTION_SYSTEM_ZLIB */
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* Bzip2-compressed file support.                                        */
+  /*                                                                       */
+  /*   FreeType now handles font files that have been compressed with the  */
+  /*   `bzip2' program.  This is mostly used to parse many of the PCF      */
+  /*   files that come with XFree86.  The implementation uses `libbz2' to  */
+  /*   partially uncompress the file on the fly (see src/bzip2/ftbzip2.c). */
+  /*   Contrary to gzip, bzip2 currently is not included and need to use   */
+  /*   the system available bzip2 implementation.                          */
+  /*                                                                       */
+  /*   Define this macro if you want to enable this `feature'.             */
+  /*                                                                       */
+/* #define FT_CONFIG_OPTION_USE_BZIP2 */
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* Define to disable the use of file stream functions and types, FILE,   */
+  /* fopen() etc.  Enables the use of smaller system libraries on embedded */
+  /* systems that have multiple system libraries, some with or without     */
+  /* file stream support, in the cases where file stream support is not    */
+  /* necessary such as memory loading of font files.                       */
+  /*                                                                       */
+/* #define FT_CONFIG_OPTION_DISABLE_STREAM_SUPPORT */
 
 
   /*************************************************************************/
@@ -257,8 +283,8 @@ FT_BEGIN_HEADER
   /*   Do not #undef these macros here since the build system might define */
   /*   them for certain configurations only.                               */
   /*                                                                       */
-/* #define  FT_EXPORT(x)       extern x */
-/* #define  FT_EXPORT_DEF(x)   x */
+/* #define FT_EXPORT(x)      extern x */
+/* #define FT_EXPORT_DEF(x)  x */
 
 /* VTK_FREETYPE_CHANGE added the #if below */
 #if !defined(VTKFREETYPE_STATIC)
@@ -404,6 +430,39 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
+  /* Autofitter debugging                                                  */
+  /*                                                                       */
+  /*   If FT_DEBUG_AUTOFIT is defined, FreeType provides some means to     */
+  /*   control the autofitter behaviour for debugging purposes with global */
+  /*   boolean variables (consequently, you should *never* enable this     */
+  /*   while compiling in `release' mode):                                 */
+  /*                                                                       */
+  /*     _af_debug_disable_horz_hints                                      */
+  /*     _af_debug_disable_vert_hints                                      */
+  /*     _af_debug_disable_blue_hints                                      */
+  /*                                                                       */
+  /*   Additionally, the following functions provide dumps of various      */
+  /*   internal autofit structures to stdout (using `printf'):             */
+  /*                                                                       */
+  /*     af_glyph_hints_dump_points                                        */
+  /*     af_glyph_hints_dump_segments                                      */
+  /*     af_glyph_hints_dump_edges                                         */
+  /*                                                                       */
+  /*   As an argument, they use another global variable:                   */
+  /*                                                                       */
+  /*     _af_debug_hints                                                   */
+  /*                                                                       */
+  /*   Please have a look at the `ftgrid' demo program to see how those    */
+  /*   variables and macros should be used.                                */
+  /*                                                                       */
+  /*   Do not #undef these macros here since the build system might define */
+  /*   them for certain configurations only.                               */
+  /*                                                                       */
+/* #define FT_DEBUG_AUTOFIT */
+
+
+  /*************************************************************************/
+  /*                                                                       */
   /* Memory Debugging                                                      */
   /*                                                                       */
   /*   FreeType now comes with an integrated memory debugger that is       */
@@ -442,7 +501,7 @@ FT_BEGIN_HEADER
   /* Position Independent Code                                             */
   /*                                                                       */
   /*   If this macro is set (which is _not_ the default), FreeType2 will   */
-  /*   avoid creating constants that require address fixups. Instead the   */
+  /*   avoid creating constants that require address fixups.  Instead the  */
   /*   constants will be moved into a struct and additional intialization  */
   /*   code will be used.                                                  */
   /*                                                                       */
@@ -614,7 +673,7 @@ FT_BEGIN_HEADER
   /* composite flags array which can be used to disambiguate, but old      */
   /* fonts will not have them.                                             */
   /*                                                                       */
-  /*   http://partners.adobe.com/asn/developer/opentype/glyf.html          */
+  /*   http://www.microsoft.com/typography/otspec/glyf.htm                 */
   /*   http://fonts.apple.com/TTRefMan/RM06/Chap6glyf.html                 */
   /*                                                                       */
 #undef TT_CONFIG_OPTION_COMPONENT_OFFSET_SCALED
@@ -714,6 +773,19 @@ FT_BEGIN_HEADER
   /* Compile autofit module with Indic script support.                     */
   /*                                                                       */
 #define AF_CONFIG_OPTION_INDIC
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* Compile autofit module with warp hinting.  The idea of the warping    */
+  /* code is to slightly scale and shift a glyph within a single dimension */
+  /* so that as much of its segments are aligned (more or less) on the     */
+  /* grid.  To find out the optimal scaling and shifting value, various    */
+  /* parameter combinations are tried and scored.                          */
+  /*                                                                       */
+  /* This experimental option is only active if the render mode is         */
+  /* FT_RENDER_MODE_LIGHT.                                                 */
+  /*                                                                       */
+/* #define AF_CONFIG_OPTION_USE_WARPER */
 
   /* */
 
