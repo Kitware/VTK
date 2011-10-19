@@ -109,7 +109,7 @@ public:
   // the bounds of the point representation. (Note that the bounds can be
   // scaled up using the right mouse button, and the bounds can be manually
   // set with the SetBounds() method.)
-  vtkSetMacro(TranslationMode,int);
+  void SetTranslationMode(int mode);
   vtkGetMacro(TranslationMode,int);
   vtkBooleanMacro(TranslationMode,int);
   

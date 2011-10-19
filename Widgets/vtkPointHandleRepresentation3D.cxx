@@ -521,6 +521,19 @@ void vtkPointHandleRepresentation3D::MoveFocus(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::SetTranslationMode(int mode)
+{
+  if (this->TranslationMode != mode)
+    {
+    this->TranslationMode = mode;
+    // Pass new setting to Cursor3D, otherwise PlaceWidget will not work
+    // as it should when TranslationMode is off.
+    this->Cursor3D->SetTranslationMode(mode);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------
 // Translate everything
 void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
 {
