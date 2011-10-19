@@ -23,6 +23,8 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
+#include <time.h>
+
 static vtkSmartPointer<vtkDataArray> MonotonicValues(vtkIdType numValues)
 {
   vtkSmartPointer<vtkDoubleArray> values
