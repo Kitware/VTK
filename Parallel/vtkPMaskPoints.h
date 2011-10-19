@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkPMaskPoints();
-  ~vtkPMaskPoints() {};
+  ~vtkPMaskPoints();
 
   virtual void InternalScatter(unsigned long*, unsigned long *, int, int);
   virtual void InternalGather(unsigned long*, unsigned long*, int, int);
