@@ -11,7 +11,7 @@ vtkPolyDataReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/polyEx.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [reader GetOutputPort]
-    ds2do Update
+
 if {[catch {set channel [open "PolyField.vtk" "w"]}] == 0 } {
    close $channel
    vtkDataObjectWriter writer
