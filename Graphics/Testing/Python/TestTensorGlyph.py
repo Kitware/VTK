@@ -58,7 +58,6 @@ class TestTensorGlyph(Testing.vtkTest):
         data_file = os.path.join(Testing.VTK_DATA_ROOT, "Data",
                                  "tensors.vtk")
         reader.SetFileName(data_file)
-        reader.Update
 
         g1 = SimpleGlyph(reader)
         g1.glyph.ColorGlyphsOff()
