@@ -39,7 +39,7 @@ seeds.SetResolution(10)
 
 sl = vtk.vtkStreamLine()
 sl.SetInputData(pl3d_output)
-sl.SetSourceData(seeds.GetOutput())
+sl.SetSourceConnection(seeds.GetOutputPort())
 sl.SetMaximumPropagationTime(0.1)
 sl.SetIntegrationStepLength(0.1)
 sl.SetIntegrationDirectionToIntegrateBothDirections()

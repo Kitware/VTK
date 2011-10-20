@@ -122,6 +122,11 @@ vtkStreamer::~vtkStreamer()
   this->SetIntegrator(0);
 }
 
+void vtkStreamer::SetSourceConnection(vtkAlgorithmOutput* algOutput)
+{
+  this->SetInputConnection(1,algOutput);
+}
+
 void vtkStreamer::SetSourceData(vtkDataSet *source)
 {
   this->SetInputData(1, source);
