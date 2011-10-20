@@ -51,9 +51,24 @@ public:
 
   virtual void Render(vtkRenderer *renderer, vtkVolume *volume);
 
+  // Description:
+  // Set/get whether to use floating-point rendering buffers rather
+  // than the default.
+  vtkSetMacro(UseFloatingPointFrameBuffer,bool);
+  vtkGetMacro(UseFloatingPointFrameBuffer,bool);
+  vtkBooleanMacro(UseFloatingPointFrameBuffer,bool);
+
 protected:
   vtkOpenGLProjectedTetrahedraMapper();
   ~vtkOpenGLProjectedTetrahedraMapper();
+
+  void Initialize(vtkRenderer *ren);
+  bool Initialized;
+  int  CurrentFBOWidth, CurrentFBOHeight;
+  bool CheckFBOResources(vtkRenderer *ren);
+  bool CanDoFloatingPointFrameBuffer;
+  bool FloatingPointFrameBufferResourcesAllocated;
+  bool UseFloatingPointFrameBuffer;
 
   vtkUnsignedCharArray *Colors;
   int UsingCellColors;
@@ -64,8 +79,6 @@ protected:
   vtkTimeStamp InputAnalyzedTime;
   vtkTimeStamp OpacityTextureTime;
   vtkTimeStamp ColorsMappedTime;
-
-  unsigned int OpacityTexture;
 
   int GaveError;
 
@@ -84,6 +97,10 @@ protected:
 private:
   vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
   void operator=(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
+
+  class vtkInternals;
+
+  vtkInternals *Internals;
 };
 
 #endif
