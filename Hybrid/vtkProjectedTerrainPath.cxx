@@ -66,6 +66,12 @@ vtkProjectedTerrainPath::~vtkProjectedTerrainPath()
 {
 }
 
+//----------------------------------------------------------------------------
+void vtkProjectedTerrainPath::SetSourceConnection(vtkAlgorithmOutput* algOutput)
+{
+  this->SetInputConnection(1, algOutput);
+}
+
 //-----------------------------------------------------------------------------
 void vtkProjectedTerrainPath::SetSourceData(vtkImageData *source)
 {
