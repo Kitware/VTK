@@ -284,7 +284,6 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     return;
     }
   // we really want polydata
-  vtkAlgorithmOutput* pdProducer = 0;
   if (inputDO->IsA("vtkCompositeDataSet"))
     {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
@@ -292,7 +291,6 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
-    pdProducer = gf->GetOutputPort();
     gf->Delete();
     }
   else if (inputDO->GetDataObjectType() != VTK_POLY_DATA)
@@ -302,17 +300,16 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
-    pdProducer = gf->GetOutputPort();
     gf->Delete();
     }
   else
     {
+    anActor->GetMapper()->Update();
     pd = static_cast<vtkPolyData *>(inputDO);
-    pdProducer = anActor->GetMapper()->GetInputConnection(0, 0);
     }
 
   pm = vtkPolyDataMapper::New();
-  pm->SetInputConnection(pdProducer);
+  pm->SetInputData(pd);
   pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   pm->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
   pm->SetLookupTable(anActor->GetMapper()->GetLookupTable());
