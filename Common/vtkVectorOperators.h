@@ -150,6 +150,7 @@ inline vectorType operator/(const vectorType& v1, const vectorType& v2) \
   return vectorType((static_cast<vtkVector<type, size> >(v1) / \
     static_cast<vtkVector<type, size> >(v2)).GetData()); \
 }
+
 #define vtkVectorOperatorMacro(vectorType, type, size) \
 vtkVectorOperatorPlus(vectorType, type, size) \
 vtkVectorOperatorMinus(vectorType, type, size) \
