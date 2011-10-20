@@ -326,6 +326,32 @@ int vtkMPICommunicatorAllReduceData(const void *sendBuffer, void *recvBuffer,
                        length, mpiType, operation, *comm);
 }
 
+//----------------------------------------------------------------------------
+int vtkMPICommunicatorIprobe(int source, int tag, int* flag,
+                             int* actualSource, int type,
+                             int* size, MPI_Comm * handle)
+{
+  if (source == vtkMultiProcessController::ANY_SOURCE)
+    {
+    source = MPI_ANY_SOURCE;
+    }
+  MPI_Status status;
+  int retVal = MPI_Iprobe(source, tag, *handle,
+                          flag, &status);
+  if(retVal == MPI_SUCCESS && *flag == 1)
+    {
+    if(actualSource)
+      {
+      *actualSource = status.MPI_SOURCE;
+      }
+    if(size)
+      {
+      return MPI_Get_count(&status, type, size);
+      }
+    }
+  return retVal;
+}
+
 //-----------------------------------------------------------------------------
 // Method for converting an MPI operation to a
 // vtkMultiProcessController::Operation.
@@ -1450,4 +1476,62 @@ int vtkMPICommunicator::AllReduceVoidArray(
   MPI_Op_free(&mpiOp);
 
   return res;
+}
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::Iprobe(
+  int source, int tag, int* flag, int* actualSource)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorIprobe(source, tag, flag, actualSource,
+                             MPI_INT, NULL, this->MPIComm->Handle));
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::Iprobe(
+  int source, int tag, int* flag, int* actualSource,
+  int* vtkNotUsed(type), int* size)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorIprobe(source, tag, flag, actualSource,
+                             MPI_INT, size, this->MPIComm->Handle));
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::Iprobe(
+  int source, int tag, int* flag, int* actualSource,
+  unsigned long* vtkNotUsed(type), int* size)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorIprobe(source, tag, flag, actualSource,
+                             MPI_UNSIGNED_LONG, size, this->MPIComm->Handle));
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::Iprobe(
+  int source, int tag, int* flag, int* actualSource,
+  const char* vtkNotUsed(type), int* size)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorIprobe(source, tag, flag, actualSource,
+                             MPI_CHAR, size, this->MPIComm->Handle));
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::Iprobe(
+  int source, int tag, int* flag, int* actualSource,
+  float* vtkNotUsed(type), int* size)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorIprobe(source, tag, flag, actualSource,
+                             MPI_FLOAT, size, this->MPIComm->Handle));
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::Iprobe(
+  int source, int tag, int* flag, int* actualSource,
+  double* vtkNotUsed(type), int* size)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorIprobe(source, tag, flag, actualSource,
+                             MPI_DOUBLE, size, this->MPIComm->Handle));
 }
