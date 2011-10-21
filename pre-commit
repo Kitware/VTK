@@ -300,22 +300,6 @@ done
 test -z "$bad" || die "$bad"
 
 #-----------------------------------------------------------------------------
-# Do not allow adding of files with .txx extension.
-diffs_added=$(git diff-index --diff-filter=A --cached $against -- |
-        sed -n '/^:[^:]/ {s/^://;p;}')
-diffs_normal_added=$(echo "$diffs" | grep -v '^...... 160000')
-bad=$(
-test -n "$diffs_normal" && echo "$diffs_normal" |
-while read src_mode dst_mode src_obj dst_obj status file; do
-	if echo "$file" | grep -q -E '\.txx$'; then
-		echo "Attempted to add file $file."
-		echo "Files with the .txx extension are not allowed -- use .hxx instead."
-	fi
-done
-)
-test -z "$bad" || die "$bad"
-
-#-----------------------------------------------------------------------------
 # Merge checks.
 if test -n "$merge_head"; then
 	merge_diffs=$(git diff-index --cached $merge_head -- |
