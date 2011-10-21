@@ -299,6 +299,10 @@ public:
   virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
 
   // Description:
+  // Remove a connection given by index idx.
+  virtual void RemoveInputConnection(int port, int idx);
+
+  // Description:
   // Get a proxy object corresponding to the given output port of this
   // algorithm.  The proxy object can be passed to another algorithm's
   // SetInputConnection(), AddInputConnection(), and

@@ -63,8 +63,10 @@ vtkActor lineActor
 # probe the line and plot it
 vtkGlyphSource2D triangle
     triangle SetGlyphTypeToTriangle
+    triangle Update
 vtkGlyphSource2D cross
     cross SetGlyphTypeToCross
+    cross Update
 vtkXYPlotActor xyplot
     xyplot AddInputConnection [probe GetOutputPort]
     xyplot AddInputConnection [probe2 GetOutputPort]

@@ -1075,6 +1075,57 @@ void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::RemoveInputConnection(int port, int idx)
+{
+  if(!this->InputPortIndexInRange(port, "disconnect"))
+    {
+    return;
+    }
+
+  vtkAlgorithmOutput* input = this->GetInputConnection(port, idx);
+  if (input)
+    {
+    // We need to check if this connection exists multiple times.
+    // If it does, we can't remove this from the consumers list.
+    int numConnections = 0;
+    int numInputConnections = this->GetNumberOfInputConnections(0);
+    for (int i=0; i<numInputConnections; i++)
+      {
+      if (input == this->GetInputConnection(port, i))
+        {
+        numConnections++;
+        }
+      }
+
+    vtkExecutive* consumer = this->GetExecutive();
+    int consumerPort = port;
+
+    // Get the vector of connected input information objects.
+    vtkInformationVector* inputs = consumer->GetInputInformation(consumerPort);
+
+    // Get the producer/consumer pair for the connection.
+    vtkExecutive* producer = input->GetProducer()->GetExecutive();
+    int producerPort = input->GetIndex();
+
+    // Get the information object from the producer of the old input.
+    vtkInformation* oldInfo = producer->GetOutputInformation(producerPort);
+
+    // Only connected once, remove this from inputs consumer list.
+    if (numConnections == 1)
+      {
+      // Remove this consumer from the old input's list of consumers.
+      vtkExecutive::CONSUMERS()->Remove(oldInfo, consumer, consumerPort);
+      }
+
+    // Remove the information object from the list of inputs.
+    inputs->Remove(idx);
+
+    // This algorithm has been modified.
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
 {
   if(!this->InputPortIndexInRange(port, "disconnect"))

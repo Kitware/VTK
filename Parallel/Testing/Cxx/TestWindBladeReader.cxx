@@ -91,7 +91,8 @@ int TestWindBladeReader( int argc, char *argv[] )
 
   // Create a mapper.
   vtkPolyDataMapper* fieldMapper = vtkPolyDataMapper::New();
-  fieldMapper->SetInput(fieldGeometryFilter->GetOutput());
+  fieldMapper->SetInputConnection(
+        fieldGeometryFilter->GetOutputPort());
   fieldMapper->ScalarVisibilityOn();
   fieldMapper->SetColorModeToMapScalars();
   fieldMapper->SetScalarRange(.964, 1.0065);
@@ -99,10 +100,12 @@ int TestWindBladeReader( int argc, char *argv[] )
   fieldMapper->SelectColorArray("Density");
 
   vtkPolyDataMapper* bladeMapper = vtkPolyDataMapper::New();
-  bladeMapper->SetInput(bladeGeometryFilter->GetOutput());
+  bladeMapper->SetInputConnection(
+        bladeGeometryFilter->GetOutputPort());
   bladeMapper->ScalarVisibilityOn();
   vtkPolyDataMapper* groundMapper = vtkPolyDataMapper::New();
-  groundMapper->SetInput(groundGeometryFilter->GetOutput());
+  groundMapper->SetInputConnection(
+         groundGeometryFilter->GetOutputPort());
   groundMapper->ScalarVisibilityOn();
 
   // Create the actor.

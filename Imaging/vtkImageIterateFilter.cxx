@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageIterateFilter.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -76,9 +77,33 @@ vtkImageIterateFilter
       }
     else
       {
-      vtkInformation* out = this->IterationData[next]->GetOutputInformation(0);
+      out = this->IterationData[next]->GetOutputInformation(0);
       }
     out->CopyEntry(in, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+
+    out->CopyEntry(in, vtkDataObject::ORIGIN());
+    out->CopyEntry(in, vtkDataObject::SPACING());
+
+    vtkInformation* scalarInfo =
+      vtkDataObject::GetActiveFieldInformation(
+        in,
+        vtkDataObject::FIELD_ASSOCIATION_POINTS,
+        vtkDataSetAttributes::SCALARS);
+    if (scalarInfo)
+      {
+      int scalarType = VTK_DOUBLE;
+      if (scalarInfo->Has(vtkDataObject::FIELD_ARRAY_TYPE()))
+        {
+        scalarType = scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+        }
+      int numComp = 1;
+      if (scalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()))
+        {
+        numComp = scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+        }
+      vtkDataObject::SetPointDataActiveScalarInfo(
+        out, scalarType, numComp);
+      }
 
     if (!this->IterativeRequestInformation(in, out))
       {
@@ -111,7 +136,7 @@ vtkImageIterateFilter
       }
     else
       {
-      in = this->IterationData[i]->GetInputInformation(0, 0);
+      in = this->IterationData[i]->GetOutputInformation(0);
       }
     in->CopyEntry(out, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
@@ -146,7 +171,7 @@ int vtkImageIterateFilter::RequestData(vtkInformation* request,
       }
     else
       {
-      vtkInformation* out = this->IterationData[next]->GetOutputInformation(0);
+      out = this->IterationData[next]->GetOutputInformation(0);
       }
     vtkDataObject* outData = out->Get(vtkDataObject::DATA_OBJECT());
 
