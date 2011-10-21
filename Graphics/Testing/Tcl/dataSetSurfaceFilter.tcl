@@ -20,7 +20,6 @@ vtkActor gActor
     gActor SetMapper gMapper
 vtkDataSetSurfaceFilter gf2
     gf2 SetInputData $output
-    gf2 UseStripsOn
 vtkPolyDataMapper g2Mapper
     g2Mapper SetInputConnection [gf2 GetOutputPort]
     eval g2Mapper SetScalarRange [$output GetScalarRange]
@@ -39,7 +38,7 @@ vtkActor g3Actor
     g3Actor SetMapper g3Mapper
     g3Actor AddPosition 0 0 15
 vtkDataSetSurfaceFilter gf4
-    gf4 SetInputData $output
+    gf4 SetInputConnection [gf2 GetOutputPort]
     gf4 UseStripsOn
 vtkPolyDataMapper g4Mapper
     g4Mapper SetInputConnection [gf4 GetOutputPort]
