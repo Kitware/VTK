@@ -13,7 +13,7 @@
 
  =========================================================================*/
 
-#include "vtkAMRToGrid.h"
+#include "vtkAMRResampleFilter.h"
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -36,10 +36,10 @@
 #include <cassert>
 #include <algorithm>
 
-vtkStandardNewMacro( vtkAMRToGrid );
+vtkStandardNewMacro( vtkAMRResampleFilter );
 
 //-----------------------------------------------------------------------------
-vtkAMRToGrid::vtkAMRToGrid()
+vtkAMRResampleFilter::vtkAMRResampleFilter()
 {
   this->TransferToNodes      = 1;
   this->LevelOfResolution    = 1;
@@ -51,9 +51,9 @@ vtkAMRToGrid::vtkAMRToGrid()
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRToGrid::~vtkAMRToGrid()
+vtkAMRResampleFilter::~vtkAMRResampleFilter()
 {
-  this->blocksToLoad.clear();
+  this->BlocksToLoad.clear();
 
   if( this->ROI != NULL )
     this->ROI->Delete();
@@ -65,13 +65,13 @@ vtkAMRToGrid::~vtkAMRToGrid()
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::PrintSelf( std::ostream &oss, vtkIndent indent )
+void vtkAMRResampleFilter::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRToGrid::FillInputPortInformation(
+int vtkAMRResampleFilter::FillInputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   assert( "pre: information object is NULL" && (info != NULL) );
@@ -81,7 +81,7 @@ int vtkAMRToGrid::FillInputPortInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRToGrid::FillOutputPortInformation(
+int vtkAMRResampleFilter::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   assert( "pre: information object is NULL" && (info != NULL) );
@@ -90,7 +90,7 @@ int vtkAMRToGrid::FillOutputPortInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRToGrid::RequestUpdateExtent(
+int vtkAMRResampleFilter::RequestUpdateExtent(
     vtkInformation*, vtkInformationVector **inputVector,
     vtkInformationVector* vtkNotUsed(outputVector) )
 {
@@ -104,13 +104,13 @@ int vtkAMRToGrid::RequestUpdateExtent(
   // Tell reader which blocks this process requires
   info->Set(
       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-      &this->blocksToLoad[0], this->blocksToLoad.size() );
+      &this->BlocksToLoad[0], this->BlocksToLoad.size() );
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRToGrid::RequestInformation(
+int vtkAMRResampleFilter::RequestInformation(
     vtkInformation* vtkNotUsed(rqst),
     vtkInformationVector **inputVector,
     vtkInformationVector* vtkNotUsed(outputVector) )
@@ -146,7 +146,7 @@ int vtkAMRToGrid::RequestInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRToGrid::RequestData(
+int vtkAMRResampleFilter::RequestData(
     vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )
 {
@@ -181,7 +181,7 @@ int vtkAMRToGrid::RequestData(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRToGrid::FoundDonor(
+bool vtkAMRResampleFilter::FoundDonor(
     double q[3],vtkUniformGrid *donorGrid,int &cellIdx)
 {
   assert( "pre: donor grid is NULL" && (donorGrid != NULL) );
@@ -198,7 +198,7 @@ bool vtkAMRToGrid::FoundDonor(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::InitializeFields(
+void vtkAMRResampleFilter::InitializeFields(
       vtkFieldData *f, vtkIdType size, vtkCellData *src )
 {
   assert( "pre: field data is NULL!" && (f != NULL) );
@@ -222,7 +222,7 @@ void vtkAMRToGrid::InitializeFields(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::CopyData(
+void vtkAMRResampleFilter::CopyData(
     vtkFieldData *target, vtkIdType targetIdx,
     vtkCellData *src, vtkIdType srcIdx )
 {
@@ -261,7 +261,7 @@ void vtkAMRToGrid::CopyData(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::ComputeCellCentroid(
+void vtkAMRResampleFilter::ComputeCellCentroid(
     vtkUniformGrid *g, const vtkIdType cellIdx, double c[3] )
 {
   assert( "pre: uniform grid is NULL" && (g != NULL) );
@@ -283,7 +283,7 @@ void vtkAMRToGrid::ComputeCellCentroid(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::TransferToCellCenters(
+void vtkAMRResampleFilter::TransferToCellCenters(
         vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
 {
   assert( "pre: uniform grid is NULL" && (g != NULL) );
@@ -338,7 +338,7 @@ void vtkAMRToGrid::TransferToCellCenters(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::TransferToGridNodes(
+void vtkAMRResampleFilter::TransferToGridNodes(
     vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
 {
   assert( "pre: uniform grid is NULL" && (g != NULL) );
@@ -390,7 +390,7 @@ void vtkAMRToGrid::TransferToGridNodes(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::TransferSolution(
+void vtkAMRResampleFilter::TransferSolution(
     vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds)
 {
   assert( "pre: uniform grid is NULL" && (g != NULL) );
@@ -403,7 +403,7 @@ void vtkAMRToGrid::TransferSolution(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::ExtractRegion(
+void vtkAMRResampleFilter::ExtractRegion(
     vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
     vtkHierarchicalBoxDataSet *metadata )
 {
@@ -431,11 +431,11 @@ void vtkAMRToGrid::ExtractRegion(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata )
+void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata )
 {
   assert( "pre: metadata is NULL" && (metadata != NULL) );
 
-  this->blocksToLoad.clear();
+  this->BlocksToLoad.clear();
 
   unsigned int maxLevelToLoad = 0;
   if( this->LevelOfResolution < metadata->GetNumberOfLevels() )
@@ -454,19 +454,19 @@ void vtkAMRToGrid::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata )
 
            if( this->IsBlockWithinBounds( grd ) )
              {
-               this->blocksToLoad.push_back(
+               this->BlocksToLoad.push_back(
                  metadata->GetCompositeIndex(level,dataIdx) );
              } // END check if the block is within the bounds of the ROI
 
         } // END for all data
     } // END for all levels
 
-   std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
+   std::sort( this->BlocksToLoad.begin(), this->BlocksToLoad.end() );
 
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRToGrid::GetRegion( double h[3] )
+void vtkAMRResampleFilter::GetRegion( double h[3] )
 {
   vtkUniformGrid *grd = vtkUniformGrid::New();
 
@@ -494,7 +494,7 @@ void vtkAMRToGrid::GetRegion( double h[3] )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRToGrid::GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 )
+bool vtkAMRResampleFilter::GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 )
 {
   assert( "pre: g1 is NULL" && (g1 != NULL) );
   assert( "pre: g2 is NULL" && (g2 != NULL) );
@@ -515,7 +515,7 @@ bool vtkAMRToGrid::GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRToGrid::IsBlockWithinBounds( vtkUniformGrid *grd )
+bool vtkAMRResampleFilter::IsBlockWithinBounds( vtkUniformGrid *grd )
 {
   assert( "pre: Input AMR grid is NULL" && (grd != NULL) );
 
@@ -536,7 +536,7 @@ bool vtkAMRToGrid::IsBlockWithinBounds( vtkUniformGrid *grd )
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRToGrid::GetRegionProcessId( const int regionIdx )
+int vtkAMRResampleFilter::GetRegionProcessId( const int regionIdx )
 {
   if( !this->IsParallel() )
     return 0;
@@ -546,7 +546,7 @@ int vtkAMRToGrid::GetRegionProcessId( const int regionIdx )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRToGrid::IsRegionMine( const int regionIdx )
+bool vtkAMRResampleFilter::IsRegionMine( const int regionIdx )
 {
   if( !this->IsParallel() )
     return true;
@@ -558,7 +558,7 @@ bool vtkAMRToGrid::IsRegionMine( const int regionIdx )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRToGrid::IsParallel()
+bool vtkAMRResampleFilter::IsParallel()
 {
   if( this->Controller == NULL )
     return false;
@@ -570,7 +570,7 @@ bool vtkAMRToGrid::IsParallel()
 }
 
 //-----------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRToGrid::GetReferenceGrid(vtkHierarchicalBoxDataSet *amrds)
+vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(vtkHierarchicalBoxDataSet *amrds)
 {
   assert( "pre:AMR dataset is  NULL" && (amrds != NULL) );
 

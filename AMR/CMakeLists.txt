@@ -28,8 +28,8 @@ SET(Kit_SRCS
     vtkAMRInterBlockConnectivity.cxx
     vtkAMRLink.cxx
     vtkAMRProbeFilter.cxx
+    vtkAMRResampleFilter.cxx
     vtkAMRSliceFilter.cxx
-    vtkAMRToGrid.cxx
     vtkAMRToMultiBlockFilter.cxx
     )
 

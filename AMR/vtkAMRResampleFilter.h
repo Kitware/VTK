@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkAMRToUniformGrid.h
+ Module:    vtkAMRResampleFilter.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -12,7 +12,7 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRToGrid.h -- Resamples AMR data to a uniform grid.
+// .NAME vtkAMRResampleFilter.h -- Resamples AMR data to a uniform grid.
 //
 // .SECTION Description
 //  This filter is a concrete instance of vtkMultiBlockDataSetAlgorithm and
@@ -28,8 +28,8 @@
 // .SECTION See Also
 //  vtkHierarchicalBoxDataSet, vtkUniformGrid
 
-#ifndef VTKAMRTOUNIFORMGRID_H_
-#define VTKAMRTOUNIFORMGRID_H_
+#ifndef __vtkAMRResampleFilter_h
+#define __vtkAMRResampleFilter_h
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <vtkstd/vector> // For STL vector
@@ -45,11 +45,11 @@ class vtkCellData;
 class vtkPointData;
 class vtkIndent;
 
-class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
+class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 {
   public:
-    static vtkAMRToGrid *New();
-    vtkTypeMacro(vtkAMRToGrid,vtkMultiBlockDataSetAlgorithm);
+    static vtkAMRResampleFilter *New();
+    vtkTypeMacro(vtkAMRResampleFilter,vtkMultiBlockDataSetAlgorithm);
     void PrintSelf( std::ostream &oss, vtkIndent indent);
 
     // Description:
@@ -99,8 +99,8 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
 
 
   protected:
-    vtkAMRToGrid();
-    virtual ~vtkAMRToGrid();
+    vtkAMRResampleFilter();
+    virtual ~vtkAMRResampleFilter();
 
     vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
     double Min[3];
@@ -109,6 +109,10 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     int TransferToNodes;
     int LevelOfResolution;
     vtkMultiProcessController *Controller;
+// BTX
+    vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
+// ETX
+
 
     // Description:
     // Checks if this filter instance is running on more than one processes
@@ -192,13 +196,9 @@ class VTK_AMR_EXPORT vtkAMRToGrid : public vtkMultiBlockDataSetAlgorithm
     // Returns a reference grid from the amrdataset.
     vtkUniformGrid* GetReferenceGrid( vtkHierarchicalBoxDataSet *amrds );
 
-// BTX
-    vtkstd::vector< int > blocksToLoad; // Holds the ids of the blocks to load.
-// ETX
-
   private:
-    vtkAMRToGrid(const vtkAMRToGrid&); // Not implemented
-    void operator=(const vtkAMRToGrid&); // Not implemented
+    vtkAMRResampleFilter(const vtkAMRResampleFilter&); // Not implemented
+    void operator=(const vtkAMRResampleFilter&); // Not implemented
 };
 
-#endif /* VTKAMRTOUNIFORMGRID_H_ */
+#endif /* __vtkAMRResampleFilter_h */
