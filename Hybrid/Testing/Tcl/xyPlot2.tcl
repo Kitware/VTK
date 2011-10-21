@@ -66,8 +66,10 @@ vtkActor lineActor
 # probe the line and plot it
 vtkGlyphSource2D triangle
     triangle SetGlyphTypeToTriangle
+    triangle Update
 vtkGlyphSource2D cross
     cross SetGlyphTypeToCross
+    cross Update
 vtkXYPlotActor xyplot
     xyplot AddInputConnection [probe GetOutputPort]
     xyplot AddInputConnection [probe2 GetOutputPort]
@@ -101,6 +103,7 @@ vtkXYPlotActor xyplot
     xyplot SetLabelFormat "%-#6.2f"
 
 vtkSphereSource vertexGlyph
+   vertexGlyph Update
 vtkXYPlotActor xyplot2
     xyplot2 AddInputConnection [probe GetOutputPort]
     xyplot2 AddInputConnection [probe2 GetOutputPort]

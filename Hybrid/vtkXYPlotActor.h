@@ -696,7 +696,7 @@ private:
   vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
   void operator=(const vtkXYPlotActor&);  // Not implemented.
 
-  int IsInputConnectionPresent(vtkAlgorithmOutput* in);
+  bool DoesConnectionMatch(int i, vtkAlgorithmOutput* in);
 
   int IsInputPresent(vtkAlgorithmOutput* in,
                      const char* arrayName,

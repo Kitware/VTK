@@ -55,6 +55,7 @@ public:
   // Append/Remove an information object.
   void Append(vtkInformation* info);
   void Remove(vtkInformation* info);
+  void Remove(int idx);
 
   // Description:
   // Initiate garbage collection when a reference is removed.

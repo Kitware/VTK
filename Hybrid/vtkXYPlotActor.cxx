@@ -179,6 +179,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->GlyphSource->SetGlyphTypeToNone();
   this->GlyphSource->DashOn();
   this->GlyphSource->FilledOff();
+  this->GlyphSource->Update();
   this->GlyphSize = 0.020;
 
   this->ClipPlanes = vtkPlanes::New();
@@ -358,39 +359,38 @@ void vtkXYPlotActor::InitializeEntries()
     }//if entries have been defined
 }
 
-int vtkXYPlotActor::IsInputConnectionPresent(vtkAlgorithmOutput* in)
+bool vtkXYPlotActor::DoesConnectionMatch(int i, vtkAlgorithmOutput* in)
 {
-  vtkAlgorithm* connections = this->InputConnectionHolder;
-  int numConnections = connections->GetNumberOfInputConnections(0);
-  for (int i=0; i<numConnections; i++)
+  vtkAlgorithmOutput* conn =
+    this->InputConnectionHolder->GetInputConnection(0, i);
+  if (conn->GetProducer() == in->GetProducer() &&
+      conn->GetIndex() == in->GetIndex())
     {
-    vtkAlgorithmOutput* conn = connections->GetInputConnection(0, i);
-    if (conn->GetProducer() == in->GetProducer() &&
-        conn->GetIndex() == in->GetIndex())
-      {
-      return i+1;
-      }
+    return true;
     }
-  return 0;
+  return false;
 }
 
 int vtkXYPlotActor::IsInputPresent(vtkAlgorithmOutput* in,
                                    const char* arrayName,
                                    int component)
 {
-  int idx = this->IsInputConnectionPresent(in);
-  if (idx > 0)
-    { // Return if arrays are the same.
-    if (arrayName == NULL && this->SelectedInputScalars[idx-1] == NULL &&
-        component == this->SelectedInputScalarsComponent->GetValue(idx-1))
+  int numConns = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int idx=0; idx<numConns; idx++)
+    {
+    if (this->DoesConnectionMatch(idx, in))
       {
-      return idx;
-      }
-    if (arrayName != NULL && this->SelectedInputScalars[idx-1] != NULL &&
-        strcmp(arrayName, this->SelectedInputScalars[idx-1]) == 0 &&
-        component == this->SelectedInputScalarsComponent->GetValue(idx-1))
-      {
-      return idx;
+      if (arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
+          component == this->SelectedInputScalarsComponent->GetValue(idx))
+        {
+        return idx + 1;
+        }
+      if (arrayName != NULL && this->SelectedInputScalars[idx] != NULL &&
+          strcmp(arrayName, this->SelectedInputScalars[idx]) == 0 &&
+          component == this->SelectedInputScalarsComponent->GetValue(idx))
+        {
+        return idx + 1;
+        }
       }
     }
   return 0;
@@ -479,8 +479,6 @@ void vtkXYPlotActor::RemoveInputConnection(vtkAlgorithmOutput *in,
                                            const char *arrayName,
                                            int component)
 {
-  int num;
-
   // IsInputPresent returns 0 on failure, index+1 on success.
   // Subtract 1 for the actual index.
   int found = this->IsInputPresent(in, arrayName, component) - 1;
@@ -491,7 +489,9 @@ void vtkXYPlotActor::RemoveInputConnection(vtkAlgorithmOutput *in,
 
   this->Modified();
 
-  this->InputConnectionHolder->RemoveInputConnection(0, in);
+  int num = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+
+  this->InputConnectionHolder->RemoveInputConnection(0, found);
 
   // Do not bother reallocating the SelectedInputScalars
   // string array to make it smaller.
@@ -1409,7 +1409,7 @@ void vtkXYPlotActor::ComputeYRange(double range[2])
   range[0]=VTK_DOUBLE_MAX, range[1]=VTK_DOUBLE_MIN;
 
   int numDS = this->InputConnectionHolder->GetNumberOfInputConnections(0);
-  for (int dsNum=0; dsNum<numDS;  dsNum++)
+  for (int dsNum=0, count = 0; dsNum<numDS;  dsNum++, count++)
     {
     vtkAlgorithmOutput* port =
       this->InputConnectionHolder->GetInputConnection(0, dsNum);
