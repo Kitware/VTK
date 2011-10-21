@@ -97,7 +97,6 @@ table SetSaturationRange 0 0
 vtkImageMapToColors mapToColors
 mapToColors SetInputConnection [v16 GetOutputPort]
 mapToColors SetLookupTable table
-mapToColors Update
 
 vtkImageActor imageActor
 [imageActor GetMapper] SetInputConnection [mapToColors GetOutputPort]

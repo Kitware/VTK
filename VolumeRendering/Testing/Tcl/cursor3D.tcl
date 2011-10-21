@@ -23,7 +23,6 @@ set IMAGE_MAG_Z 1
 
 vtkSLCReader reader
   reader SetFileName "$VTK_DATA_ROOT/Data/neghip.slc"
-  reader Update
 # Cursor stuff
 
 vtkImageMagnify magnify

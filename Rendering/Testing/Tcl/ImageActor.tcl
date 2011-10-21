@@ -22,7 +22,6 @@ pnmReader SetOrientationType 4
 
 vtkImageLuminance lum
 lum SetInputConnection [pnmReader GetOutputPort]
-lum Update
 
 vtkImageActor ia
 [ia GetMapper] SetInputConnection [lum GetOutputPort]
