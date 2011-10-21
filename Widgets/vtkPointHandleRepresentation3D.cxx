@@ -521,6 +521,19 @@ void vtkPointHandleRepresentation3D::MoveFocus(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::SetTranslationMode(int mode)
+{
+  if (this->TranslationMode != mode)
+    {
+    this->TranslationMode = mode;
+    // Pass new setting to Cursor3D, otherwise PlaceWidget will not work
+    // as it should when TranslationMode is off.
+    this->Cursor3D->SetTranslationMode(mode);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------
 // Translate everything
 void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
 {
@@ -674,6 +687,26 @@ void vtkPointHandleRepresentation3D::ShallowCopy(vtkProp *prop)
     this->SetHotSpotSize(rep->GetHotSpotSize());
     }
   this->Superclass::ShallowCopy(prop);
+}
+
+//----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::DeepCopy(vtkProp *prop)
+{
+  vtkPointHandleRepresentation3D *rep =
+    vtkPointHandleRepresentation3D::SafeDownCast(prop);
+  if ( rep )
+    {
+    this->SetOutline(rep->GetOutline());
+    this->SetXShadows(rep->GetXShadows());
+    this->SetYShadows(rep->GetYShadows());
+    this->SetZShadows(rep->GetZShadows());
+    this->SetTranslationMode(rep->GetTranslationMode());
+    this->SetProperty(rep->GetProperty());
+    this->Actor->SetProperty(rep->GetProperty());
+    this->SetSelectedProperty(rep->GetSelectedProperty());
+    this->SetHotSpotSize(rep->GetHotSpotSize());
+    }
+  this->Superclass::DeepCopy(prop);
 }
 
 //----------------------------------------------------------------------
