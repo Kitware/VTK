@@ -328,7 +328,7 @@ int vtkMPICommunicatorAllReduceData(const void *sendBuffer, void *recvBuffer,
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicatorIprobe(int source, int tag, int* flag,
-                             int* actualSource, int type,
+                             int* actualSource, MPI_Datatype datatype,
                              int* size, MPI_Comm * handle)
 {
   if (source == vtkMultiProcessController::ANY_SOURCE)
@@ -346,7 +346,7 @@ int vtkMPICommunicatorIprobe(int source, int tag, int* flag,
       }
     if(size)
       {
-      return MPI_Get_count(&status, type, size);
+      return MPI_Get_count(&status, datatype, size);
       }
     }
   return retVal;
