@@ -319,10 +319,6 @@ done
 test -z "$bad" || die "$bad"
 
 #-----------------------------------------------------------------------------
-# Style hooks.
-. "$GIT_DIR/hooks/pre-commit-style"
-
-#-----------------------------------------------------------------------------
 # Chain to project-specific hook.
 . "$GIT_DIR/hooks/hooks-chain.bash"
 hooks_chain pre-commit "$@"
