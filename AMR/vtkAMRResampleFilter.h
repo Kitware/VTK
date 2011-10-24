@@ -63,6 +63,12 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     vtkGetMacro(TransferToNodes,int);
 
     // Description:
+    // Set & Get macro to allow the filter to operate in both demand-driven
+    // and standard modes
+    vtkSetMacro(DemandDrivenMode,int);
+    vtkGetMacro(DemandDrivenMode,int);
+
+    // Description:
     // Set & Get macro for the number of subdivisions
     vtkSetMacro(NumberOfSubdivisions,int);
     vtkGetMacro(NumberOfSubdivisions,int);
@@ -107,6 +113,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     double Max[3];
     int NumberOfSubdivisions;
     int TransferToNodes;
+    int DemandDrivenMode;
     int LevelOfResolution;
     vtkMultiProcessController *Controller;
 // BTX

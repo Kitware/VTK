@@ -43,6 +43,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
 {
   this->TransferToNodes      = 1;
   this->LevelOfResolution    = 1;
+  this->DemandDrivenMode     = 1;
   this->NumberOfSubdivisions = 0;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
@@ -98,14 +99,16 @@ int vtkAMRResampleFilter::RequestUpdateExtent(
   vtkInformation *info = inputVector[0]->GetInformationObject(0);
   assert( "pre: info is NULL" && (info != NULL) );
 
-  // Tell reader to load all requested blocks.
-  info->Set( vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1 );
+  if( this->DemandDrivenMode == 1 )
+    {
+    // Tell reader to load all requested blocks.
+    info->Set( vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1 );
 
-  // Tell reader which blocks this process requires
-  info->Set(
-      vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-      &this->BlocksToLoad[0], this->BlocksToLoad.size() );
-
+    // Tell reader which blocks this process requires
+    info->Set(
+        vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
+        &this->BlocksToLoad[0], this->BlocksToLoad.size() );
+    }
   return 1;
 }
 
@@ -115,12 +118,14 @@ int vtkAMRResampleFilter::RequestInformation(
     vtkInformationVector **inputVector,
     vtkInformationVector* vtkNotUsed(outputVector) )
 {
+
   assert( "pre: inputVector is NULL" && (inputVector != NULL) );
 
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: input is NULL" && (input != NULL)  );
 
-  if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+  if( this->DemandDrivenMode == 1 &&
+      input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
       vtkHierarchicalBoxDataSet *metadata =
         vtkHierarchicalBoxDataSet::SafeDownCast(
@@ -160,7 +165,8 @@ int vtkAMRResampleFilter::RequestData(
 
   vtkHierarchicalBoxDataSet *metadata = NULL;
   // STEP 1: Get Metadata
-  if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+  if( this->DemandDrivenMode == 1 &&
+      input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
     metadata = vtkHierarchicalBoxDataSet::SafeDownCast(
       input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
