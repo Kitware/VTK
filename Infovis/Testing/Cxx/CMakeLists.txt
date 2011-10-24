@@ -58,6 +58,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestRISReader
       TestStringToNumeric
       TestTulipReader
+      TestTulipReaderClusters
       TestTulipReaderProperties
       )
   ENDIF (VTK_DATA_ROOT)
