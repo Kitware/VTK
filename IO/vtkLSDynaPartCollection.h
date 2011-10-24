@@ -114,10 +114,13 @@ public:
   //Adds User Ids for all parts of a certain type
   void ReadCellUserIds(
       const LSDynaMetaData::LSDYNA_TYPES& type, const int& status);
-  void FillCellUserId(int *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-    const vtkIdType& startId, const vtkIdType& numCells);
-  void FillCellUserId(vtkIdType *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
-    const vtkIdType& startId, const vtkIdType& numCells);
+  
+  template<typename T>
+  void FillCellUserId(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
+    const vtkIdType& startId, const vtkIdType& numCells)
+    {
+    this->FillCellUserIdArray(buffer,type,startId,numCells);
+    }
 
 protected:
   vtkLSDynaPartCollection();

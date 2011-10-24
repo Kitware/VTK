@@ -573,13 +573,7 @@ private:
   void FillDeletionArray(T* buffer, vtkUnsignedCharArray* arr, const vtkIdType& start, const vtkIdType& numCells,
                          const int& deathPos, const int& cellSize);
 
-  template<int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>  
-  void FillBlockType(vtkIdType* buffer);
-  
-  template<int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>  
-  void FillBlockType(int* buffer);
-
-  template<typename T>
+  template<int wordSize, typename T>
   int FillTopology(T* buffer);
 
   template<typename T, int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>

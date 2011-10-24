@@ -662,28 +662,12 @@ void vtkLSDynaPartCollection::ReadCellUserIds(
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPartCollection::FillCellUserId(int *buffer,
-  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
-  const vtkIdType& numCells)
-{
-  this->FillCellUserIdArray(buffer,type,startId,numCells);
-}
-
-//-----------------------------------------------------------------------------
-void vtkLSDynaPartCollection::FillCellUserId(vtkIdType *buffer,
-  const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
-  const vtkIdType& numCells)
-{
-  this->FillCellUserIdArray(buffer,type,startId,numCells);
-}
-
-//-----------------------------------------------------------------------------
 template<typename T>
 void vtkLSDynaPartCollection::FillCellUserIdArray(T *buffer,
   const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
   vtkIdType numCells)
 {
-
+  const int numWordsPerIdType(this->MetaData->Fam.GetWordSize() / sizeof(T));
   //we only need to iterate the array for the subsection we need
   T* loc = buffer;
   vtkIdType size,globalStartId;
@@ -697,11 +681,11 @@ void vtkLSDynaPartCollection::FillCellUserIdArray(T *buffer,
       {
       break;
       }
-    vtkIdType is = end - start;
+    vtkIdType is = (end - start)*numWordsPerIdType;
     if(part)
       {
       part->EnableCellUserIds();
-      for(vtkIdType i=0; i<is; ++i)
+      for(vtkIdType i=0; i<is; i+=numWordsPerIdType)
         {
         part->SetNextCellUserIds((vtkIdType)loc[i]);        
         }
