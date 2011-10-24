@@ -158,13 +158,31 @@ int vtkAMRResampleFilter::RequestData(
       input->Get(vtkDataObject::DATA_OBJECT()));
   assert( "pre: input AMR dataset is NULL" && (amrds != NULL) );
 
+  vtkHierarchicalBoxDataSet *metadata = NULL;
   // STEP 1: Get Metadata
-  assert( "pre: No metadata!" &&
-    input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
-  vtkHierarchicalBoxDataSet *metadata =
-      vtkHierarchicalBoxDataSet::SafeDownCast(
-        input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
-  assert( "pre: medata is NULL" && (metadata != NULL)  );
+  if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+    {
+    metadata = vtkHierarchicalBoxDataSet::SafeDownCast(
+      input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
+    assert( "pre: medata is NULL" && (metadata != NULL)  );
+    }
+  else
+    {
+    metadata = amrds;
+
+    // Get desired spacing
+    double h[3];
+    int level = this->LevelOfResolution;
+    if( level >= amrds->GetNumberOfLevels() )
+      level = amrds->GetNumberOfLevels()-1;
+    vtkUniformGrid *grd = amrds->GetDataSet( level, 0 );
+    assert( "pre: reference grid is NULL" && (grd != NULL) );
+    grd->GetSpacing( h );
+
+    // GetRegion
+    this->GetRegion( h );
+    }
+
 
   // STEP 2: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
