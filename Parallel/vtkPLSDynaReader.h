@@ -144,7 +144,6 @@ protected:
   virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
 
   virtual int ReadTopology();
-  virtual int ReadStaticNodes();
 
 private:
 

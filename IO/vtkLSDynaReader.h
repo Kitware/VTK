@@ -401,7 +401,7 @@ public:
   // Should deflected coordinates be used, or should the mesh remain
   // undeflected?  By default, this is true but its value is ignored if the
   // nodal "Deflection" array is not set to be loaded.
-  vtkSetMacro(DeformedMesh,int);
+  virtual void SetDeformedMesh(int);
   vtkGetMacro(DeformedMesh,int);
   vtkBooleanMacro(DeformedMesh,int);
 
@@ -961,6 +961,16 @@ inline int vtkLSDynaReader::GetPartArrayStatus( const char* partName )
     }
   //vtkWarningMacro( "PartArray \"" << partName << "\" does not exist" );
   return 0;
+}
+
+inline void vtkLSDynaReader::SetDeformedMesh(int deformed)
+{
+  if (this->DeformedMesh != deformed)
+    {
+    this->DeformedMesh = deformed;
+    this->ResetPartsCache();
+    this->Modified();
+    }
 }
 
 #endif // __vtkLSDynaReader_h

@@ -2396,6 +2396,13 @@ int vtkLSDynaReader::ReadTopology()
 
   this->Parts->FinalizeTopology();
 
+  if(this->ReadNodes())
+    {
+    vtkErrorMacro("Could not read static node values.");
+    return 1;
+    }
+
+
   // we need to read the user ids after we have read the topology
   // so we know how many cells are in each part
   if ( this->ReadUserIds() )

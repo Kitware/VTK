@@ -466,6 +466,8 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
     cd->GetArray(i)->Modified();
     }
 
+  this->Points->Modified();
+
   vtkPointData *pd = this->Grid->GetPointData();
   numArrays = pd->GetNumberOfArrays();
   for(int i=0; i<numArrays; ++i)

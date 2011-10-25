@@ -162,18 +162,6 @@ int vtkPLSDynaReader::RequestData(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkPLSDynaReader::ReadStaticNodes()
-{
-  //we read nodal information on each state section.
-  if ( this->ReadNodes() )
-    {
-    vtkErrorMacro( "Could not read nodal coordinates." );
-    return 1;
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 int vtkPLSDynaReader::ReadTopology()
 {
   bool readTopology=false;
@@ -190,7 +178,7 @@ int vtkPLSDynaReader::ReadTopology()
     delete[] maxCellIds;
     }
   if(!readTopology)
-    {
+    {    
     return 0;
     }
 
@@ -209,6 +197,13 @@ int vtkPLSDynaReader::ReadTopology()
   //finalize the topology on each process, each process will  remove
   //any part that it doesn't have a cell for.
   this->Parts->FinalizeTopology();
+
+  if(this->ReadNodes())
+    {
+    vtkErrorMacro("Could not read static node values.");
+    return 1;
+    }
+
 
   // we need to read the user ids after we have read the topology
   // so we know how many cells are in each part
