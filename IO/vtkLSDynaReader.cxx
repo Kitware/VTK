@@ -2835,8 +2835,12 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType step )
 
   VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::SHELL,LS_ARRAYNAME_STRAIN "InnerSurf",6);
   VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::SHELL,LS_ARRAYNAME_STRAIN "OuterSurf",6);
-  VTK_LS_CELLARRAY(! p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45),
-    LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
+
+  //we use a temp boolean so that we have less of a chance of causing a bug.
+  //if you just insert the or conditions into the macro it becomes a || b && c
+  //when you really want (a ||b) && c
+  bool valid =(! p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45));
+  VTK_LS_CELLARRAY(valid,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
 
   this->ReadCellProperties(LSDynaMetaData::SHELL, p->Dict["NV2D"]);
  

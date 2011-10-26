@@ -801,7 +801,11 @@ void vtkLSDynaPartCollection::ReadPointProperty(
       }
     }
 
-  if(this->MetaData->Fam.GetWordSize() == 8)
+  if(idx<=0)
+    {
+    //don't do anything as we have no valid parts
+    }
+  else if(this->MetaData->Fam.GetWordSize() == 8)
     {
     this->ReadPointProperty<double>(numTuples,numComps,validParts, idx);
     }
