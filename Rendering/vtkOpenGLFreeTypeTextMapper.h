@@ -26,9 +26,18 @@
 
 #include "vtkTextMapper.h"
 
+//#include <FTGL.h>
+//
+//#ifdef FTGL_USE_NAMESPACE
+//namespace ftgl
+//{
+//#endif
 //BTX
-class FTFont;
+//class FTFont;
 //ETX
+//#ifdef FTGL_USE_NAMESPACE
+//}
+//#endif
 
 class VTK_RENDERING_EXPORT vtkOpenGLFreeTypeTextMapper : public vtkTextMapper
 {

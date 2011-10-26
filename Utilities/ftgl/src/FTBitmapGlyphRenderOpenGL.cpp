@@ -8,6 +8,11 @@
 #define RenderFunctionName RenderOpenGL
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 void FTBitmapGlyph::RenderFunctionName(const FT_Vector& pen,
                                        const FTGLRenderContext *)
 {
@@ -19,3 +24,7 @@ void FTBitmapGlyph::RenderFunctionName(const FT_Vector& pen,
   // Restore the glyph origin
   glBitmap( 0, 0, 0.0, 0.0, (float)(-pen.x - pos.x), (float)(-pen.y + pos.y), (const GLubyte *)0 );
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

@@ -13,6 +13,11 @@
 #define CALLBACK
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 /**
  * ftPoint class is a basic 3 dimensional point for holding outline font
  * point data.
@@ -423,5 +428,8 @@ class FTGL_EXPORT FTVectoriser
 
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTVectoriser__

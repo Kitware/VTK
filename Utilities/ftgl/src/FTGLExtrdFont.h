@@ -5,6 +5,11 @@
 
 #include  "FTFont.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTGlyph;
 
 
@@ -42,6 +47,9 @@ class FTGL_EXPORT FTGLExtrdFont : public FTFont
     
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTGLExtrdFont__
 

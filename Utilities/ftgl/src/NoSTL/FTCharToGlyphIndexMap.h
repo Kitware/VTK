@@ -23,6 +23,11 @@
 
 #include "FTGL.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTGL_EXPORT FTCharToGlyphIndexMap
 {
 public:
@@ -149,5 +154,9 @@ inline void FTCharToGlyphIndexMap::insert(FTCharToGlyphIndexMap::CharacterCode c
   
   this->Indices[pos.quot][pos.rem] = g;
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTCharToGlyphIndexMap__

@@ -32,6 +32,10 @@
 
 #include <sys/stat.h>
 
+#ifdef FTGL_USE_NAMESPACE
+using namespace ftgl;
+#endif
+
 // Print debug info
 
 #define VTK_FTFC_DEBUG 0
