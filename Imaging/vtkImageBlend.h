@@ -121,6 +121,11 @@ public:
 
   // Description:
   // Set a stencil to apply when blending the data.
+  // Create a pipeline connection.
+  void SetStencilConnection(vtkAlgorithmOutput *algOutput);
+
+  // Description:
+  // Set a stencil to apply when blending the data.
   void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 

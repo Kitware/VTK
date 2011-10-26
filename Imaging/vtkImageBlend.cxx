@@ -95,6 +95,11 @@ vtkDataObject *vtkImageBlend::GetInput(int idx)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageBlend::SetStencilConnection(vtkAlgorithmOutput *algOutput)
+{
+  this->SetInputConnection(1, algOutput);
+}
+//----------------------------------------------------------------------------
 void vtkImageBlend::SetStencilData(vtkImageStencilData *stencil)
 {
   this->SetInputDataInternal(1, stencil);
