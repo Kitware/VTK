@@ -32,6 +32,10 @@
 
 #include <sys/stat.h>
 
+#ifdef FTGL_USE_NAMESPACE
+using namespace ftgl;
+#endif
+
 // Print debug info
 
 #define VTK_FTFC_DEBUG 0
@@ -180,7 +184,7 @@ FT_Library* vtkFreeTypeUtilities::GetLibrary()
   printf("vtkFreeTypeUtilities::GetLibrary\n");
 #endif
 
-  FTLibrary *ftgl_lib = FTLibrary::GetInstance();
+  FTLibrary * ftgl_lib = FTLibrary::GetInstance();
   if (ftgl_lib)
     {
     return ftgl_lib->GetLibrary();

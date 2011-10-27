@@ -7,6 +7,10 @@
 #include FT_FREETYPE_H
 //#include FT_CACHE_H
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 /**
  * FTLibrary class is the global accessor for the Freetype library.
@@ -113,5 +117,9 @@ class FTGL_EXPORT FTLibrary
     static FTLibraryCleanup Cleanup;
     static FTLibrary* Instance;
 };
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTLibrary__

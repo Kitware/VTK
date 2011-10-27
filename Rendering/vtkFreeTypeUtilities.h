@@ -32,6 +32,8 @@ class vtkTextProperty;
 
 // FreeType
 
+#include <FTGL.h>
+
 #include "vtk_freetype.h"  //since ft2build.h could be in the path
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -42,7 +44,14 @@ class vtkTextProperty;
 # define VTK_FREETYPE_CACHING_SUPPORTED
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 class FTFont;
+#ifdef FTGL_USE_NAMESPACE
+}
+#endif
 
 //----------------------------------------------------------------------------
 // Singleton cleanup
@@ -243,7 +252,11 @@ public:
   struct Entry
   {
     vtkTextProperty *TextProperty;
+#ifdef FTGL_USE_NAMESPACE
+    ftgl::FTFont *Font;
+#else
     FTFont *Font;
+#endif
     float LargestAscender;
     float LargestDescender;
   };
