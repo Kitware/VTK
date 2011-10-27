@@ -100,7 +100,7 @@ struct LSDynaFamily::BufferingInfo
     vtkIdType numWordsToRead;
     vtkIdType loopTimes;
     vtkIdType leftOver;
-    vtkIdType size; //deafult buffer size
+    const vtkIdType size; //deafult buffer size
 };
 
 //-----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ LSDynaFamily::LSDynaFamily()
     this->StateSize = 0; // Time steps take up no room on disk
 
     this->AdaptationsMarkers.push_back( LSDynaFamilyAdaptLevel() );
-    this->Chunk = 0;
+    this->Chunk = NULL;
     this->ChunkWord = 0;
     this->ChunkAlloc = 0;
 
@@ -393,6 +393,8 @@ int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
     this->ChunkValid += bytesRead;
     if ( bytesRead < bytesLeft )
       {
+      std::cout << "bytesRead < bytesLeft" << std::endl;
+      std::cout << "bytesRead " << bytesRead << " bytesLeft" << bytesLeft << std::endl;
       if ( bytesRead <= 0 )
         { // try advancing to next file
         VTK_LSDYNA_CLOSEFILE(this->FD);
@@ -470,6 +472,8 @@ int LSDynaFamily::ClearBuffer()
   if ( this->Chunk )
     {
     this->ChunkAlloc = 0;
+    this->ChunkWord = 0;
+    this->ChunkValid = 0;
     delete [] this->Chunk;
     this->Chunk = NULL;
     }
@@ -481,12 +485,25 @@ int LSDynaFamily::ClearBuffer()
 vtkIdType LSDynaFamily::InitPartialChunkBuffering( const vtkIdType& numTuples,
   const vtkIdType& numComps )
 {
-  const vtkIdType size(this->BufferInfo->size);
-  this->BufferInfo->numWordsToRead = (size * numComps);
-  this->BufferInfo->leftOver=(numTuples%size) * numComps;
-
-  this->BufferInfo->loopTimes=(numTuples/size);
-  return this->BufferInfo->loopTimes+1; //1 is the leftover
+  if(numTuples==0)
+    {
+    this->BufferInfo->numWordsToRead = 0;
+    this->BufferInfo->leftOver = 0;
+    this->BufferInfo->loopTimes = 0;
+    }
+  else
+    {
+    const vtkIdType size(this->BufferInfo->size);
+    this->BufferInfo->numWordsToRead = (size * numComps);
+    this->BufferInfo->leftOver=(numTuples%size) * numComps;
+    this->BufferInfo->loopTimes=(numTuples/size);
+    }
+  int numChunks = this->BufferInfo->loopTimes;
+  if(this->BufferInfo->leftOver>0)
+    {
+    ++numChunks;
+    }
+  return numChunks;
 }
 
 //-----------------------------------------------------------------------------

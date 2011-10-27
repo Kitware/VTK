@@ -199,13 +199,7 @@ public:
   inline double GetNextWordAsFloat();
   inline vtkIdType GetNextWordAsInt();
 
-  //Get the raw chunk buffer as a buffer of type float
-  float* GetBufferAsFloat();
-  double* GetBufferAsDouble();
-  int* GetBufferAsInt();
-  vtkIdType* GetBufferAsIdType();
-  unsigned char* GetRawBuffer();
-
+  //Get the raw chunk buffer as a buffer of type T
   template<typename T>
   T* GetBufferAs();
 
@@ -341,36 +335,6 @@ inline vtkIdType LSDynaFamily::GetNextWordAsInt()
     return *(vtkIdType*)(&this->Chunk[ this->ChunkWord++ << 3 ]);
     }
   }
-
-//-----------------------------------------------------------------------------
-inline float* LSDynaFamily::GetBufferAsFloat()
-{
-  return (float*)this->Chunk;
-}
-
-//-----------------------------------------------------------------------------
-inline double* LSDynaFamily::GetBufferAsDouble()
-{
-  return (double*)this->Chunk;
-}
-
-//-----------------------------------------------------------------------------
-inline int* LSDynaFamily::GetBufferAsInt()
-{
-  return (int*)this->Chunk;
-}
-
-//-----------------------------------------------------------------------------
-inline vtkIdType* LSDynaFamily::GetBufferAsIdType()
-{
-  return (vtkIdType*)this->Chunk;
-}
-
-//-----------------------------------------------------------------------------
-inline unsigned char* LSDynaFamily::GetRawBuffer()
-{
-  return this->Chunk;
-}
 
 //-----------------------------------------------------------------------------
 template<typename T>

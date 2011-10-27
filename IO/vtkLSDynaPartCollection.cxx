@@ -898,12 +898,14 @@ void vtkLSDynaPartCollection::ReadPointProperty(const vtkIdType& numTuples,
       ++partIt;
       }
     }
-
-  p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
-  buf = p->Fam.GetBufferAs<T>();
-  for (partIt = sortedParts.begin(); partIt!=sortedParts.end();++partIt)
+  if(leftOver>0)
     {
-    (*partIt)->ReadPointBasedProperty(buf,leftOver,numComps,offset);
+    p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
+    buf = p->Fam.GetBufferAs<T>();
+    for (partIt = sortedParts.begin(); partIt!=sortedParts.end();++partIt)
+      {
+      (*partIt)->ReadPointBasedProperty(buf,leftOver,numComps,offset);
+      }
     }
   p->Fam.SkipWords(numPointsToSkipEnd * numComps);
 }

@@ -576,7 +576,7 @@ private:
   template<int wordSize, typename T>
   int FillTopology(T* buffer);
 
-  template<typename T, int blockType, vtkIdType numWordsPerCell, int cellType, vtkIdType cellLength>
+  template<typename T, int blockType, vtkIdType numWordsPerCell, vtkIdType cellLength>
   void ReadBlockCellSizes();
 
   template<typename T>
