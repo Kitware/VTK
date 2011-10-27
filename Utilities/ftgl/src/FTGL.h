@@ -75,7 +75,7 @@ struct FTGLRenderContext
   #ifdef FTGL_LIBRARY_STATIC    // static lib - no special export required
   #  define FTGL_EXPORT
   #else
-    #ifdef FTGL_LIBRARY        // dynamic lib - must export/import symbols appropriately.
+    #ifdef vtkftgl_EXPORTS        // dynamic lib - must export/import symbols appropriately.
   #  define FTGL_EXPORT   __declspec(dllexport)
   #else
   #  define FTGL_EXPORT   __declspec(dllimport)
