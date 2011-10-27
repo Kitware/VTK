@@ -123,11 +123,6 @@ void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFun
     {
     return;
     }
-  // Observation will be set Superclass::SetColorTransferFunction
-  if (this->ColorTransferFunction)
-    {
-    this->ColorTransferFunction->RemoveObserver(this->Callback);
-    }
   // We need to set the color transfer function here (before
   // Superclass::SetPiecewiseFunction) to be able to have a valid
   // color transfer function for MergeColorTransferFunction().

@@ -79,6 +79,14 @@ void vtkCompositeTransferFunctionItem::ComputeBounds(double* bounds)
 //-----------------------------------------------------------------------------
 void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* opacity)
 {
+  if (opacity == this->OpacityFunction)
+    {
+    return;
+    }
+  if (this->OpacityFunction)
+    {
+    this->OpacityFunction->RemoveObserver(this->Callback);
+    }
   vtkSetObjectBodyMacro(OpacityFunction, vtkPiecewiseFunction, opacity);
   if (opacity)
     {
