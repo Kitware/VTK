@@ -164,7 +164,7 @@ FT_Library* vtkFreeTypeTools::GetLibrary()
   printf("vtkFreeTypeTools::GetLibrary\n");
 #endif
 
-  FTLibrary *ftgl_lib = FTLibrary::GetInstance();
+  FTLibrary * ftgl_lib = FTLibrary::GetInstance();
   if (ftgl_lib)
     {
     return ftgl_lib->GetLibrary();
