@@ -9,6 +9,11 @@
 #include "FTGLgl.h"
 #include "FTGlyph.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTVectoriser;
 
 /**
@@ -70,6 +75,9 @@ class FTGL_EXPORT FTExtrdGlyph : public FTGlyph
   
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTExtrdGlyph__
 

@@ -9,8 +9,12 @@
 #include "FTGLgl.h"
 #include "FTGlyph.h"
 
-class FTVectoriser;
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
+class FTVectoriser;
 
 /**
  * FTOutlineGlyph is a specialisation of FTGlyph for creating outlines.
@@ -77,6 +81,9 @@ class FTGL_EXPORT FTOutlineGlyph : public FTGlyph
   
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTOutlineGlyph__
 

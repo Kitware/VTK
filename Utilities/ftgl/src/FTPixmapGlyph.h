@@ -9,6 +9,10 @@
 #include "FTGL.h"
 #include  "FTGlyph.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 /**
  * FTPixmapGlyph is a specialisation of FTGlyph for creating pixmaps.
@@ -76,5 +80,9 @@ class  FTGL_EXPORT FTPixmapGlyph : public FTGlyph
 #endif
 
 };
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTPixmapGlyph__

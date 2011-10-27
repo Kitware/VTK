@@ -3,6 +3,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTCharmap::FTCharmap( FT_Face face)
 :  ftFace( face),
@@ -112,3 +116,7 @@ unsigned int FTCharmap::CharIndex( unsigned int index )
   }
 #endif
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
