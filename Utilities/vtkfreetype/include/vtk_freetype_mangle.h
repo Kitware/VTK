@@ -27,6 +27,12 @@ used when the shared library is loaded/unloaded from an executable.
 #ifndef vtk_freetype_mangle_h
 #define vtk_freetype_mangle_h
 
+#define afm_parser_funcs vtk_freetype_afm_parser_funcs
+#define bdf_cmap_class vtk_freetype_bdf_cmap_class
+#define bdf_driver_class vtk_freetype_bdf_driver_class
+#define cff_cmap_encoding_class_rec vtk_freetype_cff_cmap_encoding_class_rec
+#define cff_cmap_unicode_class_rec vtk_freetype_cff_cmap_unicode_class_rec
+#define cff_driver_class vtk_freetype_cff_driver_class
 #define FT_Activate_Size vtk_freetype_FT_Activate_Size
 #define FT_Add_Default_Modules vtk_freetype_FT_Add_Default_Modules
 #define FT_Add_Module vtk_freetype_FT_Add_Module
@@ -38,6 +44,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define FT_Bitmap_Copy vtk_freetype_FT_Bitmap_Copy
 #define FT_Bitmap_Done vtk_freetype_FT_Bitmap_Done
 #define FT_Bitmap_Embolden vtk_freetype_FT_Bitmap_Embolden
+#define ft_bitmap_glyph_class vtk_freetype_ft_bitmap_glyph_class
 #define FT_Bitmap_New vtk_freetype_FT_Bitmap_New
 #define FT_CeilFix vtk_freetype_FT_CeilFix
 #define FT_CMap_Done vtk_freetype_FT_CMap_Done
@@ -105,6 +112,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define ft_glyphslot_free_bitmap vtk_freetype_ft_glyphslot_free_bitmap
 #define FT_GlyphSlot_Own_Bitmap vtk_freetype_FT_GlyphSlot_Own_Bitmap
 #define ft_glyphslot_set_bitmap vtk_freetype_ft_glyphslot_set_bitmap
+#define ft_grays_raster vtk_freetype_ft_grays_raster
 #define ft_highpow2 vtk_freetype_ft_highpow2
 #define FT_Init_FreeType vtk_freetype_FT_Init_FreeType
 #define FT_Library_Version vtk_freetype_FT_Library_Version
@@ -155,6 +163,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define FT_Outline_Get_Bitmap vtk_freetype_FT_Outline_Get_Bitmap
 #define FT_Outline_Get_CBox vtk_freetype_FT_Outline_Get_CBox
 #define FT_Outline_Get_Orientation vtk_freetype_FT_Outline_Get_Orientation
+#define ft_outline_glyph_class vtk_freetype_ft_outline_glyph_class
 #define FT_Outline_New vtk_freetype_FT_Outline_New
 #define FT_Outline_New_Internal vtk_freetype_FT_Outline_New_Internal
 #define FT_Outline_Render vtk_freetype_FT_Outline_Render
@@ -164,6 +173,8 @@ used when the shared library is loaded/unloaded from an executable.
 #define FT_Raccess_Get_DataOffsets vtk_freetype_FT_Raccess_Get_DataOffsets
 #define FT_Raccess_Get_HeaderInfo vtk_freetype_FT_Raccess_Get_HeaderInfo
 #define FT_Raccess_Guess vtk_freetype_FT_Raccess_Guess
+#define ft_raster1_renderer_class vtk_freetype_ft_raster1_renderer_class
+#define ft_raster5_renderer_class vtk_freetype_ft_raster5_renderer_class
 #define FT_Reference_Face vtk_freetype_FT_Reference_Face
 #define FT_Reference_Library vtk_freetype_FT_Reference_Library
 #define FT_Remove_Module vtk_freetype_FT_Remove_Module
@@ -188,7 +199,11 @@ used when the shared library is loaded/unloaded from an executable.
 #define FT_Set_Var_Design_Coordinates vtk_freetype_FT_Set_Var_Design_Coordinates
 #define FT_Sfnt_Table_Info vtk_freetype_FT_Sfnt_Table_Info
 #define FT_Sin vtk_freetype_FT_Sin
+#define ft_smooth_lcd_renderer_class vtk_freetype_ft_smooth_lcd_renderer_class
+#define ft_smooth_lcdv_renderer_class vtk_freetype_ft_smooth_lcdv_renderer_class
+#define ft_smooth_renderer_class vtk_freetype_ft_smooth_renderer_class
 #define FT_SqrtFixed vtk_freetype_FT_SqrtFixed
+#define ft_standard_raster vtk_freetype_ft_standard_raster
 #define FT_Stream_Close vtk_freetype_FT_Stream_Close
 #define FT_Stream_EnterFrame vtk_freetype_FT_Stream_EnterFrame
 #define FT_Stream_ExitFrame vtk_freetype_FT_Stream_ExitFrame
@@ -232,8 +247,14 @@ used when the shared library is loaded/unloaded from an executable.
 #define FT_Vector_Transform vtk_freetype_FT_Vector_Transform
 #define FT_Vector_Transform_Scaled vtk_freetype_FT_Vector_Transform_Scaled
 #define FT_Vector_Unit vtk_freetype_FT_Vector_Unit
+#define ftc_basic_image_cache_class vtk_freetype_ftc_basic_image_cache_class
+#define ftc_basic_image_family_class vtk_freetype_ftc_basic_image_family_class
+#define ftc_basic_sbit_cache_class vtk_freetype_ftc_basic_sbit_cache_class
+#define ftc_basic_sbit_family_class vtk_freetype_ftc_basic_sbit_family_class
+#define ftc_cmap_cache_class vtk_freetype_ftc_cmap_cache_class
 #define FTC_CMapCache_Lookup vtk_freetype_FTC_CMapCache_Lookup
 #define FTC_CMapCache_New vtk_freetype_FTC_CMapCache_New
+#define ftc_face_list_class vtk_freetype_ftc_face_list_class
 #define FTC_ImageCache_Lookup vtk_freetype_FTC_ImageCache_Lookup
 #define FTC_ImageCache_LookupScaler vtk_freetype_FTC_ImageCache_LookupScaler
 #define FTC_ImageCache_New vtk_freetype_FTC_ImageCache_New
@@ -247,8 +268,42 @@ used when the shared library is loaded/unloaded from an executable.
 #define FTC_SBitCache_Lookup vtk_freetype_FTC_SBitCache_Lookup
 #define FTC_SBitCache_LookupScaler vtk_freetype_FTC_SBitCache_LookupScaler
 #define FTC_SBitCache_New vtk_freetype_FTC_SBitCache_New
+#define ftc_size_list_class vtk_freetype_ftc_size_list_class
+#define pcf_cmap_class vtk_freetype_pcf_cmap_class
+#define pcf_driver_class vtk_freetype_pcf_driver_class
+#define pfr_cmap_class_rec vtk_freetype_pfr_cmap_class_rec
+#define pfr_driver_class vtk_freetype_pfr_driver_class
+#define pfr_metrics_service_rec vtk_freetype_pfr_metrics_service_rec
 #define ps_hints_apply vtk_freetype_ps_hints_apply
+#define ps_parser_funcs vtk_freetype_ps_parser_funcs
+#define ps_table_funcs vtk_freetype_ps_table_funcs
+#define psaux_module_class vtk_freetype_psaux_module_class
+#define pshinter_module_class vtk_freetype_pshinter_module_class
+#define psnames_module_class vtk_freetype_psnames_module_class
+#define sfnt_module_class vtk_freetype_sfnt_module_class
+#define t1_builder_funcs vtk_freetype_t1_builder_funcs
+#define t1_cmap_classes vtk_freetype_t1_cmap_classes
+#define t1_cmap_custom_class_rec vtk_freetype_t1_cmap_custom_class_rec
+#define t1_cmap_expert_class_rec vtk_freetype_t1_cmap_expert_class_rec
+#define t1_cmap_standard_class_rec vtk_freetype_t1_cmap_standard_class_rec
+#define t1_cmap_unicode_class_rec vtk_freetype_t1_cmap_unicode_class_rec
+#define t1_decoder_funcs vtk_freetype_t1_decoder_funcs
+#define t1_driver_class vtk_freetype_t1_driver_class
+#define t1cid_driver_class vtk_freetype_t1cid_driver_class
+#define t42_driver_class vtk_freetype_t42_driver_class
+#define tt_cmap0_class_rec vtk_freetype_tt_cmap0_class_rec
+#define tt_cmap10_class_rec vtk_freetype_tt_cmap10_class_rec
+#define tt_cmap12_class_rec vtk_freetype_tt_cmap12_class_rec
+#define tt_cmap13_class_rec vtk_freetype_tt_cmap13_class_rec
+#define tt_cmap14_class_rec vtk_freetype_tt_cmap14_class_rec
+#define tt_cmap2_class_rec vtk_freetype_tt_cmap2_class_rec
+#define tt_cmap4_class_rec vtk_freetype_tt_cmap4_class_rec
+#define tt_cmap6_class_rec vtk_freetype_tt_cmap6_class_rec
+#define tt_cmap8_class_rec vtk_freetype_tt_cmap8_class_rec
+#define tt_default_graphics_state vtk_freetype_tt_default_graphics_state
+#define tt_driver_class vtk_freetype_tt_driver_class
 #define TT_New_Context vtk_freetype_TT_New_Context
 #define TT_RunIns vtk_freetype_TT_RunIns
+#define winfnt_driver_class vtk_freetype_winfnt_driver_class
 
 #endif
