@@ -46,7 +46,9 @@ vtkImageExport::~vtkImageExport()
 //----------------------------------------------------------------------------
 vtkAlgorithm* vtkImageExport::GetInputAlgorithm()
 {
-  return this->GetInputConnection(0, 0)->GetProducer();
+  return this->GetInputConnection(0, 0) ? 
+    this->GetInputConnection(0, 0)->GetProducer() :
+    NULL;
 }
 
 //----------------------------------------------------------------------------
