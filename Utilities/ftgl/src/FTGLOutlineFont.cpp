@@ -4,6 +4,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTGLOutlineFont::FTGLOutlineFont()
 {}
@@ -63,3 +67,6 @@ void FTGLOutlineFont::render( const wchar_t* string)
 
 }
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

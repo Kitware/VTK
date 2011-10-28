@@ -152,12 +152,13 @@ ENDIF(VTK_USE_RENDERING)
 IF (VTK_USE_MPI)
   INCLUDE (FindMPI)
 
-  INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
+  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
+    vtkPNetCDFPOPReader.cxx
     )
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")

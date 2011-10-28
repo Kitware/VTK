@@ -219,9 +219,13 @@ public:
   static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
 
   // Description:
-  // Key to store the bounding box of a portion of the data set in 
+  // Key to store the bounding box of a portion of the data set in
   // pipeline information.
   static vtkInformationDoubleVectorKey* PIECE_BOUNDING_BOX();
+
+  // Description:
+  // Key used to reject unimportant pieces in streaming.
+  static vtkInformationDoubleVectorKey* PIECE_NORMAL();
 
   // Description:
   // Key to specify the request for exact extent in pipeline information.

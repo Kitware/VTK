@@ -75,7 +75,7 @@ INVERSE(e_inverse); /* ellipsoid & spheroid */
 }
 FREEUP; if (P) { if (P->en) free(P->en); free(P); } }
 ENTRY0(lcca)
-  double s2p0, N0, R0, tan0, tan20;
+  double s2p0, N0, R0, tan0;
 
   if (!((P->en = proj_mdist_ini(P->es)))) E_ERROR_0;
   if (!proj_param(P->params, "tlat_0").i) E_ERROR(-44);
@@ -87,7 +87,6 @@ ENTRY0(lcca)
   N0 = sqrt(R0);
   R0 *= P->one_es * N0;
   tan0 = tan(P->phi0);
-  tan20 = tan0 * tan0;
   P->r0 = N0 / tan0;
   P->C = 1. / (6. * R0 * N0);
   P->inv = e_inverse;

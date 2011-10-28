@@ -4,6 +4,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTPolyGlyph::FTPolyGlyph( FT_Glyph glyph)
 :  FTGlyph(),
@@ -84,3 +88,7 @@ float FTPolyGlyph::Render( const FT_Vector& pen,
   
   return advance;
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

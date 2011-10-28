@@ -4,6 +4,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTGLPolygonFont::FTGLPolygonFont()
 {}
@@ -27,4 +31,6 @@ FTGlyph* FTGLPolygonFont::MakeGlyph( unsigned int g)
   return NULL;
 }
 
-
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

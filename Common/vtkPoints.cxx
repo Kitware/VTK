@@ -91,7 +91,6 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *fp)
 void vtkPoints::ComputeBounds()
 {
   vtkIdType i;
-  int j;
   double *x;
 
   if ( this->GetMTime() > this->ComputeTime )
@@ -101,17 +100,12 @@ void vtkPoints::ComputeBounds()
     for (i=0; i<this->GetNumberOfPoints(); i++)
       {
       x = this->GetPoint(i);
-      for (j=0; j<3; j++)
-        {
-        if ( x[j] < this->Bounds[2*j] )
-          {
-          this->Bounds[2*j] = x[j];
-          }
-        if ( x[j] > this->Bounds[2*j+1] )
-          {
-          this->Bounds[2*j+1] = x[j];
-          }
-        }
+      this->Bounds[0] = x[0] < this->Bounds[0] ? x[0] : this->Bounds[0];
+      this->Bounds[1] = x[0] > this->Bounds[1] ? x[0] : this->Bounds[1];
+      this->Bounds[2] = x[1] < this->Bounds[2] ? x[1] : this->Bounds[2];
+      this->Bounds[3] = x[1] > this->Bounds[3] ? x[1] : this->Bounds[3];
+      this->Bounds[4] = x[2] < this->Bounds[4] ? x[2] : this->Bounds[4];
+      this->Bounds[5] = x[2] > this->Bounds[5] ? x[2] : this->Bounds[5];
       }
 
     this->ComputeTime.Modified();
