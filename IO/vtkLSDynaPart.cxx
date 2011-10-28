@@ -532,7 +532,7 @@ void vtkLSDynaPart::EnableCellUserIds()
     vtkIdTypeArray *userIds = vtkIdTypeArray::New();
     userIds->SetName("UserIds");
     userIds->SetVoidArray(ids,this->NumberOfCells,1);
-    this->Grid->GetCellData()->AddArray(userIds);
+    this->Grid->GetCellData()->SetGlobalIds(userIds);
     userIds->FastDelete();
     }
 }
@@ -640,16 +640,17 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
         data = (this->DoubleBased) ?
              (vtkDataArray*) vtkDoubleArray::New() :
              (vtkDataArray*) vtkFloatArray::New();
+        this->Grid->GetPointData()->AddArray(data);
         }
       else
         {
         //the exception of the point arrays is the idType array which is
         data = vtkIdTypeArray::New();
+        this->Grid->GetPointData()->SetGlobalIds(data);
         }
       data->SetName(name);
       data->SetNumberOfComponents(numComps);
-      data->SetNumberOfTuples(this->NumberOfPoints);
-      this->Grid->GetPointData()->AddArray(data);
+      data->SetNumberOfTuples(this->NumberOfPoints);      
       data->FastDelete();
       }
     }
@@ -677,6 +678,26 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
       data = this->Points->GetData();
       }
     }
+
+  //fill the data when in debug to make it easier to find bad point info
+#ifndef NDEBUG
+  if(isIdTypeProperty)
+    {
+    vtkIdType *d = (vtkIdType*)data->GetVoidPointer(0);
+    std::fill(d,d+(this->NumberOfPoints*numComps),-42);
+    }
+  else if(this->DoubleBased)
+    {
+    double *d = (double*)data->GetVoidPointer(0);
+    std::fill(d,d+(this->NumberOfPoints*numComps),-42);
+    }
+  else
+    {
+    float *d = (float*)data->GetVoidPointer(0);
+    std::fill(d,d+(this->NumberOfPoints*numComps),-42);
+    }
+#endif
+
 
   this->CurrentPointPropInfo->ptr = data->GetVoidPointer(0);
 }
