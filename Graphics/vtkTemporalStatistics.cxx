@@ -208,6 +208,11 @@ int vtkTemporalStatistics::RequestDataObject(
   vtkDataObject *input = vtkDataObject::GetData(inInfo);
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
 
+  if (!input)
+    {
+    return 0;
+    }
+
   vtkSmartPointer<vtkDataObject> newOutput;
 
   if (input->IsA("vtkTemporalDataSet"))
