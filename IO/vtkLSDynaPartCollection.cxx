@@ -198,7 +198,7 @@ public:
       {
       return false;
       }
-    return (this->Parts[index]!=NULL);
+    return (this->Parts[index]!=NULL && this->Parts[index]->HasCells());
   }
 
   //---------------------------------------------------------------------------
@@ -843,15 +843,15 @@ void vtkLSDynaPartCollection::SetupPointPropertyForReading(
 namespace
 {
   //this function is used to sort a collection of parts
-  //based on the min and max global point ids that the part
-  //requires
+  //based on the max and min global point ids that the part
+  //we use both to enforce better weak ordering
   bool sortPartsOnGlobalIds(const vtkLSDynaPart *p1, const vtkLSDynaPart *p2)
     {
-    if(p1->GetMinGlobalPointId() < p2->GetMinGlobalPointId())
+    if(p1->GetMaxGlobalPointId() < p2->GetMaxGlobalPointId())
       {
       return true;
       }
-    else if (p1->GetMaxGlobalPointId() < p2->GetMaxGlobalPointId())
+    else if (p1->GetMinGlobalPointId() < p2->GetMinGlobalPointId())
       {
       return true;
       }
@@ -879,15 +879,17 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
 
   sortedParts.sort(sortPartsOnGlobalIds);
   
-  //find the lowest min and the highest max as the subset of points
-  //to actually read
-  const vtkIdType minGlobalPoint(sortedParts.front()->GetMinGlobalPointId());
+  //find the max as the subset of points
   const vtkIdType maxGlobalPoint(sortedParts.back()->GetMaxGlobalPointId());
+  vtkIdType minGlobalPoint = maxGlobalPoint;
+  for(partIt = sortedParts.begin(); partIt != sortedParts.end(); ++partIt)
+    {
+    minGlobalPoint = std::min((*partIt)->GetMinGlobalPointId(),minGlobalPoint);
+    }
 
   const vtkIdType realNumberOfTuples(maxGlobalPoint-minGlobalPoint);
   const vtkIdType numPointsToSkipStart(minGlobalPoint);
-  const vtkIdType numPointsToSkipEnd(
-    numTuples - (realNumberOfTuples + minGlobalPoint));
+  const vtkIdType numPointsToSkipEnd(numTuples - (realNumberOfTuples + minGlobalPoint));
 
   vtkIdType offset = numPointsToSkipStart;
   const vtkIdType numPointsToRead(1048576);
@@ -912,8 +914,7 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
       partIt = sortedParts.begin();
       }
     
-    while(partIt!=sortedParts.end() &&
-          (*partIt)->GetMinGlobalPointId() < offset+numPointsToRead)
+    while(partIt!=sortedParts.end())
       {
       //only read the points which have a point that lies within this section
       //so we stop once the min is larger than our max id
@@ -921,7 +922,7 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
       ++partIt;
       }
     }
-  if(leftOver>0)
+  if(leftOver>0 && sortedParts.size() > 0)
     {
     p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
     buf = p->Fam.GetBufferAs<T>();
