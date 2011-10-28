@@ -1163,12 +1163,15 @@ vtkStreamingDemandDrivenPipeline
           // For debugging, remove later.
           assert(outInfo->Has(EXTENT_TRANSLATOR()));
 
-          ds->GenerateGhostLevelArray(
-            outInfo->Get(UPDATE_PIECE_NUMBER()),
-            outInfo->Get(UPDATE_NUMBER_OF_PIECES()),
-            outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS()),
-            outInfo->Get(WHOLE_EXTENT()),
-            vtkExtentTranslator::SafeDownCast(outInfo->Get(EXTENT_TRANSLATOR())));
+          if (outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS()) > 0)
+            {
+            ds->GenerateGhostLevelArray(
+              outInfo->Get(UPDATE_PIECE_NUMBER()),
+              outInfo->Get(UPDATE_NUMBER_OF_PIECES()),
+              outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS()),
+              outInfo->Get(WHOLE_EXTENT()),
+              vtkExtentTranslator::SafeDownCast(outInfo->Get(EXTENT_TRANSLATOR())));
+            }
           }
         }
       
