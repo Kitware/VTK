@@ -544,7 +544,7 @@ ENDIF(0)
 #-----------------------------------------------------------------------------
 # Option to build High Level API's
 #-----------------------------------------------------------------------------
-OPTION (HDF5_BUILD_HL_LIB  "Build HIGH Level HDF5 Library" OFF)
+OPTION (HDF5_BUILD_HL_LIB  "Build HIGH Level HDF5 Library" ON)
 IF (HDF5_BUILD_HL_LIB)
   SET (H5_INCLUDE_HL 1)
   ADD_SUBDIRECTORY (${HDF5_SOURCE_DIR}/hl ${PROJECT_BINARY_DIR}/hl)
