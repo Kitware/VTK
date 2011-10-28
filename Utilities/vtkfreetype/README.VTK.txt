@@ -1,4 +1,4 @@
-This directory contains a subset of the Freetype2 library (2.4.4) and
+This directory contains a subset of the Freetype2 library (2.4.7) and
 some custom changes that VTK needs.
 
 We only include enough of the distribution to provide the functionalities

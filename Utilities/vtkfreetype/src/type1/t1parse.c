@@ -404,7 +404,7 @@
       /* characters...  So skip now all whitespace character codes.      */
       while ( cur < limit       &&
               ( *cur == ' '  ||
-                *cur == '\t' ||
+                *cur == '\t' || 
                 *cur == '\r' ||
                 *cur == '\n' ) )
         ++cur;
