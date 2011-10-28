@@ -2461,7 +2461,10 @@ int vtkLSDynaReader::ReadUserIds()
 
   // Node numbers
   bool nodeIdStatus = this->GetPointArrayStatus( LS_ARRAYNAME_USERID ) == 1;
-  this->Parts->ReadPointProperty(isz,1,LS_ARRAYNAME_USERID,nodeIdStatus);
+  if(nodeIdStatus)
+    {
+    this->Parts->ReadPointUserIds(isz,LS_ARRAYNAME_USERID);
+    }
 
   // FIXME: This won't work if Rigid Body and Shell elements are interleaved (which I now believe they are)
   this->Parts->ReadCellUserIds(LSDynaMetaData::BEAM,

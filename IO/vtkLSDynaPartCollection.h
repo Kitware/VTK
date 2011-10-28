@@ -89,8 +89,9 @@ public:
   void DisbleDeadCells();
 
   //Description:
-  //Given a collection of points add them to the correct
-  //parts that use them based on the topology
+  void ReadPointUserIds(const vtkIdType& numTuples,const char* name);
+
+  //Description:
   void ReadPointProperty(
                          const vtkIdType& numTuples,
                          const vtkIdType& numComps,
@@ -98,6 +99,8 @@ public:
                          const bool &isProperty=true,
                          const bool& isGeometryPoints=false,
                          const bool& isRoadPoints=false);
+
+
 
   //Description:
   //Adds a property for all parts of a certain type
@@ -146,9 +149,16 @@ protected:
 
   //Description:
   //Methods for adding points to the collection
-  //returns the void pointer to the start of the memory of the data array
+  void SetupPointPropertyForReading(
+                         const vtkIdType& numTuples,
+                         const vtkIdType& numComps,
+                         const char* name,
+                         const bool& isIdType,
+                         const bool& isProperty,
+                         const bool& isGeometryPoints,
+                         const bool& isRoadPoints);
   template<typename T>
-  void ReadPointProperty(const vtkIdType& numTuples,
+  void FillPointProperty(const vtkIdType& numTuples,
                          const vtkIdType& numComps,
                          vtkLSDynaPart** parts, const vtkIdType numParts);
 

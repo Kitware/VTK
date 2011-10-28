@@ -749,10 +749,31 @@ void vtkLSDynaPartCollection::FinalizeTopology()
 }
 
 //-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::ReadPointUserIds(const vtkIdType& numTuples,
+                                        const char* name)
+{
+  this->SetupPointPropertyForReading(numTuples,1,name,true,true,false,false);
+}
+
+//-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::ReadPointProperty(
                                         const vtkIdType& numTuples,
                                         const vtkIdType& numComps,
                                         const char* name,
+                                        const bool &isProperty,
+                                        const bool& isGeometryPoints,
+                                        const bool& isRoadPoints)
+{
+  this->SetupPointPropertyForReading(numTuples,numComps,name,false,isProperty,
+                                     isGeometryPoints,isRoadPoints);
+}
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPartCollection::SetupPointPropertyForReading(
+                                        const vtkIdType& numTuples,
+                                        const vtkIdType& numComps,
+                                        const char* name,
+                                        const bool &isIdType,
                                         const bool &isProperty,
                                         const bool& isGeometryPoints,
                                         const bool& isRoadPoints)
@@ -785,7 +806,8 @@ void vtkLSDynaPartCollection::ReadPointProperty(
       this->Storage->InitPartIteration(validCellTypes[i]);
       while(this->Storage->GetNextPart(part))
         {
-        part->AddPointProperty(name,numComps,isProperty,isGeometryPoints);
+        part->AddPointProperty(name,numComps,isIdType,isProperty,
+                              isGeometryPoints);
         validParts[idx++]=part;
         }
       }
@@ -796,7 +818,8 @@ void vtkLSDynaPartCollection::ReadPointProperty(
     this->Storage->InitPartIteration(LSDynaMetaData::ROAD_SURFACE);
     while(this->Storage->GetNextPart(part))
       {
-      part->AddPointProperty(name,numComps,isProperty,isGeometryPoints);
+      part->AddPointProperty(name,numComps,isIdType,isProperty,
+                            isGeometryPoints);
       validParts[idx++]=part;
       }
     }
@@ -807,15 +830,15 @@ void vtkLSDynaPartCollection::ReadPointProperty(
     }
   else if(this->MetaData->Fam.GetWordSize() == 8)
     {
-    this->ReadPointProperty<double>(numTuples,numComps,validParts, idx);
+    this->FillPointProperty<double>(numTuples,numComps,validParts, idx);
     }
   else
     {
-    this->ReadPointProperty<float>(numTuples,numComps,validParts, idx);
+    this->FillPointProperty<float>(numTuples,numComps,validParts, idx);
     }
 
   delete[] validParts;
-  }
+}
 
 namespace
 {
@@ -841,7 +864,7 @@ namespace
 
 //-----------------------------------------------------------------------------
 template<typename T>
-void vtkLSDynaPartCollection::ReadPointProperty(const vtkIdType& numTuples,
+void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
                                                 const vtkIdType& numComps,
                                                 vtkLSDynaPart** parts,
                                                 const vtkIdType numParts)

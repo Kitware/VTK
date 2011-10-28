@@ -544,14 +544,16 @@ void vtkLSDynaPart::SetNextCellUserIds(const vtkIdType& value)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::AddPointProperty(const char* name, const vtkIdType& numComps,
-                      const bool &isProperty, const bool& isGeometryPoints)
+void vtkLSDynaPart::AddPointProperty(const char* name, 
+        const vtkIdType& numComps, const bool &isIdTypeProperty,
+        const bool &isProperty, const bool& isGeometryPoints)
 {
   //adding a point property means that this is the next property
   //we are going to be reading from file
 
   //first step is getting the ptr to the start of the right property
-  this->GetPropertyData(name,numComps,isProperty,isGeometryPoints);
+  this->GetPropertyData(name,numComps,isIdTypeProperty,isProperty,
+                        isGeometryPoints);
   this->CurrentPointPropInfo->index = 0;
 }
 
@@ -622,7 +624,8 @@ void vtkLSDynaPart::AddPointInformation(T *buffer, T* pointData,
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
-                                  const bool& isProperty,const bool& isGeometry)
+    const bool &isIdTypeProperty, const bool& isProperty,
+    const bool& isGeometry)
 {
   this->CurrentPointPropInfo->ptr = NULL;
   vtkDataArray *data = NULL;
@@ -632,9 +635,17 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
     if(!data)
       {
       //we have to construct the data array first
-      data = (this->DoubleBased) ?
+      if(!isIdTypeProperty)
+        {
+        data = (this->DoubleBased) ?
              (vtkDataArray*) vtkDoubleArray::New() :
              (vtkDataArray*) vtkFloatArray::New();
+        }
+      else
+        {
+        //the exception of the point arrays is the idType array which is
+        data = vtkIdTypeArray::New();
+        }
       data->SetName(name);
       data->SetNumberOfComponents(numComps);
       data->SetNumberOfTuples(this->NumberOfPoints);

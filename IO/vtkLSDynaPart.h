@@ -90,7 +90,8 @@ public:
   //is also able to set the point position of the grid too as that
   //is stored as a point property
   void AddPointProperty(const char* name, const vtkIdType& numComps,
-                        const bool &isProperty, const bool& isGeometryPoints);
+    const bool& isIdTypeProperty, const bool &isProperty,
+    const bool& isGeometryPoints);
 
   //Description:
   //Given a chunk of point property memory copy it to the correct
@@ -135,7 +136,7 @@ protected:
   void BuildCells();
 
   void GetPropertyData(const char* name, const vtkIdType &numComps,
-                     const bool& isProperty, const bool& isGeometry);
+  const bool &isIdTypeArray, const bool& isProperty, const bool& isGeometry);
 
   template<typename T>
   void AddPointInformation(T *buffer,T *pointData,
