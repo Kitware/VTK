@@ -1303,15 +1303,10 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
   // Make sure the array has been allocated.
   if (scalars == NULL)
     {
-    vtkDebugMacro("Allocating scalars in ImageData");
-    abort();
+    //vtkDebugMacro("Allocating scalars in ImageData");
+    //abort();
     //this->AllocateScalars();
-    scalars = this->PointData->GetScalars();
-    }
-
-  if (scalars == NULL)
-    {
-    vtkErrorMacro("Could not allocate scalars.");
+    //scalars = this->PointData->GetScalars();
     return NULL;
     }
 
