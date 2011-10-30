@@ -25,6 +25,7 @@ SET(MyTests
   TestContourWidget2.cxx
   TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
+  TestFixedSizeHandleRepresentation3D.cxx
   TestHandleWidget.cxx
   TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
