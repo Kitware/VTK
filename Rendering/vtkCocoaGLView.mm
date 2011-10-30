@@ -582,7 +582,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     interactor->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
     }
-  else
+  else if( [theEvent deltaY] < 0)
     {
     interactor->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
     }
