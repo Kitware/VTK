@@ -418,6 +418,13 @@ public:
   vtkGetMacro(RemoveDeletedCells,int);
   vtkBooleanMacro(RemoveDeletedCells,int);
 
+  //Description:
+  //Instead of removing the cells that are dead, hide them by setting
+  //the array as the ghost levels arrays
+  vtkSetMacro(DeletedCellsAsGhostArray,int);
+  vtkGetMacro(DeletedCellsAsGhostArray,int);
+  vtkBooleanMacro(DeletedCellsAsGhostArray,int);
+
   // Description:
   // The name of the input deck corresponding to the current database.
   // This is used to determine the part names associated with each material ID.
@@ -460,6 +467,7 @@ protected:
   // Should cells marked as deleted be removed from the mesh?
   // By default, this is true.
   int RemoveDeletedCells;
+  int DeletedCellsAsGhostArray;
 
   // Description:
   // The range of time steps available within a database.

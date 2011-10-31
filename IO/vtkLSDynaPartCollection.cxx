@@ -524,8 +524,9 @@ void vtkLSDynaPartCollection::InsertCell(const int& partType,
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPartCollection::SetCellDeadFlags(
-                                      const int& partType, vtkUnsignedCharArray *death)
+void vtkLSDynaPartCollection::SetCellDeadFlags(const int& partType,
+                                          vtkUnsignedCharArray *death,
+                                          const int& deadCellsAsGhostArray)
 {
   //go through and flag each part cell as deleted or not.
   //this means breaking up this array into an array for each part
@@ -547,7 +548,7 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(
     //just skip it as the user doesn't want it loaded.
     if(part)
       {
-      part->EnableDeadCells();
+      part->EnableDeadCells(deadCellsAsGhostArray);
       part->SetCellsDeadState(dead,numCells);
       }
     dead += numCells;

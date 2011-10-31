@@ -75,7 +75,8 @@ public:
 
   //Description:
   //Set for each part type what cells are deleted/dead
-  void SetCellDeadFlags(const int& partType, vtkUnsignedCharArray *death);
+  void SetCellDeadFlags(const int& partType, vtkUnsignedCharArray *death,
+                        const int& deadCellsAsGhostArray);
 
   bool IsActivePart(const int& id) const;
 

@@ -91,7 +91,7 @@ class vtkLSDynaPart::InternalCellProperties
 
 public:
   InternalCellProperties():
-    GhostCells(NULL),GhostIndex(0),UserIds(NULL),UserIdIndex(0){}
+    DeadCells(NULL),DeadIndex(0),UserIds(NULL),UserIdIndex(0){}
 
   ~InternalCellProperties()
   {
@@ -106,9 +106,9 @@ public:
     }
   this->Properties.clear();
 
-  if(this->GhostCells)
+  if(this->DeadCells)
     {
-    delete[] this->GhostCells;
+    delete[] this->DeadCells;
     }
   if(this->UserIds)
     {
@@ -116,7 +116,7 @@ public:
     }
   }
 
-  bool NoGhostCells() const { return GhostCells == NULL; }
+  bool NoDeadCells() const { return DeadCells == NULL; }
   bool NoUserIds() const { return UserIds == NULL; }
 
   template<typename T>
@@ -139,11 +139,16 @@ public:
       }
   }
 
-  void SetGhostCells(unsigned char* dead, const vtkIdType& size)
+  void SetDeadCells(unsigned char* dead, const vtkIdType& size)
   {
-    memcpy(this->GhostCells+this->GhostIndex,dead,sizeof(unsigned char)*size);
-    this->GhostIndex += size;
+    memcpy(this->DeadCells+this->DeadIndex,dead,sizeof(unsigned char)*size);
+    this->DeadIndex += size;
   }
+
+  bool IsCellDead(const vtkIdType &index) const
+    {
+    return this->DeadCells[index]==0;
+    }
 
   void SetNextUserId(const vtkIdType &id)
   {
@@ -151,10 +156,10 @@ public:
   }
 
 
-  void SetGhostCellArray(unsigned char* gc)
+  void SetDeadCellArray(unsigned char* gc)
   {
-    this->GhostCells = gc;
-    this->GhostIndex = 0;
+    this->DeadCells = gc;
+    this->DeadIndex = 0;
   }
 
   void SetMaterialIdArray(vtkIdType* ids)
@@ -165,7 +170,7 @@ public:
 
   void ResetForNextTimeStep()
   {
-    this->GhostIndex = 0;
+    this->DeadIndex = 0;
     this->UserIdIndex = 0;
     std::vector<CellProperty*>::iterator it;
     for(it=Properties.begin();it!=Properties.end();++it)
@@ -174,19 +179,19 @@ public:
       }
   }
 
-  void* GetGhostVoidPtr()
+  void* GetDeadVoidPtr()
     {
-    return static_cast<void*>(this->GhostCells);
+    return static_cast<void*>(this->DeadCells);
     }
 
 protected:
   std::vector<CellProperty*> Properties;
 
   //the two cell data arrays that aren't packed with cell state info
-  unsigned char* GhostCells;
+  unsigned char* DeadCells;
   vtkIdType* UserIds;
 
-  vtkIdType GhostIndex;
+  vtkIdType DeadIndex;
   vtkIdType UserIdIndex;
 
 
@@ -329,11 +334,13 @@ vtkLSDynaPart::vtkLSDynaPart()
   this->NumberOfCells = -1;
   this->NumberOfPoints = -1;
 
-
+  this->DeadCellsAsGhostArray = false;
+  this->HasDeadCells = false;
   this->TopologyBuilt = false;
   this->DoubleBased = true;
 
   this->Grid = NULL;
+  this->ThresholdGrid = NULL;
   this->Points = NULL;
 }
 
@@ -357,6 +364,10 @@ vtkLSDynaPart::~vtkLSDynaPart()
   if(this->GlobalPointsUsed)
     {
     delete this->GlobalPointsUsed;
+    }
+  if(this->ThresholdGrid)
+    {
+    this->ThresholdGrid->Delete();
     }
 }
 
@@ -467,7 +478,6 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
     }
 
   this->Points->Modified();
-
   vtkPointData *pd = this->Grid->GetPointData();
   numArrays = pd->GetNumberOfArrays();
   for(int i=0; i<numArrays; ++i)
@@ -475,37 +485,131 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
     pd->GetArray(i)->Modified();
     }
 
-  return this->Grid;
+  if(!this->HasDeadCells || this->DeadCellsAsGhostArray)
+    {
+    return this->Grid;
+    }
+  else
+    {
+    //we threshold the datset on the ghost cells and return
+    //the new dataset
+    return this->RemoveDeletedCells();    
+    }
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::EnableDeadCells()
+vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
 {
-  if(this->CellProperties->NoGhostCells())
+  if(this->ThresholdGrid)
+    {
+    this->ThresholdGrid->Delete();
+    }
+  this->ThresholdGrid = vtkUnstructuredGrid::New();
+  vtkPoints* newPoints = vtkPoints::New();
+
+
+  vtkPointData *oldPd = this->Grid->GetPointData();
+  vtkPointData* pd = this->ThresholdGrid->GetPointData();
+  pd->CopyGlobalIdsOn();
+  pd->CopyAllocate(oldPd);
+
+  vtkCellData *oldCd = this->Grid->GetCellData();
+  vtkCellData *cd = this->ThresholdGrid->GetCellData();
+  cd->CopyGlobalIdsOn();
+  cd->CopyAllocate(oldCd);
+
+  this->ThresholdGrid->Allocate(this->NumberOfCells);
+  
+  if(this->DoubleBased)
+    {
+    newPoints->SetDataTypeToDouble();
+    }
+  else
+    {
+    newPoints->SetDataTypeToFloat();
+    }
+  newPoints->Allocate(this->NumberOfPoints);
+
+  vtkIdList *pointMap = vtkIdList::New();
+  pointMap->SetNumberOfIds(this->NumberOfPoints);
+  for(vtkIdType i=0; i < this->NumberOfPoints; ++i)
+    {
+    pointMap->SetId(i,-1);
+    }
+
+  double pt[3];
+  vtkIdType numCellPts=0, ptId=0, newId=0, newCellId=0;
+  vtkIdList *newCellPts = vtkIdList::New();
+  vtkIdList *cellPts = NULL;
+  for(vtkIdType cellId=0; cellId < this->NumberOfCells; ++cellId)
+    {
+    vtkCell *cell = this->Grid->GetCell(cellId);
+    cellPts = cell->GetPointIds();
+    numCellPts = cell->GetNumberOfPoints();
+
+    if(this->CellProperties->IsCellDead(cellId) && numCellPts > 0)
+        {
+        for (vtkIdType i=0; i < numCellPts; i++)
+          {
+          ptId = cellPts->GetId(i);
+          if ( (newId = pointMap->GetId(ptId)) < 0 )
+            {
+            this->Grid->GetPoint(ptId, pt);
+            newId = newPoints->InsertNextPoint(pt);
+            pointMap->SetId(ptId,newId);
+            pd->CopyData(oldPd,ptId,newId);
+            }
+          newCellPts->InsertId(i,newId);
+          }
+        newCellId = this->ThresholdGrid->InsertNextCell(
+                                          cell->GetCellType(),newCellPts);
+        cd->CopyData(oldCd,cellId,newCellId);
+        newCellPts->Reset();
+      }
+    }
+
+  pointMap->Delete();
+  newCellPts->Delete();
+
+  this->ThresholdGrid->SetPoints(newPoints);
+  newPoints->FastDelete();
+
+  this->ThresholdGrid->Squeeze();
+  cd->RemoveArray("vtkGhostLevels");
+
+  return this->ThresholdGrid;
+}
+//-----------------------------------------------------------------------------
+void vtkLSDynaPart::EnableDeadCells(const int& deadCellsAsGhostArray)
+{
+  this->HasDeadCells = true;
+  this->DeadCellsAsGhostArray = deadCellsAsGhostArray==1;
+  if(this->CellProperties->NoDeadCells())
     {
     //we are using the ghost levels to hide cells that have been
     //classified as dead, rather than the intended purpose
-    unsigned char* ghost = new unsigned char[this->NumberOfCells];
+    unsigned char* dead = new unsigned char[this->NumberOfCells];
 
     //the cell properties will delete the ghost array when needed
-    this->CellProperties->SetGhostCellArray(ghost);
+    this->CellProperties->SetDeadCellArray(dead);
     }
 
   if(!this->Grid->GetCellData()->HasArray("vtkGhostLevels"))
     {
-    vtkUnsignedCharArray *ghostCells = vtkUnsignedCharArray::New();
-    ghostCells->SetName("vtkGhostLevels");
-    ghostCells->SetVoidArray(this->CellProperties->GetGhostVoidPtr(),
+    vtkUnsignedCharArray *deadCells = vtkUnsignedCharArray::New();
+    deadCells->SetName("vtkGhostLevels");
+    deadCells->SetVoidArray(this->CellProperties->GetDeadVoidPtr(),
                              this->NumberOfCells,1);
 
-    this->Grid->GetCellData()->AddArray(ghostCells);
-    ghostCells->FastDelete();  
+    this->Grid->GetCellData()->AddArray(deadCells);
+    deadCells->FastDelete();  
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::DisableDeadCells()
 {
+  this->HasDeadCells = false;
   if(this->Grid->GetCellData()->HasArray("vtkGhostLevels"))
     {
     this->Grid->GetCellData()->RemoveArray("vtkGhostLevels");
@@ -516,7 +620,7 @@ void vtkLSDynaPart::DisableDeadCells()
 void vtkLSDynaPart::SetCellsDeadState(unsigned char *dead,const vtkIdType &size)
 {
   //presumes the HideDeletedCells is true, doesn't check for speed
-  this->CellProperties->SetGhostCells(dead,size);
+  this->CellProperties->SetDeadCells(dead,size);
 }
 
 //-----------------------------------------------------------------------------
@@ -678,27 +782,6 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
       data = this->Points->GetData();
       }
     }
-
-  //fill the data when in debug to make it easier to find bad point info
-#ifndef NDEBUG
-  if(isIdTypeProperty)
-    {
-    vtkIdType *d = (vtkIdType*)data->GetVoidPointer(0);
-    std::fill(d,d+(this->NumberOfPoints*numComps),-42);
-    }
-  else if(this->DoubleBased)
-    {
-    double *d = (double*)data->GetVoidPointer(0);
-    std::fill(d,d+(this->NumberOfPoints*numComps),-42);
-    }
-  else
-    {
-    float *d = (float*)data->GetVoidPointer(0);
-    std::fill(d,d+(this->NumberOfPoints*numComps),-42);
-    }
-#endif
-
-
   this->CurrentPointPropInfo->ptr = data->GetVoidPointer(0);
 }
 

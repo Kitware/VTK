@@ -66,7 +66,7 @@ public:
 
   //Description:
   //allows the part to store dead cells
-  void EnableDeadCells();
+  void EnableDeadCells(const int& deadCellsAsGhostArray);
 
   //Description:
   //removes the dead cells array if it exists from the grid
@@ -132,6 +132,8 @@ protected:
   vtkLSDynaPart();
   ~vtkLSDynaPart();
 
+  vtkUnstructuredGrid* RemoveDeletedCells();
+
   void BuildUniquePoints();
   void BuildCells();
 
@@ -154,10 +156,15 @@ protected:
   vtkIdType NumberOfPoints;
   vtkIdType NumberOfGlobalPoints;
 
+  bool DeadCellsAsGhostArray;
+  bool HasDeadCells;
+
   bool TopologyBuilt;
   bool DoubleBased;
 
   vtkUnstructuredGrid* Grid;
+  vtkUnstructuredGrid* ThresholdGrid;
+
   vtkPoints* Points;
 
   class InternalCells;

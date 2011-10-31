@@ -529,6 +529,7 @@ vtkLSDynaReader::vtkLSDynaReader()
   this->TimeStepRange[1] = 0;
   this->DeformedMesh = 1;
   this->RemoveDeletedCells = 1;
+  this->DeletedCellsAsGhostArray = 0;
   this->InputDeck = 0;
   this->Parts = NULL;
 }
@@ -2519,7 +2520,7 @@ int vtkLSDynaReader::ReadDeletion()
       p->Fam.SkipWords(numSkipStart);
       this->ReadDeletionArray(death,0,1);
       p->Fam.SkipWords(numSkipEnd);
-      this->Parts->SetCellDeadFlags(type,death);
+      this->Parts->SetCellDeadFlags(type,death,this->DeletedCellsAsGhostArray);
       death->Delete();
       }
 
@@ -2541,7 +2542,7 @@ int vtkLSDynaReader::ReadDeletion()
       //since luckily material id is first
       this->ReadDeletionArray(death,0,20);
       p->Fam.SkipWords(numSkipEnd);
-      this->Parts->SetCellDeadFlags(type,death);
+      this->Parts->SetCellDeadFlags(type,death,this->DeletedCellsAsGhostArray);
       death->Delete();
       }
     break;
@@ -3460,7 +3461,8 @@ int vtkLSDynaReader::RequestData(
     {
     if (this->Parts->IsActivePart(i))
       {
-      mbds->SetBlock(i,this->Parts->GetGridForPart(i));
+      vtkUnstructuredGrid *ug = this->Parts->GetGridForPart(i);
+      mbds->SetBlock(i,ug);
       mbds->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(),
         this->P->PartNames[i].c_str());      
       }
