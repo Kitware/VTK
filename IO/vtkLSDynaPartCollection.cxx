@@ -851,14 +851,7 @@ namespace
       {
       return true;
       }
-    else if (p1->GetMinGlobalPointId() < p2->GetMinGlobalPointId())
-      {
-      return true;
-      }
-    else
-      {
       return false;
-      }
     }
 }
 
