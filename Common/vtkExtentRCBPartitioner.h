@@ -35,6 +35,8 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     // Set/Get macro for the number of subdivisions.
     vtkGetMacro(NumberOfSubdivisions,int);
     vtkSetMacro(NumberOfSubdivisions,int);
+    vtkGetMacro(NumberOfPartitions,int);
+    vtkSetMacro(NumberOfPartitions,int);
 
     // Description:
     // Set/Get the global extent array to be partitioned.
@@ -83,6 +85,10 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      int GetNumberOfTotalExtents();
 
      // Description:
+     // Returns the length of the longest dimension
+     int GetLongestDimensionLength( int ext[6] );
+
+     // Description:
      // Returns the longest edge
      int GetLongestDimension( int ext[6] );
 
@@ -92,6 +98,7 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
 
      int GlobalExtent[6];
      int NumberOfSubdivisions;
+     int NumberOfPartitions;
      int NumExtents;
      vtkstd::vector<int> pextents;
 

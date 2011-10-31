@@ -95,6 +95,7 @@ int vtkUniformGridPartitioner::RequestData(
   vtkExtentRCBPartitioner *extentPartitioner = vtkExtentRCBPartitioner::New();
   assert( "pre: extent partitioner is NULL" && (extentPartitioner != NULL) );
   extentPartitioner->SetGlobalExtent( extent );
+  extentPartitioner->SetNumberOfPartitions( this->NumberOfSubdivisions );
   extentPartitioner->SetNumberOfSubdivisions( this->NumberOfSubdivisions );
 
   // STEP 4: Partition
