@@ -44,7 +44,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->TransferToNodes      = 1;
   this->LevelOfResolution    = 1;
   this->DemandDrivenMode     = 1;
-  this->NumberOfSubdivisions = 0;
+  this->NumberOfPartitions   = 2;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
   this->SetNumberOfInputPorts( 1 );
@@ -231,12 +231,24 @@ void vtkAMRResampleFilter::InitializeFields(
       assert( "pre: failed to create array!" && (array != NULL) );
 
       array->SetName( src->GetArray(arrayIdx)->GetName() );
-      array->SetNumberOfTuples( size );
       array->SetNumberOfComponents(
-         src->GetArray(arrayIdx)->GetNumberOfComponents() );
+               src->GetArray(arrayIdx)->GetNumberOfComponents() );
+      array->SetNumberOfTuples( size );
+      assert( "post: array size mismatch" &&
+              (array->GetNumberOfTuples() == size) );
 
       f->AddArray( array );
       array->Delete();
+
+//      int myIndex = -1;
+//      vtkDataArray *arrayPtr = f->GetArray(
+//          src->GetArray(arrayIdx)->GetName(), myIndex );
+//      assert( "post: array index mismatch" && (myIndex == arrayIdx) );
+//      assert( "post: array size mismatch" &&
+//              (arrayPtr->GetNumberOfTuples()==size) );
+
+      assert( "post: array size mismatch" &&
+              (f->GetArray( arrayIdx)->GetNumberOfTuples() == size) );
     } // END for all arrays
 
 }
@@ -505,7 +517,7 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
   if( grd ->GetNumberOfPoints() == 0 )
     return;
 
-  gridPartitioner->SetNumberOfSubdivisions( this->NumberOfSubdivisions );
+  gridPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   gridPartitioner->Update();
 
   this->ROI->DeepCopy( gridPartitioner->GetOutput() );
@@ -590,7 +602,8 @@ bool vtkAMRResampleFilter::IsParallel()
 }
 
 //-----------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(vtkHierarchicalBoxDataSet *amrds)
+vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(
+    vtkHierarchicalBoxDataSet *amrds)
 {
   assert( "pre:AMR dataset is  NULL" && (amrds != NULL) );
 

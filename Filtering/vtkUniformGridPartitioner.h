@@ -39,8 +39,8 @@ class VTK_FILTERING_EXPORT vtkUniformGridPartitioner :
 
       // Description:
       // Set/Get macro for the number of subdivisions.
-      vtkGetMacro(NumberOfSubdivisions,int);
-      vtkSetMacro(NumberOfSubdivisions,int);
+      vtkGetMacro(NumberOfPartitions,int);
+      vtkSetMacro(NumberOfPartitions,int);
 
   protected:
     vtkUniformGridPartitioner();
@@ -52,7 +52,7 @@ class VTK_FILTERING_EXPORT vtkUniformGridPartitioner :
     virtual int FillInputPortInformation(int port, vtkInformation *info);
     virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
-    int NumberOfSubdivisions;
+    int NumberOfPartitions;
   private:
     vtkUniformGridPartitioner(const vtkUniformGridPartitioner &); // Not implemented
     void operator=(const vtkUniformGridPartitioner &); // Not implemented
