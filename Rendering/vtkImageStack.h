@@ -44,12 +44,22 @@ public:
   static vtkImageStack *New();
 
   // Description:
-  // Add an image to the stack.
+  // Add an image to the stack.  If the image is already present, then
+  // this method will do nothing.
   void AddImage(vtkImageSlice *prop);
 
   // Description:
-  // Remove an image from the stack.
+  // Remove an image from the stack.  If the image is not present, then
+  // this method will do nothing.
   void RemoveImage(vtkImageSlice *prop);
+
+  // Description:
+  // Check if an image is present.  The returned value is one or zero.
+  int HasImage(vtkImageSlice *prop);
+
+  // Description:
+  // Get the list of images as a vtkImageSliceCollection.
+  vtkImageSliceCollection *GetImages() { return this->Images; }
 
   // Description:
   // Set the active layer number.  This is the layer that will be
