@@ -59,10 +59,6 @@ vtkAMRResampleFilter::~vtkAMRResampleFilter()
   if( this->ROI != NULL )
     this->ROI->Delete();
   this->ROI = NULL;
-
-  if( this->Controller != NULL)
-    this->Controller->Delete();
-  this->Controller = NULL;
 }
 
 //-----------------------------------------------------------------------------
