@@ -28,7 +28,6 @@ vtkStandardNewMacro( vtkExtentRCBPartitioner );
 vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
 {
   this->NumExtents           = 0;
-  this->NumberOfSubdivisions = 0;
   this->NumberOfPartitions   = 2;
   for( int i=0; i < 3; ++i )
     {
@@ -57,7 +56,7 @@ void vtkExtentRCBPartitioner::Partition()
 
   // STEP 0: Insert the global extent to the workQueue
   this->AddExtent( 0, this->GlobalExtent );
-  wrkQueue->Insert( this->GetLongestDimensionLength( this->GlobalExtent), 0);
+  wrkQueue->Insert( this->GetNumberOfNodes( this->GlobalExtent), 0);
 
   int ex[6]; // temporary buffer to store the current extent
   int s1[6]; // temporary buffer to store the sub-extent s1
@@ -74,8 +73,8 @@ void vtkExtentRCBPartitioner::Partition()
     this->ReplaceExtent(extentIdx, s1);
     this->AddExtent(this->NumExtents, s2);
 
-    wrkQueue->Insert( this->GetLongestDimensionLength( s1 ),extentIdx );
-    wrkQueue->Insert( this->GetLongestDimensionLength( s2 ),this->NumExtents-1);
+    wrkQueue->Insert( this->GetNumberOfNodes( s1 ),extentIdx );
+    wrkQueue->Insert( this->GetNumberOfNodes( s2 ),this->NumExtents-1);
     }
 
   // STEP 3: Clear data-structures
@@ -85,42 +84,12 @@ void vtkExtentRCBPartitioner::Partition()
           (this->NumExtents == this->NumberOfPartitions) );
 }
 
-//
-// This imlementation produces 2^k partitions
-//void vtkExtentRCBPartitioner::Partition()
-//{
-//  this->pextents.clear();
-//  this->pextents.resize( this->GetNumberOfTotalExtents()*6 );
-//
-//  this->AddExtent( 0, this->GlobalExtent );
-//  assert( "pre: Unexpected number of extents:" && (this->NumExtents==1) );
-//
-//  int ex[6]; // temporary buffer to store the current extent
-//  int s1[6]; // temporary buffer to store the sub-extent s1
-//  int s2[6]; // temporary buffer to store the sub-extent s2
-//
-//  for( int i=0; i < this->GetNumberOfSubdivisions(); ++i )
-//    {
-//      int N = this->NumExtents;
-//      for( int e=0; e < N; ++e )
-//        {
-//          this->GetExtent( e, ex );
-//          int ldim = this->GetLongestDimension( ex );
-//
-//          this->SplitExtent( ex, s1, s2, ldim );
-//          this->ReplaceExtent( e, s1 );
-//          this->AddExtent( this->NumExtents, s2 );
-//        } // END for all extents
-//    } // END for all subdivisions
-//
-//}
-
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::GetExtent( const int idx, int ext[6] )
 {
-//  int N = this->GetNumberOfTotalExtents();
-//  assert( "pre: invalide pextents size" && ( (this->pextents.size()/6)==N) );
-//  assert( "pre: idx is out-of-bounds" && ( (idx >= 0) && (idx < N) ) );
+  // Sanity check
+  assert( "pre: idx is out-of-bounds" &&
+           ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
     ext[ i ] = this->pextents[ idx*6+i ];
@@ -132,21 +101,14 @@ void vtkExtentRCBPartitioner::AddExtent( const int idx, int ext[6] )
   for( int i=0; i < 6; ++i )
     this->pextents.push_back( ext[ i ] );
   ++this->NumExtents;
-//  int N = this->GetNumberOfTotalExtents();
-//  assert( "pre: invalide pextents size" && ( (this->pextents.size()/6)==N) );
-//  assert( "pre: idx is out-of-bounds" && ( (idx >= 0) && (idx < N) ) );
-//
-//  for( int i=0; i < 6; ++i )
-//    this->pextents[ idx*6+i ] = ext[ i ];
-//  ++this->NumExtents;
 }
 
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::ReplaceExtent(const int idx, int ext[6] )
 {
-//  int N = this->GetNumberOfTotalExtents();
-//  assert( "pre: invalide pextents size" && ( (this->pextents.size()/6)==N) );
-//  assert( "pre: idx is out-of-bounds" && ( (idx >= 0) && (idx < N) ) );
+  // Sanity check
+  assert( "pre: idx is out-of-bounds" &&
+           ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
     this->pextents[ idx*6+i ] = ext[ i ];
@@ -155,9 +117,9 @@ void vtkExtentRCBPartitioner::ReplaceExtent(const int idx, int ext[6] )
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::GetPartitionExtent( const int idx, int ext[6] )
 {
-//  int N = this->GetNumberOfTotalExtents();
-//  assert( "pre: invalide pextents size" && ( (this->pextents.size()/6)==N) );
-//  assert( "pre: idx is out-of-bounds" && ( (idx >= 0) && (idx < N) ) );
+  // Sanity check
+  assert( "pre: idx is out-of-bounds" &&
+           ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
     ext[i] = this->pextents[idx*6+i];
@@ -166,11 +128,7 @@ void vtkExtentRCBPartitioner::GetPartitionExtent( const int idx, int ext[6] )
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetNumberOfTotalExtents()
 {
-  int N = std::pow( 
-      static_cast<double>(2),
-      static_cast<double>(this->NumberOfSubdivisions) );
-  assert( "pre: N >= 1" && (N >= 1) );
-  return N;
+  return( this->NumExtents );
 }
 
 //------------------------------------------------------------------------------
@@ -212,6 +170,25 @@ void vtkExtentRCBPartitioner::SplitExtent(
 //  this->PrintExtent( "s1", s1 );
 //  this->PrintExtent( "s2", s2 );
 
+}
+
+//------------------------------------------------------------------------------
+int vtkExtentRCBPartitioner::GetNumberOfNodes( int ext[6] )
+{
+  int ilength = (ext[3]-ext[0])+1;
+  int jlength = (ext[4]-ext[1])+1;
+  int klength = (ext[5]-ext[2])+1;
+
+  return( ilength*jlength*klength );
+}
+//------------------------------------------------------------------------------
+int vtkExtentRCBPartitioner::GetNumberOfCells( int ext[6] )
+{
+  int ilength = (ext[3]-ext[0]);
+  int jlength = (ext[4]-ext[1]);
+  int klength = (ext[5]-ext[2]);
+
+  return( ilength*jlength*klength );
 }
 
 //------------------------------------------------------------------------------

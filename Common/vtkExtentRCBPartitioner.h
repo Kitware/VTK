@@ -15,8 +15,8 @@
 // .NAME vtkExtentRCBPartitioner.h -- Partitions a global structured extent.
 //
 // .SECTION Description
-//  This method partitions a global extent to 2^N extents where N is the number
-//  of subdivisions.
+//  This method partitions a global extent to N partitions where N is a user
+//  supplied parameter.
 
 #ifndef VTKEXTENTRCBPARTITIONER_H_
 #define VTKEXTENTRCBPARTITIONER_H_
@@ -32,9 +32,7 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     void PrintSelf( std::ostream &oss, vtkIndent indent );
 
     // Description:
-    // Set/Get macro for the number of subdivisions.
-    vtkGetMacro(NumberOfSubdivisions,int);
-    vtkSetMacro(NumberOfSubdivisions,int);
+    // Set/Get macro for the number of partitions.
     vtkGetMacro(NumberOfPartitions,int);
     vtkSetMacro(NumberOfPartitions,int);
 
@@ -85,6 +83,14 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      int GetNumberOfTotalExtents();
 
      // Description:
+     // Computes the total number of nodes for the given structured grid extent
+     int GetNumberOfNodes( int ext[6] );
+
+     // Description:
+     // Computes the total number of cells for the given structured grid extent
+     int GetNumberOfCells( int ext[6] );
+
+     // Description:
      // Returns the length of the longest dimension
      int GetLongestDimensionLength( int ext[6] );
 
@@ -97,7 +103,6 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      void PrintExtent( std::string name, int ext[6] );
 
      int GlobalExtent[6];
-     int NumberOfSubdivisions;
      int NumberOfPartitions;
      int NumExtents;
      vtkstd::vector<int> pextents;
