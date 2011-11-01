@@ -74,6 +74,12 @@ void vtkImageStack::RemoveImage(vtkImageSlice *prop)
 }
 
 //----------------------------------------------------------------------------
+int vtkImageStack::HasImage(vtkImageSlice *prop)
+{
+  return this->Images->IsItemPresent(prop);
+}
+
+//----------------------------------------------------------------------------
 void vtkImageStack::GetImages(vtkPropCollection *vc)
 {
   vtkCollectionSimpleIterator pit;
