@@ -89,7 +89,7 @@ public:
   vtkSetMacro(FullScalarConnectivity,int);
   vtkGetMacro(FullScalarConnectivity,int);
   vtkBooleanMacro(FullScalarConnectivity,int);
-  
+
   // Description:
   // Set the scalar range to use to extract cells based on scalar connectivity.
   vtkSetVector2Macro(ScalarRange,double);
@@ -155,6 +155,18 @@ public:
   vtkGetMacro(ColorRegions,int);
   vtkBooleanMacro(ColorRegions,int);
 
+  // Description:
+  // Mark visited point ids ? It may be useful to extract the visited point
+  // ids for use by a downstream filter. Default is OFF.
+  vtkSetMacro( MarkVisitedPointIds, int );
+  vtkGetMacro( MarkVisitedPointIds, int );
+  vtkBooleanMacro( MarkVisitedPointIds, int );
+
+  // Description:
+  // Get the visited point ids. This is valid only if MarkVisitedPointIds
+  // has been set.
+  vtkGetObjectMacro( VisitedPointIds, vtkIdList );
+
 protected:
   vtkPolyDataConnectivityFilter();
   ~vtkPolyDataConnectivityFilter();
@@ -175,7 +187,7 @@ protected:
 
   // Does this cell qualify as being scalar connected ?
   int IsScalarConnected( vtkIdType cellId );
-  
+
   double ScalarRange[2];
 
   void TraverseAndMark();
@@ -195,6 +207,9 @@ protected:
   vtkIdList *Wave2;
   vtkIdList *PointIds;
   vtkIdList *CellIds;
+  vtkIdList *VisitedPointIds;
+
+  int MarkVisitedPointIds;
 
 private:
   vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&);  // Not implemented.
