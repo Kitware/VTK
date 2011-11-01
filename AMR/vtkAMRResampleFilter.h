@@ -70,8 +70,8 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Set & Get macro for the number of subdivisions
-    vtkSetMacro(NumberOfSubdivisions,int);
-    vtkGetMacro(NumberOfSubdivisions,int);
+    vtkSetMacro(NumberOfPartitions,int);
+    vtkGetMacro(NumberOfPartitions,int);
 
     // Description:
     // Setter for the min/max bounds
@@ -111,7 +111,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
     double Min[3];
     double Max[3];
-    int NumberOfSubdivisions;
+    int NumberOfPartitions;
     int TransferToNodes;
     int DemandDrivenMode;
     int LevelOfResolution;

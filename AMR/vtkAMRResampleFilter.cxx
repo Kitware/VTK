@@ -44,7 +44,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->TransferToNodes      = 1;
   this->LevelOfResolution    = 1;
   this->DemandDrivenMode     = 1;
-  this->NumberOfSubdivisions = 0;
+  this->NumberOfPartitions   = 2;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
   this->SetNumberOfInputPorts( 1 );
@@ -522,7 +522,7 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
   if( grd ->GetNumberOfPoints() == 0 )
     return;
 
-  gridPartitioner->SetNumberOfSubdivisions( this->NumberOfSubdivisions );
+  gridPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   gridPartitioner->Update();
 
   this->ROI->DeepCopy( gridPartitioner->GetOutput() );
