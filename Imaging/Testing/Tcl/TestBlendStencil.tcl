@@ -26,7 +26,7 @@ sphere SetRadius 70
 
 vtkImplicitFunctionToImageStencil functionToStencil
 functionToStencil SetInput sphere
-[functionToStencil GetExecutive] SetUpdateExtent [functionToStencil GetOutputInformation 0] 255 255 0
+[functionToStencil GetExecutive] SetUpdateExtent 0 0 255 0 255 0 0
 
 vtkImageBlend blend
 blend SetInputConnection [reader1 GetOutputPort]

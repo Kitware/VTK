@@ -94,6 +94,7 @@ public:
   // Description:
   // Get/Set the update extent for output ports that use 3D extents.
   int SetUpdateExtent(int port, int extent[6]);
+  int SetUpdateExtent(int port, int x0, int x1, int y0, int y1, int z0, int z1);
   static int SetUpdateExtent(vtkInformation *, int extent[6]);
   static void GetUpdateExtent(vtkInformation *, int extent[6]);
   static int* GetUpdateExtent(vtkInformation *);

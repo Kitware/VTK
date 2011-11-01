@@ -1678,6 +1678,15 @@ int vtkStreamingDemandDrivenPipeline
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
+::SetUpdateExtent(int port, int x0, int x1, int y0, int y1, int z0, int z1)
+{
+  int extent[6] = {x0, x1, y0, y1, z0, z1};
+  return this->SetUpdateExtent(
+    this->GetOutputInformation(port), extent);
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtent(int port, int extent[6])
 {
   return this->SetUpdateExtent(
@@ -1706,7 +1715,6 @@ int vtkStreamingDemandDrivenPipeline
   info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;
 }
-
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
