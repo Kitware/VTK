@@ -207,6 +207,12 @@ public:
   vtkGetMacro(GridlineZLength, double);
 
   // Description:
+  // Set/Get whether gridpolys should be drawn.
+  vtkSetMacro(DrawGridpolys, int);
+  vtkGetMacro(DrawGridpolys, int);
+  vtkBooleanMacro(DrawGridpolys, int);
+
+  // Description:
   // Set/Get the type of this axis.
   vtkSetClampMacro(AxisType, int, VTK_AXIS_TYPE_X, VTK_AXIS_TYPE_Z);
   vtkGetMacro(AxisType, int);
@@ -348,6 +354,9 @@ protected:
 
   int    DrawInnerGridlines;
   int    LastDrawInnerGridlines;
+  
+  int    DrawGridpolys;
+  int    LastDrawGridpolys;
   
   int    AxisVisibility;
   int    TickVisibility;
