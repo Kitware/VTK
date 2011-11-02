@@ -45,6 +45,7 @@ vtkImageResliceMapper::vtkImageResliceMapper()
   this->WorldToDataMatrix = vtkMatrix4x4::New();
   this->SliceToWorldMatrix = vtkMatrix4x4::New();
 
+  this->JumpToNearestSlice = 0;
   this->AutoAdjustImageQuality = 1;
   this->SeparateWindowLevelOperation = 1;
   this->SlabType = VTK_IMAGE_SLAB_MEAN;
@@ -275,10 +276,6 @@ int vtkImageResliceMapper::ProcessRequest(
         {
         vtkCamera *camera = ren->GetActiveCamera();
 
-        if (this->SliceAtFocalPoint)
-          {
-          this->SlicePlane->SetOrigin(camera->GetFocalPoint());
-          }
         if (this->SliceFacesCamera)
           {
           double normal[3];
@@ -288,7 +285,64 @@ int vtkImageResliceMapper::ProcessRequest(
           normal[2] = -normal[2];
           this->SlicePlane->SetNormal(normal);
           }
-        }
+
+        if (this->SliceAtFocalPoint)
+          {
+          double point[4];
+          camera->GetFocalPoint(point);
+
+          if (this->JumpToNearestSlice)
+            {
+            double normal[4];
+            this->SlicePlane->GetNormal(normal);
+            normal[3] = -vtkMath::Dot(point, normal);
+            point[3] = 1.0;
+
+            // convert normal to data coordinates
+            double worldToData[16];
+            vtkMatrix4x4 *dataToWorld = this->GetDataToWorldMatrix();
+            vtkMatrix4x4::Transpose(*dataToWorld->Element, worldToData);
+            vtkMatrix4x4::MultiplyPoint(worldToData, normal, normal);
+
+            // find the slice orientation from the normal
+            int k = 0;
+            double maxsq = 0;
+            double sumsq = 0;
+            for (int i = 0; i < 3; i++)
+              {
+              double tmpsq = normal[i]*normal[i];
+              sumsq += tmpsq;
+              if (tmpsq > maxsq)
+                {
+                maxsq = tmpsq;
+                k = i;
+                }
+              }
+
+            // if the slice is not oblique
+            if ((1.0 - maxsq/sumsq) < 1e-12)
+              {
+              // get the point in data coordinates
+              vtkMatrix4x4::Invert(*dataToWorld->Element, worldToData);
+              vtkMatrix4x4::MultiplyPoint(worldToData, point, point);
+
+              // set the point to lie exactly on a slice
+              double z = (point[k] - this->DataOrigin[k])/this->DataSpacing[k];
+              if (z > VTK_INT_MIN && z < VTK_INT_MAX)
+                {
+                int j = vtkMath::Floor(z + 0.5);
+                point[k] = j*this->DataSpacing[k] + this->DataOrigin[k];
+                }
+
+              // convert back to world coordinates
+              dataToWorld->MultiplyPoint(point, point);
+              }
+            }
+
+          this->SlicePlane->SetOrigin(point);
+          }
+
+        } // end of "Get point/normal from camera"
 
       // set the matrices
       this->UpdateResliceMatrix(ren, prop);
@@ -1310,6 +1364,8 @@ void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "JumpToNearestSlice: "
+     << (this->JumpToNearestSlice ? "On\n" : "Off\n");
   os << indent << "AutoAdjustImageQuality: "
      << (this->AutoAdjustImageQuality ? "On\n" : "Off\n");
   os << indent << "SeparateWindowLevelOperation: "
