@@ -56,7 +56,7 @@ proc Glyph {} {
 
 vtkProgrammableGlyphFilter glypher
     glypher SetInputConnection [colors GetOutputPort]
-    glypher SetSourceData [transformSquad GetOutput]
+    glypher SetSourceConnection [transformSquad GetOutputPort]
     glypher SetGlyphMethod Glyph
     glypher SetColorModeToColorBySource
 vtkPolyDataMapper glyphMapper
