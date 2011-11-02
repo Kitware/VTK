@@ -413,6 +413,8 @@ private:
   vtkPoints         *MinorTickPts;
   vtkPoints         *MajorTickPts;
   vtkPoints         *GridlinePts;
+  vtkPoints         *InnerGridlinePts;
+  vtkPoints         *GridpolyPts;
 
   vtkVectorText     *TitleVector;
   vtkPolyDataMapper *TitleMapper;
@@ -425,6 +427,15 @@ private:
   vtkPolyData        *Axis;
   vtkPolyDataMapper  *AxisMapper;
   vtkActor           *AxisActor;
+  vtkPolyData        *Gridlines;
+  vtkPolyDataMapper  *GridlinesMapper;
+  vtkActor           *GridlinesActor;
+  vtkPolyData        *InnerGridlines;
+  vtkPolyDataMapper  *InnerGridlinesMapper;
+  vtkActor           *InnerGridlinesActor;
+  vtkPolyData        *Gridpolys;
+  vtkPolyDataMapper  *GridpolysMapper;
+  vtkActor           *GridpolysActor;
 
   vtkCamera          *Camera;
   vtkTimeStamp        BuildTime;
