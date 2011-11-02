@@ -182,18 +182,39 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
       pos.Y() < this->Size.Y())
     {
     // The supplied index is valid (in the lower quadrant).
-    if (this->GetChart(this->ActivePlot)->GetPlot(0))
-      {
-      // reset the previous active plot to the default color
-      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(this->Private->ScatterPlotColor[0],
-                                                             this->Private->ScatterPlotColor[1],
-                                                             this->Private->ScatterPlotColor[2]);
-      }
     this->ActivePlot = pos;
+
+    // set background colors for plots
     if (this->GetChart(this->ActivePlot)->GetPlot(0))
       {
-      // set the new active plot color to blue
-      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(0.0, 0.0, 1.0);
+      int plotCount = this->GetSize().X();
+      for(int i = 0; i < plotCount; i++)
+        {
+        for(int j = 0; j < plotCount; j++)
+          {
+          if(i + j + 1 < plotCount)
+            {
+            vtkChartXY *chart = vtkChartXY::SafeDownCast(this->GetChart(vtkVector2i(i, j)));
+
+            if(pos[0] == i && pos[1] == j)
+              {
+              // set the new active chart background color to light green
+              chart->GetBackgroundBrush()->SetColorF(0, 0.8, 0, 0.4);
+              }
+            else if(pos[0] == i || pos[1] == j)
+              {
+              // set background color for all other charts in the selected chart's row
+              // and column to light red
+              chart->GetBackgroundBrush()->SetColorF(0.8, 0, 0, 0.4);
+              }
+            else
+              {
+              // set all else to white
+              chart->GetBackgroundBrush()->SetColorF(1, 1, 1, 0);
+              }
+            }
+          }
+        }
       }
     if (this->Private->BigChart)
       {
@@ -627,6 +648,9 @@ void vtkScatterPlotMatrix::UpdateLayout()
           xy->SetBarWidthFraction(1.0);
           xy->SetPlotCorner(plot, 2);
           }
+
+        // set background color to light gray
+        xy->GetBackgroundBrush()->SetColorF(0.5, 0.5, 0.5, 0.4);
         }
       else if (i == static_cast<int>(n / 2.0) + n % 2 && i == j)
         {
