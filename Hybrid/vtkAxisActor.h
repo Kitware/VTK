@@ -192,6 +192,12 @@ public:
   vtkBooleanMacro(DrawGridlines, int);
 
   // Description:
+  // Set/Get whether inner gridlines should be drawn.
+  vtkSetMacro(DrawInnerGridlines, int);
+  vtkGetMacro(DrawInnerGridlines, int);
+  vtkBooleanMacro(DrawInnerGridlines, int);
+
+  // Description:
   // Set/Get the length to use when drawing gridlines.
   vtkSetMacro(GridlineXLength, double);
   vtkGetMacro(GridlineXLength, double);
@@ -340,6 +346,9 @@ protected:
   double  GridlineYLength;
   double  GridlineZLength;
 
+  int    DrawInnerGridlines;
+  int    LastDrawInnerGridlines;
+  
   int    AxisVisibility;
   int    TickVisibility;
   int    LastTickVisibility;
