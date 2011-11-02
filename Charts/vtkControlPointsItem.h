@@ -153,6 +153,15 @@ public:
   vtkGetMacro(SwitchPointsMode, bool);
 
   // Description:
+  // If EndPointsMovable is false, the two end points will not
+  // be moved. True by default.
+  vtkSetMacro(EndPointsXMovable, bool);
+  vtkGetMacro(EndPointsXMovable, bool);
+  vtkSetMacro(EndPointsYMovable, bool);
+  vtkGetMacro(EndPointsYMovable, bool);
+  virtual bool GetEndPointsMovable();
+
+  // Description:
   // Add a point to the function. Returns the index of the point (0 based),
   // or -1 on error.
   // Subclasses should reimplement this function to do the actual work.
@@ -303,6 +312,11 @@ protected:
 
   void AddPointId(vtkIdType addedPointId);
 
+  // Description:
+  // Return true if any of the end points is current point
+  // or part of the selection
+  bool IsEndPointPicked();
+
   vtkCallbackCommand* Callback;
   vtkPen*             SelectedPointPen;
   vtkBrush*           SelectedPointBrush;
@@ -326,6 +340,8 @@ protected:
   vtkIdType           PointToToggle;
   bool                PointAboutToBeToggled;
   bool                InvertShadow;
+  bool                EndPointsXMovable;
+  bool                EndPointsYMovable;
 private:
   vtkControlPointsItem(const vtkControlPointsItem &); // Not implemented.
   void operator=(const vtkControlPointsItem &);   // Not implemented.

@@ -78,6 +78,8 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->PointToToggle = -1;
   this->PointAboutToBeToggled = false;
   this->InvertShadow = false;
+  this->EndPointsXMovable = true;
+  this->EndPointsYMovable = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -934,22 +936,55 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       }
     else if (this->CurrentPoint == -1 && this->Selection->GetNumberOfTuples() > 1)
       {
+      vtkVector2f deltaPos(mouse.Pos[0] - mouse.LastPos[0], mouse.Pos[1] - mouse.LastPos[1]);
+      if(this->IsEndPointPicked())
+        {
+        if(!this->GetEndPointsMovable())
+          {
+          return false;
+          }
+        else if(this->GetEndPointsXMovable())
+          {
+          deltaPos.SetY(0);
+          }
+        else if(this->GetEndPointsYMovable())
+          {
+          deltaPos.SetX(0);
+          }
+        }
+
       this->StartInteractionIfNotStarted();
 
       vtkIdTypeArray* points = this->GetSelection();
       points->Register(this);// must stay valid after each individual point move
-      this->MovePoints(
-        vtkVector2f(mouse.Pos[0] - mouse.LastPos[0], mouse.Pos[1] - mouse.LastPos[1]),
-        points);
+      this->MovePoints(deltaPos, points);
       points->UnRegister(this);
 
       this->Interaction();
       }
     else if (this->CurrentPoint != -1)
       {
+      vtkVector2f curPos(mouse.Pos);
+      if(this->IsEndPointPicked())
+        {
+        double currentPoint[4] = {0.0, 0.0, 0.0, 0.0};
+        this->GetControlPoint(this->CurrentPoint, currentPoint);
+        if(!this->GetEndPointsMovable())
+          {
+          return false;
+          }
+        else if(this->GetEndPointsXMovable())
+          {
+          curPos.SetY(currentPoint[1]);
+          }
+        else if(this->GetEndPointsYMovable())
+          {
+          curPos.SetX(currentPoint[0]);
+          }
+        }
       this->StartInteractionIfNotStarted();
 
-      this->SetCurrentPointPos(mouse.Pos);
+      this->SetCurrentPointPos(curPos);
 
       this->Interaction();
       }
@@ -1569,4 +1604,38 @@ bool vtkControlPointsItem::KeyReleaseEvent(const vtkContextKeyEvent &key)
     return true;
     }
   return this->Superclass::KeyPressEvent(key);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkControlPointsItem::GetEndPointsMovable()
+{
+  return (this->GetEndPointsXMovable() || this->GetEndPointsYMovable());
+}
+
+//-----------------------------------------------------------------------------
+bool vtkControlPointsItem::IsEndPointPicked()
+{
+  int numPts = this->GetNumberOfPoints();
+  if(numPts<=0)
+    {
+    return false;
+    }
+  if(this->CurrentPoint==0 || this->CurrentPoint==numPts-1)
+    {
+    return true;
+    }
+  vtkIdTypeArray* selection = this->GetSelection();
+  if(selection && selection->GetNumberOfTuples()>0)
+    {
+    vtkIdType pid;
+    for (vtkIdType i = 0; i < selection->GetNumberOfTuples(); ++i)
+      {
+      pid=selection->GetValue(i);
+      if(pid==0 || pid==numPts-1)
+        {
+        return true;
+        }
+      }
+    }
+  return false;
 }
