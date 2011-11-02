@@ -147,13 +147,7 @@ int vtkSLCReader::RequestInformation (
 void vtkSLCReader::ExecuteData(vtkDataObject *output_do,
                                vtkInformation *outInfo)
 { 
-  vtkImageData *output = this->AllocateOutputData(output_do, outInfo);
-
-  if (!output->GetPointData()->GetScalars())
-    {
-    return;
-    }
-  output->GetPointData()->GetScalars()->SetName("SLCImage");
+  vtkImageData *output = vtkImageData::SafeDownCast(output_do);
 
   FILE *fp;
 
@@ -201,6 +195,9 @@ void vtkSLCReader::ExecuteData(vtkDataObject *output_do,
   fscanf( fp, "%d", size+1 );
   fscanf( fp, "%d", size+2 );
   output->SetDimensions(size);
+
+  output->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
+  output->GetPointData()->GetScalars()->SetName("SLCImage");
 
   // Skip Over bits_per_voxel Field */
   fscanf( fp, "%d",   &temp );
