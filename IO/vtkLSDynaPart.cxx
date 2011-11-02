@@ -239,6 +239,8 @@ public:
                      const vtkIdType& maxId):
     MinId(minId),MaxId(maxId+1){} //maxId is meant to be exclusive
 
+  virtual ~InternalPointsUsed(){};
+
   virtual bool isUsed(const vtkIdType &index) const = 0;
 
   //the min and max id allow the parts to be sorted in the collection
@@ -260,18 +262,10 @@ class vtkLSDynaPart::DensePointsUsed : public vtkLSDynaPart::InternalPointsUsed
 public:
   DensePointsUsed(BitVector *pointsUsed, const vtkIdType& minId,
                   const vtkIdType& maxId):
-    InternalPointsUsed(minId,maxId)
-  {
-    //remember that max is a point we need to include
-    this->UsedPoints.resize(this->MaxId-this->MinId,false);
-    vtkIdType idx=0;
-    for(vtkIdType i=this->MinId; i<this->MaxId; ++i)
-      {
-      //we need relative ids
-      this->UsedPoints[idx++]=(*pointsUsed)[i];
-      }
-  }
-
+    InternalPointsUsed(minId,maxId),
+    UsedPoints(pointsUsed->begin()+minId,pointsUsed->begin()+(maxId+1))
+    {
+    }
 
   bool isUsed(const vtkIdType &index) const {return UsedPoints[index];}
 
