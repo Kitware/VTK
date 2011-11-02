@@ -169,6 +169,16 @@ void vtkContextInteractorStyle::OnLeftButtonDown()
       {
       eatEvent =
         this->Scene->DoubleClickEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
+      //
+      // The second ButtonRelease event seems not to be processed automatically,
+      // need manually processing here so that the following MouseMove event will
+      // not think the left button is still pressed down, and we don't really care
+      // the return result from the second ButtonRelease.
+      //
+      if(eatEvent)
+        {
+        this->Scene->ButtonReleaseEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
+        }
       }
     else
       {
