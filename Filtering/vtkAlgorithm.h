@@ -303,6 +303,10 @@ public:
   virtual void RemoveInputConnection(int port, int idx);
 
   // Description:
+  // Removes all input connections.
+  virtual void RemoveAllInputConnections(int port);
+
+  // Description:
   // Get a proxy object corresponding to the given output port of this
   // algorithm.  The proxy object can be passed to another algorithm's
   // SetInputConnection(), AddInputConnection(), and
