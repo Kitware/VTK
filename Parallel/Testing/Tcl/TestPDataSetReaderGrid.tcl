@@ -28,7 +28,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     reader Update
   vtkPDataSetWriter writer
     writer SetFileName "comb.pvtk"
-    writer SetInput [[reader GetOutput] GetBlock 0]
+    writer SetInputData [[reader GetOutput] GetBlock 0]
     writer SetNumberOfPieces 4
     writer Write
   vtkPDataSetReader pReader
