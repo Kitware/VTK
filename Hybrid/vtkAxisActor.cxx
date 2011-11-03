@@ -360,6 +360,7 @@ vtkAxisActor::~vtkAxisActor()
 void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->TitleActor->ReleaseGraphicsResources(win);
+  this->TitleActor2D->ReleaseGraphicsResources(win);
   for (int i=0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->ReleaseGraphicsResources(win);
