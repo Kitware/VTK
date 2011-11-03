@@ -1421,9 +1421,12 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     // xy-portion
     this->MinorTickPts->InsertNextPoint(xPoint1);
     this->MinorTickPts->InsertNextPoint(yPoint);
-    // xz-portion
-    this->MinorTickPts->InsertNextPoint(xPoint2);
-    this->MinorTickPts->InsertNextPoint(zPoint);
+    if( this->Use2DMode == 0 )
+      {
+      // xz-portion
+      this->MinorTickPts->InsertNextPoint(xPoint2);
+      this->MinorTickPts->InsertNextPoint(zPoint);
+      }
     x+= this->DeltaMinor;
     numTicks++;
     }
@@ -1603,9 +1606,12 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     // yx portion
     this->GridlinePts->InsertNextPoint(yPoint1);
     this->GridlinePts->InsertNextPoint(xPoint);
-    // yz portion
-    this->GridlinePts->InsertNextPoint(yPoint2);
-    this->GridlinePts->InsertNextPoint(zPoint);
+    if( this->Use2DMode == 0 )
+      {
+      // yz portion
+      this->GridlinePts->InsertNextPoint(yPoint2);
+      this->GridlinePts->InsertNextPoint(zPoint);
+      }
     y += this->DeltaMajor;
     numTicks++;
     }
