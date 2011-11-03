@@ -103,11 +103,11 @@ vtkAxisActor::vtkAxisActor()
   this->LabelMappers = NULL;
   this->LabelActors = NULL;
 
-  this->Axis = vtkPolyData::New();
-  this->AxisMapper = vtkPolyDataMapper::New();
-  this->AxisMapper->SetInput(this->Axis);
-  this->AxisActor = vtkActor::New();
-  this->AxisActor->SetMapper(this->AxisMapper);
+  this->AxisLines = vtkPolyData::New();
+  this->AxisLinesMapper = vtkPolyDataMapper::New();
+  this->AxisLinesMapper->SetInput(this->AxisLines);
+  this->AxisLinesActor = vtkActor::New();
+  this->AxisLinesActor->SetMapper(this->AxisLinesMapper);
   this->Gridlines = vtkPolyData::New();
   this->GridlinesMapper = vtkPolyDataMapper::New();
   this->GridlinesMapper->SetInput(this->Gridlines);
@@ -244,20 +244,20 @@ vtkAxisActor::~vtkAxisActor()
     this->LabelActors = NULL;
     }
 
-  if (this->Axis)
+  if (this->AxisLines)
     {
-    this->Axis->Delete();
-    this->Axis = NULL;
+    this->AxisLines->Delete();
+    this->AxisLines = NULL;
     }
-  if (this->AxisMapper)
+  if (this->AxisLinesMapper)
     {
-    this->AxisMapper->Delete();
-    this->AxisMapper = NULL;
+    this->AxisLinesMapper->Delete();
+    this->AxisLinesMapper = NULL;
     }
-  if (this->AxisActor)
+  if (this->AxisLinesActor)
     {
-    this->AxisActor->Delete();
-    this->AxisActor = NULL;
+    this->AxisLinesActor->Delete();
+    this->AxisLinesActor = NULL;
     }
 
   if (this->Gridlines)
@@ -345,7 +345,7 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
     {
     this->LabelActors[i]->ReleaseGraphicsResources(win);
     }
-  this->AxisActor->ReleaseGraphicsResources(win);
+  this->AxisLinesActor->ReleaseGraphicsResources(win);
   this->GridlinesActor->ReleaseGraphicsResources(win);
   this->InnerGridlinesActor->ReleaseGraphicsResources(win);
   this->GridpolysActor->ReleaseGraphicsResources(win);
@@ -417,7 +417,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     if (this->AxisVisibility || this->TickVisibility)
       {
-      renderedSomething += this->AxisActor->RenderOpaqueGeometry(viewport);
+      renderedSomething += this->AxisLinesActor->RenderOpaqueGeometry(viewport);
       }
     if(this->DrawGridlines)
       {
@@ -596,7 +596,7 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 
   if (force || this->GetProperty()->GetMTime() > this->BuildTime.GetMTime())
     {
-    this->AxisActor->SetProperty(this->GetProperty());
+    this->AxisLinesActor->SetProperty(this->GetProperty());
     this->TitleActor->SetProperty(this->GetProperty());
     }
 
@@ -1608,8 +1608,8 @@ void vtkAxisActor::SetAxisPointsAndLines()
   vtkCellArray *gridlines = vtkCellArray::New();
   vtkCellArray *innerGridlines = vtkCellArray::New();
   vtkCellArray *polys = vtkCellArray::New();
-  this->Axis->SetPoints(pts);
-  this->Axis->SetLines(lines);
+  this->AxisLines->SetPoints(pts);
+  this->AxisLines->SetLines(lines);
   this->Gridlines->SetPoints(this->GridlinePts);
   this->Gridlines->SetLines(gridlines);
   this->InnerGridlines->SetPoints(this->InnerGridlinePts);
@@ -1996,7 +1996,7 @@ void vtkAxisActor::SetTitle(const char *t)
 void
 vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
 {
-  this->AxisActor->SetProperty(prop);
+  this->AxisLinesActor->SetProperty(prop);
   this->Modified();
 }
 
@@ -2021,7 +2021,7 @@ vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
 vtkProperty*
 vtkAxisActor::GetAxisLinesProperty()
 {
-  return this->AxisActor->GetProperty();
+  return this->AxisLinesActor->GetProperty();
 }
 
 // ****************************************************************************

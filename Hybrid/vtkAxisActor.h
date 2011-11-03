@@ -450,9 +450,9 @@ private:
   vtkAxisFollower   **LabelActors;
   vtkTextActor      **LabelActors2D;
 
-  vtkPolyData        *Axis;
-  vtkPolyDataMapper  *AxisMapper;
-  vtkActor           *AxisActor;
+  vtkPolyData        *AxisLines;
+  vtkPolyDataMapper  *AxisLinesMapper;
+  vtkActor           *AxisLinesActor;
   vtkPolyData        *Gridlines;
   vtkPolyDataMapper  *GridlinesMapper;
   vtkActor           *GridlinesActor;
