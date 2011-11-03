@@ -410,7 +410,7 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   this->BuildAxes(viewport);
 
-  if (initialRender)
+  if (initialRender || this->RebuildAxes)
     {
     for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
       {
@@ -420,6 +420,7 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     }
   initialRender = false;
+  this->RebuildAxes = false;
 
   this->DetermineRenderAxes(viewport);
 
@@ -453,7 +454,207 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
-// Do final adjustment of axes to control offset, etc.
+// *************************************************************************
+// Project the bounding box and compute edges on the border of the bounding
+// cube. Determine which parts of the edges are visible via intersection 
+// with the boundary of the viewport (minus borders).
+//
+//  Modifications:
+//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
+//    Added calls to AdjustValues, AdjustRange. 
+//
+//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
+//   Only render those axes needed for current FlyMode.  
+//   Moved bulk of 'build' code to BuildAxes method, added calls to
+//   BuildAxes and DetermineRenderAxes methods.
+//
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//   Added initial build of each axis. 
+// *************************************************************************
+
+int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
+{
+   int i, renderedSomething=0;
+  static bool initialRender = true; 
+  // Initialization
+  if (!this->Camera)
+    {
+    vtkErrorMacro(<<"No camera!");
+    this->RenderSomething = 0;
+    return 0;
+    }
+ 
+  this->BuildAxes(viewport); 
+
+  if (initialRender)
+    {
+    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+      {
+      this->XAxes[i]->BuildAxis(viewport, true);
+      this->YAxes[i]->BuildAxis(viewport, true);
+      this->ZAxes[i]->BuildAxis(viewport, true);
+      }
+    }
+  initialRender = false;
+
+  this->DetermineRenderAxes(viewport); 
+
+  //Render the axes
+  if (this->XAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesX; i++)
+      { 
+      renderedSomething += 
+        this->XAxes[this->RenderAxesX[i]]->RenderTranslucentGeometry(viewport);
+      } 
+    }
+
+  if (this->YAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesY; i++)
+      {
+      renderedSomething += 
+        this->YAxes[this->RenderAxesY[i]]->RenderTranslucentGeometry(viewport);
+      }
+    }
+
+  if (this->ZAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesZ; i++)
+      {
+      renderedSomething += 
+        this->ZAxes[this->RenderAxesZ[i]]->RenderTranslucentGeometry(viewport);
+      }
+    }
+  return renderedSomething;
+}
+
+// *************************************************************************
+// Project the bounding box and compute edges on the border of the bounding
+// cube. Determine which parts of the edges are visible via intersection 
+// with the boundary of the viewport (minus borders).
+//
+//  Modifications:
+//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
+//    Added calls to AdjustValues, AdjustRange. 
+//
+//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
+//   Only render those axes needed for current FlyMode.  
+//   Moved bulk of 'build' code to BuildAxes method, added calls to
+//   BuildAxes and DetermineRenderAxes methods.
+//
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//   Added initial build of each axis. 
+// *************************************************************************
+
+int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
+{
+  int i, renderedSomething=0;
+  static bool initialRender = true; 
+  // Initialization
+  if (!this->Camera)
+    {
+    vtkErrorMacro(<<"No camera!");
+    this->RenderSomething = 0;
+    return 0;
+    }
+ 
+  this->BuildAxes(viewport); 
+
+  if (initialRender)
+    {
+    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+      {
+      this->XAxes[i]->BuildAxis(viewport, true);
+      this->YAxes[i]->BuildAxis(viewport, true);
+      this->ZAxes[i]->BuildAxis(viewport, true);
+      }
+    }
+  initialRender = false;
+
+  this->DetermineRenderAxes(viewport); 
+
+  //Render the axes
+  if (this->XAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesX; i++)
+      { 
+      renderedSomething += 
+        this->XAxes[this->RenderAxesX[i]]->RenderTranslucentPolygonalGeometry(viewport);
+      } 
+    }
+
+  if (this->YAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesY; i++)
+      {
+      renderedSomething += 
+        this->YAxes[this->RenderAxesY[i]]->RenderTranslucentPolygonalGeometry(viewport);
+      }
+    }
+
+  if (this->ZAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesZ; i++)
+      {
+      renderedSomething += 
+        this->ZAxes[this->RenderAxesZ[i]]->RenderTranslucentPolygonalGeometry(viewport);
+      }
+    }
+  return renderedSomething;
+}
+
+// *************************************************************************
+// RenderOverlay : render 2D annotations.
+//
+//  Modifications:
+//    Claire Guilbaud, Tue Apr 20 15:11:46 CEST 2010
+//    Method's creation
+// *************************************************************************
+
+int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
+{
+  int i, renderedSomething=0;
+  
+  //Render the axes
+  if (this->XAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesX; i++)
+      { 
+
+      renderedSomething += 
+        this->XAxes[this->RenderAxesX[i]]->RenderOverlay(viewport);
+      } 
+    }
+
+  if (this->YAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesY; i++)
+      {
+      renderedSomething += 
+        this->YAxes[this->RenderAxesY[i]]->RenderOverlay(viewport);
+      }
+    }
+
+  if (this->ZAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesZ; i++)
+      {
+      renderedSomething += 
+        this->ZAxes[this->RenderAxesZ[i]]->RenderOverlay(viewport);
+      }
+    }
+  return renderedSomething;
+}
+
+
+
+int vtkCubeAxesActor::HasTranslucentPolygonalGeometry()
+{
+  return 1;
+}
+
+  // Do final adjustment of axes to control offset, etc.
 void vtkCubeAxesActor::AdjustAxes(double bounds[6],
                                   double xCoords[NUMBER_OF_ALIGNED_AXIS][6],
                                   double yCoords[NUMBER_OF_ALIGNED_AXIS][6],

@@ -78,7 +78,10 @@ public:
   // Description:
   // Draw the axes as per the vtkProp superclass' API.
   virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentGeometry(vtkViewport*);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int RenderOverlay(vtkViewport*);
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Gets/Sets the RebuildAxes flag
