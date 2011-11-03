@@ -1840,7 +1840,6 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   //
   // Major ticks
   //
-
   if (this->TickLocation == VTK_TICKS_INSIDE)
     {
     zPoint1[0] = p1[0] - xMult * this->MajorTickSize;
