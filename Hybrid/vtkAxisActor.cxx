@@ -66,6 +66,9 @@ vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 //   Kathleen Bonnell, Thu Apr 29 17:02:10 PDT 2004
 //   Initialize MinorStart, MajorStart, DeltaMinor, DeltaMajor.
 //
+//   Brad Whitlock, Wed Mar 26 11:26:05 PDT 2008
+//   Added TitleTextProperty, LabelTextProperty.
+//
 // ****************************************************************
 
 vtkAxisActor::vtkAxisActor()
@@ -112,6 +115,10 @@ vtkAxisActor::vtkAxisActor()
   this->LabelMappers = NULL;
   this->LabelActors = NULL;
   this->LabelActors2D = NULL; 
+
+  this->LabelTextProperty = vtkTextProperty::New();
+  this->LabelTextProperty->SetColor(0.,0.,0.);
+  this->LabelTextProperty->SetFontFamilyToArial();
 
   this->AxisLines = vtkPolyData::New();
   this->AxisLinesMapper = vtkPolyDataMapper::New();
@@ -263,6 +270,11 @@ vtkAxisActor::~vtkAxisActor()
     this->LabelActors = NULL;
     this->LabelActors2D = NULL;
     }
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->Delete();
+    this->LabelTextProperty = NULL;
+    }
 
   if (this->AxisLines)
     {
@@ -385,6 +397,9 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
 //   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
 //   Removed mustAdjustValue, valueScaleFator.
 //
+//   Brad Whitlock, Wed Mar 26 11:34:24 PDT 2008
+//   Added TitleTextProperty, LabelTextProperty
+//
 // ****************************************************************
 
 void vtkAxisActor::ShallowCopy(vtkProp *prop)
@@ -402,6 +417,8 @@ void vtkAxisActor::ShallowCopy(vtkProp *prop)
     this->SetTickVisibility(a->GetTickVisibility());
     this->SetLabelVisibility(a->GetLabelVisibility());
     this->SetTitleVisibility(a->GetTitleVisibility());
+    //    this->SetTitleTextProperty(a->GetTitleTextProperty());
+    //    this->SetLabelTextProperty(a->GetLabelTextProperty());
     this->SetCalculateTitleOffset(a->GetCalculateTitleOffset());
     this->SetCalculateLabelOffset(a->GetCalculateLabelOffset());
     }
