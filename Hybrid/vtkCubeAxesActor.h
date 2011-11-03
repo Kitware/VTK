@@ -81,6 +81,12 @@ public:
   virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
 
   // Description:
+  // Gets/Sets the RebuildAxes flag
+  vtkSetMacro(RebuildAxes,int);
+  vtkGetMacro(RebuildAxes,int);
+  vtkBooleanMacro(RebuildAxes,int);
+
+  // Description:
   // Explicitly specify the region in space around which to draw the bounds.
   // The bounds is used only when no Input or Prop is specified. The bounds
   // are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), making
@@ -315,6 +321,8 @@ protected:
   vtkAxisActor *XAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *YAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *ZAxes[NUMBER_OF_ALIGNED_AXIS];
+
+  bool RebuildAxes;
 
   char *XTitle;
   char *XUnits;

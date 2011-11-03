@@ -75,6 +75,8 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
+  this->RebuildAxes = false;
+
   this->Camera = NULL;
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
