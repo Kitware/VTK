@@ -290,13 +290,22 @@ public:
   vtkProperty* GetZAxesLinesProperty();
 
   // Description:
-  // Get/Set axes gridlines actors properties.
+  // Get/Set axes (outer) gridlines actors properties.
   void SetXAxesGridlinesProperty(vtkProperty *);
   vtkProperty* GetXAxesGridlinesProperty();
   void SetYAxesGridlinesProperty(vtkProperty *);
   vtkProperty* GetYAxesGridlinesProperty();
   void SetZAxesGridlinesProperty(vtkProperty *);
   vtkProperty* GetZAxesGridlinesProperty();
+
+  // Description:
+  // Get/Set axes inner gridlines actors properties.
+  void SetXAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesInnerGridlinesProperty();
+  void SetYAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesInnerGridlinesProperty();
+  void SetZAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesInnerGridlinesProperty();
 
   // Description:
   // Get/Set axes gridPolys actors properties.
@@ -426,6 +435,9 @@ protected:
   vtkProperty  *XAxesGridlinesProperty;
   vtkProperty  *YAxesGridlinesProperty;
   vtkProperty  *ZAxesGridlinesProperty;
+  vtkProperty  *XAxesInnerGridlinesProperty;
+  vtkProperty  *YAxesInnerGridlinesProperty;
+  vtkProperty  *ZAxesInnerGridlinesProperty;
   vtkProperty  *XAxesGridpolysProperty;
   vtkProperty  *YAxesGridpolysProperty;
   vtkProperty  *ZAxesGridpolysProperty;

@@ -1481,42 +1481,34 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     numTicks++;
     }
   // Inner gridline
-  double xMin = this->MajorStart[0];
-  double xMax = this->Bounds[1];
-  double xDelta = this->DeltaMajor[0];
-  double yMin = this->MajorStart[1];
-  double yMax = this->Bounds[3];
-  double yDelta = this->DeltaMajor[1];
-  double zMin = this->MajorStart[2];
-  double zMax = this->Bounds[5];
-  double zDelta = this->DeltaMajor[2];
-  if (xDelta > 0)
+  x = this->MajorStart[0];
+  numTicks = 0;
+  cerr << this->MajorStart[0] << " - " << this->DeltaMajor[0] << " - " << p2[0] << "\n";
+  cerr << this->MajorStart[1] << " - " << this->DeltaMajor[1] << " - " << p2[1] << "\n";
+  cerr << this->MajorStart[2] << " - " << this->DeltaMajor[2] << " - " << p2[2] << "\n";
+  while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
     {
-    for (x = xMin; x <= xMax; x += xDelta)
+    xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
+    // y lines
+    double z = this->MajorStart[2];
+    while (z <= p2[2])
       {
-      xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-
-      // y lines
-      if (zDelta > 0)
-        {
-        for (double z = zMin; z <= zMax; z += zDelta)
-          {
-          xPoint1[2]=yPoint[2]=z;
-          this->InnerGridlinePts->InsertNextPoint(xPoint1);
-          this->InnerGridlinePts->InsertNextPoint(yPoint);
-          }
-        }
-      // z lines
-      if (yDelta > 0)
-        {
-        for (double y = yMin; y <= yMax; y += yDelta)
-          {
-          xPoint2[1]=zPoint[1]=y;
-          this->InnerGridlinePts->InsertNextPoint(xPoint2);
-          this->InnerGridlinePts->InsertNextPoint(zPoint);
-          }
-        }
+      xPoint1[2]=yPoint[2]=z;
+      this->InnerGridlinePts->InsertNextPoint(xPoint1);
+      this->InnerGridlinePts->InsertNextPoint(yPoint);
+      z += this->DeltaMajor[2];
       }
+    // z lines
+    double y = this->MajorStart[1];
+    while (y <= p2[1])
+      {
+      xPoint2[1]=zPoint[1]=y;
+      this->InnerGridlinePts->InsertNextPoint(xPoint2);
+      this->InnerGridlinePts->InsertNextPoint(zPoint);
+      y += this->DeltaMajor[1];
+      }
+    x += this->DeltaMajor[0];
+    numTicks++;
     }
 
   //
@@ -2328,18 +2320,6 @@ double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
 }
 
 // *********************************************************************
-// Method:  vtkAxisActor::SetLabelScale
-//
-// Purpose: Sets the scaling factor for label actors.
-//
-// Arguments:
-//   s      The scale factor to use.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    July 18, 2003
-//
-// *********************************************************************
-
 void vtkAxisActor::SetLabelScale(const double s)
 {
   for (int i=0; i < this->NumberOfLabelsBuilt; i++)
@@ -2349,40 +2329,12 @@ void vtkAxisActor::SetLabelScale(const double s)
 }
 
 // *********************************************************************
-// Method:  vtkAxisActor::SetTitleScale
-//
-// Purpose: Sets the scaling factor for the title actor.
-//
-// Arguments:
-//   s      The scale factor to use.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    July 18, 2003
-//
-// *********************************************************************
-
 void vtkAxisActor::SetTitleScale(const double s)
 {
   this->TitleActor->SetScale(s);
 }
 
 // *********************************************************************
-// Method:  vtkAxisActor::SetTitle
-//
-// Purpose: Sets the text for the title.
-//
-// Notes:   Not using vtkSetStringMacro so that the modification time of
-//          the text can be kept (so the title will be updated as
-//          appropriate when the text changes.)
-//
-// Arguments:
-//   t          The text to use.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    August 31, 2004
-//
-// *********************************************************************
-
 void vtkAxisActor::SetTitle(const char *t)
 {
   if (this->Title == NULL && t == NULL)
@@ -2411,27 +2363,7 @@ void vtkAxisActor::SetTitle(const char *t)
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::SetTitleTextProperty
-//
-// Purpose: 
-//   Sets the title text property that we should use.
-//
-// Arguments:
-//   prop : The new text property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Brad Whitlock
-// Creation:   Thu Mar 27 10:53:04 PDT 2008
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-void
-vtkAxisActor::SetTitleTextProperty(vtkTextProperty *prop)
+void vtkAxisActor::SetTitleTextProperty(vtkTextProperty *prop)
 {
   if(this->TitleTextProperty != NULL)
     this->TitleTextProperty->Delete();
@@ -2442,27 +2374,7 @@ vtkAxisActor::SetTitleTextProperty(vtkTextProperty *prop)
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::SetLabelTextProperty
-//
-// Purpose: 
-//   Sets the label text property that we should use.
-//
-// Arguments:
-//   prop : The new text property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Brad Whitlock
-// Creation:   Thu Mar 27 10:53:04 PDT 2008
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-void
-vtkAxisActor::SetLabelTextProperty(vtkTextProperty *prop)
+void vtkAxisActor::SetLabelTextProperty(vtkTextProperty *prop)
 {
   if(this->LabelTextProperty != NULL)
     this->LabelTextProperty->Delete();
@@ -2473,182 +2385,59 @@ vtkAxisActor::SetLabelTextProperty(vtkTextProperty *prop)
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::SetAxisProperty
-//
-// Purpose: 
-//   Sets the axis property that we should use.
-//
-// Arguments:
-//   prop : The new property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-void
-vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
+void vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
 {
   this->AxisLinesActor->SetProperty(prop);
   this->Modified();
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::GetAxisProperty
-//
-// Purpose: 
-//   Gets the axis property
-//
-// Returns:    
-//   The axis property
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-vtkProperty*
-vtkAxisActor::GetAxisLinesProperty()
+vtkProperty* vtkAxisActor::GetAxisLinesProperty()
 {
   return this->AxisLinesActor->GetProperty();
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::SetGridlinesProperty
-//
-// Purpose: 
-//   Sets the gridlines property that we should use.
-//
-// Arguments:
-//   prop : The new property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-void
-vtkAxisActor::SetGridlinesProperty(vtkProperty *prop)
+void vtkAxisActor::SetGridlinesProperty(vtkProperty *prop)
 {
   this->GridlinesActor->SetProperty(prop);
+  this->Modified();
+}
+
+// ****************************************************************************
+vtkProperty* vtkAxisActor::GetGridlinesProperty()
+{
+  return this->GridlinesActor->GetProperty();
+}
+
+// ****************************************************************************
+void vtkAxisActor::SetInnerGridlinesProperty(vtkProperty *prop)
+{
   this->InnerGridlinesActor->SetProperty(prop);
   this->Modified();
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::GetGridlinesProperty
-//
-// Purpose: 
-//   Gets the gridlines property
-//
-// Returns:    
-//   The gridpolys property
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-vtkProperty*
-vtkAxisActor::GetGridlinesProperty()
+vtkProperty* vtkAxisActor::GetInnerGridlinesProperty()
 {
-  return this->GridlinesActor->GetProperty();
+  return this->InnerGridlinesActor->GetProperty();
 }
 
-
 // ****************************************************************************
-// Method: vtkAxisActor::SetGridpolysProperty
-//
-// Purpose: 
-//   Sets the gridpolys property that we should use.
-//
-// Arguments:
-//   prop : The new property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-void
-vtkAxisActor::SetGridpolysProperty(vtkProperty *prop)
+void vtkAxisActor::SetGridpolysProperty(vtkProperty *prop)
 {
   this->GridpolysActor->SetProperty(prop);
   this->Modified();
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::GetGridpolysProperty
-//
-// Purpose: 
-//   Gets the gridpolys property
-//
-// Returns:    
-//   The gridpolys property
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-
-vtkProperty*
-vtkAxisActor::GetGridpolysProperty()
+vtkProperty* vtkAxisActor::GetGridpolysProperty()
 {
   return this->GridpolysActor->GetProperty();
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::GetDeltaMajor
-//
-// Purpose: 
-//   Gets the DeltaMajor for a given axis of the box
-//
-// Arguments:    
-//   axis : The axis
-//
-// Returns:    
-//   The DeltaMajor
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-double
-vtkAxisActor::GetDeltaMajor(int axis){
+double vtkAxisActor::GetDeltaMajor(int axis){
   if(axis>=0 && axis<=2)
     {
     return (this->DeltaMajor[axis]);
@@ -2656,55 +2445,15 @@ vtkAxisActor::GetDeltaMajor(int axis){
   return 0;
 }
 
-// ****************************************************************************
-// Method: vtkAxisActor::SetDeltaMajor
-//
-// Purpose: 
-//   Sets the DeltaMajor for a given axis of the box
-//
-// Arguments:    
-//   axis : The axis
-//   value : The deltaMajor value to set to the given axis
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-void
-vtkAxisActor::SetDeltaMajor(int axis, double value){
+void vtkAxisActor::SetDeltaMajor(int axis, double value){
   if(axis>=0 && axis<=2)
     {
     this->DeltaMajor[axis] = value;
     }
 }
 
-
 // ****************************************************************************
-// Method: vtkAxisActor::GetMajorStart
-//
-// Purpose: 
-//   Gets the MajorStart for a given axis of the box
-//
-// Arguments:    
-//   axis : The axis
-//
-// Returns:    
-//   The GetMajorStart
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-double
-vtkAxisActor::GetMajorStart(int axis){
+double vtkAxisActor::GetMajorStart(int axis){
   if(axis>=0 && axis<=2)
     {
     return (this->MajorStart[axis]);
@@ -2713,47 +2462,13 @@ vtkAxisActor::GetMajorStart(int axis){
 }
 
 // ****************************************************************************
-// Method: vtkAxisActor::SetMajorStart
-//
-// Purpose: 
-//   Sets the MajorStart for a given axis of the box
-//
-// Arguments:    
-//   axis : The axis
-//   value : The MajorStart value to set to the given axis
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 april 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-void
-vtkAxisActor::SetMajorStart(int axis, double value){
+void vtkAxisActor::SetMajorStart(int axis, double value){
   if(axis>=0 && axis<=2)
     {
     this->MajorStart[axis] = value;
     }
 }
 
-// ****************************************************************************
-// Method: vtkAxisActor::BoundsDisplayCoordinateChanged
-//
-// Purpose: 
-//   Returns true if the bounds in display coordinate have changed since the last build
-//
-// Arguments:    
-//   viewport : The viewport
-//
-// Note:       
-//
-// Programmer: Claire Guilbaud
-// Creation:   May 18 2010
-//
-// Modifications:
-//   
 // ****************************************************************************
 bool vtkAxisActor::BoundsDisplayCoordinateChanged(vtkViewport *viewport)
 {

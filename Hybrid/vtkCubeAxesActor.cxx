@@ -81,16 +81,23 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
 
+  // Axis lines
   this->XAxesLinesProperty = vtkProperty::New();
   this->YAxesLinesProperty = vtkProperty::New();
   this->ZAxesLinesProperty = vtkProperty::New();
 
+  // Outer grid lines
   this->XAxesGridlinesProperty = vtkProperty::New();
   this->YAxesGridlinesProperty = vtkProperty::New();
   this->ZAxesGridlinesProperty = vtkProperty::New();
-  this->XAxesGridlinesProperty->SetColor(.3,.6,.1);
-  this->YAxesGridlinesProperty->SetColor(.3,.6,.1);
-  this->ZAxesGridlinesProperty->SetColor(.3,.6,.1);
+
+  // Inner grid lines
+  this->XAxesInnerGridlinesProperty = vtkProperty::New();
+  this->YAxesInnerGridlinesProperty = vtkProperty::New();
+  this->ZAxesInnerGridlinesProperty = vtkProperty::New();
+  this->XAxesInnerGridlinesProperty->SetColor(.3,.6,.1);
+  this->YAxesInnerGridlinesProperty->SetColor(.3,.6,.1);
+  this->ZAxesInnerGridlinesProperty->SetColor(.3,.6,.1);
 
   this->XAxesGridpolysProperty = vtkProperty::New();
   this->YAxesGridpolysProperty = vtkProperty::New();

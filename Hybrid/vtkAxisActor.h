@@ -209,9 +209,14 @@ public:
   vtkProperty* GetAxisLinesProperty();
 
   // Description:
-  // Get/Set gridlines actor property (grid lines)
+  // Get/Set gridlines actor property (outer grid lines)
   void SetGridlinesProperty(vtkProperty *);
   vtkProperty* GetGridlinesProperty();
+
+  // Description:
+  // Get/Set inner gridlines actor property
+  void SetInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetInnerGridlinesProperty();
 
   // Description:
   // Get/Set gridPolys actor property (grid quads)
