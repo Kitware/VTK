@@ -25,6 +25,7 @@
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
 #include "vtkVectorText.h"
+#include "vtkTextActor.h"
 #include "vtkViewport.h"
 
 // ****************************************************************
@@ -107,6 +108,21 @@ vtkAxisActor::vtkAxisActor()
   this->AxisMapper->SetInput(this->Axis);
   this->AxisActor = vtkActor::New();
   this->AxisActor->SetMapper(this->AxisMapper);
+  this->Gridlines = vtkPolyData::New();
+  this->GridlinesMapper = vtkPolyDataMapper::New();
+  this->GridlinesMapper->SetInput(this->Gridlines);
+  this->GridlinesActor = vtkActor::New();
+  this->GridlinesActor->SetMapper(this->GridlinesMapper);
+  this->InnerGridlines = vtkPolyData::New();
+  this->InnerGridlinesMapper = vtkPolyDataMapper::New();
+  this->InnerGridlinesMapper->SetInput(this->InnerGridlines);
+  this->InnerGridlinesActor = vtkActor::New();
+  this->InnerGridlinesActor->SetMapper(this->InnerGridlinesMapper);
+  this->Gridpolys = vtkPolyData::New();
+  this->GridpolysMapper = vtkPolyDataMapper::New();
+  this->GridpolysMapper->SetInput(this->Gridpolys);
+  this->GridpolysActor = vtkActor::New();
+  this->GridpolysActor->SetMapper(this->GridpolysMapper);
 
   this->AxisVisibility = 1;
   this->TickVisibility = 1;
@@ -117,6 +133,10 @@ vtkAxisActor::vtkAxisActor()
   this->GridlineXLength = 1.;
   this->GridlineYLength = 1.;
   this->GridlineZLength = 1.;
+
+  this->DrawInnerGridlines = 0;
+
+  this->DrawGridpolys = 0;
 
   this->AxisType = VTK_AXIS_TYPE_X;
   //
@@ -139,6 +159,8 @@ vtkAxisActor::vtkAxisActor()
   this->MinorTickPts = vtkPoints::New();
   this->MajorTickPts = vtkPoints::New();
   this->GridlinePts  = vtkPoints::New();
+  this->InnerGridlinePts  = vtkPoints::New();
+  this->GridpolyPts  = vtkPoints::New();
 
   this->AxisHasZeroLength = false;
 
@@ -238,6 +260,54 @@ vtkAxisActor::~vtkAxisActor()
     this->AxisActor = NULL;
     }
 
+  if (this->Gridlines)
+    {
+    this->Gridlines->Delete();
+    this->Gridlines = NULL;
+    }
+  if (this->GridlinesMapper)
+    {
+    this->GridlinesMapper->Delete();
+    this->GridlinesMapper = NULL;
+    }
+  if (this->GridlinesActor)
+    {
+    this->GridlinesActor->Delete();
+    this->GridlinesActor = NULL;
+    }
+
+  if (this->InnerGridlines)
+    {
+    this->InnerGridlines->Delete();
+    this->InnerGridlines = NULL;
+    }
+  if (this->InnerGridlinesMapper)
+    {
+    this->InnerGridlinesMapper->Delete();
+    this->InnerGridlinesMapper = NULL;
+    }
+  if (this->InnerGridlinesActor)
+    {
+    this->InnerGridlinesActor->Delete();
+    this->InnerGridlinesActor = NULL;
+    }
+
+  if (this->Gridpolys)
+    {
+    this->Gridpolys->Delete();
+    this->Gridpolys = NULL;
+    }
+  if (this->GridpolysMapper)
+    {
+    this->GridpolysMapper->Delete();
+    this->GridpolysMapper = NULL;
+    }
+  if (this->GridpolysActor)
+    {
+    this->GridpolysActor->Delete();
+    this->GridpolysActor = NULL;
+    }
+
   if (this->MinorTickPts)
     {
     this->MinorTickPts ->Delete();
@@ -253,6 +323,16 @@ vtkAxisActor::~vtkAxisActor()
     this->GridlinePts->Delete();
     this->GridlinePts = NULL;
     }
+  if (this->InnerGridlinePts)
+    {
+    this->InnerGridlinePts->Delete();
+    this->InnerGridlinePts = NULL; 
+    }
+  if (this->GridpolyPts)
+    {
+    this->GridpolyPts->Delete();
+    this->GridpolyPts = NULL; 
+    }
 }
 
 // Release any graphics resources that are being consumed by this actor.
@@ -266,6 +346,9 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
     this->LabelActors[i]->ReleaseGraphicsResources(win);
     }
   this->AxisActor->ReleaseGraphicsResources(win);
+  this->GridlinesActor->ReleaseGraphicsResources(win);
+  this->InnerGridlinesActor->ReleaseGraphicsResources(win);
+  this->GridpolysActor->ReleaseGraphicsResources(win);
 }
 
 // ****************************************************************
@@ -336,7 +419,14 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       renderedSomething += this->AxisActor->RenderOpaqueGeometry(viewport);
       }
-
+    if(this->DrawGridlines)
+      {
+      renderedSomething += this->GridlinesActor->RenderOpaqueGeometry(viewport);
+      }
+    if(this->DrawInnerGridlines)
+      {
+      renderedSomething += this->InnerGridlinesActor->RenderOpaqueGeometry(viewport);
+      }
     if (this->LabelVisibility)
       {
       for (i=0; i<this->NumberOfLabelsBuilt; i++)
@@ -348,6 +438,104 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   return renderedSomething;
+}
+
+// ****************************************************************
+// Build the translucent poly actors and render.
+//
+// ****************************************************************
+
+int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
+{
+
+  int renderedSomething=0;
+
+  this->BuildAxis(viewport, false);
+  
+  // Everything is built, just have to render
+  
+  if (!this->AxisHasZeroLength)
+    {
+    if(this->DrawGridpolys)
+      {
+      renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
+      }
+    }
+  
+  return renderedSomething;
+}
+
+
+
+// ****************************************************************
+// Build the translucent poly actors and render.
+//
+// ****************************************************************
+
+int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
+{
+
+  int renderedSomething=0;
+
+  this->BuildAxis(viewport, false);
+  
+  // Everything is built, just have to render
+  
+  if (!this->AxisHasZeroLength)
+    {
+    if(this->DrawGridpolys)
+      {
+      renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
+      }
+    }
+  
+  return renderedSomething;
+}
+
+// ****************************************************************
+// Render the 2d annotations.
+//
+// Modifications:
+//    Claire Guilbaud, Tue Apr 20 15:11:46 CEST 2010
+//    Method's creation
+//
+// ****************************************************************
+
+int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
+{
+  int i, renderedSomething=0;
+  
+  // Everything is built, just have to render
+  if (!this->AxisHasZeroLength)
+    {
+    if( this->Use2DMode == 1 )
+      {
+      renderedSomething += this->TitleActor2D->RenderOverlay(viewport);
+      }
+    if (this->LabelVisibility)
+      {
+      for (i=0; i<this->NumberOfLabelsBuilt; i++)
+        {
+        if (this->Use2DMode == 1)
+          {
+          renderedSomething += this->LabelActors2D[i]->RenderOverlay(viewport);
+          }
+        }
+      }
+    }
+     
+  return renderedSomething;
+}
+
+
+// ****************************************************************
+// Tells whether there is translucent geometry to draw
+//
+// ****************************************************************
+
+int vtkAxisActor::HasTranslucentPolygonalGeometry()
+{
+  return 1;
 }
 
 // **************************************************************************
@@ -960,6 +1148,8 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   this->MinorTickPts->Reset();
   this->MajorTickPts->Reset();
   this->GridlinePts->Reset();
+  this->InnerGridlinePts->Reset();
+  this->GridpolyPts->Reset();
 
   //
   // Ymult & Zmult control adjustments to tick position based
@@ -1111,6 +1301,9 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
   this->MinorTickPts->Reset();
   this->MajorTickPts->Reset();
   this->GridlinePts->Reset();
+  this->InnerGridlinePts->Reset();
+  this->GridpolyPts->Reset();
+
   //
   // xMult & zMult control adjustments to tick position based
   // upon "where" this axis is located in relation to the underlying
@@ -1264,6 +1457,8 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   this->MinorTickPts->Reset();
   this->MajorTickPts->Reset();
   this->GridlinePts->Reset();
+  this->InnerGridlinePts->Reset();
+  this->GridpolyPts->Reset();
 
   //
   // xMult & yMult control adjustments to tick position based
@@ -1410,47 +1605,51 @@ void vtkAxisActor::SetAxisPointsAndLines()
 {
   vtkPoints *pts = vtkPoints::New();
   vtkCellArray *lines = vtkCellArray::New();
+  vtkCellArray *gridlines = vtkCellArray::New();
+  vtkCellArray *innerGridlines = vtkCellArray::New();
+  vtkCellArray *polys = vtkCellArray::New();
   this->Axis->SetPoints(pts);
   this->Axis->SetLines(lines);
+  this->Gridlines->SetPoints(this->GridlinePts);
+  this->Gridlines->SetLines(gridlines);
+  this->InnerGridlines->SetPoints(this->InnerGridlinePts);
+  this->InnerGridlines->SetLines(innerGridlines);
+  this->Gridpolys->SetPoints(this->GridpolyPts);
+  this->Gridpolys->SetPolys(polys);
   pts->Delete();
   lines->Delete();
-  int i, numPts, numLines;
+  int i, numMinorTickPts, numGridlines, numInnerGridlines, numMajorTickPts, numGridpolys, numLines; 
   vtkIdType ptIds[2];
+  vtkIdType polyPtIds[4];
 
   if (this->TickVisibility)
     {
     if (this->MinorTicksVisible)
       {
-      numPts = this->MinorTickPts->GetNumberOfPoints();
-      for (i = 0; i < numPts; i++)
+      // In 2D mode, the minorTickPts for yz-portion or xz-portion have been removed.
+      numMinorTickPts = this->MinorTickPts->GetNumberOfPoints();
+      for (i = 0; i < numMinorTickPts; i++)
         {
         pts->InsertNextPoint(this->MinorTickPts->GetPoint(i));
         }
       }
-
-    if (this->DrawGridlines)
+    numMajorTickPts = this->MajorTickPts->GetNumberOfPoints();
+    if (this->Use2DMode == 0)
       {
-      numPts = this->GridlinePts->GetNumberOfPoints();
-      for (i = 0; i < numPts; i++)
-        {
-        pts->InsertNextPoint(this->GridlinePts->GetPoint(i));
-        }
-      }
-    else  // major tick points
-      {
-      numPts = this->MajorTickPts->GetNumberOfPoints();
-      for (i = 0; i < numPts; i++)
+      for (i = 0; i < numMajorTickPts; i++)
         {
         pts->InsertNextPoint(this->MajorTickPts->GetPoint(i));
         }
       }
-    }
-  else if (this->DrawGridlines) // grids are enabled but ticks are off
-    {
-    numPts = this->GridlinePts->GetNumberOfPoints();
-    for (i = 0; i < numPts; i++)
+    else
       {
-      pts->InsertNextPoint(this->GridlinePts->GetPoint(i));
+      // In 2D mode, we don't need the pts for the xz-portion or yz-portion of the major tickmarks
+      // majorTickPts not modified because all points are used for labels' positions.
+      for (i = 0; i < numMajorTickPts; i+=4)
+        {
+        pts->InsertNextPoint(this->MajorTickPts->GetPoint(i));
+        pts->InsertNextPoint(this->MajorTickPts->GetPoint(i+1));
+        }
       }
     }
 
@@ -1470,6 +1669,43 @@ void vtkAxisActor::SetAxisPointsAndLines()
     //last axis point
     ptIds[1] = pts->InsertNextPoint(this->Point2Coordinate->GetValue());
     lines->InsertNextCell(2, ptIds);
+    }
+  // create grid lines
+  if (this->DrawGridlines)
+    {
+    numGridlines = this->GridlinePts->GetNumberOfPoints()/2;
+    for (i=0; i < numGridlines; i++)
+      {
+      ptIds[0] = 2*i;
+      ptIds[1] = 2*i + 1;
+      gridlines->InsertNextCell(2, ptIds);
+      }
+    }
+
+  // create inner grid lines
+  if (this->DrawInnerGridlines)
+    {
+    numInnerGridlines = this->InnerGridlinePts->GetNumberOfPoints()/2;
+    for (i=0; i < numInnerGridlines; i++)
+      {
+      ptIds[0] = 2*i;
+      ptIds[1] = 2*i + 1;
+      innerGridlines->InsertNextCell(2, ptIds);
+      }
+    }
+
+  // create polys (grid polys)
+  if (this->DrawGridpolys)
+    {
+    numGridpolys = this->GridpolyPts->GetNumberOfPoints()/4;
+    for (i = 0; i < numGridpolys; i++)
+      {
+      polyPtIds[0] = 4*i;
+      polyPtIds[1] = 4*i + 1;
+      polyPtIds[2] = 4*i + 2;
+      polyPtIds[3] = 4*i + 3;
+      polys->InsertNextCell(4,polyPtIds);
+      }
     }
 }
 
@@ -1735,6 +1971,161 @@ void vtkAxisActor::SetTitle(const char *t)
     }
   this->TitleTextTime.Modified();
   this->Modified();
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::SetAxisProperty
+//
+// Purpose: 
+//   Sets the axis property that we should use.
+//
+// Arguments:
+//   prop : The new property.
+//
+// Returns:    
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+
+void
+vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
+{
+  this->AxisActor->SetProperty(prop);
+  this->Modified();
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::GetAxisProperty
+//
+// Purpose: 
+//   Gets the axis property
+//
+// Returns:    
+//   The axis property
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+
+vtkProperty*
+vtkAxisActor::GetAxisLinesProperty()
+{
+  return this->AxisActor->GetProperty();
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::SetGridlinesProperty
+//
+// Purpose: 
+//   Sets the gridlines property that we should use.
+//
+// Arguments:
+//   prop : The new property.
+//
+// Returns:    
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+
+void
+vtkAxisActor::SetGridlinesProperty(vtkProperty *prop)
+{
+  this->GridlinesActor->SetProperty(prop);
+  this->InnerGridlinesActor->SetProperty(prop);
+  this->Modified();
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::GetGridlinesProperty
+//
+// Purpose: 
+//   Gets the gridlines property
+//
+// Returns:    
+//   The gridpolys property
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+
+vtkProperty*
+vtkAxisActor::GetGridlinesProperty()
+{
+  return this->GridlinesActor->GetProperty();
+}
+
+
+// ****************************************************************************
+// Method: vtkAxisActor::SetGridpolysProperty
+//
+// Purpose: 
+//   Sets the gridpolys property that we should use.
+//
+// Arguments:
+//   prop : The new property.
+//
+// Returns:    
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+
+void
+vtkAxisActor::SetGridpolysProperty(vtkProperty *prop)
+{
+  this->GridpolysActor->SetProperty(prop);
+  this->Modified();
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::GetGridpolysProperty
+//
+// Purpose: 
+//   Gets the gridpolys property
+//
+// Returns:    
+//   The gridpolys property
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+
+vtkProperty*
+vtkAxisActor::GetGridpolysProperty()
+{
+  return this->GridpolysActor->GetProperty();
 }
 
 //---------------------------------------------------------------------------

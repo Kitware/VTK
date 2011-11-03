@@ -80,7 +80,9 @@ class vtkFollower;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkProperty2D;
 class vtkStringArray;
+class vtkTextActor;
 class vtkVectorText;
 
 class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
@@ -186,6 +188,21 @@ public:
   vtkBooleanMacro(TitleVisibility, int);
 
   // Description:
+  // Get/Set axis actor property (axis and its ticks)
+  void SetAxisLinesProperty(vtkProperty *);
+  vtkProperty* GetAxisLinesProperty();
+
+  // Description:
+  // Get/Set gridlines actor property (grid lines)
+  void SetGridlinesProperty(vtkProperty *);
+  vtkProperty* GetGridlinesProperty();
+
+  // Description:
+  // Get/Set gridPolys actor property (grid quads)
+  void SetGridpolysProperty(vtkProperty *);
+  vtkProperty* GetGridpolysProperty();
+
+  // Description:
   // Set/Get whether gridlines should be drawn.
   vtkSetMacro(DrawGridlines, int);
   vtkGetMacro(DrawGridlines, int);
@@ -248,7 +265,10 @@ public:
   // Description:
   // Draw the axis.
   virtual int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentGeometry(vtkViewport* viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
+  virtual int RenderOverlay(vtkViewport* viewport);
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -332,6 +352,10 @@ public:
   vtkGetMacro(CalculateLabelOffset, int);
   vtkBooleanMacro(CalculateLabelOffset, int);
 
+ // Set/Get the 2D mode (2D/3D)
+ vtkSetMacro(Use2DMode, int);
+ vtkGetMacro(Use2DMode, int);
+      
 
 protected:
   vtkAxisActor();
@@ -419,10 +443,12 @@ private:
   vtkVectorText     *TitleVector;
   vtkPolyDataMapper *TitleMapper;
   vtkAxisFollower   *TitleActor;
+  vtkTextActor      *TitleActor2D;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
   vtkAxisFollower   **LabelActors;
+  vtkTextActor      **LabelActors2D;
 
   vtkPolyData        *Axis;
   vtkPolyDataMapper  *AxisMapper;
@@ -447,6 +473,16 @@ private:
 
   int                 CalculateTitleOffset;
   int                 CalculateLabelOffset;
+  //! axis in 2D mode
+  int                 Use2DMode;
+  /*! use when Use2DMode=1 (2D axis):
+        \note 
+        \li val = 0 : no need to save position (doesn't stick actors in a position)
+        \li val = 1 : positions have to be saved during the next render pass
+        \li val = 2 : positions are saved -> used them
+  */
+  //! true if the 2D title have to be built, false otherwise
+  bool                NeedBuild2D;
 };
 
 
