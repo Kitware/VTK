@@ -281,6 +281,33 @@ public:
   vtkBooleanMacro(DrawZGridpolys,int);
 
   // Description:
+  // Get/Set axes actors properties.
+  void SetXAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesLinesProperty();
+  void SetYAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesLinesProperty();
+  void SetZAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesLinesProperty();
+
+  // Description:
+  // Get/Set axes gridlines actors properties.
+  void SetXAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesGridlinesProperty();
+  void SetYAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesGridlinesProperty();
+  void SetZAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesGridlinesProperty();
+
+  // Description:
+  // Get/Set axes gridPolys actors properties.
+  void SetXAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetXAxesGridpolysProperty();
+  void SetYAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetYAxesGridpolysProperty();
+  void SetZAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetZAxesGridpolysProperty();
+
+  // Description:
   // Set/Get the location of ticks marks.
   vtkSetClampMacro(TickLocation, int, VTK_TICKS_INSIDE, VTK_TICKS_BOTH);
   vtkGetMacro(TickLocation, int);
@@ -384,6 +411,16 @@ protected:
 
   double LabelScreenOffset;
   double TitleScreenOffset;
+
+  vtkProperty  *XAxesLinesProperty;
+  vtkProperty  *YAxesLinesProperty;
+  vtkProperty  *ZAxesLinesProperty;
+  vtkProperty  *XAxesGridlinesProperty;
+  vtkProperty  *YAxesGridlinesProperty;
+  vtkProperty  *ZAxesGridlinesProperty;
+  vtkProperty  *XAxesGridpolysProperty;
+  vtkProperty  *YAxesGridpolysProperty;
+  vtkProperty  *ZAxesGridpolysProperty;
 
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
