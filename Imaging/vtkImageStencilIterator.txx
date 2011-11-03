@@ -335,7 +335,9 @@ void vtkImageStencilIterator<DType>::NextSpan()
       if ((this->SpanIndexY >= this->SpanMinY) &&
           (this->SpanIndexY <= this->SpanMaxY) &&
           (this->SpanIndexZ >= this->SpanMinZ) &&
-          (this->SpanIndexZ <= this->SpanMaxZ))
+          (this->SpanIndexZ <= this->SpanMaxZ) &&
+          ((this->SpanIndexY < this->SpanMaxY) ||
+           (this->SpanIndexZ < this->SpanMaxZ)))
         {
         this->SpanCountPointer += spanIncr;
         this->SpanListPointer += spanIncr;
