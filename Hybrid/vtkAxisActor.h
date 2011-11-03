@@ -308,12 +308,16 @@ public:
   // and the delta values that determine their spacing.
   vtkSetMacro(MinorStart, double);
   vtkGetMacro(MinorStart, double);
-  vtkSetMacro(MajorStart, double);
-  vtkGetMacro(MajorStart, double);
+  double GetMajorStart(int axis);
+  void SetMajorStart(int axis,double value);
+  //vtkSetMacro(MajorStart, double);
+  //vtkGetMacro(MajorStart, double);
   vtkSetMacro(DeltaMinor, double);
   vtkGetMacro(DeltaMinor, double);
-  vtkSetMacro(DeltaMajor, double);
-  vtkGetMacro(DeltaMajor, double);
+  double GetDeltaMajor(int axis);
+  void SetDeltaMajor(int axis,double value);
+  //vtkSetMacro(DeltaMajor, double);
+  //vtkGetMacro(DeltaMajor, double);
 
   // Description:
   // Set/Get the starting position for minor and major tick points on
@@ -440,12 +444,11 @@ private:
   double  MajorTickSize;
   double  MinorTickSize;
 
-  // for the positions
-  double  MajorStart;
+  // For each axis (for the inner gridline generation)
+  double  MajorStart[3];
+  double  DeltaMajor[3];
   double  MinorStart;
-
   double  DeltaMinor;
-  double  DeltaMajor;
 
   // For the ticks, w.r.t to the set range
   double  MajorRangeStart;

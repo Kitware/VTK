@@ -2364,10 +2364,10 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     axes[i]->SetMinorStart(minorStart);
-    axes[i]->SetMajorStart(majorStart);
+    axes[i]->SetMajorStart(axes[0]->GetAxisType(), majorStart);
 
     axes[i]->SetDeltaMinor(minor);
-    axes[i]->SetDeltaMajor(major);
+    axes[i]->SetDeltaMajor(axes[0]->GetAxisType(), major);
     }
 }
 
@@ -2450,10 +2450,10 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
 {
   char label[64];
   int i, labelCount = 0;
-  double deltaMajor = axes[0]->GetDeltaMajor();
+  double deltaMajor = axes[0]->GetDeltaMajor(axes[0]->GetAxisType());
   const double *p2  = axes[0]->GetPoint2Coordinate()->GetValue();
   double *range     = axes[0]->GetRange();
-  double lastVal = 0, val = axes[0]->GetMajorStart();
+  double lastVal = 0, val = axes[0]->GetMajorStart(axes[0]->GetAxisType());
   double extents = range[1] - range[0];
   bool mustAdjustValue = 0;
   int lastPow = 0;

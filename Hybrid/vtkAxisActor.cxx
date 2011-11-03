@@ -184,9 +184,18 @@ vtkAxisActor::vtkAxisActor()
   this->AxisHasZeroLength = false;
 
   this->MinorStart = 0.;
-  this->MajorStart = 0.;
+  //this->MajorStart = 0.;
+  for(int i=0;i<3;i++)
+    {
+    this->MajorStart[i] = 0.;
+    }
   this->DeltaMinor = 1.;
-  this->DeltaMajor = 1.;
+  //this->DeltaMajor = 1.;
+  for(int i=0;i<3;i++)
+    {
+    this->DeltaMajor[i] = 1.;
+    }
+
   this->MinorRangeStart = 0.;
   this->MajorRangeStart = 0.;
   this->DeltaRangeMinor = 1.;
@@ -1457,7 +1466,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
   xPoint2[2] = p1[2] - zMult * this->GridlineZLength;
   //*********** gridline ***********
-  x = this->MajorStart;
+  x = this->MajorStart[0];
   numTicks = 0;
   while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
     {
@@ -1468,7 +1477,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     // xz portion
     this->GridlinePts->InsertNextPoint(xPoint2);
     this->GridlinePts->InsertNextPoint(zPoint);
-    x += this->DeltaMajor;
+    x += this->DeltaMajor[0];
     numTicks++;
     }
 
@@ -1479,7 +1488,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   gp2[1]=p1[1]- yMult * this->GridlineYLength;gp2[2]=p1[2];
   gp3[1]=p1[1]- yMult * this->GridlineYLength;gp3[2]=p1[2]- zMult * this->GridlineZLength;
   gp4[1]=p1[1];gp4[2]=p1[2]- zMult * this->GridlineZLength;
-  x = this->MajorStart;
+  x = this->MajorStart[0];
   numTicks = 0;
   while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
     {
@@ -1488,7 +1497,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     this->GridpolyPts->InsertNextPoint(gp2);
     this->GridpolyPts->InsertNextPoint(gp3);
     this->GridpolyPts->InsertNextPoint(gp4);
-    x += this->DeltaMajor;
+    x += this->DeltaMajor[0];
     numTicks++;
     }
 
@@ -1518,7 +1527,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     xPoint1[1] = p1[1] - yMult * this->MajorTickSize;
     xPoint2[2] = p1[2] - zMult * this->MajorTickSize;
     }
-  x = this->MajorStart;
+  x = this->MajorStart[0];
   numTicks = 0;
   while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
     {
@@ -1529,7 +1538,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     // xz portion
     this->MajorTickPts->InsertNextPoint(xPoint2);
     this->MajorTickPts->InsertNextPoint(zPoint);
-    x += this->DeltaMajor;
+    x += this->DeltaMajor[0];
     numTicks++;
     }
 
@@ -1637,7 +1646,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
   yPoint2[0] = xPoint[0] = zPoint[0]  = p1[0];
   yPoint1[2] = xPoint[2] = zPoint[2]  = p1[2];
   //*********** gridline ***********
-  y = this->MajorStart;
+  y = this->MajorStart[1];
   numTicks = 0;
   while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
     {
@@ -1651,7 +1660,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
       this->GridlinePts->InsertNextPoint(yPoint2);
       this->GridlinePts->InsertNextPoint(zPoint);
       }
-    y += this->DeltaMajor;
+    y += this->DeltaMajor[1];
     numTicks++;
     }
 
@@ -1662,7 +1671,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
   gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[2]=p1[2];
   gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[2]=p1[2]- zMult * this->GridlineZLength;
   gp4[0]=p1[0];gp4[2]=p1[2]- zMult * this->GridlineZLength;
-  y = this->MajorStart;
+  y = this->MajorStart[1];
   numTicks = 0;
   while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
     {
@@ -1672,7 +1681,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     this->GridpolyPts->InsertNextPoint(gp3);
     this->GridpolyPts->InsertNextPoint(gp4);
     numTicks++;
-    y += this->DeltaMajor;
+    y += this->DeltaMajor[1];
     }
 
   //
@@ -1701,7 +1710,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     xPoint[0]  = p1[0] + xMult * this->MajorTickSize;
     zPoint[2]  = p1[2] - zMult * this->MajorTickSize;
     }
-  y = this->MajorStart;
+  y = this->MajorStart[1];
   numTicks = 0;
   while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
     {
@@ -1712,7 +1721,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     // yz portion
     this->MajorTickPts->InsertNextPoint(yPoint2);
     this->MajorTickPts->InsertNextPoint(zPoint);
-    y += this->DeltaMajor;
+    y += this->DeltaMajor[1];
     numTicks++;
     }
   return true;
@@ -1819,7 +1828,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   zPoint1[1] = xPoint[1] = yPoint[1] = p1[1];
   zPoint2[0] = xPoint[0] = yPoint[0] = p1[0];
   //*********** gridline ***********
-  z = this->MajorStart;
+  z = this->MajorStart[2];
   numTicks = 0;
   while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
     {
@@ -1830,7 +1839,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     // zy portion
     this->GridlinePts->InsertNextPoint(zPoint2);
     this->GridlinePts->InsertNextPoint(yPoint);
-    z += this->DeltaMajor;
+    z += this->DeltaMajor[2];
     numTicks++;
     }
 
@@ -1841,7 +1850,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[1]=p1[1];
   gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[1]=p1[1]- yMult * this->GridlineYLength;
   gp4[0]=p1[0];gp4[1]=p1[1]- yMult * this->GridlineYLength;
-  z = this->MajorStart;
+  z = this->MajorStart[2];
   numTicks = 0;
   while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
     {
@@ -1850,7 +1859,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     this->GridpolyPts->InsertNextPoint(gp2);
     this->GridpolyPts->InsertNextPoint(gp3);
     this->GridpolyPts->InsertNextPoint(gp4);
-    z += this->DeltaMajor;
+    z += this->DeltaMajor[2];
     numTicks++;
     }
 
@@ -1880,7 +1889,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     zPoint1[1] = xPoint[1] = p1[1];
     zPoint2[0] = yPoint[0] = p1[0];
     }
-  z = this->MajorStart;
+  z = this->MajorStart[2];
   numTicks = 0;
   while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
     {
@@ -1891,7 +1900,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     // zy portion
     this->MajorTickPts->InsertNextPoint(zPoint2);
     this->MajorTickPts->InsertNextPoint(yPoint);
-    z += this->DeltaMajor;
+    z += this->DeltaMajor[2];
     numTicks++;
     }
   return true;
@@ -2504,6 +2513,117 @@ vtkProperty*
 vtkAxisActor::GetGridpolysProperty()
 {
   return this->GridpolysActor->GetProperty();
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::GetDeltaMajor
+//
+// Purpose: 
+//   Gets the DeltaMajor for a given axis of the box
+//
+// Arguments:    
+//   axis : The axis
+//
+// Returns:    
+//   The DeltaMajor
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+double
+vtkAxisActor::GetDeltaMajor(int axis){
+  if(axis>=0 && axis<=2)
+    {
+    return (this->DeltaMajor[axis]);
+    }
+  return 0;
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::SetDeltaMajor
+//
+// Purpose: 
+//   Sets the DeltaMajor for a given axis of the box
+//
+// Arguments:    
+//   axis : The axis
+//   value : The deltaMajor value to set to the given axis
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+void
+vtkAxisActor::SetDeltaMajor(int axis, double value){
+  if(axis>=0 && axis<=2)
+    {
+    this->DeltaMajor[axis] = value;
+    }
+}
+
+
+// ****************************************************************************
+// Method: vtkAxisActor::GetMajorStart
+//
+// Purpose: 
+//   Gets the MajorStart for a given axis of the box
+//
+// Arguments:    
+//   axis : The axis
+//
+// Returns:    
+//   The GetMajorStart
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+double
+vtkAxisActor::GetMajorStart(int axis){
+  if(axis>=0 && axis<=2)
+    {
+    return (this->MajorStart[axis]);
+    }
+  return 0;
+}
+
+// ****************************************************************************
+// Method: vtkAxisActor::SetMajorStart
+//
+// Purpose: 
+//   Sets the MajorStart for a given axis of the box
+//
+// Arguments:    
+//   axis : The axis
+//   value : The MajorStart value to set to the given axis
+//
+// Note:       
+//
+// Programmer: Nicolas Dolegieviez
+// Creation:   29 april 2009
+//
+// Modifications:
+//   
+// ****************************************************************************
+void
+vtkAxisActor::SetMajorStart(int axis, double value){
+  if(axis>=0 && axis<=2)
+    {
+    this->MajorStart[axis] = value;
+    }
 }
 
 // ****************************************************************************
