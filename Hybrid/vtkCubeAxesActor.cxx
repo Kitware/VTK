@@ -121,6 +121,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->XAxes[i]->SetAxisPosition(i);
     this->XAxes[i]->SetAxisLinesProperty(this->XAxesLinesProperty);
     this->XAxes[i]->SetGridlinesProperty(this->XAxesGridlinesProperty);
+    this->XAxes[i]->SetInnerGridlinesProperty(this->XAxesInnerGridlinesProperty);
     this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
     this->XAxes[i]->SetCalculateTitleOffset(0);
     this->XAxes[i]->SetCalculateLabelOffset(0);
@@ -134,6 +135,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->YAxes[i]->SetAxisPosition(i);
     this->YAxes[i]->SetAxisLinesProperty(this->YAxesLinesProperty);
     this->YAxes[i]->SetGridlinesProperty(this->YAxesGridlinesProperty);
+    this->YAxes[i]->SetInnerGridlinesProperty(this->YAxesInnerGridlinesProperty);
     this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
     this->YAxes[i]->SetCalculateTitleOffset(0);
     this->YAxes[i]->SetCalculateLabelOffset(0);
@@ -147,6 +149,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->ZAxes[i]->SetAxisPosition(i);
     this->ZAxes[i]->SetAxisLinesProperty(this->ZAxesLinesProperty);
     this->ZAxes[i]->SetGridlinesProperty(this->ZAxesGridlinesProperty);
+    this->ZAxes[i]->SetInnerGridlinesProperty(this->ZAxesInnerGridlinesProperty);
     this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
     this->ZAxes[i]->SetCalculateTitleOffset(0);
     this->ZAxes[i]->SetCalculateLabelOffset(0);
@@ -407,6 +410,10 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
     {
     this->XAxesGridlinesProperty->Delete();
     }
+  if (this->XAxesInnerGridlinesProperty)
+    {
+    this->XAxesInnerGridlinesProperty->Delete();
+    }
   if (this->XAxesGridpolysProperty)
     {
     this->XAxesGridpolysProperty->Delete();
@@ -419,6 +426,10 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
     {
     this->YAxesGridlinesProperty->Delete();
     }
+  if (this->YAxesInnerGridlinesProperty)
+    {
+    this->YAxesInnerGridlinesProperty->Delete();
+    }
   if (this->YAxesGridpolysProperty)
     {
     this->YAxesGridpolysProperty->Delete();
@@ -430,6 +441,10 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
   if (this->ZAxesGridlinesProperty)
     {
     this->ZAxesGridlinesProperty->Delete();
+    }
+  if (this->ZAxesInnerGridlinesProperty)
+    {
+    this->ZAxesInnerGridlinesProperty->Delete();
     }
   if (this->ZAxesGridpolysProperty)
     {
