@@ -163,6 +163,8 @@ vtkAxisActor::vtkAxisActor()
   this->LastTickLocation = -1;
   this->LastTickVisibility = -1;
   this->LastDrawGridlines = -1;
+  this->LastDrawInnerGridlines = -1; 
+  this->LastDrawGridpolys = -1; 
   this->LastMinorTicksVisible = -1;
   this->LastRange[0] = -1.0;
   this->LastRange[1] = -1.0;
@@ -1845,6 +1847,9 @@ void vtkAxisActor::SetAxisPointsAndLines()
   this->Gridpolys->SetPolys(polys);
   pts->Delete();
   lines->Delete();
+  gridlines->Delete();
+  innerGridlines->Delete();
+  polys->Delete();
   int i, numMinorTickPts, numGridlines, numInnerGridlines, numMajorTickPts, numGridpolys, numLines; 
   vtkIdType ptIds[2];
   vtkIdType polyPtIds[4];
