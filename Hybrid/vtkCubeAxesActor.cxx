@@ -82,20 +82,25 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
 
   this->XAxesLinesProperty = vtkProperty::New();
-  this->XAxesGridlinesProperty = vtkProperty::New();
-  this->XAxesGridpolysProperty = vtkProperty::New();
-  //VTK this->XAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
-  this->XAxesGridpolysProperty->SetOpacity(0.6);     // Default grid polys opacity
   this->YAxesLinesProperty = vtkProperty::New();
-  this->YAxesGridlinesProperty = vtkProperty::New();
-  this->YAxesGridpolysProperty = vtkProperty::New();
-  //VTK this->YAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
-  this->YAxesGridpolysProperty->SetOpacity(0.6);     // Default grid polys opacity
   this->ZAxesLinesProperty = vtkProperty::New();
+
+  this->XAxesGridlinesProperty = vtkProperty::New();
+  this->YAxesGridlinesProperty = vtkProperty::New();
   this->ZAxesGridlinesProperty = vtkProperty::New();
+  this->XAxesGridlinesProperty->SetColor(.3,.6,.1);
+  this->YAxesGridlinesProperty->SetColor(.3,.6,.1);
+  this->ZAxesGridlinesProperty->SetColor(.3,.6,.1);
+
+  this->XAxesGridpolysProperty = vtkProperty::New();
+  this->YAxesGridpolysProperty = vtkProperty::New();
   this->ZAxesGridpolysProperty = vtkProperty::New();
-  //VTK this->ZAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
-  this->ZAxesGridpolysProperty->SetOpacity(0.6);     // Default grid polys opacity
+  this->XAxesGridpolysProperty->SetOpacity(.6);     // Default grid polys opacity
+  this->YAxesGridpolysProperty->SetOpacity(.6);     // Default grid polys opacity
+  this->ZAxesGridpolysProperty->SetOpacity(.6);     // Default grid polys opacity
+  //this->XAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
+  //this->YAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
+  //this->ZAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
 
   int i;
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
