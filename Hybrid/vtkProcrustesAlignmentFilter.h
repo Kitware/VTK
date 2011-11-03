@@ -20,9 +20,8 @@
 // sense to their mutual mean. The algorithm is iterated until convergence, 
 // as the mean must be recomputed after each alignment. 
 //
-// Call SetNumberOfInputs(n) before calling SetInput(0) ... SetInput(n-1).
-//
-// Retrieve the outputs using GetOutput(0) ... GetOutput(n-1).
+// vtkProcrustesAlignmentFilter requires a vtkMultiBlock input consisting
+// of vtkPointSets as first level children.
 //
 // The default (in vtkLandmarkTransform) is for a similarity alignment.
 // For a rigid-body alignment (to build a 'size-and-shape' model) use: 
@@ -50,16 +49,16 @@
 #ifndef __vtkProcrustesAlignmentFilter_h
 #define __vtkProcrustesAlignmentFilter_h
 
-#include "vtkPointSetAlgorithm.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkLandmarkTransform;
 class vtkPointSet;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkPointSetAlgorithm
+class VTK_HYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkProcrustesAlignmentFilter,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkProcrustesAlignmentFilter,vtkMultiBlockDataSetAlgorithm);
 
   // Description:
   // Prints information about the state of the filter.
@@ -80,16 +79,6 @@ public:
   vtkGetObjectMacro(MeanPoints,vtkPoints);
   
   // Description:
-  // Specify how many pointsets are going to be given as input.
-  void SetNumberOfInputs(int n);
-
-  // Description:
-  // Specify the input pointset with index idx.
-  // Call SetNumberOfInputs before calling this function.
-  void SetInputData(int idx, vtkPointSet* p);
-  void SetInputData(int idx, vtkDataObject* input);
-
-  // Description:
   // When on, the initial alignment is to the centroid 
   // of the cohort curves.  When off, the alignment is to the 
   // centroid of the first input.  Default is off for
@@ -98,11 +87,6 @@ public:
   vtkGetMacro(StartFromCentroid, bool);
   vtkBooleanMacro(StartFromCentroid, bool);
 
-  // Description:
-  // Retrieve the input point set with index idx (usually only for pipeline
-  // tracing).
-  vtkPointSet* GetInput(int idx);
-
 protected:
   vtkProcrustesAlignmentFilter();
   ~vtkProcrustesAlignmentFilter();
@@ -110,8 +94,6 @@ protected:
   // Description:
   // Usual data generation method.
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkLandmarkTransform *LandmarkTransform;
 
