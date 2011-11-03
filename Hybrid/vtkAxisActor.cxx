@@ -1418,12 +1418,12 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
     {
     xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-    // xy-portion
+    // xy portion
     this->MinorTickPts->InsertNextPoint(xPoint1);
     this->MinorTickPts->InsertNextPoint(yPoint);
     if( this->Use2DMode == 0 )
       {
-      // xz-portion
+      // xz portion
       this->MinorTickPts->InsertNextPoint(xPoint2);
       this->MinorTickPts->InsertNextPoint(zPoint);
       }
@@ -1741,10 +1741,10 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   while (z < p2[2] && numTicks < VTK_MAX_TICKS)
     {
     zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
-    // zx-portion
+    // zx portion
     this->MinorTickPts->InsertNextPoint(zPoint1);
     this->MinorTickPts->InsertNextPoint(xPoint);
-    // zy-portion
+    // zy portion
     this->MinorTickPts->InsertNextPoint(zPoint2);
     this->MinorTickPts->InsertNextPoint(yPoint);
     z += this->DeltaMinor;
@@ -1764,10 +1764,10 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
     {
     zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
-    // zx-portion
+    // zx portion
     this->GridlinePts->InsertNextPoint(zPoint1);
     this->GridlinePts->InsertNextPoint(xPoint);
-    // zy-portion
+    // zy portion
     this->GridlinePts->InsertNextPoint(zPoint2);
     this->GridlinePts->InsertNextPoint(yPoint);
     z += this->DeltaMajor;
@@ -1806,10 +1806,10 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
     {
     zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
-    // zx-portion
+    // zx portion
     this->MajorTickPts->InsertNextPoint(zPoint1);
     this->MajorTickPts->InsertNextPoint(xPoint);
-    // zy-portion
+    // zy portion
     this->MajorTickPts->InsertNextPoint(zPoint2);
     this->MajorTickPts->InsertNextPoint(yPoint);
     z += this->DeltaMajor;
@@ -1863,7 +1863,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     {
     if (this->MinorTicksVisible)
       {
-      // In 2D mode, the minorTickPts for yz-portion or xz-portion have been removed.
+      // In 2D mode, the minorTickPts for yz portion or xz portion have been removed.
       numMinorTickPts = this->MinorTickPts->GetNumberOfPoints();
       for (i = 0; i < numMinorTickPts; i++)
         {
@@ -1880,7 +1880,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
       }
     else
       {
-      // In 2D mode, we don't need the pts for the xz-portion or yz-portion of the major tickmarks
+      // In 2D mode, we don't need the pts for the xz portion or yz portion of the major tickmarks
       // majorTickPts not modified because all points are used for labels' positions.
       for (i = 0; i < numMajorTickPts; i+=4)
         {
