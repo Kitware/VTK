@@ -5,6 +5,11 @@
 
 #include <NoSTL/FTCallbackVector.h>
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 FTLibrary *FTLibrary::Instance = 0;
 FTLibraryCleanup FTLibrary::Cleanup;
 FTCallbackVector *FTLibraryCleanup::Dependencies = 0;
@@ -152,3 +157,7 @@ bool FTLibrary::Init()
 
   return true;
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

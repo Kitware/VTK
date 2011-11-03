@@ -24,6 +24,11 @@ using namespace std;
 #endif
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 /**
  * FTCharmap takes care of specifying the encoding for a font and mapping
  * character codes to glyph indices.
@@ -134,5 +139,8 @@ class FTGL_EXPORT FTCharmap
 
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTCharmap__

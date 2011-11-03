@@ -6,6 +6,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTFace::FTFace()
 :  charMap(0),
@@ -140,5 +144,6 @@ FT_Glyph* FTFace::Glyph( unsigned int index, FT_Int load_flags)
   }
 }
 
-
-
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

@@ -5,6 +5,11 @@
 
 #include  "FTFont.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTGlyph;
 
 
@@ -38,6 +43,9 @@ class FTGL_EXPORT FTGLPolygonFont : public FTFont
     
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTGLPolygonFont__
 
