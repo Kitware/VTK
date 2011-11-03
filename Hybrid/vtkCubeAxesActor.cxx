@@ -81,6 +81,22 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
 
+  this->XAxesLinesProperty = vtkProperty::New();
+  this->XAxesGridlinesProperty = vtkProperty::New();
+  this->XAxesGridpolysProperty = vtkProperty::New();
+  //VTK this->XAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
+  this->XAxesGridpolysProperty->SetOpacity(0.6);     // Default grid polys opacity
+  this->YAxesLinesProperty = vtkProperty::New();
+  this->YAxesGridlinesProperty = vtkProperty::New();
+  this->YAxesGridpolysProperty = vtkProperty::New();
+  //VTK this->YAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
+  this->YAxesGridpolysProperty->SetOpacity(0.6);     // Default grid polys opacity
+  this->ZAxesLinesProperty = vtkProperty::New();
+  this->ZAxesGridlinesProperty = vtkProperty::New();
+  this->ZAxesGridpolysProperty = vtkProperty::New();
+  //VTK this->ZAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
+  this->ZAxesGridpolysProperty->SetOpacity(0.6);     // Default grid polys opacity
+
   int i;
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
@@ -91,6 +107,9 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->XAxes[i]->SetTitleVisibility(1);
     this->XAxes[i]->SetAxisTypeToX();
     this->XAxes[i]->SetAxisPosition(i);
+    this->XAxes[i]->SetAxisLinesProperty(this->XAxesLinesProperty);
+    this->XAxes[i]->SetGridlinesProperty(this->XAxesGridlinesProperty);
+    this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
     this->XAxes[i]->SetCalculateTitleOffset(0);
     this->XAxes[i]->SetCalculateLabelOffset(0);
 
@@ -101,6 +120,9 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->YAxes[i]->SetTitleVisibility(1);
     this->YAxes[i]->SetAxisTypeToY();
     this->YAxes[i]->SetAxisPosition(i);
+    this->YAxes[i]->SetAxisLinesProperty(this->YAxesLinesProperty);
+    this->YAxes[i]->SetGridlinesProperty(this->YAxesGridlinesProperty);
+    this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
     this->YAxes[i]->SetCalculateTitleOffset(0);
     this->YAxes[i]->SetCalculateLabelOffset(0);
 
@@ -111,6 +133,9 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->ZAxes[i]->SetTitleVisibility(1);
     this->ZAxes[i]->SetAxisTypeToZ();
     this->ZAxes[i]->SetAxisPosition(i);
+    this->ZAxes[i]->SetAxisLinesProperty(this->ZAxesLinesProperty);
+    this->ZAxes[i]->SetGridlinesProperty(this->ZAxesGridlinesProperty);
+    this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
     this->ZAxes[i]->SetCalculateTitleOffset(0);
     this->ZAxes[i]->SetCalculateLabelOffset(0);
 
@@ -309,6 +334,43 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
       this->ZAxes[i]->Delete();
       this->ZAxes[i] = NULL;
       }
+    }
+
+  if (this->XAxesLinesProperty)
+    {
+    this->XAxesLinesProperty->Delete();
+    }
+  if (this->XAxesGridlinesProperty)
+    {
+    this->XAxesGridlinesProperty->Delete();
+    }
+  if (this->XAxesGridpolysProperty)
+    {
+    this->XAxesGridpolysProperty->Delete();
+    }
+  if (this->YAxesLinesProperty)
+    {
+    this->YAxesLinesProperty->Delete();
+    }
+  if (this->YAxesGridlinesProperty)
+    {
+    this->YAxesGridlinesProperty->Delete();
+    }
+  if (this->YAxesGridpolysProperty)
+    {
+    this->YAxesGridpolysProperty->Delete();
+    }
+  if (this->ZAxesLinesProperty)
+    {
+    this->ZAxesLinesProperty->Delete();
+    }
+  if (this->ZAxesGridlinesProperty)
+    {
+    this->ZAxesGridlinesProperty->Delete();
+    }
+  if (this->ZAxesGridpolysProperty)
+    {
+    this->ZAxesGridpolysProperty->Delete();
     }
 
   if (this->XLabelFormat)
