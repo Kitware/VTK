@@ -99,7 +99,6 @@ vtkAxisActor::vtkAxisActor()
   this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
   
   this->TitleVector = vtkVectorText::New();
-  this->TitleVector = vtkVectorText::New();
   this->TitleMapper = vtkPolyDataMapper::New();
   this->TitleMapper->SetInput(this->TitleVector->GetOutput());
   this->TitleActor = vtkAxisFollower::New();
