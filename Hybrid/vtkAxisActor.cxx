@@ -1432,22 +1432,22 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     }
 
   //
-  // Gridline points
+  // Gridline and inner gridline points
   //
   yPoint[1] = xPoint2[1] = zPoint[1] = p1[1];
   xPoint1[1] = p1[1] - yMult * this->GridlineYLength;
   xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
   xPoint2[2] = p1[2] - zMult * this->GridlineZLength;
-
+  //*********** gridline ***********
   x = this->MajorStart;
   numTicks = 0;
   while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
     {
     xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-    // xy-portion
+    // xy portion
     this->GridlinePts->InsertNextPoint(xPoint1);
     this->GridlinePts->InsertNextPoint(yPoint);
-    // xz-portion
+    // xz portion
     this->GridlinePts->InsertNextPoint(xPoint2);
     this->GridlinePts->InsertNextPoint(zPoint);
     x += this->DeltaMajor;
@@ -1485,10 +1485,10 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
     {
     xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-    // xy-portion
+    // xy portion
     this->MajorTickPts->InsertNextPoint(xPoint1);
     this->MajorTickPts->InsertNextPoint(yPoint);
-    // xz-portion
+    // xz portion
     this->MajorTickPts->InsertNextPoint(xPoint2);
     this->MajorTickPts->InsertNextPoint(zPoint);
     x += this->DeltaMajor;
@@ -1550,7 +1550,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
   //
 
   //
-  // minor ticks
+  // Minor ticks
   //
   if (this->TickLocation == VTK_TICKS_INSIDE)
     {
@@ -1591,13 +1591,13 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
 
   //
-  // gridlines
+  // Gridline and inner gridline points 
   //
   yPoint1[0] = p1[0] - xMult * this->GridlineXLength;
   yPoint2[2] = p1[2] - zMult * this->GridlineZLength;
   yPoint2[0] = xPoint[0] = zPoint[0]  = p1[0];
   yPoint1[2] = xPoint[2] = zPoint[2]  = p1[2];
-
+  //*********** gridline ***********
   y = this->MajorStart;
   numTicks = 0;
   while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
@@ -1617,7 +1617,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
 
   //
-  // major ticks
+  // Major ticks
   //
   if (this->TickLocation == VTK_TICKS_INSIDE)
     {
@@ -1711,7 +1711,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   //
 
   //
-  // minor ticks
+  // Minor ticks
   //
   if (this->TickLocation == VTK_TICKS_INSIDE)
     {
@@ -1752,13 +1752,13 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     }
 
   //
-  // gridlines
+  // Gridline and inner gridline points
   //
   zPoint1[0] = p1[0] - xMult * this->GridlineXLength;
   zPoint2[1] = p1[1] - yMult * this->GridlineYLength;
   zPoint1[1] = xPoint[1] = yPoint[1] = p1[1];
   zPoint2[0] = xPoint[0] = yPoint[0] = p1[0];
-
+  //*********** gridline ***********
   z = this->MajorStart;
   numTicks = 0;
   while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
