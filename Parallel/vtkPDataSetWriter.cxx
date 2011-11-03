@@ -17,6 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -245,7 +246,7 @@ int vtkPDataSetWriter::Write()
     {
     sprintf(fileName, this->FilePattern, fileRoot, i);
     writer->SetFileName(fileName);
-    inputAlg->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    this->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
     inputAlg->Update();
     copy = input->NewInstance();
     copy->ShallowCopy(input);
@@ -300,25 +301,25 @@ int vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
 
 
 //----------------------------------------------------------------------------
-int vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input, 
+int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
                                           char *root, char *str, ostream *fptr)
 {
   int i;
   int *pi;
   double *pf;
+  vtkInformation* inInfo = this->GetInputInformation();
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
   // Image data has a buch of meta data.
   *fptr << "      scalarType=\"" << input->GetScalarType() << "\"" << endl;
-  pf = input->GetOrigin();
+  pf = inInfo->Get(vtkDataObject::ORIGIN());
   *fptr << "      origin=\"" 
         << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
-  pf = input->GetSpacing();
+  pf = inInfo->Get(vtkDataObject::SPACING());
   *fptr << "      spacing=\"" 
         << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
-  pi = vtkStreamingDemandDrivenPipeline::GetWholeExtent(
-    this->GetInputInformation());
+  pi = vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo);
   *fptr << "      wholeExtent=\"" 
         << pi[0] << " " << pi[1] << " " << pi[2] << " "
         << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
@@ -329,10 +330,9 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input,
 
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    this->GetInputAlgorithm()->SetUpdateExtent(
+    this->SetUpdateExtent(
       i, this->NumberOfPieces, this->GhostLevel);
-    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
-      this->GetInputInformation());
+    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
@@ -368,7 +368,7 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    this->GetInputAlgorithm()->SetUpdateExtent(
+    this->SetUpdateExtent(
       i, this->NumberOfPieces, this->GhostLevel);
     pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
       this->GetInputInformation());
@@ -408,7 +408,7 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    this->GetInputAlgorithm()->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    this->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
     pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
       this->GetInputInformation());
     sprintf(str, this->FilePattern, root, i);
