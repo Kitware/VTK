@@ -98,10 +98,9 @@ gridTrans SetInput t1
 gridTrans SetGridOrigin -1.5 -1.5 -1.5
 gridTrans SetGridExtent 0 60 0 60 0 60
 gridTrans SetGridSpacing 0.05 0.05 0.05
-gridTrans Update
 
 vtkGridTransform t2
-t2 SetDisplacementGrid [gridTrans GetOutput]
+t2 SetDisplacementGridConnection [gridTrans GetOutputPort]
 t2 SetInterpolationModeToCubic
 
 vtkTransformPolyDataFilter f21
@@ -147,7 +146,7 @@ renWin AddRenderer ren22
 #--------------------------
 # grid transform, linear
 vtkGridTransform t3
-t3 SetDisplacementGrid [gridTrans GetOutput]
+t3 SetDisplacementGridConnection [gridTrans GetOutputPort]
 t3 SetInterpolationModeToLinear
 
 vtkTransformPolyDataFilter f31
@@ -193,7 +192,7 @@ renWin AddRenderer ren32
 #--------------------------
 # grid transform, nearest
 vtkGridTransform t4
-t4 SetDisplacementGrid [gridTrans GetOutput]
+t4 SetDisplacementGridConnection [gridTrans GetOutputPort]
 t4 SetInterpolationModeToNearestNeighbor
 t4 SetInverseTolerance 0.05
 
