@@ -484,9 +484,6 @@ private:
 
   double ScreenSize;
 
-  double MajorStart[3];            // For inner grid lines generation
-  double DeltaMajor[3];            // For inner grid lines generation
-
   // various helper methods
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
                         double pts[8][3]);
