@@ -77,12 +77,14 @@ class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
 class vtkFollower;
+class vtkFreeTypeUtilities;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkProperty2D;
 class vtkStringArray;
 class vtkTextActor;
+class vtkTextProperty;
 class vtkVectorText;
 
 class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
@@ -186,6 +188,20 @@ public:
   vtkSetMacro(TitleVisibility, int);
   vtkGetMacro(TitleVisibility, int);
   vtkBooleanMacro(TitleVisibility, int);
+
+  // Description:
+  // Get axis title text property.
+  void SetTitleTextProperty(vtkTextProperty *);
+     //BTX
+  vtkGetMacro(TitleTextProperty, vtkTextProperty *);
+  //ETX
+
+  // Description:
+  // Get axis labels text property.
+  void SetLabelTextProperty(vtkTextProperty *);
+     //BTX
+  vtkGetMacro(LabelTextProperty, vtkTextProperty *);
+  //ETX
 
   // Description:
   // Get/Set axis actor property (axis and its ticks)
@@ -355,7 +371,10 @@ public:
  // Set/Get the 2D mode (2D/3D)
  vtkSetMacro(Use2DMode, int);
  vtkGetMacro(Use2DMode, int);
-      
+
+ // Set/Get the saving positions tag (2D/3D)
+ vtkSetMacro(SaveTitlePosition, int);
+ vtkGetMacro(SaveTitlePosition, int);
 
 protected:
   vtkAxisActor();
@@ -399,9 +418,12 @@ private:
   void TransformBounds(vtkViewport *, double bnds[6]);
 
   void BuildLabels(vtkViewport *, bool);
+  void BuildLabels2D(vtkViewport *, bool);
   void SetLabelPositions(vtkViewport *, bool);
+  void SetLabelPositions2D(vtkViewport *, bool);
 
   void BuildTitle(bool);
+  void BuildTitle2D(vtkViewport *viewport, bool);
 
   void SetAxisPointsAndLines(void);
   bool BuildTickPointsForXType(double p1[3], double p2[3], bool);
@@ -409,6 +431,8 @@ private:
   bool BuildTickPointsForZType(double p1[3], double p2[3], bool);
 
   bool TickVisibilityChanged(void);
+
+  bool BoundsDisplayCoordinateChanged(vtkViewport *viewport);
 
   vtkCoordinate *Point1Coordinate;
   vtkCoordinate *Point2Coordinate;
@@ -444,10 +468,12 @@ private:
   vtkPolyDataMapper *TitleMapper;
   vtkAxisFollower   *TitleActor;
   vtkTextActor      *TitleActor2D;
+  vtkTextProperty   *TitleTextProperty;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
   vtkAxisFollower   **LabelActors;
+  vtkTextProperty    *LabelTextProperty;
   vtkTextActor      **LabelActors2D;
 
   vtkPolyData        *AxisLines;
@@ -481,8 +507,16 @@ private:
         \li val = 1 : positions have to be saved during the next render pass
         \li val = 2 : positions are saved -> used them
   */
+  int		      SaveTitlePosition;
+  //! constante coordinate for the title
+  double	      TitleConstantPosition[2];
   //! true if the 2D title have to be built, false otherwise
   bool                NeedBuild2D;
+  //!
+  double	      LastMinDisplayCoordinate[3];
+  double	      LastMaxDisplayCoordinate[3];
+  //! FreeType library utility
+  vtkFreeTypeUtilities *FreeTypeUtilities;
 };
 
 

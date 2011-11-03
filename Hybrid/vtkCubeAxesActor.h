@@ -320,6 +320,14 @@ public:
     { this->SetTickLocation(VTK_TICKS_BOTH); };
 
   void SetLabelScaling(bool, int, int, int);
+
+  //! use textactor if val = 1 (2D) instead of follower (3D - val = 0) for title 
+  void SetUse2DMode( int val );
+  //! return 1 if textactor is used
+  int GetUse2DMode();
+  //! for 2D axis only : during the next render, the axis positions have to be save for later use.
+  void SetSaveTitlePosition( int val );
+      
   // Description:
   // Shallow copy of a KatCubeAxesActor.
   void ShallowCopy(vtkCubeAxesActor *actor);
