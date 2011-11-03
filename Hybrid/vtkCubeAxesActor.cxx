@@ -1796,6 +1796,9 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     {
     this->XAxes[i]->SetCamera(this->Camera);
     this->XAxes[i]->SetProperty(prop);
+    this->XAxes[i]->SetAxisLinesProperty(this->XAxesLinesProperty);
+    this->XAxes[i]->SetGridlinesProperty(this->XAxesGridlinesProperty);
+    this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
     this->XAxes[i]->SetTickLocation(this->TickLocation);
     this->XAxes[i]->SetDrawGridlines(this->DrawXGridlines);
     this->XAxes[i]->SetBounds(this->Bounds);
@@ -1807,6 +1810,9 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
 
     this->YAxes[i]->SetCamera(this->Camera);
     this->YAxes[i]->SetProperty(prop);
+    this->YAxes[i]->SetAxisLinesProperty(this->YAxesLinesProperty);
+    this->YAxes[i]->SetGridlinesProperty(this->YAxesGridlinesProperty);
+    this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
     this->YAxes[i]->SetTickLocation(this->TickLocation);
     this->YAxes[i]->SetDrawGridlines(this->DrawYGridlines);
     this->YAxes[i]->SetBounds(this->Bounds);
@@ -1818,6 +1824,9 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
 
     this->ZAxes[i]->SetCamera(this->Camera);
     this->ZAxes[i]->SetProperty(prop);
+    this->ZAxes[i]->SetAxisLinesProperty(this->ZAxesLinesProperty);
+    this->ZAxes[i]->SetGridlinesProperty(this->ZAxesGridlinesProperty);
+    this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
     this->ZAxes[i]->SetTickLocation(this->TickLocation);
     this->ZAxes[i]->SetDrawGridlines(this->DrawZGridlines);
     this->ZAxes[i]->SetBounds(this->Bounds);
