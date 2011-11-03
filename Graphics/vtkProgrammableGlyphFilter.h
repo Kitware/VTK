@@ -76,8 +76,15 @@ public:
   static vtkProgrammableGlyphFilter *New();
 
   // Description:
-  // Set/Get the source to use for this glyph. 
+  // Setup a connection for the source to use as the glyph.
   // Note: you can change the source during execution of this filter.
+  // This is equivalent to SetInputConnection(1, output);
+  void SetSourceConnection(vtkAlgorithmOutput* output);
+
+  // Description:
+  // Set/Get the source to use for this glyph.
+  // Note that SetSourceData() does not set a pipeline connection but
+  // directly uses the polydata.
   void SetSourceData(vtkPolyData *source);
   vtkPolyData *GetSource();
 

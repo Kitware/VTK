@@ -28,6 +28,8 @@
 
 #include "vtkWarpTransform.h"
 
+class vtkAlgorithmOutput;
+class vtkGridTransformConnectionHolder;
 class vtkImageData;
 
 #define VTK_GRID_NEAREST VTK_NEAREST_INTERPOLATION
@@ -41,12 +43,14 @@ public:
   vtkTypeMacro(vtkGridTransform,vtkWarpTransform);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
+  void SetDisplacementGridConnection(vtkAlgorithmOutput*);
+
   // Description:
   // Set/Get the grid transform (the grid transform must have three 
   // components for displacement in x, y, and z respectively).
   // The vtkGridTransform class will never modify the data.
   virtual void SetDisplacementGrid(vtkImageData*);
-  vtkGetObjectMacro(DisplacementGrid,vtkImageData);
+  virtual vtkImageData* GetDisplacementGrid();
 
   // Description:
   // Set scale factor to be applied to the displacements.
@@ -121,7 +125,6 @@ protected:
                                 int inExt[6], vtkIdType inInc[3]);
 //ETX
   int InterpolationMode;
-  vtkImageData *DisplacementGrid;
   double DisplacementScale;
   double DisplacementShift;
   
@@ -135,6 +138,8 @@ protected:
 private:
   vtkGridTransform(const vtkGridTransform&);  // Not implemented.
   void operator=(const vtkGridTransform&);  // Not implemented.
+
+  vtkGridTransformConnectionHolder* ConnectionHolder;
 };
 
 //BTX

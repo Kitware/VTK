@@ -950,6 +950,12 @@ void vtkAlgorithm::RemoveAllInputs()
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::RemoveAllInputConnections(int port)
+{
+  this->SetInputConnection(port, 0);
+}
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::SetInputConnection(vtkAlgorithmOutput* input)
 {
   this->SetInputConnection(0,input);

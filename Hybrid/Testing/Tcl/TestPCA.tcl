@@ -58,28 +58,30 @@ vtkActor Actor1c
 # align the shapes using Procrustes (using SetModeToRigidBody)
 # and map the aligned shapes into the second renderer
 #------------------------------------------------------------------
+vtkMultiBlockDataGroupFilter group
+    group AddInputConnection [sphere GetOutputPort]
+    group AddInputConnection [transformer1 GetOutputPort]
+    group AddInputConnection [transformer2 GetOutputPort]
+
 vtkProcrustesAlignmentFilter procrustes
-    procrustes SetNumberOfInputs 3
-    procrustes SetInputData 0 [sphere GetOutput]
-    procrustes SetInputData 1 [transformer1 GetOutput]
-    procrustes SetInputData 2 [transformer2 GetOutput]
+    procrustes SetInputConnection [group GetOutputPort]
     [procrustes GetLandmarkTransform] SetModeToRigidBody
     procrustes Update
 
 vtkPolyDataMapper map2a
-    map2a SetInputData [procrustes GetOutput 0]
+    map2a SetInputData [[procrustes GetOutput] GetBlock 0]
 vtkActor Actor2a
     Actor2a SetMapper map2a
     [Actor2a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map2b
-    map2b SetInputData [procrustes GetOutput 1]
+    map2b SetInputData [[procrustes GetOutput] GetBlock 1]
 vtkActor Actor2b
     Actor2b SetMapper map2b
     [Actor2b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map2c
-    map2c SetInputData [procrustes GetOutput 2]
+    map2c SetInputData [[procrustes GetOutput] GetBlock 2]
 vtkActor Actor2c
     Actor2c SetMapper map2c
     [Actor2c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000
@@ -88,10 +90,7 @@ vtkActor Actor2c
 # pass the output of Procrustes to vtkPCAAnalysisFilter
 #------------------------------------------------------------------
 vtkPCAAnalysisFilter pca
-    pca SetNumberOfInputs 3
-    pca SetInputConnection 0 [procrustes GetOutputPort 0]
-    pca SetInputConnection 1 [procrustes GetOutputPort 1]
-    pca SetInputConnection 2 [procrustes GetOutputPort 2]
+    pca SetInputConnection [procrustes GetOutputPort]
 
 pca Update
 # we need to call Update because GetParameterisedShape is not

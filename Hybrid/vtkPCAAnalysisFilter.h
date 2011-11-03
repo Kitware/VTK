@@ -17,15 +17,14 @@
 //
 // vtkPCAAnalysisFilter is a filter that takes as input a set of aligned
 // pointsets (any object derived from vtkPointSet) and performs
-// a principal component analysis of the coordinates. 
+// a principal component analysis of the coordinates.
 // This can be used to visualise the major or minor modes of variation
 // seen in a set of similar biological objects with corresponding
 // landmarks.
 // vtkPCAAnalysisFilter is designed to work with the output from
 // the vtkProcrustesAnalysisFilter
-// 
-// Call SetNumberOfInputs(n) before calling SetInput(0) ... SetInput(n-1).
-// Retrieve the outputs using GetOutput(0) ... GetOutput(n-1).
+// vtkPCAAnalysisFilter requires a vtkMultiBlock input consisting
+// of vtkPointSets as first level children.
 //
 // vtkPCAAnalysisFilter is an implementation of (for example):
 //
@@ -48,15 +47,15 @@
 #ifndef __vtkPCAAnalysisFilter_h
 #define __vtkPCAAnalysisFilter_h
 
-#include "vtkPointSetAlgorithm.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkFloatArray;
 class vtkPointSet;
 
-class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkPointSetAlgorithm
+class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSetAlgorithm
 {
  public:
-  vtkTypeMacro(vtkPCAAnalysisFilter,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkPCAAnalysisFilter,vtkMultiBlockDataSetAlgorithm);
   
   // Description:
   // Prints information about the state of the filter.
@@ -70,21 +69,6 @@ class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkPointSetAlgorithm
   // Get the vector of eigenvalues sorted in descending order
   vtkGetObjectMacro(Evals, vtkFloatArray);
   
-  // Description:
-  // Specify how many pointsets are going to be given as input.
-  void SetNumberOfInputs(int n);
-
-  // Description:
-  // Specify the input pointset with index idx.
-  // Call SetNumberOfInputs before calling this function.
-  void SetInputData(int idx, vtkPointSet* p);
-  void SetInputData(int idx, vtkDataObject* input);
-
-  // Description:
-  // Retrieve the input with index idx (usually only used for pipeline
-  // tracing).
-  vtkPointSet* GetInput(int idx);
-
   // Description:
   // Fills the shape with:
   //
@@ -122,7 +106,6 @@ protected:
   // Description:
   // Usual data generation method.
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&);  // Not implemented.

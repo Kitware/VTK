@@ -57,6 +57,11 @@ vtkProgrammableGlyphFilter::~vtkProgrammableGlyphFilter()
     }
 }
 
+void vtkProgrammableGlyphFilter::SetSourceConnection(vtkAlgorithmOutput* output)
+{
+  this->SetInputConnection(1, output);
+}
+
 void vtkProgrammableGlyphFilter::SetSourceData(vtkPolyData *pd)
 {
   this->SetInputData(1, pd);
@@ -186,6 +191,10 @@ int vtkProgrammableGlyphFilter::RequestData(
     
     if ( source ) 
       {
+      // Update the source in case the GlyphMethod changed
+      // its parameters.
+      this->GetInputAlgorithm(1, 0)->Update();
+
       sourcePts = source->GetPoints();
       numSourcePts = source->GetNumberOfPoints();
       numSourceCells = source->GetNumberOfCells();
