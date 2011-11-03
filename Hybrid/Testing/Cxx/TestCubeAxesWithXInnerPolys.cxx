@@ -40,7 +40,7 @@
 
 
 //----------------------------------------------------------------------------
-int TestCubeAxesWithGridLines( int argc, char * argv [] )
+int TestCubeAxesWithXInnerPolys( int argc, char * argv [] )
 {
   vtkNew<vtkBYUReader> fohe;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
@@ -106,9 +106,7 @@ int TestCubeAxesWithGridLines( int argc, char * argv [] )
   axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
-  axes2->SetDrawXGridlines(1);
-  axes2->SetDrawYGridlines(1);
-  axes2->SetDrawZGridlines(1);
+  axes2->SetDrawXGridpolys(1);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();

@@ -1371,6 +1371,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     }
 
   double xPoint1[3], xPoint2[3], yPoint[3], zPoint[3], x;
+  double gp1[3],gp2[3],gp3[3],gp4[3];
   int numTicks;
 
   this->MinorTickPts->Reset();
@@ -1380,7 +1381,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   this->GridpolyPts->Reset();
 
   //
-  // Ymult & Zmult control adjustments to tick position based
+  // yMult & zMult control adjustments to tick position based
   // upon "where" this axis is located in relation to the underlying
   // assumed bounding box.
   //
@@ -1450,6 +1451,26 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     // xz portion
     this->GridlinePts->InsertNextPoint(xPoint2);
     this->GridlinePts->InsertNextPoint(zPoint);
+    x += this->DeltaMajor;
+    numTicks++;
+    }
+
+  //
+  // Gridpoly points 
+  //
+  gp1[1]=p1[1];gp1[2]=p1[2];
+  gp2[1]=p1[1]- yMult * this->GridlineYLength;gp2[2]=p1[2];
+  gp3[1]=p1[1]- yMult * this->GridlineYLength;gp3[2]=p1[2]- zMult * this->GridlineZLength;
+  gp4[1]=p1[1];gp4[2]=p1[2]- zMult * this->GridlineZLength;
+  x = this->MajorStart;
+  numTicks = 0;
+  while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
+    {
+    gp1[0] = gp2[0] = gp3[0] = gp4[0] = x;
+    this->GridpolyPts->InsertNextPoint(gp1);
+    this->GridpolyPts->InsertNextPoint(gp2);
+    this->GridpolyPts->InsertNextPoint(gp3);
+    this->GridpolyPts->InsertNextPoint(gp4);
     x += this->DeltaMajor;
     numTicks++;
     }
@@ -1527,6 +1548,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
 
   double yPoint1[3], yPoint2[3], xPoint[3], zPoint[3], y;
+  double gp1[3],gp2[3],gp3[3],gp4[3];
   int numTicks;
 
   this->MinorTickPts->Reset();
@@ -1617,6 +1639,26 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
 
   //
+  // Gridpoly points
+  // 
+  gp1[0]=p1[0];gp1[2]=p1[2];
+  gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[2]=p1[2];
+  gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[2]=p1[2]- zMult * this->GridlineZLength;
+  gp4[0]=p1[0];gp4[2]=p1[2]- zMult * this->GridlineZLength;
+  y = this->MajorStart;
+  numTicks = 0;
+  while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
+    {
+    gp1[1] = gp2[1] = gp3[1] = gp4[1] = y;
+    this->GridpolyPts->InsertNextPoint(gp1);
+    this->GridpolyPts->InsertNextPoint(gp2);
+    this->GridpolyPts->InsertNextPoint(gp3);
+    this->GridpolyPts->InsertNextPoint(gp4);
+    numTicks++;
+    y += this->DeltaMajor;
+    }
+
+  //
   // Major ticks
   //
   if (this->TickLocation == VTK_TICKS_INSIDE)
@@ -1703,6 +1745,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   int yMult = vtkAxisActorMultiplierTable2[this->AxisPosition];
 
   double zPoint1[3], zPoint2[3], xPoint[3], yPoint[3], z;
+  double gp1[3],gp2[3],gp3[3],gp4[3];
   int numTicks;
 
   //
@@ -1775,7 +1818,27 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     }
 
   //
-  // major ticks
+  // Gridpoly points
+  // 
+  gp1[0]=p1[0];gp1[1]=p1[1];
+  gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[1]=p1[1];
+  gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[1]=p1[1]- yMult * this->GridlineYLength;
+  gp4[0]=p1[0];gp4[1]=p1[1]- yMult * this->GridlineYLength;
+  z = this->MajorStart;
+  numTicks = 0;
+  while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
+    {
+    gp1[2] = gp2[2] = gp3[2] = gp4[2] = z;
+    this->GridpolyPts->InsertNextPoint(gp1);
+    this->GridpolyPts->InsertNextPoint(gp2);
+    this->GridpolyPts->InsertNextPoint(gp3);
+    this->GridpolyPts->InsertNextPoint(gp4);
+    z += this->DeltaMajor;
+    numTicks++;
+    }
+
+  //
+  // Major ticks
   //
 
   if (this->TickLocation == VTK_TICKS_INSIDE)

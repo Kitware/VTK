@@ -11,7 +11,9 @@ IF (VTK_DATA_ROOT)
     TestCubeAxes3.cxx
     TestCubeAxesWithGridLines.cxx
 #    TestCubeAxesWithInnerGrids.cxx
-#    TestCubeAxesWithInnerPlanes.cxx
+    TestCubeAxesWithXInnerPolys.cxx
+    TestCubeAxesWithYInnerPolys.cxx
+    TestCubeAxesWithZInnerPolys.cxx
     TestBarChartActor.cxx
     TestExodusImplicitArrays.cxx
     #TestLabelPlacerExodus.cxx
