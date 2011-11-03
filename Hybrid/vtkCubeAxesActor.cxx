@@ -192,6 +192,14 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->DrawYGridlines = 0;
   this->DrawZGridlines = 0;
 
+  this->DrawXInnerGridlines = 0;
+  this->DrawYInnerGridlines = 0;
+  this->DrawZInnerGridlines = 0;
+
+  this->DrawXGridpolys = 0;
+  this->DrawYGridpolys = 0;
+  this->DrawZGridpolys = 0;
+
   this->XLabelFormat = new char[8];
   sprintf(this->XLabelFormat, "%s", "%-#6.3g");
   this->YLabelFormat = new char[8];
@@ -1844,6 +1852,8 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
     this->XAxes[i]->SetTickLocation(this->TickLocation);
     this->XAxes[i]->SetDrawGridlines(this->DrawXGridlines);
+    this->XAxes[i]->SetDrawInnerGridlines(this->DrawXInnerGridlines);
+    this->XAxes[i]->SetDrawGridpolys(this->DrawXGridpolys);
     this->XAxes[i]->SetBounds(this->Bounds);
     this->XAxes[i]->AxisVisibilityOn();
     this->XAxes[i]->SetLabelVisibility(this->XAxisLabelVisibility);
@@ -1858,6 +1868,8 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
     this->YAxes[i]->SetTickLocation(this->TickLocation);
     this->YAxes[i]->SetDrawGridlines(this->DrawYGridlines);
+    this->YAxes[i]->SetDrawInnerGridlines(this->DrawYInnerGridlines);
+    this->YAxes[i]->SetDrawGridpolys(this->DrawYGridpolys);
     this->YAxes[i]->SetBounds(this->Bounds);
     this->YAxes[i]->AxisVisibilityOn();
     this->YAxes[i]->SetLabelVisibility(this->YAxisLabelVisibility);
@@ -1872,6 +1884,8 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
     this->ZAxes[i]->SetTickLocation(this->TickLocation);
     this->ZAxes[i]->SetDrawGridlines(this->DrawZGridlines);
+    this->ZAxes[i]->SetDrawInnerGridlines(this->DrawZInnerGridlines);
+    this->ZAxes[i]->SetDrawGridpolys(this->DrawZGridpolys);
     this->ZAxes[i]->SetBounds(this->Bounds);
     this->ZAxes[i]->AxisVisibilityOn();
     this->ZAxes[i]->SetLabelVisibility(this->ZAxisLabelVisibility);
@@ -1933,7 +1947,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     this->RenderAxesX[0] = 0;
     this->RenderAxesY[0] = 0;
     this->RenderAxesZ[0] = 0;
-    if (this->DrawXGridlines)
+    if (this->DrawXGridlines || this->DrawXInnerGridlines ||this->DrawXGridpolys)
       {
       this->RenderAxesX[1] = 2;
       this->NumberOfAxesX = 2;
@@ -1946,7 +1960,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
       {
       this->NumberOfAxesX = 1;
       }
-    if (this->DrawYGridlines)
+    if (this->DrawYGridlines || this->DrawYInnerGridlines || this->DrawYGridpolys)
       {
       this->RenderAxesY[1] = 2;
       this->NumberOfAxesY = 2;
@@ -1959,7 +1973,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
       {
       this->NumberOfAxesY = 1;
       }
-    if (this->DrawZGridlines)
+    if (this->DrawZGridlines || this->DrawZInnerGridlines || this->DrawZGridpolys)
       {
       this->RenderAxesZ[1] = 2;
       this->NumberOfAxesZ = 2;
@@ -2145,7 +2159,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     }
 
   this->RenderAxesX[0] = xloc % NUMBER_OF_ALIGNED_AXIS;
-  if (this->DrawXGridlines)
+  if (this->DrawXGridlines || this->DrawXInnerGridlines || this->DrawXGridpolys)
     {
     this->RenderAxesX[1] = (xloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesX = 2;
@@ -2160,7 +2174,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     }
 
   this->RenderAxesY[0] = yloc % NUMBER_OF_ALIGNED_AXIS;
-  if (this->DrawYGridlines)
+  if (this->DrawYGridlines || this->DrawYInnerGridlines || this->DrawYGridpolys)
     {
     this->RenderAxesY[1] = (yloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesY = 2;
@@ -2175,7 +2189,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     }
 
   this->RenderAxesZ[0] = zloc % NUMBER_OF_ALIGNED_AXIS;
-  if (this->DrawZGridlines)
+  if (this->DrawZGridlines || this->DrawZInnerGridlines || this->DrawZGridpolys)
     {
     this->RenderAxesZ[1] = (zloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesZ = 2;
