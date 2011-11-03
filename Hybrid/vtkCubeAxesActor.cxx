@@ -1149,7 +1149,6 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
     return false;
     }
 
-  int i;
   double xExt = bounds[1] - bounds[0];
   double yExt = bounds[3] - bounds[2];
   double zExt = bounds[5] - bounds[4];
@@ -1173,6 +1172,20 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
     this->UpdateLabels(this->ZAxes, 2);
     }
 
+  // We give information on deltas for the inner grid lines generation
+  for(int i = 0 ; i < NUMBER_OF_ALIGNED_AXIS ; i++)
+    {
+    for(int j = 0 ; j < 3 ; j++)
+      {
+      this->XAxes[i]->SetMajorStart(j,this->MajorStart[j]);
+      this->XAxes[i]->SetDeltaMajor(j,this->DeltaMajor[j]);
+      this->YAxes[i]->SetMajorStart(j,this->MajorStart[j]);
+      this->YAxes[i]->SetDeltaMajor(j,this->DeltaMajor[j]);
+      this->ZAxes[i]->SetMajorStart(j,this->MajorStart[j]);
+      this->ZAxes[i]->SetDeltaMajor(j,this->DeltaMajor[j]);
+      }
+    }
+ 
   this->LastXRange[0] = (this->XAxisRange[0] == VTK_DOUBLE_MAX ?
                                   bounds[0] : this->XAxisRange[0]);
   this->LastXRange[1] = (this->XAxisRange[1] == VTK_DOUBLE_MAX ?
@@ -1188,7 +1201,7 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
 
   double major = 0.02 * (xExt + yExt + zExt) / 3.;
   double minor = 0.5 * major;
-  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->SetMajorTickSize(major);
     this->XAxes[i]->SetMinorTickSize(minor);
@@ -2388,6 +2401,24 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
   minor *= scale;
   major *= scale;
 
+  // Set major start and delta for the corresponding cube axis
+  switch(axes[0]->GetAxisType())
+    {
+    case VTK_AXIS_TYPE_X:
+      this->MajorStart[0] = majorStart;
+      this->DeltaMajor[0] = major;
+      break;
+    case VTK_AXIS_TYPE_Y:
+      this->MajorStart[1] = majorStart;
+      this->DeltaMajor[1] = major;
+      break;
+    case VTK_AXIS_TYPE_Z:
+      this->MajorStart[2] = majorStart;
+      this->DeltaMajor[2] = major;
+      break;
+    }
+
+  // Set major and minor starts and deltas for all underlying axes
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     axes[i]->SetMinorStart(minorStart);

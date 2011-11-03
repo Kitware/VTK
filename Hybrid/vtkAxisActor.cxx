@@ -1603,6 +1603,9 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     return false;
     }
 
+  cerr << this->MajorStart[0] << " - " << this->DeltaMajor[0] << " - " << p2[0] << "\n";
+  cerr << this->MajorStart[1] << " - " << this->DeltaMajor[1] << " - " << p2[1] << "\n";
+  cerr << this->MajorStart[2] << " - " << this->DeltaMajor[2] << " - " << p2[2] << "\n";
   double yPoint1[3], yPoint2[3], xPoint[3], zPoint[3], y;
   double gp1[3],gp2[3],gp3[3],gp4[3];
   int numTicks;

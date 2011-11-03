@@ -297,7 +297,7 @@ public:
   vtkProperty* GetYAxesGridlinesProperty();
   void SetZAxesGridlinesProperty(vtkProperty *);
   vtkProperty* GetZAxesGridlinesProperty();
-
+ 
   // Description:
   // Get/Set axes inner gridlines actors properties.
   void SetXAxesInnerGridlinesProperty(vtkProperty *);
@@ -495,6 +495,9 @@ private:
   double TitleScale;
 
   double ScreenSize;
+
+  double MajorStart[3];            // For the inner grid lines generation
+  double DeltaMajor[3];            // For the inner grid lines generation
 
   // various helper methods
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
