@@ -40,7 +40,7 @@
 
 
 //----------------------------------------------------------------------------
-int TestCubeAxesWithInnerGrids( int argc, char * argv [] )
+int TestCubeAxesWithXInnerGrids( int argc, char * argv [] )
 {
   vtkNew<vtkBYUReader> fohe;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
@@ -107,8 +107,6 @@ int TestCubeAxesWithInnerGrids( int argc, char * argv [] )
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
   axes2->SetDrawXInnerGridlines(1);
-  axes2->SetDrawYInnerGridlines(1);
-  axes2->SetDrawZInnerGridlines(1);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();

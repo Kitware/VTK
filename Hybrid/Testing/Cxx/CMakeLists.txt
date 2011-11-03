@@ -10,7 +10,9 @@ IF (VTK_DATA_ROOT)
 #    TestAxisActor3D.cxx
     TestCubeAxes3.cxx
     TestCubeAxesWithGridLines.cxx
-#    TestCubeAxesWithInnerGrids.cxx
+    TestCubeAxesWithXInnerGrids.cxx
+    TestCubeAxesWithYInnerGrids.cxx
+    TestCubeAxesWithZInnerGrids.cxx
     TestCubeAxesWithXInnerPolys.cxx
     TestCubeAxesWithYInnerPolys.cxx
     TestCubeAxesWithZInnerPolys.cxx

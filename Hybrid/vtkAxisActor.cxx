@@ -1465,7 +1465,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   xPoint1[1] = p1[1] - yMult * this->GridlineYLength;
   xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
   xPoint2[2] = p1[2] - zMult * this->GridlineZLength;
-  //*********** gridline ***********
+  // Gridline
   x = this->MajorStart[0];
   numTicks = 0;
   while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
@@ -1479,6 +1479,44 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     this->GridlinePts->InsertNextPoint(zPoint);
     x += this->DeltaMajor[0];
     numTicks++;
+    }
+  // Inner gridline
+  double xMin = this->MajorStart[0];
+  double xMax = this->Bounds[1];
+  double xDelta = this->DeltaMajor[0];
+  double yMin = this->MajorStart[1];
+  double yMax = this->Bounds[3];
+  double yDelta = this->DeltaMajor[1];
+  double zMin = this->MajorStart[2];
+  double zMax = this->Bounds[5];
+  double zDelta = this->DeltaMajor[2];
+  if (xDelta > 0)
+    {
+    for (x = xMin; x <= xMax; x += xDelta)
+      {
+      xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
+
+      // y lines
+      if (zDelta > 0)
+        {
+        for (double z = zMin; z <= zMax; z += zDelta)
+          {
+          xPoint1[2]=yPoint[2]=z;
+          this->InnerGridlinePts->InsertNextPoint(xPoint1);
+          this->InnerGridlinePts->InsertNextPoint(yPoint);
+          }
+        }
+      // z lines
+      if (yDelta > 0)
+        {
+        for (double y = yMin; y <= yMax; y += yDelta)
+          {
+          xPoint2[1]=zPoint[1]=y;
+          this->InnerGridlinePts->InsertNextPoint(xPoint2);
+          this->InnerGridlinePts->InsertNextPoint(zPoint);
+          }
+        }
+      }
     }
 
   //
@@ -1645,7 +1683,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
   yPoint2[2] = p1[2] - zMult * this->GridlineZLength;
   yPoint2[0] = xPoint[0] = zPoint[0]  = p1[0];
   yPoint1[2] = xPoint[2] = zPoint[2]  = p1[2];
-  //*********** gridline ***********
+  // Gridline
   y = this->MajorStart[1];
   numTicks = 0;
   while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
@@ -1662,6 +1700,43 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
       }
     y += this->DeltaMajor[1];
     numTicks++;
+    }
+  // Inner gridline
+  double xMin = this->MajorStart[0];
+  double xMax = this->Bounds[1];
+  double xDelta = this->DeltaMajor[0];
+  double yMin = this->MajorStart[1];
+  double yMax = this->Bounds[3];
+  double yDelta = this->DeltaMajor[1];
+  double zMin = this->MajorStart[2];
+  double zMax = this->Bounds[5];
+  double zDelta = this->DeltaMajor[2];
+  if (yDelta > 0)
+    {
+    for (y = yMin; y <= yMax; y += yDelta)
+      {
+      yPoint1[1] = xPoint[1] = yPoint2[1] = zPoint[1] = y;
+      // x lines
+      if (zDelta > 0)
+        {
+        for (double z = zMin; z <= zMax; z += zDelta)
+          {
+          yPoint1[2]=xPoint[2]=z;
+          this->InnerGridlinePts->InsertNextPoint(yPoint1);
+          this->InnerGridlinePts->InsertNextPoint(xPoint);
+          }
+        }
+      // z lines
+      if (xDelta > 0)
+        {
+        for (double x = xMin; x <= xMax; x += xDelta)
+          {
+          yPoint2[0]=zPoint[0]=x;
+          this->InnerGridlinePts->InsertNextPoint(yPoint2);
+          this->InnerGridlinePts->InsertNextPoint(zPoint);
+          }
+        }
+      }
     }
 
   //
@@ -1827,7 +1902,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   zPoint2[1] = p1[1] - yMult * this->GridlineYLength;
   zPoint1[1] = xPoint[1] = yPoint[1] = p1[1];
   zPoint2[0] = xPoint[0] = yPoint[0] = p1[0];
-  //*********** gridline ***********
+  // Gridline
   z = this->MajorStart[2];
   numTicks = 0;
   while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
@@ -1841,6 +1916,43 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     this->GridlinePts->InsertNextPoint(yPoint);
     z += this->DeltaMajor[2];
     numTicks++;
+    }
+  // Inner gridline
+  double xMin = this->MajorStart[0];
+  double xMax = this->Bounds[1];
+  double xDelta = this->DeltaMajor[0];
+  double yMin = this->MajorStart[1];
+  double yMax = this->Bounds[3];
+  double yDelta = this->DeltaMajor[1];
+  double zMin = this->MajorStart[2];
+  double zMax = this->Bounds[5];
+  double zDelta = this->DeltaMajor[2];
+  if (zDelta > 0)
+    {
+    for (z = zMin; z < zMax; z += zDelta)
+      {
+      zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
+      // x lines
+      if (yDelta > 0)
+        {
+        for (double y = yMin; y <= yMax; y += yDelta)
+          {
+          zPoint1[1]=xPoint[1]=y;
+          this->InnerGridlinePts->InsertNextPoint(zPoint1);
+          this->InnerGridlinePts->InsertNextPoint(xPoint);
+          }
+        }
+      // y lines
+      if (xDelta > 0)
+        {
+        for (double x = xMin; x <= xMax; x += xDelta)
+          {
+          zPoint2[0]=yPoint[0]=x;
+          this->InnerGridlinePts->InsertNextPoint(zPoint2);
+          this->InnerGridlinePts->InsertNextPoint(yPoint);
+          }
+        }
+      }
     }
 
   //
