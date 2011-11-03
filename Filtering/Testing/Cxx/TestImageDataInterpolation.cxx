@@ -238,7 +238,7 @@ int TestImageDataInterpolation(int, char *[])
       {3,3,3}  // XYZ Volume
   };
 
-  static char* TestName[4]={
+  static const char* TestName[4]={
       "XY-Plane",
       "XZ-Plane",
       "YZ-Plane",
