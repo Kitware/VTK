@@ -165,6 +165,44 @@ public:
       }
     return node;
     }
+
+
+    vtkPolygonalSurfacePointPlacerNode
+      *InsertNodeAtCurrentPickPosition( vtkPolyData *pd,
+                                        double worldPos[3],
+                                        vtkIdType cellId,
+                                        vtkIdType pointId,
+                                        const double distanceOffset,
+                                        int snapToClosestPoint )
+    {
+
+    // Get a node at this position if one exists and overwrite it
+    // with the current pick position. If one doesn't exist, add
+    // a new node.
+    vtkPolygonalSurfacePointPlacerNode
+       * node = this->GetNodeAtSurfaceWorldPosition(worldPos);
+    if (!node)
+      {
+      node = new vtkPolygonalSurfacePointPlacerNode;
+      this->Nodes.push_back(node);
+      }
+
+    node->CellId = cellId;
+    node->PointId = pointId;
+
+    node->SurfaceWorldPosition[0] = worldPos[0];
+    node->SurfaceWorldPosition[1] = worldPos[1];
+    node->SurfaceWorldPosition[2] = worldPos[2];
+    node->PolyData = pd;
+    double cellNormal[3];
+
+    for (unsigned int i =0; i < 3; i++)
+      {
+      node->WorldPosition[i] = node->SurfaceWorldPosition[i];
+      }
+    return node;
+    }
+   //ashish
 };
 
 vtkStandardNewMacro(vtkPolygonalSurfacePointPlacer);
@@ -324,6 +362,25 @@ vtkPolygonalSurfacePointPlacer::Node *vtkPolygonalSurfacePointPlacer
 ::GetNodeAtWorldPosition( double worldPos[3] )
 {
   return this->Internals->GetNodeAtWorldPosition(worldPos);
+}
+
+//----------------------------------------------------------------------
+int vtkPolygonalSurfacePointPlacer::
+UpdateNodeWorldPosition( double worldPos[3], vtkIdType nodePointId )
+{
+  if( this->Polys->GetNumberOfItems() != 0 )
+  {
+    vtkPolyData *pd = vtkPolyData::SafeDownCast(
+                this->Polys->GetItemAsObject(0));
+    this->Internals->InsertNodeAtCurrentPickPosition( pd,
+        worldPos,-1,nodePointId,this->DistanceOffset,this->SnapToClosestPoint);
+    return 1;
+  }
+  else
+  {
+    vtkErrorMacro("PolyDataCollection has no items.");
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------

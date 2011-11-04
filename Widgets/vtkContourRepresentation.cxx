@@ -1213,6 +1213,13 @@ void vtkContourRepresentation
 //----------------------------------------------------------------------
 void vtkContourRepresentation::Initialize( vtkPolyData * pd )
 {
+  this->Initialize(pd, NULL);
+}
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation
+::Initialize( vtkPolyData * pd, vtkIdList *nodeIds )
+{
   vtkPoints *points   = pd->GetPoints();
   vtkIdType nPoints = points->GetNumberOfPoints();
   if (nPoints <= 0)
@@ -1268,6 +1275,12 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
     node->WorldPosition[2] = pos[2];
     node->Selected = 0;
 
+    // Give the point placer a chance to update the node
+    if (nodeIds && nodeIds->GetNumberOfIds() == nPoints)
+      {
+      this->PointPlacer->UpdateNodeWorldPosition( pos, nodeIds->GetId(i) );
+      }
+
     node->NormalizedDisplayPosition[0] = displayPos[0];
     node->NormalizedDisplayPosition[1] = displayPos[1];
 
@@ -1283,10 +1296,11 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
       {
       // Give the line interpolator a chance to update the node.
       int didNodeChange = this->LineInterpolator->UpdateNode(
-        this->Renderer, this, node->WorldPosition, this->GetNumberOfNodes()-1 );
+        this->Renderer, this,
+        node->WorldPosition, this->GetNumberOfNodes()-1 );
 
-      // Give the point placer a chance to validate the updated node. If its not
-      // valid, discard the LineInterpolator's change.
+      // Give the point placer a chance to validate the updated node. If its 
+      // not valid, discard the LineInterpolator's change.
       if ( didNodeChange && !this->PointPlacer->ValidateWorldPosition(
                 node->WorldPosition, worldOrient ) )
         {
@@ -1398,6 +1412,7 @@ if (!this->RebuildLocator && !this->NeedToRender)
   //we fully updated the display locator
   this->RebuildLocator = false;
 }
+
 //----------------------------------------------------------------------
 void vtkContourRepresentation::SetShowSelectedNodes(int flag )
 {
@@ -1407,7 +1422,6 @@ void vtkContourRepresentation::SetShowSelectedNodes(int flag )
     this->Modified();
     }
 }
-
 
 //----------------------------------------------------------------------
 void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
@@ -1437,4 +1451,3 @@ void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point Placer: " << this->PointPlacer << "\n";
 
 }
-

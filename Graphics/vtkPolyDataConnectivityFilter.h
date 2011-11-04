@@ -67,6 +67,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Obtain the array containing the region sizes of the extracted
+  // regions
+  vtkGetObjectMacro(RegionSizes,vtkIdTypeArray);
+
+  // Description:
   // Construct with default extraction mode to extract largest regions.
   static vtkPolyDataConnectivityFilter *New();
 
