@@ -60,6 +60,7 @@ class vtkContourLineInterpolator;
 class vtkIncrementalOctreePointLocator;
 class vtkPointPlacer;
 class vtkPolyData;
+class vtkIdList;
 
 //----------------------------------------------------------------------
 //BTX
@@ -461,9 +462,17 @@ protected:
   // is very useful when you use an external program to compute a set of
   // contour nodes, let's say based on image features. Subsequently, you want
   // to build and display a contour that runs through those points.
-  // This method is protected and accessible only from 
-  // vtkContourWidget::Initialize( vtkPolyData * )
-  virtual void Initialize( vtkPolyData * );
+  // This method is protected and accessible only from
+  // vtkContourWidget::Initialize. The idlist here may be used to initialize
+  // a contour widget that uses a vtkPolygonalSurfacePointPlacer. This stores
+  // the point id's of the nodes, since the contour is drawn on the vertices
+  // of a surface mesh.
+  void Initialize( vtkPolyData *, vtkIdList *);
+
+  // Description:
+  // Overloaded initialize method, that calls the above with a NULL idList
+  // argument.
+  virtual void Initialize( vtkPolyData *);
 
   //Description:
   // Adding a point locator to the representation to speed

@@ -47,6 +47,7 @@ struct vtkPolygonalSurfacePointPlacerNode
   double       WorldPosition[3];
   double       SurfaceWorldPosition[3];
   vtkIdType    CellId;
+  vtkIdType    PointId;
   double       ParametricCoords[3]; // parametric coords within cell
   vtkPolyData  *PolyData;
 };
@@ -98,6 +99,11 @@ public:
   // Given a world position check the validity of this
   // position according to the constraints of the placer
   virtual int ValidateWorldPosition( double worldPos[3] );
+
+  // Description:
+  // Give the node a chance to update its auxiliary point id.
+  virtual int UpdateNodeWorldPosition( double worldPos[3],
+                                       vtkIdType nodePointId );
 
   // Description:
   // Given a display position, check the validity of this position.
