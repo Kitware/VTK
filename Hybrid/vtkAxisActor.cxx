@@ -203,6 +203,12 @@ vtkAxisActor::vtkAxisActor()
 
   this->CalculateTitleOffset = 1;
   this->CalculateLabelOffset = 1;
+
+  this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
+  if (!this->FreeTypeUtilities)
+    {
+    vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+    }
 }
 
 // ****************************************************************
