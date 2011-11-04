@@ -2666,215 +2666,126 @@ void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
       }
     }
   }
-
 // ****************************************************************************
-// Methods: vtkCubeAxesActor::SetXAxesLinesProperty
-//          vtkCubeAxesActor::SetYAxesLinesProperty
-//          vtkCubeAxesActor::SetZAxesLinesProperty
-// Purpose: 
-//   Sets the axis lines property for the different axes.
-//
-// Arguments:
-//   prop : The new property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 April 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-void
-vtkCubeAxesActor::SetXAxesLinesProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetXAxesLinesProperty(vtkProperty *prop)
+{
   this->XAxesLinesProperty->DeepCopy(prop);
   this->Modified();
 }
-void
-vtkCubeAxesActor::SetYAxesLinesProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetYAxesLinesProperty(vtkProperty *prop)
+{
   this->YAxesLinesProperty->DeepCopy(prop);
   this->Modified();
 }
-void
-vtkCubeAxesActor::SetZAxesLinesProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetZAxesLinesProperty(vtkProperty *prop)
+{
   this->ZAxesLinesProperty->DeepCopy(prop);
   this->Modified();
 }
 
 // ****************************************************************************
-// Methods: vtkCubeAxesActor::GetXAxesLinesProperty
-//          vtkCubeAxesActor::GetYAxesLinesProperty
-//          vtkCubeAxesActor::GetZAxesLinesProperty
-// Purpose: 
-//   Gets the axis lines property of the different axes.
-//   We assume all the axes of a same direction have the same property.
-//
-// Arguments:
-//
-// Returns:    
-//   The property
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 April 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-vtkProperty*
-vtkCubeAxesActor::GetXAxesLinesProperty(){
+vtkProperty* vtkCubeAxesActor::GetXAxesLinesProperty()
+{
   return this->XAxesLinesProperty;
 }
-vtkProperty*
-vtkCubeAxesActor::GetYAxesLinesProperty(){
+vtkProperty* vtkCubeAxesActor::GetYAxesLinesProperty()
+{
   return this->YAxesLinesProperty;
 }
-vtkProperty*
-vtkCubeAxesActor::GetZAxesLinesProperty(){
+vtkProperty* vtkCubeAxesActor::GetZAxesLinesProperty()
+{
   return this->ZAxesLinesProperty;
 }
 
-
 // ****************************************************************************
-// Methods: vtkCubeAxesActor::SetXAxesGridlinesProperty
-//          vtkCubeAxesActor::SetYAxesGridlinesProperty
-//          vtkCubeAxesActor::SetZAxesGridlinesProperty
-// Purpose: 
-//   Sets the axis grid lines property for the different axes.
-//
-// Arguments:
-//   prop : The new property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 April 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-void
-vtkCubeAxesActor::SetXAxesGridlinesProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetXAxesGridlinesProperty(vtkProperty *prop)
+{
   this->XAxesGridlinesProperty->DeepCopy(prop);
   this->Modified();
 }
-void
-vtkCubeAxesActor::SetYAxesGridlinesProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetYAxesGridlinesProperty(vtkProperty *prop)
+{
   this->YAxesGridlinesProperty->DeepCopy(prop);
   this->Modified();
 }
-void
-vtkCubeAxesActor::SetZAxesGridlinesProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetZAxesGridlinesProperty(vtkProperty *prop)
+{
   this->ZAxesGridlinesProperty->DeepCopy(prop);
   this->Modified();
 }
 
 // ****************************************************************************
-// Methods: vtkCubeAxesActor::GetXAxesGridlinesProperty
-//          vtkCubeAxesActor::GetYAxesGridlinesProperty
-//          vtkCubeAxesActor::GetZAxesGridlinesProperty
-// Purpose: 
-//   Gets the axis grid lines property of the different axes.
-//   We assume all the axes of a same direction have the same property.
-//
-// Arguments:
-//
-// Returns:    
-//   The property
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 April 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-vtkProperty*
-vtkCubeAxesActor::GetXAxesGridlinesProperty(){
+vtkProperty* vtkCubeAxesActor::GetXAxesGridlinesProperty()
+{
   return this->XAxesGridlinesProperty;
 }
-vtkProperty*
-vtkCubeAxesActor::GetYAxesGridlinesProperty(){
+vtkProperty* vtkCubeAxesActor::GetYAxesGridlinesProperty()
+{
   return this->YAxesGridlinesProperty;
 }
-vtkProperty*
-vtkCubeAxesActor::GetZAxesGridlinesProperty(){
+vtkProperty* vtkCubeAxesActor::GetZAxesGridlinesProperty()
+{
   return this->ZAxesGridlinesProperty;
 }
 
+// ****************************************************************************
+void vtkCubeAxesActor::SetXAxesInnerGridlinesProperty(vtkProperty *prop)
+{
+  this->XAxesInnerGridlinesProperty->DeepCopy(prop);
+  this->Modified();
+}
+void vtkCubeAxesActor::SetYAxesInnerGridlinesProperty(vtkProperty *prop)
+{
+  this->YAxesInnerGridlinesProperty->DeepCopy(prop);
+  this->Modified();
+}
+void vtkCubeAxesActor::SetZAxesInnerGridlinesProperty(vtkProperty *prop)
+{
+  this->ZAxesInnerGridlinesProperty->DeepCopy(prop);
+  this->Modified();
+}
 
 // ****************************************************************************
-// Methods: vtkCubeAxesActor::SetXAxesGridpolysProperty
-//          vtkCubeAxesActor::SetYAxesGridpolysProperty
-//          vtkCubeAxesActor::SetZAxesGridpolysProperty
-// Purpose: 
-//   Sets the axis grid polys property for the different axes.
-//
-// Arguments:
-//   prop : The new property.
-//
-// Returns:    
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 April 2009
-//
-// Modifications:
-//   
+vtkProperty* vtkCubeAxesActor::GetXAxesInnerGridlinesProperty()
+{
+  return this->XAxesInnerGridlinesProperty;
+}
+vtkProperty* vtkCubeAxesActor::GetYAxesInnerGridlinesProperty()
+{
+  return this->YAxesInnerGridlinesProperty;
+}
+vtkProperty* vtkCubeAxesActor::GetZAxesInnerGridlinesProperty()
+{
+  return this->ZAxesInnerGridlinesProperty;
+}
+
 // ****************************************************************************
-void
-vtkCubeAxesActor::SetXAxesGridpolysProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetXAxesGridpolysProperty(vtkProperty *prop)
+{
   this->XAxesGridpolysProperty->DeepCopy(prop);
   this->Modified();
 }
-void
-vtkCubeAxesActor::SetYAxesGridpolysProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetYAxesGridpolysProperty(vtkProperty *prop)
+{
   this->YAxesGridpolysProperty->DeepCopy(prop);
   this->Modified();
 }
-void
-vtkCubeAxesActor::SetZAxesGridpolysProperty(vtkProperty *prop){
+void vtkCubeAxesActor::SetZAxesGridpolysProperty(vtkProperty *prop)
+{
   this->ZAxesGridpolysProperty->DeepCopy(prop);
   this->Modified();
 }
 
 // ****************************************************************************
-// Methods: vtkCubeAxesActor::GetXAxesGridpolysProperty
-//          vtkCubeAxesActor::GetYAxesGridpolysProperty
-//          vtkCubeAxesActor::GetZAxesGridpolysProperty
-// Purpose: 
-//   Gets the axis grid polys property of the different axes.
-//   We assume all the axes of a same direction have the same property.
-//
-// Arguments:
-//
-// Returns:    
-//   The property
-//
-// Note:       
-//
-// Programmer: Nicolas Dolegieviez
-// Creation:   29 April 2009
-//
-// Modifications:
-//   
-// ****************************************************************************
-vtkProperty*
-vtkCubeAxesActor::GetXAxesGridpolysProperty(){
+vtkProperty* vtkCubeAxesActor::GetXAxesGridpolysProperty()
+{
   return this->XAxesGridpolysProperty;
 }
-vtkProperty*
-vtkCubeAxesActor::GetYAxesGridpolysProperty(){
+vtkProperty* vtkCubeAxesActor::GetYAxesGridpolysProperty()
+{
   return this->YAxesGridpolysProperty;
 }
-vtkProperty*
-vtkCubeAxesActor::GetZAxesGridpolysProperty(){
+vtkProperty* vtkCubeAxesActor::GetZAxesGridpolysProperty()
+{
   return this->ZAxesGridpolysProperty;
 }
