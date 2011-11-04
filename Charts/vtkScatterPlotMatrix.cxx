@@ -215,10 +215,10 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
           xy->GetAxis(vtkAxis::RIGHT)->SetRange(a->GetMinimum(), a->GetMaximum());
           }
         }
-      plot->SetInput(this->Input.GetPointer(),
-                     this->VisibleColumns->GetValue(pos.X()),
-                     this->VisibleColumns->GetValue(this->Size.X() -
-                                                    pos.Y() - 1));
+      plot->SetInputData(this->Input.GetPointer(),
+                         this->VisibleColumns->GetValue(pos.X()),
+                         this->VisibleColumns->GetValue(this->Size.X() -
+                                                        pos.Y() - 1));
       plot->SetColor(this->Private->ActivePlotColor[0],
                      this->Private->ActivePlotColor[1],
                      this->Private->ActivePlotColor[2]);
@@ -593,9 +593,9 @@ void vtkScatterPlotMatrix::UpdateLayout()
         this->GetChart(pos)->SetActionToButton(vtkChart::ZOOM, -1);
         this->GetChart(pos)->SetActionToButton(vtkChart::SELECT, -1);
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::POINTS);
-        plot->SetInput(this->Input.GetPointer(),
-                       this->VisibleColumns->GetValue(i),
-                       this->VisibleColumns->GetValue(n - j - 1));
+        plot->SetInputData(this->Input.GetPointer(),
+                           this->VisibleColumns->GetValue(i),
+                           this->VisibleColumns->GetValue(n - j - 1));
         plot->SetColor(this->Private->ScatterPlotColor[0],
                        this->Private->ScatterPlotColor[1],
                        this->Private->ScatterPlotColor[2]);
@@ -612,8 +612,8 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plot->GetBrush()->SetColorF(this->Private->HistogramColor);
         plot->GetPen()->SetColor(255, 255, 255);
         vtkStdString name(this->VisibleColumns->GetValue(i));
-        plot->SetInput(this->Private->Histogram.GetPointer(),
-                       name + "_extents", name + "_pops");
+        plot->SetInputData(this->Private->Histogram.GetPointer(),
+                           name + "_extents", name + "_pops");
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name.c_str());
         if (i != n - 1)
