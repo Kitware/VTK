@@ -23,7 +23,7 @@
 #include FT_INTERNAL_DEBUG_H
 #include FT_INTERNAL_STREAM_H
 #include FT_INTERNAL_OBJECTS_H
-#include FT_TRUETYPE_IDS_H
+#include FT_TRUETYPE_IDS_H 
 
 #include "winfnt.h"
 #include "fnterrs.h"

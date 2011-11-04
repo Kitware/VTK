@@ -60,6 +60,7 @@ vtkDistanceRepresentation2D.cxx
 vtkDistanceRepresentation3D.cxx
 vtkEllipsoidTensorProbeRepresentation.cxx
 vtkEvent.cxx
+vtkFixedSizeHandleRepresentation3D.cxx
 vtkFocalPlanePointPlacer.cxx
 vtkHandleRepresentation.cxx
 vtkHandleWidget.cxx

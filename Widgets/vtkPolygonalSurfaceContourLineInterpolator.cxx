@@ -47,7 +47,7 @@ vtkPolygonalSurfaceContourLineInterpolator
 }
 
 //----------------------------------------------------------------------
-int vtkPolygonalSurfaceContourLineInterpolator::UpdateNode( 
+int vtkPolygonalSurfaceContourLineInterpolator::UpdateNode(
     vtkRenderer *, vtkContourRepresentation *,
     double * vtkNotUsed(node), int vtkNotUsed(idx) )
 {
@@ -60,7 +60,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
                           vtkContourRepresentation *rep,
                           int idx1, int idx2 )
 {
-  vtkPolygonalSurfacePointPlacer *placer = 
+  vtkPolygonalSurfacePointPlacer *placer =
     vtkPolygonalSurfacePointPlacer::SafeDownCast(rep->GetPointPlacer());
   if (!placer)
     {
@@ -81,43 +81,60 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
 
   // Find the starting and ending point id's
   vtkIdType beginVertId = -1, endVertId = -1;
-  vtkCell *cellBegin = nodeBegin->PolyData->GetCell(nodeBegin->CellId);
-  vtkPoints *cellBeginPoints = cellBegin->GetPoints();
-
-  double minDistance = VTK_DOUBLE_MAX;
-  for (int i = 0; i < cellBegin->GetNumberOfPoints(); i++)
+  double minDistance;
+  if (nodeBegin->CellId == -1)
     {
-    cellBeginPoints->GetPoint(i, p);
-    double distance = vtkMath::Distance2BetweenPoints( p, p1 );
-    if (distance < minDistance)
+    // If no cell is specified, use the pointid instead
+    beginVertId = nodeBegin->PointId;
+    }
+  else
+    {
+    vtkCell *cellBegin = nodeBegin->PolyData->GetCell(nodeBegin->CellId);
+    vtkPoints *cellBeginPoints = cellBegin->GetPoints();
+
+    minDistance = VTK_DOUBLE_MAX;
+    for (int i = 0; i < cellBegin->GetNumberOfPoints(); i++)
       {
-      beginVertId = cellBegin->GetPointId(i);
-      minDistance = distance;
+      cellBeginPoints->GetPoint(i, p);
+      double distance = vtkMath::Distance2BetweenPoints( p, p1 );
+      if (distance < minDistance)
+        {
+        beginVertId = cellBegin->GetPointId(i);
+        minDistance = distance;
+        }
       }
     }
 
-  vtkCell *cellEnd   = nodeEnd->PolyData->GetCell(nodeEnd->CellId);
-  vtkPoints *cellEndPoints   = cellEnd->GetPoints();
-
-  minDistance = VTK_DOUBLE_MAX;
-  for (int i = 0; i < cellEnd->GetNumberOfPoints(); i++)
-    {
-    cellEndPoints->GetPoint(i, p);
-    double distance = vtkMath::Distance2BetweenPoints( p, p2 );
-    if (distance < minDistance)
+    if (nodeEnd->CellId == -1)
       {
-      endVertId = cellEnd->GetPointId(i);
-      minDistance = distance;
+      // If no cell is specified, use the pointid instead
+      endVertId = nodeEnd->PointId;
       }
-    }
+    else
+      {
+      vtkCell *cellEnd   = nodeEnd->PolyData->GetCell(nodeEnd->CellId);
+      vtkPoints *cellEndPoints   = cellEnd->GetPoints();
+
+      minDistance = VTK_DOUBLE_MAX;
+      for (int i = 0; i < cellEnd->GetNumberOfPoints(); i++)
+        {
+        cellEndPoints->GetPoint(i, p);
+        double distance = vtkMath::Distance2BetweenPoints( p, p2 );
+        if (distance < minDistance)
+          {
+          endVertId = cellEnd->GetPointId(i);
+          minDistance = distance;
+          }
+        }
+      }
 
   if (beginVertId == -1 || endVertId == -1)
     {
     // Could not find the starting and ending cells. We can't interpolate.
     return 0;
     }
-  
-  if (this->LastInterpolatedVertexIds[0] != beginVertId || 
+
+  if (this->LastInterpolatedVertexIds[0] != beginVertId ||
       this->LastInterpolatedVertexIds[1] != endVertId)
     {
     this->DijkstraGraphGeodesicPath->SetInputData( nodeBegin->PolyData );
@@ -213,7 +230,7 @@ void vtkPolygonalSurfaceContourLineInterpolator
 void vtkPolygonalSurfaceContourLineInterpolator::PrintSelf(
                               ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);  
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "DistanceOffset: " << this->DistanceOffset << endl;
 }

@@ -665,36 +665,21 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     }
   
 
-  // BUG #12202: As much as can gather from this code, it doesn't seem like the
-  // developer could decide how multiple pieces were to be handled. In
-  // the latest avatar, we see that multiple pieces are handled by vtkXMLP*
-  // readers so this code will never be called when this->StartPiece !=
-  // this->EndPiece.
-  // The following code simply ended up appending to existing arrays which messed
-  // things up when reading data with multiple timesteps. Assuming that this
-  // class only reads 1 piece in one RequestData call, I remove the appending
-  // code which solves the issue with memory bloat for temporal datasets.
-#if 0
   // Allocate memory in the output connectivity array.
   vtkIdType curSize = 0;
-  if(outCells->GetData())
+  if (this->Piece > this->StartPiece && outCells->GetData())
     {
+    // Refer to BUG #12202 and BUG #12690. The (this->Piece > this->StartPiece)
+    // check ensures that when we are reading mulitple timesteps, we don't end
+    // up appending to existing cell arrays infinitely. An earlier version of
+    // the fix assumed that vtkXMLUnstructuredDataReader read only 1 piece at a
+    // time, which was incorrect (and hence  BUG #12690).
     curSize = outCells->GetData()->GetNumberOfTuples();
     }
 
   vtkIdType newSize = curSize+numberOfCells+cellPoints->GetNumberOfTuples();
   vtkIdType* cptr = outCells->WritePointer(totalNumberOfCells, newSize);
   cptr += curSize;
-#else
-  assert(this->StartPiece + 1== this->EndPiece);
-  assert(totalNumberOfCells == numberOfCells);
-
-  static_cast<void>(totalNumberOfCells);
-
-  // Allocate memory in the output connectivity array.
-  vtkIdType newSize = numberOfCells + cellPoints->GetNumberOfTuples();
-  vtkIdType* cptr = outCells->WritePointer(numberOfCells, newSize);
-#endif
   
   // Copy the connectivity data.
   vtkIdType previousOffset = 0;

@@ -98,6 +98,11 @@ void vtkPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Pixel Tolerance: " << this->PixelTolerance << "\n";
   os << indent << "World Tolerance: " << this->WorldTolerance << "\n";
-  
 }
 
+//----------------------------------------------------------------------
+int vtkPointPlacer::
+UpdateNodeWorldPosition(double worldPos[3], vtkIdType nodePointId)
+{
+  return 1;
+}

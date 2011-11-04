@@ -25,6 +25,7 @@ SET(MyTests
   TestContourWidget2.cxx
   TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
+  TestFixedSizeHandleRepresentation3D.cxx
   TestHandleWidget.cxx
   TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
@@ -68,6 +69,7 @@ SET(MyTests
 #  vtkPointHandleRepresentation2DTest1.cxx
 #  vtkPointHandleRepresentation3DTest1.cxx
 #  vtkConstrainedPointHandleRepresentationTest1
+  TestPointHandleRepresentation3D.cxx
 #  vtkSphereHandleRepresentationTest1.cxx
 #  vtkPolygonalHandleRepresentation3DTest1.cxx
 #  vtkOrientedPolygonalHandleRepresentation3DTest1.cxx

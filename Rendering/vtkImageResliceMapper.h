@@ -54,6 +54,15 @@ public:
   virtual void SetSlicePlane(vtkPlane *plane);
 
   // Description:
+  // When using SliceAtFocalPoint, this causes the slicing to occur at
+  // the closest slice to the focal point, instead of the default behavior
+  // where a new slice is interpolated between the original slices.  This
+  // flag is ignored if the slicing is oblique to the original slices.
+  vtkSetMacro(JumpToNearestSlice, int);
+  vtkBooleanMacro(JumpToNearestSlice, int);
+  vtkGetMacro(JumpToNearestSlice, int);
+
+  // Description:
   // The slab thickness, for thick slicing (default: zero)
   vtkSetMacro(SlabThickness, double);
   vtkGetMacro(SlabThickness, double);
@@ -192,6 +201,7 @@ protected:
 
   vtkImageSliceMapper *SliceMapper; // Does the OpenGL rendering
 
+  int JumpToNearestSlice; // Adjust SliceAtFocalPoint
   int AutoAdjustImageQuality; // LOD-style behavior
   int SeparateWindowLevelOperation; // Do window/level as a separate step
   double SlabThickness; // Current slab thickness

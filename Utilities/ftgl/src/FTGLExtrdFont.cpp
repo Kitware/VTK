@@ -4,6 +4,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTGLExtrdFont::FTGLExtrdFont()
 :  depth(0)
@@ -28,4 +32,6 @@ FTGlyph* FTGLExtrdFont::MakeGlyph( unsigned int g)
   return NULL;
 }
 
-
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
