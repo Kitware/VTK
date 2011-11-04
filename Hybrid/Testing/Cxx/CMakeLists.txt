@@ -13,6 +13,7 @@ IF (VTK_DATA_ROOT)
     TestCubeAxesWithXInnerGrids.cxx
     TestCubeAxesWithYInnerGrids.cxx
     TestCubeAxesWithZInnerGrids.cxx
+    TestCubeAxesWithAllGrids.cxx
     TestCubeAxesWithXInnerPolys.cxx
     TestCubeAxesWithYInnerPolys.cxx
     TestCubeAxesWithZInnerPolys.cxx
