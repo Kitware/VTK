@@ -16,7 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkPLOT3DReader.h"
+#include "vtkExodusIIReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
@@ -32,26 +32,20 @@
 int TestScalarBar( int argc, char *argv[] )
 {
   char* fname = 
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
-  char* fname2 = 
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref");
   
   // Start by loading some data.
-  vtkSmartPointer<vtkPLOT3DReader> pl3d =
-    vtkSmartPointer<vtkPLOT3DReader>::New();
-  pl3d->SetXYZFileName(fname);
-  pl3d->SetQFileName(fname2);
-  pl3d->SetScalarFunctionNumber(100);
-  pl3d->SetVectorFunctionNumber(202);
-  pl3d->Update();
+  vtkSmartPointer<vtkExodusIIReader> reader =
+    vtkSmartPointer<vtkExodusIIReader>::New();
+  reader->SetFileName(fname);
+  reader->Update();
   
   delete [] fname;
-  delete [] fname2;
   
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridGeometryFilter> outline =
     vtkSmartPointer<vtkStructuredGridGeometryFilter>::New();
-  outline->SetInputConnection(pl3d->GetOutputPort());
+  outline->SetInputConnection(reader->GetOutputPort());
   outline->SetExtent(0,100,0,100,9,9);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
