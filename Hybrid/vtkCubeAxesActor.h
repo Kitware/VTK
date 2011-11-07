@@ -85,9 +85,8 @@ public:
 
   // Description:
   // Gets/Sets the RebuildAxes flag
-  vtkSetMacro(RebuildAxes,int);
-  vtkGetMacro(RebuildAxes,int);
-  vtkBooleanMacro(RebuildAxes,int);
+  vtkSetMacro( RebuildAxes, bool );
+  vtkGetMacro( RebuildAxes, bool );
 
   // Description:
   // Explicitly specify the region in space around which to draw the bounds.
