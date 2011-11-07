@@ -920,7 +920,8 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
   if (!force && (!this->LabelVisibility || this->NumberOfLabelsBuilt == 0) )
     return;
 
-  int i, xmult, ymult;
+  int xmult = 0;
+  int ymult = 0;
   double xcoeff, ycoeff;
    
   // we are in 2D mode, so no Z axis
@@ -954,7 +955,7 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
   double transpos[3] = {0., 0., 0.};
   double center[3], tick[3], pos[2];
       
-  for (i=0; i < this->NumberOfLabelsBuilt; i++)
+  for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     ptIdx = 4*i + 1;
 
