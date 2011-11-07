@@ -19,6 +19,7 @@
 #include "vtkPLOT3DReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -139,12 +140,17 @@ int TestScalarBar( int argc, char *argv[] )
   ren1->SetBackground(.5,.5,.5);
   ren1->SetBackground2(.0,.0,.0);
   ren1->SetActiveCamera(camera);
-  renWin->SetSize(700, 500);
-  
+
   // render the image
-  iren->Initialize();
+  renWin->SetWindowName("VTK - Scalar Bar options");
+  renWin->SetSize(700, 500);
   renWin->Render();
-  iren->Start();
   
-  return EXIT_SUCCESS;
+  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+
+  return !retVal;
 }
