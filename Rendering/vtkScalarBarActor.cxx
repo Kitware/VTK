@@ -837,6 +837,16 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumWidthInPixels << endl;
   os << indent << "MaximumHeightInPixels: " 
      << this->MaximumHeightInPixels << endl;
+
+  os << indent << "DrawBackground: " << this->DrawBackground << "\n";
+  os << indent << "Background Property:\n";
+  this->BackgroundProperty->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "DrawFrame: " << this->DrawFrame << "\n";
+  os << indent << "Frame Property:\n";
+  this->FrameProperty->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Enhanced Mode:\n"
+     << this->EnhancedMode << endl;
 }
 
 //----------------------------------------------------------------------------
