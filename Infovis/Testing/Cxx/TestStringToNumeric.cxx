@@ -109,6 +109,17 @@ int TestStringToNumeric(int argc, char* argv[])
       ++errors;
       }
     }
+
+  cerr << "Testing ForceDouble..." << endl;
+  numeric->ForceDoubleOn();
+  numeric->Update();
+  table = vtkTable::SafeDownCast(numeric->GetOutput());
+  if (!vtkDoubleArray::SafeDownCast(table->GetColumnByName("Age")))
+    {
+    cerr << "ERROR: ForceDouble did not force Age to double array" << endl;
+    ++errors;
+    }
+
   cerr << "...done testing" << endl;
   cerr << errors << " errors found." << endl;
   
