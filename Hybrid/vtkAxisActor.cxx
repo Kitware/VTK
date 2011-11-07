@@ -1309,10 +1309,20 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GridlineYLength: " << this->GridlineYLength << endl;
   os << indent << "GridlineZLength: " << this->GridlineZLength << endl;
 
+  os << indent << "DrawInnerGridpolys: " << this->DrawGridpolys << endl;
+  os << indent << "DrawInnerGridlines: " << this->DrawInnerGridlines << endl;
+
   os << indent << "TickLocation: " << this->TickLocation << endl;
 
   os << indent << "CalculateLabelOffset: " << this->CalculateLabelOffset << std::endl;
   os << indent << "CalculateTitleOffset: " << this->CalculateTitleOffset << std::endl;
+
+  os << indent << "LabelTextProperty: " << this->LabelTextProperty << endl;
+  os << indent << "TitleTextProperty: " << this->TitleTextProperty << endl;
+
+  os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
+
+  os << indent << "Usé2DMode: " << this->Use2DMode << endl;
 }
 
 // **************************************************************************
