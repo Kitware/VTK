@@ -2263,16 +2263,18 @@ double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
   double length, maxLength = 0.;
   double bounds[6];
   double xsize, ysize;
+  vtkProperty *newProp = this->NewLabelProperty();
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
-    this->LabelActors[i]->SetProperty(this->GetProperty());
+    this->LabelActors[i]->SetProperty(newProp);
     this->LabelActors[i]->GetMapper()->GetBounds(bounds);
     xsize = bounds[1] - bounds[0];
     ysize = bounds[3] - bounds[2];
     length = sqrt(xsize*xsize + ysize*ysize);
     maxLength = (length > maxLength ? length : maxLength);
     }
+  newProp->Delete();
   return maxLength;
 }
 
