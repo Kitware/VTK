@@ -1494,7 +1494,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   char native[7] = "native";
 
   MPICall(MPI_File_set_view(this->Internal->FilePtr, BYTES_PER_DATA, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, &topoData, blockSize, MPI_FLOAT, &status));
+  MPICall(MPI_File_read_all(this->Internal->FilePtr, topoData, blockSize, MPI_FLOAT, &status));
 #endif
 
   // Initial z coordinate processing
