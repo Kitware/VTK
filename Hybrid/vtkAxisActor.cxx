@@ -109,6 +109,10 @@ vtkAxisActor::vtkAxisActor()
   this->TitleActor->SetEnableDistanceLOD(0);
   this->TitleActor2D = vtkTextActor::New();
 
+  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty->SetColor(1.,1.,1.);
+  this->TitleTextProperty->SetFontFamilyToArial();
+
   // to avoid deleting/rebuilding create once up front
   this->NumberOfLabelsBuilt = 0;
   this->LabelVectors = NULL;
@@ -2311,7 +2315,9 @@ double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
 
   this->TitleVector->SetText(this->Title);
   this->TitleActor->SetCamera(this->Camera);
-  this->TitleActor->SetProperty(this->GetProperty());
+  vtkProperty * newProp = this->NewTitleProperty();
+  this->TitleActor->SetProperty(newProp);
+  newProp->Delete();
   this->TitleActor->GetMapper()->GetBounds(bounds);
   xsize = bounds[1] - bounds[0];
   ysize = bounds[3] - bounds[2];
