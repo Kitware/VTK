@@ -1011,6 +1011,8 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Camera: (none)\n";
     }
 
+  os << indent << "RebuildAxes: " << this->RebuildAxes << endl;
+
   if (this->FlyMode == VTK_FLY_CLOSEST_TRIAD)
     {
     os << indent << "Fly Mode: CLOSEST_TRIAD\n";
@@ -1082,6 +1084,14 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DrawXGridlines: " << this->DrawXGridlines << endl;
   os << indent << "DrawYGridlines: " << this->DrawYGridlines << endl;
   os << indent << "DrawZGridlines: " << this->DrawZGridlines << endl;
+
+  os << indent << "DrawXInnerGridlines: " << this->DrawXInnerGridlines << endl;
+  os << indent << "DrawYInnerGridlines: " << this->DrawYInnerGridlines << endl;
+  os << indent << "DrawZInnerGridlines: " << this->DrawZInnerGridlines << endl;
+
+  os << indent << "DrawXGridpolys: " << this->DrawXGridpolys << endl;
+  os << indent << "DrawYGridpolys: " << this->DrawYGridpolys << endl;
+  os << indent << "DrawZGridpolys: " << this->DrawZGridpolys << endl;
 }
 
 void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport,
