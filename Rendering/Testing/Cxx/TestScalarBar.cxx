@@ -18,6 +18,7 @@
 #include "vtkCamera.h"
 #include "vtkPLOT3DReader.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -82,7 +83,11 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar1->SetHeight(0.5);
   scalarBar1->SetTextPositionToPrecedeScalarBar();
   scalarBar1->SetEnhancedMode(1);
- 
+  scalarBar1->SetDrawFrame(1);
+  scalarBar1->GetFrameProperty()->SetColor(0., 0., 0.); 
+  scalarBar1->SetDrawBackground(1);
+  scalarBar1->GetBackgroundProperty()->SetColor(1., 1., 1.); 
+
   vtkSmartPointer<vtkScalarBarActor> scalarBar2 =
     vtkSmartPointer<vtkScalarBarActor>::New();
   scalarBar2->SetTitle("Temperature");
@@ -93,6 +98,11 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar2->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar2->GetPositionCoordinate()->SetValue(0.05, 0.05);
   scalarBar2->SetTextPositionToPrecedeScalarBar();
+  scalarBar2->SetEnhancedMode(1);
+  scalarBar2->SetDrawFrame(1);
+  scalarBar2->GetFrameProperty()->SetColor(1., 0., 0.); 
+  scalarBar2->SetDrawBackground(1);
+  scalarBar2->GetBackgroundProperty()->SetColor(.5, .5, .5); 
   
   vtkSmartPointer<vtkScalarBarActor> scalarBar3 =
     vtkSmartPointer<vtkScalarBarActor>::New();
@@ -102,6 +112,10 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar3->GetPositionCoordinate()->SetValue(0.8, 0.1);
   scalarBar3->SetHeight(0.5);
   scalarBar3->SetTextPositionToPrecedeScalarBar();
+  scalarBar3->SetEnhancedMode(1);
+  scalarBar3->SetDrawFrame(1);
+  scalarBar3->GetFrameProperty()->SetColor(0., 0., 0.); 
+  scalarBar3->SetDrawBackground(0);
 
   ren1->AddActor(outlineActor);
   ren1->AddActor(scalarBar1);

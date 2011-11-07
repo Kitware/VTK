@@ -646,21 +646,21 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         if (this->NumberOfLabels > 1)
           {
-          val = static_cast<double>(i)/(this->NumberOfLabels-1) *barHeight;
+          val = static_cast<double>(i)/(this->NumberOfLabels-1) *barHeight + barY;
           }
         else 
           {
-          val = 0.5*barHeight;
+          val = 0.5*(barHeight + barY);
           }
         this->TextMappers[i]->GetSize(viewport,sizeTextData);
         this->TextMappers[i]->GetTextProperty()->SetJustificationToLeft();
         if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           {
-          this->TextActors[i]->SetPosition(0.0, val - sizeTextData[1]/2);
+          this->TextActors[i]->SetPosition(barX, val - sizeTextData[1]/2);
           }
         else
           {
-          this->TextActors[i]->SetPosition(barWidth + 3,
+          this->TextActors[i]->SetPosition(barX + barWidth + 3,
                                            val - sizeTextData[1]/2);
           }
         }
@@ -669,12 +669,12 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
         {
-        this->TitleActor->SetPosition(size[0]/2, 0.0);
+        this->TitleActor->SetPosition(size[0]/2, barY);
         }
       else
         {
         this->TitleActor->SetPosition(size[0]/2, 
-                                    barHeight + labelSize[1] + 0.1*size[1]);
+                                      barHeight + labelSize[1] + 0.1*size[1]);
         }
       for (i=0; i < this->NumberOfLabels; i++)
         {
@@ -682,11 +682,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->TextMappers[i]->GetTextProperty()->SetJustificationToCentered();
         if (this->NumberOfLabels > 1)
           {
-          val = static_cast<double>(i)/(this->NumberOfLabels-1) * barWidth;
+          val = static_cast<double>(i)/(this->NumberOfLabels-1) * barWidth + barX;
           }
         else
           {
-          val = 0.5*barWidth;
+          val = 0.5*(barWidth+barY);
           }
         if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           {
@@ -694,7 +694,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
           }
         else
           {
-          this->TextActors[i]->SetPosition(val, barHeight + 0.05*size[1]);
+          this->TextActors[i]->SetPosition(val, barY + barHeight + 0.05*size[1]);
           }
         }
       }
@@ -710,16 +710,16 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
       p1[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-                  ? (size[0] - barWidth) : 0.0;
-      p1[1] = 0.0;
+        ? (size[0] - barWidth - barX) : barX;
+      p1[1] = barY;
       p2[0] = p1[0] + barWidth;
-      p2[1] = barHeight;
+      p2[1] = p1[1] + barHeight;
       }
     else
       {
-      p1[0] = 0.0;
+      p1[0] = barX;
       p1[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-                  ? (size[1] - barHeight) : 0.0;
+        ? (size[1] - barHeight - barY) : barY;
       p2[0] = p1[0] + barWidth;
       p2[1] = p1[1] + barHeight;
       }
@@ -733,11 +733,12 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkDataArray * tc = this->TexturePolyData->GetPointData()->GetTCoords();
     tc->SetTuple2(1, barWidth / this->TextureGridWidth, 0.0);
     tc->SetTuple2(2, barWidth / this->TextureGridWidth, 
-                     barHeight / this->TextureGridWidth);
+                  barHeight / this->TextureGridWidth);
     tc->SetTuple2(3, 0.0, barHeight / this->TextureGridWidth);
 
     this->BuildTime.Modified();
     }
+
 
   // Everything is built, just have to render
   if (this->Title != NULL)
