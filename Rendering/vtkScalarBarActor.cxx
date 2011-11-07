@@ -160,6 +160,25 @@ vtkScalarBarActor::vtkScalarBarActor()
 
   this->MaximumWidthInPixels = VTK_INT_MAX;
   this->MaximumHeightInPixels = VTK_INT_MAX;
+
+  this->BackgroundProperty = vtkProperty2D::New();
+  this->FrameProperty = vtkProperty2D::New();
+
+  this->DrawBackground = 0;
+  this->Background = vtkPolyData::New();
+  this->BackgroundMapper = vtkPolyDataMapper2D::New();
+  this->BackgroundMapper->SetInput(this->Background);
+  this->BackgroundActor = vtkActor2D::New();
+  this->BackgroundActor->SetMapper(this->BackgroundMapper);
+  this->BackgroundActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+
+  this->DrawFrame = 0;
+  this->Frame = vtkPolyData::New();
+  this->FrameMapper = vtkPolyDataMapper2D::New();
+  this->FrameMapper->SetInput(this->Frame);
+  this->FrameActor = vtkActor2D::New();
+  this->FrameActor->SetMapper(this->FrameMapper);
+  this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
 }
 
 //----------------------------------------------------------------------------
@@ -177,6 +196,8 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow *win)
       }
     }
   this->ScalarBarActor->ReleaseGraphicsResources(win);
+  this->BackgroundActor->ReleaseGraphicsResources(win);
+  this->FrameActor->ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------------
@@ -224,6 +245,14 @@ vtkScalarBarActor::~vtkScalarBarActor()
   this->Texture->Delete();
   this->TextureActor->Delete();
   this->TexturePolyData->Delete();
+  this->Background->Delete();
+  this->BackgroundMapper->Delete();
+  this->BackgroundActor->Delete();
+  this->Frame->Delete();
+  this->FrameMapper->Delete();
+  this->FrameActor->Delete();
+  this->SetBackgroundProperty(NULL);
+  this->SetFrameProperty(NULL);
 }
 
 //----------------------------------------------------------------------------
