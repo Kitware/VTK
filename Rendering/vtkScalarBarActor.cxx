@@ -37,6 +37,8 @@ vtkStandardNewMacro(vtkScalarBarActor);
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkScalarBarActor,LabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkScalarBarActor,TitleTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkScalarBarActor,BackgroundProperty,vtkProperty2D);
+vtkCxxSetObjectMacro(vtkScalarBarActor,FrameProperty,vtkProperty2D);
 
 //----------------------------------------------------------------------------
 // Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
