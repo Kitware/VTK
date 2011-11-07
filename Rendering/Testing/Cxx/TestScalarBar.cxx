@@ -24,6 +24,7 @@
 #include "vtkScalarBarActor.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridGeometryFilter.h"
+#include "vtkTextProperty.h"
 
 #include "vtkTestUtilities.h"
 
@@ -79,6 +80,7 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar1->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar1->GetPositionCoordinate()->SetValue(0.6, 0.1);
   scalarBar1->SetHeight(0.5);
+  scalarBar1->SetTextPositionToPrecedeScalarBar();
    
   vtkSmartPointer<vtkScalarBarActor> scalarBar2 =
     vtkSmartPointer<vtkScalarBarActor>::New();
@@ -89,6 +91,7 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar2->SetHeight(0.2);
   scalarBar2->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar2->GetPositionCoordinate()->SetValue(0.05, 0.05);
+  scalarBar2->SetTextPositionToPrecedeScalarBar();
   
   vtkSmartPointer<vtkScalarBarActor> scalarBar3 =
     vtkSmartPointer<vtkScalarBarActor>::New();
@@ -97,6 +100,7 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar3->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar3->GetPositionCoordinate()->SetValue(0.8, 0.1);
   scalarBar3->SetHeight(0.5);
+  scalarBar3->SetTextPositionToPrecedeScalarBar();
 
   ren1->AddActor(outlineActor);
   ren1->AddActor(scalarBar1);
