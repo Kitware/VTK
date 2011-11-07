@@ -16,7 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkExodusIIReader.h"
+#include "vtkPLOT3DReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
@@ -31,21 +31,27 @@
 
 int TestScalarBar( int argc, char *argv[] )
 {
-  char* fname = 
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref");
-  
+ char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
+  char* fname2 =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
+
   // Start by loading some data.
-  vtkSmartPointer<vtkExodusIIReader> reader =
-    vtkSmartPointer<vtkExodusIIReader>::New();
-  reader->SetFileName(fname);
-  reader->Update();
-  
+  vtkSmartPointer<vtkPLOT3DReader> pl3d =
+    vtkSmartPointer<vtkPLOT3DReader>::New();
+  pl3d->SetXYZFileName(fname);
+  pl3d->SetQFileName(fname2);
+  pl3d->SetScalarFunctionNumber(100);
+  pl3d->SetVectorFunctionNumber(202);
+  pl3d->Update();
+
   delete [] fname;
+  delete [] fname2;
   
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridGeometryFilter> outline =
     vtkSmartPointer<vtkStructuredGridGeometryFilter>::New();
-  outline->SetInputConnection(reader->GetOutputPort());
+  outline->SetInputConnection(pl3d->GetOutputPort());
   outline->SetExtent(0,100,0,100,9,9);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
@@ -70,7 +76,7 @@ int TestScalarBar( int argc, char *argv[] )
  
   vtkSmartPointer<vtkScalarBarActor> scalarBar1 =
     vtkSmartPointer<vtkScalarBarActor>::New();
-  scalarBar1->SetTitle("Temperature");
+  scalarBar1->SetTitle("Density");
   scalarBar1->SetLookupTable(outlineMapper->GetLookupTable());
   scalarBar1->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar1->GetPositionCoordinate()->SetValue(.6, .05);
@@ -87,7 +93,7 @@ int TestScalarBar( int argc, char *argv[] )
 
   vtkSmartPointer<vtkScalarBarActor> scalarBar2 =
     vtkSmartPointer<vtkScalarBarActor>::New();
-  scalarBar2->SetTitle("Temperature");
+  scalarBar2->SetTitle("Density");
   scalarBar2->SetLookupTable(outlineMapper->GetLookupTable());
   scalarBar2->SetOrientationToHorizontal();
   scalarBar2->SetWidth(0.5);
@@ -105,7 +111,7 @@ int TestScalarBar( int argc, char *argv[] )
   
   vtkSmartPointer<vtkScalarBarActor> scalarBar3 =
     vtkSmartPointer<vtkScalarBarActor>::New();
-  scalarBar3->SetTitle("Temperature");
+  scalarBar3->SetTitle("Density");
   scalarBar3->SetLookupTable(outlineMapper->GetLookupTable());
   scalarBar3->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar3->GetPositionCoordinate()->SetValue(0.8, .05);
@@ -119,6 +125,10 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar3->GetFrameProperty()->SetColor(0., 0., 0.); 
   scalarBar3->SetDrawBackground(0);
 
+  vtkSmartPointer<vtkCamera> camera =
+    vtkSmartPointer<vtkCamera>::New();
+  camera->SetFocalPoint(8,0,30);
+  camera->SetPosition(6,0,50);
   // Add the actors to the renderer, set the background and size
   //
   ren1->AddActor(outlineActor);
@@ -128,9 +138,9 @@ int TestScalarBar( int argc, char *argv[] )
   ren1->GradientBackgroundOn();
   ren1->SetBackground(.5,.5,.5);
   ren1->SetBackground2(.0,.0,.0);
- 
+  ren1->SetActiveCamera(camera);
   renWin->SetSize(700, 500);
-
+  
   // render the image
   iren->Initialize();
   renWin->Render();
