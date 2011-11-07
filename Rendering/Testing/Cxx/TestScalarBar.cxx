@@ -82,6 +82,8 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar1->GetPositionCoordinate()->SetValue(0.6, 0.1);
   scalarBar1->SetHeight(0.5);
   scalarBar1->SetTextPositionToPrecedeScalarBar();
+  scalarBar1->GetTitleTextProperty()->SetColor(0., 0., 1.); 
+  scalarBar1->GetLabelTextProperty()->SetColor(0., 0., 1.); 
   scalarBar1->SetEnhancedMode(1);
   scalarBar1->SetDrawFrame(1);
   scalarBar1->GetFrameProperty()->SetColor(0., 0., 0.); 
@@ -98,6 +100,8 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar2->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar2->GetPositionCoordinate()->SetValue(0.05, 0.05);
   scalarBar2->SetTextPositionToPrecedeScalarBar();
+  scalarBar2->GetTitleTextProperty()->SetColor(0., 0., 1.); 
+  scalarBar2->GetLabelTextProperty()->SetColor(0., 0., 1.); 
   scalarBar2->SetEnhancedMode(1);
   scalarBar2->SetDrawFrame(1);
   scalarBar2->GetFrameProperty()->SetColor(1., 0., 0.); 
@@ -112,19 +116,23 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar3->GetPositionCoordinate()->SetValue(0.8, 0.1);
   scalarBar3->SetHeight(0.5);
   scalarBar3->SetTextPositionToPrecedeScalarBar();
+  scalarBar3->GetTitleTextProperty()->SetColor(0., 0., 1.); 
+  scalarBar3->GetLabelTextProperty()->SetColor(0., 0., 1.); 
   scalarBar3->SetEnhancedMode(1);
   scalarBar3->SetDrawFrame(1);
   scalarBar3->GetFrameProperty()->SetColor(0., 0., 0.); 
   scalarBar3->SetDrawBackground(0);
 
+  // Add the actors to the renderer, set the background and size
+  //
   ren1->AddActor(outlineActor);
   ren1->AddActor(scalarBar1);
   ren1->AddActor(scalarBar2);
   ren1->AddActor(scalarBar3);
-
-  // Add the actors to the renderer, set the background and size
-  //
-  ren1->SetBackground(0.1, 0.2, 0.4);
+  ren1->GradientBackgroundOn();
+  ren1->SetBackground(.5,.5,.5);
+  ren1->SetBackground2(.0,.0,.0);
+ 
   renWin->SetSize(700, 500);
 
   // render the image
