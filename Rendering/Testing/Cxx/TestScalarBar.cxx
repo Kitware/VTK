@@ -79,7 +79,8 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar1->SetTitle("Temperature");
   scalarBar1->SetLookupTable(outlineMapper->GetLookupTable());
   scalarBar1->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
-  scalarBar1->GetPositionCoordinate()->SetValue(0.6, 0.1);
+  scalarBar1->GetPositionCoordinate()->SetValue(.6, .05);
+  scalarBar1->SetWidth(0.15);
   scalarBar1->SetHeight(0.5);
   scalarBar1->SetTextPositionToPrecedeScalarBar();
   scalarBar1->GetTitleTextProperty()->SetColor(0., 0., 1.); 
@@ -96,7 +97,7 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar2->SetLookupTable(outlineMapper->GetLookupTable());
   scalarBar2->SetOrientationToHorizontal();
   scalarBar2->SetWidth(0.5);
-  scalarBar2->SetHeight(0.2);
+  scalarBar2->SetHeight(0.15);
   scalarBar2->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar2->GetPositionCoordinate()->SetValue(0.05, 0.05);
   scalarBar2->SetTextPositionToPrecedeScalarBar();
@@ -113,7 +114,8 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar3->SetTitle("Temperature");
   scalarBar3->SetLookupTable(outlineMapper->GetLookupTable());
   scalarBar3->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
-  scalarBar3->GetPositionCoordinate()->SetValue(0.8, 0.1);
+  scalarBar3->GetPositionCoordinate()->SetValue(0.8, .05);
+  scalarBar3->SetWidth(0.15);
   scalarBar3->SetHeight(0.5);
   scalarBar3->SetTextPositionToPrecedeScalarBar();
   scalarBar3->GetTitleTextProperty()->SetColor(0., 0., 1.); 
