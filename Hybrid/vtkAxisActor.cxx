@@ -2376,7 +2376,7 @@ void vtkAxisActor::SetLabelTextProperty(vtkTextProperty *prop)
 {
   if(this->LabelTextProperty != NULL)
     this->LabelTextProperty->Delete();
-  if(prop != NULL)
+  if(prop != NULL) 
     prop->Register(NULL);
   this->LabelTextProperty = prop;
   this->Modified();
@@ -2433,6 +2433,29 @@ vtkProperty* vtkAxisActor::GetGridpolysProperty()
 {
   return this->GridpolysActor->GetProperty();
 }
+
+// ****************************************************************************
+vtkProperty* vtkAxisActor::NewTitleProperty()
+{
+  vtkProperty *newProp = vtkProperty::New();
+  newProp->DeepCopy(this->GetProperty());
+  newProp->SetColor(this->TitleTextProperty->GetColor());
+  // We pass the opacity in the line offset.
+  newProp->SetOpacity(this->TitleTextProperty->GetLineOffset());
+  return newProp;
+}
+
+// ****************************************************************************
+vtkProperty* vtkAxisActor::NewLabelProperty()
+{
+  vtkProperty *newProp = vtkProperty::New();
+  newProp->DeepCopy(this->GetProperty());
+  newProp->SetColor(this->LabelTextProperty->GetColor());
+  // We pass the opacity in the line offset.
+  newProp->SetOpacity(this->LabelTextProperty->GetLineOffset());
+  return newProp;
+}
+
 
 // ****************************************************************************
 double vtkAxisActor::GetDeltaMajor(int axis){

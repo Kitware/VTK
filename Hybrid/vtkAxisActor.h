@@ -440,6 +440,9 @@ private:
   bool BuildTickPointsForZType(double p1[3], double p2[3], bool);
 
   bool TickVisibilityChanged(void);
+  vtkProperty *NewTitleProperty();
+  vtkProperty2D *NewTitleProperty2D();
+  vtkProperty *NewLabelProperty();
 
   bool BoundsDisplayCoordinateChanged(vtkViewport *viewport);
 
@@ -481,8 +484,8 @@ private:
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
   vtkAxisFollower   **LabelActors;
-  vtkTextProperty    *LabelTextProperty;
   vtkTextActor      **LabelActors2D;
+  vtkTextProperty    *LabelTextProperty;
 
   vtkPolyData        *AxisLines;
   vtkPolyDataMapper  *AxisLinesMapper;
