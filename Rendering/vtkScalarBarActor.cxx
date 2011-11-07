@@ -261,6 +261,16 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
   int renderedSomething = 0;
   int i;
   
+  if (this->DrawBackground)
+    {
+    renderedSomething += this->BackgroundActor->RenderOverlay(viewport);
+    }
+  
+  if (this->DrawFrame)
+    {
+    renderedSomething += this->FrameActor->RenderOverlay(viewport);
+    }
+  
   if (this->UseOpacity)
     {
     this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
