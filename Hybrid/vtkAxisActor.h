@@ -190,19 +190,15 @@ public:
   vtkBooleanMacro(TitleVisibility, int);
 
   // Description:
-  // Get axis title text property.
-  void SetTitleTextProperty(vtkTextProperty *);
-     //BTX
-  vtkGetMacro(TitleTextProperty, vtkTextProperty *);
-  //ETX
+  // Set/Get the axis title text property. 
+  virtual void SetTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
 
   // Description:
-  // Get axis labels text property.
-  void SetLabelTextProperty(vtkTextProperty *);
-     //BTX
-  vtkGetMacro(LabelTextProperty, vtkTextProperty *);
-  //ETX
-
+  // Set/Get the axis labels text property.
+  virtual void SetLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  
   // Description:
   // Get/Set axis actor property (axis and its ticks)
   void SetAxisLinesProperty(vtkProperty *);

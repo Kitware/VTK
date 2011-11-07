@@ -39,6 +39,8 @@
 
 vtkStandardNewMacro(vtkAxisActor);
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
+vtkCxxSetObjectMacro(vtkAxisActor,LabelTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkAxisActor,TitleTextProperty,vtkTextProperty);
 
 // ****************************************************************
 // Instantiate this object.
@@ -2374,28 +2376,6 @@ void vtkAxisActor::SetTitle(const char *t)
     this->Title = NULL;
     }
   this->TitleTextTime.Modified();
-  this->Modified();
-}
-
-// ****************************************************************************
-void vtkAxisActor::SetTitleTextProperty(vtkTextProperty *prop)
-{
-  if(this->TitleTextProperty != NULL)
-    this->TitleTextProperty->Delete();
-  if(prop != NULL)
-    prop->Register(NULL);
-  this->TitleTextProperty = prop;
-  this->Modified();
-}
-
-// ****************************************************************************
-void vtkAxisActor::SetLabelTextProperty(vtkTextProperty *prop)
-{
-  if(this->LabelTextProperty != NULL)
-    this->LabelTextProperty->Delete();
-  if(prop != NULL) 
-    prop->Register(NULL);
-  this->LabelTextProperty = prop;
   this->Modified();
 }
 
