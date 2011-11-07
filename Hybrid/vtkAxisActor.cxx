@@ -270,6 +270,12 @@ vtkAxisActor::~vtkAxisActor()
     this->Title = NULL;
     }
 
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->Delete();
+    this->TitleTextProperty = NULL;
+    }
+
   if (this->LabelMappers != NULL)
     {
     for (int i=0; i < this->NumberOfLabelsBuilt; i++)
