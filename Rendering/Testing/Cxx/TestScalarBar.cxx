@@ -81,7 +81,8 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar1->GetPositionCoordinate()->SetValue(0.6, 0.1);
   scalarBar1->SetHeight(0.5);
   scalarBar1->SetTextPositionToPrecedeScalarBar();
-   
+  scalarBar1->SetEnhancedMode(1);
+ 
   vtkSmartPointer<vtkScalarBarActor> scalarBar2 =
     vtkSmartPointer<vtkScalarBarActor>::New();
   scalarBar2->SetTitle("Temperature");
