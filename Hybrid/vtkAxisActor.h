@@ -77,10 +77,14 @@ class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
 class vtkFollower;
+class vtkFreeTypeUtilities;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkProperty2D;
 class vtkStringArray;
+class vtkTextActor;
+class vtkTextProperty;
 class vtkVectorText;
 
 class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
@@ -186,10 +190,50 @@ public:
   vtkBooleanMacro(TitleVisibility, int);
 
   // Description:
+  // Get axis title text property.
+  void SetTitleTextProperty(vtkTextProperty *);
+     //BTX
+  vtkGetMacro(TitleTextProperty, vtkTextProperty *);
+  //ETX
+
+  // Description:
+  // Get axis labels text property.
+  void SetLabelTextProperty(vtkTextProperty *);
+     //BTX
+  vtkGetMacro(LabelTextProperty, vtkTextProperty *);
+  //ETX
+
+  // Description:
+  // Get/Set axis actor property (axis and its ticks)
+  void SetAxisLinesProperty(vtkProperty *);
+  vtkProperty* GetAxisLinesProperty();
+
+  // Description:
+  // Get/Set gridlines actor property (outer grid lines)
+  void SetGridlinesProperty(vtkProperty *);
+  vtkProperty* GetGridlinesProperty();
+
+  // Description:
+  // Get/Set inner gridlines actor property
+  void SetInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetInnerGridlinesProperty();
+
+  // Description:
+  // Get/Set gridPolys actor property (grid quads)
+  void SetGridpolysProperty(vtkProperty *);
+  vtkProperty* GetGridpolysProperty();
+
+  // Description:
   // Set/Get whether gridlines should be drawn.
   vtkSetMacro(DrawGridlines, int);
   vtkGetMacro(DrawGridlines, int);
   vtkBooleanMacro(DrawGridlines, int);
+
+  // Description:
+  // Set/Get whether inner gridlines should be drawn.
+  vtkSetMacro(DrawInnerGridlines, int);
+  vtkGetMacro(DrawInnerGridlines, int);
+  vtkBooleanMacro(DrawInnerGridlines, int);
 
   // Description:
   // Set/Get the length to use when drawing gridlines.
@@ -199,6 +243,12 @@ public:
   vtkGetMacro(GridlineYLength, double);
   vtkSetMacro(GridlineZLength, double);
   vtkGetMacro(GridlineZLength, double);
+
+  // Description:
+  // Set/Get whether gridpolys should be drawn.
+  vtkSetMacro(DrawGridpolys, int);
+  vtkGetMacro(DrawGridpolys, int);
+  vtkBooleanMacro(DrawGridpolys, int);
 
   // Description:
   // Set/Get the type of this axis.
@@ -236,7 +286,10 @@ public:
   // Description:
   // Draw the axis.
   virtual int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentGeometry(vtkViewport* viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
+  virtual int RenderOverlay(vtkViewport* viewport);
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -260,12 +313,16 @@ public:
   // and the delta values that determine their spacing.
   vtkSetMacro(MinorStart, double);
   vtkGetMacro(MinorStart, double);
-  vtkSetMacro(MajorStart, double);
-  vtkGetMacro(MajorStart, double);
+  double GetMajorStart(int axis);
+  void SetMajorStart(int axis,double value);
+  //vtkSetMacro(MajorStart, double);
+  //vtkGetMacro(MajorStart, double);
   vtkSetMacro(DeltaMinor, double);
   vtkGetMacro(DeltaMinor, double);
-  vtkSetMacro(DeltaMajor, double);
-  vtkGetMacro(DeltaMajor, double);
+  double GetDeltaMajor(int axis);
+  void SetDeltaMajor(int axis,double value);
+  //vtkSetMacro(DeltaMajor, double);
+  //vtkGetMacro(DeltaMajor, double);
 
   // Description:
   // Set/Get the starting position for minor and major tick points on
@@ -320,6 +377,13 @@ public:
   vtkGetMacro(CalculateLabelOffset, int);
   vtkBooleanMacro(CalculateLabelOffset, int);
 
+ // Set/Get the 2D mode (2D/3D)
+ vtkSetMacro(Use2DMode, int);
+ vtkGetMacro(Use2DMode, int);
+
+ // Set/Get the saving positions tag (2D/3D)
+ vtkSetMacro(SaveTitlePosition, int);
+ vtkGetMacro(SaveTitlePosition, int);
 
 protected:
   vtkAxisActor();
@@ -340,6 +404,12 @@ protected:
   double  GridlineYLength;
   double  GridlineZLength;
 
+  int    DrawInnerGridlines;
+  int    LastDrawInnerGridlines;
+  
+  int    DrawGridpolys;
+  int    LastDrawGridpolys;
+  
   int    AxisVisibility;
   int    TickVisibility;
   int    LastTickVisibility;
@@ -357,9 +427,12 @@ private:
   void TransformBounds(vtkViewport *, double bnds[6]);
 
   void BuildLabels(vtkViewport *, bool);
+  void BuildLabels2D(vtkViewport *, bool);
   void SetLabelPositions(vtkViewport *, bool);
+  void SetLabelPositions2D(vtkViewport *, bool);
 
   void BuildTitle(bool);
+  void BuildTitle2D(vtkViewport *viewport, bool);
 
   void SetAxisPointsAndLines(void);
   bool BuildTickPointsForXType(double p1[3], double p2[3], bool);
@@ -368,18 +441,19 @@ private:
 
   bool TickVisibilityChanged(void);
 
+  bool BoundsDisplayCoordinateChanged(vtkViewport *viewport);
+
   vtkCoordinate *Point1Coordinate;
   vtkCoordinate *Point2Coordinate;
 
   double  MajorTickSize;
   double  MinorTickSize;
 
-  // for the positions
-  double  MajorStart;
+  // For each axis (for the inner gridline generation)
+  double  MajorStart[3];
+  double  DeltaMajor[3];
   double  MinorStart;
-
   double  DeltaMinor;
-  double  DeltaMajor;
 
   // For the ticks, w.r.t to the set range
   double  MajorRangeStart;
@@ -395,18 +469,33 @@ private:
   vtkPoints         *MinorTickPts;
   vtkPoints         *MajorTickPts;
   vtkPoints         *GridlinePts;
+  vtkPoints         *InnerGridlinePts;
+  vtkPoints         *GridpolyPts;
 
   vtkVectorText     *TitleVector;
   vtkPolyDataMapper *TitleMapper;
   vtkAxisFollower   *TitleActor;
+  vtkTextActor      *TitleActor2D;
+  vtkTextProperty   *TitleTextProperty;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
   vtkAxisFollower   **LabelActors;
+  vtkTextProperty    *LabelTextProperty;
+  vtkTextActor      **LabelActors2D;
 
-  vtkPolyData        *Axis;
-  vtkPolyDataMapper  *AxisMapper;
-  vtkActor           *AxisActor;
+  vtkPolyData        *AxisLines;
+  vtkPolyDataMapper  *AxisLinesMapper;
+  vtkActor           *AxisLinesActor;
+  vtkPolyData        *Gridlines;
+  vtkPolyDataMapper  *GridlinesMapper;
+  vtkActor           *GridlinesActor;
+  vtkPolyData        *InnerGridlines;
+  vtkPolyDataMapper  *InnerGridlinesMapper;
+  vtkActor           *InnerGridlinesActor;
+  vtkPolyData        *Gridpolys;
+  vtkPolyDataMapper  *GridpolysMapper;
+  vtkActor           *GridpolysActor;
 
   vtkCamera          *Camera;
   vtkTimeStamp        BuildTime;
@@ -418,6 +507,24 @@ private:
 
   int                 CalculateTitleOffset;
   int                 CalculateLabelOffset;
+  //! axis in 2D mode
+  int                 Use2DMode;
+  /*! use when Use2DMode=1 (2D axis):
+        \note 
+        \li val = 0 : no need to save position (doesn't stick actors in a position)
+        \li val = 1 : positions have to be saved during the next render pass
+        \li val = 2 : positions are saved -> used them
+  */
+  int		      SaveTitlePosition;
+  //! constante coordinate for the title
+  double	      TitleConstantPosition[2];
+  //! true if the 2D title have to be built, false otherwise
+  bool                NeedBuild2D;
+  //!
+  double	      LastMinDisplayCoordinate[3];
+  double	      LastMaxDisplayCoordinate[3];
+  //! FreeType library utility
+  vtkFreeTypeUtilities *FreeTypeUtilities;
 };
 
 

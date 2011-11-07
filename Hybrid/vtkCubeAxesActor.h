@@ -78,7 +78,16 @@ public:
   // Description:
   // Draw the axes as per the vtkProp superclass' API.
   virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentGeometry(vtkViewport*);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int RenderOverlay(vtkViewport*);
+  int HasTranslucentPolygonalGeometry();
+
+  // Description:
+  // Gets/Sets the RebuildAxes flag
+  vtkSetMacro(RebuildAxes,int);
+  vtkGetMacro(RebuildAxes,int);
+  vtkBooleanMacro(RebuildAxes,int);
 
   // Description:
   // Explicitly specify the region in space around which to draw the bounds.
@@ -247,6 +256,66 @@ public:
   vtkGetMacro(DrawZGridlines,int);
   vtkBooleanMacro(DrawZGridlines,int);
 
+  vtkSetMacro(DrawXInnerGridlines,int);
+  vtkGetMacro(DrawXInnerGridlines,int);
+  vtkBooleanMacro(DrawXInnerGridlines,int);
+
+  vtkSetMacro(DrawYInnerGridlines,int);
+  vtkGetMacro(DrawYInnerGridlines,int);
+  vtkBooleanMacro(DrawYInnerGridlines,int);
+
+  vtkSetMacro(DrawZInnerGridlines,int);
+  vtkGetMacro(DrawZInnerGridlines,int);
+  vtkBooleanMacro(DrawZInnerGridlines,int);
+
+  vtkSetMacro(DrawXGridpolys,int);
+  vtkGetMacro(DrawXGridpolys,int);
+  vtkBooleanMacro(DrawXGridpolys,int);
+
+  vtkSetMacro(DrawYGridpolys,int);
+  vtkGetMacro(DrawYGridpolys,int);
+  vtkBooleanMacro(DrawYGridpolys,int);
+
+  vtkSetMacro(DrawZGridpolys,int);
+  vtkGetMacro(DrawZGridpolys,int);
+  vtkBooleanMacro(DrawZGridpolys,int);
+
+  // Description:
+  // Get/Set axes actors properties.
+  void SetXAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesLinesProperty();
+  void SetYAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesLinesProperty();
+  void SetZAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesLinesProperty();
+
+  // Description:
+  // Get/Set axes (outer) gridlines actors properties.
+  void SetXAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesGridlinesProperty();
+  void SetYAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesGridlinesProperty();
+  void SetZAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesGridlinesProperty();
+ 
+  // Description:
+  // Get/Set axes inner gridlines actors properties.
+  void SetXAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesInnerGridlinesProperty();
+  void SetYAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesInnerGridlinesProperty();
+  void SetZAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesInnerGridlinesProperty();
+
+  // Description:
+  // Get/Set axes gridPolys actors properties.
+  void SetXAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetXAxesGridpolysProperty();
+  void SetYAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetYAxesGridpolysProperty();
+  void SetZAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetZAxesGridpolysProperty();
+
   // Description:
   // Set/Get the location of ticks marks.
   vtkSetClampMacro(TickLocation, int, VTK_TICKS_INSIDE, VTK_TICKS_BOTH);
@@ -260,6 +329,14 @@ public:
     { this->SetTickLocation(VTK_TICKS_BOTH); };
 
   void SetLabelScaling(bool, int, int, int);
+
+  //! use textactor if val = 1 (2D) instead of follower (3D - val = 0) for title 
+  void SetUse2DMode( int val );
+  //! return 1 if textactor is used
+  int GetUse2DMode();
+  //! for 2D axis only : during the next render, the axis positions have to be save for later use.
+  void SetSaveTitlePosition( int val );
+      
   // Description:
   // Shallow copy of a KatCubeAxesActor.
   void ShallowCopy(vtkCubeAxesActor *actor);
@@ -291,6 +368,8 @@ protected:
   vtkAxisActor *XAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *YAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *ZAxes[NUMBER_OF_ALIGNED_AXIS];
+
+  bool RebuildAxes;
 
   char *XTitle;
   char *XUnits;
@@ -325,6 +404,14 @@ protected:
   int DrawYGridlines;
   int DrawZGridlines;
 
+  int DrawXInnerGridlines;
+  int DrawYInnerGridlines;
+  int DrawZInnerGridlines;
+
+  int DrawXGridpolys;
+  int DrawYGridpolys;
+  int DrawZGridpolys;
+
   char  *XLabelFormat;
   char  *YLabelFormat;
   char  *ZLabelFormat;
@@ -341,6 +428,19 @@ protected:
 
   double LabelScreenOffset;
   double TitleScreenOffset;
+
+  vtkProperty  *XAxesLinesProperty;
+  vtkProperty  *YAxesLinesProperty;
+  vtkProperty  *ZAxesLinesProperty;
+  vtkProperty  *XAxesGridlinesProperty;
+  vtkProperty  *YAxesGridlinesProperty;
+  vtkProperty  *ZAxesGridlinesProperty;
+  vtkProperty  *XAxesInnerGridlinesProperty;
+  vtkProperty  *YAxesInnerGridlinesProperty;
+  vtkProperty  *ZAxesInnerGridlinesProperty;
+  vtkProperty  *XAxesGridpolysProperty;
+  vtkProperty  *YAxesGridpolysProperty;
+  vtkProperty  *ZAxesGridpolysProperty;
 
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
@@ -395,6 +495,9 @@ private:
   double TitleScale;
 
   double ScreenSize;
+
+  double MajorStart[3];            // For the inner grid lines generation
+  double DeltaMajor[3];            // For the inner grid lines generation
 
   // various helper methods
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
