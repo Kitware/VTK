@@ -398,6 +398,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   this->StringDelimiter='"';
   this->UseStringDelimiter = true;
   this->DetectNumericColumns = false;
+  this->ForceDouble = false;
 }
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
@@ -436,6 +437,8 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->UseStringDelimiter ? "true" : "false") << endl;
   os << indent << "DetectNumericColumns: "
     << (this->DetectNumericColumns? "true" : "false") << endl;
+  os << indent << "ForceDouble: "
+    << (this->ForceDouble ? "true" : "false") << endl;
   os << indent << "GeneratePedigreeIds: "
     << this->GeneratePedigreeIds << endl;
   os << indent << "PedigreeIdArrayName: "
@@ -636,6 +639,7 @@ int vtkDelimitedTextReader::RequestData(
     if (this->DetectNumericColumns && !this->UnicodeOutputArrays)
       {
       vtkStringToNumeric* convertor = vtkStringToNumeric::New();
+      convertor->SetForceDouble(this->ForceDouble);
       vtkTable* clone = output_table->NewInstance();
       clone->ShallowCopy(output_table);
       convertor->SetInput(clone);
