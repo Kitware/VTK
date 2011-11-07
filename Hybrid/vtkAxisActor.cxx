@@ -922,7 +922,8 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
 
   int xmult = 0;
   int ymult = 0;
-  double xcoeff, ycoeff;
+  double xcoeff = 0.;
+  double ycoeff = 0.;
    
   // we are in 2D mode, so no Z axis
   switch (this->AxisType)
