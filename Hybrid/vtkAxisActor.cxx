@@ -1078,6 +1078,9 @@ void vtkAxisActor::BuildTitle(bool force)
     maxHeight = (labHeight > maxHeight ? labHeight : maxHeight);
     }
   this->TitleVector->SetText(this->Title);
+
+  this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
+  this->TitleActor->GetProperty()->SetOpacity(1);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetPosition(p2[0], p2[1], p2[2]);
   this->TitleActor->GetMapper()->GetBounds(titleBounds);
