@@ -501,81 +501,50 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     double delta;
     double barX = 0.;
     double barY = 0.;
-    if ( this->EnhancedMode )
+    if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
-      if ( this->Orientation == VTK_ORIENT_VERTICAL )
+      if ( this->EnhancedMode )
         {
         barX = static_cast<int>(size[0] * 0.05);
-        barWidth = size[0] - 4 - labelSize[0] - 2 * barX;
         barY = static_cast<int>(size[1] * 0.05 + labelSize[1] / 2);
-        barHeight = static_cast<int>(0.86*size[1]) - barY;
-        delta=static_cast<double>(barHeight)/numColors;
-        for (i=0; i<numPts/2; i++)
-          {
-          x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? (size[0] - barWidth - barX) : barX;
-          x[1] = barY + i*delta;
-          pts->SetPoint(2*i,x);
-          x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? size[0] - barX: barX + barWidth;
-          pts->SetPoint(2*i+1,x);
-          }
         }
-      else
+
+      barWidth = size[0] - 4 - labelSize[0] - 2 * barX;
+      barHeight = static_cast<int>(0.86*size[1]) - barY;
+      delta=static_cast<double>(barHeight)/numColors;
+      for (i=0; i<numPts/2; i++)
         {
-        barX = static_cast<int>(size[0] * 0.05) + labelSize[0] / 2;
-        barWidth = size[0] - 2 * barX;
-        barY = static_cast<int>(size[1] * 0.05);
-        barHeight = static_cast<int>(0.4*size[1]) - barY;
-        delta=static_cast<double>(barWidth)/numColors;
-        for (i=0; i<numPts/2; i++)
-          {
-          x[0] = barX + i*delta;
-          x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? size[1] - barY: barY + barHeight ;
-          pts->SetPoint(2*i,x);
-          x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? (size[1]-barHeight - barY) : barY;
-          pts->SetPoint(2*i+1,x);
-          }
+        x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+          ? (size[0] - barWidth - barX) : barX;
+        x[1] = barY + i*delta;
+        pts->SetPoint(2*i,x);
+        x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+          ? size[0] - barX: barX + barWidth;
+        pts->SetPoint(2*i+1,x);
         }
       }
-    else // if ( this->EnhancedMode )
+    else
       {
-      if ( this->Orientation == VTK_ORIENT_VERTICAL )
+      if ( this->EnhancedMode )
         {
-        barWidth = size[0] - 4 - labelSize[0];
-        barHeight = static_cast<int>(0.86*size[1]);
-        delta=static_cast<double>(barHeight)/numColors;
-        for (i=0; i<numPts/2; i++)
-          {
-          x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? (size[0] - barWidth) : 0.0;
-          x[1] = i*delta;
-          pts->SetPoint(2*i,x);
-          x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? size[0] : barWidth;
-          pts->SetPoint(2*i+1,x);
-          }
+        barX = static_cast<int>(size[0] * 0.05) + labelSize[0] / 2;
+        barY = static_cast<int>(size[1] * 0.05);
         }
-      else
+      barWidth = size[0] - 2 * barX;
+      barHeight = static_cast<int>(0.4*size[1]) - barY;
+      delta=static_cast<double>(barWidth)/numColors;
+      for (i=0; i<numPts/2; i++)
         {
-        barWidth = size[0];
-        barHeight = static_cast<int>(0.4*size[1]);
-        delta=static_cast<double>(barWidth)/numColors;
-        for (i=0; i<numPts/2; i++)
-          {
-          x[0] = i*delta;
-          x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? size[1] : barHeight;
-          pts->SetPoint(2*i,x);
-          x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
-            ? (size[1]-barHeight) : 0.0;
-          pts->SetPoint(2*i+1,x);
-          }
+        x[0] = barX + i*delta;
+        x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+          ? size[1] - barY: barY + barHeight ;
+        pts->SetPoint(2*i,x);
+        x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+          ? (size[1]-barHeight - barY) : barY;
+        pts->SetPoint(2*i+1,x);
         }
-      } // else if ( this->EnhancedMode )
-
+      }
+    
     //polygons & cell colors
     unsigned char *rgba, *rgb;
     vtkIdType ptIds[4];
@@ -871,6 +840,11 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
       a->GetPosition2Coordinate()->GetCoordinateSystem());    
     this->GetPosition2Coordinate()->SetValue(
       a->GetPosition2Coordinate()->GetValue());
+    this->SetDrawBackground(a->GetDrawBackground());
+    this->SetBackgroundProperty(a->GetBackgroundProperty());
+    this->SetDrawFrame(a->GetDrawFrame());
+    this->SetFrameProperty(a->GetFrameProperty());
+    this->SetEnhancedMode(a->GetEnhancedMode());
     }
 
   // Now do superclass
