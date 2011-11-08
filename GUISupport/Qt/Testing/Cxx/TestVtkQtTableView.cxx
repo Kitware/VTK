@@ -38,7 +38,7 @@ int TestVtkQtTableView(int argc, char* argv[])
   // Create a sphere and create a vtkTable from its point data (normal vectors)
   VTK_CREATE(vtkSphereSource, sphereSource);
   VTK_CREATE(vtkDataObjectToTable, tableConverter);
-  tableConverter->SetInput(sphereSource->GetOutput());
+  tableConverter->SetInputConnection(sphereSource->GetOutputPort());
   tableConverter->SetFieldType(vtkDataObjectToTable::POINT_DATA);
   tableConverter->Update();
   vtkTable* pointTable = tableConverter->GetOutput();

@@ -157,7 +157,7 @@ QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
     rep->GetResliceCursorActor()->
       GetCursorAlgorithm()->SetReslicePlaneNormal(i);
 
-    riw[i]->SetInput(reader->GetOutput());
+    riw[i]->SetInputConnection(reader->GetOutputPort());
     riw[i]->SetSliceOrientation(i);
     riw[i]->SetResliceModeToAxisAligned();
     }

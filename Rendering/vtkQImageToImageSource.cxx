@@ -76,10 +76,8 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
   unsigned char* data = new unsigned char[4*width*height];
   memcpy( data, data2, 4*width*height );
 
-  output->SetNumberOfScalarComponents( 4 );
-  output->SetScalarTypeToUnsignedChar();
   output->SetExtent(this->DataExtent);
-  output->AllocateScalars();
+  output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
   
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast( output->GetPointData()->GetScalars() );
   
