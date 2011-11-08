@@ -27,48 +27,12 @@
 #include "vtkViewport.h"
 
 
-// *************************************************************************
-// Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Replace 'New' method with Macro to match VTK 4.0 API.
-//
-// *************************************************************************
-
 vtkStandardNewMacro(vtkCubeAxesActor);
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 
 // *************************************************************************
 // Instantiate this object.
-//
-// Modifications:
-//   Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//   Intialize new members lastPow, last*AxisDigits.
-//
-//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
-//   Intialize new members:  Last*Extent, LastFlyMode,
-//   renderAxes*, numAxes*.
-//
-//   Hank Childs, Fri Sep 27 17:15:07 PDT 2002
-//   Initialize new members for units.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Remove 'Input' and 'Prop' members, initialize new members
-//   valueScaleFactor, mustAdjustValue, ForceLabelReset.
-//
-//   Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//   Remove valueScaleFactor, replace mustAdjustValue and ForceLabelReset
-//   with one for each axis type.
-//
-//   Kathleen Bonnell, Tue Dec 16 11:27:30 PST 2003
-//   Replace Last*Extent with Last*Range.  (* = X, Y, Z)
-//   Add AutoLabelScaling, UserXPow, UserYPow, UserZPow.
-//
-//   Brad Whitlock, Fri Jul 23 18:18:41 PST 2004
-//   Added ActualXLabel et al so we can keep title separate from what's
-//   actually displayed so information is not lost.
-//
 // *************************************************************************
-
 vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 {
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
@@ -327,21 +291,7 @@ void vtkCubeAxesActor::SetSaveTitlePosition( int val )
 
 // ****************************************************************************
 // Shallow copy of an actor.
-//
-// Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Call superclass method the new VTK 4.0 way.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Remove 'Input' and 'Prop' members, added new members
-//   valueScaleFactor, mustAdjustValue, ForceLabelReset.
-//
-//   Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//   Remove valueScaleFactor, replace mustAdjustValue and ForceLabelReset
-//   with one for each axis type.
-//
 // ****************************************************************************
-
 void vtkCubeAxesActor::ShallowCopy(vtkCubeAxesActor *actor)
 {
   this->Superclass::ShallowCopy(actor);
@@ -369,16 +319,6 @@ void vtkCubeAxesActor::ShallowCopy(vtkCubeAxesActor *actor)
 }
 
 // ****************************************************************************
-//  Modifications:
-//
-//    Hank Childs, Fri Sep 27 17:15:07 PDT 2002
-//    Destruct new data members for units.
-//
-//    Brad Whitlock, Fri Jul 23 18:21:16 PST 2004
-//    Added more items and fixed a small memory leak.
-//
-// ****************************************************************************
-
 vtkCubeAxesActor::~vtkCubeAxesActor()
 {
   this->SetCamera(NULL);
@@ -522,20 +462,7 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
 // Project the bounding box and compute edges on the border of the bounding
 // cube. Determine which parts of the edges are visible via intersection
 // with the boundary of the viewport (minus borders).
-//
-//  Modifications:
-//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//    Added calls to AdjustValues, AdjustRange.
-//
-//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
-//   Only render those axes needed for current FlyMode.
-//   Moved bulk of 'build' code to BuildAxes method, added calls to
-//   BuildAxes and DetermineRenderAxes methods.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Added initial build of each axis.
 // *************************************************************************
-
 int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
@@ -598,20 +525,7 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // Project the bounding box and compute edges on the border of the bounding
 // cube. Determine which parts of the edges are visible via intersection 
 // with the boundary of the viewport (minus borders).
-//
-//  Modifications:
-//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//    Added calls to AdjustValues, AdjustRange. 
-//
-//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
-//   Only render those axes needed for current FlyMode.  
-//   Moved bulk of 'build' code to BuildAxes method, added calls to
-//   BuildAxes and DetermineRenderAxes methods.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
-//   Added initial build of each axis. 
 // *************************************************************************
-
 int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
    int i, renderedSomething=0;
@@ -673,20 +587,7 @@ int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 // Project the bounding box and compute edges on the border of the bounding
 // cube. Determine which parts of the edges are visible via intersection 
 // with the boundary of the viewport (minus borders).
-//
-//  Modifications:
-//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//    Added calls to AdjustValues, AdjustRange. 
-//
-//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
-//   Only render those axes needed for current FlyMode.  
-//   Moved bulk of 'build' code to BuildAxes method, added calls to
-//   BuildAxes and DetermineRenderAxes methods.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
-//   Added initial build of each axis. 
 // *************************************************************************
-
 int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
@@ -746,12 +647,7 @@ int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 
 // *************************************************************************
 // RenderOverlay : render 2D annotations.
-//
-//  Modifications:
-//    Claire Guilbaud, Tue Apr 20 15:11:46 CEST 2010
-//    Method's creation
 // *************************************************************************
-
 int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
@@ -922,9 +818,11 @@ for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
 this->Modified();
 }
 
+// *************************************************************************
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
+// *************************************************************************
 void vtkCubeAxesActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
@@ -937,10 +835,6 @@ void vtkCubeAxesActor::ReleaseGraphicsResources(vtkWindow *win)
 
 // *************************************************************************
 // Compute the bounds
-//
-// Modifications:
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Removed support for Prop and Input.
 // *************************************************************************
 void vtkCubeAxesActor::GetBounds(double bounds[6])
 {
@@ -970,15 +864,6 @@ double *vtkCubeAxesActor::GetBounds()
 }
 
 // ******************************************************************
-// Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Call superclass method the new VTK 4.0 way.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Removed Input and Prop.
-//
-// ******************************************************************
-
 void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1121,27 +1006,12 @@ void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport,
 }
 
 // ***********************************************************************
-//
 //  Calculate the size (length) of major and minor ticks,
 //  based on an average of the coordinate direction ranges.
 //  Set the necessary Axes methods with the calculated information.
 //
 //  Returns:  false if tick size not recomputed, true otherwise.
-//
-//  Modifications:
-//    Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
-//    Added logic for early-termination.
-//
-//    Kathleen Bonnell, Fri Jul 18 09:09:31 PDT 2003
-//    Added return value, added calls to AdjustTicksComputeRange and
-//    BuildLabels.
-//
-//    Kathleen Bonnell, Mon Dec 15 14:59:26 PST 2003
-//    Use the actual range values instead of range-extents to determine
-//    if tick size needs to be recomputed.
-//
 // ***********************************************************************
-
 bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
 {
   bool xRangeChanged = this->LastXRange[0] != bounds[0] ||
@@ -1251,37 +1121,7 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
 //  Note:       This code is partially stolen from old MeshTV code,
 //              /meshtvx/toolkit/plotgrid.c, axlab[x|y].
 //
-//  Programmer: Hank Childs
-//  Creation:   July 11, 2000
-//
-//  Modifications:
-//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//    Regardless of individual ranges, if any coord direction has too
-//    small/large a range, all will have a scale factor set for scaling their
-//    label values, and their titles adjusted accordingly.
-//
-//    Kathleen Bonnell, Thu Sep  5 17:32:16 PDT 2002
-//    Only use dimensions with range > 0 for determining scale factor.
-//
-//    Hank Childs, Fri Sep 27 17:15:07 PDT 2002
-//    Account for units.
-//
-//    Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//    Each axis type now has its own 'mustAdjustValue' and 'lastPow'.
-//
-//    Kathleen Bonnell, Tue Dec 16 11:23:31 PST 2003
-//    Allow the LabelExponent to be user-settable (autLabelScaling is off).
-//    For title use '10e' instead of just 'e' to designate that exponent
-//    has been used.
-//
-//    Kathleen Bonnell, Tue Jul 20 11:41:45 PDT 2004
-//    For title use 'x10^' instead of '10e' to designate that exponent.
-//
-//    Brad Whitlock, Fri Jul 23 18:27:30 PST 2004
-//    Added support for using user-defined titles for axes.
-//
 // ****************************************************************************
-
 void vtkCubeAxesActor::AdjustValues(const double xRange[2],
                                     const double yRange[2],
                                     const double zRange[2])
@@ -1453,22 +1293,7 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
 //  Arguments:
 //    bnds    The minimum and maximum values in each coordinate direction
 //            (min_x, max_x, min_y, max_y, min_z, max_z).
-//
-//  Programmer: Hank Childs
-//  Creation:   July 11, 2000
-//
-//  Modifications:
-//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//    Moved from VisWinAxes3D.
-//
-//    Kathleen Bonnell, Thu Aug  1 14:05:05 PDT 2002
-//    Send lastPos as argument to Digits.
-//
-//    Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//    Adjust the range values using LastXPow, LastYPow, LastZPow.
-//
 // ****************************************************************************
-
 void vtkCubeAxesActor::AdjustRange(const double bnds[6])
 {
   double xrange[2], yrange[2], zrange[2];
@@ -1541,28 +1366,7 @@ void vtkCubeAxesActor::AdjustRange(const double bnds[6])
 //      max    The maximum value in the range.
 //
 //  Returns:   The appropriate number of digits.
-//
-//  Programmer: Hank Childs
-//  Creation:   July 11, 2000
-//
-//  Modifications:
-//
-//    Hank Childs, Tue Sep 18 11:58:33 PDT 2001
-//    Cast ipow10 to get rid of compiler warning.
-//
-//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//    Moved from VisWinAxes3D.
-//
-//    Kathleen Bonnell, Thu Aug  1 13:44:02 PDT 2002
-//    Added lastPow argument, it specifies whether or not scientific notation
-//    is being used on the labels.
-//
-//    Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//    Removed lastPow argment, as the adjustment necessary is now taking
-//    place in AdjustRange.
-//
 // ****************************************************************************
-
 int vtkCubeAxesActor::Digits(double min, double max )
 {
   double  range = max - min;
@@ -1611,24 +1415,6 @@ int vtkCubeAxesActor::Digits(double min, double max )
 //
 //  Note:       This code is mostly stolen from old MeshTV code,
 //              /meshtvx/toolkit/plotgrid.c, axlab_format.
-//
-//  Programmer: Hank Childs
-//  Creation:   July 11, 2000
-//
-//  Modifications:
-//    Eric Brugger, Tue Sep 18 09:18:17 PDT 2001
-//    Change a few static local variables to be non-static to get around a
-//    compiler bug with the MIPSpro 7.2.1.3 compiler.
-//
-//    Hank Childs, Tue Sep 18 11:58:33 PDT 2001
-//    Cast return value to get rid of compiler warning.
-//
-//    Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//    Moved from VisWinAxes3D.
-//
-//    Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//    Added test for min==max.
-//
 // ****************************************************************************
 
 int vtkCubeAxesActor::LabelExponent(double min, double max)
@@ -1672,26 +1458,7 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
 
 // *************************************************************************
 //  Build the axes. Determine coordinates, position, etc.
-//
-//  Note:  Bulk of code moved here from RenderOpaqueGeomtry.
-//         Early-termination test added.
-//
-//  Programmer:  Kathleen Bonnell
-//  Creation:    November 7, 2001
-//
-//  Modifications:
-//    Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
-//    Compare vtkTimeStamps correctly.
-//
-//    Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//    Added logic to compute and set for each axis the labels and title
-//    scale size.
-//
-//    Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//    Indivdual axes now have their own ForceLabelReset.
-//
 // *************************************************************************
-
 void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 {
   double bounds[6];
@@ -1878,16 +1645,7 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 //  Sends attributes to each vtkAxisActor.  Only sets those that are
 //  not dependent upon viewport changes, and thus do not need to be set
 //  very often.
-//
-//  Programmer:  Kathleen Bonnell
-//  Creation:    November 7, 2001
-//
-//  Modifications:
-//    Kathleen Bonnell, Thu Oct  3 14:33:15 PDT 2002
-//    Disable lighting for the axes by setting the ambient coefficient to 1
-//    and the diffuse coeeficient to 0.
 // *************************************************************************
-
 void vtkCubeAxesActor::SetNonDependentAttributes()
 {
   vtkProperty *prop = this->GetProperty();
@@ -1964,14 +1722,6 @@ static int vtkCubeAxesActorConn[8][3] = {{1,2,4}, {0,3,5}, {3,0,6}, {2,1,7},
 // Determine which of the axes in each coordinate direction actually should
 // be rendered.  For STATIC FlyMode, all axes are rendered.  For other
 // FlyModes, either 1 or 2 per coordinate direction are rendered.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
-//
-// Modifications:
-//   Kathleen Bonnell, Thu Jul 18 10:33:07 PDT 2002
-//   Ensure that primary axes visibility flags are set properly, and
-//   that secondary axes visibility flags are turned off.
 // *************************************************************************
 void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
 {
@@ -2308,19 +2058,6 @@ inline double vtkCubeAxesActor::FSign(double value, double sign)
 //
 // Arguments:
 //   inRange   The range for this axis.
-//
-// Note:    The bulk of this method was taken from vtkHankAxisActor.C
-//          The original method was reduced to serve the purposes
-//          of this class.
-//
-// Programmer: Kathleen Bonnell
-// Creation:   29 August, 2001
-//
-// Modifications:
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Moved from vtkAxisActor. Added calls to set inividual axis'
-//   MajorStart, MinorStart, deltaMajor, deltaMinor.
-//
 // *******************************************************************
 
 void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS],
@@ -2440,8 +2177,6 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
 }
 
 // ****************************************************************
-//
-// ****************************************************************
 void vtkCubeAxesActor::AutoScale(vtkViewport *viewport)
 {
   // Current implementation only for perspective projections.
@@ -2450,8 +2185,6 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport)
   this->AutoScale(viewport, this->ZAxes);
 }
 
-// ****************************************************************
-//
 // ****************************************************************
 void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBER_OF_ALIGNED_AXIS])
 {
@@ -2478,8 +2211,6 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBE
 }
 
 // ****************************************************************
-//
-// ****************************************************************
 double vtkCubeAxesActor::AutoScale(vtkViewport *viewport, double screenSize,
                                    double position[3])
 {
@@ -2501,19 +2232,7 @@ double vtkCubeAxesActor::AutoScale(vtkViewport *viewport, double screenSize,
 
 // ****************************************************************
 //  Determine what the labels should be and set them in each axis.
-//
-//  Modification:
-//    Kathleen Bonnell, Wed Aug  6 13:59:15 PDT 2003
-//    Each axis type now has it's own 'mustAdjustValue' and 'pow'.
-//
-//    Kathleen Bonnell, Tue Jul 20 14:29:10 PDT 2004
-//    Ensure that '-0.0' is never used as a label.
-//
-//    Eric Brugger, Mon Jul 26 16:09:26 PDT 2004
-//    Correct a bug with a misplaced closing parenthesis.
-//
 // ****************************************************************
-
 void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
 {
   char label[64];
@@ -2627,7 +2346,6 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
 
 // ****************************************************************************
 //  Set automatic label scaling mode, set exponents for each axis type.
-//
 // ****************************************************************************
 void vtkCubeAxesActor::SetLabelScaling(bool autoscale, int upowX, int upowY,
                                        int upowZ)
@@ -2645,7 +2363,6 @@ void vtkCubeAxesActor::SetLabelScaling(bool autoscale, int upowX, int upowY,
 
 // ****************************************************************************
 //  Set axes and screen size of the labels.
-//
 // ****************************************************************************
 void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
   {

@@ -37,13 +37,12 @@ All rights reserved.
 // All calculations and references are in World Coordinates.
 //
 // .SECTION Thanks
-// This class was written by many contributors, in particular:
+// This class was written by:
 // Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
-// Eric Brugger, Claire Guilbaud, Will Schroeder, David Gobbi, 
-// David Partyka, Aashish Chaudhary, Philippe Pébay, Utkarsh Ayachit
-// David Cole, François Bertel, and Mark Olesen
+// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
+// Karthik Krishnan, Aashish Chaudhary, Philippe Pébay, David Gobbi, 
+// David Partyka, Utkarsh Ayachit David Cole, François Bertel, and Mark Olesen
 // 
-//
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
 
