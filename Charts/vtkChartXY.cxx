@@ -309,6 +309,14 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
                                     this->Point2[0]-this->Point1[0],
                                     this->Point2[1]-this->Point1[1]);
 
+  // draw background
+  if(this->BackgroundBrush)
+    {
+    painter->ApplyBrush(this->BackgroundBrush);
+    painter->DrawRect(this->Point1[0], this->Point1[1],
+                      this->Geometry[0], this->Geometry[1]);
+    }
+
   // Use the scene to render most of the chart.
   this->PaintChildren(painter);
 

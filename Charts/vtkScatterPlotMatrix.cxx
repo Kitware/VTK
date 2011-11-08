@@ -182,18 +182,39 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
       pos.Y() < this->Size.Y())
     {
     // The supplied index is valid (in the lower quadrant).
-    if (this->GetChart(this->ActivePlot)->GetPlot(0))
-      {
-      // reset the previous active plot to the default color
-      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(this->Private->ScatterPlotColor[0],
-                                                             this->Private->ScatterPlotColor[1],
-                                                             this->Private->ScatterPlotColor[2]);
-      }
     this->ActivePlot = pos;
+
+    // set background colors for plots
     if (this->GetChart(this->ActivePlot)->GetPlot(0))
       {
-      // set the new active plot color to blue
-      this->GetChart(this->ActivePlot)->GetPlot(0)->SetColor(0.0, 0.0, 1.0);
+      int plotCount = this->GetSize().X();
+      for(int i = 0; i < plotCount; i++)
+        {
+        for(int j = 0; j < plotCount; j++)
+          {
+          if(this->GetPlotType(pos) == SCATTERPLOT)
+            {
+            vtkChartXY *chart = vtkChartXY::SafeDownCast(this->GetChart(vtkVector2i(i, j)));
+
+            if(pos[0] == i && pos[1] == j)
+              {
+              // set the new active chart background color to light green
+              chart->GetBackgroundBrush()->SetColorF(0, 0.8, 0, 0.4);
+              }
+            else if(pos[0] == i || pos[1] == j)
+              {
+              // set background color for all other charts in the selected chart's row
+              // and column to light red
+              chart->GetBackgroundBrush()->SetColorF(0.8, 0, 0, 0.4);
+              }
+            else
+              {
+              // set all else to white
+              chart->GetBackgroundBrush()->SetColorF(1, 1, 1, 0);
+              }
+            }
+          }
+        }
       }
     if (this->Private->BigChart)
       {
@@ -390,7 +411,7 @@ void vtkScatterPlotMatrix::SetColor(double r, double g, double b)
     {
     for(int j = 0; j < plotCount - 1; j++)
       {
-      if(i + j + 1 < plotCount)
+      if(this->GetPlotType(i, j) == SCATTERPLOT)
         {
         vtkChart *chart = this->GetChart(vtkVector2i(i, j));
         vtkPlot *plot = chart->GetPlot(0);
@@ -452,7 +473,7 @@ void vtkScatterPlotMatrix::SetMarkerStyle(int style)
       {
       for(int j = 0; j < plotCount - 1; j++)
         {
-        if(i + j + 1 < plotCount)
+        if(this->GetPlotType(i, j) == SCATTERPLOT)
           {
           vtkChart *chart = this->GetChart(vtkVector2i(i, j));
           vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
@@ -497,7 +518,7 @@ void vtkScatterPlotMatrix::SetMarkerSize(double size)
       {
       for(int j = 0; j < plotCount - 1; j++)
         {
-        if(i + j + 1 < plotCount)
+        if(this->GetPlotType(i, j) == SCATTERPLOT)
           {
           vtkChart *chart = this->GetChart(vtkVector2i(i, j));
           vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
@@ -566,6 +587,34 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
   return false;
 }
 
+int vtkScatterPlotMatrix::GetPlotType(const vtkVector2i &pos)
+{
+  int plotCount = this->GetSize().X();
+
+  if(pos.X() + pos.Y() + 1 < plotCount)
+    {
+    return SCATTERPLOT;
+    }
+  else if(pos.X() + pos.Y() + 1 == plotCount)
+    {
+    return HISTOGRAM;
+    }
+  else if(pos.X() == pos.Y() &&
+          pos.X() == static_cast<int>(plotCount / 2.0) + plotCount % 2)
+    {
+    return ACTIVEPLOT;
+    }
+  else
+    {
+      return NOPLOT;
+    }
+}
+
+int vtkScatterPlotMatrix::GetPlotType(int row, int column)
+{
+  return this->GetPlotType(vtkVector2i(row, column));
+}
+
 void vtkScatterPlotMatrix::UpdateLayout()
 {
   // We want scatter plots on the lower-left triangle, then histograms along
@@ -585,7 +634,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
     for (int j = 0; j < n; ++j)
       {
       vtkVector2i pos(i, j);
-      if (i + j + 1 < n)
+      if (this->GetPlotType(pos) == SCATTERPLOT)
         {
         this->GetChart(pos)->SetAnnotationLink(this->Private->Link.GetPointer());
         // Lower-left triangle - scatter plots.
@@ -605,7 +654,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plotPoints->SetMarkerSize(this->Private->ScatterPlotMarkerSize);
         plotPoints->SetMarkerStyle(this->Private->ScatterPlotMarkerStyle);
         }
-      else if (i == n - j - 1)
+      else if (this->GetPlotType(pos) == HISTOGRAM)
         {
         // We are on the diagonal - need a histogram plot.
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
@@ -627,8 +676,11 @@ void vtkScatterPlotMatrix::UpdateLayout()
           xy->SetBarWidthFraction(1.0);
           xy->SetPlotCorner(plot, 2);
           }
+
+        // set background color to light gray
+        xy->GetBackgroundBrush()->SetColorF(0.5, 0.5, 0.5, 0.4);
         }
-      else if (i == static_cast<int>(n / 2.0) + n % 2 && i == j)
+      else if (this->GetPlotType(pos) == ACTIVEPLOT)
         {
         // This big plot in the top-right
         this->Private->BigChart = this->GetChart(pos);

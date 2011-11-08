@@ -15,6 +15,7 @@
 
 #include "vtkChart.h"
 #include "vtkAxis.h"
+#include "vtkBrush.h"
 #include "vtkTransform2D.h"
 #include "vtkContextMouseEvent.h"
 
@@ -59,6 +60,8 @@ vtkChart::vtkChart()
   this->AnnotationLink = NULL;
   this->LayoutStrategy = vtkChart::FILL_SCENE;
   this->RenderEmpty = false;
+  this->BackgroundBrush = vtkSmartPointer<vtkBrush>::New();
+  this->BackgroundBrush->SetColorF(1, 1, 1, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -307,6 +310,28 @@ void vtkChart::SetClickActionToButton(int action, int button)
 int vtkChart::GetClickActionToButton(int action)
 {
   return this->Actions[action - 2];
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetBackgroundBrush(vtkBrush *brush)
+{
+  if(brush == NULL)
+    {
+    // set to transparent white if brush is null
+    this->BackgroundBrush->SetColorF(1, 1, 1, 0);
+    }
+  else
+    {
+    this->BackgroundBrush = brush;
+    }
+
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkBrush* vtkChart::GetBackgroundBrush()
+{
+  return this->BackgroundBrush.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
