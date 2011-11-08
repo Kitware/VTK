@@ -44,33 +44,6 @@ vtkCxxSetObjectMacro(vtkAxisActor,TitleTextProperty,vtkTextProperty);
 
 // ****************************************************************
 // Instantiate this object.
-//
-// Modifications:
-//   Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//   Initialize new members mustAdjustValue and valueScaleFactor.
-//
-//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
-//   No longer allocate large amounts of memory for labels, instead
-//   allocate dynamically.  Initialize new members:
-//   LastLabelStart; LastAxisPosition; LastTickLocation; LastTickVisibility;
-//   LastDrawGridlines; LastMinorTicksVisible; LastRange; MinorTickPts;
-//   MajorTickPts; GridlinePts.
-//
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
-//   Initialize new member AxisHasZeroLength.
-//
-//   Kathleen Bonnell, Thu Aug  1 13:44:02 PDT 2002
-//   Initialize new member ForceLabelReset.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Removed mustAdjustValue, valueScaleFator, ForceLabelReset.
-//
-//   Kathleen Bonnell, Thu Apr 29 17:02:10 PDT 2004
-//   Initialize MinorStart, MajorStart, DeltaMinor, DeltaMajor.
-//
-//   Brad Whitlock, Wed Mar 26 11:26:05 PDT 2008
-//   Added TitleTextProperty, LabelTextProperty.
-//
 // ****************************************************************
 
 vtkAxisActor::vtkAxisActor()
@@ -218,11 +191,6 @@ vtkAxisActor::vtkAxisActor()
 }
 
 // ****************************************************************
-// Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Added call to set camera to null.
-// ****************************************************************
-
 vtkAxisActor::~vtkAxisActor()
 {
   this->SetCamera(NULL);
@@ -394,9 +362,7 @@ vtkAxisActor::~vtkAxisActor()
     }
 }
 
-// Release any graphics resources that are being consumed by this actor.
-// The parameter window could be used to determine which graphic
-// resources to release.
+// ****************************************************************
 void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->TitleActor->ReleaseGraphicsResources(win);
@@ -413,22 +379,6 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 // ****************************************************************
-//
-// Modifications:
-//   Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//   Copy over mustAdjustValue and valueScaleFactor.
-//
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Call superclass's method in new VTK 4.0 way.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Removed mustAdjustValue, valueScaleFator.
-//
-//   Brad Whitlock, Wed Mar 26 11:34:24 PDT 2008
-//   Added TitleTextProperty, LabelTextProperty
-//
-// ****************************************************************
-
 void vtkAxisActor::ShallowCopy(vtkProp *prop)
 {
   vtkAxisActor *a = vtkAxisActor::SafeDownCast(prop);
@@ -455,17 +405,6 @@ void vtkAxisActor::ShallowCopy(vtkProp *prop)
 }
 
 // ****************************************************************
-// Build the axis, ticks, title, and labels and render.
-//
-// Modifications:
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
-//   Don't render a zero-length axis.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Added bool argument to BuildAxis.
-//
-// ****************************************************************
-
 int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
@@ -522,9 +461,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
 // ****************************************************************
 // Build the translucent poly actors and render.
-//
 // ****************************************************************
-
 int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
 
@@ -545,13 +482,9 @@ int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
-
-
 // ****************************************************************
 // Build the translucent poly actors and render.
-//
 // ****************************************************************
-
 int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
 
@@ -574,13 +507,7 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 
 // ****************************************************************
 // Render the 2d annotations.
-//
-// Modifications:
-//    Claire Guilbaud, Tue Apr 20 15:11:46 CEST 2010
-//    Method's creation
-//
 // ****************************************************************
-
 int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
@@ -607,12 +534,9 @@ int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
-
 // ****************************************************************
 // Tells whether there is translucent geometry to draw
-//
 // ****************************************************************
-
 int vtkAxisActor::HasTranslucentPolygonalGeometry()
 {
   return 1;
@@ -620,31 +544,7 @@ int vtkAxisActor::HasTranslucentPolygonalGeometry()
 
 // **************************************************************************
 // Perform some initialization, determine which Axis type we are
-// and call the appropriate build method.
-//
-// Modifications:
-//   Kathleen Bonnell, Wed Nov  7 17:45:20 PST 2001
-//   Added logic to only rebuild sub-parts if necessary.
-//
-//   Kathleen Bonnell, Fri Nov 30 17:02:41 PST 2001
-//   Moved setting values for LastRange to end of method, so they
-//   can be used in comparisons elsewhere.
-//
-//   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
-//   Compare vtkTimeStamps correctly.
-//
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
-//   Test for zero length axis.
-//
-//   Kathleen Bonnell,  Fri Jul 25 14:37:32 PDT 2003
-//   Added bool argument that will allow all axis components to be built
-//   if set to true.  Removed call to AdjustTicksComputeRange (handled by
-//   vtkCubeAxesActor.  Remvoed call to Build?TypeAxis, added calls
-//   to BuildLabels, SetAxisPointsAndLines and BuildTitle, (which used to
-//   be handled in Build?TypeAxis). .
-//
 // **************************************************************************
-
 void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 {
   // We'll do our computation in world coordinates. First determine the
@@ -724,30 +624,8 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 }
 
 // ****************************************************************
-//
 //  Set label values and properties.
-//
-// Modifications:
-//   Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//   Use valueScaleFactor to scale value if necessary.
-//
-//   Kathleen Bonnell, Wed Nov  7 17:45:20 PST 2001
-//   Added code for early termination.  Added call to SetNumberOfLabels
-//   for dynamic memory allocation. Number of labels limited to 200.
-//
-//   Kathleen Bonnell, Fri Nov 30 17:02:41 PST 2001
-//   Added test for modified range to determine if labels really need to
-//   be built.
-//
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
-//   Use defined constant to limit number of labels.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Remvoed determination of label text, added call to
-//   SetLabelPositions.
-//
 // ****************************************************************
-
 void
 vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
 {
@@ -781,33 +659,7 @@ int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
 
 // *******************************************************************
 // Determine and set scale factor and position for labels.
-//
-// Modifications:
-//   Kathleen Bonnell, Fri Nov 30 17:02:41 PST 2001
-//   Reset labels scale to 1. before testing length, in order to
-//   ensure proper scaling.  Use Bounds[1] and Bounds[0] for bWidth
-//   instead of Bounds[5] and Bounds[4].
-//
-//   Kathleen Bonnell, Tue Dec  4 09:55:03 PST 2001
-//   Ensure that scale does not go below MinScale.
-//
-//   Kathleen Bonnell, Tue Apr  9 14:41:08 PDT 2002
-//   Removed MinScale as it allowed axes with very small ranges
-//   to have labels scaled too large for the dataset.
-//
-//   Kathleen Bonnell, Fri Jul 18 09:09:31 PDT 2003
-//   Renamed to SetLabelPosition.  Removed calculation of label
-//   scale factor, added check for no labels to early return test.
-//
-//   Eric Brugger, Tue Jul 29 14:42:44 PDT 2003
-//   Corrected the test that causes the routine to exit early when
-//   no work needs to be done.
-//
-//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
-//   Use mapper bounds, not actor bounds.
-//
 // *******************************************************************
-
 void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 {
   if (!force && (!this->LabelVisibility || this->NumberOfLabelsBuilt == 0))
@@ -886,14 +738,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 
 // *******************************************************************
 //  Set 2D label values and properties. 
-//
-// Programmer:  Claire Guilbaud
-// Creation:    May 18, 2010
-//
-// Modifications:
-//
 // *******************************************************************
-
 void 
 vtkAxisActor::BuildLabels2D(vtkViewport *viewport, bool force) 
 {
@@ -919,12 +764,6 @@ vtkAxisActor::BuildLabels2D(vtkViewport *viewport, bool force)
 
 // *******************************************************************
 // Determine and set scale factor and position for 2D labels.
-//
-// Programmer:  Claire Guilbaud
-// Creation:    May 18, 2010
-//
-// Modifications:
-//
 // *******************************************************************
 void 
 vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force) 
@@ -998,36 +837,7 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
 // **********************************************************************
 //  Determines scale and position for the Title.  Currently,
 //  title can only be centered with respect to its axis.
-//
-//  Modifications:
-//    Kathleen Bonnell, Wed Nov  7 17:45:20 PST 2001
-//    Added logic for early-termination.
-//
-//    Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
-//    Test for modified bounds before early termination, use
-//    MinScale, modified target so title size is a bit more reasonable.
-//
-//    Kathleen Bonnell, Tue Apr  9 14:41:08 PDT 2002
-//    Removed MinScale as it allowed axes with very small ranges
-//    to have labels scaled too large for the dataset.
-//
-//    Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//    Added bool argument that allow the build to be forced, even if
-//    the title won't be visible.
-//
-//    Kathleen Bonnell, Tue Aug 31 16:17:43 PDT 2004
-//    Added TitleTime test so that the title can be rebuilt when its
-//    text has changed.
-//
-//    Hank Childs, Sun May 13 11:06:12 PDT 2007
-//    Fix bug with positioning of titles (the titles were being placed
-//    far away from the bounding box in some cases).
-//
-//    David Gobbi, Fri Apr 8 16:50:00 MST 2011
-//    Use mapper bounds, not actor bounds.
-//
 // **********************************************************************
-
 void vtkAxisActor::BuildTitle(bool force)
 {
   if (!force && !this->TitleVisibility)
@@ -1114,14 +924,7 @@ void vtkAxisActor::BuildTitle(bool force)
 // **********************************************************************
 //  Determines scale and position for the 2D Title.  Currently,
 //  title can only be centered with respect to its axis.
-//  
-// Programmer:  Claire Guilbaud
-// Creation:    May 18, 2010
-//
-// Modifications:
-//
 // **********************************************************************
-
 void
 vtkAxisActor::BuildTitle2D(vtkViewport *viewport, bool force)
 {
@@ -1231,11 +1034,6 @@ inline double fsign(double value, double sign)
 }
 
 // ****************************************************************
-// Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Call superclass's method in new VTK 4.0 way.
-// ****************************************************************
-
 void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1344,9 +1142,6 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 
 // **************************************************************************
 // Sets text string for label vectors.  Allocates memory if necessary.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    July 18, 2003
 // **************************************************************************
 void vtkAxisActor::SetLabels(vtkStringArray *labels)
 {
@@ -1404,20 +1199,6 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
 // **************************************************************************
 // Creates points for ticks (minor, major, gridlines) in correct position
 // for X-type axsis.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
-//
-// Modifications:
-//   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
-//   Compare vtkTimeStamps correctly.
-//
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
-//   Use defined constant VTK_MAX_TICKS to prevent infinite loops.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Allow a forced build, despite previous build time.
-//
 // **************************************************************************
 bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
                                            bool force)
@@ -1609,20 +1390,6 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
 // **************************************************************************
 // Creates points for ticks (minor, major, gridlines) in correct position
 // for Y-type axis.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
-//
-// Modifications:
-//   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
-//   Compare vtkTimeStamps correctly.
-//
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
-//   Use defined constant VTK_MAX_TICKS to prevent infinite loops.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Allow a forced build, despite previous build time.
-//
 // **************************************************************************
 bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
                                            bool force)
@@ -1819,20 +1586,6 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
 // **************************************************************************
 // Creates points for ticks (minor, major, gridlines) in correct position
 // for Z-type axis.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
-//
-// Modifications:
-//   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
-//   Compare vtkTimeStamps correctly.
-//
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
-//   Use defined constant VTK_MAX_TICKS to prevent infinite loops.
-//
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
-//   Allow a forced build, despite previous build time.
-//
 // **************************************************************************
 
 bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
@@ -2025,20 +1778,6 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
 
 // **************************************************************************
 // Creates Poly data (lines) from tickmarks (minor/major), gridlines, and axis.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
-//
-// Modifications:
-//   Kathleen Bonnell, Thu Nov 15 13:20:44 PST 2001
-//   Make ptIds of type vtkIdType to match VTK 4.0 API.
-//
-//   Kathleen Bonnell, Thu Jul 18 13:24:03 PDT 2002
-//   Allow gridlines to be drawn when enabled, even if ticks are disabled.
-//
-//   Kathleen Bonnell, Fri Jul 25 15:10:24 PDT 2003
-//   Removed arguments.
-//
 // **************************************************************************
 void vtkAxisActor::SetAxisPointsAndLines()
 {
@@ -2153,9 +1892,6 @@ void vtkAxisActor::SetAxisPointsAndLines()
 
 // *********************************************************************
 // Returns true if any tick vis attribute has changed since last check.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
 // *********************************************************************
 bool vtkAxisActor::TickVisibilityChanged()
 {
@@ -2172,9 +1908,6 @@ bool vtkAxisActor::TickVisibilityChanged()
 
 // *********************************************************************
 // Set the bounds for this actor to use.  Sets timestamp BoundsModified.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
 // *********************************************************************
 void
 vtkAxisActor::SetBounds(double b[6])
@@ -2196,10 +1929,6 @@ vtkAxisActor::SetBounds(double b[6])
 
 // *********************************************************************
 // Retrieves the bounds of this actor.
-// Set the bounds for this actor to use.  Sets timestamp BoundsModified.
-//
-// Programmer:  Will Schroeder
-// Creation:    December 8, 2010
 // *********************************************************************
 void vtkAxisActor::
 SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
@@ -2224,9 +1953,6 @@ SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, doubl
 
 // *********************************************************************
 // Retrieves the bounds of this actor.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
 // *********************************************************************
 double* vtkAxisActor::GetBounds()
 {
@@ -2235,9 +1961,6 @@ double* vtkAxisActor::GetBounds()
 
 // *********************************************************************
 // Retrieves the bounds of this actor.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    November 7, 2001
 // *********************************************************************
 
 void vtkAxisActor::GetBounds(double b[6])
@@ -2250,29 +1973,7 @@ void vtkAxisActor::GetBounds(double b[6])
 
 // *********************************************************************
 // Method:  vtkAxisActor::ComputeMaxLabelLength
-//
-// Purpose: Determines the maximum length that a label will occupy
-//          if placed at point 'center' and with a scale of 1.
-//
-// Arguments:
-//   center    The position to use for the label actor
-//
-// Returns:
-//   the maximum length of all the labels, 0 if there are no labels.
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    July 18, 2003
-//
-// Modifications:
-//   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
-//   Reset the actor's position and scale.
-//
-// Modifications:
-//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
-//   Use mapper bounds, not actor bounds, so centering is not necessary.
-//
 // *********************************************************************
-
 double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
 {
   double length, maxLength = 0.;
@@ -2295,29 +1996,7 @@ double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
 
 // *********************************************************************
 // Method:  vtkAxisActor::ComputeTitleLength
-//
-// Purpose: Determines the length that the title will occupy
-//          if placed at point 'center' and with a scale of 1.
-//
-// Arguments:
-//   center    The position to use for the title actor
-//
-// Returns:
-//   the length of all the title,
-//
-// Programmer:  Kathleen Bonnell
-// Creation:    July 25, 2003
-//
-// Modifications:
-//   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
-//   Reset the actor's position and scale.
-//
-// Modifications:
-//   David Gobbi, Fri Apr 8 16:50:00 MST 2011
-//   Use mapper bounds, not actor bounds, so centering is not necessary.
-//
 // *********************************************************************
-
 double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
 {
   double bounds[6];

@@ -41,7 +41,15 @@ All rights reserve
 // The Bounds instance variable (an array of six doubles) is used to determine
 // the bounding box.
 //
-// .SECTION See Also
+// .SECTION Thanks
+// This class was written by:
+// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
+// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
+// Aashish Chaudhary, Philippe Pébay, David Gobbi, David Partyka, Utkarsh Ayachit
+// David Cole, François Bertel, and Mark Olesen
+// 
+//
+// .section See Also
 // vtkActor vtkAxisActor vtkCubeAxesActor2D
 
 #ifndef __vtkCubeAxesActor_h
@@ -362,8 +370,9 @@ protected:
 
   int FlyMode;
 
-  // to control all axes
-  // [0] always for 'Major' axis during non-static fly modes.
+  // Description:
+  // Control variables for all axes
+  // NB: [0] always for 'Major' axis during non-static fly modes.
   vtkAxisActor *XAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *YAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *ZAxes[NUMBER_OF_ALIGNED_AXIS];
@@ -495,10 +504,12 @@ private:
 
   double ScreenSize;
 
-  double MajorStart[3];            // For the inner grid lines generation
-  double DeltaMajor[3];            // For the inner grid lines generation
+  // Description:
+  // Major start and delta values, in each direction.
+  // These values are needed for inner grid lines generation
+  double MajorStart[3];
+  double DeltaMajor[3];
 
-  // various helper methods
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
                         double pts[8][3]);
   void  AdjustAxes(double bounds[6],
@@ -523,7 +534,6 @@ private:
   void    AutoScale(vtkViewport *viewport, vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS]);
   double  AutoScale(vtkViewport *viewport, double screenSize, double position[3]);
 
-  // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 };
 

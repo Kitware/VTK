@@ -36,10 +36,13 @@ All rights reserved.
 // The instance variables Point1 and Point2 are instances of vtkCoordinate.
 // All calculations and references are in World Coordinates.
 //
-// .SECTION Notes
-// This class was adapted from a 2D version created by Hank Childs called
-// vtkHankAxisActor2D.
-//
+// .SECTION Thanks
+// This class was written by:
+// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
+// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
+// Karthik Krishnan, Aashish Chaudhary, Philippe Pébay, David Gobbi, 
+// David Partyka, Utkarsh Ayachit David Cole, François Bertel, and Mark Olesen
+// 
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
 
@@ -63,15 +66,6 @@ All rights reserved.
 #define VTK_AXIS_POS_MINMAX 1
 #define VTK_AXIS_POS_MAXMAX 2
 #define VTK_AXIS_POS_MAXMIN 3
-
-// ****************************************************************************
-//  Modifications:
-//    Kathleen Bonnell, Tue Aug 31 16:17:43 PDT 2004
-//    Added TitleTextTime timestamp, so that title can be updated appropriately
-//    when its text changes.  Changed Titles Set macro for a user-defined
-//    set so TitleTextTime can be updated.
-//
-// ****************************************************************************
 
 class vtkAxisFollower;
 class vtkCamera;
@@ -506,23 +500,31 @@ private:
 
   int                 CalculateTitleOffset;
   int                 CalculateLabelOffset;
-  //! axis in 2D mode
+
+  // Description: 
+  // Use xy-axis only when Use2DMode=1:
   int                 Use2DMode;
-  /*! use when Use2DMode=1 (2D axis):
-        \note 
-        \li val = 0 : no need to save position (doesn't stick actors in a position)
-        \li val = 1 : positions have to be saved during the next render pass
-        \li val = 2 : positions are saved -> used them
-  */
+
+  // Description:
+  // Save title position (for 2D mode):
+  // val = 0 : no need to save position (doesn't stick actors in a position)
+  // val = 1 : positions have to be saved during the next render pass
+  // val = 2 : positions are saved -> used them
   int		      SaveTitlePosition;
-  //! constante coordinate for the title
+
+  // Description:
+  // Constant position for the title (for 2D mode)
   double	      TitleConstantPosition[2];
-  //! true if the 2D title have to be built, false otherwise
+
+  // Description:
+  // True if the 2D title has to be built, false otherwise
   bool                NeedBuild2D;
-  //!
+
   double	      LastMinDisplayCoordinate[3];
   double	      LastMaxDisplayCoordinate[3];
-  //! FreeType library utility
+
+  // Description:
+  // FreeType library utility
   vtkFreeTypeUtilities *FreeTypeUtilities;
 };
 
