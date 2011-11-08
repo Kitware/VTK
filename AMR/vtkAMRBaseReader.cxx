@@ -435,6 +435,7 @@ void vtkAMRBaseReader::LoadAllBlocks( vtkHierarchicalBoxDataSet *output )
 
       // STEP 4: Add dataset
       output->SetDataSet( level,blockIdx,amrBlock );
+      amrBlock->Delete();
     } // END for all blocks
 
 }
@@ -483,6 +484,7 @@ void vtkAMRBaseReader::AssignAndLoadBlocks( vtkHierarchicalBoxDataSet *output )
 
           // STEP 4: Add dataset
           output->SetDataSet( level,idxcounter[level],amrBlock );
+          amrBlock->Delete();
           idxcounter[level]++;
         } // END if the block belongs to this process
       else
