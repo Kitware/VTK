@@ -53,9 +53,10 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     void PrintSelf( std::ostream &oss, vtkIndent indent);
 
     // Description:
-    // Set & Get macro for the level of resolution.
-    vtkSetMacro(LevelOfResolution,int);
-    vtkGetMacro(LevelOfResolution,int);
+    // Set & Get macro for the number of samples (cells) in each dimension.
+    // Nominal value for the number of samples is 10x10x10.
+    vtkSetVector3Macro(NumberOfSamples,int);
+    vtkGetVector3Macro(NumberOfSamples,int);
 
     // Description:
     // Set & Get macro for the TransferToNodes flag
@@ -75,8 +76,30 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Setter for the min/max bounds
-    vtkSetVector3Macro(Min,double);
-    vtkSetVector3Macro(Max,double);
+//    vtkSetVector3Macro(Min,double);
+//    vtkSetVector3Macro(Max,double);
+
+    // Description:
+    // Sets the min
+    inline void SetMin( double x, double y, double z )
+    {
+      this->Min[0]     = x;
+      this->Min[1]     = y;
+      this->Min[2]     = z;
+      this->ROIChanged = true;
+      this->Modified();
+    }
+
+    // Description:
+    // Sets the max
+    inline void SetMax( double x, double y, double z )
+    {
+      this->Max[0]     = x;
+      this->Max[1]     = y;
+      this->Max[2]     = z;
+      this->ROIChanged = true;
+      this->Modified();
+    }
 
     // Description:
     // Set & Get macro for the multi-process controller
@@ -109,17 +132,24 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     virtual ~vtkAMRResampleFilter();
 
     vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
+    int NumberOfSamples[3];
     double Min[3];
     double Max[3];
+    int LevelOfResolution;
     int NumberOfPartitions;
     int TransferToNodes;
     int DemandDrivenMode;
-    int LevelOfResolution;
+    bool ROIChanged;
     vtkMultiProcessController *Controller;
 // BTX
     vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
 // ETX
 
+
+    // Description:
+    // This method snaps the bounding box bounds to the closest point w.r.t the
+    // root level grid.
+    void SnapBounds( vtkHierarchicalBoxDataSet *amrds );
 
     // Description:
     // Checks if this filter instance is running on more than one processes
@@ -190,6 +220,11 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // upstream, this method generates the list of linear AMR block indices
     // that need to be loaded.
     void ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata );
+
+    // Description:
+    // Computes the desired spacing based on the number of samples and length
+    // of the box given and the current AMR dataset.
+    void GetSpacing( vtkHierarchicalBoxDataSet *amr, double h[3] );
 
     // Description:
     // This method gets the region of interest as perscribed by the user.
