@@ -34,6 +34,13 @@ class vtkAxis;
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
 public:
+  enum {
+    SCATTERPLOT,
+    HISTOGRAM,
+    ACTIVEPLOT,
+    NOPLOT
+  };
+
   vtkTypeMacro(vtkScatterPlotMatrix, vtkChartMatrix);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
@@ -134,6 +141,12 @@ public:
   // Description:
   // Mouse button release event.
   bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Returns the type of the plot at the given position. The return
+  // value is one of: SCATTERPLOT, HISTOGRAM, ACTIVEPLOT, or NOPLOT.
+  int GetPlotType(const vtkVector2i &pos);
+  int GetPlotType(int row, int column);
 
 protected:
   vtkScatterPlotMatrix();
