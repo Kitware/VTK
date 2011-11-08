@@ -50,6 +50,13 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->NumberOfSamples[0]   = this->NumberOfSamples[1] = this->NumberOfSamples[2] = 10;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
+  this->ROIChanged           = false;
+
+  for( int i=0; i < 3; ++i )
+    {
+    this->Min[i] = 0.;
+    this->Max[i] = 1.;
+    }
   this->SetNumberOfInputPorts( 1 );
   this->SetNumberOfOutputPorts( 1 );
 }
@@ -538,17 +545,28 @@ void vtkAMRResampleFilter::GetSpacing(
     targetLevel = amr->GetNumberOfLevels()-1;
 
   // STEP 4: Acquire the spacing at the target level.
-  amr->GetMetaData( targetLevel, 0, amrBox );
-  amrBox.GetGridSpacing( h );
+//  amr->GetMetaData( targetLevel, 0, amrBox );
+//  amrBox.GetGridSpacing( h );
+
+  // STEP 4: Set the spacing based on the number of samples
+  for( int i=0; i < 3; ++i )
+    {
+    double delta = this->Max[i]-this->Min[i];
+    h[i]         = delta/this->NumberOfSamples[i];
+    } // END for all i
   this->LevelOfResolution = targetLevel;
 
 //  std::cout << "Level of resolution is: " << targetLevel << std::endl;
 //  std::cout.flush();
 }
 
+
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SnapBounds( vtkHierarchicalBoxDataSet *amrds )
 {
+  if( !this->ROIChanged )
+    return;
+
   // STEP 0: Ensure AMR dataset is NULL
   assert( "pre: Ensure AMR dataset is NULL" && (amrds != NULL) );
 
@@ -597,7 +615,7 @@ void vtkAMRResampleFilter::SnapBounds( vtkHierarchicalBoxDataSet *amrds )
       this->Max[ i ] = bbmin[i]+ijkmax[i]*h0[i];
     assert( "post: max is out-of-bounds!" && (this->Max[i] <= bbmax[i]) );
     }
-
+  this->ROIChanged = false;
 //  std::cout << "Snapped min: " << this->Min[0] << " " << this->Min[1] << " " << this->Min[2];
 //  std::cout << std::endl;
 //  std::cout << "Snapped max: " << this->Max[0] << " " << this->Max[1] << " " << this->Max[2];
@@ -609,13 +627,27 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
 {
   vtkUniformGrid *grd = vtkUniformGrid::New();
 
-  int dims[3];
-  for( int i=0; i < 3; ++i )
-      dims[ i ] = ( ( (this->Max[ i ] - this->Min[ i ] )) / h[ i ] )+ 1;
+//  int dims[3];
+//  for( int i=0; i < 3; ++i )
+//      dims[ i ] = ( ( (this->Max[ i ] - this->Min[ i ] )) / h[ i ] )+ 1;
+
+//  std::cout << "===\n";
+//  std::cout << "MIN: " << this->Min[0] << " ";
+//  std::cout << this->Min[1] << " ";
+//  std::cout << this->Min[2] << std::endl;
+//  std::cout << "MAX: " << this->Max[0] << " ";
+//  std::cout << this->Max[1] << " ";
+//  std::cout << this->Max[2] << std::endl;
+//  std::cout.flush();
+//
+//  std::cout << "h: " << h[0] << " " << h[1] << " " << h[2] << std::endl;
+//  std::cout << "===\n";
+//  std::cout.flush();
 
   grd->SetOrigin( this->Min );
   grd->SetSpacing( h );
-  grd->SetDimensions( dims );
+//  grd->SetDimensions( dims );
+  grd->SetDimensions( this->NumberOfSamples );
 
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
   gridPartitioner->SetInput( grd );

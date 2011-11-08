@@ -76,8 +76,30 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Setter for the min/max bounds
-    vtkSetVector3Macro(Min,double);
-    vtkSetVector3Macro(Max,double);
+//    vtkSetVector3Macro(Min,double);
+//    vtkSetVector3Macro(Max,double);
+
+    // Description:
+    // Sets the min
+    inline void SetMin( double x, double y, double z )
+    {
+      this->Min[0]     = x;
+      this->Min[1]     = y;
+      this->Min[2]     = z;
+      this->ROIChanged = true;
+      this->Modified();
+    }
+
+    // Description:
+    // Sets the max
+    inline void SetMax( double x, double y, double z )
+    {
+      this->Max[0]     = x;
+      this->Max[1]     = y;
+      this->Max[2]     = z;
+      this->ROIChanged = true;
+      this->Modified();
+    }
 
     // Description:
     // Set & Get macro for the multi-process controller
@@ -117,6 +139,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     int NumberOfPartitions;
     int TransferToNodes;
     int DemandDrivenMode;
+    bool ROIChanged;
     vtkMultiProcessController *Controller;
 // BTX
     vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
