@@ -151,16 +151,16 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
       << "data. For consistency, this accepts a DEM data as input, (to compare\n"
       << "it with the TerrainPolylineEditor example. However, it converts the DEM\n"
       << "data to a polygonal data before feeding it to the contour widget.\n\n"
-      << "Usage args: [height_offset]." 
+      << "Usage args: [height_offset]."
       << std::endl;
     return EXIT_FAILURE;
     }
 
-  // Read height field. 
-  char* fname = 
+  // Read height field.
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
-  
-  // Read height field. 
+
+  // Read height field.
   //
   vtkSmartPointer<vtkDEMReader> demReader =
     vtkSmartPointer<vtkDEMReader>::New();
@@ -173,7 +173,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   resample->SetDimensionality(2);
   resample->SetAxisMagnificationFactor(0,1.0);
   resample->SetAxisMagnificationFactor(1,1.0);
-  
+
   // Extract geometry
   vtkSmartPointer<vtkImageDataGeometryFilter> surface =
     vtkSmartPointer<vtkImageDataGeometryFilter>::New();
@@ -184,7 +184,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
     vtkSmartPointer<vtkTriangleFilter>::New();
   triangleFilter->SetInputConnection( surface->GetOutputPort() );
   triangleFilter->Update();
-  
+
   vtkSmartPointer<vtkWarpScalar> warp =
     vtkSmartPointer<vtkWarpScalar>::New();
   warp->SetInputConnection(triangleFilter->GetOutputPort());
@@ -194,7 +194,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
 
   warp->Update();
 
-  // Define a LUT mapping for the height field 
+  // Define a LUT mapping for the height field
 
   double lo = demReader->GetOutput()->GetScalarRange()[0];
   double hi = demReader->GetOutput()->GetScalarRange()[1];
@@ -204,7 +204,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   lut->SetHueRange(0.6, 0);
   lut->SetSaturationRange(1.0, 0);
   lut->SetValueRange(0.5, 1.0);
-  
+
   vtkSmartPointer<vtkPolyDataNormals> normals =
     vtkSmartPointer<vtkPolyDataNormals>::New();
 
@@ -227,7 +227,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
 
     // vtkPolygonalSurfacePointPlacer needs cell normals
     // vtkPolygonalSurfaceContourLineInterpolator needs vertex normals
-    normals->ComputeCellNormalsOn(); 
+    normals->ComputeCellNormalsOn();
     normals->ComputePointNormalsOn();
     normals->Update();
     }
@@ -246,7 +246,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   demActor->SetMapper(demMapper);
 
   // Create the RenderWindow, Renderer and the DEM + path actors.
- 
+
   vtkSmartPointer<vtkRenderer> ren1 =
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
@@ -255,9 +255,9 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
-  
+
   // Add the actors to the renderer, set the background and size
-  
+
   ren1->AddActor(demActor);
 
   ren1->GetActiveCamera()->SetViewUp(0, 0, 1);
@@ -272,7 +272,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   vtkSmartPointer<vtkContourWidget> contourWidget =
     vtkSmartPointer<vtkContourWidget>::New();
   contourWidget->SetInteractor(iren);
-  vtkOrientedGlyphContourRepresentation *rep = 
+  vtkOrientedGlyphContourRepresentation *rep =
     vtkOrientedGlyphContourRepresentation::SafeDownCast(
       contourWidget->GetRepresentation());
   rep->GetLinesProperty()->SetColor(1, 0.2, 0);
@@ -282,6 +282,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
     = vtkSmartPointer<vtkPolygonalSurfacePointPlacer>::New();
   pointPlacer->AddProp(demActor);
   pointPlacer->GetPolys()->AddItem( pd );
+  pointPlacer->SnapToClosestPointOn();
   rep->SetPointPlacer(pointPlacer);
 
   vtkSmartPointer<vtkPolygonalSurfaceContourLineInterpolator> interpolator =
@@ -293,11 +294,11 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
     pointPlacer->SetDistanceOffset( distanceOffset );
     interpolator->SetDistanceOffset( distanceOffset );
     }
-  
+
   renWin->Render();
   iren->Initialize();
   contourWidget->EnabledOn();
-    
+
   return vtkTesting::InteractorEventLoop(
       argc, argv, iren, TestDijkstraGraphGeodesicPathLog );
 }

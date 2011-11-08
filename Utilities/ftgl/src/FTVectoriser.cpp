@@ -47,6 +47,11 @@ void CALLBACK ftglCombine( FTGL_DOUBLE coords[3], void* , GLfloat*, void** outDa
 
 } // End of extern C
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 //=============================================================================
 
 bool operator == ( const ftPoint &a, const ftPoint &b) 
@@ -419,3 +424,7 @@ void FTVectoriser::GetMesh( FTGL_DOUBLE* data)
   }
 
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

@@ -3,6 +3,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTSize::FTSize()
 :  ftFace(0),
@@ -91,3 +95,7 @@ int FTSize::Underline() const
 {
   return 0;
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkWarpTo.h"
 
+#include "vtkImageData.h"
+#include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -21,14 +23,56 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridToPointSet.h"
+#include "vtkStructuredGrid.h"
+
+#include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkWarpTo);
 
-vtkWarpTo::vtkWarpTo() 
+vtkWarpTo::vtkWarpTo()
 {
-  this->ScaleFactor = 0.5; 
+  this->ScaleFactor = 0.5;
   this->Absolute = 0;
   this->Position[0] = this->Position[1] = this->Position[2] = 0.0;
+}
+
+int vtkWarpTo::FillInputPortInformation(int vtkNotUsed(port),
+                                        vtkInformation *info)
+{
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
+}
+
+int vtkWarpTo::RequestDataObject(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector)
+{
+  vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+  vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+
+  if (inImage || inRect)
+    {
+    vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
+    if (!output)
+      {
+      vtkNew<vtkStructuredGrid> newOutput;
+      outputVector->GetInformationObject(0)->Set(
+        vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
+      }
+    return 1;
+    }
+  else
+    {
+    return this->Superclass::RequestDataObject(request,
+                                               inputVector,
+                                               outputVector);
+    }
 }
 
 int vtkWarpTo::RequestData(
@@ -36,15 +80,40 @@ int vtkWarpTo::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
+  vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
-  // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointSet *output = vtkPointSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input)
+    {
+    // Try converting image data.
+    vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+    if (inImage)
+      {
+      vtkNew<vtkImageDataToPointSet> image2points;
+      image2points->SetInputData(inImage);
+      image2points->Update();
+      input = image2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    // Try converting rectilinear grid.
+    vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+    if (inRect)
+      {
+      vtkNew<vtkRectilinearGridToPointSet> rect2points;
+      rect2points->SetInputData(inRect);
+      rect2points->Update();
+      input = rect2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    vtkErrorMacro(<< "Invalid or missing input");
+    return 0;
+    }
 
   vtkPoints *inPts;
   vtkPoints *newPts;
@@ -53,7 +122,7 @@ int vtkWarpTo::RequestData(
   double x[3], newX[3];
   double mag;
   double minMag = 0;
-  
+
   vtkDebugMacro(<<"Warping data to a point");
 
   // First, copy the input to the output as a starting point
@@ -83,7 +152,7 @@ int vtkWarpTo::RequestData(
         }
       }
     }
-  
+
   //
   // Loop over all points, adjusting locations
   //
@@ -96,7 +165,7 @@ int vtkWarpTo::RequestData(
       for (i=0; i<3; i++)
         {
         newX[i] = this->ScaleFactor*
-          (this->Position[i] + minMag*(x[i] - this->Position[i])/mag) + 
+          (this->Position[i] + minMag*(x[i] - this->Position[i])/mag) +
           (1.0 - this->ScaleFactor)*x[i];
         }
       }
@@ -104,7 +173,7 @@ int vtkWarpTo::RequestData(
       {
       for (i=0; i<3; i++)
         {
-        newX[i] = (1.0 - this->ScaleFactor)*x[i] + 
+        newX[i] = (1.0 - this->ScaleFactor)*x[i] +
           this->ScaleFactor*this->Position[i];
         }
       }
@@ -125,10 +194,10 @@ int vtkWarpTo::RequestData(
 void vtkWarpTo::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Absolute: " << (this->Absolute ? "On\n" : "Off\n");
 
-  os << indent << "Position: (" << this->Position[0] << ", " 
+  os << indent << "Position: (" << this->Position[0] << ", "
     << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

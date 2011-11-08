@@ -10,6 +10,10 @@
 #include "FTGLgl.h"
 #include "FTGlyph.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 /**
  * FTTextureGlyph is a specialisation of FTGlyph for creating texture
@@ -101,5 +105,8 @@ class FTGL_EXPORT FTTextureGlyph : public FTGlyph
     
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTTextureGlyph__

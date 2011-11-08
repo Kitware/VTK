@@ -64,12 +64,12 @@ void initShade()
   xvec=vec3(cellStep.x,0.0,0.0); // 0.01
   yvec=vec3(0.0,cellStep.y,0.0);
   zvec=vec3(0.0,0.0,cellStep.z);
-  
+
   // Reverse ray direction in eye space
   wReverseRayDir=eyeToTexture3*rayDir;
   wReverseRayDir=wReverseRayDir*minusOne;
   wReverseRayDir=normalize(wReverseRayDir);
-  
+
   // Directonal light: w==0
   if(gl_LightSource[0].position.w==0.0)
     {
@@ -92,7 +92,7 @@ vec4 shade(vec4 value)
   vec4 tmp;
   float att;
   float spot;
-  
+
   g1.x=texture3D(dataSetTexture,pos+xvec).x;
   g1.y=texture3D(dataSetTexture,pos+yvec).x;
   g1.z=texture3D(dataSetTexture,pos+zvec).x;
@@ -101,10 +101,10 @@ vec4 shade(vec4 value)
   g2.z=texture3D(dataSetTexture,pos-zvec).x;
   // g1-g2 is  the gradient in texture coordinates
   // the result is the normalized gradient in eye coordinates.
-  
+
   g2=g1-g2;
   g2=g2*cellScale;
-  
+
   float normalLength=length(g2);
   if(normalLength>0.0)
     {
@@ -114,12 +114,15 @@ vec4 shade(vec4 value)
     {
     g2=vec3(0.0,0.0,0.0);
     }
-  
+
   vec4 color=colorFromValue(value);
-  
+
+  vec4 frontLightProduct_Diffuse= gl_LightSource[0].diffuse*gl_FrontMaterial.diffuse;
+  vec4 frontLightProduct_Specular= gl_LightSource[0].specular*gl_FrontMaterial.specular;
+
   // initialize color to 0.0
-  vec4 finalColor=vec4(0.0,0.0,0.0,0.0);        
-  
+  vec4 finalColor=vec4(0.0,0.0,0.0,0.0);
+
   if(gl_LightSource[0].position.w!=0.0)
     {
     // We need to know the eye position only if light is positional
@@ -138,9 +141,10 @@ vec4 shade(vec4 value)
     {
     att=1.0;
     }
-  
+
   if(att>0.0)
     {
+
     if(gl_LightSource[0].spotCutoff==180.0)
       {
       spot=1.0;
@@ -157,45 +161,47 @@ vec4 shade(vec4 value)
         spot=0.0;
         }
       }
+
     if(spot>0.0)
       {
       // LIT operation...
       float nDotL=dot(g2,ldir);
       float nDotH=dot(g2,h);
-      
+
       // separate nDotL and nDotH for two-sided shading, otherwise we
       // get black spots.
-      
+
       if(nDotL<0.0) // two-sided shading
         {
         nDotL=-nDotL;
         }
-      
+
       if(nDotH<0.0) // two-sided shading
         {
         nDotH=-nDotH;
         }
+
       // ambient term for this light
       finalColor+=gl_FrontLightProduct[0].ambient;
-      
+
       // diffuse term for this light
       if(nDotL>0.0)
         {
-        finalColor+=(gl_FrontLightProduct[0].diffuse*nDotL)*color;
+        finalColor +=(frontLightProduct_Diffuse*nDotL)*color;
         }
-      
+
       // specular term for this light
       float shininessFactor=pow(nDotH,gl_FrontMaterial.shininess);
-      finalColor+=gl_FrontLightProduct[0].specular*shininessFactor;
+      finalColor+=frontLightProduct_Specular*shininessFactor;
       finalColor*=att*spot;
       }
     }
-  
+
   // scene ambient term
   finalColor+=gl_FrontLightModelProduct.sceneColor*color;
-  
+
   // clamp. otherwise we get black spots
   finalColor=clamp(finalColor,clampMin,clampMax);
-  
+
   return finalColor;
 }

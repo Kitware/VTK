@@ -118,6 +118,7 @@
 
 class vtkContourRepresentation;
 class vtkPolyData;
+class vtkIdList;
 
 class VTK_WIDGETS_EXPORT vtkContourWidget : public vtkAbstractWidget
 {
@@ -202,7 +203,7 @@ public:
   // it. Note that if the polydata supplied is closed, the state will be
   // set to manipulate.
   //  State: Define = 0, Manipulate = 1.
-  virtual void Initialize( vtkPolyData * poly, int state = 1 );
+  virtual void Initialize( vtkPolyData * poly, int state = 1, vtkIdList *idList = NULL );
   virtual void Initialize()
     {this->Initialize(NULL);}
 

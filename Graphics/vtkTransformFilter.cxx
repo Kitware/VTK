@@ -16,12 +16,20 @@
 
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLinearTransform.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridToPointSet.h"
+#include "vtkStructuredGrid.h"
+
+#include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkTransformFilter);
 vtkCxxSetObjectMacro(vtkTransformFilter,Transform,vtkAbstractTransform);
@@ -36,20 +44,81 @@ vtkTransformFilter::~vtkTransformFilter()
   this->SetTransform(NULL);
 }
 
+int vtkTransformFilter::FillInputPortInformation(int vtkNotUsed(port),
+                                                 vtkInformation *info)
+{
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
+}
+
+int vtkTransformFilter::RequestDataObject(vtkInformation *request,
+                                          vtkInformationVector **inputVector,
+                                          vtkInformationVector *outputVector)
+{
+  vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+  vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+
+  if (inImage || inRect)
+    {
+    vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
+    if (!output)
+      {
+      vtkNew<vtkStructuredGrid> newOutput;
+      outputVector->GetInformationObject(0)->Set(
+        vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
+      }
+    return 1;
+    }
+  else
+    {
+    return this->Superclass::RequestDataObject(request,
+                                               inputVector,
+                                               outputVector);
+    }
+}
+
 int vtkTransformFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
+  vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
-  // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointSet *output = vtkPointSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input)
+    {
+    // Try converting image data.
+    vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+    if (inImage)
+      {
+      vtkNew<vtkImageDataToPointSet> image2points;
+      image2points->SetInputData(inImage);
+      image2points->Update();
+      input = image2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    // Try converting rectilinear grid.
+    vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+    if (inRect)
+      {
+      vtkNew<vtkRectilinearGridToPointSet> rect2points;
+      rect2points->SetInputData(inRect);
+      rect2points->Update();
+      input = rect2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    vtkErrorMacro(<< "Invalid or missing input");
+    return 0;
+    }
 
   vtkPoints *inPts;
   vtkPoints *newPts;
@@ -91,14 +160,14 @@ int vtkTransformFilter::RequestData(
 
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
-  if ( inVectors ) 
+  if ( inVectors )
     {
     newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->Allocate(3*numPts);
     newVectors->SetName(inVectors->GetName());
     }
-  if ( inNormals ) 
+  if ( inNormals )
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
@@ -119,7 +188,7 @@ int vtkTransformFilter::RequestData(
   else
     {
     this->Transform->TransformPoints(inPts,newPts);
-    }  
+    }
 
   this->UpdateProgress (.6);
 
@@ -128,7 +197,7 @@ int vtkTransformFilter::RequestData(
   vtkLinearTransform* lt=vtkLinearTransform::SafeDownCast(this->Transform);
   if (lt)
     {
-    if ( inCellVectors ) 
+    if ( inCellVectors )
       {
       newCellVectors = vtkFloatArray::New();
       newCellVectors->SetNumberOfComponents(3);
@@ -136,7 +205,7 @@ int vtkTransformFilter::RequestData(
       newCellVectors->SetName( inCellVectors->GetName() );
       lt->TransformVectors(inCellVectors,newCellVectors);
       }
-    if ( inCellNormals ) 
+    if ( inCellNormals )
       {
       newCellNormals = vtkFloatArray::New();
       newCellNormals->SetNumberOfComponents(3);

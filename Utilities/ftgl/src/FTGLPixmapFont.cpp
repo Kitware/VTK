@@ -4,6 +4,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTGLPixmapFont::FTGLPixmapFont()
 {}
@@ -60,3 +64,7 @@ void FTGLPixmapFont::render(const wchar_t* string,
     this->RenderOpenGL(string, context);
     }
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
