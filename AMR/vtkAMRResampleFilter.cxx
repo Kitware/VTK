@@ -136,14 +136,8 @@ int vtkAMRResampleFilter::RequestInformation(
           input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
       assert( "pre: medata is NULL" && (metadata != NULL)  );
 
-      // Get desired spacing
+      // Get desired spacing & ensure box is within the domain bounds
       double h[3];
-//      int level = this->LevelOfResolution;
-//      if( level >= metadata->GetNumberOfLevels() )
-//        level = metadata->GetNumberOfLevels()-1;
-//      vtkUniformGrid *grd = metadata->GetDataSet( level, 0 );
-//      assert( "pre: reference grid is NULL" && (grd != NULL) );
-//      grd->GetSpacing( h );
       this->SnapBounds( metadata );
       this->GetSpacing( metadata, h );
 
@@ -182,14 +176,8 @@ int vtkAMRResampleFilter::RequestData(
     {
     metadata = amrds;
 
-    // Get desired spacing
+    // Get desired spacing & ensure box is within the domain bounds
     double h[3];
-//    int level = this->LevelOfResolution;
-//    if( level >= amrds->GetNumberOfLevels() )
-//      level = amrds->GetNumberOfLevels()-1;
-//    vtkUniformGrid *grd = amrds->GetDataSet( level, 0 );
-//    assert( "pre: reference grid is NULL" && (grd != NULL) );
-//    grd->GetSpacing( h );
     this->SnapBounds( amrds );
     this->GetSpacing( amrds, h );
 
@@ -456,7 +444,7 @@ void vtkAMRResampleFilter::ExtractRegion(
   assert( "pre: metatadata is NULL" && (metadata != NULL) );
 
   mbds->SetNumberOfBlocks( this->ROI->GetNumberOfBlocks() );
-  for( int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
+  for( unsigned int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
     {
       if( this->IsRegionMine( block ) )
         {
@@ -482,7 +470,7 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *me
   this->BlocksToLoad.clear();
 
   unsigned int maxLevelToLoad = 0;
-  if( this->LevelOfResolution < metadata->GetNumberOfLevels() )
+  if( this->LevelOfResolution < static_cast<int>(metadata->GetNumberOfLevels()))
     maxLevelToLoad = this->LevelOfResolution+1;
   else
     maxLevelToLoad = metadata->GetNumberOfLevels();
@@ -523,13 +511,13 @@ void vtkAMRResampleFilter::GetSpacing(
   // STEP 0: Get initial spacing in each dimension
   double h0[3];
   amrBox.GetGridSpacing( h0 );
-  std::cout << "h0: " << h0[0] << " " << h0[1] << " " << h0[2] << std::endl;
-  std::cout.flush();
+//  std::cout << "h0: " << h0[0] << " " << h0[1] << " " << h0[2] << std::endl;
+//  std::cout.flush();
 
   // STEP 1: Get the refinement ratio -- assumes constant refinement ratio
   double rf = amr->GetRefinementRatio(1);
-  std::cout << "Refinement ratio: " << rf << std::endl;
-  std::cout.flush();
+//  std::cout << "Refinement ratio: " << rf << std::endl;
+//  std::cout.flush();
 
   // STEP 2: Get length of the box in each dimension
   double L[3];
@@ -546,7 +534,7 @@ void vtkAMRResampleFilter::GetSpacing(
       targetLevel = currentLevel;
     } // END for all dimensions
 
-  if( targetLevel > amr->GetNumberOfLevels() )
+  if( targetLevel > static_cast<int>(amr->GetNumberOfLevels()) )
     targetLevel = amr->GetNumberOfLevels()-1;
 
   // STEP 4: Acquire the spacing at the target level.
@@ -554,8 +542,8 @@ void vtkAMRResampleFilter::GetSpacing(
   amrBox.GetGridSpacing( h );
   this->LevelOfResolution = targetLevel;
 
-  std::cout << "Level of resolution is: " << targetLevel << std::endl;
-  std::cout.flush();
+//  std::cout << "Level of resolution is: " << targetLevel << std::endl;
+//  std::cout.flush();
 }
 
 //-----------------------------------------------------------------------------
@@ -567,7 +555,6 @@ void vtkAMRResampleFilter::SnapBounds( vtkHierarchicalBoxDataSet *amrds )
   // STEP 1: Get root AMR box
   vtkAMRBox amrBox;
   amrds->GetRootAMRBox( amrBox );
-  amrBox.WriteBox();
 
   // STEP 2: Snap bounds
   double bbmin[3];
@@ -575,8 +562,6 @@ void vtkAMRResampleFilter::SnapBounds( vtkHierarchicalBoxDataSet *amrds )
   double h0[3];
   int dims[3];
   amrBox.GetNumberOfNodes(dims);
-  std::cout << "Root AMR box dimensions: " << dims[0] << " " << dims[1] << " " << dims[2];
-  std::cout << std::endl;
   amrBox.GetMinBounds( bbmin );
   amrBox.GetMaxBounds( bbmax );
   amrBox.GetGridSpacing( h0 );
@@ -589,40 +574,34 @@ void vtkAMRResampleFilter::SnapBounds( vtkHierarchicalBoxDataSet *amrds )
   for( int i=0; i < 3; ++i )
     {
     dx = this->Min[i]-bbmin[i];
-    ijkmin[i]=static_cast<int>( vtkMath::Floor( dx/h0[i] ) );
+    ijkmin[i]=static_cast<int>( vtkMath::Round( dx/h0[i] ) );
     --ijkmin[i];
     if( ijkmin[i] < 0 )
       ijkmin[ i ] = 0;
 
     dx = this->Max[i]-bbmin[i];
-    ijkmax[i]=static_cast<int>( vtkMath::Floor( dx/h0[i] ) );
+    ijkmax[i]=static_cast<int>( vtkMath::Round( dx/h0[i] ) );
     ++ijkmax[i];
-    if( ijkmax[i] > dims[i] )
-      ijkmax[i] = dims[i];
+    if( ijkmax[i] > dims[i]-1 )
+      ijkmax[i] = dims[i]-1;
 
     if( ijkmin[i] == 0)
       this->Min[ i ] = bbmin[i];
     else
       this->Min[ i ] = bbmin[i] + ijkmin[i]*h0[i];
+    assert( "post: min is out-of-bounds!" && (this->Min[i] >= bbmin[i]) );
 
     if( ijkmax[i] == 0)
       this->Max[ i ] = bbmin[i]+h0[i];
     else
       this->Max[ i ] = bbmin[i]+ijkmax[i]*h0[i];
+    assert( "post: max is out-of-bounds!" && (this->Max[i] <= bbmax[i]) );
     }
 
-//  std::cout << "ijk-min: " << ijkmin[0] << " " << ijkmin[1] << " " << ijkmin[2];
+//  std::cout << "Snapped min: " << this->Min[0] << " " << this->Min[1] << " " << this->Min[2];
 //  std::cout << std::endl;
-//  std::cout.flush();
-//  assert( "post: ijk-min inside domain" && amrBox.Contains(ijkmin) );
-//
-//  std::cout << "ijk-max: " << ijkmax[0] << " " << ijkmax[1] << " " << ijkmax[2];
+//  std::cout << "Snapped max: " << this->Max[0] << " " << this->Max[1] << " " << this->Max[2];
 //  std::cout << std::endl;
-//  std::cout.flush();
-//  assert( "post: ijk-max inside domain" && amrBox.Contains(ijkmax) );
-//
-//  amrBox.GetPoint( ijkmin, this->Min );
-//  amrBox.GetPoint( ijkmax, this->Max );
 }
 
 //-----------------------------------------------------------------------------
@@ -632,7 +611,7 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
 
   int dims[3];
   for( int i=0; i < 3; ++i )
-      dims[ i ] = ( (this->Max[ i ] - this->Min[ i ] )) / h[ i ];
+      dims[ i ] = ( ( (this->Max[ i ] - this->Min[ i ] )) / h[ i ] )+ 1;
 
   grd->SetOrigin( this->Min );
   grd->SetSpacing( h );
@@ -679,7 +658,7 @@ bool vtkAMRResampleFilter::IsBlockWithinBounds( vtkUniformGrid *grd )
 {
   assert( "pre: Input AMR grid is NULL" && (grd != NULL) );
 
-  for( int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
+  for( unsigned int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
     {
       if( this->IsRegionMine( block ) )
         {
