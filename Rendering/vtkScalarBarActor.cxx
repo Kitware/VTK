@@ -529,7 +529,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     else
       {
-      if ( this->EnhancedMode )
+      // Adjust height and width only in enhanced more or if at least
+      // one amongst the frame and the background was requested
+      if ( this->DrawBackground ||
+           this->DrawFrame ||
+           this->EnhancedMode )
         {
         barX = static_cast<int>(size[0] * 0.05) + labelSize[0] / 2;
         barY = static_cast<int>(size[1] * 0.05);
