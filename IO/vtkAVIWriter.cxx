@@ -89,10 +89,8 @@ void vtkAVIWriter::Start()
     }
   
   // Fill in image information.
-  vtkImageData* input = this->GetImageDataInput(0);
-  input->UpdateInformation();
-  int *wExtent = input->GetWholeExtent();
-  input->SetUpdateExtent(wExtent);
+  this->GetInputAlgorithm(0, 0)->UpdateInformation();
+  this->GetInputAlgorithm(0, 0)->SetUpdateExtentToWholeExtent();
 
   LONG hr;     
   AVISTREAMINFO strhdr;
@@ -213,11 +211,10 @@ void vtkAVIWriter::Write()
     }
   
   // get the data
-  vtkImageData* input = this->GetImageDataInput(0):
-  input->UpdateInformation();
-  int *wExtent = input->GetWholeExtent();
-  input->SetUpdateExtent(wExtent);
-  input->Update();
+  vtkImageData* input = this->GetImageDataInput(0);
+  this->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
+  int *wExtent = input->GetExtent();
+
   // get the pointer to the data
   unsigned char *ptr = 
     (unsigned char *)(input->GetScalarPointer());
