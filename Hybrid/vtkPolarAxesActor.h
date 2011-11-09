@@ -70,7 +70,7 @@ public:
   vtkGetMacro( NumberOfRadialAxes, vtkIdType );
 
   // Description:
-  //  Set/Get the maximum radiuss of the polar coordinates.
+  //  Set/Get the maximum radius of the polar coordinates.
   // Default: VTK_DOUBLE_MAX
   vtkSetMacro( MaximumRadius, double );
   vtkGetMacro( MaximumRadius, double );
@@ -85,6 +85,10 @@ public:
   // Set/Get the RebuildAxes flag
   vtkSetMacro( RebuildAxes, bool );
   vtkGetMacro( RebuildAxes, bool );
+
+  // Description: Set/Get whether angle units (degrees) are used to label radial axes 
+  vtkSetMacro( RadialUnits, bool ); 
+  vtkGetMacro( RadialUnits, bool );
 
   // Description:
   // Explicitly specify the screen size of title and label text.
@@ -231,7 +235,9 @@ protected:
 
   bool RebuildAxes;
 
-  char *RadialUnits;
+  // Description:
+  // Use angle units (degrees) to label radial axes
+  bool RadialUnits;
 
   char *ActualRadialLabel;
 
@@ -268,6 +274,7 @@ protected:
   bool ForceRadialLabelReset;
 
   double LabelScale;
+  double TitleScale;
 
   double ScreenSize;
 

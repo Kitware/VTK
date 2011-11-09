@@ -26,6 +26,7 @@
 #include "vtkStringArray.h"
 #include "vtkViewport.h"
 
+#include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkPolarAxesActor);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera,vtkCamera);
@@ -37,11 +38,11 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", "
-     << this->Bounds[1] << ")\n";
+     << this->Bounds[1] << " )\n";
   os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", "
-     << this->Bounds[3] << ")\n";
+     << this->Bounds[3] << " )\n";
   os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", "
-     << this->Bounds[5] << ")\n";
+     << this->Bounds[5] << " )\n";
 
   os << indent << "Number Of Radial Axes" << this->NumberOfRadialAxes << endl;
 
@@ -50,7 +51,7 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Pole: (" 
      << this->Pole[0] << ", "
      << this->Pole[1] << ", "
-     << this->Pole[2] << ")\n";
+     << this->Pole[2] << " )\n";
 
   os << indent << "Polar angle range: " 
      << this->AngularRange[0] << " - "
@@ -66,21 +67,22 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "Camera: (none)\n";
     }
 
-  os << indent << "Rebuild Axes: " << this->RebuildAxes << endl;
+  os << indent << "Rebuild Axes: "
+     << ( this->RebuildAxes ? "On\n" : "Off\n" );
+
+  os << indent << "Radial Units (degrees): "
+     << ( this->RadialUnits ? "On\n" : "Off\n" ) << endl;
 
   os << indent << "Radial Axes Visibility: "
-     << ( this->RadialAxesVisibility ? "On\n" : "Off\n");
+     << ( this->RadialAxesVisibility ? "On\n" : "Off\n" );
 
   os << indent << "Radial Axes Label Format: " << this->RadialLabelFormat << "\n";
 
   os << indent << "Radial Tick Visibility: "
-     << ( this->RadialTickVisibility ? "On" : "Off") << endl;
+     << ( this->RadialTickVisibility ? "On" : "Off" ) << endl;
 
   os << indent << "Radial Label Visibility: "
-     << ( this->RadialLabelVisibility ? "On" : "Off") << endl;
-
-  os << indent << "Radial Units: "
-     << ( this->RadialUnits ? this->RadialUnits : "(none)") << endl;
+     << ( this->RadialLabelVisibility ? "On" : "Off" ) << endl;
 
   os << indent << "Tick Location: " << this->TickLocation << endl;
 }
@@ -148,7 +150,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->RadialTickVisibility = 1;
 
   this->RadialLabelFormat = new char[8];
-  sprintf( this->RadialLabelFormat, "%s", "%-#6.3g");
+  sprintf( this->RadialLabelFormat, "%s", "%-#6.3g" );
 
   this->RenderCount = 0;
 
@@ -167,6 +169,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->ForceRadialLabelReset = false;
 
   this->LabelScale = -1.0;
+  this->TitleScale = -1.0;
 }
 
 // ****************************************************************************
@@ -432,7 +435,78 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
                                            bounds[3] );
 
     axis->SetRange( 0., rho );
-    axis->SetTitle( "BLAH" );
+
+    // Set axis title
+    vtksys_ios::ostringstream thetaStream;
+    thetaStream << theta;
+    if ( this->RadialUnits )
+      {
+      thetaStream << " deg.";
+      }
+    axis->SetTitle( thetaStream.str().c_str() );
+    }
+
+  // FIXME
+  //bool ticksRecomputed = this->ComputeTickSize(bounds);
+  bool ticksRecomputed = false;
+
+  // Labels are built during ComputeTickSize. if
+  // ticks were not recomputed, but we need a label
+  // reset, then build the labels here.
+  if ( ! ticksRecomputed )
+    {
+    if ( this->ForceRadialLabelReset )
+      {
+      this->BuildLabels( this->RadialAxes );
+      this->UpdateLabels( this->RadialAxes );
+      }
+    }
+
+  if ( ticksRecomputed || this->ForceRadialLabelReset )
+    {
+    // Labels were re-built, must recompute the scale.
+    double center[3];
+
+    center[0] = ( this->Bounds[1] - this->Bounds[0] ) * 0.5;
+    center[1] = ( this->Bounds[3] - this->Bounds[2] ) * 0.5;
+    center[2] = ( this->Bounds[5] - this->Bounds[4] ) * 0.5;
+
+    vtkAxisActor* axis = this->RadialAxes[0];
+    double lenRad = axis->ComputeMaxLabelLength( center );
+    double lenTitle = axis->ComputeTitleLength( center );
+    double maxLabelLength = this->MaxOf( lenRad, 0.);
+    double maxTitleLength = this->MaxOf( lenTitle, 0.);
+    double bWidth  = this->Bounds[1] - this->Bounds[0];
+    double bHeight = this->Bounds[3] - this->Bounds[2];
+    double bLength = sqrt( bWidth * bWidth + bHeight * bHeight );
+    double target = bLength * .04;
+
+    this->LabelScale = 1.;
+    if ( maxLabelLength > 0. )
+      {
+      this->LabelScale = target / maxLabelLength;
+      }
+    target = bLength * 0.1;
+
+    this->TitleScale = 1.;
+    if ( maxTitleLength > 0. )
+      {
+      this->TitleScale = target / maxTitleLength;
+      }
+
+    // Allow a bit bigger title if we have units, otherwise
+    // the title may be too small to read.
+    if ( this->RadialUnits )
+      {
+      this->TitleScale *= 2;
+      }
+
+    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+      {
+      axis = this->RadialAxes[i];
+      axis->SetLabelScale( this->LabelScale );
+      axis->SetTitleScale( this->TitleScale );
+      }
     }
 
   // Scale appropriately.
@@ -603,10 +677,22 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
 }
 
 // ****************************************************************
-void vtkPolarAxesActor::AutoScale( vtkViewport *viewport, vtkAxisActor** axis )
+void vtkPolarAxesActor::AutoScale( vtkViewport *viewport, 
+                                   vtkAxisActor** axis )
 {
+  double newTitleScale = this->TitleScale;
+
+  // Loop over radial axes
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
+    // Scale title
+    newTitleScale = this->AutoScale( viewport, 
+                                     this->ScreenSize,
+                                     axis[i]->GetTitleActor()->GetPosition() );
+
+    axis[i]->SetTitleScale( newTitleScale );
+
+    // Scale labels
     vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
 
     for( int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++ j )
@@ -657,9 +743,8 @@ void vtkPolarAxesActor::BuildLabels( vtkAxisActor** axes )
   int lastPow = 0;
 
   vtkStringArray *labels = vtkStringArray::New();
-  const char *format = "%s";
+  const char *format = this->RadialLabelFormat;
   lastVal = p2[0];
-  format = this->RadialLabelFormat;
   mustAdjustValue = this->MustAdjustRadialValue;
   lastPow = this->LastRadialPow;
 
@@ -703,29 +788,29 @@ void vtkPolarAxesActor::BuildLabels( vtkAxisActor** axes )
       // Ensure that -0.0 is never a label
       // The maximum number of digits that we allow past the decimal is 5.
       //
-      if ( strcmp( label, "-0") == 0 )
+      if ( strcmp( label, "-0" ) == 0 )
         {
-        sprintf( label, "0");
+        sprintf( label, "0" );
         }
-      else if ( strcmp( label, "-0.0") == 0 )
+      else if ( strcmp( label, "-0.0" ) == 0 )
         {
-        sprintf( label, "0.0");
+        sprintf( label, "0.0" );
         }
-      else if ( strcmp( label, "-0.00") == 0 )
+      else if ( strcmp( label, "-0.00" ) == 0 )
         {
-        sprintf( label, "0.00");
+        sprintf( label, "0.00" );
         }
-      else if ( strcmp( label, "-0.000") == 0 )
+      else if ( strcmp( label, "-0.000" ) == 0 )
         {
-        sprintf( label, "0.000");
+        sprintf( label, "0.000" );
         }
-      else if ( strcmp( label, "-0.0000") == 0 )
+      else if ( strcmp( label, "-0.0000" ) == 0 )
         {
-        sprintf( label, "0.0000");
+        sprintf( label, "0.0000" );
         }
-      else if ( strcmp( label, "-0.00000") == 0 )
+      else if ( strcmp( label, "-0.00000" ) == 0 )
         {
-        sprintf( label, "0.00000");
+        sprintf( label, "0.00000" );
         }
       }
     labels->SetValue( i, label );
