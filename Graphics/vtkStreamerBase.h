@@ -77,6 +77,7 @@ protected:
   virtual int PostExecute(vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector)
   {
+    return 1;
   }
 
   unsigned int NumberOfPasses;
