@@ -31,9 +31,9 @@ vtkStandardNewMacro(vtkPolarAxesActor);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera,vtkCamera);
 
 // ******************************************************************
-void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf( os,indent );
 
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", "
@@ -56,10 +56,10 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
      << this->AngularRange[0] << " - "
      << this->AngularRange[1] << "\n";
 
-  if (this->Camera)
+  if ( this->Camera )
     {
     os << indent << "Camera:\n";
-    this->Camera->PrintSelf(os,indent.GetNextIndent());
+    this->Camera->PrintSelf( os,indent.GetNextIndent() );
     }
   else
     {
@@ -69,18 +69,18 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rebuild Axes: " << this->RebuildAxes << endl;
 
   os << indent << "Radial Axes Visibility: "
-     << (this->RadialAxesVisibility ? "On\n" : "Off\n");
+     << ( this->RadialAxesVisibility ? "On\n" : "Off\n");
 
   os << indent << "Radial Axes Label Format: " << this->RadialLabelFormat << "\n";
 
   os << indent << "Radial Tick Visibility: "
-     << (this->RadialTickVisibility ? "On" : "Off") << endl;
+     << ( this->RadialTickVisibility ? "On" : "Off") << endl;
 
   os << indent << "Radial Label Visibility: "
-     << (this->RadialLabelVisibility ? "On" : "Off") << endl;
+     << ( this->RadialLabelVisibility ? "On" : "Off") << endl;
 
   os << indent << "Radial Units: "
-     << (this->RadialUnits ? this->RadialUnits : "(none)") << endl;
+     << ( this->RadialUnits ? this->RadialUnits : "(none)") << endl;
 
   os << indent << "Tick Location: " << this->TickLocation << endl;
 }
@@ -142,7 +142,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->RadialAxesVisibility = 1;
 
   this->RadialLabelFormat = new char[8];
-  sprintf(this->RadialLabelFormat, "%s", "%-#6.3g");
+  sprintf( this->RadialLabelFormat, "%s", "%-#6.3g");
 
   this->RenderCount = 0;
 
@@ -168,12 +168,12 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 {
   this->SetCamera( NULL );
 
-  if (this->RadialAxesProperty)
+  if ( this->RadialAxesProperty )
     {
     this->RadialAxesProperty->Delete();
     }
 
-  if (this->RadialLabelFormat)
+  if ( this->RadialLabelFormat )
     {
     delete [] this->RadialLabelFormat;
     this->RadialLabelFormat = NULL;
@@ -195,11 +195,11 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 }
 
 // ****************************************************************************
-void vtkPolarAxesActor::ShallowCopy(vtkPolarAxesActor *actor)
+void vtkPolarAxesActor::ShallowCopy( vtkPolarAxesActor *actor )
 {
-  this->Superclass::ShallowCopy(actor);
-  this->SetRadialLabelFormat(actor->GetRadialLabelFormat());
-  this->SetCamera(actor->GetCamera());
+  this->Superclass::ShallowCopy( actor );
+  this->SetRadialLabelFormat( actor->GetRadialLabelFormat() );
+  this->SetCamera( actor->GetCamera() );
   this->MustAdjustRadialValue = actor->MustAdjustRadialValue;
   this->ForceRadialLabelReset = actor->ForceRadialLabelReset;
   this->LabelScreenOffset = actor->LabelScreenOffset;
@@ -209,9 +209,9 @@ void vtkPolarAxesActor::ShallowCopy(vtkPolarAxesActor *actor)
 // *************************************************************************
 // Project the bounding box and compute edges on the border of the bounding
 // polar. Determine which parts of the edges are visible via intersection
-// with the boundary of the viewport (minus borders).
+// with the boundary of the viewport ( minus borders ).
 // *************************************************************************
-int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 {
   // Initialization
   static bool initialRender = true;
@@ -228,7 +228,7 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
-      this->RadialAxes[i]->BuildAxis(viewport, true);
+      this->RadialAxes[i]->BuildAxis( viewport, true );
       }
     }
   initialRender = false;
@@ -251,19 +251,19 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // *************************************************************************
 // Screen size affects the screen offset as well.
 // *************************************************************************
-void vtkPolarAxesActor::SetScreenSize(double screenSize)
+void vtkPolarAxesActor::SetScreenSize( double screenSize )
 {
   this->ScreenSize = screenSize;
-// Considering pivot point at center of the geometry hence (this->ScreenSize * 0.5).
+// Considering pivot point at center of the geometry hence ( this->ScreenSize * 0.5 ).
   this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
 
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     int numberOfLabelsBuild = this->RadialAxes[i]->GetNumberOfLabelsBuilt();
     vtkAxisFollower **labelActors = this->RadialAxes[i]->GetLabelActors();
-    for( int k=0; k < numberOfLabelsBuild; ++k)
+    for( int k=0; k < numberOfLabelsBuild; ++k )
       {
-      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+      labelActors[k]->SetScreenOffset( this->LabelScreenOffset );
       }
     }
 
@@ -271,27 +271,27 @@ void vtkPolarAxesActor::SetScreenSize(double screenSize)
 }
 
 // *************************************************************************
-void vtkPolarAxesActor::ReleaseGraphicsResources(vtkWindow *win)
+void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
 {
   for ( int i = 0; i < this->NumberOfRadialAxes;  ++i )
     {
-    this->RadialAxes[i]->ReleaseGraphicsResources(win);
+    this->RadialAxes[i]->ReleaseGraphicsResources( win );
     }
 }
 
 // *************************************************************************
-void vtkPolarAxesActor::GetBounds(double bounds[6])
+void vtkPolarAxesActor::GetBounds( double bounds[6])
 {
-  for (int i=0; i< 6; i++)
+  for ( int i=0; i< 6; i++)
     {
     bounds[i] = this->Bounds[i];
     }
 }
 
 // *************************************************************************
-void vtkPolarAxesActor::GetBounds(double& xmin, double& xmax,
+void vtkPolarAxesActor::GetBounds( double& xmin, double& xmax,
                                  double& ymin, double& ymax,
-                                 double& zmin, double& zmax)
+                                 double& zmin, double& zmax )
 {
   xmin = this->Bounds[0];
   xmax = this->Bounds[1];
@@ -308,14 +308,14 @@ double *vtkPolarAxesActor::GetBounds()
 }
 
 // *************************************************************************
-void vtkPolarAxesActor::TransformBounds(vtkViewport *viewport,
-                                       const double bounds[6],
-                                       double pts[8][3])
+void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
+                                         const double bounds[6],
+                                         double pts[8][3] )
 {
   double x[3];
 
   //loop over verts of bounding box
-  for (int k = 0; k < 2; ++ k )
+  for ( int k = 0; k < 2; ++ k )
     {
     x[2] = bounds[4+k];
     for ( int j = 0; j < 2; ++ j )
@@ -323,11 +323,11 @@ void vtkPolarAxesActor::TransformBounds(vtkViewport *viewport,
       x[1] = bounds[2+j];
       for ( int i = 0; i < 2; ++ i )
         {
-        int idx = i + 2*j + 4*k;
+        int idx = i + 2 * j + 4 * k;
         x[0] = bounds[i];
-        viewport->SetWorldPoint(x[0],x[1],x[2],1.0);
+        viewport->SetWorldPoint( x[0], x[1], x[2], 1. );
         viewport->WorldToDisplay();
-        viewport->GetDisplayPoint(pts[idx]);
+        viewport->GetDisplayPoint( pts[idx] );
         }
       }
     }
@@ -346,9 +346,9 @@ void vtkPolarAxesActor::TransformBounds(vtkViewport *viewport,
 //  Note:       This code is mostly stolen from old MeshTV code,
 //              /meshtvx/toolkit/plotgrid.c, axlab_format.
 // ****************************************************************************
-int vtkPolarAxesActor::LabelExponent(double min, double max)
+int vtkPolarAxesActor::LabelExponent( double min, double max )
 {
-  if (min == max)
+  if ( min == max )
     {
     return 0;
     }
@@ -356,8 +356,8 @@ int vtkPolarAxesActor::LabelExponent(double min, double max)
   //
   // Determine power of 10 to scale axis labels to.
   //
-  double range = (fabs(min) > fabs(max) ? fabs(min) : fabs(max));
-  double pow10 = log10(range);
+  double range = ( fabs( min ) > fabs( max ) ? fabs( min ) : fabs( max ) );
+  double pow10 = log10( range );
 
   //
   // Cutoffs for using scientific notation.  The following 4 variables
@@ -366,47 +366,45 @@ int vtkPolarAxesActor::LabelExponent(double min, double max)
   //
   double eformat_cut_min = -1.5;
   double eformat_cut_max =  3.0;
-  double cut_min = pow(10., eformat_cut_min);
-  double cut_max = pow(10., eformat_cut_max);
+  double cut_min = pow( 10., eformat_cut_min );
+  double cut_max = pow( 10., eformat_cut_max );
   double ipow10;
-  if (range < cut_min || range > cut_max)
+  if ( range < cut_min || range > cut_max )
     {
     //
     // We are going to use scientific notation and round the exponents to
     // the nearest multiple of three.
     //
-    ipow10 = (floor(floor(pow10)/3.))*3;
+    ipow10 = ( floor( floor( pow10 )/3.) )*3;
     }
   else
     {
     ipow10 = 0;
     }
 
-  return static_cast<int>(ipow10);
+  return static_cast<int>( ipow10 );
 }
 
 // *************************************************************************
-//  Build the axes. Determine coordinates, position, etc.
-// *************************************************************************
-void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
+void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
   double bounds[6];
   double pts[8][3];
 
-  if ((this->GetMTime() < this->BuildTime.GetMTime()))
+  if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
     {
-    this->AutoScale(viewport);
+    this->AutoScale( viewport );
     return;
     }
 
   this->SetNonDependentAttributes();
-  // determine the bounds to use (input, prop, or user-defined)
-  this->GetBounds(bounds);
+  // determine the bounds to use ( input, prop, or user-defined )
+  this->GetBounds( bounds );
 
-  // Build the axes (almost always needed so we don't check mtime)
-  // Transform all points into display coordinates (to determine which closest
-  // to camera).
-  this->TransformBounds(viewport, bounds, pts);
+  // Build the axes ( almost always needed so we don't check mtime )
+  // Transform all points into display coordinates ( to determine which closest
+  // to camera ).
+  this->TransformBounds( viewport, bounds, pts );
 
   // Setup the axes for plotting
   double xCoords[this->NumberOfRadialAxes][6], yCoords[this->NumberOfRadialAxes][6],
@@ -428,21 +426,21 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
   double xRange[2], yRange[2], zRange[2];
 
   // this method sets the Coords, and offsets if necessary.
-  //this->AdjustAxes(bounds, xCoords, yCoords, zCoords, xRange, yRange, zRange);
+  //this->AdjustAxes( bounds, xCoords, yCoords, zCoords, xRange, yRange, zRange );
 
   // adjust for sci. notation if necessary
   // May set a flag for each axis specifying that label values should
   // be scaled, may change title of each axis, may change label format.
-  //this->AdjustValues(xRange, yRange, zRange);
-  //this->AdjustRange(this->Bounds);
+  //this->AdjustValues( xRange, yRange, zRange );
+  //this->AdjustRange( this->Bounds );
 
   // Prepare axes for rendering with user-definable options
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    this->RadialAxes[i]->GetPoint1Coordinate()->SetValue(xCoords[i][0],
+    this->RadialAxes[i]->GetPoint1Coordinate()->SetValue( xCoords[i][0],
                                                     xCoords[i][1],
                                                     xCoords[i][2]);
-    this->RadialAxes[i]->GetPoint2Coordinate()->SetValue(xCoords[i][3],
+    this->RadialAxes[i]->GetPoint2Coordinate()->SetValue( xCoords[i][3],
                                                     xCoords[i][4],
                                                     xCoords[i][5]);
 
@@ -457,7 +455,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
   // reset, then build the labels here.
   //
   // FIXME
-  //bool ticksRecomputed = this->ComputeTickSize(bounds);
+  //bool ticksRecomputed = this->ComputeTickSize( bounds );
   bool ticksRecomputed = false;
 
   if ( ! ticksRecomputed )
@@ -471,16 +469,16 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
     // labels were re-built, need to recompute the scale.
     double center[3];
 
-    center[0] = (this->Bounds[1] - this->Bounds[0]) * 0.5;
-    center[1] = (this->Bounds[3] - this->Bounds[2]) * 0.5;
-    center[2] = (this->Bounds[5] - this->Bounds[4]) * 0.5;
+    center[0] = ( this->Bounds[1] - this->Bounds[0]) * 0.5;
+    center[1] = ( this->Bounds[3] - this->Bounds[2]) * 0.5;
+    center[2] = ( this->Bounds[5] - this->Bounds[4]) * 0.5;
 
     double len = this->RadialAxes[0]->ComputeMaxLabelLength( center );
     double maxLabelLength = this->MaxOf( len,  0. );
     double bWidth  = this->Bounds[1] - this->Bounds[0];
     double bHeight = this->Bounds[3] - this->Bounds[2];
 
-    double bLength = sqrt(bWidth*bWidth + bHeight*bHeight);
+    double bLength = sqrt( bWidth*bWidth + bHeight*bHeight );
 
     double target = bLength *0.04;
     this->LabelScale = 1.;
@@ -489,7 +487,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
       this->LabelScale = target / maxLabelLength;
       }
 
-    for (int i = 0; i < this->NumberOfRadialAxes; ++ i )
+    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
       this->RadialAxes[i]->SetLabelScale( this->LabelScale );
       }
@@ -506,8 +504,8 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
 void vtkPolarAxesActor::SetNonDependentAttributes()
 {
   vtkProperty *prop = this->GetProperty();
-  prop->SetAmbient(1.0);
-  prop->SetDiffuse(0.0);
+  prop->SetAmbient( 1.0 );
+  prop->SetDiffuse( 0.0 );
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     this->RadialAxes[i]->SetCamera( this->Camera );
@@ -515,33 +513,33 @@ void vtkPolarAxesActor::SetNonDependentAttributes()
     this->RadialAxes[i]->SetAxisLinesProperty( this->RadialAxesProperty );
     this->RadialAxes[i]->SetTickLocation( this->TickLocation );
     // FIXME
-    // this->RadialAxes[i]->SetBounds(this->Bounds);
+    // this->RadialAxes[i]->SetBounds( this->Bounds );
     this->RadialAxes[i]->SetAxisVisibility( this->RadialAxesVisibility );
     this->RadialAxes[i]->SetLabelVisibility( this->RadialLabelVisibility );
     this->RadialAxes[i]->SetTitleVisibility( false );
-    this->RadialAxes[i]->SetTickVisibility( this->RadialTickVisibility);
+    this->RadialAxes[i]->SetTickVisibility( this->RadialTickVisibility );
     this->RadialAxes[i]->SetMinorTicksVisible( false );
     }
 }
 
 // *************************************************************************
-double vtkPolarAxesActor::MaxOf(double a, double b)
+double vtkPolarAxesActor::MaxOf( double a, double b )
 {
-  return (a > b ? a : b);
+  return ( a > b ? a : b );
 }
 
 // *************************************************************************
-inline double vtkPolarAxesActor::FFix(double value)
+inline double vtkPolarAxesActor::FFix( double value )
 {
-  int ivalue = static_cast<int>(value);
+  int ivalue = static_cast<int>( value );
   return ivalue;
 }
 
 // *************************************************************************
-inline double vtkPolarAxesActor::FSign(double value, double sign)
+inline double vtkPolarAxesActor::FSign( double value, double sign )
 {
-  value = fabs(value);
-  if (sign < 0.)
+  value = fabs( value );
+  if ( sign < 0.)
     {
     value *= -1.;
     }
@@ -557,8 +555,8 @@ inline double vtkPolarAxesActor::FSign(double value, double sign)
 // Arguments:
 //   inRange   The range for this axis.
 // *******************************************************************
-void vtkPolarAxesActor::AdjustTicksComputeRange(vtkAxisActor** axes,
-                                                double boundsMin, double boundsMax)
+void vtkPolarAxesActor::AdjustTicksComputeRange( vtkAxisActor** axes,
+                                                double boundsMin, double boundsMax )
 {
   double sortedRange[2], range;
   double fxt, fnt, frac;
@@ -573,35 +571,35 @@ void vtkPolarAxesActor::AdjustTicksComputeRange(vtkAxisActor** axes,
   range = sortedRange[1] - sortedRange[0];
 
   // Find the integral points.
-  double pow10 = log10(range);
+  double pow10 = log10( range );
 
   // Build in numerical tolerance
-  if (pow10 != 0.)
+  if ( pow10 != 0.)
     {
     double eps = 10.0e-10;
-    pow10 = this->FSign((fabs(pow10) + eps), pow10);
+    pow10 = this->FSign( ( fabs( pow10 ) + eps ), pow10 );
     }
 
   // FFix move you in the wrong direction if pow10 is negative.
-  if (pow10 < 0.)
+  if ( pow10 < 0.)
     {
     pow10 = pow10 - 1.;
     }
 
-  fxt = pow(10., this->FFix(pow10));
+  fxt = pow( 10., this->FFix( pow10 ) );
 
   // Find the number of integral points in the interval.
   fnt  = range/fxt;
-  fnt  = this->FFix(fnt);
+  fnt  = this->FFix( fnt );
   frac = fnt;
-  numTicks = frac <= 0.5 ? static_cast<int>(this->FFix(fnt)) : static_cast<int>(this->FFix(fnt) + 1);
+  numTicks = frac <= 0.5 ? static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
 
   div = 1.;
-  if (numTicks < 5)
+  if ( numTicks < 5 )
     {
     div = 2.;
     }
-  if (numTicks <= 2)
+  if ( numTicks <= 2 )
     {
     div = 5.;
     }
@@ -609,50 +607,50 @@ void vtkPolarAxesActor::AdjustTicksComputeRange(vtkAxisActor** axes,
   // If there aren't enough major tick points in this decade, use the next
   // decade.
   major = fxt;
-  if (div != 1.)
+  if ( div != 1.)
     {
     major /= div;
     }
-  minor = (fxt/div) / 10.;
+  minor = ( fxt/div ) / 10.;
 
   // Figure out the first major and minor tick locations, relative to the
   // start of the axis.
-  if (sortedRange[0] <= 0.)
+  if ( sortedRange[0] <= 0.)
     {
-    majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 0.);
-    minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 0.);
+    majorStart = major*( this->FFix( sortedRange[0]*( 1./major ) ) + 0.);
+    minorStart = minor*( this->FFix( sortedRange[0]*( 1./minor ) ) + 0.);
     }
   else
     {
-    majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 1.);
-    minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 1.);
+    majorStart = major*( this->FFix( sortedRange[0]*( 1./major ) ) + 1.);
+    minorStart = minor*( this->FFix( sortedRange[0]*( 1./minor ) ) + 1.);
     }
 
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    axes[i]->SetMinorRangeStart(minorStart);
-    axes[i]->SetMajorRangeStart(majorStart);
-    axes[i]->SetDeltaRangeMinor(minor);
-    axes[i]->SetDeltaRangeMajor(major);
+    axes[i]->SetMinorRangeStart( minorStart );
+    axes[i]->SetMajorRangeStart( majorStart );
+    axes[i]->SetDeltaRangeMinor( minor );
+    axes[i]->SetDeltaRangeMajor( major );
     }
 
   double t;
-  t = (minorStart - sortedRange[0])/range;
-  minorStart = t * boundsMax + (1-t) * boundsMin;
-  t = (majorStart - sortedRange[0])/range;
-  majorStart = t * boundsMax + (1-t) * boundsMin;
-  const double scale = (boundsMax - boundsMin) / range;
+  t = ( minorStart - sortedRange[0])/range;
+  minorStart = t * boundsMax + ( 1-t ) * boundsMin;
+  t = ( majorStart - sortedRange[0])/range;
+  majorStart = t * boundsMax + ( 1-t ) * boundsMin;
+  const double scale = ( boundsMax - boundsMin ) / range;
   minor *= scale;
   major *= scale;
 
   // Set major and minor starts and deltas for all underlying axes
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    axes[i]->SetMinorStart(minorStart);
-    axes[i]->SetMajorStart(axes[0]->GetAxisType(), majorStart );
+    axes[i]->SetMinorStart( minorStart );
+    axes[i]->SetMajorStart( axes[0]->GetAxisType(), majorStart );
 
-    axes[i]->SetDeltaMinor(minor);
-    axes[i]->SetDeltaMajor(axes[0]->GetAxisType(), major );
+    axes[i]->SetDeltaMinor( minor );
+    axes[i]->SetDeltaMajor( axes[0]->GetAxisType(), major );
     }
 }
 
@@ -687,16 +685,16 @@ double vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
                                      double position[3] )
 {
   double factor = 1;
-  if (viewport->GetSize()[1] > 0)
+  if ( viewport->GetSize()[1] > 0 )
     {
     factor = 2.0 * screenSize
-      * tan(vtkMath::RadiansFromDegrees(this->Camera->GetViewAngle()/2.0))
+      * tan( vtkMath::RadiansFromDegrees( this->Camera->GetViewAngle()/2.0 ) )
       / viewport->GetSize()[1];
     }
 
     double dist = sqrt(
-          vtkMath::Distance2BetweenPoints(position,
-                                          this->Camera->GetPosition()));
+          vtkMath::Distance2BetweenPoints( position,
+                                          this->Camera->GetPosition() ));
     double newScale = factor * dist;
 
     return newScale;
@@ -709,10 +707,10 @@ void vtkPolarAxesActor::BuildLabels( vtkAxisActor** axes )
 {
   char label[64];
   int i, labelCount = 0;
-  double deltaMajor = axes[0]->GetDeltaMajor(axes[0]->GetAxisType());
+  double deltaMajor = axes[0]->GetDeltaMajor( axes[0]->GetAxisType() );
   const double *p2  = axes[0]->GetPoint2Coordinate()->GetValue();
   double *range     = axes[0]->GetRange();
-  double lastVal = 0, val = axes[0]->GetMajorStart(axes[0]->GetAxisType());
+  double lastVal = 0, val = axes[0]->GetMajorStart( axes[0]->GetAxisType() );
   double extents = range[1] - range[0];
   bool mustAdjustValue = 0;
   int lastPow = 0;
@@ -725,76 +723,76 @@ void vtkPolarAxesActor::BuildLabels( vtkAxisActor** axes )
   lastPow = this->LastRadialPow;
 
   // figure out how many labels we need:
-  while (val <= lastVal && labelCount < VTK_MAX_LABELS)
+  while ( val <= lastVal && labelCount < VTK_MAX_LABELS )
     {
     labelCount++;
     val += deltaMajor;
     }
 
-  labels->SetNumberOfValues(labelCount);
+  labels->SetNumberOfValues( labelCount );
 
   val = axes[0]->GetMajorRangeStart();
   deltaMajor = axes[0]->GetDeltaRangeMajor();
 
   double scaleFactor = 1.;
-  if (lastPow != 0)
+  if ( lastPow != 0 )
     {
-    scaleFactor = 1.0/pow(10., lastPow);
+    scaleFactor = 1.0/pow( 10., lastPow );
     }
 
-  for (i = 0; i < labelCount; ++ i )
+  for ( i = 0; i < labelCount; ++ i )
     {
-    if (fabs(val) < 0.01 && extents > 1)
+    if ( fabs( val ) < 0.01 && extents > 1 )
       {
       // We just happened to fall at something near zero and the range is
       // large, so set it to zero to avoid ugliness.
       val = 0.;
       }
-    if (mustAdjustValue)
+    if ( mustAdjustValue )
       {
-      sprintf(label, format, val*scaleFactor);
+      sprintf( label, format, val*scaleFactor );
       }
     else
       {
-      sprintf(label, format, val);
+      sprintf( label, format, val );
       }
-    if (fabs(val) < 0.01)
+    if ( fabs( val ) < 0.01 )
       {
       //
       // Ensure that -0.0 is never a label
       // The maximum number of digits that we allow past the decimal is 5.
       //
-      if (strcmp(label, "-0") == 0)
+      if ( strcmp( label, "-0") == 0 )
         {
-        sprintf(label, "0");
+        sprintf( label, "0");
         }
-      else if (strcmp(label, "-0.0") == 0)
+      else if ( strcmp( label, "-0.0") == 0 )
         {
-        sprintf(label, "0.0");
+        sprintf( label, "0.0");
         }
-      else if (strcmp(label, "-0.00") == 0)
+      else if ( strcmp( label, "-0.00") == 0 )
         {
-        sprintf(label, "0.00");
+        sprintf( label, "0.00");
         }
-      else if (strcmp(label, "-0.000") == 0)
+      else if ( strcmp( label, "-0.000") == 0 )
         {
-        sprintf(label, "0.000");
+        sprintf( label, "0.000");
         }
-      else if (strcmp(label, "-0.0000") == 0)
+      else if ( strcmp( label, "-0.0000") == 0 )
         {
-        sprintf(label, "0.0000");
+        sprintf( label, "0.0000");
         }
-      else if (strcmp(label, "-0.00000") == 0)
+      else if ( strcmp( label, "-0.00000") == 0 )
         {
-        sprintf(label, "0.00000");
+        sprintf( label, "0.00000");
         }
       }
-    labels->SetValue(i, label);
+    labels->SetValue( i, label );
     val += deltaMajor;
     }
-  for (i = 0; i < this->NumberOfRadialAxes; ++ i )
+  for ( i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    axes[i]->SetLabels(labels);
+    axes[i]->SetLabels( labels );
     }
   labels->Delete();
 }
@@ -819,15 +817,15 @@ void vtkPolarAxesActor::UpdateLabels( vtkAxisActor** axis )
     vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
     for( int k = 0; k < numberOfLabelsBuilt; ++ k )
       {
-      labelActors[k]->SetAxis(this->RadialAxes[i]);
-      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+      labelActors[k]->SetAxis( this->RadialAxes[i]);
+      labelActors[k]->SetScreenOffset( this->LabelScreenOffset );
       }
     }
   }
 // ****************************************************************************
-void vtkPolarAxesActor::SetRadialAxesProperty(vtkProperty *prop)
+void vtkPolarAxesActor::SetRadialAxesProperty( vtkProperty *prop )
 {
-  this->RadialAxesProperty->DeepCopy(prop);
+  this->RadialAxesProperty->DeepCopy( prop );
   this->Modified();
 }
 

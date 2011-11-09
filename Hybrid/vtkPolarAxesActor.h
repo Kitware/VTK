@@ -166,6 +166,9 @@ public:
 /*                      const double yRange[2], */
 /*                      const double zRange[2] ); */
 /*   void  AdjustRange(const double bounds[6] ); */
+
+  // Description:
+  //  Build the axes. Determine coordinates, position, etc.
   void  BuildAxes(vtkViewport * );
 
   // Description:
