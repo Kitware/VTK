@@ -90,6 +90,9 @@ void vtkAVIWriter::Start()
   
   // Fill in image information.
   this->GetInputAlgorithm(0, 0)->UpdateInformation();
+  int wExtent[6];
+  this->GetInputInformation(0,0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent);
   this->GetInputAlgorithm(0, 0)->SetUpdateExtentToWholeExtent();
 
   LONG hr;     
