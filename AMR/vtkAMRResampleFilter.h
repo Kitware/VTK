@@ -145,12 +145,6 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
 // ETX
 
-
-    // Description:
-    // This method snaps the bounding box bounds to the closest point w.r.t the
-    // root level grid.
-    void SnapBounds( vtkHierarchicalBoxDataSet *amrds );
-
     // Description:
     // Checks if this filter instance is running on more than one processes
     bool IsParallel();
@@ -222,9 +216,28 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     void ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
+    // Computes the region parameters
+    void ComputeRegionParameters(
+        vtkHierarchicalBoxDataSet *amrds,
+        int N[3], double min[3], double max[3], double h[3] );
+
+    // Description:
+    // This method snaps the bounding box bounds to the closest point w.r.t the
+    // root level grid.
+//    void SnapBounds(
+//        vtkHierarchicalBoxDataSet *amrds, int ijkmin[3], int ijkmax[3] );
+
+    // Description:
     // Computes the desired spacing based on the number of samples and length
     // of the box given and the current AMR dataset.
-    void GetSpacing( vtkHierarchicalBoxDataSet *amr, double h[3] );
+//    void GetSpacing( vtkHierarchicalBoxDataSet *amr, double h[3] );
+
+    // Description:
+    // This method computes and adjusts the region parameters s.t. the requested
+    // region always fall within the AMR region and the number of samples is
+    // adjusted if the region of interest moves outsided the domain.
+    void ComputeAndAdjustRegionParameters(
+        vtkHierarchicalBoxDataSet *amrds, double h[3] );
 
     // Description:
     // This method gets the region of interest as perscribed by the user.
@@ -237,6 +250,10 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Returns a reference grid from the amrdataset.
     vtkUniformGrid* GetReferenceGrid( vtkHierarchicalBoxDataSet *amrds );
+
+    // Description:
+    // Writes a uniform grid to a file. Used for debugging purposes.
+    void WriteUniformGrid( vtkUniformGrid *g, std::string prefix );
 
   private:
     vtkAMRResampleFilter(const vtkAMRResampleFilter&); // Not implemented
