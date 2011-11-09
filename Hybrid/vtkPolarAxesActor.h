@@ -61,9 +61,7 @@ public:
   // Explicitly specify the coordinate of the pole.
   // The default coordinates are (0,0,0).
   vtkSetVector3Macro( Pole, double );
-  double *GetPole();
-  void GetPole( double& x, double& y, double& z );
-  void GetPole( double bounds[3] );
+  vtkGetVector3Macro( Pole, double );
 
   // Description:
   // Gets/Sets the number of radial axes
@@ -145,40 +143,49 @@ public:
   void SetRadialAxesProperty(vtkProperty *);
   vtkProperty* GetRadialAxesProperty();
 
-  void SetLabelScaling(bool, int, int, int);
+  // Description:
+  // Set automatic label scaling mode, set axis exponents
+  void SetLabelScaling( bool, int );
 
-  void  TransformBounds(vtkViewport *viewport, const double bounds[6],
-                        double pts[8][3]);
+  void  TransformBounds( vtkViewport* viewport, const double bounds[6],
+                         double pts[8][3]);
 
-  bool  ComputeTickSize(double bounds[6]);
-  void  AdjustValues(const double xRange[2],
-                     const double yRange[2],
-                     const double zRange[2]);
-  void  AdjustRange(const double bounds[6]);
-  void  BuildAxes(vtkViewport *);
-  void  SetNonDependentAttributes(void);
-  void  BuildLabels( vtkAxisActor** axes );
-  void  AdjustTicksComputeRange(vtkAxisActor** axes, double rangeMin, double rangeMax);
+/*   bool  ComputeTickSize(double bounds[6]); */
+/*   void  AdjustValues(const double xRange[2], */
+/*                      const double yRange[2], */
+/*                      const double zRange[2] ); */
+/*   void  AdjustRange(const double bounds[6] ); */
+  void  BuildAxes(vtkViewport * );
 
-  void    AutoScale(vtkViewport *viewport);
-  void    AutoScale(vtkViewport *viewport, vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS]);
-  double  AutoScale(vtkViewport *viewport, double screenSize, double position[3]);
+  // Description:
+  // Send attributes to each vtkAxisActor.
+  // Only sets those that are not dependent upon viewport changes, 
+  // and thus do not need to be set very often.
+  void  SetNonDependentAttributes(void );
+
+  void  BuildLabels( vtkAxisActor** axes  );
+  void  AdjustTicksComputeRange(vtkAxisActor** axes, double rangeMin, double rangeMax );
+
+  void    AutoScale( vtkViewport* viewport );
+  void    AutoScale( vtkViewport* viewport, vtkAxisActor** axes );
+  double  AutoScale( vtkViewport* viewport, double screenSize, double position[3] );
 
 protected:
   vtkPolarAxesActor();
   ~vtkPolarAxesActor();
 
-  int LabelExponent(double min, double max);
+  int LabelExponent(double min, double max );
 
-  int Digits(double min, double max);
+  int Digits(double min, double max );
 
-  double MaxOf(double, double);
-  double MaxOf(double, double, double, double);
+  double MaxOf(double, double );
 
-  double FFix(double);
-  double FSign(double, double);
+  double FFix(double );
+  double FSign(double, double );
 
-  void UpdateLabels(vtkAxisActor **axis, int index);
+  // Description:
+  // Set axes and screen size of the labels
+  void UpdateLabels( vtkAxisActor **axis );
 
   // Description:
   // Coordinates of the pole
@@ -187,6 +194,10 @@ protected:
   // Description:
   // Number of radial axes
   int NumberOfRadialAxes;
+
+  // Description:
+  // Range of polar angles
+  double AngularRange[2];
 
   // Description:
   // Maximum polar radius (minimum is always 0)
