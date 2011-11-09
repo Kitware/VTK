@@ -499,8 +499,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // generate points
     double x[3]; x[2] = 0.0;
     double delta;
-    double barX = 0.;
-    double barY = 0.;
+    int barX = 0;
+    int barY = 0;
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
       // Adjust height and width only in enhanced more or if at least
