@@ -983,23 +983,22 @@ void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport,
                                        const double bounds[6],
                                        double pts[8][3])
 {
-  int i, j, k, idx;
   double x[3];
 
   //loop over verts of bounding box
-  for (k=0; k<2; k++)
+  for ( int k = 0; k < 2; ++ k )
     {
     x[2] = bounds[4+k];
-    for (j=0; j<2; j++)
+    for ( int j = 0; j < 2; ++ j )
       {
       x[1] = bounds[2+j];
-      for (i=0; i<2; i++)
+      for ( int i = 0; i < 2; ++ i )
         {
-        idx = i + 2*j + 4*k;
+        int idx = i + 2 * j + 4 * k;
         x[0] = bounds[i];
-        viewport->SetWorldPoint(x[0],x[1],x[2],1.0);
+        viewport->SetWorldPoint( x[0], x[1], x[2], 1. );
         viewport->WorldToDisplay();
-        viewport->GetDisplayPoint(pts[idx]);
+        viewport->GetDisplayPoint( pts[idx] );
         }
       }
     }
