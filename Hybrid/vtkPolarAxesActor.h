@@ -158,8 +158,9 @@ public:
                  double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
 
-  void  TransformBounds( vtkViewport* viewport, const double bounds[6],
-                         double pts[8][3]);
+  // Description:
+  // Transform the bounding box to display coordinates.
+  void  TransformBounds( vtkViewport*, double* );
 
 /*   bool  ComputeTickSize(double bounds[6]); */
 /*   void  AdjustValues(const double xRange[2], */
@@ -168,7 +169,7 @@ public:
 /*   void  AdjustRange(const double bounds[6] ); */
 
   // Description:
-  //  Build the axes. Determine coordinates, position, etc.
+  // Build the axes. Determine coordinates, position, etc.
   void  BuildAxes(vtkViewport * );
 
   // Description:

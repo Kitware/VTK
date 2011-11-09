@@ -77,7 +77,7 @@ int TestPolarAxes( int argc, char * argv [] )
 
   // Update normals in order to get correct bounds for polar axes
   normals->Update();
-
+  
   vtkNew<vtkPolarAxesActor> polaxes;
   polaxes->SetBounds( normals->GetOutput()->GetBounds() );
   polaxes->SetPole( 0., 0., 0. );

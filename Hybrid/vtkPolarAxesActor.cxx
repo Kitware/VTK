@@ -128,6 +128,10 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     this->RadialAxes[i]->SetLabelVisibility( 1 );
     this->RadialAxes[i]->SetTickVisibility( 1 );
     this->RadialAxes[i]->SetAxisTypeToX();
+    // Pass information to axes followers.
+    vtkAxisFollower* follower = this->RadialAxes[i]->GetTitleActor();
+    follower->SetAxis( this->RadialAxes[i] );
+    //follower->SetScreenOffset(this->TitleScreenOffset);
     }
 
   // Properties of the radial axes
@@ -140,6 +144,8 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // By default all features are visible
   this->RadialAxesVisibility = 1;
+  this->RadialLabelVisibility = 1;
+  this->RadialTickVisibility = 1;
 
   this->RadialLabelFormat = new char[8];
   sprintf( this->RadialLabelFormat, "%s", "%-#6.3g");
@@ -309,28 +315,29 @@ double *vtkPolarAxesActor::GetBounds()
 
 // *************************************************************************
 void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
-                                         const double bounds[6],
-                                         double pts[8][3] )
+                                         double bounds[6] )
 {
-  double x[3];
+  double minPt[3], maxPt[3], transMinPt[3], transMaxPt[3];
+  minPt[0] = this->Bounds[0];
+  minPt[1] = this->Bounds[2];
+  minPt[2] = this->Bounds[4];
+  maxPt[0] = this->Bounds[1];
+  maxPt[1] = this->Bounds[3];
+  maxPt[2] = this->Bounds[5];
 
-  //loop over verts of bounding box
-  for ( int k = 0; k < 2; ++ k )
-    {
-    x[2] = bounds[4+k];
-    for ( int j = 0; j < 2; ++ j )
-      {
-      x[1] = bounds[2+j];
-      for ( int i = 0; i < 2; ++ i )
-        {
-        int idx = i + 2 * j + 4 * k;
-        x[0] = bounds[i];
-        viewport->SetWorldPoint( x[0], x[1], x[2], 1. );
-        viewport->WorldToDisplay();
-        viewport->GetDisplayPoint( pts[idx] );
-        }
-      }
-    }
+  viewport->SetWorldPoint(minPt[0], minPt[1], minPt[2], 1.0);
+  viewport->WorldToDisplay();
+  viewport->GetDisplayPoint(transMinPt);
+  viewport->SetWorldPoint(maxPt[0], maxPt[1], maxPt[2], 1.0);
+  viewport->WorldToDisplay();
+  viewport->GetDisplayPoint(transMaxPt);
+
+  bounds[0] = transMinPt[0];
+  bounds[2] = transMinPt[1];
+  bounds[4] = transMinPt[2];
+  bounds[1] = transMaxPt[0];
+  bounds[3] = transMaxPt[1];
+  bounds[5] = transMaxPt[2];
 }
 
 // ****************************************************************************
@@ -389,7 +396,6 @@ int vtkPolarAxesActor::LabelExponent( double min, double max )
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
   double bounds[6];
-  double pts[8][3];
 
   if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
     {
@@ -398,99 +404,35 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     }
 
   this->SetNonDependentAttributes();
+
   // determine the bounds to use ( input, prop, or user-defined )
   this->GetBounds( bounds );
-
-  // Build the axes ( almost always needed so we don't check mtime )
-  // Transform all points into display coordinates ( to determine which closest
-  // to camera ).
-  this->TransformBounds( viewport, bounds, pts );
-
-  // Setup the axes for plotting
-  double xCoords[this->NumberOfRadialAxes][6], yCoords[this->NumberOfRadialAxes][6],
-    zCoords[this->NumberOfRadialAxes][6];
-
-  // these arrays are accessed by 'location':  mm, mX, XX, or Xm.
-  int mm1[4] = { 0, 0, 1, 1 };
-  int mm2[4] = { 0, 1, 1, 0 };
-
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    this->RadialAxes[i]->SetAxisPosition( i );
-    xCoords[i][0] = bounds[0];
-    xCoords[i][3] = bounds[1];
-    xCoords[i][1] = xCoords[i][4] = bounds[2+mm1[i]];
-    xCoords[i][2] = xCoords[i][5] = bounds[4+mm2[i]];
-    }
-
-  double xRange[2], yRange[2], zRange[2];
-
-  // this method sets the Coords, and offsets if necessary.
-  //this->AdjustAxes( bounds, xCoords, yCoords, zCoords, xRange, yRange, zRange );
-
-  // adjust for sci. notation if necessary
-  // May set a flag for each axis specifying that label values should
-  // be scaled, may change title of each axis, may change label format.
-  //this->AdjustValues( xRange, yRange, zRange );
-  //this->AdjustRange( this->Bounds );
-
+  cerr << "  bounds:";
+  for ( int j = 0; j < 6; ++ j )
+    cerr << "  " << bounds[j];
+  cerr << ":\n";
+ 
   // Prepare axes for rendering with user-definable options
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+  double rho = bounds[1] -  bounds[0];
+  double dAlpha = this->AngularRange[1] - this->AngularRange[0];
+  dAlpha /= ( this->NumberOfRadialAxes - 1. );
+  
+  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i )
     {
-    this->RadialAxes[i]->GetPoint1Coordinate()->SetValue( xCoords[i][0],
-                                                    xCoords[i][1],
-                                                    xCoords[i][2]);
-    this->RadialAxes[i]->GetPoint2Coordinate()->SetValue( xCoords[i][3],
-                                                    xCoords[i][4],
-                                                    xCoords[i][5]);
+    double theta = this->AngularRange[0] + i * dAlpha;
+    double thetaRad = vtkMath::RadiansFromDegrees( theta );
+    vtkAxisActor* axis = this->RadialAxes[i];
+    double x = bounds[0] + rho * cos( thetaRad );
+    double y = bounds[2] + rho * sin( thetaRad );
+    axis->GetPoint1Coordinate()->SetValue( bounds[0],
+                                           bounds[2],
+                                           bounds[3] );
+    axis->GetPoint2Coordinate()->SetValue( x,
+                                           y,
+                                           bounds[3] );
 
-    this->RadialAxes[i]->SetRange( xRange[0], xRange[1] );
-
-    this->RadialAxes[i]->SetTitle( this->ActualRadialLabel );
-    }
-
-  //
-  // Labels are built during ComputeTickSize. if
-  // ticks were not recomputed, but we need a label
-  // reset, then build the labels here.
-  //
-  // FIXME
-  //bool ticksRecomputed = this->ComputeTickSize( bounds );
-  bool ticksRecomputed = false;
-
-  if ( ! ticksRecomputed )
-    {
-    this->BuildLabels( this->RadialAxes );
-    this->UpdateLabels( this->RadialAxes );
-    }
-
-  if ( ticksRecomputed || this->ForceRadialLabelReset )
-    {
-    // labels were re-built, need to recompute the scale.
-    double center[3];
-
-    center[0] = ( this->Bounds[1] - this->Bounds[0]) * 0.5;
-    center[1] = ( this->Bounds[3] - this->Bounds[2]) * 0.5;
-    center[2] = ( this->Bounds[5] - this->Bounds[4]) * 0.5;
-
-    double len = this->RadialAxes[0]->ComputeMaxLabelLength( center );
-    double maxLabelLength = this->MaxOf( len,  0. );
-    double bWidth  = this->Bounds[1] - this->Bounds[0];
-    double bHeight = this->Bounds[3] - this->Bounds[2];
-
-    double bLength = sqrt( bWidth*bWidth + bHeight*bHeight );
-
-    double target = bLength *0.04;
-    this->LabelScale = 1.;
-    if ( maxLabelLength != 0.)
-      {
-      this->LabelScale = target / maxLabelLength;
-      }
-
-    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-      {
-      this->RadialAxes[i]->SetLabelScale( this->LabelScale );
-      }
+    axis->SetRange( 0., rho );
+    axis->SetTitle( "BLAH" );
     }
 
   // Scale appropriately.
@@ -512,11 +454,10 @@ void vtkPolarAxesActor::SetNonDependentAttributes()
     this->RadialAxes[i]->SetProperty( prop );
     this->RadialAxes[i]->SetAxisLinesProperty( this->RadialAxesProperty );
     this->RadialAxes[i]->SetTickLocation( this->TickLocation );
-    // FIXME
-    // this->RadialAxes[i]->SetBounds( this->Bounds );
+    this->RadialAxes[i]->SetBounds( this->Bounds );
     this->RadialAxes[i]->SetAxisVisibility( this->RadialAxesVisibility );
     this->RadialAxes[i]->SetLabelVisibility( this->RadialLabelVisibility );
-    this->RadialAxes[i]->SetTitleVisibility( false );
+    this->RadialAxes[i]->SetTitleVisibility( true );
     this->RadialAxes[i]->SetTickVisibility( this->RadialTickVisibility );
     this->RadialAxes[i]->SetMinorTicksVisible( false );
     }

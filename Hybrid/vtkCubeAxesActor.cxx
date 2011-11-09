@@ -988,10 +988,10 @@ void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport,
   //loop over verts of bounding box
   for ( int k = 0; k < 2; ++ k )
     {
-    x[2] = bounds[4+k];
+    x[2] = bounds[4 + k];
     for ( int j = 0; j < 2; ++ j )
       {
-      x[1] = bounds[2+j];
+      x[1] = bounds[2 + j];
       for ( int i = 0; i < 2; ++ i )
         {
         int idx = i + 2 * j + 4 * k;
@@ -1460,8 +1460,6 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
 // *************************************************************************
 void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 {
-  double bounds[6];
-  double pts[8][3];
   int i;
 
   if ((this->GetMTime() < this->BuildTime.GetMTime()))
@@ -1471,12 +1469,15 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     }
 
   this->SetNonDependentAttributes();
-  // determine the bounds to use (input, prop, or user-defined)
-  this->GetBounds(bounds);
 
+  // determine the bounds to use (input, prop, or user-defined)
+  double bounds[6];
+  this->GetBounds(bounds);
+ 
   // Build the axes (almost always needed so we don't check mtime)
   // Transform all points into display coordinates (to determine which closest
   // to camera).
+  double pts[8][3];
   this->TransformBounds(viewport, bounds, pts);
 
   // Setup the axes for plotting
@@ -1494,7 +1495,7 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     xCoords[i][3] = bounds[1];
     xCoords[i][1] = xCoords[i][4] = bounds[2+mm1[i]];
     xCoords[i][2] = xCoords[i][5] = bounds[4+mm2[i]];
-
+    
     this->YAxes[i]->SetAxisPosition(i);
     yCoords[i][0] = yCoords[i][3] = bounds[0+mm1[i]];
     yCoords[i][1] = bounds[2];
