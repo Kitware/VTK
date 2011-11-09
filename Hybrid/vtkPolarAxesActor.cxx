@@ -119,19 +119,23 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->Camera = NULL;
 
   this->ScreenSize = 10.0;
-  this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
 
   // Create and set radial axes
   this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
+    // Create axis of type X
     this->RadialAxes[i] = vtkAxisActor::New();
-    this->RadialAxes[i]->SetAxisTypeToX();
+    vtkAxisActor* axis = this->RadialAxes[i];
+    axis->SetAxisTypeToX();
+
+    // Title offset is auto-calculated for now
+    axis->SetCalculateTitleOffset( 1 );
+    axis->SetCalculateLabelOffset( 0 );
 
     // Pass information to axes followers
-    vtkAxisFollower* follower = this->RadialAxes[i]->GetTitleActor();
-    follower->SetAxis( this->RadialAxes[i] );
-    //follower->SetScreenOffset(this->TitleScreenOffset);
+    vtkAxisFollower* follower = axis->GetTitleActor();
+    follower->SetAxis( axis );
     }
 
   // Properties of the radial axes
@@ -212,6 +216,7 @@ void vtkPolarAxesActor::ShallowCopy( vtkPolarAxesActor *actor )
   this->ForceRadialLabelReset = actor->ForceRadialLabelReset;
   this->LabelScreenOffset = actor->LabelScreenOffset;
   this->ScreenSize        = actor->ScreenSize;
+  this->LabelScreenOffset = actor->LabelScreenOffset;
 }
 
 // *************************************************************************
@@ -262,14 +267,17 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 void vtkPolarAxesActor::SetScreenSize( double screenSize )
 {
   this->ScreenSize = screenSize;
-// Considering pivot point at center of the geometry hence ( this->ScreenSize * 0.5 ).
+  // Considering pivot point at center of the geometry,
+  // hence ( this->ScreenSize * 0.5 ).
   this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
 
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    int numberOfLabelsBuild = this->RadialAxes[i]->GetNumberOfLabelsBuilt();
-    vtkAxisFollower **labelActors = this->RadialAxes[i]->GetLabelActors();
-    for( int k=0; k < numberOfLabelsBuild; ++k )
+    vtkAxisActor* axis = this->RadialAxes[i];
+  
+    int numberOfLabelsBuilt = axis->GetNumberOfLabelsBuilt();
+    vtkAxisFollower** labelActors = axis->GetLabelActors();
+    for( int k=0; k < numberOfLabelsBuilt; ++k )
       {
       labelActors[k]->SetScreenOffset( this->LabelScreenOffset );
       }
