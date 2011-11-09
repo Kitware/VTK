@@ -98,6 +98,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
 
   // Create and set radial axes
+  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     this->RadialAxes[i] = vtkAxisActor::New();
@@ -105,7 +106,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     this->RadialAxes[i]->SetLabelVisibility( 1 );
     this->RadialAxes[i]->SetTickVisibility( 1 );
     this->RadialAxes[i]->SetAxisTypeToX();
-    this->RadialAxes[i]->SetAxisPosition(i);
     }
 
   // Properties of the radial axes
@@ -146,15 +146,6 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 {
   this->SetCamera( NULL );
 
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    if (this->RadialAxes[i])
-      {
-      this->RadialAxes[i]->Delete();
-      this->RadialAxes[i] = NULL;
-      }
-    }
-
   if (this->RadialAxesProperty)
     {
     this->RadialAxesProperty->Delete();
@@ -165,10 +156,22 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
     delete [] this->RadialLabelFormat;
     this->RadialLabelFormat = NULL;
     }
+
+  if ( this->RadialAxes )
+    {
+    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+      {
+      if ( this->RadialAxes[i] )
+        {
+        this->RadialAxes[i]->Delete();
+        this->RadialAxes[i] = NULL;
+        }
+      }
+    delete [] this->RadialAxes;
+    this->RadialAxes = NULL;
+    }
 }
 
-// ****************************************************************************
-// Shallow copy of an vtkPolarAxesActor instance
 // ****************************************************************************
 void vtkPolarAxesActor::ShallowCopy(vtkPolarAxesActor *actor)
 {
