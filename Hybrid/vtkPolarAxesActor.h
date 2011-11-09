@@ -137,6 +137,12 @@ public:
   vtkBooleanMacro( RadialLabelVisibility,int );
 
   // Description:
+  // Turn on and off the visibility of titles for radial axes.
+  vtkSetMacro( RadialTitleVisibility,int );
+  vtkGetMacro( RadialTitleVisibility,int );
+  vtkBooleanMacro( RadialTitleVisibility,int );
+
+  // Description:
   // Turn on and off the visibility of ticks for radial axes.
   vtkSetMacro( RadialTickVisibility, int );
   vtkGetMacro( RadialTickVisibility, int );
@@ -246,6 +252,7 @@ protected:
   // Visibility of radial axe, ticks, and labels
   int RadialAxesVisibility;
   int RadialLabelVisibility;
+  int RadialTitleVisibility;
   int RadialTickVisibility;
 
   char  *RadialLabelFormat;

@@ -126,11 +126,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     this->RadialAxes[i] = vtkAxisActor::New();
-    this->RadialAxes[i]->SetAxisVisibility( 1 );
-    this->RadialAxes[i]->SetLabelVisibility( 1 );
-    this->RadialAxes[i]->SetTickVisibility( 1 );
     this->RadialAxes[i]->SetAxisTypeToX();
-    // Pass information to axes followers.
+
+    // Pass information to axes followers
     vtkAxisFollower* follower = this->RadialAxes[i]->GetTitleActor();
     follower->SetAxis( this->RadialAxes[i] );
     //follower->SetScreenOffset(this->TitleScreenOffset);
@@ -147,6 +145,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // By default all features are visible
   this->RadialAxesVisibility = 1;
   this->RadialLabelVisibility = 1;
+  this->RadialTitleVisibility = 1;
   this->RadialTickVisibility = 1;
 
   this->RadialLabelFormat = new char[8];
@@ -531,7 +530,7 @@ void vtkPolarAxesActor::SetNonDependentAttributes()
     this->RadialAxes[i]->SetBounds( this->Bounds );
     this->RadialAxes[i]->SetAxisVisibility( this->RadialAxesVisibility );
     this->RadialAxes[i]->SetLabelVisibility( this->RadialLabelVisibility );
-    this->RadialAxes[i]->SetTitleVisibility( true );
+    this->RadialAxes[i]->SetTitleVisibility( this->RadialTitleVisibility );
     this->RadialAxes[i]->SetTickVisibility( this->RadialTickVisibility );
     this->RadialAxes[i]->SetMinorTicksVisible( false );
     }
