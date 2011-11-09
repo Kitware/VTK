@@ -1882,10 +1882,6 @@ void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
     }
 }
 
-void vtkPolyData::Crop()
-{
-}
-
 void vtkPolyData::RemoveGhostCells(int level)
 {
   vtkCellData *newCellData;

@@ -125,7 +125,7 @@ public:
 
   // Description:
   // By default, there is no type specific information
-  virtual void CopyTypeSpecificInformation( vtkDataObject *data ) 
+  virtual void CopyTypeSpecificInformation( vtkDataObject*)
     {}
 
    // Description:

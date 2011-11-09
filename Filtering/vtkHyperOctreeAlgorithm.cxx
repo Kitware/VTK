@@ -157,9 +157,9 @@ int vtkHyperOctreeAlgorithm::RequestUpdateExtent(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkHyperOctreeAlgorithm::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+  vtkInformationVector* vtkNotUsed( outputVector ) )
 {
   return 0;
 }
