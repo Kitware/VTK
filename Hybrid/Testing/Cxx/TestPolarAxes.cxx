@@ -91,7 +91,7 @@ int TestPolarAxes( int argc, char * argv [] )
   normals->Update();
 
   vtkNew<vtkPolarAxesActor> polaxes;
-  //  polaxes->SetBounds( normals->GetOutput()->GetBounds() );
+  polaxes->SetBounds( normals->GetOutput()->GetBounds() );
   polaxes->SetPole( 0., 0., 0. );
   polaxes->SetMaximumRadius( 300 );
   polaxes->SetCamera( ren2->GetActiveCamera() );

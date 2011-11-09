@@ -147,6 +147,17 @@ public:
   // Set automatic label scaling mode, set axis exponents
   void SetLabelScaling( bool, int );
 
+  // Description:
+  // Explicitly specify the region in space around which to draw the bounds.
+  // The bounds are used only when no Input or Prop is specified. The bounds
+  // are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), making
+  // sure that the min's are less than the max's.
+  vtkSetVector6Macro(Bounds,double);
+  double *GetBounds();
+  void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax,
+                 double& zmin, double& zmax);
+  void GetBounds(double bounds[6]);
+
   void  TransformBounds( vtkViewport* viewport, const double bounds[6],
                          double pts[8][3]);
 
@@ -203,6 +214,10 @@ protected:
   // Maximum polar radius (minimum is always 0)
   double MaximumRadius;
   double LastMaximumRadius;
+
+  // Description:
+  // Explicit actor bounds
+  double Bounds[6];
 
   vtkCamera *Camera;
 

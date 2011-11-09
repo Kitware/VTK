@@ -35,9 +35,26 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", "
+     << this->Bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", "
+     << this->Bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", "
+     << this->Bounds[5] << ")\n";
+
+  os << indent << "Number Of Radial Axes" << this->NumberOfRadialAxes << endl;
+
   os << indent << "Maximum Radius" << this->MaximumRadius << endl;
 
-  os << indent << "ScreenSize: (" << this->ScreenSize << ")\n";
+  os << indent << "Pole: (" 
+     << this->Pole[0] << ", "
+     << this->Pole[1] << ", "
+     << this->Pole[2] << ")\n";
+
+  os << indent << "Polar angle range: " 
+     << this->AngularRange[0] << " - "
+     << this->AngularRange[1] << "\n";
 
   if (this->Camera)
     {
@@ -49,7 +66,7 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Camera: (none)\n";
     }
 
-  os << indent << "RebuildAxes: " << this->RebuildAxes << endl;
+  os << indent << "Rebuild Axes: " << this->RebuildAxes << endl;
 
   os << indent << "Radial Axes Visibility: "
      << (this->RadialAxesVisibility ? "On\n" : "Off\n");
@@ -62,10 +79,10 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radial Label Visibility: "
      << (this->RadialLabelVisibility ? "On" : "Off") << endl;
 
-  os << indent << "RadialUnits: "
+  os << indent << "Radial Units: "
      << (this->RadialUnits ? this->RadialUnits : "(none)") << endl;
 
-  os << indent << "TickLocation: " << this->TickLocation << endl;
+  os << indent << "Tick Location: " << this->TickLocation << endl;
 }
 
 // *************************************************************************
@@ -73,6 +90,11 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 // *************************************************************************
 vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 {
+  // Default bounds
+  this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
+  this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
+  this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
+
   // Default pole coordinates
   this->Pole[0] = 0.;
   this->Pole[1] = 0.;
@@ -193,7 +215,7 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   // Initialization
   static bool initialRender = true;
-  if ( !this->Camera)
+  if ( !this->Camera )
     {
     vtkErrorMacro( <<"No camera!" );
     this->RenderSomething = 0;
@@ -249,16 +271,40 @@ void vtkPolarAxesActor::SetScreenSize(double screenSize)
 }
 
 // *************************************************************************
-// Release any graphics resources that are being consumed by this actor.
-// The parameter window could be used to determine which graphic
-// resources to release.
-// *************************************************************************
 void vtkPolarAxesActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   for ( int i = 0; i < this->NumberOfRadialAxes;  ++i )
     {
     this->RadialAxes[i]->ReleaseGraphicsResources(win);
     }
+}
+
+// *************************************************************************
+void vtkPolarAxesActor::GetBounds(double bounds[6])
+{
+  for (int i=0; i< 6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
+}
+
+// *************************************************************************
+void vtkPolarAxesActor::GetBounds(double& xmin, double& xmax,
+                                 double& ymin, double& ymax,
+                                 double& zmin, double& zmax)
+{
+  xmin = this->Bounds[0];
+  xmax = this->Bounds[1];
+  ymin = this->Bounds[2];
+  ymax = this->Bounds[3];
+  zmin = this->Bounds[4];
+  zmax = this->Bounds[5];
+}
+
+// *************************************************************************
+double *vtkPolarAxesActor::GetBounds()
+{
+  return this->Bounds;
 }
 
 // *************************************************************************
