@@ -410,7 +410,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   this->SetNonDependentAttributes();
 
-  // determine the bounds to use ( input, prop, or user-defined )
+  // Determine the bounds to use ( input, prop, or user-defined )
   this->GetBounds( bounds );
   cerr << "  bounds:";
   for ( int j = 0; j < 6; ++ j )
@@ -420,7 +420,9 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   // Prepare axes for rendering with user-definable options
   double rho = bounds[1] -  bounds[0];
   double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
-  this->AdjustTicksComputeRange(this->RadialAxes, bounds[0], bounds[1] );
+
+  this->ComputePolarAxisTicks( this->RadialAxes[0], bounds[0], bounds[1] );
+
 //  this->BuildLabels( this->RadialAxes );
 //  this->UpdateLabels( this->RadialAxes );
   
@@ -437,7 +439,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
                                            bounds[3] );
     axis->GetPoint2Coordinate()->SetValue( x,
                                            y,
-                                           bounds[3] );
+                                           bounds[4] );
 
     // Set axis ticks
     axis->SetRange( 0., rho );
@@ -563,16 +565,16 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 }
 
 // *******************************************************************
-void vtkPolarAxesActor::AdjustTicksComputeRange( vtkAxisActor** axes,
-                                                 double boundsMin, 
-                                                 double boundsMax )
+void vtkPolarAxesActor::ComputePolarAxisTicks( vtkAxisActor* axis,
+                                               double boundsMin, 
+                                               double boundsMax )
 {
   double sortedRange[2], range;
   double fxt, fnt, frac;
-  double div, major, minor;
-  double majorStart, minorStart;
+  double div, major;
+  double majorStart;
   int numTicks;
-  double *inRange = axes[0]->GetRange();
+  double *inRange = axis->GetRange();
 
   sortedRange[0] = inRange[0] < inRange[1] ? inRange[0] : inRange[1];
   sortedRange[1] = inRange[0] > inRange[1] ? inRange[0] : inRange[1];
@@ -620,42 +622,29 @@ void vtkPolarAxesActor::AdjustTicksComputeRange( vtkAxisActor** axes,
     {
     major /= div;
     }
-  minor = ( fxt/div ) / 10.;
 
-  // Figure out the first major and minor tick locations, relative to the
+  // Figure out the first major tick locations, relative to the
   // start of the axis.
   if ( sortedRange[0] <= 0.)
     {
     majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 0. );
-    minorStart = minor * ( this->FFix( sortedRange[0]*( 1./minor ) ) + 0. );
     }
   else
     {
     majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 1. );
-    minorStart = minor * ( this->FFix( sortedRange[0]*( 1./minor ) ) + 1. );
     }
 
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    axes[i]->SetMajorRangeStart( majorStart );
-    axes[i]->SetDeltaRangeMajor( major );
-    }
+  axis->SetMajorRangeStart( majorStart );
+  axis->SetDeltaRangeMajor( major );
 
-  double t;
-  t = ( minorStart - sortedRange[0])/range;
-  minorStart = t * boundsMax + ( 1-t ) * boundsMin;
-  t = ( majorStart - sortedRange[0])/range;
-  majorStart = t * boundsMax + ( 1-t ) * boundsMin;
+  double t = ( majorStart - sortedRange[0] ) / range;
+  majorStart = t * boundsMax + ( 1. - t ) * boundsMin;
   const double scale = ( boundsMax - boundsMin ) / range;
-  minor *= scale;
   major *= scale;
 
-  // Set major and minor starts and deltas for all underlying axes
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    axes[i]->SetMajorStart( VTK_AXIS_TYPE_X, majorStart );
-    axes[i]->SetDeltaMajor( VTK_AXIS_TYPE_X, major );
-    }
+  // Set major start and deltas
+  axis->SetMajorStart( VTK_AXIS_TYPE_X, majorStart );
+  axis->SetDeltaMajor( VTK_AXIS_TYPE_X, major );
 }
 
 // ****************************************************************

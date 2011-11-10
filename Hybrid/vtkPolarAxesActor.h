@@ -196,8 +196,10 @@ protected:
   double  AutoScale( vtkViewport* viewport, double screenSize, double position[3] );
 
   // Description:
-  // Set private members controlling the number and position of ticks in range
-  void  AdjustTicksComputeRange(vtkAxisActor** axes, double rangeMin, double rangeMax );
+  // Prepare ticks on polar axis
+  void  ComputePolarAxisTicks( vtkAxisActor* axis, 
+                               double rangeMin, 
+                               double rangeMax );
 
   int LabelExponent(double min, double max );
 
