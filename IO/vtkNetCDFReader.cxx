@@ -616,7 +616,7 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD,
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet *output,
+void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet *,
                                                int extent[6])
 {
   memcpy(extent, this->UpdateExtent, 6*sizeof(int));

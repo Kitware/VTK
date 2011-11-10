@@ -112,9 +112,9 @@ int vtkPiecewiseFunctionAlgorithm::FillInputPortInformation(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkPiecewiseFunctionAlgorithm::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   return 0;
 }

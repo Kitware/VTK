@@ -1139,7 +1139,6 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os,indent);
 
-  vtkCollectionSimpleIterator dsit;
   num = this->InputConnectionHolder->GetNumberOfInputConnections(0);
   os << indent << "DataSetInputs: " << endl;
   for (idx = 0; idx < num; ++idx)
@@ -1403,7 +1402,6 @@ void vtkXYPlotActor::ComputeYRange(double range[2])
   vtkDataSet *ds;
   vtkDataArray *scalars;
   double sRange[2];
-  int count;
   int component;
 
   range[0]=VTK_DOUBLE_MAX, range[1]=VTK_DOUBLE_MIN;
@@ -1650,7 +1648,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
                                     int numDS, int numDO)
 {
   double xyz[3]; xyz[2] = 0.0;
-  int i, numLinePts, dsNum, doNum, num;
+  int i, numLinePts, doNum, num;
   vtkIdType numPts, ptId, id;
   double length, x[3], xPrev[3];
   vtkDataArray *scalars;
@@ -2654,9 +2652,8 @@ void vtkXYPlotActor::PrintAsCSV(ostream &os)
 {
   vtkDataArray *scalars;
   vtkDataSet *ds;
-  vtkCollectionSimpleIterator dsit;
   double s;
-  int dsNum,component;
+  int component;
   int numDS = this->InputConnectionHolder->GetNumberOfInputConnections(0);
   for (int dsNum=0; dsNum<numDS;  dsNum++)
     {

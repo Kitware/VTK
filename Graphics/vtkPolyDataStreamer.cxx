@@ -47,7 +47,7 @@ vtkPolyDataStreamer::~vtkPolyDataStreamer()
 //----------------------------------------------------------------------------
 void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
 {
-  if (this->NumberOfPasses == num)
+  if (this->NumberOfPasses == (unsigned int)num)
     {
     return;
     }
@@ -86,7 +86,6 @@ int vtkPolyDataStreamer::ExecutePass(
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
   vtkPolyData *input = vtkPolyData::SafeDownCast(

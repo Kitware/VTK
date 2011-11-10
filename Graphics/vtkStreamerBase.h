@@ -49,9 +49,9 @@ protected:
   vtkStreamerBase();
   ~vtkStreamerBase();
 
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector)
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
+                                 vtkInformationVector*)
   {
     return 1;
   }
@@ -74,8 +74,8 @@ protected:
 
   // This method is called after streaming is completed. Subclasses
   // can override this method to perform cleanup.
-  virtual int PostExecute(vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector)
+  virtual int PostExecute(vtkInformationVector **,
+                          vtkInformationVector *)
   {
     return 1;
   }

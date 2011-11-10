@@ -453,7 +453,7 @@ int vtkDataSet::CheckAttributes()
 //----------------------------------------------------------------------------
 void vtkDataSet::GenerateGhostLevelArray(int update_piece,
                                          int update_num_pieces,
-                                         int update_ghost_level,
+                                         int vtkNotUsed(update_ghost_level),
                                          int* whole_extent,
                                          vtkExtentTranslator* translator)
 {

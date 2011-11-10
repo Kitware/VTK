@@ -888,7 +888,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     for(i=0; i<numBlocks; i++)
       {
       vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
-      int dims[6];
 
       vtkPoints* points = vtkPoints::New();
       points->SetData(this->PointCache[i]);

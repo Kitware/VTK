@@ -57,7 +57,7 @@ void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int
 vtkImageIterateFilter
-::RequestInformation(vtkInformation* request,
+::RequestInformation(vtkInformation* vtkNotUsed(request),
                      vtkInformationVector** inputVector,
                      vtkInformationVector* outputVector)
 {
@@ -173,7 +173,6 @@ int vtkImageIterateFilter::RequestData(vtkInformation* request,
       {
       out = this->IterationData[next]->GetOutputInformation(0);
       }
-    vtkDataObject* outData = out->Get(vtkDataObject::DATA_OBJECT());
 
     this->InputVector->SetInformationObject(0, in);
     this->OutputVector->SetInformationObject(0, out);

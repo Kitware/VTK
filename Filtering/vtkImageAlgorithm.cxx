@@ -216,10 +216,7 @@ vtkImageData *vtkImageAlgorithm::AllocateOutputData(vtkDataObject *output,
     {
     int* uExtent = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-    out->SetExtent(uExtent);
-    int scalarType = vtkImageData::GetScalarType(outInfo);
-    int numComponents = vtkImageData::GetNumberOfScalarComponents(outInfo);
-    out->AllocateScalars(scalarType, numComponents);
+    this->AllocateOutputData(out, outInfo, uExtent);
     }
   return out;
 }

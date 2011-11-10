@@ -616,7 +616,7 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 
 //----------------------------------------------------------------------------
 // This should be a pure virutal method.
-void vtkDataObject::Crop(const int* updateExtent)
+void vtkDataObject::Crop(const int*)
 {
 }
 
