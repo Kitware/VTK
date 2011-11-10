@@ -436,7 +436,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     double y = bounds[2] + rho * sin( thetaRad );
     axis->GetPoint1Coordinate()->SetValue( bounds[0],
                                            bounds[2],
-                                           bounds[3] );
+                                           bounds[4] );
     axis->GetPoint2Coordinate()->SetValue( x,
                                            y,
                                            bounds[4] );
