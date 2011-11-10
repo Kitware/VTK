@@ -46,16 +46,14 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Number Of Radial Axes" << this->NumberOfRadialAxes << endl;
 
-  os << indent << "Maximum Radius" << this->MaximumRadius << endl;
-
   os << indent << "Pole: (" 
      << this->Pole[0] << ", "
      << this->Pole[1] << ", "
      << this->Pole[2] << " )\n";
 
-  os << indent << "Polar angle range: " 
-     << this->AngularRange[0] << " - "
-     << this->AngularRange[1] << "\n";
+  os << indent << "Maximum Radius" << this->MaximumRadius << endl;
+  os << indent << "Maximum Angle" << this->MaximumAngle << endl;
+
 
   if ( this->Camera )
     {
@@ -76,19 +74,20 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Radial Axes Visibility: "
      << ( this->RadialAxesVisibility ? "On\n" : "Off\n" );
 
+  os << indent << "Radial Title Visibility: "
+     << ( this->RadialTitleVisibility ? "On" : "Off" ) << endl;
+
+  os << indent << "Polar Label Visibility: "
+     << ( this->PolarLabelVisibility ? "On" : "Off" ) << endl;
+
+  os << indent << "Polar Tick Visibility: "
+     << ( this->PolarTickVisibility ? "On" : "Off" ) << endl;
+
   os << indent << "Radial Axes Label Format: " << this->RadialLabelFormat << "\n";
-
-  os << indent << "Radial Tick Visibility: "
-     << ( this->RadialTickVisibility ? "On" : "Off" ) << endl;
-
-  os << indent << "Radial Label Visibility: "
-     << ( this->RadialLabelVisibility ? "On" : "Off" ) << endl;
 
   os << indent << "Tick Location: " << this->TickLocation << endl;
 }
 
-// *************************************************************************
-// Instantiate this object.
 // *************************************************************************
 vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 {
@@ -107,12 +106,12 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // Default maximum polar radius
   this->MaximumRadius = VTK_DOUBLE_MAX;
-  this->LastMaximumRadius = VTK_DOUBLE_MAX;
 
-  // Description:
-  // Default angular range
-  this->AngularRange[0] = VTK_DEFAULT_MINIMUM_POLAR_ANGLE;
-  this->AngularRange[1] = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
+  // Default maximum polar angle
+  this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
+
+  // By default show angle units (degrees)
+  this->RadialUnits = 1;
 
   this->RebuildAxes = false;
 
@@ -144,13 +143,13 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->ActualRadialLabel = 0;
 
   // Default tick location, defined in vtkAxisActor
-  this->TickLocation = VTK_TICKS_INSIDE;
+  this->TickLocation = VTK_TICKS_BOTH;
 
   // By default all features are visible
   this->RadialAxesVisibility = 1;
-  this->RadialLabelVisibility = 1;
   this->RadialTitleVisibility = 1;
-  this->RadialTickVisibility = 1;
+  this->PolarLabelVisibility = 1;
+  this->PolarTickVisibility = 1;
 
   this->RadialLabelFormat = new char[8];
   sprintf( this->RadialLabelFormat, "%s", "%-#6.3g" );
@@ -219,10 +218,6 @@ void vtkPolarAxesActor::ShallowCopy( vtkPolarAxesActor *actor )
   this->LabelScreenOffset = actor->LabelScreenOffset;
 }
 
-// *************************************************************************
-// Project the bounding box and compute edges on the border of the bounding
-// polar. Determine which parts of the edges are visible via intersection
-// with the boundary of the viewport ( minus borders ).
 // *************************************************************************
 int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 {
@@ -424,12 +419,15 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
  
   // Prepare axes for rendering with user-definable options
   double rho = bounds[1] -  bounds[0];
-  double dAlpha = this->AngularRange[1] - this->AngularRange[0];
-  dAlpha /= ( this->NumberOfRadialAxes - 1. );
+  double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
+  this->AdjustTicksComputeRange(this->RadialAxes, bounds[0], bounds[1] );
+//  this->BuildLabels( this->RadialAxes );
+//  this->UpdateLabels( this->RadialAxes );
   
+  // Set radial axes
   for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i )
     {
-    double theta = this->AngularRange[0] + i * dAlpha;
+    double theta = i * dAlpha;
     double thetaRad = vtkMath::RadiansFromDegrees( theta );
     vtkAxisActor* axis = this->RadialAxes[i];
     double x = bounds[0] + rho * cos( thetaRad );
@@ -441,7 +439,9 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
                                            y,
                                            bounds[3] );
 
+    // Set axis ticks
     axis->SetRange( 0., rho );
+    axis->SetMajorTickSize( .02 * rho );
 
     // Set axis title
     vtksys_ios::ostringstream thetaStream;
@@ -453,48 +453,32 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     axis->SetTitle( thetaStream.str().c_str() );
     }
 
-  // FIXME
-  //bool ticksRecomputed = this->ComputeTickSize(bounds);
-  bool ticksRecomputed = false;
-
-  // Labels are built during ComputeTickSize. if
-  // ticks were not recomputed, but we need a label
-  // reset, then build the labels here.
-  if ( ! ticksRecomputed )
+  if ( this->ForceRadialLabelReset )
     {
-    if ( this->ForceRadialLabelReset )
-      {
-      this->BuildLabels( this->RadialAxes );
-      this->UpdateLabels( this->RadialAxes );
-      }
-    }
-
-  if ( ticksRecomputed || this->ForceRadialLabelReset )
-    {
-    // Labels were re-built, must recompute the scale.
+    // Must recompute the scale
     double center[3];
-
     center[0] = ( this->Bounds[1] - this->Bounds[0] ) * 0.5;
     center[1] = ( this->Bounds[3] - this->Bounds[2] ) * 0.5;
     center[2] = ( this->Bounds[5] - this->Bounds[4] ) * 0.5;
-
-    vtkAxisActor* axis = this->RadialAxes[0];
-    double lenRad = axis->ComputeMaxLabelLength( center );
-    double lenTitle = axis->ComputeTitleLength( center );
-    double maxLabelLength = this->MaxOf( lenRad, 0.);
-    double maxTitleLength = this->MaxOf( lenTitle, 0.);
     double bWidth  = this->Bounds[1] - this->Bounds[0];
     double bHeight = this->Bounds[3] - this->Bounds[2];
     double bLength = sqrt( bWidth * bWidth + bHeight * bHeight );
     double target = bLength * .04;
 
+    // Label scale
+    vtkAxisActor* axis = this->RadialAxes[0];
+    double lenRad = axis->ComputeMaxLabelLength( center );
+    double maxLabelLength = this->MaxOf( lenRad, 0.);
     this->LabelScale = 1.;
     if ( maxLabelLength > 0. )
       {
       this->LabelScale = target / maxLabelLength;
       }
-    target = bLength * 0.1;
 
+    // Title scale
+    double lenTitle = axis->ComputeTitleLength( center );
+    double maxTitleLength = this->MaxOf( lenTitle, 0.);
+    target = bLength * 0.1;
     this->TitleScale = 1.;
     if ( maxTitleLength > 0. )
       {
@@ -531,16 +515,26 @@ void vtkPolarAxesActor::SetNonDependentAttributes()
   prop->SetDiffuse( 0.0 );
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    this->RadialAxes[i]->SetCamera( this->Camera );
-    this->RadialAxes[i]->SetProperty( prop );
-    this->RadialAxes[i]->SetAxisLinesProperty( this->RadialAxesProperty );
-    this->RadialAxes[i]->SetTickLocation( this->TickLocation );
-    this->RadialAxes[i]->SetBounds( this->Bounds );
-    this->RadialAxes[i]->SetAxisVisibility( this->RadialAxesVisibility );
-    this->RadialAxes[i]->SetLabelVisibility( this->RadialLabelVisibility );
-    this->RadialAxes[i]->SetTitleVisibility( this->RadialTitleVisibility );
-    this->RadialAxes[i]->SetTickVisibility( this->RadialTickVisibility );
-    this->RadialAxes[i]->SetMinorTicksVisible( false );
+    vtkAxisActor* axis = this->RadialAxes[i];
+    axis->SetCamera( this->Camera );
+    axis->SetProperty( prop );
+    axis->SetAxisLinesProperty( this->RadialAxesProperty );
+    axis->SetTickLocation( this->TickLocation );
+    axis->SetBounds( this->Bounds );
+    axis->SetAxisVisibility( this->RadialAxesVisibility );
+    axis->SetTitleVisibility( this->RadialTitleVisibility );
+    axis->SetMinorTicksVisible( 0 );
+    // Features available only on polar axis
+    if ( ! i )
+      {
+      axis->SetLabelVisibility( this->PolarLabelVisibility );
+      axis->SetTickVisibility( this->PolarTickVisibility );
+      }
+    else
+      {
+      axis->SetLabelVisibility( 0 );
+      axis->SetTickVisibility( 0 );
+      }
     }
 }
 
@@ -569,16 +563,9 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 }
 
 // *******************************************************************
-// Method: vtkPolarAxesActor::AdjustTicksComputeRange
-//
-// Purpose: Sets private members controlling the number and position
-//          of ticks.
-//
-// Arguments:
-//   inRange   The range for this axis.
-// *******************************************************************
 void vtkPolarAxesActor::AdjustTicksComputeRange( vtkAxisActor** axes,
-                                                double boundsMin, double boundsMax )
+                                                 double boundsMin, 
+                                                 double boundsMax )
 {
   double sortedRange[2], range;
   double fxt, fnt, frac;
@@ -602,7 +589,7 @@ void vtkPolarAxesActor::AdjustTicksComputeRange( vtkAxisActor** axes,
     pow10 = this->FSign( ( fabs( pow10 ) + eps ), pow10 );
     }
 
-  // FFix move you in the wrong direction if pow10 is negative.
+  // FFix will move in the wrong direction if pow10 is negative.
   if ( pow10 < 0.)
     {
     pow10 = pow10 - 1.;
@@ -639,20 +626,18 @@ void vtkPolarAxesActor::AdjustTicksComputeRange( vtkAxisActor** axes,
   // start of the axis.
   if ( sortedRange[0] <= 0.)
     {
-    majorStart = major*( this->FFix( sortedRange[0]*( 1./major ) ) + 0.);
-    minorStart = minor*( this->FFix( sortedRange[0]*( 1./minor ) ) + 0.);
+    majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 0. );
+    minorStart = minor * ( this->FFix( sortedRange[0]*( 1./minor ) ) + 0. );
     }
   else
     {
-    majorStart = major*( this->FFix( sortedRange[0]*( 1./major ) ) + 1.);
-    minorStart = minor*( this->FFix( sortedRange[0]*( 1./minor ) ) + 1.);
+    majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 1. );
+    minorStart = minor * ( this->FFix( sortedRange[0]*( 1./minor ) ) + 1. );
     }
 
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    axes[i]->SetMinorRangeStart( minorStart );
     axes[i]->SetMajorRangeStart( majorStart );
-    axes[i]->SetDeltaRangeMinor( minor );
     axes[i]->SetDeltaRangeMajor( major );
     }
 
@@ -668,11 +653,8 @@ void vtkPolarAxesActor::AdjustTicksComputeRange( vtkAxisActor** axes,
   // Set major and minor starts and deltas for all underlying axes
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
-    axes[i]->SetMinorStart( minorStart );
-    axes[i]->SetMajorStart( axes[0]->GetAxisType(), majorStart );
-
-    axes[i]->SetDeltaMinor( minor );
-    axes[i]->SetDeltaMajor( axes[0]->GetAxisType(), major );
+    axes[i]->SetMajorStart( VTK_AXIS_TYPE_X, majorStart );
+    axes[i]->SetDeltaMajor( VTK_AXIS_TYPE_X, major );
     }
 }
 
@@ -734,8 +716,6 @@ double vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
     return newScale;
 }
 
-// ****************************************************************
-//  Determine what the labels should be and set them in each axis.
 // ****************************************************************
 void vtkPolarAxesActor::BuildLabels( vtkAxisActor** axes )
 {
@@ -850,7 +830,7 @@ void vtkPolarAxesActor::UpdateLabels( vtkAxisActor** axis )
     vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
     for( int k = 0; k < numberOfLabelsBuilt; ++ k )
       {
-      labelActors[k]->SetAxis( this->RadialAxes[i]);
+      labelActors[k]->SetAxis( this->RadialAxes[i] );
       labelActors[k]->SetScreenOffset( this->LabelScreenOffset );
       }
     }

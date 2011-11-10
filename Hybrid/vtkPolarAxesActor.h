@@ -33,7 +33,6 @@ All rights reserve
 #define __vtkPolarAxesActor_h
 
 #define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
-#define VTK_DEFAULT_MINIMUM_POLAR_ANGLE 0.0
 #define VTK_DEFAULT_MAXIMUM_POLAR_ANGLE 90.0
 
 #include "vtkActor.h"
@@ -76,10 +75,10 @@ public:
   vtkGetMacro( MaximumRadius, double );
 
   // Description:
-  // Set/Get the angular range of the polar coordinates.
-  // Default: from VTK_DEFAULT_MINIMUM_POLAR_ANGLE to VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
-  vtkSetVector2Macro( AngularRange, double );
-  vtkGetVector2Macro( AngularRange, double );
+  //  Set/Get the maximum radius of the polar coordinates.
+  // Default: VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
+  vtkSetMacro( MaximumAngle, double );
+  vtkGetMacro( MaximumAngle, double );
 
   // Description:
   // Set/Get the RebuildAxes flag
@@ -114,15 +113,15 @@ public:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources( vtkWindow* );
 
   // Description:
   // Implementation of ShallowCopy() of a vtkPolarAxesActor instance
-  void ShallowCopy(vtkPolarAxesActor *actor);
+  void ShallowCopy( vtkPolarAxesActor* );
 
   // Description:
   // Implementation of ShallowCopy() of a vtkPolarAxesActor property instance
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
+  void ShallowCopy( vtkProp* prop ) { this->vtkProp::ShallowCopy( prop ); };
 
   // Description:
   // Turn on and off the visibility of radial axes.
@@ -131,22 +130,22 @@ public:
   vtkBooleanMacro( RadialAxesVisibility,int );
 
   // Description:
-  // Turn on and off the visibility of labels for radial axes.
-  vtkSetMacro( RadialLabelVisibility,int );
-  vtkGetMacro( RadialLabelVisibility,int );
-  vtkBooleanMacro( RadialLabelVisibility,int );
-
-  // Description:
   // Turn on and off the visibility of titles for radial axes.
   vtkSetMacro( RadialTitleVisibility,int );
   vtkGetMacro( RadialTitleVisibility,int );
   vtkBooleanMacro( RadialTitleVisibility,int );
 
   // Description:
-  // Turn on and off the visibility of ticks for radial axes.
-  vtkSetMacro( RadialTickVisibility, int );
-  vtkGetMacro( RadialTickVisibility, int );
-  vtkBooleanMacro( RadialTickVisibility, int );
+  // Turn on and off the visibility of labels for radial axis.
+  vtkSetMacro( PolarLabelVisibility,int );
+  vtkGetMacro( PolarLabelVisibility,int );
+  vtkBooleanMacro( PolarLabelVisibility,int );
+
+  // Description:
+  // Turn on and off the visibility of ticks for polar axis.
+  vtkSetMacro( PolarTickVisibility, int );
+  vtkGetMacro( PolarTickVisibility, int );
+  vtkBooleanMacro( PolarTickVisibility, int );
 
   // Description:
   // Get/Set radial axes actors properties.
@@ -168,19 +167,23 @@ public:
                  double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
 
+protected:
+  vtkPolarAxesActor();
+  ~vtkPolarAxesActor();
+
   // Description:
   // Transform the bounding box to display coordinates.
   void  TransformBounds( vtkViewport*, double* );
 
-/*   bool  ComputeTickSize(double bounds[6]); */
-/*   void  AdjustValues(const double xRange[2], */
-/*                      const double yRange[2], */
-/*                      const double zRange[2] ); */
-/*   void  AdjustRange(const double bounds[6] ); */
+  // Description:
+  // Build the axes. 
+  // Determine coordinates, position, etc.
+  void  BuildAxes(vtkViewport * );
 
   // Description:
-  // Build the axes. Determine coordinates, position, etc.
-  void  BuildAxes(vtkViewport * );
+  // Build the labels.
+  // Determine what the labels should be and set them in each axis.
+  void  BuildLabels( vtkAxisActor**  );
 
   // Description:
   // Send attributes to each vtkAxisActor.
@@ -188,16 +191,13 @@ public:
   // and thus do not need to be set very often.
   void  SetNonDependentAttributes(void );
 
-  void  BuildLabels( vtkAxisActor** axes  );
-  void  AdjustTicksComputeRange(vtkAxisActor** axes, double rangeMin, double rangeMax );
-
   void    AutoScale( vtkViewport* viewport );
   void    AutoScale( vtkViewport* viewport, vtkAxisActor** axes );
   double  AutoScale( vtkViewport* viewport, double screenSize, double position[3] );
 
-protected:
-  vtkPolarAxesActor();
-  ~vtkPolarAxesActor();
+  // Description:
+  // Set private members controlling the number and position of ticks in range
+  void  AdjustTicksComputeRange(vtkAxisActor** axes, double rangeMin, double rangeMax );
 
   int LabelExponent(double min, double max );
 
@@ -221,13 +221,12 @@ protected:
   int NumberOfRadialAxes;
 
   // Description:
-  // Range of polar angles
-  double AngularRange[2];
-
-  // Description:
   // Maximum polar radius (minimum is always 0)
   double MaximumRadius;
-  double LastMaximumRadius;
+
+  // Description:
+  // Maximum polar angle (minimum is always 0)
+  double MaximumAngle;
 
   // Description:
   // Explicit actor bounds
@@ -249,11 +248,13 @@ protected:
 
   int TickLocation;
 
-  // Visibility of radial axe, ticks, and labels
+  // Visibility of radial axes and their titles
   int RadialAxesVisibility;
-  int RadialLabelVisibility;
   int RadialTitleVisibility;
-  int RadialTickVisibility;
+
+  // Visibility of labels and ticks (major only) on polar axis
+  int PolarLabelVisibility;
+  int PolarTickVisibility;
 
   char  *RadialLabelFormat;
 

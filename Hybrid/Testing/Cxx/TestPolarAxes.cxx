@@ -50,7 +50,7 @@ int TestPolarAxes( int argc, char * argv [] )
 
   vtkNew<vtkLODActor> readerActor;
   readerActor->SetMapper( readerMapper.GetPointer() );
-  readerActor->GetProperty()->SetDiffuseColor( 0.7, 0.3, 0.0 );
+  readerActor->GetProperty()->SetDiffuseColor( .3, .3, .3 );
 
   vtkNew<vtkOutlineFilter> outline;
   outline->SetInputConnection(normals->GetOutputPort() );
@@ -69,7 +69,7 @@ int TestPolarAxes( int argc, char * argv [] )
 
   vtkNew<vtkLight> light;
   light->SetFocalPoint( 0.21406, 1.5, 0.0 );
-  light->SetPosition( 8.3761, 4.94858, 4.12505 );
+  light->SetPosition( 7., 7., 4. );
 
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera( camera.GetPointer() );
@@ -84,7 +84,8 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->SetMaximumRadius( 300 );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetRadialLabelFormat( "%6.1f" );
-  //polaxes->SetScreenSize( 15.0 );
+  polaxes->GetRadialAxesProperty()->SetColor( .0, .0, .9 );
+  polaxes->SetScreenSize( 15.0 );
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples( 0 );
@@ -95,7 +96,7 @@ int TestPolarAxes( int argc, char * argv [] )
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
 
-  renderer->SetBackground( 0.1, 0.2, 0.4 );
+  renderer->SetBackground( 1., 1., 1. );
   renderer->AddViewProp( readerActor.GetPointer() );
   renderer->AddViewProp( outlineActor.GetPointer() );
   renderer->AddViewProp( polaxes.GetPointer() );
