@@ -97,9 +97,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
   // Default pole coordinates
-  this->Pole[0] = 0.;
-  this->Pole[1] = 0.;
-  this->Pole[2] = 0.;
+  this->Pole[0] = VTK_DOUBLE_MAX;
+  this->Pole[1] = VTK_DOUBLE_MAX;
+  this->Pole[2] = VTK_DOUBLE_MAX;
 
   // Default number of polar axes
   this->NumberOfRadialAxes = VTK_DEFAULT_NUMBER_OF_RADIAL_AXES;
@@ -410,14 +410,18 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   this->SetNonDependentAttributes();
 
-  // Determine the bounds to use ( input, prop, or user-defined )
+  // Determine the bounds for possible use ( input, prop, or user-defined )
   this->GetBounds( bounds );
-  cerr << "  bounds:";
-  for ( int j = 0; j < 6; ++ j )
-    cerr << "  " << bounds[j];
-  cerr << ":\n";
- 
+  
+  // If pole coordinates are invalid, use bounds
+  double o[3];
+  for ( int i = 0; i < 3; ++ i )
+    {
+    o[i] = this->Pole[i] == VTK_DOUBLE_MAX ? bounds[i * 2] : this->Pole[i];
+    }
+
   // Prepare axes for rendering with user-definable options
+  // FIXME
   double rho = bounds[1] -  bounds[0];
   double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
 
@@ -432,14 +436,10 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     double theta = i * dAlpha;
     double thetaRad = vtkMath::RadiansFromDegrees( theta );
     vtkAxisActor* axis = this->RadialAxes[i];
-    double x = bounds[0] + rho * cos( thetaRad );
-    double y = bounds[2] + rho * sin( thetaRad );
-    axis->GetPoint1Coordinate()->SetValue( bounds[0],
-                                           bounds[2],
-                                           bounds[4] );
-    axis->GetPoint2Coordinate()->SetValue( x,
-                                           y,
-                                           bounds[4] );
+    double x = o[0] + rho * cos( thetaRad );
+    double y = o[1] + rho * sin( thetaRad );
+    axis->GetPoint1Coordinate()->SetValue( o[0], o[1], o[2] );
+    axis->GetPoint2Coordinate()->SetValue( x, y, o[2] );
 
     // Set axis ticks
     axis->SetRange( 0., rho );
