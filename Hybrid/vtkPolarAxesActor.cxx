@@ -435,7 +435,6 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   // Prepare axes for rendering with user-definable options
   double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
-  this->BuildPolarAxisTicks( bounds[0], bounds[1] );
 
 //  this->BuildLabels( this->RadialAxes );
 //  this->UpdateLabels( this->RadialAxes );
@@ -464,6 +463,8 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
       }
     axis->SetTitle( thetaStream.str().c_str() );
     }
+
+  this->BuildPolarAxisTicks( o[0] );
 
   if ( this->ForceRadialLabelReset )
     {
@@ -575,23 +576,10 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 }
 
 // *******************************************************************
-void vtkPolarAxesActor::BuildPolarAxisTicks( double boundsMin, 
-                                             double boundsMax )
+void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
 {
-  vtkAxisActor* axis = this->RadialAxes[0];
-  double sortedRange[2], range;
-  double fxt, fnt, frac;
-  double div, major;
-  double majorStart;
-  int numTicks;
-  double *inRange = axis->GetRange();
-
-  sortedRange[0] = inRange[0] < inRange[1] ? inRange[0] : inRange[1];
-  sortedRange[1] = inRange[0] > inRange[1] ? inRange[0] : inRange[1];
-
-  range = sortedRange[1] - sortedRange[0];
-
   // Find the integral points.
+  double range = this->MaximumRadius;
   double pow10 = log10( range );
 
   // Build in numerical tolerance
@@ -607,15 +595,15 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double boundsMin,
     pow10 = pow10 - 1.;
     }
 
-  fxt = pow( 10., this->FFix( pow10 ) );
+  double fxt = pow( 10., this->FFix( pow10 ) );
 
   // Find the number of integral points in the interval.
-  fnt  = range/fxt;
+  double fnt = range / fxt;
   fnt  = this->FFix( fnt );
-  frac = fnt;
-  numTicks = frac <= 0.5 ? static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
+  double frac = fnt;
+  int numTicks = frac <= 0.5 ? static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
 
-  div = 1.;
+  double div = 1.;
   if ( numTicks < 5 )
     {
     div = 2.;
@@ -627,7 +615,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double boundsMin,
 
   // If there aren't enough major tick points in this decade, use the next
   // decade.
-  major = fxt;
+  double major = fxt;
   if ( div != 1.)
     {
     major /= div;
@@ -635,6 +623,13 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double boundsMin,
 
   // Figure out the first major tick locations, relative to the
   // start of the axis.
+  double sortedRange[2];
+  vtkAxisActor* axis = this->RadialAxes[0];
+  double *inRange = axis->GetRange();
+  sortedRange[0] = inRange[0] < inRange[1] ? inRange[0] : inRange[1];
+  sortedRange[1] = inRange[0] > inRange[1] ? inRange[0] : inRange[1];
+
+  double majorStart;
   if ( sortedRange[0] <= 0.)
     {
     majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 0. );
@@ -648,9 +643,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double boundsMin,
   axis->SetDeltaRangeMajor( major );
 
   double t = ( majorStart - sortedRange[0] ) / range;
-  majorStart = t * boundsMax + ( 1. - t ) * boundsMin;
-  const double scale = ( boundsMax - boundsMin ) / range;
-  major *= scale;
+  majorStart = t * range  + origin;
 
   // Set major start and deltas
   axis->SetMajorStart( VTK_AXIS_TYPE_X, majorStart );

@@ -80,9 +80,11 @@ int TestPolarAxes( int argc, char * argv [] )
   
   vtkNew<vtkPolarAxesActor> polaxes;
   polaxes->SetBounds( normals->GetOutput()->GetBounds() );
-  polaxes->SetPole( -3., 0., 2. );
+  polaxes->SetPole( 0., 1., 3. );
   polaxes->SetAutoScaleRadius( false );
-  polaxes->SetMaximumRadius( 6. );
+  polaxes->SetMaximumRadius( 3. );
+  polaxes->SetMaximumAngle( 180. );
+  polaxes->SetNumberOfRadialAxes( 7 );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetRadialLabelFormat( "%6.1f" );
   polaxes->GetRadialAxesProperty()->SetColor( .0, .0, .9 );

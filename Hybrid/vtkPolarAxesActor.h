@@ -32,7 +32,7 @@ All rights reserve
 #ifndef __vtkPolarAxesActor_h
 #define __vtkPolarAxesActor_h
 
-#define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
+#define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 100
 #define VTK_DEFAULT_MAXIMUM_POLAR_ANGLE 90.0
 
 #include "vtkActor.h"
@@ -203,8 +203,7 @@ protected:
 
   // Description:
   // Prepare ticks on polar axis
-  void  BuildPolarAxisTicks( double rangeMin, 
-                             double rangeMax );
+  void  BuildPolarAxisTicks( double );
 
   int LabelExponent(double min, double max );
 
