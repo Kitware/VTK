@@ -75,6 +75,12 @@ public:
   vtkGetMacro( MaximumRadius, double );
 
   // Description:
+  // Turn on and off the auto-scaling of the maximum radius.
+  vtkSetMacro( AutoScaleRadius,int );
+  vtkGetMacro( AutoScaleRadius,int );
+  vtkBooleanMacro( AutoScaleRadius,int );
+
+  // Description:
   //  Set/Get the maximum radius of the polar coordinates.
   // Default: VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
   vtkSetMacro( MaximumAngle, double );
@@ -225,6 +231,10 @@ protected:
   // Description:
   // Maximum polar radius (minimum is always 0)
   double MaximumRadius;
+
+  // Description:
+  // Auto-scale polar radius (with respect to average length scale of x-y bounding box)
+  bool AutoScaleRadius;
 
   // Description:
   // Maximum polar angle (minimum is always 0)

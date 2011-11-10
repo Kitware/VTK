@@ -52,6 +52,7 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
      << this->Pole[2] << " )\n";
 
   os << indent << "Maximum Radius" << this->MaximumRadius << endl;
+  os << indent << "Auto-Scale Radius" << this->AutoScaleRadius << endl;
   os << indent << "Maximum Angle" << this->MaximumAngle << endl;
 
 
@@ -106,6 +107,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // Default maximum polar radius
   this->MaximumRadius = VTK_DOUBLE_MAX;
+
+  // Do not auto-scale radius by default
+  this->AutoScaleRadius = false;
 
   // Default maximum polar angle
   this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
@@ -419,12 +423,18 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     {
     o[i] = this->Pole[i] == VTK_DOUBLE_MAX ? bounds[i * 2] : this->Pole[i];
     }
+  
+  // If axial scale it out of proportions with object length scale, reset to ls
+  double ls = fabs( bounds[1] -  bounds[0] ) + fabs( bounds[3] -  bounds[2] );
+  if ( this->AutoScaleRadius
+       || this->MaximumRadius < 1.e-6 * ls 
+       || this->MaximumRadius > 1.e6 * ls )
+    {
+    this->MaximumRadius = .5 * ls;
+    }
 
   // Prepare axes for rendering with user-definable options
-  // FIXME
-  double rho = bounds[1] -  bounds[0];
   double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
-
   this->ComputePolarAxisTicks( this->RadialAxes[0], bounds[0], bounds[1] );
 
 //  this->BuildLabels( this->RadialAxes );
@@ -436,14 +446,14 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     double theta = i * dAlpha;
     double thetaRad = vtkMath::RadiansFromDegrees( theta );
     vtkAxisActor* axis = this->RadialAxes[i];
-    double x = o[0] + rho * cos( thetaRad );
-    double y = o[1] + rho * sin( thetaRad );
+    double x = o[0] + this->MaximumRadius * cos( thetaRad );
+    double y = o[1] + this->MaximumRadius * sin( thetaRad );
     axis->GetPoint1Coordinate()->SetValue( o[0], o[1], o[2] );
     axis->GetPoint2Coordinate()->SetValue( x, y, o[2] );
 
     // Set axis ticks
-    axis->SetRange( 0., rho );
-    axis->SetMajorTickSize( .02 * rho );
+    axis->SetRange( 0., this->MaximumRadius );
+    axis->SetMajorTickSize( .02 * this->MaximumRadius );
 
     // Set axis title
     vtksys_ios::ostringstream thetaStream;
