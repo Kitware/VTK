@@ -36,9 +36,7 @@ void vtkPNMWriter::WriteFileHeader(ofstream *file,
   int min1 = wExt[0],
     max1 = wExt[1],
     min2 = wExt[2],
-    max2 = wExt[3],
-    min3 = wExt[4],
-    max3 = wExt[5];
+    max2 = wExt[3];
   int bpp;
   
   // Find the length of the rows to write.

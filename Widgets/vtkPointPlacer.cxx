@@ -102,7 +102,8 @@ void vtkPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------
 int vtkPointPlacer::
-UpdateNodeWorldPosition(double worldPos[3], vtkIdType nodePointId)
+UpdateNodeWorldPosition(double vtkNotUsed(worldPos)[3],
+                        vtkIdType vtkNotUsed(nodePointId))
 {
   return 1;
 }

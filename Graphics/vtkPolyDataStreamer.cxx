@@ -82,7 +82,7 @@ int vtkPolyDataStreamer::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 int vtkPolyDataStreamer::ExecutePass(
   vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
