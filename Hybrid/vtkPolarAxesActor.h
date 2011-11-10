@@ -203,9 +203,8 @@ protected:
 
   // Description:
   // Prepare ticks on polar axis
-  void  ComputePolarAxisTicks( vtkAxisActor* axis, 
-                               double rangeMin, 
-                               double rangeMax );
+  void  BuildPolarAxisTicks( double rangeMin, 
+                             double rangeMax );
 
   int LabelExponent(double min, double max );
 

@@ -81,7 +81,8 @@ int TestPolarAxes( int argc, char * argv [] )
   vtkNew<vtkPolarAxesActor> polaxes;
   polaxes->SetBounds( normals->GetOutput()->GetBounds() );
   polaxes->SetPole( -3., 0., 2. );
-  polaxes->SetAutoScaleRadius( true );
+  polaxes->SetAutoScaleRadius( false );
+  polaxes->SetMaximumRadius( 6. );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetRadialLabelFormat( "%6.1f" );
   polaxes->GetRadialAxesProperty()->SetColor( .0, .0, .9 );

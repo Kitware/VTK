@@ -435,7 +435,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   // Prepare axes for rendering with user-definable options
   double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
-  this->ComputePolarAxisTicks( this->RadialAxes[0], bounds[0], bounds[1] );
+  this->BuildPolarAxisTicks( bounds[0], bounds[1] );
 
 //  this->BuildLabels( this->RadialAxes );
 //  this->UpdateLabels( this->RadialAxes );
@@ -575,10 +575,10 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 }
 
 // *******************************************************************
-void vtkPolarAxesActor::ComputePolarAxisTicks( vtkAxisActor* axis,
-                                               double boundsMin, 
-                                               double boundsMax )
+void vtkPolarAxesActor::BuildPolarAxisTicks( double boundsMin, 
+                                             double boundsMax )
 {
+  vtkAxisActor* axis = this->RadialAxes[0];
   double sortedRange[2], range;
   double fxt, fnt, frac;
   double div, major;
