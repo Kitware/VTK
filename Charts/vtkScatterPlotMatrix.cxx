@@ -192,7 +192,7 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
         {
         for(int j = 0; j < plotCount; j++)
           {
-          if(this->GetPlotType(pos) == SCATTERPLOT)
+          if(this->GetPlotType(i, j) == SCATTERPLOT)
             {
             vtkChartXY *chart = vtkChartXY::SafeDownCast(this->GetChart(vtkVector2i(i, j)));
 
