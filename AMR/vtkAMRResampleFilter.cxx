@@ -53,6 +53,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
   this->ROIChanged           = false;
+  this->InitialCall          = true;
 
   for( int i=0; i < 3; ++i )
     {
@@ -629,6 +630,13 @@ void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
     vtkHierarchicalBoxDataSet *amrds, double h[3] )
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
+
+  if( this->InitialCall )
+    {
+    h[0]=h[1]=h[2]=0.0;
+    this->InitialCall = false;
+    return;
+    }
 
   // STEP 0: Get domain parameters from root level metadata
   int dims[3];

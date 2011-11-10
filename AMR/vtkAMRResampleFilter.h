@@ -135,6 +135,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     int TransferToNodes;
     int DemandDrivenMode;
     bool ROIChanged;
+    bool InitialCall;
     vtkMultiProcessController *Controller;
 // BTX
     vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
