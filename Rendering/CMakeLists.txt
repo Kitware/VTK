@@ -328,9 +328,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkLightingHelper
   vtkRenderState
   vtkOpenGLState
-  vtkShader2
-  vtkShader2Collection
-  vtkShaderProgram2
   vtkTextureUnitManager
   vtkTestingInteractor
   vtkTestingObjectFactory

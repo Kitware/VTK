@@ -56,12 +56,6 @@ void vtkPolyDataSourceWidget::PlaceWidget()
   this->PlaceWidget(bounds);
 }
 
-vtkPolyDataSource* vtkPolyDataSourceWidget::GetPolyDataSource()
-{
-  vtkErrorMacro("Use GetPolyDataAlgorithm instead.");
-  return NULL;
-}
-
 void vtkPolyDataSourceWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
