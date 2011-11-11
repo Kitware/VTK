@@ -105,7 +105,16 @@ public:
   virtual int UpdateWorldPosition( vtkRenderer *ren,
                                    double worldPos[3],
                                    double worldOrient[9] );
-  
+
+  // Description:
+  // Give the placer a chance to update the node information, if any. Most
+  // placers do not maintain any cached node information.
+  // vtkPolygonalSurfacePointPlacer is one that does. It stores the point
+  // id (id on the surface mesh) on which its drawn. The second argument
+  // may be used to pass that in.
+  // Update world position
+  virtual int UpdateNodeWorldPosition(
+      double worldPos[3], vtkIdType nodePointId);
 
   // Description:
   // Called by the representation to give the placer a chance

@@ -15,12 +15,20 @@
 #include "vtkWarpVector.h"
 
 #include "vtkCellData.h"
+#include "vtkImageData.h"
+#include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridToPointSet.h"
+#include "vtkStructuredGrid.h"
+
+#include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkWarpVector);
 
@@ -40,17 +48,55 @@ vtkWarpVector::~vtkWarpVector()
 }
 
 //----------------------------------------------------------------------------
+int vtkWarpVector::FillInputPortInformation(int vtkNotUsed(port),
+                                            vtkInformation *info)
+{
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkWarpVector::RequestDataObject(vtkInformation *request,
+                                     vtkInformationVector **inputVector,
+                                     vtkInformationVector *outputVector)
+{
+  vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+  vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+
+  if (inImage || inRect)
+    {
+    vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
+    if (!output)
+      {
+      vtkNew<vtkStructuredGrid> newOutput;
+      outputVector->GetInformationObject(0)->Set(
+        vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
+      }
+    return 1;
+    }
+  else
+    {
+    return this->Superclass::RequestDataObject(request,
+                                               inputVector,
+                                               outputVector);
+    }
+}
+
+//----------------------------------------------------------------------------
 template <class T1, class T2>
-void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts, 
+void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
                            T1 *outPts, T2 *inVec, vtkIdType max)
 {
   vtkIdType ptId;
   T1 scaleFactor = (T1)self->GetScaleFactor();
-  
+
   // Loop over all points, adjusting locations
   for (ptId=0; ptId < max; ptId++)
     {
-    if (!(ptId & 0xfff)) 
+    if (!(ptId & 0xfff))
       {
       self->UpdateProgress ((double)ptId/(max+1));
       if (self->GetAbortExecute())
@@ -58,7 +104,7 @@ void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
         break;
         }
       }
-    
+
     *outPts = *inPts + scaleFactor * (T1)(*inVec);
     outPts++; inPts++; inVec++;
     *outPts = *inPts + scaleFactor * (T1)(*inVec);
@@ -67,12 +113,12 @@ void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
     outPts++; inPts++; inVec++;
     }
 }
-          
+
 //----------------------------------------------------------------------------
 template <class T>
-void vtkWarpVectorExecute(vtkWarpVector *self, 
-                          T *inPts, 
-                          T *outPts, 
+void vtkWarpVectorExecute(vtkWarpVector *self,
+                          T *inPts,
+                          T *outPts,
                           vtkIdType max,
                           vtkDataArray *vectors)
 {
@@ -83,11 +129,11 @@ void vtkWarpVectorExecute(vtkWarpVector *self,
   switch (vectors->GetDataType())
     {
     vtkTemplateMacro(
-      vtkWarpVectorExecute2(self, inPts, outPts, 
+      vtkWarpVectorExecute2(self, inPts, outPts,
                             (VTK_TT *)(inVec), max));
     default:
       break;
-    }  
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -96,15 +142,40 @@ int vtkWarpVector::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
+  vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
-  // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointSet *output = vtkPointSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input)
+    {
+    // Try converting image data.
+    vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+    if (inImage)
+      {
+      vtkNew<vtkImageDataToPointSet> image2points;
+      image2points->SetInputData(inImage);
+      image2points->Update();
+      input = image2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    // Try converting rectilinear grid.
+    vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+    if (inRect)
+      {
+      vtkNew<vtkRectilinearGridToPointSet> rect2points;
+      rect2points->SetInputData(inRect);
+      rect2points->Update();
+      input = rect2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    vtkErrorMacro(<< "Invalid or missing input");
+    return 0;
+    }
 
   vtkPoints *points;
   vtkIdType numPts;
@@ -142,12 +213,12 @@ int vtkWarpVector::RequestData(
   switch (input->GetPoints()->GetDataType())
     {
     vtkTemplateMacro(
-      vtkWarpVectorExecute( this, (VTK_TT *)(inPtr), 
+      vtkWarpVectorExecute( this, (VTK_TT *)(inPtr),
                             (VTK_TT *)(outPtr), numPts, vectors) );
     default:
       break;
     }
-  
+
   // now pass the data.
   output->GetPointData()->CopyNormalsOff(); // distorted geometry
   output->GetPointData()->PassData(input->GetPointData());

@@ -209,6 +209,11 @@ public:
   // Get the extent of the data being interpolated.
   vtkGetVector6Macro(Extent, int);
 
+  // Description:
+  // Get the whole extent of the data being interpolated, including
+  // parts of the data that are not currently in memory.
+  vtkGetVector6Macro(WholeExtent, int);
+
 protected:
   vtkAbstractImageInterpolator();
   ~vtkAbstractImageInterpolator();
@@ -242,6 +247,7 @@ protected:
   vtkDataArray *Scalars;
   double StructuredBoundsDouble[6];
   float StructuredBoundsFloat[6];
+  int WholeExtent[6];
   int Extent[6];
   double Spacing[3];
   double Origin[3];

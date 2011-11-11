@@ -55,7 +55,14 @@ public:
   // automatically computed based on the range of the control points
   // Invalid bounds by default.
   vtkSetVector4Macro(UserBounds, double);
-  vtkGetVector4Macro(UserBounds, double)
+  vtkGetVector4Macro(UserBounds, double);
+
+  // Description:
+  // Controls the valid range for the values.
+  // An invalid value (0, -1, 0., -1, 0, -1.) indicates that the valid
+  // range is the current bounds. It is the default behavior.
+  vtkSetVector4Macro(ValidBounds, double);
+  vtkGetVector4Macro(ValidBounds, double);
 
   // Description:
   // Paint the points with a fixed size (cosmetic) which doesn't depend
@@ -126,6 +133,12 @@ public:
   vtkIdType GetControlPointId(double* pos);
 
   // Description:
+  // Utility function that returns an array of all the control points IDs
+  // Typically: [0, 1, 2, ... n -1] where n is the point count
+  // You are responsible for deleting the array.
+  vtkIdTypeArray* GetControlPointsIds()const;
+
+  // Description:
   // Controls whether or not control points are drawn (true) or clicked and
   // moved (false).
   // False by default.
@@ -167,14 +180,43 @@ public:
   // Description:
   // Returns the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
+  // point must be a double array of size 4.
   virtual void GetControlPoint(vtkIdType index, double *point)const = 0;
+
   // Description:
   // Sets the x and y coordinates as well as the midpoint and sharpness
   // of the control point corresponding to the index.
   virtual void SetControlPoint(vtkIdType index, double *point) = 0;
 
   // Description:
-  // Returns the current point selected.
+  // Move the points referred by pointIds by a given translation.
+  // The new positions won't be outside the bounds.
+  // MovePoints is typically called with GetControlPointsIds() or GetSelection().
+  // Warning: if you pass this->GetSelection(), the array is deleted after
+  // each individual point move. Increase the reference count of the array.
+  // See also MoveAllPoints()
+  void MovePoints(const vtkVector2f& translation, vtkIdTypeArray* pointIds);
+
+  // Description:
+  // Utility function to move all the control points of the given translation
+  void MovePoints(const vtkVector2f& translation);
+
+  // Description:
+  // Spread the points referred by pointIds
+  // If factor > 0, points are moved away from each other.
+  // If factor < 0, points are moved closer to each other
+  // SpreadPoints is typically called with GetControlPointsIds() or GetSelection().
+  // Warning: if you pass this->GetSelection(), the array is deleted after
+  // each individual point move. Increase the reference count of the array.
+  void SpreadPoints(float factor, vtkIdTypeArray* pointIds);
+
+  // Description:
+  // Utility function to spread all the control points of a given factor
+  void SpreadPoints(float factor);
+
+  // Description:
+  // Returns the current point ID selected or -1 if there is no point current.
+  // No current point by default.
   vtkIdType GetCurrentPoint()const;
 
   // Description:
@@ -195,12 +237,30 @@ public:
   // You shouldn't have to call it but it is provided for rare cases.
   void ResetBounds();
 
+  // Description:
+  // Mouse button down event.
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
   virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
   virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
 
 protected:
   vtkControlPointsItem();
   virtual ~vtkControlPointsItem();
+
+  void StartChanges();
+  void EndChanges();
+  void StartInteraction();
+  void StartInteractionIfNotStarted();
+  void Interaction();
+  void EndInteraction();
+  int GetInteractionsCount()const;
+  virtual void emitEvent(unsigned long event, void* params = 0) = 0;
 
   static void CallComputePoints(vtkObject* sender, unsigned long event, void* receiver, void* params);
 
@@ -217,7 +277,8 @@ protected:
   // Description:
   // Clamp the given 2D pos into the bounds of the function.
   // Return true if the pos has been clamped, false otherwise.
-  bool ClampPos(double pos[2]);
+  bool ClampPos(double pos[2], double bounds[4]);
+  bool ClampValidPos(double pos[2]);
 
   // Description:
   // Internal function that paints a collection of points and optionally
@@ -226,26 +287,14 @@ protected:
   void DrawSelectedPoints(vtkContext2D* painter);
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
 
-  // Description:
-  // Mouse button down event.
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
-  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse move event.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
-
   void SetCurrentPointPos(const vtkVector2f& newPos);
   vtkIdType SetPointPos(vtkIdType point, const vtkVector2f& newPos);
-  void MoveSelectedPoints(const vtkVector2f& translation);
   void MoveCurrentPoint(const vtkVector2f& translation);
   vtkIdType MovePoint(vtkIdType point, const vtkVector2f& translation);
 
   inline vtkVector2f GetSelectionCenterOfMass()const;
   vtkVector2f GetCenterOfMass(vtkIdTypeArray* pointIDs)const;
-  
-  void SpreadSelectedPoints(float factor);
-  
+
   void Stroke(const vtkVector2f& newPos);
   virtual void EditPoint(float vtkNotUsed(tX), float vtkNotUsed(tY));
   // Description:
@@ -253,18 +302,20 @@ protected:
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
   void AddPointId(vtkIdType addedPointId);
-  
+
   vtkCallbackCommand* Callback;
   vtkPen*             SelectedPointPen;
   vtkBrush*           SelectedPointBrush;
+  int                 BlockUpdates;
+  int                 StartedInteractions;
   vtkIdType           CurrentPoint;
 
   double              Bounds[4];
   double              UserBounds[4];
+  double              ValidBounds[4];
 
   vtkTransform2D*     Transform;
   float               ScreenPointRadius;
-  float               ItemPointRadius2;
 
   bool                StrokeMode;
   bool                SwitchPointsMode;

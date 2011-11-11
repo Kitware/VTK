@@ -45,6 +45,7 @@ vtkImageResliceMapper::vtkImageResliceMapper()
   this->WorldToDataMatrix = vtkMatrix4x4::New();
   this->SliceToWorldMatrix = vtkMatrix4x4::New();
 
+  this->JumpToNearestSlice = 0;
   this->AutoAdjustImageQuality = 1;
   this->SeparateWindowLevelOperation = 1;
   this->SlabType = VTK_IMAGE_SLAB_MEAN;
@@ -239,7 +240,7 @@ void vtkImageResliceMapper::Update()
     }
   else if (this->InternalResampleToScreenPixels)
     {
-    // if execution reaches this point in the code, then this is the
+    // if execution reaches this point in the code, then the
     // rendering has just switched to interactive quality, and it is
     // necessary to force update if modified since the last update
     if (this->GetMTime() > this->UpdateTime.GetMTime())
@@ -261,7 +262,7 @@ int vtkImageResliceMapper::ProcessRequest(
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    // use superclass method to update some info 
+    // use superclass method to update some info
     this->Superclass::ProcessRequest(request, inputVector, outputVector);
 
     // need the prop and renderer
@@ -277,10 +278,6 @@ int vtkImageResliceMapper::ProcessRequest(
         {
         vtkCamera *camera = ren->GetActiveCamera();
 
-        if (this->SliceAtFocalPoint)
-          {
-          this->SlicePlane->SetOrigin(camera->GetFocalPoint());
-          }
         if (this->SliceFacesCamera)
           {
           double normal[3];
@@ -290,7 +287,64 @@ int vtkImageResliceMapper::ProcessRequest(
           normal[2] = -normal[2];
           this->SlicePlane->SetNormal(normal);
           }
-        }
+
+        if (this->SliceAtFocalPoint)
+          {
+          double point[4];
+          camera->GetFocalPoint(point);
+
+          if (this->JumpToNearestSlice)
+            {
+            double normal[4];
+            this->SlicePlane->GetNormal(normal);
+            normal[3] = -vtkMath::Dot(point, normal);
+            point[3] = 1.0;
+
+            // convert normal to data coordinates
+            double worldToData[16];
+            vtkMatrix4x4 *dataToWorld = this->GetDataToWorldMatrix();
+            vtkMatrix4x4::Transpose(*dataToWorld->Element, worldToData);
+            vtkMatrix4x4::MultiplyPoint(worldToData, normal, normal);
+
+            // find the slice orientation from the normal
+            int k = 0;
+            double maxsq = 0;
+            double sumsq = 0;
+            for (int i = 0; i < 3; i++)
+              {
+              double tmpsq = normal[i]*normal[i];
+              sumsq += tmpsq;
+              if (tmpsq > maxsq)
+                {
+                maxsq = tmpsq;
+                k = i;
+                }
+              }
+
+            // if the slice is not oblique
+            if ((1.0 - maxsq/sumsq) < 1e-12)
+              {
+              // get the point in data coordinates
+              vtkMatrix4x4::Invert(*dataToWorld->Element, worldToData);
+              vtkMatrix4x4::MultiplyPoint(worldToData, point, point);
+
+              // set the point to lie exactly on a slice
+              double z = (point[k] - this->DataOrigin[k])/this->DataSpacing[k];
+              if (z > VTK_INT_MIN && z < VTK_INT_MAX)
+                {
+                int j = vtkMath::Floor(z + 0.5);
+                point[k] = j*this->DataSpacing[k] + this->DataOrigin[k];
+                }
+
+              // convert back to world coordinates
+              dataToWorld->MultiplyPoint(point, point);
+              }
+            }
+
+          this->SlicePlane->SetOrigin(point);
+          }
+
+        } // end of "Get point/normal from camera"
 
       // set the matrices
       this->UpdateResliceMatrix(ren, prop);
@@ -450,6 +504,11 @@ void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
 void vtkImageResliceMapper::UpdateResliceMatrix(
   vtkRenderer *ren, vtkImageSlice *prop)
 {
+  // Save the old matrix
+  double *matrixElements = *this->ResliceMatrix->Element;
+  double oldMatrixElements[16];
+  vtkMatrix4x4::DeepCopy(oldMatrixElements, matrixElements);
+
   // Get world-to-data matrix from the prop matrix
   this->UpdateWorldToDataMatrix(prop);
 
@@ -480,143 +539,155 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
     this->UpdateSliceToWorldMatrix(ren->GetActiveCamera());
     vtkMatrix4x4::Multiply4x4(
       this->WorldToDataMatrix, this->SliceToWorldMatrix, this->ResliceMatrix);
-
-    return;
     }
-
-  // Get the matrices used to compute the reslice matrix
-  vtkMatrix4x4 *resliceMatrix = this->ResliceMatrix;
-  vtkMatrix4x4 *viewMatrix = ren->GetActiveCamera()->GetViewTransformMatrix();
-
-  // Get slice plane in world coords by passing null as the matrix
-  double wplane[4];
-  this->GetSlicePlaneInDataCoords(0, wplane);
-
-  // Check whether normal is facing towards camera, the "ndop" is
-  // the negative of the direction of projection for the camera
-  double *ndop = viewMatrix->Element[2];
-  double dotprod = vtkMath::Dot(ndop, wplane);
-
-  // Get slice plane in data coords by passing the prop matrix, flip
-  // normal to face the camera
-  double plane[4];
-  this->GetSlicePlaneInDataCoords(propMatrix, plane);
-  if (dotprod < 0)
+  else
     {
-    plane[0] = -plane[0];
-    plane[1] = -plane[1];
-    plane[2] = -plane[2];
-    plane[3] = -plane[3];
+    // Get the matrices used to compute the reslice matrix
+    vtkMatrix4x4 *resliceMatrix = this->ResliceMatrix;
+    vtkMatrix4x4 *viewMatrix =
+      ren->GetActiveCamera()->GetViewTransformMatrix();
 
-    wplane[0] = -wplane[0];
-    wplane[1] = -wplane[1];
-    wplane[2] = -wplane[2];
-    wplane[3] = -wplane[3];
-    }
+    // Get slice plane in world coords by passing null as the matrix
+    double wplane[4];
+    this->GetSlicePlaneInDataCoords(0, wplane);
 
-  // Find the largest component of the normal
-  int maxi = 0;
-  double maxv = 0.0;
-  for (int i = 0; i < 3; i++)
-    {
-    double tmp = plane[i]*plane[i];
-    if (tmp > maxv)
+    // Check whether normal is facing towards camera, the "ndop" is
+    // the negative of the direction of projection for the camera
+    double *ndop = viewMatrix->Element[2];
+    double dotprod = vtkMath::Dot(ndop, wplane);
+
+    // Get slice plane in data coords by passing the prop matrix, flip
+    // normal to face the camera
+    double plane[4];
+    this->GetSlicePlaneInDataCoords(propMatrix, plane);
+    if (dotprod < 0)
       {
-      maxi = i;
-      maxv = tmp;
+      plane[0] = -plane[0];
+      plane[1] = -plane[1];
+      plane[2] = -plane[2];
+      plane[3] = -plane[3];
+
+      wplane[0] = -wplane[0];
+      wplane[1] = -wplane[1];
+      wplane[2] = -wplane[2];
+      wplane[3] = -wplane[3];
       }
+
+    // Find the largest component of the normal
+    int maxi = 0;
+    double maxv = 0.0;
+    for (int i = 0; i < 3; i++)
+      {
+      double tmp = plane[i]*plane[i];
+      if (tmp > maxv)
+        {
+        maxi = i;
+        maxv = tmp;
+        }
+      }
+
+    // Create the corresponding axis
+    double axis[3];
+    axis[0] = 0.0;
+    axis[1] = 0.0;
+    axis[2] = 0.0;
+    axis[maxi] = ((plane[maxi] < 0.0) ? -1.0 : 1.0);
+
+    // Create two orthogonal axes
+    double saxis[3], taxis[3];
+    taxis[0] = 0.0;
+    taxis[1] = 1.0;
+    taxis[2] = 0.0;
+    if (maxi == 1)
+      {
+      taxis[1] = 0.0;
+      taxis[2] = 1.0;
+      }
+    vtkMath::Cross(taxis, axis, saxis);
+
+    // The normal is the first three elements
+    double *normal = plane;
+
+    // The last element is -dot(normal, origin)
+    double dp = (-plane[3] +
+                 wplane[0]*propMatrix->Element[0][3] +
+                 wplane[1]*propMatrix->Element[1][3] +
+                 wplane[2]*propMatrix->Element[2][3]);
+
+    // Compute the rotation angle between the axis and the normal
+    double vec[3];
+    vtkMath::Cross(axis, normal, vec);
+    double costheta = vtkMath::Dot(axis, normal);
+    double sintheta = vtkMath::Norm(vec);
+    double theta = atan2(sintheta, costheta);
+    if (sintheta != 0)
+      {
+      vec[0] /= sintheta;
+      vec[1] /= sintheta;
+      vec[2] /= sintheta;
+      }
+    // convert to quaternion
+    costheta = cos(0.5*theta);
+    sintheta = sin(0.5*theta);
+    double quat[4];
+    quat[0] = costheta;
+    quat[1] = vec[0]*sintheta;
+    quat[2] = vec[1]*sintheta;
+    quat[3] = vec[2]*sintheta;
+    // convert to matrix
+    double mat[3][3];
+    vtkMath::QuaternionToMatrix3x3(quat, mat);
+
+    // Create a slice-to-data transform matrix
+    // The columns are v1, v2, normal
+    double v1[3], v2[3];
+    vtkMath::Multiply3x3(mat, saxis, v1);
+    vtkMath::Multiply3x3(mat, taxis, v2);
+
+    resliceMatrix->Element[0][0] = v1[0];
+    resliceMatrix->Element[1][0] = v1[1];
+    resliceMatrix->Element[2][0] = v1[2];
+    resliceMatrix->Element[3][0] = 0.0;
+
+    resliceMatrix->Element[0][1] = v2[0];
+    resliceMatrix->Element[1][1] = v2[1];
+    resliceMatrix->Element[2][1] = v2[2];
+    resliceMatrix->Element[3][1] = 0.0;
+
+    resliceMatrix->Element[0][2] = normal[0];
+    resliceMatrix->Element[1][2] = normal[1];
+    resliceMatrix->Element[2][2] = normal[2];
+    resliceMatrix->Element[3][2] = 0.0;
+
+    resliceMatrix->Element[0][3] = dp*(propMatrix->Element[2][0] - normal[0]) -
+      (propMatrix->Element[0][3]*propMatrix->Element[0][0] +
+       propMatrix->Element[1][3]*propMatrix->Element[1][0] +
+       propMatrix->Element[2][3]*propMatrix->Element[2][0]);
+    resliceMatrix->Element[1][3] = dp*(propMatrix->Element[2][1] - normal[1]) -
+      (propMatrix->Element[0][3]*propMatrix->Element[0][1] +
+       propMatrix->Element[1][3]*propMatrix->Element[1][1] +
+       propMatrix->Element[2][3]*propMatrix->Element[2][1]);
+    resliceMatrix->Element[2][3] = dp*(propMatrix->Element[2][2] - normal[2]) -
+      (propMatrix->Element[0][3]*propMatrix->Element[0][2] +
+       propMatrix->Element[1][3]*propMatrix->Element[1][2] +
+       propMatrix->Element[2][3]*propMatrix->Element[2][2]);
+    resliceMatrix->Element[3][3] = 1.0;
+
+    // Compute the SliceToWorldMatrix
+    vtkMatrix4x4::Multiply4x4(propMatrix, resliceMatrix,
+      this->SliceToWorldMatrix);
     }
 
-  // Create the corresponding axis
-  double axis[3];
-  axis[0] = 0.0;
-  axis[1] = 0.0;
-  axis[2] = 0.0;
-  axis[maxi] = ((plane[maxi] < 0.0) ? -1.0 : 1.0);
-
-  // Create two orthogonal axes
-  double saxis[3], taxis[3];
-  taxis[0] = 0.0;
-  taxis[1] = 1.0;
-  taxis[2] = 0.0;
-  if (maxi == 1)
+  // If matrix changed, mark as modified so that Reslice will update
+  int matrixChanged = 0;
+  for (int j = 0; j < 16; j++)
     {
-    taxis[1] = 0.0;
-    taxis[2] = 1.0;
+    matrixChanged |= (matrixElements[j] != oldMatrixElements[j]);
     }
-  vtkMath::Cross(taxis, axis, saxis);
-
-  // The normal is the first three elements
-  double *normal = plane;
-
-  // The last element is -dot(normal, origin)
-  double dp = (-plane[3] +
-               wplane[0]*propMatrix->Element[0][3] +
-               wplane[1]*propMatrix->Element[1][3] +
-               wplane[2]*propMatrix->Element[2][3]);
-
-  // Compute the rotation angle between the axis and the normal
-  double vec[3];
-  vtkMath::Cross(axis, normal, vec);
-  double costheta = vtkMath::Dot(axis, normal);
-  double sintheta = vtkMath::Norm(vec);
-  double theta = atan2(sintheta, costheta);
-  if (sintheta != 0)
+  if (matrixChanged)
     {
-    vec[0] /= sintheta;
-    vec[1] /= sintheta;
-    vec[2] /= sintheta;
+    this->ResliceMatrix->Modified();
     }
-  // convert to quaternion
-  costheta = cos(0.5*theta);
-  sintheta = sin(0.5*theta);
-  double quat[4];
-  quat[0] = costheta;
-  quat[1] = vec[0]*sintheta;
-  quat[2] = vec[1]*sintheta;
-  quat[3] = vec[2]*sintheta;
-  // convert to matrix
-  double mat[3][3];
-  vtkMath::QuaternionToMatrix3x3(quat, mat);
-
-  // Create a slice-to-data transform matrix
-  // The columns are v1, v2, normal
-  double v1[3], v2[3];
-  vtkMath::Multiply3x3(mat, saxis, v1);
-  vtkMath::Multiply3x3(mat, taxis, v2);
-
-  resliceMatrix->Element[0][0] = v1[0];
-  resliceMatrix->Element[1][0] = v1[1];
-  resliceMatrix->Element[2][0] = v1[2];
-  resliceMatrix->Element[3][0] = 0.0;
-
-  resliceMatrix->Element[0][1] = v2[0];
-  resliceMatrix->Element[1][1] = v2[1];
-  resliceMatrix->Element[2][1] = v2[2];
-  resliceMatrix->Element[3][1] = 0.0;
-
-  resliceMatrix->Element[0][2] = normal[0];
-  resliceMatrix->Element[1][2] = normal[1];
-  resliceMatrix->Element[2][2] = normal[2];
-  resliceMatrix->Element[3][2] = 0.0;
-
-  resliceMatrix->Element[0][3] = dp*(propMatrix->Element[2][0] - normal[0]) -
-    (propMatrix->Element[0][3]*propMatrix->Element[0][0] +
-     propMatrix->Element[1][3]*propMatrix->Element[1][0] +
-     propMatrix->Element[2][3]*propMatrix->Element[2][0]);
-  resliceMatrix->Element[1][3] = dp*(propMatrix->Element[2][1] - normal[1]) -
-    (propMatrix->Element[0][3]*propMatrix->Element[0][1] +
-     propMatrix->Element[1][3]*propMatrix->Element[1][1] +
-     propMatrix->Element[2][3]*propMatrix->Element[2][1]);
-  resliceMatrix->Element[2][3] = dp*(propMatrix->Element[2][2] - normal[2]) -
-    (propMatrix->Element[0][3]*propMatrix->Element[0][2] +
-     propMatrix->Element[1][3]*propMatrix->Element[1][2] +
-     propMatrix->Element[2][3]*propMatrix->Element[2][2]);
-  resliceMatrix->Element[3][3] = 1.0;
-
-  // Compute the SliceToWorldMatrix
-  vtkMatrix4x4::Multiply4x4(propMatrix, resliceMatrix,
-    this->SliceToWorldMatrix);
 }
 
 //----------------------------------------------------------------------------
@@ -1295,6 +1366,8 @@ void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "JumpToNearestSlice: "
+     << (this->JumpToNearestSlice ? "On\n" : "Off\n");
   os << indent << "AutoAdjustImageQuality: "
      << (this->AutoAdjustImageQuality ? "On\n" : "Off\n");
   os << indent << "SeparateWindowLevelOperation: "

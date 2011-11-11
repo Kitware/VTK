@@ -22,6 +22,7 @@ SET(Kit_SRCS
   vtkChart.cxx
   vtkChartLegend.cxx
   vtkChartHistogram2D.cxx
+  vtkChartMatrix.cxx
   vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
   vtkChartPie.cxx
@@ -63,6 +64,7 @@ SET(Kit_SRCS
   vtkPlotParallelCoordinates.cxx
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
+  vtkScatterPlotMatrix.cxx
   vtkTooltipItem.cxx
   )
 

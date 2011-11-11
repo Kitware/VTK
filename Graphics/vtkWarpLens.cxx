@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkWarpLens.h"
 
+#include "vtkImageData.h"
+#include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -21,6 +23,11 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridToPointSet.h"
+
+#include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkWarpLens);
 
@@ -63,7 +70,43 @@ vtkWarpLens::vtkWarpLens()
   this->FormatWidth = 1.0;
   this->FormatHeight = 1.0;
   this->ImageWidth = 1;
-  this->ImageHeight = 1;        
+  this->ImageHeight = 1;
+}
+
+int vtkWarpLens::FillInputPortInformation(int vtkNotUsed(port),
+                                          vtkInformation *info)
+{
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
+}
+
+int vtkWarpLens::RequestDataObject(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
+                                   vtkInformationVector *outputVector)
+{
+  vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+  vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+
+  if (inImage || inRect)
+    {
+    vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
+    if (!output)
+      {
+      vtkNew<vtkStructuredGrid> newOutput;
+      outputVector->GetInformationObject(0)->Set(
+        vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
+      }
+    return 1;
+    }
+  else
+    {
+    return this->Superclass::RequestDataObject(request,
+                                               inputVector,
+                                               outputVector);
+    }
 }
 
 int vtkWarpLens::RequestData(
@@ -71,15 +114,40 @@ int vtkWarpLens::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
+  vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
-  // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointSet *output = vtkPointSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input)
+    {
+    // Try converting image data.
+    vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+    if (inImage)
+      {
+      vtkNew<vtkImageDataToPointSet> image2points;
+      image2points->SetInputData(inImage);
+      image2points->Update();
+      input = image2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    // Try converting rectilinear grid.
+    vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+    if (inRect)
+      {
+      vtkNew<vtkRectilinearGridToPointSet> rect2points;
+      rect2points->SetInputData(inRect);
+      rect2points->Update();
+      input = rect2points->GetOutput();
+      }
+    }
+
+  if (!input)
+    {
+    vtkErrorMacro(<< "Invalid or missing input");
+    return 0;
+    }
 
   vtkPoints *inPts;
   vtkPoints *newPts;
@@ -90,13 +158,13 @@ int vtkWarpLens::RequestData(
   double newX;
   double newY;
   double rSquared;
-  
+
   vtkDebugMacro(<<"Warping data to a point");
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  inPts = input->GetPoints();  
+  inPts = input->GetPoints();
   if (!inPts )
     {
     vtkErrorMacro(<<"No input data");
@@ -104,7 +172,7 @@ int vtkWarpLens::RequestData(
     }
 
   numPts = inPts->GetNumberOfPoints();
-  newPts = vtkPoints::New(); 
+  newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
 
   //
@@ -142,9 +210,9 @@ int vtkWarpLens::RequestData(
     // Convert back to pixels
     //
     newPixel[0] = (newX + this->PrincipalPoint[0]) / this->FormatWidth *
-      this->ImageWidth; 
-    newPixel[1] = (newY - this->PrincipalPoint[1]) / 
-      this->FormatHeight * this->ImageHeight * -1; 
+      this->ImageWidth;
+    newPixel[1] = (newY - this->PrincipalPoint[1]) /
+      this->FormatHeight * this->ImageHeight * -1;
 
     newPixel[2] = pixel[2];             // pixel color
     newPts->SetPoint(ptId, newPixel);
@@ -165,8 +233,8 @@ int vtkWarpLens::RequestData(
 void vtkWarpLens::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "PrincipalPoint: (" << this->PrincipalPoint[0] << ", " 
+
+  os << indent << "PrincipalPoint: (" << this->PrincipalPoint[0] << ", "
     << this->PrincipalPoint[1] << ") in mm\n";
   os << indent << "K1: " << this->K1 << "\n";
   os << indent << "K2: " << this->K2 << "\n";

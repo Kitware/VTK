@@ -14,7 +14,6 @@ IF(PYTHON_EXECUTABLE)
     "${VTK_SOURCE_DIR}/Infovis"
     VTK_INFOVIS_EXPORT
     vtkArrayNorm.h
-    vtkBivariateStatisticsAlgorithmPrivate.h 
     vtkMultiCorrelativeStatisticsAssessFunctor.h 
     vtkKMeansAssessFunctor.h 
     vtkBoostGraphAdapter.h
@@ -22,6 +21,5 @@ IF(PYTHON_EXECUTABLE)
     vtkSQLDatabaseGraphSource.h
     vtkSQLDatabaseTableSource.h
     vtkStatisticsAlgorithmPrivate.h 
-    vtkUnivariateStatisticsAlgorithmPrivate.h
     )
 ENDIF(PYTHON_EXECUTABLE)

@@ -5,6 +5,8 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
   # add tests that do not require data
   SET(MyTests
     TestContextScene.cxx
+    TestControlPointsItem.cxx
+    TestControlPointsItemEvents.cxx
     TestVector.cxx
     )
 
@@ -15,6 +17,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestBarGraph.cxx
       TestBarGraphHorizontal.cxx
       TestColorTransferFunction.cxx
+      TestChartMatrix.cxx
       TestChartsOn3D.cxx
       TestContext.cxx
       TestContextImage.cxx
@@ -34,6 +37,8 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestPlotMatrix.cxx
       TestScalarsToColors.cxx
       TestScatterPlot.cxx
+      TestScatterPlotMatrix.cxx
+      TestScatterPlotMatrixVisible.cxx
       TestScientificPlot.cxx
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx
