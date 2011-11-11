@@ -59,7 +59,7 @@ int TestColorTransferFunction(int ,  char * [])
 
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(1);
-  if (view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
+  if (view->GetContext()->GetDevice()->IsA("vtkOpenGLContextDevice2D"))
     {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();

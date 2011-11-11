@@ -229,7 +229,7 @@ hsize_t DataSet::getStorageSize() const
 //--------------------------------------------------------------------------
 size_t DataSet::getInMemDataSize() const
 {
-    char *func = "DataSet::getInMemDataSize";
+    const char *func = "DataSet::getInMemDataSize";
 
     // Get the data type of this dataset
     hid_t mem_type_id = H5Dget_type(id);

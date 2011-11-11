@@ -40,6 +40,7 @@
 #include "vtkPolyDataContourLineInterpolator.h"
 
 class vtkDijkstraGraphGeodesicPath;
+class vtkIdList;
 
 class VTK_WIDGETS_EXPORT vtkPolygonalSurfaceContourLineInterpolator : public vtkPolyDataContourLineInterpolator
 {
@@ -76,6 +77,11 @@ public:
   // vtkPolyDataNormals).
   vtkSetMacro( DistanceOffset, double ); 
   vtkGetMacro( DistanceOffset, double ); 
+
+  // Description:
+  // Get the contour point ids. These point ids correspond to those on the
+  // polygonal surface
+  void GetContourPointIds( vtkContourRepresentation *rep, vtkIdList *idList );
   
 protected:
   vtkPolygonalSurfaceContourLineInterpolator();

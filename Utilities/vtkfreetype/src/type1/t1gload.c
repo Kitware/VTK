@@ -401,7 +401,7 @@
           FIXED_TO_INT( decoder.builder.advance.x );
         glyph->root.internal->glyph_transformed = 0;
 
-        if ( load_flags & FT_LOAD_VERTICAL_LAYOUT )
+        if ( load_flags & FT_LOAD_VERTICAL_LAYOUT ) 
         {
           /* make up vertical ones */
           metrics->vertAdvance = ( face->type1.font_bbox.yMax -
@@ -474,7 +474,7 @@
         metrics->horiBearingX = cbox.xMin;
         metrics->horiBearingY = cbox.yMax;
 
-        if ( load_flags & FT_LOAD_VERTICAL_LAYOUT )
+        if ( load_flags & FT_LOAD_VERTICAL_LAYOUT ) 
         {
           /* make up vertical ones */
           ft_synthesize_vertical_metrics( metrics,

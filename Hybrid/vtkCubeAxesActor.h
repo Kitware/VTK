@@ -41,7 +41,15 @@ All rights reserve
 // The Bounds instance variable (an array of six doubles) is used to determine
 // the bounding box.
 //
-// .SECTION See Also
+// .SECTION Thanks
+// This class was written by:
+// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
+// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
+// Aashish Chaudhary, Philippe Pébay, David Gobbi, David Partyka, Utkarsh Ayachit
+// David Cole, François Bertel, and Mark Olesen
+// 
+//
+// .section See Also
 // vtkActor vtkAxisActor vtkCubeAxesActor2D
 
 #ifndef __vtkCubeAxesActor_h
@@ -78,7 +86,15 @@ public:
   // Description:
   // Draw the axes as per the vtkProp superclass' API.
   virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentGeometry(vtkViewport*);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int RenderOverlay(vtkViewport*);
+  int HasTranslucentPolygonalGeometry();
+
+  // Description:
+  // Gets/Sets the RebuildAxes flag
+  vtkSetMacro( RebuildAxes, bool );
+  vtkGetMacro( RebuildAxes, bool );
 
   // Description:
   // Explicitly specify the region in space around which to draw the bounds.
@@ -247,6 +263,66 @@ public:
   vtkGetMacro(DrawZGridlines,int);
   vtkBooleanMacro(DrawZGridlines,int);
 
+  vtkSetMacro(DrawXInnerGridlines,int);
+  vtkGetMacro(DrawXInnerGridlines,int);
+  vtkBooleanMacro(DrawXInnerGridlines,int);
+
+  vtkSetMacro(DrawYInnerGridlines,int);
+  vtkGetMacro(DrawYInnerGridlines,int);
+  vtkBooleanMacro(DrawYInnerGridlines,int);
+
+  vtkSetMacro(DrawZInnerGridlines,int);
+  vtkGetMacro(DrawZInnerGridlines,int);
+  vtkBooleanMacro(DrawZInnerGridlines,int);
+
+  vtkSetMacro(DrawXGridpolys,int);
+  vtkGetMacro(DrawXGridpolys,int);
+  vtkBooleanMacro(DrawXGridpolys,int);
+
+  vtkSetMacro(DrawYGridpolys,int);
+  vtkGetMacro(DrawYGridpolys,int);
+  vtkBooleanMacro(DrawYGridpolys,int);
+
+  vtkSetMacro(DrawZGridpolys,int);
+  vtkGetMacro(DrawZGridpolys,int);
+  vtkBooleanMacro(DrawZGridpolys,int);
+
+  // Description:
+  // Get/Set axes actors properties.
+  void SetXAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesLinesProperty();
+  void SetYAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesLinesProperty();
+  void SetZAxesLinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesLinesProperty();
+
+  // Description:
+  // Get/Set axes (outer) gridlines actors properties.
+  void SetXAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesGridlinesProperty();
+  void SetYAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesGridlinesProperty();
+  void SetZAxesGridlinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesGridlinesProperty();
+ 
+  // Description:
+  // Get/Set axes inner gridlines actors properties.
+  void SetXAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetXAxesInnerGridlinesProperty();
+  void SetYAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetYAxesInnerGridlinesProperty();
+  void SetZAxesInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetZAxesInnerGridlinesProperty();
+
+  // Description:
+  // Get/Set axes gridPolys actors properties.
+  void SetXAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetXAxesGridpolysProperty();
+  void SetYAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetYAxesGridpolysProperty();
+  void SetZAxesGridpolysProperty(vtkProperty *);
+  vtkProperty* GetZAxesGridpolysProperty();
+
   // Description:
   // Set/Get the location of ticks marks.
   vtkSetClampMacro(TickLocation, int, VTK_TICKS_INSIDE, VTK_TICKS_BOTH);
@@ -260,6 +336,14 @@ public:
     { this->SetTickLocation(VTK_TICKS_BOTH); };
 
   void SetLabelScaling(bool, int, int, int);
+
+  //! use textactor if val = 1 (2D) instead of follower (3D - val = 0) for title 
+  void SetUse2DMode( int val );
+  //! return 1 if textactor is used
+  int GetUse2DMode();
+  //! for 2D axis only : during the next render, the axis positions have to be save for later use.
+  void SetSaveTitlePosition( int val );
+      
   // Description:
   // Shallow copy of a KatCubeAxesActor.
   void ShallowCopy(vtkCubeAxesActor *actor);
@@ -286,11 +370,14 @@ protected:
 
   int FlyMode;
 
-  // to control all axes
-  // [0] always for 'Major' axis during non-static fly modes.
+  // Description:
+  // Control variables for all axes
+  // NB: [0] always for 'Major' axis during non-static fly modes.
   vtkAxisActor *XAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *YAxes[NUMBER_OF_ALIGNED_AXIS];
   vtkAxisActor *ZAxes[NUMBER_OF_ALIGNED_AXIS];
+
+  bool RebuildAxes;
 
   char *XTitle;
   char *XUnits;
@@ -325,6 +412,14 @@ protected:
   int DrawYGridlines;
   int DrawZGridlines;
 
+  int DrawXInnerGridlines;
+  int DrawYInnerGridlines;
+  int DrawZInnerGridlines;
+
+  int DrawXGridpolys;
+  int DrawYGridpolys;
+  int DrawZGridpolys;
+
   char  *XLabelFormat;
   char  *YLabelFormat;
   char  *ZLabelFormat;
@@ -341,6 +436,19 @@ protected:
 
   double LabelScreenOffset;
   double TitleScreenOffset;
+
+  vtkProperty  *XAxesLinesProperty;
+  vtkProperty  *YAxesLinesProperty;
+  vtkProperty  *ZAxesLinesProperty;
+  vtkProperty  *XAxesGridlinesProperty;
+  vtkProperty  *YAxesGridlinesProperty;
+  vtkProperty  *ZAxesGridlinesProperty;
+  vtkProperty  *XAxesInnerGridlinesProperty;
+  vtkProperty  *YAxesInnerGridlinesProperty;
+  vtkProperty  *ZAxesInnerGridlinesProperty;
+  vtkProperty  *XAxesGridpolysProperty;
+  vtkProperty  *YAxesGridpolysProperty;
+  vtkProperty  *ZAxesGridpolysProperty;
 
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
@@ -396,7 +504,12 @@ private:
 
   double ScreenSize;
 
-  // various helper methods
+  // Description:
+  // Major start and delta values, in each direction.
+  // These values are needed for inner grid lines generation
+  double MajorStart[3];
+  double DeltaMajor[3];
+
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
                         double pts[8][3]);
   void  AdjustAxes(double bounds[6],
@@ -421,7 +534,6 @@ private:
   void    AutoScale(vtkViewport *viewport, vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS]);
   double  AutoScale(vtkViewport *viewport, double screenSize, double position[3]);
 
-  // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 };
 

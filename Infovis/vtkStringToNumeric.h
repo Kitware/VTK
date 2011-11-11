@@ -34,6 +34,13 @@ public:
   static vtkStringToNumeric* New();
   vtkTypeMacro(vtkStringToNumeric,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Convert all numeric columns to vtkDoubleArray, even if they
+  // contain only integer values. Default is off.
+  vtkSetMacro(ForceDouble, bool);
+  vtkGetMacro(ForceDouble, bool);
+  vtkBooleanMacro(ForceDouble, bool);
   
   // Description:
   // Whether to detect and convert field data arrays.  Default is on.
@@ -100,6 +107,7 @@ protected:
   bool ConvertFieldData;
   bool ConvertPointData;
   bool ConvertCellData;
+  bool ForceDouble;
 
   // Description:
   // Count the total number of items (array components) that will need

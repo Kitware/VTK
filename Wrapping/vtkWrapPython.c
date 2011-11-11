@@ -3081,23 +3081,12 @@ static void vtkWrapPython_CustomMethods(
   if (strcmp("vtkObject", data->Name) == 0 &&
       do_constructors == 0)
     {
-    /* remove the original vtkCommand observer methods */
+    /* Remove the original AddObserver method */
     for (i = 0; i < data->NumberOfFunctions; i++)
       {
       theFunc = data->Functions[i];
 
-      if ((strcmp(theFunc->Name, "AddObserver") == 0) ||
-          (strcmp(theFunc->Name, "GetCommand") == 0) ||
-          ((strcmp(theFunc->Name, "RemoveObserver") == 0) &&
-           (theFunc->Arguments[0]->Type != VTK_PARSE_UNSIGNED_LONG)) ||
-          (((strcmp(theFunc->Name, "RemoveObservers") == 0) ||
-            (strcmp(theFunc->Name, "HasObserver") == 0)) &&
-           (((theFunc->Arguments[0]->Type != VTK_PARSE_UNSIGNED_LONG) &&
-             (theFunc->Arguments[0]->Type !=
-              (VTK_PARSE_CHAR_PTR|VTK_PARSE_CONST))) ||
-            (theFunc->NumberOfArguments > 1))) ||
-          ((strcmp(theFunc->Name, "RemoveAllObservers") == 0) &&
-           (theFunc->NumberOfArguments > 0)))
+      if (strcmp(theFunc->Name, "AddObserver") == 0)
         {
         data->Functions[i]->Name = NULL;
         }

@@ -61,9 +61,9 @@ public:
 
   // Description:
   // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
 protected:
   vtkPContingencyStatistics();
@@ -71,30 +71,22 @@ protected:
 
 //BTX
   // Description:
-  // Pack all entries of a contingency table in:
-  // 1. a single string for all realizations of pairs of categorical variables, and
-  // 2. a single vector for the corresponding keys and cardinalities
-  bool Pack( vtkTable* contingencyTab,
-             vtkStdString& xyPacked,
-             vtkstd::vector<vtkIdType>& kcValues );
-
-  // Description:
   // Reduce the collection of local contingency tables to the global one
-  bool Reduce( vtkIdType& xySizeTotal,
-               char* xyPacked_g,
-               vtkStdString& xyPacked_l,
-               vtkIdType& kcSizeTotal,
-               vtkIdType*  kcValues_g,
-               vtkstd::vector<vtkIdType>& kcValues_l );
+  bool Reduce( vtkIdType&,
+               char*,
+               vtkStdString&,
+               vtkIdType&,
+               vtkIdType*,
+               vtkstd::vector<vtkIdType>& );
 
   // Description:
   // Broadcast reduced contingency table to all processes
-  bool Broadcast( vtkIdType xySizeTotal,
-                  vtkStdString& xyPacked,
-                  vtkstd::vector<vtkStdString>& xyValues,
-                  vtkIdType kcSizeTotal,
-                  vtkstd::vector<vtkIdType>& kcValues,
-                  vtkIdType reduceProc );
+  bool Broadcast( vtkIdType,
+                  vtkStdString&,
+                  vtkstd::vector<vtkStdString>&,
+                  vtkIdType,
+                  vtkstd::vector<vtkIdType>&,
+                  vtkIdType );
 //ETX
 
   vtkMultiProcessController* Controller;

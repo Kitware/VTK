@@ -67,6 +67,15 @@ void vtkPiecewiseControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkPiecewiseControlPointsItem::emitEvent(unsigned long event, void* params)
+{
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->InvokeEvent(event, params);
+    }
+}
+
+//-----------------------------------------------------------------------------
 unsigned long int vtkPiecewiseControlPointsItem::GetControlPointsMTime()
 {
   if (this->PiecewiseFunction)
@@ -79,25 +88,33 @@ unsigned long int vtkPiecewiseControlPointsItem::GetControlPointsMTime()
 //-----------------------------------------------------------------------------
 void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
+  if (t == this->PiecewiseFunction)
+    {
+    return;
+    }
   vtkSetObjectBodyMacro(PiecewiseFunction, vtkPiecewiseFunction, t);
   if (this->PiecewiseFunction)
     {
+    this->PiecewiseFunction->AddObserver(vtkCommand::StartEvent, this->Callback);
     this->PiecewiseFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
+    this->PiecewiseFunction->AddObserver(vtkCommand::EndEvent, this->Callback);
     }
   this->ResetBounds();
   this->ComputePoints();
 }
 
 //-----------------------------------------------------------------------------
-int vtkPiecewiseControlPointsItem::GetNumberOfPoints()const
+vtkIdType vtkPiecewiseControlPointsItem::GetNumberOfPoints()const
 {
-  return this->PiecewiseFunction ? this->PiecewiseFunction->GetSize() : 0;
+  return this->PiecewiseFunction ?
+    static_cast<vtkIdType>(this->PiecewiseFunction->GetSize()) : 0;
 }
 
 //-----------------------------------------------------------------------------
-void vtkPiecewiseControlPointsItem::GetControlPoint(vtkIdType index, double* pos)
+void vtkPiecewiseControlPointsItem::GetControlPoint(vtkIdType index, double* pos)const
 {
-  this->PiecewiseFunction->GetNodeValue(index, pos);
+  const_cast<vtkPiecewiseFunction*>(this->PiecewiseFunction)
+    ->GetNodeValue(index, pos);
 }
 
 //-----------------------------------------------------------------------------

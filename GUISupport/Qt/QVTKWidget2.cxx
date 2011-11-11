@@ -378,6 +378,11 @@ void QVTKWidget2::dropEvent(QDropEvent* e)
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
 }
+  
+bool QVTKWidget2::focusNextPrevChild(bool)
+{
+  return false;
+}
 
 #ifdef VTK_USE_TDX
 // Description:

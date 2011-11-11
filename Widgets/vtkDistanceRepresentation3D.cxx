@@ -104,6 +104,12 @@ vtkDistanceRepresentation3D::vtkDistanceRepresentation3D()
 
   // Scaling the label
   this->LabelScaleSpecified = false;
+
+  // Controling scaling and label position
+  this->GlyphScale = 1.0;
+  this->GlyphScaleSpecified = false;
+  this->LabelPosition = 0.5;
+  this->MaximumNumberOfRulerTicks = 99;
 }
 
 //----------------------------------------------------------------------
@@ -232,6 +238,10 @@ double *vtkDistanceRepresentation3D::GetBounds()
 void vtkDistanceRepresentation3D::BuildRepresentation()
 {
   if ( this->GetMTime() > this->BuildTime ||
+       this->LabelActor->GetMTime() > this->BuildTime ||
+       this->BoundingBox->GetMTime() > this->BuildTime ||
+       this->GlyphActor->GetMTime() > this->BuildTime ||
+       this->LineActor->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
@@ -252,11 +262,9 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
 
     // Label
     char string[512];
-    double pos[3];
     sprintf(string, this->LabelFormat, this->Distance);
     this->LabelText->SetText(string);
-    pos[0] = (p1[0]+p2[0])/2.0; pos[1] = (p1[1]+p2[1])/2.0; pos[2] = (p1[2]+p2[2])/2.0;
-    this->LabelActor->SetPosition(pos);
+    this->UpdateLabelPosition();
     if (this->Renderer) //make the label face the camera
       {
       this->LabelActor->SetCamera( this->Renderer->GetActiveCamera() );
@@ -278,12 +286,19 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
     this->GlyphPoints->Reset();
     this->GlyphPoints->Modified();
     this->GlyphVectors->Reset();
-    this->Glyph3D->SetScaleFactor(this->Distance/40);
+    if (this->GlyphScaleSpecified)
+      {
+      this->Glyph3D->SetScaleFactor(this->GlyphScale);
+      }
+    else
+      {
+      this->Glyph3D->SetScaleFactor(this->Distance/40);
+      }    
     double distance;
     if ( this->RulerMode ) // specified tick separation
       {
       numTicks = (this->RulerDistance <= 0.0 ? 1 : static_cast<int>(this->Distance / this->RulerDistance));
-      numTicks = (numTicks > 99 ? 99 : numTicks);
+      numTicks = (numTicks > this->MaximumNumberOfRulerTicks ? this->MaximumNumberOfRulerTicks : numTicks);
       distance = this->RulerDistance;
       }
     else //evenly spaced
@@ -360,8 +375,73 @@ vtkProperty * vtkDistanceRepresentation3D::GetLabelProperty()
 }
 
 //----------------------------------------------------------------------
+void vtkDistanceRepresentation3D::SetGlyphScale( double scale )
+{
+  this->GlyphScale = scale;
+  this->GlyphScaleSpecified = true;
+}
+ 
+//----------------------------------------------------------------------------
+vtkProperty * vtkDistanceRepresentation3D::GetLineProperty()
+{
+  return this->LineActor->GetProperty();
+}
+ 
+//----------------------------------------------------------------------
+void vtkDistanceRepresentation3D::SetLabelPosition(double labelPosition)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting LabelPosition to " << labelPosition);
+ 
+  if (this->LabelPosition == labelPosition)
+    {
+    ;
+    }
+  else
+    {
+    this->LabelPosition = labelPosition;
+    }
+  this->UpdateLabelPosition();
+ }
+ 
+//----------------------------------------------------------------------
+void vtkDistanceRepresentation3D::UpdateLabelPosition()
+{
+  if (!this->Point1Representation ||
+      !this->Point2Representation)
+    {
+    return;
+    }
+ 
+  // get the end points
+  double p1[3], p2[3];
+  this->Point1Representation->GetWorldPosition(p1);
+  this->Point2Representation->GetWorldPosition(p2);
+  double pos[3];
+ 
+  pos[0] = p1[0] + (p2[0] - p1[0]) * this->LabelPosition;
+  pos[1] = p1[1] + (p2[1] - p1[1]) * this->LabelPosition;
+  pos[2] = p1[2] + (p2[2] - p1[2]) * this->LabelPosition;
+ 
+  // and set it on the actor
+  double * actorPos = this->LabelActor->GetPosition();
+  double diff = sqrt(vtkMath::Distance2BetweenPoints(pos, actorPos));
+  if (diff > 0.001)
+    {
+    this->LabelActor->SetPosition(pos);
+    }
+ }
+
+//----------------------------------------------------------------------
 void vtkDistanceRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Distance: " << this->Distance << endl;
+  os << indent << "Label Scale Specified: " << (this->LabelScaleSpecified ? "true" : "false") << endl;
+  os << indent << "Label Position: " << this->LabelPosition << endl;
+  os << indent << "Maximum Number Of Ticks: " << this->MaximumNumberOfRulerTicks << endl;
+  os << indent << "Glyph Scale: " << this->GlyphScale << endl;
+  os << indent << "LabelActor: " << this->LabelActor << endl;
+  os << indent << "GlyphActor: " << this->GlyphActor << endl;
 }

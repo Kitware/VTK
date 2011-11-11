@@ -624,7 +624,8 @@ void vtkContourWidget::ResetAction( vtkAbstractWidget *w )
 }
 
 //----------------------------------------------------------------------
-void vtkContourWidget::Initialize( vtkPolyData * pd, int state )
+void vtkContourWidget::Initialize( vtkPolyData * pd,
+    int state, vtkIdList *idList )
 {
   if ( !this->GetEnabled() )
     {
@@ -633,7 +634,7 @@ void vtkContourWidget::Initialize( vtkPolyData * pd, int state )
 
   if ( this->WidgetRep )
     {
-    vtkContourRepresentation *rep = 
+    vtkContourRepresentation *rep =
       reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
 
     if ( pd == NULL )
@@ -650,7 +651,7 @@ void vtkContourWidget::Initialize( vtkPolyData * pd, int state )
       }
     else
       {
-      rep->Initialize( pd );
+      rep->Initialize( pd, idList );
       this->WidgetState = ( rep->GetClosedLoop() || state == 1 ) ?
         vtkContourWidget::Manipulate : vtkContourWidget::Define;
       }

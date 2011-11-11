@@ -80,13 +80,6 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     test_expression(!b1);
 
-    // Test sparse-array too many values ...
-    vtkstd::istringstream c_buffer("vtk-sparse-array double\nascii\nc1\n0 2 0 2 1\nrows\ncolumns\n0\n0 0 1.1\n0 1 2.2\n");
-    vtkSmartPointer<vtkArray> c1;
-    c1.TakeReference(vtkArrayReader::Read(c_buffer));
-
-    test_expression(!c1);
-
     // Test sparse-array not enough values ...
     vtkstd::istringstream d_buffer("vtk-sparse-array double\nascii\nd1\n0 2 0 2 1\nrows\ncolumns\n0\n");
     vtkSmartPointer<vtkArray> d1;

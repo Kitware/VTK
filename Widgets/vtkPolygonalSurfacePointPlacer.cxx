@@ -28,6 +28,7 @@
 #include "vtkMath.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkIdList.h"
 
 #include "vtkstd/vector"
 
@@ -35,27 +36,27 @@ class vtkPolygonalSurfacePointPlacerInternals
 {
 
 public:
-  typedef vtkstd::vector< 
+  typedef vtkstd::vector<
     vtkPolygonalSurfacePointPlacerNode * > NodesContainerType;
 
   NodesContainerType Nodes;
-  
+
   ~vtkPolygonalSurfacePointPlacerInternals()
     {
     for (unsigned int i = 0; i < this->Nodes.size(); i++)
-      { 
+      {
       delete this->Nodes[i];
       }
     this->Nodes.clear();
     }
 
-  vtkPolygonalSurfacePointPlacerNode 
+  vtkPolygonalSurfacePointPlacerNode
     *GetNodeAtSurfaceWorldPosition( double worldPos[3] )
     {
     const double tolerance = 0.0005;
     for (unsigned int i = 0; i < this->Nodes.size(); i++)
-      { 
-      if (vtkMath::Distance2BetweenPoints( 
+      {
+      if (vtkMath::Distance2BetweenPoints(
           this->Nodes[i]->SurfaceWorldPosition, worldPos ) < tolerance)
         {
         return this->Nodes[i];
@@ -64,13 +65,13 @@ public:
     return NULL;
     }
 
-  vtkPolygonalSurfacePointPlacerNode 
+  vtkPolygonalSurfacePointPlacerNode
     *GetNodeAtWorldPosition( double worldPos[3] )
     {
     const double tolerance = 0.0005;
     for (unsigned int i = 0; i < this->Nodes.size(); i++)
-      { 
-      if (vtkMath::Distance2BetweenPoints( 
+      {
+      if (vtkMath::Distance2BetweenPoints(
           this->Nodes[i]->WorldPosition, worldPos ) < tolerance)
         {
         return this->Nodes[i];
@@ -78,10 +79,11 @@ public:
       }
     return NULL;
     }
-    
-    vtkPolygonalSurfacePointPlacerNode 
-      *InsertNodeAtCurrentPickPosition( vtkCellPicker *picker, 
-                                        const double distanceOffset )
+
+    vtkPolygonalSurfacePointPlacerNode
+      *InsertNodeAtCurrentPickPosition( vtkCellPicker *picker,
+                                        const double distanceOffset,
+                                        int snapToClosestPoint )
     {
     double worldPos[3];
     picker->GetPickPosition(worldPos);
@@ -89,7 +91,7 @@ public:
     // Get a node at this position if one exists and overwrite it
     // with the current pick position. If one doesn't exist, add
     // a new node.
-    vtkPolygonalSurfacePointPlacerNode 
+    vtkPolygonalSurfacePointPlacerNode
        * node = this->GetNodeAtSurfaceWorldPosition(worldPos);
     if (!node)
       {
@@ -97,7 +99,7 @@ public:
       this->Nodes.push_back(node);
       }
 
-    vtkMapper *mapper = 
+    vtkMapper *mapper =
       vtkMapper::SafeDownCast(picker->GetMapper());
     if (!mapper)
       {
@@ -111,34 +113,96 @@ public:
       return NULL;
       }
 
+    node->CellId = picker->GetCellId();
+    picker->GetPCoords(node->ParametricCoords);
+
+    // translate to the closest point on that cell, if requested
+
+    if (snapToClosestPoint)
+      {
+      vtkIdList *ids = vtkIdList::New();
+      pd->GetCellPoints( picker->GetCellId(), ids );
+      double p[3], minDistance = VTK_DOUBLE_MAX;
+      for (vtkIdType i = 0; i < ids->GetNumberOfIds(); ++i)
+        {
+        pd->GetPoints()->GetPoint(ids->GetId(i), p);
+        const double dist2 = vtkMath::Distance2BetweenPoints(
+            worldPos, pd->GetPoints()->GetPoint(ids->GetId(i)));
+        if (dist2 < minDistance)
+          {
+          minDistance = dist2;
+          worldPos[0] = p[0];
+          worldPos[1] = p[1];
+          worldPos[2] = p[2];
+          }
+        }
+      ids->Delete();
+      }
+
     node->SurfaceWorldPosition[0] = worldPos[0];
     node->SurfaceWorldPosition[1] = worldPos[1];
     node->SurfaceWorldPosition[2] = worldPos[2];
-    node->CellId = picker->GetCellId();
-    picker->GetPCoords(node->ParametricCoords);
     node->PolyData = pd;
     double cellNormal[3];
 
     if (distanceOffset != 0.0)
       {
       pd->GetCellData()->GetNormals()->GetTuple( node->CellId, cellNormal );
-      
+
       // Polyline can be drawn on polydata at a height offset.
       for (unsigned int i =0; i < 3; i++)
-        { 
-        node->WorldPosition[i] = 
+        {
+        node->WorldPosition[i] =
           node->SurfaceWorldPosition[i] + cellNormal[i] * distanceOffset;
         }
       }
     else
       {
       for (unsigned int i =0; i < 3; i++)
-        { 
+        {
         node->WorldPosition[i] = node->SurfaceWorldPosition[i];
         }
       }
     return node;
     }
+
+
+    vtkPolygonalSurfacePointPlacerNode
+      *InsertNodeAtCurrentPickPosition( vtkPolyData *pd,
+                                        double worldPos[3],
+                                        vtkIdType cellId,
+                                        vtkIdType pointId,
+                                        const double distanceOffset,
+                                        int snapToClosestPoint )
+    {
+
+    // Get a node at this position if one exists and overwrite it
+    // with the current pick position. If one doesn't exist, add
+    // a new node.
+    vtkPolygonalSurfacePointPlacerNode
+       * node = this->GetNodeAtSurfaceWorldPosition(worldPos);
+    if (!node)
+      {
+      node = new vtkPolygonalSurfacePointPlacerNode;
+      this->Nodes.push_back(node);
+      }
+
+    node->CellId = cellId;
+    node->PointId = pointId;
+
+    node->SurfaceWorldPosition[0] = worldPos[0];
+    node->SurfaceWorldPosition[1] = worldPos[1];
+    node->SurfaceWorldPosition[2] = worldPos[2];
+    node->PolyData = pd;
+    double cellNormal[3];
+
+    for (unsigned int i =0; i < 3; i++)
+      {
+      node->WorldPosition[i] = node->SurfaceWorldPosition[i];
+      }
+    return node;
+    }
+   //ashish
 };
 
 vtkStandardNewMacro(vtkPolygonalSurfacePointPlacer);
@@ -153,6 +217,7 @@ vtkPolygonalSurfacePointPlacer::vtkPolygonalSurfacePointPlacer()
 
   this->Internals       = new vtkPolygonalSurfacePointPlacerInternals;
   this->DistanceOffset    = 0.0;
+  this->SnapToClosestPoint = 0;
 }
 
 //----------------------------------------------------------------------
@@ -200,11 +265,11 @@ int vtkPolygonalSurfacePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
                                       double worldPos[3],
                                       double vtkNotUsed(worldOrient)[9] )
 {
-  if ( this->CellPicker->Pick(displayPos[0], 
+  if ( this->CellPicker->Pick(displayPos[0],
                               displayPos[1], 0.0, ren) )
     {
 
-    vtkMapper *mapper = 
+    vtkMapper *mapper =
       vtkMapper::SafeDownCast(this->CellPicker->GetMapper());
     if (!mapper)
       {
@@ -217,7 +282,7 @@ int vtkPolygonalSurfacePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       {
       return 0;
       }
-      
+
     if (vtkAssemblyPath *path = this->CellPicker->GetPath())
       {
 
@@ -229,9 +294,9 @@ int vtkPolygonalSurfacePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       vtkAssemblyNode *node = NULL;
       vtkCollectionSimpleIterator sit;
       this->SurfaceProps->InitTraversal(sit);
-      
+
       while (vtkProp *p = this->SurfaceProps->GetNextProp(sit))
-        {        
+        {
         vtkCollectionSimpleIterator psit;
         path->InitTraversal(psit);
 
@@ -243,9 +308,10 @@ int vtkPolygonalSurfacePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 
         if (found)
           {
-          vtkPolygonalSurfacePointPlacer::Node *contourNode 
+          vtkPolygonalSurfacePointPlacer::Node *contourNode
             = this->Internals->InsertNodeAtCurrentPickPosition(
-                          this->CellPicker, this->DistanceOffset);
+                          this->CellPicker, this->DistanceOffset,
+                          this->SnapToClosestPoint);
           if (contourNode)
             {
             worldPos[0] = contourNode->WorldPosition[0];
@@ -257,7 +323,7 @@ int vtkPolygonalSurfacePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
         }
       }
     }
-    
+
   return 0;
 }
 
@@ -269,21 +335,21 @@ int vtkPolygonalSurfacePointPlacer::ValidateWorldPosition( double worldPos[3],
 }
 
 //----------------------------------------------------------------------
-int vtkPolygonalSurfacePointPlacer::ValidateWorldPosition( 
+int vtkPolygonalSurfacePointPlacer::ValidateWorldPosition(
                      double vtkNotUsed(worldPos)[3] )
 {
   return 1;
 }
 
 //----------------------------------------------------------------------
-int vtkPolygonalSurfacePointPlacer::ValidateDisplayPosition( vtkRenderer *, 
+int vtkPolygonalSurfacePointPlacer::ValidateDisplayPosition( vtkRenderer *,
                                       double vtkNotUsed(displayPos)[2] )
 {
   // We could check here to ensure that the display point picks one of the
-  // terrain props, but the contour representation always calls 
-  // ComputeWorldPosition followed by 
-  // ValidateDisplayPosition/ValidateWorldPosition when it needs to 
-  // update a node... 
+  // terrain props, but the contour representation always calls
+  // ComputeWorldPosition followed by
+  // ValidateDisplayPosition/ValidateWorldPosition when it needs to
+  // update a node...
   //
   // So that would be wasting CPU cycles to perform
   // the same check twice..  Just return 1 here.
@@ -296,6 +362,25 @@ vtkPolygonalSurfacePointPlacer::Node *vtkPolygonalSurfacePointPlacer
 ::GetNodeAtWorldPosition( double worldPos[3] )
 {
   return this->Internals->GetNodeAtWorldPosition(worldPos);
+}
+
+//----------------------------------------------------------------------
+int vtkPolygonalSurfacePointPlacer::
+UpdateNodeWorldPosition( double worldPos[3], vtkIdType nodePointId )
+{
+  if( this->Polys->GetNumberOfItems() != 0 )
+  {
+    vtkPolyData *pd = vtkPolyData::SafeDownCast(
+                this->Polys->GetItemAsObject(0));
+    this->Internals->InsertNodeAtCurrentPickPosition( pd,
+        worldPos,-1,nodePointId,this->DistanceOffset,this->SnapToClosestPoint);
+    return 1;
+  }
+  else
+  {
+    vtkErrorMacro("PolyDataCollection has no items.");
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------
@@ -322,5 +407,5 @@ void vtkPolygonalSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Distance Offset: " << this->DistanceOffset << "\n";
+  os << indent << "SnapToClosestPoint: " << this->SnapToClosestPoint << endl;
 }
-

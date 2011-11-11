@@ -147,7 +147,7 @@ struct vtkFoamDict;
 //-----------------------------------------------------------------------------
 // class vtkOpenFOAMReaderPrivate
 // the reader core of vtkOpenFOAMReader
-class VTK_IO_EXPORT vtkOpenFOAMReaderPrivate : public vtkObject
+class vtkOpenFOAMReaderPrivate : public vtkObject
 {
 public:
   static vtkOpenFOAMReaderPrivate *New();

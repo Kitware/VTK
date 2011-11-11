@@ -21,6 +21,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkContextScenePrivate.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkContextKeyEvent.h"
 
 // Get my new commands
 #include "vtkCommand.h"
@@ -33,7 +34,6 @@
 #include "vtkContextBufferId.h"
 #include "vtkOpenGLContextBufferId.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkSmartPointer.h"
 
 // My STL containers
 #include <assert.h>
@@ -52,9 +52,12 @@ public:
     {
     }
 
-  vtkSmartPointer<vtkAbstractContextItem> itemMousePressCurrent; // Index of the item with a current mouse down
-  vtkSmartPointer<vtkAbstractContextItem> itemPicked; // Item the mouse was last over
-  vtkContextMouseEvent Event; // Mouse event structure
+  // The item with a current mouse down
+  vtkWeakPointer<vtkAbstractContextItem> itemMousePressCurrent;
+  // Item the mouse was last over
+  vtkWeakPointer<vtkAbstractContextItem> itemPicked;
+  // Mouse event structure
+  vtkContextMouseEvent Event;
   bool IsDirty;
 };
 
@@ -227,16 +230,6 @@ int vtkContextScene::GetSceneWidth()
 int vtkContextScene::GetSceneHeight()
 {
   return this->Geometry[1];
-}
-
-//-----------------------------------------------------------------------------
-void vtkContextScene::ProcessEvents(vtkObject* caller, 
-                             unsigned long eventId, void*)
-{
-  (void)caller; (void)eventId; // unused warning
-  vtkDebugMacro("ProcessEvents called! " << caller->GetClassName() << "\t"
-                << vtkCommand::GetStringFromEventId(eventId)
-                << "\n\t");
 }
 
 //-----------------------------------------------------------------------------
@@ -512,7 +505,8 @@ bool vtkContextScene::ButtonPressEvent(int button, int x, int y)
   if (newItemPicked)
     {
     vtkAbstractContextItem* cur = newItemPicked;
-    res = this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseButtonPressEvent);
+    res = this->ProcessItem(cur, event,
+                            &vtkAbstractContextItem::MouseButtonPressEvent);
     }
   this->Storage->itemMousePressCurrent = newItemPicked;
   return res;
@@ -591,6 +585,32 @@ bool vtkContextScene::MouseWheelEvent(int delta, int x, int y)
     res = (cur != 0);
     }
   return res;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkContextScene::KeyPressEvent(const vtkContextKeyEvent &keyEvent)
+{
+  vtkContextMouseEvent &event = this->Storage->Event;
+  event.ScreenPos = keyEvent.GetPosition();
+  vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
+  if (newItemPicked)
+    {
+    return newItemPicked->KeyPressEvent(keyEvent);
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkContextScene::KeyReleaseEvent(const vtkContextKeyEvent &keyEvent)
+{
+  vtkContextMouseEvent &event = this->Storage->Event;
+  event.ScreenPos = keyEvent.GetPosition();
+  vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
+  if (newItemPicked)
+    {
+    return newItemPicked->KeyReleaseEvent(keyEvent);
+    }
+  return false;
 }
 
 //-----------------------------------------------------------------------------

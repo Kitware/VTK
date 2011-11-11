@@ -50,7 +50,7 @@ public:
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
 
-  enum PointsFunction{
+  enum PointsFunctionType{
     ColorPointsFunction = 1,
     OpacityPointsFunction = 2,
     ColorAndOpacityPointsFunction = 3
@@ -85,12 +85,13 @@ protected:
   vtkCompositeControlPointsItem();
   virtual ~vtkCompositeControlPointsItem();
 
-  virtual unsigned long int GetControlPointsMTime();
-  virtual void ComputePoints();
+  virtual void emitEvent(unsigned long event, void* params);
 
-  virtual int GetNumberOfPoints()const;
+  virtual unsigned long int GetControlPointsMTime();
+
+  virtual vtkIdType GetNumberOfPoints()const;
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
-  virtual void GetControlPoint(vtkIdType index, double* pos);
+  virtual void GetControlPoint(vtkIdType index, double* pos)const;
   virtual void SetControlPoint(vtkIdType index, double *point);
   virtual void EditPoint(float tX, float tY);
 
@@ -99,7 +100,6 @@ protected:
 
   int                   PointsFunction;
   vtkPiecewiseFunction* OpacityFunction;
-  bool                  Updating;
 
 private:
   vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &); // Not implemented.

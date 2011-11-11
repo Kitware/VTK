@@ -42,9 +42,9 @@ vtkAbstractPolygonalHandleRepresentation3D
 ::vtkAbstractPolygonalHandleRepresentation3D()
 {
   this->InteractionState = vtkHandleRepresentation::Outside;
-  
+
   this->HandleTransformFilter = vtkTransformPolyDataFilter::New();
-  this->HandleTransform       = vtkMatrixToLinearTransform::New(); 
+  this->HandleTransform       = vtkMatrixToLinearTransform::New();
   this->HandleTransformMatrix = vtkMatrix4x4::New();
   this->HandleTransformMatrix->Identity();
   this->HandleTransform->SetInput( this->HandleTransformMatrix );
@@ -54,11 +54,11 @@ vtkAbstractPolygonalHandleRepresentation3D
   this->LastPickPosition[0]=0.0;
   this->LastPickPosition[1]=0.0;
   this->LastPickPosition[2]=0.0;
-  
+
   // initialized because it is used in PrintSelf
   this->LastEventPosition[0]=0.0;
   this->LastEventPosition[1]=0.0;
-  
+
   this->Mapper = vtkPolyDataMapper::New();
   this->Mapper->ScalarVisibilityOff();
   this->Mapper->SetInput(this->HandleTransformFilter->GetOutput());
@@ -92,7 +92,9 @@ vtkAbstractPolygonalHandleRepresentation3D
   this->LabelTextMapper->SetInput( this->LabelTextInput->GetOutput() );
   this->LabelTextActor = vtkFollower::New();
   this->LabelTextActor->SetMapper(this->LabelTextMapper);
-  this->LabelTextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );  
+  this->LabelTextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );
+
+  this->SmoothMotion = 1;
 }
 
 //----------------------------------------------------------------------
@@ -127,7 +129,7 @@ vtkPolyData * vtkAbstractPolygonalHandleRepresentation3D::GetHandle()
 //-------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
 {
-  if (!this->Renderer || !this->PointPlacer || 
+  if (!this->Renderer || !this->PointPlacer ||
                           this->PointPlacer->ValidateWorldPosition( p ))
     {
     this->WorldPosition->SetValue( p );
@@ -140,11 +142,11 @@ void vtkAbstractPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
 void vtkAbstractPolygonalHandleRepresentation3D::SetDisplayPosition(double p[3])
 {
   if (this->Renderer && this->PointPlacer)
-    { 
+    {
     if (this->PointPlacer->ValidateDisplayPosition( this->Renderer, p))
       {
       double worldPos[3], worldOrient[9];
-      if (this->PointPlacer->ComputeWorldPosition( 
+      if (this->PointPlacer->ComputeWorldPosition(
             this->Renderer, p, worldPos, worldOrient ))
         {
         this->DisplayPosition->SetValue(p);
@@ -154,7 +156,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::SetDisplayPosition(double p[3])
         }
       }
     }
-  else 
+  else
     {
     this->DisplayPosition->SetValue(p);
     this->DisplayPositionTime.Modified();
@@ -217,7 +219,7 @@ int vtkAbstractPolygonalHandleRepresentation3D::DetermineConstraintAxis(
       return -1;
       }
     }
-  else if (x) 
+  else if (x)
     {
     this->WaitingForMotion = 0;
     double v[3];
@@ -275,13 +277,13 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
   // Compute the two points defining the motion vector
   vtkInteractorObserver::ComputeWorldToDisplay(
       this->Renderer,
-      this->LastPickPosition[0], 
+      this->LastPickPosition[0],
       this->LastPickPosition[1],
       this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
   vtkInteractorObserver::ComputeDisplayToWorld(
-      this->Renderer, 
-      this->LastEventPosition[0], 
+      this->Renderer,
+      this->LastEventPosition[0],
       this->LastEventPosition[1], z, prevPickPoint);
   vtkInteractorObserver::ComputeDisplayToWorld(
       this->Renderer, eventPos[0], eventPos[1], z, pickPoint);
@@ -295,8 +297,8 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
     if ( this->WaitCount > 3 || !this->Constrained )
       {
       vtkInteractorObserver::ComputeDisplayToWorld(
-          this->Renderer, 
-          this->StartEventPosition[0], 
+          this->Renderer,
+          this->StartEventPosition[0],
           this->StartEventPosition[1], z, startPickPoint);
 
       this->ConstraintAxis = this->DetermineConstraintAxis(
@@ -319,13 +321,14 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
           // Make a request for the new position.
           this->MoveFocusRequest( prevPickPoint,
                                   pickPoint,
+                                  eventPos,
                                   newCenterPointRequested );
 
-          vtkFocalPlanePointPlacer * fPlacer 
+          vtkFocalPlanePointPlacer * fPlacer
             = vtkFocalPlanePointPlacer::SafeDownCast( this->PointPlacer );
           if (fPlacer)
             {
-            // Offset the placer plane to one that passes through the current 
+            // Offset the placer plane to one that passes through the current
             // world position and is parallel to the focal plane. Offset =
             // the distance currentWorldPos is from the focal plane
             //
@@ -341,11 +344,11 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
 
 
           // See what the placer says.
-          if (this->PointPlacer->ComputeWorldPosition( 
+          if (this->PointPlacer->ComputeWorldPosition(
                 this->Renderer, newCenterPointRequested, newCenterPoint,
                 worldOrient ))
             {
-            // Once the placer has validated us, update the handle position 
+            // Once the placer has validated us, update the handle position
             this->SetWorldPosition( newCenterPoint );
             }
           }
@@ -365,15 +368,16 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
           double newCenterPoint[3], worldOrient[9];
 
           // Make a request for the new position.
-          this->MoveFocusRequest( prevPickPoint, 
-                                  pickPoint, 
+          this->MoveFocusRequest( prevPickPoint,
+                                  pickPoint,
+                                  eventPos,
                                   newCenterPointRequested);
 
-          vtkFocalPlanePointPlacer * fPlacer 
+          vtkFocalPlanePointPlacer * fPlacer
             = vtkFocalPlanePointPlacer::SafeDownCast( this->PointPlacer );
           if (fPlacer)
             {
-            // Offset the placer plane to one that passes through the current 
+            // Offset the placer plane to one that passes through the current
             // world position and is parallel to the focal plane. Offset =
             // the distance currentWorldPos is from the focal plane
             //
@@ -386,9 +390,9 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
             this->Renderer->GetActiveCamera()->GetDirectionOfProjection(projDir);
             fPlacer->SetOffset( vtkMath::Dot( vec, projDir ) );
             }
-          
+
           // See what the placer says.
-          if (this->PointPlacer->ComputeWorldPosition( 
+          if (this->PointPlacer->ComputeWorldPosition(
                 this->Renderer, newCenterPointRequested, newCenterPoint,
                 worldOrient ))
             {
@@ -409,27 +413,37 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
   // Book keeping
   this->LastEventPosition[0] = eventPos[0];
   this->LastEventPosition[1] = eventPos[1];
-  
+
   this->Modified();
 }
 
 //----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D
-::MoveFocusRequest(double *p1, double *p2, double center[3])
+::MoveFocusRequest(double *p1, double *p2,
+                   double currPos[2], double center[3])
 {
-  double focus[4];
-  this->GetWorldPosition( focus );
+  if (this->SmoothMotion)
+    {
+    double focus[4];
+    this->GetWorldPosition(focus);
 
-  // Move the center of the handle along the motion vector
-  focus[0] += (p2[0] - p1[0]);
-  focus[1] += (p2[1] - p1[1]);
-  focus[2] += (p2[2] - p1[2]);
-  focus[3] = 1.0;
+    // Move the center of the handle along the motion vector
+    focus[0] += (p2[0] - p1[0]);
+    focus[1] += (p2[1] - p1[1]);
+    focus[2] += (p2[2] - p1[2]);
+    focus[3] = 1.0;
 
-  // Get the display position that this center would fall on.
-  this->Renderer->SetWorldPoint( focus );
-  this->Renderer->WorldToDisplay();
-  this->Renderer->GetDisplayPoint( center );
+    // Get the display position that this center would fall on.
+    this->Renderer->SetWorldPoint( focus );
+    this->Renderer->WorldToDisplay();
+    this->Renderer->GetDisplayPoint( center );
+    }
+  else
+    {
+    center[0] = currPos[0];
+    center[1] = currPos[1];
+    center[2] = currPos[2];
+    }
 }
 
 //----------------------------------------------------------------------
@@ -453,7 +467,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::MoveFocus(double *p1, double *p
     focus[1] += v[1];
     focus[2] += v[2];
     }
-  
+
   this->SetWorldPosition(focus);
 }
 
@@ -466,7 +480,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::Translate(double *p1, double *p
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
-  
+
   this->GetWorldPosition( pos );
   double newFocus[3];
   int i;
@@ -481,12 +495,12 @@ void vtkAbstractPolygonalHandleRepresentation3D::Translate(double *p1, double *p
         }
       }
     }
-  
+
   for (i=0; i<3; i++)
     {
     newFocus[i] = pos[i] + v[i];
     }
-  
+
   this->SetWorldPosition(newFocus);
 }
 
@@ -545,7 +559,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::UpdateHandle()
 void vtkAbstractPolygonalHandleRepresentation3D::BuildRepresentation()
 {
   // The net effect is to resize the handle
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
@@ -555,7 +569,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::BuildRepresentation()
 
     // Update the label,
     this->UpdateLabel();
-    
+
     this->BuildTime.Modified();
     }
 }
@@ -577,7 +591,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::UpdateLabel()
       }
 
     // Place the label on the North east of the handle. We need to take into
-    // account the viewup vector and the direction of the camera, so that we 
+    // account the viewup vector and the direction of the camera, so that we
     // can bring it on the closest plane of the widget facing the camera.
     double labelPosition[3], vup[3], directionOfProjection[3], xAxis[3], bounds[6];
     this->Renderer->GetActiveCamera()->GetViewUp(vup);
@@ -591,14 +605,14 @@ void vtkAbstractPolygonalHandleRepresentation3D::UpdateLabel()
     labelPosition[0] += width/2.0 * xAxis[0];
     labelPosition[1] += width/2.0 * xAxis[1];
     labelPosition[2] += width/2.0 * xAxis[2];
-    
+
     this->LabelTextActor->SetPosition(labelPosition);
 
     if (!this->LabelAnnotationTextScaleInitialized)
       {
-      // If a font size hasn't been specified by the user, scale the text 
+      // If a font size hasn't been specified by the user, scale the text
       // (font size) according to the size of the handle .
-      this->LabelTextActor->SetScale( 
+      this->LabelTextActor->SetScale(
           width/3.0, width/3.0, width/3.0 );
       }
     }
@@ -607,7 +621,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::UpdateLabel()
 //----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::ShallowCopy(vtkProp *prop)
 {
-  vtkAbstractPolygonalHandleRepresentation3D *rep = 
+  vtkAbstractPolygonalHandleRepresentation3D *rep =
     vtkAbstractPolygonalHandleRepresentation3D::SafeDownCast(prop);
   if ( rep )
     {
@@ -628,7 +642,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::DeepCopy(vtkProp *prop)
 {
-  vtkAbstractPolygonalHandleRepresentation3D *rep = 
+  vtkAbstractPolygonalHandleRepresentation3D *rep =
     vtkAbstractPolygonalHandleRepresentation3D::SafeDownCast(prop);
   if ( rep )
     {
@@ -751,7 +765,7 @@ double * vtkAbstractPolygonalHandleRepresentation3D::GetLabelTextScale()
 void vtkAbstractPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->Property )
     {
     os << indent << "Property: " << this->Property << "\n";
@@ -784,10 +798,11 @@ void vtkAbstractPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkInden
   this->HandleTransformMatrix->PrintSelf(os,indent.GetNextIndent());
   os << indent << "HandlePicker: " << this->HandlePicker << "\n";
   this->HandlePicker->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "LastPickPosition: (" << this->LastPickPosition[0] 
+  os << indent << "LastPickPosition: (" << this->LastPickPosition[0]
      << "," << this->LastPickPosition[1] << ")\n";
-  os << indent << "LastEventPosition: (" << this->LastEventPosition[0] 
+  os << indent << "LastEventPosition: (" << this->LastEventPosition[0]
      << "," << this->LastEventPosition[1] << ")\n";
+  os << indent << "SmoothMotion: " << this->SmoothMotion << endl;
   // ConstraintAxis;
   // WaitingForMotion;
   // WaitCount;

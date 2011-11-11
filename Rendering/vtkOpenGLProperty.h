@@ -26,6 +26,7 @@ class vtkOpenGLRenderer;
 class vtkShader2;
 class vtkShader2Collection;
 class vtkShaderProgram2;
+class vtkShaderDeviceAdapter2;
 class vtkGLSLShaderDeviceAdapter2;
 
 class VTK_RENDERING_EXPORT vtkOpenGLProperty : public vtkProperty
@@ -65,7 +66,7 @@ public:
   
   // Description:
   // Get the object that can pass vertex attribute to a vtkShaderProgram2.
-  vtkGetObjectMacro(ShaderDeviceAdapter2,vtkGLSLShaderDeviceAdapter2);
+  virtual vtkShaderDeviceAdapter2* GetShaderDeviceAdapter2();
   
   // Description:
   // Get the vtkShaderProgram2 object in use.
