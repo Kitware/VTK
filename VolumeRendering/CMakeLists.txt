@@ -4,7 +4,7 @@ SET(UKIT VOLUMERENDERING)
 SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL)
 SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
-SET(KIT_INTERFACE_LIBRARIES vtkRendering vtkIO)
+SET(KIT_INTERFACE_LIBRARIES vtkAMR vtkRendering vtkIO)
 SET(KIT_LIBS ${OPENGL_gl_LIBRARY})
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
@@ -16,6 +16,7 @@ SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
 
 SET ( Kit_SRCS
+vtkAMRVolumeMapper.cxx
 vtkDirectionEncoder.cxx
 vtkEncodedGradientEstimator.cxx
 vtkEncodedGradientShader.cxx
