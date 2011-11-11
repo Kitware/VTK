@@ -31,10 +31,12 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkCell.h"
+#include "vtkXMLImageDataWriter.h"
 #include "vtkExtentRCBPartitioner.h"
 #include "vtkUniformGridPartitioner.h"
 
 #include <cassert>
+#include <sstream>
 #include <cmath>
 #include <algorithm>
 
@@ -51,6 +53,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
   this->ROIChanged           = false;
+  this->InitialCall          = true;
 
   for( int i=0; i < 3; ++i )
     {
@@ -138,12 +141,9 @@ int vtkAMRResampleFilter::RequestInformation(
           input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
       assert( "pre: medata is NULL" && (metadata != NULL)  );
 
-      // Get desired spacing & ensure box is within the domain bounds
+      // Get Region
       double h[3];
-      this->SnapBounds( metadata );
-      this->GetSpacing( metadata, h );
-
-      // GetRegion
+      this->ComputeAndAdjustRegionParameters( metadata, h );
       this->GetRegion( h );
 
       // Compute which blocks to load
@@ -178,12 +178,9 @@ int vtkAMRResampleFilter::RequestData(
     {
     metadata = amrds;
 
-    // Get desired spacing & ensure box is within the domain bounds
-    double h[3];
-    this->SnapBounds( amrds );
-    this->GetSpacing( amrds, h );
-
     // GetRegion
+    double h[3];
+    this->ComputeAndAdjustRegionParameters( amrds, h );
     this->GetRegion( h );
     }
 
@@ -500,148 +497,244 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *me
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::GetSpacing(
-    vtkHierarchicalBoxDataSet *amr, double h[3] )
+void vtkAMRResampleFilter::GetDomainParameters(
+    vtkHierarchicalBoxDataSet *amr,
+    double domainMin[3], double domainMax[3], double h[3],
+    int dims[3], double &rf )
 {
-  assert( "pre: AMR dataset/metadata is NULL" && (amr != NULL) );
-
-  int targetLevel = 0;
+  assert( "pre: AMR dataset is NULL!" && (amr != NULL) );
 
   vtkAMRBox amrBox;
-  amr->GetMetaData( 0, 0, amrBox );
+  amr->GetRootAMRBox( amrBox );
 
-  // STEP 0: Get initial spacing in each dimension
-  double h0[3];
-  amrBox.GetGridSpacing( h0 );
-//  std::cout << "h0: " << h0[0] << " " << h0[1] << " " << h0[2] << std::endl;
-//  std::cout.flush();
+  rf = amr->GetRefinementRatio(1);
 
-  // STEP 1: Get the refinement ratio -- assumes constant refinement ratio
-  double rf = amr->GetRefinementRatio(1);
-//  std::cout << "Refinement ratio: " << rf << std::endl;
-//  std::cout.flush();
-
-  // STEP 2: Get length of the box in each dimension
-  double L[3];
-  L[0] = this->Max[0]-this->Min[0];
-  L[1] = this->Max[1]-this->Min[1];
-  L[2] = this->Max[2]-this->Min[2];
-
-  // STEP 3: Compute the target AMR level from where the spacing will be comuted
-  for( int i=0; i < 3; ++i )
-    {
-    double c1        = ( ( this->NumberOfSamples[i]*h0[i] )/L[i] );
-    int currentLevel = vtkMath::Floor( 0.5+(log(c1)/log(rf)) );
-    if( currentLevel > targetLevel )
-      targetLevel = currentLevel;
-    } // END for all dimensions
-
-  if( targetLevel > static_cast<int>(amr->GetNumberOfLevels()) )
-    targetLevel = amr->GetNumberOfLevels()-1;
-
-  // STEP 4: Acquire the spacing at the target level.
-//  amr->GetMetaData( targetLevel, 0, amrBox );
-//  amrBox.GetGridSpacing( h );
-
-  // STEP 4: Set the spacing based on the number of samples
-  for( int i=0; i < 3; ++i )
-    {
-    double delta = this->Max[i]-this->Min[i];
-    h[i]         = delta/this->NumberOfSamples[i];
-    } // END for all i
-  this->LevelOfResolution = targetLevel;
-
-//  std::cout << "Level of resolution is: " << targetLevel << std::endl;
-//  std::cout.flush();
+  amrBox.GetNumberOfNodes( dims );
+  amrBox.GetMinBounds( domainMin );
+  amrBox.GetMaxBounds( domainMax );
+  amrBox.GetGridSpacing( h );
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::SnapBounds( vtkHierarchicalBoxDataSet *amrds )
+void vtkAMRResampleFilter::SnapBounds(
+    const double h0[3], const double domainMin[3], const double domainMax[3],
+    const int dims[3], double min[3], double max[3],
+    int ijkmin[3], int ijkmax[3],
+    bool outside[6] )
 {
-  if( !this->ROIChanged )
-    return;
-
-  // STEP 0: Ensure AMR dataset is NULL
-  assert( "pre: Ensure AMR dataset is NULL" && (amrds != NULL) );
-
-  // STEP 1: Get root AMR box
-  vtkAMRBox amrBox;
-  amrds->GetRootAMRBox( amrBox );
-
-  // STEP 2: Snap bounds
-  double bbmin[3];
-  double bbmax[3];
-  double h0[3];
-  int dims[3];
-  amrBox.GetNumberOfNodes(dims);
-  amrBox.GetMinBounds( bbmin );
-  amrBox.GetMaxBounds( bbmax );
-  amrBox.GetGridSpacing( h0 );
-
-  // STEP 3: Process min & max
-  int ijkmin[3];
-  int ijkmax[3];
   double dx = 0.0;
-
   for( int i=0; i < 3; ++i )
     {
-    dx = this->Min[i]-bbmin[i];
+    dx = this->Min[i]-domainMin[i];
     ijkmin[i]=static_cast<int>( vtkMath::Round( dx/h0[i] ) );
     --ijkmin[i];
     if( ijkmin[i] < 0 )
+      {
       ijkmin[ i ] = 0;
+      outside[ i*2 ] = true;
+      }
+    else
+      {
+      outside[ i*2 ] = false;
+      }
 
-    dx = this->Max[i]-bbmin[i];
+    dx = this->Max[i]-domainMin[i];
     ijkmax[i]=static_cast<int>( vtkMath::Round( dx/h0[i] ) );
     ++ijkmax[i];
     if( ijkmax[i] > dims[i]-1 )
-      ijkmax[i] = dims[i]-1;
+      {
+      ijkmax[i]        = dims[i]-1;
+      outside[ i*2+1 ] = true;
+      }
+    else
+      {
+      outside[ i*2+1 ] = false;
+      }
 
     if( ijkmin[i] == 0)
-      this->Min[ i ] = bbmin[i];
+      min[ i ] = domainMin[i];
     else
-      this->Min[ i ] = bbmin[i] + ijkmin[i]*h0[i];
-    assert( "post: min is out-of-bounds!" && (this->Min[i] >= bbmin[i]) );
+      min[ i ] = domainMin[i] + ijkmin[i]*h0[i];
+    assert( "post: min is out-of-bounds!" && (min[i] >= domainMin[i]) );
 
     if( ijkmax[i] == 0)
-      this->Max[ i ] = bbmin[i]+h0[i];
+      max[ i ] = domainMin[i]+h0[i];
     else
-      this->Max[ i ] = bbmin[i]+ijkmax[i]*h0[i];
-    assert( "post: max is out-of-bounds!" && (this->Max[i] <= bbmax[i]) );
+      max[ i ] = domainMin[i]+ijkmax[i]*h0[i];
+    assert( "post: max is out-of-bounds!" && (max[i] <= domainMax[i]) );
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRResampleFilter::ComputeLevelOfResolution(
+    const int N[3], const double h0[3], const double L[3], const double rf )
+{
+  this->LevelOfResolution = 0;
+  for( int i=0; i < 3; ++i )
+    {
+    double c1        = ( ( N[i]*h0[i] )/L[i] );
+    int currentLevel = vtkMath::Floor( 0.5+(log(c1)/log(rf)) );
+    if( currentLevel > this->LevelOfResolution )
+      this->LevelOfResolution = currentLevel;
+    } // END for all i
+
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAMRResampleFilter::RegionIntersectsWithAMR(
+    double domainMin[3], double domainMax[3],
+    double regionMin[3], double regionMax[3])
+{
+  vtkBoundingBox domain;
+  domain.SetMinPoint( domainMin );
+  domain.SetMaxPoint( domainMax );
+
+  vtkBoundingBox region;
+  region.SetMinPoint( regionMin );
+  region.SetMaxPoint( regionMax );
+
+  if( domain.Intersects(region) )
+    return true;
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
+    const double min[3], const double max[3], const double Rh[3],
+    const bool outside[6], int N[3] )
+{
+  int ijkRegionMin[3];
+  int ijkRegionMax[3];
+  double dx = 0.0;
+  for( int i=0; i < 3; ++i )
+    {
+    N[i] = this->NumberOfSamples[i];
+
+    // Get ijk of the snapped bounding wrt the requested virtual grid.
+    if( outside[i*2] || outside[i*2+1] )
+      {
+      dx              = min[i]-this->Min[i];
+      ijkRegionMin[i] = static_cast<int>( dx/Rh[i]+1 );
+      dx              = max[i]-this->Min[i];
+      ijkRegionMax[i] = static_cast<int>( dx/Rh[i]+1 );
+
+      int reduceTo    = ijkRegionMax[i]-ijkRegionMin[i]+1;
+      N[i]            = reduceTo;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
+    vtkHierarchicalBoxDataSet *amrds, double h[3] )
+{
+  assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
+
+  if( this->InitialCall )
+    {
+    h[0]=h[1]=h[2]=0.0;
+    this->InitialCall = false;
+    return;
+    }
+
+  // STEP 0: Get domain parameters from root level metadata
+  int dims[3];
+  double h0[3];
+  double domainMin[3];
+  double domainMax[3];
+  double rf;
+  this->GetDomainParameters( amrds, domainMin, domainMax, h0, dims, rf );
+
+  // STEP 1: Check to see if the requested region intersects the AMR domain
+  if( !this->RegionIntersectsWithAMR(domainMin, domainMax, this->Min, this->Max))
+    {
+    h[0]=h[1]=h[2]=0.0;
+    return;
+    }
+
+  // STEP 2: Check if the ROI has changed from a previous request
+  if( !this->ROIChanged )
+    {
+    // Just update h, e.g., if the number of samples has changed and return.
+    for( int i=0; i < 3; ++i )
+      {
+      double l = this->Max[i] - this->Min[i];
+      h[i]     = l/(this->NumberOfSamples[i]-1);
+      }
+    return;
+    }
+
+  // STEP 3: Get requested region parameters
+  double L0[3]; // initial length of each box side
+  double Rh[3]; // initial spacing based on the number of samples requested.
+  for( int i=0; i < 3; ++i )
+    {
+    L0[i] = this->Max[i]-this->Min[i];
+    Rh[i] = L0[i]/(this->NumberOfSamples[i]-1);
+    }
+
+// DEBUG
+//  this->WriteUniformGrid(this->Min,this->NumberOfSamples,Rh,"RequestedGrid" );
+// END DEBUG
+// DEBUG
+//  this->WriteUniformGrid(domainMin,dims,h0,"RootGrid");
+// END DEBUG
+
+  // STEP 4: Snap region to domain bounds
+  double min[3];
+  double max[3];
+  int ijkmin[3];
+  int ijkmax[3];
+  bool outside[6];
+  this->SnapBounds(h0, domainMin,
+      domainMax,dims, min, max, ijkmin, ijkmax,outside);
+
+  // STEP 5: Compute grid parameters on the snapped region
+  double L[3];
+  for( int i=0; i < 3; ++i )
+    {
+    L[i] = max[i]-min[i];
+    h[i] = L[i]/(this->NumberOfSamples[i]-1);
+    }
+
+// DEBUG
+//  this->WriteUniformGrid(min,this->NumberOfSamples,h,"SnappedGrid");
+// END DEBUG
+
+  // STEP 6: Adjust N according to how much of the requested region is cropped
+  int N[3];
+  this->AdjustNumberOfSamplesInRegion( min, max, Rh, outside, N );
+
+
+  // STEP 7: Adjust region parameters
+  for( int i=0; i < 3; ++i )
+    {
+    this->Min[i]             = min[i];
+    this->Max[i]             = max[i];
+    this->NumberOfSamples[i] = (N[i] > 1)? N[i] : 2;
+    L[i]                     = this->Max[i]-this->Min[i];
+    h[i]                     = L[i]/(this->NumberOfSamples[i]-1);
+    }
+
+  this->ComputeLevelOfResolution(this->NumberOfSamples,h0,L,rf);
   this->ROIChanged = false;
-//  std::cout << "Snapped min: " << this->Min[0] << " " << this->Min[1] << " " << this->Min[2];
-//  std::cout << std::endl;
-//  std::cout << "Snapped max: " << this->Max[0] << " " << this->Max[1] << " " << this->Max[2];
-//  std::cout << std::endl;
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::GetRegion( double h[3] )
 {
+  assert( "pre: Region of interest is NULL!" && (this->ROI != NULL) );
+
+  unsigned int block = 0;
+  for( ; block < this->ROI->GetNumberOfBlocks(); ++block  )
+    this->ROI->RemoveBlock( block );
+
+  if( h[0]==0.0 && h[1]==0.0 && h[2]==0.0 )
+    return;
+
   vtkUniformGrid *grd = vtkUniformGrid::New();
-
-//  int dims[3];
-//  for( int i=0; i < 3; ++i )
-//      dims[ i ] = ( ( (this->Max[ i ] - this->Min[ i ] )) / h[ i ] )+ 1;
-
-//  std::cout << "===\n";
-//  std::cout << "MIN: " << this->Min[0] << " ";
-//  std::cout << this->Min[1] << " ";
-//  std::cout << this->Min[2] << std::endl;
-//  std::cout << "MAX: " << this->Max[0] << " ";
-//  std::cout << this->Max[1] << " ";
-//  std::cout << this->Max[2] << std::endl;
-//  std::cout.flush();
-//
-//  std::cout << "h: " << h[0] << " " << h[1] << " " << h[2] << std::endl;
-//  std::cout << "===\n";
-//  std::cout.flush();
-
   grd->SetOrigin( this->Min );
   grd->SetSpacing( h );
-//  grd->SetDimensions( dims );
   grd->SetDimensions( this->NumberOfSamples );
 
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
@@ -755,4 +848,35 @@ vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(
 
   // This process has no grids
   return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRResampleFilter::WriteUniformGrid(
+    double origin[3], int dims[3], double h[3],
+    std::string prefix )
+{
+  vtkUniformGrid *grd = vtkUniformGrid::New();
+  grd->SetOrigin( origin );
+  grd->SetSpacing( h );
+  grd->SetDimensions( dims );
+
+  this->WriteUniformGrid( grd, prefix );
+  grd->Delete();
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRResampleFilter::WriteUniformGrid(
+    vtkUniformGrid *g, std::string prefix )
+{
+  assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
+
+  vtkXMLImageDataWriter *imgWriter = vtkXMLImageDataWriter::New();
+
+  std::ostringstream oss;
+  oss << prefix << "." << imgWriter->GetDefaultFileExtension();
+  imgWriter->SetFileName( oss.str().c_str() );
+  imgWriter->SetInput( g );
+  imgWriter->Write();
+
+  imgWriter->Delete();
 }

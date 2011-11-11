@@ -75,11 +75,6 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     vtkGetMacro(NumberOfPartitions,int);
 
     // Description:
-    // Setter for the min/max bounds
-//    vtkSetVector3Macro(Min,double);
-//    vtkSetVector3Macro(Max,double);
-
-    // Description:
     // Sets the min
     void SetMin(const double *pnt)
     {this->SetMin(pnt[0], pnt[1], pnt[2]);}
@@ -146,16 +141,11 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     int TransferToNodes;
     int DemandDrivenMode;
     bool ROIChanged;
+    bool InitialCall;
     vtkMultiProcessController *Controller;
 // BTX
     vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
 // ETX
-
-
-    // Description:
-    // This method snaps the bounding box bounds to the closest point w.r.t the
-    // root level grid.
-    void SnapBounds( vtkHierarchicalBoxDataSet *amrds );
 
     // Description:
     // Checks if this filter instance is running on more than one processes
@@ -228,9 +218,55 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     void ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
-    // Computes the desired spacing based on the number of samples and length
-    // of the box given and the current AMR dataset.
-    void GetSpacing( vtkHierarchicalBoxDataSet *amr, double h[3] );
+    // Computes the region parameters
+    void ComputeRegionParameters(
+        vtkHierarchicalBoxDataSet *amrds,
+        int N[3], double min[3], double max[3], double h[3] );
+
+    // Description:
+    // This method accesses the domain boundaries
+    void GetDomainParameters(
+        vtkHierarchicalBoxDataSet *amr,
+        double domainMin[3], double domainMax[3], double h[3],
+        int dims[3], double &rf );
+
+    // Description:
+    // Checks if the domain and requested region intersect.
+    bool RegionIntersectsWithAMR(
+        double domainMin[3], double domainMax[3],
+        double regionMin[3], double regionMax[3] );
+
+    // Description:
+    // This method adjust the numbers of samples in the region, N, if the
+    // requested region falls outside, but, intersects the domain.
+    void AdjustNumberOfSamplesInRegion(
+        const double min[3], const double max[3], const double Rh[3],
+        const bool outside[6], int N[3] );
+
+    // Description:
+    // This method computes the level of resolution based on the number of
+    // samples requested, N, the root level spacing h0, the length of the box,
+    // L (actual length after snapping) and the refinement ratio.
+    void ComputeLevelOfResolution(
+        const int N[3], const double h0[3], const double L[3], const double rf);
+
+    // Description:
+    // This method snaps the bounds s.t. they are within the interior of the
+    // domain described the root level uniform grid with h0, domainMin and
+    // domain Max. The method computes and returns the new min/max bounds and
+    // the corresponding ijkmin/ijkmax coordinates w.r.t. the root level.
+    void SnapBounds(
+      const double h0[3], const double domainMin[3], const double domainMax[3],
+      const int dims[3], double min[3], double max[3],
+      int ijkmin[3], int ijkmax[3],
+      bool outside[6] );
+
+    // Description:
+    // This method computes and adjusts the region parameters s.t. the requested
+    // region always fall within the AMR region and the number of samples is
+    // adjusted if the region of interest moves outsided the domain.
+    void ComputeAndAdjustRegionParameters(
+        vtkHierarchicalBoxDataSet *amrds, double h[3] );
 
     // Description:
     // This method gets the region of interest as perscribed by the user.
@@ -243,6 +279,13 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Returns a reference grid from the amrdataset.
     vtkUniformGrid* GetReferenceGrid( vtkHierarchicalBoxDataSet *amrds );
+
+    // Description:
+    // Writes a uniform grid to a file. Used for debugging purposes.
+    void WriteUniformGrid( vtkUniformGrid *g, std::string prefix );
+    void WriteUniformGrid(
+        double origin[3], int dims[3], double h[3],
+        std::string prefix );
 
   private:
     vtkAMRResampleFilter(const vtkAMRResampleFilter&); // Not implemented
