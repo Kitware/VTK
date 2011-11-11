@@ -15,6 +15,7 @@
 #include "vtkContextInteractorStyle.h"
 
 #include "vtkContextMouseEvent.h"
+#include "vtkContextKeyEvent.h"
 #include "vtkContextScene.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
@@ -345,6 +346,54 @@ void vtkContextInteractorStyle::OnSelection(unsigned int rect[5])
   if (this->Scene)
     {
     this->Scene->ProcessSelectionEvent(rect);
+    }
+  this->EndProcessingEvent();
+}
+
+//--------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnChar()
+{
+  this->Superclass::OnChar();
+}
+
+//--------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnKeyPress()
+{
+  this->BeginProcessingEvent();
+  vtkContextKeyEvent event;
+  vtkVector2i position(this->Interactor->GetEventPosition()[0],
+                       this->Interactor->GetEventPosition()[0]);
+  event.SetInteractor(this->Interactor);
+  event.SetPosition(position);
+  bool keepEvent = false;
+  if (this->Scene)
+    {
+    keepEvent = this->Scene->KeyPressEvent(event);
+    }
+  if (!keepEvent)
+    {
+    this->Superclass::OnKeyPress();
+    }
+  this->EndProcessingEvent();
+}
+
+//--------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnKeyRelease()
+{
+  this->BeginProcessingEvent();
+  vtkContextKeyEvent event;
+  vtkVector2i position(this->Interactor->GetEventPosition()[0],
+                       this->Interactor->GetEventPosition()[0]);
+  event.SetInteractor(this->Interactor);
+  event.SetPosition(position);
+  bool keepEvent = false;
+  if (this->Scene)
+    {
+    keepEvent = this->Scene->KeyReleaseEvent(event);
+    }
+  if (!keepEvent)
+    {
+    this->Superclass::OnKeyRelease();
     }
   this->EndProcessingEvent();
 }

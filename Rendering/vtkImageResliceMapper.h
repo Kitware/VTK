@@ -37,6 +37,7 @@ class vtkImageSlice;
 class vtkImageData;
 class vtkImageResliceToColors;
 class vtkMatrix4x4;
+class vtkAbstractImageInterpolator;
 
 class VTK_RENDERING_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
 {
@@ -108,6 +109,12 @@ public:
   vtkSetMacro(SeparateWindowLevelOperation, int);
   vtkBooleanMacro(SeparateWindowLevelOperation, int);
   vtkGetMacro(SeparateWindowLevelOperation, int);
+
+  // Description:
+  // Set a custom interpolator.  This will only be used if the
+  // ResampleToScreenPixels option is on.
+  virtual void SetInterpolator(vtkAbstractImageInterpolator *sampler);
+  virtual vtkAbstractImageInterpolator *GetInterpolator();
 
   // Description:
   // This should only be called by the renderer.

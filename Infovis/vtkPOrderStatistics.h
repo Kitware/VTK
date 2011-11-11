@@ -40,9 +40,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 
 //BTX
-#include <vtkstd/vector> // STL Header
+#include <vtkstd/map> // STL Header
 //ETX
 
+class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
@@ -61,13 +62,34 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
 
   // Description:
   // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
  protected:
   vtkPOrderStatistics();
   ~vtkPOrderStatistics();
+
+//BTX
+  // Description:
+  // Reduce the collection of local histograms to the global one for data inputs
+  bool Reduce( vtkIdTypeArray*,
+               vtkDataArray* );
+
+  // Description:
+  // Reduce the collection of local histograms to the global one for string inputs
+  bool Reduce( vtkIdTypeArray*,
+               vtkIdType&,
+               char*,
+               vtkstd::map<vtkStdString,vtkIdType>& );
+
+  // Description:
+  // Broadcast reduced histogram to all processes in the case of string inputs
+  bool Broadcast( vtkstd::map<vtkStdString,vtkIdType>&,
+                  vtkIdTypeArray*,
+                  vtkStringArray*,
+                  vtkIdType );
+//ETX
 
   vtkMultiProcessController* Controller;
  private:

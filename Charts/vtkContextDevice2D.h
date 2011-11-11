@@ -232,7 +232,12 @@ public:
 
   // Description:
   // Disable clipping of the display.
-  virtual void DisableClipping() = 0;
+  // Remove in a future release - retained for API compatibility.
+  virtual void DisableClipping() { this->EnableClipping(false); }
+
+  // Description:
+  // Enable or disable the clipping of the scene.
+  virtual void EnableClipping(bool enable) = 0;
 
   // Description:
   // Begin drawing, pass in the viewport to set up the view.

@@ -27,10 +27,13 @@ IF(PYTHON_EXECUTABLE)
     vtkFactoredArrayDataAlgorithm.h
     vtkFilteringInformationKeyManager.h
     vtkGraphInternals.h
+    vtkImageInterpolatorInternals.h
     vtkImageIterator.h
     vtkImageProgressIterator.h
     vtkMarchingCubesCases.h
+    vtkMarchingCubesTriangleCases.h
     vtkMarchingSquaresCases.h
+    vtkMarchingSquaresLineCases.h
     vtkStructuredPoints.h
     )
 ENDIF(PYTHON_EXECUTABLE)

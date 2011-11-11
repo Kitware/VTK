@@ -41,6 +41,7 @@ vtkCameraRepresentation.cxx
 vtkCameraWidget.cxx
 vtkCaptionRepresentation.cxx
 vtkCaptionWidget.cxx
+vtkCellCentersPointPlacer.cxx
 vtkCenteredSliderRepresentation.cxx
 vtkCenteredSliderWidget.cxx
 vtkContinuousValueWidget.cxx
@@ -64,6 +65,7 @@ vtkHandleRepresentation.cxx
 vtkHandleWidget.cxx
 vtkHoverWidget.cxx
 vtkImageActorPointPlacer.cxx
+vtkImageCroppingRegionsWidget.cxx
 vtkImageOrthoPlanes.cxx
 vtkImagePlaneWidget.cxx
 vtkImageTracerWidget.cxx

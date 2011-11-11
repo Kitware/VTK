@@ -13,11 +13,16 @@
 
 =========================================================================*/
 #include <vtkColorTransferFunction.h>
+#include <vtkGlyph3D.h>
 #include <vtkImageData.h>
 #include <vtkImageReslice.h>
 #include <vtkImageMapToColors.h>
 #include <vtkImageAppendComponents.h>
+#include <vtkInformation.h>
+#include <vtkNew.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
 {
@@ -54,8 +59,36 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
   colors->Update();
   append->Update();
   colors->Update();
+  // At this point, the COMBINED_UPDATE_EXTENT of the output of reslicer must be
+  // reset to {0, -1, 0, -1, 0, -1}, otherwise, the following will fail because
+  // when computing the output extent it will take into account the old (not reset)
+  // COMBINED_UPDATE_EXTENT value.
   reslicer->SetOutputExtent(0, 100, 0, 80, 0, 0);
   colors->Update();
+
+  vtkNew<vtkGlyph3D> polyDataFilter;
+  polyDataFilter->SetInputConnection(0, colors->GetOutput()->GetProducerPort());
+  vtkNew<vtkSphereSource> sphere;
+  polyDataFilter->SetSourceConnection(sphere->GetOutput()->GetProducerPort());
+  polyDataFilter->Update();
+  // After Update(), the COMBINED_UPDATE_EXTENT of the output of reslicer must be
+  // reset to {0, -1, 0, -1, 0, -1}, otherwise, the following will fail because
+  // when computing the output extent it will take into account the old (not reset)
+  // COMBINED_UPDATE_EXTENT value.
+  int combinedExtent[6];
+  reslicer->GetExecutive()->GetOutputInformation(0)->Get(
+    vtkStreamingDemandDrivenPipeline::COMBINED_UPDATE_EXTENT(), combinedExtent);
+  if (combinedExtent[0] <= combinedExtent[1] ||
+      combinedExtent[2] <= combinedExtent[3] ||
+      combinedExtent[4] <= combinedExtent[5])
+    {
+    return EXIT_FAILURE;
+    }
+  reslicer->SetOutputExtent(0, 100, 0, 50, 0, 0);
+  // For some reason there was no error reported when the combined extent was
+  // was wrong, however you could check in vtkImageReslice::ThreadRequestData
+  // and you'll see that the output extent is still {0, 100, 0, 80, 0, 0}
+  append->Update();
 
   return EXIT_SUCCESS;
 }

@@ -60,6 +60,7 @@ IF(VTK_USE_DISPLAY)
     TestPOVExporter.cxx
     TestResetCameraVerticalAspectRatio.cxx
     TestResetCameraVerticalAspectRatioParallel.cxx
+    TestSetImageOrientation.cxx
     TestSobelGradientMagnitudePass.cxx
     TestShadowMapPass.cxx
     TestTextActorAlphaBlending.cxx
@@ -67,8 +68,10 @@ IF(VTK_USE_DISPLAY)
     TestTextActor3DAlphaBlending.cxx
     TestTextActor3DDepthPeeling.cxx
     TestTexturedBackground.cxx
+    TestTextureSize.cxx
     TestTDx.cxx
     TestTilingCxx.cxx
+    TestTransformCoordinateUseDouble.cxx
     TestTranslucentLUTAlphaBlending.cxx
     TestTranslucentLUTDepthPeeling.cxx
     TestTranslucentLUTDepthPeelingPass.cxx

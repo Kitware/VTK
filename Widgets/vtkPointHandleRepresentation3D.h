@@ -168,7 +168,21 @@ public:
   virtual int HasTranslucentPolygonalGeometry();
 
   void Highlight(int highlight);
-  
+
+  // Description:
+  // Turn on/off smooth motion of the handle. See the documentation of
+  // MoveFocusRequest for details. By default, SmoothMotion is ON. However,
+  // in certain applications the user may want to turn it off. For instance
+  // when using certain specific PointPlacer's with the representation such
+  // as the vtkCellCentersPointPlacer, which causes the representation to
+  // snap to the center of cells, or using a vtkPolygonalSurfacePointPlacer
+  // which constrains the widget to the surface of a mesh. In such cases,
+  // inherent restrictions on handle placement might conflict with a request
+  // for smooth motion of the handles.
+  vtkSetMacro( SmoothMotion, int );
+  vtkGetMacro( SmoothMotion, int );
+  vtkBooleanMacro( SmoothMotion, int );
+
 protected:
   vtkPointHandleRepresentation3D();
   ~vtkPointHandleRepresentation3D();
@@ -197,8 +211,11 @@ protected:
   // new display position. It is up to the point placer to deduce the 
   // appropriate world co-ordinates that this display position will map into.
   // The placer may even disallow such a movement.
-  void MoveFocusRequest( 
-      double *p1, double *p2, double requestedDisplayPos[3] );
+  // If "SmoothMotion" is OFF, the returned requestedDisplayPos is the same
+  // as the event position, ie the location of the mouse cursor. If its OFF,
+  // incremental offsets as described above are used to compute it.
+  void MoveFocusRequest( double *p1, double *p2,
+                         double eventPos[2], double requestedDisplayPos[3] );
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -217,6 +234,8 @@ protected:
 
   // Control how translation works
   int TranslationMode;
+
+  int SmoothMotion;
 
 private:
   vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&);  //Not implemented

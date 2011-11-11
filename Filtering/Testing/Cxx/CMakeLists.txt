@@ -2,6 +2,7 @@ SET(KIT Filtering)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
+  CellTreeLocator.cxx
   otherCellArray.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx
@@ -26,14 +27,16 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestPolygon.cxx
   TestSelectionSubtract.cxx
   TestTreeBFSIterator.cxx
+  TestTreeDFSIterator.cxx
   TestTriangle.cxx
+  TestImageDataInterpolation.cxx
   TestImageDataToStructuredGrid.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkFiltering vtkGraphics vtkInfovis)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkFiltering vtkGraphics)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)

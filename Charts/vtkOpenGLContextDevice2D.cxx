@@ -1076,13 +1076,19 @@ void vtkOpenGLContextDevice2D::SetClipping(int *dim)
     }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);
-  glEnable(GL_SCISSOR_TEST);
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DisableClipping()
+void vtkOpenGLContextDevice2D::EnableClipping(bool enable)
 {
-  glDisable(GL_SCISSOR_TEST);
+  if (enable)
+    {
+    glEnable(GL_SCISSOR_TEST);
+    }
+  else
+    {
+    glDisable(GL_SCISSOR_TEST);
+    }
 }
 
 //-----------------------------------------------------------------------------

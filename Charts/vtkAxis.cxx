@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -15,6 +16,7 @@
 
 #include "vtkAxis.h"
 
+#include "vtkNew.h"
 #include "vtkContext2D.h"
 #include "vtkPen.h"
 #include "vtkChart.h"
@@ -24,14 +26,14 @@
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtkAxisExtended.h"
+
 #include "vtksys/ios/sstream"
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
 #include <limits>
-#include "math.h"
-
-//-----------------------------------------------------------------------------
+#include <cmath>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -61,6 +63,8 @@ vtkAxis::vtkAxis()
   this->Maximum = 6.66;
   this->MinimumLimit = std::numeric_limits<double>::max() * -1.;
   this->MaximumLimit = std::numeric_limits<double>::max();
+  this->Margins[0] = 15;
+  this->Margins[1] = 5;
   this->LogScale = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
@@ -68,6 +72,8 @@ vtkAxis::vtkAxis()
   this->Notation = STANDARD_NOTATION;
   this->Behavior = 0;
   this->Pen = vtkPen::New();
+  this->TitleAppended = false;
+
   this->Pen->SetColor(0, 0, 0);
   this->Pen->SetWidth(1.0);
   this->GridPen = vtkPen::New();
@@ -82,6 +88,7 @@ vtkAxis::vtkAxis()
   this->MaxLabel[0] = this->MaxLabel[1] = 0.0;
   this->Resized = true;
   this->SetPosition(vtkAxis::LEFT);
+  this->TickLabelAlgorithm = vtkAxis::TICK_SIMPLE;
 }
 
 //-----------------------------------------------------------------------------
@@ -492,10 +499,13 @@ void vtkAxis::SetNotation(int notation)
 void vtkAxis::AutoScale()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing
-  double min = this->Minimum;
-  double max = this->Maximum;
-  this->TickInterval = this->CalculateNiceMinMax(min, max);
-  this->SetRange(min, max);
+  if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
+    {
+    double min = this->Minimum;
+    double max = this->Maximum;
+    this->TickInterval = this->CalculateNiceMinMax(min, max);
+    this->SetRange(min, max);
+    }
   this->UsingNiceMinMax = true;
   this->GenerateTickLabels(this->Minimum, this->Maximum);
 }
@@ -509,7 +519,11 @@ void vtkAxis::RecalculateTickSpacing()
     {
     double min = this->Minimum;
     double max = this->Maximum;
-    this->TickInterval = this->CalculateNiceMinMax(min, max);
+    if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
+      {
+      this->TickInterval = this->CalculateNiceMinMax(min, max);
+      }
+
     if (this->UsingNiceMinMax)
       {
       this->GenerateTickLabels(this->Minimum, this->Maximum);
@@ -667,17 +681,17 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   if (vertical)
     {
-    bounds.SetWidth(widest + titleBounds.GetWidth() + 15);
+    bounds.SetWidth(widest + titleBounds.GetWidth() + this->Margins[0]);
     float range = this->Point1[1] < this->Point2[1] ?
           this->Point2[1] - this->Point1[1] : this->Point1[1] - this->Point2[1];
-    bounds.SetHeight(range + tallest + 5);
+    bounds.SetHeight(range + tallest + this->Margins[1]);
     }
   else
     {
+    bounds.SetHeight(tallest + titleBounds.GetHeight() + this->Margins[0]);
     float range = this->Point1[0] < this->Point2[0] ?
           this->Point2[0] - this->Point1[0] : this->Point1[0] - this->Point2[0];
-    bounds.SetWidth(range + widest + 5);
-    bounds.SetHeight(tallest + titleBounds.GetHeight() + 15);
+    bounds.SetWidth(range + widest + this->Margins[1]);
     }
   return bounds;
 }
@@ -695,6 +709,8 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     {
     // We calculate the first tick mark for lowest order of magnitude.
     // and the last for the highest order of magnitude.
+    this->TickInterval = this->CalculateNiceMinMax(min, max);
+
     bool niceTickMark = false;
     int minOrder = 0;
     int maxOrder = 0;
@@ -736,7 +752,70 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     }
   else
     {
-    // Now calculate the tick labels, and positions within the axis range
+    if (this->TickLabelAlgorithm == vtkAxis::TICK_WILKINSON_EXTENDED)
+      {
+      // Now calculate the tick labels, and positions within the axis range
+      //This gets the tick interval and max, min of labeling from the Extended
+      // algorithm
+      double scaling = 0.0;
+      bool axisVertical = false;
+
+      // When the axis is not initialized
+      if(this->Point1[0] == 0 && this->Point2[0] == 0)
+        {
+        // 500 is an intial guess for the length of the axis in pixels
+        scaling = 500 / (this->Maximum - this->Minimum);
+        }
+      else
+        {
+        if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
+          {
+          scaling = (this->Point2[1] - this->Point1[1]) /
+                    (this->Maximum - this->Minimum);
+          axisVertical = true;
+          }
+        else
+          {
+          scaling = (this->Point2[0] - this->Point1[0]) /
+                    (this->Maximum - this->Minimum);
+          }
+        }
+
+      int fontSize = this->LabelProperties->GetFontSize();
+      vtkNew<vtkAxisExtended> tickPositionExtended;
+
+      // The following parameters are required for the legibility part in the
+      // optimization tickPositionExtended->SetFontSize(fontSize);
+      tickPositionExtended->SetDesiredFontSize(fontSize);
+      tickPositionExtended->SetPrecision(this->Precision);
+      tickPositionExtended->SetIsAxisVertical(axisVertical);
+
+      // Value 4 is hard coded for the user desired tick spacing
+      vtkVector3d values =
+          tickPositionExtended->GenerateExtendedTickLabels(min, max, 4,
+                                                           scaling);
+      min = values[0];
+      max = values[1];
+      this->TickInterval = values[2];
+
+      if(min < this->Minimum)
+        {
+        this->Minimum = min;
+        }
+      if(max > this->Maximum)
+        {
+        this->Maximum = max;
+        }
+
+      this->Notation = tickPositionExtended->GetLabelFormat();
+      this->LabelProperties->SetFontSize(tickPositionExtended->GetFontSize());
+      if(tickPositionExtended->GetOrientation() == 1)
+        {
+        // Set this to 90 to make the labels vertical
+        this->LabelProperties->SetOrientation(90);
+        }
+      }
+
     double mult = max > min ? 1.0 : -1.0;
     double range = 0.0;
     int n = 0;
@@ -785,25 +864,33 @@ void vtkAxis::GenerateTickLabels(double min, double max)
         value = pow(double(10.0), double(value));
         }
       // Now create a label for the tick position
-      vtksys_ios::ostringstream ostr;
-      ostr.imbue(vtkstd::locale::classic());
-      if (this->Notation > 0)
+      if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
         {
-        ostr.precision(this->Precision);
-        }
-      if (this->Notation == SCIENTIFIC_NOTATION)
-        {
-        // Scientific notation
-        ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
-        }
-      else if (this->Notation == FIXED_NOTATION)
-        {
-        ostr.setf(ios::fixed, ios::floatfield);
-        }
-      ostr << value;
+        vtksys_ios::ostringstream ostr;
+        ostr.imbue(vtkstd::locale::classic());
+        if (this->Notation > 0)
+          {
+          ostr.precision(this->Precision);
+          }
+        if (this->Notation == 1)
+          {
+          // Scientific notation
+          ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+          }
+        else if (this->Notation == 2)
+          {
+          ostr.setf(ios::fixed, ios::floatfield);
+          }
+        ostr << value;
 
-      this->TickLabels->InsertNextValue(ostr.str());
+        this->TickLabels->InsertNextValue(ostr.str());
+        }
+      else
+        {
+        this->GenerateLabelFormat(this->Notation, value);
+        }
       }
+
     }
   this->TickMarksDirty = false;
 }
@@ -837,6 +924,113 @@ void vtkAxis::GenerateTickLabels()
     ostr << value;
 
     this->TickLabels->InsertNextValue(ostr.str());
+    }
+}
+
+//-----------------------------------------------------------------------------
+// This methods generates tick labels for 8 different format notations
+//   1 - Scientific 5 * 10^6
+//   2 - Decimal e.g. 5000
+//   3 - K e.g. 5K
+//   4 - Factored K e.g. 5(K)
+//   5 - M e.g. 5M
+//   6 - Factored M e.g. 5(M)
+//   7 - Factored Decimals e.g. 5 (thousands)
+//   8 - Factored Scientific 5 (10^6)
+void vtkAxis::GenerateLabelFormat(int notation, double n)
+{
+  vtksys_ios::ostringstream ostr;
+  ostr.imbue(vtkstd::locale::classic());
+
+  switch(notation)
+    {
+    case 1:
+      ostr << n;
+      ostr.precision(this->Precision);
+      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      this->TickLabels->InsertNextValue(ostr.str());
+      break;
+    case 2:
+      ostr << n;
+      if((std::ceil(n)-std::floor(n)) != 0.0 )
+        {
+        ostr.precision(this->Precision);
+        }
+      this->TickLabels->InsertNextValue(ostr.str());
+      break;
+    case 3:
+      ostr.setf(ios::fixed, ios::floatfield);
+      ostr << n/1000.0 << "K";
+      if((std::ceil(n/1000.0)-std::floor(n/1000.0)) != 0.0 )
+        {
+        ostr.precision(this->Precision);
+        }
+      this->TickLabels->InsertNextValue(ostr.str()); // minus three zeros + K
+      break;
+    case 4:
+      ostr.setf(ios::fixed, ios::floatfield);
+      ostr << n/1000.0 ;
+      if((std::ceil(n/1000.0)-std::floor(n/1000.0)) != 0.0 )
+        {
+        ostr.precision(this->Precision);
+        }
+      if(!TitleAppended)
+        {
+        this->Title.append(" (K)");
+        TitleAppended = true;
+        }
+      this->TickLabels->InsertNextValue(ostr.str());// minus three zeros
+      break;
+    case 5:
+      ostr.setf(ios::fixed, ios::floatfield);
+      ostr << n/1000000.0 << "M";
+      if((std::ceil(n/1000000.0)-std::floor(n/1000000.0)) != 0.0 )
+        {
+        ostr.precision(this->Precision);
+        }
+      this->TickLabels->InsertNextValue(ostr.str()); // minus six zeros
+      break;
+    case 6:
+      ostr.precision(this->Precision);
+      ostr.setf(ios::fixed, ios::floatfield);
+      ostr << n/1000000.0;
+      if((std::ceil(n/1000000.0)-std::floor(n/1000000.0)) != 0.0 )
+        {
+        ostr.precision(this->Precision);
+        }
+      if(!TitleAppended)
+        {
+        this->Title.append(" (M)");
+        TitleAppended = true;
+        }
+      this->TickLabels->InsertNextValue(ostr.str()); // minus six zeros + M
+      break;
+    case 7:
+      ostr.precision(this->Precision);
+      ostr.setf(ios::fixed, ios::floatfield);
+      ostr << n/1000.0;
+      if((std::ceil(n/1000.0)-std::floor(n/1000.0)) != 0.0 )
+        {
+        ostr.precision(this->Precision);
+        }
+      if(!TitleAppended)
+        {
+        this->Title.append(" ('000)");
+        TitleAppended = true;
+        }
+      this->TickLabels->InsertNextValue(ostr.str());  // Three 0's get reduced
+      break;
+    case 8:
+      ostr.precision(this->Precision);
+      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      ostr << n/1000.0 ;
+      if(!TitleAppended)
+        {
+        this->Title.append(" ('000)");
+        TitleAppended = true;
+        }
+      this->TickLabels->InsertNextValue(ostr.str());
+      break;
     }
 }
 
@@ -1056,7 +1250,6 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
   int minimum = static_cast<int>(ceil(min));
   int maximum = static_cast<int>(floor(max));
 
-
   double result(minimum);
   for(int j = minimum; j <= maximum; ++j)
     {
@@ -1118,5 +1311,4 @@ void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
      << this->Point2[1] << endl;
   os << indent << "Range: " << this->Minimum << " - " << this->Maximum << endl;
   os << indent << "Number of tick marks: " << this->NumberOfTicks << endl;
-
 }

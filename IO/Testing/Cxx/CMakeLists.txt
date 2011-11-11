@@ -126,6 +126,7 @@ IF (VTK_DATA_ROOT)
     ADD_TEST(TestSQLiteTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
       TestSQLiteTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
   ENDIF (WIN32)
+  set_tests_properties(TestSQLiteTableReadWrite PROPERTIES RUN_SERIAL ON)
 
   IF(VTK_USE_METAIO)
     ADD_TEST(TestMetaIO ${CXX_TEST_PATH}/${KIT}CxxTests TestMetaIO
@@ -197,6 +198,7 @@ IF(VTK_USE_FFMPEG_ENCODER)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
 IF(VTK_HAS_UINT64_ARRAY)
   ADD_TEST(TestSQLiteDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestSQLiteDatabase)
+  set_tests_properties(TestSQLiteDatabase PROPERTIES RUN_SERIAL ON)
 ENDIF(VTK_HAS_UINT64_ARRAY)
 IF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
   ADD_TEST(TestPostgreSQLDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestPostgreSQLDatabase)
@@ -236,6 +238,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
   CREATE_TEST_SOURCELIST(ArrayIOTests ArrayIOCxxTests.cxx
     TestArraySerialization.cxx
+    TestArrayDataWriter.cxx
     TestArrayDenormalized.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )

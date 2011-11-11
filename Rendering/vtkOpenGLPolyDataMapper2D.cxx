@@ -151,15 +151,22 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   p = input->GetPoints();
   if ( this->TransformCoordinate )
     {
-    int *itmp;
     numPts = p->GetNumberOfPoints();
     displayPts = vtkPoints::New();
     displayPts->SetNumberOfPoints(numPts);
     for ( j=0; j < numPts; j++ )
       {
       this->TransformCoordinate->SetValue(p->GetPoint(j));
-      itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
-      displayPts->SetPoint(j,itmp[0], itmp[1], 0.0);
+      if (this->TransformCoordinateUseDouble)
+        {
+        double* dtmp = this->TransformCoordinate->GetComputedDoubleViewportValue(viewport);
+        displayPts->SetPoint(j,dtmp[0], dtmp[1], 0.0);
+        }
+      else
+        {
+        int* itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
+        displayPts->SetPoint(j,itmp[0], itmp[1], 0.0);
+        }
       }
     p = displayPts;
     }

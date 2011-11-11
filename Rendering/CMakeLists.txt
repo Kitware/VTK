@@ -173,6 +173,7 @@ SET( Kit_SRCS
   vtkSelectVisiblePoints.cxx
   vtkShader.cxx
   vtkShaderDeviceAdapter.cxx
+  vtkShaderDeviceAdapter2.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
   vtkStringToImage.cxx
@@ -315,6 +316,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkRenderState # not abstract just not using instantiator
   vtkShader
   vtkShaderDeviceAdapter
+  vtkShaderDeviceAdapter2
   vtkShaderProgram
   vtkStringToImage
   vtkTDxInteractorStyle

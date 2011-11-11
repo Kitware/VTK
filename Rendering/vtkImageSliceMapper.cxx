@@ -328,23 +328,31 @@ double *vtkImageSliceMapper::GetBounds()
   extent[4] = this->DisplayExtent[4];
   extent[5] = this->DisplayExtent[5];
 
-  extent[2*this->Orientation] = this->SliceNumberMinValue;
-  extent[2*this->Orientation + 1] = this->SliceNumberMaxValue;
+  int orientation = this->Orientation % 3;
+  extent[2*orientation] = this->SliceNumberMinValue;
+  extent[2*orientation + 1] = this->SliceNumberMaxValue;
 
   double *spacing = this->DataSpacing;
   double *origin = this->DataOrigin;
 
-  int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
-  int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
-  int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
+  // expand by half a pixel if border is on, except in slice direction
+  double border = 0.5*(this->Border != 0);
+  double borderX = border*(orientation != 0);
+  double borderY = border*(orientation != 1);
+  double borderZ = border*(orientation != 2);
 
-  this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
-  this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
-  this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
+  // swap the extent if the spacing is negative
+  int swapX = (spacing[0] < 0);
+  int swapY = (spacing[1] < 0);
+  int swapZ = (spacing[2] < 0);
 
-  this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
-  this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
-  this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+  this->Bounds[0+swapX] = origin[0] + (extent[0] - borderX) * spacing[0];
+  this->Bounds[2+swapY] = origin[1] + (extent[2] - borderY) * spacing[1];
+  this->Bounds[4+swapZ] = origin[2] + (extent[4] - borderZ) * spacing[2];
+
+  this->Bounds[1-swapX] = origin[0] + (extent[1] + borderX) * spacing[0];
+  this->Bounds[3-swapY] = origin[1] + (extent[3] + borderY) * spacing[1];
+  this->Bounds[5-swapZ] = origin[2] + (extent[5] + borderZ) * spacing[2];
 
   return this->Bounds;
 }

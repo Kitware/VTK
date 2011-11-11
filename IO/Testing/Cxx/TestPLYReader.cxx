@@ -28,35 +28,38 @@
 #include "vtkTestUtilities.h"
 
 #include "vtkWindowToImageFilter.h"
-#include "vtkPNGWriter.h"
 
 int TestPLYReader( int argc, char *argv[] )
 {
   // Read file name.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+  const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+
+  // Test if the reader thinks it can open the file.
+  int canRead = vtkPLYReader::CanReadFile(fname);
+  (void)canRead;
 
   // Create the reader.
   vtkPLYReader* reader = vtkPLYReader::New();
   reader->SetFileName(fname);
   reader->Update();
   delete [] fname;
-  
+
   // Create a mapper.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInput(reader->GetOutput());
   mapper->ScalarVisibilityOn();
-  
+
   // Create the actor.
   vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
-  
+
   // Basic visualisation.
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   ren->AddActor(actor);
   ren->SetBackground(0,0,0);
   renWin->SetSize(300,300);
@@ -70,7 +73,7 @@ int TestPLYReader( int argc, char *argv[] )
     {
     iren->Start();
     }
-  
+
   actor->Delete();
   mapper->Delete();
   reader->Delete();

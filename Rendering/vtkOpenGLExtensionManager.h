@@ -121,15 +121,15 @@
 #ifndef __vtkOpenGLExtensionManager_h
 #define __vtkOpenGLExtensionManager_h
 
-#include <vtkObject.h>
-#include <vtkWeakPointer.h> // needed for vtkWeakPointer.
+#include "vtkObject.h"
+#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
 
 //BTX
 extern "C" {
 #ifdef _WIN32
-#include <vtkOpenGL.h>  // Needed for WINAPI
+#include "vtkOpenGL.h"  // Needed for WINAPI
   typedef int (WINAPI *vtkOpenGLExtensionManagerFunctionPointer)(void);
 #else
   typedef void (*vtkOpenGLExtensionManagerFunctionPointer)(void);

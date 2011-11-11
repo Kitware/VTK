@@ -88,9 +88,9 @@ protected:
   virtual unsigned long int GetControlPointsMTime();
   virtual void ComputePoints();
 
-  virtual int GetNumberOfPoints()const;
+  virtual vtkIdType GetNumberOfPoints()const;
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
-  virtual void GetControlPoint(vtkIdType index, double* pos);
+  virtual void GetControlPoint(vtkIdType index, double* pos)const;
   virtual void SetControlPoint(vtkIdType index, double *point);
   virtual void EditPoint(float tX, float tY);
 

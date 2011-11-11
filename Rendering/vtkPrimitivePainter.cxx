@@ -34,8 +34,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkGLSLShaderDeviceAdapter2.h"
-#include "vtkOpenGLProperty.h"
+#include "vtkShaderDeviceAdapter2.h"
 
 //---------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
@@ -297,19 +296,15 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
     }
 
   vtkShaderDeviceAdapter *shaderDevice = NULL;
-  vtkGLSLShaderDeviceAdapter2 *shaderDevice2 = NULL;
+  vtkShaderDeviceAdapter2 *shaderDevice2 = NULL;
 
   if (prop->GetShading())
     {
-    if ( prop->GetShaderProgram())
+    if (prop->GetShaderProgram())
       {
       shaderDevice = prop->GetShaderProgram()->GetShaderDeviceAdapter();
       }
-    vtkOpenGLProperty *oglProp=vtkOpenGLProperty::SafeDownCast(prop);
-    if (oglProp->GetCurrentShaderProgram2()!=0)
-      {
-      shaderDevice2=oglProp->GetShaderDeviceAdapter2();
-      }
+    shaderDevice2 = prop->GetShaderDeviceAdapter2();
     }
 
   if (shaderDevice && this->GenericVertexAttributes)

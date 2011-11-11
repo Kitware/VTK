@@ -31,6 +31,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkImageResliceToColors.h"
+#include "vtkAbstractImageInterpolator.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageResliceMapper);
@@ -105,6 +106,26 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
     }
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageResliceMapper::SetInterpolator(
+  vtkAbstractImageInterpolator *interpolator)
+{
+  unsigned long mtime = this->ImageReslice->GetMTime();
+
+  this->ImageReslice->SetInterpolator(interpolator);
+
+  if (this->ImageReslice->GetMTime() > mtime)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractImageInterpolator *vtkImageResliceMapper::GetInterpolator()
+{
+  return this->ImageReslice->GetInterpolator();
 }
 
 //----------------------------------------------------------------------------
@@ -348,9 +369,7 @@ void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice *prop)
 // Update the SliceToWorld transformation matrix
 void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
 {
-  // NOTE: This method is only called if InternalResampleToScreenPixels is On
-
-  // Get slice plane in world coords by passing null as the prop matrix 
+  // Get slice plane in world coords by passing null as the prop matrix
   double plane[4];
   this->GetSlicePlaneInDataCoords(0, plane);
 
@@ -429,14 +448,32 @@ void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
 void vtkImageResliceMapper::UpdateResliceMatrix(
   vtkRenderer *ren, vtkImageSlice *prop)
 {
-  vtkMatrix4x4 *resliceMatrix = this->ResliceMatrix;
-  vtkMatrix4x4 *propMatrix = prop->GetMatrix();
-
   // Get world-to-data matrix from the prop matrix
   this->UpdateWorldToDataMatrix(prop);
 
-  // Compute SliceToWorld matrix from camera if InternalResampleToScreenPixels
-  if (this->InternalResampleToScreenPixels)
+  // Check if prop matrix is orthonormal
+  bool propMatrixIsOrthonormal = false;
+  vtkMatrix4x4 *propMatrix = 0;
+  if (!this->InternalResampleToScreenPixels)
+    {
+    static double tol = 1e-12;
+    propMatrix = prop->GetMatrix();
+    double *row0 = propMatrix->Element[0];
+    double *row1 = propMatrix->Element[1];
+    double *row2 = propMatrix->Element[2];
+    propMatrixIsOrthonormal = (
+      fabs(vtkMath::Dot(row0, row0) - 1.0) < tol &&
+      fabs(vtkMath::Dot(row1, row1) - 1.0) < tol &&
+      fabs(vtkMath::Dot(row2, row2) - 1.0) < tol &&
+      fabs(vtkMath::Dot(row0, row1)) < tol &&
+      fabs(vtkMath::Dot(row0, row2)) < tol &&
+      fabs(vtkMath::Dot(row1, row2)) < tol);
+    }
+
+  // Compute SliceToWorld matrix from camera if prop matrix is not
+  // orthonormal or if InternalResampleToScreenPixels is set
+  if (this->InternalResampleToScreenPixels ||
+      !propMatrixIsOrthonormal)
     {
     this->UpdateSliceToWorldMatrix(ren->GetActiveCamera());
     vtkMatrix4x4::Multiply4x4(
@@ -445,25 +482,34 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
     return;
     }
 
+  // Get the matrices used to compute the reslice matrix
+  vtkMatrix4x4 *resliceMatrix = this->ResliceMatrix;
+  vtkMatrix4x4 *viewMatrix = ren->GetActiveCamera()->GetViewTransformMatrix();
+
   // Get slice plane in world coords by passing null as the matrix
-  double plane[4];
-  this->GetSlicePlaneInDataCoords(0, plane);
+  double wplane[4];
+  this->GetSlicePlaneInDataCoords(0, wplane);
 
   // Check whether normal is facing towards camera, the "ndop" is
   // the negative of the direction of projection for the camera
-  vtkMatrix4x4 *viewMatrix = ren->GetActiveCamera()->GetViewTransformMatrix();
   double *ndop = viewMatrix->Element[2];
-  double dotprod = vtkMath::Dot(ndop, plane);
+  double dotprod = vtkMath::Dot(ndop, wplane);
 
   // Get slice plane in data coords by passing the prop matrix, flip
-  // normal to face the camera 
-  this->GetSlicePlaneInDataCoords(prop->GetMatrix(), plane);
+  // normal to face the camera
+  double plane[4];
+  this->GetSlicePlaneInDataCoords(propMatrix, plane);
   if (dotprod < 0)
     {
     plane[0] = -plane[0];
     plane[1] = -plane[1];
     plane[2] = -plane[2];
     plane[3] = -plane[3];
+
+    wplane[0] = -wplane[0];
+    wplane[1] = -wplane[1];
+    wplane[2] = -wplane[2];
+    wplane[3] = -wplane[3];
     }
 
   // Find the largest component of the normal
@@ -502,7 +548,10 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
   double *normal = plane;
 
   // The last element is -dot(normal, origin)
-  double dp = -plane[3];
+  double dp = (-plane[3] +
+               wplane[0]*propMatrix->Element[0][3] +
+               wplane[1]*propMatrix->Element[1][3] +
+               wplane[2]*propMatrix->Element[2][3]);
 
   // Compute the rotation angle between the axis and the normal
   double vec[3];
@@ -527,7 +576,7 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
   // convert to matrix
   double mat[3][3];
   vtkMath::QuaternionToMatrix3x3(quat, mat);
-  
+
   // Create a slice-to-data transform matrix
   // The columns are v1, v2, normal
   double v1[3], v2[3];
@@ -549,9 +598,18 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
   resliceMatrix->Element[2][2] = normal[2];
   resliceMatrix->Element[3][2] = 0.0;
 
-  resliceMatrix->Element[0][3] = dp*(propMatrix->Element[2][0] - normal[0]);
-  resliceMatrix->Element[1][3] = dp*(propMatrix->Element[2][1] - normal[1]);
-  resliceMatrix->Element[2][3] = dp*(propMatrix->Element[2][2] - normal[2]);
+  resliceMatrix->Element[0][3] = dp*(propMatrix->Element[2][0] - normal[0]) -
+    (propMatrix->Element[0][3]*propMatrix->Element[0][0] +
+     propMatrix->Element[1][3]*propMatrix->Element[1][0] +
+     propMatrix->Element[2][3]*propMatrix->Element[2][0]);
+  resliceMatrix->Element[1][3] = dp*(propMatrix->Element[2][1] - normal[1]) -
+    (propMatrix->Element[0][3]*propMatrix->Element[0][1] +
+     propMatrix->Element[1][3]*propMatrix->Element[1][1] +
+     propMatrix->Element[2][3]*propMatrix->Element[2][1]);
+  resliceMatrix->Element[2][3] = dp*(propMatrix->Element[2][2] - normal[2]) -
+    (propMatrix->Element[0][3]*propMatrix->Element[0][2] +
+     propMatrix->Element[1][3]*propMatrix->Element[1][2] +
+     propMatrix->Element[2][3]*propMatrix->Element[2][2]);
   resliceMatrix->Element[3][3] = 1.0;
 
   // Compute the SliceToWorldMatrix
@@ -1245,6 +1303,7 @@ void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SlabType: " << this->GetSlabTypeAsString() << "\n";
   os << indent << "SlabSampleFactor: " << this->SlabSampleFactor << "\n";
   os << indent << "ImageSampleFactor: " << this->ImageSampleFactor << "\n";
+  os << indent << "Interpolator: " << this->GetInterpolator() << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -1266,6 +1325,18 @@ const char *vtkImageResliceMapper::GetSlabTypeAsString()
 unsigned long vtkImageResliceMapper::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
+
+  // Check whether interpolator has changed
+  vtkAbstractImageInterpolator *interpolator =
+    this->ImageReslice->GetInterpolator();
+  if (interpolator)
+    {
+    unsigned long mTime2 = interpolator->GetMTime();
+    if (mTime2 > mTime)
+      {
+      mTime = mTime2;
+      }
+    }
 
   // Include camera in MTime so that REQUEST_INFORMATION
   // will be called if the camera changes
@@ -1341,17 +1412,21 @@ double *vtkImageResliceMapper::GetBounds()
     double *origin = this->DataOrigin;
     int *extent = this->DataWholeExtent;
 
-    int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
-    int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
-    int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
+    // expand by half a pixel if border is on
+    double border = 0.5*(this->Border != 0);
 
-    this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
-    this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
-    this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
+    // swap the extent if the spacing is negative
+    int swapX = (spacing[0] < 0);
+    int swapY = (spacing[1] < 0);
+    int swapZ = (spacing[2] < 0);
 
-    this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
-    this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
-    this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+    this->Bounds[0+swapX] = origin[0] + (extent[0] - border) * spacing[0];
+    this->Bounds[2+swapY] = origin[1] + (extent[2] - border) * spacing[1];
+    this->Bounds[4+swapZ] = origin[2] + (extent[4] - border) * spacing[2];
+
+    this->Bounds[1-swapX] = origin[0] + (extent[1] + border) * spacing[0];
+    this->Bounds[3-swapY] = origin[1] + (extent[3] + border) * spacing[1];
+    this->Bounds[5-swapZ] = origin[2] + (extent[5] + border) * spacing[2];
 
     return this->Bounds;
     }
