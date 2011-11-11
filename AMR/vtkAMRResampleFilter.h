@@ -81,6 +81,9 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Sets the min
+    void SetMin(const double *pnt)
+    {this->SetMin(pnt[0], pnt[1], pnt[2]);}
+
     inline void SetMin( double x, double y, double z )
     {
       this->Min[0]     = x;
@@ -92,6 +95,9 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Sets the max
+    void SetMax(const double *pnt)
+    {this->SetMax(pnt[0], pnt[1], pnt[2]);}
+
     inline void SetMax( double x, double y, double z )
     {
       this->Max[0]     = x;

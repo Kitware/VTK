@@ -44,8 +44,8 @@ vtkStandardNewMacro( vtkAMRResampleFilter );
 vtkAMRResampleFilter::vtkAMRResampleFilter()
 {
   this->TransferToNodes      = 1;
-  this->DemandDrivenMode     = 1;
-  this->NumberOfPartitions   = 2;
+  this->DemandDrivenMode     = 0;
+  this->NumberOfPartitions   = 1;
   this->LevelOfResolution    = 0;
   this->NumberOfSamples[0]   = this->NumberOfSamples[1] = this->NumberOfSamples[2] = 10;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
