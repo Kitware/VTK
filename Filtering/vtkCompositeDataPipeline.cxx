@@ -385,7 +385,15 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
   //compositePort = temporal ? -1 : compositePort;  
   if (temporal || composite)
     {
-    this->ExecuteSimpleAlgorithm(request, inInfoVec, outInfoVec, compositePort);
+    if (this->GetNumberOfOutputPorts())
+      {
+      this->ExecuteSimpleAlgorithm(request, inInfoVec, outInfoVec, compositePort);
+      }
+    else
+      {
+       vtkErrorMacro("Can not execute simple alorithm without output ports");
+       return 0;
+      }
     }
   else
     {
