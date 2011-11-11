@@ -950,6 +950,17 @@ void vtkAMRBox::GetMaxBounds( double max[3] ) const
 }
 
 //-----------------------------------------------------------------------------
+void vtkAMRBox::GetBounds( double bounds[6] ) const
+{
+  int i, j;
+    for( i=0, j=0; i < 3; ++i )
+      {
+      bounds[ j++ ] = this->X0[i]+this->LoCorner[i]*this->DX[i];
+      bounds[ j++ ] = this->X0[i]+(this->HiCorner[i]+1)*this->DX[i];
+      }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 {
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );

@@ -62,6 +62,9 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
   this->ScalarRange[1]    = VTK_DOUBLE_MIN;
   this->PadCellVisibility = false;
   this->origin[0] = this->origin[1] = this->origin[2] = 0.0;
+  this->Bounds[0] = this->Bounds[1] = this->Bounds[2] = 
+    this->Bounds[3] = this->Bounds[4] = this->Bounds[5] = 0.0;
+
 }
 
 //----------------------------------------------------------------------------
@@ -900,4 +903,25 @@ void vtkHierarchicalBoxDataSet::ComputeScalarRange()
       }
     this->ScalarRangeComputeTime.Modified();
     }
+}
+//----------------------------------------------------------------------------
+// Description:
+// Get the Bounds of the Data
+double *vtkHierarchicalBoxDataSet::GetBounds()
+{
+  vtkAMRBox amrBox;
+  this->GetRootAMRBox( amrBox );
+  amrBox.GetBounds(this->Bounds);
+  return this->Bounds;
+}
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::GetBounds(double bounds[6])
+{
+  this->GetBounds();
+  bounds[0] = this->Bounds[0];
+  bounds[1] = this->Bounds[1];
+  bounds[2] = this->Bounds[2];
+  bounds[3] = this->Bounds[3];
+  bounds[4] = this->Bounds[4];
+  bounds[5] = this->Bounds[5];
 }

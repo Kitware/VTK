@@ -102,6 +102,10 @@ public:
   void GetMaxBounds( double max[3] ) const;
 
   // Description:
+  // Get the bounds of this box.
+  void GetBounds(double bounds[6]) const;
+
+  // Description:
   // Get/Set the spatial dimension of the box. Only 2 and 3 
   // are valid.
   int GetDimensionality() const { return this->Dimension; }

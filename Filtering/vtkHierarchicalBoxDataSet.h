@@ -282,6 +282,16 @@ public:
   vtkSetMacro( PadCellVisibility, bool );
   vtkGetMacro( PadCellVisibility, bool );
 
+  // Description:
+  // Return a pointer to the geometry bounding box in the form
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
+  double *GetBounds();
+
+  // Description:
+  // Return a pointer to the geometry bounding box in the form
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
+  void GetBounds(double bounds[6]);
+
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();
@@ -310,6 +320,7 @@ protected:
 
   // Global Origin
   double origin[3];
+  double Bounds[6];
 
   // Mapping of composite indices to the (level,id) pair.
   vtkstd::map< int, vtkstd::pair<unsigned int,unsigned int> >
