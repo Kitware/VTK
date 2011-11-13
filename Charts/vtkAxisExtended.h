@@ -74,11 +74,6 @@ public:
    static double DensityMax(int k, double m);
 
    // Description:
-   // This method implements an exhaustive search for the legibilty parametes
-   vtkVector<double, 4> Legibility(double lmin, double lmax, double lstep,
-                                   double scaling);
-
-   // Description:
    // This methods return the legibility score of differnt formats
    static double FormatLegibilityScore(double n, int format);
 
@@ -115,6 +110,11 @@ public:
 protected:
   vtkAxisExtended();
   ~vtkAxisExtended();
+
+  // Description:
+  // This method implements an exhaustive search of the legibilty parameters.
+  double Legibility(double lmin, double lmax, double lstep, double scaling,
+                    vtkVector<int, 3>& parameters);
 
   int Orientation;
   int FontSize;
