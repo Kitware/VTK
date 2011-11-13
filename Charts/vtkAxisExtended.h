@@ -40,6 +40,7 @@ class VTK_CHARTS_EXPORT vtkAxisExtended : public vtkObject
 public:
    vtkTypeMacro(vtkAxisExtended, vtkObject);
    static vtkAxisExtended *New();
+   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
    // Description:
    // This method return a value to make step sizes corresponding to low q
