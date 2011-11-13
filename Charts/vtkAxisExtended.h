@@ -40,6 +40,7 @@ class VTK_CHARTS_EXPORT vtkAxisExtended : public vtkObject
 public:
    vtkTypeMacro(vtkAxisExtended, vtkObject);
    static vtkAxisExtended *New();
+   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
    // Description:
    // This method return a value to make step sizes corresponding to low q
@@ -73,11 +74,6 @@ public:
    static double DensityMax(int k, double m);
 
    // Description:
-   // This method implements an exhaustive search for the legibilty parametes
-   vtkVector<double, 4> Legibility(double lmin, double lmax, double lstep,
-                                   double scaling);
-
-   // Description:
    // This methods return the legibility score of differnt formats
    static double FormatLegibilityScore(double n, int format);
 
@@ -108,12 +104,17 @@ public:
    vtkGetMacro(Orientation, int);
    vtkSetMacro(Orientation, int);
 
-   //vtkGetMacro(FontSize, int);
+   vtkGetMacro(IsAxisVertical, bool);
    vtkSetMacro(IsAxisVertical, bool);
 
 protected:
   vtkAxisExtended();
   ~vtkAxisExtended();
+
+  // Description:
+  // This method implements an exhaustive search of the legibilty parameters.
+  double Legibility(double lmin, double lmax, double lstep, double scaling,
+                    vtkVector<int, 3>& parameters);
 
   int Orientation;
   int FontSize;
