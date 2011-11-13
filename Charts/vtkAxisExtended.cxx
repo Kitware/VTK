@@ -520,3 +520,13 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
   // return Sequence(bestLmin, bestLmax, bestLstep);
   return ans;
 }
+
+void vtkAxisExtended::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Orientation: " << this->Orientation << endl;
+  os << indent << "FontSize: " << this->FontSize << endl;
+  os << indent << "DesiredFontSize: " << this->DesiredFontSize << endl;
+  os << indent << "Precision: " << this->Precision << endl;
+  os << indent << "LabelFormat: " << this->LabelFormat << endl;
+}
