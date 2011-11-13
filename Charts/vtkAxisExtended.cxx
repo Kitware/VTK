@@ -268,8 +268,9 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
 
 // This methods determines the optimum notation, font size and orientation of
 // labels from an exhaustive search
-vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax,
-                                                 double lstep, double scaling)
+double vtkAxisExtended::Legibility(double lmin, double lmax, double lstep,
+                                   double scaling,
+                                   vtkVector<int, 3>& parameters)
 {
   int numTicks = static_cast<int>((lmax - lmin) / lstep);
   double* tickPositions = new double[numTicks];
@@ -393,13 +394,11 @@ vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax,
       }
     }
 
-  vtkVector<double, 4> LegParameters;
-  LegParameters[0] = bestLegScore;
-  LegParameters[1] = bestFormat;
-  LegParameters[2] = bestFontSize;
-  LegParameters[3] = bestOrientation;
+  parameters[0] = bestFormat;
+  parameters[1] = bestFontSize;
+  parameters[2] = bestOrientation;
   delete [] tickPositions;
-  return LegParameters;
+  return bestLegScore;
 }
 
 // This method implements the algorithm given in the paper
@@ -413,7 +412,6 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
   vtkVector3d ans;
 
   this->LabelLegibilityChanged = false;
-  //vtkVector3d ans
   if(dmin > dmax)
     {
     double temp = dmin;
@@ -491,9 +489,13 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
             if(score < bestScore)
                continue;
 
-            vtkVector<double,4> l = Legibility(lmin,lmax,lstep,scaling);
+            //vtkVector<double,4> l = this->Legibility(lmin, lmax, lstep, scaling);
 
-            score = w[0]*s + w[1]*c + w[2]*g + w[3]*l[0];
+            vtkVector<int, 3> legibilityIndex;
+            double newScore = this->Legibility(lmin, lmax, lstep, scaling,
+                                               legibilityIndex);
+
+            score = w[0] * s + w[1] * c + w[2] * g + w[3] * newScore;
 
             if(score > bestScore)
               {
@@ -501,9 +503,9 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
               bestLmin = lmin;
               bestLmax = lmax;
               bestLstep = lstep;
-              this->LabelFormat = l[1]; // label format
-              this->FontSize = l[2]; // label font size
-              this->Orientation = l[3]; // label orientation
+              this->LabelFormat = legibilityIndex[0]; // label format
+              this->FontSize = legibilityIndex[1]; // label font size
+              this->Orientation = legibilityIndex[2]; // label orientation
               }
             }
           ++z;
