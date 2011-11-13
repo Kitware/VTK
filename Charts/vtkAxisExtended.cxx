@@ -27,6 +27,13 @@ vtkStandardNewMacro(vtkAxisExtended);
 
 vtkAxisExtended::vtkAxisExtended()
 {
+  this->FontSize = 0;
+  this->DesiredFontSize = 10;
+  this->Precision = 3;
+  this->LabelFormat = 0;
+  this->Orientation = 0;
+  this->LabelLegibilityChanged = true;
+  this->IsAxisVertical = false;
 }
 
 vtkAxisExtended::~vtkAxisExtended()
@@ -342,7 +349,7 @@ double vtkAxisExtended::Legibility(double lmin, double lmax, double lstep,
         double overlapLegSum = 1.0;
 
         double legScore = (formatLegSum + fontLegSum + orientLegSum
-                           + overlapLegSum)/4;
+                           + overlapLegSum) / 4;
         if(legScore > bestLegScore )
           {
           if(numTicks>1)

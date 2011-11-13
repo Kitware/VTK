@@ -104,7 +104,7 @@ public:
    vtkGetMacro(Orientation, int);
    vtkSetMacro(Orientation, int);
 
-   //vtkGetMacro(FontSize, int);
+   vtkGetMacro(IsAxisVertical, bool);
    vtkSetMacro(IsAxisVertical, bool);
 
 protected:
