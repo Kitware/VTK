@@ -31,6 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkBrush.h"
 #include "vtkPlotPoints.h"
+#include "vtkCommand.h"
 
 class vtkScatterPlotMatrix::PIMPL
 {
@@ -262,6 +263,12 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
 vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
 {
   return this->ActivePlot;
+}
+
+vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
+{
+  return this->Private->BigChart ?
+    this->Private->BigChart->GetAnnotationLink() : NULL;
 }
 
 void vtkScatterPlotMatrix::SetInput(vtkTable *table)
@@ -686,6 +693,10 @@ void vtkScatterPlotMatrix::UpdateLayout()
         this->Private->BigChart = this->GetChart(pos);
         this->Private->BigChart->SetAnnotationLink(
               this->Private->Link.GetPointer());
+        this->Private->BigChart->AddObserver(
+          vtkCommand::SelectionChangedEvent, this,
+          &vtkScatterPlotMatrix::BigChartSelectionCallback);
+
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
         this->SetActivePlot(vtkVector2i(0, n - 2));
         }
@@ -747,6 +758,13 @@ void vtkScatterPlotMatrix::AxisRangeForwarderCallback(vtkObject*,
       this->GetChart(vtkVector2i(j, i))->GetAxis(vtkAxis::LEFT)->SetRange(r);
       }
     }
+}
+
+void vtkScatterPlotMatrix::BigChartSelectionCallback(vtkObject*,
+  unsigned long event, void*)
+{
+  // forward the SelectionChangedEvent from the Big Chart plot
+  this->InvokeEvent(event);
 }
 
 void vtkScatterPlotMatrix::PrintSelf(ostream &os, vtkIndent indent)
