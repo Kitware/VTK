@@ -204,7 +204,7 @@ int vtkAMRResampleFilter::RequestData(
 
 //-----------------------------------------------------------------------------
 bool vtkAMRResampleFilter::FoundDonor(
-    double q[3],vtkUniformGrid *donorGrid,int &cellIdx)
+    double q[3],vtkUniformGrid *&donorGrid,int &cellIdx)
 {
   assert( "pre: donor grid is NULL" && (donorGrid != NULL) );
 
@@ -241,13 +241,6 @@ void vtkAMRResampleFilter::InitializeFields(
 
     f->AddArray( array );
     array->Delete();
-
-//      int myIndex = -1;
-//      vtkDataArray *arrayPtr = f->GetArray(
-//          src->GetArray(arrayIdx)->GetName(), myIndex );
-//      assert( "post: array index mismatch" && (myIndex == arrayIdx) );
-//      assert( "post: array size mismatch" &&
-//              (arrayPtr->GetNumberOfTuples()==size) );
 
     assert( "post: array size mismatch" &&
             (f->GetArray( arrayIdx)->GetNumberOfTuples() == size) );
@@ -376,8 +369,8 @@ void vtkAMRResampleFilter::TransferToCellCenters(
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
     double q[3], vtkHierarchicalBoxDataSet *amrds,
-    unsigned int level, vtkUniformGrid *donorGrid,
-    int &donorCellIdx, unsigned int &donorLevel )
+    unsigned int level, vtkUniformGrid *&donorGrid,
+    int &donorCellIdx )
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
 
@@ -390,7 +383,6 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
     if( (donorGrid!=NULL) &&
        this->FoundDonor(q,donorGrid,donorCellIdx) )
      {
-     donorLevel = level;
      assert( "pre: donorCellIdx is invalid" &&
              (donorCellIdx >= 0) &&
              (donorCellIdx < donorGrid->GetNumberOfCells()) );
@@ -399,9 +391,74 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
 
     } // END for all data at level
 
+
   // No suitable grid is found at the requested level, set donorGrid to NULL
   // to indicate that to the caller.
   donorGrid = NULL;
+}
+
+//-----------------------------------------------------------------------------
+int vtkAMRResampleFilter::ProbeGridPointInAMR(
+    double q[3], vtkUniformGrid *&donorGrid, unsigned int &donorLevel,
+    vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel )
+{
+  assert( "pre: AMR dataset is NULL" && amrds != NULL );
+
+  vtkUniformGrid *currentGrid = NULL;
+  int currentCellIdx          = -1;
+  int donorCellIdx            = -1;
+
+  // STEP 0: Check the previously cached donor-grid
+  if( donorGrid != NULL )
+    {
+    if( this->FoundDonor( q, donorGrid, donorCellIdx ) )
+      {
+      assert( "pre: donorCellIdx is invalid" &&
+        (donorCellIdx >= 0) && (donorCellIdx < donorGrid->GetNumberOfCells()) );
+
+      // Initialize values for step 1 s.t. that the search will start from the
+      // current donorLevel
+      currentGrid    = donorGrid;
+      currentCellIdx = donorCellIdx;
+      }
+    else
+      {
+      // Initialize values for step 1 s.t. the search will start from level 0.
+      donorLevel = 0;
+      donorGrid  = NULL;
+      }
+    }
+
+  // STEP 1: Search in the AMR hierarchy for the donor-grid
+  for( unsigned int level=donorLevel; level < maxLevel; ++level )
+    {
+    this->SearchForDonorGridAtLevel(q,amrds,level,donorGrid,donorCellIdx);
+    if( donorGrid != NULL )
+      {
+      // we found a grid that contains the point at level l, let's store it
+      // here temporatily in case there is a grid at a higher resolution that
+      // we need to use.
+      currentGrid    = donorGrid;
+      currentCellIdx = donorCellIdx;
+      }
+    else if( currentGrid != NULL )
+      {
+      // we did not find the point at a higher res, but, we did find at a lower
+      // resolution, so we will use the solution we found previously
+      donorGrid    = currentGrid;
+      donorCellIdx = currentCellIdx;
+      break;
+      }
+    else
+      {
+      // we are not able to find a grid/cell that contains the query point, in
+      // this case we will just return.
+      donorCellIdx = -1;
+      donorGrid    = NULL;
+      break;
+      }
+    } // END for all levels
+  return( donorCellIdx );
 }
 
 //-----------------------------------------------------------------------------
@@ -411,63 +468,67 @@ void vtkAMRResampleFilter::TransferToGridNodes(
   assert( "pre: uniform grid is NULL" && (g != NULL) );
   assert( "pre: AMR data-structure is NULL" && (amrds != NULL) );
 
+  // STEP 0: Initialize the fields on the grid
   vtkUniformGrid *refGrid = this->GetReferenceGrid( amrds );
-
-  vtkCellData *CD = refGrid->GetCellData();
+  vtkCellData *CD        = refGrid->GetCellData();
   assert( "pre: Donor CellData is NULL!" && (CD != NULL)  );
 
   vtkPointData *PD = g->GetPointData();
   assert( "pre: Target PointData is NULL!" && (PD != NULL) );
 
-  // STEP 0: Initialize the fields on the grid
   this->InitializeFields( PD, g->GetNumberOfPoints(), CD );
 
+  // STEP 1: If no arrays are selected, there is no need to interpolate
+  // anything on the grid, just return
   if(PD->GetNumberOfArrays() == 0)
     {
     return;
     }
 
-  // STEP 1: Loop through all the points and find the donors.
-  unsigned int donorLevel   = 0;
-  int donorCellIdx          = -1;
-  vtkUniformGrid *donorGrid = NULL;
+  // STEP 2: Fix the maximum level at which the search algorithm will operate
+  unsigned int maxLevelToLoad = 0;
+  if( this->LevelOfResolution < static_cast<int>(amrds->GetNumberOfLevels()))
+    {
+    maxLevelToLoad = this->LevelOfResolution+1;
+    }
+  else
+    {
+    maxLevelToLoad = amrds->GetNumberOfLevels();
+    }
 
-  vtkIdType pIdx = 0;
-  for( ; pIdx < g->GetNumberOfPoints(); ++pIdx )
+  // STEP 3: Loop through all the points and find the donors.
+  int numPoints           = 0;
+  unsigned int donorLevel = 0;
+  vtkUniformGrid *donorGrid = NULL;
+  for( vtkIdType pIdx = 0; pIdx < g->GetNumberOfPoints(); ++pIdx )
     {
     double qPoint[3];
     g->GetPoint( pIdx, qPoint );
 
-    // Check previously found grid
-    if( donorGrid != NULL )
+    int donorCellIdx =
+        this->ProbeGridPointInAMR(
+            qPoint,donorGrid, donorLevel, amrds,maxLevelToLoad );
+
+    if( donorCellIdx != -1 )
       {
-      donorCellIdx = -1;
-      if( this->FoundDonor(qPoint, donorGrid, donorCellIdx) )
-        {
-        assert( "pre: donorCellIdx is invalid" &&
-                 (donorCellIdx >= 0) &&
-                 (donorCellIdx < donorGrid->GetNumberOfCells()) );
-        CD = donorGrid->GetCellData();
-        this->CopyData( PD, pIdx, CD, donorCellIdx );
-        }
+      assert(donorGrid != NULL);
+      CD = donorGrid->GetCellData();
+      this->CopyData( PD, pIdx, CD, donorCellIdx );
       }
     else
       {
-      unsigned int level=0;
-      for( ; (static_cast<int>(level) < this->LevelOfResolution) &&
-             (level < amrds->GetNumberOfLevels()); ++level )
-        {
-        this->SearchForDonorGridAtLevel(
-            qPoint, amrds, level, donorGrid, donorCellIdx, donorLevel  );
-        if( donorGrid != NULL )
-          {
-          CD = donorGrid->GetCellData();
-          this->CopyData( PD, pIdx, CD, donorCellIdx );
-          }
-        } // END for all levels
+      // Point is outside the domain, blank it
+      ++ numPoints;
+      g->BlankPoint( pIdx );
       }
 
     } // END for all grid nodes
+
+//    if( numPoints > 0 )
+//      {
+//      vtkWarningMacro( "Number of points outside domain: " << numPoints
+//          << "/" << g->GetNumberOfPoints() );
+//      }
 }
 
 //-----------------------------------------------------------------------------
@@ -502,7 +563,7 @@ void vtkAMRResampleFilter::ExtractRegion(
       if( this->IsRegionMine( block ) )
         {
         vtkUniformGrid *myGrid = vtkUniformGrid::New();
-        myGrid->DeepCopy( this->ROI->GetBlock( block ) );
+        myGrid->ShallowCopy( this->ROI->GetBlock( block ) );
         this->TransferSolution( myGrid, amrds );
         mbds->SetBlock( block, myGrid );
         myGrid->Delete();
@@ -628,7 +689,9 @@ void vtkAMRResampleFilter::ComputeLevelOfResolution(
     double c1        = ( ( N[i]*h0[i] )/L[i] );
     int currentLevel = vtkMath::Floor( 0.5+(log(c1)/log(rf)) );
     if( currentLevel > this->LevelOfResolution )
+      {
       this->LevelOfResolution = currentLevel;
+      }
     } // END for all i
 
 }

@@ -181,7 +181,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Given a query point q and a candidate donor grid, this method checks for
     // the corresponding donor cell containing the point in the given grid.
-    bool FoundDonor(double q[3],vtkUniformGrid *donorGrid,int &cellIdx);
+    bool FoundDonor(double q[3],vtkUniformGrid *&donorGrid,int &cellIdx);
 
     // Description:
     // Given a query point q and a target level, this method finds a suitable
@@ -189,8 +189,17 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // is not found, donorGrid is set to NULL.
     void SearchForDonorGridAtLevel(
         double q[3], vtkHierarchicalBoxDataSet *amrds,
-        unsigned int level, vtkUniformGrid *donorGrid,
-        int &donorCellIdx, unsigned int &donorLevel );
+        unsigned int level, vtkUniformGrid *&donorGrid,
+        int &donorCellIdx);
+
+    // Description:
+    // Finds the AMR grid that contains the point q. If donorGrid points to a
+    // valid AMR grid in the hierarchy, the algorithm will search this grid
+    // first. The method returns the ID of the cell w.r.t. the donorGrid that
+    // contains the probe point q.
+    int ProbeGridPointInAMR(
+        double q[3],vtkUniformGrid *&donorGrid, unsigned int &donorLevel,
+        vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel );
 
     // Description:
     // Transfers the solution from the AMR dataset to the cell-centers of
