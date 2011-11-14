@@ -67,12 +67,10 @@ public:
   // Get the position of the active plot.
   virtual vtkVector2i GetActivePlot();
 
-//BTX
   // Description:
   // Get the active AnnotationLink from the big chart, which
   // is the only active AnnotationLink in the matrix.
   vtkAnnotationLink* GetActiveAnnotationLink();
-//ETX
 
   // Description:
   // Set the input table for the scatter plot matrix. This will cause all
