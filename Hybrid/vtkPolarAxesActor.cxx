@@ -125,6 +125,10 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   this->ScreenSize = 10.0;
 
+  // Considering pivot point at center of the geometry,
+  // hence ( this->ScreenSize * 0.5 ).
+  this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
+
   // Create and set radial axes
   this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
