@@ -70,7 +70,10 @@ vtkAMRResampleFilter::~vtkAMRResampleFilter()
   this->BlocksToLoad.clear();
 
   if( this->ROI != NULL )
+    {
     this->ROI->Delete();
+    }
+
   this->ROI = NULL;
 }
 
@@ -136,18 +139,18 @@ int vtkAMRResampleFilter::RequestInformation(
   if( this->DemandDrivenMode == 1 &&
       input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
-      vtkHierarchicalBoxDataSet *metadata =
-        vtkHierarchicalBoxDataSet::SafeDownCast(
-          input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
-      assert( "pre: medata is NULL" && (metadata != NULL)  );
+    vtkHierarchicalBoxDataSet *metadata =
+      vtkHierarchicalBoxDataSet::SafeDownCast(
+        input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
+    assert( "pre: medata is NULL" && (metadata != NULL)  );
 
-      // Get Region
-      double h[3];
-      this->ComputeAndAdjustRegionParameters( metadata, h );
-      this->GetRegion( h );
+    // Get Region
+    double h[3];
+    this->ComputeAndAdjustRegionParameters( metadata, h );
+    this->GetRegion( h );
 
-      // Compute which blocks to load
-      this->ComputeAMRBlocksToLoad( metadata );
+    // Compute which blocks to load
+    this->ComputeAMRBlocksToLoad( metadata );
     }
   return 1;
 }
@@ -210,8 +213,8 @@ bool vtkAMRResampleFilter::FoundDonor(
   int status = donorGrid->ComputeStructuredCoordinates( q, ijk, pcoords );
   if( status == 1 )
     {
-      cellIdx=vtkStructuredData::ComputeCellId(donorGrid->GetDimensions(),ijk);
-      return true;
+    cellIdx=vtkStructuredData::ComputeCellId(donorGrid->GetDimensions(),ijk);
+    return true;
     }
   return false;
 }
@@ -225,19 +228,19 @@ void vtkAMRResampleFilter::InitializeFields(
 
   for( int arrayIdx=0; arrayIdx < src->GetNumberOfArrays(); ++arrayIdx )
     {
-      int dataType        = src->GetArray( arrayIdx )->GetDataType();
-      vtkDataArray *array = vtkDataArray::CreateDataArray( dataType );
-      assert( "pre: failed to create array!" && (array != NULL) );
+    int dataType        = src->GetArray( arrayIdx )->GetDataType();
+    vtkDataArray *array = vtkDataArray::CreateDataArray( dataType );
+    assert( "pre: failed to create array!" && (array != NULL) );
 
-      array->SetName( src->GetArray(arrayIdx)->GetName() );
-      array->SetNumberOfComponents(
-               src->GetArray(arrayIdx)->GetNumberOfComponents() );
-      array->SetNumberOfTuples( size );
-      assert( "post: array size mismatch" &&
-              (array->GetNumberOfTuples() == size) );
+    array->SetName( src->GetArray(arrayIdx)->GetName() );
+    array->SetNumberOfComponents(
+             src->GetArray(arrayIdx)->GetNumberOfComponents() );
+    array->SetNumberOfTuples( size );
+    assert( "post: array size mismatch" &&
+            (array->GetNumberOfTuples() == size) );
 
-      f->AddArray( array );
-      array->Delete();
+    f->AddArray( array );
+    array->Delete();
 
 //      int myIndex = -1;
 //      vtkDataArray *arrayPtr = f->GetArray(
@@ -246,8 +249,8 @@ void vtkAMRResampleFilter::InitializeFields(
 //      assert( "post: array size mismatch" &&
 //              (arrayPtr->GetNumberOfTuples()==size) );
 
-      assert( "post: array size mismatch" &&
-              (f->GetArray( arrayIdx)->GetNumberOfTuples() == size) );
+    assert( "post: array size mismatch" &&
+            (f->GetArray( arrayIdx)->GetNumberOfTuples() == size) );
     } // END for all arrays
 
 }
@@ -265,28 +268,28 @@ void vtkAMRResampleFilter::CopyData(
   int arrayIdx = 0;
   for( ; arrayIdx < src->GetNumberOfArrays(); ++arrayIdx )
     {
-      vtkDataArray *targetArray = target->GetArray( arrayIdx );
-      vtkDataArray *srcArray    = src->GetArray( arrayIdx );
-      assert( "pre: target array is NULL!" && (targetArray != NULL) );
-      assert( "pre: source array is NULL!" && (srcArray != NULL) );
-      assert( "pre: targer/source array number of components mismatch!" &&
-              (targetArray->GetNumberOfComponents()==
-               srcArray->GetNumberOfComponents() ) );
-      assert( "pre: target/source array names mismatch!" &&
-              (strcmp(targetArray->GetName(),srcArray->GetName()) == 0) );
-      assert( "pre: source index is out-of-bounds" &&
-              (srcIdx >=0) &&
-              (srcIdx < srcArray->GetNumberOfTuples() ) );
-      assert( "pre: target index is out-of-bounds" &&
-              (targetIdx >= 0) &&
-              (targetIdx < targetArray->GetNumberOfTuples() ) );
+    vtkDataArray *targetArray = target->GetArray( arrayIdx );
+    vtkDataArray *srcArray    = src->GetArray( arrayIdx );
+    assert( "pre: target array is NULL!" && (targetArray != NULL) );
+    assert( "pre: source array is NULL!" && (srcArray != NULL) );
+    assert( "pre: targer/source array number of components mismatch!" &&
+            (targetArray->GetNumberOfComponents()==
+             srcArray->GetNumberOfComponents() ) );
+    assert( "pre: target/source array names mismatch!" &&
+            (strcmp(targetArray->GetName(),srcArray->GetName()) == 0) );
+    assert( "pre: source index is out-of-bounds" &&
+            (srcIdx >=0) &&
+            (srcIdx < srcArray->GetNumberOfTuples() ) );
+    assert( "pre: target index is out-of-bounds" &&
+            (targetIdx >= 0) &&
+            (targetIdx < targetArray->GetNumberOfTuples() ) );
 
-      int c=0;
-      for( ; c < srcArray->GetNumberOfComponents(); ++c )
-        {
-          double f = srcArray->GetComponent( srcIdx, c );
-          targetArray->SetComponent( targetIdx, c, f );
-        } // END for all componenents
+    int c=0;
+    for( ; c < srcArray->GetNumberOfComponents(); ++c )
+      {
+      double f = srcArray->GetComponent( srcIdx, c );
+      targetArray->SetComponent( targetIdx, c, f );
+      } // END for all componenents
 
     } // END for all arrays
 }
@@ -339,32 +342,34 @@ void vtkAMRResampleFilter::TransferToCellCenters(
   if(fieldData->GetNumberOfArrays() == 0)
    return;
 
+  // TODO: this is a very naive implementation and should be optimized. However,
+  // mostly this filter is used to transfer the solution to the grid nodes and
+  // not on the cell nodes.
   vtkIdType cellIdx = 0;
   for( ; cellIdx < g->GetNumberOfCells(); ++cellIdx )
     {
-      double qPoint[3];
-      this->ComputeCellCentroid( g, cellIdx, qPoint );
+    double qPoint[3];
+    this->ComputeCellCentroid( g, cellIdx, qPoint );
 
-      unsigned int level=0;
-      for( ; level < amrds->GetNumberOfDataSets( level ); ++level )
+    unsigned int level=0;
+    for( ; level < amrds->GetNumberOfDataSets( level ); ++level )
+      {
+      unsigned int dataIdx = 0;
+      for( ; dataIdx < amrds->GetNumberOfDataSets( level ); ++dataIdx )
         {
-          unsigned int dataIdx = 0;
-          for( ; dataIdx < amrds->GetNumberOfDataSets( level ); ++dataIdx )
-            {
-              int donorCellIdx = -1;
-              vtkUniformGrid *donorGrid = amrds->GetDataSet(level,dataIdx);
-              if( (donorGrid!=NULL) &&
-                  this->FoundDonor(qPoint,donorGrid,donorCellIdx) )
-                {
-                  assert( "pre: donorCellIdx is invalid" &&
-                          (donorCellIdx >= 0) &&
-                          (donorCellIdx < donorGrid->GetNumberOfCells()) );
-                  CD = donorGrid->GetCellData();
-                  this->CopyData( fieldData, cellIdx, CD, donorCellIdx );
-                } // END if
-
-            } // END for all datasets
-        } // END for all levels
+        int donorCellIdx = -1;
+        vtkUniformGrid *donorGrid = amrds->GetDataSet(level,dataIdx);
+        if( (donorGrid!=NULL) &&
+            this->FoundDonor(qPoint,donorGrid,donorCellIdx) )
+          {
+            assert( "pre: donorCellIdx is invalid" &&
+                    (donorCellIdx >= 0) &&
+                    (donorCellIdx < donorGrid->GetNumberOfCells()) );
+            CD = donorGrid->GetCellData();
+            this->CopyData( fieldData, cellIdx, CD, donorCellIdx );
+          } // END if
+        } // END for all datasets
+      } // END for all levels
     } // END for all cells
 }
 
@@ -418,7 +423,9 @@ void vtkAMRResampleFilter::TransferToGridNodes(
   this->InitializeFields( PD, g->GetNumberOfPoints(), CD );
 
   if(PD->GetNumberOfArrays() == 0)
+    {
     return;
+    }
 
   // STEP 1: Loop through all the points and find the donors.
   unsigned int donorLevel   = 0;
@@ -471,9 +478,13 @@ void vtkAMRResampleFilter::TransferSolution(
   assert( "pre: AMR data-strucutre is NULL" && (amrds != NULL) );
 
   if( this->TransferToNodes == 1 )
+    {
     this->TransferToGridNodes( g, amrds );
+    }
   else
+    {
     this->TransferToCellCenters( g, amrds );
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -523,15 +534,14 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *me
     unsigned int dataIdx = 0;
     for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
       {
-       vtkUniformGrid *grd = metadata->GetDataSet( level, dataIdx );
-       assert( "pre: Metadata grid is NULL" && (grd != NULL) );
+      vtkUniformGrid *grd = metadata->GetDataSet( level, dataIdx );
+      assert( "pre: Metadata grid is NULL" && (grd != NULL) );
 
-       if( this->IsBlockWithinBounds( grd ) )
-         {
-           this->BlocksToLoad.push_back(
-             metadata->GetCompositeIndex(level,dataIdx) );
-         } // END check if the block is within the bounds of the ROI
-
+      if( this->IsBlockWithinBounds( grd ) )
+        {
+        this->BlocksToLoad.push_back(
+          metadata->GetCompositeIndex(level,dataIdx) );
+        } // END check if the block is within the bounds of the ROI
       } // END for all data
     } // END for all levels
 
@@ -637,7 +647,10 @@ bool vtkAMRResampleFilter::RegionIntersectsWithAMR(
   region.SetMaxPoint( regionMax );
 
   if( domain.Intersects(region) )
+    {
     return true;
+    }
+
   return false;
 }
 
@@ -773,7 +786,9 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
     this->ROI->RemoveBlock( block );
 
   if( h[0]==0.0 && h[1]==0.0 && h[2]==0.0 )
+    {
     return;
+    }
 
   vtkUniformGrid *grd = vtkUniformGrid::New();
   grd->SetOrigin( this->Min );
@@ -785,7 +800,9 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
   grd->Delete();
 
   if( grd ->GetNumberOfPoints() == 0 )
+    {
     return;
+    }
 
   gridPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   gridPartitioner->Update();
@@ -802,7 +819,9 @@ bool vtkAMRResampleFilter::GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g
   assert( "pre: g2 is NULL" && (g2 != NULL) );
 
   if( g1->GetNumberOfPoints() == 0 || g2->GetNumberOfPoints() == 0 )
+    {
     return false;
+    }
 
   vtkBoundingBox b1;
   b1.SetBounds( g1->GetBounds() );
@@ -811,7 +830,9 @@ bool vtkAMRResampleFilter::GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g
   b2.SetBounds( g2->GetBounds() );
 
   if( b1.IntersectBox( b2 ) )
+    {
     return true;
+    }
 
   return false;
 }
@@ -823,15 +844,17 @@ bool vtkAMRResampleFilter::IsBlockWithinBounds( vtkUniformGrid *grd )
 
   for( unsigned int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
     {
-      if( this->IsRegionMine( block ) )
-        {
-          vtkUniformGrid *blk =
-              vtkUniformGrid::SafeDownCast( this->ROI->GetBlock( block ) );
-          assert( "pre: block is NULL" && (blk != NULL) );
+    if( this->IsRegionMine( block ) )
+      {
+      vtkUniformGrid *blk =
+          vtkUniformGrid::SafeDownCast( this->ROI->GetBlock( block ) );
+      assert( "pre: block is NULL" && (blk != NULL) );
 
-          if( this->GridsIntersect( grd, blk ) )
-            return true;
-        } // END if region is mine
+      if( this->GridsIntersect( grd, blk ) )
+        {
+        return true;
+        }
+      } // END if region is mine
     } // END for all blocks
 
   return false;
@@ -841,7 +864,9 @@ bool vtkAMRResampleFilter::IsBlockWithinBounds( vtkUniformGrid *grd )
 int vtkAMRResampleFilter::GetRegionProcessId( const int regionIdx )
 {
   if( !this->IsParallel() )
+    {
     return 0;
+    }
 
   int N = this->Controller->GetNumberOfProcesses();
   return( regionIdx%N );
@@ -851,11 +876,15 @@ int vtkAMRResampleFilter::GetRegionProcessId( const int regionIdx )
 bool vtkAMRResampleFilter::IsRegionMine( const int regionIdx )
 {
   if( !this->IsParallel() )
+    {
     return true;
+    }
 
   int myRank = this->Controller->GetLocalProcessId();
   if( myRank == this->GetRegionProcessId( regionIdx ) )
+    {
     return true;
+    }
   return false;
 }
 
@@ -863,10 +892,14 @@ bool vtkAMRResampleFilter::IsRegionMine( const int regionIdx )
 bool vtkAMRResampleFilter::IsParallel()
 {
   if( this->Controller == NULL )
+    {
     return false;
+    }
 
   if( this->Controller->GetNumberOfProcesses() > 1 )
+    {
     return true;
+    }
 
   return false;
 }
@@ -880,13 +913,15 @@ vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(
   unsigned int numLevels = amrds->GetNumberOfLevels();
   for(unsigned int l=0; l < numLevels; ++l )
     {
-      unsigned int numDatasets = amrds->GetNumberOfDataSets( l );
-      for( unsigned int dataIdx=0; dataIdx < numDatasets; ++dataIdx )
+    unsigned int numDatasets = amrds->GetNumberOfDataSets( l );
+    for( unsigned int dataIdx=0; dataIdx < numDatasets; ++dataIdx )
+      {
+      vtkUniformGrid *refGrid = amrds->GetDataSet( l, dataIdx );
+      if( refGrid != NULL )
         {
-          vtkUniformGrid *refGrid = amrds->GetDataSet( l, dataIdx );
-          if( refGrid != NULL )
-            return( refGrid );
-        } // END for all datasets
+        return( refGrid );
+        }
+      } // END for all datasets
     } // END for all number of levels
 
   // This process has no grids
