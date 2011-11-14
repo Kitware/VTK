@@ -24,12 +24,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
+#include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkPolarAxesActor);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera,vtkCamera);
+vtkCxxSetObjectMacro(vtkPolarAxesActor,PolarAxisLabelTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkPolarAxesActor,PolarAxisTitleTextProperty,vtkTextProperty);
 
 // ******************************************************************
 void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )

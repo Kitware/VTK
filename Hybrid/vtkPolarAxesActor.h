@@ -39,6 +39,7 @@ All rights reserve
 
 class vtkAxisActor;
 class vtkCamera;
+class vtkTextProperty;
 
 class VTK_HYBRID_EXPORT vtkPolarAxesActor : public vtkActor
 {
@@ -159,6 +160,16 @@ public:
   vtkGetMacro( PolarTickVisibility, int );
   vtkBooleanMacro( PolarTickVisibility, int );
 
+  // Description:
+  // Set/Get the polar axis title text property. 
+  virtual void SetPolarAxisTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(PolarAxisTitleTextProperty,vtkTextProperty);
+
+  // Description:
+  // Set/Get the polar axis labels text property.
+  virtual void SetPolarAxisLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(PolarAxisLabelTextProperty,vtkTextProperty);
+  
   // Description:
   // Get/Set radial axes actors properties.
   void SetRadialAxesProperty(vtkProperty *);
@@ -282,6 +293,11 @@ void  BuildPolarAxisTicks( double );
 
   double LabelScreenOffset;
 
+  // Text properties of polar axis title and labels
+  vtkTextProperty   *PolarAxisTitleTextProperty;
+  vtkTextProperty   *PolarAxisLabelTextProperty;
+
+  // General properties of radial axes
   vtkProperty* RadialAxesProperty;
 
   vtkSetStringMacro( ActualRadialLabel );
