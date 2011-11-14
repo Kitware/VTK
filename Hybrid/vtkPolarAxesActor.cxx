@@ -145,6 +145,11 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     // Pass information to axes followers
     vtkAxisFollower* follower = axis->GetTitleActor();
     follower->SetAxis( axis );
+    if ( ! i )
+      {
+      // Rewrite default screen offset for polar axis only
+      follower->SetScreenOffset( this->LabelScreenOffset + this->ScreenSize * 0.5 );
+      }
     }
 
   // Properties of the radial axes
