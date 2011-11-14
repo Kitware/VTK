@@ -88,7 +88,7 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetRadialLabelFormat( "%6.1f" );
   polaxes->GetRadialAxesProperty()->SetColor( .0, .0, .9 );
-  polaxes->SetScreenSize( 15.0 );
+  polaxes->SetScreenSize( 12.0 );
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples( 0 );

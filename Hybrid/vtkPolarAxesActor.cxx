@@ -451,14 +451,17 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     axis->SetRange( 0., this->MaximumRadius );
     axis->SetMajorTickSize( .02 * this->MaximumRadius );
 
-    // Set axis title
-    vtksys_ios::ostringstream thetaStream;
-    thetaStream << theta;
-    if ( this->RadialUnits )
+    // Set axis title (except for polar axis to avoid cluttering)
+    if ( i )
       {
-      thetaStream << " deg.";
+      vtksys_ios::ostringstream thetaStream;
+      thetaStream << theta;
+      if ( this->RadialUnits )
+        {
+        thetaStream << " deg.";
+        }
+      axis->SetTitle( thetaStream.str().c_str() );
       }
-    axis->SetTitle( thetaStream.str().c_str() );
     }
 
   this->BuildPolarAxisTicks( o[0] );
