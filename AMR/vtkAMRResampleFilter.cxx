@@ -369,6 +369,37 @@ void vtkAMRResampleFilter::TransferToCellCenters(
 }
 
 //-----------------------------------------------------------------------------
+void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
+    double q[3], vtkHierarchicalBoxDataSet *amrds,
+    unsigned int level, vtkUniformGrid *donorGrid,
+    int &donorCellIdx, unsigned int &donorLevel )
+{
+  assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
+
+  unsigned int dataIdx = 0;
+  for( ; dataIdx < amrds->GetNumberOfDataSets(level); ++dataIdx )
+    {
+    donorCellIdx = -1;
+    donorGrid    = amrds->GetDataSet(level,dataIdx);
+
+    if( (donorGrid!=NULL) &&
+       this->FoundDonor(q,donorGrid,donorCellIdx) )
+     {
+     donorLevel = level;
+     assert( "pre: donorCellIdx is invalid" &&
+             (donorCellIdx >= 0) &&
+             (donorCellIdx < donorGrid->GetNumberOfCells()) );
+     return;
+     } // END if
+
+    } // END for all data at level
+
+  // No suitable grid is found at the requested level, set donorGrid to NULL
+  // to indicate that to the caller.
+  donorGrid = NULL;
+}
+
+//-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::TransferToGridNodes(
     vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
 {
@@ -390,32 +421,44 @@ void vtkAMRResampleFilter::TransferToGridNodes(
     return;
 
   // STEP 1: Loop through all the points and find the donors.
+  unsigned int donorLevel   = 0;
+  int donorCellIdx          = -1;
+  vtkUniformGrid *donorGrid = NULL;
+
   vtkIdType pIdx = 0;
   for( ; pIdx < g->GetNumberOfPoints(); ++pIdx )
     {
-      double qPoint[3];
-      g->GetPoint( pIdx, qPoint );
+    double qPoint[3];
+    g->GetPoint( pIdx, qPoint );
 
-      unsigned int level=0;
-      for( ; level < amrds->GetNumberOfLevels(); ++level )
+    // Check previously found grid
+    if( donorGrid != NULL )
+      {
+      donorCellIdx = -1;
+      if( this->FoundDonor(qPoint, donorGrid, donorCellIdx) )
         {
-          unsigned int dataIdx = 0;
-          for( ; dataIdx < amrds->GetNumberOfDataSets( level ); ++dataIdx )
-            {
-               int donorCellIdx = -1;
-               vtkUniformGrid *donorGrid = amrds->GetDataSet(level,dataIdx);
-               if( (donorGrid!=NULL) &&
-                   this->FoundDonor(qPoint,donorGrid,donorCellIdx) )
-                 {
-                   assert( "pre: donorCellIdx is invalid" &&
-                           (donorCellIdx >= 0) &&
-                           (donorCellIdx < donorGrid->GetNumberOfCells()) );
-                   CD = donorGrid->GetCellData();
-                   this->CopyData( PD, pIdx, CD, donorCellIdx );
-                 } // END if
-
-            } // END for all datasets at the current level
+        assert( "pre: donorCellIdx is invalid" &&
+                 (donorCellIdx >= 0) &&
+                 (donorCellIdx < donorGrid->GetNumberOfCells()) );
+        CD = donorGrid->GetCellData();
+        this->CopyData( PD, pIdx, CD, donorCellIdx );
+        }
+      }
+    else
+      {
+      unsigned int level=0;
+      for( ; (static_cast<int>(level) < this->LevelOfResolution) &&
+             (level < amrds->GetNumberOfLevels()); ++level )
+        {
+        this->SearchForDonorGridAtLevel(
+            qPoint, amrds, level, donorGrid, donorCellIdx, donorLevel  );
+        if( donorGrid != NULL )
+          {
+          CD = donorGrid->GetCellData();
+          this->CopyData( PD, pIdx, CD, donorCellIdx );
+          }
         } // END for all levels
+      }
 
     } // END for all grid nodes
 }
@@ -447,15 +490,15 @@ void vtkAMRResampleFilter::ExtractRegion(
     {
       if( this->IsRegionMine( block ) )
         {
-          vtkUniformGrid *myGrid = vtkUniformGrid::New();
-          myGrid->DeepCopy( this->ROI->GetBlock( block ) );
-          this->TransferSolution( myGrid, amrds );
-          mbds->SetBlock( block, myGrid );
-          myGrid->Delete();
+        vtkUniformGrid *myGrid = vtkUniformGrid::New();
+        myGrid->DeepCopy( this->ROI->GetBlock( block ) );
+        this->TransferSolution( myGrid, amrds );
+        mbds->SetBlock( block, myGrid );
+        myGrid->Delete();
         }
       else
         {
-          mbds->SetBlock( block, NULL );
+        mbds->SetBlock( block, NULL );
         }
     } // END for all blocks
 
@@ -477,19 +520,19 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *me
   unsigned int level=0;
   for( ;level < maxLevelToLoad; ++level )
     {
-      unsigned int dataIdx = 0;
-      for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
-        {
-           vtkUniformGrid *grd = metadata->GetDataSet( level, dataIdx );
-           assert( "pre: Metadata grid is NULL" && (grd != NULL) );
+    unsigned int dataIdx = 0;
+    for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
+      {
+       vtkUniformGrid *grd = metadata->GetDataSet( level, dataIdx );
+       assert( "pre: Metadata grid is NULL" && (grd != NULL) );
 
-           if( this->IsBlockWithinBounds( grd ) )
-             {
-               this->BlocksToLoad.push_back(
-                 metadata->GetCompositeIndex(level,dataIdx) );
-             } // END check if the block is within the bounds of the ROI
+       if( this->IsBlockWithinBounds( grd ) )
+         {
+           this->BlocksToLoad.push_back(
+             metadata->GetCompositeIndex(level,dataIdx) );
+         } // END check if the block is within the bounds of the ROI
 
-        } // END for all data
+      } // END for all data
     } // END for all levels
 
    std::sort( this->BlocksToLoad.begin(), this->BlocksToLoad.end() );

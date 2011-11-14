@@ -79,7 +79,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     void SetMin(const double *pnt)
     {this->SetMin(pnt[0], pnt[1], pnt[2]);}
 
-    inline void SetMin( double x, double y, double z )
+    void SetMin( double x, double y, double z )
     {
       this->Min[0]     = x;
       this->Min[1]     = y;
@@ -93,7 +93,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     void SetMax(const double *pnt)
     {this->SetMax(pnt[0], pnt[1], pnt[2]);}
 
-    inline void SetMax( double x, double y, double z )
+    void SetMax( double x, double y, double z )
     {
       this->Max[0]     = x;
       this->Max[1]     = y;
@@ -182,6 +182,15 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Given a query point q and a candidate donor grid, this method checks for
     // the corresponding donor cell containing the point in the given grid.
     bool FoundDonor(double q[3],vtkUniformGrid *donorGrid,int &cellIdx);
+
+    // Description:
+    // Given a query point q and a target level, this method finds a suitable
+    // grid at the given level that contains the point if one exists. If a grid
+    // is not found, donorGrid is set to NULL.
+    void SearchForDonorGridAtLevel(
+        double q[3], vtkHierarchicalBoxDataSet *amrds,
+        unsigned int level, vtkUniformGrid *donorGrid,
+        int &donorCellIdx, unsigned int &donorLevel );
 
     // Description:
     // Transfers the solution from the AMR dataset to the cell-centers of
