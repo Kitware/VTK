@@ -50,7 +50,7 @@ int TestPolarAxes( int argc, char * argv [] )
 
   vtkNew<vtkLODActor> readerActor;
   readerActor->SetMapper( readerMapper.GetPointer() );
-  readerActor->GetProperty()->SetDiffuseColor( .3, .3, .3 );
+  readerActor->GetProperty()->SetDiffuseColor( .5, .8, .3 );
 
   vtkNew<vtkOutlineFilter> outline;
   outline->SetInputConnection(normals->GetOutputPort() );
@@ -65,7 +65,7 @@ int TestPolarAxes( int argc, char * argv [] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1.0, 100.0 );
   camera->SetFocalPoint( 0.9, 1.0, 0.0 );
-  camera->SetPosition( 11.63, 6.0, 10.77 );
+  camera->SetPosition( 2., 6., 13. );
 
   vtkNew<vtkLight> light;
   light->SetFocalPoint( 0.21406, 1.5, 0.0 );
