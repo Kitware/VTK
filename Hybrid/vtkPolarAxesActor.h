@@ -99,7 +99,7 @@ public:
   // Explicitly specify the screen size of title and label text.
   // ScreenSize detemines the size of the text in terms of screen
   // pixels. 
-  // Default is 10.0.
+  // Default: 10.0.
   void SetScreenSize( double screenSize );
   vtkGetMacro( ScreenSize, double );
 
@@ -108,6 +108,12 @@ public:
   // vtkPolarAxesActor.
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro( Camera,vtkCamera );
+
+  // Description:
+  // Set/Get the labels for the polar axis.
+  // Default: "Radial Distance".
+  vtkSetStringMacro( PolarAxisTitle );
+  vtkGetStringMacro( PolarAxisTitle );
 
   // Description:
   // Set/Get the format with which to print the labels on each of the
@@ -246,6 +252,11 @@ void  BuildPolarAxisTicks( double );
   vtkAxisActor** RadialAxes;
 
   bool RebuildAxes;
+
+  // Description:
+  // Title to be used for the polar axis
+  // NB: The other axes use the polar angle value as a title
+  char *PolarAxisTitle;
 
   // Description:
   // Use angle units (degrees) to label radial axes

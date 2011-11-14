@@ -69,6 +69,8 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Rebuild Axes: "
      << ( this->RebuildAxes ? "On\n" : "Off\n" );
 
+  os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
+
   os << indent << "Radial Units (degrees): "
      << ( this->RadialUnits ? "On\n" : "Off\n" ) << endl;
 
@@ -155,6 +157,10 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarLabelVisibility = 1;
   this->PolarTickVisibility = 1;
 
+  // Default title for polar axis (can also be called "Radius")
+  this->PolarAxisTitle = new char[16];
+  sprintf(this->PolarAxisTitle, "%s", "Radial Distance");
+
   this->RadialLabelFormat = new char[8];
   sprintf( this->RadialLabelFormat, "%s", "%-#6.3g" );
 
@@ -194,6 +200,12 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
     this->RadialLabelFormat = NULL;
     }
 
+  if (this->PolarAxisTitle)
+    {
+    delete [] this->PolarAxisTitle;
+    this->PolarAxisTitle = NULL;
+    }
+
   if ( this->RadialAxes )
     {
     for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
@@ -214,6 +226,7 @@ void vtkPolarAxesActor::ShallowCopy( vtkPolarAxesActor *actor )
 {
   this->Superclass::ShallowCopy( actor );
   this->SetRadialLabelFormat( actor->GetRadialLabelFormat() );
+  this->SetPolarAxisTitle( actor->GetPolarAxisTitle() );
   this->SetCamera( actor->GetCamera() );
   this->MustAdjustRadialValue = actor->MustAdjustRadialValue;
   this->ForceRadialLabelReset = actor->ForceRadialLabelReset;
@@ -451,9 +464,10 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     axis->SetRange( 0., this->MaximumRadius );
     axis->SetMajorTickSize( .02 * this->MaximumRadius );
 
-    // Set axis title (except for polar axis to avoid title/label clutter)
+    // Set axis title
     if ( i )
       {
+      // Use polar angle as title for non-polar axes
       vtksys_ios::ostringstream thetaStream;
       thetaStream << theta;
       if ( this->RadialUnits )
@@ -463,11 +477,19 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
       axis->SetTitle( thetaStream.str().c_str() );
       }
+    else // if ( i ) 
+      {
+      axis->SetTitle( this->PolarAxisTitle );
+      }
     }
 
+  // Build polar axis tick, with respect to specified x-origin
   this->BuildPolarAxisTicks( o[0] );
+
+  // Build polar axis labels
   this->BuildPolarAxisLabels( o[0] );
 
+  cerr << "this->ForceRadialLabelReset: " << this->ForceRadialLabelReset << endl;
   if ( this->ForceRadialLabelReset )
     {
     // Must recompute the scale
