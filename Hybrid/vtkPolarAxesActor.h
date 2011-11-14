@@ -192,10 +192,6 @@ protected:
   // and thus do not need to be set very often.
   void  SetNonDependentAttributes(void );
 
-  void    AutoScale( vtkViewport* viewport );
-  void    AutoScale( vtkViewport* viewport, vtkAxisActor** axes );
-  double  AutoScale( vtkViewport* viewport, double screenSize, double position[3] );
-
   // Description:
   // Prepare ticks on polar axis.
   // Determine how many ticks are needed create them.
@@ -215,9 +211,9 @@ void  BuildPolarAxisTicks( double );
   double FFix(double );
   double FSign(double, double );
 
-  // Description:
-  // Set axes and screen size of the labels
-  void UpdateLabels( vtkAxisActor **axis );
+  void    AutoScale( vtkViewport* viewport );
+  void    AutoScale( vtkViewport* viewport, vtkAxisActor** axes );
+  double  AutoScale( vtkViewport* viewport, double screenSize, double position[3] );
 
   // Description:
   // Coordinates of the pole

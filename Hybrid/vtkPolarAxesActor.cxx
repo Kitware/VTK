@@ -436,8 +436,6 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   // Prepare axes for rendering with user-definable options
   double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
 
-//  this->UpdateLabels( this->RadialAxes );
-  
   // Set radial axes
   for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i )
     {
@@ -651,6 +649,114 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
 }
 
 // ****************************************************************
+void vtkPolarAxesActor::BuildPolarAxisLabels(  double origin )
+{
+  // Calculate number of labels needed and create array for them
+  vtkAxisActor* axis = this->RadialAxes[0];
+  double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
+  double val = axis->GetMajorStart( VTK_AXIS_TYPE_X );
+  const double *p2  = axis->GetPoint2Coordinate()->GetValue();
+  double lastVal = p2[0];
+  vtkIdType nLabels = 0;
+  while ( val <= lastVal && nLabels < VTK_MAX_LABELS )
+    {
+    ++ nLabels;
+    val += deltaMajor;
+    }
+  vtkStringArray *labels = vtkStringArray::New();
+  labels->SetNumberOfValues( nLabels );
+
+  // Calculate scale factor
+  double scaleFactor = 1.;
+  int lastPow = this->LastRadialPow;
+  if ( lastPow )
+    {
+    scaleFactor = 1. / pow( 10., lastPow );
+    }
+
+  // Now create labels
+  val = axis->GetMajorRangeStart();
+  deltaMajor = axis->GetDeltaRangeMajor();
+  const char *format = this->RadialLabelFormat;
+  char label[64];
+  for ( int  i = 0; i < nLabels; ++ i )
+    {
+    if ( fabs( val ) < .01 && this->MaximumRadius > 1 )
+      {
+      // We just happened to fall at something near zero and the range is
+      // large, so set it to zero to avoid ugliness.
+      val = 0.;
+      }
+    if ( this->MustAdjustRadialValue )
+      {
+      sprintf( label, format, val * scaleFactor );
+      }
+    else
+      {
+      sprintf( label, format, val );
+      }
+    if ( fabs( val ) < 0.01 )
+      {
+      //
+      // Ensure that -0.0 is never a label
+      // The maximum number of digits that we allow past the decimal is 5.
+      //
+      if ( strcmp( label, "-0" ) == 0 )
+        {
+        sprintf( label, "0" );
+        }
+      else if ( strcmp( label, "-0.0" ) == 0 )
+        {
+        sprintf( label, "0.0" );
+        }
+      else if ( strcmp( label, "-0.00" ) == 0 )
+        {
+        sprintf( label, "0.00" );
+        }
+      else if ( strcmp( label, "-0.000" ) == 0 )
+        {
+        sprintf( label, "0.000" );
+        }
+      else if ( strcmp( label, "-0.0000" ) == 0 )
+        {
+        sprintf( label, "0.0000" );
+        }
+      else if ( strcmp( label, "-0.00000" ) == 0 )
+        {
+        sprintf( label, "0.00000" );
+        }
+      }
+    labels->SetValue( i, label );
+    val += deltaMajor;
+    }
+
+  // Store labels
+  axis->SetLabels( labels );
+
+  // Clean up
+  labels->Delete();
+
+  // Update axis label followers
+  vtkAxisFollower** labelActors = axis->GetLabelActors();
+  for( int i = 0; i < nLabels; ++i )
+    {
+    labelActors[i]->SetAxis( axis );
+    labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
+    }
+}
+
+// ****************************************************************************
+void vtkPolarAxesActor::SetLabelScaling( bool autoscale, int upow )
+{
+  if ( autoscale != this->AutoLabelScaling || upow != this->UserRadialPow )
+    {
+    this->AutoLabelScaling = autoscale;
+    this->UserRadialPow = upow;
+    this->Modified();
+    }
+}
+
+// ****************************************************************
 void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
 {
   // Current implementation only for perspective projections.
@@ -708,122 +814,6 @@ double vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
     return newScale;
 }
 
-// ****************************************************************
-void vtkPolarAxesActor::BuildPolarAxisLabels(  double origin )
-{
-  // Calculate number of labels needed and create array for them
-  vtkAxisActor* axis = this->RadialAxes[0];
-  double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
-  double val = axis->GetMajorStart( VTK_AXIS_TYPE_X );
-  const double *p2  = axis->GetPoint2Coordinate()->GetValue();
-  double lastVal = p2[0];
-  int labelCount = 0;
-  while ( val <= lastVal && labelCount < VTK_MAX_LABELS )
-    {
-    ++ labelCount;
-    val += deltaMajor;
-    }
-  vtkStringArray *labels = vtkStringArray::New();
-  labels->SetNumberOfValues( labelCount );
-
-  // Calculate scale factor
-  double scaleFactor = 1.;
-  int lastPow = this->LastRadialPow;
-  if ( lastPow )
-    {
-    scaleFactor = 1. / pow( 10., lastPow );
-    }
-  cerr << "Scale factor: " << scaleFactor << endl;
-
-  // Now create labels
-  val = axis->GetMajorRangeStart();
-  deltaMajor = axis->GetDeltaRangeMajor();
-  const char *format = this->RadialLabelFormat;
-  char label[64];
-  for ( int  i = 0; i < labelCount; ++ i )
-    {
-    if ( fabs( val ) < .01 && this->MaximumRadius > 1 )
-      {
-      // We just happened to fall at something near zero and the range is
-      // large, so set it to zero to avoid ugliness.
-      val = 0.;
-      }
-    if ( this->MustAdjustRadialValue )
-      {
-      sprintf( label, format, val * scaleFactor );
-      }
-    else
-      {
-      sprintf( label, format, val );
-      }
-    if ( fabs( val ) < 0.01 )
-      {
-      //
-      // Ensure that -0.0 is never a label
-      // The maximum number of digits that we allow past the decimal is 5.
-      //
-      if ( strcmp( label, "-0" ) == 0 )
-        {
-        sprintf( label, "0" );
-        }
-      else if ( strcmp( label, "-0.0" ) == 0 )
-        {
-        sprintf( label, "0.0" );
-        }
-      else if ( strcmp( label, "-0.00" ) == 0 )
-        {
-        sprintf( label, "0.00" );
-        }
-      else if ( strcmp( label, "-0.000" ) == 0 )
-        {
-        sprintf( label, "0.000" );
-        }
-      else if ( strcmp( label, "-0.0000" ) == 0 )
-        {
-        sprintf( label, "0.0000" );
-        }
-      else if ( strcmp( label, "-0.00000" ) == 0 )
-        {
-        sprintf( label, "0.00000" );
-        }
-      }
-    labels->SetValue( i, label );
-    cerr << "label " << i << " is " << label << endl;
-    val += deltaMajor;
-    }
-
-  // Store labels
-  axis->SetLabels( labels );
-
-  // Clean up
-  labels->Delete();
-}
-
-// ****************************************************************************
-void vtkPolarAxesActor::SetLabelScaling( bool autoscale, int upow )
-{
-  if ( autoscale != this->AutoLabelScaling || upow != this->UserRadialPow )
-    {
-    this->AutoLabelScaling = autoscale;
-    this->UserRadialPow = upow;
-    this->Modified();
-    }
-}
-
-// ****************************************************************************
-void vtkPolarAxesActor::UpdateLabels( vtkAxisActor** axis )
-  {
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    int numberOfLabelsBuilt = axis[i]->GetNumberOfLabelsBuilt();
-    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
-    for( int k = 0; k < numberOfLabelsBuilt; ++ k )
-      {
-      labelActors[k]->SetAxis( this->RadialAxes[i] );
-      labelActors[k]->SetScreenOffset( this->LabelScreenOffset );
-      }
-    }
-  }
 // ****************************************************************************
 void vtkPolarAxesActor::SetRadialAxesProperty( vtkProperty *prop )
 {
