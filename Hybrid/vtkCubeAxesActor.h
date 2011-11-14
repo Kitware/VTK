@@ -71,6 +71,7 @@ All rights reserve
 
 class vtkAxisActor;
 class vtkCamera;
+class vtkTextProperty;
 
 class VTK_HYBRID_EXPORT vtkCubeAxesActor : public vtkActor
 {
@@ -337,6 +338,14 @@ public:
 
   void SetLabelScaling(bool, int, int, int);
 
+  // Description:
+  // Returns the text property for the title on an axis.
+  vtkTextProperty *GetTitleTextProperty(int);
+
+  // Description:
+  // Returns the text property for the labels on an axis.
+  vtkTextProperty *GetLabelTextProperty(int);
+
   //! use textactor if val = 1 (2D) instead of follower (3D - val = 0) for title 
   void SetUse2DMode( int val );
   //! return 1 if textactor is used
@@ -499,6 +508,8 @@ private:
   double YAxisRange[2];
   double ZAxisRange[2];
 
+  vtkTextProperty* TitleTextProperty[3];
+  vtkTextProperty* LabelTextProperty[3];
   double LabelScale;
   double TitleScale;
 

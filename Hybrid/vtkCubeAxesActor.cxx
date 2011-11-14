@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
+#include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
 
@@ -133,6 +134,17 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
     this->ZAxes[i]->GetTitleActor()->SetAxis(this->ZAxes[i]);
     this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+    }
+
+  for (i = 0; i < 3; i++)
+    {
+    this->TitleTextProperty[i] = vtkTextProperty::New();
+    this->TitleTextProperty[i]->SetColor(1.,1.,1.);
+    this->TitleTextProperty[i]->SetFontFamilyToArial();
+
+    this->LabelTextProperty[i] = vtkTextProperty::New();
+    this->LabelTextProperty[i]->SetColor(1.,1.,1.);
+    this->LabelTextProperty[i]->SetFontFamilyToArial();
     }
 
   this->XTitle = new char[7];
@@ -389,6 +401,21 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
   if (this->ZAxesGridpolysProperty)
     {
     this->ZAxesGridpolysProperty->Delete();
+    }
+
+  for (int i = 0; i < 3; i++)
+    {
+    if(this->TitleTextProperty[i] != NULL)
+      {
+      this->TitleTextProperty[i]->Delete();
+      }
+    this->TitleTextProperty[i] = NULL;
+
+    if(this->LabelTextProperty[i] != NULL)
+      {
+      this->LabelTextProperty[i]->Delete();
+      }
+    this->LabelTextProperty[i] = NULL;
     }
 
   if (this->XLabelFormat)
@@ -1013,6 +1040,10 @@ void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport,
 // ***********************************************************************
 bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
 {
+  bool xPropsChanged = this->LabelTextProperty[0]->GetMTime() > this->BuildTime.GetMTime();
+  bool yPropsChanged = this->LabelTextProperty[1]->GetMTime() > this->BuildTime.GetMTime();
+  bool zPropsChanged = this->LabelTextProperty[2]->GetMTime() > this->BuildTime.GetMTime();
+
   bool xRangeChanged = this->LastXRange[0] != bounds[0] ||
                        this->LastXRange[1] != bounds[1];
 
@@ -1022,7 +1053,8 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
   bool zRangeChanged = this->LastZRange[0] != bounds[4] ||
                        this->LastZRange[1] != bounds[5];
 
-  if (!(xRangeChanged || yRangeChanged || zRangeChanged))
+  if (!(xRangeChanged || yRangeChanged || zRangeChanged) &&
+      !(xPropsChanged || yPropsChanged || zPropsChanged))
     {
     // no need to re-compute ticksize.
     return false;
@@ -1655,6 +1687,8 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     {
     this->XAxes[i]->SetCamera(this->Camera);
     this->XAxes[i]->SetProperty(prop);
+    this->XAxes[i]->SetTitleTextProperty(this->TitleTextProperty[0]);
+    this->XAxes[i]->SetLabelTextProperty(this->LabelTextProperty[0]);
     this->XAxes[i]->SetAxisLinesProperty(this->XAxesLinesProperty);
     this->XAxes[i]->SetGridlinesProperty(this->XAxesGridlinesProperty);
     this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
@@ -1671,6 +1705,8 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
 
     this->YAxes[i]->SetCamera(this->Camera);
     this->YAxes[i]->SetProperty(prop);
+    this->YAxes[i]->SetTitleTextProperty(this->TitleTextProperty[1]);
+    this->YAxes[i]->SetLabelTextProperty(this->LabelTextProperty[1]);
     this->YAxes[i]->SetAxisLinesProperty(this->YAxesLinesProperty);
     this->YAxes[i]->SetGridlinesProperty(this->YAxesGridlinesProperty);
     this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
@@ -1687,6 +1723,8 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
 
     this->ZAxes[i]->SetCamera(this->Camera);
     this->ZAxes[i]->SetProperty(prop);
+    this->ZAxes[i]->SetTitleTextProperty(this->TitleTextProperty[2]);
+    this->ZAxes[i]->SetLabelTextProperty(this->LabelTextProperty[2]);
     this->ZAxes[i]->SetAxisLinesProperty(this->ZAxesLinesProperty);
     this->ZAxes[i]->SetGridlinesProperty(this->ZAxesGridlinesProperty);
     this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
@@ -2359,6 +2397,24 @@ void vtkCubeAxesActor::SetLabelScaling(bool autoscale, int upowX, int upowY,
     this->UserZPow = upowZ;
     this->Modified();
     }
+}
+
+// ****************************************************************************
+// Set the i-th title text property.
+// ****************************************************************************
+
+vtkTextProperty* vtkCubeAxesActor::GetTitleTextProperty(int axis)
+{
+  return (axis >= 0 && axis < 3) ? this->TitleTextProperty[axis] : NULL;
+}
+
+// ****************************************************************************
+// Get the i-th label text property.
+// ****************************************************************************
+
+vtkTextProperty* vtkCubeAxesActor::GetLabelTextProperty(int axis)
+{
+  return (axis >= 0 && axis < 3) ? this->LabelTextProperty[axis] : NULL;
 }
 
 // ****************************************************************************

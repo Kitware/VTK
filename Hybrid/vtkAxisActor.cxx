@@ -76,17 +76,18 @@ vtkAxisActor::vtkAxisActor()
   this->SaveTitlePosition = 0;
   this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
   
+  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty->SetColor(1.,1.,1.);
+  this->TitleTextProperty->SetFontFamilyToArial();
+
   this->TitleVector = vtkVectorText::New();
   this->TitleMapper = vtkPolyDataMapper::New();
   this->TitleMapper->SetInput(this->TitleVector->GetOutput());
   this->TitleActor = vtkAxisFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->SetEnableDistanceLOD(0);
+  this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
   this->TitleActor2D = vtkTextActor::New();
-
-  this->TitleTextProperty = vtkTextProperty::New();
-  this->TitleTextProperty->SetColor(1.,1.,1.);
-  this->TitleTextProperty->SetFontFamilyToArial();
 
   // to avoid deleting/rebuilding create once up front
   this->NumberOfLabelsBuilt = 0;
@@ -96,7 +97,7 @@ vtkAxisActor::vtkAxisActor()
   this->LabelActors2D = NULL; 
 
   this->LabelTextProperty = vtkTextProperty::New();
-  this->LabelTextProperty->SetColor(0.,0.,0.);
+  this->LabelTextProperty->SetColor(1.,1.,1.);
   this->LabelTextProperty->SetFontFamilyToArial();
 
   this->AxisLines = vtkPolyData::New();
@@ -574,12 +575,6 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 
   vtkDebugMacro(<<"Rebuilding axis");
 
-  if (force || this->GetProperty()->GetMTime() > this->BuildTime.GetMTime())
-    {
-    this->AxisLinesActor->SetProperty(this->GetProperty());
-    this->TitleActor->SetProperty(this->GetProperty());
-    }
-
   //
   // Generate the axis and tick marks.
   //
@@ -637,7 +632,7 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
-    this->LabelActors[i]->SetProperty(this->GetProperty());
+    this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
 
     if(!this->GetCalculateLabelOffset())
       {
@@ -889,10 +884,10 @@ void vtkAxisActor::BuildTitle(bool force)
     labHeight = (labBounds[3] - labBounds[2])*scale[1];
     maxHeight = (labHeight > maxHeight ? labHeight : maxHeight);
     }
+
   this->TitleVector->SetText(this->Title);
 
   this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
-  this->TitleActor->GetProperty()->SetOpacity(1);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetPosition(p2[0], p2[1], p2[2]);
   this->TitleActor->GetMapper()->GetBounds(titleBounds);
@@ -1180,6 +1175,7 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
       this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
       this->LabelActors[i]->SetEnableDistanceLOD(0);
+      this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
       this->LabelActors2D[i] = vtkTextActor::New();
       }
     }
@@ -1985,6 +1981,7 @@ double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->SetProperty(newProp);
     this->LabelActors[i]->GetMapper()->GetBounds(bounds);
+    this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
     xsize = bounds[1] - bounds[0];
     ysize = bounds[3] - bounds[2];
     length = sqrt(xsize*xsize + ysize*ysize);
@@ -2009,9 +2006,11 @@ double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
   this->TitleActor->SetProperty(newProp);
   newProp->Delete();
   this->TitleActor->GetMapper()->GetBounds(bounds);
+  this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
   xsize = bounds[1] - bounds[0];
   ysize = bounds[3] - bounds[2];
   length = sqrt(xsize*xsize + ysize*ysize);
+
   return length;
 }
 
@@ -2062,8 +2061,8 @@ void vtkAxisActor::SetTitle(const char *t)
 void vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
 {
   this->AxisLinesActor->SetProperty(prop);
-  this->LabelTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
-  this->TitleTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
+  //this->LabelTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
+  //this->TitleTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
   this->Modified();
 }
 
@@ -2119,7 +2118,7 @@ vtkProperty* vtkAxisActor::NewTitleProperty()
   newProp->DeepCopy(this->GetProperty());
   newProp->SetColor(this->TitleTextProperty->GetColor());
   // We pass the opacity in the line offset.
-  newProp->SetOpacity(this->TitleTextProperty->GetLineOffset());
+  //newProp->SetOpacity(this->TitleTextProperty->GetLineOffset());
   return newProp;
 }
 
@@ -2130,7 +2129,7 @@ vtkProperty* vtkAxisActor::NewLabelProperty()
   newProp->DeepCopy(this->GetProperty());
   newProp->SetColor(this->LabelTextProperty->GetColor());
   // We pass the opacity in the line offset.
-  newProp->SetOpacity(this->LabelTextProperty->GetLineOffset());
+  //newProp->SetOpacity(this->LabelTextProperty->GetLineOffset());
   return newProp;
 }
 
