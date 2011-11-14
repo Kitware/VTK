@@ -184,12 +184,7 @@ protected:
   // Description:
   // Build the axes. 
   // Determine coordinates, position, etc.
-  void  BuildAxes(vtkViewport * );
-
-  // Description:
-  // Build the labels.
-  // Determine what the labels should be and set them in each axis.
-  void  BuildLabels( vtkAxisActor**  );
+  void  BuildAxes( vtkViewport * );
 
   // Description:
   // Send attributes to each vtkAxisActor.
@@ -202,8 +197,14 @@ protected:
   double  AutoScale( vtkViewport* viewport, double screenSize, double position[3] );
 
   // Description:
-  // Prepare ticks on polar axis
-  void  BuildPolarAxisTicks( double );
+  // Prepare ticks on polar axis.
+  // Determine how many ticks are needed create them.
+void  BuildPolarAxisTicks( double );
+
+  // Description:
+  // Build the labels.
+  // Determine what the labels should be and set them.
+  void  BuildPolarAxisLabels( double );
 
   int LabelExponent(double min, double max );
 
