@@ -164,7 +164,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
       {
       // Replace default screen offset (for polar axis only)
       follower->SetScreenOffset( this->LabelScreenOffset + this->ScreenSize * 0.5 );
-      follower->GetProperty()->SetColor( this->PolarAxisTitleTextProperty->GetColor() );
       }
     }
 
@@ -527,7 +526,6 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
       {
       // Special case of polar axis
       axis->SetTitle( this->PolarAxisTitle );
-      axis->GetTitleTextProperty()->SetColor( this->PolarAxisTitleTextProperty->GetColor() );
       }
     }
   
