@@ -316,13 +316,6 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
       }
     }
 
-  cerr << endl;
-  this->GetProperty()->PrintSelf( cerr, vtkIndent(0));
-  cerr << endl;
-  this->RadialAxes[0]->GetTitleTextProperty()->PrintSelf( cerr, vtkIndent(0));
-  cerr << endl;
-  this->RadialAxes[0]->GetTitleActor()->GetProperty()->PrintSelf( cerr, vtkIndent(0));
-  cerr << endl;
   return renderedSomething;
 }
 
