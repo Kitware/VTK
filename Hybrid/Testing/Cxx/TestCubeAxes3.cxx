@@ -105,7 +105,10 @@ int TestCubeAxes3( int argc, char * argv [] )
   axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
-  axes2->GetTitleTextProperty(0)->SetAmbient( 1 );
+  axes2->GetTitleTextProperty(0)->SetColor(1., 0., 0.);
+  axes2->GetLabelTextProperty(0)->SetColor(.5, 0., 0.);
+  axes2->GetTitleTextProperty(1)->SetColor(0., 1., 0.);
+  axes2->GetLabelTextProperty(1)->SetColor(0., .5, 0.);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();
