@@ -145,8 +145,8 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarAxisLabelTextProperty->SetFontFamilyToArial();
 
   // Create and set radial axes
-  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+  this->RadialAxes = new vtkAxisActor*[VTK_DEFAULT_NUMBER_OF_RADIAL_AXES];
+  for ( int i = 0; i < VTK_DEFAULT_NUMBER_OF_RADIAL_AXES; ++ i )
     {
     // Create axis of type X
     this->RadialAxes[i] = vtkAxisActor::New();
@@ -231,7 +231,7 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
   if ( this->RadialAxes )
     {
-    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+    for ( int i = 0; i < VTK_DEFAULT_NUMBER_OF_RADIAL_AXES; ++ i )
       {
       if ( this->RadialAxes[i] )
         {
