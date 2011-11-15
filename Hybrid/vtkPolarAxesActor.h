@@ -32,7 +32,8 @@ All rights reserve
 #ifndef __vtkPolarAxesActor_h
 #define __vtkPolarAxesActor_h
 
-#define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 100
+#define VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES 50
+#define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
 #define VTK_DEFAULT_MAXIMUM_POLAR_ANGLE 90.0
 
 #include "vtkActor.h"
@@ -66,7 +67,7 @@ public:
   // Description:
   // Gets/Sets the number of radial axes
   // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
-  vtkSetMacro( NumberOfRadialAxes, vtkIdType );
+  vtkSetClampMacro( NumberOfRadialAxes, vtkIdType, 2, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES );
   vtkGetMacro( NumberOfRadialAxes, vtkIdType );
 
   // Description:

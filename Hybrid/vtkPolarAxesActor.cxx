@@ -109,7 +109,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->Pole[2] = VTK_DOUBLE_MAX;
 
   // Default number of polar axes
-  this->NumberOfRadialAxes = VTK_DEFAULT_NUMBER_OF_RADIAL_AXES;
+  this->NumberOfRadialAxes = VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES;
 
   // Default maximum polar radius
   this->MaximumRadius = VTK_DOUBLE_MAX;
@@ -145,8 +145,8 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarAxisLabelTextProperty->SetFontFamilyToArial();
 
   // Create and set radial axes
-  this->RadialAxes = new vtkAxisActor*[VTK_DEFAULT_NUMBER_OF_RADIAL_AXES];
-  for ( int i = 0; i < VTK_DEFAULT_NUMBER_OF_RADIAL_AXES; ++ i )
+  this->RadialAxes = new vtkAxisActor*[VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES];
+  for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
     {
     // Create axis of type X
     this->RadialAxes[i] = vtkAxisActor::New();
@@ -231,7 +231,7 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
   if ( this->RadialAxes )
     {
-    for ( int i = 0; i < VTK_DEFAULT_NUMBER_OF_RADIAL_AXES; ++ i )
+    for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
       {
       if ( this->RadialAxes[i] )
         {
