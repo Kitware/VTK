@@ -15,9 +15,11 @@
  =========================================================================*/
 #include "vtkPolarAxesActor.h"
 
+#include "vtkArcSource.h"
 #include "vtkAxisActor.h"
 #include "vtkAxisFollower.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
 #include "vtkCoordinate.h"
 #include "vtkFollower.h"
 #include "vtkMath.h"
@@ -93,6 +95,9 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Polar Tick Visibility: "
      << ( this->PolarTickVisibility ? "On" : "Off" ) << endl;
+
+  os << indent << "Polar Arcs Visibility: "
+     << ( this->PolarArcsVisibility ? "On" : "Off" ) << endl;
 
   os << indent << "Radial Axes Label Format: " << this->RadialLabelFormat << "\n";
 
@@ -180,12 +185,14 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarArcsMapper->SetInput( this->PolarArcs );
   this->PolarArcsActor = vtkActor::New();
   this->PolarArcsActor->SetMapper( this->PolarArcsMapper );
+  this->PolarArcsActor->GetProperty()->SetColor( 1., 0., 0. );
 
   // By default all features are visible
   this->RadialAxesVisibility = 1;
   this->RadialTitleVisibility = 1;
   this->PolarLabelVisibility = 1;
   this->PolarTickVisibility = 1;
+  this->PolarArcsVisibility = 1;
 
   // Default title for polar axis (can also be called "Radius")
   this->PolarAxisTitle = new char[16];
@@ -320,15 +327,20 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
   initialRender = false;
   this->RebuildAxes = false;
 
-  //Render the axes
+  // Render the radial axes
   int renderedSomething = 0;
   if ( this->RadialAxesVisibility )
     {
     for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
-      renderedSomething +=
-        this->RadialAxes[i]->RenderOpaqueGeometry( viewport );
+      renderedSomething += this->RadialAxes[i]->RenderOpaqueGeometry( viewport );
       }
+    }
+
+  // Render the polar arcs
+  if ( this->PolarArcsVisibility )
+    {
+    renderedSomething += this->PolarArcsActor->RenderOpaqueGeometry(viewport);
     }
 
   return renderedSomething;
@@ -553,7 +565,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   // Build polar axis labels with 0.01 zero-threshold for labels
   this->BuildPolarAxisLabels( .01 );
 
-  // Scale appropriately.
+  // Scale appropriately
   this->AutoScale( viewport );
 
   this->RenderSomething = 1;
@@ -694,8 +706,10 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
 }
 
 // ****************************************************************
-void vtkPolarAxesActor::BuildPolarAxisLabels(  double zeroThreshold )
+void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
 {
+  //FIXME
+  vtkIdType resolution = 32;
   // Calculate number of labels needed and create array for them
   vtkAxisActor* axis = this->RadialAxes[0];
   double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
@@ -711,7 +725,23 @@ void vtkPolarAxesActor::BuildPolarAxisLabels(  double zeroThreshold )
   vtkStringArray *labels = vtkStringArray::New();
   labels->SetNumberOfValues( nLabels );
 
-  // Now create labels
+  // Prepare containers and values for polar arcs
+  // Fixed trigonometric quantities
+  double thetaRad = vtkMath::RadiansFromDegrees( this->MaximumAngle );
+  double cosTheta = cos( thetaRad );
+  double sinTheta = sin( thetaRad );
+  // Arc points
+  vtkPoints *polarArcsPoints = vtkPoints::New();
+  this->PolarArcs->SetPoints( polarArcsPoints );
+  polarArcsPoints->Delete();
+  // Arc lines
+  vtkCellArray *polarArcsLines = vtkCellArray::New();
+  this->PolarArcs->SetLines( polarArcsLines );
+  polarArcsLines->Delete();
+  // Point Id offset for polygonal arc vertices
+  vtkIdType pointIdOffset = 0;
+
+  // Now create labels and polar arcs
   val = axis->GetMajorRangeStart();
   deltaMajor = axis->GetDeltaRangeMajor();
   const char *format = this->RadialLabelFormat;
@@ -757,7 +787,39 @@ void vtkPolarAxesActor::BuildPolarAxisLabels(  double zeroThreshold )
         sprintf( label, "0.00000" );
         }
       }
+    // Store label
     labels->SetValue( i, label );
+
+
+    // Build corresponding polar arc
+    double x = val * cosTheta;
+    double y = val * sinTheta;
+    vtkArcSource* arc = vtkArcSource::New();
+    arc->SetCenter( this->Pole );
+    arc->SetPoint1( this->Pole[0] + val, this->Pole[1], this->Pole[2] );
+    arc->SetPoint2( this->Pole[0] + x, this->Pole[1] + y, this->Pole[2] );
+    arc->SetResolution( resolution );
+    arc->Update();
+
+    // Append new polar arc to existing ones
+    vtkPoints* arcPoints = arc->GetOutput()->GetPoints();
+    vtkIdType nPoints = resolution + 1;
+    vtkIdType* arcPointIds = new vtkIdType[nPoints];
+    for ( vtkIdType j = 0; j < nPoints; ++ j )
+      {
+      polarArcsPoints->InsertNextPoint( arcPoints->GetPoint( j ) );
+      arcPointIds[j] = pointIdOffset + j;
+      }
+    polarArcsLines->InsertNextCell( nPoints, arcPointIds );
+    
+    // Clean up
+    arc->Delete();
+    delete [] arcPointIds;
+    
+    // Update polyline cell offset
+    pointIdOffset += nPoints;
+
+    // Move to next value
     val += deltaMajor;
     }
 
