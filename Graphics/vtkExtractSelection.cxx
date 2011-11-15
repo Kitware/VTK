@@ -214,6 +214,7 @@ int vtkExtractSelection::RequestDataObject(
     vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
     if (!output)
       {
+      output = vtkMultiBlockDataSet::New();
       outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
