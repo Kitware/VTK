@@ -174,6 +174,13 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // Default tick location, defined in vtkAxisActor
   this->TickLocation = VTK_TICKS_BOTH;
 
+  // Create and set polar arcs and ancillary objects
+  this->PolarArcs = vtkPolyData::New();
+  this->PolarArcsMapper = vtkPolyDataMapper::New();
+  this->PolarArcsMapper->SetInput( this->PolarArcs );
+  this->PolarArcsActor = vtkActor::New();
+  this->PolarArcsActor->SetMapper( this->PolarArcsMapper );
+
   // By default all features are visible
   this->RadialAxesVisibility = 1;
   this->RadialTitleVisibility = 1;
@@ -246,6 +253,23 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
     delete [] this->RadialAxes;
     this->RadialAxes = NULL;
     }
+
+  if (this->PolarArcs)
+    {
+    this->PolarArcs->Delete();
+    this->PolarArcs = NULL;
+    }
+  if (this->PolarArcsMapper)
+    {
+    this->PolarArcsMapper->Delete();
+    this->PolarArcsMapper = NULL;
+    }
+  if (this->PolarArcsActor)
+    {
+    this->PolarArcsActor->Delete();
+    this->PolarArcsActor = NULL;
+    }
+
 }
 
 // ****************************************************************************
@@ -342,6 +366,8 @@ void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
     {
     this->RadialAxes[i]->ReleaseGraphicsResources( win );
     }
+  this->PolarArcsActor->ReleaseGraphicsResources(win);
+
 }
 
 // *************************************************************************

@@ -164,6 +164,12 @@ public:
   vtkBooleanMacro( PolarTickVisibility, int );
 
   // Description:
+  // Turn on and off the visibility of arcs for polar axis.
+  vtkSetMacro( PolarArcsVisibility, int );
+  vtkGetMacro( PolarArcsVisibility, int );
+  vtkBooleanMacro( PolarArcsVisibility, int );
+
+  // Description:
   // Set/Get the polar axis title text property. 
   virtual void SetPolarAxisTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(PolarAxisTitleTextProperty,vtkTextProperty);
@@ -295,9 +301,10 @@ void  BuildPolarAxisTicks( double );
   int RadialAxesVisibility;
   int RadialTitleVisibility;
 
-  // Visibility of labels and ticks (major only) on polar axis
+  // Visibility of polar labels, ticks (major only), and arcs
   int PolarLabelVisibility;
   int PolarTickVisibility;
+  int PolarArcsVisibility;
 
   char  *RadialLabelFormat;
 
