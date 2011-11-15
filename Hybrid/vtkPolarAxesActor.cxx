@@ -167,8 +167,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
       }
     }
 
-  this->ActualRadialLabel = 0;
-
   // Default tick location, defined in vtkAxisActor
   this->TickLocation = VTK_TICKS_BOTH;
 
@@ -561,6 +559,7 @@ void vtkPolarAxesActor::SetNonDependentAttributes()
       {
       axis->SetLabelVisibility( 0 );
       axis->SetTickVisibility( 0 );
+      axis->GetTitleTextProperty()->SetColor( this->GetRadialAxesProperty()->GetColor() );
       }
     }
 }
