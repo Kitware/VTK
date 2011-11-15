@@ -303,17 +303,10 @@ void  BuildPolarAxisTicks( double );
   vtkSetStringMacro( ActualRadialLabel );
 
   vtkTimeStamp BuildTime;
-  int LastRadialPow;
 
   int UserRadialPow;
 
   bool AutoLabelScaling;
-
-  int LastRadialAxesDigits;
-
-  bool MustAdjustRadialValue;
-
-  bool ForceRadialLabelReset;
 
   double LabelScale;
   double TitleScale;

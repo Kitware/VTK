@@ -141,7 +141,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarAxisTitleTextProperty->SetColor( 1., 0. ,0. );
   this->PolarAxisTitleTextProperty->SetFontFamilyToArial();
   this->PolarAxisLabelTextProperty = vtkTextProperty::New();
-  this->PolarAxisLabelTextProperty->SetColor( 1., 0. ,0. );
+  this->PolarAxisLabelTextProperty->SetColor( .8, 0. ,0. );
   this->PolarAxisLabelTextProperty->SetFontFamilyToArial();
 
   // Create and set radial axes
@@ -189,17 +189,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   this->RenderSomething = 0;
 
-  this->LastRadialPow = 0;
-
   this->UserRadialPow = 0;
 
   this->AutoLabelScaling = true;
-
-  this->LastRadialAxesDigits = 3;
-
-  this->MustAdjustRadialValue = false;
-
-  this->ForceRadialLabelReset = false;
 
   this->LabelScale = -1.0;
   this->TitleScale = -1.0;
@@ -270,8 +262,6 @@ void vtkPolarAxesActor::ShallowCopy( vtkPolarAxesActor *actor )
   this->SetCamera( actor->GetCamera() );
 
   this->SetPolarAxisTitle( actor->GetPolarAxisTitle() );
-  this->MustAdjustRadialValue = actor->MustAdjustRadialValue;
-  this->ForceRadialLabelReset = actor->ForceRadialLabelReset;
   this->LabelScreenOffset = actor->LabelScreenOffset;
   this->ScreenSize        = actor->ScreenSize;
   this->LabelScreenOffset = actor->LabelScreenOffset;
@@ -535,54 +525,6 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   // Build polar axis labels
   this->BuildPolarAxisLabels( o[0] );
 
-  cerr << "this->ForceRadialLabelReset: " << this->ForceRadialLabelReset << endl;
-  if ( this->ForceRadialLabelReset )
-    {
-    // Must recompute the scale
-    double center[3];
-    center[0] = ( this->Bounds[1] - this->Bounds[0] ) * 0.5;
-    center[1] = ( this->Bounds[3] - this->Bounds[2] ) * 0.5;
-    center[2] = ( this->Bounds[5] - this->Bounds[4] ) * 0.5;
-    double bWidth  = this->Bounds[1] - this->Bounds[0];
-    double bHeight = this->Bounds[3] - this->Bounds[2];
-    double bLength = sqrt( bWidth * bWidth + bHeight * bHeight );
-    double target = bLength * .04;
-
-    // Label scale
-    vtkAxisActor* axis = this->RadialAxes[0];
-    double lenRad = axis->ComputeMaxLabelLength( center );
-    double maxLabelLength = this->MaxOf( lenRad, 0.);
-    this->LabelScale = 1.;
-    if ( maxLabelLength > 0. )
-      {
-      this->LabelScale = target / maxLabelLength;
-      }
-
-    // Title scale
-    double lenTitle = axis->ComputeTitleLength( center );
-    double maxTitleLength = this->MaxOf( lenTitle, 0.);
-    target = bLength * 0.1;
-    this->TitleScale = 1.;
-    if ( maxTitleLength > 0. )
-      {
-      this->TitleScale = target / maxTitleLength;
-      }
-
-    // Allow a bit bigger title if we have units, otherwise
-    // the title may be too small to read.
-    if ( this->RadialUnits )
-      {
-      this->TitleScale *= 2;
-      }
-
-    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-      {
-      axis = this->RadialAxes[i];
-      axis->SetLabelScale( this->LabelScale );
-      axis->SetTitleScale( this->TitleScale );
-      }
-    }
-
   // Scale appropriately.
   this->AutoScale( viewport );
 
@@ -740,14 +682,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabels(  double origin )
   vtkStringArray *labels = vtkStringArray::New();
   labels->SetNumberOfValues( nLabels );
 
-  // Calculate scale factor
-  double scaleFactor = 1.;
-  int lastPow = this->LastRadialPow;
-  if ( lastPow )
-    {
-    scaleFactor = 1. / pow( 10., lastPow );
-    }
-
   // Now create labels
   val = axis->GetMajorRangeStart();
   deltaMajor = axis->GetDeltaRangeMajor();
@@ -761,14 +695,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabels(  double origin )
       // large, so set it to zero to avoid ugliness.
       val = 0.;
       }
-    if ( this->MustAdjustRadialValue )
-      {
-      sprintf( label, format, val * scaleFactor );
-      }
-    else
-      {
-      sprintf( label, format, val );
-      }
+    sprintf( label, format, val );
+
     if ( fabs( val ) < 0.01 )
       {
       //
