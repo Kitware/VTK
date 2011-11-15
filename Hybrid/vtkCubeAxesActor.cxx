@@ -47,7 +47,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
 
   // Title and label text properties
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     {
     this->TitleTextProperty[i] = vtkTextProperty::New();
     this->TitleTextProperty[i]->SetColor(1.,1.,1.);
@@ -86,8 +86,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   //this->YAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
   //this->ZAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
 
-  int i;
-  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i] = vtkAxisActor::New();
     this->XAxes[i]->SetTickVisibility(1);
@@ -232,7 +231,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
   this->LastFlyMode = -1;
 
-  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->RenderAxesX[i] = i;
     this->RenderAxesY[i] = i;
