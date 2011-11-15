@@ -699,28 +699,28 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
   vtkStringArray *labels = vtkStringArray::New();
   labels->SetNumberOfValues( nLabels );
 
-  // Prepare containers and values for polar arcs
-  // Fixed trigonometric quantities
+  // Prepare trigonometric quantities
   double thetaRad = vtkMath::RadiansFromDegrees( this->MaximumAngle );
   double cosTheta = cos( thetaRad );
   double sinTheta = sin( thetaRad );
   vtkIdType arcResolution 
-    = static_cast<vtkIdType>( this->MaximumAngle * VTK_POLAR_ARC_RESOLUTION_PER_DEG ); 
+    = static_cast<vtkIdType>( this->MaximumAngle * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
+
   // Arc points
   vtkPoints *polarArcsPoints = vtkPoints::New();
   this->PolarArcs->SetPoints( polarArcsPoints );
   polarArcsPoints->Delete();
+
   // Arc lines
   vtkCellArray *polarArcsLines = vtkCellArray::New();
   this->PolarArcs->SetLines( polarArcsLines );
   polarArcsLines->Delete();
-  // Point Id offset for polygonal arc vertices
-  vtkIdType pointIdOffset = 0;
 
   // Now create labels and polar arcs
   val = axis->GetMajorRangeStart();
   const char *format = this->RadialLabelFormat;
   char label[64];
+  vtkIdType pointIdOffset = 0;
   for ( int  i = 0; i < nLabels; ++ i )
     {
     if ( fabs( val ) < zeroThreshold && this->MaximumRadius > 1 )
@@ -733,10 +733,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
 
     if ( fabs( val ) < zeroThreshold )
       {
-      //
       // Ensure that -0.0 is never a label
       // The maximum number of digits that we allow past the decimal is 5.
-      //
       if ( strcmp( label, "-0" ) == 0 )
         {
         sprintf( label, "0" );
@@ -778,6 +776,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
       vtkPoints* arcPoints = arc->GetOutput()->GetPoints();
       vtkIdType nPoints = arcResolution + 1;
       vtkIdType* arcPointIds = new vtkIdType[nPoints];
+      double* pt;
+      cerr << "val = " << val << endl;
       for ( vtkIdType j = 0; j < nPoints; ++ j )
         {
         polarArcsPoints->InsertNextPoint( arcPoints->GetPoint( j ) );

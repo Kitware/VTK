@@ -124,6 +124,7 @@ int vtkArcSource::RequestData(
       { this->Center[0] + cosine*radius*v1[0] + sine*radius*perpendicular[0],
         this->Center[1] + cosine*radius*v1[1] + sine*radius*perpendicular[1],
         this->Center[2] + cosine*radius*v1[2] + sine*radius*perpendicular[2] };
+    cerr << p[0] << " " << p[1] << " " << p[2] << endl;
     
     tc[0] = static_cast<double>(i)/this->Resolution;
     newPoints->InsertPoint(i,p);
