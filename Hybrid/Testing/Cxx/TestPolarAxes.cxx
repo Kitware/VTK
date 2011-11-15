@@ -86,10 +86,11 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->SetNumberOfRadialAxes( 7 );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetRadialLabelFormat( "%6.1f" );
-  polaxes->GetRadialAxesProperty()->SetColor( .0, .0, .9 );
-  polaxes->SetScreenSize( 12.0 );
-  polaxes->GetPolarAxisTitleTextProperty()->SetColor( .9, 0., 0. );
-  polaxes->GetPolarAxisLabelTextProperty()->SetColor( .9, 0., 0. );
+  polaxes->GetRadialAxesProperty()->SetColor( .0, .0, 1. );
+  polaxes->GetPolarArcsProperty()->SetColor( 1., .0, 0. );
+  polaxes->GetPolarAxisTitleTextProperty()->SetColor( 1., 0., 0. );
+  polaxes->GetPolarAxisLabelTextProperty()->SetColor( 1., 0., 0. );
+  polaxes->SetScreenSize( 11.0 );
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples( 0 );

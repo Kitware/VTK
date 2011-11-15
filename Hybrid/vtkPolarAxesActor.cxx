@@ -142,15 +142,16 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // hence ( this->ScreenSize * 0.5 ).
   this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
 
-  // Properties of the radial axes
+  // Properties of the radial axes, with default color black
   this->RadialAxesProperty = vtkProperty::New();
+  this->RadialAxesProperty->SetColor( 0., 0., 0. );
 
-  // Text properties of polar axis title and labels, with default red color
+  // Text properties of polar axis title and labels, with default color white
   this->PolarAxisTitleTextProperty = vtkTextProperty::New();
-  this->PolarAxisTitleTextProperty->SetColor( 1., 0. ,0. );
+  this->PolarAxisTitleTextProperty->SetColor( 1., 1. ,1. );
   this->PolarAxisTitleTextProperty->SetFontFamilyToArial();
   this->PolarAxisLabelTextProperty = vtkTextProperty::New();
-  this->PolarAxisLabelTextProperty->SetColor( .8, 0. ,0. );
+  this->PolarAxisLabelTextProperty->SetColor( 1., 1. ,1. );
   this->PolarAxisLabelTextProperty->SetFontFamilyToArial();
 
   // Create and set radial axes
@@ -179,13 +180,13 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // Default tick location, defined in vtkAxisActor
   this->TickLocation = VTK_TICKS_BOTH;
 
-  // Create and set polar arcs and ancillary objects
+  // Create and set polar arcs and ancillary objects, with default color white
   this->PolarArcs = vtkPolyData::New();
   this->PolarArcsMapper = vtkPolyDataMapper::New();
   this->PolarArcsMapper->SetInput( this->PolarArcs );
   this->PolarArcsActor = vtkActor::New();
   this->PolarArcsActor->SetMapper( this->PolarArcsMapper );
-  this->PolarArcsActor->GetProperty()->SetColor( 1., 0., 0. );
+  this->PolarArcsActor->GetProperty()->SetColor( 1., 1., 1. );
 
   // By default all features are visible
   this->RadialAxesVisibility = 1;
