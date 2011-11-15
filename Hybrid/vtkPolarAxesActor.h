@@ -40,6 +40,8 @@ All rights reserve
 
 class vtkAxisActor;
 class vtkCamera;
+class vtkPolyData;
+class vtkPolyDataMapper;
 class vtkTextProperty;
 
 class VTK_HYBRID_EXPORT vtkPolarAxesActor : public vtkActor
@@ -173,8 +175,13 @@ public:
   
   // Description:
   // Get/Set radial axes actors properties.
-  void SetRadialAxesProperty(vtkProperty *);
+  virtual void SetRadialAxesProperty(vtkProperty *);
   vtkProperty* GetRadialAxesProperty();
+
+  // Description:
+  // Get/Set polar arcs actors property
+  virtual void SetPolarArcsProperty(vtkProperty *);
+  vtkProperty* GetPolarArcsProperty();
 
   // Description:
   // Set automatic label scaling mode, set axis exponents
@@ -257,6 +264,14 @@ void  BuildPolarAxisTicks( double );
   // Explicit actor bounds
   double Bounds[6];
 
+  // Description:
+  // Structures for polar arcs
+  vtkPolyData        *PolarArcs;
+  vtkPolyDataMapper  *PolarArcsMapper;
+  vtkActor           *PolarArcsActor;
+
+  // Description:
+  // Camera attached to the polar axes system
   vtkCamera *Camera;
 
   // Description:

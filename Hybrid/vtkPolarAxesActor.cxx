@@ -22,6 +22,8 @@
 #include "vtkFollower.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
@@ -828,4 +830,17 @@ void vtkPolarAxesActor::SetRadialAxesProperty( vtkProperty *prop )
 vtkProperty* vtkPolarAxesActor::GetRadialAxesProperty()
 {
   return this->RadialAxesProperty;
+}
+
+// ****************************************************************************
+void vtkPolarAxesActor::SetPolarArcsProperty( vtkProperty *prop )
+{
+  this->PolarArcsActor->SetProperty(prop);
+  this->Modified();
+}
+
+// ****************************************************************************
+vtkProperty* vtkPolarAxesActor::GetPolarArcsProperty()
+{
+  return this->PolarArcsActor->GetProperty();
 }
