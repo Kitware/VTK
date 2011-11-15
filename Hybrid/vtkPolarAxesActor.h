@@ -273,8 +273,6 @@ void  BuildPolarAxisTicks( double );
   // Use angle units (degrees) to label radial axes
   bool RadialUnits;
 
-  char *ActualRadialLabel;
-
   int TickLocation;
 
   // Visibility of radial axes and their titles
@@ -299,8 +297,6 @@ void  BuildPolarAxisTicks( double );
 
   // General properties of radial axes
   vtkProperty* RadialAxesProperty;
-
-  vtkSetStringMacro( ActualRadialLabel );
 
   vtkTimeStamp BuildTime;
 
