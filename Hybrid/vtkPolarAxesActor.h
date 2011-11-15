@@ -83,9 +83,9 @@ public:
   vtkBooleanMacro( AutoScaleRadius,int );
 
   // Description:
-  //  Set/Get the maximum radius of the polar coordinates.
+  //  Set/Get the maximum radius of the polar coordinates (in degrees).
   // Default: VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
-  vtkSetMacro( MaximumAngle, double );
+  vtkSetClampMacro( MaximumAngle, double, 0., 360. );
   vtkGetMacro( MaximumAngle, double );
 
   // Description:
