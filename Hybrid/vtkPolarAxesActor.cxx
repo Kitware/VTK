@@ -482,10 +482,10 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   this->GetBounds( bounds );
   
   // If pole coordinates are invalid, use bounds
-  double o[3];
+  double O[3];
   for ( int i = 0; i < 3; ++ i )
     {
-    o[i] = this->Pole[i] == VTK_DOUBLE_MAX ? bounds[i * 2] : this->Pole[i];
+    O[i] = this->Pole[i] == VTK_DOUBLE_MAX ? bounds[i * 2] : this->Pole[i];
     }
   
   // If axial scale it out of proportions with object length scale, reset to ls
@@ -506,10 +506,10 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     double theta = i * dAlpha;
     double thetaRad = vtkMath::RadiansFromDegrees( theta );
     vtkAxisActor* axis = this->RadialAxes[i];
-    double x = o[0] + this->MaximumRadius * cos( thetaRad );
-    double y = o[1] + this->MaximumRadius * sin( thetaRad );
-    axis->GetPoint1Coordinate()->SetValue( o[0], o[1], o[2] );
-    axis->GetPoint2Coordinate()->SetValue( x, y, o[2] );
+    double x = O[0] + this->MaximumRadius * cos( thetaRad );
+    double y = O[1] + this->MaximumRadius * sin( thetaRad );
+    axis->GetPoint1Coordinate()->SetValue( O[0], O[1], O[2] );
+    axis->GetPoint2Coordinate()->SetValue( x, y, O[2] );
 
     // Set axis ticks
     axis->SetRange( 0., this->MaximumRadius );
@@ -535,11 +535,11 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
       }
     }
   
-  // Build polar axis tick, with respect to specified x-origin
-  this->BuildPolarAxisTicks( o[0] );
+  // Build polar axis ticks
+  this->BuildPolarAxisTicks( O[0] );
 
   // Build polar axis labels with 0.01 zero-threshold for labels
-  this->BuildPolarAxisLabels( .01 );
+  this->BuildPolarAxisLabelsArcs( O, .01 );
 
   // Scale appropriately
   this->AutoScale( viewport );
@@ -607,7 +607,7 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 }
 
 // *******************************************************************
-void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
+void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 {
   // Find the integral points.
   double range = this->MaximumRadius;
@@ -675,13 +675,14 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
   axis->SetDeltaRangeMajor( major );
 
   // Set major start and delta corresponding to coordinates
-  majorStart = majorStart - sortedRange[0] + origin;
+  majorStart = majorStart - sortedRange[0] + x0;
   axis->SetMajorStart( VTK_AXIS_TYPE_X, majorStart );
   axis->SetDeltaMajor( VTK_AXIS_TYPE_X, major );
 }
 
 // ****************************************************************
-void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
+void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
+                                                  double zeroThreshold )
 {
   // Calculate number of labels needed and create array for them
   vtkAxisActor* axis = this->RadialAxes[0];
@@ -766,9 +767,9 @@ void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
       double x = val * cosTheta;
       double y = val * sinTheta;
       vtkArcSource* arc = vtkArcSource::New();
-      arc->SetCenter( this->Pole );
-      arc->SetPoint1( this->Pole[0] + val, this->Pole[1], this->Pole[2] );
-      arc->SetPoint2( this->Pole[0] + x, this->Pole[1] + y, this->Pole[2] );
+      arc->SetCenter( O );
+      arc->SetPoint1( O[0] + val, O[1], O[2] );
+      arc->SetPoint2( O[0] + x, O[1] + y, O[2] );
       arc->SetResolution( arcResolution );
       arc->Update();
       

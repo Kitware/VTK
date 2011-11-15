@@ -218,13 +218,11 @@ protected:
 
   // Description:
   // Prepare ticks on polar axis.
-  // Determine how many ticks are needed create them.
-void  BuildPolarAxisTicks( double );
+  void  BuildPolarAxisTicks( double );
 
   // Description:
-  // Build the labels.
-  // Determine what the labels should be and set them.
-  void  BuildPolarAxisLabels( double );
+  // Build polar axis labels and arcs.
+  void  BuildPolarAxisLabelsArcs( double*, double );
 
   int LabelExponent(double min, double max );
 
