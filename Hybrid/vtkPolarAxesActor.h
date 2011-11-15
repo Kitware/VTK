@@ -132,14 +132,6 @@ public:
   void ReleaseGraphicsResources( vtkWindow* );
 
   // Description:
-  // Implementation of ShallowCopy() of a vtkPolarAxesActor instance
-  void ShallowCopy( vtkPolarAxesActor* );
-
-  // Description:
-  // Implementation of ShallowCopy() of a vtkPolarAxesActor property instance
-  void ShallowCopy( vtkProp* prop ) { this->vtkProp::ShallowCopy( prop ); };
-
-  // Description:
   // Turn on and off the visibility of radial axes.
   vtkSetMacro( RadialAxesVisibility,int );
   vtkGetMacro( RadialAxesVisibility,int );

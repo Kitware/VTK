@@ -279,30 +279,6 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
 }
 
-// ****************************************************************************
-void vtkPolarAxesActor::ShallowCopy( vtkPolarAxesActor *actor )
-{
-  this->Superclass::ShallowCopy( actor );
-
-  this->SetBounds( actor->GetBounds() );
-  this->SetPole( actor->GetPole() );
-  this->SetMaximumRadius( actor->GetMaximumRadius() );
-  this->SetAutoScaleRadius( actor->GetAutoScaleRadius() );
-  this->SetRadialUnits( actor->GetRadialUnits() );
-  this->SetRadialLabelFormat( actor->GetRadialLabelFormat() );
-  this->SetMaximumAngle( actor->GetMaximumAngle() );
-  
-  this->SetCamera( actor->GetCamera() );
-
-  this->SetPolarAxisTitle( actor->GetPolarAxisTitle() );
-  this->LabelScreenOffset = actor->LabelScreenOffset;
-  this->ScreenSize        = actor->ScreenSize;
-  this->LabelScreenOffset = actor->LabelScreenOffset;
-  this->SetRadialLabelFormat( actor->GetRadialLabelFormat() );
-  this->SetPolarAxisTitleTextProperty( actor->GetPolarAxisTitleTextProperty() );
-  this->SetPolarAxisLabelTextProperty( actor->GetPolarAxisLabelTextProperty() );
-}
-
 // *************************************************************************
 int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 {
