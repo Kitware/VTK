@@ -520,8 +520,8 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   // Build polar axis tick, with respect to specified x-origin
   this->BuildPolarAxisTicks( o[0] );
 
-  // Build polar axis labels
-  this->BuildPolarAxisLabels( o[0] );
+  // Build polar axis labels with 0.01 zero-threshold for labels
+  this->BuildPolarAxisLabels( .01 );
 
   // Scale appropriately.
   this->AutoScale( viewport );
@@ -664,7 +664,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
 }
 
 // ****************************************************************
-void vtkPolarAxesActor::BuildPolarAxisLabels(  double origin )
+void vtkPolarAxesActor::BuildPolarAxisLabels(  double zeroThreshold )
 {
   // Calculate number of labels needed and create array for them
   vtkAxisActor* axis = this->RadialAxes[0];
@@ -688,7 +688,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabels(  double origin )
   char label[64];
   for ( int  i = 0; i < nLabels; ++ i )
     {
-    if ( fabs( val ) < .01 && this->MaximumRadius > 1 )
+    if ( fabs( val ) < zeroThreshold && this->MaximumRadius > 1 )
       {
       // We just happened to fall at something near zero and the range is
       // large, so set it to zero to avoid ugliness.
@@ -696,7 +696,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabels(  double origin )
       }
     sprintf( label, format, val );
 
-    if ( fabs( val ) < 0.01 )
+    if ( fabs( val ) < zeroThreshold )
       {
       //
       // Ensure that -0.0 is never a label
