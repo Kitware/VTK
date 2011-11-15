@@ -353,10 +353,6 @@ public:
   //! for 2D axis only : during the next render, the axis positions have to be save for later use.
   void SetSaveTitlePosition( int val );
       
-  // Description:
-  // Shallow copy of a KatCubeAxesActor.
-  void ShallowCopy(vtkCubeAxesActor *actor);
-
 protected:
   vtkCubeAxesActor();
   ~vtkCubeAxesActor();
