@@ -708,8 +708,6 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
 // ****************************************************************
 void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
 {
-  //FIXME
-  vtkIdType resolution = 32;
   // Calculate number of labels needed and create array for them
   vtkAxisActor* axis = this->RadialAxes[0];
   double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
@@ -730,6 +728,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
   double thetaRad = vtkMath::RadiansFromDegrees( this->MaximumAngle );
   double cosTheta = cos( thetaRad );
   double sinTheta = sin( thetaRad );
+  vtkIdType arcResolution = static_cast<vtkIdType>( this->MaximumAngle / 5 ); 
   // Arc points
   vtkPoints *polarArcsPoints = vtkPoints::New();
   this->PolarArcs->SetPoints( polarArcsPoints );
@@ -798,12 +797,12 @@ void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
     arc->SetCenter( this->Pole );
     arc->SetPoint1( this->Pole[0] + val, this->Pole[1], this->Pole[2] );
     arc->SetPoint2( this->Pole[0] + x, this->Pole[1] + y, this->Pole[2] );
-    arc->SetResolution( resolution );
+    arc->SetResolution( arcResolution );
     arc->Update();
 
     // Append new polar arc to existing ones
     vtkPoints* arcPoints = arc->GetOutput()->GetPoints();
-    vtkIdType nPoints = resolution + 1;
+    vtkIdType nPoints = arcResolution + 1;
     vtkIdType* arcPointIds = new vtkIdType[nPoints];
     for ( vtkIdType j = 0; j < nPoints; ++ j )
       {
