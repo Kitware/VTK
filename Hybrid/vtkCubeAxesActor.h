@@ -545,8 +545,6 @@ private:
   void    AutoScale(vtkViewport *viewport);
   void    AutoScale(vtkViewport *viewport, vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS]);
   double  AutoScale(vtkViewport *viewport, double screenSize, double position[3]);
-
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 };
 
 

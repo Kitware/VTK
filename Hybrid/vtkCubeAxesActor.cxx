@@ -302,35 +302,6 @@ void vtkCubeAxesActor::SetSaveTitlePosition( int val )
 }
 
 // ****************************************************************************
-// Shallow copy of an actor.
-// ****************************************************************************
-void vtkCubeAxesActor::ShallowCopy(vtkCubeAxesActor *actor)
-{
-  this->Superclass::ShallowCopy(actor);
-  this->SetXLabelFormat(actor->GetXLabelFormat());
-  this->SetYLabelFormat(actor->GetYLabelFormat());
-  this->SetZLabelFormat(actor->GetZLabelFormat());
-  this->SetCornerOffset(actor->GetCornerOffset());
-  this->SetInertia(actor->GetInertia());
-  this->SetXTitle(actor->GetXTitle());
-  this->SetYTitle(actor->GetYTitle());
-  this->SetZTitle(actor->GetZTitle());
-  this->SetFlyMode(actor->GetFlyMode());
-  this->SetCamera(actor->GetCamera());
-  this->SetBounds(actor->GetBounds());
-  this->MustAdjustXValue = actor->MustAdjustXValue;
-  this->MustAdjustYValue = actor->MustAdjustYValue;
-  this->MustAdjustZValue = actor->MustAdjustZValue;
-  this->ForceXLabelReset = actor->ForceXLabelReset;
-  this->ForceYLabelReset = actor->ForceYLabelReset;
-  this->ForceZLabelReset = actor->ForceZLabelReset;
-
-  this->LabelScreenOffset = actor->LabelScreenOffset;
-  this->TitleScreenOffset = actor->TitleScreenOffset;
-  this->ScreenSize        = actor->ScreenSize;
-}
-
-// ****************************************************************************
 vtkCubeAxesActor::~vtkCubeAxesActor()
 {
   this->SetCamera(NULL);
