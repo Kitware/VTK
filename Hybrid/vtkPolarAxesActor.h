@@ -73,7 +73,7 @@ public:
   // Description:
   //  Set/Get the maximum radius of the polar coordinates.
   // Default: VTK_DOUBLE_MAX
-  vtkSetMacro( MaximumRadius, double );
+  vtkSetClampMacro( MaximumRadius, double, 0., VTK_DOUBLE_MAX );
   vtkGetMacro( MaximumRadius, double );
 
   // Description:
