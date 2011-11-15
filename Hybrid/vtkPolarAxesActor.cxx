@@ -704,7 +704,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
   double thetaRad = vtkMath::RadiansFromDegrees( this->MaximumAngle );
   double cosTheta = cos( thetaRad );
   double sinTheta = sin( thetaRad );
-  vtkIdType arcResolution = static_cast<vtkIdType>( this->MaximumAngle / 5 ); 
+  vtkIdType arcResolution 
+    = static_cast<vtkIdType>( this->MaximumAngle * VTK_POLAR_ARC_RESOLUTION_PER_DEG ); 
   // Arc points
   vtkPoints *polarArcsPoints = vtkPoints::New();
   this->PolarArcs->SetPoints( polarArcsPoints );
