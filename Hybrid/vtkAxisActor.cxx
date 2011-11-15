@@ -71,13 +71,12 @@ vtkAxisActor::vtkAxisActor()
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat, "%s", "%-#6.3g");
 
-  // stuff for 2D axis
   this->Use2DMode = 0;
   this->SaveTitlePosition = 0;
   this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
   
   this->TitleTextProperty = vtkTextProperty::New();
-  this->TitleTextProperty->SetColor(1.,1.,1.);
+  this->TitleTextProperty->SetColor(0.,0.,0.);
   this->TitleTextProperty->SetFontFamilyToArial();
 
   this->TitleVector = vtkVectorText::New();
@@ -86,10 +85,8 @@ vtkAxisActor::vtkAxisActor()
   this->TitleActor = vtkAxisFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->SetEnableDistanceLOD(0);
-  this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
   this->TitleActor2D = vtkTextActor::New();
 
-  // to avoid deleting/rebuilding create once up front
   this->NumberOfLabelsBuilt = 0;
   this->LabelVectors = NULL;
   this->LabelMappers = NULL;
@@ -97,7 +94,7 @@ vtkAxisActor::vtkAxisActor()
   this->LabelActors2D = NULL; 
 
   this->LabelTextProperty = vtkTextProperty::New();
-  this->LabelTextProperty->SetColor(1.,1.,1.);
+  this->LabelTextProperty->SetColor(0.,0.,0.);
   this->LabelTextProperty->SetFontFamilyToArial();
 
   this->AxisLines = vtkPolyData::New();
@@ -574,6 +571,13 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
     }
 
   vtkDebugMacro(<<"Rebuilding axis");
+
+  if (force || this->GetProperty()->GetMTime() > this->BuildTime.GetMTime())
+    {
+      //this->AxisLinesActor->SetProperty(this->GetProperty());
+    this->TitleActor->SetProperty(this->GetProperty());
+    this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
+    }
 
   //
   // Generate the axis and tick marks.
@@ -1175,6 +1179,8 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
       this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
       this->LabelActors[i]->SetEnableDistanceLOD(0);
+      this->LabelActors[i]->GetProperty()->SetAmbient(1.);
+      this->LabelActors[i]->GetProperty()->SetDiffuse(0.);
       this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
       this->LabelActors2D[i] = vtkTextActor::New();
       }
