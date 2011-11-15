@@ -160,12 +160,20 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
         {
         vtkIdType numCellPts = cellPts->GetNumberOfPoints();
         newLines->InsertNextCell(numCellPts);
+        vtkIdType lastPtId = -1;
+        vtkIdType numOutputCellPts = 0;
         for (vtkIdType i = 0; i < numCellPts; i++)
           {
           vtkIdType ptId;
           locator->InsertUniquePoint(cellPts->GetPoint(i), ptId);
-          newLines->InsertCellPoint(ptId);
+          if (ptId != lastPtId)
+            {
+            newLines->InsertCellPoint(ptId);
+            numOutputCellPts++;
+            }
+          lastPtId = ptId;
           }
+        newLines->UpdateCellCount(numOutputCellPts);
         outCD->CopyData(inCD, cellId, newLines->GetNumberOfCells()-1);
         }
       }
@@ -305,8 +313,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     for (vtkIdType i = 0; i < numberOfPoints; i++)
       {
       double yval = points->GetPoint(i)[1];
-      int bottomPoint = 1;
-      int topPoint = 1;
+      bool bottomPoint = 1;
+      bool topPoint = 1;
 
       int numberOfNeighbors = 0;
       vtkIdType neighborId = 0;
@@ -331,28 +339,16 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
               numberOfNeighbors++;
               neighborId = pointIds[(j+npts-1)%npts];
               double yneighbor = points->GetPoint(neighborId)[1];
-              if (yneighbor < yval)
-                {
-                bottomPoint = 0;
-                }
-              else if (yneighbor > yval)
-                {
-                topPoint = 0;
-                }
+              bottomPoint &= (yneighbor >= yval);
+              topPoint &= (yneighbor <= yval);
               }
             if (j < npts-1 || isClosed)
               {
               numberOfNeighbors++;
               neighborId = pointIds[(j+1)%npts];
               double yneighbor = points->GetPoint(neighborId)[1];
-              if (yneighbor < yval)
-                {
-                bottomPoint = 0;
-                }
-              else if (yneighbor > yval)
-                {
-                topPoint = 0;
-                }
+              bottomPoint &= (yneighbor >= yval);
+              topPoint &= (yneighbor <= yval);
               }
             break;
             }
