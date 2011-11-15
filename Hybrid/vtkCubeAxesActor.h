@@ -289,6 +289,14 @@ public:
   vtkBooleanMacro(DrawZGridpolys,int);
 
   // Description:
+  // Returns the text property for the title on an axis.
+  vtkTextProperty *GetTitleTextProperty(int);
+
+  // Description:
+  // Returns the text property for the labels on an axis.
+  vtkTextProperty *GetLabelTextProperty(int);
+
+  // Description:
   // Get/Set axes actors properties.
   void SetXAxesLinesProperty(vtkProperty *);
   vtkProperty* GetXAxesLinesProperty();
@@ -337,14 +345,6 @@ public:
     { this->SetTickLocation(VTK_TICKS_BOTH); };
 
   void SetLabelScaling(bool, int, int, int);
-
-  // Description:
-  // Returns the text property for the title on an axis.
-  vtkTextProperty *GetTitleTextProperty(int);
-
-  // Description:
-  // Returns the text property for the labels on an axis.
-  vtkTextProperty *GetLabelTextProperty(int);
 
   //! use textactor if val = 1 (2D) instead of follower (3D - val = 0) for title 
   void SetUse2DMode( int val );
@@ -446,6 +446,9 @@ protected:
   double LabelScreenOffset;
   double TitleScreenOffset;
 
+  vtkTextProperty* TitleTextProperty[3];
+  vtkTextProperty* LabelTextProperty[3];
+
   vtkProperty  *XAxesLinesProperty;
   vtkProperty  *YAxesLinesProperty;
   vtkProperty  *ZAxesLinesProperty;
@@ -508,8 +511,6 @@ private:
   double YAxisRange[2];
   double ZAxisRange[2];
 
-  vtkTextProperty* TitleTextProperty[3];
-  vtkTextProperty* LabelTextProperty[3];
   double LabelScale;
   double TitleScale;
 

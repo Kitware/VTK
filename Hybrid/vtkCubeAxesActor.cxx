@@ -46,6 +46,18 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
 
+  // Title and label text properties
+  for (i = 0; i < 3; i++)
+    {
+    this->TitleTextProperty[i] = vtkTextProperty::New();
+    this->TitleTextProperty[i]->SetColor(1.,1.,1.);
+    this->TitleTextProperty[i]->SetFontFamilyToArial();
+
+    this->LabelTextProperty[i] = vtkTextProperty::New();
+    this->LabelTextProperty[i]->SetColor(1.,1.,1.);
+    this->LabelTextProperty[i]->SetFontFamilyToArial();
+    }
+
   // Axis lines
   this->XAxesLinesProperty = vtkProperty::New();
   this->YAxesLinesProperty = vtkProperty::New();
@@ -134,17 +146,6 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
     this->ZAxes[i]->GetTitleActor()->SetAxis(this->ZAxes[i]);
     this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
-    }
-
-  for (i = 0; i < 3; i++)
-    {
-    this->TitleTextProperty[i] = vtkTextProperty::New();
-    this->TitleTextProperty[i]->SetColor(1.,1.,1.);
-    this->TitleTextProperty[i]->SetFontFamilyToArial();
-
-    this->LabelTextProperty[i] = vtkTextProperty::New();
-    this->LabelTextProperty[i]->SetColor(1.,1.,1.);
-    this->LabelTextProperty[i]->SetFontFamilyToArial();
     }
 
   this->XTitle = new char[7];
