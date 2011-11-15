@@ -100,7 +100,7 @@ int TestPolarAxes( int argc, char * argv [] )
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
 
-  renderer->SetBackground( 1., 1., 1. );
+  renderer->SetBackground( .7, .7, .7 );
   renderer->AddViewProp( readerActor.GetPointer() );
   renderer->AddViewProp( outlineActor.GetPointer() );
   renderer->AddViewProp( polaxes.GetPointer() );
