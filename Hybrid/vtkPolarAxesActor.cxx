@@ -670,13 +670,12 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double origin )
     majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 1. );
     }
 
+  // Set major start and delta corresponding to range
   axis->SetMajorRangeStart( majorStart );
   axis->SetDeltaRangeMajor( major );
 
-  double t = ( majorStart - sortedRange[0] ) / range;
-  majorStart = t * range  + origin;
-
-  // Set major start and deltas
+  // Set major start and delta corresponding to coordinates
+  majorStart = majorStart - sortedRange[0] + origin;
   axis->SetMajorStart( VTK_AXIS_TYPE_X, majorStart );
   axis->SetDeltaMajor( VTK_AXIS_TYPE_X, major );
 }
@@ -689,9 +688,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
   double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
   double val = axis->GetMajorStart( VTK_AXIS_TYPE_X );
   const double *p2  = axis->GetPoint2Coordinate()->GetValue();
-  double lastVal = p2[0];
   vtkIdType nLabels = 0;
-  while ( val <= lastVal && nLabels < VTK_MAX_LABELS )
+  while ( val <= p2[0] && nLabels < VTK_MAX_LABELS )
     {
     ++ nLabels;
     val += deltaMajor;
@@ -719,7 +717,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabels( double zeroThreshold )
 
   // Now create labels and polar arcs
   val = axis->GetMajorRangeStart();
-  deltaMajor = axis->GetDeltaRangeMajor();
   const char *format = this->RadialLabelFormat;
   char label[64];
   for ( int  i = 0; i < nLabels; ++ i )
