@@ -316,14 +316,20 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       vtkIdType *pointIds;
       while( lines->GetNextCell(npts, pointIds) )
         {
+        int isClosed = 0;
+        if (pointIds[0] == pointIds[npts-1])
+          {
+          isClosed = 1;
+          npts -= 1;
+          }
         for (vtkIdType j = 0; j < npts; j++)
           {
           if ( pointIds[j] == i )
             {
-            if (j > 0)
+            if (j > 0 || isClosed)
               {
               numberOfNeighbors++;
-              neighborId = pointIds[j-1];
+              neighborId = pointIds[(j+npts-1)%npts];
               double yneighbor = points->GetPoint(neighborId)[1];
               if (yneighbor < yval)
                 {
@@ -334,10 +340,10 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
                 topPoint = 0;
                 }
               }
-            if (j < npts-1)
+            if (j < npts-1 || isClosed)
               {
               numberOfNeighbors++;
-              neighborId = pointIds[j+1];
+              neighborId = pointIds[(j+1)%npts];
               double yneighbor = points->GetPoint(neighborId)[1];
               if (yneighbor < yval)
                 {
