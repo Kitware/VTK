@@ -2,7 +2,6 @@
 
   Program:   Visualization Toolkit
   Module:    vtkPolarAxesActor.cxx
-  Thanks:    Kathleen Bonnell, B Division, Lawrence Livermore National Lab
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
