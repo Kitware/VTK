@@ -163,8 +163,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     vtkAxisActor* axis = this->RadialAxes[i];
     axis->SetAxisTypeToX();
     axis->SetAxisPositionToMinMax();
-
-    // Title offset is auto-calculated for now
     axis->SetCalculateTitleOffset( 0 );
     axis->SetCalculateLabelOffset( 0 );
 
