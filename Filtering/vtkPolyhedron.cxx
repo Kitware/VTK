@@ -81,8 +81,15 @@ public:
     {
       this->Current += this->CurrentPolygonSize + 1;
       this->Polygon = this->Current - 1;
-      this->CurrentPolygonSize = this->Polygon[0];
       this->Id++;
+      if (this->Id < this->NumberOfPolygons)
+        {
+        this->CurrentPolygonSize = this->Polygon[0];
+        }
+      else
+        {
+        this->CurrentPolygonSize = VTK_LARGE_ID;
+        }
       return this->Current;
     }
 };
@@ -1744,6 +1751,7 @@ int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
   double t=VTK_LARGE_FLOAT;
   double x[3];
 
+  tMin=VTK_LARGE_FLOAT;
   for (fid=0; fid < nfaces; ++fid)
     {
     npts = face[0];
