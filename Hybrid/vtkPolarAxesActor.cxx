@@ -139,7 +139,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // Considering pivot point at center of the geometry,
   // hence ( this->ScreenSize * 0.5 ).
-  this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
+  this->LabelScreenOffset = 15.0 + this->ScreenSize * 0.5;
 
   // Properties of the radial axes, with default color black
   this->RadialAxesProperty = vtkProperty::New();
@@ -171,13 +171,13 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
     double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
 
-    // Using base offset if not a polar axis.
-    follower->SetScreenOffset( offset );
+    // Using 2/3 of base offset if not a polar axis.
+    follower->SetScreenOffset( .67 * offset );
 
     if ( !i )
       {
-      // Using twice the base offset for the title of the polar axis.
-      follower->SetScreenOffset( 2.0 * offset );
+      // Using twice the base offset and a little for the title of the polar axis.
+      follower->SetScreenOffset( 2.0 * offset + 5 );
 
       vtkAxisFollower **labelActors = axis->GetLabelActors();
       int numberOfLabels = axis->GetNumberOfLabelsBuilt();
@@ -342,7 +342,7 @@ void vtkPolarAxesActor::SetScreenSize( double screenSize )
   this->ScreenSize = screenSize;
   // Considering pivot point at center of the geometry,
   // hence ( this->ScreenSize * 0.5 ).
-  this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
+  this->LabelScreenOffset = 15.0 + this->ScreenSize * 0.5;
 
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
