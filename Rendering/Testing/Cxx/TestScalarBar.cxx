@@ -116,13 +116,29 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar3->GetPositionCoordinate()->SetValue(0.8, .05);
   scalarBar3->SetWidth(0.15);
   scalarBar3->SetHeight(0.5);
-  scalarBar3->SetTextPositionToPrecedeScalarBar();
+  scalarBar3->SetTextPositionToSucceedScalarBar();
   scalarBar3->GetTitleTextProperty()->SetColor(0., 0., 1.); 
   scalarBar3->GetLabelTextProperty()->SetColor(0., 0., 1.); 
   scalarBar3->SetDrawFrame(1);
   scalarBar3->GetFrameProperty()->SetColor(0., 0., 0.); 
   scalarBar3->SetDrawBackground(0);
 
+  vtkSmartPointer<vtkScalarBarActor> scalarBar4 =
+    vtkSmartPointer<vtkScalarBarActor>::New();
+  scalarBar4->SetTitle("Density");
+  scalarBar4->SetLookupTable(outlineMapper->GetLookupTable());
+  scalarBar4->SetOrientationToHorizontal();
+  scalarBar4->SetWidth(0.5);
+  scalarBar4->SetHeight(0.15);
+  scalarBar4->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  scalarBar4->GetPositionCoordinate()->SetValue(0.05, 0.8);
+  scalarBar4->SetTextPositionToSucceedScalarBar();
+  scalarBar4->GetTitleTextProperty()->SetColor(0., 0., 1.); 
+  scalarBar4->GetLabelTextProperty()->SetColor(0., 0., 1.); 
+  scalarBar4->SetDrawFrame(1);
+  scalarBar4->GetFrameProperty()->SetColor(1., 1., 1.); 
+  scalarBar4->SetDrawBackground(0);
+  
   vtkSmartPointer<vtkCamera> camera =
     vtkSmartPointer<vtkCamera>::New();
   camera->SetFocalPoint(8,0,30);
@@ -133,6 +149,7 @@ int TestScalarBar( int argc, char *argv[] )
   ren1->AddActor(scalarBar1);
   ren1->AddActor(scalarBar2);
   ren1->AddActor(scalarBar3);
+  ren1->AddActor(scalarBar4);
   ren1->GradientBackgroundOn();
   ren1->SetBackground(.5,.5,.5);
   ren1->SetBackground2(.0,.0,.0);
