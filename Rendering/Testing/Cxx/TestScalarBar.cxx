@@ -101,8 +101,8 @@ int TestScalarBar( int argc, char *argv[] )
   scalarBar2->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar2->GetPositionCoordinate()->SetValue(0.05, 0.05);
   scalarBar2->SetTextPositionToPrecedeScalarBar();
-  scalarBar2->GetTitleTextProperty()->SetColor(0., 0., 1.); 
-  scalarBar2->GetLabelTextProperty()->SetColor(0., 0., 1.); 
+  scalarBar2->GetTitleTextProperty()->SetColor(1., 0., 0.); 
+  scalarBar2->GetLabelTextProperty()->SetColor(.8, 0., 0.); 
   scalarBar2->SetDrawFrame(1);
   scalarBar2->GetFrameProperty()->SetColor(1., 0., 0.); 
   scalarBar2->SetDrawBackground(1);
