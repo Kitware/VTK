@@ -49,5 +49,6 @@ int TestStructuredGridLIC2DZSlice(int argc, char* argv[])
     delete [] new_argv[kk];
     }
   delete [] new_argv;
+  delete [] fname;
   return status;
 }
