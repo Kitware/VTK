@@ -82,7 +82,7 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->SetPole( .5, 1., 3. );
   polaxes->SetAutoScaleRadius( false );
   polaxes->SetMaximumRadius( 3. );
-  polaxes->SetMaximumAngle( 180. );
+  polaxes->SetMaximumAngle( 200. );
   polaxes->SetNumberOfRadialAxes( 7 );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetRadialLabelFormat( "%6.1f" );

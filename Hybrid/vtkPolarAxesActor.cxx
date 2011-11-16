@@ -770,6 +770,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
       arc->SetPoint1( O[0] + val, O[1], O[2] );
       arc->SetPoint2( O[0] + x, O[1] + y, O[2] );
       arc->SetResolution( arcResolution );
+      arc->SetNegative( this->MaximumAngle > 180. );
       arc->Update();
       
       // Append new polar arc to existing ones
