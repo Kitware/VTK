@@ -235,7 +235,6 @@ protected:
 
   void    AutoScale( vtkViewport* viewport );
   void    AutoScale( vtkViewport* viewport, vtkAxisActor** axes );
-  double  AutoScale( vtkViewport* viewport, double screenSize, double position[3] );
 
   // Description:
   // Coordinates of the pole
