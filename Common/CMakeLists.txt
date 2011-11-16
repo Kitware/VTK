@@ -117,6 +117,7 @@ vtkMatrix3x3.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
+vtkMeshPropertyEncoder.cxx
 vtkMinimalStandardRandomSequence.cxx
 vtkMultiThreader.cxx
 vtkMutexLock.cxx
