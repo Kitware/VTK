@@ -587,7 +587,6 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
 
     // generate background and frame points and cell
-    x[2] = 0.0;
     x[0]=0; x[1]=0;
     bgPts->SetPoint(0,x);
     frPts->SetPoint(0,x);
