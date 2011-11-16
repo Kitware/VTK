@@ -777,8 +777,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
       vtkPoints* arcPoints = arc->GetOutput()->GetPoints();
       vtkIdType nPoints = arcResolution + 1;
       vtkIdType* arcPointIds = new vtkIdType[nPoints];
-      double* pt;
-      cerr << "val = " << val << endl;
       for ( vtkIdType j = 0; j < nPoints; ++ j )
         {
         polarArcsPoints->InsertNextPoint( arcPoints->GetPoint( j ) );
