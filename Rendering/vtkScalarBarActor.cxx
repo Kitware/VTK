@@ -585,7 +585,9 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         rgb[3] = rgba[3];
         }
       }
-
+    cerr << "size: " << size[0] << " " << size[1] << endl;
+    cerr << "TitleSize: " << size[0] << " " << titleSize[1] << endl;
+    cerr << endl;
     // generate background and frame points and cell
     x[0]=0; x[1]=0;
     bgPts->SetPoint(0,x);
@@ -973,14 +975,14 @@ void vtkScalarBarActor::SizeTitle(int *titleSize,
     }
 
   int targetWidth, targetHeight;
-  
-  targetWidth = size[0];
   if ( this->Orientation == VTK_ORIENT_VERTICAL )
     {
+    targetWidth = static_cast<int>(0.9*size[0]);
     targetHeight = static_cast<int>(0.1*size[1]);
     }
   else
     {
+    targetWidth = size[0];
     targetHeight = static_cast<int>(0.25*size[1]);
     }
 
