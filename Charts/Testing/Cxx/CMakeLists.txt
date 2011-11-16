@@ -24,6 +24,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestHistogram2D.cxx
       TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
+      TestLinePlotAxisFonts.cxx
       TestLinePlotInteraction.cxx
       TestMultipleChartRenderers.cxx
       TestMultipleRenderers.cxx
