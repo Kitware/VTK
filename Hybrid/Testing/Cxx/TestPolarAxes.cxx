@@ -82,8 +82,8 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->SetPole( .5, 1., 3. );
   polaxes->SetAutoScaleRadius( false );
   polaxes->SetMaximumRadius( 3. );
-  polaxes->SetMaximumAngle( 200. );
-  polaxes->SetNumberOfRadialAxes( 7 );
+  polaxes->SetMaximumAngle( 210. );
+  polaxes->SetNumberOfRadialAxes( 8 );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetRadialLabelFormat( "%6.1f" );
   polaxes->GetRadialAxesProperty()->SetColor( .0, .0, 1. );
@@ -101,7 +101,7 @@ int TestPolarAxes( int argc, char * argv [] )
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
 
-  renderer->SetBackground( .7, .7, .7 );
+  renderer->SetBackground( .8, .8, .8 );
   renderer->AddViewProp( readerActor.GetPointer() );
   renderer->AddViewProp( outlineActor.GetPointer() );
   renderer->AddViewProp( polaxes.GetPointer() );
