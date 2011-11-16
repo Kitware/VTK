@@ -108,6 +108,12 @@ public:
  // Shallow copy of a follower. Overloads the virtual vtkProp method.
  void ShallowCopy(vtkProp *prop);
 
+ // Description:
+ // Calculate scale factor to maintain same size of a object
+ // on the screen.
+ static double AutoScale(vtkViewport *viewport, vtkCamera * camera,
+                         double screenSize, double position[3]);
+
 protected:
  vtkAxisFollower();
  ~vtkAxisFollower();
@@ -116,8 +122,6 @@ protected:
                                  vtkAxisActor *axis1, double *dop,
                                  vtkRenderer *ren);
 
- double AutoScale(vtkViewport *viewport, vtkCamera * camera,
-                  double screenOffset, double position[3]);
 
  void ComputeRotationAndTranlation(vtkRenderer *ren, double translation[3],
                                    double Rx[3], double Ry[3], double Rz[3],

@@ -855,9 +855,8 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     // Scale title
-    newTitleScale = this->AutoScale( viewport,
-                                     this->ScreenSize,
-                                     axis[i]->GetTitleActor()->GetPosition() );
+    newTitleScale = vtkAxisFollower::AutoScale( viewport, this->Camera,
+      this->ScreenSize, axis[i]->GetTitleActor()->GetPosition() );
 
     axis[i]->SetTitleScale( newTitleScale );
 
@@ -866,34 +865,12 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
 
     for( int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++ j )
       {
-      double newLabelScale = this->AutoScale( viewport,
-                                              this->ScreenSize,
-                                              labelActors[j]->GetPosition() );
+      double newLabelScale = vtkAxisFollower::AutoScale( viewport,
+        this->Camera, this->ScreenSize, labelActors[j]->GetPosition() );
 
       labelActors[j]->SetScale( newLabelScale );
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-double vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
-                                     double screenSize,
-                                     double position[3] )
-{
-  double factor = 1;
-  if ( viewport->GetSize()[1] > 0 )
-    {
-    factor = 2.0 * screenSize
-      * tan( vtkMath::RadiansFromDegrees( this->Camera->GetViewAngle()/2.0 ) )
-      / viewport->GetSize()[1];
-    }
-
-    double dist = sqrt(
-          vtkMath::Distance2BetweenPoints( position,
-                                          this->Camera->GetPosition() ));
-    double newScale = factor * dist;
-
-    return newScale;
 }
 
 //-----------------------------------------------------------------------------
