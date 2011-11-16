@@ -623,8 +623,7 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 {
   // Find the integral points.
-  double range = this->MaximumRadius;
-  double pow10 = log10( range );
+  double pow10 = log10( this->MaximumRadius );
 
   // Build in numerical tolerance
   if ( pow10 != 0.)
@@ -639,13 +638,11 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
     pow10 = pow10 - 1.;
     }
 
-  double fxt = pow( 10., this->FFix( pow10 ) );
-
   // Find the number of integral points in the interval.
-  double fnt = range / fxt;
+  double delta = pow( 10., this->FFix( pow10 ) );
+  double fnt = this->MaximumRadius / delta;
   fnt  = this->FFix( fnt );
-  double frac = fnt;
-  int numTicks = frac <= 0.5 ? static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
+  int numTicks = fnt <= 0.5 ? static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
 
   double div = 1.;
   if ( numTicks < 5 )
@@ -657,40 +654,18 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
     div = 5.;
     }
 
-  // If there aren't enough major tick points in this decade, use the next
-  // decade.
-  double major = fxt;
+  // If there aren't enough major tick points in this decade, use the next decade.
   if ( div != 1.)
     {
-    major /= div;
+    delta /= div;
     }
 
-  // Figure out the first major tick locations, relative to the
-  // start of the axis.
-  double sortedRange[2];
+  // Set major start and delta corresponding to range and coordinates
   vtkAxisActor* axis = this->RadialAxes[0];
-  double *inRange = axis->GetRange();
-  sortedRange[0] = inRange[0] < inRange[1] ? inRange[0] : inRange[1];
-  sortedRange[1] = inRange[0] > inRange[1] ? inRange[0] : inRange[1];
-
-  double majorStart;
-  if ( sortedRange[0] <= 0.)
-    {
-    majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 0. );
-    }
-  else
-    {
-    majorStart = major * ( this->FFix( sortedRange[0]*( 1./major ) ) + 1. );
-    }
-
-  // Set major start and delta corresponding to range
-  axis->SetMajorRangeStart( majorStart );
-  axis->SetDeltaRangeMajor( major );
-
-  // Set major start and delta corresponding to coordinates
-  majorStart = majorStart - sortedRange[0] + x0;
-  axis->SetMajorStart( VTK_AXIS_TYPE_X, majorStart );
-  axis->SetDeltaMajor( VTK_AXIS_TYPE_X, major );
+  axis->SetMajorRangeStart( 0. );
+  axis->SetDeltaRangeMajor( delta );
+  axis->SetMajorStart( VTK_AXIS_TYPE_X, x0 );
+  axis->SetDeltaMajor( VTK_AXIS_TYPE_X, delta );
 }
 
 //-----------------------------------------------------------------------------
