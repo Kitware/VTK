@@ -585,9 +585,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         rgb[3] = rgba[3];
         }
       }
-    cerr << "size: " << size[0] << " " << size[1] << endl;
-    cerr << "TitleSize: " << size[0] << " " << titleSize[1] << endl;
-    cerr << endl;
+
     // generate background and frame points and cell
     x[0]=0; x[1]=0;
     bgPts->SetPoint(0,x);
@@ -616,7 +614,6 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int sizeTextData[2];
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
-      
       // center the title
       this->TitleActor->SetPosition(size[0]/2, 0.9*size[1]);
       
@@ -643,11 +640,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
           }
         }
       }
-    else
+    else // if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
         {
-        this->TitleActor->SetPosition(size[0]/2, barY);
+        this->TitleActor->SetPosition(size[0]/2, barY + 0.1*titleSize[1]);
         }
       else
         {
