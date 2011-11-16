@@ -38,7 +38,7 @@ vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkPolarAxesActor,PolarAxisLabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkPolarAxesActor,PolarAxisTitleTextProperty,vtkTextProperty);
 
-// ******************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os,indent );
@@ -55,7 +55,7 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Number Of Radial Axes" << this->NumberOfRadialAxes << endl;
 
-  os << indent << "Pole: (" 
+  os << indent << "Pole: ("
      << this->Pole[0] << ", "
      << this->Pole[1] << ", "
      << this->Pole[2] << " )\n";
@@ -104,7 +104,7 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Tick Location: " << this->TickLocation << endl;
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 {
   // Default bounds
@@ -214,7 +214,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->TitleScale = -1.0;
 }
 
-// ****************************************************************************
+//-----------------------------------------------------------------------------
 vtkPolarAxesActor::~vtkPolarAxesActor()
 {
   this->SetCamera( NULL );
@@ -280,7 +280,7 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 {
   // Initialization
@@ -323,9 +323,9 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
   return renderedSomething;
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 // Screen size affects the screen offset as well.
-// *************************************************************************
+
 void vtkPolarAxesActor::SetScreenSize( double screenSize )
 {
   this->ScreenSize = screenSize;
@@ -336,7 +336,7 @@ void vtkPolarAxesActor::SetScreenSize( double screenSize )
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     vtkAxisActor* axis = this->RadialAxes[i];
-  
+
     int numberOfLabelsBuilt = axis->GetNumberOfLabelsBuilt();
     vtkAxisFollower** labelActors = axis->GetLabelActors();
     for( int k=0; k < numberOfLabelsBuilt; ++k )
@@ -348,7 +348,7 @@ void vtkPolarAxesActor::SetScreenSize( double screenSize )
   this->Modified();
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
 {
   for ( int i = 0; i < this->NumberOfRadialAxes;  ++i )
@@ -359,7 +359,7 @@ void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
 
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetBounds( double bounds[6])
 {
   for ( int i=0; i< 6; i++)
@@ -368,7 +368,7 @@ void vtkPolarAxesActor::GetBounds( double bounds[6])
     }
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetBounds( double& xmin, double& xmax,
                                  double& ymin, double& ymax,
                                  double& zmin, double& zmax )
@@ -381,13 +381,13 @@ void vtkPolarAxesActor::GetBounds( double& xmin, double& xmax,
   zmax = this->Bounds[5];
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 double *vtkPolarAxesActor::GetBounds()
 {
   return this->Bounds;
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
                                          double bounds[6] )
 {
@@ -414,7 +414,7 @@ void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
   bounds[5] = transMaxPt[2];
 }
 
-// ****************************************************************************
+//-----------------------------------------------------------------------------
 //  Method: LabelExponent
 //
 //  Purpose:
@@ -426,7 +426,7 @@ void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
 //
 //  Note:       This code is mostly stolen from old MeshTV code,
 //              /meshtvx/toolkit/plotgrid.c, axlab_format.
-// ****************************************************************************
+
 int vtkPolarAxesActor::LabelExponent( double min, double max )
 {
   if ( min == max )
@@ -466,7 +466,7 @@ int vtkPolarAxesActor::LabelExponent( double min, double max )
   return static_cast<int>( ipow10 );
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
   double bounds[6];
@@ -481,18 +481,18 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   // Determine the bounds for possible use ( input, prop, or user-defined )
   this->GetBounds( bounds );
-  
+
   // If pole coordinates are invalid, use bounds
   double O[3];
   for ( int i = 0; i < 3; ++ i )
     {
     O[i] = this->Pole[i] == VTK_DOUBLE_MAX ? bounds[i * 2] : this->Pole[i];
     }
-  
+
   // If axial scale it out of proportions with object length scale, reset to ls
   double ls = fabs( bounds[1] -  bounds[0] ) + fabs( bounds[3] -  bounds[2] );
   if ( this->AutoScaleRadius
-       || this->MaximumRadius < 1.e-6 * ls 
+       || this->MaximumRadius < 1.e-6 * ls
        || this->MaximumRadius > 1.e6 * ls )
     {
     this->MaximumRadius = .5 * ls;
@@ -529,13 +529,13 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
       axis->SetTitle( thetaStream.str().c_str() );
       }
-    else // if ( i ) 
+    else // if ( i )
       {
       // Special case of polar axis
       axis->SetTitle( this->PolarAxisTitle );
       }
     }
-  
+
   // Build polar axis ticks
   this->BuildPolarAxisTicks( O[0] );
 
@@ -549,7 +549,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   this->BuildTime.Modified();
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetNonDependentAttributes()
 {
   vtkProperty *prop = this->GetProperty();
@@ -583,20 +583,20 @@ void vtkPolarAxesActor::SetNonDependentAttributes()
     }
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 double vtkPolarAxesActor::MaxOf( double a, double b )
 {
   return ( a > b ? a : b );
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 inline double vtkPolarAxesActor::FFix( double value )
 {
   int ivalue = static_cast<int>( value );
   return ivalue;
 }
 
-// *************************************************************************
+//-----------------------------------------------------------------------------
 inline double vtkPolarAxesActor::FSign( double value, double sign )
 {
   value = fabs( value );
@@ -607,7 +607,7 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
   return value;
 }
 
-// *******************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 {
   // Find the integral points.
@@ -681,7 +681,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
   axis->SetDeltaMajor( VTK_AXIS_TYPE_X, major );
 }
 
-// ****************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
                                                   double zeroThreshold )
 {
@@ -703,7 +703,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
   double thetaRad = vtkMath::RadiansFromDegrees( this->MaximumAngle );
   double cosTheta = cos( thetaRad );
   double sinTheta = sin( thetaRad );
-  vtkIdType arcResolution 
+  vtkIdType arcResolution
     = static_cast<vtkIdType>( this->MaximumAngle * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
 
   // Arc points
@@ -772,7 +772,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
       arc->SetResolution( arcResolution );
       arc->SetNegative( this->MaximumAngle > 180. );
       arc->Update();
-      
+
       // Append new polar arc to existing ones
       vtkPoints* arcPoints = arc->GetOutput()->GetPoints();
       vtkIdType nPoints = arcResolution + 1;
@@ -783,11 +783,11 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
         arcPointIds[j] = pointIdOffset + j;
         }
       polarArcsLines->InsertNextCell( nPoints, arcPointIds );
-      
+
       // Clean up
       arc->Delete();
       delete [] arcPointIds;
-      
+
       // Update polyline cell offset
       pointIdOffset += nPoints;
       }
@@ -813,7 +813,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
     }
 }
 
-// ****************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetLabelScaling( bool autoscale, int upow )
 {
   if ( autoscale != this->AutoLabelScaling || upow != this->UserRadialPow )
@@ -824,15 +824,15 @@ void vtkPolarAxesActor::SetLabelScaling( bool autoscale, int upow )
     }
 }
 
-// ****************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
 {
   // Current implementation only for perspective projections.
   this->AutoScale( viewport, this->RadialAxes );
 }
 
-// ****************************************************************
-void vtkPolarAxesActor::AutoScale( vtkViewport *viewport, 
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
                                    vtkAxisActor** axis )
 {
   double newTitleScale = this->TitleScale;
@@ -841,7 +841,7 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     // Scale title
-    newTitleScale = this->AutoScale( viewport, 
+    newTitleScale = this->AutoScale( viewport,
                                      this->ScreenSize,
                                      axis[i]->GetTitleActor()->GetPosition() );
 
@@ -852,7 +852,7 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
 
     for( int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++ j )
       {
-      double newLabelScale = this->AutoScale( viewport, 
+      double newLabelScale = this->AutoScale( viewport,
                                               this->ScreenSize,
                                               labelActors[j]->GetPosition() );
 
@@ -861,8 +861,8 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
     }
 }
 
-// ****************************************************************
-double vtkPolarAxesActor::AutoScale( vtkViewport *viewport, 
+//-----------------------------------------------------------------------------
+double vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
                                      double screenSize,
                                      double position[3] )
 {
@@ -882,27 +882,27 @@ double vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
     return newScale;
 }
 
-// ****************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetRadialAxesProperty( vtkProperty *prop )
 {
   this->RadialAxesProperty->DeepCopy( prop );
   this->Modified();
 }
 
-// ****************************************************************************
+//-----------------------------------------------------------------------------
 vtkProperty* vtkPolarAxesActor::GetRadialAxesProperty()
 {
   return this->RadialAxesProperty;
 }
 
-// ****************************************************************************
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetPolarArcsProperty( vtkProperty *prop )
 {
   this->PolarArcsActor->SetProperty(prop);
   this->Modified();
 }
 
-// ****************************************************************************
+//-----------------------------------------------------------------------------
 vtkProperty* vtkPolarAxesActor::GetPolarArcsProperty()
 {
   return this->PolarArcsActor->GetProperty();
