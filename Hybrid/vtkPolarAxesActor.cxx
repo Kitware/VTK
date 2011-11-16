@@ -162,18 +162,28 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     this->RadialAxes[i] = vtkAxisActor::New();
     vtkAxisActor* axis = this->RadialAxes[i];
     axis->SetAxisTypeToX();
+    axis->SetAxisPositionToMinMax();
 
     // Title offset is auto-calculated for now
-    axis->SetCalculateTitleOffset( 1 );
+    axis->SetCalculateTitleOffset( 0 );
     axis->SetCalculateLabelOffset( 0 );
 
     // Pass information to axes followers
     vtkAxisFollower* follower = axis->GetTitleActor();
     follower->SetAxis( axis );
-    if ( ! i )
+    if ( !i )
       {
+      double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
+
       // Replace default screen offset (for polar axis only)
-      follower->SetScreenOffset( this->LabelScreenOffset + this->ScreenSize * 0.5 );
+      follower->SetScreenOffset( 2.0 * offset );
+
+      vtkAxisFollower **labelActors = axis->GetLabelActors();
+      int numberOfLabels = axis->GetNumberOfLabelsBuilt();
+      for( int k=0; k < numberOfLabels; ++k )
+        {
+        labelActors[k]->SetScreenOffset( offset );
+        }
       }
     }
 
