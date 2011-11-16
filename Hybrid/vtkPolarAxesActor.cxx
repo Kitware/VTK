@@ -171,11 +171,15 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     // Pass information to axes followers
     vtkAxisFollower* follower = axis->GetTitleActor();
     follower->SetAxis( axis );
+
+    double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
+
+    // Using base offset if not a polar axis.
+    follower->SetScreenOffset( offset );
+
     if ( !i )
       {
-      double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
-
-      // Replace default screen offset (for polar axis only)
+      // Using twice the base offset for the title of the polar axis.
       follower->SetScreenOffset( 2.0 * offset );
 
       vtkAxisFollower **labelActors = axis->GetLabelActors();
