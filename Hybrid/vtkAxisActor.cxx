@@ -31,12 +31,6 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-// ****************************************************************
-// Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Replace 'New' method with macro to match VTK 4.0 API.
-// ****************************************************************
-
 vtkStandardNewMacro(vtkAxisActor);
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkAxisActor,LabelTextProperty,vtkTextProperty);
@@ -374,32 +368,6 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
   this->GridlinesActor->ReleaseGraphicsResources(win);
   this->InnerGridlinesActor->ReleaseGraphicsResources(win);
   this->GridpolysActor->ReleaseGraphicsResources(win);
-}
-
-// ****************************************************************
-void vtkAxisActor::ShallowCopy(vtkProp *prop)
-{
-  vtkAxisActor *a = vtkAxisActor::SafeDownCast(prop);
-  if (a != NULL)
-    {
-    this->SetPoint1(a->GetPoint1());
-    this->SetPoint2(a->GetPoint2());
-    this->SetCamera(a->GetCamera());
-    this->SetRange(a->GetRange());
-    this->SetLabelFormat(a->GetLabelFormat());
-    this->SetTitle(a->GetTitle());
-    this->SetAxisVisibility(a->GetAxisVisibility());
-    this->SetTickVisibility(a->GetTickVisibility());
-    this->SetLabelVisibility(a->GetLabelVisibility());
-    this->SetTitleVisibility(a->GetTitleVisibility());
-    //    this->SetTitleTextProperty(a->GetTitleTextProperty());
-    //    this->SetLabelTextProperty(a->GetLabelTextProperty());
-    this->SetCalculateTitleOffset(a->GetCalculateTitleOffset());
-    this->SetCalculateLabelOffset(a->GetCalculateLabelOffset());
-    }
-
-  // Now do superclass
-  this->Superclass::ShallowCopy(prop);
 }
 
 // ****************************************************************
