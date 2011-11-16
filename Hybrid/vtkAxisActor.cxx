@@ -2067,8 +2067,6 @@ void vtkAxisActor::SetTitle(const char *t)
 void vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
 {
   this->AxisLinesActor->SetProperty(prop);
-  //this->LabelTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
-  //this->TitleTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
   this->Modified();
 }
 
