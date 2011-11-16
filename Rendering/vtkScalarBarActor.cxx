@@ -631,12 +631,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->TextMappers[i]->GetTextProperty()->SetJustificationToLeft();
         if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           {
-          this->TextActors[i]->SetPosition(barX, val - sizeTextData[1]/2);
+          this->TextActors[i]->SetPosition(barX, 
+                                           val - 0.6*sizeTextData[1]);
           }
         else
           {
           this->TextActors[i]->SetPosition(barX + barWidth + 3,
-                                           val - sizeTextData[1]/2);
+                                           val - 0.6*sizeTextData[1]);
           }
         }
       }
@@ -644,12 +645,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
         {
-        this->TitleActor->SetPosition(size[0]/2, barY + 0.1*titleSize[1]);
+        this->TitleActor->SetPosition(size[0]/2, 
+                                      barY + 0.1*titleSize[1]);
         }
       else
         {
         this->TitleActor->SetPosition(size[0]/2, 
-                                      barHeight + labelSize[1] + 0.1*size[1]);
+                                      barHeight + labelSize[1] + 0.1*size[1] + 0.15*titleSize[1]);
         }
       for (i=0; i < this->NumberOfLabels; i++)
         {
