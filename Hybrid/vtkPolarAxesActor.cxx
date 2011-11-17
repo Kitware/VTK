@@ -53,6 +53,9 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "ScreenSize: (" << this->ScreenSize << ")\n";
 
   os << indent << "Number Of Radial Axes" << this->NumberOfRadialAxes << endl;
+  os << indent << "Number Of Polar Axis Ticks" << this->NumberOfPolarAxisTicks << endl;
+  os << indent << "Auto Subdivide Polar Axis: "
+     << ( this->AutoSubdividePolarAxis ? "On\n" : "Off\n" );
 
   os << indent << "Pole: ("
      << this->Pole[0] << ", "
@@ -116,8 +119,12 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->Pole[1] = VTK_DOUBLE_MAX;
   this->Pole[2] = VTK_DOUBLE_MAX;
 
-  // Default number of polar axes
+  // Default number of radial axes
   this->NumberOfRadialAxes = VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES;
+
+  // Invalid default number of polar arcs, and auto-calculate by default
+  this->NumberOfPolarAxisTicks = -1;
+  this->AutoSubdividePolarAxis = true;
 
   // Default maximum polar radius
   this->MaximumRadius = VTK_DOUBLE_MAX;
@@ -621,42 +628,61 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 {
-  // Find the integral points.
-  double pow10 = log10( this->MaximumRadius );
+  double delta;
 
-  // Build in numerical tolerance
-  if ( pow10 != 0.)
+  if ( this->AutoSubdividePolarAxis
+       || this->NumberOfPolarAxisTicks < 0
+       || this->NumberOfPolarAxisTicks > VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS )
     {
-    double eps = 10.0e-10;
-    pow10 = this->FSign( ( fabs( pow10 ) + eps ), pow10 );
+    // Programatically figure the number of divisions of the polar axis
+    double pow10 = log10( this->MaximumRadius );
+
+    // Build in numerical tolerance
+    if ( pow10 != 0.)
+      {
+      double eps = 10.0e-10;
+      pow10 = this->FSign( ( fabs( pow10 ) + eps ), pow10 );
+      }
+
+    // FFix will move in the wrong direction if pow10 is negative.
+    if ( pow10 < 0.)
+      {
+      pow10 = pow10 - 1.;
+      }
+
+    // Find the number of integral points in the interval.
+    delta = pow( 10., this->FFix( pow10 ) );
+    double fnt = this->MaximumRadius / delta;
+    fnt  = this->FFix( fnt );
+    int numTicks = fnt <= 0.5 ? 
+      static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
+
+    // If not enough tick points in this decade, scale down
+    double div = 1.;
+    if ( numTicks < 5 )
+      {
+      div = 2.;
+      }
+    if ( numTicks <= 2 )
+      {
+      div = 5.;
+      }
+    if ( div != 1.)
+      {
+      delta /= div;
+      }
+
+    // Finally calculate number of tick points
+    this->NumberOfPolarAxisTicks = 0;
+    while ( delta * this->NumberOfPolarAxisTicks <= this->MaximumRadius )
+      {
+      ++ this->NumberOfPolarAxisTicks;
+      }
     }
-
-  // FFix will move in the wrong direction if pow10 is negative.
-  if ( pow10 < 0.)
+  else // if ( this->AutoSubdividePolarAxis || this->NumberOfPolarAxisTicks ... )
     {
-    pow10 = pow10 - 1.;
-    }
-
-  // Find the number of integral points in the interval.
-  double delta = pow( 10., this->FFix( pow10 ) );
-  double fnt = this->MaximumRadius / delta;
-  fnt  = this->FFix( fnt );
-  int numTicks = fnt <= 0.5 ? static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
-
-  double div = 1.;
-  if ( numTicks < 5 )
-    {
-    div = 2.;
-    }
-  if ( numTicks <= 2 )
-    {
-    div = 5.;
-    }
-
-  // If there aren't enough major tick points in this decade, use the next decade.
-  if ( div != 1.)
-    {
-    delta /= div;
+    // Use pre-set number of arcs when it is valid and no auto-subdivision was requested
+    delta =  this->MaximumRadius / ( this->NumberOfPolarAxisTicks - 1 );
     }
 
   // Set major start and delta corresponding to range and coordinates
@@ -682,7 +708,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     val += deltaMajor;
     }
   vtkStringArray *labels = vtkStringArray::New();
-  labels->SetNumberOfValues( nLabels );
+  labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
 
   // Prepare trigonometric quantities
   double thetaRad = vtkMath::RadiansFromDegrees( this->MaximumAngle );

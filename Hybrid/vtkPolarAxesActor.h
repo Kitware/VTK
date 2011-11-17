@@ -34,6 +34,7 @@ All rights reserve
 
 #define VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES 50
 #define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
+#define VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS 200
 #define VTK_DEFAULT_MAXIMUM_POLAR_ANGLE 90.0
 #define VTK_POLAR_ARC_RESOLUTION_PER_DEG 0.2
 
@@ -72,6 +73,18 @@ public:
   // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
   vtkSetClampMacro( NumberOfRadialAxes, vtkIdType, 2, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES );
   vtkGetMacro( NumberOfRadialAxes, vtkIdType );
+
+  // Description:
+  // Gets/Sets the number of ticks and labels along polar axis
+  // NB: will be overriden if AutoSubdividePolarAxis is TRUE
+  vtkSetClampMacro( NumberOfPolarAxisTicks, vtkIdType, 0, VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS );
+  vtkGetMacro( NumberOfPolarAxisTicks, vtkIdType );
+
+  // Description:
+  // Set/Get whether the number of polar axis ticks and arcs should be automatically calculated
+  // Default: TRUE
+  vtkSetMacro( AutoSubdividePolarAxis, bool );
+  vtkGetMacro( AutoSubdividePolarAxis, bool );
 
   // Description:
   //  Set/Get the maximum radius of the polar coordinates.
@@ -243,6 +256,15 @@ protected:
   // Description:
   // Number of radial axes
   int NumberOfRadialAxes;
+
+  // Description:
+  // Number of polar arcs
+  int NumberOfPolarAxisTicks;
+
+  // Description:
+  // Whether the number of polar axis ticks and arcs should be automatically calculated
+  // Default: TRUE
+  bool AutoSubdividePolarAxis;
 
   // Description:
   // Maximum polar radius (minimum is always 0)
