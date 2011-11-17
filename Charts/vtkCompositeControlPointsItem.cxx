@@ -24,6 +24,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPoints2D.h"
 #include "vtkContextScene.h"
+#include "vtkPiecewisePointHandleItem.h"
 
 // to handle mouse.GetButton
 #include "vtkContextMouseEvent.h"
@@ -41,6 +42,8 @@ vtkCompositeControlPointsItem::vtkCompositeControlPointsItem()
   this->PointsFunction = ColorAndOpacityPointsFunction;
   this->OpacityFunction = 0;
   this->ColorFill = true;
+  this->OpacityPointHandle = NULL;
+  this->UseOpacityPointHandles = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -50,6 +53,11 @@ vtkCompositeControlPointsItem::~vtkCompositeControlPointsItem()
     {
     this->OpacityFunction->Delete();
     this->OpacityFunction = 0;
+    }
+  if (this->OpacityPointHandle)
+    {
+    this->OpacityPointHandle->Delete();
+    this->OpacityPointHandle = 0;
     }
 }
 
@@ -67,6 +75,17 @@ void vtkCompositeControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+  os << indent << "OpacityFunction: ";
+  if (this->OpacityPointHandle)
+    {
+    os << endl;
+    this->OpacityPointHandle->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  os << indent << "UseOpacityPointHandles: " << this->UseOpacityPointHandles << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -149,6 +168,7 @@ void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType i
     double xvms[4];
     this->OpacityFunction->GetNodeValue(index, xvms);
     unsigned char* rgb = this->ColorTransferFunction->MapValue(xvms[0]);
+    //painter->GetPen()->SetColorF(1.0, 0.0, 1.0, 1.0);
     painter->GetBrush()->SetColorF(
       rgb[0] / 255., rgb[1] / 255., rgb[2] / 255., 0.55);
     }
@@ -263,6 +283,11 @@ vtkIdType vtkCompositeControlPointsItem::AddPoint(double* newPos)
 vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
 {
   vtkIdType removedPoint = -1;
+  if (!this->IsPointRemovable(this->GetControlPointId(currentPoint)))
+    {
+    return removedPoint;
+    }
+
   this->StartChanges();
   if (this->PointsFunction == ColorPointsFunction ||
       this->PointsFunction == ColorAndOpacityPointsFunction)
@@ -311,10 +336,97 @@ void vtkCompositeControlPointsItem::MergeTransferFunctions()
     this->OpacityFunction->AddPoint(xrgbms[0], value, xrgbms[4], xrgbms[5]);
     }
 }
+
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SilentMergeTransferFunctions()
 {
   this->StartChanges();
   this->MergeTransferFunctions();
   this->EndChanges();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkCompositeControlPointsItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+{
+  return this->Superclass::MouseEnterEvent(mouse);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkCompositeControlPointsItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+{
+  return this->Superclass::MouseLeaveEvent(mouse);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkCompositeControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+{
+  bool result=false;
+  if(this->OpacityPointHandle && this->OpacityPointHandle->GetVisible())
+    {
+    result = this->OpacityPointHandle->MouseButtonPressEvent(mouse);
+    }
+  if(!result)
+    {
+    result = this->Superclass::MouseButtonPressEvent(mouse);
+    if(result && this->OpacityPointHandle &&
+     this->OpacityPointHandle->GetVisible() &&
+     this->OpacityPointHandle->GetCurrentPointIndex() !=
+     this->GetCurrentPoint())
+      {
+      this->OpacityPointHandle->SetVisible(false);
+      }
+    }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkCompositeControlPointsItem::MouseDoubleClickEvent(const vtkContextMouseEvent &mouse)
+{
+   bool superRes = this->Superclass::MouseDoubleClickEvent(mouse);
+   if(superRes)
+     {
+     vtkIdType curIdx = this->GetCurrentPoint();
+     this->EditPointCurve(curIdx);
+     }
+   return superRes;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkCompositeControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  bool result=false;
+  if(this->OpacityPointHandle && this->OpacityPointHandle->GetVisible())
+    {
+    result = this->OpacityPointHandle->MouseMoveEvent(mouse);
+    }
+  if(!result)
+    {
+    result = this->Superclass::MouseMoveEvent(mouse);
+    }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+void vtkCompositeControlPointsItem::EditPointCurve(vtkIdType index)
+{
+  if(index<0 || index>=this->GetNumberOfPoints())
+    {
+    return;
+    }
+  if(this->GetUseOpacityPointHandles())
+    {
+    if(!this->OpacityPointHandle)
+      {
+      this->OpacityPointHandle = vtkPiecewisePointHandleItem::New();
+      this->AddItem(this->OpacityPointHandle);
+      this->OpacityPointHandle->SetPiecewiseFunction(
+        this->GetOpacityFunction());
+      }
+    else
+      {
+      this->OpacityPointHandle->SetVisible(
+        !this->OpacityPointHandle->GetVisible());
+      this->GetScene()->SetDirty(true);
+      }
+    }
 }

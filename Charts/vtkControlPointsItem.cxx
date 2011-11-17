@@ -80,6 +80,7 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->InvertShadow = false;
   this->EndPointsXMovable = true;
   this->EndPointsYMovable = true;
+  this->EndPointsRemovable = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -111,6 +112,10 @@ vtkControlPointsItem::~vtkControlPointsItem()
 void vtkControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "EndPointsXMovable: " << this->EndPointsXMovable << endl;
+  os << indent << "EndPointsYMovable: " << this->EndPointsYMovable << endl;
+  os << indent << "EndPointsRemovable: " << this->EndPointsRemovable << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -210,6 +215,7 @@ bool vtkControlPointsItem::Paint(vtkContext2D* painter)
   this->Transform->SetMatrix(painter->GetTransform()->GetMatrix());
 
   painter->GetDevice()->EnableClipping(true);
+  this->PaintChildren(painter);
   return true;
 }
 
@@ -463,6 +469,9 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   if (this->CurrentPoint == index)
     {
     radius = this->ScreenPointRadius * 1.3;
+    color[0] = 255;
+    color[1] = 0;
+    color[2] = 255;
     }
 
   painter->GetPen()->SetColor(color);
@@ -805,8 +814,12 @@ vtkIdType vtkControlPointsItem::RemovePoint(vtkIdType pointId)
 //-----------------------------------------------------------------------------
 vtkIdType vtkControlPointsItem::RemovePointId(vtkIdType pointId)
 {
-  assert(pointId != -1);
+  if(!this->IsPointRemovable(pointId))
+    {
+    return pointId;
+    }
 
+  assert(pointId != -1);
   // Useless to remove the point here as it will be removed anyway in ComputePoints
   this->DeselectPoint(pointId);
 
@@ -1412,7 +1425,7 @@ bool vtkControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &m
     if (this->PointAboutToBeDeleted)
       {
       // If EnforceValidFunction is true, we don't want less than 2 points
-      if (!this->EnforceValidFunction || this->GetNumberOfPoints() > 2)
+      if (this->IsPointRemovable(this->PointToDelete))
         {
         double point[4];
         this->GetControlPoint(this->PointToDelete, point);
@@ -1638,4 +1651,20 @@ bool vtkControlPointsItem::IsEndPointPicked()
       }
     }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkControlPointsItem::IsPointRemovable(vtkIdType pointId)
+{
+  vtkIdType numPts = this->GetNumberOfPoints();
+  if (this->EnforceValidFunction && numPts<= 2)
+    {
+    return false;
+    }
+  if(pointId != -1 && !this->GetEndPointsRemovable() &&
+    (pointId==0 || pointId==numPts-1))
+    {
+    return false;
+    }
+  return true;
 }
