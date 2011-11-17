@@ -340,6 +340,9 @@ double *vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
       }
     else
       {
+      this->ComputedDoubleDisplayValue[0] = static_cast<double>(VTK_LARGE_INTEGER);
+      this->ComputedDoubleDisplayValue[1] = static_cast<double>(VTK_LARGE_INTEGER);
+
       vtkErrorMacro("Request for coordinate transformation without required viewport");
       }
     return this->ComputedDoubleDisplayValue;
