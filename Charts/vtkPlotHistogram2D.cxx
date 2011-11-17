@@ -147,7 +147,7 @@ vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
   // rendered as the bottom left corner of a histogram cell, not the center
   int locX = vtkMath::Floor( (point.GetX() - bounds[0]) / spacing[0] );
   int locY = vtkMath::Floor( (point.GetY() - bounds[2]) / spacing[1] );
-  int width = vtkMath::Ceil( (bounds[1] - bounds[0]) / spacing[0] ) + 1.0;
+  int width = vtkMath::Ceil( (bounds[1] - bounds[0]) / spacing[0] ) + 1;
 
   // Discretize to ImageData point values
   location->SetX(locX * spacing[0] + bounds[0]);
@@ -170,7 +170,7 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2f &plotPos,
   double bounds[4];
   this->GetBounds(bounds);
   int width = vtkMath::Ceil( (bounds[1] - bounds[0]) /
-                                this->Input->GetSpacing()[0] ) + 1.0;
+                                this->Input->GetSpacing()[0] ) + 1;
   int pointX = seriesIndex % width;
   int pointY = seriesIndex / width;
 
