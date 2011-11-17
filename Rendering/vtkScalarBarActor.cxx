@@ -587,7 +587,6 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
 
     // generate background and frame points and cell
-    x[2] = 0.0;
     x[0]=0; x[1]=0;
     bgPts->SetPoint(0,x);
     frPts->SetPoint(0,x);
@@ -615,7 +614,6 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int sizeTextData[2];
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
-      
       // center the title
       this->TitleActor->SetPosition(size[0]/2, 0.9*size[1]);
       
@@ -633,25 +631,27 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->TextMappers[i]->GetTextProperty()->SetJustificationToLeft();
         if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           {
-          this->TextActors[i]->SetPosition(barX, val - sizeTextData[1]/2);
+          this->TextActors[i]->SetPosition(barX, 
+                                           val - 0.6*sizeTextData[1]);
           }
         else
           {
           this->TextActors[i]->SetPosition(barX + barWidth + 3,
-                                           val - sizeTextData[1]/2);
+                                           val - 0.6*sizeTextData[1]);
           }
         }
       }
-    else
+    else // if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
         {
-        this->TitleActor->SetPosition(size[0]/2, barY);
+        this->TitleActor->SetPosition(size[0]/2, 
+                                      barY + 0.1*titleSize[1]);
         }
       else
         {
         this->TitleActor->SetPosition(size[0]/2, 
-                                      barHeight + labelSize[1] + 0.1*size[1]);
+                                      barHeight + labelSize[1] + 0.1*size[1] + 0.15*titleSize[1]);
         }
       for (i=0; i < this->NumberOfLabels; i++)
         {
@@ -974,14 +974,14 @@ void vtkScalarBarActor::SizeTitle(int *titleSize,
     }
 
   int targetWidth, targetHeight;
-  
-  targetWidth = size[0];
   if ( this->Orientation == VTK_ORIENT_VERTICAL )
     {
+    targetWidth = static_cast<int>(0.9*size[0]);
     targetHeight = static_cast<int>(0.1*size[1]);
     }
   else
     {
+    targetWidth = size[0];
     targetHeight = static_cast<int>(0.25*size[1]);
     }
 
