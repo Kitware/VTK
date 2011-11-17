@@ -550,8 +550,8 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   // Build polar axis ticks
   this->BuildPolarAxisTicks( O[0] );
 
-  // Build polar axis labels with 0.01 zero-threshold for labels
-  this->BuildPolarAxisLabelsArcs( O, .01 );
+  // Build polar axis labels
+  this->BuildPolarAxisLabelsArcs( O );
 
   // Scale appropriately
   this->AutoScale( viewport );
@@ -668,8 +668,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
-                                                  double zeroThreshold )
+void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
 {
   // Calculate number of labels needed and create array for them
   vtkAxisActor* axis = this->RadialAxes[0];
@@ -709,44 +708,11 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
   vtkIdType pointIdOffset = 0;
   for ( int  i = 0; i < nLabels; ++ i )
     {
-    if ( fabs( val ) < zeroThreshold && this->MaximumRadius > 1 )
-      {
-      // We just happened to fall at something near zero and the range is
-      // large, so set it to zero to avoid ugliness.
-      val = 0.;
-      }
+    // Store label
     sprintf( label, format, val );
+    labels->SetValue( i, label );
 
-    if ( fabs( val ) < zeroThreshold )
-      {
-      // Ensure that -0.0 is never a label
-      // The maximum number of digits that we allow past the decimal is 5.
-      if ( strcmp( label, "-0" ) == 0 )
-        {
-        sprintf( label, "0" );
-        }
-      else if ( strcmp( label, "-0.0" ) == 0 )
-        {
-        sprintf( label, "0.0" );
-        }
-      else if ( strcmp( label, "-0.00" ) == 0 )
-        {
-        sprintf( label, "0.00" );
-        }
-      else if ( strcmp( label, "-0.000" ) == 0 )
-        {
-        sprintf( label, "0.000" );
-        }
-      else if ( strcmp( label, "-0.0000" ) == 0 )
-        {
-        sprintf( label, "0.0000" );
-        }
-      else if ( strcmp( label, "-0.00000" ) == 0 )
-        {
-        sprintf( label, "0.00000" );
-        }
-      }
-    else // if ( fabs( val ) < zeroThreshold )
+    if ( val  > 0. )
       {
       // Build corresponding polar arc for non-zero values
       double x = val * cosTheta;
@@ -777,8 +743,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O,
       // Update polyline cell offset
       pointIdOffset += nPoints;
       }
-    // Store label
-    labels->SetValue( i, label );
 
     // Move to next value
     val += deltaMajor;

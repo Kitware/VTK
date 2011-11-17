@@ -217,12 +217,12 @@ protected:
   void  SetNonDependentAttributes(void );
 
   // Description:
-  // Prepare ticks on polar axis.
+  // Prepare ticks on polar axis with respect to coordinate offset
   void  BuildPolarAxisTicks( double );
 
   // Description:
-  // Build polar axis labels and arcs.
-  void  BuildPolarAxisLabelsArcs( double*, double );
+  // Build polar axis labels and arcs with respect to specified pole.
+  void  BuildPolarAxisLabelsArcs( double* );
 
   int LabelExponent(double min, double max );
 
