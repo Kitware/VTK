@@ -17,12 +17,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkMapper.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkImageMapper3D.h"
 #include "vtkAbstractMapper3D.h"
 #include "vtkProp.h"
 #include "vtkLODProp3D.h"
 #include "vtkActor.h"
 #include "vtkPropCollection.h"
-#include "vtkImageActor.h"
+#include "vtkImageSlice.h"
 #include "vtkProp3DCollection.h"
 #include "vtkAssemblyPath.h"
 #include "vtkImageData.h"
@@ -231,7 +232,6 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
     props = renderer->GetViewProps();
     }
 
-  vtkImageActor *imageActor = NULL;
   vtkAbstractMapper3D *mapper = NULL;
   vtkAssemblyPath *path;
 
@@ -243,7 +243,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
     for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
       {
       propCandidate = path->GetLastNode()->GetViewProp();
-      pickable = this->TypeDecipher(propCandidate, &imageActor, &mapper);
+      pickable = this->TypeDecipher(propCandidate, &mapper);
 
       //  If actor can be picked, see if it is within the pick frustum.
       if ( pickable )
@@ -266,6 +266,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
                 this->Mapper = mapper; 
                 vtkMapper *map1;
                 vtkAbstractVolumeMapper *vmap;
+                vtkImageMapper3D *imap;
                 if ( (map1=vtkMapper::SafeDownCast(mapper)) != NULL )
                   {
                   this->DataSet = map1->GetInput();
@@ -276,6 +277,11 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
                   this->DataSet = vmap->GetDataSetInput();
                   this->Mapper = vmap;
                   }
+                else if ( (imap=vtkImageMapper3D::SafeDownCast(mapper)) != NULL )
+                  {
+                  this->DataSet = imap->GetDataSetInput();
+                  this->Mapper = imap;
+                  }
                 else
                   {
                   this->DataSet = NULL;
@@ -284,27 +290,6 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
               }
             }
           }//mapper
-        else if ( imageActor )
-          {
-          imageActor->GetBounds(bounds);
-          double dist;
-          //cerr << "imageA ABFISECT" << endl;
-          if (this->ABoxFrustumIsect(bounds, dist))
-            {
-            if ( ! this->Prop3Ds->IsItemPresent(prop) )
-              {
-              this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
-              //cerr << "picked an imageactor" << endl;
-              if (dist < mindist) //new nearest, remember it
-                {
-                mindist = dist;
-                this->SetPath(path);
-                this->Mapper = mapper; // mapper is null
-                this->DataSet = imageActor->GetInput();
-                }
-              }
-            }
-          }//imageActor
         }//pickable
 
       }//for all parts
@@ -327,20 +312,19 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
 }
 
 //------------------------------------------------------------------------------
-//converts the propCandidate into either a vtkImageActor or a 
-//vtkAbstractMapper3D and returns its pickability
+//converts the propCandidate into a vtkAbstractMapper3D
+//and returns its pickability
 int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate, 
-                                vtkImageActor **imageActor, 
                                 vtkAbstractMapper3D **mapper)
 {
   int pickable = 0;
-  *imageActor = NULL;
   *mapper = NULL;
 
   vtkActor *actor;
   vtkLODProp3D *prop3D;
   vtkProperty *tempProperty;
   vtkVolume *volume;
+  vtkImageSlice *imageSlice;
 
   if ( propCandidate->GetPickable() && propCandidate->GetVisibility() )
     {
@@ -370,11 +354,11 @@ int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate,
       {
       *mapper = volume->GetMapper();
       }
-    else if ( (*imageActor=vtkImageActor::SafeDownCast(propCandidate)) )
+    else if ( (imageSlice=vtkImageSlice::SafeDownCast(propCandidate)) != NULL )
       {
-      *mapper = 0;
+      *mapper = imageSlice->GetMapper();
       }
-    else 
+    else
       {
       pickable = 0; //only vtkProp3D's (actors and volumes) can be picked
       }

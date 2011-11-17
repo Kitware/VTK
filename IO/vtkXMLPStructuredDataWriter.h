@@ -29,7 +29,12 @@ class VTK_IO_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
 public:
   vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  // See the vtkAlgorithm for a description of what these do
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
+
 protected:
   vtkXMLPStructuredDataWriter();
   ~vtkXMLPStructuredDataWriter();
@@ -38,7 +43,11 @@ protected:
   void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   void WritePPieceAttributes(int index);
   vtkXMLWriter* CreatePieceWriter(int index);
-  
+
+  virtual int RequestUpdateExtent(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector);
+
 private:
   vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&);  // Not implemented.
   void operator=(const vtkXMLPStructuredDataWriter&);  // Not implemented.

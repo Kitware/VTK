@@ -599,6 +599,11 @@ void TestVoidReturnOuter()
 # pragma warning (disable:858) // type qualifier on return is meaningless
 #endif
 
+// clang warns about type qualifiers on return types.
+#if defined(__clang__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wignored-qualifiers"
+#endif
 
 // aCC warns "type qualifier on return type is meaningless" - just omit the
 // function on aCC builds since there is no way to suppress the warning via
@@ -608,6 +613,9 @@ void TestVoidReturnOuter()
 void const TestVoidConstReturn() {}
 #endif
 
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif
 
 #if defined(__INTEL_COMPILER)
 # pragma warning (pop)

@@ -403,7 +403,6 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
     }
   
   // Now loop over all triangle to compute weights
-  vtkIdType *tri = iter.Current;
   while ( iter.Id < iter.NumberOfTriangles)
     {
     // vertex id
@@ -481,7 +480,7 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
 
     if (fabs(det) < eps)
       {
-      tri = ++iter;
+      ++iter;
       continue;
       }
 
@@ -494,7 +493,7 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
     // the current triangle.
     if (fabs(sign0) < eps || fabs(sign1) < eps || fabs(sign2) < eps)
       {
-      tri = ++iter;
+      ++iter;
       continue;
       }
 
@@ -505,7 +504,7 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
 
     // 
     //increment id and next triangle
-    tri = ++iter; 
+    ++iter; 
     }
 
   // clear memory

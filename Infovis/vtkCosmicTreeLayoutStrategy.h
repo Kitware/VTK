@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkCosmicTreeLayoutStrategy.h
-  
+
 =========================================================================*/
 /*----------------------------------------------------------------------------
  Copyright (c) Sandia Corporation

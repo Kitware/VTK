@@ -12,12 +12,16 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2011 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+  -------------------------------------------------------------------------*/
 #if defined(_MSC_VER)
 #pragma warning (disable:4503)
 #endif
 
-#include "vtkToolkits.h"
-
+#include "vtkToolkits.h" 
 #include "vtkPOrderStatistics.h"
 
 #include "vtkCommunicator.h"
@@ -26,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -34,13 +39,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 #include <vtkstd/vector>
-
-// For debugging purposes, output message sizes and intermediate timings
-#define DEBUG_PARALLEL_ORDER_STATISTICS 0
-
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-#include "vtkTimerLog.h"
-#endif // DEBUG_PARALLEL_ORDER_STATISTICS
 
 vtkStandardNewMacro(vtkPOrderStatistics);
 vtkCxxSetObjectMacro(vtkPOrderStatistics, Controller, vtkMultiProcessController);
@@ -65,33 +63,70 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void PackUnivariateValues( const vtkstd::vector<vtkStdString>& values,
-                           vtkStdString& buffer )
+static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& strings,
+                                        vtkStdString& buffer )
 {
   buffer.clear();
-  for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
-       it != values.end(); ++ it )
+
+  for( vtkstd::vector<vtkStdString>::const_iterator it = strings.begin();
+       it != strings.end(); ++ it )
     {
     buffer.append( *it );
     buffer.push_back( 0 );
     }
 }
 
-//-----------------------------------------------------------------------------
-void UnpackUnivariateValues( const vtkStdString& buffer,
-                             vtkstd::vector<vtkStdString>& values )
+// ----------------------------------------------------------------------
+static void StringArrayToStringBuffer( vtkStringArray* sVals,
+                                       vtkStdString& sPack )
 {
-  values.clear();
+  vtkstd::vector<vtkStdString> sVect; // consecutive strings
 
+  vtkIdType nv = sVals->GetNumberOfValues();
+  for ( vtkIdType i = 0; i < nv; ++ i )
+    {
+    // Push back current string value
+    sVect.push_back( sVals->GetValue( i ) );
+    }
+
+  // Concatenate vector of strings into single string
+  StringVectorToStringBuffer( sVect, sPack );
+}
+
+//-----------------------------------------------------------------------------
+static void StringHistoToBuffers( const vtkstd::map<vtkStdString,vtkIdType>& histo,
+                                  vtkStdString& buffer,
+                                  vtkIdTypeArray* card )
+{
+  buffer.clear();
+
+  card->SetNumberOfTuples( histo.size() );
+
+  vtkIdType r = 0;
+  for( vtkstd::map<vtkStdString,vtkIdType>::const_iterator it = histo.begin();
+       it != histo.end(); ++ it, ++ r )
+    {
+    buffer.append( it->first );
+    card->SetValue( r, it->second );
+    buffer.push_back( 0 );
+    }
+}
+
+//-----------------------------------------------------------------------------
+static void StringBufferToStringVector( const vtkStdString& buffer,
+                                        vtkstd::vector<vtkStdString>& strings )
+{
+  strings.clear();
+  
   const char* const bufferEnd = &buffer[0] + buffer.size();
-
+  
   for( const char* start = &buffer[0]; start != bufferEnd; ++ start )
     {
     for( const char* finish = start; finish != bufferEnd; ++ finish )
       {
       if( ! *finish )
         {
-        values.push_back( vtkStdString( start ) );
+        strings.push_back( vtkStdString( start ) );
         start = finish;
         break;
         }
@@ -104,82 +139,18 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
                                  vtkTable* inParameters,
                                  vtkMultiBlockDataSet* outMeta )
 {
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timer=vtkTimerLog::New();
-  timer->StartTimer();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
   if ( ! outMeta )
     {
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
     return;
     }
 
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timers=vtkTimerLog::New();
-  timers->StartTimer();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
   // First calculate order statistics on local data set
   this->Superclass::Learn( inData, inParameters, outMeta );
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  timers->StopTimer();
 
-  cout << "## Process "
-       << this->Controller->GetCommunicator()->GetLocalProcessId()
-       << " serial engine executed in "
-       << timers->GetElapsedTime()
-       << " seconds."
-       << "\n";
-
-  timers->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
-  // Get a hold of the summary table
-  vtkTable* summaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
-  if ( ! summaryTab )
+  if ( ! outMeta
+       || outMeta->GetNumberOfBlocks() < 1 )
     {
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
-    return;
-    }
-
-  // Determine how many variables are present
-  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
-  if ( nRowSumm <= 0 )
-    {
-    // No statistics were calculated in serial.
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
-    return;
-    }
-
-  // Get a hold of the histogram table
-  vtkTable* histoTab = vtkTable::SafeDownCast( outMeta->GetBlock( 1 ) );
-  if ( ! histoTab )
-    {
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
-    return;
-    }
-
-  // Determine how many realizations are present
-  vtkIdType nRowHisto = histoTab->GetNumberOfRows();
-  if ( nRowHisto <= 0 )
-    {
-    // No statistics were calculated in serial.
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
+    // No statistics were calculated.
     return;
     }
 
@@ -187,10 +158,6 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
     {
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-    timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
     return;
     }
 
@@ -201,379 +168,360 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     vtkErrorMacro("No parallel communicator.");
     }
 
+  // Figure local process id
   vtkIdType myRank = com->GetLocalProcessId();
 
-  // Packing step: concatenate all x values in a single string and all (k,c) pairs in single vector
-  vtkStdString xPacked_l;
-  vtkstd::vector<vtkIdType> kcValues_l;
-  if ( this->Pack( histoTab,
-                   xPacked_l,
-                   kcValues_l ) )
-    {
-    vtkErrorMacro("Packing error on process "
-                  << myRank
-                  << ".");
-
-    return;
-    }
-
   // NB: Use process 0 as sole reducer for now
-  vtkIdType reduceProc = 0;
+  vtkIdType rProc = 0;
 
-  // (All) gather all x and kc sizes
-  vtkIdType xSize_l = xPacked_l.size();
-  vtkIdType* xSize_g = new vtkIdType[np];
-
-  vtkIdType kcSize_l = kcValues_l.size();
-  vtkIdType* kcSize_g = new vtkIdType[np];
-
-  com->AllGather( &xSize_l,
-                  xSize_g,
-                  1 );
-
-  com->AllGather( &kcSize_l,
-                  kcSize_g,
-                  1 );
-
-  // Calculate total size and displacement arrays
-  vtkIdType* xOffset = new vtkIdType[np];
-  vtkIdType* kcOffset = new vtkIdType[np];
-
-  vtkIdType xSizeTotal = 0;
-  vtkIdType kcSizeTotal = 0;
-
-  for ( vtkIdType i = 0; i < np; ++ i )
+  // Iterate over primary tables
+  unsigned int nBlocks = outMeta->GetNumberOfBlocks();
+  for ( unsigned int b = 0; b < nBlocks; ++ b )
     {
-    xOffset[i] = xSizeTotal;
-    kcOffset[i] = kcSizeTotal;
-
-    xSizeTotal += xSize_g[i];
-    kcSizeTotal += kcSize_g[i];
-    }
-
-  // Allocate receive buffers on reducer process, based on the global sizes obtained above
-  char* xPacked_g = 0;
-  vtkIdType*  kcValues_g = 0;
-  if ( myRank == reduceProc )
-    {
-    xPacked_g = new char[xSizeTotal];
-    kcValues_g = new vtkIdType[kcSizeTotal];
-    }
-
-  // Gather all xPacked and kcValues on process reduceProc
-  // NB: GatherV because the packets have variable lengths
-  if ( ! com->GatherV( &(*xPacked_l.begin()),
-                       xPacked_g,
-                       xSize_l,
-                       xSize_g,
-                       xOffset,
-                       reduceProc ) )
-    {
-    vtkErrorMacro("Process "
-                  << myRank
-                  << "could not gather x values.");
-
-    return;
-    }
-
-  if ( ! com->GatherV( &(*kcValues_l.begin()),
-                       kcValues_g,
-                       kcSize_l,
-                       kcSize_g,
-                       kcOffset,
-                       reduceProc ) )
-    {
-    vtkErrorMacro("Process "
-                  << myRank
-                  << "could not gather (k,c) values.");
-
-    return;
-    }
-
-  // Reduction step: have process reduceProc perform the reduction of the global histogram table
-  if ( myRank == reduceProc )
-    {
-    if ( this->Reduce( xSizeTotal,
-                       xPacked_g,
-                       xPacked_l,
-                       kcSizeTotal,
-                       kcValues_g,
-                       kcValues_l ) )
+    // Fetch histogram table
+    vtkTable* histoTab = vtkTable::SafeDownCast( outMeta->GetBlock( b ) );
+    if ( ! histoTab  )
       {
+      continue;
+      }
+
+    // Downcast columns to typed arrays for efficient data access
+    vtkAbstractArray* vals =  histoTab->GetColumnByName( "Value" );
+    vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histoTab->GetColumnByName( "Cardinality" ) );
+    if ( ! vals || ! card )
+      {
+      vtkErrorMacro("Column fetching error on process "
+                    << myRank
+                    << ".");
+
       return;
       }
-    } // if ( myRank == reduceProc )
 
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timerB=vtkTimerLog::New();
-  timerB->StartTimer();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
+    // Create new table for global histogram
+    vtkTable* histoTab_g = vtkTable::New();
 
-  // Broadcasting step: broadcast reduced histogram table to all processes
-  vtkstd::vector<vtkStdString> xValues_l; // local consecutive x values
-  if ( this->Broadcast( xSizeTotal,
-                        xPacked_l,
-                        xValues_l,
-                        kcSizeTotal,
-                        kcValues_l,
-                        reduceProc ) )
-    {
-    return;
-    }
+    // Create column for global histogram cardinalities
+    vtkIdTypeArray* card_g = vtkIdTypeArray::New();
+    card_g->SetName( "Cardinality" );
 
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  timerB->StopTimer();
+    // Gather all histogram cardinalities on process rProc
+    // NB: GatherV because the arrays have variable lengths
+    if ( ! com->GatherV( card, card_g, rProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << com->GetLocalProcessId()
+                      << " could not gather histogram cardinalities.");
 
-  cout << "## Process "
-       << myRank
-       << " broadcasted in "
-       << timerB->GetElapsedTime()
-       << " seconds."
-       << "\n";
+        return;
+        }
 
-  timerB->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
+    // Gather all histogram values on rProc and perform reduction of the global histogram table
+    if ( vals->IsA("vtkDataArray") )
+      {
+      // Downcast column to data array for subsequent typed message passing
+      vtkDataArray* dVals = vtkDataArray::SafeDownCast( vals );
 
-  // Finally, fill the new, global histogram (everyone does this so everyone ends up with the same model)
-  vtkVariantArray* row3 = vtkVariantArray::New();
-  row3->SetNumberOfValues( 3 );
+      // Create column for global histogram values of the same type as the values
+      vtkDataArray* dVals_g = vtkDataArray::CreateDataArray( dVals->GetDataType() );
+      dVals_g->SetName( "Value" );
 
-  vtkstd::vector<vtkStdString>::iterator xit = xValues_l.begin();
-  vtkstd::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
+      // Gather all histogram values on process rProc
+      // NB: GatherV because the arrays have variable lengths
+      if ( ! com->GatherV( dVals, dVals_g, rProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << com->GetLocalProcessId()
+                      << " could not gather histogram values.");
 
-  // First replace existing rows
-  // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
-  for ( vtkIdType r = 1 ; r < nRowHisto; ++ r, xit ++, kcit += 2 )
-    {
-    row3->SetValue( 0, *kcit );
-    row3->SetValue( 1, *xit );
-    row3->SetValue( 2, *(kcit + 1) );
+        return;
+        }
 
-    histoTab->SetRow( r, row3 );
-    }
+      // Reduce to global histogram table on process rProc
+      if ( myRank == rProc )
+        {
+        if ( this->Reduce( card_g, dVals_g ) )
+          {
+          return;
+          }
+        } // if ( myRank == rProc )
 
-  // Then insert new rows
-  for ( ; xit != xValues_l.end() ; xit ++, kcit += 2 )
-    {
-    row3->SetValue( 0, *kcit );
-    row3->SetValue( 1, *xit );
-    row3->SetValue( 2, *(kcit + 1) );
+      // Finally broadcast reduced histogram values
+      if ( ! com->Broadcast( dVals_g, rProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << com->GetLocalProcessId()
+                      << " could not broadcast reduced histogram values.");
 
-    histoTab->InsertNextRow( row3 );
-    }
+        return;
+        }
 
-  // Clean up
-  row3->Delete();
+      // Add column of data values to histogram table
+      histoTab_g->AddColumn( dVals_g );
+      
+      // Clean up
+      dVals_g->Delete();
 
-  if ( myRank == reduceProc )
-    {
-    delete [] xPacked_g;
-    delete [] kcValues_g;
-    }
+      // Finally broadcast reduced histogram cardinalities
+      if ( ! com->Broadcast( card_g, rProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << com->GetLocalProcessId()
+                      << " could not broadcast reduced histogram cardinalities.");
+        
+        return;
+        }
+      } // if ( vals->IsA("vtkDataArray") )
+    else if ( vals->IsA("vtkStringArray") )
+      {
+      // Downcast column to string array for subsequent typed message passing
+      vtkStringArray* sVals = vtkStringArray::SafeDownCast( vals );
 
-  delete [] xSize_g;
-  delete [] kcSize_g;
-  delete [] xOffset;
-  delete [] kcOffset;
+      // Packing step: concatenate all string values
+      vtkStdString sPack_l;
+      StringArrayToStringBuffer( sVals, sPack_l );
 
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  timer->StopTimer();
+      // (All) gather all string sizes
+      vtkIdType nc_l = sPack_l.size();
+      vtkIdType* nc_g = new vtkIdType[np];
+      com->AllGather( &nc_l, nc_g, 1 );
 
-  cout << "## Process "
-       << myRank
-       << " parallel Learn took "
-       << timer->GetElapsedTime()
-       << " seconds."
-       << "\n";
+      // Calculate total size and displacement arrays
+      vtkIdType* offsets = new vtkIdType[np];
+      vtkIdType ncTotal = 0;
 
-  timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
+      for ( vtkIdType i = 0; i < np; ++ i )
+        {
+        offsets[i] = ncTotal;
+        ncTotal += nc_g[i];
+        }
+
+      // Allocate receive buffer on reducer process, based on the global size obtained above
+      char* sPack_g = 0;
+      if ( myRank == rProc )
+        {
+        sPack_g = new char[ncTotal];
+        }
+
+      // Gather all sPack on process rProc
+      // NB: GatherV because the packets have variable lengths
+      if ( ! com->GatherV( &(*sPack_l.begin()), sPack_g, nc_l, nc_g, offsets, rProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << myRank
+                      << "could not gather string values.");
+        
+        return;
+        }
+
+      // Reduce to global histogram on process rProc
+      vtkstd::map<vtkStdString,vtkIdType> histogram;
+      if ( myRank == rProc )
+        {
+        if ( this->Reduce( card_g, ncTotal, sPack_g, histogram ) )
+          {
+          return;
+          }
+        } // if ( myRank == rProc )
+
+      // Create column for global histogram values of the same type as the values
+      vtkStringArray* sVals_g = vtkStringArray::New();
+      sVals_g->SetName( "Value" );
+
+      // Finally broadcast reduced histogram
+      if ( this->Broadcast( histogram, card_g, sVals_g, rProc ) )
+        {
+        vtkErrorMacro("Process "
+                      << com->GetLocalProcessId()
+                      << " could not broadcast reduced histogram values.");
+
+        return;
+        }
+
+      // Add column of string values to histogram table
+      histoTab_g->AddColumn( sVals_g );
+      
+      // Clean up
+      sVals_g->Delete();
+      } // else if ( vals->IsA("vtkStringArray") )
+    else if ( vals->IsA("vtkVariantArray") )
+      {
+      vtkErrorMacro( "Unsupported data type (variant array) for column "
+                       << vals->GetName()
+                       << ". Ignoring it." );
+      return;
+      }
+    else
+      {
+      vtkErrorMacro( "Unsupported data type for column "
+                       << vals->GetName()
+                       << ". Ignoring it." );
+      return;
+      }
+
+    // Add column of cardinalities to histogram table
+    histoTab_g->AddColumn( card_g );
+
+    // Replace local histogram table with globally reduced one
+    outMeta->SetBlock( b, histoTab_g );
+
+    // Clean up
+    card_g->Delete();
+    histoTab_g->Delete();
+    } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 }
 
-// ----------------------------------------------------------------------
-bool vtkPOrderStatistics::Pack( vtkTable* histoTab,
-                                vtkStdString& xPacked,
-                                vtkstd::vector<vtkIdType>& kcValues )
+//-----------------------------------------------------------------------------
+bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
+                                  vtkDataArray* dVals_g )
 {
-  // Downcast meta columns to string arrays for efficient data access
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( histoTab->GetColumnByName( "Key" ) );
-  vtkStringArray* vals = vtkStringArray::SafeDownCast( histoTab->GetColumnByName( "Value" ) );
-  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histoTab->GetColumnByName( "Cardinality" ) );
-  if ( ! keys || ! vals || ! card )
+  // Check consistency: we must have as many values as cardinality entries
+  vtkIdType nRow_g = card_g->GetNumberOfTuples();
+  if ( dVals_g->GetNumberOfTuples() != nRow_g )
     {
+    vtkErrorMacro("Gathering error on process "
+                  << this->Controller->GetCommunicator()->GetLocalProcessId()
+                  << ": inconsistent number of values and cardinality entries: "
+                  << dVals_g->GetNumberOfTuples()
+                  << " <> "
+                  << nRow_g
+                  << ".");
+    
     return true;
     }
 
-  vtkstd::vector<vtkStdString> xValues; // consecutive x values
-
-  vtkIdType nRowHisto = histoTab->GetNumberOfRows();
-  for ( vtkIdType r = 1; r < nRowHisto; ++ r ) // Skip first row which is reserved for data set cardinality
+  // Reduce to the global histogram table
+  vtkstd::map<double,vtkIdType> histogram;
+  double x;
+  vtkIdType c;
+  for ( vtkIdType r = 0; r < nRow_g; ++ r )
     {
-    // Push back x to list of strings
-    xValues.push_back( vals->GetValue( r ) );
+    // First, fetch value
+    x = dVals_g->GetTuple1( r );
 
-    // Push back X index and #(x) to list of strings
-    kcValues.push_back( keys->GetValue( r ) );
-    kcValues.push_back( card->GetValue( r ) );
+    // Then, retrieve corresponding cardinality
+    c = card_g->GetValue( r );
+
+    // Last, update histogram count for corresponding value
+    histogram[x] += c;
     }
 
-  // Concatenate vector of strings into single string
-  PackUnivariateValues( xValues, xPacked );
+  // Now resize global histogram arrays to reduced size
+  nRow_g = static_cast<vtkIdType>( histogram.size() );
+  dVals_g->SetNumberOfTuples( nRow_g );
+  card_g->SetNumberOfTuples( nRow_g );
+
+  // Then store reduced histogram into array
+  vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
+  for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
+    {
+    dVals_g->SetTuple1( r, hit->first );
+    card_g->SetValue( r, hit->second );
+    }
 
   return false;
 }
 
-// ----------------------------------------------------------------------
-bool vtkPOrderStatistics::Reduce( vtkIdType& xSizeTotal,
-                                  char* xPacked_g,
-                                  vtkStdString& xPacked_l,
-                                  vtkIdType& kcSizeTotal,
-                                  vtkIdType*  kcValues_g,
-                                  vtkstd::vector<vtkIdType>& kcValues_l )
+//-----------------------------------------------------------------------------
+bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
+                                  vtkIdType& ncTotal,
+                                  char* sPack_g,
+                                  vtkstd::map<vtkStdString,vtkIdType>& histogram )
 {
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  vtkTimerLog *timer=vtkTimerLog::New();
-  timer->StartTimer();
-
-  cout << "\n## Reduce received character string of size "
-       << xSizeTotal
-       << " and integer array of size "
-       << kcSizeTotal
-       << "... ";
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
-
   // First, unpack the packet of strings
-  vtkstd::vector<vtkStdString> xValues_g;
-  UnpackUnivariateValues( vtkStdString ( xPacked_g, xSizeTotal ), xValues_g );
+  vtkstd::vector<vtkStdString> sVect_g;
+  StringBufferToStringVector( vtkStdString ( sPack_g, ncTotal ), sVect_g );
 
-  // Second, check consistency: we must have half as many x than kc entries
-  if ( 2 * vtkIdType( xValues_g.size() ) != kcSizeTotal )
+  // Second, check consistency: we must have as many values as cardinality entries
+  vtkIdType nRow_g = card_g->GetNumberOfTuples();
+  if ( vtkIdType( sVect_g.size() ) != nRow_g )
     {
-    vtkErrorMacro("Reduction error on process "
+    vtkErrorMacro("Gathering error on process "
                   << this->Controller->GetCommunicator()->GetLocalProcessId()
-                  << ": inconsistent number of x values and (k,c) pairs: "
-                  << xValues_g.size()
+                  << ": inconsistent number of values and cardinality entries: "
+                  << sVect_g.size()
                   << " <> "
-                  << kcSizeTotal / 2
+                  << nRow_g
                   << ".");
 
     return true;
     }
 
-  // Third, reduce to the global histogram table
-  typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
-  vtkstd::map<vtkIdType,Distribution> histoTable;
-
+  // Third, reduce to the global histogram
+  vtkIdType c;
   vtkIdType i = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = xValues_g.begin(); vit != xValues_g.end(); vit ++, i += 2 )
+  for ( vtkstd::vector<vtkStdString>::iterator vit = sVect_g.begin(); 
+        vit != sVect_g.end(); ++ vit , ++ i )
     {
-    histoTable
-      [kcValues_g[i]]
-      [*vit]
-      += kcValues_g[i + 1];
+    // First, retrieve cardinality
+    c = card_g->GetValue( i );
+
+    // Then, update histogram count for corresponding value
+    histogram[*vit] += c;
     }
-
-  // Fourth, prepare send buffers of (global) x and kc values
-  vtkstd::vector<vtkStdString> xValues_l;
-  kcValues_l.clear();
-  for ( vtkstd::map<vtkIdType,Distribution>::iterator mit = histoTable.begin();
-        mit != histoTable.end(); ++ mit )
-    {
-    Distribution histogram = mit->second;
-    for ( Distribution::iterator hit = histogram.begin();
-          hit != histogram.end(); ++ hit )
-      {
-      // Push back x to list of strings
-      xValues_l.push_back( hit->first );  // x
-
-      // Push back X index and #(x) to list of strings
-      kcValues_l.push_back( mit->first );  // k
-      kcValues_l.push_back( hit->second ); // c
-      }
-    } // mit
-  PackUnivariateValues( xValues_l, xPacked_l );
-
-  // Last, update x and kc buffer sizes (which have changed because of the reduction)
-  xSizeTotal = xPacked_l.size();
-  kcSizeTotal = kcValues_l.size();
-
-#if DEBUG_PARALLEL_ORDER_STATISTICS
-  timer->StopTimer();
-
-  cout<< " and completed in "
-      << timer->GetElapsedTime()
-      << " seconds."
-      << "\n\n";
-
-  timer->Delete();
-#endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
   return false;
 }
 
-
 // ----------------------------------------------------------------------
-bool vtkPOrderStatistics::Broadcast( vtkIdType xSizeTotal,
-                                     vtkStdString& xPacked,
-                                     vtkstd::vector<vtkStdString>& xValues,
-                                     vtkIdType kcSizeTotal,
-                                     vtkstd::vector<vtkIdType>& kcValues,
-                                     vtkIdType reduceProc )
+bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histogram,
+                                     vtkIdTypeArray* card,
+                                     vtkStringArray* sVals,
+                                     vtkIdType rProc )
 {
   vtkCommunicator* com = this->Controller->GetCommunicator();
 
-  // Broadcast the x and kc buffer sizes
-  if ( ! com->Broadcast( &xSizeTotal,
-                         1,
-                         reduceProc ) )
+  // Concatenate string keys of histogram into single string and put values into resized array
+  vtkStdString sPack;
+  StringHistoToBuffers( histogram, sPack, card );
+
+  // Broadcast size of string buffer
+  vtkIdType nc = sPack.size();
+  if ( ! com->Broadcast( &nc, 1, rProc ) )
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
-                  << " could not broadcast x buffer size.");
+                  << " could not broadcast size of string buffer.");
 
     return true;
     }
 
-  if ( ! com->Broadcast( &kcSizeTotal,
-                         1,
-                         reduceProc ) )
+  // Resize string so it can receive the broadcasted string buffer
+  sPack.resize( nc );
+
+  // Broadcast histogram values
+  if ( ! com->Broadcast( &(*sPack.begin()), nc, rProc ) )
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
-                  << " could not broadcast (k,c) buffer size.");
-
-    return true;
-    }
-
-  // Resize vectors so they can receive the broadcasted x and kc values
-  xPacked.resize( xSizeTotal );
-  kcValues.resize( kcSizeTotal );
-
-  // Broadcast the contents of histogram table to everyone
-  if ( ! com->Broadcast( &(*xPacked.begin()),
-                         xSizeTotal,
-                         reduceProc ) )
-    {
-    vtkErrorMacro("Process "
-                  << com->GetLocalProcessId()
-                  << " could not broadcast x values.");
-
-    return true;
-    }
-
-  if ( ! com->Broadcast( &(*kcValues.begin()),
-                         kcSizeTotal,
-                         reduceProc ) )
-    {
-    vtkErrorMacro("Process "
-                  << com->GetLocalProcessId()
-                  << " could not broadcast (k,c) values.");
+                  << " could not broadcast histogram string values.");
 
     return true;
     }
 
   // Unpack the packet of strings
-  UnpackUnivariateValues( xPacked, xValues );
+  vtkstd::vector<vtkStdString> sVect;
+  StringBufferToStringVector( sPack, sVect );
+
+  // Broadcast histogram cardinalities
+  if ( ! com->Broadcast( card, rProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << com->GetLocalProcessId()
+                  << " could not broadcast histogram cardinalities.");
+    
+    return true;
+    }
+
+  // Now resize global histogram arrays to reduced size
+  sVals->SetNumberOfValues( sVect.size() );
+
+  // Then store reduced histogram into array
+  vtkIdType r = 0;
+  for ( vtkstd::vector<vtkStdString>::iterator vit = sVect.begin(); 
+        vit != sVect.end(); ++ vit, ++ r )
+    {
+    sVals->SetValue( r, *vit );
+    }
 
   return false;
 }

@@ -32,7 +32,6 @@ struct EventItem {
   vtkSmartPointer< vtkEvent > VTKEvent;
   unsigned long WidgetEvent;
 
-  EventItem() : VTKEvent(NULL) {}
   EventItem(vtkEvent *e, unsigned long we)
     {
     this->VTKEvent    = e;
@@ -269,6 +268,14 @@ int vtkWidgetEventTranslator::RemoveTranslation(unsigned long VTKEvent)
 {
   vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
   e->SetEventId(VTKEvent);
+  return this->RemoveTranslation( e );
+}
+
+//----------------------------------------------------------------------------
+int vtkWidgetEventTranslator::RemoveTranslation(const char *VTKEvent)
+{
+  vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
+  e->SetEventId(vtkCommand::GetEventIdFromString(VTKEvent));
   return this->RemoveTranslation( e );
 }
 

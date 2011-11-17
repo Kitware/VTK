@@ -34,7 +34,8 @@
 vtkStandardNewMacro(vtkNormalizeMatrixVectors);
 
 vtkNormalizeMatrixVectors::vtkNormalizeMatrixVectors() :
-  VectorDimension(1)
+  VectorDimension(1),
+  PValue(2)
 {
 }
 
@@ -46,6 +47,7 @@ void vtkNormalizeMatrixVectors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "VectorDimension: " << this->VectorDimension << endl;
+  os << indent << "PValue: " << this->PValue << endl;
 }
 
 int vtkNormalizeMatrixVectors::RequestData(
@@ -54,6 +56,7 @@ int vtkNormalizeMatrixVectors::RequestData(
   vtkInformationVector* outputVector)
 {
   int vector_dimension = vtkstd::min(1, vtkstd::max(0, this->VectorDimension));
+  double p_value = vtkstd::max(1.0, this->PValue);
 
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
   if(input->GetNumberOfArrays() != 1)
@@ -88,13 +91,13 @@ int vtkNormalizeMatrixVectors::RequestData(
   for(vtkIdType n = 0; n != value_count; ++n)
     {
     output_array->GetCoordinatesN(n, coordinates);
-    weight[coordinates[vector_dimension] - vectors.GetBegin()] += pow(output_array->GetValueN(n), 2);
+    weight[coordinates[vector_dimension] - vectors.GetBegin()] += pow(output_array->GetValueN(n), p_value);
     }
 
   // Convert the sums into weights, avoiding divide-by-zero ...
   for(vtkIdType i = 0; i != vectors.GetSize(); ++i)
     {
-    const double length = sqrt(weight[i]);
+    const double length = pow(weight[i],1.0/p_value);
     weight[i] = length ? 1.0 / length : 0.0;
     }
 

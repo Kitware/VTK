@@ -42,19 +42,6 @@
 //-----------------------------------------------------------------------------
 namespace {
 
-// Compare the two vectors, in X component only
-bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
-{
-  if (v1.X() < v2.X())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
 // Copy the two arrays into the points array
 template<class A, class B>
 void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b,

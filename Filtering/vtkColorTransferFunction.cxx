@@ -410,7 +410,21 @@ void vtkColorTransferFunction::SortAndUpdateRange()
   vtkstd::sort( this->Internal->Nodes.begin(),
                 this->Internal->Nodes.end(),
                 this->Internal->CompareNodes );
-  
+  bool modifiedInvoked = this->UpdateRange();
+  // If range is updated, Modified() has been called, don't call it again.
+  if (!modifiedInvoked)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkColorTransferFunction::UpdateRange()
+{
+  double oldRange[2];
+  oldRange[0] = this->Range[0];
+  oldRange[1] = this->Range[1];
+
   int size = static_cast<int>(this->Internal->Nodes.size());
   if ( size )
     {
@@ -422,8 +436,15 @@ void vtkColorTransferFunction::SortAndUpdateRange()
     this->Range[0] = 0;
     this->Range[1] = 0;
     }
-  
-  this->Modified();  
+
+  // If the range is the same, then no need to call Modified()
+  if (oldRange[0] == this->Range[0] && oldRange[1] == this->Range[1])
+    {
+    return false;
+    }
+
+  this->Modified();
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -466,7 +487,17 @@ int vtkColorTransferFunction::RemovePoint( double x )
     {
     delete *iter;
     this->Internal->Nodes.erase(iter);
-    this->Modified();
+    // If the first or last point has been removed, then we update the range
+    // No need to sort here as the order of points hasn't changed.
+    bool modifiedInvoked = false;
+    if (i == 0 || i == this->Internal->Nodes.size())
+      {
+      modifiedInvoked = this->UpdateRange();
+      }
+    if (!modifiedInvoked)
+      {
+      this->Modified();
+      }
     }
   else
      {
@@ -1153,6 +1184,7 @@ int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
     return -1;
     }
   
+  double oldX = this->Internal->Nodes[index]->X;
   this->Internal->Nodes[index]->X = val[0];
   this->Internal->Nodes[index]->R = val[1];
   this->Internal->Nodes[index]->G = val[2];
@@ -1160,14 +1192,32 @@ int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
   this->Internal->Nodes[index]->Midpoint = val[4];
   this->Internal->Nodes[index]->Sharpness = val[5];
 
-  this->Modified();
+  if (oldX != val[0])
+    {
+    // The point has been moved, the order of points or the range might have
+    // been modified.
+    this->SortAndUpdateRange();
+    // No need to call Modified() here because SortAndUpdateRange() has done it
+    // already.
+    }
+  else
+    {
+    this->Modified();
+    }
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
+void vtkColorTransferFunction::DeepCopy( vtkScalarsToColors *o )
 {
+  vtkColorTransferFunction *f = NULL;
+  if (o)
+    {
+    this->Superclass::DeepCopy(o);
+    f = vtkColorTransferFunction::SafeDownCast(o);
+    }
+
   if (f != NULL)
     {
     this->Clamping     = f->Clamping;
@@ -1192,6 +1242,8 @@ void vtkColorTransferFunction::ShallowCopy( vtkColorTransferFunction *f )
 {
   if (f != NULL)
     {
+    this->Superclass::DeepCopy(f);
+
     this->Clamping     = f->Clamping;
     this->ColorSpace   = f->ColorSpace;
     this->HSVWrap      = f->HSVWrap;
@@ -1389,38 +1441,6 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 }
 
 //----------------------------------------------------------------------------
-// An expensive magnitude calculation (similar to
-// vtkLookupTable.cxx (vtkLookupTableMapMag).
-template <class T>
-void vtkColorTransferFunctionMagMapData(vtkColorTransferFunction* self,
-                                     T* input,
-                                     unsigned char* output,
-                                     int length, int inIncr,
-                                     int outFormat, int v)
-{
-  double tmp, sum;
-  double *mag;
-  int i, j;
-
-  mag = new double[length];
-  for (i = 0; i < length; ++i)
-    {
-    sum = 0;
-    for (j = 0; j < inIncr; ++j)
-      {
-      tmp = static_cast<double>(*input);  
-      sum += (tmp * tmp);
-      ++input;
-      }
-    mag[i] = sqrt(sum);
-    }
-
-  vtkColorTransferFunctionMapData(self, mag, output, length, 1, outFormat, v);
-
-  delete [] mag;
-}
-
-//----------------------------------------------------------------------------
 void vtkColorTransferFunction::MapScalarsThroughTable2(void *input, 
                                                        unsigned char *output,
                                                        int inputDataType, 
@@ -1428,23 +1448,6 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
                                                        int inputIncrement,
                                                        int outputFormat)
 {
-  if (this->UseMagnitude && inputIncrement > 1)
-    {
-    switch (inputDataType)
-      {
-      vtkTemplateMacro(
-        vtkColorTransferFunctionMagMapData(this, static_cast<VTK_TT*>(input),
-          output, numberOfValues, inputIncrement, outputFormat, 1);
-        return
-      );
-    case VTK_BIT:
-      vtkErrorMacro("Cannot compute magnitude of bit array.");
-      break;
-    default:
-      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-      }
-    }
-
   switch (inputDataType)
     {
     vtkTemplateMacro(

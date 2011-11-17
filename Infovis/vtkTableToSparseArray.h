@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTableToSparseArray.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkTableToSparseArray_h
-#define __vtkTableToSparseArray_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkTableToSparseArray - converts a vtkTable into a sparse array.
 //
 // .SECTION Description
@@ -38,8 +33,20 @@
 // The coordinate columns will also be used to populate dimension labels
 // in the output array.
 //
+// By default, the extent of the output array will be set to the range
+// [0, largest coordinate + 1) along each dimension.  In some situations
+// you may prefer to set the extents explicitly, using the
+// SetOutputExtents() method.  This is useful when the output array should
+// be larger than its largest coordinates, or when working with partitioned
+// data.
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkTableToSparseArray_h
+#define __vtkTableToSparseArray_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
 {
@@ -59,6 +66,11 @@ public:
   void SetValueColumn(const char* name);
   const char* GetValueColumn();
 
+  // Description:
+  // Explicitly specify the extents of the output array.
+  void ClearOutputExtents();
+  void SetOutputExtents(const vtkArrayExtents& extents);
+
 //BTX
 protected:
   vtkTableToSparseArray();
@@ -67,8 +79,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*);
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

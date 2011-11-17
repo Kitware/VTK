@@ -86,7 +86,7 @@ CopyInfo(const MetaObject * _object)
 {
   MetaObject::CopyInfo(_object);
 }
-  
+
 /** Clear gaussian information */
 void MetaGaussian::
 Clear(void)
@@ -96,7 +96,7 @@ Clear(void)
   m_Maximum = 1;
   m_Radius = 1;
 }
-        
+
 /** Destroy gaussian information */
 void MetaGaussian::
 M_Destroy(void)

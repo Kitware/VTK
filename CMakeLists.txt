@@ -6,6 +6,12 @@ FOREACH(policy CMP0012 CMP0013 CMP0014)
   ENDIF()
 ENDFOREACH()
 
+FOREACH(policy CMP0017)
+  IF(POLICY ${policy})
+    CMAKE_POLICY(SET ${policy} OLD)
+  ENDIF()
+ENDFOREACH()
+
 PROJECT(VTK)
 
 # Objective C compile flags, future CMake versions might make this obsolete
@@ -81,7 +87,7 @@ endif()
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
-SET(VTK_MINOR_VERSION 8)
+SET(VTK_MINOR_VERSION 9)
 SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
@@ -513,6 +519,9 @@ INCLUDE(vtkTestFullSpecialization)
 
 # Check for explicit template instantiation support by compiler.
 INCLUDE(vtkTestExplicitInstantiation)
+
+# Test for atomics and other compiler intrinsics
+INCLUDE(vtkTestBuiltins)
 
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)

@@ -7,6 +7,10 @@
 
 #include "FTGL.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 /**
  * FTBBox
@@ -142,6 +146,9 @@ class FTGL_EXPORT FTGlyph
 
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTGlyph__
 

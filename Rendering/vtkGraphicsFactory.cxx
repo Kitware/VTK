@@ -27,7 +27,7 @@
 #include "vtkOpenGLCoincidentTopologyResolutionPainter.h"
 #include "vtkOpenGLDisplayListPainter.h"
 #include "vtkOpenGLGlyph3DMapper.h"
-#include "vtkOpenGLImageActor.h"
+#include "vtkOpenGLImageSliceMapper.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLLightingPainter.h"
 #include "vtkOpenGLPainterDeviceAdapter.h"
@@ -81,7 +81,7 @@
 #include "vtkMesaClipPlanesPainter.h"
 #include "vtkMesaCoincidentTopologyResolutionPainter.h"
 #include "vtkMesaDisplayListPainter.h"
-#include "vtkMesaImageActor.h"
+#include "vtkMesaImageSliceMapper.h"
 #include "vtkMesaLight.h"
 #include "vtkMesaLightingPainter.h"
 #include "vtkMesaPainterDeviceAdapter.h"
@@ -302,15 +302,15 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
 #endif
       return vtkOpenGLCamera::New();
       }
-    if(strcmp(vtkclassname, "vtkImageActor") == 0)
+    if(strcmp(vtkclassname, "vtkImageSliceMapper") == 0)
       {
 #if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
-        return vtkMesaImageActor::New();
+        return vtkMesaImageSliceMapper::New();
         }
 #endif
-      return vtkOpenGLImageActor::New();
+      return vtkOpenGLImageSliceMapper::New();
       }
     if(strcmp(vtkclassname, "vtkLight") == 0)
       {

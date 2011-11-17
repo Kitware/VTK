@@ -32,42 +32,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expini - ex_put_init
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       char*   title                   title of file
-*       int     num_dim                 number of dimensions (per node)
-*       int     num_nodes               number of nodes
-*       int     num_elem                number of elements
-*       int     num_elem_blk            number of element blocks
-*       int     num_node_sets           number of node sets
-*       int     num_side_sets           number of side sets
-*
-* exit conditions - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
 #include <string.h>
 
 /*!
- * writes the initialization parameters to the EXODUS II file
- * \param   exoid                   exodus file id
- * \param   title                   title of file
- * \param   num_dim                 number of dimensions (per node)
- * \param   num_nodes               number of nodes
- * \param   num_elem                number of elements
- * \param   num_elem_blk            number of element blocks
- * \param   num_node_sets           number of node sets
- * \param   num_side_sets           number of side sets
- */
+
+The function ex_put_init() writes the initialization parameters to the
+exodus file. This function must be called once (and only once) before
+writing any data to the file.
+
+\return In case of an error, ex_put_init() returns a negative number;
+a warning will return a positive number.  Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  this routine has been called previously.
+
+\param exoid         exodus file ID returned from a previous call to ex_create() or ex_open().
+\param title         Database title. Maximum length is \c MAX_LINE_LENGTH.
+\param num_dim       The dimensionality of the database. This is the number of coordinates per node.
+\param num_nodes     The number of nodal points.
+\param num_elem      The number of elements.
+\param num_elem_blk  The number of element blocks.
+\param num_node_sets The number of node sets.
+\param num_side_sets The number of side sets.
+
+The following code segment will initialize an open exodus file with
+the specified parameters:
+
+\code
+int num_dim, num_nods, num_el, num_el_blk, num_ns, num_ss, error, exoid;
+
+\comment{initialize file with parameters}
+num_dim = 3; num_nods = 46; num_el = 5; num_el_blk = 5;
+num_ns = 2; num_ss = 5;
+
+error = ex_put_init (exoid, "This is the title", num_dim, 
+                     num_nods, num_el,num_el_blk, num_ns, num_ss);
+\endcode
+
+*/
 
 int ex_put_init (int   exoid,
                  const char *title,

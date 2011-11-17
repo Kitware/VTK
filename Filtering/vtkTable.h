@@ -62,8 +62,11 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Dump table contents.
-  void Dump( unsigned int colWidth = 16 ); 
+  // Dump table contents.  If rowLimit is -1 then the full table
+  // is printed out (Default).  If rowLimit is 0 then only the
+  // header row will be displayed.  Otherwise, if rowLimit > 0
+  // then Dump will print the first rowLimit rows of data.
+  void Dump( unsigned int colWidth = 16, int rowLimit = -1 );
 
   // Description:
   // Return what type of dataset this is.

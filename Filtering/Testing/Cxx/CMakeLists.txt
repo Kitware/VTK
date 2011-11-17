@@ -2,6 +2,7 @@ SET(KIT Filtering)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
+  CellTreeLocator.cxx
   otherCellArray.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx
@@ -20,12 +21,16 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestImageIterator.cxx
   TestGenericCell.cxx
   TestGraph.cxx
-  TestHigherOrderCell.cxx  
+  TestHigherOrderCell.cxx
   TestPointLocators.cxx
-  TestPolyDataRemoveCell.cxx  
+  TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
+  TestSelectionSubtract.cxx
   TestTreeBFSIterator.cxx
+  TestTreeDFSIterator.cxx
   TestTriangle.cxx
+  TestImageDataInterpolation.cxx
+  TestImageDataToStructuredGrid.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

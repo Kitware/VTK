@@ -44,8 +44,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Add a prop to the list of props. Prop is the superclass of all
-  // actors, volumes, 2D actors, composite props etc.
+  // Add a prop to the list of props. Does nothing if the prop is
+  // already present. Prop is the superclass of all actors, volumes,
+  // 2D actors, composite props etc.
   void AddViewProp(vtkProp *);
 
   // Description:
@@ -57,11 +58,12 @@ public:
   int HasViewProp(vtkProp *);
 
   // Description:
-  // Remove an actor from the list of actors.
+  // Remove a prop from the list of props. Does nothing if the prop
+  // is not already present.
   void RemoveViewProp(vtkProp *);
 
   // Description:
-  // Remove all actors from the list of actors.
+  // Remove all props from the list of props.
   void RemoveAllViewProps(void);
 
   // Description:

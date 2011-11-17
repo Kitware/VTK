@@ -69,15 +69,19 @@ public:
   virtual void Initialize();
 
   // Description:
-  // Change the window to fill the entire screen.
+  // Change the window to fill the entire screen.  This is only partially
+  // implemented for the vtkCocoaRenderWindow.  It can only be called
+  // before the window has been created, and it might not work on all
+  // versions of OS X.
   virtual void SetFullScreen(int);
 
   // Description:
-  // Remap the window.
+  // Remap the window.  This is not implemented for the vtkCocoaRenderWindow.
   virtual void WindowRemap();
 
   // Description:
-  // Set the preferred window size to full screen.
+  // Set the preferred window size to full screen.  This is not implemented
+  // for the vtkCocoaRenderWindow.
   virtual void PrefFullScreen();
 
   // Description:

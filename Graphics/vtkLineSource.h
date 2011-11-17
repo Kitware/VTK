@@ -34,12 +34,14 @@ public:
   // Set position of first end point.
   vtkSetVector3Macro(Point1,double);
   vtkGetVectorMacro(Point1,double,3);
-
+  void SetPoint1(float[3]);
+  
   // Description:
   // Set position of other end point.
   vtkSetVector3Macro(Point2,double);
   vtkGetVectorMacro(Point2,double,3);
-
+  void SetPoint2(float[3]);
+  
   // Description:
   // Divide line into resolution number of pieces.
   vtkSetClampMacro(Resolution,int,1,VTK_LARGE_INTEGER);

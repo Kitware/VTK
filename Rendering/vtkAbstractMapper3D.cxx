@@ -15,6 +15,8 @@
 #include "vtkAbstractMapper3D.h"
 #include "vtkDataSet.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkPlaneCollection.h"
 
 
 // Construct with initial range (0,1).
@@ -59,8 +61,54 @@ double vtkAbstractMapper3D::GetLength()
   return sqrt(l);
 }
 
+void vtkAbstractMapper3D::GetClippingPlaneInDataCoords(
+  vtkMatrix4x4 *propMatrix, int i, double hnormal[4])
+{
+  vtkPlaneCollection *clipPlanes = this->ClippingPlanes;
+  const double *mat = *propMatrix->Element;
+
+  if (clipPlanes)
+    {
+    int n = clipPlanes->GetNumberOfItems();
+    if (i >= 0 && i < n)
+      {
+      // Get the plane
+      vtkPlane *plane = clipPlanes->GetItem(i);
+      double *normal = plane->GetNormal();
+      double *origin = plane->GetOrigin();
+
+      // Compute the plane equation
+      double v1 = normal[0];
+      double v2 = normal[1];
+      double v3 = normal[2];
+      double v4 = -(v1*origin[0] + v2*origin[1] + v3*origin[2]);
+
+      // Transform normal from world to data coords
+      hnormal[0] = v1*mat[0] + v2*mat[4] + v3*mat[8]  + v4*mat[12];
+      hnormal[1] = v1*mat[1] + v2*mat[5] + v3*mat[9]  + v4*mat[13];
+      hnormal[2] = v1*mat[2] + v2*mat[6] + v3*mat[10] + v4*mat[14];
+      hnormal[3] = v1*mat[3] + v2*mat[7] + v3*mat[11] + v4*mat[15];
+
+      return;
+      }
+    }
+
+  vtkErrorMacro("Clipping plane index " << i << " is out of range.");
+}
+
+int vtkAbstractMapper3D::GetNumberOfClippingPlanes()
+{
+  int n = 0;
+
+  if ( this->ClippingPlanes )
+    {
+    n = this->ClippingPlanes->GetNumberOfItems();
+    }
+
+  return n;
+}
+
 void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-

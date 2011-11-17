@@ -707,6 +707,14 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
     int success=vtkgl::LoadExtension(name, this);
     return success && vtkgl::LoadExtension("GL_VERSION_1_3_DEPRECATED", this);
     }
+
+  if (strcmp(name, "GL_ARB_fragment_program") == 0)
+    {
+    // fragment_program is loaded as part of vertex_program
+    int success=vtkgl::LoadExtension("GL_ARB_vertex_program", this);
+    return success && vtkgl::LoadExtension(name, this);
+    }
+
   if (strcmp(name, "GL_VERSION_1_4") == 0)
     {
     // rely on the generated function for most of the OpenGL 1.4 functions.

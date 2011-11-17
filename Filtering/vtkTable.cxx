@@ -75,7 +75,7 @@ void vtkTable::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkTable::Dump( unsigned int colWidth )
+void vtkTable::Dump( unsigned int colWidth, int rowLimit )
 
 {
   if ( ! this->GetNumberOfColumns() )
@@ -121,31 +121,35 @@ void vtkTable::Dump( unsigned int colWidth )
   cout << " |\n"
        << lineStr;
 
-  for ( vtkIdType r = 0; r < this->GetNumberOfRows(); ++ r )
+  if ( rowLimit != 0 )
     {
-    for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
+    for ( vtkIdType r = 0; r < this->GetNumberOfRows(); ++ r )
       {
-      cout << "| ";
-      vtkStdString str = this->GetValue( r, c ).ToString();
+      for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
+        {
+        cout << "| ";
+        vtkStdString str = this->GetValue( r, c ).ToString();
 
-      if ( colWidth < str.length() )
-        {
-        cout << str.substr( 0, colWidth );
-        }
-      else
-        {
-        cout << str;
-        for ( unsigned int i = static_cast<unsigned int>(str.length()); i < colWidth; ++ i )
+        if ( colWidth < str.length() )
           {
-          cout << " ";
+          cout << str.substr( 0, colWidth );
+          }
+        else
+          {
+          cout << str;
+          for ( unsigned int i = static_cast<unsigned int>(str.length()); i < colWidth; ++ i )
+            {
+            cout << " ";
+            }
           }
         }
+      cout << " |\n";
+      if ( rowLimit != -1 && r >= rowLimit )
+        break;
       }
-    cout << " |\n";
+    cout << lineStr;
+    cout.flush();
     }
-
-  cout << lineStr;
-  cout.flush();
 }
  
 //----------------------------------------------------------------------------
@@ -517,6 +521,10 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
     }
 
   int comps = arr->GetNumberOfComponents();
+  if (row >= arr->GetNumberOfTuples())
+    {
+    return vtkVariant();
+    }
   if (vtkDataArray::SafeDownCast(arr))
     {
     if (comps == 1)

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+die() {
+  echo 'gerrit-merge failure' 1>&2
+  echo '--------------------' 1>&2
+  echo '' 1>&2
+  echo "$@" 1>&2
+  exit 1
+}
+
+remote=gerrit
+
+SUBDIRECTORY_OK=Yes
+. "$(git --exec-path)/git-sh-setup"
+
+topic="$(git symbolic-ref HEAD | sed -e 's|^refs/heads/||')"
+
+# Provide a method to check if a patch is present in Gerrit, show its status
+gerrit_remote=$(git config remote.gerrit.url)
+if test -n "$gerrit_remote"; then
+  gerrit_url=$(echo $gerrit_remote | cut -d ':' -f 1)
+  gerrit_project=$(echo $gerrit_remote | cut -d ':' -f 2)
+else
+  die "Gerrit remote not set."
+fi
+
+ssh $gerrit_url gerrit ls-projects >/dev/null || die "Could not connect to Gerrit."
+
+head_sha=$(git rev-parse HEAD)
+commit_count=$(ssh $gerrit_url gerrit query -- commit:$head_sha | \
+  awk '/rowCount/ { print $2 }')
+if test "$commit_count" -lt 1; then
+  read -ep "Are you sure you want to merge '$topic' to VTK master? [N/y]: " merge_it
+  if test "$merge_it" != "y" -a "$merge_it" != "Y"; then
+    die "Merge cancelled."
+  fi
+fi
+
+echo "Merging topic '$topic' into VTK master."
+git stage-push && git stage-merge

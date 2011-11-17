@@ -2,7 +2,7 @@
 
 # This example reads a volume dataset, extracts two isosurfaces that
 # represent the skin and bone, creates three orthogonal planes
-# (saggital, axial, coronal), and displays them.
+# (sagittal, axial, coronal), and displays them.
 
 import vtk
 from vtk.util.misc import vtkGetDataRoot
@@ -120,12 +120,12 @@ satLut.Build()
 # Note also that by specifying the DisplayExtent, the pipeline
 # requests data of this extent and the vtkImageMapToColors only
 # processes a slice of data.
-saggitalColors = vtk.vtkImageMapToColors()
-saggitalColors.SetInputConnection(v16.GetOutputPort())
-saggitalColors.SetLookupTable(bwLut)
-saggital = vtk.vtkImageActor()
-saggital.SetInput(saggitalColors.GetOutput())
-saggital.SetDisplayExtent(32, 32, 0, 63, 0, 92)
+sagittalColors = vtk.vtkImageMapToColors()
+sagittalColors.SetInputConnection(v16.GetOutputPort())
+sagittalColors.SetLookupTable(bwLut)
+sagittal = vtk.vtkImageActor()
+sagittal.SetInput(sagittalColors.GetOutput())
+sagittal.SetDisplayExtent(32, 32, 0, 63, 0, 92)
 
 # Create the second (axial) plane of the three planes. We use the same
 # approach as before except that the extent differs.
@@ -157,7 +157,7 @@ aCamera.ComputeViewPlaneNormal()
 
 # Actors are added to the renderer.
 aRenderer.AddActor(outline)
-aRenderer.AddActor(saggital)
+aRenderer.AddActor(sagittal)
 aRenderer.AddActor(axial)
 aRenderer.AddActor(coronal)
 #aRenderer.AddActor(axial)

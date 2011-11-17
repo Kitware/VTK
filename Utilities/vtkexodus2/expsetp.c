@@ -49,7 +49,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -79,14 +78,14 @@ int ex_put_set_param (int exoid,
   int ldum;
   int cur_num_sets, set_stat;
   char errmsg[MAX_ERR_LENGTH];
-  char* dimptr;
-  char* idsptr;
-  char* statptr;
-  char* numentryptr;
-  char* numdfptr;
-  char* factptr;
-  char* entryptr;
-  char* extraptr;
+  char* dimptr = NULL;
+  char* idsptr = NULL;
+  char* statptr = NULL;
+  char* numentryptr = NULL;
+  char* numdfptr = NULL;
+  char* factptr = NULL;
+  char* entryptr = NULL;
+  char* extraptr = NULL;
 
   exerrval = 0; /* clear error code */
 
@@ -120,7 +119,7 @@ int ex_put_set_param (int exoid,
   else {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-            "Error: invalid set type (%d)", set_type);
+      "Error: invalid set type (%d)", set_type);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -130,8 +129,8 @@ int ex_put_set_param (int exoid,
   if ((status = nc_inq_dimid(exoid, dimptr, &dimid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: no %ss specified in file id %d", ex_name_of_object(set_type),
-            exoid);
+      "Error: no %ss specified in file id %d", ex_name_of_object(set_type),
+      exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -140,8 +139,8 @@ int ex_put_set_param (int exoid,
   ex_id_lkup(exoid, set_type, set_id);
   if (exerrval != EX_LOOKUPFAIL) {  /* found the side set id */
     sprintf(errmsg,
-            "Error: %s %d already defined in file id %d", ex_name_of_object(set_type),
-            set_id,exoid);
+      "Error: %s %d already defined in file id %d", ex_name_of_object(set_type),
+      set_id,exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return(EX_FATAL);
   }
@@ -151,11 +150,11 @@ int ex_put_set_param (int exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to get number of %ss in file id %d",
-            ex_name_of_object(set_type), exoid);
+      ex_name_of_object(set_type), exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
-  num_sets = (int)temp;
+  num_sets = temp;
 
 
   /* Keep track of the total number of sets defined using a counter stored
@@ -167,8 +166,8 @@ int ex_put_set_param (int exoid,
   if (cur_num_sets >= num_sets) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-            "Error: exceeded number of %ss (%d) defined in file id %d",
-            ex_name_of_object(set_type), num_sets,exoid);
+      "Error: exceeded number of %ss (%d) defined in file id %d",
+      ex_name_of_object(set_type), num_sets,exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -223,8 +222,8 @@ int ex_put_set_param (int exoid,
   if ((status = nc_inq_varid(exoid, idsptr, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate %s %d in file id %d", ex_name_of_object(set_type),
-            set_id, exoid);
+      "Error: failed to locate %s %d in file id %d", ex_name_of_object(set_type),
+      set_id, exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -236,8 +235,8 @@ int ex_put_set_param (int exoid,
   if ((status = nc_put_var1_int(exoid, varid, start, &ldum)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store %s id %d in file id %d", ex_name_of_object(set_type),
-            set_id, exoid);
+      "Error: failed to store %s id %d in file id %d", ex_name_of_object(set_type),
+      set_id, exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -250,8 +249,8 @@ int ex_put_set_param (int exoid,
   if ((status = nc_inq_varid(exoid, statptr, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate %s status in file id %d", ex_name_of_object(set_type),
-            exoid);
+      "Error: failed to locate %s status in file id %d", ex_name_of_object(set_type),
+      exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -260,8 +259,8 @@ int ex_put_set_param (int exoid,
   if ((status = nc_put_var1_int(exoid, varid, start, &ldum)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store %s %d status to file id %d", ex_name_of_object(set_type),
-            set_id, exoid);
+      "Error: failed to store %s %d status to file id %d", ex_name_of_object(set_type),
+      set_id, exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -274,8 +273,8 @@ int ex_put_set_param (int exoid,
   if ((status = nc_redef (exoid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to put file id %d into define mode",
-            exoid);
+      "Error: failed to put file id %d into define mode",
+      exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -283,19 +282,19 @@ int ex_put_set_param (int exoid,
 
   /* define dimensions and variables */
   if ((status = nc_def_dim(exoid, numentryptr,
-                           num_entries_in_set, &dimid)) != NC_NOERR) {
+         num_entries_in_set, &dimid)) != NC_NOERR) {
     exerrval = status;
     if (status == NC_ENAMEINUSE)
       {
-        sprintf(errmsg,
-                "Error: %s %d size already defined in file id %d",
-                ex_name_of_object(set_type), set_id,exoid);
-        ex_err("ex_put_set_param",errmsg,exerrval);
+  sprintf(errmsg,
+    "Error: %s %d size already defined in file id %d",
+    ex_name_of_object(set_type), set_id,exoid);
+  ex_err("ex_put_set_param",errmsg,exerrval);
       }
     else {
       sprintf(errmsg,
-              "Error: failed to define number of entries in %s %d in file id %d",
-              ex_name_of_object(set_type), set_id,exoid);
+        "Error: failed to define number of entries in %s %d in file id %d",
+        ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_put_set_param",errmsg,exerrval);
     }
     goto error_ret;
@@ -308,13 +307,13 @@ int ex_put_set_param (int exoid,
     exerrval = status;
     if (status == NC_ENAMEINUSE) {
       sprintf(errmsg,
-              "Error: entry list already exists for %s %d in file id %d",
-              ex_name_of_object(set_type), set_id,exoid);
+        "Error: entry list already exists for %s %d in file id %d",
+        ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_put_set_param",errmsg,exerrval);
     } else {
       sprintf(errmsg,
-              "Error: failed to create entry list for %s %d in file id %d",
-              ex_name_of_object(set_type), set_id,exoid);
+        "Error: failed to create entry list for %s %d in file id %d",
+        ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_put_set_param",errmsg,exerrval);
     }
     goto error_ret;            /* exit define mode and return */
@@ -324,15 +323,15 @@ int ex_put_set_param (int exoid,
     if ((status = nc_def_var(exoid, extraptr, NC_INT, 1, dims, &varid)) != NC_NOERR) {
       exerrval = status;
       if (status == NC_ENAMEINUSE) {
-        sprintf(errmsg,
-                "Error: extra list already exists for %s %d in file id %d",
-                ex_name_of_object(set_type), set_id, exoid);
-        ex_err("ex_put_set_param",errmsg,exerrval);
+  sprintf(errmsg,
+    "Error: extra list already exists for %s %d in file id %d",
+    ex_name_of_object(set_type), set_id, exoid);
+  ex_err("ex_put_set_param",errmsg,exerrval);
       } else {
-        sprintf(errmsg,
-                "Error: failed to create extra list for %s %d in file id %d",
-                ex_name_of_object(set_type), set_id,exoid);
-        ex_err("ex_put_set_param",errmsg,exerrval);
+  sprintf(errmsg,
+    "Error: failed to create extra list for %s %d in file id %d",
+    ex_name_of_object(set_type), set_id,exoid);
+  ex_err("ex_put_set_param",errmsg,exerrval);
       }
       goto error_ret;         /* exit define mode and return */
            
@@ -346,25 +345,25 @@ int ex_put_set_param (int exoid,
     if (set_type == EX_NODE_SET) {
       /* but num_dist_fact_in_set must equal number of nodes */
       if (num_dist_fact_in_set != num_entries_in_set) {
-        exerrval = EX_FATAL;
-        sprintf(errmsg,
-                "Error: # dist fact (%d) not equal to # nodes (%d) in node  set %d file id %d",
-                num_dist_fact_in_set, num_entries_in_set, set_id, exoid);
-        ex_err("ex_put_set_param",errmsg,exerrval);
-        goto error_ret;    /* exit define mode and return */
+  exerrval = EX_FATAL;
+  sprintf(errmsg,
+    "Error: # dist fact (%d) not equal to # nodes (%d) in node  set %d file id %d",
+    num_dist_fact_in_set, num_entries_in_set, set_id, exoid);
+  ex_err("ex_put_set_param",errmsg,exerrval);
+  goto error_ret;    /* exit define mode and return */
       }
 
       /* resuse dimid from entry lists */
 
     } else {
       if ((status = nc_def_dim(exoid, numdfptr, 
-                               num_dist_fact_in_set, &dimid)) != NC_NOERR) {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to define number of dist factors in %s %d in file id %d",
-                ex_name_of_object(set_type), set_id,exoid);
-        ex_err("ex_put_set_param",errmsg,exerrval);
-        goto error_ret;          /* exit define mode and return */
+             num_dist_fact_in_set, &dimid)) != NC_NOERR) {
+  exerrval = status;
+  sprintf(errmsg,
+    "Error: failed to define number of dist factors in %s %d in file id %d",
+    ex_name_of_object(set_type), set_id,exoid);
+  ex_err("ex_put_set_param",errmsg,exerrval);
+  goto error_ret;          /* exit define mode and return */
       }
     }
 
@@ -374,15 +373,15 @@ int ex_put_set_param (int exoid,
     if ((status = nc_def_var(exoid, factptr, nc_flt_code(exoid), 1, dims, &varid)) != NC_NOERR) {
       exerrval = status;
       if (status == NC_ENAMEINUSE) {
-        sprintf(errmsg,
-                "Error: dist factors list already exists for %s %d in file id %d",
-                ex_name_of_object(set_type), set_id,exoid);
-        ex_err("ex_put_set_param",errmsg,exerrval);
+  sprintf(errmsg,
+    "Error: dist factors list already exists for %s %d in file id %d",
+    ex_name_of_object(set_type), set_id,exoid);
+  ex_err("ex_put_set_param",errmsg,exerrval);
       } else {
-        sprintf(errmsg,
-                "Error: failed to create dist factors list for %s %d in file id %d",
-                ex_name_of_object(set_type), set_id,exoid);
-        ex_err("ex_put_set_param",errmsg,exerrval);
+  sprintf(errmsg,
+    "Error: failed to create dist factors list for %s %d in file id %d",
+    ex_name_of_object(set_type), set_id,exoid);
+  ex_err("ex_put_set_param",errmsg,exerrval);
       }
       goto error_ret;            /* exit define mode and return */
     }
@@ -392,7 +391,7 @@ int ex_put_set_param (int exoid,
   if ((status = nc_enddef (exoid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to complete definition in file id %d", exoid);
+      "Error: failed to complete definition in file id %d", exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -403,8 +402,8 @@ int ex_put_set_param (int exoid,
  error_ret:
   if (nc_enddef (exoid) != NC_NOERR) {    /* exit define mode */
     sprintf(errmsg,
-            "Error: failed to complete definition for file id %d",
-            exoid);
+      "Error: failed to complete definition for file id %d",
+      exoid);
     ex_err("ex_put_set_param",errmsg,exerrval);
   }
   return (EX_FATAL);

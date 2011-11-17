@@ -50,6 +50,25 @@ public:
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
 
+  enum PointsFunctionType{
+    ColorPointsFunction = 1,
+    OpacityPointsFunction = 2,
+    ColorAndOpacityPointsFunction = 3
+  };
+  // Description:
+  // PointsFunction controls wether the points represent the 
+  // ColorTransferFunction, OpacityTransferFunction or both.
+  // If ColorPointsFunction, only the points of the ColorTransfer function are
+  // used.
+  // If OpacityPointsFunction, only the points of the Opacity function are used
+  // If ColorAndOpacityPointsFunction, the points of both functions are shared
+  // by both functions.
+  // ColorAndOpacityPointsFunction by default.
+  // Note: Set the mode before the functions are set. ColorPointsFunction is
+  // not fully supported.
+  vtkSetMacro(PointsFunction, int);
+  vtkGetMacro(PointsFunction, int);
+
   // Description:
   // Add a point to the function. Returns the index of the point (0 based),
   // or -1 on error.
@@ -66,17 +85,22 @@ protected:
   vtkCompositeControlPointsItem();
   virtual ~vtkCompositeControlPointsItem();
 
-  virtual unsigned long int GetControlPointsMTime();
-  virtual void ComputePoints();
+  virtual void emitEvent(unsigned long event, void* params);
 
-  virtual void GetControlPoint(vtkIdType index, double* pos);
+  virtual unsigned long int GetControlPointsMTime();
+
+  virtual vtkIdType GetNumberOfPoints()const;
+  virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
+  virtual void GetControlPoint(vtkIdType index, double* pos)const;
   virtual void SetControlPoint(vtkIdType index, double *point);
   virtual void EditPoint(float tX, float tY);
 
-  void MergeColorTransferFunction();
+  void MergeTransferFunctions();
+  void SilentMergeTransferFunctions();
 
+  int                   PointsFunction;
   vtkPiecewiseFunction* OpacityFunction;
-  bool                  Updating;
+
 private:
   vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &); // Not implemented.
   void operator=(const vtkCompositeControlPointsItem &);   // Not implemented.

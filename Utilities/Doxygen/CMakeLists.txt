@@ -5,6 +5,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/Documentation.cmake OPTIONAL)
 
 IF (BUILD_DOCUMENTATION)
   OPTION(DOXYGEN_SHORT_NAMES "Build Doxygen of VTK using short file names" OFF)
+  OPTION(DOXYGEN_KEEP_TEMP "Do not delete the temporary Doxygen headers" OFF)
   MARK_AS_ADVANCED(DOXYGEN_SHORT_NAMES)
   IF(DOXYGEN_SHORT_NAMES)
     SET(DOXYGEN_SHORT_NAMES YES)

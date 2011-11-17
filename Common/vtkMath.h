@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
   U.S. Government. Redistribution and use in source and binary forms, with
@@ -41,6 +41,12 @@
 #endif
 
 #include <assert.h> // assert() in inline implementations.
+
+#ifndef DBL_MIN
+#  define VTK_DBL_MIN    2.2250738585072014e-308
+#else  // DBL_MIN
+#  define VTK_DBL_MIN    DBL_MIN
+#endif  // DBL_MIN
 
 #ifndef DBL_EPSILON
 #  define VTK_DBL_EPSILON    2.2204460492503131e-16
@@ -1003,6 +1009,9 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
 }
 
 //----------------------------------------------------------------------------
+// Modify the trunc() operation provided by static_cast<int>() to get floor(),
+// if x<0 (condition g) and x!=trunc(x) (condition n) then floor(x)=trunc(x)-1
+// Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Floor(double x)
 {
   const int r = static_cast<int>(x);
@@ -1012,6 +1021,9 @@ inline int vtkMath::Floor(double x)
 }
 
 //----------------------------------------------------------------------------
+// Modify the trunc() operation provided by static_cast<int>() to get ceil(),
+// if x>=0 (condition g) and x!=trunc(x) (condition n) then ceil(x)=trunc(x)+1
+// Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Ceil(double x)
 {
   const int r = static_cast<int>(x);

@@ -68,6 +68,11 @@ public:
     {
       return reinterpret_cast<unsigned char *>(this->OutputString);
     }
+
+  // Description:
+  // When WriteToOutputString is on, this method returns a copy of the
+  // output string in a vtkStdString.
+  vtkStdString GetOutputStdString();
       
   // Description:
   // This convenience method returns the string, sets the IVAR to NULL,

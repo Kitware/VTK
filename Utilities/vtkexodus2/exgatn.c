@@ -47,13 +47,13 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+/*! \undoc */
 /*
  * reads the attribute names for an element block
  */
@@ -64,10 +64,8 @@ int ex_get_attr_names( int   exoid,
 {
   int status;
   int varid, numattrdim, obj_id_ndx;
-  size_t num_attr, start[2], i;
-  char *ptr;
+  size_t num_attr, i;
   char errmsg[MAX_ERR_LENGTH];
-  int j;
   const char* dnumobjatt;
   const char* vattrbname;
 
@@ -78,17 +76,17 @@ int ex_get_attr_names( int   exoid,
     obj_id_ndx = ex_id_lkup(exoid,obj_type,obj_id);
     if (exerrval != 0) {
       if (exerrval == EX_NULLENTITY) {
-        sprintf(errmsg,
-                "Warning: no attributes found for NULL %s %d in file id %d",
-                ex_name_of_object(obj_type), obj_id, exoid);
-        ex_err("ex_get_attr_names",errmsg,EX_MSG);
-        return (EX_WARN);              /* no attributes for this object */
+  sprintf(errmsg,
+    "Warning: no attributes found for NULL %s %d in file id %d",
+    ex_name_of_object(obj_type), obj_id, exoid);
+  ex_err("ex_get_attr_names",errmsg,EX_MSG);
+  return (EX_WARN);              /* no attributes for this object */
       } else {
-        sprintf(errmsg,
-                "Warning: failed to locate %s id %d in id array in file id %d",
-                ex_name_of_object(obj_type), obj_id, exoid);
-        ex_err("ex_get_attr_names",errmsg,exerrval);
-        return (EX_WARN);
+  sprintf(errmsg,
+    "Warning: failed to locate %s id %d in id array in file id %d",
+    ex_name_of_object(obj_type), obj_id, exoid);
+  ex_err("ex_get_attr_names",errmsg,exerrval);
+  return (EX_WARN);
       }
     }
   }
@@ -133,8 +131,8 @@ int ex_get_attr_names( int   exoid,
   default:
     exerrval = 1005;
     sprintf(errmsg,
-            "Internal Error: unrecognized object type in switch: %d in file id %d",
-            obj_type,exoid);
+      "Internal Error: unrecognized object type in switch: %d in file id %d",
+      obj_type,exoid);
     ex_err("ex_get_attr_names",errmsg,EX_MSG);
     return (EX_FATAL);              /* number of attributes not defined */
   }
@@ -143,8 +141,8 @@ int ex_get_attr_names( int   exoid,
   if ((status = nc_inq_dimid(exoid, dnumobjatt, &numattrdim)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Warning: no attributes found for %s %d in file id %d",
-            ex_name_of_object(obj_type),obj_id,exoid);
+      "Warning: no attributes found for %s %d in file id %d",
+      ex_name_of_object(obj_type),obj_id,exoid);
     ex_err("ex_get_attr_names",errmsg,EX_MSG);
     return (EX_WARN);              /* no attributes for this object */
   }
@@ -152,8 +150,8 @@ int ex_get_attr_names( int   exoid,
   if ((status = nc_inq_dimlen(exoid, numattrdim, &num_attr)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to get number of attributes for %s %d in file id %d",
-            ex_name_of_object(obj_type),obj_id,exoid);
+      "Error: failed to get number of attributes for %s %d in file id %d",
+      ex_name_of_object(obj_type),obj_id,exoid);
     ex_err("ex_get_attr_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -167,39 +165,9 @@ int ex_get_attr_names( int   exoid,
 
   if (status == NC_NOERR) {
     /* read the names */
-    for (i=0; i < num_attr; i++) {
-      start[0] = i;
-      start[1] = 0;
-      
-      j = 0;
-      ptr = names[i];
-      
-      if ((status = nc_get_var1_text (exoid, varid, start, ptr)) != NC_NOERR) {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to get names for %s %d in file id %d",
-                ex_name_of_object(obj_type), obj_id, exoid);
-        ex_err("ex_get_attr_names",errmsg,exerrval);
-        return (EX_FATAL);
-      }
-      
-      while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
-        start[1] = ++j;
-        if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-          exerrval = status;
-          sprintf(errmsg,
-                  "Error: failed to get names for %s %d in file id %d",
-                  ex_name_of_object(obj_type), obj_id, exoid);
-          ex_err("ex_get_attr_names",errmsg,exerrval);
-          return (EX_FATAL);
-        }
-      }
-      --ptr;
-      if (ptr > names[i]) {
-        /*    get rid of trailing blanks */
-        while (--ptr >= names[i] && *ptr == ' ');
-      }
-      *(++ptr) = '\0';
+    status = ex_get_names_internal(exoid, varid, num_attr, names, obj_type, "ex_get_attr_names");
+    if (status != NC_NOERR) {
+      return (EX_FATAL);
     }
   } else {
     /* Names variable does not exist on the database; probably since this is an

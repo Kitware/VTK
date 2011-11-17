@@ -108,7 +108,9 @@ vtkXMLPRectilinearGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   if(!this->PCoordinatesElement)
     {
     int extent[6];
-    vtkRectilinearGrid::SafeDownCast(this->GetCurrentOutput())->GetWholeExtent(extent);
+    vtkInformation* outInfo = this->GetCurrentOutputInformation();
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                 extent);
     if((extent[0] <= extent[1]) && (extent[2] <= extent[3]) &&
        (extent[4] <= extent[5]))
       {

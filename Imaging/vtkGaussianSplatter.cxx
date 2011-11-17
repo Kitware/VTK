@@ -122,10 +122,9 @@ int vtkGaussianSplatter::RequestData(
   int min[3], max[3];
   vtkPointData *pd;
   vtkDataArray *inNormals=NULL;
-  vtkDataArray *inScalars=NULL;
   double loc[3], dist2, cx[3];
   vtkDoubleArray *newScalars = 
-    vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());  
   newScalars->SetName("SplatterValues");
   
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -164,9 +163,18 @@ int vtkGaussianSplatter::RequestData(
   output->SetDimensions(this->GetSampleDimensions());
   this->ComputeModelBounds(input,output, outInfo);
 
+  //decide which array to splat, if any
+  pd = input->GetPointData();
+  int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+  vtkDataArray *inScalars=this->GetInputArrayToProcess
+    (0, inputVector, association);
+  if (!inScalars)
+    {
+    inScalars = pd->GetScalars();
+    }
+
   //  Set up function pointers to sample functions
   //
-  pd = input->GetPointData();
   if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
     {
     this->Sample = &vtkGaussianSplatter::EccentricGaussian;
@@ -176,7 +184,7 @@ int vtkGaussianSplatter::RequestData(
     this->Sample = &vtkGaussianSplatter::Gaussian;
     }
 
-  if ( this->ScalarWarping && (inScalars=pd->GetScalars()) != NULL )
+  if ( this->ScalarWarping && inScalars != NULL )
     {
     this->SampleFactor = &vtkGaussianSplatter::ScalarSampling;
     }

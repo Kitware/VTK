@@ -138,6 +138,7 @@ vtkHyperStreamline.cxx
 vtkIconGlyphFilter.cxx
 vtkIdFilter.cxx
 vtkImageDataGeometryFilter.cxx
+vtkImageDataToPointSet.cxx
 vtkImageMarchingCubes.cxx
 vtkImplicitTextureCoords.cxx
 vtkInterpolateDataSetAttributes.cxx
@@ -203,6 +204,7 @@ vtkRearrangeFields.cxx
 vtkRectangularButtonSource.cxx
 vtkRectilinearGridClip.cxx
 vtkRectilinearGridGeometryFilter.cxx
+vtkRectilinearGridToPointSet.cxx
 vtkRectilinearGridToTetrahedra.cxx
 vtkRectilinearSynchronizedTemplates.cxx
 vtkRecursiveDividingCubes.cxx
@@ -211,6 +213,8 @@ vtkReebGraphSurfaceSkeletonFilter.cxx
 vtkReebGraphVolumeSkeletonFilter.cxx
 vtkReflectionFilter.cxx
 vtkRegularPolygonSource.cxx
+vtkResliceCursor.cxx
+vtkResliceCursorPolyDataAlgorithm.cxx
 vtkReverseSense.cxx
 vtkRibbonFilter.cxx
 vtkRotationalExtrusionFilter.cxx
@@ -290,7 +294,7 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
-vtkEdgeSubdivisionCriterion.cxx 
+vtkEdgeSubdivisionCriterion.cxx
 vtkExtractSelectionBase
 vtkGeodesicPath
 vtkGraphGeodesicPath

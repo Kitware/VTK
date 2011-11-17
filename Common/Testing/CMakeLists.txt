@@ -65,6 +65,7 @@ IF(PYTHON_EXECUTABLE)
     vtkLargeInteger.h
     vtkLinkedList.h
     vtkLinkedListIterator.h
+    vtkMathUtilities.h
     vtkNew.h
     vtkOStrStreamWrapper.h
     vtkOStreamWrapper.h
@@ -75,7 +76,6 @@ IF(PYTHON_EXECUTABLE)
     vtkOnePieceExtentTranslator.h
     vtkOverrideInformationCollection.h
     vtkPlaneCollection.h
-    vtkProcessStatistics.h
     vtkPropCollection.h
     vtkPythonCommand.h
     vtkRayCastStructures.h
@@ -112,7 +112,6 @@ IF(PYTHON_EXECUTABLE)
     vtkWeakPointer.h
     vtkWeakPointerBase.h
     vtkWin32Header.h
-    vtkWinCE.h
     vtkWindows.h
     vtkXMLFileOutputWindow.h
     )

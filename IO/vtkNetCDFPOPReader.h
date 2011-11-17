@@ -78,7 +78,15 @@ protected:
 
   char *FileName;
 
-  int NCDFFD; //netcdf file descriptor
+  // Description:
+  // The NetCDF file descriptor.
+  int NCDFFD;
+
+  // Description:
+  // The file name of the opened file.
+  char* OpenedFileName;
+
+  vtkSetStringMacro(OpenedFileName);
 
   int Stride[3];
 

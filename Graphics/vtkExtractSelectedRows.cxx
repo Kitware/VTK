@@ -167,13 +167,6 @@ int vtkExtractSelectedRows::RequestData(
 
   output->GetRowData()->CopyStructure(input->GetRowData());
 
-  //dodge segfault on empty tables
-  if((vtkIdType)converted->GetNumberOfNodes() > input->GetNumberOfRows())
-    {
-    vtkErrorMacro("Attempting to select more rows than the table contains.");
-    return 0;
-    }
-
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
     {
     vtkSelectionNode* node = converted->GetNode(i);

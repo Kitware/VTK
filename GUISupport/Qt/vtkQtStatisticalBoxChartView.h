@@ -17,6 +17,8 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+// .NAME vtkQtStatisticalBoxChartView - Wraps a vtkQtStatisticalBoxChart into a VTK view.
+
 #ifndef __vtkQtStatisticalBoxChartView_h
 #define __vtkQtStatisticalBoxChartView_h
 

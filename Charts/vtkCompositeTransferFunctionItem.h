@@ -29,16 +29,16 @@ public:
   vtkTypeMacro(vtkCompositeTransferFunctionItem, vtkColorTransferFunctionItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Reimplemented to return the range of the piecewise function
-  virtual void GetBounds(double bounds[4]);
-
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
 
 protected:
   vtkCompositeTransferFunctionItem();
   virtual ~vtkCompositeTransferFunctionItem();
+
+  // Description:
+  // Reimplemented to return the range of the piecewise function
+  virtual void ComputeBounds(double bounds[4]);
 
   virtual void ComputeTexture();
   vtkPiecewiseFunction* OpacityFunction;

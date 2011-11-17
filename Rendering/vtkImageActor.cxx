@@ -14,118 +14,167 @@
 =========================================================================*/
 #include "vtkImageActor.h"
 
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkRenderer.h"
+#include "vtkImageProperty.h"
+#include "vtkImageSliceMapper.h"
 
+vtkStandardNewMacro(vtkImageActor);
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkImageActor);
-
-//----------------------------------------------------------------------------
-vtkImageActor* vtkImageActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkImageActor");
-  return static_cast<vtkImageActor *>(ret);
-}
-
 vtkImageActor::vtkImageActor()
 {
-  this->Input = NULL;
-  this->Interpolate = 1;
-  this->Opacity = 1.0;
   this->DisplayExtent[0] = -1;
   this->DisplayExtent[1] = 0;
   this->DisplayExtent[2] = 0;
   this->DisplayExtent[3] = 0;
   this->DisplayExtent[4] = 0;
   this->DisplayExtent[5] = 0;
-  this->ComputedDisplayExtent[0] = 0;
-  this->ComputedDisplayExtent[1] = 0;
-  this->ComputedDisplayExtent[2] = 0;
-  this->ComputedDisplayExtent[3] = 0;
-  this->ComputedDisplayExtent[4] = 0;
-  this->ComputedDisplayExtent[5] = 0;
 
   vtkMath::UninitializeBounds(this->DisplayBounds);
+
+  this->Property = vtkImageProperty::New();
+  this->Property->SetInterpolationTypeToLinear();
+  this->Property->SetAmbient(1.0);
+  this->Property->SetDiffuse(0.0);
+
+  vtkImageSliceMapper *mapper = vtkImageSliceMapper::New();
+  this->Mapper = mapper;
+  mapper->BorderOff();
+  mapper->SliceAtFocalPointOff();
+  mapper->SliceFacesCameraOff();
+  mapper->SetOrientationToZ();
 }
 
+//----------------------------------------------------------------------------
 vtkImageActor::~vtkImageActor()
 {
-  if (this->Input)
+  if (this->Property)
     {
-    this->GetInput()->UnRegister(this);
-    this->Input = NULL;
+    this->Property->Delete();
+    this->Property = NULL;
     }
+  if (this->Mapper)
+    {
+    this->Mapper->Delete();
+    this->Mapper = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageActor::SetInput(vtkImageData *input)
+{
+  if (this->Mapper && input != this->Mapper->GetInput())
+    {
+    this->Mapper->SetInput(input);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageActor::GetInput()
+{
+  if (!this->Mapper)
+    {
+    return 0;
+    }
+
+  return this->Mapper->GetInput();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageActor::SetInterpolate(int i)
+{
+  if (this->Property)
+    {
+    if (i)
+      {
+      if (this->Property->GetInterpolationType() != VTK_LINEAR_INTERPOLATION)
+        {
+        this->Property->SetInterpolationTypeToLinear();
+        this->Modified();
+        }
+      }
+    else
+      {
+      if (this->Property->GetInterpolationType() != VTK_NEAREST_INTERPOLATION)
+        {
+        this->Property->SetInterpolationTypeToNearest();
+        this->Modified();
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkImageActor::GetInterpolate()
+{
+  if (this->Property &&
+      this->Property->GetInterpolationType() != VTK_NEAREST_INTERPOLATION)
+    {
+    return 1;
+    }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageActor::SetOpacity(double o)
+{
+  if (this->Property && this->Property->GetOpacity() != o)
+    {
+    this->Property->SetOpacity(o);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+double vtkImageActor::GetOpacity()
+{
+  if (this->Property)
+    {
+    return this->Property->GetOpacity();
+    }
+
+  return 1.0;
 }
 
 //----------------------------------------------------------------------------
 int vtkImageActor::GetSliceNumber()
 {
-  // find the first axis with a one pixel extent and return
-  // its value
+  if (!this->Mapper || !this->Mapper->IsA("vtkImageSliceMapper"))
+    {
+    return 0;
+    }
 
-  if (this->ComputedDisplayExtent[0] == this->ComputedDisplayExtent[1])
-    {
-    return this->ComputedDisplayExtent[0];
-    }
-  if (this->ComputedDisplayExtent[2] == this->ComputedDisplayExtent[3])
-    {
-    return this->ComputedDisplayExtent[2];
-    }
-  return this->ComputedDisplayExtent[4];
+  return static_cast<vtkImageSliceMapper *>(this->Mapper)->GetSliceNumber();
 }
 
 //----------------------------------------------------------------------------
 int vtkImageActor::GetSliceNumberMax()
 {
-  if (!this->GetInput())
+  if (!this->Mapper || !this->Mapper->IsA("vtkImageSliceMapper"))
     {
     return 0;
     }
 
-  this->GetInput()->UpdateInformation();
-  int *wextent = this->GetInput()->GetWholeExtent();
-
-  // find the first axis with a one pixel extent and return
-  // its value
-  if (this->ComputedDisplayExtent[0] == this->ComputedDisplayExtent[1])
-    {
-    return wextent[1];
-    }
-  if (this->ComputedDisplayExtent[2] == this->ComputedDisplayExtent[3])
-    {
-    return wextent[3];
-    }
-  return wextent[5];
+  return static_cast<vtkImageSliceMapper *>(this->Mapper)
+    ->GetSliceNumberMaxValue();
 }
 
 //----------------------------------------------------------------------------
 int vtkImageActor::GetSliceNumberMin()
 {
-  if (!this->GetInput())
+  if (!this->Mapper || !this->Mapper->IsA("vtkImageSliceMapper"))
     {
     return 0;
     }
 
-  this->GetInput()->UpdateInformation();
-  int *wextent = this->GetInput()->GetWholeExtent();
-
-  // find the first axis with a one pixel extent and return
-  // its value
-  if (this->ComputedDisplayExtent[0] == this->ComputedDisplayExtent[1])
-    {
-    return wextent[0];
-    }
-  if (this->ComputedDisplayExtent[2] == this->ComputedDisplayExtent[3])
-    {
-    return wextent[2];
-    }
-  return wextent[4];
+  return static_cast<vtkImageSliceMapper *>(this->Mapper)
+    ->GetSliceNumberMinValue();
 }
 
 //----------------------------------------------------------------------------
@@ -144,9 +193,22 @@ void vtkImageActor::SetDisplayExtent(int extent[6])
 
   if (modified)
     {
-    for (idx = 0; idx < 6; ++idx)
+    if (this->Mapper && this->Mapper->IsA("vtkImageSliceMapper"))
       {
-      this->ComputedDisplayExtent[idx] = extent[idx];
+      if (this->DisplayExtent[0] != -1)
+        {
+        static_cast<vtkImageSliceMapper *>(this->Mapper)->CroppingOn();
+        static_cast<vtkImageSliceMapper *>(this->Mapper)->
+          SetCroppingRegion(this->DisplayExtent);
+        static_cast<vtkImageSliceMapper *>(this->Mapper)->
+          SetOrientation(this->GetOrientationFromExtent(this->DisplayExtent));
+        }
+      else
+        {
+        static_cast<vtkImageSliceMapper *>(this->Mapper)->CroppingOff();
+        static_cast<vtkImageSliceMapper *>(this->Mapper)->
+          SetOrientationToZ();
+        }
       }
     this->Modified();
     }
@@ -168,185 +230,93 @@ void vtkImageActor::SetDisplayExtent(int minX, int maxX,
 //----------------------------------------------------------------------------
 void vtkImageActor::GetDisplayExtent(int extent[6])
 {
-  int idx;
-
-  for (idx = 0; idx < 6; ++idx)
+  for (int idx = 0; idx < 6; ++idx)
     {
     extent[idx] = this->DisplayExtent[idx];
     }
 }
 
-//-----------------------------------------------------------------------------
-// Renders an actor2D's property and then it's mapper.
-int vtkImageActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
-{
-  vtkDebugMacro(<< "vtkImageActor::RenderTranslucentPolygonalGeometry");
-
-  vtkImageData *input = this->GetInput();
-  if (!input)
-    {
-    return 0;
-    }
-
-  // render the texture map
-  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
-    {
-    if (!(this->Opacity >= 1.0 && input->GetNumberOfScalarComponents() % 2))
-      {
-      this->Render(vtkRenderer::SafeDownCast(viewport));
-      return 1;
-      }
-    }
-
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Does this prop have some translucent polygonal geometry?
-int vtkImageActor::HasTranslucentPolygonalGeometry()
-{
-  vtkImageData *input = this->GetInput();
-  if (!input)
-    {
-    return 0;
-    }
-
-  // render the texture map
-  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
-    {
-    if (!(this->Opacity >= 1.0 && input->GetNumberOfScalarComponents() % 2))
-      {
-      return 1;
-      }
-    }
-
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
-{
-  vtkDebugMacro(<< "vtkImageActor::RenderOpaqueGeometry");
-
-  vtkImageData *input = this->GetInput();
-  if (!input)
-    {
-    return 0;
-    }
-  // make sure the data is available
-  input->UpdateInformation();
-
-  // if the display extent has not been set, then compute one
-  int *wExtent = input->GetWholeExtent();
-  if (this->DisplayExtent[0] == -1)
-    {
-    this->ComputedDisplayExtent[0] = wExtent[0];
-    this->ComputedDisplayExtent[1] = wExtent[1];
-    this->ComputedDisplayExtent[2] = wExtent[2];
-    this->ComputedDisplayExtent[3] = wExtent[3];
-    this->ComputedDisplayExtent[4] = wExtent[4];
-    this->ComputedDisplayExtent[5] = wExtent[4];
-    }
-  input->SetUpdateExtent(this->ComputedDisplayExtent);
-  input->PropagateUpdateExtent();
-  input->UpdateData();
-
-  // render the texture map
-  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
-    {
-    if (this->Opacity >= 1.0 && input->GetNumberOfScalarComponents() % 2)
-      {
-      this->Render(vtkRenderer::SafeDownCast(viewport));
-      return 1;
-      }
-    }
-  else
-    {
-    vtkErrorMacro(<<"This filter requires unsigned char scalars as input");
-    }
-
-  return 0;
-}
-
+//----------------------------------------------------------------------------
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkImageActor::GetDisplayBounds()
 {
-  if (!this->Input)
+  vtkImageData *input = 0;
+
+  if (this->Mapper)
+    {
+    input = this->Mapper->GetInput();
+    }
+
+  if (!this->Mapper || !input)
     {
     return this->DisplayBounds;
     }
-  this->Input->UpdateInformation();
-  double *spacing = this->Input->GetSpacing();
-  double *origin = this->Input->GetOrigin();
 
-  // if the display extent has not been set, then compute one
-  int *wExtent = this->Input->GetWholeExtent();
-  if (this->DisplayExtent[0] == -1)
+  input->UpdateInformation();
+  int extent[6];
+  input->GetWholeExtent(extent);
+  double *spacing = input->GetSpacing();
+  double *origin = input->GetOrigin();
+
+  // if the display extent has not been set, use first slice
+  extent[5] = extent[4];
+
+  if (this->DisplayExtent[0] != -1)
     {
-    this->ComputedDisplayExtent[0] = wExtent[0];
-    this->ComputedDisplayExtent[1] = wExtent[1];
-    this->ComputedDisplayExtent[2] = wExtent[2];
-    this->ComputedDisplayExtent[3] = wExtent[3];
-    this->ComputedDisplayExtent[4] = wExtent[4];
-    this->ComputedDisplayExtent[5] = wExtent[4];
+    extent[0] = this->DisplayExtent[0];
+    extent[1] = this->DisplayExtent[1];
+    extent[2] = this->DisplayExtent[2];
+    extent[3] = this->DisplayExtent[3];
+    extent[4] = this->DisplayExtent[4];
+    extent[5] = this->DisplayExtent[5];
     }
+
   if (spacing[0] >= 0)
     {
-    this->DisplayBounds[0] =
-      this->ComputedDisplayExtent[0]*spacing[0] + origin[0];
-    this->DisplayBounds[1] =
-      this->ComputedDisplayExtent[1]*spacing[0] + origin[0];
+    this->DisplayBounds[0] = extent[0]*spacing[0] + origin[0];
+    this->DisplayBounds[1] = extent[1]*spacing[0] + origin[0];
     }
   else
     {
-    this->DisplayBounds[0] =
-      this->ComputedDisplayExtent[1]*spacing[0] + origin[0];
-    this->DisplayBounds[1] =
-      this->ComputedDisplayExtent[0]*spacing[0] + origin[0];
+    this->DisplayBounds[0] = extent[1]*spacing[0] + origin[0];
+    this->DisplayBounds[1] = extent[0]*spacing[0] + origin[0];
     }
   if (spacing[1] >= 0)
     {
-    this->DisplayBounds[2] =
-      this->ComputedDisplayExtent[2]*spacing[1] + origin[1];
-    this->DisplayBounds[3] =
-      this->ComputedDisplayExtent[3]*spacing[1] + origin[1];
+    this->DisplayBounds[2] = extent[2]*spacing[1] + origin[1];
+    this->DisplayBounds[3] = extent[3]*spacing[1] + origin[1];
     }
   else
     {
-    this->DisplayBounds[2] =
-      this->ComputedDisplayExtent[3]*spacing[1] + origin[1];
-    this->DisplayBounds[3] =
-      this->ComputedDisplayExtent[2]*spacing[1] + origin[1];
+    this->DisplayBounds[2] = extent[3]*spacing[1] + origin[1];
+    this->DisplayBounds[3] = extent[2]*spacing[1] + origin[1];
     }
   if (spacing[2] >= 0)
     {
-    this->DisplayBounds[4] =
-      this->ComputedDisplayExtent[4]*spacing[2] + origin[2];
-    this->DisplayBounds[5] =
-      this->ComputedDisplayExtent[5]*spacing[2] + origin[2];
+    this->DisplayBounds[4] = extent[4]*spacing[2] + origin[2];
+    this->DisplayBounds[5] = extent[5]*spacing[2] + origin[2];
     }
   else
     {
-    this->DisplayBounds[4] =
-      this->ComputedDisplayExtent[5]*spacing[2] + origin[2];
-    this->DisplayBounds[5] =
-      this->ComputedDisplayExtent[4]*spacing[2] + origin[2];
+    this->DisplayBounds[4] = extent[5]*spacing[2] + origin[2];
+    this->DisplayBounds[5] = extent[4]*spacing[2] + origin[2];
     }
 
   return this->DisplayBounds;
 }
 
+//----------------------------------------------------------------------------
 // Get the bounds for the displayed data as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 void vtkImageActor::GetDisplayBounds(double bounds[6])
 {
   this->GetDisplayBounds();
-  for (int i=0; i<6; i++)
+  for (int i = 0; i < 6; i++)
     {
     bounds[i] = this->DisplayBounds[i];
     }
 }
 
+//----------------------------------------------------------------------------
 // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkImageActor::GetBounds()
 {
@@ -406,17 +376,38 @@ double *vtkImageActor::GetBounds()
   return this->Bounds;
 }
 
+//----------------------------------------------------------------------------
+int vtkImageActor::GetOrientationFromExtent(const int extent[6])
+{
+  int orientation = 2;
+
+  if (extent[4] == extent[5])
+    {
+    orientation = 2;
+    }
+  else if (extent[2] == extent[3])
+    {
+    orientation = 1;
+    }
+  else if (extent[0] == extent[1])
+    {
+    orientation = 0;
+    }
+
+  return orientation;
+}
+
+//----------------------------------------------------------------------------
 void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Input: " << this->Input << "\n";
-  os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
-  os << indent << "Opacity: " << this->Opacity << "\n";
+  os << indent << "Input: " << this->GetInput() << "\n";
+  os << indent << "Interpolate: " << (this->GetInterpolate() ? "On\n" : "Off\n");
+  os << indent << "Opacity: " << this->GetOpacity() << "\n";
 
-  int idx;
   os << indent << "DisplayExtent: (" << this->DisplayExtent[0];
-  for (idx = 1; idx < 6; ++idx)
+  for (int idx = 1; idx < 6; ++idx)
     {
     os << ", " << this->DisplayExtent[idx];
     }
@@ -451,22 +442,27 @@ int vtkImageActor::GetWholeZMax()
   return extent[5];
 }
 
-void vtkImageActor::SetInput(vtkImageData *args)
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkImageActor::HasTranslucentPolygonalGeometry()
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-  << "): setting Input to " << args );
-  if (this->Input != args)
+  vtkImageData *input = this->GetInput();
+  if (!input)
     {
-    if (this->Input != NULL)
-      {
-      this->Input->UnRegister(this);
-      }
-    this->Input = args;
-    if (this->Input != NULL)
-      {
-      this->Input->Register(this);
-      }
-    this->Modified();
+    return 0;
     }
-}
 
+  // This requires that Update has been called on the mapper,
+  // which the Renderer does immediately before it renders.
+  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
+    {
+    if (!(this->GetOpacity() >= 1.0 &&
+          input->GetNumberOfScalarComponents() % 2))
+      {
+      return 1;
+      }
+    }
+
+  return 0;
+}

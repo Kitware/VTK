@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/ios/sstream>
 
 #include "vtkOpenGL.h"
+#include "vtkgl.h"
 
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
@@ -60,11 +61,11 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 {
   this->Finalize();
-  
+
   vtkRenderer *ren;
-  vtkCollectionSimpleIterator rsit;
-  for (this->Renderers->InitTraversal(rsit); 
-       (ren = this->Renderers->GetNextRenderer(rsit));)
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
     {
     ren->SetRenderWindow(NULL);
     }
@@ -346,10 +347,14 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
   this->MakeCurrent();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
-    // use global scope to get Win32 API SwapBuffers and not be
-    // confused with this->SwapBuffers
-    ::SwapBuffers(this->DeviceContext);
-    vtkDebugMacro(<< " SwapBuffers\n");
+    // If this check is not enforced, we crash in offscreen rendering
+    if (this->DeviceContext)
+      {
+      // use global scope to get Win32 API SwapBuffers and not be
+      // confused with this->SwapBuffers
+      ::SwapBuffers(this->DeviceContext);
+      vtkDebugMacro(<< " SwapBuffers\n");
+      }
     }
   else
     {
@@ -471,11 +476,160 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   return this->Capabilities;
 }
 
+typedef bool (APIENTRY *wglChoosePixelFormatARBType)(HDC, const int*, const float*, unsigned int, int*, unsigned int*);
 
-void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
-                                                  int debug, int bpp,
+bool WGLisExtensionSupported(const char *extension)
+{
+  const size_t extlen = strlen(extension);
+  const char *supported = NULL;
+
+  // Try To Use wglGetExtensionStringARB On Current DC, If Possible
+  PROC wglGetExtString = wglGetProcAddress("wglGetExtensionsStringARB");
+
+  if (wglGetExtString)
+    {
+    supported = ((char*(__stdcall*)(HDC))wglGetExtString)(wglGetCurrentDC());
+    }
+
+  // If That Failed, Try Standard Opengl Extensions String
+  if (supported == NULL)
+    {
+    supported = (char*)glGetString(GL_EXTENSIONS);
+    }
+
+  // If That Failed Too, Must Be No Extensions Supported
+  if (supported == NULL)
+    {
+    return false;
+    }
+
+  // Begin Examination At Start Of String, Increment By 1 On False Match
+  for (const char* p = supported; ; p++)
+    {
+    // Advance p Up To The Next Possible Match
+    p = strstr(p, extension);
+
+    if (p == NULL)
+      {
+      return false; // No Match
+      }
+
+    // Make Sure That Match Is At The Start Of The String Or That
+    // The Previous Char Is A Space, Or Else We Could Accidentally
+    // Match "wglFunkywglExtension" With "wglExtension"
+
+    // Also, Make Sure That The Following Character Is Space Or NULL
+    // Or Else "wglExtensionTwo" Might Match "wglExtension"
+    if ((p==supported || p[-1]==' ') && (p[extlen]=='\0' || p[extlen]==' '))
+      {
+      return true; // Match
+      }
+    }
+}
+
+void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags, 
+                                                  int debug, int bpp, 
                                                   int zbpp)
 {
+  // Create a dummy window, needed for calling wglGetProcAddress.
+#ifdef UNICODE
+  HWND tempId = CreateWindow(L"vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
+#else
+  HWND tempId = CreateWindow("vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
+#endif
+  HDC tempDC = GetDC(tempId);
+  PIXELFORMATDESCRIPTOR tempPfd;
+  memset(&tempPfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+  tempPfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+  tempPfd.nVersion = 1;
+  tempPfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+  tempPfd.iPixelType = PFD_TYPE_RGBA;
+  int tempPixelFormat = ChoosePixelFormat(tempDC, &tempPfd);
+  SetPixelFormat(tempDC, tempPixelFormat, &tempPfd);
+  HGLRC tempContext = wglCreateContext(tempDC);
+  wglMakeCurrent(tempDC, tempContext);
+
+  // First we try to use the newer wglChoosePixelFormatARB which enables
+  // features like multisamples.
+  int pixelFormat = 0;
+  wglChoosePixelFormatARBType wglChoosePixelFormatARB =
+    reinterpret_cast<wglChoosePixelFormatARBType>(wglGetProcAddress("wglChoosePixelFormatARB"));
+  if ((dwFlags & PFD_DRAW_TO_WINDOW) && wglChoosePixelFormatARB)
+    {
+    int attrib[] = {
+      vtkwgl::ACCELERATION_ARB, vtkwgl::FULL_ACCELERATION_ARB,
+      vtkwgl::SUPPORT_OPENGL_ARB, TRUE,
+      vtkwgl::DRAW_TO_WINDOW_ARB, TRUE,
+      vtkwgl::DOUBLE_BUFFER_ARB, TRUE,
+      vtkwgl::COLOR_BITS_ARB, bpp/4*3,
+      vtkwgl::DEPTH_BITS_ARB, zbpp/4*3,
+      vtkwgl::PIXEL_TYPE_ARB, vtkwgl::TYPE_RGBA_ARB,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    unsigned int n = 14;
+    if (this->AlphaBitPlanes)
+      {
+      attrib[n] = vtkwgl::ALPHA_BITS_ARB;
+      attrib[n+1] = bpp/4;
+      n += 2;
+      }
+    if (this->StencilCapable)
+      {
+      attrib[n] = vtkwgl::STENCIL_BITS_ARB;
+      attrib[n+1] = 8;
+      n += 2;
+      }
+    if (dwFlags & PFD_STEREO)
+      {
+      attrib[n] = vtkwgl::STEREO_ARB;
+      attrib[n+1] = TRUE;
+      n += 2;
+      }
+    unsigned int multiSampleAttributeIndex = 0;
+    if (this->MultiSamples > 1 && WGLisExtensionSupported("WGL_ARB_multisample"))
+      {
+      attrib[n] = vtkwgl::SAMPLE_BUFFERS_ARB;
+      attrib[n+1] = 1;
+      attrib[n+2] = vtkwgl::SAMPLES_ARB;
+      attrib[n+3] = this->MultiSamples;
+      multiSampleAttributeIndex = n+3;
+      n += 4;
+      }
+    unsigned int numFormats;
+    if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats))
+      {
+      // If the requested number of multisamples does not work, try
+      // scaling down the number of multisamples a few times.
+      if (multiSampleAttributeIndex)
+        {
+        attrib[multiSampleAttributeIndex] /= 2;
+        if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats))
+          {
+          attrib[multiSampleAttributeIndex] /= 2;
+          wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
+          }
+        }
+      }
+    PIXELFORMATDESCRIPTOR pfd;
+    DescribePixelFormat(hDC, pixelFormat, sizeof(pfd), &pfd);
+    if (!SetPixelFormat(hDC, pixelFormat, &pfd))
+      {
+      pixelFormat = 0;
+      }
+    }
+
+  // Delete the dummy window
+  wglMakeCurrent(tempDC, 0);
+  wglDeleteContext(tempContext);
+  ReleaseDC(tempId, tempDC);
+  ::DestroyWindow(tempId);
+
+  // If we got a valid pixel format in the process, we are done.
+  // Otherwise, we use the old approach of using ChoosePixelFormat.
+  if (pixelFormat)
+    {
+    return;
+    }
+
   PIXELFORMATDESCRIPTOR pfd = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
     1,                              /* version */
@@ -494,7 +648,6 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     0,                              /* reserved */
     0, 0, 0,                        /* no layer, visible, damage masks */
   };
-  int pixelFormat;
   // Only try to set pixel format if we do not currently have one
   int currentPixelFormat = GetPixelFormat(hDC);
   // if there is a current pixel format, then make sure it

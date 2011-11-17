@@ -33,7 +33,7 @@ int main(int argc, char **argv)
   MetaArray tObj_ascii, tObj_binary;
   tObj_ascii.FileName("testArray.mvh");
   tObj_binary.FileName("testArray.mva");
-  
+
   tObj_ascii.Read();
   tObj_binary.Read();
 

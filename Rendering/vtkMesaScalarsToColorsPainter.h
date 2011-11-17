@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+// .NAME vtkMesaScalarsToColorsPainter
+
 #ifndef __vtkMesaScalarsToColorsPainter_h
 #define __vtkMesaScalarsToColorsPainter_h
 

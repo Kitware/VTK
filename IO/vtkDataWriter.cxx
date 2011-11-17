@@ -1937,6 +1937,10 @@ char *vtkDataWriter::RegisterAndGetOutputString()
   return tmp;
 }
 
+vtkStdString vtkDataWriter::GetOutputStdString()
+{
+  return vtkStdString(this->OutputString, this->OutputStringLength);
+}
 
 void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {

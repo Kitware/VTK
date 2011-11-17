@@ -249,11 +249,10 @@ void vtkImageImport::ExecuteData(vtkDataObject *output)
   data->SetExtent(0,0,0,0,0,0);
   data->AllocateScalars();
   void *ptr = this->GetImportVoidPointer();
-  int size = 
-    (this->DataExtent[1] - this->DataExtent[0]+1) *
-    (this->DataExtent[3] - this->DataExtent[2]+1) *
-    (this->DataExtent[5] - this->DataExtent[4]+1) *
-    this->NumberOfScalarComponents;    
+  vtkIdType size = this->NumberOfScalarComponents;    
+  size *= this->DataExtent[1] - this->DataExtent[0] + 1;
+  size *= this->DataExtent[3] - this->DataExtent[2] + 1;
+  size *= this->DataExtent[5] - this->DataExtent[4] + 1;
 
   data->SetExtent(this->DataExtent);
   data->GetPointData()->GetScalars()->SetVoidArray(ptr,size,1);
@@ -261,7 +260,7 @@ void vtkImageImport::ExecuteData(vtkDataObject *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::CopyImportVoidPointer(void *ptr, int size)
+void vtkImageImport::CopyImportVoidPointer(void *ptr, vtkIdType size)
 {
   unsigned char *mem = new unsigned char [size];
   memcpy(mem,ptr,size);

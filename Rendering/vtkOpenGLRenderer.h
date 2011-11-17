@@ -104,7 +104,8 @@ protected:
   //BTX
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
-  friend class vtkOpenGLImageActor;
+  friend class vtkOpenGLImageSliceMapper;
+  friend class vtkOpenGLImageResliceMapper;
   //ETX
   
   // Description:

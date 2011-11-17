@@ -666,8 +666,8 @@ extern "C"
     switch (eventPtr->type) 
       {
       case Expose:
-        if ((eventPtr->xexpose.count == 0)
-            /* && !self->UpdatePending*/) 
+        if (eventPtr->xexpose.count == 0)
+            /* && !self->UpdatePending)*/
           {
           // let the user bind expose events
           // self->RenderWindow->Render();

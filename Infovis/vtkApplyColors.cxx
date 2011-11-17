@@ -451,6 +451,20 @@ void vtkApplyColors::ProcessColorArray(
     }
 }
 
+long unsigned int vtkApplyColors::GetMTime()
+{
+  long unsigned int mtime = Superclass::GetMTime();
+  if (this->PointLookupTable && this->PointLookupTable->GetMTime() > mtime)
+    {
+    mtime = this->PointLookupTable->GetMTime();
+    }
+  if (this->CellLookupTable && this->CellLookupTable->GetMTime() > mtime)
+    {
+    mtime = this->CellLookupTable->GetMTime();
+    }
+  return mtime;
+}
+
 void vtkApplyColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

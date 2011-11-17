@@ -35,7 +35,7 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkVolumeProperty.h"
 #include "vtkLODProp3D.h"
-#include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
@@ -243,8 +243,7 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
 { 
   vtkMapper *mapper = 0;
   vtkAbstractVolumeMapper *volumeMapper = 0;
-  vtkImageActor *imageActor = 0;
-  vtkPlaneCollection *planes = 0;
+  vtkImageMapper3D *imageMapper = 0;
 
   double tMin = VTK_DOUBLE_MAX;
   double t1 = 0.0;
@@ -253,18 +252,10 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
   // Clip the ray with the mapper's ClippingPlanes and adjust t1, t2.
   // This limits the pick search to the inside of the clipped region.
   int clippingPlaneId = -1;
-  if (m && (planes = m->GetClippingPlanes())
-      && (planes->GetNumberOfItems() > 0))
+  if (m && !this->ClipLineWithPlanes(m, this->Transform->GetMatrix(),
+                                     p1, p2, t1, t2, clippingPlaneId))
     {
-    // This is a bit ugly: need to transform back to world coordinates
-    double q1[3], q2[3];
-    this->Transform->TransformPoint(p1, q1);
-    this->Transform->TransformPoint(p2, q2);
-
-    if (!this->ClipLineWithPlanes(planes, q1, q2, t1, t2, clippingPlaneId))
-      {
-      return VTK_DOUBLE_MAX;
-      }
+    return VTK_DOUBLE_MAX;
     }
 
   // Initialize the pick position to the frontmost clipping plane
@@ -279,10 +270,10 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
     tMin = this->IntersectVolumeWithLine(p1, p2, t1, t2, prop, volumeMapper);
     }
 
-  // ImageActor
-  else if ( (imageActor = vtkImageActor::SafeDownCast(prop)) )
+  // Image
+  else if ( (imageMapper = vtkImageMapper3D::SafeDownCast(m)) )
     {
-    tMin = this->IntersectImageActorWithLine(p1, p2, t1, t2, imageActor);
+    tMin = this->IntersectImageWithLine(p1, p2, t1, t2, prop, imageMapper);
     }
 
   // Actor
@@ -312,39 +303,19 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
       this->MapperPosition[1] = p1[1]*(1.0-t1) + p2[1]*t1;
       this->MapperPosition[2] = p1[2]*(1.0-t1) + p2[2]*t1;
 
-      // Use the normal from the plane: it is in world coordinates
-      planes->GetItem(clippingPlaneId)->GetNormal(this->PickNormal);
-      // We want the "out" direction
-      this->PickNormal[0] = -this->PickNormal[0];
-      this->PickNormal[1] = -this->PickNormal[1];
-      this->PickNormal[2] = -this->PickNormal[2];
-
-      // This code is a little crazy: transforming a normal involves
-      // matrix inversion and transposal, but since the normal
-      // is to be transformed from world -> mapper coords, only the
-      // transpose is needed.
-      double hvec[4];
-      hvec[0] = this->PickNormal[0];
-      hvec[1] = this->PickNormal[1];
-      hvec[2] = this->PickNormal[2];
-      hvec[3] = 0.0;
-      double matrix[16];
-      vtkMatrix4x4::DeepCopy(matrix, this->Transform->GetMatrix());
-      vtkMatrix4x4::Transpose(matrix, matrix);
-      vtkMatrix4x4::MultiplyPoint(matrix, hvec, hvec);
-      this->MapperNormal[0] = hvec[0];
-      this->MapperNormal[1] = hvec[1];
-      this->MapperNormal[2] = hvec[2];
-      }
-    else
-      {
-      // The pick position isn't on a clipping plane, so
-      // use the normal generated from the mapper's input data.
-      this->Transform->TransformNormal(this->MapperNormal, this->PickNormal);
+      double plane[4];
+      m->GetClippingPlaneInDataCoords(
+        this->Transform->GetMatrix(), clippingPlaneId, plane);
+      vtkMath::Normalize(plane);
+      // Want normal outward from the planes, not inward
+      this->MapperNormal[0] = -plane[0];
+      this->MapperNormal[1] = -plane[1];
+      this->MapperNormal[2] = -plane[2];
       }
 
     // The position comes from the data, so put it into world coordinates
     this->Transform->TransformPoint(this->MapperPosition, this->PickPosition);
+    this->Transform->TransformNormal(this->MapperNormal, this->PickNormal);
     }
 
   return tMin;
@@ -916,19 +887,48 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
-                                                    const double p2[3],
-                                                    double t1, double t2,
-                                                    vtkImageActor *imageActor)
+double vtkCellPicker::IntersectImageWithLine(const double p1[3],
+                                             const double p2[3],
+                                             double t1, double t2,
+                                             vtkProp3D *prop,
+                                             vtkImageMapper3D *imageMapper)
 {
-  // Convert ray to structured coordinates
-  vtkImageData *data = imageActor->GetInput();
+  // Get the image information
+  vtkImageData *data = imageMapper->GetInput();
   double spacing[3], origin[3];
   int extent[6];
   data->GetSpacing(spacing);
   data->GetOrigin(origin);
   data->GetExtent(extent);
 
+  // Get the plane equation for the slice
+  double normal[4];
+  imageMapper->GetSlicePlaneInDataCoords(prop->GetMatrix(), normal);
+
+  // Point the normal towards camera
+  if (normal[0]*(p1[0] - p2[0]) +
+      normal[1]*(p1[1] - p2[1]) +
+      normal[2]*(p1[2] - p2[2]) < 0)
+    {
+    normal[0] = -normal[0];
+    normal[1] = -normal[1];
+    normal[2] = -normal[2];
+    normal[3] = -normal[3];
+    }
+
+  // And finally convert normal to structured coords
+  double xnormal[4];
+  xnormal[0] = normal[0]*spacing[0];
+  xnormal[1] = normal[1]*spacing[1];
+  xnormal[2] = normal[2]*spacing[2];
+  xnormal[3] = normal[3] + vtkMath::Dot(origin, normal);
+  double l = vtkMath::Norm(xnormal);
+  xnormal[0] /= l;
+  xnormal[1] /= l;
+  xnormal[2] /= l;
+  xnormal[3] /= l;
+
+  // Also convert ray to structured coords
   double x1[3], x2[3];
   for (int i = 0; i < 3; i++)
     {
@@ -936,56 +936,79 @@ double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
     x2[i] = (p2[i] - origin[i])/spacing[i];
     }
 
-  // Convert display bounds to structured coordinates, in order
-  // to retrieve the true DisplayExtent of the image
-  double displayBounds[6];
-  imageActor->GetDisplayBounds(displayBounds);
+  // Get the bounds to discover any cropping that has been applied
+  double bounds[6];
+  imageMapper->GetBounds(bounds);
 
-  int displayExtent[6];
-  for (int k = 0; k < 6; k++)
+  // Convert bounds to structured coords
+  for (int k = 0; k < 3; k++)
     {
-    double d = (displayBounds[k] - origin[k>>1])/spacing[k>>1];
-    if (d > 0)
-      {
-      displayExtent[k] = static_cast<int>(d + VTKCELLPICKER_VOXEL_TOL);
-      }
-    else
-      {
-      displayExtent[k] = static_cast<int>(d - VTKCELLPICKER_VOXEL_TOL);
-      }
+    bounds[2*k] = (bounds[2*k] - origin[k])/spacing[k];
+    bounds[2*k+1] = (bounds[2*k+1] - origin[k])/spacing[k];
+    // It should be a multiple of 0.5, so round to closest multiple of 0.5
+    // (this reduces the impact of roundoff error from the above computation)
+    bounds[2*k] = 0.5*vtkMath::Round(2.0*(bounds[2*k]));
+    bounds[2*k+1] = 0.5*vtkMath::Round(2.0*(bounds[2*k+1]));
     }
 
   // Clip the ray with the extent
-  int planeId;
+  int planeId, plane2Id;
   double tMin, tMax;
-  if (!this->ClipLineWithExtent(displayExtent, x1, x2, tMin, tMax, planeId)
-      || tMin < t1 || tMin > t2)
+  if (!vtkBox::IntersectWithLine(bounds, x1, x2, tMin, tMax, 0, 0,
+        planeId, plane2Id) || tMin < t1 || tMin > t2)
     {
     return VTK_DOUBLE_MAX;
     }
 
+  if (tMin != tMax)
+    {
+    // Intersect the ray with the slice plane
+    double w1 = vtkMath::Dot(x1, xnormal) + xnormal[3];
+    double w2 = vtkMath::Dot(x2, xnormal) + xnormal[3];
+    if (w1*w2 > VTKCELLPICKER_VOXEL_TOL)
+      {
+      return VTK_DOUBLE_MAX;
+      }
+    if (w1*w2 < 0)
+      {
+      tMin = w1/(w1 - w2);
+      }
+    }
+
   if (tMin < this->GlobalTMin)
     {
+    // Compute the pick position in structured coords
+    double x[3];
+    for (int j = 0; j < 3; j++)
+      {
+      x[j] = x1[j]*(1.0 - tMin) + x2[j]*tMin;
+
+      // Do a bounds check.  If beyond tolerance of bound, then
+      // pick failed, but if within tolerance, clamp the coord
+      // to the bound for robustness against roundoff errors.
+      if (x[j] < bounds[2*j])
+        {
+        if (x[j] < bounds[2*j] - VTKCELLPICKER_VOXEL_TOL)
+          {
+          return VTK_DOUBLE_MAX;
+          }
+        x[j] = bounds[2*j];
+        }
+      else if (x[j] > bounds[2*j+1])
+        {
+        if (x[j] > bounds[2*j+1] + VTKCELLPICKER_VOXEL_TOL)
+          {
+          return VTK_DOUBLE_MAX;
+          }
+        x[j] = bounds[2*j + 1];
+        }
+      }
+
     this->ResetPickInfo();
     this->Mapper = 0;
     this->DataSet = data;
 
     // Compute all the pick values
-    double x[3];
-    for (int j = 0; j < 3; j++)
-      {
-      x[j] = x1[j]*(1.0 - tMin) + x2[j]*tMin;
-      // Avoid out-of-bounds due to roundoff error
-      if (x[j] < displayExtent[2*j])
-        {
-        x[j] = displayExtent[2*j];
-        } 
-      else if (x[j] > displayExtent[2*j+1])
-        {
-        x[j] = displayExtent[2*j + 1];
-        }
-      }
-
     this->SetImageDataPickInfo(x, extent);
 
     this->MapperPosition[0] = origin[0] + x[0]*spacing[0];
@@ -993,10 +1016,9 @@ double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
     this->MapperPosition[2] = origin[2] + x[2]*spacing[2];
 
     // Set the normal in mapper coordinates
-    this->MapperNormal[0] = 0.0;
-    this->MapperNormal[1] = 0.0;
-    this->MapperNormal[2] = 0.0;
-    this->MapperNormal[planeId/2] = 2.0*(planeId%2) - 1.0;
+    this->MapperNormal[0] = normal[0];
+    this->MapperNormal[1] = normal[1];
+    this->MapperNormal[2] = normal[2];
     }
 
   return tMin;
@@ -1022,24 +1044,24 @@ double vtkCellPicker::IntersectProp3DWithLine(const double *, const double *,
 // values between 0 and 1.  The index of the frontmost intersected plane is
 // returned in planeId.
 
-int vtkCellPicker::ClipLineWithPlanes(vtkPlaneCollection *planes,
-                                        const double p1[3], const double p2[3],
-                                        double &t1, double &t2, int& planeId)
+int vtkCellPicker::ClipLineWithPlanes(vtkAbstractMapper3D *mapper,
+                                      vtkMatrix4x4 *mat,
+                                      const double p1[3], const double p2[3],
+                                      double &t1, double &t2, int& planeId)
 {
   // The minPlaneId is the index of the plane that t1 lies on
   planeId = -1;
   t1 = 0.0;
   t2 = 1.0;
 
-  vtkCollectionSimpleIterator iter;
-  planes->InitTraversal(iter);
-  vtkPlane *plane;
-  for (int i = 0; (plane = planes->GetNextPlane(iter)); i++)
+  double plane[4];
+  int numClipPlanes = mapper->GetNumberOfClippingPlanes();
+  for (int i = 0; i < numClipPlanes; i++)
     {
-    // This uses EvaluateFunction instead of FunctionValue because,
-    // like the mapper, we want to ignore any transform on the planes.
-    double d1 = plane->EvaluateFunction(const_cast<double *>(p1));
-    double d2 = plane->EvaluateFunction(const_cast<double *>(p2));
+    mapper->GetClippingPlaneInDataCoords(mat, i, plane);
+
+    double d1 = plane[0]*p1[0] + plane[1]*p1[1] + plane[2]*p1[2] + plane[3];
+    double d2 = plane[0]*p2[0] + plane[1]*p2[1] + plane[2]*p2[2] + plane[3];
 
     // If both distances are negative, both points are outside
     if (d1 < 0 && d2 < 0)
@@ -1097,8 +1119,8 @@ int vtkCellPicker::ClipLineWithPlanes(vtkPlaneCollection *planes,
 // xmin, xmax, ymin, ymax, zmin, zmax.
 
 int vtkCellPicker::ClipLineWithExtent(const int extent[6],
-                                        const double x1[3], const double x2[3],
-                                        double &t1, double &t2, int &planeId)
+                                      const double x1[3], const double x2[3],
+                                      double &t1, double &t2, int &planeId)
 {
   double bounds[6];
   bounds[0] = extent[0]; bounds[1] = extent[1]; bounds[2] = extent[2];

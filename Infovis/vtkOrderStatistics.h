@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -23,7 +23,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Given a selection of columns of interest in an input data table, this
 // class provides the following functionalities, depending on the
 // execution mode it is executed in:
-// * Learn: calculate arbitrary quantiles. Provide specific names when 5-point
+// * Learn: calculate histogram.
+// * Derive: calculate PDFs and arbitrary quantiles. Provide specific names when 5-point
 //   statistics (minimum, 1st quartile, median, third quartile, maximum) requested.
 // * Assess: given an input data set and a set of q-quantiles, label each datum
 //   either with the quantile interval to which it belongs, or 0 if it is smaller
@@ -36,17 +37,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkOrderStatistics_h
 #define __vtkOrderStatistics_h
 
-#include "vtkUnivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkOrderStatistics : public vtkUnivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkOrderStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkOrderStatistics, vtkUnivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkOrderStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkOrderStatistics* New();
 
@@ -54,20 +55,11 @@ public:
   // Description:
   // The type of quantile definition.
   enum QuantileDefinitionType {
-    InverseCDF              = 0,
-    InverseCDFAveragedSteps = 1 // Ignored for non-numeric types
+    InverseCDF              = 0, // Identical to method 1 of R
+    InverseCDFAveragedSteps = 1, // Identical to method 2 of R, ignored for non-numeric types
+    NearestObservation      = 2, // Identical to method 3 of R
     };
 //ETX
-
-  // Description:
-  // Set/get whether histograms and assessment data should be treated as numeric data.
-  // Otherwise, then everything is treated as strings, which always works, and is thus the
-  // the default.
-  // Note that if the data is indeed numeric but this is not set, some strange results will
-  // occur because of the use of the lexicographic order instead of the order on reals.
-  vtkSetMacro( NumericType, int );
-  vtkGetMacro( NumericType, int );
-  vtkBooleanMacro( NumericType, int );
 
   // Description:
   // Set/Get the number of quantiles (with uniform spacing).
@@ -78,6 +70,17 @@ public:
   // Set the quantile definition.
   vtkSetMacro( QuantileDefinition, QuantileDefinitionType );
   void SetQuantileDefinition ( int );
+
+  // Description:
+  // Set/Get whether quantization will be allowed to enforce maximum histogram size.
+  vtkSetMacro( Quantize, bool );
+  vtkGetMacro( Quantize, bool );
+
+  // Description:
+  // Set/Get the maximum histogram size.
+  // This maximum size is enforced only when Quantize is TRUE.
+  vtkSetMacro( MaximumHistogramSize, vtkIdType );
+  vtkGetMacro( MaximumHistogramSize, vtkIdType );
 
   // Description:
   // Get the quantile definition.
@@ -103,9 +106,9 @@ protected:
 
   // Description:
   // Execute the calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Derive option.
@@ -117,6 +120,13 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* );
 
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData ) 
+  { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
+
 //BTX
   // Description:
   // Provide the appropriate assessment functor.
@@ -126,9 +136,10 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  int NumericType;
   int NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
+  bool Quantize;
+  vtkIdType MaximumHistogramSize;
 
 private:
   vtkOrderStatistics(const vtkOrderStatistics&); // Not implemented

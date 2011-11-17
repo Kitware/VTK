@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 #define VTK_CREATE(type, var)                                   \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
@@ -64,78 +64,78 @@ namespace
   }
 
 //-----------------------------------------------------------------------------
-  void CreateCellData(vtkDataSet* Grid, int NumberOfComponents, int Offset,
-                      const char* ArrayName)
+  void CreateCellData(vtkDataSet* grid, int numberOfComponents, int offset,
+                      const char* arrayName)
   {
-    vtkIdType NumberOfCells = Grid->GetNumberOfCells();
-    VTK_CREATE(vtkDoubleArray, Array);
-    Array->SetNumberOfComponents(NumberOfComponents);
-    Array->SetNumberOfTuples(NumberOfCells);
-    vtkstd::vector<double> TupleValues(NumberOfComponents);
-    double Point[3], ParametricCenter[3], weights[100];
-    for(vtkIdType i=0;i<NumberOfCells;i++)
+    vtkIdType numberOfCells = grid->GetNumberOfCells();
+    VTK_CREATE(vtkDoubleArray, array);
+    array->SetNumberOfComponents(numberOfComponents);
+    array->SetNumberOfTuples(numberOfCells);
+    std::vector<double> tupleValues(numberOfComponents);
+    double point[3], parametricCenter[3], weights[100];
+    for(vtkIdType i=0;i<numberOfCells;i++)
       {
-      vtkCell* Cell = Grid->GetCell(i);
-      Cell->GetParametricCenter(ParametricCenter);
+      vtkCell* cell = grid->GetCell(i);
+      cell->GetParametricCenter(parametricCenter);
       int subId = 0;
-      Cell->EvaluateLocation(subId, ParametricCenter, Point, weights);
-      for(int j=0;j<NumberOfComponents;j++)
+      cell->EvaluateLocation(subId, parametricCenter, point, weights);
+      for(int j=0;j<numberOfComponents;j++)
         {// +offset makes the curl/vorticity nonzero
-        TupleValues[j] = Point[(j+Offset)%3]; 
+        tupleValues[j] = point[(j+offset)%3]; 
         }
-      Array->SetTupleValue(i, &TupleValues[0]);
+      array->SetTupleValue(i, &tupleValues[0]);
       }
-    Array->SetName(ArrayName);
-    Grid->GetCellData()->AddArray(Array);
+    array->SetName(arrayName);
+    grid->GetCellData()->AddArray(array);
   }
 
 //-----------------------------------------------------------------------------
-  void CreatePointData(vtkDataSet* Grid, int NumberOfComponents, int Offset,
-                       const char* ArrayName)
+  void CreatePointData(vtkDataSet* grid, int numberOfComponents, int offset,
+                       const char* arrayName)
   {
-    vtkIdType NumberOfPoints = Grid->GetNumberOfPoints();
-    VTK_CREATE(vtkDoubleArray, Array);
-    Array->SetNumberOfComponents(NumberOfComponents);
-    Array->SetNumberOfTuples(NumberOfPoints);
-    vtkstd::vector<double> TupleValues(NumberOfComponents);
-    double Point[3];
-    for(vtkIdType i=0;i<NumberOfPoints;i++)
+    vtkIdType numberOfPoints = grid->GetNumberOfPoints();
+    VTK_CREATE(vtkDoubleArray, array);
+    array->SetNumberOfComponents(numberOfComponents);
+    array->SetNumberOfTuples(numberOfPoints);
+    std::vector<double> tupleValues(numberOfComponents);
+    double point[3];
+    for(vtkIdType i=0;i<numberOfPoints;i++)
       {
-      Grid->GetPoint(i, Point);
-      for(int j=0;j<NumberOfComponents;j++)
+      grid->GetPoint(i, point);
+      for(int j=0;j<numberOfComponents;j++)
         {// +offset makes the curl/vorticity nonzero
-        TupleValues[j] = Point[(j+Offset)%3]; 
+        tupleValues[j] = point[(j+offset)%3]; 
         }
-      Array->SetTupleValue(i, &TupleValues[0]);
+      array->SetTupleValue(i, &tupleValues[0]);
       }
-    Array->SetName(ArrayName);
-    Grid->GetPointData()->AddArray(Array);
+    array->SetName(arrayName);
+    grid->GetPointData()->AddArray(array);
   }
   
 //-----------------------------------------------------------------------------
-  int IsGradientCorrect(vtkDoubleArray* Gradients, int Offset)
+  int IsGradientCorrect(vtkDoubleArray* gradients, int offset)
   {
-    int NumberOfComponents = Gradients->GetNumberOfComponents();
-    for(vtkIdType i=0;i<Gradients->GetNumberOfTuples();i++)
+    int numberOfComponents = gradients->GetNumberOfComponents();
+    for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
       {
-      double* Values = Gradients->GetTuple(i);
-      for(int OrigComp=0;OrigComp<NumberOfComponents/3;OrigComp++)
+      double* values = gradients->GetTuple(i);
+      for(int origComp=0;origComp<numberOfComponents/3;origComp++)
         {
-        for(int GradDir=0;GradDir<3;GradDir++)
+        for(int gradDir=0;gradDir<3;gradDir++)
           {
-          if((OrigComp-GradDir+Offset)%3 == 0)
+          if((origComp-gradDir+offset)%3 == 0)
             {
-            if(fabs(Values[OrigComp*3+GradDir]-1.) > Tolerance)
+            if(fabs(values[origComp*3+gradDir]-1.) > Tolerance)
               {
               vtkGenericWarningMacro("Gradient value should be one but is "
-                                     << Values[OrigComp*3+GradDir]);
+                                     << values[origComp*3+gradDir]);
               return 0;
               }
             }
-          else if(fabs(Values[OrigComp*3+GradDir]) > Tolerance)
+          else if(fabs(values[origComp*3+gradDir]) > Tolerance)
             {
             vtkGenericWarningMacro("Gradient value should be zero but is "
-                                   << Values[OrigComp*3+GradDir]);
+                                   << values[origComp*3+gradDir]);
             return 0;
             }
           }
@@ -147,18 +147,18 @@ namespace
 //-----------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // vorticity from it
-  int IsVorticityCorrect(vtkDoubleArray* Gradients, vtkDoubleArray* Vorticity)
+  int IsVorticityCorrect(vtkDoubleArray* gradients, vtkDoubleArray* vorticity)
   {
-    if(Gradients->GetNumberOfComponents() != 9 || 
-       Vorticity->GetNumberOfComponents() != 3)
+    if(gradients->GetNumberOfComponents() != 9 ||
+       vorticity->GetNumberOfComponents() != 3)
       {
       vtkGenericWarningMacro("Bad number of components.");
       return 0;
       }
-    for(vtkIdType i=0;i<Gradients->GetNumberOfTuples();i++)
+    for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
       {
-      double* g = Gradients->GetTuple(i);
-      double* v = Vorticity->GetTuple(i);
+      double* g = gradients->GetTuple(i);
+      double* v = vorticity->GetTuple(i);
       if(!ArePointsWithinTolerance(v[0], g[7]-g[5]))
         {
         vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " << 
@@ -183,92 +183,137 @@ namespace
   }
 
 //-----------------------------------------------------------------------------
-  int PerformTest(vtkDataSet* Grid)
+// we assume that the gradients are correct and so we can compute the "real"
+// vorticity from it
+  int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
+  {
+    if(gradients->GetNumberOfComponents() != 9 ||
+       qCriterion->GetNumberOfComponents() != 1)
+      {
+      vtkGenericWarningMacro("Bad number of components.");
+      return 0;
+      }
+    for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
+      {
+      double* g = gradients->GetTuple(i);
+      double qc = qCriterion->GetValue(i);
+
+      double t1 = .5*(
+        (g[7]-g[5])*(g[7]-g[5]) +
+        (g[3]-g[1])*(g[3]-g[1]) +
+        (g[2]-g[6])*(g[2]-g[6]) );
+      double t2 = g[0]*g[0]+g[4]*g[4]+
+        g[8]*g[8]+ .5 *(
+          (g[3]+g[1])*(g[3]+g[1]) +
+          (g[6]+g[2])*(g[6]+g[2]) +
+          (g[7]+g[5])*(g[7]+g[5]) );
+
+      if(!ArePointsWithinTolerance(qc, t1 - t2))
+        {
+        vtkGenericWarningMacro("Bad Q-criterion value " << qc << " " <<
+                               t1-t2 << " difference is " << (qc-t1+t2));
+        return 0;
+        }
+      }
+
+    return 1;
+  }
+
+//-----------------------------------------------------------------------------
+  int PerformTest(vtkDataSet* grid)
   {
     // Cleaning out the existing field data so that I can replace it with 
     // an analytic function that I know the gradient of
-    Grid->GetPointData()->Initialize();
-    Grid->GetCellData()->Initialize();
-    const char FieldName[] = "LinearField";
-    int Offset = 1;
-    int NumberOfComponents = 3;
-    CreateCellData(Grid, NumberOfComponents, Offset, FieldName);
-    CreatePointData(Grid, NumberOfComponents, Offset, FieldName);
+    grid->GetPointData()->Initialize();
+    grid->GetCellData()->Initialize();
+    const char fieldName[] = "LinearField";
+    int offset = 1;
+    int numberOfComponents = 3;
+    CreateCellData(grid, numberOfComponents, offset, fieldName);
+    CreatePointData(grid, numberOfComponents, offset, fieldName);
     
-    VTK_CREATE(vtkGradientFilter, CellGradients);
-    CellGradients->SetInput(Grid);
-    CellGradients->SetInputScalars(
-      vtkDataObject::FIELD_ASSOCIATION_CELLS, FieldName);
-    const char ResultName[] = "Result";
-    CellGradients->SetResultArrayName(ResultName);
+    VTK_CREATE(vtkGradientFilter, cellGradients);
+    cellGradients->SetInput(grid);
+    cellGradients->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+    const char resultName[] = "Result";
+    cellGradients->SetResultArrayName(resultName);
     
-    VTK_CREATE(vtkGradientFilter, PointGradients);
-    PointGradients->SetInput(Grid);
-    PointGradients->SetInputScalars(
-      vtkDataObject::FIELD_ASSOCIATION_POINTS, FieldName);
-    PointGradients->SetResultArrayName(ResultName);
+    VTK_CREATE(vtkGradientFilter, pointGradients);
+    pointGradients->SetInput(grid);
+    pointGradients->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
+    pointGradients->SetResultArrayName(resultName);
     
-    CellGradients->Update();
-    PointGradients->Update();
+    cellGradients->Update();
+    pointGradients->Update();
     
-    vtkDoubleArray* GradCellArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* gradCellArray = vtkDoubleArray::SafeDownCast(
       vtkDataSet::SafeDownCast(
-        CellGradients->GetOutput())->GetCellData()->GetArray(ResultName));
+        cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
     
-    if(!Grid->IsA("vtkUnstructuredGrid"))
+    if(!grid->IsA("vtkUnstructuredGrid"))
       {
       // ignore cell gradients if this is an unstructured grid
       // because the accuracy is so lousy
-      if(!IsGradientCorrect(GradCellArray, Offset))
+      if(!IsGradientCorrect(gradCellArray, offset))
         {
         return 1;
         }
       }
     
-    vtkDoubleArray* GradPointArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* gradPointArray = vtkDoubleArray::SafeDownCast(
       vtkDataSet::SafeDownCast(
-        PointGradients->GetOutput())->GetPointData()->GetArray(ResultName));
+        pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
     
-    if(!IsGradientCorrect(GradPointArray, Offset))
+    if(!IsGradientCorrect(gradPointArray, offset))
       {
       return 1;
       }
     
-    if(NumberOfComponents == 3) 
+    if(numberOfComponents == 3) 
       {
       // now check on the vorticity calculations
-      VTK_CREATE(vtkGradientFilter, CellVorticity);
-      CellVorticity->SetInput(Grid);
-      CellVorticity->SetInputScalars(
-        vtkDataObject::FIELD_ASSOCIATION_CELLS, FieldName);
-      CellVorticity->SetResultArrayName(ResultName);
-      CellVorticity->SetComputeVorticity(1);
-      CellVorticity->Update();
+      VTK_CREATE(vtkGradientFilter, cellVorticity);
+      cellVorticity->SetInput(grid);
+      cellVorticity->SetInputScalars(
+        vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+      cellVorticity->SetResultArrayName(resultName);
+      cellVorticity->SetComputeVorticity(1);
+      cellVorticity->Update();
       
-      VTK_CREATE(vtkGradientFilter, PointVorticity);
-      PointVorticity->SetInput(Grid);
-      PointVorticity->SetInputScalars(
-        vtkDataObject::FIELD_ASSOCIATION_POINTS, FieldName);
-      PointVorticity->SetResultArrayName(ResultName);
-      PointVorticity->SetComputeVorticity(1);
-      PointVorticity->Update();
+      VTK_CREATE(vtkGradientFilter, pointVorticity);
+      pointVorticity->SetInput(grid);
+      pointVorticity->SetInputScalars(
+        vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
+      pointVorticity->SetResultArrayName(resultName);
+      pointVorticity->SetComputeVorticity(1);
+      pointVorticity->SetComputeQCriterion(1);
+      pointVorticity->Update();
       
       // cell stuff
-      vtkDoubleArray* VorticityCellArray = vtkDoubleArray::SafeDownCast(
+      vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
-          CellVorticity->GetOutput())->GetCellData()->GetArray(ResultName));
+          cellVorticity->GetOutput())->GetCellData()->GetArray(resultName));
       
-      if(!IsVorticityCorrect(GradCellArray, VorticityCellArray))
+      if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
         {
         return 1;
         }
       
       // point stuff
-      vtkDoubleArray* VorticityPointArray = vtkDoubleArray::SafeDownCast(
+      vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
-          PointVorticity->GetOutput())->GetPointData()->GetArray(ResultName));
+          pointVorticity->GetOutput())->GetPointData()->GetArray(resultName));
       
-      if(!IsVorticityCorrect(GradPointArray, VorticityPointArray))
+      if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
+        {
+        return 1;
+        }
+      vtkDoubleArray* qCriterionPointArray = vtkDoubleArray::SafeDownCast(
+        vtkDataSet::SafeDownCast(
+          pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
+      if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
         {
         return 1;
         }
@@ -302,26 +347,26 @@ int TestGradientAndVorticity(int argc, char *argv[])
   vtkStdString filename;
   filename = data_root;
   filename += "/Data/SampleStructGrid.vtk";
-  VTK_CREATE(vtkStructuredGridReader, StructuredGridReader);
-  StructuredGridReader->SetFileName(filename.c_str());
-  StructuredGridReader->Update();
-  vtkDataSet* Grid = vtkDataSet::SafeDownCast(
-    StructuredGridReader->GetOutput());
+  VTK_CREATE(vtkStructuredGridReader, structuredGridReader);
+  structuredGridReader->SetFileName(filename.c_str());
+  structuredGridReader->Update();
+  vtkDataSet* grid = vtkDataSet::SafeDownCast(
+    structuredGridReader->GetOutput());
 
-  if(PerformTest(Grid))
+  if(PerformTest(grid))
     {
     return 1;
     }
 
   // convert the structured grid to an unstructured grid
-  VTK_CREATE(vtkUnstructuredGrid, UG);
-  UG->SetPoints(vtkStructuredGrid::SafeDownCast(Grid)->GetPoints());
-  UG->Allocate(Grid->GetNumberOfCells());
-  for(vtkIdType id=0;id<Grid->GetNumberOfCells();id++)
+  VTK_CREATE(vtkUnstructuredGrid, ug);
+  ug->SetPoints(vtkStructuredGrid::SafeDownCast(grid)->GetPoints());
+  ug->Allocate(grid->GetNumberOfCells());
+  for(vtkIdType id=0;id<grid->GetNumberOfCells();id++)
     {
-    vtkCell* Cell = Grid->GetCell(id);
-    UG->InsertNextCell(Cell->GetCellType(), Cell->GetPointIds());
+    vtkCell* cell = grid->GetCell(id);
+    ug->InsertNextCell(cell->GetCellType(), cell->GetPointIds());
     }
   
-  return PerformTest(UG);
+  return PerformTest(ug);
 }

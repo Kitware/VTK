@@ -44,7 +44,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -54,7 +53,23 @@
 extern char *ret_string;      /* cf ex_utils.c */
 
 /*!
- * updates and then closes an open EXODUS II file
+
+The function ex_close() updates and then closes an open exodus file.
+
+\return In case of an error, ex_close() returns a negative number; a
+        warning will return a positive number. Possible causes of errors
+  include:
+ - data file not properly opened with call to ex_create() or ex_open()
+
+ \param exoid      exodus file ID returned from a previous call to ex_create() or ex_open().
+
+The following code segment closes an open exodus file:
+
+\code
+int error,exoid;
+error = ex_close (exoid);
+\endcode
+
  */
 int ex_close (int exoid)
 {

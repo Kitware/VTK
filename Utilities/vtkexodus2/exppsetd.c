@@ -66,18 +66,18 @@
  */
 
 int ex_put_partial_set_dist_fact (int   exoid,
-                                  ex_entity_type set_type,
-                                  int   set_id,
-                                  int   offset,
-                                  int   num_to_put,
-                                  const void *set_dist_fact)
+          ex_entity_type set_type,
+          int   set_id,
+          int   offset,
+          int   num_to_put,
+          const void *set_dist_fact)
 {
   int status;
   int dimid, set_id_ndx;
   int dist_id;
   size_t start[1], count[1];
   char errmsg[MAX_ERR_LENGTH];
-  char* factptr;
+  char* factptr = NULL;
 
   exerrval = 0; /* clear error code */
 
@@ -86,7 +86,7 @@ int ex_put_partial_set_dist_fact (int   exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: no %ss specified in file id %d",
-            ex_name_of_object(set_type), exoid);
+      ex_name_of_object(set_type), exoid);
     ex_err("ex_put_set_dist_fact",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -97,13 +97,13 @@ int ex_put_partial_set_dist_fact (int   exoid,
     if (exerrval == EX_NULLENTITY) {
       sprintf(errmsg,
               "Warning: no data allowed for NULL %s %d in file id %d",
-              ex_name_of_object(set_type), set_id,exoid);
+        ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_put_set_fact",errmsg,EX_MSG);
       return (EX_WARN);
     } else {
       sprintf(errmsg,
-              "Error: failed to locate %s id %d in VAR_*S_IDS array in file id %d",
-              ex_name_of_object(set_type), set_id,exoid);
+        "Error: failed to locate %s id %d in VAR_*S_IDS array in file id %d",
+        ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_put_set_dist_fact",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -136,15 +136,15 @@ int ex_put_partial_set_dist_fact (int   exoid,
     if (status == NC_ENOTVAR) {
       exerrval = EX_BADPARAM;
       sprintf(errmsg,
-              "Warning: no dist factors defined for %s %d in file id %d",
-              ex_name_of_object(set_type), set_id, exoid);
+        "Warning: no dist factors defined for %s %d in file id %d",
+        ex_name_of_object(set_type), set_id, exoid);
       ex_err("ex_put_set_dist_fact",errmsg,exerrval);
       return (EX_WARN);
     } else  {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to locate dist factors list for %s %d in file id %d",
-              ex_name_of_object(set_type), set_id,exoid);
+        "Error: failed to locate dist factors list for %s %d in file id %d",
+        ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_put_set_dist_fact",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -162,8 +162,8 @@ int ex_put_partial_set_dist_fact (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store dist factors for %s %d in file id %d",
-            ex_name_of_object(set_type), set_id,exoid);
+      "Error: failed to store dist factors for %s %d in file id %d",
+      ex_name_of_object(set_type), set_id,exoid);
     ex_err("ex_put_partial_set_dist_fact",errmsg,exerrval);
     return (EX_FATAL);
   }

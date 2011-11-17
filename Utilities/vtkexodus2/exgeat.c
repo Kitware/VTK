@@ -32,28 +32,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgeat - ex_get_elem_attr
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     elem_blk_id             element block id
-*
-* exit conditions - 
-*       float*  attrib                  array of attributes
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
-#include "exodusII_int.h"
 
 /*!
- * reads the attributes for an element block
- * \deprecated Use ex_get_attr()(exoid, EX_ELEM_BLOCK, elem_blk_id, attrib) instead
+\deprecated Use ex_get_attr()(exoid, EX_ELEM_BLOCK, elem_blk_id, attrib) instead
+
+The function ex_get_elem_attr() reads the attributes for an element
+block. Memory must be allocated for(\c num_attr x \c num_elem_this_blk)
+attributes before this routine is called.
+
+Because the attributes are floating point values, the application code
+must declare the array passed to be the appropriate type (\c float or
+\c double) to match the compute word size passed in ex_create() or
+ex_open().
+
+\return In case of an error, ex_get_elem_attr() returns a negative
+number; a warning will return a positive number.  Possible causes of
+errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  invalid element block ID.
+  -  a warning value is returned if no attributes are stored in the file.
+
+\param[in]  exoid         exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in]  elem_blk_id   The element block ID.
+\param[out] attrib        Size [num_elem_this_blk*num_attr].
+                          Returned list of(\c num_attr x num_elem_this_blk) attributes for
+        the element block, with the \c num_attr index cycling faster.
+
+
+Refer to the code example in ex_get_elem_block() for an example
+of reading the element attributes for an element block.
  */
 
 int ex_get_elem_attr (int   exoid,

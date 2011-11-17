@@ -60,7 +60,8 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
     numClipPlanes = clipPlanes->GetNumberOfItems();
     if (numClipPlanes > 6)
       {
-      vtkErrorMacro(<< "OpenGL guarantees at most 6 additional clipping planes");
+      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      numClipPlanes = 6;
       }
     }
 
@@ -71,12 +72,7 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
 
   if ( clipPlanes )
     {
-    vtkMatrix4x4 *actorMatrix = vtkMatrix4x4::New();
-    actor->GetMatrix( actorMatrix );
-    actorMatrix->Invert();
-    // OpenGL matrices are transposed compared to VTK matrices
-    actorMatrix->Transpose();
-
+    double *mat = *actor->GetMatrix()->Element;
     double origin[4], normal[3];
 
     for (i = 0; i < numClipPlanes; i++)
@@ -86,22 +82,20 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
       plane->GetOrigin(origin);
       plane->GetNormal(normal);
 
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-      glMultMatrixd(actorMatrix->Element[0]);
+      // Compute the plane equation
+      double v1 = normal[0];
+      double v2 = normal[1];
+      double v3 = normal[2];
+      double v4 = -(v1*origin[0] + v2*origin[1] + v3*origin[2]);
 
-      planeEquation[0] = normal[0];
-      planeEquation[1] = normal[1];
-      planeEquation[2] = normal[2];
-      planeEquation[3] = -(planeEquation[0]*origin[0]+
-        planeEquation[1]*origin[1]+
-        planeEquation[2]*origin[2]);
-      glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
+      // Transform normal from world to data coords
+      planeEquation[0] = v1*mat[0] + v2*mat[4] + v3*mat[8]  + v4*mat[12];
+      planeEquation[1] = v1*mat[1] + v2*mat[5] + v3*mat[9]  + v4*mat[13];
+      planeEquation[2] = v1*mat[2] + v2*mat[6] + v3*mat[10] + v4*mat[14];
+      planeEquation[3] = v1*mat[3] + v2*mat[7] + v3*mat[11] + v4*mat[15];
 
-      glPopMatrix();
+      glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i), planeEquation);
       }
-
-    actorMatrix->Delete();  
     }
 
   this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);

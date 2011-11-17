@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkBoostLogWeighting_h
-#define __vtkBoostLogWeighting_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkBoostLogWeighting - Given an arbitrary-dimension array of doubles,
 // replaces each value x with one of:
 //
@@ -32,6 +27,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkBoostLogWeighting_h
+#define __vtkBoostLogWeighting_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkBoostLogWeighting : public vtkArrayDataAlgorithm
 {

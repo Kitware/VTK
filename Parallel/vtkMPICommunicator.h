@@ -170,6 +170,9 @@ public:
     {
     return this->MPIComm;
     }
+
+  int InitializeExternal(vtkMPICommunicatorOpaqueComm *comm);
+
 //ETX
 
   static char* Allocate(size_t size);

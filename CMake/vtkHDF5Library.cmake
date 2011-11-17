@@ -1,11 +1,7 @@
 #########################################################################
 # Configure HDF5
 
-IF(VTK_USE_SYSTEM_HDF5)
-  find_package(HDF5 REQUIRED)
-  find_package(ZLIB)
-  SET(VTK_HDF5_LIBRARIES ${HDF5_LIBRARIES})
-ELSE(VTK_USE_SYSTEM_HDF5)
+IF(NOT VTK_USE_SYSTEM_HDF5)
 
   # Tell hdf5 that we are manually overriding certain settings
   SET(HDF5_EXTERNALLY_CONFIGURED ON)
@@ -14,7 +10,9 @@ ELSE(VTK_USE_SYSTEM_HDF5)
   # Export configuration to this export variable
   SET(HDF5_EXPORTED_TARGETS ${VTK_INSTALL_EXPORT_NAME})
   
-  SET_PROPERTY(GLOBAL APPEND PROPERTY VTK_TARGETS vtkhdf5)
+  IF(NOT VTK_INSTALL_NO_LIBRARIES)
+    SET_PROPERTY(GLOBAL APPEND PROPERTY VTK_TARGETS vtkhdf5)
+  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 
   # Silence HDF5's warnings. We'll let them get fixed upstream
   # and merge in updates as necessary.
@@ -79,4 +77,4 @@ ELSE(VTK_USE_SYSTEM_HDF5)
     HDF5_PACKAGE_EXTLIBS
     )
 
-ENDIF(VTK_USE_SYSTEM_HDF5)
+ENDIF(NOT VTK_USE_SYSTEM_HDF5)

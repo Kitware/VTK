@@ -874,6 +874,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -1199,6 +1200,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -1571,6 +1573,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = vs / this->BucketSize[1];
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = 0.1 * tva / vsr;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;

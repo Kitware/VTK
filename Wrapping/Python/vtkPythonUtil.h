@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// .NAME vtkPythonUtil
+
 #ifndef __vtkPythonUtil_h
 #define __vtkPythonUtil_h
 

@@ -54,6 +54,20 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
 }
 
 //----------------------------------------------------------------------------
+unsigned long vtkImplicitFunctionToImageStencil::GetMTime()
+{
+  unsigned long mTime = this->Superclass::GetMTime();
+
+  if ( this->Input != NULL )
+    {
+    unsigned long nTime = this->Input->GetMTime();
+    mTime = ( nTime > mTime ? nTime : mTime );
+    }
+
+  return mTime;
+}
+
+//----------------------------------------------------------------------------
 // set up the clipping extents from an implicit function by brute force
 // (i.e. by evaluating the function at each and every voxel)
 int vtkImplicitFunctionToImageStencil::RequestData(

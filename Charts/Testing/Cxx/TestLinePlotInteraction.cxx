@@ -25,7 +25,7 @@
 #include "vtkContextScene.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkNew.h"
 
 char TestLinePlotInteractionLog[] =
 "# StreamVersion 1\n"
@@ -129,14 +129,13 @@ char TestLinePlotInteractionLog[] =
 int TestLinePlotInteraction(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
-  vtkSmartPointer<vtkContextView> view =
-      vtkSmartPointer<vtkContextView>::New();
+  vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
-  vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+  vtkNew<vtkChartXY> chart;
   chart->GetAxis(vtkAxis::LEFT)->SetTitle("");
   chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("");
-  view->GetScene()->AddItem(chart);
+  view->GetScene()->AddItem(chart.GetPointer());
 
   // Create a table with some points in it...
   vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();

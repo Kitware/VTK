@@ -32,32 +32,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgtim - ex_get_time
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     time_step               time step number
-*
-* exit conditions - 
-*       float   time_value              simulation time at specified step
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include <string.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
 
 /*!
- * reads the time value for a specified time step;
- * assume the first time step is 1
- */
+
+The function ex_get_time() reads the time value for a specified time
+step.
+
+Because time values are floating point values, the application code
+must declare the array passed to be the appropriate type (\c float or
+\c double) to match the compute word size passed in ex_create() or
+ex_open().
+
+\return In case of an error, ex_get_time() returns a negative number; a
+warning will return a positive number. Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  no time steps have been stored in the file.
+
+
+\param[in]  exoid       exodus file ID returned from a previous call to ex_create() or ex_open(). 
+\param[in]  time_step   The time step number. This is essentially an index (in the time
+                        dimension) into the global, nodal, and element variables arrays stored
+      in the database. The first time step is 1.
+\param[out] time_value  Returned time at the specified time step.
+
+As an example, the following coding will read the time value stored in
+the data file for time step n:
+
+\code
+int n, error, exoid;
+float time_value;
+
+\comment{read time value at time step 3}
+n = 3;
+error = ex_get_time (exoid, n, &time_value);
+\endcode
+
+*/
 
 int ex_get_time (int   exoid,
                  int   time_step,

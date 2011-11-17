@@ -56,6 +56,30 @@ void vtkPlane::ProjectPoint(double x[3], double xproj[3])
   this->ProjectPoint(x, this->GetOrigin(), this->GetNormal(), xproj);
 }
 
+void vtkPlane::ProjectVector(double v[3], double origin[3], double normal[3],
+                             double vproj[3])
+{
+  (void)origin;
+  
+  // This function uses this equation:
+  // projected = vector - (vector dot Normal)Normal
+  // Where 'Normal' is unit length
+
+  vtkMath::Normalize(normal);
+
+  double dotProd = vtkMath::Dot(v, normal);
+
+  vtkMath::MultiplyScalar(normal, dotProd);
+
+  vtkMath::Subtract(v, normal, vproj);
+}
+
+void vtkPlane::ProjectVector(double v[3], double vproj[3])
+{
+  this->ProjectVector(v, this->GetOrigin(), this->GetNormal(), vproj);
+}
+
+
 void vtkPlane::Push(double distance)
 {
   int i;

@@ -23,6 +23,7 @@
 #include "vtkContextScene.h"
 #include "vtkPNGReader.h"
 #include "vtkImageData.h"
+#include "vtkNew.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -34,12 +35,12 @@ int TestContextImage(int argc, char * argv [])
                                                     "Data/vtk.png");
 
   // Set up a 2D context view, context test object and add it to the scene
-  vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
+  vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(275, 275);
-  vtkSmartPointer<vtkImageItem> item = vtkSmartPointer<vtkImageItem>::New();
-  view->GetScene()->AddItem(item);
+  vtkNew<vtkImageItem> item;
+  view->GetScene()->AddItem(item.GetPointer());
 
-  vtkSmartPointer<vtkPNGReader> reader = vtkSmartPointer<vtkPNGReader>::New();
+  vtkNew<vtkPNGReader> reader;
   reader->SetFileName(logo);
   reader->Update();
   item->SetImage(vtkImageData::SafeDownCast(reader->GetOutput()));
@@ -48,5 +49,7 @@ int TestContextImage(int argc, char * argv [])
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
+
+  delete []logo;
   return EXIT_SUCCESS;
 }

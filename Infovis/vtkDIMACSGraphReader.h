@@ -21,12 +21,30 @@
 // formatted file
 
 // .SECTION Description
-// vtkDIMACSGraphReader is a source object that reads
-// vtkGraph data files from a DIMACS format.
-// DIMACS graphs are undirected.
-// See webpage for format details.
-//  http://dimacs.rutgers.edu/Challenges/
-//  http://www.dis.uniroma1.it/~challenge9/format.shtml
+// vtkDIMACSGraphReader is a source object that reads vtkGraph data files
+// from a DIMACS format.
+//
+// The reader has special handlers for max-flow and graph coloring problems,
+// which are specified in the problem line as 'max' and 'edge' respectively.
+// Other graphs are treated as generic DIMACS files.
+//
+// DIMACS formatted files consist of lines in which the first character in
+// in column 0 specifies the type of the line.
+//
+// Generic DIMACS files have the following line types:
+// - problem statement line : p graph num_verts num_edges
+// - node line (optional)   : n node_id node_weight
+// - edge line              : a src_id trg_id edge_weight
+// - alternate edge format  : e src_id trg_id edge_weight
+// - comment lines          : c I am a comment line
+// ** note, there should be one and only one problem statement line per file.
+//
+//
+// DIMACS graphs are undirected and nodes are numbered 1..n
+//
+// See webpage for additional formatting details.
+// -  http://dimacs.rutgers.edu/Challenges/
+// -  http://www.dis.uniroma1.it/~challenge9/format.shtml
 
 // .SECTION See Also
 // vtkDIMACSGraphWriter

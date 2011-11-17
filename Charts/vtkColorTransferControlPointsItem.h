@@ -46,6 +46,22 @@ public:
   // Get the piecewise function
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
 
+  // Description
+  // Return the number of points in the color transfer function.
+  virtual vtkIdType GetNumberOfPoints()const;
+
+  // Description
+  // Returns the x and y coordinates as well as the midpoint and sharpness
+  // of the control point corresponding to the index.
+  // Note: The y (point[1]) is always 0.5
+  virtual void GetControlPoint(vtkIdType index, double *point)const;
+
+  // Description:
+  // Sets the x and y coordinates as well as the midpoint and sharpness
+  // of the control point corresponding to the index.
+  // Changing the y has no effect, it will always be 0.5
+  virtual void SetControlPoint(vtkIdType index, double *point);
+
   // Description:
   // Add a point to the function. Returns the index of the point (0 based),
   // or -1 on error.
@@ -69,12 +85,11 @@ protected:
   vtkColorTransferControlPointsItem();
   virtual ~vtkColorTransferControlPointsItem();
 
+  virtual void emitEvent(unsigned long event, void* params);
+
   virtual unsigned long int GetControlPointsMTime();
 
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
-  virtual int  GetNumberOfPoints()const;
-  virtual void GetControlPoint(vtkIdType index, double *point);
-  virtual void SetControlPoint(vtkIdType index, double *point);
   virtual void EditPoint(float tX, float tY);
 
   vtkColorTransferFunction* ColorTransferFunction;

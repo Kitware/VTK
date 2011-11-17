@@ -32,6 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
+
 /*****************************************************************************
 *
 * exgcssc - ex_get_concat_side_set_node_count
@@ -54,6 +55,7 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+/*! \cond INTERNAL */
 void *safe_free(void *array)
 {
   if (array != 0) free(array);
@@ -67,9 +69,11 @@ void *safe_free(void *array)
                       elem_blk_parms[i].num_nodes_per_elem);\
               ex_err("ex_get_side_set_node_count",errmsg,EX_MSG);\
               return(EX_FATAL);\
+/* \endcond */
 
+/*! \undoc */
 int ex_get_concat_side_set_node_count(int exoid,
-                                      int *side_set_node_cnt_list)
+              int *side_set_node_cnt_list)
 {
   size_t m;
   int ii, i, j, iss, ioff; 
@@ -174,7 +178,7 @@ int ex_get_concat_side_set_node_count(int exoid,
   {
     /* read in an element block parameter */
     if ((ex_get_elem_block (exoid, elem_blk_ids[i], elem_type,
-                            &num_elem_in_blk,
+          &num_elem_in_blk,
                             &num_nodes_per_elem, &num_attr)) == -1) {
       sprintf(errmsg,
              "Error: failed to get element block %d parameters in file id %d",
@@ -482,13 +486,13 @@ int ex_get_concat_side_set_node_count(int exoid,
     
     /* First determine the  # of elements in the side set*/
     if ((ex_get_set_param(exoid,EX_SIDE_SET, side_set_id,
-                          &tot_num_ss_elem,&num_df)) == -1)
+        &tot_num_ss_elem,&num_df)) == -1)
       {
-        sprintf(errmsg,
-                "Error: failed to get number of elements in side set %d in file id %d",
-                side_set_id, exoid);
-        ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
-        goto error_ret;
+  sprintf(errmsg,
+    "Error: failed to get number of elements in side set %d in file id %d",
+    side_set_id, exoid);
+  ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
+  goto error_ret;
       }
     
     if (tot_num_ss_elem == 0)
@@ -497,44 +501,44 @@ int ex_get_concat_side_set_node_count(int exoid,
     /* Allocate space for the side set element list */
     if (!(side_set_elem_list=malloc(tot_num_ss_elem*sizeof(int))))
       {
-        exerrval = EX_MEMFAIL;
-        sprintf(errmsg,
-                "Error: failed to allocate space for side set element list for file id %d",
-                exoid);
-        ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
-        goto error_ret;
+  exerrval = EX_MEMFAIL;
+  sprintf(errmsg,
+    "Error: failed to allocate space for side set element list for file id %d",
+    exoid);
+  ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
+  goto error_ret;
       }
     
     /* Allocate space for the side set side list */
     if (!(side_set_side_list=malloc(tot_num_ss_elem*sizeof(int))))
       {
-        exerrval = EX_MEMFAIL;
-        sprintf(errmsg,
-                "Error: failed to allocate space for side set side list for file id %d",
-                exoid);
-        ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
-        goto error_ret;
+  exerrval = EX_MEMFAIL;
+  sprintf(errmsg,
+    "Error: failed to allocate space for side set side list for file id %d",
+    exoid);
+  ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
+  goto error_ret;
       }
     
     if (ex_get_set(exoid, EX_SIDE_SET, side_set_id, 
-                        side_set_elem_list, side_set_side_list) == -1)
+      side_set_elem_list, side_set_side_list) == -1)
       {
-        sprintf(errmsg,
-                "Error: failed to get side set %d in file id %d",
-                side_set_id, exoid);
-        ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
-        goto error_ret;
+  sprintf(errmsg,
+    "Error: failed to get side set %d in file id %d",
+    side_set_id, exoid);
+  ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
+  goto error_ret;
       }
     
     /* Allocate space for the ss element index array */
     if (!(ss_elem_ndx=malloc(tot_num_ss_elem*sizeof(int))))
       {
-        exerrval = EX_MEMFAIL;
-        sprintf(errmsg,
-                "Error: failed to allocate space for side set elem sort array for file id %d",
-                exoid);
-        ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
-        goto error_ret;
+  exerrval = EX_MEMFAIL;
+  sprintf(errmsg,
+    "Error: failed to allocate space for side set elem sort array for file id %d",
+    exoid);
+  ex_err("ex_get_concat_side_set_node_count",errmsg,exerrval);
+  goto error_ret;
       }
     
     /* Sort side set element list into index array  - non-destructive */
@@ -558,21 +562,21 @@ int ex_get_concat_side_set_node_count(int exoid,
        * not in this block, find a following block that contains it...
        */       
       for ( ; j<num_elem_blks; j++) {
-        if (elem <= elem_blk_parms[j].elem_ctr) {
-          break;
-        }
+  if (elem <= elem_blk_parms[j].elem_ctr) {
+    break;
+  }
       }
       
       if (j < num_elem_blks) {
-        assert(side < elem_blk_parms[j].num_sides);  
-        side_set_node_cnt_list[i+ioff] = elem_blk_parms[j].num_nodes_per_side[side];
+  assert(side < elem_blk_parms[j].num_sides);  
+  side_set_node_cnt_list[i+ioff] = elem_blk_parms[j].num_nodes_per_side[side];
       } else {
-        exerrval = EX_BADPARAM;
-        sprintf(errmsg,
-                "Error: Invalid element number %d found in side set %d in file %d",
-                side_set_elem_list[i], side_set_id, exoid);
-        ex_err("ex_get_concat_side_set_node_count",errmsg,EX_MSG);
-        goto error_ret;
+  exerrval = EX_BADPARAM;
+  sprintf(errmsg,
+    "Error: Invalid element number %d found in side set %d in file %d",
+    side_set_elem_list[i], side_set_id, exoid);
+  ex_err("ex_get_concat_side_set_node_count",errmsg,EX_MSG);
+  goto error_ret;
       }
     }
     ss_elem_ndx        = safe_free(ss_elem_ndx);

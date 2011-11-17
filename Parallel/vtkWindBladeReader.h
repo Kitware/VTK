@@ -16,29 +16,19 @@
 // .SECTION Description
 // vtkWindBladeReader is a source object that reads WindBlade files
 // which are block binary files with tags before and after each block
-// giving the number of bytes within the block.  The number of data 
-// variables dumped varies.  The data is 3D rectilinear with irregular
-// spacing on the Z dimension.
-//
+// giving the number of bytes within the block.  The number of data
+// variables dumped varies.  There are 3 output ports with the first
+// being a structured grid with irregular spacing in the Z dimension.
+// The second is an unstructured grid only read on on process 0 and
+// used to represent the blade.  The third is also a structured grid
+// with irregular spacing on the Z dimension.  Only the first and
+// second output ports have time dependent data.
 
 #ifndef __vtkWindBladeReader_h
 #define __vtkWindBladeReader_h
 
 
 #include "vtkStructuredGridAlgorithm.h"
-
-#define VTK_USE_MPI
-
-const float DRY_AIR_CONSTANT = 287.04;
-const int NUM_PART_SIDES = 4;  // Blade parts rhombus
-const int NUM_BASE_SIDES = 5;  // Base pyramid
-const int LINE_SIZE             = 256;
-const int DIMENSION             = 3;
-const int BYTES_PER_DATA = 4;
-const int SCALAR  = 1;
-const int VECTOR  = 2;
-const int FLOAT   = 1;
-const int INTEGER  = 2;
 
 class vtkWindBladeReaderPiece;
 class vtkDataArraySelection;
@@ -52,14 +42,15 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkMultiBlockDataSetAglorithm;
 class vtkStructuredGridAlgorithm;
+class WindBladeReaderInternal;
 
-class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm 
+class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkWindBladeReader *New();
   vtkTypeMacro(vtkWindBladeReader,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
 
@@ -71,9 +62,9 @@ public:
 
   // Description:
   // Get the reader's output
-  vtkStructuredGrid *GetFieldOutput();		// Output port 0
-  vtkUnstructuredGrid *GetBladeOutput();	// Output port 1
-  vtkStructuredGrid *GetGroundOutput();		// Output port 2
+  vtkStructuredGrid *GetFieldOutput();    // Output port 0
+  vtkUnstructuredGrid *GetBladeOutput();  // Output port 1
+  vtkStructuredGrid *GetGroundOutput();    // Output port 2
 
   // Description:
   // The following methods allow selective reading of solutions fields.
@@ -88,12 +79,20 @@ public:
   void DisableAllPointArrays();
   void EnableAllPointArrays();
 
+  // Description:
+  // We intercept the requests to check for which port
+  // information is being requested for and if there is
+  // a REQUEST_DATA_NOT_GENERATED request then we mark
+  // which ports won't have data generated for that request.
+  virtual int ProcessRequest(vtkInformation *request,
+                             vtkInformationVector **inInfo,
+                             vtkInformationVector *outInfo);
+
 protected:
   vtkWindBladeReader();
   ~vtkWindBladeReader();
 
   char* Filename;   // Base file name
-  FILE* FilePtr;   // Open file pointer
 
   int Rank;    // Number of this processor
   int TotalRank;   // Number of processors
@@ -123,11 +122,11 @@ protected:
   float Fit;    // Cubic or quadratic [0,1]
 
   // Rectilinear coordinate spacing
-  vtkFloatArray* xSpacing;
-  vtkFloatArray* ySpacing;
-  vtkFloatArray* zSpacing;
-  float* zTopographicValues;
-  float zMinValue;
+  vtkFloatArray* XSpacing;
+  vtkFloatArray* YSpacing;
+  vtkFloatArray* ZSpacing;
+  float* ZTopographicValues;
+  float ZMinValue;
 
   // Variable information
   int NumberOfFileVariables;  // Number of variables in data file
@@ -144,7 +143,7 @@ protected:
   int BlockSize;   // Size of every data block
   int GBlockSize;  // Size of every data block
 
-  vtkFloatArray** data;   // Actual data arrays
+  vtkFloatArray** Data;   // Actual data arrays
   vtkStdString RootDirectory; // Directory where the .wind file is.
   vtkStdString DataDirectory;  // Location of actual data
   vtkStdString DataBaseName;  // Base name of files
@@ -164,12 +163,16 @@ protected:
   vtkFloatArray* XPosition;  // Location of tower
   vtkFloatArray* YPosition;  // Location of tower
   vtkFloatArray* HubHeight;  // Height of tower
+  vtkFloatArray* AngularVeloc; // Angular Velocity
+  vtkFloatArray* BladeLength; // Blade length
   vtkIntArray* BladeCount;  // Number of blades per tower
 
   int UseTurbineFile;   // Turbine data available
   vtkStdString TurbineDirectory; // Turbine unstructured data
   vtkStdString TurbineTowerName; // Name of tower file
   vtkStdString TurbineBladeName; // Base name of time series blade data
+  int NumberOfLinesToSkip;  // New format has lines that need to be skipped in
+                            // blade files
 
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
@@ -178,12 +181,12 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   // Controlls initializing and querrying MPI
-  vtkMultiProcessController * MPIController; 
+  vtkMultiProcessController * MPIController;
 
   // Read the header file describing the dataset
-  void ReadGlobalData();
-  void ReadDataVariables(ifstream& inStr);
-  void FindVariableOffsets();
+  bool ReadGlobalData();
+  void ReadDataVariables(istream& inStr);
+  bool FindVariableOffsets();
 
   // Turbine methods
   void SetupBladeData();
@@ -195,8 +198,8 @@ protected:
   void CreateCoordinates();
   void CreateZTopography(float* zdata);
   float GDeform(float sigma, float sigmaMax, int flag);
-  void spline(float* x, float* y, int n, float yp1, float ypn, float* y2);
-  void splint(float* xa, float* ya, float* y2a, int n, float x, float* y, int);
+  void Spline(float* x, float* y, int n, float yp1, float ypn, float* y2);
+  void Splint(float* xa, float* ya, float* y2a, int n, float x, float* y, int);
 
   // Load a variable from data file
   void LoadVariableData(int var);
@@ -209,7 +212,7 @@ protected:
   void CalculatePressure(int pres, int prespre, int tempg, int density);
 
   virtual int RequestData(
-    vtkInformation* request, 
+    vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
@@ -219,17 +222,19 @@ protected:
     vtkInformationVector* outputVector);
 
   static void SelectionCallback(
-    vtkObject *caller, 
+    vtkObject *caller,
     unsigned long eid,
-    void *clientdata, 
+    void *clientdata,
     void *calldata);
 
   static void EventCallback(
-    vtkObject* caller, 
+    vtkObject* caller,
     unsigned long eid,
     void* clientdata, void* calldata);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
+
+  WindBladeReaderInternal * Internal;
 
 private:
   vtkWindBladeReader(const vtkWindBladeReader&);  // Not implemented.

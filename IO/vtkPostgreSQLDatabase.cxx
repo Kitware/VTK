@@ -38,6 +38,41 @@
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
 
+// Registration of PostgreSQL dynamically with the vtkSQLDatabase factory method.
+vtkSQLDatabase * PostgreSQLCreateFunction(const char* URL)
+{
+  vtkstd::string urlstr(URL ? URL : "");
+  vtkstd::string protocol, unused;
+  vtkPostgreSQLDatabase *db = 0;
+
+  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
+      protocol == "psql")
+    {
+    db = vtkPostgreSQLDatabase::New();
+    db->ParseURL(URL);
+    }
+
+  return db;
+}
+
+class vtkPostgreSQLDatabaseRegister
+{
+public:
+  vtkPostgreSQLDatabaseRegister()
+    {
+    vtkSQLDatabase::RegisterCreateFromURLCallback(PostgreSQLCreateFunction);
+    }
+  ~vtkPostgreSQLDatabaseRegister()
+    {
+    vtkSQLDatabase::UnRegisterCreateFromURLCallback(PostgreSQLCreateFunction);
+    }
+};
+
+// Remove ifndef in VTK 6.0: only register callback in old layout.
+#ifndef VTK_USE_POSTGRES
+static vtkPostgreSQLDatabaseRegister postgreSQLDataBaseRegister;
+#endif
+
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
 {

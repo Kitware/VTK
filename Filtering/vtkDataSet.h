@@ -256,22 +256,28 @@ public:
   double GetLength();
 
   // Description:
-  // Restore data object to initial state,
+  // Restore data object to initial state.
   // THIS METHOD IS NOT THREAD SAFE.
   void Initialize();
 
   // Description:
-  // Convenience method to get the range of the scalar data (if there is any 
-  // scalar data). Returns the (min/max) range of combined point and cell data.
-  // If there are no point or cell scalars the method will return (0,1).
-  // Note: Update needs to be called to create the scalars.
+  // Convenience method to get the range of the first component (and only
+  // the first component) of any scalars in the data set.  If the data has
+  // both point data and cell data, it returns the (min/max) range of
+  // combined point and cell data.  If there are no point or cell scalars
+  // the method will return (0,1).  Note: It might be necessary to call
+  // Update to create or refresh the scalars before calling this method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetScalarRange(double range[2]);
 
   // Description:
-  // Convenience method to get the range of the scalar data (if there is any 
-  // scalar data). 
+  // Convenience method to get the range of the first component (and only
+  // the first component) of any scalars in the data set.  If the data has
+  // both point data and cell data, it returns the (min/max) range of
+  // combined point and cell data.  If there are no point or cell scalars
+  // the method will return (0,1).  Note: It might be necessary to call
+  // Update to create or refresh the scalars before calling this method.
   // THIS METHOD IS NOT THREAD SAFE.
   double *GetScalarRange();
   

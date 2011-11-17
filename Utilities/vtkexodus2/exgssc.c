@@ -46,7 +46,6 @@
 *                                       side or face
 * revision history - 
 *
-*  Id
 *****************************************************************************/
 
 #include <ctype.h>
@@ -57,12 +56,16 @@
 #include "exodusII_int.h"
 
 /* Generic error message for element type/node count mapping...*/
-#define EL_NODE_COUNT_ERROR sprintf(errmsg, \
-      "Error: An element of type '%s' with %d nodes is not valid.",\
-                      elem_blk_parms[i].elem_type,\
-                      elem_blk_parms[i].num_nodes_per_elem);\
-              ex_err("ex_get_side_set_node_count",errmsg,EX_MSG);\
-              return(EX_FATAL);\
+static int el_node_count_error(struct elem_blk_parm elem_blk_parms)
+{
+  char errmsg[MAX_ERR_LENGTH];
+  sprintf(errmsg,             
+    "Error: An element of type '%s' with %d nodes is not valid.", 
+    elem_blk_parms.elem_type,         
+    elem_blk_parms.num_nodes_per_elem);     
+  ex_err("ex_get_side_set_node_count",errmsg,EX_MSG);     
+  return(EX_FATAL);             
+}
 
 int ex_get_side_set_node_count(int exoid,
                                int side_set_id,
@@ -322,7 +325,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[2] = 3;
         elem_blk_parms[i].num_nodes_per_side[3] = 3;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"TRIANGLE",3) == 0)
@@ -354,7 +357,7 @@ int ex_get_side_set_node_count(int exoid,
           elem_blk_parms[i].num_nodes_per_side[3] = 3;
           elem_blk_parms[i].num_nodes_per_side[4] = 3;
         } else {
-          EL_NODE_COUNT_ERROR;
+    return el_node_count_error(elem_blk_parms[i]);
         }
       }
     }
@@ -386,7 +389,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[4] = 3;
         elem_blk_parms[i].num_nodes_per_side[5] = 3;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"HEX",3) == 0)
@@ -430,7 +433,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[4] = 9;
         elem_blk_parms[i].num_nodes_per_side[5] = 9;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"TETRA",3) == 0)
@@ -454,7 +457,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[2] = 6;
         elem_blk_parms[i].num_nodes_per_side[3] = 6;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"WEDGE",3) == 0)
@@ -474,7 +477,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[3] = 6;
         elem_blk_parms[i].num_nodes_per_side[4] = 6;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"PYRAMID",3) == 0)
@@ -494,7 +497,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[3] = 6;
         elem_blk_parms[i].num_nodes_per_side[4] = 8;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"BEAM",3) == 0)
@@ -509,7 +512,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[0] = 3;
         elem_blk_parms[i].num_nodes_per_side[1] = 3;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     else if ( (strncmp(elem_blk_parms[i].elem_type,"TRUSS",3) == 0) ||
@@ -526,7 +529,7 @@ int ex_get_side_set_node_count(int exoid,
         elem_blk_parms[i].num_nodes_per_side[0] = 3;
         elem_blk_parms[i].num_nodes_per_side[1] = 3;
       } else {
-        EL_NODE_COUNT_ERROR;
+        return el_node_count_error(elem_blk_parms[i]);
       }
     }
     /* Used for an empty block in a parallel decomposition */

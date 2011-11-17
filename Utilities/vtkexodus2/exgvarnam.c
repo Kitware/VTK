@@ -47,7 +47,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -59,14 +58,12 @@
  */
 
 int ex_get_variable_name (int   exoid,
-                          ex_entity_type obj_type,
-                          int   var_num,
-                          char *var_name)
+        ex_entity_type obj_type,
+        int   var_num,
+        char *var_name)
 {
   int status;
-  int j, varid;
-  size_t  start[2];
-  char *ptr;
+  int varid;
   char errmsg[MAX_ERR_LENGTH];
   const char *vname = NULL;
    
@@ -115,43 +112,16 @@ int ex_get_variable_name (int   exoid,
   if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Warning: no %s variable names stored in file id %d",
-            ex_name_of_object(obj_type), exoid);
+      "Warning: no %s variable names stored in file id %d",
+      ex_name_of_object(obj_type), exoid);
     ex_err("ex_get_variable_name",errmsg,exerrval);
     return (EX_WARN);
   }
 
   /* read the variable name */
-  start[0] = var_num-1;
-  start[1] = 0;
-
-  j = 0;
-  ptr=var_name;
-
-  if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {/* get first character */
-    exerrval = status;
-    sprintf(errmsg,
-            "Error: failed to get results variable name type %s, index %d from file id %d",
-            ex_name_of_object(obj_type), var_num, exoid);
-    ex_err("ex_get_variable_name",errmsg,exerrval);
+  status = ex_get_name_internal(exoid, varid, var_num-1, var_name, obj_type, "ex_get_variable_name");
+  if (status != NC_NOERR) {
     return (EX_FATAL);
-  }
-   
-  while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {/* get remaining chars */
-    start[1] = ++j;
-    if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-      exerrval = status;
-      sprintf(errmsg,
-              "Error: failed to get results variable names from file id %d", exoid);
-      ex_err("ex_get_var_names",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-
-  if (*(--ptr) != '\0') {
-    --ptr;
-    while (*(--ptr) == ' '); /* strip right trailing blanks */
-    *(++ptr) = '\0';
   }
   return (EX_NOERR);
 }

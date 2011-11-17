@@ -115,18 +115,16 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
 {
   // close-down all system-specific drawing resources
   this->Finalize();
-  
-  vtkRenderer* ren;
-  this->Renderers->InitTraversal();
-  for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-        ren != NULL;
-        ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
     {
     ren->SetRenderWindow(NULL);
     }
 
   delete this->Internal;
-
 }
 
 // End the rendering process and display the image.

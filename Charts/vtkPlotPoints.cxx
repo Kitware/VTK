@@ -125,6 +125,7 @@ void vtkPlotPoints::Update()
     }
   else if(this->Data->GetMTime() > this->BuildTime ||
           table->GetMTime() > this->BuildTime ||
+          (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
           this->MTime > this->BuildTime)
     {
     vtkDebugMacro(<< "Updating cached values.");
@@ -454,19 +455,6 @@ bool compVector3fX(const vtkIndexedVector2f& v1,
     }
 }
 
-// Compare the two vectors, in X component only
-bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
-{
-  if (v1.X() < v2.X())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
 // See if the point is within tolerance.
 bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
              const vtkVector2f& current)
@@ -697,6 +685,10 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
       if (!this->LookupTable)
         {
         this->CreateDefaultLookupTable();
+        }
+      if (this->Colors)
+        {
+        this->Colors->UnRegister(this);
         }
       this->Colors = this->LookupTable->MapScalars(c, VTK_COLOR_MODE_MAP_SCALARS, -1);
       // Consistent register and unregisters

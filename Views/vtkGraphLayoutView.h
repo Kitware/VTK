@@ -54,12 +54,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The array to use for vertex labeling.  Default is "label".
+  // The array to use for vertex labeling.  Default is "VertexDegree".
   void SetVertexLabelArrayName(const char* name);
   const char* GetVertexLabelArrayName();
   
   // Description:
-  // The array to use for edge labeling.  Default is "label".
+  // The array to use for edge labeling.  Default is "LabelText".
   void SetEdgeLabelArrayName(const char* name);
   const char* GetEdgeLabelArrayName();
   

@@ -15,6 +15,7 @@
 #include "vtkSelectionNode.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIterator.h"
@@ -23,11 +24,19 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkProp.h"
 #include "vtkSmartPointer.h"
+
+#include <vtkstd/algorithm>
+#include <vtkstd/set>
+#include <vtkstd/iterator>
+
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
 
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
+
 
 vtkInformationKeyMacro(vtkSelectionNode,CONTENT_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,SOURCE,ObjectBase);
@@ -92,7 +101,7 @@ void vtkSelectionNode::SetSelectionList(vtkAbstractArray* arr)
     this->SelectionData = vtkDataSetAttributes::New();
     }
   this->SelectionData->Initialize();
-  this->SelectionData->AddArray(arr);  
+  this->SelectionData->AddArray(arr);
 }
 
 //----------------------------------------------------------------------------
@@ -229,23 +238,7 @@ int vtkSelectionNode::GetFieldType()
 }
 
 //----------------------------------------------------------------------------
-void vtkSelectionNode::SetSelectedProp(vtkProp* prop)
-{
-  this->GetProperties()->Set(vtkSelectionNode::PROP(), prop);
-}
-
-//----------------------------------------------------------------------------
-vtkProp* vtkSelectionNode::GetSelectedProp()
-{
-  if (this->GetProperties()->Has(vtkSelectionNode::PROP()))
-    {
-    return vtkProp::SafeDownCast(this->GetProperties()->Get(vtkSelectionNode::PROP()));
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, 
+bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
   bool fullcompare/*=true*/)
 {
   if (!other)
@@ -253,9 +246,9 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
     return false;
     }
 
-  vtkSmartPointer<vtkInformationIterator> iterSelf = 
+  vtkSmartPointer<vtkInformationIterator> iterSelf =
     vtkSmartPointer<vtkInformationIterator>::New();
-  
+
   iterSelf->SetInformation(this->Properties);
 
   vtkInformation* otherProperties = other->GetProperties();
@@ -263,13 +256,13 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
     iterSelf->GoToNextItem())
     {
     vtkInformationKey* key = iterSelf->GetCurrentKey();
-    vtkInformationIntegerKey* ikey = 
+    vtkInformationIntegerKey* ikey =
       vtkInformationIntegerKey::SafeDownCast(key);
-    vtkInformationObjectBaseKey* okey = 
+    vtkInformationObjectBaseKey* okey =
       vtkInformationObjectBaseKey::SafeDownCast(key);
     if (ikey)
       {
-      if (!otherProperties->Has(ikey) || 
+      if (!otherProperties->Has(ikey) ||
         this->Properties->Get(ikey) != otherProperties->Get(ikey))
         {
         return false;
@@ -277,7 +270,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
       }
     if (okey)
       {
-      if (!otherProperties->Has(okey) || 
+      if (!otherProperties->Has(okey) ||
         this->Properties->Get(okey) != otherProperties->Get(okey))
         {
         return false;
@@ -301,7 +294,15 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
       {
       vtkAbstractArray* arr = this->SelectionData->GetAbstractArray(a);
       vtkAbstractArray* otherArr = other->SelectionData->GetAbstractArray(a);
-      if (strcmp(arr->GetName(), otherArr->GetName()))
+      if (!arr->GetName() && otherArr->GetName())
+        {
+        return false;
+        }
+      if (arr->GetName() && !otherArr->GetName())
+        {
+        return false;
+        }
+      if (arr->GetName() && otherArr->GetName() && strcmp(arr->GetName(), otherArr->GetName()))
         {
         return false;
         }
@@ -350,7 +351,7 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
           }
         if (!aa2)
           {
-          vtkErrorMacro(<< "Could not find array with name " 
+          vtkErrorMacro(<< "Could not find array with name "
                         << aa1->GetName() << " in other selection.");
           }
         if (aa1->GetDataType() != aa2->GetDataType())
@@ -391,6 +392,71 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
       return;
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
+{
+  int type = this->Properties->Get(CONTENT_TYPE());
+  switch(type)
+    {
+    case GLOBALIDS:
+    case INDICES:
+    case PEDIGREEIDS:
+      {
+      vtkDataSetAttributes * fd1 = this->GetSelectionData();
+      vtkDataSetAttributes * fd2 = other->GetSelectionData();
+      if(fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
+        {
+        vtkErrorMacro(<< "Cannot take subtract selections if the number of arrays do not match.");
+        }
+        if( fd1->GetNumberOfArrays() != 1 || fd2->GetNumberOfArrays() != 1)
+          {
+          vtkErrorMacro(<<"Cannot subtract selections with more than one array.");
+          return;
+          }
+
+        if( fd1->GetArray(0)->GetDataType() != VTK_ID_TYPE || fd2->GetArray(0)->GetDataType() != VTK_ID_TYPE )
+          {
+          vtkErrorMacro(<<"Can only subtract selections with vtkIdTypeArray lists.");
+          }
+
+          vtkIdTypeArray * fd1_array = (vtkIdTypeArray*)fd1->GetArray(0);
+          vtkIdTypeArray * fd2_array = (vtkIdTypeArray*)fd2->GetArray(0);
+
+          vtkIdType fd1_N = fd1_array->GetNumberOfTuples();
+          vtkIdType fd2_N = fd2_array->GetNumberOfTuples();
+
+          vtkIdType * fd1_P = (vtkIdType*)fd1_array->GetVoidPointer(0);
+          vtkIdType * fd2_P = (vtkIdType*)fd2_array->GetVoidPointer(0);
+
+          // make sure both arrays are sorted
+          vtkstd::sort( fd1_P, fd1_P + fd1_N );
+          vtkstd::sort( fd2_P, fd2_P + fd2_N );
+
+          vtkstd::set<vtkIdType> result;
+
+          vtkstd::set_difference(fd1_P, fd1_P + fd1_N,
+                                 fd2_P, fd2_P + fd2_N,
+                                 vtkstd::inserter(result, result.end()));
+
+          fd1_array->Reset();
+          for(vtkstd::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
+            {
+            fd1_array->InsertNextValue( *p );
+            }
+      break;
+      }
+    case BLOCKS:
+    case FRUSTUM:
+    case LOCATIONS:
+    case THRESHOLDS:
+    case VALUES:
+    default:
+      {
+      vtkErrorMacro(<< "Do not know how to subtract the given content type " << type << ".");
+      }
+    };
 }
 
 //----------------------------------------------------------------------------

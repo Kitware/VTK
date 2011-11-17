@@ -65,9 +65,9 @@ void vtkCompositeTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeTransferFunctionItem::GetBounds(double* bounds)
+void vtkCompositeTransferFunctionItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->OpacityFunction)
     {
     double* opacityRange = this->OpacityFunction->GetRange();
@@ -103,7 +103,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     this->Texture = vtkImageData::New();
     }
 
-  const int dimension = this->Texture->GetExtent()[1] + 1;
+  const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
   this->OpacityFunction->GetTable(bounds[0], bounds[1], dimension, values);
   unsigned char* ptr =
@@ -116,7 +116,11 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     for (int i = 0; i < dimension; ++i)
       {
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
-      assert(values[i] <= 1. && values[i] >= 0.);
+      if (values[i] < 0. || values[i] > 1.)
+        {
+        vtkWarningMacro( << "Opacity at point " << i << " is " << values[i]
+                         << " wich is outside the valid range of [0,1]");
+        }
       this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
       ptr+=4;
       }

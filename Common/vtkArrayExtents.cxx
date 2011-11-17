@@ -124,6 +124,16 @@ const vtkArrayRange& vtkArrayExtents::operator[](DimensionT i) const
   return this->Storage[i];
 }
 
+vtkArrayRange vtkArrayExtents::GetExtent(DimensionT i) const
+{
+  return this->Storage[i];
+}
+
+void vtkArrayExtents::SetExtent(DimensionT i, const vtkArrayRange& extent)
+{
+  this->Storage[i] = extent;
+}
+
 bool vtkArrayExtents::operator==(const vtkArrayExtents& rhs) const
 {
   return this->Storage == rhs.Storage;

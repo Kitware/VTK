@@ -40,10 +40,16 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Bounds of the item, by default (0, 1, 0, 1) but it mainly depends on the
-  // range of the ScalarsToColors function.
-  // Need to be reimplemented by subclasses if the range is != [0,1]
-  virtual void GetBounds(double bounds[4]);
+  // Bounds of the item, use the UserBounds if valid otherwise compute
+  // the bounds of the item (based on the transfer function range).
+  void GetBounds(double bounds[4]);
+
+  // Description:
+  // Set custom bounds, except if bounds are invalid, bounds will be
+  // automatically computed based on the range of the control points
+  // Invalid bounds by default.
+  vtkSetVector4Macro(UserBounds, double);
+  vtkGetVector4Macro(UserBounds, double)
 
   // Description:
   // Paint the texture into a rectangle defined by the bounds. If
@@ -71,10 +77,18 @@ protected:
   virtual ~vtkScalarsToColorsItem();
 
   // Description:
+  // Bounds of the item, by default (0, 1, 0, 1) but it depends on the
+  // range of the ScalarsToColors function.
+  // Need to be reimplemented by subclasses if the range is != [0,1]
+  virtual void ComputeBounds(double* bounds);
+
+  // Description:
   // Need to be reimplemented by subclasses, ComputeTexture() is called at
   // paint time if the texture is not up to date compared to vtkScalarsToColorsItem
   // Return false if no texture is generated.
   virtual void ComputeTexture() = 0;
+
+  vtkGetMacro(TextureWidth, int);
 
   // Description:
   // Called whenever the ScalarsToColors function(s) is modified. It internally
@@ -82,6 +96,9 @@ protected:
   virtual void ScalarsToColorsModified(vtkObject* caller, unsigned long eid, void* calldata);
   static void OnScalarsToColorsModified(vtkObject* caller, unsigned long eid, void *clientdata, void* calldata);
 
+  double              UserBounds[4];
+
+  int                 TextureWidth;
   vtkImageData*       Texture;
   bool                Interpolate;
   vtkPoints2D*        Shape;

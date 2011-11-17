@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 
   MET_FieldRecordType * mF;
   METAIO_STL::vector<MET_FieldRecordType *> mFields;
-  
+
   mF = new MET_FieldRecordType;
   MET_InitWriteField(mF, "NDims", MET_UCHAR, 2);
   mFields.push_back(mF);

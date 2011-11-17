@@ -32,7 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*  Id */
 
 #include "exodusII.h"
 #include "exodusII_int.h"
@@ -79,7 +78,7 @@ int ex_put_conn (int   exoid,
        {
        sprintf(errmsg,
          "Warning: connectivity array not allowed for NULL %s block %d in file id %d",
-               ex_name_of_object(blk_type),blk_id,exoid);
+         ex_name_of_object(blk_type),blk_id,exoid);
        ex_err("ex_put_conn",errmsg,EX_MSG);
        return (EX_WARN);
        }
@@ -108,16 +107,16 @@ int ex_put_conn (int   exoid,
      default:
        exerrval = 1005;
        sprintf(errmsg,
-               "Internal Error: unrecognized block type in switch: %d in file id %d",
-               blk_type,exoid);
+         "Internal Error: unrecognized block type in switch: %d in file id %d",
+         blk_type,exoid);
        ex_err("ex_putt_conn",errmsg,EX_MSG);
        return (EX_FATAL);
      }
      if (status != NC_NOERR) {
        exerrval = status;
        sprintf(errmsg,
-               "Error: failed to locate connectivity array for %s block %d in file id %d",
-               ex_name_of_object(blk_type),blk_id,exoid);
+         "Error: failed to locate connectivity array for %s block %d in file id %d",
+         ex_name_of_object(blk_type),blk_id,exoid);
        ex_err("ex_put_conn",errmsg, exerrval);
        return(EX_FATAL);
      }
@@ -159,7 +158,7 @@ int ex_put_conn (int   exoid,
 
      num_ed_per_elem = 0;
      if ((elem_edge_conn != 0) &&
-         (status = nc_inq_dimlen(exoid, nedpereldim, &num_ed_per_elem) != NC_NOERR))
+   (status = nc_inq_dimlen(exoid, nedpereldim, &num_ed_per_elem) != NC_NOERR))
        {
        exerrval = status;
        sprintf(errmsg,
@@ -171,7 +170,7 @@ int ex_put_conn (int   exoid,
 
      num_fa_per_elem = 0;
      if ((elem_face_conn != 0) &&
-         (status = nc_inq_dimlen(exoid, nfapereldim, &num_fa_per_elem) != NC_NOERR))
+   (status = nc_inq_dimlen(exoid, nfapereldim, &num_fa_per_elem) != NC_NOERR))
        {
        exerrval = status;
        sprintf(errmsg,
@@ -188,7 +187,7 @@ int ex_put_conn (int   exoid,
        sprintf(errmsg,
          "Error: number of edges per element (%ld) doesn't "
          "agree with elem_edge_conn (0x%p)",
-               (long)num_ed_per_elem, (void*)elem_edge_conn );
+         (long)num_ed_per_elem, (void*)elem_edge_conn );
        ex_err("ex_put_conn",errmsg,exerrval);
        return (EX_FATAL);
        }
@@ -200,7 +199,7 @@ int ex_put_conn (int   exoid,
        sprintf(errmsg,
          "Error: number of faces per element (%ld) doesn't "
          "agree with elem_face_conn (0x%p)",
-               (long)num_fa_per_elem, (void*)elem_face_conn );
+         (long)num_fa_per_elem, (void*)elem_face_conn );
        ex_err("ex_put_conn",errmsg,exerrval);
        return (EX_FATAL);
        }

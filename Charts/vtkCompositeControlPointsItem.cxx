@@ -38,8 +38,8 @@ vtkStandardNewMacro(vtkCompositeControlPointsItem);
 //-----------------------------------------------------------------------------
 vtkCompositeControlPointsItem::vtkCompositeControlPointsItem()
 {
+  this->PointsFunction = ColorAndOpacityPointsFunction;
   this->OpacityFunction = 0;
-  this->Updating = false;
   this->ColorFill = true;
 }
 
@@ -70,23 +70,47 @@ void vtkCompositeControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkCompositeControlPointsItem::GetControlPointsMTime()
+void vtkCompositeControlPointsItem::emitEvent(unsigned long event, void* params)
 {
   if (this->OpacityFunction)
     {
-    return this->OpacityFunction->GetMTime();
+    this->OpacityFunction->InvokeEvent(event, params);
     }
-  return this->Superclass::GetControlPointsMTime();
+  this->Superclass::emitEvent(event, params);
+}
+
+//-----------------------------------------------------------------------------
+unsigned long int vtkCompositeControlPointsItem::GetControlPointsMTime()
+{
+  unsigned long int mTime = this->Superclass::GetControlPointsMTime();
+  if (this->OpacityFunction)
+    {
+    mTime = std::max(mTime, this->OpacityFunction->GetMTime());
+    }
+  return mTime;
 }
 
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* function)
 {
-  vtkSetObjectBodyMacro(OpacityFunction, vtkPiecewiseFunction, function);
-  this->MergeColorTransferFunction();
+  if (function == this->OpacityFunction)
+    {
+    return;
+    }
   if (this->OpacityFunction)
     {
+    this->OpacityFunction->RemoveObserver(this->Callback);
+    }
+  vtkSetObjectBodyMacro(OpacityFunction, vtkPiecewiseFunction, function);
+  if (this->PointsFunction == ColorAndOpacityPointsFunction)
+    {
+    this->SilentMergeTransferFunctions();
+    }
+  if (this->OpacityFunction)
+    {
+    this->OpacityFunction->AddObserver(vtkCommand::StartEvent, this->Callback);
     this->OpacityFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
+    this->OpacityFunction->AddObserver(vtkCommand::EndEvent, this->Callback);
     }
   this->ResetBounds();
   this->ComputePoints();
@@ -95,92 +119,173 @@ void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* fun
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFunction* c)
 {
+  if (c == this->ColorTransferFunction)
+    {
+    return;
+    }
+  // Observation will be set Superclass::SetColorTransferFunction
+  if (this->ColorTransferFunction)
+    {
+    this->ColorTransferFunction->RemoveObserver(this->Callback);
+    }
   // We need to set the color transfer function here (before
   // Superclass::SetPiecewiseFunction) to be able to have a valid
   // color transfer function for MergeColorTransferFunction().
   vtkSetObjectBodyMacro(ColorTransferFunction, vtkColorTransferFunction, c);
-  this->MergeColorTransferFunction();
+  if (this->PointsFunction == ColorAndOpacityPointsFunction)
+    {
+    this->SilentMergeTransferFunctions();
+    }
   this->Superclass::SetColorTransferFunction(c);
 }
+
 //-----------------------------------------------------------------------------
-void vtkCompositeControlPointsItem::ComputePoints()
+void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 {
-  if (this->Updating)
+  if (this->PointsFunction == ColorPointsFunction ||
+      this->PointsFunction == ColorAndOpacityPointsFunction)
     {
+    this->Superclass::DrawPoint(painter, index);
     return;
     }
-  this->Superclass::ComputePoints();
+  if (this->PointsFunction == OpacityPointsFunction &&
+      this->ColorFill && this->ColorTransferFunction)
+    {
+    double xvms[4];
+    this->OpacityFunction->GetNodeValue(index, xvms);
+    unsigned char* rgb = this->ColorTransferFunction->MapValue(xvms[0]);
+    painter->GetBrush()->SetColorF(
+      rgb[0] / 255., rgb[1] / 255., rgb[2] / 255., 0.55);
+    }
+  this->vtkControlPointsItem::DrawPoint(painter, index);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkCompositeControlPointsItem::GetNumberOfPoints()const
+{
+  if (this->ColorTransferFunction &&
+      (this->PointsFunction == ColorPointsFunction ||
+       this->PointsFunction == ColorAndOpacityPointsFunction))
+    {
+    return this->Superclass::GetNumberOfPoints();
+    }
+  if (this->OpacityFunction &&
+      (this->PointsFunction == OpacityPointsFunction ||
+       this->PointsFunction == ColorAndOpacityPointsFunction))
+    {
+    return static_cast<vtkIdType>(this->OpacityFunction->GetSize());
+    }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetControlPoint(vtkIdType index, double* newPos)
 {
-  this->Superclass::SetControlPoint(index, newPos);
-  this->OpacityFunction->SetNodeValue(index, newPos);
+  if (this->PointsFunction == ColorPointsFunction ||
+      this->PointsFunction == ColorAndOpacityPointsFunction)
+    {
+    this->Superclass::SetControlPoint(index, newPos);
+    }
+  if (this->OpacityFunction &&
+      (this->PointsFunction == OpacityPointsFunction ||
+       this->PointsFunction == ColorAndOpacityPointsFunction))
+    {
+    this->OpacityFunction->SetNodeValue(index, newPos);
+    }
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeControlPointsItem::GetControlPoint(vtkIdType index, double* pos)
+void vtkCompositeControlPointsItem::GetControlPoint(vtkIdType index, double* pos)const
 {
-  if (!this->OpacityFunction)
+  if (!this->OpacityFunction ||
+      this->PointsFunction == ColorPointsFunction)
     {
     this->Superclass::GetControlPoint(index, pos);
+    if (this->OpacityFunction)
+      {
+      pos[1] = const_cast<vtkPiecewiseFunction*>(this->OpacityFunction)
+        ->GetValue(pos[0]);
+      }
     return;
     }
-  this->OpacityFunction->GetNodeValue(index, pos);
+  const_cast<vtkPiecewiseFunction*>(this->OpacityFunction)
+    ->GetNodeValue(index, pos);
 }
+
 //-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
 {
-  this->Superclass::EditPoint(tX, tY);
-  if (!this->OpacityFunction)
+  if (this->PointsFunction == ColorPointsFunction ||
+      this->PointsFunction == ColorAndOpacityPointsFunction)
     {
-    return;
+    this->Superclass::EditPoint(tX, tY);
     }
-  double xvms[4];
-  this->OpacityFunction->GetNodeValue(this->CurrentPoint, xvms);
-  xvms[2] += tX;
-  xvms[3] += tY;
-  this->OpacityFunction->SetNodeValue(this->CurrentPoint, xvms);
-  if (this->CurrentPoint > 0)
+  if (this->OpacityFunction &&
+      (this->PointsFunction == ColorPointsFunction ||
+       this->PointsFunction == ColorAndOpacityPointsFunction))
     {
-    this->OpacityFunction->GetNodeValue(this->CurrentPoint - 1, xvms);
+    double xvms[4];
+    this->OpacityFunction->GetNodeValue(this->CurrentPoint, xvms);
     xvms[2] += tX;
     xvms[3] += tY;
-    this->ColorTransferFunction->SetNodeValue(this->CurrentPoint - 1, xvms);
+    this->OpacityFunction->SetNodeValue(this->CurrentPoint, xvms);
+    // Not sure why we move the point before too
+    if (this->CurrentPoint > 0)
+      {
+      this->OpacityFunction->GetNodeValue(this->CurrentPoint - 1, xvms);
+      xvms[2] += tX;
+      xvms[3] += tY;
+      this->OpacityFunction->SetNodeValue(this->CurrentPoint - 1, xvms);
+      }
     }
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkCompositeControlPointsItem::AddPoint(double* newPos)
 {
-  bool oldUpdating = this->Updating;
-  this->Updating = true;
-  vtkIdType addedPoint = this->Superclass::AddPoint(newPos);
-  this->Updating = oldUpdating;
-  if (!this->OpacityFunction)
+  vtkIdType addedPoint = -1;
+  this->StartChanges();
+  if (this->OpacityFunction &&
+      (this->PointsFunction == OpacityPointsFunction ||
+       this->PointsFunction == ColorAndOpacityPointsFunction))
     {
-    return addedPoint;
+    addedPoint = this->OpacityFunction->AddPoint(newPos[0], newPos[1]);
+    if (this->PointsFunction == OpacityPointsFunction)
+      {
+      this->vtkControlPointsItem::AddPointId(addedPoint);
+      }
     }
-  return this->OpacityFunction->AddPoint(newPos[0], newPos[1]);
+  if (this->PointsFunction == ColorPointsFunction ||
+      this->PointsFunction == ColorAndOpacityPointsFunction)
+    {
+    addedPoint = this->Superclass::AddPoint(newPos);
+    }
+  this->EndChanges();
+  return addedPoint;
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
 {
-  bool oldUpdating = this->Updating;
-  this->Updating = true;
-  vtkIdType removedPoint = this->Superclass::RemovePoint(currentPoint);
-  this->Updating = oldUpdating;
-  if (!this->OpacityFunction)
+  vtkIdType removedPoint = -1;
+  this->StartChanges();
+  if (this->PointsFunction == ColorPointsFunction ||
+      this->PointsFunction == ColorAndOpacityPointsFunction)
     {
-    return removedPoint;
+    removedPoint = this->Superclass::RemovePoint(currentPoint);
     }
-  return this->OpacityFunction->RemovePoint(currentPoint[0]);
+  if (this->OpacityFunction &&
+      (this->PointsFunction == OpacityPointsFunction ||
+       this->PointsFunction == ColorAndOpacityPointsFunction))
+    {
+    removedPoint = this->OpacityFunction->RemovePoint(currentPoint[0]);
+    }
+  this->EndChanges();
+  return removedPoint;
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeControlPointsItem::MergeColorTransferFunction()
+void vtkCompositeControlPointsItem::MergeTransferFunctions()
 {
   if (!this->ColorTransferFunction || !this->OpacityFunction)
     {
@@ -210,4 +315,11 @@ void vtkCompositeControlPointsItem::MergeColorTransferFunction()
     this->OpacityFunction->RemovePoint(xrgbms[0]);
     this->OpacityFunction->AddPoint(xrgbms[0], value, xrgbms[4], xrgbms[5]);
     }
+}
+//-----------------------------------------------------------------------------
+void vtkCompositeControlPointsItem::SilentMergeTransferFunctions()
+{
+  this->StartChanges();
+  this->MergeTransferFunctions();
+  this->EndChanges();
 }

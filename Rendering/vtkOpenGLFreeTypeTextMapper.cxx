@@ -33,6 +33,9 @@
 #include "vtk_gl2ps.h"
 #endif // VTK_USE_GL2PS
 
+#ifdef FTGL_USE_NAMESPACE
+using namespace ftgl;
+#endif
 
 //----------------------------------------------------------------------------
 // Print debug info

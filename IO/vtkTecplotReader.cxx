@@ -1289,7 +1289,6 @@ void vtkTecplotReader::GetDataArraysList()
   int             guessedXid = -1;
   int             guessedYid = -1;
   int             guessedZid = -1;
-  bool            firstToken = true;
   bool            tokenReady = false;
   vtkstd::string  theTpToken = "";
   vtkstd::string  noSpaceTok = "";
@@ -1414,8 +1413,6 @@ void vtkTecplotReader::GetDataArraysList()
 
       tokenReady = true;
       }
-
-    firstToken = false;
 
     if ( !tokenReady )
       {

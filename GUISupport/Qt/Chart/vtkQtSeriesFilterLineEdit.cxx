@@ -37,6 +37,7 @@ vtkQtSeriesFilterLineEdit::vtkQtSeriesFilterLineEdit(QWidget* lparent)
   : QLineEdit(lparent)
 {
   this->Layer = 0;
+  this->mySearchBeginningOnly = true;
 }
 
 vtkQtSeriesFilterLineEdit::~vtkQtSeriesFilterLineEdit()
@@ -68,17 +69,42 @@ void vtkQtSeriesFilterLineEdit::filterSeries(const QString& ltext)
   if(this->Layer)
     {
     vtkQtChartSeriesModel* model = this->Layer->getModel();
-    for(int i = 0; i < model->getNumberOfSeries(); ++i)
+    if(this->mySearchBeginningOnly)
       {
-      if(model->getSeriesName(i).toString().startsWith(ltext, Qt::CaseInsensitive))
+      for(int i = 0; i < model->getNumberOfSeries(); ++i)
         {
-        this->Layer->getSeriesOptions(i)->setVisible(true);
+        if(model->getSeriesName(i).toString().startsWith(ltext, Qt::CaseInsensitive))
+          {
+          this->Layer->getSeriesOptions(i)->setVisible(true);
+          }
+        else
+          {
+          this->Layer->getSeriesOptions(i)->setVisible(false);
+          }
         }
-      else
+      }
+    else
+      {
+      for(int i = 0; i < model->getNumberOfSeries(); ++i)
         {
-        this->Layer->getSeriesOptions(i)->setVisible(false);
+        if(model->getSeriesName(i).toString().contains(ltext, Qt::CaseInsensitive))
+          {
+          this->Layer->getSeriesOptions(i)->setVisible(true);
+          }
+        else
+          {
+          this->Layer->getSeriesOptions(i)->setVisible(false);
+          }
         }
       }
     }
 }
+void vtkQtSeriesFilterLineEdit::setSearchBeginningOnly(bool searchBeginningOnly)
+{
+  this->mySearchBeginningOnly = searchBeginningOnly;
+}
 
+bool vtkQtSeriesFilterLineEdit::getSearchBeginningOnly()
+{
+  return this->mySearchBeginningOnly;
+}

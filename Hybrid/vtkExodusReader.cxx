@@ -17,7 +17,7 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
+#define VTK_LEGACY_SILENT
 #include "vtkExodusReader.h"
 #include "vtkExodusModel.h"
 #include "vtkCell.h"
@@ -1648,10 +1648,34 @@ int vtkExodusReader::CanReadFile(const char* fname)
   return 1;
 }
 //----------------------------------------------------------------------------
+//Description:
+//Implementation of SetFileName so we can properly mark it as legacy
+void vtkExodusReader::SetFileName(const char* name)
+{
+  VTK_LEGACY_BODY(vtkExodusReader, "VTK 5.8");
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FileName to " << (name?name:"(null)") );
+  if ( this->FileName == NULL && name == NULL) { return;}
+  if ( this->FileName && name && (!strcmp(this->FileName,name))) { return;}
+  if (this->FileName) { delete [] this->FileName; }
+  if (name)
+    {
+    size_t n = strlen(name) + 1;
+    this->FileName =  new char[n];
+    strncpy(this->FileName,name,n);
+    }
+   else
+    {
+    this->FileName = NULL;
+    }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // Instantiate object with NULL filename.
 vtkExodusReader::vtkExodusReader()
 {
+  VTK_LEGACY_BODY(vtkExodusReader, "VTK 5.8");
   this->FileName = NULL;
   this->XMLFileName=NULL;
 
@@ -3998,12 +4022,12 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
 
     // Get the data into the temp int array
     ex_get_node_num_map(this->CurrentHandle, exo_array_data);
-cerr << "node num map : ";
-for (i = 0; i < this->NumberOfNodesInFile; i ++)
-{
-  cerr << exo_array_data[i] << " ";
-}
-cerr << endl;
+//cerr << "node num map : ";
+//for (i = 0; i < this->NumberOfNodesInFile; i ++)
+//{
+//  cerr << exo_array_data[i] << " ";
+//}
+//cerr << endl;
 
 
     // Okay copy the points that are actually used into the vtk array

@@ -19,16 +19,16 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayToTable_h
-#define __vtkArrayToTable_h
-
-#include "vtkTableAlgorithm.h"
-
 // .NAME vtkArrayToTable - Converts one- and two-dimensional vtkArrayData
 // objects to vtkTable
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkArrayToTable_h
+#define __vtkArrayToTable_h
+
+#include "vtkTableAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkArrayToTable : public vtkTableAlgorithm
 {

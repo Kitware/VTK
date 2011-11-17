@@ -32,32 +32,72 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgpn - ex_get_prop_names
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     obj_type                type of object; element block, node
-*                                       set, or side set
-*
-* exit conditions - 
-*       char*   prop_names[]            ptr array of property names
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include <string.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
- * reads the names of the property arrays from the database
- */
+/*!
+  
+The function ex_get_prop_names() returns names of integer properties
+stored for an element block, node set, or side set. The number of
+properties (needed to allocate space for the property names) can be
+obtained via a call to ex_inquire() or ex_inquire_int().
+
+\return In case of an error, ex_get_prop_names() returns a negative number; a
+warning will return a positive number.  Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  invalid object type specified.
+
+
+\param[in]   exoid        exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in]   obj_type     Type of object; use one of the options in the table below.
+\param[out]  prop_names   Returned array containing \c num_props (obtained from call to
+                          ex_inquire() or ex_inquire_int()) names (of maximum length
+        \p MAX_STR_LENGTH ) of properties to be stored. \b ID, a
+        reserved property name, will be the first name in the array.
+
+<table>
+<tr><td> \c EX_NODE_SET   </td><td>  Node Set entity type     </td></tr>
+<tr><td> \c EX_EDGE_BLOCK </td><td>  Edge Block entity type   </td></tr>
+<tr><td> \c EX_EDGE_SET   </td><td>  Edge Set entity type     </td></tr>
+<tr><td> \c EX_FACE_BLOCK </td><td>  Face Block entity type   </td></tr>
+<tr><td> \c EX_FACE_SET   </td><td>  Face Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_BLOCK </td><td>  Element Block entity type</td></tr>
+<tr><td> \c EX_ELEM_SET   </td><td>  Element Set entity type  </td></tr>
+<tr><td> \c EX_SIDE_SET   </td><td>  Side Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_MAP   </td><td>  Element Map entity type  </td></tr>
+<tr><td> \c EX_NODE_MAP   </td><td>  Node Map entity type     </td></tr>
+<tr><td> \c EX_EDGE_MAP   </td><td>  Edge Map entity type     </td></tr>
+<tr><td> \c EX_FACE_MAP   </td><td>  Face Map entity type     </td></tr>
+</table>
+
+As an example, the following code segment reads in properties assigned
+to node sets:
+
+\code
+#include "exodusII.h";
+int error, exoid, num_props, *prop_values;
+char *prop_names[MAX_PROPS];
+
+\comment{read node set properties}
+num_props = ex_inquire_int(exoid, EX_INQ_NS_PROP);
+
+for (i=0; i < num_props; i++) {
+   prop_names[i] = (char *) malloc ((MAX_STR_LENGTH+1), sizeof(char));
+   prop_values = (int *) malloc (num_node_sets, sizeof(int));
+}
+
+error = ex_get_prop_names(exoid,EX_NODE_SET,prop_names);
+
+for (i=0; i < num_props; i++) {
+   error = ex_get_prop_array(exoid, EX_NODE_SET, prop_names[i],
+                             prop_values);
+}
+\endcode
+
+*/
 
 int ex_get_prop_names (int    exoid,
                        ex_entity_type obj_type,
@@ -66,6 +106,8 @@ int ex_get_prop_names (int    exoid,
   int status;
   int i, num_props, propid;
   char var_name[12];
+  size_t att_len;
+  nc_type att_type;
 
   char errmsg[MAX_ERR_LENGTH];
 
@@ -116,7 +158,7 @@ int ex_get_prop_names (int    exoid,
     default:
       exerrval = EX_BADPARAM;
       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-              obj_type, exoid);
+        obj_type, exoid);
       ex_err("ex_get_prop_names",errmsg,EX_BADPARAM);
       return(EX_FATAL);
     }
@@ -124,17 +166,36 @@ int ex_get_prop_names (int    exoid,
     if ((status = nc_inq_varid(exoid, var_name, &propid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to locate property array %s in file id %d",
-              var_name, exoid);
+        "Error: failed to locate property array %s in file id %d",
+        var_name, exoid);
       ex_err("ex_get_prop_names",errmsg,exerrval);
       return (EX_FATAL);
     }
 
     /*   for each property, read the "name" attribute of property array variable */
-    if ((status = nc_get_att_text(exoid, propid, ATT_PROP_NAME, prop_names[i])) != NC_NOERR) {
+    if ((status = nc_inq_att(exoid, propid, ATT_PROP_NAME, &att_type, &att_len)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to get property name in file id %d", exoid);
+        "Error: failed to get property attributes (type, len) in file id %d", exoid);
+      ex_err("ex_get_prop_names",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+
+    if (att_len-1 <= ex_max_name_length) {
+      /* Client has large enough char string to hold text... */
+      if ((status = nc_get_att_text(exoid, propid, ATT_PROP_NAME, prop_names[i])) != NC_NOERR) {
+  exerrval = status;
+  sprintf(errmsg,
+    "Error: failed to get property name in file id %d", exoid);
+  ex_err("ex_get_prop_names",errmsg,exerrval);
+  return (EX_FATAL);
+      }
+    }
+    else {
+      /* FIXME */
+      exerrval = NC_ESTS;
+      sprintf(errmsg,
+        "Error: property name length exceeds space available to store it in file id %d", exoid);
       ex_err("ex_get_prop_names",errmsg,exerrval);
       return (EX_FATAL);
     }

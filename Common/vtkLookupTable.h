@@ -236,7 +236,7 @@ public:
 
   // Description:
   // Copy the contents from another LookupTable
-  void DeepCopy(vtkLookupTable *lut);
+  void DeepCopy(vtkScalarsToColors *lut);
 
   // Description:
   // This should return 1 is the subclass is using log scale for mapping scalars

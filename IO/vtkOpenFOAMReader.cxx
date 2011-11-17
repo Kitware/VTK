@@ -55,7 +55,6 @@
 #include "vtkOpenFOAMReader.h"
 
 #include <vtkstd/vector>
-#include "vtksys/DateStamp.h"
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/ios/sstream>
 #include "vtk_zlib.h"
@@ -147,7 +146,7 @@ struct vtkFoamDict;
 //-----------------------------------------------------------------------------
 // class vtkOpenFOAMReaderPrivate
 // the reader core of vtkOpenFOAMReader
-class VTK_IO_EXPORT vtkOpenFOAMReaderPrivate : public vtkObject
+class vtkOpenFOAMReaderPrivate : public vtkObject
 {
 public:
   static vtkOpenFOAMReaderPrivate *New();
@@ -2211,7 +2210,7 @@ public:
   {
     return this->IsUniform;
   }
-  void Read(vtkFoamIOobject& io);
+  int Read(vtkFoamIOobject& io);
   void ReadDictionary(vtkFoamIOobject& io, const vtkFoamToken& firstKeyword);
   const vtkIntArray& LabelList() const
   {
@@ -3068,7 +3067,6 @@ vtkFoamEntryValue::vtkFoamEntryValue(
   switch (this->Superclass::Type)
     {
     case VECTORLIST:
-#if vtksys_DATE_STAMP_FULL >= 20080620
         {
         vtkFloatArray *fa = vtkFloatArray::SafeDownCast(value.ToVTKObject());
         if(fa->GetNumberOfComponents() == 6)
@@ -3080,7 +3078,6 @@ vtkFoamEntryValue::vtkFoamEntryValue(
           break;
           }
         }
-#endif
     case LABELLIST:
     case SCALARLIST:
     case STRINGLIST:
@@ -3406,7 +3403,9 @@ void vtkFoamEntryValue::ReadDictionary(vtkFoamIOobject& io,
 }
 
 // guess the type of the given entry value and read it
-void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
+// return value: 0 if encountered end of entry (';') during parsing
+// composite entry value, 1 otherwise
+int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
 {
   vtkFoamToken currToken;
   if (!io.Read(currToken))
@@ -3417,7 +3416,7 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   if (currToken == '{')
     {
     this->ReadDictionary(io, vtkFoamToken());
-    return;
+    return 1;
     }
   // for reading sublist from vtkFoamEntryValue::readList() or there
   // are cases where lists without the (non)uniform keyword appear
@@ -3425,12 +3424,12 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   else if (currToken == '(')
     {
     this->ReadList(io);
-    return;
+    return 1;
     }
   else if (currToken == '[')
     {
     this->ReadDimensionSet(io);
-    return;
+    return 1;
     }
   else if (currToken == "uniform")
     {
@@ -3442,6 +3441,11 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     if (currToken == '(')
       {
       this->ReadList(io);
+      }
+    else if (currToken == ';')
+      {
+      this->Superclass::operator=("uniform");
+      return 0;
       }
     else if (currToken.GetType() == this->Superclass::LABEL
         || currToken.GetType() == this->Superclass::SCALAR
@@ -3503,6 +3507,11 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
         io.ReadExpecting(')');
         }
       }
+    else if (currToken == ';')
+      {
+      this->Superclass::operator=("nonuniform");
+      return 0;
+      }
     else
       {
       throw vtkFoamError() << "Unsupported nonuniform list type " << currToken;
@@ -3524,6 +3533,7 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     {
     this->Superclass::operator=(currToken);
     }
+  return 1;
 }
 
 // read values of an entry
@@ -3532,7 +3542,10 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
   for (;;)
     {
     this->Superclass::push_back(new vtkFoamEntryValue(this));
-    this->Superclass::back()->Read(io);
+    if (!this->Superclass::back()->Read(io))
+      {
+      break;
+      }
 
     if (this->Superclass::size() >= 2)
       {
@@ -5262,7 +5275,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         else if (pivotPoint == -1)
           {
           const int *faceIPoints = facePoints[cellFaceI];
-          bool found0Dup = false, found2Dup = false;
+          bool found0Dup = false;
           int pointI = 0;
           for (; pointI < 4; pointI++) // each point
             {
@@ -5277,7 +5290,6 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               }
             else if (baseFacePoint2 == faceIPointI)
               {
-              found2Dup = true;
               break;
               }
             }
@@ -6532,7 +6544,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
         data = vtkFloatArray::New();
         data->SetNumberOfComponents(nComponents);
         data->SetNumberOfTuples(nElements);
-#if vtksys_DATE_STAMP_FULL >= 20080620
         // swap the components of symmTensor to match the component
         // names in paraview
         if(nComponents == 6)
@@ -6545,7 +6556,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
           tuple[4] = symyz;
           tuple[5] = symxz;
           }
-#endif
         for (int i = 0; i < nElements; i++)
           {
           data->SetTuple(i, tuple);
@@ -6575,7 +6585,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
         return NULL;
         }
       data = static_cast<vtkFloatArray *>(entry.Ptr());
-#if vtksys_DATE_STAMP_FULL >= 20080620
       // swap the components of symmTensor to match the component
       // names in paraview
       const int nComponents = data->GetNumberOfComponents();
@@ -6593,7 +6602,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
           tuple[5] = symxz;
           }
         }
-#endif
       }
     else if (entry.FirstValue().GetType() == vtkFoamToken::EMPTYLIST && nElements <= 0)
       {

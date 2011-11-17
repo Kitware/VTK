@@ -150,6 +150,13 @@ public:
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
 
   // Description:
+  // Specify whether or not rounding to integers the transformed points when
+  // TransformCoordinate is set. By default, it does not use double precision.
+  vtkGetMacro(TransformCoordinateUseDouble,bool);
+  vtkSetMacro(TransformCoordinateUseDouble,bool);
+  vtkBooleanMacro(TransformCoordinateUseDouble,bool);
+
+  // Description:
   // Map the scalars (if there are any scalars and ScalarVisibility is on)
   // through the lookup table, returning an unsigned char RGBA array. This is
   // typically done as part of the rendering process. The alpha parameter 
@@ -176,6 +183,7 @@ protected:
   int ScalarMode;
   
   vtkCoordinate *TransformCoordinate;
+  bool TransformCoordinateUseDouble;
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 

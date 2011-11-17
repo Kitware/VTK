@@ -50,7 +50,6 @@
 *
 * exit conditions - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -83,7 +82,7 @@ int ex_put_block( int         exoid,
 {
   int status;
   int arbitrary_polyhedra = 0; /* 1 if block is arbitrary 2d polyhedra type; 2 if 3d polyhedra */
-  int varid, dimid, dims[2], blk_id_ndx, blk_stat, strdim;
+  int att_name_varid, varid, dimid, dims[2], blk_id_ndx, blk_stat, strdim;
   size_t start[2];
   int num_blk;
   size_t temp;
@@ -131,7 +130,7 @@ int ex_put_block( int         exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf( errmsg, "Error: Bad block type (%d) specified for file id %d",
-             blk_type, exoid );
+       blk_type, exoid );
     ex_err( "ex_put_block", errmsg, exerrval );
     return (EX_FATAL);
   }
@@ -139,10 +138,10 @@ int ex_put_block( int         exoid,
   /* first check if any element blocks are specified */
 
   if ((status = ex_get_dimension(exoid, dnumblk, ex_name_of_object(blk_type),
-                                 &temp, &dimid, "ex_put_block")) != NC_NOERR) {
+         &temp, &dimid, "ex_put_block")) != NC_NOERR) {
     return EX_FATAL;
   }
-  num_blk = (int)temp;
+  num_blk = temp;
   
   /* Next: Make sure that this is not a duplicate element block id by
      searching the vblkids array.
@@ -154,7 +153,7 @@ int ex_put_block( int         exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to locate %s ids in file id %d",
-            ex_name_of_object(blk_type), exoid);
+      ex_name_of_object(blk_type), exoid);
     ex_err("ex_put_block",errmsg,exerrval);
   }
 
@@ -163,7 +162,7 @@ int ex_put_block( int         exoid,
     exerrval = EX_FATAL;
     sprintf(errmsg,
             "Error: %s id %d already exists in file id %d",
-            ex_name_of_object(blk_type), blk_id,exoid);
+      ex_name_of_object(blk_type), blk_id,exoid);
     ex_err("ex_put_block",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -177,8 +176,8 @@ int ex_put_block( int         exoid,
   if (cur_num_blk >= num_blk) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-            "Error: exceeded number of %ss (%d) defined in file id %d",
-            ex_name_of_object(blk_type), num_blk,exoid);
+      "Error: exceeded number of %ss (%d) defined in file id %d",
+      ex_name_of_object(blk_type), num_blk,exoid);
     ex_err("ex_put_block",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -193,13 +192,13 @@ int ex_put_block( int         exoid,
   if ((status = nc_put_var1_int(exoid, varid, start, &blk_id)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store %s id to file id %d",
-            ex_name_of_object(blk_type), exoid);
+      "Error: failed to store %s id to file id %d",
+      ex_name_of_object(blk_type), exoid);
     ex_err("ex_put_block",errmsg,exerrval);
     return (EX_FATAL);
   }
 
-  blk_id_ndx = ((int)start[0])+1; /* element id index into vblkids array*/
+  blk_id_ndx = start[0]+1; /* element id index into vblkids array*/
 
   if (num_entries_this_blk == 0) /* Is this a NULL element block? */
     blk_stat = 0; /* change element block status to NULL */
@@ -209,8 +208,8 @@ int ex_put_block( int         exoid,
   if ((status = nc_inq_varid (exoid, vblksta, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate %s status in file id %d",
-            ex_name_of_object(blk_type), exoid);
+      "Error: failed to locate %s status in file id %d",
+      ex_name_of_object(blk_type), exoid);
     ex_err("ex_put_block",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -218,8 +217,8 @@ int ex_put_block( int         exoid,
   if ((status = nc_put_var1_int(exoid, varid, start, &blk_stat)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store %s id %d status to file id %d",
-            ex_name_of_object(blk_type), blk_id, exoid);
+      "Error: failed to store %s id %d status to file id %d",
+      ex_name_of_object(blk_type), blk_id, exoid);
     ex_err("ex_put_block",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -279,8 +278,8 @@ int ex_put_block( int         exoid,
   default:
     exerrval = 1005;
     sprintf(errmsg,
-            "Internal Error: unrecognized block type in switch: %d in file id %d",
-            blk_type,exoid);
+      "Internal Error: unrecognized block type in switch: %d in file id %d",
+      blk_type,exoid);
     ex_err("ex_put_block",errmsg,EX_MSG);
     return (EX_FATAL);              /* number of attributes not defined */
   }
@@ -290,14 +289,14 @@ int ex_put_block( int         exoid,
     if (status == NC_ENAMEINUSE) {        /* duplicate entry */
       exerrval = status;
       sprintf(errmsg,
-              "Error: %s %d already defined in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: %s %d already defined in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
     } else {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to define number of entities/block for %s %d file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: failed to define number of entities/block for %s %d file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
     }
     goto error_ret;         /* exit define mode and return */
@@ -308,8 +307,8 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_dim(exoid,dnnpe,num_nodes_per_entry, &nnodperentdim)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to define number of nodes/entity for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: failed to define number of nodes/entity for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -319,8 +318,8 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_dim (exoid,dnepe,num_edges_per_entry, &nedgperentdim)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to define number of edges/entity for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: failed to define number of edges/entity for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -330,8 +329,8 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_dim(exoid,dnfpe,num_faces_per_entry, &nfacperentdim)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to define number of faces/entity for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: failed to define number of faces/entity for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -343,8 +342,8 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_dim(exoid, dnape, num_attr_per_entry, &numattrdim)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to define number of attributes in %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: failed to define number of attributes in %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -355,17 +354,17 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_var(exoid, vblkatt, nc_flt_code(exoid), 2, dims, &varid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error:  failed to define attributes for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error:  failed to define attributes for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
 
     /* inquire previously defined dimensions  */
-    if ((status = nc_inq_dimid(exoid, DIM_STR, &strdim)) != NC_NOERR) {
+    if ((status = nc_inq_dimid(exoid, DIM_STR_NAME, &strdim)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to get string length in file id %d",exoid);
+        "Error: failed to get string length in file id %d",exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -373,12 +372,12 @@ int ex_put_block( int         exoid,
     /* Attribute names... */
     dims[0] = numattrdim;
     dims[1] = strdim;
-            
-    if ((status = nc_def_var(exoid, vattnam, NC_CHAR, 2, dims, &varid)) != NC_NOERR) {
+      
+    if ((status = nc_def_var(exoid, vattnam, NC_CHAR, 2, dims, &att_name_varid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to define %s attribute name array in file id %d",
-              ex_name_of_object(blk_type), exoid);
+        "Error: failed to define %s attribute name array in file id %d",
+        ex_name_of_object(blk_type), exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -387,12 +386,12 @@ int ex_put_block( int         exoid,
   /* See if storing an 'nsided' element block (arbitrary 2d polyhedra or super element) */
   if (strlen(entry_descrip) >= 3) {
     if ((entry_descrip[0] == 'n' || entry_descrip[0] == 'N') &&
-        (entry_descrip[1] == 's' || entry_descrip[1] == 'S') &&
-        (entry_descrip[2] == 'i' || entry_descrip[2] == 'I'))
+  (entry_descrip[1] == 's' || entry_descrip[1] == 'S') &&
+  (entry_descrip[2] == 'i' || entry_descrip[2] == 'I'))
       arbitrary_polyhedra = 1;
     else if ((entry_descrip[0] == 'n' || entry_descrip[0] == 'N') &&
-             (entry_descrip[1] == 'f' || entry_descrip[1] == 'F') &&
-             (entry_descrip[2] == 'a' || entry_descrip[2] == 'A'))
+       (entry_descrip[1] == 'f' || entry_descrip[1] == 'F') &&
+       (entry_descrip[2] == 'a' || entry_descrip[2] == 'A'))
       /* If a FACE_BLOCK, then we are dealing with the faces of the nfaced block. */
       arbitrary_polyhedra = blk_type == EX_FACE_BLOCK ? 1 : 2;
   }
@@ -402,7 +401,7 @@ int ex_put_block( int         exoid,
     if (blk_type != EX_FACE_BLOCK && blk_type != EX_ELEM_BLOCK) {
       exerrval = EX_BADPARAM;
       sprintf( errmsg, "Error: Bad block type (%d) for nsided/nfaced block in file id %d",
-               blk_type, exoid );
+         blk_type, exoid );
       ex_err( "ex_put_block", errmsg, exerrval );
       return (EX_FATAL);
     }
@@ -414,9 +413,9 @@ int ex_put_block( int         exoid,
       /* store entity types as attribute of npeid variable -- node/elem, node/face, face/elem*/
       strcpy(entity_type1, "NODE");
       if (blk_type == EX_ELEM_BLOCK)
-        strcpy(entity_type2, "ELEM");
+  strcpy(entity_type2, "ELEM");
       else
-        strcpy(entity_type2, "FACE");
+  strcpy(entity_type2, "FACE");
     } else if (arbitrary_polyhedra == 2) {
       dims[0] = nfacperentdim;
       vconn = vfaccon;
@@ -429,8 +428,8 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_var(exoid, vconn, NC_INT, 1, dims, &connid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to create connectivity array for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: failed to create connectivity array for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -441,27 +440,27 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_var(exoid, vnpecnt, NC_INT, 1, dims, &npeid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to create face- or node- per-entity count array for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id, exoid);
+        "Error: failed to create face- or node- per-entity count array for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id, exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
 
     if ((status = nc_put_att_text(exoid, npeid, "entity_type1", strlen(entity_type1)+1,
-                                  entity_type1)) != NC_NOERR) {
+          entity_type1)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to store entity type attribute text for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id, exoid);
+        "Error: failed to store entity type attribute text for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id, exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
     if ((status = nc_put_att_text(exoid, npeid, "entity_type2", strlen(entity_type2)+1,
-                                  entity_type2)) != NC_NOERR) {
+          entity_type2)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to store entity type attribute text for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id, exoid);
+        "Error: failed to store entity type attribute text for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id, exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
@@ -473,19 +472,19 @@ int ex_put_block( int         exoid,
     if ((status = nc_def_var(exoid, vnodcon, NC_INT, 2, dims, &connid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to create connectivity array for %s %d in file id %d",
-              ex_name_of_object(blk_type), blk_id,exoid);
+        "Error: failed to create connectivity array for %s %d in file id %d",
+        ex_name_of_object(blk_type), blk_id,exoid);
       ex_err("ex_put_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
   }
   /* store element type as attribute of connectivity variable */
   if ((status = nc_put_att_text(exoid, connid, ATT_NAME_ELB, strlen(entry_descrip)+1, 
-                                entry_descrip)) != NC_NOERR) {
+        entry_descrip)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store %s type name %s in file id %d",
-            ex_name_of_object(blk_type), entry_descrip,exoid);
+      "Error: failed to store %s type name %s in file id %d",
+      ex_name_of_object(blk_type), entry_descrip,exoid);
     ex_err("ex_put_block",errmsg,exerrval);
     goto error_ret;         /* exit define mode and return */
   }
@@ -496,12 +495,12 @@ int ex_put_block( int         exoid,
       dims[1] = nedgperentdim;
       
       if ((status = nc_def_var(exoid, vedgcon, NC_INT, 2, dims, &varid)) != NC_NOERR) {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to create edge connectivity array for %s %d in file id %d",
-                ex_name_of_object(blk_type), blk_id,exoid);
-        ex_err("ex_put_block",errmsg,exerrval);
-        goto error_ret;         /* exit define mode and return */
+  exerrval = status;
+  sprintf(errmsg,
+    "Error: failed to create edge connectivity array for %s %d in file id %d",
+    ex_name_of_object(blk_type), blk_id,exoid);
+  ex_err("ex_put_block",errmsg,exerrval);
+  goto error_ret;         /* exit define mode and return */
       }
     }
     
@@ -510,12 +509,12 @@ int ex_put_block( int         exoid,
       dims[1] = nfacperentdim;
       
       if ((status = nc_def_var(exoid, vfaccon, NC_INT, 2, dims, &varid)) != NC_NOERR) {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to create face connectivity array for %s %d in file id %d",
-                ex_name_of_object(blk_type), blk_id,exoid);
-        ex_err("ex_put_block",errmsg,exerrval);
-        goto error_ret;         /* exit define mode and return */
+  exerrval = status;
+  sprintf(errmsg,
+    "Error: failed to create face connectivity array for %s %d in file id %d",
+    ex_name_of_object(blk_type), blk_id,exoid);
+  ex_err("ex_put_block",errmsg,exerrval);
+  goto error_ret;         /* exit define mode and return */
       }
     }
   }
@@ -523,10 +522,28 @@ int ex_put_block( int         exoid,
 
   if ((exerrval=nc_enddef (exoid)) != NC_NOERR) {
     sprintf(errmsg,
-            "Error: failed to complete %s definition in file id %d", 
-            ex_name_of_object(blk_type), exoid);
+      "Error: failed to complete %s definition in file id %d", 
+      ex_name_of_object(blk_type), exoid);
     ex_err("ex_put_block",errmsg,exerrval);
     return (EX_FATAL);
+  }
+
+  /* Output a dummy empty attribute name in case client code doesn't
+     write anything; avoids corruption in some cases.
+  */
+  if (num_attr_per_entry > 0) {
+    size_t  count[2];
+    char *text = "";
+    size_t i;
+
+    count[0] = 1;
+    start[1] = 0;
+    count[1] = strlen(text)+1;
+  
+    for (i = 0; i < num_attr_per_entry; i++) {
+      start[0] = i;
+      nc_put_vara_text(exoid, att_name_varid, start, count, text);
+    }
   }
 
   return (EX_NOERR);
@@ -535,8 +552,8 @@ int ex_put_block( int         exoid,
  error_ret:
   if (nc_enddef (exoid) != NC_NOERR) {    /* exit define mode */
     sprintf(errmsg,
-            "Error: failed to complete definition for file id %d",
-            exoid);
+      "Error: failed to complete definition for file id %d",
+      exoid);
     ex_err("ex_put_block",errmsg,exerrval);
   }
   return (EX_FATAL);

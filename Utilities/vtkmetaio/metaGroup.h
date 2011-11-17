@@ -26,9 +26,9 @@
  *    Reads and Writes MetaGroupFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date May 22, 2002
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaObject.h
@@ -55,9 +55,9 @@ class METAIO_EXPORT MetaGroup : public MetaObject
     ////
     MetaGroup(void);
 
-    MetaGroup(const char *_headerName);   
+    MetaGroup(const char *_headerName);
 
-    MetaGroup(const MetaGroup *_group);    
+    MetaGroup(const MetaGroup *_group);
 
     MetaGroup(unsigned int dim);
 
@@ -68,7 +68,7 @@ class METAIO_EXPORT MetaGroup : public MetaObject
     void CopyInfo(const MetaObject * _object);
 
     void  Clear(void);
-    
+
 
   ////
   //

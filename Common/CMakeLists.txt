@@ -111,6 +111,7 @@ vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkLookupTableWithEnabling.cxx
 vtkMath.cxx
+vtkMathUtilities.h
 vtkMatrix3x3.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
@@ -214,6 +215,14 @@ ADD_CUSTOM_COMMAND(
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
   )
+
+IF(VTK_HAVE_SYNC_BUILTINS)
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkTimeStamp.cxx
+    PROPERTIES
+    COMPILE_DEFINITIONS VTK_HAVE_SYNC_BUILTINS
+  )
+ENDIF(VTK_HAVE_SYNC_BUILTINS)
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkUnicodeString.cxx
@@ -388,6 +397,7 @@ ABSTRACT
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkColor
+  vtkMathUtilities
   vtkRect
   vtkVector
   HEADER_FILE_ONLY
@@ -408,6 +418,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkIOStream.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx
+  vtkMathUtilities.h
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx

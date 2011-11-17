@@ -18,15 +18,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkMapper.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkImageMapper3D.h"
 #include "vtkAbstractMapper3D.h"
 #include "vtkProp.h"
 #include "vtkLODProp3D.h"
 #include "vtkActor.h"
 #include "vtkPropCollection.h"
-#include "vtkImageActor.h"
 #include "vtkProp3DCollection.h"
 #include "vtkAssemblyPath.h"
-#include "vtkImageData.h"
 #include "vtkVolume.h"
 #include "vtkRenderer.h"
 #include "vtkProperty.h"
@@ -54,7 +53,6 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 {
   int picked = 0;
   vtkProp *propCandidate;
-  vtkImageActor *imageActor = NULL;
   vtkAbstractMapper3D *mapper = NULL;
   int pickable;
 
@@ -83,7 +81,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
     propCandidate = this->Path->GetLastNode()->GetViewProp();
 
     //find the mapper and dataset corresponding to the picked prop        
-    pickable = this->TypeDecipher(propCandidate, &imageActor, &mapper);
+    pickable = this->TypeDecipher(propCandidate, &mapper);
     if ( pickable )
       { 
       if ( mapper )
@@ -91,6 +89,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
         this->Mapper = mapper; 
         vtkMapper *map1;
         vtkAbstractVolumeMapper *vmap;
+        vtkImageMapper3D *imap;
         if ( (map1=vtkMapper::SafeDownCast(mapper)) != NULL )
           {
           this->DataSet = map1->GetInput();
@@ -101,16 +100,16 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
           this->DataSet = vmap->GetDataSetInput();
           this->Mapper = vmap;
           }
+        else if ( (imap=vtkImageMapper3D::SafeDownCast(mapper)) != NULL )
+          {
+          this->DataSet = imap->GetDataSetInput();
+          this->Mapper = imap;
+          }
         else
           {
           this->DataSet = NULL;
           }              
         }//mapper
-      else if ( imageActor )
-        {
-        this->Mapper = NULL;
-        this->DataSet = imageActor->GetInput();
-        }//imageActor
       }//pickable
 
     //go through list of props the renderer got for us and put only
@@ -125,7 +124,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
       for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
         {
         propCandidate = path->GetLastNode()->GetViewProp();
-        pickable = this->TypeDecipher(propCandidate, &imageActor, &mapper);
+        pickable = this->TypeDecipher(propCandidate, &mapper);
         if ( pickable && !this->Prop3Ds->IsItemPresent(prop) )
           {
           this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));

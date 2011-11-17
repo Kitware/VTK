@@ -128,12 +128,12 @@ class METAIO_EXPORT MetaForm
             MET_FieldRecordType * mFw = new MET_FieldRecordType;
             MET_InitWriteField(mFw, _fieldName, _type, _length, _v);
             m_UserDefinedWriteFields.push_back(mFw);
-      
+
             MET_FieldRecordType * mFr = new MET_FieldRecordType;
             MET_InitReadField(mFr, _fieldName, _type, _required,
                               _dependsOn, _length);
             m_UserDefinedReadFields.push_back(mFr);
-      
+
             return true;
             }
 
@@ -166,7 +166,7 @@ class METAIO_EXPORT MetaForm
 
     char  m_FileName[255];
 
-    char  m_Comment[255];      
+    char  m_Comment[255];
 
     char  m_FormTypeName[255];
 
@@ -184,7 +184,7 @@ class METAIO_EXPORT MetaForm
     FieldsContainerType m_Fields;
     FieldsContainerType m_UserDefinedWriteFields;
     FieldsContainerType m_UserDefinedReadFields;
-    
+
     // protected functions
 
     virtual void M_Destroy(void);

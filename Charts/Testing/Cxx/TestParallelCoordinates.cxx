@@ -23,35 +23,32 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
-
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#include "vtkNew.h"
 
 //----------------------------------------------------------------------------
 int TestParallelCoordinates(int , char* [])
 {
   // Set up a 2D scene, add an XY chart to it
-  VTK_CREATE(vtkContextView, view);
+  vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 600);
-  VTK_CREATE(vtkChartParallelCoordinates, chart);
-  view->GetScene()->AddItem(chart);
+  vtkNew<vtkChartParallelCoordinates> chart;
+  view->GetScene()->AddItem(chart.GetPointer());
 
   // Create a table with some points in it...
-  VTK_CREATE(vtkTable, table);
-  VTK_CREATE(vtkFloatArray, arrX);
+  vtkNew<vtkTable> table;
+  vtkNew<vtkFloatArray> arrX;
   arrX->SetName("Field 1");
-  table->AddColumn(arrX);
-  VTK_CREATE(vtkFloatArray, arrC);
+  table->AddColumn(arrX.GetPointer());
+  vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Field 2");
-  table->AddColumn(arrC);
-  VTK_CREATE(vtkFloatArray, arrS);
+  table->AddColumn(arrC.GetPointer());
+  vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Field 3");
-  table->AddColumn(arrS);
-  VTK_CREATE(vtkFloatArray, arrS2);
+  table->AddColumn(arrS.GetPointer());
+  vtkNew<vtkFloatArray> arrS2;
   arrS2->SetName("Field 4");
-  table->AddColumn(arrS2);
+  table->AddColumn(arrS2.GetPointer());
   // Test charting with a few more points...
   int numPoints = 200;
   float inc = 7.5 / (numPoints-1);
@@ -64,7 +61,7 @@ int TestParallelCoordinates(int , char* [])
     table->SetValue(i, 3, tan(i * inc) + 0.5);
     }
 
-  chart->GetPlot(0)->SetInput(table);
+  chart->GetPlot(0)->SetInput(table.GetPointer());
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

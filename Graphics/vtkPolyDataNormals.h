@@ -14,11 +14,23 @@
 =========================================================================*/
 // .NAME vtkPolyDataNormals - compute normals for polygonal mesh
 // .SECTION Description
-// vtkPolyDataNormals is a filter that computes point normals for a polygonal 
-// mesh. The filter can reorder polygons to insure consistent orientation
-// across polygon neighbors. Sharp edges can be split and points duplicated
-// with separate normals to give crisp (rendered) surface definition. It is
-// also possible to globally flip the normal orientation.
+// vtkPolyDataNormals is a filter that computes point and/or cell normals
+// for a polygonal mesh. The user specifies if they would like the point
+// and/or cell normals to be computed by setting the ComputeCellNormals
+// and ComputePointNormals flags.
+// 
+// The computed normals (a vtkFloatArray) are set to be the active normals
+// (using SetNormals()) of the PointData and/or the CellData (respectively)
+// of the output PolyData. The name of these arrays is "Normals", so they
+// can be retrieved either with
+// vtkFloatArray::SafeDownCast(output->GetPointData()->GetNormals())
+// or with
+// vtkFloatArray::SafeDownCast(output->GetPointData()->GetArray("Normals"))
+//
+// The filter can reorder polygons to insure consistent
+// orientation across polygon neighbors. Sharp edges can be split and points
+// duplicated with separate normals to give crisp (rendered) surface definition.
+// It is also possible to globally flip the normal orientation.
 //
 // The algorithm works by determining normals for each polygon and then
 // averaging them at shared points. When sharp edges are present, the edges

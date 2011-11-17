@@ -261,7 +261,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     vtkCallbackCommand *cbc = vtkCallbackCommand::New();
     cbc->SetClientData(this);
     cbc->SetCallback(dirty_cache);
-    this->mRenWin->AddObserver(vtkCommand::EndEvent, cbc);
+    this->mRenWin->AddObserver(vtkCommand::RenderEvent, cbc);
     cbc->Delete();
     }
 
@@ -315,14 +315,14 @@ void QVTKWidget::saveImageToCache()
 
   int w = this->width();
   int h = this->height();
-  this->mCachedImage->SetWholeExtent(0, w-1, 0, h-1, 0, 0);
   this->mCachedImage->SetNumberOfScalarComponents(3);
-  this->mCachedImage->SetExtent(this->mCachedImage->GetWholeExtent());
+  this->mCachedImage->SetExtent(0, w-1, 0, h-1, 0, 0);
   this->mCachedImage->AllocateScalars();
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
     this->mCachedImage->GetPointData()->GetScalars());
-  this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1, 1,
-                              array);
+  // We use back-buffer if
+  this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1, 
+    this->mRenWin->GetDoubleBuffer()? 0 /*back*/ : 1 /*front*/, array);
   this->cachedImageCleanFlag = true;
   emit cachedImageClean();
 }
@@ -465,19 +465,10 @@ void QVTKWidget::paintEvent(QPaintEvent* )
     {
     return;
     }
-
   
   // if we have a saved image, use it
-  if (this->cachedImageCleanFlag)
+  if (this->paintCachedImage())
     {
-    vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
-      this->mCachedImage->GetPointData()->GetScalars());
-    // put cached image into back buffer if we can
-    this->mRenWin->SetPixelData(0, 0, this->width()-1, this->height()-1,
-                                array, !this->mRenWin->GetDoubleBuffer());
-    // swap buffers, if double buffering
-    this->mRenWin->Frame();
-    // or should we just put it on the front buffer?
     return;
     }
 
@@ -841,6 +832,26 @@ OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, v
 #endif
 
 
+//-----------------------------------------------------------------------------
+bool QVTKWidget::paintCachedImage()
+{
+  // if we have a saved image, use it
+  if (this->cachedImageCleanFlag)
+    {
+    vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+      this->mCachedImage->GetPointData()->GetScalars());
+    // put cached image into back buffer if we can
+    this->mRenWin->SetPixelData(0, 0, this->width()-1, this->height()-1,
+                                array, !this->mRenWin->GetDoubleBuffer());
+    // swap buffers, if double buffering
+    this->mRenWin->Frame();
+    // or should we just put it on the front buffer?
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 static void dirty_cache(vtkObject *caller, unsigned long,
                         void *clientdata, void *)
 {

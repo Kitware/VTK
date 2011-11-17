@@ -32,36 +32,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgnsd - ex_get_node_set_dist_fact
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     node_set_id             node set id
-*
-* exit conditions - 
-*       int*    node_set_dist_fact      node distribution factors for node set
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
-#include "exodusII_int.h"
 
 /*!
- * reads the distribution factors for a single node set
- * \deprecated Use ex_get_set_dist_fact()(exoid, EX_NODE_SET, node_set_id, node_set_dist_fact)
- */
+\deprecated Use ex_get_set_dist_fact()(exoid, EX_NODE_SET, node_set_id, node_set_dist_fact)
+
+The function ex_get_node_set_dist_fact() returns the node set
+distribution factors for a single node set. Memory must be allocated
+for the list of distribution factors(\c num_dist_in_set in length)
+before this function is invoked.
+
+Because the distribution factors are floating point values, the
+application code must declare the array passed to be the appropriate
+type (\c float or \c double) to match the compute word size passed in
+ex_create() or ex_open().
+
+\return In case of an error, ex_get_node_set_dist_fact() returns a
+negative number; a warning will return a positive number. Possible
+causes of errors include:
+  -  a warning value is returned if no distribution factors were stored.
+
+\param[in]  exoid               exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in]  node_set_id         The node set ID.
+\param[out] node_set_dist_fact  Returned array containing the distribution factors in the node set.
+
+Refer to the description of ex_get_node_set_param() for a sample code
+segment to read a node set's distribution factors.
+*/
 
 int ex_get_node_set_dist_fact  (int   exoid,
                                 int   node_set_id,
                                 void *node_set_dist_fact)
 {
   return ex_get_set_dist_fact(exoid, EX_NODE_SET, node_set_id,
-                              node_set_dist_fact);
+            node_set_dist_fact);
 }

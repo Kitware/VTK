@@ -92,6 +92,18 @@ vtkRenderWindow::~vtkRenderWindow()
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
+
+  vtkCollectionSimpleIterator rsit;
+  this->Renderers->InitTraversal(rsit);
+  vtkRenderer *aren;
+  while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
+    {
+    if (aren->GetRenderWindow() == this)
+      {
+      vtkErrorMacro("Window destructed with renderer still associated with it!");
+      }
+    }
+
   this->Renderers->Delete();
 
   this->PainterDeviceAdapter->Delete();
@@ -763,6 +775,10 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
   // we are its parent
   this->Renderers->RemoveItem(ren);
+  if (ren->GetRenderWindow() == this)
+    {
+    ren->SetRenderWindow(NULL);
+    }
 }
 
 int vtkRenderWindow::HasRenderer(vtkRenderer *ren)
@@ -1257,6 +1273,12 @@ void vtkRenderWindow::CopyResultFrame(void)
     this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,!this->DoubleBuffer);
     }
 
+  // Just before we swap buffers (in case of double buffering), we fire the
+  // RenderEvent marking that a render call has concluded successfully. We
+  // separate this from EndEvent since some applications may want to put some
+  // more elements on the "draw-buffer" before calling the rendering complete.
+  // This event gives them that opportunity.
+  this->InvokeEvent(vtkCommand::RenderEvent);
   this->Frame();
 }
 

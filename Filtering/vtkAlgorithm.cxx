@@ -61,6 +61,7 @@ vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_BOUNDS, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_TOPOLOGY, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_ATTRIBUTES, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_RANGES, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, MANAGES_METAINFORMATION, Integer);
 
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = 0;
 
@@ -1028,6 +1029,8 @@ void vtkAlgorithm::AddInputConnection(vtkAlgorithmOutput* input)
 {
   this->AddInputConnection(0, input);
 }
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 {
   if(!this->InputPortIndexInRange(port, "connect"))

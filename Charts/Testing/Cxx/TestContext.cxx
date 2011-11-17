@@ -28,6 +28,7 @@
 #include "vtkTextProperty.h"
 #include "vtkOpenGLContextDevice2D.h"
 #include "vtkPoints2D.h"
+#include "vtkNew.h"
 
 #include "vtkRegressionTestImage.h"
 
@@ -45,11 +46,11 @@ public:
 int TestContext( int, char * [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
-  vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
+  vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 600);
-  vtkSmartPointer<ContextTest> test = vtkSmartPointer<ContextTest>::New();
-  view->GetScene()->AddItem(test);
+  vtkNew<ContextTest> test;
+  view->GetScene()->AddItem(test.GetPointer());
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
@@ -135,7 +136,7 @@ bool ContextTest::Paint(vtkContext2D *painter)
                     525, 199, 666, 45);
 
   // Now to test out the transform...
-  vtkSmartPointer<vtkTransform2D> transform = vtkSmartPointer<vtkTransform2D>::New();
+  vtkNew<vtkTransform2D> transform;
   transform->Translate(20, 200);
   painter->GetDevice()->SetMatrix(transform->GetMatrix());
   painter->GetPen()->SetColor(255, 0, 0);

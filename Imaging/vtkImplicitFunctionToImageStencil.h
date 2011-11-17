@@ -45,6 +45,10 @@ public:
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
 
+  // Description:
+  // Override GetMTime() to account for the implicit function.
+  unsigned long GetMTime();
+
 protected:
   vtkImplicitFunctionToImageStencil();
   ~vtkImplicitFunctionToImageStencil();

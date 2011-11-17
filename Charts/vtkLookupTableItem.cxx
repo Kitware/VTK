@@ -60,9 +60,9 @@ void vtkLookupTableItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLookupTableItem::GetBounds(double* bounds)
+void vtkLookupTableItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->LookupTable)
     {
     double* range = this->LookupTable->GetRange();

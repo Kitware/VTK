@@ -81,7 +81,7 @@ void vtkDIMACSGraphWriter::WriteData()
   vtkDataArray* weight = 0;
   weight = input->GetEdgeData()->GetArray("weight");
 
-  // Output either the weight array or just 1.0 if
+  // Output either the weight array or just 1 if
   // we have no weight array
   VTK_CREATE(vtkEdgeListIterator, edges);
   input->GetEdges(edges);
@@ -91,8 +91,7 @@ void vtkDIMACSGraphWriter::WriteData()
       {
       vtkEdgeType e = edges->Next();
       float value = weight->GetTuple1(e.Id);
-      *fp << "e " << e.Source << " " <<
-      e.Target << " " << value << "\n";
+      *fp << "e " << e.Source+1 << " " << e.Target+1 << " " << value << "\n";
       }
     }
   else
@@ -100,10 +99,12 @@ void vtkDIMACSGraphWriter::WriteData()
     while(edges->HasNext())
       {
       vtkEdgeType e = edges->Next();
-      *fp << "e " << e.Source << " " <<
-      e.Target << " 1.0\n";
+      *fp << "e " << e.Source+1 << " " << e.Target+1 << " 1\n";
       }
     }
+
+  // NOTE: Vertices are incremented by 1 since DIMACS files number vertices
+  //       from 1..n.
 
   this->CloseVTKFile(fp);
 }

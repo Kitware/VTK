@@ -73,6 +73,12 @@ void vtkBrush::SetOpacityF(double a)
 }
 
 //-----------------------------------------------------------------------------
+double vtkBrush::GetOpacityF()
+{
+  return this->Color[3] / 255.0;
+}
+
+//-----------------------------------------------------------------------------
 void vtkBrush::SetColor(unsigned char color[3])
 {
   this->Color[0] = color[0];
@@ -98,6 +104,7 @@ void vtkBrush::SetColor(unsigned char r, unsigned char g, unsigned char b,
   this->Color[3] = a;
 }
 
+//-----------------------------------------------------------------------------
 void vtkBrush::SetColor(const vtkColor4ub &color)
 {
   this->BrushColor = color;
@@ -107,6 +114,12 @@ void vtkBrush::SetColor(const vtkColor4ub &color)
 void vtkBrush::SetOpacity(unsigned char a)
 {
   this->Color[3] = a;
+}
+
+//-----------------------------------------------------------------------------
+unsigned char vtkBrush::GetOpacity()
+{
+  return this->Color[3];
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +140,7 @@ void vtkBrush::GetColor(unsigned char color[4])
     }
 }
 
+//-----------------------------------------------------------------------------
 vtkColor4ub vtkBrush::GetColorObject()
 {
   return this->BrushColor;

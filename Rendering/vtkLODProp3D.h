@@ -33,8 +33,10 @@ class vtkRenderer;
 class vtkMapper;
 class vtkAbstractVolumeMapper;
 class vtkAbstractMapper3D;
+class vtkImageMapper3D;
 class vtkProperty;
 class vtkVolumeProperty;
+class vtkImageProperty;
 class vtkTexture;
 class vtkLODProp3DCallback;
 
@@ -80,6 +82,8 @@ public:
   int AddLOD( vtkMapper *m, double time );
   int AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p, double time );
   int AddLOD( vtkAbstractVolumeMapper *m, double time );
+  int AddLOD( vtkImageMapper3D *m, vtkImageProperty *p, double time );
+  int AddLOD( vtkImageMapper3D *m, double time );
 
   // Description:
   // Get the current number of LODs.
@@ -105,6 +109,8 @@ public:
   void GetLODProperty( int id, vtkProperty  **p );
   void SetLODProperty( int id, vtkVolumeProperty  *p );
   void GetLODProperty( int id, vtkVolumeProperty  **p );
+  void SetLODProperty( int id, vtkImageProperty  *p );
+  void GetLODProperty( int id, vtkImageProperty  **p );
 
   // Description:
   // Methods to set / get the mapper of an LOD. Since the LOD could be
@@ -115,6 +121,8 @@ public:
   void GetLODMapper( int id, vtkMapper  **m );
   void SetLODMapper( int id, vtkAbstractVolumeMapper  *m );
   void GetLODMapper( int id, vtkAbstractVolumeMapper  **m );
+  void SetLODMapper( int id, vtkImageMapper3D  *m );
+  void GetLODMapper( int id, vtkImageMapper3D  **m );
 
   // Description:
   // Get the LODMapper as an vtkAbstractMapper3D.  It is the user's

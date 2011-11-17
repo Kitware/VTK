@@ -262,17 +262,14 @@ int vtkTextActor3D::UpdateImageActor()
   // Position the actor
   if (this->ImageActor)
     {
-    // Which one is faster ?
-#if 1
-    vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+    vtkMatrix4x4 *matrix = this->ImageActor->GetUserMatrix();
+    if (!matrix)
+      {
+      matrix = vtkMatrix4x4::New();
+      this->ImageActor->SetUserMatrix(matrix);
+      matrix->Delete();
+      }
     this->GetMatrix(matrix);
-    this->ImageActor->SetUserMatrix(matrix);
-    matrix->Delete();
-#else
-    this->ImageActor->SetPosition(this->GetPosition());
-    this->ImageActor->SetScale(this->GetScale());
-    this->ImageActor->SetOrientation(this->GetOrientation());
-#endif
     }
 
   return 1;

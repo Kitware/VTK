@@ -29,16 +29,16 @@ public:
   vtkTypeMacro(vtkPiecewiseFunctionItem, vtkScalarsToColorsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Reimplemented to return the range of the piecewise function
-  virtual void GetBounds(double bounds[4]);
-
   void SetPiecewiseFunction(vtkPiecewiseFunction* t);
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
 
 protected:
   vtkPiecewiseFunctionItem();
   virtual ~vtkPiecewiseFunctionItem();
+
+  // Description:
+  // Reimplemented to return the range of the piecewise function
+  virtual void ComputeBounds(double bounds[4]);
 
   // Description
   // Compute the texture from the PiecewiseFunction

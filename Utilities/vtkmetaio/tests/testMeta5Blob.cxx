@@ -18,17 +18,17 @@ int main(int argc, char **argv)
     pnt->m_X[0]=(float)0.2;pnt->m_X[1]=i;pnt->m_X[2]=i;
     blob.GetPoints().push_back(pnt);
   }
-  
+
   METAIO_STREAM::cout << "Writing test file ..." << METAIO_STREAM::endl;
-   
+
   blob.BinaryData(true);
   blob.ElementType(MET_FLOAT);
   blob.Write("myCNC.meta");
 
   METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
- 
+
   METAIO_STREAM::cout << "Reading test file ..." << METAIO_STREAM::endl;
-  blob.Read("myCNC.meta"); 
+  blob.Read("myCNC.meta");
 
   METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
 
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
   MetaBlob::PointListType plist =  blob.GetPoints();
   MetaBlob::PointListType::const_iterator it = plist.begin();
-  
+
   while(it != plist.end())
   {
     for(unsigned int d = 0; d < 3; d++)

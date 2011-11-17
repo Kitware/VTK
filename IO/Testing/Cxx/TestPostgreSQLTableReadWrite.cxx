@@ -46,14 +46,26 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
 
   vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast(
     vtkSQLDatabase::CreateFromURL( VTK_PSQL_TEST_URL ) );
+  vtkStdString realDatabase = db->GetDatabaseName();
+  db->SetDatabaseName( "template1" ); // This is guaranteed to exist
   bool status = db->Open();
-
   if ( ! status )
     {
     cerr << "Couldn't open database.\n";
     return 1;
     }
-
+  
+  if ( ! db->CreateDatabase( realDatabase.c_str(), true ) )
+    {
+    cerr << "Error: " << db->GetLastErrorText() << endl;
+    }
+  db->SetDatabaseName( realDatabase.c_str() );
+  if (!db->Open())
+    {
+    cerr << "Error: " << db->GetLastErrorText() << endl;
+    return 1;
+    }
+  
   cerr << "creating a PostgreSQL table from a vtkTable" << endl;
   vtkSmartPointer<vtkTableToPostgreSQLWriter> writerToTest =
     vtkSmartPointer<vtkTableToPostgreSQLWriter>::New();
@@ -95,6 +107,14 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
   query->SetQuery("DROP TABLE tabletest");
   query->Execute();
 
+  cerr << "dropping the database...";
+
+  if ( ! db->DropDatabase( realDatabase.c_str() ) )
+    {
+    cout << "Drop of \"" << realDatabase.c_str() << "\" failed.\n";
+    cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
+    }
+  
   //clean up memory
   db->Delete();
   query->Delete();

@@ -14,11 +14,23 @@
 =========================================================================*/
 // .NAME vtkImageReader2 - Superclass of binary file readers.
 // .SECTION Description
-// vtkImageReader2 is the parent class for vtkImageReader.  It 
-// is a good super class for streaming readers that do not require
-// a mask or transform on the data.  vtkImageReader was implemented
-// before vtkImageReader2, vtkImageReader2 is intended to have 
-// a simpler interface.
+// vtkImageReader2 is a parent class for many VTK image readers.
+// It was written to simplify the interface of vtkImageReader.
+// It can also be used directly to read data without headers (raw).
+// It is a good super class for streaming readers that do not require
+// a mask or transform on the data. An example of reading a raw file is
+// shown below:
+// \code
+//  vtkSmartPointer<vtkImageReader2> reader =
+//   vtkSmartPointer<vtkImageReader2>::New();
+// reader->SetFilePrefix(argv[1]);
+// reader->SetDataExtent(0, 63, 0, 63, 1, 93);
+// reader->SetDataSpacing(3.2, 3.2, 1.5);
+// reader->SetDataOrigin(0.0, 0.0, 0.0);
+// reader->SetDataScalarTypeToUnsignedShort();
+// reader->SetDataByteOrderToLittleEndian();
+// reader->UpdateWholeExtent();
+// \endcode
 
 // .SECTION See Also
 // vtkJPEGReader vtkPNGReader vtkImageReader vtkGESignaReader

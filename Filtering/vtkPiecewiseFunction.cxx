@@ -374,12 +374,24 @@ int vtkPiecewiseFunction::SetNodeValue( int index, double val[4] )
     return -1;
     }
   
+  double oldX = this->Internal->Nodes[index]->X;
   this->Internal->Nodes[index]->X = val[0];
   this->Internal->Nodes[index]->Y = val[1];
   this->Internal->Nodes[index]->Midpoint = val[2];
   this->Internal->Nodes[index]->Sharpness = val[3];
 
-  this->Modified();
+  if (oldX != val[0])
+    {
+    // The point has been moved, the order of points or the range might have
+    // been modified.
+    this->SortAndUpdateRange();
+    // No need to call Modified() here because SortAndUpdateRange() has done it
+    // already.
+    }
+  else
+    {
+    this->Modified();
+    }
 
   return 1;
 }
@@ -460,7 +472,21 @@ void vtkPiecewiseFunction::SortAndUpdateRange()
   vtkstd::sort( this->Internal->Nodes.begin(),
                 this->Internal->Nodes.end(),
                 this->Internal->CompareNodes );
-  
+  bool modifiedInvoked = this->UpdateRange();
+  // If range is updated, Modified() has been called, don't call it again.
+  if (!modifiedInvoked)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkPiecewiseFunction::UpdateRange()
+{
+  double oldRange[2];
+  oldRange[0] = this->Range[0];
+  oldRange[1] = this->Range[1];
+
   int size = static_cast<int>(this->Internal->Nodes.size());
   if ( size )
     {
@@ -472,9 +498,15 @@ void vtkPiecewiseFunction::SortAndUpdateRange()
     this->Range[0] = 0;
     this->Range[1] = 0;
     }
-  this->Modified();  
-}
+  // If the rage is the same, then no need to call Modified()
+  if (oldRange[0] == this->Range[0] && oldRange[1] == this->Range[1])
+    {
+    return false;
+    }
 
+  this->Modified();
+  return true;
+}
 
 // Removes a point from the function. If no point is found then function
 // remains the same.
@@ -516,7 +548,17 @@ int vtkPiecewiseFunction::RemovePoint( double x )
     {
     delete *iter;
     this->Internal->Nodes.erase(iter);
-    this->Modified();
+    // if the first or last point has been removed, then we update the range
+    // No need to sort here as the order of points hasn't changed.
+    bool modifiedInvoked = false;
+    if (i == 0 || i == this->Internal->Nodes.size())
+      {
+      modifiedInvoked = this->UpdateRange();
+      }
+    if (!modifiedInvoked)
+      {
+      this->Modified();
+      }
     }
   else
      {

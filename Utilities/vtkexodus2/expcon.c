@@ -32,49 +32,60 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expcon - ex_put_coord_names
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       char*   coord_names             ptr array of coordinate names
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
 #include <string.h>
+
 /*!
- * writes the names of the coordinate arrays to the database
- * \param  exoid                   exodus file id
- * \param  coord_names             ptr array of coordinate names
+
+The function ex_put_coord_names() writes the names (\p
+MAX_STR_LENGTH-characters in length) of the coordinate arrays to the
+database. Memory must be allocated for the character strings before
+this function is invoked.
+
+In case of an error, ex_put_coord_names() returns a negative number; a
+warning will return a positive number.  Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  data file not initialized properly with call to ex_put_init().
+
+\param[in] exoid          exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in] coord_names    Array containing \c num_dim names of length \p MAX_STR_LENGTH  
+                          of the nodal coordinate arrays.
+
+The following coding will write the coordinate names to an 
+open exodus file :
+
+\code
+int error, exoid;
+
+char *coord_names[3];
+coord_names[0] = "xcoor";
+coord_names[1] = "ycoor";
+coord_names[2] = "zcoor";
+
+error = ex_put_coord_names (exoid, coord_names);
+\endcode
+
  */
 
 int ex_put_coord_names (int   exoid,
                         char *coord_names[])
 {
   int status;
-  size_t i;
   int ndimdim, varid;
-  size_t num_dim, start[2], count[2];
+  size_t num_dim;
   char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0; /* clear error code */
 
-  /* inquire previously defined dimensions  */
   if ((status = nc_inq_dimid(exoid, DIM_NUM_DIM, &ndimdim)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate number of dimensions in file id %d",
-            exoid);
+      "Error: failed to locate number of dimensions in file id %d",
+      exoid);
     ex_err("ex_put_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -83,7 +94,7 @@ int ex_put_coord_names (int   exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: inquire failed to get number of dimensions in file id %d",
-            exoid);
+      exoid);
     ex_err("ex_put_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -92,29 +103,14 @@ int ex_put_coord_names (int   exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to locate coordinate names in file id %d",
-            exoid);
+      exoid);
     ex_err("ex_put_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
 
-
   /* write out coordinate names */
+  status = ex_put_names_internal(exoid, varid, num_dim, coord_names, EX_COORDINATE,
+         "", "ex_put_coord_names");
 
-  for (i=0; i<num_dim; i++) {
-    start[0] = i;
-    start[1] = 0;
-
-    count[0] = 1;
-    count[1] = strlen(coord_names[i]) + 1;
-
-    if ((status = nc_put_vara_text(exoid, varid, start, count, coord_names[i])) != NC_NOERR) {
-      exerrval = status;
-      sprintf(errmsg,
-              "Error: failed to store coordinate name %d in file id %d",
-              (int)i,exoid);
-      ex_err("ex_put_coord_names",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-  return (EX_NOERR);
+  return (status);
 }

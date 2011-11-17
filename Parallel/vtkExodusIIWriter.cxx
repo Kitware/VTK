@@ -1033,7 +1033,11 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     vtkFieldData *fd = this->FlattenedInput[i]->GetFieldData ();
     for (int j = 0; j < fd->GetNumberOfArrays (); j ++) 
       {
-      const char *name = fd->GetArray (j)->GetName ();
+      char *name = 0;
+      if (fd->GetArray(j))
+        {
+        name = fd->GetArray(j)->GetName();
+        }
       if (name == 0) 
         {
         vtkWarningMacro ("Array in input field data has Null name, cannot output it");
@@ -1076,7 +1080,11 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     vtkCellData *cd = this->FlattenedInput[i]->GetCellData();
     for (int j = 0; j < cd->GetNumberOfArrays(); j ++) 
       {
-      const char *name = cd->GetArray(j)->GetName ();
+      char *name = 0;
+      if (cd->GetArray(j))
+        {
+        name = cd->GetArray(j)->GetName();
+        }
       if (name == 0)
         {
         vtkWarningMacro ("Array in input cell data has Null name, cannot output it");
@@ -1123,7 +1131,11 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     vtkPointData *pd = this->FlattenedInput[i]->GetPointData();
     for (int j = 0; j < pd->GetNumberOfArrays(); j ++) 
       {
-      const char *name = pd->GetArray(j)->GetName ();
+      char *name = 0;
+      if (pd->GetArray(j))
+        {
+        name = pd->GetArray(j)->GetName();
+        }
       if (name == 0)
         {
         vtkWarningMacro ("Array in input point data has Null name, cannot output it");

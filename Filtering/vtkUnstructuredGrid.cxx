@@ -1715,7 +1715,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
     if (grid->Faces)
       {
       this->Faces = vtkIdTypeArray::New();
-      this->Faces->DeepCopy(grid->Locations);
+      this->Faces->DeepCopy(grid->Faces);
       this->Faces->Register(this);
       this->Faces->Delete();
       }
@@ -1728,7 +1728,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
     if (grid->FaceLocations)
       {
       this->FaceLocations = vtkIdTypeArray::New();
-      this->FaceLocations->DeepCopy(grid->Locations);
+      this->FaceLocations->DeepCopy(grid->FaceLocations);
       this->FaceLocations->Register(this);
       this->FaceLocations->Delete();
       }

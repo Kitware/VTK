@@ -78,7 +78,7 @@ MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
     ENDIF (WIN32 AND NOT MINGW)
   ENDIF (${libtype} MATCHES "SHARED")
   
-  # vtkhdf5 has vtk prefix but no other encoding
+  # library names not mangled in this reduced distribution
   
   #----- Use MSVC Naming conventions for Shared Libraries
   IF (MINGW AND BUILD_SHARED_LIBS)

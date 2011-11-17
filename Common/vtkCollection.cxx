@@ -215,13 +215,6 @@ int vtkCollection::IsItemPresent(vtkObject *a)
 }
 
 
-// Return the number of objects in the list.
-int vtkCollection::GetNumberOfItems()
-{
-  return this->NumberOfItems;
-}
-
-
 void vtkCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

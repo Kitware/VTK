@@ -30,9 +30,9 @@
  *    Reads and Writes MetaSurfaceFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date July 02, 2002
- * 
+ *
  */
 
 #if (METAIO_USE_NAMESPACE)
@@ -45,7 +45,7 @@ public:
 
   SurfacePnt(int dim);
   ~SurfacePnt();
-  
+
   unsigned int m_Dim;
   float* m_X;
   float* m_V;
@@ -73,10 +73,10 @@ class METAIO_EXPORT MetaSurface : public MetaObject
     ////
     MetaSurface(void);
 
-    MetaSurface(const char *_headerName);   
+    MetaSurface(const char *_headerName);
 
-    MetaSurface(const MetaSurface *_surface); 
-    
+    MetaSurface(const MetaSurface *_surface);
+
     MetaSurface(unsigned int dim);
 
     ~MetaSurface(void);
@@ -102,7 +102,7 @@ class METAIO_EXPORT MetaSurface : public MetaObject
 
     PointListType & GetPoints(void) {return m_PointList;}
     const PointListType & GetPoints(void) const {return m_PointList;}
-    
+
     MET_ValueEnumType ElementType(void) const;
     void  ElementType(MET_ValueEnumType _elementType);
 

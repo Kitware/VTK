@@ -129,6 +129,7 @@ double CubicSpline(vtkIdType i, double* k, double t)
 
 // Slow, recursive version of N-function defined:
 // http://mathworld.wolfram.com/B-Spline.html
+#if 0
 double N(vtkIdType i, vtkIdType j, double* k, double t)
 {
   if (j < 0)
@@ -155,7 +156,9 @@ double N(vtkIdType i, vtkIdType j, double* k, double t)
     }
   return term1 + term2;
 }
+#endif
 
+#if 0
 double BCubic(vtkIdType i, double* k, double t)
 {
   if (t < k[i-2] || t >= k[i+2])
@@ -179,6 +182,7 @@ double BCubic(vtkIdType i, double* k, double t)
   temp = 2.0 - t;
   return temp*temp*temp;
 }
+#endif
 }
 
 vtkSplineGraphEdges::vtkSplineGraphEdges()

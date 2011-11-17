@@ -19,17 +19,17 @@
 
 =========================================================================*/
 
-#ifndef __vtkExtractArray_h
-#define __vtkExtractArray_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkExtractArray - Given a vtkArrayData object containing one-or-more
 // vtkArray instances, produces a vtkArrayData containing just one vtkArray,
 // indentified by index.
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkExtractArray_h
+#define __vtkExtractArray_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkExtractArray : public vtkArrayDataAlgorithm
 {

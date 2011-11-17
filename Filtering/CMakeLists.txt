@@ -6,7 +6,9 @@ SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 
 SET( Kit_SRCS
+vtkImageToStructuredGrid.cxx
 vtkAbstractCellLocator.cxx
+vtkAbstractImageInterpolator.cxx
 vtkAbstractInterpolatedVelocityField.cxx
 vtkAbstractMapper.cxx
 vtkAbstractPointLocator.cxx
@@ -35,6 +37,7 @@ vtkCell.cxx
 vtkCellData.cxx
 vtkCellLinks.cxx
 vtkCellLocator.cxx
+vtkCellTreeLocator.cxx
 vtkCellTypes.cxx
 vtkColorTransferFunction.cxx
 vtkCompositeDataIterator.cxx
@@ -107,10 +110,12 @@ vtkHyperOctreePointsGrabber.cxx
 vtkImageAlgorithm.cxx
 vtkImageData.cxx
 vtkImageInPlaceFilter.cxx
+vtkImageInterpolator.cxx
 vtkImageIterator.cxx
 vtkImageMultipleInputFilter.cxx
 vtkImageMultipleInputOutputFilter.cxx
 vtkImageProgressIterator.cxx
+vtkImageSincInterpolator.cxx
 vtkImageSource.cxx
 vtkImageToImageFilter.cxx
 vtkImageToStructuredPoints.cxx
@@ -139,6 +144,8 @@ vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMeanValueCoordinatesInterpolator.cxx
 vtkMergePoints.cxx
+vtkMarchingSquaresLineCases.cxx
+vtkMarchingCubesTriangleCases.cxx
 vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataSet.cxx
 vtkMultiPieceDataSet.cxx
@@ -174,6 +181,7 @@ vtkPolyDataToPolyDataFilter.cxx
 vtkPolygon.cxx
 vtkPolyhedron.cxx
 vtkPolyLine.cxx
+vtkPolyPlane.cxx
 vtkPolyVertex.cxx
 vtkProcessObject.cxx
 vtkPropAssembly.cxx
@@ -229,6 +237,7 @@ vtkTreeAlgorithm.cxx
 vtkTree.cxx
 vtkTreeBFSIterator.cxx
 vtkTreeDFSIterator.cxx
+vtkTreeIterator.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
 vtkTriQuadraticHexahedron.cxx
@@ -251,6 +260,7 @@ vtkWedge.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractCellLocator
+vtkAbstractImageInterpolator
 vtkAbstractInterpolatedVelocityField
 vtkAbstractMapper
 vtkAbstractPointLocator
@@ -318,6 +328,7 @@ vtkStructuredPointsToPolyDataFilter
 vtkStructuredPointsToStructuredPointsFilter
 vtkStructuredPointsToUnstructuredGridFilter
 vtkThreadedImageAlgorithm
+vtkTreeIterator
 vtkUnstructuredGridSource
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter
@@ -332,6 +343,8 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkImageIterator.cxx
   vtkInformation.cxx
   vtkImageProgressIterator.cxx
+  vtkMarchingSquaresLineCases.cxx
+  vtkMarchingCubesTriangleCases.cxx
   WRAP_EXCLUDE
 )
 
@@ -381,6 +394,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkCellType.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageIterator.txx
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageProgressIterator.txx
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageInterpolatorInternals.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development
     )

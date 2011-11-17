@@ -19,16 +19,16 @@
 
 =========================================================================*/
 
+// .NAME vtkBoostRandomSparseArraySource - generates a sparse N-way array containing random values.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkBoostRandomSparseArraySource_h
 #define __vtkBoostRandomSparseArraySource_h
 
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkArrayExtents.h"
-
-// .NAME vtkBoostRandomSparseArraySource - generates a sparse N-way array containing random values.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 class VTK_INFOVIS_EXPORT vtkBoostRandomSparseArraySource : public vtkArrayDataAlgorithm
 {

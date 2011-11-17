@@ -81,39 +81,40 @@
 #define VTK_PARSER_VECTOR_SUBTRACT 32
 #define VTK_PARSER_SCALAR_TIMES_VECTOR 33
 #define VTK_PARSER_VECTOR_TIMES_SCALAR 34
-#define VTK_PARSER_MAGNITUDE 35
-#define VTK_PARSER_NORMALIZE 36
+#define VTK_PARSER_VECTOR_OVER_SCALAR 35
+#define VTK_PARSER_MAGNITUDE 36
+#define VTK_PARSER_NORMALIZE 37
 
 // constants involving vectors
-#define VTK_PARSER_IHAT 37
-#define VTK_PARSER_JHAT 38
-#define VTK_PARSER_KHAT 39
+#define VTK_PARSER_IHAT 38
+#define VTK_PARSER_JHAT 39
+#define VTK_PARSER_KHAT 40
 
 // code for if(bool, trueval, falseval) resulting in a scalar
-#define VTK_PARSER_IF 40
+#define VTK_PARSER_IF 41
 
 // code for if(bool, truevec, falsevec) resulting in a vector
-#define VTK_PARSER_VECTOR_IF 41
+#define VTK_PARSER_VECTOR_IF 42
 
 // codes for boolean expressions
-#define VTK_PARSER_LESS_THAN 42
+#define VTK_PARSER_LESS_THAN 43
 
 // codes for boolean expressions
-#define VTK_PARSER_GREATER_THAN 43
+#define VTK_PARSER_GREATER_THAN 44
 
 // codes for boolean expressions
-#define VTK_PARSER_EQUAL_TO 44
+#define VTK_PARSER_EQUAL_TO 45
 
 // codes for boolean expressions
-#define VTK_PARSER_AND 45
+#define VTK_PARSER_AND 46
 
 // codes for boolean expressions
-#define VTK_PARSER_OR 46
+#define VTK_PARSER_OR 47
 
 // codes for scalar variables come before those for vectors. Do not define
 // values for VTK_PARSER_BEGIN_VARIABLES+1, VTK_PARSER_BEGIN_VARIABLES+2, ...,
 // because they are used to look up variables numbered 1, 2, ...
-#define VTK_PARSER_BEGIN_VARIABLES 47
+#define VTK_PARSER_BEGIN_VARIABLES 48
 
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT

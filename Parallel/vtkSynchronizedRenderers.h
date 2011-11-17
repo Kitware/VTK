@@ -107,7 +107,7 @@ public:
   vtkBooleanMacro(AutomaticEventHandling, bool);
 
 //BTX
-  enum 
+  enum
     {
     SYNC_RENDERER_TAG = 15101,
     RESET_CAMERA_TAG  = 15102,
@@ -140,8 +140,8 @@ public:
     void MarkInValid() { this->Valid = false; }
 
     bool IsValid() { return this->Valid; }
-    int GetWidth() { return this->Size[0];} 
-    int GetHeight() { return this->Size[1];} 
+    int GetWidth() { return this->Size[0];}
+    int GetHeight() { return this->Size[1];}
     vtkUnsignedCharArray* GetRawPtr()
       { return this->Data; }
 
@@ -185,6 +185,7 @@ protected:
     double CameraClippingRange[2];
     double CameraViewAngle;
     double CameraParallelScale;
+    double HeadPose[16];
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
@@ -221,7 +222,7 @@ protected:
   // Can be used in HandleEndRender(), MasterEndRender() or SlaveEndRender()
   // calls to paste back the image from either this->ReducedImage or
   // this->FullImage info the viewport.
-  void PushImageToScreen(); 
+  void PushImageToScreen();
 
   vtkSynchronizedRenderers* CaptureDelegate;
   vtkRawImage ReducedImage;

@@ -32,39 +32,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expnsd - ex_put_node_set_dist_fact
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     node_set_id             node set id
-*       void*  node_set _dist_fact      node distribution factors for node set
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
-#include "exodusII_int.h"
 
 /*!
- * writes the node set distribution factors for a single node set
- * \param       exoid                   exodus file id
- * \param       node_set_id             node set id
- * \param       node_set_dist_fact      node distribution factors for node set
- * \deprecated Use ex_put_set_dist_fact()(exoid, EX_NODE_SET, node_set_id, node_set_dist_fact)
- */
+\deprecated Use ex_put_set_dist_fact()(exoid, EX_NODE_SET, node_set_id, node_set_dist_fact)
+
+The function ex_put_node_set_dist_fact() writes node set distribution
+factors for a single node set. The function ex_put_node_set_param()
+must be called before this routine is invoked.
+
+Because the distribution factors are floating point values, the
+application code must declare the array passed to be the appropriate
+type (\c float or \c double) to match the compute word size passed in
+ex_create() or ex_open().
+
+\return In case of an error, ex_put_node_set_dist_fact() returns a
+negative number; a warning will return a positive number.  Possible
+causes of errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  data file not initialized properly with call to ex_put_init().
+  -  ex_put_node_set_param() not called previously.
+  -  a call to ex_put_node_set_param() specified zero distribution factors.
+
+\param[in] exoid              exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in] node_set_id        The node set ID.
+\param[in] node_set_dist_fact Array containing the distribution factors in the node set.
+
+Refer to the description of ex_put_node_set_param() for a sample code
+segment to write out the distribution factors for a node set.
+*/
 
 int ex_put_node_set_dist_fact  (int   exoid,
                                 int   node_set_id,
                                 const void *node_set_dist_fact)
 {
   return ex_put_set_dist_fact(exoid, EX_NODE_SET, node_set_id,
-                              node_set_dist_fact);
+            node_set_dist_fact);
 }

@@ -21,7 +21,7 @@
 #include "t42error.h"
 #include FT_INTERNAL_DEBUG_H
 #include FT_LIST_H
-#include FT_TRUETYPE_IDS_H
+#include FT_TRUETYPE_IDS_H 
 
 
 #undef  FT_COMPONENT

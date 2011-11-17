@@ -49,11 +49,11 @@ PROJ_HEAD(laea, "Lambert Azimuthal Equal Area") "\n\tAzi, Sph&Ell";
 #define EQUIT  2
 #define OBLIQ  3
 FORWARD(e_forward); /* ellipsoid */
-  double coslam, sinlam, sinphi, q, sinb=0., cosb=0., b=0.;
+  double coslam, sinlam, q, sinb=0., cosb=0., b=0.;
 
   coslam = cos(lp.lam);
   sinlam = sin(lp.lam);
-  sinphi = sin(lp.phi);
+
   q = proj_qsfn(lp.phi, P->apa);
   if (P->mode == OBLIQ || P->mode == EQUIT) {
     sinb = q / P->qp;

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -30,6 +30,8 @@
 #include "vtkQtChartAxisOptions.h"
 #include "vtkQtChartBasicStyleManager.h"
 #include "vtkQtChartInteractorSetup.h"
+#include "vtkQtChartLegend.h"
+#include "vtkQtChartLegendManager.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
 #include "vtkQtChartColors.h"
@@ -46,7 +48,7 @@
 //=============================================================================
 int TestOrderStatisticsBoxChart( int argc, char* argv[] )
 {
-  double mingledData[] = 
+  double mingledData[] =
     {
     46,
     45,
@@ -173,96 +175,97 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   doubleCol->Delete();
 
   // Set order statistics algorithm and its input data port
-  vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkOrderStatistics* orderStats = vtkOrderStatistics::New();
+  orderStats->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   datasetTable->Delete();
 
   // Select Columns of Interest
   for ( int i = 0; i< nMetrics; ++ i )
-    {  
-    haruspex->AddColumn( columns[i] );
+    {
+    orderStats->AddColumn( columns[i] );
     }
 
   // Use Learn and Derive options of order statistics with InverseCDFAveragedSteps quantile definition
-  haruspex->SetLearnOption( true );
-  haruspex->SetDeriveOption( true );
-  haruspex->SetTestOption( false );
-  haruspex->SetAssessOption( false );
-  haruspex->Update();
+  orderStats->SetLearnOption( true );
+  orderStats->SetDeriveOption( true );
+  orderStats->SetTestOption( false );
+  orderStats->SetAssessOption( false );
+  orderStats->Update();
 
   // Get calculated model
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputTable = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( orderStats->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  unsigned nbq = outputMetaDS->GetNumberOfBlocks() - 1;
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( nbq ) );
 
   QTestApp app(argc, argv);
 
   vtkQtChartWidget *chart = new vtkQtChartWidget();
   vtkQtChartArea *area = chart->getChartArea();
   vtkQtChartBasicStyleManager *style =
-      qobject_cast<vtkQtChartBasicStyleManager *>(area->getStyleManager());
+      qobject_cast<vtkQtChartBasicStyleManager *>( area->getStyleManager() );
   if(style)
     {
-    style->getColors()->setColorScheme(vtkQtChartColors::Blues);
+    style->getColors()->setColorScheme( vtkQtChartColors::Blues );
     }
 
   // Set up the box chart.
   vtkQtStatisticalBoxChart *boxes = new vtkQtStatisticalBoxChart();
-  area->insertLayer(area->getAxisLayerIndex(), boxes);
+  area->insertLayer( area->getAxisLayerIndex(), boxes );
 
   // Set up the default interactor.
   vtkQtChartMouseSelection *selector =
-      vtkQtChartInteractorSetup::createDefault(area);
+      vtkQtChartInteractorSetup::createDefault( area );
   vtkQtChartSeriesSelectionHandler *handler =
-      new vtkQtChartSeriesSelectionHandler(selector);
+      new vtkQtChartSeriesSelectionHandler( selector );
   handler->setModeNames("Box Chart - Series", "Box Chart - Boxes");
-  handler->setMousePressModifiers(Qt::ControlModifier, Qt::ControlModifier);
-  handler->setLayer(boxes);
-  selector->addHandler(handler);
-  selector->setSelectionMode("Box Chart - Boxes");
+  handler->setMousePressModifiers( Qt::ControlModifier, Qt::ControlModifier );
+  handler->setLayer( boxes );
+  selector->addHandler( handler );
+  selector->setSelectionMode( "Box Chart - Boxs" );
 
   // Hide the x-axis grid.
   vtkQtChartAxisLayer *axisLayer = area->getAxisLayer();
-  vtkQtChartAxis *xAxis = axisLayer->getAxis(vtkQtChartAxis::Bottom);
-  xAxis->getOptions()->setGridVisible(false);
+  vtkQtChartAxis *xAxis = axisLayer->getAxis( vtkQtChartAxis::Bottom );
+  xAxis->getOptions()->setGridVisible( false );
 
   // Set up the model for the box chart.
-  QStandardItemModel *model = new QStandardItemModel( outputTable->GetNumberOfColumns() - 1, 
-                                                      outputTable->GetNumberOfRows(), 
-                                                      boxes);
-  model->setItemPrototype(new QStandardItem());
+  QStandardItemModel *model = new QStandardItemModel( outputQuantiles->GetNumberOfRows(),
+                                                      outputQuantiles->GetNumberOfColumns() - 1,
+                                                      boxes );
+  model->setItemPrototype( new QStandardItem() );
 
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType c = 1; c < outputQuantiles->GetNumberOfColumns(); ++ c )
      {
-     cout << outputTable->GetValue( r, 0 ).ToString()
+     cout << outputQuantiles->GetColumnName( c )
           << ": ";
 
-     model->setHorizontalHeaderItem( r, new QStandardItem( outputTable->GetValue( r, 0 ).ToString().c_str() ) );
+     model->setHorizontalHeaderItem( c - 1, new QStandardItem( outputQuantiles->GetColumnName( c )  ) );
 
-     for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
+     for ( int r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
        {
-       double q = outputTable->GetValue( r, i ).ToDouble(); 
+       double q = outputQuantiles->GetValue( r, c ).ToDouble();
        cout << " "
-            << outputTable->GetColumnName( i )
+            << outputQuantiles->GetValue( r, 0 ).ToString()
             << "="
             << q;
-       
-       model->setItem( i - 1, r, new QStandardItem() );
-       model->item( i - 1, r )->setData( q, Qt::DisplayRole );
+
+       model->setItem( r, c - 1, new QStandardItem() );
+       model->item( r, c - 1 )->setData( q, Qt::DisplayRole );
 
        }
      cout << "\n";
      }
 
-  vtkQtChartTableSeriesModel *table = new vtkQtChartTableSeriesModel(model, boxes);
-  boxes->setModel(table);
+  vtkQtChartTableSeriesModel *table = new vtkQtChartTableSeriesModel( model, boxes );
+  boxes->setModel( table );
 
   chart->show();
 
   int result =  app.exec();
 
-  // Clean up 
+  // Clean up
   delete chart;
-  haruspex->Delete();
+  orderStats->Delete();
 
   return result;
 }

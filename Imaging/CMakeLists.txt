@@ -91,6 +91,7 @@ vtkImageRange3D.cxx
 vtkImageRectilinearWipe.cxx
 vtkImageResample.cxx
 vtkImageReslice.cxx
+vtkImageResliceToColors.cxx
 vtkImageSeedConnectivity.cxx
 vtkImageSeparableConvolution.cxx
 vtkImageShiftScale.cxx
@@ -106,7 +107,9 @@ vtkImageStencilToImage.cxx
 vtkImageStencilAlgorithm.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
+vtkImageSlabReslice.cxx
 vtkImageThreshold.cxx
+vtkImageThresholdConnectivity.cxx
 vtkImageToImageStencil.cxx
 vtkImageTranslateExtent.cxx
 vtkImageVariance3D.cxx

@@ -21,7 +21,6 @@ slab1 SetOrientationToZ
 
 vtkImageSlab slab2
 slab2 SetInputConnection [reader GetOutputPort]
-slab2 SetOperationToMin
 slab2 SetOperationToMax
 slab2 MultiSliceOutputOff
 slab2 SetOutputScalarTypeToInputScalarType

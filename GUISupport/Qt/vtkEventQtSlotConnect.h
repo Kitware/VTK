@@ -43,7 +43,7 @@
 #include "vtkObject.h"
 #include "vtkCommand.h"  // for event defines
 #include "QVTKWin32Header.h"  // for export define
-#include "qobject.h"          // for version info
+#include <QtCore/QObject>          // for version info
 
 class QObject;
 class vtkQtConnections;

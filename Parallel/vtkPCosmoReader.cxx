@@ -79,6 +79,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointData.h"
 #include "vtkDataObject.h"
 #include "vtkStdString.h"
+#include "vtkCellArray.h"
 
 #include "vtkstd/vector"
 
@@ -299,25 +300,26 @@ int vtkPCosmoReader::RequestData(
 
   vtkPoints* points = vtkPoints::New();
   points->SetDataTypeToFloat();
+  points->Allocate(numberOfParticles);
+  vtkCellArray* cells = vtkCellArray::New();
+  cells->Allocate(cells->EstimateSize(numberOfParticles, 1));
+
   vtkFloatArray* vel = vtkFloatArray::New();
   vel->SetName("velocity");
   vel->SetNumberOfComponents(DIMENSION);
+  vel->Allocate(numberOfParticles);
   vtkFloatArray* m = vtkFloatArray::New();
   m->SetName("mass");
+  m->Allocate(numberOfParticles);
   vtkIntArray* uid = vtkIntArray::New();
   uid->SetName("tag");
+  uid->Allocate(numberOfParticles);
   vtkIntArray* owner = vtkIntArray::New();
   owner->SetName("ghost");
+  owner->Allocate(numberOfParticles);
   vtkUnsignedCharArray* ghost = vtkUnsignedCharArray::New();
   ghost->SetName("vtkGhostLevels");
-
-  output->Allocate(numberOfParticles);
-  output->SetPoints(points);
-  output->GetPointData()->AddArray(vel);
-  output->GetPointData()->AddArray(m);
-  output->GetPointData()->AddArray(uid);
-  output->GetPointData()->AddArray(owner);
-  output->GetPointData()->AddArray(ghost);
+  ghost->Allocate(numberOfParticles);
 
   // put it into the correct VTK structure
   for(vtkIdType i = 0; i < numberOfParticles; i = i + 1) 
@@ -333,7 +335,7 @@ int vtkPCosmoReader::RequestData(
     zz->pop_back();
 
     vtkIdType pid = points->InsertNextPoint(pt);
-    output->InsertNextCell(1, 1, &pid);
+    cells->InsertNextCell(1, &pid);
 
     // insert velocity
     pt[0] = vx->back();
@@ -367,7 +369,18 @@ int vtkPCosmoReader::RequestData(
     }  
 
   // cleanup
+  output->SetPoints(points);
+  output->SetCells(1, cells);
+  output->GetPointData()->AddArray(vel);
+  output->GetPointData()->AddArray(m);
+  output->GetPointData()->AddArray(uid);
+  output->GetPointData()->AddArray(owner);
+  output->GetPointData()->AddArray(ghost);
+
+  output->Squeeze();
+
   points->Delete();
+  cells->Delete();
   vel->Delete();
   m->Delete();
   uid->Delete();

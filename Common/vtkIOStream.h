@@ -62,13 +62,9 @@ using std::fstream;
 #else
 
 // Include old-style streams.
-# ifdef _WIN32_WCE
-#  include "vtkWinCE.h"   // Include mini-streams for Windows CE.
-# else
-#  include <iostream.h>   // Include old-style istream and ostream.
-#  include <iomanip.h>
-#  include <fstream.h>    // Include old-style ifstream and ofstream.
-# endif
+# include <iostream.h>   // Include old-style istream and ostream.
+# include <iomanip.h>
+# include <fstream.h>    // Include old-style ifstream and ofstream.
 #endif
 
 //----------------------------------------------------------------------------

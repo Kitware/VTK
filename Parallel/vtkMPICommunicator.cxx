@@ -46,9 +46,9 @@ vtkStandardNewMacro(vtkMPICommunicator);
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
 
 
-vtkMPICommunicatorOpaqueComm::vtkMPICommunicatorOpaqueComm()
+vtkMPICommunicatorOpaqueComm::vtkMPICommunicatorOpaqueComm(MPI_Comm* handle)
 {
-  this->Handle = 0;
+  this->Handle = handle;
 }
 
 MPI_Comm* vtkMPICommunicatorOpaqueComm::GetHandle()
@@ -601,6 +601,23 @@ int vtkMPICommunicator::SplitInitialize(vtkCommunicator *oldcomm,
     return 0;
     }
 
+  this->InitializeNumberOfProcesses();
+  this->Initialized = 1;
+
+  this->Modified();
+
+  return 1;
+}
+
+int vtkMPICommunicator::InitializeExternal (vtkMPICommunicatorOpaqueComm* comm)
+{
+  this->KeepHandleOn();
+
+  if (this->MPIComm->Handle) 
+    {
+    delete this->MPIComm->Handle;
+    }
+  this->MPIComm->Handle = new MPI_Comm (*(comm->GetHandle()));
   this->InitializeNumberOfProcesses();
   this->Initialized = 1;
 

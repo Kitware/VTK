@@ -1,29 +1,9 @@
 #include "vtkConditionVariable.h"
 #include "vtkMultiThreader.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <stdlib.h>
 
-// For vtkSleep
-#include "vtkWindows.h"
-#include <ctype.h>
-#include <time.h>
-
-// Cross platform sleep
-inline void vtkSleep( double duration )
-{
-  // sleep according to OS
-#ifdef _WIN32
-  Sleep( (int)( 1000 * duration ) );
-#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi) || defined(__APPLE__)
-  struct timespec sleep_time, dummy;
-  sleep_time.tv_sec = static_cast<int>( duration );
-  sleep_time.tv_nsec = static_cast<int>( 1000000000 * ( duration - sleep_time.tv_sec ) );
-  nanosleep( &sleep_time, &dummy );
-#else
-  (void)duration;
-  #warning Missing sleep implementation
-#endif
-}
 
 typedef struct {
   vtkMutexLock* Lock;
@@ -69,7 +49,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         cout.flush();
         td->Lock->Unlock();
         td->Condition->Broadcast();
-        vtkSleep( 0.2 ); // 0.2 s between broadcasts
+        vtksys::SystemTools::Delay( 200 ); // 0.2 s between broadcasts
         }
       while ( td->NumberOfWorkers > 0 && ( i ++ < 1000 ) );
       if ( i >= 1000 )
@@ -82,7 +62,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
       // Wait for thread 0 to initialize... Ugly but effective
       while ( td->Done < 0 )
         {
-        vtkSleep( 0.2 ); // 0.2 s between checking
+        vtksys::SystemTools::Delay( 200 ); // 0.2 s between checking
         }
 
       // Wait for the condition and then note we were signaled.

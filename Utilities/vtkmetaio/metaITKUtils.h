@@ -27,7 +27,7 @@ namespace METAIO_NAMESPACE {
 #endif
 
 template <class T>
-typename itk::Image<T, 3>::Pointer 
+typename itk::Image<T, 3>::Pointer
 metaITKUtilLoadImage3D(const char *fname, MET_ValueEnumType _toType,
                        double _toMinValue=0, double _toMaxValue=0)
   {
@@ -62,7 +62,7 @@ metaITKUtilLoadImage3D(const char *fname, MET_ValueEnumType _toType,
     spacing[2] = imIO->ElementSpacing()[2];
   else
     spacing[2] = imIO->ElementSpacing()[1];
-    
+
   if (spacing[0] == 0)
     {
     spacing[0] = 1;
@@ -103,9 +103,9 @@ metaITKUtilLoadImage3D(const char *fname, MET_ValueEnumType _toType,
 template <class imageT>
 bool metaITKUtilSaveImage(const char *fname, const char *dname,
                           typename imageT::Pointer _im,
-                          MET_ValueEnumType _fromType, 
+                          MET_ValueEnumType _fromType,
                           int _numberOfChannels,
-                          MET_ValueEnumType _toType, 
+                          MET_ValueEnumType _toType,
                           double _toMinValue=0, double _toMaxValue=0)
   {
   int i;
@@ -118,7 +118,7 @@ bool metaITKUtilSaveImage(const char *fname, const char *dname,
     sp[i] = _im->GetSpacing()[i];
     }
   MetaImage imIO(_im->GetImageDimension(), si, sp,
-                 _fromType, _numberOfChannels, 
+                 _fromType, _numberOfChannels,
                  (void *)_im->GetBufferPointer());
   delete si;
   delete sp;

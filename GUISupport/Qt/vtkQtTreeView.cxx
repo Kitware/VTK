@@ -459,8 +459,11 @@ void vtkQtTreeView::Update()
 
     this->TreeView->resizeColumnToContents(0);
     this->TreeView->collapseAll();
-    this->SetShowRootNode(false);
-
+    // Reset show root node if it was false.
+    if (this->TreeView->rootIndex() != QModelIndex())
+      {
+      this->SetShowRootNode(false);
+      }
 
     this->LastInputMTime = tree->GetMTime();
     }

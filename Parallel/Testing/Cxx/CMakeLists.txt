@@ -23,12 +23,18 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         )
     ENDIF(NOT CMAKE_GENERATOR MATCHES "Visual Studio 6")
   ENDIF (VTK_DATA_ROOT)
+  IF (VTK_LARGE_DATA_ROOT)
+    # add tests that require data
+    SET(MyTests ${MyTests}
+      TestWindBladeReader.cxx
+      )
+  ENDIF (VTK_LARGE_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ExerciseMultiProcessController.cxx)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO vtkParallel vtkHybrid)
   SET (TestsToRun ${Tests})
-  REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+  REMOVE (TestsToRun ${KIT}CxxTests.cxx TestWindBladeReader.cxx)
 
   # Add all the standard tests
   FOREACH (test ${TestsToRun})
@@ -56,7 +62,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   ENDIF(HAVE_SOCKETS)
 
   IF (VTK_USE_MPI)
-    INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
+    INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
     IF (MPI_LIBRARY) 
       SET(MPI_LIBRARIES ${MPI_LIBRARY})   
     ENDIF (MPI_LIBRARY)   
@@ -396,6 +402,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ENDIF (VTK_MPIRUN_EXE)
     ENDIF (VTK_LARGE_DATA_ROOT)
   ENDIF (VTK_USE_MPI)
+
+  IF (VTK_LARGE_DATA_ROOT)
+    ADD_TEST(TestWindBladeReader ${CXX_TEST_PATH}/${KIT}CxxTests
+      TestWindBladeReader -D ${VTK_LARGE_DATA_ROOT}
+      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestWindBladeReader.png)
+  ENDIF (VTK_LARGE_DATA_ROOT)
 
   # For now this test is only available on Unix because
   # on Windows, python does not support forking/killing processes

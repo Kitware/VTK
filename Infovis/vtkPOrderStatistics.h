@@ -12,6 +12,11 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2011 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+  -------------------------------------------------------------------------*/
 // .NAME vtkPOrderStatistics - A class for parallel univariate order statistics
 // .SECTION Description
 // vtkPOrderStatistics is vtkOrderStatistics subclass for parallel datasets.
@@ -35,9 +40,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 
 //BTX
-#include <vtkstd/vector> // STL Header
+#include <vtkstd/map> // STL Header
 //ETX
 
+class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
@@ -56,9 +62,9 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
 
   // Description:
   // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
  protected:
   vtkPOrderStatistics();
@@ -66,30 +72,23 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
 
 //BTX
   // Description:
-  // Pack all entries of a order table in:
-  // 1. a single string for all realizations of variables, and
-  // 2. a single vector for the corresponding keys and cardinalities
-  bool Pack( vtkTable* orderTab,
-             vtkStdString& xPacked,
-             vtkstd::vector<vtkIdType>& kcValues );
+  // Reduce the collection of local histograms to the global one for data inputs
+  bool Reduce( vtkIdTypeArray*,
+               vtkDataArray* );
 
   // Description:
-  // Reduce the collection of local order tables to the global one
-  bool Reduce( vtkIdType& xSizeTotal,
-               char* xPacked_g,
-               vtkStdString& xPacked_l,
-               vtkIdType& kcSizeTotal,
-               vtkIdType*  kcValues_g,
-               vtkstd::vector<vtkIdType>& kcValues_l );
+  // Reduce the collection of local histograms to the global one for string inputs
+  bool Reduce( vtkIdTypeArray*,
+               vtkIdType&,
+               char*,
+               vtkstd::map<vtkStdString,vtkIdType>& );
 
   // Description:
-  // Broadcast reduced order table to all processes
-  bool Broadcast( vtkIdType xSizeTotal,
-                  vtkStdString& xPacked,
-                  vtkstd::vector<vtkStdString>& xValues,
-                  vtkIdType kcSizeTotal,
-                  vtkstd::vector<vtkIdType>& kcValues,
-                  vtkIdType reduceProc );
+  // Broadcast reduced histogram to all processes in the case of string inputs
+  bool Broadcast( vtkstd::map<vtkStdString,vtkIdType>&,
+                  vtkIdTypeArray*,
+                  vtkStringArray*,
+                  vtkIdType );
 //ETX
 
   vtkMultiProcessController* Controller;

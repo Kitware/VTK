@@ -199,7 +199,7 @@ IF (BUILD_SHARED_LIBS)
   SET (LIBPOSTFIX "")
   IF (MSVC)
     SET (CMAKE_MFC_FLAG 0)
-    # flag replace /MT -> /MD disabled for vtkhdf5
+    # flag replace /MT -> /MD disabled in this reduced distribution
   ENDIF (MSVC)
 ELSE (BUILD_SHARED_LIBS)
   IF (NOT WIN32)
@@ -209,7 +209,7 @@ ELSE (BUILD_SHARED_LIBS)
   SET (LIBPOSTFIX "")
   IF (MSVC)
     SET (CMAKE_MFC_FLAG 0)
-    # flag replace /MD -> /MT disabled for vtkhdf5
+    # flag replace /MD -> /MT disabled in this reduced distribution
   ENDIF (MSVC)
 ENDIF (BUILD_SHARED_LIBS)
 
@@ -495,7 +495,6 @@ IF (BUILD_TESTING)
   INCLUDE (${HDF5_SOURCE_DIR}/CTestConfig.cmake)
 ENDIF (BUILD_TESTING)
 
-
 #-----------------------------------------------------------------------------
 # Option to build Fortran bindings/tests/examples
 # Make sure this appears before the CONFIGURE_FILE step
@@ -508,7 +507,7 @@ IF (HDF5_BUILD_FORTRAN)
   # Set default name mangling : overridden by Fortran detection in fortran dir
   SET (H5_FC_FUNC "H5_FC_FUNC(name,NAME) name ## _")
   SET (H5_FC_FUNC_ "H5_FC_FUNC_(name,NAME) name ## _")
-  #ADD_SUBDIRECTORY (${HDF5_SOURCE_DIR}/fortran ${PROJECT_BINARY_DIR}/fortran)
+  ADD_SUBDIRECTORY (${HDF5_SOURCE_DIR}/fortran ${PROJECT_BINARY_DIR}/fortran)
 ELSE (HDF5_BUILD_FORTRAN)
   SET (H5_FC_FUNC "H5_FC_FUNC(name,NAME) name ## _")
   SET (H5_FC_FUNC_ "H5_FC_FUNC_(name,NAME) name ## _")
@@ -579,7 +578,7 @@ ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
 #-----------------------------------------------------------------------------
-# vtkhdf5 is not a full HDF5, so do not provide HDF5-config.cmake
+# This is not a full HDF5, so do not provide HDF5-config.cmake
 IF(0)
 INSTALL (
     EXPORT

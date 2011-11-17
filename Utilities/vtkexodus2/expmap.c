@@ -45,7 +45,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -54,10 +53,37 @@
 #include <stdlib.h> /* for free() */
 
 /*!
- * writes out the element order map to the database.
- * \param  exoid                   exodus file id
- * \param  elem_map                element order map array
- * \deprecated Use ex_put_num_map() instead.
+\deprecated Use ex_put_num_map() instead.
+
+The function ex_put_map() writes out the optional element order map to
+the database. See #ElementOrderMap for a description of the element
+order map. The function ex_put_init() must be invoked before this call
+is made.
+
+In case of an error, ex_put_map() returns a negative number; a warning
+will return a positive number.  Possible causes of errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  data file not initialized properly with call to ex_put_init().
+  -  an element map already exists in the file.
+
+\param[in]   exoid    exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in]  elem_map  The element order map.
+
+The following code generates a default element order map and outputs
+it to an open exodus file. This is a trivial case and included just
+for illustration. Since this map is optional, it should be written out
+only if it contains something other than the default map.
+
+\code
+int error, exoid;
+int *elem_map = (int *)calloc(num_elem, sizeof(int));
+for (i=0; i < num_elem; i++) {
+   elem_map[i] = i+1;
+}
+error = ex_put_map(exoid, elem_map);
+\endcode
+
  */
 
 int ex_put_map (int  exoid,
@@ -82,8 +108,8 @@ int ex_put_map (int  exoid,
     {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to put file id %d into define mode",
-              exoid);
+        "Error: failed to put file id %d into define mode",
+        exoid);
       ex_err("ex_put_map",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -96,21 +122,21 @@ int ex_put_map (int  exoid,
   if ((status = nc_def_var(exoid, VAR_MAP, NC_INT, 1, dims, &mapid)) != NC_NOERR)
     {
       if (status == NC_ENAMEINUSE)
-        {
-          exerrval = status;
-          sprintf(errmsg,
-                  "Error: element map already exists in file id %d",
-                  exoid);
-          ex_err("ex_put_map",errmsg,exerrval);
-        }
+  {
+    exerrval = status;
+    sprintf(errmsg,
+      "Error: element map already exists in file id %d",
+      exoid);
+    ex_err("ex_put_map",errmsg,exerrval);
+  }
       else
-        {
-          exerrval = status;
-          sprintf(errmsg,
-                  "Error: failed to create element map array in file id %d",
-                  exoid);
-          ex_err("ex_put_map",errmsg,exerrval);
-        }
+  {
+    exerrval = status;
+    sprintf(errmsg,
+      "Error: failed to create element map array in file id %d",
+      exoid);
+    ex_err("ex_put_map",errmsg,exerrval);
+  }
       goto error_ret;         /* exit define mode and return */
     }
 
@@ -120,8 +146,8 @@ int ex_put_map (int  exoid,
     {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to complete definition in file id %d",
-              exoid);
+        "Error: failed to complete definition in file id %d",
+        exoid);
       ex_err("ex_put_map",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -134,8 +160,8 @@ int ex_put_map (int  exoid,
     {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to store element map in file id %d",
-              exoid);
+        "Error: failed to store element map in file id %d",
+        exoid);
       ex_err("ex_put_map",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -147,8 +173,8 @@ int ex_put_map (int  exoid,
   if (nc_enddef (exoid) != NC_NOERR)     /* exit define mode */
     {
       sprintf(errmsg,
-              "Error: failed to complete definition for file id %d",
-              exoid);
+        "Error: failed to complete definition for file id %d",
+        exoid);
       ex_err("ex_put_map",errmsg,exerrval);
     }
   return (EX_FATAL);

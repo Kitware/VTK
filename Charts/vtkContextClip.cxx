@@ -56,8 +56,9 @@ bool vtkContextClip::Paint(vtkContext2D *painter)
                   vtkContext2D::FloatToInt(clipBy[3]) };
 
   painter->GetDevice()->SetClipping(clipi);
+  painter->GetDevice()->EnableClipping(true);
   bool result = this->PaintChildren(painter);
-  painter->GetDevice()->DisableClipping();
+  painter->GetDevice()->EnableClipping(false);
   return result;
 }
 

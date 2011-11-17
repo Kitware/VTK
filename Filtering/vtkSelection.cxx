@@ -31,6 +31,9 @@
 
 #include <vtkstd/vector>
 
+using namespace std;
+
+
 //----------------------------------------------------------------------------
 struct vtkSelectionInternals
 {
@@ -224,6 +227,35 @@ void vtkSelection::Union(vtkSelectionNode* node)
       vtkSmartPointer<vtkSelectionNode>::New();
     clone->DeepCopy(node);
     this->AddNode(clone);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::Subtract(vtkSelection* s)
+{
+  for(unsigned int n=0; n<s->GetNumberOfNodes(); ++n)
+    {
+    this->Subtract(s->GetNode(n));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::Subtract(vtkSelectionNode* node)
+{
+  bool subtracted = false;
+  for( unsigned int tn = 0; tn<this->GetNumberOfNodes(); ++tn)
+    {
+    vtkSelectionNode* tnode = this->GetNode(tn);
+
+    if(tnode->EqualProperties(node))
+      {
+      tnode->SubtractSelectionList(node);
+      subtracted = true;
+      }
+    }
+  if( !subtracted )
+    {
+    vtkErrorMacro("Could not subtract selections");
     }
 }
 

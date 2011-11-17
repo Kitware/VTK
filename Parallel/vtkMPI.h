@@ -29,7 +29,7 @@
 class VTK_PARALLEL_EXPORT vtkMPICommunicatorOpaqueComm
 {
 public:
-  vtkMPICommunicatorOpaqueComm();
+  vtkMPICommunicatorOpaqueComm(MPI_Comm* handle = 0);
 
   MPI_Comm* GetHandle();
 

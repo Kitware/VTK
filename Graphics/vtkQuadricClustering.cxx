@@ -635,18 +635,21 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
   for (i = 0; i < numCells; ++i)
     {
     edges->GetNextCell(numPts, ptIds);
-    points->GetPoint(ptIds[0], pt0);
-    binIds[0] = this->HashPoint(pt0);
-    // This internal loop handles line strips.
-    for (j = 1; j < numPts; ++j)
+    if(numPts != 0)
       {
-      points->GetPoint(ptIds[j], pt1);
-      binIds[1] = this->HashPoint(pt1);
-      this->AddEdge(binIds, pt0, pt1, geometryFlag, input, output);
-      pt0[0] = pt1[0];
-      pt0[1] = pt1[1];
-      pt0[2] = pt1[2];
-      binIds[0] = binIds[1];
+      points->GetPoint(ptIds[0], pt0);
+      binIds[0] = this->HashPoint(pt0);
+      // This internal loop handles line strips.
+      for (j = 1; j < numPts; ++j)
+        {
+        points->GetPoint(ptIds[j], pt1);
+        binIds[1] = this->HashPoint(pt1);
+        this->AddEdge(binIds, pt0, pt1, geometryFlag, input, output);
+        pt0[0] = pt1[0];
+        pt0[1] = pt1[1];
+        pt0[2] = pt1[2];
+        binIds[0] = binIds[1];
+        }
       }
     ++this->InCellCount;
     }

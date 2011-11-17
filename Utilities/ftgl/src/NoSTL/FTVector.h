@@ -16,6 +16,11 @@
 
 #include "FTGL.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTGL_EXPORT FT_VECTOR_CLASS_NAME
 {
 public:
@@ -285,3 +290,7 @@ void FT_VECTOR_CLASS_NAME::resize(size_type n, value_type x)
     }
   this->Size = n;
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

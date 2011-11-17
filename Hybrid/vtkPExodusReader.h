@@ -75,9 +75,10 @@ public:
   //   pattern and range.  Overrides any prefix, pattern and range
   //   that is specified.  vtkPExodusReader makes it's own copy
   //   of your file names.
-  void SetFileNames(int nfiles, const char **names);
+  // @deprecated Replaced by vtkExodusIIReader as of VTK 5.8.
+  VTK_LEGACY(void SetFileNames(int nfiles, const char **names));
 
-  virtual void SetFileName(const char *name);
+  VTK_LEGACY(virtual void SetFileName(const char *name));
 
   // Description:
   //   Return pointer to list of file names set in SetFileNames
@@ -121,6 +122,8 @@ public:
 
 
 protected:
+  // Description:
+  // @deprecated Replaced by vtkPExodusIIReader as of VTK 5.8.
   vtkPExodusReader();
   ~vtkPExodusReader();
 

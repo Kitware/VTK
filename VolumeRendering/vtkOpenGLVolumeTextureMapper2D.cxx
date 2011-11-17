@@ -16,8 +16,6 @@
 
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlane.h"
-#include "vtkPlaneCollection.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
@@ -42,9 +40,8 @@ vtkOpenGLVolumeTextureMapper2D::~vtkOpenGLVolumeTextureMapper2D()
 
 void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 {
-  vtkMatrix4x4       *matrix = vtkMatrix4x4::New();
-  vtkPlaneCollection *clipPlanes;
-  vtkPlane           *plane;
+  vtkMatrix4x4       *matrix;
+  double             matrixForGL[16];
   int                i, numClipPlanes = 0;
   double             planeEquation[4];
 
@@ -53,41 +50,29 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   // Let the superclass take care of some initialization
   this->vtkVolumeTextureMapper2D::InitializeRender( ren, vol );
 
-  // build transformation 
-  vol->GetMatrix(matrix);
-  matrix->Transpose();
-
-  // Use the OpenGL clip planes
-  clipPlanes = this->ClippingPlanes;
-  if ( clipPlanes )
-    {
-    numClipPlanes = clipPlanes->GetNumberOfItems();
-    if (numClipPlanes > 6)
-      {
-      vtkErrorMacro(<< "OpenGL guarantees only 6 additional clipping planes");
-      }
-
-    for (i = 0; i < numClipPlanes; i++)
-      {
-      glEnable((GLenum)(GL_CLIP_PLANE0+i));
-
-      plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
-
-      planeEquation[0] = plane->GetNormal()[0]; 
-      planeEquation[1] = plane->GetNormal()[1]; 
-      planeEquation[2] = plane->GetNormal()[2];
-      planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
-                           planeEquation[1]*plane->GetOrigin()[1]+
-                           planeEquation[2]*plane->GetOrigin()[2]);
-      glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
-      }
-    }
-
+  // compute transformation
+  matrix = vol->GetMatrix();
+  vtkMatrix4x4::Transpose(*matrix->Element, matrixForGL);
 
   // insert model transformation 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
-  glMultMatrixd(matrix->Element[0]);
+  glMultMatrixd(matrixForGL);
+
+  // use the OpenGL clip planes
+  numClipPlanes = this->GetNumberOfClippingPlanes();
+  if (numClipPlanes > 6)
+    {
+    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+    numClipPlanes = 6;
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {
+    glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
+    this->GetClippingPlaneInDataCoords(matrix, i, planeEquation);
+    glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i), planeEquation);
+    }
 
   // Make sure that culling is turned off
   glDisable( GL_CULL_FACE );
@@ -115,8 +100,6 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
-  matrix->Delete();
-
   glDisable( GL_TEXTURE_2D );
   
 #ifdef GL_VERSION_1_1
@@ -127,17 +110,14 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   // Turn lighting back on
   glEnable( GL_LIGHTING );
 
-  if ( clipPlanes )
+  for (i = 0; i < numClipPlanes; i++)
     {
-    for (i = 0; i < numClipPlanes; i++)
-      {
-      glDisable((GLenum)(GL_CLIP_PLANE0+i));
-      }
+    glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
     }
 
   this->Timer->StopTimer();      
 
-  this->TimeToDraw = (float)this->Timer->GetElapsedTime();
+  this->TimeToDraw = static_cast<float>(this->Timer->GetElapsedTime());
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero

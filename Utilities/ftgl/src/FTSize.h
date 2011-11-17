@@ -7,7 +7,10 @@
 
 #include "FTGL.h"
 
-
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 /**
  * FTSize class provides an abstraction layer for the Freetype Size.
@@ -118,6 +121,10 @@ class FTGL_EXPORT FTSize
     FT_Error err;
     
 };
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTSize__
 

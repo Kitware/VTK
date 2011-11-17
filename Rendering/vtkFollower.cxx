@@ -225,6 +225,7 @@ int vtkFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 void vtkFollower::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->Device->ReleaseGraphicsResources(w);
+  this->Superclass::ReleaseGraphicsResources(w);
 }
 
 //-----------------------------------------------------------------------------

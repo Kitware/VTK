@@ -37,7 +37,7 @@
 //   TimerEvent - occurs when the time between events (e.g., mouse move)
 //                is greater than TimerDuration.
 //   KeyPressEvent - when the "Enter" key is pressed after the balloon appears,
-//                   a callback is activited (e.g., WidgetActivateEvent).
+//                   a callback is activated (e.g., WidgetActivateEvent).
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
@@ -54,7 +54,7 @@
 // can listen for):
 // <pre>
 //   vtkCommand::TimerEvent (when hovering is determined to occur)
-//   vtkCommand::EndInteractionEvent (after a hover has occured and the
+//   vtkCommand::EndInteractionEvent (after a hover has occurred and the
 //                                    mouse begins moving again).
 //   vtkCommand::WidgetActivateEvent (when the balloon is selected with a
 //                                    keypress).
@@ -90,7 +90,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The method for activiating and deactiviating this widget. This method
+  // The method for activating and deactivating this widget. This method
   // must be overridden because it performs special timer-related operations.
   virtual void SetEnabled(int);
 

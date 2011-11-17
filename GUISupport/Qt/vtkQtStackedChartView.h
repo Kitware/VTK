@@ -17,6 +17,8 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+// .NAME vtkQtStackedChartView - Wraps a vtkQtStackedChart into a VTK view.
+
 #ifndef _vtkQtStackedChartView_h
 #define _vtkQtStackedChartView_h
 

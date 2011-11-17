@@ -9,6 +9,7 @@ IF(VTK_USE_DISPLAY)
 SET(MyTests
   BoxWidget.cxx
   BoxWidget2.cxx
+#  ScaledBoxWidget2.cxx
   TestAffineWidget.cxx
   TestAngleWidget2D.cxx
   TestAngleWidget3D.cxx
@@ -18,11 +19,13 @@ SET(MyTests
   TestButtonWidget.cxx
   TestCameraWidget.cxx
 #  TestCaptionWidget.cxx
+  TestCellCentersPointPlacer.cxx
   TestCenteredSliderWidget2D.cxx
   TestCheckerboardWidget.cxx
   TestContourWidget2.cxx
   TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
+  TestFixedSizeHandleRepresentation3D.cxx
   TestHandleWidget.cxx
   TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
@@ -41,6 +44,7 @@ SET(MyTests
   TestDijkstraGraphGeodesicPath.cxx
   TestParallelopipedWidget.cxx
   TestSeedWidgetNonUniformRepresentations.cxx
+  TestPolyPlane.cxx
   vtkAngleWidgetTest1.cxx
   vtkBiDimensionalWidgetTest1.cxx
   vtkImplicitPlaneWidget2Test1.cxx
@@ -65,6 +69,7 @@ SET(MyTests
 #  vtkPointHandleRepresentation2DTest1.cxx
 #  vtkPointHandleRepresentation3DTest1.cxx
 #  vtkConstrainedPointHandleRepresentationTest1
+  TestPointHandleRepresentation3D.cxx
 #  vtkSphereHandleRepresentationTest1.cxx
 #  vtkPolygonalHandleRepresentation3DTest1.cxx
 #  vtkOrientedPolygonalHandleRepresentation3DTest1.cxx
@@ -81,6 +86,7 @@ IF (VTK_DATA_ROOT)
     TestSurfaceConstrainedHandleWidget.cxx
     TestPolygonalRepresentationHandleWidget.cxx
     TestPolygonalHandleRepresentations.cxx
+    TestPolygonalSurfaceConstrainedDistanceWidget.cxx
     TestSphereHandleWidget.cxx
     TestFocalPlaneContour.cxx
     #TestOrientedGlyphContour.cxx
@@ -92,6 +98,8 @@ IF (VTK_DATA_ROOT)
     TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
+    TestResliceCursorWidget2.cxx
+    TestResliceCursorWidget3.cxx
     TestScalarBarWidget.cxx
     TestSeedWidget2.cxx
     TestSplineWidget.cxx

@@ -66,7 +66,7 @@ SetName(const char* name)
 }
 
 void MetaOutputStream::
-Enable() 
+Enable()
 {
   m_Enable = true;
 }
@@ -106,14 +106,14 @@ GetName() const
 
 bool
 MetaOutputStream::
-IsEnable() const 
+IsEnable() const
 {
   return m_Enable;
 }
 
-bool 
+bool
 MetaOutputStream::
-Write(const char* buffer) 
+Write(const char* buffer)
 {
   if(m_IsStdStream)
     {
@@ -124,15 +124,15 @@ Write(const char* buffer)
 
 bool
 MetaOutputStream::
-Open() 
+Open()
 {
   m_IsOpen = true;
   return true;
 }
-  
+
 bool
 MetaOutputStream::
-Close() 
+Close()
 {
   m_IsOpen = false;
   return true;
@@ -162,7 +162,7 @@ Open()
 #ifdef __sgi
   m_FileStream.open(m_FileName.c_str(), METAIO_STREAM::ios::out);
 #else
-  m_FileStream.open(m_FileName.c_str(), METAIO_STREAM::ios::binary 
+  m_FileStream.open(m_FileName.c_str(), METAIO_STREAM::ios::binary
                                         | METAIO_STREAM::ios::out);
 #endif
   if( m_FileStream.rdbuf()->is_open() )
@@ -344,9 +344,9 @@ METAIO_STL::string MetaOutput::GetHostip()
     if(err!=0)
         return "";
   #endif
- 
+
   struct hostent *phe = gethostbyname(GetHostname().c_str());
-  if (phe == 0) 
+  if (phe == 0)
       return "";
 
   struct in_addr addr;
@@ -402,14 +402,14 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
     }
   buffer += " version=\""+m_CurrentVersion+"\">\n";
 
-  buffer += "<Creation date=\"" 
+  buffer += "<Creation date=\""
              + GetCurrentDateTime("%Y%m%d") + "\"";
-  buffer += " time=\"" 
+  buffer += " time=\""
              + GetCurrentDateTime("%H%M%S") + "\"";
   buffer += " hostname=\""+this->GetHostname() +"\"";
   buffer += " hostIP=\""+this->GetHostip() +"\"";
   buffer += " user=\"" + this->GetUsername() + "\"/>\n";
-  
+
   buffer += "<Executable name=\"" + m_MetaCommand->GetApplicationName() + "\"";
   buffer += " version=\"" + m_MetaCommand->GetVersion() + "\"";
   buffer += " author=\"" + m_MetaCommand->GetAuthor() + "\"";
@@ -438,7 +438,7 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
         }
       else
         {
-        buffer += "  <Input name=\"" + (*itInput).name + "." 
+        buffer += "  <Input name=\"" + (*itInput).name + "."
                                      + (*itField).name +"\"";
         }
 
@@ -483,7 +483,7 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
     buffer += "  <Output name=\""+ (*itOutput).name + "\"";
     buffer += " description=\""+ (*itOutput).description + "\"";
     buffer += " type=\""+ this->TypeToString((*itOutput).type) + "\"";
-   
+
     unsigned int index = 0;
     typedef METAIO_STL::vector<METAIO_STL::string> VectorType;
     VectorType::const_iterator itValue = (*itOutput).value.begin();
@@ -505,7 +505,7 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
     itOutput++;
     }
   buffer += "</Outputs>\n";
-  
+
   // CRC32
   unsigned long crc = crc32(0L,(const Bytef*)buffer.c_str(),
     static_cast<int>(buffer.size()));
@@ -537,7 +537,7 @@ void MetaOutput::Write()
 #ifdef __sgi
     fileStream.open(filename.c_str(), METAIO_STREAM::ios::out);
 #else
-    fileStream.open(filename.c_str(), METAIO_STREAM::ios::binary 
+    fileStream.open(filename.c_str(), METAIO_STREAM::ios::binary
                                       | METAIO_STREAM::ios::out);
 #endif
 
@@ -546,7 +546,7 @@ void MetaOutput::Write()
       fileStream << this->GenerateXML(filename.c_str()).c_str();
       fileStream.close();
       }
-      
+
     }
 
   if(m_MetaCommand && !m_MetaCommand->GetOptionWasSet("GenerateMetaOutput"))
@@ -566,7 +566,7 @@ void MetaOutput::Write()
 
     if(!(*itStream)->Open())
       {
-      METAIO_STREAM::cout << "MetaOutput ERROR: cannot open stream" 
+      METAIO_STREAM::cout << "MetaOutput ERROR: cannot open stream"
                        << METAIO_STREAM::endl;
       return;
       }
@@ -584,13 +584,13 @@ void MetaOutput::Write()
       else
         {
         (*itStream)->Write(this->GenerateXML().c_str());
-        } 
+        }
       it++;
       }
-     
+
     if(!(*itStream)->Close())
       {
-      METAIO_STREAM::cout << "MetaOutput ERROR: cannot close stream" 
+      METAIO_STREAM::cout << "MetaOutput ERROR: cannot close stream"
                           << METAIO_STREAM::endl;
       return;
       }

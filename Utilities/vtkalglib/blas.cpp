@@ -79,10 +79,8 @@ int vectoridxabsmax(const ap::real_1d_array& x, int i1, int i2)
 {
     int result;
     int i;
-    double a;
 
     result = i1;
-    a = fabs(x(result));
     for(i = i1+1; i <= i2; i++)
     {
         if( fabs(x(i))>fabs(x(result)) )
@@ -98,10 +96,8 @@ int columnidxabsmax(const ap::real_2d_array& x, int i1, int i2, int j)
 {
     int result;
     int i;
-    double a;
 
     result = i1;
-    a = fabs(x(result,j));
     for(i = i1+1; i <= i2; i++)
     {
         if( fabs(x(i,j))>fabs(x(result,j)) )
@@ -117,10 +113,8 @@ int rowidxabsmax(const ap::real_2d_array& x, int j1, int j2, int i)
 {
     int result;
     int j;
-    double a;
 
     result = j1;
-    a = fabs(x(i,result));
     for(j = j1+1; j <= j2; j++)
     {
         if( fabs(x(i,j))>fabs(x(i,result)) )
@@ -396,7 +390,6 @@ void matrixmatrixmultiply(const ap::real_2d_array& a,
     int brows;
     int bcols;
     int crows;
-    int ccols;
     int i;
     int j;
     int k = 0; // Eliminate compiler warning.
@@ -434,7 +427,6 @@ void matrixmatrixmultiply(const ap::real_2d_array& a,
         return;
     }
     crows = arows;
-    ccols = bcols;
     
     //
     // Test WORK

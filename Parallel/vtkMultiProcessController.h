@@ -201,7 +201,7 @@ public:
   // Description:
   // Take an RMI away.
   void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
-    {f = f; arg = arg; tag = tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
+    {(void)f; (void)arg; (void)tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
 
   // Description:
   // These methods are a part of the newer API to add multiple rmi callbacks.

@@ -45,6 +45,8 @@ vtkPlot::vtkPlot()
   this->YAxis = NULL;
 
   this->TooltipDefaultLabelFormat = "%l: %x,  %y";
+  this->TooltipNotation = vtkAxis::STANDARD_NOTATION;
+  this->TooltipPrecision = 6;
 }
 
 //-----------------------------------------------------------------------------
@@ -150,11 +152,15 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
   // Determine and format the X and Y position in the chart
   vtksys_ios::ostringstream ostr;
   ostr.imbue(vtkstd::locale::classic());
-  ostr.setf(ios::fixed, ios::floatfield);
+  ostr.precision(this->GetTooltipPrecision());
 
-  if (axis)
+  if(this->GetTooltipNotation() == vtkAxis::SCIENTIFIC_NOTATION)
     {
-    ostr.precision(this->XAxis->GetPrecision());
+    ostr.setf(ios::scientific, ios::floatfield);
+    }
+  else if(this->GetTooltipNotation() == vtkAxis::FIXED_NOTATION)
+    {
+    ostr.setf(ios::fixed, ios::floatfield);
     }
 
   if (axis && axis->GetLogScale())
@@ -324,6 +330,32 @@ void vtkPlot::SetTooltipLabelFormat(const vtkStdString &labelFormat)
 vtkStdString vtkPlot::GetTooltipLabelFormat()
 {
   return this->TooltipLabelFormat;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetTooltipNotation(int notation)
+{
+  this->TooltipNotation = notation;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+int vtkPlot::GetTooltipNotation()
+{
+  return this->TooltipNotation;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetTooltipPrecision(int precision)
+{
+  this->TooltipPrecision = precision;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+int vtkPlot::GetTooltipPrecision()
+{
+  return this->TooltipPrecision;
 }
 
 //-----------------------------------------------------------------------------

@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkImageData.h"
-#include "vtkTransform.h"
 
 // FTGL
 
@@ -32,6 +31,10 @@
 #include "fonts/vtkEmbeddedFonts.h"
 
 #include <sys/stat.h>
+
+#ifdef FTGL_USE_NAMESPACE
+using namespace ftgl;
+#endif
 
 // Print debug info
 
@@ -181,7 +184,7 @@ FT_Library* vtkFreeTypeUtilities::GetLibrary()
   printf("vtkFreeTypeUtilities::GetLibrary\n");
 #endif
 
-  FTLibrary *ftgl_lib = FTLibrary::GetInstance();
+  FTLibrary * ftgl_lib = FTLibrary::GetInstance();
   if (ftgl_lib)
     {
     return ftgl_lib->GetLibrary();
@@ -826,6 +829,16 @@ int vtkFreeTypeUtilities::IsBoundingBoxValid(int bbox[4])
 }
 
 //----------------------------------------------------------------------------
+inline
+void vtkFreeTypeUtilitiesRotate2D(double c, double s, double v[2])
+{
+  double x = v[0];
+  double y = v[1];
+  v[0] = c*x - s*y;
+  v[1] = s*x + c*y;
+}
+
+//----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
                                          const char *str,
                                          int bbox[4])
@@ -883,6 +896,11 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
   int adjustedX = 0;
   int adjustedY = 0;
 
+  // sin, cos of orientation
+  double angle = vtkMath::RadiansFromDegrees(tprop->GetOrientation());
+  double c = cos(angle);
+  double s = sin(angle);
+
   //before we start, check if we need to offset the first line
   if(tprop->GetJustification() != VTK_TEXT_LEFT)
     {
@@ -899,18 +917,13 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       *itr = '\0';
       this->GetWidthHeightDescender(
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
-      double newLineMovement[3] =
-        {-currentWidth, -currentHeight * tprop->GetLineSpacing(), 0};
-      vtkTransform *transform = vtkTransform::New();
-      transform->RotateZ(tprop->GetOrientation());
-      transform->TransformPoint(newLineMovement, newLineMovement);
-      transform->Delete();
+      double newLineMovement[2] =
+        {-currentWidth, -currentHeight * tprop->GetLineSpacing()};
+      vtkFreeTypeUtilitiesRotate2D(c, s, newLineMovement);
       newLineMovement[0] -= adjustedX;
       newLineMovement[1] -= adjustedY;
-      newLineMovement[0] = floor(newLineMovement[0] + 0.5);
-      newLineMovement[1] = floor(newLineMovement[1] + 0.5);
-      x += static_cast<int>(newLineMovement[0]);
-      y += static_cast<int>(newLineMovement[1]);
+      x += vtkMath::Floor(newLineMovement[0] + 0.5);
+      y += vtkMath::Floor(newLineMovement[1] + 0.5);
       originalX = x;
       originalY = y;
       //don't forget to start a new currentLine
@@ -1098,6 +1111,12 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
   FT_UInt gindex, previous_gindex = 0;
   FT_Vector kerning_delta;
 
+  // sin, cos of orientation
+  double angle = vtkMath::RadiansFromDegrees(tprop->GetOrientation());
+  double c = cos(angle);
+  double s = sin(angle);
+
+  //before we start, check if we need to offset the first line
   char *currentLine = new char[strlen(str)];
   char *itr = currentLine;
   int totalWidth = 0;
@@ -1125,17 +1144,13 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       int currentWidth = 0;
       this->GetWidthHeightDescender(
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
-      double newLineMovement[3] =
-        {-currentWidth, -currentHeight * tprop->GetLineSpacing(), 0};
-      vtkTransform *transform = vtkTransform::New();
-      transform->RotateZ(tprop->GetOrientation());
-      transform->TransformPoint(newLineMovement, newLineMovement);
+      double newLineMovement[2] =
+        {-currentWidth, -currentHeight * tprop->GetLineSpacing()};
+      vtkFreeTypeUtilitiesRotate2D(c, s, newLineMovement);
       newLineMovement[0] -= adjustedX;
       newLineMovement[1] -= adjustedY;
-      newLineMovement[0] = floor(newLineMovement[0] + 0.5);
-      newLineMovement[1] = floor(newLineMovement[1] + 0.5);
-      x += static_cast<int>(newLineMovement[0]);
-      y += static_cast<int>(newLineMovement[1]);
+      x += vtkMath::Floor(newLineMovement[0] + 0.5);
+      y += vtkMath::Floor(newLineMovement[1] + 0.5);
       originalX = x;
       originalY = y;
       //don't forget to start a new currentLine
@@ -1143,7 +1158,6 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       adjustedY = 0;
       *currentLine = '\0';
       itr = currentLine;
-      transform->Delete();
       if(tprop->GetJustification() != VTK_TEXT_LEFT)
         {
         this->JustifyLine(str+1, tprop, totalWidth, &x, &y);
@@ -1837,22 +1851,19 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
 
   int fontSize = tprop->GetFontSize();
 
-  vtkTransform *transform = vtkTransform::New();
-  transform->Identity();
-  transform->RotateZ(orientation);
+  // sin, cos of orientation
+  double angle = vtkMath::RadiansFromDegrees(orientation);
+  double c = cos(angle);
+  double s = sin(angle);
 
   // Use the given size as a first guess
-  double size[3];
-  size[2] = 0.0;
+  int size[2];
   int height = 0;
   int width = 0;
   float notUsed = 0;
   this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-  size[0] = width;
-  size[1] = height;
-  transform->TransformPoint(size, size);
-  size[0] = floor(size[0] + 0.5);
-  size[1] = floor(size[1] + 0.5);
+  size[0] = vtkMath::Floor(c*width - s*height + 0.5);
+  size[1] = vtkMath::Floor(s*width + c*height + 0.5);
 
   // Now get an estimate of the target font size using bissection
   // Based on experimentation with big and small font size increments,
@@ -1864,16 +1875,13 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
 
   if (size[0] != 0 && size[1] != 0)
     {
-    double fx = targetWidth / size[0];
-    double fy = targetHeight / size[1];
-    fontSize = static_cast<int>(ceil(fontSize * ((fx <= fy) ? fx : fy)));
+    double fx = targetWidth * 1.0 / size[0];
+    double fy = targetHeight * 1.0 / size[1];
+    fontSize = vtkMath::Ceil(fontSize * ((fx <= fy) ? fx : fy));
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-    size[0] = width;
-    size[1] = height;
-    transform->TransformPoint(size, size);
-    size[0] = floor(size[0] + 0.5);
-    size[1] = floor(size[1] + 0.5);
+    size[0] = vtkMath::Floor(c*width - s*height + 0.5);
+    size[1] = vtkMath::Floor(s*width + c*height + 0.5);
     }
 
   // While the size is too small increase it
@@ -1884,11 +1892,8 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     fontSize++;
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-    size[0] = width;
-    size[1] = height;
-    transform->TransformPoint(size, size);
-    size[0] = floor(size[0] + 0.5);
-    size[1] = floor(size[1] + 0.5);
+    size[0] = vtkMath::Floor(c*width - s*height + 0.5);
+    size[1] = vtkMath::Floor(s*width + c*height + 0.5);
     }
 
   // While the size is too large decrease it
@@ -1898,13 +1903,9 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     fontSize--;
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-    size[0] = width;
-    size[1] = height;
-    transform->TransformPoint(size, size);
-    size[0] = floor(size[0] + 0.5);
-    size[1] = floor(size[1] + 0.5);
+    size[0] = vtkMath::Floor(c*width - s*height + 0.5);
+    size[1] = vtkMath::Floor(s*width + c*height + 0.5);
     }
-  transform->Delete();
   return fontSize;
 }
 
@@ -1916,12 +1917,17 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
   int currentWidth = 0;
   int len = 0;
   float notUsed = 0.0;
-  vtkTransform *transform = vtkTransform::New();
   char *currentLine = new char[strlen(str)+1];
   char *itr = new char[strlen(str)+1];
   char *beginning = itr;
   strcpy(itr, str);
   bool lineFound = false;
+
+  // sin, cos of orientation
+  double angle = vtkMath::RadiansFromDegrees(tprop->GetOrientation());
+  double c = cos(angle);
+  double s = sin(angle);
+
   while(*itr != '\0')
     {
     if(*itr == '\n')
@@ -1932,7 +1938,7 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
       if(currentWidth < totalWidth)
         {
-        double movement[3] = {0, 0, 0};
+        double movement[2] = {0, 0};
         if(tprop->GetJustification() == VTK_TEXT_CENTERED)
           {
           movement[0] += ((totalWidth - currentWidth) / 2);
@@ -1942,12 +1948,9 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
           movement[0] += (totalWidth - currentWidth);
           }
 
-        transform->RotateZ(tprop->GetOrientation());
-        transform->TransformPoint(movement, movement);
-        movement[0] = floor(movement[0] + 0.5);
-        *x += static_cast<int>(movement[0]);
-        movement[1] = floor(movement[1] + 0.5);
-        *y += static_cast<int>(movement[1]);
+        vtkFreeTypeUtilitiesRotate2D(c, s, movement);
+        *x += vtkMath::Floor(movement[0] + 0.5);
+        *y += vtkMath::Floor(movement[1] + 0.5);
         lineFound = true;
         }
       break;
@@ -1961,7 +1964,7 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
       str, tprop, &currentWidth, &currentHeight, &notUsed);
     if(currentWidth < totalWidth)
       {
-      double movement[3] = {0, 0, 0};
+      double movement[2] = {0, 0};
       if(tprop->GetJustification() == VTK_TEXT_CENTERED)
         {
         movement[0] += ((totalWidth - currentWidth) / 2);
@@ -1971,15 +1974,11 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
         movement[0] += (totalWidth - currentWidth);
         }
 
-      transform->RotateZ(tprop->GetOrientation());
-      transform->TransformPoint(movement, movement);
-      movement[0] = floor(movement[0] + 0.5);
-      *x += static_cast<int>(movement[0]);
-      movement[1] = floor(movement[1] + 0.5);
-      *y += static_cast<int>(movement[1]);
+      vtkFreeTypeUtilitiesRotate2D(c, s, movement);
+      *x += vtkMath::Floor(movement[0] + 0.5);
+      *y += vtkMath::Floor(movement[1] + 0.5);
       }
     }
-  transform->Delete();
   delete [] currentLine;
   delete [] beginning;
 }

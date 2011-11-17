@@ -19,19 +19,20 @@
 
 =========================================================================*/
 
-#ifndef __vtkVariantExtract_h
-#define __vtkVariantExtract_h
-
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-
-// Description:
+// .NAME vtkVariantExtract
+// .SECTION Description
 // Performs an explicit conversion from a vtkVariant to the type that it contains.  Implicit
 // conversions are *not* performed, so casting a vtkVariant containing one type (e.g. double)
 // to a different type (e.g. string) will not convert between types.
 //
 // Callers should use the 'valid' flag to verify whether the extraction succeeded.
+
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkVariantExtract_h
+#define __vtkVariantExtract_h
+
 template<typename T>
 T vtkVariantExtract(const vtkVariant& value, bool& valid = 0)
 {

@@ -40,10 +40,7 @@ vtkPLYReader::vtkPLYReader()
 
 vtkPLYReader::~vtkPLYReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 }
 
 typedef struct _plyVertex {
@@ -86,7 +83,7 @@ int vtkPLYReader::RequestData(
     {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,blue)), 0, 0, 0, 0},
   };
   PlyProperty faceProps[] = {
-    {"vertex_indices", PLY_INT, PLY_INT, 
+    {"vertex_indices", PLY_INT, PLY_INT,
      static_cast<int>(offsetof(plyFace,verts)),
      1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,nverts))},
     {"intensity", PLY_UCHAR, PLY_UCHAR, 
@@ -95,9 +92,6 @@ int vtkPLYReader::RequestData(
     {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,green)), 0, 0, 0, 0},
     {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,blue)), 0, 0, 0, 0},
   };
-
-  int i, j, k;
-  int numPts=0, numPolys=0;
 
   if (!this->FileName)
     {
@@ -111,10 +105,10 @@ int vtkPLYReader::RequestData(
   char **elist, *elemName;
   float version;
   
-  if ( !(ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist, 
+  if ( !(ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist,
                                             &fileType, &version)) )
     {
-    vtkErrorMacro(<<"Could not open PLY file");
+    vtkWarningMacro(<<"Could not open PLY file");
     return 0;
     }
 
@@ -134,10 +128,8 @@ int vtkPLYReader::RequestData(
 
   // Check for optional attribute data. We can handle intensity; and the
   // triplet red, green, blue.
-  unsigned char intensityAvailable=false, RGBCellsAvailable=false, RGBPointsAvailable=false;
+  bool intensityAvailable=false;
   vtkUnsignedCharArray *intensity=NULL;
-  vtkUnsignedCharArray *RGBCells=NULL;
-  vtkUnsignedCharArray *RGBPoints=NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
        vtkPLY::find_property (elem, "intensity", &index) != NULL )
     {
@@ -149,6 +141,8 @@ int vtkPLYReader::RequestData(
     intensity->Delete();
     }
 
+  bool RGBCellsAvailable=false;
+  vtkUnsignedCharArray *RGBCells=NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
        vtkPLY::find_property (elem, "red", &index) != NULL &&
        vtkPLY::find_property (elem, "green", &index) != NULL &&
@@ -162,6 +156,8 @@ int vtkPLYReader::RequestData(
     RGBCells->Delete();
     }
 
+  bool RGBPointsAvailable=false;
+  vtkUnsignedCharArray *RGBPoints=NULL;
   if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
        vtkPLY::find_property (elem, "red", &index) != NULL &&
        vtkPLY::find_property (elem, "green", &index) != NULL &&
@@ -175,14 +171,15 @@ int vtkPLYReader::RequestData(
     }
 
   // Okay, now we can grab the data
-  for (i = 0; i < nelems; i++) 
+  int numPts=0, numPolys=0;
+  for (int i = 0; i < nelems; i++)
     {
     //get the description of the first element */
     elemName = elist[i];
     vtkPLY::ply_get_element_description (ply, elemName, &numElems, &nprops);
 
     // if we're on vertex elements, read them in
-    if ( elemName && !strcmp ("vertex", elemName) ) 
+    if ( elemName && !strcmp ("vertex", elemName) )
       {
       // Create a list of points
       numPts = numElems;
@@ -204,7 +201,7 @@ int vtkPLYReader::RequestData(
         RGBPoints->SetNumberOfTuples(numPts);
         }
       plyVertex vertex;
-      for (j=0; j < numPts; j++) 
+      for (int j=0; j < numPts; j++)
         {
         vtkPLY::ply_get_element (ply, (void *) &vertex);
         pts->SetPoint (j, vertex.x);
@@ -217,7 +214,7 @@ int vtkPLYReader::RequestData(
       pts->Delete();
       }//if vertex
 
-    else if ( elemName && !strcmp ("face", elemName) ) 
+    else if ( elemName && !strcmp ("face", elemName) )
       {
       // Create a polygonal array
       numPolys = numElems;
@@ -245,12 +242,12 @@ int vtkPLYReader::RequestData(
         }
       
       // grab all the face elements
-      for (j=0; j < numPolys; j++) 
+      for (int j=0; j < numPolys; j++)
         {
         //grab and element from the file
         face.verts = verts;
         vtkPLY::ply_get_element (ply, (void *) &face);
-        for (k=0; k<face.nverts; k++)
+        for (int k=0; k<face.nverts; k++)
           {
           vtkVerts[k] = face.verts[k];
           }
@@ -271,11 +268,12 @@ int vtkPLYReader::RequestData(
       }//if face
 
     free(elist[i]); //allocated by ply_open_for_reading
+    elist[i] = NULL;
     
     }//for all elements of the PLY file
   free(elist); //allocated by ply_open_for_reading
   
-  vtkDebugMacro( <<"Read: " << numPts << " points, " 
+  vtkDebugMacro( <<"Read: " << numPts << " points, "
                  << numPolys << " polygons");
 
   // close the PLY file 
@@ -289,8 +287,8 @@ int vtkPLYReader::CanReadFile(const char *filename)
   FILE *fd = fopen(filename, "rb");
   if (!fd) return 0;
 
-  char line[16];
-  fgets(line, 16, fd);
+  char line[4] = {};
+  fgets(line, sizeof(line), fd);
   fclose(fd);
   return (strncmp(line, "ply", 3) == 0);
 }
@@ -299,7 +297,7 @@ void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
 }

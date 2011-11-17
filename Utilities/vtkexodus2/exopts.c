@@ -32,27 +32,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exopts - ex_opts
-*
-* entry conditions - 
-*   input parameters:
-*       int     options         error reporting options mask
-*
-* exit conditions - 
-*   The internal error reporting options mask, exoptval, is set to the passed
-*   value - no error checking is done.
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
+
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/* init exoptval */
+/*! \cond INTERNAL */
+int ex_max_name_length = 32; /* For default compatibility with older clients */
+
 #if defined(VERBOSE)
 int exoptval = EX_VERBOSE;   /* loud mode: set EX_VERBOSE */
 #else
@@ -62,11 +48,37 @@ int exoptval = EX_VERBOSE | EX_DEBUG;/* debug mode: set EX_VERBOSE & EX_DEBUG */
 int exoptval = EX_DEFAULT;  /* set default global options value to NOT print error msgs*/
 #endif
 #endif
+/*! \endcond */
 
 /*!
- * error reporting options mask
- * \param  options         error reporting options mask \sa ex_options
- */
+The function ex_opts() is used to set message reporting options.
+
+\return In case of an error, ex_opts() returns a negative number; a warning
+        will return a positive number.
+
+\param[in] options   Integer option value. Current options are shown in the table below.
+
+<table>
+<tr><td> \c EX_ABORT  </td><td> Causes fatal errors to force program 
+                                exit. (Default is false.) </td></tr>
+<tr><td> \c EX_DEBUG  </td><td> Causes certain messages to print 
+                                for debug use. (Default is false.)</td></tr>
+<tr><td> \c EX_VERBOSE</td><td> Causes all error messages to print when true, 
+                                otherwise no error messages will print. (Default is false.)</td></tr>
+</table>
+
+\note Values may be OR'ed together to provide any combination 
+      of these capabilities.
+
+For example, the following will cause all messages to print 
+and will cause the program to exit upon receipt of fatal error:
+
+\code
+#include "exodusII.h"
+ex_opts(EX_ABORT|EX_VERBOSE);
+\endcode
+
+*/
 void ex_opts (int options)      
 {
   exerrval = 0; /* clear error code */

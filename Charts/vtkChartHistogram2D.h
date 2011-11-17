@@ -52,6 +52,10 @@ public:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
+  // Description:
+  // Get the plot at the specified index, returns null if the index is invalid.
+  virtual vtkPlot* GetPlot(vtkIdType index);
+
 protected:
   vtkChartHistogram2D();
   ~vtkChartHistogram2D();

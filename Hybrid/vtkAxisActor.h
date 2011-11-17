@@ -36,10 +36,13 @@ All rights reserved.
 // The instance variables Point1 and Point2 are instances of vtkCoordinate.
 // All calculations and references are in World Coordinates.
 //
-// .SECTION Notes
-// This class was adapted from a 2D version created by Hank Childs called
-// vtkHankAxisActor2D.
-//
+// .SECTION Thanks
+// This class was written by:
+// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
+// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
+// Karthik Krishnan, Aashish Chaudhary, Philippe Pébay, David Gobbi, 
+// David Partyka, Utkarsh Ayachit David Cole, François Bertel, and Mark Olesen
+// 
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
 
@@ -64,22 +67,18 @@ All rights reserved.
 #define VTK_AXIS_POS_MAXMAX 2
 #define VTK_AXIS_POS_MAXMIN 3
 
-// ****************************************************************************
-//  Modifications:
-//    Kathleen Bonnell, Tue Aug 31 16:17:43 PDT 2004
-//    Added TitleTextTime timestamp, so that title can be updated appropriately
-//    when its text changes.  Changed Titles Set macro for a user-defined
-//    set so TitleTextTime can be updated.
-//
-// ****************************************************************************
-
+class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
 class vtkFollower;
+class vtkFreeTypeUtilities;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkProperty2D;
 class vtkStringArray;
+class vtkTextActor;
+class vtkTextProperty;
 class vtkVectorText;
 
 class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
@@ -185,10 +184,46 @@ public:
   vtkBooleanMacro(TitleVisibility, int);
 
   // Description:
+  // Set/Get the axis title text property. 
+  virtual void SetTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+
+  // Description:
+  // Set/Get the axis labels text property.
+  virtual void SetLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  
+  // Description:
+  // Get/Set axis actor property (axis and its ticks)
+  void SetAxisLinesProperty(vtkProperty *);
+  vtkProperty* GetAxisLinesProperty();
+
+  // Description:
+  // Get/Set gridlines actor property (outer grid lines)
+  void SetGridlinesProperty(vtkProperty *);
+  vtkProperty* GetGridlinesProperty();
+
+  // Description:
+  // Get/Set inner gridlines actor property
+  void SetInnerGridlinesProperty(vtkProperty *);
+  vtkProperty* GetInnerGridlinesProperty();
+
+  // Description:
+  // Get/Set gridPolys actor property (grid quads)
+  void SetGridpolysProperty(vtkProperty *);
+  vtkProperty* GetGridpolysProperty();
+
+  // Description:
   // Set/Get whether gridlines should be drawn.
   vtkSetMacro(DrawGridlines, int);
   vtkGetMacro(DrawGridlines, int);
   vtkBooleanMacro(DrawGridlines, int);
+
+  // Description:
+  // Set/Get whether inner gridlines should be drawn.
+  vtkSetMacro(DrawInnerGridlines, int);
+  vtkGetMacro(DrawInnerGridlines, int);
+  vtkBooleanMacro(DrawInnerGridlines, int);
 
   // Description:
   // Set/Get the length to use when drawing gridlines.
@@ -198,6 +233,12 @@ public:
   vtkGetMacro(GridlineYLength, double);
   vtkSetMacro(GridlineZLength, double);
   vtkGetMacro(GridlineZLength, double);
+
+  // Description:
+  // Set/Get whether gridpolys should be drawn.
+  vtkSetMacro(DrawGridpolys, int);
+  vtkGetMacro(DrawGridpolys, int);
+  vtkBooleanMacro(DrawGridpolys, int);
 
   // Description:
   // Set/Get the type of this axis.
@@ -235,17 +276,16 @@ public:
   // Description:
   // Draw the axis.
   virtual int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentGeometry(vtkViewport* viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
+  virtual int RenderOverlay(vtkViewport* viewport);
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
-
-  // Description:
-  // Shallow copy of an axis actor. Overloads the virtual vtkProp method.
-  void ShallowCopy(vtkProp *prop);
 
 //BTX
   double ComputeMaxLabelLength(const double [3]);
@@ -254,18 +294,21 @@ public:
   void SetLabelScale(const double);
   void SetTitleScale(const double);
 
-
   // Description:
   // Set/Get the starting position for minor and major tick points,
   // and the delta values that determine their spacing.
   vtkSetMacro(MinorStart, double);
   vtkGetMacro(MinorStart, double);
-  vtkSetMacro(MajorStart, double);
-  vtkGetMacro(MajorStart, double);
+  double GetMajorStart(int axis);
+  void SetMajorStart(int axis,double value);
+  //vtkSetMacro(MajorStart, double);
+  //vtkGetMacro(MajorStart, double);
   vtkSetMacro(DeltaMinor, double);
   vtkGetMacro(DeltaMinor, double);
-  vtkSetMacro(DeltaMajor, double);
-  vtkGetMacro(DeltaMajor, double);
+  double GetDeltaMajor(int axis);
+  void SetDeltaMajor(int axis,double value);
+  //vtkSetMacro(DeltaMajor, double);
+  //vtkGetMacro(DeltaMajor, double);
 
   // Description:
   // Set/Get the starting position for minor and major tick points on
@@ -287,6 +330,47 @@ public:
 
   void BuildAxis(vtkViewport *viewport, bool);
 
+//BTX
+  // Description:
+  // Get title actor and it is responsible for drawing
+  // title text.
+  vtkGetObjectMacro(TitleActor,  vtkAxisFollower);
+
+  // Description:
+  // Get label actors responsigle for drawing label text.
+  inline vtkAxisFollower** GetLabelActors()
+    {
+    return this->LabelActors;
+    }
+//ETX
+
+  // Description:
+  // Get total numbe of labels built. Once built
+  // this count does not change.
+  vtkGetMacro(NumberOfLabelsBuilt, int);
+
+  // Description
+  // Set/Get flag whether to calculate title offset.
+  // Default is true.
+  vtkSetMacro(CalculateTitleOffset, int);
+  vtkGetMacro(CalculateTitleOffset, int);
+  vtkBooleanMacro(CalculateTitleOffset, int);
+
+  // Description
+  // Set/Get flag whether to calculate label offset.
+  // Default is true.
+  vtkSetMacro(CalculateLabelOffset, int);
+  vtkGetMacro(CalculateLabelOffset, int);
+  vtkBooleanMacro(CalculateLabelOffset, int);
+
+ // Set/Get the 2D mode (2D/3D)
+ vtkSetMacro(Use2DMode, int);
+ vtkGetMacro(Use2DMode, int);
+
+ // Set/Get the saving positions tag (2D/3D)
+ vtkSetMacro(SaveTitlePosition, int);
+ vtkGetMacro(SaveTitlePosition, int);
+
 protected:
   vtkAxisActor();
   ~vtkAxisActor();
@@ -306,6 +390,12 @@ protected:
   double  GridlineYLength;
   double  GridlineZLength;
 
+  int    DrawInnerGridlines;
+  int    LastDrawInnerGridlines;
+  
+  int    DrawGridpolys;
+  int    LastDrawGridpolys;
+  
   int    AxisVisibility;
   int    TickVisibility;
   int    LastTickVisibility;
@@ -323,9 +413,12 @@ private:
   void TransformBounds(vtkViewport *, double bnds[6]);
 
   void BuildLabels(vtkViewport *, bool);
+  void BuildLabels2D(vtkViewport *, bool);
   void SetLabelPositions(vtkViewport *, bool);
+  void SetLabelPositions2D(vtkViewport *, bool);
 
   void BuildTitle(bool);
+  void BuildTitle2D(vtkViewport *viewport, bool);
 
   void SetAxisPointsAndLines(void);
   bool BuildTickPointsForXType(double p1[3], double p2[3], bool);
@@ -333,6 +426,11 @@ private:
   bool BuildTickPointsForZType(double p1[3], double p2[3], bool);
 
   bool TickVisibilityChanged(void);
+  vtkProperty *NewTitleProperty();
+  vtkProperty2D *NewTitleProperty2D();
+  vtkProperty *NewLabelProperty();
+
+  bool BoundsDisplayCoordinateChanged(vtkViewport *viewport);
 
   vtkCoordinate *Point1Coordinate;
   vtkCoordinate *Point2Coordinate;
@@ -340,12 +438,11 @@ private:
   double  MajorTickSize;
   double  MinorTickSize;
 
-  // for the positions
-  double  MajorStart;
+  // For each axis (for the inner gridline generation)
+  double  MajorStart[3];
+  double  DeltaMajor[3];
   double  MinorStart;
-
   double  DeltaMinor;
-  double  DeltaMajor;
 
   // For the ticks, w.r.t to the set range
   double  MajorRangeStart;
@@ -356,23 +453,38 @@ private:
   int    LastAxisPosition;
   int    LastAxisType;
   int    LastTickLocation;
-  double  LastLabelStart;
+  double LastLabelStart;
 
   vtkPoints         *MinorTickPts;
   vtkPoints         *MajorTickPts;
   vtkPoints         *GridlinePts;
+  vtkPoints         *InnerGridlinePts;
+  vtkPoints         *GridpolyPts;
 
   vtkVectorText     *TitleVector;
   vtkPolyDataMapper *TitleMapper;
-  vtkFollower       *TitleActor;
+  vtkAxisFollower   *TitleActor;
+  vtkTextActor      *TitleActor2D;
+  vtkTextProperty   *TitleTextProperty;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
-  vtkFollower       **LabelActors;
+  vtkAxisFollower   **LabelActors;
+  vtkTextActor      **LabelActors2D;
+  vtkTextProperty    *LabelTextProperty;
 
-  vtkPolyData        *Axis;
-  vtkPolyDataMapper  *AxisMapper;
-  vtkActor           *AxisActor;
+  vtkPolyData        *AxisLines;
+  vtkPolyDataMapper  *AxisLinesMapper;
+  vtkActor           *AxisLinesActor;
+  vtkPolyData        *Gridlines;
+  vtkPolyDataMapper  *GridlinesMapper;
+  vtkActor           *GridlinesActor;
+  vtkPolyData        *InnerGridlines;
+  vtkPolyDataMapper  *InnerGridlinesMapper;
+  vtkActor           *InnerGridlinesActor;
+  vtkPolyData        *Gridpolys;
+  vtkPolyDataMapper  *GridpolysMapper;
+  vtkActor           *GridpolysActor;
 
   vtkCamera          *Camera;
   vtkTimeStamp        BuildTime;
@@ -381,6 +493,35 @@ private:
   vtkTimeStamp        TitleTextTime;
 
   int                 AxisHasZeroLength;
+
+  int                 CalculateTitleOffset;
+  int                 CalculateLabelOffset;
+
+  // Description: 
+  // Use xy-axis only when Use2DMode=1:
+  int                 Use2DMode;
+
+  // Description:
+  // Save title position (for 2D mode):
+  // val = 0 : no need to save position (doesn't stick actors in a position)
+  // val = 1 : positions have to be saved during the next render pass
+  // val = 2 : positions are saved -> used them
+  int		      SaveTitlePosition;
+
+  // Description:
+  // Constant position for the title (for 2D mode)
+  double	      TitleConstantPosition[2];
+
+  // Description:
+  // True if the 2D title has to be built, false otherwise
+  bool                NeedBuild2D;
+
+  double	      LastMinDisplayCoordinate[3];
+  double	      LastMaxDisplayCoordinate[3];
+
+  // Description:
+  // FreeType library utility
+  vtkFreeTypeUtilities *FreeTypeUtilities;
 };
 
 
