@@ -197,32 +197,32 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
 
 //----------------------------------------------------------------------------
 double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
-                                  double screenOffset, double position[3])
+                                  double screenSize, double position[3])
 {
   double newScale = 0.0;
 
   if(!viewport)
     {
-    vtkErrorMacro("Invalid or NULL viewport \n");
+    std::cerr << "Invalid or NULL viewport \n";
     return newScale;
     }
 
   if(!camera)
     {
-    vtkErrorMacro("Invalid or NULL camera \n");
+    std::cerr << "Invalid or NULL camera \n";
     return newScale;
     }
 
   if(!position)
     {
-    vtkErrorMacro("Invalid or NULL position \n");
+    std::cerr << "Invalid or NULL position \n";
     return newScale;
     }
 
   double factor = 1;
   if (viewport->GetSize()[1] > 0)
     {
-    factor = 2.0 * screenOffset
+    factor = 2.0 * screenSize
       * tan(vtkMath::RadiansFromDegrees(camera->GetViewAngle()/2.0))
       / viewport->GetSize()[1];
     }

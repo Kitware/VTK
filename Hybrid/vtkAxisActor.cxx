@@ -31,12 +31,6 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-// ****************************************************************
-// Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
-//   Replace 'New' method with macro to match VTK 4.0 API.
-// ****************************************************************
-
 vtkStandardNewMacro(vtkAxisActor);
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkAxisActor,LabelTextProperty,vtkTextProperty);
@@ -71,11 +65,14 @@ vtkAxisActor::vtkAxisActor()
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat, "%s", "%-#6.3g");
 
-  // stuff for 2D axis
   this->Use2DMode = 0;
   this->SaveTitlePosition = 0;
   this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
   
+  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty->SetColor(0.,0.,0.);
+  this->TitleTextProperty->SetFontFamilyToArial();
+
   this->TitleVector = vtkVectorText::New();
   this->TitleMapper = vtkPolyDataMapper::New();
   this->TitleMapper->SetInput(this->TitleVector->GetOutput());
@@ -84,11 +81,6 @@ vtkAxisActor::vtkAxisActor()
   this->TitleActor->SetEnableDistanceLOD(0);
   this->TitleActor2D = vtkTextActor::New();
 
-  this->TitleTextProperty = vtkTextProperty::New();
-  this->TitleTextProperty->SetColor(1.,1.,1.);
-  this->TitleTextProperty->SetFontFamilyToArial();
-
-  // to avoid deleting/rebuilding create once up front
   this->NumberOfLabelsBuilt = 0;
   this->LabelVectors = NULL;
   this->LabelMappers = NULL;
@@ -379,32 +371,6 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 // ****************************************************************
-void vtkAxisActor::ShallowCopy(vtkProp *prop)
-{
-  vtkAxisActor *a = vtkAxisActor::SafeDownCast(prop);
-  if (a != NULL)
-    {
-    this->SetPoint1(a->GetPoint1());
-    this->SetPoint2(a->GetPoint2());
-    this->SetCamera(a->GetCamera());
-    this->SetRange(a->GetRange());
-    this->SetLabelFormat(a->GetLabelFormat());
-    this->SetTitle(a->GetTitle());
-    this->SetAxisVisibility(a->GetAxisVisibility());
-    this->SetTickVisibility(a->GetTickVisibility());
-    this->SetLabelVisibility(a->GetLabelVisibility());
-    this->SetTitleVisibility(a->GetTitleVisibility());
-    //    this->SetTitleTextProperty(a->GetTitleTextProperty());
-    //    this->SetLabelTextProperty(a->GetLabelTextProperty());
-    this->SetCalculateTitleOffset(a->GetCalculateTitleOffset());
-    this->SetCalculateLabelOffset(a->GetCalculateLabelOffset());
-    }
-
-  // Now do superclass
-  this->Superclass::ShallowCopy(prop);
-}
-
-// ****************************************************************
 int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
@@ -576,8 +542,9 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 
   if (force || this->GetProperty()->GetMTime() > this->BuildTime.GetMTime())
     {
-    this->AxisLinesActor->SetProperty(this->GetProperty());
+      //this->AxisLinesActor->SetProperty(this->GetProperty());
     this->TitleActor->SetProperty(this->GetProperty());
+    this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
     }
 
   //
@@ -637,7 +604,7 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
-    this->LabelActors[i]->SetProperty(this->GetProperty());
+    this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
 
     if(!this->GetCalculateLabelOffset())
       {
@@ -889,10 +856,10 @@ void vtkAxisActor::BuildTitle(bool force)
     labHeight = (labBounds[3] - labBounds[2])*scale[1];
     maxHeight = (labHeight > maxHeight ? labHeight : maxHeight);
     }
+
   this->TitleVector->SetText(this->Title);
 
   this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
-  this->TitleActor->GetProperty()->SetOpacity(1);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetPosition(p2[0], p2[1], p2[2]);
   this->TitleActor->GetMapper()->GetBounds(titleBounds);
@@ -1180,6 +1147,9 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
       this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
       this->LabelActors[i]->SetEnableDistanceLOD(0);
+      this->LabelActors[i]->GetProperty()->SetAmbient(1.);
+      this->LabelActors[i]->GetProperty()->SetDiffuse(0.);
+      this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
       this->LabelActors2D[i] = vtkTextActor::New();
       }
     }
@@ -1985,6 +1955,7 @@ double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->SetProperty(newProp);
     this->LabelActors[i]->GetMapper()->GetBounds(bounds);
+    this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
     xsize = bounds[1] - bounds[0];
     ysize = bounds[3] - bounds[2];
     length = sqrt(xsize*xsize + ysize*ysize);
@@ -2009,9 +1980,11 @@ double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
   this->TitleActor->SetProperty(newProp);
   newProp->Delete();
   this->TitleActor->GetMapper()->GetBounds(bounds);
+  this->TitleActor->GetProperty()->SetColor(this->TitleTextProperty->GetColor());
   xsize = bounds[1] - bounds[0];
   ysize = bounds[3] - bounds[2];
   length = sqrt(xsize*xsize + ysize*ysize);
+
   return length;
 }
 
@@ -2062,8 +2035,6 @@ void vtkAxisActor::SetTitle(const char *t)
 void vtkAxisActor::SetAxisLinesProperty(vtkProperty *prop)
 {
   this->AxisLinesActor->SetProperty(prop);
-  this->LabelTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
-  this->TitleTextProperty->SetColor(this->AxisLinesActor->GetProperty()->GetColor());
   this->Modified();
 }
 
@@ -2119,7 +2090,7 @@ vtkProperty* vtkAxisActor::NewTitleProperty()
   newProp->DeepCopy(this->GetProperty());
   newProp->SetColor(this->TitleTextProperty->GetColor());
   // We pass the opacity in the line offset.
-  newProp->SetOpacity(this->TitleTextProperty->GetLineOffset());
+  //newProp->SetOpacity(this->TitleTextProperty->GetLineOffset());
   return newProp;
 }
 
@@ -2130,7 +2101,7 @@ vtkProperty* vtkAxisActor::NewLabelProperty()
   newProp->DeepCopy(this->GetProperty());
   newProp->SetColor(this->LabelTextProperty->GetColor());
   // We pass the opacity in the line offset.
-  newProp->SetOpacity(this->LabelTextProperty->GetLineOffset());
+  //newProp->SetOpacity(this->LabelTextProperty->GetLineOffset());
   return newProp;
 }
 

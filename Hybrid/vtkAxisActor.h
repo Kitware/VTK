@@ -287,10 +287,6 @@ public:
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
-  // Description:
-  // Shallow copy of an axis actor. Overloads the virtual vtkProp method.
-  void ShallowCopy(vtkProp *prop);
-
 //BTX
   double ComputeMaxLabelLength(const double [3]);
   double ComputeTitleLength(const double [3]);

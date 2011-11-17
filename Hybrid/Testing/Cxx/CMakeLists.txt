@@ -20,6 +20,7 @@ IF (VTK_DATA_ROOT)
     TestExodusImplicitArrays.cxx
     #TestLabelPlacerExodus.cxx
     TestLegendScaleActor.cxx
+    TestPolarAxes.cxx
     TestPolyDataSilhouette.cxx
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx
