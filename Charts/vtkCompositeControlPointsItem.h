@@ -96,8 +96,6 @@ public:
   // Mouse move event. To take care of some special Key stroke
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
   virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
 
 protected:

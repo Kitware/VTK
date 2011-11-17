@@ -54,7 +54,6 @@ public:
   vtkSetMacro(CurrentPointIndex, vtkIdType);
   vtkGetMacro(CurrentPointIndex, vtkIdType);
 
-//BTX
   // Description
   // Set the PieceWiseFunction the handles will manipulate
   virtual void SetPiecewiseFunction(vtkPiecewiseFunction* piecewiseFunc);
@@ -70,16 +69,8 @@ public:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
   // Description:
-  // Mouse enter event.
-  //virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
   // Mouse move event.
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse leave event.
-  //virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse button down event.
@@ -88,7 +79,6 @@ public:
   // Description:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
-//ETX
 
 //BTX
 protected:

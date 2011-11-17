@@ -168,7 +168,6 @@ void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType i
     double xvms[4];
     this->OpacityFunction->GetNodeValue(index, xvms);
     unsigned char* rgb = this->ColorTransferFunction->MapValue(xvms[0]);
-    //painter->GetPen()->SetColorF(1.0, 0.0, 1.0, 1.0);
     painter->GetBrush()->SetColorF(
       rgb[0] / 255., rgb[1] / 255., rgb[2] / 255., 0.55);
     }
@@ -343,18 +342,6 @@ void vtkCompositeControlPointsItem::SilentMergeTransferFunctions()
   this->StartChanges();
   this->MergeTransferFunctions();
   this->EndChanges();
-}
-
-//-----------------------------------------------------------------------------
-bool vtkCompositeControlPointsItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
-{
-  return this->Superclass::MouseEnterEvent(mouse);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkCompositeControlPointsItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
-{
-  return this->Superclass::MouseLeaveEvent(mouse);
 }
 
 //-----------------------------------------------------------------------------
