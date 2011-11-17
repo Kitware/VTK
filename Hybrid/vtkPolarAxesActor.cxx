@@ -700,13 +700,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   vtkAxisActor* axis = this->RadialAxes[0];
   double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
   double val = axis->GetMajorStart( VTK_AXIS_TYPE_X );
-  const double *p2  = axis->GetPoint2Coordinate()->GetValue();
-  vtkIdType nLabels = 0;
-  while ( val <= p2[0] && nLabels < VTK_MAX_LABELS )
-    {
-    ++ nLabels;
-    val += deltaMajor;
-    }
+  
+  // Prepare storage for polar axis labels
   vtkStringArray *labels = vtkStringArray::New();
   labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
 
@@ -732,7 +727,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   const char *format = this->RadialLabelFormat;
   char label[64];
   vtkIdType pointIdOffset = 0;
-  for ( int  i = 0; i < nLabels; ++ i )
+  for ( int  i = 0; i < this->NumberOfPolarAxisTicks; ++ i )
     {
     // Store label
     sprintf( label, format, val );
@@ -782,7 +777,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
 
   // Update axis label followers
   vtkAxisFollower** labelActors = axis->GetLabelActors();
-  for( int i = 0; i < nLabels; ++i )
+  for( int i = 0; i < this->NumberOfPolarAxisTicks; ++i )
     {
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
