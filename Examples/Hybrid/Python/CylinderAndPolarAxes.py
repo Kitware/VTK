@@ -46,6 +46,7 @@ polaxes.GetRadialAxesProperty().SetColor( .0, .0, 1. )
 polaxes.GetPolarArcsProperty().SetColor( 1., .0, 0. )
 polaxes.GetPolarAxisTitleTextProperty().SetColor( 1., 0., 0. )
 polaxes.GetPolarAxisLabelTextProperty().SetColor( 1., 0., 0. )
+polaxes.SetScreenSize( 9. )
 
 # Create renderer
 renderer = vtkRenderer()

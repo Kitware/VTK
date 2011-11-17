@@ -696,11 +696,6 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
 {
-  // Calculate number of labels needed and create array for them
-  vtkAxisActor* axis = this->RadialAxes[0];
-  double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
-  double val = axis->GetMajorStart( VTK_AXIS_TYPE_X );
-  
   // Prepare storage for polar axis labels
   vtkStringArray *labels = vtkStringArray::New();
   labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
@@ -723,7 +718,9 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   polarArcsLines->Delete();
 
   // Now create labels and polar arcs
-  val = axis->GetMajorRangeStart();
+  vtkAxisActor* axis = this->RadialAxes[0];
+  double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
+  double val = axis->GetMajorRangeStart();
   const char *format = this->RadialLabelFormat;
   char label[64];
   vtkIdType pointIdOffset = 0;
