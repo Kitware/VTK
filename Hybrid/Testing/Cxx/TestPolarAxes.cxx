@@ -90,7 +90,9 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->GetPolarArcsProperty()->SetColor( 1., .0, 0. );
   polaxes->GetPolarAxisTitleTextProperty()->SetColor( 1., 0., 0. );
   polaxes->GetPolarAxisLabelTextProperty()->SetColor( 1., 0., 0. );
-  polaxes->SetScreenSize( 11.0 );
+  polaxes->SetNumberOfPolarAxisTicks( 11 );
+  polaxes->SetAutoSubdividePolarAxis( false );
+  polaxes->SetScreenSize( 9.0 );
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples( 0 );
