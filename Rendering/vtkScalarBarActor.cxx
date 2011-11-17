@@ -180,7 +180,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
 
-  this->EnhancedMode = false;
+  this->EnhancedMode = 0;
 }
 
 //----------------------------------------------------------------------------
