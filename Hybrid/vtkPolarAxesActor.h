@@ -258,8 +258,10 @@ protected:
   double FFix(double );
   double FSign(double, double );
 
-  void    AutoScale( vtkViewport* viewport );
-  void    AutoScale( vtkViewport* viewport, vtkAxisActor** axes );
+  // Description:
+  // Automatically rescale titles and labels 
+  // NB: Current implementation only for perspective projections.
+  void AutoScale( vtkViewport* viewport );
 
   // Description:
   // Coordinates of the pole

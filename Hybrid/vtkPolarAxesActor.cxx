@@ -751,27 +751,29 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   this->PolarArcs->SetLines( polarArcsLines );
   polarArcsLines->Delete();
 
-  // Now create labels and polar arcs
+  // Retreave label features
   vtkAxisActor* axis = this->PolarAxis;
-  double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
-  double val = axis->GetMajorRangeStart();
+  double delta = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
+  double value = axis->GetMajorRangeStart();
+
+  // Now create labels and polar arcs
   const char *format = this->PolarLabelFormat;
   char label[64];
   vtkIdType pointIdOffset = 0;
   for ( int  i = 0; i < this->NumberOfPolarAxisTicks; ++ i )
     {
     // Store label
-    sprintf( label, format, val );
+    sprintf( label, format, value );
     labels->SetValue( i, label );
     cerr << i << ": " << label << endl;
 
-    if ( val  > 0. )
+    if ( value  > 0. )
       {
       // Build corresponding polar arc for non-zero values
-      double x1 = val * cosThetaMin;
-      double y1 = val * sinThetaMin;
-      double x2 = val * cosThetaMax;
-      double y2 = val * sinThetaMax;
+      double x1 = value * cosThetaMin;
+      double y1 = value * sinThetaMin;
+      double x2 = value * cosThetaMax;
+      double y2 = value * sinThetaMax;
       vtkArcSource* arc = vtkArcSource::New();
       arc->SetCenter( O );
       arc->SetPoint1( O[0] + x1, O[1] + y1, O[2] );
@@ -800,7 +802,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
       }
 
     // Move to next value
-    val += deltaMajor;
+    value += delta;
     }
 
   // Store labels
@@ -811,7 +813,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
 
   // Update axis label followers
   vtkAxisFollower** labelActors = axis->GetLabelActors();
-  for( int i = 0; i < this->NumberOfPolarAxisTicks; ++i )
+  for( int i = 0; i < this->NumberOfPolarAxisTicks; ++ i )
     {
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
@@ -821,35 +823,39 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
 {
-  // Current implementation only for perspective projections.
-  this->AutoScale( viewport, this->RadialAxes );
-}
 
-//-----------------------------------------------------------------------------
-void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
-                                   vtkAxisActor** axis )
-{
-  double newTitleScale = this->TitleScale;
+  // Scale polar axis title
+  vtkAxisActor* axis = this->PolarAxis;
+  double newTitleScale
+    = vtkAxisFollower::AutoScale( viewport, 
+                                  this->Camera,
+                                  this->ScreenSize, 
+                                  axis->GetTitleActor()->GetPosition() );
+  axis->SetTitleScale( newTitleScale );
+
+  // Scale polar axis labels
+  vtkAxisFollower** labelActors = axis->GetLabelActors();
+  for( int i = 0; i < axis->GetNumberOfLabelsBuilt(); ++ i )
+    {
+    double newLabelScale 
+      = vtkAxisFollower::AutoScale( viewport,
+                                    this->Camera, 
+                                    this->ScreenSize, 
+                                    labelActors[i]->GetPosition() );
+    labelActors[i]->SetScale( newLabelScale );
+    }
 
   // Loop over radial axes
   for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
+    axis = this->RadialAxes[i];
     // Scale title
-    newTitleScale = vtkAxisFollower::AutoScale( viewport, this->Camera,
-      this->ScreenSize, axis[i]->GetTitleActor()->GetPosition() );
-
-    axis[i]->SetTitleScale( newTitleScale );
-
-    // Scale labels
-    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
-
-    for( int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++ j )
-      {
-      double newLabelScale = vtkAxisFollower::AutoScale( viewport,
-        this->Camera, this->ScreenSize, labelActors[j]->GetPosition() );
-
-      labelActors[j]->SetScale( newLabelScale );
-      }
+    newTitleScale 
+      = vtkAxisFollower::AutoScale( viewport, 
+                                    this->Camera,
+                                    this->ScreenSize,
+                                    axis->GetTitleActor()->GetPosition() );
+    axis->SetTitleScale( newTitleScale );
     }
 }
 

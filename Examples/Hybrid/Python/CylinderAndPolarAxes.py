@@ -45,8 +45,9 @@ polaxes.SetCamera( camera )
 polaxes.SetPolarLabelFormat( "%6.1f" )
 polaxes.GetRadialAxesProperty().SetColor( .0, .0, 1. )
 polaxes.GetPolarArcsProperty().SetColor( 1., .0, 0. )
-polaxes.GetPolarAxisTitleTextProperty().SetColor( 1., 0., 0. )
-polaxes.GetPolarAxisLabelTextProperty().SetColor( 1., 0., 0. )
+polaxes.GetPolarAxisProperty().SetColor( 0., 1., 0. )
+polaxes.GetPolarAxisTitleTextProperty().SetColor( 0., 1., 0. )
+polaxes.GetPolarAxisLabelTextProperty().SetColor( 0., 1., 0. )
 polaxes.SetScreenSize( 8. )
 
 # Create renderer
