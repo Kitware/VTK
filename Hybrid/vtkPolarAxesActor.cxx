@@ -136,7 +136,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
 
   // By default show angle units (degrees)
-  this->RadialUnits = 1;
+  this->RadialUnits = true;
 
   this->RebuildAxes = false;
 
