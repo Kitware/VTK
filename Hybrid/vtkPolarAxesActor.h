@@ -110,6 +110,13 @@ public:
   vtkSetClampMacro( MaximumAngle, double, 0., 360. );
   vtkGetMacro( MaximumAngle, double );
 
+  // Description:
+  //  Set/Get the minimum radial angle distinguishable from polar axis
+  // NB: This is used only when polar axis is visible
+  // Default: 0.5
+  vtkSetClampMacro( SmallestVisiblePolarAngle, double, 0., 5. );
+  vtkGetMacro( SmallestVisiblePolarAngle, double );
+
   // Description: Set/Get whether angle units (degrees) are used to label radial axes 
   // Default: true
   vtkSetMacro( RadialUnits, bool ); 
@@ -307,6 +314,10 @@ protected:
   // Description:
   // Maximum polar angle
   double MaximumAngle;
+
+  // Description:
+  // Smallest radial angle distinguishable from polar axis
+  double SmallestVisiblePolarAngle;
 
   // Description:
   // Explicit actor bounds

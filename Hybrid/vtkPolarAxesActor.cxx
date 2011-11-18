@@ -68,6 +68,7 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Auto-Scale Radius" << this->AutoScaleRadius << endl;
   os << indent << "Minimum Angle" << this->MinimumAngle << endl;
   os << indent << "Maximum Angle" << this->MaximumAngle << endl;
+  os << indent << "Smallest Visible Polar Angle" << this->SmallestVisiblePolarAngle << endl;
   os << indent << "Radial Units (degrees): "
      << ( this->RadialUnits ? "On\n" : "Off\n" ) << endl;
 
@@ -143,6 +144,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // Default maximum polar angle
   this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
+
+  // Default smallest radial angle distinguishable from polar axis
+  this->SmallestVisiblePolarAngle = .5;
 
   // By default show angle units (degrees)
   this->RadialUnits = true;
@@ -528,6 +532,12 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
       { 
       // Prevent conflict between radial and polar axes titles
       axis->SetTitleVisibility( false );
+
+      if ( fabs( alpha ) < this->SmallestVisiblePolarAngle )
+        { 
+        // Do not show radial axes too close to polar axis
+        axis->SetAxisVisibility( false );
+        }
       }
     else
       {
