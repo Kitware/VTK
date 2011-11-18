@@ -59,12 +59,12 @@ int TestPolarAxes( int argc, char * argv [] )
 
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper( mapOutline.GetPointer() );
-  outlineActor->GetProperty()->SetColor( 0.0, 0.0, 0.0 );
+  outlineActor->GetProperty()->SetColor( 1., 1., 1. );
 
   vtkNew<vtkCamera> camera;
-  camera->SetClippingRange( 1.0, 100.0 );
-  camera->SetFocalPoint( 0.9, 1.0, 0.0 );
-  camera->SetPosition( 2., 6., 13. );
+  camera->SetClippingRange( 1., 100. );
+  camera->SetFocalPoint( 0., .5, 0. );
+  camera->SetPosition( 5., 6., 14. );
 
   vtkNew<vtkLight> light;
   light->SetFocalPoint( 0.21406, 1.5, 0.0 );
@@ -82,14 +82,16 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->SetPole( .5, 1., 3. );
   polaxes->SetAutoScaleRadius( false );
   polaxes->SetMaximumRadius( 3. );
-  polaxes->SetMaximumAngle( 210. );
-  polaxes->SetNumberOfRadialAxes( 8 );
+  polaxes->SetMinimumAngle( 30. );
+  polaxes->SetMaximumAngle( 270. );
+  polaxes->SetNumberOfRadialAxes( 9 );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetPolarLabelFormat( "%6.1f" );
   polaxes->GetRadialAxesProperty()->SetColor( .0, .0, 1. );
   polaxes->GetPolarArcsProperty()->SetColor( 1., .0, 0. );
-  polaxes->GetPolarAxisTitleTextProperty()->SetColor( 1., 0., 0. );
-  polaxes->GetPolarAxisLabelTextProperty()->SetColor( 1., 0., 0. );
+  polaxes->GetPolarAxisProperty()->SetColor( .2, .2, .2 );
+  polaxes->GetPolarAxisTitleTextProperty()->SetColor( .2, .2, .2 );
+  polaxes->GetPolarAxisLabelTextProperty()->SetColor( .2, .2, .2 );
   polaxes->SetNumberOfPolarAxisTicks( 11 );
   polaxes->SetAutoSubdividePolarAxis( false );
   polaxes->SetScreenSize( 9.0 );

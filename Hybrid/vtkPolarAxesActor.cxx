@@ -765,7 +765,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     // Store label
     sprintf( label, format, value );
     labels->SetValue( i, label );
-    cerr << i << ": " << label << endl;
 
     if ( value  > 0. )
       {
