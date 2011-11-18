@@ -456,6 +456,17 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     return;
     }
 
+  if ( this->MinimumAngle > this->MaximumAngle )
+    {
+    // Incorrect angle input
+    vtkWarningMacro( << "Cannot draw radial axes: "
+                     << " minimum angle = "
+                     << this->MinimumAngle
+                     << " maximum angle = "
+                     << this->MaximumAngle );
+    return;
+    }
+  
   // Determine the bounds
   double bounds[6];
   this->GetBounds( bounds );
