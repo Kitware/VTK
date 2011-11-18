@@ -148,19 +148,19 @@ public:
   void ReleaseGraphicsResources( vtkWindow* );
 
   // Description:
-  // Turn on and off the visibility of radial axes.
-  vtkSetMacro( RadialAxesVisibility,int );
-  vtkGetMacro( RadialAxesVisibility,int );
-  vtkBooleanMacro( RadialAxesVisibility,int );
+  // Turn on and off the visibility of the polar axis.
+  vtkSetMacro( PolarAxisVisibility,int );
+  vtkGetMacro( PolarAxisVisibility,int );
+  vtkBooleanMacro( PolarAxisVisibility,int );
 
   // Description:
-  // Turn on and off the visibility of titles for radial axes.
-  vtkSetMacro( RadialTitleVisibility,int );
-  vtkGetMacro( RadialTitleVisibility,int );
-  vtkBooleanMacro( RadialTitleVisibility,int );
+  // Turn on and off the visibility of titles for polar axis.
+  vtkSetMacro( PolarTitleVisibility,int );
+  vtkGetMacro( PolarTitleVisibility,int );
+  vtkBooleanMacro( PolarTitleVisibility,int );
 
   // Description:
-  // Turn on and off the visibility of labels for radial axis.
+  // Turn on and off the visibility of labels for polar axis.
   vtkSetMacro( PolarLabelVisibility,int );
   vtkGetMacro( PolarLabelVisibility,int );
   vtkBooleanMacro( PolarLabelVisibility,int );
@@ -170,6 +170,18 @@ public:
   vtkSetMacro( PolarTickVisibility, int );
   vtkGetMacro( PolarTickVisibility, int );
   vtkBooleanMacro( PolarTickVisibility, int );
+
+  // Description:
+  // Turn on and off the visibility of non-polar radial axes.
+  vtkSetMacro( RadialAxesVisibility,int );
+  vtkGetMacro( RadialAxesVisibility,int );
+  vtkBooleanMacro( RadialAxesVisibility,int );
+
+  // Description:
+  // Turn on and off the visibility of titles for non-polar radial axes.
+  vtkSetMacro( RadialTitleVisibility,int );
+  vtkGetMacro( RadialTitleVisibility,int );
+  vtkBooleanMacro( RadialTitleVisibility,int );
 
   // Description:
   // Turn on and off the visibility of arcs for polar axis.
@@ -187,6 +199,11 @@ public:
   virtual void SetPolarAxisLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(PolarAxisLabelTextProperty,vtkTextProperty);
   
+  // Description:
+  // Get/Set polar axis actor properties.
+  virtual void SetPolarAxisProperty(vtkProperty *);
+  vtkProperty* GetPolarAxisProperty();
+
   // Description:
   // Get/Set radial axes actors properties.
   virtual void SetRadialAxesProperty(vtkProperty *);
@@ -295,7 +312,11 @@ protected:
   vtkCamera *Camera;
 
   // Description:
-  // Control variables for radial axes
+  // Control variables for polar axis
+  vtkAxisActor* PolarAxis;
+
+  // Description:
+  // Control variables for non-polar radial axes
   vtkAxisActor** RadialAxes;
 
   // Description:
@@ -309,13 +330,17 @@ protected:
 
   int TickLocation;
 
+  // Visibility of polar axis and its title, labels, ticks (major only)
+  int PolarAxisVisibility;
+  int PolarTitleVisibility;
+  int PolarLabelVisibility;
+  int PolarTickVisibility;
+
   // Visibility of radial axes and their titles
   int RadialAxesVisibility;
   int RadialTitleVisibility;
 
-  // Visibility of polar labels, ticks (major only), and arcs
-  int PolarLabelVisibility;
-  int PolarTickVisibility;
+  // Visibility of polar arcs
   int PolarArcsVisibility;
 
   char  *RadialLabelFormat;
@@ -329,6 +354,9 @@ protected:
   // Text properties of polar axis title and labels
   vtkTextProperty   *PolarAxisTitleTextProperty;
   vtkTextProperty   *PolarAxisLabelTextProperty;
+
+  // General properties of polar axis
+  vtkProperty* PolarAxisProperty;
 
   // General properties of radial axes
   vtkProperty* RadialAxesProperty;

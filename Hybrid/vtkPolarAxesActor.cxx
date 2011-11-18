@@ -822,6 +822,19 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport,
 }
 
 //-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetPolarAxisProperty( vtkProperty *prop )
+{
+  this->PolarAxisProperty->DeepCopy( prop );
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkProperty* vtkPolarAxesActor::GetPolarAxisProperty()
+{
+  return this->PolarAxisProperty;
+}
+
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetRadialAxesProperty( vtkProperty *prop )
 {
   this->RadialAxesProperty->DeepCopy( prop );
