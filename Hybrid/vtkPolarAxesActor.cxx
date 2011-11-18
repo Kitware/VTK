@@ -32,6 +32,8 @@
 
 #include <vtksys/ios/sstream>
 
+#define VTK_POLAR_AXES_ACTOR_RTOL 1. - 2. * VTK_DBL_EPSILON
+
 vtkStandardNewMacro(vtkPolarAxesActor);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkPolarAxesActor,PolarAxisLabelTextProperty,vtkTextProperty);
@@ -77,10 +79,6 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
     {
     os << indent << "Camera: (none)\n";
     }
-
-  os << indent << "Rebuild Axes: "
-     << ( this->RebuildAxes ? "On\n" : "Off\n" );
-
 
   os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
   os << indent << "PolarAxisLabelTextProperty: " << this->PolarAxisLabelTextProperty << endl;
@@ -137,8 +135,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // By default show angle units (degrees)
   this->RadialUnits = true;
-
-  this->RebuildAxes = false;
 
   this->Camera = NULL;
 
@@ -308,7 +304,7 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 
   this->BuildAxes( viewport );
 
-  if ( initialRender || this->RebuildAxes )
+  if ( initialRender )
     {
     for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
@@ -316,7 +312,6 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
       }
     }
   initialRender = false;
-  this->RebuildAxes = false;
 
   // Render the radial axes
   int renderedSomething = 0;
@@ -680,12 +675,13 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
     // Use pre-set number of arcs when it is valid and no auto-subdivision was requested
     delta =  this->MaximumRadius / ( this->NumberOfPolarAxisTicks - 1 );
     }
-
   // Set major start and delta corresponding to range and coordinates
   vtkAxisActor* axis = this->RadialAxes[0];
   axis->SetMajorRangeStart( 0. );
   axis->SetDeltaRangeMajor( delta );
   axis->SetMajorStart( VTK_AXIS_TYPE_X, x0 );
+  // Build in numerical robustness
+  delta *= VTK_POLAR_AXES_ACTOR_RTOL;
   axis->SetDeltaMajor( VTK_AXIS_TYPE_X, delta );
 }
 
@@ -723,8 +719,10 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   for ( int  i = 0; i < this->NumberOfPolarAxisTicks; ++ i )
     {
     // Store label
+
     sprintf( label, format, val );
     labels->SetValue( i, label );
+    cerr << i << ": " << label << endl;
 
     if ( val  > 0. )
       {
