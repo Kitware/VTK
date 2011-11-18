@@ -136,10 +136,9 @@ public:
   vtkGetStringMacro( PolarAxisTitle );
 
   // Description:
-  // Set/Get the format with which to print the labels on each of the
-  // radial axes.
-  vtkSetStringMacro( RadialLabelFormat );
-  vtkGetStringMacro( RadialLabelFormat );
+  // Set/Get the format with which to print the polar axis labels
+  vtkSetStringMacro( PolarLabelFormat );
+  vtkGetStringMacro( PolarLabelFormat );
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -321,8 +320,9 @@ protected:
 
   // Description:
   // Title to be used for the polar axis
-  // NB: The other axes use the polar angle value as a title
+  // NB: Non-polar radial axes use the polar angle as title and have no labels
   char *PolarAxisTitle;
+  char  *PolarLabelFormat;
 
   // Description:
   // Use angle units (degrees) to label radial axes
@@ -342,8 +342,6 @@ protected:
 
   // Visibility of polar arcs
   int PolarArcsVisibility;
-
-  char  *RadialLabelFormat;
 
   int   RenderCount;
 
