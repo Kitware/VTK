@@ -249,10 +249,9 @@ protected:
   // Build polar axis labels and arcs with respect to specified pole.
   void  BuildPolarAxisLabelsArcs( double* );
 
-  int Digits(double min, double max );
-
+  // Description:
+  // Convenience methods
   double MaxOf(double, double );
-
   double FFix(double );
   double FSign(double, double );
 
