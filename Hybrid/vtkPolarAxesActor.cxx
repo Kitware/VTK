@@ -457,58 +457,6 @@ void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
 }
 
 //-----------------------------------------------------------------------------
-//  Method: LabelExponent
-//
-//  Purpose:
-//      Determines the proper exponent for the min and max values.
-//
-//  Arguments:
-//      min     The minimum value along a certain axis.
-//      max     The maximum value along a certain axis.
-//
-//  Note:       This code is mostly stolen from old MeshTV code,
-//              /meshtvx/toolkit/plotgrid.c, axlab_format.
-
-int vtkPolarAxesActor::LabelExponent( double min, double max )
-{
-  if ( min == max )
-    {
-    return 0;
-    }
-
-  //
-  // Determine power of 10 to scale axis labels to.
-  //
-  double range = ( fabs( min ) > fabs( max ) ? fabs( min ) : fabs( max ) );
-  double pow10 = log10( range );
-
-  //
-  // Cutoffs for using scientific notation.  The following 4 variables
-  // should all be static for maximum performance but were made non-static
-  // to get around a compiler bug with the MIPSpro 7.2.1.3 compiler.
-  //
-  double eformat_cut_min = -1.5;
-  double eformat_cut_max =  3.0;
-  double cut_min = pow( 10., eformat_cut_min );
-  double cut_max = pow( 10., eformat_cut_max );
-  double ipow10;
-  if ( range < cut_min || range > cut_max )
-    {
-    //
-    // We are going to use scientific notation and round the exponents to
-    // the nearest multiple of three.
-    //
-    ipow10 = ( floor( floor( pow10 )/3.) )*3;
-    }
-  else
-    {
-    ipow10 = 0;
-    }
-
-  return static_cast<int>( ipow10 );
-}
-
-//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
   double bounds[6];
@@ -657,6 +605,7 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 {
+  cerr << "In BuildPolarAxisTicks\n";
   double delta;
 
   if ( this->AutoSubdividePolarAxis
@@ -726,6 +675,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
 {
+  cerr << "In BuildPolarAxisLabelsArcs\n";
   // Prepare storage for polar axis labels
   vtkStringArray *labels = vtkStringArray::New();
   labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
