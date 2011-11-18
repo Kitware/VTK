@@ -173,11 +173,16 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // Base offset for followers
   double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
 
+  // By default enable distance based LOD
+  this->EnableDistanceLOD = 1;
+  this->DistanceLODThreshold = .7;
+
   // Set polar axis title follower (label followers not built yet)
   vtkAxisFollower* follower = this->PolarAxis->GetTitleActor();
   follower->SetAxis( this->PolarAxis );
   follower->SetScreenOffset( 2.0 * offset + 5 );
   follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+  follower->SetDistanceLODThreshold( .8 * this->DistanceLODThreshold );
 
   // Properties of the radial axes, with default color black
   this->RadialAxesProperty = vtkProperty::New();
@@ -199,6 +204,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     axis->GetTitleActor()->SetAxis( axis );
     axis->GetTitleActor()->SetScreenOffset( .67 * offset );
     axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
     } // for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
 
   // Create and set polar arcs and ancillary objects, with default color white
@@ -209,7 +215,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarArcsActor->SetMapper( this->PolarArcsMapper );
   this->PolarArcsActor->GetProperty()->SetColor( 1., 1., 1. );
 
-  // Default title for polar axis (can also be called "Radius")
+  // Default title for polar axis (sometimes also called "Radius")
   this->PolarAxisTitle = new char[16];
   sprintf(this->PolarAxisTitle, "%s", "Radial Distance");
   this->PolarLabelFormat = new char[8];
@@ -228,12 +234,15 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // By default polar arcs are visible
   this->PolarArcsVisibility = 1;
 
+  // Default title scale
+  this->TitleScale = -1.;
+
+  // Default label scale
+  this->LabelScale = -1.;
+
   this->RenderCount = 0;
 
   this->RenderSomething = 0;
-
-  this->LabelScale = -1.0;
-  this->TitleScale = -1.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -725,7 +734,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     {
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
-    labelActors[i]->SetEnableDistanceLOD( EnableDistanceLOD );
+    labelActors[i]->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    labelActors[i]->SetDistanceLODThreshold( .9 * this->DistanceLODThreshold );
     }
 }
 

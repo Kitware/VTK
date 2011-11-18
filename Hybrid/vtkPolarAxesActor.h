@@ -337,7 +337,7 @@ protected:
   int EnableDistanceLOD;
 
   // Description:
-  // Default is 0.80.
+  // Default is 0.80
   // This determines at what fraction of camera far clip range, actor is not visible.
   double DistanceLODThreshold;
 
