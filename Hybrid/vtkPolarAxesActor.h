@@ -332,8 +332,6 @@ protected:
 
   vtkTimeStamp BuildTime;
 
-  int UserRadialPow;
-
   double LabelScale;
   double TitleScale;
 

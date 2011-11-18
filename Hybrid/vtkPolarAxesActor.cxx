@@ -224,8 +224,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   this->RenderSomething = 0;
 
-  this->UserRadialPow = 0;
-
   this->LabelScale = -1.0;
   this->TitleScale = -1.0;
 }
