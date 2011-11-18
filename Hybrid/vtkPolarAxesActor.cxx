@@ -78,10 +78,6 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "Camera: (none)\n";
     }
 
-  os << indent << "Rebuild Axes: "
-     << ( this->RebuildAxes ? "On\n" : "Off\n" );
-
-
   os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
   os << indent << "PolarAxisLabelTextProperty: " << this->PolarAxisLabelTextProperty << endl;
   os << indent << "PolarAxisTitleTextProperty: " << this->PolarAxisTitleTextProperty << endl;
@@ -137,8 +133,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // By default show angle units (degrees)
   this->RadialUnits = true;
-
-  this->RebuildAxes = false;
 
   this->Camera = NULL;
 
@@ -308,7 +302,7 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 
   this->BuildAxes( viewport );
 
-  if ( initialRender || this->RebuildAxes )
+  if ( initialRender )
     {
     for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
@@ -316,7 +310,6 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
       }
     }
   initialRender = false;
-  this->RebuildAxes = false;
 
   // Render the radial axes
   int renderedSomething = 0;
