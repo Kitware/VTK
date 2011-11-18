@@ -136,7 +136,7 @@ public:
   vtkGetStringMacro( PolarAxisTitle );
 
   // Description:
-  // Set/Get the format with which to print the polar axis labels
+  // Set/Get the format with which to print the polar axis labels.
   vtkSetStringMacro( PolarLabelFormat );
   vtkGetStringMacro( PolarLabelFormat );
 
@@ -155,6 +155,16 @@ public:
   // Set distance LOD threshold [0.0 - 1.0] for titles and labels. 
   vtkSetClampMacro( DistanceLODThreshold, double, 0.0, 1.0 );
   vtkGetMacro( DistanceLODThreshold, double);
+
+  // Description:
+  // Enable and disable the use of view angle based LOD for titles and labels. 
+  vtkSetMacro( EnableViewAngleLOD, int );
+  vtkGetMacro( EnableViewAngleLOD, int );
+  
+  // Description:
+  // Set view angle LOD threshold [0.0 - 1.0] for titles and labels.
+  vtkSetClampMacro( ViewAngleLODThreshold, double, 0., 1. );
+  vtkGetMacro( ViewAngleLODThreshold, double );
 
   // Description:
   // Turn on and off the visibility of the polar axis.
@@ -340,6 +350,16 @@ protected:
   // Default is 0.80
   // This determines at what fraction of camera far clip range, actor is not visible.
   double DistanceLODThreshold;
+
+  // Description:
+  // If enabled the actor will not be visible at a certain view angle.
+  // Default is true.
+  int EnableViewAngleLOD;
+
+  // Description:
+  // This determines at what view angle to geometry will make the geometry not visibile.
+  // Default is 0.3.
+  double ViewAngleLODThreshold;
 
   // Description:
   // Visibility of polar axis and its title, labels, ticks (major only)

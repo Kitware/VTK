@@ -92,14 +92,14 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->GetPolarAxisProperty()->SetColor( .2, .2, .2 );
   polaxes->GetPolarAxisTitleTextProperty()->SetColor( .2, .2, .2 );
   polaxes->GetPolarAxisLabelTextProperty()->SetColor( .2, .2, .2 );
-  polaxes->SetNumberOfPolarAxisTicks( 11 );
+  polaxes->SetNumberOfPolarAxisTicks( 9 );
   polaxes->SetAutoSubdividePolarAxis( false );
   polaxes->SetScreenSize( 9.0 );
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples( 0 );
   renWin->AddRenderer( renderer.GetPointer() );
-  renWin->SetWindowName( "VTK - Polar Axes custom range" );
+  renWin->SetWindowName( "VTK - Polar Axes" );
   renWin->SetSize( 600, 600 );
 
   vtkNew<vtkRenderWindowInteractor> iren;

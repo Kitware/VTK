@@ -85,6 +85,10 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
      << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
   os << indent << "DistanceLODThreshold: ("   << this->DistanceLODThreshold    << ")\n";
 
+  os << indent << "EnableViewAngleLOD: "   
+     << ( this->EnableViewAngleLOD ? "On" : "Off" ) << endl;
+  os << indent << "ViewAngleLODThreshold: ("   << this->ViewAngleLODThreshold    << ")\n";
+
   os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
   os << indent << "Polar Label Format: " << this->PolarLabelFormat << "\n";
   os << indent << "PolarAxisLabelTextProperty: " << this->PolarAxisLabelTextProperty << endl;
@@ -177,12 +181,18 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->EnableDistanceLOD = 1;
   this->DistanceLODThreshold = .7;
 
+  // By default enable view angle based LOD
+  this->EnableViewAngleLOD = 1;
+  this->ViewAngleLODThreshold = .3;
+
   // Set polar axis title follower (label followers not built yet)
   vtkAxisFollower* follower = this->PolarAxis->GetTitleActor();
   follower->SetAxis( this->PolarAxis );
   follower->SetScreenOffset( 2.0 * offset + 5 );
   follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
-  follower->SetDistanceLODThreshold( .8 * this->DistanceLODThreshold );
+  follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+  follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+  follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
 
   // Properties of the radial axes, with default color black
   this->RadialAxesProperty = vtkProperty::New();
@@ -205,6 +215,8 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     axis->GetTitleActor()->SetScreenOffset( .67 * offset );
     axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
     axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
     } // for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
 
   // Create and set polar arcs and ancillary objects, with default color white
@@ -735,7 +747,9 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
     labelActors[i]->SetEnableDistanceLOD( this->EnableDistanceLOD );
-    labelActors[i]->SetDistanceLODThreshold( .9 * this->DistanceLODThreshold );
+    labelActors[i]->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    labelActors[i]->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    labelActors[i]->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
     }
 }
 
