@@ -538,7 +538,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
       thetaStream << theta;
       if ( this->RadialUnits )
         {
-        thetaStream << " deg.";
+        thetaStream << " deg";
         }
 
       axis->SetTitle( thetaStream.str().c_str() );
