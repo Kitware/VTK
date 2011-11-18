@@ -1448,6 +1448,11 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
                                                        int inputIncrement,
                                                        int outputFormat)
 {
+  if(this->GetSize() == 0)
+    {
+    vtkDebugMacro("Transfer Function Has No Points!");
+    return;
+    }
   switch (inputDataType)
     {
     vtkTemplateMacro(

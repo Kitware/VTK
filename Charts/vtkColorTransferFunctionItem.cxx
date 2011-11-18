@@ -76,6 +76,14 @@ void vtkColorTransferFunctionItem::ComputeBounds(double* bounds)
 //-----------------------------------------------------------------------------
 void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunction* t)
 {
+  if (t == this->ColorTransferFunction)
+    {
+    return;
+    }
+  if (this->ColorTransferFunction)
+    {
+    this->ColorTransferFunction->RemoveObserver(this->Callback);
+    }
   vtkSetObjectBodyMacro(ColorTransferFunction, vtkColorTransferFunction, t);
   if (t)
     {

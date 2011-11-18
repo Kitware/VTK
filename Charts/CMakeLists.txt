@@ -55,6 +55,7 @@ SET(Kit_SRCS
   vtkPen.cxx
   vtkPiecewiseControlPointsItem.cxx
   vtkPiecewiseFunctionItem.cxx
+  vtkPiecewisePointHandleItem.cxx
   vtkPlot.cxx
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
