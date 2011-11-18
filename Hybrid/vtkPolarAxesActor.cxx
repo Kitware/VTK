@@ -136,7 +136,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
 
   // By default show angle units (degrees)
-  this->RadialUnits = 1;
+  this->RadialUnits = true;
 
   this->RebuildAxes = false;
 
@@ -223,10 +223,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->RenderCount = 0;
 
   this->RenderSomething = 0;
-
-  this->UserRadialPow = 0;
-
-  this->AutoLabelScaling = true;
 
   this->LabelScale = -1.0;
   this->TitleScale = -1.0;
@@ -542,7 +538,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
       thetaStream << theta;
       if ( this->RadialUnits )
         {
-        thetaStream << " deg.";
+        thetaStream << " deg";
         }
 
       axis->SetTitle( thetaStream.str().c_str() );
@@ -778,17 +774,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     {
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkPolarAxesActor::SetLabelScaling( bool autoscale, int upow )
-{
-  if ( autoscale != this->AutoLabelScaling || upow != this->UserRadialPow )
-    {
-    this->AutoLabelScaling = autoscale;
-    this->UserRadialPow = upow;
-    this->Modified();
     }
 }
 

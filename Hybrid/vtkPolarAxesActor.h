@@ -76,13 +76,13 @@ public:
 
   // Description:
   // Gets/Sets the number of ticks and labels along polar axis
-  // NB: will be overriden if AutoSubdividePolarAxis is TRUE
+  // NB: will be overriden if AutoSubdividePolarAxis is true
   vtkSetClampMacro( NumberOfPolarAxisTicks, vtkIdType, 0, VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS );
   vtkGetMacro( NumberOfPolarAxisTicks, vtkIdType );
 
   // Description:
   // Set/Get whether the number of polar axis ticks and arcs should be automatically calculated
-  // Default: TRUE
+  // Default: true
   vtkSetMacro( AutoSubdividePolarAxis, bool );
   vtkGetMacro( AutoSubdividePolarAxis, bool );
 
@@ -94,9 +94,9 @@ public:
 
   // Description:
   // Turn on and off the auto-scaling of the maximum radius.
-  vtkSetMacro( AutoScaleRadius,int );
-  vtkGetMacro( AutoScaleRadius,int );
-  vtkBooleanMacro( AutoScaleRadius,int );
+  // Default: false
+  vtkSetMacro( AutoScaleRadius,bool );
+  vtkGetMacro( AutoScaleRadius,bool );
 
   // Description:
   //  Set/Get the maximum radius of the polar coordinates (in degrees).
@@ -110,6 +110,7 @@ public:
   vtkGetMacro( RebuildAxes, bool );
 
   // Description: Set/Get whether angle units (degrees) are used to label radial axes 
+  // Default: true
   vtkSetMacro( RadialUnits, bool ); 
   vtkGetMacro( RadialUnits, bool );
 
@@ -194,10 +195,6 @@ public:
   // Get/Set polar arcs actors property
   virtual void SetPolarArcsProperty(vtkProperty *);
   vtkProperty* GetPolarArcsProperty();
-
-  // Description:
-  // Set automatic label scaling mode, set axis exponents
-  void SetLabelScaling( bool, int );
 
   // Description:
   // Explicitly specify the region in space around which to draw the bounds.
@@ -334,10 +331,6 @@ protected:
   vtkProperty* RadialAxesProperty;
 
   vtkTimeStamp BuildTime;
-
-  int UserRadialPow;
-
-  bool AutoLabelScaling;
 
   double LabelScale;
   double TitleScale;
