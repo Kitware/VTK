@@ -102,9 +102,6 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Polar Arcs Visibility: "
      << ( this->PolarArcsVisibility ? "On" : "Off" ) << endl;
-
-
-  os << indent << "Tick Location: " << this->TickLocation << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -204,9 +201,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     axis->GetTitleActor()->SetAxis( axis );
     axis->GetTitleActor()->SetScreenOffset( .67 * offset );
     } // for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
-
-  // Default tick location, defined in vtkAxisActor
-  this->TickLocation = VTK_TICKS_BOTH;
 
   // Create and set polar arcs and ancillary objects, with default color white
   this->PolarArcs = vtkPolyData::New();
@@ -506,7 +500,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   // Set polar axis ticks (major only)
   axis->SetTickVisibility( this->PolarTickVisibility );
-  axis->SetTickLocation( this->TickLocation );
+  axis->SetTickLocation( VTK_TICKS_BOTH );
   axis->SetMajorTickSize( .02 * this->MaximumRadius );
   
   // Set polar axis labels
