@@ -2197,8 +2197,6 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport)
 // ****************************************************************
 void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBER_OF_ALIGNED_AXIS])
 {
-  double newTitleScale = this->TitleScale;
-
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; ++i)
     {
     double newTitleScale 
