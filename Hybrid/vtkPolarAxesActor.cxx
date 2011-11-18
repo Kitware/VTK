@@ -450,15 +450,14 @@ double *vtkPolarAxesActor::GetBounds()
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
-  double bounds[6];
-
   if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
     {
     this->AutoScale( viewport );
     return;
     }
 
-  // Determine the bounds for possible use ( input, prop, or user-defined )
+  // Determine the bounds
+  double bounds[6];
   this->GetBounds( bounds );
 
   // If pole coordinates are invalid, use bounds
