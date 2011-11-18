@@ -14,18 +14,19 @@
 =========================================================================*/
 #include "vtkSTLReader.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
-#include "vtkMergePoints.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkErrorCode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkIncrementalPointLocator.h"
 
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
@@ -165,18 +166,19 @@ int vtkSTLReader::RequestData(
       mergedScalars->Allocate(newPolys->GetSize());
       }
 
-    if ( this->Locator == NULL )
+    vtkSmartPointer<vtkIncrementalPointLocator> locator = this->Locator;
+    if (this->Locator == NULL)
       {
-      this->CreateDefaultLocator();
+      locator.TakeReference(this->NewDefaultLocator());
       }
-    this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());
+    locator->InitPointInsertion (mergedPts, newPts->GetBounds());
 
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
       {
       for (i=0; i < 3; i++)
         {
         newPts->GetPoint(pts[i],x);
-        this->Locator->InsertUniquePoint(x, nodes[i]);
+        locator->InsertUniquePoint(x, nodes[i]);
         }
 
       if ( nodes[0] != nodes[1] &&
@@ -414,14 +416,9 @@ int vtkSTLReader::GetSTLFileType(const char *filename)
 
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
-void vtkSTLReader::CreateDefaultLocator()
+vtkIncrementalPointLocator* vtkSTLReader::NewDefaultLocator()
 {
-  if ( this->Locator == NULL )
-    {
-    this->Locator = vtkMergePoints::New();
-    this->Locator->Register(this);
-    this->Locator->Delete();
-    }
+  return vtkMergePoints::New();
 }
 
 void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
