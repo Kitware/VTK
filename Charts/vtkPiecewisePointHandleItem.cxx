@@ -278,15 +278,15 @@ int vtkPiecewisePointHandleItem::IsOverHandle(
 //-----------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  float deltaX = mouse.ScenePos[0] - mouse.LastScenePos[0];
-  float deltaY = mouse.ScenePos[1] - mouse.LastScenePos[1];
-
   if (mouse.Button == mouse.LEFT_BUTTON)
     {
     if(this->MouseOverHandleIndex>=0)
       {
       PointHandle* activeHandle =
         &this->Internal->PointHandles[this->MouseOverHandleIndex];
+      float deltaX = mouse.ScenePos[0] - activeHandle->ScenePos[0];
+      float deltaY = mouse.ScenePos[1] - activeHandle->ScenePos[1];
+
       vtkControlPointsItem* parentControl=vtkControlPointsItem::SafeDownCast(
         this->GetParent());
       if(activeHandle->fDistance<=0 || !parentControl ||
