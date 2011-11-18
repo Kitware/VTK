@@ -81,6 +81,14 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "Camera: (none)\n";
     }
 
+  os << indent << "EnableDistanceLOD: "   
+     << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
+  os << indent << "DistanceLODThreshold: ("   << this->DistanceLODThreshold    << ")\n";
+
+  os << indent << "EnableViewAngleLOD: "   
+     << ( this->EnableViewAngleLOD ? "On" : "Off" ) << endl;
+  os << indent << "ViewAngleLODThreshold: ("   << this->ViewAngleLODThreshold    << ")\n";
+
   os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
   os << indent << "Polar Label Format: " << this->PolarLabelFormat << "\n";
   os << indent << "PolarAxisLabelTextProperty: " << this->PolarAxisLabelTextProperty << endl;
@@ -102,9 +110,6 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Polar Arcs Visibility: "
      << ( this->PolarArcsVisibility ? "On" : "Off" ) << endl;
-
-
-  os << indent << "Tick Location: " << this->TickLocation << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -172,17 +177,22 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // Base offset for followers
   double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
 
-  // Using twice the base offset and a little for the title of the polar axis.
+  // By default enable distance based LOD
+  this->EnableDistanceLOD = 1;
+  this->DistanceLODThreshold = .7;
+
+  // By default enable view angle based LOD
+  this->EnableViewAngleLOD = 1;
+  this->ViewAngleLODThreshold = .3;
+
+  // Set polar axis title follower (label followers not built yet)
   vtkAxisFollower* follower = this->PolarAxis->GetTitleActor();
   follower->SetAxis( this->PolarAxis );
   follower->SetScreenOffset( 2.0 * offset + 5 );
-
-  vtkAxisFollower** labelActors = this->PolarAxis->GetLabelActors();
-  int numberOfLabels = this->PolarAxis->GetNumberOfLabelsBuilt();
-  for( int i = 0; i < numberOfLabels; ++ i )
-    {
-    labelActors[i]->SetScreenOffset( offset );
-    }
+  follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+  follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+  follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+  follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
 
   // Properties of the radial axes, with default color black
   this->RadialAxesProperty = vtkProperty::New();
@@ -200,13 +210,14 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     axis->SetCalculateTitleOffset( 0 );
     axis->SetCalculateLabelOffset( 0 );
 
-    // Using 2/3 of base offset if not for non-polar radial axes.
+    // Set radial axis title follower
     axis->GetTitleActor()->SetAxis( axis );
     axis->GetTitleActor()->SetScreenOffset( .67 * offset );
+    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
     } // for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
-
-  // Default tick location, defined in vtkAxisActor
-  this->TickLocation = VTK_TICKS_BOTH;
 
   // Create and set polar arcs and ancillary objects, with default color white
   this->PolarArcs = vtkPolyData::New();
@@ -216,7 +227,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarArcsActor->SetMapper( this->PolarArcsMapper );
   this->PolarArcsActor->GetProperty()->SetColor( 1., 1., 1. );
 
-  // Default title for polar axis (can also be called "Radius")
+  // Default title for polar axis (sometimes also called "Radius")
   this->PolarAxisTitle = new char[16];
   sprintf(this->PolarAxisTitle, "%s", "Radial Distance");
   this->PolarLabelFormat = new char[8];
@@ -235,12 +246,15 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // By default polar arcs are visible
   this->PolarArcsVisibility = 1;
 
+  // Default title scale
+  this->TitleScale = -1.;
+
+  // Default label scale
+  this->LabelScale = -1.;
+
   this->RenderCount = 0;
 
   this->RenderSomething = 0;
-
-  this->LabelScale = -1.0;
-  this->TitleScale = -1.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -430,85 +444,6 @@ double *vtkPolarAxesActor::GetBounds()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
-                                         double bounds[6] )
-{
-  double minPt[3], maxPt[3], transMinPt[3], transMaxPt[3];
-  minPt[0] = this->Bounds[0];
-  minPt[1] = this->Bounds[2];
-  minPt[2] = this->Bounds[4];
-  maxPt[0] = this->Bounds[1];
-  maxPt[1] = this->Bounds[3];
-  maxPt[2] = this->Bounds[5];
-
-  viewport->SetWorldPoint(minPt[0], minPt[1], minPt[2], 1.0);
-  viewport->WorldToDisplay();
-  viewport->GetDisplayPoint(transMinPt);
-  viewport->SetWorldPoint(maxPt[0], maxPt[1], maxPt[2], 1.0);
-  viewport->WorldToDisplay();
-  viewport->GetDisplayPoint(transMaxPt);
-
-  bounds[0] = transMinPt[0];
-  bounds[2] = transMinPt[1];
-  bounds[4] = transMinPt[2];
-  bounds[1] = transMaxPt[0];
-  bounds[3] = transMaxPt[1];
-  bounds[5] = transMaxPt[2];
-}
-
-//-----------------------------------------------------------------------------
-//  Method: LabelExponent
-//
-//  Purpose:
-//      Determines the proper exponent for the min and max values.
-//
-//  Arguments:
-//      min     The minimum value along a certain axis.
-//      max     The maximum value along a certain axis.
-//
-//  Note:       This code is mostly stolen from old MeshTV code,
-//              /meshtvx/toolkit/plotgrid.c, axlab_format.
-
-int vtkPolarAxesActor::LabelExponent( double min, double max )
-{
-  if ( min == max )
-    {
-    return 0;
-    }
-
-  //
-  // Determine power of 10 to scale axis labels to.
-  //
-  double range = ( fabs( min ) > fabs( max ) ? fabs( min ) : fabs( max ) );
-  double pow10 = log10( range );
-
-  //
-  // Cutoffs for using scientific notation.  The following 4 variables
-  // should all be static for maximum performance but were made non-static
-  // to get around a compiler bug with the MIPSpro 7.2.1.3 compiler.
-  //
-  double eformat_cut_min = -1.5;
-  double eformat_cut_max =  3.0;
-  double cut_min = pow( 10., eformat_cut_min );
-  double cut_max = pow( 10., eformat_cut_max );
-  double ipow10;
-  if ( range < cut_min || range > cut_max )
-    {
-    //
-    // We are going to use scientific notation and round the exponents to
-    // the nearest multiple of three.
-    //
-    ipow10 = ( floor( floor( pow10 )/3.) )*3;
-    }
-  else
-    {
-    ipow10 = 0;
-    }
-
-  return static_cast<int>( ipow10 );
-}
-
-//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
   double bounds[6];
@@ -558,7 +493,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   // Set polar axis ticks (major only)
   axis->SetTickVisibility( this->PolarTickVisibility );
-  axis->SetTickLocation( this->TickLocation );
+  axis->SetTickLocation( VTK_TICKS_BOTH );
   axis->SetMajorTickSize( .02 * this->MaximumRadius );
   
   // Set polar axis labels
@@ -622,18 +557,13 @@ void vtkPolarAxesActor::SetCommonAxisAttributes( vtkAxisActor* axis )
   prop->SetDiffuse( 0.0 );
   axis->SetProperty( prop );
 
+  // Common space and range attributes
   axis->SetCamera( this->Camera );
   axis->SetBounds( this->Bounds );
   axis->SetRange( 0., this->MaximumRadius );
 
   // No minor ticks for any kind of axes
   axis->SetMinorTicksVisible( 0 );
-}
-
-//-----------------------------------------------------------------------------
-double vtkPolarAxesActor::MaxOf( double a, double b )
-{
-  return ( a > b ? a : b );
 }
 
 //-----------------------------------------------------------------------------
@@ -742,12 +672,12 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     = static_cast<vtkIdType>( angularSector * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
 
   // Arc points
-  vtkPoints *polarArcsPoints = vtkPoints::New();
+  vtkPoints* polarArcsPoints = vtkPoints::New();
   this->PolarArcs->SetPoints( polarArcsPoints );
   polarArcsPoints->Delete();
 
   // Arc lines
-  vtkCellArray *polarArcsLines = vtkCellArray::New();
+  vtkCellArray* polarArcsLines = vtkCellArray::New();
   this->PolarArcs->SetLines( polarArcsLines );
   polarArcsLines->Delete();
 
@@ -816,6 +746,10 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     {
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
+    labelActors[i]->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    labelActors[i]->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    labelActors[i]->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    labelActors[i]->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
     }
 }
 
