@@ -147,22 +147,32 @@ public:
   void ReleaseGraphicsResources( vtkWindow* );
 
   // Description:
+  // Enable and disable the use of distance based LOD for titles and labels. 
+  vtkSetMacro( EnableDistanceLOD, int );
+  vtkGetMacro( EnableDistanceLOD, int );
+  
+  // Description:a
+  // Set distance LOD threshold [0.0 - 1.0] for titles and labels. 
+  vtkSetClampMacro( DistanceLODThreshold, double, 0.0, 1.0 );
+  vtkGetMacro( DistanceLODThreshold, double);
+
+  // Description:
   // Turn on and off the visibility of the polar axis.
-  vtkSetMacro( PolarAxisVisibility,int );
-  vtkGetMacro( PolarAxisVisibility,int );
-  vtkBooleanMacro( PolarAxisVisibility,int );
+  vtkSetMacro( PolarAxisVisibility, int );
+  vtkGetMacro( PolarAxisVisibility, int );
+  vtkBooleanMacro( PolarAxisVisibility, int );
 
   // Description:
   // Turn on and off the visibility of titles for polar axis.
-  vtkSetMacro( PolarTitleVisibility,int );
-  vtkGetMacro( PolarTitleVisibility,int );
-  vtkBooleanMacro( PolarTitleVisibility,int );
+  vtkSetMacro( PolarTitleVisibility, int );
+  vtkGetMacro( PolarTitleVisibility, int );
+  vtkBooleanMacro( PolarTitleVisibility, int );
 
   // Description:
   // Turn on and off the visibility of labels for polar axis.
-  vtkSetMacro( PolarLabelVisibility,int );
-  vtkGetMacro( PolarLabelVisibility,int );
-  vtkBooleanMacro( PolarLabelVisibility,int );
+  vtkSetMacro( PolarLabelVisibility, int );
+  vtkGetMacro( PolarLabelVisibility, int );
+  vtkBooleanMacro( PolarLabelVisibility, int );
 
   // Description:
   // Turn on and off the visibility of ticks for polar axis.
@@ -172,15 +182,15 @@ public:
 
   // Description:
   // Turn on and off the visibility of non-polar radial axes.
-  vtkSetMacro( RadialAxesVisibility,int );
-  vtkGetMacro( RadialAxesVisibility,int );
-  vtkBooleanMacro( RadialAxesVisibility,int );
+  vtkSetMacro( RadialAxesVisibility, int );
+  vtkGetMacro( RadialAxesVisibility, int );
+  vtkBooleanMacro( RadialAxesVisibility, int );
 
   // Description:
   // Turn on and off the visibility of titles for non-polar radial axes.
-  vtkSetMacro( RadialTitleVisibility,int );
-  vtkGetMacro( RadialTitleVisibility,int );
-  vtkBooleanMacro( RadialTitleVisibility,int );
+  vtkSetMacro( RadialTitleVisibility, int );
+  vtkGetMacro( RadialTitleVisibility, int );
+  vtkBooleanMacro( RadialTitleVisibility, int );
 
   // Description:
   // Turn on and off the visibility of arcs for polar axis.
@@ -247,7 +257,6 @@ protected:
 
   // Description:
   // Convenience methods
-  double MaxOf(double, double );
   double FFix(double );
   double FSign(double, double );
 
@@ -318,19 +327,33 @@ protected:
   char  *PolarLabelFormat;
 
   // Description:
-  // Use angle units (degrees) to label radial axes
+  // Display angle units (degrees) to label radial axes
+  // Default is true
   bool RadialUnits;
 
+  // Description:
+  // If enabled the actor will not be visible at a certain distance from the camera.
+  // Default is true
+  int EnableDistanceLOD;
+
+  // Description:
+  // Default is 0.80.
+  // This determines at what fraction of camera far clip range, actor is not visible.
+  double DistanceLODThreshold;
+
+  // Description:
   // Visibility of polar axis and its title, labels, ticks (major only)
   int PolarAxisVisibility;
   int PolarTitleVisibility;
   int PolarLabelVisibility;
   int PolarTickVisibility;
 
+  // Description:
   // Visibility of radial axes and their titles
   int RadialAxesVisibility;
   int RadialTitleVisibility;
 
+  // Description:
   // Visibility of polar arcs
   int PolarArcsVisibility;
 
@@ -338,23 +361,35 @@ protected:
 
   int RenderSomething;
 
-  double LabelScreenOffset;
-
+  // Description:
   // Text properties of polar axis title and labels
   vtkTextProperty   *PolarAxisTitleTextProperty;
   vtkTextProperty   *PolarAxisLabelTextProperty;
 
+  // Description:
   // General properties of polar axis
   vtkProperty* PolarAxisProperty;
 
+  // Description:
   // General properties of radial axes
   vtkProperty* RadialAxesProperty;
 
   vtkTimeStamp BuildTime;
 
-  double LabelScale;
+  // Description:
+  // Title scale factor
   double TitleScale;
 
+  // Description:
+  // Label scale factor
+  double LabelScale;
+
+  // Description:
+  // Label screen offset
+  double LabelScreenOffset;
+
+  // Description:
+  // Text screen size
   double ScreenSize;
 
 private:

@@ -169,17 +169,11 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // Base offset for followers
   double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
 
-  // Using twice the base offset and a little for the title of the polar axis.
+  // Set polar axis title follower (label followers not built yet)
   vtkAxisFollower* follower = this->PolarAxis->GetTitleActor();
   follower->SetAxis( this->PolarAxis );
   follower->SetScreenOffset( 2.0 * offset + 5 );
-
-  vtkAxisFollower** labelActors = this->PolarAxis->GetLabelActors();
-  int numberOfLabels = this->PolarAxis->GetNumberOfLabelsBuilt();
-  for( int i = 0; i < numberOfLabels; ++ i )
-    {
-    labelActors[i]->SetScreenOffset( offset );
-    }
+  follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
 
   // Properties of the radial axes, with default color black
   this->RadialAxesProperty = vtkProperty::New();
@@ -197,9 +191,10 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     axis->SetCalculateTitleOffset( 0 );
     axis->SetCalculateLabelOffset( 0 );
 
-    // Using 2/3 of base offset if not for non-polar radial axes.
+    // Set radial axis title follower
     axis->GetTitleActor()->SetAxis( axis );
     axis->GetTitleActor()->SetScreenOffset( .67 * offset );
+    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
     } // for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
 
   // Create and set polar arcs and ancillary objects, with default color white
@@ -426,7 +421,6 @@ double *vtkPolarAxesActor::GetBounds()
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
-  cerr << "In BuildAxes\n";
   double bounds[6];
 
   if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
@@ -538,18 +532,13 @@ void vtkPolarAxesActor::SetCommonAxisAttributes( vtkAxisActor* axis )
   prop->SetDiffuse( 0.0 );
   axis->SetProperty( prop );
 
+  // Common space and range attributes
   axis->SetCamera( this->Camera );
   axis->SetBounds( this->Bounds );
   axis->SetRange( 0., this->MaximumRadius );
 
   // No minor ticks for any kind of axes
   axis->SetMinorTicksVisible( 0 );
-}
-
-//-----------------------------------------------------------------------------
-double vtkPolarAxesActor::MaxOf( double a, double b )
-{
-  return ( a > b ? a : b );
 }
 
 //-----------------------------------------------------------------------------
@@ -573,7 +562,6 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 {
-  cerr << "In BuildPolarAxisTicks\n";
   double delta;
 
   if ( this->AutoSubdividePolarAxis
@@ -643,7 +631,6 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
 {
-  cerr << "In BuildPolarAxisLabelsArcs\n";
   // Prepare storage for polar axis labels
   vtkStringArray *labels = vtkStringArray::New();
   labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
@@ -660,12 +647,12 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     = static_cast<vtkIdType>( angularSector * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
 
   // Arc points
-  vtkPoints *polarArcsPoints = vtkPoints::New();
+  vtkPoints* polarArcsPoints = vtkPoints::New();
   this->PolarArcs->SetPoints( polarArcsPoints );
   polarArcsPoints->Delete();
 
   // Arc lines
-  vtkCellArray *polarArcsLines = vtkCellArray::New();
+  vtkCellArray* polarArcsLines = vtkCellArray::New();
   this->PolarArcs->SetLines( polarArcsLines );
   polarArcsLines->Delete();
 
@@ -734,6 +721,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     {
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
+    labelActors[i]->SetEnableDistanceLOD( EnableDistanceLOD );
     }
 }
 
