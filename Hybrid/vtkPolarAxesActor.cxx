@@ -32,7 +32,7 @@
 
 #include <vtksys/ios/sstream>
 
-#define VTK_POLAR_AXES_ACTOR_RTOL 1. - 2. * VTK_DBL_EPSILON
+#define VTK_POLAR_AXES_ACTOR_RTOL ( 1. - 10. * VTK_DBL_EPSILON )
 
 vtkStandardNewMacro(vtkPolarAxesActor);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera,vtkCamera);
@@ -144,10 +144,11 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   this->Camera = NULL;
 
+  // Default text screen size
   this->ScreenSize = 10.0;
 
-  // Considering pivot point at center of the geometry,
-  // hence ( this->ScreenSize * 0.5 ).
+  // Screen offset for labels
+  // Pivot point at center of the geometry hence this->ScreenSize * 0.5
   this->LabelScreenOffset = 15.0 + this->ScreenSize * 0.5;
 
   // Text properties of polar axis title and labels, with default color white
@@ -176,7 +177,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   follower->SetAxis( this->PolarAxis );
   follower->SetScreenOffset( 2.0 * offset + 5 );
 
-  vtkAxisFollower **labelActors = this->PolarAxis->GetLabelActors();
+  vtkAxisFollower** labelActors = this->PolarAxis->GetLabelActors();
   int numberOfLabels = this->PolarAxis->GetNumberOfLabelsBuilt();
   for( int i = 0; i < numberOfLabels; ++ i )
     {
@@ -335,6 +336,8 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 
   if ( initialRender )
     {
+    this->PolarAxis->BuildAxis( viewport, true );
+
     for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
       this->RadialAxes[i]->BuildAxis( viewport, true );
@@ -342,8 +345,15 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
     }
   initialRender = false;
 
-  // Render the radial axes
   int renderedSomething = 0;
+
+  // Render the polar axis
+  if ( this->PolarAxisVisibility )
+    {
+    renderedSomething += this->PolarAxis->RenderOpaqueGeometry( viewport );
+    }
+
+  // Render the radial axes
   if ( this->RadialAxesVisibility )
     {
     for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
@@ -362,8 +372,6 @@ int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 }
 
 //-----------------------------------------------------------------------------
-// Screen size affects the screen offset as well.
-
 void vtkPolarAxesActor::SetScreenSize( double screenSize )
 {
   this->ScreenSize = screenSize;
@@ -371,16 +379,11 @@ void vtkPolarAxesActor::SetScreenSize( double screenSize )
   // hence ( this->ScreenSize * 0.5 ).
   this->LabelScreenOffset = 15.0 + this->ScreenSize * 0.5;
 
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+  vtkAxisFollower** labelActors = this->PolarAxis->GetLabelActors();
+  int numberOfLabels = this->PolarAxis->GetNumberOfLabelsBuilt();
+  for( int i = 0; i < numberOfLabels; ++ i )
     {
-    vtkAxisActor* axis = this->RadialAxes[i];
-
-    int numberOfLabelsBuilt = axis->GetNumberOfLabelsBuilt();
-    vtkAxisFollower** labelActors = axis->GetLabelActors();
-    for( int k=0; k < numberOfLabelsBuilt; ++k )
-      {
-      labelActors[k]->SetScreenOffset( this->LabelScreenOffset );
-      }
+    labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
     }
 
   this->Modified();
@@ -389,6 +392,7 @@ void vtkPolarAxesActor::SetScreenSize( double screenSize )
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
 {
+  this->PolarAxis->ReleaseGraphicsResources(win);
   for ( int i = 0; i < this->NumberOfRadialAxes;  ++i )
     {
     this->RadialAxes[i]->ReleaseGraphicsResources( win );
@@ -709,6 +713,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
   axis->SetMajorRangeStart( 0. );
   axis->SetDeltaRangeMajor( delta );
   axis->SetMajorStart( VTK_AXIS_TYPE_X, x0 );
+
   // Build in numerical robustness to avoid truncation errors at endpoint
   delta *= VTK_POLAR_AXES_ACTOR_RTOL;
   axis->SetDeltaMajor( VTK_AXIS_TYPE_X, delta );
