@@ -697,12 +697,17 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
 
   // Prepare trigonometric quantities
-  double thetaRad = vtkMath::RadiansFromDegrees( this->MaximumAngle );
-  double cosTheta = cos( thetaRad );
-  double sinTheta = sin( thetaRad );
-  vtkIdType arcResolution
-    = static_cast<vtkIdType>( this->MaximumAngle * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
+  double thetaMin = vtkMath::RadiansFromDegrees( this->MinimumAngle );
+  double cosThetaMin = cos( thetaMin );
+  double sinThetaMin = sin( thetaMin );
+  double thetaMax = vtkMath::RadiansFromDegrees( this->MaximumAngle );
+  double cosThetaMax = cos( thetaMax );
+  double sinThetaMax = sin( thetaMax );
 
+  double angularSector = this->MaximumAngle - this->MinimumAngle;
+  vtkIdType arcResolution
+    = static_cast<vtkIdType>( angularSector * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
+  cerr << "ANG = " << angularSector << endl;
   // Arc points
   vtkPoints *polarArcsPoints = vtkPoints::New();
   this->PolarArcs->SetPoints( polarArcsPoints );
@@ -731,14 +736,16 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     if ( val  > 0. )
       {
       // Build corresponding polar arc for non-zero values
-      double x = val * cosTheta;
-      double y = val * sinTheta;
+      double x1 = val * cosThetaMin;
+      double y1 = val * sinThetaMin;
+      double x2 = val * cosThetaMax;
+      double y2 = val * sinThetaMax;
       vtkArcSource* arc = vtkArcSource::New();
       arc->SetCenter( O );
-      arc->SetPoint1( O[0] + val, O[1], O[2] );
-      arc->SetPoint2( O[0] + x, O[1] + y, O[2] );
+      arc->SetPoint1( O[0] + x1, O[1] + y1, O[2] );
+      arc->SetPoint2( O[0] + x2, O[1] + y2, O[2] );
       arc->SetResolution( arcResolution );
-      arc->SetNegative( this->MaximumAngle > 180. );
+      arc->SetNegative( angularSector > 180. );
       arc->Update();
 
       // Append new polar arc to existing ones
