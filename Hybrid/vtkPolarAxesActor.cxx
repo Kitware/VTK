@@ -226,8 +226,6 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   this->UserRadialPow = 0;
 
-  this->AutoLabelScaling = true;
-
   this->LabelScale = -1.0;
   this->TitleScale = -1.0;
 }
@@ -778,17 +776,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     {
     labelActors[i]->SetAxis( axis );
     labelActors[i]->SetScreenOffset( this->LabelScreenOffset );
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkPolarAxesActor::SetLabelScaling( bool autoscale, int upow )
-{
-  if ( autoscale != this->AutoLabelScaling || upow != this->UserRadialPow )
-    {
-    this->AutoLabelScaling = autoscale;
-    this->UserRadialPow = upow;
-    this->Modified();
     }
 }
 

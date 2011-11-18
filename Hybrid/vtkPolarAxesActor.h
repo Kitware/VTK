@@ -197,10 +197,6 @@ public:
   vtkProperty* GetPolarArcsProperty();
 
   // Description:
-  // Set automatic label scaling mode, set axis exponents
-  void SetLabelScaling( bool, int );
-
-  // Description:
   // Explicitly specify the region in space around which to draw the bounds.
   // The bounds are used only when no Input or Prop is specified. The bounds
   // are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), making
@@ -337,8 +333,6 @@ protected:
   vtkTimeStamp BuildTime;
 
   int UserRadialPow;
-
-  bool AutoLabelScaling;
 
   double LabelScale;
   double TitleScale;
