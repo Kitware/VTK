@@ -445,7 +445,7 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkArrayRange", "vtkArrayRange.h" },
     { "vtkArraySort", "vtkArraySort.h" },
     { "vtkArrayWeights", "vtkArrayWeights.h" },
-    { "vtkTimeStamp", "vtkTimeStap.h" },
+    { "vtkTimeStamp", "vtkTimeStamp.h" },
     { "vtkVariant", "vtkVariant.h" },
     { "vtkStdString", "vtkStdString.h" },
     { "vtkUnicodeString", "vtkUnicodeString.h" },
