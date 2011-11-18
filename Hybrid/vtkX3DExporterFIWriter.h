@@ -33,7 +33,7 @@ public:
 
   virtual void CloseFile();
   virtual int OpenFile(const char* file);
-
+  virtual int OpenStream();
 
   //void Write(const char* str);
 
