@@ -81,6 +81,10 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "Camera: (none)\n";
     }
 
+  os << indent << "EnableDistanceLOD: "   
+     << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
+  os << indent << "DistanceLODThreshold: ("   << this->DistanceLODThreshold    << ")\n";
+
   os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
   os << indent << "Polar Label Format: " << this->PolarLabelFormat << "\n";
   os << indent << "PolarAxisLabelTextProperty: " << this->PolarAxisLabelTextProperty << endl;
