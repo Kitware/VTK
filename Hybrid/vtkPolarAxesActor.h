@@ -229,10 +229,6 @@ protected:
   ~vtkPolarAxesActor();
 
   // Description:
-  // Transform the bounding box to display coordinates.
-  void  TransformBounds( vtkViewport*, double* );
-
-  // Description:
   // Build the axes. 
   // Determine coordinates, position, etc.
   void  BuildAxes( vtkViewport * );
@@ -324,8 +320,6 @@ protected:
   // Description:
   // Use angle units (degrees) to label radial axes
   bool RadialUnits;
-
-  int TickLocation;
 
   // Visibility of polar axis and its title, labels, ticks (major only)
   int PolarAxisVisibility;

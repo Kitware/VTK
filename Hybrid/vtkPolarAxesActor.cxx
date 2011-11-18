@@ -424,35 +424,9 @@ double *vtkPolarAxesActor::GetBounds()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::TransformBounds( vtkViewport *viewport,
-                                         double bounds[6] )
-{
-  double minPt[3], maxPt[3], transMinPt[3], transMaxPt[3];
-  minPt[0] = this->Bounds[0];
-  minPt[1] = this->Bounds[2];
-  minPt[2] = this->Bounds[4];
-  maxPt[0] = this->Bounds[1];
-  maxPt[1] = this->Bounds[3];
-  maxPt[2] = this->Bounds[5];
-
-  viewport->SetWorldPoint(minPt[0], minPt[1], minPt[2], 1.0);
-  viewport->WorldToDisplay();
-  viewport->GetDisplayPoint(transMinPt);
-  viewport->SetWorldPoint(maxPt[0], maxPt[1], maxPt[2], 1.0);
-  viewport->WorldToDisplay();
-  viewport->GetDisplayPoint(transMaxPt);
-
-  bounds[0] = transMinPt[0];
-  bounds[2] = transMinPt[1];
-  bounds[4] = transMinPt[2];
-  bounds[1] = transMaxPt[0];
-  bounds[3] = transMaxPt[1];
-  bounds[5] = transMaxPt[2];
-}
-
-//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
+  cerr << "In BuildAxes\n";
   double bounds[6];
 
   if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
