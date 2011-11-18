@@ -714,14 +714,13 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
     delta =  this->MaximumRadius / ( this->NumberOfPolarAxisTicks - 1 );
     }
   // Set major start and delta corresponding to range and coordinates
-  vtkAxisActor* axis = this->RadialAxes[0];
-  axis->SetMajorRangeStart( 0. );
-  axis->SetDeltaRangeMajor( delta );
-  axis->SetMajorStart( VTK_AXIS_TYPE_X, x0 );
+  this->PolarAxis->SetMajorRangeStart( 0. );
+  this->PolarAxis->SetDeltaRangeMajor( delta );
+  this->PolarAxis->SetMajorStart( VTK_AXIS_TYPE_X, x0 );
 
   // Build in numerical robustness to avoid truncation errors at endpoint
   delta *= VTK_POLAR_AXES_ACTOR_RTOL;
-  axis->SetDeltaMajor( VTK_AXIS_TYPE_X, delta );
+  this->PolarAxis->SetDeltaMajor( VTK_AXIS_TYPE_X, delta );
 }
 
 //-----------------------------------------------------------------------------
@@ -753,7 +752,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   polarArcsLines->Delete();
 
   // Now create labels and polar arcs
-  vtkAxisActor* axis = this->RadialAxes[0];
+  vtkAxisActor* axis = this->PolarAxis;
   double deltaMajor = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
   double val = axis->GetMajorRangeStart();
   const char *format = this->PolarLabelFormat;
@@ -762,7 +761,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
   for ( int  i = 0; i < this->NumberOfPolarAxisTicks; ++ i )
     {
     // Store label
-
     sprintf( label, format, val );
     labels->SetValue( i, label );
     cerr << i << ": " << label << endl;
@@ -806,7 +804,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     }
 
   // Store labels
-  axis->SetLabels( labels );
+  this->PolarAxis->SetLabels( labels );
 
   // Clean up
   labels->Delete();
