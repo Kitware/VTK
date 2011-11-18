@@ -901,7 +901,11 @@ public:
     {
     if (this->Callable)
       {
-      (*this->Callable)(caller, eventId, callData);
+      this->AbortFlagOff();
+      if((*this->Callable)(caller, eventId, callData))
+        {
+        this->AbortFlagOn();
+        }
       }
     }
 
