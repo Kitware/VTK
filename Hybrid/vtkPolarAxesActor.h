@@ -238,10 +238,8 @@ protected:
   void  BuildAxes( vtkViewport * );
 
   // Description:
-  // Send attributes to each vtkAxisActor.
-  // Only sets those that are not dependent upon viewport changes, 
-  // and thus do not need to be set very often.
-  void  SetNonDependentAttributes(void );
+  // Send attributes which are common to all axes, both polar and radial
+  void  SetCommonAxisAttributes( vtkAxisActor* );
 
   // Description:
   // Prepare ticks on polar axis with respect to coordinate offset

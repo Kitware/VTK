@@ -519,8 +519,6 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     return;
     }
 
-  this->SetNonDependentAttributes();
-
   // Determine the bounds for possible use ( input, prop, or user-defined )
   this->GetBounds( bounds );
 
@@ -540,42 +538,67 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     this->MaximumRadius = .5 * ls;
     }
 
-  // Prepare axes for rendering with user-definable options
-  double dAlpha =  this->MaximumAngle / ( this->NumberOfRadialAxes - 1. );
+  // Set polar axis endpoints
+  vtkAxisActor* axis = this->PolarAxis;
+  double ox = O[0] + this->MaximumRadius;
+  axis->GetPoint1Coordinate()->SetValue( O[0], O[1], O[2] );
+  axis->GetPoint2Coordinate()->SetValue( ox, O[1], O[2] );
 
-  // Set radial axes
-  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i )
+  // Set common axis attributes
+  this->SetCommonAxisAttributes( axis );
+
+  // Set polar axis lines
+  axis->SetAxisVisibility( this->PolarAxisVisibility );
+  axis->SetAxisLinesProperty( this->PolarAxisProperty );
+
+  // Set polar axis title
+  axis->SetTitleVisibility( this->PolarTitleVisibility );
+  axis->SetTitle( this->PolarAxisTitle );
+  axis->SetTitleTextProperty( this->PolarAxisTitleTextProperty );
+
+  // Set polar axis ticks (major only)
+  axis->SetTickVisibility( this->PolarTickVisibility );
+  axis->SetTickLocation( this->TickLocation );
+  axis->SetMajorTickSize( .02 * this->MaximumRadius );
+  
+  // Set polar axis labels
+  axis->SetLabelVisibility( this->PolarLabelVisibility );
+  axis->SetLabelTextProperty( this->PolarAxisLabelTextProperty );
+
+  // Create requested number of radial axes
+  double dAlpha = 
+    ( this->MaximumAngle  - this->MinimumAngle ) / ( this->NumberOfRadialAxes - 1. );
+  double alpha = this->MinimumAngle;
+  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i, alpha += dAlpha )
     {
-    double theta = i * dAlpha;
-    double thetaRad = vtkMath::RadiansFromDegrees( theta );
-    vtkAxisActor* axis = this->RadialAxes[i];
-    double x = O[0] + this->MaximumRadius * cos( thetaRad );
-    double y = O[1] + this->MaximumRadius * sin( thetaRad );
+    // Calculate endpoint coordinates
+    double alphaRad = vtkMath::RadiansFromDegrees( alpha );
+    double x = O[0] + this->MaximumRadius * cos( alphaRad );
+    double y = O[1] + this->MaximumRadius * sin( alphaRad );
+
+    // Set radial axis endpoints
+    axis = this->RadialAxes[i];
     axis->GetPoint1Coordinate()->SetValue( O[0], O[1], O[2] );
     axis->GetPoint2Coordinate()->SetValue( x, y, O[2] );
 
-    // Set axis ticks
-    axis->SetRange( 0., this->MaximumRadius );
-    axis->SetMajorTickSize( .02 * this->MaximumRadius );
+    // Set common axis attributes
+    this->SetCommonAxisAttributes( axis );
 
-    // Set axis title
-    if ( i )
-      {
-      // Use polar angle as title for non-polar axes
-      vtksys_ios::ostringstream thetaStream;
-      thetaStream << theta;
-      if ( this->RadialUnits )
-        {
-        thetaStream << " deg";
-        }
+    // Set radial axis lines
+    axis->SetAxisVisibility( this->RadialAxesVisibility );
+    axis->SetAxisLinesProperty( this->RadialAxesProperty );
 
-      axis->SetTitle( thetaStream.str().c_str() );
-      }
-    else // if ( i )
-      {
-      // Special case of polar axis
-      axis->SetTitle( this->PolarAxisTitle );
-      }
+    // Set radial axis title with polar angle as title for non-polar axes
+    axis->SetTitleVisibility( this->RadialTitleVisibility );
+    axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
+    vtksys_ios::ostringstream title;
+    title << alpha
+          << ( this->RadialUnits ? " deg" : "" );
+    axis->SetTitle( title.str().c_str() );
+
+    // No labels nor ticks for radial axes
+    axis->SetLabelVisibility( 0 );
+    axis->SetTickVisibility( 0 );
     }
 
   // Build polar axis ticks
@@ -592,37 +615,19 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::SetNonDependentAttributes()
+void vtkPolarAxesActor::SetCommonAxisAttributes( vtkAxisActor* axis )
 {
   vtkProperty *prop = this->GetProperty();
   prop->SetAmbient( 1.0 );
   prop->SetDiffuse( 0.0 );
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    vtkAxisActor* axis = this->RadialAxes[i];
-    axis->SetCamera( this->Camera );
-    axis->SetProperty( prop );
-    axis->SetAxisLinesProperty( this->RadialAxesProperty );
-    axis->SetTickLocation( this->TickLocation );
-    axis->SetBounds( this->Bounds );
-    axis->SetAxisVisibility( this->RadialAxesVisibility );
-    axis->SetTitleVisibility( this->RadialTitleVisibility );
-    axis->SetMinorTicksVisible( 0 );
-    // Features available only on polar axis
-    if ( ! i )
-      {
-      axis->SetLabelVisibility( this->PolarLabelVisibility );
-      axis->SetTickVisibility( this->PolarTickVisibility );
-      axis->SetTitleTextProperty( this->GetPolarAxisTitleTextProperty() );
-      axis->SetLabelTextProperty( this->GetPolarAxisLabelTextProperty() );
-      }
-    else
-      {
-      axis->SetLabelVisibility( 0 );
-      axis->SetTickVisibility( 0 );
-      axis->GetTitleTextProperty()->SetColor( this->GetRadialAxesProperty()->GetColor() );
-      }
-    }
+  axis->SetProperty( prop );
+
+  axis->SetCamera( this->Camera );
+  axis->SetBounds( this->Bounds );
+  axis->SetRange( 0., this->MaximumRadius );
+
+  // No minor ticks for any kind of axes
+  axis->SetMinorTicksVisible( 0 );
 }
 
 //-----------------------------------------------------------------------------
