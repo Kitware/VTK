@@ -456,14 +456,25 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     return;
     }
 
-  if ( this->MinimumAngle > this->MaximumAngle )
+  if ( this->MaximumAngle < this->MinimumAngle )
     {
     // Incorrect angle input
     vtkWarningMacro( << "Cannot draw radial axes: "
                      << " minimum angle = "
                      << this->MinimumAngle
-                     << " maximum angle = "
-                     << this->MaximumAngle );
+                     << " > maximum angle = "
+                     << this->MaximumAngle
+                     << ".");
+    return;
+    }
+  
+  if ( this->MaximumAngle - this->MinimumAngle > 360.  )
+    {
+    // Incorrect angle input
+    vtkWarningMacro( << "Cannot draw radial axes: "
+                     << " angular sector = "
+                     << this->MaximumAngle - this->MinimumAngle
+                     << " > 360 deg." );
     return;
     }
   

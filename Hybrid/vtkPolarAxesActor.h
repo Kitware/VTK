@@ -101,13 +101,13 @@ public:
   // Description:
   //  Set/Get the minimum radius of the polar coordinates (in degrees).
   // Default: 0.
-  vtkSetClampMacro( MinimumAngle, double, 0., 360. );
+  vtkSetClampMacro( MinimumAngle, double, -360., 360. );
   vtkGetMacro( MinimumAngle, double );
 
   // Description:
   //  Set/Get the maximum radius of the polar coordinates (in degrees).
   // Default: VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
-  vtkSetClampMacro( MaximumAngle, double, 0., 360. );
+  vtkSetClampMacro( MaximumAngle, double, -360., 360. );
   vtkGetMacro( MaximumAngle, double );
 
   // Description:
