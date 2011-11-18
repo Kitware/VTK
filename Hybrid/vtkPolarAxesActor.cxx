@@ -524,12 +524,21 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     axis->SetAxisLinesProperty( this->RadialAxesProperty );
 
     // Set radial axis title with polar angle as title for non-polar axes
-    axis->SetTitleVisibility( this->RadialTitleVisibility );
-    axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
-    vtksys_ios::ostringstream title;
-    title << alpha
-          << ( this->RadialUnits ? " deg" : "" );
-    axis->SetTitle( title.str().c_str() );
+    if ( this->PolarAxisVisibility && fabs( alpha ) < 2. )
+      { 
+      // Prevent conflict between radial and polar axes titles
+      axis->SetTitleVisibility( false );
+      }
+    else
+      {
+      // Use polar angle as a title for the radial axis
+      axis->SetTitleVisibility( this->RadialTitleVisibility );
+      axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
+      vtksys_ios::ostringstream title;
+      title << alpha
+            << ( this->RadialUnits ? " deg" : "" );
+      axis->SetTitle( title.str().c_str() );
+      }
 
     // No labels nor ticks for radial axes
     axis->SetLabelVisibility( 0 );
