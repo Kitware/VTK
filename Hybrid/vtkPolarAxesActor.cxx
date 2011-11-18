@@ -68,6 +68,7 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Auto-Scale Radius" << this->AutoScaleRadius << endl;
   os << indent << "Minimum Angle" << this->MinimumAngle << endl;
   os << indent << "Maximum Angle" << this->MaximumAngle << endl;
+  os << indent << "Smallest Visible Polar Angle" << this->SmallestVisiblePolarAngle << endl;
   os << indent << "Radial Units (degrees): "
      << ( this->RadialUnits ? "On\n" : "Off\n" ) << endl;
 
@@ -143,6 +144,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // Default maximum polar angle
   this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
+
+  // Default smallest radial angle distinguishable from polar axis
+  this->SmallestVisiblePolarAngle = .5;
 
   // By default show angle units (degrees)
   this->RadialUnits = true;
@@ -446,15 +450,36 @@ double *vtkPolarAxesActor::GetBounds()
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
-  double bounds[6];
-
   if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
     {
     this->AutoScale( viewport );
     return;
     }
 
-  // Determine the bounds for possible use ( input, prop, or user-defined )
+  if ( this->MaximumAngle < this->MinimumAngle )
+    {
+    // Incorrect angle input
+    vtkWarningMacro( << "Cannot draw radial axes: "
+                     << " minimum angle = "
+                     << this->MinimumAngle
+                     << " > maximum angle = "
+                     << this->MaximumAngle
+                     << ".");
+    return;
+    }
+  
+  if ( this->MaximumAngle - this->MinimumAngle > 360.  )
+    {
+    // Incorrect angle input
+    vtkWarningMacro( << "Cannot draw radial axes: "
+                     << " angular sector = "
+                     << this->MaximumAngle - this->MinimumAngle
+                     << " > 360 deg." );
+    return;
+    }
+  
+  // Determine the bounds
+  double bounds[6];
   this->GetBounds( bounds );
 
   // If pole coordinates are invalid, use bounds
@@ -524,12 +549,27 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     axis->SetAxisLinesProperty( this->RadialAxesProperty );
 
     // Set radial axis title with polar angle as title for non-polar axes
-    axis->SetTitleVisibility( this->RadialTitleVisibility );
-    axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
-    vtksys_ios::ostringstream title;
-    title << alpha
-          << ( this->RadialUnits ? " deg" : "" );
-    axis->SetTitle( title.str().c_str() );
+    if ( this->PolarAxisVisibility && fabs( alpha ) < 2. )
+      { 
+      // Prevent conflict between radial and polar axes titles
+      axis->SetTitleVisibility( false );
+
+      if ( fabs( alpha ) < this->SmallestVisiblePolarAngle )
+        { 
+        // Do not show radial axes too close to polar axis
+        axis->SetAxisVisibility( false );
+        }
+      }
+    else
+      {
+      // Use polar angle as a title for the radial axis
+      axis->SetTitleVisibility( this->RadialTitleVisibility );
+      axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
+      vtksys_ios::ostringstream title;
+      title << alpha
+            << ( this->RadialUnits ? " deg" : "" );
+      axis->SetTitle( title.str().c_str() );
+      }
 
     // No labels nor ticks for radial axes
     axis->SetLabelVisibility( 0 );
