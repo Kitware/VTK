@@ -99,15 +99,16 @@ public:
   vtkGetMacro( AutoScaleRadius,bool );
 
   // Description:
+  //  Set/Get the minimum radius of the polar coordinates (in degrees).
+  // Default: 0.
+  vtkSetClampMacro( MinimumAngle, double, 0., 360. );
+  vtkGetMacro( MinimumAngle, double );
+
+  // Description:
   //  Set/Get the maximum radius of the polar coordinates (in degrees).
   // Default: VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
   vtkSetClampMacro( MaximumAngle, double, 0., 360. );
   vtkGetMacro( MaximumAngle, double );
-
-  // Description:
-  // Set/Get the RebuildAxes flag
-  vtkSetMacro( RebuildAxes, bool );
-  vtkGetMacro( RebuildAxes, bool );
 
   // Description: Set/Get whether angle units (degrees) are used to label radial axes 
   // Default: true
@@ -272,7 +273,11 @@ protected:
   bool AutoScaleRadius;
 
   // Description:
-  // Maximum polar angle (minimum is always 0)
+  // Minimum polar angle
+  double MinimumAngle;
+
+  // Description:
+  // Maximum polar angle
   double MaximumAngle;
 
   // Description:
@@ -292,8 +297,6 @@ protected:
   // Description:
   // Control variables for radial axes
   vtkAxisActor** RadialAxes;
-
-  bool RebuildAxes;
 
   // Description:
   // Title to be used for the polar axis

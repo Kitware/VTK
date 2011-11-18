@@ -66,6 +66,7 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Maximum Radius" << this->MaximumRadius << endl;
   os << indent << "Auto-Scale Radius" << this->AutoScaleRadius << endl;
+  os << indent << "Minimum Angle" << this->MinimumAngle << endl;
   os << indent << "Maximum Angle" << this->MaximumAngle << endl;
   os << indent << "Radial Units (degrees): "
      << ( this->RadialUnits ? "On\n" : "Off\n" ) << endl;
@@ -129,6 +130,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   // Do not auto-scale radius by default
   this->AutoScaleRadius = false;
+
+  // Default minimum polar angle
+  this->MinimumAngle = 0.;
 
   // Default maximum polar angle
   this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
@@ -680,7 +684,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
   axis->SetMajorRangeStart( 0. );
   axis->SetDeltaRangeMajor( delta );
   axis->SetMajorStart( VTK_AXIS_TYPE_X, x0 );
-  // Build in numerical robustness
+  // Build in numerical robustness to avoid truncation errors at endpoint
   delta *= VTK_POLAR_AXES_ACTOR_RTOL;
   axis->SetDeltaMajor( VTK_AXIS_TYPE_X, delta );
 }
