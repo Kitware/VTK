@@ -37,28 +37,25 @@ class vtkAlgorithmOutput;
 class VTK_EXPORT vtkLinearExtractionFilter: public vtkSelectionAlgorithm
 {
  public:
-
   static vtkLinearExtractionFilter *New();
-  vtkTypeRevisionMacro(vtkLinearExtractionFilter,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Tolerance
+  // Tolerance to be used by intersection algorithm
   vtkSetMacro(Tolerance,double);
   vtkGetMacro(Tolerance,double);
 
   // Description:
-  // Starting point
+  // Starting point of segment
   vtkSetVector3Macro(StartPoint,double);
   vtkGetVectorMacro(StartPoint,double,3);
 
   // Description:
-  // End point
+  // End point of segment
   vtkSetVector3Macro(EndPoint,double);
   vtkGetVectorMacro(EndPoint,double,3);
 
  protected:
-
   vtkLinearExtractionFilter();
   virtual ~vtkLinearExtractionFilter();
 
@@ -70,14 +67,13 @@ class VTK_EXPORT vtkLinearExtractionFilter: public vtkSelectionAlgorithm
   void RequestDataInternal(vtkDataSet* input, vtkIdTypeArray* outIndices);
 
  private:
-
   vtkLinearExtractionFilter(const vtkLinearExtractionFilter&);  // Not implemented
   vtkLinearExtractionFilter& operator =(const vtkLinearExtractionFilter&); // Not implemented
 
   double StartPoint[3];
   double EndPoint[3];
   double Tolerance;
-}; // class vtkLinearExtractionFilter
+};
 
 
 #endif	// VTK_LINEAR_EXTRACTION_FILTER_H
