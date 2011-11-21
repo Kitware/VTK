@@ -199,6 +199,7 @@ vtkQuadratureSchemeDictionaryGenerator.cxx
 vtkQuadricClustering.cxx
 vtkQuadricDecimation.cxx
 vtkQuantizePolyDataPoints.cxx
+vtkQuadRotationalExtrusionFilter.cxx
 vtkRandomAttributeGenerator.cxx
 vtkRearrangeFields.cxx
 vtkRectangularButtonSource.cxx
