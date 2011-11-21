@@ -53,20 +53,120 @@ int vtkQuadRotationalExtrusionFilter::FillInputPortInformation( int, vtkInformat
 }
 
 // ----------------------------------------------------------------------
+void vtkQuadRotationalExtrusionFilter::RotateAroundAxis( int axis,
+                                                         double blockAngle,
+                                                         vtkIdType numPts,
+                                                         vtkPoints* inPts,
+                                                         vtkPoints* newPts,
+                                                         vtkPointData* pd,
+                                                         vtkPointData* outPD )
+{
+  // Calculate quantities necessary to the sweep operation
+  int idx1;
+  int idx2;
+  if ( ! axis )
+    {
+    idx1 = 1;
+    idx2 = 2;
+    }
+  else if ( axis == 1 )
+    {
+    idx1 = 0;
+    idx2 = 2;
+    }
+  else // axis must be equal to 2 here
+    {
+    idx1 = 0;
+    idx2 = 2;
+    }
+
+  double radIncr = this->DeltaRadius / this->Resolution;
+  double transIncr = this->Translation / this->Resolution;
+  double angleIncr = vtkMath::RadiansFromDegrees( blockAngle ) / this->Resolution;
+       
+  // Sweep over set resolution
+  for ( int i = 1; i <= this->Resolution; ++ i )
+    {
+    this->UpdateProgress( .1 + .5 * ( i - 1 ) / this->Resolution );
+    for ( vtkIdType ptId = 0; ptId < numPts; ++ ptId )
+      {
+      // Get point coordinates
+      double x[3];
+      inPts->GetPoint( ptId, x );
+
+      // Convert to cylindrical coordinates
+      double newX[3];
+      double radius = sqrt( x[idx1] * x[idx1] + x[idx2] * x[idx2] );
+      if ( radius > 0. )
+        {
+        double tempd = x[0] / radius;
+        if ( tempd < -1. )
+          {
+          tempd = -1.;
+          }
+        if ( tempd > 1. )
+          {
+          tempd = 1.;
+          }
+        double theta = acos( tempd );
+
+        tempd = x[1] / radius;
+        if ( tempd < -1. )
+          {
+          tempd = -1.;
+          }
+        if ( tempd > 1. )
+          {
+          tempd = 1.;
+          }
+        double psi = asin( tempd );
+
+        if ( psi < 0. ) 
+          {
+          if ( theta < ( vtkMath::Pi() / 2. ) )
+            {
+            theta = 2. * vtkMath::Pi() + psi;
+            }
+          else
+            {
+            theta = vtkMath::Pi() - psi;
+            }
+          }
+              
+        //increment angle
+        radius += i*radIncr;
+        newX[axis] = x[axis] + i * transIncr;
+        newX[idx1] = radius * cos ( i*angleIncr + theta );
+        newX[idx2] = radius * sin ( i*angleIncr + theta );
+        }
+      else // radius is zero
+        {
+        newX[axis] = x[axis] + i * transIncr;
+        newX[idx1] = 0.;
+        newX[idx2] = 0.;
+        }
+      
+      // Update swept mesh
+      newPts->InsertPoint( ptId + i * numPts, newX );
+      outPD->CopyData( pd, ptId, ptId + i * numPts );
+      }
+    }
+}
+
 // ----------------------------------------------------------------------
 int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( request ),
                                                    vtkInformationVector** inputVector,
-                                                   vtkInformationVector* utputVector )
+                                                   vtkInformationVector* outputVector )
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
 
-  // get composite input
+  // Get composite input
   vtkCompositeDataSet * compositeInput = vtkCompositeDataSet::SafeDownCast(
                                                                            inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
-  // get typed output
+  // Get typed output
   vtkMultiBlockDataSet * compositeOutput = vtkMultiBlockDataSet::SafeDownCast(
                                                                               outInfo->Get( vtkDataObject::DATA_OBJECT() ));
 
@@ -136,8 +236,8 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       vtkIdList *cellIds;
       int i, j, k;
       vtkIdType p1, p2;
-      vtkPointData *outPD=output->GetPointData();
-      vtkCellData *outCD=output->GetCellData();
+      vtkPointData* outPD=output->GetPointData();
+      vtkCellData* outCD=output->GetCellData();
       double tempd;
       int abort=0;
 
@@ -413,7 +513,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       // that polygons are done first, then strips.
       //
       if ( this->Capping && ( blockAngle != 360.0 || this->DeltaRadius != 0.0 
-                             || this->Translation != 0.0 ) )
+                              || this->Translation != 0.0 ) )
         {
         if ( inPolys->GetNumberOfCells() > 0 )
           {

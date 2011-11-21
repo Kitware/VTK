@@ -61,6 +61,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <vtksys/stl/map> // STL vector need for per block angles
 
+class vtkPoints;
+class vtkPointData;
+
 class VTK_GRAPHICS_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMultiBlockDataSetAlgorithm 
 {
  public:
@@ -127,10 +130,17 @@ class VTK_GRAPHICS_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMultiBloc
   ~vtkQuadRotationalExtrusionFilter() {};
 
   int FillInputPortInformation( int , vtkInformation* );
-  int RequestData( vtkInformation *, 
-                           vtkInformationVector **, 
-                           vtkInformationVector * );
+  int RequestData( vtkInformation*, 
+                   vtkInformationVector**, 
+                   vtkInformationVector* );
 
+  void RotateAroundAxis( int,
+                         double,
+                         vtkIdType,
+                         vtkPoints*,
+                         vtkPoints*,
+                         vtkPointData*,
+                         vtkPointData* );
   int Axis;
   int Resolution;
   int Capping;
