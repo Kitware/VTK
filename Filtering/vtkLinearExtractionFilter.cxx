@@ -16,47 +16,56 @@
 #include <vtkCompositeDataSet.h>
 #include <vtkCompositeDataIterator.h>
 
-#ifdef VTK_LOVE_EXTENSIONS
-#include <vtkExtractBlockById.h>
-#endif
-
 #include <assert.h>
-#include <vector>
-#include <algorithm>
 
-using namespace std;
+#include <vtksys/vector>
+#include <vtksys/algorithm>
 
-vtkCxxRevisionMacro(vtkLinearExtractionFilter, "");
 vtkStandardNewMacro(vtkLinearExtractionFilter);
 
-//#undef vtkDebugMacro
-//#define vtkDebugMacro( x ) std::cout<<": " x; std::cout.flush()
-
+// ----------------------------------------------------------------------
 vtkLinearExtractionFilter::vtkLinearExtractionFilter ( )
 {
-  this->Tolerance = 0.0;
-  this->SetStartPoint(0,0,0);
-  this->SetEndPoint(1,1,1);
-}	// vtkLinearExtractionFilter::vtkLinearExtractionFilter
+  this->Tolerance = 0. ;
+  this->SetStartPoint( 0., 0., 0. );
+  this->SetEndPoint( 1., 1. ,1. );
+}
 
+// ----------------------------------------------------------------------
 vtkLinearExtractionFilter::~vtkLinearExtractionFilter ( )
 {
-}	// vtkLinearExtractionFilter::~vtkLinearExtractionFilter
+}
 
+// ----------------------------------------------------------------------
 void vtkLinearExtractionFilter::PrintSelf (ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
 
-  os << indent << "Point 1   : (" 
-     << this->StartPoint[0] << ", " << this->StartPoint [1] << ", " << this->StartPoint [2]
-     << ")" << "\n"
-     << indent << "Point 2   : ("
-     << this->EndPoint [0] << ", " << this->EndPoint [1] << ", " << this->EndPoint [2] << ")"
-     << "\n"
-     << indent << "Tolerance : " << this->Tolerance
-     << "\n";
-}	// vtkLinearExtractionFilter::PrintSelf
+  os << indent 
+     << "Point 1   : (" 
+     << this->StartPoint[0] 
+     << ", " 
+     << this->StartPoint [1] 
+     << ", " 
+     << this->StartPoint [2]
+     << ")\n";
 
+  os << indent 
+     << "Point 2   : ("
+     << this->EndPoint [0] 
+     << ", " 
+     << this->EndPoint [1] 
+     << ", " 
+     << this->EndPoint [2] 
+     << ")\n";
+
+  os << indent 
+     << "Tolerance : " 
+     << this->Tolerance
+     << "\n";
+}
+
+// ----------------------------------------------------------------------
 int vtkLinearExtractionFilter::FillInputPortInformation(int port, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
@@ -65,6 +74,7 @@ int vtkLinearExtractionFilter::FillInputPortInformation(int port, vtkInformation
   return 1;
 }
 
+// ----------------------------------------------------------------------
 int vtkLinearExtractionFilter::RequestData(
                                            vtkInformation *vtkNotUsed(request),
                                            vtkInformationVector **inputVector,
@@ -106,11 +116,8 @@ int vtkLinearExtractionFilter::RequestData(
                                                   inputIterator->GetCurrentDataObject());
 
     int conmposite_index = inputIterator->GetCurrentFlatIndex(); // et oui, les composite_index commencent a 1 :(
-#ifdef VTK_LOVE_EXTENSIONS
-    int partNumber = vtkExtractBlockById::GetDataObjectBlockId(input);
-#else
     int partNumber = -1;
-#endif
+
     if( partNumber == -1 ) partNumber = conmposite_index - 1;
 
     inputIterator->GoToNextItem();
