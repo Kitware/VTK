@@ -602,6 +602,7 @@ void vtkQuadRotationalExtrusionFilter::PrintSelf( ostream& os, vtkIndent indent 
 {
   this->Superclass::PrintSelf( os,indent );
 
+  os << indent << "Axis: " << this->Axis << "\n";
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Capping: " << ( this->Capping ? "On\n" : "Off\n");
   os << indent << "DefaultAngle: " << this->DefaultAngle << "\n";
