@@ -134,13 +134,12 @@ class VTK_GRAPHICS_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMultiBloc
                    vtkInformationVector**, 
                    vtkInformationVector* );
 
-  void RotateAroundAxis( int,
-                         double,
-                         vtkIdType,
-                         vtkPoints*,
-                         vtkPoints*,
-                         vtkPointData*,
-                         vtkPointData* );
+  int RotateAroundAxis( double,
+                        vtkIdType,
+                        vtkPoints*,
+                        vtkPoints*,
+                        vtkPointData*,
+                        vtkPointData* );
   int Axis;
   int Resolution;
   int Capping;

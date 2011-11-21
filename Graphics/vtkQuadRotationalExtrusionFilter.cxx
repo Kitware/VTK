@@ -53,31 +53,37 @@ int vtkQuadRotationalExtrusionFilter::FillInputPortInformation( int, vtkInformat
 }
 
 // ----------------------------------------------------------------------
-void vtkQuadRotationalExtrusionFilter::RotateAroundAxis( int axis,
-                                                         double blockAngle,
-                                                         vtkIdType numPts,
-                                                         vtkPoints* inPts,
-                                                         vtkPoints* newPts,
-                                                         vtkPointData* pd,
-                                                         vtkPointData* outPD )
+int vtkQuadRotationalExtrusionFilter::RotateAroundAxis( double blockAngle,
+                                                        vtkIdType numPts,
+                                                        vtkPoints* inPts,
+                                                        vtkPoints* newPts,
+                                                        vtkPointData* pd,
+                                                        vtkPointData* outPD )
 {
   // Calculate quantities necessary to the sweep operation
   int idx1;
   int idx2;
-  if ( ! axis )
+  if ( ! this->Axis )
     {
     idx1 = 1;
     idx2 = 2;
     }
-  else if ( axis == 1 )
+  else if ( this->Axis == 1 )
     {
     idx1 = 0;
     idx2 = 2;
     }
-  else // axis must be equal to 2 here
+  else if ( this->Axis == 2 )
     {
     idx1 = 0;
-    idx2 = 2;
+    idx2 = 1;
+    }
+  else
+    {
+    vtkErrorMacro(<< "Invalid axis number: "
+                  << this->Axis
+                  << "\n");
+    return 0;
     }
 
   double radIncr = this->DeltaRadius / this->Resolution;
@@ -135,13 +141,13 @@ void vtkQuadRotationalExtrusionFilter::RotateAroundAxis( int axis,
               
         //increment angle
         radius += i*radIncr;
-        newX[axis] = x[axis] + i * transIncr;
+        newX[this->Axis] = x[this->Axis] + i * transIncr;
         newX[idx1] = radius * cos ( i*angleIncr + theta );
         newX[idx2] = radius * sin ( i*angleIncr + theta );
         }
       else // radius is zero
         {
-        newX[axis] = x[axis] + i * transIncr;
+        newX[this->Axis] = x[this->Axis] + i * transIncr;
         newX[idx1] = 0.;
         newX[idx2] = 0.;
         }
@@ -151,6 +157,8 @@ void vtkQuadRotationalExtrusionFilter::RotateAroundAxis( int axis,
       outPD->CopyData( pd, ptId, ptId + i * numPts );
       }
     }
+
+  return 1;
 }
 
 // ----------------------------------------------------------------------
@@ -228,8 +236,6 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       vtkIdType *pts = 0;
       vtkIdType npts = 0;
       vtkIdType cellId, ptId, ncells;
-      double x[3], newX[3], radius, angleIncr, radIncr, transIncr;
-      double psi, theta;
       vtkPoints *newPts;
       vtkCellArray *newLines=NULL, *newPolys, *newStrips=NULL;
       vtkCell *edge;
@@ -238,16 +244,12 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       vtkIdType p1, p2;
       vtkPointData* outPD=output->GetPointData();
       vtkCellData* outCD=output->GetCellData();
-      double tempd;
       int abort=0;
 
       // Initialize / check input
-      //
       vtkDebugMacro(<<"Rotationally extruding data");
 
-
       // Build cell data structure.
-      //
       mesh = vtkPolyData::New();
       inPts = input->GetPoints();
       inVerts = input->GetVerts();
@@ -266,7 +268,6 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
       // Allocate memory for output. We don't copy normals because surface geometry
       // is modified.
-      //
       outPD->CopyNormalsOff();
       outPD->CopyAllocate( pd,( this->Resolution+1 )*numPts );
       newPts = vtkPoints::New();
@@ -293,191 +294,15 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
         }
       this->UpdateProgress( 0.1 );
 
-      radIncr = this->DeltaRadius / this->Resolution;
-      transIncr = this->Translation / this->Resolution;
-      angleIncr = vtkMath::RadiansFromDegrees( blockAngle ) / this->Resolution;
-      // rotation around z-axis
-      if ( Axis == 2 )
+      // Rotate around selected axis
+      if ( ! this->RotateAroundAxis( blockAngle,
+                                     numPts,
+                                     inPts,
+                                     newPts,
+                                     pd,
+                                     outPD ) )
         {
-        for ( i = 1; i <= this->Resolution; i++ )
-          {
-          this->UpdateProgress( 0.1 + 0.5*( i-1 )/this->Resolution );
-          for ( ptId=0; ptId < numPts; ptId++)
-            {
-            inPts->GetPoint( ptId, x );
-            //convert to cylindrical
-            radius = sqrt( x[0]*x[0] + x[1]*x[1]);
-            if ( radius > 0.0 )
-              {
-              tempd = ( double )x[0]/radius;
-              if ( tempd < -1.0 )
-                {
-                tempd = -1.0;
-                }
-              if ( tempd > 1.0 )
-                {
-                tempd = 1.0;
-                }
-              theta = acos( tempd );
-              tempd = ( double )x[1]/radius;
-              if ( tempd < -1.0 )
-                {
-                tempd = -1.0;
-                }
-              if ( tempd > 1.0 )
-                {
-                tempd = 1.0;
-                }
-              if ( ( psi=asin( tempd ) ) < 0.0 ) 
-                {
-                if ( theta < ( vtkMath::Pi()/2.0 ) )
-                  {
-                  theta = 2.0*vtkMath::Pi() + psi;
-                  }
-                else
-                  {
-                  theta = vtkMath::Pi() - psi;
-                  }
-                }
-              
-              //increment angle
-              radius += i*radIncr;
-              newX[0] = radius * cos ( i*angleIncr + theta );
-              newX[1] = radius * sin ( i*angleIncr + theta );
-              newX[2] = x[2] + i * transIncr;
-              }
-            else // radius is zero
-              {
-              newX[0] = 0.0;
-              newX[1] = 0.0;
-              newX[2] = x[2] + i * transIncr;
-              }
-            newPts->InsertPoint( ptId+i*numPts,newX );
-            outPD->CopyData( pd,ptId,ptId+i*numPts );
-            }
-          }
-        }
-      // rotation  around y-axis
-      else if ( Axis == 1 )
-        {
-        for ( i = 1; i <= this->Resolution; i++ )
-          {
-          this->UpdateProgress( 0.1 + 0.5*( i-1 )/this->Resolution );
-          for ( ptId=0; ptId < numPts; ptId++)
-            {
-            inPts->GetPoint( ptId, x );
-            //convert to cylindrical
-            radius = sqrt( x[0]*x[0] + x[2]*x[2]);
-            if ( radius > 0.0 )
-              {
-              tempd = ( double )x[0]/radius;
-              if ( tempd < -1.0 )
-                {
-                tempd = -1.0;
-                }
-              if ( tempd > 1.0 )
-                {
-                tempd = 1.0;
-                }
-              theta = acos( tempd );
-              tempd = ( double )x[2]/radius;
-              if ( tempd < -1.0 )
-                {
-                tempd = -1.0;
-                }
-              if ( tempd > 1.0 )
-                {
-                tempd = 1.0;
-                }
-              if ( ( psi=asin( tempd ) ) < 0.0 ) 
-                {
-                if ( theta < ( vtkMath::Pi()/2.0 ) )
-                  {
-                  theta = 2.0*vtkMath::Pi() + psi;
-                  }
-                else
-                  {
-                  theta = vtkMath::Pi() - psi;
-                  }
-                }
-              
-              //increment angle
-              radius += i*radIncr;
-              newX[0] = radius * cos ( i*angleIncr + theta );
-              newX[1] = x[1] + i * transIncr;
-              newX[2] = radius * sin ( i*angleIncr + theta );
-              }
-            else // radius is zero
-              {
-              newX[0] = 0.0;
-              newX[1] = x[1] + i * transIncr;
-              newX[2] = 0.0;
-              }
-            newPts->InsertPoint( ptId+i*numPts,newX );
-            outPD->CopyData( pd,ptId,ptId+i*numPts );
-            }
-          }
-        }
-      // rotation around x-axis
-      else
-        {
-        for ( i = 1; i <= this->Resolution; i++ )
-          {
-          this->UpdateProgress( 0.1 + 0.5*( i-1 )/this->Resolution );
-          for ( ptId=0; ptId < numPts; ptId++)
-            {
-            inPts->GetPoint( ptId, x );
-            //convert to cylindrical
-            radius = sqrt( x[1]*x[1] + x[2]*x[2]);
-            if ( radius > 0.0 )
-              {
-              tempd = ( double )x[1]/radius;
-              if ( tempd < -1.0 )
-                {
-                tempd = -1.0;
-                }
-              if ( tempd > 1.0 )
-                {
-                tempd = 1.0;
-                }
-              theta = acos( tempd );
-              tempd = ( double )x[2]/radius;
-              if ( tempd < -1.0 )
-                {
-                tempd = -1.0;
-                }
-              if ( tempd > 1.0 )
-                {
-                tempd = 1.0;
-                }
-              if ( ( psi=asin( tempd ) ) < 0.0 ) 
-                {
-                if ( theta < ( vtkMath::Pi()/2.0 ) )
-                  {
-                  theta = 2.0*vtkMath::Pi() + psi;
-                  }
-                else
-                  {
-                  theta = vtkMath::Pi() - psi;
-                  }
-                }
-              
-              //increment angle
-              radius += i*radIncr;
-              newX[0] = x[0] + i * transIncr;
-              newX[1] = radius * cos ( i*angleIncr + theta );
-              newX[2] = radius * sin ( i*angleIncr + theta );
-              }
-            else // radius is zero
-              {
-              newX[0] = x[0] + i * transIncr;
-              newX[1] = 0.0;
-              newX[2] = 0.0;
-              }
-            newPts->InsertPoint( ptId+i*numPts,newX );
-            outPD->CopyData( pd,ptId,ptId+i*numPts );
-            }
-          }
+        return 0;
         }
 
 
@@ -632,7 +457,6 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       this->UpdateProgress ( 1.00 );
 
       // Update ourselves and release memory
-      //
       output->SetPoints( newPts );
       newPts->Delete();
       mesh->Delete();
