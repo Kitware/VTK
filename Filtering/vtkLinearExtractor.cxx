@@ -1,4 +1,4 @@
-#include "vtkLinearExtractionFilter.h"
+#include "vtkLinearExtractor.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkCell.h>
@@ -16,14 +16,12 @@
 #include <vtkCompositeDataSet.h>
 #include <vtkCompositeDataIterator.h>
 
-#include <assert.h>
+#include <vtksys/stl/vector>
 
-#include <vtksys/vector>
-
-vtkStandardNewMacro(vtkLinearExtractionFilter);
+vtkStandardNewMacro(vtkLinearExtractor);
 
 // ----------------------------------------------------------------------
-vtkLinearExtractionFilter::vtkLinearExtractionFilter ()
+vtkLinearExtractor::vtkLinearExtractor ()
 {
   this->Tolerance = 0. ;
   this->SetStartPoint( 0., 0., 0. );
@@ -31,12 +29,12 @@ vtkLinearExtractionFilter::vtkLinearExtractionFilter ()
 }
 
 // ----------------------------------------------------------------------
-vtkLinearExtractionFilter::~vtkLinearExtractionFilter ()
+vtkLinearExtractor::~vtkLinearExtractor ()
 {
 }
 
 // ----------------------------------------------------------------------
-void vtkLinearExtractionFilter::PrintSelf ( ostream& os, vtkIndent indent )
+void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
 {
   Superclass::PrintSelf( os,indent );
 
@@ -65,7 +63,8 @@ void vtkLinearExtractionFilter::PrintSelf ( ostream& os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-int vtkLinearExtractionFilter::FillInputPortInformation( int port, vtkInformation *info )
+int vtkLinearExtractor::FillInputPortInformation( int vtkNotUsed( port ),
+                                                         vtkInformation *info )
 {
   info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
 
@@ -73,7 +72,7 @@ int vtkLinearExtractionFilter::FillInputPortInformation( int port, vtkInformatio
 }
 
 // ----------------------------------------------------------------------
-int vtkLinearExtractionFilter::RequestData( vtkInformation *vtkNotUsed( request ),
+int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
                                             vtkInformationVector **inputVector,
                                             vtkInformationVector *outputVector )
 {
@@ -91,13 +90,13 @@ int vtkLinearExtractionFilter::RequestData( vtkInformation *vtkNotUsed( request 
   // preparation de l'output
   if ( ! output )
     {
-    vtkErrorMacro( <<"vtkLinearExtractionFilter: filter does not have any output." );
+    vtkErrorMacro( <<"vtkLinearExtractor: filter does not have any output." );
     return 0;
     }	// if ( ! output )
 
   if ( ! compositeInput )
     {
-    vtkErrorMacro( <<"vtkLinearExtractionFilter: filter does not have any input." );
+    vtkErrorMacro( <<"vtkLinearExtractor: filter does not have any input." );
     return 0;
     }	// if ( ! compositeInput )
 
@@ -129,10 +128,10 @@ int vtkLinearExtractionFilter::RequestData( vtkInformation *vtkNotUsed( request 
 }
 
 // ----------------------------------------------------------------------
-void vtkLinearExtractionFilter::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
+void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
   // Storage for retained data with and distance à P1 :
-  vector< pair<vtkIdType, double> > keptData;
+  vtksys_stl::vector<vtksys_stl::pair<vtkIdType,double> > keptData;
   const vtkIdType cellNum = input->GetNumberOfCells();
   for ( vtkIdType id = 0; id < cellNum; ++ id )
     {

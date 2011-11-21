@@ -12,7 +12,7 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLinearExtractionFilter - select cells intersecting a line
+// .NAME vtkLinearExtractor - select cells intersecting a line
 //
 // .SECTION Description
 // This filter takes a vtkCompositeDataSet as it's input and a line segment as it's parameters. It outputs a vtkSelection identifying all the cells intersecting the given line segment.
@@ -23,8 +23,8 @@ PURPOSE.  See the above copyright notice for more information.
 // BP12, F-91297 Arpajon, France. <br>
 // This class was implemented by Thierry Carrard, Charles Pignerol, and Philippe Pébay, Kitware, 2011.
 
-#ifndef VTK_LINEAR_EXTRACTION_FILTER_H
-#define VTK_LINEAR_EXTRACTION_FILTER_H
+#ifndef VTK_LINEAR_EXTRACTOR_H
+#define VTK_LINEAR_EXTRACTOR_H
 
 #include <vtkSelectionAlgorithm.h>
 #include <vtkSystemIncludes.h>
@@ -34,10 +34,10 @@ class vtkIdTypeArray;
 class vtkDoubleArray;
 class vtkAlgorithmOutput;
 
-class VTK_EXPORT vtkLinearExtractionFilter: public vtkSelectionAlgorithm
+class VTK_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 {
  public:
-  static vtkLinearExtractionFilter *New();
+  static vtkLinearExtractor *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,8 +56,8 @@ class VTK_EXPORT vtkLinearExtractionFilter: public vtkSelectionAlgorithm
   vtkGetVectorMacro(EndPoint,double,3);
 
  protected:
-  vtkLinearExtractionFilter();
-  virtual ~vtkLinearExtractionFilter();
+  vtkLinearExtractor();
+  virtual ~vtkLinearExtractor();
 
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
@@ -67,8 +67,8 @@ class VTK_EXPORT vtkLinearExtractionFilter: public vtkSelectionAlgorithm
   void RequestDataInternal(vtkDataSet* input, vtkIdTypeArray* outIndices);
 
  private:
-  vtkLinearExtractionFilter(const vtkLinearExtractionFilter&);  // Not implemented
-  vtkLinearExtractionFilter& operator =(const vtkLinearExtractionFilter&); // Not implemented
+  vtkLinearExtractor(const vtkLinearExtractor&);  // Not implemented
+  vtkLinearExtractor& operator =(const vtkLinearExtractor&); // Not implemented
 
   double StartPoint[3];
   double EndPoint[3];
@@ -76,4 +76,4 @@ class VTK_EXPORT vtkLinearExtractionFilter: public vtkSelectionAlgorithm
 };
 
 
-#endif	// VTK_LINEAR_EXTRACTION_FILTER_H
+#endif	// VTK_LINEAR_EXTRACTOR_H

@@ -140,6 +140,7 @@ vtkKdTree.cxx
 vtkKdTreePointLocator.cxx
 vtkKochanekSpline.cxx
 vtkLine.cxx
+vtkLinearExtractor.cxx
 vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMeanValueCoordinatesInterpolator.cxx
