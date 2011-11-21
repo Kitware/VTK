@@ -106,7 +106,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData(
 
     if (numPts > 0 && numCells > 0)
       {
-      // recuperation de l'angle pour chaque block, ou l'angle par defaut
+      // Retrieve angle for each block, or angle by defaut
       double blockAngle = this->GetDefaultAngle();
       vtkDebugMacro(<<"DefaultAngle="<<blockAngle<<"\n");
 
@@ -381,7 +381,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData(
         }
 
 
-      // To insure that cell attributes are in consistent order with the
+      // To ensure that cell attributes are in consistent order with the
       // cellId's, we process the verts, lines, polys and strips in order.
       vtkIdType newCellId=0;
       int type;
