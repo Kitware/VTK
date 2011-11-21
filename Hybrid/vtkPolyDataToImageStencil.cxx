@@ -172,6 +172,7 @@ void vtkPolyDataToImageStencil::PolyDataSelector(
 
   output->SetPoints(newPoints);
   output->SetLines(newLines);
+  newPoints->Delete();
   newLines->Delete();
 }
 
