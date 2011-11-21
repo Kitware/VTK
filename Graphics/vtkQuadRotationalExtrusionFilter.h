@@ -131,9 +131,9 @@ class VTK_GRAPHICS_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMultiBloc
                            vtkInformationVector **, 
                            vtkInformationVector * );
 
+  int Axis;
   int Resolution;
   int Capping;
-  int Axis;
   double DefaultAngle;
   double Translation;
   double DeltaRadius;
