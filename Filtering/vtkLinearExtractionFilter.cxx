@@ -19,7 +19,6 @@
 #include <assert.h>
 
 #include <vtksys/vector>
-#include <vtksys/algorithm>
 
 vtkStandardNewMacro(vtkLinearExtractionFilter);
 
@@ -68,9 +67,8 @@ void vtkLinearExtractionFilter::PrintSelf ( ostream& os, vtkIndent indent )
 // ----------------------------------------------------------------------
 int vtkLinearExtractionFilter::FillInputPortInformation( int port, vtkInformation *info )
 {
-  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
-            "vtkCompositeDataSet");
-  //info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 0 );
+  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
+
   return 1;
 }
 
