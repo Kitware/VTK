@@ -15,7 +15,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkLinearExtractor - select cells intersecting a line
 //
 // .SECTION Description
-// This filter takes a vtkCompositeDataSet as it's input and a line segment as it's parameters. It outputs a vtkSelection identifying all the cells intersecting the given line segment.
+// This filter takes a vtkCompositeDataSet as input and a line segment as parameter. 
+// It outputs a vtkSelection identifying all the cells intersecting the given line segment.
 //
 // .SECTION Thanks
 // This file has been initially developed in the frame of CEA's Love visualization software development <br>
