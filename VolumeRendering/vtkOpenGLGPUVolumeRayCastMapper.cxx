@@ -569,7 +569,7 @@ public:
               const char *arrayName,
               bool linearInterpolation,
               double tableRange[2],
-              int maxMemoryInBytes)
+              vtkIdType maxMemoryInBytes)
     {
       bool needUpdate=false;
       bool modified=false;
