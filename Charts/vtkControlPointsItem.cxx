@@ -1256,7 +1256,7 @@ vtkVector2f vtkControlPointsItem::GetCenterOfMass(vtkIdTypeArray* pointIDs)const
     average[0] += point[0]; // x
     average[1] += point[1]; // y
     average[2] += point[2]; // midpoint
-    average[3] += point[4]; // sharpness
+    average[3] += point[3]; // sharpness
     }
   average[0] /= pointCount; // x
   average[1] /= pointCount; // y
