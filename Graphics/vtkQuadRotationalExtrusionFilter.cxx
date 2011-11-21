@@ -53,10 +53,10 @@ int vtkQuadRotationalExtrusionFilter::FillInputPortInformation( int, vtkInformat
 }
 
 // ----------------------------------------------------------------------
-int vtkQuadRotationalExtrusionFilter::RequestData(
-                                                  vtkInformation *vtkNotUsed( request ),
-                                                  vtkInformationVector **inputVector,
-                                                  vtkInformationVector *outputVector )
+// ----------------------------------------------------------------------
+int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( request ),
+                                                   vtkInformationVector** inputVector,
+                                                   vtkInformationVector* utputVector )
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
