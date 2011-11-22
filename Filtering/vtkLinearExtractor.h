@@ -30,10 +30,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkSelectionAlgorithm.h>
 #include <vtkSystemIncludes.h>
 
-class vtkDataSet;
-class vtkIdTypeArray;
-class vtkDoubleArray;
 class vtkAlgorithmOutput;
+class vtkDataSet;
+class vtkDoubleArray;
+class vtkIdTypeArray;
+class vtkPoints;
 
 class VTK_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 {
@@ -42,19 +43,24 @@ class VTK_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Tolerance to be used by intersection algorithm
-  vtkSetMacro(Tolerance,double);
-  vtkGetMacro(Tolerance,double);
-
-  // Description:
-  // Starting point of segment
+  // Set/Get starting point of intersecting segment
   vtkSetVector3Macro(StartPoint,double);
   vtkGetVectorMacro(StartPoint,double,3);
 
   // Description:
-  // End point of segment
+  // Set/Get end point of intersecting segment
   vtkSetVector3Macro(EndPoint,double);
   vtkGetVectorMacro(EndPoint,double,3);
+
+  // Description:
+  // Set/Get the list of points defining the intersecting broken line
+  virtual void SetPoints(vtkPoints*);
+  vtkGetObjectMacro(Points,vtkPoints);
+
+  // Description:
+  // Set/Get tolerance to be used by intersection algorithm
+  vtkSetMacro(Tolerance,double);
+  vtkGetMacro(Tolerance,double);
 
  protected:
   vtkLinearExtractor();
@@ -71,8 +77,19 @@ class VTK_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   vtkLinearExtractor(const vtkLinearExtractor&);  // Not implemented
   vtkLinearExtractor& operator =(const vtkLinearExtractor&); // Not implemented
 
+  // Description:
+  // Start and end point of the intersecting line segment
+  // NB: These are used if and only if Points is null.
   double StartPoint[3];
   double EndPoint[3];
+
+  // Description:
+  // The list of points defining the intersecting broken line
+  // NB: The Start/EndPoint definition of a single line segment is used by default
+  vtkPoints* Points;
+
+  // Description:
+  // Tolerance to be used by intersection algorithm
   double Tolerance;
 };
 

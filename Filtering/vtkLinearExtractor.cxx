@@ -1,31 +1,34 @@
 #include "vtkLinearExtractor.h"
 
-#include <vtkObjectFactory.h>
-#include <vtkCell.h>
-#include <vtkDataSet.h>
-#include <vtkDoubleArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkCellData.h>
-#include <vtkPointData.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkSelection.h>
-#include <vtkSelectionNode.h>
-#include <vtkSmartPointer.h>
-#include <vtkCompositeDataSet.h>
-#include <vtkCompositeDataIterator.h>
+#include "vtkObjectFactory.h"
+#include "vtkCell.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataIterator.h"
 
 #include <vtksys/stl/vector>
 
 vtkStandardNewMacro(vtkLinearExtractor);
+vtkCxxSetObjectMacro(vtkLinearExtractor,Points,vtkPoints);
 
 // ----------------------------------------------------------------------
 vtkLinearExtractor::vtkLinearExtractor ()
 {
-  this->Tolerance = 0. ;
   this->SetStartPoint( 0., 0., 0. );
   this->SetEndPoint( 1., 1. ,1. );
+  this->Tolerance = 0.;
+  this->Points = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -55,6 +58,17 @@ void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
      << ", "
      << this->EndPoint [2]
      << ")\n";
+
+  os << indent 
+     << "Points: ";
+  if ( this->Points )
+    {
+    this->Points->PrintSelf( os, indent );
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 
   os << indent
      << "Tolerance : "
@@ -144,7 +158,7 @@ void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray
       double t = 0;
       int subId	= 0;
 
-      // Intersection with a segment and not a line
+      // Intersection with a line segment
       if ( cell->IntersectWithLine ( this->StartPoint, 
                                      this->EndPoint, 
                                      this->Tolerance, 
