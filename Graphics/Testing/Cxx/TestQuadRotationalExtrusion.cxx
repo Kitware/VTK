@@ -40,6 +40,16 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
   line->SetResolution( 10 );
   line->Update();
 
+  // Create mapper for line segment
+  vtkNew<vtkPolyDataMapper> lineMapper;
+  lineMapper->SetInputConnection( line->GetOutputPort() );
+
+  // Create actor for line segment
+  vtkNew<vtkActor> lineActor;
+  lineActor->SetMapper( lineMapper.GetPointer() );
+  lineActor->GetProperty()->SetLineWidth( 5 );
+  lineActor->GetProperty()->SetColor( 0., .749, 1. ); // deep sky blue
+
   // Create multi-block data set for quad-based sweep
   vtkNew<vtkMultiBlockDataSet> lineMB;
   lineMB->SetNumberOfBlocks( 1 );
@@ -91,6 +101,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
 
   // Create a renderer, add actors to it
   vtkNew<vtkRenderer> ren1;
+  ren1->AddActor( lineActor.GetPointer() );
   ren1->AddActor( cylActor.GetPointer() );
   ren1->AddActor( cylActorW.GetPointer() );
   ren1->SetBackground( 1., 1., 1. );
