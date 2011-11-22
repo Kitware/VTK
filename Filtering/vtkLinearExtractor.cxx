@@ -64,7 +64,7 @@ void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 int vtkLinearExtractor::FillInputPortInformation( int vtkNotUsed( port ),
-                                                         vtkInformation *info )
+                                                  vtkInformation *info )
 {
   info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
 
@@ -130,13 +130,13 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 // ----------------------------------------------------------------------
 void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
-  // Storage for retained data with and distance à P1 :
+  // Storage for retained data and distance to P1 :
   vtksys_stl::vector<vtksys_stl::pair<vtkIdType,double> > keptData;
   const vtkIdType cellNum = input->GetNumberOfCells();
   for ( vtkIdType id = 0; id < cellNum; ++ id )
     {
     vtkCell* cell = input->GetCell ( id );
-    if ( 0 != cell )
+    if ( cell )
       {
       // Storage for coordinates of intersection with the line
       double coords [3];
