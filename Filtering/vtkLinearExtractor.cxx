@@ -144,8 +144,7 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 // ----------------------------------------------------------------------
 void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
-  // Storage for retained data and distance to P1 :
-  vtksys_stl::vector<vtksys_stl::pair<vtkIdType,double> > keptData;
+  // Iterate over cells
   const vtkIdType cellNum = input->GetNumberOfCells();
   for ( vtkIdType id = 0; id < cellNum; ++ id )
     {
