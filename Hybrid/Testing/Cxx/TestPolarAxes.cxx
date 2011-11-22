@@ -55,7 +55,7 @@ int TestPolarAxes( int argc, char * argv [] )
   outline->SetInputConnection(normals->GetOutputPort() );
 
   vtkNew<vtkPolyDataMapper> mapOutline;
-  mapOutline->SetInputConnection(outline->GetOutputPort() );
+  mapOutline->SetInputConnection( outline->GetOutputPort() );
 
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper( mapOutline.GetPointer() );
