@@ -730,10 +730,6 @@ int vtkSocketCommunicator::SendTagged(const void* data, int wordSize,
                                       int numWords, int tag,
                                       const char* logName)
 {
-  if (tag == 10)
-    {
-    int a=12;
-    }
   if(!this->Socket->Send(&tag, static_cast<int>(sizeof(int))))
     {
     vtkSocketCommunicatorErrorMacro("Could not send tag.");
