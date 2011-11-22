@@ -485,7 +485,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
         {
         blockId = static_cast<int>( outputBlocks.size() );
         }
-      outputBlocks[ blockId ] = output;
+      outputBlocks[blockId] = output;
 
       } /* if numPts>0 && numCells>0 */
 
@@ -520,7 +520,7 @@ void vtkQuadRotationalExtrusionFilter::RemoveAllPerBlockAngles()
 void vtkQuadRotationalExtrusionFilter::AddPerBlockAngle( vtkIdType blockId, double angle )
 {
   vtkDebugMacro(<<"PerBlockAngles["<<blockId<<"]="<<angle<<"\n");
-  this->PerBlockAngles[ blockId ] = angle;
+  this->PerBlockAngles[blockId] = angle;
   this->Modified();
 }
 
