@@ -158,16 +158,51 @@ void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray
       double t = 0;
       int subId	= 0;
 
-      // Intersection with a line segment
-      if ( cell->IntersectWithLine ( this->StartPoint, 
-                                     this->EndPoint, 
-                                     this->Tolerance, 
-                                     t, 
-                                     coords, 
-                                     pcoords,
-                                     subId ) )
+      // Branch out between interesection methods depending on input parameters
+      if ( this->Points )
         {
-        outIndices->InsertNextValue( id );
+        // Intersection with a broken line, exit early if less than 2 points
+        vtkIdType nPoints = this->Points->GetNumberOfPoints();
+        if ( nPoints < 2 )
+          {
+          vtkWarningMacro( <<"Cannot intersect: not enough points ("
+                           << nPoints
+                           << ") to define a broken line.");
+          return;
+          }
+
+        // Iterate over contiguous segments defining broken line
+        double startPoint[3];
+        double endPoint[3];
+        for ( vtkIdType i = 1; i < nPoints; ++ i )
+          {
+          this->Points->GetPoint( i - 1, startPoint );
+          this->Points->GetPoint( i, endPoint );
+          if ( cell->IntersectWithLine ( startPoint, 
+                                         endPoint, 
+                                         this->Tolerance, 
+                                         t,
+                                         coords, 
+                                         pcoords,
+                                         subId ) )
+            {
+            outIndices->InsertNextValue( id );
+            }
+          } // for ( vtkIdType i = 1; i < nPoints; ++ i )
+        }
+      else // if ( this->Points )
+        {
+        // Intersection with a line segment
+        if ( cell->IntersectWithLine ( this->StartPoint, 
+                                       this->EndPoint, 
+                                       this->Tolerance, 
+                                       t, 
+                                       coords, 
+                                       pcoords,
+                                       subId ) )
+          {
+          outIndices->InsertNextValue( id );
+          }
         }
       }	// if ( cell )
     } // for ( vtkIdType id = 0; id < cellNum; ++ id )
