@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestRotationalExtrusionFilter.cxx
+  Module:    TestQuadRotationalExtrusionFilter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,7 +16,9 @@
 // This test was written by Philippe Pébay, Kitware SAS 2011
 
 #include "vtkCamera.h"
+#include "vtkInformation.h"
 #include "vtkLineSource.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
@@ -25,27 +27,39 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRotationalExtrusionFilter.h"
+#include "vtkQuadRotationalExtrusionFilter.h"
 #include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------
-int TestRotationalExtrusion( int argc, char * argv [] )
+int TestQuadRotationalExtrusion( int argc, char * argv [] )
 {
   // Create a line source
   vtkNew<vtkLineSource> line;
   line->SetPoint1( 0., 1., 0. );
   line->SetPoint2( 0., 1., 2. );
   line->SetResolution( 10 );
+  line->Update();
+
+  // Create multi-block data set for quad-based sweep
+  vtkNew<vtkMultiBlockDataSet> lineMB;
+  lineMB->SetNumberOfBlocks( 1 );
+  lineMB->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Line" ); 
+  lineMB->SetBlock( 0, line->GetOutput() );
 
   // Create 3/4 of a cylinder by rotational extrusion
-  vtkNew<vtkRotationalExtrusionFilter> lineSweeper;
+  vtkNew<vtkQuadRotationalExtrusionFilter> lineSweeper;
   lineSweeper->SetResolution( 20 );
-  lineSweeper->SetInputConnection( line->GetOutputPort() );
-  lineSweeper->SetAngle( 270 );
+  lineSweeper->SetInput( lineMB.GetPointer() );
+  lineSweeper->SetDefaultAngle( 270 );
+  lineSweeper->Update();
+
+  // Retrieve polydata output
+  vtkMultiBlockDataSet* cylDS = vtkMultiBlockDataSet::SafeDownCast( lineSweeper->GetOutputDataObject( 0 ) );
+  vtkPolyData* cyl = vtkPolyData::SafeDownCast( cylDS->GetBlock( 0 ) );
 
   // Create normals for smooth rendering
   vtkNew<vtkPolyDataNormals> normals;
-  normals->SetInputConnection( lineSweeper->GetOutputPort() );
+  normals->SetInput( cyl );
 
   // Create mapper for surface representation
   vtkNew<vtkPolyDataMapper> cylMapper;
@@ -55,7 +69,7 @@ int TestRotationalExtrusion( int argc, char * argv [] )
 
   // Create mapper for wireframe representation
   vtkNew<vtkPolyDataMapper> cylMapperW;
-  cylMapperW->SetInputConnection( lineSweeper->GetOutputPort() );
+  cylMapperW->SetInput( cyl );
   cylMapperW->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   cylMapperW->SetResolveCoincidentTopologyToPolygonOffset();
 
