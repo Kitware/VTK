@@ -483,7 +483,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
       if ( blockId == -1 )
         {
-        blockId = outputBlocks.size();
+        blockId = static_cast<int>( outputBlocks.size() );
         }
       outputBlocks[ blockId ] = output;
 
