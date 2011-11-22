@@ -120,6 +120,8 @@ class vtkCellPointTraversal
     unsigned int    m_stack[CELLTREE_MAX_DEPTH];
     unsigned int*   m_sp; // stack pointer
     const float*    m_pos; //3-D coordinates of the points
+    vtkCellPointTraversal(const vtkCellPointTraversal&); // Not implemented
+    void operator=(vtkCellPointTraversal&); // Not implemented
 
   protected:
     friend class vtkCellTreeLocator::vtkCellTree;
@@ -351,7 +353,7 @@ class vtkCellTreeBuilder
 
       float cost = std::numeric_limits<float>::max();
       float plane = VTK_FLOAT_MIN; // bad value in case it doesn't get setx
-      unsigned int dim = VTK_INT_MIN; // bad value in case it doesn't get set
+      unsigned int dim = VTK_INT_MAX; // bad value in case it doesn't get set
 
       for( unsigned int d=0; d<3; ++d )
         {
