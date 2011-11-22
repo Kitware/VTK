@@ -350,8 +350,8 @@ class vtkCellTreeBuilder
         }
 
       float cost = std::numeric_limits<float>::max();
-      float plane;
-      unsigned int dim;
+      float plane = VTK_FLOAT_MIN; // bad value in case it doesn't get setx
+      unsigned int dim = VTK_INT_MIN; // bad value in case it doesn't get set
 
       for( unsigned int d=0; d<3; ++d )
         {
@@ -731,7 +731,6 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
   double    ctmin, ctmax, tmin, tmax, _tmin, _tmax, tDist;
   double    ray_vec[3] = { p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2] };
 
-  double *boundsPtr;
   double cellBounds[6];
 
   this->BuildLocatorIfNeeded();
@@ -821,12 +820,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
       vtkIdType cell_ID = this->Tree->Leaves[node->Start()+i];
       //
 
-      boundsPtr = cellBounds;
-      if (this->CellBounds)
-        {
-        boundsPtr = this->CellBounds[cell_ID];
-        }
-      else
+      if (this->CellBounds == NULL)
         {
         this->DataSet->GetCellBounds(cell_ID, cellBounds);
         }
