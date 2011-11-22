@@ -39,7 +39,7 @@ vtkLinearExtractor::~vtkLinearExtractor ()
 // ----------------------------------------------------------------------
 void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
 {
-  Superclass::PrintSelf( os,indent );
+  this->Superclass::PrintSelf( os,indent );
 
   os << indent
      << "Point 1   : ("
