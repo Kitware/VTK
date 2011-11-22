@@ -98,6 +98,7 @@ int TestRotationalExtrusion( int argc, char * argv [] )
   renWin->SetSize( 300, 300 );
   renWin->SetMultiSamples( 0 );
   
+  // Create a good view angle
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 0.576398, 28.8199 );
   camera->SetFocalPoint( 0.0463079, -0.0356571, 1.01993 );
