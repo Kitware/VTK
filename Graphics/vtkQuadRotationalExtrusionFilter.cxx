@@ -481,7 +481,10 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
       output->Squeeze();
 
-      if( blockId == -1 ) blockId = outputBlocks.size();
+      if ( blockId == -1 )
+        {
+        blockId = outputBlocks.size();
+        }
       outputBlocks[ blockId ] = output;
 
       } /* if numPts>0 && numCells>0 */
