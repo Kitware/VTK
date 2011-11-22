@@ -494,7 +494,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
    
   // build final composite output. also tagging blocks with their associated Id
-  compositeOutput->SetNumberOfBlocks( outputBlocks.size() );
+  compositeOutput->SetNumberOfBlocks( static_cast<unsigned int>( outputBlocks.size() ) );
   int blockIndex=0;
   for( vtksys_stl::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex )
     {
