@@ -37,6 +37,16 @@ int TestRotationalExtrusion( int argc, char * argv [] )
   line->SetPoint2( 0., 1., 2. );
   line->SetResolution( 10 );
 
+  // Create mapper for line segment
+  vtkNew<vtkPolyDataMapper> lineMapper;
+  lineMapper->SetInputConnection( line->GetOutputPort() );
+
+  // Create actor for line segment
+  vtkNew<vtkActor> lineActor;
+  lineActor->SetMapper( lineMapper.GetPointer() );
+  lineActor->GetProperty()->SetLineWidth( 5 );
+  lineActor->GetProperty()->SetColor( 0., .749, 1. ); // deep sky blue
+
   // Create 3/4 of a cylinder by rotational extrusion
   vtkNew<vtkRotationalExtrusionFilter> lineSweeper;
   lineSweeper->SetResolution( 20 );
@@ -64,7 +74,7 @@ int TestRotationalExtrusion( int argc, char * argv [] )
   cylActor->SetMapper( cylMapper.GetPointer() );
   cylActor->GetProperty()->SetRepresentationToSurface();
   cylActor->GetProperty()->SetInterpolationToGouraud();
-  cylActor->GetProperty()->SetColor( 1., 0.3882, .2784 ); // tomato
+  cylActor->GetProperty()->SetColor( 1., .3882, .2784 ); // tomato
 
   // Create actor for wireframe representation
   vtkNew<vtkActor> cylActorW;
@@ -77,6 +87,7 @@ int TestRotationalExtrusion( int argc, char * argv [] )
 
   // Create a renderer, add actors to it
   vtkNew<vtkRenderer> ren1;
+  ren1->AddActor( lineActor.GetPointer() );
   ren1->AddActor( cylActor.GetPointer() );
   ren1->AddActor( cylActorW.GetPointer() );
   ren1->SetBackground( 1., 1., 1. );
