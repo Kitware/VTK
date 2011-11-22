@@ -145,8 +145,8 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
   // Iterate over cells
-  const vtkIdType cellNum = input->GetNumberOfCells();
-  for ( vtkIdType id = 0; id < cellNum; ++ id )
+  const vtkIdType nCells = input->GetNumberOfCells();
+  for ( vtkIdType id = 0; id < nCells; ++ id )
     {
     vtkCell* cell = input->GetCell ( id );
     if ( cell )
@@ -204,6 +204,6 @@ void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray
           }
         }
       }	// if ( cell )
-    } // for ( vtkIdType id = 0; id < cellNum; ++ id )
+    } // for ( vtkIdType id = 0; id < nCells; ++ id )
 
 }
