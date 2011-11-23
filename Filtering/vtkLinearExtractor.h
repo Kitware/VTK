@@ -38,8 +38,10 @@ class vtkPoints;
 class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 {
  public:
-  static vtkLinearExtractor *New();
+  vtkTypeMacro(vtkLinearExtractor,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  static vtkLinearExtractor *New();
 
   // Description:
   // Set/Get starting point of intersecting segment
