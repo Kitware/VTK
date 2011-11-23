@@ -213,17 +213,17 @@ int main( int argc, char **argv )
         for( ; pIdx < grid->GetNumberOfPoints(); ++pIdx )
           {
           unsigned char p = nodeProperty[ pIdx ];
-          if( vtkMeshPropertyEncoder::IsPropertySet(p,VTKNodeProperties::SHARED) )
+          if(!vtkMeshPropertyEncoder::IsPropertySet(p,VTKNodeProperties::IGNORE))
             {
-            flags->SetValue( pIdx, VTKNodeProperties::SHARED );
-            }
-          else if( vtkMeshPropertyEncoder::IsPropertySet(p,VTKNodeProperties::BOUNDARY) )
-            {
-            flags->SetValue(pIdx, VTKNodeProperties::BOUNDARY );
+            ++totalNumberOfNodes;
+            if(vtkMeshPropertyEncoder::IsPropertySet(p,VTKNodeProperties::BOUNDARY))
+              flags->SetValue( pIdx, 2 );
+            else
+              flags->SetValue( pIdx, 3);
             }
           else
             {
-            flags->SetValue(pIdx, VTKNodeProperties::INTERNAL );
+            flags->SetValue( pIdx, 1 );
             }
 
           } // END for all points
