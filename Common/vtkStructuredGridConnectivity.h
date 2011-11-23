@@ -32,10 +32,8 @@
 
 // C++ include directives
 #include <vector> // For STL vector
-#include <set>    // For STL set
 
 // Forward Declarations
-//class vtkStructuredNeighbor;
 class vtkIdList;
 
 
@@ -100,15 +98,24 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
     virtual ~vtkStructuredGridConnectivity();
 
     // Description:
-    // Marks the node properties with the node with the given global i,j,k
-    // grid coordinates, and corresponding linear index, idx, w.r.t. to the
-    // grid defined by the given extent ext.
-    void MarkNodeProperty(
+    // Given a point (i,j,k) belonging to the grid corresponding to the given
+    // gridID, this method searches for the grids that this point is neighboring
+    // with.
+    void SearchNeighbors(
+        const int gridID,
         const int i, const int j, const int k,
-        const int idx, int ext[6], unsigned char &pfield );
+        vtkIdList *neiList );
 
     // Description:
-    // Checks if the node correspondign to the given global i,j,k coordinates
+    // Marks the node properties with the node with the given global i,j,k
+    // grid coordinates w.r.t. to the grid defined by the given extent ext.
+    void MarkNodeProperty(
+        const int gridID,
+        const int i, const int j, const int k,
+        int ext[6], unsigned char &pfield );
+
+    // Description:
+    // Checks if the node corresponding to the given global i,j,k coordinates
     // touches the real boundaries of the domain given the whole extent.
     bool IsNodeOnBoundary( const int i, const int j, const int k );
 

@@ -128,8 +128,27 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::SearchNeighbors(
+    const int gridID, const int i, const int j, const int k,
+    vtkIdList *neiList )
+{
+  assert( "pre: neiList should not be NULL" && (neiList != NULL) );
+  assert( "pre: gridID is out-of-bounds" &&
+           ( (gridID >= 0) && (gridID < this->NumberOfGrids) ) );
+
+  for( unsigned int nei=0; nei < this->Neighbors[ gridID ].size(); ++nei )
+    {
+    vtkStructuredNeighbor *myNei = &this->Neighbors[ gridID ][ nei ];
+    assert( "pre: myNei != NULL" && (myNei != NULL) );
+
+    if( this->IsNodeWithinExtent( i, j, k, myNei->OverlapExtent) )
+      neiList->InsertNextId( myNei->NeighborID );
+    } // END for all neis
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::MarkNodeProperty(
-    const int i, const int j, const int k, const int idx,
+    const int gridID, const int i, const int j, const int k,
     int ext[6], unsigned char &p )
 {
   vtkMeshPropertyEncoder::Reset( p );
@@ -144,10 +163,35 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
       {
       vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::BOUNDARY );
       }
-    else
+
+    // Figure out if the point is shared and who owns the point
+    vtkIdList *neiList = vtkIdList::New();
+    this->SearchNeighbors( gridID, i, j, k, neiList );
+
+    if( neiList->GetNumberOfIds() > 0 )
       {
-      vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::SHARED );
-      }
+      std::cout << "Mark node as shared!" << std::endl;
+      std::cout.flush();
+
+      vtkMeshPropertyEncoder::SetProperty( p, VTKNodeProperties::SHARED );
+
+      for( vtkIdType nei=0; nei < neiList->GetNumberOfIds(); ++nei )
+        {
+        // If my gridID is not the smallest gridID that shares the point, then
+        // I don't own the point.
+        // The convention is that the grid with the smallest gridID will own the
+        // point and all other grids should IGNORE it when computing statistics etc.
+        if( gridID > neiList->GetId( nei ) )
+          {
+          std::cout << "Mark node as IGNORE!\n";
+          std::cout.flush();
+
+          vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::IGNORE );
+          break;
+          }
+        } //END for all neis
+      } // END if  shared
+    neiList->Delete();
     }
 }
 
@@ -168,23 +212,7 @@ void vtkStructuredGridConnectivity::FillMeshPropertyArrays(
 
   int dims[3];
   vtkStructuredExtent::GetDimensions( GridExtent, dims );
-//  std::cout << "\n ============ \n";
-//  std::cout << "DIMS:" << dims[0] << " " << dims[1] << " " << dims[2] << "\n";
-//  std::cout.flush();
 
-  int *overlapExtents = NULL;
-  vtkIdList *neiList  = NULL;
-  int N = this->GetNumberOfNeighbors( gridID );
-  if( N > 0 )
-    {
-    overlapExtents = new int[ 6*N ];
-    neiList  = this->GetNeighbors( gridID, overlapExtents );
-    assert("pre: neiList should not be NULL!" && (neiList != NULL) );
-    assert("pre: Number of neighbors must equal size of neiList" &&
-           (N == neiList->GetNumberOfIds() ) );
-    }
-
-  int ext[6];
   for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
     {
     for( int j=GridExtent[2]; j <= GridExtent[3]; ++j )
@@ -197,19 +225,10 @@ void vtkStructuredGridConnectivity::FillMeshPropertyArrays(
         int lk = k - ijkmin[2];
 
         int idx = vtkStructuredData::ComputePointId( dims, li, lj, lk );
-
-//        std::cout << "IJK: " << i << " " << j << " " <<  k << " -- ";
-//        std::cout << li << " " << lj << " " << lk << " ==> ";
-//        std::cout << idx << std::endl;
-//        std::cout.flush();
-        this->MarkNodeProperty( i, j, k, idx, GridExtent, nodesArray[idx] );
+        this->MarkNodeProperty( gridID,i,j,k,GridExtent,nodesArray[idx] );
         } // END for all k
       } // END for all j
     } // END for all i
-
-  if( overlapExtents != NULL )
-    delete [] overlapExtents;
-  neiList->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -243,9 +262,9 @@ bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
     int GridExtent[6] )
 {
   // TODO: Add support for 2-D and 1-D cases
-  if( (GridExtent[0] <= i) && (GridExtent[1] <= i) &&
-      (GridExtent[2] <= j) && (GridExtent[3] <= j) &&
-      (GridExtent[4] <= k) && (GridExtent[5] <= k) )
+  if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
+      (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
+      (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
       return true;
   return false;
 }
