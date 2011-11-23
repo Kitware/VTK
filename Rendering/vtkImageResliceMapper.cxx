@@ -34,6 +34,9 @@
 #include "vtkAbstractImageInterpolator.h"
 #include "vtkObjectFactory.h"
 
+// A tolerance to compensate for roundoff errors
+#define VTK_RESLICE_MAPPER_VOXEL_TOL 7.62939453125e-06
+
 vtkStandardNewMacro(vtkImageResliceMapper);
 
 //----------------------------------------------------------------------------
@@ -882,7 +885,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
       ymax = ((ymax > point[1]) ? ymax : point[1]);
       }
 
-    double tol = 7.62939453125e-06;
+    double tol = VTK_RESLICE_MAPPER_VOXEL_TOL;
     int xsize = vtkMath::Floor((xmax - xmin)/spacing[0] + tol);
     int ysize = vtkMath::Floor((ymax - ymin)/spacing[1] + tol);
     if (this->Border == 0)
@@ -1158,15 +1161,14 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   double tol = (height == 0 ? 0.5 : viewHeight*0.5/height);
 
   // make the data bounding box (with or without border)
-  int border = this->Border;
-  double b = (border ? 0.5 : 0.0);
+  double b = (this->Border ? 0.5 : VTK_RESLICE_MAPPER_VOXEL_TOL);
   double bounds[6];
   for (int ii = 0; ii < 3; ii++)
     {
     double c = b*this->DataSpacing[ii];
     int lo = this->DataWholeExtent[2*ii];
     int hi = this->DataWholeExtent[2*ii+1];
-    if (border == 0 && lo == hi)
+    if (lo == hi && tol > c)
       { // apply tolerance to avoid degeneracy
       c = tol;
       }
