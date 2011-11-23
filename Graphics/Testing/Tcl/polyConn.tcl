@@ -27,7 +27,8 @@ vtkPolyDataConnectivityFilter conn
     conn ScalarConnectivityOn
     conn SetScalarRange 0.19 0.25
     conn Update
-puts [conn Print]
+    conn Print
+
 vtkPolyDataMapper plane1Map
     plane1Map SetInputConnection [conn GetOutputPort]
     eval plane1Map SetScalarRange [[pl3d GetOutput] GetScalarRange]
