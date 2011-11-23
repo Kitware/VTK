@@ -179,6 +179,8 @@ vtkStdString.cxx
 vtkStringArray.cxx
 vtkStructuredData.cxx
 vtkStructuredExtent.cxx
+vtkStructuredGridConnectivity.cxx
+vtkStructuredNeighbor.cxx
 vtkStructuredVisibilityConstraint.cxx
 vtkTableExtentTranslator.cxx
 vtkTensor.cxx
@@ -429,6 +431,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkRect.h
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
+  vtkStructuredNeighbor.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
   vtkWeakPointerBase.cxx
