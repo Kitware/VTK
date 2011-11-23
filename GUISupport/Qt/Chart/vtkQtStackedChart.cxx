@@ -749,8 +749,6 @@ void vtkQtStackedChart::paint(QPainter *painter,
   // Use the exposed rectangle from the option object to determine
   // which series to draw.
   vtkQtChartContentsSpace *space = this->ChartArea->getContentsSpace();
-  QRectF area = option->exposedRect.translated(space->getXOffset(),
-      space->getYOffset());
 
   // Get the axis layer to get the axes and domain priority.
   vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();

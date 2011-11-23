@@ -572,7 +572,9 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   // take points from the source object and create a particle list
   //
   int numSeeds = source->GetNumberOfPoints();
+#ifndef NDEBUG
   int numTested = numSeeds;
+#endif
   candidates.resize(numSeeds);
   //
   for (int i=0; i<numSeeds; i++) {
@@ -605,19 +607,25 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   if (this->UpdateNumPieces>1) {
     // Gather all seed particles to all processes
     this->TransmitReceiveParticles(candidates, allCandidates, false);
+#ifndef NDEBUG
     numTested = static_cast<int>(allCandidates.size());
+#endif
     vtkDebugMacro(<< "Local Particles " << numSeeds << " TransmitReceive Total " << numTested);
     // Test to see which ones belong to us
     this->TestParticles(allCandidates, LocalSeedPoints, LocalAssignedCount);
   } 
   else {
+#ifndef NDEBUG
     numTested = static_cast<int>(candidates.size());
+#endif
     this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
   }
   int TotalAssigned = 0; 
   this->Controller->Reduce(&LocalAssignedCount, &TotalAssigned, 1, vtkCommunicator::SUM_OP, 0);
 #else 
+#ifndef NDEBUG
   numTested = static_cast<int>(candidates.size());
+#endif
   this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
   int TotalAssigned = LocalAssignedCount; (void)TotalAssigned;
 #endif
@@ -988,7 +996,9 @@ int vtkTemporalStreamTracer::RequestData(
   vtkDebugMacro(<< "Clear MPI send list ");
   this->MPISendList.clear();
 
+#ifndef NDEBUG
   int Number = static_cast<int>(this->ParticleHistories.size());
+#endif
   ParticleListIterator  it_first = this->ParticleHistories.begin();
   ParticleListIterator  it_last  = this->ParticleHistories.end();
   ParticleListIterator  it_next;
@@ -1057,7 +1067,9 @@ int vtkTemporalStreamTracer::RequestData(
       // Now update our main list with the ones we are keeping
       this->UpdateParticleList(candidates);
       // free up unwanted memory
+#ifndef NDEBUG
       Number = static_cast<int>(candidates.size());
+#endif
       candidates.clear();
     }
     it_last = this->ParticleHistories.end();
