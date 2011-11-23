@@ -28,7 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_LINEAR_EXTRACTOR_H
 
 #include <vtkSelectionAlgorithm.h>
-#include <vtkSystemIncludes.h>
 
 class vtkAlgorithmOutput;
 class vtkDataSet;
