@@ -28,7 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_LINEAR_EXTRACTOR_H
 
 #include <vtkSelectionAlgorithm.h>
-#include <vtkSystemIncludes.h>
 
 class vtkAlgorithmOutput;
 class vtkDataSet;
@@ -36,11 +35,13 @@ class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkPoints;
 
-class VTK_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
+class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 {
  public:
-  static vtkLinearExtractor *New();
+  vtkTypeMacro(vtkLinearExtractor,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  static vtkLinearExtractor *New();
 
   // Description:
   // Set/Get starting point of intersecting segment
@@ -75,7 +76,7 @@ class VTK_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 
  private:
   vtkLinearExtractor(const vtkLinearExtractor&);  // Not implemented
-  vtkLinearExtractor& operator =(const vtkLinearExtractor&); // Not implemented
+  void operator =(const vtkLinearExtractor&); // Not implemented
 
   // Description:
   // Start and end point of the intersecting line segment
