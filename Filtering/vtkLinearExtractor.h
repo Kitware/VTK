@@ -36,7 +36,7 @@ class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkPoints;
 
-class VTK_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
+class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 {
  public:
   static vtkLinearExtractor *New();
