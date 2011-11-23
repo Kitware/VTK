@@ -15,12 +15,14 @@
 // .NAME vtkStructuredGridConnectivity.h -- Constructs structured connectivity
 //
 // .SECTION Description
-// vtkStructuredGridConnectivity is a singleton object that implements
-// functionality for computing neighboring topology within a single partitioned
-// structured grid dataset.
+//  vtkStructuredGridConnectivity is a concrete instance of vtkObject that
+//  implements functionality for computing the neighboring topology within a
+//  single partitioned structured grid dataset. This class implementation does
+//  not have any support for distributed data. For the parallel implmementation
+//  see vtkPStructuredGridConnectivity.
 //
 // .SECTION See Also
-//  vtkMeshPropertyEncoder vtkMeshProperty
+//  vtkMeshPropertyEncoder vtkMeshProperty vtkPStructuredGridConnectivity
 
 #ifndef vtkStructuredGridConnectivity_H_
 #define vtkStructuredGridConnectivity_H_
@@ -51,7 +53,7 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
 
     // Description:
     // Set/Get the total number of domains distributed among processors
-    void SetNumberOfGrids( const int N )
+    virtual void SetNumberOfGrids( const int N )
     {
       this->NumberOfGrids = N;
       this->GridExtents.resize( 6*N,-1);
@@ -62,7 +64,7 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
     // Description:
     // Registers the current grid corresponding to the grid ID by its global
     // extent w.r.t. the whole extent.
-    void RegisterGrid( const int gridID, int extents[6] );
+    virtual void RegisterGrid( const int gridID, int extents[6] );
 
     // Description:
     // Returns the grid extent of the grid corresponding to the given grid ID.
@@ -70,7 +72,7 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
 
     // Description:
     // Computes neighboring information
-    void ComputeNeighbors();
+    virtual void ComputeNeighbors();
 
     // Description:
     // Returns the number of neighbors for the grid corresponding to the given

@@ -81,7 +81,7 @@ void vtkStructuredGridConnectivity::AcquireDataDescription()
   vtkStructuredExtent::GetDimensions( this->WholeExtent, dims );
   this->DataDescription = vtkStructuredData::GetDataDescription( dims );
   assert( "pre: Error acquiring data description" &&
-           (this->DataDescription >= 0) );
+          (this->DataDescription >= 0) );
 }
 
 //------------------------------------------------------------------------------
@@ -105,8 +105,7 @@ vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(
       extents[ nei*6+i ] = this->Neighbors[ gridID ][ nei ].OverlapExtent[ i ];
     } // END for all neighbors
 
-  assert( "post: N==neiList.size()" &&
-          (N == neiList->GetNumberOfIds()) );
+  assert( "post: N==neiList.size()" && (N == neiList->GetNumberOfIds()) );
   return( neiList );
 }
 
@@ -489,16 +488,16 @@ void vtkStructuredGridConnectivity::SetNeighbors(
   this->Neighbors[ j ].push_back( Nj2i );
 
 // BEGIN DEBUG
-  int iGridExtent[6];
-  int jGridExtent[6];
-  this->GetGridExtent( i, iGridExtent );
-  this->GetGridExtent( j, jGridExtent );
-
-  std::cout << "===\n";
-  this->PrintExtent( iGridExtent );
-  this->PrintExtent( jGridExtent );
-  std::cout << "\n\n";
-  this->PrintExtent( overlapExtent );
+//  int iGridExtent[6];
+//  int jGridExtent[6];
+//  this->GetGridExtent( i, iGridExtent );
+//  this->GetGridExtent( j, jGridExtent );
+//
+//  std::cout << "===\n";
+//  this->PrintExtent( iGridExtent );
+//  this->PrintExtent( jGridExtent );
+//  std::cout << "\n\n";
+//  this->PrintExtent( overlapExtent );
 // END DEBUG
 
 }
