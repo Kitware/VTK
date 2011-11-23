@@ -39,6 +39,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestPolyhedron0.cxx
     TestPolyhedron1.cxx
     TestQuadRotationalExtrusion.cxx
+    TestQuadRotationalExtrusionMultiBlock.cxx
     TestRectilinearGridToPointSet.cxx
     TestRotationalExtrusion.cxx
     TestSelectEnclosedPoints.cxx
