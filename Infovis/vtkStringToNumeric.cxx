@@ -44,6 +44,9 @@ vtkStringToNumeric::vtkStringToNumeric()
   this->ConvertPointData = true;
   this->ConvertCellData = true;
   this->ForceDouble = false;
+  this->DefaultIntegerValue = 0;
+  this->DefaultDoubleValue = 0.0;
+  this->TrimWhitespacePriorToNumericConversion = false;
 }
 
 vtkStringToNumeric::~vtkStringToNumeric()
@@ -209,13 +212,28 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
         {
         str = unicodeArray->GetValue(i).utf8_str(); 
         }
+
+      if (this->TrimWhitespacePriorToNumericConversion)
+        {
+        size_t startPos = str.find_first_not_of(" \n\t\r");
+        if (startPos == vtkStdString::npos)
+          {
+          str = "";
+          }
+        else
+          {
+          size_t endPos = str.find_last_not_of(" \n\t\r");
+          str = str.substr(startPos, endPos-startPos+1);
+          }
+        }
+
       bool ok;
       if (allInteger)
         {
         if (str.length() == 0)
           {
-          intArray->SetValue(i, 0);
-          doubleArray->SetValue(i, 0.0);
+          intArray->SetValue(i, this->DefaultIntegerValue);
+          doubleArray->SetValue(i, this->DefaultDoubleValue);
           continue;
           }
         int intValue = vtkVariant(str).ToInt(&ok);
@@ -234,7 +252,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
         {
         if (str.length() == 0)
           {
-          doubleArray->SetValue(i, 0.0);
+          doubleArray->SetValue(i, this->DefaultDoubleValue);
           continue;
           }
         double doubleValue = vtkVariant(str).ToDouble(&ok);
@@ -325,4 +343,10 @@ void vtkStringToNumeric::PrintSelf(ostream& os, vtkIndent indent)
     << (this->ConvertCellData ? "on" : "off") << endl;
   os << indent << "ForceDouble: " 
     << (this->ForceDouble ? "on" : "off") << endl;
+  os << indent << "DefaultIntegerValue: "
+    << this->DefaultIntegerValue << endl;
+  os << indent << "DefaultDoubleValue: "
+    << this->DefaultDoubleValue << endl;
+  os << indent << "TrimWhitespacePriorToNumericConversion: " 
+    << (this->TrimWhitespacePriorToNumericConversion ? "on" : "off") << endl;
 }
