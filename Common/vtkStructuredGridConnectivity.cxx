@@ -229,12 +229,48 @@ void vtkStructuredGridConnectivity::FillMeshPropertyArrays(
 bool vtkStructuredGridConnectivity::IsNodeOnBoundary(
     const int i, const int j, const int k )
 {
-  // TODO: Add support for 2-D and 1-D cases
-  if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
-      j==this->WholeExtent[2] || j==this->WholeExtent[3] ||
-      k==this->WholeExtent[4] || k==this->WholeExtent[5] )
-      return true;
-  return false;
+  bool status = false;
+
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] )
+           status = true;
+       break;
+     case VTK_Y_LINE:
+       if( j==this->WholeExtent[2] || j==this->WholeExtent[3] )
+           status = true;
+       break;
+     case VTK_Z_LINE:
+       if( k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+           status = true;
+       break;
+     case VTK_XY_PLANE:
+       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
+           j==this->WholeExtent[2] || j==this->WholeExtent[3] )
+           status = true;
+       break;
+     case VTK_YZ_PLANE:
+       if( j==this->WholeExtent[2] || j==this->WholeExtent[3] ||
+           k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+           status = true;
+       break;
+     case VTK_XZ_PLANE:
+       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
+           k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+           status = true;
+       break;
+     case VTK_XYZ_GRID:
+       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
+           j==this->WholeExtent[2] || j==this->WholeExtent[3] ||
+           k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+           status = true;
+       break;
+     default:
+       assert( "pre: Undefined data-description!" && false );
+    } // END switch
+
+  return( status );
 }
 
 //------------------------------------------------------------------------------
@@ -242,12 +278,48 @@ bool vtkStructuredGridConnectivity::IsNodeInterior(
     const int i, const int j, const int k,
     int GridExtent[6] )
 {
-  // TODO: Add support for 2-D and 1-D cases
-  if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
-      (GridExtent[2] < j) && (j < GridExtent[3]) &&
-      (GridExtent[4] < k) && (k < GridExtent[5])    )
-      return true;
-  return false;
+  bool status = false;
+
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      if( (GridExtent[0] < i) && (i < GridExtent[1]) )
+          status = true;
+      break;
+    case VTK_Y_LINE:
+      if( (GridExtent[2] < j) && (j < GridExtent[3] ) )
+          status = true;
+      break;
+    case VTK_Z_LINE:
+      if( (GridExtent[4] < k) && (k < GridExtent[5] ) )
+          status = true;
+      break;
+    case VTK_XY_PLANE:
+      if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
+          (GridExtent[2] < j) && (j < GridExtent[3])  )
+          status = true;
+      break;
+    case VTK_YZ_PLANE:
+      if( (GridExtent[2] < j) && (j < GridExtent[3] ) &&
+          (GridExtent[4] < k) && (k < GridExtent[5] ) )
+          status = true;
+      break;
+    case VTK_XZ_PLANE:
+      if( (GridExtent[0] < i) && (i < GridExtent[1] ) &&
+          (GridExtent[4] < k) && (k < GridExtent[5] ) )
+          status = true;
+      break;
+    case VTK_XYZ_GRID:
+      if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
+          (GridExtent[2] < j) && (j < GridExtent[3]) &&
+          (GridExtent[4] < k) && (k < GridExtent[5]) )
+          status = true;
+      break;
+    default:
+      assert( "pre: Undefined data-description!" && false );
+    } // END switch
+
+  return( status );
 }
 
 //------------------------------------------------------------------------------
@@ -255,12 +327,48 @@ bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
     const int i, const int j, const int k,
     int GridExtent[6] )
 {
-  // TODO: Add support for 2-D and 1-D cases
-  if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
-      (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
-      (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-      return true;
-  return false;
+  bool status = false;
+
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) )
+          status = true;
+      break;
+    case VTK_Y_LINE:
+      if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) )
+          status = true;
+      break;
+    case VTK_Z_LINE:
+      if( (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+          status = true;
+      break;
+    case VTK_XY_PLANE:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
+          (GridExtent[2] <= j) && (j <= GridExtent[3])  )
+          status = true;
+      break;
+    case VTK_YZ_PLANE:
+      if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
+          (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+          status = true;
+      break;
+    case VTK_XZ_PLANE:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
+          (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+          status = true;
+      break;
+    case VTK_XYZ_GRID:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
+          (GridExtent[2] <= j) && (j <= GridExtent[3]) &&
+          (GridExtent[4] <= k) && (k <= GridExtent[5]) )
+          status = true;
+      break;
+    default:
+      assert( "pre: Undefined data-description!" && false );
+    } // END switch
+
+  return( status );
 }
 
 //------------------------------------------------------------------------------
