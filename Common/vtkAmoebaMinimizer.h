@@ -181,6 +181,7 @@ private:
   double *AmoebaValues;
   double *AmoebaSum;
   double AmoebaSize;
+  double AmoebaHighValue;
   int AmoebaNStepsNoImprovement;
   
   void InitializeAmoeba();
