@@ -67,6 +67,14 @@ class VTK_COMMON_EXPORT vtkMeshPropertyEncoder : public vtkObject
       return( propertyField & (1 << property) );
     }
 
+    // Description:
+    // Resets all the bits in the property field
+    static void Reset( unsigned char &propertyField )
+    {
+      for( int i=0; i < 8; ++i )
+        vtkMeshPropertyEncoder::UnsetProperty( propertyField, i );
+    }
+
   protected:
     vtkMeshPropertyEncoder();
     ~vtkMeshPropertyEncoder();
