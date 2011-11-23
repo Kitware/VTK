@@ -170,9 +170,6 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 
     if( neiList->GetNumberOfIds() > 0 )
       {
-      std::cout << "Mark node as shared!" << std::endl;
-      std::cout.flush();
-
       vtkMeshPropertyEncoder::SetProperty( p, VTKNodeProperties::SHARED );
 
       for( vtkIdType nei=0; nei < neiList->GetNumberOfIds(); ++nei )
@@ -183,9 +180,6 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
         // point and all other grids should IGNORE it when computing statistics etc.
         if( gridID > neiList->GetId( nei ) )
           {
-          std::cout << "Mark node as IGNORE!\n";
-          std::cout.flush();
-
           vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::IGNORE );
           break;
           }
