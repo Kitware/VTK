@@ -74,7 +74,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   // Create mapper for surface representation of whole mesh
   vtkNew<vtkPolyDataMapper> outMeshMapper;
   outMeshMapper->SetInputConnection( normals->GetOutputPort() );
-  outMeshMapper->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
+  outMeshMapper->SetResolveCoincidentTopologyPolygonOffsetParameters( 0., 1 );
   outMeshMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create actor for surface representation of whole mesh
@@ -93,7 +93,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   // Create mapper for wireframe representation of block 0
   vtkNew<vtkPolyDataMapper> outBlockMapper0;
   outBlockMapper0->SetInput( outMesh0 );
-  outBlockMapper0->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+  outBlockMapper0->SetResolveCoincidentTopologyPolygonOffsetParameters( 1., 1 );
   outBlockMapper0->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create actor for wireframe representation of block 0
@@ -108,7 +108,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   // Create mapper for wireframe representation of block 1
   vtkNew<vtkPolyDataMapper> outBlockMapper1;
   outBlockMapper1->SetInput( outMesh1 );
-  outBlockMapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+  outBlockMapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 1., 1 );
   outBlockMapper1->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create actor for wireframe representation of block 1
@@ -130,7 +130,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   // Create a renderWindow
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer( ren1.GetPointer() );
-  renWin->SetSize( 300, 300 );
+  renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
   
   // Create a good view angle
