@@ -25,7 +25,8 @@
 
 #include "vtkChartMatrix.h"
 #include "vtkSmartPointer.h" // For ivars
-#include "vtkNew.h" // For ivars
+#include "vtkNew.h"          // For ivars
+#include "vtkColor.h"        // For member function return
 
 class vtkStringArray;
 class vtkTable;
@@ -153,6 +154,114 @@ public:
   // value is one of: SCATTERPLOT, HISTOGRAM, ACTIVEPLOT, or NOPLOT.
   int GetPlotType(const vtkVector2i &pos);
   int GetPlotType(int row, int column);
+
+  // Description:
+  // Set the scatter plot title's font.
+  void SetScatterPlotTitleFont(const char* family, int pointSize, bool bold, bool italic);
+  const char* GetScatterPlotTitleFontFamily();
+  int GetScatterPlotTitleFontSize();
+  int GetScatterPlotTitleFontBold();
+  int GetScatterPlotTitleFontItalic();
+
+  // Description:
+  // Set the scatter plot title's color.
+  void SetScatterPlotTitleColor(double red, double green, double blue);
+  vtkColor4f GetScatterPlotTitleColor();
+
+  // Description:
+  // Set the scatter plot title.
+  void SetScatterPlotTitle(const char* title);
+  const char* GetScatterPlotTitle();
+
+  // Description:
+  // Set the scatter plot's title alignment.
+  void SetScatterPlotTitleAlignment(int alignment);
+  int GetScatterPlotTitleAlignment();
+
+  // Description:
+  // Sets whether or not the grid for the given axis is visible given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetGridVisibility(int plotType, bool visible);
+  bool GetGridVisibility(int plotType);
+
+  // Description:
+  // Sets the background color for the chart given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetBackgroundColor(int plotType,
+    double red, double green, double blue, double alpha=0.0);
+  vtkColor4f GetBackgroundColor(int plotType);
+
+  // Description:
+  // Sets the color for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisColor(int plotType, double red, double green, double blue);
+  vtkColor4f GetAxisColor(int plotType);
+
+  // Description:
+  // Sets the color for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetGridColor(int plotType, double red, double green, double blue);
+  vtkColor4f GetGridColor(int plotType);
+
+  // Description:
+  // Sets whether or not the labels for the axes are visible, given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelVisibility(int plotType, bool visible);
+  bool GetAxisLabelVisibility(int plotType);
+
+  // Description:
+  // Set the axis label font for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelFont(int plotType, const char* family, int pointSize, bool bold,
+    bool italic);
+  const char* GetAxisLabelFontFamily(int plotType);
+  int GetAxisLabelFontSize(int plotType);
+  int GetAxisLabelFontBold(int plotType);
+  int GetAxisLabelFontItalic(int plotType);
+
+  // Description:
+  // Sets the axis label color for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelColor(int plotType, double red, double green, double blue);
+  vtkColor4f GetAxisLabelColor(int plotType);
+
+  // Description:
+  // Sets the axis label notation for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelNotation(int plotType, int notation);
+  int GetAxisLabelNotation(int plotType);
+
+  // Description:
+  // Sets the axis label precision for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelPrecision(int plotType, int precision);
+  int GetAxisLabelPrecision(int plotType);
+
+  // Description:
+  // Set chart's tooltip notation and precision, given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetTooltipNotation(int plotType, int notation);
+  void SetTooltipPrecision(int plotType, int precision);
+  int GetTooltipNotation(int plotType);
+  int GetTooltipPrecision(int plotType);
+
+  // Description:
+  // Set the scatter plot selected row/column charts' background color.
+  void SetScatterPlotSelectedRowColumnColor(double red, double green, double blue, double alpha);
+  vtkColor4f GetScatterPlotSelectedRowColumnColor();
+
+  // Description:
+  // Set the scatter plot selected active chart background color.
+  void SetScatterPlotSelectedActiveColor(double red, double green, double blue, double alpha);
+  vtkColor4f GetScatterPlotSelectedActiveColor();
+
+  // Description:
+  // Convenient method to update all the chart settings
+  void UpdateSettings();
+
+  // Description:
+  // Update charts based on settings given the plot type
+  void UpdateChartSettings(int plotType);
 
 protected:
   vtkScatterPlotMatrix();
