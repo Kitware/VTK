@@ -16,6 +16,7 @@
 
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkStructuredExtent.h"
 #include <assert.h>
 
 
@@ -57,6 +58,14 @@ int vtkStructuredData::GetDataDescription(int dims[3])
   return vtkStructuredData::SetDimensions(dims, tempDims);
 }
 
+// Given the extent, returns the data description given the dimensions
+// (eg. VTK_SINGLE_POINT,VTK_X_LINE, VTK_XY_PLANE etc.)
+int vtkStructuredData::GetDataDescriptionFromExtent(int ext[6] )
+{
+  int dims[3];
+  vtkStructuredExtent::GetDimensions( ext, dims );
+  return( vtkStructuredData::GetDataDescription( dims ) );
+}
 // Specify the dimensions of a regular, rectangular dataset. The input is
 // the new dimensions (inDim) and the current dimensions (dim). The function
 // returns the dimension of the dataset (0-3D). If the dimensions are

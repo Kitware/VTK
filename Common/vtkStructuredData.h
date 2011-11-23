@@ -57,6 +57,7 @@ public:
   // Returns the data description given the dimensions (eg. VTK_SINGLE_POINT,
   // VTK_X_LINE, VTK_XY_PLANE etc.)
   static int GetDataDescription(int dims[3]);
+  static int GetDataDescriptionFromExtent( int ext[6] );
 
   // Description:
   // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
@@ -103,6 +104,10 @@ public:
   // adjust for the beginning of the extent.
   static vtkIdType ComputePointId(int dim[3], int ijk[3]) {
     return (ijk[2]*static_cast<vtkIdType>(dim[1]) + ijk[1])*dim[0] + ijk[0];}
+  static vtkIdType ComputePointId( int dim[3], int i, int j, int k ){
+    int ijk[3]; ijk[0] = i; ijk[1] = j; ijk[2] = k;
+    return( ComputePointId( dim, ijk) );
+  }
 
   // Description:
   // Given a location in structured coordinates (i-j-k), and the dimensions
