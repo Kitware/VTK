@@ -76,7 +76,7 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 
  private:
   vtkLinearExtractor(const vtkLinearExtractor&);  // Not implemented
-  vtkLinearExtractor& operator =(const vtkLinearExtractor&); // Not implemented
+  void operator =(const vtkLinearExtractor&); // Not implemented
 
   // Description:
   // Start and end point of the intersecting line segment
