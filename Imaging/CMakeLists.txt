@@ -52,6 +52,8 @@ vtkImageGaussianSource.cxx
 vtkImageGradient.cxx
 vtkImageGradientMagnitude.cxx
 vtkImageGridSource.cxx
+vtkImageHistogram.cxx
+vtkImageHistogramStatistics.cxx
 vtkImageHSIToRGB.cxx
 vtkImageHSVToRGB.cxx
 vtkImageHybridMedian2D.cxx
