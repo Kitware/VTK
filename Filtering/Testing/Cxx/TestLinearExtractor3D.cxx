@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinearExtractorInnerSegment.cxx
+  Module:    TestLinearExtractor3D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -50,7 +50,7 @@ static void PrintSelectionNodes( vtkSelection* sel, const char* tag = NULL)
 }
 
 //----------------------------------------------------------------------------
-int TestLinearExtractorInnerSegment( int argc, char * argv [] )
+int TestLinearExtractor3D( int argc, char * argv [] )
 {
   // Read 3D unstructured input mesh
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/AngularSector.vtk");
