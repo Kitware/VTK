@@ -23,7 +23,7 @@ vtkStandardNewMacro(vtkLinearExtractor);
 vtkCxxSetObjectMacro(vtkLinearExtractor,Points,vtkPoints);
 
 // ----------------------------------------------------------------------
-vtkLinearExtractor::vtkLinearExtractor ()
+vtkLinearExtractor::vtkLinearExtractor()
 {
   this->SetStartPoint( 0., 0., 0. );
   this->SetEndPoint( 1., 1. ,1. );
@@ -34,13 +34,13 @@ vtkLinearExtractor::vtkLinearExtractor ()
 }
 
 // ----------------------------------------------------------------------
-vtkLinearExtractor::~vtkLinearExtractor ()
+vtkLinearExtractor::~vtkLinearExtractor()
 {
   this->SetPoints( 0 );
 }
 
 // ----------------------------------------------------------------------
-void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
+void vtkLinearExtractor::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os,indent );
 
@@ -157,7 +157,7 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 }
 
 // ----------------------------------------------------------------------
-void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
+void vtkLinearExtractor::RequestDataInternal( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
   // Prepare tolerances for endpoint elimination
   double t0 = this->VertexEliminationTolerance;
