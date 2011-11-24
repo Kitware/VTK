@@ -36,6 +36,7 @@ vtkLinearExtractor::vtkLinearExtractor ()
 // ----------------------------------------------------------------------
 vtkLinearExtractor::~vtkLinearExtractor ()
 {
+  this->SetPoints( 0 );
 }
 
 // ----------------------------------------------------------------------
