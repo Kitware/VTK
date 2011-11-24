@@ -87,8 +87,8 @@ int vtkLinearExtractor::FillInputPortInformation( int vtkNotUsed( port ),
 
 // ----------------------------------------------------------------------
 int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
-                                            vtkInformationVector **inputVector,
-                                            vtkInformationVector *outputVector )
+                                     vtkInformationVector **inputVector,
+                                     vtkInformationVector *outputVector )
 {
   // Get information objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
@@ -136,7 +136,13 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
     outSelNode->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(), partNumber + 1 );
     outSelNode->SetSelectionList( indices );
     output->AddNode( outSelNode );
+
+    // Clean up
+    indices->Delete();
     }
+
+  // Clean up
+  inputIterator->Delete();
 
   return 1;
 }
