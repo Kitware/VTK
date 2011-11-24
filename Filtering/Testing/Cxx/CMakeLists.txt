@@ -1,4 +1,10 @@
 SET(KIT Filtering)
+# Add tests that require data
+IF (VTK_DATA_ROOT)
+  SET(DataBasedTests
+      TestLinearExtractorInnerSegment.cxx
+      )
+ENDIF (VTK_DATA_ROOT)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
@@ -31,12 +37,12 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestTriangle.cxx
   TestImageDataInterpolation.cxx
   TestImageDataToStructuredGrid.cxx
-
+  ${DataBasedTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkFiltering vtkGraphics)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkFiltering vtkGraphics)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
