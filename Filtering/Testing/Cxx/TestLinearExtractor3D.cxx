@@ -83,7 +83,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le1->SetStartPoint( .0, .0, .0 );
   le1->SetEndPoint( .23, .04, .04 );
   le1->IncludeVerticesOff();
-  le1->SetVertexEliminationTolerance( 2.3e-16 );
+  le1->SetVertexEliminationTolerance( 1.e-12 );
   le1->Update();
 
   vtkSelection* s1 = le1->GetOutput();
@@ -106,7 +106,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   PrintSelectionNodes( s2 , "Selection (0,0,0)-(0.23,0,0)" );
   
   // *****************************************************************************
-  // 3. Selection along broken line through (.23,0,0), (0,0,0), and (.23,.04,.04)
+  // 3. Selection along broken line through (.23,0,0), (0,0,0), (.23,.04,.04)
   // *****************************************************************************
 
   // Create list of points to define broken line
@@ -120,12 +120,34 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le3->SetInput( mesh );
   le3->SetPoints( points3 );
   le3->IncludeVerticesOff();
-  le3->SetVertexEliminationTolerance( 1.e-8 );
+  le3->SetVertexEliminationTolerance( 1.e-12 );
   le3->Update();
 
   vtkSelection* s3 = le3->GetOutput();
   PrintSelectionNodes( s3 , "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)" );
-  
+
+  // *****************************************************************************
+  // 4. Selection along broken line through (.23,0,0), (.1,0,0), (.23,.01,.0033)
+  // *****************************************************************************
+
+  // Create list of points to define broken line
+  vtkSmartPointer<vtkPoints> points4 = vtkSmartPointer<vtkPoints>::New();
+  points4->InsertNextPoint( .23, .0, .0 );
+  points4->InsertNextPoint( .1, .0, .0 );
+  points4->InsertNextPoint( .23, .01, .0033 );
+
+  // Create selection along this broken line
+  vtkSmartPointer<vtkLinearExtractor> le4 = vtkSmartPointer<vtkLinearExtractor>::New();
+  le4->SetInput( mesh );
+  le4->SetPoints( points4 );
+  le4->IncludeVerticesOff();
+  le4->SetVertexEliminationTolerance( 1.e-12 );
+  le4->Update();
+
+  vtkSelection* s4 = le4->GetOutput();
+  PrintSelectionNodes( s4 , "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)" );
+
+
   int retVal = 1;
 
   return !retVal;
