@@ -64,16 +64,54 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
   mesh->SetBlock( 0, reader->GetOutput() );
 
-  // Create selection along one line segment
-  vtkSmartPointer<vtkLinearExtractor> extractor = vtkSmartPointer<vtkLinearExtractor>::New();
-  extractor->SetInput( mesh );
-  extractor->SetStartPoint( 0., 0., 0. );
-  extractor->SetEndPoint( .23, .04, .04 );
-  extractor->Update();
+  // **********************************************************************
+  //
+  // I. Selection along inner segment
+  //
+  // **********************************************************************
 
-  vtkSelection* sel = extractor->GetOutput();
-  PrintSelectionNodes( sel , "selection" );
+  // **********************************************************************
+  // I.1 Selection via endpoints (0, 0, 0) and (0.23, 0.04,0.04)
+  // **********************************************************************
+
+  // Create selection along one line segment
+  vtkSmartPointer<vtkLinearExtractor> le11 = vtkSmartPointer<vtkLinearExtractor>::New();
+  le11->SetInput( mesh );
+  le11->SetStartPoint( 0., 0., 0. );
+  le11->SetEndPoint( .23, .04, .04 );
+  le11->Update();
+
+  vtkSelection* s11 = le11->GetOutput();
+  PrintSelectionNodes( s11 , "selection" );
   
+  // **********************************************************************
+  // I.2 Selection via segment3D_1.vtk
+  // **********************************************************************
+
+  // **********************************************************************
+  //
+  // II. selection along boundary segment
+  //
+  // **********************************************************************
+
+  // **********************************************************************
+  // II.1 Selection via endpoints (0, 0, 0) and (0.23, 0, 0)
+  // **********************************************************************
+
+  // Create selection along one line segment
+  vtkSmartPointer<vtkLinearExtractor> le21 = vtkSmartPointer<vtkLinearExtractor>::New();
+  le21->SetInput( mesh );
+  le21->SetStartPoint( 0., 0., 0. );
+  le21->SetEndPoint( .23, 0., 0. );
+  le21->Update();
+
+  vtkSelection* s21 = le21->GetOutput();
+  PrintSelectionNodes( s21 , "selection" );
+  
+  // **********************************************************************
+  // II.2 Selection via segment3D_2.vtk
+  // **********************************************************************
+
   int retVal = 1;
 
   return !retVal;
