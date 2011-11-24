@@ -64,9 +64,14 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   vtkGetMacro(Tolerance,double);
 
   // Description:
-  // Set/Get relative tolerance for endpoint elimination
-  vtkSetClampMacro(EndpointEliminationTolerance,double,0.,.1 );
-  vtkGetMacro(EndpointEliminationTolerance,double);
+  // Set/Get whether lines vertice are included in selection
+  vtkSetMacro( IncludeVertices, bool );
+  vtkGetMacro( IncludeVertices, bool );
+
+  // Description:
+  // Set/Get relative tolerance for vertex elimination
+  vtkSetClampMacro(VertexEliminationTolerance,double,0.,.1 );
+  vtkGetMacro(VertexEliminationTolerance,double);
 
  protected:
   vtkLinearExtractor();
@@ -100,9 +105,14 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   double Tolerance;
 
   // Description:
-  // Relative tolerance for endpoint elimination
-  // NB: Default is 0, meaning that endpoints are included by default
-  double EndpointEliminationTolerance;
+  // Decide whether lines vertice are included in selection
+  // Default: true
+  bool IncludeVertices;
+
+  // Description:
+  // Relative tolerance for vertex elimination
+  // NB: Default is 0, meaning that vertices are included by default
+  double VertexEliminationTolerance;
 };
 
 

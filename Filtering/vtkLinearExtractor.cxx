@@ -28,7 +28,8 @@ vtkLinearExtractor::vtkLinearExtractor ()
   this->SetStartPoint( 0., 0., 0. );
   this->SetEndPoint( 1., 1. ,1. );
   this->Tolerance = 0.;
-  this->EndpointEliminationTolerance = 0.;
+  this->IncludeVertices = true;
+  this->VertexEliminationTolerance = 0.;
   this->Points = 0;
 }
 
@@ -77,8 +78,8 @@ void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
      << "\n";
 
   os << indent
-     << "EndpointEliminationTolerance: "
-     << this->EndpointEliminationTolerance
+     << "VertexEliminationTolerance: "
+     << this->VertexEliminationTolerance
      << "\n";
 
 }
@@ -158,8 +159,8 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
   // Prepare tolerances for endpoint elimination
-  double t0 = this->EndpointEliminationTolerance;
-  double t1 = 1. - this->EndpointEliminationTolerance;
+  double t0 = this->VertexEliminationTolerance;
+  double t1 = 1. - this->VertexEliminationTolerance;
 
   // Iterate over cells
   const vtkIdType nCells = input->GetNumberOfCells();
@@ -202,7 +203,7 @@ void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray
                                          pcoords,
                                          subId ) )
             {
-            if ( t > t0 && t < t1 )
+            if ( this->IncludeVertices || ( t > t0 && t < t1 ) )
               {
               outIndices->InsertNextValue( id );
               }
@@ -220,7 +221,7 @@ void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray
                                        pcoords,
                                        subId ) )
           {
-          if ( t > t0 && t < t1 )
+          if ( this->IncludeVertices || ( t > t0 && t < t1 ) )
             {
             outIndices->InsertNextValue( id );
             }

@@ -82,7 +82,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le1->SetInput( mesh );
   le1->SetStartPoint( .0, .0, .0 );
   le1->SetEndPoint( .23, .04, .04 );
-  le1->SetEndpointEliminationTolerance( 2.e-16 );
+  le1->SetVertexEliminationTolerance( 2.e-16 );
   le1->Update();
 
   vtkSelection* s1 = le1->GetOutput();
@@ -97,7 +97,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le2->SetInput( mesh );
   le2->SetStartPoint( .0, .0, .0 );
   le2->SetEndPoint( .23, .0, .0 );
-  le2->SetEndpointEliminationTolerance( 1.e-12 );
+  le2->SetVertexEliminationTolerance( 1.e-12 );
   le2->Update();
 
   vtkSelection* s2 = le2->GetOutput();
@@ -117,7 +117,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   vtkSmartPointer<vtkLinearExtractor> le3 = vtkSmartPointer<vtkLinearExtractor>::New();
   le3->SetInput( mesh );
   le3->SetPoints( points3 );
-  le3->SetEndpointEliminationTolerance( 1.e-8 );
+  le3->SetVertexEliminationTolerance( 1.e-8 );
   le3->Update();
 
   vtkSelection* s3 = le3->GetOutput();
