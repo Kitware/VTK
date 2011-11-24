@@ -65,8 +65,9 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 
   // Description:
   // Set/Get whether lines vertice are included in selection
-  vtkSetMacro( IncludeVertices, bool );
-  vtkGetMacro( IncludeVertices, bool );
+  vtkSetMacro(IncludeVertices,bool);
+  vtkGetMacro(IncludeVertices,bool);
+  vtkBooleanMacro(IncludeVertices,bool);
 
   // Description:
   // Set/Get relative tolerance for vertex elimination
