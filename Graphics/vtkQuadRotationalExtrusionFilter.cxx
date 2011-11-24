@@ -231,7 +231,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       int numEdges;
       vtkIdType *pts = 0;
       vtkIdType npts = 0;
-      vtkIdType cellId, ptId, ncells;
+      vtkIdType ptId, ncells;
       vtkPoints *newPts;
       vtkCellArray *newLines=NULL, *newPolys, *newStrips=NULL;
       vtkCell *edge;
@@ -303,11 +303,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
       // To ensure that cell attributes are in consistent order with the
       // cellId's, we process the verts, lines, polys and strips in order.
-      vtkIdType newCellId=0;
+      vtkIdType newCellId = 0;
       int type;
       if ( newLines ) // there are verts which produce lines
         {
-        for ( cellId=0; cellId < numCells && !abort; cellId++)
+        for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
           {
           type = mesh->GetCellType( cellId );
           if ( type == VTK_VERTEX || type == VTK_POLY_VERTEX )
@@ -316,12 +316,12 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
             for ( int i = 0; i < npts; ++ i )
               {
               ptId = pts[i];
-              newLines->InsertNextCell( this->Resolution+1 );
+              newLines->InsertNextCell( this->Resolution + 1 );
               for ( int j = 0; j <= this->Resolution; ++ j )
                 {
-                newLines->InsertCellPoint( ptId + j*numPts );
+                newLines->InsertCellPoint( ptId + j * numPts );
                 }
-              outCD->CopyData( cd,cellId,newCellId++);
+              outCD->CopyData( cd, cellId, newCellId++ );
               }
             }//if a vertex or polyVertex
           }//for all cells
@@ -340,20 +340,20 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
           //newPolys = vtkCellArray::New();
           //newPolys->Allocate( inPolys->GetSize() );
 
-          for ( cellId=0; cellId < numCells && !abort; cellId++ )
+          for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
             {
             type = mesh->GetCellType( cellId );
             if ( type == VTK_TRIANGLE || type == VTK_QUAD || type == VTK_POLYGON )
               {
               mesh->GetCellPoints( cellId, npts, pts );
-              newPolys->InsertNextCell( npts,pts );
-              outCD->CopyData( cd,cellId,newCellId++);
+              newPolys->InsertNextCell( npts, pts );
+              outCD->CopyData( cd, cellId, newCellId++ );
               newPolys->InsertNextCell( npts );
               for ( int i = 0; i < npts; ++ i )
                 {
-                newPolys->InsertCellPoint( pts[i] + this->Resolution*numPts );
+                newPolys->InsertCellPoint( pts[i] + this->Resolution * numPts );
                 }
-              outCD->CopyData( cd,cellId,newCellId++);
+              outCD->CopyData( cd, cellId, newCellId++ );
               }
             }
           }
@@ -363,14 +363,14 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
           newStrips = vtkCellArray::New();
           newStrips->Allocate( inStrips->GetSize() );
        
-          for ( cellId=0; cellId < numCells && !abort; cellId++ )
+          for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
             {
             type = mesh->GetCellType( cellId );
             if ( type == VTK_TRIANGLE_STRIP )
               {
               mesh->GetCellPoints( cellId, npts, pts );
-              newStrips->InsertNextCell( npts,pts );
-              outCD->CopyData( cd,cellId,newCellId++);
+              newStrips->InsertNextCell( npts, pts );
+              outCD->CopyData( cd, cellId, newCellId++);
               newStrips->InsertNextCell( npts );
               for ( int i = 0; i < npts; ++ i )
                 {
@@ -393,7 +393,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
         cellIds->Allocate( VTK_CELL_SIZE );
         vtkGenericCell *cell = vtkGenericCell::New();
 
-        for ( cellId=0; cellId < numCells && !abort; cellId++)
+        for ( vtkIdType cellId=0; cellId < numCells && !abort; ++ cellId )
           {
           type = mesh->GetCellType( cellId );
           if ( type == VTK_LINE || type == VTK_POLY_LINE )
