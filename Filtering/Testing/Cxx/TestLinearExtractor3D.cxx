@@ -80,13 +80,14 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   // Create selection along one line segment
   vtkSmartPointer<vtkLinearExtractor> le1 = vtkSmartPointer<vtkLinearExtractor>::New();
   le1->SetInput( mesh );
-  le1->SetStartPoint( .0023, .0004, .0004 );
+  le1->SetStartPoint( .0, .0, .0 );
   le1->SetEndPoint( .23, .04, .04 );
+  le1->SetEndpointEliminationTolerance( 2.e-16 );
   le1->Update();
 
   vtkSelection* s1 = le1->GetOutput();
   PrintSelectionNodes( s1 , "Selection (0,0,0)-(0.23,0.04,0.04)" );
-  
+
   // *****************************************************************************
   // 2. Selection along boundary segment with endpoints (0,0,0) and (.23,0,0)
   // *****************************************************************************
@@ -94,8 +95,9 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   // Create selection along one line segment
   vtkSmartPointer<vtkLinearExtractor> le2 = vtkSmartPointer<vtkLinearExtractor>::New();
   le2->SetInput( mesh );
-  le2->SetStartPoint( .0023, 0., 0. );
-  le2->SetEndPoint( .23, 0., 0. );
+  le2->SetStartPoint( .0, .0, .0 );
+  le2->SetEndPoint( .23, .0, .0 );
+  le2->SetEndpointEliminationTolerance( 1.e-12 );
   le2->Update();
 
   vtkSelection* s2 = le2->GetOutput();
@@ -107,14 +109,15 @@ int TestLinearExtractor3D( int argc, char * argv [] )
 
   // Create list of points to define broken line
   vtkSmartPointer<vtkPoints> points3 = vtkSmartPointer<vtkPoints>::New();
-  points3->InsertNextPoint( .23, 0., 0. );
-  points3->InsertNextPoint( 0.0023, 0.0002, 0.0002 );
+  points3->InsertNextPoint( .23, .0, .0 );
+  points3->InsertNextPoint( .0, .0, .0 );
   points3->InsertNextPoint( .23, .04, .04 );
 
   // Create selection along this broken line
   vtkSmartPointer<vtkLinearExtractor> le3 = vtkSmartPointer<vtkLinearExtractor>::New();
   le3->SetInput( mesh );
   le3->SetPoints( points3 );
+  le3->SetEndpointEliminationTolerance( 1.e-8 );
   le3->Update();
 
   vtkSelection* s3 = le3->GetOutput();

@@ -28,6 +28,7 @@ vtkLinearExtractor::vtkLinearExtractor ()
   this->SetStartPoint( 0., 0., 0. );
   this->SetEndPoint( 1., 1. ,1. );
   this->Tolerance = 0.;
+  this->EndpointEliminationTolerance = 0.;
   this->Points = 0;
 }
 
@@ -42,7 +43,7 @@ void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
   this->Superclass::PrintSelf( os,indent );
 
   os << indent
-     << "Point 1   : ("
+     << "Point 1: ("
      << this->StartPoint[0]
      << ", "
      << this->StartPoint [1]
@@ -51,7 +52,7 @@ void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
      << ")\n";
 
   os << indent
-     << "Point 2   : ("
+     << "Point 2: ("
      << this->EndPoint [0]
      << ", "
      << this->EndPoint [1]
@@ -71,9 +72,15 @@ void vtkLinearExtractor::PrintSelf ( ostream& os, vtkIndent indent )
     }
 
   os << indent
-     << "Tolerance : "
+     << "Tolerance: "
      << this->Tolerance
      << "\n";
+
+  os << indent
+     << "EndpointEliminationTolerance: "
+     << this->EndpointEliminationTolerance
+     << "\n";
+
 }
 
 // ----------------------------------------------------------------------
@@ -150,6 +157,10 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 // ----------------------------------------------------------------------
 void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
+  // Prepare tolerances for endpoint elimination
+  double t0 = this->EndpointEliminationTolerance;
+  double t1 = 1. - this->EndpointEliminationTolerance;
+
   // Iterate over cells
   const vtkIdType nCells = input->GetNumberOfCells();
   for ( vtkIdType id = 0; id < nCells; ++ id )
@@ -191,10 +202,13 @@ void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray
                                          pcoords,
                                          subId ) )
             {
-            outIndices->InsertNextValue( id );
+            if ( t > t0 && t < t1 )
+              {
+              outIndices->InsertNextValue( id );
+              }
             }
           } // for ( vtkIdType i = 1; i < nPoints; ++ i )
-        }
+        } // if ( this->Points )
       else // if ( this->Points )
         {
         // Intersection with a line segment
@@ -206,9 +220,12 @@ void vtkLinearExtractor::RequestDataInternal ( vtkDataSet* input, vtkIdTypeArray
                                        pcoords,
                                        subId ) )
           {
-          outIndices->InsertNextValue( id );
+          if ( t > t0 && t < t1 )
+            {
+            outIndices->InsertNextValue( id );
+            }
           }
-        }
+        } // else if ( this->Points )
       }	// if ( cell )
     } // for ( vtkIdType id = 0; id < nCells; ++ id )
 

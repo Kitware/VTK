@@ -63,6 +63,11 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   vtkSetMacro(Tolerance,double);
   vtkGetMacro(Tolerance,double);
 
+  // Description:
+  // Set/Get relative tolerance for endpoint elimination
+  vtkSetClampMacro(EndpointEliminationTolerance,double,0.,.1 );
+  vtkGetMacro(EndpointEliminationTolerance,double);
+
  protected:
   vtkLinearExtractor();
   virtual ~vtkLinearExtractor();
@@ -93,6 +98,11 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   // Description:
   // Tolerance to be used by intersection algorithm
   double Tolerance;
+
+  // Description:
+  // Relative tolerance for endpoint elimination
+  // NB: Default is 0, meaning that endpoints are included by default
+  double EndpointEliminationTolerance;
 };
 
 
