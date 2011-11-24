@@ -114,7 +114,8 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
     return 0;
     }	// if ( ! compositeInput )
 
-  vtkSmartPointer<vtkCompositeDataIterator> inputIterator = vtkCompositeDataIterator::New();
+  // Now traverse the mesh
+  vtkCompositeDataIterator* inputIterator = vtkCompositeDataIterator::New();
   inputIterator->SetDataSet( compositeInput );
   inputIterator->VisitOnlyLeavesOn();
   inputIterator->SkipEmptyNodesOn();
@@ -127,10 +128,10 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
     int partNumber = inputIterator->GetCurrentFlatIndex() - 1;
 
     inputIterator->GoToNextItem();
-    vtkSmartPointer<vtkIdTypeArray> indices = vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkIdTypeArray* indices = vtkIdTypeArray::New();
     this->RequestDataInternal( input, indices );
 
-    vtkSmartPointer<vtkSelectionNode> outSelNode = vtkSelectionNode::New();
+    vtkSelectionNode* outSelNode = vtkSelectionNode::New();
     outSelNode->SetContentType( vtkSelectionNode::INDICES );
     outSelNode->SetFieldType( vtkSelectionNode::CELL );
     outSelNode->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(), partNumber + 1 );
@@ -138,6 +139,7 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
     output->AddNode( outSelNode );
 
     // Clean up
+    outSelNode->Delete();
     indices->Delete();
     }
 
