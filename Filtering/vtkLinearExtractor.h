@@ -111,7 +111,7 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
 
   // Description:
   // Relative tolerance for vertex elimination
-  // NB: Default is 0, meaning that vertices are included by default
+  // Default: 1e-6
   double VertexEliminationTolerance;
 };
 

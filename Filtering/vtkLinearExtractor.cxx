@@ -29,7 +29,7 @@ vtkLinearExtractor::vtkLinearExtractor ()
   this->SetEndPoint( 1., 1. ,1. );
   this->Tolerance = 0.;
   this->IncludeVertices = true;
-  this->VertexEliminationTolerance = 0.;
+  this->VertexEliminationTolerance = 1.e-6;
   this->Points = 0;
 }
 
