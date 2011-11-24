@@ -230,13 +230,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
       int numEdges;
       vtkIdType *pts = 0;
-      vtkIdType npts = 0;
-      vtkIdType cellId, ptId, ncells;
+      vtkIdType ptId, ncells;
       vtkPoints *newPts;
       vtkCellArray *newLines=NULL, *newPolys, *newStrips=NULL;
       vtkCell *edge;
       vtkIdList *cellIds;
-      int i, j, k;
       vtkIdType p1, p2;
       vtkPointData* outPD=output->GetPointData();
       vtkCellData* outCD=output->GetCellData();
@@ -304,25 +302,26 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
       // To ensure that cell attributes are in consistent order with the
       // cellId's, we process the verts, lines, polys and strips in order.
-      vtkIdType newCellId=0;
+      vtkIdType newCellId = 0;
       int type;
+      vtkIdType npts = 0;
       if ( newLines ) // there are verts which produce lines
         {
-        for ( cellId=0; cellId < numCells && !abort; cellId++)
+        for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
           {
           type = mesh->GetCellType( cellId );
           if ( type == VTK_VERTEX || type == VTK_POLY_VERTEX )
             {
             mesh->GetCellPoints( cellId,npts,pts );
-            for ( i=0; i<npts; i++)
+            for ( int i = 0; i < npts; ++ i )
               {
               ptId = pts[i];
-              newLines->InsertNextCell( this->Resolution+1 );
-              for ( j=0; j<=this->Resolution; j++ )
+              newLines->InsertNextCell( this->Resolution + 1 );
+              for ( int j = 0; j <= this->Resolution; ++ j )
                 {
-                newLines->InsertCellPoint( ptId + j*numPts );
+                newLines->InsertCellPoint( ptId + j * numPts );
                 }
-              outCD->CopyData( cd,cellId,newCellId++);
+              outCD->CopyData( cd, cellId, newCellId++ );
               }
             }//if a vertex or polyVertex
           }//for all cells
@@ -341,20 +340,21 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
           //newPolys = vtkCellArray::New();
           //newPolys->Allocate( inPolys->GetSize() );
 
-          for ( cellId=0; cellId < numCells && !abort; cellId++ )
+          for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
             {
             type = mesh->GetCellType( cellId );
             if ( type == VTK_TRIANGLE || type == VTK_QUAD || type == VTK_POLYGON )
               {
               mesh->GetCellPoints( cellId, npts, pts );
-              newPolys->InsertNextCell( npts,pts );
-              outCD->CopyData( cd,cellId,newCellId++);
+              newPolys->InsertNextCell( npts, pts );
+              outCD->CopyData( cd, cellId, newCellId++ );
               newPolys->InsertNextCell( npts );
-              for ( i=0; i < npts; i++)
+              for ( int i = 0; i < npts; ++ i )
                 {
-                newPolys->InsertCellPoint( pts[i] + this->Resolution*numPts );
+                vtkIdType idx = pts[i] + this->Resolution * numPts;
+                newPolys->InsertCellPoint( idx );
                 }
-              outCD->CopyData( cd,cellId,newCellId++);
+              outCD->CopyData( cd, cellId, newCellId++ );
               }
             }
           }
@@ -364,18 +364,19 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
           newStrips = vtkCellArray::New();
           newStrips->Allocate( inStrips->GetSize() );
        
-          for ( cellId=0; cellId < numCells && !abort; cellId++ )
+          for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
             {
             type = mesh->GetCellType( cellId );
             if ( type == VTK_TRIANGLE_STRIP )
               {
               mesh->GetCellPoints( cellId, npts, pts );
-              newStrips->InsertNextCell( npts,pts );
-              outCD->CopyData( cd,cellId,newCellId++);
+              newStrips->InsertNextCell( npts, pts );
+              outCD->CopyData( cd, cellId, newCellId++);
               newStrips->InsertNextCell( npts );
-              for ( i=0; i < npts; i++)
+              for ( int i = 0; i < npts; ++ i )
                 {
-                newStrips->InsertCellPoint( pts[i] + this->Resolution*numPts );
+                vtkIdType idx = pts[i] + this->Resolution*numPts;
+                newStrips->InsertCellPoint( idx );
                 }
               outCD->CopyData( cd,cellId,newCellId++);
               }
@@ -394,37 +395,44 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
         cellIds->Allocate( VTK_CELL_SIZE );
         vtkGenericCell *cell = vtkGenericCell::New();
 
-        for ( cellId=0; cellId < numCells && !abort; cellId++)
+        for ( vtkIdType cellId=0; cellId < numCells && !abort; ++ cellId )
           {
           type = mesh->GetCellType( cellId );
           if ( type == VTK_LINE || type == VTK_POLY_LINE )
             {
             mesh->GetCellPoints( cellId,npts,pts );
-            for ( i=0; i<( npts-1 ); i++)
+            for ( int i = 0; i < ( npts-1 ); ++ i )
               {
               p1 = pts[i];
               p2 = pts[i+1];
-              for ( k=0; k<this->Resolution; k++)
+              vtkIdType idxPt;
+              for ( int k = 0; k < this->Resolution; ++ k)
                 {
                 newPolys->InsertNextCell( 4 );
-                newPolys->InsertCellPoint( p1 + k*numPts );
-                newPolys->InsertCellPoint( p2 + k*numPts );
-                newPolys->InsertCellPoint( p2 + ( k+1 )*numPts );
-                newPolys->InsertCellPoint( p1 + ( k+1 )*numPts );
-                outCD->CopyData( cd,cellId,newCellId++);
+                idxPt = p1 + k * numPts;
+                newPolys->InsertCellPoint( idxPt  );
+                idxPt = p2 + k * numPts;
+                newPolys->InsertCellPoint( idxPt );
+                idxPt = p2 + ( k + 1 ) * numPts;
+                newPolys->InsertCellPoint( idxPt );
+                idxPt = p1 + ( k + 1 ) * numPts;
+                newPolys->InsertCellPoint( idxPt );
+                outCD->CopyData( cd, cellId, newCellId++);
                 }
               }
             }//if a line
        
-          else if ( type == VTK_TRIANGLE || type == VTK_QUAD || 
-                    type == VTK_POLYGON || type == VTK_TRIANGLE_STRIP ) 
+          else if ( type == VTK_TRIANGLE 
+                    || type == VTK_QUAD 
+                    || type == VTK_POLYGON 
+                    || type == VTK_TRIANGLE_STRIP ) 
             {// create strips from boundary edges
             mesh->GetCell( cellId,cell );
             numEdges = cell->GetNumberOfEdges();
-            for ( i=0; i<numEdges; i++)
+            for ( int i = 0; i < numEdges; ++ i )
               {
               edge = cell->GetEdge( i );
-              for ( j=0; j<( edge->GetNumberOfPoints()-1 ); j++)
+              for ( int j = 0; j < ( edge->GetNumberOfPoints() - 1 ); ++ j )
                 {
                 p1 = edge->PointIds->GetId( j );
                 p2 = edge->PointIds->GetId( j+1 );
@@ -432,13 +440,18 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
                 
                 if ( cellIds->GetNumberOfIds() < 1 ) //generate strip
                   {
-                  for ( k=0; k<this->Resolution; k++)
+                  vtkIdType idxPt;
+                  for ( int k = 0; k < this->Resolution; ++ k )
                     {
                     newPolys->InsertNextCell( 4 );
-                    newPolys->InsertCellPoint( p1 + k*numPts );
-                    newPolys->InsertCellPoint( p2 + k*numPts );
-                    newPolys->InsertCellPoint( p2 + ( k+1 )*numPts );
-                    newPolys->InsertCellPoint( p1 + ( k+1 )*numPts );
+                    idxPt = p1 + k * numPts;
+                    newPolys->InsertCellPoint( idxPt  );
+                    idxPt = p2 + k * numPts;
+                    newPolys->InsertCellPoint( idxPt );
+                    idxPt = p2 + ( k + 1 ) * numPts;
+                    newPolys->InsertCellPoint( idxPt );
+                    idxPt = p1 + ( k + 1 ) * numPts;
+                    newPolys->InsertCellPoint( idxPt );
                     outCD->CopyData( cd,cellId,newCellId++);
                     }
                   } //if boundary edge
