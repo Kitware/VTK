@@ -15,6 +15,7 @@
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2011
 
+#include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkLinearExtractor.h"
@@ -27,35 +28,32 @@
 #include "vtkUnstructuredGridReader.h"
 
 // ------------------------------------------------------------------------------------------------
-static void PrintSelectionNodes( vtkSelection* sel, const char* tag = NULL)
+static int CheckExtractedUGrid( vtkExtractSelection* extract, const char* tag )
 {
-  if( tag )
+  vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extract->GetOutput() );
+  if ( ! outputMB )
     {
-    cout << tag 
-         << endl;
+    vtkGenericWarningMacro("Cannot downcast extracted selection to multiblock dataset.");
+
+    return 1;
     }
 
-  // Iterate over nodes
-  vtkIdType numNodes = sel->GetNumberOfNodes();
-  for( int iNode = 0; iNode < numNodes; ++ iNode )
+  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
+  if ( ! ugrid )
     {
-    cout << ( tag ? "\t" : "" )
-         << "Node: " 
-         << iNode 
-         << endl;
+    vtkGenericWarningMacro("Cannot downcast extracted selection to unstructured grid.");
 
-    // Iterate over selection list for this node
-    vtkIdType listSize = sel->GetNode( iNode )->GetSelectionList()->GetNumberOfTuples();
-    for( int iVal = 0; iVal < listSize; ++ iVal )
-      {
-      cout << ( tag ? "\t" : "" )
-           << "\t" 
-           << iVal 
-           << "\t" 
-           << sel->GetNode( iNode )->GetSelectionList()->GetVariantValue( iVal )
-           << endl;
-      } // for iVal
-    } // for iNode
+    return 1;
+    }
+
+  vtkIdType nCells = ugrid->GetNumberOfCells();
+  cout << tag 
+       << " contains " 
+       << nCells
+       << " cells."
+       << endl;
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -84,10 +82,14 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le1->SetEndPoint( .23, .04, .04 );
   le1->IncludeVerticesOff();
   le1->SetVertexEliminationTolerance( 1.e-12 );
-  le1->Update();
 
-  vtkSelection* s1 = le1->GetOutput();
-  PrintSelectionNodes( s1 , "Selection (0,0,0)-(0.23,0.04,0.04)" );
+  // Extract selection from mesh
+  vtkSmartPointer<vtkExtractSelection> es1 =  vtkSmartPointer<vtkExtractSelection>::New();
+  es1->SetInput( 0, mesh );
+  es1->SetInputConnection( 1, le1->GetOutputPort() );
+  es1->Update();
+
+  CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0.04,0.04)" );
 
   // *****************************************************************************
   // 2. Selection along boundary segment with endpoints (0,0,0) and (.23,0,0)
@@ -100,11 +102,15 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le2->SetEndPoint( .23, .0, .0 );
   le2->IncludeVerticesOff();
   le2->SetVertexEliminationTolerance( 1.e-12 );
-  le2->Update();
-
-  vtkSelection* s2 = le2->GetOutput();
-  PrintSelectionNodes( s2 , "Selection (0,0,0)-(0.23,0,0)" );
   
+  // Extract selection from mesh
+  vtkSmartPointer<vtkExtractSelection> es2 =  vtkSmartPointer<vtkExtractSelection>::New();
+  es2->SetInput( 0, mesh );
+  es2->SetInputConnection( 1, le2->GetOutputPort() );
+  es2->Update();
+
+  CheckExtractedUGrid( es2, "Selection (0,0,0)-(0.23,0,0)" );
+
   // *****************************************************************************
   // 3. Selection along broken line through (.23,0,0), (0,0,0), (.23,.04,.04)
   // *****************************************************************************
@@ -121,10 +127,14 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le3->SetPoints( points3 );
   le3->IncludeVerticesOff();
   le3->SetVertexEliminationTolerance( 1.e-12 );
-  le3->Update();
 
-  vtkSelection* s3 = le3->GetOutput();
-  PrintSelectionNodes( s3 , "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)" );
+  // Extract selection from mesh
+  vtkSmartPointer<vtkExtractSelection> es3 =  vtkSmartPointer<vtkExtractSelection>::New();
+  es3->SetInput( 0, mesh );
+  es3->SetInputConnection( 1, le3->GetOutputPort() );
+  es3->Update();
+
+  CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)" );
 
   // *****************************************************************************
   // 4. Selection along broken line through (.23,0,0), (.1,0,0), (.23,.01,.0033)
@@ -142,11 +152,14 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   le4->SetPoints( points4 );
   le4->IncludeVerticesOff();
   le4->SetVertexEliminationTolerance( 1.e-12 );
-  le4->Update();
 
-  vtkSelection* s4 = le4->GetOutput();
-  PrintSelectionNodes( s4 , "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)" );
+  // Extract selection from mesh
+  vtkSmartPointer<vtkExtractSelection> es4 =  vtkSmartPointer<vtkExtractSelection>::New();
+  es4->SetInput( 0, mesh );
+  es4->SetInputConnection( 1, le4->GetOutputPort() );
+  es4->Update();
 
+  CheckExtractedUGrid( es4, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)" );
 
   int retVal = 1;
 
