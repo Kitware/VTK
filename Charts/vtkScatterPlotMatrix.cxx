@@ -67,10 +67,6 @@ public:
 
     this->SelectedActiveScatterChartBGColor.Set(0, 0.8, 0, 0.4);
     this->SelectedRowColumnScatterChartBGColor.Set(0.8, 0, 0, 0.4);
-    this->ScatterPlotTitleFont->SetFontFamilyToArial();
-    this->ScatterPlotTitleFont->SetFontSize(12);
-    this->ScatterPlotTitleFont->SetColor(0.0, 0.0, 0.0);
-    this->ScatterPlotTitleFont->SetOpacity(1.0);
   }
 
   ~PIMPL()
@@ -93,6 +89,7 @@ public:
       this->TooltipPrecision = 2;
       this->ShowGrid = true;
       this->ShowAxisLabels = true;
+      this->LabelFont = vtkSmartPointer<vtkTextProperty>::New();
       this->LabelFont->SetFontFamilyToArial();
       this->LabelFont->SetFontSize(12);
       this->LabelFont->SetColor(0.0, 0.0, 0.0);
@@ -109,7 +106,7 @@ public:
     int TooltipPrecision;
     bool ShowGrid;
     bool ShowAxisLabels;
-    vtkNew<vtkTextProperty> LabelFont;
+    vtkSmartPointer<vtkTextProperty> LabelFont;
   };
 
   void SetChartBackGroundColor(vtkChart* chart, vtkColor4f& rgba)
@@ -187,8 +184,6 @@ public:
   vtkColor4f SelectedRowColumnScatterChartBGColor;
   vtkColor4f SelectedActiveScatterChartBGColor;
 
-  vtkNew<vtkTextProperty> ScatterPlotTitleFont;
-  std::string ScatterPlotTitle;
   vtkColor4f TempRGBA;
 };
 
@@ -272,6 +267,8 @@ vtkStandardNewMacro(vtkScatterPlotMatrix)
 vtkScatterPlotMatrix::vtkScatterPlotMatrix() : NumberOfBins(10)
 {
   this->Private = new PIMPL;
+  this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
+  this->TitleProperties->SetFontSize(12);
 }
 
 vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
@@ -902,46 +899,52 @@ void vtkScatterPlotMatrix::BigChartSelectionCallback(vtkObject*,
   this->InvokeEvent(event);
 }
 
-//----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetTitle(const vtkStdString& title)
 {
-  if (this->Private->ScatterPlotTitle != title)
+  if (this->Title != title)
     {
-    this->Private->ScatterPlotTitle = title;
+    this->Title = title;
     this->Modified();
     }
 }
 
-//----------------------------------------------------------------------------
 vtkStdString vtkScatterPlotMatrix::GetTitle()
 {
-  return this->Private->ScatterPlotTitle;
+  return this->Title;
 }
 
-//----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetScatterPlotTitleFont(const char* family,
-  int pointSize, bool bold, bool italic)
+void vtkScatterPlotMatrix::SetTitleProperties(vtkTextProperty *prop)
 {
-  this->Private->ScatterPlotTitleFont->SetFontFamilyAsString(family);
-  this->Private->ScatterPlotTitleFont->SetFontSize(pointSize);
-  this->Private->ScatterPlotTitleFont->SetBold(static_cast<int>(bold));
-  this->Private->ScatterPlotTitleFont->SetItalic(static_cast<int>(italic));
-  this->Modified();
+  if (this->TitleProperties != prop)
+    {
+    this->TitleProperties = prop;
+    this->Modified();
+    }
 }
 
-//----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetScatterPlotTitleColor(
-  double red, double green, double blue)
+vtkTextProperty* vtkScatterPlotMatrix::GetTitleProperties()
 {
-  this->Private->ScatterPlotTitleFont->SetColor(red, green, blue);
-  this->Modified();
+  return this->TitleProperties.GetPointer();
 }
 
-//----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetScatterPlotTitleAlignment(int alignment)
+void vtkScatterPlotMatrix::SetAxisLabelProperties(int plotType,
+                                                  vtkTextProperty *prop)
 {
-  this->Private->ScatterPlotTitleFont->SetJustification(alignment);
-  this->Modified();
+  if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT &&
+      this->Private->ChartSettings[plotType]->LabelFont != prop)
+    {
+    this->Private->ChartSettings[plotType]->LabelFont = prop;
+    this->Modified();
+    }
+}
+
+vtkTextProperty* vtkScatterPlotMatrix::GetAxisLabelProperties(int plotType)
+{
+  if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
+    {
+    return this->Private->ChartSettings[plotType]->LabelFont.GetPointer();
+    }
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -965,6 +968,7 @@ void vtkScatterPlotMatrix::SetBackgroundColor(
     }
   this->Modified();
 }
+
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisColor(int plotType, double red, double green,
                                          double blue)
@@ -1006,38 +1010,6 @@ void vtkScatterPlotMatrix::SetAxisLabelVisibility(int plotType, bool visible)
   if(plotType!= NOPLOT)
     {
     this->Private->ChartSettings[plotType]->ShowAxisLabels = visible;
-    // How to update
-    this->Modified();
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetAxisLabelFont(int plotType, const char* family,
-                                             int pointSize, bool bold,
-                                             bool italic)
-{
-  if(plotType!= NOPLOT)
-    {
-    vtkTextProperty *prop =
-      this->Private->ChartSettings[plotType]->LabelFont.GetPointer();
-    prop->SetFontFamilyAsString(family);
-    prop->SetFontSize(pointSize);
-    prop->SetBold(static_cast<int>(bold));
-    prop->SetItalic(static_cast<int>(italic));
-    // How to update
-    this->Modified();
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetAxisLabelColor(int plotType, double red,
-                                              double green, double blue)
-{
-  if(plotType!= NOPLOT)
-    {
-    vtkTextProperty *prop =
-      this->Private->ChartSettings[plotType]->LabelFont.GetPointer();
-    prop->SetColor(red, green, blue);
     // How to update
     this->Modified();
     }
@@ -1166,40 +1138,6 @@ void vtkScatterPlotMatrix::UpdateSettings()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkScatterPlotMatrix::GetScatterPlotTitleFontFamily()
-{
-  return this->Private->ScatterPlotTitleFont->GetFontFamilyAsString();
-}
-int vtkScatterPlotMatrix::GetScatterPlotTitleFontSize()
-{
-  return this->Private->ScatterPlotTitleFont->GetFontSize();
-}
-int vtkScatterPlotMatrix::GetScatterPlotTitleFontBold()
-{
-  return this->Private->ScatterPlotTitleFont->GetBold();
-}
-int vtkScatterPlotMatrix::GetScatterPlotTitleFontItalic()
-{
-  return this->Private->ScatterPlotTitleFont->GetItalic();
-}
-
-//----------------------------------------------------------------------------
-vtkColor4f vtkScatterPlotMatrix::GetScatterPlotTitleColor()
-{
-  double r, g, b;
-  this->Private->ScatterPlotTitleFont->GetColor(r, g, b);
-  this->Private->TempRGBA.Set(
-    r, g,b, this->Private->ScatterPlotTitleFont->GetOpacity());
-  return this->Private->TempRGBA;
-}
-
-//----------------------------------------------------------------------------
-int vtkScatterPlotMatrix::GetScatterPlotTitleAlignment()
-{
-  return this->Private->ScatterPlotTitleFont->GetJustification();
-}
-
-//----------------------------------------------------------------------------
 bool vtkScatterPlotMatrix::GetGridVisibility(int plotType)
 {
   assert(plotType != NOPLOT);
@@ -1232,38 +1170,6 @@ bool vtkScatterPlotMatrix::GetAxisLabelVisibility(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->ShowAxisLabels;
-}
-
-//----------------------------------------------------------------------------
-const char* vtkScatterPlotMatrix::GetAxisLabelFontFamily(int plotType)
-{
-  assert(plotType != NOPLOT);
-  return this->Private->ChartSettings[plotType]->LabelFont->GetFontFamilyAsString();
-}
-int vtkScatterPlotMatrix::GetAxisLabelFontSize(int plotType)
-{
-  assert(plotType != NOPLOT);
-  return this->Private->ChartSettings[plotType]->LabelFont->GetFontSize();
-}
-int vtkScatterPlotMatrix::GetAxisLabelFontBold(int plotType)
-{
-  assert(plotType != NOPLOT);
-  return this->Private->ChartSettings[plotType]->LabelFont->GetBold();
-}
-int vtkScatterPlotMatrix::GetAxisLabelFontItalic(int plotType)
-{
-  assert(plotType != NOPLOT);
-  return this->Private->ChartSettings[plotType]->LabelFont->GetItalic();
-}
-
-//----------------------------------------------------------------------------
-vtkColor4f vtkScatterPlotMatrix::GetAxisLabelColor(int plotType)
-{
-  double r, g, b;
-  this->Private->ChartSettings[plotType]->LabelFont->GetColor(r, g, b);
-  this->Private->TempRGBA.Set(
-    r, g,b, this->Private->ScatterPlotTitleFont->GetOpacity());
-  return this->Private->TempRGBA;
 }
 
 //----------------------------------------------------------------------------

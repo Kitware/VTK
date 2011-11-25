@@ -27,11 +27,13 @@
 #include "vtkSmartPointer.h" // For ivars
 #include "vtkNew.h"          // For ivars
 #include "vtkColor.h"        // For member function return
+#include "vtkStdString.h"    // For ivars
 
 class vtkStringArray;
 class vtkTable;
 class vtkAxis;
 class vtkAnnotationLink;
+class vtkTextProperty;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
@@ -156,27 +158,14 @@ public:
   int GetPlotType(int row, int column);
 
   // Description:
-  // Set the scatter plot title's font.
-  void SetScatterPlotTitleFont(const char* family, int pointSize, bool bold, bool italic);
-  const char* GetScatterPlotTitleFontFamily();
-  int GetScatterPlotTitleFontSize();
-  int GetScatterPlotTitleFontBold();
-  int GetScatterPlotTitleFontItalic();
-
-  // Description:
-  // Set the scatter plot title's color.
-  void SetScatterPlotTitleColor(double red, double green, double blue);
-  vtkColor4f GetScatterPlotTitleColor();
-
-  // Description:
   // Set/get the scatter plot title.
   void SetTitle(const vtkStdString& title);
   vtkStdString GetTitle();
 
   // Description:
-  // Set the scatter plot's title alignment.
-  void SetScatterPlotTitleAlignment(int alignment);
-  int GetScatterPlotTitleAlignment();
+  // Set/get the text properties for the chart title, i.e. color, font, size.
+  void SetTitleProperties(vtkTextProperty *prop);
+  vtkTextProperty* GetTitleProperties();
 
   // Description:
   // Sets whether or not the grid for the given axis is visible given a plot type, which refers to
@@ -210,20 +199,10 @@ public:
   bool GetAxisLabelVisibility(int plotType);
 
   // Description:
-  // Set the axis label font for the axes given a plot type, which refers to
-  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
-  void SetAxisLabelFont(int plotType, const char* family, int pointSize, bool bold,
-    bool italic);
-  const char* GetAxisLabelFontFamily(int plotType);
-  int GetAxisLabelFontSize(int plotType);
-  int GetAxisLabelFontBold(int plotType);
-  int GetAxisLabelFontItalic(int plotType);
-
-  // Description:
-  // Sets the axis label color for the axes given a plot type, which refers to
-  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
-  void SetAxisLabelColor(int plotType, double red, double green, double blue);
-  vtkColor4f GetAxisLabelColor(int plotType);
+  // Set/get the text property for the axis labels of the given plot type,
+  // possible types are vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelProperties(int plotType, vtkTextProperty *prop);
+  vtkTextProperty* GetAxisLabelProperties(int plotType);
 
   // Description:
   // Sets the axis label notation for the axes given a plot type, which refers to
@@ -295,6 +274,10 @@ protected:
 
   // The number of bins in the histograms.
   int NumberOfBins;
+
+  // The title of the scatter plot matrix.
+  vtkStdString Title;
+  vtkSmartPointer<vtkTextProperty> TitleProperties;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.
