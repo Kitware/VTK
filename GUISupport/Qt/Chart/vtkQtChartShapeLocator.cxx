@@ -186,7 +186,6 @@ void vtkQtChartShapeLocator::build(const QList<vtkQtChartShape *> &list)
   // equal portions.
   QList<QList<vtkQtChartShape *> > table;
   int length = static_cast<int>(list.size()/2.0 + 0.5);
-  QList<vtkQtChartShape *>::ConstIterator iter = list.begin();
   int offset=0;
   while(offset < list.size())
     {

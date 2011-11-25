@@ -46,16 +46,15 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   const int NO_OF_VERTICES = 3;
   vtkIdType vertexIds[NO_OF_VERTICES];
-  vtkIdType edgeIds[NO_OF_VERTICES];
 
   for(int i=0; i < NO_OF_VERTICES; ++i)
     {
     vertexIds[i] = inGraph->AddVertex();
     }
 
-  edgeIds[0] = inGraph->AddEdge(vertexIds[0], vertexIds[1]).Id;
-  edgeIds[1] = inGraph->AddEdge(vertexIds[0], vertexIds[2]).Id;
-  edgeIds[2] = inGraph->AddEdge(vertexIds[2], vertexIds[1]).Id;
+  inGraph->AddEdge(vertexIds[0], vertexIds[1]).Id;
+  inGraph->AddEdge(vertexIds[0], vertexIds[2]).Id;
+  inGraph->AddEdge(vertexIds[2], vertexIds[1]).Id;
 
   // Populate arrays.
   vtkStringArrayRefPtr idsArray         (vtkStringArrayRefPtr::New());

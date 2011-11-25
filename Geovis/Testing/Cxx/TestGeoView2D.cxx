@@ -52,8 +52,6 @@ int TestGeoView2D(int argc, char* argv[])
   vtkStdString imageSavePath = ".";
   vtkStdString terrainReadPath = ".";
   vtkStdString terrainSavePath = ".";
-  double locationTol = 5.0;
-  double textureTol = 1.0;
   for (int a = 1; a < argc; a++)
     {
     if (!strcmp(argv[a], "-P"))
@@ -90,18 +88,6 @@ int TestGeoView2D(int argc, char* argv[])
       {
       ++a;
       terrainSavePath = argv[a];
-      continue;
-      }
-    if (!strcmp(argv[a], "-LT"))
-      {
-      ++a;
-      locationTol = atof(argv[a]);
-      continue;
-      }
-    if (!strcmp(argv[a], "-TT"))
-      {
-      ++a;
-      textureTol = atof(argv[a]);
       continue;
       }
     if (!strcmp(argv[a], "-I"))
