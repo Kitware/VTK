@@ -15,6 +15,7 @@
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2011
 
+#include "vtkCellArray.h"
 #include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -77,6 +78,39 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
                            << " != "
                            << cardSelection[testIdx] );
     testStatus = 1;
+    }
+
+  // Verify selection cells
+  vtkCellArray* cells = ugrid->GetCells();
+  vtkIdTypeArray* pids = cells->GetData();
+  cerr << "num of tuples: " 
+       << pids->GetNumberOfTuples() 
+       << endl;
+  vtkIdType cnt = 0;
+  vtkIdType length = 0;
+  vtkIdType cellId = 0;
+  for ( vtkIdType i = 0; i < pids->GetNumberOfTuples(); ++ i )
+    {
+    vtkIdType val = pids->GetValue( i );
+    if ( cnt == length )
+      {
+      length = val;
+      cnt = 0;
+      if ( i )
+        {
+        cerr << endl;
+        }
+      cerr << "Cell "
+           << cellId
+           << ":  ";
+      ++ cellId;
+      }
+    else
+      {
+      cerr << val
+           << " ";
+      ++ cnt;
+      }
     }
 
   return testStatus;
