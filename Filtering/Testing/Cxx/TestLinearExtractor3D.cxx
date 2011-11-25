@@ -40,9 +40,9 @@ vtkIdType cardSelection[] =
 };
 
 // ------------------------------------------------------------------------------------------------
-static int CheckExtractedUGrid( vtkExtractSelection* extract, 
-                                const char* tag,
-                                int testIdx )
+static int FullCheckExtractedUGrid( vtkExtractSelection* extract, 
+                                    const char* tag,
+                                    int testIdx )
 {
   // Output must be a multiblock dataset
   vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extract->GetOutput() );
@@ -122,6 +122,64 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
   return testStatus;
 }
 
+// ------------------------------------------------------------------------------------------------
+static int SimpleCheckExtractedUGrid( vtkExtractSelection* extract, 
+                                      const char* tag,
+                                      int testIdx )
+{
+  // Output must be a multiblock dataset
+  vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extract->GetOutput() );
+  if ( ! outputMB )
+    {
+    vtkGenericWarningMacro("Cannot downcast extracted selection to multiblock dataset.");
+
+    return 1;
+    }
+
+  // First block must be an unstructured grid
+  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
+  if ( ! ugrid )
+    {
+    vtkGenericWarningMacro("Cannot downcast extracted selection to unstructured grid.");
+
+    return 1;
+    }
+
+  // Initialize test status
+  int testStatus = 0;
+  cerr << endl;
+
+  // Verify selection cardinality
+  vtkIdType nCells = ugrid->GetNumberOfCells();
+  cout << tag 
+       << " contains " 
+       << nCells
+       << " cells."
+       << endl;
+  
+  if ( nCells != cardSelection[testIdx] )
+    {
+    vtkGenericWarningMacro( "Incorrect cardinality: "
+                           << nCells
+                           << " != "
+                           << cardSelection[testIdx] );
+    testStatus = 1;
+    }
+
+  // Verify selection cells
+  cerr << "Original cell Ids: ";
+  ugrid->GetCellData()->SetActiveScalars( "vtkOriginalCellIds" );
+  vtkDataArray* oCellIds = ugrid->GetCellData()->GetScalars();
+  for ( vtkIdType i = 0; i < oCellIds->GetNumberOfTuples(); ++ i )
+    {
+    cerr << oCellIds->GetTuple1( i )
+         << " ";
+    }
+  cerr << endl;
+
+  return testStatus;
+}
+
 //----------------------------------------------------------------------------
 int TestLinearExtractor3D( int argc, char * argv [] )
 {
@@ -158,7 +216,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es0->SetInputConnection( 1, le0->GetOutputPort() );
   es0->Update();
 
-  testIntValue += CheckExtractedUGrid( es0, "Selection (0,0,0)-(0.23,0.04,0.04)", 0 );
+  testIntValue += SimpleCheckExtractedUGrid( es0, "Selection (0,0,0)-(0.23,0.04,0.04)", 0 );
 
   // *****************************************************************************
   // 1. Selection along boundary segment with endpoints (0,0,0) and (.23,0,0)
@@ -178,7 +236,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es1->SetInputConnection( 1, le1->GetOutputPort() );
   es1->Update();
 
-  testIntValue += CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0,0)", 1 );
+  testIntValue += SimpleCheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0,0)", 1 );
 
   // *****************************************************************************
   // 2. Selection along broken line through (.23,0,0), (0,0,0), (.23,.04,.04)
@@ -203,7 +261,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es2->SetInputConnection( 1, le2->GetOutputPort() );
   es2->Update();
 
-  testIntValue += CheckExtractedUGrid( es2, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)", 2 );
+  testIntValue += SimpleCheckExtractedUGrid( es2, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)", 2 );
 
   // *****************************************************************************
   // 3. Selection along broken line through (.23,0,0), (.1,0,0), (.23,.01,.0033)
@@ -228,7 +286,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es3->SetInputConnection( 1, le3->GetOutputPort() );
   es3->Update();
 
-  testIntValue += CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)", 3 );
+  testIntValue += SimpleCheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)", 3 );
 
   return testIntValue;
 }
