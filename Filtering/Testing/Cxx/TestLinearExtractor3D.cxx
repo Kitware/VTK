@@ -27,9 +27,21 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-// ------------------------------------------------------------------------------------------------
-static int CheckExtractedUGrid( vtkExtractSelection* extract, const char* tag )
+// Reference values
+vtkIdType cardSelection[] = 
 {
+  53,
+  53,
+  106,
+  44,
+};
+
+// ------------------------------------------------------------------------------------------------
+static int CheckExtractedUGrid( vtkExtractSelection* extract, 
+                                const char* tag,
+                                int testIdx )
+{
+  // Output must be a multiblock dataset
   vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extract->GetOutput() );
   if ( ! outputMB )
     {
@@ -38,6 +50,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract, const char* tag )
     return 1;
     }
 
+  // First block must be an unstructured grid
   vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
   if ( ! ugrid )
     {
@@ -46,14 +59,27 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract, const char* tag )
     return 1;
     }
 
+  // Initialize test status
+  int testStatus = 0;
+
+  // Verify selection cardinality
   vtkIdType nCells = ugrid->GetNumberOfCells();
   cout << tag 
        << " contains " 
        << nCells
        << " cells."
        << endl;
+  
+  if ( nCells != cardSelection[testIdx] )
+    {
+    vtkGenericWarningMacro( "Incorrect cardinality: "
+                           << nCells
+                           << " != "
+                           << cardSelection[testIdx] );
+    testStatus = 1;
+    }
 
-  return 0;
+  return testStatus;
 }
 
 //----------------------------------------------------------------------------
@@ -75,54 +101,79 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   mesh->SetBlock( 0, reader->GetOutput() );
 
   // *****************************************************************************
-  // 1. Selection along inner segment with endpoints (0,0,0) and (.23, 04,.04)
+  // 0. Selection along inner segment with endpoints (0,0,0) and (.23, 04,.04)
+  // *****************************************************************************
+
+  // Create selection along one line segment
+  vtkSmartPointer<vtkLinearExtractor> le0 = vtkSmartPointer<vtkLinearExtractor>::New();
+  le0->SetInput( mesh );
+  le0->SetStartPoint( .0, .0, .0 );
+  le0->SetEndPoint( .23, .04, .04 );
+  le0->IncludeVerticesOff();
+  le0->SetVertexEliminationTolerance( 1.e-12 );
+
+  // Extract selection from mesh
+  vtkSmartPointer<vtkExtractSelection> es0 =  vtkSmartPointer<vtkExtractSelection>::New();
+  es0->SetInput( 0, mesh );
+  es0->SetInputConnection( 1, le0->GetOutputPort() );
+  es0->Update();
+
+  testIntValue += CheckExtractedUGrid( es0, "Selection (0,0,0)-(0.23,0.04,0.04)", 0 );
+
+  // *****************************************************************************
+  // 1. Selection along boundary segment with endpoints (0,0,0) and (.23,0,0)
   // *****************************************************************************
 
   // Create selection along one line segment
   vtkSmartPointer<vtkLinearExtractor> le1 = vtkSmartPointer<vtkLinearExtractor>::New();
   le1->SetInput( mesh );
   le1->SetStartPoint( .0, .0, .0 );
-  le1->SetEndPoint( .23, .04, .04 );
+  le1->SetEndPoint( .23, .0, .0 );
   le1->IncludeVerticesOff();
   le1->SetVertexEliminationTolerance( 1.e-12 );
-
+  
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es1 =  vtkSmartPointer<vtkExtractSelection>::New();
   es1->SetInput( 0, mesh );
   es1->SetInputConnection( 1, le1->GetOutputPort() );
   es1->Update();
 
-  testIntValue += CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0.04,0.04)" );
+  testIntValue += CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0,0)", 1 );
 
   // *****************************************************************************
-  // 2. Selection along boundary segment with endpoints (0,0,0) and (.23,0,0)
+  // 2. Selection along broken line through (.23,0,0), (0,0,0), (.23,.04,.04)
   // *****************************************************************************
 
-  // Create selection along one line segment
+  // Create list of points to define broken line
+  vtkSmartPointer<vtkPoints> points2 = vtkSmartPointer<vtkPoints>::New();
+  points2->InsertNextPoint( .23, .0, .0 );
+  points2->InsertNextPoint( .0, .0, .0 );
+  points2->InsertNextPoint( .23, .04, .04 );
+
+  // Create selection along this broken line
   vtkSmartPointer<vtkLinearExtractor> le2 = vtkSmartPointer<vtkLinearExtractor>::New();
   le2->SetInput( mesh );
-  le2->SetStartPoint( .0, .0, .0 );
-  le2->SetEndPoint( .23, .0, .0 );
+  le2->SetPoints( points2 );
   le2->IncludeVerticesOff();
   le2->SetVertexEliminationTolerance( 1.e-12 );
-  
+
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es2 =  vtkSmartPointer<vtkExtractSelection>::New();
   es2->SetInput( 0, mesh );
   es2->SetInputConnection( 1, le2->GetOutputPort() );
   es2->Update();
 
-  testIntValue += CheckExtractedUGrid( es2, "Selection (0,0,0)-(0.23,0,0)" );
+  testIntValue += CheckExtractedUGrid( es2, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)", 2 );
 
   // *****************************************************************************
-  // 3. Selection along broken line through (.23,0,0), (0,0,0), (.23,.04,.04)
+  // 3. Selection along broken line through (.23,0,0), (.1,0,0), (.23,.01,.0033)
   // *****************************************************************************
 
   // Create list of points to define broken line
   vtkSmartPointer<vtkPoints> points3 = vtkSmartPointer<vtkPoints>::New();
   points3->InsertNextPoint( .23, .0, .0 );
-  points3->InsertNextPoint( .0, .0, .0 );
-  points3->InsertNextPoint( .23, .04, .04 );
+  points3->InsertNextPoint( .1, .0, .0 );
+  points3->InsertNextPoint( .23, .01, .0033 );
 
   // Create selection along this broken line
   vtkSmartPointer<vtkLinearExtractor> le3 = vtkSmartPointer<vtkLinearExtractor>::New();
@@ -137,32 +188,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es3->SetInputConnection( 1, le3->GetOutputPort() );
   es3->Update();
 
-  testIntValue += CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)" );
-
-  // *****************************************************************************
-  // 4. Selection along broken line through (.23,0,0), (.1,0,0), (.23,.01,.0033)
-  // *****************************************************************************
-
-  // Create list of points to define broken line
-  vtkSmartPointer<vtkPoints> points4 = vtkSmartPointer<vtkPoints>::New();
-  points4->InsertNextPoint( .23, .0, .0 );
-  points4->InsertNextPoint( .1, .0, .0 );
-  points4->InsertNextPoint( .23, .01, .0033 );
-
-  // Create selection along this broken line
-  vtkSmartPointer<vtkLinearExtractor> le4 = vtkSmartPointer<vtkLinearExtractor>::New();
-  le4->SetInput( mesh );
-  le4->SetPoints( points4 );
-  le4->IncludeVerticesOff();
-  le4->SetVertexEliminationTolerance( 1.e-12 );
-
-  // Extract selection from mesh
-  vtkSmartPointer<vtkExtractSelection> es4 =  vtkSmartPointer<vtkExtractSelection>::New();
-  es4->SetInput( 0, mesh );
-  es4->SetInputConnection( 1, le4->GetOutputPort() );
-  es4->Update();
-
-  testIntValue += CheckExtractedUGrid( es4, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)" );
+  testIntValue += CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)", 3 );
 
   return testIntValue;
 }
