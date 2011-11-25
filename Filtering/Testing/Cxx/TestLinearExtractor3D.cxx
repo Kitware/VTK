@@ -16,11 +16,13 @@
 // This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkLinearExtractor.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkPointData.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -81,17 +83,19 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
     }
 
   // Verify selection cells
-  vtkCellArray* cells = ugrid->GetCells();
-  vtkIdTypeArray* pids = cells->GetData();
-  cerr << "num of tuples: " 
-       << pids->GetNumberOfTuples() 
-       << endl;
+  ugrid->GetPointData()->SetActiveScalars( "vtkOriginalPointIds" );
+  vtkDataArray* oPointIds = ugrid->GetPointData()->GetScalars();
+
+  ugrid->GetCellData()->SetActiveScalars( "vtkOriginalCellIds" );
+  vtkDataArray* oCellIds = ugrid->GetCellData()->GetScalars();
+
+  vtkIdTypeArray* conn = ugrid->GetCells()->GetData();
   vtkIdType cnt = 0;
   vtkIdType length = 0;
-  vtkIdType cellId = 0;
-  for ( vtkIdType i = 0; i < pids->GetNumberOfTuples(); ++ i )
+  vtkIdType cellIdx = 0;
+  for ( vtkIdType i = 0; i < conn->GetNumberOfTuples(); ++ i )
     {
-    vtkIdType val = pids->GetValue( i );
+    vtkIdType val = conn->GetValue( i );
     if ( cnt == length )
       {
       length = val;
@@ -101,17 +105,19 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
         cerr << endl;
         }
       cerr << "Cell "
-           << cellId
+           << oCellIds->GetTuple1( cellIdx )
            << ":  ";
-      ++ cellId;
+      ++ cellIdx;
       }
     else
       {
-      cerr << val
+      cerr <<  oPointIds->GetTuple1( val )
            << " ";
       ++ cnt;
       }
     }
+
+  cerr << endl;
 
   return testStatus;
 }
