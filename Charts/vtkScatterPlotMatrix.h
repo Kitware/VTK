@@ -169,9 +169,9 @@ public:
   vtkColor4f GetScatterPlotTitleColor();
 
   // Description:
-  // Set the scatter plot title.
-  void SetScatterPlotTitle(const char* title);
-  const char* GetScatterPlotTitle();
+  // Set/get the scatter plot title.
+  void SetTitle(const vtkStdString& title);
+  vtkStdString GetTitle();
 
   // Description:
   // Set the scatter plot's title alignment.

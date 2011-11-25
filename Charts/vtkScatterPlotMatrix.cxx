@@ -33,6 +33,8 @@
 #include "vtkPlotPoints.h"
 #include "vtkCommand.h"
 #include "vtkTextProperty.h"
+
+// STL includes
 #include <map>
 #include <cassert>
 
@@ -803,7 +805,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plot->SetInput(this->Private->Histogram.GetPointer(),
                        name + "_extents", name + "_pops");
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
-        axis->SetTitle(name.c_str());
+        axis->SetTitle(name);
         if (i != n - 1)
           {
           axis->SetBehavior(vtkAxis::FIXED);
@@ -901,11 +903,19 @@ void vtkScatterPlotMatrix::BigChartSelectionCallback(vtkObject*,
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetScatterPlotTitle(const char* title)
+void vtkScatterPlotMatrix::SetTitle(const vtkStdString& title)
 {
-  std::string strtitle = title ? title : "";
-  this->Private->ScatterPlotTitle = title;
-  this->Modified();
+  if (this->Private->ScatterPlotTitle != title)
+    {
+    this->Private->ScatterPlotTitle = title;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkStdString vtkScatterPlotMatrix::GetTitle()
+{
+  return this->Private->ScatterPlotTitle;
 }
 
 //----------------------------------------------------------------------------
@@ -1181,12 +1191,6 @@ vtkColor4f vtkScatterPlotMatrix::GetScatterPlotTitleColor()
   this->Private->TempRGBA.Set(
     r, g,b, this->Private->ScatterPlotTitleFont->GetOpacity());
   return this->Private->TempRGBA;
-}
-
-//----------------------------------------------------------------------------
-const char* vtkScatterPlotMatrix::GetScatterPlotTitle()
-{
-  return this->Private->ScatterPlotTitle.c_str();
 }
 
 //----------------------------------------------------------------------------
