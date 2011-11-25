@@ -59,6 +59,9 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract, const char* tag )
 //----------------------------------------------------------------------------
 int TestLinearExtractor3D( int argc, char * argv [] )
 {
+  // Initialize test value
+  int testIntValue = 0;
+  
   // Read 3D unstructured input mesh
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/AngularSector.vtk");
   vtkSmartPointer<vtkUnstructuredGridReader> reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
@@ -89,7 +92,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es1->SetInputConnection( 1, le1->GetOutputPort() );
   es1->Update();
 
-  CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0.04,0.04)" );
+  testIntValue += CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0.04,0.04)" );
 
   // *****************************************************************************
   // 2. Selection along boundary segment with endpoints (0,0,0) and (.23,0,0)
@@ -109,7 +112,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es2->SetInputConnection( 1, le2->GetOutputPort() );
   es2->Update();
 
-  CheckExtractedUGrid( es2, "Selection (0,0,0)-(0.23,0,0)" );
+  testIntValue += CheckExtractedUGrid( es2, "Selection (0,0,0)-(0.23,0,0)" );
 
   // *****************************************************************************
   // 3. Selection along broken line through (.23,0,0), (0,0,0), (.23,.04,.04)
@@ -134,7 +137,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es3->SetInputConnection( 1, le3->GetOutputPort() );
   es3->Update();
 
-  CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)" );
+  testIntValue += CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)" );
 
   // *****************************************************************************
   // 4. Selection along broken line through (.23,0,0), (.1,0,0), (.23,.01,.0033)
@@ -159,9 +162,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es4->SetInputConnection( 1, le4->GetOutputPort() );
   es4->Update();
 
-  CheckExtractedUGrid( es4, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)" );
+  testIntValue += CheckExtractedUGrid( es4, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)" );
 
-  int retVal = 1;
-
-  return !retVal;
+  return testIntValue;
 }
