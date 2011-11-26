@@ -129,11 +129,11 @@ public:
 
   // Description:
   // Sets the marker size for the scatter plots.
-  void SetMarkerSize(double size);
+  void SetMarkerSize(float size);
 
   // Description:
   // Sets the marker size for the active plot.
-  void SetActivePlotMarkerSize(double size);
+  void SetActivePlotMarkerSize(float size);
 
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
