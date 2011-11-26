@@ -159,9 +159,78 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 // ----------------------------------------------------------------------
 void vtkLinearExtractor::RequestDataInternal( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
-  // Prepare tolerances for endpoint elimination
-  double t0 = this->VertexEliminationTolerance;
-  double t1 = 1. - this->VertexEliminationTolerance;
+  // Prepare lists of start and end points
+  vtkIdType nSegments = 0;
+  double* startPoints;
+  double* endPoints;
+  if ( this->Points )
+    {
+    // A list of points was provided
+    vtkIdType nPoints = this->Points->GetNumberOfPoints();
+    if ( nPoints < 2 )
+      {
+      vtkWarningMacro( <<"Cannot intersect: not enough points ("
+                       << nPoints
+                       << ") to define a broken line.");
+      return;
+      }
+    
+    // The list of points defines nPoints - 1 consecutive segments
+    nSegments = nPoints - 1;
+    vtkIdType nCoords = 3 * nSegments;
+    startPoints = new double[nCoords];
+    endPoints = new double[nCoords];
+    
+    // Prepare and store segment vertices
+    if ( this->IncludeVertices )
+      {
+      // Vertices are included, use full segment extent
+      for ( vtkIdType i = 0; i < nSegments; ++ i )
+        {
+        vtkIdType offset = 3 * i;
+        this->Points->GetPoint( i - 1, startPoints + offset );
+        this->Points->GetPoint( i, endPoints + offset );
+        }
+      } // if ( this->IncludeVertices )
+    else
+      {
+      // Vertices are excluded, reduce segment by given ratio
+      for ( vtkIdType i = 0; i < nSegments; ++ i )
+        {
+        vtkIdType offset = 3 * i;
+        this->Points->GetPoint( i - 1, startPoints + offset );
+        this->Points->GetPoint( i, endPoints + offset );
+        }
+      } // else
+    } // if ( this->Points )
+  else // if ( this->Points )
+    {
+    // No list of points, only one segment defined btStartPoint and EndPoint ivars
+    nSegments = 1;
+    startPoints = new double[3];
+    endPoints = new double[3];
+    
+    // Prepare and store segment vertices
+    if ( this->IncludeVertices )
+      {
+      // Vertices are included, use full segment extent
+      for ( int i = 0; i < 3; ++ i )
+        {
+        startPoints[i] = this->StartPoint[i];
+        endPoints[i] = this->EndPoint[i];
+        }
+      } // if ( this->IncludeVertices )
+    else 
+      {
+      // Vertices are excluded, reduce segment by given ratio
+      for ( int i = 0; i < 3; ++ i )
+        {
+        double delta =  this->VertexEliminationTolerance * ( this->EndPoint[i] - this->StartPoint[i] );
+        startPoints[i] = this->StartPoint[i] + delta;
+        endPoints[i] = this->EndPoint[i] - delta;
+        }
+      } // else
+    } // else // if ( this->Points )
 
   // Iterate over cells
   const vtkIdType nCells = input->GetNumberOfCells();
@@ -204,31 +273,30 @@ void vtkLinearExtractor::RequestDataInternal( vtkDataSet* input, vtkIdTypeArray*
                                          pcoords,
                                          subId ) )
             {
-            if ( this->IncludeVertices || ( t > t0 && t < t1 ) )
-              {
-              outIndices->InsertNextValue( id );
-              }
+            outIndices->InsertNextValue( id );
             }
           } // for ( vtkIdType i = 1; i < nPoints; ++ i )
         } // if ( this->Points )
       else // if ( this->Points )
         {
         // Intersection with a line segment
-        if ( cell->IntersectWithLine ( this->StartPoint, 
-                                       this->EndPoint, 
+        double startPoint[3];
+        double endPoint[3];
+        if ( cell->IntersectWithLine ( startPoints, 
+                                       endPoints, 
                                        this->Tolerance, 
                                        t, 
                                        coords, 
                                        pcoords,
                                        subId ) )
           {
-          if ( this->IncludeVertices || ( t > t0 && t < t1 ) )
-            {
-            outIndices->InsertNextValue( id );
-            }
+          outIndices->InsertNextValue( id );
           }
         } // else if ( this->Points )
       }	// if ( cell )
     } // for ( vtkIdType id = 0; id < nCells; ++ id )
 
+  // Clean up
+  delete [] startPoints;
+  delete [] endPoints;
 }
