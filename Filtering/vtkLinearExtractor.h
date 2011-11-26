@@ -84,7 +84,10 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-  void RequestDataInternal(vtkDataSet* input, vtkIdTypeArray* outIndices);
+  // Description:
+  // The main routine that iterates over cells and looks for those that
+  // intersect at least one of the segments of interest
+  void SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray* outIndices);
 
  private:
   vtkLinearExtractor(const vtkLinearExtractor&);  // Not implemented

@@ -135,7 +135,7 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
     // Retrieve indices of current object
     vtkDataSet* input = vtkDataSet::SafeDownCast( inputIterator->GetCurrentDataObject() );
     vtkIdTypeArray* indices = vtkIdTypeArray::New();
-    this->RequestDataInternal( input, indices );
+    this->SeekIntersectingCells( input, indices );
 
     // Create and add selection node
     vtkSelectionNode* n = vtkSelectionNode::New();
@@ -157,30 +157,24 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 }
 
 // ----------------------------------------------------------------------
-void vtkLinearExtractor::RequestDataInternal( vtkDataSet* input, vtkIdTypeArray* outIndices )
+void vtkLinearExtractor::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
+  vtkIdType nSegments = this->Points ? this->Points->GetNumberOfPoints() - 1 : 1;
+
+  // Reject meaningless parameterizations
+  if ( nSegments < 1 )
+    {
+    vtkWarningMacro( <<"Cannot intersect: not enough points to define a broken line.");
+    return;
+    }
+
   // Prepare lists of start and end points
-  vtkIdType nSegments = 0;
-  double* startPoints;
-  double* endPoints;
+  vtkIdType nCoords = 3 * nSegments;
+  double* startPoints = new double[nCoords];
+  double* endPoints = new double[nCoords];
+
   if ( this->Points )
     {
-    // A list of points was provided
-    vtkIdType nPoints = this->Points->GetNumberOfPoints();
-    if ( nPoints < 2 )
-      {
-      vtkWarningMacro( <<"Cannot intersect: not enough points ("
-                       << nPoints
-                       << ") to define a broken line.");
-      return;
-      }
-    
-    // The list of points defines nPoints - 1 consecutive segments
-    nSegments = nPoints - 1;
-    vtkIdType nCoords = 3 * nSegments;
-    startPoints = new double[nCoords];
-    endPoints = new double[nCoords];
-    
     // Prepare and store segment vertices
     if ( this->IncludeVertices )
       {
@@ -198,18 +192,19 @@ void vtkLinearExtractor::RequestDataInternal( vtkDataSet* input, vtkIdTypeArray*
       for ( vtkIdType i = 0; i < nSegments; ++ i )
         {
         vtkIdType offset = 3 * i;
-        this->Points->GetPoint( i - 1, startPoints + offset );
-        this->Points->GetPoint( i, endPoints + offset );
-        }
+        this->Points->GetPoint( i, startPoints + offset );
+        this->Points->GetPoint( i + 1, endPoints + offset );
+        for ( int j = 0; j < 3; ++ j, ++ offset )
+          {
+          double delta =  this->VertexEliminationTolerance * ( endPoints[offset] - startPoints[offset] );
+          startPoints[offset] += delta;
+          endPoints[offset] -= delta;
+          } // for ( j )
+        } // for ( i )
       } // else
     } // if ( this->Points )
   else // if ( this->Points )
     {
-    // No list of points, only one segment defined btStartPoint and EndPoint ivars
-    nSegments = 1;
-    startPoints = new double[3];
-    endPoints = new double[3];
-    
     // Prepare and store segment vertices
     if ( this->IncludeVertices )
       {
@@ -244,46 +239,14 @@ void vtkLinearExtractor::RequestDataInternal( vtkDataSet* input, vtkIdTypeArray*
       double pcoords [3];
       double t = 0;
       int subId	= 0;
-
-      // Branch out between interesection methods depending on input parameters
-      if ( this->Points )
-        {
-        // Intersection with a broken line, exit early if less than 2 points
-        vtkIdType nPoints = this->Points->GetNumberOfPoints();
-        if ( nPoints < 2 )
-          {
-          vtkWarningMacro( <<"Cannot intersect: not enough points ("
-                           << nPoints
-                           << ") to define a broken line.");
-          return;
-          }
-
-        // Iterate over contiguous segments defining broken line
-        double startPoint[3];
-        double endPoint[3];
-        for ( vtkIdType i = 1; i < nPoints; ++ i )
-          {
-          this->Points->GetPoint( i - 1, startPoint );
-          this->Points->GetPoint( i, endPoint );
-          if ( cell->IntersectWithLine ( startPoint, 
-                                         endPoint, 
-                                         this->Tolerance, 
-                                         t,
-                                         coords, 
-                                         pcoords,
-                                         subId ) )
-            {
-            outIndices->InsertNextValue( id );
-            }
-          } // for ( vtkIdType i = 1; i < nPoints; ++ i )
-        } // if ( this->Points )
-      else // if ( this->Points )
+      
+      // Seek intersection of cell with each segment
+      for ( vtkIdType i = 0; i < nSegments; ++ i )
         {
         // Intersection with a line segment
-        double startPoint[3];
-        double endPoint[3];
-        if ( cell->IntersectWithLine ( startPoints, 
-                                       endPoints, 
+        vtkIdType offset = 3 * i;
+        if ( cell->IntersectWithLine ( startPoints + offset, 
+                                       endPoints + offset, 
                                        this->Tolerance, 
                                        t, 
                                        coords, 
@@ -292,7 +255,7 @@ void vtkLinearExtractor::RequestDataInternal( vtkDataSet* input, vtkIdTypeArray*
           {
           outIndices->InsertNextValue( id );
           }
-        } // else if ( this->Points )
+        } // for ( i )  
       }	// if ( cell )
     } // for ( vtkIdType id = 0; id < nCells; ++ id )
 
