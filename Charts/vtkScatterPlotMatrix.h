@@ -109,7 +109,7 @@ public:
 
   // Description:
   // Set the color for the scatter plots.
-  void SetColor(const vtkColor4ub& color);
+  void SetPlotColor(const vtkColor4ub& color);
 
   // Description:
   // Set the color for the active plot.

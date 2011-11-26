@@ -517,7 +517,7 @@ void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
     }
 }
 
-void vtkScatterPlotMatrix::SetColor(const vtkColor4ub& color)
+void vtkScatterPlotMatrix::SetPlotColor(const vtkColor4ub& color)
 {
   this->Private->ScatterPlotColor = color;
   int plotCount = this->GetSize().X();
