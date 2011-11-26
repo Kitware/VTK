@@ -2204,7 +2204,7 @@ void vtkPLY::get_binary_item(
     case PLY_CHAR:
       {
       vtkTypeInt8 value = 0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       *int_val = value;
       *uint_val = value;
       *double_val = value;
@@ -2214,7 +2214,7 @@ void vtkPLY::get_binary_item(
     case PLY_UINT8:
       {
       vtkTypeUInt8 value = 0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       *int_val = value;
       *uint_val = value;
       *double_val = value;
@@ -2223,7 +2223,7 @@ void vtkPLY::get_binary_item(
     case PLY_SHORT:
       {
       vtkTypeInt16 value = 0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
         vtkByteSwap::Swap2LE(&value);
@@ -2235,7 +2235,7 @@ void vtkPLY::get_binary_item(
     case PLY_USHORT:
       {
       vtkTypeUInt16 value = 0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
         vtkByteSwap::Swap2LE(&value);
@@ -2248,7 +2248,7 @@ void vtkPLY::get_binary_item(
     case PLY_INT32:
       {
       vtkTypeInt32 value = 0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
@@ -2260,7 +2260,7 @@ void vtkPLY::get_binary_item(
     case PLY_UINT:
       {
       vtkTypeUInt32 value = 0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
@@ -2273,7 +2273,7 @@ void vtkPLY::get_binary_item(
     case PLY_FLOAT32:
       {
       vtkTypeFloat32 value = 0.0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
@@ -2285,7 +2285,7 @@ void vtkPLY::get_binary_item(
     case PLY_DOUBLE:
       {
       vtkTypeFloat64 value = 0.0;
-      fread (&value, sizeof(value), 1, plyfile->fp);
+      (void) fread (&value, sizeof(value), 1, plyfile->fp);
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap8BE(&value) :
         vtkByteSwap::Swap8LE(&value);

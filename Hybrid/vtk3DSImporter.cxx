@@ -1073,7 +1073,7 @@ static word read_word(vtk3DSImporter *importer)
 {
   word data;
 
-  fread (&data, 2, 1, importer->GetFileFD());
+  (void) fread (&data, 2, 1, importer->GetFileFD());
   vtkByteSwap::Swap2LE ((short *) &data);
 /*    swab ((char *) &data, (char *) &sdata, 2);*/
 
@@ -1099,7 +1099,7 @@ static float read_float(vtk3DSImporter *importer)
 {
   float data;
 
-  fread (&data, 4, 1, importer->GetFileFD());
+  (void) fread (&data, 4, 1, importer->GetFileFD());
   vtkByteSwap::Swap4LE ((char *) &data);
 /*    TIFFSwabLong (&data);*/
 

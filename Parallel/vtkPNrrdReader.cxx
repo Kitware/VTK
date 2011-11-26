@@ -508,7 +508,11 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if ((field == "byte skip") || (field == "byteskip"))
         {
-        atoi(description.c_str());
+        if (atoi(description.c_str()) != 0)
+          {
+          vtkErrorMacro(<< "byte skip not supported");
+          return 0;
+          }
         }
       else if (   (field == "space units")
                || (field == "sample units") || (field == "sampleunits")

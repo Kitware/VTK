@@ -1542,7 +1542,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       sscanf(line, " %s", subLine);
 
       char *endptr;
-      strtod(subLine, &endptr); // Testing if we can convert this string to double
+      // Testing if we can convert this string to double, ignore result
+      double result = strtod(subLine, &endptr);
+      static_cast<void>(result);
+
       if ( subLine != endptr )
         { // necessary if node ids were listed
         for (i = 0; i < numPts; i++)

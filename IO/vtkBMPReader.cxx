@@ -109,25 +109,25 @@ void vtkBMPReader::ExecuteInformation()
   int sizeLong = sizeof(long);
   if (sizeLong == 4)
     {
-    fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
     // skip 4 bytes
-    fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
     // read the offset
-    fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
     }
   else
     {
-    fread(&itmp,4,1,fp);
+    (void) fread(&itmp,4,1,fp);
     // skip 4 bytes
-    fread(&itmp,4,1,fp);
+    (void) fread(&itmp,4,1,fp);
     // read the offset
-    fread(&itmp,4,1,fp);
+    (void) fread(&itmp,4,1,fp);
     }
 
   // get size of header
   if (sizeLong == 4)   // if we are on a 32 bit machine
     {
-    fread(&infoSize,sizeof(long),1,fp);
+    (void) fread(&infoSize,sizeof(long),1,fp);
     vtkByteSwap::Swap4LE(&infoSize);
                        
     // error checking
@@ -143,24 +143,24 @@ void vtkBMPReader::ExecuteInformation()
     if (infoSize == 40)
       {
       // now get the dimensions
-      fread(&xsize,sizeof(long),1,fp);
+      (void) fread(&xsize,sizeof(long),1,fp);
       vtkByteSwap::Swap4LE(&xsize);
-      fread(&ysize,sizeof(long),1,fp);
+      (void) fread(&ysize,sizeof(long),1,fp);
       vtkByteSwap::Swap4LE(&ysize);
       }
     else
       {
-      fread(&stmp,sizeof(short),1,fp);
+      (void) fread(&stmp,sizeof(short),1,fp);
       vtkByteSwap::Swap2LE(&stmp);
       xsize = stmp;
-      fread(&stmp,sizeof(short),1,fp);
+      (void) fread(&stmp,sizeof(short),1,fp);
       vtkByteSwap::Swap2LE(&stmp);
       ysize = stmp;
       }
     }
   else    // else we are on a 64bit machine
     {
-    fread(&iinfoSize,sizeof(int),1,fp);
+    (void) fread(&iinfoSize,sizeof(int),1,fp);
     vtkByteSwap::Swap4LE(&iinfoSize);
     infoSize = iinfoSize;
     
@@ -177,17 +177,17 @@ void vtkBMPReader::ExecuteInformation()
     if (infoSize == 40)
       {
       // now get the dimensions
-      fread(&xsize,sizeof(int),1,fp);
+      (void) fread(&xsize,sizeof(int),1,fp);
       vtkByteSwap::Swap4LE(&xsize);
-      fread(&ysize,sizeof(int),1,fp);
+      (void) fread(&ysize,sizeof(int),1,fp);
       vtkByteSwap::Swap4LE(&ysize);
       }
     else
       {
-      fread(&stmp,sizeof(short),1,fp);
+      (void) fread(&stmp,sizeof(short),1,fp);
       vtkByteSwap::Swap2LE(&stmp);
       xsize = stmp;
-      fread(&stmp,sizeof(short),1,fp);
+      (void) fread(&stmp,sizeof(short),1,fp);
       vtkByteSwap::Swap2LE(&stmp);
       ysize = stmp;
       }
@@ -206,9 +206,9 @@ void vtkBMPReader::ExecuteInformation()
     }
     
   // ignore planes
-  fread(&stmp,sizeof(short),1,fp);
+  (void) fread(&stmp,sizeof(short),1,fp);
   // read depth
-  fread(&this->Depth,sizeof(short),1,fp);
+  (void) fread(&this->Depth,sizeof(short),1,fp);
   vtkByteSwap::Swap2LE(&this->Depth);
   if ((this->Depth != 8)&&(this->Depth != 24))
     {
@@ -220,12 +220,12 @@ void vtkBMPReader::ExecuteInformation()
   // skip over rest of info for long format
   if (infoSize == 40)
     {
-    fread(&tmp,4,1,fp);
-    fread(&tmp,4,1,fp);
-    fread(&tmp,4,1,fp);
-    fread(&tmp,4,1,fp);
-    fread(&tmp,4,1,fp);
-    fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
     }
   
   // read in color table if required
@@ -591,26 +591,26 @@ int vtkBMPReader::CanReadFile(const char* fname)
   int sizeLong = sizeof(long);
   if (sizeLong == 4)
     {
-    fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
     // skip 4 bytes
-    fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
     // read the offset
-    fread(&tmp,4,1,fp);
+    (void) fread(&tmp,4,1,fp);
     }
   else
     {
-    fread(&itmp,4,1,fp);
+    (void) fread(&itmp,4,1,fp);
     // skip 4 bytes
-    fread(&itmp,4,1,fp);
+    (void) fread(&itmp,4,1,fp);
     // read the offset
-    fread(&itmp,4,1,fp);
+    (void) fread(&itmp,4,1,fp);
     }
 
   // get size of header
   int res = 3;
   if (sizeLong == 4)   // if we are on a 32 bit machine
     {
-    fread(&infoSize,sizeof(long),1,fp);
+    (void) fread(&infoSize,sizeof(long),1,fp);
     vtkByteSwap::Swap4LE(&infoSize);
                        
     // error checking
@@ -622,7 +622,7 @@ int vtkBMPReader::CanReadFile(const char* fname)
     }
   else    // else we are on a 64bit machine
     {
-    fread(&iinfoSize,sizeof(int),1,fp);
+    (void) fread(&iinfoSize,sizeof(int),1,fp);
     vtkByteSwap::Swap4LE(&iinfoSize);
     infoSize = iinfoSize;
     

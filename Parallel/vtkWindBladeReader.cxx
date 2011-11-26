@@ -690,9 +690,9 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
 
 #ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[tempg], SEEK_SET);
-  fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  (void) fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
   fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
-  fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  (void) fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
   MPI_Status status;
   char native[7] = "native";
@@ -759,9 +759,9 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 
 #ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[uvw], SEEK_SET);
-  fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  (void) fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
   fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_SET);
-  fread(vData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  (void) fread(vData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
   MPI_Status status;
   char native[7] = "native";
@@ -777,7 +777,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 
 #ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
-  fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  (void) fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
   MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
   MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
@@ -893,7 +893,7 @@ void vtkWindBladeReader::LoadVariableData(int var)
     {
     // Read the block of data
 #ifndef VTK_USE_MPI_IO
-    fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+    (void) fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr);
 #else
     MPI_Status status;
     MPICall(MPI_File_read_all(this->Internal->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
@@ -1241,7 +1241,7 @@ bool vtkWindBladeReader::FindVariableOffsets()
   int byteCount;
 
 #ifndef VTK_USE_MPI_IO
-  fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr);
+  (void) fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr);
 #else
   MPI_Status status;
   char native[7] = "native";
@@ -1483,7 +1483,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 
 #ifndef VTK_USE_MPI_IO
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET);  // Fortran byte count
-  fread(topoData, sizeof(float), blockSize, filePtr);
+  (void) fread(topoData, sizeof(float), blockSize, filePtr);
 #else
   MPI_Status status;
   char native[7] = "native";
