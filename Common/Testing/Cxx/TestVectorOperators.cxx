@@ -68,6 +68,7 @@ int TestVectorOperators(int, char*[])
     ++retVal;
     }
 
+  // Test the - operator.
   result = vec3ia - vec3ib;
   if (result != vtkVector3i(0, 0, 1))
     {
@@ -76,6 +77,7 @@ int TestVectorOperators(int, char*[])
     ++retVal;
     }
 
+  // Test the * operator.
   result = vec3ia * vec3ib;
   if (result != vtkVector3i(0, 36, 72))
     {
@@ -84,6 +86,7 @@ int TestVectorOperators(int, char*[])
     ++retVal;
     }
 
+  // Test the / operator.
   vec3i.SetX(1);
   result = vec3ia / vec3i;
   if (result != vtkVector3i(0, 1, 1))

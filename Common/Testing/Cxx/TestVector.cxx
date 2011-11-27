@@ -17,6 +17,7 @@
 
 #include "vtkVector.h"
 #include "vtkColor.h"
+#include "vtkMathUtilities.h"
 
 //----------------------------------------------------------------------------
 int TestVector(int, char*[])
@@ -134,6 +135,59 @@ int TestVector(int, char*[])
         ++retVal;
         }
       }
+    }
+
+  // Test the normalize and normalized functions.
+  vtkVector3d normy(1, 2, 3);
+  vtkVector3d normed = normy.Normalized();
+  double dotted = normy.Dot(normed);
+  if (!vtkMathUtilities::FuzzyCompare(dotted, 3.74166, 0.0001))
+    {
+    cerr << "The dot product of " << normy << " and " << normed << " was "
+         << dotted << ", expected 3.74166." << endl;
+    ++retVal;
+    }
+  if (!normed.Compare(vtkVector3d(0.267261, 0.534522, 0.801784), 0.0001))
+    {
+    cerr << "Error vtkVector3d::Normalized() failed: " << normed << endl;
+    ++retVal;
+    }
+  normy.Normalize();
+  if (!normy.Compare(normed, 0.0001))
+    {
+    cerr << "Error vtkVector3d::Normalize() failed: " << normy << endl;
+    }
+  if (!vtkMathUtilities::FuzzyCompare(normy.Norm(), 1.0, 0.0001))
+    {
+    cerr << "Normalized length should always be ~= 1.0, value is "
+         << normy.Norm() << endl;
+    ++retVal;
+    }
+  if (!vtkMathUtilities::FuzzyCompare(dotted, 3.74166, 0.0001))
+    {
+    cerr << "The dot product of  "
+         << normy.Norm() << endl;
+    ++retVal;
+    }
+  if (!vtkMathUtilities::FuzzyCompare(normy.Dot(normed), 1.0, 0.0001))
+    {
+    cerr << "The dot product of " << normy << " and " << normed << " was "
+         << normy.Dot(normed) << ", expected 1.0." << endl;
+    ++retVal;
+    }
+  // Some cross product stuff now...
+  if (!normy.Cross(normed).Compare(vtkVector3d(0, 0, 0), 0.0001))
+    {
+    cerr << normy << " cross " << normed << " expected to be 0, got "
+         << normy.Cross(normed) << endl;
+    ++retVal;
+    }
+  if (!normy.Cross(vtkVector3d(0, 1, 0)).Compare(vtkVector3d(-0.801784, 0, 0.267261),
+                                                 0.0001))
+    {
+    cerr << normy << " cross (0, 1, 0) expected to be (-0.801784, 0, 0.267261), got "
+         << normy.Cross(normed) << endl;
+    ++retVal;
     }
 
   return retVal;
