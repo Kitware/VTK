@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 // This file has been initially developed in the frame of CEA's Love visualization software development <br>
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
-// This class was implemented by Thierry Carrard, Charles Pignerol, and Philippe Pébay, Kitware, 2011.
+// This class was implemented by Thierry Carrard, Charles Pignerol, and Philippe Pebay, Kitware, 2011.
 
 #ifndef VTK_LINEAR_EXTRACTOR_H
 #define VTK_LINEAR_EXTRACTOR_H
@@ -63,16 +63,31 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   vtkSetMacro(Tolerance,double);
   vtkGetMacro(Tolerance,double);
 
+  // Description:
+  // Set/Get whether lines vertice are included in selection
+  vtkSetMacro(IncludeVertices,bool);
+  vtkGetMacro(IncludeVertices,bool);
+  vtkBooleanMacro(IncludeVertices,bool);
+
+  // Description:
+  // Set/Get relative tolerance for vertex elimination
+  vtkSetClampMacro(VertexEliminationTolerance,double,0.,.1 );
+  vtkGetMacro(VertexEliminationTolerance,double);
+
  protected:
   vtkLinearExtractor();
   virtual ~vtkLinearExtractor();
 
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  void RequestDataInternal(vtkDataSet* input, vtkIdTypeArray* outIndices);
+  // Description:
+  // The main routine that iterates over cells and looks for those that
+  // intersect at least one of the segments of interest
+  void SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray* outIndices);
 
  private:
   vtkLinearExtractor(const vtkLinearExtractor&);  // Not implemented
@@ -92,6 +107,16 @@ class VTK_FILTERING_EXPORT vtkLinearExtractor: public vtkSelectionAlgorithm
   // Description:
   // Tolerance to be used by intersection algorithm
   double Tolerance;
+
+  // Description:
+  // Decide whether lines vertice are included in selection
+  // Default: true
+  bool IncludeVertices;
+
+  // Description:
+  // Relative tolerance for vertex elimination
+  // Default: 1e-6
+  double VertexEliminationTolerance;
 };
 
 
