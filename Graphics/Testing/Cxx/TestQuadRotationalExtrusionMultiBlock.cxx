@@ -39,12 +39,14 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   vtkNew<vtkXMLPolyDataReader> reader0;
   reader0->SetFileName( fName0 );
   reader0->Update();
-  
+  delete [] fName0;
+ 
   // Read block 1 of 2D polygonal input mesh
   char* fName1 = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/SemiDisk/SemiDisk-1.vtp");
   vtkNew<vtkXMLPolyDataReader> reader1;
   reader1->SetFileName( fName1 );
   reader1->Update();
+  delete [] fName1;
 
   // Create multi-block data set for quad-based sweep
   vtkNew<vtkMultiBlockDataSet> inMesh;
