@@ -79,6 +79,11 @@ void vtkLinearExtractor::PrintSelf( ostream& os, vtkIndent indent )
      << "\n";
 
   os << indent
+     << "Include Vertices: "
+     << ( this->IncludeVertices ? "Yes": "No" )
+     << "\n";
+
+  os << indent
      << "VertexEliminationTolerance: "
      << this->VertexEliminationTolerance
      << "\n";
