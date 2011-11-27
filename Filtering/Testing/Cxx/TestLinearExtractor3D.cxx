@@ -31,6 +31,8 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkUnstructuredGridWriter.h"
 
+#include <vtksys/ios/sstream>
+
 // Reference values
 vtkIdType cardSelection[] = 
 {
@@ -42,8 +44,9 @@ vtkIdType cardSelection[] =
 
 // ------------------------------------------------------------------------------------------------
 static int CheckExtractedUGrid( vtkExtractSelection* extract, 
-                                      const char* tag,
-                                      int testIdx )
+                                const char* tag,
+                                int testIdx,
+                                bool writeGrid )
 {
   // Output must be a multiblock dataset
   vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extract->GetOutput() );
@@ -95,6 +98,22 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
     }
   cerr << endl;
 
+  // If requested, write mesh
+  if ( writeGrid )
+    {
+    vtksys_ios::ostringstream fileNameSS;
+    fileNameSS << "./LinearExtraction-"
+               << testIdx
+               << ".vtk";
+    vtkSmartPointer<vtkUnstructuredGridWriter> writer = vtkSmartPointer<vtkUnstructuredGridWriter>::New();
+    writer->SetFileName( fileNameSS.str().c_str() );
+    writer->SetInput( ugrid );
+    writer->Write();
+    cerr << "Wrote file "
+         << fileNameSS.str()
+         << endl;
+    }
+
   return testStatus;
 }
 
@@ -134,14 +153,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es0->SetInputConnection( 1, le0->GetOutputPort() );
   es0->Update();
 
-  vtkMultiBlockDataSet* outMB = vtkMultiBlockDataSet::SafeDownCast( es0->GetOutput() );
-  vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast( outMB->GetBlock( 0 ) );
-  vtkSmartPointer<vtkUnstructuredGridWriter> writer = vtkSmartPointer<vtkUnstructuredGridWriter>::New();
-  writer->SetFileName( "/home/philippe/Test0.vtk" );
-  writer->SetInput( grid );
-  writer->Write();
-
-  testIntValue += CheckExtractedUGrid( es0, "Selection (0,0,0)-(0.23,0.04,0.04)", 0 );
+  testIntValue += CheckExtractedUGrid( es0, "Selection (0,0,0)-(0.23,0.04,0.04)", 0, true );
 
   // *****************************************************************************
   // 1. Selection along boundary segment with endpoints (0,0,0) and (.23,0,0)
@@ -161,7 +173,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es1->SetInputConnection( 1, le1->GetOutputPort() );
   es1->Update();
 
-  testIntValue += CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0,0)", 1 );
+  testIntValue += CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0,0)", 1, true );
 
   // *****************************************************************************
   // 2. Selection along broken line through (.23,0,0), (0,0,0), (.23,.04,.04)
@@ -186,7 +198,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es2->SetInputConnection( 1, le2->GetOutputPort() );
   es2->Update();
 
-  testIntValue += CheckExtractedUGrid( es2, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)", 2 );
+  testIntValue += CheckExtractedUGrid( es2, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)", 2, true );
 
   // *****************************************************************************
   // 3. Selection along broken line through (.23,0,0), (.1,0,0), (.23,.01,.0033)
@@ -211,7 +223,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   es3->SetInputConnection( 1, le3->GetOutputPort() );
   es3->Update();
 
-  testIntValue += CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)", 3 );
+  testIntValue += CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)", 3, true );
 
   return testIntValue;
 }
