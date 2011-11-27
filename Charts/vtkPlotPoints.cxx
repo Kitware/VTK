@@ -17,6 +17,7 @@
 
 #include "vtkContext2D.h"
 #include "vtkPen.h"
+#include "vtkBrush.h"
 #include "vtkAxis.h"
 #include "vtkContextMapper2D.h"
 #include "vtkPoints2D.h"

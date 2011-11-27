@@ -34,12 +34,12 @@ vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
 //-----------------------------------------------------------------------------
 vtkPlot::vtkPlot()
 {
-  this->Pen = vtkPen::New();
+  this->Pen = vtkSmartPointer<vtkPen>::New();
   this->Pen->SetWidth(2.0);
-  this->Brush = vtkBrush::New();
+  this->Brush = vtkSmartPointer<vtkBrush>::New();
   this->Labels = NULL;
   this->UseIndexForXSeries = false;
-  this->Data = vtkContextMapper2D::New();
+  this->Data = vtkSmartPointer<vtkContextMapper2D>::New();
   this->Selection = NULL;
   this->XAxis = NULL;
   this->YAxis = NULL;
@@ -52,21 +52,6 @@ vtkPlot::vtkPlot()
 //-----------------------------------------------------------------------------
 vtkPlot::~vtkPlot()
 {
-  if (this->Pen)
-    {
-    this->Pen->Delete();
-    this->Pen = NULL;
-    }
-  if (this->Brush)
-    {
-    this->Brush->Delete();
-    this->Brush = NULL;
-    }
-  if (this->Data)
-    {
-    this->Data->Delete();
-    this->Data = NULL;
-    }
   if (this->Selection)
     {
     this->Selection->Delete();
@@ -224,6 +209,38 @@ float vtkPlot::GetWidth()
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlot::SetPen(vtkPen *pen)
+{
+  if (this->Pen != pen)
+    {
+    this->Pen = pen;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkPen* vtkPlot::GetPen()
+{
+  return this->Pen.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetBrush(vtkBrush *brush)
+{
+  if (this->Brush != brush)
+    {
+    this->Brush = brush;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkBrush* vtkPlot::GetBrush()
+{
+  return this->Brush.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
 void vtkPlot::SetLabel(const vtkStdString& label)
 {
   vtkNew<vtkStringArray> labels;
@@ -312,6 +329,12 @@ void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
 vtkStringArray * vtkPlot::GetIndexedLabels()
 {
   return this->IndexedLabels.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+vtkContextMapper2D * vtkPlot::GetData()
+{
+  return this->Data.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
