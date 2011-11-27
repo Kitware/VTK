@@ -44,19 +44,20 @@ public:
   PIMPL() : VisibleColumnsModified(true), BigChart(NULL)
   {
     pimplChartSetting* scatterplotSettings = new pimplChartSetting();
-    scatterplotSettings->BackgroundColor.Set(255, 255, 255, 255);
+    scatterplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
     this->ChartSettings[vtkScatterPlotMatrix::SCATTERPLOT] =
         scatterplotSettings;
     pimplChartSetting* histogramSettings = new pimplChartSetting();
-    histogramSettings->BackgroundColor.Set(127, 127, 127, 102);
+    histogramSettings->BackgroundBrush->SetColor(127, 127, 127, 102);
+    histogramSettings->PlotPen->SetColor(255, 255, 255, 255);
     this->ChartSettings[vtkScatterPlotMatrix::HISTOGRAM] = histogramSettings;
     pimplChartSetting* activeplotSettings = new pimplChartSetting();
-    activeplotSettings->BackgroundColor.Set(255, 255, 255, 255);
+    activeplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
     this->ChartSettings[vtkScatterPlotMatrix::ACTIVEPLOT] = activeplotSettings;
     activeplotSettings->MarkerSize = 8.0;
 
-    this->SelectedActiveScatterChartBGColor.Set(0, 204, 0, 102);
-    this->SelectedRowColumnScatterChartBGColor.Set(204, 0, 0, 102);
+    this->SelectedChartBGBrush->SetColor(0, 204, 0, 102);
+    this->SelectedRowColumnBGBrush->SetColor(204, 0, 0, 102);
   }
 
   ~PIMPL()
@@ -71,7 +72,7 @@ public:
   public:
     pimplChartSetting()
     {
-      this->PlotColor.Set(0, 0, 0, 255);
+      this->PlotPen->SetColor(0, 0, 0, 255);
       this->MarkerStyle = vtkPlotPoints::CIRCLE;
       this->MarkerSize = 5.0;
       this->AxisColor.Set(0, 0, 0, 1);
@@ -90,12 +91,10 @@ public:
     }
     ~pimplChartSetting() {}
 
-    vtkColor4ub PlotColor;
     int MarkerStyle;
     float MarkerSize;
     vtkColor4ub AxisColor;
     vtkColor4ub GridColor;
-    vtkColor4ub BackgroundColor;
     int LabelNotation;
     int LabelPrecision;
     int TooltipNotation;
@@ -103,16 +102,10 @@ public:
     bool ShowGrid;
     bool ShowAxisLabels;
     vtkSmartPointer<vtkTextProperty> LabelFont;
+    vtkNew<vtkBrush> BackgroundBrush;
+    vtkNew<vtkPen> PlotPen;
+    vtkNew<vtkBrush> PlotBrush;
   };
-
-  void SetChartBackGroundColor(vtkChart* chart, vtkColor4ub& rgba)
-    {
-    if(chart)
-      {
-      chart->GetBackgroundBrush()->SetColor(rgba);
-      chart->Update();
-      }
-    }
 
   void UpdateAxis(vtkAxis* axis, pimplChartSetting* setting,
                   bool updateLabel=true)
@@ -147,8 +140,6 @@ public:
         plot->SetTooltipNotation(setting->TooltipNotation);
         plot->SetTooltipPrecision(setting->TooltipPrecision);
         }
-
-      this->SetChartBackGroundColor(chart, setting->BackgroundColor);
       }
     }
 
@@ -160,8 +151,8 @@ public:
   std::map<int, pimplChartSetting*> ChartSettings;
   typedef std::map<int, pimplChartSetting*>::iterator chartIterator;
 
-  vtkColor4ub SelectedRowColumnScatterChartBGColor;
-  vtkColor4ub SelectedActiveScatterChartBGColor;
+  vtkNew<vtkBrush> SelectedRowColumnBGBrush;
+  vtkNew<vtkBrush> SelectedChartBGBrush;
 };
 
 namespace
@@ -286,32 +277,34 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
     if (this->GetChart(this->ActivePlot)->GetPlot(0))
       {
       int plotCount = this->GetSize().X();
-      for(int i = 0; i < plotCount; i++)
+      for (int i = 0; i < plotCount; ++i)
         {
-        for(int j = 0; j < plotCount; j++)
+        for (int j = 0; j < plotCount; ++j)
           {
-          if(this->GetPlotType(i, j) == SCATTERPLOT)
+          if (this->GetPlotType(i, j) == SCATTERPLOT)
             {
-            vtkChartXY *chart = vtkChartXY::SafeDownCast(this->GetChart(vtkVector2i(i, j)));
+            vtkChartXY *chart =
+                vtkChartXY::SafeDownCast(this->GetChart(vtkVector2i(i, j)));
 
-            if(pos[0] == i && pos[1] == j)
+            if (pos[0] == i && pos[1] == j)
               {
               // set the new active chart background color to light green
-              this->Private->SetChartBackGroundColor(chart,
-                this->Private->SelectedActiveScatterChartBGColor);
+              chart->SetBackgroundBrush(
+                    this->Private->SelectedChartBGBrush.GetPointer());
               }
-            else if(pos[0] == i || pos[1] == j)
+            else if (pos[0] == i || pos[1] == j)
               {
               // set background color for all other charts in the selected
               // chart's row and column to light red
-              this->Private->SetChartBackGroundColor(chart,
-                this->Private->SelectedRowColumnScatterChartBGColor);
+              chart->SetBackgroundBrush(
+                    this->Private->SelectedRowColumnBGBrush.GetPointer());
               }
             else
               {
               // set all else to white
-              this->Private->SetChartBackGroundColor(chart,
-                this->Private->ChartSettings[SCATTERPLOT]->BackgroundColor);
+              chart->SetBackgroundBrush(
+                    this->Private->ChartSettings[SCATTERPLOT]
+                    ->BackgroundBrush.GetPointer());
               }
             }
           }
@@ -342,20 +335,20 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
                      this->VisibleColumns->GetValue(pos.X()),
                      this->VisibleColumns->GetValue(this->Size.X() -
                                                     pos.Y() - 1));
-      plot->GetPen()->SetColor(this->Private->ChartSettings[ACTIVEPLOT]
-                               ->PlotColor);
+      plot->SetPen(this->Private->ChartSettings[ACTIVEPLOT]
+                   ->PlotPen.GetPointer());
 
-      // set marker size and style
+      // Set marker size and style.
       vtkPlotPoints *plotPoints = vtkPlotPoints::SafeDownCast(plot);
       plotPoints->SetMarkerSize(this->Private->ChartSettings[ACTIVEPLOT]
                                 ->MarkerSize);
       plotPoints->SetMarkerStyle(this->Private->ChartSettings[ACTIVEPLOT]
                                  ->MarkerStyle);
-
-      // set background color
-      this->Private->BigChart->GetBackgroundBrush()->SetColor(
-        this->Private->ChartSettings[ACTIVEPLOT]->BackgroundColor);
-
+      // Set background color.
+      this->Private->BigChart->SetBackgroundBrush(
+            this->Private->ChartSettings[ACTIVEPLOT]
+            ->BackgroundBrush.GetPointer());
+      // Calculate the ideal range.
       this->Private->BigChart->RecalculateBounds();
       }
     return true;
@@ -512,139 +505,110 @@ void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
     }
 }
 
-void vtkScatterPlotMatrix::SetPlotColor(const vtkColor4ub& color)
+void vtkScatterPlotMatrix::SetPlotColor(int plotType, const vtkColor4ub& color)
 {
-  this->Private->ChartSettings[SCATTERPLOT]->PlotColor = color;
-  int plotCount = this->GetSize().X();
-
-  for (int i = 0; i < plotCount - 1; ++i)
+  if(plotType >= 0 && plotType < NOPLOT)
     {
-    for (int j = 0; j < plotCount - 1; ++j)
+    if (plotType == ACTIVEPLOT || plotType == SCATTERPLOT)
       {
-      if(this->GetPlotType(i, j) == SCATTERPLOT)
-        {
-        vtkChart *chart = this->GetChart(vtkVector2i(i, j));
-        vtkPlot *plot = chart->GetPlot(0);
-        plot->GetPen()->SetColor(color);
-        }
+      this->Private->ChartSettings[plotType]->PlotPen->SetColor(color);
       }
-    }
-
-  this->Modified();
-}
-
-void vtkScatterPlotMatrix::SetActivePlotColor(const vtkColor4ub& color)
-{
-  this->Private->ChartSettings[ACTIVEPLOT]->PlotColor = color;
-
-  // update color on current active plot
-  vtkChart *chart = this->Private->BigChart;
-  if (chart)
-    {
-    chart->GetPlot(0)->GetPen()->SetColor(color);
-    }
-  this->Modified();
-}
-
-void vtkScatterPlotMatrix::SetHistogramColor(const vtkColor4ub& color)
-{
-  this->Private->ChartSettings[HISTOGRAM]->PlotColor = color;
-
-  int plotCount = this->GetSize().X();
-
-  for(int i = 0; i < plotCount; ++i)
-    {
-    vtkChart *chart = this->GetChart(vtkVector2i(i, plotCount - i - 1));
-    vtkPlot *plot = chart->GetPlot(0);
-    plot->GetBrush()->SetColor(this->Private->ChartSettings[HISTOGRAM]
-                               ->PlotColor);
-    }
-  this->Modified();
-}
-
-void vtkScatterPlotMatrix::SetMarkerStyle(int style)
-{
-  if(style != this->Private->ChartSettings[SCATTERPLOT]->MarkerStyle)
-    {
-    this->Private->ChartSettings[SCATTERPLOT]->MarkerStyle = style;
-
-    int plotCount = this->GetSize().X();
-
-    for(int i = 0; i < plotCount - 1; i++)
+    else
       {
-      for(int j = 0; j < plotCount - 1; j++)
+      this->Private->ChartSettings[HISTOGRAM]->PlotBrush->SetColor(color);
+      }
+    this->Modified();
+    }
+}
+
+void vtkScatterPlotMatrix::SetPlotMarkerStyle(int plotType, int style)
+{
+  if(plotType >= 0 && plotType < NOPLOT &&
+     style != this->Private->ChartSettings[plotType]->MarkerStyle)
+    {
+    this->Private->ChartSettings[plotType]->MarkerStyle = style;
+
+    if (plotType == ACTIVEPLOT)
+      {
+      vtkChart *chart = this->Private->BigChart;
+      if (chart)
         {
-        if(this->GetPlotType(i, j) == SCATTERPLOT)
+        vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+        if (plot)
           {
-          vtkChart *chart = this->GetChart(vtkVector2i(i, j));
-          vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
           plot->SetMarkerStyle(style);
           }
         }
+      this->Modified();
       }
-
-    this->Modified();
-    }
-}
-
-void vtkScatterPlotMatrix::SetActivePlotMarkerStyle(int style)
-{
-  if(style != this->Private->ChartSettings[ACTIVEPLOT]->MarkerStyle)
-    {
-    this->Private->ChartSettings[ACTIVEPLOT]->MarkerStyle = style;
-
-    // update marker style on current active plot
-    vtkChart *chart = this->Private->BigChart;
-    if(chart)
+    else if (plotType == SCATTERPLOT)
       {
-      vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
-      plot->SetMarkerStyle(style);
-      }
-
-    this->Modified();
-    }
-}
-
-void vtkScatterPlotMatrix::SetMarkerSize(float size)
-{
-  if (size != this->Private->ChartSettings[SCATTERPLOT]->MarkerSize)
-    {
-    this->Private->ChartSettings[SCATTERPLOT]->MarkerSize = size;
-
-    int plotCount = this->GetSize().X();
-
-    for(int i = 0; i < plotCount - 1; i++)
-      {
-      for(int j = 0; j < plotCount - 1; j++)
+      int plotCount = this->GetSize().X();
+      for (int i = 0; i < plotCount - 1; ++i)
         {
-        if(this->GetPlotType(i, j) == SCATTERPLOT)
+        for(int j = 0; j < plotCount - 1; ++j)
           {
-          vtkChart *chart = this->GetChart(vtkVector2i(i, j));
-          vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+          if(this->GetPlotType(i, j) == SCATTERPLOT &&
+             this->GetChart(vtkVector2i(i, j)))
+            {
+            vtkChart *chart = this->GetChart(vtkVector2i(i, j));
+            vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+            if (plot)
+              {
+              plot->SetMarkerStyle(style);
+              }
+            }
+          }
+        }
+      this->Modified();
+      }
+    }
+}
+
+void vtkScatterPlotMatrix::SetPlotMarkerSize(int plotType, float size)
+{
+  if(plotType >= 0 && plotType < NOPLOT &&
+     size != this->Private->ChartSettings[plotType]->MarkerSize)
+    {
+    this->Private->ChartSettings[plotType]->MarkerSize = size;
+
+    if (plotType == ACTIVEPLOT)
+      {
+      // update marker size on current active plot
+      vtkChart *chart = this->Private->BigChart;
+      if(chart)
+        {
+        vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+        if (plot)
+          {
           plot->SetMarkerSize(size);
           }
         }
+      this->Modified();
       }
-
-    this->Modified();
-    }
-}
-
-void vtkScatterPlotMatrix::SetActivePlotMarkerSize(float size)
-{
-  if(size != this->Private->ChartSettings[ACTIVEPLOT]->MarkerSize)
-    {
-    this->Private->ChartSettings[ACTIVEPLOT]->MarkerSize = size;
-
-    // update marker size on current active plot
-    vtkChart *chart = this->Private->BigChart;
-    if(chart)
+    else if (plotType == SCATTERPLOT)
       {
-      vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
-      plot->SetMarkerSize(size);
-      }
+      int plotCount = this->GetSize().X();
 
-    this->Modified();
+      for(int i = 0; i < plotCount - 1; i++)
+        {
+        for(int j = 0; j < plotCount - 1; j++)
+          {
+          if(this->GetPlotType(i, j) == SCATTERPLOT &&
+             this->GetChart(vtkVector2i(i, j)))
+            {
+            vtkChart *chart = this->GetChart(vtkVector2i(i, j));
+            vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart
+                                                              ->GetPlot(0));
+            if (plot)
+              {
+              plot->SetMarkerSize(size);
+              }
+            }
+          }
+        }
+      this->Modified();
+      }
     }
 }
 
@@ -742,8 +706,8 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plot->SetInput(this->Input.GetPointer(),
                        this->VisibleColumns->GetValue(i),
                        this->VisibleColumns->GetValue(n - j - 1));
-        plot->GetPen()->SetColor(this->Private->ChartSettings[SCATTERPLOT]
-                                 ->PlotColor);
+        plot->SetPen(this->Private->ChartSettings[SCATTERPLOT]
+                     ->PlotPen.GetPointer());
 
         // set plot marker size and style
         vtkPlotPoints *plotPoints = vtkPlotPoints::SafeDownCast(plot);
@@ -756,9 +720,10 @@ void vtkScatterPlotMatrix::UpdateLayout()
         {
         // We are on the diagonal - need a histogram plot.
         vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
-        plot->GetBrush()->SetColor(this->Private->ChartSettings[HISTOGRAM]
-                                   ->PlotColor);
-        plot->GetPen()->SetColor(255, 255, 255);
+        plot->SetPen(this->Private->ChartSettings[HISTOGRAM]
+                     ->PlotPen.GetPointer());
+        plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]
+                       ->PlotBrush.GetPointer());
         vtkStdString name(this->VisibleColumns->GetValue(i));
         plot->SetInput(this->Private->Histogram.GetPointer(),
                        name + "_extents", name + "_pops");
@@ -777,8 +742,8 @@ void vtkScatterPlotMatrix::UpdateLayout()
           }
 
         // set background color to light gray
-        this->Private->SetChartBackGroundColor(xy,
-          this->Private->ChartSettings[HISTOGRAM]->BackgroundColor);
+        xy->SetBackgroundBrush(this->Private->ChartSettings[HISTOGRAM]
+                               ->BackgroundBrush.GetPointer());
         }
       else if (this->GetPlotType(pos) == ACTIVEPLOT)
         {
@@ -914,7 +879,7 @@ void vtkScatterPlotMatrix::SetBackgroundColor(int plotType,
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
     {
-    this->Private->ChartSettings[plotType]->BackgroundColor = color;
+    this->Private->ChartSettings[plotType]->BackgroundBrush->SetColor(color);
     this->Modified();
     }
 }
@@ -1012,7 +977,7 @@ void vtkScatterPlotMatrix::SetTooltipPrecision(int plotType, int precision)
 void vtkScatterPlotMatrix::SetScatterPlotSelectedRowColumnColor(
     const vtkColor4ub& color)
 {
-  this->Private->SelectedRowColumnScatterChartBGColor = color;
+  this->Private->SelectedRowColumnBGBrush->SetColor(color);
   this->Modified();
 }
 
@@ -1020,7 +985,7 @@ void vtkScatterPlotMatrix::SetScatterPlotSelectedRowColumnColor(
 void vtkScatterPlotMatrix::SetScatterPlotSelectedActiveColor(
     const vtkColor4ub& color)
 {
-  this->Private->SelectedActiveScatterChartBGColor = color;
+  this->Private->SelectedChartBGBrush->SetColor(color);
   this->Modified();
 }
 
@@ -1097,7 +1062,8 @@ bool vtkScatterPlotMatrix::GetGridVisibility(int plotType)
 vtkColor4ub vtkScatterPlotMatrix::GetBackgroundColor(int plotType)
 {
   assert(plotType != NOPLOT);
-  return this->Private->ChartSettings[plotType]->BackgroundColor;
+  return this->Private->ChartSettings[plotType]->BackgroundBrush
+      ->GetColorObject();
 }
 
 //----------------------------------------------------------------------------
@@ -1141,6 +1107,7 @@ int vtkScatterPlotMatrix::GetTooltipNotation(int plotType)
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->TooltipNotation;
 }
+
 int vtkScatterPlotMatrix::GetTooltipPrecision(int plotType)
 {
   assert(plotType != NOPLOT);
@@ -1150,13 +1117,13 @@ int vtkScatterPlotMatrix::GetTooltipPrecision(int plotType)
 //----------------------------------------------------------------------------
 vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedRowColumnColor()
 {
-  return this->Private->SelectedRowColumnScatterChartBGColor;
+  return this->Private->SelectedRowColumnBGBrush->GetColorObject();
 }
 
 //----------------------------------------------------------------------------
 vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedActiveColor()
 {
-  return this->Private->SelectedActiveScatterChartBGColor;
+  return this->Private->SelectedChartBGBrush->GetColorObject();
 }
 
 //----------------------------------------------------------------------------

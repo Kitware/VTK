@@ -108,32 +108,16 @@ public:
   virtual int GetNumberOfBins() const { return this->NumberOfBins; }
 
   // Description:
-  // Set the color for the scatter plots.
-  void SetPlotColor(const vtkColor4ub& color);
+  // Set the color for the specified plotType.
+  void SetPlotColor(int plotType, const vtkColor4ub& color);
 
   // Description:
-  // Set the color for the active plot.
-  void SetActivePlotColor(const vtkColor4ub& color);
+  // Sets the marker style for the specified plotType.
+  void SetPlotMarkerStyle(int plotType, int style);
 
   // Description:
-  // Set the color for the histogram.
-  void SetHistogramColor(const vtkColor4ub& color);
-
-  // Description:
-  // Sets the marker style for the scatter plots.
-  void SetMarkerStyle(int style);
-
-  // Description:
-  // Sets the marker style for the active plots.
-  void SetActivePlotMarkerStyle(int style);
-
-  // Description:
-  // Sets the marker size for the scatter plots.
-  void SetMarkerSize(float size);
-
-  // Description:
-  // Sets the marker size for the active plot.
-  void SetActivePlotMarkerSize(float size);
+  // Sets the marker size for the specified plotType.
+  void SetPlotMarkerSize(int plotType, float size);
 
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
@@ -168,7 +152,8 @@ public:
   vtkTextProperty* GetTitleProperties();
 
   // Description:
-  // Sets whether or not the grid for the given axis is visible given a plot type, which refers to
+  // Sets whether or not the grid for the given axis is visible given a plot
+  // type, which refers to
   // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
   void SetGridVisibility(int plotType, bool visible);
   bool GetGridVisibility(int plotType);
