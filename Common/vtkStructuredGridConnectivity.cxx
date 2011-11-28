@@ -176,7 +176,8 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
         // If my gridID is not the smallest gridID that shares the point, then
         // I don't own the point.
         // The convention is that the grid with the smallest gridID will own the
-        // point and all other grids should IGNORE it when computing statistics etc.
+        // point and all other grids should IGNORE it when computing statistics
+        // etc.
         if( gridID > neiList->GetId( nei ) )
           {
           vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::IGNORE );
