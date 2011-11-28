@@ -108,6 +108,7 @@ int vtkUniformGridPartitioner::RequestData(
       extent[0], extent[3], extent[1],
       extent[4], extent[2], extent[5] );
 
+
   unsigned int blockIdx = 0;
   for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
     {
