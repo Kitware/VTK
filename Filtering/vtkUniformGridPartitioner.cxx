@@ -105,30 +105,30 @@ int vtkUniformGridPartitioner::RequestData(
   unsigned int blockIdx = 0;
   for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
     {
-      int ext[6];
-      extentPartitioner->GetPartitionExtent( blockIdx, ext );
+    int ext[6];
+    extentPartitioner->GetPartitionExtent( blockIdx, ext );
 
-      double origin[3];
-      int ijk[3];
-      ijk[0] = ext[0];
-      ijk[1] = ext[1];
-      ijk[2] = ext[2];
+    double origin[3];
+    int ijk[3];
+    ijk[0] = ext[0];
+    ijk[1] = ext[1];
+    ijk[2] = ext[2];
 
-      int subdims[3];
-      subdims[0] = ext[3]-ext[0]+1;
-      subdims[1] = ext[4]-ext[1]+1;
-      subdims[2] = ext[5]-ext[2]+1;
-      int pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
+    int subdims[3];
+    subdims[0] = ext[3]-ext[0]+1;
+    subdims[1] = ext[4]-ext[1]+1;
+    subdims[2] = ext[5]-ext[2]+1;
+    int pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
 
-      grd->GetPoint( pntIdx, origin );
+    grd->GetPoint( pntIdx, origin );
 
-      vtkUniformGrid *subgrid = vtkUniformGrid::New();
-      subgrid->SetOrigin( origin );
-      subgrid->SetSpacing( grd->GetSpacing() );
-      subgrid->SetDimensions( subdims );
+    vtkUniformGrid *subgrid = vtkUniformGrid::New();
+    subgrid->SetOrigin( origin );
+    subgrid->SetSpacing( grd->GetSpacing() );
+    subgrid->SetDimensions( subdims );
 
-      multiblock->SetBlock( blockIdx, subgrid );
-      subgrid->Delete();
+    multiblock->SetBlock( blockIdx, subgrid );
+    subgrid->Delete();
     } // END for all blocks
 
   extentPartitioner->Delete();
