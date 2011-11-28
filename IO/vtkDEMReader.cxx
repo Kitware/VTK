@@ -197,8 +197,20 @@ int vtkDEMReader::ReadTypeARecord ()
   //
   // read the record. it is always 1024 characters long
   //
-  fscanf(fp, "%512c", record); 
-  fscanf(fp, "%512c", record+512); 
+  int result = fscanf(fp, "%512c", record); 
+  if (result != 1)
+    {
+    vtkErrorMacro("For the file " << this->FileName
+                  << " fscanf expected 1 items but got " << result);
+    return -1;
+    }
+  result = fscanf(fp, "%512c", record+512); 
+  if (result != 1)
+    {
+    vtkErrorMacro("For the file " << this->FileName
+                  << " fscanf expected 1 items but got " << result);
+    return -1;
+    }
   record[1024] = '\0';
 
   //
@@ -382,6 +394,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
   int rowId, columnId;
   int updateInterval;
   int status = 0;
+  int result;
   FILE *fp;
 
   if (!this->FileName)
@@ -441,7 +454,13 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     //
     // read the doubles as strings so we can convert floating point format
     //
-    (void) fscanf(fp, "%120c", record);
+    result = fscanf(fp, "%120c", record);
+    if (result != 1)
+      {
+      vtkErrorMacro("For the file " << this->FileName
+                    << " fscanf expected 1 items but got " << result);
+      return -1;
+    }
     //
     // convert any D+ or D- to E+ or E-
     //
@@ -467,7 +486,13 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     // read a column
     for (row = rowId; row <= lastRow; row++)
       {
-      (void) fscanf(fp, "%6d", &elevation);
+      result = fscanf(fp, "%6d", &elevation);
+      if (result != 1)
+        {
+        vtkErrorMacro("For the file " << this->FileName
+                      << " fscanf expected 1 items but got " << result);
+        return -1;
+        }
       *(outPtr + columnId + row * numberOfColumns) = elevation * units;
       }
     }

@@ -161,7 +161,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
     return NULL;
     }
   
-  fscanf (file, "%s %d", tag, &npts); // read number of points
+  (void) fscanf (file, "%s %d", tag, &npts); // read number of points
   
   vtkSmartPointer<vtkUnstructuredGrid> dataSet =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -218,7 +218,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
 
   rewind(file);
   
-  fscanf(file, "%s %d", tag, &npts);
+  (void) fscanf(file, "%s %d", tag, &npts);
   
   while ( !readData && fscanf(file, "%s", tag) == 1 )
     {
@@ -227,7 +227,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
       readData = 1;
       for (i=0; i<npts; i++) 
         {
-        fscanf(file, "%f", data+i);
+        (void) fscanf(file, "%f", data+i);
         if ( data[i] < min ) min = data[i];
         if ( data[i] > min ) max = data[i];
         }
@@ -236,7 +236,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
       }
     else
       {
-      for (i=0; i<npts; i++) fscanf(file, "%*f");
+      for (i=0; i<npts; i++) (void) fscanf(file, "%*f");
       }
     }
 

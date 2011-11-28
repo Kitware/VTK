@@ -101,7 +101,7 @@ bool FileStreamReader::open( const char* fileName )
     //flags or not
     unsigned char magic[2];
     FILE *ff = fopen(fileName,"rb");
-    fread(magic,1,2,ff);
+    (void) fread(magic,1,2,ff);
     fclose(ff);
 
     const char* mode = (magic[0] == 0x1f && magic[1] == 0x8b) ? "rb" : "r";

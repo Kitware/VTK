@@ -174,7 +174,7 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
     }
 
   char magic[4];
-  fread(magic, 4, 1, fp);
+  (void) fread(magic, 4, 1, fp);
   fclose(fp);
 
   if (magic[0] != 'C' ||

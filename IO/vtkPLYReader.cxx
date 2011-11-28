@@ -288,7 +288,7 @@ int vtkPLYReader::CanReadFile(const char *filename)
   if (!fd) return 0;
 
   char line[4] = {};
-  fgets(line, sizeof(line), fd);
+  (void) fgets(line, sizeof(line), fd);
   fclose(fd);
   return (strncmp(line, "ply", 3) == 0);
 }

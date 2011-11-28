@@ -91,7 +91,7 @@ int vtkGaussianCubeReader::RequestData(
     return 0;
     }
 
-  fgets(title, 256, fp);
+  (void) fgets(title, 256, fp);
   if(strtok(title, ":") != NULL)
     {
     if(strtok(NULL, ":") != NULL)
@@ -100,11 +100,11 @@ int vtkGaussianCubeReader::RequestData(
       fprintf(stderr,"label = %s\n", data_name);
       }
     }
-  fgets(title, 256, fp);
+  (void) fgets(title, 256, fp);
 
   // Read in number of atoms, x-origin, y-origin z-origin
   //
-  fscanf(fp, "%d %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], 
+  (void) fscanf(fp, "%d %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], 
          &elements[7], &elements[11]);
   if(this->NumberOfAtoms < 0 )
     {
@@ -112,9 +112,9 @@ int vtkGaussianCubeReader::RequestData(
     orbitalCubeFile = true;
     }
 
-  fscanf(fp, "%d %lf %lf %lf", &n1, &elements[0], &elements[4], &elements[8]);
-  fscanf(fp, "%d %lf %lf %lf", &n2, &elements[1], &elements[5], &elements[9]);
-  fscanf(fp, "%d %lf %lf %lf", &n3, &elements[2], &elements[6], &elements[10]);
+  (void) fscanf(fp, "%d %lf %lf %lf", &n1, &elements[0], &elements[4], &elements[8]);
+  (void) fscanf(fp, "%d %lf %lf %lf", &n2, &elements[1], &elements[5], &elements[9]);
+  (void) fscanf(fp, "%d %lf %lf %lf", &n3, &elements[2], &elements[6], &elements[10]);
   elements[12] = 0;
   elements[13] = 0;
   elements[14] = 0;
@@ -129,10 +129,10 @@ int vtkGaussianCubeReader::RequestData(
 
   if(orbitalCubeFile)
     {
-    fscanf(fp,"%d", &numberOfOrbitals);
+    (void) fscanf(fp,"%d", &numberOfOrbitals);
     for(k = 0; k < numberOfOrbitals; k++) 
       {
-      fscanf(fp,"%f", &tmp);
+      (void) fscanf(fp,"%f", &tmp);
       }
     }
 
@@ -162,7 +162,7 @@ int vtkGaussianCubeReader::RequestData(
       {
       for(k = 0; k < n3; k++) 
         {
-        fscanf(fp,"%f", &tmp);
+        (void) fscanf(fp,"%f", &tmp);
         cubedata[k*N1N2 + JN1 + i] = tmp;
         }
       JN1 += n1;
@@ -182,7 +182,7 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
 
   for(i = 0; i < this->NumberOfAtoms; i++) 
     {
-    fscanf(fp, "%d %f %f %f %f", &j, &dummy, x, x+1, x+2);
+    (void) fscanf(fp, "%d %f %f %f %f", &j, &dummy, x, x+1, x+2);
     this->Transform->TransformPoint(x, x);
     this->Points->InsertNextPoint(x);
     this->AtomType->InsertNextValue(j-1);
@@ -243,17 +243,17 @@ int vtkGaussianCubeReader::RequestInformation(
     return 0;
     }
   
-  fgets(title, 256, fp);
-  fgets(title, 256, fp);
+  (void) fgets(title, 256, fp);
+  (void) fgets(title, 256, fp);
 
   // Read in number of atoms, x-origin, y-origin z-origin
   double tmpd;
   int n1, n2, n3;
-  fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd);
+  (void) fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd);
   
-  fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd);
-  fscanf(fp, "%d %lf %lf %lf", &n2, &tmpd, &tmpd, &tmpd);
-  fscanf(fp, "%d %lf %lf %lf", &n3, &tmpd, &tmpd, &tmpd);
+  (void) fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd);
+  (void) fscanf(fp, "%d %lf %lf %lf", &n2, &tmpd, &tmpd, &tmpd);
+  (void) fscanf(fp, "%d %lf %lf %lf", &n3, &tmpd, &tmpd, &tmpd);
   
   vtkDebugMacro(<< "Grid Size " << n1 << " " << n2 << " " << n3);
   gridInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
