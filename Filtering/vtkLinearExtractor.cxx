@@ -25,8 +25,9 @@ vtkCxxSetObjectMacro(vtkLinearExtractor,Points,vtkPoints);
 // ----------------------------------------------------------------------
 vtkLinearExtractor::vtkLinearExtractor()
 {
-  this->SetStartPoint( 0., 0., 0. );
-  this->SetEndPoint( 1., 1. ,1. );
+  
+  this->StartPoint[0] = this->StartPoint[1] = this->StartPoint[2] = 0.0;
+  this->EndPoint[0] = this->EndPoint[1] = this->EndPoint[2] = 1.0;
   this->Tolerance = 0.;
   this->IncludeVertices = true;
   this->VertexEliminationTolerance = 1.e-6;
