@@ -25,9 +25,10 @@
 #include <vector>
 #include <algorithm>
 
-#define NO_OVERLAP   0
-#define NODE_OVERLAP 1
-#define EDGE_OVERLAP 2
+#define NO_OVERLAP      0
+#define NODE_OVERLAP    1
+#define EDGE_OVERLAP    2
+#define PARTIAL_OVERLAP 3
 
 vtkStandardNewMacro( vtkStructuredGridConnectivity );
 
@@ -51,6 +52,43 @@ vtkStructuredGridConnectivity::~vtkStructuredGridConnectivity()
 void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
 {
   this->Superclass::PrintSelf( os, indent );
+
+  os << "========================\n";
+  os << "CONNECTIVITY INFORMATION: \n";
+  for( int gridID=0; gridID < this->NumberOfGrids; ++gridID )
+    {
+    int GridExtent[6];
+    this->GetGridExtent( gridID, GridExtent );
+    os << "GRID:";
+    for( int i=0; i < 6; i+=2 )
+      {
+      os << " [";
+      os << GridExtent[i] << ", " << GridExtent[i+1] << "]";
+      }
+    os << std::endl;
+
+    for( unsigned int nei=0; nei < this->Neighbors[gridID].size(); ++nei )
+      {
+      int NeiExtent[6];
+      this->GetGridExtent( this->Neighbors[gridID][nei].NeighborID, NeiExtent );
+
+      os << "\t";
+      for( int i=0; i < 6; i+=2 )
+        {
+        os << " [";
+        os << NeiExtent[i] << ", " << NeiExtent[i+1] << "] ";
+        }
+
+      os << " @ ";
+      for( int i=0; i < 6; i+=2 )
+        {
+        os << " [";
+        os << this->Neighbors[gridID][nei].OverlapExtent[ i ] << ", ";
+        os << this->Neighbors[gridID][nei].OverlapExtent[ i+1 ] << "] ";
+        }
+      os << std::endl;
+      } // END for all neis
+    } // END for all grids
 }
 
 //------------------------------------------------------------------------------
@@ -78,10 +116,14 @@ void vtkStructuredGridConnectivity::AcquireDataDescription()
     return;
 
   int dims[3];
+
   vtkStructuredExtent::GetDimensions( this->WholeExtent, dims );
+
   this->DataDescription = vtkStructuredData::GetDataDescription( dims );
   assert( "pre: Error acquiring data description" &&
           (this->DataDescription >= 0) );
+  assert( "pre: grid description cannot be empty" &&
+          (this->DataDescription != VTK_EMPTY) );
 }
 
 //------------------------------------------------------------------------------
@@ -199,6 +241,12 @@ void vtkStructuredGridConnectivity::FillMeshPropertyArrays(
   int GridExtent[6];
   this->GetGridExtent( gridID, GridExtent );
 
+//  std::cout << "GRID: " << gridID << " has extent ";
+//  std::cout.flush();
+//  this->PrintExtent( GridExtent );
+//  std::cout << std::endl;
+//  std::cout.flush();
+
   int ijkmin[3];
   ijkmin[0] = GridExtent[0];
   ijkmin[1] = GridExtent[2];
@@ -214,6 +262,7 @@ void vtkStructuredGridConnectivity::FillMeshPropertyArrays(
       for( int k=GridExtent[4]; k <= GridExtent[5]; ++k )
         {
         // Convert global indices to local indices
+        // TODO: handle arbitrary dimensions
         int li = i - ijkmin[0];
         int lj = j - ijkmin[1];
         int lk = k - ijkmin[2];
@@ -267,6 +316,8 @@ bool vtkStructuredGridConnectivity::IsNodeOnBoundary(
            status = true;
        break;
      default:
+       std::cout << "Data description is: " << this->DataDescription << "\n";
+       std::cout.flush();
        assert( "pre: Undefined data-description!" && false );
     } // END switch
 
@@ -316,6 +367,8 @@ bool vtkStructuredGridConnectivity::IsNodeInterior(
           status = true;
       break;
     default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
       assert( "pre: Undefined data-description!" && false );
     } // END switch
 
@@ -365,6 +418,8 @@ bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
           status = true;
       break;
     default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
       assert( "pre: Undefined data-description!" && false );
     } // END switch
 
@@ -436,6 +491,8 @@ void vtkStructuredGridConnectivity::EstablishNeighbors(const int i,const int j)
       orientation[2] =  2;
       break;
     default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
       assert( "pre: Undefined data-description!" && false );
     } // END switch
 
@@ -513,25 +570,47 @@ void vtkStructuredGridConnectivity::PrintExtent( int ex[6] )
 }
 
 //------------------------------------------------------------------------------
+int vtkStructuredGridConnectivity::PartialOverlap(
+                                    int A[2], const int CardinalityOfA,
+                                    int B[2], const int CardinalityOfB,
+                                    int overlap[2] )
+{
+  // TODO: implement this
+  return NO_OVERLAP;
+}
+
+//------------------------------------------------------------------------------
 int vtkStructuredGridConnectivity::IntervalOverlap(
                     int A[2], int B[2], int overlap[2] )
 {
   int rc = NO_OVERLAP;
 
-  // STEP 0: Initialize overlap
+  // STEP 0: Check if we must check for a partial overlap
+  int CardinalityOfA = this->Cardinality( A );
+  int CardinalityOfB = this->Cardinality( B );
+  if( CardinalityOfA != CardinalityOfB )
+    {
+    return( this->PartialOverlap(
+        A, CardinalityOfA, B, CardinalityOfB, overlap ) );
+    }
+
+  // Otherwise, check if the intervals overlap at a node or are 1-to-1, i.e.,
+  // form an edge
+
+  // STEP 1: Initialize overlap
   for( int i=0; i < 2; i++ )
     overlap[i] = -1;
 
-  // STEP 1: Allocate internal intersection vector. Note, since the cardinality
+  // STEP 2: Allocate internal intersection vector. Note, since the cardinality
   // of A,B is 2, the intersection vector can be at most of size 2.
   std::vector< int > intersection;
   intersection.resize( 2 );
 
-  // STEP 2: Compute intersection
+  // STEP 3: Compute intersection
   std::vector< int >::iterator it;
   it = std::set_intersection( A, A+2, B, B+2, intersection.begin() );
 
-  // STEP 3: Find number of intersections and overlap extent
+  // STEP 4: Find number of intersections and overlap extent
   int N = static_cast< int >( it-intersection.begin() );
 
   switch( N )

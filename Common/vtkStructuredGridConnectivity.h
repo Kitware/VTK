@@ -100,6 +100,15 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
     virtual ~vtkStructuredGridConnectivity();
 
     // Description:
+    // Returns true iff Lo <= idx <= Hi, otherwise false.
+    bool InBounds( const int idx, const int Lo, const int Hi )
+    { return( (idx>=Lo) && (idx<=Hi) ); };
+
+    // Description
+    // Returns the cardinality of a range S.
+    int Cardinality( int S[2] ) { return( S[1]-S[0]+1 ); };
+
+    // Description:
     // Given a point (i,j,k) belonging to the grid corresponding to the given
     // gridID, this method searches for the grids that this point is neighboring
     // with.
@@ -151,10 +160,24 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
     // Checks if the intervals A,B overlap. The intersection of A,B is returned
     // in the overlap array and a return code is used to indicate the type of
     // overlap. The return values are defined as follows:
-    // NO_OVERLAP   0
-    // NODE_OVERLAP 1
-    // EDGE_OVERLAP 2
+    // NO_OVERLAP      0
+    // NODE_OVERLAP    1
+    // EDGE_OVERLAP    2
+    // PARTIAL_OVERLAP 3
     int IntervalOverlap( int A[2], int B[2], int overlap[2] );
+
+    // Description:
+    // Checks if the intervals A,B partially overlap. The region of partial
+    // overlap is returned in the provided overlap array and a return code is
+    // used to indicate whether there is partial overlap or not. The return
+    // values are defined as follows:
+    // NO_OVERLAP      0
+    // NODE_OVERLAP    1
+    // PARTIAL_OVERLAP 3
+    int PartialOverlap(
+        int A[2], const int CofA,
+        int B[2], const int CofB,
+        int overlap[2] );
 
     // Description:
     // Establishes the neighboring information between the two grids
