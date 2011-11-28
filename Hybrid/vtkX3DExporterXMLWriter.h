@@ -35,6 +35,7 @@ public:
   virtual int OpenFile(const char* file);
   virtual void Flush();
 
+  virtual int OpenStream();
 
   void StartDocument();
   void EndDocument();
@@ -74,7 +75,7 @@ private:
 
   vtkstd::string ActTab;
   int Depth;
-  ofstream OutputStream;
+  ostream *OutputStream;
   vtkX3DExporterXMLNodeInfoStack* InfoStack;
 
   vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&); // Not implemented.

@@ -514,9 +514,9 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
   char **item_ptr;
   int list_count;
   int item_size;
-  int int_val;
-  unsigned int uint_val;
-  double double_val;
+  int int_val = 0;
+  unsigned int uint_val = 0;
+  double double_val = 0.0;
   char **other_ptr;
 
   elem = plyfile->which_elem;
@@ -1497,9 +1497,9 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
   char *elem_data,*item=0;
   char *item_ptr;
   int item_size;
-  int int_val;
-  unsigned int uint_val;
-  double double_val;
+  int int_val = 0;
+  unsigned int uint_val = 0;
+  double double_val = 0.0;
   int list_count;
   int store_it;
   char **store_array;
@@ -2200,11 +2200,6 @@ void vtkPLY::get_binary_item(
   double *double_val
 )
 {
-  char c[8];
-  void *ptr;
-
-  ptr = (void *) c;
-
   switch (type) {
     case PLY_CHAR:
       {

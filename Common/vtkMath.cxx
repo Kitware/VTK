@@ -100,36 +100,6 @@ const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000LL;
 const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
 #endif
 
-// If we cannot do comparisons to non-finite numbers without causing floating
-// point exceptions, we better fall back to IEEE-754 bit comparisons.
-
-#if !defined(VTK_HAS_ISINF) && defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-inline bool vtkMathIsInf(double x)
-{
-  // IEEE-754 infinites have all of their exponent set and none of their
-  // mantissa set.
-  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  cout << "IsInf of " << xbits << endl;
-  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) == 0) );
-}
-#define isinf(x) vtkMathIsInf(x)
-#define VTK_HAS_ISINF
-#endif // !VTK_HAS_ISINF && VTK_NON_FINITE_CAUSES_EXCEPTIONS
-
-#if !defined(VTK_HAS_ISNAN) && defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-inline bool vtkMathIsNan(double x)
-{
-  // IEEE-754 NaNs have all of their exponent set and at least one bit in
-  // their mantissa set.
-  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  cout << "IsNan of " << xbits << endl;
-  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) != 0) );
-}
-#define isnan(x) vtkMathIsNan(x)
-#define VTK_HAS_ISNAN
-#endif // !VTK_HAS_ISNAN && VTK_NON_FINITE_CAUSES_EXCEPTIONS
 
 //
 // Some useful macros and functions
@@ -3068,22 +3038,40 @@ double vtkMath::Nan()
 }
 
 //-----------------------------------------------------------------------------
+#if !defined(VTK_HAS_ISINF)
 int vtkMath::IsInf(double x)
 {
-#ifdef VTK_HAS_ISINF
-  return (isinf(x) ? 1 : 0);
+#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
+  // If we cannot do comparisons to non-finite numbers without causing floating
+  // point exceptions, we better fall back to IEEE-754 bit comparisons.
+  // IEEE-754 infinites have all of their exponent set and none of their
+  // mantissa set.
+  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
+  cout << "IsInf of " << xbits << endl;
+  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
+          && ((xbits & vtkMathDoubleMantissa) == 0) ) ? 1 : 0;
 #else
   return (   !vtkMath::IsNan(x)
           && !((x < vtkMath::Inf()) && (x > vtkMath::NegInf())) );
 #endif
 }
+#endif
 
 //-----------------------------------------------------------------------------
+#if !defined(VTK_HAS_ISNAN)
 int vtkMath::IsNan(double x)
 {
-#ifdef VTK_HAS_ISNAN
-  return (isnan(x) ? 1 : 0);
+#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
+  // If we cannot do comparisons to non-finite numbers without causing floating
+  // point exceptions, we better fall back to IEEE-754 bit comparisons.
+  // IEEE-754 NaNs have all of their exponent set and at least one bit in
+  // their mantissa set.
+  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
+  cout << "IsNan of " << xbits << endl;
+  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
+          && ((xbits & vtkMathDoubleMantissa) != 0) ) ? 1 : 0;
 #else
   return !((x <= 0.0) || (x >= 0.0));
 #endif
 }
+#endif

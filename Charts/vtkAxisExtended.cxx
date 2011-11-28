@@ -465,7 +465,7 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
         double z = ceil(log10(delta));
         while(z < INF)
           {
-          double step = j*Q[qIndex]*pow(10,z);
+          double step = j*Q[qIndex]*pow(10.0,z);
           //double cm = CoverageMax(dmin, dmax, step*(k-1));
           if((w[0]*sm + w[1] + w[2]*dm + w[3]) < bestScore)
             {

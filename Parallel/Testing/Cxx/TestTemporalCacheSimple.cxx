@@ -151,8 +151,10 @@ int vtkTemporalSphereSource::RequestData(
       vtkstd::bind2nd( vtkTestTemporalCacheSimpleWithinTolerance( ), requestedTimeValue )) 
       - this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
+#ifndef NDEBUG
     int N = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &requestedTimeValue, 1);
+#endif
     vtkDebugMacro(<<"Got a timestep request from downstream t= " << requestedTimeValue 
       << " Step : " << this->ActualTimeStep << "(Number of steps requested " << N << ")");
     }

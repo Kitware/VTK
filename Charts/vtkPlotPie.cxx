@@ -16,6 +16,7 @@
 #include "vtkPlotPie.h"
 
 #include "vtkContext2D.h"
+#include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
 #include "vtkPoints2D.h"

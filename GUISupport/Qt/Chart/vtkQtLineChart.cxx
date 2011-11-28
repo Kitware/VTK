@@ -809,8 +809,6 @@ void vtkQtLineChart::paint(QPainter *painter,
   // Use the exposed rectangle from the option object to determine
   // which series to draw.
   vtkQtChartContentsSpace *space = this->ChartArea->getContentsSpace();
-  QRectF area = option->exposedRect.translated(space->getXOffset(),
-      space->getYOffset());
 
   // Set up the painter clipping and offset for panning.
   //painter->setClipRect(this->Internal->Bounds);

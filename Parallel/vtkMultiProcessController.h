@@ -187,37 +187,37 @@ public:
   // Returns a unique Id for the RMI registration which can be used to
   // unregister the callback. RemoveRMI() should be preferred over
   // RemoveFirstRMI() since it avoid accidental removal of callbacks.
-  unsigned long AddRMI(vtkRMIFunctionType, void *localArg, int tag);
+  virtual unsigned long AddRMI(vtkRMIFunctionType, void *localArg, int tag);
   
   // Description:
   // Remove the first RMI matching the tag.
-  int RemoveFirstRMI(int tag);
+  virtual int RemoveFirstRMI(int tag);
 
   // Description:
   // Remove the  RMI matching the id. The id is the same id returned by
   // AddRMI().
-  int RemoveRMI(unsigned long id);
+  virtual int RemoveRMI(unsigned long id);
 
   // Description:
   // Take an RMI away.
-  void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
+  virtual void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
     {(void)f; (void)arg; (void)tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
 
   // Description:
   // These methods are a part of the newer API to add multiple rmi callbacks.
   // When the RMI is triggered, all the callbacks are called
   // Adds a new callback for an RMI. Returns the identifier for the callback.
-  unsigned long AddRMICallback(vtkRMIFunctionType, void* localArg, int tag);
+  virtual unsigned long AddRMICallback(vtkRMIFunctionType, void* localArg, int tag);
 
   // Description:
   // These methods are a part of the newer API to add multiple rmi callbacks.
   // When the RMI is triggered, all the callbacks are called
   // Removes all callbacks for the tag.
-  void RemoveAllRMICallbacks(int tag);
+  virtual void RemoveAllRMICallbacks(int tag);
 
   // Description:
   // Remove a callback. Returns true is the remove was successful.
-  bool RemoveRMICallback(unsigned long id);
+  virtual bool RemoveRMICallback(unsigned long id);
 
   //ETX
   

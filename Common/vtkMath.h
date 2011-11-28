@@ -53,6 +53,17 @@
 #else  // DBL_EPSILON
 #  define VTK_DBL_EPSILON    DBL_EPSILON
 #endif  // DBL_EPSILON
+#include "vtkMathConfigure.h" // For VTK_HAS_ISINF and VTK_HAS_ISNAN
+
+#include <assert.h> // assert() in inline implementations.
+
+#ifndef VTK_DBL_EPSILON
+#  ifndef DBL_EPSILON
+#    define VTK_DBL_EPSILON    2.2204460492503131e-16
+#  else  // DBL_EPSILON
+#    define VTK_DBL_EPSILON    DBL_EPSILON
+#  endif  // DBL_EPSILON
+#endif  // VTK_DBL_EPSILON
 
 class vtkDataArray;
 class vtkPoints;
@@ -960,6 +971,7 @@ public:
   // Test if a number is equal to the special floating point value infinity.
   static int IsInf(double x);
 
+  // Description:
   // Test if a number is equal to the special floating point value Not-A-Number (Nan).
   static int IsNan(double x);
 
@@ -1312,5 +1324,21 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 
   return result;
 }
+
+#if defined(VTK_HAS_ISINF)
+//-----------------------------------------------------------------------------
+inline int vtkMath::IsInf(double x)
+{
+  return (isinf(x) ? 1 : 0);
+}
+#endif
+
+#if defined(VTK_HAS_ISNAN)
+//-----------------------------------------------------------------------------
+inline int vtkMath::IsNan(double x)
+{
+  return (isnan(x) ? 1 : 0);
+}
+#endif
 
 #endif

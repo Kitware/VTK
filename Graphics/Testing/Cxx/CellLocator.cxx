@@ -18,6 +18,12 @@
 
 #include "vtkActor.h"
 #include "vtkCellLocator.h"
+#include "vtkCleanPolyData.h"
+#include "vtkCubeSource.h"
+#include "vtkIdList.h"
+#include "vtkLinearSubdivisionFilter.h"
+#include "vtkMaskFields.h"
+#include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -26,9 +32,78 @@
 #include "vtkRenderer.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
+#include "vtkTriangleFilter.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+
+// This test reproduces the cell locator bug in FindCellsAlongLine
+int TestFindCellsAlongLine()
+{ // returns 1 for success and 0 for failure
+  // Generate a surface mesh
+  vtkNew<vtkCubeSource> source;
+  vtkNew<vtkMaskFields> removearrays;
+  removearrays->SetInputConnection(source->GetOutputPort());
+  removearrays->CopyAllOff();
+
+  vtkNew<vtkCleanPolyData> clean;
+  clean->SetInputConnection(removearrays->GetOutputPort());
+
+  vtkNew<vtkTransform> trans;
+  trans->RotateX(6);
+  trans->RotateY(9);
+  trans->RotateZ(3);
+
+  vtkNew<vtkTransformPolyDataFilter> transformer;
+  transformer->SetInputConnection(clean->GetOutputPort());
+  transformer->SetTransform(trans.GetPointer());
+
+  vtkNew<vtkTriangleFilter> triangulator;
+  triangulator->SetInputConnection(transformer->GetOutputPort());
+
+  vtkNew<vtkLinearSubdivisionFilter> subdivide;
+  subdivide->SetInputConnection(triangulator->GetOutputPort());
+  subdivide->SetNumberOfSubdivisions(4);
+  subdivide->Update();
+
+  vtkNew<vtkPolyData> surface;
+  surface->DeepCopy(subdivide->GetOutput());
+
+  // Create the standard locator
+  vtkNew<vtkCellLocator> cellLocator;
+  cellLocator->SetDataSet(surface.GetPointer());
+  cellLocator->BuildLocator();
+
+  // This line (p1,p2) together with the surface mesh
+  // generated above reproduces the bug
+  double p1[] = {0.897227, 0.0973691, 0.0389687};
+  double p2[] = {0.342117, 0.492077, 0.423446};
+  vtkNew<vtkIdList> cellIds;
+  cellLocator->FindCellsAlongLine(p1, p2, 0.0, cellIds.GetPointer());
+
+  if(cellIds->GetNumberOfIds() != 4)
+    {
+    vtkGenericWarningMacro("Wrong amount of intersected Ids " << cellIds->GetNumberOfIds());
+    return 0;
+    }
+
+  // these ids are the ones that should be in the list.
+  // if we uniquely add them the list size should still be 4.
+  cellIds->InsertUniqueId(657);
+  cellIds->InsertUniqueId(856);
+  cellIds->InsertUniqueId(1885);
+  cellIds->InsertUniqueId(1887);
+
+  if(cellIds->GetNumberOfIds() != 4)
+    {
+    vtkGenericWarningMacro("Wrong cell Ids in the list " << cellIds->GetNumberOfIds());
+    return 0;
+    }
+
+  return 1;
+}
 
 int CellLocator( int argc, char *argv[] )
 {
@@ -193,6 +268,8 @@ int CellLocator( int argc, char *argv[] )
   closestPointActor2->Delete();
   cellLocator->FreeSearchStructure();
   cellLocator->Delete();
+
+  retVal = retVal & TestFindCellsAlongLine();
 
   return !retVal;
 }

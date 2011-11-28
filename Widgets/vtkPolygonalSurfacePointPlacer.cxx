@@ -172,8 +172,8 @@ public:
                                         double worldPos[3],
                                         vtkIdType cellId,
                                         vtkIdType pointId,
-                                        const double distanceOffset,
-                                        int snapToClosestPoint )
+                                        const double vtkNotUsed(distanceOffset),
+                                        int vtkNotUsed(snapToClosestPoint) )
     {
 
     // Get a node at this position if one exists and overwrite it
@@ -194,7 +194,6 @@ public:
     node->SurfaceWorldPosition[1] = worldPos[1];
     node->SurfaceWorldPosition[2] = worldPos[2];
     node->PolyData = pd;
-    double cellNormal[3];
 
     for (unsigned int i =0; i < 3; i++)
       {
