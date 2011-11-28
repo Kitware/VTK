@@ -65,7 +65,7 @@ int TestCubeAxesWithZInnerPolys( int argc, char * argv [] )
 
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper(mapOutline.GetPointer());
-  outlineActor->GetProperty()->SetColor(0.0 ,0.0 ,0.0);
+  outlineActor->GetProperty()->SetColor(0. ,0. ,0. );
 
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange(1.0, 100.0);
@@ -107,7 +107,9 @@ int TestCubeAxesWithZInnerPolys( int argc, char * argv [] )
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
   axes2->SetDrawZGridpolys(1);
-
+  axes2->GetZAxesGridpolysProperty()->SetColor(.2, .2, .2);
+  axes2->GetZAxesGridpolysProperty()->SetOpacity(.3);
+  
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();
 

@@ -32,21 +32,20 @@ vtkContextInteractorStyle::vtkContextInteractorStyle()
 {
   this->Scene = NULL;
   this->ProcessingEvents = 0;
-  this->SceneCallbackCommand = vtkCallbackCommand::New();
   this->SceneCallbackCommand->SetClientData(this);
   this->SceneCallbackCommand->SetCallback(
     vtkContextInteractorStyle::ProcessSceneEvents);
+  this->InteractorCallbackCommand->SetClientData(this);
+  this->InteractorCallbackCommand->SetCallback(
+    vtkContextInteractorStyle::ProcessInteractorEvents);
   this->LastSceneRepaintMTime = 0;
+  this->TimerId = 0;
+  this->TimerCallbackInitialized = false;
 }
 
 //--------------------------------------------------------------------------
 vtkContextInteractorStyle::~vtkContextInteractorStyle()
 {
-  if (this->SceneCallbackCommand)
-    {
-    this->SceneCallbackCommand->Delete();
-    this->SceneCallbackCommand = 0;
-    }
 }
 
 //--------------------------------------------------------------------------
@@ -69,7 +68,7 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
     }
   if (this->Scene)
     {
-    this->Scene->RemoveObserver(this->SceneCallbackCommand);
+    this->Scene->RemoveObserver(this->SceneCallbackCommand.GetPointer());
     }
 
   this->Scene = scene;
@@ -77,14 +76,14 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
   if (this->Scene)
     {
     this->Scene->AddObserver(vtkCommand::ModifiedEvent,
-                             this->SceneCallbackCommand,
+                             this->SceneCallbackCommand.GetPointer(),
                              this->Priority);
     }
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject* vtkNotUsed(object),
+void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject*,
                                                    unsigned long event,
                                                    void* clientdata,
                                                    void* vtkNotUsed(calldata))
@@ -102,6 +101,28 @@ void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject* vtkNotUsed(object)
 }
 
 //----------------------------------------------------------------------------
+void vtkContextInteractorStyle::ProcessInteractorEvents(vtkObject*,
+                                                        unsigned long,
+                                                        void* clientdata,
+                                                        void* vtkNotUsed(calldata))
+{
+  vtkContextInteractorStyle* self =
+    reinterpret_cast<vtkContextInteractorStyle *>(clientdata);
+  self->RenderNow();
+}
+
+//----------------------------------------------------------------------------
+void vtkContextInteractorStyle::RenderNow()
+{
+  this->TimerId = 0;
+  if (this->Scene && !this->ProcessingEvents &&
+      this->Interactor->GetInitialized())
+    {
+    this->Interactor->GetRenderWindow()->Render();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkContextInteractorStyle::OnSceneModified()
 {
   if (!this->Scene
@@ -113,8 +134,19 @@ void vtkContextInteractorStyle::OnSceneModified()
     return;
     }
   this->BeginProcessingEvent();
+  if (!this->TimerCallbackInitialized && this->Interactor)
+    {
+    this->Interactor->AddObserver(vtkCommand::TimerEvent,
+                                  this->InteractorCallbackCommand.GetPointer(),
+                                  0.0);
+    this->TimerCallbackInitialized = true;
+    }
   this->LastSceneRepaintMTime = this->Scene->GetMTime();
-  this->Interactor->GetRenderWindow()->Render();
+  // If there is no timer, create a one shot timer to render an updated scene
+  if (this->TimerId == 0)
+    {
+    this->Interactor->CreateOneShotTimer(40);
+    }
   this->EndProcessingEvent();
 }
 

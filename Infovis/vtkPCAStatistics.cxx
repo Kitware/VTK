@@ -186,7 +186,7 @@ void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenv
   eigenvector->Squeeze();
   eigenvector->SetNumberOfComponents(eigenvectors->GetNumberOfComponents());
   eigenvector->InsertNextTupleValue(evec);
-  delete evec;
+  delete[] evec;
 }
 
 // ----------------------------------------------------------------------

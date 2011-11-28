@@ -46,5 +46,8 @@ int TestKCoreLayout(int argc, char* argv[])
 
   // TODO: Add some tests on this graph to check validity
 
-  return 0;
+  delete []file_verts;
+  delete []file_edges;
+
+  return EXIT_SUCCESS;
 }

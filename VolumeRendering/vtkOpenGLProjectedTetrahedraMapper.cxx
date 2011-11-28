@@ -109,7 +109,10 @@ vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
   this->ReleaseGraphicsResources(NULL);
   this->TransformedPoints->Delete();
   this->Colors->Delete();
-
+  if (this->Internals)
+    {
+    delete this->Internals;
+    }
   delete[] this->SqrtTable;
 }
 

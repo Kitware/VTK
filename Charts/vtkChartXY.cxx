@@ -312,6 +312,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   // draw background
   if(this->BackgroundBrush)
     {
+    painter->GetPen()->SetLineType(vtkPen::NO_PEN);
     painter->ApplyBrush(this->BackgroundBrush);
     painter->DrawRect(this->Point1[0], this->Point1[1],
                       this->Geometry[0], this->Geometry[1]);

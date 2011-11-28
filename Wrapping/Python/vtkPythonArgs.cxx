@@ -228,9 +228,11 @@ bool vtkPythonGetValue(PyObject *o, const void *&a)
     if (b->bf_getsegcount(o, NULL) == 1)
       {
       void *p;
-      int s = (int)b->bf_getreadbuffer(o, 0, &p);
-      if (s >= 0)
+      Py_ssize_t sz = b->bf_getreadbuffer(o, 0, &p);
+      if (sz >= 0 && sz <= VTK_INT_MAX)
         {
+        // check for pointer mangled as string
+        int s = (int)sz;
         a = vtkPythonUtil::UnmanglePointer((char *)p, &s, "void_p");
         if (s >= 0)
           {
@@ -246,6 +248,12 @@ bool vtkPythonGetValue(PyObject *o, const void *&a)
           {
           PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
           }
+        }
+      else if (sz >= 0)
+        {
+        // directly use the pointer to the buffer contents
+        a = p;
+        return true;
         }
       return false;
       }

@@ -65,6 +65,7 @@ vtkMNITransformReader.cxx
 vtkMNITransformWriter.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPieChartActor.cxx
+vtkPolarAxesActor.cxx
 vtkPolyDataSilhouette.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx

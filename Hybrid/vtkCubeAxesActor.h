@@ -71,6 +71,7 @@ All rights reserve
 
 class vtkAxisActor;
 class vtkCamera;
+class vtkTextProperty;
 
 class VTK_HYBRID_EXPORT vtkCubeAxesActor : public vtkActor
 {
@@ -288,6 +289,14 @@ public:
   vtkBooleanMacro(DrawZGridpolys,int);
 
   // Description:
+  // Returns the text property for the title on an axis.
+  vtkTextProperty *GetTitleTextProperty(int);
+
+  // Description:
+  // Returns the text property for the labels on an axis.
+  vtkTextProperty *GetLabelTextProperty(int);
+
+  // Description:
   // Get/Set axes actors properties.
   void SetXAxesLinesProperty(vtkProperty *);
   vtkProperty* GetXAxesLinesProperty();
@@ -344,10 +353,6 @@ public:
   //! for 2D axis only : during the next render, the axis positions have to be save for later use.
   void SetSaveTitlePosition( int val );
       
-  // Description:
-  // Shallow copy of a KatCubeAxesActor.
-  void ShallowCopy(vtkCubeAxesActor *actor);
-
 protected:
   vtkCubeAxesActor();
   ~vtkCubeAxesActor();
@@ -436,6 +441,9 @@ protected:
 
   double LabelScreenOffset;
   double TitleScreenOffset;
+
+  vtkTextProperty* TitleTextProperty[3];
+  vtkTextProperty* LabelTextProperty[3];
 
   vtkProperty  *XAxesLinesProperty;
   vtkProperty  *YAxesLinesProperty;
@@ -533,8 +541,6 @@ private:
   void    AutoScale(vtkViewport *viewport);
   void    AutoScale(vtkViewport *viewport, vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS]);
   double  AutoScale(vtkViewport *viewport, double screenSize, double position[3]);
-
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 };
 
 
