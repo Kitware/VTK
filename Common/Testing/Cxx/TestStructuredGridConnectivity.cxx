@@ -15,8 +15,7 @@
 // .NAME TestStructuredGridConnectivity.cxx --Test vtkStructuredGridConnectivity
 //
 // .SECTION Description
-//  A simple test for vtkStructuredGridConnectivity which constructs a uniform
-//  grid with two partitions (pieces).
+// Serial tests for structured grid connectivity
 
 
 
@@ -30,7 +29,7 @@
 // VTK includes
 #include "vtkDataSet.h"
 #include "vtkUniformGrid.h"
-#include "vtkMultiProcessController.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkMPIController.h"
 #include "vtkDataObject.h"
@@ -45,7 +44,9 @@
 #include "vtkMeshProperty.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
-
+#include "vtkUniformGridPartitioner.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkXMLMultiBlockDataWriter.h"
 
 //------------------------------------------------------------------------------
 // Description:
@@ -153,8 +154,265 @@ vtkMultiPieceDataSet* GetDataSet( )
 
 //------------------------------------------------------------------------------
 // Description:
+// Generates a multi-block dataset
+vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
+{
+  int wholeExtent[6];
+  wholeExtent[0] = 0;
+  wholeExtent[1] = 99;
+  wholeExtent[2] = 0;
+  wholeExtent[3] = 99;
+  wholeExtent[4] = 0;
+  wholeExtent[5] = 99;
+
+  int dims[3];
+  dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
+  dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
+  dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
+
+  // Generate grid for the entire domain
+  vtkUniformGrid *wholeGrid = vtkUniformGrid::New();
+  wholeGrid->SetOrigin( 0.0, 0.0, 0.0  );
+  wholeGrid->SetSpacing( 0.5, 0.5, 0.5 );
+  wholeGrid->SetDimensions( dims );
+
+  // partition the grid, the grid partitioner will generate the whole extent and
+  // node extent information.
+  vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
+  gridPartitioner->SetInput( wholeGrid  );
+  gridPartitioner->SetNumberOfPartitions( numPartitions );
+  gridPartitioner->Update();
+
+// THIS DOES NOT COPY THE INFORMATION KEYS!
+//  vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
+//  mbds->ShallowCopy( gridPartitioner->GetOutput() );
+
+  vtkMultiBlockDataSet *mbds =
+      vtkMultiBlockDataSet::SafeDownCast( gridPartitioner->GetOutput() );
+  mbds->SetReferenceCount( mbds->GetReferenceCount()+1 );
+
+  int GridExtent[6];
+  mbds->GetWholeExtent( GridExtent );
+
+//  std::cout << "MY WHOLE EXTENT: ";
+//  for( int i=0; i < 6; i+=2 )
+//    {
+//    std::cout << "[ " << GridExtent[ i ] << ", " << GridExtent[ i+1 ] << " ] ";
+//    std::cout.flush();
+//    }
+
+  std::cout << std::endl;
+  std::cout.flush();
+
+  wholeGrid->Delete();
+  gridPartitioner->Delete();
+
+  assert( "pre: mbds is NULL" && (mbds != NULL) );
+  return( mbds );
+}
+
+//------------------------------------------------------------------------------
+// Description:
+// Computes the total number of nodes in the multi-block dataset.
+int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
+{
+  assert( "multi-block grid is NULL" && (multiblock != NULL) );
+
+  int numNodes = 0;
+
+  for(unsigned int block=0; block < multiblock->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *grid =
+        vtkUniformGrid::SafeDownCast( multiblock->GetBlock( block ) );
+
+    if( grid != NULL )
+      {
+      vtkIdType pntIdx = 0;
+      for( ; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
+        {
+        unsigned char nodeProperty =
+            *(grid->GetPointVisibilityArray()->GetPointer( pntIdx ));
+        if( !vtkMeshPropertyEncoder::IsPropertySet(
+            nodeProperty,VTKNodeProperties::IGNORE ) )
+          {
+          ++numNodes;
+          }
+        } // END for all nodes
+      } // END if grid != NULL
+
+    } // END for all blocks
+
+  return( numNodes );
+}
+
+//------------------------------------------------------------------------------
+void RegisterGrids(
+    vtkMultiBlockDataSet *mbds, vtkStructuredGridConnectivity *connectivity )
+{
+  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
+
+  for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkInformation *info = mbds->GetMetaData( block );
+    assert( "pre: metadata should not be NULL" && (info != NULL) );
+    assert( "pre: must have piece extent!" &&
+            info->Has(vtkDataObject::PIECE_EXTENT() ) );
+
+    connectivity->RegisterGrid(block,info->Get(vtkDataObject::PIECE_EXTENT()));
+    } // END for all blocks
+}
+
+//------------------------------------------------------------------------------
+void FillVisibilityArrays(
+    vtkMultiBlockDataSet *mbds, vtkStructuredGridConnectivity *connectivity )
+{
+  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
+
+  for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    if( grid != NULL )
+      {
+      vtkUnsignedCharArray *nodes = vtkUnsignedCharArray::New();
+      nodes->SetNumberOfValues( grid->GetNumberOfPoints() );
+
+      vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
+      cells->SetNumberOfValues( grid->GetNumberOfCells() );
+
+      connectivity->FillMeshPropertyArrays(
+          block, nodes->GetPointer(0), cells->GetPointer(0)  );
+
+      grid->SetPointVisibilityArray( nodes );
+      nodes->Delete();
+      grid->SetCellVisibilityArray( cells );
+      cells->Delete();
+      } // END if grid != NULL
+    } // END for all blocks
+}
+
+//------------------------------------------------------------------------------
+void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
+{
+  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+
+
+  vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
+  assert( "pre: Cannot allocate writer" && (writer != NULL) );
+
+  std::ostringstream oss;
+  oss.str("");
+  oss << "MyMultiBlock_" << mbds->GetNumberOfBlocks() << "."
+      << writer->GetDefaultFileExtension();
+  writer->SetFileName( oss.str().c_str() );
+  writer->SetInput( mbds );
+  writer->Write();
+
+  writer->Delete();
+}
+
+//------------------------------------------------------------------------------
 // Program main
 int main( int argc, char **argv )
+{
+
+//
+// Un-comment this to run the simple monolithic test
+// return SimpleMonolithicTest( argc, argv );
+//
+
+  int expected = 100*100*100;
+  int rc = 0;
+  int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
+
+  for( int i=0; i < 8; ++i )
+    {
+    // STEP 0: Construct the dataset
+    std::cout << "===\n";
+    std::cout << "-- Acquire dataset with N=" << numberOfPartitions[ i ];
+    std::cout << " BLOCKS...";
+    std::cout.flush();
+    vtkMultiBlockDataSet *mbds = GetDataSet( numberOfPartitions[ i ] );
+    assert( "pre: multi-block is NULL" && (mbds != NULL) );
+    std::cout << "[DONE]\n";
+    std::cout.flush();
+    std::cout << "NUMBLOCKS: " << mbds->GetNumberOfBlocks() << std::endl;
+    std::cout.flush();
+    assert( "pre: NumBlocks mismatch!" &&
+            (numberOfPartitions[i] ==
+                static_cast<int>(mbds->GetNumberOfBlocks()) ) );
+    WriteMultiBlock( mbds );
+
+    // STEP 1: Construct the grid connectivity
+    std::cout << "-- Allocating grid connectivity data-structures...";
+    std::cout.flush();
+    vtkStructuredGridConnectivity *gridConnectivity=
+        vtkStructuredGridConnectivity::New();
+    gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+    gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+    std::cout << "[DONE]\n";
+    std::cout.flush();
+
+    // STEP 2: Registers the grids
+    std::cout << "-- Registering grid blocks...";
+    std::cout.flush();
+    RegisterGrids( mbds, gridConnectivity );
+    std::cout << "[DONE]\n";
+    std::cout.flush();
+
+    // STEP 3: Compute neighbors
+    std::cout << "-- Computing neighbors...";
+    std::cout.flush();
+    gridConnectivity->ComputeNeighbors();
+    std::cout << "[DONE]\n";
+    std::cout.flush();
+
+    gridConnectivity->Print( std::cout );
+
+    // STEP 4: Fill-in the visibility arrays!
+    std::cout << "-- Fill visibility arrays...";
+    std::cout.flush();
+    FillVisibilityArrays( mbds, gridConnectivity  );
+    std::cout << "[DONE]\n";
+    std::cout.flush();
+
+    // STEP 5: Compute total number of nodes compare to expected
+    std::cout << "-- Computing the total number of nodes...";
+    std::cout.flush();
+    int NumNodes = GetTotalNumberOfNodes( mbds );
+    std::cout << "[DONE]\n";
+    std::cout.flush();
+
+    std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
+    if( NumNodes != expected )
+      {
+      ++rc;
+      std::cout << "[ERROR]\n";
+      std::cout.flush();
+      mbds->Delete();
+      gridConnectivity->Delete();
+      return( rc );
+      }
+    else
+      {
+      std::cout << "[OK]\n";
+      std::cout.flush();
+      }
+
+    // STEP 6: De-allocated data-structures
+    mbds->Delete();
+    gridConnectivity->Delete();
+    } // END for all tests
+
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+// Description:
+// A simple test designed as an aid in the development of the structured grid
+// connectivity functionality.
+int SimpleMonolithicTest( int argc, char **argv )
 {
   vtkMultiPieceDataSet *mpds = GetDataSet( );
 
