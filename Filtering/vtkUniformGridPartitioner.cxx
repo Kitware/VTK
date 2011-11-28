@@ -102,6 +102,12 @@ int vtkUniformGridPartitioner::RequestData(
 
   // STEP 5: Extract partitions into a multi-block dataset.
   multiblock->SetNumberOfBlocks( extentPartitioner->GetNumExtents() );
+
+  // Set the whole extent of the grid
+  multiblock->SetWholeExtent(
+      extent[0], extent[3], extent[1],
+      extent[4], extent[2], extent[5] );
+
   unsigned int blockIdx = 0;
   for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
     {
@@ -122,10 +128,23 @@ int vtkUniformGridPartitioner::RequestData(
 
     grd->GetPoint( pntIdx, origin );
 
+    int blkExtent[6];
+    blkExtent[0] = ext[0]; // imin
+    blkExtent[1] = ext[3]; // imax
+    blkExtent[2] = ext[1]; // jmin
+    blkExtent[3] = ext[4]; // jmax
+    blkExtent[4] = ext[2]; // kmin
+    blkExtent[5] = ext[5]; // kmax
+
     vtkUniformGrid *subgrid = vtkUniformGrid::New();
     subgrid->SetOrigin( origin );
     subgrid->SetSpacing( grd->GetSpacing() );
     subgrid->SetDimensions( subdims );
+
+    // Set the global extent for each block
+    vtkInformation *metadata = multiblock->GetMetaData( blockIdx );
+    assert( "pre: metadata is NULL" && (metadata != NULL) );
+    metadata->Set( vtkDataObject::PIECE_EXTENT(), blkExtent, 6 );
 
     multiblock->SetBlock( blockIdx, subgrid );
     subgrid->Delete();
