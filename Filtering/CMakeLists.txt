@@ -228,6 +228,7 @@ vtkTrivialProducer.cxx
 vtkUndirectedGraphAlgorithm.cxx
 vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
+vtkUniformGridPartitioner.cxx
 vtkUnstructuredGridAlgorithm.cxx
 vtkUniformGridAMR.cxx
 vtkUniformGridAMRAlgorithm.cxx
