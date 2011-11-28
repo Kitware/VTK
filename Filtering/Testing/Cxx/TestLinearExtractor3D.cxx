@@ -128,6 +128,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   vtkSmartPointer<vtkUnstructuredGridReader> reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
   reader->SetFileName( fileName );
   reader->Update();
+  delete [] fileName;
 
   // Create multi-block mesh for linear extractor
   vtkSmartPointer<vtkMultiBlockDataSet> mesh = vtkSmartPointer<vtkMultiBlockDataSet>::New();
