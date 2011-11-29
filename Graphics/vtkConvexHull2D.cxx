@@ -101,7 +101,7 @@ void vtkConvexHull2D::CalculateConvexHull(vtkPoints* inPoints,
     vtkPointsProjectedHull* ppHull = vtkPointsProjectedHull::New();
     ppHull->ShallowCopy(inPoints);
     int numHullPoints = ppHull->GetSizeCCWHullZ();
-    double pts[2 * numHullPoints];
+    double* pts = new double[2 * numHullPoints];
     ppHull->GetCCWHullZ(pts, numHullPoints);
 
     vtkPoints* hullPoints = vtkPoints::New();
@@ -111,6 +111,7 @@ void vtkConvexHull2D::CalculateConvexHull(vtkPoints* inPoints,
       hullPoints->SetPoint(i, pts[2 * i], pts[2 * i + 1], 0.0);
       }
     ppHull->Delete();
+    delete[] pts;
 
     if (numHullPoints < 3)
       {
@@ -295,7 +296,7 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
   if (this->Outline)
     {
     vtkIdType numOutlinePoints = outputHull->GetNumberOfPoints();
-    vtkIdType outlinePts[numOutlinePoints + 1];
+    vtkIdType* outlinePts = new vtkIdType[numOutlinePoints + 1];
     for (int i = 0; i < numOutlinePoints; ++i)
       {
       outlinePts[i] = i;
@@ -311,6 +312,7 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
     outlinePolyData->SetPoints(outputHull->GetPoints());
     outlinePolyData->SetLines(outlineCells);
     outlineCells->Delete();
+    delete[] outlinePts;
 
     // Copy outline to output
     outputOutline->ShallowCopy(outlinePolyData);
