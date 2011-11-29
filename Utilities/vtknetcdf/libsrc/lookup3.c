@@ -54,7 +54,9 @@ on 1 byte), but shoehorning those bytes into integers efficiently is messy.
 #else
 #  include <stdint.h>
 #endif /* HAVE_STDINT_H */
+#ifndef WIN32
 #include <sys/param.h>  /* attempt to define endianness */
+#endif
 #ifdef linux
 # include <endian.h>    /* attempt to define endianness */
 #endif
