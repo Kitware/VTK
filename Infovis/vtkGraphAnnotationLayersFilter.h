@@ -54,7 +54,7 @@ class vtkConvexHull2D;
 class vtkRenderer;
 
 
-class VTK_GRAPHICS_EXPORT vtkGraphAnnotationLayersFilter: public vtkPolyDataAlgorithm
+class VTK_INFOVIS_EXPORT vtkGraphAnnotationLayersFilter: public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphAnnotationLayersFilter *New();

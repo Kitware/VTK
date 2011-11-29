@@ -12,6 +12,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestCirclePackLayoutStrategy
     TestCollapseVerticesByArray
     TestContingencyStatistics
+    TestConvexHull2D
     TestCorrelativeStatistics
     TestCosmicTreeLayoutStrategy
     TestDataObjectToTable

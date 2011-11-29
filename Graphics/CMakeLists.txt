@@ -50,7 +50,6 @@ vtkConnectivityFilter.cxx
 vtkContourFilter.cxx
 vtkContourGrid.cxx
 vtkConvertSelection.cxx
-vtkConvexHull2D.cxx
 vtkCubeSource.cxx
 vtkCursor2D.cxx
 vtkCursor3D.cxx
@@ -114,7 +113,6 @@ vtkGlyph2D.cxx
 vtkGlyph3D.cxx
 vtkGlyphSource2D.cxx
 vtkGradientFilter.cxx
-vtkGraphAnnotationLayersFilter.cxx
 vtkGraphGeodesicPath.cxx
 vtkGraphLayoutFilter.cxx
 vtkGraphToPoints.cxx
