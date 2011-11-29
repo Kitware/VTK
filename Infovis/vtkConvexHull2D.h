@@ -56,7 +56,7 @@ class vtkRenderer;
 class vtkTransform;
 class vtkTransformPolyDataFilter;
 
-class VTK_GRAPHICS_EXPORT vtkConvexHull2D: public vtkPolyDataAlgorithm
+class VTK_INFOVIS_EXPORT vtkConvexHull2D: public vtkPolyDataAlgorithm
 {
 public:
   static vtkConvexHull2D *New();
