@@ -238,6 +238,11 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData* input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPoints* inputPoints = input->GetPoints();
+  if (!inputPoints)
+    {
+    vtkErrorMacro("Input points needed");
+    return 0;
+    }
 
   vtkInformation *outInfo0 = outputVector->GetInformationObject(0);
   vtkInformation *outInfo1 = outputVector->GetInformationObject(1);
