@@ -41,7 +41,10 @@ void vtkX3DExporterWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WriteToOutputString: "
      << (this->WriteToOutputString ? "On" : "Off") << std::endl;
   os << indent << "OutputStringLength: " << this->OutputStringLength << std::endl;
-  os << indent << "OutputString: " << this->OutputString << std::endl;
+  if (this->OutputString)
+    {
+    os << indent << "OutputString: " << this->OutputString << std::endl;
+    }
 }
 
 //----------------------------------------------------------------------------
