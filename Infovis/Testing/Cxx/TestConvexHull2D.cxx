@@ -50,7 +50,7 @@ int TestConvexHull2D(int argc, char* argv[])
   inPoints->SetNumberOfPoints(1);
   inPoints->SetPoint(0, 0.0, 0.0, 0.0);
   vtkConvexHull2D::CalculateConvexHull(inPoints, outPoints, 2.0);
-  if (!outPoints->GetNumberOfPoints() == 4)
+  if (outPoints->GetNumberOfPoints() != 4)
     {
     std::cerr << "Error: Single point - expected 4 output points but got " <<
       outPoints->GetNumberOfPoints() << "." << std::endl;
@@ -95,7 +95,7 @@ int TestConvexHull2D(int argc, char* argv[])
   inPoints->SetPoint(0, -2.0, 0.0, 0.0);
   inPoints->SetPoint(1, 2.0, 0.0, 0.0);
   vtkConvexHull2D::CalculateConvexHull(inPoints, outPoints, 2.0);
-  if (!outPoints->GetNumberOfPoints() == 4)
+  if (outPoints->GetNumberOfPoints() != 4)
     {
     std::cerr << "Error: Two points in a line - expected 4 output points but got " <<
       outPoints->GetNumberOfPoints() << "." << std::endl;
@@ -143,7 +143,7 @@ int TestConvexHull2D(int argc, char* argv[])
   inPoints->SetPoint(3, 2.0, 1.9, 0.0);
   inPoints->SetPoint(4, 2.0, 2.0, 0.0);
   vtkConvexHull2D::CalculateConvexHull(inPoints, outPoints, 2.0);
-  if (!outPoints->GetNumberOfPoints() == 4)
+  if (outPoints->GetNumberOfPoints() != 4)
     {
     std::cerr << "Error: Five points - expected 4 output points but got " <<
       outPoints->GetNumberOfPoints() << "." << std::endl;
