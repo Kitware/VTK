@@ -10,6 +10,7 @@
 #include <stddef.h>	/* size_t */
 #include <sys/types.h>	/* off_t */
 #include "netcdf.h"
+//#include "ncx.h"
 
 typedef struct ncio ncio;	/* forward reference */
 

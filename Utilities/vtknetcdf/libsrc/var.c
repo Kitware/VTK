@@ -13,6 +13,10 @@
 #include "rnd.h"
 #include "utf8proc.h"
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
+#endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
+
 #ifndef OFF_T_MAX
 #define OFF_T_MAX (~ (off_t) 0 - (~ (off_t) 0 << (CHAR_BIT * sizeof (off_t) - 1)))
 #endif
@@ -484,7 +488,7 @@ int
 NC_check_vlen(NC_var *varp, size_t vlen_max) {
     size_t prod=varp->xsz;	/* product of xsz and dimensions so far */
 
-    int ii;
+    size_t ii;
 
     assert(varp != NULL);
     for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {

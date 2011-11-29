@@ -1312,7 +1312,7 @@ nc_get_NC(NC *ncp)
                         if(extent > 4096)
                                 extent = 4096;
                         if(extent > filesize)
-                                extent = filesize;
+                          extent = (size_t)filesize;
                 }
                 else if(extent > ncp->chunk)
                 {

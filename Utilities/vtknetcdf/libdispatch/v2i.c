@@ -8,6 +8,10 @@
 
 #include <ncconfig.h>
 #include <stdlib.h>
+#ifndef NO_SYS_TYPES_H
+#  include <sys/types.h> /* Keep before netcdf.h or Win64 gets confused. */
+#endif /* NO_SYS_TYPES_H */
+#include "nc.h" /* WARNING: nc.h must be included before netcdf.h or MSVC60 will die. */
 #include "netcdf.h"
 
 #if SIZEOF_LONG == SIZEOF_SIZE_T
@@ -339,7 +343,6 @@ nc_get_rec(
 /*
  * Error code
  */
-#if !DLL_NETCDF /* define when library is not a DLL */
 int ncerr = NC_NOERR ;
 
 
@@ -348,7 +351,6 @@ int ncerr = NC_NOERR ;
  * They call exit() when NC_FATAL bit is on.
  */
 int ncopts = (NC_FATAL | NC_VERBOSE) ;
-#endif
 
 /* End globals */
 
