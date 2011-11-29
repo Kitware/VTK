@@ -19,6 +19,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDensifyPolyData.cxx
     TestClipHyperOctree.cxx
     TestConvertSelection.cxx
+    TestConvexHull2D.cxx
     TestDelaunay2D.cxx
     TestExtraction.cxx
     TestExtractSelection.cxx

@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkGraph.h"
 #include "vtkIntArray.h"
 #include "vtkSmartPointer.h"
@@ -21,6 +22,7 @@
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 #include "vtkTulipReader.h"
+#include "vtkVariantArray.h"
 
 template<typename value_t>
 void TestValue(const value_t& Value, const value_t& ExpectedValue,
@@ -52,6 +54,24 @@ int TestTulipReaderProperties(int argc, char* argv[])
   vtkGraph* const graph = reader->GetOutput();
 
   int error_count = 0;
+
+  // Test a sample of the node pedigree id property
+  vtkVariantArray *nodePedigree= vtkVariantArray::SafeDownCast(
+      graph->GetVertexData()->GetPedigreeIds());
+  if (nodePedigree)
+    {
+    TestValue(nodePedigree->GetValue(0), vtkVariant(0),
+              "Node 0 pedigree id property", error_count);
+    TestValue(nodePedigree->GetValue(5), vtkVariant(5),
+              "Node 5 pedigree id property", error_count);
+    TestValue(nodePedigree->GetValue(11), vtkVariant(11),
+              "Node 11 pedigree id property", error_count);
+    }
+  else
+    {
+    cerr << "Node pedigree id property not found." << endl;
+    ++error_count;
+    }
 
   // Test a sample of the node string property
   vtkStringArray *nodeProperty1 = vtkStringArray::SafeDownCast(
@@ -89,6 +109,24 @@ int TestTulipReaderProperties(int argc, char* argv[])
     ++error_count;
     }
 
+  // Test a sample of the node double property
+  vtkDoubleArray *nodeProperty3 = vtkDoubleArray::SafeDownCast(
+      graph->GetVertexData()->GetAbstractArray("Betweenness Centrality"));
+  if (nodeProperty3)
+    {
+    TestValue(nodeProperty3->GetValue(0), 0.0306061, "Node 0 double property",
+              error_count);
+    TestValue(nodeProperty3->GetValue(5), 0.309697, "Node 5 double property",
+              error_count);
+    TestValue(nodeProperty3->GetValue(11), 0.0306061, "Node 11 double property",
+              error_count);
+    }
+  else
+    {
+    cerr << "Node double property 'Betweenness Centrality' not found." << endl;
+    ++error_count;
+    }
+
   // Test a sample of the edge string property
   vtkStringArray *edgeProperty1 = vtkStringArray::SafeDownCast(
       graph->GetEdgeData()->GetAbstractArray("Edge Name"));
@@ -122,6 +160,24 @@ int TestTulipReaderProperties(int argc, char* argv[])
   else
     {
     cerr << "Edge int property 'Weight' not found." << endl;
+    ++error_count;
+    }
+
+  // Test a sample of the edge pedigree id property
+  vtkVariantArray *edgePedigree= vtkVariantArray::SafeDownCast(
+      graph->GetEdgeData()->GetPedigreeIds());
+  if (edgePedigree)
+    {
+    TestValue(edgePedigree->GetValue(0), vtkVariant(0),
+              "Edge 0 pedigree id property", error_count);
+    TestValue(edgePedigree->GetValue(7), vtkVariant(7),
+              "Edge 7 pedigree id property", error_count);
+    TestValue(edgePedigree->GetValue(16), vtkVariant(16),
+              "Edge 16 pedigree id property", error_count);
+    }
+  else
+    {
+    cerr << "Edge pedigree id property not found." << endl;
     ++error_count;
     }
 
