@@ -1150,7 +1150,7 @@ public:
               int arrayAccessMode,
               int arrayId,
               const char *arrayName,
-              int maxMemoryInBytes)
+              vtkIdType maxMemoryInBytes)
     {
       bool needUpdate=false;
       bool modified=false;
@@ -3121,7 +3121,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
                   volume->GetProperty()->GetInterpolationType()
                   ==VTK_LINEAR_INTERPOLATION,
                   this->TableRange,
-                  static_cast<int>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
+                  static_cast<vtkIdType>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
 
   result=texture->IsLoaded();
   this->CurrentScalar=texture;
@@ -3152,7 +3152,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
                  this->ArrayAccessMode,
                  this->ArrayId,
                  this->ArrayName,
-                 static_cast<int>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
+                 static_cast<vtkIdType>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
 
     result=result && mask->IsLoaded();
     this->CurrentMask=mask;
