@@ -17,7 +17,17 @@
 #include <string.h>
 #ifdef _MSC_VER /* Microsoft Compilers */
 #include <io.h>
-#else
+/* Take the following warning disable out when NetCDF is updated */
+/* to support 64-bit versions of "read" and "write" used below */
+/* in "px_pgin" and "px_pgout" */
+#  ifdef _WIN64
+#    pragma warning ( disable : 4267 )
+#  endif
+#endif
+#ifdef __BORLANDC__
+#include <io.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifndef HAVE_SSIZE_T
@@ -57,23 +67,54 @@
 /* These are needed on mingw to get a dll to compile. They really
  * should be provided in sys/stats.h, but what the heck. Let's not be
  * too picky! */
+/* Borland bcc32 doesn't have these definitions of permission bits */
+#ifndef S_IRUSR
+#define S_IRUSR 0000400
+#endif
 #ifndef S_IRGRP
-#define S_IRGRP   0000040
+#define S_IRGRP 0000040
 #endif
 #ifndef S_IROTH
-#define S_IROTH   0000004
+#define S_IROTH 0000004
+#endif
+#ifndef S_IWUSR
+#define S_IWUSR 0000200
 #endif
 #ifndef S_IWGRP
-#define S_IWGRP   0000020
+#define S_IWGRP 0000020
 #endif
 #ifndef S_IWOTH
-#define S_IWOTH   0000002
+#define S_IWOTH 0000002
 #endif
+#ifndef S_IXUSR
+#define S_IXUSR 0000100
+#endif
+#ifndef S_IXGRP
+#define S_IXGRP 0000010
+#endif
+#ifndef S_IXOTH
+#define S_IXOTH 0000001
+#endif
+#ifndef S_IRWXU
+#define S_IRWXU 0000700
+#endif
+#ifndef S_IRWXG
+#define S_IRWXG 0000070
+#endif
+#ifndef S_IRWXO
+#define S_IRWXO 0000007
+#endif
+
 
 /*
  * Define the following for debugging.
  */
 /* #define ALWAYS_NC_SHARE 1 */
+
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
+#endif
 
 /* Begin OS */
 
@@ -112,6 +153,7 @@ blksize(int fd)
 {
 #if defined(HAVE_ST_BLKSIZE)
         struct stat sb;
+//      struct NC_STAT_STRUCT sb;
         if (fstat(fd, &sb) > -1)
         {
                 if(sb.st_blksize >= 8192)
@@ -132,6 +174,7 @@ static int
 fgrow(const int fd, const off_t len)
 {
         struct stat sb;
+//      struct NC_STAT_STRUCT sb;
         if (fstat(fd, &sb) < 0)
                 return errno;
         if (len < sb.st_size)
@@ -163,6 +206,7 @@ static int
 fgrow2(const int fd, const off_t len)
 {
         struct stat sb;
+//      struct NC_STAT_STRUCT sb;
         if (fstat(fd, &sb) < 0)
                 return errno;
         if (len <= sb.st_size)

@@ -31,6 +31,10 @@
 #include <errno.h>
 #include <sys/types.h> /* off_t */
 
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4244 )
+#endif
+
 /* Define uchar if it is not defined on this system. */
 #ifndef HAVE_UCHAR
 typedef unsigned char uchar;
@@ -43,6 +47,15 @@ typedef unsigned char uchar;
 #elif defined(_SX) && defined(_FLOAT2)	/* NEC SUPER-UX in CRAY mode */
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #endif
+
+#if defined(DLL_NETCDF) /* define when library is a DLL */
+#include <io.h>
+#ifndef __CYGWIN__
+#define lseek _lseeki64
+#define off_t __int64
+#endif
+#define _OFF_T_DEFINED
+#endif  /* defined(DLL_NETCDF) */
 
 /*
  * The integer return code for the conversion routines
@@ -97,7 +110,7 @@ typedef unsigned char uchar;
 #define X_INT_MIN	(-2147483647-1)
 #define X_INT_MAX	2147483647
 #define X_UINT_MAX	4294967295U
-#define X_FLOAT_MAX	3.402823466e+38f
+#define X_FLOAT_MAX	((float)3.402823466e+38)
 #define X_FLOAT_MIN	(-X_FLOAT_MAX)
 #define X_FLT_MAX	X_FLOAT_MAX	/* alias compatible with limits.h */
 #if CRAYFLOAT

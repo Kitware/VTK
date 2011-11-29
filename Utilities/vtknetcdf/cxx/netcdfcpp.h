@@ -15,16 +15,17 @@
 typedef const char* NcToken;    // names for netCDF objects
 typedef unsigned int NcBool;    // many members return 0 on failure
 
-class NcDim;                    // dimensions
-class NcVar;                    // variables
-class NcAtt;                    // attributes
+class MSCPP_EXTRA NcDim;                    // dimensions
+class MSCPP_EXTRA NcVar;                    // variables
+class MSCPP_EXTRA NcAtt;                    // attributes
+class MSCPP_EXTRA NcError;
 
 /*
  * ***********************************************************************
  * A netCDF file.
  * ***********************************************************************
  */
-class NcFile
+class MSCPP_EXTRA NcFile
 {
   public:
 
@@ -139,7 +140,7 @@ class NcFile
  * of an open netCDF file.
  * **********************************************************************
  */
-class NcDim
+class MSCPP_EXTRA NcDim
 {
   public:
     NcToken name( void ) const;
@@ -171,7 +172,7 @@ class NcDim
  * components of an open netCDF file.
  * **********************************************************************
  */
-class NcTypedComponent
+class MSCPP_EXTRA NcTypedComponent
 {
   public:
     virtual ~NcTypedComponent( void ) {}
@@ -209,7 +210,7 @@ class NcTypedComponent
  * a shape, given by a list of dimensions
  * **********************************************************************
  */
-class NcVar : public NcTypedComponent
+class MSCPP_EXTRA NcVar : public NcTypedComponent
 {
   public:
     virtual ~NcVar( void );
@@ -218,7 +219,7 @@ class NcVar : public NcTypedComponent
     NcBool is_valid( void ) const;
     int num_dims( void ) const;         // dimensionality of variable
     NcDim* get_dim( int ) const;        // n-th dimension
-    long* edges( void ) const;          // dimension sizes
+    size_t* edges( void ) const;        // dimension sizes
     int num_atts( void ) const;         // number of attributes
     NcAtt* get_att( NcToken ) const;    // attribute by name
     NcAtt* get_att( int ) const;        // n-th attribute
@@ -247,13 +248,13 @@ class NcVar : public NcTypedComponent
 
     // Put n-dimensional arrays, starting at [0, 0, ..., 0] by default,
     // may be reset with set_cur().
-    NcBool put( const ncbyte* vals, const long* counts );
-    NcBool put( const char* vals, const long* counts );
-    NcBool put( const short* vals, const long* counts );
-    NcBool put( const int* vals, const long* counts );
-    NcBool put( const long* vals, const long* counts );
-    NcBool put( const float* vals, const long* counts );
-    NcBool put( const double* vals, const long* counts );
+    NcBool put( const ncbyte* vals, const size_t* counts );
+    NcBool put( const char* vals, const size_t* counts );
+    NcBool put( const short* vals, const size_t* counts );
+    NcBool put( const int* vals, const size_t* counts );
+    NcBool put( const long* vals, const size_t* counts );
+    NcBool put( const float* vals, const size_t* counts );
+    NcBool put( const double* vals, const size_t* counts );
 
     // Get scalar or 1, ..., 5 dimensional arrays by providing enough
     // arguments.  Arguments are edge lengths, and their number must not
@@ -276,13 +277,13 @@ class NcVar : public NcTypedComponent
 
     // Get n-dimensional arrays, starting at [0, 0, ..., 0] by default,
     // may be reset with set_cur().
-    NcBool get( ncbyte* vals, const long* counts ) const;
-    NcBool get( char* vals, const long* counts ) const;
-    NcBool get( short* vals, const long* counts ) const;
-    NcBool get( int* vals, const long* counts ) const;
-    NcBool get( long* vals, const long* counts ) const;
-    NcBool get( float* vals, const long* counts ) const;
-    NcBool get( double* vals, const long* counts ) const;
+    NcBool get( ncbyte* vals, const size_t* counts ) const;
+    NcBool get( char* vals, const size_t* counts ) const;
+    NcBool get( short* vals, const size_t* counts ) const;
+    NcBool get( int* vals, const size_t* counts ) const;
+    NcBool get( long* vals, const size_t* counts ) const;
+    NcBool get( float* vals, const size_t* counts ) const;
+    NcBool get( double* vals, const size_t* counts ) const;
 
     NcBool set_cur(long c0=-1, long c1=-1, long c2=-1,
                          long c3=-1, long c4=-1);
@@ -407,7 +408,7 @@ class NcVar : public NcTypedComponent
  * associated with a specific variable, or are global to the file.
  * **********************************************************************
  */
-class NcAtt : public NcTypedComponent
+class MSCPP_EXTRA NcAtt : public NcTypedComponent
 {
   public:
     virtual ~NcAtt( void );
@@ -440,7 +441,7 @@ class NcAtt : public NcTypedComponent
  * which time the previous error-handling behavior is restored.
  * **********************************************************************
  */
-class NcError {
+class MSCPP_EXTRA NcError {
   public:
     enum Behavior {
         silent_nonfatal = 0,
