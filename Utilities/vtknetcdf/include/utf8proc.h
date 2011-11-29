@@ -76,7 +76,16 @@ typedef unsigned char _Bool;
 # define __bool_true_false_are_defined 1
 #endif
 #include <sys/types.h>
-#include <inttypes.h>
+#ifndef WIN32
+#  include <inttypes.h>
+#else
+#  define int8_t __int8
+#  define int16_t __int16
+#  define int32_t __int32
+#  define uint8_t unsigned __int8
+#  define uint16_t unsigned __int16
+#  define uint32_t unsigned __int32
+#endif
 #include <limits.h>
 
 #ifndef SIZE_MAX

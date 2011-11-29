@@ -2379,7 +2379,7 @@ putNCvx_double_longlong(NC *ncp, const NC_var *varp,
 #ifdef NOTUSED
 static int
 putNCvx_schar_uint(NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, const uint *value)
+                 const size_t *start, size_t nelems, const unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -2469,7 +2469,7 @@ putNCvx_schar_ulonglong(NC *ncp, const NC_var *varp,
 
 static int
 putNCvx_short_uint(NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, const uint *value)
+                 const size_t *start, size_t nelems, const unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -2559,7 +2559,7 @@ putNCvx_short_ulonglong(NC *ncp, const NC_var *varp,
 
 static int
 putNCvx_int_uint(NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, const uint *value)
+                 const size_t *start, size_t nelems, const unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -2649,7 +2649,7 @@ putNCvx_int_ulonglong(NC *ncp, const NC_var *varp,
 
 static int
 putNCvx_float_uint(NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, const uint *value)
+                 const size_t *start, size_t nelems, const unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -2739,7 +2739,7 @@ putNCvx_float_ulonglong(NC *ncp, const NC_var *varp,
 
 static int
 putNCvx_double_uint(NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, const uint *value)
+                 const size_t *start, size_t nelems, const unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -3113,7 +3113,7 @@ getNCvx_schar_longlong(const NC *ncp, const NC_var *varp,
 
 static int
 getNCvx_schar_uint(const NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, uint *value)
+                 const size_t *start, size_t nelems, unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -3474,7 +3474,7 @@ getNCvx_short_longlong(const NC *ncp, const NC_var *varp,
 
 static int
 getNCvx_short_uint(const NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, uint *value)
+                 const size_t *start, size_t nelems, unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -3835,7 +3835,7 @@ getNCvx_int_longlong(const NC *ncp, const NC_var *varp,
 
 static int
 getNCvx_int_uint(const NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, uint *value)
+                 const size_t *start, size_t nelems, unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -4196,7 +4196,7 @@ getNCvx_float_longlong(const NC *ncp, const NC_var *varp,
 
 static int
 getNCvx_float_uint(const NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, uint *value)
+                 const size_t *start, size_t nelems, unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
@@ -4557,7 +4557,7 @@ getNCvx_double_longlong(const NC *ncp, const NC_var *varp,
 
 static int
 getNCvx_double_uint(const NC *ncp, const NC_var *varp,
-                 const size_t *start, size_t nelems, uint *value)
+                 const size_t *start, size_t nelems, unsigned int *value)
 {
         off_t offset = NC_varoffset(ncp, varp, start);
         size_t remaining = varp->xsz * nelems;
