@@ -250,7 +250,8 @@ enum
   VTK_CASE_VERTICAL_IN_TO_OUT, // with edge equation
   VTK_CASE_VERTICAL_OUT_TO_IN,
   VTK_CASE_HORIZONTAL_IN_TO_OUT,
-  VTK_CASE_HORIZONTAL_OUT_TO_IN
+  VTK_CASE_HORIZONTAL_OUT_TO_IN,
+  VTK_CASE_UNDEFINED
 };
 
 // We use an edge equation as described in:
@@ -277,6 +278,10 @@ class vtkSimpleScreenEdge
   : public vtkScreenEdge
 {
 public:
+  vtkSimpleScreenEdge()
+  {
+    this->Case = VTK_CASE_UNDEFINED;
+  }
   // Initialize the edge by the vertices v0 and v2 (ordered in y)
   // `onRight' is true if the edge in on the right side of the triangle.
   void Init(vtkVertexEntry *v0,
@@ -1101,6 +1106,8 @@ public:
             this->Zview+=this->ZStep;
             }
           break;
+        default:
+          vtkGenericWarningMacro(<< "Undefined edge case");
         }
     }
   
