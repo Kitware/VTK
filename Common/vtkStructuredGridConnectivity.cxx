@@ -570,12 +570,52 @@ void vtkStructuredGridConnectivity::PrintExtent( int ex[6] )
 }
 
 //------------------------------------------------------------------------------
+int vtkStructuredGridConnectivity::DoPartialOverlap(
+    int s[2], int S[2], int overlap[2] )
+{
+  if( this->InBounds(s[0],S[0],S[1]) && this->InBounds(s[1],S[0],S[1]) )
+    {
+    overlap[0] = s[0];
+    overlap[1] = s[1];
+    return PARTIAL_OVERLAP;
+    }
+  else if( this->InBounds(s[0], S[0], S[1]) )
+    {
+    overlap[0] = s[0];
+    overlap[1] = S[1];
+    if( overlap[0] == overlap[1] )
+      return NODE_OVERLAP;
+    else
+      return PARTIAL_OVERLAP;
+    }
+  else if( this->InBounds(s[1], S[0],S[1]) )
+    {
+    overlap[0] = S[0];
+    overlap[1] = s[1];
+    if( overlap[0] == overlap[1] )
+      return NODE_OVERLAP;
+    else
+      return PARTIAL_OVERLAP;
+    }
+  return NO_OVERLAP;
+}
+
+//------------------------------------------------------------------------------
 int vtkStructuredGridConnectivity::PartialOverlap(
                                     int A[2], const int CardinalityOfA,
                                     int B[2], const int CardinalityOfB,
                                     int overlap[2] )
 {
-  // TODO: implement this
+  if( CardinalityOfA > CardinalityOfB )
+    {
+    return( this->DoPartialOverlap( B, A, overlap ) );
+    }
+  else if( CardinalityOfB > CardinalityOfA )
+    {
+    return( this->DoPartialOverlap( A, B, overlap )   );
+    }
+
+  // Code should not reach here!
   return NO_OVERLAP;
 }
 
