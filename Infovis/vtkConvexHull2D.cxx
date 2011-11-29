@@ -40,6 +40,7 @@ vtkConvexHull2D::vtkConvexHull2D()
   this->MinHullSizeInWorld = 1.0;
   this->MinHullSizeInDisplay = 10;
   this->HullShape = vtkConvexHull2D::ConvexHull;
+  this->Renderer = NULL;
 
   this->Coordinate = vtkSmartPointer<vtkCoordinate>::New();
   this->Transform = vtkSmartPointer<vtkTransform>::New();
