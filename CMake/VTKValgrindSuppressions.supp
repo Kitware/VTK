@@ -26,13 +26,6 @@
    obj:/lib/libc-2.3.3.so
    fun:__sysconf
 }
-{
-   <insert a suppression name here>
-   core:PThread
-   fun:pthread_error
-   fun:pthread_attr_setscope
-   fun:_ZN16vtkMultiThreader19SingleMethodExecuteEv
-}
 {  
    <insert a suppression name here>
    Memcheck:Cond
@@ -508,16 +501,6 @@
    fun:TclExecuteByteCode
    fun:TclCompEvalObj
    fun:TclObjInterpProc
-   fun:TclEvalObjvInternal
-   fun:TclExecuteByteCode
-   fun:TclCompEvalObj
-   fun:Tcl_EvalObjEx
-   fun:NamespaceEvalCmd
-   fun:Tcl_NamespaceObjCmd
-   fun:TclEvalObjvInternal
-   fun:Tcl_EvalEx
-   fun:Tcl_Eval
-   fun:Tcl_GlobalEval
 }
 
 {
@@ -569,13 +552,6 @@
    fun:XSetLocaleModifiers
    fun:OpenIM
    fun:TkpOpenDisplay
-   fun:GetScreen
-   fun:CreateTopLevelWindow
-   fun:TkCreateMainWindow
-   fun:CreateFrame
-   fun:TkCreateFrame
-   fun:Initialize
-   fun:Tk_Init
 }
 
 {
@@ -692,13 +668,6 @@
    fun:XSetLocaleModifiers
    fun:OpenIM
    fun:TkpOpenDisplay
-   fun:GetScreen
-   fun:CreateTopLevelWindow
-   fun:TkCreateMainWindow
-   fun:CreateFrame
-   fun:TkCreateFrame
-   fun:Initialize
-   fun:Tk_Init
 }
 
 {
@@ -953,4 +922,95 @@
    fun:longest_match
    fun:deflate_slow
    fun:vtk_zlib_deflate
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN10QMutexPool3getEPKv
+   fun:_ZN7QObjectD2Ev
+   fun:_ZN18QAbstractItemModelD2Ev
+   fun:_ZN25vtkQtAbstractModelAdapterD2Ev
+   fun:_ZN22vtkQtTableModelAdapterD1Ev
+   fun:_Z23TestQtTableModelAdapteriPPc
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QAbstractItemModelC2EP7QObject
+   fun:_ZN25vtkQtAbstractModelAdapterC2EP7QObject
+   fun:_ZN22vtkQtTableModelAdapterC1EP8vtkTableP7QObject
+   fun:_Z23TestQtTableModelAdapteriPPc
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN14QWaitConditionC1Ev
+   fun:_ZN14QThreadPrivateC1EP11QThreadData
+   fun:_ZN14QAdoptedThreadC1EP11QThreadData
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QAbstractItemModelC2EP7QObject
+   fun:_ZN25vtkQtAbstractModelAdapterC2EP7QObject
+   fun:_ZN22vtkQtTableModelAdapterC1EP8vtkTableP7QObject
+   fun:_Z23TestQtTableModelAdapteriPPc
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QAbstractItemModelC2EP7QObject
+   fun:_ZN25vtkQtAbstractModelAdapterC2EP7QObject
+   fun:_ZN22vtkQtTableModelAdapterC1EP8vtkTableP7QObject
+   fun:_Z23TestQtTableModelAdapteriPPc
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN14QAdoptedThreadC1EP11QThreadData
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QAbstractItemModelC2EP7QObject
+   fun:_ZN25vtkQtAbstractModelAdapterC2EP7QObject
+   fun:_ZN22vtkQtTableModelAdapterC1EP8vtkTableP7QObject
+   fun:_Z23TestQtTableModelAdapteriPPc
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   fun:_ZN11QThreadDataC1Ei
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QAbstractItemModelC2EP7QObject
+   fun:_ZN25vtkQtAbstractModelAdapterC2EP7QObject
+   fun:_ZN22vtkQtTableModelAdapterC1EP8vtkTableP7QObject
+   fun:_Z23TestQtTableModelAdapteriPPc
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_Z14signalSlotLockPK7QObject
+   fun:_ZN7QObjectD2Ev
+   fun:_ZN18QAbstractItemModelD2Ev
+   fun:_ZN25vtkQtAbstractModelAdapterD2Ev
+   fun:_ZN22vtkQtTableModelAdapterD1Ev
+   fun:_Z23TestQtTableModelAdapteriPPc
+   fun:main
 }
