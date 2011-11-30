@@ -331,16 +331,20 @@ void vtkImageHistogramExecuteRange(
       {
       inPtr = inIter.BeginSpan();
       T *inPtrEnd = inIter.EndSpan();
-
-      // iterate over all voxels in the span
-      while (inPtr != inPtrEnd)
+      if (inPtr != inPtrEnd)
         {
-        T x = inPtr[c];
+        int n = static_cast<int>((inPtrEnd - inPtr)/nc);
+        inPtr += c;
+        do
+          {
+          T x = *inPtr;
 
-        xmin = (xmin < x ? xmin : x);
-        xmax = (xmax > x ? xmax : x);
+          xmin = (xmin < x ? xmin : x);
+          xmax = (xmax > x ? xmax : x);
 
-        inPtr += nc;
+          inPtr += nc;
+          }
+        while (--n);
         }
       }
     inIter.NextSpan();
@@ -385,21 +389,27 @@ void vtkImageHistogramExecute(
       T *inPtrEnd = inIter.EndSpan();
 
       // iterate over all voxels in the span
-      while (inPtr != inPtrEnd)
+      if (inPtr != inPtrEnd)
         {
-        double x = inPtr[c];
+        int n = static_cast<int>((inPtrEnd - inPtr)/nc);
+        inPtr += c;
+        do
+          {
+          double x = *inPtr;
 
-        x += xshift;
-        x *= xscale;
+          x += xshift;
+          x *= xscale;
 
-        x = (x > xmin ? x : xmin);
-        x = (x < xmax ? x : xmax);
+          x = (x > xmin ? x : xmin);
+          x = (x < xmax ? x : xmax);
 
-        int xi = static_cast<int>(x + 0.5);
+          int xi = static_cast<int>(x + 0.5);
 
-        outPtr[xi]++;
+          outPtr[xi]++;
 
-        inPtr += nc;
+          inPtr += nc;
+          }
+        while (--n);
         }
       }
     inIter.NextSpan();
@@ -440,8 +450,7 @@ void vtkImageHistogramExecuteInt(
         inPtr += c;
         do
           {
-          int ix = static_cast<int>(*inPtr);
-          outPtr[ix]++;
+          outPtr[*inPtr]++;
           inPtr += nc;
           }
         while (--n);
@@ -449,6 +458,20 @@ void vtkImageHistogramExecuteInt(
       }
     inIter.NextSpan();
     }
+}
+
+// no-op version for float
+void vtkImageHistogramExecuteInt(
+  vtkImageHistogram *, vtkImageData *, vtkImageStencilData *,
+  float *, int [6], vtkIdType *, int, int)
+{
+}
+
+// no-op version for double
+void vtkImageHistogramExecuteInt(
+  vtkImageHistogram *, vtkImageData *, vtkImageStencilData *,
+  double *, int [6], vtkIdType *, int, int)
+{
 }
 
 //----------------------------------------------------------------------------
