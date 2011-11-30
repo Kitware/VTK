@@ -255,9 +255,9 @@ int vtkPolyDataSilhouette::RequestData(
     }
 
   if( ( this->PreComp->mtime.GetMTime() > output->GetMTime() ) ||
-    ( this->Camera->GetMTime() > output->GetMTime() ) ||
-    ( this->Prop3D!=0 && this->Prop3D->GetMTime() > output->GetMTime() ) ||
-    vecChanged )
+      ( this->Camera && this->Camera->GetMTime() > output->GetMTime() ) ||
+      ( this->Prop3D && this->Prop3D->GetMTime() > output->GetMTime() ) ||
+      vecChanged )
     {
     vtkDebugMacro(<<"Extract edges\n");
 
