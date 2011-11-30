@@ -207,7 +207,15 @@ bool vtkAMRResampleFilter::FoundDonor(
     double q[3],vtkUniformGrid *&donorGrid,int &cellIdx)
 {
   assert( "pre: donor grid is NULL" && (donorGrid != NULL) );
-
+  double gbounds[6];
+  // Lets do a trival spatial check
+  donorGrid->GetBounds(gbounds);
+  if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) ||
+      (q[1] < gbounds[2]) || (q[1] > gbounds[3]) || 
+      (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
+    {
+    return false;
+    }
   int ijk[3];
   double pcoords[3];
   int status = donorGrid->ComputeStructuredCoordinates( q, ijk, pcoords );
@@ -411,10 +419,25 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
   // STEP 0: Check the previously cached donor-grid
   if( donorGrid != NULL )
     {
-    if( this->FoundDonor( q, donorGrid, donorCellIdx ) )
+    if(!this->FoundDonor( q, donorGrid, donorCellIdx ) )
+      {
+      // Lets see if the point is contained by a grid at the same donar level
+      this->SearchForDonorGridAtLevel(q,amrds,donorLevel,donorGrid,donorCellIdx);
+      }
+    
+    // If donorGrid is still not NULL then we found the grid and potential starting
+    // level
+    if (donorGrid != NULL)
       {
       assert( "pre: donorCellIdx is invalid" &&
-        (donorCellIdx >= 0) && (donorCellIdx < donorGrid->GetNumberOfCells()) );
+              (donorCellIdx >= 0) && (donorCellIdx < donorGrid->GetNumberOfCells()) );
+      
+      // Lets see if the cell is blanked - if it isn't then we found the highest
+      // resolution grid that contains the point
+      if (donorGrid->IsCellVisible(donorCellIdx))
+        {
+        return donorCellIdx;
+        }
 
       // Initialize values for step 1 s.t. that the search will start from the
       // current donorLevel
@@ -423,9 +446,15 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       }
     else
       {
+      // If we are here then we know the point is not on the donor level
+      // and therefore not contained in any of the more refined levels -
+      // Base on the assumption of overlapping AMR
+
+      assert("pre:Donor Level is 0" && donorLevel != 0);
       // Initialize values for step 1 s.t. the search will start from level 0.
-      donorLevel = 0;
       donorGrid  = NULL;
+      maxLevel = donorLevel;
+      donorLevel = 0;
       }
     }
 
@@ -435,6 +464,12 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
     this->SearchForDonorGridAtLevel(q,amrds,level,donorGrid,donorCellIdx);
     if( donorGrid != NULL )
       {
+      // Lets see if this is the highest resolution grid that contains the 
+      // point
+      if (donorGrid->IsCellVisible(donorCellIdx))
+        {
+        return donorCellIdx;
+        }
       // we found a grid that contains the point at level l, let's store it
       // here temporatily in case there is a grid at a higher resolution that
       // we need to use.
@@ -445,6 +480,8 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       {
       // we did not find the point at a higher res, but, we did find at a lower
       // resolution, so we will use the solution we found previously
+      // THIS SHOULD NOW NOT HAPPEN!!
+      vtkErrorMacro("Could not find point in an unblanked cell.");
       donorGrid    = currentGrid;
       donorCellIdx = currentCellIdx;
       break;
@@ -733,12 +770,32 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
     if( outside[i*2] || outside[i*2+1] )
       {
       dx              = min[i]-this->Min[i];
-      ijkRegionMin[i] = static_cast<int>( dx/Rh[i]+1 );
+      if (dx > 0.0)
+        {
+        ijkRegionMin[i] = static_cast<int>( dx/Rh[i]+1 );
+        }
+      else
+        {
+        ijkRegionMin[i] = 0;
+        }
+
       dx              = max[i]-this->Min[i];
       ijkRegionMax[i] = static_cast<int>( dx/Rh[i]+1 );
 
+      if (ijkRegionMax[i] > N[i])
+        {
+        ijkRegionMax[i] = N[i];
+        }
       int reduceTo    = ijkRegionMax[i]-ijkRegionMin[i]+1;
-      N[i]            = reduceTo;
+      if (reduceTo <= N[i])
+        {
+        N[i] = reduceTo;
+        }
+      else
+        {
+        int oops;
+        oops =1;
+        }
       }
     }
 }
