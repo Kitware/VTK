@@ -424,6 +424,10 @@ int vtkDataReader::Read(double *result)
 // Open a vtk data file. Returns zero if error.
 int vtkDataReader::OpenVTKFile()
 {
+  if ( this->IS != NULL )
+    {
+    this->CloseVTKFile ();
+    }
   if (this->ReadFromInputString)
     {
     if (this->InputArray)
@@ -591,6 +595,7 @@ int vtkDataReader::IsFileValid(const char *dstype)
   
   if (!this->OpenVTKFile() || !this->ReadHeader())
     {
+    this->CloseVTKFile ();
     return 0;
     }
 
@@ -620,7 +625,8 @@ int vtkDataReader::IsFileValid(const char *dstype)
     this->CloseVTKFile();
     return 1;
     }
-  
+
+  this->CloseVTKFile ();
   return 0;
 }
 
@@ -2899,6 +2905,7 @@ int vtkDataReader::CharacterizeFile()
   // Open the file
   if (!this->OpenVTKFile() || !this->ReadHeader())
     {
+    this->CloseVTKFile ();
     return 0;
     }
   
