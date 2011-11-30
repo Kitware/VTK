@@ -570,10 +570,12 @@ int vtkImageHistogram::RequestData(
       case VTK_CHAR:
       case VTK_UNSIGNED_CHAR:
       case VTK_SIGNED_CHAR:
+        {
         vtkDataArray::GetDataTypeRange(scalarType, scalarRange);
         this->NumberOfBins = 256;
         this->BinSpacing = 1.0;
         this->BinOrigin = scalarRange[0];
+        }
         break;
       case VTK_SHORT:
       case VTK_UNSIGNED_SHORT:
@@ -581,27 +583,31 @@ int vtkImageHistogram::RequestData(
       case VTK_UNSIGNED_INT:
       case VTK_LONG:
       case VTK_UNSIGNED_LONG:
+        {
         this->ComputeImageScalarRange(image, scalarRange);
         if (scalarRange[0] > 0) { scalarRange[0] = 0; }
         if (scalarRange[1] < 0) { scalarRange[1] = 0; }
-        this->NumberOfBins = scalarRange[1] - scalarRange[0] + 1;
+        unsigned long binMaxId =
+          static_cast<unsigned long>(scalarRange[1] - scalarRange[0]);
         this->BinOrigin = scalarRange[0];
         this->BinSpacing = 1.0;
-        if (this->NumberOfBins < 256)
+        if (binMaxId < 255)
           {
-          this->NumberOfBins = 256;
+          binMaxId = 255;
           }
-        if (this->NumberOfBins > this->MaximumNumberOfBins)
+        if (binMaxId > static_cast<unsigned long>(this->MaximumNumberOfBins-1))
           {
-          this->NumberOfBins = this->MaximumNumberOfBins;
-          if (this->MaximumNumberOfBins > 1)
+          binMaxId = static_cast<unsigned long>(this->MaximumNumberOfBins-1);
+          if (binMaxId > 0)
             {
-            this->BinSpacing = (scalarRange[1] - scalarRange[0])/
-              (this->MaximumNumberOfBins - 1);
+            this->BinSpacing = (scalarRange[1] - scalarRange[0])/binMaxId;
             }
           }
+        this->NumberOfBins = static_cast<int>(binMaxId + 1);
+        }
         break;
       default:
+        {
         this->NumberOfBins = this->MaximumNumberOfBins;
         this->ComputeImageScalarRange(image, scalarRange);
         if (scalarRange[0] > 0) { scalarRange[0] = 0; }
@@ -616,6 +622,7 @@ int vtkImageHistogram::RequestData(
               (scalarRange[1] - scalarRange[0])/(this->NumberOfBins - 1);
             }
           }
+        }
         break;
       }
     }

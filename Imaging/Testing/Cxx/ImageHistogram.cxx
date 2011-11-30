@@ -81,6 +81,7 @@ int ImageHistogram(int argc, char *argv[])
     else
       {
       imageMapper->SetInputConnection(histogram->GetOutputPort());
+      imageMapper->BorderOn();
       }
 
     double *bounds = imageMapper->GetBounds();
