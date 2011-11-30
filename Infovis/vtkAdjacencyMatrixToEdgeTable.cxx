@@ -32,6 +32,7 @@
 #include "vtkTable.h"
 
 #include <vtksys/stl/map>
+#include <vtksys/stl/functional>
 
 // ----------------------------------------------------------------------
 

@@ -89,7 +89,7 @@ void vtkMapArrayValues::AddToMap(char *from, char *to)
 
 void vtkMapArrayValues::AddToMap(vtkVariant from, vtkVariant to)
 {
-  this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
+  this->Map->insert(vtkstd::make_pair(from, to));
 
   this->Modified();
 }
