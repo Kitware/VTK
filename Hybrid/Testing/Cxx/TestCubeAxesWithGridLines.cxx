@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestCubeAxes3.cxx
+  Module:    TestCubeAxesWithGridlines.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -109,20 +109,25 @@ int TestCubeAxesWithGridLines( int argc, char * argv [] )
   axes2->SetDrawYGridlines(1);
   axes2->SetDrawZGridlines(1);
 
-  // Use red color for X gridlines, title, and labels
-  axes2->GetXAxesGridlinesProperty()->SetColor(1., 0., 0.);
+  // Use red color for X axis
+  axes2->GetXAxesLinesProperty()->SetColor(1., 0., 0.);
   axes2->GetTitleTextProperty(0)->SetColor(1., 0., 0.);
   axes2->GetLabelTextProperty(0)->SetColor(1., 0., 0.);
 
-  // Use green color for Y gridlines, title, and labels
-  axes2->GetYAxesGridlinesProperty()->SetColor(0., 1., 0.);
+  // Use green color for Y axis
+  axes2->GetYAxesLinesProperty()->SetColor(0., 1., 0.);
   axes2->GetTitleTextProperty(1)->SetColor(0., 1., 0.);
   axes2->GetLabelTextProperty(1)->SetColor(0., 1., 0.);
 
-  // Use blue color for Z gridlines, title, and labels
-  axes2->GetZAxesGridlinesProperty()->SetColor(0., 0., 1.);
+  // Use blue color for Z axis
+  axes2->GetZAxesLinesProperty()->SetColor(0., 0., 1.);
   axes2->GetTitleTextProperty(2)->SetColor(0., 0., 1.);
   axes2->GetLabelTextProperty(2)->SetColor(0., 0., 1.);
+
+  // Use olive color for gridlines
+  axes2->GetXAxesGridlinesProperty()->SetColor(.23, .37, .17);
+  axes2->GetYAxesGridlinesProperty()->SetColor(.23, .37, .17);
+  axes2->GetZAxesGridlinesProperty()->SetColor(.23, .37, .17);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();

@@ -77,7 +77,7 @@ int TestCubeAxesWithYLines( int argc, char * argv [] )
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren2.GetPointer());
-  renWin->SetWindowName("Cube Axes with Outer Grid Lines");
+  renWin->SetWindowName("Cube Axes with Outer Y Grid Lines");
   renWin->SetSize(600, 600);
   renWin->SetMultiSamples(0);
 

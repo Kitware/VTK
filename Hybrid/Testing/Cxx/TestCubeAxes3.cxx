@@ -82,7 +82,7 @@ int TestCubeAxes3( int argc, char * argv [] )
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren2.GetPointer());
-  renWin->SetWindowName("VTK - Cube Axes custom range");
+  renWin->SetWindowName("Cube Axes");
   renWin->SetSize(600, 600);
 
   vtkNew<vtkRenderWindowInteractor> iren;
