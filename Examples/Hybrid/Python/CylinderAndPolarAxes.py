@@ -41,7 +41,7 @@ polaxes.SetMaximumAngle( 210. )
 polaxes.SetNumberOfRadialAxes( 10 )
 polaxes.SetNumberOfPolarAxisTicks( 9 )
 polaxes.SetAutoSubdividePolarAxis( 0 )
-polaxes.SetCamera( camera )
+#polaxes.SetCamera( camera )
 polaxes.SetPolarLabelFormat( "%6.1f" )
 polaxes.GetRadialAxesProperty().SetColor( .0, .0, 1. )
 polaxes.GetPolarArcsProperty().SetColor( 1., .0, 0. )
@@ -51,7 +51,7 @@ polaxes.GetPolarAxisLabelTextProperty().SetColor( 0., 1., 0. )
 polaxes.SetDistanceLODThreshold( .4 )
 polaxes.SetViewAngleLODThreshold( .2 )
 polaxes.SetScreenSize( 8. )
-
+print polaxes
 # Create renderer
 renderer = vtkRenderer()
 renderer.AddViewProp( cylactor )

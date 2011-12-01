@@ -46,29 +46,29 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", "
-     << this->Bounds[1] << " )\n";
+     << this->Bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", "
-     << this->Bounds[3] << " )\n";
+     << this->Bounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", "
-     << this->Bounds[5] << " )\n";
+     << this->Bounds[5] << ")\n";
 
-  os << indent << "ScreenSize: (" << this->ScreenSize << ")\n";
+  os << indent << "ScreenSize: " << this->ScreenSize << "\n";
 
-  os << indent << "Number Of Radial Axes" << this->NumberOfRadialAxes << endl;
-  os << indent << "Number Of Polar Axis Ticks" << this->NumberOfPolarAxisTicks << endl;
+  os << indent << "Number Of Radial Axes: " << this->NumberOfRadialAxes << endl;
+  os << indent << "Number Of Polar Axis Ticks: " << this->NumberOfPolarAxisTicks << endl;
   os << indent << "Auto Subdivide Polar Axis: "
      << ( this->AutoSubdividePolarAxis ? "On\n" : "Off\n" );
 
   os << indent << "Pole: ("
      << this->Pole[0] << ", "
      << this->Pole[1] << ", "
-     << this->Pole[2] << " )\n";
+     << this->Pole[2] << ")\n";
 
-  os << indent << "Maximum Radius" << this->MaximumRadius << endl;
-  os << indent << "Auto-Scale Radius" << this->AutoScaleRadius << endl;
-  os << indent << "Minimum Angle" << this->MinimumAngle << endl;
-  os << indent << "Maximum Angle" << this->MaximumAngle << endl;
-  os << indent << "Smallest Visible Polar Angle" << this->SmallestVisiblePolarAngle << endl;
+  os << indent << "Maximum Radius: " << this->MaximumRadius << endl;
+  os << indent << "Auto-Scale Radius: " << this->AutoScaleRadius << endl;
+  os << indent << "Minimum Angle: " << this->MinimumAngle << endl;
+  os << indent << "Maximum Angle: " << this->MaximumAngle << endl;
+  os << indent << "Smallest Visible Polar Angle: " << this->SmallestVisiblePolarAngle << endl;
   os << indent << "Radial Units (degrees): "
      << ( this->RadialUnits ? "On\n" : "Off\n" ) << endl;
 
@@ -84,11 +84,11 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "EnableDistanceLOD: "   
      << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
-  os << indent << "DistanceLODThreshold: ("   << this->DistanceLODThreshold    << ")\n";
+  os << indent << "DistanceLODThreshold: "   << this->DistanceLODThreshold    << "\n";
 
   os << indent << "EnableViewAngleLOD: "   
      << ( this->EnableViewAngleLOD ? "On" : "Off" ) << endl;
-  os << indent << "ViewAngleLODThreshold: ("   << this->ViewAngleLODThreshold    << ")\n";
+  os << indent << "ViewAngleLODThreshold: "   << this->ViewAngleLODThreshold    << "\n";
 
   os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
   os << indent << "Polar Label Format: " << this->PolarLabelFormat << "\n";
