@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestCubeAxesWithGridlines.cxx
+Program:   Visualization Toolkit
+Module:    TestCubeAxesWithGridlines.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 // .SECTION Thanks
@@ -35,56 +35,69 @@
 
 int TestCubeAxes2DMode(int, char *[])
 {
+  // Create plane source
+  vtkSmartPointer<vtkPlaneSource> plane
+    = vtkSmartPointer<vtkPlaneSource>::New();
 
-  // --------------------------------------------------
-   vtkSmartPointer<vtkPlaneSource> plane= vtkSmartPointer<vtkPlaneSource>::New();
-   
-   vtkSmartPointer<vtkPolyDataMapper> surfaceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-   surfaceMapper->SetInputConnection( plane->GetOutputPort() );
-   vtkSmartPointer<vtkActor> surfaceActor = vtkSmartPointer<vtkActor>::New();
-   surfaceActor->SetMapper( surfaceMapper );
-   surfaceActor->GetProperty()->SetColor(0.50, 0.50, 0.50);
+  // Create plane mapper
+  vtkSmartPointer<vtkPolyDataMapper> planeMapper
+    = vtkSmartPointer<vtkPolyDataMapper>::New();
+  planeMapper->SetInputConnection( plane->GetOutputPort() );
 
-   vtkSmartPointer<vtkPolyDataMapper> edgeMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-   edgeMapper->SetInputConnection( plane->GetOutputPort() );
-   vtkSmartPointer<vtkActor> edgeActor = vtkSmartPointer<vtkActor>::New();
-   edgeActor->SetMapper( edgeMapper );
-   edgeActor->GetProperty()->SetColor(0.0, 0.0, 0.0);
-   edgeActor->GetProperty()->SetRepresentationToWireframe();
+  // Create plane actor
+  vtkSmartPointer<vtkActor> planeActor
+    = vtkSmartPointer<vtkActor>::New();
+  planeActor->SetMapper( planeMapper );
+  planeActor->GetProperty()->SetColor( .5, .5, .5 );
 
-  // --------------------------------------------------
-   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-   vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
-   renderWindow->AddRenderer(renderer);
-   vtkSmartPointer<vtkRenderWindowInteractor> interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
-   interactor->SetRenderWindow(renderWindow);
+  // Create edge mapper and actor
+  vtkSmartPointer<vtkPolyDataMapper> edgeMapper
+    = vtkSmartPointer<vtkPolyDataMapper>::New();
+  edgeMapper->SetInputConnection( plane->GetOutputPort() );
 
-  // --------------------------------------------------
-  // --- Les axes
+  // Create edge actor
+  vtkSmartPointer<vtkActor> edgeActor
+    = vtkSmartPointer<vtkActor>::New();
+  edgeActor->SetMapper( edgeMapper );
+  edgeActor->GetProperty()->SetColor( .0, .0, .0 );
+  edgeActor->GetProperty()->SetRepresentationToWireframe();
+
+  // Create cube axes actor
   vtkSmartPointer<vtkCubeAxesActor> axes = vtkSmartPointer<vtkCubeAxesActor>::New();
   axes->SetCamera (renderer->GetActiveCamera());
-  axes->SetCornerOffset(0.0);
-  axes->SetXAxisVisibility(1);
-  axes->SetYAxisVisibility(1);
-  axes->SetZAxisVisibility(0);
-            
- // pour avoir des axes 2D (textactor au lieu de follower)
+  axes->SetCornerOffset( .0 );
+  axes->SetXAxisVisibility( 1 );
+  axes->SetYAxisVisibility( 1 );
+  axes->SetZAxisVisibility( 0 );
   //axes->SetUse2DMode(1);
-  axes->SetBounds(-0.5,0.5,-0.5,0.5,0.0,0.0);
+  axes->SetBounds( -.5, .5, .5, .5, 0., 0. );
 
+  // Create renderer
+  vtkSmartPointer<vtkRenderer> renderer
+    = vtkSmartPointer<vtkRenderer>::New();
+  renderer->AddActor( planeActor );
+  renderer->AddActor( edgeActor );
+  renderer->AddActor( axes );
+  renderer->SetBackground( .3, .6, .3 );
+  renderer->GetActiveCamera()->SetFocalPoint( .0, .0, .0 );
+  renderer->GetActiveCamera()->SetPosition( .0, .0, 2.5 );
 
-  // --------------------------------------------------
-   renderer->AddActor( surfaceActor );
-   renderer->AddActor( edgeActor );
-   renderer->AddActor( axes );
+  // Create render window and interactor
+  vtkSmartPointer<vtkRenderWindow> renderWindow
+    = vtkSmartPointer<vtkRenderWindow>::New();
+  renderWindow->AddRenderer( renderer );
+  renderWindow->SetSize( 800, 600 );
+  vtkSmartPointer<vtkRenderWindowInteractor> interactor
+    = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  interactor->SetRenderWindow( renderWindow );
+
+  // Render and possibly interact
+  renderWindow->Render();
+  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+      iren->Start();
+    }
    
-   renderer->SetBackground(.3,.6,.3);
-   renderer->GetActiveCamera()->SetFocalPoint(0.,0.,0.);
-   renderer->GetActiveCamera()->SetPosition(0.,0.,2.5);
-   renderWindow->SetSize(800,600);
-
-   renderWindow->Render();
-   interactor->Start();
-   
-   return EXIT_SUCCESS;
+  return !retVal;
 }
