@@ -366,11 +366,14 @@ public:
 
   void SetLabelScaling(bool, int, int, int);
 
-  //! use textactor if val = 1 (2D) instead of follower (3D - val = 0) for title 
+  // Description:
+  // Get/Set 2D mode
+  // NB: Use vtkTextActor for titles in 2D instead of vtkAxisFollower
   void SetUse2DMode( int val );
-  //! return 1 if textactor is used
   int GetUse2DMode();
-  //! for 2D axis only : during the next render, the axis positions have to be save for later use.
+
+  // Description:
+  // For 2D mode only: save axis title positions for later use
   void SetSaveTitlePosition( int val );
       
 protected:
