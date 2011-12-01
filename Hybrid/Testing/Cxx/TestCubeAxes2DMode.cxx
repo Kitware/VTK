@@ -15,25 +15,25 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2011
 
-#include "vtkSmartPointer.h"
 #include "vtkActor.h"
+#include "vtkAxisActor.h"
 #include "vtkCamera.h"
-#include "vtkProperty2D.h"
 #include "vtkCoordinate.h"
+#include "vtkCubeAxesActor.h"
+#include "vtkPlaneSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkProperty2D.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCubeAxesActor.h"
-#include "vtkAxisActor.h"
-
-#include "vtkPlaneSource.h"
+#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
-#include "vtkProperty.h"
-#include "vtkPolyDataMapper.h"
 
 #include "vtkCubeAxesActor.h"
 
-int TestCubeAxes2DMode(int, char *[])
+int TestCubeAxes2DMode( int argc, char * argv [] )
 {
   // Create plane source
   vtkSmartPointer<vtkPlaneSource> plane
@@ -62,9 +62,16 @@ int TestCubeAxes2DMode(int, char *[])
   edgeActor->GetProperty()->SetColor( .0, .0, .0 );
   edgeActor->GetProperty()->SetRepresentationToWireframe();
 
+  // Create renderer
+  vtkSmartPointer<vtkRenderer> renderer
+    = vtkSmartPointer<vtkRenderer>::New();
+  renderer->SetBackground( .3, .6, .3 );
+  renderer->GetActiveCamera()->SetFocalPoint( .0, .0, .0 );
+  renderer->GetActiveCamera()->SetPosition( .0, .0, 2.5 );
+
   // Create cube axes actor
   vtkSmartPointer<vtkCubeAxesActor> axes = vtkSmartPointer<vtkCubeAxesActor>::New();
-  axes->SetCamera (renderer->GetActiveCamera());
+  axes->SetCamera ( renderer->GetActiveCamera() );
   axes->SetCornerOffset( .0 );
   axes->SetXAxisVisibility( 1 );
   axes->SetYAxisVisibility( 1 );
@@ -72,15 +79,10 @@ int TestCubeAxes2DMode(int, char *[])
   //axes->SetUse2DMode(1);
   axes->SetBounds( -.5, .5, .5, .5, 0., 0. );
 
-  // Create renderer
-  vtkSmartPointer<vtkRenderer> renderer
-    = vtkSmartPointer<vtkRenderer>::New();
+  // Add all actors to renderer
   renderer->AddActor( planeActor );
   renderer->AddActor( edgeActor );
   renderer->AddActor( axes );
-  renderer->SetBackground( .3, .6, .3 );
-  renderer->GetActiveCamera()->SetFocalPoint( .0, .0, .0 );
-  renderer->GetActiveCamera()->SetPosition( .0, .0, 2.5 );
 
   // Create render window and interactor
   vtkSmartPointer<vtkRenderWindow> renderWindow
@@ -93,10 +95,10 @@ int TestCubeAxes2DMode(int, char *[])
 
   // Render and possibly interact
   renderWindow->Render();
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      iren->Start();
+    interactor->Start();
     }
    
   return !retVal;
