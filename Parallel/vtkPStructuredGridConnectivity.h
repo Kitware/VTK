@@ -79,8 +79,15 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     vtkStructuredGridConnectivity *GridConnectivity;
     int Rank;
 
+    // BTX
     std::vector< int > GridRanks;
     std::vector< int > GridIds;
+    // ETX
+
+    // Description:
+    // Registers a remote grid with the given grid Id, structured extents and
+    // process.
+    void RegisterRemoteGrid( const int gridID, int extents[6], int process );
 
     // Description:
     // Exchanges the grid extents among all processes and fully populates the
@@ -89,12 +96,14 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 
     // Description:
     // Serializes the grid extentts and information in a buffer to send over MPI
-    void SerializeData( int *&sndbuffer, int &N );
+    // The data is serialized as follows: ID imin imax jmin jmax kmin kmax
+    void SerializeGridExtents( int *&sndbuffer, vtkIdType &N );
 
     // Description:
     // Deserializes the received grid extent information to the GridExtents
-    // internal data-structure and
-    void DeserializeData( int *rcvbuffer, int &N );
+    // internal data-structures.
+    void DeserializeGridExtentForProcess(
+        int *rcvbuffer, vtkIdType &N, const int processId );
 
   private:
     vtkPStructuredGridConnectivity(const vtkPStructuredGridConnectivity& ); // Not implemented
