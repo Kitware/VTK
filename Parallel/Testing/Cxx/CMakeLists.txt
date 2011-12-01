@@ -74,6 +74,12 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     ADD_EXECUTABLE(TestAMRUtilities TestAMRUtilities.cxx)
     TARGET_LINK_LIBRARIES(TestAMRUtilities vtkParallel ${MPI_LIBRARIES} )
+    ADD_EXECUTABLE(TestPStructuredGridConnectivity 
+                   TestPStructuredGridConnectivity.cxx)
+    TARGET_LINK_LIBRARIES(TestPStructuredGridConnectivity
+                          vtkCommon 
+                          vtkParallel 
+                          ${MPI_LIBRARIES})
     
     ADD_EXECUTABLE(TestMPIController MPIController.cxx
       ExerciseMultiProcessController.cxx)
