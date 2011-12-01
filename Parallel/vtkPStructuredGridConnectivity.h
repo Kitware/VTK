@@ -39,7 +39,7 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 {
   public:
     static vtkPStructuredGridConnectivity* New();
-    vtkTypeMacro(vtkPStructuredGridConnectivity,vtkPStructuredGridConnectivity);
+    vtkTypeMacro(vtkPStructuredGridConnectivity,vtkStructuredGridConnectivity);
     void PrintSelf( std::ostream& os, vtkIndent indent );
 
     // Description:
