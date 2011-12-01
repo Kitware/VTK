@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTextProperty.h"
 
 #include "vtkCubeAxesActor.h"
 
@@ -38,6 +39,8 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
   // Create plane source
   vtkSmartPointer<vtkPlaneSource> plane
     = vtkSmartPointer<vtkPlaneSource>::New();
+  plane->SetXResolution( 10 );
+  plane->SetYResolution( 10 );
 
   // Create plane mapper
   vtkSmartPointer<vtkPolyDataMapper> planeMapper
@@ -65,19 +68,33 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
   // Create renderer
   vtkSmartPointer<vtkRenderer> renderer
     = vtkSmartPointer<vtkRenderer>::New();
-  renderer->SetBackground( .3, .6, .3 );
+  renderer->SetBackground( 1., 1., 1. );
   renderer->GetActiveCamera()->SetFocalPoint( .0, .0, .0 );
   renderer->GetActiveCamera()->SetPosition( .0, .0, 2.5 );
 
   // Create cube axes actor
   vtkSmartPointer<vtkCubeAxesActor> axes = vtkSmartPointer<vtkCubeAxesActor>::New();
   axes->SetCamera ( renderer->GetActiveCamera() );
+  axes->SetBounds( -.5, .5, -.5, .5, 0., 0. );
   axes->SetCornerOffset( .0 );
   axes->SetXAxisVisibility( 1 );
   axes->SetYAxisVisibility( 1 );
   axes->SetZAxisVisibility( 0 );
   //axes->SetUse2DMode(1);
-  axes->SetBounds( -.5, .5, .5, .5, 0., 0. );
+
+  // Desactivate LOD for all axes
+  axes->SetEnableDistanceLOD( 0 );
+  axes->SetEnableViewAngleLOD( 0 );
+
+  // Use red color for X axis
+  axes->GetXAxesLinesProperty()->SetColor( 1., 0., 0.);
+  axes->GetTitleTextProperty( 0 )->SetColor( 1., 0., 0.);
+  axes->GetLabelTextProperty( 0 )->SetColor( 1., 0., 0.);
+
+  // Use green color for Y axis
+  axes->GetYAxesLinesProperty()->SetColor( 0., 1., 0. );
+  axes->GetTitleTextProperty( 1 )->SetColor( 0., 1., 0. );
+  axes->GetLabelTextProperty( 1 )->SetColor( 0., 1., 0. );
 
   // Add all actors to renderer
   renderer->AddActor( planeActor );
