@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkMeshPropertyEncoder.h
+ Module:    vtkGhostArray.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -12,35 +12,58 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkMeshPropertyEncoder.h -- Encodes/Decodes mesh entity property info.
+// .NAME vtkGhostArray.h -- Encodes/Decodes ghost array information.
 //
 // .SECTION Description
-//  vtkMeshPropertyEncoder provides functionality for manipulating a mesh entity
+//  vtkGhostArray provides functionality for manipulating a mesh entity
 //  property field, represented by an "unsigned char". Each mesh entity, e.g.,
 //  a vertex or cell is associated with an "unsigned char" where each individual
 //  bit represents the state of a particular property. This class provides
 //  the logic required to manipulate individual bits in the "unsigned char".
 //
 // .SECTION Caveats
-//  Since a mesh property field is used to represent a mesh property field, we
-//  are restricted to 8 properties that each property field can be associated
-//  with.
-//
-// .SECTION See Also
-//  vtkMeshProperty
+//  Since an unsigned char is used to represent a mesh entity property field, we
+//  are restricted to at most 8 properties, i.e., [0-7] that can be used to
+//  designate different states.
 
-#ifndef vtkMeshPropertyEncoder_H_
-#define vtkMeshPropertyEncoder_H_
+#ifndef vtkGhostArray_H_
+#define vtkGhostArray_H_
 
 #include "vtkObject.h"
 
 #include <cassert> // For assert
 
-class VTK_COMMON_EXPORT vtkMeshPropertyEncoder : public vtkObject
+class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
 {
   public:
-    static vtkMeshPropertyEncoder* New();
-    vtkTypeMacro( vtkMeshPropertyEncoder, vtkObject );
+
+    enum NodeProperties
+      {
+      INTERNAL = 0, // Nodes that are on the interior domain of a partition
+      SHARED   = 1, // Nodes that are on the abutting/internal interface of
+                    // two or more partitions.
+      GHOST    = 2, // Nodes whose value comes from another process/partition
+      VOID     = 3, // Nodes that are ignored in computation/visualization,
+                    // their value is typically garbage.
+      IGNORE   = 4, // Nodes that are ignored in computation/visualization but
+                    // have a valid value, e.g., if a SHARED node is going to be
+                    // processed by another partition, then, this property is
+                    // used to indicate to the rest of the partitions sharing
+                    // that node to ignore it.
+      BOUNDARY = 5  // Nodes that are on the boundaries of the domain
+      };
+
+    enum CellProperties
+      {
+      DUPLICATE = 0,// Ghost cells that exist in another partition, i.e, are
+                    // composed of internal boundary and ghost nodes
+      EXTERNAL  = 1 // Cells that are created "artificially" outside the domain,
+                    // i.e., are composed from boundary nodes and nodes outside
+                    // the domain.
+      };
+
+    static vtkGhostArray* New();
+    vtkTypeMacro( vtkGhostArray, vtkObject );
     void PrintSelf( std::ostream& os, vtkIndent indent );
 
     // Description:
@@ -72,16 +95,16 @@ class VTK_COMMON_EXPORT vtkMeshPropertyEncoder : public vtkObject
     static void Reset( unsigned char &propertyField )
     {
       for( int i=0; i < 8; ++i )
-        vtkMeshPropertyEncoder::UnsetProperty( propertyField, i );
+        vtkGhostArray::UnsetProperty( propertyField, i );
     }
 
   protected:
-    vtkMeshPropertyEncoder();
-    ~vtkMeshPropertyEncoder();
+    vtkGhostArray();
+    ~vtkGhostArray();
 
   private:
-    vtkMeshPropertyEncoder( const vtkMeshPropertyEncoder& ); // Not implemented
-    void operator=(const vtkMeshPropertyEncoder& ); // Not implemented
+    vtkGhostArray( const vtkGhostArray& ); // Not implemented
+    void operator=(const vtkGhostArray& ); // Not implemented
 };
 
-#endif /* vtkMeshPropertyEncoder_H_ */
+#endif /* vtkGhostArray_H_ */

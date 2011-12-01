@@ -12,31 +12,26 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-
-// C++ includes
-#include <cassert>
-
 // VTK includes
-#include "vtkMeshProperty.h"
-#include "vtkMeshPropertyEncoder.h"
+#include "vtkGhostArray.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro( vtkMeshPropertyEncoder );
+vtkStandardNewMacro( vtkGhostArray );
 
 //------------------------------------------------------------------------------
-vtkMeshPropertyEncoder::vtkMeshPropertyEncoder()
+vtkGhostArray::vtkGhostArray()
 {
 
 }
 
 //------------------------------------------------------------------------------
-vtkMeshPropertyEncoder::~vtkMeshPropertyEncoder()
+vtkGhostArray::~vtkGhostArray()
 {
 
 }
 
 //------------------------------------------------------------------------------
-void vtkMeshPropertyEncoder::PrintSelf( std::ostream &os, vtkIndent indent )
+void vtkGhostArray::PrintSelf( std::ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
 }
