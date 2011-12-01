@@ -103,6 +103,8 @@ int TestCubeAxesWithGridLines( int argc, char * argv [] )
   axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
+
+  // Draw all (outer) grid lines
   axes2->SetDrawXGridlines(1);
   axes2->SetDrawYGridlines(1);
   axes2->SetDrawZGridlines(1);
