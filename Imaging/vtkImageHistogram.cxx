@@ -484,7 +484,8 @@ void vtkImageHistogramGenerateImage(
 
   // find tallest peak in histogram
   vtkIdType peak = 0;
-  for (int ix = 0; ix < nx; ++ix)
+  int ix;
+  for (ix = 0; ix < nx; ++ix)
     {
     vtkIdType c = histogram[ix];
     peak = (peak >= c ? peak : c);
@@ -517,7 +518,7 @@ void vtkImageHistogramGenerateImage(
     }
 
   double x = extent[0]*a;
-  int ix = static_cast<int>(x);
+  ix = static_cast<int>(x);
   for (int i = extent[0]; i <= extent[1]; i++)
     {
     // use max of the original bins to compute new bin height
