@@ -42,9 +42,9 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
   this->InternalMapper = vtkSmartVolumeMapper::New();
   this->Resampler = vtkAMRResampleFilter::New();
   this->Grid = NULL;
-  this->NumberOfSamples[0] = 20;
-  this->NumberOfSamples[1] = 20;
-  this->NumberOfSamples[2] = 20;
+  this->NumberOfSamples[0] = 128;
+  this->NumberOfSamples[1] = 128;
+  this->NumberOfSamples[2] = 128;
   vtkMath::UninitializeBounds(this->Bounds);
 }
 
