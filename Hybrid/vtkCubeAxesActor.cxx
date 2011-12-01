@@ -1787,7 +1787,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     this->RenderAxesX[0] = 0;
     this->RenderAxesY[0] = 0;
     this->RenderAxesZ[0] = 0;
-    if (this->DrawXGridlines || this->DrawXInnerGridlines ||this->DrawXGridpolys)
+    if ( this->DrawXGridlines )
       {
       this->RenderAxesX[1] = 2;
       this->NumberOfAxesX = 2;
@@ -1800,7 +1800,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
       {
       this->NumberOfAxesX = 1;
       }
-    if (this->DrawYGridlines || this->DrawYInnerGridlines || this->DrawYGridpolys)
+    if ( this->DrawYGridlines )
       {
       this->RenderAxesY[1] = 2;
       this->NumberOfAxesY = 2;
@@ -1813,7 +1813,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
       {
       this->NumberOfAxesY = 1;
       }
-    if (this->DrawZGridlines || this->DrawZInnerGridlines || this->DrawZGridpolys)
+    if ( this->DrawZGridlines )
       {
       this->RenderAxesZ[1] = 2;
       this->NumberOfAxesZ = 2;
@@ -1984,22 +1984,23 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
           break;
         }
 
-      }//else boundary edges fly mode
+      } // else boundary edges fly mode
 
     this->InertiaLocs[0] = xloc;
     this->InertiaLocs[1] = yloc;
     this->InertiaLocs[2] = zloc;
-    } //inertia
+    } // inertia
   else
     {
-    // don't change anything, use locations from last render
+    // Do not change anything, use locations from last render
     xloc = this->InertiaLocs[0];
     yloc = this->InertiaLocs[1];
     zloc = this->InertiaLocs[2];
     }
 
+  // Set axes to be rendered
   this->RenderAxesX[0] = xloc % NUMBER_OF_ALIGNED_AXIS;
-  if (this->DrawXGridlines || this->DrawXInnerGridlines || this->DrawXGridpolys)
+  if ( this->DrawXGridlines )
     {
     this->RenderAxesX[1] = (xloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesX = 2;
@@ -2014,7 +2015,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     }
 
   this->RenderAxesY[0] = yloc % NUMBER_OF_ALIGNED_AXIS;
-  if (this->DrawYGridlines || this->DrawYInnerGridlines || this->DrawYGridpolys)
+  if ( this->DrawYGridlines )
     {
     this->RenderAxesY[1] = (yloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesY = 2;
@@ -2029,7 +2030,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     }
 
   this->RenderAxesZ[0] = zloc % NUMBER_OF_ALIGNED_AXIS;
-  if (this->DrawZGridlines || this->DrawZInnerGridlines || this->DrawZGridpolys)
+  if ( this->DrawZGridlines )
     {
     this->RenderAxesZ[1] = (zloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesZ = 2;
@@ -2042,9 +2043,8 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     {
     this->NumberOfAxesZ = 1;
     }
-  //
+
   //  Make sure that the primary axis visibility flags are set correctly.
-  //
   this->XAxes[RenderAxesX[0]]->SetLabelVisibility(this->XAxisLabelVisibility);
   this->XAxes[RenderAxesX[0]]->SetTitleVisibility(this->XAxisLabelVisibility);
   this->XAxes[RenderAxesX[0]]->SetTickVisibility(this->XAxisTickVisibility);

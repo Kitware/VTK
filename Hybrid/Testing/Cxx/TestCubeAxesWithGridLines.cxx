@@ -12,13 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// This example illustrates how one may explicitly specify the range of each
-// axes that's used to define the prop, while displaying data with a different
-// set of bounds (unlike cubeAxes2.tcl). This example allows you to separate
-// the notion of extent of the axes in physical space (bounds) and the extent
-// of the values it represents. In other words, you can have the ticks and
-// labels show a different range.
+// .SECTION Thanks
+// This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
@@ -36,8 +31,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-
-
+#include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
 int TestCubeAxesWithGridLines( int argc, char * argv [] )
@@ -83,15 +77,18 @@ int TestCubeAxesWithGridLines( int argc, char * argv [] )
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren2.GetPointer());
-  renWin->SetWindowName("VTK - Cube Axes custom range");
+  renWin->SetWindowName("Cube Axes with Outer Grid Lines");
   renWin->SetSize(600, 600);
+  renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
 
   ren2->AddViewProp(foheActor.GetPointer());
   ren2->AddViewProp(outlineActor.GetPointer());
-  ren2->SetBackground(0.1, 0.2, 0.4);
+  ren2->SetGradientBackground( true );
+  ren2->SetBackground(.1,.1,.1);
+  ren2->SetBackground2(.8,.8,.8);
 
   normals->Update();
 
@@ -106,9 +103,26 @@ int TestCubeAxesWithGridLines( int argc, char * argv [] )
   axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
+
+  // Draw all (outer) grid lines
   axes2->SetDrawXGridlines(1);
   axes2->SetDrawYGridlines(1);
   axes2->SetDrawZGridlines(1);
+
+  // Use red color for X gridlines, title, and labels
+  axes2->GetXAxesGridlinesProperty()->SetColor(1., 0., 0.);
+  axes2->GetTitleTextProperty(0)->SetColor(1., 0., 0.);
+  axes2->GetLabelTextProperty(0)->SetColor(1., 0., 0.);
+
+  // Use green color for Y gridlines, title, and labels
+  axes2->GetYAxesGridlinesProperty()->SetColor(0., 1., 0.);
+  axes2->GetTitleTextProperty(1)->SetColor(0., 1., 0.);
+  axes2->GetLabelTextProperty(1)->SetColor(0., 1., 0.);
+
+  // Use blue color for Z gridlines, title, and labels
+  axes2->GetZAxesGridlinesProperty()->SetColor(0., 0., 1.);
+  axes2->GetTitleTextProperty(2)->SetColor(0., 0., 1.);
+  axes2->GetLabelTextProperty(2)->SetColor(0., 0., 1.);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();
