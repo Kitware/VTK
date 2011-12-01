@@ -47,6 +47,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestTessellator.cxx
     TestUncertaintyTubeFilter.cxx
     TestDecimatePolylineFilter.cxx
+    TestImplicitPolyDataDistance.cxx
     )
 
   IF(VTK_USE_BOOST)
@@ -93,6 +94,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx
       UnstructuredGridFastGradients.cxx
+      TestBooleanOperationPolyDataFilter.cxx
+      TestBooleanOperationPolyDataFilter2.cxx
+      TestDistancePolyDataFilter.cxx
+      TestIntersectionPolyDataFilter.cxx
       )
     IF (VTK_USE_PARALLEL)
       SET(MyTests ${MyTests}
@@ -100,8 +105,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         )
     ENDIF (VTK_USE_PARALLEL)
   ENDIF (VTK_DATA_ROOT)
-  CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                         EXTRA_INCLUDE vtkTestDriver.h)
+
+  INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
   IF (VTK_USE_PARALLEL)
