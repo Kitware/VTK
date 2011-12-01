@@ -30,6 +30,13 @@ cylactor.GetProperty().SetColor( .5, .5, .5 )
 cylactor.SetOrigin( pole )
 cylactor.RotateX( 90. )
 
+# Create renderer
+renderer = vtkRenderer()
+renderer.GradientBackgroundOn()
+renderer.SetBackground( .8, .8 ,.8 )
+renderer.SetBackground2( 1., 1. ,1. )
+renderer.SetActiveCamera( camera )
+
 # Create polar axes
 polaxes = vtkPolarAxesActor()
 polaxes.SetBounds( cylinder.GetOutput().GetBounds() )
@@ -41,7 +48,7 @@ polaxes.SetMaximumAngle( 210. )
 polaxes.SetNumberOfRadialAxes( 10 )
 polaxes.SetNumberOfPolarAxisTicks( 9 )
 polaxes.SetAutoSubdividePolarAxis( 0 )
-polaxes.SetCamera( camera )
+polaxes.SetCamera( renderer.GetActiveCamera() )
 polaxes.SetPolarLabelFormat( "%6.1f" )
 polaxes.GetRadialAxesProperty().SetColor( .0, .0, 1. )
 polaxes.GetPolarArcsProperty().SetColor( 1., .0, 0. )
@@ -52,17 +59,10 @@ polaxes.SetDistanceLODThreshold( .4 )
 polaxes.SetViewAngleLODThreshold( .2 )
 polaxes.SetScreenSize( 8. )
 
-# Create renderer
-renderer = vtkRenderer()
-renderer.AddViewProp( cylactor )
-renderer.AddViewProp( polaxes )
-renderer.GradientBackgroundOn()
-renderer.SetBackground( .8, .8 ,.8 )
-renderer.SetBackground2( 1., 1. ,1. )
-renderer.SetActiveCamera( camera )
-
 # Create render window
 window = vtkRenderWindow()
+renderer.AddViewProp( cylactor )
+renderer.AddViewProp( polaxes )
 window.AddRenderer( renderer )
 window.SetSize( 500, 500 )
 

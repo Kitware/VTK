@@ -199,6 +199,26 @@ public:
   void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
+  // Enable and disable the use of distance based LOD for titles and labels. 
+  vtkSetMacro( EnableDistanceLOD, int );
+  vtkGetMacro( EnableDistanceLOD, int );
+  
+  // Description:a
+  // Set distance LOD threshold [0.0 - 1.0] for titles and labels. 
+  vtkSetClampMacro( DistanceLODThreshold, double, 0.0, 1.0 );
+  vtkGetMacro( DistanceLODThreshold, double);
+
+  // Description:
+  // Enable and disable the use of view angle based LOD for titles and labels. 
+  vtkSetMacro( EnableViewAngleLOD, int );
+  vtkGetMacro( EnableViewAngleLOD, int );
+  
+  // Description:
+  // Set view angle LOD threshold [0.0 - 1.0] for titles and labels.
+  vtkSetClampMacro( ViewAngleLODThreshold, double, 0., 1. );
+  vtkGetMacro( ViewAngleLODThreshold, double );
+
+  // Description:
   // Turn on and off the visibility of each axis.
   vtkSetMacro(XAxisVisibility,int);
   vtkGetMacro(XAxisVisibility,int);
@@ -374,6 +394,26 @@ protected:
   vtkCamera *Camera;
 
   int FlyMode;
+
+  // Description:
+  // If enabled the actor will not be visible at a certain distance from the camera.
+  // Default is true
+  int EnableDistanceLOD;
+
+  // Description:
+  // Default is 0.80
+  // This determines at what fraction of camera far clip range, actor is not visible.
+  double DistanceLODThreshold;
+
+  // Description:
+  // If enabled the actor will not be visible at a certain view angle.
+  // Default is true.
+  int EnableViewAngleLOD;
+
+  // Description:
+  // This determines at what view angle to geometry will make the geometry not visibile.
+  // Default is 0.3.
+  double ViewAngleLODThreshold;
 
   // Description:
   // Control variables for all axes
