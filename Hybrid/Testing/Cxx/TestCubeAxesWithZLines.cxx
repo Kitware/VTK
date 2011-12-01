@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestCubeAxes3.cxx
+  Module:    TestCubeWithZLines.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// This example illustrates how one may explicitly specify the range of each
-// axes that's used to define the prop, while displaying data with a different
-// set of bounds (unlike cubeAxes2.tcl). This example allows you to separate
-// the notion of extent of the axes in physical space (bounds) and the extent
-// of the values it represents. In other words, you can have the ticks and
-// labels show a different range.
+// .SECTION Thanks
+// This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
@@ -39,7 +34,7 @@
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestCubeAxes3( int argc, char * argv [] )
+int TestCubeAxesWithZLines( int argc, char * argv [] )
 {
   vtkNew<vtkBYUReader> fohe;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
@@ -82,15 +77,18 @@ int TestCubeAxes3( int argc, char * argv [] )
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren2.GetPointer());
-  renWin->SetWindowName("Cube Axes");
+  renWin->SetWindowName("Cube Axes with Z Outer Grid Lines");
   renWin->SetSize(600, 600);
+  renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
 
   ren2->AddViewProp(foheActor.GetPointer());
   ren2->AddViewProp(outlineActor.GetPointer());
-  ren2->SetBackground(0.1, 0.2, 0.4);
+  ren2->SetGradientBackground( true );
+  ren2->SetBackground(.1,.1,.1);
+  ren2->SetBackground2(.8,.8,.8);
 
   normals->Update();
 
@@ -106,15 +104,14 @@ int TestCubeAxes3( int argc, char * argv [] )
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
 
-  // Use red color for X axis
-  axes2->GetXAxesLinesProperty()->SetColor(1., 0., 0.);
-  axes2->GetTitleTextProperty(0)->SetColor(1., 0., 0.);
-  axes2->GetLabelTextProperty(0)->SetColor(.8, 0., 0.);
+  // Draw Z (outer) grid lines
+  axes2->SetDrawZGridlines(1);
 
-  // Use green color for Y axis
-  axes2->GetYAxesLinesProperty()->SetColor(0., 1., 0.);
-  axes2->GetTitleTextProperty(1)->SetColor(0., 1., 0.);
-  axes2->GetLabelTextProperty(1)->SetColor(0., .8, 0.);
+  // Use bluee color for Z axis lines, gridlines, title, and labels
+  axes2->GetTitleTextProperty(2)->SetColor(0., 0., 1.);
+  axes2->GetLabelTextProperty(2)->SetColor(0., 0., 1.);
+  axes2->GetZAxesLinesProperty()->SetColor(0., 0., 1.);
+  axes2->GetZAxesGridlinesProperty()->SetColor(0., 0., 1.);
 
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();

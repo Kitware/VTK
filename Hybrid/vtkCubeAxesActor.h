@@ -45,7 +45,7 @@ All rights reserve
 // This class was written by:
 // Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
 // Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
-// Aashish Chaudhary, Philippe Pébay, David Gobbi, David Partyka, Utkarsh Ayachit
+// Aashish Chaudhary, Philippe Pebay, David Gobbi, David Partyka, Utkarsh Ayachit
 // David Cole, François Bertel, and Mark Olesen
 // 
 //
