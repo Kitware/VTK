@@ -17,8 +17,6 @@
 // .SECTION Description
 // Serial tests for structured grid connectivity
 
-
-
 // C++ includes
 #include <iostream>
 #include <sstream>
@@ -191,19 +189,6 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
       vtkMultiBlockDataSet::SafeDownCast( gridPartitioner->GetOutput() );
   mbds->SetReferenceCount( mbds->GetReferenceCount()+1 );
 
-  int GridExtent[6];
-  mbds->GetWholeExtent( GridExtent );
-
-//  std::cout << "MY WHOLE EXTENT: ";
-//  for( int i=0; i < 6; i+=2 )
-//    {
-//    std::cout << "[ " << GridExtent[ i ] << ", " << GridExtent[ i+1 ] << " ] ";
-//    std::cout.flush();
-//    }
-
-  std::cout << std::endl;
-  std::cout.flush();
-
   wholeGrid->Delete();
   gridPartitioner->Delete();
 
@@ -314,14 +299,8 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
 
 //------------------------------------------------------------------------------
 // Program main
-int main( int argc, char **argv )
+int TestStructuredGridConnectivity( int argc, char *argv[] )
 {
-
-//
-// Un-comment this to run the simple monolithic test
-// return SimpleMonolithicTest( argc, argv );
-//
-
   int expected = 100*100*100;
   int rc = 0;
   int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
@@ -503,4 +482,22 @@ int SimpleMonolithicTest( int argc, char **argv )
   gridConnectivity->Delete();
   mpds->Delete();
   return 0;
+}
+
+//------------------------------------------------------------------------------
+// Program main
+int main( int argc, char **argv )
+{
+  int rc = 0;
+
+  if( argc > 1 )
+    {
+    rc = SimpleMonolithicTest( argc, argv );
+    }
+  else
+    {
+    rc = TestStructuredGridConnectivity( argc, argv );
+    }
+
+  return( rc );
 }
