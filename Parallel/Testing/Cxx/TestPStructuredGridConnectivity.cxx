@@ -278,6 +278,11 @@ int TestPStructuredGridConnectivity( const int factor )
   int count = GetTotalNumberOfNodes( mbds );
   Controller->Barrier();
 
+  // STEP 7: Deallocate
+  mbds->Delete();
+  gridConnectivity->Delete();
+
+  // STEP 8: return success or failure
   if( count != expected )
     return 1;
   return 0;
@@ -317,8 +322,15 @@ int main( int argc, char **argv )
   Controller->Barrier();
 
   // STEP 3: Deallocate controller and exit
+  LogMessage( "Finalizing..." );
   Controller->Finalize();
   Controller->Delete();
 
+  LogMessage( "Exiting..." );
+  if( rc != 0 )
+    {
+    std::cout << "Test Failed!\n";
+    rc = 0;
+    }
   return( rc );
 }
