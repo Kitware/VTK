@@ -281,10 +281,9 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->TitleScale = -1.0;
 }
 
-//! use textactor (2D) instead of follower (3D) for title
 void vtkCubeAxesActor::SetUse2DMode( int val )
 {
-  for( int i=0 ; i < 4 ; ++i )
+  for( int i = 0 ; i < NUMBER_OF_ALIGNED_AXIS ; ++ i )
     {
     this->XAxes[i]->SetUse2DMode( val );
     this->YAxes[i]->SetUse2DMode( val );
@@ -312,7 +311,7 @@ void vtkCubeAxesActor::SetSaveTitlePosition( int val )
   //   val = 0: no need to save position (3D axis)
   //   val = 1: positions have to be saved during the next render pass
   //   val = 2: positions are saved -> use them
-  for( int i=0 ; i < 4 ; ++i )
+  for( int i = 0 ; i < NUMBER_OF_ALIGNED_AXIS ; ++ i )
     {
     this->XAxes[i]->SetSaveTitlePosition( val );
     this->YAxes[i]->SetSaveTitlePosition( val );
