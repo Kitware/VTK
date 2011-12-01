@@ -46,6 +46,14 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
 
+  // By default enable distance based LOD
+  this->EnableDistanceLOD = 1;
+  this->DistanceLODThreshold = .8;
+
+  // By default enable view angle based LOD
+  this->EnableViewAngleLOD = 1;
+  this->ViewAngleLODThreshold = .2;
+
   // Title and label text properties
   for (int i = 0; i < 3; i++)
     {
@@ -137,14 +145,29 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
       this->LabelScreenOffset * 2.0 + this->ScreenSize * 0.5;
 
     // Pass information to axes followers.
-    this->XAxes[i]->GetTitleActor()->SetAxis(this->XAxes[i]);
-    this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+    vtkAxisFollower* follower = this->XAxes[i]->GetTitleActor();
+    follower->SetAxis(this->XAxes[i]);
+    follower->SetScreenOffset(this->TitleScreenOffset);
+    follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+  
+    follower = this->YAxes[i]->GetTitleActor();
+    follower->SetAxis(this->YAxes[i]);
+    follower->SetScreenOffset(this->TitleScreenOffset);
+    follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
 
-    this->YAxes[i]->GetTitleActor()->SetAxis(this->YAxes[i]);
-    this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
-
-    this->ZAxes[i]->GetTitleActor()->SetAxis(this->ZAxes[i]);
-    this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+    follower = this->ZAxes[i]->GetTitleActor();
+    follower->SetAxis(this->ZAxes[i]);
+    follower->SetScreenOffset(this->TitleScreenOffset);
+    follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
     }
 
   this->XTitle = new char[7];
@@ -779,41 +802,41 @@ void vtkCubeAxesActor::AdjustAxes(double bounds[6],
 // *************************************************************************
 void vtkCubeAxesActor::SetScreenSize(double screenSize)
 {
-this->ScreenSize = screenSize;
+  this->ScreenSize = screenSize;
 // Considering pivot point at center of the geometry hence (this->ScreenSize * 0.5).
-this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
-this->TitleScreenOffset = this->LabelScreenOffset * 2.0 +
-  this->ScreenSize * 0.5;
+  this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
+  this->TitleScreenOffset = this->LabelScreenOffset * 2.0 +
+    this->ScreenSize * 0.5;
 
-for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
-  {
-  this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
-  this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
-  this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
-
-  int numberOfLabelsBuild = this->XAxes[i]->GetNumberOfLabelsBuilt();
-  vtkAxisFollower **labelActors = this->XAxes[i]->GetLabelActors();
-  for(int k=0; k < numberOfLabelsBuild; ++k)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
-    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+    this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+    this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+    this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+
+    int numberOfLabelsBuild = this->XAxes[i]->GetNumberOfLabelsBuilt();
+    vtkAxisFollower **labelActors = this->XAxes[i]->GetLabelActors();
+    for(int k=0; k < numberOfLabelsBuild; ++k)
+      {
+      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+      }
+
+    numberOfLabelsBuild = this->YAxes[i]->GetNumberOfLabelsBuilt();
+    labelActors = this->YAxes[i]->GetLabelActors();
+    for(int k=0; k < numberOfLabelsBuild; ++k)
+      {
+      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+      }
+
+    numberOfLabelsBuild = this->ZAxes[i]->GetNumberOfLabelsBuilt();
+    labelActors = this->ZAxes[i]->GetLabelActors();
+    for(int k=0; k < numberOfLabelsBuild; ++k)
+      {
+      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+      }
     }
 
-  numberOfLabelsBuild = this->YAxes[i]->GetNumberOfLabelsBuilt();
-  labelActors = this->YAxes[i]->GetLabelActors();
-  for(int k=0; k < numberOfLabelsBuild; ++k)
-    {
-    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
-    }
-
-  numberOfLabelsBuild = this->ZAxes[i]->GetNumberOfLabelsBuilt();
-  labelActors = this->ZAxes[i]->GetLabelActors();
-  for(int k=0; k < numberOfLabelsBuild; ++k)
-    {
-    labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
-    }
-  }
-
-this->Modified();
+  this->Modified();
 }
 
 // *************************************************************************
@@ -916,6 +939,14 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Fly Mode: OUTER_EDGES\n";
     }
+
+  os << indent << "EnableDistanceLOD: "   
+     << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
+  os << indent << "DistanceLODThreshold: "   << this->DistanceLODThreshold    << "\n";
+
+  os << indent << "EnableViewAngleLOD: "   
+     << ( this->EnableViewAngleLOD ? "On" : "Off" ) << endl;
+  os << indent << "ViewAngleLODThreshold: "   << this->ViewAngleLODThreshold    << "\n";
 
   os << indent << "X Axis Title: " << this->XTitle << "\n";
   os << indent << "Y Axis Title: " << this->YTitle << "\n";
@@ -2419,6 +2450,10 @@ void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
         }
 
       labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
+      labelActors[k]->SetEnableDistanceLOD( this->EnableDistanceLOD );
+      labelActors[k]->SetDistanceLODThreshold( this->DistanceLODThreshold );
+      labelActors[k]->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+      labelActors[k]->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
       }
     }
   }
