@@ -37,8 +37,7 @@
 #include "vtkPStructuredGridConnectivity.h"
 #include "vtkStructuredGridConnectivity.h"
 #include "vtkStructuredNeighbor.h"
-#include "vtkMeshPropertyEncoder.h"
-#include "vtkMeshProperty.h"
+#include "vtkGhostArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkUniformGridPartitioner.h"
@@ -81,8 +80,8 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
         {
         unsigned char nodeProperty =
             *(grid->GetPointVisibilityArray()->GetPointer( pntIdx ));
-        if( !vtkMeshPropertyEncoder::IsPropertySet(
-            nodeProperty,VTKNodeProperties::IGNORE ) )
+        if( !vtkGhostArray::IsPropertySet(
+            nodeProperty,vtkGhostArray::IGNORE ) )
           {
           ++numNodes;
           }

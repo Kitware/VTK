@@ -38,8 +38,7 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkIntArray.h"
-#include "vtkMeshPropertyEncoder.h"
-#include "vtkMeshProperty.h"
+#include "vtkGhostArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkUniformGridPartitioner.h"
@@ -217,8 +216,8 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
         {
         unsigned char nodeProperty =
             *(grid->GetPointVisibilityArray()->GetPointer( pntIdx ));
-        if( !vtkMeshPropertyEncoder::IsPropertySet(
-            nodeProperty,VTKNodeProperties::IGNORE ) )
+        if( !vtkGhostArray::IsPropertySet(
+            nodeProperty,vtkGhostArray::IGNORE ) )
           {
           ++numNodes;
           }
@@ -450,10 +449,12 @@ int SimpleMonolithicTest( int argc, char **argv )
         for( ; pIdx < grid->GetNumberOfPoints(); ++pIdx )
           {
           unsigned char p = nodeProperty[ pIdx ];
-          if(!vtkMeshPropertyEncoder::IsPropertySet(p,VTKNodeProperties::IGNORE))
+          if(!vtkGhostArray::IsPropertySet(
+              p,vtkGhostArray::IGNORE))
             {
             ++totalNumberOfNodes;
-            if(vtkMeshPropertyEncoder::IsPropertySet(p,VTKNodeProperties::BOUNDARY))
+            if(vtkGhostArray::IsPropertySet(
+                p,vtkGhostArray::BOUNDARY))
               flags->SetValue( pIdx, 2 );
             else
               flags->SetValue( pIdx, 3);

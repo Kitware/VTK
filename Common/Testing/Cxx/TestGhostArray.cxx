@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestMeshPropertyEncoder.cxx
+  Module:    TestGhostArray.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,26 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME TestMeshPropertyEncoder.cxx -- Tests vtkMeshPropertyEncoder
+// .NAME TestGhostArray -- Tests vtkGhostArray
 //
 // .SECTION Description
-//  A simple test for the vtkMeshPropertyEncoder
+//  A simple test for the vtkGhostArray
 
-#include "vtkMeshProperty.h"
-#include "vtkMeshPropertyEncoder.h"
+#include "vtkGhostArray.h"
 
 int CheckSetAndUnsetProperty( unsigned char &u, const int p )
 {
   int rc = 0;
-  vtkMeshPropertyEncoder::SetProperty( u, p);
-  if( !vtkMeshPropertyEncoder::IsPropertySet( u, p) )
+  vtkGhostArray::SetProperty( u, p);
+  if( !vtkGhostArray::IsPropertySet( u, p) )
     {
     std::cerr << "Could not set property " << p << std::endl;
     ++rc;
     }
 
-  vtkMeshPropertyEncoder::UnsetProperty( u, p);
-  if( vtkMeshPropertyEncoder::IsPropertySet( u, p) )
+  vtkGhostArray::UnsetProperty( u, p);
+  if( vtkGhostArray::IsPropertySet( u, p) )
     {
     std::cerr << "Could not unset property " << p << std::endl;
     ++rc;
@@ -41,7 +40,7 @@ int CheckSetAndUnsetProperty( unsigned char &u, const int p )
 }
 
 //------------------------------------------------------------------------------
-int TestMeshPropertyEncoder(int,char *[])
+int TestGhostArray(int,char *[])
 {
   int rc = 0;
   unsigned char propertyField;
@@ -49,26 +48,26 @@ int TestMeshPropertyEncoder(int,char *[])
   // Ensure all bits are set to 0
   for( int i=0; i < 8; ++i )
     {
-    if( vtkMeshPropertyEncoder::IsPropertySet( propertyField, i) )
+    if( vtkGhostArray::IsPropertySet( propertyField, i) )
       ++rc;
     } // END for
 
   // Try setting/unsetting some node properties
-  rc += CheckSetAndUnsetProperty( propertyField, VTKNodeProperties::INTERNAL );
-  rc += CheckSetAndUnsetProperty( propertyField, VTKNodeProperties::SHARED );
-  rc += CheckSetAndUnsetProperty( propertyField, VTKNodeProperties::GHOST );
-  rc += CheckSetAndUnsetProperty( propertyField, VTKNodeProperties::IGNORE );
-  rc += CheckSetAndUnsetProperty( propertyField, VTKNodeProperties::VOID );
-  rc += CheckSetAndUnsetProperty( propertyField, VTKNodeProperties::BOUNDARY );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::INTERNAL );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::SHARED );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::GHOST );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::IGNORE );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::VOID );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::BOUNDARY );
 
   // Try setting/unsetting some cell properties
-  rc += CheckSetAndUnsetProperty( propertyField, VTKCellProperties::DUPLICATE );
-  rc += CheckSetAndUnsetProperty( propertyField, VTKCellProperties::EXTERNAL );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::DUPLICATE );
+  rc += CheckSetAndUnsetProperty( propertyField, vtkGhostArray::EXTERNAL );
 
   // Ensure all bits are set to 0
   for( int i=0; i < 8; ++i )
     {
-    if( vtkMeshPropertyEncoder::IsPropertySet( propertyField, i) )
+    if( vtkGhostArray::IsPropertySet( propertyField, i) )
       ++rc;
     } // END for
   return( rc );

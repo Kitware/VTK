@@ -71,6 +71,7 @@ vtkGarbageCollector.cxx
 vtkGarbageCollectorManager.cxx
 vtkGaussianRandomSequence.cxx
 vtkGeneralTransform.cxx
+vtkGhostArray.cxx
 vtkHeap.cxx
 vtkHomogeneousTransform.cxx
 vtkIOStream.cxx
@@ -117,7 +118,6 @@ vtkMatrix3x3.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
-vtkMeshPropertyEncoder.cxx
 vtkMinimalStandardRandomSequence.cxx
 vtkMultiThreader.cxx
 vtkMutexLock.cxx

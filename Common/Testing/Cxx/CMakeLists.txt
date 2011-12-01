@@ -11,13 +11,13 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestArrayLookup.cxx
   TestConditionVariable.cxx
   TestGarbageCollector.cxx
+  TestGhostArray.cxx
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
   TestDirectory.cxx
   TestFastNumericConversion.cxx
   TestMath.cxx
   TestMatrix3x3.cxx
-  TestMeshPropertyEncoder.cxx
   TestMinimalStandardRandomSequence.cxx
   TestNew.cxx
   TestObservers.cxx

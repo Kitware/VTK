@@ -14,8 +14,7 @@
  =========================================================================*/
 #include "vtkStructuredGridConnectivity.h"
 #include "vtkObjectFactory.h"
-#include "vtkMeshProperty.h"
-#include "vtkMeshPropertyEncoder.h"
+#include "vtkGhostArray.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredExtent.h"
 #include "vtkIdList.h"
@@ -192,17 +191,19 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
     const int gridID, const int i, const int j, const int k,
     int ext[6], unsigned char &p )
 {
-  vtkMeshPropertyEncoder::Reset( p );
+  vtkGhostArray::Reset( p );
 
   if( this->IsNodeInterior( i, j, k, ext ) )
     {
-    vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::INTERNAL );
+    vtkGhostArray::SetProperty(
+        p,vtkGhostArray::INTERNAL );
     }
   else
     {
     if( this->IsNodeOnBoundary(i,j,k) )
       {
-      vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::BOUNDARY );
+      vtkGhostArray::SetProperty(
+          p,vtkGhostArray::BOUNDARY );
       }
 
     // Figure out if the point is shared and who owns the point
@@ -211,7 +212,8 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 
     if( neiList->GetNumberOfIds() > 0 )
       {
-      vtkMeshPropertyEncoder::SetProperty( p, VTKNodeProperties::SHARED );
+      vtkGhostArray::SetProperty(
+          p,vtkGhostArray::SHARED );
 
       for( vtkIdType nei=0; nei < neiList->GetNumberOfIds(); ++nei )
         {
@@ -222,7 +224,8 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
         // etc.
         if( gridID > neiList->GetId( nei ) )
           {
-          vtkMeshPropertyEncoder::SetProperty( p,VTKNodeProperties::IGNORE );
+          vtkGhostArray::SetProperty(
+              p,vtkGhostArray::IGNORE );
           break;
           }
         } //END for all neis
