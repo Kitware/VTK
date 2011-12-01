@@ -1791,6 +1791,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
       {
       this->RenderAxesX[1] = 2;
       this->NumberOfAxesX = 2;
+      this->XAxes[RenderAxesX[1]]->SetAxisVisibility(0);
       this->XAxes[RenderAxesX[1]]->SetTickVisibility(0);
       this->XAxes[RenderAxesX[1]]->SetLabelVisibility(0);
       this->XAxes[RenderAxesX[1]]->SetTitleVisibility(0);
@@ -1804,6 +1805,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
       {
       this->RenderAxesY[1] = 2;
       this->NumberOfAxesY = 2;
+      this->YAxes[RenderAxesY[1]]->SetAxisVisibility(0);
       this->YAxes[RenderAxesY[1]]->SetTickVisibility(0);
       this->YAxes[RenderAxesY[1]]->SetLabelVisibility(0);
       this->YAxes[RenderAxesY[1]]->SetTitleVisibility(0);
@@ -1817,6 +1819,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
       {
       this->RenderAxesZ[1] = 2;
       this->NumberOfAxesZ = 2;
+      this->ZAxes[RenderAxesZ[1]]->SetAxisVisibility(0);
       this->ZAxes[RenderAxesZ[1]]->SetTickVisibility(0);
       this->ZAxes[RenderAxesZ[1]]->SetLabelVisibility(0);
       this->ZAxes[RenderAxesZ[1]]->SetTitleVisibility(0);
@@ -2004,6 +2007,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     {
     this->RenderAxesX[1] = (xloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesX = 2;
+    this->XAxes[RenderAxesX[1]]->SetAxisVisibility(0);
     this->XAxes[RenderAxesX[1]]->SetTickVisibility(0);
     this->XAxes[RenderAxesX[1]]->SetLabelVisibility(0);
     this->XAxes[RenderAxesX[1]]->SetTitleVisibility(0);
@@ -2019,6 +2023,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     {
     this->RenderAxesY[1] = (yloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesY = 2;
+    this->YAxes[RenderAxesY[1]]->SetAxisVisibility(0);
     this->YAxes[RenderAxesY[1]]->SetTickVisibility(0);
     this->YAxes[RenderAxesY[1]]->SetLabelVisibility(0);
     this->YAxes[RenderAxesY[1]]->SetTitleVisibility(0);
@@ -2034,6 +2039,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     {
     this->RenderAxesZ[1] = (zloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesZ = 2;
+    this->ZAxes[RenderAxesX[1]]->SetAxisVisibility(0);
     this->ZAxes[RenderAxesZ[1]]->SetTickVisibility(0);
     this->ZAxes[RenderAxesZ[1]]->SetLabelVisibility(0);
     this->ZAxes[RenderAxesZ[1]]->SetTitleVisibility(0);
