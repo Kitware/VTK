@@ -12,13 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// This example illustrates how one may explicitly specify the range of each
-// axes that's used to define the prop, while displaying data with a different
-// set of bounds (unlike cubeAxes2.tcl). This example allows you to separate
-// the notion of extent of the axes in physical space (bounds) and the extent
-// of the values it represents. In other words, you can have the ticks and
-// labels show a different range.
+// .SECTION Thanks
+// This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
