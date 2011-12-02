@@ -52,7 +52,10 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
      vtkSetMacro( EnableCaching, int );
      vtkGetMacro( EnableCaching, int );
      vtkBooleanMacro( EnableCaching, int );
-     inline bool IsCachingEnabled()const{return((EnableCaching)?true:false);};
+     bool IsCachingEnabled() const
+       {
+       return( (this->EnableCaching)?true:false);
+       };
 
     // Description:
     // Set/Get a multiprocess-controller for reading in parallel.
