@@ -416,7 +416,6 @@ void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
     this->RadialAxes[i]->ReleaseGraphicsResources( win );
     }
   this->PolarArcsActor->ReleaseGraphicsResources(win);
-
 }
 
 //-----------------------------------------------------------------------------
@@ -524,6 +523,9 @@ void vtkPolarAxesActor::CalculateBounds()
   this->Bounds[4] = this->Pole[2];
   // zmax
   this->Bounds[5] = this->Pole[2];
+
+  // Update modification time of bounds
+  this->BoundsMTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -557,7 +559,7 @@ double *vtkPolarAxesActor::GetBounds()
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
-  if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
+  if ( ( this->GetMTime() < this->BuildTime.GetMTime() ) )
     {
     this->AutoScale( viewport );
     return;
@@ -920,6 +922,30 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
                                     axis->GetTitleActor()->GetPosition() );
     axis->SetTitleScale( newTitleScale );
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetPole( double p[3] )
+{
+  this->Pole[0] = p[0];
+  this->Pole[1] = p[1];
+  this->Pole[2] = p[2];
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetPole( double x, double y, double z )
+{
+  this->Pole[0] = x;
+  this->Pole[1] = y;
+  this->Pole[2] = z;
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------

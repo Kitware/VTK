@@ -64,8 +64,8 @@ public:
 
   // Description:
   // Explicitly specify the coordinate of the pole.
-  // The default coordinates are (0,0,0).
-  vtkSetVector3Macro( Pole, double );
+  virtual void SetPole( double[3] );
+  virtual void SetPole( double, double, double );
   vtkGetVector3Macro( Pole, double );
 
   // Description:
@@ -288,6 +288,7 @@ protected:
 
   // Description:
   // Coordinates of the pole
+  // Default: (0,0,0).
   double Pole[3]; 
 
   // Description:
