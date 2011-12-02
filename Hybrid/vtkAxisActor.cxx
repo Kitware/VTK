@@ -812,6 +812,7 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
 // **********************************************************************
 void vtkAxisActor::BuildTitle(bool force)
 {
+  this->NeedBuild2D = false;
   if (!force && !this->TitleVisibility)
     {
     return;
@@ -833,6 +834,7 @@ void vtkAxisActor::BuildTitle(bool force)
     return;
     }
 
+  this->NeedBuild2D = true;
   switch (this->AxisType)
     {
     case VTK_AXIS_TYPE_X :
