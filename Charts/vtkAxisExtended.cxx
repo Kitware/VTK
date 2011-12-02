@@ -27,6 +27,13 @@ vtkStandardNewMacro(vtkAxisExtended);
 
 vtkAxisExtended::vtkAxisExtended()
 {
+  this->FontSize = 0;
+  this->DesiredFontSize = 10;
+  this->Precision = 3;
+  this->LabelFormat = 0;
+  this->Orientation = 0;
+  this->LabelLegibilityChanged = true;
+  this->IsAxisVertical = false;
 }
 
 vtkAxisExtended::~vtkAxisExtended()
@@ -268,8 +275,9 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
 
 // This methods determines the optimum notation, font size and orientation of
 // labels from an exhaustive search
-vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax,
-                                                 double lstep, double scaling)
+double vtkAxisExtended::Legibility(double lmin, double lmax, double lstep,
+                                   double scaling,
+                                   vtkVector<int, 3>& parameters)
 {
   int numTicks = static_cast<int>((lmax - lmin) / lstep);
   double* tickPositions = new double[numTicks];
@@ -341,7 +349,7 @@ vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax,
         double overlapLegSum = 1.0;
 
         double legScore = (formatLegSum + fontLegSum + orientLegSum
-                           + overlapLegSum)/4;
+                           + overlapLegSum) / 4;
         if(legScore > bestLegScore )
           {
           if(numTicks>1)
@@ -393,13 +401,11 @@ vtkVector<double, 4> vtkAxisExtended::Legibility(double lmin, double lmax,
       }
     }
 
-  vtkVector<double, 4> LegParameters;
-  LegParameters[0] = bestLegScore;
-  LegParameters[1] = bestFormat;
-  LegParameters[2] = bestFontSize;
-  LegParameters[3] = bestOrientation;
+  parameters[0] = bestFormat;
+  parameters[1] = bestFontSize;
+  parameters[2] = bestOrientation;
   delete [] tickPositions;
-  return LegParameters;
+  return bestLegScore;
 }
 
 // This method implements the algorithm given in the paper
@@ -413,7 +419,6 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
   vtkVector3d ans;
 
   this->LabelLegibilityChanged = false;
-  //vtkVector3d ans
   if(dmin > dmax)
     {
     double temp = dmin;
@@ -460,7 +465,7 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
         double z = ceil(log10(delta));
         while(z < INF)
           {
-          double step = j*Q[qIndex]*pow(10,z);
+          double step = j*Q[qIndex]*pow(10.0,z);
           //double cm = CoverageMax(dmin, dmax, step*(k-1));
           if((w[0]*sm + w[1] + w[2]*dm + w[3]) < bestScore)
             {
@@ -491,9 +496,13 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
             if(score < bestScore)
                continue;
 
-            vtkVector<double,4> l = Legibility(lmin,lmax,lstep,scaling);
+            //vtkVector<double,4> l = this->Legibility(lmin, lmax, lstep, scaling);
 
-            score = w[0]*s + w[1]*c + w[2]*g + w[3]*l[0];
+            vtkVector<int, 3> legibilityIndex;
+            double newScore = this->Legibility(lmin, lmax, lstep, scaling,
+                                               legibilityIndex);
+
+            score = w[0] * s + w[1] * c + w[2] * g + w[3] * newScore;
 
             if(score > bestScore)
               {
@@ -501,9 +510,9 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
               bestLmin = lmin;
               bestLmax = lmax;
               bestLstep = lstep;
-              this->LabelFormat = l[1]; // label format
-              this->FontSize = l[2]; // label font size
-              this->Orientation = l[3]; // label orientation
+              this->LabelFormat = legibilityIndex[0]; // label format
+              this->FontSize = legibilityIndex[1]; // label font size
+              this->Orientation = legibilityIndex[2]; // label orientation
               }
             }
           ++z;
@@ -519,4 +528,14 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(double dmin,
   //vtkVector3d answers(bestLmin, bestLmax, bestLstep);
   // return Sequence(bestLmin, bestLmax, bestLstep);
   return ans;
+}
+
+void vtkAxisExtended::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Orientation: " << this->Orientation << endl;
+  os << indent << "FontSize: " << this->FontSize << endl;
+  os << indent << "DesiredFontSize: " << this->DesiredFontSize << endl;
+  os << indent << "Precision: " << this->Precision << endl;
+  os << indent << "LabelFormat: " << this->LabelFormat << endl;
 }

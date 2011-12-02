@@ -43,6 +43,7 @@ vtkStringToNumeric::vtkStringToNumeric()
   this->ConvertFieldData = true;
   this->ConvertPointData = true;
   this->ConvertCellData = true;
+  this->ForceDouble = false;
 }
 
 vtkStringToNumeric::~vtkStringToNumeric()
@@ -251,7 +252,8 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
     if (allNumeric)
       {
       // Calling AddArray will replace the old array since the names match.
-      if (allInteger && (numTuples*numComps)) // Are they all ints, and did I test anything?
+      // Are they all ints, and did I test anything?
+      if (!this->ForceDouble && allInteger && (numTuples*numComps)) 
         {
         fieldData->AddArray(intArray);
         }
@@ -321,4 +323,6 @@ void vtkStringToNumeric::PrintSelf(ostream& os, vtkIndent indent)
     << (this->ConvertPointData ? "on" : "off") << endl;
   os << indent << "ConvertCellData: " 
     << (this->ConvertCellData ? "on" : "off") << endl;
+  os << indent << "ForceDouble: " 
+    << (this->ForceDouble ? "on" : "off") << endl;
 }

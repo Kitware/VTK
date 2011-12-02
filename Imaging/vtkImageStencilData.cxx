@@ -489,9 +489,9 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
   if (clistlen > 0)
     {
     // this extent continues the previous extent
-    if (r1 == clist[clistlen-1]+1)
+    if (r1 == clist[clistlen-1])
       {
-      clist[clistlen-1] = r2;
+      clist[clistlen-1] = r2 + 1;
       return;
       }
     // check if clistlen is a power of two
@@ -1311,14 +1311,8 @@ void vtkImageStencilRaster::InsertLine(
     delta += grad;
 
     // clamp x (because of tolerance, it might not be in range)
-    if (x < xmin)
-      {
-      x = xmin;
-      }
-    else if (x > xmax)
-      {
-      x = xmax;
-      }
+    x = ((x < xmax) ? x : xmax);
+    x = ((x > xmin) ? x : xmin);
 
     this->InsertPoint(y, x);
     }

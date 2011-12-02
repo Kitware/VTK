@@ -125,5 +125,6 @@ int TestGlobeSource(int argc, char* argv[])
     renWinInt->Start();
     }
 
+  delete []image;
   return !retVal;
 }

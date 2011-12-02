@@ -15,103 +15,6 @@
 #include "vtkCommand.h"
 #include "vtkDebugLeaks.h"
 
-// This list should only contain the initial, contiguous
-// set of events and should not include UserEvent
-static const char *vtkCommandEventStrings[] = {
-  "NoEvent", 
-  "AnyEvent",
-  "DeleteEvent",
-  "StartEvent",
-  "EndEvent",
-  "RenderEvent",
-  "ProgressEvent",
-  "PickEvent",
-  "StartPickEvent",
-  "EndPickEvent",
-  "AbortCheckEvent",
-  "ExitEvent", 
-  "LeftButtonPressEvent",
-  "LeftButtonReleaseEvent",
-  "MiddleButtonPressEvent",
-  "MiddleButtonReleaseEvent",
-  "RightButtonPressEvent",
-  "RightButtonReleaseEvent",
-  "EnterEvent",
-  "LeaveEvent",
-  "KeyPressEvent",
-  "KeyReleaseEvent",
-  "CharEvent",
-  "ExposeEvent",
-  "ConfigureEvent",
-  "TimerEvent",
-  "MouseMoveEvent",
-  "MouseWheelForwardEvent",
-  "MouseWheelBackwardEvent",
-  "ActiveCameraEvent",
-  "CreateCameraEvent",
-  "ResetCameraEvent",
-  "ResetCameraClippingRangeEvent",
-  "ModifiedEvent",
-  "WindowLevelEvent",
-  "StartWindowLevelEvent",
-  "EndWindowLevelEvent",
-  "ResetWindowLevelEvent",
-  "SetOutputEvent",
-  "ErrorEvent",
-  "WarningEvent",
-  "StartInteractionEvent",
-  "InteractionEvent",
-  "EndInteractionEvent",
-  "EnableEvent",
-  "DisableEvent",
-  "CreateTimerEvent",
-  "DestroyTimerEvent",
-  "PlacePointEvent",
-  "PlaceWidgetEvent",
-  "CursorChangedEvent",
-  "ExecuteInformationEvent",
-  "RenderWindowMessageEvent",
-  "WrongTagEvent",
-  "StartAnimationCueEvent",
-  "AnimationCueTickEvent",
-  "EndAnimationCueEvent",
-  "VolumeMapperRenderEndEvent",
-  "VolumeMapperRenderProgressEvent",
-  "VolumeMapperRenderStartEvent",
-  "VolumeMapperComputeGradientsEndEvent",
-  "VolumeMapperComputeGradientsProgressEvent",
-  "VolumeMapperComputeGradientsStartEvent",
-  "WidgetModifiedEvent",
-  "WidgetValueChangedEvent",
-  "WidgetActivateEvent",
-  "ConnectionCreatedEvent",
-  "ConnectionClosedEvent",
-  "DomainModifiedEvent",
-  "PropertyModifiedEvent",
-  "UpdateEvent",
-  "RegisterEvent",
-  "UnRegisterEvent",
-  "UpdateInformationEvent",
-  "AnnotationChangedEvent",
-  "SelectionChangedEvent",
-  "UpdatePropertyEvent",
-  "ViewProgressEvent",
-  "UpdateDataEvent",
-  "CurrentChangedEvent",
-  "ComputeVisiblePropBoundsEvent",
-  "TDxMotionEvent", // 3D Connexion device event
-  "TDxButtonPressEvent", // 3D Connexion device event
-  "TDxButtonReleaseEvent", // 3D Connexion device event
-  "HoverEvent",
-  "LoadStateEvent",
-  "SaveStateEvent",
-  "StateChangedEvent",
-  "WindowMakeCurrentEvent",
-  "WindowIsCurrentEvent",
-  "WindowFrameEvent",
-  NULL
-};
-
 //----------------------------------------------------------------
 vtkCommand::vtkCommand():AbortFlag(0),PassiveObserver(0)
 {
@@ -137,18 +40,24 @@ void vtkCommand::UnRegister()
 //----------------------------------------------------------------
 const char *vtkCommand::GetStringFromEventId(unsigned long event)
 {
-  // find length of table
-  static unsigned long numevents = sizeof( vtkCommandEventStrings )
-    / sizeof( *vtkCommandEventStrings ) - 1; // do not count NULL sentinel
+  switch (event)
+    {
+#define _vtk_add_event(Enum)\
+  case Enum: return #Enum;
 
-  if (event < numevents)
-    {
-    return vtkCommandEventStrings[event];
-    }
-  if (event == vtkCommand::UserEvent)
-    {
+  VTK_EVENT_TYPES
+
+#undef _vtk_add_event
+
+  case UserEvent:
     return "UserEvent";
+
+  case NoEvent:
+    return "NoEvent";
     }
+
+  // Unknown event. Original code was returning NoEvent, so I'll stick with
+  // that.
   return "NoEvent";
 }
   
@@ -157,18 +66,17 @@ unsigned long vtkCommand::GetEventIdFromString(const char *event)
 {  
   if (event)
     {
-    for (unsigned long i = 0; vtkCommandEventStrings[i] != NULL; i++)
-      { 
-      if (!strcmp(vtkCommandEventStrings[i],event))
-        {
-        return i;
-        }
-      }
-    if (!strcmp("UserEvent",event))
+#define _vtk_add_event(Enum)\
+    if (strcmp(event, #Enum) == 0) {return Enum;}
+    VTK_EVENT_TYPES
+#undef _vtk_add_event
+
+    if (strcmp("UserEvent",event) == 0)
       {
       return vtkCommand::UserEvent;
       }
     }
+
   return vtkCommand::NoEvent;
 }
 

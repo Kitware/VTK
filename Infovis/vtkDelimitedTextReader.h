@@ -164,6 +164,14 @@ public:
   vtkBooleanMacro(DetectNumericColumns, bool);
 
   // Description:
+  // When set to true and DetectNumericColumns is also true, forces all
+  // numeric columns to vtkDoubleArray even if they contain only
+  // integer values. Default is off.
+  vtkSetMacro(ForceDouble, bool);
+  vtkGetMacro(ForceDouble, bool);
+  vtkBooleanMacro(ForceDouble, bool);
+
+  // Description:
   // The name of the array for generating or assigning pedigree ids
   // (default "id").
   vtkSetStringMacro(PedigreeIdArrayName);
@@ -214,6 +222,7 @@ protected:
   vtkUnicodeString UnicodeWhitespace;
   vtkUnicodeString UnicodeEscapeCharacter;
   bool DetectNumericColumns;
+  bool ForceDouble;
   char* FieldDelimiterCharacters;
   char StringDelimiter;
   bool UseStringDelimiter;

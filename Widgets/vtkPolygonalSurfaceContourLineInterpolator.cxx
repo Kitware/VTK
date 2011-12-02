@@ -134,61 +134,61 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     return 0;
     }
 
-  if (this->LastInterpolatedVertexIds[0] != beginVertId ||
-      this->LastInterpolatedVertexIds[1] != endVertId)
+
+  // Now compute the shortest path through the surface mesh along its
+  // edges using Dijkstra.
+
+  this->DijkstraGraphGeodesicPath->SetInputData( nodeBegin->PolyData );
+  this->DijkstraGraphGeodesicPath->SetStartVertex( endVertId );
+  this->DijkstraGraphGeodesicPath->SetEndVertex( beginVertId );
+  this->DijkstraGraphGeodesicPath->Update();
+
+  vtkPolyData *pd = this->DijkstraGraphGeodesicPath->GetOutput();
+
+  // We assume there's only one cell of course
+  vtkIdType npts = 0, *pts = NULL;
+  pd->GetLines()->InitTraversal();
+  pd->GetLines()->GetNextCell( npts, pts );
+
+  // Get the vertex normals if there is a height offset. The offset at
+  // each node of the graph is in the direction of the vertex normal.
+
+  vtkIdList *vertexIds = this->DijkstraGraphGeodesicPath->GetIdList();
+  double vertexNormal[3];
+  vtkDataArray *vertexNormals = NULL;
+  if (this->DistanceOffset != 0.0)
     {
-    this->DijkstraGraphGeodesicPath->SetInputData( nodeBegin->PolyData );
-    this->DijkstraGraphGeodesicPath->SetStartVertex( endVertId );
-    this->DijkstraGraphGeodesicPath->SetEndVertex( beginVertId );
-    this->DijkstraGraphGeodesicPath->Update();
-
-    vtkPolyData *pd = this->DijkstraGraphGeodesicPath->GetOutput();
-
-    // We assume there's only one cell of course
-    vtkIdType npts = 0, *pts = NULL;
-    pd->GetLines()->InitTraversal();
-    pd->GetLines()->GetNextCell( npts, pts );
-
-    // Get the vertex normals if there is a height offset. The offset at
-    // each node of the graph is in the direction of the vertex normal.
-
-    vtkIdList *vertexIds = this->DijkstraGraphGeodesicPath->GetIdList();
-    double vertexNormal[3];
-    vtkDataArray *vertexNormals = NULL;
-    if (this->DistanceOffset != 0.0)
-      {
-      vertexNormals = nodeBegin->PolyData->GetPointData()->GetNormals();
-      }
-
-    for (int n = 0; n < npts; n++)
-      {
-      pd->GetPoint( pts[n], p );
-
-      // This is the id of the point on the polygonal surface.
-      const vtkIdType ptId = vertexIds->GetId(n);
-
-      // Offset the point in the direction of the normal, if a distance
-      // offset is specified.
-      if (vertexNormals)
-        {
-        vertexNormals->GetTuple( ptId, vertexNormal );
-        p[0] += vertexNormal[0] * this->DistanceOffset;
-        p[1] += vertexNormal[1] * this->DistanceOffset;
-        p[2] += vertexNormal[2] * this->DistanceOffset;
-        }
-
-      // Add this point as an intermediate node of the contour. Store tehe
-      // ptId if necessary.
-      rep->AddIntermediatePointWorldPosition( idx1, p, ptId );
-      }
-
-    this->LastInterpolatedVertexIds[0] = beginVertId;
-    this->LastInterpolatedVertexIds[1] = endVertId;
-
-    // Also set the start and end node on the contour rep
-    rep->GetNthNode(idx1)->PointId = beginVertId;
-    rep->GetNthNode(idx2)->PointId = endVertId;
+    vertexNormals = nodeBegin->PolyData->GetPointData()->GetNormals();
     }
+
+  for (int n = 0; n < npts; n++)
+    {
+    pd->GetPoint( pts[n], p );
+
+    // This is the id of the point on the polygonal surface.
+    const vtkIdType ptId = vertexIds->GetId(n);
+
+    // Offset the point in the direction of the normal, if a distance
+    // offset is specified.
+    if (vertexNormals)
+      {
+      vertexNormals->GetTuple( ptId, vertexNormal );
+      p[0] += vertexNormal[0] * this->DistanceOffset;
+      p[1] += vertexNormal[1] * this->DistanceOffset;
+      p[2] += vertexNormal[2] * this->DistanceOffset;
+      }
+
+    // Add this point as an intermediate node of the contour. Store tehe
+    // ptId if necessary.
+    rep->AddIntermediatePointWorldPosition( idx1, p, ptId );
+    }
+
+  this->LastInterpolatedVertexIds[0] = beginVertId;
+  this->LastInterpolatedVertexIds[1] = endVertId;
+
+  // Also set the start and end node on the contour rep
+  rep->GetNthNode(idx1)->PointId = beginVertId;
+  rep->GetNthNode(idx2)->PointId = endVertId;
 
   return 1;
 }

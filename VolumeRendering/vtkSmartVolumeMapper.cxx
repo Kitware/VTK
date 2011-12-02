@@ -65,7 +65,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   // If the render window has a desired update rate of at least 1 frame
   // per second or more, we'll consider this interactive
-  this->InteractiveUpdateRate = 0.00001;
+  this->InteractiveUpdateRate = 1.0;
 
   // This is the resample filter that may be used if we need
   // a lower resolution version of the input for GPU rendering
@@ -354,8 +354,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       // mapping is supported and this is an interactive render, then
       // use it. Otherwise use ray casting.
     case vtkSmartVolumeMapper::RayCastAndTextureRenderMode:
-      if ( win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate &&
-           this->TextureSupported )
+      if (this->TextureSupported &&
+          (win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate))
         {
         this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
         }

@@ -55,7 +55,6 @@
 #include "vtkOpenFOAMReader.h"
 
 #include <vtkstd/vector>
-#include "vtksys/DateStamp.h"
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/ios/sstream>
 #include "vtk_zlib.h"
@@ -3068,7 +3067,6 @@ vtkFoamEntryValue::vtkFoamEntryValue(
   switch (this->Superclass::Type)
     {
     case VECTORLIST:
-#if vtksys_DATE_STAMP_FULL >= 20080620
         {
         vtkFloatArray *fa = vtkFloatArray::SafeDownCast(value.ToVTKObject());
         if(fa->GetNumberOfComponents() == 6)
@@ -3080,7 +3078,6 @@ vtkFoamEntryValue::vtkFoamEntryValue(
           break;
           }
         }
-#endif
     case LABELLIST:
     case SCALARLIST:
     case STRINGLIST:
@@ -6547,7 +6544,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
         data = vtkFloatArray::New();
         data->SetNumberOfComponents(nComponents);
         data->SetNumberOfTuples(nElements);
-#if vtksys_DATE_STAMP_FULL >= 20080620
         // swap the components of symmTensor to match the component
         // names in paraview
         if(nComponents == 6)
@@ -6560,7 +6556,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
           tuple[4] = symyz;
           tuple[5] = symxz;
           }
-#endif
         for (int i = 0; i < nElements; i++)
           {
           data->SetTuple(i, tuple);
@@ -6590,7 +6585,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
         return NULL;
         }
       data = static_cast<vtkFloatArray *>(entry.Ptr());
-#if vtksys_DATE_STAMP_FULL >= 20080620
       // swap the components of symmTensor to match the component
       // names in paraview
       const int nComponents = data->GetNumberOfComponents();
@@ -6608,7 +6602,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
           tuple[5] = symxz;
           }
         }
-#endif
       }
     else if (entry.FirstValue().GetType() == vtkFoamToken::EMPTYLIST && nElements <= 0)
       {

@@ -186,6 +186,21 @@ public:
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
     }
+
+  // Description:
+  // Allow user to set the AbortFlagOn() with the return value of the callback
+  // method.
+  template <class U, class T>
+  unsigned long AddObserver(unsigned long event,
+    U observer, bool (T::*callback)(vtkObject*, unsigned long, void*),
+    float priority=0.0f)
+    {
+    vtkClassMemberCallback<T> *callable =
+      new vtkClassMemberCallback<T>(observer, callback);
+    // callable is deleted when the observer is cleaned up (look at
+    // vtkObjectCommandInternal)
+    return this->AddTemplatedObserver(event, callable, priority);
+    }
 //ETX
 
 //BTX
@@ -238,7 +253,7 @@ private:
   public:
     // Description:
     // Called when the event is invoked
-    virtual void operator()(vtkObject*, unsigned long, void*) = 0;
+    virtual bool operator()(vtkObject*, unsigned long, void*) = 0;
     virtual ~vtkClassMemberCallbackBase(){}
     };
 
@@ -289,6 +304,7 @@ private:
       vtkClassMemberHandlerPointer<T> Handler;
       void (T::*Method1)();
       void (T::*Method2)(vtkObject*, unsigned long, void*);
+      bool (T::*Method3)(vtkObject*, unsigned long, void*);
 
     public:
       vtkClassMemberCallback(T* handler, void (T::*method)())
@@ -296,6 +312,7 @@ private:
         this->Handler = handler;
         this->Method1 = method;
         this->Method2 = NULL;
+        this->Method3 = NULL;
         }
 
       vtkClassMemberCallback(
@@ -304,11 +321,21 @@ private:
         this->Handler = handler;
         this->Method1 = NULL;
         this->Method2 = method;
+        this->Method3 = NULL;
+        }
+
+      vtkClassMemberCallback(
+        T* handler, bool (T::*method)(vtkObject*, unsigned long, void*))
+        {
+        this->Handler = handler;
+        this->Method1 = NULL;
+        this->Method2 = NULL;
+        this->Method3 = method;
         }
       virtual ~vtkClassMemberCallback() { }
 
       // Called when the event is invoked
-      virtual void operator()(
+      virtual bool operator()(
         vtkObject* caller, unsigned long event, void* calldata)
         {
         T *handler = this->Handler.GetPointer();
@@ -322,7 +349,12 @@ private:
             {
             (handler->*this->Method2)(caller, event, calldata);
             }
+          else if (this->Method3)
+            {
+            return (handler->*this->Method3)(caller, event, calldata);
+            }
           }
+        return false;
         }
       };
 

@@ -86,6 +86,7 @@ IF(VTK_USE_DISPLAY)
       TestMultiTexturing.cxx
       TestMultiTexturingTransform.cxx
       TestGlyph3DMapperArrow.cxx
+      TestScalarBar.cxx
       TestScenePicker.cxx
       TestTextureRGBA.cxx
       TestTextureRGBADepthPeeling.cxx

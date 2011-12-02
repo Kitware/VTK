@@ -9,10 +9,18 @@ IF (VTK_DATA_ROOT)
   SET(MyTests ${MyTests}
 #    TestAxisActor3D.cxx
     TestCubeAxes3.cxx
+    TestCubeAxesWithGridLines.cxx
+    TestCubeAxesWithXInnerGrids.cxx
+    TestCubeAxesWithYInnerGrids.cxx
+    TestCubeAxesWithZInnerGrids.cxx
+    TestCubeAxesWithXInnerPolys.cxx
+    TestCubeAxesWithYInnerPolys.cxx
+    TestCubeAxesWithZInnerPolys.cxx
     TestBarChartActor.cxx
     TestExodusImplicitArrays.cxx
     #TestLabelPlacerExodus.cxx
     TestLegendScaleActor.cxx
+    TestPolarAxes.cxx
     TestPolyDataSilhouette.cxx
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx

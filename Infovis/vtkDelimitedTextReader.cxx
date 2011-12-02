@@ -398,6 +398,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   this->StringDelimiter='"';
   this->UseStringDelimiter = true;
   this->DetectNumericColumns = false;
+  this->ForceDouble = false;
 }
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
@@ -436,6 +437,8 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->UseStringDelimiter ? "true" : "false") << endl;
   os << indent << "DetectNumericColumns: "
     << (this->DetectNumericColumns? "true" : "false") << endl;
+  os << indent << "ForceDouble: "
+    << (this->ForceDouble ? "true" : "false") << endl;
   os << indent << "GeneratePedigreeIds: "
     << this->GeneratePedigreeIds << endl;
   os << indent << "PedigreeIdArrayName: "
@@ -569,9 +572,12 @@ int vtkDelimitedTextReader::RequestData(
       char tstring[2];
       tstring[1] = '\0';
       tstring[0] = this->StringDelimiter;
-      this->SetUnicodeFieldDelimiters(
-            vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters));
-      this->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8(tstring));
+      // don't use Set* methods since they change the MTime in
+      // RequestData() !!!!!
+      this->UnicodeFieldDelimiters =
+            vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters);
+      this->UnicodeStringDelimiters =
+        vtkUnicodeString::from_utf8(tstring);
       this->UnicodeOutputArrays = false;
       transCodec = vtkTextCodecFactory::CodecToHandle(file_stream);
       }
@@ -636,6 +642,7 @@ int vtkDelimitedTextReader::RequestData(
     if (this->DetectNumericColumns && !this->UnicodeOutputArrays)
       {
       vtkStringToNumeric* convertor = vtkStringToNumeric::New();
+      convertor->SetForceDouble(this->ForceDouble);
       vtkTable* clone = output_table->NewInstance();
       clone->ShallowCopy(output_table);
       convertor->SetInputData(clone);

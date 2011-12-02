@@ -22,13 +22,15 @@
 #define __vtkChart_h
 
 #include "vtkContextItem.h"
-#include "vtkRect.h"        // For vtkRectf
-#include "vtkStdString.h"   // For vtkStdString ivars
+#include "vtkRect.h"         // For vtkRectf
+#include "vtkStdString.h"    // For vtkStdString ivars
+#include "vtkSmartPointer.h" // For SP ivars
 
 class vtkTransform2D;
 class vtkContextScene;
 class vtkPlot;
 class vtkAxis;
+class vtkBrush;
 class vtkTextProperty;
 class vtkChartLegend;
 
@@ -244,6 +246,11 @@ public:
   // vtkChart.
   virtual int GetClickActionToButton(int action);
 
+  // Description:
+  // Set/Get the brush to use for the background color.
+  void SetBackgroundBrush(vtkBrush *brush);
+  vtkBrush* GetBackgroundBrush();
+
 protected:
   vtkChart();
   ~vtkChart();
@@ -294,6 +301,10 @@ protected:
   // The layout strategy to employ when fitting the chart into the space.
   int LayoutStrategy;
   bool RenderEmpty;
+
+  // Description:
+  // Brush to use for drawing the background.
+  vtkSmartPointer<vtkBrush> BackgroundBrush;
 
   // Description:
   // Hold mouse action mappings.

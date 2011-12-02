@@ -373,7 +373,7 @@ bool TestEigen()
          return EXIT_FAILURE;
          }
       }
-    delete evec;
+    delete[] evec;
     std::cout << std::endl;
     }
 
