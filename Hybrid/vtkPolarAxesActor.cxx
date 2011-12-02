@@ -420,6 +420,113 @@ void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
 }
 
 //-----------------------------------------------------------------------------
+void vtkPolarAxesActor::CalculateBounds()
+{
+  // Fetch angles, at this point it is already known that angular sector <= 360.
+  double minAngle = this->MinimumAngle;
+  double maxAngle = this->MaximumAngle;
+
+  // Ensure that angles are not both < -180 nor both > 180 degrees
+  if ( maxAngle < -180. )
+    {
+    // Increment angles modulo 360 degrees
+    minAngle += 360.;
+    maxAngle += 360.;
+    }
+  else if ( minAngle > 180. )
+    {
+    // Decrement angles modulo 360 degrees
+    minAngle -= 360.;
+    maxAngle -= 360.;
+    }
+
+  // Prepare trigonometric quantities
+  double thetaMin = vtkMath::RadiansFromDegrees( minAngle );
+  double cosThetaMin = cos( thetaMin );
+  double sinThetaMin = sin( thetaMin );
+  double thetaMax = vtkMath::RadiansFromDegrees( maxAngle );
+  double cosThetaMax = cos( thetaMax );
+  double sinThetaMax = sin( thetaMax );
+
+  // Calculate extremal cosines across angular sector
+  double minCos;
+  double maxCos;
+  if ( minAngle * maxAngle < 0. )
+    {
+    // Angular sector contains null angle
+    maxCos = 1.;
+    if ( minAngle < 180. && maxAngle > 180. )
+      {
+      // Angular sector also contains flat angle
+      minCos = -1.;
+      }
+    else
+      {
+      // Angular sector does not contain flat angle
+      minCos = cosThetaMin < cosThetaMax ? cosThetaMin : cosThetaMax;
+      }
+
+    }
+  else if ( minAngle < 180. && maxAngle > 180. )
+    {
+    // Angular sector does not contain flat angle (and not null angle)
+    minCos = -1.;
+    maxCos = cosThetaMax > cosThetaMin ? cosThetaMax : cosThetaMin;
+    }
+  else
+    {
+    // Angular sector does not contain flat nor null angle
+    minCos = cosThetaMin < cosThetaMax ? cosThetaMin : cosThetaMax;
+    maxCos = cosThetaMax > cosThetaMin ? cosThetaMax : cosThetaMin;
+    }
+
+  // Calculate extremal sines across angular sector
+  double minSin;
+  double maxSin;
+  if ( minAngle < -90. && maxAngle > -90. )
+    {
+    // Angular sector contains negative right angle
+    minSin = -1.;
+    if ( minAngle < 90. && maxAngle > 90. )
+      {
+      // Angular sector also contains positive right angle
+      maxSin = 1.;
+      }
+    else
+      {
+      // Angular sector contain does not contain positive right angle
+      maxSin = sinThetaMax > sinThetaMin ? sinThetaMax : sinThetaMin;
+      }
+    }
+  else if ( minAngle < 90. && maxAngle > 90. )
+    {
+    // Angular sector contains positive right angle (and not negative one)
+    minSin = sinThetaMin < sinThetaMax ? sinThetaMin : sinThetaMax;
+    maxSin = 1.;
+    }
+  else
+    {
+    // Angular sector contain does not contain either right angle
+    minSin = sinThetaMin < sinThetaMax ? sinThetaMin : sinThetaMax;
+    maxSin = sinThetaMax > sinThetaMin ? sinThetaMax : sinThetaMin;
+    }
+
+  // Now calculate bounds
+  // xmin
+  this->Bounds[0] = this->Pole[0] + this->MaximumRadius * minCos;
+  // xmax
+  this->Bounds[1] = this->Pole[0] + this->MaximumRadius * maxCos;
+  // ymin
+  this->Bounds[2] = this->Pole[1] + this->MaximumRadius * minSin;
+  // ymax
+  this->Bounds[3] = this->Pole[1] + this->MaximumRadius * maxSin;
+  // zmin
+  this->Bounds[4] = this->Pole[2];
+  // zmax
+  this->Bounds[5] = this->Pole[2];
+}
+
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetBounds( double bounds[6])
 {
   for ( int i=0; i< 6; i++)
@@ -430,8 +537,8 @@ void vtkPolarAxesActor::GetBounds( double bounds[6])
 
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetBounds( double& xmin, double& xmax,
-                                 double& ymin, double& ymax,
-                                 double& zmin, double& zmax )
+                                   double& ymin, double& ymax,
+                                   double& zmin, double& zmax )
 {
   xmin = this->Bounds[0];
   xmax = this->Bounds[1];
@@ -468,7 +575,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     return;
     }
   
-  if ( this->MaximumAngle - this->MinimumAngle > 360.  )
+  if ( this->MaximumAngle - this->MinimumAngle > 360. )
     {
     // Incorrect angle input
     vtkWarningMacro( << "Cannot draw radial axes: "
@@ -479,18 +586,8 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     }
   
   // Determine the bounds
-  double bounds[6];
-  this->GetBounds( bounds );
-
-  // If axial scale it out of proportions with object length scale, reset to ls
-  double ls = fabs( bounds[1] -  bounds[0] ) + fabs( bounds[3] -  bounds[2] );
-  if ( this->AutoScaleRadius
-       || this->MaximumRadius < 1.e-6 * ls
-       || this->MaximumRadius > 1.e6 * ls )
-    {
-    this->MaximumRadius = .5 * ls;
-    }
-
+  this->CalculateBounds();
+  
   // Set polar axis endpoints
   vtkAxisActor* axis = this->PolarAxis;
   double ox = this->Pole[0] + this->MaximumRadius;

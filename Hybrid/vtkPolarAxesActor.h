@@ -261,6 +261,10 @@ protected:
   void  BuildAxes( vtkViewport * );
 
   // Description:
+  // Calculate bounds based on maximum radius and angular sector
+  void  CalculateBounds();
+
+  // Description:
   // Send attributes which are common to all axes, both polar and radial
   void  SetCommonAxisAttributes( vtkAxisActor* );
 
