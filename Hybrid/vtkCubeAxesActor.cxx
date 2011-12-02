@@ -281,43 +281,37 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->TitleScale = -1.0;
 }
 
-//! use textactor (2D) instead of follower (3D) for title
 void vtkCubeAxesActor::SetUse2DMode( int val )
 {
-  for( int i=0 ; i < 4 ; ++i )
+  for( int i = 0 ; i < NUMBER_OF_ALIGNED_AXIS ; ++ i )
     {
     this->XAxes[i]->SetUse2DMode( val );
     this->YAxes[i]->SetUse2DMode( val );
     this->ZAxes[i]->SetUse2DMode( val );
     }
-  if( val == 0 )
+  if( ! val )
     {
-    this->SetZAxisVisibility(1);
+    this->SetZAxisVisibility( 1 );
     }
   else
     {
-    this->SetZAxisVisibility(0);
+    this->SetZAxisVisibility( 0 );
     }
 }
 
-//! return 1 if textactor is used
 int vtkCubeAxesActor::GetUse2DMode()
 {
-  // we assume that all axes have the same value ...
+  // It is assumed that all axes have the same value
   return this->XAxes[0]->GetUse2DMode();
 }
 
-/*! for 2D axis only : during the next render, the axis positions have to be save for later use.
-  \param val : the new state
-  \note 
-  \li val = 0 : no need to save position (3D axis)
-  \li val = 1 : positions have to be saved during the next render pass
-  \li val = 2 : positions are saved -> used them
-                
-*/
 void vtkCubeAxesActor::SetSaveTitlePosition( int val )
 {
-  for( int i=0 ; i < 4 ; ++i )
+  // For 2D mode only : 
+  //   val = 0: no need to save position (3D axis)
+  //   val = 1: positions have to be saved during the next render pass
+  //   val = 2: positions are saved -> use them
+  for( int i = 0 ; i < NUMBER_OF_ALIGNED_AXIS ; ++ i )
     {
     this->XAxes[i]->SetSaveTitlePosition( val );
     this->YAxes[i]->SetSaveTitlePosition( val );

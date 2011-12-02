@@ -55,7 +55,9 @@ polaxes.GetPolarArcsProperty().SetColor( 1., .0, 0. )
 polaxes.GetPolarAxisProperty().SetColor( 0., 1., 0. )
 polaxes.GetPolarAxisTitleTextProperty().SetColor( 0., 1., 0. )
 polaxes.GetPolarAxisLabelTextProperty().SetColor( 0., 1., 0. )
+polaxes.SetEnableDistanceLOD( 0 )
 polaxes.SetDistanceLODThreshold( .4 )
+polaxes.SetEnableViewAngleLOD( 0 )
 polaxes.SetViewAngleLODThreshold( .2 )
 polaxes.SetScreenSize( 8. )
 
@@ -72,4 +74,8 @@ interactor.SetRenderWindow( window )
 
 # Start interaction
 window.Render()
+
+polaxes.SetMaximumAngle( 120. )
+window.Render()
+
 interactor.Start()

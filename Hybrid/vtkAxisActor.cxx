@@ -65,10 +65,6 @@ vtkAxisActor::vtkAxisActor()
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat, "%s", "%-#6.3g");
 
-  this->Use2DMode = 0;
-  this->SaveTitlePosition = 0;
-  this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
-  
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->SetColor(0.,0.,0.);
   this->TitleTextProperty->SetFontFamilyToArial();
@@ -180,6 +176,13 @@ vtkAxisActor::vtkAxisActor()
     {
     vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
     }
+
+  // Instance variables specific to 2D mode
+  this->Use2DMode = 0;
+  this->SaveTitlePosition = 0;
+  this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.;
+  this->VerticalOffsetXTitle2D = -40.;
+  this->HorizontalOffsetYTitle2D = -50.;
 }
 
 // ****************************************************************
@@ -580,6 +583,10 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
   if (this->Title != NULL && this->Title[0] != 0)
     {
     this->BuildTitle(force);
+    if( this->Use2DMode == 1 )
+      {
+      this->BuildTitle2D(viewport, force);   
+      }
     }
 
   this->LastAxisPosition = this->AxisPosition;
@@ -807,6 +814,7 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
 // **********************************************************************
 void vtkAxisActor::BuildTitle(bool force)
 {
+  this->NeedBuild2D = false;
   if (!force && !this->TitleVisibility)
     {
     return;
@@ -828,6 +836,7 @@ void vtkAxisActor::BuildTitle(bool force)
     return;
     }
 
+  this->NeedBuild2D = true;
   switch (this->AxisType)
     {
     case VTK_AXIS_TYPE_X :
@@ -931,11 +940,11 @@ vtkAxisActor::BuildTitle2D(vtkViewport *viewport, bool force)
   viewport->GetDisplayPoint(transpos);
   if (this->AxisType == VTK_AXIS_TYPE_X)
     {
-    transpos[1] -= 12;
+    transpos[1] += this->VerticalOffsetXTitle2D;
     }
   else if (this->AxisType == VTK_AXIS_TYPE_Y)
     {
-    transpos[0] -= 20;
+    transpos[0] += this->HorizontalOffsetYTitle2D;
     }
   if (transpos[1] < 10.) transpos[1] = 10.;
   if (transpos[0] < 10.) transpos[0] = 10.;
@@ -1102,10 +1111,11 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LabelTextProperty: " << this->LabelTextProperty << endl;
   os << indent << "TitleTextProperty: " << this->TitleTextProperty << endl;
 
-  os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
-
   os << indent << "Usé2DMode: " << this->Use2DMode << endl;
-}
+  os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
+  os << indent << "VerticalOffsetXTitle2D" << this->VerticalOffsetXTitle2D << endl;
+  os << indent << "HorizontalOffsetYTitle2D" << this->HorizontalOffsetYTitle2D << endl;
+  }
 
 // **************************************************************************
 // Sets text string for label vectors.  Allocates memory if necessary.
