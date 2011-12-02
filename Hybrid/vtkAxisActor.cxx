@@ -65,11 +65,6 @@ vtkAxisActor::vtkAxisActor()
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat, "%s", "%-#6.3g");
 
-  // 2D-specific items
-  this->Use2DMode = 0;
-  this->SaveTitlePosition = 0;
-  this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
-  
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->SetColor(0.,0.,0.);
   this->TitleTextProperty->SetFontFamilyToArial();
@@ -181,6 +176,13 @@ vtkAxisActor::vtkAxisActor()
     {
     vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
     }
+
+  // Instance variables specific to 2D mode
+  this->Use2DMode = 0;
+  this->SaveTitlePosition = 0;
+  this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.;
+  this->VerticalOffsetXTitle2D = -20.;
+  this->HorizontalOffsetYTitle2D = -20.;
 }
 
 // ****************************************************************
@@ -1109,10 +1111,11 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LabelTextProperty: " << this->LabelTextProperty << endl;
   os << indent << "TitleTextProperty: " << this->TitleTextProperty << endl;
 
-  os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
-
   os << indent << "Usé2DMode: " << this->Use2DMode << endl;
-}
+  os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
+  os << indent << "VerticalOffsetXTitle2D" << this->VerticalOffsetXTitle2D << endl;
+  os << indent << "HorizontalOffsetYTitle2D" << this->HorizontalOffsetYTitle2D << endl;
+  }
 
 // **************************************************************************
 // Sets text string for label vectors.  Allocates memory if necessary.
