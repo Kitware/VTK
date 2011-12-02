@@ -65,6 +65,7 @@ vtkAxisActor::vtkAxisActor()
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat, "%s", "%-#6.3g");
 
+  // 2D-specific items
   this->Use2DMode = 0;
   this->SaveTitlePosition = 0;
   this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
@@ -580,6 +581,10 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
   if (this->Title != NULL && this->Title[0] != 0)
     {
     this->BuildTitle(force);
+    if( this->Use2DMode == 1 )
+      {
+      this->BuildTitle2D(viewport, force);   
+      }
     }
 
   this->LastAxisPosition = this->AxisPosition;
