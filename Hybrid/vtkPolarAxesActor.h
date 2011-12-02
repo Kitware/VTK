@@ -270,7 +270,7 @@ protected:
 
   // Description:
   // Build polar axis labels and arcs with respect to specified pole.
-  void  BuildPolarAxisLabelsArcs( double* );
+  void  BuildPolarAxisLabelsArcs();
 
   // Description:
   // Convenience methods

@@ -478,16 +478,20 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     return;
     }
   
+  for ( int i = 0; i < 3; ++ i )
+    {
+    if ( this->Pole[i] == VTK_DOUBLE_MAX )
+      {
+      // Invalid pole coordinates
+      vtkWarningMacro( << "Cannot draw radial axes: "
+                       << " invalid pole." );
+      return;
+      }
+    } // i
+
   // Determine the bounds
   double bounds[6];
   this->GetBounds( bounds );
-
-  // If pole coordinates are invalid, use bounds
-  double O[3];
-  for ( int i = 0; i < 3; ++ i )
-    {
-    O[i] = this->Pole[i] == VTK_DOUBLE_MAX ? bounds[i * 2] : this->Pole[i];
-    }
 
   // If axial scale it out of proportions with object length scale, reset to ls
   double ls = fabs( bounds[1] -  bounds[0] ) + fabs( bounds[3] -  bounds[2] );
@@ -500,9 +504,9 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   // Set polar axis endpoints
   vtkAxisActor* axis = this->PolarAxis;
-  double ox = O[0] + this->MaximumRadius;
-  axis->GetPoint1Coordinate()->SetValue( O[0], O[1], O[2] );
-  axis->GetPoint2Coordinate()->SetValue( ox, O[1], O[2] );
+  double ox = this->Pole[0] + this->MaximumRadius;
+  axis->GetPoint1Coordinate()->SetValue( this->Pole[0], this->Pole[1], this->Pole[2] );
+  axis->GetPoint2Coordinate()->SetValue( ox, this->Pole[1], this->Pole[2] );
 
   // Set common axis attributes
   this->SetCommonAxisAttributes( axis );
@@ -533,13 +537,13 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     {
     // Calculate endpoint coordinates
     double alphaRad = vtkMath::RadiansFromDegrees( alpha );
-    double x = O[0] + this->MaximumRadius * cos( alphaRad );
-    double y = O[1] + this->MaximumRadius * sin( alphaRad );
+    double x = this->Pole[0] + this->MaximumRadius * cos( alphaRad );
+    double y = this->Pole[1] + this->MaximumRadius * sin( alphaRad );
 
     // Set radial axis endpoints
     axis = this->RadialAxes[i];
-    axis->GetPoint1Coordinate()->SetValue( O[0], O[1], O[2] );
-    axis->GetPoint2Coordinate()->SetValue( x, y, O[2] );
+    axis->GetPoint1Coordinate()->SetValue( this->Pole[0], this->Pole[1], this->Pole[2] );
+    axis->GetPoint2Coordinate()->SetValue( x, y, this->Pole[2] );
 
     // Set common axis attributes
     this->SetCommonAxisAttributes( axis );
@@ -577,10 +581,10 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     }
 
   // Build polar axis ticks
-  this->BuildPolarAxisTicks( O[0] );
+  this->BuildPolarAxisTicks( this->Pole[0] );
 
   // Build polar axis labels
-  this->BuildPolarAxisLabelsArcs( O );
+  this->BuildPolarAxisLabelsArcs();
 
   // Scale appropriately
   this->AutoScale( viewport );
@@ -694,7 +698,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
+void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 {
   // Prepare storage for polar axis labels
   vtkStringArray *labels = vtkStringArray::New();
@@ -744,9 +748,9 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
       double x2 = value * cosThetaMax;
       double y2 = value * sinThetaMax;
       vtkArcSource* arc = vtkArcSource::New();
-      arc->SetCenter( O );
-      arc->SetPoint1( O[0] + x1, O[1] + y1, O[2] );
-      arc->SetPoint2( O[0] + x2, O[1] + y2, O[2] );
+      arc->SetCenter( this->Pole );
+      arc->SetPoint1( this->Pole[0] + x1, this->Pole[1] + y1, this->Pole[2] );
+      arc->SetPoint2( this->Pole[0] + x2, this->Pole[1] + y2, this->Pole[2] );
       arc->SetResolution( arcResolution );
       arc->SetNegative( angularSector > 180. );
       arc->Update();

@@ -75,7 +75,4 @@ interactor.SetRenderWindow( window )
 # Start interaction
 window.Render()
 
-polaxes.SetMaximumAngle( 120. )
-window.Render()
-
 interactor.Start()
