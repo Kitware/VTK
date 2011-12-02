@@ -40,8 +40,8 @@
 vtkAMRBaseReader::vtkAMRBaseReader()
 {
   this->LoadedMetaData     = false;
-  this->numBlocksFromCache = 0;
-  this->numBlocksFromFile  = 0;
+  this->NumBlocksFromCache = 0;
+  this->NumBlocksFromFile  = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -346,7 +346,7 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
   // If caching is disabled load the data from file
   if( !this->IsCachingEnabled() )
     {
-    ++this->numBlocksFromFile;
+    ++this->NumBlocksFromFile;
     vtkTimerLog::MarkStartEvent( "ReadAMRBlockFromFile" );
     vtkUniformGrid *gridPtr = this->GetAMRGrid( blockIdx );
     vtkTimerLog::MarkEndEvent( "ReadAMRBlockFromFile" );
@@ -359,7 +359,7 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
   // Otherwise, read it and cache it.
   if( this->Cache->HasAMRBlock( blockIdx ) )
     {
-    ++this->numBlocksFromCache;
+    ++this->NumBlocksFromCache;
     vtkTimerLog::MarkStartEvent("ReadAMRBlockFromCache");
     vtkUniformGrid *gridPtr    = vtkUniformGrid::New();
     vtkUniformGrid *cachedGrid = this->Cache->GetAMRBlock( blockIdx );
@@ -369,7 +369,7 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
     }
   else
     {
-    ++this->numBlocksFromFile;
+    ++this->NumBlocksFromFile;
     vtkTimerLog::MarkStartEvent( "ReadAMRBlockFromFile" );
     vtkUniformGrid *cachedGrid = vtkUniformGrid::New();
     vtkUniformGrid *gridPtr    = this->GetAMRGrid( blockIdx );
@@ -393,14 +393,7 @@ void vtkAMRBaseReader::LoadPointData(
     const int blockIdx, vtkUniformGrid *block )
 {
   // TODO: implement this
-//  for( int i=0; i < this->GetNumberOfPointArrays(); ++i )
-//    {
-//      if( this->GetPointArrayStatus( this->GetPointArrayName(i) ) )
-//        {
-//          // TODO: load point data
-//        }
-//    }
-
+  vtkErrorMacro( "Node-centered AMR data are not currently supported" );
 }
 
 //------------------------------------------------------------------------------
@@ -515,8 +508,8 @@ int vtkAMRBaseReader::RequestData(
         vtkInformationVector* outputVector )
 {
   vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::RqstData" );
-  this->numBlocksFromCache = 0;
-  this->numBlocksFromFile  = 0;
+  this->NumBlocksFromCache = 0;
+  this->NumBlocksFromFile  = 0;
 
   vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
   vtkHierarchicalBoxDataSet *output =
