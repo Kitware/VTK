@@ -20,7 +20,7 @@
 //  single, partitioned and distributed structured grid dataset.
 //
 // .SECTION See Also
-//  vtkStructuredGridConnectivity vtkMeshPropertyEncoder vtkMeshProperty
+//  vtkStructuredGridConnectivity vtkGhostArray
 
 #ifndef VTKPSTRUCTUREDGRIDCONNECTIVITY_H_
 #define VTKPSTRUCTUREDGRIDCONNECTIVITY_H_
