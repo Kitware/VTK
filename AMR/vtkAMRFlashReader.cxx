@@ -151,7 +151,7 @@ int vtkAMRFlashReader::GetNumberOfLevels()
 int vtkAMRFlashReader::FillMetaData( )
 {
   assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (this->metadata != NULL) );
+  assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
 
   this->Internal->ReadMetaData();
 
@@ -182,15 +182,15 @@ int vtkAMRFlashReader::FillMetaData( )
       ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
       ug->SetSpacing( spacings );
 
-      this->metadata->SetDataSet( level, b2level[level], ug );
-      this->metadata->SetCompositeIndex( level, b2level[level], internalIdx );
+      this->Metadata->SetDataSet( level, b2level[level], ug );
+      this->Metadata->SetCompositeIndex( level, b2level[level], internalIdx );
       ug->Delete();
       b2level[ level ]++;
     } // END for all blocks
 
   // NOTE: The communicator here is NULL since each process loads all the
   // metadata.
-  vtkAMRUtilities::GenerateMetaData( this->metadata, NULL );
+  vtkAMRUtilities::GenerateMetaData( this->Metadata, NULL );
   return( 1 );
 }
 

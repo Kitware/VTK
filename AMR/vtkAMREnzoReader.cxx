@@ -329,7 +329,7 @@ int vtkAMREnzoReader::GetNumberOfLevels()
 int vtkAMREnzoReader::FillMetaData( )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (this->metadata != NULL) );
+  assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
 
   this->Internal->ReadMetaData();
   std::vector< int > b2level;
@@ -360,14 +360,14 @@ int vtkAMREnzoReader::FillMetaData( )
       ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
       ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
 
-      this->metadata->SetDataSet( level, id, ug );
-      this->metadata->SetCompositeIndex( level, id, internalIdx );
+      this->Metadata->SetDataSet( level, id, ug );
+      this->Metadata->SetCompositeIndex( level, id, internalIdx );
       ug->Delete();
       b2level[ level ]++;
     } // END for all blocks
 
   // NOTE: the controller here is null since each process loads its own metadata
-  vtkAMRUtilities::GenerateMetaData( this->metadata, NULL );
+  vtkAMRUtilities::GenerateMetaData( this->Metadata, NULL );
   return( 1 );
 }
 

@@ -58,9 +58,9 @@ vtkAMRBaseReader::~vtkAMRBaseReader()
     this->Cache->Delete();
     }
 
-  if( this->metadata != NULL )
+  if( this->Metadata != NULL )
     {
-    this->metadata->Delete();
+    this->Metadata->Delete();
     }
 }
 
@@ -86,7 +86,7 @@ void vtkAMRBaseReader::Initialize()
   this->SetNumberOfInputPorts( 0 );
   this->FileName       = NULL;
   this->MaxLevel       = 0;
-  this->metadata       = NULL;
+  this->Metadata       = NULL;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
   this->InitialRequest = true;
   this->Cache          = vtkAMRDataSetCache::New();
@@ -249,14 +249,14 @@ int vtkAMRBaseReader::RequestInformation(
 
   vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::GenerateMetadata" );
   this->Superclass::RequestInformation( rqst, inputVector, outputVector );
-  if( this->metadata == NULL )
+  if( this->Metadata == NULL )
     {
-    this->metadata = vtkHierarchicalBoxDataSet::New();
+    this->Metadata = vtkHierarchicalBoxDataSet::New();
     vtkInformation* info = outputVector->GetInformationObject(0);
     assert( "pre: output information object is NULL" && (info != NULL) );
     this->FillMetaData( );
     info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
-        this->metadata );
+        this->Metadata );
     }
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::GenerateMetadata" );
 
@@ -272,7 +272,7 @@ void vtkAMRBaseReader::SetupBlockRequest( vtkInformation *outInf )
   if( outInf->Has(
       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
     {
-    assert( "Metadata should not be null" && (this->metadata!=NULL) );
+    assert( "Metadata should not be null" && (this->Metadata!=NULL) );
     this->ReadMetaData();
 
     int size =

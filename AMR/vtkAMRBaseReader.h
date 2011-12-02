@@ -254,7 +254,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     int numBlocksFromFile;
     int numBlocksFromCache;
 
-    vtkHierarchicalBoxDataSet *metadata;
+    vtkHierarchicalBoxDataSet *Metadata;
     bool LoadedMetaData;
 
 
