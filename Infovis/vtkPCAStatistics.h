@@ -126,7 +126,10 @@ public:
   virtual void SetSpecifiedNormalization( vtkTable* );
 
   // Description:
-  // Get the eigenvalues. This function:
+  // Get the eigenvectors. The eigenvectors are ordered according to the magnitude of their
+  // associated eigenvalues, sorted from largest to smallest. That is, eigenvector 0 corresponds
+  // to the largest eigenvalue.
+  // This function:
   // void GetEigenvalues(int request, int i, vtkDoubleArray*);
   // does all of the work. The other functions simply call this function with the appropriate
   // parameters. These functions are not valid unless Update() has been called and the Derive

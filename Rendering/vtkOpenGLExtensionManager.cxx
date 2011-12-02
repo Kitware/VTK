@@ -464,6 +464,10 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       {
       // If the render window is not OpenGL, then it obviously has no
       // extensions.
+      if (this->ExtensionsString)
+        {
+        delete[] this->ExtensionsString;
+        }
       this->ExtensionsString = new char[1];
       this->ExtensionsString[0] = '\0';
       return;
@@ -481,6 +485,10 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       // with no monitor attached to it, connected to it with "Screen Sharing"
       // (VNC-like feature added in Mac OS 10.5)
       // see bug 8554.
+      if (this->ExtensionsString)
+        {
+        delete[] this->ExtensionsString;
+        }
       this->ExtensionsString = new char[1];
       this->ExtensionsString[0] = '\0';
       return;
@@ -636,6 +644,10 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 #endif //VTK_USE_X
 
   // Store extensions string.
+  if (this->ExtensionsString)
+    {
+    delete[] this->ExtensionsString;
+    }
   this->ExtensionsString = new char[extensions_string.length()+1];
   strcpy(this->ExtensionsString, extensions_string.c_str());
 

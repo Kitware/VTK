@@ -22,9 +22,9 @@
 #define __vtkChart_h
 
 #include "vtkContextItem.h"
-#include "vtkRect.h"        // For vtkRectf
-#include "vtkStdString.h"   // For vtkStdString ivars
-#include "vtkSmartPointer.h"
+#include "vtkRect.h"         // For vtkRectf
+#include "vtkStdString.h"    // For vtkStdString ivars
+#include "vtkSmartPointer.h" // For SP ivars
 
 class vtkTransform2D;
 class vtkContextScene;

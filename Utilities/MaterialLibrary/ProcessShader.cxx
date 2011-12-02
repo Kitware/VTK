@@ -66,7 +66,7 @@ public:
     vtksys_ios::ifstream ifs(file);
     if ( !ifs )
       {
-      cout << "Canot open file: " << file << endl;
+      cout << "Cannot open file: " << file << endl;
       return 0;
       }
     int ch;

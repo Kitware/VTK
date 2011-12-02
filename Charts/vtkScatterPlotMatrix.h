@@ -30,6 +30,7 @@
 class vtkStringArray;
 class vtkTable;
 class vtkAxis;
+class vtkAnnotationLink;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
@@ -65,6 +66,11 @@ public:
   // Description:
   // Get the position of the active plot.
   virtual vtkVector2i GetActivePlot();
+
+  // Description:
+  // Get the active AnnotationLink from the big chart, which
+  // is the only active AnnotationLink in the matrix.
+  vtkAnnotationLink* GetActiveAnnotationLink();
 
   // Description:
   // Set the input table for the scatter plot matrix. This will cause all
@@ -160,6 +166,11 @@ protected:
   // Attach axis range listener so we can forward to dependent axes in matrix.
   void AttachAxisRangeListener(vtkAxis*);
   void AxisRangeForwarderCallback(vtkObject*, unsigned long, void*);
+
+  // Description:
+  // The callback function when SelectionChangedEvent is invoked from
+  // the Big chart. This class will just forward the event.
+  void BigChartSelectionCallback(vtkObject*, unsigned long, void*);
 
   class PIMPL;
   PIMPL *Private;

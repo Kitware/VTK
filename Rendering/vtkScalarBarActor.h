@@ -284,7 +284,7 @@ protected:
   vtkPolyDataMapper2D *FrameMapper;
   vtkActor2D          *FrameActor;
 
-  bool EnhancedMode;
+  int EnhancedMode;
 
 private:
   vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.
