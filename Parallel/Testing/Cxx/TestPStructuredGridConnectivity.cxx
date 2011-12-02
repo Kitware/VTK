@@ -42,6 +42,7 @@
 #include "vtkCellData.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkMathUtilities.h"
 
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
@@ -53,7 +54,7 @@ int NumberOfProcessors;
 //------------------------------------------------------------------------------
 void LogMessage( const std::string &msg)
 {
-  if( Rank == 0 )
+  if( Controller->GetLocalProcessId() == 0 )
     {
     std::cout << msg << std::endl;
     std::cout.flush();
@@ -288,6 +289,145 @@ int TestPStructuredGridConnectivity( const int factor )
 }
 
 //------------------------------------------------------------------------------
+// Assuming a 100x100x100 domain and a field given by F=X+Y+Z at each
+// node, the method computes the average.
+double CalculateExpectedAverage()
+{
+  int wholeExtent[6];
+  wholeExtent[0] = 0;
+  wholeExtent[1] = 99;
+  wholeExtent[2] = 0;
+  wholeExtent[3] = 99;
+  wholeExtent[4] = 0;
+  wholeExtent[5] = 99;
+
+  int dims[3];
+  dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
+  dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
+  dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
+
+  // Generate grid for the entire domain
+  vtkUniformGrid *wholeGrid = vtkUniformGrid::New();
+  wholeGrid->SetOrigin( 0.0, 0.0, 0.0  );
+  wholeGrid->SetSpacing( 0.5, 0.5, 0.5 );
+  wholeGrid->SetDimensions( dims );
+
+  double pnt[3];
+  double sum = 0.0;
+  for( vtkIdType pntIdx=0; pntIdx < wholeGrid->GetNumberOfPoints(); ++pntIdx )
+    {
+    wholeGrid->GetPoint( pntIdx, pnt );
+    sum += pnt[0];
+    sum += pnt[1];
+    sum += pnt[2];
+    } // END for all points
+
+  double N = static_cast< double >( wholeGrid->GetNumberOfPoints() );
+  wholeGrid->Delete();
+  return( sum/N );
+}
+
+//------------------------------------------------------------------------------
+double GetXYZSumForGrid( vtkUniformGrid *grid )
+{
+  assert( "pre: input grid is NULL!" && (grid != NULL) );
+
+  double pnt[3];
+  double sum = 0.0;
+  for( vtkIdType pntIdx=0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
+    {
+    unsigned char nodeProperty =
+      *(grid->GetPointVisibilityArray()->GetPointer( pntIdx ));
+    if( !vtkGhostArray::IsPropertySet( nodeProperty,vtkGhostArray::IGNORE ) )
+      {
+      grid->GetPoint( pntIdx, pnt );
+      sum += pnt[0];
+      sum += pnt[1];
+      sum += pnt[2];
+      }
+     } // END for all points
+  return( sum );
+}
+
+//------------------------------------------------------------------------------
+// Tests computing the average serially vs. in paraller using a factor*N
+// partitions where N is the total number of processes. An artificialy field
+// F=X+Y+Z is imposed on each node.
+int TestAverage( const int factor )
+{
+  // STEP 0: Calculate expected value
+  double expected = CalculateExpectedAverage();
+
+  // STEP 1: Calculation number of partitions as factor of the number of
+  // processes.
+  assert( "pre: factor >= 1" && (factor >= 1) );
+  int numPartitions = factor * NumberOfProcessors;
+
+  // STEP 2: Acquire the distributed structured grid for this process.
+  // Each process has the same number of blocks, but not all entries are
+  // poplulated. A NULL entry indicates that the block belongs to a different
+  // process.
+  vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
+  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: numBlocks mismatch" &&
+           (mbds->GetNumberOfBlocks()==numPartitions) );
+
+  // STEP 2: Setup the grid connectivity
+  vtkPStructuredGridConnectivity *gridConnectivity =
+      vtkPStructuredGridConnectivity::New();
+  gridConnectivity->SetController( Controller );
+  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+
+  // STEP 3: Register the grids
+  RegisterGrids( mbds, gridConnectivity );
+  Controller->Barrier();
+
+  // STEP 4: Compute neighbors
+  gridConnectivity->ComputeNeighbors();
+  Controller->Barrier();
+
+  // STEP 5: Fill Visibility arrays
+  FillVisibilityArrays( mbds, gridConnectivity );
+  Controller->Barrier();
+
+  // STEP 6: Total global count of the nodes
+  int count = GetTotalNumberOfNodes( mbds );
+  Controller->Barrier();
+
+  // STEP 7: Compute partial local sum
+  double partialSum     = 0.0;
+  unsigned int blockIdx = 0;
+  for( ; blockIdx < mbds->GetNumberOfBlocks(); ++blockIdx )
+    {
+    vtkUniformGrid *blockPtr =
+        vtkUniformGrid::SafeDownCast( mbds->GetBlock( blockIdx ) );
+    if( blockPtr != NULL )
+      {
+      partialSum += GetXYZSumForGrid( blockPtr );
+      } // END if
+    } // END for all blocks
+
+  std::cout << "partialSum: " << partialSum << std::endl;
+  std::cout.flush();
+  // STEP 8: All reduce to the global sum
+  double globalSum = 0.0;
+  Controller->AllReduce(&globalSum,&partialSum,1,vtkCommunicator::SUM_OP);
+
+  // STEP 9: Compute average
+  double average = globalSum / static_cast< double >( count );
+
+  // STEP 7: Deallocate
+  mbds->Delete();
+  gridConnectivity->Delete();
+
+  // STEP 8: return success or failure
+  if( vtkMathUtilities::FuzzyCompare(average,expected) )
+    return 1;
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 // Program main
 int main( int argc, char **argv )
 {
@@ -316,8 +456,17 @@ int main( int argc, char **argv )
   // STEP 2: Run test where the number of partitions is double the number of
   // processes
   Controller->Barrier();
-  LogMessage( "Testing with double the number of partitions as processes..." );
+  LogMessage("Testing with double the number of partitions as processes...");
   rc += TestPStructuredGridConnectivity( 2 );
+  Controller->Barrier();
+
+  // STEP 4: Compute average
+  LogMessage("Calculating average with same number of partitions as processes");
+  rc += TestAverage( 1 );
+  Controller->Barrier();
+
+  LogMessage("Calculating average with double the number of partitions");
+  rc += TestAverage( 2 );
   Controller->Barrier();
 
   // STEP 3: Deallocate controller and exit
@@ -325,7 +474,6 @@ int main( int argc, char **argv )
   Controller->Finalize();
   Controller->Delete();
 
-  LogMessage( "Exiting..." );
   if( rc != 0 )
     {
     std::cout << "Test Failed!\n";
