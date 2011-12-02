@@ -91,7 +91,9 @@ bool vtkAMRSliceFilter::IsAMRData2D( vtkHierarchicalBoxDataSet *input )
   input->GetMetaData( 0, 0, box );
 
   if( box.GetDimensionality() == 2 )
+    {
     return true;
+    }
 
   return false;
 }
@@ -101,26 +103,30 @@ void vtkAMRSliceFilter::InitializeOffSet(
     vtkHierarchicalBoxDataSet *inp, double *minBounds, double *maxBounds )
 {
   if( !this->initialRequest )
+    {
     return;
+    }
 
   // Catch case where the normal is not set, this happens when the slice filter
   // is called from within RequestInformation.
   if( this->Normal == 0 )
+    {
     this->Normal=1;
+    }
 
   switch( this->Normal )
     {
-      case 1:
-        this->OffSetFromOrigin = ( maxBounds[0]-minBounds[0] )/2.0;
-        break;
-      case 2:
-        this->OffSetFromOrigin = ( maxBounds[1]-minBounds[1] )/2.0;
-        break;
-      case 3:
-        this->OffSetFromOrigin = ( maxBounds[2]-minBounds[2] )/2.0;
-        break;
-      default:
-        vtkErrorMacro( "Undefined plane normal" );
+    case 1:
+      this->OffSetFromOrigin = ( maxBounds[0]-minBounds[0] )/2.0;
+      break;
+    case 2:
+      this->OffSetFromOrigin = ( maxBounds[1]-minBounds[1] )/2.0;
+      break;
+    case 3:
+      this->OffSetFromOrigin = ( maxBounds[2]-minBounds[2] )/2.0;
+      break;
+    default:
+      vtkErrorMacro( "Undefined plane normal" );
     }
   this->initialRequest = false;
 }
@@ -151,23 +157,23 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
 
   switch( this->Normal )
     {
-      case 1:
-        // X-Normal
-        pl->SetNormal(1.0,0.0,0.0);
-        porigin[0] += this->OffSetFromOrigin;
-        break;
-      case 2:
-        // Y-Normal
-        pl->SetNormal(0.0,1.0,0.0);
-        porigin[1] += this->OffSetFromOrigin;
-        break;
-      case 3:
-        // Z-Normal
-        pl->SetNormal(0.0,0.0,1.0);
-        porigin[2] += this->OffSetFromOrigin;
-        break;
-      default:
-        vtkErrorMacro( "Undefined plane normal" );
+    case 1:
+      // X-Normal
+      pl->SetNormal(1.0,0.0,0.0);
+      porigin[0] += this->OffSetFromOrigin;
+      break;
+    case 2:
+      // Y-Normal
+      pl->SetNormal(0.0,1.0,0.0);
+      porigin[1] += this->OffSetFromOrigin;
+      break;
+    case 3:
+      // Z-Normal
+      pl->SetNormal(0.0,0.0,1.0);
+      porigin[2] += this->OffSetFromOrigin;
+      break;
+    default:
+      vtkErrorMacro( "Undefined plane normal" );
     }
   pl->SetOrigin( porigin );
 
@@ -259,26 +265,32 @@ bool vtkAMRSliceFilter::PlaneIntersectsAMRBox(double plane[4],double bounds[6])
 
   for( int i=0; i < 8; ++i )
     {
-      // Get box coordinates
-      double x = ( i&1 ? bounds[1] : bounds[0] );
-      double y = ( i&2 ? bounds[3] : bounds[2] );
-      double z = ( i&3 ? bounds[5] : bounds[4] );
+    // Get box coordinates
+    double x = ( i&1 ? bounds[1] : bounds[0] );
+    double y = ( i&2 ? bounds[3] : bounds[2] );
+    double z = ( i&3 ? bounds[5] : bounds[4] );
 
-      // Plug-in coordinates to the plane equation
-      double v = plane[3] - plane[0]*x - plane[1]*y - plane[2]*z;
+    // Plug-in coordinates to the plane equation
+    double v = plane[3] - plane[0]*x - plane[1]*y - plane[2]*z;
 
-      if( v == 0.0 ) // Point is on a plane
-        return true;
+    if( v == 0.0 ) // Point is on a plane
+      {
+      return true;
+      }
 
-      if( v < 0.0 )
-        lowPnt = true;
-      else
-        highPnt = true;
-
-      if( lowPnt && highPnt )
-        return true;
+    if( v < 0.0 )
+      {
+      lowPnt = true;
+      }
+    else
+      {
+      highPnt = true;
+      }
+    if( lowPnt && highPnt )
+      {
+      return true;
+      }
     }
-
   return false;
 }
 
@@ -308,26 +320,25 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
   unsigned int level=0;
   for( ; level <= maxLevelToLoad; ++level )
     {
-      unsigned int dataIdx = 0;
-      for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
+    unsigned int dataIdx = 0;
+    for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
+      {
+      vtkAMRBox box;
+      metadata->GetMetaData( level, dataIdx, box  );
+      bounds[0] = box.GetMinX();
+      bounds[1] = box.GetMaxX();
+      bounds[2] = box.GetMinY();
+      bounds[3] = box.GetMaxY();
+      bounds[4] = box.GetMinZ();
+      bounds[5] = box.GetMaxZ();
+
+      if( this->PlaneIntersectsAMRBox( plane, bounds ) )
         {
-          vtkAMRBox box;
-          metadata->GetMetaData( level, dataIdx, box  );
-          bounds[0] = box.GetMinX();
-          bounds[1] = box.GetMaxX();
-          bounds[2] = box.GetMinY();
-          bounds[3] = box.GetMaxY();
-          bounds[4] = box.GetMinZ();
-          bounds[5] = box.GetMaxZ();
-
-          if( this->PlaneIntersectsAMRBox( plane, bounds ) )
-            {
-              unsigned int amrGridIdx =
-                  metadata->GetCompositeIndex(level,dataIdx);
-              this->blocksToLoad.push_back( amrGridIdx );
-            }
-
-        } // END for all data
+        unsigned int amrGridIdx =
+            metadata->GetCompositeIndex(level,dataIdx);
+        this->blocksToLoad.push_back( amrGridIdx );
+        }
+      } // END for all data
     } // END for all levels
 
     std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
@@ -369,42 +380,41 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   unsigned int level=0;
   for( ; level < maxLevel; ++level )
     {
-      unsigned int dataIdx=0;
-      for( ; dataIdx < inp->GetNumberOfDataSets(level); ++dataIdx )
+    unsigned int dataIdx=0;
+    for( ; dataIdx < inp->GetNumberOfDataSets(level); ++dataIdx )
+      {
+      vtkAMRBox box;
+      inp->GetMetaData( level, dataIdx, box );
+
+      vtkUniformGrid *grid = inp->GetDataSet( level, dataIdx );
+      if( grid != NULL )
         {
-          vtkAMRBox box;
-          inp->GetMetaData( level, dataIdx, box );
+        bounds[0] = box.GetMinX();
+        bounds[1] = box.GetMaxX();
+        bounds[2] = box.GetMinY();
+        bounds[3] = box.GetMaxY();
+        bounds[4] = box.GetMinZ();
+        bounds[5] = box.GetMaxZ();
 
-          vtkUniformGrid *grid = inp->GetDataSet( level, dataIdx );
-          if( grid != NULL )
-            {
-              bounds[0] = box.GetMinX();
-              bounds[1] = box.GetMaxX();
-              bounds[2] = box.GetMinY();
-              bounds[3] = box.GetMaxY();
-              bounds[4] = box.GetMinZ();
-              bounds[5] = box.GetMaxZ();
-
-              if( this->PlaneIntersectsAMRBox( plane, bounds ) )
-                {
-                  vtkUniformGrid *slice = this->GetSlice( p->GetOrigin(), grid );
-                  assert( "Dimension of slice must be 2-D" &&
-                           (slice->GetDataDimension()==2) );
-                  assert( "2-D slice is NULL" && (slice != NULL) );
-                  this->GetSliceCellData( slice, grid );
-                  unsigned int blockIdx =
-                      out->GetNumberOfDataSets( box.GetLevel() );
-                  out->SetDataSet( box.GetLevel(), blockIdx, slice );
-                  slice->Delete();
-                } // END if plane intersects
-            } // END if grid is not NULL
-          else
-            {
-              // This belongs to another process
-              unsigned int blockIdx=out->GetNumberOfDataSets( box.GetLevel() );
-              out->SetDataSet( box.GetLevel(), blockIdx, NULL );
-            }
-
+        if( this->PlaneIntersectsAMRBox( plane, bounds ) )
+          {
+          vtkUniformGrid *slice = this->GetSlice( p->GetOrigin(), grid );
+          assert( "Dimension of slice must be 2-D" &&
+                   (slice->GetDataDimension()==2) );
+          assert( "2-D slice is NULL" && (slice != NULL) );
+          this->GetSliceCellData( slice, grid );
+          unsigned int blockIdx =
+              out->GetNumberOfDataSets( box.GetLevel() );
+          out->SetDataSet( box.GetLevel(), blockIdx, slice );
+          slice->Delete();
+          } // END if plane intersects
+        } // END if grid is not NULL
+        else
+          {
+          // This belongs to another process
+          unsigned int blockIdx=out->GetNumberOfDataSets( box.GetLevel() );
+          out->SetDataSet( box.GetLevel(), blockIdx, NULL );
+          } // END else
         } // END for all data
     } // END for all levels
   vtkTimerLog::MarkEndEvent( "AMRSlice::GetAMRSliceInPlane" );
@@ -450,7 +460,7 @@ int vtkAMRSliceFilter::GetDonorCellIdx( double x[3], vtkUniformGrid *ug )
   int ijk[3];
   for( int i=0; i < 3; ++i )
     {
-      ijk[ i ] = floor( (x[i]-x0[i])/h[i] );
+    ijk[ i ] = floor( (x[i]-x0[i])/h[i] );
     }
 
   int dims[3];
@@ -462,13 +472,13 @@ int vtkAMRSliceFilter::GetDonorCellIdx( double x[3], vtkUniformGrid *ug )
 
   for( int i=0; i < 3; ++i )
     {
-      if( ijk[i] < 0 || ijk[i] > dims[i] )
-        {
-          std::cerr << "Pnt: "<< x[0]  << " "<< x[1]  << " "<< x[2]  << "\n";
-          std::cerr << "IJK: "<< ijk[0]<< " "<< ijk[1]<< " "<< ijk[2]<< "\n";
-          std::cerr.flush();
-          return -1;
-        }
+    if( ijk[i] < 0 || ijk[i] > dims[i] )
+      {
+      std::cerr << "Pnt: "<< x[0]  << " "<< x[1]  << " "<< x[2]  << "\n";
+      std::cerr << "IJK: "<< ijk[0]<< " "<< ijk[1]<< " "<< ijk[2]<< "\n";
+      std::cerr.flush();
+      return -1;
+      }
     }
 
   return( vtkStructuredData::ComputePointId( dims, ijk ) );
@@ -496,57 +506,56 @@ void vtkAMRSliceFilter::GetSliceCellData(
   int numCells = slice->GetNumberOfCells();
   for( int arrayIdx=0; arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
     {
-      vtkDataArray *array = sourceCD->GetArray( arrayIdx )->NewInstance();
-      array->Initialize();
-      array->SetName( sourceCD->GetArray( arrayIdx )->GetName() );
-      array->SetNumberOfComponents(
-       sourceCD->GetArray( arrayIdx )->GetNumberOfComponents( ) );
-      array->SetNumberOfTuples( numCells );
-      targetCD->AddArray( array );
-      array->Delete();
+    vtkDataArray *array = sourceCD->GetArray( arrayIdx )->NewInstance();
+    array->Initialize();
+    array->SetName( sourceCD->GetArray( arrayIdx )->GetName() );
+    array->SetNumberOfComponents(
+     sourceCD->GetArray( arrayIdx )->GetNumberOfComponents( ) );
+    array->SetNumberOfTuples( numCells );
+    targetCD->AddArray( array );
+    array->Delete();
     } // END for all arrays
 
   // STEP 2: Fill in slice data-arrays
   int numOrphans = 0;
   for( int cellIdx=0; cellIdx < numCells; ++cellIdx )
     {
-      double probePnt[3];
-      this->ComputeCellCenter( slice, cellIdx, probePnt );
+    double probePnt[3];
+    this->ComputeCellCenter( slice, cellIdx, probePnt );
 
-      int sourceCellIdx = this->GetDonorCellIdx( probePnt, grid3D );
-      if( sourceCellIdx != -1 )
-        {
-           int arrayIdx = 0;
-           for(;arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
-             {
-               vtkDataArray *sourceArray = sourceCD->GetArray(arrayIdx);
-               assert( "pre: src array is NULL" &&
-                       (sourceArray != NULL) );
-               const char *name = sourceArray->GetName();
-               assert( "pre: target cell data must have array" &&
-                        (targetCD->HasArray( name ) ) );
-               vtkDataArray *targetArray = targetCD->GetArray( name );
-               assert( "pre: target array is NULL" &&
-                       (targetArray != NULL ) );
-               assert( "pre: numcom mismatch" &&
-                       (sourceArray->GetNumberOfComponents()==
-                        targetArray->GetNumberOfComponents() ) );
+    int sourceCellIdx = this->GetDonorCellIdx( probePnt, grid3D );
+    if( sourceCellIdx != -1 )
+      {
+       int arrayIdx = 0;
+       for(;arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
+         {
+         vtkDataArray *sourceArray = sourceCD->GetArray(arrayIdx);
+         assert( "pre: src array is NULL" &&
+                 (sourceArray != NULL) );
+         const char *name = sourceArray->GetName();
+         assert( "pre: target cell data must have array" &&
+                  (targetCD->HasArray( name ) ) );
+         vtkDataArray *targetArray = targetCD->GetArray( name );
+         assert( "pre: target array is NULL" &&
+                 (targetArray != NULL ) );
+         assert( "pre: numcom mismatch" &&
+                 (sourceArray->GetNumberOfComponents()==
+                  targetArray->GetNumberOfComponents() ) );
 
-               targetArray->SetTuple( cellIdx, sourceCellIdx, sourceArray );
-             } // END for all arrays
-        } // If a source cell is found, copy it's data.
-      else
-        {
-          vtkGenericWarningMacro( "No Source cell found!" );
-          ++ numOrphans;
-        }
-
+         targetArray->SetTuple( cellIdx, sourceCellIdx, sourceArray );
+         } // END for all arrays
+      } // If a source cell is found, copy it's data.
+    else
+      {
+      vtkGenericWarningMacro( "No Source cell found!" );
+      ++ numOrphans;
+      }
     } // END for all cells
 
     if( numOrphans != 0 )
       {
-        vtkGenericWarningMacro(
-            "Orphans: " << numOrphans << " / " << numCells );
+      vtkGenericWarningMacro(
+          "Orphans: " << numOrphans << " / " << numCells );
       }
 
 //    vtkTimerLog::MarkEndEvent( "AMRSlice::GetDataForBlock" );
@@ -563,23 +572,23 @@ int vtkAMRSliceFilter::RequestInformation(
 
   if( this->ForwardUpstream == 1 )
     {
-      vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-      assert( "pre: input information object is NULL" && (input != NULL) );
+    vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
+    assert( "pre: input information object is NULL" && (input != NULL) );
 
-      // Check if metadata are passed downstream
-      if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
-        {
-          vtkHierarchicalBoxDataSet *metadata =
-              vtkHierarchicalBoxDataSet::SafeDownCast(
-                  input->Get(
-                      vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
+    // Check if metadata are passed downstream
+    if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+      {
+      vtkHierarchicalBoxDataSet *metadata =
+          vtkHierarchicalBoxDataSet::SafeDownCast(
+              input->Get(
+                  vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
 
-          vtkPlane *cutPlane = this->GetCutPlane( metadata );
-          assert( "Cut plane is NULL" && (cutPlane != NULL) );
+      vtkPlane *cutPlane = this->GetCutPlane( metadata );
+      assert( "Cut plane is NULL" && (cutPlane != NULL) );
 
-          this->ComputeAMRBlocksToLoad( cutPlane, metadata );
-          cutPlane->Delete();
-        }
+      this->ComputeAMRBlocksToLoad( cutPlane, metadata );
+      cutPlane->Delete();
+      }
     }
 
   this->Modified();
@@ -594,13 +603,13 @@ int vtkAMRSliceFilter::RequestUpdateExtent(
 
   if( this->ForwardUpstream == 1 )
     {
-      vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
-      assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
+    vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
+    assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
 
-      // Send upstream request for higher resolution
-      inInfo->Set(
-       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-       &this->blocksToLoad[0], this->blocksToLoad.size() );
+    // Send upstream request for higher resolution
+    inInfo->Set(
+     vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
+     &this->blocksToLoad[0], this->blocksToLoad.size() );
     }
 
   return 1;
@@ -636,8 +645,8 @@ int vtkAMRSliceFilter::RequestData(
 
   if( this->IsAMRData2D( inputAMR ) )
     {
-      outputAMR->ShallowCopy( inputAMR );
-      return 1;
+    outputAMR->ShallowCopy( inputAMR );
+    return 1;
     }
 
   // STEP 2: Compute global origin
