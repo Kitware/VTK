@@ -181,8 +181,8 @@ vtkAxisActor::vtkAxisActor()
   this->Use2DMode = 0;
   this->SaveTitlePosition = 0;
   this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.;
-  this->VerticalOffsetXTitle2D = -20.;
-  this->HorizontalOffsetYTitle2D = -20.;
+  this->VerticalOffsetXTitle2D = -40.;
+  this->HorizontalOffsetYTitle2D = -50.;
 }
 
 // ****************************************************************
@@ -940,11 +940,11 @@ vtkAxisActor::BuildTitle2D(vtkViewport *viewport, bool force)
   viewport->GetDisplayPoint(transpos);
   if (this->AxisType == VTK_AXIS_TYPE_X)
     {
-    transpos[1] -= 12;
+    transpos[1] += this->VerticalOffsetXTitle2D;
     }
   else if (this->AxisType == VTK_AXIS_TYPE_Y)
     {
-    transpos[0] -= 20;
+    transpos[0] += this->HorizontalOffsetYTitle2D;
     }
   if (transpos[1] < 10.) transpos[1] = 10.;
   if (transpos[0] < 10.) transpos[0] = 10.;

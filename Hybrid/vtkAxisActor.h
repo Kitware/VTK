@@ -520,7 +520,7 @@ class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
 
   // Description:
   // Vertical offset in display coordinates for X axis title (used in 2D mode only)
-  // Default: -40
+  // Default: -50
   double              HorizontalOffsetYTitle2D;
 
   // Description:
