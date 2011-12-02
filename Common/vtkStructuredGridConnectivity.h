@@ -92,7 +92,7 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
     // Filles the mesh property arrays, nodes and cells, for the grid
     // corresponding to the given grid ID.
     // NOTE: this method assumes that ComputeNeighbors() has been called.
-    void FillMeshPropertyArrays(
+    void FillGhostArrays(
        const int gridID, unsigned char *nodesArray, unsigned char *cellsArray );
 
   protected:

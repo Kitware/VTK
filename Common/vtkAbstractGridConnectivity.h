@@ -45,6 +45,12 @@ class vtkAbstractGridConnectivity : public vtkObject
     // Computes the grid neighboring topology for the domain
     virtual void ComputeNeighbors( ) = 0;
 
+    // Description:
+    // Fills the ghost arrays for the given grid.
+    virtual void FillGhostArrays(
+        const int gridId, unsigned char* nodesArray,
+        unsigned char* cellsArray ) = 0;
+
   protected:
     vtkAbstractGridConnectivity();
     virtual ~vtkAbstractGridConnectivity();

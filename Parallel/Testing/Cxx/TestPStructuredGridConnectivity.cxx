@@ -119,7 +119,7 @@ void FillVisibilityArrays(
       vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
       cells->SetNumberOfValues( grid->GetNumberOfCells() );
 
-      connectivity->FillMeshPropertyArrays(
+      connectivity->FillGhostArrays(
           block, nodes->GetPointer(0), cells->GetPointer(0)  );
 
       grid->SetPointVisibilityArray( nodes );

@@ -235,7 +235,7 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::FillMeshPropertyArrays(
+void vtkStructuredGridConnectivity::FillGhostArrays(
     const int gridID, unsigned char *nodesArray, unsigned char *cellsArray )
 {
   assert( "pre: Nodes array is not NULL" && (nodesArray != NULL) );

@@ -265,7 +265,7 @@ void FillVisibilityArrays(
       vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
       cells->SetNumberOfValues( grid->GetNumberOfCells() );
 
-      connectivity->FillMeshPropertyArrays(
+      connectivity->FillGhostArrays(
           block, nodes->GetPointer(0), cells->GetPointer(0)  );
 
       grid->SetPointVisibilityArray( nodes );
@@ -437,7 +437,7 @@ int SimpleMonolithicTest( int argc, char **argv )
         unsigned char *nodeProperty = new unsigned char[ grid->GetNumberOfPoints() ];
         unsigned char *cellProperty = new unsigned char[ grid->GetNumberOfCells() ];
 
-        gridConnectivity->FillMeshPropertyArrays(
+        gridConnectivity->FillGhostArrays(
             piece, nodeProperty,cellProperty);
 
         vtkIntArray *flags = vtkIntArray::New();
