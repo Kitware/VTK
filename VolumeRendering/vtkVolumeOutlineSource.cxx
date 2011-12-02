@@ -185,10 +185,6 @@ int vtkVolumeOutlineSource::RequestInformation(
     return 1;
     }
 
-  this->Cropping = this->VolumeMapper->GetCropping();
-  this->CroppingRegionFlags = this->VolumeMapper->GetCroppingRegionFlags();
-  this->VolumeMapper->GetCroppingRegionPlanes(this->CroppingRegionPlanes);
-
   vtkImageData *data = this->VolumeMapper->GetInput();
 
   if (!data)
@@ -233,6 +229,18 @@ int vtkVolumeOutlineSource::RequestInformation(
       this->Bounds[j0] = origin[i] + spacing[i]*extent[j1];
       this->Bounds[j1] = origin[i] + spacing[i]*extent[j0];
       }
+
+    this->CroppingRegionPlanes[j0] = this->Bounds[j0];
+    this->CroppingRegionPlanes[j1] = this->Bounds[j1];
+    }
+
+  this->CroppingRegionFlags = 0x0002000;
+
+  this->Cropping = this->VolumeMapper->GetCropping();
+  if (this->Cropping)
+    {
+    this->CroppingRegionFlags = this->VolumeMapper->GetCroppingRegionFlags();
+    this->VolumeMapper->GetCroppingRegionPlanes(this->CroppingRegionPlanes);
     }
 
   return 1;
