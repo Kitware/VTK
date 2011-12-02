@@ -420,7 +420,7 @@ void vtkAMRBaseReader::LoadCellData(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRBaseReader::LoadAllBlocks( vtkHierarchicalBoxDataSet *output )
+void vtkAMRBaseReader::LoadRequestedBlocks( vtkHierarchicalBoxDataSet *output )
 {
   assert( "pre: AMR data-structure is NULL" && (output != NULL) );
 
@@ -531,7 +531,7 @@ int vtkAMRBaseReader::RequestData(
 
   if( outInf->Has( vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS() ) )
     {
-    this->LoadAllBlocks( output );
+    this->LoadRequestedBlocks( output );
     }
   else
     {

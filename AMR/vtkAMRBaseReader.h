@@ -133,7 +133,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     // It assumes that the downstream module is doing an upstream request with
     // the flag LOAD_REQUESTED_BLOCKS which indicates that the downstream filter
     // has already assigned which blocks are needed for each process.
-    void LoadAllBlocks( vtkHierarchicalBoxDataSet *amrds );
+    void LoadRequestedBlocks( vtkHierarchicalBoxDataSet *amrds );
 
     // Description:
     // Loads the AMR data corresponding to the given field name.
