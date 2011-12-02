@@ -122,9 +122,9 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
   // Default pole coordinates
-  this->Pole[0] = VTK_DOUBLE_MAX;
-  this->Pole[1] = VTK_DOUBLE_MAX;
-  this->Pole[2] = VTK_DOUBLE_MAX;
+  this->Pole[0] = 0.;
+  this->Pole[1] = 0.;
+  this->Pole[2] = 0.;
 
   // Default number of radial axes
   this->NumberOfRadialAxes = VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES;
@@ -478,17 +478,6 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     return;
     }
   
-  for ( int i = 0; i < 3; ++ i )
-    {
-    if ( this->Pole[i] == VTK_DOUBLE_MAX )
-      {
-      // Invalid pole coordinates
-      vtkWarningMacro( << "Cannot draw radial axes: "
-                       << " invalid pole." );
-      return;
-      }
-    } // i
-
   // Determine the bounds
   double bounds[6];
   this->GetBounds( bounds );

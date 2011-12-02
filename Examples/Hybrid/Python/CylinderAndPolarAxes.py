@@ -39,7 +39,6 @@ renderer.SetActiveCamera( camera )
 
 # Create polar axes
 polaxes = vtkPolarAxesActor()
-polaxes.SetBounds( cylinder.GetOutput().GetBounds() )
 polaxes.SetPole( pole )
 polaxes.SetAutoScaleRadius( 0 )
 polaxes.SetMaximumRadius( 4.5 )
