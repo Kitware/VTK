@@ -140,6 +140,10 @@ public:
     ATI_METHOD=2,
     NO_METHOD=3
   }; 
+
+  // Description:
+  // Returns the number of components of the point scalar field
+  int GetNumberOfScalarComponents(vtkImageData *input);
 //ETX
 
   // Description:
