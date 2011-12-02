@@ -19,6 +19,7 @@ ENDIF (UNIX)
 
 SET( Kit_SRCS
 vtkAbstractArray.cxx
+vtkAbstractGridConnectivity.cxx
 vtkAbstractTransform.cxx
 vtkAmoebaMinimizer.cxx
 vtkAnimationCue.cxx
@@ -351,6 +352,7 @@ SET(Kit_WRAP_HEADERS
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 vtkAbstractArray
+vtkAbstractGridConnectivity
 vtkArrayIterator
 vtkArrayIteratorTemplate
 vtkAbstractTransform

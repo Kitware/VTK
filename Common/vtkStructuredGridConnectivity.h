@@ -18,17 +18,17 @@
 //  vtkStructuredGridConnectivity is a concrete instance of vtkObject that
 //  implements functionality for computing the neighboring topology within a
 //  single partitioned structured grid dataset. This class implementation does
-//  not have any support for distributed data. For the parallel implmementation
+//  not have any support for distributed data. For the parallel implementation
 //  see vtkPStructuredGridConnectivity.
 //
 // .SECTION See Also
-//  vtkMeshPropertyEncoder vtkMeshProperty vtkPStructuredGridConnectivity
+//  vtkGhostArray vtkPStructuredGridConnectivity
 
 #ifndef vtkStructuredGridConnectivity_H_
 #define vtkStructuredGridConnectivity_H_
 
 // VTK include directives
-#include "vtkObject.h" // Base class
+#include "vtkAbstractGridConnectivity.h" // Base class
 #include "vtkStructuredNeighbor.h" // For Structured Neighbor object definition
 
 
@@ -39,11 +39,12 @@
 class vtkIdList;
 
 
-class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
+class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
+  public vtkAbstractGridConnectivity
 {
   public:
     static vtkStructuredGridConnectivity* New();
-    vtkTypeMacro( vtkStructuredGridConnectivity, vtkObject );
+    vtkTypeMacro( vtkStructuredGridConnectivity, vtkAbstractGridConnectivity );
     void PrintSelf( std::ostream& os, vtkIndent  indent );
 
     // Description:
@@ -59,7 +60,6 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
       this->GridExtents.resize( 6*N,-1);
       this->Neighbors.resize( N );
     }
-    int GetNumberOfGrids() { return this->NumberOfGrids; };
 
     // Description:
     // Registers the current grid corresponding to the grid ID by its global
@@ -204,7 +204,6 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity : public vtkObject
     void PrintExtent( int extent[6] );
 
     int DataDescription;
-    int NumberOfGrids;
     int WholeExtent[6];
     std::vector< int > GridExtents;
     std::vector< std::vector<vtkStructuredNeighbor> > Neighbors;

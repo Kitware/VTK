@@ -641,8 +641,7 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
   // form an edge
 
   // STEP 1: Initialize overlap
-  for( int i=0; i < 2; i++ )
-    overlap[i] = -1;
+  overlap[0] = overlap[1] = -1;
 
   // STEP 2: Allocate internal intersection vector. Note, since the cardinality
   // of A,B is 2, the intersection vector can be at most of size 2.
