@@ -793,6 +793,9 @@ public:
   // Description:
   // Convert color in RGB format (Red, Green, Blue) to HSV format
   // (Hue, Saturation, Value). The input color is not modified.
+  // The input RGB must be float values in the range [0,1].
+  // The output ranges are hue [0, 1], saturation [0, 1], and
+  // value [0, 1].
   static void RGBToHSV(const float rgb[3], float hsv[3])
     { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
   static void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
@@ -852,6 +855,9 @@ public:
 
   // Description:
   // Convert color from the RGB system to CIE-L*ab.
+  // The input RGB must be values in the range [0,1].
+  // The output ranges of 'L' is [0, 100]. The output
+  // range of 'a' and 'b' are approximately [-110, 110].
   static void RGBToLab(const double rgb[3], double lab[3]) {
     RGBToLab(rgb[0], rgb[1], rgb[2], lab+0, lab+1, lab+2);
   }
