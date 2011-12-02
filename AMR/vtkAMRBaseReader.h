@@ -250,7 +250,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     vtkMultiProcessController *Controller;
 
     int EnableCaching;
-    vtkAMRDataSetCache *amrCache;
+    vtkAMRDataSetCache *Cache;
     int numBlocksFromFile;
     int numBlocksFromCache;
 
