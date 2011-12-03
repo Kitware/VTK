@@ -69,8 +69,7 @@ public:
 
   // Description:
   // Gets/Sets the number of radial axes
-  // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
-  vtkSetClampMacro( NumberOfRadialAxes, vtkIdType, 2, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES );
+  virtual void SetNumberOfRadialAxes( vtkIdType );
   vtkGetMacro( NumberOfRadialAxes, vtkIdType );
 
   // Description:
@@ -293,6 +292,7 @@ protected:
 
   // Description:
   // Number of radial axes
+  // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
   int NumberOfRadialAxes;
 
   // Description:

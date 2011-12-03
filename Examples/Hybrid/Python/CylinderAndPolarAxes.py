@@ -73,5 +73,6 @@ interactor.SetRenderWindow( window )
 
 # Start interaction
 window.Render()
+polaxes.SetNumberOfRadialAxes( 18 )
 
 interactor.Start()

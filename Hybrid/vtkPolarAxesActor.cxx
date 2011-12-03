@@ -127,7 +127,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->Pole[2] = 0.;
 
   // Default number of radial axes
-  this->NumberOfRadialAxes = VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES;
+  this->NumberOfRadialAxes = VTK_DEFAULT_NUMBER_OF_RADIAL_AXES;
 
   // Invalid default number of polar arcs, and auto-calculate by default
   this->NumberOfPolarAxisTicks = -1;
@@ -203,8 +203,8 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->RadialAxesProperty->SetColor( 0., 0., 0. );
 
   // Create and set radial axes of type X
-  this->RadialAxes = new vtkAxisActor*[VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES];
-  for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
+  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
+  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
     {
     // Create axis of type X
     this->RadialAxes[i] = vtkAxisActor::New();
@@ -221,7 +221,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
     axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
     axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
     axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
-    } // for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
+    } // for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
 
   // Create and set polar arcs and ancillary objects, with default color white
   this->PolarArcs = vtkPolyData::New();
@@ -308,7 +308,7 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
   if ( this->RadialAxes )
     {
-    for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
+    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
       if ( this->RadialAxes[i] )
         {
@@ -952,6 +952,59 @@ void vtkPolarAxesActor::SetPole( double x, double y, double z )
 
   // Update bounds
   this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetNumberOfRadialAxes( vtkIdType n )
+{
+  // Limit number of redial axes
+  if ( n > VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES )
+    {
+    n = VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES;
+    }
+
+  // If number of radial axes does not change, do nothing
+  if ( this->NumberOfRadialAxes == n )
+    {
+    return;
+    }
+
+  // Delete existing radial axes
+  if ( this->RadialAxes )
+    {
+    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+      {
+      if ( this->RadialAxes[i] )
+        {
+        this->RadialAxes[i]->Delete();
+        this->RadialAxes[i] = NULL;
+        }
+      }
+    }
+
+  // Create and set n radial axes of type X
+  this->NumberOfRadialAxes = n;
+  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
+  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+    {
+    // Create axis of type X
+    this->RadialAxes[i] = vtkAxisActor::New();
+    vtkAxisActor* axis = this->RadialAxes[i];
+    axis->SetAxisTypeToX();
+    axis->SetAxisPositionToMinMax();
+    axis->SetCalculateTitleOffset( 0 );
+    axis->SetCalculateLabelOffset( 0 );
+
+    // Set radial axis title follower
+    axis->GetTitleActor()->SetAxis( axis );
+    axis->GetTitleActor()->SetScreenOffset( .67 * this->LabelScreenOffset + this->ScreenSize * 0.5 );
+    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+    } // for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+
   this->Modified();
 }
 
