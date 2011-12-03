@@ -110,7 +110,7 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
     = vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer( renderer );
   renderWindow->SetSize( 800, 600 );
-  renderWindow->SetMultiSamples( 0 )
+  renderWindow->SetMultiSamples( 0 );
   vtkSmartPointer<vtkRenderWindowInteractor> interactor
     = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   interactor->SetRenderWindow( renderWindow );
