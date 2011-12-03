@@ -134,7 +134,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->AutoSubdividePolarAxis = true;
 
   // Default maximum polar radius
-  this->MaximumRadius = VTK_DOUBLE_MAX;
+  this->MaximumRadius = 1.;
 
   // Do not auto-scale radius by default
   this->AutoScaleRadius = false;
@@ -143,7 +143,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->MinimumAngle = 0.;
 
   // Default maximum polar angle
-  this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
+  this->MaximumAngle = 90.;
 
   // Default smallest radial angle distinguishable from polar axis
   this->SmallestVisiblePolarAngle = .5;
@@ -942,6 +942,58 @@ void vtkPolarAxesActor::SetPole( double x, double y, double z )
   this->Pole[0] = x;
   this->Pole[1] = y;
   this->Pole[2] = z;
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetMaximumRadius( double r )
+{
+  this->MaximumRadius = r > 0. ? r : 0.;
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetMinimumAngle( double a )
+{
+  if ( a > 360. )
+    {
+    this->MinimumAngle = 360.;
+    }
+  else if ( a < -360. )
+    {
+    this->MinimumAngle = -360.;
+    }
+  else
+    {
+    this->MinimumAngle = a;
+    }
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetMaximumAngle( double a )
+{
+  if ( a > 360. )
+    {
+    this->MaximumAngle = 360.;
+    }
+  else if ( a < -360. )
+    {
+    this->MaximumAngle = -360.;
+    }
+  else
+    {
+    this->MaximumAngle = a;
+    }
 
   // Update bounds
   this->CalculateBounds();
