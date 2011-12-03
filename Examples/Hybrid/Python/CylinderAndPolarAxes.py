@@ -39,15 +39,14 @@ renderer.SetActiveCamera( camera )
 
 # Create polar axes
 polaxes = vtkPolarAxesActor()
-polaxes.SetBounds( cylinder.GetOutput().GetBounds() )
 polaxes.SetPole( pole )
 polaxes.SetAutoScaleRadius( 0 )
 polaxes.SetMaximumRadius( 4.5 )
 polaxes.SetMinimumAngle( -60. )
 polaxes.SetMaximumAngle( 210. )
 polaxes.SetNumberOfRadialAxes( 10 )
-polaxes.SetNumberOfPolarAxisTicks( 9 )
-polaxes.SetAutoSubdividePolarAxis( 0 )
+polaxes.AutoSubdividePolarAxisOff()
+polaxes.SetNumberOfPolarAxisTicks( 8 )
 polaxes.SetCamera( renderer.GetActiveCamera() )
 polaxes.SetPolarLabelFormat( "%6.1f" )
 polaxes.GetRadialAxesProperty().SetColor( .0, .0, 1. )
@@ -74,8 +73,7 @@ interactor.SetRenderWindow( window )
 
 # Start interaction
 window.Render()
-
-polaxes.SetMaximumAngle( 120. )
-window.Render()
+polaxes.SetMinimumAngle( 60. )
+polaxes.SetNumberOfPolarAxisTicks( 12 )
 
 interactor.Start()

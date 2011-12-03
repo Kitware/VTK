@@ -122,19 +122,19 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
   // Default pole coordinates
-  this->Pole[0] = VTK_DOUBLE_MAX;
-  this->Pole[1] = VTK_DOUBLE_MAX;
-  this->Pole[2] = VTK_DOUBLE_MAX;
+  this->Pole[0] = 0.;
+  this->Pole[1] = 0.;
+  this->Pole[2] = 0.;
 
   // Default number of radial axes
-  this->NumberOfRadialAxes = VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES;
+  this->NumberOfRadialAxes = VTK_DEFAULT_NUMBER_OF_RADIAL_AXES;
 
   // Invalid default number of polar arcs, and auto-calculate by default
   this->NumberOfPolarAxisTicks = -1;
   this->AutoSubdividePolarAxis = true;
 
   // Default maximum polar radius
-  this->MaximumRadius = VTK_DOUBLE_MAX;
+  this->MaximumRadius = 1.;
 
   // Do not auto-scale radius by default
   this->AutoScaleRadius = false;
@@ -143,7 +143,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->MinimumAngle = 0.;
 
   // Default maximum polar angle
-  this->MaximumAngle = VTK_DEFAULT_MAXIMUM_POLAR_ANGLE;
+  this->MaximumAngle = 90.;
 
   // Default smallest radial angle distinguishable from polar axis
   this->SmallestVisiblePolarAngle = .5;
@@ -203,25 +203,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->RadialAxesProperty->SetColor( 0., 0., 0. );
 
   // Create and set radial axes of type X
-  this->RadialAxes = new vtkAxisActor*[VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES];
-  for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
-    {
-    // Create axis of type X
-    this->RadialAxes[i] = vtkAxisActor::New();
-    vtkAxisActor* axis = this->RadialAxes[i];
-    axis->SetAxisTypeToX();
-    axis->SetAxisPositionToMinMax();
-    axis->SetCalculateTitleOffset( 0 );
-    axis->SetCalculateLabelOffset( 0 );
-
-    // Set radial axis title follower
-    axis->GetTitleActor()->SetAxis( axis );
-    axis->GetTitleActor()->SetScreenOffset( .67 * offset );
-    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
-    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
-    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
-    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
-    } // for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
+  this->CreateRadialAxes( offset );
 
   // Create and set polar arcs and ancillary objects, with default color white
   this->PolarArcs = vtkPolyData::New();
@@ -308,7 +290,7 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
   if ( this->RadialAxes )
     {
-    for ( int i = 0; i < VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES; ++ i )
+    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
       {
       if ( this->RadialAxes[i] )
         {
@@ -342,28 +324,15 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 {
   // Initialization
-  static bool initialRender = true;
+  int renderedSomething = 0;
   if ( !this->Camera )
     {
     vtkErrorMacro( <<"No camera!" );
     this->RenderSomething = 0;
-    return 0;
+    return renderedSomething;
     }
 
   this->BuildAxes( viewport );
-
-  if ( initialRender )
-    {
-    this->PolarAxis->BuildAxis( viewport, true );
-
-    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-      {
-      this->RadialAxes[i]->BuildAxis( viewport, true );
-      }
-    }
-  initialRender = false;
-
-  int renderedSomething = 0;
 
   // Render the polar axis
   if ( this->PolarAxisVisibility )
@@ -411,12 +380,121 @@ void vtkPolarAxesActor::SetScreenSize( double screenSize )
 void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
 {
   this->PolarAxis->ReleaseGraphicsResources(win);
-  for ( int i = 0; i < this->NumberOfRadialAxes;  ++i )
+  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i )
     {
     this->RadialAxes[i]->ReleaseGraphicsResources( win );
     }
-  this->PolarArcsActor->ReleaseGraphicsResources(win);
+  this->PolarArcsActor->ReleaseGraphicsResources( win );
+}
 
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::CalculateBounds()
+{
+  // Fetch angles, at this point it is already known that angular sector <= 360.
+  double minAngle = this->MinimumAngle;
+  double maxAngle = this->MaximumAngle;
+
+  // Ensure that angles are not both < -180 nor both > 180 degrees
+  if ( maxAngle < -180. )
+    {
+    // Increment angles modulo 360 degrees
+    minAngle += 360.;
+    maxAngle += 360.;
+    }
+  else if ( minAngle > 180. )
+    {
+    // Decrement angles modulo 360 degrees
+    minAngle -= 360.;
+    maxAngle -= 360.;
+    }
+
+  // Prepare trigonometric quantities
+  double thetaMin = vtkMath::RadiansFromDegrees( minAngle );
+  double cosThetaMin = cos( thetaMin );
+  double sinThetaMin = sin( thetaMin );
+  double thetaMax = vtkMath::RadiansFromDegrees( maxAngle );
+  double cosThetaMax = cos( thetaMax );
+  double sinThetaMax = sin( thetaMax );
+
+  // Calculate extremal cosines across angular sector
+  double minCos;
+  double maxCos;
+  if ( minAngle * maxAngle < 0. )
+    {
+    // Angular sector contains null angle
+    maxCos = 1.;
+    if ( minAngle < 180. && maxAngle > 180. )
+      {
+      // Angular sector also contains flat angle
+      minCos = -1.;
+      }
+    else
+      {
+      // Angular sector does not contain flat angle
+      minCos = cosThetaMin < cosThetaMax ? cosThetaMin : cosThetaMax;
+      }
+
+    }
+  else if ( minAngle < 180. && maxAngle > 180. )
+    {
+    // Angular sector does not contain flat angle (and not null angle)
+    minCos = -1.;
+    maxCos = cosThetaMax > cosThetaMin ? cosThetaMax : cosThetaMin;
+    }
+  else
+    {
+    // Angular sector does not contain flat nor null angle
+    minCos = cosThetaMin < cosThetaMax ? cosThetaMin : cosThetaMax;
+    maxCos = cosThetaMax > cosThetaMin ? cosThetaMax : cosThetaMin;
+    }
+
+  // Calculate extremal sines across angular sector
+  double minSin;
+  double maxSin;
+  if ( minAngle < -90. && maxAngle > -90. )
+    {
+    // Angular sector contains negative right angle
+    minSin = -1.;
+    if ( minAngle < 90. && maxAngle > 90. )
+      {
+      // Angular sector also contains positive right angle
+      maxSin = 1.;
+      }
+    else
+      {
+      // Angular sector contain does not contain positive right angle
+      maxSin = sinThetaMax > sinThetaMin ? sinThetaMax : sinThetaMin;
+      }
+    }
+  else if ( minAngle < 90. && maxAngle > 90. )
+    {
+    // Angular sector contains positive right angle (and not negative one)
+    minSin = sinThetaMin < sinThetaMax ? sinThetaMin : sinThetaMax;
+    maxSin = 1.;
+    }
+  else
+    {
+    // Angular sector contain does not contain either right angle
+    minSin = sinThetaMin < sinThetaMax ? sinThetaMin : sinThetaMax;
+    maxSin = sinThetaMax > sinThetaMin ? sinThetaMax : sinThetaMin;
+    }
+
+  // Now calculate bounds
+  // xmin
+  this->Bounds[0] = this->Pole[0] + this->MaximumRadius * minCos;
+  // xmax
+  this->Bounds[1] = this->Pole[0] + this->MaximumRadius * maxCos;
+  // ymin
+  this->Bounds[2] = this->Pole[1] + this->MaximumRadius * minSin;
+  // ymax
+  this->Bounds[3] = this->Pole[1] + this->MaximumRadius * maxSin;
+  // zmin
+  this->Bounds[4] = this->Pole[2];
+  // zmax
+  this->Bounds[5] = this->Pole[2];
+
+  // Update modification time of bounds
+  this->BoundsMTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -430,8 +508,8 @@ void vtkPolarAxesActor::GetBounds( double bounds[6])
 
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetBounds( double& xmin, double& xmax,
-                                 double& ymin, double& ymax,
-                                 double& zmin, double& zmax )
+                                   double& ymin, double& ymax,
+                                   double& zmin, double& zmax )
 {
   xmin = this->Bounds[0];
   xmax = this->Bounds[1];
@@ -450,7 +528,7 @@ double *vtkPolarAxesActor::GetBounds()
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 {
-  if ( ( this->GetMTime() < this->BuildTime.GetMTime() ))
+  if ( ( this->GetMTime() < this->BuildTime.GetMTime() ) )
     {
     this->AutoScale( viewport );
     return;
@@ -468,7 +546,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     return;
     }
   
-  if ( this->MaximumAngle - this->MinimumAngle > 360.  )
+  if ( this->MaximumAngle - this->MinimumAngle > 360. )
     {
     // Incorrect angle input
     vtkWarningMacro( << "Cannot draw radial axes: "
@@ -479,30 +557,13 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
     }
   
   // Determine the bounds
-  double bounds[6];
-  this->GetBounds( bounds );
-
-  // If pole coordinates are invalid, use bounds
-  double O[3];
-  for ( int i = 0; i < 3; ++ i )
-    {
-    O[i] = this->Pole[i] == VTK_DOUBLE_MAX ? bounds[i * 2] : this->Pole[i];
-    }
-
-  // If axial scale it out of proportions with object length scale, reset to ls
-  double ls = fabs( bounds[1] -  bounds[0] ) + fabs( bounds[3] -  bounds[2] );
-  if ( this->AutoScaleRadius
-       || this->MaximumRadius < 1.e-6 * ls
-       || this->MaximumRadius > 1.e6 * ls )
-    {
-    this->MaximumRadius = .5 * ls;
-    }
-
+  this->CalculateBounds();
+  
   // Set polar axis endpoints
   vtkAxisActor* axis = this->PolarAxis;
-  double ox = O[0] + this->MaximumRadius;
-  axis->GetPoint1Coordinate()->SetValue( O[0], O[1], O[2] );
-  axis->GetPoint2Coordinate()->SetValue( ox, O[1], O[2] );
+  double ox = this->Pole[0] + this->MaximumRadius;
+  axis->GetPoint1Coordinate()->SetValue( this->Pole[0], this->Pole[1], this->Pole[2] );
+  axis->GetPoint2Coordinate()->SetValue( ox, this->Pole[1], this->Pole[2] );
 
   // Set common axis attributes
   this->SetCommonAxisAttributes( axis );
@@ -525,62 +586,17 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   axis->SetLabelVisibility( this->PolarLabelVisibility );
   axis->SetLabelTextProperty( this->PolarAxisLabelTextProperty );
 
-  // Create requested number of radial axes
-  double dAlpha = 
-    ( this->MaximumAngle  - this->MinimumAngle ) / ( this->NumberOfRadialAxes - 1. );
-  double alpha = this->MinimumAngle;
-  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i, alpha += dAlpha )
-    {
-    // Calculate endpoint coordinates
-    double alphaRad = vtkMath::RadiansFromDegrees( alpha );
-    double x = O[0] + this->MaximumRadius * cos( alphaRad );
-    double y = O[1] + this->MaximumRadius * sin( alphaRad );
-
-    // Set radial axis endpoints
-    axis = this->RadialAxes[i];
-    axis->GetPoint1Coordinate()->SetValue( O[0], O[1], O[2] );
-    axis->GetPoint2Coordinate()->SetValue( x, y, O[2] );
-
-    // Set common axis attributes
-    this->SetCommonAxisAttributes( axis );
-
-    // Set radial axis lines
-    axis->SetAxisVisibility( this->RadialAxesVisibility );
-    axis->SetAxisLinesProperty( this->RadialAxesProperty );
-
-    // Set radial axis title with polar angle as title for non-polar axes
-    if ( this->PolarAxisVisibility && fabs( alpha ) < 2. )
-      { 
-      // Prevent conflict between radial and polar axes titles
-      axis->SetTitleVisibility( false );
-
-      if ( fabs( alpha ) < this->SmallestVisiblePolarAngle )
-        { 
-        // Do not show radial axes too close to polar axis
-        axis->SetAxisVisibility( false );
-        }
-      }
-    else
-      {
-      // Use polar angle as a title for the radial axis
-      axis->SetTitleVisibility( this->RadialTitleVisibility );
-      axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
-      vtksys_ios::ostringstream title;
-      title << alpha
-            << ( this->RadialUnits ? " deg" : "" );
-      axis->SetTitle( title.str().c_str() );
-      }
-
-    // No labels nor ticks for radial axes
-    axis->SetLabelVisibility( 0 );
-    axis->SetTickVisibility( 0 );
-    }
+  // Build radial axes
+  this->BuildRadialAxes();
 
   // Build polar axis ticks
-  this->BuildPolarAxisTicks( O[0] );
+  this->BuildPolarAxisTicks( this->Pole[0] );
 
   // Build polar axis labels
-  this->BuildPolarAxisLabelsArcs( O );
+  this->BuildPolarAxisLabelsArcs();
+
+  // Build polar axis
+  this->PolarAxis->BuildAxis( viewport, true );
 
   // Scale appropriately
   this->AutoScale( viewport );
@@ -622,6 +638,85 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
     value *= -1.;
     }
   return value;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::CreateRadialAxes( double offset )
+{
+  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
+  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+    {
+    // Create axis of type X
+    this->RadialAxes[i] = vtkAxisActor::New();
+    vtkAxisActor* axis = this->RadialAxes[i];
+    axis->SetAxisTypeToX();
+    axis->SetAxisPositionToMinMax();
+    axis->SetCalculateTitleOffset( 0 );
+    axis->SetCalculateLabelOffset( 0 );
+
+    // Set radial axis title follower
+    axis->GetTitleActor()->SetAxis( axis );
+    axis->GetTitleActor()->SetScreenOffset( .67 * offset );
+    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+    } // for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::BuildRadialAxes()
+{
+  // Create requested number of radial axes
+  double dAlpha = 
+    ( this->MaximumAngle  - this->MinimumAngle ) / ( this->NumberOfRadialAxes - 1. );
+  double alpha = this->MinimumAngle;
+  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i, alpha += dAlpha )
+    {
+    // Calculate endpoint coordinates
+    double alphaRad = vtkMath::RadiansFromDegrees( alpha );
+    double x = this->Pole[0] + this->MaximumRadius * cos( alphaRad );
+    double y = this->Pole[1] + this->MaximumRadius * sin( alphaRad );
+
+    // Set radial axis endpoints
+    vtkAxisActor* axis = this->RadialAxes[i];
+    axis->GetPoint1Coordinate()->SetValue( this->Pole[0], this->Pole[1], this->Pole[2] );
+    axis->GetPoint2Coordinate()->SetValue( x, y, this->Pole[2] );
+
+    // Set common axis attributes
+    this->SetCommonAxisAttributes( axis );
+
+    // Set radial axis lines
+    axis->SetAxisVisibility( this->RadialAxesVisibility );
+    axis->SetAxisLinesProperty( this->RadialAxesProperty );
+
+    // Set radial axis title with polar angle as title for non-polar axes
+    if ( this->PolarAxisVisibility && fabs( alpha ) < 2. )
+      { 
+      // Prevent conflict between radial and polar axes titles
+      axis->SetTitleVisibility( false );
+
+      if ( fabs( alpha ) < this->SmallestVisiblePolarAngle )
+        { 
+        // Do not show radial axes too close to polar axis
+        axis->SetAxisVisibility( false );
+        }
+      }
+    else
+      {
+      // Use polar angle as a title for the radial axis
+      axis->SetTitleVisibility( this->RadialTitleVisibility );
+      axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
+      vtksys_ios::ostringstream title;
+      title << alpha
+            << ( this->RadialUnits ? " deg" : "" );
+      axis->SetTitle( title.str().c_str() );
+      }
+
+    // No labels nor ticks for radial axes
+    axis->SetLabelVisibility( 0 );
+    axis->SetTickVisibility( 0 );
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -683,6 +778,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
     // Use pre-set number of arcs when it is valid and no auto-subdivision was requested
     delta =  this->MaximumRadius / ( this->NumberOfPolarAxisTicks - 1 );
     }
+
   // Set major start and delta corresponding to range and coordinates
   this->PolarAxis->SetMajorRangeStart( 0. );
   this->PolarAxis->SetDeltaRangeMajor( delta );
@@ -694,7 +790,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
+void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 {
   // Prepare storage for polar axis labels
   vtkStringArray *labels = vtkStringArray::New();
@@ -736,17 +832,18 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs( double* O )
     sprintf( label, format, value );
     labels->SetValue( i, label );
 
+    // Build polar arcs for non-zero values
     if ( value  > 0. )
       {
-      // Build corresponding polar arc for non-zero values
+      // Compute and set polar arc parameters
       double x1 = value * cosThetaMin;
       double y1 = value * sinThetaMin;
       double x2 = value * cosThetaMax;
       double y2 = value * sinThetaMax;
       vtkArcSource* arc = vtkArcSource::New();
-      arc->SetCenter( O );
-      arc->SetPoint1( O[0] + x1, O[1] + y1, O[2] );
-      arc->SetPoint2( O[0] + x2, O[1] + y2, O[2] );
+      arc->SetCenter( this->Pole );
+      arc->SetPoint1( this->Pole[0] + x1, this->Pole[1] + y1, this->Pole[2] );
+      arc->SetPoint2( this->Pole[0] + x2, this->Pole[1] + y2, this->Pole[2] );
       arc->SetResolution( arcResolution );
       arc->SetNegative( angularSector > 180. );
       arc->Update();
@@ -830,6 +927,120 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
                                     axis->GetTitleActor()->GetPosition() );
     axis->SetTitleScale( newTitleScale );
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetPole( double p[3] )
+{
+  this->Pole[0] = p[0];
+  this->Pole[1] = p[1];
+  this->Pole[2] = p[2];
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetPole( double x, double y, double z )
+{
+  this->Pole[0] = x;
+  this->Pole[1] = y;
+  this->Pole[2] = z;
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetNumberOfRadialAxes( vtkIdType n )
+{
+  // Limit number of redial axes
+  if ( n > VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES )
+    {
+    n = VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES;
+    }
+
+  // If number of radial axes does not change, do nothing
+  if ( this->NumberOfRadialAxes == n )
+    {
+    return;
+    }
+
+  // Delete existing radial axes
+  if ( this->RadialAxes )
+    {
+    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+      {
+      if ( this->RadialAxes[i] )
+        {
+        this->RadialAxes[i]->Delete();
+        this->RadialAxes[i] = NULL;
+        }
+      }
+    delete [] this->RadialAxes;
+    this->RadialAxes = NULL;
+    }
+
+  // Create and set n radial axes of type X
+  this->NumberOfRadialAxes = n;
+  double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
+  this->CreateRadialAxes( offset );
+
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetMaximumRadius( double r )
+{
+  this->MaximumRadius = r > 0. ? r : 0.;
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetMinimumAngle( double a )
+{
+  if ( a > 360. )
+    {
+    this->MinimumAngle = 360.;
+    }
+  else if ( a < -360. )
+    {
+    this->MinimumAngle = -360.;
+    }
+  else
+    {
+    this->MinimumAngle = a;
+    }
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::SetMaximumAngle( double a )
+{
+  if ( a > 360. )
+    {
+    this->MaximumAngle = 360.;
+    }
+  else if ( a < -360. )
+    {
+    this->MaximumAngle = -360.;
+    }
+  else
+    {
+    this->MaximumAngle = a;
+    }
+
+  // Update bounds
+  this->CalculateBounds();
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------

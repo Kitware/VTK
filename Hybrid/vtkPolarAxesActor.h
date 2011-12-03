@@ -35,7 +35,6 @@ All rights reserve
 #define VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES 50
 #define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
 #define VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS 200
-#define VTK_DEFAULT_MAXIMUM_POLAR_ANGLE 90.0
 #define VTK_POLAR_ARC_RESOLUTION_PER_DEG 0.2
 
 #include "vtkActor.h"
@@ -64,14 +63,13 @@ public:
 
   // Description:
   // Explicitly specify the coordinate of the pole.
-  // The default coordinates are (0,0,0).
-  vtkSetVector3Macro( Pole, double );
+  virtual void SetPole( double[3] );
+  virtual void SetPole( double, double, double );
   vtkGetVector3Macro( Pole, double );
 
   // Description:
   // Gets/Sets the number of radial axes
-  // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
-  vtkSetClampMacro( NumberOfRadialAxes, vtkIdType, 2, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES );
+  virtual void SetNumberOfRadialAxes( vtkIdType );
   vtkGetMacro( NumberOfRadialAxes, vtkIdType );
 
   // Description:
@@ -85,11 +83,11 @@ public:
   // Default: true
   vtkSetMacro( AutoSubdividePolarAxis, bool );
   vtkGetMacro( AutoSubdividePolarAxis, bool );
+  vtkBooleanMacro( AutoSubdividePolarAxis, bool );
 
   // Description:
-  //  Set/Get the maximum radius of the polar coordinates.
-  // Default: VTK_DOUBLE_MAX
-  vtkSetClampMacro( MaximumRadius, double, 0., VTK_DOUBLE_MAX );
+  // Set/Get the maximum radius of the polar coordinates.
+  virtual void SetMaximumRadius( double );
   vtkGetMacro( MaximumRadius, double );
 
   // Description:
@@ -100,14 +98,12 @@ public:
 
   // Description:
   //  Set/Get the minimum radius of the polar coordinates (in degrees).
-  // Default: 0.
-  vtkSetClampMacro( MinimumAngle, double, -360., 360. );
+  virtual void SetMinimumAngle( double );
   vtkGetMacro( MinimumAngle, double );
 
   // Description:
   //  Set/Get the maximum radius of the polar coordinates (in degrees).
-  // Default: VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
-  vtkSetClampMacro( MaximumAngle, double, -360., 360. );
+  virtual void SetMaximumAngle( double );
   vtkGetMacro( MaximumAngle, double );
 
   // Description:
@@ -258,19 +254,31 @@ protected:
   // Description:
   // Build the axes. 
   // Determine coordinates, position, etc.
-  void  BuildAxes( vtkViewport * );
+  void BuildAxes( vtkViewport * );
+
+  // Description:
+  // Calculate bounds based on maximum radius and angular sector
+  void CalculateBounds();
 
   // Description:
   // Send attributes which are common to all axes, both polar and radial
-  void  SetCommonAxisAttributes( vtkAxisActor* );
+  void SetCommonAxisAttributes( vtkAxisActor* );
+
+  // Description:
+  // Create requested number of type X axes and set followers
+  void CreateRadialAxes( double );
+
+  // Description:
+  // Build requested number of radial axes with respect to specified pole.
+  void BuildRadialAxes();
 
   // Description:
   // Prepare ticks on polar axis with respect to coordinate offset
-  void  BuildPolarAxisTicks( double );
+  void BuildPolarAxisTicks( double );
 
   // Description:
   // Build polar axis labels and arcs with respect to specified pole.
-  void  BuildPolarAxisLabelsArcs( double* );
+  void BuildPolarAxisLabelsArcs();
 
   // Description:
   // Convenience methods
@@ -284,10 +292,12 @@ protected:
 
   // Description:
   // Coordinates of the pole
+  // Default: (0,0,0).
   double Pole[3]; 
 
   // Description:
   // Number of radial axes
+  // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
   int NumberOfRadialAxes;
 
   // Description:
@@ -301,6 +311,7 @@ protected:
 
   // Description:
   // Maximum polar radius (minimum is always 0)
+  // Default: 1
   double MaximumRadius;
 
   // Description:
@@ -309,10 +320,12 @@ protected:
 
   // Description:
   // Minimum polar angle
+  // Default: 0.
   double MinimumAngle;
 
   // Description:
   // Maximum polar angle
+  // Default: 90.
   double MaximumAngle;
 
   // Description:
