@@ -183,6 +183,12 @@ vtkAxisActor::vtkAxisActor()
   this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.;
   this->VerticalOffsetXTitle2D = -40.;
   this->HorizontalOffsetYTitle2D = -50.;
+  this->LastMinDisplayCoordinate[0] = 0;
+  this->LastMinDisplayCoordinate[1] = 0;
+  this->LastMinDisplayCoordinate[2] = 0;
+  this->LastMaxDisplayCoordinate[0] = 0;
+  this->LastMaxDisplayCoordinate[1] = 0;
+  this->LastMaxDisplayCoordinate[2] = 0;
 }
 
 // ****************************************************************
@@ -1017,8 +1023,9 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "Number Of Labels Built: "
      << this->NumberOfLabelsBuilt << "\n";
-  os << indent << "Range: (" << this->Range[0]
-     << ", " << this->Range[1] << ")\n";
+  os << indent << "Range: (" 
+     << this->Range[0] << ", " 
+     << this->Range[1] << ")\n";
 
   os << indent << "Label Format: " << this->LabelFormat << "\n";
 
@@ -1115,6 +1122,14 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
   os << indent << "VerticalOffsetXTitle2D" << this->VerticalOffsetXTitle2D << endl;
   os << indent << "HorizontalOffsetYTitle2D" << this->HorizontalOffsetYTitle2D << endl;
+  os << indent << "LastMinDisplayCoordinates: ("
+     << this->LastMinDisplayCoordinate[0] << ", "
+     << this->LastMinDisplayCoordinate[1] << ", "
+     << this->LastMinDisplayCoordinate[2] << ")" << endl;
+  os << indent << "LastMaxDisplayCoordinates: ("
+     << this->LastMaxDisplayCoordinate[0] << ", "
+     << this->LastMaxDisplayCoordinate[1] << ", "
+     << this->LastMaxDisplayCoordinate[2] << ")" << endl;
   }
 
 // **************************************************************************
@@ -2160,16 +2175,18 @@ bool vtkAxisActor::BoundsDisplayCoordinateChanged(vtkViewport *viewport)
   viewport->WorldToDisplay();
   viewport->GetDisplayPoint(transMaxPt);
 
-  if( LastMinDisplayCoordinate[0] != transMinPt[0] || LastMinDisplayCoordinate[1] != transMinPt[1] ||
-      LastMinDisplayCoordinate[2] != transMinPt[2] || 
-      LastMaxDisplayCoordinate[0] != transMaxPt[0] || LastMaxDisplayCoordinate[1] != transMaxPt[1] ||
-      LastMaxDisplayCoordinate[2] != transMaxPt[2] )
+  if( this->LastMinDisplayCoordinate[0] != transMinPt[0] 
+      || this->LastMinDisplayCoordinate[1] != transMinPt[1]
+      || this->LastMinDisplayCoordinate[2] != transMinPt[2]
+      || this->LastMaxDisplayCoordinate[0] != transMaxPt[0]
+      || this->LastMaxDisplayCoordinate[1] != transMaxPt[1]
+      || this->LastMaxDisplayCoordinate[2] != transMaxPt[2] )
     {
     int i = 0;
     for( i=0 ; i<3 ; ++i )
       {
-      LastMinDisplayCoordinate[i] = transMinPt[i];
-      LastMaxDisplayCoordinate[i] = transMaxPt[i];
+      this->LastMinDisplayCoordinate[i] = transMinPt[i];
+      this->LastMaxDisplayCoordinate[i] = transMaxPt[i];
       }
     return true;
     }
