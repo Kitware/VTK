@@ -45,8 +45,8 @@ polaxes.SetMaximumRadius( 4.5 )
 polaxes.SetMinimumAngle( -60. )
 polaxes.SetMaximumAngle( 210. )
 polaxes.SetNumberOfRadialAxes( 10 )
-polaxes.SetNumberOfPolarAxisTicks( 9 )
 polaxes.AutoSubdividePolarAxisOff()
+polaxes.SetNumberOfPolarAxisTicks( 8 )
 polaxes.SetCamera( renderer.GetActiveCamera() )
 polaxes.SetPolarLabelFormat( "%6.1f" )
 polaxes.GetRadialAxesProperty().SetColor( .0, .0, 1. )
@@ -73,6 +73,7 @@ interactor.SetRenderWindow( window )
 
 # Start interaction
 window.Render()
-polaxes.AutoSubdividePolarAxisOn()
+polaxes.SetMinimumAngle( 60. )
+polaxes.SetNumberOfPolarAxisTicks( 12 )
 
 interactor.Start()

@@ -607,18 +607,18 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     {
     return;
     }
-
+  
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
-
+    
     if(!this->GetCalculateLabelOffset())
       {
       this->LabelActors[i]->SetAutoCenter(1);
       }
     }
-
+  
   if (force || this->BuildTime.GetMTime() <  this->BoundsTime.GetMTime() ||
       this->AxisPosition != this->LastAxisPosition ||
       this->LastRange[0] != this->Range[0] ||

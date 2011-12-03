@@ -324,28 +324,15 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 int vtkPolarAxesActor::RenderOpaqueGeometry( vtkViewport *viewport )
 {
   // Initialization
-  static bool initialRender = true;
+  int renderedSomething = 0;
   if ( !this->Camera )
     {
     vtkErrorMacro( <<"No camera!" );
     this->RenderSomething = 0;
-    return 0;
+    return renderedSomething;
     }
 
   this->BuildAxes( viewport );
-
-  if ( initialRender )
-    {
-    this->PolarAxis->BuildAxis( viewport, true );
-
-    for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-      {
-      this->RadialAxes[i]->BuildAxis( viewport, true );
-      }
-    }
-  initialRender = false;
-
-  int renderedSomething = 0;
 
   // Render the polar axis
   if ( this->PolarAxisVisibility )
@@ -608,6 +595,9 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   // Build polar axis labels
   this->BuildPolarAxisLabelsArcs();
 
+  // Build polar axis
+  this->PolarAxis->BuildAxis( viewport, true );
+
   // Scale appropriately
   this->AutoScale( viewport );
 
@@ -842,9 +832,10 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     sprintf( label, format, value );
     labels->SetValue( i, label );
 
+    // Build polar arcs for non-zero values
     if ( value  > 0. )
       {
-      // Build corresponding polar arc for non-zero values
+      // Compute and set polar arc parameters
       double x1 = value * cosThetaMin;
       double y1 = value * sinThetaMin;
       double x2 = value * cosThetaMax;
