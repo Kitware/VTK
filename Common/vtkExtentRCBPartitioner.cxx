@@ -31,15 +31,15 @@ vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
   this->NumberOfPartitions   = 2;
   for( int i=0; i < 3; ++i )
     {
-      this->GlobalExtent[ i ]   = 0;
-      this->GlobalExtent[ i+3 ] = 1;
+    this->GlobalExtent[ i ]   = 0;
+    this->GlobalExtent[ i+3 ] = 1;
     }
 }
 
 //------------------------------------------------------------------------------
 vtkExtentRCBPartitioner::~vtkExtentRCBPartitioner()
 {
-  this->pextents.clear();
+  this->PartitionExtents.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -92,14 +92,18 @@ void vtkExtentRCBPartitioner::GetExtent( const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
-    ext[ i ] = this->pextents[ idx*6+i ];
+    {
+    ext[ i ] = this->PartitionExtents[ idx*6+i ];
+    }
 }
 
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::AddExtent( const int vtkNotUsed(idx), int ext[6] )
 {
   for( int i=0; i < 6; ++i )
-    this->pextents.push_back( ext[ i ] );
+    {
+    this->PartitionExtents.push_back( ext[ i ] );
+    }
   ++this->NumExtents;
 }
 
@@ -111,7 +115,9 @@ void vtkExtentRCBPartitioner::ReplaceExtent(const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
-    this->pextents[ idx*6+i ] = ext[ i ];
+    {
+    this->PartitionExtents[ idx*6+i ] = ext[ i ];
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -122,7 +128,9 @@ void vtkExtentRCBPartitioner::GetPartitionExtent( const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
-    ext[i] = this->pextents[idx*6+i];
+    {
+    ext[i] = this->PartitionExtents[idx*6+i];
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -141,24 +149,26 @@ void vtkExtentRCBPartitioner::SplitExtent(
   int maxIdx   = -1;
 
   for( int i=0; i < 6; ++i )
+    {
     s1[ i ] = s2[ i ] = parent[ i ];
+    }
 
   switch( dimension )
     {
-      case 1:
-        minIdx = 0;
-        maxIdx = 3;
-        break;
-      case 2:
-        minIdx = 1;
-        maxIdx = 4;
-        break;
-      case 3:
-        minIdx = 2;
-        maxIdx = 5;
-        break;
-      default:
-        vtkErrorMacro( "Cannot split extent: Undefined split dimension!");
+    case 1:
+      minIdx = 0;
+      maxIdx = 3;
+      break;
+    case 2:
+      minIdx = 1;
+      maxIdx = 4;
+      break;
+    case 3:
+      minIdx = 2;
+      maxIdx = 5;
+      break;
+    default:
+      vtkErrorMacro( "Cannot split extent: Undefined split dimension!");
     }
 
   numNodes      = (parent[maxIdx]-parent[minIdx]) + 1;
@@ -199,11 +209,17 @@ int vtkExtentRCBPartitioner::GetLongestDimensionLength( int ext[6] )
   int klength = (ext[5]-ext[2])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
-   return ilength;
+    {
+    return ilength;
+    }
   else if ((jlength >= ilength) && (jlength >= klength))
+    {
     return jlength;
+    }
   else if ((klength >= ilength) && (klength >= jlength))
+    {
     return klength;
+    }
   assert( "pre: could not find longest dimension" && false );
   return 0;
 }
@@ -216,11 +232,17 @@ int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
   int klength = (ext[5]-ext[2])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
+    {
     return 1;
+    }
   else if ((jlength >= ilength) && (jlength >= klength))
-     return 2;
+    {
+    return 2;
+    }
   else if ((klength >= ilength) && (klength >= jlength))
-     return 3;
+    {
+    return 3;
+    }
   assert( "pre: could not find longest dimension" && false );
   return 0;
 }
@@ -229,7 +251,10 @@ int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
 void vtkExtentRCBPartitioner::PrintExtent( std::string name, int ext[6] )
 {
   std::cout << name << ": [";
-  for( int i=0; i < 6; std::cout << ext[i++] << " " );
+  for( int i=0; i < 6; ++i  )
+    {
+    std::cout << ext[i] << " ";
+    }
   std::cout << "]\n";
   std::cout.flush();
 }
