@@ -64,9 +64,8 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      void GetExtent( const int idx, int ext[6] );
 
      // Description:
-     // Adds the extent to the pre-allocated list of partitioned extents at
-     // the position indicated by idx.
-     void AddExtent(const int idx, int ext[6]);
+     // Adds the extent to the end of the list of partitioned extents
+     void AddExtent(int ext[6]);
 
      // Description:
      // Replaces the extent at the position indicated by idx with the provided

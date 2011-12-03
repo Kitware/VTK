@@ -55,7 +55,7 @@ void vtkExtentRCBPartitioner::Partition()
   assert( "pre: work queue is NULL" && (wrkQueue != NULL) );
 
   // STEP 0: Insert the global extent to the workQueue
-  this->AddExtent( 0, this->GlobalExtent );
+  this->AddExtent( this->GlobalExtent );
   wrkQueue->Insert( this->GetNumberOfNodes( this->GlobalExtent), 0);
 
   int ex[6]; // temporary buffer to store the current extent
@@ -71,7 +71,7 @@ void vtkExtentRCBPartitioner::Partition()
 
     this->SplitExtent( ex, s1, s2, ldim );
     this->ReplaceExtent(extentIdx, s1);
-    this->AddExtent(this->NumExtents, s2);
+    this->AddExtent(s2);
 
     wrkQueue->Insert( this->GetNumberOfNodes( s1 ),extentIdx );
     wrkQueue->Insert( this->GetNumberOfNodes( s2 ),this->NumExtents-1);
