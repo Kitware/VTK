@@ -254,23 +254,27 @@ protected:
   // Description:
   // Build the axes. 
   // Determine coordinates, position, etc.
-  void  BuildAxes( vtkViewport * );
+  void BuildAxes( vtkViewport * );
 
   // Description:
   // Calculate bounds based on maximum radius and angular sector
-  void  CalculateBounds();
+  void CalculateBounds();
 
   // Description:
   // Send attributes which are common to all axes, both polar and radial
-  void  SetCommonAxisAttributes( vtkAxisActor* );
+  void SetCommonAxisAttributes( vtkAxisActor* );
+
+  // Description:
+  // Build requested number of radial axes with respect to specified pole.
+  void BuildRadialAxes();
 
   // Description:
   // Prepare ticks on polar axis with respect to coordinate offset
-  void  BuildPolarAxisTicks( double );
+  void BuildPolarAxisTicks( double );
 
   // Description:
   // Build polar axis labels and arcs with respect to specified pole.
-  void  BuildPolarAxisLabelsArcs();
+  void BuildPolarAxisLabelsArcs();
 
   // Description:
   // Convenience methods

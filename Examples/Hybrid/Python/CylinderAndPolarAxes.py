@@ -73,4 +73,5 @@ interactor.SetRenderWindow( window )
 
 # Start interaction
 window.Render()
+
 interactor.Start()

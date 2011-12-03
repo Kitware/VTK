@@ -411,11 +411,11 @@ void vtkPolarAxesActor::SetScreenSize( double screenSize )
 void vtkPolarAxesActor::ReleaseGraphicsResources( vtkWindow *win )
 {
   this->PolarAxis->ReleaseGraphicsResources(win);
-  for ( int i = 0; i < this->NumberOfRadialAxes;  ++i )
+  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i )
     {
     this->RadialAxes[i]->ReleaseGraphicsResources( win );
     }
-  this->PolarArcsActor->ReleaseGraphicsResources(win);
+  this->PolarArcsActor->ReleaseGraphicsResources( win );
 }
 
 //-----------------------------------------------------------------------------
@@ -617,56 +617,8 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   axis->SetLabelVisibility( this->PolarLabelVisibility );
   axis->SetLabelTextProperty( this->PolarAxisLabelTextProperty );
 
-  // Create requested number of radial axes
-  double dAlpha = 
-    ( this->MaximumAngle  - this->MinimumAngle ) / ( this->NumberOfRadialAxes - 1. );
-  double alpha = this->MinimumAngle;
-  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i, alpha += dAlpha )
-    {
-    // Calculate endpoint coordinates
-    double alphaRad = vtkMath::RadiansFromDegrees( alpha );
-    double x = this->Pole[0] + this->MaximumRadius * cos( alphaRad );
-    double y = this->Pole[1] + this->MaximumRadius * sin( alphaRad );
-
-    // Set radial axis endpoints
-    axis = this->RadialAxes[i];
-    axis->GetPoint1Coordinate()->SetValue( this->Pole[0], this->Pole[1], this->Pole[2] );
-    axis->GetPoint2Coordinate()->SetValue( x, y, this->Pole[2] );
-
-    // Set common axis attributes
-    this->SetCommonAxisAttributes( axis );
-
-    // Set radial axis lines
-    axis->SetAxisVisibility( this->RadialAxesVisibility );
-    axis->SetAxisLinesProperty( this->RadialAxesProperty );
-
-    // Set radial axis title with polar angle as title for non-polar axes
-    if ( this->PolarAxisVisibility && fabs( alpha ) < 2. )
-      { 
-      // Prevent conflict between radial and polar axes titles
-      axis->SetTitleVisibility( false );
-
-      if ( fabs( alpha ) < this->SmallestVisiblePolarAngle )
-        { 
-        // Do not show radial axes too close to polar axis
-        axis->SetAxisVisibility( false );
-        }
-      }
-    else
-      {
-      // Use polar angle as a title for the radial axis
-      axis->SetTitleVisibility( this->RadialTitleVisibility );
-      axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
-      vtksys_ios::ostringstream title;
-      title << alpha
-            << ( this->RadialUnits ? " deg" : "" );
-      axis->SetTitle( title.str().c_str() );
-      }
-
-    // No labels nor ticks for radial axes
-    axis->SetLabelVisibility( 0 );
-    axis->SetTickVisibility( 0 );
-    }
+  // Build radial axes
+  this->BuildRadialAxes();
 
   // Build polar axis ticks
   this->BuildPolarAxisTicks( this->Pole[0] );
@@ -714,6 +666,61 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
     value *= -1.;
     }
   return value;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPolarAxesActor::BuildRadialAxes()
+{
+  // Create requested number of radial axes
+  double dAlpha = 
+    ( this->MaximumAngle  - this->MinimumAngle ) / ( this->NumberOfRadialAxes - 1. );
+  double alpha = this->MinimumAngle;
+  for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i, alpha += dAlpha )
+    {
+    // Calculate endpoint coordinates
+    double alphaRad = vtkMath::RadiansFromDegrees( alpha );
+    double x = this->Pole[0] + this->MaximumRadius * cos( alphaRad );
+    double y = this->Pole[1] + this->MaximumRadius * sin( alphaRad );
+
+    // Set radial axis endpoints
+    vtkAxisActor* axis = this->RadialAxes[i];
+    axis->GetPoint1Coordinate()->SetValue( this->Pole[0], this->Pole[1], this->Pole[2] );
+    axis->GetPoint2Coordinate()->SetValue( x, y, this->Pole[2] );
+
+    // Set common axis attributes
+    this->SetCommonAxisAttributes( axis );
+
+    // Set radial axis lines
+    axis->SetAxisVisibility( this->RadialAxesVisibility );
+    axis->SetAxisLinesProperty( this->RadialAxesProperty );
+
+    // Set radial axis title with polar angle as title for non-polar axes
+    if ( this->PolarAxisVisibility && fabs( alpha ) < 2. )
+      { 
+      // Prevent conflict between radial and polar axes titles
+      axis->SetTitleVisibility( false );
+
+      if ( fabs( alpha ) < this->SmallestVisiblePolarAngle )
+        { 
+        // Do not show radial axes too close to polar axis
+        axis->SetAxisVisibility( false );
+        }
+      }
+    else
+      {
+      // Use polar angle as a title for the radial axis
+      axis->SetTitleVisibility( this->RadialTitleVisibility );
+      axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
+      vtksys_ios::ostringstream title;
+      title << alpha
+            << ( this->RadialUnits ? " deg" : "" );
+      axis->SetTitle( title.str().c_str() );
+      }
+
+    // No labels nor ticks for radial axes
+    axis->SetLabelVisibility( 0 );
+    axis->SetTickVisibility( 0 );
+    }
 }
 
 //-----------------------------------------------------------------------------
