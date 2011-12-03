@@ -203,25 +203,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->RadialAxesProperty->SetColor( 0., 0., 0. );
 
   // Create and set radial axes of type X
-  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    // Create axis of type X
-    this->RadialAxes[i] = vtkAxisActor::New();
-    vtkAxisActor* axis = this->RadialAxes[i];
-    axis->SetAxisTypeToX();
-    axis->SetAxisPositionToMinMax();
-    axis->SetCalculateTitleOffset( 0 );
-    axis->SetCalculateLabelOffset( 0 );
-
-    // Set radial axis title follower
-    axis->GetTitleActor()->SetAxis( axis );
-    axis->GetTitleActor()->SetScreenOffset( .67 * offset );
-    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
-    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
-    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
-    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
-    } // for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+  this->CreateRadialAxes( offset );
 
   // Create and set polar arcs and ancillary objects, with default color white
   this->PolarArcs = vtkPolyData::New();
@@ -669,6 +651,30 @@ inline double vtkPolarAxesActor::FSign( double value, double sign )
 }
 
 //-----------------------------------------------------------------------------
+void vtkPolarAxesActor::CreateRadialAxes( double offset )
+{
+  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
+  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+    {
+    // Create axis of type X
+    this->RadialAxes[i] = vtkAxisActor::New();
+    vtkAxisActor* axis = this->RadialAxes[i];
+    axis->SetAxisTypeToX();
+    axis->SetAxisPositionToMinMax();
+    axis->SetCalculateTitleOffset( 0 );
+    axis->SetCalculateLabelOffset( 0 );
+
+    // Set radial axis title follower
+    axis->GetTitleActor()->SetAxis( axis );
+    axis->GetTitleActor()->SetScreenOffset( .67 * offset );
+    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+    } // for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+}
+
+//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildRadialAxes()
 {
   // Create requested number of radial axes
@@ -985,25 +991,8 @@ void vtkPolarAxesActor::SetNumberOfRadialAxes( vtkIdType n )
 
   // Create and set n radial axes of type X
   this->NumberOfRadialAxes = n;
-  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
-    {
-    // Create axis of type X
-    this->RadialAxes[i] = vtkAxisActor::New();
-    vtkAxisActor* axis = this->RadialAxes[i];
-    axis->SetAxisTypeToX();
-    axis->SetAxisPositionToMinMax();
-    axis->SetCalculateTitleOffset( 0 );
-    axis->SetCalculateLabelOffset( 0 );
-
-    // Set radial axis title follower
-    axis->GetTitleActor()->SetAxis( axis );
-    axis->GetTitleActor()->SetScreenOffset( .67 * this->LabelScreenOffset + this->ScreenSize * 0.5 );
-    axis->GetTitleActor()->SetEnableDistanceLOD( this->EnableDistanceLOD );
-    axis->GetTitleActor()->SetDistanceLODThreshold( this->DistanceLODThreshold );
-    axis->GetTitleActor()->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
-    axis->GetTitleActor()->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
-    } // for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+  double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
+  this->CreateRadialAxes( offset );
 
   this->Modified();
 }
