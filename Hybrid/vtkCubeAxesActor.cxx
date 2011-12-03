@@ -2033,7 +2033,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     {
     this->RenderAxesZ[1] = (zloc + 2) % NUMBER_OF_ALIGNED_AXIS;
     this->NumberOfAxesZ = 2;
-    this->ZAxes[RenderAxesX[1]]->SetAxisVisibility(0);
+    this->ZAxes[RenderAxesZ[1]]->SetAxisVisibility(0);
     this->ZAxes[RenderAxesZ[1]]->SetTickVisibility(0);
     this->ZAxes[RenderAxesZ[1]]->SetLabelVisibility(0);
     this->ZAxes[RenderAxesZ[1]]->SetTitleVisibility(0);
