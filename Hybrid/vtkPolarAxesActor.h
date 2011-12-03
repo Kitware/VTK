@@ -83,6 +83,7 @@ public:
   // Default: true
   vtkSetMacro( AutoSubdividePolarAxis, bool );
   vtkGetMacro( AutoSubdividePolarAxis, bool );
+  vtkBooleanMacro( AutoSubdividePolarAxis, bool );
 
   // Description:
   // Set/Get the maximum radius of the polar coordinates.

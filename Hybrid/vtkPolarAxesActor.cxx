@@ -788,6 +788,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
     // Use pre-set number of arcs when it is valid and no auto-subdivision was requested
     delta =  this->MaximumRadius / ( this->NumberOfPolarAxisTicks - 1 );
     }
+
   // Set major start and delta corresponding to range and coordinates
   this->PolarAxis->SetMajorRangeStart( 0. );
   this->PolarAxis->SetDeltaRangeMajor( delta );
@@ -987,6 +988,8 @@ void vtkPolarAxesActor::SetNumberOfRadialAxes( vtkIdType n )
         this->RadialAxes[i] = NULL;
         }
       }
+    delete [] this->RadialAxes;
+    this->RadialAxes = NULL;
     }
 
   // Create and set n radial axes of type X
