@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.h
+  Module:    $RCSfile: vtkYoungsMaterialInterface.h,v $
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -26,22 +26,34 @@
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
 // Implementation by Thierry Carrard (thierry.carrard@cea.fr)
+// Modification by Philippe Pebay (philippe.pebay@kitware.com)
 
 #ifndef __vtkYoungsMaterialInterface_h
 #define __vtkYoungsMaterialInterface_h
 
-#include "vtkMultiBlockDataSetAlgorithm.h"
+#include <vtkMultiBlockDataSetAlgorithm.h>
+#include <vtkMultiProcessController.h>
+
+#include <vtkSmartPointer.h>
+#include <vtkIntArray.h>
 
 class vtkInformation;
 class vtkInformationVector;
 class vtkYoungsMaterialInterfaceInternals;
 
-class VTK_GRAPHICS_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlockDataSetAlgorithm
+class VTK_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkYoungsMaterialInterface* New();
   vtkTypeMacro(vtkYoungsMaterialInterface,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set/Get the multi process controller to use when the filter is used on parallely distributed data.
+//BTX
+  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkSetObjectMacro(Controller,vtkMultiProcessController);
+//ETX
 
   // Description:
   // Set/Get wether the normal vector has to be flipped.
@@ -85,12 +97,6 @@ public:
   vtkBooleanMacro(FillMaterial,int);
 
   // Description:
-  // Triggers some additional optimizations for cells containing only two materials. This option might produce different result than expected if the sum of volume fractions is not 1.
-  vtkSetMacro(TwoMaterialsOptimization,int);
-  vtkGetMacro(TwoMaterialsOptimization,int);
-  vtkBooleanMacro(TwoMaterialsOptimization,int);
-
-  // Description:
   // Set/Get minimum and maximum volume fraction value. if a material fills a volume above the minimum value, the material is considered to be void. if a material fills a volume fraction beyond the maximum value it is considered as filling the whole volume.
   vtkSetVector2Macro(VolumeFractionRange,double);
   vtkGetVectorMacro(VolumeFractionRange,double,2);
@@ -101,11 +107,21 @@ public:
   virtual int GetNumberOfMaterials();
  
   // Description:
+  // Only meaningfull for LOVE software. returns the maximum number of blocks conatining the same material
+  vtkGetMacro(NumberOfDomains,int);
+
+  // Description:
   // Set ith Material arrays to be used as volume fraction, interface normal and material ordering. Each parameter name a cell array.
-  virtual void SetMaterialArrays( int i, const char* volumeFraction, const char* interfaceNormal, const char* materialOrdering );
+  virtual void SetMaterialArrays( int i, const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering );
+  virtual void SetMaterialArrays( int i, const char* volume, const char* normal, const char* ordering );
   virtual void SetMaterialVolumeFractionArray( int i, const char* volume );
   virtual void SetMaterialNormalArray( int i, const char* normal );
   virtual void SetMaterialOrderingArray( int i, const char* ordering );
+
+  // Description:
+  // select blocks to be processed for each described material.
+  virtual void RemoveAllMaterialBlockMappings();
+  virtual void AddMaterialBlockMapping(int b);
 
   // Description:
   // Removes all meterials previously added.
@@ -120,24 +136,37 @@ public:
 
 protected:
   vtkYoungsMaterialInterface ();
-  ~vtkYoungsMaterialInterface ();
+  virtual ~vtkYoungsMaterialInterface ();
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   virtual int RequestData(vtkInformation *request,
              vtkInformationVector **inputVector,
              vtkInformationVector *outputVector);
 
+  void UpdateBlockMapping();
+
   int CellProduceInterface( int dim, int np, double fraction, double minFrac, double maxFrac );
 
+  // Description:
+  // Read-Write Properties
   int FillMaterial;
   int InverseNormal;
   int AxisSymetric;
   int OnionPeel;
   int ReverseMaterialOrder;
   int UseFractionAsDistance;
-  int TwoMaterialsOptimization;
   double VolumeFractionRange[2];
+//BTX
+  vtkSmartPointer<vtkIntArray> MaterialBlockMapping;
+//ETX
+  vtkMultiProcessController* Controller;
 
+  // Description:
+  // Read only properties
+  int NumberOfDomains;
+
+  // Desctiption:
+  // Internal data structures
   vtkYoungsMaterialInterfaceInternals* Internals;
 
 private:
