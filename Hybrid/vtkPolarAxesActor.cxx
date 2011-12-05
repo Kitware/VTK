@@ -642,7 +642,6 @@ void vtkPolarAxesActor::CreateRadialAxes()
     axis->SetCalculateTitleOffset( 0 );
     axis->SetCalculateLabelOffset( 0 );
     }
-  cerr << this->RadialAxes[0]->GetTitleActor()->GetDistanceLODThreshold() << endl;
 }
 
 //-----------------------------------------------------------------------------
