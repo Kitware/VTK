@@ -887,6 +887,10 @@ int vtkImageData::GetCellType(vtkIdType vtkNotUsed(cellId))
 //----------------------------------------------------------------------------
 void vtkImageData::ComputeBounds()
 {
+  if ( this->GetMTime() <= this->ComputeTime )
+    {
+    return;
+    }
   const double *origin = this->Origin;
   const double *spacing = this->Spacing;
   const int* extent = this->Extent;
@@ -896,20 +900,22 @@ void vtkImageData::ComputeBounds()
        extent[4] > extent[5] )
     {
     vtkMath::UninitializeBounds(this->Bounds);
-    return;
     }
-
-  int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
-  int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
-  int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
-
-  this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
-  this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
-  this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
-
-  this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
-  this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
-  this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+  else
+    {
+    int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
+    int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
+    int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
+    
+    this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
+    this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
+    this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
+    
+    this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
+    this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
+    this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+    }
+  this->ComputeTime.Modified();
 }
 
 //----------------------------------------------------------------------------
