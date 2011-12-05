@@ -228,8 +228,8 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* nor
     }
 
   vtkstd::string n = normal;
-  int s = n.find(' ');
-  if( s == vtkstd::string::npos )
+  vtkIdType s = n.find(' ');
+  if( s == static_cast<int>( vtkstd::string::npos ) )
     {
     this->Internals->Materials[M].normal = n;
     this->Internals->Materials[M].normalX = "";
