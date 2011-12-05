@@ -78,6 +78,7 @@ vtkPSLACReader.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkPTableToStructuredGrid.cxx
+vtkPYoungsMaterialInterface.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
