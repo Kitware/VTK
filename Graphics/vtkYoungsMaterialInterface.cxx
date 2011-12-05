@@ -1164,7 +1164,6 @@ int vtkYoungsMaterialInterface::RequestData(
               // copy point values
               for(int e=0;e<nInterfaceEdges;e++)
                 {
-                vtkIdType nptId = Mats[m].pointCount + e;
                 for(int a=0;a<nPointData;a++)
                   {
                   DBG_ASSERT( nptId == Mats[m].outPointArrays[a]->GetNumberOfTuples() );
