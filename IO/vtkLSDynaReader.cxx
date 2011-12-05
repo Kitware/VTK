@@ -2934,35 +2934,35 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
 int vtkLSDynaReader::ReadUserMaterialIds()
 {
   LSDynaMetaData* p = this->P;
-  vtkIdType m, msz;
+  vtkIdType m, numMats;
 
   p->MaterialsOrdered.clear();
   p->MaterialsUnordered.clear();
   p->MaterialsLookup.clear();
   // Does the file contain arbitrary material IDs?
-  if ( (p->Dict["NARBS"] > 0) && (p->Dict["NSORT"] < 0) )
+
+  numMats = p->Dict["NUMMAT8"] + p->Dict["NUMMATT"] + p->Dict["NUMMAT4"] + p->Dict["NUMMAT2"] + p->Dict["NGPSPH"];
+  //in some cases the number of materials in NMAT is incorrect since we are loading 
+  //SPH materials. In this case ignore the user material ids for now
+  if ( (p->Dict["NARBS"] > 0) && (p->Dict["NSORT"] < 0) &&
+        numMats== p->Dict["NMMAT"]) 
     { // Yes, it does. Read them.
 
     // Skip over arbitrary node and element IDs:
     vtkIdType skipIds = p->Dict["NUMNP"] + p->Dict["NEL8"] + p->Dict["NEL2"] + p->Dict["NEL4"] + p->Dict["NELT"];
     p->Fam.SkipToWord( LSDynaFamily::UserIdData, p->Fam.GetCurrentAdaptLevel(), 16 + skipIds );
-    msz  = p->Dict["NMMAT"];
 
     // Read in material ID lists:
-    p->Fam.BufferChunk( LSDynaFamily::Int, msz );
-    for ( m=0; m<msz; ++m )
+    p->Fam.BufferChunk( LSDynaFamily::Int, numMats*3 );
+    for ( m=0; m<numMats; ++m )
       {
       p->MaterialsOrdered.push_back( p->Fam.GetNextWordAsInt() );
       }
-
-    p->Fam.BufferChunk( LSDynaFamily::Int, msz );
-    for ( m=0; m<msz; ++m )
+    for ( m=0; m<numMats; ++m )
       {
       p->MaterialsUnordered.push_back( p->Fam.GetNextWordAsInt() );
       }
-
-    p->Fam.BufferChunk( LSDynaFamily::Int, msz );
-    for ( m=0; m<msz; ++m )
+    for ( m=0; m<numMats; ++m )
       {
       p->MaterialsLookup.push_back( p->Fam.GetNextWordAsInt() );
       }
@@ -2970,9 +2970,8 @@ int vtkLSDynaReader::ReadUserMaterialIds()
     }
   else
     { // No, it doesn't. Fabricate a list of sequential IDs
-    msz = p->Dict["NUMMAT8"] + p->Dict["NUMMATT"] + p->Dict["NUMMAT4"] + p->Dict["NUMMAT2"] + p->Dict["NGPSPH"];
     // construct the (trivial) material lookup tables
-    for ( m = 1; m <= msz; ++m )
+    for ( m = 1; m <= numMats; ++m )
       {
       p->MaterialsOrdered.push_back( m );
       p->MaterialsUnordered.push_back( m );
