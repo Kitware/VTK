@@ -195,7 +195,7 @@ int vtkYoungsMaterialInterface::GetNumberOfMaterials()
 
 void vtkYoungsMaterialInterface::SetMaterialVolumeFractionArray( int M,  const char* volume )
 {
-//   vtkDebugMacro(<<"SetMaterialVolumeFractionArray "<<M<<" : "<<volume<<"\n");
+  vtkDebugMacro(<<"SetMaterialVolumeFractionArray "<<M<<" : "<<volume<<"\n");
   this->NumberOfDomains = -1;
   if( M<0 )
     {
@@ -213,7 +213,7 @@ void vtkYoungsMaterialInterface::SetMaterialVolumeFractionArray( int M,  const c
 
 void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* normal )
 {
-//   vtkDebugMacro(<<"SetMaterialNormalArray "<<M<<" : "<<normal<<"\n");
+  vtkDebugMacro(<<"SetMaterialNormalArray "<<M<<" : "<<normal<<"\n");
   this->NumberOfDomains = -1;
   if( M<0 )
     {
@@ -248,7 +248,7 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* nor
 
 void vtkYoungsMaterialInterface::SetMaterialOrderingArray( int M,  const char* ordering )
 {
-//   vtkDebugMacro(<<"SetMaterialOrderingArray "<<M<<" : "<<ordering<<"\n");
+  vtkDebugMacro(<<"SetMaterialOrderingArray "<<M<<" : "<<ordering<<"\n");
   this->NumberOfDomains = -1;
   if( M<0 )
     {
@@ -275,7 +275,7 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, c
     {
     this->SetNumberOfMaterials(M+1);
     }
-//   vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normal<<","<<ordering<<"\n");
+  vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normal<<","<<ordering<<"\n");
   vtkYoungsMaterialInterfaceInternals::MaterialDescription md;
   md.volume = volume;
   md.normal = normal;
@@ -286,21 +286,6 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, c
   this->Internals->Materials[M] = md;
   this->Modified();
 }
-
-/*
-  void vtkYoungsMaterialInterface::AddMaterial( const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering )
-  {
-  vtkDebugMacro(<<"Added Material "<<volume<<","<<normalX<<","<<normalY<<","<<normalZ<<","<<ordering<<"\n");
-  MaterialDescription md;
-  md.volume = volume;
-  md.normal = "";
-  md.normalX = normalX;
-  md.normalY = normalY;
-  md.normalZ = normalZ;
-  md.ordering = ordering;
-  this->Materials.push_back( md );
-  }
-*/
 
 void vtkYoungsMaterialInterface::SetMaterialArrays( int M,  const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering )
 {
@@ -314,7 +299,7 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M,  const char* volume, 
     {
     this->SetNumberOfMaterials(M+1);
     }
-//   vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normalX<<","<<normalY<<","<<normalZ<<","<<ordering<<"\n");
+  vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normalX<<","<<normalY<<","<<normalZ<<","<<ordering<<"\n");
   vtkYoungsMaterialInterfaceInternals::MaterialDescription md;
   md.volume = volume;
   md.normal = "";
@@ -329,7 +314,7 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M,  const char* volume, 
 void vtkYoungsMaterialInterface::RemoveAllMaterials()
 {
   this->NumberOfDomains = -1;
-//   vtkDebugMacro(<<"Remove All Materials\n");
+  vtkDebugMacro(<<"Remove All Materials\n");
   this->SetNumberOfMaterials(0);
 }
 
@@ -451,12 +436,12 @@ int vtkYoungsMaterialInterface::CellProduceInterface( int dim, int np, double fr
 
 void vtkYoungsMaterialInterface::RemoveAllMaterialBlockMappings()
 {
-//      vtkDebugMacro(<<"RemoveAllMaterialBlockMappings\n");
+  vtkDebugMacro(<<"RemoveAllMaterialBlockMappings\n");
   this->MaterialBlockMapping->Reset();
 }
 void vtkYoungsMaterialInterface::AddMaterialBlockMapping(int b)
 {
-//      vtkDebugMacro(<<"AddMaterialBlockMapping "<<b<<"\n");
+  vtkDebugMacro(<<"AddMaterialBlockMapping "<<b<<"\n");
   this->MaterialBlockMapping->InsertNextValue(b);
 }
 
@@ -467,11 +452,11 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
   for(int i = 0;i<n;i++)
     {
     int b = this->MaterialBlockMapping->GetValue(i);
-//              vtkDebugMacro(<<"MaterialBlockMapping "<<b<<"\n");
+    vtkDebugMacro(<<"MaterialBlockMapping "<<b<<"\n");
     if( b < 0 ) curmat = (-b) - 1;
     else
       {
-//                      vtkDebugMacro(<<"Material "<<curmat<<" Ajout block "<<b<<"\n");
+      vtkDebugMacro(<<"Material "<<curmat<<" Ajout block "<<b<<"\n");
       this->Internals->Materials[curmat].blocks.insert(b);
       }
     }
@@ -693,7 +678,7 @@ int vtkYoungsMaterialInterface::RequestData(
       // allocation of output arrays
       for(int m=0;m<nmat;m++)
         {
-        //vtkDebugMacro(<<"Mat #"<<m<<" : cells="<<Mats[m].numberOfCells<<", points="<<Mats[m].numberOfPoints<<", FillMaterial="<<this->FillMaterial<<"\n");
+        vtkDebugMacro(<<"Mat #"<<m<<" : cells="<<Mats[m].numberOfCells<<", points="<<Mats[m].numberOfPoints<<", FillMaterial="<<this->FillMaterial<<"\n");
         for(int i = 0;i<nCellData;i++)
           {
           Mats[m].outCellArrays[i]->Allocate( Mats[m].numberOfCells * Mats[m].outCellArrays[i]->GetNumberOfComponents() );
@@ -1027,7 +1012,7 @@ int vtkYoungsMaterialInterface::RequestData(
               if( nInterfaceEdges>cell.nf || nInterfaceEdges<3 ) // degenerated case, considered as null interface
                 {
                 debugStats_NoInterfaceFound ++;
-                //vtkDebugMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
+                vtkDebugMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
                 nInterfaceEdges = 0;
                 nOutCellPoints = 0;
                 nInsidePoints = 0;
