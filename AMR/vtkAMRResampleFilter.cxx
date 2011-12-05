@@ -52,7 +52,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->NumberOfSamples[0]   = this->NumberOfSamples[1] = this->NumberOfSamples[2] = 10;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
-  this->ROIChanged           = false;
+  this->MinMaxChanged        = true;
   this->InitialCall          = true;
 
   for( int i=0; i < 3; ++i )
@@ -180,13 +180,12 @@ int vtkAMRResampleFilter::RequestData(
   else
     {
     metadata = amrds;
+    }
 
     // GetRegion
     double h[3];
-    this->ComputeAndAdjustRegionParameters( amrds, h );
+    this->ComputeAndAdjustRegionParameters( metadata, h );
     this->GetRegion( h );
-    }
-
 
   // STEP 2: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
@@ -669,50 +668,33 @@ void vtkAMRResampleFilter::GetDomainParameters(
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SnapBounds(
     const double h0[3], const double domainMin[3], const double domainMax[3],
-    const int dims[3], double min[3], double max[3],
-    int ijkmin[3], int ijkmax[3],
-    bool outside[6] )
+    const int dims[3], bool outside[6] )
 {
-  double dx = 0.0;
-  for( int i=0; i < 3; ++i )
+  int i, j;
+  for(i=0, j=0; i < 3; ++i )
     {
-    dx = this->Min[i]-domainMin[i];
-    ijkmin[i]=static_cast<int>( vtkMath::Round( dx/h0[i] ) );
-    --ijkmin[i];
-    if( ijkmin[i] < 0 )
+    // Snap the parts of the bounds that lie outside of the AMR data
+    if (this->Min[i] < domainMin[i])
       {
-      ijkmin[ i ] = 0;
-      outside[ i*2 ] = true;
+      outside[j++] = true;
+      this->GridMin[i] = domainMin[i];
       }
     else
       {
-      outside[ i*2 ] = false;
-      }
-
-    dx = this->Max[i]-domainMin[i];
-    ijkmax[i]=static_cast<int>( vtkMath::Round( dx/h0[i] ) );
-    ++ijkmax[i];
-    if( ijkmax[i] > dims[i]-1 )
-      {
-      ijkmax[i]        = dims[i]-1;
-      outside[ i*2+1 ] = true;
-      }
-    else
-      {
-      outside[ i*2+1 ] = false;
+      outside[j++] = false;
+      this->GridMin[i] = this->Min[0];
       }
 
-    if( ijkmin[i] == 0)
-      min[ i ] = domainMin[i];
+    if (this->Max[i] > domainMax[i])
+      {
+      outside[j++] = true;
+      this->GridMax[i] = domainMax[i];
+      }
     else
-      min[ i ] = domainMin[i] + ijkmin[i]*h0[i];
-    assert( "post: min is out-of-bounds!" && (min[i] >= domainMin[i]) );
-
-    if( ijkmax[i] == 0)
-      max[ i ] = domainMin[i]+h0[i];
-    else
-      max[ i ] = domainMin[i]+ijkmax[i]*h0[i];
-    assert( "post: max is out-of-bounds!" && (max[i] <= domainMax[i]) );
+      {
+      outside[j++] = false;
+      this->GridMax[i] = this->Max[i];
+      }
     }
 }
 
@@ -730,7 +712,7 @@ void vtkAMRResampleFilter::ComputeLevelOfResolution(
       this->LevelOfResolution = currentLevel;
       }
     } // END for all i
-
+  std::cerr << "Requested Max Level = " << this->LevelOfResolution << "/n";
 }
 
 //-----------------------------------------------------------------------------
@@ -756,11 +738,11 @@ bool vtkAMRResampleFilter::RegionIntersectsWithAMR(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
-    const double min[3], const double max[3], const double Rh[3],
+    const double Rh[3],
     const bool outside[6], int N[3] )
 {
-  int ijkRegionMin[3];
-  int ijkRegionMax[3];
+  int startIndex;
+  int endIndex;
   double dx = 0.0;
   for( int i=0; i < 3; ++i )
     {
@@ -769,27 +751,27 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
     // Get ijk of the snapped bounding wrt the requested virtual grid.
     if( outside[i*2] || outside[i*2+1] )
       {
-      dx              = min[i]-this->Min[i];
+      dx = this->GridMin[i]-this->Min[i];
       if (dx > 0.0)
         {
-        ijkRegionMin[i] = static_cast<int>( dx/Rh[i]+1 );
+        startIndex = static_cast<int>( dx/Rh[i]+1 );
         }
       else
         {
-        ijkRegionMin[i] = 0;
+        startIndex = 0;
         }
 
-      dx              = max[i]-this->Min[i];
-      ijkRegionMax[i] = static_cast<int>( dx/Rh[i]+1 );
+      dx  = this->GridMax[i]-this->Min[i];
+      endIndex = static_cast<int>( dx/Rh[i]+1 );
 
-      if (ijkRegionMax[i] > N[i])
+      if (endIndex > N[i])
         {
-        ijkRegionMax[i] = N[i];
+        endIndex = N[i];
         }
-      int reduceTo    = ijkRegionMax[i]-ijkRegionMin[i]+1;
-      if (reduceTo <= N[i])
+      int newN = endIndex - startIndex +1;
+      if (newN <= N[i])
         {
-        N[i] = reduceTo;
+        N[i] = newN;
         }
       else
         {
@@ -829,13 +811,13 @@ void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
     }
 
   // STEP 2: Check if the ROI has changed from a previous request
-  if( !this->ROIChanged )
+  if( !this->MinMaxChanged )
     {
     // Just update h, e.g., if the number of samples has changed and return.
     for( int i=0; i < 3; ++i )
       {
-      double l = this->Max[i] - this->Min[i];
-      h[i]     = l/(this->NumberOfSamples[i]-1);
+      double l = this->GridMax[i] - this->GridMin[i];
+      h[i]     = l/(this->GridNumberOfSamples[i]-1);
       }
     return;
     }
@@ -857,19 +839,15 @@ void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
 // END DEBUG
 
   // STEP 4: Snap region to domain bounds
-  double min[3];
-  double max[3];
-  int ijkmin[3];
-  int ijkmax[3];
   bool outside[6];
-  this->SnapBounds(h0, domainMin,
-      domainMax,dims, min, max, ijkmin, ijkmax,outside);
+  // Determine the Min/Max of the computed grid
+  this->SnapBounds(h0, domainMin, domainMax,dims,outside);
 
   // STEP 5: Compute grid parameters on the snapped region
   double L[3];
   for( int i=0; i < 3; ++i )
     {
-    L[i] = max[i]-min[i];
+    L[i] = this->GridMax[i]-this->GridMin[i];
     h[i] = L[i]/(this->NumberOfSamples[i]-1);
     }
 
@@ -879,21 +857,18 @@ void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
 
   // STEP 6: Adjust N according to how much of the requested region is cropped
   int N[3];
-  this->AdjustNumberOfSamplesInRegion( min, max, Rh, outside, N );
+  this->AdjustNumberOfSamplesInRegion(Rh, outside, N );
 
 
   // STEP 7: Adjust region parameters
   for( int i=0; i < 3; ++i )
     {
-    this->Min[i]             = min[i];
-    this->Max[i]             = max[i];
-    this->NumberOfSamples[i] = (N[i] > 1)? N[i] : 2;
-    L[i]                     = this->Max[i]-this->Min[i];
-    h[i]                     = L[i]/(this->NumberOfSamples[i]-1);
+    this->GridNumberOfSamples[i] = (N[i] > 1)? N[i] : 2;
+    h[i] = L[i]/(this->GridNumberOfSamples[i]-1);
     }
 
-  this->ComputeLevelOfResolution(this->NumberOfSamples,h0,L,rf);
-  this->ROIChanged = false;
+  this->ComputeLevelOfResolution(this->GridNumberOfSamples,h0,L,rf);
+  this->MinMaxChanged = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -911,9 +886,9 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
     }
 
   vtkUniformGrid *grd = vtkUniformGrid::New();
-  grd->SetOrigin( this->Min );
+  grd->SetOrigin( this->GridMin );
   grd->SetSpacing( h );
-  grd->SetDimensions( this->NumberOfSamples );
+  grd->SetDimensions( this->GridNumberOfSamples );
 
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
   gridPartitioner->SetInput( grd );

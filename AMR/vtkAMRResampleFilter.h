@@ -84,7 +84,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
       this->Min[0]     = x;
       this->Min[1]     = y;
       this->Min[2]     = z;
-      this->ROIChanged = true;
+      this->MinMaxChanged = true;
       this->Modified();
     }
 
@@ -98,7 +98,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
       this->Max[0]     = x;
       this->Max[1]     = y;
       this->Max[2]     = z;
-      this->ROIChanged = true;
+      this->MinMaxChanged = true;
       this->Modified();
     }
 
@@ -134,13 +134,16 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 
     vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
     int NumberOfSamples[3];
+    int GridNumberOfSamples[3];
     double Min[3];
     double Max[3];
+    double GridMin[3];
+    double GridMax[3];
     int LevelOfResolution;
     int NumberOfPartitions;
     int TransferToNodes;
     int DemandDrivenMode;
-    bool ROIChanged;
+    bool MinMaxChanged;
     bool InitialCall;
     vtkMultiProcessController *Controller;
 // BTX
@@ -257,8 +260,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // This method adjust the numbers of samples in the region, N, if the
     // requested region falls outside, but, intersects the domain.
-    void AdjustNumberOfSamplesInRegion(
-        const double min[3], const double max[3], const double Rh[3],
+    void AdjustNumberOfSamplesInRegion(const double Rh[3],
         const bool outside[6], int N[3] );
 
     // Description:
@@ -275,9 +277,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // the corresponding ijkmin/ijkmax coordinates w.r.t. the root level.
     void SnapBounds(
       const double h0[3], const double domainMin[3], const double domainMax[3],
-      const int dims[3], double min[3], double max[3],
-      int ijkmin[3], int ijkmax[3],
-      bool outside[6] );
+      const int dims[3], bool outside[6] );
 
     // Description:
     // This method computes and adjusts the region parameters s.t. the requested
