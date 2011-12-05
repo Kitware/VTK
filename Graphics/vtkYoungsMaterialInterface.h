@@ -40,7 +40,7 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkYoungsMaterialInterfaceInternals;
 
-class VTK_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlockDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkYoungsMaterialInterface* New();
