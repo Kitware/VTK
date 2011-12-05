@@ -31,13 +31,6 @@ using vtkstd::copy;
 
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Invalidate()
-{
-  this->LoCorner[0]=this->LoCorner[1]=this->LoCorner[2]=0;
-  this->HiCorner[0]=this->HiCorner[1]=this->HiCorner[2]=-1;
-}
-
-//-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(int dim)
 {
   this->Initialize();
@@ -292,7 +285,6 @@ void vtkAMRBox::SetDimensions(
 {
   if (ilo>ihi || jlo>jhi || klo>khi)
     {
-      assert( "pre: Invalid index range specifiction encountered" && false );
       this->Invalidate();
     }
   else
@@ -869,23 +861,6 @@ void vtkAMRBox::Shift(const int *I)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRBox::IsInvalid() const
-{
-  for( int q=0; q < 3; ++q )
-    {
-      if( this->HiCorner[q] < this->LoCorner[q] )
-        return true;
-    }
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkAMRBox::Empty() const
-{
-  return this->IsInvalid();
-}
-
-//-----------------------------------------------------------------------------
 double vtkAMRBox::GetMinX() const
 {
   double pnt[3];
@@ -1062,7 +1037,7 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::operator&=(const vtkAMRBox &other)
+bool vtkAMRBox::Intersect(const vtkAMRBox &other)
 {
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   if (this->Dimension!=other.Dimension)
@@ -1070,29 +1045,36 @@ void vtkAMRBox::operator&=(const vtkAMRBox &other)
     vtkGenericWarningMacro(
       "Can't operate on a " << this->Dimension
       << "D box with a " << other.Dimension << "D box.");
-    return;
+    return false;
     }
   if (this->Empty())
     {
-    return;
+    return false;
     }
   if (other.Empty())
     {
     this->Invalidate();
-    return;
+    return false;
     }
 
-  int otherLo[3];
-  int otherHi[3];
-  other.GetDimensions(otherLo,otherHi);
-  int lo[3];
-  int hi[3];
+  // Compare each coordinate of the corners.  Stop if at 
+  // anytime the box becomes invalid - i.e. there is no intersection
   for (int q=0; q<this->Dimension; ++q)
     {
-    lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
-    hi[q]=(this->HiCorner[q]<otherHi[q] ? this->HiCorner[q] : otherHi[q]);
+    if (this->LoCorner[q] < other.LoCorner[q])
+      {
+      this->LoCorner[q] = other.LoCorner[q];
+      }
+    if (this->HiCorner[q] > other.HiCorner[q])
+      {
+      this->HiCorner[q] = other.HiCorner[q];
+      }
+    if (this->LoCorner[q] > this->HiCorner[q])
+      {
+      return false;
+      }
     }
-  this->SetDimensions(lo,hi);
+  return true;
 }
 
 //-----------------------------------------------------------------------------

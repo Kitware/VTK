@@ -79,7 +79,7 @@ public:
   static bool Collides( vtkAMRBox &b1, vtkAMRBox &b2 );
 
   // Description:
-  // Set the box to null;
+  // Set the box to be invalid;
   void Invalidate();
 
   // Description:
@@ -234,7 +234,8 @@ public:
   // The box is empty iff all the hibounds are
   // equal to the low bounds, i.e.,
   // LoCorner[ i ] == HiCorner[ i ] for all i.
-  bool Empty() const;
+  bool Empty() const
+  {return this->IsInvalid();}
 
   // Description:
   // Check to see if the AMR box instance is invalid.
@@ -247,8 +248,12 @@ public:
   bool operator==(const vtkAMRBox &other);
 
   // Description:
-  // Intersect this box with another box in place.
-  void operator&=(const vtkAMRBox &rhs);
+  // Intersect this box with another box in place.  Returns
+  // true if the boxes do intersect.  Note that the box is 
+  // modified to be the intersection or is made invalid.
+  bool Intersect(const vtkAMRBox &rhs);
+  void operator&=(const vtkAMRBox &rhs)
+  { this->Intersect(rhs);}
 
   // Description:
   // Test to see if a given cell index is inside this box.
@@ -469,5 +474,19 @@ void Split(const int N[3], const int minSide[3], vtkstd::vector<vtkAMRBox> &deco
 // operation would result boxes with side lengths less than the specified
 // minimum or the box is split down to a single cell..
 void Split(const int minSide[3], vtkstd::vector<vtkAMRBox> &decomp);
+
+//-----------------------------------------------------------------------------
+inline bool vtkAMRBox::IsInvalid() const
+{
+  return ((this->HiCorner[0] < this->LoCorner[0]) ||
+          (this->HiCorner[1] < this->LoCorner[1]) ||
+          (this->HiCorner[2] < this->LoCorner[2]));
+}
+//-----------------------------------------------------------------------------
+inline void vtkAMRBox::Invalidate()
+{
+  this->LoCorner[0]=this->LoCorner[1]=this->LoCorner[2]=0;
+  this->HiCorner[0]=this->HiCorner[1]=this->HiCorner[2]=-1;
+}
 
 #endif
