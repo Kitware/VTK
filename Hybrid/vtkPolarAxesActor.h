@@ -266,7 +266,7 @@ protected:
 
   // Description:
   // Create requested number of type X axes and set followers
-  void CreateRadialAxes( double );
+  void CreateRadialAxes();
 
   // Description:
   // Build requested number of radial axes with respect to specified pole.
