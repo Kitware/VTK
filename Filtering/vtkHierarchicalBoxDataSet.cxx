@@ -630,64 +630,73 @@ void vtkHierarchicalBoxDataSet::BlankGridsAtLevel(
     return;
 
   unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx);
+  vtkAMRBoxList::iterator it, end=boxes.end();
+  vtkAMRBox box, ibox;
+  int cellDims[3], N;
+  vtkIdType numBlankedPts, id;
   for( unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
     {
-      vtkAMRBox box;
-      vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
-      if (grid != NULL )
+    vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
+    if (grid == NULL )
+      {
+      continue;
+      }
+    assert( "Empty AMR box!" && !box.Empty()  );
+    box.GetNumberOfCells(cellDims);
+    N = box.GetNumberOfCells();
+    
+    vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
+    vis->SetNumberOfTuples( N );
+    vis->FillComponent(0,static_cast<char>(1));
+    numBlankedPts = 0;
+    
+    // For each higher res box fill in the cells that
+    // it covers
+    for (it = boxes.begin(); it != end; ++it)
+      {
+      // First we need to copy the "higher res" box
+      // since the intersection operation is done "in place"
+      ibox = *it;
+      if (!ibox.Intersect(box))
         {
-          assert( "Empty AMR box!" && !box.Empty()  );
-          int cellDims[3];
-          box.GetNumberOfCells(cellDims);
-          int N = box.GetNumberOfCells();
-
-          vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
-          vis->SetNumberOfTuples( N );
-          vis->FillComponent(0,static_cast<char>(1));
-          vtkIdType numBlankedPts = 0;
-
-          const int *loCorner=box.GetLoCorner();
-          const int *hiCorner=box.GetHiCorner();
-          for( int iz=loCorner[2]; iz<=hiCorner[2]; iz++ )
+        // We know that this higher res box does not intersect this one
+        continue;
+        }
+      
+      const int *loCorner=ibox.GetLoCorner();
+      const int *hiCorner=ibox.GetHiCorner();
+      for( int iz=loCorner[2]; iz<=hiCorner[2]; iz++ )
+        {
+        for( int iy=loCorner[1]; iy<=hiCorner[1]; iy++ )
+          {
+          for( int ix=loCorner[0]; ix<=hiCorner[0]; ix++ )
             {
-            for( int iy=loCorner[1]; iy<=hiCorner[1]; iy++ )
-              {
-              for( int ix=loCorner[0]; ix<=hiCorner[0]; ix++ )
-                {
+            id = box.GetCellLinearIndex( ix, iy, iz );
+            assert( "cell index out-of-bounds!" &&
+                    ( (id >=0) && (id < vis->GetNumberOfTuples() ) ) );
+            vis->SetValue(id, 0);
+            numBlankedPts++;
+            } // END for x
+          } // END for y
+        } // END for z
+      } // Processing all higher boxes for a specific coarse grid
+     
+    grid->SetCellVisibilityArray(vis);
+    vis->Delete();
+    if( this->PadCellVisibility == true )
+      {
+      grid->AttachCellVisibilityToCellData();
+      // Turn off visibility since it is attached as cell data
+      grid->GetCellVisibilityArray()->FillComponent(
+                                                    0,static_cast<char>(1));
+      }
 
-                  // Blank if cell is covered by a box of higher level
-                  if (vtkHierarchicalBoxDataSetIsInBoxes( boxes, ix, iy, iz) )
-                    {
-                      vtkIdType id = box.GetCellLinearIndex( ix, iy, iz );
-                      assert( "cell index out-of-bounds!" &&
-                       ( (id >=0) && (id < vis->GetNumberOfTuples() ) ) );
-                      vis->SetValue(id, 0);
-                      numBlankedPts++;
-                    }
-
-                } // END for x
-              } // END for y
-            } // END for z
-
-          grid->SetCellVisibilityArray(vis);
-          vis->Delete();
-          if( this->PadCellVisibility == true )
-            {
-              grid->AttachCellVisibilityToCellData();
-              // Turn off visibility since it is attached as cell data
-              grid->GetCellVisibilityArray()->FillComponent(
-                  0,static_cast<char>(1));
-            }
-
-
-          if (this->HasMetaData(levelIdx, dataSetIdx))
-            {
-              vtkInformation* infotmp =
-                this->GetMetaData(levelIdx,dataSetIdx);
-              infotmp->Set(NUMBER_OF_BLANKED_POINTS(), numBlankedPts);
-            }
-
-        } // END if the grid is owned by this process
+    if (this->HasMetaData(levelIdx, dataSetIdx))
+      {
+      vtkInformation* infotmp =
+        this->GetMetaData(levelIdx,dataSetIdx);
+      infotmp->Set(NUMBER_OF_BLANKED_POINTS(), numBlankedPts);
+      } 
     } // END for all datasets
 }
 
