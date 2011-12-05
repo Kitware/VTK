@@ -657,7 +657,6 @@ int vtkAMRSliceFilter::RequestData(
   this->GetAMRSliceInPlane( cutPlane, inputAMR, outputAMR );
   cutPlane->Delete();
 
-  this->Modified();
   vtkTimerLog::MarkEndEvent( eventName.c_str() );
   return 1;
 }
