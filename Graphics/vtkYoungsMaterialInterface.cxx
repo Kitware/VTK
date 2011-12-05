@@ -144,7 +144,6 @@ vtkStandardNewMacro(vtkYoungsMaterialInterface);
 */
 vtkYoungsMaterialInterface::vtkYoungsMaterialInterface()
 {
-  this->Controller = 0 ;
   this->FillMaterial = 0;
   this->InverseNormal = 0;
   this->AxisSymetric = 0;
@@ -156,7 +155,6 @@ vtkYoungsMaterialInterface::vtkYoungsMaterialInterface()
   this->NumberOfDomains = -1;
   this->Internals = new vtkYoungsMaterialInterfaceInternals;
   this->MaterialBlockMapping = vtkSmartPointer<vtkIntArray>::New();
-  this->SetController( vtkMultiProcessController::GetGlobalController() );
 
   vtkDebugMacro(<<"vtkYoungsMaterialInterface::vtkYoungsMaterialInterface() ok\n");
 }
@@ -551,33 +549,6 @@ int vtkYoungsMaterialInterface::RequestData(
           }
         }
       }
-    }
-  if (this->Controller != 0)
-    {
-    int nprocs = this->Controller->GetNumberOfProcesses();
-    int myid = this->Controller->GetLocalProcessId();
-    int* tmp = new int[nmat*nprocs];
-    this->Controller->AllGather(inputsPerMaterial, tmp, nmat);
-
-    // scan sum : done by all processes, not optimal but easy
-    for (int m = 0; m < nmat; m++)
-      {
-      for(int p=1;p<nprocs;p++)
-        {
-        tmp[p*nmat+m] += tmp[(p-1)*nmat+m];
-        }
-      }
-    this->NumberOfDomains = 0;
-    for (int m = 0; m < nmat; m++)
-      {
-      int inputsPerMaterialSum = tmp[(nprocs-1)*nmat+m]; // sum of all counts from all processes
-      if( inputsPerMaterialSum > this->NumberOfDomains )
-        {
-        this->NumberOfDomains = inputsPerMaterialSum;
-        }
-      inputsPerMaterial[m] = ( (myid==0) ? 0 : tmp[(myid-1)*nmat+m] ); // partial sum of all preceding processors
-      }
-    delete[] tmp;
     }
 
   // map containing output blocks

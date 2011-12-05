@@ -31,11 +31,10 @@
 #ifndef __vtkYoungsMaterialInterface_h
 #define __vtkYoungsMaterialInterface_h
 
-#include <vtkMultiBlockDataSetAlgorithm.h>
-#include <vtkMultiProcessController.h>
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include <vtkSmartPointer.h>
-#include <vtkIntArray.h>
+#include "vtkSmartPointer.h"
+#include "vtkIntArray.h"
 
 class vtkInformation;
 class vtkInformationVector;
@@ -47,13 +46,6 @@ public:
   static vtkYoungsMaterialInterface* New();
   vtkTypeMacro(vtkYoungsMaterialInterface,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Set/Get the multi process controller to use when the filter is used on parallely distributed data.
-//BTX
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
-  vtkSetObjectMacro(Controller,vtkMultiProcessController);
-//ETX
 
   // Description:
   // Set/Get wether the normal vector has to be flipped.
@@ -159,7 +151,6 @@ protected:
 //BTX
   vtkSmartPointer<vtkIntArray> MaterialBlockMapping;
 //ETX
-  vtkMultiProcessController* Controller;
 
   // Description:
   // Read only properties
