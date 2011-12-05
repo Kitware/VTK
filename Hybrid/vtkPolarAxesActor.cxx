@@ -178,31 +178,20 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarAxis->SetCalculateTitleOffset( 0 );
   this->PolarAxis->SetCalculateLabelOffset( 0 );
 
-  // Base offset for followers
-  double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
-
-  // By default enable distance based LOD
+  // Default distance LOD settings
   this->EnableDistanceLOD = 1;
   this->DistanceLODThreshold = .7;
 
-  // By default enable view angle based LOD
+  // Default view angle LOD settings
   this->EnableViewAngleLOD = 1;
   this->ViewAngleLODThreshold = .3;
-
-  // Set polar axis title follower (label followers not built yet)
-  vtkAxisFollower* follower = this->PolarAxis->GetTitleActor();
-  follower->SetAxis( this->PolarAxis );
-  follower->SetScreenOffset( 2.0 * offset + 5 );
-  follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
-  follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
-  follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
-  follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
 
   // Properties of the radial axes, with default color black
   this->RadialAxesProperty = vtkProperty::New();
   this->RadialAxesProperty->SetColor( 0., 0., 0. );
 
-  // Create and set radial axes of type X
+  // Create and set radial axes of type X with base offset for followers
+  double offset = this->LabelScreenOffset + this->ScreenSize * 0.5;
   this->CreateRadialAxes( offset );
 
   // Create and set polar arcs and ancillary objects, with default color white
@@ -711,6 +700,8 @@ void vtkPolarAxesActor::BuildRadialAxes()
       title << alpha
             << ( this->RadialUnits ? " deg" : "" );
       axis->SetTitle( title.str().c_str() );
+
+      // Update axis title follower
       }
 
     // No labels nor ticks for radial axes
@@ -876,6 +867,15 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 
   // Clean up
   labels->Delete();
+
+  // Update axis title follower
+  vtkAxisFollower* follower = axis->GetTitleActor();
+  follower->SetAxis( axis );
+  follower->SetScreenOffset( 2. * this->LabelScreenOffset + this->ScreenSize + 5 );
+  follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+  follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+  follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+  follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
 
   // Update axis label followers
   vtkAxisFollower** labelActors = axis->GetLabelActors();
