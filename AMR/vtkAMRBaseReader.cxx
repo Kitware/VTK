@@ -242,7 +242,6 @@ int vtkAMRBaseReader::RequestInformation(
       info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
           this->metadata );
     }
-  this->Modified();
 
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::GenerateMetadata" );
   return 1;
@@ -547,7 +546,6 @@ int vtkAMRBaseReader::RequestData(
 
   outInf = NULL;
   output = NULL;
-  this->Modified();
 
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::RqstData" );
 
