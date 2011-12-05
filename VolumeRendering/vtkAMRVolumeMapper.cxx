@@ -292,11 +292,18 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
   // We would just use the renderer's WorldToView and ViewToWorld methods but those
   // implementations are not efficient for example ViewToWorld would do 8
   // matrix inverse ops when all we really need to do is one
-
-  // Make sure the bounds are up to date
-  this->GetBounds();
-
-  // Get the camera transformation
+  double mat[16];
+  const double vp[8][4] = {{-1.0, -1.0, -1.0, 1.0},
+                          { 1.0, -1.0, -1.0, 1.0},
+                          {-1.0,  1.0, -1.0, 1.0},
+                          { 1.0,  1.0, -1.0, 1.0},
+                          {-1.0, -1.0,  1.0, 1.0},
+                          { 1.0, -1.0,  1.0, 1.0},
+                          {-1.0,  1.0,  1.0, 1.0},
+                          { 1.0,  1.0,  1.0, 1.0}};
+  double wp[4];
+  vtkBoundingBox bbox;
+  int i;
   vtkMatrix4x4 *matrix = 
     ren->GetActiveCamera()->
     GetCompositeProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
@@ -362,27 +369,17 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
 
   bbox.Reset();
   // Compute the bounding box
-  for (i = -1; i < 2; i+=2)
+  for (i = 0; i < 8; i++)
     {
-    pnt[0] = i;
-    for (j = -1; j < 2; j+=2)
-      {
-      pnt[1] = j;
-      for (k = 0; k < 2; k++)
-        {
-        pnt[2] = zRange[k];
-        vtkMatrix4x4::MultiplyPoint(mat,pnt,tpnt);
-        if (tpnt[3])
-          {
-          bbox.AddPoint(tpnt[0]/tpnt[3], 
-                        tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
-          }
-        else
-          {
-          vtkErrorMacro("UpdateGrid: Found an Ideal Point going to WC!");
-          }
-        }
-      }
+     vtkMatrix4x4::MultiplyPoint(mat,vp[i],wp);
+     if (wp[3])
+       {
+       bbox.AddPoint(wp[0]/wp[3], wp[1]/wp[3], wp[2]/wp[3]);
+       }
+     else
+       {
+       vtkErrorMacro("UpdateGrid: Found an Ideal Point!");
+       }
     }
 
   // Check to see if the box is valid
@@ -413,27 +410,27 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
             << ", " << bbox.GetMaxPoint()[1] << "], ["
             << bbox.GetMinPoint()[2] 
             << ", " << bbox.GetMaxPoint()[2] << "\n";
-#endif
-  vtkMultiBlockDataSet *mb = this->Resampler->GetOutput();
-  if (!mb)
-    {
-    return;
-    }
-  unsigned int nb = mb->GetNumberOfBlocks();
-  if (!nb)
-    {
-    // No new grid was created
-    return;
-    }
-  if (nb != 1)
-    {
-    vtkErrorMacro("UpdateGrid: Resampler created more than 1 Grid!");
-    }
-  if (this->Grid)
-    {
-    this->Grid->Delete();
-    }
-  this->Grid = vtkUniformGrid::SafeDownCast(mb->GetBlock(0));
+//  vtkMultiBlockDataSet *mb = this->Resampler->GetOutput();
+//  if (!mb)
+//    {
+//    return;
+//    }
+//  unsigned int nb = mb->GetNumberOfBlocks();
+//  if (!nb)
+//    {
+//    // No new grid was created
+//    return;
+//    }
+//  if (nb != 1)
+//    {
+//    vtkErrorMacro("UpdateGrid: Resampler created more than 1 Grid!");
+//    }
+//  if (this->Grid)
+//    {
+//    this->Grid->Delete();
+//    }
+  this->Grid = vtkUniformGrid::SafeDownCast(
+      this->Resampler->GetOutput() );
   this->Grid->Register(0);
 #if PRINTSTATS
   this->Grid->GetDimensions(gridDim);

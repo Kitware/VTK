@@ -31,7 +31,7 @@
 #ifndef __vtkAMRResampleFilter_h
 #define __vtkAMRResampleFilter_h
 
-#include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkImageAlgorithm.h"
 #include <vtkstd/vector> // For STL vector
 
 class vtkInformation;
@@ -45,11 +45,11 @@ class vtkCellData;
 class vtkPointData;
 class vtkIndent;
 
-class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
+class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkImageAlgorithm
 {
   public:
     static vtkAMRResampleFilter *New();
-    vtkTypeMacro(vtkAMRResampleFilter,vtkMultiBlockDataSetAlgorithm);
+    vtkTypeMacro(vtkAMRResampleFilter,vtkImageAlgorithm);
     void PrintSelf( std::ostream &oss, vtkIndent indent);
 
     // Description:
@@ -221,7 +221,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Extract the region (as a multiblock) from the given AMR dataset.
     void ExtractRegion(
-        vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
+        vtkHierarchicalBoxDataSet *amrds, vtkUniformGrid *resampledGrid,
         vtkHierarchicalBoxDataSet *metadata );
 
     // Description:
