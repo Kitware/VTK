@@ -75,12 +75,6 @@ class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
         const int blockIdx, vtkUniformGrid *block, const char *field);
 
     // Description:
-    // See vtkAMRBaseReader::GetBlock
-//    void GetBlock(
-//        int index, vtkHierarchicalBoxDataSet *hbds,
-//        vtkstd::vector< int > &idxcounter);
-
-    // Description:
     // See vtkAMRBaseReader::SetUpDataArraySelections
     void SetUpDataArraySelections();
 

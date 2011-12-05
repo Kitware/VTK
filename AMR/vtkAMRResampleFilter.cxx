@@ -16,6 +16,7 @@
 #include "vtkAMRResampleFilter.h"
 #include "vtkAMRBox.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
@@ -53,7 +54,6 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
   this->MinMaxChanged        = true;
-  this->InitialCall          = true;
 
   for( int i=0; i < 3; ++i )
     {
@@ -73,7 +73,6 @@ vtkAMRResampleFilter::~vtkAMRResampleFilter()
     {
     this->ROI->Delete();
     }
-
   this->ROI = NULL;
 }
 
@@ -98,7 +97,7 @@ int vtkAMRResampleFilter::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   assert( "pre: information object is NULL" && (info != NULL) );
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkUniformGrid");
   return 1;
 }
 
@@ -127,8 +126,8 @@ int vtkAMRResampleFilter::RequestUpdateExtent(
 //-----------------------------------------------------------------------------
 int vtkAMRResampleFilter::RequestInformation(
     vtkInformation* vtkNotUsed(rqst),
-    vtkInformationVector **inputVector,
-    vtkInformationVector* vtkNotUsed(outputVector) )
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector )
 {
 
   assert( "pre: inputVector is NULL" && (inputVector != NULL) );
@@ -152,6 +151,20 @@ int vtkAMRResampleFilter::RequestInformation(
     // Compute which blocks to load
     this->ComputeAMRBlocksToLoad( metadata );
     }
+
+  vtkInformation *output = outputVector->GetInformationObject( 0 );
+ assert( "pre: Null output information object!" && (output != NULL) );
+
+  // Set the wholeExtent, for now assume a single process:
+  int ext[6];
+  ext[0] = 0;
+  ext[1] = this->GridNumberOfSamples[0]-1;
+  ext[2] = 0;
+  ext[3] = this->GridNumberOfSamples[1]-1;
+  ext[4] = 0;
+  ext[5] = this->GridNumberOfSamples[2]-1;
+  output->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext,6 );
+
   return 1;
 }
 
@@ -181,22 +194,32 @@ int vtkAMRResampleFilter::RequestData(
     {
     metadata = amrds;
     }
-
-    // GetRegion
-    double h[3];
-    this->ComputeAndAdjustRegionParameters( metadata, h );
-    this->GetRegion( h );
+  // GetRegion
+  double h[3];
+  this->ComputeAndAdjustRegionParameters( metadata, h );
+  this->GetRegion( h );
 
   // STEP 2: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
   assert( "pre: Null output information object!" && (output != NULL) );
-  vtkMultiBlockDataSet *mbds=
-     vtkMultiBlockDataSet::SafeDownCast(
-      output->Get(vtkDataObject::DATA_OBJECT()));
-  assert( "pre: ouput multi-block dataset is NULL" && (mbds != NULL) );
+
+  // Set the wholeExtent, for now assume a single process:
+  int ext[6];
+  ext[0] = 0;
+  ext[1] = this->GridNumberOfSamples[0]-1;
+  ext[2] = 0;
+  ext[3] = this->GridNumberOfSamples[1]-1;
+  ext[4] = 0;
+  ext[5] = this->GridNumberOfSamples[2]-1;
+  output->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext,6 );
+
+  vtkUniformGrid *resampledGrid =
+     vtkUniformGrid::SafeDownCast(
+      output->Get(vtkDataObject::DATA_OBJECT() ) );
+  assert( "pre: ouput grid is NULL" && (resampledGrid != NULL) );
 
   // STEP 4: Extract region
-  this->ExtractRegion( amrds, mbds, metadata );
+  this->ExtractRegion( amrds, resampledGrid, metadata );
 
   return 1;
 }
@@ -248,6 +271,13 @@ void vtkAMRResampleFilter::InitializeFields(
 
     f->AddArray( array );
     array->Delete();
+
+//      int myIndex = -1;
+//      vtkDataArray *arrayPtr = f->GetArray(
+//          src->GetArray(arrayIdx)->GetName(), myIndex );
+//      assert( "post: array index mismatch" && (myIndex == arrayIdx) );
+//      assert( "post: array size mismatch" &&
+//              (arrayPtr->GetNumberOfTuples()==size) );
 
     assert( "post: array size mismatch" &&
             (f->GetArray( arrayIdx)->GetNumberOfTuples() == size) );
@@ -340,7 +370,9 @@ void vtkAMRResampleFilter::TransferToCellCenters(
   this->InitializeFields( fieldData, g->GetNumberOfCells(), CD );
 
   if(fieldData->GetNumberOfArrays() == 0)
-   return;
+    {
+    return;
+    }
 
   // TODO: this is a very naive implementation and should be optimized. However,
   // mostly this filter is used to transfer the solution to the grid nodes and
@@ -357,17 +389,17 @@ void vtkAMRResampleFilter::TransferToCellCenters(
       unsigned int dataIdx = 0;
       for( ; dataIdx < amrds->GetNumberOfDataSets( level ); ++dataIdx )
         {
-        int donorCellIdx = -1;
-        vtkUniformGrid *donorGrid = amrds->GetDataSet(level,dataIdx);
-        if( (donorGrid!=NULL) &&
-            this->FoundDonor(qPoint,donorGrid,donorCellIdx) )
-          {
+          int donorCellIdx = -1;
+          vtkUniformGrid *donorGrid = amrds->GetDataSet(level,dataIdx);
+          if( (donorGrid!=NULL) &&
+              this->FoundDonor(qPoint,donorGrid,donorCellIdx) )
+            {
             assert( "pre: donorCellIdx is invalid" &&
                     (donorCellIdx >= 0) &&
                     (donorCellIdx < donorGrid->GetNumberOfCells()) );
             CD = donorGrid->GetCellData();
             this->CopyData( fieldData, cellIdx, CD, donorCellIdx );
-          } // END if
+            } // END if
         } // END for all datasets
       } // END for all levels
     } // END for all cells
@@ -506,12 +538,14 @@ void vtkAMRResampleFilter::TransferToGridNodes(
 
   // STEP 0: Initialize the fields on the grid
   vtkUniformGrid *refGrid = this->GetReferenceGrid( amrds );
-  vtkCellData *CD        = refGrid->GetCellData();
+
+  vtkCellData *CD = refGrid->GetCellData();
   assert( "pre: Donor CellData is NULL!" && (CD != NULL)  );
 
   vtkPointData *PD = g->GetPointData();
   assert( "pre: Target PointData is NULL!" && (PD != NULL) );
 
+  // STEP 0: Initialize the fields on the grid
   this->InitializeFields( PD, g->GetNumberOfPoints(), CD );
 
   // STEP 1: If no arrays are selected, there is no need to interpolate
@@ -586,28 +620,28 @@ void vtkAMRResampleFilter::TransferSolution(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::ExtractRegion(
-    vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
+    vtkHierarchicalBoxDataSet *amrds, vtkUniformGrid *resampledGrid,
     vtkHierarchicalBoxDataSet *metadata )
 {
-  assert( "pre: input AMR data-structure is NULL" && (amrds != NULL) );
-  assert( "pre: output data-structure is NULL" && (mbds != NULL) );
-  assert( "pre: metatadata is NULL" && (metadata != NULL) );
 
-  mbds->SetNumberOfBlocks( this->ROI->GetNumberOfBlocks() );
+  assert( "pre: input AMR data-structure is NULL" && (amrds != NULL) );
+  assert( "pre: metatadata is NULL" && (metadata != NULL) );
+  assert( "pre: resampled grid should not be NULL" && (resampledGrid != NULL) );
+
+  std::cout << "NumBlocks: " << this->ROI->GetNumberOfBlocks() << std::endl;
+  std::cout << "NumProcs: "  << this->Controller->GetNumberOfProcesses() << std::endl;
+  std::cout.flush();
+
+  assert( "pre: NumProcs must equal NumBlocks" &&
+   (this->ROI->GetNumberOfBlocks() == this->Controller->GetNumberOfProcesses()));
+
   for( unsigned int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
     {
-      if( this->IsRegionMine( block ) )
-        {
-        vtkUniformGrid *myGrid = vtkUniformGrid::New();
-        myGrid->ShallowCopy( this->ROI->GetBlock( block ) );
-        this->TransferSolution( myGrid, amrds );
-        mbds->SetBlock( block, myGrid );
-        myGrid->Delete();
-        }
-      else
-        {
-        mbds->SetBlock( block, NULL );
-        }
+    if( this->IsRegionMine( block ) )
+      {
+      resampledGrid->DeepCopy( this->ROI->GetBlock( block ) );
+      this->TransferSolution( resampledGrid, amrds );
+      }
     } // END for all blocks
 
 }
@@ -621,9 +655,13 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *me
 
   unsigned int maxLevelToLoad = 0;
   if( this->LevelOfResolution < static_cast<int>(metadata->GetNumberOfLevels()))
+    {
     maxLevelToLoad = this->LevelOfResolution+1;
+    }
   else
+    {
     maxLevelToLoad = metadata->GetNumberOfLevels();
+    }
 
   unsigned int level=0;
   for( ;level < maxLevelToLoad; ++level )
@@ -637,7 +675,7 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *me
       if( this->IsBlockWithinBounds( grd ) )
         {
         this->BlocksToLoad.push_back(
-          metadata->GetCompositeIndex(level,dataIdx) );
+        metadata->GetCompositeIndex(level,dataIdx) );
         } // END check if the block is within the bounds of the ROI
       } // END for all data
     } // END for all levels
@@ -788,13 +826,6 @@ void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
 
-  if( this->InitialCall )
-    {
-    h[0]=h[1]=h[2]=0.0;
-    this->InitialCall = false;
-    return;
-    }
-
   // STEP 0: Get domain parameters from root level metadata
   int dims[3];
   double h0[3];
@@ -878,7 +909,9 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
 
   unsigned int block = 0;
   for( ; block < this->ROI->GetNumberOfBlocks(); ++block  )
+    {
     this->ROI->RemoveBlock( block );
+    }
 
   if( h[0]==0.0 && h[1]==0.0 && h[2]==0.0 )
     {
@@ -889,15 +922,20 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
   grd->SetOrigin( this->GridMin );
   grd->SetSpacing( h );
   grd->SetDimensions( this->GridNumberOfSamples );
+  if( grd ->GetNumberOfPoints() == 0 )
+    {
+    vtkErrorMacro( "Empty Grid!" );
+    return;
+    }
 
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
   gridPartitioner->SetInput( grd );
   grd->Delete();
 
-  if( grd ->GetNumberOfPoints() == 0 )
-    {
-    return;
-    }
+
+
+  std::cout << "Setting the number of partitions....";
+  std::cout.flush();
 
   gridPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   gridPartitioner->Update();
@@ -980,6 +1018,7 @@ bool vtkAMRResampleFilter::IsRegionMine( const int regionIdx )
     {
     return true;
     }
+
   return false;
 }
 

@@ -50,8 +50,7 @@ int vtkAMRToMultiBlockFilter::FillInputPortInformation(
 {
   assert( "pre: information object is NULL!" && (info != NULL) );
   info->Set(
-      vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
-      "vtkHierarchicalBoxDataSet");
+      vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkHierarchicalBoxDataSet");
   return 1;
 }
 
@@ -60,8 +59,7 @@ int vtkAMRToMultiBlockFilter::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   assert( "pre: information object is NULL!" && (info != NULL) );
-  info->Set(
-      vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
+  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
   return 1;
 }
 
@@ -77,22 +75,22 @@ void vtkAMRToMultiBlockFilter::CopyAMRToMultiBlock(
   unsigned int levelIdx = 0;
   for( ; levelIdx < amr->GetNumberOfLevels(); ++levelIdx )
     {
-      unsigned int dataIdx = 0;
-      for( ; dataIdx < amr->GetNumberOfDataSets( levelIdx ); ++dataIdx )
+    unsigned int dataIdx = 0;
+    for( ; dataIdx < amr->GetNumberOfDataSets( levelIdx ); ++dataIdx )
+      {
+      vtkUniformGrid *grid = amr->GetDataSet( levelIdx, dataIdx );
+      if( grid != NULL )
         {
-          vtkUniformGrid *grid = amr->GetDataSet( levelIdx, dataIdx );
-          if( grid != NULL )
-            {
-              vtkUniformGrid *gridCopy = vtkUniformGrid::New();
-              gridCopy->ShallowCopy( grid );
-              mbds->SetBlock( blockIdx, gridCopy );
-            }
-          else
-            {
-              mbds->SetBlock( blockIdx, NULL );
-            }
-          ++blockIdx;
-        } // END for all data
+        vtkUniformGrid *gridCopy = vtkUniformGrid::New();
+        gridCopy->ShallowCopy( grid );
+        mbds->SetBlock( blockIdx, gridCopy );
+        }
+      else
+        {
+        mbds->SetBlock( blockIdx, NULL );
+        }
+      ++blockIdx;
+      } // END for all data
     } // END for all levels
 }
 

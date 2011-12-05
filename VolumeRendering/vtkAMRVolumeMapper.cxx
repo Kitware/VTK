@@ -285,163 +285,151 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
   // First we need to create a bouding box that represents the visible region
   // of the camera in World Coordinates
 
-  // In order to produce as tight of bounding box as possible we need to determine
-  // the z range in view coordinates of the data and then project that part 
-  // of the view volume back into world coordinates
-  
-  // We would just use the renderer's WorldToView and ViewToWorld methods but those
-  // implementations are not efficient for example ViewToWorld would do 8
-  // matrix inverse ops when all we really need to do is one
+ // In order to produce as tight of bounding box as possible we need to determine
+ // the z range in view coordinates of the data and then project that part
+ // of the view volume back into world coordinates
 
-  // Make sure the bounds are up to date
-  this->GetBounds();
+ // We would just use the renderer's WorldToView and ViewToWorld methods but those
+ // implementations are not efficient for example ViewToWorld would do 8
+ // matrix inverse ops when all we really need to do is one
 
-  // Get the camera transformation
-  vtkMatrix4x4 *matrix = 
-    ren->GetActiveCamera()->
-    GetCompositeProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
+ // Make sure the bounds are up to date
+ this->GetBounds();
 
-  int i, j, k;
-  double pnt[4], tpnt[4];
-  vtkBoundingBox bbox;
-  pnt[3] = 1.0;
-  for (i = 0; i < 2; i++)
-    {
-    pnt[0] = this->Bounds[i];
-    for (j = 2; j < 4; j++)
-      {
-      pnt[1] = this->Bounds[j];
-      for (k = 4; k < 6; k++)
-        {
-        pnt[2] = this->Bounds[k];
-        matrix->MultiplyPoint(pnt, tpnt);
-        if (tpnt[3])
-          {
-          bbox.AddPoint(tpnt[0]/tpnt[3], 
-                        tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
-          }
-        else
-          {
-          vtkErrorMacro("UpdateGrid: Found an Ideal Point going to VC!");
-          }
-        }
-      }
-    }
+ // Get the camera transformation
+ vtkMatrix4x4 *matrix =
+   ren->GetActiveCamera()->
+   GetCompositeProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
 
-  double zRange[2];
-  if (bbox.IsValid())
-    {
-    zRange[0] = bbox.GetMinPoint()[2];
-    zRange[1] = bbox.GetMaxPoint()[2];
-    // Normalize the z values to make sure they are between -1 and 1
-    for (i = 0; i < 2; i++)
-      {
-      if (zRange[i] < -1.0)
-        {
-        zRange[i] = -1.0;
-        }
-      else if (zRange[i] > 1.0)
-        {
-        zRange[i] = 1.0;
-        }
-      }
-    }
-  else
-    {
-    // Since we could not find a valid bounding box assume that the 
-    // zrange is -1 to 1
-    zRange[0] = -1.0;
-    zRange[1] = 1.0;
-    }
+ int i, j, k;
+ double pnt[4], tpnt[4];
+ vtkBoundingBox bbox;
+ pnt[3] = 1.0;
+ for (i = 0; i < 2; i++)
+   {
+   pnt[0] = this->Bounds[i];
+   for (j = 2; j < 4; j++)
+     {
+     pnt[1] = this->Bounds[j];
+     for (k = 4; k < 6; k++)
+       {
+       pnt[2] = this->Bounds[k];
+       matrix->MultiplyPoint(pnt, tpnt);
+       if (tpnt[3])
+         {
+         bbox.AddPoint(tpnt[0]/tpnt[3],
+                       tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
+         }
+       else
+         {
+         vtkErrorMacro("UpdateGrid: Found an Ideal Point going to VC!");
+         }
+       }
+     }
+   }
 
-  // Now that we have the z range of the data in View Coordinates lets
-  // convert that part of the View Volume back into World Coordinates
-  double mat[16];
-  //Need the inverse
-  vtkMatrix4x4::Invert(*matrix->Element, mat);
+ double zRange[2];
+ if (bbox.IsValid())
+   {
+   zRange[0] = bbox.GetMinPoint()[2];
+   zRange[1] = bbox.GetMaxPoint()[2];
+   // Normalize the z values to make sure they are between -1 and 1
+   for (i = 0; i < 2; i++)
+     {
+     if (zRange[i] < -1.0)
+       {
+       zRange[i] = -1.0;
+       }
+     else if (zRange[i] > 1.0)
+       {
+       zRange[i] = 1.0;
+       }
+     }
+   }
+ else
+   {
+   // Since we could not find a valid bounding box assume that the
+   // zrange is -1 to 1
+   zRange[0] = -1.0;
+   zRange[1] = 1.0;
+   }
 
-  bbox.Reset();
-  // Compute the bounding box
-  for (i = -1; i < 2; i+=2)
-    {
-    pnt[0] = i;
-    for (j = -1; j < 2; j+=2)
-      {
-      pnt[1] = j;
-      for (k = 0; k < 2; k++)
-        {
-        pnt[2] = zRange[k];
-        vtkMatrix4x4::MultiplyPoint(mat,pnt,tpnt);
-        if (tpnt[3])
-          {
-          bbox.AddPoint(tpnt[0]/tpnt[3], 
-                        tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
-          }
-        else
-          {
-          vtkErrorMacro("UpdateGrid: Found an Ideal Point going to WC!");
-          }
-        }
-      }
-    }
+ // Now that we have the z range of the data in View Coordinates lets
+ // convert that part of the View Volume back into World Coordinates
+ double mat[16];
+ //Need the inverse
+ vtkMatrix4x4::Invert(*matrix->Element, mat);
 
-  // Check to see if the box is valid
-  if (!bbox.IsValid())
-    {
-    return; // There is nothing we can do
-    }
-  // Now set the min/max of the resample filter
-  this->Resampler->SetMin(bbox.GetMinPoint());
-  this->Resampler->SetMax(bbox.GetMaxPoint());
+ bbox.Reset();
+ // Compute the bounding box
+ for (i = -1; i < 2; i+=2)
+   {
+   pnt[0] = i;
+   for (j = -1; j < 2; j+=2)
+     {
+     pnt[1] = j;
+     for (k = 0; k < 2; k++)
+       {
+       pnt[2] = zRange[k];
+       vtkMatrix4x4::MultiplyPoint(mat,pnt,tpnt);
+       if (tpnt[3])
+         {
+         bbox.AddPoint(tpnt[0]/tpnt[3],
+                       tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
+         }
+       else
+         {
+         vtkErrorMacro("UpdateGrid: Found an Ideal Point going to WC!");
+         }
+       }
+     }
+   }
 
-  this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
-  // This is for debugging
+ // Check to see if the box is valid
+ if (!bbox.IsValid())
+   {
+   return; // There is nothing we can do
+   }
+ // Now set the min/max of the resample filter
+ this->Resampler->SetMin(bbox.GetMinPoint());
+ this->Resampler->SetMax(bbox.GetMaxPoint());
+
+ this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
+ // This is for debugging
 #define PRINTSTATS 0
 #if PRINTSTATS
-  vtkNew<vtkTimerLog> timer;
-  int gridDim[3];
-  double gridOrigin[3];
-  timer->StartTimer();
+ vtkNew<vtkTimerLog> timer;
+ int gridDim[3];
+ double gridOrigin[3];
+ timer->StartTimer();
 #endif
-  this->Resampler->Update();
+ this->Resampler->Update();
 #if PRINTSTATS
-  timer->StopTimer();
-  std::cerr << "Resample Time:" << timer->GetElapsedTime() << " ";
-  std::cerr << "New Bounds: [" << bbox.GetMinPoint()[0] 
-            << ", " << bbox.GetMaxPoint()[0] << "], ["
-            << bbox.GetMinPoint()[1] 
-            << ", " << bbox.GetMaxPoint()[1] << "], ["
-            << bbox.GetMinPoint()[2] 
-            << ", " << bbox.GetMaxPoint()[2] << "\n";
+ timer->StopTimer();
+ std::cerr << "Resample Time:" << timer->GetElapsedTime() << " ";
+ std::cerr << "New Bounds: [" << bbox.GetMinPoint()[0]
+           << ", " << bbox.GetMaxPoint()[0] << "], ["
+           << bbox.GetMinPoint()[1]
+           << ", " << bbox.GetMaxPoint()[1] << "], ["
+           << bbox.GetMinPoint()[2]
+           << ", " << bbox.GetMaxPoint()[2] << "\n";
 #endif
-  vtkMultiBlockDataSet *mb = this->Resampler->GetOutput();
-  if (!mb)
-    {
-    return;
-    }
-  unsigned int nb = mb->GetNumberOfBlocks();
-  if (!nb)
-    {
-    // No new grid was created
-    return;
-    }
-  if (nb != 1)
-    {
-    vtkErrorMacro("UpdateGrid: Resampler created more than 1 Grid!");
-    }
-  if (this->Grid)
-    {
-    this->Grid->Delete();
-    }
-  this->Grid = vtkUniformGrid::SafeDownCast(mb->GetBlock(0));
-  this->Grid->Register(0);
+
+ if (this->Grid)
+   {
+   this->Grid->Delete();
+   }
+
+ this->Grid = vtkUniformGrid::SafeDownCast(
+     this->Resampler->GetOutput() );
+ this->Grid->Register(0);
 #if PRINTSTATS
-  this->Grid->GetDimensions(gridDim);
-  this->Grid->GetOrigin(gridOrigin);
-  std::cerr << "Grid Dimenions: (" << gridDim[0] << ", " << gridDim[1] << ", " 
-            << gridDim[2] 
-            << ") Origin:(" << gridOrigin[0] << ", "<< gridOrigin[1] << ", "
-            << gridOrigin[2] << ")\n";
+ this->Grid->GetDimensions(gridDim);
+ this->Grid->GetOrigin(gridOrigin);
+ std::cerr << "Grid Dimenions: (" << gridDim[0] << ", " << gridDim[1] << ", "
+           << gridDim[2]
+           << ") Origin:(" << gridOrigin[0] << ", "<< gridOrigin[1] << ", "
+           << gridOrigin[2] << ")\n";
 #endif
 }
 //----------------------------------------------------------------------------

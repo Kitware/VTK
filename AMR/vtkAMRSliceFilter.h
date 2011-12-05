@@ -148,7 +148,6 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     void InitializeOffSet(
       vtkHierarchicalBoxDataSet *inp, double *min, double *max );
 
-    double origin[3];
     double OffSetFromOrigin;
     int    Normal; // 1=>X-Normal, 2=>Y-Normal, 3=>Z-Normal
     bool   initialRequest;

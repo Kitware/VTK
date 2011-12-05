@@ -52,7 +52,10 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
      vtkSetMacro( EnableCaching, int );
      vtkGetMacro( EnableCaching, int );
      vtkBooleanMacro( EnableCaching, int );
-     inline bool IsCachingEnabled()const{return((EnableCaching)?true:false);};
+     bool IsCachingEnabled() const
+       {
+       return( (this->EnableCaching)?true:false);
+       };
 
     // Description:
     // Set/Get a multiprocess-controller for reading in parallel.
@@ -133,7 +136,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     // It assumes that the downstream module is doing an upstream request with
     // the flag LOAD_REQUESTED_BLOCKS which indicates that the downstream filter
     // has already assigned which blocks are needed for each process.
-    void LoadAllBlocks( vtkHierarchicalBoxDataSet *amrds );
+    void LoadRequestedBlocks( vtkHierarchicalBoxDataSet *amrds );
 
     // Description:
     // Loads the AMR data corresponding to the given field name.
@@ -250,11 +253,11 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     vtkMultiProcessController *Controller;
 
     int EnableCaching;
-    vtkAMRDataSetCache *amrCache;
-    int numBlocksFromFile;
-    int numBlocksFromCache;
+    vtkAMRDataSetCache *Cache;
+    int NumBlocksFromFile;
+    int NumBlocksFromCache;
 
-    vtkHierarchicalBoxDataSet *metadata;
+    vtkHierarchicalBoxDataSet *Metadata;
     bool LoadedMetaData;
 
 

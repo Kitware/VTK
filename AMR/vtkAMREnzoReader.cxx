@@ -65,8 +65,8 @@ vtkAMREnzoReader::~vtkAMREnzoReader()
 
   if( this->FileName )
     {
-      delete [] this->FileName;
-      this->FileName = NULL;
+    delete [] this->FileName;
+    this->FileName = NULL;
     }
 }
 
@@ -88,14 +88,17 @@ double vtkAMREnzoReader::GetConversionFactor( const std::string name )
 {
   if( this->label2idx.find( name ) != this->label2idx.end() )
     {
-      int idx = this->label2idx[ name ];
-      if( this->conversionFactors.find( idx ) != this->conversionFactors.end() )
-        return( this->conversionFactors[ idx ] );
-      else
-        return( 1.0 );
+    int idx = this->label2idx[ name ];
+    if( this->conversionFactors.find( idx ) != this->conversionFactors.end() )
+      {
+      return( this->conversionFactors[ idx ] );
+      }
+    else
+      {
+      return( 1.0 );
+      }
     }
-  else
-    return( 1.0 );
+  return( 1.0 );
 }
 
 //-----------------------------------------------------------------------------
@@ -109,20 +112,14 @@ void vtkAMREnzoReader::ParseLabel(
   std::string word;
   while ( iss >> word )
     {
-      if( ! vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
-        strings.push_back( word );
+    if( !vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
+      {
+      strings.push_back( word );
+      }
     }
 
   idx   = this->GetIndexFromArrayName( strings[0] );
   label = strings[ strings.size()-1 ];
-
-//
-//  for( unsigned int i=0; i < strings.size(); ++i )
-//    std::cout << "[ " << strings[ i ] << " ] ";
-//  std::cout << "idx: " << idx << std::endl;
-//  std::cout.flush();
-//
-//  this->label2idx[ label ] = idx;
 }
 
 //-----------------------------------------------------------------------------
@@ -135,19 +132,15 @@ void vtkAMREnzoReader::ParseCFactor(
   std::string word;
   while( iss >> word )
     {
-      if( ! vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
-        strings.push_back( word );
+    if( ! vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
+      {
+      strings.push_back( word );
+      }
     }
 
   idx    = this->GetIndexFromArrayName( strings[0] );
   factor = atof( strings[ strings.size()-1 ].c_str() );
 
-//  for( unsigned int i=0; i < strings.size(); ++i )
-//    std::cout << "[ " << strings[ i ] << " ] ";
-//  std::cout << " idx: "     << idx    << std::endl;
-//  std::cout << " factor:  " << factor << std::endl;
-//
-//  this->conversionFactors[ idx ] = factor;
 }
 
 //-----------------------------------------------------------------------------
@@ -157,20 +150,19 @@ void vtkAMREnzoReader::ParseConversionFactors( )
 
   // STEP 0: Extract the parameters file from the user-supplied filename
   std::string baseDir =
-      vtksys::SystemTools::GetFilenamePath(
-          std::string( this->FileName ) );
+      vtksys::SystemTools::GetFilenamePath( std::string( this->FileName ) );
 
   std::string paramsFile = baseDir + "/" +
-      vtksys::SystemTools::GetFilenameWithoutExtension(
-          std::string( this->FileName ) );
+   vtksys::SystemTools::GetFilenameWithoutExtension(
+    std::string( this->FileName ) );
 
   // STEP 1: Open Parameters file
   std::ifstream ifs;
   ifs.open( paramsFile.c_str() );
   if( !ifs.is_open( ) )
     {
-      vtkWarningMacro( "Cannot open ENZO parameters file!\n" );
-      return;
+    vtkWarningMacro( "Cannot open ENZO parameters file!\n" );
+    return;
     }
 
   // STEP 2: Parsing parameters file
@@ -180,18 +172,18 @@ void vtkAMREnzoReader::ParseConversionFactors( )
   int    idx;        // stores the attribute label index
   while( getline(ifs, line) )
     {
-      if( vtksys::SystemTools::StringStartsWith(
-          line.c_str(), "DataLabel" ) )
-        {
-          this->ParseLabel( line, idx, label );
-          this->label2idx[ label ] = idx;
-        }
-      else if( vtksys::SystemTools::StringStartsWith(
-               line.c_str(), "#DataCGSConversionFactor" ) )
-        {
-          this->ParseCFactor( line, idx, cf );
-          this->conversionFactors[ idx ] = cf;
-        }
+    if( vtksys::SystemTools::StringStartsWith(
+        line.c_str(), "DataLabel" ) )
+      {
+      this->ParseLabel( line, idx, label );
+      this->label2idx[ label ] = idx;
+      }
+    else if( vtksys::SystemTools::StringStartsWith(
+             line.c_str(), "#DataCGSConversionFactor" ) )
+      {
+      this->ParseCFactor( line, idx, cf );
+      this->conversionFactors[ idx ] = cf;
+      }
     }
 
   // STEP 3: Close parameters file
@@ -208,57 +200,54 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
   if( fileName && strcmp( fileName, "" ) &&
     ( (this->FileName==NULL) || (strcmp(fileName,this->FileName ) ) ) )
     {
-        vtkstd::string  tempName( fileName );
-        vtkstd::string  bExtName( ".boundary" );
-        vtkstd::string  hExtName( ".hierarchy" );
+    vtkstd::string  tempName( fileName );
+    vtkstd::string  bExtName( ".boundary" );
+    vtkstd::string  hExtName( ".hierarchy" );
 
-        if( tempName.length() > hExtName.length() &&
-            tempName.substr(tempName.length()-hExtName.length() )== hExtName )
-          {
-            this->Internal->MajorFileName =
-                tempName.substr( 0, tempName.length() - hExtName.length() );
-            this->Internal->HierarchyFileName = tempName;
-            this->Internal->BoundaryFileName  =
-                this->Internal->MajorFileName + bExtName;
-          }
-       else if( tempName.length() > bExtName.length() &&
-           tempName.substr( tempName.length() - bExtName.length() )==bExtName )
-         {
-           this->Internal->MajorFileName =
-              tempName.substr( 0, tempName.length() - bExtName.length() );
-           this->Internal->BoundaryFileName  = tempName;
-           this->Internal->HierarchyFileName =
-              this->Internal->MajorFileName + hExtName;
-         }
-      else
-        {
-          vtkErrorMacro( "Enzo file has invalid extension!");
-          return;
-        }
-
-        isValid = 1;
-        this->Internal->DirectoryName =
-            GetEnzoDirectory(this->Internal->MajorFileName.c_str());
+    if( tempName.length() > hExtName.length() &&
+        tempName.substr(tempName.length()-hExtName.length() )== hExtName )
+      {
+      this->Internal->MajorFileName =
+          tempName.substr( 0, tempName.length() - hExtName.length() );
+      this->Internal->HierarchyFileName = tempName;
+      this->Internal->BoundaryFileName  = this->Internal->MajorFileName+bExtName;
+      }
+   else if( tempName.length() > bExtName.length() &&
+       tempName.substr( tempName.length() - bExtName.length() )==bExtName )
+     {
+     this->Internal->MajorFileName =
+        tempName.substr( 0, tempName.length() - bExtName.length() );
+     this->Internal->BoundaryFileName  = tempName;
+     this->Internal->HierarchyFileName = this->Internal->MajorFileName+hExtName;
+     }
+    else
+      {
+      vtkErrorMacro( "Enzo file has invalid extension!");
+      return;
+      }
+    isValid = 1;
+    this->Internal->DirectoryName =
+     GetEnzoDirectory(this->Internal->MajorFileName.c_str());
     }
 
   if( isValid )
     {
-      this->BlockMap.clear();
-      this->Internal->Blocks.clear();
-      this->Internal->NumberOfBlocks = 0;
-      this->LoadedMetaData = false;
+    this->BlockMap.clear();
+    this->Internal->Blocks.clear();
+    this->Internal->NumberOfBlocks = 0;
+    this->LoadedMetaData = false;
 
-      if ( this->FileName != NULL)
-      {
-        delete [] this->FileName;
-        this->FileName = NULL;
-        this->Internal->SetFileName( NULL );
-      }
-      this->FileName = new char[  strlen( fileName ) + 1  ];
-      strcpy( this->FileName, fileName );
-      this->FileName[ strlen( fileName ) ] = '\0';
-      this->Internal->SetFileName( this->FileName );
-      this->ParseConversionFactors( );
+    if ( this->FileName != NULL)
+    {
+    delete [] this->FileName;
+    this->FileName = NULL;
+    this->Internal->SetFileName( NULL );
+    }
+    this->FileName = new char[  strlen( fileName ) + 1  ];
+    strcpy( this->FileName, fileName );
+    this->FileName[ strlen( fileName ) ] = '\0';
+    this->Internal->SetFileName( this->FileName );
+    this->ParseConversionFactors( );
     }
 
   this->Internal->ReadMetaData();
@@ -285,12 +274,10 @@ void vtkAMREnzoReader::GenerateBlockMap()
 
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
     {
-
-      if( this->GetBlockLevel( i ) <= this->MaxLevel )
-        {
-          this->BlockMap.push_back( i );
-        }
-
+    if( this->GetBlockLevel( i ) <= this->MaxLevel )
+      {
+      this->BlockMap.push_back( i );
+      }
     } // END for all blocks
 }
 
@@ -303,8 +290,8 @@ int vtkAMREnzoReader::GetBlockLevel( const int blockIdx )
 
   if( blockIdx < 0 || blockIdx >= this->Internal->NumberOfBlocks )
     {
-      vtkErrorMacro( "Block Index (" << blockIdx << ") is out-of-bounds!" );
-      return( -1 );
+    vtkErrorMacro( "Block Index (" << blockIdx << ") is out-of-bounds!" );
+    return( -1 );
     }
   return( this->Internal->Blocks[ blockIdx+1 ].Level );
 }
@@ -329,7 +316,7 @@ int vtkAMREnzoReader::GetNumberOfLevels()
 int vtkAMREnzoReader::FillMetaData( )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (this->metadata != NULL) );
+  assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
 
   this->Internal->ReadMetaData();
   std::vector< int > b2level;
@@ -338,36 +325,36 @@ int vtkAMREnzoReader::FillMetaData( )
   // this->Internal->Blocks includes a pseudo block -- the root as block #0
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
     {
-      vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ i+1 ];
-      int level                    = theBlock.Level;
-      int id                       = b2level[ level ];
-      int internalIdx              = i;
+    vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ i+1 ];
+    int level                    = theBlock.Level;
+    int id                       = b2level[ level ];
+    int internalIdx              = i;
 
-      double blockMin[ 3 ];
-      double blockMax[ 3 ];
-      double spacings[ 3 ];
+    double blockMin[ 3 ];
+    double blockMax[ 3 ];
+    double spacings[ 3 ];
 
-      for( int j=0; j < 3; ++j )
-        {
-          blockMin[j] = theBlock.MinBounds[j];
-          blockMax[j] = theBlock.MaxBounds[j];
-          spacings[j] = (theBlock.BlockNodeDimensions[j] > 1)?
-          (blockMax[j]-blockMin[j])/(theBlock.BlockNodeDimensions[j]-1.0):1.0;
-        }
+    for( int j=0; j < 3; ++j )
+      {
+      blockMin[j] = theBlock.MinBounds[j];
+      blockMax[j] = theBlock.MaxBounds[j];
+      spacings[j] = (theBlock.BlockNodeDimensions[j] > 1)?
+      (blockMax[j]-blockMin[j])/(theBlock.BlockNodeDimensions[j]-1.0):1.0;
+      }
 
-      vtkUniformGrid *ug = vtkUniformGrid::New();
-      ug->SetDimensions( theBlock.BlockNodeDimensions );
-      ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
-      ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
+    vtkUniformGrid *ug = vtkUniformGrid::New();
+    ug->SetDimensions( theBlock.BlockNodeDimensions );
+    ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
+    ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
 
-      this->metadata->SetDataSet( level, id, ug );
-      this->metadata->SetCompositeIndex( level, id, internalIdx );
-      ug->Delete();
-      b2level[ level ]++;
+    this->Metadata->SetDataSet( level, id, ug );
+    this->Metadata->SetCompositeIndex( level, id, internalIdx );
+    ug->Delete();
+    b2level[ level ]++;
     } // END for all blocks
 
   // NOTE: the controller here is null since each process loads its own metadata
-  vtkAMRUtilities::GenerateMetaData( this->metadata, NULL );
+  vtkAMRUtilities::GenerateMetaData( this->Metadata, NULL );
   return( 1 );
 }
 
@@ -386,10 +373,10 @@ vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid( const int blockIdx )
 
   for( int i=0; i < 3; ++i )
     {
-      blockMin[ i ] = theBlock.MinBounds[ i ];
-      blockMax[ i ] = theBlock.MaxBounds[ i ];
-      spacings[ i ] = (theBlock.BlockNodeDimensions[i] > 1)?
-          (blockMax[i]-blockMin[i])/(theBlock.BlockNodeDimensions[i]-1.0) : 1.0;
+    blockMin[ i ] = theBlock.MinBounds[ i ];
+    blockMax[ i ] = theBlock.MaxBounds[ i ];
+    spacings[ i ] = (theBlock.BlockNodeDimensions[i] > 1)?
+        (blockMax[i]-blockMin[i])/(theBlock.BlockNodeDimensions[i]-1.0) : 1.0;
     }
 
   vtkUniformGrid *ug = vtkUniformGrid::New();
@@ -408,24 +395,23 @@ void vtkAMREnzoReader::GetAMRGridData(
   this->Internal->GetBlockAttribute( field, blockIdx, block );
   if( this->ConvertToCGS == 1 )
     {
-      double conversionFactor = this->GetConversionFactor(field);
-      if( conversionFactor != 1.0 )
+    double conversionFactor = this->GetConversionFactor(field);
+    if( conversionFactor != 1.0 )
+      {
+      vtkDataArray *data = block->GetCellData()->GetArray( field );
+      assert( "pre: data array is NULL!" && (data != NULL) );
+
+      vtkIdType numTuples = data->GetNumberOfTuples();
+      for( vtkIdType t=0; t < numTuples; ++t )
         {
-          vtkDataArray *data = block->GetCellData()->GetArray( field );
-          assert( "pre: data array is NULL!" && (data != NULL) );
-
-          vtkIdType numTuples = data->GetNumberOfTuples();
-          for( vtkIdType t=0; t < numTuples; ++t )
-            {
-              int numComp = data->GetNumberOfComponents();
-              for( int c=0; c < numComp; ++c )
-               {
-                 double f = data->GetComponent( t, c );
-                 data->SetComponent( t, c, f*conversionFactor );
-               } // END for all components
-            } // END for all tuples
-
-        } // END if the conversion factor is not 1.0
+        int numComp = data->GetNumberOfComponents();
+        for( int c=0; c < numComp; ++c )
+         {
+         double f = data->GetComponent( t, c );
+         data->SetComponent( t, c, f*conversionFactor );
+         } // END for all components
+        } // END for all tuples
+      } // END if the conversion factor is not 1.0
     } // END if conversion to CGS units is requested
 }
 
@@ -437,12 +423,11 @@ void vtkAMREnzoReader::SetUpDataArraySelections()
   this->Internal->ReadMetaData();
   this->Internal->GetAttributeNames();
 
-  int numAttrs = static_cast< int >(
-      this->Internal->BlockAttributeNames.size() );
+  int numAttrs = static_cast< int >(this->Internal->BlockAttributeNames.size());
   for( int i=0; i < numAttrs; i++ )
     {
-      this->CellDataArraySelection->AddArray(
-          this->Internal->BlockAttributeNames[i].c_str() );
+    this->CellDataArraySelection->AddArray(
+        this->Internal->BlockAttributeNames[i].c_str() );
     } // END for all attributes
 
 }
