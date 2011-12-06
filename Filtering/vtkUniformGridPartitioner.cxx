@@ -31,7 +31,8 @@ vtkStandardNewMacro( vtkUniformGridPartitioner );
 //------------------------------------------------------------------------------
 vtkUniformGridPartitioner::vtkUniformGridPartitioner()
 {
-  this->NumberOfPartitions = 2;
+  this->NumberOfPartitions  = 2;
+  this->NumberOfGhostLayers = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -94,6 +95,7 @@ int vtkUniformGridPartitioner::RequestData(
   assert( "pre: extent partitioner is NULL" && (extentPartitioner != NULL) );
   extentPartitioner->SetGlobalExtent( extent );
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
+  extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
 
   // STEP 4: Partition
   extentPartitioner->Partition();
