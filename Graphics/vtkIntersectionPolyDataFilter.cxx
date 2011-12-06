@@ -1109,7 +1109,7 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation*        vtkNotUsed
   vtkSmartPointer< vtkOBBTree > obbTree0 = vtkSmartPointer< vtkOBBTree >::New();
   obbTree0->SetDataSet(mesh0);
   obbTree0->SetNumberOfCellsPerNode(10);
-  obbTree0->SetMaxLevel(1e6);
+  obbTree0->SetMaxLevel(1000000);
   obbTree0->SetTolerance(1e-6);
   obbTree0->AutomaticOn();
   obbTree0->BuildLocator();
@@ -1117,7 +1117,7 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation*        vtkNotUsed
   vtkSmartPointer< vtkOBBTree > obbTree1 = vtkSmartPointer< vtkOBBTree >::New();
   obbTree1->SetDataSet(mesh1);
   obbTree1->SetNumberOfCellsPerNode(10);
-  obbTree1->SetMaxLevel(1e6);
+  obbTree1->SetMaxLevel(1000000);
   obbTree1->SetTolerance(1e-6);
   obbTree1->AutomaticOn();
   obbTree1->BuildLocator();
