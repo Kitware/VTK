@@ -512,7 +512,8 @@ int vtkYoungsMaterialInterface::RequestData(
     {
     vtkDataSet * input = vtkDataSet::SafeDownCast(
                                                   inputIterator->GetCurrentDataObject());
-    int composite_index = inputIterator->GetCurrentFlatIndex(); // et oui, les composite_index commencent a 1 :(
+    // Composite indices begin at 1 (0 is the root)
+    int composite_index = inputIterator->GetCurrentFlatIndex();
     inputIterator->GoToNextItem();
 
     if (input != 0 && input->GetNumberOfCells() > 0)
@@ -550,7 +551,9 @@ int vtkYoungsMaterialInterface::RequestData(
     {
     vtkDataSet * input = vtkDataSet::SafeDownCast(
                                                   inputIterator->GetCurrentDataObject());
-    int composite_index = inputIterator->GetCurrentFlatIndex(); // et oui, les composite_index commencent a 1 :(
+
+    // Composite indices begin at 1 (0 is the root)
+    int composite_index = inputIterator->GetCurrentFlatIndex();
     inputIterator->GoToNextItem();
 
     // make some variables visible by the debugger
@@ -1171,7 +1174,8 @@ int vtkYoungsMaterialInterface::RequestData(
                   int ptId = cell.pointIds[ pointIndex ];
                   if( ptId>=0 )
                     {
-                    DBG_ASSERT( ptId>=0 && ptId<nPoints ); // OUI, car interface d'une iteration precedente. que faire ...
+                    // Interface from a previous iteration
+                    DBG_ASSERT( ptId>=0 && ptId<nPoints );
                     nptId = Mats[m].pointMap[ptId];
                     }
                   else
