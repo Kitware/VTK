@@ -38,7 +38,7 @@ class VTK_PARALLEL_EXPORT vtkPYoungsMaterialInterface : public vtkYoungsMaterial
 {
 public:
   static vtkPYoungsMaterialInterface* New();
-  vtkTypeMacro(vtkPYoungsMaterialInterface,vtkPYoungsMaterialInterface);
+  vtkTypeMacro(vtkPYoungsMaterialInterface,vtkYoungsMaterialInterface);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
