@@ -33,7 +33,7 @@
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // For SP ivars
 #include "vtkIntArray.h"
 
 class vtkInformation;
