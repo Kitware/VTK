@@ -178,6 +178,7 @@ void vtkYoungsMaterialInterface::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReverseMaterialOrder: " << this->ReverseMaterialOrder << "\n";
   os << indent << "UseFractionAsDistance: " << this->UseFractionAsDistance << "\n";
   os << indent << "VolumeFractionRange: [" << this->VolumeFractionRange[0] << ";" << this->VolumeFractionRange[1] <<"]\n";
+  os << indent << "NumberOfDomains" << this->NumberOfDomains <<"\n";
 }
 
 void vtkYoungsMaterialInterface::SetNumberOfMaterials(int n)
