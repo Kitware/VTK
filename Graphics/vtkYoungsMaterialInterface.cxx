@@ -237,7 +237,7 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* nor
     }
   else
     {
-    int s2 = n.rfind(' ');
+    vtkIdType s2 = n.rfind(' ');
     this->Internals->Materials[M].normal = "";
     this->Internals->Materials[M].normalX = n.substr(0,s);
     this->Internals->Materials[M].normalY = n.substr(s+1,s2-s-1);
