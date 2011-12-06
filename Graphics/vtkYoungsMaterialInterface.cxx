@@ -537,6 +537,9 @@ int vtkYoungsMaterialInterface::RequestData(
       }
     }
 
+  // Perform parallel aggregation when needed (nothing in serial)
+  this->Aggregate( nmat, inputsPerMaterial );
+
   // map containing output blocks
   vtkstd::map<int, vtkDataSet*> outputBlocks;
 
