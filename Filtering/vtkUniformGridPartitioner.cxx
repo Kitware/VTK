@@ -114,8 +114,8 @@ int vtkUniformGridPartitioner::RequestData(
     double origin[3];
     int ijk[3];
     ijk[0] = ext[0];
-    ijk[1] = ext[1];
-    ijk[2] = ext[2];
+    ijk[1] = ext[2];
+    ijk[2] = ext[4];
 
     int subdims[3];
     vtkStructuredExtent::GetDimensions( ext, subdims );
