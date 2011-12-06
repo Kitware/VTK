@@ -26,6 +26,7 @@ vtkBandedPolyDataContourFilter.cxx
 vtkBlankStructuredGrid.cxx
 vtkBlankStructuredGridWithImage.cxx
 vtkBlockIdScalars.cxx
+vtkBooleanOperationPolyDataFilter.cxx
 vtkBoxClipDataSet.cxx
 vtkBrownianPoints.cxx
 vtkButterflySubdivisionFilter.cxx
@@ -75,6 +76,7 @@ vtkDijkstraGraphGeodesicPath.cxx
 vtkDijkstraImageGeodesicPath.cxx
 vtkDiscreteMarchingCubes.cxx
 vtkDiskSource.cxx
+vtkDistancePolyDataFilter.cxx
 vtkEdgePoints.cxx
 vtkEdgeSubdivisionCriterion.cxx
 vtkElevationFilter.cxx
@@ -140,9 +142,11 @@ vtkIdFilter.cxx
 vtkImageDataGeometryFilter.cxx
 vtkImageDataToPointSet.cxx
 vtkImageMarchingCubes.cxx
+vtkImplicitPolyDataDistance.cxx
 vtkImplicitTextureCoords.cxx
 vtkInterpolateDataSetAttributes.cxx
 vtkInterpolatingSubdivisionFilter.cxx
+vtkIntersectionPolyDataFilter.cxx
 vtkKdTreeSelector.cxx
 vtkLevelIdScalars.cxx
 vtkLinearExtrusionFilter.cxx
