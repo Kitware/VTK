@@ -50,7 +50,8 @@ class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
                     // processed by another partition, then, this property is
                     // used to indicate to the rest of the partitions sharing
                     // that node to ignore it.
-      BOUNDARY = 5  // Nodes that are on the boundaries of the domain
+      BOUNDARY = 5, // Nodes that are on the boundaries of the domain
+      PERIODIC = 6  // Nodes that are on periodic boundaries
       };
 
     enum CellProperties
