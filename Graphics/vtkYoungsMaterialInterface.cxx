@@ -1,48 +1,56 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
+Program:   Visualization Toolkit
+Module:    $RCSfile: vtkYoungsMaterialInterface.cxx,v $
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
-  =========================================================================*/
+=========================================================================*/
 // .SECTION Thanks
 // This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
 // Implementation by Thierry Carrard (CEA)
+// Modification by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkYoungsMaterialInterface.h"
-#include "vtkObjectFactory.h"
 
-#include "vtkCell.h"
-#include "vtkEmptyCell.h"
-#include "vtkPolygon.h"
-#include "vtkConvexPointSet.h"
-#include "vtkDataSet.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkDataArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDoubleArray.h"
-#include "vtkMath.h"
-#include "vtkIdList.h"
+#include <vtkObjectFactory.h>
+#include <vtkCell.h>
+#include <vtkEmptyCell.h>
+#include <vtkPolygon.h>
+#include <vtkConvexPointSet.h>
+#include <vtkDataSet.h>
+#include <vtkMultiBlockDataSet.h>
+#include <vtkCellData.h>
+#include <vtkPointData.h>
+#include <vtkDataArray.h>
+#include <vtkUnsignedCharArray.h>
+#include <vtkIdTypeArray.h>
+#include <vtkPoints.h>
+#include <vtkCellArray.h>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkDoubleArray.h>
+#include <vtkMath.h>
+#include <vtkIdList.h>
+#include <vtkCompositeDataIterator.h>
+#include <vtkSmartPointer.h>
+
+#ifndef DBG_ASSERT
+#define DBG_ASSERT(c) (void)0
+#endif
 
 #include <vtkstd/vector>
-#include <vtkstd/string> 
+#include <vtkstd/set>
+#include <vtkstd/string>
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
@@ -59,8 +67,8 @@ public:
   };
 
 
-  static void cellInterface3D( 
-   
+  static void cellInterface3D(
+
                               // Inputs
                               int ncoords,
                               double coords[][3],
@@ -68,14 +76,13 @@ public:
                               int cellEdges[][2],
                               int ntetra,
                               int tetraPointIds[][4],
-                              double fraction, double normal[3] , 
+                              double fraction, double normal[3] ,
                               bool useFractionAsDistance,
 
                               // Outputs
                               int & np, int eids[], double weights[] ,
                               int & nInside, int inPoints[],
                               int & nOutside, int outPoints[] );
-
 
   static double findTetraSetCuttingPlane(
                                          const double normal[3],
@@ -85,21 +92,21 @@ public:
                                          const int tetraCount,
                                          const int tetras[][4] );
 
-  static bool cellInterface2D( 
+  static bool cellInterfaceD(
 
-                              // Inputs
-                              double points[][3],
-                              int nPoints,
-                              int triangles[][3], 
-                              int nTriangles,
-                              double fraction, double normal[3] ,
-                              bool axisSymetric,
-                              bool useFractionAsDistance,
+                             // Inputs
+                             double points[][3],
+                             int nPoints,
+                             int triangles[][3],
+                             int nTriangles,
+                             double fraction, double normal[3] ,
+                             bool axisSymetric,
+                             bool useFractionAsDistance,
 
-                              // Outputs
-                              int eids[4], double weights[2] ,
-                              int &polygonPoints, int polygonIds[],
-                              int &nRemPoints, int remPoints[] );
+                             // Outputs
+                             int eids[4], double weights[2] ,
+                             int &polygonPoints, int polygonIds[],
+                             int &nRemPoints, int remPoints[] );
 
 
   static double findTriangleSetCuttingPlane(
@@ -119,22 +126,17 @@ public:
 
 class vtkYoungsMaterialInterfaceInternals
 {
-public: 
+public:
   struct MaterialDescription
   {
     vtkstd::string volume, normal, normalX, normalY, normalZ, ordering;
+    vtkstd::set<int> blocks;
   };
   vtkstd::vector<MaterialDescription> Materials;
 };
 
 // standard constructors and factory
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
-
-#ifdef DEBUG
-#define DBG_ASSERT(cond) assert(cond)
-#else
-#define DBG_ASSERT(cond) (void)0
-#endif
 
 /*!
   The default constructor
@@ -150,8 +152,11 @@ vtkYoungsMaterialInterface::vtkYoungsMaterialInterface()
   this->UseFractionAsDistance = 0;
   this->VolumeFractionRange[0] = 0.01;
   this->VolumeFractionRange[1] = 0.99;
-  this->TwoMaterialsOptimization = 0;
+  this->NumberOfDomains = -1;
   this->Internals = new vtkYoungsMaterialInterfaceInternals;
+  this->MaterialBlockMapping = vtkSmartPointer<vtkIntArray>::New();
+
+  vtkDebugMacro(<<"vtkYoungsMaterialInterface::vtkYoungsMaterialInterface() ok\n");
 }
 
 /*!
@@ -173,13 +178,15 @@ void vtkYoungsMaterialInterface::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReverseMaterialOrder: " << this->ReverseMaterialOrder << "\n";
   os << indent << "UseFractionAsDistance: " << this->UseFractionAsDistance << "\n";
   os << indent << "VolumeFractionRange: [" << this->VolumeFractionRange[0] << ";" << this->VolumeFractionRange[1] <<"]\n";
-  os << indent << "TwoMaterialsOptimization: " << this->TwoMaterialsOptimization << "\n";
+  os << indent << "NumberOfDomains" << this->NumberOfDomains <<"\n";
 }
 
 void vtkYoungsMaterialInterface::SetNumberOfMaterials(int n)
 {
-  vtkDebugMacro(<<"Resize Materials to "<<n<<"\n");
+//   vtkDebugMacro(<<"Resize Materials to "<<n<<"\n");
+  this->NumberOfDomains = -1;
   this->Internals->Materials.resize(n);
+  this->Modified();
 }
 
 int vtkYoungsMaterialInterface::GetNumberOfMaterials()
@@ -189,57 +196,85 @@ int vtkYoungsMaterialInterface::GetNumberOfMaterials()
 
 void vtkYoungsMaterialInterface::SetMaterialVolumeFractionArray( int M,  const char* volume )
 {
-  if( M<0 || M>=this->GetNumberOfMaterials() )
+  vtkDebugMacro(<<"SetMaterialVolumeFractionArray "<<M<<" : "<<volume<<"\n");
+  this->NumberOfDomains = -1;
+  if( M<0 )
     {
     vtkErrorMacro(<<"Bad material index "<<M<<"\n");
     return;
     }
+  else if( M>=this->GetNumberOfMaterials() )
+    {
+    this->SetNumberOfMaterials(M+1);
+    }
+
   this->Internals->Materials[M].volume = volume;
+  this->Modified();
 }
 
 void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* normal )
 {
-  if( M<0 || M>=this->GetNumberOfMaterials() )
+  vtkDebugMacro(<<"SetMaterialNormalArray "<<M<<" : "<<normal<<"\n");
+  this->NumberOfDomains = -1;
+  if( M<0 )
     {
     vtkErrorMacro(<<"Bad material index "<<M<<"\n");
     return;
     }
-  this->Internals->Materials[M].normal = normal;
-  this->Internals->Materials[M].normalX = "";
-  this->Internals->Materials[M].normalY = "";
-  this->Internals->Materials[M].normalZ = "";
+  else if( M>=this->GetNumberOfMaterials() )
+    {
+    this->SetNumberOfMaterials(M+1);
+    }
+
+  vtkstd::string n = normal;
+  vtkIdType s = n.find(' ');
+  if( s == static_cast<int>( vtkstd::string::npos ) )
+    {
+    this->Internals->Materials[M].normal = n;
+    this->Internals->Materials[M].normalX = "";
+    this->Internals->Materials[M].normalY = "";
+    this->Internals->Materials[M].normalZ = "";
+    }
+  else
+    {
+    int s2 = n.rfind(' ');
+    this->Internals->Materials[M].normal = "";
+    this->Internals->Materials[M].normalX = n.substr(0,s);
+    this->Internals->Materials[M].normalY = n.substr(s+1,s2-s-1);
+    this->Internals->Materials[M].normalZ = n.substr(s2+1);
+    vtkDebugMacro(<<"Nx="<<this->Internals->Materials[M].normalX<<", Ny="<<this->Internals->Materials[M].normalY<<", Nz="<<this->Internals->Materials[M].normalZ<<"\n");
+    }
+  this->Modified();
 }
 
 void vtkYoungsMaterialInterface::SetMaterialOrderingArray( int M,  const char* ordering )
 {
-  if( M<0 || M>=this->GetNumberOfMaterials() )
+  vtkDebugMacro(<<"SetMaterialOrderingArray "<<M<<" : "<<ordering<<"\n");
+  this->NumberOfDomains = -1;
+  if( M<0 )
     {
     vtkErrorMacro(<<"Bad material index "<<M<<"\n");
     return;
     }
+  else if( M>=this->GetNumberOfMaterials() )
+    {
+    this->SetNumberOfMaterials(M+1);
+    }
   this->Internals->Materials[M].ordering = ordering;
+  this->Modified();
 }
-
-/*
-  void vtkYoungsMaterialInterface::AddMaterial( const char* volume )
-  {
-  MaterialDescription md;
-  md.volume = volume;
-  md.normal = "";
-  md.normalX = "";
-  md.normalY = "";
-  md.normalZ = "";
-  md.ordering = "";
-  this->Materials.push_back(md);
-  }
-*/
 
 void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, const char* normal, const char* ordering )
 {
-  if( M<0 || M>=this->GetNumberOfMaterials() )
+  this->NumberOfDomains = -1;
+  if( M<0 )
     {
     vtkErrorMacro(<<"Bad material index "<<M<<"\n");
     return;
+    }
+  else if( M>=this->GetNumberOfMaterials() )
+    {
+    this->SetNumberOfMaterials(M+1);
     }
   vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normal<<","<<ordering<<"\n");
   vtkYoungsMaterialInterfaceInternals::MaterialDescription md;
@@ -250,45 +285,44 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, c
   md.normalZ = "";
   md.ordering = ordering;
   this->Internals->Materials[M] = md;
+  this->Modified();
 }
 
-/*
-  void vtkYoungsMaterialInterface::AddMaterial( const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering )
-  {
-  vtkDebugMacro(<<"Added Material "<<volume<<","<<normalX<<","<<normalY<<","<<normalZ<<","<<ordering<<"\n");
-  MaterialDescription md;
+void vtkYoungsMaterialInterface::SetMaterialArrays( int M,  const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering )
+{
+  this->NumberOfDomains = -1;
+  if( M<0 )
+    {
+    vtkErrorMacro(<<"Bad material index "<<M<<"\n");
+    return;
+    }
+  else if( M>=this->GetNumberOfMaterials() )
+    {
+    this->SetNumberOfMaterials(M+1);
+    }
+  vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normalX<<","<<normalY<<","<<normalZ<<","<<ordering<<"\n");
+  vtkYoungsMaterialInterfaceInternals::MaterialDescription md;
   md.volume = volume;
   md.normal = "";
   md.normalX = normalX;
   md.normalY = normalY;
   md.normalZ = normalZ;
   md.ordering = ordering;
-  this->Materials.push_back( md );
-  }
-
-  void vtkYoungsMaterialInterface::SetMaterial( int Material,  const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering )
-  {
-  MaterialDescription md;
-  md.volume = volume;
-  md.normal = "";
-  md.normalX = normalX;
-  md.normalY = normalY;
-  md.normalZ = normalZ;
-  md.ordering = ordering;
-  this->Materials.push_back( md );
-  }
-*/
+  this->Internals->Materials[M] = md;
+  this->Modified();
+}
 
 void vtkYoungsMaterialInterface::RemoveAllMaterials()
 {
+  this->NumberOfDomains = -1;
   vtkDebugMacro(<<"Remove All Materials\n");
   this->SetNumberOfMaterials(0);
 }
 
 int vtkYoungsMaterialInterface::FillInputPortInformation(int, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  //info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  //info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 0);
   return 1;
 }
 
@@ -308,7 +342,7 @@ struct vtkYoungsMaterialInterface_Mat
   vtkDataArray* normalXArray;
   vtkDataArray* normalYArray;
   vtkDataArray* normalZArray;
-  vtkDataArray* orderingArray;      
+  vtkDataArray* orderingArray;
 
   // temporary
   vtkIdType numberOfCells;
@@ -326,40 +360,40 @@ struct vtkYoungsMaterialInterface_Mat
 };
 
 
-static inline void 
-vtkYoungsMaterialInterface_GetPointData(
-                                        int nPointData,
-                                        vtkDataArray** inPointArrays,
-                                        vtkDataSet * input,
-                                        vtkstd::vector< vtkstd::pair<int,vtkIdType> > & prevPointsMap,
-                                        int vtkNotUsed(nmat),
-                                        vtkYoungsMaterialInterface_Mat * Mats ,
-                                        int a, vtkIdType i, double* t)
-{   
-  if( (i) >= 0 )              
-    {                  
-    if(a<(nPointData-1))            
-      {                  
-      DBG_ASSERT( /*i>=0 &&*/ i<inPointArrays[a]->GetNumberOfTuples());   
-      inPointArrays[a]->GetTuple( i , t );        
-      }                  
-    else                
+static inline void vtkYoungsMaterialInterface_GetPointData(
+                                                           int nPointData,
+                                                           vtkDataArray** inPointArrays,
+                                                           vtkDataSet * input, vtkstd::vector<vtkstd::pair<int, vtkIdType> > & prevPointsMap,
+                                                           int vtkNotUsed(nmat),
+                                                           vtkYoungsMaterialInterface_Mat * Mats,
+                                                           int a,
+                                                           vtkIdType i,
+                                                           double* t)
+{
+  if ((i) >= 0)
+    {
+    if (a < (nPointData - 1))
+      {
+      DBG_ASSERT( /*i>=0 &&*/i<inPointArrays[a]->GetNumberOfTuples());
+      inPointArrays[a]->GetTuple(i, t);
+      }
+    else
       {
       DBG_ASSERT( a == (nPointData-1) );
-      DBG_ASSERT( /*i>=0 &&*/ i<input->GetNumberOfPoints());              
-      input->GetPoint( i , t );          
+      DBG_ASSERT( /*i>=0 &&*/i<input->GetNumberOfPoints());
+      input->GetPoint(i, t);
       }
     }
   else
     {
-    int j=-i-1;              
-    DBG_ASSERT(j>=0 && j<prevPointsMap.size());      
-    int prev_m = prevPointsMap[j].first;        
-    DBG_ASSERT(prev_m>=0 && prev_m<nmat);        
-    vtkIdType prev_i = ( prevPointsMap[j].second );      
-    DBG_ASSERT(prev_i>=0 && prev_i<Mats[prev_m].outPointArrays[a]->GetNumberOfTuples()); 
-    Mats[prev_m].outPointArrays[a]->GetTuple( prev_i , t );    
-    } 
+    int j = -i - 1;
+    DBG_ASSERT(j>=0 && j<prevPointsMap.size());
+    int prev_m = prevPointsMap[j].first;
+    DBG_ASSERT(prev_m>=0 /*&& prev_m<nmat*/);
+    vtkIdType prev_i = (prevPointsMap[j].second);
+    DBG_ASSERT(prev_i>=0 && prev_i<Mats[prev_m].outPointArrays[a]->GetNumberOfTuples());
+    Mats[prev_m].outPointArrays[a]->GetTuple(prev_i, t);
+    }
 }
 
 #define GET_POINT_DATA(a,i,t) vtkYoungsMaterialInterface_GetPointData(nPointData,inPointArrays,input,prevPointsMap,nmat,Mats,a,i,t)
@@ -388,7 +422,7 @@ int vtkYoungsMaterialInterface::CellProduceInterface( int dim, int np, double fr
 {
   return
     (
-     (dim==3 && np>=4) || 
+     (dim==3 && np>=4) ||
      (dim==2 && np>=3)
      ) &&
     (
@@ -398,620 +432,758 @@ int vtkYoungsMaterialInterface::CellProduceInterface( int dim, int np, double fr
       ( fraction < maxFrac || this->FillMaterial )
       )
      ) ;
-   
+
 }
 
-int vtkYoungsMaterialInterface::RequestData(vtkInformation *vtkNotUsed(request),
-                                            vtkInformationVector **inputVector,
-                                            vtkInformationVector *outputVector)
+void vtkYoungsMaterialInterface::RemoveAllMaterialBlockMappings()
+{
+  vtkDebugMacro(<<"RemoveAllMaterialBlockMappings\n");
+  this->MaterialBlockMapping->Reset();
+}
+void vtkYoungsMaterialInterface::AddMaterialBlockMapping(int b)
+{
+  vtkDebugMacro(<<"AddMaterialBlockMapping "<<b<<"\n");
+  this->MaterialBlockMapping->InsertNextValue(b);
+}
+
+void vtkYoungsMaterialInterface::UpdateBlockMapping()
+{
+  int n = this->MaterialBlockMapping->GetNumberOfTuples();
+  int curmat = -1;
+  for(int i = 0;i<n;i++)
+    {
+    int b = this->MaterialBlockMapping->GetValue(i);
+    vtkDebugMacro(<<"MaterialBlockMapping "<<b<<"\n");
+    if( b < 0 ) curmat = (-b) - 1;
+    else
+      {
+      vtkDebugMacro(<<"Material "<<curmat<<" Ajout block "<<b<<"\n");
+      this->Internals->Materials[curmat].blocks.insert(b);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkYoungsMaterialInterface::RequestData(
+                                            vtkInformation *vtkNotUsed(request),
+                                            vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get input
-  vtkDataSet * input = vtkDataSet::SafeDownCast(
-                                                inInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->UpdateBlockMapping();
+
+  this->NumberOfDomains = -1;
+
+  // get composite input
+  vtkCompositeDataSet * compositeInput = vtkCompositeDataSet::SafeDownCast(
+                                                                           inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // get typed output
   vtkMultiBlockDataSet * output = vtkMultiBlockDataSet::SafeDownCast(
                                                                      outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if(input==0 || output==0)
+  if (compositeInput == 0 || output == 0)
     {
     vtkErrorMacro(<<"Invalid algorithm connection\n");
     return 0;
     }
 
-  // variables visible by debugger
+  // debug statistics
+  vtkIdType debugStats_PrimaryTriangulationfailed = 0;
+  vtkIdType debugStats_Triangulationfailed = 0;
+  vtkIdType debugStats_NullNormal = 0;
+  vtkIdType debugStats_NoInterfaceFound = 0;
 
-  int nmat = static_cast<int>( this->Internals->Materials.size() );
-  int nCellData = input->GetCellData()->GetNumberOfArrays();
-  int nPointData = input->GetPointData()->GetNumberOfArrays();
-  vtkIdType nCells = input->GetNumberOfCells();
-  vtkIdType nPoints = input->GetNumberOfPoints();
+  int nmat = static_cast<int> (this->Internals->Materials.size());
 
-  // -------------- temporary data initialization -------------------
-  vtkDataArray** inCellArrays = new vtkDataArray* [nCellData] ;
-  for(int i=0;i<nCellData;i++)
+  // alocate composite iterator
+  vtkSmartPointer<vtkCompositeDataIterator> inputIterator = vtkSmartPointer<vtkCompositeDataIterator>::New();
+  inputIterator->SetDataSet(compositeInput);
+  inputIterator->VisitOnlyLeavesOn();
+  inputIterator->SkipEmptyNodesOn();
+  inputIterator->InitTraversal();
+  inputIterator->GoToFirstItem();
+
+  // first compute number of domains
+  int* inputsPerMaterial = new int[nmat];
+  for (int i = 0; i < nmat; i++) { inputsPerMaterial[i] = 0; }
+
+  while (inputIterator->IsDoneWithTraversal() == 0)
     {
-    inCellArrays[i] = input->GetCellData()->GetArray(i);
-    }
+    vtkDataSet * input = vtkDataSet::SafeDownCast(
+                                                  inputIterator->GetCurrentDataObject());
+    // Composite indices begin at 1 (0 is the root)
+    int composite_index = inputIterator->GetCurrentFlatIndex();
+    inputIterator->GoToNextItem();
 
-  vtkDataArray** inPointArrays = new vtkDataArray* [nPointData+1]; // last point array is point coords
-  int* pointArrayOffset = new int [ nPointData+1 ];
-  int pointDataComponents = 0;
-  for(int i=0;i<nPointData;i++)
-    {
-    inPointArrays[i] = input->GetPointData()->GetArray(i);
-    pointArrayOffset[i] = pointDataComponents;
-    pointDataComponents += inPointArrays[i]->GetNumberOfComponents();
-    }
-  // we add another data array for point coords
-  pointArrayOffset[nPointData] = pointDataComponents;
-  pointDataComponents += 3;
-  nPointData++;
-
-  vtkYoungsMaterialInterface_Mat* Mats = new vtkYoungsMaterialInterface_Mat[nmat];
-    {
-    int m=0;
-    for( vtkstd::vector<vtkYoungsMaterialInterfaceInternals::MaterialDescription>::iterator it=this->Internals->Materials.begin(); it!=this->Internals->Materials.end(); ++it , ++m )
+    if (input != 0 && input->GetNumberOfCells() > 0)
       {
-      Mats[m].fractionArray = input->GetCellData()->GetArray( (*it).volume.c_str() );
-      Mats[m].normalArray = input->GetCellData()->GetArray( (*it).normal.c_str() );
-      Mats[m].normalXArray = input->GetCellData()->GetArray( (*it).normalX.c_str() );
-      Mats[m].normalYArray = input->GetCellData()->GetArray( (*it).normalY.c_str() );
-      Mats[m].normalZArray = input->GetCellData()->GetArray( (*it).normalZ.c_str() );
-      Mats[m].orderingArray = input->GetCellData()->GetArray( (*it).ordering.c_str() );
-
-#ifdef DEBUG
-      if( Mats[m].fractionArray == 0 )
+      int m = 0;
+      for (vtkstd::vector<vtkYoungsMaterialInterfaceInternals::MaterialDescription>::iterator
+             it = this->Internals->Materials.begin();
+           it!= this->Internals->Materials.end(); ++it, ++m)
         {
-        vtkWarningMacro(<<"Material "<<m<<": volume fraction array '"<<(*it).volume<<"' not found\n");
+        vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume.c_str());
+        bool materialHasBlock = ((*it).blocks.find(composite_index)!= (*it).blocks.end());
+        if (materialHasBlock && fraction != 0)
+          {
+          double range[2];
+          fraction->GetRange(range);
+          if (range[1] > this->VolumeFractionRange[0])
+            {
+            ++inputsPerMaterial[m];
+            }
+          }
         }
-      if( Mats[m].orderingArray == 0 )    
-        {
-        vtkWarningMacro(<<"Material "<<m<<" material ordering array '"<<(*it).ordering<<"' not found\n");
-        }
-      if( Mats[m].normalArray==0 && Mats[m].normalXArray==0 && Mats[m].normalYArray==0 && Mats[m].normalZArray==0 )
-        {
-        vtkWarningMacro(<<"Material "<<m<<" normal  array '"<<(*it).normal<<"' not found\n");
-        }
-#endif
-
-      Mats[m].numberOfCells = 0;
-      Mats[m].cellCount = 0;
-      Mats[m].cellArrayCount = 0;
-
-      Mats[m].outCellArrays = new vtkDataArray* [ nCellData ];
-      for(int i=0;i<nCellData;i++)
-        {
-        Mats[m].outCellArrays[i] = vtkDataArray::CreateDataArray( inCellArrays[i]->GetDataType() );
-        Mats[m].outCellArrays[i]->SetName( inCellArrays[i]->GetName() );
-        Mats[m].outCellArrays[i]->SetNumberOfComponents( inCellArrays[i]->GetNumberOfComponents() );
-        }
-
-      Mats[m].numberOfPoints = 0;
-      Mats[m].pointCount = 0;
-      Mats[m].outPointArrays = new vtkDataArray* [ nPointData ];
-
-      for(int i=0;i<(nPointData-1);i++)
-        {
-        Mats[m].outPointArrays[i] = vtkDataArray::CreateDataArray( inPointArrays[i]->GetDataType() );
-        Mats[m].outPointArrays[i]->SetName( inPointArrays[i]->GetName() );
-        Mats[m].outPointArrays[i]->SetNumberOfComponents( inPointArrays[i]->GetNumberOfComponents() );
-        }
-      Mats[m].outPointArrays[nPointData-1] = vtkDoubleArray::New();
-      Mats[m].outPointArrays[nPointData-1]->SetName("Points");
-      Mats[m].outPointArrays[nPointData-1]->SetNumberOfComponents(3);
       }
     }
 
-    // --------------- per material number of interfaces estimation ------------
-    for(vtkIdType c=0;c<nCells;c++)
-      {
-      vtkCell* vtkcell = input->GetCell(c);
-      int cellDim = vtkcell->GetCellDimension();
-      int np = vtkcell->GetNumberOfPoints();
-      int nf = vtkcell->GetNumberOfFaces();
+  // Perform parallel aggregation when needed (nothing in serial)
+  this->Aggregate( nmat, inputsPerMaterial );
 
-      for(int m=0;m<nmat;m++)
+  // map containing output blocks
+  vtkstd::map<int, vtkDataSet*> outputBlocks;
+
+  // iterate over input blocks
+  inputIterator->InitTraversal();
+  inputIterator->GoToFirstItem();
+  while (inputIterator->IsDoneWithTraversal() == 0)
+    {
+    vtkDataSet * input = vtkDataSet::SafeDownCast(
+                                                  inputIterator->GetCurrentDataObject());
+
+    // Composite indices begin at 1 (0 is the root)
+    int composite_index = inputIterator->GetCurrentFlatIndex();
+    inputIterator->GoToNextItem();
+
+    // make some variables visible by the debugger
+    int nCellData = input->GetCellData()->GetNumberOfArrays();
+    int nPointData = input->GetPointData()->GetNumberOfArrays();
+    vtkIdType nCells = input->GetNumberOfCells();
+    vtkIdType nPoints = input->GetNumberOfPoints();
+
+    // -------------- temporary data initialization -------------------
+    vtkDataArray** inCellArrays = new vtkDataArray*[nCellData];
+    for (int i = 0; i < nCellData; i++)
+      {
+      inCellArrays[i] = input->GetCellData()->GetArray(i);
+      }
+
+    vtkDataArray** inPointArrays = new vtkDataArray*[nPointData + 1]; // last point array is point coords
+    int* pointArrayOffset = new int[nPointData + 1];
+    int pointDataComponents = 0;
+    for (int i = 0; i < nPointData; i++)
+      {
+      inPointArrays[i] = input->GetPointData()->GetArray(i);
+      pointArrayOffset[i] = pointDataComponents;
+      pointDataComponents += inPointArrays[i]->GetNumberOfComponents();
+      }
+    // we add another data array for point coords
+    pointArrayOffset[nPointData] = pointDataComponents;
+    pointDataComponents += 3;
+    nPointData++;
+
+    vtkYoungsMaterialInterface_Mat* Mats =
+      new vtkYoungsMaterialInterface_Mat[nmat];
+      {
+      int m = 0;
+      for (vtkstd::vector<
+             vtkYoungsMaterialInterfaceInternals::MaterialDescription>::iterator
+             it = this->Internals->Materials.begin(); it
+             != this->Internals->Materials.end(); ++it, ++m)
         {
-        double fraction = ( Mats[m].fractionArray != 0 ) ? Mats[m].fractionArray->GetTuple1(c) : 0 ;
-        if( this->CellProduceInterface(cellDim,np,fraction,this->VolumeFractionRange[0],this->VolumeFractionRange[1]) )
+        Mats[m].fractionArray = input->GetCellData()->GetArray(
+                                                               (*it).volume.c_str());
+        Mats[m].normalArray = input->GetCellData()->GetArray(
+                                                             (*it).normal.c_str());
+        Mats[m].normalXArray = input->GetCellData()->GetArray(
+                                                              (*it).normalX.c_str());
+        Mats[m].normalYArray = input->GetCellData()->GetArray(
+                                                              (*it).normalY.c_str());
+        Mats[m].normalZArray = input->GetCellData()->GetArray(
+                                                              (*it).normalZ.c_str());
+        Mats[m].orderingArray = input->GetCellData()->GetArray(
+                                                               (*it).ordering.c_str());
+
+        if (Mats[m].fractionArray == 0)
           {
-          if( cellDim == 2 )
-            {
-            Mats[m].numberOfPoints += 2;
-            }
-          else
-            {
-            Mats[m].numberOfPoints += nf;
-            }
-          if( this->FillMaterial )
-            {
-            Mats[m].numberOfPoints += np-1;
-            }
-          Mats[m].numberOfCells ++;
+          vtkDebugMacro(<<"Material "<<m<<": volume fraction array '"<<(*it).volume<<"' not found\n");
           }
+        //                      if( Mats[m].orderingArray == 0 )
+        //                      {
+        //                              vtkDebugMacro(<<"Material "<<m<<" material ordering array '"<<(*it).ordering<<"' not found\n");
+        //                      }
+        if( Mats[m].normalArray==0 && Mats[m].normalXArray==0 && Mats[m].normalYArray==0 && Mats[m].normalZArray==0 )
+          {
+          vtkDebugMacro(<<"Material "<<m<<" normal  array '"<<(*it).normal<<"' not found\n");
+          }
+
+        bool materialHasBlock = ( (*it).blocks.find(composite_index) != (*it).blocks.end() );
+        if( !materialHasBlock )
+          {
+          Mats[m].fractionArray = 0; // TODO: we certainly can do better to avoid material calculations
+          }
+
+        Mats[m].numberOfCells = 0;
+        Mats[m].cellCount = 0;
+        Mats[m].cellArrayCount = 0;
+
+        Mats[m].outCellArrays = new vtkDataArray* [ nCellData ];
+        for(int i = 0;i<nCellData;i++)
+          {
+          Mats[m].outCellArrays[i] = vtkDataArray::CreateDataArray( inCellArrays[i]->GetDataType() );
+          Mats[m].outCellArrays[i]->SetName( inCellArrays[i]->GetName() );
+          Mats[m].outCellArrays[i]->SetNumberOfComponents( inCellArrays[i]->GetNumberOfComponents() );
+          }
+
+        Mats[m].numberOfPoints = 0;
+        Mats[m].pointCount = 0;
+        Mats[m].outPointArrays = new vtkDataArray* [ nPointData ];
+
+        for(int i = 0;i<(nPointData-1);i++)
+          {
+          Mats[m].outPointArrays[i] = vtkDataArray::CreateDataArray( inPointArrays[i]->GetDataType() );
+          Mats[m].outPointArrays[i]->SetName( inPointArrays[i]->GetName() );
+          Mats[m].outPointArrays[i]->SetNumberOfComponents( inPointArrays[i]->GetNumberOfComponents() );
+          }
+        Mats[m].outPointArrays[nPointData-1] = vtkDoubleArray::New();
+        Mats[m].outPointArrays[nPointData-1]->SetName("Points");
+        Mats[m].outPointArrays[nPointData-1]->SetNumberOfComponents(3);
         }
       }
 
-    // allocation of output arrays
-    for(int m=0;m<nmat;m++)
-      {
-      vtkDebugMacro(<<"Mat #"<<m<<" : cells="<<Mats[m].numberOfCells<<", points="<<Mats[m].numberOfPoints<<", FillMaterial="<<this->FillMaterial<<"\n");
-      for(int i=0;i<nCellData;i++)
+      // --------------- per material number of interfaces estimation ------------
+      for(vtkIdType c=0;c<nCells;c++)
         {
-        Mats[m].outCellArrays[i]->Allocate( Mats[m].numberOfCells * Mats[m].outCellArrays[i]->GetNumberOfComponents() );
-        }
-      for(int i=0;i<nPointData;i++)
-        {
-        Mats[m].outPointArrays[i]->Allocate( Mats[m].numberOfPoints * Mats[m].outPointArrays[i]->GetNumberOfComponents() );
-        }
-      Mats[m].cellTypes.reserve( Mats[m].numberOfCells );
-      Mats[m].cells.reserve( Mats[m].numberOfCells + Mats[m].numberOfPoints );
-      Mats[m].pointMap = new vtkIdType[ nPoints ];
-      for(vtkIdType i=0;i<nPoints;i++) { Mats[m].pointMap[i] = -1; }
-      }
+        vtkCell* vtkcell = input->GetCell(c);
+        int cellDim = vtkcell->GetCellDimension();
+        int np = vtkcell->GetNumberOfPoints();
+        int nf = vtkcell->GetNumberOfFaces();
 
-    // --------------------------- core computation --------------------------
-    vtkIdList *ptIds = vtkIdList::New();
-    vtkPoints *pts = vtkPoints::New();
-    vtkConvexPointSet* cpsCell = vtkConvexPointSet::New();
-
-    double* interpolatedValues = new double[ MAX_CELL_POINTS * pointDataComponents ];
-    vtkYoungsMaterialInterface_IndexedValue * matOrdering = new vtkYoungsMaterialInterface_IndexedValue[nmat];
-
-    vtkstd::vector< vtkstd::pair<int,vtkIdType> > prevPointsMap; 
-    prevPointsMap.reserve( MAX_CELL_POINTS*nmat );
-
-    for(vtkIdType ci=0;ci<nCells;ci++)
-      {
-      int interfaceEdges[MAX_CELL_POINTS*2];
-      double interfaceWeights[MAX_CELL_POINTS];
-      int nInterfaceEdges;
-
-      int insidePointIds[MAX_CELL_POINTS];
-      int nInsidePoints;
-
-      int outsidePointIds[MAX_CELL_POINTS];
-      int nOutsidePoints;
-
-      int outCellPointIds[MAX_CELL_POINTS];
-      int nOutCellPoints;
-
-      double referenceVolume = 1.0;
-      double normal[3];
-      bool normaleNulle = false;
-
-
-      prevPointsMap.clear();
-
-      // sort materials
-      int nEffectiveMat = 0;
-      for(int mi=0;mi<nmat;mi++)
-        {
-        matOrdering[mi].index = mi;
-        matOrdering[mi].value = ( Mats[mi].orderingArray != 0 ) ? Mats[mi].orderingArray->GetTuple1(ci) : 0.0;
-
-        double fraction = ( Mats[mi].fractionArray != 0 ) ? Mats[mi].fractionArray->GetTuple1(ci) : 0 ;
-        if( this->UseFractionAsDistance || fraction>this->VolumeFractionRange[0] ) nEffectiveMat++;
-        }
-      vtkstd::stable_sort( matOrdering , matOrdering+nmat );
-
-      bool twoMaterialOptimization =  !this->UseFractionAsDistance && this->TwoMaterialsOptimization && (nEffectiveMat==2);
-      if( twoMaterialOptimization )
-        {
-        vtkDebugMacro(<<"2 material optimization triggered for cell #"<<ci<<"\n");
-        }
-
-      // read cell information for the first iteration
-      // a temporary cell will then be generated after each iteration for the next one.
-      vtkCell* vtkcell = input->GetCell(ci);
-      CellInfo cell;
-      cell.dim = vtkcell->GetCellDimension();
-      cell.np = vtkcell->GetNumberOfPoints();
-      cell.nf = vtkcell->GetNumberOfFaces();
-      cell.type = vtkcell->GetCellType();
-      
-      /* copy points and point ids to lacal arrays.
-         IMPORTANT NOTE : A negative point id refers to a point in the previous material.
-         the material number and real point id can be found through the prevPointsMap. */
-      for(int p=0;p<cell.np;p++)
-        {
-        cell.pointIds[p] = vtkcell->GetPointId(p);
-        DBG_ASSERT( cell.pointIds[p]>=0 && cell.pointIds[p]<nPoints );
-        vtkcell->GetPoints()->GetPoint( p , cell.points[p] );
-        }
-
-      /* Triangulate cell.
-         IMPORTANT NOTE: triangulation is given with mesh point ids (not local cell ids) 
-         and are translated to cell local point ids. */
-      cell.needTriangulation = false;
-      cell.triangulationOk = ( vtkcell->Triangulate(ci,ptIds,pts) != 0 );
-      cell.ntri = 0;
-      if( cell.triangulationOk )
-        {
-        cell.ntri = ptIds->GetNumberOfIds() / (cell.dim+1);
-        for(int i=0;i<(cell.ntri*(cell.dim+1));i++)
+        for(int m=0;m<nmat;m++)
           {
-          vtkIdType j = vtkstd::find( cell.pointIds , cell.pointIds+cell.np , ptIds->GetId(i) ) - cell.pointIds;
-          DBG_ASSERT( j>=0 && j<cell.np );
-          cell.triangulation[i] = j;
-          }
-        }
-      else
-        {
-        vtkWarningMacro(<<"Triangulation failed on primary cell\n");
-        }
-
-      // get 3D cell edges.
-      if( cell.dim == 3 )
-        {
-        vtkCell3D* cell3D = vtkCell3D::SafeDownCast( vtkcell );
-        cell.nEdges = vtkcell->GetNumberOfEdges();
-        for(int i=0;i<cell.nEdges;i++)
-          {
-          int tmp[4];
-          int * edgePoints = tmp; 
-          cell3D->GetEdgePoints(i,edgePoints);
-          cell.edges[i][0] = edgePoints[0];
-          DBG_ASSERT( cell.edges[i][0]>=0 && cell.edges[i][0]<cell.np );
-          cell.edges[i][1] = edgePoints[1];
-          DBG_ASSERT( cell.edges[i][1]>=0 && cell.edges[i][1]<cell.np );
-          }
-        }
-
-      // for debugging : ensures that we don't read anything from cell, but only from previously filled arrays
-      vtkcell = 0; 
-      
-      int processedEfectiveMat = 0;
-
-      // Loop for each material. Current cell is iteratively cut.
-      for(int mi=0;mi<nmat;mi++)
-        {
-        int m = this->ReverseMaterialOrder ? matOrdering[nmat-1-mi].index : matOrdering[mi].index;
-
-        // get volume fraction and interface plane normal from input arrays
-        double fraction = ( Mats[m].fractionArray != 0 ) ? Mats[m].fractionArray->GetTuple1(ci) : 0 ;
-        if( !twoMaterialOptimization )
-          {
-          fraction = (referenceVolume>0) ? (fraction/referenceVolume) : 0.0 ;
-          }
-
-        if( this->CellProduceInterface(cell.dim,cell.np,fraction,this->VolumeFractionRange[0],this->VolumeFractionRange[1]) )
-          {
-          CellInfo nextCell; // empty cell by default
-          int interfaceCellType = VTK_EMPTY_CELL;
-
-          if( mi==0 || ( !this->OnionPeel && !twoMaterialOptimization) )
+          double fraction = ( Mats[m].fractionArray != 0 ) ? Mats[m].fractionArray->GetTuple1(c) : 0;
+          if( this->CellProduceInterface(cellDim,np,fraction,this->VolumeFractionRange[0],this->VolumeFractionRange[1]) )
             {
-            normal[0]=0; normal[1]=0; normal[2]=0;
-
-            if( Mats[m].normalArray != 0 ) Mats[m].normalArray->GetTuple(ci,normal);
-            if( Mats[m].normalXArray != 0 ) normal[0] = Mats[m].normalXArray->GetTuple1(ci);
-            if( Mats[m].normalYArray != 0 ) normal[1] = Mats[m].normalYArray->GetTuple1(ci);
-            if( Mats[m].normalZArray != 0 ) normal[2] = Mats[m].normalZArray->GetTuple1(ci);
-
-            // work-around for degenerated normals
-            if( vtkMath::Norm(normal) == 0.0 ) // should it be <EPSILON ?
+            if( cellDim == 2 )
               {
-#ifdef DEBUG
-              vtkWarningMacro(<<"Nul normal\n");
-#endif
-              normaleNulle=true;
-              normal[0]=1.0;
-              normal[1]=0.0;
-              normal[2]=0.0;
+              Mats[m].numberOfPoints += 2;
               }
             else
               {
-              vtkMath::Normalize( normal );
+              Mats[m].numberOfPoints += nf;
               }
-            if( this->InverseNormal )
+            if( this->FillMaterial )
               {
-              normal[0] = -normal[0];
-              normal[1] = -normal[1];
-              normal[2] = -normal[2];
+              Mats[m].numberOfPoints += np-1;
               }
+            Mats[m].numberOfCells ++;
             }
+          }
+        }
 
-          // 2 material case optimization
-          if( twoMaterialOptimization && processedEfectiveMat>0 )
+      // allocation of output arrays
+      for(int m=0;m<nmat;m++)
+        {
+        vtkDebugMacro(<<"Mat #"<<m<<" : cells="<<Mats[m].numberOfCells<<", points="<<Mats[m].numberOfPoints<<", FillMaterial="<<this->FillMaterial<<"\n");
+        for(int i = 0;i<nCellData;i++)
+          {
+          Mats[m].outCellArrays[i]->Allocate( Mats[m].numberOfCells * Mats[m].outCellArrays[i]->GetNumberOfComponents() );
+          }
+        for(int i = 0;i<nPointData;i++)
+          {
+          Mats[m].outPointArrays[i]->Allocate( Mats[m].numberOfPoints * Mats[m].outPointArrays[i]->GetNumberOfComponents() );
+          }
+        Mats[m].cellTypes.reserve( Mats[m].numberOfCells );
+        Mats[m].cells.reserve( Mats[m].numberOfCells + Mats[m].numberOfPoints );
+        Mats[m].pointMap = new vtkIdType[ nPoints ];
+        for(vtkIdType i = 0;i<nPoints;i++) { Mats[m].pointMap[i] = -1;}
+        }
+
+      // --------------------------- core computation --------------------------
+      vtkIdList *ptIds = vtkIdList::New();
+      vtkPoints *pts = vtkPoints::New();
+      vtkConvexPointSet* cpsCell = vtkConvexPointSet::New();
+
+      double* interpolatedValues = new double[ MAX_CELL_POINTS * pointDataComponents ];
+      vtkYoungsMaterialInterface_IndexedValue * matOrdering = new vtkYoungsMaterialInterface_IndexedValue[nmat];
+
+      vtkstd::vector< vtkstd::pair<int,vtkIdType> > prevPointsMap;
+      prevPointsMap.reserve( MAX_CELL_POINTS*nmat );
+
+      for(vtkIdType ci = 0;ci<nCells;ci++)
+        {
+        int interfaceEdges[MAX_CELL_POINTS*2];
+        double interfaceWeights[MAX_CELL_POINTS];
+        int nInterfaceEdges;
+
+        int insidePointIds[MAX_CELL_POINTS];
+        int nInsidePoints;
+
+        int outsidePointIds[MAX_CELL_POINTS];
+        int nOutsidePoints;
+
+        int outCellPointIds[MAX_CELL_POINTS];
+        int nOutCellPoints;
+
+        double referenceVolume = 1.0;
+        double normal[3];
+        bool normaleNulle = false;
+
+        prevPointsMap.clear();
+
+        // sort materials
+        int nEffectiveMat = 0;
+        for(int mi = 0;mi<nmat;mi++)
+          {
+          matOrdering[mi].index = mi;
+          matOrdering[mi].value = ( Mats[mi].orderingArray != 0 ) ? Mats[mi].orderingArray->GetTuple1(ci) : 0.0;
+
+          double fraction = ( Mats[mi].fractionArray != 0 ) ? Mats[mi].fractionArray->GetTuple1(ci) : 0;
+          if( this->UseFractionAsDistance || fraction>this->VolumeFractionRange[0] ) nEffectiveMat++;
+          }
+        vtkstd::stable_sort( matOrdering , matOrdering+nmat );
+
+        // read cell information for the first iteration
+        // a temporary cell will then be generated after each iteration for the next one.
+        vtkCell* vtkcell = input->GetCell(ci);
+        CellInfo cell;
+        cell.dim = vtkcell->GetCellDimension();
+        cell.np = vtkcell->GetNumberOfPoints();
+        cell.nf = vtkcell->GetNumberOfFaces();
+        cell.type = vtkcell->GetCellType();
+
+        /* copy points and point ids to lacal arrays.
+           IMPORTANT NOTE : A negative point id refers to a point in the previous material.
+           the material number and real point id can be found through the prevPointsMap. */
+        for(int p=0;p<cell.np;p++)
+          {
+          cell.pointIds[p] = vtkcell->GetPointId(p);
+          DBG_ASSERT( cell.pointIds[p]>=0 && cell.pointIds[p]<nPoints );
+          vtkcell->GetPoints()->GetPoint( p , cell.points[p] );
+          }
+
+        /* Triangulate cell.
+           IMPORTANT NOTE: triangulation is given with mesh point ids (not local cell ids)
+           and are translated to cell local point ids. */
+        cell.needTriangulation = false;
+        cell.triangulationOk = ( vtkcell->Triangulate(ci,ptIds,pts) != 0 );
+        cell.ntri = 0;
+        if( cell.triangulationOk )
+          {
+          cell.ntri = ptIds->GetNumberOfIds() / (cell.dim+1);
+          for(int i = 0;i<(cell.ntri*(cell.dim+1));i++)
             {
-            normal[0] = -normal[0];
-            normal[1] = -normal[1];
-            normal[2] = -normal[2];         
+            vtkIdType j = vtkstd::find( cell.pointIds , cell.pointIds+cell.np , ptIds->GetId(i) ) - cell.pointIds;
+            DBG_ASSERT( j>=0 && j<cell.np );
+            cell.triangulation[i] = j;
+            }
+          }
+        else
+          {
+          debugStats_PrimaryTriangulationfailed ++;
+          vtkWarningMacro(<<"Triangulation failed on primary cell\n");
+          }
+
+        // get 3D cell edges.
+        if( cell.dim == 3 )
+          {
+          vtkCell3D* cell3D = vtkCell3D::SafeDownCast( vtkcell );
+          cell.nEdges = vtkcell->GetNumberOfEdges();
+          for(int i = 0;i<cell.nEdges;i++)
+            {
+            int tmp[4];
+            int * edgePoints = tmp;
+            cell3D->GetEdgePoints(i,edgePoints);
+            cell.edges[i][0] = edgePoints[0];
+            DBG_ASSERT( cell.edges[i][0]>=0 && cell.edges[i][0]<cell.np );
+            cell.edges[i][1] = edgePoints[1];
+            DBG_ASSERT( cell.edges[i][1]>=0 && cell.edges[i][1]<cell.np );
+            }
+          }
+
+        // for debugging : ensures that we don't read anything from cell, but only from previously filled arrays
+        vtkcell = 0;
+
+        int processedEfectiveMat = 0;
+
+        // Loop for each material. Current cell is iteratively cut.
+        for(int mi = 0;mi<nmat;mi++)
+          {
+          int m = this->ReverseMaterialOrder ? matOrdering[nmat-1-mi].index : matOrdering[mi].index;
+
+          // get volume fraction and interface plane normal from input arrays
+          double fraction = ( Mats[m].fractionArray != 0 ) ? Mats[m].fractionArray->GetTuple1(ci) : 0;
+
+          // normalisation de la fraction sur le volume restant
+          fraction = (referenceVolume>0) ? (fraction/referenceVolume) : 0.0;
+
+          if( this->CellProduceInterface(cell.dim,cell.np,fraction,this->VolumeFractionRange[0],this->VolumeFractionRange[1]) )
+            {
+            CellInfo nextCell; // empty cell by default
+            int interfaceCellType = VTK_EMPTY_CELL;
+
+            if( mi==0 || ( !this->OnionPeel ) )
+              {
+              normal[0]=0; normal[1]=0; normal[2]=0;
+
+              if( Mats[m].normalArray != 0 ) Mats[m].normalArray->GetTuple(ci,normal);
+              if( Mats[m].normalXArray != 0 ) normal[0] = Mats[m].normalXArray->GetTuple1(ci);
+              if( Mats[m].normalYArray != 0 ) normal[1] = Mats[m].normalYArray->GetTuple1(ci);
+              if( Mats[m].normalZArray != 0 ) normal[2] = Mats[m].normalZArray->GetTuple1(ci);
+
+              // work-around for degenerated normals
+              if( vtkMath::Norm(normal) == 0.0 ) // should it be <EPSILON ?
+                {
+                debugStats_NullNormal ++;
+                normaleNulle=true;
+                normal[0]=1.0;
+                normal[1]=0.0;
+                normal[2]=0.0;
+                }
+              else
+                {
+                vtkMath::Normalize( normal );
+                }
+              if( this->InverseNormal )
+                {
+                normal[0] = -normal[0];
+                normal[1] = -normal[1];
+                normal[2] = -normal[2];
+                }
+              }
+
+            // count how many materials we've processed so far
             if( fraction > this->VolumeFractionRange[0] )
               {
               processedEfectiveMat ++;
               }
-            }
 
-          // -= case where the entire input cell is passed through =-
-          if( ( !this->UseFractionAsDistance && fraction>this->VolumeFractionRange[1] && this->FillMaterial ) || ( this->UseFractionAsDistance && normaleNulle ) )
-            {
-            interfaceCellType = cell.type;
-            //Mats[m].cellTypes.push_back( cell.type );
-            nOutCellPoints = nInsidePoints = cell.np;
-            nInterfaceEdges = 0;
-            nOutsidePoints = 0;
-            for(int p=0;p<cell.np;p++) { outCellPointIds[p] = insidePointIds[p] = p; } 
-            // remaining volume is an empty cell (nextCell is left as is)
-            }
-
-          // -= case where the entire cell is ignored =-
-          else if ( !this->UseFractionAsDistance && ( fraction<this->VolumeFractionRange[0] || (fraction>this->VolumeFractionRange[1] && !this->FillMaterial) || !cell.triangulationOk ) )
-            {
-            interfaceCellType = VTK_EMPTY_CELL;
-            //Mats[m].cellTypes.push_back( VTK_EMPTY_CELL );
-
-            nOutCellPoints = 0;
-            nInterfaceEdges = 0;
-            nInsidePoints = 0;
-            nOutsidePoints = 0;
-
-            // remaining volume is the same cell
-            nextCell = cell;
-
-            if( !cell.triangulationOk )
+            // -= case where the entire input cell is passed through =-
+            if( ( !this->UseFractionAsDistance && fraction>this->VolumeFractionRange[1] && this->FillMaterial ) || ( this->UseFractionAsDistance && normaleNulle ) )
               {
-              vtkWarningMacro(<<"Cell triangulation failed\n");
-              }
-            }
-
-          // -= 2D case =-
-          else if( cell.dim == 2 ) 
-            {
-            int nRemCellPoints;
-            int remCellPointIds[MAX_CELL_POINTS];
-
-            int triangles[MAX_CELL_POINTS][3];
-            for(int i=0;i<cell.ntri;i++) for(int j=0;j<3;j++)
-                                           {
-                                           triangles[i][j] = cell.triangulation[i*3+j];
-                                           DBG_ASSERT( triangles[i][j]>=0 && triangles[i][j]<cell.np );
-                                           }
-
-            bool interfaceFound = vtkYoungsMaterialInterfaceCellCut::cellInterface2D(
-                                                                                     cell.points, cell.np,
-                                                                                     triangles, cell.ntri,
-                                                                                     fraction, normal,
-                                                                                     this->AxisSymetric != 0,
-                                                                                     this->UseFractionAsDistance != 0,
-                                                                                     interfaceEdges, interfaceWeights,
-                                                                                     nOutCellPoints, outCellPointIds,
-                                                                                     nRemCellPoints, remCellPointIds ) ;
-
-            if( interfaceFound )
-              {
-              nInterfaceEdges = 2;
-              interfaceCellType = this->FillMaterial ? VTK_POLYGON : VTK_LINE;
-              //Mats[m].cellTypes.push_back( this->FillMaterial ? VTK_POLYGON : VTK_LINE );
-
-              // remaining volume is a polygon
-              nextCell.dim = 2;
-              nextCell.np = nRemCellPoints;
-              nextCell.nf = nRemCellPoints;
-              nextCell.type = VTK_POLYGON;
-
-              // build polygon triangulation for next iteration
-              nextCell.ntri = nextCell.np-2;
-              for(int i=0;i<nextCell.ntri;i++)
-                {
-                nextCell.triangulation[i*3+0] = 0;
-                nextCell.triangulation[i*3+1] = i+1;
-                nextCell.triangulation[i*3+2] = i+2;
-                }
-              nextCell.triangulationOk = true;
-              nextCell.needTriangulation = false;
-
-              // populate prevPointsMap and next iteration cell point ids
-              int ni = 0;
-              for(int i=0;i<nRemCellPoints;i++)
-                {
-                vtkIdType id = remCellPointIds[i];
-                if( id < 0 )
-                  {
-                  id = - (int)( prevPointsMap.size() + 1 );
-                  DBG_ASSERT( (-id-1) == prevPointsMap.size() );
-                  prevPointsMap.push_back( vtkstd::make_pair( m , Mats[m].pointCount+ni ) ); // intersection points will be added first
-                  ni++;
-                  }
-                else
-                  {
-                  DBG_ASSERT( id>=0 && id<cell.np );
-                  id = cell.pointIds[ id ];
-                  }
-                nextCell.pointIds[i] = id;
-                }
-              DBG_ASSERT( ni == nInterfaceEdges );
-
-              // filter out points inside material volume
-              nInsidePoints = 0;
-              for(int i=0;i<nOutCellPoints;i++)
-                {
-                if( outCellPointIds[i] >= 0 ) insidePointIds[nInsidePoints++] = outCellPointIds[i];
-                }
-
-              if( ! this->FillMaterial ) // keep only interface points
-                {
-                int n = 0;
-                for(int i=0;i<nOutCellPoints;i++)
-                  {
-                  if( outCellPointIds[i] < 0 ) outCellPointIds[n++] = outCellPointIds[i];
-                  }
-                nOutCellPoints = n;
-                }
-              }
-            else
-              {
-              //vtkWarningMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
+              interfaceCellType = cell.type;
+              //Mats[m].cellTypes.push_back( cell.type );
+              nOutCellPoints = nInsidePoints = cell.np;
               nInterfaceEdges = 0;
-              nOutCellPoints = 0;
-              nInsidePoints = 0;
               nOutsidePoints = 0;
-              interfaceCellType = VTK_EMPTY_CELL;
-              //Mats[m].cellTypes.push_back( VTK_EMPTY_CELL );
-              // remaining volume is the original cell left unmodified
-              nextCell = cell;
+              for(int p=0;p<cell.np;p++) { outCellPointIds[p] = insidePointIds[p] = p;}
+              // remaining volume is an empty cell (nextCell is left as is)
               }
 
-            }
+            // -= case where the entire cell is ignored =-
 
-          // -= 3D case =-
-          else
-            {
-            int tetras[MAX_CELL_POINTS][4];
-            for(int i=0;i<cell.ntri;i++) for(int j=0;j<4;j++)
-                                           {
-                                           tetras[i][j] = cell.triangulation[i*4+j];
-                                           }
-
-            // compute innterface polygon
-            vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
-                                                               cell.np, cell.points,
-                                                               cell.nEdges, cell.edges,
-                                                               cell.ntri, tetras,
-                                                               fraction, normal,
-                                                               this->UseFractionAsDistance != 0,
-                                                               nInterfaceEdges, interfaceEdges, interfaceWeights,
-                                                               nInsidePoints, insidePointIds,
-                                                               nOutsidePoints, outsidePointIds );
-
-            if( nInterfaceEdges>cell.nf || nInterfaceEdges<3 ) // degenerated case, considered as null interface
+            else if ( !this->UseFractionAsDistance && ( fraction<this->VolumeFractionRange[0] || (fraction>this->VolumeFractionRange[1] && !this->FillMaterial) || !cell.triangulationOk ) )
               {
-              vtkDebugMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
-              nInterfaceEdges = 0;
-              nOutCellPoints = 0;
-              nInsidePoints = 0;
-              nOutsidePoints = 0;
               interfaceCellType = VTK_EMPTY_CELL;
               //Mats[m].cellTypes.push_back( VTK_EMPTY_CELL );
 
-              // in this case, next iteration cell is the same
-              nextCell = cell;
-              }
-            else
-              {
               nOutCellPoints = 0;
+              nInterfaceEdges = 0;
+              nInsidePoints = 0;
+              nOutsidePoints = 0;
 
-              for(int e=0;e<nInterfaceEdges;e++) 
-                { 
-                outCellPointIds[nOutCellPoints++] = -e -1; 
+              // remaining volume is the same cell
+              nextCell = cell;
+
+              if( !cell.triangulationOk )
+                {
+                debugStats_Triangulationfailed ++;
+                vtkWarningMacro(<<"Cell triangulation failed\n");
+                }
+              }
+
+            // -= 2D case =-
+            else if( cell.dim == 2 )
+              {
+              int nRemCellPoints;
+              int remCellPointIds[MAX_CELL_POINTS];
+
+              int triangles[MAX_CELL_POINTS][3];
+              for(int i = 0;i<cell.ntri;i++) for(int j = 0;j<3;j++)
+                {
+                triangles[i][j] = cell.triangulation[i*3+j];
+                DBG_ASSERT( triangles[i][j]>=0 && triangles[i][j]<cell.np );
                 }
 
-              if(this->FillMaterial) 
+              bool interfaceFound = vtkYoungsMaterialInterfaceCellCut::cellInterfaceD(
+                                                                                      cell.points, cell.np,
+                                                                                      triangles, cell.ntri,
+                                                                                      fraction, normal,
+                                                                                      this->AxisSymetric != 0,
+                                                                                      this->UseFractionAsDistance != 0,
+                                                                                      interfaceEdges, interfaceWeights,
+                                                                                      nOutCellPoints, outCellPointIds,
+                                                                                      nRemCellPoints, remCellPointIds );
+
+              if( interfaceFound )
                 {
-                interfaceCellType = VTK_CONVEX_POINT_SET;
-                //Mats[m].cellTypes.push_back( VTK_CONVEX_POINT_SET );
-                for(int p=0;p<nInsidePoints;p++)
+                nInterfaceEdges = 2;
+                interfaceCellType = this->FillMaterial ? VTK_POLYGON : VTK_LINE;
+                //Mats[m].cellTypes.push_back( this->FillMaterial ? VTK_POLYGON : VTK_LINE );
+
+                // remaining volume is a polygon
+                nextCell.dim = 2;
+                nextCell.np = nRemCellPoints;
+                nextCell.nf = nRemCellPoints;
+                nextCell.type = VTK_POLYGON;
+
+                // build polygon triangulation for next iteration
+                nextCell.ntri = nextCell.np-2;
+                for(int i = 0;i<nextCell.ntri;i++)
                   {
-                  outCellPointIds[nOutCellPoints++] = insidePointIds[p];
+                  nextCell.triangulation[i*3+0] = 0;
+                  nextCell.triangulation[i*3+1] = i+1;
+                  nextCell.triangulation[i*3+2] = i+2;
+                  }
+                nextCell.triangulationOk = true;
+                nextCell.needTriangulation = false;
+
+                // populate prevPointsMap and next iteration cell point ids
+                int ni = 0;
+                for(int i = 0;i<nRemCellPoints;i++)
+                  {
+                  vtkIdType id = remCellPointIds[i];
+                  if( id < 0 )
+                    {
+                    id = - (int)( prevPointsMap.size() + 1 );
+                    DBG_ASSERT( (-id-1) == prevPointsMap.size() );
+                    prevPointsMap.push_back( vtkstd::make_pair( m , Mats[m].pointCount+ni ) ); // intersection points will be added first
+                    ni++;
+                    }
+                  else
+                    {
+                    DBG_ASSERT( id>=0 && id<cell.np );
+                    id = cell.pointIds[ id ];
+                    }
+                  nextCell.pointIds[i] = id;
+                  }
+                DBG_ASSERT( ni == nInterfaceEdges );
+
+                // filter out points inside material volume
+                nInsidePoints = 0;
+                for(int i = 0;i<nOutCellPoints;i++)
+                  {
+                  if( outCellPointIds[i] >= 0 ) insidePointIds[nInsidePoints++] = outCellPointIds[i];
+                  }
+
+                if( ! this->FillMaterial ) // keep only interface points
+
+                  {
+                  int n = 0;
+                  for(int i = 0;i<nOutCellPoints;i++)
+                    {
+                    if( outCellPointIds[i] < 0 ) outCellPointIds[n++] = outCellPointIds[i];
+                    }
+                  nOutCellPoints = n;
                   }
                 }
               else
                 {
-                interfaceCellType = VTK_POLYGON;
-                //Mats[m].cellTypes.push_back( VTK_POLYGON );
+                vtkWarningMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
+                nInterfaceEdges = 0;
+                nOutCellPoints = 0;
+                nInsidePoints = 0;
+                nOutsidePoints = 0;
+                interfaceCellType = VTK_EMPTY_CELL;
+                //Mats[m].cellTypes.push_back( VTK_EMPTY_CELL );
+                // remaining volume is the original cell left unmodified
+                nextCell = cell;
+                }
+              }
+
+            // -= 3D case =-
+
+            else
+              {
+              int tetras[MAX_CELL_POINTS][4];
+              for(int i = 0;i<cell.ntri;i++) for(int j = 0;j<4;j++)
+                {
+                tetras[i][j] = cell.triangulation[i*4+j];
                 }
 
-              /* remaining volume is a convex point set
-                 IMPORTANT NOTE: next iteration cell cannot be entirely built right now. 
-                 in this particular case we'll finish it at the end of the material loop */
-              if( mi<(nmat-1) && !twoMaterialOptimization )
+              // compute innterface polygon
+              vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
+                                                                 cell.np, cell.points,
+                                                                 cell.nEdges, cell.edges,
+                                                                 cell.ntri, tetras,
+                                                                 fraction, normal,
+                                                                 this->UseFractionAsDistance != 0,
+                                                                 nInterfaceEdges, interfaceEdges, interfaceWeights,
+                                                                 nInsidePoints, insidePointIds,
+                                                                 nOutsidePoints, outsidePointIds );
+
+              if( nInterfaceEdges>cell.nf || nInterfaceEdges<3 ) // degenerated case, considered as null interface
                 {
-                nextCell.type = VTK_CONVEX_POINT_SET;     
-                nextCell.np = nInterfaceEdges + nOutsidePoints;
-                vtkcell = cpsCell;
-                vtkcell->Points->Reset();
-                vtkcell->PointIds->Reset();
-                vtkcell->Points->SetNumberOfPoints( nextCell.np );
-                vtkcell->PointIds->SetNumberOfIds( nextCell.np );
-                for(int i=0;i<nextCell.np;i++)
+                debugStats_NoInterfaceFound ++;
+                vtkDebugMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
+                nInterfaceEdges = 0;
+                nOutCellPoints = 0;
+                nInsidePoints = 0;
+                nOutsidePoints = 0;
+                interfaceCellType = VTK_EMPTY_CELL;
+                //Mats[m].cellTypes.push_back( VTK_EMPTY_CELL );
+
+                // in this case, next iteration cell is the same
+                nextCell = cell;
+                }
+              else
+                {
+                nOutCellPoints = 0;
+
+                for(int e = 0;e<nInterfaceEdges;e++)
                   {
-                  vtkcell->PointIds->SetId( i, i );
+                  outCellPointIds[nOutCellPoints++] = -e -1;
                   }
-                // nf, ntri and triangulation have to be computed later on, when point coords are computed
-                nextCell.needTriangulation = true;
-                }
 
-              for(int i=0;i<nInterfaceEdges;i++)
-                {
-                vtkIdType id = - (int) ( prevPointsMap.size() + 1 );
-                DBG_ASSERT( (-id-1) == prevPointsMap.size() );
-                prevPointsMap.push_back( vtkstd::make_pair( m , Mats[m].pointCount+i ) ); // we know that interpolated points will be added consecutively
-                nextCell.pointIds[i] = id;
-                }
-              for(int i=0;i<nOutsidePoints;i++)
-                {
-                nextCell.pointIds[nInterfaceEdges+i] = cell.pointIds[ outsidePointIds[i] ];
-                }
-              }
-
-            // check correctness of next cell's point ids
-            for(int i=0;i<nextCell.np;i++)
-              {
-              DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
-              }
-
-            } // End 3D case
-
-
-          //  create output cell 
-          if( interfaceCellType != VTK_EMPTY_CELL )
-            {
-
-            // set type of cell
-            Mats[m].cellTypes.push_back( interfaceCellType );
-
-            // interpolate point values for cut edges
-            for(int e=0;e<nInterfaceEdges;e++)
-              {
-              double t = interfaceWeights[e];
-              for(int p=0;p<nPointData;p++)
-                {
-                double v0[16];
-                double v1[16];
-                int nc = Mats[m].outPointArrays[p]->GetNumberOfComponents();
-                int ep0 = cell.pointIds[ interfaceEdges[e*2+0] ];
-                int ep1 = cell.pointIds[ interfaceEdges[e*2+1] ];
-                GET_POINT_DATA( p , ep0 , v0 );
-                GET_POINT_DATA( p , ep1 , v1 );
-                for(int c=0;c<nc;c++)
+                if(this->FillMaterial)
                   {
-                  interpolatedValues[ e*pointDataComponents + pointArrayOffset[p] + c ] = v0[c] + t * ( v1[c] - v0[c] );
-                  }
-                }
-              }
-
-            // copy point values
-            for(int e=0;e<nInterfaceEdges;e++)
-              {
-#ifdef DEBUG
-              vtkIdType nptId = Mats[m].pointCount + e;
-#endif
-              for(int a=0;a<nPointData;a++) 
-                {
-                DBG_ASSERT( nptId == Mats[m].outPointArrays[a]->GetNumberOfTuples() );
-                Mats[m].outPointArrays[a]->InsertNextTuple( interpolatedValues + e*pointDataComponents + pointArrayOffset[a] );
-                }
-              }
-            int pointsCopied = 0;
-            int prevMatInterfToBeAdded = 0;
-            if( this->FillMaterial )
-              {
-              for(int p=0;p<nInsidePoints;p++)
-                {
-                vtkIdType ptId = cell.pointIds[ insidePointIds[p] ]; 
-                if( ptId>=0 )
-                  {
-                  if( Mats[m].pointMap[ptId] == -1 )
+                  interfaceCellType = VTK_CONVEX_POINT_SET;
+                  //Mats[m].cellTypes.push_back( VTK_CONVEX_POINT_SET );
+                  for(int p=0;p<nInsidePoints;p++)
                     {
-                    vtkIdType nptId = Mats[m].pointCount + nInterfaceEdges + pointsCopied;
-                    Mats[m].pointMap[ptId] = nptId;
-                    pointsCopied++;
-                    for(int a=0;a<nPointData;a++)
+                    outCellPointIds[nOutCellPoints++] = insidePointIds[p];
+                    }
+                  }
+                else
+                  {
+                  interfaceCellType = VTK_POLYGON;
+                  //Mats[m].cellTypes.push_back( VTK_POLYGON );
+                  }
+
+                /* remaining volume is a convex point set
+                   IMPORTANT NOTE: next iteration cell cannot be entirely built right now.
+                   in this particular case we'll finish it at the end of the material loop */
+                // si on est sur qu'il n'y aura plus d'autre materiaux a extraire, on evite cette etape
+                if( mi<(nmat-1) && processedEfectiveMat<nEffectiveMat )
+                  {
+                  nextCell.type = VTK_CONVEX_POINT_SET;
+                  nextCell.np = nInterfaceEdges + nOutsidePoints;
+                  vtkcell = cpsCell;
+                  vtkcell->Points->Reset();
+                  vtkcell->PointIds->Reset();
+                  vtkcell->Points->SetNumberOfPoints( nextCell.np );
+                  vtkcell->PointIds->SetNumberOfIds( nextCell.np );
+                  for(int i = 0;i<nextCell.np;i++)
+                    {
+                    vtkcell->PointIds->SetId( i, i );
+                    }
+                  // nf, ntri and triangulation have to be computed later on, when point coords are computed
+                  nextCell.needTriangulation = true;
+                  }
+
+                for(int i = 0;i<nInterfaceEdges;i++)
+                  {
+                  vtkIdType id = - (int) ( prevPointsMap.size() + 1 );
+                  DBG_ASSERT( (-id-1) == prevPointsMap.size() );
+                  prevPointsMap.push_back( vtkstd::make_pair( m , Mats[m].pointCount+i ) ); // we know that interpolated points will be added consecutively
+                  nextCell.pointIds[i] = id;
+                  }
+                for(int i = 0;i<nOutsidePoints;i++)
+                  {
+                  nextCell.pointIds[nInterfaceEdges+i] = cell.pointIds[ outsidePointIds[i] ];
+                  }
+                }
+
+              // check correctness of next cell's point ids
+              for(int i = 0;i<nextCell.np;i++)
+                {
+                DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
+                }
+
+              } // End 3D case
+
+
+            //  create output cell
+            if( interfaceCellType != VTK_EMPTY_CELL )
+              {
+
+              // set type of cell
+              Mats[m].cellTypes.push_back( interfaceCellType );
+
+              // interpolate point values for cut edges
+              for(int e = 0;e<nInterfaceEdges;e++)
+                {
+                double t = interfaceWeights[e];
+                for(int p=0;p<nPointData;p++)
+                  {
+                  double v0[16];
+                  double v1[16];
+                  int nc = Mats[m].outPointArrays[p]->GetNumberOfComponents();
+                  int ep0 = cell.pointIds[ interfaceEdges[e*2+0] ];
+                  int ep1 = cell.pointIds[ interfaceEdges[e*2+1] ];
+                  GET_POINT_DATA( p , ep0 , v0 );
+                  GET_POINT_DATA( p , ep1 , v1 );
+                  for(int c=0;c<nc;c++)
+                    {
+                    interpolatedValues[ e*pointDataComponents + pointArrayOffset[p] + c ] = v0[c] + t * ( v1[c] - v0[c] );
+                    }
+                  }
+                }
+
+              // copy point values
+              for(int e = 0;e<nInterfaceEdges;e++)
+                {
+                for(int a = 0;a<nPointData;a++)
+                  {
+                  DBG_ASSERT( nptId == Mats[m].outPointArrays[a]->GetNumberOfTuples() );
+                  Mats[m].outPointArrays[a]->InsertNextTuple( interpolatedValues + e*pointDataComponents + pointArrayOffset[a] );
+                  }
+                }
+              int pointsCopied = 0;
+              int prevMatInterfToBeAdded = 0;
+              if( this->FillMaterial )
+                {
+                for(int p=0;p<nInsidePoints;p++)
+                  {
+                  vtkIdType ptId = cell.pointIds[ insidePointIds[p] ];
+                  if( ptId>=0 )
+                    {
+                    if( Mats[m].pointMap[ptId] == -1 )
+                      {
+                      vtkIdType nptId = Mats[m].pointCount + nInterfaceEdges + pointsCopied;
+                      Mats[m].pointMap[ptId] = nptId;
+                      pointsCopied++;
+                      for(int a = 0;a<nPointData;a++)
+                        {
+                        DBG_ASSERT( nptId == Mats[m].outPointArrays[a]->GetNumberOfTuples() );
+                        double tuple[16];
+                        GET_POINT_DATA( a, ptId, tuple );
+                        Mats[m].outPointArrays[a]->InsertNextTuple( tuple );
+                        }
+                      }
+                    }
+                  else
+                    {
+                    prevMatInterfToBeAdded++;
+                    }
+                  }
+                }
+
+              // populate connectivity array
+              // and add extra points from previous edge intersections that are used but not inserted yet
+              int prevMatInterfAdded = 0;
+              Mats[m].cells.push_back( nOutCellPoints ); Mats[m].cellArrayCount++;
+              for(int p=0;p<nOutCellPoints;p++)
+                {
+                int nptId;
+                int pointIndex = outCellPointIds[p];
+                if( pointIndex >=0 ) // an original point (not an edge intersection)
+                  {
+                  DBG_ASSERT( pointIndex>=0 && pointIndex<cell.np );
+                  int ptId = cell.pointIds[ pointIndex ];
+                  if( ptId>=0 )
+                    {
+                    // Interface from a previous iteration
+                    DBG_ASSERT( ptId>=0 && ptId<nPoints );
+                    nptId = Mats[m].pointMap[ptId];
+                    }
+                  else
+                    {
+                    nptId = Mats[m].pointCount + nInterfaceEdges + pointsCopied + prevMatInterfAdded;
+                    prevMatInterfAdded++;
+                    for(int a = 0;a<nPointData;a++)
                       {
                       DBG_ASSERT( nptId == Mats[m].outPointArrays[a]->GetNumberOfTuples() );
                       double tuple[16];
@@ -1022,257 +1194,254 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation *vtkNotUsed(request),
                   }
                 else
                   {
-                  prevMatInterfToBeAdded++;
+                  int interfaceIndex = -pointIndex - 1;
+                  DBG_ASSERT( interfaceIndex>=0 && interfaceIndex<nInterfaceEdges );
+                  nptId = Mats[m].pointCount + interfaceIndex;
                   }
+                DBG_ASSERT( nptId>=0 && nptId<(Mats[m].pointCount+nInterfaceEdges+pointsCopied+prevMatInterfToBeAdded) );
+                Mats[m].cells.push_back( nptId ); Mats[m].cellArrayCount++;
                 }
-              }
 
-            // populate connectivity array 
-            // and add extra points from previous edge intersections that are used but not inserted yet
-            int prevMatInterfAdded = 0;
-            Mats[m].cells.push_back( nOutCellPoints ); Mats[m].cellArrayCount++;
-            for(int p=0;p<nOutCellPoints;p++)
-              {
-              int nptId;
-              int pointIndex = outCellPointIds[p];
-              if( pointIndex >=0 ) // an original point (not an edge intersection)
+              Mats[m].pointCount += nInterfaceEdges + pointsCopied + prevMatInterfAdded;
+
+              // copy cell arrays
+              for(int a = 0;a<nCellData;a++)
                 {
-                DBG_ASSERT( pointIndex>=0 && pointIndex<cell.np ); 
-                int ptId = cell.pointIds[ pointIndex ]; 
-                if( ptId>=0 )
+                Mats[m].outCellArrays[a]->InsertNextTuple( inCellArrays[a]->GetTuple(ci) );
+                }
+              Mats[m].cellCount ++;
+
+              // check for equivalence between counters and container sizes
+              DBG_ASSERT( Mats[m].cellCount == Mats[m].cellTypes.size() );
+              DBG_ASSERT( Mats[m].cellArrayCount == Mats[m].cells.size() );
+
+              // populate next iteration cell's point coords
+              for(int i = 0;i<nextCell.np;i++)
+                {
+                DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
+                GET_POINT_DATA( (nPointData-1) , nextCell.pointIds[i] , nextCell.points[i] );
+                }
+
+              // for the convex point set, we need to first compute point coords before triangulation (no fixed topology)
+              if( nextCell.needTriangulation && mi<(nmat-1) && processedEfectiveMat<nEffectiveMat )
+                {
+                //                       for(int myi = 0;myi<nextCell.np;myi++)
+                //                       {
+                //                                cerr<<"p["<<myi<<"]=("<<nextCell.points[myi][0]<<','<<nextCell.points[myi][1]<<','<<nextCell.points[myi][2]<<") ";
+                //                       }
+                //                       cerr<<endl;
+
+                vtkcell->Initialize();
+                nextCell.nf = vtkcell->GetNumberOfFaces();
+                if( nextCell.dim == 3 )
                   {
-                  DBG_ASSERT( ptId>=0 && ptId<nPoints ); // OUI, car interface d'une iteration precedente. que faire ...
-                  nptId = Mats[m].pointMap[ptId];
+                  vtkCell3D* cell3D = vtkCell3D::SafeDownCast( vtkcell );
+                  nextCell.nEdges = vtkcell->GetNumberOfEdges();
+                  for(int i = 0;i<nextCell.nEdges;i++)
+                    {
+                    int tmp[4];
+                    int * edgePoints = tmp;
+                    cell3D->GetEdgePoints(i,edgePoints);
+                    nextCell.edges[i][0] = edgePoints[0];
+                    DBG_ASSERT( nextCell.edges[i][0]>=0 && nextCell.edges[i][0]<nextCell.np );
+                    nextCell.edges[i][1] = edgePoints[1];
+                    DBG_ASSERT( nextCell.edges[i][1]>=0 && nextCell.edges[i][1]<nextCell.np );
+                    }
+                  }
+                nextCell.triangulationOk = ( vtkcell->Triangulate(ci,ptIds,pts) != 0 );
+                nextCell.ntri = 0;
+                if( nextCell.triangulationOk )
+                  {
+                  nextCell.ntri = ptIds->GetNumberOfIds() / (nextCell.dim+1);
+                  for(int i = 0;i<(nextCell.ntri*(nextCell.dim+1));i++)
+                    {
+                    vtkIdType j = ptIds->GetId(i); // cell ids have been set with local ids
+                    DBG_ASSERT( j>=0 && j<nextCell.np );
+                    nextCell.triangulation[i] = j;
+                    }
                   }
                 else
                   {
-                  nptId = Mats[m].pointCount + nInterfaceEdges + pointsCopied + prevMatInterfAdded;
-                  prevMatInterfAdded++;
-                  for(int a=0;a<nPointData;a++)
-                    {
-                    DBG_ASSERT( nptId == Mats[m].outPointArrays[a]->GetNumberOfTuples() );
-                    double tuple[16];
-                    GET_POINT_DATA( a, ptId, tuple );
-                    Mats[m].outPointArrays[a]->InsertNextTuple( tuple );
-                    }
+                  debugStats_Triangulationfailed ++;
+                  vtkWarningMacro(<<"Triangulation failed. Info: cell "<<ci<<", material "<<mi<<", np="<<nextCell.np<<", nf="<<nextCell.nf<<", ne="<<nextCell.nEdges<<"\n");
                   }
+                nextCell.needTriangulation = false;
+                vtkcell = 0;
                 }
-              else
-                {
-                int interfaceIndex = -pointIndex - 1;
-                DBG_ASSERT( interfaceIndex>=0 && interfaceIndex<nInterfaceEdges );
-                nptId = Mats[m].pointCount + interfaceIndex ;
-                }
-              DBG_ASSERT( nptId>=0 && nptId<(Mats[m].pointCount+nInterfaceEdges+pointsCopied+prevMatInterfToBeAdded) );
-              Mats[m].cells.push_back( nptId ); Mats[m].cellArrayCount++;
-              }
 
-            Mats[m].pointCount += nInterfaceEdges + pointsCopied + prevMatInterfAdded;
+              // switch to next cell
+              cell = nextCell;
 
-            // copy cell arrays
-            for(int a=0;a<nCellData;a++)
+              } // end of 'interface was found'
+
+            else
               {
-              Mats[m].outCellArrays[a]->InsertNextTuple( inCellArrays[a]->GetTuple(ci) );
-              }
-            Mats[m].cellCount ++;
-
-            // check for equivalence between counters and container sizes
-            DBG_ASSERT( Mats[m].cellCount == Mats[m].cellTypes.size() );
-            DBG_ASSERT( Mats[m].cellArrayCount == Mats[m].cells.size() );
-      
-            // populate next iteration cell's point coords
-            for(int i=0;i<nextCell.np;i++)
-              {
-              DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
-              GET_POINT_DATA( (nPointData-1) , nextCell.pointIds[i] , nextCell.points[i] );
-              }
-
-            // for the convex point set, we need to first compute point coords before triangulation (no fixed topology)
-            if( nextCell.needTriangulation  && mi<(nmat-1) )
-              {
-              vtkcell->Initialize();
-              nextCell.nf = vtkcell->GetNumberOfFaces();
-              if( nextCell.dim == 3 )
-                {
-                vtkCell3D* cell3D = vtkCell3D::SafeDownCast( vtkcell );
-                nextCell.nEdges = vtkcell->GetNumberOfEdges();
-                for(int i=0;i<nextCell.nEdges;i++)
-                  {
-                  int tmp[4];
-                  int * edgePoints = tmp; 
-                  cell3D->GetEdgePoints(i,edgePoints);
-                  nextCell.edges[i][0] = edgePoints[0];
-                  DBG_ASSERT( nextCell.edges[i][0]>=0 && nextCell.edges[i][0]<nextCell.np );
-                  nextCell.edges[i][1] = edgePoints[1];
-                  DBG_ASSERT( nextCell.edges[i][1]>=0 && nextCell.edges[i][1]<nextCell.np );
-                  }
-                }
-              nextCell.triangulationOk = ( vtkcell->Triangulate(ci,ptIds,pts) != 0 );
-              nextCell.ntri = 0;
-              if( nextCell.triangulationOk )
-                {
-                nextCell.ntri = ptIds->GetNumberOfIds() / (nextCell.dim+1);
-                for(int i=0;i<(nextCell.ntri*(nextCell.dim+1));i++)
-                  {
-                  vtkIdType j = ptIds->GetId(i); // cell ids have been set with local ids
-                  DBG_ASSERT( j>=0 && j<nextCell.np );
-                  nextCell.triangulation[i] = j;
-                  }
-                }
-              else
-                {
-                vtkWarningMacro(<<"Triangulation failed. Info: cell "<<ci<<", material "<<mi<<", np="<<nextCell.np<<", nf="<<nextCell.nf<<", ne="<<nextCell.nEdges<<"\n");
-                }
-              nextCell.needTriangulation = false;
               vtkcell = 0;
               }
 
-            // switch to next cell
-            if( !twoMaterialOptimization )
-              {
-              cell = nextCell;
-              }
+            } // end of 'cell is ok'
 
-            } // end of 'interface was found'
-          else
-            {
-            vtkcell = 0;
-            }
+//                      else // cell is ignored
+//                      {
+//                              //vtkWarningMacro(<<"ignoring cell #"<<ci<<", m="<<m<<", mi="<<mi<<", frac="<<fraction<<"\n");
+//                      }
 
-          } // end of 'cell is ok'
-
-        else // cell is ignored
-          {
-          //vtkWarningMacro(<<"ignoring cell #"<<ci<<", m="<<m<<", mi="<<mi<<", frac="<<fraction<<"\n");
-          }
-
-        // update reference volume
-        if( !twoMaterialOptimization )
-          {
+          // update reference volume
           referenceVolume -= fraction;
-          }
 
-        } // for materials
+          } // for materials
 
-      } // for cells
-    delete [] pointArrayOffset;
-    delete [] inPointArrays;
-    delete [] inCellArrays;
+        } // for cells
+      delete [] pointArrayOffset;
+      delete [] inPointArrays;
+      delete [] inCellArrays;
 
-    ptIds->Delete();
-    pts->Delete();
-    cpsCell->Delete();
-    delete [] interpolatedValues;
-    delete [] matOrdering;
+      ptIds->Delete();
+      pts->Delete();
+      cpsCell->Delete();
+      delete [] interpolatedValues;
+      delete [] matOrdering;
 
-    // finish output creation
-    output->SetNumberOfBlocks( nmat );
-    for(int m=0;m<nmat;m++)
-      {
-      //if( Mats[m].cellCount > Mats[m].numberOfCells )
+      // finish output creation
+      //       output->SetNumberOfBlocks( nmat );
+      for( int m=0;m<nmat;m++)
         {
-        vtkDebugMacro(<<"Mat #"<<m<<" : cellCount="<<Mats[m].cellCount<<", numberOfCells="<<Mats[m].numberOfCells<<"\n");
-        }
-        //if( Mats[m].pointCount > Mats[m].numberOfPoints )
+        if( Mats[m].cellCount>0 && Mats[m].pointCount>0 )
           {
-          vtkDebugMacro(<<"Mat #"<<m<<" : pointCount="<<Mats[m].pointCount<<", numberOfPoints="<<Mats[m].numberOfPoints<<"\n");
+          vtkDebugMacro(<<"Mat #"<<m<<" : cellCount="<<Mats[m].cellCount<<", numberOfCells="<<Mats[m].numberOfCells<<", pointCount="<<Mats[m].pointCount<<", numberOfPoints="<<Mats[m].numberOfPoints<<"\n");
           }
 
-          delete [] Mats[m].pointMap;
+        delete [] Mats[m].pointMap;
 
-          vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::New();
+        vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::New();
 
-          // set points
-          Mats[m].outPointArrays[nPointData-1]->Squeeze();
-          vtkPoints* points = vtkPoints::New();
-          points->SetDataTypeToDouble();
-          points->SetNumberOfPoints( Mats[m].pointCount );
-          points->SetData( Mats[m].outPointArrays[nPointData-1] );
-          Mats[m].outPointArrays[nPointData-1]->Delete();
-          ugOutput->SetPoints( points );
-          points->Delete();
+        // set points
+        Mats[m].outPointArrays[nPointData-1]->Squeeze();
+        vtkPoints* points = vtkPoints::New();
+        points->SetDataTypeToDouble();
+        points->SetNumberOfPoints( Mats[m].pointCount );
+        points->SetData( Mats[m].outPointArrays[nPointData-1] );
+        Mats[m].outPointArrays[nPointData-1]->Delete();
+        ugOutput->SetPoints( points );
+        points->Delete();
 
-          // set cell connectivity
-          vtkIdTypeArray* cellArrayData = vtkIdTypeArray::New();
-          cellArrayData->SetNumberOfValues( Mats[m].cellArrayCount );
-          vtkIdType* cellArrayDataPtr = cellArrayData->WritePointer(0,Mats[m].cellArrayCount);
-          for(vtkIdType i=0;i<Mats[m].cellArrayCount;i++) cellArrayDataPtr[i] = Mats[m].cells[i];
+        // set cell connectivity
+        vtkIdTypeArray* cellArrayData = vtkIdTypeArray::New();
+        cellArrayData->SetNumberOfValues( Mats[m].cellArrayCount );
+        vtkIdType* cellArrayDataPtr = cellArrayData->WritePointer(0,Mats[m].cellArrayCount);
+        for(vtkIdType i = 0;i<Mats[m].cellArrayCount;i++) cellArrayDataPtr[i] = Mats[m].cells[i];
 
-          vtkCellArray* cellArray = vtkCellArray::New();
-          cellArray->SetCells( Mats[m].cellCount , cellArrayData );
-          cellArrayData->Delete();
+        vtkCellArray* cellArray = vtkCellArray::New();
+        cellArray->SetCells( Mats[m].cellCount , cellArrayData );
+        cellArrayData->Delete();
 
-          // set cell types
-          vtkUnsignedCharArray *cellTypes = vtkUnsignedCharArray::New();
-          cellTypes->SetNumberOfValues( Mats[m].cellCount );
-          unsigned char* cellTypesPtr = cellTypes->WritePointer(0,Mats[m].cellCount);
-          for(vtkIdType i=0;i<Mats[m].cellCount;i++) cellTypesPtr[i] = Mats[m].cellTypes[i];
+        // set cell types
+        vtkUnsignedCharArray *cellTypes = vtkUnsignedCharArray::New();
+        cellTypes->SetNumberOfValues( Mats[m].cellCount );
+        unsigned char* cellTypesPtr = cellTypes->WritePointer(0,Mats[m].cellCount);
+        for(vtkIdType i = 0;i<Mats[m].cellCount;i++) cellTypesPtr[i] = Mats[m].cellTypes[i];
 
-          // set cell locations
-          vtkIdTypeArray* cellLocations = vtkIdTypeArray::New();
-          cellLocations->SetNumberOfValues( Mats[m].cellCount );
-          vtkIdType counter = 0;
-          for(vtkIdType i=0;i<Mats[m].cellCount;i++)
+        // set cell locations
+        vtkIdTypeArray* cellLocations = vtkIdTypeArray::New();
+        cellLocations->SetNumberOfValues( Mats[m].cellCount );
+        vtkIdType counter = 0;
+        for(vtkIdType i = 0;i<Mats[m].cellCount;i++)
+          {
+          cellLocations->SetValue(i,counter);
+          counter += Mats[m].cells[counter] + 1;
+          }
+
+        // attach conectivity arrays to data set
+        ugOutput->SetCells( cellTypes, cellLocations, cellArray );
+        cellArray->Delete();
+        cellTypes->Delete();
+        cellLocations->Delete();
+
+        // attach point arrays
+        for(int i = 0;i<nPointData-1;i++)
+          {
+          Mats[m].outPointArrays[i]->Squeeze();
+          ugOutput->GetPointData()->AddArray( Mats[m].outPointArrays[i] );
+          Mats[m].outPointArrays[i]->Delete();
+          }
+
+        // attach cell arrays
+        for(int i = 0;i<nCellData;i++)
+          {
+          Mats[m].outCellArrays[i]->Squeeze();
+          ugOutput->GetCellData()->AddArray( Mats[m].outCellArrays[i] );
+          Mats[m].outCellArrays[i]->Delete();
+          }
+
+        delete [] Mats[m].outCellArrays;
+        delete [] Mats[m].outPointArrays;
+
+        // activate attributes similarily to input
+        for(int i = 0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
+          {
+          vtkDataArray* attr = input->GetCellData()->GetAttribute(i);
+          if( attr!=0 )
             {
-            cellLocations->SetValue(i,counter);
-            counter += Mats[m].cells[counter] + 1;
+            ugOutput->GetCellData()->SetActiveAttribute(attr->GetName(),i);
             }
-
-          // attach conectivity arrays to data set
-          ugOutput->SetCells( cellTypes, cellLocations, cellArray );
-          cellArray->Delete();
-          cellTypes->Delete();
-          cellLocations->Delete();
-
-          // attach point arrays
-          for(int i=0;i<nPointData-1;i++)
+          }
+        for(int i = 0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
+          {
+          vtkDataArray* attr = input->GetPointData()->GetAttribute(i);
+          if( attr!=0 )
             {
-            Mats[m].outPointArrays[i]->Squeeze();
-            ugOutput->GetPointData()->AddArray( Mats[m].outPointArrays[i] );
-            Mats[m].outPointArrays[i]->Delete();
+            ugOutput->GetPointData()->SetActiveAttribute(attr->GetName(),i);
             }
+          }
 
-          // attach cell arrays
-          for(int i=0;i<nCellData;i++)
-            {
-            Mats[m].outCellArrays[i]->Squeeze();
-            ugOutput->GetCellData()->AddArray( Mats[m].outCellArrays[i] );
-            Mats[m].outCellArrays[i]->Delete();
-            }
+        // add material data set to multiblock output
+        if( ugOutput!=0 && ugOutput->GetNumberOfCells()>0 )
+          {
+          int domain = inputsPerMaterial[m];
+          outputBlocks[ domain * nmat + m ] = ugOutput;
+          ++ inputsPerMaterial[m];
+          }
+        }
+      delete [] Mats;
 
-          delete [] Mats[m].outCellArrays;
-          delete [] Mats[m].outPointArrays;
+    } /* Iterate over input blocks */
 
-          // activate attributes similarily to input
-          for(int i=0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
-            {
-            vtkDataArray* attr = input->GetCellData()->GetAttribute(i);
-            if( attr!=0 )
-              {
-              ugOutput->GetCellData()->SetActiveAttribute(attr->GetName(),i);
-              }
-            }
-          for(int i=0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
-            {
-            vtkDataArray* attr = input->GetPointData()->GetAttribute(i);
-            if( attr!=0 )
-              {
-              ugOutput->GetPointData()->SetActiveAttribute(attr->GetName(),i);
-              }
-            }
+  delete [] inputsPerMaterial;
 
-          // add material data set to multiblock output
-#if VTK_MINOR_VERSION > 2
-          output->SetBlock(m,ugOutput);
-#else
-          output->SetNumberOfDataSets(m,1);
-          output->SetDataSet (m,0,ugOutput);
-#endif
-          ugOutput->Delete();
+  if(debugStats_PrimaryTriangulationfailed != 0 ) { vtkDebugMacro(<<"PrimaryTriangulationfailed "<<debugStats_PrimaryTriangulationfailed<<"\n"); }
+  if(debugStats_Triangulationfailed != 0 ) { vtkDebugMacro(<<"Triangulationfailed "<<debugStats_Triangulationfailed<<"\n"); }
+  if(debugStats_NullNormal != 0 ) { vtkDebugMacro(<<"NullNormal "<<debugStats_NullNormal<<"\n"); }
+  if(debugStats_NoInterfaceFound != 0 ) { vtkDebugMacro(<<"NoInterfaceFound "<<debugStats_NoInterfaceFound<<"\n"); }
+
+  // build final composite output. also tagging blocks with their associated Id
+
+  vtkDebugMacro(<<this->NumberOfDomains<<" Domains, "<<nmat<<" Materials\n");
+
+  output->SetNumberOfBlocks(0);
+  output->SetNumberOfBlocks(nmat);
+
+  for (int m = 0; m < nmat; m++)
+    {
+    vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::New();
+    matBlock->SetNumberOfBlocks(this->NumberOfDomains);
+    output->SetBlock(m, matBlock);
+    matBlock->Delete();
+    }
+
+  int blockIndex=0;
+  for(vtkstd::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex)
+    {
+    if( it->second->GetNumberOfCells() > 0 )
+      {
+      int mat = it->first % nmat;
+      int dom = it->first / nmat;
+      vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(mat));
+      matBlock->SetBlock(dom,it->second);
+      it->second->Delete();
       }
-    delete [] Mats;
+    }
 
-    return 1;
+  return 1;
 }
 
 #undef GET_POINT_DATA
@@ -1291,12 +1460,12 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define REAL_PRECISION 64 // use double precision
 #define REAL_COORD REAL3
 
-// par defaut, on est en double
+  // par defaut, on est en double
 #ifndef REAL_PRECISION
 #define REAL_PRECISION 64
 #endif
 
-// float = precision la plus basse
+  // float = precision la plus basse
 #if ( REAL_PRECISION == 32 )
 
 #define REAL  float
@@ -1314,7 +1483,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define REAL_CONST(x) ((float)(x)) //( x##f )
 
 
-// long double = highest precision
+  // long double = highest precision
 #elif ( REAL_PRECISION > 64 )
 
 #define REAL  long double
@@ -1333,7 +1502,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define REAL_CONST(x) ((long double)(x)) //( x##l )
 
 
-// double = default precision
+  // double = default precision
 #else
 
 #define REAL  double
@@ -1394,47 +1563,47 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
 
-/*
-  Some of the vector functions where found in the file vector_operators.h from the NVIDIA's CUDA Toolkit.
-  Please read the above notice.
-*/
+  /*
+    Some of the vector functions where found in the file vector_operators.h from the NVIDIA's CUDA Toolkit.
+    Please read the above notice.
+  */
 
-/*
- * Copyright 1993-2007 NVIDIA Corporation.  All rights reserved.
- *
- * NOTICE TO USER:   
- *
- * This source code is subject to NVIDIA ownership rights under U.S. and 
- * international Copyright laws.  Users and possessors of this source code 
- * are hereby granted a nonexclusive, royalty-free license to use this code 
- * in individual and commercial software.
- *
- * NVIDIA MAKES NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOURCE 
- * CODE FOR ANY PURPOSE.  IT IS PROVIDED "AS IS" WITHOUT EXPRESS OR 
- * IMPLIED WARRANTY OF ANY KIND.  NVIDIA DISCLAIMS ALL WARRANTIES WITH 
- * REGARD TO THIS SOURCE CODE, INCLUDING ALL IMPLIED WARRANTIES OF 
- * MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE.
- * IN NO EVENT SHALL NVIDIA BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL, 
- * OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS 
- * OF USE, DATA OR PROFITS,  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE 
- * OR OTHER TORTIOUS ACTION,  ARISING OUT OF OR IN CONNECTION WITH THE USE 
- * OR PERFORMANCE OF THIS SOURCE CODE.  
- *
- * U.S. Government End Users.   This source code is a "commercial item" as 
- * that term is defined at  48 C.F.R. 2.101 (OCT 1995), consisting  of 
- * "commercial computer  software"  and "commercial computer software 
- * documentation" as such terms are  used in 48 C.F.R. 12.212 (SEPT 1995) 
- * and is provided to the U.S. Government only as a commercial end item.  
- * Consistent with 48 C.F.R.12.212 and 48 C.F.R. 227.7202-1 through 
- * 227.7202-4 (JUNE 1995), all U.S. Government End Users acquire the 
- * source code with only those rights set forth herein. 
- *
- * Any use of this source code in individual and commercial software must 
- * include, in the user documentation and internal comments to the code,
- * the above Disclaimer and U.S. Government End Users Notice.
- */
+  /*
+   * Copyright 1993-2007 NVIDIA Corporation.  All rights reserved.
+   *
+   * NOTICE TO USER:
+   *
+   * This source code is subject to NVIDIA ownership rights under U.S. and
+   * international Copyright laws.  Users and possessors of this source code
+   * are hereby granted a nonexclusive, royalty-free license to use this code
+   * in individual and commercial software.
+   *
+   * NVIDIA MAKES NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOURCE
+   * CODE FOR ANY PURPOSE.  IT IS PROVIDED "AS IS" WITHOUT EXPRESS OR
+   * IMPLIED WARRANTY OF ANY KIND.  NVIDIA DISCLAIMS ALL WARRANTIES WITH
+   * REGARD TO THIS SOURCE CODE, INCLUDING ALL IMPLIED WARRANTIES OF
+   * MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE.
+   * IN NO EVENT SHALL NVIDIA BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL,
+   * OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+   * OF USE, DATA OR PROFITS,  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+   * OR OTHER TORTIOUS ACTION,  ARISING OUT OF OR IN CONNECTION WITH THE USE
+   * OR PERFORMANCE OF THIS SOURCE CODE.
+   *
+   * U.S. Government End Users.   This source code is a "commercial item" as
+   * that term is defined at  48 C.F.R. 2.101 (OCT 1995), consisting  of
+   * "commercial computer  software"  and "commercial computer software
+   * documentation" as such terms are  used in 48 C.F.R. 12.212 (SEPT 1995)
+   * and is provided to the U.S. Government only as a commercial end item.
+   * Consistent with 48 C.F.R.12.212 and 48 C.F.R. 227.7202-1 through
+   * 227.7202-4 (JUNE 1995), all U.S. Government End Users acquire the
+   * source code with only those rights set forth herein.
+   *
+   * Any use of this source code in individual and commercial software must
+   * include, in the user documentation and internal comments to the code,
+   * the above Disclaimer and U.S. Government End Users Notice.
+   */
 
-// define base vector types and operators or use those provided by CUDA
+  // define base vector types and operators or use those provided by CUDA
 #ifndef __CUDACC__
   struct float2 { float x,y; };
   struct float3 { float x,y,z; };
@@ -1474,9 +1643,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
 
-/* -------------------------------------------------------- */
-/* -----------  FLOAT ------------------------------------- */
-/* -------------------------------------------------------- */
+  /* -------------------------------------------------------- */
+  /* -----------  FLOAT ------------------------------------- */
+  /* -------------------------------------------------------- */
 #if REAL_PRECISION <= 32
 
   FUNC_DECL  float3 operator *(float3 a, float3 b)
@@ -1639,9 +1808,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
 
-/* -------------------------------------------------------- */
-/* ----------- DOUBLE ------------------------------------- */
-/* -------------------------------------------------------- */
+  /* -------------------------------------------------------- */
+  /* ----------- DOUBLE ------------------------------------- */
+  /* -------------------------------------------------------- */
 #if REAL_PRECISION == 64
 
   struct double3 { double x,y,z; };
@@ -1821,9 +1990,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
 
-/* -------------------------------------------------------- */
-/* ----------- LONG DOUBLE -------------------------------- */
-/* -------------------------------------------------------- */
+  /* -------------------------------------------------------- */
+  /* ----------- LONG DOUBLE -------------------------------- */
+  /* -------------------------------------------------------- */
 #if REAL_PRECISION > 64
 
   struct ldouble2 { long double x,y; };
@@ -2005,53 +2174,53 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define M_PI 3.14159265358979323846
 #endif
 
-/**************************************
- *** Precision dependant constants   ***
- ***************************************/
+  /**************************************
+   *** Precision dependant constants   ***
+   ***************************************/
 
-// float
+  // float
 #if ( REAL_PRECISION <= 32 )
 #define EPSILON 1e-7
 #define NEWTON_NITER 16
 
-// long double
+  // long double
 #elif ( REAL_PRECISION > 64 )
 #define EPSILON 1e-31
 #define NEWTON_NITER 64
 
-// double ( default )
+  // double ( default )
 #else
-#define EPSILON 1e-15 
+#define EPSILON 1e-15
 #define NEWTON_NITER 32
 
 #endif
 
 
-/**************************************
- ***       Debugging                 ***
- ***************************************/
+  /**************************************
+   ***       Debugging                 ***
+   ***************************************/
 #define DBG_MESG(m) (void)0
 
 
-/**************************************
- ***          Macros                 ***
- ***************************************/
+  /**************************************
+   ***          Macros                 ***
+   ***************************************/
 
-// assure un alignement maximum des tableaux
+  // assure un alignement maximum des tableaux
 #define ROUND_SIZE(n) (n)
-//( (n+sizeof(REAL)-1) & ~(sizeof(REAL)-1) )
+  //( (n+sizeof(REAL)-1) & ~(sizeof(REAL)-1) )
 
-// local arrays allocation
+  // local arrays allocation
 #ifdef __CUDACC__
 
 #define ALLOC_LOCAL_ARRAY(name,type,n)          \
   type * name = (type*)sdata;                   \
-  sdata += ROUND_SIZE( sizeof(type)*(n) )
+    sdata += ROUND_SIZE( sizeof(type)*(n) )
 #define FREE_LOCAL_ARRAY(name,type,n) sdata -= ROUND_SIZE( sizeof(type)*(n) )
 
 #elif defined(__GNUC__) // Warning, this is a gcc extension, not all compiler accept it
 #define ALLOC_LOCAL_ARRAY(name,type,n) type name[(n)]
-#define FREE_LOCAL_ARRAY(name,type,n) 
+#define FREE_LOCAL_ARRAY(name,type,n)
 #else
 #include <malloc.h>
 #define ALLOC_LOCAL_ARRAY(name,type,n) type* name = (type*) malloc( sizeof(type) * (n) )
@@ -2065,12 +2234,12 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #endif
 
 
-/*********************
- *** Triangle area ***
- *********************/
-/*
-  Formula from VTK in vtkTriangle.cxx, method TriangleArea
-*/
+  /*********************
+   *** Triangle area ***
+   *********************/
+  /*
+    Formula from VTK in vtkTriangle.cxx, method TriangleArea
+  */
   FUNC_DECL
   REAL triangleSurf( REAL3 p1, REAL3 p2, REAL3 p3 )
   {
@@ -2105,9 +2274,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-/*************************
- *** Tetrahedra volume ***
- *************************/
+  /*************************
+   *** Tetrahedra volume ***
+   *************************/
 
   FUNC_DECL
   REAL tetraVolume( REAL3 p0, REAL3 p1, REAL3 p2, REAL3 p3 )
@@ -2126,9 +2295,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-/*******************************************
- *** Evaluation of a polynomial function ***
- *******************************************/
+  /*******************************************
+   *** Evaluation of a polynomial function ***
+   *******************************************/
   FUNC_DECL
   REAL evalPolynomialFunc(const REAL2 F, const REAL x)
   {
@@ -2150,9 +2319,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-/*****************************************
- *** Intergal of a polynomial function ***
- *****************************************/
+  /*****************************************
+   *** Intergal of a polynomial function ***
+   *****************************************/
   FUNC_DECL
   REAL3 integratePolynomialFunc( REAL2 linearFunc )
   {
@@ -2165,9 +2334,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return make_REAL4( quadFunc.x/3, quadFunc.y/2, quadFunc.z, 0 );
   }
 
-/*******************************************
- *** Derivative of a polynomial function ***
- *******************************************/
+  /*******************************************
+   *** Derivative of a polynomial function ***
+   *******************************************/
   FUNC_DECL
   REAL2 derivatePolynomialFunc( REAL3 F )
   {
@@ -2182,9 +2351,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return dF;
   }
 
-/****************************
- *** Linear interpolation ***
- ****************************/
+  /****************************
+   *** Linear interpolation ***
+   ****************************/
   FUNC_DECL
   REAL3 linearInterp( REAL t0, REAL3 x0, REAL t1, REAL3 x1, REAL t )
   {
@@ -2207,9 +2376,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-/****************************************
- *** Quadratic interpolation function ***
- ****************************************/
+  /****************************************
+   *** Quadratic interpolation function ***
+   ****************************************/
   FUNC_DECL
   REAL3 quadraticInterpFunc( REAL x0, REAL y0, REAL x1, REAL y1, REAL x2, REAL y2 )
   {
@@ -2240,18 +2409,21 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       }
 
     // degenerated case
-    return make_REAL3(0,0,0);
+    else
+      {
+      return make_REAL3(0,0,0);
+      }
   }
 
 
-/**************************************
- *** Analytic solver for ax²+bx+c=0 ***
- **************************************/
+  /**************************************
+   *** Analytic solver for ax²+bx+c=0 ***
+   **************************************/
   FUNC_DECL
   REAL quadraticFunctionSolve( REAL3 F, const REAL value, const REAL xmin, const REAL xmax )
   {
-// resolution analytique de ax²+bx+c=0
-// (!) numeriquement hazardeux, donc on prefere le newton qui est pourtant BEAUCOUP plus lent
+    // resolution analytique de ax²+bx+c=0
+    // (!) numeriquement hazardeux, donc on prefere le newton qui est pourtant BEAUCOUP plus lent
 
     F.z -= value;
 
@@ -2276,9 +2448,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return x;
   }
 
-/****************************
- *** Newton search method ***
- ****************************/
+  /****************************
+   *** Newton search method ***
+   ****************************/
   FUNC_DECL
   REAL newtonSearchPolynomialFunc( REAL3 F, REAL2 dF, const REAL value, const REAL xmin, const REAL xmax )
   {
@@ -2296,7 +2468,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #ifdef __CUDACC__
 #pragma unroll
 #endif
-    for(int i=0;i<NEWTON_NITER;i++)
+    for(int i = 0;i<NEWTON_NITER;i++)
       {
       DBG_MESG("F("<<x<<")="<<y);
       // Xi+1 = Xi - F'(x)/F''(x)
@@ -2333,7 +2505,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #ifdef __CUDACC__
 #pragma unroll
 #endif
-    for(int i=0;i<NEWTON_NITER;i++)
+    for(int i = 0;i<NEWTON_NITER;i++)
       {
       DBG_MESG("F("<<x<<")="<<y);
       // Xi+1 = Xi - F'(x)/F''(x)
@@ -2354,9 +2526,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-/***********************
- *** Sorting methods ***
- ***********************/
+  /***********************
+   *** Sorting methods ***
+   ***********************/
   FUNC_DECL
   uint3 sortTriangle( uint3 t , unsigned int* i )
   {
@@ -2382,15 +2554,15 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
   typedef unsigned char IntType;
-/***********************
- *** Sorting methods ***
- ***********************/
+  /***********************
+   *** Sorting methods ***
+   ***********************/
   FUNC_DECL
   void sortVertices( const int n, const REAL* dist, IntType* indices )
   {
-// insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
-    for(int i=0;i<n;i++)
+    for(int i = 0;i<n;i++)
       {
       int imin = i;
       for(int j=i+1;j<n;j++)
@@ -2406,9 +2578,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntType* indices )
   {
-// insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
-    for(int i=0;i<n;i++)
+    for(int i = 0;i<n;i++)
       {
       int imin = i;
       REAL dmin = dot(vertices[indices[i]],normal);
@@ -2426,9 +2598,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL2* vertices, const REAL2 normal, IntType* indices )
   {
-// insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
-    for(int i=0;i<n;i++)
+    for(int i = 0;i<n;i++)
       {
       int imin = i;
       REAL dmin = dot(vertices[indices[i]],normal);
@@ -2476,22 +2648,22 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     const REAL d0 = dot( v0 , normal );
     const REAL d1 = dot( v1 , normal );
     const REAL d2 = dot( v2 , normal );
-   
+
 
     DBG_MESG("v0 = "<<v0.x<<','<<v0.y<<" d0="<<d0);
     DBG_MESG("v1 = "<<v1.x<<','<<v1.y<<" d1="<<d1);
     DBG_MESG("v2 = "<<v2.x<<','<<v2.y<<" d2="<<d2);
-   
 
-    // 2. compute 
-   
+
+    // 2. compute
+
     // compute vector from point on v0-v2 that has distance d1 from Plane0
     REAL_COORD I = linearInterp( d0, v0, d2, v2 , d1 );
     DBG_MESG("I = "<<I.x<<','<<I.y);
     REAL_COORD vec = v1 - I;
     REAL length = sqrt( dot(vec,vec) );
     DBG_MESG("length = "<<length);
-   
+
     // side length function = (x-d0) * length / (d1-d0) = (length/(d1-d0)) * x - length * d0 / (d1-d0)
     REAL2 linearFunc01 = make_REAL2( length/(d1-d0) , - length * d0 / (d1-d0) );
     // surface function = integral of distance function starting at d0
@@ -2500,7 +2672,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       {
       func[0]  = linearFunc01;
       }
-   
+
     // side length function = (d2-x) * length / (d2-d1) = (-length/(d2-d1)) * x + d2*length / (d2-d1)
     REAL2 linearFunc12 = make_REAL2( -length/(d2-d1) , d2*length/(d2-d1) );
     // surface function = integral of distance function starting at d1
@@ -2531,12 +2703,12 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     ALLOC_LOCAL_ARRAY( rindex, unsigned char, nv );
 
     // initialization
-    for(int i=0;i<nv;i++)
+    for(int i = 0;i<nv;i++)
       {
       index[i] = i;
       }
 
-    for(int i=0;i<(nv-1);i++)
+    for(int i = 0;i<(nv-1);i++)
       {
       derivatives[i] = make_REAL2(0,0);
       }
@@ -2545,7 +2717,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     sortVertices( nv, vertices, normal, index );
 
     // reverse indirection table
-    for(int i=0;i<nv;i++)
+    for(int i = 0;i<nv;i++)
       {
       rindex[ index[i] ] = i;
       }
@@ -2554,18 +2726,18 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     REAL surface = 0;
 
     // construction of the truncated volume piecewise cubic function
-    for(int i=0;i<nt;i++)
+    for(int i = 0;i<nt;i++)
       {
       // area of the interface-tetra intersection at points P1 and P2
       uchar3 triangle = sortTriangle( tv[i] , rindex );
       DBG_MESG( "\ntriangle "<<i<<" : "<<tv[i].x<<','<<tv[i].y<<','<<tv[i].z<<" -> "<<triangle.x<<','<<triangle.y<<','<<triangle.z );
 
-      // compute the volume function derivative pieces 
+      // compute the volume function derivative pieces
       REAL2 triangleSurfFunc[2];
-      surface += makeTriangleSurfaceFunctions( triangle, vertices, normal, triangleSurfFunc );      
+      surface += makeTriangleSurfaceFunctions( triangle, vertices, normal, triangleSurfFunc );
 
 #ifdef DEBUG
-      for(int k=0;k<2;k++)
+      for(int k = 0;k<2;k++)
         {
         DBG_MESG( "surf'["<<k<<"] = "<<triangleSurfFunc[k].x<<','<<triangleSurfFunc[k].y );
         }
@@ -2585,7 +2757,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
         }
 
       DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
-      for(unsigned int j=i1;j<i2;j++) 
+      for(unsigned int j=i1;j<i2;j++)
         {
         derivatives[j] += triangleSurfFunc[1];
         }
@@ -2626,9 +2798,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-/*
-  compute the derivatives of the piecewise cubic function of the volume behind the cutting cone ( axis symetric 2D plane)
-*/
+  /*
+    compute the derivatives of the piecewise cubic function of the volume behind the cutting cone ( axis symetric 2D plane)
+  */
   FUNC_DECL
   void makeConeVolumeDerivatives(
                                  const uchar3 triangle,
@@ -2643,7 +2815,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     const REAL2 v1 = vertices[ triangle.y ];
     const REAL2 v2 = vertices[ triangle.z ];
 
-    // 2. compute 
+    // 2. compute
     const REAL d0 = dot( v0 , normal );
     const REAL d1 = dot( v1 , normal );
     const REAL d2 = dot( v2 , normal );
@@ -2651,7 +2823,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     DBG_MESG("v0 = "<<v0.x<<','<<v0.y<<" d0="<<d0);
     DBG_MESG("v1 = "<<v1.x<<','<<v1.y<<" d1="<<d1);
     DBG_MESG("v2 = "<<v2.x<<','<<v2.y<<" d2="<<d2);
-      
+
     // compute vector from point on v0-v2 that has distance d1 from Plane0
     REAL2 I = linearInterp( d0, v0, d2, v2 , d1 );
     DBG_MESG("I = "<<I.x<<','<<I.y);
@@ -2690,35 +2862,35 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     ALLOC_LOCAL_ARRAY( rindex, unsigned char, nv );
 
     // initialization
-    for(int i=0;i<nv;i++)
+    for(int i = 0;i<nv;i++)
       {
       index[i] = i;
       }
 
-    for(int i=0;i<(nv-1);i++)
+    for(int i = 0;i<(nv-1);i++)
       {
       derivatives[i] = make_REAL3(0,0,0);
       }
 
-    // sort vertices along normal vector 
+    // sort vertices along normal vector
     sortVertices( nv, vertices, normal, index );
 
     // reverse indirection table
-    for(int i=0;i<nv;i++)
+    for(int i = 0;i<nv;i++)
       {
       rindex[ index[i] ] = i;
       }
 
     // construction of the truncated volume piecewise cubic function
-    for(int i=0;i<nt;i++)
+    for(int i = 0;i<nt;i++)
       {
       // area of the interface-tetra intersection at points P1 and P2
       uchar3 triangle = sortTriangle( tv[i] , rindex );
       DBG_MESG( "\ntriangle "<<i<<" : "<<tv[i].x<<','<<tv[i].y<<','<<tv[i].z<<" -> "<<triangle.x<<','<<triangle.y<<','<<triangle.z );
 
-      // compute the volume function derivatives pieces 
+      // compute the volume function derivatives pieces
       REAL3 coneVolDeriv[2];
-      makeConeVolumeDerivatives( triangle, vertices, normal, coneVolDeriv );      
+      makeConeVolumeDerivatives( triangle, vertices, normal, coneVolDeriv );
 
       // area function bounds
       unsigned int i0 = rindex[ triangle.x ];
@@ -2734,7 +2906,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
         }
 
       DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
-      for(unsigned int j=i1;j<i2;j++) 
+      for(unsigned int j=i1;j<i2;j++)
         {
         derivatives[j] += coneVolDeriv[1];
         }
@@ -2743,7 +2915,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     REAL surface = 0;
     REAL xmin = 0;
     REAL xmax = dot( vertices[index[0]], normal ) ;
-    for(int i=0;i<(nv-1);i++)
+    for(int i = 0;i<(nv-1);i++)
       {
       xmin = xmax;
       REAL4 F = integratePolynomialFunc( derivatives[i] );
@@ -2791,11 +2963,11 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-/*
-  Computes the area of the intersection between the plane, orthognal to the 'normal' vector,
-  that passes through P1 (resp. P2), and the given tetrahedron.
-  the resulting area function, is a function of the intersection area given the distance of the cutting plane to the origin.
-*/
+  /*
+    Computes the area of the intersection between the plane, orthognal to the 'normal' vector,
+    that passes through P1 (resp. P2), and the given tetrahedron.
+    the resulting area function, is a function of the intersection area given the distance of the cutting plane to the origin.
+  */
   FUNC_DECL
   REAL tetraPlaneSurfFunc(
                           const uchar4 tetra,
@@ -2887,7 +3059,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     ALLOC_LOCAL_ARRAY( derivatives, REAL3, nv-1 );
 
     // initialisation
-    for(int i=0;i<nv;i++)
+    for(int i = 0;i<nv;i++)
       {
       index[i] = i;
       }
@@ -2896,19 +3068,19 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     sortVertices( nv,  vertices, normal, index );
 
     // table d'indirection inverse
-    for(int i=0;i<nv;i++)
+    for(int i = 0;i<nv;i++)
       {
       rindex[ index[i] ] = i;
       }
 
 #ifdef DEBUG
-    for(int i=0;i<nv;i++)
+    for(int i = 0;i<nv;i++)
       {
       DBG_MESG("index["<<i<<"]="<<index[i]<<", rindex["<<i<<"]="<<rindex[i]);
       }
 #endif
 
-    for(int i=0;i<(nv-1);i++)
+    for(int i = 0;i<(nv-1);i++)
       {
       derivatives[i] = make_REAL3(0,0,0);
       }
@@ -2916,7 +3088,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     REAL volume = 0;
 
     // construction de la fonction cubique par morceau du volume tronqué
-    for(int i=0;i<nt;i++)
+    for(int i = 0;i<nt;i++)
       {
       // calcul de la surface de l'intersection plan/tetra aux point P1 et P2
       uchar4 tetra = sortTetra( tv[i] , rindex );
@@ -2924,10 +3096,10 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
       // calcul des sous fonctions cubiques du volume derriere le plan en fonction de la distance
       REAL3 tetraSurfFunc[3];
-      volume += tetraPlaneSurfFunc( tetra, vertices, normal, tetraSurfFunc );      
+      volume += tetraPlaneSurfFunc( tetra, vertices, normal, tetraSurfFunc );
 
 #ifdef DEBUG
-      for(int k=0;k<3;k++)
+      for(int k = 0;k<3;k++)
         {
         DBG_MESG( "surf["<<k<<"] = "<<tetraSurfFunc[k].x<<','<<tetraSurfFunc[k].y<<','<<tetraSurfFunc[k].z );
         }
@@ -2950,7 +3122,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       DBG_MESG( "ajout surfFunc sur ["<<i2<<';'<<i3<<"]" );
       for(unsigned int j=i2;j<i3;j++) derivatives[j] += tetraSurfFunc[2] ;
       }
- 
+
     // calcul du volume recherche
     REAL y = volume*fraction;
     DBG_MESG( "volume = "<<volume<<", volume*fraction = "<<y );
@@ -2986,7 +3158,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
     // recherche par newton
     REAL x = newtonSearchPolynomialFunc( volumeFunction, derivatives[s], y, xmin, xmax );
-   
+
     DBG_MESG( "final x = "<< x );
     return x ;
   }
@@ -3000,7 +3172,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   typedef REAL3 Real3;
   typedef REAL4 Real4;
 
-#undef REAL_PRECISION 
+#undef REAL_PRECISION
 #undef REAL_COORD
 
   struct VertexInfo
@@ -3022,7 +3194,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */
 
 
-// useful to avoid numerical errors
+// usefull to avoid numerical errors
 #define Clamp(x,min,max) if(x<min) x=min; else if(x>max) x=max
 
 // ------------------------------------
@@ -3032,14 +3204,14 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 //             #    #   #
 //         ####     ####
 // ------------------------------------
-void vtkYoungsMaterialInterfaceCellCut::cellInterface3D( 
+void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
                                                         int ncoords,
                                                         double coords[][3],
                                                         int nedge,
                                                         int cellEdges[][2],
                                                         int ntetra,
                                                         int tetraPointIds[][4],
-                                                        double fraction, double normal[3] , 
+                                                        double fraction, double normal[3] ,
                                                         bool useFractionAsDistance,
                                                         int & np, int eids[], double weights[] ,
                                                         int & nInside, int inPoints[],
@@ -3063,7 +3235,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
 
   double dmin, dmax;
   dmin = dmax = coords[0][0]*normal[0] + coords[0][1]*normal[1] + coords[0][2]*normal[2];
-  for(int i=0;i<ncoords;i++)
+  for(int i = 0;i<ncoords;i++)
     {
     double d = coords[i][0]*normal[0] + coords[i][1]*normal[1] + coords[i][2]*normal[2];
     if( d<dmin ) dmin=d;
@@ -3075,17 +3247,17 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
 
   // compute vertex distances to interface plane
   double dist[MAX_CELL_POINTS];
-  for(int i=0;i<ncoords;i++)
+  for(int i = 0;i<ncoords;i++)
     {
     dist[i] = coords[i][0]*normal[0] + coords[i][1]*normal[1] + coords[i][2]*normal[2] + d;
     }
 
   // get in/out points
-  nInside=0;
-  nOutside=0;
-  for(int i=0;i<ncoords;i++)
+  nInside = 0;
+  nOutside = 0;
+  for(int i = 0;i<ncoords;i++)
     {
-    if( dist[i] <= 0.0 ) 
+    if( dist[i] <= 0.0 )
       {
       inPoints[nInside++] = i;
       }
@@ -3093,14 +3265,14 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
       {
       outPoints[nOutside++] = i;
       }
-    }   
+    }
 
   double center[3] = {0,0,0};
   double polygon[MAX_CELL_POINTS][3];
 
   // compute intersections between edges and interface plane
   np = 0;
-  for(int i=0;i<nedge;i++)
+  for(int i = 0;i<nedge;i++)
     {
     int e0 = cellEdges[i][0];
     int e1 = cellEdges[i][1];
@@ -3117,7 +3289,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
         {
         t = 0;
         }
-   
+
       for(int c=0;c<3;c++)
         {
         polygon[np][c] = coords[e0][c] + t * ( coords[e1][c] - coords[e0][c] ) ;
@@ -3150,7 +3322,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
 
     // calcul des angles des points du polygone
     vtkYoungsMaterialInterfaceCellCutInternals::CWVertex pts[MAX_CELL_POINTS];
-    for(int i=0;i<np;i++)
+    for(int i = 0;i<np;i++)
       {
       double vec[3];
       for(int comp=0;comp<3;comp++)
@@ -3158,14 +3330,14 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
         pts[i].coord[comp] = polygon[i][comp];
         vec[comp] = polygon[i][comp]-center[comp];
         }
-   
+
       pts[i].weight = weights[i];
       pts[i].eid[0] = eids[i*2+0];
       pts[i].eid[1] = eids[i*2+1];
       pts[i].angle = atan2( vec[yd], vec[xd] );
       }
     vtkstd::sort( pts , pts+np );
-    for(int i=0;i<np;i++)
+    for(int i = 0;i<np;i++)
       {
       weights[i] = pts[i].weight;
       eids[i*2+0] = pts[i].eid[0];
@@ -3187,7 +3359,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(
   vtkYoungsMaterialInterfaceCellCutInternals::Real3 V[LOCAL_ARRAY_SIZE(vertexCount)];
   vtkYoungsMaterialInterfaceCellCutInternals::uchar4 tet[LOCAL_ARRAY_SIZE(tetraCount)];
 
-  for(int i=0;i<vertexCount;i++)
+  for(int i = 0;i<vertexCount;i++)
     {
     V[i].x = vertices[i][0] - vertices[0][0] ;
     V[i].y = vertices[i][1] - vertices[0][1] ;
@@ -3209,16 +3381,16 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(
   scale = vmax.x - vmin.x;
   if( (vmax.y-vmin.y) > scale ) scale = vmax.y-vmin.y;
   if( (vmax.z-vmin.z) > scale ) scale = vmax.z-vmin.z;
-  for(int i=0;i<vertexCount;i++) V[i] /= scale;
+  for(int i = 0;i<vertexCount;i++) V[i] /= scale;
 
-  for(int i=0;i<tetraCount;i++)
+  for(int i = 0;i<tetraCount;i++)
     {
     tet[i].x = tetras[i][0];
     tet[i].y = tetras[i][1];
     tet[i].z = tetras[i][2];
     tet[i].w = tetras[i][3];
     }
-   
+
   double dist0 = vertices[0][0]*normal[0] + vertices[0][1]*normal[1] + vertices[0][2]*normal[2];
   double d = dist0 + vtkYoungsMaterialInterfaceCellCutInternals::findTetraSetCuttingPlane(N, fraction, vertexCount, tetraCount, tet, V ) * scale;
 
@@ -3234,24 +3406,24 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(
 //        #####     ####
 // ------------------------------------
 
-bool vtkYoungsMaterialInterfaceCellCut::cellInterface2D( 
-                                                        double points[][3],
-                                                        int nPoints,
-                                                        int triangles[][3], // TODO: int [] pour plus d'integration au niveau du dessus
-                                                        int nTriangles,
-                                                        double fraction, double normal[3] ,
-                                                        bool axisSymetric,
-                                                        bool useFractionAsDistance,
-                                                        int eids[4], double weights[2] ,
-                                                        int &polygonPoints, int polygonIds[],
-                                                        int &nRemPoints, int remPoints[]
-                                                         )
+bool vtkYoungsMaterialInterfaceCellCut::cellInterfaceD(
+                                                       double points[][3],
+                                                       int nPoints,
+                                                       int triangles[][3], // TODO: int [] pour plus d'integration au niveau du dessus
+                                                       int nTriangles,
+                                                       double fraction, double normal[3] ,
+                                                       bool axisSymetric,
+                                                       bool useFractionAsDistance,
+                                                       int eids[4], double weights[2] ,
+                                                       int &polygonPoints, int polygonIds[],
+                                                       int &nRemPoints, int remPoints[]
+                                                       )
 {
   double d = useFractionAsDistance ? fraction : findTriangleSetCuttingPlane( normal, fraction, nPoints, points, nTriangles, triangles , axisSymetric );
 
   // compute vertex distances to interface plane
   double dist[LOCAL_ARRAY_SIZE(nPoints)];
-  for(int i=0;i<nPoints;i++)
+  for(int i = 0;i<nPoints;i++)
     {
     dist[i] = points[i][0]*normal[0] + points[i][1]*normal[1] + points[i][2]*normal[2] + d;
     }
@@ -3260,12 +3432,12 @@ bool vtkYoungsMaterialInterfaceCellCut::cellInterface2D(
   int np = 0;
   nRemPoints = 0;
   polygonPoints = 0;
-  for(int i=0;i<nPoints;i++)
+  for(int i = 0;i<nPoints;i++)
     {
     int edge[2];
     edge[0] = i;
-    edge[1] = (i+1)%nPoints; 
-    if( dist[i] <= 0.0 ) 
+    edge[1] = (i+1)%nPoints;
+    if( dist[i] <= 0.0 )
       {
       polygonIds[polygonPoints++] = i;
       }
@@ -3306,7 +3478,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(
   double d;
 
   vtkYoungsMaterialInterfaceCellCutInternals::uchar3 tri[LOCAL_ARRAY_SIZE(triangleCount)];
-  for(int i=0;i<triangleCount;i++)
+  for(int i = 0;i<triangleCount;i++)
     {
     tri[i].x = triangles[i][0];
     tri[i].y = triangles[i][1];
@@ -3317,7 +3489,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(
     {
     vtkYoungsMaterialInterfaceCellCutInternals::Real2 N = { normal[0], normal[1] };
     vtkYoungsMaterialInterfaceCellCutInternals::Real2 V[LOCAL_ARRAY_SIZE(vertexCount)];
-    for(int i=0;i<vertexCount;i++)
+    for(int i = 0;i<vertexCount;i++)
       {
       V[i].x = vertices[i][0] - vertices[0][0] ;
       V[i].y = vertices[i][1] - vertices[0][1] ;
@@ -3334,15 +3506,15 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(
       }
     scale = vmax.x - vmin.x;
     if( (vmax.y-vmin.y) > scale ) scale = vmax.y-vmin.y;
-    for(int i=0;i<vertexCount;i++) V[i] /= scale;
+    for(int i = 0;i<vertexCount;i++) V[i] /= scale;
     double dist0 = vertices[0][0]*normal[0] + vertices[0][1]*normal[1] ;
-    d = dist0 + vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingCone(N, fraction, vertexCount, triangleCount, tri, V ) * scale;  
+    d = dist0 + vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingCone(N, fraction, vertexCount, triangleCount, tri, V ) * scale;
     }
   else
     {
     vtkYoungsMaterialInterfaceCellCutInternals::Real3 N = { normal[0], normal[1], normal[2] };
     vtkYoungsMaterialInterfaceCellCutInternals::Real3 V[LOCAL_ARRAY_SIZE(vertexCount)];
-    for(int i=0;i<vertexCount;i++)
+    for(int i = 0;i<vertexCount;i++)
       {
       V[i].x = vertices[i][0] - vertices[0][0] ;
       V[i].y = vertices[i][1] - vertices[0][1] ;
@@ -3363,15 +3535,10 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(
     scale = vmax.x - vmin.x;
     if( (vmax.y-vmin.y) > scale ) scale = vmax.y-vmin.y;
     if( (vmax.z-vmin.z) > scale ) scale = vmax.z-vmin.z;
-    for(int i=0;i<vertexCount;i++) V[i] /= scale;
+    for(int i = 0;i<vertexCount;i++) V[i] /= scale;
     double dist0 = vertices[0][0]*normal[0] + vertices[0][1]*normal[1] + vertices[0][2]*normal[2];
     d = dist0 + vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingPlane(N, fraction, vertexCount, triangleCount, tri, V ) * scale;
     }
 
   return - d;
 }
-
-
-
-
-
