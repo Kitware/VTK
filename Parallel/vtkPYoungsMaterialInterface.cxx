@@ -53,18 +53,23 @@ void vtkPYoungsMaterialInterface::PrintSelf( ostream& os, vtkIndent indent )
 //-----------------------------------------------------------------------------
 void vtkPYoungsMaterialInterface::Aggregate( int nmat, int* inputsPerMaterial )
 {
-  vtkMultiProcessController* ctrl = this->Controller;
-  if ( ! ctrl )
+  vtkIdType nprocs = this->Controller->GetNumberOfProcesses();
+  if ( nprocs < 2 )
     {
-    vtkErrorMacro(<<"No multi-process controller.");
     return;
     }
 
+  // Now get ready for parallel calculations
+  vtkCommunicator* com = this->Controller->GetCommunicator();
+  if ( ! com )
+    {
+    vtkErrorMacro(<<"No parallel communicator.");
+    }
+
   // Gather inputs per material from all processes
-  vtkIdType nprocs = this->Controller->GetNumberOfProcesses();
   vtkIdType myid = this->Controller->GetLocalProcessId();
   int* tmp = new int[nmat * nprocs];
-  this->Controller->AllGather( inputsPerMaterial, tmp, nmat );
+  com->AllGather( inputsPerMaterial, tmp, nmat );
 
   // Scan sum : done by all processes, not optimal but easy
   for ( vtkIdType m = 0; m < nmat; ++ m )
