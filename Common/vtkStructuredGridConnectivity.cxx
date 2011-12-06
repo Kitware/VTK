@@ -96,7 +96,9 @@ void vtkStructuredGridConnectivity::RegisterGrid(const int gridID,int ext[6])
   assert( "pre: gridID out-of-bounds!" &&
            (gridID >= 0  && gridID < this->NumberOfGrids) );
   for( int i=0; i < 6; ++i )
+    {
     this->GridExtents[ gridID*6+i ] = ext[i];
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -105,7 +107,9 @@ void vtkStructuredGridConnectivity::GetGridExtent(const int gridID, int ext[6])
   assert( "pre: gridID out-of-bounds!" &&
           (gridID >= 0  && gridID < this->NumberOfGrids) );
   for( int i=0; i < 6; ++i )
+    {
     ext[i] = this->GridExtents[ gridID*6+i ];
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -132,7 +136,10 @@ vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(
   assert( "pre: input extents array is NULL" && (extents != NULL) );
 
   int N = this->GetNumberOfNeighbors( gridID );
-  if( N < 1 ) return NULL;
+  if( N < 1 )
+    {
+    return NULL;
+    }
 
   vtkIdList *neiList = vtkIdList::New();
   neiList->SetNumberOfIds( N );
@@ -143,7 +150,9 @@ vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(
     vtkIdType neiId = this->Neighbors[ gridID ][ nei ].NeighborID;
     neiList->SetId( nei, neiId );
     for( int i=0; i < 6; ++i  )
+      {
       extents[ nei*6+i ] = this->Neighbors[ gridID ][ nei ].OverlapExtent[ i ];
+      }
     } // END for all neighbors
 
   assert( "post: N==neiList.size()" && (N == neiList->GetNumberOfIds()) );
@@ -156,7 +165,9 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
   this->AcquireDataDescription( );
   if( this->DataDescription == VTK_EMPTY ||
       this->DataDescription == VTK_SINGLE_POINT )
-      return;
+    {
+    return;
+    }
 
   for( int i=0; i < this->NumberOfGrids; ++i )
     {
@@ -182,7 +193,9 @@ void vtkStructuredGridConnectivity::SearchNeighbors(
     assert( "pre: myNei != NULL" && (myNei != NULL) );
 
     if( this->IsNodeWithinExtent( i, j, k, myNei->OverlapExtent) )
+      {
       neiList->InsertNextId( myNei->NeighborID );
+      }
     } // END for all neis
 }
 
@@ -195,15 +208,13 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 
   if( this->IsNodeInterior( i, j, k, ext ) )
     {
-    vtkGhostArray::SetProperty(
-        p,vtkGhostArray::INTERNAL );
+    vtkGhostArray::SetProperty(p,vtkGhostArray::INTERNAL );
     }
   else
     {
     if( this->IsNodeOnBoundary(i,j,k) )
       {
-      vtkGhostArray::SetProperty(
-          p,vtkGhostArray::BOUNDARY );
+      vtkGhostArray::SetProperty(p,vtkGhostArray::BOUNDARY );
       }
 
     // Figure out if the point is shared and who owns the point
@@ -212,8 +223,7 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 
     if( neiList->GetNumberOfIds() > 0 )
       {
-      vtkGhostArray::SetProperty(
-          p,vtkGhostArray::SHARED );
+      vtkGhostArray::SetProperty(p,vtkGhostArray::SHARED );
 
       for( vtkIdType nei=0; nei < neiList->GetNumberOfIds(); ++nei )
         {
@@ -224,8 +234,7 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
         // etc.
         if( gridID > neiList->GetId( nei ) )
           {
-          vtkGhostArray::SetProperty(
-              p,vtkGhostArray::IGNORE );
+          vtkGhostArray::SetProperty(p,vtkGhostArray::IGNORE );
           break;
           }
         } //END for all neis
@@ -287,36 +296,50 @@ bool vtkStructuredGridConnectivity::IsNodeOnBoundary(
     {
     case VTK_X_LINE:
        if( i==this->WholeExtent[0] || i==this->WholeExtent[1] )
-           status = true;
+         {
+         status = true;
+         }
        break;
      case VTK_Y_LINE:
        if( j==this->WholeExtent[2] || j==this->WholeExtent[3] )
-           status = true;
+         {
+         status = true;
+         }
        break;
      case VTK_Z_LINE:
        if( k==this->WholeExtent[4] || k==this->WholeExtent[5] )
-           status = true;
+         {
+         status = true;
+         }
        break;
      case VTK_XY_PLANE:
        if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
            j==this->WholeExtent[2] || j==this->WholeExtent[3] )
-           status = true;
+         {
+         status = true;
+         }
        break;
      case VTK_YZ_PLANE:
        if( j==this->WholeExtent[2] || j==this->WholeExtent[3] ||
            k==this->WholeExtent[4] || k==this->WholeExtent[5] )
-           status = true;
+         {
+         status = true;
+         }
        break;
      case VTK_XZ_PLANE:
        if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
            k==this->WholeExtent[4] || k==this->WholeExtent[5] )
-           status = true;
+         {
+         status = true;
+         }
        break;
      case VTK_XYZ_GRID:
        if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
            j==this->WholeExtent[2] || j==this->WholeExtent[3] ||
            k==this->WholeExtent[4] || k==this->WholeExtent[5] )
-           status = true;
+         {
+         status = true;
+         }
        break;
      default:
        std::cout << "Data description is: " << this->DataDescription << "\n";
@@ -338,36 +361,50 @@ bool vtkStructuredGridConnectivity::IsNodeInterior(
     {
     case VTK_X_LINE:
       if( (GridExtent[0] < i) && (i < GridExtent[1]) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_Y_LINE:
       if( (GridExtent[2] < j) && (j < GridExtent[3] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_Z_LINE:
       if( (GridExtent[4] < k) && (k < GridExtent[5] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_XY_PLANE:
       if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
           (GridExtent[2] < j) && (j < GridExtent[3])  )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_YZ_PLANE:
       if( (GridExtent[2] < j) && (j < GridExtent[3] ) &&
           (GridExtent[4] < k) && (k < GridExtent[5] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_XZ_PLANE:
       if( (GridExtent[0] < i) && (i < GridExtent[1] ) &&
           (GridExtent[4] < k) && (k < GridExtent[5] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_XYZ_GRID:
       if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
           (GridExtent[2] < j) && (j < GridExtent[3]) &&
           (GridExtent[4] < k) && (k < GridExtent[5]) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     default:
       std::cout << "Data description is: " << this->DataDescription << "\n";
@@ -389,36 +426,50 @@ bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
     {
     case VTK_X_LINE:
       if( (GridExtent[0] <= i) && (i <= GridExtent[1]) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_Y_LINE:
       if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_Z_LINE:
       if( (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_XY_PLANE:
       if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
           (GridExtent[2] <= j) && (j <= GridExtent[3])  )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_YZ_PLANE:
       if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
           (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_XZ_PLANE:
       if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
           (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     case VTK_XYZ_GRID:
       if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
           (GridExtent[2] <= j) && (j <= GridExtent[3]) &&
           (GridExtent[4] <= k) && (k <= GridExtent[5]) )
-          status = true;
+        {
+        status = true;
+        }
       break;
     default:
       std::cout << "Data description is: " << this->DataDescription << "\n";
@@ -516,8 +567,9 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
 
   int overlapExtent[6];
   for( int ii=0; ii < 6; ++ii )
+    {
     overlapExtent[ ii ] = 0;
-
+    }
 
   int dim = 0;
   int idx = 0;
@@ -530,7 +582,9 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
     B[1]          = ex2[ idx*2+1 ];
     status[ idx ] = this->IntervalOverlap( A, B, overlap );
     if( status[idx] == NO_OVERLAP )
+      {
       return; /* No neighbors */
+      }
     overlapExtent[ idx*2 ]   = overlap[0];
     overlapExtent[ idx*2+1 ] = overlap[1];
     } // END for all dimensions
@@ -567,7 +621,9 @@ void vtkStructuredGridConnectivity::SetNeighbors(
 void vtkStructuredGridConnectivity::PrintExtent( int ex[6] )
 {
   for( int i=0; i < 3; ++i )
+    {
     std::cout << " [" << ex[i*2] << ", " << ex[i*2+1] << "] ";
+    }
   std::cout << std::endl;
   std::cout.flush();
 }
@@ -587,18 +643,26 @@ int vtkStructuredGridConnectivity::DoPartialOverlap(
     overlap[0] = s[0];
     overlap[1] = S[1];
     if( overlap[0] == overlap[1] )
+      {
       return NODE_OVERLAP;
+      }
     else
+      {
       return PARTIAL_OVERLAP;
+      }
     }
   else if( this->InBounds(s[1], S[0],S[1]) )
     {
     overlap[0] = S[0];
     overlap[1] = s[1];
     if( overlap[0] == overlap[1] )
+      {
       return NODE_OVERLAP;
+      }
     else
+      {
       return PARTIAL_OVERLAP;
+      }
     }
   return NO_OVERLAP;
 }
@@ -633,8 +697,7 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
   int CardinalityOfB = this->Cardinality( B );
   if( CardinalityOfA != CardinalityOfB )
     {
-    return( this->PartialOverlap(
-        A, CardinalityOfA, B, CardinalityOfB, overlap ) );
+    return( this->PartialOverlap(A,CardinalityOfA,B,CardinalityOfB,overlap));
     }
 
   // Otherwise, check if the intervals overlap at a node or are 1-to-1, i.e.,
