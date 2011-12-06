@@ -28,6 +28,7 @@ vtkStandardNewMacro( vtkExtentRCBPartitioner );
 //------------------------------------------------------------------------------
 vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
 {
+  this->NumberOfGhostLayers  = 0;
   this->NumExtents           = 0;
   this->NumberOfPartitions   = 2;
   this->ExtentIsPartitioned  = false;
@@ -200,10 +201,55 @@ void vtkExtentRCBPartitioner::SplitExtent(
   s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
   s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
 
+  this->ExtendGhostLayers( s1 );
+  this->ExtendGhostLayers( s2 );
+
 //  this->PrintExtent( "Parent", parent );
 //  this->PrintExtent( "s1", s1 );
 //  this->PrintExtent( "s2", s2 );
 
+}
+
+//------------------------------------------------------------------------------
+void vtkExtentRCBPartitioner::ExtendGhostLayers( int ext[6] )
+{
+  if( this->NumberOfGhostLayers == 0 )
+    {
+    return;
+    }
+
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      this->GetGhostedExtent( ext, 0, 1 );
+      break;
+    case VTK_Y_LINE:
+      this->GetGhostedExtent( ext, 2, 3 );
+      break;
+    case VTK_Z_LINE:
+      this->GetGhostedExtent( ext, 4, 5 );
+      break;
+    case VTK_XY_PLANE:
+      this->GetGhostedExtent( ext, 0, 1 );
+      this->GetGhostedExtent( ext, 2, 3 );
+      break;
+    case VTK_YZ_PLANE:
+      this->GetGhostedExtent( ext, 2, 3 );
+      this->GetGhostedExtent( ext, 4, 5 );
+      break;
+    case VTK_XZ_PLANE:
+      this->GetGhostedExtent( ext, 0, 1 );
+      this->GetGhostedExtent( ext, 4, 5 );
+      break;
+    case VTK_XYZ_GRID:
+      this->GetGhostedExtent( ext, 0, 1 );
+      this->GetGhostedExtent( ext, 2, 3 );
+      this->GetGhostedExtent( ext, 4, 5 );
+      break;
+    default:
+      assert("pre: unsupported data-description, code should not reach here!"&&
+             false );
+    }
 }
 
 //------------------------------------------------------------------------------

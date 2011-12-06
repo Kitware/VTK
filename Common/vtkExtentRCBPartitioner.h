@@ -25,8 +25,6 @@
 #include <vector> // For STL vector
 #include <cassert>  // For assert
 
-class vtkStructuredData;
-
 class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
   public:
@@ -62,6 +60,10 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
       this->SetGlobalExtent( ext[0], ext[1], ext[2], ext[3], ext[4], ext[5] );
     }
 
+    // Description:
+    // Set/Get macro for the number of ghost layers.
+    vtkSetMacro(NumberOfGhostLayers,int);
+    vtkGetMacro(NumberOfGhostLayers,int);
 
     // Description:
     // Returns the number of extents.
@@ -88,6 +90,27 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
       this->NumExtents          = 0;
       this->ExtentIsPartitioned = false;
      }
+
+    // Description:
+    // Given an extent, this method will create ghost layers on each side of
+    // the boundary in each dimension. The ghost layers however will be
+    // restricted to the given global extent.
+    void ExtendGhostLayers( int ext[6] );
+
+    // Description:
+    // Givent an extent and the min/max of the dimension we are looking at, this
+    // method will produce a ghosted extent which is clamped within the given
+    // global extent
+    void GetGhostedExtent(
+        int ext[6], const int minIdx, const int maxIdx )
+      {
+      ext[minIdx]-=this->NumberOfGhostLayers;
+      ext[maxIdx]+=this->NumberOfGhostLayers;
+      ext[minIdx] = (ext[minIdx] < this->GlobalExtent[minIdx])?
+          this->GlobalExtent[minIdx] : ext[minIdx];
+      ext[maxIdx] = (ext[maxIdx] > this->GlobalExtent[maxIdx])?
+          this->GlobalExtent[maxIdx] : ext[maxIdx];
+      }
 
     // Description:
     // Gets the structured data-description based on the givenn global extent
@@ -135,6 +158,7 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      // A convenience method for debugging purposes.
      void PrintExtent( std::string name, int ext[6] );
 
+     int NumberOfGhostLayers;
      int DataDescription;
      int GlobalExtent[6];
      int NumberOfPartitions;
