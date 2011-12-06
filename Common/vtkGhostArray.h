@@ -96,7 +96,9 @@ class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
     static void Reset( unsigned char &propertyField )
     {
       for( int i=0; i < 8; ++i )
+        {
         vtkGhostArray::UnsetProperty( propertyField, i );
+        }
     }
 
   protected:
