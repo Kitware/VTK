@@ -18,7 +18,7 @@
 // Reconstructs material interfaces from a mesh containing mixed cells (where several materials are mixed)
 // this implementation is based on the youngs algorithm, generalized to arbitrary cell types and works
 // on both 2D and 3D meshes. the main advantage of the youngs algorithm is it guarantees the material volume correctness.
-// for 2D meshes, the AxisSymetric flag allows to switch between a pure 2D (plannar) algorithm and an axis symetric 2D algorithm
+// for 2D meshes, the AxisSymetric flag allows to switch between a pure 2D (planar) algorithm and an axis symetric 2D algorithm
 // handling volumes of revolution.
 //
 // .SECTION Thanks
@@ -34,8 +34,8 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 #include "vtkSmartPointer.h" // For SP ivars
-#include "vtkIntArray.h"
 
+class vtkIntArray;
 class vtkInformation;
 class vtkInformationVector;
 class vtkYoungsMaterialInterfaceInternals;
