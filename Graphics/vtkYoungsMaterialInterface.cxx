@@ -775,7 +775,7 @@ int vtkYoungsMaterialInterface::RequestData(
         else
           {
           debugStats_PrimaryTriangulationfailed ++;
-          //vtkWarningMacro(<<"Triangulation failed on primary cell\n");
+          vtkWarningMacro(<<"Triangulation failed on primary cell\n");
           }
 
         // get 3D cell edges.
@@ -829,9 +829,6 @@ int vtkYoungsMaterialInterface::RequestData(
               if( vtkMath::Norm(normal) == 0.0 ) // should it be <EPSILON ?
                 {
                 debugStats_NullNormal ++;
-//#if defined(DEBUG) || defined(_DEBUG)
-//                                              vtkWarningMacro(<<"Nul normal\n");
-//#endif
                 normaleNulle=true;
                 normal[0]=1.0;
                 normal[1]=0.0;
@@ -885,7 +882,7 @@ int vtkYoungsMaterialInterface::RequestData(
               if( !cell.triangulationOk )
                 {
                 debugStats_Triangulationfailed ++;
-                //vtkWarningMacro(<<"Cell triangulation failed\n");
+                vtkWarningMacro(<<"Cell triangulation failed\n");
                 }
               }
 
@@ -976,7 +973,7 @@ int vtkYoungsMaterialInterface::RequestData(
                 }
               else
                 {
-                //vtkWarningMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
+                vtkWarningMacro(<<"no interface found for cell "<<ci<<", mi="<<mi<<", m="<<m<<", frac="<<fraction<<"\n");
                 nInterfaceEdges = 0;
                 nOutCellPoints = 0;
                 nInsidePoints = 0;
@@ -1257,7 +1254,7 @@ int vtkYoungsMaterialInterface::RequestData(
                 else
                   {
                   debugStats_Triangulationfailed ++;
-                  //vtkWarningMacro(<<"Triangulation failed. Info: cell "<<ci<<", material "<<mi<<", np="<<nextCell.np<<", nf="<<nextCell.nf<<", ne="<<nextCell.nEdges<<"\n");
+                  vtkWarningMacro(<<"Triangulation failed. Info: cell "<<ci<<", material "<<mi<<", np="<<nextCell.np<<", nf="<<nextCell.nf<<", ne="<<nextCell.nEdges<<"\n");
                   }
                 nextCell.needTriangulation = false;
                 vtkcell = 0;
