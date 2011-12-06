@@ -20,6 +20,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStructuredData.h"
+#include "vtkStructuredExtent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
@@ -86,10 +87,7 @@ int vtkUniformGridPartitioner::RequestData(
   int extent[6];
   int dims[3];
   grd->GetDimensions( dims );
-  extent[0] = extent[1] = extent[2] = 0;
-  extent[3] = dims[0]-1;
-  extent[4] = dims[1]-1;
-  extent[5] = dims[2]-1;
+  grd->GetExtent( extent );
 
   // STEP 3: Setup extent partitioner
   vtkExtentRCBPartitioner *extentPartitioner = vtkExtentRCBPartitioner::New();
@@ -104,9 +102,7 @@ int vtkUniformGridPartitioner::RequestData(
   multiblock->SetNumberOfBlocks( extentPartitioner->GetNumExtents() );
 
   // Set the whole extent of the grid
-  multiblock->SetWholeExtent(
-      extent[0], extent[3], extent[1],
-      extent[4], extent[2], extent[5] );
+  multiblock->SetWholeExtent( extent );
 
 
   unsigned int blockIdx = 0;
@@ -122,20 +118,11 @@ int vtkUniformGridPartitioner::RequestData(
     ijk[2] = ext[2];
 
     int subdims[3];
-    subdims[0] = ext[3]-ext[0]+1;
-    subdims[1] = ext[4]-ext[1]+1;
-    subdims[2] = ext[5]-ext[2]+1;
+    vtkStructuredExtent::GetDimensions( ext, subdims );
+
     int pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
 
     grd->GetPoint( pntIdx, origin );
-
-    int blkExtent[6];
-    blkExtent[0] = ext[0]; // imin
-    blkExtent[1] = ext[3]; // imax
-    blkExtent[2] = ext[1]; // jmin
-    blkExtent[3] = ext[4]; // jmax
-    blkExtent[4] = ext[2]; // kmin
-    blkExtent[5] = ext[5]; // kmax
 
     vtkUniformGrid *subgrid = vtkUniformGrid::New();
     subgrid->SetOrigin( origin );
@@ -145,7 +132,7 @@ int vtkUniformGridPartitioner::RequestData(
     // Set the global extent for each block
     vtkInformation *metadata = multiblock->GetMetaData( blockIdx );
     assert( "pre: metadata is NULL" && (metadata != NULL) );
-    metadata->Set( vtkDataObject::PIECE_EXTENT(), blkExtent, 6 );
+    metadata->Set( vtkDataObject::PIECE_EXTENT(), ext, 6 );
 
     multiblock->SetBlock( blockIdx, subgrid );
     subgrid->Delete();

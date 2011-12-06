@@ -29,10 +29,11 @@ vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
 {
   this->NumExtents           = 0;
   this->NumberOfPartitions   = 2;
+  this->ExtentIsPartitioned  = false;
   for( int i=0; i < 3; ++i )
     {
-    this->GlobalExtent[ i ]   = 0;
-    this->GlobalExtent[ i+3 ] = 1;
+    this->GlobalExtent[ i*2   ] = 0;
+    this->GlobalExtent[ i*2+1 ] = 1;
     }
 }
 
@@ -51,6 +52,14 @@ void vtkExtentRCBPartitioner::PrintSelf( std::ostream &oss, vtkIndent indent )
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::Partition()
 {
+  // Short-circuit here since the given global extent has already been
+  // partitioned
+  if( this->ExtentIsPartitioned )
+    {
+    return;
+    }
+
+
   vtkPriorityQueue *wrkQueue = vtkPriorityQueue::New();
   assert( "pre: work queue is NULL" && (wrkQueue != NULL) );
 
@@ -79,6 +88,11 @@ void vtkExtentRCBPartitioner::Partition()
 
   // STEP 3: Clear data-structures
   wrkQueue->Delete();
+
+  // STEP 4: Set the flag to indicate that the extent has been partitioned to
+  // the requested number of partitions. The only way this method will reexecute
+  // is when the user calls SetGlobalExtent or SetNumberOfPartitions
+  this->ExtentIsPartitioned = true;
 
   assert( "post: number of extents must be equal to the number of partitions" &&
           (this->NumExtents == this->NumberOfPartitions) );
@@ -141,7 +155,7 @@ int vtkExtentRCBPartitioner::GetNumberOfTotalExtents()
 
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::SplitExtent(
-    int parent[6], int s1[6], int s2[6], int dimension )
+    int parent[6], int s1[6], int s2[6], int splitDimension )
 {
   int numNodes = 0;
   int mid      = -1;
@@ -153,18 +167,18 @@ void vtkExtentRCBPartitioner::SplitExtent(
     s1[ i ] = s2[ i ] = parent[ i ];
     }
 
-  switch( dimension )
+  switch( splitDimension )
     {
     case 1:
       minIdx = 0;
-      maxIdx = 3;
+      maxIdx = 1;
       break;
     case 2:
-      minIdx = 1;
-      maxIdx = 4;
+      minIdx = 2;
+      maxIdx = 3;
       break;
     case 3:
-      minIdx = 2;
+      minIdx = 4;
       maxIdx = 5;
       break;
     default:
@@ -185,18 +199,18 @@ void vtkExtentRCBPartitioner::SplitExtent(
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetNumberOfNodes( int ext[6] )
 {
-  int ilength = (ext[3]-ext[0])+1;
-  int jlength = (ext[4]-ext[1])+1;
-  int klength = (ext[5]-ext[2])+1;
+  int ilength = (ext[1]-ext[0])+1;
+  int jlength = (ext[3]-ext[2])+1;
+  int klength = (ext[5]-ext[4])+1;
 
   return( ilength*jlength*klength );
 }
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetNumberOfCells( int ext[6] )
 {
-  int ilength = (ext[3]-ext[0]);
-  int jlength = (ext[4]-ext[1]);
-  int klength = (ext[5]-ext[2]);
+  int ilength = (ext[1]-ext[0]);
+  int jlength = (ext[3]-ext[2]);
+  int klength = (ext[5]-ext[4]);
 
   return( ilength*jlength*klength );
 }
@@ -204,9 +218,9 @@ int vtkExtentRCBPartitioner::GetNumberOfCells( int ext[6] )
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetLongestDimensionLength( int ext[6] )
 {
-  int ilength = (ext[3]-ext[0])+1;
-  int jlength = (ext[4]-ext[1])+1;
-  int klength = (ext[5]-ext[2])+1;
+  int ilength = (ext[1]-ext[0])+1;
+  int jlength = (ext[3]-ext[2])+1;
+  int klength = (ext[5]-ext[4])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
     {
@@ -227,9 +241,9 @@ int vtkExtentRCBPartitioner::GetLongestDimensionLength( int ext[6] )
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
 {
-  int ilength = (ext[3]-ext[0])+1;
-  int jlength = (ext[4]-ext[1])+1;
-  int klength = (ext[5]-ext[2])+1;
+  int ilength = (ext[1]-ext[0])+1;
+  int jlength = (ext[3]-ext[2])+1;
+  int klength = (ext[5]-ext[4])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
     {

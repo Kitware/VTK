@@ -23,6 +23,7 @@
 
 #include "vtkObject.h"
 #include <vector> // For STL vector
+#include <cassert>  // For assert
 
 class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
@@ -32,16 +33,33 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     void PrintSelf(ostream &oss, vtkIndent indent );
 
     // Description:
-    // Set/Get macro for the number of partitions.
-    vtkGetMacro(NumberOfPartitions,int);
-    vtkSetMacro(NumberOfPartitions,int);
+    // Set/Get the number of requested partitions
+    void SetNumberOfPartitions( const int N )
+    {
+      assert( "pre: Number of partitions requested must be > 0" && (N >= 0) );
+      this->Reset();
+      this->NumberOfPartitions = N;
+    }
 
     // Description:
     // Set/Get the global extent array to be partitioned.
     // The global extent is packed as follows:
-    // [imin,jmin,kmin,imax,jmax,kmax]
-    vtkSetVector6Macro(GlobalExtent,int);
-    vtkGetVector6Macro(GlobalExtent,int);
+    // [imin,imax,jmin,jmax,kmin,kmax]
+    void SetGlobalExtent(int imin,int imax,int jmin,int jmax,int kmin,int kmax)
+      {
+      this->Reset();
+      this->GlobalExtent[0]     = imin;
+      this->GlobalExtent[1]     = imax;
+      this->GlobalExtent[2]     = jmin;
+      this->GlobalExtent[3]     = jmax;
+      this->GlobalExtent[4]     = kmin;
+      this->GlobalExtent[5]     = kmax;
+      }
+    void SetGlobalExtent( int ext[6] )
+    {
+      this->SetGlobalExtent( ext[0], ext[1], ext[2], ext[3], ext[4], ext[5] );
+    }
+
 
     // Description:
     // Returns the number of extents.
@@ -59,6 +77,16 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     vtkExtentRCBPartitioner();
    ~vtkExtentRCBPartitioner();
 
+    // Description:
+    // Resets the partitioner to the initial state, all previous partition
+    // extents are cleared.
+    void Reset()
+     {
+     this->PartitionExtents.clear();
+     this->NumExtents          = 0;
+     this->ExtentIsPartitioned = false;
+     }
+
      // Description:
      // Returns the extent at the position corresponding to idx.
      void GetExtent( const int idx, int ext[6] );
@@ -74,7 +102,7 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
 
      // Description:
      // Splits the extent along the given dimension.
-     void SplitExtent( int parent[6], int s1[6], int s2[6], int dimension );
+     void SplitExtent(int parent[6],int s1[6],int s2[6],int splitDimension);
 
      // Description:
      // Returns the total number of extents. It's always the 2^N where
@@ -104,6 +132,7 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      int GlobalExtent[6];
      int NumberOfPartitions;
      int NumExtents;
+     bool ExtentIsPartitioned;
 
      // BTX
      std::vector<int> pextents;
