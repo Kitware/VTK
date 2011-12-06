@@ -152,7 +152,7 @@ vtkMultiPieceDataSet* GetDataSet( )
 //------------------------------------------------------------------------------
 // Description:
 // Generates a multi-block dataset
-vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
+vtkMultiBlockDataSet* GetDataSet(const int numPartitions, const int numGhosts)
 {
   int wholeExtent[6];
   wholeExtent[0] = 0;
@@ -178,6 +178,7 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
   gridPartitioner->SetInput( wholeGrid  );
   gridPartitioner->SetNumberOfPartitions( numPartitions );
+  gridPartitioner->SetNumberOfGhostLayers( numGhosts );
   gridPartitioner->Update();
 
 // THIS DOES NOT COPY THE INFORMATION KEYS!
@@ -303,85 +304,92 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
   int expected = 100*100*100;
   int rc = 0;
   int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
+  int numGhostLayers[]     = { 0, 1, 2, 3 };
 
   for( int i=0; i < 8; ++i )
     {
-    // STEP 0: Construct the dataset
-    std::cout << "===\n";
-    std::cout << "-- Acquire dataset with N=" << numberOfPartitions[ i ];
-    std::cout << " BLOCKS...";
-    std::cout.flush();
-    vtkMultiBlockDataSet *mbds = GetDataSet( numberOfPartitions[ i ] );
-    assert( "pre: multi-block is NULL" && (mbds != NULL) );
-    std::cout << "[DONE]\n";
-    std::cout.flush();
-    std::cout << "NUMBLOCKS: " << mbds->GetNumberOfBlocks() << std::endl;
-    std::cout.flush();
-    assert( "pre: NumBlocks mismatch!" &&
-            (numberOfPartitions[i] ==
-                static_cast<int>(mbds->GetNumberOfBlocks()) ) );
-    WriteMultiBlock( mbds );
-
-    // STEP 1: Construct the grid connectivity
-    std::cout << "-- Allocating grid connectivity data-structures...";
-    std::cout.flush();
-    vtkStructuredGridConnectivity *gridConnectivity=
-        vtkStructuredGridConnectivity::New();
-    gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
-    gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
-    std::cout << "[DONE]\n";
-    std::cout.flush();
-
-    // STEP 2: Registers the grids
-    std::cout << "-- Registering grid blocks...";
-    std::cout.flush();
-    RegisterGrids( mbds, gridConnectivity );
-    std::cout << "[DONE]\n";
-    std::cout.flush();
-
-    // STEP 3: Compute neighbors
-    std::cout << "-- Computing neighbors...";
-    std::cout.flush();
-    gridConnectivity->ComputeNeighbors();
-    std::cout << "[DONE]\n";
-    std::cout.flush();
-
-    gridConnectivity->Print( std::cout );
-
-    // STEP 4: Fill-in the visibility arrays!
-    std::cout << "-- Fill visibility arrays...";
-    std::cout.flush();
-    FillVisibilityArrays( mbds, gridConnectivity  );
-    std::cout << "[DONE]\n";
-    std::cout.flush();
-
-    // STEP 5: Compute total number of nodes compare to expected
-    std::cout << "-- Computing the total number of nodes...";
-    std::cout.flush();
-    int NumNodes = GetTotalNumberOfNodes( mbds );
-    std::cout << "[DONE]\n";
-    std::cout.flush();
-
-    std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
-    if( NumNodes != expected )
+    for( int j=0; j < 2; ++j )
       {
-      ++rc;
-      std::cout << "[ERROR]\n";
+      // STEP 0: Construct the dataset
+      std::cout << "===\n";
+      std::cout << "i: " << i << " j:" << j << std::endl;
+      std::cout << "-- Acquire dataset with N=" << numberOfPartitions[ i ];
+      std::cout << " BLOCKS and NG=" << numGhostLayers[ j ] << "...";
       std::cout.flush();
+
+      vtkMultiBlockDataSet *mbds = GetDataSet(
+          numberOfPartitions[ i ], numGhostLayers[ j ] );
+      assert( "pre: multi-block is NULL" && (mbds != NULL) );
+
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+      std::cout << "NUMBLOCKS: " << mbds->GetNumberOfBlocks() << std::endl;
+      std::cout.flush();
+      assert( "pre: NumBlocks mismatch!" &&
+       (numberOfPartitions[i] ==static_cast<int>(mbds->GetNumberOfBlocks()) ) );
+      WriteMultiBlock( mbds );
+
+      // STEP 1: Construct the grid connectivity
+      std::cout << "-- Allocating grid connectivity data-structures...";
+      std::cout.flush();
+      vtkStructuredGridConnectivity *gridConnectivity=
+          vtkStructuredGridConnectivity::New();
+      gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+      gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+
+      // STEP 2: Registers the grids
+      std::cout << "-- Registering grid blocks...";
+      std::cout.flush();
+      RegisterGrids( mbds, gridConnectivity );
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+
+      // STEP 3: Compute neighbors
+      std::cout << "-- Computing neighbors...";
+      std::cout.flush();
+      gridConnectivity->ComputeNeighbors();
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+
+      gridConnectivity->Print( std::cout );
+
+      // STEP 4: Fill-in the visibility arrays!
+      std::cout << "-- Fill visibility arrays...";
+      std::cout.flush();
+      FillVisibilityArrays( mbds, gridConnectivity  );
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+
+      // STEP 5: Compute total number of nodes compare to expected
+      std::cout << "-- Computing the total number of nodes...";
+      std::cout.flush();
+      int NumNodes = GetTotalNumberOfNodes( mbds );
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+
+      std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
+      if( NumNodes != expected )
+        {
+        ++rc;
+        std::cout << "[ERROR]\n";
+        std::cout.flush();
+        mbds->Delete();
+        gridConnectivity->Delete();
+        return( rc );
+        }
+      else
+        {
+        std::cout << "[OK]\n";
+        std::cout.flush();
+        }
+
+      // STEP 6: De-allocated data-structures
       mbds->Delete();
       gridConnectivity->Delete();
-      return( rc );
-      }
-    else
-      {
-      std::cout << "[OK]\n";
-      std::cout.flush();
-      }
-
-    // STEP 6: De-allocated data-structures
-    mbds->Delete();
-    gridConnectivity->Delete();
-    } // END for all tests
+      }// END for all ghost layer tests
+    } // END for all numPartition tests
 
   return( rc );
 }
@@ -449,12 +457,10 @@ int SimpleMonolithicTest( int argc, char **argv )
         for( ; pIdx < grid->GetNumberOfPoints(); ++pIdx )
           {
           unsigned char p = nodeProperty[ pIdx ];
-          if(!vtkGhostArray::IsPropertySet(
-              p,vtkGhostArray::IGNORE))
+          if(!vtkGhostArray::IsPropertySet( p,vtkGhostArray::IGNORE))
             {
             ++totalNumberOfNodes;
-            if(vtkGhostArray::IsPropertySet(
-                p,vtkGhostArray::BOUNDARY))
+            if(vtkGhostArray::IsPropertySet(p,vtkGhostArray::BOUNDARY))
               flags->SetValue( pIdx, 2 );
             else
               flags->SetValue( pIdx, 3);
