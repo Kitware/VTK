@@ -179,8 +179,6 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->FrameActor = vtkActor2D::New();
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
-
-  this->EnhancedMode = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -506,8 +504,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       // Adjust height and width only in enhanced more or if at least
       // one amongst the frame and the background was requested
       if ( this->DrawBackground ||
-           this->DrawFrame ||
-           this->EnhancedMode )
+           this->DrawFrame )
         {
         barX = static_cast<int>(size[0] * 0.05);
         barY = static_cast<int>(size[1] * 0.05 + labelSize[1] / 2);
@@ -532,8 +529,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       // Adjust height and width only in enhanced more or if at least
       // one amongst the frame and the background was requested
       if ( this->DrawBackground ||
-           this->DrawFrame ||
-           this->EnhancedMode )
+           this->DrawFrame )
         {
         barX = static_cast<int>(size[0] * 0.05) + labelSize[0] / 2;
         barY = static_cast<int>(size[1] * 0.05);
@@ -821,9 +817,6 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DrawFrame: " << this->DrawFrame << "\n";
   os << indent << "Frame Property:\n";
   this->FrameProperty->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Enhanced Mode:\n"
-     << this->EnhancedMode << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -852,7 +845,6 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
     this->SetBackgroundProperty(a->GetBackgroundProperty());
     this->SetDrawFrame(a->GetDrawFrame());
     this->SetFrameProperty(a->GetFrameProperty());
-    this->SetEnhancedMode(a->GetEnhancedMode());
     }
 
   // Now do superclass
