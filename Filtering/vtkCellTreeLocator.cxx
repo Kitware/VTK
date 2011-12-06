@@ -740,7 +740,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
   // Does ray pass through root BBox
   tmin = 0; tmax = 1;
 
-  if (!RayMinMaxT(p1, ray_vec, tmin, tmax)) // 0 for root node
+  if (!this->RayMinMaxT(p1, ray_vec, tmin, tmax)) // 0 for root node
     {
     return false;
     }
@@ -826,13 +826,13 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
         {
         this->DataSet->GetCellBounds(cell_ID, cellBounds);
         }
-      if (_getMinDist(p1, ray_vec, cellBounds) > closest_intersection)
+      if (_getMinDist(p1, ray_vec, boundsPtr) > closest_intersection)
         {
         break;
         }
       //
       ctmin = _tmin; ctmax = _tmax;
-      if (RayMinMaxT(cellBounds, p1, ray_vec, ctmin, ctmax))
+      if (this->RayMinMaxT(boundsPtr, p1, ray_vec, ctmin, ctmax))
         {
         if (this->IntersectCellInternal(cell_ID, p1, p2, tol, t_hit, ipt, pcoords, subId))
           {
