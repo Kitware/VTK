@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkPriorityQueue.h"
+#include "vtkStructuredData.h"
 
 #include <cmath>
 #include <cassert>
@@ -30,10 +31,11 @@ vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
   this->NumExtents           = 0;
   this->NumberOfPartitions   = 2;
   this->ExtentIsPartitioned  = false;
+  this->DataDescription      = VTK_EMPTY;
   for( int i=0; i < 3; ++i )
     {
     this->GlobalExtent[ i*2   ] = 0;
-    this->GlobalExtent[ i*2+1 ] = 1;
+    this->GlobalExtent[ i*2+1 ] = 0;
     }
 }
 
@@ -60,10 +62,18 @@ void vtkExtentRCBPartitioner::Partition()
     }
 
 
+  // STEP 0: Get the data description according to the given global extent
+  this->AcquireDataDescription();
+  if( this->DataDescription == VTK_EMPTY ||
+      this->DataDescription == VTK_SINGLE_POINT  )
+    {
+    return;
+    }
+
+  // STEP 1: Insert the global extent to the workQueue
   vtkPriorityQueue *wrkQueue = vtkPriorityQueue::New();
   assert( "pre: work queue is NULL" && (wrkQueue != NULL) );
 
-  // STEP 0: Insert the global extent to the workQueue
   this->AddExtent( this->GlobalExtent );
   wrkQueue->Insert( this->GetNumberOfNodes( this->GlobalExtent), 0);
 
@@ -86,7 +96,7 @@ void vtkExtentRCBPartitioner::Partition()
     wrkQueue->Insert( this->GetNumberOfNodes( s2 ),this->NumExtents-1);
     }
 
-  // STEP 3: Clear data-structures
+  // STEP 3: Clear priority data-structures
   wrkQueue->Delete();
 
   // STEP 4: Set the flag to indicate that the extent has been partitioned to
@@ -94,8 +104,8 @@ void vtkExtentRCBPartitioner::Partition()
   // is when the user calls SetGlobalExtent or SetNumberOfPartitions
   this->ExtentIsPartitioned = true;
 
-  assert( "post: number of extents must be equal to the number of partitions" &&
-          (this->NumExtents == this->NumberOfPartitions) );
+  assert("post: number of extents must be equal to the number of partitions" &&
+         (this->NumExtents == this->NumberOfPartitions) );
 }
 
 //------------------------------------------------------------------------------
@@ -199,20 +209,88 @@ void vtkExtentRCBPartitioner::SplitExtent(
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetNumberOfNodes( int ext[6] )
 {
-  int ilength = (ext[1]-ext[0])+1;
-  int jlength = (ext[3]-ext[2])+1;
-  int klength = (ext[5]-ext[4])+1;
-
-  return( ilength*jlength*klength );
+  int ilength,jlength,klength;
+  int numNodes = 0;
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      numNodes = ilength = (ext[1]-ext[0])+1;
+      break;
+    case VTK_Y_LINE:
+      numNodes = jlength = (ext[3]-ext[2])+1;
+      break;
+    case VTK_Z_LINE:
+      numNodes = klength = (ext[5]-ext[4])+1;
+      break;
+    case VTK_XY_PLANE:
+      ilength  = (ext[1]-ext[0])+1;
+      jlength  = (ext[3]-ext[2])+1;
+      numNodes = ilength*jlength;
+      break;
+    case VTK_YZ_PLANE:
+      jlength  = (ext[3]-ext[2])+1;
+      klength  = (ext[5]-ext[4])+1;
+      numNodes = jlength*klength;
+      break;
+    case VTK_XZ_PLANE:
+      ilength  = (ext[1]-ext[0])+1;
+      klength  = (ext[5]-ext[4])+1;
+      numNodes = ilength*klength;
+      break;
+    case VTK_XYZ_GRID:
+      ilength  = (ext[1]-ext[0])+1;
+      jlength  = (ext[3]-ext[2])+1;
+      klength  = (ext[5]-ext[4])+1;
+      numNodes = ilength*jlength*klength;
+      break;
+    default:
+      assert("pre: unsupported data-description, code should not reach here!"&&
+             false );
+    }
+  return( numNodes );
 }
 //------------------------------------------------------------------------------
 int vtkExtentRCBPartitioner::GetNumberOfCells( int ext[6] )
 {
-  int ilength = (ext[1]-ext[0]);
-  int jlength = (ext[3]-ext[2]);
-  int klength = (ext[5]-ext[4]);
-
-  return( ilength*jlength*klength );
+  int ilength,jlength,klength;
+  int numNodes = 0;
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      numNodes = ilength = (ext[1]-ext[0]);
+      break;
+    case VTK_Y_LINE:
+      numNodes = jlength = (ext[3]-ext[2]);
+      break;
+    case VTK_Z_LINE:
+      numNodes = klength = (ext[5]-ext[4]);
+      break;
+    case VTK_XY_PLANE:
+      ilength  = (ext[1]-ext[0]);
+      jlength  = (ext[3]-ext[2]);
+      numNodes = ilength*jlength;
+      break;
+    case VTK_YZ_PLANE:
+      jlength  = (ext[3]-ext[2]);
+      klength  = (ext[5]-ext[4]);
+      numNodes = jlength*klength;
+      break;
+    case VTK_XZ_PLANE:
+      ilength  = (ext[1]-ext[0]);
+      klength  = (ext[5]-ext[4]);
+      numNodes = ilength*klength;
+      break;
+    case VTK_XYZ_GRID:
+      ilength  = (ext[1]-ext[0]);
+      jlength  = (ext[3]-ext[2]);
+      klength  = (ext[5]-ext[4]);
+      numNodes = ilength*jlength*klength;
+      break;
+    default:
+      assert("pre: unsupported data-description, code should not reach here!"&&
+             false );
+    }
+  return( numNodes );
 }
 
 //------------------------------------------------------------------------------
@@ -259,6 +337,13 @@ int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
     }
   assert( "pre: could not find longest dimension" && false );
   return 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkExtentRCBPartitioner::AcquireDataDescription()
+{
+  this->DataDescription =
+      vtkStructuredData::GetDataDescriptionFromExtent( this->GlobalExtent );
 }
 
 //------------------------------------------------------------------------------

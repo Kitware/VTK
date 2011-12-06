@@ -25,6 +25,8 @@
 #include <vector> // For STL vector
 #include <cassert>  // For assert
 
+class vtkStructuredData;
+
 class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
   public:
@@ -82,10 +84,14 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     // extents are cleared.
     void Reset()
      {
-     this->PartitionExtents.clear();
-     this->NumExtents          = 0;
-     this->ExtentIsPartitioned = false;
+      this->PartitionExtents.clear();
+      this->NumExtents          = 0;
+      this->ExtentIsPartitioned = false;
      }
+
+    // Description:
+    // Gets the structured data-description based on the givenn global extent
+    void AcquireDataDescription();
 
      // Description:
      // Returns the extent at the position corresponding to idx.
@@ -129,6 +135,7 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      // A convenience method for debugging purposes.
      void PrintExtent( std::string name, int ext[6] );
 
+     int DataDescription;
      int GlobalExtent[6];
      int NumberOfPartitions;
      int NumExtents;
