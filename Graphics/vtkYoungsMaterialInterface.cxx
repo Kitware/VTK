@@ -462,6 +462,7 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkYoungsMaterialInterface::RequestData(
                                             vtkInformation *vtkNotUsed(request),
                                             vtkInformationVector **inputVector, vtkInformationVector *outputVector)

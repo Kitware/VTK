@@ -135,6 +135,10 @@ protected:
              vtkInformationVector **inputVector,
              vtkInformationVector *outputVector);
 
+  // Description:
+  // Aggregate material counts from all processors. Does not do anything in serial.
+  virtual void Aggregate ( int, int* ) { return; };
+
   void UpdateBlockMapping();
 
   int CellProduceInterface( int dim, int np, double fraction, double minFrac, double maxFrac );
