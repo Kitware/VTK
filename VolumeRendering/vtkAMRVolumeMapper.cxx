@@ -391,8 +391,8 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
     return; // There is nothing we can do
     }
   // Now set the min/max of the resample filter
-  this->Resampler->SetMin(bbox.GetMinPoint());
-  this->Resampler->SetMax(bbox.GetMaxPoint());
+  this->Resampler->SetMin( const_cast< double* >(bbox.GetMinPoint()) );
+  this->Resampler->SetMax( const_cast< double* >(bbox.GetMaxPoint()) );
 
   this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
   // This is for debugging
