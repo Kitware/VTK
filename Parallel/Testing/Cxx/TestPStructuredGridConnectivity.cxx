@@ -120,8 +120,7 @@ void FillVisibilityArrays(
       vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
       cells->SetNumberOfValues( grid->GetNumberOfCells() );
 
-      connectivity->FillGhostArrays(
-          block, nodes->GetPointer(0), cells->GetPointer(0)  );
+      connectivity->FillGhostArrays( block, nodes, cells  );
 
       grid->SetPointVisibilityArray( nodes );
       nodes->Delete();

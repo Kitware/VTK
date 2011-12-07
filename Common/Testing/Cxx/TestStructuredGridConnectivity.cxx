@@ -529,7 +529,7 @@ int SimpleMonolithicTest( int argc, char **argv )
         vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
         cells->SetNumberOfValues( grid->GetNumberOfCells() );
 
-        gridConnectivity->FillGhostArrays( block, nodes, cells  );
+        gridConnectivity->FillGhostArrays( piece, nodes, cells  );
 
         grid->SetPointVisibilityArray( nodes );
         nodes->Delete();
@@ -544,7 +544,7 @@ int SimpleMonolithicTest( int argc, char **argv )
         vtkIdType pIdx = 0;
         for( ; pIdx < grid->GetNumberOfPoints(); ++pIdx )
           {
-          unsigned char p = nodeProperty[ pIdx ];
+          unsigned char p = *nodes->GetPointer( pIdx );
           if(!vtkGhostArray::IsPropertySet( p,vtkGhostArray::IGNORE))
             {
             ++totalNumberOfNodes;
