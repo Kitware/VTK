@@ -23,6 +23,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <set>
 
 // VTK includes
 #include "vtkDataSet.h"
@@ -41,6 +42,8 @@
 #include "vtkGhostArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkCell.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
@@ -61,6 +64,81 @@ void WriteGrid( vtkUniformGrid *grid, std::string prefix )
   writer->Write();
 
   writer->Delete();
+}
+
+//------------------------------------------------------------------------------
+// Description:
+// Applies an XYZ field to the nodes and cells of the grid whose value is
+// corresponding to the XYZ coordinates at that location
+void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
+{
+  assert( "pre: grd should not be NULL" && (grd != NULL)  );
+
+  // Get the grid's point-data and cell-data data-structures
+  vtkCellData  *CD = grd->GetCellData();
+  vtkPointData *PD = grd->GetPointData();
+  assert( "pre: Cell data is NULL" && (CD != NULL) );
+  assert( "pre: Point data is NULL" && (PD != NULL)  );
+
+  // Allocate arrays
+  vtkDoubleArray *cellXYZArray = vtkDoubleArray::New();
+  cellXYZArray->SetName( "CellXYZ" );
+  cellXYZArray->SetNumberOfComponents( 3 );
+  cellXYZArray->SetNumberOfTuples( grd->GetNumberOfCells() );
+
+
+  vtkDoubleArray *nodeXYZArray = vtkDoubleArray::New();
+  nodeXYZArray->SetName( "NodeXYZ" );
+  nodeXYZArray->SetNumberOfComponents( 3 );
+  nodeXYZArray->SetNumberOfTuples( grd->GetNumberOfPoints() );
+
+  // Compute field arrays
+  std::set< vtkIdType > visited;
+  for( vtkIdType cellIdx=0; cellIdx < grd->GetNumberOfCells(); ++cellIdx )
+    {
+    vtkCell *c = grd->GetCell( cellIdx );
+    assert( "pre: cell is not NULL" && (c != NULL) );
+
+    double centroid[3];
+    double xsum = 0.0;
+    double ysum = 0.0;
+    double zsum = 0.0;
+
+    for( vtkIdType node=0; node < c->GetNumberOfPoints(); ++node )
+      {
+      double xyz[3];
+
+      vtkIdType meshPntIdx = c->GetPointId( node );
+      if( visited.find( meshPntIdx ) == visited.end() )
+        {
+        visited.insert( meshPntIdx );
+        grd->GetPoint(  meshPntIdx, xyz );
+
+        xsum += xyz[0];
+        ysum += xyz[1];
+        zsum += xyz[2];
+
+        nodeXYZArray->SetComponent( meshPntIdx, 0, xyz[0] );
+        nodeXYZArray->SetComponent( meshPntIdx, 1, xyz[1] );
+        nodeXYZArray->SetComponent( meshPntIdx, 2, xyz[2] );
+        } // END if
+      } // END for all nodes
+
+      centroid[0] = xsum / c->GetNumberOfPoints();
+      centroid[1] = ysum / c->GetNumberOfPoints();
+      centroid[2] = zsum / c->GetNumberOfPoints();
+
+      cellXYZArray->SetComponent( cellIdx, 0, centroid[0] );
+      cellXYZArray->SetComponent( cellIdx, 1, centroid[1] );
+      cellXYZArray->SetComponent( cellIdx, 2, centroid[2] );
+    } // END for all cells
+
+  // Insert field arrays to grid point/cell data
+  CD->AddArray( cellXYZArray );
+  cellXYZArray->Delete();
+
+  PD->AddArray( nodeXYZArray );
+  nodeXYZArray->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -135,7 +213,9 @@ vtkMultiPieceDataSet* GetDataSet( )
   int ext1[6];
   int ext2[6];
   vtkUniformGrid *grid1 = GetGrid( 0, ext1 );
+  ApplyXYZFieldToGrid( grid1 );
   vtkUniformGrid *grid2 = GetGrid( 1, ext2 );
+  ApplyXYZFieldToGrid( grid2 );
 
   mpds->SetNumberOfPieces( 2 );
   mpds->SetPiece( 0, grid1 );
@@ -423,6 +503,8 @@ int SimpleMonolithicTest( int argc, char **argv )
       mpds->GetMetaData( piece )->Get( vtkDataObject::PIECE_EXTENT(),ext );
 
       gridConnectivity->RegisterGrid( piece, ext );
+      gridConnectivity->RegisterFieldData(
+          piece, grid->GetPointData(), grid->GetCellData() );
       }
 
     } // END for all pieces
