@@ -99,17 +99,17 @@ vtkAxisActor::vtkAxisActor()
   this->AxisLinesActor->SetMapper(this->AxisLinesMapper);
   this->Gridlines = vtkPolyData::New();
   this->GridlinesMapper = vtkPolyDataMapper::New();
-  this->GridlinesMapper->SetInput(this->Gridlines);
+  this->GridlinesMapper->SetInputData(this->Gridlines);
   this->GridlinesActor = vtkActor::New();
   this->GridlinesActor->SetMapper(this->GridlinesMapper);
   this->InnerGridlines = vtkPolyData::New();
   this->InnerGridlinesMapper = vtkPolyDataMapper::New();
-  this->InnerGridlinesMapper->SetInput(this->InnerGridlines);
+  this->InnerGridlinesMapper->SetInputData(this->InnerGridlines);
   this->InnerGridlinesActor = vtkActor::New();
   this->InnerGridlinesActor->SetMapper(this->InnerGridlinesMapper);
   this->Gridpolys = vtkPolyData::New();
   this->GridpolysMapper = vtkPolyDataMapper::New();
-  this->GridpolysMapper->SetInput(this->Gridpolys);
+  this->GridpolysMapper->SetInputData(this->Gridpolys);
   this->GridpolysActor = vtkActor::New();
   this->GridpolysActor->SetMapper(this->GridpolysMapper);
 

@@ -166,7 +166,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->DrawBackground = 0;
   this->Background = vtkPolyData::New();
   this->BackgroundMapper = vtkPolyDataMapper2D::New();
-  this->BackgroundMapper->SetInput(this->Background);
+  this->BackgroundMapper->SetInputData(this->Background);
   this->BackgroundActor = vtkActor2D::New();
   this->BackgroundActor->SetMapper(this->BackgroundMapper);
   this->BackgroundActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
@@ -174,7 +174,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->DrawFrame = 0;
   this->Frame = vtkPolyData::New();
   this->FrameMapper = vtkPolyDataMapper2D::New();
-  this->FrameMapper->SetInput(this->Frame);
+  this->FrameMapper->SetInputData(this->Frame);
   this->FrameActor = vtkActor2D::New();
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
