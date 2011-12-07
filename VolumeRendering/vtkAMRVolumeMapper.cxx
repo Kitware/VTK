@@ -41,6 +41,7 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
 {
   this->InternalMapper = vtkSmartVolumeMapper::New();
   this->Resampler = vtkAMRResampleFilter::New();
+  this->Resampler->SetDemandDrivenMode(1);
   this->Grid = NULL;
   this->NumberOfSamples[0] = 128;
   this->NumberOfSamples[1] = 128;
@@ -77,13 +78,18 @@ void vtkAMRVolumeMapper::SetInput(vtkHierarchicalBoxDataSet *hdata)
     this->Resampler->SetInputConnection(0, 0);
     return;
     }
-  this->Resampler->SetInputConnection(0, hdata->GetProducerPort());
+  this->SetInputConnection(0, hdata->GetProducerPort());
 }
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputConnection (int port, vtkAlgorithmOutput *input)
 {
   this->Resampler->SetInputConnection(port, input);
   this->vtkVolumeMapper::SetInputConnection(port, input);
+  if (this->Grid)
+    {
+    this->Grid->Delete();
+    this->Grid = NULL;
+    }
 }
 //----------------------------------------------------------------------------
 double *vtkAMRVolumeMapper::GetBounds()
@@ -250,37 +256,22 @@ void vtkAMRVolumeMapper::ReleaseGraphicsResources(vtkWindow *window)
 void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 {
   // If there is no grid initially we need to see if we can create one
-  bool gridUpdated = false;
+  if (!(this->Grid || (ren->GetRenderWindow()->GetDesiredUpdateRate()
+                       >= this->InternalMapper->GetInteractiveUpdateRate())))
+    {
+    this->UpdateGrid();
+    }
   if (this->Grid == NULL) 
     {
-    this->UpdateGrid(ren);
-    if (this->Grid == NULL)
-      {
-      // Could not create a grid
-      return;
-      }
-    this->InternalMapper->SetInput(this->Grid);
-    gridUpdated = true;
-    }
-  this->InternalMapper->Render(ren, vol);
-  // Lets see if we are dealing with a still render in which 
-  // case we can also update the Grid and rerender (if we haven't
-  // just updated the grid)
-  if (gridUpdated || (ren->GetRenderWindow()->GetDesiredUpdateRate()
-                      >= this->InternalMapper->GetInteractiveUpdateRate()))
-    {
+    // Could not create a grid
     return;
     }
-  this->UpdateGrid(ren);
-  if (this->Grid)
-    {
-    this->InternalMapper->SetInput(this->Grid);
-    this->InternalMapper->Render(ren, vol);
-    }
+  this->InternalMapper->SetInput(this->Grid);
+  this->InternalMapper->Render(ren, vol);
 }
 
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
+void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren)
 {
   // First we need to create a bouding box that represents the visible region
   // of the camera in World Coordinates
@@ -322,7 +313,7 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
           }
         else
           {
-          vtkErrorMacro("UpdateGrid: Found an Ideal Point going to VC!");
+          vtkErrorMacro("UpdateResampler: Found an Ideal Point going to VC!");
           }
         }
       }
@@ -379,7 +370,7 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
           }
         else
           {
-          vtkErrorMacro("UpdateGrid: Found an Ideal Point going to WC!");
+          vtkErrorMacro("UpdateResampler: Found an Ideal Point going to WC!");
           }
         }
       }
@@ -395,6 +386,10 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
   this->Resampler->SetMax( const_cast< double* >(bbox.GetMaxPoint()) );
 
   this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
+}
+//----------------------------------------------------------------------------
+void vtkAMRVolumeMapper::UpdateGrid()
+{
   // This is for debugging
 #define PRINTSTATS 0
 #if PRINTSTATS
@@ -445,7 +440,33 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
 #endif
 }
 //----------------------------------------------------------------------------
-
+void vtkAMRVolumeMapper::ProcessUpdateExtentRequest(vtkRenderer *ren,
+                                                    vtkInformation*info, 
+                                                    vtkInformationVector **inputVector,
+                                                    vtkInformationVector *outputVector)
+{
+  if (this->Grid || (ren->GetRenderWindow()->GetDesiredUpdateRate()
+                     >= this->InternalMapper->GetInteractiveUpdateRate()))
+    {
+    return;
+    }
+  this->Resampler->RequestUpdateExtent(info, inputVector, outputVector);
+}
+//----------------------------------------------------------------------------
+void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
+                                                   vtkInformation*info, 
+                                                   vtkInformationVector **inputVector,
+                                                   vtkInformationVector *outputVector)
+{
+  if (this->Grid || (ren->GetRenderWindow()->GetDesiredUpdateRate()
+                     >= this->InternalMapper->GetInteractiveUpdateRate()))
+    {
+    return;
+    }
+  this->UpdateResampler(ren);
+  this->Resampler->RequestInformation(info, inputVector, outputVector);
+}
+//----------------------------------------------------------------------------
 
 // Print the vtkAMRVolumeMapper
 void vtkAMRVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
@@ -466,3 +487,4 @@ void vtkAMRVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
       }
     }
 }
+//----------------------------------------------------------------------------

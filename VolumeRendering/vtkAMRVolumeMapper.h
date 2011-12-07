@@ -228,6 +228,13 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
   
+  void ProcessUpdateExtentRequest(vtkRenderer *renderer, vtkInformation*info,
+                                  vtkInformationVector **inputVector,
+                                  vtkInformationVector *outputVector);
+  void ProcessInformationRequest(vtkRenderer *renderer, vtkInformation*info,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector);
+  void UpdateResampler(vtkRenderer *ren);
 //ETX
 
 protected:
@@ -236,7 +243,7 @@ protected:
   
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-  void UpdateGrid(vtkRenderer *ren);
+  void UpdateGrid();
   
   vtkSmartVolumeMapper *InternalMapper;
   vtkAMRResampleFilter *Resampler;
