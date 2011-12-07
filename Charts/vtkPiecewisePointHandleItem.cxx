@@ -181,10 +181,10 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   double screenBLPos[2], screenTRPos[2];
   sceneTransform->TransformPoints(blPos, screenBLPos, 1);
   sceneTransform->TransformPoints(trPos, screenTRPos, 1);
-  double blxdistance = std::abs(pointInScene[0]-screenBLPos[0])-fDistance*2;
-  double blydistance = std::abs(pointInScene[1]-screenBLPos[1])-fDistance*2;
-  double trxdistance = std::abs(pointInScene[0]-screenTRPos[0])-fDistance*2;
-  double trydistance = std::abs(pointInScene[1]-screenTRPos[1])-fDistance*2;
+  double blxdistance = fabs(pointInScene[0]-screenBLPos[0])-fDistance*2.0;
+  double blydistance = fabs(pointInScene[1]-screenBLPos[1])-fDistance*2.0;
+  double trxdistance = fabs(pointInScene[0]-screenTRPos[0])-fDistance*2.0;
+  double trydistance = fabs(pointInScene[1]-screenTRPos[1])-fDistance*2.0;
   
   blxdistance = std::max(0.0, blxdistance);
   blydistance = std::max(0.0, blydistance);
