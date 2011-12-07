@@ -75,32 +75,14 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkImageAlgorithm
     vtkGetMacro(NumberOfPartitions,int);
 
     // Description:
-    // Sets the min
-    void SetMin(const double *pnt)
-    {this->SetMin(pnt[0], pnt[1], pnt[2]);}
-
-    void SetMin( double x, double y, double z )
-    {
-      this->Min[0]     = x;
-      this->Min[1]     = y;
-      this->Min[2]     = z;
-      this->MinMaxChanged = true;
-      this->Modified();
-    }
+    // Set and Get the min corner
+    vtkSetVector3Macro(Min,double);
+    vtkGetVector3Macro(Min,double);
 
     // Description:
-    // Sets the max
-    void SetMax(const double *pnt)
-    {this->SetMax(pnt[0], pnt[1], pnt[2]);}
-
-    void SetMax( double x, double y, double z )
-    {
-      this->Max[0]     = x;
-      this->Max[1]     = y;
-      this->Max[2]     = z;
-      this->MinMaxChanged = true;
-      this->Modified();
-    }
+    // Set and Get the max corner
+    vtkSetVector3Macro(Max,double);
+    vtkGetVector3Macro(Max,double);
 
     // Description:
     // Set & Get macro for the multi-process controller
@@ -143,7 +125,6 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkImageAlgorithm
     int NumberOfPartitions;
     int TransferToNodes;
     int DemandDrivenMode;
-    bool MinMaxChanged;
     vtkMultiProcessController *Controller;
 // BTX
     vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.

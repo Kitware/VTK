@@ -53,7 +53,6 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->NumberOfSamples[0]   = this->NumberOfSamples[1] = this->NumberOfSamples[2] = 10;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
-  this->MinMaxChanged        = true;
 
   for( int i=0; i < 3; ++i )
     {
@@ -211,7 +210,7 @@ int vtkAMRResampleFilter::RequestData(
   ext[3] = this->GridNumberOfSamples[1]-1;
   ext[4] = 0;
   ext[5] = this->GridNumberOfSamples[2]-1;
-  output->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext,6 );
+  //output->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext,6 );
 
   vtkUniformGrid *resampledGrid =
      vtkUniformGrid::SafeDownCast(
@@ -750,7 +749,7 @@ void vtkAMRResampleFilter::ComputeLevelOfResolution(
       this->LevelOfResolution = currentLevel;
       }
     } // END for all i
-  std::cerr << "Requested Max Level = " << this->LevelOfResolution << "/n";
+  std::cerr << "Requested Max Level = " << this->LevelOfResolution << "\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -841,18 +840,6 @@ void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
     return;
     }
 
-  // STEP 2: Check if the ROI has changed from a previous request
-  if( !this->MinMaxChanged )
-    {
-    // Just update h, e.g., if the number of samples has changed and return.
-    for( int i=0; i < 3; ++i )
-      {
-      double l = this->GridMax[i] - this->GridMin[i];
-      h[i]     = l/(this->GridNumberOfSamples[i]-1);
-      }
-    return;
-    }
-
   // STEP 3: Get requested region parameters
   double L0[3]; // initial length of each box side
   double Rh[3]; // initial spacing based on the number of samples requested.
@@ -899,7 +886,6 @@ void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
     }
 
   this->ComputeLevelOfResolution(this->GridNumberOfSamples,h0,L,rf);
-  this->MinMaxChanged = false;
 }
 
 //-----------------------------------------------------------------------------
