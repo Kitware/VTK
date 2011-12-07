@@ -152,7 +152,6 @@ int vtkAMRResampleFilter::RequestInformation(
     }
 
   vtkInformation *output = outputVector->GetInformationObject( 0 );
- assert( "pre: Null output information object!" && (output != NULL) );
  return 1;
 }
 
