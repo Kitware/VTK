@@ -124,13 +124,13 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
         } // END if
       } // END for all nodes
 
-      centroid[0] = xsum / c->GetNumberOfPoints();
-      centroid[1] = ysum / c->GetNumberOfPoints();
-      centroid[2] = zsum / c->GetNumberOfPoints();
+    centroid[0] = xsum / c->GetNumberOfPoints();
+    centroid[1] = ysum / c->GetNumberOfPoints();
+    centroid[2] = zsum / c->GetNumberOfPoints();
 
-      cellXYZArray->SetComponent( cellIdx, 0, centroid[0] );
-      cellXYZArray->SetComponent( cellIdx, 1, centroid[1] );
-      cellXYZArray->SetComponent( cellIdx, 2, centroid[2] );
+    cellXYZArray->SetComponent( cellIdx, 0, centroid[0] );
+    cellXYZArray->SetComponent( cellIdx, 1, centroid[1] );
+    cellXYZArray->SetComponent( cellIdx, 2, centroid[2] );
     } // END for all cells
 
   // Insert field arrays to grid point/cell data
@@ -346,8 +346,7 @@ void FillVisibilityArrays(
       vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
       cells->SetNumberOfValues( grid->GetNumberOfCells() );
 
-      connectivity->FillGhostArrays(
-          block, nodes->GetPointer(0), cells->GetPointer(0)  );
+      connectivity->FillGhostArrays( block, nodes, cells  );
 
       grid->SetPointVisibilityArray( nodes );
       nodes->Delete();
@@ -524,11 +523,18 @@ int SimpleMonolithicTest( int argc, char **argv )
 
       if( grid != NULL )
         {
-        unsigned char *nodeProperty = new unsigned char[ grid->GetNumberOfPoints() ];
-        unsigned char *cellProperty = new unsigned char[ grid->GetNumberOfCells() ];
+        vtkUnsignedCharArray *nodes = vtkUnsignedCharArray::New();
+        nodes->SetNumberOfValues( grid->GetNumberOfPoints() );
 
-        gridConnectivity->FillGhostArrays(
-            piece, nodeProperty,cellProperty);
+        vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
+        cells->SetNumberOfValues( grid->GetNumberOfCells() );
+
+        gridConnectivity->FillGhostArrays( block, nodes, cells  );
+
+        grid->SetPointVisibilityArray( nodes );
+        nodes->Delete();
+        grid->SetCellVisibilityArray( cells );
+        cells->Delete();
 
         vtkIntArray *flags = vtkIntArray::New();
         flags->SetName( "FLAGS" );

@@ -33,6 +33,7 @@
 // Forward declarations
 class vtkPointData;
 class vtkCellData;
+class vtkUnsignedCharArray;
 
 class vtkAbstractGridConnectivity : public vtkObject
 {
@@ -61,17 +62,32 @@ class vtkAbstractGridConnectivity : public vtkObject
     // Description:
     // Fills the ghost arrays for the given grid.
     virtual void FillGhostArrays(
-        const int gridId, unsigned char* nodesArray,
-        unsigned char* cellsArray ) = 0;
+        const int gridId,
+        vtkUnsignedCharArray* nodesArray,
+        vtkUnsignedCharArray* cellsArray ) = 0;
 
     // Description:
-    // Regeisters the grid's field data, i.e., the node and celldata
+    // Creates N layers of ghost layers. N is the number of cells that will be
+    // added to each grid. If not parameter is supplied, N has a nominal value
+    // of 1, in which case 1 layer of cells would be added.
+    //
+    // NOTE: This method is implemented by concrete implementations
+    virtual void CreateGhostLayers( const int N=1 ) = 0;
+
+    // Description:
+    // Communicates the data at the ghost nodes.
+    virtual void CommunicateGhostNodes() = 0;
+
+    // Description:
+    // Communicates the data at the ghost cells.
+    virtual void CommunicateGhostCells() = 0;
+
+    // Description:
+    // Registers the grid's field data, i.e., the node and cell data.
     virtual void RegisterFieldData(
         const int gridID, vtkPointData *PointData, vtkCellData *CellData )
       {
         // Sanity check
-        assert( "PointData for grid shouldn't be NULL" && (PointData != NULL) );
-        assert( "CellData for grid shouldn't be NULL" && (CellData != NULL) );
         assert( "GridID is out-of-bound GridPointData" &&
                  (gridID >= 0) && (gridID < this->NumberOfGrids ) );
         assert( "GridID is out-of-bound GridPointData" &&
@@ -89,8 +105,16 @@ class vtkAbstractGridConnectivity : public vtkObject
 
     int NumberOfGrids;
 
+    // BTX
+    std::vector< vtkUnsignedCharArray* > GridPointGhostArrays;
+    std::vector< vtkUnsignedCharArray* > GridCellGhostArrays;
+
+    std::vector< vtkPointData* > GhostedGridPointData;
+    std::vector< vtkCellData* >  GhostedGridCellData;
+
     std::vector< vtkPointData* > GridPointData;
-    std::vector< vtkCellData* > GridCellData;
+    std::vector< vtkCellData* >  GridCellData;
+    // ETX
 
   private:
     vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&);// Not implemented

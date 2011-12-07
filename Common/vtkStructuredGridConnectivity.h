@@ -37,7 +37,7 @@
 
 // Forward Declarations
 class vtkIdList;
-
+class vtkUnsignedCharArray;
 
 class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
   public vtkAbstractGridConnectivity
@@ -61,6 +61,8 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
       this->Neighbors.resize( N );
       this->GridPointData.resize( N, NULL );
       this->GridCellData.resize( N, NULL );
+      this->GhostedGridPointData.resize( N, NULL );
+      this->GhostedGridCellData.resize( N, NULL );
     }
 
     // Description:
@@ -95,7 +97,21 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
     // corresponding to the given grid ID.
     // NOTE: this method assumes that ComputeNeighbors() has been called.
     void FillGhostArrays(
-       const int gridID, unsigned char *nodesArray, unsigned char *cellsArray );
+       const int gridID,
+       vtkUnsignedCharArray *nodesArray,
+       vtkUnsignedCharArray *cellsArray );
+
+    // Description:
+    // Creates ghost layers.
+    virtual void CreateGhostLayers( const int N );
+
+    // Description:
+    // Communicates the data at the ghost nodes.
+    virtual void CommunicateGhostNodes();
+
+    // Description:
+    // Communicates the data at the ghost cells.
+    virtual void CommunicateGhostCells();
 
   protected:
     vtkStructuredGridConnectivity();

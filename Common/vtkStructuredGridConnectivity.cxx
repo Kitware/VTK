@@ -19,6 +19,7 @@
 #include "vtkStructuredExtent.h"
 #include "vtkIdList.h"
 #include "vtkStructuredNeighbor.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <set>
 #include <vector>
@@ -245,7 +246,9 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::FillGhostArrays(
-    const int gridID, unsigned char *nodesArray, unsigned char *cellsArray )
+    const int gridID,
+    vtkUnsignedCharArray *nodesArray,
+    vtkUnsignedCharArray *cellsArray )
 {
   assert( "pre: Nodes array is not NULL" && (nodesArray != NULL) );
   assert( "pre: Cell array is not NULL" && (cellsArray != NULL) );
@@ -280,7 +283,9 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
         int lk = k - ijkmin[2];
 
         int idx = vtkStructuredData::ComputePointId( dims, li, lj, lk );
-        this->MarkNodeProperty( gridID,i,j,k,GridExtent,nodesArray[idx] );
+        this->MarkNodeProperty(
+            gridID,i,j,k,GridExtent,
+            *nodesArray->GetPointer( idx ) );
         } // END for all k
       } // END for all j
     } // END for all i
@@ -742,3 +747,20 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
   return( rc );
 }
 
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
+{
+  // TODO: implement this
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::CommunicateGhostNodes( )
+{
+  // TODO: implement this
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::CommunicateGhostCells( )
+{
+  // TODO: implement this
+}
