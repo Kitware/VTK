@@ -22,6 +22,8 @@ vtkAbstractGridConnectivity::vtkAbstractGridConnectivity()
 //------------------------------------------------------------------------------
 vtkAbstractGridConnectivity::~vtkAbstractGridConnectivity()
 {
+  this->GridPointData.clear();
+  this->GridCellData.clear();
 }
 
 //------------------------------------------------------------------------------

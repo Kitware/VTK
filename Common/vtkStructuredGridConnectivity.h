@@ -59,6 +59,8 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
       this->NumberOfGrids = N;
       this->GridExtents.resize( 6*N,-1);
       this->Neighbors.resize( N );
+      this->GridPointData.resize( N );
+      this->GridCellData.resize( N );
     }
 
     // Description:

@@ -26,6 +26,14 @@
 
 #include "vtkObject.h"
 
+// C++ include directives
+#include <vector> // For STL vector
+#include <cassert> // For assert
+
+// Forward declarations
+class vtkPointData;
+class vtkCellData;
+
 class vtkAbstractGridConnectivity : public vtkObject
 {
   public:
@@ -35,6 +43,11 @@ class vtkAbstractGridConnectivity : public vtkObject
     // Description:
     // Sets the total number of grids in the domain.
     // Note: This method is implemented by concrete classes.
+    //
+    // NOTE: Concrete classes implementing this pure virtual method must
+    // at least do the following:
+    // (1) Set the NumberOfGrids ivar to N
+    // (2) Allocate the GridPointData and GridCellData vectors
     virtual void SetNumberOfGrids( const int N ) = 0;
 
     // Description:
@@ -51,11 +64,33 @@ class vtkAbstractGridConnectivity : public vtkObject
         const int gridId, unsigned char* nodesArray,
         unsigned char* cellsArray ) = 0;
 
+    // Description:
+    // Regeisters the grid's field data, i.e., the node and celldata
+    virtual void RegisterFieldData(
+        const int gridID, vtkPointData *PointData, vtkCellData *CellData )
+      {
+        // Sanity check
+        assert( "PointData for grid shouldn't be NULL" && (PointData != NULL) );
+        assert( "CellData for grid shouldn't be NULL" && (CellData != NULL) );
+        assert( "GridID is out-of-bound GridPointData" &&
+                 (gridID >= 0) && (gridID < this->NumberOfGrids ) );
+        assert( "GridID is out-of-bound GridPointData" &&
+                 (gridID >= 0) && (gridID < this->NumberOfGrids ) );
+
+
+        // Note: The size of these vectors is allocated in SetNumberOfGrids
+        this->GridPointData[ gridID ] = PointData;
+        this->GridCellData[ gridID ]  = CellData;
+      }
+
   protected:
     vtkAbstractGridConnectivity();
     virtual ~vtkAbstractGridConnectivity();
 
     int NumberOfGrids;
+
+    std::vector< vtkPointData* > GridPointData;
+    std::vector< vtkCellData* > GridCellData;
 
   private:
     vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&);// Not implemented
