@@ -237,10 +237,10 @@ protected:
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
   void UpdateGrid(vtkRenderer *ren);
-  
+  // This represents the last thing the mapper was connected since we rendered
+  vtkAlgorithmOutput *LastInputConnection;
   vtkSmartVolumeMapper *InternalMapper;
   vtkAMRResampleFilter *Resampler;
-  vtkUniformGrid *Grid;
   int NumberOfSamples[3];
   double Bounds[6];
   

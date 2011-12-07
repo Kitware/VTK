@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkAMRVolumeMapper.h"
-
+#include "vtkAlgorithmOutput.h"
 #include "vtkAMRResampleFilter.h"
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
@@ -41,10 +41,11 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
 {
   this->InternalMapper = vtkSmartVolumeMapper::New();
   this->Resampler = vtkAMRResampleFilter::New();
-  this->Grid = NULL;
+  this->InternalMapper->SetInputConnection(this->Resampler->GetOutputPort());
   this->NumberOfSamples[0] = 128;
   this->NumberOfSamples[1] = 128;
   this->NumberOfSamples[2] = 128;
+  this->LastInputConnection = NULL;
   vtkMath::UninitializeBounds(this->Bounds);
 }
 
@@ -55,11 +56,6 @@ vtkAMRVolumeMapper::~vtkAMRVolumeMapper()
   this->InternalMapper = NULL;
   this->Resampler->Delete();
   this->Resampler = NULL;
-  if (this->Grid)
-    {
-    this->Grid->Delete();
-    this->Grid = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -249,34 +245,30 @@ void vtkAMRVolumeMapper::ReleaseGraphicsResources(vtkWindow *window)
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 {
-  // If there is no grid initially we need to see if we can create one
-  bool gridUpdated = false;
-  if (this->Grid == NULL) 
+  // If the input connection has changed since the last time we rendered then
+  // we need to update the resampler filter
+  bool resamplerUpdated = false;
+  vtkAlgorithmOutput *currentInputConnection = this->GetInputConnection(0,0);
+  if (this->LastInputConnection != currentInputConnection) 
     {
     this->UpdateGrid(ren);
-    if (this->Grid == NULL)
-      {
-      // Could not create a grid
-      return;
-      }
-    this->InternalMapper->SetInput(this->Grid);
-    gridUpdated = true;
+    resamplerUpdated = true;
+    this->LastInputConnection = currentInputConnection;
     }
+  cerr << "Mapper's MTime = " << this->GetMTime() << "\n";
+  cerr << "Internal Mapper's MTime = " << this->InternalMapper->GetMTime() << "\n";
+  cerr << "Mapper's Input MTime = " << this->LastInputConnection->GetProducer()->GetMTime() << "\n";
   this->InternalMapper->Render(ren, vol);
   // Lets see if we are dealing with a still render in which 
   // case we can also update the Grid and rerender (if we haven't
   // just updated the grid)
-  if (gridUpdated || (ren->GetRenderWindow()->GetDesiredUpdateRate()
+  if (resamplerUpdated || (ren->GetRenderWindow()->GetDesiredUpdateRate()
                       >= this->InternalMapper->GetInteractiveUpdateRate()))
     {
     return;
     }
+  cerr << "Requesting Full Render!!\n";
   this->UpdateGrid(ren);
-  if (this->Grid)
-    {
-    this->InternalMapper->SetInput(this->Grid);
-    this->InternalMapper->Render(ren, vol);
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -391,8 +383,8 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
    return; // There is nothing we can do
    }
  // Now set the min/max of the resample filter
- this->Resampler->SetMin(bbox.GetMinPoint());
- this->Resampler->SetMax(bbox.GetMaxPoint());
+ this->Resampler->SetMin(const_cast<double *>(bbox.GetMinPoint()));
+ this->Resampler->SetMax(const_cast<double *>(bbox.GetMaxPoint()));
 
  this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
  // This is for debugging
@@ -402,9 +394,7 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
  int gridDim[3];
  double gridOrigin[3];
  timer->StartTimer();
-#endif
  this->Resampler->Update();
-#if PRINTSTATS
  timer->StopTimer();
  std::cerr << "Resample Time:" << timer->GetElapsedTime() << " ";
  std::cerr << "New Bounds: [" << bbox.GetMinPoint()[0]
@@ -413,19 +403,10 @@ void vtkAMRVolumeMapper::UpdateGrid(vtkRenderer *ren)
            << ", " << bbox.GetMaxPoint()[1] << "], ["
            << bbox.GetMinPoint()[2]
            << ", " << bbox.GetMaxPoint()[2] << "\n";
-#endif
-
- if (this->Grid)
-   {
-   this->Grid->Delete();
-   }
-
- this->Grid = vtkUniformGrid::SafeDownCast(
-     this->Resampler->GetOutput() );
- this->Grid->Register(0);
-#if PRINTSTATS
- this->Grid->GetDimensions(gridDim);
- this->Grid->GetOrigin(gridOrigin);
+ vtkUniformGrid *grid = 
+   vtkUniformGrid::SafeDownCast(this->Resampler->GetOutput() );
+ grid->GetDimensions(gridDim);
+ grid->GetOrigin(gridOrigin);
  std::cerr << "Grid Dimenions: (" << gridDim[0] << ", " << gridDim[1] << ", "
            << gridDim[2]
            << ") Origin:(" << gridOrigin[0] << ", "<< gridOrigin[1] << ", "
