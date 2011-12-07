@@ -10,6 +10,10 @@ IF(NOT VTK_USE_SYSTEM_HDF5)
   # Export configuration to this export variable
   SET(HDF5_EXPORTED_TARGETS ${VTK_INSTALL_EXPORT_NAME})
   
+  IF(NOT VTK_INSTALL_NO_LIBRARIES)
+    SET_PROPERTY(GLOBAL APPEND PROPERTY VTK_TARGETS vtkhdf5)
+  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+
   # Silence HDF5's warnings. We'll let them get fixed upstream
   # and merge in updates as necessary.
   SET(HDF5_DISABLE_COMPILER_WARNINGS ON CACHE BOOL "Disable HDF5 warnings" FORCE)
