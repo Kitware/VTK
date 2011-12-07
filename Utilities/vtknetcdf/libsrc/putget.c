@@ -23,14 +23,6 @@
 #endif
 #include "nc3dispatch.h"
 
-#ifdef __BORLANDC__
-#  pragma warn -8004 /* "assigned a value that is never used" */
-#  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
-#endif
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
-#endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
 
 #undef MIN  /* system may define MIN somewhere and complain */
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))

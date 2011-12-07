@@ -36,8 +36,6 @@
 #define _NETCDF_
 
 #include <vtknetcdf/include/vtk_netcdf_mangle.h>
-#include "vtknetcdf/ncconfig.h" /* for DLL_NETCDF */
-
 #include <stddef.h> /* size_t, ptrdiff_t */
 #include <errno.h>  /* netcdf functions sometimes return system errors */
 
@@ -354,40 +352,33 @@ extern "C" {
 /* Declaration modifiers for DLL support (MSC et al) */
 
 #if defined(DLL_NETCDF) /* define when library is a DLL */
-#  if defined(vtkNetCDF_EXPORTS) /* define when building the library */
+#  if defined(DLL_EXPORT) /* define when building the library */
 #   define MSC_EXTRA __declspec(dllexport)
 #  else
 #   define MSC_EXTRA __declspec(dllimport)
 #  endif
-#  if defined(vtkNetCDF_cxx_EXPORTS)
-#   define MSCPP_EXTRA __declspec(dllexport)
-#  else
-#   define MSCPP_EXTRA __declspec(dllimport)
-#  endif
 #include <io.h>
+#ifndef uint
+   typedef unsigned int uint;
+#endif
 /*#define lseek _lseeki64
-#define off_t __int64
-#define stat __stat64
-#define fstat _fstat64*/
+  #define off_t __int64*/
 #else
 #define MSC_EXTRA
-#define MSCPP_EXTRA
-#endif  /* defined(DLL_NETCDF) */
+#endif	/* defined(DLL_NETCDF) */
 
 # define EXTERNL extern MSC_EXTRA
 
-/* When netCDF is built as a DLL, this will export ncerr and
- * ncopts. When it is used as a DLL, it will import them. */
-#if defined(DLL_NETCDF)
-EXTERNL int ncerr;
-EXTERNL int ncopts;
+#if defined(DLL_NETCDF) /* define when library is a DLL */
+MSC_EXTRA int ncerr;
+MSC_EXTRA int ncopts;
 #endif
 
 EXTERNL const char *
 nc_inq_libvers(void);
 
 EXTERNL const char *
-nc_strerror(int ncerr_arg);
+nc_strerror(int ncerr);
 
 EXTERNL int
 nc__create(const char *path, int cmode, size_t initialsz,
