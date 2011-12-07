@@ -48,6 +48,7 @@ typedef unsigned char uchar;
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #endif
 
+#if 0
 #if defined(DLL_NETCDF) /* define when library is a DLL */
 #include <io.h>
 #if !defined(__CYGWIN__) && !defined(__MINGW32__)
@@ -56,6 +57,7 @@ typedef unsigned char uchar;
 #endif
 #define _OFF_T_DEFINED
 #endif  /* defined(DLL_NETCDF) */
+#endif
 
 /*
  * The integer return code for the conversion routines
