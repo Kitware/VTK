@@ -2271,7 +2271,7 @@ ncx_getn_schar_double(const void **xpp, size_t nelems, double *tp)
 }
 
 int
-ncx_getn_schar_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_schar_uint(const void **xpp, size_t nelems, uint *tp)
 {
         schar *xp = (schar *)(*xpp);
 
@@ -2414,7 +2414,7 @@ ncx_pad_getn_schar_double(const void **xpp, size_t nelems, double *tp)
 }
 
 int
-ncx_pad_getn_schar_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_pad_getn_schar_uint(const void **xpp, size_t nelems, uint *tp)
 {
         size_t rndup = nelems % X_ALIGN;
         schar *xp = (schar *) *xpp;
@@ -2555,7 +2555,7 @@ ncx_putn_schar_double(void **xpp, size_t nelems, const double *tp)
 }
 
 int
-ncx_putn_schar_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_schar_uint(void **xpp, size_t nelems, const uint *tp)
 {
         int status = ENOERR;
         schar *xp = (schar *) *xpp;
@@ -2763,7 +2763,7 @@ ncx_pad_putn_schar_double(void **xpp, size_t nelems, const double *tp)
 }
 
 int
-ncx_pad_putn_schar_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_pad_putn_schar_uint(void **xpp, size_t nelems, const uint *tp)
 {
         int status = ENOERR;
         size_t rndup = nelems % X_ALIGN;
@@ -3253,7 +3253,7 @@ ncx_getn_short_double(const void **xpp, size_t nelems, double *tp)
 }
 
 int
-ncx_getn_short_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_short_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_SHORT == SIZEOF_SHORT
@@ -3288,7 +3288,7 @@ ncx_getn_short_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -3578,7 +3578,7 @@ ncx_pad_getn_short_double(const void **xpp, size_t nelems, double *tp)
 }
 
 int
-ncx_pad_getn_short_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_pad_getn_short_uint(const void **xpp, size_t nelems, uint *tp)
 {
         const size_t rndup = nelems % 2;
 
@@ -4074,7 +4074,7 @@ ncx_putn_short_double(void **xpp, size_t nelems, const double *tp)
 }
 
 int
-ncx_putn_short_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_short_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_SHORT == SIZEOF_SHORT
@@ -4432,7 +4432,7 @@ ncx_pad_putn_short_double(void **xpp, size_t nelems, const double *tp)
 }
 
 int
-ncx_pad_putn_short_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_pad_putn_short_uint(void **xpp, size_t nelems, const uint *tp)
 {
         const size_t rndup = nelems % 2;
 
@@ -4792,7 +4792,7 @@ ncx_getn_int_int(const void **xpp, size_t nelems, int *tp)
 }
 
 int
-ncx_getn_int_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_int_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_INT == SIZEOF_INT
@@ -4827,7 +4827,7 @@ ncx_getn_int_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -5444,7 +5444,7 @@ ncx_putn_int_int(void **xpp, size_t nelems, const int *tp)
 }
 
 int
-ncx_putn_int_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_int_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_INT == SIZEOF_INT
@@ -6234,7 +6234,7 @@ ncx_getn_float_double(const void **xpp, size_t nelems, double *tp)
 }
 
 int
-ncx_getn_float_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_float_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_FLOAT == SIZEOF_FLOAT
@@ -6269,7 +6269,7 @@ ncx_getn_float_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -6863,7 +6863,7 @@ ncx_putn_float_double(void **xpp, size_t nelems, const double *tp)
 }
 
 int
-ncx_putn_float_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_float_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_FLOAT == SIZEOF_FLOAT
@@ -7393,7 +7393,7 @@ ncx_getn_double_float(const void **xpp, size_t nelems, float *tp)
 }
 
 int
-ncx_getn_double_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_double_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_DOUBLE == SIZEOF_DOUBLE
@@ -7428,7 +7428,7 @@ ncx_getn_double_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -8019,7 +8019,7 @@ ncx_putn_double_float(void **xpp, size_t nelems, const float *tp)
 }
 
 int
-ncx_putn_double_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_double_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_DOUBLE == SIZEOF_DOUBLE

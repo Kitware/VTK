@@ -322,17 +322,16 @@ static void
 nc_urlparamfree(NClist* params)
 {
     int i,j;
-	NClist* values;
     if(params == NULL) return;
     for(i=0;i<nclistlength(params);i+=2) {
-      char* s = (char*)nclistget(params,i);
-      if(s != NULL) free((void*)s);
-      values = (NClist*)nclistget(params,i+1);
-      for(j=0;j<nclistlength(values);j++) {
-        s = (char*)nclistget(values,j);
-        if(s != NULL) free((void*)s);
-      }
-      nclistfree(values);
+    char* s = (char*)nclistget(params,i);
+    if(s != NULL) free((void*)s);
+    NClist* values = (NClist*)nclistget(params,i+1);
+    for(j=0;j<nclistlength(values);j++) {
+    s = (char*)nclistget(values,j);
+    if(s != NULL) free((void*)s);
+    }
+    nclistfree(values);
     }
     nclistfree(params);
 }

@@ -2838,7 +2838,6 @@ NC4_inq(int ncid, int *ndimsp, int *nvarsp, int *nattsp, int *unlimdimidp)
    NC_ATT_INFO_T *att;
    NC_VAR_INFO_T *var;
    int retval;
-   int found;
 
    LOG((2, "nc_inq: ncid 0x%x", ncid));
 
@@ -2879,7 +2878,7 @@ NC4_inq(int ncid, int *ndimsp, int *nvarsp, int *nattsp, int *unlimdimidp)
    {
       /* Default, no unlimited dimension */
       *unlimdimidp = -1;
-      found = 0;
+      int found = 0;
 
       /* If there's more than one unlimited dim, which was not possible
          with netcdf-3, then only the last unlimited one will be reported
