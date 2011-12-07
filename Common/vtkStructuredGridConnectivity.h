@@ -33,7 +33,7 @@
 
 
 // C++ include directives
-#include <vector> // For STL vector
+#include <vtkstd/vector> // For STL vector
 
 // Forward Declarations
 class vtkIdList;
@@ -61,8 +61,8 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
       this->Neighbors.resize( N );
       this->GridPointData.resize( N, NULL );
       this->GridCellData.resize( N, NULL );
-      this->GhostedGridPointData.resize( N, NULL );
-      this->GhostedGridCellData.resize( N, NULL );
+      this->GridPointGhostArrays.resize( N, NULL );
+      this->GridCellGhostArrays.resize( N, NULL );
     }
 
     // Description:
@@ -223,8 +223,8 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
 
     int DataDescription;
     int WholeExtent[6];
-    std::vector< int > GridExtents;
-    std::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
+    vtkstd::vector< int > GridExtents;
+    vtkstd::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
 
   private:
     vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& );

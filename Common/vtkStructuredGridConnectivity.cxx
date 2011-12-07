@@ -21,9 +21,9 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <set>
-#include <vector>
-#include <algorithm>
+#include <vtkstd/set>
+#include <vtkstd/vector>
+#include <vtkstd/algorithm>
 
 #define NO_OVERLAP      0
 #define NODE_OVERLAP    1
@@ -563,7 +563,7 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
     const int i, const int j,
     int ex1[6], int ex2[6], int orientation[3], int ndim )
 {
-  std::vector< int > status;
+  vtkstd::vector< int > status;
   status.resize( ndim );
 
   int A[2];
@@ -713,12 +713,12 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
 
   // STEP 2: Allocate internal intersection vector. Note, since the cardinality
   // of A,B is 2, the intersection vector can be at most of size 2.
-  std::vector< int > intersection;
+  vtkstd::vector< int > intersection;
   intersection.resize( 2 );
 
   // STEP 3: Compute intersection
-  std::vector< int >::iterator it;
-  it = std::set_intersection( A, A+2, B, B+2, intersection.begin() );
+  vtkstd::vector< int >::iterator it;
+  it = vtkstd::set_intersection( A, A+2, B, B+2, intersection.begin() );
 
   // STEP 4: Find number of intersections and overlap extent
   int N = static_cast< int >( it-intersection.begin() );
