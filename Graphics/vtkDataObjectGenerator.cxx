@@ -1068,6 +1068,7 @@ void vtkDataObjectGenerator::MakePolyData1(vtkDataSet *ids)
   ds->Allocate();
   vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
+  ds->Squeeze();
 
   this->MakeValues(ds);
 }
@@ -1098,6 +1099,7 @@ void vtkDataObjectGenerator::MakePolyData2(vtkDataSet *ids)
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
   vtkIdType points[1] = {3};
   ds->InsertNextCell(VTK_VERTEX, 1, points);
+  ds->Squeeze();
 
   this->MakeValues(ds);
 }
@@ -1124,6 +1126,7 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid1(vtkDataSet *ids)
   ds->Allocate();
   vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
+  ds->Squeeze();
 
   this->MakeValues(ds);
 }
@@ -1152,6 +1155,7 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid2(vtkDataSet *ids)
   vtkIdType verts[6] = {0,1,2,  2,1,3};
   ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[0]);
   ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[3]);
+  ds->Squeeze();
 
   this->MakeValues(ds);
 }
@@ -1179,6 +1183,7 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid3(vtkDataSet *ids)
   ds->Allocate();
   vtkIdType verts[6] = {0,1,2,3};
   ds->InsertNextCell(VTK_TETRA, 4, &verts[0]);
+  ds->Squeeze();
 
   this->MakeValues(ds);
 }
@@ -1213,6 +1218,8 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid4(vtkDataSet *ids)
   ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[0]);
   ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[3]);
   ds->InsertNextCell(VTK_TETRA, 4, &verts[6]);
+
+  ds->Squeeze();
 
   this->MakeValues(ds);
 }
