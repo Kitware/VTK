@@ -821,7 +821,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
       {
       vtkIdType cell_ID = this->Tree->Leaves[node->Start()+i];
       //
-
+      double* boundsPtr = cellBounds;
       if (this->CellBounds == NULL)
         {
         this->DataSet->GetCellBounds(cell_ID, cellBounds);
