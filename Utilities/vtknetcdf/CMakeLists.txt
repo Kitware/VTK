@@ -2,8 +2,41 @@ PROJECT(VTKNETCDF)
 
 INCLUDE_REGULAR_EXPRESSION(".*")
 
-SET(VERSION "4.1.2")
+SET(VERSION "4.1.1")
 SET(PACKAGE "netcdf")
+
+SET(netcdf_SRCS
+  attr.c
+  dim.c
+  error.c
+  libvers.c
+  nc.c
+  posixio.c
+  ncx.c
+  putget.c
+  string.c
+  utf8proc.c
+  v1hpg.c
+  v2i.c
+  var.c
+  )
+
+SET(netcdfcxx_SRCS
+  netcdf.cpp
+  ncvalues.cpp
+  )
+
+IF(APPLE)
+  SET_SOURCE_FILES_PROPERTIES(
+    v2i.c
+    PROPERTIES
+    COMPILE_FLAGS -fno-common)
+ENDIF(APPLE)
+
+INCLUDE_DIRECTORIES(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
 
 # Include all the necessary files for macros
 INCLUDE (CheckIncludeFiles)
@@ -224,38 +257,6 @@ ENDIF(NOT HAVE_SIZEOF_PTRDIFF_T)
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
 SET(WORDS_BIGENDIAN ${CMAKE_WORDS_BIGENDIAN})
 
-OPTION(NETCDF_ENABLE_CXX "Build netcdf C++ API" ON)
-SET(CXX NETCDF_ENABLE_CXX)
-
-OPTION(NETCDF_ENABLE_NETCDF4 "Build netcdf version 4 API" ON)
-IF (NOT HDF5_BUILD_HL_LIB AND NETCDF_ENABLE_NETCDF4)
-  message("ENABLE_NETCDF4 not allowed because netcdf4 functionality requires HDF5_BUILD_HL_LIB.")
-  SET(NETCDF_ENABLE_NETCDF4 OFF CACHE BOOL "Build netcdf version 4 API" FORCE)
-ENDIF (NOT HDF5_BUILD_HL_LIB AND NETCDF_ENABLE_NETCDF4)
-  mark_as_advanced(NETCDF_ENABLE_NETCDF4)
-SET(USE_NETCDF4 ${NETCDF_ENABLE_NETCDF4} CACHE INTERNAL "" FORCE)
-
-if (NETCDF_ENABLE_NETCDF4)
-  set(NETCDF4_DEFAULT_CHUNK_SIZE 4194304 CACHE STRING "Specify default size of chunks in bytes.")
-  mark_as_advanced(NETCDF4_DEFAULT_CHUNK_SIZE)
-  
-  set(NETCDF4_MAX_DEFAULT_CACHE_SIZE 67108864 CACHE STRING "Specify maximum size (in bytes) for the default per-var chunk cache.")
-  mark_as_advanced(NETCDF4_MAX_DEFAULT_CACHE_SIZE)
-
-  set(NETCDF4_DEFAULT_CHUNKS_IN_CACHE 10 CACHE STRING "Specify the number of chunks to store in default per-variable cache.")
-  mark_as_advanced(NETCDF4_DEFAULT_CHUNKS_IN_CACHE)
-
-  set(NETCDF4_CHUNK_CACHE_SIZE 4194304 CACHE STRING "Specify default file cache chunk size for HDF5 files in bytes.")
-  mark_as_advanced(NETCDF4_CHUNK_CACHE_SIZE)
-
-  set(NETCDF4_CHUNK_CACHE_NELEMS 1009 CACHE STRING "Specify default maximum number of elements in the file chunk cache chunk for HDF5 files (should be prime number).")
-  mark_as_advanced(NETCDF4_CHUNK_CACHE_NELEMS)
-
-  set(NETCDF4_CHUNK_CACHE_PREEMPTION 0.75 CACHE STRING "Specify default file chunk cache preemption policy for HDF5 files (a number between 0 and 1, inclusive).")
-  mark_as_advanced(NETCDF4_CHUNK_CACHE_PREEMPTION)
-
-endif (NETCDF_ENABLE_NETCDF4)
-  
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/ncconfig.h @ONLY IMMEDIATE)
 
@@ -285,71 +286,19 @@ IF (NETCDF_DISABLE_COMPILER_WARNINGS)
   ENDIF ()
 ENDIF (NETCDF_DISABLE_COMPILER_WARNINGS)
 
+VTK_ADD_LIBRARY(vtkNetCDF
+  ${netcdf_SRCS})
 
-#-----------------------------------------------------------------------------
-#configure the various requested parts of netcdf 
-#-----------------------------------------------------------------------------
+VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdfcxx_SRCS})
+TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
+
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")
-
-INCLUDE_DIRECTORIES(
-  
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/libdispatch
-  ${CMAKE_CURRENT_SOURCE_DIR}/libsrc
-  ${CMAKE_CURRENT_SOURCE_DIR}/libsrc4
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${HDF5_INCLUDE_DIR}
-  )
-
-set(netcdf_liblib_SOURCES "" CACHE INTERNAL "" FORCE)
-ADD_SUBDIRECTORY(liblib)
-
-set(netcdf_dispatch_SOURCES "" CACHE INTERNAL "" FORCE)
-ADD_SUBDIRECTORY(libdispatch)
-
-set(netcdf_src_SOURCES "" CACHE INTERNAL "" FORCE)
-ADD_SUBDIRECTORY(libsrc)
-
-set(netcdf_src4_SOURCES "" CACHE INTERNAL "" FORCE)
-IF (NETCDF_ENABLE_NETCDF4)
-  ADD_SUBDIRECTORY(libsrc4)
-ENDIF (NETCDF_ENABLE_NETCDF4)
-
-IF (NETCDF_ENABLE_CXX)
-  set(netcdf_cxx_SOURCES "" CACHE INTERNAL "" FORCE)
-  ADD_SUBDIRECTORY(cxx)
-ENDIF (NETCDF_ENABLE_CXX)
-
-IF(APPLE)
-  SET_SOURCE_FILES_PROPERTIES(
-    v2i.c
-    PROPERTIES
-    COMPILE_FLAGS -fno-common)
-ENDIF(APPLE)
-
-VTK_ADD_LIBRARY(vtkNetCDF 
-    ${netcdf_src_SOURCES}
-    ${netcdf_src4_SOURCES}
-    ${netcdf_dispatch_SOURCES}
-    ${netcdf_liblib_SOURCES})
-IF (NETCDF_ENABLE_NETCDF4)
-  TARGET_LINK_LIBRARIES(vtkNetCDF vtkhdf5 vtkhdf5_hl)
-ENDIF (NETCDF_ENABLE_NETCDF4)
-
-VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdf_cxx_SOURCES})
-TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
   SET_TARGET_PROPERTIES(vtkNetCDF PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 ENDIF(VTK_LIBRARY_PROPERTIES)
-
-#-----------------------------------------------------------------------------
-#package the result
-#-----------------------------------------------------------------------------
-
 
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   IF(NOT VTK_INSTALL_BIN_DIR_CM24)

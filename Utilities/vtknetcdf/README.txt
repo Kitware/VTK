@@ -1,19 +1,20 @@
 This directory contains a subset of the NetCDF source code.
-Specifically, it is the source of the library itself
-and not any utilities built on top of it.
+Specifically, it is the "libsrc" directory of NetCDF, since
+VTK only requires the NetCDF library itself and not any
+utilities built on top of it.
 
 The only differences to the vendor's release are:
 - The README (as README.netcdf), RELEASE_NOTES, and COPYRIGHT
   files from the top level of the NetCDF source code are also
   included.
-- Tabs aren't allowed by VTK's checkin scripts, so they
+- Tabs aren't allowed by VTK's CVS checkin scripts, so they
   have been converted to spaces.
 - some "index" parameters have been renamed to "index2" to avoid
   shadowing "index" BSD function.
 
 
 The head of the netcdf-release branch corresponds to the
-NetCDF 4.1.2 release.
+NetCDF 3.6.2 release.
 
 Instructions for updating to a new NetCDF release:
 0. Go to a place where you can have some working directories:

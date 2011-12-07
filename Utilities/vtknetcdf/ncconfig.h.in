@@ -85,24 +85,6 @@
 /* Define if you have the strerror function  */
 #cmakedefine HAVE_STRERROR @HAVE_STRERROR@
 
-/* Define if you want to use c++ API to netcdf3. */
-#cmakedefine CXX
-
-/* Define if you want to use netcdf4. */
-#cmakedefine USE_NETCDF4
-
-/* We do not support these pieces of netcdf yet. */
-#undef cxx4
-#undef UDUNITS
-#undef LIBCF
-#undef LIBCDMR
-#undef USE_DAP
-#undef USE_HDF4
-#undef USE_PNETCDF
-
-/* The hdf5 in vtk has 1.6 API so we have to set this to use it. */
-#define H5_USE_16_API
-
 /* Define if you have the <hdf5.h> header file. */
 #cmakedefine HAVE_HDF5_H
 
@@ -123,6 +105,7 @@
 
 /* Define to 1 if the system has the type `_Bool'. */
 #cmakedefine HAVE__BOOL
+
 
 /* Define if the system does not use IEEE floating point representation */
 #cmakedefine NO_IEEE_FLOAT @NO_IEEE_FLOAT@
@@ -156,13 +139,5 @@
 #  define SIZEOF_DOUBLE  8
 #  define SIZEOF_OFF_T   8
 #endif
-
-/* netcdf4's hdf5 cache parameters */
-#define DEFAULT_CHUNK_SIZE @NETCDF4_DEFAULT_CHUNK_SIZE@
-#define MAX_DEFAULT_CACHE_SIZE @NETCDF4_MAX_DEFAULT_CACHE_SIZE@
-#define DEFAULT_CHUNKS_IN_CACHE @NETCDF4_DEFAULT_CHUNKS_IN_CACHE@
-#define CHUNK_CACHE_SIZE @NETCDF4_CHUNK_CACHE_SIZE@
-#define CHUNK_CACHE_NELEMS @NETCDF4_CHUNK_CACHE_NELEMS@
-#define CHUNK_CACHE_PREEMPTION @NETCDF4_CHUNK_CACHE_PREEMPTION@
 
 #endif /* !_NCCONFIG_H_ */

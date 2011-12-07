@@ -3,85 +3,7 @@ Entries are in reverse chronological order (most recent first).
 
 VERSION         COMMENTS
 -------         --------
-4.1.2          2011-03-29
-
-                Changes in build system to support building dlls on
-                cygwin/mingw32.
-
-                Changes to fix portability problems and get things
-                running on all test platforms.
-
-                Some minor documentation fixes.
-
-                Fixed opendap performance bug for nc_get_vars; required
-                adding nc_get_var{s,m} to the dispatch table.
-
-                Now check for libz in configure.ac.
-
-                Fixed some bugs and some performance problems with
-                default chunksizes.
-
-4.1.2-beta2    2011-01-11
-
-                Add "-c" option to nccopy to specify chunk sizes used
-                in output in terms of list of dimension names.
-
-                Rewrite netCDF-4 attribute put code for a large
-                speedup when writing lots of attributes.
-
-                Fix nc-config --libs when static dependent libraries
-                are not installed in the same directory as netCDF
-                libraries (thanks to Jeff Whitaker).
-
-                Build shared libraries by default, requiring separate
-                Fortran library.  Static libraries now built only with
-                --disable-shared.
-
-                Refactor of HDF5 file metadata scan for large speedup
-                in opening files, especially large files.
-
-                Complete rewrite of the handling of character datalist
-                constants. The heuristics are documented in ncgen.1.
-
-                Eliminate use of NC_MAX_DIMS and NC_MAX_VARS in ncdump
-                and nccopy, allocating memory as needed and reducing
-                their memory footprint.
-
-                Add documentation for new nc_inq_path() function.
-
-                Use hashing to speedup lookups by name for files with
-                lots of dimensions and variables (thanks to Greg
-                Sjaardema).
-
-                Add options to nccopy to support uniform compression
-                of variables in output, shuffling, and fixing
-                unlimited dimensions.  Documented in nccopy.1 man page
-                and User's Guide.
-
-4.1.2-beta1    2010-07-09
-
-                Fix "ncdump -c" bug identifying coordinate variables in groups.
-
-                Fix bug in libsrc/posixio.c when providing sizehint
-                larger than default, which then doesn't get used
-                (thanks to Harald Anlauf).
-
-                Fix netCDF-4 bug caused when doing enddef/redef and
-                then defining coordinate variable out of order.
-
-                Fixed bug in man4 directory automake file which caused
-                documentation to be rebuilt after make clean.
-
-                Turned off HDF5 caching when parallel I/O is in use
-                because of its memory use.
-
-                Refactoring of netCDF code with dispatch layer to
-                decide whether to call netCDF classic, netCDF-4, or
-                opendap version of a function.
-
-                Refactoring of netCDF-4 memory internals to reduce
-                memory use and end dependance on NC_MAX_DIMS and
-                NC_MAX_NAME.
+4.2            2010-04-10
 
                 Modified constraint parser to be more compatible with
                 a java version of the parser.
@@ -89,73 +11,69 @@ VERSION         COMMENTS
                 Modified ncgen to utilize iterators internally; should be
                 no user visible effect.
 
-                Fixed two large-file bugs with using classic format or
-                64-bit offset format and accessing multidimensional
-                variables with more than 2**32 values.
-
 4.1.1          2010-04-01
 
-                Fixed various build issues.
+          Fixed various build issues.
 
-                Fixed various memory bugs.
+    Fixed various memory bugs.
 
-                Fixed bug for netCDF-4 files with dimensions and coord
-                vars written in different orders, with data writes
-                interspersed.
+          Fixed bug for netCDF-4 files with dimensions and coord
+          vars written in different orders, with data writes
+          interspersed.
 
-                Added test for HDF5-1.8.4 bug.
+    Added test for HDF5-1.8.4 bug.
 
-                Added new C++ API from Lynton Appel.
+    Added new C++ API from Lynton Appel.
 
 4.1            2010-01-30
 
-                Much better memory leak checking with valgrind.
+          Much better memory leak checking with valgrind.
 
-                Added per-variable chunk cache control for better
-                performance. Use nc_set_var_chunk_cache /
-                nf_set_var_chunk_cache / nf90_set_var_chunk_cache to
-                set the per-variable cache.
+          Added per-variable chunk cache control for better
+          performance. Use nc_set_var_chunk_cache /
+          nf_set_var_chunk_cache / nf90_set_var_chunk_cache to
+          set the per-variable cache.
 
-                Automatically set per-variable chunk cache when
-                opening a file, or creating a variable, so that the
-                cache is big enough for more than one chunk. (Can be
-                overridden by user). Settings may be changed with
-                configure options --max-default-chunk-size and
-                --default-chunks-in-cache.
+    Automatically set per-variable chunk cache when
+    opening a file, or creating a variable, so that the
+    cache is big enough for more than one chunk. (Can be
+    overridden by user). Settings may be changed with
+    configure options --max-default-chunk-size and
+    --default-chunks-in-cache.
 
-                Better default chunks size. Now chunks are sized to
-                fit inside the DEFAULT_CHUNK_SIZE (settable at
-                configure time with --with-default-chunk-size=
-                option.)
+    Better default chunks size. Now chunks are sized to
+    fit inside the DEFAULT_CHUNK_SIZE (settable at
+    configure time with --with-default-chunk-size=
+    option.)
 
-                Added nccopy utility for converting among netCDF
-                format variants or to copy data from DAP servers to
-                netCDF files.
+          Added nccopy utility for converting among netCDF
+          format variants or to copy data from DAP servers to
+          netCDF files.
 
-                The oc library has been modified to allow the occurrence
+    The oc library has been modified to allow the occurrence
                 of alias definitions in the DAS, but they will be ignored.
 
-                The old ncgen has been moved to ncgen3 and
+    The old ncgen has been moved to ncgen3 and
                 ncgen is now the new ncgen4.
 
-                Modified --enable-remote-tests to be on by default.
+    Modified --enable-remote-tests to be on by default.
 
-                Fixed the nc_get_varm code as applied to DAP data sources.
+    Fixed the nc_get_varm code as applied to DAP data sources.
 
-                Added tests for nc-config.
+          Added tests for nc-config.
 
-                Many documentation fixes.
+    Many documentation fixes.
 
-                Added capability to use the parallel-netcdf
-                (a.k.a. pnetcdf) library to perform parallel I/O on
-                classic and 32-bit offset files. Use the NC_PNETCDF
-                mode flag to get parallel I/O for non-netcdf-4 files.
+          Added capability to use the parallel-netcdf
+          (a.k.a. pnetcdf) library to perform parallel I/O on
+          classic and 32-bit offset files. Use the NC_PNETCDF
+          mode flag to get parallel I/O for non-netcdf-4 files.
 
-                Added libcf library to netCDF distribution. Turn it on
-                with configure option --with-libcf.
+          Added libcf library to netCDF distribution. Turn it on
+          with configure option --with-libcf.
 
-                Added capability to read HDF4 files created with the
-                SD (Scientific Data) API.
+          Added capability to read HDF4 files created with the
+          SD (Scientific Data) API.
 
                 The DAP support was revised to closely mimic the
                 original libnc-dap support.
@@ -164,70 +82,70 @@ VERSION         COMMENTS
                 in ncgen4 to more closely mimic the output from the
                 original ncgen.
 
-                Added prototype NcML output capability to ncgen4.
+    Added prototype NcML output capability to ncgen4.
                 It is specified by the -lcml flag.
 
-                Added capabilty to read HDF5 files without dimension
-                scales. This will allow most existing HDF5 datasets to
-                be read by netCDF-4.
+          Added capabilty to read HDF5 files without dimension
+          scales. This will allow most existing HDF5 datasets to
+          be read by netCDF-4.
 
-                Fixed bug with endianness of default fill values for
-                integer types when variables are created with a
-                non-native endiannesss and use the default fill value.
+           Fixed bug with endianness of default fill values for
+           integer types when variables are created with a
+           non-native endiannesss and use the default fill value.
 
-                Significant refactoring of HDF5 type handling to
-                improve performance and handle complicated nesting of
-                types in cross-platform cases.
+          Significant refactoring of HDF5 type handling to
+          improve performance and handle complicated nesting of
+          types in cross-platform cases.
 
-                Added UDUNITS2 to the distribution. Use --with-udunits
-                to build udunits along with netcdf.
+          Added UDUNITS2 to the distribution. Use --with-udunits
+          to build udunits along with netcdf.
 
-                Made changes suggested by HDF5 team to relax
-                creation-order requirement (for read-only cases) which
-                allows HDF5 1.6.x files to be retrofitted with
-                dimension scales, and be readable to netCDF-4.
+    Made changes suggested by HDF5 team to relax
+    creation-order requirement (for read-only cases) which
+    allows HDF5 1.6.x files to be retrofitted with
+    dimension scales, and be readable to netCDF-4.
 
-                Handle duplicate type names within different groups in
-                ncdump.  Fix group path handling in absolute and
-                relative variable names for "-v" option.
+    Handle duplicate type names within different groups in
+    ncdump.  Fix group path handling in absolute and
+    relative variable names for "-v" option.
 
-                Added nc-config shell script to help users build
-                netCDF programs without having to figure out all the
-                compiler options they will need.
+    Added nc-config shell script to help users build
+    netCDF programs without having to figure out all the
+    compiler options they will need.
 
-                Fixed ncdump -s bug with displaying special attributes
-                for classic and 64-bit offset files.
+    Fixed ncdump -s bug with displaying special attributes
+    for classic and 64-bit offset files.
 
-                For writers, nc_sync() now calls fsync() to flush data
-                to disk sooner.
+          For writers, nc_sync() now calls fsync() to flush data
+          to disk sooner.
 
-                The nc_inq_type() function now works for primitive types.
+    The nc_inq_type() function now works for primitive types.
 
 4.0.1          2009-03-26
 
-                Added optional arguments to F90 API to
-                nf90_open/create, nf90_create_var, and
-                nf90_inquire_variable so that all netCDF-4 settings
-                may be accomplished with optional arguments, instead
-                of separate function calls.
+    Added optional arguments to F90 API to
+    nf90_open/create, nf90_create_var, and
+    nf90_inquire_variable so that all netCDF-4 settings
+    may be accomplished with optional arguments, instead
+    of separate function calls.
 
-                Added control of HDF5 chunk cache to allow for user
-                performance tuning.
+    Added control of HDF5 chunk cache to allow for user
+    performance tuning.
 
-                Added parallel example program in F90.
+    Added parallel example program in F90.
 
-                Changed default chunking to better handle very large
-                varibles.
+    Changed default chunking to better handle very large
+    varibles.
 
-                Made contiguous the default for fixed size data sets
-                with no filters.
+    Made contiguous the default for fixed size data sets
+    with no filters.
 
-                Fixed bug in nc_inq_ncid; now it returns NC_ENOGRP if
-                the named group is not found.
+          Fixed bug in nc_inq_ncid; now it returns NC_ENOGRP if
+          the named group is not found.
 
-                Fixed man pages for C and F77 so that netCDF-4 builds
-                will result in man pages that document new netCDF-4
-                functions.
+    Fixed man pages for C and F77 so that netCDF-4 builds
+    will result in man pages that document new netCDF-4
+    functions.
 
                 Added OPeNDAP support based on a new C-only implementation.
                 This is enabled using --enable-dap option and requires
@@ -237,184 +155,184 @@ VERSION         COMMENTS
 
 4.0.1-beta2    2008-12-26
 
-                Changed chunksizes to size_t from int.
+          Changed chunksizes to size_t from int.
 
-                Fixed fill value problem from F77 API.
+    Fixed fill value problem from F77 API.
 
-                Fixed problems in netcdf-4 files with
-                multi-dimensional coordinate variables.
+          Fixed problems in netcdf-4 files with
+          multi-dimensional coordinate variables.
 
-                Fixed ncgen to properly handle CDL input that uses
-                Windows line endings ("\r\n"), instead of getting a
-                syntax error.
+          Fixed ncgen to properly handle CDL input that uses
+          Windows line endings ("\r\n"), instead of getting a
+          syntax error.
 
-                Added "-s" option to ncdump to display performance
-                characterisitics of netCDF-4 files as special virtual
-                attributes, such as _Chunking, _DeflateLevel, _Format,
-                and _Endianness.
+    Added "-s" option to ncdump to display performance
+    characterisitics of netCDF-4 files as special virtual
+    attributes, such as _Chunking, _DeflateLevel, _Format,
+    and _Endianness.
 
-                Added "-t" option to ncdump to display times in human
-                readable form as strings.  Added code to interpret
-                "calendar" attribute according to CF conventions, if
-                present, in displaying human-readable times.
+    Added "-t" option to ncdump to display times in human
+    readable form as strings.  Added code to interpret
+    "calendar" attribute according to CF conventions, if
+    present, in displaying human-readable times.
 
-                Added experimental version of ncgen4 capable of
-                generating netcdf-4 data files and C code for creating
-                them. In addition, it supports the special attributes
-                _Format, etc.
+    Added experimental version of ncgen4 capable of
+          generating netcdf-4 data files and C code for creating
+          them. In addition, it supports the special attributes
+    _Format, etc.
 
 4.0.1-beta1    2008-10-16
 
-                Fixed Fortran 90 int64 problems.
+          Fixed Fortran 90 int64 problems.
 
-                Rewrote HDF5 read/write code in accordance with
-                performance advice from Kent.
+          Rewrote HDF5 read/write code in accordance with
+          performance advice from Kent.
 
-                Fixed memory leaks in gets/puts of HDF5 data.
+          Fixed memory leaks in gets/puts of HDF5 data.
 
-                Fixed some broken tests for parallel I/O (i.e. MPI)
-                builds.
+          Fixed some broken tests for parallel I/O (i.e. MPI)
+          builds.
 
-                Fixed some cross-compile problems.
+          Fixed some cross-compile problems.
 
-                Rewrote code which placed bogus errors on the HDF5
-                error stack, trying to open non-existant attributes
-                and variables. Now no HDF5 errors are seen.
+    Rewrote code which placed bogus errors on the HDF5
+    error stack, trying to open non-existant attributes
+    and variables. Now no HDF5 errors are seen.
 
-                Removed man subdirectory. Now man4 subdirectory is
-                used for all builds.
+          Removed man subdirectory. Now man4 subdirectory is
+          used for all builds.
 
-                Changed build so that users with access to parallel
-                make can use it.
+          Changed build so that users with access to parallel
+          make can use it.
 
-                Added experimental support for accessing data through
-                OPeNDAP servers using the DAP protocol (use
-                --enable-opendap to build it).
+    Added experimental support for accessing data through
+    OPeNDAP servers using the DAP protocol (use
+    --enable-opendap to build it).
 
-                Fixed ncdump bugs with array field members of compound
-                type variables.  Fixed ncdump bug of assuming default
-                fill value for data of type unsigned byte.
+          Fixed ncdump bugs with array field members of compound
+          type variables.  Fixed ncdump bug of assuming default
+          fill value for data of type unsigned byte.
 
 4.0            2008-05-31
 
-                Introduced the use of HDF5 as a storage layer, which
-                allows use of groups, user-defined types, multiple
-                unlimited dimensions, compression, data chunking,
-                parallel I/O, and other features. See the netCDF
-                Users Guide for more information.
+    Introduced the use of HDF5 as a storage layer, which
+    allows use of groups, user-defined types, multiple
+    unlimited dimensions, compression, data chunking,
+    parallel I/O, and other features. See the netCDF
+    Users Guide for more information.
 
 3.6.3          2008-05-31
 
-                In ncdump and ncgen, added CDL support for UTF-8
-                encoding of characters in names and for escaped
-                special chars in names.  Made sure UTF-8 names are
-                normalized using NFC rules before storing or
-                comparing.
+    In ncdump and ncgen, added CDL support for UTF-8
+    encoding of characters in names and for escaped
+    special chars in names.  Made sure UTF-8 names are
+    normalized using NFC rules before storing or
+    comparing.
 
-                Handle IEEE NaNs and infinities in a
-                platform-independent way in ncdump output.
+    Handle IEEE NaNs and infinities in a
+    platform-independent way in ncdump output.
 
-                Added support for ARM representation of doubles,
-                (thanks to Warren Turkal).
+          Added support for ARM representation of doubles,
+          (thanks to Warren Turkal).
 
-                Fixed bug in C++ API creating 64-bit offset
-                files. (See
-                http://www.unidata.ucar.edu/software/netcdf/docs/known_problems.html#cxx_64-bit.)
+          Fixed bug in C++ API creating 64-bit offset
+          files. (See
+          http://www.unidata.ucar.edu/software/netcdf/docs/known_problems.html#cxx_64-bit.)
 
-                Fixed bug for variables larger than 4 GB. (See
-                http://www.unidata.ucar.edu/software/netcdf/docs/known_problems.html#large_vars_362.)
+          Fixed bug for variables larger than 4 GB. (See
+          http://www.unidata.ucar.edu/software/netcdf/docs/known_problems.html#large_vars_362.)
 
-                Changed the configure.ac to build either 3.6.x or 4.x
-                build from the same configure.ac.
+          Changed the configure.ac to build either 3.6.x or 4.x
+          build from the same configure.ac.
 
-                Build now checks gfortran version and handles it
-                cleanly, also Portland Group in Intel fortran, with
-                various configurations.
+    Build now checks gfortran version and handles it
+    cleanly, also Portland Group in Intel fortran, with
+    various configurations.
 
-                A Fortran netcdf.inc file is now created at build time, based
-                on the setting of --disable-v2.
+    A Fortran netcdf.inc file is now created at build time, based
+    on the setting of --disable-v2.
 
-                Documentation has been fixed in several places.
+    Documentation has been fixed in several places.
 
-                Upgraded to automake 1.10, autoconf 2.62, and libtool 2.2.2.
+          Upgraded to automake 1.10, autoconf 2.62, and libtool 2.2.2.
 
-                Includes missing Windows Visual Studio build files.
+          Includes missing Windows Visual Studio build files.
 
-                Fixed missing include of ncconfig.h in a C++ test program.
+    Fixed missing include of config.h in a C++ test program.
 
-                Fixed maintainer-clean in man directory.
+    Fixed maintainer-clean in man directory.
 
-                Fixed --enable-c-only and make check.
+    Fixed --enable-c-only and make check.
 
-                Fixed behavior when opening a zero-length file.
+    Fixed behavior when opening a zero-length file.
 
-                Many portability enhancements to build cleanly on
-                various platforms.
+    Many portability enhancements to build cleanly on
+    various platforms.
 
-                Turned on some old test programs which were not being
-                used in the build.
+    Turned on some old test programs which were not being
+    used in the build.
 
 3.6.2          2007-03-05
 
-                Released.
+    Released.
 
 3.6.2 beta6    2007-01-20
 
-                Fine tuning of build system to properly handle cygwin,
-                Mingw, and strange configuration issues.
+    Fine tuning of build system to properly handle cygwin,
+    Mingw, and strange configuration issues.
 
-                Automake 1.10 has a problem with running our tests on
-                MinGW, so I'm switching back to automake 1.9.6 for
-                this release.
+    Automake 1.10 has a problem with running our tests on
+    MinGW, so I'm switching back to automake 1.9.6 for
+    this release.
 
 3.6.2 beta5    2006-12-30
 
-                Now netCDF configuration uses autoconf 2.61, and
-                automake 1.10. (Thanks to Ralf Wildenhues for the
-                patches, and all the autotools help in general!)
+    Now netCDF configuration uses autoconf 2.61, and
+    automake 1.10. (Thanks to Ralf Wildenhues for the
+    patches, and all the autotools help in general!)
 
-                Final major revision of netCDF tutorial before the
-                3.6.2 release.
+    Final major revision of netCDF tutorial before the
+    3.6.2 release.
 
-                Now netCDF builds under MinGW, producing a windows DLL
-                with the C and F77 APIs. Use the --enable-shared --enable-dll
-                --disable-cxx --disable-f90 flags to configure. (C++
-                and F90 have never been built as windows DLLs, but
-                might be in a future release if there is user
-                interest). This has all been documented in the netCDF
-                Porting and Installation Guide.
+    Now netCDF builds under MinGW, producing a windows DLL
+    with the C and F77 APIs. Use the --enable-shared --enable-dll
+    --disable-cxx --disable-f90 flags to configure. (C++
+    and F90 have never been built as windows DLLs, but
+    might be in a future release if there is user
+    interest). This has all been documented in the netCDF
+    Porting and Installation Guide.
 
-                Now extreme numbers (i.e. those close to the limits of
-                their type) can be turned off in nc_test/nf_test, with
-                --disable-extreme-numbers. It is turned off
-                automatically for Solaris i386 systems.
+    Now extreme numbers (i.e. those close to the limits of
+    their type) can be turned off in nc_test/nf_test, with
+    --disable-extreme-numbers. It is turned off
+    automatically for Solaris i386 systems.
 
-                Added --enable-c-only option to configure. This causes
-                only the core netCDF-3 C library to be built. It's the
-                same as --disable-f77 --disable-cxx --disable-v2
-                --disable-utilities.
+    Added --enable-c-only option to configure. This causes
+    only the core netCDF-3 C library to be built. It's the
+    same as --disable-f77 --disable-cxx --disable-v2
+    --disable-utilities.
 
-                Added --disable-utilities to turn off building and
-                testing of ncgen/ncdump.
+    Added --disable-utilities to turn off building and
+    testing of ncgen/ncdump.
 
-                Fix a long-standing bug in nf90_get_att_text() pointed
-                out by Ryo Furue, to make sure resulting string is
-                blank-padded on return.  This is fixed in the
-                Fortran-90 interface, but is impractical to fix in the
-                Fortran-77 interface implemented via cfortran.h.
+          Fix a long-standing bug in nf90_get_att_text() pointed
+          out by Ryo Furue, to make sure resulting string is
+          blank-padded on return.  This is fixed in the
+          Fortran-90 interface, but is impractical to fix in the
+          Fortran-77 interface implemented via cfortran.h.
 
-                Now large file tests are run if --enable-large-file-tests
-                is used in the configure.
+    Now large file tests are run if --enable-large-file-tests
+    is used in the configure.
 
-                For Cray users, the ffio module is used if the
-                --enable-ffio option is passed to configure.
+    For Cray users, the ffio module is used if the
+    --enable-ffio option is passed to configure.
 
-                Unrolled loops in byte-swapping code used on
-                little-endian platforms to reduce loop overhead. This
-                optimization resulted in a 22% speedup for some
-                applications accessing floats or ints (e.g. NCO
-                utilities ncap and ncbo) and a smaller speedup for
-                shorts or doubles.
+          Unrolled loops in byte-swapping code used on
+          little-endian platforms to reduce loop overhead. This
+          optimization resulted in a 22% speedup for some
+          applications accessing floats or ints (e.g. NCO
+          utilities ncap and ncbo) and a smaller speedup for
+          shorts or doubles.
 
                 Added "-k" option to ncdump and ncgen, for identifying
                 and specifying the kind of netCDF file, one of
@@ -422,181 +340,181 @@ VERSION         COMMENTS
                 Removed output of kind of netCDF file in CDL comment
                 produced by ncdump.
 
-                Fixed bug of ncdump seg-faulting if invoked
-                incorrectly with option like "-c" or "-h" but no file
-                name.
+    Fixed bug of ncdump seg-faulting if invoked
+    incorrectly with option like "-c" or "-h" but no file
+    name.
 
 3.6.2 beta4    2006-08-15
 
-                Changed F77/F90 man pages from netcdf.3f and
-                netcdf.3f90 to netcdf_f77.3 and netcdf_f90.3. Also
-                fixed broken install of man pages.
+    Changed F77/F90 man pages from netcdf.3f and
+    netcdf.3f90 to netcdf_f77.3 and netcdf_f90.3. Also
+    fixed broken install of man pages.
 
-                Changed configure script so that "-g -O2" is no longer
-                set as CFLAGS, CXXFLAGS, and FFLAGS by default if a
-                GNU compiler is being used. Now nothing is set.
+    Changed configure script so that "-g -O2" is no longer
+    set as CFLAGS, CXXFLAGS, and FFLAGS by default if a
+    GNU compiler is being used. Now nothing is set.
 
-                Changed configure script so that fortran flag is set
-                in ncconfig.h.
+    Changed configure script so that fortran flag is set
+    in config.h.
 
-                Updated Installation and Porting Guide, C++
-                Interface Guide, F77 and F90 Interface Guides.
+    Updated Installation and Porting Guide, C++
+    Interface Guide, F77 and F90 Interface Guides.
 
-                Build with static libraries by default.
+    Build with static libraries by default.
 
-                Added configure option --enable-separate-fortran,
-                which causes the fortran library to be built
-                separately. This is turned on automatically for shared
-                libraries.
+    Added configure option --enable-separate-fortran,
+    which causes the fortran library to be built
+    separately. This is turned on automatically for shared
+    libraries.
 
-                Improved clarity of error messages.
+    Improved clarity of error messages.
 
-                Changed configuration to get cygwin DLL and mingw DLL
-                builds working, for the C library only (i.e. no
-                F77, F90, or C++ APIs).
+    Changed configuration to get cygwin DLL and mingw DLL
+    builds working, for the C library only (i.e. no
+    F77, F90, or C++ APIs).
 
-                Changed type of ncbyte in C++ interface from unsigned
-                char to signed char, for consistency with C interface.
-                The C++ documentation warned this change would
-                eventually occur.
+    Changed type of ncbyte in C++ interface from unsigned
+    char to signed char, for consistency with C interface.
+    The C++ documentation warned this change would
+    eventually occur.
 
-                Changed the C++ interface to use only the netCDF-3 C
-                interface instead of the older netCDF-2 C interface.
-                This has the added benefit that on-the-fly numeric
-                conversions are now supported using get methods, for
-                example you can get data of any type as double.  When
-                using --disable-v2 flag to configure, the C++
-                interface can now be built and installed.
+    Changed the C++ interface to use only the netCDF-3 C
+    interface instead of the older netCDF-2 C interface.
+    This has the added benefit that on-the-fly numeric
+    conversions are now supported using get methods, for
+    example you can get data of any type as double.  When
+    using --disable-v2 flag to configure, the C++
+    interface can now be built and installed.
 
 3.6.2 beta3    2006-05-24
 
-                Changed to use default prefix of /usr/local instead of
-                package-based prefix of previous releases of
-                netCDF. Use the --prefix argument to the configure
-                script to override the default.
+    Changed to use default prefix of /usr/local instead of
+    package-based prefix of previous releases of
+    netCDF. Use the --prefix argument to the configure
+    script to override the default.
 
-                Made separate fortran library file, instead of
-                appending fortran library functions to the C library
-                file, if --enable-separate-fortran is used during
-                configure (it's turned on automatically if
-                --enable-shared is used). If uses, the fortran API
-                users must link to *both* the C library and the new
-                fortran library, like this: -lnetcdff -lnetcdf
+    Made separate fortran library file, instead of
+    appending fortran library functions to the C library
+    file, if --enable-separate-fortran is used during
+    configure (it's turned on automatically if
+    --enable-shared is used). If uses, the fortran API
+    users must link to *both* the C library and the new
+    fortran library, like this: -lnetcdff -lnetcdf
 
-                Added netCDF examples in C, C++, F77, F90, and
-                CDL. See the examples subdirectory.
+    Added netCDF examples in C, C++, F77, F90, and
+    CDL. See the examples subdirectory.
 
-                Added the NetCDF Tutorial.
+    Added the NetCDF Tutorial.
 
-                Minor fixes to some of the netCDF documentation.
+    Minor fixes to some of the netCDF documentation.
 
-                Made it possible to build without V2 API using
-                --disable-v2 from configure.
+    Made it possible to build without V2 API using
+    --disable-v2 from configure.
 
-                Switched to new build system, with automake and
-                libtool. Now shared libraries are built (as well as
-                static ones) on platforms which support it. For more
-                information about shared libraries, see
-                http://www.unidata.ucar.edu/software/netcdf/docs/faq.html#shared_intro
+    Switched to new build system, with automake and
+    libtool. Now shared libraries are built (as well as
+    static ones) on platforms which support it. For more
+    information about shared libraries, see
+    http://www.unidata.ucar.edu/software/netcdf/docs/faq.html#shared_intro
 
-                Fixed ncdump crash that happened when no arguments were
-                used.
+    Fixed ncdump crash that happened when no arguments were
+    used.
 
-                Fixed for building with gfortran 4.1.0.
+    Fixed for building with gfortran 4.1.0.
 
-                Important fix for machines whose SIZEOF_SIZE_T !=
-                SIZEOF_LONG, such as NEC-SX, thanks to Stephen Leak.
+    Important fix for machines whose SIZEOF_SIZE_T !=
+    SIZEOF_LONG, such as NEC-SX, thanks to Stephen Leak.
 
-                Fixed C++ on AIX platform.
+    Fixed C++ on AIX platform.
 
-                Fixed 64-bit builds on AIX platform.
+    Fixed 64-bit builds on AIX platform.
 
-                Removed bad assertion that could be triggered in rare
-                cases when reading a small file.
+    Removed bad assertion that could be triggered in rare
+    cases when reading a small file.
 
-                Added comments in v1hpg.c to clarify purpose of each
-                internal function.
+    Added comments in v1hpg.c to clarify purpose of each
+    internal function.
 
-                Make sure filesize is determined in nc_close() *after*
-                buffers get flushed.
+    Make sure filesize is determined in nc_close() *after*
+    buffers get flushed.
 
-                Fix long-standing problem resulting in files up to 3
-                bytes longer than necessary if there is exactly one
-                record variable of type byte, char, or short and if
-                the number of values per record for that variable is
-                not divisible by 4 (or 2 in the case of short).  Now
-                the filesize determined from header info by
-                NC_calcsize should be correct in all cases.
+    Fix long-standing problem resulting in files up to 3
+    bytes longer than necessary if there is exactly one
+    record variable of type byte, char, or short and if
+    the number of values per record for that variable is
+    not divisible by 4 (or 2 in the case of short).  Now
+    the filesize determined from header info by
+    NC_calcsize should be correct in all cases.
 
 3.6.1           2006-01-31
 
-                Updated installation manual for 3.6.1.
+    Updated installation manual for 3.6.1.
 
-                Changed installation to try to provide correct
-                compiler flags for compiling in 64-bit mode on Sun,
-                Irix, AIX, and HPUX. (HPUX doesn't work for me,
-                however). Now run configure with --enable-64bit to get
-                a 64 bit compile.
+    Changed installation to try to provide correct
+    compiler flags for compiling in 64-bit mode on Sun,
+    Irix, AIX, and HPUX. (HPUX doesn't work for me,
+    however). Now run configure with --enable-64bit to get
+    a 64 bit compile.
 
-                Fixed long-standing bug that would cause small netCDF
-                files to be padded on the end with zero bytes to 4096
-                bytes when they were opened and changed.  Now small
-                files should stay small after you change a value.
+    Fixed long-standing bug that would cause small netCDF
+    files to be padded on the end with zero bytes to 4096
+    bytes when they were opened and changed.  Now small
+    files should stay small after you change a value.
 
-                Fixed bug in assertions in putget.c that would only be
-                noticed if you change the manifest constant
-                NC_MAX_DIMS in netcdf.h to be different from
-                NC_MAX_VAR_DIMS.
+    Fixed bug in assertions in putget.c that would only be
+    noticed if you change the manifest constant
+    NC_MAX_DIMS in netcdf.h to be different from
+    NC_MAX_VAR_DIMS.
 
-                Moved test ftest.F from fortran to nf_test directory,
-                and fixed bug in ftest.F which caused it to return 0
-                even if tests failed (no tests were failing,
-                however). Also renamed some test
-                output files to make things a little clearer.
+    Moved test ftest.F from fortran to nf_test directory,
+    and fixed bug in ftest.F which caused it to return 0
+    even if tests failed (no tests were failing,
+    however). Also renamed some test
+    output files to make things a little clearer.
 
-                If open for writing, pad with up to 3 extra zero bytes
-                before close to the correct canonical length,
-                calculated from the header.  Previously files could be
-                short due to not padding when writing in NOFILL mode.
+    If open for writing, pad with up to 3 extra zero bytes
+    before close to the correct canonical length,
+    calculated from the header.  Previously files could be
+    short due to not padding when writing in NOFILL mode.
 
-                Doubled arbitrary limits on number of dimensions,
-                variables, attributes, and length of names.
+    Doubled arbitrary limits on number of dimensions,
+    variables, attributes, and length of names.
 
-                Change name of nc_get_format() to nc_inq_format().
-                Add analogous interfaces for nf_inq_format(),
-                nf90_inquire(), and NcFile::get_format() to f77, f90,
-                and C++ interfaces.  Document new function in texinfo
-                files.  Add minimal test to nc_test, nf_test.
+    Change name of nc_get_format() to nc_inq_format().
+    Add analogous interfaces for nf_inq_format(),
+    nf90_inquire(), and NcFile::get_format() to f77, f90,
+    and C++ interfaces.  Document new function in texinfo
+    files.  Add minimal test to nc_test, nf_test.
 
 3.6.1-beta3     2005-02-17
 
-                Added function nc_get_format(int ncid, int* formatp)
-                that returns either NC_FORMAT_CLASSIC or
-                NC_FORMAT_64BIT for a CDF1 or CDF2 file, respectively.
+    Added function nc_get_format(int ncid, int* formatp)
+    that returns either NC_FORMAT_CLASSIC or
+    NC_FORMAT_64BIT for a CDF1 or CDF2 file, respectively.
 
-                Added test to nc_test that detects whether format
-                version was changed after a file is reopened and
-                define mode is entered.
+    Added test to nc_test that detects whether format
+    version was changed after a file is reopened and
+    define mode is entered.
 
-                Correctly configure for Intel ifort Fortran compiler on Linux.
+    Correctly configure for Intel ifort Fortran compiler on Linux.
 
 3.6.0-p1        2005-02-18
 
-                Fixed bug that changes CDF2 files to CDF1 files if CDF2
+    Fixed bug that changes CDF2 files to CDF1 files if CDF2
                 file is reopened for write access and either an
-                attribute is changed or define mode is entered.
+    attribute is changed or define mode is entered.
 
 3.6.1-beta2     2005-1-6
 
-                Fixed absoft compile problem. Maybe.
+    Fixed absoft compile problem. Maybe.
 
 3.6.1-beta1     2005-1-3
 
-                Fixed Cygwin C++ problem.
+    Fixed Cygwin C++ problem.
 
-                Fixed large file problem in MS Visual C++.NET environment.
+    Fixed large file problem in MS Visual C++.NET environment.
 
-                More information in installation and porting guide.
+    More information in installation and porting guide.
 
 3.6.0           2004-12-16
 

@@ -16,6 +16,6 @@
 #define __vtk_netcdfcpp_h
 
 /* Use the netcdf library configured for VTK.  */
-#include <vtknetcdf/cxx/netcdfcpp.h>
+#include <vtknetcdf/netcdfcpp.h>
 
 #endif
