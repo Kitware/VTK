@@ -183,14 +183,18 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
   // input modified time.
   vtkstd::pair<int, int> p(port, conn);
   vtkAlgorithmOutput* input = this->GetInputConnection(port, conn);
+  vtkDataObject* inputDObj = this->GetInputDataObject(port, conn);
   if (this->Implementation->InputInternal.find(p) ==
-    this->Implementation->InputInternal.end() ||
-    this->Implementation->InputInternal[p].first != input)
+      this->Implementation->InputInternal.end() ||
+      this->Implementation->InputInternal[p].first != input ||
+      this->Implementation->InputInternal[p].second->GetMTime() < inputDObj->GetMTime())
     {
     this->Implementation->InputInternal[p].first = input;
-    vtkDataObject* input = this->GetInputDataObject(port, conn);
+    vtkDataObject* copy = inputDObj->NewInstance();
+    copy->ShallowCopy(inputDObj);
     vtkTrivialProducer* tp = vtkTrivialProducer::New();
-    tp->SetOutput(input);
+    tp->SetOutput(copy);
+    copy->Delete();
     this->Implementation->InputInternal[p].second = tp;
     tp->Delete();
     }
