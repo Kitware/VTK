@@ -181,6 +181,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
   // let vtkImageSliceMapper do the rest of the work
   this->SliceMapper->SetNumberOfThreads(this->NumberOfThreads);
+  this->SliceMapper->SetClippingPlanes(this->ClippingPlanes);
   this->SliceMapper->Render(ren, prop);
 }
 
