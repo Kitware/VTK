@@ -17,10 +17,12 @@
 #include "vtkAMRResampleFilter.h"
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkMatrix4x4.h"
@@ -41,7 +43,8 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
 {
   this->InternalMapper = vtkSmartVolumeMapper::New();
   this->Resampler = vtkAMRResampleFilter::New();
-  this->Resampler->SetDemandDrivenMode(1);
+  this->HasMetaData = false;
+  this->Resampler->SetDemandDrivenMode(0);
   this->Grid = NULL;
   this->NumberOfSamples[0] = 128;
   this->NumberOfSamples[1] = 128;
@@ -256,9 +259,16 @@ void vtkAMRVolumeMapper::ReleaseGraphicsResources(vtkWindow *window)
 void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 {
   // If there is no grid initially we need to see if we can create one
-  if (!(this->Grid || (ren->GetRenderWindow()->GetDesiredUpdateRate()
+  if (!(this->Grid && (ren->GetRenderWindow()->GetDesiredUpdateRate()
                        >= this->InternalMapper->GetInteractiveUpdateRate())))
     {
+    if (!this->HasMetaData)
+      {
+      // If there is no meta data then the resample filter has not been updated
+      // with the proper frustrun bounds else it would have been done when
+      // processing request information
+      this->UpdateResampler(ren);
+      }
     this->UpdateGrid();
     }
   if (this->Grid == NULL) 
@@ -445,7 +455,7 @@ void vtkAMRVolumeMapper::ProcessUpdateExtentRequest(vtkRenderer *ren,
                                                     vtkInformationVector **inputVector,
                                                     vtkInformationVector *outputVector)
 {
-  if (this->Grid || (ren->GetRenderWindow()->GetDesiredUpdateRate()
+  if (this->Grid && (ren->GetRenderWindow()->GetDesiredUpdateRate()
                      >= this->InternalMapper->GetInteractiveUpdateRate()))
     {
     return;
@@ -458,10 +468,23 @@ void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
                                                    vtkInformationVector **inputVector,
                                                    vtkInformationVector *outputVector)
 {
-  if (this->Grid || (ren->GetRenderWindow()->GetDesiredUpdateRate()
+  if (this->Grid && (ren->GetRenderWindow()->GetDesiredUpdateRate()
                      >= this->InternalMapper->GetInteractiveUpdateRate()))
     {
     return;
+    }
+  vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
+  if (!(input &&  input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA())))
+    {
+    this->HasMetaData = false;
+    this->Resampler->SetDemandDrivenMode(0);
+    return;
+    }
+
+  if (!this->HasMetaData)
+    {
+    this->HasMetaData = true;
+    this->Resampler->SetDemandDrivenMode(1);
     }
   this->UpdateResampler(ren);
   this->Resampler->RequestInformation(info, inputVector, outputVector);

@@ -250,6 +250,9 @@ protected:
   vtkUniformGrid *Grid;
   int NumberOfSamples[3];
   double Bounds[6];
+  // This indicates that the input has meta data for
+  // doing demand driven operations.
+  bool HasMetaData;
   
 private:
   vtkAMRVolumeMapper(const vtkAMRVolumeMapper&);  // Not implemented.
