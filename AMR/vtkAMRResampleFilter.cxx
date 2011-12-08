@@ -160,6 +160,7 @@ int vtkAMRResampleFilter::RequestData(
     vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )
 {
+    cerr << "Running Resampler\n";
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: Null information object!" && (input != NULL) );
@@ -444,7 +445,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       // resolution grid that contains the point
       if (donorGrid->IsCellVisible(donorCellIdx))
         {
-        return donorCellIdx;
+        //return donorCellIdx;
         }
 
       // Initialize values for step 1 s.t. that the search will start from the
@@ -476,7 +477,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       // point
       if (donorGrid->IsCellVisible(donorCellIdx))
         {
-        return donorCellIdx;
+        //return donorCellIdx;
         }
       // we found a grid that contains the point at level l, let's store it
       // here temporatily in case there is a grid at a higher resolution that
@@ -489,7 +490,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       // we did not find the point at a higher res, but, we did find at a lower
       // resolution, so we will use the solution we found previously
       // THIS SHOULD NOW NOT HAPPEN!!
-      vtkErrorMacro("Could not find point in an unblanked cell.");
+      //vtkErrorMacro("Could not find point in an unblanked cell.");
       donorGrid    = currentGrid;
       donorCellIdx = currentCellIdx;
       break;
@@ -666,7 +667,7 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *me
     } // END for all levels
 
    std::sort( this->BlocksToLoad.begin(), this->BlocksToLoad.end() );
-
+   cerr << "Number Levels Loaded = " << maxLevelToLoad << " Number of Blocks = " << BlocksToLoad.size() << "\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -903,11 +904,6 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
   gridPartitioner->SetInput( grd );
   grd->Delete();
-
-
-
-  std::cout << "Setting the number of partitions....";
-  std::cout.flush();
 
   gridPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   gridPartitioner->Update();
