@@ -136,8 +136,8 @@ protected:
              vtkInformationVector *outputVector);
 
   // Description:
-  // Aggregate material counts from all processors. Does not do anything in serial.
-  virtual void Aggregate ( int, int* ) { return; };
+  // Serial implementation of the material aggregation.
+  virtual void Aggregate ( int, int* );
 
   void UpdateBlockMapping();
 

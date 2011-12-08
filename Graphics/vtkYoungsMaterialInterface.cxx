@@ -465,6 +465,25 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
 }
 
 //-----------------------------------------------------------------------------
+void vtkYoungsMaterialInterface::Aggregate( int nmat, int* inputsPerMaterial )
+{
+  // Calculate number of domains
+  this->NumberOfDomains = 0;
+  for ( int m = 0; m < nmat; ++ m )
+    {
+    // Sum all counts from all processes
+    int inputsPerMaterialSum = inputsPerMaterial[m];
+    if( inputsPerMaterialSum > this->NumberOfDomains )
+      {
+      this->NumberOfDomains = inputsPerMaterialSum;
+      }
+
+    // Reset array
+    inputsPerMaterial[m] = 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkYoungsMaterialInterface::RequestData(
                                             vtkInformation *vtkNotUsed(request),
                                             vtkInformationVector **inputVector, vtkInformationVector *outputVector)
