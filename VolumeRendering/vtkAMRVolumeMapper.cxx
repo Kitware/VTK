@@ -267,7 +267,7 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
       // If there is no meta data then the resample filter has not been updated
       // with the proper frustrun bounds else it would have been done when
       // processing request information
-      this->UpdateResampler(ren);
+      this->UpdateResampler(ren, NULL);
       }
     this->UpdateGrid();
     }
@@ -281,7 +281,7 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 }
 
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren)
+void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr)
 {
   // First we need to create a bouding box that represents the visible region
   // of the camera in World Coordinates
@@ -294,27 +294,36 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren)
   // implementations are not efficient for example ViewToWorld would do 8
   // matrix inverse ops when all we really need to do is one
 
-  // Make sure the bounds are up to date
-  this->GetBounds();
-
+  double bounds[6];
+  // If we have been passed a valid amr then assume this is the proper
+  // meta data to use
+  if (amr)
+    {
+    amr->GetBounds(bounds);
+    }
+  else
+    {
+    // Make sure the bounds are up to date
+    this->GetBounds(bounds);
+    }
   // Get the camera transformation
   vtkMatrix4x4 *matrix = 
     ren->GetActiveCamera()->
     GetCompositeProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
-
+  
   int i, j, k;
   double pnt[4], tpnt[4];
   vtkBoundingBox bbox;
   pnt[3] = 1.0;
   for (i = 0; i < 2; i++)
     {
-    pnt[0] = this->Bounds[i];
+    pnt[0] = bounds[i];
     for (j = 2; j < 4; j++)
       {
-      pnt[1] = this->Bounds[j];
+      pnt[1] = bounds[j];
       for (k = 4; k < 6; k++)
         {
-        pnt[2] = this->Bounds[k];
+        pnt[2] = bounds[k];
         matrix->MultiplyPoint(pnt, tpnt);
         if (tpnt[3])
           {
@@ -473,10 +482,14 @@ void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
 
   if (!this->HasMetaData)
     {
-    this->HasMetaData = true;
+    this->HasMetaData = true;    
     this->Resampler->SetDemandDrivenMode(1);
     }
-  this->UpdateResampler(ren);
+  vtkHierarchicalBoxDataSet *amrMetaData =
+    vtkHierarchicalBoxDataSet::SafeDownCast(
+                                            input->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()) );
+  
+  this->UpdateResampler(ren, amrMetaData);
   this->Resampler->RequestInformation(info, inputVector, outputVector);
 }
 //----------------------------------------------------------------------------

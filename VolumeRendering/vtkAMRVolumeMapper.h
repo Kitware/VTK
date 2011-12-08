@@ -234,7 +234,7 @@ public:
   void ProcessInformationRequest(vtkRenderer *renderer, vtkInformation*info,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
-  void UpdateResampler(vtkRenderer *ren);
+  void UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr);
 //ETX
 
 protected:
