@@ -114,6 +114,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     vtkAMRResampleFilter();
     virtual ~vtkAMRResampleFilter();
 
+    vtkHierarchicalBoxDataSet *AMRMetaData;
     vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
     int NumberOfSamples[3];
     int GridNumberOfSamples[3];

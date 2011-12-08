@@ -50,6 +50,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->DemandDrivenMode     = 0;
   this->NumberOfPartitions   = 1;
   this->LevelOfResolution    = 0;
+  this->AMRMetaData          = NULL;
   this->NumberOfSamples[0]   = this->NumberOfSamples[1] = this->NumberOfSamples[2] = 10;
   this->Controller           = vtkMultiProcessController::GetGlobalController();
   this->ROI                  = vtkMultiBlockDataSet::New();
@@ -137,21 +138,21 @@ int vtkAMRResampleFilter::RequestInformation(
   if( this->DemandDrivenMode == 1 &&
       input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
-    vtkHierarchicalBoxDataSet *metadata =
+      this->AMRMetaData = vtkHierarchicalBoxDataSet::New();
+      this->AMRMetaData->ShallowCopy(
       vtkHierarchicalBoxDataSet::SafeDownCast(
-        input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
-    assert( "pre: medata is NULL" && (metadata != NULL)  );
+        input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) ) );
+
 
     // Get Region
     double h[3];
-    this->ComputeAndAdjustRegionParameters( metadata, h );
+    this->ComputeAndAdjustRegionParameters( this->AMRMetaData, h );
     this->GetRegion( h );
 
     // Compute which blocks to load
-    this->ComputeAMRBlocksToLoad( metadata );
+    this->ComputeAMRBlocksToLoad( this->AMRMetaData );
     }
 
-  vtkInformation *output = outputVector->GetInformationObject( 0 );
  return 1;
 }
 
@@ -160,7 +161,8 @@ int vtkAMRResampleFilter::RequestData(
     vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )
 {
-    cerr << "Running Resampler\n";
+  cerr << "Running Resampler\n";
+
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: Null information object!" && (input != NULL) );
@@ -169,35 +171,30 @@ int vtkAMRResampleFilter::RequestData(
       input->Get(vtkDataObject::DATA_OBJECT()));
   assert( "pre: input AMR dataset is NULL" && (amrds != NULL) );
 
-  vtkHierarchicalBoxDataSet *metadata = NULL;
-  // STEP 1: Get Metadata
-  if( this->DemandDrivenMode == 1 &&
-      input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+  // STEP 1: Get output object
+   vtkInformation *output = outputVector->GetInformationObject( 0 );
+   assert( "pre: Null output information object!" && (output != NULL) );
+
+   vtkMultiBlockDataSet *mbds =
+      vtkMultiBlockDataSet::SafeDownCast(
+          output->Get(vtkDataObject::DATA_OBJECT() ) );
+   assert( "pre: ouput grid is NULL" && (mbds != NULL) );
+
+  // STEP 2: Get Metadata
+  if( this->DemandDrivenMode !=  1 )
     {
-    metadata = vtkHierarchicalBoxDataSet::SafeDownCast(
-      input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
-    assert( "pre: medata is NULL" && (metadata != NULL)  );
+    assert( "pre: Metadata must have been populated in RqstInfo" &&
+            (this->AMRMetaData != NULL) );
+    this->ExtractRegion( amrds, mbds, this->AMRMetaData );
     }
   else
     {
-    metadata = amrds;
+    // GetRegion
+    double h[3];
+    this->ComputeAndAdjustRegionParameters(amrds, h );
+    this->GetRegion( h );
+    this->ExtractRegion( amrds, mbds, amrds);
     }
-  // GetRegion
-  double h[3];
-  this->ComputeAndAdjustRegionParameters( metadata, h );
-  this->GetRegion( h );
-
-  // STEP 2: Get output object
-  vtkInformation *output = outputVector->GetInformationObject( 0 );
-  assert( "pre: Null output information object!" && (output != NULL) );
-
-  vtkMultiBlockDataSet *mbds =
-     vtkMultiBlockDataSet::SafeDownCast(
-         output->Get(vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: ouput grid is NULL" && (mbds != NULL) );
-
-  // STEP 4: Extract region
-  this->ExtractRegion( amrds, mbds, metadata );
 
   return 1;
 }
@@ -633,7 +630,8 @@ void vtkAMRResampleFilter::ExtractRegion(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata )
+void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(
+    vtkHierarchicalBoxDataSet *metadata )
 {
   assert( "pre: metadata is NULL" && (metadata != NULL) );
 
