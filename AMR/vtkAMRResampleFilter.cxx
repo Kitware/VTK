@@ -705,7 +705,7 @@ void vtkAMRResampleFilter::SnapBounds(
     else
       {
       outside[j++] = false;
-      this->GridMin[i] = this->Min[0];
+      this->GridMin[i] = this->Min[i];
       }
 
     if (this->Max[i] > domainMax[i])
