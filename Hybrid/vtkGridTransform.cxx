@@ -48,9 +48,9 @@ inline void vtkNearestNeighborInterpolation(double point[3],
                                             vtkIdType gridInc[3])
 {
   int gridId[3];
-  gridId[0] = vtkInterpolateRound(point[0])-gridExt[0];
-  gridId[1] = vtkInterpolateRound(point[1])-gridExt[2];
-  gridId[2] = vtkInterpolateRound(point[2])-gridExt[4];
+  gridId[0] = vtkInterpolationMath::Round(point[0])-gridExt[0];
+  gridId[1] = vtkInterpolationMath::Round(point[1])-gridExt[2];
+  gridId[2] = vtkInterpolationMath::Round(point[2])-gridExt[4];
   
   int ext[3];
   ext[0] = gridExt[1]-gridExt[0];
@@ -147,9 +147,9 @@ void vtkNearestNeighborInterpolation(double point[3], double displacement[3],
 
   double f[3];
   int gridId0[3];
-  gridId0[0] = vtkInterpolateFloor(point[0],f[0])-gridExt[0];
-  gridId0[1] = vtkInterpolateFloor(point[1],f[1])-gridExt[2];
-  gridId0[2] = vtkInterpolateFloor(point[2],f[2])-gridExt[4];
+  gridId0[0] = vtkInterpolationMath::Floor(point[0],f[0])-gridExt[0];
+  gridId0[1] = vtkInterpolationMath::Floor(point[1],f[1])-gridExt[2];
+  gridId0[2] = vtkInterpolationMath::Floor(point[2],f[2])-gridExt[4];
 
   int gridId[3], gridId1[3];
   gridId[0] = gridId1[0] = gridId0[0] + 1;
@@ -295,9 +295,9 @@ void vtkTrilinearInterpolation(double point[3], double displacement[3],
 {
   // change point into integer plus fraction
   double f[3];
-  int floorX = vtkInterpolateFloor(point[0],f[0]);
-  int floorY = vtkInterpolateFloor(point[1],f[1]);
-  int floorZ = vtkInterpolateFloor(point[2],f[2]);
+  int floorX = vtkInterpolationMath::Floor(point[0],f[0]);
+  int floorY = vtkInterpolationMath::Floor(point[1],f[1]);
+  int floorZ = vtkInterpolationMath::Floor(point[2],f[2]);
 
   int gridId0[3];
   gridId0[0] = floorX - gridExt[0];
@@ -606,9 +606,9 @@ void vtkTricubicInterpolation(double point[3], double displacement[3],
 
   // change point into integer plus fraction
   double f[3];
-  int floorX = vtkInterpolateFloor(point[0],f[0]);
-  int floorY = vtkInterpolateFloor(point[1],f[1]);
-  int floorZ = vtkInterpolateFloor(point[2],f[2]);
+  int floorX = vtkInterpolationMath::Floor(point[0],f[0]);
+  int floorY = vtkInterpolationMath::Floor(point[1],f[1]);
+  int floorZ = vtkInterpolationMath::Floor(point[2],f[2]);
 
   int gridId0[3];
   gridId0[0] = floorX - gridExt[0];
