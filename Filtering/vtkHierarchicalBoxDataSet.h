@@ -216,6 +216,12 @@ public:
   // level ones.
   void GenerateVisibilityArrays();
 
+  // Description:
+  // Override ShallowCopy/DeepCopy and CopyStructure
+  virtual void ShallowCopy(vtkDataObject *src);
+  virtual void DeepCopy(vtkDataObject *src);
+  virtual void CopyStructure(vtkCompositeDataSet *src);
+
   static vtkInformationIntegerVectorKey* BOX();
   static vtkInformationIntegerKey* BOX_DIMENSIONALITY();
   static vtkInformationIntegerKey* REFINEMENT_RATIO();

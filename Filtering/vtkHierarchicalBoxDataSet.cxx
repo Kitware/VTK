@@ -934,3 +934,112 @@ void vtkHierarchicalBoxDataSet::GetBounds(double bounds[6])
   bounds[4] = this->Bounds[4];
   bounds[5] = this->Bounds[5];
 }
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::ShallowCopy( vtkDataObject *src )
+{
+  if( src == this )
+    {
+    return;
+    }
+
+  this->Superclass::ShallowCopy( src );
+
+  vtkHierarchicalBoxDataSet *hbds =
+      vtkHierarchicalBoxDataSet::SafeDownCast(src);
+
+  if( hbds != NULL )
+    {
+    // Copy all the meta-data
+    vtkAMRBox box;
+    unsigned int levelIdx = 0;
+    for( ;levelIdx < hbds->GetNumberOfLevels(); ++levelIdx )
+      {
+      unsigned int dataIdx = 0;
+      for( ;dataIdx < hbds->GetNumberOfDataSets( levelIdx ); ++dataIdx )
+        {
+        if( hbds->HasMetaData( levelIdx, dataIdx ) )
+          {
+          hbds->GetMetaData( levelIdx, dataIdx, box );
+          this->SetMetaData( levelIdx, dataIdx, box );
+          }
+        } // END for all data
+      } // END for all levels
+    } // END if hbds
+
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::DeepCopy( vtkDataObject *src )
+{
+  if( src == this )
+    {
+    return;
+    }
+
+  this->Superclass::DeepCopy( src );
+
+  vtkHierarchicalBoxDataSet *hbds =
+      vtkHierarchicalBoxDataSet::SafeDownCast(src);
+
+  if( hbds != NULL )
+    {
+    // Copy all the meta-data
+    vtkAMRBox box;
+    unsigned int levelIdx = 0;
+    for( ;levelIdx < hbds->GetNumberOfLevels(); ++levelIdx )
+      {
+      unsigned int dataIdx = 0;
+      for( ;dataIdx < hbds->GetNumberOfDataSets( levelIdx ); ++dataIdx )
+        {
+        if( hbds->HasMetaData( levelIdx, dataIdx ) )
+          {
+          hbds->GetMetaData( levelIdx, dataIdx, box );
+          this->SetMetaData( levelIdx, dataIdx, box );
+          }
+        } // END for all data
+      } // END for all levels
+    } // END if hbds
+
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::CopyStructure( vtkCompositeDataSet *src )
+{
+
+  if( src == this )
+    {
+    return;
+    }
+
+  this->Superclass::CopyStructure( src );
+
+  vtkHierarchicalBoxDataSet *hbds =
+      vtkHierarchicalBoxDataSet::SafeDownCast(src);
+
+  if( hbds != NULL )
+    {
+    // Copy all the meta-data
+    vtkAMRBox box;
+    unsigned int levelIdx = 0;
+    for( ;levelIdx < hbds->GetNumberOfLevels(); ++levelIdx )
+      {
+      unsigned int dataIdx = 0;
+      for( ;dataIdx < hbds->GetNumberOfDataSets( levelIdx ); ++dataIdx )
+        {
+        if( hbds->HasMetaData( levelIdx, dataIdx ) )
+          {
+          hbds->GetMetaData( levelIdx, dataIdx, box );
+          this->SetMetaData( levelIdx, dataIdx, box );
+          }
+        } // END for all data
+      } // END for all levels
+    } // END if hbds
+
+
+  this->Modified();
+}
