@@ -181,7 +181,7 @@ int vtkAMRResampleFilter::RequestData(
    assert( "pre: ouput grid is NULL" && (mbds != NULL) );
 
   // STEP 2: Get Metadata
-  if( this->DemandDrivenMode !=  1 )
+  if( this->DemandDrivenMode == 1 )
     {
     assert( "pre: Metadata must have been populated in RqstInfo" &&
             (this->AMRMetaData != NULL) );
