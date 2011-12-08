@@ -163,7 +163,7 @@ void vtkImageSincInterpolator::ComputeSupportSize(
       // verify that the element is an integer:
       // check fraction that remains after floor operation
       double f;
-      vtkInterpolateFloor(x, f);
+      vtkInterpolationMath::Floor(x, f);
       integerRow &= (f == 0);
       }
 
@@ -706,9 +706,9 @@ void vtkImageSincInterpolate<F, T>::General(
   int zm2 = ((zm - 1) >> 1);
 
   F fx, fy, fz;
-  int inIdX0 = vtkInterpolateFloor(point[0], fx);
-  int inIdY0 = vtkInterpolateFloor(point[1], fy);
-  int inIdZ0 = vtkInterpolateFloor(point[2], fz);
+  int inIdX0 = vtkInterpolationMath::Floor(point[0], fx);
+  int inIdY0 = vtkInterpolationMath::Floor(point[1], fy);
+  int inIdZ0 = vtkInterpolationMath::Floor(point[2], fz);
 
   // change arrays into locals
   vtkIdType inIncX = inInc[0];
@@ -742,9 +742,9 @@ void vtkImageSincInterpolate<F, T>::General(
       int l = 0;
       do
         {
-        factX[l] = vtkInterpolateWrap(xi, minX, maxX)*inIncX;
-        factY[l] = vtkInterpolateWrap(yi, minY, maxY)*inIncY;
-        factZ[l] = vtkInterpolateWrap(zi, minZ, maxZ)*inIncZ;
+        factX[l] = vtkInterpolationMath::Wrap(xi, minX, maxX)*inIncX;
+        factY[l] = vtkInterpolationMath::Wrap(yi, minY, maxY)*inIncY;
+        factZ[l] = vtkInterpolationMath::Wrap(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
         }
       while (--mm);
@@ -756,9 +756,9 @@ void vtkImageSincInterpolate<F, T>::General(
       int l = 0;
       do
         {
-        factX[l] = vtkInterpolateMirror(xi, minX, maxX)*inIncX;
-        factY[l] = vtkInterpolateMirror(yi, minY, maxY)*inIncY;
-        factZ[l] = vtkInterpolateMirror(zi, minZ, maxZ)*inIncZ;
+        factX[l] = vtkInterpolationMath::Mirror(xi, minX, maxX)*inIncX;
+        factY[l] = vtkInterpolationMath::Mirror(yi, minY, maxY)*inIncY;
+        factZ[l] = vtkInterpolationMath::Mirror(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
         }
       while (--mm);
@@ -770,9 +770,9 @@ void vtkImageSincInterpolate<F, T>::General(
       int l = 0;
       do
         {
-        factX[l] = vtkInterpolateClamp(xi, minX, maxX)*inIncX;
-        factY[l] = vtkInterpolateClamp(yi, minY, maxY)*inIncY;
-        factZ[l] = vtkInterpolateClamp(zi, minZ, maxZ)*inIncZ;
+        factX[l] = vtkInterpolationMath::Clamp(xi, minX, maxX)*inIncX;
+        factY[l] = vtkInterpolationMath::Clamp(yi, minY, maxY)*inIncY;
+        factZ[l] = vtkInterpolationMath::Clamp(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
         }
       while (--mm);
@@ -1008,8 +1008,8 @@ void vtkImageSincInterpolatorPrecomputeWeights(
 
     // if output pixels lie exactly on top of the input pixels
     F f1, f2;
-    vtkInterpolateFloor(matrow[j], f1);
-    vtkInterpolateFloor(matrow[3], f2);
+    vtkInterpolationMath::Floor(matrow[j], f1);
+    vtkInterpolationMath::Floor(matrow[3], f2);
     if (f1 == 0 && f2 == 0 && !blur[j])
       {
       step = 1;
@@ -1036,7 +1036,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
       if (point >= minBounds && point <= maxBounds)
         {
         F f = 0;
-        int idx = vtkInterpolateFloor(point, f);
+        int idx = vtkInterpolationMath::Floor(point, f);
         int lmax = 1;
         if (step > 1)
           {
@@ -1052,7 +1052,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           case VTK_IMAGE_BORDER_REPEAT:
             do
               {
-              inId[l] = vtkInterpolateWrap(idx++, minExt, maxExt);
+              inId[l] = vtkInterpolationMath::Wrap(idx++, minExt, maxExt);
               }
             while (++l < lmax);
             break;
@@ -1060,7 +1060,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           case VTK_IMAGE_BORDER_MIRROR:
             do
               {
-              inId[l] = vtkInterpolateMirror(idx++, minExt, maxExt);
+              inId[l] = vtkInterpolationMath::Mirror(idx++, minExt, maxExt);
               }
             while (++l < lmax);
             break;
@@ -1068,7 +1068,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           default:
              do
               {
-              inId[l] = vtkInterpolateClamp(idx++, minExt, maxExt);
+              inId[l] = vtkInterpolationMath::Clamp(idx++, minExt, maxExt);
               }
             while (++l < lmax);
             break;
