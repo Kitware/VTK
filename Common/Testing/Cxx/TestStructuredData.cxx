@@ -36,11 +36,11 @@ int TestCellIds()
 {
   int dim[3] = {3,4,5};
 
-  for(unsigned int i = 0; i < dim[0] - 1; ++i)
+  for(int i = 0; i < dim[0] - 1; ++i)
     {
-    for(unsigned int j = 0; j < dim[1] - 1; ++j)
+    for(int j = 0; j < dim[1] - 1; ++j)
       {
-      for(unsigned int k = 0; k < dim[2] - 1; ++k)
+      for(int k = 0; k < dim[2] - 1; ++k)
         {
         int pos[3];
         pos[0] = i;
@@ -69,11 +69,11 @@ int TestPointIds()
 {
   int dim[3] = {3,4,5};
 
-  for(unsigned int i = 0; i < dim[0]; ++i)
+  for(int i = 0; i < dim[0]; ++i)
     {
-    for(unsigned int j = 0; j < dim[1]; ++j)
+    for(int j = 0; j < dim[1]; ++j)
       {
-      for(unsigned int k = 0; k < dim[2]; ++k)
+      for(int k = 0; k < dim[2]; ++k)
         {
         int pos[3];
         pos[0] = i;
