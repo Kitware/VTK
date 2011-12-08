@@ -7,6 +7,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ImageAccumulate.cxx
     ImageHistogram.cxx
     ImageHistogramStatistics.cxx
+    ImageResize.cxx
+    ImageResize3D.cxx
+    ImageResizeCropping.cxx
     FastSplatter.cxx
     TestUpdateExtentReset.cxx
     EXTRA_INCLUDE vtkTestDriver.h
