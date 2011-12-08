@@ -455,11 +455,6 @@ void vtkAMRVolumeMapper::ProcessUpdateExtentRequest(vtkRenderer *ren,
                                                     vtkInformationVector **inputVector,
                                                     vtkInformationVector *outputVector)
 {
-  if (this->Grid && (ren->GetRenderWindow()->GetDesiredUpdateRate()
-                     >= this->InternalMapper->GetInteractiveUpdateRate()))
-    {
-    return;
-    }
   this->Resampler->RequestUpdateExtent(info, inputVector, outputVector);
 }
 //----------------------------------------------------------------------------
@@ -468,11 +463,6 @@ void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
                                                    vtkInformationVector **inputVector,
                                                    vtkInformationVector *outputVector)
 {
-  if (this->Grid && (ren->GetRenderWindow()->GetDesiredUpdateRate()
-                     >= this->InternalMapper->GetInteractiveUpdateRate()))
-    {
-    return;
-    }
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   if (!(input &&  input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA())))
     {
