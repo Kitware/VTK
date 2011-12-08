@@ -182,9 +182,9 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   cellSourceLabel->SetNumberOfComponents(1);
   cellSourceLabel->SetName("CellSource");
   cellSourceLabel->SetNumberOfValues(outputSurface->GetNumberOfCells());
-  for (vtkIdType i = 0; i < outputSurface->GetNumberOfCells(); i++)
+  for (vtkIdType ii = 0; ii < outputSurface->GetNumberOfCells(); ii++)
     {
-    cellSourceLabel->InsertValue(i, 0);
+    cellSourceLabel->InsertValue(ii, 0);
     }
 
   interList->Reset();
