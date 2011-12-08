@@ -104,7 +104,7 @@ public:
   // Description:
   // This method returns the root AMR box for the entire root level.
   // The root AMR box covers the entire domain.
-  void GetRootAMRBox( vtkAMRBox &root );
+  bool GetRootAMRBox( vtkAMRBox &root );
 
   // Description:
   // This method returns the global AMR box, covering the entire

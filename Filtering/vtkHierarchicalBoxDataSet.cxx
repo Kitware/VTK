@@ -32,6 +32,7 @@
 #include "vtkAMRGridIndexEncoder.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkMath.h"
+#include "vtkType.h"
 
 #include <cmath>
 #include <limits>
@@ -353,11 +354,11 @@ int vtkHierarchicalBoxDataSet::GetRefinementRatio(vtkCompositeDataIterator* iter
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
+bool vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 {
   if( (this->GetNumberOfLevels() == 0) ||
       (this->GetNumberOfDataSets(0) == 0) )
-      return;
+      return false;
 
   double min[3];
   double max[3];
@@ -375,6 +376,11 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
   unsigned int dataIdx = 0;
   for( ; dataIdx < this->GetNumberOfDataSets(0); ++dataIdx )
     {
+      if( !this->HasMetaData( 0, dataIdx ) )
+        {
+        return false;
+        }
+
       vtkAMRBox myBox;
       this->GetMetaData( 0, dataIdx, myBox );
 
@@ -407,7 +413,9 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 
   // Dimension based on CELLS and start number from 0.
   for( int i=0; i < 3; ++i )
-   hi[ i ] = vtkMath::Round( (max[i]-min[i])/spacing[i] )-1;
+    {
+    hi[ i ] = vtkMath::Round( (max[i]-min[i])/spacing[i] )-1;
+    }
 
   root.SetDimensionality( dimension );
   root.SetDataSetOrigin( min );
@@ -416,6 +424,8 @@ void vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
   root.SetLevel( 0 );
   root.SetBlockId( 0 );
   root.SetProcessId( -1 ); /* not owned, can be computed by any process */
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -919,8 +929,46 @@ void vtkHierarchicalBoxDataSet::ComputeScalarRange()
 double *vtkHierarchicalBoxDataSet::GetBounds()
 {
   vtkAMRBox amrBox;
-  this->GetRootAMRBox( amrBox );
-  amrBox.GetBounds(this->Bounds);
+  if( this->GetRootAMRBox( amrBox ) )
+    {
+    amrBox.GetBounds(this->Bounds);
+    }
+  else
+    {
+    this->Bounds[0] = VTK_DOUBLE_MAX;
+    this->Bounds[1] = VTK_DOUBLE_MIN;
+    this->Bounds[2] = VTK_DOUBLE_MAX;
+    this->Bounds[3] = VTK_DOUBLE_MIN;
+    this->Bounds[4] = VTK_DOUBLE_MAX;
+    this->Bounds[5] = VTK_DOUBLE_MIN;
+
+    double tmpbounds[6];
+    unsigned int levelIdx=0;
+    for( ; levelIdx < this->GetNumberOfLevels(); ++levelIdx )
+      {
+      unsigned int dataIdx = 0;
+      for( ; dataIdx < this->GetNumberOfDataSets( levelIdx ); ++dataIdx )
+        {
+        vtkUniformGrid *grd = this->GetDataSet( levelIdx, dataIdx );
+        if( grd != NULL )
+          {
+          grd->GetBounds( tmpbounds );
+          for( int i=0; i < 3; ++i )
+            {
+            if( tmpbounds[i*2] < this->Bounds[i*2] )
+              {
+              this->Bounds[i*2] = tmpbounds[i*2];
+              }
+            if( tmpbounds[i*2+1] > this->Bounds[i*2+1] )
+              {
+              this->Bounds[i*2+1] = tmpbounds[i*2+1];
+              }
+            } // END for each dimension
+          } // END if grid is not NULL
+        } // END for all data at level
+      } // END for all levels
+    }
+
   return this->Bounds;
 }
 //----------------------------------------------------------------------------
