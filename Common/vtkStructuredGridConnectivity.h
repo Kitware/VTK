@@ -28,7 +28,7 @@
 #define vtkStructuredGridConnectivity_H_
 
 // VTK include directives
-#include "vtkAbstractGridConnectivity.h" // Base class
+#include "vtkAbstractGridConnectivity.h"
 #include "vtkStructuredNeighbor.h" // For Structured Neighbor object definition
 
 
@@ -227,8 +227,8 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
     vtkstd::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
 
   private:
-    vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& );
-    void operator=(const vtkStructuredGridConnectivity& );
+    vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ); // Not implemented
+    void operator=(const vtkStructuredGridConnectivity& ); // Not implemented
 };
 
 #endif /* vtkStructuredGridConnectivity_H_ */
