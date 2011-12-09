@@ -388,8 +388,8 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
 
-  unsigned int dataIdx = 0;
-  for( ; dataIdx < amrds->GetNumberOfDataSets(level); ++dataIdx )
+  unsigned int dataIdx, num = amrds->GetNumberOfDataSets(level);
+  for(dataIdx = 0; dataIdx < num; ++dataIdx )
     {
     donorCellIdx = -1;
     donorGrid    = amrds->GetDataSet(level,dataIdx);
@@ -421,10 +421,13 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
   vtkUniformGrid *currentGrid = NULL;
   int currentCellIdx          = -1;
   int donorCellIdx            = -1;
+  unsigned int currentLevel = 0;;
+  bool hadDonorGrid = false;
 
   // STEP 0: Check the previously cached donor-grid
   if( donorGrid != NULL )
     {
+    hadDonorGrid = true;
     if(!this->FoundDonor( q, donorGrid, donorCellIdx ) )
       {
       // Lets see if the point is contained by a grid at the same donar level
@@ -449,6 +452,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       // current donorLevel
       currentGrid    = donorGrid;
       currentCellIdx = donorCellIdx;
+      currentLevel = donorLevel+1;
       }
     else
       {
@@ -461,11 +465,28 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       donorGrid  = NULL;
       maxLevel = donorLevel;
       donorLevel = 0;
+      currentLevel = 0;
       }
     }
 
+  // If we didn't have an initial donor grid or if we still have one
+  // we need to test higher res grids
+  int startLevel, endLevel;
+  int incLevel;
+  if (!((donorGrid == NULL) && hadDonorGrid))
+    {
+    startLevel = currentLevel;
+    endLevel = maxLevel;
+    incLevel = 1;
+    }
+  else
+    {
+    startLevel = maxLevel-1;
+    endLevel = -1;
+    incLevel = -1;
+    }
   // STEP 1: Search in the AMR hierarchy for the donor-grid
-  for( unsigned int level=donorLevel; level < maxLevel; ++level )
+  for( int level=startLevel; level != endLevel; level += incLevel )
     {
     this->SearchForDonorGridAtLevel(q,amrds,level,donorGrid,donorCellIdx);
     if( donorGrid != NULL )
@@ -481,6 +502,8 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       // we need to use.
       currentGrid    = donorGrid;
       currentCellIdx = donorCellIdx;
+      currentLevel = level;
+      donorLevel = level;
       }
     else if( currentGrid != NULL )
       {
@@ -490,6 +513,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       //vtkErrorMacro("Could not find point in an unblanked cell.");
       donorGrid    = currentGrid;
       donorCellIdx = currentCellIdx;
+      donorLevel = currentLevel;
       break;
       }
     else
@@ -498,6 +522,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       // this case we will just return.
       donorCellIdx = -1;
       donorGrid    = NULL;
+      donorLevel = 0;
       break;
       }
     } // END for all levels
@@ -802,6 +827,9 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
         }
       }
     }
+  int minN = 
+    (N[0] < N[1]) ? ((N[0] < N[2]) ? N[0] : N[2]) : ((N[1] < N[2]) ? N[1] : N[2]);
+  N[0] = N[1] = N[2] = minN;
 }
 
 //-----------------------------------------------------------------------------
