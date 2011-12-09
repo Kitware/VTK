@@ -40,7 +40,7 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
   public:
     static vtkPStructuredGridConnectivity* New();
     vtkTypeMacro(vtkPStructuredGridConnectivity,vtkStructuredGridConnectivity);
-    void PrintSelf( std::ostream& os, vtkIndent indent );
+    void PrintSelf(ostream& os, vtkIndent indent );
 
     // Description:
     // Set & Get the process controller

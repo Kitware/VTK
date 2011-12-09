@@ -65,7 +65,7 @@ class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
 
     static vtkGhostArray* New();
     vtkTypeMacro( vtkGhostArray, vtkObject );
-    void PrintSelf( std::ostream& os, vtkIndent indent );
+    void PrintSelf(ostream& os, vtkIndent indent );
 
     // Description:
     // Sets the given property in the propertyField.

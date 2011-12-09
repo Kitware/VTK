@@ -43,7 +43,7 @@ class VTK_COMMON_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {
   public:
     vtkTypeMacro( vtkAbstractGridConnectivity, vtkObject );
-    void PrintSelf( std::ostream &os,vtkIndent indent );
+    void PrintSelf(ostream &os,vtkIndent indent );
 
     // Description:
     // Sets the total number of grids in the domain.

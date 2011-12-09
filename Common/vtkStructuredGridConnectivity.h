@@ -45,7 +45,7 @@ class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
   public:
     static vtkStructuredGridConnectivity* New();
     vtkTypeMacro( vtkStructuredGridConnectivity, vtkAbstractGridConnectivity );
-    void PrintSelf( std::ostream& os, vtkIndent  indent );
+    void PrintSelf(ostream& os, vtkIndent  indent );
 
     // Description:
     // Set/Get the whole extent of the grid
