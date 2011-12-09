@@ -36,6 +36,50 @@ public:
     RIGHT_BUTTON = 4
   };
 
+  vtkContextMouseEvent() {}
+  ~vtkContextMouseEvent() {}
+
+  // Description:
+  // Set/get the position of the mouse in the item's coordinates.
+  void SetPos(const vtkVector2f &pos) { this->Pos = pos; }
+  vtkVector2f GetPos() const { return this->Pos; }
+
+  // Description:
+  // Set/get the position of the mouse in scene coordinates.
+  void SetScenePos(const vtkVector2f &pos) { this->ScenePos = pos; }
+  vtkVector2f GetScenePos() const { return this->ScenePos; }
+
+  // Description:
+  // Set/get the position of the mouse in screen coordinates.
+  void SetScreenPos(const vtkVector2i &pos) { this->ScreenPos = pos; }
+  vtkVector2i GetScreenPos() const { return this->ScreenPos; }
+
+  // Description:
+  // Set/get the position of the mouse in the item's coordinates.
+  void SetLastPos(const vtkVector2f &pos) { this->LastPos = pos; }
+  vtkVector2f GetLastPos() const { return this->LastPos; }
+
+  // Description:
+  // Set/get the position of the mouse in scene coordinates.
+  void SetLastScenePos(const vtkVector2f &pos) { this->LastScenePos = pos; }
+  vtkVector2f GetLastScenePos() const { return this->LastScenePos; }
+
+  // Description:
+  // Set/get the position of the mouse in screen coordinates.
+  void SetLastScreenPos(const vtkVector2i &pos) { this->LastScreenPos = pos; }
+  vtkVector2i GetLastScreenPos() const { return this->LastScreenPos; }
+
+  // Description:
+  // Set/get the mouse button that caused the event, with possible values being
+  // NO_BUTTON, LEFT_BUTTON, MIDDLE_BUTTON and RIGHT_BUTTON.
+  void SetButton(int button) { this->Button = button; }
+  int GetButton() const { return this->Button; }
+
+#ifdef VTK_LEGACY_REMOVE
+  // Deprecating the public exposure of member variables for mouse events
+  // Deprecated in VTK 5.9.
+protected:
+#endif
   // Description:
   // Position of the mouse in item coordinate system.
   vtkVector2f Pos;
@@ -64,6 +108,5 @@ public:
   // Mouse button that caused the event, using the anonymous enumeration.
   int Button;
 };
-//ETX
 
 #endif // __vtkContextMouseEvent_h

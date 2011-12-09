@@ -45,7 +45,7 @@ class vtkContextScene::Private
 public:
   Private()
     {
-    this->Event.Button = vtkContextMouseEvent::NO_BUTTON;
+    this->Event.SetButton(vtkContextMouseEvent::NO_BUTTON);
     this->IsDirty = true;
     }
   ~Private()
@@ -431,9 +431,9 @@ bool vtkContextScene::MouseMoveEvent(int x, int y)
 {
   bool res = false;
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos.Set(x, y);
-  event.ScenePos.Set(x, y);
-  event.Pos.Set(x, y);
+  event.SetScreenPos(vtkVector2i(x, y));
+  event.SetScenePos(vtkVector2f(x, y));
+  event.SetPos(vtkVector2f(x, y));
 
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
 #if 0
@@ -482,9 +482,9 @@ bool vtkContextScene::MouseMoveEvent(int x, int y)
     }
 
   // Update the last positions now
-  event.LastScreenPos = event.ScreenPos;
-  event.LastScenePos = event.ScenePos;
-  event.LastPos = event.Pos;
+  event.SetLastScreenPos(event.GetScreenPos());
+  event.SetLastScenePos(event.GetScenePos());
+  event.SetLastPos(event.GetPos());
   return res;
 }
 
@@ -493,13 +493,13 @@ bool vtkContextScene::ButtonPressEvent(int button, int x, int y)
 {
   bool res = false;
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos.Set(x, y);
-  event.ScenePos.Set(x, y);
-  event.Pos.Set(x, y);
-  event.LastScreenPos = event.ScreenPos;
-  event.LastScenePos = event.ScenePos;
-  event.LastPos = event.Pos;
-  event.Button = button;
+  event.SetScreenPos(vtkVector2i(x, y));
+  event.SetScenePos(vtkVector2f(x, y));
+  event.SetPos(vtkVector2f(x, y));
+  event.SetLastScreenPos(event.GetScreenPos());
+  event.SetLastScenePos(event.GetScenePos());
+  event.SetLastPos(event.GetPos());
+  event.SetButton(button);
 
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
   if (newItemPicked)
@@ -519,15 +519,16 @@ bool vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
   if (this->Storage->itemMousePressCurrent.GetPointer())
     {
     vtkContextMouseEvent &event = this->Storage->Event;
-    event.ScreenPos.Set(x, y);
-    event.ScenePos.Set(x, y);
-    event.Pos.Set(x, y);
-    event.Button = button;
+    event.SetScreenPos(vtkVector2i(x, y));
+    event.SetScenePos(vtkVector2f(x, y));
+    event.SetPos(vtkVector2f(x, y));
+    event.SetButton(button);
     vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
-    res = this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseButtonReleaseEvent);
+    res = this->ProcessItem(cur, event,
+                            &vtkAbstractContextItem::MouseButtonReleaseEvent);
     this->Storage->itemMousePressCurrent = NULL;
     }
-  this->Storage->Event.Button = vtkContextMouseEvent::NO_BUTTON;
+  this->Storage->Event.SetButton(vtkContextMouseEvent::NO_BUTTON);
   return res;
 }
 
@@ -536,13 +537,13 @@ bool vtkContextScene::DoubleClickEvent(int button, int x, int y)
 {
   bool res = false;
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos.Set(x, y);
-  event.ScenePos.Set(x, y);
-  event.Pos.Set(x, y);
-  event.LastScreenPos = event.ScreenPos;
-  event.LastScenePos = event.ScenePos;
-  event.LastPos = event.Pos;
-  event.Button = button;
+  event.SetScreenPos(vtkVector2i(x, y));
+  event.SetScenePos(vtkVector2f(x, y));
+  event.SetPos(vtkVector2f(x, y));
+  event.SetLastScreenPos(event.GetScreenPos());
+  event.SetLastScenePos(event.GetScenePos());
+  event.SetLastPos(event.GetPos());
+  event.SetButton(button);
 
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
   if (newItemPicked)
@@ -559,27 +560,28 @@ bool vtkContextScene::MouseWheelEvent(int delta, int x, int y)
 {
   bool res = false;
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos.Set(x, y);
-  event.ScenePos.Set(x, y);
-  event.Pos.Set(x, y);
-  event.LastScreenPos = event.ScreenPos;
-  event.LastScenePos = event.ScenePos;
-  event.LastPos = event.Pos;
+  event.SetScreenPos(vtkVector2i(x, y));
+  event.SetScenePos(vtkVector2f(x, y));
+  event.SetPos(vtkVector2f(x, y));
+  event.SetLastScreenPos(event.GetScreenPos());
+  event.SetLastScenePos(event.GetScenePos());
+  event.SetLastPos(event.GetPos());
+  event.SetButton(vtkContextMouseEvent::NO_BUTTON);
 
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
   if (newItemPicked)
     {
     vtkContextMouseEvent itemEvent = event;
     vtkAbstractContextItem* cur = newItemPicked;
-    itemEvent.Pos = cur->MapFromScene(event.Pos);
-    itemEvent.LastPos = cur->MapFromScene(event.LastPos);
+    itemEvent.SetPos(cur->MapFromScene(event.GetPos()));
+    itemEvent.SetLastPos(cur->MapFromScene(event.GetLastPos()));
     while (cur && !cur->MouseWheelEvent(itemEvent, delta))
       {
       cur = cur->GetParent();
       if (cur)
         {
-        itemEvent.Pos = cur->MapToParent(itemEvent.Pos);
-        itemEvent.LastPos = cur->MapToParent(itemEvent.LastPos);
+        itemEvent.SetPos(cur->MapToParent(itemEvent.GetPos()));
+        itemEvent.SetLastPos(cur->MapToParent(itemEvent.GetLastPos()));
         }
       }
     res = (cur != 0);
@@ -591,7 +593,7 @@ bool vtkContextScene::MouseWheelEvent(int delta, int x, int y)
 bool vtkContextScene::KeyPressEvent(const vtkContextKeyEvent &keyEvent)
 {
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos = keyEvent.GetPosition();
+  event.SetScreenPos(keyEvent.GetPosition());
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
   if (newItemPicked)
     {
@@ -604,7 +606,7 @@ bool vtkContextScene::KeyPressEvent(const vtkContextKeyEvent &keyEvent)
 bool vtkContextScene::KeyReleaseEvent(const vtkContextKeyEvent &keyEvent)
 {
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos = keyEvent.GetPosition();
+  event.SetScreenPos(keyEvent.GetPosition());
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
   if (newItemPicked)
     {
@@ -620,15 +622,15 @@ inline bool vtkContextScene::ProcessItem(vtkAbstractContextItem* cur,
 {
   bool res = false;
   vtkContextMouseEvent itemEvent = event;
-  itemEvent.Pos = cur->MapFromScene(event.Pos);
-  itemEvent.LastPos = cur->MapFromScene(event.LastPos);
+  itemEvent.SetPos(cur->MapFromScene(event.GetPos()));
+  itemEvent.SetLastPos(cur->MapFromScene(event.GetLastPos()));
   while (cur && !(cur->*eventPtr)(itemEvent))
     {
     cur = cur->GetParent();
     if (cur)
       {
-      itemEvent.Pos = cur->MapToParent(itemEvent.Pos);
-      itemEvent.LastPos = cur->MapToParent(itemEvent.LastPos);
+      itemEvent.SetPos(cur->MapToParent(itemEvent.GetPos()));
+      itemEvent.SetLastPos(cur->MapToParent(itemEvent.GetLastPos()));
       }
     }
   res = (cur != 0);

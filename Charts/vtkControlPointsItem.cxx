@@ -336,8 +336,8 @@ void vtkControlPointsItem::ComputePoints()
 bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
 {
   double pos[2];
-  pos[0] = mouse.Pos[0];
-  pos[1] = mouse.Pos[1];
+  pos[0] = mouse.GetPos()[0];
+  pos[1] = mouse.GetPos()[1];
   double bounds[4];
   this->GetBounds(bounds);
   bool clamped = this->ClampPos(pos, bounds);
@@ -347,8 +347,8 @@ bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
     }
   // maybe the cursor is over the first or last point (which could be outside
   // the bounds because of the screen point size).
-  pos[0] = mouse.Pos[0];
-  pos[1] = mouse.Pos[1];
+  pos[0] = mouse.GetPos()[0];
+  pos[1] = mouse.GetPos()[1];
   for (int i = 0; i < this->GetNumberOfPoints(); ++i)
     {
     if (this->IsOverPoint(pos, i))
@@ -877,11 +877,11 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
   this->PointToToggle = -1;
   this->PointToDelete = -1;
   double pos[2];
-  pos[0] = mouse.Pos[0];
-  pos[1] = mouse.Pos[1];
+  pos[0] = mouse.GetPos()[0];
+  pos[1] = mouse.GetPos()[1];
   vtkIdType pointUnderMouse = this->FindPoint(pos);
 
-  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
     if (pointUnderMouse != -1)
       {
@@ -904,7 +904,7 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
     return true;
     }
 
-  if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON
+  if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON
       && pointUnderMouse != -1)
     {
     this->PointToToggle = pointUnderMouse;
@@ -913,7 +913,7 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
     return true;
     }
 
-  if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON
+  if (mouse.GetButton() == vtkContextMouseEvent::MIDDLE_BUTTON
       && pointUnderMouse != -1)
     {
     this->PointToDelete = pointUnderMouse;
@@ -928,7 +928,7 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::MouseDoubleClickEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     if (this->Selection->GetNumberOfTuples())
       {
@@ -941,8 +941,8 @@ bool vtkControlPointsItem::MouseDoubleClickEvent(const vtkContextMouseEvent &mou
     return true;
     }
   bool res = this->MouseButtonPressEvent(mouse);
-  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON
-     && this->CurrentPoint != -1)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON
+      && this->CurrentPoint != -1)
     {
     this->InvokeEvent(vtkControlPointsItem::CurrentPointEditEvent,
                       reinterpret_cast<void *>(this->CurrentPoint));
@@ -953,19 +953,20 @@ bool vtkControlPointsItem::MouseDoubleClickEvent(const vtkContextMouseEvent &mou
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
     if (this->StrokeMode)
       {
       this->StartInteractionIfNotStarted();
 
-      this->Stroke(mouse.Pos);
+      this->Stroke(mouse.GetPos());
 
       this->Interaction();
       }
     else if (this->CurrentPoint == -1 && this->Selection->GetNumberOfTuples() > 1)
       {
-      vtkVector2f deltaPos(mouse.Pos[0] - mouse.LastPos[0], mouse.Pos[1] - mouse.LastPos[1]);
+      vtkVector2f deltaPos(mouse.Pos[0] - mouse.LastPos[0],
+                           mouse.Pos[1] - mouse.LastPos[1]);
       if(this->IsEndPointPicked())
         {
         if(!this->GetEndPointsMovable())
@@ -1018,15 +1019,15 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       this->Interaction();
       }
     }
-  if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     if (this->PointToToggle == -1)
       {
       return false;
       }
     double pos[2];
-    pos[0] = mouse.Pos[0];
-    pos[1] = mouse.Pos[1];
+    pos[0] = mouse.GetPos()[0];
+    pos[1] = mouse.GetPos()[1];
     vtkIdType pointUnderCursor = this->FindPoint(pos);
     if ((pointUnderCursor == this->PointToToggle) != this->PointAboutToBeToggled)
       {
@@ -1035,7 +1036,7 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       }
     }
   this->MouseMoved = true;
-  if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::MIDDLE_BUTTON)
     {
     if (this->PointToDelete == -1)
       {
@@ -1043,8 +1044,8 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       return false;
       }
     double pos[2];
-    pos[0] = mouse.Pos[0];
-    pos[1] = mouse.Pos[1];
+    pos[0] = mouse.GetPos()[0];
+    pos[1] = mouse.GetPos()[1];
     vtkIdType pointUnderCursor = this->FindPoint(pos);
     if ((pointUnderCursor == this->PointToDelete) != this->PointAboutToBeDeleted)
       {
@@ -1054,7 +1055,7 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     return true;
     }
 
-  if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON
+  if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON
       && this->CurrentPoint == -1)
     {
     return false;
@@ -1421,11 +1422,11 @@ bool vtkControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &m
     {
     this->EndInteraction();
     }
-  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
     return true;
     }
-  if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON
+  if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON
       && this->PointToToggle != -1)
     {
     if (this->PointAboutToBeToggled)
@@ -1436,7 +1437,7 @@ bool vtkControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &m
       }
     return true;
     }
-  if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON
+  if (mouse.GetButton() == vtkContextMouseEvent::MIDDLE_BUTTON
       && this->PointToDelete != -1)
     {
     if (this->PointAboutToBeDeleted)
