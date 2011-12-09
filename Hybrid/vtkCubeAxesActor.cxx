@@ -2197,22 +2197,24 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport)
 // ****************************************************************
 void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBER_OF_ALIGNED_AXIS])
 {
-  double newTitleScale = this->TitleScale;
-
-  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; ++i)
     {
-    newTitleScale = this->AutoScale(viewport, this->ScreenSize,
-                                    axis[i]->GetTitleActor()->GetPosition());
+    double newTitleScale 
+      = this->AutoScale(viewport, 
+                        this->ScreenSize,
+                        axis[i]->GetTitleActor()->GetPosition());
 
     axis[i]->SetTitleScale(newTitleScale);
 
     // Now labels.
     vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
 
-    for(int j=0; j < axis[i]->GetNumberOfLabelsBuilt(); ++j)
+    for(int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++j)
       {
-      double newLabelScale = this->AutoScale(viewport, this->ScreenSize,
-                                             labelActors[j]->GetPosition());
+      double newLabelScale 
+        = this->AutoScale(viewport, 
+                          this->ScreenSize,
+                          labelActors[j]->GetPosition());
 
       labelActors[j]->SetScale(newLabelScale);
       }

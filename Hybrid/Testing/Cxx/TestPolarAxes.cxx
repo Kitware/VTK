@@ -82,9 +82,9 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->SetPole( .5, 1., 3. );
   polaxes->SetAutoScaleRadius( false );
   polaxes->SetMaximumRadius( 3. );
-  polaxes->SetMinimumAngle( 30. );
-  polaxes->SetMaximumAngle( 270. );
-  polaxes->SetNumberOfRadialAxes( 9 );
+  polaxes->SetMinimumAngle( -60. );
+  polaxes->SetMaximumAngle( 210. );
+  polaxes->SetNumberOfRadialAxes( 10 );
   polaxes->SetCamera( renderer->GetActiveCamera() );
   polaxes->SetPolarLabelFormat( "%6.1f" );
   polaxes->GetRadialAxesProperty()->SetColor( .0, .0, 1. );
@@ -92,14 +92,14 @@ int TestPolarAxes( int argc, char * argv [] )
   polaxes->GetPolarAxisProperty()->SetColor( .2, .2, .2 );
   polaxes->GetPolarAxisTitleTextProperty()->SetColor( .2, .2, .2 );
   polaxes->GetPolarAxisLabelTextProperty()->SetColor( .2, .2, .2 );
-  polaxes->SetNumberOfPolarAxisTicks( 11 );
+  polaxes->SetNumberOfPolarAxisTicks( 9 );
   polaxes->SetAutoSubdividePolarAxis( false );
   polaxes->SetScreenSize( 9.0 );
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples( 0 );
   renWin->AddRenderer( renderer.GetPointer() );
-  renWin->SetWindowName( "VTK - Polar Axes custom range" );
+  renWin->SetWindowName( "VTK - Polar Axes" );
   renWin->SetSize( 600, 600 );
 
   vtkNew<vtkRenderWindowInteractor> iren;
