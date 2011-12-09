@@ -147,37 +147,19 @@
 
 #include <vtkMultiBlockDataSetAlgorithm.h>
 
-class vtkLSDynaReaderPrivate;
+class LSDynaMetaData;
+class vtkLSDynaPartCollection;
 class vtkPoints;
 class vtkDataArray;
+class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 
-class VTK_HYBRID_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
+class VTK_IO_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkLSDynaReader *New();
-
-  //BTX
-  /** LS-Dyna cell types.
-   * These may be used as values for the \a cellType argument in member functions.
-   * One dataset is created for each cell type so that cells can have different
-   * attributes (temperature, pressure, etc.) defined over them.
-   * Note that \a NUM_CELL_TYPES is not a cell type, but an enumerant that
-   * specifies the total number of cell types. It is used to size arrays.
-   */
-  enum {
-    PARTICLE = 0,
-    BEAM = 1,
-    SHELL = 2,
-    THICK_SHELL = 3,
-    SOLID = 4,
-    RIGID_BODY = 5,
-    ROAD_SURFACE = 6,
-    NUM_CELL_TYPES
-  };
-  //ETX
 
   // Description:
   // Print out more complete information about the dataset
@@ -191,7 +173,7 @@ public:
 
   // Description:
   // Determine if the file can be readed with this reader.
-  int CanReadFile( const char* fname );
+  virtual int CanReadFile( const char* fname );
 
   // Description:
   // Get/Set the directory containing the LS-Dyna database and determine
@@ -419,7 +401,7 @@ public:
   // Should deflected coordinates be used, or should the mesh remain
   // undeflected?  By default, this is true but its value is ignored if the
   // nodal "Deflection" array is not set to be loaded.
-  vtkSetMacro(DeformedMesh,int);
+  virtual void SetDeformedMesh(int);
   vtkGetMacro(DeformedMesh,int);
   vtkBooleanMacro(DeformedMesh,int);
 
@@ -436,13 +418,12 @@ public:
   vtkGetMacro(RemoveDeletedCells,int);
   vtkBooleanMacro(RemoveDeletedCells,int);
 
-  // Description:
-  // Split each part into submeshes based on material ID.
-  // By default, this is false and all cells of a given
-  // type (solid, thick shell, shell, ...) are in a single mesh.
-  vtkSetMacro(SplitByMaterialId,int);
-  vtkGetMacro(SplitByMaterialId,int);
-  vtkBooleanMacro(SplitByMaterialId,int);
+  //Description:
+  //Instead of removing the cells that are dead, hide them by setting
+  //the array as the ghost levels arrays
+  vtkSetMacro(DeletedCellsAsGhostArray,int);
+  vtkGetMacro(DeletedCellsAsGhostArray,int);
+  vtkBooleanMacro(DeletedCellsAsGhostArray,int);
 
   // Description:
   // The name of the input deck corresponding to the current database.
@@ -474,14 +455,8 @@ public:
   int GetPartArrayStatus( const char* partName );
 
 protected:
-  // All the output grids (one for each possible combination of cell attributes)
-  vtkUnstructuredGrid* OutputParticles; // have radius of influence
-  vtkUnstructuredGrid* OutputBeams; // have TNB frame
-  vtkUnstructuredGrid* OutputShell; // integration points are different than 3D
-  vtkUnstructuredGrid* OutputThickShell; // integration points are different than planar 2D
-  vtkUnstructuredGrid* OutputSolid; // integration points are different than 2D
-  vtkUnstructuredGrid* OutputRigidBody; // can't have deflection, only velocity, accel, ...
-  vtkUnstructuredGrid* OutputRoadSurface; // can't have deflection, only velocity, accel, ...
+  //holds all the parts and all the properties for each part
+  vtkLSDynaPartCollection* Parts;
 
   // Description:
   // Should deflected coordinates be used, or should the mesh remain
@@ -492,10 +467,7 @@ protected:
   // Should cells marked as deleted be removed from the mesh?
   // By default, this is true.
   int RemoveDeletedCells;
-
-  // Description:
-  // Split each mesh into submeshes based on the material ID of each cell.
-  int SplitByMaterialId;
+  int DeletedCellsAsGhostArray;
 
   // Description:
   // The range of time steps available within a database.
@@ -539,17 +511,31 @@ protected:
   // positioned to the start of their data sections.
   // These functions should only be called from within RequestData() since
   // they require the various output meshes to exist.
+  virtual int ReadTopology();
   virtual int ReadNodes();
+  virtual int ReadPartSizes();
   virtual int ReadConnectivityAndMaterial();
   virtual int ReadUserIds();
   virtual int ReadState( vtkIdType );
+  virtual int ReadNodeStateInfo( vtkIdType );
+  virtual int ReadCellStateInfo( vtkIdType );
   virtual int ReadDeletion();
   virtual int ReadSPHState( vtkIdType );
+
+  //Description:
+  // Resets the Part information to the default state
+  virtual void ResetPartInfo();
 
   // Description:
   // Called from within ReadHeaderInformation() to read part names
   // associated with material IDs.
   virtual int ReadInputDeck();
+
+  //Description:
+  // Called from within ReadHeaderInformation to read part names
+  // from the end of the first d3plot file. Used if ReadInputDeck
+  // fails.
+  virtual int ReadPartTitlesFromRootFile();
 
   // Description:
   // Called from within ReadHeaderInformation() to read arbitrary material
@@ -568,24 +554,44 @@ protected:
   // part names for materials.
   int WriteInputDeckSummary( const char* fname );
 
-  void PartFilter( vtkMultiBlockDataSet* mbds, int celltype );
   // Description:
   // Read an array of deletion data.
   // This is used by ReadDeletion to actually read the data from the file
   // (as opposed to attach it to the proper place in the VTK dataset)
   // depending on the value of "MDLOPT".
-  // The array passed to this routine is filled with deletion data.
+  // The array passed to this routine is filled with ones if deleted, zero
+  // it is not deleted
   // The number of tuples must be set on the array previous to calling
   // this routine.
-  // The \a anyDeleted argument is set to 0 if no cells in the array are
-  // marked deleted, or 1 if any cells are marked for deletion.
-  virtual int ReadDeletionArray( vtkDataArray* arr, int& anyDeleted );
+  //Note: pos is the position in the size that the death value is store at
+  virtual void ReadDeletionArray(vtkUnsignedCharArray* arr, const int& pos, const int& size);
 
+  //Description:
+  // Read all the cell properties of a given part type
+  virtual void ReadCellProperties(const int& type,const int& numTuples);
+  
+  LSDynaMetaData* P;
+
+  void ResetPartsCache();
 private:
+
+  //Helper templated methods to optimze reading. We cast the entire buffer
+  //to a given type instead of casting each element to improve performance
+  template<typename T>
+  void FillDeletionArray(T* buffer, vtkUnsignedCharArray* arr, const vtkIdType& start, const vtkIdType& numCells,
+                         const int& deathPos, const int& cellSize);
+
+  template<int wordSize, typename T>
+  int FillTopology(T* buffer);
+
+  template<typename T, int blockType, vtkIdType numWordsPerCell, vtkIdType cellLength>
+  void ReadBlockCellSizes();
+
+  template<typename T>
+  int FillPartSizes();
+
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
   void operator = ( const vtkLSDynaReader& ); // Not implemented.
-
-  vtkLSDynaReaderPrivate* P;
 };
 
 inline void vtkLSDynaReader::SetPointArrayStatus( const char* arrName, int status )
@@ -963,6 +969,16 @@ inline int vtkLSDynaReader::GetPartArrayStatus( const char* partName )
     }
   //vtkWarningMacro( "PartArray \"" << partName << "\" does not exist" );
   return 0;
+}
+
+inline void vtkLSDynaReader::SetDeformedMesh(int deformed)
+{
+  if (this->DeformedMesh != deformed)
+    {
+    this->DeformedMesh = deformed;
+    this->ResetPartsCache();
+    this->Modified();
+    }
 }
 
 #endif // __vtkLSDynaReader_h
