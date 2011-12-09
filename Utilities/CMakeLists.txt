@@ -53,6 +53,9 @@ IF(VTK_HAS_EXODUS)
   ADD_SUBDIRECTORY(vtkexodus2)
 ENDIF(VTK_HAS_EXODUS)
 
+# helper classes for vtkLSDynaReader
+VTK_THIRD_PARTY_SUBDIR(LSDyna LSDyna)
+  
 ADD_SUBDIRECTORY(vtkalglib)
 
 ADD_SUBDIRECTORY(Doxygen)

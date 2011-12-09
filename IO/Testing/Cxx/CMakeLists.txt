@@ -18,6 +18,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   SET(ConditionalTests
     ${ConditionalTests}
     TestHyperOctreeIO.cxx
+    TestLSDynaReader.cxx
+    TestLSDynaReaderSPH.cxx
     TestMPASReader.cxx
     TestPLYReader.cxx
     TestProStarReader.cxx
@@ -156,6 +158,15 @@ ENDIF (VTK_DATA_ROOT)
 
 IF (VTK_LARGE_DATA_ROOT)
   IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+  ADD_TEST(TestLSDynaReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestLSDynaReader -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestLSDynaReader.png)
+  ADD_TEST(TestLSDynaReaderSPH ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestLSDynaReaderSPH -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestLSDynaReaderSPH.png)
+
     ADD_TEST(SLACReaderLinear ${CXX_TEST_PATH}/${KIT}CxxTests
          SLACReaderLinear -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
