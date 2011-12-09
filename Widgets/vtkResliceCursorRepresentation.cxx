@@ -60,6 +60,8 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   this->RestrictPlaneToVolume = 1;
   this->OriginalWindow           = 1.0;
   this->OriginalLevel            = 0.5;
+  this->InitialWindow            = 1.0;
+  this->InitialLevel             = 0.5;
   this->CurrentWindow            = 1.0;
   this->CurrentLevel             = 0.5;
 

@@ -29,6 +29,8 @@ vtkStandardNewMacro(vtkImplicitPolyDataDistance);
 //-----------------------------------------------------------------------------
 vtkImplicitPolyDataDistance::vtkImplicitPolyDataDistance()
 {
+  this->NoValue = 0.0;
+
   this->NoGradient[0] = 0.0;
   this->NoGradient[1] = 0.0;
   this->NoGradient[2] = 1.0;

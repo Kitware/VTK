@@ -32,11 +32,14 @@ vtkStandardNewMacro(vtkOctreePointLocatorNode);
 vtkOctreePointLocatorNode::vtkOctreePointLocatorNode() : 
   NumberOfPoints(0), Children(NULL), ID(-1), MinID(-1)
 {
-  // set the min and max data value since we won't know it for a while
+  // set the min and max data value and bounds since we won't know it
+  // for a while
   for(int i=0;i<3;i++)
     {
     this->MinDataBounds[i] = VTK_DOUBLE_MAX;
     this->MaxDataBounds[i] = VTK_DOUBLE_MIN;
+    this->MinBounds[i] = VTK_DOUBLE_MAX;
+    this->MaxBounds[i] = VTK_DOUBLE_MIN;
     }
 }
 
