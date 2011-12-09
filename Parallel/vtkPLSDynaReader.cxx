@@ -129,7 +129,6 @@ int vtkPLSDynaReader::RequestInformation( vtkInformation* request,
                                          vtkInformationVector** iinfo,
                                          vtkInformationVector* outputVector )
 {
-  LSDynaMetaData* p = this->P;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   //call the parents request information on all the nodes.

@@ -67,43 +67,6 @@ typedef FILE* vtkLSDynaFile_t;
 #  include <errno.h>
 #endif
 
-#if (VTK_SIZEOF_ID_TYPE==8)
-//64bit
-#ifndef WIN32
-static int LS_DYNA_STAT(const char* fname, struct stat64& s)
-{
-  //POSIX
-  return stat64(fname,&s);
-}
-#else
-static int LS_DYNA_STAT(const char* fname, struct __stat64& s)
-{
-  //windows
-  return __stat64(fname, &s);
-}
-#endif
-
-#else
-//32bit
-static int LS_DYNA_STAT(const char* fname, struct stat& s)
-{
-  //POSIX
-  return stat(fname,&s);
-}
-#endif
-
-static vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
-{
-#ifndef WIN32
-  vtkLSDynaFile_t f = open(fname, O_RDONLY);
-  return f;
-#else
-  vtkLSDynaFile_t f = fopen(fname, "rb");
-  setvbuf(f,NULL,_IONBF,0); //disable buffer
-  return f;
-#endif
-}
-
 class LSDyna_EXPORT LSDynaFamily
 {
 public:
@@ -308,7 +271,6 @@ inline char* LSDynaFamily::GetNextWordAsChars()
 inline double LSDynaFamily::GetNextWordAsFloat()
   {
   if ( this->ChunkWord >= this->ChunkValid ) fprintf( stderr, "Read float past end of buffer\n" );
-  int pos = 0;
   switch (this->WordSize)
     {
   case 4:

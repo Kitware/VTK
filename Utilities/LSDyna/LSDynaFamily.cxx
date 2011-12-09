@@ -32,6 +32,44 @@
 
 namespace
 {
+
+#if (VTK_SIZEOF_ID_TYPE==8)
+//64bit
+#ifndef WIN32
+int LS_DYNA_STAT(const char* fname, struct stat64& s)
+{
+  //POSIX
+  return stat64(fname,&s);
+}
+#else
+int LS_DYNA_STAT(const char* fname, struct __stat64& s)
+{
+  //windows
+  return __stat64(fname, &s);
+}
+#endif
+
+#else
+//32bit
+int LS_DYNA_STAT(const char* fname, struct stat& s)
+{
+  //POSIX
+  return stat(fname,&s);
+}
+#endif
+
+vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
+{
+#ifndef WIN32
+  vtkLSDynaFile_t f = open(fname, O_RDONLY);
+  return f;
+#else
+  vtkLSDynaFile_t f = fopen(fname, "rb");
+  setvbuf(f,NULL,_IONBF,0); //disable buffer
+  return f;
+#endif
+}
+
   std::string vtkLSGetFamilyFileName( const char* basedir, const std::string& dbname, int adaptationLvl, int number )
   {
     std::string blorb;

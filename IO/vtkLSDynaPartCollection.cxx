@@ -368,6 +368,24 @@ public:
       }
   }
 
+  //---------------------------------------------------------------------------
+  void PrintSelf(ostream &os, vtkIndent indent)
+  {
+    for (vtkIdType i=0; i < this->NumParts; ++i)
+      {
+      os << indent << "Part Number " << i << std::endl;
+      if(this->PartExists(i))
+        {
+        vtkLSDynaPart* part = this->Parts[i];
+        part->PrintSelf(os,indent.GetNextIndent());
+        }
+      else
+        {
+        os << indent.GetNextIndent() << "Does not exist." << std::endl;
+        }
+      }
+    }
+
 protected:
   vtkIdType NumParts;
 
@@ -419,7 +437,14 @@ vtkLSDynaPartCollection::~vtkLSDynaPartCollection()
 //-----------------------------------------------------------------------------
 void vtkLSDynaPartCollection::PrintSelf(ostream &os, vtkIndent indent)
 {
+  //just needs to print all public accessible ivars
+  this->Superclass::PrintSelf(os, indent);
 
+  //number of parts
+  os << indent << "Number of Parts: " << this->GetNumberOfParts() << std::endl;
+
+  //print self for each part
+  this->Storage->PrintSelf(os,indent.GetNextIndent());
 }
 
 //-----------------------------------------------------------------------------

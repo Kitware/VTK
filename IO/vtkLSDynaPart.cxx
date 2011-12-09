@@ -189,12 +189,10 @@ protected:
 
   //the two cell data arrays that aren't packed with cell state info
   unsigned char* DeadCells;
-  vtkIdType* UserIds;
-
   vtkIdType DeadIndex;
+
+  vtkIdType* UserIds;
   vtkIdType UserIdIndex;
-
-
 };
 
 //-----------------------------------------------------------------------------
@@ -235,9 +233,9 @@ class vtkLSDynaPart::InternalPointsUsed
 //Base class that tracks which points this part uses
 public:
   //uses the relative index based on the minId
-  InternalPointsUsed(const vtkIdType& minId,
-                     const vtkIdType& maxId):
-    MinId(minId),MaxId(maxId+1){} //maxId is meant to be exclusive
+  InternalPointsUsed(const vtkIdType& min,
+                     const vtkIdType& max):
+    MinId(min),MaxId(max+1){} //maxId is meant to be exclusive
 
   virtual ~InternalPointsUsed(){};
 
@@ -260,10 +258,10 @@ class vtkLSDynaPart::DensePointsUsed : public vtkLSDynaPart::InternalPointsUsed
   //uses. If the points for the part are all bunched up in the global point
   //space this is used as it saves tons of space.
 public:
-  DensePointsUsed(BitVector *pointsUsed, const vtkIdType& minId,
-                  const vtkIdType& maxId):
-    InternalPointsUsed(minId,maxId),
-    UsedPoints(pointsUsed->begin()+minId,pointsUsed->begin()+(maxId+1))
+  DensePointsUsed(BitVector *pointsUsed, const vtkIdType& min,
+                  const vtkIdType& max):
+    InternalPointsUsed(min,max),
+    UsedPoints(pointsUsed->begin()+min,pointsUsed->begin()+(max+1))
     {
     }
 
@@ -280,9 +278,9 @@ class vtkLSDynaPart::SparsePointsUsed : public vtkLSDynaPart::InternalPointsUsed
   //many parts as the part would need to use a few points whose indicies was
   //at the extremes of the global point set
 public:
-  SparsePointsUsed(BitVector *pointsUsed, const vtkIdType& minId,
-                   const vtkIdType& maxId):
-    InternalPointsUsed(minId,maxId)
+  SparsePointsUsed(BitVector *pointsUsed, const vtkIdType& min,
+                   const vtkIdType& max):
+    InternalPointsUsed(min,max)
     {
     for(vtkIdType i=this->MinId; i<this->MaxId; ++i)
       {

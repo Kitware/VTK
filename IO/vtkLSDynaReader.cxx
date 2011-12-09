@@ -344,7 +344,7 @@ template<int wordSize,int cellLength>
 
   template<typename T>
   FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
-    const vtkIdType& numWordsPerCell, const int& cellType)
+    const vtkIdType& numWordsPerCell, const int& vtkNotUsed(cellType) )
     {
     //determine the relationship between the file bit size and 
     //the host machine bit size. This allows us to read 64 bit files on a
@@ -464,7 +464,7 @@ template<int wordSize,int cellLength>
           {
           pType = LSDynaMetaData::SHELL;
           }
-        parts->InsertCell(pType,matlId,VTK_QUAD,cellLength,conn);
+        parts->InsertCell(pType,matlId,cellType,cellLength,conn);
         }
       }
     p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
@@ -475,14 +475,9 @@ template<int wordSize,int cellLength>
   struct FillBlock<LSDynaMetaData::ROAD_SURFACE,wordSize,cellLength>
   {
   template<typename T>
-  FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
-    const vtkIdType& numWordsPerCell, const int& cellType)
-    {
-    //we don't have to determine the relationship between
-    //the file bit size and host bit size as the GetNextWordAsInt does
-    //that itself (which is why this is so slow)    
-    const int numWordsPerIdType (p->Fam.GetWordSize() / sizeof(T));
-
+  FillBlock(T*, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
+    const vtkIdType&, const int& cellType)
+    {    
     //This is a ROAD_SURFACE specialization
     //has a weird weaving of cell types
     vtkIdType nc=0,segId=0,segSz=0;
@@ -511,7 +506,7 @@ template<int wordSize,int cellLength>
             {
             conn[i] = p->Fam.GetNextWordAsInt() - 1;
             }
-          parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,segId,VTK_QUAD,4,conn);
+          parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,segId,cellType,4,conn);
           }
         }
       }
@@ -2724,8 +2719,9 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
 }
 
 //-----------------------------------------------------------------------------
-int vtkLSDynaReader::ReadCellStateInfo( vtkIdType step )
+int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 {
+
   LSDynaMetaData* p = this->P;
 
 #define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
@@ -3042,7 +3038,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
   for(vtkIdType i=0; i < numParts; ++i)
     {
     p->Fam.BufferChunk(LSDynaFamily::Int, 1);
-    vtkIdType partId = p->Fam.GetNextWordAsInt();
+    p->Fam.GetNextWordAsInt(); //vtkIdType partId
 
     p->Fam.BufferChunk( LSDynaFamily::Char, nameWordSize);
     std::string name(p->Fam.GetNextWordAsChars(),72);
