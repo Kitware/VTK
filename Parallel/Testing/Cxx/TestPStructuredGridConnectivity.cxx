@@ -176,7 +176,7 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
   unsigned int block=0;
   for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
     {
-    if( Rank == block%NumberOfProcessors )
+    if( Rank == static_cast<int>( block%NumberOfProcessors ) )
       {
       // Copy the uniform grid
       vtkUniformGrid *grid = vtkUniformGrid::New();
@@ -252,7 +252,7 @@ int TestPStructuredGridConnectivity( const int factor )
   vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
   assert( "pre: mbds != NULL" && (mbds != NULL) );
   assert( "pre: numBlocks mismatch" &&
-           (mbds->GetNumberOfBlocks()==numPartitions) );
+           (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
 
   // STEP 2: Setup the grid connectivity
   vtkPStructuredGridConnectivity *gridConnectivity =
@@ -369,7 +369,7 @@ int TestAverage( const int factor )
   vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
   assert( "pre: mbds != NULL" && (mbds != NULL) );
   assert( "pre: numBlocks mismatch" &&
-           (mbds->GetNumberOfBlocks()==numPartitions) );
+           (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
 
   // STEP 2: Setup the grid connectivity
   vtkPStructuredGridConnectivity *gridConnectivity =
