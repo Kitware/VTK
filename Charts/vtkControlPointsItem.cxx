@@ -756,16 +756,31 @@ vtkIdType vtkControlPointsItem::GetControlPointId(double* point)
 //-----------------------------------------------------------------------------
 vtkIdTypeArray* vtkControlPointsItem::GetControlPointsIds()const
 {
+  return this->GetControlPointsIds(false);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdTypeArray* vtkControlPointsItem
+::GetControlPointsIds(bool excludeFirstAndLast)const
+{
   vtkIdTypeArray* points = vtkIdTypeArray::New();
-  const int numberOfPoints = this->GetNumberOfPoints();
+  int numberOfPoints = this->GetNumberOfPoints();
+  if (excludeFirstAndLast)
+    {
+    numberOfPoints -= 2;
+    }
+  if (numberOfPoints <= 0)
+    {
+    return points;
+    }
   points->SetNumberOfTuples(numberOfPoints);
+  vtkIdType pointId = excludeFirstAndLast ? 1 : 0;
   for(vtkIdType i = 0; i < numberOfPoints; ++i)
     {
-    points->SetValue(i, i);
+    points->SetValue(i, pointId++);
     }
   return points;
 }
-
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::AddPointId(vtkIdType addedPointId)
 {
@@ -1138,11 +1153,12 @@ void vtkControlPointsItem::MovePoints(const vtkVector2f& translation, vtkIdTypeA
 }
 
 //-----------------------------------------------------------------------------
-void vtkControlPointsItem::MovePoints(const vtkVector2f& translation)
+void vtkControlPointsItem::MovePoints(const vtkVector2f& translation,
+                                      bool dontMoveFirstAndLast)
 {
-  vtkIdTypeArray* points = this->GetControlPointsIds();
+  vtkSmartPointer<vtkIdTypeArray> points;
+  points.TakeReference(this->GetControlPointsIds(dontMoveFirstAndLast));
   this->MovePoints(translation, points);
-  points->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -1237,11 +1253,11 @@ void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
 }
 
 //-----------------------------------------------------------------------------
-void vtkControlPointsItem::SpreadPoints(float factor)
+void vtkControlPointsItem::SpreadPoints(float factor, bool dontSpreadFirstAndLast)
 {
-  vtkIdTypeArray* points = this->GetControlPointsIds();
+  vtkSmartPointer<vtkIdTypeArray> points;
+  points.TakeReference(this->GetControlPointsIds(dontSpreadFirstAndLast));
   this->SpreadPoints(factor, points);
-  points->Delete();
 }
 
 //-----------------------------------------------------------------------------

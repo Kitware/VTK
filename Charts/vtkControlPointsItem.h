@@ -139,6 +139,11 @@ public:
   vtkIdTypeArray* GetControlPointsIds()const;
 
   // Description:
+  // Similar to GetControlPointsIds() but can exclude the first and last point
+  // ids from the array.
+  vtkIdTypeArray* GetControlPointsIds(bool excludeFirstAndLast)const;
+
+  // Description:
   // Controls whether or not control points are drawn (true) or clicked and
   // moved (false).
   // False by default.
@@ -199,7 +204,9 @@ public:
 
   // Description:
   // Utility function to move all the control points of the given translation
-  void MovePoints(const vtkVector2f& translation);
+  // If dontMoveFirstAndLast is true, then the first and last points won't be
+  // moved.
+  void MovePoints(const vtkVector2f& translation, bool dontMoveFirstAndLast = false);
 
   // Description:
   // Spread the points referred by pointIds
@@ -212,7 +219,9 @@ public:
 
   // Description:
   // Utility function to spread all the control points of a given factor
-  void SpreadPoints(float factor);
+  // If dontSpreadFirstAndLast is true, then the first and last points won't be
+  // spread.
+  void SpreadPoints(float factor, bool dontSpreadFirstAndLast = false);
 
   // Description:
   // Returns the current point ID selected or -1 if there is no point current.
