@@ -380,6 +380,10 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
 // Program main
 int TestStructuredGridConnectivity( int argc, char *argv[] )
 {
+  // Silence compiler wanrings for unused vars argc and argv
+  static_cast<void>( argc );
+  static_cast<void>( argv );
+
   int expected = 100*100*100;
   int rc = 0;
   int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
@@ -479,6 +483,10 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
 // connectivity functionality.
 int SimpleMonolithicTest( int argc, char **argv )
 {
+  // Silence compiler wanrings for unused vars argc and argv
+  static_cast<void>( argc );
+  static_cast<void>( argv );
+
   vtkMultiPieceDataSet *mpds = GetDataSet( );
 
   vtkStructuredGridConnectivity  *gridConnectivity =
