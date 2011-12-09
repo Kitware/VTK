@@ -493,6 +493,13 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       {
       // Lets see if this is the highest resolution grid that contains the 
       // point
+      donorLevel = level;
+      // if we are going from fine to coarse then we can stop the search
+      if (incLevel == -1)
+        {
+        return donorCellIdx;
+        }
+
       if (donorGrid->IsCellVisible(donorCellIdx))
         {
         //return donorCellIdx;
@@ -503,7 +510,6 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       currentGrid    = donorGrid;
       currentCellIdx = donorCellIdx;
       currentLevel = level;
-      donorLevel = level;
       }
     else if( currentGrid != NULL )
       {
