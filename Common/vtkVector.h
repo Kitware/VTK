@@ -25,6 +25,9 @@
 #ifndef __vtkVector_h
 #define __vtkVector_h
 
+#include <cassert> // For inline assert for bounds checked methods.
+#include <cmath>   // For math functions
+
 template<typename T, int Size>
 class vtkVector
 {
@@ -63,7 +66,84 @@ public:
   // Description:
   // Get the value of the vector at the index speciifed. Does bounds checking,
   // used in much the same way as vector.at(i) is used.
-  T operator()(int i) const { return this->Data[i]; }
+  T operator()(int i) const
+  {
+    assert("pre: index_in_bounds" && i >= 0 && i < Size);
+    return this->Data[i];
+  }
+
+  // Description:
+  // Get the squared norm of the vector.
+  T SquaredNorm() const
+  {
+    T result = 0;
+    for (int i = 0; i < Size; ++i)
+      {
+      result += this->Data[i] * this->Data[i];
+      }
+    return result;
+  }
+
+  // Description:
+  // Get the norm of the vector, i.e. its length.
+  T Norm() const
+  {
+    return sqrt(this->SquaredNorm());
+  }
+
+  // Description:
+  // Normalize the vector in place.
+  // \return The length of the vector.
+  T Normalize()
+  {
+    const T norm(this->Norm());
+    const T inv(1.0 / norm);
+    for (int i = 0; i < Size; ++i)
+      {
+      this->Data[i] *= inv;
+      }
+    return norm;
+  }
+
+  // Description:
+  // Return the normalized form of this vector.
+  // \return The normalized form of this vector.
+  vtkVector<T, Size> Normalized() const
+  {
+    vtkVector<T, Size> temp(*this);
+    temp.Normalize();
+    return temp;
+  }
+
+  // Description:
+  // The dot product of this and the supplied vector.
+  T Dot(const vtkVector<T, Size>& other) const
+  {
+    T result(0);
+    for (int i = 0; i < Size; ++i)
+      {
+      result += this->Data[i] * other[i];
+      }
+    return result;
+  }
+
+  // Description:
+  // Equality operator with a tolerance to allow fuzzy comparisons.
+  bool Compare(const vtkVector<T, Size>& other, const T& tol) const
+  {
+    if (Size != other.GetSize())
+      {
+      return false;
+      }
+    for (int i = 0; i < Size; ++i)
+      {
+      if (fabs(this->Data[i] - other.Data[i]) >= tol)
+        {
+        return false;
+        }
+      }
+    return true;
+  }
 
   // Description:
   // Cast the vector to the specified type, returning the result.
@@ -178,7 +258,29 @@ public:
   const T& GetZ() const { return this->Data[2]; }
   const T& Z() const { return this->Data[2]; }
 
+  // Description:
+  // Return the cross product of this X other.
+  vtkVector3<T> Cross(const vtkVector3& other) const
+  {
+    vtkVector3<T> res;
+    res[0] = this->Data[1] * other.Data[2] - this->Data[2] * other.Data[1];
+    res[1] = this->Data[2] * other.Data[0] - this->Data[0] * other.Data[2];
+    res[2] = this->Data[0] * other.Data[1] - this->Data[1] * other.Data[0];
+    return res;
+  }
+
 };
+
+// Description:
+// Some inline functions for the derived types.
+#define vtkVectorNormalized(vectorType, type, size) \
+vectorType Normalized() \
+{ \
+  return vectorType(vtkVector<type, size>::Normalized().GetData()); \
+} \
+
+#define vtkVectorDerivedMacro(vectorType, type, size) \
+vtkVectorNormalized(vectorType, type, size) \
 
 // Description:
 // Some derived classes for the different vectors commonly used.
@@ -187,6 +289,7 @@ class vtkVector2i : public vtkVector2<int>
 public:
   vtkVector2i(int x = 0, int y = 0) : vtkVector2<int>(x, y) {}
   explicit vtkVector2i(const int *init) : vtkVector2<int>(init) {}
+  vtkVectorDerivedMacro(vtkVector2i, int, 2)
 };
 
 class vtkVector2f : public vtkVector2<float>
@@ -194,6 +297,7 @@ class vtkVector2f : public vtkVector2<float>
 public:
   vtkVector2f(float x = 0.0, float y = 0.0) : vtkVector2<float>(x, y) {}
   vtkVector2f(const float* i) : vtkVector2<float>(i) {}
+  vtkVectorDerivedMacro(vtkVector2f, float, 2)
 };
 
 class vtkVector2d : public vtkVector2<double>
@@ -201,13 +305,22 @@ class vtkVector2d : public vtkVector2<double>
 public:
   vtkVector2d(double x = 0.0, double y = 0.0) : vtkVector2<double>(x, y) {}
   explicit vtkVector2d(const double *init) : vtkVector2<double>(init) {}
+  vtkVectorDerivedMacro(vtkVector2d, double, 2)
 };
+
+#define vtkVector3Cross(vectorType, type) \
+vectorType Cross(const vectorType& other) \
+{ \
+  return vectorType(vtkVector3<type>::Cross(other).GetData()); \
+} \
 
 class vtkVector3i : public vtkVector3<int>
 {
 public:
   vtkVector3i(int x = 0, int y = 0, int z = 0) : vtkVector3<int>(x, y, z) {}
   explicit vtkVector3i(const int *init) : vtkVector3<int>(init) {}
+  vtkVectorDerivedMacro(vtkVector3i, int, 3)
+  vtkVector3Cross(vtkVector3i, int)
 };
 
 class vtkVector3f : public vtkVector3<float>
@@ -216,6 +329,8 @@ public:
   vtkVector3f(float x = 0.0, float y = 0.0, float z = 0.0)
     : vtkVector3<float>(x, y, z) {}
   explicit vtkVector3f(const float *init) : vtkVector3<float>(init) {}
+  vtkVectorDerivedMacro(vtkVector3f, float, 3)
+  vtkVector3Cross(vtkVector3f, float)
 };
 
 class vtkVector3d : public vtkVector3<double>
@@ -224,16 +339,10 @@ public:
   vtkVector3d(double x = 0.0, double y = 0.0, double z = 0.0)
     : vtkVector3<double>(x, y, z) {}
   explicit vtkVector3d(const double *init) : vtkVector3<double>(init) {}
+  vtkVectorDerivedMacro(vtkVector3d, double, 3)
+  vtkVector3Cross(vtkVector3d, double)
 };
 
-// Some operators for easy addition etc
-inline const vtkVector2f operator+(const vtkVector2f &lhs, const vtkVector2f &rhs)
-{
-  return vtkVector2f(lhs[0] + rhs[0], lhs[1] + rhs[1]);
-}
-inline const vtkVector2f operator-(const vtkVector2f &lhs, const vtkVector2f &rhs)
-{
-  return vtkVector2f(lhs[0] - rhs[0], lhs[1] - rhs[1]);
-}
+#include "vtkVectorOperators.h"
 
 #endif // __vtkVector_h
