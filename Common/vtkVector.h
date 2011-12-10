@@ -86,9 +86,9 @@ public:
 
   // Description:
   // Get the norm of the vector, i.e. its length.
-  T Norm() const
+  double Norm() const
   {
-    return sqrt(this->SquaredNorm());
+    return sqrt(static_cast<double>(this->SquaredNorm()));
   }
 
   // Description:
