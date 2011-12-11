@@ -171,6 +171,9 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   this->SliceMapper->SetExactPixelMatch(this->InternalResampleToScreenPixels);
   this->SliceMapper->SetBorder( (this->Border ||
                                  this->InternalResampleToScreenPixels) );
+  this->SliceMapper->SetBackground( (this->Background &&
+    !(this->SliceFacesCamera && this->InternalResampleToScreenPixels &&
+      !this->SeparateWindowLevelOperation) ) );
   this->SliceMapper->SetPassColorData(!this->SeparateWindowLevelOperation);
   this->SliceMapper->SetDisplayExtent(this->ImageReslice->GetOutputExtent());
 
@@ -976,6 +979,16 @@ void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty *property)
     }
   this->ImageReslice->SetBypass(this->SeparateWindowLevelOperation != 0);
   this->ImageReslice->SetLookupTable(lookupTable);
+  double backgroundColor[4] = { 0.0, 0.0, 0.0, 0.0 };
+  if (this->Background)
+    {
+    this->GetBackgroundColor(property, backgroundColor);
+    backgroundColor[0] *= 255;
+    backgroundColor[1] *= 255;
+    backgroundColor[2] *= 255;
+    backgroundColor[3] *= 255;
+    }
+  this->ImageReslice->SetBackgroundColor(backgroundColor);
 }
 
 //----------------------------------------------------------------------------

@@ -44,6 +44,7 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
 
   this->Border = 0;
+  this->Background = 0;
 
   this->SlicePlane = vtkPlane::New();
   this->SliceFacesCamera = 0;
@@ -161,6 +162,7 @@ void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SliceFacesCamera: "
      << (this->SliceFacesCamera ? "On\n" : "Off\n");
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
+  os << indent << "Background: " << (this->Background ? "On\n" : "Off\n");
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
 }
 
@@ -1076,6 +1078,31 @@ void vtkImageMapper3D::GetSlicePlaneInDataCoords(
   normal[1] /= l;
   normal[2] /= l;
   normal[3] /= l;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMapper3D::GetBackgroundColor(
+  vtkImageProperty *property, double color[4])
+{
+  color[0] = 0.0;
+  color[1] = 0.0;
+  color[2] = 0.0;
+  color[3] = 1.0;
+
+  if (property)
+    {
+    vtkScalarsToColors *table = property->GetLookupTable();
+    if (table)
+      {
+      double v = property->GetColorLevel() - 0.5*property->GetColorWindow();
+      if (property->GetUseLookupTableScalarRange())
+        {
+        v = table->GetRange()[0];
+        }
+      table->GetColor(v, color);
+      color[3] = table->GetOpacity(v);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

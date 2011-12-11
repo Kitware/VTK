@@ -82,6 +82,12 @@ protected:
   void RenderPolygon(vtkPoints *points, const int extent[6], bool textured);
 
   // Description:
+  // Render the background, which means rendering everything within the
+  // plane of the image except for the polygon that displays the image data.
+  void RenderBackground(
+    vtkPoints *points, const int extent[6], bool textured);
+
+  // Description:
   // Bind the fragment program, and generate it first if necessary.
   void BindFragmentProgram(vtkRenderer *ren, vtkImageProperty *property);
 
@@ -108,7 +114,8 @@ protected:
   // Check various OpenGL capabilities
   void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
 
-  long Index; // OpenGL ID for texture or display list
+  long TextureIndex; // OpenGL ID for texture or display list
+  long BackgroundTextureIndex; // OpenGL ID for texture or display list
   long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
   int TextureSize[2];
