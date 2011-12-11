@@ -355,6 +355,4 @@ public:
 #endif
 };
 
-#include "vtkVectorOperators.h"
-
 #endif // __vtkVector_h

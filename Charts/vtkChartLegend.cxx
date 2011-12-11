@@ -23,6 +23,7 @@
 #include "vtkTextProperty.h"
 #include "vtkStdString.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 #include "vtkWeakPointer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
