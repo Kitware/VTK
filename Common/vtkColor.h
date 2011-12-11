@@ -27,7 +27,7 @@
 // .NAME vtkColor3 - templated base type for storage of 3 component colors.
 //
 template<typename T>
-class vtkColor3 : public vtkVector<T, 3>
+class vtkColor3 : public vtkVectorBase<T, 3>
 {
 public:
   vtkColor3(const T& red = 0, const T& green = 0, const T& blue = 0)
@@ -36,7 +36,7 @@ public:
     this->Data[1] = green;
     this->Data[2] = blue;
   }
-  explicit vtkColor3(const T* init) : vtkVector<T, 3>(init)
+  explicit vtkColor3(const T* init) : vtkVectorBase<T, 3>(init)
   {
   }
 
@@ -80,7 +80,7 @@ public:
 // .NAME vtkColor4 - templated base type for storage of 4 component colors.
 //
 template<typename T>
-class vtkColor4 : public vtkVector<T, 4>
+class vtkColor4 : public vtkVectorBase<T, 4>
 {
 public:
   vtkColor4(const T& red = 0, const T& green = 0, const T& blue = 0,
@@ -91,7 +91,7 @@ public:
     this->Data[2] = blue;
     this->Data[3] = alpha;
   }
-  explicit vtkColor4(const T* init) : vtkVector<T, 4>(init)
+  explicit vtkColor4(const T* init) : vtkVectorBase<T, 4>(init)
   {
   }
 
