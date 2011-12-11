@@ -438,66 +438,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
 
   if (useFragmentProgram)
     {
-    // Bind the bicubic interpolation fragment program, it will
-    // not do anything if modern shader objects are also in play.
-    vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
-                          this->FragmentShaderIndex);
-
-    // checkerboard information
-    double checkSpacing[2], checkOffset[2];
-    property->GetCheckerboardSpacing(checkSpacing);
-    property->GetCheckerboardOffset(checkOffset);
-
-    // transformation to permute texture-oriented coords to data coords
-    double mat[16];
-    vtkMatrix4x4::Identity(mat);
-    mat[0] = mat[5] = mat[10] = 0.0;
-    mat[4*xdim] = mat[1+4*ydim] = 1.0;
-    int dimsep = ydim - xdim + 3*(xdim > ydim);
-    mat[2+4*zdim] = (((dimsep % 3) == 1) ? 1.0 : -1.0);
-    mat[4*zdim+3] = origin[zdim] + spacing[zdim]*this->DisplayExtent[2*zdim];
-
-    // checkerboard uses view coordinates
-    vtkMatrix4x4 *m = this->GetDataToWorldMatrix();
-    vtkMatrix4x4 *c = ren->GetActiveCamera()->GetViewTransformMatrix();
-    vtkMatrix4x4::Multiply4x4(*m->Element, mat, mat);
-    vtkMatrix4x4::Multiply4x4(*c->Element, mat, mat);
-
-    // first parameter: texture size needed for bicubic interpolator
-    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
-      static_cast<float>(this->TextureSize[0]),
-      static_cast<float>(this->TextureSize[1]),
-      static_cast<float>(1.0/this->TextureSize[0]),
-      static_cast<float>(1.0/this->TextureSize[1]));
-
-    // second parameter: scale and offset for converting texture coords
-    // into the input image's data coords
-    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 1,
-      static_cast<float>(this->TextureSize[0]*spacing[xdim]),
-      static_cast<float>(this->TextureSize[1]*spacing[ydim]),
-      static_cast<float>(origin[xdim] +
-                         spacing[xdim]*(this->DisplayExtent[2*xdim] - 0.5)),
-      static_cast<float>(origin[ydim] +
-                         spacing[ydim]*(this->DisplayExtent[2*ydim] - 0.5)));
-
-    // third parameter: scale and offset for converting data coords into
-    // checkboard square indices, for checkerboarding
-    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 2,
-      static_cast<float>(0.5/checkSpacing[0]),
-      static_cast<float>(0.5/checkSpacing[1]),
-      static_cast<float>(-0.5*checkOffset[0]),
-      static_cast<float>(-0.5*checkOffset[1]));
-
-    // fourth, fifth param: first two rows of the transformation matrix
-    // from data coords to camera coords (including a pre-translation of
-    // z from zero to the z position of the slice, since the texture coords
-    // are 2D and do not provide the z position)
-    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 3,
-      static_cast<float>(mat[0]), static_cast<float>(mat[1]),
-      static_cast<float>(mat[2]), static_cast<float>(mat[3]));
-    vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 4,
-      static_cast<float>(mat[4]), static_cast<float>(mat[5]),
-      static_cast<float>(mat[6]), static_cast<float>(mat[7]));
+    this->BindFragmentProgram(ren, property);
 
     glEnable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
@@ -557,6 +498,79 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     {
     glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLImageSliceMapper::BindFragmentProgram(
+  vtkRenderer *ren, vtkImageProperty *property)
+{
+  int xdim, ydim, zdim; // orientation of texture wrt input image
+  vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
+  zdim = 3 - xdim - ydim; // they sum to three
+  double *spacing = this->DataSpacing;
+  double *origin = this->DataOrigin;
+  int *extent = this->DisplayExtent;
+
+  // Bind the bicubic interpolation fragment program, it will
+  // not do anything if modern shader objects are also in play.
+  vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
+                        this->FragmentShaderIndex);
+
+  // checkerboard information
+  double checkSpacing[2], checkOffset[2];
+  property->GetCheckerboardSpacing(checkSpacing);
+  property->GetCheckerboardOffset(checkOffset);
+
+  // transformation to permute texture-oriented coords to data coords
+  double mat[16];
+  vtkMatrix4x4::Identity(mat);
+  mat[0] = mat[5] = mat[10] = 0.0;
+  mat[4*xdim] = mat[1+4*ydim] = 1.0;
+  int dimsep = ydim - xdim + 3*(xdim > ydim);
+  mat[2+4*zdim] = (((dimsep % 3) == 1) ? 1.0 : -1.0);
+  mat[4*zdim+3] = origin[zdim] + spacing[zdim]*extent[2*zdim];
+
+  // checkerboard uses view coordinates
+  vtkMatrix4x4 *m = this->GetDataToWorldMatrix();
+  vtkMatrix4x4 *c = ren->GetActiveCamera()->GetViewTransformMatrix();
+  vtkMatrix4x4::Multiply4x4(*m->Element, mat, mat);
+  vtkMatrix4x4::Multiply4x4(*c->Element, mat, mat);
+
+  // first parameter: texture size needed for bicubic interpolator
+  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
+    static_cast<float>(this->TextureSize[0]),
+    static_cast<float>(this->TextureSize[1]),
+    static_cast<float>(1.0/this->TextureSize[0]),
+    static_cast<float>(1.0/this->TextureSize[1]));
+
+  // second parameter: scale and offset for converting texture coords
+  // into the input image's data coords
+  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 1,
+    static_cast<float>(this->TextureSize[0]*spacing[xdim]),
+    static_cast<float>(this->TextureSize[1]*spacing[ydim]),
+    static_cast<float>(origin[xdim] +
+                       spacing[xdim]*(extent[2*xdim] - 0.5)),
+    static_cast<float>(origin[ydim] +
+                       spacing[ydim]*(extent[2*ydim] - 0.5)));
+
+  // third parameter: scale and offset for converting data coords into
+  // checkboard square indices, for checkerboarding
+  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 2,
+    static_cast<float>(0.5/checkSpacing[0]),
+    static_cast<float>(0.5/checkSpacing[1]),
+    static_cast<float>(-0.5*checkOffset[0]),
+    static_cast<float>(-0.5*checkOffset[1]));
+
+  // fourth, fifth param: first two rows of the transformation matrix
+  // from data coords to camera coords (including a pre-translation of
+  // z from zero to the z position of the slice, since the texture coords
+  // are 2D and do not provide the z position)
+  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 3,
+    static_cast<float>(mat[0]), static_cast<float>(mat[1]),
+    static_cast<float>(mat[2]), static_cast<float>(mat[3]));
+  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 4,
+    static_cast<float>(mat[4]), static_cast<float>(mat[5]),
+    static_cast<float>(mat[6]), static_cast<float>(mat[7]));
 }
 
 //----------------------------------------------------------------------------

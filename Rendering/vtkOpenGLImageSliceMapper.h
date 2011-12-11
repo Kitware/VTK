@@ -82,6 +82,10 @@ protected:
     vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
+  // Bind the fragment program, and generate it first if necessary.
+  void BindFragmentProgram(vtkRenderer *ren, vtkImageProperty *property);
+
+  // Description:
   // Build the fragment program to use with the texture.
   vtkStdString BuildFragmentProgram(vtkImageProperty *property);
 
