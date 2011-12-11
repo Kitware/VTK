@@ -28,7 +28,6 @@
 #include <assert.h>
 #include <cmath>
 
-#include "vtkMathConfigure.h"
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
