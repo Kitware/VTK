@@ -127,7 +127,8 @@ void vtkChartParallelCoordinates::Update()
       axis->SetPosition(vtkAxis::PARALLEL);
       this->Storage->Axes.push_back(axis);
       }
-    this->Storage->AxesSelections.resize(this->Storage->Axes.size());
+    this->Storage->AxesSelections.resize(this->Storage->Axes.size(),
+                                         vtkVector2f(0, 0));
     }
 
   // Now set up their ranges and locations
