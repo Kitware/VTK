@@ -28,6 +28,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
+#include "vtkVectorOperators.h"
 
 #include <cassert>
 #include <limits>

@@ -16,6 +16,7 @@
 #include "vtkSetGet.h"
 
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 #include "vtkColor.h"
 #include "vtkMathUtilities.h"
 

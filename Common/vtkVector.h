@@ -289,7 +289,9 @@ class vtkVector2i : public vtkVector2<int>
 public:
   vtkVector2i(int x = 0, int y = 0) : vtkVector2<int>(x, y) {}
   explicit vtkVector2i(const int *init) : vtkVector2<int>(init) {}
+#ifndef __WRAP__
   vtkVectorDerivedMacro(vtkVector2i, int, 2)
+#endif
 };
 
 class vtkVector2f : public vtkVector2<float>
@@ -297,7 +299,9 @@ class vtkVector2f : public vtkVector2<float>
 public:
   vtkVector2f(float x = 0.0, float y = 0.0) : vtkVector2<float>(x, y) {}
   vtkVector2f(const float* i) : vtkVector2<float>(i) {}
+#ifndef __WRAP__
   vtkVectorDerivedMacro(vtkVector2f, float, 2)
+#endif
 };
 
 class vtkVector2d : public vtkVector2<double>
@@ -305,7 +309,9 @@ class vtkVector2d : public vtkVector2<double>
 public:
   vtkVector2d(double x = 0.0, double y = 0.0) : vtkVector2<double>(x, y) {}
   explicit vtkVector2d(const double *init) : vtkVector2<double>(init) {}
+#ifndef __WRAP__
   vtkVectorDerivedMacro(vtkVector2d, double, 2)
+#endif
 };
 
 #define vtkVector3Cross(vectorType, type) \
@@ -319,8 +325,10 @@ class vtkVector3i : public vtkVector3<int>
 public:
   vtkVector3i(int x = 0, int y = 0, int z = 0) : vtkVector3<int>(x, y, z) {}
   explicit vtkVector3i(const int *init) : vtkVector3<int>(init) {}
+#ifndef __WRAP__
   vtkVectorDerivedMacro(vtkVector3i, int, 3)
   vtkVector3Cross(vtkVector3i, int)
+#endif
 };
 
 class vtkVector3f : public vtkVector3<float>
@@ -329,8 +337,10 @@ public:
   vtkVector3f(float x = 0.0, float y = 0.0, float z = 0.0)
     : vtkVector3<float>(x, y, z) {}
   explicit vtkVector3f(const float *init) : vtkVector3<float>(init) {}
+#ifndef __WRAP__
   vtkVectorDerivedMacro(vtkVector3f, float, 3)
   vtkVector3Cross(vtkVector3f, float)
+#endif
 };
 
 class vtkVector3d : public vtkVector3<double>
@@ -339,10 +349,10 @@ public:
   vtkVector3d(double x = 0.0, double y = 0.0, double z = 0.0)
     : vtkVector3<double>(x, y, z) {}
   explicit vtkVector3d(const double *init) : vtkVector3<double>(init) {}
+#ifndef __WRAP__
   vtkVectorDerivedMacro(vtkVector3d, double, 3)
   vtkVector3Cross(vtkVector3d, double)
+#endif
 };
-
-#include "vtkVectorOperators.h"
 
 #endif // __vtkVector_h

@@ -21,7 +21,7 @@
 #ifndef __vtkMathConfigure_h
 #define __vtkMathConfigure_h
 
-#include <math.h>
+#include <cmath>
 #include <float.h>
 
 #cmakedefine VTK_HAS_ISNAN
