@@ -62,11 +62,6 @@ protected:
     double alpha, double ambient, double diffuse);
 
   // Description:
-  // Render an opaque polygon behind the image.  This is also used
-  // in multi-pass rendering to render into the depth buffer.
-  void RenderBackingPolygon();
-
-  // Description:
   // Recursive internal method, will call the non-recursive method
   // as many times as necessary if the texture must be broken up into
   // pieces that are small enough for the GPU to render
@@ -80,6 +75,11 @@ protected:
   void RenderTexturedPolygon(
     vtkRenderer *ren, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
+
+  // Description:
+  // Basic polygon rendering, if the textured parameter is set the tcoords
+  // are included, otherwise they aren't.
+  void RenderPolygon(vtkPoints *points, const int extent[6], bool textured);
 
   // Description:
   // Bind the fragment program, and generate it first if necessary.

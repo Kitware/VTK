@@ -117,47 +117,6 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 }
 
 //----------------------------------------------------------------------------
-// Render the backing polygon
-void vtkOpenGLImageSliceMapper::RenderBackingPolygon()
-{
-  static double normals[3][3] =
-    { {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} };
-  double *normal = normals[(this->Orientation % 3)];
-  vtkPoints *points = this->Points;
-
-  if (!points)
-    {
-    // set the geometry for the quad to texture
-    double coords[12];
-    this->MakeTextureGeometry(
-      this->GetInput(), this->DisplayExtent, this->Border, coords, 0);
-
-    glBegin(GL_QUADS);
-    for (int i = 0; i < 4; i++)
-      {
-      glNormal3dv(normal);
-      glVertex3dv(&coords[i*3]);
-      }
-    glEnd();
-    }
-  else if (points->GetNumberOfPoints())
-    {
-    vtkIdType ncoords = points->GetNumberOfPoints(); 
-    double coord[3];
-
-    glBegin((ncoords == 4) ? GL_QUADS : GL_POLYGON);
-    for (vtkIdType i = 0; i < ncoords; i++)
-      {
-      points->GetPoint(i, coord);
-
-      glNormal3dv(normal);
-      glVertex3dv(coord);
-      }
-    glEnd();
-    }
-}
-
- //----------------------------------------------------------------------------
 // Subdivide the image until the pieces fit into texture memory
 void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
   vtkRenderer *ren, vtkImageProperty *property,
@@ -245,8 +204,6 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     }
 
   // get information about the image
-  double *spacing = input->GetSpacing();
-  double *origin = input->GetOrigin();
   int xdim, ydim, zdim; // orientation of texture wrt input image
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
   zdim = (this->Orientation % 3);
@@ -448,30 +405,58 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   // modulate the texture with the fragment for lighting effects
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+  vtkPoints *points = this->Points;
+  if (this->ExactPixelMatch && this->SliceFacesCamera)
+    {
+    points = 0;
+    }
+
+  this->RenderPolygon(points, extent, true);
+
+  if (useFragmentProgram)
+    {
+    glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLImageSliceMapper::RenderPolygon(
+  vtkPoints *points, const int extent[6], bool textured)
+{
   static double normals[3][3] =
     { { 1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
-  double *normal = normals[zdim];
+  double *normal = normals[(this->Orientation % 3)];
 
-  if (!this->Points || (this->ExactPixelMatch && this->SliceFacesCamera))
+  if (!points)
     {
     // use a full-screen quad if slice faces camera, this ensures that all
     // images showing the same "slice" use exactly the same geometry, which
     // helps to avoid some depth-buffer coincidence issues
     double coords[12], tcoords[8];
-    this->MakeTextureGeometry(input, extent, this->Border, coords, tcoords);
+    this->MakeTextureGeometry(extent, coords, tcoords);
 
     glBegin(GL_QUADS);
     for (int i = 0; i < 4; i++)
       {
       glNormal3dv(normal);
-      glTexCoord2dv(&tcoords[i*2]);
+      if (textured)
+        {
+        glTexCoord2dv(&tcoords[i*2]);
+        }
       glVertex3dv(&coords[i*3]);
       }
     glEnd();
     }
-  else if (this->Points->GetNumberOfPoints())
+  else if (points->GetNumberOfPoints())
     {
-    vtkPoints *points = this->Points;
+    int xdim, ydim;
+    vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
+    double *origin = this->DataOrigin;
+    double *spacing = this->DataSpacing;
+    double xshift = origin[xdim] - (0.5 - extent[2*xdim])*spacing[xdim];
+    double xscale = this->TextureSize[xdim]*spacing[xdim];
+    double yshift = origin[ydim] - (0.5 - extent[2*ydim])*spacing[ydim];
+    double yscale = this->TextureSize[ydim]*spacing[ydim];
     vtkIdType ncoords = points->GetNumberOfPoints(); 
     double coord[3];
     double tcoord[2];
@@ -480,23 +465,16 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     for (vtkIdType i = 0; i < ncoords; i++)
       {
       points->GetPoint(i, coord);
-      tcoord[0] = ((coord[0] - origin[xdim] +
-                    (0.5 - this->DisplayExtent[2*xdim])*spacing[xdim])/
-                   (this->TextureSize[xdim]*spacing[xdim]));
-      tcoord[1] = ((coord[1] - origin[ydim] +
-                    (0.5 - this->DisplayExtent[2*ydim])*spacing[ydim])/
-                   (this->TextureSize[ydim]*spacing[ydim]));
-
       glNormal3dv(normal);
-      glTexCoord2dv(tcoord);
+      if (textured)
+        {
+        tcoord[0] = (coord[0] - xshift)/xscale;
+        tcoord[1] = (coord[1] - yshift)/yscale;
+        glTexCoord2dv(tcoord);
+        }
       glVertex3dv(coord);
       }
     glEnd();
-    }
-
-  if (useFragmentProgram)
-    {
-    glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
 }
 
@@ -775,6 +753,12 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   // time the render
   this->Timer->StartTimer();
 
+  // update the input information
+  vtkImageData *input = this->GetInput();
+  input->GetSpacing(this->DataSpacing);
+  input->GetOrigin(this->DataOrigin);
+  input->GetWholeExtent(this->DataWholeExtent);
+
   // OpenGL matrices are column-order, not row-order like VTK
   vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
   double mat[16];
@@ -868,7 +852,7 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     // the backing polygon is always opaque
     this->RenderColorAndLighting(
       bcolor[0], bcolor[1], bcolor[2], 1.0, ambient, diffuse);
-    this->RenderBackingPolygon();
+    this->RenderPolygon(this->Points, this->DisplayExtent, false);
     }
 
   // render the texture

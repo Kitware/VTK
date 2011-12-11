@@ -144,8 +144,7 @@ protected:
   // Compute the coordinates and texture coordinates for the image, given
   // an extent that describes a single slice.
   void MakeTextureGeometry(
-    vtkImageData *input, const int extent[6], int border,
-    double coords[12], double tcoords[8]);
+    const int extent[6], double coords[12], double tcoords[8]);
 
   // Description:
   // Given an extent that describes a slice (it must have unit thickness
