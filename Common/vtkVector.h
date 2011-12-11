@@ -29,16 +29,16 @@
 #include <cmath>   // For math functions
 
 template<typename T, int Size>
-class vtkVector
+class vtkVectorBase
 {
 public:
-  vtkVector()
+  vtkVectorBase()
   {
   }
 
   // Description:
   // Initialize all of the vector's elements with the supplied scalar.
-  explicit vtkVector(const T& scalar)
+  explicit vtkVectorBase(const T& scalar)
   {
     for (int i = 0; i < Size; ++i)
       {
@@ -50,7 +50,7 @@ public:
   // Initalize the vector's elements with the elements of the supplied array.
   // Note that the supplied pointer must contain at least as many elements as
   // the vector, or it will result in access to out of bounds memory.
-  explicit vtkVector(const T* init)
+  explicit vtkVectorBase(const T* init)
   {
     for (int i = 0; i < Size; ++i)
       {
@@ -83,6 +83,55 @@ public:
   }
 
   // Description:
+  // Equality operator with a tolerance to allow fuzzy comparisons.
+  bool Compare(const vtkVectorBase<T, Size>& other, const T& tol) const
+  {
+    if (Size != other.GetSize())
+      {
+      return false;
+      }
+    for (int i = 0; i < Size; ++i)
+      {
+      if (fabs(this->Data[i] - other.Data[i]) >= tol)
+        {
+        return false;
+        }
+      }
+    return true;
+  }
+
+  // Description:
+  // Cast the vector to the specified type, returning the result.
+  template<typename TR>
+  vtkVectorBase<TR, Size> Cast() const
+  {
+    vtkVectorBase<TR, Size> result;
+    for (int i = 0; i < Size; ++i)
+      {
+      result[i] = static_cast<TR>(this->Data[i]);
+      }
+    return result;
+  }
+
+protected:
+  // Description:
+  // The only thing stored in memory!
+  T Data[Size];
+};
+
+template<typename T, int Size>
+class vtkVector : public vtkVectorBase<T, Size>
+{
+public:
+  vtkVector()
+  {
+  }
+
+  vtkVector(const T* init) : vtkVectorBase<T, Size>(init)
+  {
+  }
+
+  // Description:
   // Get the squared norm of the vector.
   T SquaredNorm() const
   {
@@ -110,7 +159,7 @@ public:
     const double inv(1.0 / norm);
     for (int i = 0; i < Size; ++i)
       {
-      this->Data[i] *= inv;
+      this->Data[i] = static_cast<T>(this->Data[i] * inv);
       }
     return norm;
   }
@@ -138,24 +187,6 @@ public:
   }
 
   // Description:
-  // Equality operator with a tolerance to allow fuzzy comparisons.
-  bool Compare(const vtkVector<T, Size>& other, const T& tol) const
-  {
-    if (Size != other.GetSize())
-      {
-      return false;
-      }
-    for (int i = 0; i < Size; ++i)
-      {
-      if (fabs(this->Data[i] - other.Data[i]) >= tol)
-        {
-        return false;
-        }
-      }
-    return true;
-  }
-
-  // Description:
   // Cast the vector to the specified type, returning the result.
   template<typename TR>
   vtkVector<TR, Size> Cast() const
@@ -163,15 +194,10 @@ public:
     vtkVector<TR, Size> result;
     for (int i = 0; i < Size; ++i)
       {
-      result[i] = static_cast<TR>(Data[i]);
+      result[i] = static_cast<TR>(this->Data[i]);
       }
     return result;
   }
-
-protected:
-  // Description:
-  // The only thing stored in memory!
-  T Data[Size];
 };
 
 // .NAME vtkVector2 - templated base type for storage of 2D vectors.
