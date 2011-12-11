@@ -34,17 +34,27 @@ class vtkVector
 public:
   vtkVector()
   {
+  }
+
+  // Description:
+  // Initialize all of the vector's elements with the supplied scalar.
+  explicit vtkVector(const T& scalar)
+  {
     for (int i = 0; i < Size; ++i)
       {
-      Data[i] = 0;
+      this->Data[i] = scalar;
       }
   }
 
+  // Description:
+  // Initalize the vector's elements with the elements of the supplied array.
+  // Note that the supplied pointer must contain at least as many elements as
+  // the vector, or it will result in access to out of bounds memory.
   explicit vtkVector(const T* init)
   {
     for (int i = 0; i < Size; ++i)
       {
-      Data[i] = init[i];
+      this->Data[i] = init[i];
       }
   }
 
@@ -94,10 +104,10 @@ public:
   // Description:
   // Normalize the vector in place.
   // \return The length of the vector.
-  T Normalize()
+  double Normalize()
   {
-    const T norm(this->Norm());
-    const T inv(1.0 / norm);
+    const double norm(this->Norm());
+    const double inv(1.0 / norm);
     for (int i = 0; i < Size; ++i)
       {
       this->Data[i] *= inv;
