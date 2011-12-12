@@ -14,8 +14,8 @@
 
 #ifndef __vtkLSDynaPartCollection_h
 #define __vtkLSDynaPartCollection_h
-#include "LSDynaMetaData.h"
 
+#include "LSDynaMetaData.h" //needed for LSDynaMetaData::LSDYNA_TYPES enum
 #include "vtkObject.h"
 
 class vtkDataArray;

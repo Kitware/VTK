@@ -3557,7 +3557,6 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
     int *buf=NULL;
     return this->FillTopology<4>(buf);
     }
-  p->Fam.ClearBuffer();
 }
 
 //-----------------------------------------------------------------------------
@@ -3586,8 +3585,7 @@ void vtkLSDynaReader::ReadBlockCellSizes()
     {
     chunkSize = this->P->Fam.GetNextChunk( LSDynaFamily::Int);
     buff = this->P->Fam.GetBufferAs<T>();
-    T* temp = buff;
-    
+
     for (j=0; j<chunkSize;j+=numWordsPerCell)
       {
       buff+=offsetToMatId;
@@ -3595,8 +3593,6 @@ void vtkLSDynaReader::ReadBlockCellSizes()
       buff+=numWordsPerIdType;
       this->Parts->RegisterCellIndexToPart(blockType,matlId,t++,cellLength);
       }
-
-    assert(temp+chunkSize==buff);
     }
   this->P->Fam.SkipWords(fileNumWordsPerCell * numCellsToSkipEnd);
 }
@@ -3661,5 +3657,4 @@ int vtkLSDynaReader::ReadPartSizes()
     {
     return this->FillPartSizes<int>();
     }
-  p->Fam.ClearBuffer();
 }

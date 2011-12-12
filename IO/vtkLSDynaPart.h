@@ -181,6 +181,10 @@ protected:
   //used when reading properties
   class InternalCurrentPointInfo;
   InternalCurrentPointInfo *CurrentPointPropInfo;
+
+private:
+  vtkLSDynaPart( const vtkLSDynaPart& ); // Not implemented.
+  void operator = ( const vtkLSDynaPart& ); // Not implemented.
 };
 
 #endif // VTKLSDYNAPART

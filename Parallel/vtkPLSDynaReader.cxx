@@ -231,14 +231,17 @@ void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
       if(numCells > 1000)
         {
         double percent = (1.0 / this->Internal->UpdateNumPieces) * numCells;
-        mins[i] = percent * this->Internal->UpdatePiece;
-        maxs[i] = percent * (this->Internal->UpdatePiece+1);
+        mins[i] = static_cast<vtkIdType>(
+                    percent * this->Internal->UpdatePiece);
+        maxs[i] = static_cast<vtkIdType>(
+                    percent * (this->Internal->UpdatePiece+1));
         }
       else
         {
         //else not enough cells to worth dividing the reading
         mins[i]=0;
-        maxs[i]=(this->Internal->ProcessRank==0)?numCells:0;
+        maxs[i]=static_cast<vtkIdType>(
+                  (this->Internal->ProcessRank==0)?numCells:0);
         }
       }
     }  
