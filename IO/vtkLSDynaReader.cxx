@@ -2938,21 +2938,22 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
   startPos+=numComps;
 
   // Smooth Particle ========================================================
-  int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
 
-  VTK_LS_SPHARRAY(               false,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DEATH,1); //always keep death off
-  VTK_LS_SPHARRAY(p->Dict["isphfg(2)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_RADIUSOFINFLUENCE,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(3)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_PRESSURE,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(4)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRESS,6);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(5)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_EPSTRAIN,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(6)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DENSITY,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(7)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_INTERNALENERGY,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(8)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_NUMNEIGHBORS,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(9)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRAIN,6);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(10)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_MASS,1);
+  // currently have a bug when reading SPH properties disabling for now
+//  int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
+//  VTK_LS_SPHARRAY(               false,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DEATH,1); //always keep death off
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(2)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_RADIUSOFINFLUENCE,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(3)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_PRESSURE,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(4)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRESS,6);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(5)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_EPSTRAIN,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(6)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DENSITY,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(7)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_INTERNALENERGY,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(8)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_NUMNEIGHBORS,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(9)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRAIN,6);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(10)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_MASS,1);
 
-  std::cout << "NUM_SPH_DATA: " << p->Dict["NUM_SPH_DATA"] << "start Pos is " << startPos << std::endl;
-  this->ReadCellProperties(LSDynaMetaData::PARTICLE,p->Dict["NUM_SPH_DATA"]);
+//  std::cout << "NUM_SPH_DATA: " << p->Dict["NUM_SPH_DATA"] << "start Pos is " << startPos << std::endl;
+//  this->ReadCellProperties(LSDynaMetaData::PARTICLE,p->Dict["NUM_SPH_DATA"]);
 
 
 #undef VTK_LS_SPHARRAY
