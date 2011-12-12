@@ -624,7 +624,7 @@ void vtkWrap_FindCountHints(
       {
       entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
       if (entry && vtkParseHierarchy_IsTypeOfTemplated(
-            hinfo, entry, data->Name, "vtkVector", &classname))
+            hinfo, entry, data->Name, "vtkVectorBase", &classname))
         {
         /* attempt to get count from template parameter */
         if (classname)
@@ -650,7 +650,7 @@ void vtkWrap_FindCountHints(
     if (theFunc->IsOperator && theFunc->Name &&
         strcmp(theFunc->Name, "operator[]") == 0)
       {
-      if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkVector"))
+      if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkVectorBase"))
         {
         theFunc->SizeHint = "GetSize()";
         }

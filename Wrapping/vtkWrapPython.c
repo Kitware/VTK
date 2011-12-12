@@ -449,6 +449,7 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkVariant", "vtkVariant.h" },
     { "vtkStdString", "vtkStdString.h" },
     { "vtkUnicodeString", "vtkUnicodeString.h" },
+    { "vtkVectorBase", "vtkVector.h" },
     { "vtkVector", "vtkVector.h" },
     { "vtkVector2", "vtkVector.h" },
     { "vtkVector2i", "vtkVector.h" },
