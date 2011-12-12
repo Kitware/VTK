@@ -8,6 +8,7 @@ SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 SET( Kit_SRCS
 vtkImageToStructuredGrid.cxx
 vtkAbstractCellLocator.cxx
+vtkAbstractGridConnectivity.cxx
 vtkAbstractImageInterpolator.cxx
 vtkAbstractInterpolatedVelocityField.cxx
 vtkAbstractMapper.cxx
@@ -205,7 +206,12 @@ vtkSphere.cxx
 vtkSpline.cxx
 vtkStreamingDemandDrivenPipeline.cxx
 vtkStructuredGridAlgorithm.cxx
+vtkStructuredGridConnectivity.cxx
 vtkStructuredGrid.cxx
+vtkStructuredGridSource.cxx
+vtkStructuredGridToPolyDataFilter.cxx
+vtkStructuredGridToStructuredGridFilter.cxx
+vtkStructuredNeighbor.cxx
 vtkStructuredPointsCollection.cxx
 vtkStructuredPoints.cxx
 vtkSuperquadric.cxx
@@ -245,6 +251,7 @@ vtkWedge.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractCellLocator
+vtkAbstractGridConnectivity
 vtkAbstractImageInterpolator
 vtkAbstractInterpolatedVelocityField
 vtkAbstractMapper
@@ -303,6 +310,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkImageProgressIterator.cxx
   vtkMarchingSquaresLineCases.cxx
   vtkMarchingCubesTriangleCases.cxx
+  vtkStructuredNeighbor.cxx
   WRAP_EXCLUDE
 )
 

@@ -39,7 +39,7 @@ class vtkPointData;
 class vtkCellData;
 class vtkUnsignedCharArray;
 
-class VTK_COMMON_EXPORT vtkAbstractGridConnectivity : public vtkObject
+class VTK_FILTERING_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {
   public:
     vtkTypeMacro( vtkAbstractGridConnectivity, vtkObject );

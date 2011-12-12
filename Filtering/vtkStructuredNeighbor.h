@@ -22,7 +22,7 @@
 
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkStructuredNeighbor
+class VTK_FILTERING_EXPORT vtkStructuredNeighbor
 {
   public:
     // Class Member Variables made public for easier access

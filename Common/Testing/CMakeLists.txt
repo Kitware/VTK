@@ -87,7 +87,6 @@ IF(PYTHON_EXECUTABLE)
     vtkSparseArray.h
     vtkStdString.h
     vtkStructuredData.h
-    vtkStructuredNeighbor.h
     vtkSystemIncludes.h
     vtkTcl.h
     vtkTclUtil.h

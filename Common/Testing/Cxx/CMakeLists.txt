@@ -37,9 +37,6 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
-ADD_EXECUTABLE(TestStructuredGridConnectivity TestStructuredGridConnectivity.cxx)
-TARGET_LINK_LIBRARIES(TestStructuredGridConnectivity vtkCommon vtkFiltering vtkIO)
-
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests} vtkTestNewVar.cxx)
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkCommon)
 

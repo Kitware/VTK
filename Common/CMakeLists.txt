@@ -19,7 +19,6 @@ ENDIF (UNIX)
 
 SET( Kit_SRCS
 vtkAbstractArray.cxx
-vtkAbstractGridConnectivity.cxx
 vtkAbstractTransform.cxx
 vtkAmoebaMinimizer.cxx
 vtkAnimationCue.cxx
@@ -180,8 +179,6 @@ vtkStdString.cxx
 vtkStringArray.cxx
 vtkStructuredData.cxx
 vtkStructuredExtent.cxx
-vtkStructuredGridConnectivity.cxx
-vtkStructuredNeighbor.cxx
 vtkStructuredVisibilityConstraint.cxx
 vtkTableExtentTranslator.cxx
 vtkTensor.cxx
@@ -352,7 +349,6 @@ SET(Kit_WRAP_HEADERS
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 vtkAbstractArray
-vtkAbstractGridConnectivity
 vtkArrayIterator
 vtkArrayIteratorTemplate
 vtkAbstractTransform
@@ -433,7 +429,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkRect.h
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
-  vtkStructuredNeighbor.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
   vtkWeakPointerBase.cxx

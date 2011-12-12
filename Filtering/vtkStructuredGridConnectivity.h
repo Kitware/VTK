@@ -39,7 +39,7 @@
 class vtkIdList;
 class vtkUnsignedCharArray;
 
-class VTK_COMMON_EXPORT vtkStructuredGridConnectivity :
+class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
   public vtkAbstractGridConnectivity
 {
   public:
