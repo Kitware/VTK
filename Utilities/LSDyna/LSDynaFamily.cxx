@@ -139,6 +139,8 @@ struct LSDynaFamily::BufferingInfo
     vtkIdType loopTimes;
     vtkIdType leftOver;
     const vtkIdType size; //deafult buffer size
+private:
+  LSDynaFamily::BufferingInfo& operator=( const LSDynaFamily::BufferingInfo & );
 };
 
 //-----------------------------------------------------------------------------
