@@ -471,6 +471,11 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkColor4ub", "vtkColor.h" },
     { "vtkColor4f", "vtkColor.h" },
     { "vtkColor4d", "vtkColor.h" },
+    { "vtkAMRBox", "vtkAMRBox.h" },
+    { "vtkEdgeBase", "vtkGraph.h" },
+    { "vtkEdgeType", "vtkGraph.h" },
+    { "vtkInEdgeType", "vtkGraph.h" },
+    { "vtkOutEdgeType", "vtkGraph.h" },
     { NULL, NULL }
   };
 
