@@ -81,6 +81,7 @@ vtkPLSDynaReader::~vtkPLSDynaReader()
 
 void vtkPLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
 {
+  os << indent << "Controller: " << this->Controller <<  endl;
   this->Superclass::PrintSelf( os, indent );
 }
 

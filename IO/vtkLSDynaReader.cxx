@@ -123,6 +123,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_SHEARSTRESS        "ShearStress"
 #define LS_ARRAYNAME_PLASTICSTRAIN      "PlasticStrain"
 #define LS_ARRAYNAME_THICKNESS          "Thickness"
+#define LS_ARRAYNAME_MASS               "Mass"
 
 // Possible material  options
 #define LS_MDLOPT_NONE 0
@@ -555,6 +556,8 @@ void vtkLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
     {
     os << indent << "PrivateData: (none)" << endl;
     }
+  os << indent << "Show Deleted Cells as Ghost Cells: "<<
+        (this->DeletedCellsAsGhostArray ? "On" : "Off") << endl;
 
   os << indent << "Dimensionality: " << this->GetDimensionality() << endl;
   os << indent << "Nodes: " << this->GetNumberOfNodes() << endl;
@@ -1746,7 +1749,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     }
   p->Dict["MDLOPT"] = mdlopt;
   p->Dict["_MAXINT_"] = intpts2;
-  if ( p->Dict["NEL4"] > 0 )
+  if ( p->Dict["NV2D"] > 0 )
     {
     if ( p->Dict["NV2D"]-(p->Dict["_MAXINT_"]*(6*p->Dict["IOSHL(1)"]+p->Dict["IOSHL(2)"]+p->Dict["NEIPS"])+8*p->Dict["IOSHL(3)"]+4*p->Dict["IOSHL(4)"]) > 1 )
       {
@@ -1995,6 +1998,10 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     if ( p->Dict["isphfg(9)"] == 6 )
       {
       p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRAIN, 6, 1 );
+      }
+    if ( p->Dict["isphfg(10)"] == 1 )
+      {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MASS, 1, 1 );
       }
     }
 
@@ -2723,6 +2730,8 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 {
 
   LSDynaMetaData* p = this->P;
+  int itmp;
+  char ctmp[128];
 
 #define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
   if ( cond && this->GetCellArrayStatus( celltype, arrayname ) ) \
@@ -2736,8 +2745,22 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRESS,6);
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_EPSTRAIN,1);
-  VTK_LS_CELLARRAY(p->Dict["NEIPH" ] > 0,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPH"]);
-  VTK_LS_CELLARRAY(p->Dict["ISTRN" ],LSDynaMetaData::SOLID,LS_ARRAYNAME_STRAIN,6);
+
+  //From the documentation if ISTRN is 1 and we have 6 or more values in NEIPH
+  //the last 6 are the strain
+  //quote "If ISTRN=1, and NEIPH>=6, the last 6 additional values are the six
+  //strain components"
+  vtkIdType neiph = p->Dict["NEIPH"], istrn = p->Dict["ISTRN"];
+  if(istrn == 1 && neiph >=6)
+    {
+    VTK_LS_CELLARRAY(neiph > 6,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,neiph-6);
+    VTK_LS_CELLARRAY(p->Dict["ISTRN"] == 1,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRAIN,6);
+    }
+  else
+    {
+    VTK_LS_CELLARRAY(p->Dict["NEIPH"] > 0,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPH"]);
+    }
+
   this->ReadCellProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"]);
 
   // Thick Shell element data==================================================
@@ -2757,27 +2780,33 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_EPSTRAIN "OuterSurf",1);
   VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf",p->Dict["NEIPS"]);
 
-  VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "InnerSurf",6);
-  VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "OuterSurf",6);
-
-  // If _MAXINT_ > 3, there will be additional fields. They are other
-  // integration point values. There are (_MAXINT_ - 3) extra
-  // integration points, each of which has a stress (6 vals),
-  // an effective plastic strain (1 val), and extra integration
-  // point values (NEIPS vals).
-  int itmp;
-  char ctmp[128];
-  for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
+  if(p->Dict["NV3DT"] > 21)
     {
-    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
-    VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,6);
+    //in some use case the ISTRN is incorrectly calculated because the d3plot
+    //is unclear if the flag needs to be computed separately for
+    //NV2D and NV3DT
 
-    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
-    VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,1);
+    VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "InnerSurf",6);
+    VTK_LS_CELLARRAY(p->Dict["ISTRN"],LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_STRAIN "OuterSurf",6);
 
-    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
-    VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,ctmp,p->Dict["NEIPS"]);
+    // If _MAXINT_ > 3, there will be additional fields. They are other
+    // integration point values. There are (_MAXINT_ - 3) extra
+    // integration points, each of which has a stress (6 vals),
+    // an effective plastic strain (1 val), and extra integration
+    // point values (NEIPS vals).
+    for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
+      {
+      sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
+      VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,6);
+
+      sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
+      VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,1);
+
+      sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
+      VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,ctmp,p->Dict["NEIPS"]);
+      }
     }
+
   this->ReadCellProperties(LSDynaMetaData::THICK_SHELL, p->Dict["NV3DT"]);
 
 
@@ -2909,18 +2938,22 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
   startPos+=numComps;
 
   // Smooth Particle ========================================================
-  int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
 
-  VTK_LS_SPHARRAY(                   0,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DEATH,1); //always keep death off
-  VTK_LS_SPHARRAY(p->Dict["isphfg(2)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_RADIUSOFINFLUENCE,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(3)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_PRESSURE,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(4)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRESS,6);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(5)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_EPSTRAIN,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(6)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DENSITY,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(7)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_INTERNALENERGY,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(8)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_NUMNEIGHBORS,1);
-  VTK_LS_SPHARRAY(p->Dict["isphfg(9)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRAIN,6);
-  this->ReadCellProperties(LSDynaMetaData::PARTICLE,p->Dict["NUM_SPH_DATA"]);
+  // currently have a bug when reading SPH properties disabling for now
+//  int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
+//  VTK_LS_SPHARRAY(               false,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DEATH,1); //always keep death off
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(2)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_RADIUSOFINFLUENCE,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(3)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_PRESSURE,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(4)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRESS,6);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(5)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_EPSTRAIN,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(6)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DENSITY,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(7)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_INTERNALENERGY,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(8)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_NUMNEIGHBORS,1);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(9)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRAIN,6);
+//  VTK_LS_SPHARRAY(p->Dict["isphfg(10)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_MASS,1);
+
+//  std::cout << "NUM_SPH_DATA: " << p->Dict["NUM_SPH_DATA"] << "start Pos is " << startPos << std::endl;
+//  this->ReadCellProperties(LSDynaMetaData::PARTICLE,p->Dict["NUM_SPH_DATA"]);
 
 
 #undef VTK_LS_SPHARRAY
