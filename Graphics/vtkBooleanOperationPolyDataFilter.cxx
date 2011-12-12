@@ -172,9 +172,9 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   pointSourceLabel->SetNumberOfComponents(1);
   pointSourceLabel->SetName("PointSource");
   pointSourceLabel->SetNumberOfTuples(outputSurface->GetNumberOfPoints());
-  for (vtkIdType i = 0; i < outputSurface->GetNumberOfPoints(); i++)
+  for (vtkIdType ii = 0; ii < outputSurface->GetNumberOfPoints(); ii++)
     {
-    pointSourceLabel->InsertValue(i, 0);
+    pointSourceLabel->InsertValue(ii, 0);
     }
 
   vtkSmartPointer< vtkIntArray > cellSourceLabel =
