@@ -555,6 +555,8 @@ void vtkLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
     {
     os << indent << "PrivateData: (none)" << endl;
     }
+  os << indent << "Show Deleted Cells as Ghost Cells: "<<
+        (this->DeletedCellsAsGhostArray ? "On" : "Off") << endl;
 
   os << indent << "Dimensionality: " << this->GetDimensionality() << endl;
   os << indent << "Nodes: " << this->GetNumberOfNodes() << endl;
