@@ -36,10 +36,14 @@
 #include "vtkExtentRCBPartitioner.h"
 #include "vtkUniformGridPartitioner.h"
 
+#include "vtkTimerLog.h"
+
 #include <cassert>
 #include <sstream>
 #include <cmath>
 #include <algorithm>
+
+
 
 vtkStandardNewMacro( vtkAMRResampleFilter );
 
@@ -138,10 +142,10 @@ int vtkAMRResampleFilter::RequestInformation(
   if( this->DemandDrivenMode == 1 &&
       input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
-      this->AMRMetaData = vtkHierarchicalBoxDataSet::New();
-      this->AMRMetaData->ShallowCopy(
-      vtkHierarchicalBoxDataSet::SafeDownCast(
-        input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) ) );
+    this->AMRMetaData = vtkHierarchicalBoxDataSet::New();
+    this->AMRMetaData->ShallowCopy(
+    vtkHierarchicalBoxDataSet::SafeDownCast(
+      input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) ) );
 
 
     // Get Region
@@ -388,6 +392,11 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
 
+  std::ostringstream oss;
+  oss << "SearchLevel-" << level;
+
+  vtkTimerLog::MarkStartEvent( oss.str().c_str() );
+
   unsigned int dataIdx = 0;
   for( ; dataIdx < amrds->GetNumberOfDataSets(level); ++dataIdx )
     {
@@ -400,6 +409,7 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
      assert( "pre: donorCellIdx is invalid" &&
              (donorCellIdx >= 0) &&
              (donorCellIdx < donorGrid->GetNumberOfCells()) );
+     vtkTimerLog::MarkEndEvent( oss.str().c_str() );
      return;
      } // END if
 
@@ -409,6 +419,7 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
   // No suitable grid is found at the requested level, set donorGrid to NULL
   // to indicate that to the caller.
   donorGrid = NULL;
+  vtkTimerLog::MarkEndEvent( oss.str().c_str() );
 }
 
 //-----------------------------------------------------------------------------
