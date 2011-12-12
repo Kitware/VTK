@@ -450,9 +450,29 @@ void vtkAMRBaseReader::LoadRequestedBlocks( vtkHierarchicalBoxDataSet *output )
     vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::LoadCellData" );
 
     // STEP 4: Add dataset
-    output->SetDataSet( level,blockIdx,amrBlock );
+    std::cout << "Setting block index at level: " << blockIdx << std::endl;
+    std::cout.flush();
+
+    unsigned int metaLevel = 0;
+    unsigned int metaIdx   = 0;
+    this->Metadata->GetLevelAndIndex( blockIdx, metaLevel, metaIdx );
+
+    output->SetDataSet( level,metaIdx,amrBlock );
     amrBlock->Delete();
     } // END for all blocks
+
+  assert( "pre: Metadata should not be NULL" && (this->Metadata != NULL) );
+  assert( "pre: NumLevels in output should be <= to NumLevels in metadata" &&
+           output->GetNumberOfLevels() <= this->Metadata->GetNumberOfLevels() );
+
+  unsigned int levelIdx = 0;
+  for( ; levelIdx < output->GetNumberOfLevels(); ++levelIdx )
+    {
+    unsigned int N         = output->GetNumberOfDataSets( levelIdx );
+    unsigned int Nexpected = this->Metadata->GetNumberOfDataSets( levelIdx );
+    assert( "pre: NumData at level must correspond to the metadata" &&
+        N <= Nexpected );
+    }
 
 }
 
