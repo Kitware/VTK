@@ -22,7 +22,7 @@
 #ifndef __vtkColor_h
 #define __vtkColor_h
 
-#include "vtkVector.h"
+#include "vtkVectorBase.h"
 
 // .NAME vtkColor3 - templated base type for storage of 3 component colors.
 //
