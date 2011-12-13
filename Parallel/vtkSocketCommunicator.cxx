@@ -773,7 +773,8 @@ int vtkSocketCommunicator::ReceivedTaggedFromBuffer(
     return 0;
     }
 
-  this->TagMessageLength = message.size()/wordSize;
+  // The static_cast is OK since we split messages > VTK_INT_MAX.
+  this->TagMessageLength = static_cast<int>(message.size())/wordSize;
   memcpy(data, &message[0], message.size());
   this->ReceivedMessageBuffer->Pop(tag);
 
