@@ -838,9 +838,6 @@ void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
   if( this->CompositeIndex2LevelIdPair.find( flatIdx ) !=
       this->CompositeIndex2LevelIdPair.end() )
     {
-    std::cout << "Found: " << flatIdx << "!";
-    std::cout.flush();
-
     vtkstd::pair< unsigned int, unsigned int > p=
           this->CompositeIndex2LevelIdPair[ flatIdx ];
     level = p.first;
@@ -848,9 +845,6 @@ void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
     }
   else
     {
-    std::cout << "Could not find " << flatIdx << std::endl;
-    std::cout.flush();
-
     vtkErrorMacro( "Could not find block index: " << flatIdx );
     }
 }
