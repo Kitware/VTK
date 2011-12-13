@@ -96,9 +96,9 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->FloatingPointFrameBufferResourcesAllocated = false;
 
   this->Internals = new vtkOpenGLProjectedTetrahedraMapper::vtkInternals;
-  this->Internals->FrameBufferObjectId = -1;
+  this->Internals->FrameBufferObjectId = 0;
   this->Internals->RenderBufferObjectIds[0]
-      = this->Internals->RenderBufferObjectIds[1] = -1;
+      = this->Internals->RenderBufferObjectIds[1] = 0;
   this->Internals->OpacityTexture = 0;
 
   this->UseFloatingPointFrameBuffer = true;
@@ -230,10 +230,11 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
       this->FloatingPointFrameBufferResourcesAllocated = false;
 
       vtkgl::DeleteFramebuffers(1, &this->Internals->FrameBufferObjectId);
-      this->Internals->FrameBufferObjectId = -1;
+      this->Internals->FrameBufferObjectId = 0;
 
       vtkgl::DeleteFramebuffers(2, this->Internals->RenderBufferObjectIds);
-      this->Internals->RenderBufferObjectIds[0] = -1;
+      this->Internals->RenderBufferObjectIds[0] = 0;
+      this->Internals->RenderBufferObjectIds[1] = 0;
     }
 
   this->Superclass::ReleaseGraphicsResources(win);
