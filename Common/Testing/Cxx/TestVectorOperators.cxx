@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
+#include "vtkSetGet.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
-#include "vtkSetGet.h"
 
 //----------------------------------------------------------------------------
 int TestVectorOperators(int, char*[])
