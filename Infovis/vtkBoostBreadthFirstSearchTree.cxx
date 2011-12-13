@@ -47,6 +47,15 @@ using namespace boost;
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 
+namespace {
+  vtkIdType unwrap_edge_id(vtkEdgeType const &e) {
+    return e.Id;
+  }
+  vtkIdType unwrap_edge_id(boost::detail::reverse_graph_edge_descriptor<vtkEdgeType> const &e) {
+    return e.underlying_desc.Id;
+  }
+}
+
 // Redefine the bfs visitor, the only visitor we
 // are using is the tree_edge visitor.
 template <typename IdMap>
@@ -95,7 +104,8 @@ public:
 
     // Copy the vertex and edge data from the graph to the tree.
     tree->GetVertexData()->CopyData(graph->GetVertexData(), v, tree_v);
-    tree->GetEdgeData()->CopyData(graph->GetEdgeData(), e.Id, tree_e.Id);
+    tree->GetEdgeData()->CopyData(graph->GetEdgeData(),
+                                  unwrap_edge_id(e), tree_e.Id);
   }
 
 private:
