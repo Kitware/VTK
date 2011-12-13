@@ -391,7 +391,7 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
     int &donorCellIdx )
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
-
+  this->NumberOfBlocksTestedForLevel = 0;
   std::ostringstream oss;
   oss << "SearchLevel-" << level;
 
@@ -402,7 +402,7 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
     {
     donorCellIdx = -1;
     donorGrid    = amrds->GetDataSet(level,dataIdx);
-
+    this->NumberOfBlocksTestedForLevel++;
     if( (donorGrid!=NULL) &&
        this->FoundDonor(q,donorGrid,donorCellIdx) )
      {
@@ -439,12 +439,13 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
   if( donorGrid != NULL )
     {
     hadDonorGrid = true;
+    this->NumberOfBlocksTested++;
     if(!this->FoundDonor( q, donorGrid, donorCellIdx ) )
       {
       // Lets see if the point is contained by a grid at the same donar level
       this->SearchForDonorGridAtLevel(q,amrds,donorLevel,donorGrid,donorCellIdx);
+      this->NumberOfBlocksTested += this->NumberOfBlocksTestedForLevel;
       }
-    
     // If donorGrid is still not NULL then we found the grid and potential starting
     // level
     if (donorGrid != NULL)
@@ -452,6 +453,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       assert( "pre: donorCellIdx is invalid" &&
               (donorCellIdx >= 0) && (donorCellIdx < donorGrid->GetNumberOfCells()) );
       
+      this->NumberOfTimesFoundOnDonorLevel++;
       // Lets see if the cell is blanked - if it isn't then we found the highest
       // resolution grid that contains the point
       if (donorGrid->IsCellVisible(donorCellIdx))
@@ -499,11 +501,18 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
   // STEP 1: Search in the AMR hierarchy for the donor-grid
   for( int level=startLevel; level != endLevel; level += incLevel )
     {
+    if (incLevel == 1)
+      {
+      this->NumberOfTimesLevelUp++;
+      }
+    else
+      {
+      this->NumberOfTimesLevelDown++;
+      }
     this->SearchForDonorGridAtLevel(q,amrds,level,donorGrid,donorCellIdx);
+    this->NumberOfBlocksTested += this->NumberOfBlocksTestedForLevel;
     if( donorGrid != NULL )
       {
-      // Lets see if this is the highest resolution grid that contains the 
-      // point
       donorLevel = level;
       // if we are going from fine to coarse then we can stop the search
       if (incLevel == -1)
@@ -511,6 +520,8 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
         return donorCellIdx;
         }
 
+      // Lets see if this is the highest resolution grid that contains the 
+      // point
       if (donorGrid->IsCellVisible(donorCellIdx))
         {
         //return donorCellIdx;
@@ -528,6 +539,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       // resolution, so we will use the solution we found previously
       // THIS SHOULD NOW NOT HAPPEN!!
       //vtkErrorMacro("Could not find point in an unblanked cell.");
+      this->NumberOfBlocksVisSkipped +=  this->NumberOfBlocksTestedForLevel;
       donorGrid    = currentGrid;
       donorCellIdx = currentCellIdx;
       donorLevel = currentLevel;
@@ -537,6 +549,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       {
       // we are not able to find a grid/cell that contains the query point, in
       // this case we will just return.
+      this->NumberOfFailedPoints++;
       donorCellIdx = -1;
       donorGrid    = NULL;
       donorLevel = 0;
@@ -550,6 +563,13 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
 void vtkAMRResampleFilter::TransferToGridNodes(
     vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
 {
+  this->NumberOfBlocksTested = 0;
+  this->NumberOfBlocksVisSkipped = 0;
+  this->NumberOfTimesFoundOnDonorLevel = 0;
+  this->NumberOfTimesLevelUp = 0;
+  this->NumberOfTimesLevelDown = 0;
+  this->NumberOfFailedPoints = 0;
+  this->AverageLevel = 0.0;
   assert( "pre: uniform grid is NULL" && (g != NULL) );
   assert( "pre: AMR data-structure is NULL" && (amrds != NULL) );
 
@@ -598,6 +618,7 @@ void vtkAMRResampleFilter::TransferToGridNodes(
 
     if( donorCellIdx != -1 )
       {
+      this->AverageLevel += donorLevel;
       assert(donorGrid != NULL);
       CD = donorGrid->GetCellData();
       this->CopyData( PD, pIdx, CD, donorCellIdx );
@@ -616,6 +637,24 @@ void vtkAMRResampleFilter::TransferToGridNodes(
 //      vtkWarningMacro( "Number of points outside domain: " << numPoints
 //          << "/" << g->GetNumberOfPoints() );
 //      }
+  std::cerr << "Total Number of Blocks Tested: " << this->NumberOfBlocksTested << "\n";
+  std::cerr << " Number of Blocks that could be skipped by Visibility: " << this->NumberOfBlocksVisSkipped << "\n";
+  double a = 100.0 * (double)(this->NumberOfBlocksVisSkipped) / (double) this->NumberOfBlocksTested;
+  std::cerr << "Percentage of Blocks skipped via Visibility: " << a << "\n";
+  double b = g->GetNumberOfPoints();
+  std::cerr << "Number of Grid Points: " << b << "\n";
+  a = (double) this->NumberOfBlocksTested / b;
+  std::cerr << "Ave Number of Blocks Tested per Point: " << a << "\n";
+  a = 100.0 * (double) this->NumberOfTimesFoundOnDonorLevel / b;
+  std::cerr << "Percentage of Times we found point on Previous Level: " << a << "\n";
+  a = 100.0 * (double) this->NumberOfTimesLevelUp / b;
+  std::cerr << "Percentage of Times went to finer level: " << a << "\n";
+  a = 100.0 * (double) this->NumberOfTimesLevelDown / b;
+  std::cerr << "Percentage of Times went to coarser level: " << a << "\n";
+  a = this->AverageLevel / b;
+  std::cerr << "Average Level: " << a << "\n";
+  std::cerr << "Number Of Failed Points: " << this->NumberOfFailedPoints << "\n";
+
 }
 
 //-----------------------------------------------------------------------------
