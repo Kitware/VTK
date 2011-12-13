@@ -32,9 +32,9 @@
 #include "vtkViewTheme.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/map>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <map>
+#include <string>
+#include <vector>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -65,14 +65,14 @@ private:
 class vtkView::vtkInternal
 {
 public:
-  vtkstd::map<vtkObject*, vtkstd::string> RegisteredProgress;
+  std::map<vtkObject*, std::string> RegisteredProgress;
 };
 
 //----------------------------------------------------------------------------
 class vtkView::vtkImplementation
 {
 public:
-  vtkstd::vector<vtkSmartPointer<vtkDataRepresentation> > Representations;
+  std::vector<vtkSmartPointer<vtkDataRepresentation> > Representations;
 };
   
 
@@ -214,7 +214,7 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     rep->RemoveFromView(this);
     rep->RemoveObserver(this->GetObserver());    
     this->RemoveRepresentationInternal(rep);
-    vtkstd::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator it, itEnd;
+    std::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator it, itEnd;
     it = this->Implementation->Representations.begin();
     itEnd = this->Implementation->Representations.end();
     for (; it != itEnd; ++it)
@@ -297,7 +297,7 @@ void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
 
   if (eventId == vtkCommand::ProgressEvent)
     {
-    vtkstd::map<vtkObject*, vtkstd::string>::iterator iter = 
+    std::map<vtkObject*, std::string>::iterator iter =
       this->Internal->RegisteredProgress.find(caller);
     if (iter != this->Internal->RegisteredProgress.end())
       {
@@ -324,7 +324,7 @@ void vtkView::UnRegisterProgress(vtkObject* algorithm)
 {
   if (algorithm)
     {
-    vtkstd::map<vtkObject*, vtkstd::string>::iterator iter = 
+    std::map<vtkObject*, std::string>::iterator iter =
       this->Internal->RegisteredProgress.find(algorithm);
     if (iter != this->Internal->RegisteredProgress.end())
       {

@@ -182,7 +182,7 @@ namespace boost {
    template<>
    struct property_traits<vtkVertexGlobalMap> 
    {
-     typedef vtkstd::pair<int, vtkIdType> value_type;
+     typedef std::pair<int, vtkIdType> value_type;
      typedef value_type reference;
      typedef vtkIdType key_type;
      typedef readable_property_map_tag category;
@@ -193,7 +193,7 @@ namespace boost {
      vtkVertexGlobalMap global_map,
      property_traits<vtkVertexGlobalMap>::key_type key)
    {
-     return vtkstd::pair<int,vtkIdType>(global_map.helper->GetVertexOwner(key),
+     return std::pair<int,vtkIdType>(global_map.helper->GetVertexOwner(key),
                                         global_map.helper->GetVertexIndex(key));
    }
     
@@ -227,7 +227,7 @@ namespace boost {
    template<>
    struct property_traits<vtkEdgeGlobalMap> 
    {
-     typedef vtkstd::pair<int, vtkIdType> value_type;
+     typedef std::pair<int, vtkIdType> value_type;
      typedef value_type reference;
      typedef vtkEdgeType key_type;
      typedef readable_property_map_tag category;
@@ -238,7 +238,7 @@ namespace boost {
      vtkEdgeGlobalMap global_map,
      property_traits<vtkEdgeGlobalMap>::key_type key)
    {
-     return vtkstd::pair<int, vtkIdType>
+     return std::pair<int, vtkIdType>
               (global_map.helper->GetEdgeOwner(key.Id), key.Id);
    }
        
@@ -265,7 +265,7 @@ namespace boost {
   template<> 
   struct hash<vtkEdgeType>
   {
-    vtkstd::size_t operator()(const vtkEdgeType& edge) const
+    std::size_t operator()(const vtkEdgeType& edge) const
     {
       return hash_value(edge.Id);
     }

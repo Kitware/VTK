@@ -61,12 +61,12 @@ int vtkFoldCase::RequestData(
     {
     vtkTable* const input_table = vtkTable::GetData(inputVector[0]);
     if(!input_table)
-      throw vtkstd::runtime_error("missing input table");
+      throw std::runtime_error("missing input table");
 
     vtkUnicodeStringArray* const input_array = vtkUnicodeStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!input_array)
-      throw vtkstd::runtime_error("missing input array");
+      throw std::runtime_error("missing input array");
 
     const vtkIdType count = input_array->GetNumberOfTuples();
 
@@ -90,7 +90,7 @@ int vtkFoldCase::RequestData(
     output_table->GetRowData()->AddArray(output_array);
     output_array->Delete();
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

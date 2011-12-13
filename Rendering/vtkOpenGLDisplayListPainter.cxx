@@ -27,7 +27,7 @@
 #  include "vtkOpenGL.h"
 #endif
 
-#include <vtkstd/map>
+#include <map>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
 class vtkOpenGLDisplayListPainter::vtkInternals
 {
 public:
-  typedef vtkstd::map<unsigned long, GLuint> DisplayListMapType;
+  typedef std::map<unsigned long, GLuint> DisplayListMapType;
   DisplayListMapType DisplayListMap;
 
   // Refers to the build time of the first display list.

@@ -23,10 +23,10 @@
 #include "vtkTypeTraits.h"
 #include <assert.h>
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
-#include <vtkstd/list>
-#include <vtkstd/map>
+#include <algorithm>
+#include <vector>
+#include <list>
+#include <map>
 
 // Uncomment the following line to help with debugging. When
 // ENABLE_SYNCHRONIZED_COMMUNICATION is defined, every Send() blocks until the
@@ -36,9 +36,9 @@
 class vtkSocketCommunicator::vtkMessageBuffer
 {
 public:
-  typedef vtkstd::vector<char> MessageType;
-  typedef vtkstd::list<MessageType> QueueType;
-  typedef vtkstd::map<int, QueueType> BufferType;
+  typedef std::vector<char> MessageType;
+  typedef std::list<MessageType> QueueType;
+  typedef std::map<int, QueueType> BufferType;
   BufferType Buffer; // key --> tag, value-->queue of messages.
 
   bool HasBufferredMessages()
@@ -251,9 +251,9 @@ int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
   // need to convert them before sending them.
   if ((type == VTK_ID_TYPE) && !this->RemoteHas64BitIds)
     {
-    vtkstd::vector<int> newData;
+    std::vector<int> newData;
     newData.resize(length);
-    vtkstd::copy(reinterpret_cast<const vtkIdType *>(data),
+    std::copy(reinterpret_cast<const vtkIdType *>(data),
                  reinterpret_cast<const vtkIdType *>(data) + length,
                  newData.begin());
     return this->SendVoidArray(&newData[0], length, VTK_INT,
@@ -330,11 +330,11 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
   // need to convert them before sending them.
   if ((type == VTK_ID_TYPE) && !this->RemoteHas64BitIds)
     {
-    vtkstd::vector<int> newData;
+    std::vector<int> newData;
     newData.resize(length);
     int retval = this->ReceiveVoidArray(&newData[0], length, VTK_INT,
                                         remoteProcessId, tag);
-    vtkstd::copy(newData.begin(), newData.end(),
+    std::copy(newData.begin(), newData.end(),
                  reinterpret_cast<vtkIdType *>(data));
     return retval;
     }

@@ -48,7 +48,7 @@
 #include "vtkgl.h"
 
 #include <math.h>
-#include <vtkstd/algorithm>
+#include <algorithm>
 #include <vtksys/SystemTools.hxx>
 
 
@@ -539,7 +539,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   double tmp_mat[16];
 
   // VTK's matrix functions use doubles.
-  vtkstd::copy(projection_mat, projection_mat+16, tmp_mat);
+  std::copy(projection_mat, projection_mat+16, tmp_mat);
   // VTK and OpenGL store their matrices differently.  Correct.
   vtkMatrix4x4::Transpose(tmp_mat, tmp_mat);
   // Take the inverse.
@@ -547,7 +547,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   // Restore back to OpenGL form.
   vtkMatrix4x4::Transpose(tmp_mat, tmp_mat);
   // Copy back to float for faster computation.
-  vtkstd::copy(tmp_mat, tmp_mat+16, inverse_projection_mat);
+  std::copy(tmp_mat, tmp_mat+16, inverse_projection_mat);
 
   // Check to see if we can just do a linear depth correction from clipping
   // space to eye space.
@@ -840,7 +840,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
           // Flip segment1 so that alpha is >= 1.  P1 and P2 are also
           // flipped as are C1-C2 and T1-T2.  Note that this will
           // invalidate A.  B and beta are unaffected.
-          vtkstd::swap(segment1[0], segment1[1]);
+          std::swap(segment1[0], segment1[1]);
           alpha = 1 - alpha;
           }
         // From here on, we can assume P2 is the "thick" point.

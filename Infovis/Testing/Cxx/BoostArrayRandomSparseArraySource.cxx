@@ -31,7 +31,7 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    throw vtkstd::runtime_error("Expression failed: " #expression); \
+    throw std::runtime_error("Expression failed: " #expression); \
 }
 
 static bool close_enough(const double lhs, const double rhs)
@@ -72,7 +72,7 @@ int BoostArrayRandomSparseArraySource(int vtkNotUsed(argc),
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

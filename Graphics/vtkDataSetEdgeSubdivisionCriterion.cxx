@@ -9,7 +9,7 @@
 #include "vtkDataSetEdgeSubdivisionCriterion.h"
 #include "vtkStreamingTessellator.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
@@ -20,7 +20,7 @@
 #include "vtkDataSet.h"
 
 #if defined(_MSC_VER)
-# pragma warning (disable: 4996) /* 'vtkstd::_Copy_opt' was declared deprecated */
+# pragma warning (disable: 4996) /* 'std::_Copy_opt' was declared deprecated */
 #endif
 
 vtkStandardNewMacro(vtkDataSetEdgeSubdivisionCriterion);
@@ -165,7 +165,7 @@ bool vtkDataSetEdgeSubdivisionCriterion::EvaluateEdge( const double* p0, double*
   if ( active )
     {
     double real_pf[6+vtkStreamingTessellator::MaxFieldSize];
-    vtkstd::copy( midpt, midpt + field_start, real_pf );
+    std::copy( midpt, midpt + field_start, real_pf );
     this->EvaluateFields( real_pf, weights, field_start );
 
     rval = this->FixedFieldErrorEval( p0, midpt, real_pf, p1, field_start, active, this->FieldError2 );
@@ -178,7 +178,7 @@ bool vtkDataSetEdgeSubdivisionCriterion::EvaluateEdge( const double* p0, double*
 #endif
     if ( rval )
       {
-      vtkstd::copy( real_pf+field_start, real_pf+field_start+this->FieldOffsets[this->NumberOfFields], midpt+field_start );
+      std::copy( real_pf+field_start, real_pf+field_start+this->FieldOffsets[this->NumberOfFields], midpt+field_start );
       }
     }
 

@@ -39,7 +39,7 @@
 #include "vtkStreamingTessellator.h"
 #include "vtkEdgeSubdivisionCriterion.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
@@ -49,7 +49,7 @@
 #include "vtkCell.h"
 #include "vtkDataSet.h"
 
-using vtkstd::copy;
+using std::copy;
 
 #undef ONLY_WIRE
 #undef FOR_PAPER

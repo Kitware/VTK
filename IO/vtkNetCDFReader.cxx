@@ -42,8 +42,8 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtkstd/algorithm>
-#include <vtkstd/set>
+#include <algorithm>
+#include <set>
 #include <vtksys/SystemTools.hxx>
 
 #include "vtk_netcdf.h"
@@ -499,7 +499,7 @@ int vtkNetCDFReader::ReadMetaData(int ncFD)
   // Look at all variables and record them so that the user can select which
   // ones he wants.  This oddness of adding and removing from
   // VariableArraySelection is to preserve any current settings for variables.
-  typedef vtkstd::set<vtkStdString> stringSet;
+  typedef std::set<vtkStdString> stringSet;
   stringSet variablesToAdd;
   stringSet variablesToRemove;
 
@@ -743,7 +743,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
         {
         float fillValue;
         nc_get_att_float(ncFD, varId, "_FillValue", &fillValue);
-        vtkstd::replace(reinterpret_cast<float*>(dataArray->GetVoidPointer(0)),
+        std::replace(reinterpret_cast<float*>(dataArray->GetVoidPointer(0)),
                         reinterpret_cast<float*>(dataArray->GetVoidPointer(
                                                dataArray->GetNumberOfTuples())),
                         fillValue, static_cast<float>(vtkMath::Nan()));
@@ -752,7 +752,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
         {
         double fillValue;
         nc_get_att_double(ncFD, varId, "_FillValue", &fillValue);
-        vtkstd::replace(reinterpret_cast<double*>(dataArray->GetVoidPointer(0)),
+        std::replace(reinterpret_cast<double*>(dataArray->GetVoidPointer(0)),
                         reinterpret_cast<double*>(dataArray->GetVoidPointer(
                                                dataArray->GetNumberOfTuples())),
                         fillValue, vtkMath::Nan());

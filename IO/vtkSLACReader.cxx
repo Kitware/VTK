@@ -48,9 +48,9 @@
 
 #include "vtk_netcdf.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <map>
+#include <vector>
 #include <vtksys/hash_map.hxx>
 #include <vtksys/RegularExpression.hxx>
 
@@ -434,14 +434,14 @@ vtkInformationKeyMacro(vtkSLACReader, POINT_DATA, ObjectBase);
 class vtkSLACReader::vtkInternal
 {
 public:
-  vtkstd::vector<vtkStdString> ModeFileNames;
+  std::vector<vtkStdString> ModeFileNames;
 
   vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
 
   // Description:
   // A quick lookup to find the correct mode file name given a time value.
   // Only valid when TimeStepModes is true.
-  vtkstd::map<double, vtkStdString> TimeStepToFile;
+  std::map<double, vtkStdString> TimeStepToFile;
 
   // Description:
   // References and shallow copies to the last output data.  We keep this
@@ -692,7 +692,7 @@ int vtkSLACReader::RequestInformation(
     // If we are in time steps modes, we need to read in the time values from
     // all the files (and we have already read the first one).  We then report
     // the time steps we have.
-    vtkstd::vector<vtkStdString>::iterator fileitr
+    std::vector<vtkStdString>::iterator fileitr
       = this->Internal->ModeFileNames.begin();
     fileitr++;
     for ( ; fileitr != this->Internal->ModeFileNames.end(); fileitr++)
@@ -712,7 +712,7 @@ int vtkSLACReader::RequestInformation(
     double range[2];
     surfaceOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     volumeOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    vtkstd::map<double, vtkStdString>::iterator timeitr
+    std::map<double, vtkStdString>::iterator timeitr
       = this->Internal->TimeStepToFile.begin();
     range[0] = timeitr->first;
     for ( ; timeitr != this->Internal->TimeStepToFile.end(); timeitr++)
@@ -1065,7 +1065,7 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
       // flag set earlier indicates whether we need to invert the tetrahedra.
       vtkIdType tetInfo[NumPerTetInt];
       connectivity->GetTupleValue(i, tetInfo);
-      if (invertTets) vtkstd::swap(tetInfo[1], tetInfo[2]);
+      if (invertTets) std::swap(tetInfo[1], tetInfo[2]);
       vtkUnstructuredGrid *ugrid = AllocateGetBlock(volumeOutput, tetInfo[0],
                                                     IS_INTERNAL_VOLUME());
       ugrid->InsertNextCell(VTK_TETRA, 4, tetInfo+1);
@@ -1087,8 +1087,8 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
     connectivity->GetTupleValue(i, tetInfo);
     if (invertTets)
       {
-      vtkstd::swap(tetInfo[1], tetInfo[2]); // Invert point indices
-      vtkstd::swap(tetInfo[6], tetInfo[8]); // Correct faces for inversion
+      std::swap(tetInfo[1], tetInfo[2]); // Invert point indices
+      std::swap(tetInfo[6], tetInfo[8]); // Correct faces for inversion
       }
     if (this->ReadInternalVolume)
       {

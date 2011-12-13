@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkBalloonWidget);
 
@@ -98,8 +98,8 @@ struct vtkBalloon
 };
 
 
-class vtkPropMap : public vtkstd::map<vtkProp*,vtkBalloon> {};
-typedef vtkstd::map<vtkProp*,vtkBalloon>::iterator vtkPropMapIterator;
+class vtkPropMap : public std::map<vtkProp*,vtkBalloon> {};
+typedef std::map<vtkProp*,vtkBalloon>::iterator vtkPropMapIterator;
 
 
 //-------------------------------------------------------------------------

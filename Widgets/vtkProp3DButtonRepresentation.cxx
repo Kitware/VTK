@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkMath.h"
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkProp3DButtonRepresentation);
 
@@ -44,8 +44,8 @@ struct vtkScaledProp
 };
 
 // Map of textures
-class vtkPropArray : public vtkstd::map<int,vtkScaledProp> {};
-typedef vtkstd::map<int,vtkScaledProp>::iterator vtkPropArrayIterator;
+class vtkPropArray : public std::map<int,vtkScaledProp> {};
+typedef std::map<int,vtkScaledProp>::iterator vtkPropArrayIterator;
 
 
 //----------------------------------------------------------------------

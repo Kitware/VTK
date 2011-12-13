@@ -30,7 +30,7 @@
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
@@ -116,7 +116,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   double* M_l = new double[nM];
 
   // First, load all means and create a name-to-index lookup table
-  vtkstd::map<vtkStdString, vtkIdType> meanIndex;
+  std::map<vtkStdString, vtkIdType> meanIndex;
   for ( vtkIdType r = 1; r < nRow; ++ r )
     {
     if ( sparseCov->GetValueByName( r, "Column2" ).ToString() == "" )
@@ -129,13 +129,13 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   vtkIdType nMeans = meanIndex.size();
 
   // Second, load all MXYs and create an index-to-index-pair lookup table
-  vtkstd::map<vtkIdType, vtkstd::pair<vtkIdType, vtkIdType> > covToMeans;
+  std::map<vtkIdType, std::pair<vtkIdType, vtkIdType> > covToMeans;
   for ( vtkIdType r = 1; r < nRow; ++ r )
     {
     vtkStdString col2 = sparseCov->GetValueByName( r, "Column2" ).ToString();
     if ( col2  != "" )
       {
-      covToMeans[r - 1] = vtkstd::pair<vtkIdType, vtkIdType> 
+      covToMeans[r - 1] = std::pair<vtkIdType, vtkIdType>
         ( meanIndex[sparseCov->GetValueByName( r, "Column1" ).ToString()], 
           meanIndex[col2] );          
 

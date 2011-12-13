@@ -36,7 +36,7 @@
 #include "vtkCellArray.h"
 #include "vtkPolygon.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkPolyDataSilhouette);
 
@@ -76,7 +76,7 @@ class vtkPolyDataEdges
 public:
   vtkTimeStamp mtime;
   double vec[3];
-  vtkstd::map<vtkOrderedEdge,vtkTwoNormals> edges;
+  std::map<vtkOrderedEdge,vtkTwoNormals> edges;
   bool * edgeFlag;
   vtkCellArray* lines;
   inline vtkPolyDataEdges() : edgeFlag(0), lines(0) { vec[0]=vec[1]=vec[2]=0.0; }
@@ -263,7 +263,7 @@ int vtkPolyDataSilhouette::RequestData(
 
     vtkIdType i=0, silhouetteEdges=0;
 
-    for(vtkstd::map<vtkOrderedEdge,vtkTwoNormals>::iterator it=this->PreComp->edges.begin(); it!=this->PreComp->edges.end(); ++it)
+    for(std::map<vtkOrderedEdge,vtkTwoNormals>::iterator it=this->PreComp->edges.begin(); it!=this->PreComp->edges.end(); ++it)
       {
       double d1,d2;
 
@@ -318,7 +318,7 @@ int vtkPolyDataSilhouette::RequestData(
 
     i=0;
     silhouetteEdges=0;
-    for(vtkstd::map<vtkOrderedEdge,vtkTwoNormals>::iterator it=this->PreComp->edges.begin(); it!=this->PreComp->edges.end(); ++it)
+    for(std::map<vtkOrderedEdge,vtkTwoNormals>::iterator it=this->PreComp->edges.begin(); it!=this->PreComp->edges.end(); ++it)
       {
       if( this->PreComp->edgeFlag[i] )
         {

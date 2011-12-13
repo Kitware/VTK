@@ -31,7 +31,7 @@
 # include "vtkWindows.h"
 int WJLH_init_check = 0;
 # include <vtkstd/map> // STL Header
-vtkstd::map<int,int> WJLH_lock_map;
+std::map<int,int> WJLH_lock_map;
 #endif
 
 extern "C" JNIEXPORT jint  JNICALL 

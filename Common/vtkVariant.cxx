@@ -773,14 +773,14 @@ vtkStdString vtkVariant::ToString() const
   if (this->IsFloat())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.Float;
     return vtkStdString(ostr.str());
     }
   if (this->IsDouble())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.Double;
     return vtkStdString(ostr.str());
     }
@@ -817,28 +817,28 @@ vtkStdString vtkVariant::ToString() const
   if (this->IsInt())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.Int;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedInt())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedInt;
     return vtkStdString(ostr.str());
     }
   if (this->IsLong())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.Long;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedLong())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedLong;
     return vtkStdString(ostr.str());
     }
@@ -846,14 +846,14 @@ vtkStdString vtkVariant::ToString() const
   if (this->Is__Int64())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.__Int64;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsigned__Int64())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.Unsigned__Int64;
     return vtkStdString(ostr.str());
     }
@@ -862,14 +862,14 @@ vtkStdString vtkVariant::ToString() const
   if (this->IsLongLong())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.LongLong;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedLongLong())
     {
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedLongLong;
     return vtkStdString(ostr.str());
     }

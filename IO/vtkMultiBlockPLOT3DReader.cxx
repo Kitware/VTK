@@ -30,7 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkSmartPointer.h"
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 struct vtkMultiBlockPLOT3DReaderInternals
 {
-  vtkstd::vector<vtkSmartPointer<vtkStructuredGrid> > Blocks;
+  std::vector<vtkSmartPointer<vtkStructuredGrid> > Blocks;
 };
 
 vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()

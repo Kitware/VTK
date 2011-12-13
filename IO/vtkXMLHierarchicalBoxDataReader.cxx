@@ -24,7 +24,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 

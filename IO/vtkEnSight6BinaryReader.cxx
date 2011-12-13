@@ -31,7 +31,7 @@
 
 #include <sys/stat.h>
 #include <ctype.h>
-#include <vtkstd/string>
+#include <string>
 
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
@@ -134,7 +134,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(const char* fileName,
     vtkErrorMacro("A GeometryFileName must be specified in the case file.");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -745,7 +745,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
     pd->Delete();
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -905,7 +905,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(
     vtkErrorMacro("NULL ScalarPerNode variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1163,7 +1163,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(
     vtkErrorMacro("NULL VectorPerNode variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1368,7 +1368,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(
     vtkErrorMacro("NULL TensorSymmPerNode variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1538,7 +1538,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(
     vtkErrorMacro("NULL ScalarPerElement variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1740,7 +1740,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(
     vtkErrorMacro("NULL VectorPerElement variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1927,7 +1927,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
     vtkErrorMacro("NULL TensorPerElement variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;

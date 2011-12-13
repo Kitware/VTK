@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkJavaScriptDataWriter);

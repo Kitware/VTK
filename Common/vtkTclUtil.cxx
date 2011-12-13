@@ -18,7 +18,7 @@
 #include "vtkSetGet.h"
 #include "vtkCallbackCommand.h"
 
-#include <vtkstd/string>
+#include <string>
 #include <vtksys/SystemTools.hxx>
 
 extern "C"
@@ -742,7 +742,7 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
 void vtkTclApplicationInitExecutable(int vtkNotUsed(argc),
                                      const char* const argv[])
 {
-  vtkstd::string av0 = argv[0];
+  std::string av0 = argv[0];
 
   if (vtksys::SystemTools::FileIsFullPath(argv[0]))
     {
@@ -782,13 +782,13 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
 
   int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
   int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
-  vtkstd::string selfdir;
+  std::string selfdir;
   if(!has_tcllibpath_env || !has_tklibpath_env)
     {
     const char* nameofexec = Tcl_GetNameOfExecutable();
     if(nameofexec && vtksys::SystemTools::FileExists(nameofexec))
       {
-      vtkstd::string name = nameofexec;
+      std::string name = nameofexec;
       vtksys::SystemTools::ConvertToUnixSlashes(name);
       selfdir = vtksys::SystemTools::GetFilenamePath(name);
       }
@@ -797,7 +797,7 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
     {
     if(!has_tcllibpath_env)
       {
-      vtkstd::string tdir;
+      std::string tdir;
       for(const char* const* p = relative_dirs; *p; ++p)
         {
         tdir = selfdir;
@@ -819,7 +819,7 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
       }
     if(!has_tklibpath_env)
       {
-      vtkstd::string tdir;
+      std::string tdir;
       for(const char* const* p = relative_dirs; *p; ++p)
         {
         tdir = selfdir;

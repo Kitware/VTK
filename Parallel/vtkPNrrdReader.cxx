@@ -26,8 +26,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 #include <vtksys/SystemTools.hxx>
 #include <istream>
 #include <sstream>
@@ -41,7 +41,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //=============================================================================
-static vtkstd::string trim(vtkstd::string s)
+static std::string trim(std::string s)
 {
   size_t start = 0;
   while ((start < s.length()) && (isspace(s[start])))
@@ -57,9 +57,9 @@ static vtkstd::string trim(vtkstd::string s)
 }
 
 //-----------------------------------------------------------------------------
-static vtkstd::vector<vtkstd::string> split(vtkstd::string s)
+static std::vector<std::string> split(std::string s)
 {
-  vtkstd::vector<vtkstd::string> result;
+  std::vector<std::string> result;
   size_t startValue = 0;
   while (true)
     {
@@ -79,9 +79,9 @@ static vtkstd::vector<vtkstd::string> split(vtkstd::string s)
 }
 
 //-----------------------------------------------------------------------------
-static void GetVector(vtkstd::string s, vtkstd::vector<int> &dest)
+static void GetVector(std::string s, std::vector<int> &dest)
 {
-  vtkstd::vector<vtkstd::string> strlist = split(s);
+  std::vector<std::string> strlist = split(s);
   for (size_t i = 0; i < dest.size(); i++)
     {
     if (i < strlist.size())
@@ -96,9 +96,9 @@ static void GetVector(vtkstd::string s, vtkstd::vector<int> &dest)
 }
 
 //-----------------------------------------------------------------------------
-static void GetVector(vtkstd::string s, vtkstd::vector<double> &dest)
+static void GetVector(std::string s, std::vector<double> &dest)
 {
-  vtkstd::vector<vtkstd::string> strlist = split(s);
+  std::vector<std::string> strlist = split(s);
   for (size_t i = 0; i < dest.size(); i++)
     {
     if (i < strlist.size())
@@ -113,9 +113,9 @@ static void GetVector(vtkstd::string s, vtkstd::vector<double> &dest)
 }
 
 //-----------------------------------------------------------------------------
-static vtkstd::vector<double> ParseVector(vtkstd::string s)
+static std::vector<double> ParseVector(std::string s)
 {
-  vtkstd::vector<double> result;
+  std::vector<double> result;
 
   s = trim(s);
   if ((s[0] != '(') || (s[s.length()-1] != ')')) return result;
@@ -123,7 +123,7 @@ static vtkstd::vector<double> ParseVector(vtkstd::string s)
   while (true)
     {
     size_t i = s.find(',');
-    vtkstd::string value = s.substr(0, i);
+    std::string value = s.substr(0, i);
     result.push_back(atof(value.c_str()));
     if (i == s.npos) break;
     s = s.substr(i+1);
@@ -133,7 +133,7 @@ static vtkstd::vector<double> ParseVector(vtkstd::string s)
 }
 
 //-----------------------------------------------------------------------------
-static int NrrdType2VTKType(vtkstd::string nrrdType)
+static int NrrdType2VTKType(std::string nrrdType)
 {
   nrrdType = trim(nrrdType);
   if (   (nrrdType == "signed char")
@@ -225,7 +225,7 @@ void vtkPNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
 int vtkPNrrdReader::CanReadFile(const char *filename)
 {
   ifstream file(filename, ios::in | ios::binary);
-  vtkstd::string firstLine;
+  std::string firstLine;
   getline(file, firstLine);
   if (firstLine.substr(0, 4) == "NRRD")
     {
@@ -309,10 +309,10 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
 {
   this->HeaderSize = headerBuffer->GetNumberOfTuples();
 
-  vtkstd::string headerStringBuffer = headerBuffer->GetPointer(0);
-  vtkstd::stringstream header(headerStringBuffer);
+  std::string headerStringBuffer = headerBuffer->GetPointer(0);
+  std::stringstream header(headerStringBuffer);
 
-  vtkstd::string line;
+  std::string line;
   getline(header, line);
   if (line.substr(0, 4) != "NRRD")
     {
@@ -323,8 +323,8 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
   this->DataFiles->Initialize();
   int numDimensions = 0;
   int subDimension = -1;
-  vtkstd::vector<int> dimSizes;
-  vtkstd::vector<double> dimSpacing;
+  std::vector<int> dimSizes;
+  std::vector<double> dimSpacing;
   this->FileLowerLeft = 1;
   while (1)
     {
@@ -341,8 +341,8 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
     if (delm != line.npos)
       {
       // A field/description pair.
-      vtkstd::string field = line.substr(0, delm);
-      vtkstd::string description = trim(line.substr(delm+2));
+      std::string field = line.substr(0, delm);
+      std::string description = trim(line.substr(delm+2));
       if (field == "dimension")
         {
         numDimensions = atoi(description.c_str());
@@ -374,7 +374,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if ((field == "data file") || (field == "datafile"))
         {
-        vtkstd::vector<vtkstd::string> filepatterninfo = split(description);
+        std::vector<std::string> filepatterninfo = split(description);
         if (filepatterninfo[0] == "LIST")
           {
           // After LIST there is an optional subdimension (see next case below).
@@ -397,7 +397,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
           // where <format> is a string to be processed by sprintf and <min>,
           // <max>, and <step> form the numbers.  <subdim> defines on which
           // dimension the files are split up.
-          vtkstd::string format = filepatterninfo[0];
+          std::string format = filepatterninfo[0];
           int min = atoi(filepatterninfo[1].c_str());
           int max = atoi(filepatterninfo[2].c_str());
           int step = atoi(filepatterninfo[3].c_str());
@@ -435,7 +435,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if (field == "labels")
         {
-        vtkstd::string dataname = description.substr(description.find("\"")+1);
+        std::string dataname = description.substr(description.find("\"")+1);
         dataname = dataname.substr(0, dataname.find("\""));
         delete[] this->ScalarArrayName;
         this->ScalarArrayName = new char[dataname.size()+1];
@@ -447,7 +447,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if (field == "space origin")
         {
-        vtkstd::vector<double> origin = ParseVector(description);
+        std::vector<double> origin = ParseVector(description);
         for (size_t i = 0; (i < 3) && (i < origin.size()); i++)
           {
           this->DataOrigin[i] = origin[i];
@@ -455,7 +455,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if (field == "space directions")
         {
-        vtkstd::vector<vtkstd::string> directions = split(description);
+        std::vector<std::string> directions = split(description);
         dimSpacing.resize(0);
         for (size_t j = 0; j < directions.size(); j++)
           {
@@ -464,7 +464,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
             dimSpacing.push_back(0);
             continue;
             }
-          vtkstd::vector<double> dir = ParseVector(directions[j]);
+          std::vector<double> dir = ParseVector(directions[j]);
           // We don't support orientation, but we do support spacing.
           double mag = 0.0;
           for (size_t k = 0; k < dir.size(); k++)
@@ -595,12 +595,12 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
                       << " dimension.");
         }
       }
-    vtkstd::string parentDir
+    std::string parentDir
       = vtksys::SystemTools::GetParentDirectory(this->FileName);
     for (vtkIdType i = 0; i < this->DataFiles->GetNumberOfValues(); i++)
       {
-      vtkstd::string relativePath = this->DataFiles->GetValue(i);
-      vtkstd::string fullPath
+      std::string relativePath = this->DataFiles->GetValue(i);
+      std::string fullPath
         = vtksys::SystemTools::CollapseFullPath(relativePath.c_str(),
                                                 parentDir.c_str());
       this->DataFiles->SetValue(i, fullPath);

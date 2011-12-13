@@ -31,8 +31,8 @@
 #include "vtkPolygon.h"
 #include "vtkTetra.h"
 
-#include <vtkstd/queue>
-#include <vtkstd/stack>
+#include <queue>
+#include <stack>
 #include <assert.h>
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
@@ -1975,7 +1975,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
       }
     }
   
-  vtkstd::queue<vtkTetraTile> work;
+  std::queue<vtkTetraTile> work;
   vtkTetraTile roots[10]; // up to 10 top-level sub-tetra
 
   // Here, declare the edges and faces outside the if/else, as the pointer to
@@ -2513,7 +2513,7 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
   //Prepare the hash table with the top-level edges:
   this->InsertEdgesIntoEdgeTable( root );
   
-  vtkstd::queue< vtkTriangleTile > work;
+  std::queue< vtkTriangleTile > work;
   vtkTriangleTile begin = vtkTriangleTile(root);
   work.push( begin );
   

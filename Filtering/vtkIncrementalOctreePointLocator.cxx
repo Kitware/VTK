@@ -25,11 +25,11 @@
 #include "vtkIncrementalOctreeNode.h"
 #include "vtkIncrementalOctreePointLocator.h"
 
-#include <vtkstd/map>
-#include <vtkstd/list>
-#include <vtkstd/stack>
-#include <vtkstd/queue>
-#include <vtkstd/vector>
+#include <map>
+#include <list>
+#include <stack>
+#include <queue>
+#include <vector>
 
 vtkStandardNewMacro( vtkIncrementalOctreePointLocator );
 
@@ -62,13 +62,13 @@ namespace
            )
           {
           this->NumberPoints ++;
-          vtkstd::map<  double,  vtkstd::list< vtkIdType >  >::iterator
+          std::map<  double,  std::list< vtkIdType >  >::iterator
             it = this->dist2ToIds.find( dist2 );
           
           if ( it == this->dist2ToIds.end() )
             {
             // no any entry corresponds to this squared distance
-            vtkstd::list< vtkIdType >   idset;
+            std::list< vtkIdType >   idset;
             idset.push_back( pntId );
             this->dist2ToIds[ dist2 ] = idset;
             }
@@ -94,7 +94,7 @@ namespace
                )
               {
               this->NumberPoints -= it->second.size();
-              vtkstd::map<  double,  vtkstd::list< vtkIdType >  >::iterator
+              std::map<  double,  std::list< vtkIdType >  >::iterator
                 it2 = it;
               it2 --;
               this->LargestDist2 = it2->first;
@@ -115,13 +115,13 @@ namespace
         
         // clear the counter and go to the very first entry
         vtkIdType counter = 0;
-        vtkstd::map<  double,  vtkstd::list< vtkIdType >  >::iterator
+        std::map<  double,  std::list< vtkIdType >  >::iterator
           it = this->dist2ToIds.begin();
         
         // export the point indices
         while ( counter < numIds && it != this->dist2ToIds.end() )
           {
-          vtkstd::list<vtkIdType>::iterator lit = it->second.begin();
+          std::list<vtkIdType>::iterator lit = it->second.begin();
           
           while ( counter < numIds && lit != it->second.end() )
             {
@@ -143,7 +143,7 @@ namespace
     size_t  NumRequested;
     size_t  NumberPoints;
     double  LargestDist2;
-    vtkstd::map<  double,  vtkstd::list< vtkIdType >  >  dist2ToIds;
+    std::map<  double,  std::list< vtkIdType >  >  dist2ToIds;
   };
 }
 
@@ -309,11 +309,11 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation
   vtkPoints    * thePoints = NULL;
   vtkCellArray * nodeQuads = NULL;
   vtkIncrementalOctreeNode * pTempNode = NULL;
-  vtkstd::list < vtkIncrementalOctreeNode * > nodesList;
-  vtkstd::queue< vtkstd::pair < vtkIncrementalOctreeNode *, int > > pairQueue;
+  std::list < vtkIncrementalOctreeNode * > nodesList;
+  std::queue< std::pair < vtkIncrementalOctreeNode *, int > > pairQueue;
   
   // recursively process the nodes in the octree
-  pairQueue.push(  vtkstd::make_pair( this->OctreeRootNode, 0 )  );
+  pairQueue.push(  std::make_pair( this->OctreeRootNode, 0 )  );
   while ( !pairQueue.empty() )
     {
     pTempNode = pairQueue.front().first;
@@ -329,7 +329,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation
       {
       for ( int i = 0; i < 8; i ++ )
         {
-        pairQueue.push(    vtkstd::make_pair(  pTempNode->GetChild( i ), 
+        pairQueue.push(    std::make_pair(  pTempNode->GetChild( i ),
                                                nodeLevel + 1 
                                             )
                       );
@@ -342,7 +342,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation
   thePoints->Allocate(  8  *  static_cast < int > ( nodesList.size() )  );
   nodeQuads = vtkCellArray::New();
   nodeQuads->Allocate(  6  *  static_cast < int > ( nodesList.size() )  );
-  for ( vtkstd::list< vtkIncrementalOctreeNode * >::iterator
+  for ( std::list< vtkIncrementalOctreeNode * >::iterator
         lit = nodesList.begin(); lit != nodesList.end(); lit ++ )
     {
     vtkIncrementalOctreePointLocator::AddPolys( *lit, thePoints, nodeQuads );
@@ -448,7 +448,7 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPointInSphere
     double * minDist2, const double * refDist2 )
 { 
   vtkIdType  pointIndx = -1;
-  vtkstd::stack< vtkIncrementalOctreeNode * >  nodesBase;
+  std::stack< vtkIncrementalOctreeNode * >  nodesBase;
   nodesBase.push( this->OctreeRootNode );
   
   while ( !nodesBase.empty() && ( *minDist2 ) > 0.0 )
@@ -878,7 +878,7 @@ void vtkIncrementalOctreePointLocator::FindClosestNPoints
   vtkIncrementalOctreeNode * pTheChild = NULL;
   vtkIncrementalOctreeNode * pThisNode = this->OctreeRootNode;
   vtkIncrementalOctreeNode * theParent = pThisNode;
-  vtkstd::queue< vtkIncrementalOctreeNode * > nodeQueue;
+  std::queue< vtkIncrementalOctreeNode * > nodeQueue;
   
   beenFound = 0;
   numPoints = pThisNode->GetNumberOfPoints(); 

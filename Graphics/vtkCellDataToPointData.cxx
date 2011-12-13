@@ -160,7 +160,7 @@ namespace
     T      * const dstptr = static_cast<T      *>(dstarray->GetVoidPointer(0));
 
     // zero initialization
-    vtkstd::fill_n(dstptr, npoints*ncomps, T(0));
+    std::fill_n(dstptr, npoints*ncomps, T(0));
 
     // accumulate
     T const* srcbeg = srcptr;
@@ -171,7 +171,7 @@ namespace
         {
         T* const dstbeg = dstptr + pids->GetId(i)*ncomps;
         // accumulate cell data to point data <==> point_data += cell_data
-        vtkstd::transform(srcbeg,srcbeg+ncomps,dstbeg,dstbeg,vtkstd::plus<T>());
+        std::transform(srcbeg,srcbeg+ncomps,dstbeg,dstbeg,std::plus<T>());
         }
       }
 
@@ -184,8 +184,8 @@ namespace
         { 
         // divide point data by the number of cells using it <==>
         // point_data /= denum
-        vtkstd::transform(dstbeg, dstbeg+ncomps, dstbeg,
-          vtkstd::bind2nd(vtkstd::divides<T>(), denum));
+        std::transform(dstbeg, dstbeg+ncomps, dstbeg,
+          std::bind2nd(std::divides<T>(), denum));
         }
       }
   }
@@ -215,7 +215,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredGrid
     = vtkSmartPointer<vtkUnsignedIntArray>::New();
   num->SetNumberOfComponents(1);
   num->SetNumberOfTuples(npoints);
-  vtkstd::fill_n(num->GetPointer(0), npoints, 0u);
+  std::fill_n(num->GetPointer(0), npoints, 0u);
   for (vtkIdType cid = 0; cid < ncells; ++cid)
     {
     vtkIdList* const pids = src->GetCell(cid)->GetPointIds();

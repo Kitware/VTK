@@ -32,13 +32,13 @@
 #include "vtkTable.h"
 
 #include <vtksys/stl/algorithm>
-#include <vtkstd/map>
-#include <vtkstd/stdexcept>
+#include <map>
+#include <stdexcept>
 
 // threshold_multimap
 // This strange little fellow is used by the vtkDotProductSimilarity
 // implementation.  It provides the interface
-// of a vtkstd::multimap, but it enforces several constraints on its contents:
+// of a std::multimap, but it enforces several constraints on its contents:
 //
 // There is an upper-limit on the number of values stored in the container.
 // There is a lower threshold on key-values stored in the container.
@@ -47,15 +47,15 @@
 
 template<typename KeyT, typename ValueT>
 class threshold_multimap :
-  public vtkstd::multimap<KeyT, ValueT, vtkstd::less<KeyT> >
+  public std::multimap<KeyT, ValueT, std::less<KeyT> >
 {
-  typedef vtkstd::multimap<KeyT, ValueT, vtkstd::less<KeyT> > container_t;
+  typedef std::multimap<KeyT, ValueT, std::less<KeyT> > container_t;
 
 public:
   threshold_multimap(KeyT minimum_threshold, size_t minimum_count, size_t maximum_count) :
     MinimumThreshold(minimum_threshold),
-    MinimumCount(vtkstd::max(static_cast<size_t>(0), minimum_count)),
-    MaximumCount(vtkstd::max(static_cast<size_t>(0), maximum_count))
+    MinimumCount(std::max(static_cast<size_t>(0), minimum_count)),
+    MaximumCount(std::max(static_cast<size_t>(0), maximum_count))
   {
   }
 
@@ -180,33 +180,33 @@ int vtkDotProductSimilarity::RequestData(
     // Enforce our preconditions ...
     vtkArrayData* const input_a = vtkArrayData::GetData(inputVector[0]);
     if(!input_a)
-      throw vtkstd::runtime_error("Missing array data input on input port 0.");
+      throw std::runtime_error("Missing array data input on input port 0.");
     if(input_a->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("Array data on input port 0 must contain exactly one array.");
+      throw std::runtime_error("Array data on input port 0 must contain exactly one array.");
     vtkDenseArray<double>* const input_array_a = vtkDenseArray<double>::SafeDownCast(
       input_a->GetArray(static_cast<vtkIdType>(0)));
     if(!input_array_a)
-      throw vtkstd::runtime_error("Array on input port 0 must be a vtkDenseArray<double>.");
+      throw std::runtime_error("Array on input port 0 must be a vtkDenseArray<double>.");
     if(input_array_a->GetDimensions() != 2)
-      throw vtkstd::runtime_error("Array on input port 0 must be a matrix.");
+      throw std::runtime_error("Array on input port 0 must be a matrix.");
 
     vtkArrayData* const input_b = vtkArrayData::GetData(inputVector[1]);
     vtkDenseArray<double>* input_array_b = 0;
     if(input_b)
       {
       if(input_b->GetNumberOfArrays() != 1)
-        throw vtkstd::runtime_error("Array data on input port 1 must contain exactly one array.");
+        throw std::runtime_error("Array data on input port 1 must contain exactly one array.");
       input_array_b = vtkDenseArray<double>::SafeDownCast(
         input_b->GetArray(static_cast<vtkIdType>(0)));
       if(!input_array_b)
-        throw vtkstd::runtime_error("Array on input port 1 must be a vtkDenseArray<double>.");
+        throw std::runtime_error("Array on input port 1 must be a vtkDenseArray<double>.");
       if(input_array_b->GetDimensions() != 2)
-        throw vtkstd::runtime_error("Array on input port 1 must be a matrix.");
+        throw std::runtime_error("Array on input port 1 must be a matrix.");
       }
 
     const vtkIdType vector_dimension = this->VectorDimension;
     if(vector_dimension != 0 && vector_dimension != 1)
-      throw vtkstd::runtime_error("VectorDimension must be zero or one.");
+      throw std::runtime_error("VectorDimension must be zero or one.");
 
     const vtkIdType component_dimension = 1 - vector_dimension;
 
@@ -217,7 +217,7 @@ int vtkDotProductSimilarity::RequestData(
     const vtkArrayRange components_b = input_array_b ? input_array_b->GetExtent(component_dimension) : vtkArrayRange();
 
     if(input_array_b && (components_a.GetSize() != components_b.GetSize()))
-      throw vtkstd::runtime_error("Input array vector lengths must match.");
+      throw std::runtime_error("Input array vector lengths must match.");
 
     // Get output arrays ...
     vtkTable* const output = vtkTable::GetData(outputVector);
@@ -247,8 +247,8 @@ int vtkDotProductSimilarity::RequestData(
 
           for(vtkIdType vector_b = vectors_b.GetBegin(); vector_b != vectors_b.GetEnd(); ++vector_b)
             {
-            // Can't use vtkstd::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-            similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_b, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_b), vector_b));
+            // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
+            similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_b, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_b), vector_b));
             }
             
           for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
@@ -268,8 +268,8 @@ int vtkDotProductSimilarity::RequestData(
 
           for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
             {
-            // Can't use vtkstd::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-            similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_b, input_array_a, vector_b, vector_a, vector_dimension, component_dimension, components_b, components_a), vector_a));
+            // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
+            similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_b, input_array_a, vector_b, vector_a, vector_dimension, component_dimension, components_b, components_a), vector_a));
             }
             
           for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
@@ -299,8 +299,8 @@ int vtkDotProductSimilarity::RequestData(
           if((vector_b < vector_a) && !this->LowerDiagonal)
             continue;
 
-          // Can't use vtkstd::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-          similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_a, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_a), vector_b));
+          // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
+          similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_a, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_a), vector_b));
           }
           
         for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
@@ -322,7 +322,7 @@ int vtkDotProductSimilarity::RequestData(
 
     return 1;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

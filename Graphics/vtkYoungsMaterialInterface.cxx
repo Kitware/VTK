@@ -49,11 +49,11 @@ PURPOSE.  See the above copyright notice for more information.
 #define DBG_ASSERT(c) (void)0
 #endif
 
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/string>
-#include <vtkstd/map>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <set>
+#include <string>
+#include <map>
+#include <algorithm>
 
 #include <math.h>
 #include <assert.h>
@@ -130,10 +130,10 @@ class vtkYoungsMaterialInterfaceInternals
 public:
   struct MaterialDescription
   {
-    vtkstd::string volume, normal, normalX, normalY, normalZ, ordering;
-    vtkstd::set<int> blocks;
+    std::string volume, normal, normalX, normalY, normalZ, ordering;
+    std::set<int> blocks;
   };
-  vtkstd::vector<MaterialDescription> Materials;
+  std::vector<MaterialDescription> Materials;
 };
 
 // standard constructors and factory
@@ -227,9 +227,9 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* nor
     this->SetNumberOfMaterials(M+1);
     }
 
-  vtkstd::string n = normal;
+  std::string n = normal;
   vtkIdType s = n.find(' ');
-  if( s == static_cast<int>( vtkstd::string::npos ) )
+  if( s == static_cast<int>( std::string::npos ) )
     {
     this->Internals->Materials[M].normal = n;
     this->Internals->Materials[M].normalX = "";
@@ -354,8 +354,8 @@ struct vtkYoungsMaterialInterface_Mat
   vtkIdType* pointMap;
 
   // output
-  vtkstd::vector<unsigned char> cellTypes;
-  vtkstd::vector<vtkIdType> cells;
+  std::vector<unsigned char> cellTypes;
+  std::vector<vtkIdType> cells;
   vtkDataArray** outCellArrays;
   vtkDataArray** outPointArrays; // last point array is point coords
 };
@@ -364,7 +364,7 @@ struct vtkYoungsMaterialInterface_Mat
 static inline void vtkYoungsMaterialInterface_GetPointData(
                                                            int nPointData,
                                                            vtkDataArray** inPointArrays,
-                                                           vtkDataSet * input, vtkstd::vector<vtkstd::pair<int, vtkIdType> > & prevPointsMap,
+                                                           vtkDataSet * input, std::vector<std::pair<int, vtkIdType> > & prevPointsMap,
                                                            int vtkNotUsed(nmat),
                                                            vtkYoungsMaterialInterface_Mat * Mats,
                                                            int a,
@@ -540,7 +540,7 @@ int vtkYoungsMaterialInterface::RequestData(
     if (input != 0 && input->GetNumberOfCells() > 0)
       {
       int m = 0;
-      for (vtkstd::vector<vtkYoungsMaterialInterfaceInternals::MaterialDescription>::iterator
+      for (std::vector<vtkYoungsMaterialInterfaceInternals::MaterialDescription>::iterator
              it = this->Internals->Materials.begin();
            it!= this->Internals->Materials.end(); ++it, ++m)
         {
@@ -563,7 +563,7 @@ int vtkYoungsMaterialInterface::RequestData(
   this->Aggregate( nmat, inputsPerMaterial );
 
   // map containing output blocks
-  vtkstd::map<int, vtkDataSet*> outputBlocks;
+  std::map<int, vtkDataSet*> outputBlocks;
 
   // iterate over input blocks
   inputIterator->InitTraversal();
@@ -608,7 +608,7 @@ int vtkYoungsMaterialInterface::RequestData(
       new vtkYoungsMaterialInterface_Mat[nmat];
       {
       int m = 0;
-      for (vtkstd::vector<
+      for (std::vector<
              vtkYoungsMaterialInterfaceInternals::MaterialDescription>::iterator
              it = this->Internals->Materials.begin(); it
              != this->Internals->Materials.end(); ++it, ++m)
@@ -729,7 +729,7 @@ int vtkYoungsMaterialInterface::RequestData(
       double* interpolatedValues = new double[ MAX_CELL_POINTS * pointDataComponents ];
       vtkYoungsMaterialInterface_IndexedValue * matOrdering = new vtkYoungsMaterialInterface_IndexedValue[nmat];
 
-      vtkstd::vector< vtkstd::pair<int,vtkIdType> > prevPointsMap;
+      std::vector< std::pair<int,vtkIdType> > prevPointsMap;
       prevPointsMap.reserve( MAX_CELL_POINTS*nmat );
 
       for(vtkIdType ci = 0;ci<nCells;ci++)
@@ -763,7 +763,7 @@ int vtkYoungsMaterialInterface::RequestData(
           double fraction = ( Mats[mi].fractionArray != 0 ) ? Mats[mi].fractionArray->GetTuple1(ci) : 0;
           if( this->UseFractionAsDistance || fraction>this->VolumeFractionRange[0] ) nEffectiveMat++;
           }
-        vtkstd::stable_sort( matOrdering , matOrdering+nmat );
+        std::stable_sort( matOrdering , matOrdering+nmat );
 
         // read cell information for the first iteration
         // a temporary cell will then be generated after each iteration for the next one.
@@ -795,7 +795,7 @@ int vtkYoungsMaterialInterface::RequestData(
           cell.ntri = ptIds->GetNumberOfIds() / (cell.dim+1);
           for(int i = 0;i<(cell.ntri*(cell.dim+1));i++)
             {
-            vtkIdType j = vtkstd::find( cell.pointIds , cell.pointIds+cell.np , ptIds->GetId(i) ) - cell.pointIds;
+            vtkIdType j = std::find( cell.pointIds , cell.pointIds+cell.np , ptIds->GetId(i) ) - cell.pointIds;
             DBG_ASSERT( j>=0 && j<cell.np );
             cell.triangulation[i] = j;
             }
@@ -969,7 +969,7 @@ int vtkYoungsMaterialInterface::RequestData(
                     {
                     id = - (int)( prevPointsMap.size() + 1 );
                     DBG_ASSERT( (-id-1) == prevPointsMap.size() );
-                    prevPointsMap.push_back( vtkstd::make_pair( m , Mats[m].pointCount+ni ) ); // intersection points will be added first
+                    prevPointsMap.push_back( std::make_pair( m , Mats[m].pointCount+ni ) ); // intersection points will be added first
                     ni++;
                     }
                   else
@@ -1097,7 +1097,7 @@ int vtkYoungsMaterialInterface::RequestData(
                   {
                   vtkIdType id = - (int) ( prevPointsMap.size() + 1 );
                   DBG_ASSERT( (-id-1) == prevPointsMap.size() );
-                  prevPointsMap.push_back( vtkstd::make_pair( m , Mats[m].pointCount+i ) ); // we know that interpolated points will be added consecutively
+                  prevPointsMap.push_back( std::make_pair( m , Mats[m].pointCount+i ) ); // we know that interpolated points will be added consecutively
                   nextCell.pointIds[i] = id;
                   }
                 for(int i = 0;i<nOutsidePoints;i++)
@@ -1449,7 +1449,7 @@ int vtkYoungsMaterialInterface::RequestData(
     }
 
   int blockIndex=0;
-  for(vtkstd::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex)
+  for(std::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex)
     {
     if( it->second->GetNumberOfCells() > 0 )
       {
@@ -3356,7 +3356,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
       pts[i].eid[1] = eids[i*2+1];
       pts[i].angle = atan2( vec[yd], vec[xd] );
       }
-    vtkstd::sort( pts , pts+np );
+    std::sort( pts , pts+np );
     for(int i = 0;i<np;i++)
       {
       weights[i] = pts[i].weight;

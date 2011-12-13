@@ -35,9 +35,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/utility>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <utility>
+#include <vector>
 
 #include "vtkInformationInternals.h"
 

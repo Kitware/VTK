@@ -32,9 +32,9 @@
 #include "vtkStringArray.h"
 #include "vtkVertexListIterator.h"
 
-#include "vtkstd/map"    // Using STL.
-#include "vtkstd/vector" // Using STL.
-#include "vtkstd/string" // Using STL.
+#include <map>    // Using STL.
+#include <vector> // Using STL.
+#include <string> // Using STL.
 
 vtkStandardNewMacro(vtkCollapseVerticesByArray);
 
@@ -42,7 +42,7 @@ vtkStandardNewMacro(vtkCollapseVerticesByArray);
 class vtkCollapseVerticesByArrayInternal
 {
 public:
-  vtkstd::vector<vtkstd::string> AggregateEdgeArrays;
+  std::vector<std::string> AggregateEdgeArrays;
 };
 
 //------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void vtkCollapseVerticesByArray::PrintSelf(ostream &os, vtkIndent indent)
 void vtkCollapseVerticesByArray::AddAggregateEdgeArray(
   const char* arrName)
 {
-  this->Internal->AggregateEdgeArrays.push_back(vtkstd::string(arrName));
+  this->Internal->AggregateEdgeArrays.push_back(std::string(arrName));
 }
 
 //------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   typedef vtkSmartPointer<vtkStringArray>     vtkStringArrayRefPtr;
   typedef vtkSmartPointer<vtkDoubleArray>     vtkDoubleArrayRefPtr;
   typedef vtkSmartPointer<vtkIntArray>        vtkIntArrayRefPtr;
-  typedef vtkstd::pair<vtkVariant, vtkIdType> NameIdPair;
+  typedef std::pair<vtkVariant, vtkIdType> NameIdPair;
 
 
   // Create a new merged graph.
@@ -254,15 +254,15 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 
 
   // Arrays of interest.
-  vtkstd::vector<vtkDataArray*>     inEdgeDataArraysOI;
-  vtkstd::vector<vtkDataArray*>     outEdgeDataArraysOI;
+  std::vector<vtkDataArray*>     inEdgeDataArraysOI;
+  std::vector<vtkDataArray*>     outEdgeDataArraysOI;
 
   // All other arrays.
-  vtkstd::vector<vtkAbstractArray*> inEdgeDataArraysAO;
-  vtkstd::vector<vtkAbstractArray*> outEdgeDataArraysAO;
+  std::vector<vtkAbstractArray*> inEdgeDataArraysAO;
+  std::vector<vtkAbstractArray*> outEdgeDataArraysAO;
 
-  vtkstd::vector<vtkAbstractArray*> inVertexDataArraysAO;
-  vtkstd::vector<vtkAbstractArray*> outVertexDataArraysAO;
+  std::vector<vtkAbstractArray*> inVertexDataArraysAO;
+  std::vector<vtkAbstractArray*> outVertexDataArraysAO;
 
   //++
   // Find all the input vertex data arrays except the one set as key.
@@ -376,8 +376,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     }
   //--
 
-  vtkstd::map<vtkVariant, vtkIdType>            myMap;
-  vtkstd::map<vtkVariant, vtkIdType>::iterator  myItr;
+  std::map<vtkVariant, vtkIdType>            myMap;
+  std::map<vtkVariant, vtkIdType>::iterator  myItr;
 
   vtkIdType inSourceId;
   vtkIdType inTargetId;

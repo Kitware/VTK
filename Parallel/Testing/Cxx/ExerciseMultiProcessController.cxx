@@ -38,7 +38,7 @@
 
 #include <string.h>
 #include <time.h>
-#include <vtkstd/vector>
+#include <vector>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -72,7 +72,7 @@ void MatrixMultArray(const T *A, T *B, vtkIdType length)
     newVal[1] = A[0]*B[1] + A[1]*B[3];
     newVal[2] = A[2]*B[0] + A[3]*B[2];
     newVal[3] = A[2]*B[1] + A[3]*B[3];
-    vtkstd::copy(newVal, newVal+4, B);
+    std::copy(newVal, newVal+4, B);
     A += 4;  B += 4;
     }
 }
@@ -328,14 +328,14 @@ void ExerciseType(vtkMultiProcessController *controller)
   int srcProcessId;
   int destProcessId;
   vtkIdType length;
-  vtkstd::vector<vtkIdType> lengths;  lengths.resize(numProc);
-  vtkstd::vector<vtkIdType> offsets;  offsets.resize(numProc);
+  std::vector<vtkIdType> lengths;  lengths.resize(numProc);
+  std::vector<vtkIdType> offsets;  offsets.resize(numProc);
   const int arraySize = (numProc < 8) ? 8 : numProc;
 
   // Fill up some random arrays.  Note that here and elsewhere we are careful to
   // have each process request the same random numbers.  The pseudorandomness
   // gives us the same values on all processes.
-  vtkstd::vector<vtkSmartPointer<arrayType> > sourceArrays;
+  std::vector<vtkSmartPointer<arrayType> > sourceArrays;
   sourceArrays.resize(numProc);
   for (i = 0; i < numProc; i++)
     {

@@ -44,9 +44,9 @@
 #include "vtkThreadedStreamingPipeline.h"
 #include "vtkThreadMessager.h"
 
-#include <vtkstd/set>
+#include <set>
 #include <vtksys/hash_map.hxx>
-#include <vtkstd/vector>
+#include <vector>
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ public:
   }
 };
 typedef vtksys::hash_set<vtkExecutive*, vtkExecutiveHasher> vtkExecutiveSet;
-typedef vtkstd::vector<vtkExecutive*>                       vtkExecutiveVector;
+typedef std::vector<vtkExecutive*>                       vtkExecutiveVector;
 
 //----------------------------------------------------------------------------
 class vtkExecutionScheduler::implementation
@@ -104,12 +104,12 @@ public:
   // Some convenient type definitions for STL containers
   typedef vtksys::hash_map<vtkExecutive*, int, 
     vtkExecutiveHasher>                                 ExecutiveIntHashMap;
-  typedef vtkstd::pair<int, int>                        Edge;
+  typedef std::pair<int, int>                        Edge;
   class                                                 EdgeHasher;
   typedef vtksys::hash_set<Edge, EdgeHasher>            EdgeSet;
-  typedef vtkstd::multiset<Task, TaskWeakOrdering>      TaskPriorityQueue;
-  typedef vtkstd::vector<vtkMutexLock*>                 MutexLockVector;
-  typedef vtkstd::vector<vtkThreadMessager*>            MessagerVector;
+  typedef std::multiset<Task, TaskWeakOrdering>      TaskPriorityQueue;
+  typedef std::vector<vtkMutexLock*>                 MutexLockVector;
+  typedef std::vector<vtkThreadMessager*>            MessagerVector;
   class EdgeHasher 
   {
   public:

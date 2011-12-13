@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include <vtksys/ios/sstream>
 
 
@@ -46,7 +46,7 @@ vtkInformationKeyMacro(vtkExecutive, PRODUCER, ExecutivePort);
 class vtkExecutiveInternals
 {
 public:
-  vtkstd::vector<vtkInformationVector*> InputInformation;
+  std::vector<vtkInformationVector*> InputInformation;
   vtkExecutiveInternals();
   ~vtkExecutiveInternals();
   vtkInformationVector** GetInputInformation(int newNumberOfPorts);
@@ -61,7 +61,7 @@ vtkExecutiveInternals::vtkExecutiveInternals()
 vtkExecutiveInternals::~vtkExecutiveInternals()
 {
   // Delete all the input information vectors.
-  for(vtkstd::vector<vtkInformationVector*>::iterator
+  for(std::vector<vtkInformationVector*>::iterator
         i = this->InputInformation.begin();
       i != this->InputInformation.end(); ++i)
     {

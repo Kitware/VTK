@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
-#include <vtkstd/set>
+#include <set>
 #include "vtkPolygon.h"
 #include <assert.h>
 #include "vtkPoints.h"
@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkHyperOctreeClipCutPointsGrabber);
 class vtkHyperOctreeIdSet // Pimpl idiom
 {
 public:
-  vtkstd::set<vtkIdType> Set;
+  std::set<vtkIdType> Set;
 };
 
 //-----------------------------------------------------------------------------

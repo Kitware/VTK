@@ -124,7 +124,7 @@ public:
 
   // Description:
   // Returns the set of unique coordinates along the given dimension.
-  vtkstd::vector<CoordinateT> GetUniqueCoordinates(DimensionT dimension);
+  std::vector<CoordinateT> GetUniqueCoordinates(DimensionT dimension);
 
   // Description:
   // Return a read-only reference to the underlying coordinate storage.  Coordinates
@@ -212,16 +212,16 @@ private:
 
   // Description:
   // Stores a label for each array dimension
-  vtkstd::vector<vtkStdString> DimensionLabels;
+  std::vector<vtkStdString> DimensionLabels;
 
   // Description:
   // Stores the coordinates of each non-null element within the array,
   // using one contiguous array to store the coordinates for each dimension.
-  vtkstd::vector<vtkstd::vector<CoordinateT> > Coordinates;
+  std::vector<std::vector<CoordinateT> > Coordinates;
 
   // Description:
   // Stores the value of each non-null element within the array
-  vtkstd::vector<T> Values;
+  std::vector<T> Values;
 
   // Description:
   // Stores the value that will be returned when accessing NULL areas

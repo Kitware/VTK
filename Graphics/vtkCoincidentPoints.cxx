@@ -26,9 +26,9 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/set>
-#include <vtkstd/vector>
-#include <vtkstd/map>
+#include <set>
+#include <vector>
+#include <map>
 
 
 
@@ -87,12 +87,12 @@ public:
       }
   };
 
-  typedef vtkstd::map<Coord, vtkSmartPointer<vtkIdList> >::iterator MapCoordIter;
+  typedef std::map<Coord, vtkSmartPointer<vtkIdList> >::iterator MapCoordIter;
 
   vtkCoincidentPoints* Self;
 
-  vtkstd::map<Coord, vtkSmartPointer<vtkIdList> > CoordMap;
-  vtkstd::map<vtkIdType, vtkIdType> CoincidenceMap;
+  std::map<Coord, vtkSmartPointer<vtkIdList> > CoordMap;
+  std::map<vtkIdType, vtkIdType> CoincidenceMap;
   MapCoordIter TraversalIterator;
 };
 

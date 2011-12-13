@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-#include <vtkstd/string>
+#include <string>
 
 #ifndef _MAX_FNAME
 # define _MAX_FNAME 4096

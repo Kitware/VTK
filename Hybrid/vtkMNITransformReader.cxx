@@ -67,9 +67,9 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "vtkstd/string"
-#include "vtkstd/vector"
-#include "vtksys/SystemTools.hxx"
+#include <string>
+#include <vector>
+#include <vtksys/SystemTools.hxx>
 
 //--------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNITransformReader);
@@ -190,7 +190,7 @@ int vtkMNITransformReader::ReadLineAfterComments(
 {
   // Skip over any comment lines or blank lines.
   // Comment lines start with '%'
-  vtkstd::string comments;
+  std::string comments;
   do
     {
     this->ReadLine(infile, result);
@@ -739,8 +739,8 @@ int vtkMNITransformReader::ReadGridTransform(
   // Create the minc reader
   vtkMINCImageReader *reader = vtkMINCImageReader::New();
 
-  vtkstd::vector<vtkstd::string> xfmpath;
-  vtkstd::vector<vtkstd::string> mincpath;
+  std::vector<std::string> xfmpath;
+  std::vector<std::string> mincpath;
 
   vtksys::SystemTools::SplitPath(this->FileName, xfmpath);
   vtksys::SystemTools::SplitPath(filename, mincpath);

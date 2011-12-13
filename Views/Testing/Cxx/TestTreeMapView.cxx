@@ -34,7 +34,7 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-using vtkstd::string;
+using std::string;
 
 int TestTreeMapView(int argc, char* argv[])
 {

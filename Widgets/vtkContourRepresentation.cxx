@@ -32,9 +32,9 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
+#include <set>
+#include <algorithm>
+#include <iterator>
 
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);

@@ -24,8 +24,8 @@
 #include <vtkObject.h>
 #include <utf8.h>
 
-#include <vtkstd/map>
-#include <vtkstd/stdexcept>
+#include <map>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////
 // vtkUnicodeString::const_iterator
@@ -34,7 +34,7 @@ vtkUnicodeString::const_iterator::const_iterator()
 {
 }
 
-vtkUnicodeString::const_iterator::const_iterator(vtkstd::string::const_iterator position) :
+vtkUnicodeString::const_iterator::const_iterator(std::string::const_iterator position) :
   Position(position)
 {
 }
@@ -83,13 +83,13 @@ vtkUnicodeString::const_iterator vtkUnicodeString::const_iterator::operator--(in
 ///////////////////////////////////////////////////////////////////////////
 // vtkUnicodeString::back_insert_iterator
 
-// We provide our own implementation of vtkstd::back_insert_iterator for
-// use with MSVC 6, where push_back() isn't implemented for vtkstd::string.
+// We provide our own implementation of std::back_insert_iterator for
+// use with MSVC 6, where push_back() isn't implemented for std::string.
 
 class vtkUnicodeString::back_insert_iterator
 {
 public:
-  back_insert_iterator(vtkstd::string& container) :
+  back_insert_iterator(std::string& container) :
     Container(&container)
   {
   }
@@ -109,7 +109,7 @@ public:
     return *this;
   }
 
-  back_insert_iterator& operator=(vtkstd::string::const_reference value)
+  back_insert_iterator& operator=(std::string::const_reference value)
   {
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // MSVC 6
     this->Container->append(1, value);
@@ -120,7 +120,7 @@ public:
   }
 
 private:
-  vtkstd::string* Container;
+  std::string* Container;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -148,17 +148,17 @@ vtkUnicodeString::vtkUnicodeString(const_iterator first, const_iterator last) :
 
 bool vtkUnicodeString::is_utf8(const char* value)
 {
-  return vtkUnicodeString::is_utf8(vtkstd::string(value ? value : ""));
+  return vtkUnicodeString::is_utf8(std::string(value ? value : ""));
 }
 
-bool vtkUnicodeString::is_utf8(const vtkstd::string& value)
+bool vtkUnicodeString::is_utf8(const std::string& value)
 {
   return vtk_utf8::is_valid(value.begin(), value.end());
 }
 
 vtkUnicodeString vtkUnicodeString::from_utf8(const char* value)
 {
-  return vtkUnicodeString::from_utf8(vtkstd::string(value ? value : ""));
+  return vtkUnicodeString::from_utf8(std::string(value ? value : ""));
 }
 
 vtkUnicodeString vtkUnicodeString::from_utf8(const char* begin, const char* end)
@@ -166,7 +166,7 @@ vtkUnicodeString vtkUnicodeString::from_utf8(const char* begin, const char* end)
   vtkUnicodeString result;
   if(vtk_utf8::is_valid(begin, end))
     {
-    result.Storage = vtkstd::string(begin, end);
+    result.Storage = std::string(begin, end);
     }
   else
     {
@@ -175,7 +175,7 @@ vtkUnicodeString vtkUnicodeString::from_utf8(const char* begin, const char* end)
   return result;
 }
 
-vtkUnicodeString vtkUnicodeString::from_utf8(const vtkstd::string& value)
+vtkUnicodeString vtkUnicodeString::from_utf8(const std::string& value)
 {
   vtkUnicodeString result;
   if(vtk_utf8::is_valid(value.begin(), value.end()))
@@ -234,16 +234,16 @@ vtkUnicodeString::const_iterator vtkUnicodeString::end() const
 vtkUnicodeString::value_type vtkUnicodeString::at(size_type offset) const
 {
   if(offset >= this->character_count())
-    throw vtkstd::out_of_range("character out-of-range");
+    throw std::out_of_range("character out-of-range");
 
-  vtkstd::string::const_iterator iterator = this->Storage.begin();
+  std::string::const_iterator iterator = this->Storage.begin();
   vtk_utf8::unchecked::advance(iterator, offset);
   return vtk_utf8::unchecked::peek_next(iterator);
 }
 
 vtkUnicodeString::value_type vtkUnicodeString::operator[](size_type offset) const
 {
-  vtkstd::string::const_iterator iterator = this->Storage.begin();
+  std::string::const_iterator iterator = this->Storage.begin();
   vtk_utf8::unchecked::advance(iterator, offset);
   return vtk_utf8::unchecked::peek_next(iterator);
 }
@@ -253,22 +253,22 @@ const char* vtkUnicodeString::utf8_str() const
   return this->Storage.c_str();
 }
 
-void vtkUnicodeString::utf8_str(vtkstd::string& result) const
+void vtkUnicodeString::utf8_str(std::string& result) const
 {
   result = this->Storage;
 }
 
-vtkstd::vector<vtkTypeUInt16> vtkUnicodeString::utf16_str() const
+std::vector<vtkTypeUInt16> vtkUnicodeString::utf16_str() const
 {
-  vtkstd::vector<vtkTypeUInt16> result;
-  vtk_utf8::unchecked::utf8to16(this->Storage.begin(), this->Storage.end(), vtkstd::back_inserter(result));
+  std::vector<vtkTypeUInt16> result;
+  vtk_utf8::unchecked::utf8to16(this->Storage.begin(), this->Storage.end(), std::back_inserter(result));
   return result;
 }
 
-void vtkUnicodeString::utf16_str(vtkstd::vector<vtkTypeUInt16>& result) const
+void vtkUnicodeString::utf16_str(std::vector<vtkTypeUInt16>& result) const
 {
   result.clear();
-  vtk_utf8::unchecked::utf8to16(this->Storage.begin(), this->Storage.end(), vtkstd::back_inserter(result));
+  vtk_utf8::unchecked::utf8to16(this->Storage.begin(), this->Storage.end(), std::back_inserter(result));
 }
 
 vtkUnicodeString::size_type vtkUnicodeString::byte_count() const
@@ -286,7 +286,7 @@ bool vtkUnicodeString::empty() const
   return this->Storage.empty();
 }
 
-const vtkUnicodeString::size_type vtkUnicodeString::npos = vtkstd::string::npos;
+const vtkUnicodeString::size_type vtkUnicodeString::npos = std::string::npos;
 
 vtkUnicodeString& vtkUnicodeString::operator+=(value_type value)
 {
@@ -372,7 +372,7 @@ void vtkUnicodeString::clear()
 
 vtkUnicodeString vtkUnicodeString::fold_case() const
 {
-  typedef vtkstd::map<value_type, vtkUnicodeString> map_t;
+  typedef std::map<value_type, vtkUnicodeString> map_t;
 
   static map_t map;
   if(map.empty())
@@ -387,7 +387,7 @@ vtkUnicodeString vtkUnicodeString::fold_case() const
         {
         mapping.push_back(*i);
         }
-      map.insert(vtkstd::make_pair(code, mapping));
+      map.insert(std::make_pair(code, mapping));
       }
     }
   
@@ -416,13 +416,13 @@ int vtkUnicodeString::compare(const vtkUnicodeString& rhs) const
 
 vtkUnicodeString vtkUnicodeString::substr(size_type offset, size_type count) const
 {
-  vtkstd::string::const_iterator from = this->Storage.begin();
-  vtkstd::string::const_iterator last = this->Storage.end();
+  std::string::const_iterator from = this->Storage.begin();
+  std::string::const_iterator last = this->Storage.end();
 
   while(from != last && offset--)
     vtk_utf8::unchecked::advance(from, 1);
 
-  vtkstd::string::const_iterator to = from;
+  std::string::const_iterator to = from;
   while(to != last && count--)
     vtk_utf8::unchecked::advance(to, 1);
 
@@ -431,7 +431,7 @@ vtkUnicodeString vtkUnicodeString::substr(size_type offset, size_type count) con
 
 void vtkUnicodeString::swap(vtkUnicodeString& rhs)
 {
-  vtkstd::swap(this->Storage, rhs.Storage);
+  std::swap(this->Storage, rhs.Storage);
 }
 
 bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)

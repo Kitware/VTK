@@ -66,7 +66,7 @@
 
 #include "vtkFunctionSet.h"
 //BTX
-#include <vtkstd/vector> // STL Header; Required for vector
+#include <vector> // STL Header; Required for vector
 //ETX
 
 class vtkDataSet;
@@ -223,7 +223,7 @@ private:
 };
 
 //BTX
-typedef vtkstd::vector< vtkDataSet * > DataSetsTypeBase;
+typedef std::vector< vtkDataSet * > DataSetsTypeBase;
 class   vtkAbstractInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase { };
 //ETX
 

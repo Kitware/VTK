@@ -32,8 +32,8 @@
 
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkFacetReader);
 
@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkFacetReader);
 // if any data were read before the end-of-file was reached.
 // 
 static bool GetLineFromStream(istream& is,
-  vtkstd::string& line, bool *has_newline = 0)
+  std::string& line, bool *has_newline = 0)
 {
   const int bufferSize = 1024;
   char buffer[bufferSize];
@@ -112,7 +112,7 @@ int vtkFacetReader::CanReadFile(const char *filename)
     return 0;
     }
 
-  vtkstd::string line;
+  std::string line;
   // Read first row
   if (!GetLineFromStream(ifs, line))
     {
@@ -160,7 +160,7 @@ int vtkFacetReader::RequestData(
     }
 
   vtkDebugMacro( << "Reading Facet file");
-  vtkstd::string line;
+  std::string line;
 
   // Read first row
   if ( !GetLineFromStream(ifs, line) )
@@ -182,8 +182,8 @@ int vtkFacetReader::RequestData(
   vtkDebugMacro("Number of parts is: " << num_parts);
 
   // Buffers for various information from file
-  vtkstd::vector<vtkIdType> pointList;
-  vtkstd::vector<char> stringBuffer;
+  std::vector<vtkIdType> pointList;
+  std::vector<char> stringBuffer;
 
   // We will need append individual parts together. Once multiblock is
   // supported, this should go out.
@@ -198,7 +198,7 @@ int vtkFacetReader::RequestData(
   // Loop thrugh individual parts
   for ( part = 0; part < num_parts || error; part ++ )
     {
-    vtkstd::string partName;
+    std::string partName;
     vtkDebugMacro("Reading part: " << part);
 
     // Read part name
@@ -318,7 +318,7 @@ int vtkFacetReader::RequestData(
         }
       char* strPtr = &(*stringBuffer.begin());
       strcpy(strPtr, line.c_str());
-      vtkstd::string str(strPtr, stringBuffer.size());
+      std::string str(strPtr, stringBuffer.size());
       vtksys_ios::istringstream lineStream(str);
       vtkIdType kk;
       int material = -1, relativePartNumber = -1;

@@ -17,7 +17,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkMath.h"
-#include <vtkstd/limits>
+#include <limits>
 
 #ifndef ABS
 #define ABS(x) ((x) < 0 ? -(x) : (x))

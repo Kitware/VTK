@@ -264,7 +264,7 @@ int vtkTemporalStreamTracer::RequestInformation(
 return 1;
 }
 //----------------------------------------------------------------------------
-class WithinTolerance: public vtkstd::binary_function<double, double, bool>
+class WithinTolerance: public std::binary_function<double, double, bool>
 {
 public:
     result_type operator()(first_argument_type a, second_argument_type b) const
@@ -311,10 +311,10 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
     double *requestedTimeValues = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     requestedTimeValue = requestedTimeValues[0];
-    this->ActualTimeStep = vtkstd::find_if(
+    this->ActualTimeStep = std::find_if(
       this->OutputTimeValues.begin(), 
       this->OutputTimeValues.end(), 
-      vtkstd::bind2nd( WithinTolerance( ), requestedTimeValue )) 
+      std::bind2nd( WithinTolerance( ), requestedTimeValue ))
       - this->OutputTimeValues.begin();
     if (this->ActualTimeStep>=this->OutputTimeValues.size())
     {
@@ -656,7 +656,7 @@ void vtkTemporalStreamTracer::AssignUniqueIds(
     com->Broadcast(&this->UniqueIdCounter, 1, 0);
 //    vtkErrorMacro("UniqueIdCounter " << this->UniqueIdCounter);
     // setup arrays used by the AllGather call.
-    vtkstd::vector<vtkIdType> recvNumParticles(this->UpdateNumPieces, 0);
+    std::vector<vtkIdType> recvNumParticles(this->UpdateNumPieces, 0);
     // Broadcast and receive count to/from all other processes.
     com->AllGather(&numParticles, &recvNumParticles[0], 1);
     // Each process is allocating a certain number.
@@ -698,8 +698,8 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
   vtkIdType OurParticles = sending.size();
   vtkIdType TotalParticles = 0;
   // setup arrays used by the AllGatherV call.
-  vtkstd::vector<vtkIdType> recvLengths(this->UpdateNumPieces, 0);
-  vtkstd::vector<vtkIdType> recvOffsets(this->UpdateNumPieces, 0);
+  std::vector<vtkIdType> recvLengths(this->UpdateNumPieces, 0);
+  std::vector<vtkIdType> recvOffsets(this->UpdateNumPieces, 0);
   // Broadcast and receive size to/from all other processes.
   com->AllGather(&OurParticles, &recvLengths[0], 1);
   // Compute the displacements.
@@ -723,9 +723,9 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
   // Now all particles from all processors are in one big array
   // remove any from ourself that we have already tested
   if (removeself) {
-    vtkstd::vector<ParticleInformation>::iterator first = 
+    std::vector<ParticleInformation>::iterator first =
       received.begin() + recvOffsets[this->UpdatePiece]/TypeSize;
-    vtkstd::vector<ParticleInformation>::iterator last = 
+    std::vector<ParticleInformation>::iterator last =
       first + recvLengths[this->UpdatePiece]/TypeSize;
     received.erase(first, last);
   }
@@ -794,7 +794,7 @@ int vtkTemporalStreamTracer::RequestData(
         // Get the timestep information for this instant
         //
         vtkInformation *doInfo = td->GetInformation();
-        vtkstd::vector<double> timesteps;
+        std::vector<double> timesteps;
         if (doInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
         {
           int NumberOfDataTimeSteps = doInfo->Length(vtkDataObject::DATA_TIME_STEPS());
@@ -827,7 +827,7 @@ int vtkTemporalStreamTracer::RequestData(
   //
 
   int numSources = inputVector[1]->GetNumberOfInformationObjects();
-  vtkstd::vector<vtkDataSet*> SeedSources;
+  std::vector<vtkDataSet*> SeedSources;
   for (int idx=0; idx<numSources; ++idx)
     {
     vtkDataObject     *dobj   = 0;

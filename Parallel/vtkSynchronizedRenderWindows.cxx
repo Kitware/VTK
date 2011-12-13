@@ -21,7 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkWeakPointer.h"
 
-#include <vtkstd/map>
+#include <map>
 
 //----------------------------------------------------------------------------
 class vtkSynchronizedRenderWindows::vtkObserver : public vtkCommand
@@ -61,7 +61,7 @@ public:
 //----------------------------------------------------------------------------
 namespace
 {
-  typedef vtkstd::map<unsigned int, vtkWeakPointer<vtkSynchronizedRenderWindows> >
+  typedef std::map<unsigned int, vtkWeakPointer<vtkSynchronizedRenderWindows> >
     GlobalSynRenderWindowsMapType;
   GlobalSynRenderWindowsMapType GlobalSynRenderWindowsMap;
 
@@ -221,7 +221,7 @@ void vtkSynchronizedRenderWindows::MasterStartRender()
     vtkMultiProcessStream stream;
     stream << this->Identifier;
 
-    vtkstd::vector<unsigned char> data;
+    std::vector<unsigned char> data;
     stream.GetRawData(data);
 
     this->ParallelController->TriggerRMIOnAllChildren(

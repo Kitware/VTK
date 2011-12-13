@@ -19,14 +19,14 @@
 
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkMutableDirectedGraph.h"
-#include <vtkstd/limits>
+#include <limits>
 #include "vtkSmartPointer.h"
 
 #include <vector>
 
 template<class A>
 bool fuzzyCompare(A a, A b) {
-  return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
+  return fabs(a - b) < std::numeric_limits<A>::epsilon();
 }
 
 int TestGetEdgeId();

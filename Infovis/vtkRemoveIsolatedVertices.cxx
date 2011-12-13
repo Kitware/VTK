@@ -32,7 +32,7 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkRemoveIsolatedVertices);
 //----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ int vtkRemoveIsolatedVertices::RequestData(
   // Vector keeps track of mapping of input vertex ids to
   // output vertex ids.
   vtkIdType numVert = input->GetNumberOfVertices();
-  vtkstd::vector<int> outputVertex(numVert, -1);
+  std::vector<int> outputVertex(numVert, -1);
 
   vtkSmartPointer<vtkEdgeListIterator> edgeIter =
     vtkSmartPointer<vtkEdgeListIterator>::New();

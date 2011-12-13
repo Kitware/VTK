@@ -87,10 +87,10 @@ public:
 //BTX
   // Description:
   // Defines storage for a half-open range of Unicode characters [begin, end).
-  typedef vtkstd::pair<vtkUnicodeString::value_type, vtkUnicodeString::value_type> DelimiterRange;
+  typedef std::pair<vtkUnicodeString::value_type, vtkUnicodeString::value_type> DelimiterRange;
   // Description:
   // Defines storage for a collection of half-open ranges of Unicode characters.
-  typedef vtkstd::vector<DelimiterRange> DelimiterRanges;
+  typedef std::vector<DelimiterRange> DelimiterRanges;
 
   // Description:
   // Returns a set of delimiter ranges that match Unicode punctuation codepoints.

@@ -31,7 +31,7 @@
 #include "vtkPMultiCorrelativeStatistics.h"
 #include "vtkVariant.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkPPCAStatistics);
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);

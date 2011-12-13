@@ -18,8 +18,8 @@
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 
 // should the pipeline be double or singly linked (referenced) list, single
@@ -50,8 +50,8 @@ class vtkInformationExecutivePortVectorValue: public vtkObjectBase
 {
 public:
   vtkTypeMacro(vtkInformationExecutivePortVectorValue, vtkObjectBase);
-  vtkstd::vector<vtkExecutive*> Executives;
-  vtkstd::vector<int> Ports;
+  std::vector<vtkExecutive*> Executives;
+  std::vector<int> Ports;
 
   virtual ~vtkInformationExecutivePortVectorValue();
   void UnRegisterAllExecutives();
@@ -69,7 +69,7 @@ vtkInformationExecutivePortVectorValue
 void vtkInformationExecutivePortVectorValue::UnRegisterAllExecutives()
 {
 #ifndef VTK_USE_SINGLE_REF
-  for(vtkstd::vector<vtkExecutive*>::iterator i = this->Executives.begin();
+  for(std::vector<vtkExecutive*>::iterator i = this->Executives.begin();
       i != this->Executives.end(); ++i)
     {
     if(vtkExecutive* e = *i)
@@ -159,8 +159,8 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
       {
       // Replace the existing value.
       oldv->UnRegisterAllExecutives();
-      vtkstd::copy(executives, executives+length, oldv->Executives.begin());
-      vtkstd::copy(ports, ports+length, oldv->Ports.begin());
+      std::copy(executives, executives+length, oldv->Executives.begin());
+      std::copy(ports, ports+length, oldv->Ports.begin());
       // Since this sets a value without call SetAsObjectBase(),
       // the info has to be modified here (instead of 
       // vtkInformation::SetAsObjectBase()
@@ -212,8 +212,8 @@ void vtkInformationExecutivePortVectorKey::Get(vtkInformation* info,
      static_cast<vtkInformationExecutivePortVectorValue *>
      (this->GetAsObjectBase(info)))
     {
-    vtkstd::copy(v->Executives.begin(), v->Executives.end(), executives);
-    vtkstd::copy(v->Ports.begin(), v->Ports.end(), ports);
+    std::copy(v->Executives.begin(), v->Executives.end(), executives);
+    std::copy(v->Ports.begin(), v->Ports.end(), ports);
     }
 }
 
@@ -281,7 +281,7 @@ vtkInformationExecutivePortVectorKey::Report(vtkInformation* info,
      static_cast<vtkInformationExecutivePortVectorValue *>
      (this->GetAsObjectBase(info)))
     {
-    for(vtkstd::vector<vtkExecutive*>::iterator i = v->Executives.begin();
+    for(std::vector<vtkExecutive*>::iterator i = v->Executives.begin();
         i != v->Executives.end(); ++i)
       {
       vtkGarbageCollectorReport(collector, *i, this->GetName());

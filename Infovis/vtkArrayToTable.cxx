@@ -90,10 +90,10 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
   const vtkArrayRange columns = array->GetExtent(1);
   const vtkArrayRange rows = array->GetExtent(0);
 
-  vtkstd::vector<ColumnT*> new_columns;
+  std::vector<ColumnT*> new_columns;
   for(vtkIdType j = columns.GetBegin(); j != columns.GetEnd(); ++j)
     {
-    vtkstd::ostringstream column_name;
+    std::ostringstream column_name;
     column_name << j;
       
     ColumnT* const column = ColumnT::New();
@@ -170,13 +170,13 @@ int vtkArrayToTable::RequestData(
     {
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_array_data)
-      throw vtkstd::runtime_error("Missing vtkArrayData on input port 0.");
+      throw std::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_array_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkArrayToTable requires a vtkArrayData containing exactly one array.");
+      throw std::runtime_error("vtkArrayToTable requires a vtkArrayData containing exactly one array.");
     
     vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
     if(input_array->GetDimensions() > 2)
-      throw vtkstd::runtime_error("vtkArrayToTable input array must have 1 or 2 dimensions.");
+      throw std::runtime_error("vtkArrayToTable input array must have 1 or 2 dimensions.");
     
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 
@@ -213,9 +213,9 @@ int vtkArrayToTable::RequestData(
     if(ConvertMatrix<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
 
-    throw vtkstd::runtime_error("Unhandled input array type.");
+    throw std::runtime_error("Unhandled input array type.");
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
     }

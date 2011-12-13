@@ -36,7 +36,7 @@
 #include "vtkTransform.h"
 
 #include <assert.h>
-#include <vtkstd/vector>
+#include <vector>
 
 vtkInstantiatorNewMacro(vtkGlyph3DMapper);
 

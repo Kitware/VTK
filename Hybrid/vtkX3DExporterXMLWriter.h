@@ -73,7 +73,7 @@ private:
   void AddDepth();
   void SubDepth();
 
-  vtkstd::string ActTab;
+  std::string ActTab;
   int Depth;
   ostream *OutputStream;
   vtkX3DExporterXMLNodeInfoStack* InfoStack;

@@ -21,7 +21,7 @@
 
 #include "vtkArrayRange.h"
 
-#include <vtkstd/algorithm> // for vtkstd::max()
+#include <algorithm> // for std::max()
 
 vtkArrayRange::vtkArrayRange() :
   Begin(0),
@@ -31,7 +31,7 @@ vtkArrayRange::vtkArrayRange() :
 
 vtkArrayRange::vtkArrayRange(CoordinateT begin, CoordinateT end) :
   Begin(begin),
-  End(vtkstd::max(begin, end))
+  End(std::max(begin, end))
 {
 }
 

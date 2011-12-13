@@ -75,7 +75,7 @@ class vtkPointAccumulator
         #ifndef NDEBUG
         abort();
         #else
-        throw vtkstd::bad_alloc();
+        throw std::bad_alloc();
         #endif
         }
       // mark begin of new

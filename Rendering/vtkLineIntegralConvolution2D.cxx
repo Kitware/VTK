@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 
-#include <vtkstd/string>
+#include <string>
 
 extern const char *vtkLineIntegralConvolution2D_fs;
 extern const char *vtkLineIntegralConvolution2D_fs1;
@@ -320,7 +320,7 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
   // the associated fragment shader such that the shader program can extract
   // the two target components from each 3D vector
   const char componentNames[] = { 'x', 0x0, 'y', 0x0, 'z', 0x0, 'w', 0x0 };
-  vtkstd::string   additionalKernel = ::vtkLineIntegralConvolution2DCode;
+  std::string   additionalKernel = ::vtkLineIntegralConvolution2DCode;
   additionalKernel.replace(  additionalKernel.find( '$' ),  1,  
                             &componentNames[ 2 * components[0] ]  );
   additionalKernel.replace(  additionalKernel.find( '$' ),  1,  

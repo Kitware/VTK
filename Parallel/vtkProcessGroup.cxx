@@ -25,7 +25,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkProcessGroup);
@@ -91,7 +91,7 @@ void vtkProcessGroup::SetCommunicator(vtkCommunicator *communicator)
     }
   if (this->ProcessIds)
     {
-    vtkstd::copy(newProcessIds, newProcessIds+newNumberOfProcessIds,
+    std::copy(newProcessIds, newProcessIds+newNumberOfProcessIds,
                this->ProcessIds);
     }
   if (this->Communicator) delete[] this->ProcessIds;

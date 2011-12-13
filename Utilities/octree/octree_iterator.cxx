@@ -21,7 +21,7 @@
   * \brief Shorthand for a pointer to a node in the octree.
   */
 /**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
-  *         typedef vtkstd::bidirectional_iterator_tag octree_iterator<T_,R_,P_,O_,OP_,d_>::iterator_category;
+  *         typedef std::bidirectional_iterator_tag octree_iterator<T_,R_,P_,O_,OP_,d_>::iterator_category;
   * \brief A tag used by the STL to determine what algorithms may be applied to the octree container. 
   */
 /**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
@@ -109,7 +109,7 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
 {
   if ( ! this->_M_root )
     {
-    throw vtkstd::logic_error( "Can't increment iterator with null octree pointer." );
+    throw std::logic_error( "Can't increment iterator with null octree pointer." );
     }
   // Oldtown. (We're at the end)
   if ( ! this->_M_current_node )
@@ -173,7 +173,7 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
 {
   if ( ! this->_M_root )
     {
-    throw vtkstd::logic_error( "Can't decrement iterator with null octree pointer." );
+    throw std::logic_error( "Can't decrement iterator with null octree pointer." );
     }
   // Oldtown. (We're at the end)
   if ( ! this->_M_current_node )

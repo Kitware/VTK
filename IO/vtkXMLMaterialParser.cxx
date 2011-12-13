@@ -31,14 +31,14 @@
 
 #include "vtkXMLUtilities.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 
 //-----------------------------------------------------------------------------
 class vtkXMLMaterialParserInternals
 {
 public:
-  typedef vtkstd::vector<vtkSmartPointer<vtkXMLDataElement> > VectorOfElements;
+  typedef std::vector<vtkSmartPointer<vtkXMLDataElement> > VectorOfElements;
   VectorOfElements Stack;
 };
 

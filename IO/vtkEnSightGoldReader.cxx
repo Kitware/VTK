@@ -29,9 +29,9 @@
 
 #include <ctype.h>
 #include <vtksys/ios/sstream>
-#include <vtkstd/string>
-#include <vtkstd/vector>
-#include <vtkstd/map>
+#include <string>
+#include <vector>
+#include <map>
 
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
@@ -39,8 +39,8 @@ vtkStandardNewMacro(vtkEnSightGoldReader);
 class vtkEnSightGoldReader::FileOffsetMapInternal
 {
   public:
-    vtkstd::map<vtkstd::string,
-    vtkstd::map<int, long> > Map;
+    std::map<std::string,
+    std::map<int, long> > Map;
 };
 class vtkEnSightGoldReader::UndefPartialInternal
 {
@@ -48,9 +48,9 @@ public:
   double UndefCoordinates;
   double UndefBlock;
   double UndefElementTypes;
-  vtkstd::vector<vtkIdType> PartialCoordinates;
-  vtkstd::vector<vtkIdType> PartialBlock;
-  vtkstd::vector<vtkIdType> PartialElementTypes;
+  std::vector<vtkIdType> PartialCoordinates;
+  std::vector<vtkIdType> PartialBlock;
+  std::vector<vtkIdType> PartialElementTypes;
 };
 
 
@@ -97,7 +97,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
     vtkErrorMacro("A GeometryFileName must be specified in the case file.");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -158,7 +158,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
       this->ReadLine(line);
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();
@@ -300,7 +300,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
     vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -366,7 +366,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
       this->ReadLine(line);
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();
@@ -445,7 +445,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
     vtkErrorMacro("NULL ScalarPerNode variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -497,7 +497,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
         }
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();
@@ -658,7 +658,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
     vtkErrorMacro("NULL VectorPerNode variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -711,7 +711,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
         }
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();
@@ -826,7 +826,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
     vtkErrorMacro("NULL TensorPerNode variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -878,7 +878,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
         }
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();
@@ -949,7 +949,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
     vtkErrorMacro("NULL ScalarPerElement variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1001,7 +1001,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
         }
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();
@@ -1153,7 +1153,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
     vtkErrorMacro("NULL VectorPerElement variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1205,7 +1205,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
         }
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();
@@ -1320,7 +1320,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
     vtkErrorMacro("NULL TensorPerElement variable file name");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1372,7 +1372,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
         }
       if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
         {
-        vtkstd::map<int, long> tsMap;
+        std::map<int, long> tsMap;
         this->FileOffsets->Map[fileName] = tsMap;
         }
       this->FileOffsets->Map[fileName][j] = this->IS->tellg();

@@ -18,10 +18,10 @@
 #include "vtkCellData.h"
 #include "vtkType.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
-using vtkstd::vector;
-using vtkstd::copy;
+#include <vector>
+#include <algorithm>
+using std::vector;
+using std::copy;
 
 
 //-----------------------------------------------------------------------------
@@ -715,7 +715,7 @@ ostream &vtkAMRBox::Print(ostream &os) const
 void Split(
       const int N[3],
       const int minSide[3],
-      vtkstd::vector<vtkAMRBox> &decomp)
+      std::vector<vtkAMRBox> &decomp)
 {
   vector<vtkAMRBox> tDecomp; // Working array for resulting splits
   vector<vtkAMRBox> aDecomp; // and for atomic boxes.
@@ -777,7 +777,7 @@ void Split(
 //*****************************************************************************
 void Split(
       const int minSide[3],
-      vtkstd::vector<vtkAMRBox> &decomp)
+      std::vector<vtkAMRBox> &decomp)
 {
   vector<vtkAMRBox> tDecomp; // Working array for resulting splits
   vector<vtkAMRBox> aDecomp; // and for atomic boxes.
