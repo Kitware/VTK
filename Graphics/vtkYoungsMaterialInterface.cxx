@@ -377,13 +377,13 @@ static inline void vtkYoungsMaterialInterface_GetPointData(
     {
     if (a < (nPointData - 1))
       {
-      DBG_ASSERT( /*i>=0 &&*/i<inPointArrays[a]->GetNumberOfTuples());
+      DBG_ASSERT( i<inPointArrays[a]->GetNumberOfTuples());
       inPointArrays[a]->GetTuple(i, t);
       }
     else
       {
       DBG_ASSERT( a == (nPointData-1) );
-      DBG_ASSERT( /*i>=0 &&*/i<input->GetNumberOfPoints());
+      DBG_ASSERT( i<input->GetNumberOfPoints());
       input->GetPoint(i, t);
       }
     }
@@ -392,7 +392,7 @@ static inline void vtkYoungsMaterialInterface_GetPointData(
     int j = -i - 1;
     DBG_ASSERT(j>=0 && j<prevPointsMap.size());
     int prev_m = prevPointsMap[j].first;
-    DBG_ASSERT(prev_m>=0 /*&& prev_m<nmat*/);
+    DBG_ASSERT(prev_m>=0);
     vtkIdType prev_i = (prevPointsMap[j].second);
     DBG_ASSERT(prev_i>=0 && prev_i<Mats[prev_m].outPointArrays[a]->GetNumberOfTuples());
     Mats[prev_m].outPointArrays[a]->GetTuple(prev_i, t);
