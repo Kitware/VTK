@@ -227,7 +227,8 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
     }
 
   // Start the NSApplication's run loop
-  [NSApp run];
+  NSApplication* application = [NSApplication sharedApplication];
+  [application run];
 }
 
 //----------------------------------------------------------------------------
@@ -260,18 +261,19 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
       // Stop the current run loop. Do not terminate as it will not return to
       // main. However, the stop message puts the run loop asleep. Let's send
       // some event to wake it up so it can get out of the loop.
-      [NSApp stop:NSApp];
+      NSApplication* application = [NSApplication sharedApplication];
+      [application stop:application];
 
-      NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined       
-                                            location:NSMakePoint(0.0,0.0)
-                                       modifierFlags:0
-                                           timestamp:0
-                                        windowNumber:-1
-                                             context:nil
-                                             subtype:0
-                                               data1:0
-                                               data2:0];
-      [NSApp postEvent:event atStart:YES];
+      NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
+                                          location:NSMakePoint(0.0,0.0)
+                                     modifierFlags:0
+                                         timestamp:0
+                                      windowNumber:-1
+                                           context:nil
+                                           subtype:0
+                                             data1:0
+                                             data2:0];
+      [application postEvent:event atStart:YES];
       
       // The NSWindow is closing, so prevent anyone from accidently using it
       renWin->SetRootWindow(NULL);
@@ -282,7 +284,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 @end
 
 //----------------------------------------------------------------------------
-vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
+vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
 {
   this->InstallMessageProc = 1;
   
@@ -440,10 +442,11 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
       [server stop];
       }
     else
-      {     
+      {
       // The NSWindow was not created by vtk itself, so let's terminate the 
       // application as requested.
-      [NSApp terminate:NSApp];
+      NSApplication* application = [NSApplication sharedApplication];
+      [application terminate:application];
       }
     }
    
@@ -465,7 +468,7 @@ int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
   // Create a vtkCocoaTimer and add it to a dictionary using the timerId
   // as key, this will let us find the vtkCocoaTimer later by timerId
   vtkCocoaTimer *cocoaTimer = [[vtkCocoaTimer alloc] initWithInteractor:this
-    timerId:timerId];  
+    timerId:timerId];
   NSString *timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
   NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   [timerDict setObject:cocoaTimer forKey:timerIdAsStr];
