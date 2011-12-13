@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
-#include "vtkstd/set"
+#include <set>
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSelection.h"

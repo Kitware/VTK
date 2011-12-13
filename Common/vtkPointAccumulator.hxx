@@ -27,7 +27,7 @@
 #define __vtkPointAccumulator_h
 
 
-#include "vtkstd/exception"
+#include <exception>
 #include "vtkPoints.h"
 
 template<typename T_CPP, class T_VTK>

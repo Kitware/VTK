@@ -30,7 +30,7 @@
   H = E->CallIntMethod(C, mid); }
 # include "vtkWindows.h"
 int WJLH_init_check = 0;
-# include <vtkstd/map> // STL Header
+# include <map> // STL Header
 std::map<int,int> WJLH_lock_map;
 #endif
 

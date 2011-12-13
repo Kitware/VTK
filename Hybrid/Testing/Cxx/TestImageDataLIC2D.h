@@ -84,11 +84,11 @@ void Merge(vtkImageData* dest, vtkImageData* src)
 // ./bin/ImageDataLIC2D --data=<vtk file> --output=<png file>
 int ImageDataLIC2D(int argc, char* argv[])
 {
-  vtkstd::string filename;
-  vtkstd::string noise_filename;
+  std::string filename;
+  std::string noise_filename;
   int resolution = 10;
   int magnification = 1;
-  vtkstd::string outputpath;
+  std::string outputpath;
   int num_partitions = 1;
   int num_steps = 40;
 
