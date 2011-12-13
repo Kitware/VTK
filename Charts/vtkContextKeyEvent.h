@@ -22,8 +22,8 @@
 #ifndef __vtkContextKeyEvent_h
 #define __vtkContextKeyEvent_h
 
-#include "vtkVector.h" // For vtkVector2i
 #include "vtkWeakPointer.h" // For vtkWeakPointer
+#include "vtkVector.h" // For vtkVector2i
 
 class vtkRenderWindowInteractor;
 
