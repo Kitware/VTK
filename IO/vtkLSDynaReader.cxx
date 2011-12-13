@@ -1801,7 +1801,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     p->Dict["isphfg(1)"] = sphAttributes;
     if ( sphAttributes >= 9 )
       {
-      p->Fam.BufferChunk( LSDynaFamily::Int, sphAttributes - 1 ); // should be 9
+      p->Fam.BufferChunk( LSDynaFamily::Int, sphAttributes - 1 ); // should be 9 or 10
       // Dyna docs call statePerParticle "NUM_SPH_DATA":
       int statePerParticle = 1; // start at 1 because we always have material ID of particle.
       for ( itmp = 2; itmp <= sphAttributes; ++itmp )
@@ -2940,20 +2940,20 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
   // Smooth Particle ========================================================
 
   // currently have a bug when reading SPH properties disabling for now
-//  int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
-//  VTK_LS_SPHARRAY(               false,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DEATH,1); //always keep death off
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(2)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_RADIUSOFINFLUENCE,1);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(3)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_PRESSURE,1);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(4)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRESS,6);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(5)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_EPSTRAIN,1);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(6)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DENSITY,1);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(7)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_INTERNALENERGY,1);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(8)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_NUMNEIGHBORS,1);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(9)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRAIN,6);
-//  VTK_LS_SPHARRAY(p->Dict["isphfg(10)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_MASS,1);
+  int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
+  VTK_LS_SPHARRAY(               false,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DEATH,1); //always keep death off
+  VTK_LS_SPHARRAY(p->Dict["isphfg(2)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_RADIUSOFINFLUENCE,1);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(3)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_PRESSURE,1);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(4)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRESS,6);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(5)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_EPSTRAIN,1);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(6)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DENSITY,1);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(7)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_INTERNALENERGY,1);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(8)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_NUMNEIGHBORS,1);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(9)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRAIN,6);
+  VTK_LS_SPHARRAY(p->Dict["isphfg(10)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_MASS,1);
 
 //  std::cout << "NUM_SPH_DATA: " << p->Dict["NUM_SPH_DATA"] << "start Pos is " << startPos << std::endl;
-//  this->ReadCellProperties(LSDynaMetaData::PARTICLE,p->Dict["NUM_SPH_DATA"]);
+  this->ReadCellProperties(LSDynaMetaData::PARTICLE,p->Dict["NUM_SPH_DATA"]);
 
 
 #undef VTK_LS_SPHARRAY
@@ -2970,16 +2970,17 @@ int vtkLSDynaReader::ReadUserMaterialIds()
   p->MaterialsLookup.clear();
   // Does the file contain arbitrary material IDs?
 
-  numMats = p->Dict["NUMMAT8"] + p->Dict["NUMMATT"] + p->Dict["NUMMAT4"] + p->Dict["NUMMAT2"] + p->Dict["NGPSPH"];
-  //in some cases the number of materials in NMAT is incorrect since we are loading 
-  //SPH materials. In this case ignore the user material ids for now
-  if ( (p->Dict["NARBS"] > 0) && (p->Dict["NSORT"] < 0) &&
-        numMats== p->Dict["NMMAT"]) 
+  if ( (p->Dict["NARBS"] > 0) && (p->Dict["NSORT"] < 0))
     { // Yes, it does. Read them.
+
 
     // Skip over arbitrary node and element IDs:
     vtkIdType skipIds = p->Dict["NUMNP"] + p->Dict["NEL8"] + p->Dict["NEL2"] + p->Dict["NEL4"] + p->Dict["NELT"];
     p->Fam.SkipToWord( LSDynaFamily::UserIdData, p->Fam.GetCurrentAdaptLevel(), 16 + skipIds );
+
+    //in some cases the number of materials in NMAT is incorrect since we are loading
+    //SPH materials.
+    numMats = p->Dict["NMMAT"];
 
     // Read in material ID lists:
     p->Fam.BufferChunk( LSDynaFamily::Int, numMats*3 );
@@ -2998,7 +2999,9 @@ int vtkLSDynaReader::ReadUserMaterialIds()
 
     }
   else
-    { // No, it doesn't. Fabricate a list of sequential IDs
+    {
+    numMats = p->Dict["NUMMAT8"] + p->Dict["NUMMATT"] + p->Dict["NUMMAT4"] + p->Dict["NUMMAT2"] + p->Dict["NGPSPH"];
+    // No, it doesn't. Fabricate a list of sequential IDs
     // construct the (trivial) material lookup tables
     for ( m = 1; m <= numMats; ++m )
       {
@@ -3098,37 +3101,47 @@ void vtkLSDynaReader::ResetPartInfo()
   p->PartIds.clear();
   p->PartMaterials.clear();
   p->PartStatus.clear();
-  p->PartTypes.clear();
 
   // Create simple part names as place holders
-  int mat = 1;
+  int mat = 1, realMat = 1;
   int i;
   int N;
   char partLabel[64];
   int arbitraryMaterials = p->Dict["NMMAT"];
 
-#define VTK_LSDYNA_PARTLABEL(dict,type,fmt) \
+#define VTK_LSDYNA_PARTLABEL(dict,fmt) \
   N = p->Dict[dict]; \
   for ( i = 0; i < N; ++i, ++mat ) \
     { \
-    if ( arbitraryMaterials ) \
-      sprintf( partLabel, fmt " (Matl%d)", mat, p->MaterialsOrdered[mat - 1] ); \
-    else \
+    if(arbitraryMaterials) \
+    { \
+      if(mat < static_cast<int>(p->MaterialsOrdered.size())) \
+        { \
+        realMat = p->MaterialsOrdered[mat - 1]; \
+        } \
+      else \
+        { \
+        realMat = mat; \
+        } \
+      sprintf( partLabel, fmt " (Matl%d)", mat, realMat ); \
+    } \
+    else{ \
+      realMat = mat; \
       sprintf( partLabel, fmt, mat );  \
+      } \
     p->PartNames.push_back( partLabel ); \
-    p->PartIds.push_back( arbitraryMaterials ? p->MaterialsOrdered[mat - 1] : mat ); \
+    p->PartIds.push_back( realMat ); \
     p->PartMaterials.push_back( mat ); \
     p->PartStatus.push_back( 1 ); \
-    p->PartTypes.push_back(type); \
     }
 
-  VTK_LSDYNA_PARTLABEL("NUMMAT8",LSDynaMetaData::SOLID,"Part ID %d"); // was "PartSolid%d
-  VTK_LSDYNA_PARTLABEL("NUMMATT",LSDynaMetaData::THICK_SHELL,"Part ID %d"); // was "PartThickShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT4",LSDynaMetaData::SHELL,"Part ID %d"); // was "PartShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT2",LSDynaMetaData::BEAM,"Part ID %d"); // was "PartBeam%d
-  VTK_LSDYNA_PARTLABEL("NGPSPH",LSDynaMetaData::PARTICLE,"Part ID %d"); // was "PartParticle%d
-  VTK_LSDYNA_PARTLABEL("NSURF",LSDynaMetaData::ROAD_SURFACE,"Part ID %d"); // was "PartRoadSurface%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT",LSDynaMetaData::RIGID_BODY,"Part ID %d"); // was "PartRigidBody%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT8","Part%d"); // was "PartSolid%d
+  VTK_LSDYNA_PARTLABEL("NUMMATT","Part%d"); // was "PartThickShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT4","Part%d"); // was "PartShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT2","Part%d"); // was "PartBeam%d
+  VTK_LSDYNA_PARTLABEL("NGPSPH", "Part%d"); // was "PartParticle%d
+  VTK_LSDYNA_PARTLABEL("NSURF",  "Part%d"); // was "PartRoadSurface%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT", "Part%d"); // was "PartRigidBody%d
 
 #undef VTK_LSDYNA_PARTLABEL
 }

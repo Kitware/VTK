@@ -30,15 +30,21 @@ public:
   vtkTypeMacro(vtkLSDynaPart,vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  //Description: Set the type of the part
+  void SetPartType(int type);
+
   //Description: Returns the type of the part
   LSDynaMetaData::LSDYNA_TYPES PartType() const { return Type; }
+
+  //Description: Returns if the type of the part is considered valid
+  bool hasValidType() const;
+
   vtkIdType GetUserMaterialId() const { return UserMaterialId; }
   vtkIdType GetPartId() const { return PartId; }
   bool HasCells() const;
 
-
   //Setup the part with some basic information about what it holds
-  void InitPart(LSDynaMetaData::LSDYNA_TYPES t, vtkStdString name,
+  void InitPart(vtkStdString name,
                 const vtkIdType& partId,
                 const vtkIdType& userMaterialId,
                 const vtkIdType& numGlobalPoints,

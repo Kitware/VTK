@@ -366,7 +366,7 @@ vtkLSDynaPart::~vtkLSDynaPart()
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::PrintSelf(ostream &os, vtkIndent indent)
 {
-  os << indent << "Type " << this->Type << endl;
+  os << indent << "Type " << this->Type << "(" << TypeNames[this->Type] << ")" << endl;
   os << indent << "Name " << this->Name << endl;
   os << indent << "UserMaterialId " << this->UserMaterialId << endl;
   os << indent << "Number of Cells " << this->NumberOfCells << endl;
@@ -382,13 +382,16 @@ bool vtkLSDynaPart::HasCells() const
 
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::InitPart(LSDynaMetaData::LSDYNA_TYPES t, vtkStdString name,
+void vtkLSDynaPart::InitPart(vtkStdString name,
                              const vtkIdType& partId,
                              const vtkIdType& userMatId,
                              const vtkIdType& numGlobalPoints,
                              const int& sizeOfWord)
 {
-  this->Type = t;
+  //we don't know intill we read the material section
+  //which type of a part we are. This is because
+  //when using user material ids they are in Id sorted order
+  //not in order based on the part type
   this->Name = name;
   this->PartId = partId;
   this->UserMaterialId = userMatId;
@@ -426,6 +429,46 @@ void vtkLSDynaPart::InitPart(LSDynaMetaData::LSDYNA_TYPES t, vtkStdString name,
   materialId->SetValue(0,this->UserMaterialId);
   fd->AddArray(materialId);
   materialId->FastDelete();
+}
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaPart::SetPartType(int type)
+{
+  switch(type)
+    {
+    case 0:
+      this->Type = LSDynaMetaData::PARTICLE;
+      break;
+    case 1:
+      this->Type = LSDynaMetaData::BEAM;
+      break;
+    case 2:
+      this->Type = LSDynaMetaData::SHELL;
+      break;
+    case 3:
+      this->Type = LSDynaMetaData::THICK_SHELL;
+      break;
+    case 4:
+      this->Type = LSDynaMetaData::SOLID;
+      break;
+    case 5:
+      this->Type = LSDynaMetaData::RIGID_BODY;
+      break;
+    case 6:
+      this->Type = LSDynaMetaData::ROAD_SURFACE;
+      break;
+    default:
+      vtkErrorMacro("Invalid Part Type set");
+      break;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+bool vtkLSDynaPart::hasValidType() const
+{
+  return (this->Type >= LSDynaMetaData::PARTICLE &&
+      this->Type <= LSDynaMetaData::ROAD_SURFACE);
 }
 
 //-----------------------------------------------------------------------------
