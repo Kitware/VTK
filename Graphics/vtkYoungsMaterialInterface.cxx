@@ -2429,10 +2429,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       }
 
     // degenerated case
-    else
-      {
-      return make_REAL3(0,0,0);
-      }
+    return make_REAL3(0,0,0);
   }
 
 
