@@ -365,8 +365,11 @@ static size_t vtkWrapPython_PyTemplateName(const char *name, char *pname)
 
   /* look for VTK types that become common python types */
   if ((n == 12 && strncmp(name, "vtkStdString", n) == 0) ||
-      (n == 11 && strncmp(name, "std::string", n) == 0) ||
-      (n == 14 && strncmp(name, "vtkstd::string", n) == 0))
+      (n == 11 && strncmp(name, "std::string", n) == 0)
+#ifndef VTK_LEGACY_REMOVE
+      || (n == 14 && strncmp(name, "vtkstd::string", n) == 0)
+#endif
+      )
     {
     strcpy(pname, "str");
     return n;
