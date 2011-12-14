@@ -3704,3 +3704,14 @@ int vtkLSDynaReader::ReadPartSizes()
     return this->FillPartSizes<int>();
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkLSDynaReader::SetDeformedMesh(int deformed)
+{
+  if (this->DeformedMesh != deformed)
+    {
+    this->DeformedMesh = deformed;
+    this->ResetPartsCache();
+    this->Modified();
+    }
+}
