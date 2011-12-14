@@ -30,6 +30,7 @@ class GraphicsView : public QGraphicsView
       ren->ResetCamera();
       mWidget->GetRenderWindow()->AddRenderer(ren);
       mWidget->GetRenderWindow()->SetSwapBuffers(0);  // don't let VTK swap buffers on us
+      mWidget->setAutoBufferSwap(true);
     }
     ~GraphicsView()
     {

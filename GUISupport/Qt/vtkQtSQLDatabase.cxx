@@ -265,13 +265,13 @@ void vtkQtSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 // ----------------------------------------------------------------------
 bool vtkQtSQLDatabase::ParseURL(const char* URL)
 {
-  vtkstd::string protocol;
-  vtkstd::string username; 
-  vtkstd::string unused;
-  vtkstd::string hostname; 
-  vtkstd::string dataport; 
-  vtkstd::string database;
-  vtkstd::string dataglom;
+  std::string protocol;
+  std::string username; 
+  std::string unused;
+  std::string hostname; 
+  std::string dataport; 
+  std::string database;
+  std::string dataglom;
   
   // SQLite is a bit special so lets get that out of the way :)
   if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom))

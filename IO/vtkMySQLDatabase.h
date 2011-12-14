@@ -174,15 +174,15 @@ public:
   // Returns true on success and false on failure.
   bool DropDatabase( const char* dbName );
 
-protected:
-  vtkMySQLDatabase();
-  ~vtkMySQLDatabase();
-
   // Description:
   // Overridden to determine connection parameters given the URL.
   // This is called by CreateFromURL() to initialize the instance.
   // Look at CreateFromURL() for details about the URL format.
   virtual bool ParseURL(const char* url);
+
+protected:
+  vtkMySQLDatabase();
+  ~vtkMySQLDatabase();
 
 private:
   // We want this to be private, a user of this class

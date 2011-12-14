@@ -54,8 +54,7 @@
 
 #include "vtkOpenFOAMReader.h"
 
-#include <vtkstd/vector>
-#include "vtksys/DateStamp.h"
+#include <vector>
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/ios/sstream>
 #include "vtk_zlib.h"
@@ -112,10 +111,10 @@ vtkStandardNewMacro(vtkOpenFOAMReader);
 
 // forward declarations
 template <typename T> struct vtkFoamArrayVector
-  : public vtkstd::vector<T *>
+  : public std::vector<T *>
 {
 private:
-  typedef vtkstd::vector<T *> Superclass;
+  typedef std::vector<T *> Superclass;
 
 public:
   ~vtkFoamArrayVector()
@@ -147,7 +146,7 @@ struct vtkFoamDict;
 //-----------------------------------------------------------------------------
 // class vtkOpenFOAMReaderPrivate
 // the reader core of vtkOpenFOAMReader
-class VTK_IO_EXPORT vtkOpenFOAMReaderPrivate : public vtkObject
+class vtkOpenFOAMReaderPrivate : public vtkObject
 {
 public:
   static vtkOpenFOAMReaderPrivate *New();
@@ -186,7 +185,7 @@ private:
     bt BoundaryType;
     };
 
-  struct vtkFoamBoundaryDict : public vtkstd::vector<vtkFoamBoundaryEntry>
+  struct vtkFoamBoundaryDict : public std::vector<vtkFoamBoundaryEntry>
     {
     // we need to keep the path to time directory where the current mesh
     // is read from, since boundaryDict may be accessed multiple times
@@ -487,7 +486,7 @@ protected:
     vtkStringArray *StringListPtr;
     // original list types
     vtkFoamIntVectorVector *LabelListListPtr;
-    vtkstd::vector<vtkFoamEntryValue*> *EntryValuePtrs;
+    std::vector<vtkFoamEntryValue*> *EntryValuePtrs;
     vtkFoamDict *DictPtr;
   };
 
@@ -2211,7 +2210,7 @@ public:
   {
     return this->IsUniform;
   }
-  void Read(vtkFoamIOobject& io);
+  int Read(vtkFoamIOobject& io);
   void ReadDictionary(vtkFoamIOobject& io, const vtkFoamToken& firstKeyword);
   const vtkIntArray& LabelList() const
   {
@@ -2591,10 +2590,10 @@ void vtkFoamEntryValue::ReadNonuniformList(vtkFoamIOobject& io)
 // class vtkFoamEntry
 // a class that represents an entry of a dictionary. note that an
 // entry can have more than one value.
-struct vtkFoamEntry : public vtkstd::vector<vtkFoamEntryValue*>
+struct vtkFoamEntry : public std::vector<vtkFoamEntryValue*>
 {
 private:
-  typedef vtkstd::vector<vtkFoamEntryValue*> Superclass;
+  typedef std::vector<vtkFoamEntryValue*> Superclass;
   vtkStdString Keyword;
   vtkFoamDict *UpperDictPtr;
 
@@ -2715,10 +2714,10 @@ public:
 //-----------------------------------------------------------------------------
 // class vtkFoamDict
 // a class that holds a FoamFile data structure
-struct vtkFoamDict : public vtkstd::vector<vtkFoamEntry*>
+struct vtkFoamDict : public std::vector<vtkFoamEntry*>
 {
 private:
-  typedef vtkstd::vector<vtkFoamEntry*> Superclass;
+  typedef std::vector<vtkFoamEntry*> Superclass;
 
   vtkFoamToken Token;
   const vtkFoamDict *UpperDictPtr;
@@ -3068,7 +3067,6 @@ vtkFoamEntryValue::vtkFoamEntryValue(
   switch (this->Superclass::Type)
     {
     case VECTORLIST:
-#if vtksys_DATE_STAMP_FULL >= 20080620
         {
         vtkFloatArray *fa = vtkFloatArray::SafeDownCast(value.ToVTKObject());
         if(fa->GetNumberOfComponents() == 6)
@@ -3080,7 +3078,6 @@ vtkFoamEntryValue::vtkFoamEntryValue(
           break;
           }
         }
-#endif
     case LABELLIST:
     case SCALARLIST:
     case STRINGLIST:
@@ -3093,7 +3090,7 @@ vtkFoamEntryValue::vtkFoamEntryValue(
     case ENTRYVALUELIST:
       {
       const size_t nValues = value.EntryValuePtrs->size();
-      this->EntryValuePtrs = new vtkstd::vector<vtkFoamEntryValue*>(nValues);
+      this->EntryValuePtrs = new std::vector<vtkFoamEntryValue*>(nValues);
       for (size_t valueI = 0; valueI < nValues; valueI++)
         {
         this->EntryValuePtrs->operator[](valueI) = new vtkFoamEntryValue(
@@ -3192,7 +3189,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       }
     else if (nextToken == '(') // list of list: read recursively
       {
-      this->Superclass::EntryValuePtrs = new vtkstd::vector<vtkFoamEntryValue*>;
+      this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
       this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(
           this->UpperEntryPtr));
       this->Superclass::EntryValuePtrs->back()->ReadList(io);
@@ -3263,7 +3260,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
   // list of lists or dictionaries: read recursively
   else if (currToken == '(' || currToken == '{')
     {
-    this->Superclass::EntryValuePtrs = new vtkstd::vector<vtkFoamEntryValue*>;
+    this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
     this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(
         this->UpperEntryPtr));
     if(currToken == '(')
@@ -3406,7 +3403,9 @@ void vtkFoamEntryValue::ReadDictionary(vtkFoamIOobject& io,
 }
 
 // guess the type of the given entry value and read it
-void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
+// return value: 0 if encountered end of entry (';') during parsing
+// composite entry value, 1 otherwise
+int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
 {
   vtkFoamToken currToken;
   if (!io.Read(currToken))
@@ -3417,7 +3416,7 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   if (currToken == '{')
     {
     this->ReadDictionary(io, vtkFoamToken());
-    return;
+    return 1;
     }
   // for reading sublist from vtkFoamEntryValue::readList() or there
   // are cases where lists without the (non)uniform keyword appear
@@ -3425,12 +3424,12 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   else if (currToken == '(')
     {
     this->ReadList(io);
-    return;
+    return 1;
     }
   else if (currToken == '[')
     {
     this->ReadDimensionSet(io);
-    return;
+    return 1;
     }
   else if (currToken == "uniform")
     {
@@ -3442,6 +3441,11 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     if (currToken == '(')
       {
       this->ReadList(io);
+      }
+    else if (currToken == ';')
+      {
+      this->Superclass::operator=("uniform");
+      return 0;
       }
     else if (currToken.GetType() == this->Superclass::LABEL
         || currToken.GetType() == this->Superclass::SCALAR
@@ -3503,6 +3507,11 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
         io.ReadExpecting(')');
         }
       }
+    else if (currToken == ';')
+      {
+      this->Superclass::operator=("nonuniform");
+      return 0;
+      }
     else
       {
       throw vtkFoamError() << "Unsupported nonuniform list type " << currToken;
@@ -3524,6 +3533,7 @@ void vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     {
     this->Superclass::operator=(currToken);
     }
+  return 1;
 }
 
 // read values of an entry
@@ -3532,7 +3542,10 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
   for (;;)
     {
     this->Superclass::push_back(new vtkFoamEntryValue(this));
-    this->Superclass::back()->Read(io);
+    if (!this->Superclass::back()->Read(io))
+      {
+      break;
+      }
 
     if (this->Superclass::size() >= 2)
       {
@@ -4225,7 +4238,7 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
   const int tempNumTimeSteps = static_cast<int>(tempResult + 0.5) + 1;
 
   // make sure time step dir exists
-  vtkstd::vector<double> tempSteps;
+  std::vector<double> tempSteps;
   vtkDirectory *test = vtkDirectory::New();
   this->TimeValues->Initialize();
   this->TimeNames->Initialize();
@@ -5262,7 +5275,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         else if (pivotPoint == -1)
           {
           const int *faceIPoints = facePoints[cellFaceI];
-          bool found0Dup = false, found2Dup = false;
+          bool found0Dup = false;
           int pointI = 0;
           for (; pointI < 4; pointI++) // each point
             {
@@ -5277,7 +5290,6 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               }
             else if (baseFacePoint2 == faceIPointI)
               {
-              found2Dup = true;
               break;
               }
             }
@@ -5979,7 +5991,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     }
 
   int nAllBoundaryPoints = 0;
-  vtkstd::vector<vtkstd::vector<int> > procCellList;
+  std::vector<std::vector<int> > procCellList;
   vtkIntArray *pointTypes = NULL;
 
   if (this->Parent->GetCreateCellToPoint())
@@ -6175,7 +6187,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
         if (pointTypes->GetValue(pointI) == (vtkFoamBoundaryEntry::PHYSICAL
             | vtkFoamBoundaryEntry::PROCESSOR))
           {
-          const vtkstd::vector<int> &procCells = procCellList[pointI];
+          const std::vector<int> &procCells = procCellList[pointI];
           for (size_t cellI = 0; cellI < procCellList[pointI].size(); cellI++)
             {
             this->AllBoundaries->RemoveReferenceToCell(pointI, procCells[cellI]);
@@ -6532,7 +6544,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
         data = vtkFloatArray::New();
         data->SetNumberOfComponents(nComponents);
         data->SetNumberOfTuples(nElements);
-#if vtksys_DATE_STAMP_FULL >= 20080620
         // swap the components of symmTensor to match the component
         // names in paraview
         if(nComponents == 6)
@@ -6545,7 +6556,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
           tuple[4] = symyz;
           tuple[5] = symxz;
           }
-#endif
         for (int i = 0; i < nElements; i++)
           {
           data->SetTuple(i, tuple);
@@ -6575,7 +6585,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
         return NULL;
         }
       data = static_cast<vtkFloatArray *>(entry.Ptr());
-#if vtksys_DATE_STAMP_FULL >= 20080620
       // swap the components of symmTensor to match the component
       // names in paraview
       const int nComponents = data->GetNumberOfComponents();
@@ -6593,7 +6602,6 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
           tuple[5] = symxz;
           }
         }
-#endif
       }
     else if (entry.FirstValue().GetType() == vtkFoamToken::EMPTYLIST && nElements <= 0)
       {
@@ -6852,7 +6860,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     return;
     }
 
-  vtkstd::vector<vtkFloatArray *> vDataVector;
+  std::vector<vtkFloatArray *> vDataVector;
   for (int boundaryI = 0, activeBoundaryI = 0; boundaryI
     < static_cast<int>(this->BoundaryDict.size()); boundaryI++)
     {

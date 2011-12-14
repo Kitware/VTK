@@ -21,6 +21,9 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
 #include "vtkMetaImageWriter.h"
@@ -140,8 +143,10 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 
 //----------------------------------------------------------------------------
 void
-vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
-  vtkImageData *outData, int outExt[6], unsigned int nComponents )
+vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
+                                                   vtkImageData *outData,
+                                                   int outExt[6],
+                                                   unsigned int nComponents )
 {
   unsigned short *tmpPtr = static_cast< unsigned short * >(
                 outData->GetScalarPointerForExtent(outExt));
@@ -149,7 +154,8 @@ vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
   // Get increments to march through the thread's output extents
 
   vtkIdType outInc0, outInc1, outInc2;
-  outData->GetContinuousIncrements(outExt, outInc0, outInc1, outInc2);
+  outData->GetContinuousIncrements(scalars,
+                                   outExt, outInc0, outInc1, outInc2);
 
   // A. Initialize the arrays with a blank flag.
 
@@ -212,6 +218,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
     vtkImageData *outData, int outExt[6],
     T )
 {
+
   // the number of independent components for which we need to keep track of
   // min/max
   vtkDataArray * scalars = self->GetCurrentScalars();
@@ -239,7 +246,8 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
   // B.2 Get increments to march through the input extents
 
   vtkIdType inInc0, inInc1, inInc2;
-  inData->GetContinuousIncrements(inExt, inInc0, inInc1, inInc2);
+  inData->GetContinuousIncrements(scalars,
+                                  inExt, inInc0, inInc1, inInc2);
 
   // Get increments to march through the output extents
 
@@ -274,6 +282,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
     sz1 += outExt[4];
     sz2 += outExt[4];
 
+    // Bounds check
+    if ((int)sz2 > outExt[5])
+      {
+      sz2 = outExt[5];
+      }
+    
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     for ( j = 0; j < inDim[1]; j++, dptr+= inInc1 )
@@ -285,6 +299,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
       sy1 += outExt[2];
       sy2 += outExt[2];
 
+      // Bounds check
+      if ((int)sy2 > outExt[3])
+        {
+        sy2 = outExt[3];
+        }
+      
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
@@ -296,6 +316,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
         sx1 += outExt[0];
         sx2 += outExt[0];
 
+        // Bounds check
+        if ((int)sx2 > outExt[1])
+          {
+          sx2 = outExt[1];
+          }
+        
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
@@ -372,7 +398,8 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
   // B.2 Get increments to march through the input extents
 
   vtkIdType inInc0, inInc1, inInc2;
-  inData->GetContinuousIncrements(inExt, inInc0, inInc1, inInc2);
+  inData->GetContinuousIncrements(self->GetCurrentScalars(),
+                                  inExt, inInc0, inInc1, inInc2);
 
   // Get increments to march through the output extents
 
@@ -409,6 +436,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
     sz1 += outExt[4];
     sz2 += outExt[4];
 
+    // Bounds check
+    if ((int)sz2 > outExt[5])
+      {
+      sz2 = outExt[5];
+      }
+    
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
@@ -422,6 +455,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
       sy1 += outExt[2];
       sy2 += outExt[2];
 
+      // Bounds check
+      if ((int)sy2 > outExt[3])
+        {
+        sy2 = outExt[3];
+        }
+      
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
@@ -432,6 +471,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 
         sx1 += outExt[0];
         sx2 += outExt[0];
+
+        // Bounds check
+        if ((int)sx2 > outExt[1])
+          {
+          sx2 = outExt[1];
+          }        
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
@@ -503,7 +548,8 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
   // B.2 Get increments to march through the input extents
 
   vtkIdType inInc0, inInc1, inInc2;
-  inData->GetContinuousIncrements(inExt, inInc0, inInc1, inInc2);
+  inData->GetContinuousIncrements(scalars,
+                                  inExt, inInc0, inInc1, inInc2);
 
   // Get increments to march through the output extents
 
@@ -544,6 +590,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
     sz1 += outExt[4];
     sz2 += outExt[4];
 
+    // Bounds check
+    if ((int)sz2 > outExt[5])
+      {
+      sz2 = outExt[5];
+      }
+    
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
@@ -557,6 +609,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
       sy1 += outExt[2];
       sy2 += outExt[2];
 
+      // Bounds check
+      if ((int)sy2 > outExt[3])
+        {
+        sy2 = outExt[3];
+        }
+      
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
@@ -568,6 +626,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
         sx1 += outExt[0];
         sx2 += outExt[0];
 
+        // Bounds check
+        if ((int)sx2 > outExt[1])
+          {
+          sx2 = outExt[1];
+          }
+        
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
@@ -624,7 +688,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   // Get increments to march through the output
 
   vtkIdType outInc0, outInc1, outInc2;
-  outData->GetContinuousIncrements(outExt, outInc0, outInc1, outInc2);
+  outData->GetContinuousIncrements(this->CurrentScalars,
+                                   outExt, outInc0, outInc1, outInc2);
 
   // Now process the flags
 
@@ -711,7 +776,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   // Get increments to march through the output
 
   vtkIdType outInc0, outInc1, outInc2;
-  outData->GetContinuousIncrements(outExt, outInc0, outInc1, outInc2);
+  outData->GetContinuousIncrements(this->CurrentScalars,
+                                   outExt, outInc0, outInc1, outInc2);
 
   // Now process the flags
 
@@ -791,6 +857,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   vtkImageData **outData,
   int outExt[6], int vtkNotUsed(id))
 {
+#ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
+  std::cout << "Thread id = " << id << std::endl;
+#endif
 
   // A. Initialize the data with a blank flag.
 
@@ -809,8 +878,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
 
   if (this->ComputeMinMax)
     {
-    vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
-                        outData[0], outExt, nComponents );
+    vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(this->CurrentScalars,
+                                                       outData[0], outExt, nComponents );
     }
 
 

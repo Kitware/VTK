@@ -57,6 +57,7 @@
 
 class vtkPolyData;
 class vtkPolyDataMapper2D;
+class vtkProperty2D;
 class vtkScalarsToColors;
 class vtkTextMapper;
 class vtkTextProperty;
@@ -196,6 +197,30 @@ public:
   vtkSetMacro( MaximumHeightInPixels, int );
   vtkGetMacro( MaximumHeightInPixels, int );
 
+  // Description:
+  // Set/Get whether a background should be drawn around the scalar bar.
+  // Default is off.
+  vtkSetMacro( DrawBackground, int );
+  vtkGetMacro( DrawBackground, int );
+  vtkBooleanMacro( DrawBackground, int );
+
+  // Description:
+  // Set/Get whether a frame should be drawn around the scalar bar.
+  // Default is off.
+  vtkSetMacro( DrawFrame, int );
+  vtkGetMacro( DrawFrame, int );
+  vtkBooleanMacro( DrawFrame, int );
+
+  // Description:
+  // Set/Get the background property.
+  virtual void SetBackgroundProperty(vtkProperty2D *p);
+  vtkGetObjectMacro(BackgroundProperty,vtkProperty2D);
+    
+  // Description:
+  // Set/Get the frame property.
+  virtual void SetFrameProperty(vtkProperty2D *p);
+  vtkGetObjectMacro(FrameProperty,vtkProperty2D);
+    
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();
@@ -238,6 +263,19 @@ protected:
 
   int MaximumWidthInPixels;
   int MaximumHeightInPixels;
+
+  vtkProperty2D *BackgroundProperty;
+  vtkProperty2D *FrameProperty;
+
+  int DrawBackground; // off by default
+  int DrawFrame; // off by default
+
+  vtkPolyData         *Background;
+  vtkPolyDataMapper2D *BackgroundMapper;
+  vtkActor2D          *BackgroundActor;
+  vtkPolyData         *Frame;
+  vtkPolyDataMapper2D *FrameMapper;
+  vtkActor2D          *FrameActor;
 
 private:
   vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.

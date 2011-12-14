@@ -29,8 +29,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
 
-#include <vtkstd/stdexcept>
-#include <vtkstd/vector>
+#include <stdexcept>
+#include <vector>
 
 #include <iterator>
 
@@ -82,52 +82,52 @@ int vtkExtractSelectedSlices::RequestData(
     // Enforce our preconditions ...
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_array_data)
-      throw vtkstd::runtime_error("Missing vtkArrayData on input port 0.");
+      throw std::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_array_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
+      throw std::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
     vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(
       input_array_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("vtkArray on input port 0 must be a vtkSparseArray<double>.");
+      throw std::runtime_error("vtkArray on input port 0 must be a vtkSparseArray<double>.");
 
     const vtkIdType non_null_count = input_array->GetNonNullSize();
     const vtkIdType slice_dimension = this->SliceDimension;
 
     if(slice_dimension < 0 || slice_dimension >= input_array->GetDimensions())
-      throw vtkstd::runtime_error("SliceDimension out-of-range.");
+      throw std::runtime_error("SliceDimension out-of-range.");
 
     const vtkArrayRange slices = input_array->GetExtent(slice_dimension);
 
     vtkSelection* const input_selection = vtkSelection::GetData(inputVector[1]);
     if(!input_selection)
-      throw vtkstd::runtime_error("Missing vtkSelection on input port 1.");
+      throw std::runtime_error("Missing vtkSelection on input port 1.");
 
     if(input_selection->GetNumberOfNodes() != 1)
-      throw vtkstd::runtime_error("vtkSelection on input port 1 must contain exactly one vtkSelectionNode.");
+      throw std::runtime_error("vtkSelection on input port 1 must contain exactly one vtkSelectionNode.");
     
     vtkSelectionNode* const input_selection_node = input_selection->GetNode(0);
     if(!input_selection_node)
-      throw vtkstd::runtime_error("Missing vtkSelectionNode on input port 1.");
+      throw std::runtime_error("Missing vtkSelectionNode on input port 1.");
     if(input_selection_node->GetContentType() != vtkSelectionNode::INDICES)
-      throw vtkstd::runtime_error("vtkSelectionNode on input port 1 must be an INDICES selection.");
+      throw std::runtime_error("vtkSelectionNode on input port 1 must be an INDICES selection.");
 
     vtkIdTypeArray* const input_selection_list = vtkIdTypeArray::SafeDownCast(input_selection_node->GetSelectionList());
     if(!input_selection_list)
-      throw vtkstd::runtime_error("Missing vtkIdTypeArray selection indices on input port 1.");
+      throw std::runtime_error("Missing vtkIdTypeArray selection indices on input port 1.");
 
     // Convert selection indices into a bit-map for constant-time lookups ...
-    vtkstd::vector<bool> selected_slice(slices.GetSize(), false);
+    std::vector<bool> selected_slice(slices.GetSize(), false);
     for(vtkIdType i = 0; i != input_selection_list->GetNumberOfTuples(); ++i)
       {
       const vtkIdType slice = input_selection_list->GetValue(i);
       if(!slices.Contains(slice))
-        throw vtkstd::runtime_error("Selected slice out-of-bounds.");
+        throw std::runtime_error("Selected slice out-of-bounds.");
 
       selected_slice[slice - slices.GetBegin()] = true;
       }
 
     // Create a map from old coordinates to new coordinates for constant-time lookups ...
-    vtkstd::vector<vtkIdType> coordinate_map(slices.GetSize(), 0);
+    std::vector<vtkIdType> coordinate_map(slices.GetSize(), 0);
     for(vtkIdType i = 0, new_coordinate = 0; i != slices.GetSize(); ++i)
       {
       coordinate_map[i] = new_coordinate;
@@ -164,7 +164,7 @@ int vtkExtractSelectedSlices::RequestData(
 
     return 1;
     } 
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
     }

@@ -38,7 +38,7 @@
 // from a configuration file (odbc.ini).  That file can define an
 // entire set of connection parameters and give it a single name
 // called a data source name (DSN).  Writing and maintaining odbc.ini
-// files is beyond the scope of this header file.  
+// files is beyond the scope of this header file.
 //
 // .SECTION Caveats
 //
@@ -93,7 +93,7 @@ public:
   // Description:
   // Close the connection to the database.
   void Close();
-  
+
   // Description:
   // Return whether the database has an open connection
   bool IsOpen();
@@ -101,15 +101,15 @@ public:
   // Description:
   // Return an empty query on this database.
   vtkSQLQuery* GetQueryInstance();
-  
+
   // Description:
   // Get the last error text from the database
   const char* GetLastErrorText();
-  
+
   // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
-    
+
   // Description:
   // Get the list of fields for a particular table
   vtkStringArray* GetRecord(const char *table);
@@ -133,11 +133,11 @@ public:
   vtkSetStringMacro(Password);
 
   bool HasError();
-  
+
   // Description:
   // String representing database type (e.g. "ODBC").
   vtkGetStringMacro(DatabaseType);
-  
+
   vtkStdString GetURL();
 
   // Description:
@@ -149,7 +149,7 @@ public:
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
                                                int colHandle );
- 
+
   // Description:
   // Return the SQL string with the syntax to create an index inside a
   // "CREATE TABLE" SQL statement.
@@ -168,17 +168,17 @@ public:
   // Returns true on success and false on failure.
   bool DropDatabase( const char* dbName );
 
-protected:
-  vtkODBCDatabase();
-  ~vtkODBCDatabase();
-
-  vtkSetStringMacro(LastErrorText);
-
   // Description:
   // This will only handle URLs of the form
   // odbc://[user@]datsourcename[:port]/[dbname].  Anything
   // more complicated than that needs to be set up manually.
   bool ParseURL(const char *url);
+
+protected:
+  vtkODBCDatabase();
+  ~vtkODBCDatabase();
+
+  vtkSetStringMacro(LastErrorText);
 
 private:
   vtkStringArray *Tables;
@@ -194,13 +194,13 @@ private:
   int ServerPort;
 
   vtkODBCInternals *Internals;
-  
+
   // We want this to be private, a user of this class
   // should not be setting this for any reason
   vtkSetStringMacro(DatabaseType);
-  
+
   char *DatabaseType;
-  
+
   vtkODBCDatabase(const vtkODBCDatabase &); // Not implemented.
   void operator=(const vtkODBCDatabase &); // Not implemented.
 };

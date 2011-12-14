@@ -18,31 +18,29 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include <vtkCommand.h>
-#include <vtkDataSetAttributes.h>
-#include <vtkIdTypeArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkSmartPointer.h>
-#include <vtkStdString.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkTable.h>
-#include <vtkDelimitedTextReader.h>
-#include <vtkUnicodeString.h>
-#include <vtkUnicodeStringArray.h>
-#include <vtkStringArray.h>
-#include <vtkStringToNumeric.h>
+#include "vtkDelimitedTextReader.h"
+#include "vtkCommand.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTable.h"
+#include "vtkUnicodeStringArray.h"
+#include "vtkStringArray.h"
+#include "vtkStringToNumeric.h"
 
-#include <vtkTextCodec.h>
-#include <vtkTextCodecFactory.h>
+#include "vtkTextCodec.h"
+#include "vtkTextCodecFactory.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
-#include <vtkstd/stdexcept>
 #include <vtksys/ios/sstream>
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <iterator>
+#include <stdexcept>
+#include <set>
+#include <vector>
 
 #include <ctype.h>
 
@@ -59,9 +57,9 @@ namespace {
 class DelimitedTextIterator : public vtkTextCodec::OutputIterator
 {
 public:
-  typedef vtkstd::forward_iterator_tag iterator_category;
+  typedef std::forward_iterator_tag iterator_category;
   typedef vtkUnicodeStringValueType value_type;
-  typedef vtkstd::string::difference_type difference_type;
+  typedef std::string::difference_type difference_type;
   typedef value_type* pointer;
   typedef value_type& reference;
 
@@ -256,9 +254,10 @@ public:
         this->UseStringDelimiter)
       {
       this->WithinString = value;
+      this->CurrentField.clear();
       return *this;
       }
-    
+
     // End a string ...
     if(this->WithinString && (this->WithinString == value) &&
         this->UseStringDelimiter)
@@ -298,7 +297,7 @@ private:
         }
       else
         {
-        vtkstd::stringstream buffer;
+        std::stringstream buffer;
         buffer << "Field " << this->CurrentFieldIndex;
         array->SetName(buffer.str().c_str());
         if(this->UnicodeArrayOutput)
@@ -308,7 +307,7 @@ private:
           }
         else
           {
-          vtkstd::string s;
+          std::string s;
           this->CurrentField.utf8_str(s);
           vtkStringArray::SafeDownCast(array)->InsertValue(this->CurrentRecordIndex, s);
           }
@@ -338,7 +337,7 @@ private:
       else
         {
         vtkStringArray* sarray = vtkStringArray::SafeDownCast(this->OutputTable->GetColumn(this->CurrentFieldIndex));
-        vtkstd::string s;
+        std::string s;
         this->CurrentField.utf8_str(s);
         sarray->InsertValue(rec_index,s);
         }
@@ -347,11 +346,11 @@ private:
 
   vtkIdType MaxRecords;
   vtkIdType MaxRecordIndex;
-  vtkstd::set<vtkUnicodeString::value_type> RecordDelimiters;
-  vtkstd::set<vtkUnicodeString::value_type> FieldDelimiters;
-  vtkstd::set<vtkUnicodeString::value_type> StringDelimiters;
-  vtkstd::set<vtkUnicodeString::value_type> Whitespace;
-  vtkstd::set<vtkUnicodeString::value_type> EscapeDelimiter;
+  std::set<vtkUnicodeString::value_type> RecordDelimiters;
+  std::set<vtkUnicodeString::value_type> FieldDelimiters;
+  std::set<vtkUnicodeString::value_type> StringDelimiters;
+  std::set<vtkUnicodeString::value_type> Whitespace;
+  std::set<vtkUnicodeString::value_type> EscapeDelimiter;
   bool HaveHeaders;
   bool UnicodeArrayOutput;
   bool WhiteSpaceOnlyString;
@@ -399,6 +398,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   this->StringDelimiter='"';
   this->UseStringDelimiter = true;
   this->DetectNumericColumns = false;
+  this->ForceDouble = false;
 }
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
@@ -412,9 +412,9 @@ vtkDelimitedTextReader::~vtkDelimitedTextReader()
 void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " 
+  os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
-  os << indent << "UnicodeCharacterSet: " 
+  os << indent << "UnicodeCharacterSet: "
      << (this->UnicodeCharacterSet ? this->UnicodeCharacterSet : "(none)") << endl;
   os << indent << "MaxRecords: " << this->MaxRecords
      << endl;
@@ -424,22 +424,24 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << "'" << endl;
   os << indent << "UnicodeStringDelimiters: '" << this->UnicodeStringDelimiters.utf8_str()
      << "'" << endl;
-  os << indent << "StringDelimiter: " 
+  os << indent << "StringDelimiter: "
      << this->StringDelimiter << endl;
   os << indent << "ReplacementCharacter: " << this->ReplacementCharacter << endl;
   os << indent << "FieldDelimiterCharacters: "
      << (this->FieldDelimiterCharacters ? this->FieldDelimiterCharacters : "(none)") << endl;
-  os << indent << "HaveHeaders: " 
+  os << indent << "HaveHeaders: "
      << (this->HaveHeaders ? "true" : "false") << endl;
-  os << indent << "MergeConsecutiveDelimiters: " 
+  os << indent << "MergeConsecutiveDelimiters: "
      << (this->MergeConsecutiveDelimiters ? "true" : "false") << endl;
-  os << indent << "UseStringDelimiter: " 
+  os << indent << "UseStringDelimiter: "
      << (this->UseStringDelimiter ? "true" : "false") << endl;
   os << indent << "DetectNumericColumns: "
     << (this->DetectNumericColumns? "true" : "false") << endl;
-  os << indent << "GeneratePedigreeIds: " 
+  os << indent << "ForceDouble: "
+    << (this->ForceDouble ? "true" : "false") << endl;
+  os << indent << "GeneratePedigreeIds: "
     << this->GeneratePedigreeIds << endl;
-  os << indent << "PedigreeIdArrayName: " 
+  os << indent << "PedigreeIdArrayName: "
     << this->PedigreeIdArrayName << endl;
   os << indent << "OutputPedigreeIds: "
     << (this->OutputPedigreeIds? "true" : "false") << endl;
@@ -517,8 +519,8 @@ vtkStdString vtkDelimitedTextReader::GetLastError()
 }
 
 int vtkDelimitedTextReader::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   vtkTable* const output_table = vtkTable::GetData(outputVector);
@@ -542,13 +544,13 @@ int vtkDelimitedTextReader::RequestData(
       }
 
     if (!this->PedigreeIdArrayName)
-      throw vtkstd::runtime_error("You must specify a pedigree id array name");
+      throw std::runtime_error("You must specify a pedigree id array name");
 
     // Get the total size of the input file in bytes
     ifstream file_stream(this->FileName, ios::binary);
     if(!file_stream.good())
       {
-      throw vtkstd::runtime_error(
+      throw std::runtime_error(
             "Unable to open input file " + std::string(this->FileName));
       }
 
@@ -570,9 +572,12 @@ int vtkDelimitedTextReader::RequestData(
       char tstring[2];
       tstring[1] = '\0';
       tstring[0] = this->StringDelimiter;
-      this->SetUnicodeFieldDelimiters(
-            vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters));
-      this->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8(tstring));
+      // don't use Set* methods since they change the MTime in
+      // RequestData() !!!!!
+      this->UnicodeFieldDelimiters =
+            vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters);
+      this->UnicodeStringDelimiters =
+        vtkUnicodeString::from_utf8(tstring);
       this->UnicodeOutputArrays = false;
       transCodec = vtkTextCodecFactory::CodecToHandle(file_stream);
       }
@@ -582,7 +587,7 @@ int vtkDelimitedTextReader::RequestData(
       // should this use the locale instead??
       return 1;
       }
-    
+
     DelimitedTextIterator iterator(
       this->MaxRecords,
       this->UnicodeRecordDelimiters,
@@ -627,7 +632,7 @@ int vtkDelimitedTextReader::RequestData(
           }
         else
           {
-          throw vtkstd::runtime_error(
+          throw std::runtime_error(
                 "Could not find pedigree id array: " +
                 vtkStdString(this->PedigreeIdArrayName));
           }
@@ -637,6 +642,7 @@ int vtkDelimitedTextReader::RequestData(
     if (this->DetectNumericColumns && !this->UnicodeOutputArrays)
       {
       vtkStringToNumeric* convertor = vtkStringToNumeric::New();
+      convertor->SetForceDouble(this->ForceDouble);
       vtkTable* clone = output_table->NewInstance();
       clone->ShallowCopy(output_table);
       convertor->SetInput(clone);
@@ -646,8 +652,8 @@ int vtkDelimitedTextReader::RequestData(
       convertor->Delete();
       }
 
-    } 
-  catch(vtkstd::exception& e)
+    }
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
     this->LastError = e.what();
@@ -662,4 +668,3 @@ int vtkDelimitedTextReader::RequestData(
 
   return 1;
 }
-

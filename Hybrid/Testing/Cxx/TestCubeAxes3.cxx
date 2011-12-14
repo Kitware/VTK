@@ -13,13 +13,6 @@
 
 =========================================================================*/
 
-// This example illustrates how one may explicitly specify the range of each
-// axes that's used to define the prop, while displaying data with a different
-// set of bounds (unlike cubeAxes2.tcl). This example allows you to separate
-// the notion of extent of the axes in physical space (bounds) and the extent
-// of the values it represents. In other words, you can have the ticks and
-// labels show a different range.
-
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
 #include "vtkCubeAxesActor.h"
@@ -36,8 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-
-
+#include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
 int TestCubeAxes3( int argc, char * argv [] )
@@ -55,6 +47,7 @@ int TestCubeAxes3( int argc, char * argv [] )
 
   vtkNew<vtkLODActor> foheActor;
   foheActor->SetMapper(foheMapper.GetPointer());
+  foheActor->GetProperty()->SetDiffuseColor(0.7, 0.3, 0.0);
 
   vtkNew<vtkOutlineFilter> outline;
   outline->SetInputConnection(normals->GetOutputPort());
@@ -67,10 +60,9 @@ int TestCubeAxes3( int argc, char * argv [] )
   outlineActor->GetProperty()->SetColor(0.0 ,0.0 ,0.0);
 
   vtkNew<vtkCamera> camera;
-  camera->SetClippingRange(1.60187, 20.0842);
-  camera->SetFocalPoint(0.21406, 1.5, 0.0);
-  camera->SetPosition(11.63, 6.32, 5.77);
-  camera->SetViewUp(0.180325, 0.549245, -0.815974);
+  camera->SetClippingRange(1.0, 100.0);
+  camera->SetFocalPoint(0.9, 1.0, 0.0);
+  camera->SetPosition(11.63, 6.0, 10.77);
 
   vtkNew<vtkLight> light;
   light->SetFocalPoint(0.21406, 1.5, 0.0);
@@ -83,7 +75,7 @@ int TestCubeAxes3( int argc, char * argv [] )
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren2.GetPointer());
-  renWin->SetWindowName("VTK - Cube Axes custom range");
+  renWin->SetWindowName("Cube Axes");
   renWin->SetSize(600, 600);
 
   vtkNew<vtkRenderWindowInteractor> iren;
@@ -95,21 +87,29 @@ int TestCubeAxes3( int argc, char * argv [] )
 
   normals->Update();
 
-  vtkNew<vtkCubeAxesActor> axes2;
-  axes2->SetBounds(normals->GetOutput()->GetBounds());
-  axes2->SetXAxisRange(20, 300);
-  axes2->SetYAxisRange(-0.01, 0.01);
-  axes2->SetCamera(ren2->GetActiveCamera());
-  axes2->SetXLabelFormat("%6.1f");
-  axes2->SetYLabelFormat("%6.1f");
-  axes2->SetZLabelFormat("%6.1f");
-  axes2->SetFlyModeToClosestTriad();
+  vtkNew<vtkCubeAxesActor> axes;
+  axes->SetBounds( normals->GetOutput()->GetBounds() );
+  axes->SetXAxisRange( 20, 300 );
+  axes->SetYAxisRange( -.01, .01 );
+  axes->SetCamera(ren2->GetActiveCamera());
+  axes->SetXLabelFormat( "%6.1f" );
+  axes->SetYLabelFormat( "%6.1f" );
+  axes->SetZLabelFormat( "%6.1f" );
+  axes->SetScreenSize( 15. );
+  axes->SetFlyModeToClosestTriad();
+  axes->SetCornerOffset( .0 );
 
-  axes2->DrawXGridlinesOn();
-  axes2->DrawYGridlinesOn();
-  axes2->DrawZGridlinesOn();
+  // Use red color for X axis
+  axes->GetXAxesLinesProperty()->SetColor( 1., 0., 0. );
+  axes->GetTitleTextProperty(0)->SetColor( 1., 0., 0. );
+  axes->GetLabelTextProperty(0)->SetColor( .8, 0., 0. );
 
-  ren2->AddViewProp(axes2.GetPointer());
+  // Use green color for Y axis
+  axes->GetYAxesLinesProperty()->SetColor( 0., 1., 0. );
+  axes->GetTitleTextProperty(1)->SetColor( 0., 1., 0. );
+  axes->GetLabelTextProperty(1)->SetColor( 0., .8, 0. );
+
+  ren2->AddViewProp( axes.GetPointer()) ;
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );

@@ -54,12 +54,13 @@
 #define __vtkContourRepresentation_h
 
 #include "vtkWidgetRepresentation.h"
-#include <vtkstd/vector> // STL Header; Required for vector
+#include <vector> // STL Header; Required for vector
 
 class vtkContourLineInterpolator;
 class vtkIncrementalOctreePointLocator;
 class vtkPointPlacer;
 class vtkPolyData;
+class vtkIdList;
 
 //----------------------------------------------------------------------
 //BTX
@@ -68,6 +69,10 @@ class vtkContourRepresentationPoint
 public:
   double        WorldPosition[3];
   double        NormalizedDisplayPosition[2];
+
+  // The point id. This is blank except in the case of
+  // vtkPolygonalSurfaceContourLineInterpolator
+  vtkIdType     PointId;
 };
 
 class vtkContourRepresentationNode
@@ -77,13 +82,17 @@ public:
   double        WorldOrientation[9];
   double        NormalizedDisplayPosition[2];
   int           Selected;
-  vtkstd::vector<vtkContourRepresentationPoint*> Points;
+  std::vector<vtkContourRepresentationPoint*> Points;
+
+  // The point id. This is blank except in the case of
+  // vtkPolygonalSurfaceContourLineInterpolator
+  vtkIdType     PointId;
 };
 
 class vtkContourRepresentationInternals
 {
 public:
-  vtkstd::vector<vtkContourRepresentationNode*> Nodes;
+  std::vector<vtkContourRepresentationNode*> Nodes;
   void ClearNodes()
   {
     for(unsigned int i=0;i<this->Nodes.size();i++)
@@ -193,6 +202,12 @@ public:
   // 1 on success, or 0 if there are not at least 
   // (n+1) nodes (0 based counting).
   virtual int GetNthNodeWorldPosition( int n, double pos[3] );
+
+  //BTX
+  // Description:
+  // Get the nth node.
+  virtual vtkContourRepresentationNode *GetNthNode(int n);
+  //ETX
   
   // Description:
   // Get the nth node's world orientation. Will return
@@ -250,6 +265,14 @@ public:
   // Returns 1 on success or 0 if n is out of range.
   virtual int AddIntermediatePointWorldPosition( int n, 
                                                  double point[3] );
+
+  // Description:
+  // Add an intermediate point between node n and n+1
+  // (or n and 0 if n is the last node and the loop is closed).
+  // Returns 1 on success or 0 if n is out of range. The added point is
+  // assigned a ptId as supplied.
+  virtual int AddIntermediatePointWorldPosition( int n,
+                               double point[3], vtkIdType ptId );
 
   // Description:
   // Delete the last node. Returns 1 on success or 0 if 
@@ -439,9 +462,17 @@ protected:
   // is very useful when you use an external program to compute a set of
   // contour nodes, let's say based on image features. Subsequently, you want
   // to build and display a contour that runs through those points.
-  // This method is protected and accessible only from 
-  // vtkContourWidget::Initialize( vtkPolyData * )
-  virtual void Initialize( vtkPolyData * );
+  // This method is protected and accessible only from
+  // vtkContourWidget::Initialize. The idlist here may be used to initialize
+  // a contour widget that uses a vtkPolygonalSurfacePointPlacer. This stores
+  // the point id's of the nodes, since the contour is drawn on the vertices
+  // of a surface mesh.
+  void Initialize( vtkPolyData *, vtkIdList *);
+
+  // Description:
+  // Overloaded initialize method, that calls the above with a NULL idList
+  // argument.
+  virtual void Initialize( vtkPolyData *);
 
   //Description:
   // Adding a point locator to the representation to speed

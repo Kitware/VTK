@@ -45,7 +45,7 @@ int main(int , char * [])
   METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
 
   METAIO_STREAM::cout << "Reading test file ..." << METAIO_STREAM::endl;
-  Contour.Read("C:/Julien/Contours.meta"); 
+  Contour.Read("C:/Julien/Contours.meta");
 
   METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
 
@@ -55,7 +55,7 @@ int main(int , char * [])
 
   MetaContour::ControlPointListType plist =  Contour.GetControlPoints();
   MetaContour::ControlPointListType::const_iterator it = plist.begin();
-  
+
   while(it != plist.end())
   {
     METAIO_STREAM::cout << (*it)->m_Id << " ";
@@ -79,7 +79,7 @@ int main(int , char * [])
 
   MetaContour::InterpolatedPointListType ilist =  Contour.GetInterpolatedPoints();
   MetaContour::InterpolatedPointListType::const_iterator iti = ilist.begin();
-  
+
   while(iti != ilist.end())
     {
     METAIO_STREAM::cout << (*iti)->m_Id << " ";

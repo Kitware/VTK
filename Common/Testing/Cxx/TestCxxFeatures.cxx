@@ -158,7 +158,7 @@ NestedTestOuter::~NestedTestOuter()
 // Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
 void UsingStdVector()
 {
-  using vtkstd::vector;
+  using std::vector;
   vector<int>();
 }
 #endif

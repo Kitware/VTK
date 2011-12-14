@@ -32,24 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* ex_get_variable_names
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     obj_type                type of object
-*       int     num_vars                # of variables to read
-*
-* exit conditions - 
-*       char*   var_names               ptr array of variable names
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
@@ -57,15 +39,63 @@
 #include <ctype.h>
 
 /*!
- * reads the names of the results variables from the database
- */
+The function ex_get_variable_names() reads the names of the results
+variables from the database. Memory must be allocated for the name
+array before this function is invoked. The names are \p
+MAX_STR_LENGTH-characters in length.
+
+\return In case of an error, ex_get_variable_names() returns a
+negative number; a warning will return a positive number.  Possible
+causes of errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  invalid variable type specified.
+  -  a warning value is returned if no variables of the specified
+     type are stored in the file.
+
+\param[in]  exoid      exodus file ID returned from a previous call to ex_create() or ex_open(). 
+\param[in]  obj_type   Variable indicating the type of variable which is described. Use one
+                       of the options in the table below.
+\param[in]  num_vars   The number of \c var_type variables that will be read 
+                       from the database.
+\param[out] var_names  Returned array of pointers to \c num_vars variable names.
+
+<table>
+<tr><td> \c EX_GLOBAL}    </td><td>  Global entity type       </td></tr>
+<tr><td> \c EX_NODAL}     </td><td>  Nodal entity type        </td></tr>
+<tr><td> \c EX_NODE_SET   </td><td>  Node Set entity type     </td></tr>
+<tr><td> \c EX_EDGE_BLOCK </td><td>  Edge Block entity type   </td></tr>
+<tr><td> \c EX_EDGE_SET   </td><td>  Edge Set entity type     </td></tr>
+<tr><td> \c EX_FACE_BLOCK </td><td>  Face Block entity type   </td></tr>
+<tr><td> \c EX_FACE_SET   </td><td>  Face Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_BLOCK </td><td>  Element Block entity type</td></tr>
+<tr><td> \c EX_ELEM_SET   </td><td>  Element Set entity type  </td></tr>
+<tr><td> \c EX_SIDE_SET   </td><td>  Side Set entity type     </td></tr>
+</table>
+
+As an example, the following code segment will read the names of the
+nodal variables stored in the data file:
+
+\code
+#include "exodusII.h"
+int error, exoid, num_nod_vars;
+char *var_names[10];
+
+\comment{read nodal variables parameters and names}
+error = ex_get_variable_param(exoid, EX_NODAL, &num_nod_vars);
+for (i=0; i < num_nod_vars; i++) {
+   var_names[i] = (char *) calloc ((MAX_STR_LENGTH+1), sizeof(char));
+}
+error = ex_get_variable_names(exoid, EX_NODAL, num_nod_vars, var_names);
+\endcode
+
+*/
 
 int ex_get_variable_names (int   exoid,
-                           ex_entity_type obj_type,
-                           int   num_vars,
-                           char *var_names[])
+         ex_entity_type obj_type,
+         int   num_vars,
+         char *var_names[])
 {
-  int i, varid, status;
+  int varid, status;
   char errmsg[MAX_ERR_LENGTH];
   const char* vvarname;
 
@@ -106,8 +136,8 @@ int ex_get_variable_names (int   exoid,
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
       "Warning: invalid variable type %d requested from file id %d",
-            obj_type, exoid);
-    ex_err("ex_get_var_param",errmsg,exerrval);
+      obj_type, exoid);
+    ex_err("ex_get_variable_names",errmsg,exerrval);
     return (EX_WARN);
   }
 
@@ -115,42 +145,15 @@ int ex_get_variable_names (int   exoid,
   if ((status = nc_inq_varid(exoid, vvarname, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg, "Warning: no %s variables names stored in file id %d",
-            ex_name_of_object(obj_type),exoid);
+      ex_name_of_object(obj_type),exoid);
     ex_err("ex_get_variable_names",errmsg,exerrval);
     return (EX_WARN);
   }
 
   /* read the variable names */
-
-  /*
-   * See if reading into contiguous memory in which case we can load 
-   * all values in one call.  If not, we must load each name individually.
-   */
-  if ((size_t)(&var_names[num_vars-1][0] - &var_names[0][0]) ==
-      sizeof(char)*(MAX_STR_LENGTH+1)*(num_vars-1)) {
-    status = nc_get_var_text(exoid, varid, &var_names[0][0]);
-    if (status != NC_NOERR) {
-      exerrval = status;
-      sprintf(errmsg,
-              "Error: failed to get results variable names from file id %d", exoid);
-      ex_err("ex_get_var_names",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  } else {
-    for (i=0; i<num_vars; i++) {
-      size_t start[2];
-      size_t count[2];
-      start[0] = i;  count[0] = 1;
-      start[1] = 0;  count[1] = MAX_STR_LENGTH+1;
-      status = nc_get_vara_text(exoid, varid, start, count, var_names[i]);
-      if (status != NC_NOERR) {
-        exerrval = status;
-        sprintf(errmsg,
-                "Error: failed to get results variable names from file id %d", exoid);
-        ex_err("ex_get_var_names",errmsg,exerrval);
-        return (EX_FATAL);
-      }
-    }
+  status = ex_get_names_internal(exoid, varid, num_vars, var_names, obj_type, "ex_get_variable_names");
+  if (status != NC_NOERR) {
+    return (EX_FATAL);
   }
   return (EX_NOERR);
 }

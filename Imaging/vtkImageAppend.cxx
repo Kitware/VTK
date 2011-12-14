@@ -267,7 +267,7 @@ int vtkImageAppend::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAppendGetContinuosIncrements
+void vtkImageAppendGetContinuousIncrements
   (int wExtent[6], int sExtent[6], vtkIdType nComp, bool forCells,
    vtkIdType &incX,
    vtkIdType &incY,
@@ -346,12 +346,12 @@ void vtkImageAppendExecute(vtkImageAppend *self, int id,
   unsigned long target;
   double dnArrays = (double)nArrays;
 
-  vtkImageAppendGetContinuosIncrements(inData->GetExtent(), inExt, numComp, forCells,
-                                       inIncX, inIncY, inIncZ);
+  vtkImageAppendGetContinuousIncrements(
+    inData->GetExtent(), inExt, numComp, forCells, inIncX, inIncY, inIncZ);
 
   //cerr << "IN INCS " << inIncX << " " << inIncY << " " << inIncZ << endl;
-  vtkImageAppendGetContinuosIncrements(outData->GetExtent(), outExt, numComp, forCells,
-                                       outIncX, outIncY, outIncZ);
+  vtkImageAppendGetContinuousIncrements(
+    outData->GetExtent(), outExt, numComp, forCells, outIncX, outIncY, outIncZ);
   //cerr << "OUT INCS " << outIncX << " " << outIncY << " " << outIncZ << endl;
 
   int ptAdjust = (forCells?0:1);
@@ -508,7 +508,9 @@ void vtkImageAppend::ThreadedRequestData (
       c_out[2] = cOutExt[4];
 
       // do a quick check to see if the input is used at all.
-      if (inExt[this->AppendAxis*2] <= inExt[this->AppendAxis*2 + 1])
+      if (inExt[0] <= inExt[1] &&
+          inExt[2] <= inExt[3] &&
+          inExt[4] <= inExt[5])
         {
         vtkIdType ai;
         vtkDataArray *inArray;

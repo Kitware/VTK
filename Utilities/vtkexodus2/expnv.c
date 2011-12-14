@@ -32,39 +32,64 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expnv - ex_put_nodal_var
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     time_step               whole time step number
-*       int     nodeal_var_index        index of desired nodal variable
-*       int     num_nodes               number of nodal points
-*       float*  nodal_var_vals          array of nodal variable values
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
 
 /*!
- * writes the values of a single nodal variable for a single time step to 
- * the database; assume the first time step and nodal variable index
- * is 1
- * \param   exoid                   exodus file id
- * \param   time_step               whole time step number
- * \param   nodal_var_index         index of desired nodal variable
- * \param   num_nodes               number of nodal points
- * \param   nodal_var_vals          array of nodal variable values
- */
+The function ex_put_nodal_var() writes the values of a single nodal
+variable for a single time step. The function ex_put_variable_param()
+must be invoked before this call is made.
+
+Because nodal variables are floating point values, the application
+code must declare the array passed to be the appropriate type (\c
+float or \c double) to match the compute word size passed in
+ex_create() or ex_open().
+
+\return In case of an error, ex_put_nodal_var() returns a negative number; a
+warning will return a positive number. Possible causes of errors
+include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file opened for read only.
+  -  data file not initialized properly with call to ex_put_init().
+  -  ex_put_variable_param() not called previously specifying the number of nodal variables.
+
+
+\param[in] exoid              exodus file ID returned from a previous call to ex_create() or
+                              ex_open().
+
+\param[in] time_step          The time step number, as described under ex_put_time(). This
+                              is essentially a counter that is incremented when results variables
+            are output. The first time step is 1.
+
+\param[in] nodal_var_index    The index of the nodal variable. The first variable has an index of 1.
+
+\param[in] num_nodes          The number of nodal points.
+
+\param[in]  nodal_var_vals    Array of \c num_nodes values of the \c nodal_var_index-th nodal
+                              variable for the \c time_step-th time step.
+
+
+As an example, the following code segment writes all the nodal
+variables for a single time step:
+
+\code
+int num_nod_vars, num_nodes, error, exoid, time_step;
+float *nodal_var_vals;
+
+\comment{write nodal variables}
+nodal_var_vals = (float *) calloc(num_nodes, sizeof(float));
+for (k=1; k <= num_nod_vars; k++) {
+   for (j=0; j < num_nodes; j++) {
+      \comment{application code fills in this array}
+      nodal_var_vals[j] = 10.0;
+   }
+   error = ex_put_nodal_var(exoid, time_step, k, num_nodes,
+                            nodal_var_vals);
+}
+\endcode
+
+*/
 
 int ex_put_nodal_var (int   exoid,
                       int   time_step,
@@ -125,8 +150,8 @@ int ex_put_nodal_var (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to store nodal variables in file id %d",
-            exoid);
+      "Error: failed to store nodal variables in file id %d",
+      exoid);
     ex_err("ex_put_nodal_var",errmsg,exerrval);
     return (EX_FATAL);
   }

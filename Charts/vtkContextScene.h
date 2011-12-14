@@ -30,9 +30,10 @@ class vtkContext2D;
 class vtkAbstractContextItem;
 class vtkTransform2D;
 class vtkContextMouseEvent;
+class vtkContextKeyEvent;
 class vtkContextScenePrivate;
+class vtkContextInteractorStyle;
 
-class vtkInteractorStyle;
 class vtkAnnotationLink;
 
 class vtkRenderer;
@@ -131,10 +132,6 @@ public:
   vtkBooleanMacro(ScaleTiles, bool);
 
   // Description:
-  // Add the scene as an observer on the supplied interactor style.
-  void SetInteractorStyle(vtkInteractorStyle *interactor);
-
-  // Description:
   // This should not be necessary as the context view should take care of
   // rendering.
   virtual void SetRenderer(vtkRenderer *renderer);
@@ -144,6 +141,7 @@ public:
   // scene. This should only be used by the vtkContextItem derived objects in
   // a scene in their event handlers.
   void SetDirty(bool isDirty);
+  bool GetDirty()const;
 
 //BTX
   // Description:
@@ -179,35 +177,36 @@ protected:
   ~vtkContextScene();
 
   // Description:
-  // Protected function called after any event to check if a repaint of the
-  // scene is required. Called by the Command object after interaction events.
-  void CheckForRepaint();
-
-  // Description:
-  // Called to process events - figure out what child(ren) to propagate events
-  // to.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void* callData);
-
-  // Description:
   // Process a rubber band selection event.
-  virtual void ProcessSelectionEvent(vtkObject* caller, void* callData);
+  virtual bool ProcessSelectionEvent(unsigned int rect[5]);
 
   // Description:
   // Process a mouse move event.
-  virtual void MouseMoveEvent(int x, int y);
+  virtual bool MouseMoveEvent(int x, int y);
 
   // Description:
   // Process a mouse button press event.
-  virtual void ButtonPressEvent(int button, int x, int y);
+  virtual bool ButtonPressEvent(int button, int x, int y);
 
   // Description:
   // Process a mouse button release event.
-  virtual void ButtonReleaseEvent(int button, int x, int y);
+  virtual bool ButtonReleaseEvent(int button, int x, int y);
+
+  // Description:
+  // Process a mouse button double click event.
+  virtual bool DoubleClickEvent(int button, int x, int y);
 
   // Description:
   // Process a mouse wheel event where delta is the movement forward or back.
-  virtual void MouseWheelEvent(int delta, int x, int y);
+  virtual bool MouseWheelEvent(int delta, int x, int y);
+
+  // Description:
+  // Process a key press event.
+  virtual bool KeyPressEvent(const vtkContextKeyEvent& keyEvent);
+
+  // Description:
+  // Process a key release event.
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent& keyEvent);
 
   // Description:
   // Paint the scene in a special mode to build a cache for picking.
@@ -240,9 +239,10 @@ protected:
 
   // Description:
   // The command object for the charts.
-  class Command;
-  friend class Command;
-  Command *Observer;
+  //class Command;
+  //friend class Command;
+  //Command *Observer;
+  friend class vtkContextInteractorStyle;
 
   // Description:
   // Private storage object - where we hide all of our STL objects...
@@ -278,7 +278,7 @@ private:
   void operator=(const vtkContextScene &);   // Not implemented.
 
   typedef bool (vtkAbstractContextItem::* MouseEvents)(const vtkContextMouseEvent&);
-  void ProcessItem(vtkAbstractContextItem* cur,
+  bool ProcessItem(vtkAbstractContextItem* cur,
                    const vtkContextMouseEvent& event,
                    MouseEvents eventPtr);
 //ETX

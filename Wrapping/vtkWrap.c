@@ -14,6 +14,9 @@
 =========================================================================*/
 
 #include "vtkWrap.h"
+#include "vtkParseInternal.h"
+#include "vtkParseExtras.h"
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -254,6 +257,13 @@ int vtkWrap_IsConst(ValueInfo *val)
   return ((val->Type & VTK_PARSE_CONST) != 0);
 }
 
+/* -------------------------------------------------------------------- */
+/* Hints */
+
+int vtkWrap_IsNewInstance(ValueInfo *val)
+{
+  return ((val->Type & VTK_PARSE_NEWINSTANCE) != 0);
+}
 
 /* -------------------------------------------------------------------- */
 /* Constructor/Destructor checks */
@@ -261,10 +271,27 @@ int vtkWrap_IsConst(ValueInfo *val)
 int vtkWrap_IsConstructor(ClassInfo *c, FunctionInfo *f)
 
 {
-  if (c->Name && f->Name &&
-      !vtkWrap_IsDestructor(c, f))
+  size_t i, m;
+  const char *cp = c->Name;
+
+  if (cp && f->Name && !vtkWrap_IsDestructor(c, f))
     {
-    return (strcmp(c->Name, f->Name) == 0);
+    /* remove namespaces and template parameters from the name */
+    m = vtkParse_UnscopedNameLength(cp);
+    while (cp[m] == ':' && cp[m+1] == ':')
+      {
+      cp += m + 2;
+      m = vtkParse_UnscopedNameLength(cp);
+      }
+    for (i = 0; i < m; i++)
+      {
+      if (cp[i] == '<')
+        {
+        break;
+        }
+      }
+
+    return (i == strlen(f->Name) && strncmp(cp, f->Name, i) == 0);
     }
 
   return 0;
@@ -395,7 +422,7 @@ int vtkWrap_IsSpecialType(
   if (hinfo)
     {
     entry = vtkParseHierarchy_FindEntry(hinfo, classname);
-    if (vtkParseHierarchy_GetProperty(entry, "WRAP_SPECIAL"))
+    if (entry && vtkParseHierarchy_GetProperty(entry, "WRAP_SPECIAL"))
       {
       return 1;
       }
@@ -465,22 +492,73 @@ int vtkWrap_IsClassWrapped(
 }
 
 /* -------------------------------------------------------------------- */
+/* Check whether the destructor is public */
+int vtkWrap_HasPublicDestructor(ClassInfo *data)
+{
+  FunctionInfo *func;
+  int i;
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    func = data->Functions[i];
+
+    if (vtkWrap_IsDestructor(data, func) &&
+        func->Access != VTK_ACCESS_PUBLIC)
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+/* -------------------------------------------------------------------- */
+/* Check whether the copy constructor is public */
+int vtkWrap_HasPublicCopyConstructor(ClassInfo *data)
+{
+  FunctionInfo *func;
+  int i;
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    func = data->Functions[i];
+
+    if (vtkWrap_IsConstructor(data, func) &&
+        func->NumberOfArguments == 1 &&
+        func->Arguments[0]->Class &&
+        strcmp(func->Arguments[0]->Class, data->Name) == 0 &&
+        func->Access != VTK_ACCESS_PUBLIC)
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+/* -------------------------------------------------------------------- */
 /* This sets the CountHint for vtkDataArray methods where the
  * tuple size is equal to GetNumberOfComponents. */
 void vtkWrap_FindCountHints(
   ClassInfo *data, HierarchyInfo *hinfo)
 {
   int i;
-  const char *countMethod = "GetNumberOfComponents()";
+  const char *countMethod;
+  const char *classname;
   FunctionInfo *theFunc;
+  HierarchyEntry *entry;
+  size_t m;
+  char digit;
 
-  for (i = 0; i < data->NumberOfFunctions; i++)
+  /* add hints for array GetTuple methods */
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
     {
-    theFunc = data->Functions[i];
+    countMethod = "GetNumberOfComponents()";
 
-    /* add hints for array GetTuple methods */
-    if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
+    for (i = 0; i < data->NumberOfFunctions; i++)
       {
+      theFunc = data->Functions[i];
+
       if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
            strcmp(theFunc->Name, "GetTupleValue") == 0) &&
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
@@ -510,6 +588,123 @@ void vtkWrap_FindCountHints(
         }
       }
     }
+
+  /* add hints for interpolator Interpolate methods */
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractImageInterpolator"))
+    {
+    countMethod = "GetNumberOfComponents()";
+
+    for (i = 0; i < data->NumberOfFunctions; i++)
+      {
+      theFunc = data->Functions[i];
+
+      if (strcmp(theFunc->Name, "Interpolate") == 0 &&
+           theFunc->NumberOfArguments == 2 &&
+           theFunc->Arguments[0]->Type == (VTK_PARSE_DOUBLE_PTR|VTK_PARSE_CONST) &&
+           theFunc->Arguments[0]->Count == 3 &&
+           theFunc->Arguments[1]->Type == VTK_PARSE_DOUBLE_PTR &&
+           theFunc->Arguments[1]->Count == 0)
+        {
+        theFunc->Arguments[1]->CountHint = countMethod;
+        }
+      }
+    }
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    theFunc = data->Functions[i];
+
+    /* hints for constructors that take arrays */
+    if (vtkWrap_IsConstructor(data, theFunc) &&
+        theFunc->NumberOfArguments == 1 &&
+        vtkWrap_IsPointer(theFunc->Arguments[0]) &&
+        vtkWrap_IsNumeric(theFunc->Arguments[0]) &&
+        theFunc->Arguments[0]->Count == 0 &&
+        hinfo)
+      {
+      entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
+      if (entry && vtkParseHierarchy_IsTypeOfTemplated(
+            hinfo, entry, data->Name, "vtkVectorBase", &classname))
+        {
+        /* attempt to get count from template parameter */
+        if (classname)
+          {
+          m = strlen(classname);
+          if (m > 2 && classname[m - 1] == '>' &&
+              isdigit(classname[m-2]) && (classname[m-3] == ' ' ||
+              classname[m-3] == ',' || classname[m-3] == '<'))
+            {
+            digit = classname[m-2];
+            theFunc->Arguments[0]->Count = digit - '0';
+            vtkParse_AddStringToArray(
+              &theFunc->Arguments[0]->Dimensions,
+              &theFunc->Arguments[0]->NumberOfDimensions,
+              vtkParse_DuplicateString(&digit, 1));
+            }
+          free((char *)classname);
+          }
+        }
+      }
+
+    /* hints for operator[] index range */
+    if (theFunc->IsOperator && theFunc->Name &&
+        strcmp(theFunc->Name, "operator[]") == 0)
+      {
+      if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkVectorBase"))
+        {
+        theFunc->SizeHint = "GetSize()";
+        }
+      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayCoordinates") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtents") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArraySort"))
+        {
+        theFunc->SizeHint = "GetDimensions()";
+        }
+      else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtentsList") ||
+               vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayWeights"))
+        {
+        theFunc->SizeHint = "GetCount()";
+        }
+      }
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/* This sets the NewInstance hint for generator methods. */
+void vtkWrap_FindNewInstanceMethods(
+  ClassInfo *data, HierarchyInfo *hinfo)
+{
+  int i;
+  FunctionInfo *theFunc;
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    theFunc = data->Functions[i];
+    if (theFunc->Name && theFunc->ReturnValue &&
+        vtkWrap_IsVTKObject(theFunc->ReturnValue) &&
+        vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
+      {
+      if (strcmp(theFunc->Name, "NewInstance") == 0 ||
+          strcmp(theFunc->Name, "CreateInstance") == 0 ||
+          (strcmp(theFunc->Name, "CreateImageReader2") == 0 &&
+           strcmp(data->Name, "vtkImageReader2Factory") == 0) ||
+          (strcmp(theFunc->Name, "CreateDataArray") == 0 &&
+           strcmp(data->Name, "vtkDataArray") == 0) ||
+          (strcmp(theFunc->Name, "CreateArray") == 0 &&
+           strcmp(data->Name, "vtkAbstractArray") == 0) ||
+          (strcmp(theFunc->Name, "CreateArray") == 0 &&
+           strcmp(data->Name, "vtkArray") == 0) ||
+          (strcmp(theFunc->Name, "GetQueryInstance") == 0 &&
+           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
+          (strcmp(theFunc->Name, "CreateFromURL") == 0 &&
+           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
+          (strcmp(theFunc->Name, "MakeTransform") == 0 &&
+           vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractTransform")))
+        {
+        theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
+        }
+      }
+    }
 }
 
 
@@ -519,6 +714,20 @@ void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo)
 {
   int i, j, n;
   FunctionInfo *funcInfo;
+  const char *newclass;
+
+  n = data->NumberOfSuperClasses;
+  for (i = 0; i < n; i++)
+    {
+    newclass = vtkParseHierarchy_ExpandTypedefsInName(
+      hinfo, data->SuperClasses[i], NULL);
+    if (newclass != data->SuperClasses[i])
+      {
+      data->SuperClasses[i] =
+        vtkParse_DuplicateString(newclass, strlen(newclass));
+      free((char *)newclass);
+      }
+    }
 
   n = data->NumberOfFunctions;
   for (i = 0; i < n; i++)
@@ -528,12 +737,12 @@ void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo)
       {
       for (j = 0; j < funcInfo->NumberOfArguments; j++)
         {
-        vtkParseHierarchy_ExpandTypedefs(
+        vtkParseHierarchy_ExpandTypedefsInValue(
           hinfo, funcInfo->Arguments[j], data->Name);
         }
       if (funcInfo->ReturnValue)
         {
-        vtkParseHierarchy_ExpandTypedefs(
+        vtkParseHierarchy_ExpandTypedefsInValue(
           hinfo, funcInfo->ReturnValue, data->Name);
         }
       }
@@ -585,7 +794,6 @@ void vtkWrap_DeclareVariable(
   FILE *fp, ValueInfo *val, const char *name, int i, int flags)
 {
   unsigned int aType;
-  const char *aClass;
   int j;
 
   if (val == NULL)
@@ -594,7 +802,6 @@ void vtkWrap_DeclareVariable(
     }
 
   aType = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  aClass = val->Class;
 
   /* do nothing for void */
   if (aType == VTK_PARSE_VOID ||

@@ -264,7 +264,7 @@ int vtkTemporalStreamTracer::RequestInformation(
 return 1;
 }
 //----------------------------------------------------------------------------
-class WithinTolerance: public vtkstd::binary_function<double, double, bool>
+class WithinTolerance: public std::binary_function<double, double, bool>
 {
 public:
     result_type operator()(first_argument_type a, second_argument_type b) const
@@ -311,10 +311,10 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
     double *requestedTimeValues = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     requestedTimeValue = requestedTimeValues[0];
-    this->ActualTimeStep = vtkstd::find_if(
+    this->ActualTimeStep = std::find_if(
       this->OutputTimeValues.begin(), 
       this->OutputTimeValues.end(), 
-      vtkstd::bind2nd( WithinTolerance( ), requestedTimeValue )) 
+      std::bind2nd( WithinTolerance( ), requestedTimeValue ))
       - this->OutputTimeValues.begin();
     if (this->ActualTimeStep>=this->OutputTimeValues.size())
     {
@@ -572,7 +572,9 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   // take points from the source object and create a particle list
   //
   int numSeeds = source->GetNumberOfPoints();
+#ifndef NDEBUG
   int numTested = numSeeds;
+#endif
   candidates.resize(numSeeds);
   //
   for (int i=0; i<numSeeds; i++) {
@@ -605,19 +607,25 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   if (this->UpdateNumPieces>1) {
     // Gather all seed particles to all processes
     this->TransmitReceiveParticles(candidates, allCandidates, false);
-    numTested = allCandidates.size();
+#ifndef NDEBUG
+    numTested = static_cast<int>(allCandidates.size());
+#endif
     vtkDebugMacro(<< "Local Particles " << numSeeds << " TransmitReceive Total " << numTested);
     // Test to see which ones belong to us
     this->TestParticles(allCandidates, LocalSeedPoints, LocalAssignedCount);
   } 
   else {
-    numTested = candidates.size();
+#ifndef NDEBUG
+    numTested = static_cast<int>(candidates.size());
+#endif
     this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
   }
   int TotalAssigned = 0; 
   this->Controller->Reduce(&LocalAssignedCount, &TotalAssigned, 1, vtkCommunicator::SUM_OP, 0);
 #else 
+#ifndef NDEBUG
   numTested = static_cast<int>(candidates.size());
+#endif
   this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
   int TotalAssigned = LocalAssignedCount; (void)TotalAssigned;
 #endif
@@ -648,7 +656,7 @@ void vtkTemporalStreamTracer::AssignUniqueIds(
     com->Broadcast(&this->UniqueIdCounter, 1, 0);
 //    vtkErrorMacro("UniqueIdCounter " << this->UniqueIdCounter);
     // setup arrays used by the AllGather call.
-    vtkstd::vector<vtkIdType> recvNumParticles(this->UpdateNumPieces, 0);
+    std::vector<vtkIdType> recvNumParticles(this->UpdateNumPieces, 0);
     // Broadcast and receive count to/from all other processes.
     com->AllGather(&numParticles, &recvNumParticles[0], 1);
     // Each process is allocating a certain number.
@@ -690,8 +698,8 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
   vtkIdType OurParticles = sending.size();
   vtkIdType TotalParticles = 0;
   // setup arrays used by the AllGatherV call.
-  vtkstd::vector<vtkIdType> recvLengths(this->UpdateNumPieces, 0);
-  vtkstd::vector<vtkIdType> recvOffsets(this->UpdateNumPieces, 0);
+  std::vector<vtkIdType> recvLengths(this->UpdateNumPieces, 0);
+  std::vector<vtkIdType> recvOffsets(this->UpdateNumPieces, 0);
   // Broadcast and receive size to/from all other processes.
   com->AllGather(&OurParticles, &recvLengths[0], 1);
   // Compute the displacements.
@@ -715,9 +723,9 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
   // Now all particles from all processors are in one big array
   // remove any from ourself that we have already tested
   if (removeself) {
-    vtkstd::vector<ParticleInformation>::iterator first = 
+    std::vector<ParticleInformation>::iterator first =
       received.begin() + recvOffsets[this->UpdatePiece]/TypeSize;
-    vtkstd::vector<ParticleInformation>::iterator last = 
+    std::vector<ParticleInformation>::iterator last =
       first + recvLengths[this->UpdatePiece]/TypeSize;
     received.erase(first, last);
   }
@@ -786,7 +794,7 @@ int vtkTemporalStreamTracer::RequestData(
         // Get the timestep information for this instant
         //
         vtkInformation *doInfo = td->GetInformation();
-        vtkstd::vector<double> timesteps;
+        std::vector<double> timesteps;
         if (doInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
         {
           int NumberOfDataTimeSteps = doInfo->Length(vtkDataObject::DATA_TIME_STEPS());
@@ -819,7 +827,7 @@ int vtkTemporalStreamTracer::RequestData(
   //
 
   int numSources = inputVector[1]->GetNumberOfInformationObjects();
-  vtkstd::vector<vtkDataSet*> SeedSources;
+  std::vector<vtkDataSet*> SeedSources;
   for (int idx=0; idx<numSources; ++idx)
     {
     vtkDataObject     *dobj   = 0;
@@ -988,7 +996,9 @@ int vtkTemporalStreamTracer::RequestData(
   vtkDebugMacro(<< "Clear MPI send list ");
   this->MPISendList.clear();
 
+#ifndef NDEBUG
   int Number = static_cast<int>(this->ParticleHistories.size());
+#endif
   ParticleListIterator  it_first = this->ParticleHistories.begin();
   ParticleListIterator  it_last  = this->ParticleHistories.end();
   ParticleListIterator  it_next;
@@ -1057,7 +1067,9 @@ int vtkTemporalStreamTracer::RequestData(
       // Now update our main list with the ones we are keeping
       this->UpdateParticleList(candidates);
       // free up unwanted memory
+#ifndef NDEBUG
       Number = static_cast<int>(candidates.size());
+#endif
       candidates.clear();
     }
     it_last = this->ParticleHistories.end();

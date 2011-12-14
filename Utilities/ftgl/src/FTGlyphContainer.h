@@ -19,6 +19,11 @@ using namespace std;
 #endif
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 /**
  * FTGlyphContainer holds the post processed FTGlyph objects.
  *
@@ -142,5 +147,8 @@ class FTGL_EXPORT FTGlyphContainer
     
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTGlyphContainer__

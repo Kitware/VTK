@@ -51,12 +51,12 @@
 #  include "vtkMultiProcessController.h"
 #endif // VTK_USE_PARALLEL
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
-#include <vtkstd/map>
-#include <vtkstd/set>
-#include <vtkstd/deque>
-#include <vtkstd/string>
+#include <algorithm>
+#include <vector>
+#include <map>
+#include <set>
+#include <deque>
+#include <string>
 #include "vtksys/SystemTools.hxx"
 
 #include "vtksys/RegularExpression.hxx"
@@ -239,7 +239,7 @@ vtkExodusIIReaderPrivate::BlockSetInfoType::~BlockSetInfoType()
 // ----------------------------------------------------------- UTILITY ROUTINES
 
 // This function exists because FORTRAN ordering sucks.
-static void extractTruthForVar( int num_obj, int num_vars, const int* truth_tab, int var, vtkstd::vector<int>& truth )
+static void extractTruthForVar( int num_obj, int num_vars, const int* truth_tab, int var, std::vector<int>& truth )
 {
   truth.clear();
 
@@ -362,6 +362,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->DiskWordSize = 8;
 
   this->Cache = vtkExodusIICache::New();
+  this->CacheSize = 0;
 
   this->TimeStep = 0;
   this->HasModeShapes = 0;
@@ -381,12 +382,6 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
 
   this->SqueezePoints = 1;
 
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
-
-  this->EdgeDecorationMesh = 0;
-  this->FaceDecorationMesh = 0;
-  
   this->Parser = 0;
 
   this->FastPathObjectType = vtkExodusIIReader::NODAL;
@@ -405,6 +400,7 @@ vtkExodusIIReaderPrivate::~vtkExodusIIReaderPrivate()
 {
   this->CloseFile();
   this->Cache->Delete();
+  this->CacheSize = 0;
   this->ClearConnectivityCaches();
   this->SetFastPathIdType( 0 );
   if(this->Parser)
@@ -443,7 +439,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
   vtkExodusIIReaderTensorCheck* ten23 = new vtkExodusIIReaderTensorCheck( endST23, 6, 2, 3 );
   vtkExodusIIReaderTensorCheck* ten34 = new vtkExodusIIReaderTensorCheck( endST34, 20, 3, 4 );
   vtkExodusIIReaderIntPointCheck* intpt = new vtkExodusIIReaderIntPointCheck;
-  typedef vtkstd::vector<vtkExodusIIReaderVariableCheck*> glomVec;
+  typedef std::vector<vtkExodusIIReaderVariableCheck*> glomVec;
   glomVec glommers;
   glommers.push_back( scalar );
   glommers.push_back( vecx2 );
@@ -453,9 +449,9 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
   glommers.push_back( ten34 );
   glommers.push_back( intpt );
   glomVec::iterator glommer;
-  typedef vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> varVec;
+  typedef std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> varVec;
   varVec arrays;
-  vtkstd::vector<int> tmpTruth;
+  std::vector<int> tmpTruth;
   // Advance through the variable names.
   for ( int i = 0; i < num_vars; ++ i )
     {
@@ -607,7 +603,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPoints(
   if ( this->SqueezePoints )
     {
     pts->SetNumberOfPoints( bsinfop->NextSqueezePoint );
-    vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+    std::map<vtkIdType,vtkIdType>::iterator it;
     for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
       {
       pts->SetPoint( it->second, arr->GetTuple( it->first ) );
@@ -625,7 +621,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointArrays(
   vtkIdType timeStep, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output )
 {
   int status = 1;
-  vtkstd::vector<ArrayInfoType>::iterator ai;
+  std::vector<ArrayInfoType>::iterator ai;
   int aidx = 0;
 
   for (
@@ -640,7 +636,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointArrays(
     vtkDataArray* src = this->GetCacheOrRead( key );
     if ( !src )
       {
-      vtkWarningMacro( "Unable to read point array " << ai->Name.c_str() << " at time step " << timeStep );
+      vtkDebugMacro( "Unable to read point array " << ai->Name.c_str() << " at time step " << timeStep );
       status = 0;
       continue;
       }
@@ -707,7 +703,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays(
     }
 
   // Panic if we're given a bad otyp.
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator ami = this->ArrayInfo.find( otyp );
+  std::map<int,std::vector<ArrayInfoType> >::iterator ami = this->ArrayInfo.find( otyp );
   if ( ami == this->ArrayInfo.end() )
     {
 #if 0
@@ -726,7 +722,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays(
   // For each array defined on objects of the same type as our output,
   // look for ones that are turned on (Status != 0) and have a truth
   // table indicating values are present for object obj in the file.
-  vtkstd::vector<ArrayInfoType>::iterator ai;
+  std::vector<ArrayInfoType>::iterator ai;
   int aidx = 0;
   for ( ai = ami->second.begin(); ai != ami->second.end(); ++ai, ++aidx )
     {
@@ -863,7 +859,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
   vtkFieldData *ofieldData = output->GetFieldData();
 
   int status = 1;
-  vtkstd::vector<ArrayInfoType>::iterator ai;
+  std::vector<ArrayInfoType>::iterator ai;
   int aidx = 0;
 
   for (
@@ -881,7 +877,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     vtkDataArray* temporalData = this->GetCacheOrRead( tdKey );
     if ( ! temporalData )
       {
-      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
+      vtkDebugMacro( "Unable to read array " << ai->Name.c_str() );
       status = 0;
       continue;
       }
@@ -925,7 +921,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep,
 {
   (void)timeStep;
   int status = 1;
-  vtkstd::vector<MapInfoType>::iterator mi;
+  std::vector<MapInfoType>::iterator mi;
   int midx = 0;
 
   for (
@@ -940,7 +936,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep,
         vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_MAP, 0, midx ) ) );
     if ( !src )
       {
-      vtkWarningMacro(
+      vtkDebugMacro(
         "Unable to read point map array \""
         << mi->Name.c_str() << "\" (" << midx << ")" );
       status = 0;
@@ -966,7 +962,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellMaps(
 
   // Ignore invalid otyp values (sets cannot have maps, only blocks).
   int mtyp = this->GetMapTypeFromObjectType( otyp );
-  vtkstd::map<int,vtkstd::vector<MapInfoType> >::iterator mmi =
+  std::map<int,std::vector<MapInfoType> >::iterator mmi =
     this->MapInfo.find( mtyp );
   if ( mmi == this->MapInfo.end() )
     {
@@ -976,7 +972,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellMaps(
   vtkCellData* cd = output->GetCellData();
   // For each map defined on objects of the same type as our output,
   // look for ones that are turned on (Status != 0).
-  vtkstd::vector<MapInfoType>::iterator mi;
+  std::vector<MapInfoType>::iterator mi;
   int midx = 0;
   for ( mi = mmi->second.begin(); mi != mmi->second.end(); ++mi, ++midx )
     {
@@ -1029,7 +1025,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
     return 0;
     }
 
-  vtkstd::vector<ArrayInfoType>::iterator ai;
+  std::vector<ArrayInfoType>::iterator ai;
   vtkFieldData* ofd = output->GetFieldData();
   vtkIdType internalExodusId = -1;
   int status = 1;
@@ -1052,7 +1048,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
           vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
         break;
       default:
-        vtkWarningMacro( "Unsupported object type for fast path." );
+        vtkDebugMacro( "Unsupported object type for fast path." );
         return 0;
       }
 
@@ -1073,7 +1069,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
   // This will happen if the data does not reside in this file
   if (internalExodusId < 0)
     {
-    //vtkWarningMacro( "Unable to map id to internal exodus id." );
+    //vtkDebugMacro( "Unable to map id to internal exodus id." );
     return 0;
     }
 
@@ -1103,7 +1099,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
     vtkDataArray* temporalData = this->GetCacheOrRead( temporalDataKey );
     if ( !temporalData )
       {
-      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
+      vtkDebugMacro( "Unable to read array " << ai->Name.c_str() );
       status = 0;
       continue;
       }
@@ -1111,28 +1107,6 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* outpu
     }
 
   return status;
-}
-
-//-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputEdgeDecorations()
-{
-  if ( this->EdgeFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-
-}
-
-//-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::AssembleOutputFaceDecorations()
-{
-  if ( this->FaceFieldDecorations == vtkExodusIIReader::NONE ) 
-    {
-    // Do nothing if no decorations are requested.
-    return;
-    }
-  
 }
 
 //-----------------------------------------------------------------------------
@@ -1169,6 +1143,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       binfo->Status = 0;
       return;
       }
+    ent->Register (this);
     }
 
   vtkIntArray* arr;
@@ -1182,7 +1157,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
 
   if ( this->SqueezePoints )
     {
-    vtkstd::vector<vtkIdType> cellIds;
+    std::vector<vtkIdType> cellIds;
     cellIds.resize( binfo->PointsPerCell );
     int* srcIds = arr->GetPointer( 0 );
 
@@ -1214,7 +1189,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   else
     {
 #ifdef VTK_USE_64BIT_IDS
-    vtkstd::vector<vtkIdType> cellIds;
+    std::vector<vtkIdType> cellIds;
     cellIds.resize( binfo->PointsPerCell );
     int* srcIds = arr->GetPointer( 0 );
 
@@ -1253,6 +1228,10 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       }
 #endif // VTK_USE_64BIT_IDS
     }
+    if (ent) 
+      {
+      ent->UnRegister (this);
+      }
 }
 
 //-----------------------------------------------------------------------------
@@ -1315,7 +1294,7 @@ void vtkExodusIIReaderPrivate::AddPointArray(
     dest->SetName( src->GetName() );
     dest->SetNumberOfComponents( src->GetNumberOfComponents() );
     dest->SetNumberOfTuples( bsinfop->NextSqueezePoint );
-    vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+    std::map<vtkIdType,vtkIdType>::iterator it;
     for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
       {
       pd->CopyTuple( src, dest, it->first, it->second );
@@ -1379,7 +1358,7 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies(
   vtkIdType* cellConn;
   int nnpe = 0;
   vtkIntArray* nconn;
-  vtkstd::vector<vtkIdType> tmpTuple;
+  std::vector<vtkIdType> tmpTuple;
   while ( ref < nrefs )
     {
     int loadNewBlk = 0;
@@ -1472,7 +1451,7 @@ void vtkExodusIIReaderPrivate::InsertSetSides(
   int numSides = this->SetInfo[otyp][obj].Size;
   int* nodesPerSide = refs->GetPointer( 0 );
   int* sideNodes = nodesPerSide + numSides;
-  vtkstd::vector<vtkIdType> cellConn;
+  std::vector<vtkIdType> cellConn;
   cellConn.resize( 9 );
 
   if ( this->SqueezePoints )
@@ -1579,7 +1558,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     else
       {
       // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
-      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      std::vector<std::vector<double> > tmpVal;
       tmpVal.resize( ainfop->Components );
       int c;
       for ( c = 0; c < ainfop->Components; ++c )
@@ -1597,7 +1576,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           }
         }
       int t;
-      vtkstd::vector<double> tmpTuple;
+      std::vector<double> tmpTuple;
       tmpTuple.resize( ncomps );
       tmpTuple[ncomps - 1] = 0.; // In case we're embedding a 2-D vector in 3-D
       for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
@@ -1622,7 +1601,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     if ( ainfop->Components != 1 )
       {
       // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
-      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      std::vector<std::vector<double> > tmpVal;
       tmpVal.resize( ainfop->Components );
       int c;
       for ( c = 0; c < ainfop->Components; ++c )
@@ -1642,7 +1621,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           }
         }
       int t;
-      vtkstd::vector<double> tmpTuple;
+      std::vector<double> tmpTuple;
       tmpTuple.resize( ainfop->Components );
       for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
         {
@@ -1687,7 +1666,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     else
       {
       // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
-      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      std::vector<std::vector<double> > tmpVal;
       tmpVal.resize( ainfop->Components );
       int c;
       for ( c = 0; c < ainfop->Components; ++c )
@@ -1705,7 +1684,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           }
         }
       int t;
-      vtkstd::vector<double> tmpTuple;
+      std::vector<double> tmpTuple;
       tmpTuple.resize( ainfop->Components );
       for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
         {
@@ -1740,7 +1719,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     else
       {
       // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
-      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      std::vector<std::vector<double> > tmpVal;
       tmpVal.resize( ainfop->Components );
       int c;
       for ( c = 0; c < ainfop->Components; ++c )
@@ -1758,7 +1737,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           }
         }
       int t;
-      vtkstd::vector<double> tmpTuple;
+      std::vector<double> tmpTuple;
       tmpTuple.resize( ainfop->Components );
       for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
         {
@@ -1812,7 +1791,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     else
       {
       // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
-      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      std::vector<std::vector<double> > tmpVal;
       tmpVal.resize( ainfop->Components );
       int c;
       for ( c = 0; c < ainfop->Components; ++c )
@@ -1833,7 +1812,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       // Carefully use arr->GetNumberOfComponents() when sizing
       // output as we may have promoted 2-D arrays to 3-D.
       int t = arr->GetNumberOfComponents();
-      vtkstd::vector<double> tmpTuple;
+      std::vector<double> tmpTuple;
       tmpTuple.resize( t );
       tmpTuple[t - 1] = 0.;
       for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
@@ -1875,7 +1854,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       }
 #ifdef VTK_USE_64BIT_IDS
       {
-      vtkstd::vector<int> tmpMap( arr->GetNumberOfTuples() );
+      std::vector<int> tmpMap( arr->GetNumberOfTuples() );
       if ( ex_get_num_map( exoid, static_cast<ex_entity_type>( key.ObjectType ), minfop->Id, &tmpMap[0] ) < 0 )
         {
         vtkErrorMacro( "Could not read map \"" << minfop->Name.c_str() << "\" (" << minfop->Id << ") from disk." );
@@ -1972,7 +1951,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     if (nMaps > 0) // FIXME correctly detect parallel
       {
 #ifdef VTK_USE_64BIT_IDS
-        vtkstd::vector<int> tmpMap( src->GetNumberOfTuples() );
+        std::vector<int> tmpMap( src->GetNumberOfTuples() );
         if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( ckey.ObjectType ), &tmpMap[0] ) < 0 )
           {
           vtkErrorMacro( "Could not read elem num map for global implicit id" );
@@ -2030,7 +2009,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       iarr->SetNumberOfTuples( bsinfop->NextSqueezePoint );
       vtkIdType* gloIds = iarr->GetPointer( 0 );
       vtkIdType* srcIds = src->GetPointer( 0 );
-      vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+      std::map<vtkIdType,vtkIdType>::iterator it;
       for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
         {
         gloIds[it->second] = srcIds[it->first];
@@ -2056,7 +2035,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     if (this->ModelParameters.num_node_maps > 0) // FIXME correctly detect parallel
       {
 #ifdef VTK_USE_64BIT_IDS
-        vtkstd::vector<int> tmpMap( src->GetNumberOfTuples() );
+        std::vector<int> tmpMap( src->GetNumberOfTuples() );
         if ( ex_get_id_map( exoid, (ex_entity_type)( vtkExodusIIReader::NODE_MAP ), &tmpMap[0] ) < 0 )
           {
           vtkErrorMacro( "Could not read node num map for global implicit id" );
@@ -2094,7 +2073,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       iarr->SetNumberOfTuples( bsinfop->NextSqueezePoint );
       vtkIdType* gloIds = iarr->GetPointer( 0 );
       vtkIdType* srcIds = src->GetPointer( 0 );
-      vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+      std::map<vtkIdType,vtkIdType>::iterator it;
       for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
         {
         gloIds[it->second] = srcIds[it->first];
@@ -2151,7 +2130,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       if ( mapSize )
         {
 #ifdef VTK_USE_64BIT_IDS
-        vtkstd::vector<int> tmpMap( iarr->GetNumberOfTuples() );
+        std::vector<int> tmpMap( iarr->GetNumberOfTuples() );
         if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( ktmp.ObjectType ), &tmpMap[0] ) < 0 )
           {
           vtkErrorMacro( "Could not read old-style node or element map." );
@@ -2368,7 +2347,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     vtkIntArray* iarr = vtkIntArray::New();
     iarr->SetNumberOfComponents( 2 );
     iarr->SetNumberOfTuples( sinfop->Size );
-    vtkstd::vector<int> tmpOrient; // hold the edge/face orientation information until we can interleave it.
+    std::vector<int> tmpOrient; // hold the edge/face orientation information until we can interleave it.
     tmpOrient.resize( sinfop->Size );
     
     if ( ex_get_set( exoid, static_cast<ex_entity_type>( otyp ), sinfop->Id, iarr->GetPointer(0), &tmpOrient[0] ) < 0 )
@@ -2429,7 +2408,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       displ = this->FindDisplacementVectors( key.Time );
       }
 
-    vtkstd::vector<double> coordTmp;
+    std::vector<double> coordTmp;
     vtkDoubleArray* darr = vtkDoubleArray::New();
     arr = darr;
     arr->SetNumberOfComponents( 3 );
@@ -2766,14 +2745,15 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetSortedObj
   int i = this->GetObjectTypeIndexFromObjectType( otyp );
   if ( i < 0 )
     {
-    vtkWarningMacro( "Could not find collection of objects with type " << otyp << "." );
+    vtkDebugMacro( "Could not find collection of objects with type " << otyp << "." );
     return 0;
     }
   int N = this->GetNumberOfObjectsAtTypeIndex( i );
   if ( k < 0 || k >= N )
     {
     const char* otname = i >= 0 ? objtype_names[i] : "object";
-    vtkWarningMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
+    static_cast<void>(otname); // not referenced warning
+    vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
     return 0;
     }
   return this->GetObjectInfo( i, this->SortedObjectIndices[otyp][k] );
@@ -2785,14 +2765,15 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetUnsortedO
   int i = this->GetObjectTypeIndexFromObjectType( otyp );
   if ( i < 0 )
     {
-    vtkWarningMacro( "Could not find collection of objects with type " << otyp << "." );
+    vtkDebugMacro( "Could not find collection of objects with type " << otyp << "." );
     return 0;
     }
   int N = this->GetNumberOfObjectsAtTypeIndex( i );
   if ( k < 0 || k >= N )
     {
     const char* otname = i >= 0 ? objtype_names[i] : "object";
-    vtkWarningMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
+    static_cast<void>(otname); // not referenced warning
+    vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
     return 0;
     }
   return this->GetObjectInfo( i, k );
@@ -2802,7 +2783,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetUnsortedO
 //-----------------------------------------------------------------------------
 int vtkExodusIIReaderPrivate::GetBlockIndexFromFileGlobalId( int otyp, int refId )
 {
-  vtkstd::vector<BlockInfoType>::iterator bi;
+  std::vector<BlockInfoType>::iterator bi;
   int i = 0;
   for ( bi = this->BlockInfo[otyp].begin(); bi != this->BlockInfo[otyp].end(); ++bi, ++i )
     {
@@ -2834,7 +2815,7 @@ vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId( BlockSetInfoType* bsinfop
     }
 
   vtkIdType x;
-  vtkstd::map<vtkIdType,vtkIdType>::iterator it = bsinfop->PointMap.find( i );
+  std::map<vtkIdType,vtkIdType>::iterator it = bsinfop->PointMap.find( i );
   if ( it == bsinfop->PointMap.end() )
     { // Nothing found; add a new entry to the map.
     x = bsinfop->NextSqueezePoint ++ ;
@@ -2928,7 +2909,7 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
 //-----------------------------------------------------------------------------
 vtkExodusIIReaderPrivate::ArrayInfoType* vtkExodusIIReaderPrivate::FindArrayInfoByName( int otyp, const char* name )
 {
-  vtkstd::vector<ArrayInfoType>::iterator ai;
+  std::vector<ArrayInfoType>::iterator ai;
   for ( ai = this->ArrayInfo[otyp].begin(); ai != this->ArrayInfo[otyp].end(); ++ai )
     {
     if ( ai->Name == name )
@@ -3091,10 +3072,10 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
 //-----------------------------------------------------------------------------
 void vtkExodusIIReaderPrivate::ClearConnectivityCaches()
 {
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator blksit;
+  std::map<int,std::vector<BlockInfoType> >::iterator blksit;
   for ( blksit = this->BlockInfo.begin(); blksit != this->BlockInfo.end(); ++ blksit )
     {
-    vtkstd::vector<BlockInfoType>::iterator blkit;
+    std::vector<BlockInfoType>::iterator blkit;
     for ( blkit = blksit->second.begin(); blkit != blksit->second.end(); ++ blkit )
       {
       if ( blkit->CachedConnectivity )
@@ -3104,10 +3085,10 @@ void vtkExodusIIReaderPrivate::ClearConnectivityCaches()
         }
       }
     }
-  vtkstd::map<int,vtkstd::vector<SetInfoType> >::iterator setsit;
+  std::map<int,std::vector<SetInfoType> >::iterator setsit;
   for ( setsit = this->SetInfo.begin(); setsit != this->SetInfo.end(); ++ setsit )
     {
-    vtkstd::vector<SetInfoType>::iterator setit;
+    std::vector<SetInfoType>::iterator setit;
     for ( setit = setsit->second.begin(); setit != setsit->second.end(); ++ setit )
       {
       if ( setit->CachedConnectivity )
@@ -3150,7 +3131,7 @@ const char* vtkExodusIIReaderPrivate::GetPartBlockInfo(int idx)
 {
   char buffer[80];
   vtkStdString blocks;
-  vtkstd::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
+  std::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
   for (unsigned int i=0;i<blkIndices.size();i++)
     {
     sprintf(buffer,"%d, ",blkIndices[i]);
@@ -3166,7 +3147,7 @@ const char* vtkExodusIIReaderPrivate::GetPartBlockInfo(int idx)
 int vtkExodusIIReaderPrivate::GetPartStatus(int idx)
 {
   //a part is only active if all its blocks are active
-  vtkstd::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
+  std::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
   for (unsigned int i=0;i<blkIndices.size();i++)
     {
     if (!this->GetUnsortedObjectStatus(vtkExodusIIReader::ELEM_BLOCK,blkIndices[i]))
@@ -3194,7 +3175,7 @@ int vtkExodusIIReaderPrivate::GetPartStatus(vtkStdString name)
 void vtkExodusIIReaderPrivate::SetPartStatus(int idx, int on) 
 { 
   //update the block status for all the blocks in this part
-  vtkstd::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
+  std::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
   for (unsigned int i=0;i<blkIndices.size();i++)
     {
     this->SetUnsortedObjectStatus(vtkExodusIIReader::ELEM_BLOCK, blkIndices[i], on);
@@ -3229,7 +3210,7 @@ const char* vtkExodusIIReaderPrivate::GetMaterialName(int idx)
 //-----------------------------------------------------------------------------
 int vtkExodusIIReaderPrivate::GetMaterialStatus(int idx)
 {
-  vtkstd::vector<int> blkIndices = this->MaterialInfo[idx].BlockIndices;
+  std::vector<int> blkIndices = this->MaterialInfo[idx].BlockIndices;
 
   for (unsigned int i=0;i<blkIndices.size();i++)
     {
@@ -3258,7 +3239,7 @@ int vtkExodusIIReaderPrivate::GetMaterialStatus(vtkStdString name)
 void vtkExodusIIReaderPrivate::SetMaterialStatus(int idx, int on) 
 { 
   //update the block status for all the blocks in this material
-  vtkstd::vector<int> blkIndices = this->MaterialInfo[idx].BlockIndices;
+  std::vector<int> blkIndices = this->MaterialInfo[idx].BlockIndices;
 
   for (unsigned int i=0;i<blkIndices.size();i++)
     {
@@ -3294,7 +3275,7 @@ const char* vtkExodusIIReaderPrivate::GetAssemblyName(int idx)
 //-----------------------------------------------------------------------------
 int vtkExodusIIReaderPrivate::GetAssemblyStatus(int idx)
 {
-  vtkstd::vector<int> blkIndices = this->AssemblyInfo[idx].BlockIndices;
+  std::vector<int> blkIndices = this->AssemblyInfo[idx].BlockIndices;
 
   for (unsigned int i=0;i<blkIndices.size();i++)
     {
@@ -3322,7 +3303,7 @@ int vtkExodusIIReaderPrivate::GetAssemblyStatus(vtkStdString name)
 //-----------------------------------------------------------------------------
 void vtkExodusIIReaderPrivate::SetAssemblyStatus(int idx, int on) 
 { 
-  vtkstd::vector<int> blkIndices = this->AssemblyInfo[idx].BlockIndices;
+  std::vector<int> blkIndices = this->AssemblyInfo[idx].BlockIndices;
 
   //update the block status for all the blocks in this material
   for (unsigned int i=0;i<blkIndices.size();i++)
@@ -3417,7 +3398,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
   if ( this->ArrayInfo[ vtkExodusIIReader::NODAL ].size() > 0 )
     {
     os << indent << "Nodal Arrays:\n";
-    vtkstd::vector<ArrayInfoType>::iterator ai;
+    std::vector<ArrayInfoType>::iterator ai;
     for ( ai = this->ArrayInfo[ vtkExodusIIReader::NODAL ].begin(); ai != this->ArrayInfo[ vtkExodusIIReader::NODAL ].end(); ++ai )
       {
       printArray( os, indent, vtkExodusIIReader::NODAL, *ai );
@@ -3426,10 +3407,10 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
 
   // Print blocks
   os << indent << "Blocks:\n";
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator bti;
+  std::map<int,std::vector<BlockInfoType> >::iterator bti;
   for ( bti = this->BlockInfo.begin(); bti != this->BlockInfo.end(); ++bti )
     {
-    vtkstd::vector<BlockInfoType>::iterator bi;
+    std::vector<BlockInfoType>::iterator bi;
     for ( bi = bti->second.begin(); bi != bti->second.end(); ++bi )
       {
       printBlock( os, indent.GetNextIndent(), bti->first, *bi );
@@ -3437,7 +3418,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
     if ( this->ArrayInfo[ bti->first ].size() > 0 )
       {
       os << indent << "    Results variables:\n";
-      vtkstd::vector<ArrayInfoType>::iterator ai;
+      std::vector<ArrayInfoType>::iterator ai;
       for ( ai = this->ArrayInfo[ bti->first ].begin(); ai != this->ArrayInfo[ bti->first ].end(); ++ai )
         {
         printArray( os, indent.GetNextIndent(), bti->first, *ai );
@@ -3447,10 +3428,10 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
 
   // Print sets
   os << indent << "Sets:\n";
-  vtkstd::map<int,vtkstd::vector<SetInfoType> >::iterator sti;
+  std::map<int,std::vector<SetInfoType> >::iterator sti;
   for ( sti = this->SetInfo.begin(); sti != this->SetInfo.end(); ++sti )
     {
-    vtkstd::vector<SetInfoType>::iterator si;
+    std::vector<SetInfoType>::iterator si;
     for ( si = sti->second.begin(); si != sti->second.end(); ++si )
       {
       printSet( os, indent.GetNextIndent(), sti->first, *si );
@@ -3458,7 +3439,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
     if ( this->ArrayInfo[ sti->first ].size() > 0 )
       {
       os << indent << "    Results variables:\n";
-      vtkstd::vector<ArrayInfoType>::iterator ai;
+      std::vector<ArrayInfoType>::iterator ai;
       for ( ai = this->ArrayInfo[ sti->first ].begin(); ai != this->ArrayInfo[ sti->first ].end(); ++ai )
         {
         printArray( os, indent.GetNextIndent(), sti->first, *ai );
@@ -3468,10 +3449,10 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
 
   // Print maps
   os << indent << "Maps:\n";
-  vtkstd::map<int,vtkstd::vector<MapInfoType> >::iterator mti;
+  std::map<int,std::vector<MapInfoType> >::iterator mti;
   for ( mti = this->MapInfo.begin(); mti != this->MapInfo.end(); ++mti )
     {
-    vtkstd::vector<MapInfoType>::iterator mi;
+    std::vector<MapInfoType>::iterator mi;
     for ( mi = mti->second.begin(); mi != mti->second.end(); ++mi )
       {
       printMap( os, indent.GetNextIndent(), mti->first, *mi );
@@ -3577,8 +3558,8 @@ void vtkExodusIIReaderPrivate::BuildSIL()
   this->SIL->GetEdgeData()->AddArray(crossEdgesArray);
   crossEdgesArray->Delete();
 
-  vtkstd::deque<vtkstd::string> names;
-  vtkstd::deque<vtkIdType> crossEdgeIds; // ids for edges between trees.
+  std::deque<std::string> names;
+  std::deque<vtkIdType> crossEdgeIds; // ids for edges between trees.
   int cc;
 
   // Now build the hierarchy.
@@ -3598,12 +3579,12 @@ void vtkExodusIIReaderPrivate::BuildSIL()
   names.push_back("Materials");
 
   // This is the map of block names to node ids.
-  vtkstd::map<vtkstd::string, vtkIdType> blockids;
+  std::map<std::string, vtkIdType> blockids;
   int numBlocks = this->GetNumberOfObjectsOfType(vtkExodusIIReader::ELEM_BLOCK);
   for (cc=0; cc < numBlocks; cc++)
     {
     vtkIdType child = this->SIL->AddChild(blocksRoot, childEdge);
-    vtkstd::string block_name = 
+    std::string block_name =
       this->GetObjectName(vtkExodusIIReader::ELEM_BLOCK, cc);
     names.push_back(block_name);
     blockids[block_name] = child;
@@ -3616,7 +3597,7 @@ void vtkExodusIIReaderPrivate::BuildSIL()
   this->SIL->GetVertexData()->AddArray(namesArray);
   namesArray->Delete();
 
-  vtkstd::deque<vtkstd::string>::iterator iter;
+  std::deque<std::string>::iterator iter;
   for (cc=0, iter = names.begin(); iter != names.end(); ++iter, ++cc)
     {
     namesArray->SetValue(cc, (*iter).c_str());
@@ -3651,10 +3632,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   //VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME,       itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
   //num_timesteps = itmp[0];
 
-  vtkstd::vector<BlockInfoType> bitBlank;
-  vtkstd::vector<SetInfoType> sitBlank;
-  vtkstd::vector<MapInfoType> mitBlank;
-  vtkstd::vector<ArrayInfoType> aitBlank;
+  std::vector<BlockInfoType> bitBlank;
+  std::vector<SetInfoType> sitBlank;
+  std::vector<MapInfoType> mitBlank;
+  std::vector<ArrayInfoType> aitBlank;
 
   num_timesteps = static_cast<int>( this->Times.size() );
 /*
@@ -3675,7 +3656,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     vtkIdType blockEntryFileOffset = 1;
     vtkIdType setEntryFileOffset = 1;
 
-    vtkstd::map<int,int> sortedObjects;
+    std::map<int,int> sortedObjects;
 
     int* truth_tab = 0;
     have_var_names = 0;
@@ -3966,7 +3947,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     // Now that we have all objects of that type in the sortedObjects, we can
     // iterate over it to fill in the SortedObjectIndices (the map is a *sorted*
     // associative container)
-    vtkstd::map<int,int>::iterator soit;
+    std::map<int,int>::iterator soit;
     for ( soit = sortedObjects.begin(); soit != sortedObjects.end(); ++soit )
       {
       this->SortedObjectIndices[obj_types[i]].push_back( soit->second );
@@ -4020,7 +4001,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     this->RemoveBeginningAndTrailingSpaces( num_vars, var_names );
 
     nids = 1;
-    vtkstd::vector<int> dummy_truth;
+    std::vector<int> dummy_truth;
     dummy_truth.reserve( num_vars );
     for ( j = 0; j < num_vars; ++j )
       {
@@ -4050,7 +4031,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     this->RemoveBeginningAndTrailingSpaces( num_vars, var_names );
 
     nids = 1;
-    vtkstd::vector<int> dummy_truth;
+    std::vector<int> dummy_truth;
     dummy_truth.reserve( num_vars );
     for ( j = 0; j < num_vars; ++j )
       {
@@ -4072,7 +4053,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
 #ifdef VTK_USE_PARALLEL
 static void BroadcastDoubleVector( vtkMultiProcessController* controller,
-  vtkstd::vector<double>& dvec, int rank )
+  std::vector<double>& dvec, int rank )
 {
   unsigned long len = static_cast<unsigned long>( dvec.size() );
   controller->Broadcast( &len, 1, 0 );
@@ -4087,7 +4068,7 @@ static void BroadcastDoubleVector( vtkMultiProcessController* controller,
 }
 
 static void BroadcastIntVector( vtkMultiProcessController* controller,
-  vtkstd::vector<int>& ivec, int rank )
+  std::vector<int>& ivec, int rank )
 {
   unsigned long len = static_cast<unsigned long>( ivec.size() );
   controller->Broadcast( &len, 1, 0 );
@@ -4109,7 +4090,7 @@ static void BroadcastString( vtkMultiProcessController* controller, vtkStdString
     {
     if ( rank )
       {
-      vtkstd::vector<char> tmp;
+      std::vector<char> tmp;
       tmp.resize( len );
       controller->Broadcast( &(tmp[0]), len, 0 );
       str = &tmp[0];
@@ -4117,19 +4098,19 @@ static void BroadcastString( vtkMultiProcessController* controller, vtkStdString
     else
       {
       const char* start = str.c_str();
-      vtkstd::vector<char> tmp( start, start + len );
+      std::vector<char> tmp( start, start + len );
       controller->Broadcast( &tmp[0], len, 0 );
       }
     }
 }
 
-static void BroadcastStringVector( vtkMultiProcessController* controller, vtkstd::vector<vtkStdString>& svec, int rank )
+static void BroadcastStringVector( vtkMultiProcessController* controller, std::vector<vtkStdString>& svec, int rank )
 {
   unsigned long len = static_cast<unsigned long>( svec.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     svec.resize( len );
-  vtkstd::vector<vtkStdString>::iterator it;
+  std::vector<vtkStdString>::iterator it;
   for ( it = svec.begin(); it != svec.end(); ++ it )
     {
     BroadcastString( controller, *it, rank );
@@ -4152,7 +4133,7 @@ static void BroadcastBlockSetInfo( vtkMultiProcessController* controller,
   controller->Broadcast( &bsinfo->FileOffset, 1, 0 );
   unsigned long len;
   unsigned long i;
-  vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+  std::map<vtkIdType,vtkIdType>::iterator it;
   vtkIdType item[2];
   if ( rank == 0 )
     {
@@ -4244,7 +4225,7 @@ static void BroadcastArrayInfo( vtkMultiProcessController* controller,
 }
 
 static void BroadcastArrayInfoVector( vtkMultiProcessController* controller,
-  vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& ainfo, int rank )
+  std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& ainfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( ainfo.size() );
   controller->Broadcast( &len, 1, 0 );
@@ -4258,13 +4239,13 @@ static void BroadcastArrayInfoVector( vtkMultiProcessController* controller,
 }
 
 static void BroadcastSortedObjectIndices( vtkMultiProcessController* controller,
-  vtkstd::map<int,vtkstd::vector<int> >& oidx, int rank )
+  std::map<int,std::vector<int> >& oidx, int rank )
 {
   unsigned long len = static_cast<unsigned long>( oidx.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank == 0 )
     {
-    vtkstd::map<int,vtkstd::vector<int> >::iterator it;
+    std::map<int,std::vector<int> >::iterator it;
     int tmp;
     for ( it = oidx.begin(); it != oidx.end(); ++ it )
       {
@@ -4278,7 +4259,7 @@ static void BroadcastSortedObjectIndices( vtkMultiProcessController* controller,
     unsigned long i;
     for ( i = 0; i < len; ++ i )
       {
-      vtkstd::vector<int> blank;
+      std::vector<int> blank;
       int key;
       controller->Broadcast( &key, 1, 0 );
       oidx[key] = blank;
@@ -4289,14 +4270,14 @@ static void BroadcastSortedObjectIndices( vtkMultiProcessController* controller,
 
 static void BroadcastArrayInfoMap(
   vtkMultiProcessController* controller,
-  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >& oidx, int rank )
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >& oidx, int rank )
 {
   unsigned long len = static_cast<unsigned long>( oidx.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank == 0 )
     {
     int tmp;
-    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >::iterator it;
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >::iterator it;
     for ( it = oidx.begin(); it != oidx.end(); ++ it )
       {
       tmp = it->first;
@@ -4309,7 +4290,7 @@ static void BroadcastArrayInfoMap(
     unsigned long i;
     for ( i = 0; i < len; ++ i )
       {
-      vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> blank;
+      std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> blank;
       int key;
       controller->Broadcast( &key, 1, 0 );
       oidx[key] = blank;
@@ -4342,13 +4323,13 @@ static void BroadcastModelParameters(
 }
 
 static void BroadcastBlockInfoVector( vtkMultiProcessController* controller,
-  vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType>& binfo, int rank )
+  std::vector<vtkExodusIIReaderPrivate::BlockInfoType>& binfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( binfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     binfo.resize( len );
-  vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType>::iterator it;
+  std::vector<vtkExodusIIReaderPrivate::BlockInfoType>::iterator it;
   for ( it = binfo.begin(); it != binfo.end(); ++ it )
     {
     BroadcastBlockInfo( controller, &(*it), rank );
@@ -4356,14 +4337,14 @@ static void BroadcastBlockInfoVector( vtkMultiProcessController* controller,
 }
 
 static void BroadcastBlockInfoMap( vtkMultiProcessController* controller,
-  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType> >& binfo, int rank )
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::BlockInfoType> >& binfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( binfo.size() );
   controller->Broadcast( &len, 1, 0 );
   int tmp;
   if ( rank == 0 )
     {
-    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType> >::iterator it;
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::BlockInfoType> >::iterator it;
     for ( it = binfo.begin(); it != binfo.end(); ++ it )
       {
       tmp = it->first;
@@ -4374,7 +4355,7 @@ static void BroadcastBlockInfoMap( vtkMultiProcessController* controller,
   else
     {
     unsigned long i;
-    vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType> blank;
+    std::vector<vtkExodusIIReaderPrivate::BlockInfoType> blank;
     for ( i = 0; i < len; ++ i )
       {
       controller->Broadcast( &tmp, 1, 0 );
@@ -4385,13 +4366,13 @@ static void BroadcastBlockInfoMap( vtkMultiProcessController* controller,
 }
 
 static void BroadcastSetInfoVector( vtkMultiProcessController* controller,
-  vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType>& sinfo, int rank )
+  std::vector<vtkExodusIIReaderPrivate::SetInfoType>& sinfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( sinfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     sinfo.resize( len );
-  vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType>::iterator it;
+  std::vector<vtkExodusIIReaderPrivate::SetInfoType>::iterator it;
   for ( it = sinfo.begin(); it != sinfo.end(); ++ it )
     {
     BroadcastSetInfo( controller, &(*it), rank );
@@ -4399,14 +4380,14 @@ static void BroadcastSetInfoVector( vtkMultiProcessController* controller,
 }
 
 static void BroadcastSetInfoMap( vtkMultiProcessController* controller,
-  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType> >& sinfo, int rank )
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::SetInfoType> >& sinfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( sinfo.size() );
   controller->Broadcast( &len, 1, 0 );
   int tmp;
   if ( rank == 0 )
     {
-    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType> >::iterator it;
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::SetInfoType> >::iterator it;
     for ( it = sinfo.begin(); it != sinfo.end(); ++ it )
       {
       tmp = it->first;
@@ -4417,7 +4398,7 @@ static void BroadcastSetInfoMap( vtkMultiProcessController* controller,
   else
     {
     unsigned long i;
-    vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType> blank;
+    std::vector<vtkExodusIIReaderPrivate::SetInfoType> blank;
     for ( i = 0; i < len; ++ i )
       {
       controller->Broadcast( &tmp, 1, 0 );
@@ -4428,13 +4409,13 @@ static void BroadcastSetInfoMap( vtkMultiProcessController* controller,
 }
 
 static void BroadcastMapInfoVector( vtkMultiProcessController* controller,
-  vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType>& minfo, int rank )
+  std::vector<vtkExodusIIReaderPrivate::MapInfoType>& minfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( minfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     minfo.resize( len );
-  vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType>::iterator it;
+  std::vector<vtkExodusIIReaderPrivate::MapInfoType>::iterator it;
   for ( it = minfo.begin(); it != minfo.end(); ++ it )
     {
     BroadcastObjectInfo( controller, &(*it), rank );
@@ -4442,14 +4423,14 @@ static void BroadcastMapInfoVector( vtkMultiProcessController* controller,
 }
 
 static void BroadcastMapInfoMap( vtkMultiProcessController* controller,
-  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType> >& minfo, int rank )
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::MapInfoType> >& minfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( minfo.size() );
   controller->Broadcast( &len, 1, 0 );
   int tmp;
   if ( rank == 0 )
     {
-    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType> >::iterator it;
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::MapInfoType> >::iterator it;
     for ( it = minfo.begin(); it != minfo.end(); ++ it )
       {
       tmp = it->first;
@@ -4460,7 +4441,7 @@ static void BroadcastMapInfoMap( vtkMultiProcessController* controller,
   else
     {
     unsigned long i;
-    vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType> blank;
+    std::vector<vtkExodusIIReaderPrivate::MapInfoType> blank;
     for ( i = 0; i < len; ++ i )
       {
       controller->Broadcast( &tmp, 1, 0 );
@@ -4471,13 +4452,13 @@ static void BroadcastMapInfoMap( vtkMultiProcessController* controller,
 }
 
 static void BroadcastPartInfoVector( vtkMultiProcessController* controller,
-  vtkstd::vector<vtkExodusIIReaderPrivate::PartInfoType>& pinfo, int rank )
+  std::vector<vtkExodusIIReaderPrivate::PartInfoType>& pinfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( pinfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     pinfo.resize( len );
-  vtkstd::vector<vtkExodusIIReaderPrivate::PartInfoType>::iterator it;
+  std::vector<vtkExodusIIReaderPrivate::PartInfoType>::iterator it;
   for ( it = pinfo.begin(); it != pinfo.end(); ++ it )
     {
     BroadcastPartInfo( controller, &(*it), rank );
@@ -4485,13 +4466,13 @@ static void BroadcastPartInfoVector( vtkMultiProcessController* controller,
 }
 
 static void BroadcastMaterialInfoVector( vtkMultiProcessController* controller,
-  vtkstd::vector<vtkExodusIIReaderPrivate::MaterialInfoType>& minfo, int rank )
+  std::vector<vtkExodusIIReaderPrivate::MaterialInfoType>& minfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( minfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     minfo.resize( len );
-  vtkstd::vector<vtkExodusIIReaderPrivate::MaterialInfoType>::iterator it;
+  std::vector<vtkExodusIIReaderPrivate::MaterialInfoType>::iterator it;
   for ( it = minfo.begin(); it != minfo.end(); ++ it )
     {
     BroadcastMaterialInfo( controller, &(*it), rank );
@@ -4499,13 +4480,13 @@ static void BroadcastMaterialInfoVector( vtkMultiProcessController* controller,
 }
 
 static void BroadcastAssemblyInfoVector( vtkMultiProcessController* controller,
-  vtkstd::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>& ainfo, int rank )
+  std::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>& ainfo, int rank )
 {
   unsigned long len = static_cast<unsigned long>( ainfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     ainfo.resize( len );
-  vtkstd::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>::iterator it;
+  std::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>::iterator it;
   for ( it = ainfo.begin(); it != ainfo.end(); ++ it )
     {
     BroadcastAssemblyInfo( controller, &(*it), rank );
@@ -4658,10 +4639,6 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
   // Pack temporal data onto output field data arrays if fast path.
   // option is available:
   this->ProducedFastPathOutput = (this->AssembleArraysOverTime(output) != 0);
-
-  // Finally, generate the decorations for edge and face fields.
-  this->AssembleOutputEdgeDecorations();
-  this->AssembleOutputFaceDecorations();
 
   this->CloseFile();
 
@@ -4843,9 +4820,6 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 
   this->SqueezePoints = 1;
 
-  this->EdgeFieldDecorations = 0;
-  this->FaceFieldDecorations = 0;
-
   this->InitialArrayInfo.clear();
   this->InitialObjectInfo.clear();
 
@@ -4857,8 +4831,18 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 void vtkExodusIIReaderPrivate::ResetCache()
 {
   this->Cache->Clear();
-  this->Cache->SetCacheCapacity( 0.0 ); // FIXME: Perhaps Cache should have a Reset and a Clear method?  
+  this->Cache->SetCacheCapacity(this->CacheSize); // FIXME: Perhaps Cache should have a Reset and a Clear method?  
   this->ClearConnectivityCaches();
+}
+
+void vtkExodusIIReaderPrivate::SetCacheSize( double size )
+{
+  if (this->CacheSize != size)
+    {
+    this->CacheSize = size;
+    this->Cache->SetCacheCapacity(this->CacheSize);
+    this->Modified();
+    }
 }
 
 bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
@@ -4866,11 +4850,11 @@ bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
   // Make sure that each block id referred to in the metadata arrays exist
   // in the data
 
-  vtkstd::set<int> blockIdsFromXml;
+  std::set<int> blockIdsFromXml;
   this->Parser->GetBlockIds(blockIdsFromXml);
-  vtkstd::vector<BlockInfoType> blocksFromData = this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK];  
-  vtkstd::vector<BlockInfoType>::iterator iter2;
-  vtkstd::set<int>::iterator iter;
+  std::vector<BlockInfoType> blocksFromData = this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK];
+  std::vector<BlockInfoType>::iterator iter2;
+  std::set<int>::iterator iter;
   bool isBlockValid = false;
   for(iter = blockIdsFromXml.begin(); iter!=blockIdsFromXml.end(); ++iter)
     {
@@ -4926,7 +4910,7 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectsOfType( int otyp )
 
 int vtkExodusIIReaderPrivate::GetNumberOfObjectArraysOfType( int otyp )
 {
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
+  std::map<int,std::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
   if ( it != this->ArrayInfo.end() )
     {
     return (int) it->second.size();
@@ -5049,54 +5033,54 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus( int objectType, const cha
 
 const char* vtkExodusIIReaderPrivate::GetObjectArrayName( int otyp, int i )
 {
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
+  std::map<int,std::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
   if ( it != this->ArrayInfo.end() )
     {
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return 0;
       }
     return it->second[i].Name.c_str();
     }
-  vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
 
 int vtkExodusIIReaderPrivate::GetNumberOfObjectArrayComponents( int otyp, int i )
 {
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
+  std::map<int,std::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
   if ( it != this->ArrayInfo.end() )
     {
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return 0;
       }
     return it->second[i].Components;
     }
-  vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
 
 int vtkExodusIIReaderPrivate::GetObjectArrayStatus( int otyp, int i )
 {
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
+  std::map<int,std::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
   if ( it != this->ArrayInfo.end() )
     {
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return 0;
       }
     return it->second[i].Status;
     }
-  vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
@@ -5117,13 +5101,13 @@ void vtkExodusIIReaderPrivate::GetInitialObjectArrayStatus( int otyp, ArrayInfoT
 void vtkExodusIIReaderPrivate::SetObjectArrayStatus( int otyp, int i, int stat )
 {
   stat = ( stat != 0 ); // Force stat to be either 0 or 1
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
+  std::map<int,std::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
   if ( it != this->ArrayInfo.end() )
     {
     int N = (int) it->second.size();
     if ( i < 0 || i >= N )
       {
-      vtkWarningMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
+      vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
       return;
       }
     if ( it->second[i].Status == stat )
@@ -5146,7 +5130,7 @@ void vtkExodusIIReaderPrivate::SetObjectArrayStatus( int otyp, int i, int stat )
     }
   else
     {
-    vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
+    vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
       " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
     }
 }
@@ -5161,7 +5145,7 @@ void vtkExodusIIReaderPrivate::SetInitialObjectArrayStatus( int objectType, cons
 
 int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
 {
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
+  std::map<int,std::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
   if ( it != this->BlockInfo.end() )
     {
     int N = (int) it->second.size();
@@ -5169,7 +5153,8 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
       {
       int otypIdx = this->GetObjectTypeIndexFromObjectType(otyp);
       const char* btname = otypIdx >= 0 ? objtype_names[otypIdx] : "block";
-      vtkWarningMacro( "You requested " << btname << " " << oi << " in a collection of only " << N << " blocks." );
+      static_cast<void>(btname); // not referenced warning
+      vtkDebugMacro( "You requested " << btname << " " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
@@ -5180,20 +5165,20 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
 
 const char* vtkExodusIIReaderPrivate::GetObjectAttributeName( int otyp, int oi, int ai )
 {
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
+  std::map<int,std::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
   if ( it != this->BlockInfo.end() )
     {
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     N = (int) it->second[oi].AttributeNames.size();
     if ( ai < 0 || ai >= N )
       {
-      vtkWarningMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
+      vtkDebugMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
       return 0;
       }
     else
@@ -5201,20 +5186,20 @@ const char* vtkExodusIIReaderPrivate::GetObjectAttributeName( int otyp, int oi, 
       return it->second[oi].AttributeNames[ai].c_str();
       }
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
 
 int vtkExodusIIReaderPrivate::GetObjectAttributeIndex( int otyp, int oi, const char* attribName )
 {
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
+  std::map<int,std::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
   if ( it != this->BlockInfo.end() )
     {
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return -1;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
@@ -5229,27 +5214,27 @@ int vtkExodusIIReaderPrivate::GetObjectAttributeIndex( int otyp, int oi, const c
       }
     return -1;
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return -1;
 }
 
 int vtkExodusIIReaderPrivate::GetObjectAttributeStatus( int otyp, int oi, int ai )
 {
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
+  std::map<int,std::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
   if ( it != this->BlockInfo.end() )
     {
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     N = (int) it->second[oi].AttributeStatus.size();
     if ( ai < 0 || ai >= N )
       {
-      vtkWarningMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
+      vtkDebugMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
       return 0;
       }
     else
@@ -5257,7 +5242,7 @@ int vtkExodusIIReaderPrivate::GetObjectAttributeStatus( int otyp, int oi, int ai
       return it->second[oi].AttributeStatus[ai];
       }
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
@@ -5265,20 +5250,20 @@ int vtkExodusIIReaderPrivate::GetObjectAttributeStatus( int otyp, int oi, int ai
 void vtkExodusIIReaderPrivate::SetObjectAttributeStatus( int otyp, int oi, int ai, int status )
 {
   status = status ? 1 : 0;
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
+  std::map<int,std::vector<BlockInfoType> >::iterator it = this->BlockInfo.find( otyp );
   if ( it != this->BlockInfo.end() )
     {
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
       return;
       }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     N = (int) it->second[oi].AttributeStatus.size();
     if ( ai < 0 || ai >= N )
       {
-      vtkWarningMacro( "You requested attribute " << ai << " in a collection of only " << N << " attribute." );
+      vtkDebugMacro( "You requested attribute " << ai << " in a collection of only " << N << " attribute." );
       return;
       }
     else
@@ -5291,7 +5276,7 @@ void vtkExodusIIReaderPrivate::SetObjectAttributeStatus( int otyp, int oi, int a
       this->Modified();
       }
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
+  vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
 }
 
@@ -5325,13 +5310,13 @@ void vtkExodusIIReaderPrivate::SetDisplacementMagnitude( double s )
 
 vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 {
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( vtkExodusIIReader::NODAL );
+  std::map<int,std::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( vtkExodusIIReader::NODAL );
   if ( it != this->ArrayInfo.end() )
     {
     int N = (int) it->second.size();
     for ( int i = 0; i < N; ++i )
       {
-      vtkstd::string upperName = vtksys::SystemTools::UpperCase( it->second[i].Name.substr( 0, 3 ) );
+      std::string upperName = vtksys::SystemTools::UpperCase( it->second[i].Name.substr( 0, 3 ) );
       if ( upperName == "DIS" && it->second[i].Components == this->ModelParameters.num_dim )
         {
         return this->GetCacheOrRead( vtkExodusIICacheKey( timeStep, vtkExodusIIReader::NODAL, 0, i ) );
@@ -5354,6 +5339,7 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->XMLFileName = 0;
   this->Metadata = vtkExodusIIReaderPrivate::New();
   this->Metadata->Parent = this;
+  this->Metadata->SetCacheSize(0.0);
   this->TimeStep = 0;
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
@@ -5585,8 +5571,6 @@ int vtkExodusIIReader::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Check if a particular time was requested.
-  int timeStep = this->TimeStep;
-
   if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
     { // Get the requested time step. We only support requests of a single time step in this reader right now
     double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
@@ -5662,8 +5646,8 @@ int vtkExodusIIReader::RequestData(
     haveFastPath = true;
     }
 
-  //cout << "Requesting step " << timeStep << " for output " << output << "\n";
-  this->Metadata->RequestData( timeStep, output );
+  //cout << "Requesting step " << this->TimeStep << " for output " << output << "\n";
+  this->Metadata->RequestData( this->TimeStep, output );
   this->ProducedFastPathOutput = this->Metadata->ProducedFastPathOutput;
 
   // Restore previous fastpath values so we don't respond to old pipeline requests
@@ -5770,26 +5754,6 @@ void vtkExodusIIReader::SetAnimateModeShapes(int flag)
 int vtkExodusIIReader::GetAnimateModeShapes()
 {
   return this->Metadata->GetAnimateModeShapes();
-}
-
-void vtkExodusIIReader::SetEdgeFieldDecorations( int d )
-{
-  this->Metadata->SetEdgeFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetEdgeFieldDecorations()
-{
-  return this->Metadata->GetEdgeFieldDecorations();
-}
-
-void vtkExodusIIReader::SetFaceFieldDecorations( int d )
-{
-  this->Metadata->SetFaceFieldDecorations( d );
-}
-
-int vtkExodusIIReader::GetFaceFieldDecorations()
-{
-  return this->Metadata->GetFaceFieldDecorations();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }
@@ -5949,7 +5913,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
   int nObj = this->GetNumberOfObjects( objectType );
   if ( nObj == 0 )
     {
-    vtkWarningMacro( "No objects of that type (" << objectType << ") to find index for given name " << objectName << "." );
+    vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given name " << objectName << "." );
     return -1;
     }
   for ( int obj = 0; obj < nObj; ++obj )
@@ -5959,7 +5923,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
       return obj;
       }
     }
-  vtkWarningMacro( "No objects named \"" << objectName << "\" of the specified type (" << objectType <<  ")." );
+  vtkDebugMacro( "No objects named \"" << objectName << "\" of the specified type (" << objectType <<  ")." );
   return -1;
 }
 
@@ -5968,7 +5932,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, int id )
   int nObj = this->GetNumberOfObjects( objectType );
   if ( nObj == 0 )
     {
-    vtkWarningMacro( "No objects of that type (" << objectType << ") to find index for given id " << id << "." );
+    vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given id " << id << "." );
     return -1;
     }
   for ( int obj = 0; obj < nObj; ++obj )
@@ -5978,7 +5942,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, int id )
       return obj;
       }
     }
-  vtkWarningMacro( "No objects with id \"" << id << "\" of the specified type (" << objectType <<  ")." );
+  vtkDebugMacro( "No objects with id \"" << id << "\" of the specified type (" << objectType <<  ")." );
   return -1;
 }
 
@@ -6058,7 +6022,7 @@ int vtkExodusIIReader::GetObjectArrayIndex( int objectType, const char* arrayNam
   int nObj = this->GetNumberOfObjectArrays( objectType );
   if ( nObj == 0 )
     {
-    vtkWarningMacro( "No objects of that type (" << objectType << ") to find index for given array " << arrayName << "." );
+    vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given array " << arrayName << "." );
     return -1;
     }
   for ( int obj = 0; obj < nObj; ++obj )
@@ -6068,7 +6032,7 @@ int vtkExodusIIReader::GetObjectArrayIndex( int objectType, const char* arrayNam
       return obj;
       }
     }
-  vtkWarningMacro( "No arrays named \"" << arrayName << "\" of the specified type (" << objectType <<  ")." );
+  vtkDebugMacro( "No arrays named \"" << arrayName << "\" of the specified type (" << objectType <<  ")." );
   return -1;
 }
 
@@ -6288,8 +6252,8 @@ void vtkExodusIIReader::SetHierarchyArrayStatus(int vtkNotUsed(index), int vtkNo
   //// {
   //if (this->Metadata->Parser)
   //  {
-  //  vtkstd::vector<int> blocksIds = this->Metadata->Parser->GetBlocksForEntry(index);
-  //  for (vtkstd::vector<int>::size_type i=0;i<blocksIds.size();i++)
+  //  std::vector<int> blocksIds = this->Metadata->Parser->GetBlocksForEntry(index);
+  //  for (std::vector<int>::size_type i=0;i<blocksIds.size();i++)
   //    {
   //    this->Metadata->SetObjectStatus(vtkExodusIIReader::ELEM_BLOCK, 
   //      this->GetObjectIndex(ELEM_BLOCK,blocksIds[i]),flag);
@@ -6309,9 +6273,9 @@ void vtkExodusIIReader::SetHierarchyArrayStatus(const char* vtkNotUsed(name), in
   ////{
   //if (this->Metadata->Parser)
   //  {
-  //  vtkstd::vector<int> blocksIds=this->Metadata->Parser->GetBlocksForEntry
+  //  std::vector<int> blocksIds=this->Metadata->Parser->GetBlocksForEntry
   //    (vtkStdString(name));
-  //  for (vtkstd::vector<int>::size_type i=0;i<blocksIds.size();i++)
+  //  for (std::vector<int>::size_type i=0;i<blocksIds.size();i++)
   //    {
   //    //cout << "turning block " << blocks[i] << " " << flag << endl;
   //    this->Metadata->SetObjectStatus(vtkExodusIIReader::ELEM_BLOCK,
@@ -6330,8 +6294,8 @@ int vtkExodusIIReader::GetHierarchyArrayStatus(int vtkNotUsed(index))
 {
   //if (this->Metadata->Parser)
   //  {
-  //  vtkstd::vector<int> blocksIds=this->Metadata->Parser->GetBlocksForEntry(index);
-  //  for (vtkstd::vector<int>::size_type i=0;i<blocksIds.size();i++)
+  //  std::vector<int> blocksIds=this->Metadata->Parser->GetBlocksForEntry(index);
+  //  for (std::vector<int>::size_type i=0;i<blocksIds.size();i++)
   //    {
   //    if (this->Metadata->GetObjectStatus(vtkExodusIIReader::ELEM_BLOCK,
   //        this->GetObjectIndex(ELEM_BLOCK,blocksIds[i]))==0)
@@ -6346,8 +6310,8 @@ int vtkExodusIIReader::GetHierarchyArrayStatus(const char* vtkNotUsed(name))
 {
   //if (this->Metadata->Parser)
   //  {
-  //  vtkstd::vector<int> blocksIds=this->Metadata->Parser->GetBlocksForEntry(name);
-  //  for (vtkstd::vector<int>::size_type i=0;i<blocksIds.size();i++)
+  //  std::vector<int> blocksIds=this->Metadata->Parser->GetBlocksForEntry(name);
+  //  for (std::vector<int>::size_type i=0;i<blocksIds.size();i++)
   //    {
   //    if (this->Metadata->GetObjectStatus(vtkExodusIIReader::ELEM_BLOCK,
   //        this->GetObjectIndex(ELEM_BLOCK,blocksIds[i]))==0)
@@ -6640,6 +6604,16 @@ void vtkExodusIIReader::Reset()
 void vtkExodusIIReader::ResetSettings()
 {
   this->Metadata->ResetSettings();
+}
+
+void vtkExodusIIReader::SetCacheSize(double CacheSize)
+{
+  this->Metadata->SetCacheSize(CacheSize);
+}
+
+double vtkExodusIIReader::GetCacheSize()
+{
+  return this->Metadata->GetCacheSize();
 }
 
 void vtkExodusIIReader::ResetCache()

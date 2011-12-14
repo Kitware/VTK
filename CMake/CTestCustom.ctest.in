@@ -84,6 +84,7 @@ ENDIF("@CMAKE_SYSTEM@" MATCHES "OSF")
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "Utilities/vtktiff/"
+  "list.[0-9]+. : warning C4702: unreachable code"
   "xtree.[0-9]+. : warning C4702: unreachable code"
   "vector.[0-9]+. : warning C4702: unreachable code"
   "warning LNK4221"
@@ -121,6 +122,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkfreetype.*note: initialized from here"
   "vtkfreetype.*warning: .* may be used uninitialized in this function"
   "vtkfreetype.*note: .* was declared here"
+  "vtkfreetype/.*warning: .* set but not used"
+  "vtkfreetype/.*warning: .* defined but not used"
+  "WARNING: While resolving call to function .*FTC_GNode_Compare.* arguments were dropped!"
   # vtknetcdf occasionally has warnings for things that are not a problem.
   "vtknetcdf.*warning: dereferencing type-punned pointer"
   "vtknetcdf.*warning: passing argument .* of .* as .*signed due to prototype"
@@ -206,11 +210,13 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: negative integer implicitly converted to unsigned type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: assuming signed overflow"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: .* may be used uninitialized in this function"
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: .* set but not used"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*passing argument .* of .* as unsigned due to prototype"
   "Utilities.vtkexodus2.*warning.*possible loss of data"
+  "Uitilties/vtkexodus2.*warning: .* set but not used"
   # gcc -Wsign-conversion
   "Utilities.vtkexodus2.*warning.*conversion to .* from .* may change the sign of the result"
   # gcc -Wconversion
@@ -254,14 +260,17 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtkpng.*warning: variable .* might be clobbered by"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may alter its value"
+  "Utilities/vtkjpeg.*.warning: .* set but not used"
   "Utilities/DICOMParser.*warning: conversion to .* from .* may alter its value"
   "Utilities/DICOMParser.*warning: conversion to .* from .* may change the sign of the result"
   # gcc -Wsign-conversion
   "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may change the sign of the result"
   # gcc -Wconversion
   "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may alter its value"
+  "Uitilties/vtkmetaio/.*warning: .* set but not used"
   # gcc -Wsign-conversion
   "Utilities/vtkalglib.*warning: conversion to .* from .* may change the sign of the result"
+  "Uitilties/vtkalglib/.*warning: .* set but not used"
   # gcc -Wsign-conversion
   "Utilities/ftgl/src/.*warning: conversion to .* from .* may change the sign of the result"
   # gcc -Wconversion
@@ -275,6 +284,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities/mrmpi/.*warning: conversion to .* from .* may change the sign of the result"
   # gcc -Wunused-result
   "Utilities/mrmpi/.*warning: ignoring return value of .size_t fread.void.. size_t. size_t. FILE.... declared with attribute warn_unused_result"
+
+  "Uitilties/vtklibproj4/.*warning: .* set but not used"
   )
 
 IF(APPLE)
@@ -304,6 +315,15 @@ SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
   ".*Testing.Cxx.*h"
   ".*moc_.*cxx"
   )
+
+IF(CMAKE_COMPILER_IS_GNUCXX)
+SET(CTEST_CUSTOM_WARNING_EXCEPTION
+  ${CTEST_CUSTOM_WARNING_EXCEPTION}
+  # GCC 4.2 has a bug where it has Unnecessary anonymous namespace warnings
+  # you can find the full bug on GNU Bugzilla with bug number 29365
+  "warning: .* has a field .* whose type uses the anonymous namespace"
+  )
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 # Temporarily: to show us *all* the remaining warnings on the
 # 64-bit Windows builds on one result page...

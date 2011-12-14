@@ -17,7 +17,7 @@
 
 #include "vtkContext2D.h"
 #include "vtkPen.h"
-#include "vtkVector.h"
+#include "vtkRect.h"
 
 #include "vtkObjectFactory.h"
 

@@ -74,6 +74,12 @@ int vtkSelectVisiblePoints::RequestData(
   vtkIdType numPts=input->GetNumberOfPoints();
   double x[4];
   
+  // Nothing to extract if there are no points in the data set.
+  if ( numPts < 1 )
+    {
+    return 1;
+    }
+
   if ( this->Renderer == NULL )
     {
     vtkErrorMacro(<<"Renderer must be set");
@@ -102,11 +108,6 @@ int vtkSelectVisiblePoints::RequestData(
     return 1;
     }
 
-  if ( numPts < 1 )
-    {
-    return 0;
-    }
-  
   outPts = vtkPoints::New();
   outPts->Allocate(numPts/2+1);
   outPD->CopyAllocate(inPD);

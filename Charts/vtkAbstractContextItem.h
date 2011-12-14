@@ -28,6 +28,7 @@
 
 class vtkContext2D;
 class vtkContextMouseEvent;
+class vtkContextKeyEvent;
 class vtkContextScene;
 class vtkContextScenePrivate;
 class vtkVector2f;
@@ -129,10 +130,24 @@ public:
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
+  // Mouse button double click event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
   // Mouse wheel event, positive delta indicates forward movement of the wheel.
   // Return true if the item holds the event, false if the event can be
   // propagated to other items.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+
+  // Description:
+  // Key press event.
+  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
+
+  // Description:
+  // Key release event.
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
 //ETX
 
   // Description:
@@ -200,7 +215,7 @@ protected:
   // Description:
   // This structure provides a list of children, along with convenience
   // functions to paint the children etc. It is derived from
-  // vtkstd::vector<vtkAbstractContextItem>, defined in a private header.
+  // std::vector<vtkAbstractContextItem>, defined in a private header.
   vtkContextScenePrivate* Children;
 
   // Description: Store the visibility of the item (default is true).

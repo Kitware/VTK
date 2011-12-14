@@ -29,7 +29,7 @@
 #include <vtkCellTypes.h>
 #include <vtksys/SystemTools.hxx>
 
-#include <vtkstd/map>
+#include <map>
 
 template<class TReader> vtkDataSet *ReadAnXMLFile(const char*fileName)
 {
@@ -100,7 +100,7 @@ int main (int argc, char *argv[])
          << dataSet->GetClassName() 
          <<  " that has " << numberOfCells << " cells"
          << " and " << numberOfPoints << " points." << std::endl;
-    typedef vtkstd::map<int,int> CellContainer;
+    typedef std::map<int,int> CellContainer;
     CellContainer cellMap;
     for (int i = 0; i < numberOfCells; i++)
       {

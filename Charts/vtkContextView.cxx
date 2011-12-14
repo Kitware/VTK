@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
 #include "vtkContextActor.h"
-#include "vtkInteractorStyleRubberBand2D.h"
+#include "vtkContextInteractorStyle.h"
 
 #include "vtkObjectFactory.h"
 
@@ -48,9 +48,9 @@ vtkContextView::vtkContextView()
   // Should not need to do this...
   this->Scene->SetRenderer(this->Renderer);
 
-  vtkInteractorStyleRubberBand2D* style = vtkInteractorStyleRubberBand2D::New();
+  vtkContextInteractorStyle* style = vtkContextInteractorStyle::New();
+  style->SetScene(this->Scene);
   this->GetInteractor()->SetInteractorStyle(style);
-  this->Scene->SetInteractorStyle(style);
   style->Delete();
 
   // Single color background by default.

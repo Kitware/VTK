@@ -12,6 +12,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestCirclePackLayoutStrategy
     TestCollapseVerticesByArray
     TestContingencyStatistics
+    TestConvexHull2D
     TestCorrelativeStatistics
     TestCosmicTreeLayoutStrategy
     TestDataObjectToTable
@@ -23,6 +24,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestGraphHierarchicalBundle
     TestGraphLayoutStrategy
     TestGroupLeafVertices
+    TestKCoreDecomposition
     TestKdTreeBoxSelection
     TestKMeansStatistics
     TestMergeGraphs
@@ -50,12 +52,14 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestChacoGraphReader
       TestDelimitedTextReader
       TestDIMACSGraphReader
+      TestKCoreLayout
       TestMergeTables
       TestISIReader
       TestFixedWidthTextReader
       TestRISReader
       TestStringToNumeric
       TestTulipReader
+      TestTulipReaderClusters
       TestTulipReaderProperties
       )
   ENDIF (VTK_DATA_ROOT)
@@ -105,7 +109,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   ENDIF (VTK_USE_BOOST)
 
   IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
-    INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
+    INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
     IF (MPI_LIBRARY)
       SET(MPI_LIBRARIES ${MPI_LIBRARY})
     ENDIF (MPI_LIBRARY)
@@ -116,10 +120,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     # Add parallel tests only if PARALLEL and MPI are turned ON
     # These tests are kept separate, because they must be run with mpirun or mpiexec
 
-    # TestParallelRandomStatisticsMPI:
+    # TestRandomPMomentStatisticsMPI:
     # MPI test of parallel descriptive, correlative, multicorrelative and PCA statistics
-    ADD_EXECUTABLE(TestParallelRandomStatisticsMPI TestParallelRandomStatisticsMPI.cxx)
-    TARGET_LINK_LIBRARIES(TestParallelRandomStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
+    ADD_EXECUTABLE(TestRandomPMomentStatisticsMPI TestRandomPMomentStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRandomPMomentStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
     # TestRandomPContingencyStatisticsMPI:
     # MPI test of parallel contingency statistics
@@ -131,16 +135,21 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ADD_EXECUTABLE(TestRandomPOrderStatisticsMPI TestRandomPOrderStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestRandomPOrderStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
-    # TestParallelKMeansStatisticsMPI:
+    # TestRandomPKMeansStatisticsMPI:
     # MPI test of parallel KMeans statistics
-    ADD_EXECUTABLE(TestParallelKMeansStatisticsMPI TestParallelKMeansStatisticsMPI.cxx)
-    TARGET_LINK_LIBRARIES(TestParallelKMeansStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
+    ADD_EXECUTABLE(TestRandomPKMeansStatisticsMPI TestRandomPKMeansStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRandomPKMeansStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
+
+    # TestRealDataPDescriptiveStatisticsMPI:
+    # MPI test of parallel descriptive statistics with real data
+    ADD_EXECUTABLE(TestRealDataPDescriptiveStatisticsMPI TestRealDataPDescriptiveStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRealDataPDescriptiveStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
     IF (VTK_MPIRUN_EXE)
-      ADD_TEST(TestParallelRandomStatisticsMPI
+      ADD_TEST(TestRandomPMomentStatisticsMPI
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestParallelRandomStatisticsMPI
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestRandomPMomentStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
 
@@ -158,10 +167,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_MPI_POSTFLAGS}
         )
 
-      ADD_TEST(TestParallelKMeansStatisticsMPI
+      ADD_TEST(TestRandomPKMeansStatisticsMPI
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestParallelKMeansStatisticsMPI
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestRandomPKMeansStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
     ENDIF (VTK_MPIRUN_EXE)

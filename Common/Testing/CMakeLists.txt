@@ -36,6 +36,7 @@ IF(PYTHON_EXECUTABLE)
     vtkBreakPoint.h
     vtkByteSwap.h
     vtkCallbackCommand.h
+    vtkColor.h
     vtkCommand.h
     vtkCommonInformationKeyManager.h
     vtkContainer.h
@@ -64,6 +65,7 @@ IF(PYTHON_EXECUTABLE)
     vtkLargeInteger.h
     vtkLinkedList.h
     vtkLinkedListIterator.h
+    vtkMathUtilities.h
     vtkNew.h
     vtkOStrStreamWrapper.h
     vtkOStreamWrapper.h
@@ -74,10 +76,10 @@ IF(PYTHON_EXECUTABLE)
     vtkOnePieceExtentTranslator.h
     vtkOverrideInformationCollection.h
     vtkPlaneCollection.h
-    vtkProcessStatistics.h
     vtkPropCollection.h
     vtkPythonCommand.h
     vtkRayCastStructures.h
+    vtkRect.h
     vtkRungeKutta2.h 
     vtkSetGet.h
     vtkSmartPointer.h
@@ -105,7 +107,9 @@ IF(PYTHON_EXECUTABLE)
     vtkVariantExtract.h
     vtkVariantInlineOperators.h
     vtkVector.h
+    vtkVectorBase.h
     vtkVectorIterator.h
+    vtkVectorOperators.h
     vtkVersion.h
     vtkWeakPointer.h
     vtkWeakPointerBase.h

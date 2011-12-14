@@ -26,9 +26,9 @@
 # include <io.h> /* unlink */
 #endif
 
-#include <vtkstd/vector>
+#include <vector>
 
-typedef vtkstd::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
+typedef std::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
 vtkStandardNewMacro(vtkXMLUtilities);
 

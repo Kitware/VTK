@@ -104,6 +104,12 @@
 #define VTK_LINEAR_INTERPOLATION        1
 #define VTK_CUBIC_INTERPOLATION         2
 
+// Constants for SlabType
+#define VTK_IMAGE_SLAB_MIN  0
+#define VTK_IMAGE_SLAB_MAX  1
+#define VTK_IMAGE_SLAB_MEAN 2
+#define VTK_IMAGE_SLAB_SUM  3
+
 // For volume rendering
 #define VTK_MAX_VRCOMP                  4
 

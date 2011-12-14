@@ -38,7 +38,7 @@
 #include "vtkUnicodeString.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
 vtkCxxSetObjectMacro(vtkPointSetToLabelHierarchy, TextProperty, vtkTextProperty);

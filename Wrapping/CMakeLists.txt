@@ -15,7 +15,7 @@ IF(NOT CMAKE_CROSSCOMPILING)
 
   IF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
     VTK_ADD_EXECUTABLE(vtkWrapHierarchy vtkParse.tab.c vtkParsePreprocess.c
-                   vtkWrapHierarchy.c)
+                   vtkParseExtras.c vtkWrapHierarchy.c)
     EXPORT(TARGETS vtkWrapHierarchy FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
       ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkWrapHierarchy)
@@ -28,7 +28,7 @@ IF(NOT CMAKE_CROSSCOMPILING)
 
   IF (VTK_WRAP_TCL)
     VTK_ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParseMain.c vtkParse.tab.c
-                   vtkParsePreprocess.c vtkParseHierarchy.c)
+                   vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
     VTK_ADD_EXECUTABLE(vtkWrapTclInit vtkWrapTclInit.c)
     EXPORT(TARGETS vtkWrapTcl vtkWrapTclInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
@@ -47,7 +47,7 @@ IF(NOT CMAKE_CROSSCOMPILING)
 
     VTK_ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkWrap.c vtkWrapText.c
                    vtkParseMain.c vtkParse.tab.c vtkParsePreprocess.c
-                   vtkParseHierarchy.c)
+                   vtkParseExtras.c vtkParseHierarchy.c)
     VTK_ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)
     TARGET_LINK_LIBRARIES(vtkWrapPython ${VTK_PYTHON_LIBRARIES})
     EXPORT(TARGETS vtkWrapPython vtkWrapPythonInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
@@ -64,9 +64,9 @@ IF(NOT CMAKE_CROSSCOMPILING)
 
   IF (VTK_WRAP_JAVA)
     VTK_ADD_EXECUTABLE(vtkParseJava vtkParseJava.c vtkParseMain.c vtkParse.tab.c
-                   vtkParsePreprocess.c vtkParseHierarchy.c)
+                   vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
     VTK_ADD_EXECUTABLE(vtkWrapJava vtkWrapJava.c vtkParseMain.c vtkParse.tab.c
-                   vtkParsePreprocess.c vtkParseHierarchy.c)
+                   vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
     EXPORT(TARGETS vtkParseJava vtkWrapJava FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
       ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkParseJava vtkWrapJava)

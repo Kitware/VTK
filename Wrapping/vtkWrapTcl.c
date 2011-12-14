@@ -1059,7 +1059,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   fprintf(fp,"#include \"%s.h\"\n\n",data->Name);
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
   fprintf(fp,"#include \"vtkStdString.h\"\n");
-  fprintf(fp,"#include <vtkstd/stdexcept>\n");
+  fprintf(fp,"#include <stdexcept>\n");
   fprintf(fp,"#include <vtksys/ios/sstream>\n");
   if (!data->IsAbstract)
     {
@@ -1452,7 +1452,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     }
 
   fprintf(fp,"    }\n");
-  fprintf(fp,"  catch (vtkstd::exception &e)\n");
+  fprintf(fp,"  catch (std::exception &e)\n");
   fprintf(fp,"    {\n");
   fprintf(fp,"    Tcl_AppendResult(interp, \"Uncaught exception: \",  e.what(), \"\\n\", NULL);\n");
   fprintf(fp,"    return TCL_ERROR;\n");

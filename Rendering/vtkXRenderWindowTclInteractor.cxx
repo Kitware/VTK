@@ -127,7 +127,7 @@ public:
     }
 
 private:
-  vtkstd::map<int, vtkXTclTimer> Timers;
+  std::map<int, vtkXTclTimer> Timers;
 };
 
 

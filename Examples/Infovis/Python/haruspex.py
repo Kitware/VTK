@@ -36,6 +36,7 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    1st bit: assess"
     print "\t                    2nd bit: test"
     print "\t [-m <prefix>]    prefix of CSV input model file(s). Default: calculate model from scratch"
+    print "\t [-p <number>]    number of primary tables in input model (only used for order statistics)"
     print "\t [-u]             update input model (if data are provided as well). NB: update happens before assessment"
     print "\t [-s <prefix>]    prefix of CSV output model (statistics) file(s)"
     print "\t [-a <filename>]  name of CSV output data (annotated) file"
@@ -54,6 +55,7 @@ def ParseCommandLine():
     options = 0
     inDataName = ""
     inModelPrefix = ""
+    inModelTables = 0
     updateModel = False
     haruspexName = ""
     outModelPrefix = ""
@@ -63,7 +65,7 @@ def ParseCommandLine():
     
     # Try to hash command line with respect to allowable flags
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:us:a:t:c:v')
+        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:p:us:a:t:c:v')
     except getopt.GetoptError:
         Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
@@ -84,6 +86,8 @@ def ParseCommandLine():
             options = a
         elif o == "-m":
             inModelPrefix = a
+        elif o == "-p":
+            inModelTables = a
         elif o == "-u":
             updateModel = True
         elif o == "-s":
@@ -108,17 +112,20 @@ def ParseCommandLine():
     if verbosity > 0:
         print "# Parsed command line:"
 
-        print "  Input data file:", inDataName
-        if inModelPrefix != "":
-            print "  Input model file prefix:", inModelPrefix
-        else:
-            print "  No input model"
+        print "  Type of statistics:", haruspexName
 
-        print "  Statistics:", haruspexName
         if columnsListName != "":
             print "  Columns of interest in file:", columnsListName
         else:
             print "  Columns of interest: all"
+
+        print "  Input data file:", inDataName
+        if inModelPrefix != "":
+            print "  Input model file prefix:", inModelPrefix
+            if inModelTables > 0:
+                print "  Specified input model tables :", inModelTables
+        else:
+            print "  No input model"
 
         print "  Output data file:", outDataName
         print "  Output model file prefix:", outModelPrefix
@@ -127,6 +134,7 @@ def ParseCommandLine():
 
     return [ inDataName, \
              inModelPrefix, \
+             inModelTables, \
              updateModel, \
              columnsListName, \
              haruspexName, \
@@ -342,7 +350,7 @@ def WriteOutModel( haruspex, outModelPrefix ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, haruspex, options ):
+def CalculateStatistics( inDataReader, inModelReader, nPrimaryTables, updateModel, columnsList, haruspex, options ):
     # Declare use of global variable
     global verbosity
 
@@ -361,7 +369,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
     n = len( columnsList )
     
     # Generate list of columns of interest, depending on number of variables
-    if haruspex.IsA( "vtkUnivariateStatisticsAlgorithm" ):
+    if haruspex.IsA( "vtkDescriptiveStatistics" ) or haruspex.IsA( "vtkOrderStatistics" ):
         # Univariate case: one request for each columns
         for i in range( 0, n ):
             colName = inData.GetColumnName( columnsList[i] )
@@ -369,7 +377,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
                 print "  Requesting column", colName
             haruspex.AddColumn( colName )
 
-    elif haruspex.IsA( "vtkBivariateStatisticsAlgorithm" ):
+    elif haruspex.IsA( "vtkCorrelativeStatistics" ) or haruspex.IsA( "vtkContingencyStatistics" ):
         # Bivariate case: generate all possible pairs
         for i in range( 0, n ):
             colNameX = inData.GetColumnName( columnsList[i] )
@@ -420,9 +428,6 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         haruspex.SetAssessOption( assessOption )
         haruspex.Update()
     else:
-        # Model readers are available: decide how many tables will be fetched
-        nPrimaryTables = haruspex.GetNumberOfPrimaryTables()
-
         # Then create vtkMultiBlockDataSet with correspondingly many blocks
         inModel = vtkMultiBlockDataSet()
         inModel.SetNumberOfBlocks( nPrimaryTables )
@@ -432,12 +437,16 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
             inTableReader = inModelReader[t]
             inTable = inTableReader.GetOutput()
 
-            # Handle special case of second table of order statistics
-            if ( t > 0 and haruspex.GetClassName() == "vtkOrderStatistics" ):
+            # Handle special case of primary tables of order statistics
+            if ( haruspex.GetClassName() == "vtkOrderStatistics" ):
                 if verbosity > 0:
-                    print "# Converting input order table to appropriate column types"
+                    if ( t == 0 ):
+                        if ( nPrimaryTables > 1 ):
+                            print "# Converting cardinality column of", nPrimaryTables, "input histograms"
+                        else:
+                            print "# Converting cardinality column of 1 input histogram"
 
-                # Create a programmable filter whose input is the order table
+                # Create a programmable filter whose input is the histogram
                 convertOrderTab = vtkProgrammableFilter()
                 convertOrderTab.SetInput( inTable )
 
@@ -446,40 +455,34 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
                     readTable = convertOrderTab.GetInput()
                     convTable = convertOrderTab.GetOutput()
 
-                    # Create columns with appropriate names and formats
-                    kCol = vtkIdTypeArray()
-                    kCol.SetName( "Key" )
-                    convTable.AddColumn( kCol )
-                    xCol = vtkStringArray()
-                    xCol.SetName( "Value" )
-                    convTable.AddColumn( xCol )
+                    # Create cardinality column with appropriate type
+                    nRow = readTable.GetNumberOfRows()
+                    vCol = readTable.GetColumnByName( "Value" )
+                    convTable.AddColumn( vCol )
                     cCol = vtkIdTypeArray()
                     cCol.SetName( "Cardinality" )
+                    cCol.SetNumberOfValues( nRow )
                     convTable.AddColumn( cCol )
 
                     # Loop over all input rows and create output rows
-                    nRow = readTable.GetNumberOfRows()
-                    row = vtkVariantArray()
-                    row.SetNumberOfValues( 3 )
                     for r in range( 0, nRow ):
-                        # Retrieve primary statistics and convert to correct type
-                        k = readTable.GetValueByName( r, "Key" ).ToInt()
-                        row.SetValue( 0, k )
-                        x = readTable.GetValueByName( r, "Value" ).ToString()
-                        row.SetValue( 1, x )
+                        # Retrieve cardinalities and save them as vtkIdTypes
                         c = readTable.GetValueByName( r, "Cardinality" ).ToInt()
-                        row.SetValue( 2, c )
-
-                        convTable.InsertNextRow( row )
+                        cCol.SetValue( r, c )
 
                 # Set callback and run programmable filer
                 convertOrderTab.SetExecuteMethod( ConvertOrderTableCallback )
                 convertOrderTab.Update()
 
                 # Retrieve converted table from filter output
+                colName = inData.GetColumnName( columnsList[t] )
+                inModel.GetMetaData( t ).Set( vtkCompositeDataSet.NAME(), colName )
                 inTable = convertOrderTab.GetOutput()
-                if verbosity > 1:
-                    inTable.Dump( 16 )
+
+                if verbosity > 0:
+                    print "  Variable", colName, "converted"
+                    if verbosity > 1:
+                        inTable.Dump( 16 )
 
             # Handle special case of second table of contingency statistics
             if ( t > 0 and haruspex.GetClassName() == "vtkContingencyStatistics" ):
@@ -578,6 +581,7 @@ def main():
     # Parse command line
     [ inDataName, \
       inModelPrefix, \
+      inModelTables, \
       updateModel, \
       columnsListName, \
       haruspexName, \
@@ -596,12 +600,21 @@ def main():
     if inModelPrefix != "":
         inModelReader = []
         nPrimaryTables = haruspex.GetNumberOfPrimaryTables()
+        # Handle special case of variable number of tables which must be specified
+        if nPrimaryTables == -1:
+            nPrimaryTables = int( inModelTables )
+            if ( haruspexName == "order" and nPrimaryTables < 1 ):
+                print "ERROR: a number of primary tables must be given for order statistics"
+                sys.exit( 1 )
+
+        # Now loop over all primary tables
         for t in range( 0, nPrimaryTables ):
             tableReader = ReadInModelTable( inModelPrefix, t )
             inModelReader.append( tableReader )
 
     else:
         inModelReader = None
+        nPrimaryTables = 0
         
     # Read list of columns of interest
     if columnsListName:
@@ -610,7 +623,7 @@ def main():
         columnsList = []
         
     # Calculate statistics
-    CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, haruspex, options )
+    CalculateStatistics( inDataReader, inModelReader, nPrimaryTables, updateModel, columnsList, haruspex, options )
 
     # Save output (annotated) data
     WriteOutTable( haruspex, 0, outDataName, "annotated data", 2 )

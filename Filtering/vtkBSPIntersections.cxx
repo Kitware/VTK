@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkMath.h"
 
-#include <vtkstd/set>
+#include <set>
 
 
 vtkStandardNewMacro(vtkBSPIntersections);

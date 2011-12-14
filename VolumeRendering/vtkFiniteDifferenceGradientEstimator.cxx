@@ -41,9 +41,9 @@ void vtkComputeGradients(
   vtkFiniteDifferenceGradientEstimator *estimator, T *data_ptr,
   int thread_id, int thread_count )
 {
-  int                 xstep, ystep, zstep;
+  vtkIdType           xstep, ystep, zstep;
   int                 x, y, z;
-  int                 offset;
+  vtkIdType           offset;
   int                 x_start, x_limit;
   int                 y_start, y_limit;
   int                 z_start, z_limit;
@@ -80,7 +80,7 @@ void vtkComputeGradients(
   // Compute steps through the volume in x, y, and z
   xstep = 1;
   ystep = size[0];
-  zstep = size[0] * size[1];
+  zstep = ystep * size[1];
 
   // Multiply by the spacing used for normal estimation
   xstep *= estimator->SampleSpacingInVoxels;
@@ -157,7 +157,7 @@ void vtkComputeGradients(
         xlow = x_start;
         xhigh = x_limit;
         }
-      offset = z * size[0] * size[1] + y * size[0] + xlow;
+      offset = z * zstep + y * ystep + xlow;
       
       // Set some pointers
       dptr = data_ptr + offset;

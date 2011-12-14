@@ -205,6 +205,118 @@
 #include "vtkObjectBase.h"
 #include "vtkObject.h" // Need vtkTypeMacro
 
+// Define all types of events here.
+// Using this macro makes it possible to avoid mismatches between the event
+// enums and their string counterparts.
+#define VTK_EVENT_TYPES \
+    _vtk_add_event(AnyEvent)\
+    _vtk_add_event(DeleteEvent)\
+    _vtk_add_event(StartEvent)\
+    _vtk_add_event(EndEvent)\
+    _vtk_add_event(RenderEvent)\
+    _vtk_add_event(ProgressEvent)\
+    _vtk_add_event(PickEvent)\
+    _vtk_add_event(StartPickEvent)\
+    _vtk_add_event(EndPickEvent)\
+    _vtk_add_event(AbortCheckEvent)\
+    _vtk_add_event(ExitEvent)\
+    _vtk_add_event(LeftButtonPressEvent)\
+    _vtk_add_event(LeftButtonReleaseEvent)\
+    _vtk_add_event(MiddleButtonPressEvent)\
+    _vtk_add_event(MiddleButtonReleaseEvent)\
+    _vtk_add_event(RightButtonPressEvent)\
+    _vtk_add_event(RightButtonReleaseEvent)\
+    _vtk_add_event(EnterEvent)\
+    _vtk_add_event(LeaveEvent)\
+    _vtk_add_event(KeyPressEvent)\
+    _vtk_add_event(KeyReleaseEvent)\
+    _vtk_add_event(CharEvent)\
+    _vtk_add_event(ExposeEvent)\
+    _vtk_add_event(ConfigureEvent)\
+    _vtk_add_event(TimerEvent)\
+    _vtk_add_event(MouseMoveEvent)\
+    _vtk_add_event(MouseWheelForwardEvent)\
+    _vtk_add_event(MouseWheelBackwardEvent)\
+    _vtk_add_event(ActiveCameraEvent)\
+    _vtk_add_event(CreateCameraEvent)\
+    _vtk_add_event(ResetCameraEvent)\
+    _vtk_add_event(ResetCameraClippingRangeEvent)\
+    _vtk_add_event(ModifiedEvent)\
+    _vtk_add_event(WindowLevelEvent)\
+    _vtk_add_event(StartWindowLevelEvent)\
+    _vtk_add_event(EndWindowLevelEvent)\
+    _vtk_add_event(ResetWindowLevelEvent)\
+    _vtk_add_event(SetOutputEvent)\
+    _vtk_add_event(ErrorEvent)\
+    _vtk_add_event(WarningEvent)\
+    _vtk_add_event(StartInteractionEvent)\
+        /*^ mainly used by vtkInteractorObservers*/\
+    _vtk_add_event(InteractionEvent)\
+    _vtk_add_event(EndInteractionEvent)\
+    _vtk_add_event(EnableEvent)\
+    _vtk_add_event(DisableEvent)\
+    _vtk_add_event(CreateTimerEvent)\
+    _vtk_add_event(DestroyTimerEvent)\
+    _vtk_add_event(PlacePointEvent)\
+    _vtk_add_event(PlaceWidgetEvent)\
+    _vtk_add_event(CursorChangedEvent)\
+    _vtk_add_event(ExecuteInformationEvent)\
+    _vtk_add_event(RenderWindowMessageEvent)\
+    _vtk_add_event(WrongTagEvent)\
+    _vtk_add_event(StartAnimationCueEvent)\
+        /*^ used by vtkAnimationCue*/ \
+    _vtk_add_event(AnimationCueTickEvent)\
+    _vtk_add_event(EndAnimationCueEvent)\
+    _vtk_add_event(VolumeMapperRenderEndEvent)\
+    _vtk_add_event(VolumeMapperRenderProgressEvent)\
+    _vtk_add_event(VolumeMapperRenderStartEvent)\
+    _vtk_add_event(VolumeMapperComputeGradientsEndEvent)\
+    _vtk_add_event(VolumeMapperComputeGradientsProgressEvent)\
+    _vtk_add_event(VolumeMapperComputeGradientsStartEvent)\
+    _vtk_add_event(WidgetModifiedEvent)\
+    _vtk_add_event(WidgetValueChangedEvent)\
+    _vtk_add_event(WidgetActivateEvent)\
+    _vtk_add_event(ConnectionCreatedEvent)\
+    _vtk_add_event(ConnectionClosedEvent)\
+    _vtk_add_event(DomainModifiedEvent)\
+    _vtk_add_event(PropertyModifiedEvent)\
+    _vtk_add_event(UpdateEvent)\
+    _vtk_add_event(RegisterEvent)\
+    _vtk_add_event(UnRegisterEvent)\
+    _vtk_add_event(UpdateInformationEvent)\
+    _vtk_add_event(AnnotationChangedEvent)\
+    _vtk_add_event(SelectionChangedEvent)\
+    _vtk_add_event(UpdatePropertyEvent)\
+    _vtk_add_event(ViewProgressEvent)\
+    _vtk_add_event(UpdateDataEvent)\
+    _vtk_add_event(CurrentChangedEvent)\
+    _vtk_add_event(ComputeVisiblePropBoundsEvent)\
+    _vtk_add_event(TDxMotionEvent)\
+      /*^ 3D Connexion device event */\
+    _vtk_add_event(TDxButtonPressEvent)\
+      /*^ 3D Connexion device event */\
+    _vtk_add_event(TDxButtonReleaseEvent)\
+      /* 3D Connexion device event */\
+    _vtk_add_event(HoverEvent)\
+    _vtk_add_event(LoadStateEvent)\
+    _vtk_add_event(SaveStateEvent)\
+    _vtk_add_event(StateChangedEvent)\
+    _vtk_add_event(WindowMakeCurrentEvent)\
+    _vtk_add_event(WindowIsCurrentEvent)\
+    _vtk_add_event(WindowFrameEvent)\
+    _vtk_add_event(HighlightEvent)\
+    _vtk_add_event(WindowSupportsOpenGLEvent)\
+    _vtk_add_event(WindowIsDirectEvent)\
+    _vtk_add_event(UncheckedPropertyModifiedEvent)
+
+#define VTK_DECLARE_EVENTIDS(_enum_name)\
+  enum _enum_name{\
+    NoEvent = 0,\
+    VTK_EVENT_TYPES \
+    UserEvent = 1000\
+  };
+
+
 // The superclass that all commands should be subclasses of
 class VTK_COMMON_EXPORT vtkCommand : public vtkObjectBase
 {
@@ -269,103 +381,11 @@ public:
   // Description:
   // All the currently defined events are listed here.  Developers can
   // use -- vtkCommand::UserEvent + int to specify their own event
-  // ids. If this list is adjusted, be sure to adjust
-  // vtkCommandEventStrings in vtkCommand.cxx to match.
-  enum EventIds {
-    NoEvent = 0,
-    AnyEvent,
-    DeleteEvent,
-    StartEvent,
-    EndEvent,
-    RenderEvent,
-    ProgressEvent,
-    PickEvent,
-    StartPickEvent,
-    EndPickEvent,
-    AbortCheckEvent,
-    ExitEvent,
-    LeftButtonPressEvent,
-    LeftButtonReleaseEvent,
-    MiddleButtonPressEvent,
-    MiddleButtonReleaseEvent,
-    RightButtonPressEvent,
-    RightButtonReleaseEvent,
-    EnterEvent,
-    LeaveEvent,
-    KeyPressEvent,
-    KeyReleaseEvent,
-    CharEvent,
-    ExposeEvent,
-    ConfigureEvent,
-    TimerEvent,
-    MouseMoveEvent,
-    MouseWheelForwardEvent,
-    MouseWheelBackwardEvent,
-    ActiveCameraEvent,
-    CreateCameraEvent,
-    ResetCameraEvent,
-    ResetCameraClippingRangeEvent,
-    ModifiedEvent,
-    WindowLevelEvent,
-    StartWindowLevelEvent,
-    EndWindowLevelEvent,
-    ResetWindowLevelEvent,
-    SetOutputEvent,
-    ErrorEvent,
-    WarningEvent,
-    StartInteractionEvent, //mainly used by vtkInteractorObservers
-    InteractionEvent,
-    EndInteractionEvent,
-    EnableEvent,
-    DisableEvent,
-    CreateTimerEvent,
-    DestroyTimerEvent,
-    PlacePointEvent,
-    PlaceWidgetEvent,
-    CursorChangedEvent,
-    ExecuteInformationEvent,
-    RenderWindowMessageEvent,
-    WrongTagEvent,
-    StartAnimationCueEvent, // used by vtkAnimationCue
-    AnimationCueTickEvent,
-    EndAnimationCueEvent,
-    VolumeMapperRenderEndEvent,
-    VolumeMapperRenderProgressEvent,
-    VolumeMapperRenderStartEvent,
-    VolumeMapperComputeGradientsEndEvent,
-    VolumeMapperComputeGradientsProgressEvent,
-    VolumeMapperComputeGradientsStartEvent,
-    WidgetModifiedEvent,
-    WidgetValueChangedEvent,
-    WidgetActivateEvent,
-    ConnectionCreatedEvent,
-    ConnectionClosedEvent,
-    DomainModifiedEvent,
-    PropertyModifiedEvent,
-    UpdateEvent,
-    RegisterEvent,
-    UnRegisterEvent,
-    UpdateInformationEvent,
-    AnnotationChangedEvent,
-    SelectionChangedEvent,
-    UpdatePropertyEvent,
-    ViewProgressEvent,
-    UpdateDataEvent,
-    CurrentChangedEvent,
-    ComputeVisiblePropBoundsEvent,
-    TDxMotionEvent, // 3D Connexion device event
-    TDxButtonPressEvent, // 3D Connexion device event
-    TDxButtonReleaseEvent, // 3D Connexion device event
-    HoverEvent,
-    LoadStateEvent,
-    SaveStateEvent,
-    StateChangedEvent,
-    WindowMakeCurrentEvent,
-    WindowIsCurrentEvent,
-    WindowFrameEvent,
-    HighlightEvent,
-    UserEvent = 1000
-  };
+  // ids.
+  // Add new events by updating VTK_EVENT_TYPES macro.
+#define _vtk_add_event(Enum)  Enum,
+  VTK_DECLARE_EVENTIDS(EventIds);
+#undef _vtk_add_event
 //ETX
 
 protected:

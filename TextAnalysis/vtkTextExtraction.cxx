@@ -29,8 +29,8 @@
 #include <vtkTable.h>
 #include <vtkUnicodeStringArray.h>
 
-#include <vtkstd/algorithm>
-#include <vtkstd/stdexcept>
+#include <algorithm>
+#include <stdexcept>
 
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction::Implementation
@@ -38,7 +38,7 @@
 class vtkTextExtraction::Implementation
 {
 public:
-  vtkstd::vector<vtkTextExtractionStrategy*> Strategies;
+  std::vector<vtkTextExtractionStrategy*> Strategies;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ void vtkTextExtraction::PrependStrategy(vtkTextExtractionStrategy* strategy)
     return;
     }
 
-  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
+  if(std::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
     {
     vtkErrorMacro(<< "Cannot prepend the same strategy twice.");
     return;
@@ -116,7 +116,7 @@ void vtkTextExtraction::AppendStrategy(vtkTextExtractionStrategy* strategy)
     return;
     }
 
-  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
+  if(std::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
     {
     vtkErrorMacro(<< "Cannot append the same strategy twice.");
     return;
@@ -136,25 +136,25 @@ int vtkTextExtraction::RequestData(
     {
     vtkTable* const input_table = vtkTable::GetData(inputVector[0]);
     if(!input_table)
-      throw vtkstd::runtime_error("missing input table");
+      throw std::runtime_error("missing input table");
 
     vtkIdTypeArray* const document_id_array = vtkIdTypeArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!document_id_array)
-      throw vtkstd::runtime_error("Missing document id array.");
+      throw std::runtime_error("Missing document id array.");
        
     vtkAbstractArray* const uri_array = this->GetInputAbstractArrayToProcess(1, 0, inputVector);
     if(!uri_array)
-      throw vtkstd::runtime_error("Missing uri array.");
+      throw std::runtime_error("Missing uri array.");
 
     vtkStringArray* const mime_type_array = vtkStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(2, 0, inputVector));
     if(!mime_type_array)
-      throw vtkstd::runtime_error("Missing mime_type array.");
+      throw std::runtime_error("Missing mime_type array.");
 
     vtkAbstractArray* const content_array = this->GetInputAbstractArrayToProcess(3, 0, inputVector);
     if(!content_array)
-      throw vtkstd::runtime_error("Missing content array.");
+      throw std::runtime_error("Missing content array.");
 
     vtkUnicodeStringArray* const text_array = vtkUnicodeStringArray::New();
     text_array->SetName("text");
@@ -222,7 +222,7 @@ int vtkTextExtraction::RequestData(
     tag_end_array->Delete();
     tag_type_array->Delete();
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

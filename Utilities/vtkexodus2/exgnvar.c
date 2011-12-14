@@ -83,13 +83,13 @@
  */
 
 int ex_get_n_var( int   exoid,
-                  int   time_step,
-                  ex_entity_type var_type,
-                  int   var_index,
-                  int   obj_id, 
-                  int   start_index,
-                  int   num_entities,
-                  void* var_vals )
+      int   time_step,
+      ex_entity_type var_type,
+      int   var_index,
+      int   obj_id, 
+      int   start_index,
+      int   num_entities,
+      void* var_vals )
 {
   int status;
   int varid, obj_id_ndx;
@@ -111,14 +111,14 @@ int ex_get_n_var( int   exoid,
   if (exerrval != 0) {
     if (exerrval == EX_NULLENTITY) {
       sprintf(errmsg,
-              "Warning: no %s variables for NULL block %d in file id %d",
-              ex_name_of_object(var_type), obj_id,exoid);
+        "Warning: no %s variables for NULL block %d in file id %d",
+        ex_name_of_object(var_type), obj_id,exoid);
       ex_err("ex_get_n_var",errmsg,EX_MSG);
       return (EX_WARN);
     } else {
       sprintf(errmsg,
-              "Error: failed to locate %s id %d in id variable in file id %d",
-              ex_name_of_object(var_type), obj_id, exoid);
+        "Error: failed to locate %s id %d in id variable in file id %d",
+        ex_name_of_object(var_type), obj_id, exoid);
       ex_err("ex_get_n_var",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -127,11 +127,11 @@ int ex_get_n_var( int   exoid,
   /* inquire previously defined variable */
 
   if((status = nc_inq_varid(exoid, ex_name_var_of_object(var_type,var_index,
-                                                         obj_id_ndx), &varid)) != NC_NOERR) {
+               obj_id_ndx), &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate %s %d var %d in file id %d",
-            ex_name_of_object(var_type),obj_id,var_index,exoid); 
+      "Error: failed to locate %s %d var %d in file id %d",
+      ex_name_of_object(var_type),obj_id,var_index,exoid); 
     ex_err("ex_get_n_var",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -152,8 +152,8 @@ int ex_get_n_var( int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to get %s %d variable %d in file id %d", 
-            ex_name_of_object(var_type), obj_id, var_index,exoid);
+      "Error: failed to get %s %d variable %d in file id %d", 
+      ex_name_of_object(var_type), obj_id, var_index,exoid);
     ex_err("ex_get_n_var",errmsg,exerrval);
     return (EX_FATAL);
   }

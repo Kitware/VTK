@@ -3,6 +3,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTTextureGlyph::FTTextureGlyph( FT_Glyph glyph, int id, int xOffset, int yOffset, GLsizei width, GLsizei height)
 :  FTGlyph(),
@@ -109,3 +113,6 @@ float FTTextureGlyph::Render( const FT_Vector& pen,
 
 }
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

@@ -61,11 +61,13 @@
 #define VTK_PARSE_INDIRECT   0x0000FF00
 
 /**
- * Storage qualifiers: just static and const for now
+ * Storage qualifiers static and const, and hint attributes.
+ * NEWINSTANCE is for returned pointers that must be freed by the caller.
  */
 #define VTK_PARSE_QUALIFIER   0x00FF0000
 #define VTK_PARSE_CONST       0x00010000
 #define VTK_PARSE_STATIC      0x00020000
+#define VTK_PARSE_NEWINSTANCE 0x00040000
 
 /**
  * Mask for removing "const", "static" qualifiers

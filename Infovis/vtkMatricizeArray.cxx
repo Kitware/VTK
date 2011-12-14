@@ -91,7 +91,7 @@ int vtkMatricizeArray::RequestData(
   //
   // Setting the slice-dimension stride to zero simplifies computation of column coordinates
   // later-on and eliminate an inner-loop comparison.
-  vtkstd::vector<vtkIdType> strides(input_array->GetDimensions());
+  std::vector<vtkIdType> strides(input_array->GetDimensions());
   for(vtkIdType i = input_array->GetDimensions() - 1, stride = 1; i >= 0; --i)
     {
     if(i == this->SliceDimension)
@@ -105,7 +105,7 @@ int vtkMatricizeArray::RequestData(
       }
     }
     
-  vtkstd::vector<vtkIdType> temp(input_array->GetDimensions());
+  std::vector<vtkIdType> temp(input_array->GetDimensions());
 
   vtkArrayCoordinates coordinates;
   vtkArrayCoordinates new_coordinates(0, 0);
@@ -118,7 +118,7 @@ int vtkMatricizeArray::RequestData(
 
     for(vtkIdType i = 0; i != coordinates.GetDimensions(); ++i)
       temp[i] = (coordinates[i] - input_extents[i].GetBegin()) * strides[i];
-    new_coordinates[1] = vtkstd::accumulate(temp.begin(), temp.end(), 0);
+    new_coordinates[1] = std::accumulate(temp.begin(), temp.end(), 0);
 
     output_array->AddValue(new_coordinates, input_array->GetValueN(n));
     }

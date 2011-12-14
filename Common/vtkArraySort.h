@@ -95,7 +95,7 @@ public:
 
   // Description:
   // Serialization
-  friend ostream& operator<<(
+  VTK_COMMON_EXPORT friend ostream& operator<<(
     ostream& stream, const vtkArraySort& rhs);
 
 private:

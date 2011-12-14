@@ -46,7 +46,7 @@ bool QVTKPaintEngine::end()
 
 QPaintEngine::Type QVTKPaintEngine::type() const
 {
-  return QPaintEngine::User;
+  return QPaintEngine::OpenGL;
 }
 
 void QVTKPaintEngine::updateState(const QPaintEngineState&)

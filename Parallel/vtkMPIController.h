@@ -127,7 +127,8 @@ public:
   // Tag eliminates ambiguity when multiple sends or receives 
   // exist in the same process. The last argument,
   // vtkMPICommunicator::Request& req can later be used (with
-  // req.Test() ) to test the success of the message.
+  // req.Test() ) to test the success of the message. Return values
+  // are 1 for success and 0 otherwise.
   // Note: These methods delegate to the communicator
   int NoBlockSend(const int* data, int length, int remoteProcessId, int tag,
                   vtkMPICommunicator::Request& req)
@@ -145,12 +146,17 @@ public:
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
+  int NoBlockSend(const double* data, int length, int remoteProcessId, 
+                  int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
+        (data, length, remoteProcessId, tag, req); }
 
   // Description:
   // This method receives data from a corresponding send (non-blocking). 
   // The last argument,
   // vtkMPICommunicator::Request& req can later be used (with
-  // req.Test() ) to test the success of the message.
+  // req.Test() ) to test the success of the message. Return values are
+  // 1 for success and 0 otherwise.
   // Note: These methods delegate to the communicator
   int NoBlockReceive(int* data, int length, int remoteProcessId, 
                      int tag, vtkMPICommunicator::Request& req)
@@ -169,12 +175,49 @@ public:
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
+  int NoBlockReceive(double* data, int length, int remoteProcessId, 
+                     int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+        (data, length, remoteProcessId, tag, req); }
 #ifdef VTK_USE_64BIT_IDS
   int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, 
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
 #endif
+
+  // Description:
+  // Nonblocking test for a message.  Inputs are: source -- the source rank
+  // or ANY_SOURCE; tag -- the tag value.  Outputs are:
+  // flag -- True if a message matches; actualSource -- the rank
+  // sending the message (useful if ANY_SOURCE is used) if flag is True
+  // and actualSource isn't NULL; size -- the length of the message in
+  // bytes if flag is true (only set if size isn't NULL). The return
+  // value is 1 for success and 0 otherwise.
+  // Note: These methods delegate to the communicator
+  int Iprobe(int source, int tag, int* flag, int* actualSource)
+  { return ((vtkMPICommunicator*)this->Communicator)->Iprobe(
+      source, tag, flag, actualSource); }
+  int Iprobe(int source, int tag, int* flag, int* actualSource,
+             int* type, int* size)
+  { return ((vtkMPICommunicator*)this->Communicator)->Iprobe(
+      source, tag, flag, actualSource, type, size); }
+  int Iprobe(int source, int tag, int* flag, int* actualSource,
+             unsigned long* type, int* size)
+  { return ((vtkMPICommunicator*)this->Communicator)->Iprobe(
+      source, tag, flag, actualSource, type, size); }
+  int Iprobe(int source, int tag, int* flag, int* actualSource,
+             const char* type, int* size)
+  { return ((vtkMPICommunicator*)this->Communicator)->Iprobe(
+      source, tag, flag, actualSource, type, size); }
+  int Iprobe(int source, int tag, int* flag, int* actualSource,
+             float* type, int* size)
+  { return ((vtkMPICommunicator*)this->Communicator)->Iprobe(
+      source, tag, flag, actualSource, type, size); }
+  int Iprobe(int source, int tag, int* flag, int* actualSource,
+             double* type, int* size)
+  { return ((vtkMPICommunicator*)this->Communicator)->Iprobe(
+      source, tag, flag, actualSource, type, size); }
 
 //ETX
 

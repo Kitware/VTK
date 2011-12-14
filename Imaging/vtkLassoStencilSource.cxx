@@ -27,13 +27,13 @@
 #include "vtkSmartPointer.h"
 
 #include <math.h>
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkLassoStencilSource);
 vtkCxxSetObjectMacro(vtkLassoStencilSource, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
-class vtkLSSPointMap : public vtkstd::map<int, vtkSmartPointer<vtkPoints> >
+class vtkLSSPointMap : public std::map<int, vtkSmartPointer<vtkPoints> >
 {
 };
 

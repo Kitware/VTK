@@ -110,16 +110,16 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
   vtkGraphEdgePropertyMapHelper<mapMulti> weight_helper(multi);
   
   // Run the algorithm
-  vtkstd::vector<vtkEdgeType> mstEdges;
+  std::vector<vtkEdgeType> mstEdges;
   if (vtkDirectedGraph::SafeDownCast(input))
     {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
-    kruskal_minimum_spanning_tree(g, vtkstd::back_inserter(mstEdges), weight_map(weight_helper));
+    kruskal_minimum_spanning_tree(g, std::back_inserter(mstEdges), weight_map(weight_helper));
     }
   else
     {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
-    kruskal_minimum_spanning_tree(g, vtkstd::back_inserter(mstEdges), weight_map(weight_helper));
+    kruskal_minimum_spanning_tree(g, std::back_inserter(mstEdges), weight_map(weight_helper));
     }
   
   // Select the minimum spanning tree edges.
@@ -128,7 +128,7 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
     
     // Add the ids of each MST edge.
-    for (vtkstd::vector<vtkEdgeType>::iterator i = mstEdges.begin();
+    for (std::vector<vtkEdgeType>::iterator i = mstEdges.begin();
          i != mstEdges.end(); ++i)
       {
       ids->InsertNextValue(i->Id);

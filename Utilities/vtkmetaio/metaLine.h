@@ -30,7 +30,7 @@
  *    Reads and Writes MetaLineFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date July 02, 2002
  *
  */
@@ -46,7 +46,7 @@ public:
   LinePnt(int dim);
 
   ~LinePnt();
-  
+
   unsigned int m_Dim;
   float*   m_X;
   float**  m_V;
@@ -74,10 +74,10 @@ class METAIO_EXPORT MetaLine : public MetaObject
     ////
     MetaLine(void);
 
-    MetaLine(const char *_headerName);   
+    MetaLine(const char *_headerName);
 
-    MetaLine(const MetaLine *_line); 
-    
+    MetaLine(const MetaLine *_line);
+
     MetaLine(unsigned int dim);
 
     ~MetaLine(void);

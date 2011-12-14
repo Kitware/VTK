@@ -21,13 +21,14 @@
 #include "vtkCoincidentPoints.h"
 
 #include "vtkIdList.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/set>
-#include <vtkstd/vector>
-#include <vtkstd/map>
+#include <set>
+#include <vector>
+#include <map>
 
 
 
@@ -53,10 +54,10 @@ public:
     double coord[3];
 
     Coord()
-      { 
-      this->coord[0] = -1.0; 
-      this->coord[1] = -1.0; 
-      this->coord[2] = -1.0; 
+      {
+      this->coord[0] = -1.0;
+      this->coord[1] = -1.0;
+      this->coord[2] = -1.0;
       }
     Coord( const Coord & src )
       {
@@ -80,18 +81,18 @@ public:
 
     inline bool operator < (const Coord & other) const
       {
-      return this->coord[0] < other.coord[0] || 
-        (this->coord[0] == other.coord[0] && (this->coord[1] < other.coord[1] || 
+      return this->coord[0] < other.coord[0] ||
+        (this->coord[0] == other.coord[0] && (this->coord[1] < other.coord[1] ||
         (this->coord[1] == other.coord[1] && this->coord[2] < other.coord[2])));
       }
   };
 
-  typedef vtkstd::map<Coord, vtkSmartPointer<vtkIdList> >::iterator MapCoordIter;
+  typedef std::map<Coord, vtkSmartPointer<vtkIdList> >::iterator MapCoordIter;
 
   vtkCoincidentPoints* Self;
 
-  vtkstd::map<Coord, vtkSmartPointer<vtkIdList> > CoordMap;
-  vtkstd::map<vtkIdType, vtkIdType> CoincidenceMap;
+  std::map<Coord, vtkSmartPointer<vtkIdList> > CoordMap;
+  std::map<vtkIdType, vtkIdType> CoincidenceMap;
   MapCoordIter TraversalIterator;
 };
 
@@ -178,7 +179,7 @@ void vtkCoincidentPoints::RemoveNonCoincidentPoints()
 vtkIdList * vtkCoincidentPoints::GetNextCoincidentPointIds()
 {
   vtkIdList * rvalue = NULL;
-  if(this->Implementation->TraversalIterator != 
+  if(this->Implementation->TraversalIterator !=
     this->Implementation->CoordMap.end())
     {
     rvalue = (*this->Implementation->TraversalIterator).second;
@@ -192,4 +193,39 @@ vtkIdList * vtkCoincidentPoints::GetNextCoincidentPointIds()
 void vtkCoincidentPoints::InitTraversal()
 {
   this->Implementation->TraversalIterator = this->Implementation->CoordMap.begin();
+}
+
+//----------------------------------------------------------------------------
+// vtkSpiralkVertices - calculate points at a regular interval along a parametric
+// spiral.
+void vtkCoincidentPoints::SpiralPoints(vtkIdType num, vtkPoints * offsets)
+{
+  int maxIter = 10;
+  double pi = vtkMath::Pi();
+  double a = 1/(4*pi*pi);
+  offsets->Initialize();
+  offsets->SetNumberOfPoints(num);
+
+  for (vtkIdType i = 0; i < num; i++)
+    {
+    double d = 2.0*i/sqrt(3.0);
+    // We are looking for points at regular intervals along the parametric spiral
+    // x = t*cos(2*pi*t)
+    // y = t*sin(2*pi*t)
+    // We cannot solve this equation exactly, so we use newton's method.
+    // Using an Excel trendline, we find that
+    // t = 0.553*d^0.502
+    // is an excellent starting point./g
+    double t = 0.553*pow(d, 0.502);
+    for (int iter = 0; iter < maxIter; iter++)
+      {
+      double r = sqrt(t*t+a*a);
+      double f = pi*(t*r+a*a*log(t+r)) - d;
+      double df = 2*pi*r;
+      t = t - f/df;
+      }
+    double x = t*cos(2*pi*t);
+    double y = t*sin(2*pi*t);
+    offsets->SetPoint(i, x, y, 0);
+    }
 }

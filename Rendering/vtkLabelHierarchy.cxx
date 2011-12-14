@@ -43,10 +43,10 @@
 #include "vtkTextProperty.h"
 
 #include <octree/octree>
-#include <vtkstd/deque>
-#include <vtkstd/set>
-#include <vtkstd/vector>
-#include <vtkstd/map>
+#include <deque>
+#include <set>
+#include <vector>
+#include <map>
 
 #include <stdlib.h>
 
@@ -116,7 +116,7 @@ protected:
   int Ijk[3];
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   vtkLabelHierarchy::Implementation::HierarchyCursor3 Cursor;
-  vtkstd::vector<int> Path;
+  std::vector<int> Path;
   int AtEnd;
   vtkSmartPointer<vtkIdTypeArray> PreviousLabels;
   vtkIdType PreviousLabelIter;
@@ -430,7 +430,7 @@ void vtkLabelHierarchyFrustumIterator::Next()
             if (this->Debug)
               {
               vtkDebugMacro( "l: " << this->Level << " i: " << this->IjkG[0] << " j: " << this->IjkG[1] << " k: " << this->IjkG[2] << " (");
-              for ( vtkstd::vector<int>::iterator cit = this->Cursor._M_indices.begin(); cit != this->Cursor._M_indices.end(); ++ cit )
+              for ( std::vector<int>::iterator cit = this->Cursor._M_indices.begin(); cit != this->Cursor._M_indices.end(); ++ cit )
                 {
                 vtkDebugMacro( " " << *cit );
                 }
@@ -539,8 +539,8 @@ protected:
   vtkLabelHierarchyFullSortIterator();
   virtual ~vtkLabelHierarchyFullSortIterator();
 
-  vtkstd::set<vtkHierarchyNode, vtkHierarchyNodeSorter> NodeSet;
-  vtkstd::set<vtkHierarchyNode, vtkHierarchyNodeSorter>::iterator NodeIterator;
+  std::set<vtkHierarchyNode, vtkHierarchyNodeSorter> NodeSet;
+  std::set<vtkHierarchyNode, vtkHierarchyNodeSorter>::iterator NodeIterator;
 
   virtual void SetCamera(vtkCamera* camera);
   vtkCamera* Camera;
@@ -571,7 +571,7 @@ void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
   this->Camera->GetPosition(cameraPos);
 
   int maxLevel = 1;
-  vtkstd::deque<vtkHierarchyNode> s;
+  std::deque<vtkHierarchyNode> s;
   vtkHierarchyNode root;
   root.Level = 0;
   root.Node = this->Hierarchy->Impl->Hierarchy3->root();
@@ -801,7 +801,7 @@ protected:
   vtkExtractSelectedFrustum* FrustumExtractor;
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   NodePointer Node;
-  vtkstd::deque<NodePointer> Queue; // Queue of nodes to be traversed.
+  std::deque<NodePointer> Queue; // Queue of nodes to be traversed.
   float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit; // square of smallest allowable distance-normalized octree node size.
 
@@ -874,6 +874,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -937,7 +938,7 @@ struct vtkQuadtreeNodeDistCompare
     }
 };
 
-typedef vtkstd::set<vtkLabelHierarchyQuadtreeIterator::NodePointer,vtkQuadtreeNodeDistCompare> vtkQuadtreeOrderedChildren;
+typedef std::set<vtkLabelHierarchyQuadtreeIterator::NodePointer,vtkQuadtreeNodeDistCompare> vtkQuadtreeOrderedChildren;
 
 void vtkLabelHierarchyQuadtreeIterator::Next()
 {
@@ -1034,7 +1035,7 @@ bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum( NodePointer node )
   * of nodes at level M exist, this means the list of children will be
   * (2**D)**(M+1) long.
   * For a quadtree, D = 2.
-  * 
+  *
   * Instead of limiting the Queue size, we limit the total number of nodes queued.
   * Since nodes are popped off the front of the queue as they are pushed onto the
   * back, this is a stricter limit. It is also more closely related to the actual
@@ -1124,7 +1125,7 @@ protected:
   vtkExtractSelectedFrustum* FrustumExtractor;
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   NodePointer Node;
-  vtkstd::deque<NodePointer> Queue; // Queue of nodes to be traversed.
+  std::deque<NodePointer> Queue; // Queue of nodes to be traversed.
   float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit; // square of smallest allowable distance-normalized octree node size.
   vtkIdTypeArray* LastPlaced; // Labels placed in the previous frame
@@ -1199,6 +1200,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -1280,7 +1282,7 @@ struct vtkOctreeNodeDistCompare
     }
 };
 
-typedef vtkstd::set<vtkLabelHierarchyOctreeQueueIterator::NodePointer,vtkOctreeNodeDistCompare> vtkOctreeOrderedChildren;
+typedef std::set<vtkLabelHierarchyOctreeQueueIterator::NodePointer,vtkOctreeNodeDistCompare> vtkOctreeOrderedChildren;
 
 void vtkLabelHierarchyOctreeQueueIterator::Next()
 {
@@ -1414,7 +1416,7 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum( NodePointer node )
   * of nodes at level M exist, this means the list of children will be
   * (2**D)**(M+1) long.
   * For an octree, D = 3.
-  * 
+  *
   * Instead of limiting the Queue size, we limit the total number of nodes queued.
   * Since nodes are popped off the front of the queue as they are pushed onto the
   * back, this is a stricter limit. It is also more closely related to the actual
@@ -1497,8 +1499,8 @@ protected:
   vtkExtractSelectedFrustum* FrustumExtractor;
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   vtkLabelHierarchy::Implementation::HierarchyCursor3 Cursor;
-  vtkstd::vector<int> Path;
-  vtkstd::vector<vtkstd::vector<int> > Order; // visibility sorted order of children at each level of the tree.
+  std::vector<int> Path;
+  std::vector<std::vector<int> > Order; // visibility sorted order of children at each level of the tree.
   float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit; // square of smallest allowable distance-normalized octree node size.
 
@@ -1571,6 +1573,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = vs / this->BucketSize[1];
       }
+    static_cast<void>(vsr); // fix for 'set but not used' warning for vsr
     //double fac = 0.1 * tva / vsr;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
@@ -1619,7 +1622,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Next()
       // I. Try children of this node.
       if ( this->Cursor->num_children() )
         {
-        vtkstd::vector<int> emptyVec;
+        std::vector<int> emptyVec;
         this->Order.push_back( emptyVec );
         for ( int i = 0; i < this->Cursor->num_children(); ++ i )
           {
@@ -1914,7 +1917,7 @@ void vtkLabelHierarchyBuildCoincidenceMap(
   double scale = curs->value().GetSize() / ( 1 << lh->GetMaximumDepth() );
   //cout << "Scale: " << scale << endl;
   double point[3];
-  vtkstd::vector<vtkstd::pair<double,double> > offsets;
+  std::vector<std::pair<double,double> > offsets;
 
   vtkLabelHierarchy::Implementation::MapCoordIter mapIter = impl->CoordMap.begin();
   for( ; mapIter != impl->CoordMap.end(); ++mapIter )
@@ -1926,17 +1929,17 @@ void vtkLabelHierarchyBuildCoincidenceMap(
       point[2] = (*mapIter).first.coord[2];
 
       vtkSpiralkVertices( (*mapIter).second.second.size() + 1, offsets );
-      vtkstd::set<vtkIdType>::iterator setIter = (*mapIter).second.second.begin();
+      std::set<vtkIdType>::iterator setIter = (*mapIter).second.second.begin();
       setCount = 0;
       for( ; setIter != (*mapIter).second.second.end(); ++setIter )
         {
-        impl->CoincidenceMap[(*setIter)] = 
+        impl->CoincidenceMap[(*setIter)] =
           lh->GetCenterPts()->InsertNextPoint( point );
         lh->GetPoints()->SetPoint( (*setIter),
           point[0] + offsets[setCount + 1].first * scale,
           point[1] + offsets[setCount + 1].second * scale,
           point[2] );
-        //cout << "Point: " << point[0] + offsets[setCount].first*scale << " " << 
+        //cout << "Point: " << point[0] + offsets[setCount].first*scale << " " <<
         //  point[1] + offsets[setCount].second*scale << endl;
         ++setCount;
         }
@@ -2034,13 +2037,13 @@ void vtkLabelHierarchy::ComputeHierarchy()
     {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
-    vtkMath::SpiralPoints( numCoincidentPoints + 1, offsets );
+    vtkCoincidentPoints::SpiralPoints( numCoincidentPoints + 1, offsets );
     for(int i = 0; i < numCoincidentPoints; ++i)
       {
       Id = coincidentPoints->GetId( i );
       this->Points->GetPoint( Id, point );
       // save center points for drawing spokes.
-      /*this->Implementation->CoincidenceMap[i] = 
+      /*this->Implementation->CoincidenceMap[i] =
         this->CenterPts->InsertNextPoint(point);*/
       offsets->GetPoint( i + 1, spiralPoint );
       this->Points->SetPoint( Id,
@@ -2062,14 +2065,14 @@ void vtkLabelHierarchy::Implementation::ComputeActualDepth()
 {
   // Find the number of levels in the hierarchy
   this->ActualDepth = 1;
-  vtkstd::deque<vtkstd::pair<HierarchyType3::octree_node_pointer, size_t> > queue;
-  queue.push_front( vtkstd::make_pair( this->Hierarchy3->root(), 1 ) );
+  std::deque<std::pair<HierarchyType3::octree_node_pointer, size_t> > queue;
+  queue.push_front( std::make_pair( this->Hierarchy3->root(), 1 ) );
   int numNodes = 0;
   int numLeaf = 0;
   int totalLeafDepth = 0;
   while (!queue.empty())
     {
-    vtkstd::pair<HierarchyType3::octree_node_pointer,int> p = queue.front();
+    std::pair<HierarchyType3::octree_node_pointer,int> p = queue.front();
     HierarchyType3::octree_node_pointer n = p.first;
     size_t level = p.second;
     ++numNodes;
@@ -2083,7 +2086,7 @@ void vtkLabelHierarchy::Implementation::ComputeActualDepth()
         }
       for (int c = 0; c < 8; ++c)
         {
-        queue.push_front(vtkstd::make_pair(&(*n)[c], level));
+        queue.push_front(std::make_pair(&(*n)[c], level));
         }
       }
     else
@@ -2311,7 +2314,7 @@ void vtkLabelHierarchy::Implementation::PromoteAnchors()
   HierarchyCursor3 root = HierarchyCursor3( this->Hierarchy3 );
   HierarchyIterator3 it;
   //vtkIdType cnt;
-  vtkstd::vector<vtkIdType> promotionList;
+  std::vector<vtkIdType> promotionList;
   // Step 1. Iterate over all leaf nodes. We'll ascend to the root from each leaf, promoting anchors as we go.
   //         Outer loop is O(N) since the number of leaf nodes is proportional to the number of anchors.
   for ( it = this->Hierarchy3->begin( true ); it != this->Hierarchy3->end( true ); ++it )
@@ -2340,8 +2343,8 @@ void vtkLabelHierarchy::Implementation::PromoteAnchors()
       }
     // FIXME: If we erase all the entries at this level, check to see if all siblings are empty as well.
     //        If so, delete children of parent node. This is complicated by fact that we must have a valid cursor to climb.
-    vtkstd::vector<vtkIdType>::size_type start = 0;
-    vtkstd::vector<vtkIdType>::size_type psize = promotionList.size();
+    std::vector<vtkIdType>::size_type start = 0;
+    std::vector<vtkIdType>::size_type psize = promotionList.size();
     // Step 1b. While we have anchors left to distribute, climb the tree
     //          This loop is O(log(N)) since the tree is log(N) deep.
     while ( cursor.level() && ( start < psize ) )

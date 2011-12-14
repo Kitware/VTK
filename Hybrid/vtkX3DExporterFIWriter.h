@@ -33,7 +33,7 @@ public:
 
   virtual void CloseFile();
   virtual int OpenFile(const char* file);
-
+  virtual int OpenStream();
 
   //void Write(const char* str);
 
@@ -48,7 +48,7 @@ public:
 
   // Attributes
   // SFString / MFString
-  //void SetField(int attributeID, const vtkstd::string &value);
+  //void SetField(int attributeID, const std::string &value);
   void SetField(int attributeID, const char*, bool mfstring = false);
   // SFInt32
   void SetField(int attributeID, int);

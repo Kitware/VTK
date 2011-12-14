@@ -33,8 +33,42 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
 
-vtkStandardNewMacro(vtkMySQLDatabase);
+vtkStandardNewMacro(vtkMySQLDatabase)
 
+// Registration of MySQL dynamically with the vtkSQLDatabase factory method.
+vtkSQLDatabase * MySQLCreateFunction(const char* URL)
+{
+  std::string urlstr(URL ? URL : "");
+  std::string protocol, unused;
+  vtkMySQLDatabase *db = 0;
+
+  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
+      protocol == "mysql")
+    {
+    db = vtkMySQLDatabase::New();
+    db->ParseURL(URL);
+    }
+
+  return db;
+}
+
+class vtkMySQLDatabaseRegister
+{
+public:
+  vtkMySQLDatabaseRegister()
+    {
+    vtkSQLDatabase::RegisterCreateFromURLCallback(MySQLCreateFunction);
+    }
+  ~vtkMySQLDatabaseRegister()
+    {
+    vtkSQLDatabase::UnRegisterCreateFromURLCallback(MySQLCreateFunction);
+    }
+};
+
+// Remove ifndef in VTK 6.0: only register callback in old layout.
+#ifndef VTK_USE_MYSQL
+static vtkMySQLDatabaseRegister mySQLDataBaseRegister;
+#endif
 
 // ----------------------------------------------------------------------
 vtkMySQLDatabase::vtkMySQLDatabase() :
@@ -351,13 +385,13 @@ vtkStdString vtkMySQLDatabase::GetURL()
 // ----------------------------------------------------------------------
 bool vtkMySQLDatabase::ParseURL(const char* URL)
 {
-  vtkstd::string urlstr( URL ? URL : "" );
-  vtkstd::string protocol;
-  vtkstd::string username;
-  vtkstd::string password;
-  vtkstd::string hostname;
-  vtkstd::string dataport;
-  vtkstd::string database;
+  std::string urlstr( URL ? URL : "" );
+  std::string protocol;
+  std::string username;
+  std::string password;
+  std::string hostname;
+  std::string dataport;
+  std::string database;
 
   if ( ! vtksys::SystemTools::ParseURL(
       urlstr, protocol, username, password, hostname, dataport, database) )

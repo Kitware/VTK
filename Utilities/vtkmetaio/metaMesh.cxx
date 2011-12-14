@@ -27,7 +27,7 @@ namespace METAIO_NAMESPACE {
 
 MeshPoint::
 MeshPoint(int dim)
-{ 
+{
   m_Dim = dim;
   m_X = new float[m_Dim];
   for(unsigned int i=0;i<m_Dim;i++)
@@ -38,13 +38,13 @@ MeshPoint(int dim)
 
 MeshPoint::
 ~MeshPoint()
-{ 
+{
   delete []m_X;
 }
 
 MeshCell::
 MeshCell(int dim)
-{ 
+{
   m_Dim = dim;
   m_Id = -1;
   m_PointsId = new int[m_Dim];
@@ -56,10 +56,10 @@ MeshCell(int dim)
 
 MeshCell::
 ~MeshCell()
-{ 
+{
   delete []m_PointsId;
 }
-  
+
 
 //
 // MetaMesh Constructors
@@ -70,7 +70,7 @@ MetaMesh()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaMesh()" << METAIO_STREAM::endl;
   m_NPoints = 0;
- 
+
   for(unsigned int i=0;i<MET_NUM_CELL_TYPES;i++)
     {
     m_CellListArray[i] = NULL;
@@ -85,7 +85,7 @@ MetaMesh(const char *_headerName)
 {
   if(META_DEBUG)  METAIO_STREAM::cout << "MetaMesh()" << METAIO_STREAM::endl;
   m_NPoints = 0;
-  
+
   for(unsigned int i=0;i<MET_NUM_CELL_TYPES;i++)
     {
     m_CellListArray[i] = NULL;
@@ -186,7 +186,7 @@ Clear(void)
   if(META_DEBUG) METAIO_STREAM::cout << "MetaMesh: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
   if(META_DEBUG) METAIO_STREAM::cout << "MetaMesh: Clear: m_NPoints" << METAIO_STREAM::endl;
-  
+
   // Delete the list of pointers to points.
   PointListType::iterator it_pnt = m_PointList.begin();
   while(it_pnt != m_PointList.end())
@@ -255,7 +255,7 @@ Clear(void)
   m_PointDataType = MET_FLOAT;
   m_CellDataType = MET_FLOAT;
 }
-        
+
 /** Destroy tube information */
 void MetaMesh::
 M_Destroy(void)
@@ -288,7 +288,7 @@ M_SetupReadFields(void)
   MET_InitReadField(mF, "PointType", MET_STRING, true);
   mF->required = true;
   m_Fields.push_back(mF);
- 
+
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "PointDataType", MET_STRING, true);
   mF->required = true;
@@ -312,7 +312,7 @@ M_SetupWriteFields(void)
   MetaObject::M_SetupWriteFields();
 
   MET_FieldRecordType * mF;
-  
+
   char s[255];
   mF = new MET_FieldRecordType;
   MET_TypeToString(m_PointType, s);
@@ -385,7 +385,7 @@ M_Read(void)
   }
 
   if(META_DEBUG) METAIO_STREAM::cout << "MetaMesh: M_Read: Parsing Header" << METAIO_STREAM::endl;
- 
+
   MET_FieldRecordType * mF;
 
   unsigned int numberOfCellTypes =0;
@@ -394,7 +394,7 @@ M_Read(void)
   {
     numberOfCellTypes= (int)mF->value[0];
   }
- 
+
   mF = MET_GetFieldRecord("NPoints", &m_Fields);
   if(mF->defined)
   {
@@ -432,24 +432,25 @@ M_Read(void)
     int elementSize;
     MET_SizeOfType(m_PointType, &elementSize);
     int readSize = m_NPoints*(m_NDims)*elementSize+m_NPoints*sizeof(int);
-    
+
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
     int gc = m_ReadStream->gcount();
     if(gc != readSize)
     {
-      METAIO_STREAM::cout << "MetaMesh: m_Read: Points not read completely" 
+      METAIO_STREAM::cout << "MetaMesh: m_Read: Points not read completely"
                           << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "   ideal = " << readSize 
+      METAIO_STREAM::cout << "   ideal = " << readSize
                           << " : actual = " << gc << METAIO_STREAM::endl;
+      delete [] _data;
       return false;
     }
 
     int i=0;
     int d;
     int td;
-    for(j=0; j<m_NPoints; j++) 
+    for(j=0; j<m_NPoints; j++)
       {
       MeshPoint* pnt = new MeshPoint(m_NDims);
       unsigned int k;
@@ -463,7 +464,7 @@ M_Read(void)
       pnt->m_Id = td;
       i+= sizeof(int);
       delete [] num;
-      
+
       for(d=0; d<m_NDims; d++)
         {
         num = new char[elementSize];
@@ -490,7 +491,7 @@ M_Read(void)
           pnt->m_X[d] = val;
           }
         else if(m_PointType == MET_USHORT)
-          { 
+          {
           unsigned short val = (unsigned short)((unsigned short*)num)[0];
           MET_SwapByteIfSystemMSB(&val,MET_USHORT);
           pnt->m_X[d] = val;
@@ -502,31 +503,31 @@ M_Read(void)
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_UINT)
-          { 
+          {
           unsigned int val = (unsigned int)((char*)num)[0];
           MET_SwapByteIfSystemMSB(&val,MET_UINT);
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_LONG)
-          { 
+          {
           long val = (long)((long*)num)[0];
           MET_SwapByteIfSystemMSB(&val,MET_LONG);
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_ULONG)
-          { 
+          {
           unsigned long val = (unsigned long)((unsigned long*)num)[0];
           MET_SwapByteIfSystemMSB(&val,MET_ULONG);
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_FLOAT)
-          { 
+          {
           float val = (float)((float*)num)[0];
           MET_SwapByteIfSystemMSB(&val,MET_FLOAT);
           pnt->m_X[d] = val;
           }
         else if(m_PointType == MET_DOUBLE)
-          { 
+          {
           double val = (double)((double*)num)[0];
           MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
           pnt->m_X[d] = (float)val;
@@ -539,15 +540,15 @@ M_Read(void)
     }
   else
     {
-    for(j=0; j<m_NPoints; j++) 
+    for(j=0; j<m_NPoints; j++)
       {
       MeshPoint* pnt = new MeshPoint(m_NDims);
-      
+
       float v[10];
       for(int k=0; k<m_NDims+1; k++)
         {
         *m_ReadStream >> v[k];
-        m_ReadStream->get(); 
+        m_ReadStream->get();
         }
 
       int d;
@@ -555,7 +556,7 @@ M_Read(void)
       for(d=0; d<m_NDims; d++)
         {
         pnt->m_X[d] = v[d+1];
-        } 
+        }
       m_PointList.push_back(pnt);
       }
 
@@ -565,7 +566,7 @@ M_Read(void)
       c = m_ReadStream->get();// to avoid unrecognize charactere
       }
     }
-  
+
   // Now reading the cells
   for(unsigned int nCellType=0;nCellType<numberOfCellTypes;nCellType++)
     {
@@ -582,10 +583,10 @@ M_Read(void)
     MET_InitReadField(mF, "Cells", MET_NONE, true);
     mF->terminateRead = true;
     m_Fields.push_back(mF);
-  
+
    if(!MET_Read(*m_ReadStream, & m_Fields))
       {
-      METAIO_STREAM::cout << "MetaObject: Read: MET_Read Failed" 
+      METAIO_STREAM::cout << "MetaObject: Read: MET_Read Failed"
                           << METAIO_STREAM::endl;
       return false;
       }
@@ -597,7 +598,7 @@ M_Read(void)
     }
 
     MET_CellGeometry celltype = MET_VERTEX_CELL;
-  
+
     mF = MET_GetFieldRecord("CellType", &m_Fields);
     if(mF->defined)
       {
@@ -614,24 +615,25 @@ M_Read(void)
     {
       unsigned int totalcellsize = (MET_CellSize[celltype]+1)*m_NCells;
       int readSize = totalcellsize*sizeof(int);
-    
+
       char* _data = new char[readSize];
       m_ReadStream->read((char *)_data, readSize);
 
       int gc = m_ReadStream->gcount();
       if(gc != readSize)
         {
-        METAIO_STREAM::cout << "MetaMesh: m_Read: Cells not read completely" 
+        METAIO_STREAM::cout << "MetaMesh: m_Read: Cells not read completely"
                             << METAIO_STREAM::endl;
         METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc
                             << METAIO_STREAM::endl;
         return false;
+        delete [] _data;
         }
 
       int i=0;
       int d;
       int td;
-      for(j=0; j<(int)m_NCells; j++) 
+      for(j=0; j<(int)m_NCells; j++)
         {
         int n = MET_CellSize[celltype];
         MeshCell* cell = new MeshCell(n);
@@ -668,12 +670,12 @@ M_Read(void)
       }
     else
       {
-      for(j=0; j<(int)m_NCells; j++) 
-        {     
-        int v;   
+      for(j=0; j<(int)m_NCells; j++)
+        {
+        int v;
         int n = MET_CellSize[celltype];
         MeshCell* cell = new MeshCell(MET_CellSize[celltype]);
-        
+
         *m_ReadStream >> v;
         m_ReadStream->get();
         cell->m_Id = v;
@@ -687,7 +689,7 @@ M_Read(void)
         m_CellListArray[celltype]->push_back(cell);
         }
 
-      
+
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
       {
@@ -713,7 +715,7 @@ M_Read(void)
   MET_InitReadField(mF, "CellLinks", MET_NONE, false);
   mF->terminateRead = true;
   m_Fields.push_back(mF);
-  
+
   if(!MET_Read(*m_ReadStream, & m_Fields,'=',false,false))
     {
     METAIO_STREAM::cout << "MetaObject: Read: MET_Read Failed" << METAIO_STREAM::endl;
@@ -739,25 +741,26 @@ M_Read(void)
   if(m_BinaryData)
     {
     int readSize = totalCellLink*sizeof(int);
-    
+
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
     int gc = m_ReadStream->gcount();
     if(gc != readSize)
       {
-      METAIO_STREAM::cout << "MetaMesh: m_Read: Cell Link not read completely" 
+      METAIO_STREAM::cout << "MetaMesh: m_Read: Cell Link not read completely"
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
+      delete [] _data;
       return false;
       }
     int i=0;
     int d;
     int td;
-    for(j=0; j<(int)m_NCellLinks; j++) 
+    for(j=0; j<(int)m_NCellLinks; j++)
       {
       MeshCellLink* link = new MeshCellLink();
-   
+
       unsigned int k;
       char* num = new char[sizeof(int)];
       for(k=0;k<sizeof(int);k++)
@@ -767,7 +770,7 @@ M_Read(void)
       td = (int)((int*)num)[0];
       MET_SwapByteIfSystemMSB(&td,MET_INT);
       link->m_Id = (int)td;
-      
+
       i += sizeof(int);
       for(k=0;k<sizeof(int);k++)
         {
@@ -776,7 +779,7 @@ M_Read(void)
       int n = (int)((int*)num)[0];
       MET_SwapByteIfSystemMSB(&n,MET_INT);
       i += sizeof(int);
-      
+
       for(d=0; d<n; d++)
         {
         for(k=0;k<sizeof(int);k++)
@@ -795,11 +798,11 @@ M_Read(void)
     }
   else
     {
-    for(j=0; j<(int)m_NCellLinks; j++) 
-      {     
-      int v;   
+    for(j=0; j<(int)m_NCellLinks; j++)
+      {
+      int v;
       MeshCellLink* link = new MeshCellLink();
-       
+
       *m_ReadStream >> v;
       m_ReadStream->get();
       link->m_Id = v;
@@ -816,7 +819,7 @@ M_Read(void)
         }
       m_CellLinks.push_back(link);
       }
-      
+
     if(m_NCellLinks > 0)
       {
       char c = ' ';
@@ -849,13 +852,13 @@ M_Read(void)
   MET_InitReadField(mF, "PointData", MET_NONE, false);
   mF->terminateRead = true;
   m_Fields.push_back(mF);
-  
+
   if(!MET_Read(*m_ReadStream, & m_Fields,'=',false,false))
     {
     METAIO_STREAM::cout << "MetaObject: Read: MET_Read Failed" << METAIO_STREAM::endl;
     return false;
     }
- 
+
   mF = MET_GetFieldRecord("NPointData", &m_Fields);
   if(mF->defined)
     {
@@ -875,18 +878,19 @@ M_Read(void)
   unsigned int gc = m_ReadStream->gcount();
   if(gc != pointDataSize)
     {
-    METAIO_STREAM::cout << "MetaMesh: m_Read: PointData not read completely" 
+    METAIO_STREAM::cout << "MetaMesh: m_Read: PointData not read completely"
               << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "   ideal = " << pointDataSize << " : actual = " << gc << METAIO_STREAM::endl;
+    delete [] _data;
     return false;
     }
   int i=0;
   int td;
 
-  for(j=0; j<(int)m_NPointData; j++)  
+  for(j=0; j<(int)m_NPointData; j++)
     {
     MeshDataBase* pd;
-    
+
     unsigned int k;
     char* num = new char[sizeof(int)];
     for(k=0;k<sizeof(int);k++)
@@ -901,7 +905,7 @@ M_Read(void)
 
     int elementSize;
     MET_SizeOfType(m_PointDataType, &elementSize);
-    
+
     num = new char[elementSize];
     for(k=0;k<static_cast<unsigned int>(elementSize);k++)
       {
@@ -912,8 +916,8 @@ M_Read(void)
     if(m_PointDataType == MET_CHAR)
       {
       char val = (char)((char*)num)[0];
-      pd = new MeshData<char>(); 
-      static_cast<MeshData<char>*>(pd)->m_Data = (char)val; 
+      pd = new MeshData<char>();
+      static_cast<MeshData<char>*>(pd)->m_Data = (char)val;
       }
     else if(m_PointDataType == MET_UCHAR)
       {
@@ -929,7 +933,7 @@ M_Read(void)
       static_cast<MeshData<short>*>(pd)->m_Data = (short)val;
       }
     else if(m_PointDataType == MET_USHORT)
-      { 
+      {
       unsigned short val = (unsigned short)((unsigned short*)num)[0];
       pd = new MeshData<unsigned short>();
       MET_SwapByteIfSystemMSB(&val,MET_USHORT);
@@ -943,42 +947,42 @@ M_Read(void)
       static_cast<MeshData<int>*>(pd)->m_Data = (int)val;
       }
     else if(m_PointDataType == MET_UINT)
-      { 
+      {
       unsigned int val = (unsigned int)((char*)num)[0];
       pd = new MeshData<unsigned int>();
       MET_SwapByteIfSystemMSB(&val,MET_UINT);
       static_cast<MeshData<unsigned int>*>(pd)->m_Data = (unsigned int)val;
       }
     else if(m_PointDataType == MET_LONG)
-      { 
+      {
       long val = (long)((long*)num)[0];
-      pd = new MeshData<long>(); 
+      pd = new MeshData<long>();
       MET_SwapByteIfSystemMSB(&val,MET_LONG);
       static_cast<MeshData<long>*>(pd)->m_Data = (long)val;
       }
     else if(m_PointDataType == MET_ULONG)
-      { 
+      {
       unsigned long val = (unsigned long)((unsigned long*)num)[0];
       pd = new MeshData<unsigned long>();
       MET_SwapByteIfSystemMSB(&val,MET_ULONG);
       static_cast<MeshData<unsigned long>*>(pd)->m_Data = (unsigned long)val;
       }
     else if(m_PointDataType == MET_FLOAT)
-      { 
+      {
       float val = (float)((float*)num)[0];
-      pd = new MeshData<float>();   
-      MET_SwapByteIfSystemMSB(&val,MET_FLOAT); 
+      pd = new MeshData<float>();
+      MET_SwapByteIfSystemMSB(&val,MET_FLOAT);
       static_cast<MeshData<float>*>(pd)->m_Data = (float)val;
       }
     else if(m_PointDataType == MET_DOUBLE)
-      { 
+      {
       double val = (double)((double*)num)[0];
       pd = new MeshData<double>();
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(pd)->m_Data = val;
       }
     else  // assume double
-      { 
+      {
       METAIO_STREAM::cerr << "Warning: Mesh point data type not known - assuming double"
                 << METAIO_STREAM::endl;
       double val = (double)((double*)num)[0];
@@ -986,7 +990,7 @@ M_Read(void)
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(pd)->m_Data = val;
       }
-       
+
     delete [] num;
     pd->m_Id = (int)td;
     m_PointData.push_back(pd);
@@ -1016,14 +1020,14 @@ M_Read(void)
   MET_InitReadField(mF, "CellData", MET_NONE, false);
   mF->terminateRead = true;
   m_Fields.push_back(mF);
-  
+
   if(!MET_Read(*m_ReadStream, & m_Fields,'=',false,false))
     {
     METAIO_STREAM::cout << "MetaObject: Read: MET_Read Failed" << METAIO_STREAM::endl;
     return false;
     }
 
- 
+
   mF = MET_GetFieldRecord("NCellData", &m_Fields);
   if(mF->defined)
     {
@@ -1043,14 +1047,15 @@ M_Read(void)
   unsigned int gcCell = m_ReadStream->gcount();
   if(gcCell != cellDataSize)
     {
-    METAIO_STREAM::cout << "MetaMesh: m_Read: data not read completely" 
+    METAIO_STREAM::cout << "MetaMesh: m_Read: data not read completely"
               << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "   ideal = " << cellDataSize << " : actual = " << gcCell << METAIO_STREAM::endl;
+    delete [] _data;
     return false;
     }
-  
+
   i=0;
-  for(j=0; j<(int)m_NCellData; j++)  
+  for(j=0; j<(int)m_NCellData; j++)
     {
     MeshDataBase* cd;
 
@@ -1077,16 +1082,16 @@ M_Read(void)
     i+=elementSize;
 
     if(m_CellDataType == MET_CHAR)
-      { 
+      {
       char val = (char)((char*)num)[0];
-      cd = new MeshData<char>(); 
+      cd = new MeshData<char>();
       static_cast<MeshData<char>*>(cd)->m_Data = (char)val;
       }
     else if(m_CellDataType == MET_UCHAR)
       {
       unsigned char val = (unsigned char)((unsigned char*)num)[0];
       cd = new MeshData<unsigned char>();
-      static_cast<MeshData<unsigned char>*>(cd)->m_Data = (unsigned char)val; 
+      static_cast<MeshData<unsigned char>*>(cd)->m_Data = (unsigned char)val;
       }
     else if(m_CellDataType == MET_SHORT)
       {
@@ -1096,7 +1101,7 @@ M_Read(void)
       static_cast<MeshData<short>*>(cd)->m_Data = (short)val;
       }
     else if(m_CellDataType == MET_USHORT)
-      { 
+      {
       unsigned short val = (unsigned short)((unsigned short*)num)[0];
       cd = new MeshData<unsigned short>();
       MET_SwapByteIfSystemMSB(&val,MET_USHORT);
@@ -1110,42 +1115,42 @@ M_Read(void)
       static_cast<MeshData<int>*>(cd)->m_Data = (int)val;
       }
     else if(m_CellDataType == MET_UINT)
-      { 
+      {
       unsigned int val = (unsigned int)((unsigned int*)num)[0];
       cd = new MeshData<unsigned int>();
       MET_SwapByteIfSystemMSB(&val,MET_UINT);
       static_cast<MeshData<unsigned int>*>(cd)->m_Data = (unsigned int)val;
       }
     else if(m_CellDataType == MET_LONG)
-      { 
+      {
       long val = (long)((long*)num)[0];
       cd = new MeshData<long>();
       MET_SwapByteIfSystemMSB(&val,MET_LONG);
-      static_cast<MeshData<long>*>(cd)->m_Data = (long)val; 
+      static_cast<MeshData<long>*>(cd)->m_Data = (long)val;
       }
     else if(m_CellDataType == MET_ULONG)
-      { 
+      {
       unsigned long val = (unsigned long)((unsigned long*)num)[0];
       cd = new MeshData<unsigned long>();
       MET_SwapByteIfSystemMSB(&val,MET_ULONG);
       static_cast<MeshData<unsigned long>*>(cd)->m_Data = (long)val;
       }
     else if(m_CellDataType == MET_FLOAT)
-      { 
+      {
       float val = (float)((float*)num)[0];
       cd = new MeshData<float>();
       MET_SwapByteIfSystemMSB(&val,MET_FLOAT);
       static_cast<MeshData<float>*>(cd)->m_Data = (float)val;
       }
     else if(m_CellDataType == MET_DOUBLE)
-      { 
+      {
       double val = (double)((double*)num)[0];
       cd = new MeshData<double>();
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(cd)->m_Data = val;
       }
     else
-      { 
+      {
       METAIO_STREAM::cerr << "Warning: Mesh point data type not known - assuming double"
                 << METAIO_STREAM::endl;
       double val = (double)((double*)num)[0];
@@ -1153,7 +1158,7 @@ M_Read(void)
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(cd)->m_Data = val;
       }
-       
+
     delete [] num;
 
     cd->m_Id = (int)td;
@@ -1205,7 +1210,7 @@ M_Write(void)
         MET_DoubleToValue((double)pntX,m_PointType,data,i++);
         }
       it++;
-      }  
+      }
     m_WriteStream->write((char *)data,(m_NDims+1)*m_NPoints*elementSize);
     m_WriteStream->write("\n",1);
     delete []data;
@@ -1290,7 +1295,7 @@ M_Write(void)
         {
         CellListType::const_iterator it = m_CellListArray[i]->begin();
         CellListType::const_iterator itEnd = m_CellListArray[i]->end();
-  
+
         unsigned int d;
         while(it != itEnd)
           {
@@ -1319,7 +1324,7 @@ M_Write(void)
 
     int cellLinksSize = 0;
     if(m_BinaryData)
-      {    
+      {
       CellLinkListType::const_iterator it = m_CellLinks.begin();
       CellLinkListType::const_iterator itEnd = m_CellLinks.end();
       while(it != itEnd)
@@ -1380,7 +1385,7 @@ M_Write(void)
       {
       CellLinkListType::const_iterator it = m_CellLinks.begin();
       CellLinkListType::const_iterator itEnd = m_CellLinks.end();
-  
+
       while(it != itEnd)
         {
         *m_WriteStream << (*it)->m_Id << " ";
@@ -1409,7 +1414,7 @@ M_Write(void)
     MET_InitWriteField(mF, "NPointData", MET_INT,m_NPointData);
     m_Fields.push_back(mF);
 
-    int pointDataSize = 0;    
+    int pointDataSize = 0;
     PointDataListType::const_iterator it = m_PointData.begin();
     PointDataListType::const_iterator itEnd = m_PointData.end();
     while(it != itEnd)
@@ -1428,12 +1433,12 @@ M_Write(void)
 
     if(!MetaObject::M_Write())
       {
-      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file" 
+      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file"
                           << METAIO_STREAM::endl;
       return false;
       }
 
-    // Then copy all Point data : 
+    // Then copy all Point data :
     // Always binary to be compatible with everything
     it = m_PointData.begin();
     itEnd = m_PointData.end();
@@ -1457,7 +1462,7 @@ M_Write(void)
     MET_InitWriteField(mF, "NCellData", MET_INT,m_NCellData);
     m_Fields.push_back(mF);
 
-    int cellDataSize = 0;    
+    int cellDataSize = 0;
     CellDataListType::const_iterator it = m_CellData.begin();
     CellDataListType::const_iterator itEnd = m_CellData.end();
     while(it != itEnd)
@@ -1477,12 +1482,12 @@ M_Write(void)
 
     if(!MetaObject::M_Write())
       {
-      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file" 
+      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file"
                           << METAIO_STREAM::endl;
       return false;
       }
 
-    // Then copy all Cell data : 
+    // Then copy all Cell data :
     // Always binary to be compatible with everything
     it = m_CellData.begin();
     itEnd = m_CellData.end();

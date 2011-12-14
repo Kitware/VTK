@@ -12,7 +12,7 @@
 GET_PROPERTY(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
 EXPORT(TARGETS ${VTK_TARGETS} FILE ${VTK_BINARY_DIR}/${VTK_INSTALL_EXPORT_NAME}.cmake)
 INSTALL(EXPORT ${VTK_INSTALL_EXPORT_NAME} DESTINATION ${VTK_INSTALL_LIB_DIR_CM24})
-
+GET_PROPERTY(VTK_LIBRARIES GLOBAL PROPERTY VTK_LIBRARIES)
 #-----------------------------------------------------------------------------
 # Create the VTKConfig.cmake file containing the VTK configuration.
 # Since it might generate configuration file depending

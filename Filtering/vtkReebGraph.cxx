@@ -1112,7 +1112,7 @@ vtkReebGraph::Implementation::vtkReebPath vtkReebGraph::Implementation::FindPath
 
     //finished with this entry
     if (entry.ArcTable) delete entry.ArcTable;
-    if (entry.NodeTable) delete entry.NodeTable;
+    if (entry.NodeTable) delete [] entry.NodeTable;
     }
 
   goto NOT_FOUND;

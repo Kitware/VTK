@@ -23,8 +23,8 @@
 #include "vtkLine.h"
 #include "vtkCamera.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 
@@ -411,6 +411,15 @@ void vtkBoundedPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
   if ( this->BoundingPlanes )
     {
     this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << " (none)\n";
+    }
+  os << indent << "Oblique plane:\n";
+  if ( this->ObliquePlane )
+    {
+    this->ObliquePlane->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {

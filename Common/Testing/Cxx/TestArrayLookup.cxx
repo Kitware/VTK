@@ -466,7 +466,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     vtksys_stl::multimap<int, vtkIdType> map;
     for (vtkIdType i = 0; i < arrSize; ++i, ++ptr)
       {
-      map.insert(vtkstd::pair<const int, vtkIdType>(*ptr, i));
+      map.insert(std::pair<const int, vtkIdType>(*ptr, i));
       }
     timer->StopTimer();
     cerr << "," << timer->GetElapsedTime();

@@ -17,7 +17,7 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
+#define VTK_LEGACY_SILENT
 #include "vtkExodusReader.h"
 #include "vtkExodusModel.h"
 #include "vtkCell.h"
@@ -41,11 +41,11 @@
 #include <ctype.h>
 #include "vtk_exodusII.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/string>
-#include <vtkstd/vector>
-#include <vtkstd/map>
-#include <vtkstd/list>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
 #include "vtkStdString.h"
 
 #include <math.h>
@@ -63,15 +63,15 @@ private:
   int ArrayStatusInitValue[vtkExodusReader::NUM_ARRAY_TYPES];
 
   // Field array stuff
-  vtkstd::vector<vtkStdString> pointArrayNames;
-  vtkstd::vector<int> pointArrayComponents;
-  vtkstd::vector<int> pointArrayStatus;
-  vtkstd::map<vtkStdString,int> pointArrayInitStatus;
+  std::vector<vtkStdString> pointArrayNames;
+  std::vector<int> pointArrayComponents;
+  std::vector<int> pointArrayStatus;
+  std::map<vtkStdString,int> pointArrayInitStatus;
 
-  vtkstd::vector<vtkStdString> cellArrayNames;
-  vtkstd::vector<int> cellArrayComponents;
-  vtkstd::vector<int> cellArrayStatus;
-  vtkstd::map<vtkStdString,int> cellArrayInitStatus;
+  std::vector<vtkStdString> cellArrayNames;
+  std::vector<int> cellArrayComponents;
+  std::vector<int> cellArrayStatus;
+  std::map<vtkStdString,int> cellArrayInitStatus;
 
   int originalNumberOfPointArrays;
   int originalNumberOfCellArrays;
@@ -82,11 +82,11 @@ private:
   char **cellArrayRawBuffer;
 
   // Block stuff
-  vtkstd::vector<vtkStdString> blockNames;
-  vtkstd::vector<int> blockIds;
-  vtkstd::vector<int> blockStatus;
-  vtkstd::vector<int> numElementsInBlock;
-  vtkstd::map<vtkStdString,int> blockInitStatus;
+  std::vector<vtkStdString> blockNames;
+  std::vector<int> blockIds;
+  std::vector<int> blockStatus;
+  std::vector<int> numElementsInBlock;
+  std::map<vtkStdString,int> blockInitStatus;
 
   // Node/Side set id stuff
   //  Store *Ids* for each node/side set
@@ -95,41 +95,41 @@ private:
   //  FIXME!!! since node/side set ids should be unique, should this
   //           be a 'set' instead of a 'vector'?
   //  FIXME!!! should we store side/edge type along with side set info?
-  vtkstd::vector<int> nodeSetId;
-  vtkstd::vector<int> nodeSetSize;
-  vtkstd::vector<int> nodeSetDistFact;
-  vtkstd::vector<int> nodeSetStatus;
-  vtkstd::vector<vtkStdString> nodeSetName;
-  vtkstd::map<vtkStdString,int> nodeSetInitStatus;
+  std::vector<int> nodeSetId;
+  std::vector<int> nodeSetSize;
+  std::vector<int> nodeSetDistFact;
+  std::vector<int> nodeSetStatus;
+  std::vector<vtkStdString> nodeSetName;
+  std::map<vtkStdString,int> nodeSetInitStatus;
 
-  vtkstd::vector<int> sideSetId;
-  vtkstd::vector<int> sideSetSize;
-  vtkstd::vector<int> sideSetDistFact;
-  vtkstd::vector<int> sideSetStatus;
-  vtkstd::vector<vtkStdString> sideSetName;
-  vtkstd::map<vtkStdString,int> sideSetInitStatus;
+  std::vector<int> sideSetId;
+  std::vector<int> sideSetSize;
+  std::vector<int> sideSetDistFact;
+  std::vector<int> sideSetStatus;
+  std::vector<vtkStdString> sideSetName;
+  std::map<vtkStdString,int> sideSetInitStatus;
 
   //part stuff. There is no PartStatus array
   //a part is active only if all its blocks are active
-  vtkstd::vector<vtkStdString> partNames;
-  vtkstd::map<int,int> blockIDToPartID;
-  vtkstd::map<int,vtkstd::vector<int> > partIDToBlockIDs;
+  std::vector<vtkStdString> partNames;
+  std::map<int,int> blockIDToPartID;
+  std::map<int,std::vector<int> > partIDToBlockIDs;
   
   //material stuff. Again, no material array
   //a material is active only is all its blocks are active
-  vtkstd::vector<vtkStdString> materialNames;
-  vtkstd::map<int,int> blockIDToMaterialID;
-  vtkstd::map<int,vtkstd::vector<int> > materialIDToBlockIDs;
+  std::vector<vtkStdString> materialNames;
+  std::map<int,int> blockIDToMaterialID;
+  std::map<int,std::vector<int> > materialIDToBlockIDs;
 
   //assembly stuff
-  vtkstd::vector<vtkStdString> assemblyNames;
-  vtkstd::map<int,vtkstd::vector<int> > blockIDToAssemblyIDs;
-  vtkstd::map<int,vtkstd::vector<int> > assemblyIDToBlockIDs;
+  std::vector<vtkStdString> assemblyNames;
+  std::map<int,std::vector<int> > blockIDToAssemblyIDs;
+  std::map<int,std::vector<int> > assemblyIDToBlockIDs;
   
 
   //sortedorder[sortedID]=unsortedID
   //can do name[sortedOrder[idx]]
-  vtkstd::map<int,int> sortedOrder;
+  std::map<int,int> sortedOrder;
 
   int DisplayType;
 
@@ -359,7 +359,7 @@ public:
 
   inline int GetNodeSetInitStatus( vtkStdString name )
     {
-    vtkstd::map<vtkStdString,int>::iterator i = nodeSetInitStatus.find(name);
+    std::map<vtkStdString,int>::iterator i = nodeSetInitStatus.find(name);
     if( i!= nodeSetInitStatus.end() )
       {
       return (*i).second;
@@ -383,7 +383,7 @@ public:
     }
   inline void SetNodeSetStatus(vtkStdString name, int status) 
     {
-      for(vtkstd::vector<int>::size_type id=0; id < this->nodeSetStatus.size(); ++id) 
+      for(std::vector<int>::size_type id=0; id < this->nodeSetStatus.size(); ++id)
         {
         if ( name == this->nodeSetName[id] ) 
           {
@@ -394,7 +394,7 @@ public:
     }
   inline int GetSideSetInitStatus( vtkStdString name )
     {
-    vtkstd::map<vtkStdString,int>::iterator i = sideSetInitStatus.find(name);
+    std::map<vtkStdString,int>::iterator i = sideSetInitStatus.find(name);
     if( i!= sideSetInitStatus.end() )
       {
       return (*i).second;
@@ -418,7 +418,7 @@ public:
     }
   inline void SetSideSetStatus(vtkStdString name, int status) 
     {
-      for(vtkstd::vector<int>::size_type id=0; id < this->sideSetStatus.size(); ++id) 
+      for(std::vector<int>::size_type id=0; id < this->sideSetStatus.size(); ++id)
         {
         if ( name == this->sideSetName[id] ) 
           {
@@ -438,7 +438,7 @@ public:
     }
   inline int GetNodeSetStatus(vtkStdString name) 
     {
-      for(vtkstd::vector<int>::size_type id=0; id < this->nodeSetStatus.size(); ++id) 
+      for(std::vector<int>::size_type id=0; id < this->nodeSetStatus.size(); ++id)
         {
         if ( name == this->nodeSetName[id] ) 
           {
@@ -454,7 +454,7 @@ public:
     }
   inline int GetSideSetStatus(vtkStdString name) 
     {
-      for(vtkstd::vector<int>::size_type id=0; id < this->sideSetStatus.size(); ++id) 
+      for(std::vector<int>::size_type id=0; id < this->sideSetStatus.size(); ++id)
         {
         if ( name == this->sideSetName[id] ) 
           {
@@ -471,7 +471,7 @@ public:
   // Block attributes
   inline void AddBlock(vtkStdString blockName, vtkStdString partName, 
                        vtkStdString materialName, 
-                       vtkstd::vector<vtkStdString> localAssemblyNames,
+                       std::vector<vtkStdString> localAssemblyNames,
                        int id, int num_elem, int status) 
   {
     blockNames.push_back(blockName);
@@ -496,7 +496,7 @@ public:
       int partID=static_cast<int>(partNames.size());
       partNames.push_back(partName);
       blockIDToPartID[blockID]=partID;
-      partIDToBlockIDs[partID]=vtkstd::vector<int>();
+      partIDToBlockIDs[partID]=std::vector<int>();
       partIDToBlockIDs[partID].push_back(blockID);
       }
     
@@ -516,7 +516,7 @@ public:
       int materialID=static_cast<int>(materialNames.size());
       materialNames.push_back(materialName);
       blockIDToMaterialID[blockID]=materialID;
-      materialIDToBlockIDs[materialID]=vtkstd::vector<int>();
+      materialIDToBlockIDs[materialID]=std::vector<int>();
       materialIDToBlockIDs[materialID].push_back(blockID);
       }
     
@@ -537,9 +537,9 @@ public:
         {
         int assemblyID=static_cast<int>(assemblyNames.size());
         assemblyNames.push_back(assemblyName);
-        blockIDToAssemblyIDs[blockID]=vtkstd::vector<int>();
+        blockIDToAssemblyIDs[blockID]=std::vector<int>();
         blockIDToAssemblyIDs[blockID].push_back(assemblyID);
-        assemblyIDToBlockIDs[assemblyID]=vtkstd::vector<int>();
+        assemblyIDToBlockIDs[assemblyID]=std::vector<int>();
         assemblyIDToBlockIDs[assemblyID].push_back(blockID);
         }
       }
@@ -620,7 +620,7 @@ public:
     }
   inline int GetBlockInitStatus( vtkStdString name )
     {
-    vtkstd::map<vtkStdString,int>::iterator i = blockInitStatus.find(name);
+    std::map<vtkStdString,int>::iterator i = blockInitStatus.find(name);
     if( i!= blockInitStatus.end() )
       {
       return (*i).second;
@@ -862,7 +862,7 @@ public:
   //Set/GetUnsortedBlockStatus
   inline int GetBlockIndex(int exodusID)
   {
-    for (vtkstd::vector<int>::size_type i=0;i<blockIds.size();i++)
+    for (std::vector<int>::size_type i=0;i<blockIds.size();i++)
       {
       if (exodusID==blockIds[i])
         {
@@ -879,7 +879,7 @@ public:
 //BTX
   static int VectorizeArrays(
     int numOriginalNames, char **originalNames, 
-    vtkstd::vector<vtkStdString> *newNames, vtkstd::vector<int> *newSize);
+    std::vector<vtkStdString> *newNames, std::vector<int> *newSize);
 //ETX
   
   void SortBlocks()
@@ -915,31 +915,31 @@ public:
 class vtkExodusXMLParser: public vtkXMLParser
 {
 private:
-  vtkstd::map<vtkStdString,vtkStdString> MaterialSpecifications;
-  vtkstd::map<vtkStdString,vtkStdString> MaterialDescriptions; 
+  std::map<vtkStdString,vtkStdString> MaterialSpecifications;
+  std::map<vtkStdString,vtkStdString> MaterialDescriptions;
 
-  vtkstd::map<vtkStdString,vtkStdString> PartDescriptions;
-  vtkstd::vector<vtkStdString> MaterialNames;
-  vtkstd::vector<vtkStdString> BlockNames;
+  std::map<vtkStdString,vtkStdString> PartDescriptions;
+  std::vector<vtkStdString> MaterialNames;
+  std::vector<vtkStdString> BlockNames;
   vtkStdString PartNumber;
   vtkStdString InstanceNumber;
   int ParseMaterials;
-  vtkstd::map<int,vtkStdString> BlockIDToPartNumber;
-  vtkstd::map<vtkStdString,vtkstd::vector<vtkStdString> > PartNumberToAssemblyNumbers;
-  vtkstd::map<vtkStdString,vtkstd::vector<vtkStdString> > PartNumberToAssemblyDescriptions;
-  vtkstd::map<vtkStdString,vtkStdString> AssemblyDescriptions;
-  vtkstd::vector<vtkStdString> CurrentAssemblyNumbers;
-  vtkstd::vector<vtkStdString> CurrentAssemblyDescriptions;
+  std::map<int,vtkStdString> BlockIDToPartNumber;
+  std::map<vtkStdString,std::vector<vtkStdString> > PartNumberToAssemblyNumbers;
+  std::map<vtkStdString,std::vector<vtkStdString> > PartNumberToAssemblyDescriptions;
+  std::map<vtkStdString,vtkStdString> AssemblyDescriptions;
+  std::vector<vtkStdString> CurrentAssemblyNumbers;
+  std::vector<vtkStdString> CurrentAssemblyDescriptions;
 
   //mappings for as-tested materials
-  vtkstd::map<vtkStdString,vtkStdString> MaterialSpecificationsBlocks; //maps material name to spec
-  vtkstd::map<vtkStdString,vtkStdString> MaterialDescriptionsBlocks; //maps material name to desc
-  vtkstd::map<int,vtkStdString> BlockIDToMaterial; //maps block id to material
+  std::map<vtkStdString,vtkStdString> MaterialSpecificationsBlocks; //maps material name to spec
+  std::map<vtkStdString,vtkStdString> MaterialDescriptionsBlocks; //maps material name to desc
+  std::map<int,vtkStdString> BlockIDToMaterial; //maps block id to material
 
   //hierarchical list mappings
-  vtkstd::list<vtkStdString> apbList;
-  vtkstd::map<vtkStdString,vtkstd::vector<int> > apbToBlocks;
-  vtkstd::map<vtkStdString,int> apbIndents;
+  std::list<vtkStdString> apbList;
+  std::map<vtkStdString,std::vector<int> > apbToBlocks;
+  std::map<vtkStdString,int> apbIndents;
 
 public:
   vtkTypeMacro(vtkExodusXMLParser,vtkXMLParser);
@@ -981,11 +981,11 @@ public:
   {
     return this->MaterialSpecifications[this->BlockIDToPartNumber[block]];
   }
-  virtual vtkstd::vector<vtkStdString> GetAssemblyNumbers(int block)
+  virtual std::vector<vtkStdString> GetAssemblyNumbers(int block)
   {  
     return this->PartNumberToAssemblyNumbers[this->BlockIDToPartNumber[block]];
   }
-  virtual vtkstd::vector<vtkStdString> GetAssemblyDescriptions(int block)
+  virtual std::vector<vtkStdString> GetAssemblyDescriptions(int block)
   {
     return this->PartNumberToAssemblyDescriptions[this->BlockIDToPartNumber[block]];
   }
@@ -998,7 +998,7 @@ public:
   virtual vtkStdString GetHierarchyEntry(int num)
   {
     //since it's an STL list, we need to get the correct entry
-    vtkstd::list<vtkStdString>::iterator iter=this->apbList.begin();
+    std::list<vtkStdString>::iterator iter=this->apbList.begin();
     for(int i=0;i<num;i++)
       {
       iter++;
@@ -1006,12 +1006,12 @@ public:
     return (*iter);
   }
   
-  virtual vtkstd::vector<int> GetBlocksForEntry(int num)
+  virtual std::vector<int> GetBlocksForEntry(int num)
   {
     return this->apbToBlocks[this->GetHierarchyEntry(num)];
   }
   
-  virtual vtkstd::vector<int> GetBlocksForEntry(vtkStdString entry)
+  virtual std::vector<int> GetBlocksForEntry(vtkStdString entry)
   {
     return this->apbToBlocks[entry];
   }
@@ -1058,7 +1058,7 @@ protected:
       
       //make the entry for the hierarchical list
       vtkStdString result=vtkStdString("");
-      for (vtkstd::vector<int>::size_type i=0;
+      for (std::vector<int>::size_type i=0;
            i<this->CurrentAssemblyNumbers.size()-1;
            i++)
         {
@@ -1072,7 +1072,7 @@ protected:
       //record the indent level, used when we add blocks
       apbIndents[result]=static_cast<int>(this->CurrentAssemblyNumbers.size())-1;
       //make the blocks array
-      apbToBlocks[result]=vtkstd::vector<int>();
+      apbToBlocks[result]=std::vector<int>();
       }
     // ***********Part
     if (strcmp(name,"part")==0)
@@ -1101,13 +1101,13 @@ protected:
       
       //copy the current assemblies to the assemblies list for this part.
       this->PartNumberToAssemblyNumbers[this->PartNumber]=
-        vtkstd::vector<vtkStdString>(this->CurrentAssemblyNumbers);
+        std::vector<vtkStdString>(this->CurrentAssemblyNumbers);
       this->PartNumberToAssemblyDescriptions[this->PartNumber]=
-        vtkstd::vector<vtkStdString>(this->CurrentAssemblyDescriptions);
+        std::vector<vtkStdString>(this->CurrentAssemblyDescriptions);
       
       //make the hierarchical display entry
       vtkStdString result=vtkStdString("");
-      for (vtkstd::vector<int>::size_type i=0;
+      for (std::vector<int>::size_type i=0;
            i<this->CurrentAssemblyNumbers.size();
            i++)
         {
@@ -1120,7 +1120,7 @@ protected:
       apbList.push_back(result);
       //record the indent level
       apbIndents[result]=static_cast<int>(this->CurrentAssemblyNumbers.size());
-      apbToBlocks[result]=vtkstd::vector<int>();
+      apbToBlocks[result]=std::vector<int>();
       }
     // ***********Material-specification
     else if (strcmp(name,"material-specification")==0)
@@ -1181,8 +1181,8 @@ protected:
         if (partEntry!=vtkStdString(""))
           {
           //insert into apbList
-          vtkstd::list<vtkStdString>::iterator pos=
-            vtkstd::find(this->apbList.begin(),this->apbList.end(),partEntry);
+          std::list<vtkStdString>::iterator pos=
+            std::find(this->apbList.begin(),this->apbList.end(),partEntry);
           pos++;
           
           vtkStdString result=vtkStdString("");
@@ -1193,7 +1193,7 @@ protected:
           result+=vtkStdString("Block: ")+vtkStdString(blockString);
           blockEntry=result;
           this->apbList.insert(pos,result);
-          apbToBlocks[result]=vtkstd::vector<int>();
+          apbToBlocks[result]=std::vector<int>();
           }
         if (partEntry!=vtkStdString("") && blockEntry!=vtkStdString(""))
           {
@@ -1209,10 +1209,10 @@ protected:
           apbToBlocks[partEntry].push_back(id);
           
           //get the assemblies
-          vtkstd::vector<vtkStdString> assemblies=
+          std::vector<vtkStdString> assemblies=
             this->PartNumberToAssemblyNumbers[partIndexString];
           //add block ID to assemblies
-          for (vtkstd::vector<vtkStdString>::size_type j=0;j<assemblies.size();j++)
+          for (std::vector<vtkStdString>::size_type j=0;j<assemblies.size();j++)
             {
             vtkStdString assemblyEntry=findEntry(this->apbList,assemblies[j]);
             apbToBlocks[assemblyEntry].push_back(id);
@@ -1254,9 +1254,9 @@ protected:
   }
   
   //returns the first string that contains sstring
-  virtual vtkStdString findEntry(vtkstd::list<vtkStdString> slist, 
+  virtual vtkStdString findEntry(std::list<vtkStdString> slist,
                                  vtkStdString sstring){
-    for (vtkstd::list<vtkStdString>::iterator i=slist.begin();
+    for (std::list<vtkStdString>::iterator i=slist.begin();
          i!=slist.end();
          i++)
       {
@@ -1304,7 +1304,7 @@ protected:
       this->MaterialSpecifications.clear();
       this->MaterialDescriptions.clear();
       
-      for (vtkstd::map<int,vtkStdString>::iterator i=this->BlockIDToPartNumber.begin();i!=this->BlockIDToPartNumber.end();i++)
+      for (std::map<int,vtkStdString>::iterator i=this->BlockIDToPartNumber.begin();i!=this->BlockIDToPartNumber.end();i++)
         {
         int blockID=(*i).first;
         this->MaterialSpecifications[this->BlockIDToPartNumber[blockID]]=
@@ -1318,7 +1318,7 @@ protected:
     //of items from the BlockIDToPartNumber array
     if (this->apbList.size()==0)
       {
-      for (vtkstd::map<int,vtkStdString>::iterator i=this->BlockIDToPartNumber.begin();i!=this->BlockIDToPartNumber.end();i++)
+      for (std::map<int,vtkStdString>::iterator i=this->BlockIDToPartNumber.begin();i!=this->BlockIDToPartNumber.end();i++)
         {
         int id=(*i).first;
         vtkStdString part=(*i).second;
@@ -1346,18 +1346,18 @@ protected:
           {
           this->apbList.push_back(apbPartEntry);
           
-          this->apbToBlocks[apbPartEntry]=vtkstd::vector<int>();
+          this->apbToBlocks[apbPartEntry]=std::vector<int>();
           
           this->apbToBlocks[apbPartEntry].push_back(id);
 
           this->AssemblyDescriptions[apbPartEntry]=vtkStdString("None");
           }
         //insert into apbList
-        vtkstd::list<vtkStdString>::iterator positer=
-          vtkstd::find(this->apbList.begin(),this->apbList.end(),apbPartEntry);
+        std::list<vtkStdString>::iterator positer=
+          std::find(this->apbList.begin(),this->apbList.end(),apbPartEntry);
         positer++;
         this->apbList.insert(positer,apbBlockEntry);
-        this->apbToBlocks[apbBlockEntry]=vtkstd::vector<int>();
+        this->apbToBlocks[apbBlockEntry]=std::vector<int>();
         this->apbToBlocks[apbBlockEntry].push_back(id);        
         
         
@@ -1469,7 +1469,7 @@ char** vtkExodusMetadata::AllocateCellArrayNameBuffer(int num_strings)
 
 int vtkExodusMetadata::VectorizeArrays(
   int numOriginalNames, char **originalNames, 
-  vtkstd::vector<vtkStdString> *newNames, vtkstd::vector<int> *newSize)
+  std::vector<vtkStdString> *newNames, std::vector<int> *newSize)
 {
   newNames->erase(newNames->begin(),newNames->end());
   newSize->erase(newSize->begin(),newSize->end());
@@ -1522,7 +1522,7 @@ int vtkExodusMetadata::VectorizeArrays(
 void vtkExodusMetadata::Finalize()
 {
   int i;
-  vtkstd::map<vtkStdString,int>::iterator iter;
+  std::map<vtkStdString,int>::iterator iter;
 
   ////////////////////////////////
   // Point Arrays
@@ -1648,10 +1648,34 @@ int vtkExodusReader::CanReadFile(const char* fname)
   return 1;
 }
 //----------------------------------------------------------------------------
+//Description:
+//Implementation of SetFileName so we can properly mark it as legacy
+void vtkExodusReader::SetFileName(const char* name)
+{
+  VTK_LEGACY_BODY(vtkExodusReader, "VTK 5.8");
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FileName to " << (name?name:"(null)") );
+  if ( this->FileName == NULL && name == NULL) { return;}
+  if ( this->FileName && name && (!strcmp(this->FileName,name))) { return;}
+  if (this->FileName) { delete [] this->FileName; }
+  if (name)
+    {
+    size_t n = strlen(name) + 1;
+    this->FileName =  new char[n];
+    strncpy(this->FileName,name,n);
+    }
+   else
+    {
+    this->FileName = NULL;
+    }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // Instantiate object with NULL filename.
 vtkExodusReader::vtkExodusReader()
 {
+  VTK_LEGACY_BODY(vtkExodusReader, "VTK 5.8");
   this->FileName = NULL;
   this->XMLFileName=NULL;
 
@@ -2284,8 +2308,8 @@ void vtkExodusReader::SetHierarchyArrayStatus(int index, int flag)
   // {
   if (this->Parser)
     {
-    vtkstd::vector<int> blocks=this->Parser->GetBlocksForEntry(index);
-    for (vtkstd::vector<int>::size_type i=0;i<blocks.size();i++)
+    std::vector<int> blocks=this->Parser->GetBlocksForEntry(index);
+    for (std::vector<int>::size_type i=0;i<blocks.size();i++)
       {
       //cout << "turning block " << blocks[i] << " " << flag << endl;
       this->MetaData->SetUnsortedBlockStatus
@@ -2306,9 +2330,9 @@ void vtkExodusReader::SetHierarchyArrayStatus(const char* name, int flag)
   //{
   if (this->Parser)
     {
-    vtkstd::vector<int> blocks=this->Parser->GetBlocksForEntry
+    std::vector<int> blocks=this->Parser->GetBlocksForEntry
       (vtkStdString(name));
-    for (vtkstd::vector<int>::size_type i=0;i<blocks.size();i++)
+    for (std::vector<int>::size_type i=0;i<blocks.size();i++)
       {
       //cout << "turning block " << blocks[i] << " " << flag << endl;
       this->MetaData->SetUnsortedBlockStatus
@@ -2326,8 +2350,8 @@ int vtkExodusReader::GetHierarchyArrayStatus(int index)
 {
   if (this->Parser)
     {
-    vtkstd::vector<int> blocks=this->Parser->GetBlocksForEntry(index);
-    for (vtkstd::vector<int>::size_type i=0;i<blocks.size();i++)
+    std::vector<int> blocks=this->Parser->GetBlocksForEntry(index);
+    for (std::vector<int>::size_type i=0;i<blocks.size();i++)
       {
       if (this->MetaData->GetUnsortedBlockStatus
           (this->MetaData->GetBlockIndex(blocks[i]))==0)
@@ -2341,8 +2365,8 @@ int vtkExodusReader::GetHierarchyArrayStatus(const char* name)
 {
   if (this->Parser)
     {
-    vtkstd::vector<int> blocks=this->Parser->GetBlocksForEntry(name);
-    for (vtkstd::vector<int>::size_type i=0;i<blocks.size();i++)
+    std::vector<int> blocks=this->Parser->GetBlocksForEntry(name);
+    for (std::vector<int>::size_type i=0;i<blocks.size();i++)
       {
       if (this->MetaData->GetUnsortedBlockStatus
           (this->MetaData->GetBlockIndex(blocks[i]))==0)
@@ -2605,13 +2629,13 @@ int vtkExodusReader::RequestInformation(
       if (this->Parser && this->Parser->GetPartDescription(ids[i])!="")
         {
         //construct assembly names from number and description arrays
-        vtkstd::vector<vtkStdString> assemblyNumbers=
+        std::vector<vtkStdString> assemblyNumbers=
           this->Parser->GetAssemblyNumbers(ids[i]);
-        vtkstd::vector<vtkStdString> assemblyDescriptions=
+        std::vector<vtkStdString> assemblyDescriptions=
           this->Parser->GetAssemblyDescriptions(ids[i]);
         
-        vtkstd::vector<vtkStdString> assemblyNames;
-        for (vtkstd::vector<int>::size_type j=0;j<assemblyNumbers.size();j++)
+        std::vector<vtkStdString> assemblyNames;
+        for (std::vector<int>::size_type j=0;j<assemblyNumbers.size();j++)
           {
           assemblyNames.push_back(assemblyDescriptions[j]+vtkStdString(" (")+
                                   assemblyNumbers[j]+vtkStdString(")"));
@@ -2630,7 +2654,7 @@ int vtkExodusReader::RequestInformation(
         }
       else
         {
-        vtkstd::vector<vtkStdString> assemblyNames;
+        std::vector<vtkStdString> assemblyNames;
         assemblyNames.push_back(vtkStdString("Default Assembly"));
         this->MetaData->AddBlock(block_name_buffer,"Default Part", 
                                  "Default Material", assemblyNames,ids[i], 
@@ -2734,7 +2758,7 @@ void vtkExodusReader::ReadNodeSetMetadata()
     return;
     }
   // allocate memory for node set ids
-  vtkstd::vector<int> nodeSetId( this->NumberOfNodeSets, -1 );
+  std::vector<int> nodeSetId( this->NumberOfNodeSets, -1 );
   int size = 0;
   int dist = 0;
   // read node set ids
@@ -2771,7 +2795,7 @@ void vtkExodusReader::ReadSideSetMetadata()
     return;
     }
   // allocate memory for side set ids
-  vtkstd::vector<int> sideSetId( this->NumberOfSideSets, -1 );
+  std::vector<int> sideSetId( this->NumberOfSideSets, -1 );
   int size = 0;
   int dist = 0;
   // read side set ids

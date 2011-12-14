@@ -104,8 +104,8 @@ char* vtkXMLShader::LocateFile(const char* filename)
     }
 
   // Fetch any runtime defined user paths for materials
-  vtkstd::vector<vtkstd::string> paths;
-  vtkstd::string userpaths;
+  std::vector<std::string> paths;
+  std::string userpaths;
   vtksys::SystemTools::GetEnv("USER_MATERIALS_DIRS", userpaths);
   if (userpaths.size()>0)
     {
@@ -118,7 +118,7 @@ char* vtkXMLShader::LocateFile(const char* filename)
 #endif
   for (unsigned int i =0; i < paths.size(); i++)
     {
-    vtkstd::string path = paths[i];
+    std::string path = paths[i];
     if (path.size() == 0)
       {
       continue;
@@ -297,7 +297,7 @@ const char** vtkXMLShader::GetArgs()
     return 0;
     }
   
-  vtkstd::vector<vtkstd::string> args;
+  std::vector<std::string> args;
   vtksys::SystemTools::Split(this->RootElement->GetAttribute("args"), args, ' ');
   
   int i;

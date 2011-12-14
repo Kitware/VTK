@@ -40,8 +40,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkAlgorithm);
 
@@ -61,6 +61,7 @@ vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_BOUNDS, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_TOPOLOGY, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_ATTRIBUTES, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_RANGES, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, MANAGES_METAINFORMATION, Integer);
 
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = 0;
 
@@ -70,7 +71,7 @@ class vtkAlgorithmInternals
 public:
   // Proxy object instances for use in establishing connections from
   // the output ports to other algorithms.
-  vtkstd::vector< vtkSmartPointer<vtkAlgorithmOutput> > Outputs;
+  std::vector< vtkSmartPointer<vtkAlgorithmOutput> > Outputs;
 };
 
 //----------------------------------------------------------------------------
@@ -1028,6 +1029,8 @@ void vtkAlgorithm::AddInputConnection(vtkAlgorithmOutput* input)
 {
   this->AddInputConnection(0, input);
 }
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 {
   if(!this->InputPortIndexInRange(port, "connect"))

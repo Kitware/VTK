@@ -45,7 +45,6 @@
 * exit conditions - 
 *       int*    sset_var_tab            sideset variable truth table array
 *
-*  Id
 *
 *****************************************************************************/
 

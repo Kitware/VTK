@@ -129,11 +129,11 @@ Radius(float r1,float r2, float r3)
 }
 
 const float*  MetaEllipse::
-Radius(void) const 
+Radius(void) const
 {
   return m_Radius;
 }
-  
+
 /** Clear ellipse information */
 void MetaEllipse::
 Clear(void)
@@ -141,13 +141,13 @@ Clear(void)
   if(META_DEBUG) METAIO_STREAM::cout << "MetaEllipse: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
   memset(m_Radius, 0, 100*sizeof(float));
-  
+
   for(int i=0; i<m_NDims; i++)
   {
     m_Radius[i] = 1;
   }
 }
-        
+
 /** Destroy ellipse information */
 void MetaEllipse::
 M_Destroy(void)
@@ -192,7 +192,7 @@ bool MetaEllipse::
 M_Read(void)
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaEllipse: M_Read: Loading Header" << METAIO_STREAM::endl;
-  
+
   if(!MetaObject::M_Read())
   {
     METAIO_STREAM::cout << "MetaEllipse: M_Read: Error parsing file" << METAIO_STREAM::endl;
@@ -200,9 +200,9 @@ M_Read(void)
   }
 
   if(META_DEBUG) METAIO_STREAM::cout << "MetaEllipse: M_Read: Parsing Header" << METAIO_STREAM::endl;
- 
+
   MET_FieldRecordType * mF;
- 
+
   mF = MET_GetFieldRecord("Radius", &m_Fields);
   if(mF->defined)
   {

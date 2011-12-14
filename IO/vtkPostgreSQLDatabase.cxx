@@ -38,6 +38,41 @@
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
 
+// Registration of PostgreSQL dynamically with the vtkSQLDatabase factory method.
+vtkSQLDatabase * PostgreSQLCreateFunction(const char* URL)
+{
+  std::string urlstr(URL ? URL : "");
+  std::string protocol, unused;
+  vtkPostgreSQLDatabase *db = 0;
+
+  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
+      protocol == "psql")
+    {
+    db = vtkPostgreSQLDatabase::New();
+    db->ParseURL(URL);
+    }
+
+  return db;
+}
+
+class vtkPostgreSQLDatabaseRegister
+{
+public:
+  vtkPostgreSQLDatabaseRegister()
+    {
+    vtkSQLDatabase::RegisterCreateFromURLCallback(PostgreSQLCreateFunction);
+    }
+  ~vtkPostgreSQLDatabaseRegister()
+    {
+    vtkSQLDatabase::UnRegisterCreateFromURLCallback(PostgreSQLCreateFunction);
+    }
+};
+
+// Remove ifndef in VTK 6.0: only register callback in old layout.
+#ifndef VTK_USE_POSTGRES
+static vtkPostgreSQLDatabaseRegister postgreSQLDataBaseRegister;
+#endif
+
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
 {
@@ -248,7 +283,7 @@ bool vtkPostgreSQLDatabase::Open( const char* password )
     this->Close(); // close the old connection before opening a new one
     }
 
-  vtkstd::string options;
+  std::string options;
   options = "dbname=";
   options += this->DatabaseName;
 
@@ -293,7 +328,7 @@ bool vtkPostgreSQLDatabase::Open( const char* password )
       return true;
       }
     }
-  vtkstd::string hspec( "host=" );
+  std::string hspec( "host=" );
   hspec += this->HostName;
   options = hspec + " " + options;
   if ( this->OpenInternal( options.c_str() ) )
@@ -375,13 +410,13 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::ParseURL( const char* URL )
 {
-  vtkstd::string urlstr( URL ? URL : "" );
-  vtkstd::string protocol;
-  vtkstd::string username;
-  vtkstd::string password;
-  vtkstd::string hostname;
-  vtkstd::string dataport;
-  vtkstd::string database;
+  std::string urlstr( URL ? URL : "" );
+  std::string protocol;
+  std::string username;
+  std::string password;
+  std::string hostname;
+  std::string dataport;
+  std::string database;
 
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL(
@@ -587,7 +622,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
     this->DropDatabase( dbName );
     }
 
-  vtkstd::string qstr( "CREATE DATABASE \"" );
+  std::string qstr( "CREATE DATABASE \"" );
   qstr += dbName;
   qstr += "\"";
   vtkSQLQuery *query = this->GetQueryInstance();
@@ -641,7 +676,7 @@ bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
       }
     }
 
-  vtkstd::string qstr( "DROP DATABASE IF EXISTS \"" );
+  std::string qstr( "DROP DATABASE IF EXISTS \"" );
   qstr += dbName;
   qstr += "\"";
   vtkSQLQuery *query = this->GetQueryInstance();

@@ -44,18 +44,34 @@ public:
   static vtkImageStack *New();
 
   // Description:
-  // Add an image to the stack.
+  // Add an image to the stack.  If the image is already present, then
+  // this method will do nothing.
   void AddImage(vtkImageSlice *prop);
 
   // Description:
-  // Remove an image from the stack.
+  // Remove an image from the stack.  If the image is not present, then
+  // this method will do nothing.
   void RemoveImage(vtkImageSlice *prop);
+
+  // Description:
+  // Check if an image is present.  The returned value is one or zero.
+  int HasImage(vtkImageSlice *prop);
+
+  // Description:
+  // Get the list of images as a vtkImageSliceCollection.
+  vtkImageSliceCollection *GetImages() { return this->Images; }
 
   // Description:
   // Set the active layer number.  This is the layer that will be
   // used for picking and interaction.
   vtkSetMacro(ActiveLayer, int);
   int GetActiveLayer() { return this->ActiveLayer; }
+
+  // Description:
+  // Get the active image.  This will be the topmost image whose
+  // LayerNumber is the ActiveLayer.  If no image matches, then NULL
+  // will be returned.
+  vtkImageSlice *GetActiveImage();
 
   // Description:
   // Get the mapper for the currently active image.
@@ -105,6 +121,19 @@ public:
   // Release any resources held by this prop.
   void ReleaseGraphicsResources(vtkWindow *win);
 
+  // Description:
+  // Methods for traversing the stack as if it was an assembly.
+  // The traversal only gives the view prop for the active layer.
+  void InitPathTraversal();
+  vtkAssemblyPath *GetNextPath();
+  int GetNumberOfPaths();
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Used to construct assembly paths and perform part traversal.
+  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
+
 protected:
   vtkImageStack();
   ~vtkImageStack();
@@ -113,7 +142,9 @@ protected:
   void SetProperty(vtkImageProperty *property);
 
   void PokeMatrices(vtkMatrix4x4 *matrix);
+  void UpdatePaths();
 
+  vtkTimeStamp PathTime;
   vtkCollection *ImageMatrices;
   vtkImageSliceCollection *Images;
   int ActiveLayer;

@@ -20,7 +20,7 @@
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointer.h"
 
-#include <vtkstd/map>
+#include <map>
 
 
 // Initialize static member that controls warning display
@@ -481,12 +481,12 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
   // get overridden in the event invocation).  Also make sure that we do not
   // invoke any new observers that were added during another observer's
   // invocation.
-  typedef vtkstd::map<unsigned long, bool> VisitedMapType;
+  typedef std::map<unsigned long, bool> VisitedMapType;
   VisitedMapType visited;
   vtkObserver *elem = this->Start;
   while (elem)
     {
-    visited.insert(vtkstd::make_pair(elem->Tag, false));
+    visited.insert(std::make_pair(elem->Tag, false));
     elem = elem->Next;
     }
 
@@ -901,7 +901,11 @@ public:
     {
     if (this->Callable)
       {
-      (*this->Callable)(caller, eventId, callData);
+      this->AbortFlagOff();
+      if((*this->Callable)(caller, eventId, callData))
+        {
+        this->AbortFlagOn();
+        }
       }
     }
 

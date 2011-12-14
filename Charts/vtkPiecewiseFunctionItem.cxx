@@ -64,9 +64,9 @@ void vtkPiecewiseFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPiecewiseFunctionItem::GetBounds(double* bounds)
+void vtkPiecewiseFunctionItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->PiecewiseFunction)
     {
     double* range = this->PiecewiseFunction->GetRange();
@@ -74,6 +74,7 @@ void vtkPiecewiseFunctionItem::GetBounds(double* bounds)
     bounds[1] = range[1];
     }
 }
+
 //-----------------------------------------------------------------------------
 void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
@@ -88,21 +89,19 @@ void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 //-----------------------------------------------------------------------------
 void vtkPiecewiseFunctionItem::ComputeTexture()
 {
-
+  double bounds[4];
+  this->GetBounds(bounds);
+   if (bounds[0] == bounds[1]
+       || !this->PiecewiseFunction)
+    {
+    return;
+    }
   if (this->Texture == 0)
     {
     this->Texture = vtkImageData::New();
     }
 
-  double bounds[4];
-  this->GetBounds(bounds);
-   if (bounds[0] == bounds[1])
-    {
-    vtkWarningMacro(<< "The piecewise function seems empty");
-    return;
-    }
-
-  const int dimension = 256;
+  const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
   // should depends on the true size on screen
   this->Texture->SetExtent(0, dimension-1,
@@ -139,4 +138,6 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
       ptr+=4;
       }
     }
+  delete[] values;
+  return;
 }

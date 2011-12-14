@@ -18,10 +18,10 @@
  *    Each field is list of variable = value pairs
  *
  * Features:
- *    There can be dependencies between fields, required fields, 
+ *    There can be dependencies between fields, required fields,
  *       and optional fields.
  *    Undefined fields are skipped.
- *    Values must conform to expected types.   There can be default 
+ *    Values must conform to expected types.   There can be default
  *       values for fields.
  *
  * Author:
@@ -80,30 +80,30 @@ typedef struct MET_CompressionTable
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-METAIO_EXPORT MET_FieldRecordType * 
+METAIO_EXPORT MET_FieldRecordType *
   MET_GetFieldRecord(const char * _fieldName,
                            METAIO_STL::vector<MET_FieldRecordType *> * _fields);
- 
-METAIO_EXPORT 
+
+METAIO_EXPORT
 int MET_GetFieldRecordNumber(const char * _fieldName,
                            METAIO_STL::vector<MET_FieldRecordType *> * _fields);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_SizeOfType(MET_ValueEnumType _type, int *_size);
 
 /////////////////////////////////////////////////////////
 // Byte Order
 /////////////////////////////////////////////////////////
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_SystemByteOrderMSB(void);
 
-inline 
+inline
 unsigned short MET_ByteOrderSwapShort(unsigned short x)
     {
     return (unsigned short)((unsigned short)(x<<8) | (unsigned short)(x>>8));
     }
 
-inline 
+inline
 unsigned long MET_ByteOrderSwapLong(unsigned int x)
     {
     return (((x<<24) & 0xff000000) |
@@ -111,63 +111,63 @@ unsigned long MET_ByteOrderSwapLong(unsigned int x)
             ((x>>8)  & 0x0000ff00) |
             ((x>>24) & 0x000000ff));
     }
-  
-inline 
+
+inline
 void MET_ByteOrderSwap2(void* x)
     {
     char one_byte;
     char *p = reinterpret_cast<char *>(x);
-  
+
     one_byte    = p[0];
     p[0] = p[1];
     p[1] = one_byte;
     }
-  
-inline 
+
+inline
 void MET_ByteOrderSwap4(void* x)
     {
     char one_byte;
     char *p = reinterpret_cast<char *>(x);
-  
+
     one_byte    = p[0];
     p[0] = p[3];
     p[3] = one_byte;
-  
+
     one_byte    = p[1];
     p[1] = p[2];
     p[2] = one_byte;
     }
-  
-inline 
+
+inline
 void MET_ByteOrderSwap8(void* x)
     {
     char one_byte;
-    char* p = reinterpret_cast<char*>(x); 
+    char* p = reinterpret_cast<char*>(x);
     one_byte    = p[0];
     p[0] = p[7];
     p[7] = one_byte;
-  
+
     one_byte    = p[1];
     p[1] = p[6];
     p[6] = one_byte;
-  
+
     one_byte    = p[2];
     p[2] = p[5];
     p[5] = one_byte;
-  
+
     one_byte    = p[3];
     p[3] = p[4];
     p[4] = one_byte;
     }
-  
+
 /** Make sure that all the byte are read and written as LSB */
 void MET_SwapByteIfSystemMSB(void* val, MET_ValueEnumType _type);
 
-  
+
 /////////////////////////////////////////////////////////
 // STRINGS AND TYPES
 /////////////////////////////////////////////////////////
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_StringToWordArray(const char *s, int *n, char ***val);
 
 template <class T>
@@ -197,21 +197,21 @@ void MET_StringToVector( const METAIO_STL::string & s,
   vec.push_back( tVal );
 }
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_StringToType(const char *_str, MET_ValueEnumType *_type);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_TypeToString(MET_ValueEnumType _type, char *_str);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_StringToInterpolationType(const char * _str,
                                 MET_InterpolationEnumType * _type);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_InterpolationTypeToString(MET_InterpolationEnumType _type,
                                 char * _str);
 
-inline 
+inline
 MET_ValueEnumType MET_GetPixelType(const METAIO_STL::type_info & ptype)
     {
     if( ptype == typeid(MET_UCHAR_TYPE) )
@@ -264,13 +264,13 @@ MET_ValueEnumType MET_GetPixelType(const METAIO_STL::type_info & ptype)
       }
     else
       {
-      METAIO_STREAM::cerr << "MET_GetPixelType: Couldn't convert pixel type : " 
+      METAIO_STREAM::cerr << "MET_GetPixelType: Couldn't convert pixel type : "
                 << ptype.name() << METAIO_STREAM::endl;
       return MET_NONE;
       }
     }
 
-inline 
+inline
 MET_ValueEnumType MET_GetValueEnumType(const METAIO_STL::type_info & ptype)
     {
     return MET_GetPixelType( ptype );
@@ -279,19 +279,19 @@ MET_ValueEnumType MET_GetValueEnumType(const METAIO_STL::type_info & ptype)
 /////////////////////////////////////////////////////////
 // VALUES
 /////////////////////////////////////////////////////////
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_ValueToDouble(MET_ValueEnumType _pType,
                               const void *_data,
                               METAIO_STL::streamoff _index,
                               double *_value);
 
-METAIO_EXPORT 
-bool MET_DoubleToValue(double _value, 
-                              MET_ValueEnumType _type, 
-                              void *_data, 
+METAIO_EXPORT
+bool MET_DoubleToValue(double _value,
+                              MET_ValueEnumType _type,
+                              void *_data,
                               METAIO_STL::streamoff _index);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_ValueToValue(MET_ValueEnumType _fromType,
                              const void *_fromData,
                              METAIO_STL::streamoff _index,
@@ -300,19 +300,19 @@ bool MET_ValueToValue(MET_ValueEnumType _fromType,
                              double _fromMin=0, double _fromMax=0,
                              double _toMin=0, double _toMax=0);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 unsigned char * MET_PerformCompression(const unsigned char * source,
                                        METAIO_STL::streamoff sourceSize,
                                        METAIO_STL::streamoff * compressedDataSize);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_PerformUncompression(const unsigned char * sourceCompressed,
                               METAIO_STL::streamoff sourceCompressedSize,
                               unsigned char * uncompressedData,
                               METAIO_STL::streamoff uncompressedDataSize);
 
 // Uncompress a stream given an uncompressedSeekPosition
-METAIO_EXPORT 
+METAIO_EXPORT
 METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
                           METAIO_STL::streamoff uncompressedSeekPosition,
                           unsigned char * uncompressedData,
@@ -324,28 +324,28 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
 /////////////////////////////////////////////////////////
 // FILES NAMES
 /////////////////////////////////////////////////////////
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_GetFilePath(const char *_fName, char *_fPath);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_GetFileSuffixPtr(const char *_fName, int *i);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 bool MET_SetFileSuffix(char *_fName, const char *_suf);
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-METAIO_EXPORT 
-bool MET_InitWriteField(MET_FieldRecordType * _mf, 
-                                   const char *_name, 
-                                   MET_ValueEnumType _type, 
+METAIO_EXPORT
+bool MET_InitWriteField(MET_FieldRecordType * _mf,
+                                   const char *_name,
+                                   MET_ValueEnumType _type,
                                    double _v=0);
 
 template <class T>
-bool MET_InitWriteField(MET_FieldRecordType * _mf, 
-                                   const char *_name, 
-                                   MET_ValueEnumType _type, 
-                                   size_t _length, 
+bool MET_InitWriteField(MET_FieldRecordType * _mf,
+                                   const char *_name,
+                                   MET_ValueEnumType _type,
+                                   size_t _length,
                                    T *_v)
   {
   strncpy(_mf->name, _name,254);
@@ -399,12 +399,12 @@ bool MET_WriteFieldToFile(METAIO_STREAM::ostream &_fp, const char *_fieldName,
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-METAIO_EXPORT 
-bool MET_InitReadField(MET_FieldRecordType * _mf, 
-                                  const char *_name, 
-                                  MET_ValueEnumType _type, 
+METAIO_EXPORT
+bool MET_InitReadField(MET_FieldRecordType * _mf,
+                                  const char *_name,
+                                  MET_ValueEnumType _type,
                                   bool _required=true,
-                                  int _dependsOn=-1, 
+                                  int _dependsOn=-1,
                                   size_t _length=0);
 
 /////////////////////////////////////////////////////////
@@ -419,13 +419,13 @@ bool MET_Read(METAIO_STREAM::istream &fp,
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-METAIO_EXPORT 
+METAIO_EXPORT
 METAIO_STL::string MET_ReadForm(METAIO_STREAM::istream & _fp);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 METAIO_STL::string MET_ReadType(METAIO_STREAM::istream & _fp);
 
-METAIO_EXPORT 
+METAIO_EXPORT
 char * MET_ReadSubType(METAIO_STREAM::istream & _fp);
 
 #if (METAIO_USE_NAMESPACE)

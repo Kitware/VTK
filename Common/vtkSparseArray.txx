@@ -22,8 +22,8 @@
 #ifndef __vtkSparseArray_txx
 #define __vtkSparseArray_txx
 
-#include <vtkstd/algorithm>
-#include <vtkstd/limits>
+#include <algorithm>
+#include <limits>
 
 template<typename T>
 vtkSparseArray<T>* vtkSparseArray<T>::New()
@@ -320,12 +320,12 @@ void vtkSparseArray<T>::Clear()
   this->Values.clear();
 }
 
-/// Predicate object for use with vtkstd::sort().  Given a vtkArraySort object that defines which array dimensions
+/// Predicate object for use with std::sort().  Given a vtkArraySort object that defines which array dimensions
 /// will be sorted in what order, SortCoordinates is used to establish a sorted order for the values stored in vtkSparseArray.
 /// Note that SortCoordinates never actually modifies its inputs.
 struct SortCoordinates
 {
-  SortCoordinates(const vtkArraySort& sort, const vtkstd::vector<vtkstd::vector<vtkIdType> >& coordinates) :
+  SortCoordinates(const vtkArraySort& sort, const std::vector<std::vector<vtkIdType> >& coordinates) :
     Sort(&sort),
     Coordinates(&coordinates)
   {
@@ -334,7 +334,7 @@ struct SortCoordinates
   bool operator()(const vtkIdType lhs, const vtkIdType rhs) const
   {
     const vtkArraySort& sort = *this->Sort;
-    const vtkstd::vector<vtkstd::vector<vtkIdType> >& coordinates = *this->Coordinates;
+    const std::vector<std::vector<vtkIdType> >& coordinates = *this->Coordinates;
 
     for(vtkIdType i = 0; i != sort.GetDimensions(); ++i)
       {
@@ -348,7 +348,7 @@ struct SortCoordinates
   }
 
   const vtkArraySort* Sort;
-  const vtkstd::vector<vtkstd::vector<vtkIdType > >* Coordinates;
+  const std::vector<std::vector<vtkIdType > >* Coordinates;
 };
 
 template<typename T>
@@ -360,7 +360,7 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
     return;
     }
 
-  for(vtkIdType i = 0; i != sort.GetDimensions(); ++i)
+  for(DimensionT i = 0; i != sort.GetDimensions(); ++i)
     {
     if(sort[i] < 0 || sort[i] >= this->GetDimensions())
       {
@@ -370,37 +370,37 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
     }
 
   const SizeT count = this->GetNonNullSize();
-  vtkstd::vector<vtkIdType> sort_order(count);
-  for(vtkIdType i = 0; i != count; ++i)
-    sort_order[i] = i;
-  vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
+  std::vector<DimensionT> sort_order(count);
+  for(SizeT i = 0; i != count; ++i)
+    sort_order[i] = static_cast<DimensionT>(i);
+  std::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
 
-  vtkstd::vector<vtkIdType> temp_coordinates(count);
-  for(vtkIdType j = 0; j != this->GetDimensions(); ++j)
+  std::vector<DimensionT> temp_coordinates(count);
+  for(DimensionT j = 0; j != this->GetDimensions(); ++j)
     {
-    for(vtkIdType i = 0; i != count; ++i)
+    for(SizeT i = 0; i != count; ++i)
       temp_coordinates[i] = this->Coordinates[j][sort_order[i]];
-    vtkstd::swap(temp_coordinates, this->Coordinates[j]);
+    std::swap(temp_coordinates, this->Coordinates[j]);
     }
 
-  vtkstd::vector<T> temp_values(count);
-  for(vtkIdType i = 0; i != count; ++i)
+  std::vector<T> temp_values(count);
+  for(SizeT i = 0; i != count; ++i)
     temp_values[i] = this->Values[sort_order[i]];
-  vtkstd::swap(temp_values, this->Values);
+  std::swap(temp_values, this->Values);
 }
 
 template<typename T>
-vtkstd::vector<typename vtkSparseArray<T>::CoordinateT> vtkSparseArray<T>::GetUniqueCoordinates(DimensionT dimension)
+std::vector<typename vtkSparseArray<T>::CoordinateT> vtkSparseArray<T>::GetUniqueCoordinates(DimensionT dimension)
 {
   if(dimension < 0 || dimension >= this->GetDimensions())
     {
     vtkErrorMacro(<< "Dimension out-of-bounds.");
-    return vtkstd::vector<CoordinateT>();
+    return std::vector<CoordinateT>();
     }
 
-  vtkstd::vector<CoordinateT> results(this->Coordinates[dimension]);
-  vtkstd::sort(results.begin(), results.end());
-  results.erase(vtkstd::unique(results.begin(), results.end()), results.end());
+  std::vector<CoordinateT> results(this->Coordinates[dimension]);
+  std::sort(results.begin(), results.end());
+  results.erase(std::unique(results.begin(), results.end()), results.end());
   return results;
 }
 
@@ -463,8 +463,8 @@ void vtkSparseArray<T>::SetExtentsFromContents()
     vtkIdType range_end = -std::numeric_limits<vtkIdType>::max();
     for(vtkIdType row = row_begin; row != row_end; ++row)
       {
-        range_begin = vtkstd::min(range_begin, this->Coordinates[dimension][row]);
-        range_end = vtkstd::max(range_end, this->Coordinates[dimension][row] + 1);
+        range_begin = std::min(range_begin, this->Coordinates[dimension][row]);
+        range_end = std::max(range_end, this->Coordinates[dimension][row] + 1);
       }
     new_extents.Append(vtkArrayRange(range_begin, range_end));
     }
@@ -532,11 +532,11 @@ bool vtkSparseArray<T>::Validate()
   for(vtkIdType i = 0; i != dimensions; ++i)
     sort[i] = i;
 
-  vtkstd::vector<vtkIdType> sort_order(count);
+  std::vector<vtkIdType> sort_order(count);
   for(vtkIdType i = 0; i != count; ++i)
     sort_order[i] = i;
 
-  vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
+  std::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
 
   // Now, look for duplicates ...
   for(vtkIdType i = 0; i + 1 < count; ++i)

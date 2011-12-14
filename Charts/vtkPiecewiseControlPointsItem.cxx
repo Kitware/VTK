@@ -38,8 +38,6 @@ vtkStandardNewMacro(vtkPiecewiseControlPointsItem);
 vtkPiecewiseControlPointsItem::vtkPiecewiseControlPointsItem()
 {
   this->PiecewiseFunction = 0;
-
-  MouseOver = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -69,161 +67,114 @@ void vtkPiecewiseControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkPiecewiseControlPointsItem::emitEvent(unsigned long event, void* params)
+{
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->InvokeEvent(event, params);
+    }
+}
+
+//-----------------------------------------------------------------------------
+unsigned long int vtkPiecewiseControlPointsItem::GetControlPointsMTime()
+{
+  if (this->PiecewiseFunction)
+    {
+    return this->PiecewiseFunction->GetMTime();
+    }
+  return this->GetMTime();
+}
+
+//-----------------------------------------------------------------------------
 void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
+  if (t == this->PiecewiseFunction)
+    {
+    return;
+    }
   vtkSetObjectBodyMacro(PiecewiseFunction, vtkPiecewiseFunction, t);
-  this->PiecewiseFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->AddObserver(vtkCommand::StartEvent, this->Callback);
+    this->PiecewiseFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
+    this->PiecewiseFunction->AddObserver(vtkCommand::EndEvent, this->Callback);
+    }
+  this->ResetBounds();
   this->ComputePoints();
 }
 
 //-----------------------------------------------------------------------------
-void vtkPiecewiseControlPointsItem::ComputePoints()
+vtkIdType vtkPiecewiseControlPointsItem::GetNumberOfPoints()const
 {
-  int size = this->PiecewiseFunction ? this->PiecewiseFunction->GetSize() : 0;
-  this->Points->SetNumberOfPoints(size);
-  if (!size)
+  return this->PiecewiseFunction ?
+    static_cast<vtkIdType>(this->PiecewiseFunction->GetSize()) : 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPiecewiseControlPointsItem::GetControlPoint(vtkIdType index, double* pos)const
+{
+  const_cast<vtkPiecewiseFunction*>(this->PiecewiseFunction)
+    ->GetNodeValue(index, pos);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPiecewiseControlPointsItem::SetControlPoint(vtkIdType index, double* newPos)
+{
+  double oldPos[4];
+  this->PiecewiseFunction->GetNodeValue(index, oldPos);
+  if (newPos[0] != oldPos[0] || newPos[1] != oldPos[1] ||
+      newPos[2] != oldPos[2] || newPos[2] != oldPos[2])
     {
-    this->Selection->SetNumberOfTuples(0);
-    this->SelectedPoints->SetNumberOfPoints(0);
+    this->PiecewiseFunction->SetNodeValue(index, newPos);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPiecewiseControlPointsItem::EditPoint(float tX, float tY)
+{
+  if (!this->PiecewiseFunction)
+    {
     return;
     }
-  double node[4];
-  for (vtkIdType i = 0; i < size; ++i)
+  double xvms[4];
+  this->PiecewiseFunction->GetNodeValue(this->CurrentPoint, xvms);
+  xvms[2] += tX;
+  xvms[3] += tY;
+  this->PiecewiseFunction->SetNodeValue(this->CurrentPoint, xvms);
+  if (this->CurrentPoint > 0)
     {
-    this->PiecewiseFunction->GetNodeValue(i,node);
-    this->Points->SetPoint(i, node[0], node[1]);
+    this->PiecewiseFunction->GetNodeValue(this->CurrentPoint - 1, xvms);
+    xvms[2] += tX;
+    xvms[3] += tY;
+    this->PiecewiseFunction->SetNodeValue(this->CurrentPoint - 1, xvms);
     }
-  size = this->Selection->GetNumberOfTuples();
-  if (size)
-    {
-    vtkIdTypeArray* oldSelection = this->Selection;
-    vtkPoints2D* oldSelectedPoints = this->SelectedPoints;
-    this->Selection = vtkIdTypeArray::New();
-    this->SelectedPoints = vtkPoints2D::New();
-    for (vtkIdType i = 0; i < size; ++i)
-      {
-      this->SelectPoint(oldSelection->GetValue(i));
-      }
-    oldSelection->Delete();
-    oldSelectedPoints->Delete();
-    }
-  this->Superclass::ComputePoints();
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPiecewiseControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
+vtkIdType vtkPiecewiseControlPointsItem::AddPoint(double* newPos)
 {
-  double pos[2];
-  pos[0] = mouse.Pos[0];
-  pos[1] = mouse.Pos[1];
-  return true;
-  //return this->GetPointId(pos) != -1;
+  if (!this->PiecewiseFunction)
+    {
+    return -1;
+    }
+  vtkIdType addedPoint = this->PiecewiseFunction->AddPoint(newPos[0], newPos[1]);
+  this->Superclass::AddPointId(addedPoint);
+  return addedPoint;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPiecewiseControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+vtkIdType vtkPiecewiseControlPointsItem::RemovePoint(double* currentPoint)
 {
-  if (mouse.Button != vtkContextMouseEvent::LEFT_BUTTON)
+  if (!this->PiecewiseFunction)
     {
-    return false;
+    return -1;
     }
-  if (this->MouseOver >= 0)
-    {
-    double currentPoint[4] = {0.0, 0.0, 0.0, 0.0};
-    this->PiecewiseFunction->GetNodeValue(this->MouseOver, currentPoint);
-    currentPoint[0] = mouse.Pos[0];
-    currentPoint[1] = mouse.Pos[1];
-    this->PiecewiseFunction->SetNodeValue(this->MouseOver, currentPoint);
-    return true;
-    }
-  else // should only happen on a draw mode
-    {
-    //this->PiecewiseFunction->AddPoint(mouse.Pos[0], mouse.Pos[1]);
-    }
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPiecewiseControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
-{
-  if (mouse.Button != vtkContextMouseEvent::LEFT_BUTTON)
-    {
-    return false;
-    }
-  this->ButtonPressPosition[0] = mouse.Pos[0];
-  this->ButtonPressPosition[1] = mouse.Pos[1];
-
-  double pos[2];
-  pos[0] = mouse.Pos[0];
-  pos[1] = mouse.Pos[1];
-  this->MouseOver = this->GetPointId(pos);
-
-  if (this->MouseOver == -1)
-    {
-    this->DeselectAllPoints();
-    this->GetScene()->SetDirty(true);
-    return false;
-    }
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPiecewiseControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
-{
-  if (mouse.Button != vtkContextMouseEvent::LEFT_BUTTON)
-    {
-    return false;
-    }
-  int deltaX = static_cast<int>(mouse.Pos[0] - this->ButtonPressPosition[0]);
-  int deltaY = static_cast<int>(mouse.Pos[1] - this->ButtonPressPosition[1]);
-
-  double point[2];
-  point[0] = mouse.Pos[0];
-  point[1] = mouse.Pos[1];
-  // If there is a point under the mouse, invert its state (highlight or not)
-  if (this->MouseOver != -1 &&
-      (deltaX * deltaX + deltaY * deltaY < this->ItemPointRadius2))
-    {
-    vtkIdType pointId = this->GetPointId(point);
-    if (pointId != -1)
-      {
-      this->ToggleSelectPoint(pointId);
-      this->GetScene()->SetDirty(true);
-      this->MouseOver = -1;
-      return true;
-      }
-    }
-  if (this->MouseOver == -1)
-    {
-    // offset all the point ids
-    vtkIdType nextPointId = -1;
-    int size = this->Points->GetNumberOfPoints();
-    for (vtkIdType i = 0; i < size; ++i)
-      {
-      double* p = this->Points->GetPoint(i);
-      if (p[0] > mouse.Pos[0])
-        {
-        nextPointId = i;
-        break;
-        }
-      }
-    if (nextPointId != -1)
-      {
-      size = this->Selection->GetNumberOfTuples();
-      for (vtkIdType i = 0; i < size; ++i)
-        {
-        vtkIdType pointId = this->Selection->GetValue(i);
-        if (pointId > nextPointId)
-          {
-          this->Selection->SetValue(i, ++pointId);
-          }
-        }
-      }
-    this->PiecewiseFunction->AddPoint(mouse.Pos[0], mouse.Pos[1]);
-    // TBD should the point be selected by default ?
-    //this->DeselectAllPoints();
-    return true;
-    }
-  this->MouseOver = -1;
-  return false;
+#ifndef NDEBUG
+  vtkIdType expectedPoint =
+#endif
+    this->vtkControlPointsItem::RemovePoint(currentPoint);
+  vtkIdType removedPoint =
+    this->PiecewiseFunction->RemovePoint(currentPoint[0]);
+  assert(removedPoint == expectedPoint);
+  return removedPoint;
 }

@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnityMatrixWeighting.h"
 
-#include <vtkstd/stdexcept>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkUnityMatrixWeighting
@@ -59,14 +59,14 @@ int vtkUnityMatrixWeighting::RequestData(
     // Test our preconditions ...
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
-      throw vtkstd::runtime_error("Missing input vtkArrayData on port 0.");
+      throw std::runtime_error("Missing input vtkArrayData on port 0.");
     if(input_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("Input vtkArrayData must contain exactly one array.");
+      throw std::runtime_error("Input vtkArrayData must contain exactly one array.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("Input array must be a vtkTypedArray<double>.");
+      throw std::runtime_error("Input array must be a vtkTypedArray<double>.");
     if(input_array->GetDimensions() != 2)
-      throw vtkstd::runtime_error("Input array must be a matrix.");
+      throw std::runtime_error("Input array must be a matrix.");
 
     vtkIdType feature_dimension;
     switch(this->FeatureDimension)
@@ -78,7 +78,7 @@ int vtkUnityMatrixWeighting::RequestData(
         feature_dimension = 1;
         break;
       default:
-        throw vtkstd::runtime_error("FeatureDimension out-of-bounds.");
+        throw std::runtime_error("FeatureDimension out-of-bounds.");
       }
 
     const vtkArrayRange features = input_array->GetExtent(feature_dimension);
@@ -94,7 +94,7 @@ int vtkUnityMatrixWeighting::RequestData(
     output->AddArray(output_array);
     output_array->Delete();
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

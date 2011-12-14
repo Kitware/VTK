@@ -30,7 +30,10 @@ elseif(NOT METAIO_NAMESPACE)
   set(METAIO_NAMESPACE MetaIO)
 endif()
 
-project(${METAIO_NAMESPACE})
+if(NOT DEFINED METAIO_PROJECT_NAME)
+  set(METAIO_PROJECT_NAME ${METAIO_NAMESPACE})
+endif()
+project(${METAIO_PROJECT_NAME})
 
 if(NOT METAIO_INSTALL_EXPORT_NAME)
   set(METAIO_INSTALL_EXPORT_NAME MetaIO)
@@ -84,6 +87,8 @@ add_library(${METAIO_NAMESPACE}
   metaForm.cxx
   metaArray.h
   metaArray.cxx
+  metaFEMObject.h
+  metaFEMObject.cxx
 )
 
 INCLUDE_REGULAR_EXPRESSION("^.*$")

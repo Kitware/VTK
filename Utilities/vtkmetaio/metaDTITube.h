@@ -33,7 +33,7 @@
  *    Reads and Writes MetaDTITubeFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date May 22, 2002
  */
 
@@ -57,7 +57,7 @@ public:
   void AddField(const char* name, float value);
 
   float GetField(const char* name) const;
-  
+
   unsigned int m_Dim;
   float* m_X;
   float* m_TensorMatrix;
@@ -88,10 +88,10 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
     ////
     MetaDTITube(void);
 
-    MetaDTITube(const char *_headerName);   
+    MetaDTITube(const char *_headerName);
 
-    MetaDTITube(const MetaDTITube *_DTITube); 
-    
+    MetaDTITube(const MetaDTITube *_DTITube);
+
     MetaDTITube(unsigned int dim);
 
     ~MetaDTITube(void);
@@ -129,7 +129,7 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
 
     PointListType &  GetPoints(void) {return m_PointList;}
     const PointListType &  GetPoints(void) const {return m_PointList;}
-    
+
     MET_ValueEnumType ElementType(void) const;
     void  ElementType(MET_ValueEnumType _elementType);
 

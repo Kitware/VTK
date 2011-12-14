@@ -3,7 +3,7 @@ package require vtkinteraction
 
 #
 # This example reads a volume dataset, extracts two isosurfaces that
-# represent the skin and bone, creates three orthogonal planes (saggital,
+# represent the skin and bone, creates three orthogonal planes (sagittal,
 # axial, coronal), and displays them.
 #
 
@@ -116,12 +116,12 @@ vtkLookupTable satLut
 # char values, which the vtkImageMapToColors produces.) Note also that
 # by specifying the DisplayExtent, the pipeline requests data of this
 # extent and the vtkImageMapToColors only processes a slice of data.
-vtkImageMapToColors saggitalColors
-  saggitalColors SetInputConnection [v16 GetOutputPort]
-  saggitalColors SetLookupTable bwLut
-vtkImageActor saggital
-  saggital SetInput [saggitalColors GetOutput]
-  saggital SetDisplayExtent 32 32  0 63  0 92
+vtkImageMapToColors sagittalColors
+  sagittalColors SetInputConnection [v16 GetOutputPort]
+  sagittalColors SetLookupTable bwLut
+vtkImageActor sagittal
+  sagittal SetInput [sagittalColors GetOutput]
+  sagittal SetDisplayExtent 32 32  0 63  0 92
 
 # Create the second (axial) plane of the three planes. We use the same 
 # approach as before except that the extent differs.
@@ -153,7 +153,7 @@ vtkCamera aCamera
 
 # Actors are added to the renderer. 
 aRenderer AddActor outline
-aRenderer AddActor saggital
+aRenderer AddActor sagittal
 aRenderer AddActor axial
 aRenderer AddActor coronal
 aRenderer AddActor axial

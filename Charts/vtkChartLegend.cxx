@@ -23,9 +23,12 @@
 #include "vtkTextProperty.h"
 #include "vtkStdString.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 #include "vtkWeakPointer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 
 #include "vtkObjectFactory.h"
 
@@ -56,15 +59,12 @@ vtkChartLegend::vtkChartLegend()
   this->Storage = new vtkChartLegend::Private;
   this->Point = this->Storage->Point.GetData();
   // Defaults to 12pt text, with top, right alignment to the specified point.
-  this->LabelProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelProperties->SetFontSize(12);
   this->LabelProperties->SetColor(0.0, 0.0, 0.0);
   this->LabelProperties->SetJustificationToLeft();
   this->LabelProperties->SetVerticalJustificationToBottom();
 
-  this->Pen = vtkSmartPointer<vtkPen>::New();
   this->Pen->SetColor(0, 0, 0);
-  this->Brush = vtkSmartPointer<vtkBrush>::New();
   this->Brush->SetColor(255, 255, 255, 255);
   this->HorizontalAlignment = vtkChartLegend::RIGHT;
   this->VerticalAlignment = vtkChartLegend::TOP;
@@ -72,6 +72,8 @@ vtkChartLegend::vtkChartLegend()
   this->Padding = 5;
   this->SymbolWidth = 25;
   this->Inline = true;
+  this->Button = -1;
+  this->DragEnabled = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -88,7 +90,8 @@ void vtkChartLegend::Update()
   this->Storage->ActivePlots.clear();
   for (int i = 0; i < this->Storage->Chart->GetNumberOfPlots(); ++i)
     {
-    if (this->Storage->Chart->GetPlot(i)->GetVisible())
+    if (this->Storage->Chart->GetPlot(i)->GetVisible()
+        && this->Storage->Chart->GetPlot(i)->GetLabel().length() > 0)
       {
       this->Storage->ActivePlots.push_back(this->Storage->Chart->GetPlot(i));
       }
@@ -110,7 +113,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkChartLegend.");
 
-  if (!this->Visible)
+  if (!this->Visible || this->Storage->ActivePlots.size() == 0)
     {
     return true;
     }
@@ -118,12 +121,12 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   this->GetBoundingRect(painter);
 
   // Now draw a box for the legend.
-  painter->ApplyPen(this->Pen);
-  painter->ApplyBrush(this->Brush);
+  painter->ApplyPen(this->Pen.GetPointer());
+  painter->ApplyBrush(this->Brush.GetPointer());
   painter->DrawRect(this->Rect.X(), this->Rect.Y(),
                     this->Rect.Width(), this->Rect.Height());
 
-  painter->ApplyTextProp(this->LabelProperties);
+  painter->ApplyTextProp(this->LabelProperties.GetPointer());
 
   vtkVector2f stringBounds[2];
   painter->ComputeStringBounds("Tgyf", stringBounds->GetData());
@@ -171,7 +174,7 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
     return this->Rect;
     }
 
-  painter->ApplyTextProp(this->LabelProperties);
+  painter->ApplyTextProp(this->LabelProperties.GetPointer());
 
   vtkVector2f stringBounds[2];
   painter->ComputeStringBounds("Tgyf", stringBounds->GetData());
@@ -237,9 +240,21 @@ int vtkChartLegend::GetLabelSize()
 }
 
 //-----------------------------------------------------------------------------
+vtkPen * vtkChartLegend::GetPen()
+{
+  return this->Pen.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+vtkBrush * vtkChartLegend::GetBrush()
+{
+  return this->Brush.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
 vtkTextProperty * vtkChartLegend::GetLabelProperties()
 {
-  return this->LabelProperties;
+  return this->LabelProperties.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
@@ -260,6 +275,53 @@ void vtkChartLegend::SetChart(vtkChart* chart)
 vtkChart* vtkChartLegend::GetChart()
 {
   return this->Storage->Chart;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::Hit(const vtkContextMouseEvent &mouse)
+{
+  if (this->DragEnabled && mouse.ScreenPos.X() > this->Rect.X() &&
+      mouse.ScreenPos.X() < this->Rect.X() + this->Rect.Width() &&
+      mouse.ScreenPos.Y() > this->Rect.Y() &&
+      mouse.ScreenPos.Y() < this->Rect.Y() + this->Rect.Height())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  if (this->Button == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    vtkVector2f delta = mouse.ScenePos - mouse.LastScenePos;
+    this->HorizontalAlignment = vtkChartLegend::CUSTOM;
+    this->Storage->Point = this->Storage->Point + delta;
+    this->GetScene()->SetDirty(true);
+    }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+{
+  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    this->Button = vtkContextMouseEvent::LEFT_BUTTON;
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartLegend::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
+{
+  this->Button = -1;
+  return true;
 }
 
 //-----------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2011 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -40,7 +40,7 @@
 
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
-#include <vtkstd/limits>
+#include <limits>
 
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
@@ -50,10 +50,6 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "d" ); // relative deviation, i.e., when unsigned, 1D Mahlanobis distance
 
-  this->AssessParameters = vtkStringArray::New();
-  this->AssessParameters->SetNumberOfValues( 2 );
-  this->AssessParameters->SetValue( 0, "Mean" );
-  this->AssessParameters->SetValue( 1, "Standard Deviation" );
   this->UnbiasedVariance = 1; // By default, use unbiased estimator of the variance (divided by cardinality-1)
   this->G1Skewness = 0; // By default, use g1 estimator of the skewness (G1 otherwise)
   this->G2Kurtosis = 0; // By default, use g2 estimator of the kurtosis (G2 otherwise)
@@ -73,18 +69,6 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "G1Skewness: " << this->G1Skewness << "\n";
   os << indent << "G2Kurtosis: " << this->G2Kurtosis << "\n";
   os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::SetNominalParameter( const char* name ) 
-{ 
-  this->SetAssessOptionParameter( 0, name ); 
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::SetDeviationParameter( const char* name ) 
-{ 
-  this->SetAssessOptionParameter( 1, name ); 
 }
 
 // ----------------------------------------------------------------------
@@ -775,21 +759,27 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      double nominal   = primaryTab->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
-      double deviation = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
-      if ( deviation == 0. )
+      // Fetch necessary value from primary model
+      double mean = primaryTab->GetValueByName( r, "Mean" ).ToDouble();
+
+      // Fetch necessary value from derived model
+      double stdv = derivedTab->GetValueByName( r, "Standard Deviation" ).ToDouble();
+      // NB: If derived values were specified (and not calculated by Derive) 
+      //     and are inconsistent, then incorrect assessments will be produced
+
+      if ( stdv < VTK_DBL_MIN )
         {
-        dfunc = new ZedDeviationDeviantFunctor( vals, nominal );
+        dfunc = new ZedDeviationDeviantFunctor( vals, mean );
         }
       else
         {
         if ( this->GetSignedDeviations() )
           {
-          dfunc = new SignedTableColumnDeviantFunctor( vals, nominal, deviation );
+          dfunc = new SignedTableColumnDeviantFunctor( vals, mean, stdv );
           }
         else
           {
-          dfunc = new UnsignedTableColumnDeviantFunctor( vals, nominal, deviation );
+          dfunc = new UnsignedTableColumnDeviantFunctor( vals, mean, stdv );
           }
         }
 

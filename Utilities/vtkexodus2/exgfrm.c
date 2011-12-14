@@ -114,7 +114,7 @@
  */
 
  int ex_get_coordinate_frames( int exoid, int *nframes, int *cf_ids, void* pt_coordinates,
-                               char* tags)
+             char* tags)
 
 {
   int status;
@@ -140,7 +140,7 @@
 
   if ( cf_ids )
     if ((status = nc_inq_varid(exoid,VAR_FRAME_IDS, &varids))!= NC_NOERR  ||
-        (nc_get_var_int(exoid,varids,cf_ids)!= NC_NOERR)) {
+  (nc_get_var_int(exoid,varids,cf_ids)!= NC_NOERR)) {
       exerrval = status;
       sprintf(errmsg,
               "Error: failed to read number coordinate ids from file id %d",

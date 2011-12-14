@@ -22,6 +22,7 @@
 #include "vtkFreeTypeStringToImage.h"
 
 #include "vtkVector.h"
+#include "vtkRect.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
@@ -550,13 +551,13 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     }
 
   this->SetLineType(this->Pen->GetLineType());
-  glColor4ubv(this->Pen->GetColor());
   glLineWidth(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, p);
-  glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
   glColor4ubv(this->Brush->GetColor());
   glDrawArrays(GL_TRIANGLE_FAN, 0, iterations+1);
+  glColor4ubv(this->Pen->GetColor());
+  glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
   glDisableClientState(GL_VERTEX_ARRAY);
 
   delete[] p;
@@ -715,15 +716,20 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 {
   float p[] = { floor(point[0]), floor(point[1]) };
 
-  vtkImageData *image = vtkImageData::New();
-  if (!this->TextRenderer->RenderString(this->TextProp, string, image))
+  // Cache rendered text strings
+  vtkTextureImageCache<TextPropertyKey>::CacheData cache =
+    this->Storage->TextTextureCache.GetCacheData(
+      TextPropertyKey(this->TextProp, string));
+  vtkImageData* image = cache.ImageData;
+  if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
-    image->Delete();
-    return;
+    if (!this->TextRenderer->RenderString(this->TextProp, string, image))
+      {
+      return;
+      }
     }
-
-  this->SetTexture(image);
-  this->Storage->Texture->Render(this->Renderer);
+  vtkTexture* texture = cache.Texture;
+  texture->Render(this->Renderer);
 
   float width = static_cast<float>(image->GetOrigin()[0]);
   float height = static_cast<float>(image->GetOrigin()[1]);
@@ -752,9 +758,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  this->Storage->Texture->PostRender(this->Renderer);
+  texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
-  image->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -1071,13 +1076,19 @@ void vtkOpenGLContextDevice2D::SetClipping(int *dim)
     }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);
-  glEnable(GL_SCISSOR_TEST);
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DisableClipping()
+void vtkOpenGLContextDevice2D::EnableClipping(bool enable)
 {
-  glDisable(GL_SCISSOR_TEST);
+  if (enable)
+    {
+    glEnable(GL_SCISSOR_TEST);
+    }
+  else
+    {
+    glDisable(GL_SCISSOR_TEST);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1125,6 +1136,7 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
     {
     this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
     }
+  this->Storage->TextTextureCache.ReleaseGraphicsResources(window);
 }
 
 //----------------------------------------------------------------------------

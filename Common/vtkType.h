@@ -91,6 +91,7 @@
 #define VTK_MULTIPIECE_DATA_SET            25
 #define VTK_DIRECTED_ACYCLIC_GRAPH         26
 #define VTK_ARRAY_DATA                     27
+#define VTK_REEB_GRAPH                     28
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

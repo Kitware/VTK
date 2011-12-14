@@ -14,8 +14,8 @@ class vtkMultiProcessController;
 
 #include "vtksys/RegularExpression.hxx"
 
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <map>
+#include <vector>
 
 #include "vtk_exodusII.h"
 
@@ -82,6 +82,12 @@ public:
 
   /// Clears out any data in the cache and restores it to its initial state.
   void ResetCache();
+
+  /// Set the size of the cache in MiB.
+  void SetCacheSize(double size);  
+
+  /// Get the size of the cache in MiB.
+  vtkGetMacro(CacheSize, double);
 
   /** Return the number of time steps in the open file.
     * You must have called RequestInformation() before 
@@ -272,12 +278,6 @@ public:
 
   vtkDataArray* FindDisplacementVectors( int timeStep );
 
-  vtkSetMacro(EdgeFieldDecorations,int);
-  vtkGetMacro(EdgeFieldDecorations,int);
-
-  vtkSetMacro(FaceFieldDecorations,int);
-  vtkGetMacro(FaceFieldDecorations,int);
-
   const struct ex_init_params* GetModelParams() const 
     { return &this->ModelParameters; }
 
@@ -303,10 +303,10 @@ public:
     int Status;
     /// The name of each component of the array as defined by the Exodus file. 
     /// Empty for generated arrays.
-    vtkstd::vector<vtkStdString> OriginalNames;
+    std::vector<vtkStdString> OriginalNames;
     /// The index of each component of the array as ordered by the Exodus file. 
     /// Empty for generated arrays.
-    vtkstd::vector<int> OriginalIndices;
+    std::vector<int> OriginalIndices;
     /** A map describing which objects the variable is defined on.
      * Each key (a pair<int,int>) is a block/set type and integer
      * offset into the corresponding BlockInfo or SetInfo.
@@ -315,7 +315,7 @@ public:
      * Otherwise (if the key is absent from the map or present with a
      * false value), the variable is not defined on that block/set.
      */
-    vtkstd::vector<int> ObjectTruth;
+    std::vector<int> ObjectTruth;
     /// Clear all the structure members.
     void Reset();
   };
@@ -345,12 +345,12 @@ public:
       * Should only be used when SqueezePoints is true.
       * Otherwise, just subtract 1 from any Exodus node ID to get the VTK node ID.
       */
-    vtkstd::map<vtkIdType,vtkIdType> PointMap;
+    std::map<vtkIdType,vtkIdType> PointMap;
     /** A map from nodal ids in the output mesh to those in an Exodus file.
       * Should only be used when SqueezePoints is true.
       * Otherwise, just add 1 to any VTK node ID to get the Exodus node ID.
       */
-    vtkstd::map<vtkIdType,vtkIdType> ReversePointMap;
+    std::map<vtkIdType,vtkIdType> ReversePointMap;
     /** The next vtk ID to use for a connectivity entry when point squeezing is on 
       * and no point ID exists.
       */
@@ -371,8 +371,8 @@ public:
     // The index is the dimensionality of the entry. 0=node, 1=edge, 2=face
     int BdsPerEntry[3]; 
     int AttributesPerEntry;
-    vtkstd::vector<vtkStdString> AttributeNames;
-    vtkstd::vector<int> AttributeStatus;
+    std::vector<vtkStdString> AttributeNames;
+    std::vector<int> AttributeStatus;
     // VTK cell type (a function of TypeName and BdsPerEntry...)
     int CellType; 
     // Number of points per cell as used by VTK 
@@ -382,13 +382,13 @@ public:
 
   /// A struct to hold information about Exodus blocks
   struct PartInfoType : public ObjectInfoType {
-    vtkstd::vector<int> BlockIndices;
+    std::vector<int> BlockIndices;
   };
   struct AssemblyInfoType : public ObjectInfoType {
-    vtkstd::vector<int> BlockIndices;
+    std::vector<int> BlockIndices;
   };
   struct MaterialInfoType : public ObjectInfoType {
-    vtkstd::vector<int> BlockIndices;
+    std::vector<int> BlockIndices;
   };
 
   /// A struct to hold information about Exodus sets
@@ -581,12 +581,6 @@ protected:
     */
   int AssembleArraysOverTime(vtkMultiBlockDataSet* output);
 
-  // Generate the decorations for edge fields.
-  void AssembleOutputEdgeDecorations();
-
-  // Generate the decorations for face fields.
-  void AssembleOutputFaceDecorations();
-
   /// Insert cells from a specified block into a mesh
   void InsertBlockCells(
     int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfop );
@@ -724,42 +718,42 @@ protected:
   /** Maps a block type (EX_ELEM_BLOCK, EX_FACE_BLOCK, ...) to a list of blocks 
     * of that type.
     */
-  vtkstd::map<int,vtkstd::vector<BlockInfoType> > BlockInfo;
+  std::map<int,std::vector<BlockInfoType> > BlockInfo;
   /** Maps a set type (EX_ELEM_SET, ..., EX_NODE_SET) to a list of sets of 
     *  that type.
     */
-  vtkstd::map<int,vtkstd::vector<SetInfoType> > SetInfo;
+  std::map<int,std::vector<SetInfoType> > SetInfo;
   /** Maps a map type (EX_ELEM_MAP, ..., EX_NODE_MAP) to a list of maps of that 
     * type. In old-style files, the only entries will be a single node and a 
     * single element map which have no specified ID number or name. In that 
     * case, an ID of 0 and a name of "Default" will be given to both.
     */
-  vtkstd::map<int,vtkstd::vector<MapInfoType> > MapInfo;
+  std::map<int,std::vector<MapInfoType> > MapInfo;
 
-  vtkstd::vector<PartInfoType> PartInfo;
-  vtkstd::vector<MaterialInfoType> MaterialInfo;
-  vtkstd::vector<AssemblyInfoType> AssemblyInfo;
+  std::vector<PartInfoType> PartInfo;
+  std::vector<MaterialInfoType> MaterialInfo;
+  std::vector<AssemblyInfoType> AssemblyInfo;
 
   /** Maps an object type to vector of indices that reorder objects of that 
     * type by their IDs. This is used by the user interface to access blocks, 
     * sets, and maps in ascending order. It is not used internally.
     */
-  vtkstd::map<int,vtkstd::vector<int> > SortedObjectIndices;
+  std::map<int,std::vector<int> > SortedObjectIndices;
   /// Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of arrays 
   //  defined on that type.
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> > ArrayInfo;
+  std::map<int,std::vector<ArrayInfoType> > ArrayInfo;
 
   /** Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of arrays
     * defined on that type. Used to store initial status of arrays before 
     * RequestInformation can be called.
     */
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> > InitialArrayInfo;
+  std::map<int,std::vector<ArrayInfoType> > InitialArrayInfo;
 
   /** Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of objects 
     * defined on that type. Used to store initial status of objects before 
     * RequestInformation can be called.
     */
-  vtkstd::map<int,vtkstd::vector<ObjectInfoType> > InitialObjectInfo;
+  std::map<int,std::vector<ObjectInfoType> > InitialObjectInfo;
 
   /// These aren't the variables you're looking for.
   int AppWordSize;
@@ -777,7 +771,7 @@ protected:
   struct ex_init_params ModelParameters;
 
   /// A list of time steps for which results variables are stored.
-  vtkstd::vector<double> Times;
+  std::vector<double> Times;
 
   /// The current time step
   int TimeStep;
@@ -802,19 +796,14 @@ protected:
 
   /// A least-recently-used cache to hold raw arrays.
   vtkExodusIICache* Cache;
+  //
+  /// The size of the cache in MiB.
+  double CacheSize;
 
   int ApplyDisplacements;
   float DisplacementMagnitude;
   int HasModeShapes;
   int AnimateModeShapes;
-
-  // Specify how to decorate edge and face variables.
-  int EdgeFieldDecorations;
-  int FaceFieldDecorations;
-
-  // Meshes to support edge and face glyph decorations.
-  vtkPolyData* EdgeDecorationMesh;
-  vtkPolyData* FaceDecorationMesh;
 
   /** Should the reader output only points used by elements in the output mesh, 
     * or all the points. Outputting all the points is much faster since the 

@@ -159,7 +159,7 @@ void vtkPLOT3DReader::SkipByteCount(FILE* fp)
   if (this->BinaryFile && this->HasByteCount)
     {
     int tmp;
-    fread(&tmp, sizeof(int), 1, fp);
+    (void) fread(&tmp, sizeof(int), 1, fp);
     }
 }
 

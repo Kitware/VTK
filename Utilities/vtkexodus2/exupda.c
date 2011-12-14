@@ -42,7 +42,6 @@
 *
 * exit conditions - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -65,7 +64,7 @@ int ex_update (int exoid)
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to update file id %d",
-            exoid);
+      exoid);
     ex_err("ex_update",errmsg,exerrval);
     return (EX_FATAL);
   }

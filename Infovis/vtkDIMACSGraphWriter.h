@@ -22,7 +22,18 @@
 
 // .SECTION Description
 // vtkDIMACSGraphWriter is a sink object that writes
-// vtkGraph data files in DIMACS (.gr) format.
+// vtkGraph data files into a generic DIMACS (.gr) format.
+//
+// Output files contain a problem statement line:
+//
+// p graph <num_verts> <num_edges>
+//
+// Followed by |E| edge descriptor lines that are formatted as:
+//
+// e <source> <target> <weight>
+//
+// Vertices are numbered from 1..n in DIMACS formatted files.
+//
 // See webpage for format details.
 // http://prolland.free.fr/works/research/dsat/dimacs.html
 

@@ -96,7 +96,6 @@ void rmatrixbd(ap::real_2d_array& a,
 {
     ap::real_1d_array work;
     ap::real_1d_array t;
-    int minmn;
     int maxmn;
     int i;
     double ltau;
@@ -109,7 +108,6 @@ void rmatrixbd(ap::real_2d_array& a,
     {
         return;
     }
-    minmn = ap::minint(m, n);
     maxmn = ap::maxint(m, n);
     work.setbounds(0, maxmn);
     t.setbounds(0, maxmn);

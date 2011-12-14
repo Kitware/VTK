@@ -33,8 +33,8 @@
 #include "vtkDSPFilterDefinition.h"
 
 #include <ctype.h>
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <vector>
+#include <string>
 
 vtkStandardNewMacro(vtkDSPFilterGroup);
 
@@ -42,34 +42,34 @@ vtkStandardNewMacro(vtkDSPFilterGroup);
 class vtkDSPFilterGroupVectorIntSTLCloak
 {
 public:
-  vtkstd::vector<int> m_vector;
+  std::vector<int> m_vector;
 };
 class vtkDSPFilterGroupVectorVectorIntSTLCloak
 {
 public:
-  vtkstd::vector< vtkstd::vector<int> > m_vector;
+  std::vector< std::vector<int> > m_vector;
 };
 
 class vtkDSPFilterGroupVectorArraySTLCloak
 {
 public:
-  vtkstd::vector<vtkFloatArray *> m_vector;
+  std::vector<vtkFloatArray *> m_vector;
 };
 class vtkDSPFilterGroupVectorVectorArraySTLCloak
 {
 public:
-  vtkstd::vector< vtkstd::vector<vtkFloatArray *> > m_vector;
+  std::vector< std::vector<vtkFloatArray *> > m_vector;
 };
 class vtkDSPFilterGroupVectorStringSTLCloak
 {
 public:
-  vtkstd::vector<vtkstd::string> m_vector;
+  std::vector<std::string> m_vector;
 };
 
 class vtkDSPFilterGroupVectorDefinitionSTLCloak
 {
 public:
-  vtkstd::vector<vtkDSPFilterDefinition *> m_vector;
+  std::vector<vtkDSPFilterDefinition *> m_vector;
 };
 
 
@@ -121,11 +121,11 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition *filter)
 
   this->FilterDefinitions->m_vector.push_back( thefilter );
 
-  vtkstd::vector<vtkFloatArray *> l_cachedOutsForThisFilter;
+  std::vector<vtkFloatArray *> l_cachedOutsForThisFilter;
   l_cachedOutsForThisFilter.resize(0);
   this->CachedOutputs->m_vector.push_back( l_cachedOutsForThisFilter );
 
-  vtkstd::vector<int> l_cachedOutTimesForThisFilter;
+  std::vector<int> l_cachedOutTimesForThisFilter;
   l_cachedOutTimesForThisFilter.resize(0);
   this->CachedOutputTimesteps->m_vector.push_back(l_cachedOutTimesForThisFilter);
 
@@ -151,9 +151,9 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition *filter)
 //----------------------------------------------------------------------------
 void vtkDSPFilterGroup::RemoveFilter(char *a_outputVariableName)
 {
-  vtkstd::vector<vtkDSPFilterDefinition *>::iterator l_iter;
-  vtkstd::vector< vtkstd::vector<vtkFloatArray *> >::iterator l_cachedOutputsIter = this->CachedOutputs->m_vector.begin();
-  vtkstd::vector< vtkstd::vector<int> >::iterator l_cachedOutputTimesIter = this->CachedOutputTimesteps->m_vector.begin();
+  std::vector<vtkDSPFilterDefinition *>::iterator l_iter;
+  std::vector< std::vector<vtkFloatArray *> >::iterator l_cachedOutputsIter = this->CachedOutputs->m_vector.begin();
+  std::vector< std::vector<int> >::iterator l_cachedOutputTimesIter = this->CachedOutputTimesteps->m_vector.begin();
 
   for(l_iter=this->FilterDefinitions->m_vector.begin();l_iter!=this->FilterDefinitions->m_vector.end();l_iter++)
     {
@@ -247,7 +247,7 @@ void vtkDSPFilterGroup::AddInputVariableInstance( const char *a_name, int a_time
 //----------------------------------------------------------------------------
 vtkFloatArray *vtkDSPFilterGroup::GetCachedInput( int a_whichFilter, int a_whichTimestep )
 {
-  vtkstd::string l_inputName = this->FilterDefinitions->m_vector[a_whichFilter]->GetInputVariableName();
+  std::string l_inputName = this->FilterDefinitions->m_vector[a_whichFilter]->GetInputVariableName();
   for(int i=0;i<(int)this->CachedInputTimesteps->m_vector.size();i++)
     {
       if(this->CachedInputTimesteps->m_vector[i]==a_whichTimestep)
@@ -324,11 +324,11 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
       int l_numNow=(int)this->CachedOutputs->m_vector.size();
       for(i=l_numNow;i<l_numFilters;i++)
   {
-    vtkstd::vector<vtkFloatArray *> l_cachedOutsForThisFilter;
+    std::vector<vtkFloatArray *> l_cachedOutsForThisFilter;
     l_cachedOutsForThisFilter.resize(0);
     this->CachedOutputs->m_vector.push_back( l_cachedOutsForThisFilter );
 
-    vtkstd::vector<int> l_cachedOutTimesForThisFilter;
+    std::vector<int> l_cachedOutTimesForThisFilter;
     l_cachedOutTimesForThisFilter.resize(0);
     this->CachedOutputTimesteps->m_vector.push_back(l_cachedOutTimesForThisFilter);
   }

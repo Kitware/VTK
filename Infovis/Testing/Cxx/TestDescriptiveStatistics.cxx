@@ -160,10 +160,6 @@ int TestDescriptiveStatistics( int, char *[] )
     ds1->AddColumn( columns[i] );
     }
 
-  // Use default Assess parameter names to make sure this is covered as well
-  ds1->SetNominalParameter( "Mean");
-  ds1->SetDeviationParameter( "Standard Deviation");
-
   // Test Learn, Derive, Test, and Assess options
   ds1->SetLearnOption( true );
   ds1->SetDeriveOption( true );

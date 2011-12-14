@@ -118,14 +118,14 @@ int vtkMCubesReader::RequestData(
     {
     // skip first three pairs
     float fbounds[6];
-    fread (dummy, sizeof(float), 2, limitp);
-    fread (dummy, sizeof(float), 2, limitp);
-    fread (dummy, sizeof(float), 2, limitp);
+    (void) fread (dummy, sizeof(float), 2, limitp);
+    (void) fread (dummy, sizeof(float), 2, limitp);
+    (void) fread (dummy, sizeof(float), 2, limitp);
 
     // next three pairs are x, y, z limits
     for (i = 0; i < 6; i++) 
       {
-      fread (&fbounds[i], sizeof (float), 1, limitp);
+      (void) fread (&fbounds[i], sizeof (float), 1, limitp);
       }
     // do swapping if necc
     if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)

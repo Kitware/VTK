@@ -47,7 +47,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -56,55 +55,102 @@
 #include <string.h>
 #include <ctype.h>
 
-#define EX_PUT_NAMES(TNAME,DNUMVAR,VNAMES)                              \
-  if ((status = nc_inq_dimid(exoid, DNUMVAR, &dimid)) != NC_NOERR) {    \
-    exerrval = status;                                                  \
-    if (status == NC_EBADDIM) {                                         \
-      sprintf(errmsg,                                                   \
-              "Error: no " TNAME " variables defined in file id %d",    \
-              exoid);                                                   \
-      ex_err("ex_put_var_names",errmsg,exerrval);                       \
-    } else  {                                                           \
-      sprintf(errmsg,                                                   \
-              "Error: failed to locate number of " TNAME " variables in file id %d", \
-              exoid);                                                   \
-      ex_err("ex_put_var_names",errmsg,exerrval);                       \
-    }                                                                   \
-    return(EX_FATAL);                                                   \
-  }                                                                     \
-                                                                        \
-  if ((status = nc_inq_varid(exoid, VNAMES, &varid)) != NC_NOERR) {     \
-    exerrval = status;                                                  \
-    if (status == NC_ENOTVAR)                                           \
-      {                                                                 \
-        sprintf(errmsg,                                                 \
-                "Error: no " TNAME " variable names defined in file id %d", \
-                exoid);                                                 \
-        ex_err("ex_put_var_names",errmsg,exerrval);                     \
-      }  else {                                                         \
-      sprintf(errmsg,                                                   \
-              "Error: " TNAME " name variable names not found in file id %d", \
-              exoid);                                                   \
-      ex_err("ex_put_var_names",errmsg,exerrval);                       \
-    }                                                                   \
-    return(EX_FATAL);                                                   \
+#define EX_PUT_NAMES(TNAME,DNUMVAR,VNAMES)        \
+  if ((status = nc_inq_dimid(exoid, DNUMVAR, &dimid)) != NC_NOERR) {  \
+    exerrval = status;              \
+    if (status == NC_EBADDIM) {           \
+      sprintf(errmsg,             \
+        "Error: no " TNAME " variables defined in file id %d",  \
+        exoid);             \
+      ex_err("ex_put_var_names",errmsg,exerrval);     \
+    } else  {               \
+      sprintf(errmsg,             \
+        "Error: failed to locate number of " TNAME " variables in file id %d", \
+        exoid);             \
+      ex_err("ex_put_var_names",errmsg,exerrval);     \
+    }                 \
+    return(EX_FATAL);             \
+  }                 \
+                  \
+  if ((status = nc_inq_varid(exoid, VNAMES, &varid)) != NC_NOERR) { \
+    exerrval = status;              \
+    if (status == NC_ENOTVAR)           \
+      {                 \
+  sprintf(errmsg,             \
+    "Error: no " TNAME " variable names defined in file id %d", \
+    exoid);             \
+  ex_err("ex_put_var_names",errmsg,exerrval);     \
+      }  else {               \
+      sprintf(errmsg,             \
+        "Error: " TNAME " name variable names not found in file id %d", \
+        exoid);             \
+      ex_err("ex_put_var_names",errmsg,exerrval);     \
+    }                 \
+    return(EX_FATAL);             \
   }
 
 /*!
- * writes the names of the results variables to the database
- *  \param      exoid                   exodus file id
- *  \param      obj_type                variable type
- *  \param      num_vars                # of variables to read
- *  \param     *var_names               ptr array of variable names
- */
+
+The function ex_put_variable_names() writes the names of the results
+variables to the database. The names are \p MAX_STR_LENGTH -characters
+in length. The function ex_put_variable_param() must be called before
+this function is invoked.
+
+\return In case of an error, ex_put_variable_names() returns a negative
+number; a warning will return a positive number.  Possible causes of
+errors include:
+  -  data file not properly opened with call to ex_create() or ex_open()
+  -  data file not initialized properly with call to ex_put_init().
+  -  invalid variable type specified.
+  -  ex_put_variable_param() was not called previously or was
+     called with zero variables of the specified type.
+  -  ex_put_variable_names() has been called previously for the
+     specified variable type.
+
+\param[in]  exoid      exodus file ID returned from a previous call to ex_create() or ex_open(). 
+\param[in]  obj_type   Variable indicating the type of variable which is described. 
+                       Use one of the options in the table below.
+\param[in]  num_vars   The number of \c var_type variables that will be written 
+                       to the database.
+\param[in]  var_names  Array of pointers to \c num_vars variable names.
+
+<table>
+<tr><td> \c EX_GLOBAL}    </td><td>  Global entity type       </td></tr>
+<tr><td> \c EX_NODAL}     </td><td>  Nodal entity type        </td></tr>
+<tr><td> \c EX_NODE_SET   </td><td>  Node Set entity type     </td></tr>
+<tr><td> \c EX_EDGE_BLOCK </td><td>  Edge Block entity type   </td></tr>
+<tr><td> \c EX_EDGE_SET   </td><td>  Edge Set entity type     </td></tr>
+<tr><td> \c EX_FACE_BLOCK </td><td>  Face Block entity type   </td></tr>
+<tr><td> \c EX_FACE_SET   </td><td>  Face Set entity type     </td></tr>
+<tr><td> \c EX_ELEM_BLOCK </td><td>  Element Block entity type</td></tr>
+<tr><td> \c EX_ELEM_SET   </td><td>  Element Set entity type  </td></tr>
+<tr><td> \c EX_SIDE_SET   </td><td>  Side Set entity type     </td></tr>
+</table>
+
+The following coding will write out the names associated with the
+nodal variables:
+\code
+int num_nod_vars, error, exoid;
+char *var_names[2];
+
+\comment{write results variables parameters and names}
+num_nod_vars = 2;
+
+var_names[0] = "disx";
+var_names[1] = "disy";
+
+error = ex_put_variable_param (exoid, EX_NODAL, num_nod_vars);
+error = ex_put_variable_names (exoid, EX_NODAL, num_nod_vars, var_names);
+\endcode
+
+*/
 
 int ex_put_variable_names (int   exoid,
-                           ex_entity_type obj_type,
-                           int   num_vars,
-                           char* var_names[])
+         ex_entity_type obj_type,
+         int   num_vars,
+         char* var_names[])
 {
-  int i, varid, dimid, status; 
-  size_t  start[2], count[2];
+  int varid, dimid, status; 
   char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0; /* clear error code */
@@ -144,27 +190,14 @@ int ex_put_variable_names (int   exoid,
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
             "Error: Invalid variable type %d specified in file id %d",
-            obj_type, exoid);
+      obj_type, exoid);
     ex_err("ex_put_var_names",errmsg,exerrval);
     return(EX_FATAL);
   }
 
   /* write EXODUS variable names */
-  for (i=0; i<num_vars; i++) {
-    start[0] = i;
-    start[1] = 0;
-
-    count[0] = 1;
-    count[1] = strlen(var_names[i]) + 1;
-
-    if ((status = nc_put_vara_text(exoid, varid, start, count, var_names[i])) != NC_NOERR) {
-      exerrval = status;
-      sprintf(errmsg,
-              "Error: failed to store variable names in file id %d",
-              exoid);
-      ex_err("ex_put_var_names",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-  return(EX_NOERR);
+  status = ex_put_names_internal(exoid, varid, num_vars, var_names, obj_type,
+         "variable", "ex_put_var_names");
+  
+  return(status);
 }

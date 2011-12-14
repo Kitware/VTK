@@ -21,9 +21,9 @@ int TestSurfaceLIC(int argc, char* argv[])
 {
   char* fname =  
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref_surface.vtp");
-  vtkstd::string filename = fname;
+  std::string filename = fname;
   filename = "--data=" + filename;
-  vtkstd::string vectors = "--vectors=V";
+  std::string vectors = "--vectors=V";
   delete []fname;
 
   char** new_argv = new char*[argc+2];

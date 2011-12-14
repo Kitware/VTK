@@ -797,38 +797,6 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
 }
 
 //----------------------------------------------------------------------------
-// Although this is a relatively expensive calculation,
-// it is only done on the first render. Colors are cached
-// for subsequent renders.
-template<class T>
-void vtkLookupTableMapMag(vtkLookupTable *self, T *input, 
-                          unsigned char *output, int length, 
-                          int inIncr, int outFormat)
-{
-  double tmp, sum;
-  double *mag;
-  int i, j;
-
-  mag = new double[length];
-  for (i = 0; i < length; ++i)
-    {
-    sum = 0;
-    for (j = 0; j < inIncr; ++j)
-      {
-      tmp = static_cast<double>(*input);  
-      sum += (tmp * tmp);
-      ++input;
-      }
-    mag[i] = sqrt(sum);
-    }
-
-  vtkLookupTableMapData(self, mag, output, length, 1, outFormat);
-
-  delete [] mag;
-}
-
-
-//----------------------------------------------------------------------------
 void vtkLookupTable::MapScalarsThroughTable2(void *input, 
                                              unsigned char *output,
                                              int inputDataType, 
@@ -836,23 +804,6 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
                                              int inputIncrement,
                                              int outputFormat)
 {
-  if (this->UseMagnitude && inputIncrement > 1)
-    {
-    switch (inputDataType)
-      {
-      vtkTemplateMacro(
-        vtkLookupTableMapMag(this,static_cast<VTK_TT*>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return
-        );
-      case VTK_BIT:
-        vtkErrorMacro("Cannot comput magnitude of bit array.");
-        break;
-      default:
-        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-      }
-    }
-
   switch (inputDataType)
     {
     case VTK_BIT:
@@ -1009,16 +960,22 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
+void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
 {
-  if (!lut)
+  if (!obj)
     {
     return;
     }
-  this->Alpha               = lut->Alpha;
-  this->UseMagnitude        = lut->UseMagnitude;
-  this->VectorMode          = lut->VectorMode;
-  this->VectorComponent     = lut->VectorComponent;
+
+  vtkLookupTable *lut = vtkLookupTable::SafeDownCast(obj);
+
+  if (!lut)
+    {
+    vtkErrorMacro("Cannot DeepCopy a " << obj->GetClassName()
+                  << " into a vtkLookupTable.");
+    return;
+    }
+
   this->Scale               = lut->Scale;
   this->TableRange[0]       = lut->TableRange[0];
   this->TableRange[1]       = lut->TableRange[1];
@@ -1035,6 +992,8 @@ void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
   this->InsertTime          = lut->InsertTime;
   this->BuildTime           = lut->BuildTime;
   this->Table->DeepCopy(lut->Table);
+
+  this->Superclass::DeepCopy(obj);
 }
 
 //----------------------------------------------------------------------------

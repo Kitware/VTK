@@ -132,7 +132,7 @@ METAIO_STL::string MET_ReadForm(METAIO_STREAM::istream &_fp)
 
   METAIO_STL::string value;
 
-  if(mF && mF->defined)
+  if(mF->defined)
     {
     value = (char *)(mF->value);
     delete mF;
@@ -162,7 +162,7 @@ METAIO_STL::string MET_ReadType(METAIO_STREAM::istream &_fp)
 
   METAIO_STL::string value;
 
-  if(mF && mF->defined)
+  if(mF->defined)
     {
     value = (char *)(mF->value);
     delete mF;
@@ -246,7 +246,7 @@ bool MET_TypeToString(MET_ValueEnumType _vType, char *_s)
 //
 // Value to Double
 //
-bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data, 
+bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data,
                        METAIO_STL::streamoff _index,
                        double *_value)
   {
@@ -713,14 +713,14 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
         {
         // if we don't have enough allocation for the output buffer
         // when the output is bigger than the input (true for small images)
-        if(j+count>=buffer_size) 
+        if(j+count>=buffer_size)
           {
           unsigned char* compressedDataTemp = new unsigned char[j+count+1];
           memcpy(compressedDataTemp,compressedData,(size_t)buffer_size);
           delete [] compressedData;
           compressedData = compressedDataTemp;
           }
-        
+
         memcpy((char*)compressedData+j, (char *)output_buffer, (size_t)count);
         }
       break;
@@ -730,7 +730,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
     count = buffer_size - z.avail_out;
     if ( count )
       {
-      if(j+count>=buffer_size) 
+      if(j+count>=buffer_size)
         {
         unsigned char* compressedDataTemp = new unsigned char[j+count+1];
         memcpy(compressedDataTemp,compressedData,(size_t)buffer_size);
@@ -772,13 +772,13 @@ bool MET_PerformUncompression(const unsigned char * sourceCompressed,
   inflateInit2(&d_stream,47); // allow both gzip and zlib compression headers
   d_stream.next_in  = const_cast<unsigned char *>(sourceCompressed);
   d_stream.avail_in = (uInt)sourceCompressedSize;
-  
+
   for (;;)
     {
     d_stream.next_out = (unsigned char *)uncompressedData;
     d_stream.avail_out = (uInt)uncompressedDataSize;
     int err = inflate(&d_stream, Z_NO_FLUSH);
-        
+
     if((err == Z_STREAM_END)
        || (err == Z_BUF_ERROR) // Sometimes inflate returns this non fatal.
        )
@@ -789,9 +789,9 @@ bool MET_PerformUncompression(const unsigned char * sourceCompressed,
       {
       METAIO_STREAM::cerr << "Uncompress failed" << METAIO_STREAM::endl;
       break;
-      }  
+      }
     }
-    
+
   inflateEnd(&d_stream);
 
   return true;

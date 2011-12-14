@@ -87,11 +87,20 @@ vtkX3DExporter::vtkX3DExporter()
   this->FileName = NULL;
   this->Binary = 0;
   this->Fastest = 0;
+  this->WriteToOutputString = 0;
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
 }
 //----------------------------------------------------------------------------
 vtkX3DExporter::~vtkX3DExporter()
 {
   this->SetFileName(0);
+  if (this->OutputString)
+    {
+    delete [] this->OutputString;
+    this->OutputString = NULL;
+    this->OutputStringLength = 0;
+    }
 }
 
 
@@ -109,7 +118,7 @@ void vtkX3DExporter::WriteData()
   vtkCamera *cam;
 
   // make sure the user specified a FileName or FilePointer
-  if (this->FileName == NULL)
+  if (this->FileName == NULL && (!this->WriteToOutputString))
     {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -146,10 +155,21 @@ void vtkX3DExporter::WriteData()
     }
 
 
-  if (!writer->OpenFile(this->FileName))
+  if(this->WriteToOutputString)
     {
-    vtkErrorMacro(<< "unable to open X3D file " << this->FileName);
-    return;
+    if (!writer->OpenStream())
+      {
+      vtkErrorMacro(<< "unable to open X3D stream");
+      return;
+      }
+    }
+  else
+    {
+    if (!writer->OpenFile(this->FileName))
+      {
+      vtkErrorMacro(<< "unable to open X3D file " << this->FileName);
+      return;
+      }
     }
 
   //
@@ -167,7 +187,7 @@ void vtkX3DExporter::WriteData()
 
   writer->StartNode(meta);
   writer->SetField(name, "filename");
-  writer->SetField(content, this->FileName);
+  writer->SetField(content, this->FileName ? this->FileName : "Stream");
   writer->EndNode();
 
   writer->StartNode(meta);
@@ -313,8 +333,13 @@ void vtkX3DExporter::WriteData()
   writer->Flush();
   writer->EndDocument();
   writer->CloseFile();
-}
 
+  if(this->WriteToOutputString)
+    {
+    this->OutputStringLength = writer->GetOutputStringLength();
+    this->OutputString = writer->RegisterAndGetOutputString();
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkX3DExporter::WriteALight(vtkLight *aLight,
@@ -422,10 +447,33 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     pd = static_cast<vtkPolyData *>(ds.GetPointer());
     }
 
+  // Create a temporary poly-data mapper that we use.
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+
+  mapper->SetInput(pd);
+  mapper->SetScalarRange(anActor->GetMapper()->GetScalarRange());
+  mapper->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
+  mapper->SetLookupTable(anActor->GetMapper()->GetLookupTable());
+  mapper->SetScalarMode(anActor->GetMapper()->GetScalarMode());
+
   // Essential to turn of interpolate scalars otherwise GetScalars() may return
   // NULL. We restore value before returning.
-  int isbm = anActor->GetMapper()->GetInterpolateScalarsBeforeMapping();
-  anActor->GetMapper()->SetInterpolateScalarsBeforeMapping(0);
+  mapper->SetInterpolateScalarsBeforeMapping(0);
+  if ( mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
+    mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+    {
+    if ( anActor->GetMapper()->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
+      {
+      mapper->ColorByArrayComponent(anActor->GetMapper()->GetArrayId(),
+        anActor->GetMapper()->GetArrayComponent());
+      }
+    else
+      {
+      mapper->ColorByArrayComponent(anActor->GetMapper()->GetArrayName(),
+        anActor->GetMapper()->GetArrayComponent());
+      }
+    }
 
   // first stuff out the transform
   trans = vtkSmartPointer<vtkTransform>::New();
@@ -442,7 +490,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   tcoords = pntData->GetTCoords();
   cellData = pd->GetCellData();
 
-  colors  = anActor->GetMapper()->MapScalars(255.0);
+  colors  = mapper->MapScalars(255.0);
 
   // Are we using cell colors.
   bool cell_colors = vtkX3DExporterWriterUsingCellColors(anActor);
@@ -553,7 +601,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
 
     }
   writer->EndNode(); // close the original transform
-  anActor->GetMapper()->SetInterpolateScalarsBeforeMapping(isbm);
 }
 
 //----------------------------------------------------------------------------
@@ -572,6 +619,14 @@ void vtkX3DExporter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Speed: " << this->Speed << "\n";
   os << indent << "Binary: " << this->Binary << "\n";
   os << indent << "Fastest: " << this->Fastest << endl;
+
+  os << indent << "WriteToOutputString: "
+     << (this->WriteToOutputString ? "On" : "Off") << std::endl;
+  os << indent << "OutputStringLength: " << this->OutputStringLength << std::endl;
+  if (this->OutputString)
+    {
+    os << indent << "OutputString: " << this->OutputString << std::endl;
+    }
 }
 
 
@@ -626,7 +681,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
   writer->StartNode(Text);
   writer->SetField(vtkX3D::string, ds);
 
-  vtkstd::string familyStr;
+  std::string familyStr;
   switch(tp->GetFontFamily())
     {
   case 0:
@@ -641,7 +696,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
     break;
     }
 
-  vtkstd::string justifyStr;
+  std::string justifyStr;
   switch  (tp->GetJustification())
     {
   case 0:
@@ -786,7 +841,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
       }
     }
 
-  vtkstd::vector<int> imageDataVec;
+  std::vector<int> imageDataVec;
   imageDataVec.push_back(xsize);
   imageDataVec.push_back(ysize);
   imageDataVec.push_back(mappedScalars->GetNumberOfComponents());
@@ -861,8 +916,8 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   vtkDataArray* tcoords, 
   bool common_data_written, int index, vtkX3DExporterWriter* writer)
 {
-  vtkstd::vector<int> coordIndexVector;
-  vtkstd::vector<int> cellIndexVector;
+  std::vector<int> coordIndexVector;
+  std::vector<int> cellIndexVector;
 
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
@@ -977,7 +1032,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
   sprintf(indexString, "%04d", index);
 
   // write out the points
-  vtkstd::string defString = "VTKcoordinates";
+  std::string defString = "VTKcoordinates";
   writer->StartNode(Coordinate);
   writer->SetField(DEF, defString.append(indexString).c_str());
   writer->SetField(point, MFVEC3F, points->GetData());
@@ -1010,7 +1065,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
     writer->StartNode(Color);
     writer->SetField(DEF, defString.append(indexString).c_str());
 
-    vtkstd::vector<double> colorVec;
+    std::vector<double> colorVec;
     unsigned char c[4];
     for (int i = 0; i < colors->GetNumberOfTuples(); i++)
       {
@@ -1029,7 +1084,7 @@ static void vtkX3DExporterUseData(bool normals, bool tcoords, bool colors, int i
 {
   char indexString[100];
   sprintf(indexString, "%04d", index);
-  vtkstd::string defString = "VTKcoordinates";
+  std::string defString = "VTKcoordinates";
   writer->StartNode(Coordinate);
   writer->SetField(USE, defString.append(indexString).c_str());
   writer->EndNode();
@@ -1066,7 +1121,7 @@ static bool vtkX3DExporterWriterRenderVerts(
   vtkPoints* points, vtkCellArray* cells,
   vtkUnsignedCharArray* colors, bool cell_colors,  vtkX3DExporterWriter* writer)
 {
-  vtkstd::vector<double> colorVector;
+  std::vector<double> colorVector;
 
   if (colors)
     {
@@ -1118,8 +1173,8 @@ static bool vtkX3DExporterWriterRenderPoints(
     return false;
     }
 
-  vtkstd::vector<double> colorVec;
-  vtkstd::vector<double> coordinateVec;
+  std::vector<double> colorVec;
+  std::vector<double> coordinateVec;
 
   vtkPoints* points = pd->GetPoints();
 
@@ -1197,4 +1252,13 @@ static bool vtkX3DExporterWriterRenderPoints(
   writer->EndNode(); // PointSet
   return true; 
 }
+//----------------------------------------------------------------------------
+char *vtkX3DExporter::RegisterAndGetOutputString()
+{
+  char *tmp = this->OutputString;
 
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
+
+  return tmp;
+}

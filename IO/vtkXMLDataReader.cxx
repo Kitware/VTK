@@ -774,6 +774,14 @@ int vtkXMLDataReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayInde
     {
     iter->Delete();
     }
+  // Marking the array modified is essential, since otherwise, when reading
+  // multiple time-steps, the array does not realize that its contents may have
+  // changed and does not recompute the array ranges.
+  // This becomes an issue only because we reuse the vtkAbstractArray* instance
+  // when reading time-steps. The array is allocated only for the first timestep
+  // read (see vtkXMLReader::ReadXMLData() and its use of
+  // this->TimeStepWasReadOnce flag).
+  array->Modified();
   this->InReadData = 0;
   return result;
 }

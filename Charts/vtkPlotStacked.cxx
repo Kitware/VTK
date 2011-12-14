@@ -476,9 +476,9 @@ class vtkPlotStackedPrivate {
       }
 
 
-    int GetNearestPoint(const vtkVector2f& point,
-                        const vtkVector2f& tol,
-                        vtkVector2f* location)
+    vtkIdType GetNearestPoint(const vtkVector2f& point,
+                              const vtkVector2f& tol,
+                              vtkVector2f* location)
       {
       // Depends on the fact that we check the segments in order. Each
       // Segment only worrys about its own total extent from the base.
@@ -673,7 +673,7 @@ void vtkPlotStacked::GetBounds(double bounds[4])
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
+vtkIdType vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tol,
                                     vtkVector2f* location)
 {

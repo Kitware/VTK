@@ -24,10 +24,10 @@
 #include "vtkSmartPointer.h"
 
 #include <vtksys/ios/sstream>
-#include <vtkstd/map>
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/string>
+#include <map>
+#include <vector>
+#include <set>
+#include <string>
 
 class vtkMutableDirectedGraph;
 class vtkStringArray;
@@ -59,14 +59,14 @@ public:
   // Description:
   // Given a block "id" return the name as determined from the xml.
   // This is valid only after Go().
-  vtkstd::string GetBlockName(int id);
+  std::string GetBlockName(int id);
 
   // Description:
   // Fills up the blockIdsSet with the block ids referred to by the XML.
   // This is valid only after Go().
-  void GetBlockIds(vtkstd::set<int>& blockIdsSet)
+  void GetBlockIds(std::set<int>& blockIdsSet)
     {
-    vtkstd::map<int, vtkIdType>::iterator iter;
+    std::map<int, vtkIdType>::iterator iter;
     for (iter = this->BlockID_To_VertexID.begin();
       iter != this->BlockID_To_VertexID.end();
       ++iter)
@@ -118,42 +118,42 @@ protected:
 
   // For each of the blocks, this maps the "id" attribute in the XML to the
   // vertex id for the block in the SIL.
-  vtkstd::map<int, vtkIdType> BlockID_To_VertexID;
+  std::map<int, vtkIdType> BlockID_To_VertexID;
 
 
   // Maps block "id"s to material names.
-  vtkstd::map<int, vtkstd::string> BlockID_To_MaterialName;
+  std::map<int, std::string> BlockID_To_MaterialName;
 
   // Maps material name to vertex id.
   // This will be build only if <material-list> is present in the XML.
-  vtkstd::map<vtkstd::string, vtkIdType> MaterialName_To_VertexID;
+  std::map<std::string, vtkIdType> MaterialName_To_VertexID;
 
-  vtkstd::map<vtkIdType, vtkstd::string> PartVertexID_To_Descriptions;
+  std::map<vtkIdType, std::string> PartVertexID_To_Descriptions;
 
   // These save the values read from <material-specification /> element present
   // withint the <part /> elements.
   // key: part vertex id
   // value: material name = (desp + spec)
-  vtkstd::map<vtkIdType, vtkstd::string> MaterialSpecifications;
+  std::map<vtkIdType, std::string> MaterialSpecifications;
 
   // Maps the "{part-number} Instance: {part-instance}" key for the vertex id
   // for the part vertex in the Assemblies hierarchy.
-  vtkstd::map<vtkstd::string, vtkIdType> Part_To_VertexID;
+  std::map<std::string, vtkIdType> Part_To_VertexID;
 
   // Maps a block-id to the "{part-number} Instance: {part-instance}" string.
-  vtkstd::map<int, vtkstd::string> BlockID_To_Part;
+  std::map<int, std::string> BlockID_To_Part;
   
   vtkMutableDirectedGraph* SIL;
   vtkSmartPointer<vtkStringArray> NamesArray;
   vtkSmartPointer<vtkUnsignedCharArray> CrossEdgesArray;
 
-  vtkstd::string BlockPartNumberString;
+  std::string BlockPartNumberString;
 
   vtkIdType RootVertex;
   vtkIdType BlocksVertex;
   vtkIdType AssembliesVertex;
   vtkIdType MaterialsVertex;
-  vtkstd::vector<vtkIdType> CurrentVertex;
+  std::vector<vtkIdType> CurrentVertex;
 
   bool InBlocks;
   bool InMaterialAssignments;

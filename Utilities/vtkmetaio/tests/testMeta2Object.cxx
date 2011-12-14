@@ -42,7 +42,7 @@ int main(int argc, char **argv)
   for(i=0; i<4; i++)
     {
     myMatrix[i] = i;
-    } 
+    }
   tObj.AddUserField("MyMatrix", MET_FLOAT_MATRIX,2,myMatrix);
 
   tObj.PrintInfo();
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 
   tObj.Clear();
   tObj.ClearUserFields();
-  
+
   tObj.AddUserField("MyName", MET_STRING);
   tObj.AddUserField("MyArray", MET_INT_ARRAY,3);
   tObj.AddUserField("MyMatrix", MET_FLOAT_MATRIX,2);
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     {
       METAIO_STREAM::cout << "MyMatrix: FAIL" << METAIO_STREAM::endl;
     }
-  } 
+  }
 
   METAIO_STREAM::cout << "PASSED!" << METAIO_STREAM::endl;
 
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
     {
     METAIO_STREAM::cout << "Position: PASS" << METAIO_STREAM::endl;
     }
-  
+
   if(tObj.ElementSpacing(zero) != 2)
     {
     METAIO_STREAM::cout << "ElementSpacing: FAIL: " << tObj.ElementSpacing(zero) << METAIO_STREAM::endl;

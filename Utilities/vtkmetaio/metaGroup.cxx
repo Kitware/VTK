@@ -90,7 +90,7 @@ Clear(void)
   if(META_DEBUG) METAIO_STREAM::cout << "MetaGroup: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
 }
-        
+
 /** Destroy group information */
 void MetaGroup::
 M_Destroy(void)
@@ -130,11 +130,11 @@ M_SetupWriteFields(void)
 bool MetaGroup::
 M_Read(void)
 {
-  if(META_DEBUG) 
+  if(META_DEBUG)
     {
     METAIO_STREAM::cout << "MetaGroup: M_Read: Loading Header" << METAIO_STREAM::endl;
     }
-  
+
   if(!MetaObject::M_Read())
     {
     METAIO_STREAM::cout << "MetaGroup: M_Read: Error parsing file" << METAIO_STREAM::endl;
@@ -145,7 +145,7 @@ M_Read(void)
     {
     METAIO_STREAM::cout << "MetaGroup: M_Read: Parsing Header" << METAIO_STREAM::endl;
     }
- 
+
   return true;
 }
 

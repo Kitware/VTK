@@ -60,9 +60,9 @@ void vtkLookupTableItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLookupTableItem::GetBounds(double* bounds)
+void vtkLookupTableItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->LookupTable)
     {
     double* range = this->LookupTable->GetRange();
@@ -85,6 +85,13 @@ void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
 //-----------------------------------------------------------------------------
 void vtkLookupTableItem::ComputeTexture()
 {
+  double bounds[4];
+  this->GetBounds(bounds);
+  if (bounds[0] == bounds[1]
+      || !this->LookupTable)
+    {
+    return;
+    }
   if (this->Texture == 0)
     {
     this->Texture = vtkImageData::New();
@@ -100,13 +107,6 @@ void vtkLookupTableItem::ComputeTexture()
   this->Texture->SetScalarTypeToUnsignedChar();
   this->Texture->AllocateScalars();
   // TODO: Support log scale ?
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] == bounds[1])
-    {
-    vtkWarningMacro(<< "The lookuptable seems empty");
-    return;
-    }
   for (int i = 0; i < dimension; ++i)
     {
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
@@ -123,4 +123,5 @@ void vtkLookupTableItem::ComputeTexture()
       ptr+=4;
       }
     }
+  return;
 }

@@ -25,11 +25,15 @@
  For each class, the output file will have a line in the following
  format:
 
- classname [ : superclass ] ; header.h
+ classname [ : superclass ] ; header.h ; kit [; flags]
 
- For each typedef, the output file will have a line like this:
+ For each enum type,
 
- name = [2][3]* const type ; header.h
+ enumname : enum ; header.h ; kit [; flags]
+
+ For each typedef,
+
+ name = [2][3]* const int ; header.h ; kit [; flags]
 
 */
 
@@ -118,6 +122,37 @@ static char *append_scope_to_line(
 }
 
 /**
+ * Append template info
+ */
+static char *append_template_to_line(
+  char *line, size_t *m, size_t *maxlen, TemplateArgs *template_args)
+{
+  TemplateArg *arg;
+  int j;
+
+  line = append_to_line(line, "<", m, maxlen);
+
+  for (j = 0; j < template_args->NumberOfArguments; j++)
+    {
+    arg = template_args->Arguments[j];
+    line = append_to_line(line, arg->Name, m, maxlen);
+    if (arg->Value && arg->Value[0] != '\n')
+      {
+      line = append_to_line(line, "=", m, maxlen);
+      line = append_to_line(line, arg->Value, m, maxlen);
+      }
+    if (j+1 < template_args->NumberOfArguments)
+      {
+      line = append_to_line(line, ",", m, maxlen);
+      }
+    }
+
+  line = append_to_line(line, ">", m, maxlen);
+
+  return line;
+}
+
+/**
  * Append class info
  */
 static char *append_class_to_line(
@@ -126,7 +161,14 @@ static char *append_class_to_line(
   int j;
 
   line = append_to_line(line, class_info->Name, m, maxlen);
+
+  if (class_info->Template)
+    {
+    line = append_template_to_line(line, m, maxlen, class_info->Template);
+    }
+
   line = append_to_line(line, " ", m, maxlen);
+
   if (class_info->NumberOfSuperClasses)
     {
     line = append_to_line(line, ": ", m, maxlen);
@@ -152,7 +194,7 @@ static char *append_enum_to_line(
   char *line, size_t *m, size_t *maxlen, EnumInfo *enum_info)
 {
   line = append_to_line(line, enum_info->Name, m, maxlen);
-  line = append_to_line(line, " : int ", m, maxlen);
+  line = append_to_line(line, " : enum ", m, maxlen);
 
   return line;
 }
@@ -162,10 +204,13 @@ static char *append_enum_to_line(
  */
 static char *append_trailer(
   char *line, size_t *m, size_t *maxlen,
-  const char *header_file, const char *flags)
+  const char *header_file, const char *module_name, const char *flags)
 {
   line = append_to_line(line, "; ", m, maxlen);
   line = append_to_line(line, header_file, m, maxlen);
+
+  line = append_to_line(line, " ; ", m, maxlen);
+  line = append_to_line(line, module_name, m, maxlen);
 
   if (flags && flags[0] != '\0')
     {
@@ -183,8 +228,8 @@ static char *append_typedef_to_line(
   char *line, size_t *m, size_t *maxlen, ValueInfo *typedef_info)
 {
   unsigned int type;
-  unsigned long ndims;
-  unsigned long dim;
+  int ndims;
+  int dim;
 
   line = append_to_line(line, typedef_info->Name, m, maxlen);
   line = append_to_line(line, " = ", m, maxlen);
@@ -258,13 +303,14 @@ static char *append_typedef_to_line(
  */
 static char **append_class_contents(
   char **lines, size_t *np, ClassInfo *data,
-  const char *scope, const char *header_file)
+  const char *scope, const char *header_file, const char *module_name)
 {
   int i;
   const char *tmpflags;
   char *new_scope;
   char *line;
   size_t m, n, maxlen;
+  size_t scope_m, scope_maxlen;
 
   /* append the name to the scope */
   new_scope = 0;
@@ -278,17 +324,23 @@ static char **append_class_contents(
     {
     m = strlen(data->Name);
     }
-  if (m && n)
+  if (m && (n || data->Template))
     {
-    new_scope = (char *)malloc(m + n + 3);
+    scope_maxlen = n + m + 3;
+    scope_m = 0;
+    new_scope = (char *)malloc(scope_maxlen);
+    new_scope[0] = '\0';
     if (n)
       {
-      strncpy(new_scope, scope, n);
-      new_scope[n++] = ':';
-      new_scope[n++] = ':';
+      new_scope = append_to_line(new_scope, scope, &scope_m, &scope_maxlen);
+      new_scope = append_to_line(new_scope, "::", &scope_m, &scope_maxlen);
       }
-    strncpy(&new_scope[n], data->Name, m);
-    new_scope[n+m] = '\0';
+    new_scope = append_to_line(new_scope, data->Name, &scope_m, &scope_maxlen);
+    if (data->Template)
+      {
+      new_scope = append_template_to_line(
+        new_scope, &scope_m, &scope_maxlen, data->Template);
+      }
     scope = new_scope;
     }
   else if (m)
@@ -338,7 +390,8 @@ static char **append_class_contents(
       }
 
     /* append filename and flags */
-    line = append_trailer(line, &m, &maxlen, header_file, tmpflags);
+    line = append_trailer(
+      line, &m, &maxlen, header_file, module_name, tmpflags);
 
     /* append the line to the file */
     lines = append_unique_line(lines, line, np);
@@ -350,7 +403,7 @@ static char **append_class_contents(
       {
       lines = append_class_contents(lines, np,
         data->Classes[data->Items[i].Index],
-        scope, header_file);
+        scope, header_file, module_name);
       }
     }
 
@@ -370,7 +423,8 @@ static char **append_class_contents(
  */
 static char **append_namespace_contents(
   char **lines, size_t *np, NamespaceInfo *data, ClassInfo *main_class,
-  const char *scope, const char *header_file, const char *flags)
+  const char *scope, const char *header_file, const char *module_name,
+  const char *flags)
 {
   int i;
   const char *tmpflags;
@@ -455,7 +509,8 @@ static char **append_namespace_contents(
       }
 
     /* append filename and flags */
-    line = append_trailer(line, &m, &maxlen, header_file, tmpflags);
+    line = append_trailer(
+      line, &m, &maxlen, header_file, module_name, tmpflags);
 
     /* append the line to the file */
     lines = append_unique_line(lines, line, np);
@@ -467,7 +522,7 @@ static char **append_namespace_contents(
       {
       lines = append_class_contents(lines, np,
         data->Classes[data->Items[i].Index],
-        scope, header_file);
+        scope, header_file, module_name);
       }
 
     /* for namespaces, add all types in the namespace */
@@ -476,7 +531,7 @@ static char **append_namespace_contents(
       {
       lines = append_namespace_contents(lines, np,
         data->Namespaces[data->Items[i].Index], 0,
-        scope, header_file, "WRAP_EXCLUDE");
+        scope, header_file, module_name, "WRAP_EXCLUDE");
       }
     }
 
@@ -497,7 +552,8 @@ static char **append_namespace_contents(
  * will be appended to them.
  */
 static char **vtkWrapHierarchy_ParseHeaderFile(
-  FILE *fp, const char *filename, const char *flags, char **lines)
+  FILE *fp, const char *filename, const char *module_name,
+  const char *flags, char **lines)
 {
   FileInfo *data;
   const char *header_file;
@@ -538,7 +594,8 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
 
   /* append the file contents to the output */
   lines = append_namespace_contents(
-    lines, &n, data->Contents, data->MainClass, 0, header_file, flags);
+    lines, &n, data->Contents, data->MainClass, 0,
+    header_file, module_name, flags);
 
   vtkParse_Free(data);
 
@@ -718,7 +775,8 @@ static int vtkWrapHierarchy_WriteHierarchyFile(FILE *fp, char *lines[])
  * Try to parse a header file, print error and exit if fail
  */
 static char **vtkWrapHierarchy_TryParseHeaderFile(
-  const char *file_name, const char *flags, char **lines)
+  const char *file_name, const char *module_name,
+  const char *flags, char **lines)
 {
   FILE *input_file;
 
@@ -732,7 +790,7 @@ static char **vtkWrapHierarchy_TryParseHeaderFile(
     }
 
   lines = vtkWrapHierarchy_ParseHeaderFile(
-                 input_file, file_name, flags, lines);
+                 input_file, file_name, module_name, flags, lines);
 
   if (!lines)
     {
@@ -854,6 +912,7 @@ int main(int argc, char *argv[])
   char **lines = 0;
   char **files = 0;
   char *flags;
+  char *module_name;
   char *option;
   char *optionarg;
   const char *optionargval;
@@ -924,12 +983,18 @@ int main(int argc, char *argv[])
   /* merge the files listed in the data file */
   for (i = 0; files[i] != NULL; i++)
     {
-    flags = files[i];
+    /* look for semicolon that marks the module name */
+    module_name = files[i];
+    while(*module_name != ';' && *module_name != '\0') { module_name++; };
+    if (*module_name == ';') { *module_name++ = '\0'; }
+
     /* look for semicolon that marks start of flags */
+    flags = module_name;
     while(*flags != ';' && *flags != '\0') { flags++; };
     if (*flags == ';') { *flags++ = '\0'; }
 
-    lines = vtkWrapHierarchy_TryParseHeaderFile(files[i], flags, lines);
+    lines = vtkWrapHierarchy_TryParseHeaderFile(
+      files[i], module_name, flags, lines);
     }
 
   /* sort the lines to ease lookups in the file */

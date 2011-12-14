@@ -25,16 +25,16 @@
 // Note that vtkAbstractWidget provides access to the
 // vtkWidgetEventTranslator.  This class is responsible for translating VTK
 // events (defined in vtkCommand.h) into widget events (defined in
-// vtkWidgetEvent.h).  This class can be manipulated so that different VTK
+// vtkWidgetEvent.h). This class can be manipulated so that different VTK
 // events can be mapped into widget events, thereby allowing the modification
 // of event bindings. Each subclass of vtkAbstractWidget defines the events
 // to which it responds.
 //
 // .SECTION Caveats
-// Note that the pair (vtkAbstractWidget/vtkWidgetRepresentation) are an
+// Note that the pair ( vtkAbstractWidget / vtkWidgetRepresentation ) is an
 // implementation of the second generation VTK Widgets design. In the first
-// generation design, widgets were implemented in a single monotonic
-// class. This design was problematic because in client-server applications
+// generation design, widgets were implemented in a single monolithic
+// class. This design was problematic because in client-server application
 // it was difficult to manage widgets properly. Also, new "representations"
 // or look-and-feel, for a widget required a whole new class, with a lot of
 // redundant code. The separation of the widget event handling and
@@ -74,7 +74,7 @@ public:
   virtual void SetEnabled(int);
 
   // Description:
-  // Methods to change the whether the widget responds to interaction.
+  // Methods to change whether the widget responds to interaction.
   // Set this to Off to disable interaction. On by default.
   // Subclasses must overide SetProcessEvents() to make sure
   // that they pass on the flag to all component widgets.

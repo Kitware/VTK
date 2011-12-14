@@ -19,7 +19,7 @@
 // SetRequestedRenderMode() method to control the behavior of the selection.
 // The following options are available:
 //
-//  vtkSmartVolumeMapper::DefaultRenderMode:
+// .SECTION vtkSmartVolumeMapper::DefaultRenderMode
 //          Allow the vtkSmartVolumeMapper to select the best mapper based on
 //          rendering parameters and hardware support. If GPU ray casting is
 //          supported, this mapper will be used for all rendering. If not,
@@ -32,7 +32,7 @@
 //          be rendered, but the method used to render it may vary based
 //          on parameters and platform.
 //
-//  vtkSmartVolumeMapper::RayCastAndTextureRenderMode:
+// .SECTION vtkSmartVolumeMapper::RayCastAndTextureRenderMode
 //          Use the vtkVolumeTextureMapper3D for interactive rendering,
 //          and the vtkFixedPointVolumeRayCastMapper for still renders.
 //          If 3D texture mapping is not supported, then the ray
@@ -46,12 +46,12 @@
 //          the InteractiveUpdateRate value, then the render is considered
 //          interactive, otherwise it is considered a still render.
 //
-//  vtkSmartVolumeMapper::RayCastRenderMode:
+// .SECTION vtkSmartVolumeMapper::RayCastRenderMode
 //          Use the vtkFixedPointVolumeRayCastMapper for both interactive and
 //          still rendering. When you use this option your volume will always
 //          be rendered with the vtkFixedPointVolumeRayCastMapper.
 //
-//  vtkSmartVolumeMapper::TextureRenderMode:
+// .SECTION vtkSmartVolumeMapper::TextureRenderMode
 //          Use the vtkVolumeTextureMapper3D, if supported, for both
 //          interactive and still rendering. If 3D texture mapping is not
 //          supported (either by the hardware, or due to the rendering
@@ -64,7 +64,7 @@
 //          the default value of 1.0 and FinalColorLevel must be at the
 //          default value of 0.5.
 //
-//  vtkSmartVolumeMapper::GPURenderMode:
+// .SECTION vtkSmartVolumeMapper::GPURenderMode
 //          Use the vtkGPUVolumeRayCastMapper, if supported, for both
 //          interactive and still rendering. If the GPU ray caster is not
 //          supported (due to hardware limitations or rendering parameters)
@@ -79,24 +79,22 @@
 //  which applies no correction to the computed image. To apply the window /
 //  level operation to the computer image color, first a Scale and Bias
 //  value are computed:
-//
+//  <pre>
 //  scale = 1.0 / this->FinalColorWindow
 //  bias  = 0.5 - this->FinalColorLevel / this->FinalColorWindow
-//
+//  </pre>
 //  To compute a new color (R', G', B', A') from an existing color (R,G,B,A)
 //  for a pixel, the following equation is used:
-//
+//  <pre>
 //  R' = R*scale + bias*A
 //  G' = G*scale + bias*A
 //  B' = B*scale + bias*A
 //  A' = A
-//
+//  </pre>
 // Note that bias is multiplied by the alpha component before adding because
 // the red, green, and blue component of the color are already pre-multiplied
 // by alpha. Also note that the window / level operation leaves the alpha
 // component unchanged - it only adjusts the RGB values.
-//
-//-----------------------------------------------------------------------------
 
 #ifndef __vtkSmartVolumeMapper_h
 #define __vtkSmartVolumeMapper_h
@@ -168,7 +166,7 @@ public:
   // Description:
   // Set the requested render mode to vtkSmartVolumeMapper::DefaultRenderMode.
   // This is the best option for an application that must adapt to different
-  // data types, harware, and rendering parameters.
+  // data types, hardware, and rendering parameters.
   void SetRequestedRenderModeToDefault();
 
   // Description:
@@ -313,7 +311,7 @@ protected:
   double InteractiveUpdateRate;
 
   // The initialize method. Called from ComputeRenderMode whenever something
-  // relavent has changed.
+  // relevant has changed.
   void  Initialize(vtkRenderer *ren,
                    vtkVolume *vol);
 

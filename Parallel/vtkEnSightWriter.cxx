@@ -64,10 +64,10 @@
 #include <math.h>
 #include <ctype.h>
 
-#include <vtkstd/vector>
-#include <vtkstd/list>
-#include <vtkstd/map>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <list>
+#include <map>
+#include <algorithm>
 
 // If we are building against a slightly older VTK version,
 // these cell types are not defined, and won't occur in the input
@@ -191,7 +191,7 @@ void vtkEnSightWriter::WriteData()
   int i;
   unsigned int ui;
   int blockCount=0;
-  vtkstd::list<int>::iterator iter;
+  std::list<int>::iterator iter;
 
   if (this->TmpInput)
     {
@@ -303,7 +303,7 @@ void vtkEnSightWriter::WriteData()
     }
 
   //Get the FILE's for Point Data Fields
-  vtkstd::vector<FILE*> pointArrayFiles; 
+  std::vector<FILE*> pointArrayFiles;
   int NumPointArrays=input->GetPointData()->GetNumberOfArrays();
   for (i=0;i<NumPointArrays;i++)
     {
@@ -321,7 +321,7 @@ void vtkEnSightWriter::WriteData()
     }
 
   //Get the FILE's for Cell Data Fields
-  vtkstd::vector<FILE*> cellArrayFiles; 
+  std::vector<FILE*> cellArrayFiles;
   int NumCellArrays=input->GetCellData()->GetNumberOfArrays();
   for (i=0;i<NumCellArrays;i++)
     {
@@ -371,10 +371,10 @@ void vtkEnSightWriter::WriteData()
 
   //data structure to get all the cells for a certain part
   //basically sort by part# and cell type
-  vtkstd::map <int, vtkstd::vector <int> > CellsByPart;
+  std::map <int, std::vector <int> > CellsByPart;
 
   //just a list of part numbers
-  vtkstd::list<int> partNumbers; 
+  std::list<int> partNumbers;
 
   //get all the part numbers in the unstructured grid and sort the cells 
   //by part number
@@ -387,7 +387,7 @@ void vtkEnSightWriter::WriteData()
       cout << "No BlockID was found\n";
     if (CellsByPart.count(key)==0)
       {
-      CellsByPart[key]=vtkstd::vector < int >() ;
+      CellsByPart[key]=std::vector < int >() ;
       }
     CellsByPart[key].push_back(i);
     partNumbers.push_back(key);
@@ -409,7 +409,7 @@ void vtkEnSightWriter::WriteData()
   for (iter=partNumbers.begin();iter!=partNumbers.end();iter++)
     {
     unsigned int j;
-    vtkstd::list<int>::iterator iter2;
+    std::list<int>::iterator iter2;
     int part=*iter;
 
     //write the part Header
@@ -451,10 +451,10 @@ void vtkEnSightWriter::WriteData()
       }
 
     //list of VTK Node Indices per part
-    vtkstd::list<int> NodesPerPart;
+    std::list<int> NodesPerPart;
 
     //map that goes from NodeID to the order, used for element connectivity
-    vtkstd::map<int, int> NodeIdToOrder;
+    std::map<int, int> NodeIdToOrder;
 
     //get a list of all the nodes used for a particular part
     for (j=0;j<CellsByPart[part].size();j++)
@@ -518,7 +518,7 @@ void vtkEnSightWriter::WriteData()
         CurrentDimension<DataSize;
         CurrentDimension++)
         {
-        for (vtkstd::list<int>::iterator k=NodesPerPart.begin();
+        for (std::list<int>::iterator k=NodesPerPart.begin();
           k!=NodesPerPart.end();k++)
           {
           this->WriteFloatToFile((float)
@@ -533,7 +533,7 @@ void vtkEnSightWriter::WriteData()
 
     //now we need to sort the cell list by element type
     //map is indexed by cell type has a vector of cell ID's
-    vtkstd::map<int, vtkstd::vector<int> > CellsByElement;
+    std::map<int, std::vector<int> > CellsByElement;
     for (j=0;j<CellsByPart[part].size();j++)
       {
       int CellType=input->GetCell(CellsByPart[part][j])->GetCellType();
@@ -548,13 +548,13 @@ void vtkEnSightWriter::WriteData()
       CellType+=ghostLevel*GhostLevelMultiplier;
       if (CellsByElement.count(CellType)==0)
         {
-        CellsByElement[CellType]=vtkstd::vector < int >() ;
+        CellsByElement[CellType]=std::vector < int >() ;
         }
       CellsByElement[CellType].push_back(CellsByPart[part][j]);
       }
 
     //now we need to go through each element type that EnSight understands
-    vtkstd::vector<int> elementTypes;
+    std::vector<int> elementTypes;
 
     //list the types that EnSight understands
     //the noticeable absences are the ones without a fixed number of Nodes
@@ -688,7 +688,7 @@ void vtkEnSightWriter::WriteData()
       unsigned int j;
       //figure out if the part was already written
       int part=elementIDs[i];
-      if (   vtkstd::find(partNumbers.begin(), partNumbers.end(), part)
+      if (   std::find(partNumbers.begin(), partNumbers.end(), part)
         == partNumbers.end() )
         {
         //no information about the part was written to the output files

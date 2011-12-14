@@ -27,7 +27,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include <assert.h>
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
@@ -36,7 +36,7 @@ vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,NUMBER_OF_BLANKED_POINTS,IdType
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,REFINEMENT_RATIO,Integer);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX_DIMENSIONALITY,Integer);
 
-typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
+typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 {

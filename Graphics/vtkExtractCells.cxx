@@ -36,13 +36,13 @@
 
 vtkStandardNewMacro(vtkExtractCells);
 
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
+#include <set>
+#include <algorithm>
 
 class vtkExtractCellsSTLCloak
 {
 public:
-  vtkstd::set<vtkIdType> IdTypeSet;
+  std::set<vtkIdType> IdTypeSet;
 };
 
 //----------------------------------------------------------------------------
@@ -197,6 +197,11 @@ int vtkExtractCells::RequestData(
   newCD->CopyAllocate(CD, numCells);
 
   vtkPoints *pts = vtkPoints::New();
+  if(vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input))
+    {
+    // preserve input datatype
+    pts->SetDataType(inputPS->GetPoints()->GetDataType());
+    }
   pts->SetNumberOfPoints(numPoints);
 
   for (vtkIdType newId =0; newId<numPoints; newId++)  
@@ -264,7 +269,7 @@ vtkModelMetadata *vtkExtractCells::ExtractMetadata(vtkDataSet *input)
           gids->SetNumberOfValues(numCells);
         
           int next = 0;
-          vtkstd::set<vtkIdType>::iterator cellPtr;
+          std::set<vtkIdType>::iterator cellPtr;
         
           for (cellPtr = this->CellList->IdTypeSet.begin();
                cellPtr != this->CellList->IdTypeSet.end();
@@ -424,7 +429,7 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
   int i;
   vtkIdType id;
   vtkIdList *ptIds = vtkIdList::New();
-  vtkstd::set<vtkIdType>::iterator cellPtr;
+  std::set<vtkIdType>::iterator cellPtr;
 
   if (!this->InputIsUgrid)  
     {
@@ -524,7 +529,7 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
 
   vtkIdList *cellPoints = vtkIdList::New();
 
-  vtkstd::set<vtkIdType>::iterator cellPtr;
+  std::set<vtkIdType>::iterator cellPtr;
 
   for (cellPtr = this->CellList->IdTypeSet.begin();
        cellPtr != this->CellList->IdTypeSet.end(); 
@@ -600,7 +605,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
 
   int nextCellId = 0;
 
-  vtkstd::set<vtkIdType>::iterator cellPtr;                           // input
+  std::set<vtkIdType>::iterator cellPtr;                           // input
   vtkIdType *cells = ugrid->GetCells()->GetPointer();
   vtkIdType maxid = ugrid->GetCellLocationsArray()->GetMaxId();
   vtkIdType *locs = ugrid->GetCellLocationsArray()->GetPointer(0);

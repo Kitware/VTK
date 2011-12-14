@@ -18,11 +18,15 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   SET(ConditionalTests
     ${ConditionalTests}
     TestHyperOctreeIO.cxx
+    TestLSDynaReader.cxx
+    TestLSDynaReaderSPH.cxx
+    TestMPASReader.cxx
     TestPLYReader.cxx
     TestProStarReader.cxx
     TestTecplotReader.cxx
     SLACReaderLinear.cxx
     SLACReaderQuadratic.cxx
+    TestNetCDFCAMReader.cxx
     TestNetCDFPOPReader.cxx
     )
 
@@ -124,6 +128,7 @@ IF (VTK_DATA_ROOT)
     ADD_TEST(TestSQLiteTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
       TestSQLiteTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
   ENDIF (WIN32)
+  set_tests_properties(TestSQLiteTableReadWrite PROPERTIES RUN_SERIAL ON)
 
   IF(VTK_USE_METAIO)
     ADD_TEST(TestMetaIO ${CXX_TEST_PATH}/${KIT}CxxTests TestMetaIO
@@ -153,6 +158,15 @@ ENDIF (VTK_DATA_ROOT)
 
 IF (VTK_LARGE_DATA_ROOT)
   IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+  ADD_TEST(TestLSDynaReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestLSDynaReader -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestLSDynaReader.png)
+  ADD_TEST(TestLSDynaReaderSPH ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestLSDynaReaderSPH -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestLSDynaReaderSPH.png)
+
     ADD_TEST(SLACReaderLinear ${CXX_TEST_PATH}/${KIT}CxxTests
          SLACReaderLinear -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -161,10 +175,18 @@ IF (VTK_LARGE_DATA_ROOT)
          SLACReaderQuadratic -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACReaderQuadratic.png)
+    ADD_TEST(TestNetCDFCAMReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestNetCDFCAMReader -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestNetCDFCAMReader.png)
     ADD_TEST(TestNetCDFPOPReader ${CXX_TEST_PATH}/${KIT}CxxTests
          TestNetCDFPOPReader -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestNetCDFPOPReader.png)
+    ADD_TEST(TestMPASReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestMPASReader -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestMPASReader.png)
     IF(NOT WIN32)
       ADD_TEST(SLACParticleReader ${CXX_TEST_PATH}/${KIT}CxxTests
            SLACParticleReader -D ${VTK_LARGE_DATA_ROOT}
@@ -187,6 +209,7 @@ IF(VTK_USE_FFMPEG_ENCODER)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
 IF(VTK_HAS_UINT64_ARRAY)
   ADD_TEST(TestSQLiteDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestSQLiteDatabase)
+  set_tests_properties(TestSQLiteDatabase PROPERTIES RUN_SERIAL ON)
 ENDIF(VTK_HAS_UINT64_ARRAY)
 IF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
   ADD_TEST(TestPostgreSQLDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestPostgreSQLDatabase)
@@ -226,6 +249,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
   CREATE_TEST_SOURCELIST(ArrayIOTests ArrayIOCxxTests.cxx
     TestArraySerialization.cxx
+    TestArrayDataWriter.cxx
     TestArrayDenormalized.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )

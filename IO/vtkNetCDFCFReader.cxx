@@ -45,7 +45,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtkstd/set>
+#include <set>
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 
@@ -69,7 +69,7 @@
 #define CALL_NETCDF_GW(call) \
   CALL_NETCDF_GENERIC(call, vtkGenericWarningMacro(<< "netCDF Error: " << errorstring); return 0;)
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 #include <math.h>
 
@@ -316,7 +316,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 class vtkNetCDFCFReader::vtkDimensionInfoVector
 {
 public:
-  vtkstd::vector<vtkDimensionInfo> v;
+  std::vector<vtkDimensionInfo> v;
 };
 
 //=============================================================================
@@ -356,6 +356,14 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   // Anyone who disagrees should write their own reader class.
   int numGridDimensions;
   CALL_NETCDF_GW(nc_inq_varndims(ncFD, varId, &numGridDimensions));
+
+  if(numGridDimensions == 0)
+    {
+    // If a variable has no dimensions, there is no reason to have dependent
+    // dimension variables. Just exit here for safety.
+    return 0;
+    }
+
   this->GridDimensions->SetNumberOfTuples(numGridDimensions);
   CALL_NETCDF_GW(nc_inq_vardimid(ncFD, varId,
                                  this->GridDimensions->GetPointer(0)));
@@ -365,6 +373,12 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
     {
     this->GridDimensions->RemoveTuple(0);
     numGridDimensions--;
+    if(numGridDimensions == 0)
+      {
+      // If a variable has no dimensions (ignoring time), there is no reason
+      // to have dependent dimension variables. Just exit here for safety.
+      return 0;
+      }
     }
 
   // Most coordinate variables are defined by a variable the same name as the
@@ -381,12 +395,12 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   vtkStdString coordinates;
   if (!ReadTextAttribute(ncFD, varId, "coordinates", coordinates)) return 0;
 
-  vtkstd::vector<vtkstd::string> coordName;
+  std::vector<std::string> coordName;
   vtksys::SystemTools::Split(coordinates, coordName, ' ');
 
   int numAuxCoordDims = -1;
 
-  for (vtkstd::vector<vtkstd::string>::iterator iter = coordName.begin();
+  for (std::vector<std::string>::iterator iter = coordName.begin();
        iter != coordName.end(); iter++)
     {
     int auxCoordVarId;
@@ -593,7 +607,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   // Bounds are stored as 4-tuples for every cell.  Tuple entries 0 and 1
   // connect to the cell in the -i topological direction.  Tuple entries 0 and 3
   // connect to the cell in the -j topological direction.
-  vtkstd::vector<double> boundsData(dimSizes[0]*dimSizes[1]*4);
+  std::vector<double> boundsData(dimSizes[0]*dimSizes[1]*4);
   CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, &boundsData.at(0)));
 
   // The coords array are the coords at the points.  There is one more point
@@ -653,7 +667,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadUnstructuredBoundsVariable
 class vtkNetCDFCFReader::vtkDependentDimensionInfoVector
 {
 public:
-  vtkstd::vector<vtkNetCDFCFReader::vtkDependentDimensionInfo> v;
+  std::vector<vtkNetCDFCFReader::vtkDependentDimensionInfo> v;
 };
 
 //=============================================================================
@@ -1364,7 +1378,7 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkPoints *points,
     if (   (verticalRange[0]*vertScale + vertBias < 0)
         || (verticalRange[1]*vertScale + vertBias < 0) )
       {
-      vertBias = -vtkstd::min(verticalRange[0], verticalRange[1])*vertScale;
+      vertBias = -std::min(verticalRange[0], verticalRange[1])*vertScale;
       }
     }
   else
@@ -1448,7 +1462,7 @@ void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkPoints *points,
     if (   (verticalRange[0]*vertScale + vertBias < 0)
         || (verticalRange[1]*vertScale + vertBias < 0) )
       {
-      vertBias = -vtkstd::min(verticalRange[0], verticalRange[1])*vertScale;
+      vertBias = -std::min(verticalRange[0], verticalRange[1])*vertScale;
       }
     }
   else
@@ -1649,7 +1663,7 @@ void vtkNetCDFCFReader::AddUnstructuredRectilinearCoordinates(
   vtkCellArray *cells = unstructuredOutput->GetCells();
   cells->Allocate(cells->EstimateSize(extent[1]-extent[0], numPointsPerCell));
 
-  vtkstd::vector<vtkIdType> cellPoints(numPointsPerCell);
+  std::vector<vtkIdType> cellPoints(numPointsPerCell);
 
   // This is a rather lame way to break up cells amongst processes.  It will be
   // slow and ghost cells are totally screwed up.
@@ -1717,7 +1731,7 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
   CALL_NETCDF(nc_inq_ndims(ncFD, &numDimensions));
   this->DimensionInfo->v.resize(numDimensions);
 
-  vtkstd::set<vtkStdString> specialVariables;
+  std::set<vtkStdString> specialVariables;
 
   for (int i = 0; i < numDimensions; i++)
     {
@@ -1758,7 +1772,7 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
   // Look at all variables and record them so that the user can select which
   // ones he wants.  This oddness of adding and removing from
   // VariableArraySelection is to preserve any current settings for variables.
-  typedef vtkstd::set<vtkStdString> stringSet;
+  typedef std::set<vtkStdString> stringSet;
   stringSet variablesToAdd;
   stringSet variablesToRemove;
 

@@ -64,6 +64,7 @@ public:
   // If the ProjectionNormal is set to Oblique, then this is the 
   // oblique plane used to constrain the handle position.
   void SetObliquePlane(vtkPlane *);
+  vtkGetObjectMacro( ObliquePlane, vtkPlane );
 
   // Description:
   // The position of the bounding plane from the origin along the

@@ -6,6 +6,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTFont::FTFont()
 :  numFaces(0),
@@ -287,3 +291,6 @@ void FTFont::doRender( const unsigned int chr,
   pen.y += kernAdvance.y;
 }
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

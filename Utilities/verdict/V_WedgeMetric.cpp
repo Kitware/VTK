@@ -264,7 +264,7 @@ C_FUNC_DEF double v_wedge_edge_ratio( int /*num_nodes*/, double coordinates[][3]
 C_FUNC_DEF double v_wedge_max_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
 {
   double mini_tris[4][3];
-  double aspect1 = 0, aspect2 = 0, aspect3 = 0, aspect4 = 0, aspect5 = 0, aspect6 = 0;
+  double aspect1 = 0, aspect2 = 0, aspect3 = 0, aspect4 = 0, aspect6 = 0;
   int i = 0;
   // Take first tetrahedron
   for (i = 0; i < 3; i++){mini_tris[0][i] = coordinates[0][i];}
@@ -304,7 +304,7 @@ C_FUNC_DEF double v_wedge_max_aspect_frobenius( int /*num_nodes*/, double coordi
   for (i = 0; i < 3; i++){mini_tris[2][i] = coordinates[5][i];}
   for (i = 0; i < 3; i++){mini_tris[3][i] = coordinates[1][i];}
 
-  aspect5 = v_tet_aspect_frobenius(4,mini_tris);
+  v_tet_aspect_frobenius(4,mini_tris);
 
   //6th tet
   for (i = 0; i < 3; i++){mini_tris[0][i] = coordinates[5][i];}

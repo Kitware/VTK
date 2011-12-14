@@ -38,7 +38,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 #include <vtksys/ios/sstream>
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkNetworkHierarchy);
 
@@ -134,7 +134,7 @@ int vtkNetworkHierarchy::RequestData(
     
     
   // Build subnet map
-  typedef vtkstd::vector<vtkstd::pair<unsigned int, vtkIdType> > subnet_map_type;
+  typedef std::vector<std::pair<unsigned int, vtkIdType> > subnet_map_type;
   subnet_map_type SubnetMap;
   for (vtkIdType i = 0; i < ipArray->GetNumberOfTuples(); ++i)
     {

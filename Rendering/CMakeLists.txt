@@ -164,6 +164,8 @@ SET( Kit_SRCS
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
   vtkRepresentationPainter.cxx
+  vtkResliceCursorActor.cxx
+  vtkResliceCursorPicker.cxx
   vtkScalarBarActor.cxx
   vtkScalarsToColorsPainter.cxx
   vtkScaledTextActor.cxx
@@ -171,6 +173,7 @@ SET( Kit_SRCS
   vtkSelectVisiblePoints.cxx
   vtkShader.cxx
   vtkShaderDeviceAdapter.cxx
+  vtkShaderDeviceAdapter2.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
   vtkStringToImage.cxx
@@ -253,7 +256,6 @@ SET( KitOpenGL_SRCS
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageMapper.cxx
-  vtkOpenGLImageResliceMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLLightingPainter.cxx
@@ -314,6 +316,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkRenderState # not abstract just not using instantiator
   vtkShader
   vtkShaderDeviceAdapter
+  vtkShaderDeviceAdapter2
   vtkShaderProgram
   vtkStringToImage
   vtkTDxInteractorStyle
@@ -478,7 +481,6 @@ SET(shader_files
   vtkSurfaceLICPainter_fs1.glsl
   vtkSurfaceLICPainter_fs2.glsl
   vtkSurfaceLICPainter_vs1.glsl
-  vtkTextureBicubicARB_fp.asm
   )
 
 # Create custom commands to encode each assembly file into a C string
@@ -714,7 +716,6 @@ IF (VTK_USE_MANGLED_MESA)
                  vtkMesaCoincidentTopologyResolutionPainter.cxx
                  vtkMesaDisplayListPainter.cxx
                  vtkMesaImageMapper.cxx
-                 vtkMesaImageResliceMapper.cxx
                  vtkMesaImageSliceMapper.cxx
                  vtkMesaLight.cxx
                  vtkMesaLightingPainter.cxx

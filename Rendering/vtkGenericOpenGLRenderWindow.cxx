@@ -29,11 +29,10 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
 {
   this->Finalize();
 
-  vtkRenderer* ren;
-  this->Renderers->InitTraversal();
-  for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-    ren != NULL;
-    ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject()))
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
     {
     ren->SetRenderWindow(NULL);
     }
@@ -105,6 +104,20 @@ bool vtkGenericOpenGLRenderWindow::IsCurrent()
   bool current = 0;
   this->InvokeEvent(vtkCommand::WindowIsCurrentEvent, &current);
   return current;
+}
+
+int vtkGenericOpenGLRenderWindow::SupportsOpenGL()
+{
+  int supports_ogl = 0;
+  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &supports_ogl);
+  return supports_ogl;
+}
+
+int vtkGenericOpenGLRenderWindow::IsDirect()
+{
+  int is_direct = 0;
+  this->InvokeEvent(vtkCommand::WindowIsDirectEvent, &is_direct);
+  return is_direct;
 }
 
 void vtkGenericOpenGLRenderWindow::PushState()

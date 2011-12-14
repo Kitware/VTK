@@ -44,7 +44,6 @@
 * exit conditions - 
 *       char*   names[]                 ptr array of attribute names
 *
-*  Id
 *
 *****************************************************************************/
 

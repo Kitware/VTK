@@ -27,14 +27,14 @@
 #include "vtkSeedRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include <vtkstd/iterator>
-#include <vtkstd/list>
+#include <iterator>
+#include <list>
 
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
-class vtkSeedList : public vtkstd::list<vtkHandleWidget*> {};
-typedef vtkstd::list<vtkHandleWidget*>::iterator vtkSeedListIterator;
+class vtkSeedList : public std::list<vtkHandleWidget*> {};
+typedef std::list<vtkHandleWidget*>::iterator vtkSeedListIterator;
 
 //----------------------------------------------------------------------
 vtkSeedWidget::vtkSeedWidget()
@@ -81,7 +81,7 @@ void vtkSeedWidget::DeleteSeed(int i)
     }
 
   vtkSeedListIterator iter = this->Seeds->begin();
-  vtkstd::advance(iter,i);
+  std::advance(iter,i);
   (*iter)->SetEnabled(0);
   (*iter)->RemoveObservers(vtkCommand::StartInteractionEvent);
   (*iter)->RemoveObservers(vtkCommand::InteractionEvent);
@@ -110,7 +110,7 @@ vtkHandleWidget * vtkSeedWidget::GetSeed(int i)
    return NULL;
    }
   vtkSeedListIterator iter = this->Seeds->begin();
-  vtkstd::advance(iter,i);
+  std::advance(iter,i);
   return *iter;
 }
 
@@ -143,7 +143,7 @@ void vtkSeedWidget::SetEnabled(int enabling)
   this->Render();
 }
 
-// The following methods are the callbacks that the seed widget responds to. 
+// The following methods are the callbacks that the seed widget responds to.
 //-------------------------------------------------------------------------
 void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
 {
@@ -164,7 +164,7 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
   if ( state == vtkSeedRepresentation::NearSeed )
     {
     self->WidgetState = vtkSeedWidget::MovingSeed;
-    
+
     // Invoke an event on ourself for the handles
     self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     self->Superclass::StartInteraction();
@@ -174,7 +174,7 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     self->Render();
     }
 
-  else if ( self->WidgetState != vtkSeedWidget::PlacedSeeds) 
+  else if ( self->WidgetState != vtkSeedWidget::PlacedSeeds)
     {
     // we are placing a new seed. Just make sure we aren't in a mode which
     // dictates we've placed all seeds.
@@ -245,7 +245,7 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
     }
 
   // else we are moving a seed
-  
+
   self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 
   // set the cursor shape to a hand if we are near a seed.
@@ -253,13 +253,13 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
   int Y = self->Interactor->GetEventPosition()[1];
   int state = self->WidgetRep->ComputeInteractionState(X,Y);
 
-  // Change the cursor shape to a hand and invoke an interaction event if we 
+  // Change the cursor shape to a hand and invoke an interaction event if we
   // are near the seed
   if (state == vtkSeedRepresentation::NearSeed)
     {
     self->RequestCursorShape( VTK_CURSOR_HAND );
 
-    vtkSeedRepresentation *rep = static_cast< 
+    vtkSeedRepresentation *rep = static_cast<
       vtkSeedRepresentation * >(self->WidgetRep);
     int seedIdx = rep->GetActiveHandle();
     self->InvokeEvent( vtkCommand::InteractionEvent, &seedIdx );
@@ -269,7 +269,7 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
   else
     {
     self->RequestCursorShape( VTK_CURSOR_DEFAULT );
-    }  
+    }
 
   self->Render();
 }
@@ -286,7 +286,7 @@ void vtkSeedWidget::EndSelectAction(vtkAbstractWidget *w)
     }
 
   // Revert back to the mode we were in prior to selection.
-  self->WidgetState = self->Defining ? 
+  self->WidgetState = self->Defining ?
     vtkSeedWidget::PlacingSeeds : vtkSeedWidget::PlacedSeeds;
 
   // Invoke event for seed handle
@@ -370,7 +370,7 @@ void vtkSeedWidget::SetCurrentRenderer( vtkRenderer *ren )
 // Programmatically create a new handle.
 vtkHandleWidget * vtkSeedWidget::CreateNewHandle()
 {
-  vtkSeedRepresentation *rep = 
+  vtkSeedRepresentation *rep =
     vtkSeedRepresentation::SafeDownCast(this->WidgetRep);
   if (!rep)
     {
@@ -382,7 +382,7 @@ vtkHandleWidget * vtkSeedWidget::CreateNewHandle()
   // Create the handle widget or reuse an old one
   int currentHandleNumber = static_cast<int>(this->Seeds->size());
   vtkHandleWidget *widget = vtkHandleWidget::New();
-  
+
   // Configure the handle widget
   widget->SetParent(this);
   widget->SetInteractor(this->Interactor);
@@ -408,4 +408,6 @@ void vtkSeedWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "WidgetState: " << this->WidgetState << endl;
 }

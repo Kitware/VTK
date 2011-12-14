@@ -17,11 +17,8 @@ pngReader Update
 set xWidth [lindex [[pngReader GetOutput] GetDimensions] 0]
 set yHeight [lindex [[pngReader GetOutput] GetDimensions] 1]
 
-vtkGeometryFilter gf
-gf SetInputConnection [pngReader GetOutputPort]
-
 vtkWarpLens wl
-wl SetInputConnection [gf GetOutputPort]
+wl SetInputConnection [pngReader GetOutputPort]
 
 wl SetPrincipalPoint 2.4507 1.7733
 wl SetFormatWidth 4.792
@@ -33,8 +30,11 @@ wl SetK2 0.0003102
 wl SetP1 1.953e-005
 wl SetP2 -9.655e-005
 
+vtkGeometryFilter gf
+gf SetInputConnection [wl GetOutputPort]
+
 vtkTriangleFilter tf
-tf SetInput [wl GetPolyDataOutput]
+tf SetInputConnection [gf GetOutputPort]
 
 vtkStripper strip
 strip SetInputConnection [tf GetOutputPort]

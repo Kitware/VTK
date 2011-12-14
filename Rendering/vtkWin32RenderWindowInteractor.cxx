@@ -17,7 +17,10 @@
 #include <string.h>
 #include <math.h>
 
+
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0400  // for trackmouseevent support  requires Win95 with IE 3.0 or greater.
+#endif
 
 #include "vtkWin32OpenGLRenderWindow.h"
 
@@ -31,7 +34,7 @@
 #  define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD (wparam))
 #endif  //GET_WHEEL_DELTA_WPARAM
 
-// MSVC does the right thing without the forward declaration when it 
+// MSVC does the right thing without the forward declaration when it
 // sees it in the friend decl in vtkWin32RenderWindowInteractor, but
 // GCC needs to see the declaration beforehand. It has to do with the
 // CALLBACK attribute.
@@ -60,42 +63,42 @@ void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
-vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor() 
+vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
 {
   this->WindowId           = 0;
   this->InstallMessageProc = 1;
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
-  
+
 #ifdef VTK_USE_TDX
   this->Device=vtkTDxWinDevice::New();
 #endif
 }
 
 //----------------------------------------------------------------------------
-vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor() 
+vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 {
   vtkWin32OpenGLRenderWindow *tmp;
 
   // we need to release any hold we have on a windows event loop
-  if (this->WindowId && this->Enabled && this->InstallMessageProc) 
+  if (this->WindowId && this->Enabled && this->InstallMessageProc)
     {
     vtkWin32OpenGLRenderWindow *ren;
     ren = static_cast<vtkWin32OpenGLRenderWindow *>(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)(vtkGetWindowLong(this->WindowId,sizeof(vtkLONG)));
     // watch for odd conditions
-    if ((tmp != ren) && (ren != NULL)) 
+    if ((tmp != ren) && (ren != NULL))
       {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
       // well send a USER message to the other
       // event handler so that it can properly
       // call this event handler if required
-      CallWindowProc(this->OldProc,this->WindowId,WM_USER+14,28,(LONG)this->OldProc);
+      CallWindowProc(this->OldProc,this->WindowId,WM_USER+14,28,(intptr_t)this->OldProc);
       }
-    else 
+    else
       {
-      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)this->OldProc);
       }
     this->Enabled = 0;
     }
@@ -105,7 +108,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void  vtkWin32RenderWindowInteractor::Start() 
+void  vtkWin32RenderWindowInteractor::Start()
 {
   // Let the compositing handle the event loop if it wants to.
   if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
@@ -132,18 +135,18 @@ void  vtkWin32RenderWindowInteractor::Start()
 
 //----------------------------------------------------------------------------
 // Begin processing keyboard strokes.
-void vtkWin32RenderWindowInteractor::Initialize() 
+void vtkWin32RenderWindowInteractor::Initialize()
 {
   vtkWin32OpenGLRenderWindow *ren;
   int *size;
 
   // make sure we have a RenderWindow and camera
-  if ( ! this->RenderWindow) 
+  if ( ! this->RenderWindow)
     {
     vtkErrorMacro(<<"No renderer defined!");
     return;
     }
-  if (this->Initialized) 
+  if (this->Initialized)
     {
     return;
     }
@@ -160,35 +163,35 @@ void vtkWin32RenderWindowInteractor::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::Enable() 
+void vtkWin32RenderWindowInteractor::Enable()
 {
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32OpenGLRenderWindow *tmp;
-  if (this->Enabled) 
+  if (this->Enabled)
     {
     return;
     }
-  if (this->InstallMessageProc) 
+  if (this->InstallMessageProc)
     {
     // add our callback
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId,vtkGWL_WNDPROC);
     tmp=(vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,sizeof(vtkLONG));
     // watch for odd conditions
-    if (tmp != ren) 
+    if (tmp != ren)
       {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
       // well send a USER message to the other
       // event handler so that it can properly
       // call this event handler if required
-      CallWindowProc(this->OldProc,this->WindowId,WM_USER+12,24,(LONG)vtkHandleMessage);
+      CallWindowProc(this->OldProc,this->WindowId,WM_USER+12,24,(intptr_t)vtkHandleMessage);
       }
-    else 
+    else
       {
-      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)vtkHandleMessage);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)vtkHandleMessage);
       }
-    
+
 #ifdef VTK_USE_TDX
     if(this->UseTDx)
       {
@@ -197,7 +200,7 @@ void vtkWin32RenderWindowInteractor::Enable()
       this->Device->StartListening();
       }
 #endif
-    
+
     // in case the size of the window has changed while we were away
     int *size;
     size = ren->GetSize();
@@ -210,33 +213,33 @@ void vtkWin32RenderWindowInteractor::Enable()
 
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::Disable() 
+void vtkWin32RenderWindowInteractor::Disable()
 {
   vtkWin32OpenGLRenderWindow *tmp;
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  
-  if (this->InstallMessageProc && this->Enabled && this->WindowId) 
+
+  if (this->InstallMessageProc && this->Enabled && this->WindowId)
     {
     // we need to release any hold we have on a windows event loop
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,sizeof(vtkLONG));
     // watch for odd conditions
-    if ((tmp != ren) && (ren != NULL)) 
+    if ((tmp != ren) && (ren != NULL))
       {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
       // well send a USER message to the other
       // event handler so that it can properly
       // call this event handler if required
-      CallWindowProc(this->OldProc,this->WindowId,WM_USER+14,28,(LONG)this->OldProc);
+      CallWindowProc(this->OldProc,this->WindowId,WM_USER+14,28,(intptr_t)this->OldProc);
       }
-    else 
+    else
       {
-      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)this->OldProc);
       }
 #ifdef VTK_USE_TDX
     if(this->Device->GetInitialized())
@@ -270,7 +273,7 @@ int vtkWin32RenderWindowInteractor::InternalCreateTimer(int timerId, int vtkNotU
 }
 
 //----------------------------------------------------------------------------
-int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId) 
+int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
   return KillTimer(this->WindowId,platformTimerId);
 }
@@ -282,42 +285,42 @@ int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 // this ascii code to keysym table is meant to mimic Tk
 
 static const char *AsciiToKeySymTable[] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  "space", "exclam", "quotedbl", "numbersign", 
-  "dollar", "percent", "ampersand", "quoteright", 
-  "parenleft", "parenright", "asterisk", "plus", 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  "space", "exclam", "quotedbl", "numbersign",
+  "dollar", "percent", "ampersand", "quoteright",
+  "parenleft", "parenright", "asterisk", "plus",
   "comma", "minus", "period", "slash",
-  "0", "1", "2", "3", "4", "5", "6", "7", 
+  "0", "1", "2", "3", "4", "5", "6", "7",
   "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
-  "at", "A", "B", "C", "D", "E", "F", "G", 
+  "at", "A", "B", "C", "D", "E", "F", "G",
   "H", "I", "J", "K", "L", "M", "N", "O",
   "P", "Q", "R", "S", "T", "U", "V", "W",
-  "X", "Y", "Z", "bracketleft", 
+  "X", "Y", "Z", "bracketleft",
   "backslash", "bracketright", "asciicircum", "underscore",
   "quoteleft", "a", "b", "c", "d", "e", "f", "g",
   "h", "i", "j", "k", "l", "m", "n", "o",
   "p", "q", "r", "s", "t", "u", "v", "w",
   "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  
+
 // this virtual key code to keysym table is meant to mimic Tk
 
 static const char *VKeyCodeToKeySymTable[] = {
   0, 0, 0, "Cancel", 0, 0, 0, 0,
   "BackSpace", "Tab", 0, 0, "Clear", "Return", 0, 0,
-  "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", 0,0,0, 
+  "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", 0,0,0,
   0, 0, 0, "Escape", 0, 0, 0, 0,
   "space", "Prior", "Next", "End", "Home", "Left", "Up", "Right",
   "Down", "Select", 0, "Execute", "Snapshot", "Insert", "Delete", "Help",
-  "0", "1", "2", "3", "4", "5", "6", "7", 
+  "0", "1", "2", "3", "4", "5", "6", "7",
   "8", "9", 0, 0, 0, 0, 0, 0,
   0, "a", "b", "c", "d", "e", "f", "g",
   "h", "i", "j", "k", "l", "m", "n", "o",
@@ -326,7 +329,7 @@ static const char *VKeyCodeToKeySymTable[] = {
   "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7",
   "KP_8", "KP_9", "asterisk", "plus", "bar", "minus", "period", "slash",
   "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8",
-  "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", 
+  "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16",
   "F17", "F18", "F19", "F20", "F21", "F22", "F23", "F24",
   0, 0, 0, 0, 0, 0, 0, 0,
   "Num_Lock", "Scroll_Lock", 0, 0, 0, 0, 0, 0,
@@ -341,20 +344,20 @@ static const char *VKeyCodeToKeySymTable[] = {
 //-------------------------------------------------------------
 // Event loop handlers
 //-------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags, 
-                                                 int X, int Y) 
+void vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
+                                                 int X, int Y)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
 
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
-  if (!this->MouseInWindow && 
+  if (!this->MouseInWindow &&
       (X >= 0 && X < this->Size[0] && Y >= 0 && Y < this->Size[1]))
     {
     this->InvokeEvent(vtkCommand::EnterEvent, NULL);
@@ -366,15 +369,15 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
     tme.hwndTrack = hWnd;
     TrackMouseEvent(&tme);
     }
- 
+
   this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags, 
-                                                   int X, int Y) 
+void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
+                                                   int X, int Y)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
@@ -382,9 +385,9 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
   int *pos = this->RenderWindow->GetPosition();
   if (this->MouseInWindow)
     {
-    this->SetEventInformationFlipY(X - pos[0], 
+    this->SetEventInformationFlipY(X - pos[0],
                                    Y - pos[1],
-                                   nFlags & MK_CONTROL, 
+                                   nFlags & MK_CONTROL,
                                    nFlags & MK_SHIFT);
     this->SetAltKey(GetKeyState(VK_MENU) & (~1));
     this->InvokeEvent(vtkCommand::LeaveEvent, NULL);
@@ -393,50 +396,50 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND,UINT nFlags, 
-                                                   int X, int Y) 
+void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND,UINT nFlags,
+                                                   int X, int Y)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags, 
-                                                   int X, int Y) 
+void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags,
+                                                   int X, int Y)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,NULL);
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags, 
-                                                   int X, int Y, int repeat) 
+void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
+                                                   int X, int Y, int repeat)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
   SetFocus(wnd);
   SetCapture(wnd);
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT,
                                  0, repeat);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
@@ -444,16 +447,16 @@ void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags, 
-                                                 int X, int Y) 
+void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
+                                                 int X, int Y)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
@@ -461,18 +464,18 @@ void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags, 
-                                                   int X, int Y, int repeat) 
+void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
+                                                   int X, int Y, int repeat)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
   SetFocus(wnd);
   SetCapture(wnd);
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT,
                                  0, repeat);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
@@ -480,16 +483,16 @@ void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags, 
-                                                 int X, int Y) 
+void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
+                                                 int X, int Y)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
@@ -497,18 +500,18 @@ void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags, 
-                                                   int X, int Y, int repeat) 
+void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
+                                                   int X, int Y, int repeat)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
   SetFocus(wnd);
   SetCapture(wnd);
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT,
                                  0, repeat);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
@@ -516,16 +519,16 @@ void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags, 
-                                                 int X, int Y) 
+void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags,
+                                                 int X, int Y)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  this->SetEventInformationFlipY(X, 
-                                 Y, 
-                                 nFlags & MK_CONTROL, 
+  this->SetEventInformationFlipY(X,
+                                 Y,
+                                 nFlags & MK_CONTROL,
                                  nFlags & MK_SHIFT);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
@@ -542,15 +545,15 @@ void vtkWin32RenderWindowInteractor::OnSize(HWND,UINT, int X, int Y) {
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnTimer(HWND,UINT timerId) 
+void vtkWin32RenderWindowInteractor::OnTimer(HWND,UINT timerId)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
   int tid = static_cast<int>(timerId);
   this->InvokeEvent(vtkCommand::TimerEvent,(void*)&tid);
-  
+
   // Here we deal with one-shot versus repeating timers
   if ( this->IsOneShotTimer(tid) )
     {
@@ -578,7 +581,7 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, U
       nChar = 0;
       }
 #endif
-  } 
+  }
   const char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
   if (keysym == 0)
     {
@@ -588,10 +591,10 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, U
     {
     keysym = "None";
     }
-  this->SetKeyEventInformation(ctrl, 
-                               shift, 
-                               nChar, 
-                               nRepCnt, 
+  this->SetKeyEventInformation(ctrl,
+                               shift,
+                               nChar,
+                               nRepCnt,
                                keysym);
   this->SetAltKey(alt);
   this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
@@ -627,10 +630,10 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UIN
     {
     keysym = "None";
     }
-  this->SetKeyEventInformation(ctrl, 
-                               shift, 
-                               nChar, 
-                               nRepCnt, 
+  this->SetKeyEventInformation(ctrl,
+                               shift,
+                               nChar,
+                               nRepCnt,
                                keysym);
   this->SetAltKey(alt);
   this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
@@ -645,11 +648,11 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
     return;
     }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
-  int shift = GetKeyState(VK_SHIFT) & (~1); 
+  int shift = GetKeyState(VK_SHIFT) & (~1);
   int alt = GetKeyState(VK_MENU) & (~1);
-  this->SetKeyEventInformation(ctrl, 
-                               shift, 
-                               nChar, 
+  this->SetKeyEventInformation(ctrl,
+                               shift,
+                               nChar,
                                nRepCnt);
   this->SetAltKey(alt);
   this->InvokeEvent(vtkCommand::CharEvent, NULL);
@@ -658,11 +661,11 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::OnFocus(HWND,UINT)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  
+
 #ifdef VTK_USE_TDX
   if(this->Device->GetInitialized() && !this->Device->GetIsListening())
     {
@@ -674,7 +677,7 @@ void vtkWin32RenderWindowInteractor::OnFocus(HWND,UINT)
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::OnKillFocus(HWND,UINT)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
@@ -688,8 +691,8 @@ void vtkWin32RenderWindowInteractor::OnKillFocus(HWND,UINT)
 
 //----------------------------------------------------------------------------
 // This is only called when InstallMessageProc is true
-LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, 
-                                  LPARAM lParam) 
+LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
+                                  LPARAM lParam)
 {
   LRESULT res = 0;
   vtkWin32OpenGLRenderWindow *ren;
@@ -713,33 +716,33 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
 }
 
 #ifndef MAKEPOINTS
-#define MAKEPOINTS(l)   (*((POINTS FAR *) & (l))) 
+#define MAKEPOINTS(l)   (*((POINTS FAR *) & (l)))
 #endif
 
 //----------------------------------------------------------------------------
-LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam, 
-                                   LPARAM lParam, 
-                                   vtkWin32RenderWindowInteractor *me) 
+LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
+                                   LPARAM lParam,
+                                   vtkWin32RenderWindowInteractor *me)
 {
-  if ((uMsg == WM_USER+13)&&(wParam == 26)) 
+  if ((uMsg == WM_USER+13)&&(wParam == 26))
     {
     // someone is telling us to set our OldProc
     me->OldProc = (WNDPROC)lParam;
     return 1;
     }
-  
-  switch (uMsg) 
+
+  switch (uMsg)
     {
     case WM_PAINT:
       me->Render();
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
       break;
-      
+
     case WM_SIZE:
       me->OnSize(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
       break;
-      
+
     case WM_LBUTTONDBLCLK:
       me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);
       break;
@@ -747,7 +750,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_LBUTTONDOWN:
       me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 0);
       break;
-      
+
     case WM_LBUTTONUP:
       me->OnLButtonUp(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
@@ -759,11 +762,11 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_MBUTTONDOWN:
       me->OnMButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 0);
       break;
-      
+
     case WM_MBUTTONUP:
       me->OnMButtonUp(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
-      
+
     case WM_RBUTTONDBLCLK:
       me->OnRButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);
       break;
@@ -771,7 +774,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_RBUTTONDOWN:
       me->OnRButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 0);
       break;
-      
+
     case WM_RBUTTONUP:
       me->OnRButtonUp(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
@@ -811,7 +814,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_CHAR:
       me->OnChar(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
-      
+
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
       me->OnKeyDown(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
@@ -823,7 +826,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       break;
 
     case WM_TIMER:
-      me->OnTimer(hWnd,wParam);    
+      me->OnTimer(hWnd,wParam);
       break;
 
     case WM_ACTIVATE:
@@ -836,25 +839,25 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
         me->OnFocus(hWnd,wParam);
         }
       break;
-      
+
     case WM_SETFOCUS:
       // occurs when SetFocus() is called on the current window
       me->OnFocus(hWnd,wParam);
       break;
-      
+
     case WM_KILLFOCUS:
       // occurs when the focus was on the current window and SetFocus() is
-      // called on another window. 
+      // called on another window.
       me->OnKillFocus(hWnd,wParam);
       break;
-      
+
     default:
-      if (me) 
+      if (me)
         {
         return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
         }
     };
-  
+
   return 0;
 }
 

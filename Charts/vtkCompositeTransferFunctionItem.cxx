@@ -24,6 +24,8 @@
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 
+// STD includes
+#include <algorithm>
 #include <cassert>
 
 //-----------------------------------------------------------------------------
@@ -63,14 +65,14 @@ void vtkCompositeTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkCompositeTransferFunctionItem::GetBounds(double* bounds)
+void vtkCompositeTransferFunctionItem::ComputeBounds(double* bounds)
 {
-  this->Superclass::GetBounds(bounds);
+  this->Superclass::ComputeBounds(bounds);
   if (this->OpacityFunction)
     {
-    double* opacityRange = this->ColorTransferFunction->GetRange();
-    bounds[0] = bounds[0] < opacityRange[0] ? bounds[0] : opacityRange[0];;
-    bounds[1] = bounds[1] < opacityRange[1] ? bounds[1] : opacityRange[1];
+    double* opacityRange = this->OpacityFunction->GetRange();
+    bounds[0] = std::min(bounds[0], opacityRange[0]);
+    bounds[1] = std::max(bounds[1], opacityRange[1]);
     }
 }
 
@@ -91,12 +93,17 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   this->Superclass::ComputeTexture();
   double bounds[4];
   this->GetBounds(bounds);
-  if (bounds[0] == bounds[1])
+  if (bounds[0] == bounds[1]
+      || !this->OpacityFunction)
     {
-    vtkWarningMacro(<< "The piecewise function seems empty");
     return;
     }
-  const int dimension = this->Texture->GetExtent()[1] + 1;
+  if (this->Texture == 0)
+    {
+    this->Texture = vtkImageData::New();
+    }
+
+  const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
   this->OpacityFunction->GetTable(bounds[0], bounds[1], dimension, values);
   unsigned char* ptr =
@@ -109,7 +116,11 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     for (int i = 0; i < dimension; ++i)
       {
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
-      assert(values[i] <= 1. && values[i] >= 0.);
+      if (values[i] < 0. || values[i] > 1.)
+        {
+        vtkWarningMacro( << "Opacity at point " << i << " is " << values[i]
+                         << " wich is outside the valid range of [0,1]");
+        }
       this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
       ptr+=4;
       }
@@ -124,4 +135,5 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       }
     }
   delete [] values;
+  return;
 }

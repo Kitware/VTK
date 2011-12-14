@@ -9,6 +9,11 @@
 #define RenderFunctionName RenderOpenGL
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 void FTGLBitmapFont::RenderFunctionName(const char* string,
                                         const FTGLRenderContext *context)
 {  
@@ -44,3 +49,7 @@ void FTGLBitmapFont::RenderFunctionName(const wchar_t* string,
   glPopAttrib();
   glPopClientAttrib();
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

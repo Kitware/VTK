@@ -1,7 +1,7 @@
 Notes on the Python Wrappers for VTK
 
 First version by David Gobbi: Dec 19, 2002
-Last update was on Oct 7, 2010.
+Last update was on May 30, 2011.
 
 Abstract:
 =========
@@ -105,7 +105,7 @@ A method is not wrapped if
    or void pointer, unless the method has an entry in the wrapping
    hints file -- again, vtkDataArray methods are an exception
 3) its parameter list contains a named enum constant
-4) it is an operator method
+4) it is an operator method (though many exceptions exist)
 
 
 Unavailable classes
@@ -137,13 +137,10 @@ If you want to see what methods are available for a class, use e.g.
 
 >>> dir(vtk.vtkActor)
 
-to get a list of all the methods defined in vtkActor.h or if you also
-want a listing of all method defined for vtkActor and its superclasses
+or, equivalently,
 
 >>> a = vtk.vtkActor()
 >>> dir(a)
-
-will print a very long list of all the methods for object 'a'.
 
 
 You can also retrieve documentation about VTK classes and methods
@@ -153,9 +150,8 @@ from the built-in "docstrings":
 >>> help(vtk.vtkActor.SetUserTransform)
 [ lots of info printed, try it yourself ]
 
-If you have an object, rather than a class, you must get the
-documentation from the class, because it is the class that has
-the docs:
+If you have an object, rather than a class, you must call help()
+on the __class__ atribute of the object:
 
 >>> help(a.__class__)
 
@@ -175,7 +171,7 @@ SetPosition(...)
 Peculiarities and special features
 ==================================
 
-Deleting a vtkObject:
+Deleting a vtkObject
 ---------------------
 
 There is no direct equivalent of o->Delete() since Python provides a
@@ -186,6 +182,52 @@ the local reference to the object by using the python 'del' command,
 i.e. "del o", and this will result in a call to o->Delete() if the
 local reference to the object was the last remaining reference to the
 object from within Python.
+
+
+Templated classes
+-----------------
+
+Templated classes are rare in VTK.  Where they occur, they can be
+instantiated much like they can be in C++, except that [ ] brackets
+are used for the template arguments instead of < > brackets:
+
+>>> v = vtkVector['float64',3]([1.0, 2.0, 3.0])
+>>> a = vtkDenseArray[str]()
+
+Only a limited range of template args can be used, usually dictated by
+by which args are used by typedefs and by other classes in the C++ code.
+A list of the allowed argument combinations available for a particular
+template can be found by calling help() on the template:
+
+>>> help(vtkVector)
+
+The types are usually given as strings, in the form 'int32', 'uint16',
+'float32', 'float64', 'bool', 'char', 'str', 'vtkVariant'.
+Python type objects are acceptable, too, if the name of the type is
+the same as one of the accepted type strings:
+
+>>> a = vtkDenseArray[int]()
+
+Note that python 'int' is the same size as a C++ 'long', and python
+'float' is the same size as C++ 'double'.  For compatibility with the
+python array module, single-character typecodes are allowed, taken from
+this list: '?', 'c', 'b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'q', 'Q',
+'f', 'd'.  The python array documentation explains what these mean.
+
+
+Operator methods
+----------------
+
+Some useful operators are wrapped in python: the [ ] operator is
+wrapped for indexing and item assignment, but because it relies on
+hints to guess which indices are out-of-bounds, it is only wrapped
+for vtkVector and a few other classes.
+
+The comparison operators '<' '<=' '==' '>=' '>' are wrapped for all
+classes that have these operators in C++.
+
+The '<<' operator for printing is wrapped and is used by the python
+'print()' and 'str()' commands.
 
 
 Pass-by-reference

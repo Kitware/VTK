@@ -17,6 +17,7 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
+#include "vtkRect.h"
 
 #include "vtkObjectFactory.h"
 #include <assert.h>

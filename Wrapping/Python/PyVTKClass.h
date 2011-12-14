@@ -42,6 +42,8 @@ struct PyVTKClass {
   PyObject *vtk_doc;
   PyMethodDef *vtk_methods;
   vtknewfunc vtk_new;
+  const char *vtk_cppname;
+  const char *vtk_mangle;
 };
 
 extern VTK_PYTHON_EXPORT PyTypeObject PyVTKClass_Type;
@@ -56,6 +58,7 @@ PyObject *PyVTKClass_GetDict(PyObject *obj);
 VTK_PYTHON_EXPORT
 PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
                          const char *classname, const char *modulename,
+                         const char *pythonname, const char *manglename,
                          const char *docstring[], PyObject *base);
 }
 

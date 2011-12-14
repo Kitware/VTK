@@ -48,7 +48,6 @@
 *
 * revision history - 
 *
-*  Id
 *
 *****************************************************************************/
 
@@ -72,9 +71,13 @@ int ex_get_side_set_node_list(int exoid,
   int  num_side_sets, num_elem_blks, num_df, ndim;
   int tot_num_elem = 0, tot_num_ss_elem = 0, elem_num = 0;
   int connect_offset, side_num, node_pos;
-  int *elem_blk_ids, *connect; 
-  int *ss_elem_ndx, *ss_elem_node_ndx, *ss_parm_ndx;
-  int *side_set_elem_list, *side_set_side_list;
+  int *elem_blk_ids = NULL;
+  int *connect = NULL; 
+  int *ss_elem_ndx = NULL;
+  int *ss_elem_node_ndx = NULL;
+  int *ss_parm_ndx = NULL;
+  int *side_set_elem_list = NULL;
+  int *side_set_side_list = NULL;
   int elem_ctr, node_ctr, elem_num_pos;
   int num_elem_in_blk, num_nodes_per_elem, num_attr;
   float fdum;
@@ -512,7 +515,7 @@ int ex_get_side_set_node_list(int exoid,
     free(side_set_elem_list);
     exerrval = EX_MEMFAIL;
     sprintf(errmsg,
-            "Error: failed to allocate space for side set elem parms index for file id %d",
+      "Error: failed to allocate space for side set elem parms index for file id %d",
             exoid);
     ex_err("ex_get_side_set_node_list",errmsg,exerrval);
     return (EX_FATAL);
@@ -530,7 +533,7 @@ int ex_get_side_set_node_list(int exoid,
     free(side_set_elem_list);
     exerrval = EX_MEMFAIL;
     sprintf(errmsg,
-            "Error: failed to allocate space for side set elem to node index for file id %d",
+      "Error: failed to allocate space for side set elem to node index for file id %d",
             exoid);
     ex_err("ex_get_side_set_node_list",errmsg,exerrval);
            
@@ -544,8 +547,8 @@ int ex_get_side_set_node_list(int exoid,
   for (i=0;i<tot_num_ss_elem;i++) {
     for (j=0; j<num_elem_blks; j++) {
       if (elem_blk_parms[j].elem_type_val != EX_EL_NULL_ELEMENT)
-        if (side_set_elem_list[i] <= elem_blk_parms[j].elem_ctr)
-          break;
+  if (side_set_elem_list[i] <= elem_blk_parms[j].elem_ctr)
+    break;
     }
 
     if (j >= num_elem_blks) {
@@ -644,8 +647,8 @@ int ex_get_side_set_node_list(int exoid,
 
       /* get connectivity array */
       if (ex_get_elem_conn(exoid,
-                           elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].elem_blk_id,
-                           connect) == -1)
+         elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].elem_blk_id,
+         connect) == -1)
       {
         free(connect);
         free(elem_blk_parms);
@@ -664,7 +667,7 @@ int ex_get_side_set_node_list(int exoid,
       elem_ctr = elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].elem_ctr;
     }
     /*  For each side in side set, use the appropriate lookup table to  
-        determine the nodes from the connect array. */
+  determine the nodes from the connect array. */
 
     elem_num = side_set_elem_list[ss_elem_ndx[j]]-1;/* element number 0-based*/
     /* calculate the relative element number position in it's block*/

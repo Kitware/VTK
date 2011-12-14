@@ -44,7 +44,7 @@
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
-#include <vtkstd/exception>
+#include <exception>
 #include <math.h>
 
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper);
@@ -684,6 +684,7 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
     this->SavedGradientOpacityFunction[i] = NULL;
     this->SavedColorChannels[i]           = 0;
     this->SavedScalarOpacityDistance[i]   = 0;
+    this->TableSize[i]                    = 0;
     }
 
   this->SavedSampleDistance          = 0;
@@ -2838,7 +2839,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
     {
     this->ContiguousGradientNormal = new unsigned short [numSlices * sliceSize];
     }
-  catch(vtkstd::bad_alloc &)
+  catch(std::bad_alloc &)
     {
     this->ContiguousGradientNormal = NULL;
     }
@@ -2846,7 +2847,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
     {
     this->ContiguousGradientMagnitude = new unsigned char [numSlices * sliceSize];
     }
-  catch(vtkstd::bad_alloc &)
+  catch(std::bad_alloc &)
     {
     this->ContiguousGradientMagnitude = NULL;
     }

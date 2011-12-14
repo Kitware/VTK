@@ -32,29 +32,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* exgelc - exodusII read element block connectivity
-*
-* entry conditions - 
-*   expelb must be called first to establish element block parameters.
-*   input parameters:
-*       int     exoid           exodus file id
-*       int     elem_blk_id     element block id
-*
-* exit conditions - 
-*       int*    connect         connectivity array
-*
-*
-* Id
-*/
-#include <stdlib.h>
 #include "exodusII.h"
-#include "exodusII_int.h"
 
 /*!
- * reads the connectivity array for an element block
- * \deprecated Use ex_get_conn()(exoid, EX_ELEM_BLOCK, elem_blk_id, connect, 0, 0) instead
+\deprecated Use ex_get_conn()(exoid, EX_ELEM_BLOCK, elem_blk_id, connect, 0, 0) instead
+
+The function ex_get_elem_conn() reads the connectivity array for an
+element block. Memory must be allocated for the connectivity array(\c
+num_elem_this_blk * \c num_nodes_per_elem in length) before
+this routine is called.
+
+\return In case of an error, ex_get_elem_conn() returns a negative number; a
+warning will return a positive number.  Possible causes of errors
+include:
+  -  an element block with the specified ID is not stored in the file.
+
+\param[in]  exoid        exodus file ID returned from a previous call to ex_create() or ex_open().
+\param[in]  elem_blk_id  The element block ID.
+\param[out] connect      Size [num_elem_this_blk,num_nodes_per_elem].
+                         Returned connectivity array; a list of nodes (internal node 
+       IDs; See Section LocalNodeIds) that define each element. The 
+       node index cycles faster than the element index.
+
+Refer to the code example in ex_get_elem_block() for an example of
+reading the connectivity for an element block.
+
  */
 
 int ex_get_elem_conn (int   exoid,

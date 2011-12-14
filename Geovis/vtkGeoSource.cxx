@@ -104,7 +104,7 @@ void vtkGeoSource::ShutDown()
     this->Condition->Broadcast();
     this->Lock->Unlock();
 
-    vtkstd::vector<int>::iterator iter;
+    std::vector<int>::iterator iter;
     for(iter = this->Implementation->ThreadIds.begin();
         iter != this->Implementation->ThreadIds.end();
         ++iter)

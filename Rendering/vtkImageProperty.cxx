@@ -91,30 +91,11 @@ void vtkImageProperty::DeepCopy(vtkImageProperty *p)
       }
     else
       {
-      vtkLookupTable *olut = vtkLookupTable::SafeDownCast(lut);
-      vtkColorTransferFunction *octf =
-        vtkColorTransferFunction::SafeDownCast(lut);
-
-      if (olut)
-        {
-        vtkLookupTable *nlut = olut->NewInstance();
-        nlut->DeepCopy(olut);
-        this->SetLookupTable(nlut);
-        nlut->Delete();
-        }
-      else if (octf)
-        {
-        vtkColorTransferFunction *nctf = octf->NewInstance();
-        nctf->DeepCopy(octf);
-        this->SetLookupTable(nctf);
-        nctf->Delete();
-        }
-      else
-        {
-        // The vtkScalarsToColors base class has no DeepCopy,
-        // so fall back to shallow copy
-        this->SetLookupTable(lut);
-        }
+      vtkScalarsToColors *olut = this->GetLookupTable();
+      vtkScalarsToColors *nlut = olut->NewInstance();
+      nlut->DeepCopy(olut);
+      this->SetLookupTable(nlut);
+      nlut->Delete();
       }
     this->SetUseLookupTableScalarRange(p->GetUseLookupTableScalarRange());
     this->SetOpacity(p->GetOpacity());

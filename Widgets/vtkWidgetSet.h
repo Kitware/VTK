@@ -91,14 +91,14 @@
 #define __vtkWidgetSet_h
 
 #include "vtkObject.h"
-#include <vtkstd/vector> // Required for vector
+#include <vector> // Required for vector
 
 class vtkAbstractWidget;
 
 //BTX
 // Pointer to a member function that takes a vtkAbstractWidget (the active
 // child) and another vtkAbstractWidget (the widget to dispatch an action)
-// to. All "Action" funtions in a widget must conform to this signature.
+// to. All "Action" functions in a widget must conform to this signature.
 template< class TWidget > struct ActionFunction
 {
   typedef void (TWidget::*TActionFunctionPointer)(TWidget *dispatcher);
@@ -118,7 +118,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Method for activiating and deactiviating all widgets in the group.
+  // Method for activating and deactivating all widgets in the group.
   virtual void SetEnabled(int);
   vtkBooleanMacro(Enabled, int);
 
@@ -141,7 +141,7 @@ public:
   //BTX
   // TODO: Move this to the protected section. The class vtkAbstractWidget 
   //       should be a friend of this class. 
-  typedef vtkstd::vector< vtkAbstractWidget * >   WidgetContainerType;
+  typedef std::vector< vtkAbstractWidget * >   WidgetContainerType;
   typedef WidgetContainerType::iterator           WidgetIteratorType;
   typedef WidgetContainerType::const_iterator     WidgetConstIteratorType;
   WidgetContainerType                             Widget;

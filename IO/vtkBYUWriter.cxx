@@ -26,7 +26,7 @@
 # include <io.h> /* unlink */
 #endif
 
-#include <vtkstd/string>
+#include <string>
 
 vtkStandardNewMacro(vtkBYUWriter);
 
@@ -118,7 +118,7 @@ void vtkBYUWriter::WriteData()
   this->WriteScalarFile(numPts);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
-    vtkstd::string errorMessage;
+    std::string errorMessage;
     fclose(geomFp);
     unlink(this->GeometryFileName);
     errorMessage = "Ran out of disk space; deleting files: ";
@@ -139,7 +139,7 @@ void vtkBYUWriter::WriteData()
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     fclose(geomFp);
-    vtkstd::string errorMessage;
+    std::string errorMessage;
     unlink(this->GeometryFileName);
     errorMessage = "Ran out of disk space; deleting files: ";
     errorMessage += this->GeometryFileName;

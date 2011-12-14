@@ -189,11 +189,11 @@ int vtkPBGLMinimumSpanningTree::RequestData(
                                   get(boost::vertex_global, g));
                   
     // Run the minimum spanning tree algorithm
-    vtkstd::vector<vtkEdgeType> mstEdges;
+    std::vector<vtkEdgeType> mstEdges;
     boost::graph::distributed::boruvka_mixed_merge
       (boost::graph::make_vertex_list_adaptor(g, globalIndexMap),
        edgeWeightMap,
-       vtkstd::back_inserter(mstEdges),
+       std::back_inserter(mstEdges),
        globalIndexMap);
 
     // Select the minimum spanning tree edges.
@@ -206,7 +206,7 @@ int vtkPBGLMinimumSpanningTree::RequestData(
         vtkSmartPointer<vtkSelectionNode>::New();
     
       // Add the ids of each MST edge.
-      for (vtkstd::vector<vtkEdgeType>::iterator i = mstEdges.begin();
+      for (std::vector<vtkEdgeType>::iterator i = mstEdges.begin();
            i != mstEdges.end(); ++i)
         {
         ids->InsertNextValue(i->Id);

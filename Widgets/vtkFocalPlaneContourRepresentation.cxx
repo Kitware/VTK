@@ -27,10 +27,10 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <iterator>
 
 
 //----------------------------------------------------------------------

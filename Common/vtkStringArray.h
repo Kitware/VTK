@@ -58,7 +58,7 @@ public:
   // Description:
   // Return the size of the data type.  WARNING: This may not mean
   // what you expect with strings.  It will return
-  // sizeof(vtkstd::string) and not take into account the data
+  // sizeof(std::string) and not take into account the data
   // included in any particular string.
   int GetDataTypeSize();
 

@@ -47,7 +47,7 @@ public:
     this->Count += Length;
     if (Length>0)
       {
-      vtkstd::vector<double> steps;
+      std::vector<double> steps;
       steps.resize(Length);
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &steps[0]);
       for (int i=0; i<Length; ++i) 

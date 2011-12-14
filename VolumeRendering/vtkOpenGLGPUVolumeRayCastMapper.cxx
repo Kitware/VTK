@@ -37,9 +37,9 @@
 
 #include <math.h>
 
-#include <vtkstd/string>
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <string>
+#include <map>
+#include <vector>
 #include <assert.h>
 
 #include "vtkClipDataSet.h"
@@ -99,7 +99,7 @@
 class vtkUnsupportedRequiredExtensionsStringStream
 {
 public:
-  vtkstd::ostringstream Stream;
+  std::ostringstream Stream;
   vtkUnsupportedRequiredExtensionsStringStream()
     {
     }
@@ -113,7 +113,7 @@ private:
 class vtkMapDataArrayTextureId
 {
 public:
-  vtkstd::map<vtkImageData *,vtkKWScalarField *> Map;
+  std::map<vtkImageData *,vtkKWScalarField *> Map;
   vtkMapDataArrayTextureId()
     {
     }
@@ -127,7 +127,7 @@ private:
 class vtkMapMaskTextureId
 {
 public:
-  vtkstd::map<vtkImageData *,vtkKWMask *> Map;
+  std::map<vtkImageData *,vtkKWMask *> Map;
   vtkMapMaskTextureId()
     {
     }
@@ -404,7 +404,7 @@ protected:
 class vtkOpacityTables
 {
 public:
-  vtkstd::vector<vtkOpacityTable> Vector;
+  std::vector<vtkOpacityTable> Vector;
   vtkOpacityTables(size_t numberOfLevels)
     : Vector(numberOfLevels)
     {
@@ -569,7 +569,7 @@ public:
               const char *arrayName,
               bool linearInterpolation,
               double tableRange[2],
-              int maxMemoryInBytes)
+              vtkIdType maxMemoryInBytes)
     {
       bool needUpdate=false;
       bool modified=false;
@@ -1150,7 +1150,7 @@ public:
               int arrayAccessMode,
               int arrayId,
               const char *arrayName,
-              int maxMemoryInBytes)
+              vtkIdType maxMemoryInBytes)
     {
       bool needUpdate=false;
       bool modified=false;
@@ -2497,7 +2497,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     {
     if(!this->ScalarsTextures->Map.empty())
       {
-      vtkstd::map<vtkImageData *,vtkKWScalarField *>::iterator it=this->ScalarsTextures->Map.begin();
+      std::map<vtkImageData *,vtkKWScalarField *>::iterator it=this->ScalarsTextures->Map.begin();
       while(it!=this->ScalarsTextures->Map.end())
         {
         vtkKWScalarField *texture=(*it).second;
@@ -2512,7 +2512,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     {
     if(!this->MaskTextures->Map.empty())
       {
-      vtkstd::map<vtkImageData *,vtkKWMask *>::iterator it=this->MaskTextures->Map.begin();
+      std::map<vtkImageData *,vtkKWMask *>::iterator it=this->MaskTextures->Map.begin();
       while(it!=this->MaskTextures->Map.end())
         {
         vtkKWMask *texture=(*it).second;
@@ -2654,8 +2654,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
 
     } // endif OpenGLObjectsCreated
 
-
-  int result=1;
   int size[2];
   int i=0;
 
@@ -2723,7 +2721,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
         this->LastSize[1]=size[1];
         }
       }
-    result=errorCode==GL_NO_ERROR;
     }
 
 
@@ -3101,7 +3098,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 
   // Find the texture.
-  vtkstd::map<vtkImageData *,vtkKWScalarField *>::iterator it=
+  std::map<vtkImageData *,vtkKWScalarField *>::iterator it=
     this->ScalarsTextures->Map.find(input);
 
 
@@ -3124,7 +3121,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
                   volume->GetProperty()->GetInterpolationType()
                   ==VTK_LINEAR_INTERPOLATION,
                   this->TableRange,
-                  static_cast<int>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
+                  static_cast<vtkIdType>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
 
   result=texture->IsLoaded();
   this->CurrentScalar=texture;
@@ -3136,7 +3133,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
     vtkgl::ActiveTexture(vtkgl::TEXTURE7);
 
     // Find the texture.
-    vtkstd::map<vtkImageData *,vtkKWMask *>::iterator it2=
+    std::map<vtkImageData *,vtkKWMask *>::iterator it2=
       this->MaskTextures->Map.find(maskInput);
 
 
@@ -3155,7 +3152,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
                  this->ArrayAccessMode,
                  this->ArrayId,
                  this->ArrayName,
-                 static_cast<int>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
+                 static_cast<vtkIdType>(static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction));
 
     result=result && mask->IsLoaded();
     this->CurrentMask=mask;
@@ -5344,7 +5341,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
 
 
   // Find the texture (and mask).
-  vtkstd::map<vtkImageData *,vtkKWScalarField *>::iterator it=
+  std::map<vtkImageData *,vtkKWScalarField *>::iterator it=
     this->ScalarsTextures->Map.find(this->GetTransformedInput());
   vtkKWScalarField *texture;
   if(it==this->ScalarsTextures->Map.end())
@@ -5359,7 +5356,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   vtkKWMask *mask=0;
   if(this->MaskInput!=0)
     {
-    vtkstd::map<vtkImageData *,vtkKWMask *>::iterator it2=
+    std::map<vtkImageData *,vtkKWMask *>::iterator it2=
       this->MaskTextures->Map.find(this->MaskInput);
     if(it2==this->MaskTextures->Map.end())
       {
@@ -5420,13 +5417,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         // 5. loading the subvolume failed: stream the subvolume
         // 5.1 do zslabs first, if too large then cut with x or y with the
         // largest dimension. order of zlabs depends on sign of spacing[2]
-        int streamTextureExtent[6];
-        i=0;
-        while(i<6)
-          {
-          streamTextureExtent[i]=subvolumeTextureExtent[i];
-          ++i;
-          }
 
         unsigned int internalFormat;
         unsigned int format;

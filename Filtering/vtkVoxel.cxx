@@ -24,6 +24,7 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkBox.h"
+#include "vtkMarchingCubesTriangleCases.h"
 
 vtkStandardNewMacro(vtkVoxel);
 

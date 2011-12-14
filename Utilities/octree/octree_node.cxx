@@ -195,7 +195,7 @@ const octree_node<T_,d_,A_>& octree_node<T_,d_,A_>::operator [] ( int child ) co
 {
   if ( ! this->_M_children )
     {
-    throw vtkstd::domain_error( "Attempt to access children of an octree leaf node." );
+    throw std::domain_error( "Attempt to access children of an octree leaf node." );
     }
   return this->_M_chilren[child];
 }
@@ -209,7 +209,7 @@ octree_node<T_,d_,A_>& octree_node<T_,d_,A_>::operator [] ( int child )
 {
   if ( ! this->_M_children )
     {
-    throw vtkstd::domain_error( "Attempt to access children of an octree leaf node." );
+    throw std::domain_error( "Attempt to access children of an octree leaf node." );
     }
   return this->_M_children[child];
 }

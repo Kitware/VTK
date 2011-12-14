@@ -65,7 +65,8 @@ public:
 
   // Description:
   // Specify file name of the Exodus file.
-  vtkSetStringMacro(FileName);
+  // @deprecated Replaced by vtkExodusIIReader as of VTK 5.8.
+  VTK_LEGACY(void SetFileName(const char* fname));    
   vtkGetStringMacro(FileName);
 
   // Description:

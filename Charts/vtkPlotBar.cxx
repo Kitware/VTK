@@ -16,6 +16,7 @@
 #include "vtkPlotBar.h"
 
 #include "vtkContext2D.h"
+#include "vtkRect.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkContextDevice2D.h"
@@ -36,22 +37,10 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <set>
 
 //-----------------------------------------------------------------------------
 namespace {
-
-// Compare the two vectors, in X component only
-bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
-{
-  if (v1.X() < v2.X())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
 
 // Copy the two arrays into the points array
 template<class A, class B>
@@ -95,6 +84,44 @@ void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previous_points, A *a,
     }
 }
 
+// Indexed vector for sorting
+struct vtkIndexedVector2f
+{
+  size_t index;
+  vtkVector2f pos;
+};
+
+// Compare two vtkIndexedVector2f, in X component only
+bool compVector3fX(const vtkIndexedVector2f& v1,
+                   const vtkIndexedVector2f& v2)
+{
+  if (v1.pos.X() < v2.pos.X())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+class VectorPIMPL : public std::vector<vtkIndexedVector2f>
+{
+public:
+  VectorPIMPL(vtkVector2f* array, size_t n)
+    : std::vector<vtkIndexedVector2f>()
+  {
+    this->reserve(n);
+    for (size_t i = 0; i < n; ++i)
+      {
+      vtkIndexedVector2f tmp;
+      tmp.index = i;
+      tmp.pos = array[i];
+      this->push_back(tmp);
+      }
+  }
+};
+
 } // namespace
 
 //-----------------------------------------------------------------------------
@@ -106,22 +133,31 @@ class vtkPlotBarSegment : public vtkObject {
 
     vtkPlotBarSegment()
       {
-      this->Bar = 0;
-      this->Points = 0;
-      this->Sorted = false;
-      this->Previous = 0;
+      this->Bar = NULL;
+      this->Points = NULL;
+      this->Sorted = NULL;
+      this->Previous = NULL;
+      this->SelectionSet = NULL;
+      }
+
+    ~vtkPlotBarSegment()
+      {
+      delete this->Sorted;
+      delete this->SelectionSet;
       }
 
     void Configure(vtkPlotBar *bar, vtkDataArray *x_array,
                    vtkDataArray *y_array, vtkPlotBarSegment *prev)
       {
       this->Bar = bar;
-      this->Sorted = false;
       this->Previous = prev;
       if (!this->Points)
         {
         this->Points = vtkSmartPointer<vtkPoints2D>::New();
         }
+      // For the atypical case that Configure is called on a non-fresh "this"
+      delete this->Sorted;
+      delete this->SelectionSet;
 
       if (x_array)
         {
@@ -153,13 +189,23 @@ class vtkPlotBarSegment : public vtkObject {
       int n = this->Points->GetNumberOfPoints();
       float *f =
           vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
-      float *p = 0;
+      float *p = NULL;
       if (this->Previous)
         p = vtkFloatArray::SafeDownCast(
               this->Previous->Points->GetData())->GetPointer(0);
 
       for (int i = 0; i < n; ++i)
         {
+        if (this->SelectionSet &&
+            this->SelectionSet->find(static_cast<vtkIdType>(i)) !=
+            this->SelectionSet->end())
+          {
+          painter->GetBrush()->SetColor(255, 50, 0, 150);
+          }
+        else
+          {
+          painter->GetBrush()->SetColor(brush->GetColorObject());
+          }
         if (orientation == vtkPlotBar::VERTICAL)
           {
           if (p)
@@ -181,31 +227,12 @@ class vtkPlotBarSegment : public vtkObject {
         }
       }
 
-    bool GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
-                         float width, float offset, int orientation)
+    vtkIdType GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
+                              float width, float offset, int orientation)
       {
-      if (!this->Points)
+      if (!this->Points && this->Points->GetNumberOfPoints())
         {
-        return false;
-        }
-      vtkIdType n = this->Points->GetNumberOfPoints();
-      if (n < 2)
-        {
-        return false;
-        }
-
-      // Right now doing a simple bisector search of the array. This should be
-      // revisited. Assumes the x axis is sorted, which should always be true for
-      // bar plots.
-      vtkVector2f* data =
-          static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-      std::vector<vtkVector2f> v(data, data+n);
-
-      // Sort if necessary - in the case of bar plots render order does not matter
-      if (!this->Sorted)
-        {
-        std::sort(v.begin(), v.end(), compVector2fX);
-        this->Sorted = true;
+        return -1;
         }
 
       // The extent of any given bar is half a width on either
@@ -215,7 +242,7 @@ class vtkPlotBarSegment : public vtkObject {
       // If orientation is VERTICAL, search normally. For HORIZONTAL,
       // simply transpose the X and Y coordinates of the target, as the rest
       // of the search uses the assumption that X = bar position, Y = bar
-      // value; swapping the target X and Y is simpler that swapping the
+      // value; swapping the target X and Y is simpler than swapping the
       // X and Y of all the other references to the bar data.
       vtkVector2f targetPoint(point);
       if (orientation == vtkPlotBar::HORIZONTAL)
@@ -223,42 +250,134 @@ class vtkPlotBarSegment : public vtkObject {
         targetPoint.Set(point.Y(), point.X()); // Swap x and y
         }
 
+      this->CreateSortedPoints();
+
+      // Get the left-most bar we might hit
+      vtkIndexedVector2f lowPoint;
+      lowPoint.index = 0;
+      lowPoint.pos = vtkVector2f(targetPoint.X()-(offset * -1)-halfWidth, 0.0f);
+
       // Set up our search array, use the STL lower_bound algorithm
-      // When searching, invert the behavior of the offset and
-      // compensate for the half width overlap.
-      std::vector<vtkVector2f>::iterator low;
-      vtkVector2f lowPoint(targetPoint.X()-(offset * -1)-halfWidth, 0.0f);
-      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+      VectorPIMPL::iterator low;
+      VectorPIMPL &v = *this->Sorted;
+      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
 
       while (low != v.end())
         {
+        // Does the bar surround the point?
+        if (low->pos.X()-halfWidth-offset < targetPoint.X() &&
+            low->pos.X()+halfWidth-offset > targetPoint.X())
+          {
+          // Is the point within the vertical extent of the bar?
+          if ((targetPoint.Y() >= 0 && targetPoint.Y() < low->pos.Y()) ||
+              (targetPoint.Y() < 0 && targetPoint.Y() > low->pos.Y()))
+            {
+            *location = low->pos;
+            return low->index;
+            }
+          }
         // Is the left side of the bar beyond the point?
-        if (low->X()-offset-halfWidth > targetPoint.X())
+        if (low->pos.X()-offset-halfWidth > targetPoint.X())
           {
           break;
           }
-        // Does the bar surround the point?
-        else if (low->X()-halfWidth-offset < targetPoint.X() &&
-                 low->X()+halfWidth-offset > targetPoint.X())
+        ++low;
+        }
+      return -1;
+      }
+
+    void CreateSortedPoints()
+    {
+      // Sorted points, used when searching for the nearest point.
+      if (!this->Sorted)
+        {
+        vtkIdType n = this->Points->GetNumberOfPoints();
+        vtkVector2f* data =
+            static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+        this->Sorted = new VectorPIMPL(data, n);
+        std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
+        }
+    }
+
+    bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max,
+                      float width, float offset, int orientation)
+    {
+      if (!this->Points)
+        {
+        return false;
+        }
+
+      this->CreateSortedPoints();
+
+      if (!this->SelectionSet)
+        {
+        // Use a Set for faster lookup during paint
+        this->SelectionSet = new std::set<vtkIdType>();
+        }
+      this->SelectionSet->clear();
+
+      // If orientation is VERTICAL, search normally. For HORIZONTAL,
+      // transpose the selection box.
+      vtkVector2f targetMin(min);
+      vtkVector2f targetMax(max);
+      if (orientation == vtkPlotBar::HORIZONTAL)
+        {
+        targetMin.Set(min.Y(), min.X());
+        targetMax.Set(max.Y(), max.X());
+        }
+
+      // The extent of any given bar is half a width on either
+      // side of the point with which it is associated.
+      float halfWidth = width / 2.0;
+
+      // Get the lowest X coordinate we might hit
+      vtkIndexedVector2f lowPoint;
+      lowPoint.index = 0;
+      lowPoint.pos = vtkVector2f(targetMin.X()-(offset * -1)-halfWidth, 0.0f);
+
+      // Set up our search array, use the STL lower_bound algorithm
+      VectorPIMPL::iterator low;
+      VectorPIMPL &v = *this->Sorted;
+      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+
+      while (low != v.end())
+        {
+        // Is the bar's X coordinates at least partially within the box?
+        if (low->pos.X()+halfWidth-offset > targetMin.X() &&
+            low->pos.X()-halfWidth-offset < targetMax.X())
           {
-          // Is the point within the vertical extent of the bar?
-          if ((targetPoint.Y() >= 0 && targetPoint.Y() < low->Y()) ||
-              (targetPoint.Y() < 0 && targetPoint.Y() > low->Y()))
+          // Is the bar within the vertical extent of the box?
+          if ((targetMin.Y() > 0 && low->pos.Y() >= targetMin.Y()) ||
+              (targetMax.Y() < 0 && low->pos.Y() <= targetMax.Y()) ||
+              (targetMin.Y() < 0 && targetMax.Y() > 0))
             {
-            *location = *low;
-            return true;
+            this->SelectionSet->insert(low->index);
             }
+          }
+        // Is the left side of the bar beyond the box?
+        if (low->pos.X()-offset-halfWidth > targetMax.X())
+          {
+          break;
           }
         ++low;
         }
-      return false;
+
+      if (this->SelectionSet->empty())
+        {
+        return false;
+        }
+      else
+        {
+        return true;
+        }
       }
 
     vtkSmartPointer<vtkPlotBarSegment> Previous;
     vtkSmartPointer<vtkPoints2D> Points;
     vtkPlotBar *Bar;
-    bool Sorted;
-};
+    VectorPIMPL* Sorted;
+    std::set<vtkIdType>* SelectionSet;
+    };
 
 vtkStandardNewMacro(vtkPlotBarSegment);
 
@@ -300,21 +419,59 @@ public:
     }
 
 
-  int GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
-                      float width, float offset, int orientation)
+  vtkIdType GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
+                            float width, float offset, int orientation,
+                            vtkIdType* segmentIndex)
     {
-    int index = 0;
+    vtkIdType segmentIndexCtr = 0;
     for (std::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
            this->Segments.begin(); it != this->Segments.end(); ++it)
       {
-      if ((*it)->GetNearestPoint(point,location,width,offset,orientation))
+      int barIndex = (*it)->GetNearestPoint(point,location,width,offset,orientation);
+      if (barIndex != -1)
         {
-        return index;
+        if (segmentIndex)
+          {
+          *segmentIndex = segmentIndexCtr;
+          }
+        return barIndex;
         }
-      ++index;
+      ++segmentIndexCtr;
+      }
+    if (segmentIndex)
+      {
+      *segmentIndex = -1;
       }
     return -1;
     }
+
+  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max,
+                    float width, float offset, int orientation,
+                    vtkIdTypeArray* selection)
+  {
+    // Selection functionality not supported for stacked plots (yet)
+    if (this->Segments.size() != 1)
+      {
+      return false;
+      }
+
+    // This has the side effect of generating SelectionSet
+    if (this->Segments[0]->SelectPoints(min, max, width, offset, orientation))
+      {
+      for(std::set<vtkIdType>::const_iterator itr =
+            this->Segments[0]->SelectionSet->begin();
+          itr != this->Segments[0]->SelectionSet->end();
+          itr++)
+        {
+        selection->InsertNextValue(*itr);
+        }
+      return true;
+      }
+    else
+      {
+      return false;
+      }
+  }
 
   std::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
   vtkPlotBar *Bar;
@@ -329,14 +486,12 @@ vtkStandardNewMacro(vtkPlotBar);
 vtkPlotBar::vtkPlotBar()
 {
   this->Private = new vtkPlotBarPrivate(this);
-  this->Points = 0;
-  this->Sorted = false;
-  this->Labels = 0;
-  this->AutoLabels = 0;
+  this->Points = NULL;
+  this->AutoLabels = NULL;
   this->Width = 1.0;
   this->Pen->SetWidth(1.0);
   this->Offset = 1.0;
-  this->ColorSeries = 0;
+  this->ColorSeries = NULL;
   this->Orientation = vtkPlotBar::VERTICAL;
 }
 
@@ -511,12 +666,23 @@ void vtkPlotBar::GetColor(double rgb[3])
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
-                                  const vtkVector2f&,
-                                  vtkVector2f* location)
+vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
+                                      const vtkVector2f&,
+                                      vtkVector2f* location)
 {
   return this->Private->GetNearestPoint(point, location, this->Width,
-                                        this->Offset, this->Orientation);
+                                        this->Offset, this->Orientation, 0);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
+                                      const vtkVector2f&,
+                                      vtkVector2f* location,
+                                      vtkIdType* segmentIndex)
+{
+  return this->Private->GetNearestPoint(point, location, this->Width,
+                                        this->Offset, this->Orientation,
+                                        segmentIndex);
 }
 
 //-----------------------------------------------------------------------------
@@ -603,7 +769,18 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
     prev = this->Private->AddSegment(x,y,prev);
     }
 
-  this->Sorted = false;
+  this->TooltipDefaultLabelFormat.clear();
+  // Set the default tooltip according to the segments
+  if (this->Private->Segments.size() > 1)
+    {
+    this->TooltipDefaultLabelFormat = "%s: ";
+    }
+  if (this->IndexedLabels)
+    {
+    this->TooltipDefaultLabelFormat += "%i: ";
+    }
+  this->TooltipDefaultLabelFormat += "%x,  %y";
+
   this->BuildTime.Modified();
   return true;
 }
@@ -626,7 +803,7 @@ void vtkPlotBar::SetInputArray(int index, const vtkStdString &name)
     {
     this->Private->AdditionalSeries[index] = name;
     }
-  this->AutoLabels = 0; // No longer valid
+  this->AutoLabels = NULL; // No longer valid
 }
 
 //-----------------------------------------------------------------------------
@@ -645,4 +822,62 @@ void vtkPlotBar::SetColorSeries(vtkColorSeries *colorSeries)
 vtkColorSeries *vtkPlotBar::GetColorSeries()
 {
   return this->ColorSeries;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
+{
+  if (!this->Selection)
+    {
+    this->Selection = vtkIdTypeArray::New();
+    }
+  this->Selection->SetNumberOfTuples(0);
+
+  return this->Private->SelectPoints(min, max, this->Width, this->Offset,
+                                                this->Orientation,
+                                                this->Selection);
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlotBar::GetTooltipLabel(const vtkVector2f &plotPos,
+                                         vtkIdType seriesIndex,
+                                         vtkIdType segmentIndex)
+{
+  vtkStdString baseLabel = Superclass::GetTooltipLabel(plotPos, seriesIndex,
+                                                       segmentIndex);
+  vtkStdString tooltipLabel;
+  bool escapeNext = false;
+  for (size_t i = 0; i < baseLabel.length(); ++i)
+    {
+    if (escapeNext)
+      {
+      switch (baseLabel[i])
+        {
+        case 's':
+          if (segmentIndex >= 0 && this->GetLabels() &&
+              segmentIndex < this->GetLabels()->GetNumberOfTuples())
+            {
+            tooltipLabel += this->GetLabels()->GetValue(segmentIndex);
+            }
+          break;
+        default: // If no match, insert the entire format tag
+          tooltipLabel += "%";
+          tooltipLabel += baseLabel[i];
+          break;
+        }
+      escapeNext = false;
+      }
+    else
+      {
+      if (baseLabel[i] == '%')
+        {
+        escapeNext = true;
+        }
+      else
+        {
+        tooltipLabel += baseLabel[i];
+        }
+      }
+    }
+  return tooltipLabel;
 }

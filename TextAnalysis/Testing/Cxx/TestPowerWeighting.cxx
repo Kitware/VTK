@@ -54,7 +54,7 @@ int TestPowerWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return EXIT_SUCCESS;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     }

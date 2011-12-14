@@ -19,6 +19,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestAppendSelection.cxx
 #    TestAppendPolyData.cxx #pending a bug fix
     TestAssignAttribute.cxx
+    TestBareScalarsToColors.cxx
     TestBSPTree.cxx
     TestCellDataToPointData.cxx
     TestDensifyPolyData.cxx
@@ -27,24 +28,32 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDelaunay2D.cxx
     TestExtraction.cxx
     TestExtractSelection.cxx
+    TestExtractSurfaceNonLinearSubdivision.cxx
     TestHyperOctreeContourFilter.cxx
     TestHyperOctreeCutter.cxx
     TestHyperOctreeDual.cxx
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
+    TestImageDataToPointSet.cxx
     TestLineSource.cxx
     TestMapVectorsAsRGBColors.cxx
+    TestMapVectorsToColors.cxx
     TestNamedComponents.cxx
     TestMeanValueCoordinatesInterpolation1.cxx
     TestMeanValueCoordinatesInterpolation2.cxx
     TestPolyDataPointSampler.cxx
     TestPolyhedron0.cxx
     TestPolyhedron1.cxx
+    TestQuadRotationalExtrusion.cxx
+    TestQuadRotationalExtrusionMultiBlock.cxx
+    TestRectilinearGridToPointSet.cxx
+    TestRotationalExtrusion.cxx
     TestSelectEnclosedPoints.cxx
     TestTessellatedBoxSource.cxx
     TestTessellator.cxx
     TestUncertaintyTubeFilter.cxx
     TestDecimatePolylineFilter.cxx
+    TestImplicitPolyDataDistance.cxx
     )
 
   IF(VTK_USE_BOOST)
@@ -91,6 +100,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx
       UnstructuredGridFastGradients.cxx
+      TestBooleanOperationPolyDataFilter.cxx
+      TestBooleanOperationPolyDataFilter2.cxx
+      TestDistancePolyDataFilter.cxx
+      TestIntersectionPolyDataFilter.cxx
       )
     IF (VTK_USE_PARALLEL)
       SET(MyTests ${MyTests}
@@ -98,8 +111,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         )
     ENDIF (VTK_USE_PARALLEL)
   ENDIF (VTK_DATA_ROOT)
-  CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                         EXTRA_INCLUDE vtkTestDriver.h)
+
+  INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
   IF (VTK_USE_PARALLEL)

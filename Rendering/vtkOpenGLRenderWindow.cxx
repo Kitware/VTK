@@ -103,6 +103,12 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 }
 
 // ----------------------------------------------------------------------------
+unsigned long vtkOpenGLRenderWindow::GetContextCreationTime()
+{
+  return this->ContextCreationTime.GetMTime();
+}
+
+// ----------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the back left buffer.
 // It is GL_BACK_LEFT if GL is bound to the window-system-provided

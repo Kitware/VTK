@@ -17,8 +17,8 @@
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 #include "vtkStdString.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ class vtkInformationStringVectorValue: public vtkObjectBase
 {
 public:
   vtkTypeMacro(vtkInformationStringVectorValue, vtkObjectBase);
-  vtkstd::vector<vtkstd::string> Value;
+  std::vector<std::string> Value;
 };
 
 //----------------------------------------------------------------------------

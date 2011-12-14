@@ -30,9 +30,9 @@
  *    Reads and Writes MetaMeshFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date June, 2004
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  */
@@ -44,8 +44,8 @@ namespace METAIO_NAMESPACE {
 /** Typedef for the type of cells */
 #define MET_NUM_CELL_TYPES 9
 
-enum MET_CellGeometry {MET_VERTEX_CELL=0, MET_LINE_CELL, MET_TRIANGLE_CELL, MET_QUADRILATERAL_CELL, 
-        MET_POLYGON_CELL, MET_TETRAHEDRON_CELL, MET_HEXAHEDRON_CELL, 
+enum MET_CellGeometry {MET_VERTEX_CELL=0, MET_LINE_CELL, MET_TRIANGLE_CELL, MET_QUADRILATERAL_CELL,
+        MET_POLYGON_CELL, MET_TETRAHEDRON_CELL, MET_HEXAHEDRON_CELL,
         MET_QUADRATIC_EDGE_CELL, MET_QUADRATIC_TRIANGLE_CELL};
 
 const unsigned char MET_CellSize[MET_NUM_VALUE_TYPES] = {
@@ -58,8 +58,8 @@ const char MET_CellTypeName[MET_NUM_VALUE_TYPES][4] = {
    {'Q','A','D','\0'},
    {'P','L','Y','\0'},
    {'T','E','T','\0'},
-   {'H','E','X','\0'},   
-   {'Q','E','D','\0'}, 
+   {'H','E','X','\0'},
+   {'Q','E','D','\0'},
    {'Q','T','R','\0'}};
 
 
@@ -70,15 +70,15 @@ public:
 
   MeshPoint(int dim);
   ~MeshPoint();
-  
+
   unsigned int m_Dim;
   float* m_X;
   int m_Id;
 };
 
 
-/** Define a mesh cell 
- *  a cell contains a list of Ids corresponding to the list 
+/** Define a mesh cell
+ *  a cell contains a list of Ids corresponding to the list
  *  of points */
 class METAIO_EXPORT MeshCell
 {
@@ -86,25 +86,25 @@ public:
 
   MeshCell(int dim);
   ~MeshCell();
-  
+
   int m_Id;
   unsigned int m_Dim;
   int* m_PointsId;
 };
 
 /** Define a mesh cell links
- *  a celllink contains a list of Ids corresponding to the list 
+ *  a celllink contains a list of Ids corresponding to the list
  *  of links cells */
 class METAIO_EXPORT MeshCellLink
 {
 public:
 
   MeshCellLink()
-    { 
+    {
     m_Id = 0;
     }
   ~MeshCellLink()
-    { 
+    {
     };
 
   int m_Id; // id of the cell link
@@ -117,13 +117,13 @@ class METAIO_EXPORT MeshDataBase
 public:
 
   MeshDataBase()
-    { 
+    {
     m_Id = -1;
     }
   virtual ~MeshDataBase()
-    { 
+    {
     };
-  
+
   virtual void Write( METAIO_STREAM::ofstream* stream) = 0;
   virtual unsigned int GetSize(void) = 0;
   virtual MET_ValueEnumType GetMetaType() = 0;
@@ -201,10 +201,10 @@ class METAIO_EXPORT MetaMesh : public MetaObject
     ////
     MetaMesh(void);
 
-    MetaMesh(const char *_headerName);   
+    MetaMesh(const char *_headerName);
 
-    MetaMesh(const MetaMesh *_tube); 
-    
+    MetaMesh(const MetaMesh *_tube);
+
     MetaMesh(unsigned int dim);
 
     ~MetaMesh(void);
@@ -239,7 +239,7 @@ class METAIO_EXPORT MetaMesh : public MetaObject
 
     PointListType & GetPoints(void) {return m_PointList;}
     const PointListType & GetPoints(void) const  {return m_PointList;}
-    
+
     CellListType & GetCells(MET_CellGeometry geom) {return *(m_CellListArray[geom]);}
     const CellListType & GetCells(MET_CellGeometry geom) const  {return *(m_CellListArray[geom]);}
 
@@ -248,7 +248,7 @@ class METAIO_EXPORT MetaMesh : public MetaObject
 
     PointDataListType & GetPointData(void) {return m_PointData;}
     const PointDataListType & GetPointData(void) const  {return m_PointData;}
-    
+
     CellDataListType & GetCellData(void) {return m_CellData;}
     const CellDataListType & GetCellData(void) const  {return m_CellData;}
 
@@ -277,15 +277,15 @@ class METAIO_EXPORT MetaMesh : public MetaObject
 
     bool  M_Write(void);
 
-    int m_NPoints;   
-    int m_NCells; 
+    int m_NPoints;
+    int m_NCells;
     int m_NCellLinks;
     int m_NPointData;
     int m_NCellData;
     char m_PointDim[255]; // "PointDim = "       "x y z r"
 
     PointListType m_PointList;
-   
+
     // We store the Cell lists in a vector
     CellListType* m_CellListArray[MET_NUM_CELL_TYPES];
     CellLinkListType m_CellLinks;

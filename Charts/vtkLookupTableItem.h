@@ -30,16 +30,17 @@ public:
   vtkTypeMacro(vtkLookupTableItem, vtkScalarsToColorsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Reimplemented to return the range of the lookup table
-  virtual void GetBounds(double bounds[4]);
-
   void SetLookupTable(vtkLookupTable* t);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
 protected:
   vtkLookupTableItem();
   virtual ~vtkLookupTableItem();
+
+  // Description:
+  // Reimplemented to return the range of the lookup table
+  virtual void ComputeBounds(double bounds[4]);
+
 
   virtual void ComputeTexture();
   vtkLookupTable* LookupTable;

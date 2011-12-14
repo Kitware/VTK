@@ -16,17 +16,17 @@
 // .SECTION Description
 
 // vtkSelectionNode stores selection parameters for a selection
-// (or part of a selection). It stores a list of properties (in a vtkInformation) 
-// and a list of selection values (in a vtkAbstractArray). The properties 
-// provide information about what the selection values mean. For example the 
-// CONTENT_TYPE property gives information about what is stored by the node. 
+// (or part of a selection). It stores a list of properties (in a vtkInformation)
+// and a list of selection values (in a vtkAbstractArray). The properties
+// provide information about what the selection values mean. For example the
+// CONTENT_TYPE property gives information about what is stored by the node.
 // If the CONTENT_TYPE is GLOBALIDS,
 // the SelectionList array should contain a list of cell or point ids, which
-// identify the particular cells or points that have matching values in the 
+// identify the particular cells or points that have matching values in the
 // GLOBALID vtkDataSetAttribute array. If the CONTENT_TYPE is PEDIGREEIDS, the
 // SelectionList array should contain a list of cell or point ids, which identify
 // the particular cells or points that have matching values in the PEDIGREEID
-// vtkDataSetAttribute array. The FIELD_TYPE property designates whether the 
+// vtkDataSetAttribute array. The FIELD_TYPE property designates whether the
 // selection refers to cells or points.
 //
 // Usually, each node under the root is a selection from
@@ -37,7 +37,7 @@
 // composite dataset should have COMPOSITE_INDEX set. This is the flat-index to
 // identify a node with in the composite dataset to which the selection applies.
 //
-// .SECTION Caveats 
+// .SECTION Caveats
 // No SelectionList is created by default. It should be assigned.
 
 #ifndef __vtkSelectionNode_h
@@ -66,7 +66,7 @@ public:
   // Description:
   // Restore data object to initial state,
   virtual void Initialize();
-  
+
   // Description:
   // Sets the selection list.
   virtual void SetSelectionList(vtkAbstractArray*);
@@ -76,16 +76,16 @@ public:
   // Sets the selection table.
   virtual void SetSelectionData(vtkDataSetAttributes* data);
   vtkGetObjectMacro(SelectionData, vtkDataSetAttributes);
-  
+
   // Description:
   // Returns the property map.
   vtkGetObjectMacro(Properties, vtkInformation);
 
-  // Description: 
+  // Description:
   // Copy properties, selection list and children of the input.
   virtual void DeepCopy(vtkSelectionNode* src);
 
-  // Description: 
+  // Description:
   // Copy properties, selection list and children of the input.
   // This is a shallow copy: selection lists and pointers in the
   // properties are passed by reference.
@@ -97,15 +97,15 @@ public:
 
   // vtkSelectionNode specific keys follow:
   // Description:
-  // Get the (primary) property that describes the content of a selection 
+  // Get the (primary) property that describes the content of a selection
   // node's data. Other auxiliary description properties follow.
   // GLOBALIDS means that the selection list contains values from the
   // vtkDataSetAttribute array of the same name.
   // PEDIGREEIDS means that the selection list contains values from the
   // vtkDataSetAttribute array of the same name.
-  // VALUES means the the selection list contains values from an 
+  // VALUES means the the selection list contains values from an
   // arbitrary attribute array (ignores any globalids attribute)
-  // INDICES means that the selection list contains indexes into the 
+  // INDICES means that the selection list contains indexes into the
   // cell or point arrays.
   // FRUSTUM means the set of points and cells inside a frustum
   // LOCATIONS means the set of points and cells near a set of positions
@@ -126,7 +126,7 @@ public:
     BLOCKS       // used to select blocks within a composite dataset.
   };
 //ETX
-  
+
   // Description:
   // Get or set the content type of the selection.
   // This is the same as setting the CONTENT_TYPE() key on the property.
@@ -150,19 +150,13 @@ public:
     ROW
   };
 //ETX
-  
+
   // Description:
   // Get or set the field type of the selection.
   // This is the same as setting the FIELD_TYPE() key on the property.
   virtual void SetFieldType(int type);
   virtual int GetFieldType();
 
-  // Description:
-  // Get or set the prop of the selection.
-  // This is the same as setting the PROP() key on the property.
-  virtual void SetSelectedProp(vtkProp* prop);
-  virtual vtkProp* GetSelectedProp();
-  
   // Description:
   // For location selection of points, if distance is greater than this reject.
   static vtkInformationDoubleKey* EPSILON();
@@ -173,7 +167,7 @@ public:
   static vtkInformationIntegerKey* CONTAINING_CELLS();
 
   // Description:
-  // When ContentType==THRESHOLDS  or ContentType==VALUES 
+  // When ContentType==THRESHOLDS  or ContentType==VALUES
   // i.e. threshold and value based selections, it is
   // possible pick the component number using this key. If none is specified,
   // the 0th component is used. If any number less than 0 is specified, then
@@ -212,7 +206,7 @@ public:
   static vtkInformationIntegerKey* PROCESS_ID();
 
   // Description:
-  // Used to identify a node in composite datasets. 
+  // Used to identify a node in composite datasets.
   static vtkInformationIntegerKey* COMPOSITE_INDEX();
 
   // Description:
@@ -230,6 +224,12 @@ public:
   // Merges the selection list between self and the other. Assumes that both has
   // identical properties.
   void UnionSelectionList(vtkSelectionNode* other);
+
+  // Description:
+  // Subtracts the items in the selection list, other, from this selection list.
+  // Assumes that both selections have identical properties (i.e., test with EqualProperties
+  // before using).
+  void SubtractSelectionList(vtkSelectionNode* other);
 
   // Description:
   // Compares Properties of self and other to ensure that they are exactly same.

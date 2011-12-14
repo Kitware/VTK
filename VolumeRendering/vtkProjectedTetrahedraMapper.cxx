@@ -44,7 +44,7 @@
 #include "vtkVolumeRenderingFactory.h"
 
 #include <math.h>
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 //-----------------------------------------------------------------------------
 

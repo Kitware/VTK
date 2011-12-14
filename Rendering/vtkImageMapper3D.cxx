@@ -18,7 +18,9 @@
 #include "vtkImageSlice.h"
 #include "vtkImageData.h"
 #include "vtkImageProperty.h"
-#include "vtkLookupTable.h"
+#include "vtkScalarsToColors.h"
+#include "vtkDataArray.h"
+#include "vtkMultiThreader.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPlane.h"
@@ -34,16 +36,15 @@
 //----------------------------------------------------------------------------
 vtkImageMapper3D::vtkImageMapper3D()
 {
-  // Build a default greyscale lookup table
-  this->DefaultLookupTable = vtkLookupTable::New();
-  this->DefaultLookupTable->SetRampToLinear();
-  this->DefaultLookupTable->SetValueRange(0.0, 1.0);
-  this->DefaultLookupTable->SetSaturationRange(0.0, 0.0);
-  this->DefaultLookupTable->SetAlphaRange(1.0, 1.0);
-  this->DefaultLookupTable->Build();
+  // Default color conversion
+  this->DefaultLookupTable = vtkScalarsToColors::New();
   this->DefaultLookupTable->SetVectorModeToRGBColors();
 
+  this->Threader = vtkMultiThreader::New();
+  this->NumberOfThreads = this->Threader->GetNumberOfThreads();
+
   this->Border = 0;
+  this->Background = 0;
 
   this->SlicePlane = vtkPlane::New();
   this->SliceFacesCamera = 0;
@@ -51,7 +52,7 @@ vtkImageMapper3D::vtkImageMapper3D()
 
   this->DataToWorldMatrix = vtkMatrix4x4::New();
   this->CurrentProp = 0;
-  this->InRender = false;
+  this->CurrentRenderer = 0;
 
   this->MatteEnable = true;
   this->ColorEnable = true;
@@ -79,6 +80,10 @@ vtkImageMapper3D::~vtkImageMapper3D()
   if (this->DefaultLookupTable)
     {
     this->DefaultLookupTable->Delete();
+    }
+  if (this->Threader)
+    {
+    this->Threader->Delete();
     }
   if (this->SlicePlane)
     {
@@ -157,6 +162,8 @@ void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SliceFacesCamera: "
      << (this->SliceFacesCamera ? "On\n" : "Off\n");
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
+  os << indent << "Background: " << (this->Background ? "On\n" : "Off\n");
+  os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -246,8 +253,13 @@ void vtkImageMapper3DComputeMatrix(vtkProp *prop, double mat[16])
 vtkRenderer *vtkImageMapper3D::GetCurrentRenderer()
 {
   vtkImageSlice *prop = this->CurrentProp;
-  vtkRenderer *ren = 0;
+  vtkRenderer *ren = this->CurrentRenderer;
   int count = 0;
+
+  if (ren)
+    {
+    return ren;
+    }
 
   if (!prop)
     {
@@ -273,7 +285,7 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
 
   if (prop)
     {
-    if (this->InRender)
+    if (this->CurrentRenderer)
       {
       this->DataToWorldMatrix->DeepCopy(prop->GetMatrix());
       }
@@ -284,192 +296,77 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
       this->DataToWorldMatrix->DeepCopy(mat);
       }
     }
-  else
-    {
-    this->DataToWorldMatrix->Identity();
-    }
 
   return this->DataToWorldMatrix;
 }
 
 //----------------------------------------------------------------------------
-// Subdivide the image until the pieces fit into texture memory
-void vtkImageMapper3D::RecursiveRenderTexturedPolygon(
-  vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
-  vtkImageData *input, int extent[6], bool recursive)
-{
-  int xdim, ydim;
-  int imageSize[2];
-  int textureSize[2];
-
-  // compute image size and texture size from extent
-  this->ComputeTextureSize(
-    extent, xdim, ydim, imageSize, textureSize);
-
-  // Check if we can fit this texture in memory
-  if (this->TextureSizeOK(textureSize))
-    {
-    // We can fit it - render
-    this->RenderTexturedPolygon(
-      ren, prop, property, input, extent, recursive);
-    }
-
-  // If the texture does not fit, then subdivide and render
-  // each half.  Unless the graphics card couldn't handle
-  // a texture a small as 256x256, because if it can't handle
-  // that, then something has gone horribly wrong.
-  else if (textureSize[0] > 256 || textureSize[1] > 256)
-    {
-    int subExtent[6];
-    subExtent[0] = extent[0]; subExtent[1] = extent[1];
-    subExtent[2] = extent[2]; subExtent[3] = extent[3];
-    subExtent[4] = extent[4]; subExtent[5] = extent[5];
-
-    // Which is larger, x or y?
-    int idx = ydim;
-    int tsize = textureSize[1];
-    if (textureSize[0] > textureSize[1])
-      {
-      idx = xdim;
-      tsize = textureSize[0];
-      }
-
-    // Divide size by two
-    tsize /= 2;
-
-    // Render each half recursively
-    subExtent[idx*2] = extent[idx*2];
-    subExtent[idx*2 + 1] = extent[idx*2] + tsize - 1;
-    this->RecursiveRenderTexturedPolygon(
-      ren, prop, property, input, subExtent, true);
-
-    subExtent[idx*2] = subExtent[idx*2] + tsize;
-    subExtent[idx*2 + 1] = extent[idx*2 + 1];
-    this->RecursiveRenderTexturedPolygon(
-      ren, prop, property, input, subExtent, true);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageMapper3D::RenderTexturedPolygon(
-  vtkRenderer *, vtkProp3D *, vtkImageProperty *,
-  vtkImageData *, int [6], bool)
-{
-  // implemented in subclasses
-}
-
-//----------------------------------------------------------------------------
-bool vtkImageMapper3D::TextureSizeOK(const int [2])
-{
-  // implemented in subclasses
-  return true;
-}
-
-//----------------------------------------------------------------------------
 // Convert char data without changing format
-static
 void vtkImageMapperCopy(
-  const unsigned char *inPtr, unsigned char *outPtr, const int extent[6],
-  int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ)
+  const unsigned char *inPtr, unsigned char *outPtr, int ncols, int nrows,
+  int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY)
 {
-  // number of values per row of input image
-  int rowLength = extent[1] - extent[0] + 1;
-  if (rowLength <= 0)
-    {
-    return;
-    }
-
   // loop through the data and copy it for the texture
   if (numComp == 1)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          *outPtr++ = *inPtr++;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        *outPtr = *inPtr;
+        outPtr++;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else if (numComp == 2)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          outPtr[0] = inPtr[0];
-          outPtr[1] = inPtr[1];
-          outPtr += 2;
-          inPtr += 2;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        outPtr[0] = inPtr[0];
+        outPtr[1] = inPtr[1];
+        outPtr += 2;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else if (numComp == 3)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          outPtr[0] = inPtr[0];
-          outPtr[1] = inPtr[1];
-          outPtr[2] = inPtr[2];
-          outPtr += 3;
-          inPtr += 3;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        outPtr[0] = inPtr[0];
+        outPtr[1] = inPtr[1];
+        outPtr[2] = inPtr[2];
+        outPtr += 3;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else // if (numComp == 4)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          outPtr[0] = inPtr[0];
-          outPtr[1] = inPtr[1];
-          outPtr[2] = inPtr[2];
-          outPtr[3] = inPtr[3];
-          outPtr += 4;
-          inPtr += numComp;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        outPtr[0] = inPtr[0];
+        outPtr[1] = inPtr[1];
+        outPtr[2] = inPtr[2];
+        outPtr[3] = inPtr[3];
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
 }
@@ -478,120 +375,81 @@ void vtkImageMapperCopy(
 // Convert char data to RGBA
 static
 void vtkImageMapperConvertToRGBA(
-  unsigned char *inPtr, unsigned char *outPtr, const int extent[6],
-  int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ)
+  const unsigned char *inPtr, unsigned char *outPtr, int ncols, int nrows,
+  int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY)
 {
-  // number of values per row of input image
-  int rowLength = extent[1] - extent[0] + 1;
-  if (rowLength <= 0)
-    {
-    return;
-    }
-
   unsigned char alpha = 255;
 
   // loop through the data and copy it for the texture
   if (numComp == 1)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          unsigned char val = inPtr[0];
-          outPtr[0] = val;
-          outPtr[1] = val;
-          outPtr[2] = val;
-          outPtr[3] = alpha;
-          outPtr += 4;
-          inPtr++;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        unsigned char val = inPtr[0];
+        outPtr[0] = val;
+        outPtr[1] = val;
+        outPtr[2] = val;
+        outPtr[3] = alpha;
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else if (numComp == 2)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          unsigned char val = inPtr[0];
-          unsigned char a = inPtr[1];
-          outPtr[0] = val;
-          outPtr[1] = val;
-          outPtr[2] = val;
-          outPtr[3] = a;
-          outPtr += 4;
-          inPtr += 2;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        unsigned char val = inPtr[0];
+        unsigned char a = inPtr[1];
+        outPtr[0] = val;
+        outPtr[1] = val;
+        outPtr[2] = val;
+        outPtr[3] = a;
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else if (numComp == 3)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          outPtr[0] = inPtr[0];
-          outPtr[1] = inPtr[1];
-          outPtr[2] = inPtr[2];
-          outPtr[3] = alpha;
-          outPtr += 4;
-          inPtr += 3;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        outPtr[0] = inPtr[0];
+        outPtr[1] = inPtr[1];
+        outPtr[2] = inPtr[2];
+        outPtr[3] = alpha;
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else // if (numComp == 4)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          outPtr[0] = inPtr[0];
-          outPtr[1] = inPtr[1];
-          outPtr[2] = inPtr[2];
-          outPtr[3] = inPtr[3];
-          outPtr += 4;
-          inPtr += numComp;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        outPtr[0] = inPtr[0];
+        outPtr[1] = inPtr[1];
+        outPtr[2] = inPtr[2];
+        outPtr[3] = inPtr[3];
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
 }
@@ -610,156 +468,116 @@ inline F vtkImageMapperClamp(F x, F xmin, F xmax)
 
 template<class F, class T>
 void vtkImageMapperShiftScale(
-  const T *inPtr, unsigned char *outPtr, const int extent[6],
-  int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
+  const T *inPtr, unsigned char *outPtr, int ncols, int nrows,
+  int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY,
   F shift, F scale)
 {
   const F vmin = static_cast<F>(0);
   const F vmax = static_cast<F>(255);
-
-  // number of values per row of input image
-  int rowLength = (extent[1] - extent[0] + 1);
-  if (rowLength <= 0)
-    {
-    return;
-    }
-
   unsigned char alpha = 255;
 
   // loop through the data and copy it for the texture
   if (numComp == 1)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          // Pixel operation
-          F val = (inPtr[0] + shift)*scale;
-          val = vtkImageMapperClamp(val, vmin, vmax);
-          unsigned char cval = static_cast<unsigned char>(val + 0.5);
-          outPtr[0] = cval;
-          outPtr[1] = cval;
-          outPtr[2] = cval;
-          outPtr[3] = alpha;
-          outPtr += 4;
-          inPtr++;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        // Pixel operation
+        F val = (inPtr[0] + shift)*scale;
+        val = vtkImageMapperClamp(val, vmin, vmax);
+        unsigned char cval = static_cast<unsigned char>(val + 0.5);
+        outPtr[0] = cval;
+        outPtr[1] = cval;
+        outPtr[2] = cval;
+        outPtr[3] = alpha;
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else if (numComp == 2)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          // Pixel operation
-          F val = (inPtr[0] + shift)*scale;
-          val = vtkImageMapperClamp(val, vmin, vmax);
-          unsigned char cval = static_cast<unsigned char>(val + 0.5);
-          val = (inPtr[1] + shift)*scale;
-          val = vtkImageMapperClamp(val, vmin, vmax);
-          unsigned char aval = static_cast<unsigned char>(val + 0.5);
-          outPtr[0] = cval;
-          outPtr[1] = cval;
-          outPtr[2] = cval;
-          outPtr[3] = aval;
-          outPtr += 4;
-          inPtr += 2;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        // Pixel operation
+        F val = (inPtr[0] + shift)*scale;
+        val = vtkImageMapperClamp(val, vmin, vmax);
+        unsigned char cval = static_cast<unsigned char>(val + 0.5);
+        val = (inPtr[1] + shift)*scale;
+        val = vtkImageMapperClamp(val, vmin, vmax);
+        unsigned char aval = static_cast<unsigned char>(val + 0.5);
+        outPtr[0] = cval;
+        outPtr[1] = cval;
+        outPtr[2] = cval;
+        outPtr[3] = aval;
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else if (numComp == 3)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          // Pixel operation
-          F r = (inPtr[0] + shift)*scale;
-          F g = (inPtr[1] + shift)*scale;
-          F b = (inPtr[2] + shift)*scale;
-          r = vtkImageMapperClamp(r, vmin, vmax);
-          g = vtkImageMapperClamp(g, vmin, vmax);
-          b = vtkImageMapperClamp(b, vmin, vmax);
-          outPtr[0] = static_cast<unsigned char>(r + 0.5);
-          outPtr[1] = static_cast<unsigned char>(g + 0.5);
-          outPtr[2] = static_cast<unsigned char>(b + 0.5);
-          outPtr[3] = alpha;
-          outPtr += 4;
-          inPtr += 3;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        // Pixel operation
+        F r = (inPtr[0] + shift)*scale;
+        F g = (inPtr[1] + shift)*scale;
+        F b = (inPtr[2] + shift)*scale;
+        r = vtkImageMapperClamp(r, vmin, vmax);
+        g = vtkImageMapperClamp(g, vmin, vmax);
+        b = vtkImageMapperClamp(b, vmin, vmax);
+        outPtr[0] = static_cast<unsigned char>(r + 0.5);
+        outPtr[1] = static_cast<unsigned char>(g + 0.5);
+        outPtr[2] = static_cast<unsigned char>(b + 0.5);
+        outPtr[3] = alpha;
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
   else // if (numComp == 4)
     {
-    for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    for (int idy = 0; idy < nrows; idy++)
       {
-      for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+      for (int idx = 0; idx < ncols; idx++)
         {
-        int idx = rowLength;
-        do
-          {
-          // Pixel operation
-          F r = (inPtr[0] + shift)*scale;
-          F g = (inPtr[1] + shift)*scale;
-          F b = (inPtr[2] + shift)*scale;
-          F a = (inPtr[3] + shift)*scale;
-          r = vtkImageMapperClamp(r, vmin, vmax);
-          g = vtkImageMapperClamp(g, vmin, vmax);
-          b = vtkImageMapperClamp(b, vmin, vmax);
-          a = vtkImageMapperClamp(a, vmin, vmax);
-          outPtr[0] = static_cast<unsigned char>(r + 0.5);
-          outPtr[1] = static_cast<unsigned char>(g + 0.5);
-          outPtr[2] = static_cast<unsigned char>(b + 0.5);
-          outPtr[3] = static_cast<unsigned char>(a + 0.5);
-          outPtr += 4;
-          inPtr += numComp;
-          }
-        while (--idx);
-
-        outPtr += outIncY;
-        inPtr += inIncY;
+        // Pixel operation
+        F r = (inPtr[0] + shift)*scale;
+        F g = (inPtr[1] + shift)*scale;
+        F b = (inPtr[2] + shift)*scale;
+        F a = (inPtr[3] + shift)*scale;
+        r = vtkImageMapperClamp(r, vmin, vmax);
+        g = vtkImageMapperClamp(g, vmin, vmax);
+        b = vtkImageMapperClamp(b, vmin, vmax);
+        a = vtkImageMapperClamp(a, vmin, vmax);
+        outPtr[0] = static_cast<unsigned char>(r + 0.5);
+        outPtr[1] = static_cast<unsigned char>(g + 0.5);
+        outPtr[2] = static_cast<unsigned char>(b + 0.5);
+        outPtr[3] = static_cast<unsigned char>(a + 0.5);
+        outPtr += 4;
+        inPtr += inIncX;
         }
-      outPtr += outIncZ;
-      inPtr += inIncZ;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::ConvertImageScalarsToRGBA(
-  void *inPtr, unsigned char *outPtr, const int extent[6],
-  int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
+void vtkImageMapperConvertImageScalarsToRGBA(
+  void *inPtr, unsigned char *outPtr, int ncols, int nrows,
+  int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY,
   int scalarType, double scalarRange[2])
 {
   double shift = -scalarRange[0];
@@ -780,8 +598,8 @@ void vtkImageMapper3D::ConvertImageScalarsToRGBA(
       static_cast<int>((255 + shift)*scale) == 255)
     {
     vtkImageMapperConvertToRGBA(static_cast<unsigned char *>(inPtr),
-                                outPtr, extent, numComp,
-                                inIncY, inIncZ, outIncY, outIncZ);
+                                outPtr, ncols, nrows, numComp,
+                                inIncX, inIncY, outIncY);
     }
   else
     {
@@ -789,9 +607,8 @@ void vtkImageMapper3D::ConvertImageScalarsToRGBA(
       {
       vtkTemplateAliasMacro(
         vtkImageMapperShiftScale(static_cast<VTK_TT*>(inPtr),
-                                 outPtr, extent, numComp,
-                                 inIncY, inIncZ, outIncY, outIncZ,
-                                 shift, scale));
+                                 outPtr, ncols, nrows, numComp,
+                                 inIncX, inIncY, outIncY, shift, scale));
       default:
         vtkGenericWarningMacro(
           "ConvertImageScalarsToRGBA: Unknown input ScalarType");
@@ -800,141 +617,177 @@ void vtkImageMapper3D::ConvertImageScalarsToRGBA(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::ApplyLookupTableToImageScalars(
-  void *inPtr, unsigned char *outPtr, const int extent[6],
-  int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
+template<class T>
+void vtkImageMapperMakeContiguous(
+  const T *inPtr, T *outPtr, int ncols, int numComp, vtkIdType inIncX)
+{
+  if (numComp == 1)
+    {
+    for (int idx = 0; idx < ncols; idx++)
+      {
+      *outPtr = *inPtr;
+      outPtr++;
+      inPtr += inIncX;
+      }
+    }
+  else
+    {
+    inIncX -= numComp;
+    for (int idx = 0; idx < ncols; idx++)
+      {
+      int idc = numComp;
+      do { *outPtr++ = *inPtr++; } while (--idc);
+      inPtr += inIncX;
+      }
+    }
+}
+
+void vtkImageMapperApplyLookupTableToImageScalars(
+  void *inPtr, unsigned char *outPtr, int ncols, int nrows,
+  int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY,
   int scalarType, vtkScalarsToColors *lookupTable)
 {
   // number of values per row of input image
-  int rowLength = extent[1] - extent[0] + 1;
   int scalarSize = vtkDataArray::GetDataTypeSize(scalarType);
 
-  // convert incY from continuous increment to regular increment
-  outIncY += 4*rowLength;
-  inIncY += numComp*rowLength;
+  // convert incs from continuous increments to regular increment
+  outIncY += 4*ncols;
+  inIncY += inIncX*ncols;
   inIncY *= scalarSize;
-  inIncZ *= scalarSize;
+
+  // if data not contiguous, make a temporary array
+  void *newPtr = 0;
+  if (inIncX > static_cast<vtkIdType>(numComp))
+    {
+    newPtr = malloc(scalarSize*numComp*ncols);
+    }
 
   // loop through the data and copy it for the texture
-  for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+  for (int idy = 0; idy < nrows; idy++)
     {
-    for (int idxY = extent[2]; idxY <= extent[3]; idxY++)
+    void *tmpPtr = inPtr;
+
+    // make contiguous if necessary
+    if (inIncX > static_cast<vtkIdType>(numComp))
       {
-      if (numComp == 1)
+      tmpPtr = newPtr;
+
+      if (scalarSize == 1)
         {
-        lookupTable->MapScalarsThroughTable(
-          inPtr, outPtr, scalarType, rowLength, numComp, VTK_RGBA);
+        vtkImageMapperMakeContiguous(
+          static_cast<char *>(inPtr), static_cast<char *>(tmpPtr),
+          ncols, numComp, inIncX);
+        }
+      else if (scalarSize == 2)
+        {
+        vtkImageMapperMakeContiguous(
+          static_cast<short *>(inPtr), static_cast<short *>(tmpPtr),
+          ncols, numComp, inIncX);
+        }
+      else if (scalarSize == 4)
+        {
+        vtkImageMapperMakeContiguous(
+          static_cast<float *>(inPtr), static_cast<float *>(tmpPtr),
+          ncols, numComp, inIncX);
         }
       else
         {
-        lookupTable->MapVectorsThroughTable(
-          inPtr, outPtr, scalarType, rowLength, numComp, VTK_RGBA);
+        vtkImageMapperMakeContiguous(
+          static_cast<double *>(inPtr), static_cast<double *>(tmpPtr),
+          ncols, numComp*(scalarSize >> 3), inIncX*(scalarSize >> 3));
         }
-
-      outPtr += outIncY;
-      inPtr = static_cast<void *>(static_cast<char *>(inPtr) + inIncY);
       }
-    outPtr += outIncZ;
-    inPtr = static_cast<void *>(static_cast<char *>(inPtr) + inIncZ);
+
+    // pass the data through the lookup table
+    if (numComp == 1)
+      {
+      lookupTable->MapScalarsThroughTable(
+        tmpPtr, outPtr, scalarType, ncols, numComp, VTK_RGBA);
+      }
+    else
+      {
+      lookupTable->MapVectorsThroughTable(
+        tmpPtr, outPtr, scalarType, ncols, numComp, VTK_RGBA);
+      }
+
+    outPtr += outIncY;
+    inPtr = static_cast<void *>(static_cast<char *>(inPtr) + inIncY);
+    }
+
+  if (newPtr)
+    {
+    free(newPtr);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::CheckerboardRGBA(
-  unsigned char *data, int xsize, int ysize,
-  double originx, double originy, double spacingx, double spacingy)
+struct vtkImageMapperThreadStruct
 {
-  static double maxval = 2147483647;
-  static double minval = -2147483647;
+  void *InputPtr;
+  unsigned char *OutputPtr;
+  int ImageSize[2];
+  int ScalarType;
+  int NumComp;
+  vtkIdType InIncX;
+  vtkIdType InIncY;
+  vtkIdType OutIncX;
+  vtkIdType OutIncY;
+  double Range[2];
+  vtkScalarsToColors *LookupTable;
+};
 
-  originx = (originx > minval ? originx : minval);
-  originx = (originx < maxval ? originx : maxval);
-  originy = (originy > minval ? originy : minval);
-  originy = (originy < maxval ? originy : maxval);
+VTK_THREAD_RETURN_TYPE vtkImageMapperMapColors(void *arg)
+{
+  vtkMultiThreader::ThreadInfo *mtti =
+    static_cast<vtkMultiThreader::ThreadInfo *>(arg);
+  int threadId = mtti->ThreadID;
+  int threadCount = mtti->NumberOfThreads;
 
-  spacingx = fabs(spacingx);
-  spacingy = fabs(spacingy);
+  vtkImageMapperThreadStruct *imts =
+    static_cast<vtkImageMapperThreadStruct *>(mtti->UserData);
 
-  spacingx = (spacingx < maxval ? spacingx : maxval);
-  spacingy = (spacingy < maxval ? spacingy : maxval);
-  spacingx = (spacingx != 0 ? spacingx : maxval);
-  spacingy = (spacingy != 0 ? spacingy : maxval);
+  int ncols = imts->ImageSize[0];
+  int nrows = imts->ImageSize[1];
+  int scalarSize = vtkDataArray::GetDataTypeSize(imts->ScalarType);
 
-  int xn = static_cast<int>(spacingx);
-  int yn = static_cast<int>(spacingy);
-  double fx = spacingx - xn;
-  double fy = spacingy - yn;
-
-  int state = 0;
-  int tmpstate = ~state;
-  double spacing2x = 2*spacingx;
-  double spacing2y = 2*spacingy;
-  originx -= ceil(originx/spacing2x)*spacing2x;
-  while (originx < 0) { originx += spacing2x; }
-  originy -= ceil(originy/spacing2y)*spacing2y;
-  while (originy < 0) { originy += spacing2y; }
-  double tmporiginx = originx - spacingx;
-  originx = (tmporiginx < 0 ? originx : tmporiginx);
-  state = (tmporiginx < 0 ? state : tmpstate);
-  tmpstate = ~state;
-  double tmporiginy = originy - spacingy;
-  originy = (tmporiginy < 0 ? originy : tmporiginy);
-  state = (tmporiginy < 0 ? state : tmpstate);
-  
-  int xm = static_cast<int>(originx);
-  int savexm = xm;
-  int ym = static_cast<int>(originy);
-  double gx = originx - xm;
-  double savegx = gx;
-  double gy = originy - ym;
-
-  int inc = 4;
-  data += (inc - 1);
-  for (int j = 0; j < ysize;)
+  // only split in vertical direction
+  if (threadCount > nrows)
     {
-    double tmpy = gy - 1.0;
-    gy = (tmpy < 0 ? gy : tmpy);
-    int yextra = (tmpy >= 0);
-    ym += yextra;
-    int ry = ysize - j;
-    ym = (ym < ry ? ym : ry);
-    j += ym;
-
-    for (; ym; --ym)
+    threadCount = nrows;
+    if (threadId >= threadCount)
       {
-      tmpstate = state;
-      xm = savexm;
-      gx = savegx;
-
-      for (int i = 0; i < xsize;)
-        {
-        double tmpx = gx - 1.0;
-        gx = (tmpx < 0 ? gx : tmpx);
-        int xextra = (tmpx >= 0);
-        xm += xextra;
-        int rx = xsize - i;
-        xm = (xm < rx ? xm : rx);
-        i += xm;
-        if ( (tmpstate & xm) ) 
-          {
-          do
-            {
-            *data = 0;
-            data += inc;
-            }
-          while (--xm);
-          }
-        data += inc*xm;
-        xm = xn;
-        tmpstate = ~tmpstate;
-        gx += fx;
-        }
+      return VTK_THREAD_RETURN_VALUE;
       }
+    }
 
-   ym = yn;
-   state = ~state;
-   gy += fy;
-   }  
+  // adjust pointers
+  int firstRow = threadId*nrows/threadCount;
+  int lastRow = (threadId+1)*nrows/threadCount;
+  void *inputPtr = static_cast<char *>(imts->InputPtr) +
+                   (imts->InIncX*ncols + imts->InIncY)*firstRow*scalarSize;
+  unsigned char *outputPtr = imts->OutputPtr +
+                   (imts->OutIncX*ncols + imts->OutIncY)*firstRow;
+  nrows = lastRow - firstRow;
+
+  // reformat the data for use as a texture
+  if (imts->LookupTable)
+    {
+    // apply a lookup table
+    vtkImageMapperApplyLookupTableToImageScalars(
+      inputPtr, outputPtr, ncols, nrows,
+      imts->NumComp, imts->InIncX, imts->InIncY, imts->OutIncY,
+      imts->ScalarType, imts->LookupTable);
+    }
+  else
+    {
+    // no lookup table, do a shift/scale calculation
+    vtkImageMapperConvertImageScalarsToRGBA(
+      inputPtr, outputPtr, ncols, nrows,
+      imts->NumComp, imts->InIncX, imts->InIncY, imts->OutIncY,
+      imts->ScalarType, imts->Range);
+    }
+
+  return VTK_THREAD_RETURN_VALUE;
 }
 
 //----------------------------------------------------------------------------
@@ -964,9 +817,6 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
   // compute image size and texture size from extent
   this->ComputeTextureSize(
     extent, xdim, ydim, imageSize, textureSize);
-
-  // will be set if the extent represents contiguous memory
-  bool contiguous = false;
 
   // number of components
   int numComp = input->GetNumberOfScalarComponents();
@@ -1031,7 +881,6 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
          (xdim == 0 && ydim == 2 && dataExtent[2] == dataExtent[3] &&
           extent[0] == dataExtent[0] && extent[1] == dataExtent[1]) )
       {
-      contiguous = true;
       // if contiguous and correct data type, use data as-is
       if (inputIsColors && reuseData)
         {
@@ -1048,48 +897,56 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
 
   // output increments
   vtkIdType outIncY = bytesPerPixel*(xsize - imageSize[0]);
-  vtkIdType outIncZ = 0;
-  if (ydim == 2)
-    {
-    outIncZ = outIncY;
-    outIncY = 0;
-    }
 
   // input pointer and increments
-  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType inInc[3];
   void *inPtr = input->GetScalarPointerForExtent(extent);
-  input->GetContinuousIncrements(extent, inIncX, inIncY, inIncZ);
+  input->GetIncrements(inInc);
+  vtkIdType inIncX = inInc[xdim];
+  vtkIdType inIncY = inInc[ydim] - inInc[xdim]*imageSize[0];
 
   // convert Window/Level to a scalar range
   double range[2];
   range[0] = colorLevel - 0.5*colorWindow;
   range[1] = colorLevel + 0.5*colorWindow;
 
-  // reformat the data for use as a texture
-  if (lookupTable)
+  if (lookupTable && property && !property->GetUseLookupTableScalarRange())
     {
-    // apply a lookup table
-    if (property && !property->GetUseLookupTableScalarRange())
-      {
-      // no way to do this without modifying the table
-      lookupTable->SetRange(range);
-      }
+    // no way to do this without modifying the table
+    lookupTable->SetRange(range);
+    }
 
-    this->ApplyLookupTableToImageScalars(inPtr, outPtr, extent, numComp,
-                                         inIncY, inIncZ, outIncY, outIncZ,
-                                         scalarType, lookupTable);
-    }
-  else if (!inputIsColors) // no lookup table, do a shift/scale calculation
+  if (inputIsColors && !lookupTable)
     {
-    this->ConvertImageScalarsToRGBA(inPtr, outPtr, extent, numComp,
-                                    inIncY, inIncZ, outIncY, outIncZ,
-                                    scalarType, range);
+    // just copy the data
+    vtkImageMapperCopy(static_cast<unsigned char *>(inPtr), outPtr,
+                       imageSize[0], imageSize[1], numComp,
+                       inIncX, inIncY, outIncY);
     }
-  else // just copy the data
+  else
     {
-    vtkImageMapperCopy(static_cast<unsigned char *>(inPtr),
-                       outPtr, extent, numComp,
-                       inIncY, inIncZ, outIncY, outIncZ);
+    // do a multi-threaded conversion
+    vtkImageMapperThreadStruct imts;
+    imts.InputPtr = inPtr;
+    imts.OutputPtr = outPtr;
+    imts.ImageSize[0] = imageSize[0];
+    imts.ImageSize[1] = imageSize[1];
+    imts.ScalarType = scalarType;
+    imts.NumComp = numComp;
+    imts.InIncX = inIncX;
+    imts.InIncY = inIncY;
+    imts.OutIncX = 4;
+    imts.OutIncY = outIncY;
+    imts.Range[0] = range[0];
+    imts.Range[1] = range[1];
+    imts.LookupTable = lookupTable;
+
+    int numThreads = this->NumberOfThreads;
+    numThreads = ((numThreads <= imageSize[1]) ? numThreads : imageSize[1]);
+
+    this->Threader->SetNumberOfThreads(numThreads);
+    this->Threader->SetSingleMethod(&vtkImageMapperMapColors, &imts);
+    this->Threader->SingleMethodExecute();
     }
 
   return outPtr;
@@ -1098,8 +955,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
 //----------------------------------------------------------------------------
 // Compute the coords and tcoords for the image
 void vtkImageMapper3D::MakeTextureGeometry(
-  vtkImageData *input, const int extent[6], int border,
-  double coords[12], double tcoords[8])
+  const int extent[6], double coords[12], double tcoords[8])
 {
   int xdim, ydim;
   int imageSize[2];
@@ -1110,8 +966,9 @@ void vtkImageMapper3D::MakeTextureGeometry(
     extent, xdim, ydim, imageSize, textureSize);
 
   // get spacing/origin for the quad coordinates
-  double *spacing = input->GetSpacing();
-  double *origin = input->GetOrigin();
+  double *spacing = this->DataSpacing;
+  double *origin = this->DataOrigin;
+  int border = this->Border;
 
   // compute the world coordinates of the quad
   coords[0] = extent[0]*spacing[0] + origin[0];
@@ -1221,4 +1078,131 @@ void vtkImageMapper3D::GetSlicePlaneInDataCoords(
   normal[1] /= l;
   normal[2] /= l;
   normal[3] /= l;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMapper3D::GetBackgroundColor(
+  vtkImageProperty *property, double color[4])
+{
+  color[0] = 0.0;
+  color[1] = 0.0;
+  color[2] = 0.0;
+  color[3] = 1.0;
+
+  if (property)
+    {
+    vtkScalarsToColors *table = property->GetLookupTable();
+    if (table)
+      {
+      double v = property->GetColorLevel() - 0.5*property->GetColorWindow();
+      if (property->GetUseLookupTableScalarRange())
+        {
+        v = table->GetRange()[0];
+        }
+      table->GetColor(v, color);
+      color[3] = table->GetOpacity(v);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMapper3D::CheckerboardRGBA(
+  unsigned char *data, int xsize, int ysize,
+  double originx, double originy, double spacingx, double spacingy)
+{
+  static double tol = 7.62939453125e-06;
+  static double maxval = 2147483647;
+  static double minval = -2147483647;
+
+  originx += 1.0 + tol;
+  originy += 1.0 + tol;
+
+  originx = (originx > minval ? originx : minval);
+  originx = (originx < maxval ? originx : maxval);
+  originy = (originy > minval ? originy : minval);
+  originy = (originy < maxval ? originy : maxval);
+
+  spacingx = fabs(spacingx);
+  spacingy = fabs(spacingy);
+
+  spacingx = (spacingx < maxval ? spacingx : maxval);
+  spacingy = (spacingy < maxval ? spacingy : maxval);
+  spacingx = (spacingx != 0 ? spacingx : maxval);
+  spacingy = (spacingy != 0 ? spacingy : maxval);
+
+  int xn = static_cast<int>(spacingx + tol);
+  int yn = static_cast<int>(spacingy + tol);
+  double fx = spacingx - xn;
+  double fy = spacingy - yn;
+
+  int state = 0;
+  int tmpstate = ~state;
+  double spacing2x = 2*spacingx;
+  double spacing2y = 2*spacingy;
+  originx -= ceil(originx/spacing2x)*spacing2x;
+  while (originx < 0) { originx += spacing2x; }
+  originy -= ceil(originy/spacing2y)*spacing2y;
+  while (originy < 0) { originy += spacing2y; }
+  double tmporiginx = originx - spacingx;
+  originx = (tmporiginx < 0 ? originx : tmporiginx);
+  state = (tmporiginx < 0 ? state : tmpstate);
+  tmpstate = ~state;
+  double tmporiginy = originy - spacingy;
+  originy = (tmporiginy < 0 ? originy : tmporiginy);
+  state = (tmporiginy < 0 ? state : tmpstate);
+  
+  int xm = static_cast<int>(originx);
+  int savexm = xm;
+  int ym = static_cast<int>(originy);
+  double gx = originx - xm;
+  double savegx = gx;
+  double gy = originy - ym;
+
+  int inc = 4;
+  data += (inc - 1);
+  for (int j = 0; j < ysize;)
+    {
+    double tmpy = gy - 1.0;
+    gy = (tmpy < 0 ? gy : tmpy);
+    int yextra = (tmpy >= 0);
+    ym += yextra;
+    int ry = ysize - j;
+    ym = (ym < ry ? ym : ry);
+    j += ym;
+
+    for (; ym; --ym)
+      {
+      tmpstate = state;
+      xm = savexm;
+      gx = savegx;
+
+      for (int i = 0; i < xsize;)
+        {
+        double tmpx = gx - 1.0;
+        gx = (tmpx < 0 ? gx : tmpx);
+        int xextra = (tmpx >= 0);
+        xm += xextra;
+        int rx = xsize - i;
+        xm = (xm < rx ? xm : rx);
+        i += xm;
+        if ( (tmpstate & xm) ) 
+          {
+          do
+            {
+            *data = 0;
+            data += inc;
+            }
+          while (--xm);
+          }
+        data += inc*xm;
+        xm = xn;
+        tmpstate = ~tmpstate;
+        gx += fx;
+        }
+      }
+
+   ym = yn;
+   state = ~state;
+   gy += fy;
+   }  
 }

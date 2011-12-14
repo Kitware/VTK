@@ -94,11 +94,7 @@ def create_vtk_array(vtk_arr_type):
     """Internal function used to create a VTK data array from another
     VTK array given the VTK array type.
     """
-    tmp = vtk.vtkDataArray.CreateDataArray(vtk_arr_type)
-    # We need to manually dereference objects created with anything
-    # but the constructor.
-    tmp.UnRegister(None)
-    return tmp
+    return vtk.vtkDataArray.CreateDataArray(vtk_arr_type)
 
 
 def numpy_to_vtk(num_array, deep=0, array_type=None):
@@ -164,9 +160,6 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     result_array.SetVoidArray(z_flat, len(z_flat), 1)
     if deep:
         copy = result_array.NewInstance()
-        # NewInstance sets the refcount to 2 and this causes a severe
-        # memory leak.
-        copy.UnRegister(None)
         copy.DeepCopy(result_array)
         result_array = copy
     return result_array

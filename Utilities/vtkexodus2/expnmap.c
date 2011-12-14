@@ -151,7 +151,7 @@ int ex_put_num_map ( int exoid,
      ex_err("ex_put_num_map",errmsg,exerrval);
      return (EX_FATAL);
    }
-   num_maps = (int)num_entries;
+   num_maps = num_entries;
 
    /* Keep track of the total number of maps defined using a counter stored
       in a linked list keyed by exoid.
@@ -169,7 +169,7 @@ int ex_put_num_map ( int exoid,
    }
 
    /*   NOTE: ex_inc_file_item  is used to find the number of maps
-        for a specific file and returns that value incremented. */
+  for a specific file and returns that value incremented. */
    cur_num_maps = ex_inc_file_item(exoid, ex_get_counter_list(map_type));
 
    /* write out information to previously defined variable */
@@ -215,8 +215,8 @@ int ex_put_num_map ( int exoid,
   default:
     exerrval = 1005;
     sprintf(errmsg,
-            "Internal Error: unrecognized map type in switch: %d in file id %d",
-            map_type,exoid);
+      "Internal Error: unrecognized map type in switch: %d in file id %d",
+      map_type,exoid);
     ex_err("ex_putt_n_one_attr",errmsg,EX_MSG);
     return (EX_FATAL);
    }
@@ -228,14 +228,14 @@ int ex_put_num_map ( int exoid,
 
        /* determine number of entries */
        if ((status = nc_inq_dimid (exoid, dnumentries, &dimid)) == -1 )
-         {
-           exerrval = status;
-           sprintf(errmsg,
-                   "Error: couldn't determine number of %s entries in file id %d",
-                   ex_name_of_object(map_type),exoid);
-           ex_err("ex_put_num_map",errmsg,exerrval);
-           return (EX_FATAL);
-         }
+   {
+     exerrval = status;
+     sprintf(errmsg,
+       "Error: couldn't determine number of %s entries in file id %d",
+       ex_name_of_object(map_type),exoid);
+     ex_err("ex_put_num_map",errmsg,exerrval);
+     return (EX_FATAL);
+   }
        
        status = 0;
        

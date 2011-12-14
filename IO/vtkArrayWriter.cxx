@@ -27,6 +27,7 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <vtksys/ios/sstream>
 
 namespace {
 
@@ -337,7 +338,8 @@ vtkStandardNewMacro(vtkArrayWriter);
 
 vtkArrayWriter::vtkArrayWriter() :
   FileName(0),
-  Binary(false)
+  Binary(false),
+  WriteToOutputString(false)
 {
 }
 
@@ -351,6 +353,8 @@ void vtkArrayWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Binary: " << this->Binary << endl;
+  os << indent << "WriteToOutputString: " << (this->WriteToOutputString ? "on" : "off") << endl;
+  os << indent << "OutputString: " << this->OutputString << endl;
 }
 
 int vtkArrayWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformation* info)
@@ -361,7 +365,14 @@ int vtkArrayWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformati
 
 void vtkArrayWriter::WriteData()
 {
-  this->Write(this->FileName ? this->FileName : "", this->Binary > 0 ? true : false);
+  if(this->WriteToOutputString)
+    {
+    this->OutputString = this->Write(this->Binary > 0 ? true : false);    
+    }
+  else
+    {
+    this->Write(this->FileName ? this->FileName : "", this->Binary > 0 ? true : false);
+    }
 }
 
 int vtkArrayWriter::Write()
@@ -449,4 +460,16 @@ bool vtkArrayWriter::Write(vtkArray* array, ostream& stream, bool WriteBinary)
   return false;
 }
 
+vtkStdString vtkArrayWriter::Write(bool WriteBinary)
+{
+  std::ostringstream oss;
+  this->Write(oss, WriteBinary);
+  return oss.str();
+}
 
+vtkStdString vtkArrayWriter::Write(vtkArray* array, bool WriteBinary)
+{
+  std::ostringstream oss;
+  vtkArrayWriter::Write(array, oss, WriteBinary);
+  return oss.str();
+}

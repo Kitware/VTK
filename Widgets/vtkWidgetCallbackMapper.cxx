@@ -17,7 +17,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkWidgetCallbackMapper);
 
@@ -35,11 +35,11 @@ struct vtkCallbackPair
 
 
 // The map tracks the correspondance between widget events and callbacks
-class vtkCallbackMap : public vtkstd::map<unsigned long, vtkCallbackPair>
+class vtkCallbackMap : public std::map<unsigned long, vtkCallbackPair>
 {
 public:
   typedef vtkCallbackMap CallbackMapType;
-  typedef vtkstd::map<unsigned long, vtkCallbackPair >::iterator CallbackMapIterator;
+  typedef std::map<unsigned long, vtkCallbackPair >::iterator CallbackMapIterator;
 };    
 
 

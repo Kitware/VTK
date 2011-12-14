@@ -31,6 +31,7 @@ SET (HL_HEADERS
     ${HDF5_HL_SRC_SOURCE_DIR}/H5PTpublic.h
     ${HDF5_HL_SRC_SOURCE_DIR}/H5TBpublic.h
     ${HDF5_HL_SRC_SOURCE_DIR}/hdf5_hl.h
+    ${HDF5_HL_SRC_SOURCE_DIR}/vtk_libhdf5_hl_mangle.h
 )
 
 ADD_LIBRARY (${HDF5_HL_LIB_TARGET} ${LIB_TYPE} ${HL_SRCS} ${HL_HEADERS})

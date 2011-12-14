@@ -156,7 +156,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
         vtkDoubleArray  *subField = vtkDoubleArray::New();
         vtkPoints       *subPointSet = vtkPoints::New();
         vtkDoubleArray  *subCoordinates = vtkDoubleArray::New();
-        std::vector<int> meshToSubMeshMap(inputMesh->GetNumberOfPoints());
+        std::vector<vtkIdType> meshToSubMeshMap(inputMesh->GetNumberOfPoints());
 
         subCoordinates->SetNumberOfComponents(3);
         subField->SetNumberOfComponents(1);
@@ -186,7 +186,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
               vtkTriangle::SafeDownCast(inputMesh->GetCell(tId));
 
 
-            std::vector<int> vertices(3);
+            std::vector<vtkIdType> vertices(3);
             std::vector<double *> points(3);
 
             for(int k = 0; k < 3; k++)
@@ -197,9 +197,8 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
                 // add also its scalar value to the subField
                 points[k] = (double *) malloc(sizeof(double)*3);
                 inputMesh->GetPoint(vertices[k], points[k]);
-                subCoordinates->InsertNextTupleValue(points[k]);
                 meshToSubMeshMap[vertices[k]] =
-                  subCoordinates->GetNumberOfTuples();
+                  subCoordinates->InsertNextTupleValue(points[k]);
                 double scalarFieldValue =
                   scalarField->GetComponent(vertices[k], 0);
                 subField->InsertNextTupleValue(&scalarFieldValue);
@@ -267,7 +266,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
             vtkContourFilter *contourFilter = vtkContourFilter::New();
 
             contourFilter->SetNumberOfContours(1);
-            contourFilter->SetValue(i, minValue + 
+            contourFilter->SetValue(0, minValue + 
               (i + 1.0)*(maxValue - minValue)/(((double)NumberOfSamples) + 1.0));
             contourFilter->SetInput(subMesh);
             contourFilter->Update();

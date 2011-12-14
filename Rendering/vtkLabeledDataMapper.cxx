@@ -34,12 +34,12 @@
 #include "vtkTransform.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vtkstd/map>
+#include <map>
 
 class vtkLabeledDataMapper::Internals
 {
 public:
-  vtkstd::map<int, vtkSmartPointer<vtkTextProperty> > TextProperties;
+  std::map<int, vtkSmartPointer<vtkTextProperty> > TextProperties;
 };
 
 vtkStandardNewMacro(vtkLabeledDataMapper);
@@ -261,7 +261,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
   // Check for property updates.
   unsigned long propMTime = 0;
-  vtkstd::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
+  std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
   for (; it != itEnd; ++it)
@@ -687,7 +687,7 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input: (none)\n";
     }
 
-  vtkstd::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
+  std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
   for (; it != itEnd; ++it)
@@ -784,7 +784,7 @@ unsigned long
 vtkLabeledDataMapper::GetMTime()
 {
   unsigned long mtime = this->Superclass::GetMTime();
-  vtkstd::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
+  std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
   for (; it != itEnd; ++it)

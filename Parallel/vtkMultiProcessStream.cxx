@@ -16,13 +16,13 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkSocketCommunicator.h" // for vtkSwap8 and vtkSwap4 macros.
-#include <vtkstd/deque>
+#include <deque>
 #include <assert.h>
 
 class vtkMultiProcessStream::vtkInternals
 {
 public:
-  typedef vtkstd::deque<unsigned char> DataType;
+  typedef std::deque<unsigned char> DataType;
   DataType Data;
 
   enum Types
@@ -228,7 +228,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (vtkTypeUInt64 value)
 }
 
 //----------------------------------------------------------------------------
-vtkMultiProcessStream& vtkMultiProcessStream::operator << (const vtkstd::string& value)
+vtkMultiProcessStream& vtkMultiProcessStream::operator << (const std::string& value)
 {
   // Find the real string size
   int size = static_cast<int>(value.size());
@@ -374,7 +374,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkTypeUInt64 &value)
 }
 
 //----------------------------------------------------------------------------
-vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkstd::string& value)
+vtkMultiProcessStream& vtkMultiProcessStream::operator >> (std::string& value)
 {
   value = "";
   assert(this->Internals->Data.front() == vtkInternals::string_value);
@@ -393,7 +393,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkstd::string& value
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessStream::GetRawData(vtkstd::vector<unsigned char>& data) const
+void vtkMultiProcessStream::GetRawData(std::vector<unsigned char>& data) const
 {
   data.clear();
   data.push_back(this->Endianness);
@@ -408,11 +408,11 @@ void vtkMultiProcessStream::GetRawData(vtkstd::vector<unsigned char>& data) cons
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessStream::SetRawData(const vtkstd::vector<unsigned char>& data)
+void vtkMultiProcessStream::SetRawData(const std::vector<unsigned char>& data)
 {
   this->Internals->Data.clear();
   unsigned char endianness = data.front();
-  vtkstd::vector<unsigned char>::const_iterator iter = data.begin();
+  std::vector<unsigned char>::const_iterator iter = data.begin();
   iter++;
   this->Internals->Data.resize(data.size()-1);
   int cc=0;

@@ -18,6 +18,7 @@ vtkPolyDataMapper foheMapper
     foheMapper SetInputConnection [normals GetOutputPort]
 vtkLODActor foheActor
     foheActor SetMapper foheMapper
+    [foheActor GetProperty] SetDiffuseColor 0.7 0.3 0.0
 
 vtkOutlineFilter outline
     outline SetInputConnection [normals GetOutputPort]
@@ -29,10 +30,9 @@ vtkActor outlineActor
 
 # Create the RenderWindow, Renderer, and setup viewports
 vtkCamera camera
-    camera SetClippingRange 1.60187 20.0842
-    camera SetFocalPoint 0.21406 1.5 0
-    camera SetPosition 11.63 6.32 5.77
-    camera SetViewUp 0.180325 0.549245 -0.815974
+    camera SetClippingRange 1.0 100.0
+    camera SetFocalPoint 0.9 1.0 0.0
+    camera SetPosition 11.63 6.0 10.77
 vtkLight light
     light SetFocalPoint 0.21406 1.5 0
     light SetPosition 8.3761 4.94858 4.12505
@@ -67,6 +67,7 @@ vtkCubeAxesActor axes2
     axes2 SetYLabelFormat "%6.1f"
     axes2 SetZLabelFormat "%6.1f"
     axes2 SetFlyModeToClosestTriad
+    axes2 SetScreenSize 20.0
 ren2 AddViewProp axes2
 renWin Render
 

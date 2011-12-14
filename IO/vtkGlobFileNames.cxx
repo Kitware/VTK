@@ -19,9 +19,9 @@
 
 #include <vtksys/Glob.hxx>
 #include <vtksys/SystemTools.hxx>
-#include <vtkstd/string>
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
+#include <string>
+#include <vector>
+#include <algorithm>
 
 
 //----------------------------------------------------------------------------
@@ -107,11 +107,11 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
     return 0;
     }
 
-  vtkstd::string fullPattern = this->Pattern;
+  std::string fullPattern = this->Pattern;
 
   if (this->Directory && this->Directory[0] != '\0')
     {
-    vtkstd::vector<vtkstd::string> components;
+    std::vector<std::string> components;
     vtksys::SystemTools::SplitPath(fullPattern.c_str(), components);
     // If Pattern is a relative path, prepend with Directory
     if (components[0] == "")
@@ -130,13 +130,13 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
     }
 
   // copy the filenames from glob
-  vtkstd::vector<vtkstd::string> files = glob.GetFiles();
+  std::vector<std::string> files = glob.GetFiles();
 
   // sort them lexicographically
-  vtkstd::sort(files.begin(), files.end());
+  std::sort(files.begin(), files.end());
   
   // add them onto the list of filenames
-  for ( vtkstd::vector<vtkstd::string>::const_iterator iter = files.begin();
+  for ( std::vector<std::string>::const_iterator iter = files.begin();
         iter != files.end();
         iter++)
     {

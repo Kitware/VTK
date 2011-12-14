@@ -20,7 +20,7 @@
 #ifndef __vtkDatabaseToTableReader_h
 #define __vtkDatabaseToTableReader_h
 
-#include <vtkstd/string> // STL Header
+#include <string> // STL Header
 #include "vtkTableReader.h"
 
 class vtkSQLDatabase;
@@ -54,7 +54,7 @@ protected:
                           vtkInformationVector *) = 0;
   vtkSQLDatabase *Database;
   //BTX
-  vtkstd::string TableName;
+  std::string TableName;
   //ETX
 private:
   vtkDatabaseToTableReader(const vtkDatabaseToTableReader&);  // Not implemented.

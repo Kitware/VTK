@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    QVTKWidget.cxx
+  Module:    QVTKInteractorAdapter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -34,7 +34,6 @@
 
 #include "QVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
-#include "QVTKWidget.h" // for event types.  needs change?
 
 #include <QEvent>
 #include <QSignalMapper>
@@ -245,7 +244,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
 
     // invoke event and pass qt event for additional data as well
-    iren->InvokeEvent(QVTKWidget::ContextMenuEvent, e2);
+    iren->InvokeEvent(QVTKInteractor::ContextMenuEvent, e2);
 
     return true;
     }
@@ -255,7 +254,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QDragEnterEvent* e2 = static_cast<QDragEnterEvent*>(e);
 
     // invoke event and pass qt event for additional data as well
-    iren->InvokeEvent(QVTKWidget::DragEnterEvent, e2);
+    iren->InvokeEvent(QVTKInteractor::DragEnterEvent, e2);
 
     return true;
     }
@@ -265,7 +264,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QDragLeaveEvent* e2 = static_cast<QDragLeaveEvent*>(e);
 
     // invoke event and pass qt event for additional data as well
-    iren->InvokeEvent(QVTKWidget::DragLeaveEvent, e2);
+    iren->InvokeEvent(QVTKInteractor::DragLeaveEvent, e2);
 
     return true;
     }
@@ -278,7 +277,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     iren->SetEventInformationFlipY(e2->pos().x(), e2->pos().y());
 
     // invoke event and pass qt event for additional data as well
-    iren->InvokeEvent(QVTKWidget::DragMoveEvent, e2);
+    iren->InvokeEvent(QVTKInteractor::DragMoveEvent, e2);
     return true;
     }
 
@@ -290,7 +289,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     iren->SetEventInformationFlipY(e2->pos().x(), e2->pos().y());
 
     // invoke event and pass qt event for additional data as well
-    iren->InvokeEvent(QVTKWidget::DropEvent, e2);
+    iren->InvokeEvent(QVTKInteractor::DropEvent, e2);
     return true;
     }
 

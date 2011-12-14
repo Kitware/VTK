@@ -87,6 +87,7 @@ int TestImageResliceMapperOffAxis(int argc, char* argv[])
       imageMapper->GetSlicePlane()->SetNormal(normal);
       imageMapper->SliceAtFocalPointOn();
       imageMapper->BorderOn();
+      imageMapper->SetResampleToScreenPixels((i >= 2));
 
       vtkImageSlice *image = vtkImageSlice::New();
       image->SetProperty(property);

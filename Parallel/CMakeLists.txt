@@ -4,7 +4,7 @@ SET(KIT_TCL_LIBS vtkIOTCL)
 SET(KIT_PYTHON_LIBS vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkIOJava)
 SET(KIT_INTERFACE_LIBRARIES vtkIO)
-SET(KIT_LIBS VPIC Cosmo)
+SET(KIT_LIBS VPIC Cosmo LSDyna)
 IF(VTK_USE_RENDERING)
   SET(KIT_TCL_LIBS vtkRenderingTCL ${KIT_TCL_LIBS})
   SET(KIT_PYTHON_LIBS vtkRenderingPythonD ${KIT_PYTHON_LIBS})
@@ -62,6 +62,7 @@ vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
 vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
+vtkPMaskPoints.cxx
 vtkPNrrdReader.cxx
 vtkPOPReader.cxx
 vtkPOpenFOAMReader.cxx
@@ -72,11 +73,13 @@ vtkPProbeFilter.cxx
 vtkProcess.cxx
 vtkProcessGroup.cxx
 vtkProcessIdScalars.cxx
+vtkPLSDynaReader.cxx
 vtkPReflectionFilter.cxx
 vtkPSLACReader.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkPTableToStructuredGrid.cxx
+vtkPYoungsMaterialInterface.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
@@ -151,12 +154,13 @@ ENDIF(VTK_USE_RENDERING)
 IF (VTK_USE_MPI)
   INCLUDE (FindMPI)
 
-  INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
+  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
+    vtkPNetCDFPOPReader.cxx
     )
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")

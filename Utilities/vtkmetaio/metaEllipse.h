@@ -26,9 +26,9 @@
  *    Reads and Writes MetaEllipseFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date May 22, 2002
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaObject.h
@@ -56,9 +56,9 @@ class METAIO_EXPORT MetaEllipse : public MetaObject
     ////
     MetaEllipse(void);
 
-    MetaEllipse(const char *_headerName);   
+    MetaEllipse(const char *_headerName);
 
-    MetaEllipse(const MetaEllipse *_ellipse);    
+    MetaEllipse(const MetaEllipse *_ellipse);
 
     MetaEllipse(unsigned int dim);
 
@@ -69,7 +69,7 @@ class METAIO_EXPORT MetaEllipse : public MetaObject
     void CopyInfo(const MetaObject * _object);
 
     void  Clear(void);
-    
+
     void  Radius(const float* radius);
     void  Radius(float radius);
     void  Radius(float r1,float r2);

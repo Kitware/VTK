@@ -41,39 +41,43 @@ public:
 
   // Description:
   // Set the piecewise function to draw its points
-  void SetPiecewiseFunction(vtkPiecewiseFunction* function);
+  virtual void SetPiecewiseFunction(vtkPiecewiseFunction* function);
   // Description
   // Get the piecewise function
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
+
+  // Description:
+  // Add a point to the function. Returns the index of the point (0 based),
+  // or -1 on error.
+  // Subclasses should reimplement this function to do the actual work.
+  virtual vtkIdType AddPoint(double* newPos);
+
+  // Description:
+  // Remove a point of the function. Returns the index of the point (0 based),
+  // or -1 on error.
+  // Subclasses should reimplement this function to do the actual work.
+  virtual vtkIdType RemovePoint(double* pos);
+
+  // Description:
+  // Controls whether or not control points are drawn (true) or clicked and
+  // moved (false).
+  // False by default.
+  vtkSetMacro(StrokeMode, bool);
 
 protected:
   vtkPiecewiseControlPointsItem();
   virtual ~vtkPiecewiseControlPointsItem();
 
-  // Description:
-  // Reimplemented to extract the control points from the piecewise function
-  virtual void ComputePoints();
+  virtual void emitEvent(unsigned long event, void* params = 0);
 
-  // Description:
-  // Returns true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  virtual unsigned long int GetControlPointsMTime();
 
-  // Description:
-  // Mouse move event.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button down event.
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button release event.
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  virtual vtkIdType GetNumberOfPoints()const;
+  virtual void GetControlPoint(vtkIdType index, double *point)const;
+  virtual void SetControlPoint(vtkIdType index, double *point);
+  virtual void EditPoint(float tX, float tY);
 
   vtkPiecewiseFunction* PiecewiseFunction;
-
-  float     ButtonPressPosition[2];
-  vtkIdType MouseOver;
 
 private:
   vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &); // Not implemented.

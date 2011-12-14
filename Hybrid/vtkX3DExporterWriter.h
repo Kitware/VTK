@@ -38,6 +38,34 @@ public:
   // Opens the file specified with file
   // returns 1 if sucessfull otherwise 0
   virtual int OpenFile(const char* file) = 0;
+
+  // Description:
+  // Init data support to be a stream instead of a file
+  virtual int OpenStream() = 0;
+
+  // Description:
+  // Enable writing to an OutputString instead of the default, a file.
+  vtkSetMacro(WriteToOutputString,int);
+  vtkGetMacro(WriteToOutputString,int);
+  vtkBooleanMacro(WriteToOutputString,int);
+
+  // Description:
+  // When WriteToOutputString in on, then a string is allocated, written to,
+  // and can be retrieved with these methods.  The string is deleted during
+  // the next call to write ...
+  vtkGetMacro(OutputStringLength, int);
+  vtkGetStringMacro(OutputString);
+  unsigned char *GetBinaryOutputString()
+    {
+      return reinterpret_cast<unsigned char *>(this->OutputString);
+    }
+
+  // Description:
+  // This convenience method returns the string, sets the IVAR to NULL,
+  // so that the user is responsible for deleting the string.
+  // I am not sure what the name should be, so it may change in the future.
+  char *RegisterAndGetOutputString();
+
   // Closes the file if open
   virtual void CloseFile() = 0;
   // Flush can be called optionally after some operations to
@@ -67,7 +95,7 @@ public:
   // Sets the field specified with attributeID
   // of the active node to the given value.
   // The type of the field is SFString and MFString
-  //virtual void SetField(int attributeID, const vtkstd::string &value) = 0;
+  //virtual void SetField(int attributeID, const std::string &value) = 0;
   virtual void SetField(int attributeID, const char* value, bool mfstring = false) = 0;
   
   // Description:
@@ -129,10 +157,14 @@ public:
   // of the active node to the given value.
   // The type of the field is specified with type
   // Supported types: MFString
-  //virtual void SetField(int attributeID, int type, vtkstd::string) = 0;
+  //virtual void SetField(int attributeID, int type, std::string) = 0;
 protected:
   vtkX3DExporterWriter();
   ~vtkX3DExporterWriter();
+
+  char *OutputString;
+  int OutputStringLength;
+  int WriteToOutputString;
 
 private:
   vtkX3DExporterWriter(const vtkX3DExporterWriter&); // Not implemented.

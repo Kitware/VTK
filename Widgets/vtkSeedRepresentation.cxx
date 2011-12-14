@@ -24,16 +24,16 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
-#include <vtkstd/iterator>
-#include <vtkstd/list>
+#include <iterator>
+#include <list>
 
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
 // The vtkHandleList is a PIMPLed list<T>.
-class vtkHandleList : public vtkstd::list<vtkHandleRepresentation*> {};
-typedef vtkstd::list<vtkHandleRepresentation*>::iterator vtkHandleListIterator;
+class vtkHandleList : public std::list<vtkHandleRepresentation*> {};
+typedef std::list<vtkHandleRepresentation*>::iterator vtkHandleListIterator;
 
 
 //----------------------------------------------------------------------
@@ -72,7 +72,7 @@ vtkHandleRepresentation *vtkSeedRepresentation
   if ( num < this->Handles->size() )
     {
     vtkHandleListIterator iter = this->Handles->begin();
-    vtkstd::advance(iter,num);
+    std::advance(iter,num);
     return (*iter);
     }
   else //create one
@@ -98,7 +98,7 @@ void vtkSeedRepresentation::GetSeedWorldPosition(unsigned int seedNum, double po
     return;
     }
   vtkHandleListIterator iter = this->Handles->begin();
-  vtkstd::advance(iter,seedNum);
+  std::advance(iter,seedNum);
   (*iter)->GetWorldPosition(pos);
 }
 
@@ -111,7 +111,7 @@ void vtkSeedRepresentation::SetSeedDisplayPosition(unsigned int seedNum, double 
     return;
     }
   vtkHandleListIterator iter = this->Handles->begin();
-  vtkstd::advance(iter,seedNum);
+  std::advance(iter,seedNum);
   (*iter)->SetDisplayPosition(pos);
 }
 
@@ -124,7 +124,7 @@ void vtkSeedRepresentation::GetSeedDisplayPosition(unsigned int seedNum, double 
     return;
     }
   vtkHandleListIterator iter = this->Handles->begin();
-  vtkstd::advance(iter,seedNum);
+  std::advance(iter,seedNum);
   (*iter)->GetDisplayPosition(pos);
 }
 
@@ -216,7 +216,7 @@ void vtkSeedRepresentation::RemoveHandle( int n )
     }
 
   vtkHandleListIterator iter = this->Handles->begin();
-  vtkstd::advance( iter, n );
+  std::advance( iter, n );
   vtkHandleRepresentation *hr = *iter;
   this->Handles->erase( iter );
   hr->Delete();
@@ -232,7 +232,7 @@ void vtkSeedRepresentation::RemoveActiveHandle()
   if ( this->ActiveHandle >= 0 && this->ActiveHandle < static_cast<int>(this->Handles->size()) )
     {
     vtkHandleListIterator iter = this->Handles->begin();
-    vtkstd::advance( iter, this->ActiveHandle );
+    std::advance( iter, this->ActiveHandle );
     vtkHandleRepresentation *hr = *iter;
     this->Handles->erase( iter );
     hr->Delete();

@@ -45,17 +45,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkDescriptiveStatistics_h
 #define __vtkDescriptiveStatistics_h
 
-#include "vtkUnivariateStatisticsAlgorithm.h"
+#include "vtkStatisticsAlgorithm.h"
 
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDescriptiveStatistics, vtkUnivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkDescriptiveStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDescriptiveStatistics* New();
 
@@ -92,16 +92,6 @@ public:
   vtkBooleanMacro(SignedDeviations,int);
 
   // Description:
-  // A convenience method (in particular for UI wrapping) to set the name of the
-  // column that contains the nominal value for the Assess option.
-  void SetNominalParameter( const char* name );
-
-  // Description:
-  // A convenience method (in particular for UI wrapping) to set the name of the
-  // column that contains the deviation for the Assess option.
-  void SetDeviationParameter( const char* name );
-
-  // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
                           vtkMultiBlockDataSet* );
@@ -113,9 +103,9 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option, given some input Data
   // NB: input parameters are unused.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  virtual void Learn( vtkTable*,
+                      vtkTable*,
+                      vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Derive option.
@@ -123,14 +113,16 @@ protected:
 
   // Description:
   // Execute the calculations required by the Test option.
-  virtual void Test( vtkTable* inData,
-                     vtkMultiBlockDataSet* inMeta,
-                     vtkTable* outMeta ); 
+  virtual void Test( vtkTable*,
+                     vtkMultiBlockDataSet*,
+                     vtkTable* ); 
 
-  int UnbiasedVariance;
-  int G1Skewness;
-  int G2Kurtosis;
-  int SignedDeviations;
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData ) 
+  { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
 //BTX  
   // Description:
@@ -140,6 +132,11 @@ protected:
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
 //ETX
+
+  int UnbiasedVariance;
+  int G1Skewness;
+  int G2Kurtosis;
+  int SignedDeviations;
 
 private:
   vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ); // Not implemented

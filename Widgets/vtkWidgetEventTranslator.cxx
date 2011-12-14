@@ -21,8 +21,8 @@
 #include "vtkEvent.h"
 #include "vtkSmartPointer.h"
 #include "vtkAbstractWidget.h"
-#include <vtkstd/map>
-#include <vtkstd/list>
+#include <map>
+#include <list>
 
 vtkStandardNewMacro(vtkWidgetEventTranslator);
 
@@ -32,7 +32,6 @@ struct EventItem {
   vtkSmartPointer< vtkEvent > VTKEvent;
   unsigned long WidgetEvent;
 
-  EventItem() : VTKEvent(NULL) {}
   EventItem(vtkEvent *e, unsigned long we)
     {
     this->VTKEvent    = e;
@@ -41,11 +40,11 @@ struct EventItem {
 };
 
 // A list of events
-struct EventList : public vtkstd::list<EventItem> 
+struct EventList : public std::list<EventItem>
 {
   unsigned long find(unsigned long VTKEvent)
     {
-    vtkstd::list<EventItem>::iterator liter = this->begin();
+    std::list<EventItem>::iterator liter = this->begin();
     for ( ; liter != this->end(); ++liter)
       {
       if ( VTKEvent == liter->VTKEvent->GetEventId() )
@@ -58,7 +57,7 @@ struct EventList : public vtkstd::list<EventItem>
 
   unsigned long find(vtkEvent *VTKEvent)
     {
-    vtkstd::list<EventItem>::iterator liter = this->begin();
+    std::list<EventItem>::iterator liter = this->begin();
     for ( ; liter != this->end(); ++liter)
       {
       if ( *VTKEvent == liter->VTKEvent )
@@ -72,7 +71,7 @@ struct EventList : public vtkstd::list<EventItem>
   // Remove a mapping
   int Remove( vtkEvent *VTKEvent )
     {
-    vtkstd::list<EventItem>::iterator liter = this->begin();
+    std::list<EventItem>::iterator liter = this->begin();
     for ( ; liter != this->end(); ++liter)
       {
       if ( *VTKEvent == liter->VTKEvent )
@@ -91,8 +90,8 @@ struct EventList : public vtkstd::list<EventItem>
 // that we have this list is because of the modifiers on the event. The
 // VTK event id maps to the list, and then comparisons are done to 
 // determine which event matches.
-class vtkEventMap : public vtkstd::map<unsigned long, EventList> {};
-typedef vtkstd::map<unsigned long,EventList>::iterator EventMapIterator;
+class vtkEventMap : public std::map<unsigned long, EventList> {};
+typedef std::map<unsigned long,EventList>::iterator EventMapIterator;
   
 //----------------------------------------------------------------------------
 vtkWidgetEventTranslator::vtkWidgetEventTranslator()
@@ -273,6 +272,14 @@ int vtkWidgetEventTranslator::RemoveTranslation(unsigned long VTKEvent)
 }
 
 //----------------------------------------------------------------------------
+int vtkWidgetEventTranslator::RemoveTranslation(const char *VTKEvent)
+{
+  vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
+  e->SetEventId(vtkCommand::GetEventIdFromString(VTKEvent));
+  return this->RemoveTranslation( e );
+}
+
+//----------------------------------------------------------------------------
 void vtkWidgetEventTranslator::ClearEvents()
 {
   EventMapIterator iter = this->EventMap->begin();
@@ -320,7 +327,7 @@ void vtkWidgetEventTranslator::PrintSelf(ostream& os, vtkIndent indent)
   for ( ; iter != this->EventMap->end(); ++iter )
     {
     EventList &elist = (*iter).second;
-    vtkstd::list<EventItem>::iterator liter = elist.begin();
+    std::list<EventItem>::iterator liter = elist.begin();
     for ( ; liter != elist.end(); ++liter)
       {
       os << "VTKEvent(" << vtkCommand::GetStringFromEventId(liter->VTKEvent->GetEventId()) << ","

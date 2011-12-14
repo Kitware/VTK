@@ -44,7 +44,7 @@
 #define __vtkOffsetsManagerArray_h
 
 #include "vtkSystemIncludes.h"
-#include <vtkstd/vector>
+#include <vector>
 #include <assert.h>
 
 //----------------------------------------------------------------------------
@@ -104,11 +104,11 @@ private:
   // and slow, but if another couple offsets are added then we should
   // consider doing it
   // Position in the stream to write the offset
-  vtkstd::vector<OffsetType> Positions; 
-  vtkstd::vector<OffsetType> RangeMinPositions; // Where is this
-  vtkstd::vector<OffsetType> RangeMaxPositions; // Whee is this
+  std::vector<OffsetType> Positions;
+  std::vector<OffsetType> RangeMinPositions; // Where is this
+  std::vector<OffsetType> RangeMaxPositions; // Whee is this
 
-  vtkstd::vector<OffsetType> OffsetValues;    // Value of offset
+  std::vector<OffsetType> OffsetValues;    // Value of offset
 };
 
 //----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ public:
       }
     }
 private:
-  vtkstd::vector<OffsetsManager> Internals;
+  std::vector<OffsetsManager> Internals;
 };
 
 //----------------------------------------------------------------------------
@@ -191,7 +191,7 @@ public:
       }
     }
 private:
-  vtkstd::vector<OffsetsManagerGroup> Internals;
+  std::vector<OffsetsManagerGroup> Internals;
 };
 
 #endif

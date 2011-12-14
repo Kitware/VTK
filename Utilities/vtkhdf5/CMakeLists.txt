@@ -285,7 +285,27 @@ ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
 # Compiler specific flags : Shouldn't there be compiler tests for these
 #-----------------------------------------------------------------------------
 IF (NOT WIN32)
-  SET (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} -std=c99 -fomit-frame-pointer -finline-functions -fno-common")
+  include(CheckCCompilerFlag)
+  
+  check_c_compiler_flag(-std=c99 HAVE_STD_C99)
+  check_c_compiler_flag(-fomit-frame-pointer HAVE_OMIT_FRAME_POINTER)
+  check_c_compiler_flag(-finline-functions HAVE_INLINE_FUNCTIONS)
+  check_c_compiler_flag(-fno-common HAVE_NO_COMMON)
+  string(REGEX MATCH "clang" COMP_IS_CLANG "${CMAKE_C_COMPILER}")
+  if(HAVE_STD_C99 AND NOT COMP_IS_CLANG)
+    set(STD_C99 "-std=c99")
+  endif()
+  if(HAVE_OMIT_FRAME_POINTER)
+    set(OMIT_FRAME_POINTER "-fomit-frame-pointer")
+  endif()
+  if(HAVE_INLINE_FUNCTIONS)
+    set(INLINE_FUNCTIONS "-finline-functions")
+  endif()
+  if(HAVE_NO_COMMON)
+    set(NO_COMMON "-fno-common")
+  endif()
+
+  SET (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} ${STD_C99} ${OMIT_FRAME_POINTER} ${INLINE_FUNCTIONS} ${NO_COMMON}")
 ENDIF (NOT WIN32)
 
 #-----------------------------------------------------------------------------

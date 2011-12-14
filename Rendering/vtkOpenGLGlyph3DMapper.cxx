@@ -42,7 +42,7 @@
 #include "vtkHardwareSelectionPolyDataPainter.h"
 
 #include <assert.h>
-#include <vtkstd/vector>
+#include <vector>
 #include "vtkgl.h"
 
 vtkStandardNewMacro(vtkOpenGLGlyph3DMapper);
@@ -58,7 +58,7 @@ static T vtkClamp(T val, T min, T max)
 class vtkOpenGLGlyph3DMapperArray
 {
 public:
-  vtkstd::vector<vtkSmartPointer<vtkPainterPolyDataMapper > > Mappers;
+  std::vector<vtkSmartPointer<vtkPainterPolyDataMapper > > Mappers;
 };
 
 // ---------------------------------------------------------------------------

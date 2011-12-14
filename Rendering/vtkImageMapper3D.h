@@ -31,12 +31,14 @@
 
 class vtkRenderer;
 class vtkProp3D;
+class vtkPoints;
 class vtkMatrix4x4;
 class vtkLookupTable;
 class vtkScalarsToColors;
 class vtkImageSlice;
 class vtkImageProperty;
 class vtkImageData;
+class vtkMultiThreader;
 class vtkImageToImageMapper3DFriendship;
 
 class VTK_RENDERING_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
@@ -72,6 +74,15 @@ public:
   vtkGetMacro(Border, int);
 
   // Description:
+  // Instead of rendering only to the image border, render out
+  // to the viewport boundary with the background color.  The
+  // background color will be the lowest color on the lookup
+  // table that is being used for the image.
+  vtkSetMacro(Background, int);
+  vtkBooleanMacro(Background, int);
+  vtkGetMacro(Background, int);
+
+  // Description:
   // Automatically set the slice position to the camera focal point.
   // This provides a convenient way to interact with the image, since
   // most Interactors directly control the camera.
@@ -102,6 +113,11 @@ public:
   virtual void GetSlicePlaneInDataCoords(vtkMatrix4x4 *propMatrix,
                                          double plane[4]);
 
+  // Description:
+  // The number of threads to create when rendering.
+  vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
+  vtkGetMacro(NumberOfThreads, int);
+
 protected:
   vtkImageMapper3D();
   ~vtkImageMapper3D();
@@ -116,24 +132,6 @@ protected:
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
-
-
-  // Description:
-  // Apply a lookup table to the slice specified by the extent, and
-  // put only that slice into the output as RGBA.
-  static void ApplyLookupTableToImageScalars(
-    void *inPtr, unsigned char *outPtr, const int extent[6],
-    int numComponents, int inIncY, int inIncZ, int outIncY, int outIncZ,
-    int scalarType, vtkScalarsToColors *lookupTable);
-
-  // Description:
-  // Copy the specified extent from the input to the output, and convert
-  // to RGBA at the same time by adjusting the scalar range to [0,255]
-  // and adding an alpha component.
-  static void ConvertImageScalarsToRGBA(
-    void *inPtr, unsigned char *outPtr, const int extent[6],
-    int numComp, int inIncY, int inIncZ, int outIncY, int outIncZ,
-    int scalarType, double scalarRange[2]);
 
   // Description:
   // Checkerboard the alpha component of an RGBA image.  The origin and
@@ -155,8 +153,7 @@ protected:
   // Compute the coordinates and texture coordinates for the image, given
   // an extent that describes a single slice.
   void MakeTextureGeometry(
-    vtkImageData *input, const int extent[6], int border,
-    double coords[12], double tcoords[8]);
+    const int extent[6], double coords[12], double tcoords[8]);
 
   // Description:
   // Given an extent that describes a slice (it must have unit thickness
@@ -167,24 +164,6 @@ protected:
   virtual void ComputeTextureSize(
     const int extent[6], int &xdim, int &ydim,
     int imageSize[2], int textureSize[2]);
-
-  // Description:
-  // Check the texture size.
-  virtual bool TextureSizeOK(const int size[2]);
-
-  // Description:
-  // Called by RecursiveRenderTexturedPolygon, overriden by subclasses.
-  virtual void RenderTexturedPolygon(
-    vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
-    vtkImageData *image, int extent[6], bool recursive);
-
-  // Description:
-  // Recursive internal method, will call the non-recursive method
-  // as many times as necessary if the texture must be broken up into
-  // pieces that are small enough for the GPU to render
-  virtual void RecursiveRenderTexturedPolygon(
-    vtkRenderer *ren, vtkProp3D *prop, vtkImageProperty *property,
-    vtkImageData *image, int extent[6], bool recursive);
 
   // Description:
   // Get the renderer associated with this mapper, or zero if none.
@@ -200,8 +179,16 @@ protected:
   // assembly path for its prop.
   vtkMatrix4x4 *GetDataToWorldMatrix();
 
+  // Description:
+  // Get the background color, by using the first color in the
+  // supplied lookup table, or black if there is no lookup table.
+  void GetBackgroundColor(vtkImageProperty *property, double color[4]);
+
   int Border;
-  vtkLookupTable *DefaultLookupTable;
+  int Background;
+  vtkScalarsToColors *DefaultLookupTable;
+  vtkMultiThreader *Threader;
+  int NumberOfThreads;
 
   // The slice.
   vtkPlane *SlicePlane;
@@ -221,12 +208,10 @@ protected:
 private:
   // The prop this mapper is attached to, or zero if none.
   vtkImageSlice *CurrentProp;
+  vtkRenderer *CurrentRenderer;
 
   // The cached data-to-world matrix
   vtkMatrix4x4 *DataToWorldMatrix;
-
-  // Set by vtkImageSlice if a render is in progress
-  bool InRender;
 
   vtkImageMapper3D(const vtkImageMapper3D&);  // Not implemented.
   void operator=(const vtkImageMapper3D&);  // Not implemented.

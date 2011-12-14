@@ -40,7 +40,7 @@ public:
   
   // Description:
   // Get the number of bytes required for the output C array.
-  int GetDataMemorySize();
+  vtkIdType GetDataMemorySize();
 
   // Description:
   // Get the (x,y,z) index dimensions of the data.  Please note

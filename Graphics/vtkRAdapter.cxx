@@ -39,7 +39,7 @@
 #include "vtkArrayData.h"
 #include "vtkDataObjectCollection.h"
 
-#include <vtkstd/map>
+#include <map>
 
 #include <stdio.h>
 #include <assert.h>

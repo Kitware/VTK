@@ -15,7 +15,9 @@
 #include "vtkQuaternionInterpolator.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
-#include <vtkstd/vector>
+#include <vector>
+
+#define VTKQUATERNIONINTERPOLATOR_TOLERNCE 1e-6
 
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
@@ -111,7 +113,7 @@ struct vtkQuaternion
       q[0] = vtkMath::DegreesFromRadians( q[0] );
     }
   // compute unit vector where q is a unit quaternion
-  static void UnitVector(double q[4], double &theta, double &sinTheta, 
+  static void UnitVector(double q[4], double &theta, double &sinTheta,
                          double &cosTheta, double v[3])
     {
       double norm = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
@@ -163,7 +165,7 @@ struct vtkQuaternion
 };
 
 // The list is arranged in increasing order in T
-class vtkQuaternionList : public vtkstd::vector<vtkQuaternion> {};
+class vtkQuaternionList : public std::vector<vtkQuaternion> {};
 typedef vtkQuaternionList::iterator QuaternionListIterator;
 
 //----------------------------------------------------------------------------
@@ -262,7 +264,7 @@ void vtkQuaternionInterpolator::AddQuaternion(double t, double q[4])
       break;
       }
     }//for not in the right spot
-  
+
   this->Modified();
 }
 
@@ -283,7 +285,7 @@ void vtkQuaternionInterpolator::RemoveQuaternion(double t)
     {
     this->QuaternionList->erase(iter);
     }
-  
+
   this->Modified();
 }
 
@@ -291,12 +293,29 @@ void vtkQuaternionInterpolator::RemoveQuaternion(double t)
 //Interpolate using spherical linear interpolation between the quaternions q0
 //and q1 to produce the output q. The parametric coordinate t is [0,1] and
 //lies between (q0,q1).
-void vtkQuaternionInterpolator::Slerp(double t, double q0[4], double q1[4], 
+void vtkQuaternionInterpolator::Slerp(double t, double q0[4], double q1[4],
                                       double q[4])
 {
-  double theta = acos( vtkMath::Dot(q0+1,q1+1) );
-  double t1 = sin((1.0-t)*theta)/sin(theta);
-  double t2 = sin(t*theta)/sin(theta);
+  const double dot = vtkMath::Dot(q0+1,q1+1);
+  double t1, t2;
+
+  // To avoid division by zero, perform a linear interpolation (LERP), if our
+  // quarternions are nearly in the same direction, otherwise resort
+  // to spherical linear interpolation. In the limiting case (for small
+  // angles), SLERP is equivalent to LERP.
+
+  if ((1.0 - fabs(dot)) < VTKQUATERNIONINTERPOLATOR_TOLERNCE)
+    {
+    t1 = 1.0-t;
+    t2 = t;
+    }
+  else
+    {
+    const double theta = acos( dot );
+    t1 = sin((1.0-t)*theta)/sin(theta);
+    t2 = sin(t*theta)/sin(theta);
+    }
+
   q[0] = q0[0]*t1 + q1[0]*t2;
   q[1] = q0[1]*t1 + q1[1]*t2;
   q[2] = q0[2]*t1 + q1[2]*t2;
@@ -305,14 +324,14 @@ void vtkQuaternionInterpolator::Slerp(double t, double q0[4], double q1[4],
 
 
 //----------------------------------------------------------------------------
-void vtkQuaternionInterpolator::InnerPoint(double q0[4], double q1[4], 
+void vtkQuaternionInterpolator::InnerPoint(double q0[4], double q1[4],
                                            double q2[4], double q[4])
 {
    double qInv[4], qL[4], qR[4];
    vtkQuaternion::Inverse(q1,qInv);
    vtkQuaternion::Product(qInv,q2,qL);
    vtkQuaternion::Product(qInv,q0,qR);
-  
+
    double qLLog[4], qRLog[4], qSum[4], qExp[4];
    vtkQuaternion::UnitLog(qL, qLLog);
    vtkQuaternion::UnitLog(qR, qRLog);
@@ -354,13 +373,13 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
       {
       if ( iter->Time <= t && t <= nextIter->Time )
         {
-        double T = (t - iter->Time) / (nextIter->Time - iter->Time); 
+        double T = (t - iter->Time) / (nextIter->Time - iter->Time);
         this->Slerp(T,iter->Q,nextIter->Q,q);
         break;
         }
       }
     }//if linear quaternion interpolation
-  
+
   else // this->InterpolationType == INTERPOLATION_TYPE_SPLINE
     {
     QuaternionListIterator iter = this->QuaternionList->begin();
@@ -374,11 +393,11 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
       {
       if ( iter->Time <= t && t <= nextIter->Time )
         {
-        T = (t - iter->Time) / (nextIter->Time - iter->Time); 
+        T = (t - iter->Time) / (nextIter->Time - iter->Time);
         break;
         }
       }
-    
+
     double ai[4], bi[4], qc[4], qd[4];
     if ( i == 0 ) //initial interval
       {
@@ -390,7 +409,7 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
       ai[1] = iter1->QUnit[1];
       ai[2] = iter1->QUnit[2];
       ai[3] = iter1->QUnit[3];
-      
+
       this->InnerPoint(iter1->QUnit, iter2->QUnit, iter3->QUnit, bi);
       }
     else if ( i == (numQuats-2) ) //final interval
@@ -433,8 +452,8 @@ void vtkQuaternionInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "There are " << this->GetNumberOfQuaternions()
      << " quaternions to be interpolated\n";
-  
-  os << indent << "Interpolation Type: " 
+
+  os << indent << "Interpolation Type: "
      << (this->InterpolationType == INTERPOLATION_TYPE_LINEAR ?
          "Linear\n" : "Spline\n");
 }

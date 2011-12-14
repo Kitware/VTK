@@ -19,14 +19,14 @@
 
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkMutableDirectedGraph.h"
-#include <vtkstd/limits>
+#include <limits>
 #include "vtkSmartPointer.h"
 
 #include <vector>
 
 template<class A>
 bool fuzzyCompare(A a, A b) {
-  return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
+  return fabs(a - b) < std::numeric_limits<A>::epsilon();
 }
 
 int TestGetEdgeId();
@@ -93,8 +93,8 @@ int TestToDirectedGraph()
   vtkIdType v1 = ug->AddVertex();
   vtkIdType v2 = ug->AddVertex();
 
-  vtkEdgeType e0 = ug->AddEdge(v0, v1);
-  vtkEdgeType e1 = ug->AddEdge(v1, v2);
+  ug->AddEdge(v0, v1);
+  ug->AddEdge(v1, v2);
 
   // Convert it to a directed graph
   vtkSmartPointer<vtkMutableDirectedGraph> dg =
@@ -120,8 +120,8 @@ int TestToUndirectedGraph()
   vtkIdType v1 = dg->AddVertex();
   vtkIdType v2 = dg->AddVertex();
 
-  vtkEdgeType e0 = dg->AddEdge(v0, v1);
-  vtkEdgeType e1 = dg->AddEdge(v1, v2);
+  dg->AddEdge(v0, v1);
+  dg->AddEdge(v1, v2);
 
   // Convert it to an undirected graph
   vtkSmartPointer<vtkMutableUndirectedGraph> ug =

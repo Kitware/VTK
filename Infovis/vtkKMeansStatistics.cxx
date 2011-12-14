@@ -636,8 +636,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
     }
 
   // Add a column to the output data related to the each input datum wrt the model in the request.
-  // Column names of the metadata and input data are assumed to match (no mapping using
-  // AssessNames or AssessParameters is done).
+  // Column names of the metadata and input data are assumed to match.
   // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)" where
   // "A", "B", and "C" are the column names specified in the per-request metadata tables.
   AssessFunctor* dfunc = 0;

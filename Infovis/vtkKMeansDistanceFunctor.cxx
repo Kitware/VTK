@@ -93,7 +93,7 @@ void vtkKMeansDistanceFunctor::PerturbElement(
 {
   double numInRange = static_cast<double>( endRunID-startRunID );
   vtkIdType dimension = newClusterElements->GetNumberOfColumns();
-  vtkstd::vector<double> perturbedValues( dimension );
+  std::vector<double> perturbedValues( dimension );
 
   for( vtkIdType i = startRunID; i < endRunID; i++)
     {

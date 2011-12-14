@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStdString.h"
 
-#include <vtkstd/set>
+#include <set>
  
 int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 {
@@ -37,11 +37,11 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   // 2. Check the schema
 
   // Define the correct (reference) columns and types
-  vtkstd::set<vtkStdString> preNames;
+  std::set<vtkStdString> preNames;
   preNames.insert( vtkStdString( "dropplpgsql" ) );
   preNames.insert( vtkStdString( "loadplpgsql" ) );
   preNames.insert( vtkStdString( "createsomefunction" ) );
-  vtkstd::multiset<vtkStdString> preBackends;
+  std::multiset<vtkStdString> preBackends;
   preBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
   preBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
   preBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
@@ -61,7 +61,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << preName
          << "\n";
 
-    vtkstd::set<vtkStdString>::iterator sit = preNames.find( preName );
+    std::set<vtkStdString>::iterator sit = preNames.find( preName );
     if ( sit != preNames.end() )
       {
       preNames.erase ( sit );
@@ -77,7 +77,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << preBackend
          << "\n";
 
-    vtkstd::multiset<vtkStdString>::iterator mit = preBackends.find( preBackend );
+    std::multiset<vtkStdString>::iterator mit = preBackends.find( preBackend );
     if ( mit != preBackends.end() )
       {
       preBackends.erase ( mit );
@@ -90,11 +90,11 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     }
 
   // Define the correct (reference) columns and types
-  vtkstd::set<vtkStdString> colNames;
+  std::set<vtkStdString> colNames;
   colNames.insert( vtkStdString( "somenmbr" ) );
   colNames.insert( vtkStdString( "somename" ) );
   colNames.insert( vtkStdString( "tablekey" ) );
-  vtkstd::set<int> colTypes;
+  std::set<int> colTypes;
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::BIGINT ) );
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::SERIAL ) );
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::VARCHAR ) );
@@ -115,7 +115,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << colName
          << "\n";
 
-    vtkstd::set<vtkStdString>::iterator sit = colNames.find( colName );
+    std::set<vtkStdString>::iterator sit = colNames.find( colName );
     if ( sit != colNames.end() )
       {
       colNames.erase ( sit );
@@ -131,7 +131,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << colType
          << "\n";
 
-    vtkstd::set<int>::iterator iit = colTypes.find( colType );
+    std::set<int>::iterator iit = colTypes.find( colType );
     if ( iit != colTypes.end() )
       {
       colTypes.erase ( iit );
@@ -144,10 +144,10 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     }
 
   // Define the correct (reference) indices and types
-  vtkstd::set<vtkStdString> idxNames;
+  std::set<vtkStdString> idxNames;
   idxNames.insert( vtkStdString ( "bigkey" ) );
   idxNames.insert( vtkStdString ( "reverselookup" ) );
-  vtkstd::set<int> idxTypes;
+  std::set<int> idxTypes;
   idxTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::PRIMARY_KEY ) );
   idxTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::UNIQUE ) );
 
@@ -166,7 +166,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << idxName
          << "\n";
 
-    vtkstd::set<vtkStdString>::iterator sit = idxNames.find( idxName );
+    std::set<vtkStdString>::iterator sit = idxNames.find( idxName );
     if ( sit != idxNames.end() )
       {
       idxNames.erase ( sit );
@@ -182,7 +182,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << idxType
          << "\n";
 
-    vtkstd::set<int>::iterator iit = idxTypes.find( idxType );
+    std::set<int>::iterator iit = idxTypes.find( idxType );
     if ( iit != idxTypes.end() )
       {
       idxTypes.erase ( iit );
@@ -195,22 +195,22 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     }
 
   // Define the correct (reference) triggers and types
-  vtkstd::multiset<vtkStdString> trgNames;
+  std::multiset<vtkStdString> trgNames;
   trgNames.insert( vtkStdString ( "inserttrigger" ) );
   trgNames.insert( vtkStdString ( "inserttrigger" ) );
   trgNames.insert( vtkStdString ( "inserttrigger" ) );
 
-  vtkstd::multiset<int> trgTypes;
+  std::multiset<int> trgTypes;
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
 
-  vtkstd::multiset<vtkStdString> trgActions;
+  std::multiset<vtkStdString> trgActions;
   trgActions.insert( vtkStdString( "DO NOTHING" ) );
   trgActions.insert( vtkStdString( "FOR EACH ROW INSERT INTO btable SET somevalue = NEW.somenmbr" ) );
   trgActions.insert( vtkStdString( "FOR EACH ROW EXECUTE PROCEDURE somefunction ()" ) );
 
-  vtkstd::multiset<vtkStdString> trgBackends;
+  std::multiset<vtkStdString> trgBackends;
   trgBackends.insert( vtkStdString( VTK_SQL_MYSQL ) );
   trgBackends.insert( vtkStdString( VTK_SQL_SQLITE ) );
   trgBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
@@ -230,7 +230,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << trgName
          << "\n";
 
-    vtkstd::multiset<vtkStdString>::iterator sit = trgNames.find( trgName );
+    std::multiset<vtkStdString>::iterator sit = trgNames.find( trgName );
     if ( sit != trgNames.end() )
       {
       trgNames.erase ( sit );
@@ -246,7 +246,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << trgType
          << "\n";
 
-    vtkstd::multiset<int>::iterator iit = trgTypes.find( trgType );
+    std::multiset<int>::iterator iit = trgTypes.find( trgType );
     if ( iit != trgTypes.end() )
       {
       trgTypes.erase ( iit );

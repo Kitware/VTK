@@ -32,6 +32,177 @@
 
 #include "vtkOpenGLContextDevice2D.h"
 
+#include "vtkColor.h"
+#include "vtkTextProperty.h"
+#include "vtkFreeTypeTools.h"
+#include <algorithm>
+#include <list>
+#include <utility>
+
+// .NAME vtkTextureImageCache - store vtkTexture and vtkImageData identified by
+// a unique key.
+// .SECTION Description
+// Creating and initializing a texture can be time consuming,
+// vtkTextureImageCache offers the ability to reuse them as much as possible.
+template <class Key>
+class vtkTextureImageCache
+{
+public:
+  struct CacheData
+  {
+    vtkSmartPointer<vtkImageData> ImageData;
+    vtkSmartPointer<vtkTexture>   Texture;
+  };
+
+  // Description:
+  // CacheElement associates a unique key to some cache.
+  struct CacheElement: public std::pair<Key, CacheData>
+  {
+    // Default constructor
+    CacheElement()
+      : std::pair<Key, CacheData>(Key(), CacheData()){}
+    // Construct a partial CacheElement with no CacheData
+    // This can be used for temporary CacheElement used to search a given
+    // key into the cache list.
+    CacheElement(const Key& key)
+      : std::pair<Key, CacheData>(key, CacheData()){}
+    // Standard constructor of CacheElement
+    CacheElement(const Key& key, const CacheData& cacheData)
+      : std::pair<Key, CacheData>(key, cacheData){}
+    // Operator tuned to be used when searching into the cache list using
+    // std::find()
+    bool operator==(const CacheElement& other)const
+    {
+      // Here we cheat and make the comparison only on the key, this allows
+      // us to use std::find() to search for a given key.
+      return this->first == other.first;
+    }
+  };
+
+  // Description:
+  // Construct a texture image cache with a maximum number of texture of 50.
+  vtkTextureImageCache()
+  {
+    this->MaxSize = 50;
+  }
+
+  // Description:
+  // Search the cache list to see if a given key already exists. Returns true
+  // if the key is found, false otherwise.
+  bool IsKeyInCache(const Key& key)const
+  {
+    return std::find(this->Cache.begin(), this->Cache.end(), key) != this->Cache.end();
+  }
+
+  // Description:
+  // Return the cache associated to a key. If the key doesn't exist yet in the
+  // cache list, create a new cache.
+  // The returned cache is moved at the begining of the cache list for faster
+  // search next time. The most use cache is faster to be searched.
+  CacheData& GetCacheData(const Key& key);
+
+  // Description:
+  // Release all the OpenGL Pixel Buffer Object(PBO) associated with the
+  // textures of the cache list.
+  void ReleaseGraphicsResources(vtkWindow* window)
+  {
+    typename std::list<CacheElement >::iterator it;
+    for (it = this->Cache.begin(); it != this->Cache.end(); ++it)
+      {
+      it->second.Texture->ReleaseGraphicsResources(window);
+      }
+  }
+
+protected:
+  // Description:
+  // Add a new cache entry into the cache list. Enforce the MaxSize size of the
+  // list by removing the least used cache if needed.
+  CacheData& AddCacheData(const Key& key, const CacheData& cacheData)
+  {
+    assert(!this->IsKeyInCache(key));
+    if (this->Cache.size() >= this->MaxSize)
+      {
+      this->Cache.pop_back();
+      }
+    this->Cache.push_front(CacheElement(key, cacheData));
+    return this->Cache.begin()->second;
+  }
+
+  // Description:
+  // List of a pair of key and cache data.
+  std::list<CacheElement > Cache;
+  // Description:
+  // Maximum size the cache list can be.
+  size_t MaxSize;
+};
+
+template<class Key>
+typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
+::GetCacheData(const Key& key)
+{
+  typename std::list<CacheElement>::iterator it =
+    std::find(this->Cache.begin(), this->Cache.end(), CacheElement(key));
+  if (it != this->Cache.end())
+    {
+    return it->second;
+    }
+  CacheData cacheData;
+  cacheData.ImageData = vtkSmartPointer<vtkImageData>::New();
+  cacheData.Texture = vtkSmartPointer<vtkTexture>::New();
+  cacheData.Texture->SetInput(cacheData.ImageData);
+  return this->AddCacheData(key, cacheData);
+}
+
+// .NAME TextPropertyKey - unique key for a vtkTextProperty and text
+// .SECTION Description
+// Uniquely describe a pair of vtkTextProperty and text.
+struct TextPropertyKey
+{
+  // Description:
+  // Transform a text property into an unsigned long
+  static unsigned int GetIdFromTextProperty(vtkTextProperty* textProperty)
+  {
+    unsigned long id;
+    vtkFreeTypeTools::GetInstance()->MapTextPropertyToId(textProperty, &id);
+    return static_cast<unsigned int>(id);
+  }
+
+  // Description:
+  // Creates a TextPropertyKey.
+  TextPropertyKey(vtkTextProperty* textProperty, const vtkStdString& text)
+  {
+    this->TextPropertyId = GetIdFromTextProperty(textProperty);
+    this->FontSize = textProperty->GetFontSize();
+    double color[3];
+    textProperty->GetColor(color);
+    this->Color.Set(static_cast<unsigned char>(color[0] * 255),
+                    static_cast<unsigned char>(color[1] * 255),
+                    static_cast<unsigned char>(color[2] * 255),
+                    static_cast<unsigned char>(textProperty->GetOpacity() * 255));
+    this->Text = text;
+  }
+
+  // Description:
+  // Compares two TextPropertyKeys with each other. Returns true if they are
+  // identical: same text and text property
+  bool operator==(const TextPropertyKey& other)const
+  {
+    return this->TextPropertyId == other.TextPropertyId &&
+      this->FontSize == other.FontSize &&
+      this->Text == other.Text &&
+      this->Color[0] == other.Color[0] &&
+      this->Color[1] == other.Color[1] &&
+      this->Color[2] == other.Color[2] &&
+      this->Color[3] == other.Color[3];
+  }
+
+  unsigned short FontSize;
+  vtkColor4ub Color;
+  // States in the function not to use more than 32 bits - int works fine here.
+  unsigned int TextPropertyId;
+  vtkStdString Text;
+};
+
 class vtkOpenGLContextDevice2D::Private
 {
 public:
@@ -321,6 +492,11 @@ public:
   bool OpenGL20;
   bool GLSL;
   bool PowerOfTwoTextures;
+
+  // Description:
+  // Cache for text images. Generating texture for strings is expensive,
+  // we cache the textures here for a faster reuse.
+  mutable vtkTextureImageCache<TextPropertyKey> TextTextureCache;
 };
 
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H

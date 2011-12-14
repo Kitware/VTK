@@ -91,7 +91,7 @@
 //        widget state is:
 //            Start: Do nothing.
 //            Define: Remove all points and line segments of the contour.
-//                 Essentially calls Intialize(NULL)
+//                 Essentially calls Initialize(NULL)
 //            Manipulate: Do nothing.
 // </pre>
 //
@@ -118,6 +118,7 @@
 
 class vtkContourRepresentation;
 class vtkPolyData;
+class vtkIdList;
 
 class VTK_WIDGETS_EXPORT vtkContourWidget : public vtkAbstractWidget
 {
@@ -132,7 +133,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The method for activiating and deactiviating this widget. This method
+  // The method for activating and deactivating this widget. This method
   // must be overridden because it is a composite widget and does more than
   // its superclasses' vtkAbstractWidget::SetEnabled() method.
   virtual void SetEnabled(int);
@@ -174,7 +175,7 @@ public:
 
   // Description:
   // Follow the cursor ? If this is ON, during definition, the last node of the
-  // contour will automatically follow the cursor, without waiting for the the
+  // contour will automatically follow the cursor, without waiting for the
   // point to be dropped. This may be useful for some interpolators, such as the
   // live-wire interpolator to see the shape of the contour that will be placed
   // as you move the mouse cursor.
@@ -202,7 +203,7 @@ public:
   // it. Note that if the polydata supplied is closed, the state will be
   // set to manipulate.
   //  State: Define = 0, Manipulate = 1.
-  virtual void Initialize( vtkPolyData * poly, int state = 1 );
+  virtual void Initialize( vtkPolyData * poly, int state = 1, vtkIdList *idList = NULL );
   virtual void Initialize()
     {this->Initialize(NULL);}
 

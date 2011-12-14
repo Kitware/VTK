@@ -61,7 +61,7 @@ int vtkNGramExtraction::RequestData(
   try
     {
     if(this->N < 1)
-      throw vtkstd::runtime_error("N must be >= 1");
+      throw std::runtime_error("N must be >= 1");
 
     // Special-case ... if N == 1 we can simply pass-through everything except the type
     if(this->N == 1)
@@ -85,22 +85,22 @@ int vtkNGramExtraction::RequestData(
     vtkIdTypeArray* const input_document_array = vtkIdTypeArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!input_document_array)
-      throw vtkstd::runtime_error("missing input document array");
+      throw std::runtime_error("missing input document array");
 
     vtkIdTypeArray* const input_begin_array = vtkIdTypeArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(1, 0, inputVector));
     if(!input_begin_array)
-      throw vtkstd::runtime_error("missing input begin array");
+      throw std::runtime_error("missing input begin array");
 
     vtkIdTypeArray* const input_end_array = vtkIdTypeArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(2, 0, inputVector));
     if(!input_end_array)
-      throw vtkstd::runtime_error("missing input end array");
+      throw std::runtime_error("missing input end array");
 
     vtkUnicodeStringArray* const input_text_array = vtkUnicodeStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(3, 0, inputVector));
     if(!input_text_array)
-      throw vtkstd::runtime_error("missing input text array");
+      throw std::runtime_error("missing input text array");
 
     vtkIdTypeArray* const document_array = vtkIdTypeArray::New();
     document_array->SetName("document");
@@ -117,7 +117,7 @@ int vtkNGramExtraction::RequestData(
     vtkUnicodeStringArray* const text_array = vtkUnicodeStringArray::New();
     text_array->SetName("text");
 
-    vtkstd::ostringstream buffer;
+    std::ostringstream buffer;
     buffer << this->N << "-gram";
     const vtkStdString type = buffer.str();
 
@@ -171,7 +171,7 @@ int vtkNGramExtraction::RequestData(
     type_array->Delete();
     text_array->Delete();
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

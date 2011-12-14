@@ -30,7 +30,7 @@
  *    Reads and Writes MetaTubeFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date May 22, 2002
  */
 
@@ -43,7 +43,7 @@ class TubePnt
 public:
   TubePnt(int dim);
   ~TubePnt();
-  
+
   unsigned int m_Dim;
   float* m_V1;
   float* m_V2;
@@ -75,10 +75,10 @@ class METAIO_EXPORT MetaTube : public MetaObject
     ////
     MetaTube(void);
 
-    MetaTube(const char *_headerName);   
+    MetaTube(const char *_headerName);
 
-    MetaTube(const MetaTube *_tube); 
-    
+    MetaTube(const MetaTube *_tube);
+
     MetaTube(unsigned int dim);
 
     ~MetaTube(void);
@@ -116,7 +116,7 @@ class METAIO_EXPORT MetaTube : public MetaObject
 
     PointListType &  GetPoints(void) {return m_PointList;}
     const PointListType &  GetPoints(void) const {return m_PointList;}
-    
+
     MET_ValueEnumType ElementType(void) const;
     void  ElementType(MET_ValueEnumType _elementType);
 

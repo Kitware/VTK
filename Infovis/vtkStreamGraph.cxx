@@ -33,7 +33,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkStreamGraph);
 //---------------------------------------------------------------------------

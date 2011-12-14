@@ -52,6 +52,8 @@ vtkImageGaussianSource.cxx
 vtkImageGradient.cxx
 vtkImageGradientMagnitude.cxx
 vtkImageGridSource.cxx
+vtkImageHistogram.cxx
+vtkImageHistogramStatistics.cxx
 vtkImageHSIToRGB.cxx
 vtkImageHSVToRGB.cxx
 vtkImageHybridMedian2D.cxx
@@ -82,7 +84,7 @@ vtkImageNormalize.cxx
 vtkImageOpenClose3D.cxx
 vtkImagePadFilter.cxx
 vtkImagePermute.cxx
-vtkImageProjection.cxx
+vtkImageSlab.cxx
 vtkImageQuantizeRGBToIndex.cxx
 vtkImageRFFT.cxx
 vtkImageRGBToHSI.cxx
@@ -107,7 +109,9 @@ vtkImageStencilToImage.cxx
 vtkImageStencilAlgorithm.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
+vtkImageSlabReslice.cxx
 vtkImageThreshold.cxx
+vtkImageThresholdConnectivity.cxx
 vtkImageToImageStencil.cxx
 vtkImageTranslateExtent.cxx
 vtkImageVariance3D.cxx

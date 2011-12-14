@@ -38,6 +38,7 @@
 
 #include "QVTKWin32Header.h"
 #include <vtkRenderWindowInteractor.h>
+#include <vtkCommand.h>
 #include <QtCore/QObject>
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
@@ -64,6 +65,19 @@ class QVTK_EXPORT QVTKInteractor : public vtkRenderWindowInteractor
 public:
   static QVTKInteractor* New();
   vtkTypeMacro(QVTKInteractor,vtkRenderWindowInteractor);
+
+  // Description:
+  // Enum for additional event types supported.
+  // These events can be picked up by command observers on the interactor
+  enum vtkCustomEvents
+    {
+    ContextMenuEvent = vtkCommand::UserEvent + 100,
+    DragEnterEvent,
+    DragMoveEvent,
+    DragLeaveEvent,
+    DropEvent
+    };
+
 
   // Description:
   // Overloaded terminiate app, which does nothing in Qt.

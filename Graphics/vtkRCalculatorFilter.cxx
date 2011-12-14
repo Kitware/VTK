@@ -40,8 +40,8 @@
 #include "vtkTable.h"
 
 #include <stdlib.h>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
 
@@ -59,8 +59,8 @@ public:
     this->RarrName = Rname;
     };
 
-  vtkstd::string VTKArrName;
-  vtkstd::string RarrName;
+  std::string VTKArrName;
+  std::string RarrName;
 
 };
 
@@ -68,10 +68,10 @@ class vtkRCalculatorFilterInternals
 {
 
 public:
-  vtkstd::vector<ArrNames> PutArrNames;
-  vtkstd::vector<ArrNames> GetArrNames;
-  vtkstd::string PutTableName;
-  vtkstd::string GetTableName;
+  std::vector<ArrNames> PutArrNames;
+  std::vector<ArrNames> GetArrNames;
+  std::string PutTableName;
+  std::string GetTableName;
 };
 
 vtkRCalculatorFilter::vtkRCalculatorFilter()
@@ -288,7 +288,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
   int ncells;
   int npoints;
   int result;
-  vtkstd::vector<ArrNames>::iterator VectorIterator;
+  std::vector<ArrNames>::iterator VectorIterator;
   vtkInformation* inpinfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outinfo = outputVector->GetInformationObject(0);
   vtkDataSetAttributes* CellinFD = 0;
@@ -700,7 +700,7 @@ int vtkRCalculatorFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
   vtkDataSetAttributes* PointinFD = 0;
   vtkDataSetAttributes* CelloutFD = 0;
   vtkDataSetAttributes* PointoutFD = 0;
-  vtkstd::vector<ArrNames>::iterator VectorIterator;
+  std::vector<ArrNames>::iterator VectorIterator;
   vtkDataArray* currentArray = 0;
 
   CellinFD = dsinp->GetCellData();

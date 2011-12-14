@@ -64,7 +64,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   // If the render window has a desired update rate of at least 1 frame
   // per second or more, we'll consider this interactive
-  this->InteractiveUpdateRate = 0.00001;
+  this->InteractiveUpdateRate = 1.0;
 
   // This is the resample filter that may be used if we need
   // a lower resolution version of the input for GPU rendering
@@ -353,8 +353,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       // mapping is supported and this is an interactive render, then
       // use it. Otherwise use ray casting.
     case vtkSmartVolumeMapper::RayCastAndTextureRenderMode:
-      if ( win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate &&
-           this->TextureSupported )
+      if (this->TextureSupported &&
+          (win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate))
         {
         this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
         }
@@ -375,6 +375,15 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
     {
     // We are rendering with the vtkFixedPointVolumeRayCastMapper
     case vtkSmartVolumeMapper::RayCastRenderMode:
+      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
+        {
+        this->RayCastMapper->SelectScalarArray(this->ArrayName);
+        }
+      else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+        {
+        this->RayCastMapper->SelectScalarArray(this->ArrayId);
+        }
+      this->RayCastMapper->SetScalarMode(this->GetScalarMode());
       this->ConnectMapperInput(this->RayCastMapper);
       this->RayCastMapper->SetClippingPlanes(this->GetClippingPlanes());
       this->RayCastMapper->SetCropping(this->GetCropping());
@@ -389,6 +398,15 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
       // We are rendering with the vtkVolumeTextureMapper3D
     case vtkSmartVolumeMapper::TextureRenderMode:
+      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
+        {
+        this->TextureMapper->SelectScalarArray(this->ArrayName);
+        }
+      else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+        {
+        this->TextureMapper->SelectScalarArray(this->ArrayId);
+        }
+      this->TextureMapper->SetScalarMode(this->GetScalarMode());
       this->ConnectMapperInput(this->TextureMapper);
       if ( this->RequestedRenderMode == vtkSmartVolumeMapper::DefaultRenderMode ||
            this->RequestedRenderMode == vtkSmartVolumeMapper::RayCastAndTextureRenderMode )
@@ -410,6 +428,15 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
       // We are rendering with the vtkGPUVolumeRayCastMapper
     case vtkSmartVolumeMapper::GPURenderMode:
+      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
+        {
+        this->GPUMapper->SelectScalarArray(this->ArrayName);
+        }
+      else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+        {
+        this->GPUMapper->SelectScalarArray(this->ArrayId);
+        }
+      this->GPUMapper->SetScalarMode(this->GetScalarMode());
       this->GPUMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
       this->GPUMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
       this->GPUMapper->SetSampleDistance(

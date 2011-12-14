@@ -32,8 +32,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/utility>
-#include <vtkstd/vector>
+#include <utility>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraphItem, Graph, vtkGraph);
@@ -60,7 +60,7 @@ public:
       float x = static_cast<int>(this->Random->GetValue()*size[0]);
       this->Random->Next();
       float y = static_cast<int>(this->Random->GetValue()*size[1]);
-      this->Position.push_back(vtkstd::make_pair(x, y));
+      this->Position.push_back(std::make_pair(x, y));
       }
     }
 
@@ -74,14 +74,14 @@ public:
   void SetPosition(vtkIdType i, float x[2])
     {
     this->CheckPositionSize(i);
-    this->Position[i] = vtkstd::make_pair(x[0], x[1]);
+    this->Position[i] = std::make_pair(x[0], x[1]);
     }
 
   void CheckVelocitySize(vtkIdType i)
     {
     while (i >= static_cast<vtkIdType>(this->Velocity.size()))
       {
-      this->Velocity.push_back(vtkstd::make_pair(0.0f, 0.0f));
+      this->Velocity.push_back(std::make_pair(0.0f, 0.0f));
       }
     }
 
@@ -95,14 +95,14 @@ public:
   void SetVelocity(vtkIdType i, float x[2])
     {
     this->CheckVelocitySize(i);
-    this->Velocity[i] = vtkstd::make_pair(x[0], x[1]);
+    this->Velocity[i] = std::make_pair(x[0], x[1]);
     }
 
   vtkSmartPointer<vtkMinimalStandardRandomSequence> Random;
   vtkGraphItem* Item;
 
-  vtkstd::vector<vtkstd::pair<float, float> > Position;
-  vtkstd::vector<vtkstd::pair<float, float> > Velocity;
+  std::vector<std::pair<float, float> > Position;
+  std::vector<std::pair<float, float> > Velocity;
 };
 
 //-----------------------------------------------------------------------------

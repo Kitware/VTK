@@ -20,8 +20,8 @@
 // .NAME vtkCoincidentPoints - contains an octree of labels
 //
 // .SECTION Description
-// This class provides a collection of points that is organized such that 
-// each coordinate is stored with a set of point id's of points that are 
+// This class provides a collection of points that is organized such that
+// each coordinate is stored with a set of point id's of points that are
 // all coincident.
 
 #ifndef __vtkCoincidentPoints_h
@@ -67,7 +67,7 @@ public:
   void RemoveNonCoincidentPoints();
 
   // Description
-  // Clear the maps for reuse. This should be called if the caller 
+  // Clear the maps for reuse. This should be called if the caller
   // might reuse this class (another executive pass for instance).
   void Clear();
 
@@ -75,6 +75,12 @@ public:
   class implementation;
   implementation * GetImplementation() { return this->Implementation; }
   //ETX
+
+  // Description:
+  // Calculate \a num points, at a regular interval, along a parametric
+  // spiral. Note this spiral is only in two dimensions having a constant
+  // z value.
+  static void SpiralPoints(vtkIdType num, vtkPoints * offsets);
 
 protected:
   vtkCoincidentPoints();

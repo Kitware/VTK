@@ -61,6 +61,37 @@ public:
     {return this->Distance;}
 
   // Description:
+  // Scale the glyphs used as tick marks. By default it is
+  // 1/40th of the length.
+  void SetGlyphScale(double scale);
+  vtkGetMacro(GlyphScale, double);
+
+  // Description:
+  // Convenience method to get the line actor property.
+  virtual vtkProperty *GetLineProperty();
+
+  // Description:
+  // Set/Get position of the label title in normalized coordinates [0,1]. 
+  // 0 is at the start of the line whereas 1 is at the end.
+  void SetLabelPosition(double labelPosition);
+  vtkGetMacro(LabelPosition, double);
+
+  // Description:
+  // Set/Get the maximum number of ticks in ruler mode.
+  vtkSetClampMacro(MaximumNumberOfRulerTicks, int, 1, VTK_LARGE_INTEGER);
+  vtkGetMacro(MaximumNumberOfRulerTicks, int);
+
+  // Description:
+  // Convenience method to get the glyph actor. Using this it is
+  // possible to control the appearance of the glyphs.
+  vtkGetObjectMacro(GlyphActor, vtkActor);
+
+  // Description:
+  // Convenience method Get the label actor. It is possible to
+  // control the appearance of the label.
+  vtkGetObjectMacro(LabelActor, vtkFollower);
+
+  // Description:
   // Methods to Set/Get the coordinates of the two points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.
@@ -120,6 +151,9 @@ protected:
   vtkPolyDataMapper *LabelMapper;
   vtkFollower       *LabelActor;
 
+  // Support internal operations
+  bool LabelScaleSpecified;
+
   // The 3D disk tick marks
   vtkPoints         *GlyphPoints;
   vtkDoubleArray    *GlyphVectors;
@@ -130,19 +164,28 @@ protected:
   vtkPolyDataMapper *GlyphMapper;
   vtkActor          *GlyphActor;
 
+  // Glyph3D scale
+  double GlyphScale;
+  bool   GlyphScaleSpecified;
+
   // The distance between the two points
   double Distance;
 
   // Support GetBounds() method
   vtkBox *BoundingBox;
 
-  // Support internal operations
-  bool LabelScaleSpecified;
+  // Maximum number of ticks on the 3d ruler
+  int MaximumNumberOfRulerTicks;
 
+  // Label title position
+  double LabelPosition;
 
 private:
   vtkDistanceRepresentation3D(const vtkDistanceRepresentation3D&);  //Not implemented
   void operator=(const vtkDistanceRepresentation3D&);  //Not implemented
+
+  // Internal method to update the position of the label.
+  void UpdateLabelPosition();
 };
 
 #endif

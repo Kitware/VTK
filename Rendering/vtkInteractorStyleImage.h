@@ -15,29 +15,32 @@
 // .NAME vtkInteractorStyleImage - interactive manipulation of the camera specialized for images
 // .SECTION Description
 // vtkInteractorStyleImage allows the user to interactively manipulate
-// (rotate, pan, zoomm etc.) the camera. vtkInteractorStyleImage is specially
+// (rotate, pan, zoom etc.) the camera. vtkInteractorStyleImage is specially
 // designed to work with images that are being rendered with
 // vtkImageActor. Several events are overloaded from its superclass
 // vtkInteractorStyle, hence the mouse bindings are different. (The bindings
 // keep the camera's view plane normal perpendicular to the x-y plane.) In
 // summary the mouse events for 2D image interaction are as follows:
-// + Left Mouse button triggers window level events
-// + CTRL Left Mouse spins the camera around its view plane normal
-// + SHIFT Left Mouse pans the camera
-// + CTRL SHIFT Left Mouse dollys (a positional zoom) the camera
-// + Middle mouse button pans the camera
-// + Right mouse button dollys the camera.
-// + SHIFT Right Mouse triggers pick events
+// - Left Mouse button triggers window level events
+// - CTRL Left Mouse spins the camera around its view plane normal
+// - SHIFT Left Mouse pans the camera
+// - CTRL SHIFT Left Mouse dollys (a positional zoom) the camera
+// - Middle mouse button pans the camera
+// - Right mouse button dollys the camera.
+// - SHIFT Right Mouse triggers pick events
+//
 // If SetInteractionModeToImage3D() is called, then some of the mouse
 // events are changed as follows:
-// + SHIFT Left Mouse rotates the camera for oblique slicing
-// + SHIFT Middle Mouse slices through the image
-// + CTRL Right Mouse also slices through the image
+// - SHIFT Left Mouse rotates the camera for oblique slicing
+// - SHIFT Middle Mouse slices through the image
+// - CTRL Right Mouse also slices through the image
+//
 // In both modes, the following key bindings are in effect:
-// + R Reset the Window/Level
-// + X Reset to a sagittal view
-// + Y Reset to a coronal view
-// + Z Reset to an axial view
+// - R Reset the Window/Level
+// - X Reset to a sagittal view
+// - Y Reset to a coronal view
+// - Z Reset to an axial view
+//
 // Note that the renderer's actors are not moved; instead the camera is moved.
 
 // .SECTION See Also

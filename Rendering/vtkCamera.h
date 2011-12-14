@@ -38,7 +38,7 @@ class vtkCameraCallbackCommand;
 
 class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 {
-public:
+ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkCamera,vtkObject);
 
@@ -191,6 +191,8 @@ public:
   // plane can make a very big difference. Setting it to 0.01 when it
   // really could be 1.0 can have a big impact on your z-buffer resolution
   // farther away.  The default clipping range is (0.1,1000).
+  // Clipping distance is measured in world coordinate unless a scale factor
+  // exists in camera's ModelTransformMatrix.
   void SetClippingRange(double dNear, double dFar);
   void SetClippingRange(const double a[2]) {
     this->SetClippingRange(a[0], a[1]); };
@@ -260,6 +262,94 @@ public:
   vtkGetMacro(FocalDisk,double);
 
   // Description:
+  // Set/Get use offaxis frustum.
+  // OffAxis frustum is used for off-axis frustum calculations specificly
+  // for stereo rendering.
+  // For reference see "High Resolution Virtual Reality", in Proc.
+  // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
+  vtkSetMacro(UseOffAxisProjection, int);
+  vtkGetMacro(UseOffAxisProjection, int);
+  vtkBooleanMacro(UseOffAxisProjection, int);
+
+  // Description:
+  // Set/Get top left corner point of the screen.
+  // This will be used only for offaxis frustum calculation.
+  // Default is (-1.0, -1.0, -1.0).
+  vtkSetVector3Macro(ScreenBottomLeft, double);
+  vtkGetVector3Macro(ScreenBottomLeft, double);
+
+  // Description:
+  // Set/Get bottom left corner point of the screen.
+  // This will be used only for offaxis frustum calculation.
+  // Default is (1.0, -1.0, -1.0).
+  vtkSetVector3Macro(ScreenBottomRight, double);
+  vtkGetVector3Macro(ScreenBottomRight, double);
+
+  // Description:
+  // Set/Get top right corner point of the screen.
+  // This will be used only for offaxis frustum calculation.
+  // Default is (1.0, 1.0, -1.0).
+  vtkSetVector3Macro(ScreenTopRight, double);
+  vtkGetVector3Macro(ScreenTopRight, double);
+
+  // Description:
+  // Set/Get distance between the eyes.
+  // This will be used only for offaxis frustum calculation.
+  // Default is 0.06.
+  vtkSetMacro(EyeSeparation, double);
+  vtkGetMacro(EyeSeparation, double);
+
+  // Description:
+  // Set/Get the eye position (center point between two eyes).
+  // This is a convenience function that sets the translation
+  // component of EyeTransformMatrix.
+  // This will be used only for offaxis frustum calculation.
+  void SetEyePosition(double eyePosition[3]);
+  void GetEyePosition(double eyePosition[3]);
+
+  // Description:
+  // Get normal vector from eye to screen rotated by EyeTransformMatrix.
+  // This will be used only for offaxis frustum calculation.
+  void GetEyePlaneNormal(double normal[3]);
+
+  // Description:
+  // Set/Get eye transformation matrix.
+  // This is the transformation matrix for the point between eyes.
+  // This will be used only for offaxis frustum calculation.
+  // Default is identity.
+  void SetEyeTransformMatrix(vtkMatrix4x4* matrix);
+  vtkGetObjectMacro(EyeTransformMatrix, vtkMatrix4x4);
+
+  // Description:
+  // Set the eye transform matrix.
+  // This is the transformation matrix for the point between eyes.
+  // This will be used only for offaxis frustum calculation.
+  // Default is identity.
+  void SetEyeTransformMatrix(const double elements[16]);
+
+  // Description:
+  // Set/Get model transformation matrix.
+  // This matrix could be used for model related transformations
+  // such as scale, shear, roations and translations.
+  void SetModelTransformMatrix(vtkMatrix4x4 *matrix);
+  vtkGetObjectMacro(ModelTransformMatrix, vtkMatrix4x4);
+
+  // Description:
+  // Set model transformation matrix.
+  // This matrix could be used for model related transformations
+  // such as scale, shear, roations and translations.
+  void SetModelTransformMatrix(const double elements[16]);
+
+  // Description:
+  // Return the model view matrix of model view transform.
+  virtual vtkMatrix4x4 *GetModelViewTransformMatrix();
+
+  // Description:
+  // Return the model view transform.
+  virtual vtkTransform *GetModelViewTransformObject();
+
+  // Description:
+  // For backward compatibility. Use GetModelViewTransformMatrix() now.
   // Return the matrix of the view transform.
   // The ViewTransform depends on only three ivars:  the Position, the
   // FocalPoint, and the ViewUp vector.  All the other methods are there
@@ -267,14 +357,14 @@ public:
   virtual vtkMatrix4x4 *GetViewTransformMatrix();
 
   // Description:
+  // For backward compatibility. Use GetModelViewTransformObject() now.
   // Return the view transform.
-  // The ViewTransform depends on only three ivars:  the Position, the
-  // FocalPoint, and the ViewUp vector.  All the other methods are there
-  // simply for the sake of the users' convenience.
-  virtual vtkTransform *GetViewTransformObject()
-    {
-      return this->ViewTransform;
-    }
+  // If the camera's ModelTransformMatrix is identity then
+  // the ViewTransform depends on only three ivars:
+  // the Position, the FocalPoint, and the ViewUp vector.
+  // All the other methods are there simply for the sake of the users'
+  // convenience.
+  virtual vtkTransform *GetViewTransformObject();
 
   // Description:
   // Return the projection transform matrix, which converts from camera
@@ -297,9 +387,9 @@ public:
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates of a point located inside the frustum are in the
   // range ([-1,+1],[-1,+1],[nearz,farz]).
-  virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
-                                                     double nearz,
-                                                     double farz);
+   virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
+                                                      double nearz,
+                                                      double farz);
 
   // Description:
   // Return the projection transform matrix, which converts from camera
@@ -415,35 +505,6 @@ public:
   vtkGetMacro(LeftEye,int);
 
   // Description:
-  // This function does 3  things.
-  // 1. It sets the camera mode to head tracked i.e ensures that the
-  // Asymmetric Frustuma are uses.
-  // 2. It sets variables like AsymLeft,AsymRight, AsymBottom and Asym
-  // to set the HeadTracked Projection Matrix.
-  // 3. It sets the View matrix Params
-  void ComputeProjAndViewParams( );
-
-  // Description:
-  // Setting the configuration parameters for head tracked camera
-  void SetConfigParams( double o2screen, double o2right, double o2left,
-                        double o2top, double o2bottom , double interOccDist,
-                        double scale, vtkMatrix4x4 * surfaceRot );
-  // Description:
-  // This function is a convinience function intended for the Paraview
-  // ServerManager
-  void SetHeadPose( double x00,  double x01,  double x02, double x03,
-                    double x10,  double x11,  double x12, double x13,
-                    double x20,  double x21,  double x22, double x23,
-                    double x30,  double x31,  double x32, double x33 );
-
-  // Description:
-  // HeadTracker mode. It impacts on the computation of the transforms.
-  // Initial value is false.
-  //vtkSetMacro(HeadTracked,bool);
-  vtkSetMacro(HeadTracked,int);
-  vtkGetMacro(HeadTracked,int);
-
-  // Description:
   // Copy the properties of `source' into `this'.
   // Copy pointers of matrices.
   // \pre source_exists!=0
@@ -493,17 +554,21 @@ protected:
                                            double nearz,
                                            double farz);
 
-  // Description:
-  // This is aconvenience function to get Identity matrix with
-  // translation set to given values
-  vtkMatrix4x4* SetTranslation( vtkMatrix4x4 mat );
-
   void ComputeCameraLightTransform();
 
+
   // Description:
-  // This method is used to set the transfromation matrix from Display
-  // Surface coordinates wrt the Room Base coordinates
-  void SetSurface2Base( vtkMatrix4x4 *head );
+  // Given screen screen top, bottom left and top right
+  // calculate screen rotation.
+  void ComputeWorldToScreenMatrix();
+
+  // Description:
+  // Compute and use frustum using offaxis method.
+  void ComputeOffAxisProjectionFrustum();
+
+  // Description:
+  // Compute model view matrix for the camera.
+  void ComputeModelViewMatrix();
 
   // Description:
   // Copy the ivars. Do nothing for the matrices.
@@ -530,6 +595,22 @@ protected:
   double ViewPlaneNormal[3];
   double ViewShear[3];
   int    UseHorizontalViewAngle;
+
+  int    UseOffAxisProjection;
+
+  double ScreenBottomLeft[3];
+  double ScreenBottomRight[3];
+  double ScreenTopRight[3];
+
+  double EyeSeparation;
+
+  vtkMatrix4x4 *WorldToScreenMatrix;
+  vtkTimeStamp  WorldToScreenMatrixMTime;
+
+  vtkMatrix4x4 *EyeTransformMatrix;
+
+  vtkMatrix4x4 *ModelTransformMatrix;
+
   vtkHomogeneousTransform *UserTransform;
   vtkHomogeneousTransform *UserViewTransform;
 
@@ -538,37 +619,18 @@ protected:
   vtkPerspectiveTransform *Transform;
   vtkTransform *CameraLightTransform;
 
+  vtkTransform *ModelViewTransform;
+
   double FocalDisk;
-//BTX
+  //BTX
   vtkCameraCallbackCommand *UserViewTransformCallbackCommand;
   friend class vtkCameraCallbackCommand;
-//ETX
+  //ETX
 
   // ViewingRaysMtime keeps track of camera modifications which will
   // change the calculation of viewing rays for the camera before it is
   // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
-
-  // Asymmetric Frustum
-  int HeadTracked;
-  vtkMatrix4x4 *HeadPose;
-  vtkTransform *Surface2Base;
-  vtkMatrix4x4 *HeadTrackedViewMat;
-
-  double AsymLeft, AsymRight,  AsymBottom,  AsymTop;
-  double EyePos[3];
-  double O2Screen;
-  double O2Right;
-  double O2Left;
-  double O2Top;
-  double O2Bottom;
-  double EyeOffset;
-  double ScaleFactor;
-
-  // temp
-  vtkMatrix4x4 *eyePosMat;
-  vtkMatrix4x4 *negEyePosMat;
-  vtkMatrix4x4 *eyeOffsetMat;
 
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.

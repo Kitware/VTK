@@ -2,7 +2,7 @@
 #define __vtkLabelHierarchyPrivate_h
 
 #include "vtkObject.h" // for vtkstd
-#include <vtkstd/set>
+#include <set>
 
 #include "octree/octree"
 
@@ -92,11 +92,11 @@ public:
       }
   };
 
-  class LabelSet : public vtkstd::multiset<vtkIdType,PriorityComparator>
+  class LabelSet : public std::multiset<vtkIdType,PriorityComparator>
   {
   public:
     LabelSet( vtkLabelHierarchy* hierarchy )
-      : vtkstd::multiset<vtkIdType,PriorityComparator>( PriorityComparator(hierarchy) )
+      : std::multiset<vtkIdType,PriorityComparator>( PriorityComparator(hierarchy) )
       {
       this->TotalAnchors = 0;
       this->Size = 1.;
@@ -107,7 +107,7 @@ public:
       }
 
     LabelSet( const LabelSet& src )
-      : vtkstd::multiset<vtkIdType,PriorityComparator>( src )
+      : std::multiset<vtkIdType,PriorityComparator>( src )
       {
       this->TotalAnchors = src.TotalAnchors;
       this->Size = src.Size;
@@ -118,7 +118,7 @@ public:
       }
 
     LabelSet()
-      : vtkstd::multiset<vtkIdType,PriorityComparator>()
+      : std::multiset<vtkIdType,PriorityComparator>()
       {
       this->TotalAnchors = 0;
       this->Size = 1.;
@@ -133,7 +133,7 @@ public:
       if ( this != &rhs )
         {
 #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
-        vtkstd::multiset<vtkIdType,PriorityComparator>::operator = ( rhs );
+        std::multiset<vtkIdType,PriorityComparator>::operator = ( rhs );
 #endif
         this->TotalAnchors = rhs.TotalAnchors;
         this->Size = rhs.Size;
@@ -173,7 +173,7 @@ public:
   typedef octree<LabelSet>::cursor HierarchyCursor3;
   typedef octree<LabelSet>::iterator HierarchyIterator3;
 
-  //typedef vtkstd::map<Coord,vtkstd::pair<int,vtkstd::set<vtkIdType> > >::iterator MapCoordIter;
+  //typedef std::map<Coord,std::pair<int,std::set<vtkIdType> > >::iterator MapCoordIter;
 
   // Description:
   // Computes the depth of the generated hierarchy.

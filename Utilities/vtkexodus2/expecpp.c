@@ -53,11 +53,10 @@
  */
 
 int ex_put_entity_count_per_polyhedra (int            exoid,
-                                       ex_entity_type blk_type,
-                                       int            blk_id,
-                                       const int     *entity_counts)
+               ex_entity_type blk_type,
+               int            blk_id,
+               const int     *entity_counts)
 {
-  /* char entity_type[5]; */
   int npeid=-1, blk_id_ndx, status;
   char errmsg[MAX_ERR_LENGTH];
 
@@ -67,21 +66,21 @@ int ex_put_entity_count_per_polyhedra (int            exoid,
   if (exerrval != 0) 
     {
       if (exerrval == EX_NULLENTITY)
-        {
-          sprintf(errmsg,
-                  "Warning: entity_counts array not allowed for NULL %s block %d in file id %d",
-                  ex_name_of_object(blk_type),blk_id,exoid);
-          ex_err("ex_put_entity_count_per_polyhedra",errmsg,EX_MSG);
-          return (EX_WARN);
-        }
+  {
+    sprintf(errmsg,
+      "Warning: entity_counts array not allowed for NULL %s block %d in file id %d",
+      ex_name_of_object(blk_type),blk_id,exoid);
+    ex_err("ex_put_entity_count_per_polyhedra",errmsg,EX_MSG);
+    return (EX_WARN);
+  }
       else
-        {
-          sprintf(errmsg,
-                  "Error: failed to locate %s block id %d in id array in file id %d",
-                  ex_name_of_object(blk_type),blk_id, exoid);
-          ex_err("ex_put_entity_count_per_polyhedra",errmsg,exerrval);
-          return (EX_FATAL);
-        }
+  {
+    sprintf(errmsg,
+      "Error: failed to locate %s block id %d in id array in file id %d",
+      ex_name_of_object(blk_type),blk_id, exoid);
+    ex_err("ex_put_entity_count_per_polyhedra",errmsg,exerrval);
+    return (EX_FATAL);
+  }
     }
 
   /* inquire id's of previously defined dimensions  */
@@ -95,8 +94,8 @@ int ex_put_entity_count_per_polyhedra (int            exoid,
   default:
     exerrval = 1005;
     sprintf(errmsg,
-            "Internal Error: unrecognized block type in switch: %d in file id %d",
-            blk_type,exoid);
+      "Internal Error: unrecognized block type in switch: %d in file id %d",
+      blk_type,exoid);
     ex_err("ex_put_entity_count_per_polyhedra",errmsg,EX_MSG);
     return (EX_FATAL);
   }
@@ -104,8 +103,8 @@ int ex_put_entity_count_per_polyhedra (int            exoid,
     {
       exerrval = status;
       sprintf(errmsg,
-              "Error: failed to locate entity_counts array for %s block %d in file id %d",
-              ex_name_of_object(blk_type),blk_id,exoid);
+        "Error: failed to locate entity_counts array for %s block %d in file id %d",
+        ex_name_of_object(blk_type),blk_id,exoid);
       ex_err("ex_put_entity_count_per_polyhedra",errmsg, exerrval);
       return(EX_FATAL);
     }
@@ -114,8 +113,8 @@ int ex_put_entity_count_per_polyhedra (int            exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-            "Error: failed to write node counts array for %s block %d in file id %d",
-            ex_name_of_object(blk_type),blk_id,exoid);
+      "Error: failed to write node counts array for %s block %d in file id %d",
+      ex_name_of_object(blk_type),blk_id,exoid);
     ex_err("ex_put_entity_count_per_polyhedra",errmsg, exerrval);
     return(EX_FATAL);
   }

@@ -60,10 +60,10 @@
  */
 
 int ex_get_partial_elem_map (int  exoid,
-                             int  map_id,
-                             int  ent_start,
-                             int  ent_count, 
-                             int *elem_map)
+           int  map_id,
+           int  ent_start,
+           int  ent_count, 
+           int *elem_map)
 {
   int dimid, var_id, id_ndx, status;
   size_t num_elem, start[1], count[1]; 
@@ -88,8 +88,8 @@ int ex_get_partial_elem_map (int  exoid,
   if (ent_start <= 0 || ent_start > (int)num_elem) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-            "Error: start count is invalid in file id %d",
-            exoid);
+      "Error: start count is invalid in file id %d",
+      exoid);
     ex_err("ex_get_partial_elem_map",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -97,8 +97,8 @@ int ex_get_partial_elem_map (int  exoid,
   if (ent_count < 0) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-            "Error: Invalid count value in file id %d",
-            exoid);
+      "Error: Invalid count value in file id %d",
+      exoid);
     ex_err("ex_get_partial_elem_map",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -106,8 +106,8 @@ int ex_get_partial_elem_map (int  exoid,
   if (ent_start+ent_count-1 > (int)num_elem) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-            "Error: start+count-1 is larger than element count in file id %d",
-            exoid);
+      "Error: start+count-1 is larger than element count in file id %d",
+      exoid);
     ex_err("ex_get_partial_elem_map",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -117,7 +117,7 @@ int ex_get_partial_elem_map (int  exoid,
     exerrval = status;
     sprintf(errmsg,
             "Warning: no element maps defined in file id %d",
-            exoid);
+      exoid);
     ex_err("ex_get_partial_elem_map",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -126,8 +126,8 @@ int ex_get_partial_elem_map (int  exoid,
   id_ndx = ex_id_lkup(exoid,EX_ELEM_MAP,map_id);
   if (exerrval != 0) {
     sprintf(errmsg,
-            "Error: failed to locate element map id %d in %s in file id %d",
-            map_id,VAR_EM_PROP(1),exoid);
+      "Error: failed to locate element map id %d in %s in file id %d",
+      map_id,VAR_EM_PROP(1),exoid);
     ex_err("ex_get_partial_elem_map",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -137,7 +137,7 @@ int ex_get_partial_elem_map (int  exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to locate element map %d in file id %d",
-            map_id,exoid);
+      map_id,exoid);
     ex_err("ex_get_partial_elem_map",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -152,7 +152,7 @@ int ex_get_partial_elem_map (int  exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to get element map in file id %d",
-            exoid);
+      exoid);
     ex_err("ex_get_partial_elem_map",errmsg,exerrval);
     return (EX_FATAL);
   }

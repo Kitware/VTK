@@ -1206,7 +1206,6 @@ void vtkCellLocator::BuildLocatorInternal()
   int parentOffset;
   vtkIdList *octant;
   int numCellsPerBucket = this->NumberOfCellsPerNode;
-  typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
   double hTol[3];
   
@@ -1848,7 +1847,8 @@ void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double vtkNo
     bounds2[2*i+1] = 1.0;
     tMax += direction2[i]*direction2[i];
     }
-  
+  tMax = sqrt(tMax);
+
   // create a parametric range around the tolerance
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 

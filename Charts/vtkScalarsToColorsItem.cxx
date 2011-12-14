@@ -16,6 +16,7 @@
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -48,6 +49,9 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
     vtkScalarsToColorsItem::OnScalarsToColorsModified);
 
   this->MaskAboveCurve = false;
+
+  this->UserBounds[0] = this->UserBounds[1] = this->UserBounds[2] =
+    this->UserBounds[3] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -85,6 +89,21 @@ void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkScalarsToColorsItem::GetBounds(double bounds[4])
 {
+  if (this->UserBounds[1] > this->UserBounds[0] &&
+      this->UserBounds[3] > this->UserBounds[2])
+    {
+    bounds[0] = this->UserBounds[0];
+    bounds[1] = this->UserBounds[1];
+    bounds[2] = this->UserBounds[2];
+    bounds[3] = this->UserBounds[3];
+    return;
+    }
+  this->ComputeBounds(bounds);
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarsToColorsItem::ComputeBounds(double bounds[4])
+{
   bounds[0] = 0.;
   bounds[1] = 1.;
   bounds[2] = 0.;
@@ -94,10 +113,15 @@ void vtkScalarsToColorsItem::GetBounds(double bounds[4])
 //-----------------------------------------------------------------------------
 bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 {
+  this->TextureWidth = this->GetScene()->GetViewWidth();
   if (this->Texture == 0 ||
       this->Texture->GetMTime() < this->GetMTime())
     {
     this->ComputeTexture();
+    }
+  if (this->Texture == 0)
+    {
+    return false;
     }
   vtkSmartPointer<vtkPen> transparentPen = vtkSmartPointer<vtkPen>::New();
   transparentPen->SetLineType(vtkPen::NO_PEN);

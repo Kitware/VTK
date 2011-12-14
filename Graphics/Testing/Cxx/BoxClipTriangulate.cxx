@@ -44,7 +44,7 @@
 
 #include <time.h>
 
-#include <vtkstd/vector>
+#include <vector>
 
 const int NumPoints = 13;
 const double PointData[NumPoints*3] = {
@@ -180,8 +180,8 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
 
   // Randomly shuffle the points to possibly test various tessellations.
   // Make a map from original point orderings to new point orderings.
-  vtkstd::vector<vtkIdType> idMap;
-  vtkstd::vector<vtkIdType> idsLeft;
+  std::vector<vtkIdType> idMap;
+  std::vector<vtkIdType> idsLeft;
 
   for (i = 0; i < NumPoints; i++)
     {
@@ -192,7 +192,7 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
     {
     vtkIdType next
       = vtkMath::Round(vtkMath::Random(-0.49, idsLeft.size() - 0.51));
-    vtkstd::vector<vtkIdType>::iterator nextp = idsLeft.begin() + next;
+    std::vector<vtkIdType>::iterator nextp = idsLeft.begin() + next;
     idMap.push_back(*nextp);
     idsLeft.erase(nextp, nextp + 1);
     }

@@ -1966,33 +1966,33 @@ static const yytype_uint16 yyrline[] =
     2014,  2015,  2016,  2017,  2018,  2021,  2022,  2029,  2030,  2031,
     2032,  2034,  2035,  2037,  2041,  2042,  2044,  2045,  2047,  2048,
     2049,  2051,  2053,  2054,  2056,  2058,  2058,  2062,  2062,  2065,
-    2065,  2068,  2068,  2072,  2073,  2073,  2075,  2075,  2077,  2078,
-    2079,  2080,  2081,  2082,  2083,  2084,  2085,  2087,  2092,  2098,
-    2098,  2098,  2098,  2098,  2099,  2099,  2115,  2116,  2117,  2122,
-    2123,  2135,  2136,  2139,  2140,  2141,  2142,  2143,  2146,  2147,
-    2150,  2151,  2152,  2153,  2154,  2155,  2156,  2159,  2160,  2161,
-    2162,  2163,  2164,  2165,  2166,  2167,  2168,  2169,  2170,  2171,
-    2172,  2173,  2174,  2175,  2176,  2177,  2178,  2179,  2180,  2182,
-    2183,  2185,  2186,  2188,  2189,  2191,  2192,  2194,  2195,  2197,
-    2198,  2204,  2205,  2205,  2211,  2211,  2213,  2214,  2214,  2219,
-    2220,  2220,  2221,  2221,  2225,  2226,  2226,  2227,  2229,  2227,
-    2249,  2250,  2251,  2252,  2254,  2255,  2258,  2259,  2260,  2261,
-    2262,  2263,  2264,  2274,  2274,  2284,  2285,  2285,  2284,  2294,
-    2294,  2304,  2304,  2313,  2313,  2313,  2346,  2345,  2356,  2357,
-    2357,  2356,  2366,  2384,  2384,  2389,  2389,  2394,  2394,  2399,
-    2399,  2404,  2404,  2409,  2409,  2414,  2414,  2419,  2419,  2424,
-    2424,  2441,  2441,  2455,  2492,  2530,  2587,  2588,  2589,  2590,
-    2591,  2593,  2594,  2594,  2595,  2595,  2596,  2596,  2597,  2597,
-    2598,  2598,  2599,  2599,  2600,  2601,  2602,  2603,  2604,  2605,
-    2606,  2607,  2608,  2609,  2610,  2611,  2612,  2613,  2614,  2615,
-    2616,  2617,  2618,  2619,  2620,  2621,  2622,  2623,  2624,  2625,
-    2626,  2632,  2632,  2633,  2633,  2635,  2635,  2637,  2637,  2637,
-    2637,  2637,  2638,  2638,  2638,  2638,  2638,  2638,  2639,  2639,
-    2639,  2639,  2639,  2640,  2640,  2640,  2640,  2640,  2641,  2641,
-    2641,  2641,  2641,  2641,  2642,  2642,  2642,  2642,  2642,  2642,
-    2642,  2643,  2643,  2643,  2643,  2643,  2643,  2644,  2644,  2644,
-    2644,  2644,  2644,  2645,  2645,  2645,  2645,  2647,  2648,  2649,
-    2649,  2649
+    2065,  2068,  2068,  2072,  2073,  2073,  2076,  2076,  2078,  2079,
+    2080,  2081,  2082,  2083,  2084,  2085,  2086,  2088,  2093,  2099,
+    2099,  2099,  2099,  2099,  2100,  2100,  2116,  2117,  2118,  2123,
+    2124,  2136,  2137,  2140,  2141,  2142,  2143,  2144,  2147,  2148,
+    2151,  2152,  2153,  2154,  2155,  2156,  2157,  2160,  2161,  2162,
+    2163,  2164,  2165,  2166,  2167,  2168,  2169,  2170,  2171,  2172,
+    2173,  2174,  2175,  2176,  2177,  2178,  2179,  2180,  2181,  2183,
+    2184,  2186,  2187,  2189,  2190,  2192,  2193,  2195,  2196,  2198,
+    2199,  2205,  2206,  2206,  2212,  2212,  2214,  2215,  2215,  2220,
+    2221,  2221,  2222,  2222,  2226,  2227,  2227,  2228,  2230,  2228,
+    2250,  2251,  2252,  2253,  2255,  2256,  2259,  2260,  2261,  2262,
+    2263,  2264,  2265,  2275,  2275,  2285,  2286,  2286,  2285,  2295,
+    2295,  2305,  2305,  2314,  2314,  2314,  2347,  2346,  2357,  2358,
+    2358,  2357,  2367,  2385,  2385,  2390,  2390,  2395,  2395,  2400,
+    2400,  2405,  2405,  2410,  2410,  2415,  2415,  2420,  2420,  2425,
+    2425,  2442,  2442,  2456,  2493,  2531,  2588,  2589,  2590,  2591,
+    2592,  2594,  2595,  2595,  2596,  2596,  2597,  2597,  2598,  2598,
+    2599,  2599,  2600,  2600,  2601,  2602,  2603,  2604,  2605,  2606,
+    2607,  2608,  2609,  2610,  2611,  2612,  2613,  2614,  2615,  2616,
+    2617,  2618,  2619,  2620,  2621,  2622,  2623,  2624,  2625,  2626,
+    2627,  2633,  2633,  2634,  2634,  2636,  2636,  2638,  2638,  2638,
+    2638,  2638,  2639,  2639,  2639,  2639,  2639,  2639,  2640,  2640,
+    2640,  2640,  2640,  2641,  2641,  2641,  2641,  2641,  2642,  2642,
+    2642,  2642,  2642,  2642,  2643,  2643,  2643,  2643,  2643,  2643,
+    2643,  2644,  2644,  2644,  2644,  2644,  2644,  2645,  2645,  2645,
+    2645,  2645,  2645,  2646,  2646,  2646,  2646,  2648,  2649,  2650,
+    2650,  2650
 };
 #endif
 
@@ -5008,7 +5008,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1410 "vtkParse.y"
     { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
     break;
 
   case 60:
@@ -5030,7 +5030,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1414 "vtkParse.y"
     { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; reject_function(); currentClass = tmpc; }
+     currentClass = NULL; output_function(); currentClass = tmpc; }
     break;
 
   case 63:
@@ -6495,69 +6495,69 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 2073 "vtkParse.y"
-    {postSig(", ");}
+    {chopSig(); postSig(", ");}
     break;
 
   case 327:
 
 /* Line 1455 of yacc.c  */
-#line 2075 "vtkParse.y"
+#line 2076 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 328:
 
 /* Line 1455 of yacc.c  */
-#line 2077 "vtkParse.y"
+#line 2078 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 329:
 
 /* Line 1455 of yacc.c  */
-#line 2078 "vtkParse.y"
+#line 2079 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 330:
 
 /* Line 1455 of yacc.c  */
-#line 2079 "vtkParse.y"
+#line 2080 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 331:
 
 /* Line 1455 of yacc.c  */
-#line 2080 "vtkParse.y"
+#line 2081 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 332:
 
 /* Line 1455 of yacc.c  */
-#line 2081 "vtkParse.y"
+#line 2082 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 333:
 
 /* Line 1455 of yacc.c  */
-#line 2082 "vtkParse.y"
+#line 2083 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 334:
 
 /* Line 1455 of yacc.c  */
-#line 2083 "vtkParse.y"
+#line 2084 "vtkParse.y"
     {postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 337:
 
 /* Line 1455 of yacc.c  */
-#line 2088 "vtkParse.y"
+#line 2089 "vtkParse.y"
     {
              (yyval.str) = vtkstrcat3((yyvsp[(1) - (3)].str), "::", (yyvsp[(3) - (3)].str));
              preScopeSig((yyvsp[(1) - (3)].str));
@@ -6567,7 +6567,7 @@ yyreduce:
   case 338:
 
 /* Line 1455 of yacc.c  */
-#line 2093 "vtkParse.y"
+#line 2094 "vtkParse.y"
     {
              (yyval.str) = vtkstrcat3((yyvsp[(1) - (3)].str), "::", (yyvsp[(3) - (3)].str));
              preScopeSig("");
@@ -6577,35 +6577,35 @@ yyreduce:
   case 346:
 
 /* Line 1455 of yacc.c  */
-#line 2115 "vtkParse.y"
+#line 2116 "vtkParse.y"
     { postSig("&"); (yyval.integer) = VTK_PARSE_REF;}
     break;
 
   case 347:
 
 /* Line 1455 of yacc.c  */
-#line 2116 "vtkParse.y"
+#line 2117 "vtkParse.y"
     { postSig("&"); (yyval.integer) = ((yyvsp[(1) - (2)].integer) | VTK_PARSE_REF);}
     break;
 
   case 348:
 
 /* Line 1455 of yacc.c  */
-#line 2117 "vtkParse.y"
+#line 2118 "vtkParse.y"
     { (yyval.integer) = (yyvsp[(1) - (1)].integer); }
     break;
 
   case 349:
 
 /* Line 1455 of yacc.c  */
-#line 2122 "vtkParse.y"
+#line 2123 "vtkParse.y"
     { (yyval.integer) = (yyvsp[(1) - (1)].integer); }
     break;
 
   case 350:
 
 /* Line 1455 of yacc.c  */
-#line 2124 "vtkParse.y"
+#line 2125 "vtkParse.y"
     {
        unsigned int n;
        n = (((yyvsp[(1) - (2)].integer) << 2) | (yyvsp[(2) - (2)].integer));
@@ -6620,371 +6620,371 @@ yyreduce:
   case 351:
 
 /* Line 1455 of yacc.c  */
-#line 2135 "vtkParse.y"
+#line 2136 "vtkParse.y"
     { postSig("*"); (yyval.integer) = VTK_PARSE_POINTER; }
     break;
 
   case 352:
 
 /* Line 1455 of yacc.c  */
-#line 2136 "vtkParse.y"
+#line 2137 "vtkParse.y"
     { postSig("*const "); (yyval.integer) = VTK_PARSE_CONST_POINTER; }
     break;
 
   case 353:
 
 /* Line 1455 of yacc.c  */
-#line 2139 "vtkParse.y"
+#line 2140 "vtkParse.y"
     { (yyval.integer) = (yyvsp[(1) - (1)].integer);}
     break;
 
   case 354:
 
 /* Line 1455 of yacc.c  */
-#line 2140 "vtkParse.y"
+#line 2141 "vtkParse.y"
     { (yyval.integer) = (yyvsp[(2) - (2)].integer); }
     break;
 
   case 355:
 
 /* Line 1455 of yacc.c  */
-#line 2141 "vtkParse.y"
+#line 2142 "vtkParse.y"
     { (yyval.integer) = (yyvsp[(2) - (2)].integer); }
     break;
 
   case 356:
 
 /* Line 1455 of yacc.c  */
-#line 2142 "vtkParse.y"
+#line 2143 "vtkParse.y"
     { typeSig((yyvsp[(2) - (2)].str)); (yyval.integer) = VTK_PARSE_UNKNOWN; }
     break;
 
   case 357:
 
 /* Line 1455 of yacc.c  */
-#line 2143 "vtkParse.y"
+#line 2144 "vtkParse.y"
     { typeSig((yyvsp[(2) - (2)].str)); (yyval.integer) = VTK_PARSE_UNKNOWN; }
     break;
 
   case 358:
 
 /* Line 1455 of yacc.c  */
-#line 2146 "vtkParse.y"
+#line 2147 "vtkParse.y"
     { (yyval.integer) = (yyvsp[(1) - (1)].integer);}
     break;
 
   case 359:
 
 /* Line 1455 of yacc.c  */
-#line 2147 "vtkParse.y"
+#line 2148 "vtkParse.y"
     { (yyval.integer) = (yyvsp[(1) - (1)].integer);}
     break;
 
   case 360:
 
 /* Line 1455 of yacc.c  */
-#line 2150 "vtkParse.y"
+#line 2151 "vtkParse.y"
     { typeSig((yyvsp[(1) - (1)].str)); (yyval.integer) = VTK_PARSE_STRING;}
     break;
 
   case 361:
 
 /* Line 1455 of yacc.c  */
-#line 2151 "vtkParse.y"
+#line 2152 "vtkParse.y"
     { typeSig((yyvsp[(1) - (1)].str)); (yyval.integer) = VTK_PARSE_UNICODE_STRING;}
     break;
 
   case 362:
 
 /* Line 1455 of yacc.c  */
-#line 2152 "vtkParse.y"
+#line 2153 "vtkParse.y"
     { typeSig((yyvsp[(1) - (1)].str)); (yyval.integer) = VTK_PARSE_OSTREAM; }
     break;
 
   case 363:
 
 /* Line 1455 of yacc.c  */
-#line 2153 "vtkParse.y"
+#line 2154 "vtkParse.y"
     { typeSig((yyvsp[(1) - (1)].str)); (yyval.integer) = VTK_PARSE_ISTREAM; }
     break;
 
   case 364:
 
 /* Line 1455 of yacc.c  */
-#line 2154 "vtkParse.y"
+#line 2155 "vtkParse.y"
     { typeSig((yyvsp[(1) - (1)].str)); (yyval.integer) = VTK_PARSE_UNKNOWN; }
     break;
 
   case 365:
 
 /* Line 1455 of yacc.c  */
-#line 2155 "vtkParse.y"
+#line 2156 "vtkParse.y"
     { typeSig((yyvsp[(1) - (1)].str)); (yyval.integer) = VTK_PARSE_OBJECT; }
     break;
 
   case 366:
 
 /* Line 1455 of yacc.c  */
-#line 2156 "vtkParse.y"
+#line 2157 "vtkParse.y"
     { typeSig((yyvsp[(1) - (1)].str)); (yyval.integer) = VTK_PARSE_QOBJECT; }
     break;
 
   case 367:
 
 /* Line 1455 of yacc.c  */
-#line 2159 "vtkParse.y"
+#line 2160 "vtkParse.y"
     { typeSig("void"); (yyval.integer) = VTK_PARSE_VOID;}
     break;
 
   case 368:
 
 /* Line 1455 of yacc.c  */
-#line 2160 "vtkParse.y"
+#line 2161 "vtkParse.y"
     { typeSig("bool"); (yyval.integer) = VTK_PARSE_BOOL;}
     break;
 
   case 369:
 
 /* Line 1455 of yacc.c  */
-#line 2161 "vtkParse.y"
+#line 2162 "vtkParse.y"
     { typeSig("ssize_t"); (yyval.integer) = VTK_PARSE_SSIZE_T;}
     break;
 
   case 370:
 
 /* Line 1455 of yacc.c  */
-#line 2162 "vtkParse.y"
+#line 2163 "vtkParse.y"
     { typeSig("size_t"); (yyval.integer) = VTK_PARSE_SIZE_T;}
     break;
 
   case 371:
 
 /* Line 1455 of yacc.c  */
-#line 2163 "vtkParse.y"
+#line 2164 "vtkParse.y"
     { typeSig("vtkTypeInt8"); (yyval.integer) = VTK_PARSE_INT8; }
     break;
 
   case 372:
 
 /* Line 1455 of yacc.c  */
-#line 2164 "vtkParse.y"
+#line 2165 "vtkParse.y"
     { typeSig("vtkTypeUInt8"); (yyval.integer) = VTK_PARSE_UINT8; }
     break;
 
   case 373:
 
 /* Line 1455 of yacc.c  */
-#line 2165 "vtkParse.y"
+#line 2166 "vtkParse.y"
     { typeSig("vtkTypeInt16"); (yyval.integer) = VTK_PARSE_INT16; }
     break;
 
   case 374:
 
 /* Line 1455 of yacc.c  */
-#line 2166 "vtkParse.y"
+#line 2167 "vtkParse.y"
     { typeSig("vtkTypeUInt16"); (yyval.integer) = VTK_PARSE_UINT16; }
     break;
 
   case 375:
 
 /* Line 1455 of yacc.c  */
-#line 2167 "vtkParse.y"
+#line 2168 "vtkParse.y"
     { typeSig("vtkTypeInt32"); (yyval.integer) = VTK_PARSE_INT32; }
     break;
 
   case 376:
 
 /* Line 1455 of yacc.c  */
-#line 2168 "vtkParse.y"
+#line 2169 "vtkParse.y"
     { typeSig("vtkTypeUInt32"); (yyval.integer) = VTK_PARSE_UINT32; }
     break;
 
   case 377:
 
 /* Line 1455 of yacc.c  */
-#line 2169 "vtkParse.y"
+#line 2170 "vtkParse.y"
     { typeSig("vtkTypeInt64"); (yyval.integer) = VTK_PARSE_INT64; }
     break;
 
   case 378:
 
 /* Line 1455 of yacc.c  */
-#line 2170 "vtkParse.y"
+#line 2171 "vtkParse.y"
     { typeSig("vtkTypeUInt64"); (yyval.integer) = VTK_PARSE_UINT64; }
     break;
 
   case 379:
 
 /* Line 1455 of yacc.c  */
-#line 2171 "vtkParse.y"
+#line 2172 "vtkParse.y"
     { typeSig("vtkTypeFloat32"); (yyval.integer) = VTK_PARSE_FLOAT32; }
     break;
 
   case 380:
 
 /* Line 1455 of yacc.c  */
-#line 2172 "vtkParse.y"
+#line 2173 "vtkParse.y"
     { typeSig("vtkTypeFloat64"); (yyval.integer) = VTK_PARSE_FLOAT64; }
     break;
 
   case 381:
 
 /* Line 1455 of yacc.c  */
-#line 2173 "vtkParse.y"
+#line 2174 "vtkParse.y"
     { typeSig("vtkIdType"); (yyval.integer) = VTK_PARSE_ID_TYPE;}
     break;
 
   case 382:
 
 /* Line 1455 of yacc.c  */
-#line 2174 "vtkParse.y"
+#line 2175 "vtkParse.y"
     { typeSig("double"); (yyval.integer) = VTK_PARSE_DOUBLE;}
     break;
 
   case 383:
 
 /* Line 1455 of yacc.c  */
-#line 2175 "vtkParse.y"
+#line 2176 "vtkParse.y"
     { typeSig("float"); (yyval.integer) = VTK_PARSE_FLOAT;}
     break;
 
   case 384:
 
 /* Line 1455 of yacc.c  */
-#line 2176 "vtkParse.y"
+#line 2177 "vtkParse.y"
     { typeSig("double"); (yyval.integer) = VTK_PARSE_DOUBLE;}
     break;
 
   case 385:
 
 /* Line 1455 of yacc.c  */
-#line 2177 "vtkParse.y"
+#line 2178 "vtkParse.y"
     { typeSig("long double"); (yyval.integer) = VTK_PARSE_UNKNOWN;}
     break;
 
   case 386:
 
 /* Line 1455 of yacc.c  */
-#line 2178 "vtkParse.y"
+#line 2179 "vtkParse.y"
     { typeSig("char"); (yyval.integer) = VTK_PARSE_CHAR;}
     break;
 
   case 387:
 
 /* Line 1455 of yacc.c  */
-#line 2179 "vtkParse.y"
+#line 2180 "vtkParse.y"
     { typeSig("signed char"); (yyval.integer) = VTK_PARSE_SIGNED_CHAR;}
     break;
 
   case 388:
 
 /* Line 1455 of yacc.c  */
-#line 2181 "vtkParse.y"
+#line 2182 "vtkParse.y"
     { typeSig("unsigned char"); (yyval.integer) = VTK_PARSE_UNSIGNED_CHAR;}
     break;
 
   case 389:
 
 /* Line 1455 of yacc.c  */
-#line 2182 "vtkParse.y"
+#line 2183 "vtkParse.y"
     { typeSig("int"); (yyval.integer) = VTK_PARSE_INT;}
     break;
 
   case 390:
 
 /* Line 1455 of yacc.c  */
-#line 2184 "vtkParse.y"
+#line 2185 "vtkParse.y"
     { typeSig("unsigned int"); (yyval.integer) = VTK_PARSE_UNSIGNED_INT;}
     break;
 
   case 391:
 
 /* Line 1455 of yacc.c  */
-#line 2185 "vtkParse.y"
+#line 2186 "vtkParse.y"
     { typeSig("short"); (yyval.integer) = VTK_PARSE_SHORT;}
     break;
 
   case 392:
 
 /* Line 1455 of yacc.c  */
-#line 2187 "vtkParse.y"
+#line 2188 "vtkParse.y"
     { typeSig("unsigned short"); (yyval.integer) = VTK_PARSE_UNSIGNED_SHORT;}
     break;
 
   case 393:
 
 /* Line 1455 of yacc.c  */
-#line 2188 "vtkParse.y"
+#line 2189 "vtkParse.y"
     { typeSig("long"); (yyval.integer) = VTK_PARSE_LONG;}
     break;
 
   case 394:
 
 /* Line 1455 of yacc.c  */
-#line 2190 "vtkParse.y"
+#line 2191 "vtkParse.y"
     { typeSig("unsigned long"); (yyval.integer) = VTK_PARSE_UNSIGNED_LONG;}
     break;
 
   case 395:
 
 /* Line 1455 of yacc.c  */
-#line 2191 "vtkParse.y"
+#line 2192 "vtkParse.y"
     { typeSig("long long"); (yyval.integer) = VTK_PARSE_LONG_LONG;}
     break;
 
   case 396:
 
 /* Line 1455 of yacc.c  */
-#line 2193 "vtkParse.y"
+#line 2194 "vtkParse.y"
     {typeSig("unsigned long long");(yyval.integer)=VTK_PARSE_UNSIGNED_LONG_LONG;}
     break;
 
   case 397:
 
 /* Line 1455 of yacc.c  */
-#line 2194 "vtkParse.y"
+#line 2195 "vtkParse.y"
     { typeSig("__int64"); (yyval.integer) = VTK_PARSE___INT64;}
     break;
 
   case 398:
 
 /* Line 1455 of yacc.c  */
-#line 2196 "vtkParse.y"
+#line 2197 "vtkParse.y"
     { typeSig("unsigned __int64"); (yyval.integer) = VTK_PARSE_UNSIGNED___INT64;}
     break;
 
   case 399:
 
 /* Line 1455 of yacc.c  */
-#line 2197 "vtkParse.y"
+#line 2198 "vtkParse.y"
     { typeSig("int"); (yyval.integer) = VTK_PARSE_INT; }
     break;
 
   case 400:
 
 /* Line 1455 of yacc.c  */
-#line 2198 "vtkParse.y"
+#line 2199 "vtkParse.y"
     { typeSig("unsigned int"); (yyval.integer) = VTK_PARSE_UNSIGNED_INT; }
     break;
 
   case 401:
 
 /* Line 1455 of yacc.c  */
-#line 2204 "vtkParse.y"
+#line 2205 "vtkParse.y"
     { (yyval.str) = (yyvsp[(1) - (1)].str); }
     break;
 
   case 402:
 
 /* Line 1455 of yacc.c  */
-#line 2205 "vtkParse.y"
+#line 2206 "vtkParse.y"
     { postSig("{ "); }
     break;
 
   case 403:
 
 /* Line 1455 of yacc.c  */
-#line 2206 "vtkParse.y"
+#line 2207 "vtkParse.y"
     {
           postSig("}");
           (yyval.str) = vtkstrcat4("{ ", (yyvsp[(3) - (6)].str), (yyvsp[(4) - (6)].str), " }");
@@ -6994,21 +6994,21 @@ yyreduce:
   case 406:
 
 /* Line 1455 of yacc.c  */
-#line 2213 "vtkParse.y"
+#line 2214 "vtkParse.y"
     {(yyval.str) = "";}
     break;
 
   case 407:
 
 /* Line 1455 of yacc.c  */
-#line 2214 "vtkParse.y"
+#line 2215 "vtkParse.y"
     { postSig(", "); }
     break;
 
   case 408:
 
 /* Line 1455 of yacc.c  */
-#line 2215 "vtkParse.y"
+#line 2216 "vtkParse.y"
     {
           (yyval.str) = vtkstrcat3((yyvsp[(1) - (4)].str), ", ", (yyvsp[(4) - (4)].str));
         }
@@ -7017,35 +7017,35 @@ yyreduce:
   case 409:
 
 /* Line 1455 of yacc.c  */
-#line 2219 "vtkParse.y"
+#line 2220 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str);}
     break;
 
   case 410:
 
 /* Line 1455 of yacc.c  */
-#line 2220 "vtkParse.y"
+#line 2221 "vtkParse.y"
     {postSig("+");}
     break;
 
   case 411:
 
 /* Line 1455 of yacc.c  */
-#line 2220 "vtkParse.y"
+#line 2221 "vtkParse.y"
     {(yyval.str) = (yyvsp[(3) - (3)].str);}
     break;
 
   case 412:
 
 /* Line 1455 of yacc.c  */
-#line 2221 "vtkParse.y"
+#line 2222 "vtkParse.y"
     {postSig("-");}
     break;
 
   case 413:
 
 /* Line 1455 of yacc.c  */
-#line 2222 "vtkParse.y"
+#line 2223 "vtkParse.y"
     {
              (yyval.str) = vtkstrcat("-", (yyvsp[(3) - (3)].str));
              }
@@ -7054,35 +7054,35 @@ yyreduce:
   case 414:
 
 /* Line 1455 of yacc.c  */
-#line 2225 "vtkParse.y"
+#line 2226 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str); postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 415:
 
 /* Line 1455 of yacc.c  */
-#line 2226 "vtkParse.y"
+#line 2227 "vtkParse.y"
     {postSig("(");}
     break;
 
   case 416:
 
 /* Line 1455 of yacc.c  */
-#line 2226 "vtkParse.y"
+#line 2227 "vtkParse.y"
     {postSig(")"); (yyval.str) = (yyvsp[(3) - (4)].str);}
     break;
 
   case 417:
 
 /* Line 1455 of yacc.c  */
-#line 2227 "vtkParse.y"
+#line 2228 "vtkParse.y"
     {postSig((yyvsp[(1) - (2)].str)); postSig("<");}
     break;
 
   case 418:
 
 /* Line 1455 of yacc.c  */
-#line 2229 "vtkParse.y"
+#line 2230 "vtkParse.y"
     {
              chopSig();
              if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
@@ -7093,7 +7093,7 @@ yyreduce:
   case 419:
 
 /* Line 1455 of yacc.c  */
-#line 2235 "vtkParse.y"
+#line 2236 "vtkParse.y"
     {
              postSig(")");
              if (getTypeId()[strlen(getTypeId())-1] == '>')
@@ -7112,105 +7112,105 @@ yyreduce:
   case 420:
 
 /* Line 1455 of yacc.c  */
-#line 2249 "vtkParse.y"
+#line 2250 "vtkParse.y"
     { (yyval.str) = "static_cast"; }
     break;
 
   case 421:
 
 /* Line 1455 of yacc.c  */
-#line 2250 "vtkParse.y"
+#line 2251 "vtkParse.y"
     { (yyval.str) = "const_cast"; }
     break;
 
   case 422:
 
 /* Line 1455 of yacc.c  */
-#line 2251 "vtkParse.y"
+#line 2252 "vtkParse.y"
     { (yyval.str) = "dynamic_cast"; }
     break;
 
   case 423:
 
 /* Line 1455 of yacc.c  */
-#line 2252 "vtkParse.y"
+#line 2253 "vtkParse.y"
     { (yyval.str) = "reinterpret_cast"; }
     break;
 
   case 424:
 
 /* Line 1455 of yacc.c  */
-#line 2254 "vtkParse.y"
+#line 2255 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str);}
     break;
 
   case 425:
 
 /* Line 1455 of yacc.c  */
-#line 2256 "vtkParse.y"
+#line 2257 "vtkParse.y"
     { (yyval.str) = vtkstrcat((yyvsp[(1) - (2)].str), (yyvsp[(2) - (2)].str)); }
     break;
 
   case 426:
 
 /* Line 1455 of yacc.c  */
-#line 2258 "vtkParse.y"
+#line 2259 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str); postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 427:
 
 /* Line 1455 of yacc.c  */
-#line 2259 "vtkParse.y"
+#line 2260 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str); postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 428:
 
 /* Line 1455 of yacc.c  */
-#line 2260 "vtkParse.y"
+#line 2261 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str); postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 429:
 
 /* Line 1455 of yacc.c  */
-#line 2261 "vtkParse.y"
+#line 2262 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str); postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 430:
 
 /* Line 1455 of yacc.c  */
-#line 2262 "vtkParse.y"
+#line 2263 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str); postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 431:
 
 /* Line 1455 of yacc.c  */
-#line 2263 "vtkParse.y"
+#line 2264 "vtkParse.y"
     {(yyval.str) = (yyvsp[(1) - (1)].str); postSig((yyvsp[(1) - (1)].str));}
     break;
 
   case 432:
 
 /* Line 1455 of yacc.c  */
-#line 2265 "vtkParse.y"
+#line 2266 "vtkParse.y"
     { (yyval.str) = vtkstrdup(add_const_scope((yyvsp[(1) - (1)].str))); }
     break;
 
   case 433:
 
 /* Line 1455 of yacc.c  */
-#line 2274 "vtkParse.y"
+#line 2275 "vtkParse.y"
     {preSig("void Set"); postSig("(");}
     break;
 
   case 434:
 
 /* Line 1455 of yacc.c  */
-#line 2275 "vtkParse.y"
+#line 2276 "vtkParse.y"
     {
    postSig("a);");
    currentFunction->Macro = "vtkSetMacro";
@@ -7225,28 +7225,28 @@ yyreduce:
   case 435:
 
 /* Line 1455 of yacc.c  */
-#line 2284 "vtkParse.y"
+#line 2285 "vtkParse.y"
     {postSig("Get");}
     break;
 
   case 436:
 
 /* Line 1455 of yacc.c  */
-#line 2285 "vtkParse.y"
+#line 2286 "vtkParse.y"
     {markSig();}
     break;
 
   case 437:
 
 /* Line 1455 of yacc.c  */
-#line 2285 "vtkParse.y"
+#line 2286 "vtkParse.y"
     {swapSig();}
     break;
 
   case 438:
 
 /* Line 1455 of yacc.c  */
-#line 2286 "vtkParse.y"
+#line 2287 "vtkParse.y"
     {
    postSig("();");
    currentFunction->Macro = "vtkGetMacro";
@@ -7260,14 +7260,14 @@ yyreduce:
   case 439:
 
 /* Line 1455 of yacc.c  */
-#line 2294 "vtkParse.y"
+#line 2295 "vtkParse.y"
     {preSig("void Set");}
     break;
 
   case 440:
 
 /* Line 1455 of yacc.c  */
-#line 2295 "vtkParse.y"
+#line 2296 "vtkParse.y"
     {
    postSig("(char *);");
    currentFunction->Macro = "vtkSetStringMacro";
@@ -7282,14 +7282,14 @@ yyreduce:
   case 441:
 
 /* Line 1455 of yacc.c  */
-#line 2304 "vtkParse.y"
+#line 2305 "vtkParse.y"
     {preSig("char *Get");}
     break;
 
   case 442:
 
 /* Line 1455 of yacc.c  */
-#line 2305 "vtkParse.y"
+#line 2306 "vtkParse.y"
     {
    postSig("();");
    currentFunction->Macro = "vtkGetStringMacro";
@@ -7303,21 +7303,21 @@ yyreduce:
   case 443:
 
 /* Line 1455 of yacc.c  */
-#line 2313 "vtkParse.y"
+#line 2314 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 444:
 
 /* Line 1455 of yacc.c  */
-#line 2313 "vtkParse.y"
+#line 2314 "vtkParse.y"
     {closeSig();}
     break;
 
   case 445:
 
 /* Line 1455 of yacc.c  */
-#line 2315 "vtkParse.y"
+#line 2316 "vtkParse.y"
     {
    const char *typeText;
    chopSig();
@@ -7353,14 +7353,14 @@ yyreduce:
   case 446:
 
 /* Line 1455 of yacc.c  */
-#line 2346 "vtkParse.y"
+#line 2347 "vtkParse.y"
     {preSig("void Set"); postSig("("); }
     break;
 
   case 447:
 
 /* Line 1455 of yacc.c  */
-#line 2347 "vtkParse.y"
+#line 2348 "vtkParse.y"
     {
    postSig("*);");
    currentFunction->Macro = "vtkSetObjectMacro";
@@ -7375,28 +7375,28 @@ yyreduce:
   case 448:
 
 /* Line 1455 of yacc.c  */
-#line 2356 "vtkParse.y"
+#line 2357 "vtkParse.y"
     {postSig("*Get");}
     break;
 
   case 449:
 
 /* Line 1455 of yacc.c  */
-#line 2357 "vtkParse.y"
+#line 2358 "vtkParse.y"
     {markSig();}
     break;
 
   case 450:
 
 /* Line 1455 of yacc.c  */
-#line 2357 "vtkParse.y"
+#line 2358 "vtkParse.y"
     {swapSig();}
     break;
 
   case 451:
 
 /* Line 1455 of yacc.c  */
-#line 2358 "vtkParse.y"
+#line 2359 "vtkParse.y"
     {
    postSig("();");
    currentFunction->Macro = "vtkGetObjectMacro";
@@ -7410,7 +7410,7 @@ yyreduce:
   case 452:
 
 /* Line 1455 of yacc.c  */
-#line 2367 "vtkParse.y"
+#line 2368 "vtkParse.y"
     {
    currentFunction->Macro = "vtkBooleanMacro";
    currentFunction->Name = vtkstrcat((yyvsp[(3) - (6)].str), "On");
@@ -7433,14 +7433,14 @@ yyreduce:
   case 453:
 
 /* Line 1455 of yacc.c  */
-#line 2384 "vtkParse.y"
+#line 2385 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 454:
 
 /* Line 1455 of yacc.c  */
-#line 2385 "vtkParse.y"
+#line 2386 "vtkParse.y"
     {
    chopSig();
    outputSetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 2);
@@ -7450,14 +7450,14 @@ yyreduce:
   case 455:
 
 /* Line 1455 of yacc.c  */
-#line 2389 "vtkParse.y"
+#line 2390 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 456:
 
 /* Line 1455 of yacc.c  */
-#line 2390 "vtkParse.y"
+#line 2391 "vtkParse.y"
     {
    chopSig();
    outputGetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 2);
@@ -7467,14 +7467,14 @@ yyreduce:
   case 457:
 
 /* Line 1455 of yacc.c  */
-#line 2394 "vtkParse.y"
+#line 2395 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 458:
 
 /* Line 1455 of yacc.c  */
-#line 2395 "vtkParse.y"
+#line 2396 "vtkParse.y"
     {
    chopSig();
    outputSetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 3);
@@ -7484,14 +7484,14 @@ yyreduce:
   case 459:
 
 /* Line 1455 of yacc.c  */
-#line 2399 "vtkParse.y"
+#line 2400 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 460:
 
 /* Line 1455 of yacc.c  */
-#line 2400 "vtkParse.y"
+#line 2401 "vtkParse.y"
     {
    chopSig();
    outputGetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 3);
@@ -7501,14 +7501,14 @@ yyreduce:
   case 461:
 
 /* Line 1455 of yacc.c  */
-#line 2404 "vtkParse.y"
+#line 2405 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 462:
 
 /* Line 1455 of yacc.c  */
-#line 2405 "vtkParse.y"
+#line 2406 "vtkParse.y"
     {
    chopSig();
    outputSetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 4);
@@ -7518,14 +7518,14 @@ yyreduce:
   case 463:
 
 /* Line 1455 of yacc.c  */
-#line 2409 "vtkParse.y"
+#line 2410 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 464:
 
 /* Line 1455 of yacc.c  */
-#line 2410 "vtkParse.y"
+#line 2411 "vtkParse.y"
     {
    chopSig();
    outputGetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 4);
@@ -7535,14 +7535,14 @@ yyreduce:
   case 465:
 
 /* Line 1455 of yacc.c  */
-#line 2414 "vtkParse.y"
+#line 2415 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 466:
 
 /* Line 1455 of yacc.c  */
-#line 2415 "vtkParse.y"
+#line 2416 "vtkParse.y"
     {
    chopSig();
    outputSetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 6);
@@ -7552,14 +7552,14 @@ yyreduce:
   case 467:
 
 /* Line 1455 of yacc.c  */
-#line 2419 "vtkParse.y"
+#line 2420 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 468:
 
 /* Line 1455 of yacc.c  */
-#line 2420 "vtkParse.y"
+#line 2421 "vtkParse.y"
     {
    chopSig();
    outputGetVectorMacro((yyvsp[(3) - (7)].str), (yyvsp[(6) - (7)].integer), copySig(), 6);
@@ -7569,14 +7569,14 @@ yyreduce:
   case 469:
 
 /* Line 1455 of yacc.c  */
-#line 2424 "vtkParse.y"
+#line 2425 "vtkParse.y"
     {startSig(); markSig();}
     break;
 
   case 470:
 
 /* Line 1455 of yacc.c  */
-#line 2426 "vtkParse.y"
+#line 2427 "vtkParse.y"
     {
    const char *typeText;
    chopSig();
@@ -7597,14 +7597,14 @@ yyreduce:
   case 471:
 
 /* Line 1455 of yacc.c  */
-#line 2441 "vtkParse.y"
+#line 2442 "vtkParse.y"
     {startSig();}
     break;
 
   case 472:
 
 /* Line 1455 of yacc.c  */
-#line 2443 "vtkParse.y"
+#line 2444 "vtkParse.y"
     {
    chopSig();
    currentFunction->Macro = "vtkGetVectorMacro";
@@ -7622,7 +7622,7 @@ yyreduce:
   case 473:
 
 /* Line 1455 of yacc.c  */
-#line 2456 "vtkParse.y"
+#line 2457 "vtkParse.y"
     {
      currentFunction->Macro = "vtkViewportCoordinateMacro";
      currentFunction->Name = vtkstrcat3("Get", (yyvsp[(3) - (4)].str), "Coordinate");
@@ -7664,7 +7664,7 @@ yyreduce:
   case 474:
 
 /* Line 1455 of yacc.c  */
-#line 2493 "vtkParse.y"
+#line 2494 "vtkParse.y"
     {
      currentFunction->Macro = "vtkWorldCoordinateMacro";
      currentFunction->Name = vtkstrcat3("Get", (yyvsp[(3) - (4)].str), "Coordinate");
@@ -7707,7 +7707,7 @@ yyreduce:
   case 475:
 
 /* Line 1455 of yacc.c  */
-#line 2531 "vtkParse.y"
+#line 2532 "vtkParse.y"
     {
    int is_concrete = 0;
    int i;
@@ -7763,308 +7763,308 @@ yyreduce:
   case 476:
 
 /* Line 1455 of yacc.c  */
-#line 2587 "vtkParse.y"
+#line 2588 "vtkParse.y"
     { (yyval.str) = "operator()"; }
     break;
 
   case 477:
 
 /* Line 1455 of yacc.c  */
-#line 2588 "vtkParse.y"
+#line 2589 "vtkParse.y"
     { (yyval.str) = "operator[]"; }
     break;
 
   case 478:
 
 /* Line 1455 of yacc.c  */
-#line 2589 "vtkParse.y"
+#line 2590 "vtkParse.y"
     { (yyval.str) = "operator new[]"; }
     break;
 
   case 479:
 
 /* Line 1455 of yacc.c  */
-#line 2590 "vtkParse.y"
+#line 2591 "vtkParse.y"
     { (yyval.str) = "operator delete[]"; }
     break;
 
   case 481:
 
 /* Line 1455 of yacc.c  */
-#line 2593 "vtkParse.y"
+#line 2594 "vtkParse.y"
     { (yyval.str) = "operator="; }
     break;
 
   case 482:
 
 /* Line 1455 of yacc.c  */
-#line 2594 "vtkParse.y"
+#line 2595 "vtkParse.y"
     { (yyval.str) = "operator*"; }
     break;
 
   case 483:
 
 /* Line 1455 of yacc.c  */
-#line 2594 "vtkParse.y"
+#line 2595 "vtkParse.y"
     { (yyval.str) = "operator/"; }
     break;
 
   case 484:
 
 /* Line 1455 of yacc.c  */
-#line 2595 "vtkParse.y"
+#line 2596 "vtkParse.y"
     { (yyval.str) = "operator-"; }
     break;
 
   case 485:
 
 /* Line 1455 of yacc.c  */
-#line 2595 "vtkParse.y"
+#line 2596 "vtkParse.y"
     { (yyval.str) = "operator+"; }
     break;
 
   case 486:
 
 /* Line 1455 of yacc.c  */
-#line 2596 "vtkParse.y"
+#line 2597 "vtkParse.y"
     { (yyval.str) = "operator!"; }
     break;
 
   case 487:
 
 /* Line 1455 of yacc.c  */
-#line 2596 "vtkParse.y"
+#line 2597 "vtkParse.y"
     { (yyval.str) = "operator~"; }
     break;
 
   case 488:
 
 /* Line 1455 of yacc.c  */
-#line 2597 "vtkParse.y"
+#line 2598 "vtkParse.y"
     { (yyval.str) = "operator,"; }
     break;
 
   case 489:
 
 /* Line 1455 of yacc.c  */
-#line 2597 "vtkParse.y"
+#line 2598 "vtkParse.y"
     { (yyval.str) = "operator<"; }
     break;
 
   case 490:
 
 /* Line 1455 of yacc.c  */
-#line 2598 "vtkParse.y"
+#line 2599 "vtkParse.y"
     { (yyval.str) = "operator>"; }
     break;
 
   case 491:
 
 /* Line 1455 of yacc.c  */
-#line 2598 "vtkParse.y"
+#line 2599 "vtkParse.y"
     { (yyval.str) = "operator&"; }
     break;
 
   case 492:
 
 /* Line 1455 of yacc.c  */
-#line 2599 "vtkParse.y"
+#line 2600 "vtkParse.y"
     { (yyval.str) = "operator|"; }
     break;
 
   case 493:
 
 /* Line 1455 of yacc.c  */
-#line 2599 "vtkParse.y"
+#line 2600 "vtkParse.y"
     { (yyval.str) = "operator^"; }
     break;
 
   case 494:
 
 /* Line 1455 of yacc.c  */
-#line 2600 "vtkParse.y"
+#line 2601 "vtkParse.y"
     { (yyval.str) = "operator%"; }
     break;
 
   case 495:
 
 /* Line 1455 of yacc.c  */
-#line 2601 "vtkParse.y"
+#line 2602 "vtkParse.y"
     { (yyval.str) = "operator new"; }
     break;
 
   case 496:
 
 /* Line 1455 of yacc.c  */
-#line 2602 "vtkParse.y"
+#line 2603 "vtkParse.y"
     { (yyval.str) = "operator delete"; }
     break;
 
   case 497:
 
 /* Line 1455 of yacc.c  */
-#line 2603 "vtkParse.y"
+#line 2604 "vtkParse.y"
     { (yyval.str) = "operator<<="; }
     break;
 
   case 498:
 
 /* Line 1455 of yacc.c  */
-#line 2604 "vtkParse.y"
+#line 2605 "vtkParse.y"
     { (yyval.str) = "operator>>="; }
     break;
 
   case 499:
 
 /* Line 1455 of yacc.c  */
-#line 2605 "vtkParse.y"
+#line 2606 "vtkParse.y"
     { (yyval.str) = "operator<<"; }
     break;
 
   case 500:
 
 /* Line 1455 of yacc.c  */
-#line 2606 "vtkParse.y"
+#line 2607 "vtkParse.y"
     { (yyval.str) = "operator>>"; }
     break;
 
   case 501:
 
 /* Line 1455 of yacc.c  */
-#line 2607 "vtkParse.y"
+#line 2608 "vtkParse.y"
     { (yyval.str) = "operator->*"; }
     break;
 
   case 502:
 
 /* Line 1455 of yacc.c  */
-#line 2608 "vtkParse.y"
+#line 2609 "vtkParse.y"
     { (yyval.str) = "operator->"; }
     break;
 
   case 503:
 
 /* Line 1455 of yacc.c  */
-#line 2609 "vtkParse.y"
+#line 2610 "vtkParse.y"
     { (yyval.str) = "operator+="; }
     break;
 
   case 504:
 
 /* Line 1455 of yacc.c  */
-#line 2610 "vtkParse.y"
+#line 2611 "vtkParse.y"
     { (yyval.str) = "operator-="; }
     break;
 
   case 505:
 
 /* Line 1455 of yacc.c  */
-#line 2611 "vtkParse.y"
+#line 2612 "vtkParse.y"
     { (yyval.str) = "operator*="; }
     break;
 
   case 506:
 
 /* Line 1455 of yacc.c  */
-#line 2612 "vtkParse.y"
+#line 2613 "vtkParse.y"
     { (yyval.str) = "operator/="; }
     break;
 
   case 507:
 
 /* Line 1455 of yacc.c  */
-#line 2613 "vtkParse.y"
+#line 2614 "vtkParse.y"
     { (yyval.str) = "operator%="; }
     break;
 
   case 508:
 
 /* Line 1455 of yacc.c  */
-#line 2614 "vtkParse.y"
+#line 2615 "vtkParse.y"
     { (yyval.str) = "operator++"; }
     break;
 
   case 509:
 
 /* Line 1455 of yacc.c  */
-#line 2615 "vtkParse.y"
+#line 2616 "vtkParse.y"
     { (yyval.str) = "operator--"; }
     break;
 
   case 510:
 
 /* Line 1455 of yacc.c  */
-#line 2616 "vtkParse.y"
+#line 2617 "vtkParse.y"
     { (yyval.str) = "operator&="; }
     break;
 
   case 511:
 
 /* Line 1455 of yacc.c  */
-#line 2617 "vtkParse.y"
+#line 2618 "vtkParse.y"
     { (yyval.str) = "operator|="; }
     break;
 
   case 512:
 
 /* Line 1455 of yacc.c  */
-#line 2618 "vtkParse.y"
+#line 2619 "vtkParse.y"
     { (yyval.str) = "operator^="; }
     break;
 
   case 513:
 
 /* Line 1455 of yacc.c  */
-#line 2619 "vtkParse.y"
+#line 2620 "vtkParse.y"
     {(yyval.str) = "operator&&=";}
     break;
 
   case 514:
 
 /* Line 1455 of yacc.c  */
-#line 2620 "vtkParse.y"
+#line 2621 "vtkParse.y"
     {(yyval.str) = "operator||=";}
     break;
 
   case 515:
 
 /* Line 1455 of yacc.c  */
-#line 2621 "vtkParse.y"
+#line 2622 "vtkParse.y"
     { (yyval.str) = "operator&&"; }
     break;
 
   case 516:
 
 /* Line 1455 of yacc.c  */
-#line 2622 "vtkParse.y"
+#line 2623 "vtkParse.y"
     { (yyval.str) = "operator||"; }
     break;
 
   case 517:
 
 /* Line 1455 of yacc.c  */
-#line 2623 "vtkParse.y"
+#line 2624 "vtkParse.y"
     { (yyval.str) = "operator=="; }
     break;
 
   case 518:
 
 /* Line 1455 of yacc.c  */
-#line 2624 "vtkParse.y"
+#line 2625 "vtkParse.y"
     { (yyval.str) = "operator!="; }
     break;
 
   case 519:
 
 /* Line 1455 of yacc.c  */
-#line 2625 "vtkParse.y"
+#line 2626 "vtkParse.y"
     { (yyval.str) = "operator<="; }
     break;
 
   case 520:
 
 /* Line 1455 of yacc.c  */
-#line 2626 "vtkParse.y"
+#line 2627 "vtkParse.y"
     { (yyval.str) = "operator>="; }
     break;
 
@@ -8282,7 +8282,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 2651 "vtkParse.y"
+#line 2652 "vtkParse.y"
 
 #include <string.h>
 #include "lex.yy.c"
@@ -8291,6 +8291,21 @@ yyreturn:
 void vtkParse_InitTemplateArgs(TemplateArgs *args)
 {
   args->NumberOfArguments = 0;
+}
+
+void vtkParse_CopyTemplateArgs(TemplateArgs *args, const TemplateArgs *orig)
+{
+  unsigned long i, n;
+
+  n = orig->NumberOfArguments;
+  args->NumberOfArguments = n;
+  args->Arguments = (TemplateArg **)malloc(n*sizeof(TemplateArg *));
+
+  for (i = 0; i < n; i++)
+    {
+    args->Arguments[i] = (TemplateArg *)malloc(sizeof(TemplateArg));
+    vtkParse_CopyTemplateArg(args->Arguments[i], orig->Arguments[i]);
+    }
 }
 
 void vtkParse_InitTemplateArg(TemplateArg *arg)
@@ -8302,10 +8317,26 @@ void vtkParse_InitTemplateArg(TemplateArg *arg)
   arg->Value = NULL;
 }
 
+void vtkParse_CopyTemplateArg(TemplateArg *arg, const TemplateArg *orig)
+{
+  arg->Template = NULL;
+
+  if (orig->Template)
+    {
+    arg->Template = (TemplateArgs *)malloc(sizeof(TemplateArgs));
+    vtkParse_CopyTemplateArgs(arg->Template, orig->Template);
+    }
+
+  arg->Type = orig->Type;
+  arg->Class = orig->Class;
+  arg->Name = orig->Name;
+  arg->Value = orig->Value;
+}
+
 /* initialize the structure */
 void vtkParse_InitFunction(FunctionInfo *func)
 {
-  int i;
+  unsigned long i;
 
   func->ItemType = VTK_FUNCTION_INFO;
   func->Access = VTK_ACCESS_PUBLIC;
@@ -8317,6 +8348,7 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->NumberOfArguments = 0;
   func->ReturnValue = NULL;
   func->Macro = NULL;
+  func->SizeHint = NULL;
   func->IsStatic = 0;
   func->IsVirtual = 0;
   func->IsPureVirtual = 0;
@@ -8344,6 +8376,72 @@ void vtkParse_InitFunction(FunctionInfo *func)
     }
 }
 
+void vtkParse_CopyFunction(FunctionInfo *func, const FunctionInfo *orig)
+{
+  unsigned long i, n;
+
+  func->ItemType = orig->ItemType;
+  func->Access = orig->Access;
+  func->Name = orig->Name;
+  func->Comment = orig->Comment;
+  func->Class = orig->Class;
+  func->Signature = orig->Signature;
+  func->Template = NULL;
+
+  if (orig->Template)
+    {
+    func->Template = (TemplateArgs *)malloc(sizeof(TemplateArgs));
+    vtkParse_CopyTemplateArgs(func->Template, orig->Template);
+    }
+
+  n = orig->NumberOfArguments;
+  func->NumberOfArguments = n;
+  if (n)
+    {
+    func->Arguments = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
+    for (i = 0; i < n; i++)
+      {
+      func->Arguments[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_CopyValue(func->Arguments[i], orig->Arguments[i]);
+      }
+    }
+
+  func->ReturnValue = NULL;
+  if (orig->ReturnValue)
+    {
+    func->ReturnValue = (ValueInfo *)malloc(sizeof(ValueInfo));
+    vtkParse_CopyValue(func->ReturnValue, orig->ReturnValue);
+    }
+
+  func->Macro = orig->Macro;
+  func->SizeHint = orig->SizeHint;
+  func->IsStatic = orig->IsStatic;
+  func->IsVirtual = orig->IsVirtual;
+  func->IsPureVirtual = orig->IsPureVirtual;
+  func->IsOperator = orig->IsOperator;
+  func->IsVariadic = orig->IsVariadic;
+  func->IsConst = orig->IsConst;
+  func->IsExplicit = orig->IsExplicit;
+
+  /* everything below here is legacy information, *
+   * maintained only for backwards compatibility  */
+  func->ReturnType = orig->ReturnType;
+  func->ReturnClass = orig->ReturnClass;
+  func->HaveHint = orig->HaveHint;
+  func->HintSize = orig->HintSize;
+  func->IsLegacy = orig->IsLegacy;
+  func->ArrayFailure = orig->ArrayFailure;
+  func->IsPublic = orig->IsPublic;
+  func->IsProtected = orig->IsProtected;
+
+  for (i = 0; i < MAX_ARGS; i++)
+    {
+    func->ArgTypes[i] = orig->ArgTypes[i];
+    func->ArgClasses[i] = orig->ArgClasses[i];
+    func->ArgCounts[i] = orig->ArgCounts[i];
+    }
+}
+
 /* initialize the structure */
 void vtkParse_InitValue(ValueInfo *val)
 {
@@ -8362,6 +8460,42 @@ void vtkParse_InitValue(ValueInfo *val)
   val->IsEnum = 0;
 }
 
+void vtkParse_CopyValue(ValueInfo *val, const ValueInfo *orig)
+{
+  unsigned long i, n;
+
+  val->ItemType = orig->ItemType;
+  val->Access = orig->Access;
+  val->Name = orig->Name;
+  val->Comment = orig->Comment;
+  val->Value = orig->Value;
+  val->Type = orig->Type;
+  val->Class = orig->Class;
+  val->Count = orig->Count;
+  val->CountHint = orig->CountHint;
+
+  n = orig->NumberOfDimensions;
+  val->NumberOfDimensions = n;
+  if (n)
+    {
+    val->Dimensions = (const char **)malloc(n*sizeof(char *));
+    for (i = 0; i < n; i++)
+      {
+      val->Dimensions[i] = orig->Dimensions[i];
+      }
+    }
+
+  val->Function = NULL;
+  if (orig->Function)
+    {
+    val->Function = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+    vtkParse_CopyFunction(val->Function, orig->Function);
+    }
+
+  val->IsStatic = orig->IsStatic;
+  val->IsEnum = orig->IsEnum;
+}
+
 /* initialize the structure */
 void vtkParse_InitEnum(EnumInfo *item)
 {
@@ -8369,6 +8503,14 @@ void vtkParse_InitEnum(EnumInfo *item)
   item->Access = VTK_ACCESS_PUBLIC;
   item->Name = NULL;
   item->Comment = NULL;
+}
+
+void vtkParse_CopyEnum(EnumInfo *item, const EnumInfo *orig)
+{
+  item->ItemType = orig->ItemType;
+  item->Access = orig->Access;
+  item->Name = orig->Name;
+  item->Comment = orig->Comment;
 }
 
 /* initialize the structure */
@@ -8379,6 +8521,15 @@ void vtkParse_InitUsing(UsingInfo *item)
   item->Name = NULL;
   item->Comment = NULL;
   item->Scope = NULL;
+}
+
+void vtkParse_CopyUsing(UsingInfo *item, const UsingInfo *orig)
+{
+  item->ItemType = orig->ItemType;
+  item->Access = orig->Access;
+  item->Name = orig->Name;
+  item->Comment = orig->Comment;
+  item->Scope = orig->Scope;
 }
 
 /* initialize the structure */
@@ -8402,6 +8553,134 @@ void vtkParse_InitClass(ClassInfo *cls)
   cls->HasDelete = 0;
 }
 
+void vtkParse_CopyClass(ClassInfo *cls, const ClassInfo *orig)
+{
+  unsigned long i, n;
+
+  cls->ItemType = orig->ItemType;
+  cls->Access = orig->Access;
+  cls->Name = orig->Name;
+  cls->Comment = orig->Comment;
+  cls->Template = NULL;
+
+  if (orig->Template)
+    {
+    cls->Template = (TemplateArgs *)malloc(sizeof(TemplateArgs));
+    vtkParse_CopyTemplateArgs(cls->Template, orig->Template);
+    }
+
+  n = orig->NumberOfSuperClasses;
+  cls->NumberOfSuperClasses = n;
+  if (n)
+    {
+    cls->SuperClasses = (const char **)malloc(n*sizeof(char *));
+    for (i = 0; i < n; i++)
+      {
+      cls->SuperClasses[i] = orig->SuperClasses[i];
+      }
+    }
+
+  n = orig->NumberOfItems;
+  cls->NumberOfItems = n;
+  if (n)
+    {
+    cls->Items = (ItemInfo *)malloc(n*sizeof(ItemInfo));
+    for (i = 0; i < n; i++)
+      {
+      cls->Items[i].Type = orig->Items[i].Type;
+      cls->Items[i].Index = orig->Items[i].Index;
+      }
+    }
+
+  n = orig->NumberOfClasses;
+  cls->NumberOfClasses = n;
+  if (n)
+    {
+    cls->Classes = (ClassInfo **)malloc(n*sizeof(ClassInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Classes[i] = (ClassInfo *)malloc(sizeof(ClassInfo));
+      vtkParse_CopyClass(cls->Classes[i], orig->Classes[i]);
+      }
+    }
+
+  n = orig->NumberOfFunctions;
+  cls->NumberOfFunctions = n;
+  if (n)
+    {
+    cls->Functions = (FunctionInfo **)malloc(n*sizeof(FunctionInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Functions[i] = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+      vtkParse_CopyFunction(cls->Functions[i], orig->Functions[i]);
+      }
+    }
+
+  n = orig->NumberOfConstants;
+  cls->NumberOfConstants = n;
+  if (n)
+    {
+    cls->Constants = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Constants[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_CopyValue(cls->Constants[i], orig->Constants[i]);
+      }
+    }
+
+  n = orig->NumberOfVariables;
+  cls->NumberOfVariables = n;
+  if (n)
+    {
+    cls->Variables = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Variables[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_CopyValue(cls->Variables[i], orig->Variables[i]);
+      }
+    }
+
+  n = orig->NumberOfEnums;
+  cls->NumberOfEnums = n;
+  if (n)
+    {
+    cls->Enums = (EnumInfo **)malloc(n*sizeof(EnumInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Enums[i] = (EnumInfo *)malloc(sizeof(EnumInfo));
+      vtkParse_CopyEnum(cls->Enums[i], orig->Enums[i]);
+      }
+    }
+
+  n = orig->NumberOfTypedefs;
+  cls->NumberOfTypedefs = n;
+  if (n)
+    {
+    cls->Typedefs = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Typedefs[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_CopyValue(cls->Typedefs[i], orig->Typedefs[i]);
+      }
+    }
+
+  n = orig->NumberOfUsings;
+  cls->NumberOfUsings = n;
+  if (n)
+    {
+    cls->Usings = (UsingInfo **)malloc(n*sizeof(UsingInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Usings[i] = (UsingInfo *)malloc(sizeof(UsingInfo));
+      vtkParse_CopyUsing(cls->Usings[i], orig->Usings[i]);
+      }
+    }
+
+  cls->IsAbstract = orig->IsAbstract;
+  cls->HasDelete = orig->HasDelete;
+}
+
+
 /* initialize the structure */
 void vtkParse_InitNamespace(NamespaceInfo *name_info)
 {
@@ -8421,6 +8700,115 @@ void vtkParse_InitNamespace(NamespaceInfo *name_info)
   name_info->NumberOfNamespaces = 0;
 }
 
+void vtkParse_CopyNamespace(NamespaceInfo *ninfo, const NamespaceInfo *orig)
+{
+  unsigned long i, n;
+
+  /* namespace info */
+  ninfo->ItemType = orig->ItemType;
+  ninfo->Access = orig->Access;
+  ninfo->Name = orig->Name;
+  ninfo->Comment = orig->Comment;
+
+  n = orig->NumberOfItems;
+  ninfo->NumberOfItems = n;
+  if (n)
+    {
+    ninfo->Items = (ItemInfo *)malloc(n*sizeof(ItemInfo));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Items[i].Type = orig->Items[i].Type;
+      ninfo->Items[i].Index = orig->Items[i].Index;
+      }
+    }
+
+  n = orig->NumberOfClasses;
+  ninfo->NumberOfClasses = n;
+  if (n)
+    {
+    ninfo->Classes = (ClassInfo **)malloc(n*sizeof(ClassInfo *));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Classes[i] = (ClassInfo *)malloc(sizeof(ClassInfo));
+      vtkParse_CopyClass(ninfo->Classes[i], orig->Classes[i]);
+      }
+    }
+
+  n = orig->NumberOfFunctions;
+  ninfo->NumberOfFunctions = n;
+  if (n)
+    {
+    ninfo->Functions = (FunctionInfo **)malloc(n*sizeof(FunctionInfo *));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Functions[i] = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+      vtkParse_CopyFunction(ninfo->Functions[i], orig->Functions[i]);
+      }
+    }
+
+  n = orig->NumberOfConstants;
+  ninfo->NumberOfConstants = n;
+  if (n)
+    {
+    ninfo->Constants = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Constants[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_CopyValue(ninfo->Constants[i], orig->Constants[i]);
+      }
+    }
+
+  n = orig->NumberOfVariables;
+  ninfo->NumberOfVariables = n;
+  if (n)
+    {
+    ninfo->Variables = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Variables[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_CopyValue(ninfo->Variables[i], orig->Variables[i]);
+      }
+    }
+
+  n = orig->NumberOfEnums;
+  ninfo->NumberOfEnums = n;
+  if (n)
+    {
+    ninfo->Enums = (EnumInfo **)malloc(n*sizeof(EnumInfo *));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Enums[i] = (EnumInfo *)malloc(sizeof(EnumInfo));
+      vtkParse_CopyEnum(ninfo->Enums[i], orig->Enums[i]);
+      }
+    }
+
+  n = orig->NumberOfTypedefs;
+  ninfo->NumberOfTypedefs = n;
+  if (n)
+    {
+    ninfo->Typedefs = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Typedefs[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_CopyValue(ninfo->Typedefs[i], orig->Typedefs[i]);
+      }
+    }
+
+  n = orig->NumberOfUsings;
+  ninfo->NumberOfUsings = n;
+  if (n)
+    {
+    ninfo->Usings = (UsingInfo **)malloc(n*sizeof(UsingInfo *));
+    for (i = 0; i < n; i++)
+      {
+      ninfo->Usings[i] = (UsingInfo *)malloc(sizeof(UsingInfo));
+      vtkParse_CopyUsing(ninfo->Usings[i], orig->Usings[i]);
+      }
+    }
+}
+
+
+
 void vtkParse_InitFile(FileInfo *file_info)
 {
   /* file info */
@@ -8434,7 +8822,7 @@ void vtkParse_InitFile(FileInfo *file_info)
   file_info->Contents = NULL;
 }
 
-void vtkParse_FreeTemplate(TemplateArgs *template_info)
+void vtkParse_FreeTemplateArgs(TemplateArgs *template_info)
 {
   int j, m;
 
@@ -8443,7 +8831,7 @@ void vtkParse_FreeTemplate(TemplateArgs *template_info)
     {
     if (template_info->Arguments[j]->Template)
       {
-      vtkParse_FreeTemplate(template_info->Arguments[j]->Template);
+      vtkParse_FreeTemplateArgs(template_info->Arguments[j]->Template);
       }
     free(template_info->Arguments[j]);
     }
@@ -8483,7 +8871,7 @@ void vtkParse_FreeFunction(FunctionInfo *function_info)
 
   if (function_info->Template)
     {
-    vtkParse_FreeTemplate(function_info->Template);
+    vtkParse_FreeTemplateArgs(function_info->Template);
     }
 
   m = function_info->NumberOfArguments;
@@ -8502,7 +8890,7 @@ void vtkParse_FreeClass(ClassInfo *class_info)
 {
   int j, m;
 
-  if (class_info->Template) { vtkParse_FreeTemplate(class_info->Template); }
+  if (class_info->Template) { vtkParse_FreeTemplateArgs(class_info->Template); }
 
   m = class_info->NumberOfSuperClasses;
   if (m > 0) { free((char **)class_info->SuperClasses); }
@@ -8650,6 +9038,9 @@ void reject_class(const char *classname, int is_struct_or_union)
 /* reached the end of a class definition */
 void end_class()
 {
+  /* add default constructors */
+  vtkParse_AddDefaultConstructors(currentClass);
+
   popClass();
 }
 
@@ -9733,87 +10124,101 @@ const char *vtkParse_DuplicateString(const char *cp, size_t n)
   return res;
 }
 
-/* Expand a typedef within a type declaration. */
-void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
+/* Add default constructors if they do not already exist */
+void vtkParse_AddDefaultConstructors(ClassInfo *cls)
 {
-  const char *classname;
-  unsigned int baseType;
-  unsigned int pointers;
-  unsigned int qualifiers;
-  unsigned int tmp1, tmp2;
-  int i;
+  FunctionInfo *func;
+  ValueInfo *arg;
+  size_t k;
+  int i, n;
+  int default_constructor = 1;
+  int copy_constructor = 1;
+  char *tname;
+  const char *ccname;
 
-  classname = typedefinfo->Class;
-  baseType = (typedefinfo->Type & VTK_PARSE_BASE_TYPE);
-  pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
-  qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
-
-  /* handle const */
-  if ((valinfo->Type & VTK_PARSE_CONST) != 0)
+  if (cls == NULL || cls->Name == NULL)
     {
-    if ((pointers & VTK_PARSE_POINTER_LOWMASK) != 0)
+    return;
+    }
+
+  n = cls->NumberOfFunctions;
+  for (i = 0; i < n; i++)
+    {
+    func = cls->Functions[i];
+    if (func->Name && strcmp(func->Name, cls->Name) == 0)
       {
-      if ((pointers & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_ARRAY)
+      default_constructor = 0;
+
+      if (func->NumberOfArguments == 1)
         {
-        /* const turns into const pointer */
-        pointers = (pointers & ~VTK_PARSE_POINTER_LOWMASK);
-        pointers = (pointers | VTK_PARSE_CONST_POINTER);
+        arg = func->Arguments[0];
+        if (arg->Class &&
+            strcmp(arg->Class, cls->Name) == 0 &&
+            (arg->Type & VTK_PARSE_POINTER_MASK) == 0)
+          {
+          copy_constructor = 0;
+          }
         }
+      }
+    }
+
+  if (default_constructor)
+    {
+    func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+    vtkParse_InitFunction(func);
+    func->Class = vtkstrdup(cls->Name);
+    func->Name = vtkstrdup(cls->Name);
+    func->Signature = vtkstrcat(cls->Name, "()");
+    vtkParse_AddFunctionToClass(cls, func);
+    }
+
+  if (copy_constructor)
+    {
+    if (cls->Template)
+      {
+      /* specialize the name */
+      n = cls->Template->NumberOfArguments;
+
+      k = strlen(cls->Name) + 2;
+      for (i = 0; i < n; i++)
+        {
+        k += strlen(cls->Template->Arguments[i]->Name) + 2;
+        }
+      tname = vtkstralloc(k);
+      strcpy(tname, cls->Name);
+      k = strlen(tname);
+      tname[k++] = '<';
+      for (i = 0; i < n; i++)
+        {
+        strcpy(&tname[k], cls->Template->Arguments[i]->Name);
+        k += strlen(cls->Template->Arguments[i]->Name);
+        if (i+1 < n)
+          {
+          tname[k++] = ',';
+          tname[k++] = ' ';
+          }
+        }
+      tname[k++] = '>';
+      tname[k] = '\0';
+      ccname = tname;
       }
     else
       {
-      /* const remains as const value */
-      qualifiers = (qualifiers | VTK_PARSE_CONST);
+      ccname = vtkstrdup(cls->Name);
       }
-    }
 
-  /* make a reversed copy of the pointer bitfield */
-  tmp1 = (valinfo->Type & VTK_PARSE_POINTER_MASK);
-  tmp2 = 0;
-  while (tmp1)
-    {
-    tmp2 = ((tmp2 << 2) | (tmp1 & VTK_PARSE_POINTER_LOWMASK));
-    tmp1 = ((tmp1 >> 2) & VTK_PARSE_POINTER_MASK);
+    func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
+    vtkParse_InitFunction(func);
+    func->Class = vtkstrdup(cls->Name);
+    func->Name = vtkstrdup(cls->Name);
+    func->Signature = vtkstrcat4(cls->Name, "(const &", ccname, ")");
+    arg = (ValueInfo *)malloc(sizeof(ValueInfo));
+    vtkParse_InitValue(arg);
+    arg->Type = (VTK_PARSE_OBJECT_REF | VTK_PARSE_CONST);
+    arg->Class = ccname;
+    vtkParse_AddArgumentToFunction(func, arg);
+    vtkParse_AddFunctionToClass(cls, func);
     }
-
-  /* turn pointers into zero-element arrays where necessary */
-  if ((pointers & VTK_PARSE_POINTER_LOWMASK) == VTK_PARSE_ARRAY)
-    {
-    tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
-    while (tmp2)
-      {
-      vtkParse_AddStringToArray(
-        &valinfo->Dimensions, &valinfo->NumberOfDimensions, "");
-      tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
-      }
-    }
-  else
-    {
-    /* combine the pointers */
-    while (tmp2)
-      {
-      pointers = ((pointers << 2) | (tmp2 & VTK_PARSE_POINTER_LOWMASK));
-      tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
-      }
-    }
-
-  /* combine the arrays */
-  for (i = 0; i < typedefinfo->NumberOfDimensions; i++)
-    {
-    vtkParse_AddStringToArray(
-      &valinfo->Dimensions, &valinfo->NumberOfDimensions,
-      typedefinfo->Dimensions[i]);
-    }
-  if (valinfo->NumberOfDimensions > 1)
-    {
-    pointers = ((pointers & ~VTK_PARSE_POINTER_LOWMASK) | VTK_PARSE_ARRAY);
-    }
-
-  /* put everything together */
-  valinfo->Type = (baseType | pointers | qualifiers);
-  valinfo->Class = classname;
-  valinfo->Function = typedefinfo->Function;
-  valinfo->Count *= typedefinfo->Count;
 }
 
 /* Set a flag to ignore BTX/ETX markers in the files */

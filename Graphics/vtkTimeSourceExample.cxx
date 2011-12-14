@@ -18,40 +18,37 @@
 #include "vtkObjectFactory.h"
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPoints.h"
 #include "vtkCellData.h"
 #include "vtkCellTypes.h"
-#include "vtkPointData.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
-#include <vtkstd/vector>
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
+#include <vector>
 
 vtkStandardNewMacro(vtkTimeSourceExample);
-
-#ifndef M_PI
-#define M_PI 3.141516
-#endif
 
 //----------------------------------------------------------------------------
 double vtkTimeSourceExample::ValueFunction(double t)
 {
-  return sin(2*M_PI*t);
+  return sin(2*vtkMath::DoublePi()*t);
 }
 
 //----------------------------------------------------------------------------
 double vtkTimeSourceExample::XFunction(double t)
 {
-  return sin(2*M_PI*t)*this->XAmplitude;
+  return sin(2*vtkMath::DoublePi()*t)*this->XAmplitude;
 }
 
 //----------------------------------------------------------------------------
 double vtkTimeSourceExample::YFunction(double t)
 {
-  return sin(2*M_PI*t)*this->YAmplitude;
+  return sin(2*vtkMath::DoublePi()*t)*this->YAmplitude;
 }
 
 //----------------------------------------------------------------------------
@@ -110,7 +107,7 @@ int vtkTimeSourceExample::NumCellsFunction(double t)
     //goes from 1 to NumSteps/2+1, adding one cell each step, and returns
     double halfSteps = this->NumSteps/2.0;
     numCells = (int)(halfSteps - (fabs(2.0*(t-0.5)*halfSteps)));
-    numCells+=1; 
+    numCells+=1;
     }
   return numCells;
 }
@@ -138,7 +135,7 @@ vtkTimeSourceExample::vtkTimeSourceExample()
   this->Values = new double[this->NumSteps];
   for (int i = 0; i < this->NumSteps; i++)
     {
-    this->Values[i] = 
+    this->Values[i] =
       this->ValueFunction((double)i/(double)(this->NumSteps-1));
     }
 }
@@ -162,9 +159,9 @@ int vtkTimeSourceExample::RequestInformation(
     {
     return 0;
     }
-  
+
   vtkInformation *info=outVector->GetInformationObject(0);
-  
+
   //tell the caller that I can provide time varying data and
   //tell it what range of times I can deal with
   double tRange[2];
@@ -174,7 +171,7 @@ int vtkTimeSourceExample::RequestInformation(
     vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
     tRange,
     2);
-  
+
   //tell the caller if this filter can provide values ONLY at discrete times
   //or anywhere withing the time range
   if (!this->Analytic)
@@ -202,7 +199,7 @@ int vtkTimeSourceExample::RequestData(
   vtkInformationVector** vtkNotUsed(inVector),
   vtkInformationVector* outVector
   )
-{  
+{
   vtkInformation *outInfo = outVector->GetInformationObject(0);
   vtkUnstructuredGrid *output= vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -217,8 +214,10 @@ int vtkTimeSourceExample::RequestData(
   double *reqTS = NULL;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
-    //reqNTS = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());    
-    reqTS = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    //reqNTS = outInfo->Length
+    //  (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    reqTS = outInfo->Get
+      (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     }
   if (reqTS != NULL)
     {
@@ -233,7 +232,7 @@ int vtkTimeSourceExample::RequestData(
   double value = 0.0;
   this->LookupTimeAndValue(time, value);
 
-  output->Initialize(); 
+  output->Initialize();
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &time, 1);
 
   //figure out the world space position of the output
@@ -326,7 +325,7 @@ int vtkTimeSourceExample::RequestData(
       for (int k = 0; k < 1; k++)
         {
         cd->InsertNextValue(value);
-        id->InsertNextValue(cid); 
+        id->InsertNextValue(cid);
         cid++;
         xd->InsertNextValue(x+k+0.5); //center of the cell
         yd->InsertNextValue(y+j+0.5);
@@ -349,7 +348,7 @@ int vtkTimeSourceExample::RequestData(
   yd->Delete();
   zd->Delete();
   cd->Delete();
-      
+
   return 1;
 }
 
@@ -363,4 +362,3 @@ void vtkTimeSourceExample::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Growing: " << this->Growing << endl;
 
 }
-

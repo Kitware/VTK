@@ -33,7 +33,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkMergeGraphs);
 //---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation *info)
 
 //---------------------------------------------------------------------------
 // Fills array_map with matching arrays from data1 to data2
-void vtkMergeGraphsCreateArrayMapping(vtkstd::map<vtkAbstractArray*, vtkAbstractArray*>& array_map, vtkDataSetAttributes* data1, vtkDataSetAttributes* data2)
+void vtkMergeGraphsCreateArrayMapping(std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map, vtkDataSetAttributes* data1, vtkDataSetAttributes* data2)
 {
   vtkIdType narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)
@@ -91,7 +91,7 @@ void vtkMergeGraphsCreateArrayMapping(vtkstd::map<vtkAbstractArray*, vtkAbstract
 //---------------------------------------------------------------------------
 // Uses array_map to append a row to data1 corresponding to
 // row index2 of mapped arrays (which came from data2)
-void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, vtkstd::map<vtkAbstractArray*, vtkAbstractArray*>& array_map)
+void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map)
 {
   int narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)
@@ -185,13 +185,13 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
     }
 
   // Find matching vertex arrays
-  vtkstd::map<vtkAbstractArray*, vtkAbstractArray*> vert_array_map;
+  std::map<vtkAbstractArray*, vtkAbstractArray*> vert_array_map;
   vtkDataSetAttributes* vert_data1 = builder->GetGraph()->GetVertexData();
   vtkMergeGraphsCreateArrayMapping(vert_array_map, vert_data1, graph2->GetVertexData());
 
   // Find graph1 vertices matching graph2's pedigree ids
   vtkIdType n2 = graph2->GetNumberOfVertices();
-  vtkstd::vector<vtkIdType> graph2_to_graph1(n2);
+  std::vector<vtkIdType> graph2_to_graph1(n2);
   for (vtkIdType vert2 = 0; vert2 < n2; ++vert2)
     {
     vtkIdType vert1 = ped_ids1->LookupValue(ped_ids2->GetVariantValue(vert2));
@@ -204,7 +204,7 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
     }
 
   // Find matching edge arrays
-  vtkstd::map<vtkAbstractArray*, vtkAbstractArray*> edge_array_map;
+  std::map<vtkAbstractArray*, vtkAbstractArray*> edge_array_map;
   vtkDataSetAttributes* edge_data1 = builder->GetGraph()->GetEdgeData();
   vtkMergeGraphsCreateArrayMapping(edge_array_map, edge_data1, graph2->GetEdgeData());
 

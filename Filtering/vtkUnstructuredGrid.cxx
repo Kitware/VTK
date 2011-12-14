@@ -59,7 +59,7 @@
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticTriangle.h"
 
-#include <vtkstd/set>
+#include <set>
 
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
@@ -1998,8 +1998,8 @@ void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkIdType nCellFaces,
        vtkIdType * cellStream, vtkIdType & numCellPts, 
        vtkCellArray * cellArray, vtkIdTypeArray * faces)
 {
-  vtkstd::set<vtkIdType>  cellPointSet;
-  vtkstd::set<vtkIdType>::iterator  it;
+  std::set<vtkIdType>  cellPointSet;
+  std::set<vtkIdType>::iterator  it;
   
   // insert number of faces into the face array
   faces->InsertNextValue(nCellFaces);

@@ -26,9 +26,9 @@
  *    Reads and Writes MetaArrowFiles.
  *
  * \author Julien Jomier
- * 
+ *
  * \date Jan 05, 2005
- * 
+ *
  * Depends on:
  *    MetaUtils.h
  *    MetaObject.h
@@ -55,9 +55,9 @@ class METAIO_EXPORT MetaArrow : public MetaObject
     ////
     MetaArrow(void);
 
-    MetaArrow(const char *_headerName);   
+    MetaArrow(const char *_headerName);
 
-    MetaArrow(const MetaArrow *_Arrow);    
+    MetaArrow(const MetaArrow *_Arrow);
 
     MetaArrow(unsigned int dim);
 
@@ -68,13 +68,13 @@ class METAIO_EXPORT MetaArrow : public MetaObject
     void CopyInfo(const MetaObject * _object);
 
     void  Clear(void);
-    
+
     void  Length(float length);
     float Length(void) const;
 
     void  Lenght(float length) {this->Length(length);}
     float Lenght(void) const {return Length();}
-    
+
     void  Direction(const double *direction);
     const double * Direction(void) const;
 
@@ -95,7 +95,7 @@ class METAIO_EXPORT MetaArrow : public MetaObject
     bool  M_Read(void);
 
     float M_Length; // default 1.0
-    
+
     double M_Direction[10];
 
   };

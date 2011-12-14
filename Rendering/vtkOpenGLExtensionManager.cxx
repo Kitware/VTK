@@ -29,7 +29,7 @@
 
 #include <string.h>
 
-#include <vtkstd/string>
+#include <string>
 
 #include <assert.h>
 
@@ -39,8 +39,8 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 
 #ifdef VTK_USE_VTK_DYNAMIC_LOADER
 #include "vtkDynamicLoader.h"
-#include <vtkstd/string>
-#include <vtkstd/list>
+#include <string>
+#include <list>
 #endif
 
 #ifdef VTK_USE_APPLE_LOADER
@@ -327,24 +327,24 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 #ifdef VTK_USE_VTK_DYNAMIC_LOADER
   // If the GLX implementation cannot load procedures for us, load them
   // directly from the dynamic libraries.
-  static vtkstd::list<vtkstd::string> ogl_libraries;
+  static std::list<std::string> ogl_libraries;
 
   if (ogl_libraries.empty())
     {
     const char *ext = vtkDynamicLoader::LibExtension();
-    vtkstd::string::size_type ext_size = strlen(ext);
+    std::string::size_type ext_size = strlen(ext);
     // Must be the first function we tried to load.  Fill this list with
     // the OpenGL libraries we linked against.
-    vtkstd::string l(OPENGL_LIBRARIES);
-    vtkstd::string::size_type filename_start = 0;
+    std::string l(OPENGL_LIBRARIES);
+    std::string::size_type filename_start = 0;
     while (1)
       {
-      vtkstd::string::size_type filename_end = l.find(';', filename_start);
-      if (filename_end == vtkstd::string::npos)
+      std::string::size_type filename_end = l.find(';', filename_start);
+      if (filename_end == std::string::npos)
         {
         break;
         }
-      vtkstd::string possible_file = l.substr(filename_start,
+      std::string possible_file = l.substr(filename_start,
                                               filename_end-filename_start);
       // Make sure this is actually a library.  Do this by making sure it
       // has an appropriate extension.  This is by no means definitive, but
@@ -360,7 +360,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
     }
 
   // Look for the function in each library.
-  for (vtkstd::list<vtkstd::string>::iterator i = ogl_libraries.begin();
+  for (std::list<std::string>::iterator i = ogl_libraries.begin();
        i != ogl_libraries.end(); i++)
     {
     vtkLibHandle lh = vtkDynamicLoader::OpenLibrary((*i).c_str());
@@ -464,6 +464,10 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       {
       // If the render window is not OpenGL, then it obviously has no
       // extensions.
+      if (this->ExtensionsString)
+        {
+        delete[] this->ExtensionsString;
+        }
       this->ExtensionsString = new char[1];
       this->ExtensionsString[0] = '\0';
       return;
@@ -481,13 +485,17 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       // with no monitor attached to it, connected to it with "Screen Sharing"
       // (VNC-like feature added in Mac OS 10.5)
       // see bug 8554.
+      if (this->ExtensionsString)
+        {
+        delete[] this->ExtensionsString;
+        }
       this->ExtensionsString = new char[1];
       this->ExtensionsString[0] = '\0';
       return;
       }
     }
 
-  vtkstd::string extensions_string;
+  std::string extensions_string;
 
   const char *gl_extensions;
   const char *glu_extensions = "";
@@ -553,8 +561,8 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 
   // We build special extension identifiers for OpenGL versions.  Check to
   // see which are supported.
-  vtkstd::string version_extensions;
-  vtkstd::string::size_type beginpos, endpos;
+  std::string version_extensions;
+  std::string::size_type beginpos, endpos;
 
   const char *version =
     reinterpret_cast<const char *>(glGetString(GL_VERSION));
@@ -564,13 +572,13 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 
   version_extensions = vtkgl::GLVersionExtensionsString();
   endpos = 0;
-  while (endpos != vtkstd::string::npos)
+  while (endpos != std::string::npos)
     {
     beginpos = version_extensions.find_first_not_of(' ', endpos);
-    if (beginpos == vtkstd::string::npos) break;
+    if (beginpos == std::string::npos) break;
     endpos = version_extensions.find_first_of(' ', beginpos);
 
-    vtkstd::string ve = version_extensions.substr(beginpos, endpos-beginpos);
+    std::string ve = version_extensions.substr(beginpos, endpos-beginpos);
     int tryMajor, tryMinor;
     sscanf(ve.c_str(), "GL_VERSION_%d_%d", &tryMajor, &tryMinor);
     if (   (driverMajor > tryMajor)
@@ -611,13 +619,13 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 
     version_extensions = vtkgl::GLXVersionExtensionsString();
     endpos = 0;
-    while (endpos != vtkstd::string::npos)
+    while (endpos != std::string::npos)
       {
       beginpos = version_extensions.find_first_not_of(' ', endpos);
-      if (beginpos == vtkstd::string::npos) break;
+      if (beginpos == std::string::npos) break;
       endpos = version_extensions.find_first_of(' ', beginpos);
       
-      vtkstd::string ve = version_extensions.substr(beginpos, endpos-beginpos);
+      std::string ve = version_extensions.substr(beginpos, endpos-beginpos);
       int tryMajor, tryMinor;
       sscanf(ve.c_str(), "GLX_VERSION_%d_%d", &tryMajor, &tryMinor);
       if (   (driverMajor > tryMajor)
@@ -636,6 +644,10 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 #endif //VTK_USE_X
 
   // Store extensions string.
+  if (this->ExtensionsString)
+    {
+    delete[] this->ExtensionsString;
+    }
   this->ExtensionsString = new char[extensions_string.length()+1];
   strcpy(this->ExtensionsString, extensions_string.c_str());
 

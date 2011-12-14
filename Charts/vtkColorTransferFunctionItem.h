@@ -31,10 +31,6 @@ public:
   vtkTypeMacro(vtkColorTransferFunctionItem, vtkScalarsToColorsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Reimplemented to return the range of the lookup table
-  virtual void GetBounds(double bounds[4]);
-
   void SetColorTransferFunction(vtkColorTransferFunction* t);
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
 
@@ -42,6 +38,10 @@ protected:
   vtkColorTransferFunctionItem();
   virtual ~vtkColorTransferFunctionItem();
 
+  // Description:
+  // Reimplemented to return the range of the lookup table
+  virtual void ComputeBounds(double bounds[4]);
+  
   virtual void ComputeTexture();
   vtkColorTransferFunction* ColorTransferFunction;
 private:
