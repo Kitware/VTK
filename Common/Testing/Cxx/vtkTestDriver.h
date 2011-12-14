@@ -38,7 +38,7 @@
 
 #endif
 
-#include <vtkstd/exception> // for vtkstd::exception
+#include <exception> // for std::exception
 #include "vtkFloatingPointExceptions.h"
 
 #include <clocale> // C setlocale()

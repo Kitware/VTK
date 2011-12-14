@@ -64,7 +64,7 @@ bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase *db)
 //----------------------------------------------------------------------------
 bool vtkTableToDatabaseWriter::SetTableName(const char *name)
 {
-  vtkstd::string nameStr = name;
+  std::string nameStr = name;
   this->TableName = nameStr;
   if(this->Database != 0)
     {

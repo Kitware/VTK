@@ -30,7 +30,7 @@
 #include "vtkRenderer.h"
 #include "vtkgl.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #  include "vtkOpenGL.h"
@@ -829,7 +829,7 @@ void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
         // else can I do?
         vtkIdType *oldarray = static_cast<vtkIdType *>(indices);
         GLuint *newarray = new GLuint[count];
-        vtkstd::copy(oldarray, oldarray + count, newarray);
+        std::copy(oldarray, oldarray + count, newarray);
         glDrawElements(VTK2OpenGLPrimitive[mode], static_cast<GLsizei>(count),
                        GL_UNSIGNED_INT, newarray);
         delete[] newarray;

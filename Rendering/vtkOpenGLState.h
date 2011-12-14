@@ -32,7 +32,7 @@
 #define __vtkOpenGLState_h
 
 #include "vtkgl.h"
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkOpenGLRenderWindow;
 
@@ -261,7 +261,7 @@ public:
   // Lighting
   GLboolean LightingEnabled;
   
-  vtkstd::vector<GLboolean> *LightEnabled; // MaxLights (ex:8)
+  std::vector<GLboolean> *LightEnabled; // MaxLights (ex:8)
   
   
   // Replaced by fragment shader:
@@ -284,7 +284,7 @@ public:
   GLint RGBScale;
   GLint AlphaScale;
   
-  vtkstd::vector<vtkOpenGLTextureImageUnitFixedPipelineState> *TextureImageUnitEnabled; // MaxTextureUnits (ex: 4)
+  std::vector<vtkOpenGLTextureImageUnitFixedPipelineState> *TextureImageUnitEnabled; // MaxTextureUnits (ex: 4)
   
     // Coloring
   GLboolean FogEnabled;
@@ -345,7 +345,7 @@ public:
   GLint ActiveUniformMaxLength;
   GLint ActiveAttributes;
   GLint ActiveAttributeMaxLength;
-  vtkstd::vector<vtkOpenGLShaderState> *AttachedShaders;
+  std::vector<vtkOpenGLShaderState> *AttachedShaders;
   vtkgl::GLchar *InfoLog;
   
   
@@ -487,11 +487,11 @@ public:
   
   // 2.0
   GLint MaxTextureCoords; // 8
-  vtkstd::vector<vtkOpenGLTextureCoordinateProcessingUnit> *TCPU;
+  std::vector<vtkOpenGLTextureCoordinateProcessingUnit> *TCPU;
  
   // 2.0
   GLint MaxCombinedTextureImageUnits; // 16
-  vtkstd::vector<vtkOpenGLTextureImageUnit> *TIU;
+  std::vector<vtkOpenGLTextureImageUnit> *TIU;
   
   GLint Viewport[4];
   GLfloat DepthRange[2];
@@ -499,7 +499,7 @@ public:
   GLint MatrixMode;
   GLboolean Normalize;
   
-  vtkstd::vector<vtkOpenGLClipPlaneState> *ClipPlanes; // MaxClipPlanes (ex: 6)
+  std::vector<vtkOpenGLClipPlaneState> *ClipPlanes; // MaxClipPlanes (ex: 6)
   
   // Transformation state: 1.2.1, optional
   GLfloat ColorMatrix[16];
@@ -530,7 +530,7 @@ public:
   GLboolean LightModelLocalViewer;
   GLboolean LightModelTwoSide;
   
-  vtkstd::vector<vtkOpenGLLightState> *Lights; // MaxLights (ex: 8)
+  std::vector<vtkOpenGLLightState> *Lights; // MaxLights (ex: 8)
   
   // Lighting: 1.2.1
   GLint lightModelColorControl;
@@ -646,7 +646,7 @@ public:
   
   // 2.0
   GLint MaxDrawBuffers;
-  vtkstd::vector<GLint> *DrawBuffers;
+  std::vector<GLint> *DrawBuffers;
   
   GLint IndexWriteMask;
   GLboolean ColorWriteMask[4];

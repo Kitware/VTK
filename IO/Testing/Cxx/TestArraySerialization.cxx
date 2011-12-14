@@ -28,15 +28,15 @@
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
-#include <vtkstd/stdexcept>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -55,7 +55,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     a1->AddValue(0, 0, 1.5);
     a1->AddValue(1, 1, 2.5);
 
-    vtkstd::stringstream a_buffer;
+    std::stringstream a_buffer;
     vtkArrayWriter::Write(a1, a_buffer);
 
     vtkSmartPointer<vtkArray> a2;
@@ -74,21 +74,21 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(a2->GetVariantValue(1, 1).ToDouble() == 2.5);
 
     // Test sparse-array coordinates out-of-bounds ...
-    vtkstd::istringstream b_buffer("vtk-sparse-array double\nascii\nb1\n0 2 0 2 1\nrows\ncolumns\n0\n2 2 3.5\n");
+    std::istringstream b_buffer("vtk-sparse-array double\nascii\nb1\n0 2 0 2 1\nrows\ncolumns\n0\n2 2 3.5\n");
     vtkSmartPointer<vtkArray> b1;
     b1.TakeReference(vtkArrayReader::Read(b_buffer));
 
     test_expression(!b1);
 
     // Test sparse-array not enough values ...
-    vtkstd::istringstream d_buffer("vtk-sparse-array double\nascii\nd1\n0 2 0 2 1\nrows\ncolumns\n0\n");
+    std::istringstream d_buffer("vtk-sparse-array double\nascii\nd1\n0 2 0 2 1\nrows\ncolumns\n0\n");
     vtkSmartPointer<vtkArray> d1;
     d1.TakeReference(vtkArrayReader::Read(d_buffer));
 
     test_expression(!d1);
 
     // Test dense string arrays containing whitespace ...
-    vtkstd::istringstream e_buffer("vtk-dense-array string\nascii\ne1\n0 3 3\nvalues\nThe\nquick brown\nfox\n");
+    std::istringstream e_buffer("vtk-dense-array string\nascii\ne1\n0 3 3\nvalues\nThe\nquick brown\nfox\n");
     vtkSmartPointer<vtkArray> e1;
     e1.TakeReference(vtkArrayReader::Read(e_buffer));
 
@@ -100,7 +100,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(e1->GetVariantValue(2).ToString() == "fox");
 
     // Test sparse string arrays containing whitespace ...
-    vtkstd::istringstream f_buffer("vtk-sparse-array string\nascii\nf1\n0 3 3\nvalues\nempty value\n0 The\n1 quick brown\n2 fox\n");
+    std::istringstream f_buffer("vtk-sparse-array string\nascii\nf1\n0 3 3\nvalues\nempty value\n0 The\n1 quick brown\n2 fox\n");
     vtkSmartPointer<vtkArray> f1;
     f1.TakeReference(vtkArrayReader::Read(f_buffer));
 
@@ -119,7 +119,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     g1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
     g1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
 
-    vtkstd::stringstream g_buffer;
+    std::stringstream g_buffer;
     vtkArrayWriter::Write(g1, g_buffer);
     vtkSmartPointer<vtkArray> g2;
     g2.TakeReference(vtkArrayReader::Read(g_buffer));
@@ -139,7 +139,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     h1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
     h1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
 
-    vtkstd::stringstream h_buffer;
+    std::stringstream h_buffer;
     vtkArrayWriter::Write(h1, h_buffer);
     vtkSmartPointer<vtkArray> h2;
     h2.TakeReference(vtkArrayReader::Read(h_buffer));
@@ -153,7 +153,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(h2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
 
     // Test sparse arrays with DOS line endings ...
-    vtkstd::istringstream i_buffer("vtk-sparse-array double\r\nascii\r\ni1\r\n0 2 0 2 1\r\nrows\r\ncolumns\r\n0\r\n0 0 5\r\n");
+    std::istringstream i_buffer("vtk-sparse-array double\r\nascii\r\ni1\r\n0 2 0 2 1\r\nrows\r\ncolumns\r\n0\r\n0 0 5\r\n");
     vtkSmartPointer<vtkArray> i1;
     i1.TakeReference(vtkArrayReader::Read(i_buffer));
 
@@ -203,7 +203,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     ba1->AddValue(0, 0, 1.5);
     ba1->AddValue(1, 1, 2.5);
 
-    vtkstd::stringstream ba_buffer;
+    std::stringstream ba_buffer;
     vtkArrayWriter::Write(ba1, ba_buffer, true);
     vtkSmartPointer<vtkArray> ba2;
     ba2.TakeReference(vtkArrayReader::Read(ba_buffer));
@@ -226,7 +226,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     bb1->SetValue(1, "quick brown");
     bb1->SetValue(2, "fox");
 
-    vtkstd::stringstream bb_buffer;
+    std::stringstream bb_buffer;
     vtkArrayWriter::Write(bb1, bb_buffer, true);
     vtkSmartPointer<vtkArray> bb2;
     bb2.TakeReference(vtkArrayReader::Read(bb_buffer));
@@ -247,7 +247,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     bc1->SetValue(1, "quick brown");
     bc1->SetValue(2, "fox");
 
-    vtkstd::stringstream bc_buffer;
+    std::stringstream bc_buffer;
     vtkArrayWriter::Write(bc1, bc_buffer, true);
     vtkSmartPointer<vtkArray> bc2;
     bc2.TakeReference(vtkArrayReader::Read(bc_buffer));
@@ -267,7 +267,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     bd1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
     bd1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
 
-    vtkstd::stringstream bd_buffer;
+    std::stringstream bd_buffer;
     vtkArrayWriter::Write(bd1, bd_buffer, true);
     vtkSmartPointer<vtkArray> bd2;
     bd2.TakeReference(vtkArrayReader::Read(bd_buffer));
@@ -287,7 +287,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     be1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
     be1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
 
-    vtkstd::stringstream be_buffer;
+    std::stringstream be_buffer;
     vtkArrayWriter::Write(be1, be_buffer, true);
     vtkSmartPointer<vtkArray> be2;
     be2.TakeReference(vtkArrayReader::Read(be_buffer));
@@ -302,7 +302,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

@@ -30,7 +30,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 {
@@ -294,7 +294,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     return 1;
     }
 
-  vtkstd::vector<vtkStdString> tables;
+  std::vector<vtkStdString> tables;
   for ( tblHandle = 0; query->NextRow(); ++ tblHandle )
     {
     vtkStdString tblNameSch( schema->GetTableNameFromHandle( tblHandle ) );
@@ -378,7 +378,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   // 6. Drop tables
   cerr << "@@ Dropping these tables...";
 
-  for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
+  for ( std::vector<vtkStdString>::iterator it = tables.begin();
         it != tables.end(); ++ it )
     {
     queryStr = "DROP TABLE ";

@@ -31,12 +31,12 @@
 #include "vtkVariant.h"
 #include <ctype.h>
 
-#include <vtkstd/map>
-#include <vtkstd/utility>
+#include <map>
+#include <utility>
 
 vtkStandardNewMacro(vtkMapArrayValues);
 
-typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
+typedef std::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
 class vtkMapType : public MapBase {};
 
 vtkMapArrayValues::vtkMapArrayValues()
@@ -61,35 +61,35 @@ vtkMapArrayValues::~vtkMapArrayValues()
 
 void vtkMapArrayValues::AddToMap(char *from, int to)
 {
-  this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
+  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(int from, int to)
 {
-  this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
+  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(int from, char *to)
 {
-  this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
+  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(char *from, char *to)
 {
-  this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
+  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(vtkVariant from, vtkVariant to)
 {
-  this->Map->insert(vtkstd::make_pair(from, to));
+  this->Map->insert(std::make_pair(from, to));
 
   this->Modified();
 }

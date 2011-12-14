@@ -94,7 +94,7 @@ public:
     this->Rinitialized = 1;
     this->refcount++;
 
-    vtkstd::string  rcommand;
+    std::string  rcommand;
     rcommand.append("f<-file(paste(tempdir(), \"/Routput.txt\", sep = \"\"), open=\"wt+\")\nsink(f)\n");
     this->tmpFilePath.clear();
     this->tmpFilePath.append(R_TempDir);
@@ -143,7 +143,7 @@ protected:
 
 private:
 
-  vtkstd::string tmpFilePath;
+  std::string tmpFilePath;
   int refcount;
   int Rinitialized;
   static vtkImplementationRSingleton* ins;

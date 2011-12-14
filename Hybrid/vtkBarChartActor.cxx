@@ -29,8 +29,8 @@
 #include "vtkLegendBoxActor.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkProperty2D.h"
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 
 
 vtkStandardNewMacro(vtkBarChartActor);
@@ -40,7 +40,7 @@ vtkCxxSetObjectMacro(vtkBarChartActor,LabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkBarChartActor,TitleTextProperty,vtkTextProperty);
 
 // PIMPL'd list of labels
-class vtkBarLabelArray : public vtkstd::vector<vtkstd::string> {};
+class vtkBarLabelArray : public std::vector<std::string> {};
 
 
 //----------------------------------------------------------------------------
@@ -631,7 +631,7 @@ void vtkBarChartActor::SetBarLabel(const int i, const char *label)
     {
     this->Labels->resize(i+1);
     }
-  (*this->Labels)[i] = vtkstd::string(label);
+  (*this->Labels)[i] = std::string(label);
   this->Modified();
 }
 

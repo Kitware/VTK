@@ -118,7 +118,7 @@ void vtkOpenGLState::Update()
     }
   if(this->TCPU==0)
     {
-    this->TCPU=new vtkstd::vector<vtkOpenGLTextureCoordinateProcessingUnit>(
+    this->TCPU=new std::vector<vtkOpenGLTextureCoordinateProcessingUnit>(
       static_cast<size_t>(this->MaxTextureCoords));
     }
   
@@ -141,7 +141,7 @@ void vtkOpenGLState::Update()
     }
   if(this->TIU==0)
     {
-    this->TIU=new vtkstd::vector<vtkOpenGLTextureImageUnit>(
+    this->TIU=new std::vector<vtkOpenGLTextureImageUnit>(
       static_cast<size_t>(this->MaxCombinedTextureImageUnits));
     }
   
@@ -165,7 +165,7 @@ void vtkOpenGLState::Update()
     }
   if(this->ClipPlanes==0)
     {
-    this->ClipPlanes=new vtkstd::vector<vtkOpenGLClipPlaneState>(
+    this->ClipPlanes=new std::vector<vtkOpenGLClipPlaneState>(
       static_cast<size_t>(this->MaxClipPlanes));
     }
   
@@ -182,9 +182,9 @@ void vtkOpenGLState::Update()
   if(this->FixedPipeline.LightEnabled==0)
     {
     this->FixedPipeline.LightEnabled=
-      new vtkstd::vector<GLboolean>(static_cast<size_t>(this->MaxLights));
+      new std::vector<GLboolean>(static_cast<size_t>(this->MaxLights));
     this->Lights=
-      new vtkstd::vector<vtkOpenGLLightState>(
+      new std::vector<vtkOpenGLLightState>(
         static_cast<size_t>(this->MaxLights));
     }
   
@@ -198,7 +198,7 @@ void vtkOpenGLState::Update()
   if(this->FixedPipeline.TextureImageUnitEnabled==0)
     {
     this->FixedPipeline.TextureImageUnitEnabled=
-      new vtkstd::vector<vtkOpenGLTextureImageUnitFixedPipelineState>(
+      new std::vector<vtkOpenGLTextureImageUnitFixedPipelineState>(
         static_cast<size_t>(this->MaxTextureUnits));
     }
   
@@ -299,7 +299,7 @@ void vtkOpenGLState::Update()
     }
   if(this->DrawBuffers==0)
     {
-    this->DrawBuffers=new vtkstd::vector<GLint>(
+    this->DrawBuffers=new std::vector<GLint>(
       static_cast<size_t>(this->MaxDrawBuffers));
     }
   i=0;
@@ -502,7 +502,7 @@ void vtkOpenGLState::UpdateCurrentProgram()
     
     GLsizei numberOfShaders=this->CurrentProgramState->NumberOfAttachedShaders;
     this->CurrentProgramState->AttachedShaders=
-      new vtkstd::vector<vtkOpenGLShaderState>(
+      new std::vector<vtkOpenGLShaderState>(
         static_cast<size_t>(numberOfShaders));
     
     GLuint *shaders=new GLuint[numberOfShaders];

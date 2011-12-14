@@ -22,14 +22,14 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObject.h"
 #include <vtksys/Process.h>
 #include <vtksys/SystemTools.hxx>
-#include <vtkstd/string>
+#include <string>
 #include "TestFBOInclude.h"
 
 // We spawn a new process so that no exceptions or segfaults can ever result in
 // this test failing.
 int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
-  vtkstd::string executable = EXECUTABLE_OUTPUT_PATH;
+  std::string executable = EXECUTABLE_OUTPUT_PATH;
 #ifdef CMAKE_INTDIR
   executable += "/" CMAKE_INTDIR;
 #endif
@@ -37,7 +37,7 @@ int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   cout << "Executable: " << executable.c_str() << endl;
   vtksysProcess* process = vtksysProcess_New();
-  vtkstd::vector<const char*> commandLine;
+  std::vector<const char*> commandLine;
   commandLine.push_back(executable.c_str());
   commandLine.push_back(0);
   vtksysProcess_SetCommand(process, &commandLine[0]);

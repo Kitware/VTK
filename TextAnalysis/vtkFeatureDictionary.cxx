@@ -29,8 +29,8 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkIdTypeArray.h"
 
-#include <vtkstd/set>
-#include <vtkstd/stdexcept>
+#include <set>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkFeatureDictionary
@@ -66,12 +66,12 @@ int vtkFeatureDictionary::RequestData(
     vtkStringArray* const input_type_array = vtkStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!input_type_array)
-      throw vtkstd::runtime_error("missing input type array");
+      throw std::runtime_error("missing input type array");
 
     vtkUnicodeStringArray* const input_term_array = vtkUnicodeStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(1, 0, inputVector));
     if(!input_term_array)
-      throw vtkstd::runtime_error("missing input term array");
+      throw std::runtime_error("missing input term array");
 
     // Prepare our outputs ...
     vtkStringArray* const type_array = vtkStringArray::New();
@@ -92,7 +92,7 @@ int vtkFeatureDictionary::RequestData(
     text_array->Delete();
     freq_array->Delete();
     // Filter-out duplicate terms ...
-    vtkstd::set<vtkUnicodeString> terms;
+    std::set<vtkUnicodeString> terms;
 
     const vtkIdType term_count = input_term_array->GetNumberOfTuples();
     for(vtkIdType i = 0; i != term_count; ++i)
@@ -121,7 +121,7 @@ int vtkFeatureDictionary::RequestData(
 
     return 1;
     } 
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
     }

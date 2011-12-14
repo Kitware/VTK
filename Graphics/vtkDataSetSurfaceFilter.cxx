@@ -42,7 +42,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 #include <vtksys/hash_map.hxx>
 
 static int sizeofFastQuad(int numPts)
@@ -56,13 +56,13 @@ class vtkDataSetSurfaceFilter::vtkEdgeInterpolationMap
 {
 public:
   void AddEdge(vtkIdType endpoint1, vtkIdType endpoint2, vtkIdType midpoint) {
-    if (endpoint1 > endpoint2) vtkstd::swap(endpoint1, endpoint2);
-    Map.insert(vtkstd::make_pair(vtkstd::make_pair(endpoint1, endpoint2),
+    if (endpoint1 > endpoint2) std::swap(endpoint1, endpoint2);
+    Map.insert(std::make_pair(std::make_pair(endpoint1, endpoint2),
                                  midpoint));
   }
   vtkIdType FindEdge(vtkIdType endpoint1, vtkIdType endpoint2) {
-    if (endpoint1 > endpoint2) vtkstd::swap(endpoint1, endpoint2);
-    MapType::iterator iter = Map.find(vtkstd::make_pair(endpoint1, endpoint2));
+    if (endpoint1 > endpoint2) std::swap(endpoint1, endpoint2);
+    MapType::iterator iter = Map.find(std::make_pair(endpoint1, endpoint2));
     if (iter != Map.end())
       {
       return iter->second;
@@ -76,11 +76,11 @@ public:
 protected:
   struct HashFunction {
   public:
-    size_t operator()(vtkstd::pair<vtkIdType,vtkIdType> edge) const {
+    size_t operator()(std::pair<vtkIdType,vtkIdType> edge) const {
       return static_cast<size_t>(edge.first + edge.second);
     }
   };
-  typedef vtksys::hash_map<vtkstd::pair<vtkIdType, vtkIdType>, vtkIdType,
+  typedef vtksys::hash_map<std::pair<vtkIdType, vtkIdType>, vtkIdType,
                            HashFunction> MapType;
   MapType Map;
 };
@@ -1506,8 +1506,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           // Now that we have recorded the subdivided triangles in outPts2 and
           // parametricCoords2, swap them with outPts and parametricCoords to
           // make them the current ones.
-          vtkstd::swap(outPts, outPts2);
-          vtkstd::swap(parametricCoords, parametricCoords2);
+          std::swap(outPts, outPts2);
+          std::swap(parametricCoords, parametricCoords2);
           } // Iterate over subdivision levels
         } // If further subdivision
 

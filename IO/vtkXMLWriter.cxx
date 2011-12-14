@@ -41,7 +41,7 @@
 #include <vtksys/ios/sstream>
 
 #include <assert.h>
-#include <vtkstd/string>
+#include <string>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -645,7 +645,7 @@ int vtkXMLWriter::WriteInternal()
     return 0;
     }
 
-  (*this->Stream).imbue(vtkstd::locale::classic());
+  (*this->Stream).imbue(std::locale::classic());
   
   // Tell the subclass to write the data.
   int result = this->WriteData();
@@ -689,7 +689,7 @@ int vtkXMLWriter::StartFile()
     os << "<?xml version=\"1.0\"?>\n";
     }
 
-  os.imbue(vtkstd::locale::classic());
+  os.imbue(std::locale::classic());
   
   // Open the document-level element.  This will contain the rest of
   // the elements.
@@ -2900,7 +2900,7 @@ void vtkXMLWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
     this->NumberOfTimeValues = new unsigned long[this->NumberOfTimeSteps];
     os << indent << "TimeValues=\"\n";
     
-    vtkstd::string blankline = vtkstd::string(40, ' '); //enough room for precision
+    std::string blankline = std::string(40, ' '); //enough room for precision
     for(int i=0; i<this->NumberOfTimeSteps; i++)
       {
       this->NumberOfTimeValues[i] = os.tellp();

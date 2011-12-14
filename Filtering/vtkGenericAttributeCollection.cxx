@@ -19,7 +19,7 @@
 #include "vtkGenericAttribute.h"
 
 
-#include <vtkstd/vector>
+#include <vector>
 #include <assert.h>
 
 vtkStandardNewMacro(vtkGenericAttributeCollection);
@@ -27,14 +27,14 @@ vtkStandardNewMacro(vtkGenericAttributeCollection);
 class vtkGenericAttributeInternalVector
 {
 public:
-  typedef vtkstd::vector<vtkGenericAttribute* > VectorType;
+  typedef std::vector<vtkGenericAttribute* > VectorType;
   VectorType Vector;
 };
 
 class vtkIntInternalVector
 {
 public:
-  typedef vtkstd::vector<int> VectorType;
+  typedef std::vector<int> VectorType;
   VectorType Vector;
 };
 

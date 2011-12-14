@@ -31,12 +31,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 namespace
 {
   // pair.first it used to indicate if pair.second is valid.
-  typedef  vtkstd::vector<vtkstd::pair<bool, vtkStdString> > vtkInternalComponentNameBase;
+  typedef  std::vector<std::pair<bool, vtkStdString> > vtkInternalComponentNameBase;
 }
 
 class vtkDataSetAttributes::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
@@ -1735,7 +1735,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
 
   // unlike Intersection, with Union the the total number of fields may change,
   // so we have to be careful with that.
-  vtkstd::vector<int> dsaIndices;
+  std::vector<int> dsaIndices;
   dsaIndices.resize(this->NumberOfFields, -1);
 
   // Intersect the active attributes. (Even though we are taking a union, we
@@ -1791,7 +1791,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
       }
     }
 
-  vtkstd::vector<bool> dsaMarkedArrays;
+  std::vector<bool> dsaMarkedArrays;
   dsaMarkedArrays.resize(dsa->GetNumberOfArrays(), false);
 
   // * Try to match the existing fields with those in dsa.
@@ -1815,7 +1815,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
   // * Now every array in dsaMarkedArrays that has a false, implies that it did not
   // match with any of the existing fields. So those will be appended to the
   // end of the field list.
-  vtkstd::vector<int> dsaPendingIndices;
+  std::vector<int> dsaPendingIndices;
   for (size_t cc=0; cc < dsaMarkedArrays.size(); cc++)
     {
     if (dsaMarkedArrays[cc] == false)
@@ -2108,7 +2108,7 @@ void vtkDataSetAttributes::FieldList::SetField(
     this->FieldComponentsNames[index] = 
       new vtkDataSetAttributes::vtkInternalComponentNames();
     this->FieldComponentsNames[index]->resize(numberOfComponents,
-      vtkstd::pair<bool, vtkStdString>(false, vtkStdString()));
+      std::pair<bool, vtkStdString>(false, vtkStdString()));
     name = NULL;
     for ( vtkIdType i=0; i < numberOfComponents; ++i)
       {    
@@ -2116,7 +2116,7 @@ void vtkDataSetAttributes::FieldList::SetField(
       if ( name )
         {        
         this->FieldComponentsNames[index]->at(i) =
-          vtkstd::pair<bool, vtkStdString>(true, name);
+          std::pair<bool, vtkStdString>(true, name);
         name = NULL;
         }    
       }

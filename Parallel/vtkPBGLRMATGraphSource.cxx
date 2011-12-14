@@ -335,7 +335,7 @@ vtkPBGLRMATGraphSource::RequestData(
     vtkIdType numEdge = output->GetNumberOfEdges();
     boost::mpi::communicator world;
     vtkIdType myStartEdge 
-      = boost::mpi::scan(world, numEdge, vtkstd::plus<vtkIdType>()) - numEdge;
+      = boost::mpi::scan(world, numEdge, std::plus<vtkIdType>()) - numEdge;
 
     vtkSmartPointer<vtkIdTypeArray> edgeIds =
       vtkSmartPointer<vtkIdTypeArray>::New();

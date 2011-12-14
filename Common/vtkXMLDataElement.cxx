@@ -431,7 +431,7 @@ void vtkXMLDataElement::PrintWithEscapedData(ostream& os, const char* data)
 void vtkXMLDataElement::PrintXML(const char* fname)
 {
   ofstream of(fname);
-  of.imbue(vtkstd::locale::classic());
+  of.imbue(std::locale::classic());
   this->PrintXML(of, vtkIndent());
 }
 
@@ -728,7 +728,7 @@ int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
   if(!str || !length || !data) { return 0; }
   vtksys_ios::stringstream vstr;
-  vstr.imbue(vtkstd::locale::classic());
+  vstr.imbue(std::locale::classic());
   vstr << str;
   int i;
   for(i=0;i < length;++i)
@@ -998,7 +998,7 @@ void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* na
     return;
     }
   vtksys_ios::stringstream vstr;
-  vstr.imbue(vtkstd::locale::classic());
+  vstr.imbue(std::locale::classic());
   vstr << data[0];
   for(int i = 1; i < length; ++i)
     {

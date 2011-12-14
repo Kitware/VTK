@@ -41,12 +41,12 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkRenderedHierarchyRepresentation::Internals
 {
 public:
-  vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
+  std::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
 vtkStandardNewMacro(vtkRenderedHierarchyRepresentation);

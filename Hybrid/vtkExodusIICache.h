@@ -25,8 +25,8 @@
 
 #include "vtkObject.h"
 
-#include <vtkstd/map> // used for cache storage
-#include <vtkstd/list> // use for LRU ordering
+#include <map> // used for cache storage
+#include <list> // use for LRU ordering
 
 //BTX
 class VTK_HYBRID_EXPORT vtkExodusIICacheKey
@@ -93,10 +93,10 @@ class vtkExodusIICacheEntry;
 class vtkExodusIICache;
 class vtkDataArray;
 
-typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*> vtkExodusIICacheSet;
-typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*>::iterator vtkExodusIICacheRef;
-typedef vtkstd::list<vtkExodusIICacheRef> vtkExodusIICacheLRU;
-typedef vtkstd::list<vtkExodusIICacheRef>::iterator vtkExodusIICacheLRURef;
+typedef std::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*> vtkExodusIICacheSet;
+typedef std::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*>::iterator vtkExodusIICacheRef;
+typedef std::list<vtkExodusIICacheRef> vtkExodusIICacheLRU;
+typedef std::list<vtkExodusIICacheRef>::iterator vtkExodusIICacheLRURef;
 
 class VTK_HYBRID_EXPORT vtkExodusIICacheEntry
 {

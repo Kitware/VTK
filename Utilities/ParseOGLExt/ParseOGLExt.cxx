@@ -30,10 +30,10 @@
 
 #include "Tokenizer.h"
 
-#include <vtkstd/list>
-#include <vtkstd/set>
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <list>
+#include <set>
+#include <map>
+#include <string>
 
 #include <string.h>
 #include <ctype.h>
@@ -42,13 +42,13 @@
 
 // #define DEBUG_PARSE
 
-static vtkstd::set< vtkstd::pair< vtkstd::string, vtkstd::string > > ConstantsAlreadyWritten;
+static std::set< std::pair< std::string, std::string > > ConstantsAlreadyWritten;
 
-static vtkstd::string ToUpper(vtkstd::string s)
+static std::string ToUpper(std::string s)
 {
-  vtkstd::string u;
+  std::string u;
 
-  for (vtkstd::string::size_type i = 0; i < s.length(); i++)
+  for (std::string::size_type i = 0; i < s.length(); i++)
     {
     u.append(1, static_cast<char>(toupper(s[i])));
     }
@@ -58,7 +58,7 @@ static vtkstd::string ToUpper(vtkstd::string s)
 
 class Extension {
 public:
-  vtkstd::string GetName() const { return this->name; }
+  std::string GetName() const { return this->name; }
   enum {GL, WGL, GLX} type;
 
   Extension() {}
@@ -113,7 +113,7 @@ public:
   bool operator<(const Extension &obj) const { return this->name < obj.name; }
 
 protected:
-  vtkstd::string name;
+  std::string name;
 };
 
 Extension::Extension(char *line)
@@ -125,7 +125,7 @@ Extension::Extension(char *line)
   this->name = t.GetNextToken();
 
   Tokenizer nameTokens(this->name, "_");
-  vtkstd::string header = nameTokens.GetNextToken();
+  std::string header = nameTokens.GetNextToken();
   if (header == "WGL")
     {
     this->type = WGL;
@@ -147,7 +147,7 @@ bool Extension::isExtension(char *line)
   if (t.GetNextToken() != "#ifndef") return false;
 
   Tokenizer nameTokens(t.GetNextToken(), "_");
-  vtkstd::string header = nameTokens.GetNextToken();
+  std::string header = nameTokens.GetNextToken();
   if ((header == "GL") || (header == "WGL") || (header == "GLX"))
     {
     return true;
@@ -160,8 +160,8 @@ static Extension currentExtension;
 
 class Constant {
 public:
-  vtkstd::string GetName() const  { return this->name; }
-  vtkstd::string GetValue() const;
+  std::string GetName() const  { return this->name; }
+  std::string GetValue() const;
 
   Constant(char *line);
   static bool isConstant(char *line);
@@ -169,11 +169,11 @@ public:
   bool operator<(const Constant &obj) const { return this->name < obj.name; }
 
 protected:
-  vtkstd::string name;
-  vtkstd::string value;
+  std::string name;
+  std::string value;
 };
 
-static vtkstd::map<vtkstd::string, vtkstd::string> EncounteredConstants;
+static std::map<std::string, std::string> EncounteredConstants;
 
 Constant::Constant(char *line)
 {
@@ -183,7 +183,7 @@ Constant::Constant(char *line)
   t.GetNextToken();
 
   this->name = t.GetNextToken();
-  vtkstd::string fullname = this->name;
+  std::string fullname = this->name;
   if (currentExtension.type == Extension::GL)
     {
     // Skip the "GL_"
@@ -206,10 +206,10 @@ Constant::Constant(char *line)
   EncounteredConstants[fullname] = this->value;
 }
 
-vtkstd::string Constant::GetValue() const
+std::string Constant::GetValue() const
 {
   // Sometimes, one constant points to another.  Handle this properly.
-  vtkstd::map<vtkstd::string, vtkstd::string>::iterator found
+  std::map<std::string, std::string>::iterator found
     = EncounteredConstants.find(this->value);
   if (found != EncounteredConstants.end())
     {
@@ -227,7 +227,7 @@ bool Constant::isConstant(char *line)
     return false;
     }
 
-  vtkstd::string n = t.GetNextToken();
+  std::string n = t.GetNextToken();
   if (   (   (currentExtension.type == Extension::GL)
           && (strncmp(n.c_str(), "GL_", 3) == 0) )
       || (   (currentExtension.type == Extension::WGL)
@@ -242,7 +242,7 @@ bool Constant::isConstant(char *line)
 
 class Typedef {
 public:
-  vtkstd::string definition;
+  std::string definition;
 
   Typedef(char *line);
   static bool isTypedef(char *line);
@@ -278,10 +278,10 @@ bool Typedef::isTypedef(char *line)
 
 class Function {
 public:
-  vtkstd::string GetReturnType() const { return this->returnType; }
-  vtkstd::string GetEntry() const { return this->entry; }
-  vtkstd::string GetName() const { return this->name; }
-  vtkstd::string GetArguments() const { return this->arguments; }
+  std::string GetReturnType() const { return this->returnType; }
+  std::string GetEntry() const { return this->entry; }
+  std::string GetName() const { return this->name; }
+  std::string GetArguments() const { return this->arguments; }
   int GetExtensionType() const { return this->extensionType; }
 
   Function(char *line);
@@ -291,10 +291,10 @@ public:
   bool operator<(const Function &obj) const { return this->name < obj.name; }
 
 protected:
-  vtkstd::string returnType;
-  vtkstd::string entry;
-  vtkstd::string name;
-  vtkstd::string arguments;
+  std::string returnType;
+  std::string entry;
+  std::string name;
+  std::string arguments;
   int extensionType;
 };
 
@@ -305,7 +305,7 @@ Function::Function(char *line) : extensionType(currentExtension.type)
   Tokenizer t(line, " \n\t(");
 
   t.GetNextToken();
-  vtkstd::string token = t.GetNextToken();
+  std::string token = t.GetNextToken();
   this->returnType = "";
   while ((token == "const") || (token == "unsigned"))
     {
@@ -375,8 +375,8 @@ bool Function::isFunction(char *line)
 {
   Tokenizer t(line);
 
-  vtkstd::string modifier = t.GetNextToken();
-  vtkstd::string sreturnType = t.GetNextToken();
+  std::string modifier = t.GetNextToken();
+  std::string sreturnType = t.GetNextToken();
   if (sreturnType == "const")
     {
     // We don't really need the return type, just to skip over const.
@@ -384,7 +384,7 @@ bool Function::isFunction(char *line)
     sreturnType += t.GetNextToken();
     }
 
-  vtkstd::string sentry = t.GetNextToken();
+  std::string sentry = t.GetNextToken();
   if (sentry == "*")
     {
     sreturnType += " *";
@@ -408,7 +408,7 @@ bool Function::isFunction(char *line)
 
 const char *Function::GetProcType()
 {
-  static vtkstd::string proctype;
+  static std::string proctype;
 
   proctype = "PFN";
   proctype += Extension::TypeToCapString(this->extensionType);
@@ -418,11 +418,11 @@ const char *Function::GetProcType()
   return proctype.c_str();
 }
 
-static vtkstd::list<Extension> extensions;
-static vtkstd::set<Extension> extensionset;
-static vtkstd::map<Extension, vtkstd::list<Constant> > consts;
-static vtkstd::map<Extension, vtkstd::list<Typedef> > types;
-static vtkstd::map<Extension, vtkstd::list<Function> > functs;
+static std::list<Extension> extensions;
+static std::set<Extension> extensionset;
+static std::map<Extension, std::list<Constant> > consts;
+static std::map<Extension, std::list<Typedef> > types;
+static std::map<Extension, std::list<Function> > functs;
 
 static void ParseLine(char *line)
 {
@@ -430,7 +430,7 @@ static void ParseLine(char *line)
   static int ifLevel = 0;
 
   Tokenizer tokens(line);
-  vtkstd::string firstToken = tokens.GetNextToken();
+  std::string firstToken = tokens.GetNextToken();
 
   if (Extension::isExtension(line))
     {
@@ -541,16 +541,16 @@ static void WriteHeader(ostream &file, const char *generator,
 
 static void WriteClassDeclarationGuts(ostream &hfile, int type)
 {
-  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
+  for (std::list<Extension>::iterator iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
     if (iextension->type != type) continue;
     hfile << endl << "  //Definitions for " << iextension->GetName().c_str() << endl;
-    vtkstd::map<Extension, vtkstd::list<Constant> >::iterator cExts
+    std::map<Extension, std::list<Constant> >::iterator cExts
       = consts.find(*iextension);
     if (cExts != consts.end())
       {
-      for (vtkstd::list<Constant>::iterator iconst = cExts->second.begin();
+      for (std::list<Constant>::iterator iconst = cExts->second.begin();
            iconst != cExts->second.end(); iconst++)
         {
         // New versions of the NVIDIA OpenGL headers for Linux can
@@ -560,7 +560,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
         // confuses the C++ preprocessor terribly.  Don't write out a
         // definition for an enum with a name/value pair that's
         // already been used.
-        if (ConstantsAlreadyWritten.find(vtkstd::make_pair(iconst->GetName(), 
+        if (ConstantsAlreadyWritten.find(std::make_pair(iconst->GetName(),
                                                            iconst->GetValue()))
              == ConstantsAlreadyWritten.end())
           {
@@ -574,7 +574,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
           hfile << "  const GLenum " << iconst->GetName().c_str()
                 << " = static_cast<GLenum>(" << iconst->GetValue().c_str() << ");" << endl;
 
-          ConstantsAlreadyWritten.insert(vtkstd::make_pair(iconst->GetName(), 
+          ConstantsAlreadyWritten.insert(std::make_pair(iconst->GetName(),
                                                            iconst->GetValue()));
           if(strcmp(iconst->GetName().c_str(),"TIMEOUT_IGNORED")==0)
             {
@@ -589,21 +589,21 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
           }
         }
       }
-    vtkstd::map<Extension, vtkstd::list<Typedef> >::iterator tExts
+    std::map<Extension, std::list<Typedef> >::iterator tExts
       = types.find(*iextension);
     if (tExts != types.end())
       {
-      for (vtkstd::list<Typedef>::iterator itype = tExts->second.begin();
+      for (std::list<Typedef>::iterator itype = tExts->second.begin();
            itype != tExts->second.end(); itype++)
         {
         hfile << "  " << itype->definition.c_str() << endl;
         }
       }
-    vtkstd::map<Extension, vtkstd::list<Function> >::iterator fExts
+    std::map<Extension, std::list<Function> >::iterator fExts
       = functs.find(*iextension);
     if (fExts != functs.end())
       {
-      for (vtkstd::list<Function>::iterator ifunc = fExts->second.begin();
+      for (std::list<Function>::iterator ifunc = fExts->second.begin();
            ifunc != fExts->second.end(); ifunc++)
         {
         hfile << "  extern VTK_RENDERING_EXPORT " << ifunc->GetProcType()
@@ -616,13 +616,13 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
 static void WriteFunctionPointerDeclarations(ostream &cxxfile, int type)
 {
   Extension::WriteSupportWrapperBegin(cxxfile, type);
-  for (vtkstd::map<Extension, vtkstd::list<Function> >::iterator fExts
+  for (std::map<Extension, std::list<Function> >::iterator fExts
          = functs.begin();
        fExts != functs.end(); fExts++)
     {
     if (fExts->first.type != type) continue;
     cxxfile << "//Functions for " << fExts->first.GetName().c_str() << endl;
-    for (vtkstd::list<Function>::iterator ifunc = fExts->second.begin();
+    for (std::list<Function>::iterator ifunc = fExts->second.begin();
          ifunc != fExts->second.end(); ifunc++)
       {
       cxxfile << "vtk" << Extension::TypeToString(type) << "::"
@@ -663,11 +663,11 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "/* Undefine all constants to avoid name conflicts.  They should be defined  */" << endl
         << "/* with GL_, GLX_, or WGL_ preprended to them anyway, but sometimes you run */" << endl
         << "/* into a header file that gets it wrong.                                   */" << endl;
-  for (vtkstd::map<Extension, vtkstd::list<Constant> >::iterator constlist
+  for (std::map<Extension, std::list<Constant> >::iterator constlist
          = consts.begin();
        constlist != consts.end(); constlist++)
     {
-    for (vtkstd::list<Constant>::iterator c = (*constlist).second.begin();
+    for (std::list<Constant>::iterator c = (*constlist).second.begin();
          c != (*constlist).second.end(); c++)
       {
       hfile << "#ifdef " << (*c).GetName().c_str() << endl;
@@ -741,7 +741,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   WriteFunctionPointerDeclarations(cxxfile, Extension::GLX);
   WriteFunctionPointerDeclarations(cxxfile, Extension::WGL);
 
-  vtkstd::list<Extension>::iterator iextension;
+  std::list<Extension>::iterator iextension;
 
   // Write function to load function pointers.
   cxxfile << "int vtkgl::LoadExtension(const char *name, vtkOpenGLExtensionManager *manager)" << endl
@@ -753,9 +753,9 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
     cxxfile << "  if (strcmp(name, \"" << iextension->GetName().c_str()
             << "\") == 0)" << endl
             << "    {" << endl;
-    vtkstd::string vtkglclass = "vtk";
+    std::string vtkglclass = "vtk";
     vtkglclass += Extension::TypeToString(iextension->type);
-    vtkstd::list<Function>::iterator ifunct;
+    std::list<Function>::iterator ifunct;
     for (ifunct = functs[*iextension].begin();
          ifunct != functs[*iextension].end(); ifunct++)
       {
@@ -820,7 +820,7 @@ int main(int argc, char **argv)
     return 1;
     }
 
-  vtkstd::string outputDir = argv[1];
+  std::string outputDir = argv[1];
 
   for (int i = 2; i < argc; i++)
     {

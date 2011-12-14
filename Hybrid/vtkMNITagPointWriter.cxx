@@ -410,7 +410,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
       {
       vtkStdString l = labels->GetValue(i);
       outfile << " \"";
-      for (vtkstd::string::iterator si = l.begin(); si != l.end(); ++si)
+      for (std::string::iterator si = l.begin(); si != l.end(); ++si)
         {
         if (isprint(*si) && *si != '\"' && *si != '\\')
           {

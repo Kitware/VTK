@@ -38,7 +38,7 @@ namespace
 
     if(InputStream.eof())
       {
-      throw vtkstd::runtime_error("Premature end-of-sequence extracting UTF-16 code unit.");
+      throw std::runtime_error("Premature end-of-sequence extracting UTF-16 code unit.");
       }
     vtkTypeUInt8 second_byte = InputStream.get();
 
@@ -49,13 +49,13 @@ namespace
       {
       if(InputStream.eof())
         {
-        throw vtkstd::runtime_error("Premature end-of-sequence extracting UTF-16 trail surrogate first byte.");
+        throw std::runtime_error("Premature end-of-sequence extracting UTF-16 trail surrogate first byte.");
         }
       vtkTypeUInt8 third_byte = InputStream.get();
 
       if(InputStream.eof())
         {
-        throw vtkstd::runtime_error("Premature end-of-sequence extracting UTF-16 trail surrogate second byte.");
+        throw std::runtime_error("Premature end-of-sequence extracting UTF-16 trail surrogate second byte.");
         }
       vtkTypeUInt8 fourth_byte = InputStream.get();
 
@@ -69,7 +69,7 @@ namespace
         }
       else
         {
-        throw vtkstd::runtime_error("Invalid UTF-16 trail surrogate.");
+        throw std::runtime_error("Invalid UTF-16 trail surrogate.");
         }
       }
     return returnCode;
@@ -188,16 +188,16 @@ void vtkUTF16TextCodec::FindEndianness(istream& InputStream)
 
     else
       {
-      throw vtkstd::runtime_error("Cannot detect UTF-16 endianness.  Try 'UTF-16BE' or 'UTF-16LE' instead.");
+      throw std::runtime_error("Cannot detect UTF-16 endianness.  Try 'UTF-16BE' or 'UTF-16LE' instead.");
       }
     }
   catch (char* cstr)
     {
-    throw vtkstd::runtime_error(cstr) ;
+    throw std::runtime_error(cstr) ;
     }
   catch (...)
     {
-    throw vtkstd::runtime_error("Cannot detect UTF-16 endianness.  Try 'UTF-16BE' or 'UTF-16LE' instead.");
+    throw std::runtime_error("Cannot detect UTF-16 endianness.  Try 'UTF-16BE' or 'UTF-16LE' instead.");
     }
 
 }

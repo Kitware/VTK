@@ -16,10 +16,10 @@
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <iterator>
 #include <math.h>
 
 vtkStandardNewMacro(vtkColorTransferFunction);
@@ -85,7 +85,7 @@ public:
 class vtkColorTransferFunctionInternals
 {
 public:
-  vtkstd::vector<vtkCTFNode*> Nodes;
+  std::vector<vtkCTFNode*> Nodes;
   vtkCTFCompareNodes          CompareNodes;
   vtkCTFFindNodeEqual         FindNodeEqual;
   vtkCTFFindNodeInRange       FindNodeInRange;
@@ -407,7 +407,7 @@ int vtkColorTransferFunction::AddHSVPoint( double x, double h,
 // the Range
 void vtkColorTransferFunction::SortAndUpdateRange()
 {
-  vtkstd::sort( this->Internal->Nodes.begin(),
+  std::sort( this->Internal->Nodes.begin(),
                 this->Internal->Nodes.end(),
                 this->Internal->CompareNodes );
   bool modifiedInvoked = this->UpdateRange();
@@ -477,8 +477,8 @@ int vtkColorTransferFunction::RemovePoint( double x )
   // Now use STL to find it, so that we can remove it
   this->Internal->FindNodeEqual.X = x;
   
-  vtkstd::vector<vtkCTFNode*>::iterator iter = 
-    vtkstd::find_if(this->Internal->Nodes.begin(),
+  std::vector<vtkCTFNode*>::iterator iter =
+    std::find_if(this->Internal->Nodes.begin(),
                     this->Internal->Nodes.end(),
                     this->Internal->FindNodeEqual );
   
@@ -563,8 +563,8 @@ void vtkColorTransferFunction::AddRGBSegment( double x1, double r1,
     this->Internal->FindNodeInRange.X1 = x1;
     this->Internal->FindNodeInRange.X2 = x2;
   
-    vtkstd::vector<vtkCTFNode*>::iterator iter = 
-      vtkstd::find_if(this->Internal->Nodes.begin(),
+    std::vector<vtkCTFNode*>::iterator iter =
+      std::find_if(this->Internal->Nodes.begin(),
                       this->Internal->Nodes.end(),
                       this->Internal->FindNodeInRange );
   
@@ -1538,8 +1538,8 @@ int vtkColorTransferFunction::AdjustRange(double range[2])
     this->Internal->FindNodeOutOfRange.X1 = range[0];
     this->Internal->FindNodeOutOfRange.X2 = range[1];
   
-    vtkstd::vector<vtkCTFNode*>::iterator iter = 
-      vtkstd::find_if(this->Internal->Nodes.begin(),
+    std::vector<vtkCTFNode*>::iterator iter =
+      std::find_if(this->Internal->Nodes.begin(),
                       this->Internal->Nodes.end(),
                       this->Internal->FindNodeOutOfRange );
   

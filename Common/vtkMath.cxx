@@ -62,7 +62,7 @@ vtkMathInternal vtkMath::Internal;
 
 #ifdef VTK_HAS_STD_NUMERIC_LIMITS
 
-#include <vtkstd/limits>
+#include <limits>
 
 #else // VTK_HAS_STD_NUMERIC_LIMITS
 
@@ -3004,7 +3004,7 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 double vtkMath::Inf()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
-  return vtkstd::numeric_limits<double>::infinity();
+  return std::numeric_limits<double>::infinity();
 #elif defined(__BORLANDC__)
   return *reinterpret_cast<double*>(&vtkMathInfBits);
 #else
@@ -3016,7 +3016,7 @@ double vtkMath::Inf()
 double vtkMath::NegInf()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
-  return -vtkstd::numeric_limits<double>::infinity();
+  return -std::numeric_limits<double>::infinity();
 #elif defined(__BORLANDC__)
   return *reinterpret_cast<double*>(&vtkMathNegInfBits);
 #else
@@ -3028,7 +3028,7 @@ double vtkMath::NegInf()
 double vtkMath::Nan()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
-  return vtkstd::numeric_limits<double>::quiet_NaN();
+  return std::numeric_limits<double>::quiet_NaN();
 #elif defined(__BORLANDC__)
   return *reinterpret_cast<double*>(&vtkMathNanBits);
 #else

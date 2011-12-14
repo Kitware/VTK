@@ -41,7 +41,7 @@ public:
   /// vtkStdString - stores the name of a column to be inserted.
   /// int - stores the index of a column to be inserted.
   /// char 'A' - indicates that every table column should be inserted.
-  vtkstd::vector<vtkVariant> Columns;
+  std::vector<vtkVariant> Columns;
 };
 
 // ----------------------------------------------------------------------
@@ -124,7 +124,7 @@ int vtkTableToArray::RequestData(
 {
   vtkTable* const table = vtkTable::GetData(inputVector[0]);
 
-  vtkstd::vector<vtkAbstractArray*> columns;
+  std::vector<vtkAbstractArray*> columns;
 
   for(size_t i = 0; i != this->Implementation->Columns.size(); ++i)
     {

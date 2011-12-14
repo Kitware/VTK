@@ -24,7 +24,7 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4100 )
 #endif
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkSubGroup);
 
@@ -523,7 +523,7 @@ int vtkSubGroup::MakeSortedUnique(int *list, int len, int **newList)
     }
 
   memcpy(newl, list, len * sizeof(int));
-  vtkstd::sort(newl, newl + len);
+  std::sort(newl, newl + len);
 
   for (i=1, newlen=1; i<len; i++)
     {

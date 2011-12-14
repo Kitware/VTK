@@ -13,8 +13,8 @@
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkRectilinearGrid.h>
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <vector>
+#include <string>
 
 vtkStandardNewMacro(vtkSESAMEReader);
 
@@ -24,13 +24,13 @@ static const char* TableLineFormat = "%2i%6i%6i";
 class vtkSESAMEReader::MyInternal
 {
 public:
-  vtkstd::string FileName;
+  std::string FileName;
   FILE* File;
-  vtkstd::vector<int> TableIds;
-  vtkstd::vector<long> TableLocations;
+  std::vector<int> TableIds;
+  std::vector<long> TableLocations;
   vtkIdType TableId;
-  vtkstd::vector<vtkstd::string> TableArrays;
-  vtkstd::vector<int> TableArrayStatus;
+  std::vector<std::string> TableArrays;
+  std::vector<int> TableArrayStatus;
   vtkIntArray* TableIdsArray;
 
   void ClearTables()
@@ -486,7 +486,7 @@ void vtkSESAMEReader::ReadTable()
     }
   
   unsigned int i;
-  vtkstd::vector<vtkFloatArray*> scalars;
+  std::vector<vtkFloatArray*> scalars;
   for(i=0; i<this->Internal->TableArrayStatus.size(); i++)
     {
     vtkFloatArray* newArray = this->Internal->TableArrayStatus[i] ?

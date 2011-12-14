@@ -23,10 +23,10 @@
 #include "vtkPlaneCollection.h"
 #include "vtkPolyData.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <iterator>
 
 vtkStandardNewMacro(vtkClipConvexPolyData);
 
@@ -43,15 +43,15 @@ public:
 class vtkCCPDPolygon
 {
 public:
-  vtkstd::vector<vtkCCPDVertex*> Vertices;
-  vtkstd::vector<vtkCCPDVertex*> NewVertices;
+  std::vector<vtkCCPDVertex*> Vertices;
+  std::vector<vtkCCPDVertex*> NewVertices;
 };
 
 // ----------------------------------------------------------------------------
 class vtkClipConvexPolyDataInternals
 {
 public:
-  vtkstd::vector<vtkCCPDPolygon*> Polygons;
+  std::vector<vtkCCPDPolygon*> Polygons;
 };
 
 // ----------------------------------------------------------------------------
@@ -140,8 +140,8 @@ void vtkClipConvexPolyData::RemoveEmptyPolygons()
       {
       if ( this->Internal->Polygons[i]->Vertices.size() == 0 )
         {
-        vtkstd::vector<vtkCCPDPolygon*>::iterator where =
-          vtkstd::find(this->Internal->Polygons.begin(),
+        std::vector<vtkCCPDPolygon*>::iterator where =
+          std::find(this->Internal->Polygons.begin(),
                this->Internal->Polygons.end(),
                this->Internal->Polygons[i]);
         if ( where != this->Internal->Polygons.end() )
@@ -573,7 +573,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
     // that we should flip, go ahead and flip it
     if ( flipCount > checkCount/2 )
       {
-      vtkstd::reverse(newPoly->Vertices.begin(), newPoly->Vertices.end());
+      std::reverse(newPoly->Vertices.begin(), newPoly->Vertices.end());
       }
     this->Internal->Polygons.push_back(newPoly);
     } 

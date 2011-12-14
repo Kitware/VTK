@@ -67,8 +67,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <stdlib.h>
 #include <ctype.h>
 #include <float.h>
-#include <vtkstd/string>
-#include <vtkstd/map>
+#include <string>
+#include <map>
 #include <vtksys/ios/sstream>
 
 //-------------------------------------------------------------------------
@@ -76,7 +76,7 @@ POSSIBILITY OF SUCH DAMAGES.
 class vtkMINCImageAttributeMap
 {
 public:
-  typedef vtkstd::map<vtkstd::string, vtkSmartPointer<vtkObject> > MapType;
+  typedef std::map<std::string, vtkSmartPointer<vtkObject> > MapType;
 
   static vtkMINCImageAttributeMap *New() {
     return new vtkMINCImageAttributeMap; };
@@ -344,7 +344,7 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
     }
 
     // Store the string
-    vtkstd::string str = os.str();
+    std::string str = os.str();
     const char *result = 0;
 
     if (this->StringStore == 0)
@@ -668,7 +668,7 @@ vtkDataArray *vtkMINCImageAttributes::GetAttributeValueAsArray(
   const char *variable,
   const char *attribute)
 {
-  vtkstd::string path = MI_GRPNAME;
+  std::string path = MI_GRPNAME;
   if (variable && variable[0] != '\0')
     {
     path += MI_GRP_SEP;
@@ -801,7 +801,7 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
   const char *attribute,
   vtkDataArray *array)
 {
-  vtkstd::string path = MI_GRPNAME;
+  std::string path = MI_GRPNAME;
   if (variable && variable[0] != '\0')
     {
     path += MI_GRP_SEP;

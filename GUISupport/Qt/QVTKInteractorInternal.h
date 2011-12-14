@@ -34,7 +34,7 @@
 
 #include <QtCore/QObject>
 
-#include "vtkstd/map"
+#include <map>
 class QVTKInteractor;
 class QSignalMapper;
 class QTimer;
@@ -50,7 +50,7 @@ public Q_SLOTS:
   void TimerEvent(int id);
 public:
   QSignalMapper* SignalMapper;
-  typedef vtkstd::map<int, QTimer*> TimerMap;
+  typedef std::map<int, QTimer*> TimerMap;
   TimerMap Timers;
   QVTKInteractor* Parent;
 };

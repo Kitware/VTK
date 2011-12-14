@@ -28,15 +28,15 @@
 #include <ctype.h>
 #include <string.h>
 #include <sstream>
-#include <vtkstd/string>
-#include <vtkstd/map>
-#include <vtkstd/vector>
-#include <vtkstd/utility>
+#include <string>
+#include <map>
+#include <vector>
+#include <utility>
 
 vtkStandardNewMacro(vtkProStarReader);
 
 // Internal Classes/Structures
-struct vtkProStarReader::idMapping : public vtkstd::map<vtkIdType, vtkIdType>
+struct vtkProStarReader::idMapping : public std::map<vtkIdType, vtkIdType>
 {};
 
 //----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ int vtkProStarReader::RequestInformation(
 //----------------------------------------------------------------------------
 FILE* vtkProStarReader::OpenFile(const char *ext)
 {
-  vtkstd::string fullName = this->FileName;
+  std::string fullName = this->FileName;
   const char *dot = strrchr(this->FileName, '.');
 
   if
@@ -207,7 +207,7 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid *output,
 
       points->InsertNextPoint(xyz);
       vtkIdType nodeId = lineLabel;
-      mapPointId.insert(vtkstd::make_pair(nodeId, nodeCount));
+      mapPointId.insert(std::make_pair(nodeId, nodeCount));
       ++nodeCount;
       }
     else
@@ -304,17 +304,17 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid *output,
 
 
   int shapeId, nLabels, tableId, typeId;
-  vtkstd::vector<vtkIdType> starLabels;
+  std::vector<vtkIdType> starLabels;
   starLabels.reserve(256);
 
   // face-stream for a polyhedral cell
   // [numFace0Pts, id1, id2, id3, numFace1Pts, id1, id2, id3, ...]
-  vtkstd::vector<vtkIdType> faceStream;
+  std::vector<vtkIdType> faceStream;
   faceStream.reserve(256);
 
 
   // use string buffer for easier parsing
-  vtkstd::istringstream strbuf;
+  std::istringstream strbuf;
 
   int lineNr = 2;
   while (!errorCount && fgets(rawLine, MAX_LINE, in) != NULL)
@@ -426,8 +426,8 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid *output,
 
           case starcdPrism:
           // the VTK definition has outwards normals for the triangles!!
-          vtkstd::swap(starLabels[1], starLabels[2]);
-          vtkstd::swap(starLabels[4], starLabels[5]);
+          std::swap(starLabels[1], starLabels[2]);
+          std::swap(starLabels[4], starLabels[5]);
           output->InsertNextCell(VTK_WEDGE, 6, &(starLabels[0]));
           cellTableId->InsertNextValue(tableId);
           break;

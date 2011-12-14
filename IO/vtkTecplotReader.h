@@ -76,8 +76,8 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 //BTX
-#include <vtkstd/vector> // STL Header; Required for vector
-#include <vtkstd/string> // STL Header; Required for string
+#include <vector> // STL Header; Required for vector
+#include <string> // STL Header; Required for string
 //ETX
 
 class vtkPoints;
@@ -258,10 +258,10 @@ protected:
   vtkTecplotReaderInternal *        Internal;
   
   //BTX
-  vtkstd::string                    DataTitle;
-  vtkstd::vector< int >             CellBased;
-  vtkstd::vector< vtkstd::string >  ZoneNames;
-  vtkstd::vector< vtkstd::string >  Variables;
+  std::string                    DataTitle;
+  std::vector< int >             CellBased;
+  std::vector< std::string >  ZoneNames;
+  std::vector< std::string >  Variables;
   //ETX
   
 private:

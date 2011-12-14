@@ -45,7 +45,7 @@ public:
 
   vtkQtChartTableSeriesModel* SeriesModel;
   vtkQtChartSeriesOptionsModel* OptionsModel;
-  vtkstd::string LastSeriesName;
+  std::string LastSeriesName;
 };
 
 //----------------------------------------------------------------------------

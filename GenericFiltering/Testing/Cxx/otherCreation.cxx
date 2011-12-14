@@ -34,7 +34,7 @@
 #include "vtkPointData.h"
 #include "vtkGenericAttribute.h"
 #include <assert.h>
-#include <vtkstd/string>
+#include <string>
 #include <vtksys/ios/sstream>
 
 //-----------------------------------------------------------------------------
@@ -603,7 +603,7 @@ int TestWithPointsAndCells(ostream &strm)
   int itCount=4;
   int i;
   int count;
-  vtkstd::string s;
+  std::string s;
   vtksys_ios::ostringstream ost;
   vtkGenericAdaptorCell *cab=0;
   
@@ -849,7 +849,7 @@ int TestWithPointsAndCells(ostream &strm)
 
 //  int i;
 //  int count;
-//  vtkstd::string s;
+//  std::string s;
 //  vtkOStrStreamWrapper *ost=0;
 //  vtkGenericAdaptorCell *cab=0;
   
@@ -1125,7 +1125,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int itCount=4;
   int i;
   int count;
-  vtkstd::string s;
+  std::string s;
   vtksys_ios::ostringstream ost;
   vtkGenericAdaptorCell *cab;
   
@@ -1266,7 +1266,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
 
 //  int i;
 //  int count;
-//  vtkstd::string s;
+//  std::string s;
 //  vtkOStrStreamWrapper *ost=0;
 //  vtkGenericAdaptorCell *cab=0;
   

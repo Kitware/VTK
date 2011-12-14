@@ -72,8 +72,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <stdlib.h>
 #include <ctype.h>
 #include <float.h>
-#include <vtkstd/string>
-#include <vtkstd/map>
+#include <string>
+#include <map>
 
 #define VTK_MINC_MAX_DIMS 8
 

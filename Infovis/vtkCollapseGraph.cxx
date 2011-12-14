@@ -30,17 +30,17 @@
 #include <vtkSelection.h>
 #include <vtkSmartPointer.h>
 
-//#include <vtkstd/iterator>
-#include <vtkstd/vector>
+//#include <iterator>
+#include <vector>
 
 /// Defines storage for a collection of edges
-typedef vtkstd::vector<vtkEdgeType> EdgeListT;
+typedef std::vector<vtkEdgeType> EdgeListT;
 
 ///////////////////////////////////////////////////////////////////////////////////
 // BuildGraph
 
 template<typename GraphT>
-static void BuildGraph(vtkGraph* input_graph, const vtkstd::vector<vtkIdType>& vertex_map, const EdgeListT& edge_list, vtkGraph* destination_graph)
+static void BuildGraph(vtkGraph* input_graph, const std::vector<vtkIdType>& vertex_map, const EdgeListT& edge_list, vtkGraph* destination_graph)
 {
   vtkSmartPointer<GraphT> output_graph = vtkSmartPointer<GraphT>::New();
 
@@ -49,7 +49,7 @@ static void BuildGraph(vtkGraph* input_graph, const vtkstd::vector<vtkIdType>& v
   vtkDataSetAttributes* const input_vertex_data = input_graph->GetVertexData();
   vtkDataSetAttributes* const output_vertex_data = output_graph->GetVertexData();
   output_vertex_data->CopyAllocate(input_vertex_data);
-  for(vtkstd::vector<vtkIdType>::size_type i = 0; i != vertex_map.size(); ++i)
+  for(std::vector<vtkIdType>::size_type i = 0; i != vertex_map.size(); ++i)
     {
     if(vertex_map[i] == -1)
       continue;
@@ -135,7 +135,7 @@ int vtkCollapseGraph::RequestData(
   
   // Convert the input selection into an "expanding" array that contains "true" for each
   // vertex that is expanding (i.e. its neighbors are collapsing into it)
-  vtkstd::vector<bool> expanding(input_graph->GetNumberOfVertices(), false);
+  std::vector<bool> expanding(input_graph->GetNumberOfVertices(), false);
 
   for(vtkIdType i = 0; i != input_indices->GetNumberOfTuples(); ++i)
     {
@@ -143,7 +143,7 @@ int vtkCollapseGraph::RequestData(
     }
 
   // Create a mapping from each child vertex to its expanding neighbor (if any)
-  vtkstd::vector<vtkIdType> parent(input_graph->GetNumberOfVertices());
+  std::vector<vtkIdType> parent(input_graph->GetNumberOfVertices());
   vtkSmartPointer<vtkInEdgeIterator> in_edge_iterator = vtkSmartPointer<vtkInEdgeIterator>::New();
   for(vtkIdType vertex = 0; vertex != input_graph->GetNumberOfVertices(); ++vertex)
     {
@@ -166,7 +166,7 @@ int vtkCollapseGraph::RequestData(
     }
 
   // Create a mapping from vertex IDs in the original graph to vertex IDs in the output graph
-  vtkstd::vector<vtkIdType> vertex_map(input_graph->GetNumberOfVertices(), -1);
+  std::vector<vtkIdType> vertex_map(input_graph->GetNumberOfVertices(), -1);
   for(vtkIdType old_vertex = 0, new_vertex = 0; old_vertex != input_graph->GetNumberOfVertices(); ++old_vertex)
     {
     if(parent[old_vertex] != old_vertex)

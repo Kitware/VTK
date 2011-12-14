@@ -67,9 +67,9 @@
 #include "vtkWriter.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <vtkstd/vector> // STL Header
-#include <vtkstd/map>    // STL Header
-#include <vtkstd/string> // STL Header
+#include <vector> // STL Header
+#include <map>    // STL Header
+#include <string> // STL Header
 
 class vtkModelMetadata;
 class vtkDoubleArray;
@@ -188,10 +188,10 @@ protected:
 
 //BTX 
   vtkDataObject *OriginalInput;
-  vtkstd::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
-  vtkstd::vector< vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
+  std::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
+  std::vector< vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
 
-  vtkstd::vector< vtkIntArray* > BlockIdList;
+  std::vector< vtkIntArray* > BlockIdList;
 
   struct Block
   {
@@ -215,16 +215,16 @@ protected:
     std::vector<int> EntityCounts;
     std::vector<int> EntityNodeOffsets;
     size_t GridIndex;
-    // vtkstd::vector<int> CellIndex;
+    // std::vector<int> CellIndex;
     int OutputIndex;
     int NumAttributes;
     float *BlockAttributes; // Owned by metamodel or null.  Don't delete.
   };
-  vtkstd::map<int, Block> BlockInfoMap;
+  std::map<int, Block> BlockInfoMap;
   int NumCells, NumPoints, MaxId;
 
-  vtkstd::vector<vtkIdType*> GlobalElementIdList;
-  vtkstd::vector<vtkIdType*> GlobalNodeIdList;
+  std::vector<vtkIdType*> GlobalElementIdList;
+  std::vector<vtkIdType*> GlobalNodeIdList;
 //ETX
   int AtLeastOneGlobalElementIdList;
   int AtLeastOneGlobalNodeIdList;
@@ -235,18 +235,18 @@ protected:
     int NumComponents;
     int InIndex;
     int ScalarOutOffset;
-    vtkstd::vector<vtkstd::string> OutNames;
+    std::vector<std::string> OutNames;
   };
-  vtkstd::map<vtkstd::string, VariableInfo> GlobalVariableMap;
-  vtkstd::map<vtkstd::string, VariableInfo> BlockVariableMap;
-  vtkstd::map<vtkstd::string, VariableInfo> NodeVariableMap;
+  std::map<std::string, VariableInfo> GlobalVariableMap;
+  std::map<std::string, VariableInfo> BlockVariableMap;
+  std::map<std::string, VariableInfo> NodeVariableMap;
   int NumberOfScalarGlobalArrays;
   int NumberOfScalarElementArrays;
   int NumberOfScalarNodeArrays;
 //ETX
   
 //BTX
-  vtkstd::vector< vtkstd::vector<int> > CellToElementOffset;
+  std::vector< std::vector<int> > CellToElementOffset;
 //ETX
   // By BlockId, and within block ID by element variable, with variables
   // appearing in the same order in which they appear in OutputElementArrayNames
@@ -258,7 +258,7 @@ protected:
   
 //BTX
   char *StrDupWithNew (const char *s);
-  void StringUppercase (vtkstd::string& str);
+  void StringUppercase (std::string& str);
 //ETX
 
   int ProcessRequest (vtkInformation* request,
@@ -296,16 +296,16 @@ protected:
   int CreateBlockVariableMetadata (vtkModelMetadata* em);
   
 //BTX
-  void ConvertVariableNames (vtkstd::map<vtkstd::string, VariableInfo>& variableMap);
+  void ConvertVariableNames (std::map<std::string, VariableInfo>& variableMap);
   char **FlattenOutVariableNames (
             int nScalarArrays, 
-            const vtkstd::map<vtkstd::string, VariableInfo>& variableMap);
-  vtkstd::string CreateNameForScalarArray (const char *root,
+            const std::map<std::string, VariableInfo>& variableMap);
+  std::string CreateNameForScalarArray (const char *root,
                                            int component,
                                            int numComponents);
 
-  vtkstd::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
-  vtkstd::map<vtkIdType, vtkIdType> *LocalElementIdMap;
+  std::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
+  std::map<vtkIdType, vtkIdType> *LocalElementIdMap;
 //ETX
   vtkIdType GetNodeLocalId(vtkIdType id);
   vtkIdType GetElementLocalId(vtkIdType id);

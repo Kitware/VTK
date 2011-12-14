@@ -18,7 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-#include <vtkstd/string>
+#include <string>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
@@ -103,7 +103,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
     vtkErrorMacro("A case file name must be specified.");
     return VTK_ERROR;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;

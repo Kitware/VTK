@@ -43,7 +43,7 @@ public:
   {
   }
 
-  typedef vtkstd::set<vtkUnicodeString> ValuesT;
+  typedef std::set<vtkUnicodeString> ValuesT;
   ValuesT Values;
 };
 
@@ -67,9 +67,9 @@ void vtkTokenValueFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkTokenValueFilter::AddStopWordValues()
 {
-  vtkstd::string value;
-  vtkstd::istringstream buffer(vtkTextAnalysisUtility::DefaultStopWords());
-  for(vtkstd::getline(buffer, value); buffer; vtkstd::getline(buffer, value))
+  std::string value;
+  std::istringstream buffer(vtkTextAnalysisUtility::DefaultStopWords());
+  for(std::getline(buffer, value); buffer; std::getline(buffer, value))
     {
     this->Implementation->Values.insert(vtkUnicodeString::from_utf8(value));
     }
@@ -98,12 +98,12 @@ int vtkTokenValueFilter::RequestData(
     {
     vtkTable* const input_table = vtkTable::GetData(inputVector[0]);
     if(!input_table)
-      throw vtkstd::runtime_error("missing input table");
+      throw std::runtime_error("missing input table");
 
     vtkUnicodeStringArray* const input_array = vtkUnicodeStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!input_array)
-      throw vtkstd::runtime_error("missing input array");
+      throw std::runtime_error("missing input array");
 
     vtkDataSetAttributes* const input_attributes = input_table->GetRowData();
 
@@ -129,7 +129,7 @@ int vtkTokenValueFilter::RequestData(
         }
       }
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

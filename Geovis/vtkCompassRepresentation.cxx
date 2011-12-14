@@ -413,7 +413,7 @@ void vtkCompassRepresentation::BuildRepresentation()
 
   if (rsize > 40)
     {
-    vtkstd::ostringstream out;
+    std::ostringstream out;
     out.setf( ios::fixed );
     out.precision(0);
 

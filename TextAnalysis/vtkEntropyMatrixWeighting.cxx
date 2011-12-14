@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkEntropyMatrixWeighting.h"
 
-#include <vtkstd/stdexcept>
+#include <stdexcept>
 
 #if defined(WIN32) && !defined(__MINGW32__)
 
@@ -68,14 +68,14 @@ int vtkEntropyMatrixWeighting::RequestData(
     // Test our preconditions ...
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
-      throw vtkstd::runtime_error("Missing input vtkArrayData on port 0.");
+      throw std::runtime_error("Missing input vtkArrayData on port 0.");
     if(input_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("Input vtkArrayData must contain exactly one array.");
+      throw std::runtime_error("Input vtkArrayData must contain exactly one array.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("Input array must be a vtkTypedArray<double>.");
+      throw std::runtime_error("Input array must be a vtkTypedArray<double>.");
     if(input_array->GetDimensions() != 2)
-      throw vtkstd::runtime_error("Input array must be a matrix.");
+      throw std::runtime_error("Input array must be a matrix.");
 
     vtkIdType feature_dimension;
     vtkIdType object_dimension;
@@ -90,7 +90,7 @@ int vtkEntropyMatrixWeighting::RequestData(
         object_dimension = 0;
         break;
       default:
-        throw vtkstd::runtime_error("FeatureDimension out-of-bounds.");
+        throw std::runtime_error("FeatureDimension out-of-bounds.");
       }
 
     const vtkArrayRange features = input_array->GetExtent(feature_dimension);
@@ -113,7 +113,7 @@ int vtkEntropyMatrixWeighting::RequestData(
     const double logN = log2(static_cast<double>(objects.GetSize()));
 
     // Cache the frequency of each feature across the entire corpus ...
-    vtkstd::vector<double> Fi(features.GetSize(), 0);
+    std::vector<double> Fi(features.GetSize(), 0);
     vtkArrayCoordinates coordinates;
     const vtkIdType non_null_count = input_array->GetNonNullSize();
     for(vtkIdType n = 0; n != non_null_count; ++n)
@@ -141,7 +141,7 @@ int vtkEntropyMatrixWeighting::RequestData(
       }
 
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

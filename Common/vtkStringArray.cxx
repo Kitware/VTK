@@ -37,14 +37,14 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkStdString);
 #include "vtkObjectFactory.h"
 #include "vtkSortDataArray.h"
 
-#include <vtkstd/utility>
-#include <vtkstd/algorithm>
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <utility>
+#include <algorithm>
+#include <map>
+#include <vector>
 
 // Map containing updates to a vtkStringArray that have occurred
 // since we last build the vtkStringArrayLookup.
-typedef vtkstd::multimap<vtkStdString, vtkIdType> vtkStringCachedUpdates;
+typedef std::multimap<vtkStdString, vtkIdType> vtkStringCachedUpdates;
 
 //-----------------------------------------------------------------------------
 class vtkStringArrayLookup
@@ -657,12 +657,12 @@ void vtkStringArray::UpdateLookup()
     this->Lookup->SortedArray->SetNumberOfComponents(numComps);
     this->Lookup->SortedArray->SetNumberOfTuples(numTuples);
     this->Lookup->IndexArray->SetNumberOfIds(numComps*numTuples);
-    vtkstd::vector<vtkstd::pair<vtkStdString, vtkIdType> > v;
+    std::vector<std::pair<vtkStdString, vtkIdType> > v;
     for (vtkIdType i = 0; i < numComps*numTuples; i++)
       {
-      v.push_back(vtkstd::pair<vtkStdString, vtkIdType>(this->Array[i], i));
+      v.push_back(std::pair<vtkStdString, vtkIdType>(this->Array[i], i));
       }
-    vtkstd::sort(v.begin(), v.end());
+    std::sort(v.begin(), v.end());
     for (vtkIdType i = 0; i < numComps*numTuples; i++)
       {
       this->Lookup->SortedArray->SetValue(i, v[i].first);
@@ -723,7 +723,7 @@ vtkIdType vtkStringArray::LookupValue(vtkStdString value)
   vtkIdType numTuples = this->Lookup->SortedArray->GetNumberOfTuples();
   vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
   vtkStdString* ptrEnd = ptr + numComps*numTuples;
-  vtkStdString* found = vtkstd::lower_bound(ptr, ptrEnd, value);
+  vtkStdString* found = std::lower_bound(ptr, ptrEnd, value);
 
   // Find an index with a matching value. Non-matching values might
   // show up here when the underlying value at that index has been
@@ -767,7 +767,7 @@ void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
   // values since the cache was built, so we need to do this equality
   // check.
   typedef vtkStringCachedUpdates::iterator CacheIterator;
-  vtkstd::pair<CacheIterator, CacheIterator> cached    
+  std::pair<CacheIterator, CacheIterator> cached
     = this->Lookup->CachedUpdates.equal_range(value);
   while (cached.first != cached.second) 
     {
@@ -785,8 +785,8 @@ void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
-  vtkstd::pair<vtkStdString*,vtkStdString*> found = 
-    vtkstd::equal_range(ptr, ptr + numComps*numTuples, value);
+  std::pair<vtkStdString*,vtkStdString*> found =
+    std::equal_range(ptr, ptr + numComps*numTuples, value);
 
   // Add the indices of the found items to the ID list.
   vtkIdType offset = static_cast<vtkIdType>(found.first - ptr);
@@ -834,7 +834,7 @@ void vtkStringArray::DataElementChanged(vtkIdType id)
       else
         {
         // Insert this change into the set of cached updates
-        vtkstd::pair<const vtkStdString, vtkIdType> 
+        std::pair<const vtkStdString, vtkIdType>
           value(this->GetValue(id), id);
         this->Lookup->CachedUpdates.insert(value);
         }

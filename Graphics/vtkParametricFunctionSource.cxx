@@ -27,7 +27,7 @@
 #include "vtkInformationVector.h"
 
 #include <math.h>
-#include <vtkstd/string>
+#include <string>
 
 vtkStandardNewMacro(vtkParametricFunctionSource);
 vtkCxxSetObjectMacro(vtkParametricFunctionSource,ParametricFunction,vtkParametricFunction);
@@ -626,7 +626,7 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No Parametric function defined\n";
     }
 
-  vtkstd::string s;
+  std::string s;
   switch ( this->ScalarMode )
   {
   case SCALAR_NONE:

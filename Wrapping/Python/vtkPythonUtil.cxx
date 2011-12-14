@@ -28,10 +28,10 @@
 #include "vtkToolkits.h"
 
 #include <vtksys/ios/sstream>
-#include <vtkstd/map>
-#include <vtkstd/vector>
-#include <vtkstd/string>
-#include <vtkstd/utility>
+#include <map>
+#include <vector>
+#include <string>
+#include <utility>
 
 #ifdef VTK_WRAP_PYTHON_SIP
 #include "sip.h"
@@ -57,7 +57,7 @@ public:
 // of the vtk/python garbage collection system, because it contains
 // exactly one pointer reference for each VTK object known to python)
 class vtkPythonObjectMap
-  : public vtkstd::map<vtkSmartPointerBase, PyObject*>
+  : public std::map<vtkSmartPointerBase, PyObject*>
 {
 };
 
@@ -68,19 +68,19 @@ class vtkPythonObjectMap
 // Periodically the weak pointers are checked and the dicts of
 // VTK objects that have been deleted are tossed away.
 class vtkPythonGhostMap
-  : public vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>
+  : public std::map<vtkObjectBase*, PyVTKObjectGhost>
 {
 };
 
 // Keep track of all the VTK classes that python knows about.
 class vtkPythonClassMap
-  : public vtkstd::map<vtkstd::string, PyObject*>
+  : public std::map<std::string, PyObject*>
 {
 };
 
 // Like the ClassMap, for types not derived from vtkObjectBase.
 class vtkPythonSpecialTypeMap
-  : public vtkstd::map<vtkstd::string, PyVTKSpecialType>
+  : public std::map<std::string, PyVTKSpecialType>
 {
 };
 
@@ -268,10 +268,10 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
     if (wptr.GetPointer())
       {
       // List of attrs to be deleted
-      vtkstd::vector<PyObject*> delList;
+      std::vector<PyObject*> delList;
 
       // Erase ghosts of VTK objects that have been deleted
-      vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
+      std::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
         vtkPythonMap->GhostMap->begin();
       while (i != vtkPythonMap->GhostMap->end())
         {
@@ -311,7 +311,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
 
   if (ptr)
     {
-    vtkstd::map<vtkSmartPointerBase, PyObject*>::iterator i =
+    std::map<vtkSmartPointerBase, PyObject*>::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
     if (i != vtkPythonMap->ObjectMap->end())
       {
@@ -330,7 +330,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
     }
 
   // search weak list for object, resurrect if it is there
-  vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator j =
+  std::map<vtkObjectBase*, PyVTKObjectGhost>::iterator j =
     vtkPythonMap->GhostMap->find(ptr);
   if (j != vtkPythonMap->GhostMap->end())
     {
@@ -348,7 +348,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
     {
     // create a new object
     PyObject *vtkclass = NULL;
-    vtkstd::map<vtkstd::string, PyObject*>::iterator k =
+    std::map<std::string, PyObject*>::iterator k =
       vtkPythonMap->ClassMap->find(ptr->GetClassName());
     if (k != vtkPythonMap->ClassMap->end())
       {
@@ -675,7 +675,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
     }
 
   // try to construct the special object from the supplied object
-  vtkstd::map<vtkstd::string, PyVTKSpecialType>::iterator it =
+  std::map<std::string, PyVTKSpecialType>::iterator it =
     vtkPythonMap->SpecialTypeMap->find(result_type);
   if(it != vtkPythonMap->SpecialTypeMap->end())
     {

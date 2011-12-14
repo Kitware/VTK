@@ -23,7 +23,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
-#include <vtkstd/set>
+#include <set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
 //----------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock()
@@ -126,7 +126,7 @@ int vtkExtractSelectedBlock::RequestData(
   output->CopyStructure(cd);
   vtkDataArray* selectionList = vtkDataArray::SafeDownCast(
     node->GetSelectionList());
-  vtkstd::set<unsigned int> blocks;
+  std::set<unsigned int> blocks;
   if (selectionList)
     {
     vtkIdType numValues = selectionList->GetNumberOfTuples();
@@ -146,7 +146,7 @@ int vtkExtractSelectedBlock::RequestData(
   for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); 
     citer->GoToNextItem())
     {
-    vtkstd::set<unsigned int>::iterator fiter = 
+    std::set<unsigned int>::iterator fiter =
       blocks.find(citer->GetCurrentFlatIndex());
     if ((inverse && fiter == blocks.end()) || (!inverse && fiter != blocks.end()))
       {
