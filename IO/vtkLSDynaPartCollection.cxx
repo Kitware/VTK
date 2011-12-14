@@ -42,7 +42,7 @@ namespace
   //of mapping cell ids to the part that holds those cells
   struct PartInfo
     {
-    PartInfo(vtkLSDynaPart *p, const vtkIdType& pId, 
+    PartInfo(vtkLSDynaPart *p, const int& type, const vtkIdType& pId,
              const vtkIdType& start, const vtkIdType& npts):
       numCells(1), //we are inserting the first cell when we create this so start with 1
       startId(start), 
@@ -51,7 +51,11 @@ namespace
     {
       //we store the part id our selves because we can have null parts
       //if the user has disabled reading that part
-      this->part = p;
+      this->part = p;      
+      if(this->part)
+        {
+        this->part->SetPartType(type);
+        }
     }
 
     vtkIdType numCells; //number of cells in this continous block
@@ -135,21 +139,22 @@ public:
       else
         {
         //add a new item
-        PartInfo newInfo(this->Parts[matId], matId,
+        //PartInfo sets the part type!
+        PartInfo newInfo(this->Parts[matId],partType,matId,
           (info->startId + info->numCells), npts);
         this->Info[partType].push_back(newInfo);
         }
       }
     else
       {
-      PartInfo newInfo(this->Parts[matId],matId,0,npts);
+      //PartInfo sets the part type!
+      PartInfo newInfo(this->Parts[matId],partType,matId,0,npts);
       this->Info[partType].push_back(newInfo);
       }
   }
 
   //---------------------------------------------------------------------------
   void ConstructPart(const vtkIdType &index,
-                     const LSDynaMetaData::LSDYNA_TYPES &type,
                      const std::string &name,
                      const int &materialId,
                      const int &numGlobalNodes,
@@ -157,7 +162,7 @@ public:
                      )
   {
     vtkLSDynaPart *p = vtkLSDynaPart::New();
-    p->InitPart(type,name,index,materialId,
+    p->InitPart(name,index,materialId,
                 numGlobalNodes,wordSize);
     this->Parts[index] = p;
   }
@@ -265,38 +270,89 @@ public:
     for (vtkIdType i=0; i < this->NumParts; ++i)
       {
       vtkLSDynaPart* part = this->Parts[i];
-      if (part)
+
+      if(part)
         {
-        this->GetMemorySizesForPart(part->PartType(),part->GetPartId(),
-                                    numCells,cellLength);
-        part->AllocateCellMemory(numCells,cellLength);
+        bool canBeAllocated = this->GetInfoForPart(part, numCells,cellLength);
+        if(canBeAllocated)
+          {
+          part->AllocateCellMemory(numCells,cellLength);
+          }
+        else
+          {
+          //this part has no cells allocated to it, so remove it now.
+          part->Delete();
+          this->Parts[i] = NULL;
+          }
         }
       }
+    //Only needed when debugging
+    //this->DumpPartInfo();
   }
 
   //---------------------------------------------------------------------------
-  void GetMemorySizesForPart(const int& partType, const vtkIdType& matId,
-                             vtkIdType &numCells,
-                             vtkIdType &cellArrayLength) const
+  bool GetInfoForPart(vtkLSDynaPart *part, vtkIdType &numCells,
+                      vtkIdType &cellArrayLength) const
 
   {
-    //give a part type and a material id
-    //walk the run length encoding to determe the total size
+    //verify that the part is valid
     numCells = 0;
     cellArrayLength = 0;
+    bool validPart = part->hasValidType();
+    if(!validPart)
+      {
+      //we return early because an invalid type would
+      //cause the Info array to be accessed out of bounds
+      return validPart;
+      }
 
+    //give a part type and a material id
+    //walk the run length encoding to determe the total size
     std::vector<PartInfo>::const_iterator it;
-    for(it = this->Info[partType].begin();
-        it != this->Info[partType].end(); ++it)
+    for(it = this->Info[part->PartType()].begin();
+        it != this->Info[part->PartType()].end(); ++it)
       {
       const PartInfo *info = &(*it);
-      if(info->partId== matId)
+      if(info->partId== part->GetPartId())
         {
+        validPart = true;
         numCells += info->numCells;
         cellArrayLength += info->cellStructureSize;
         }
       }
+
+    return validPart;
   }
+
+  //---------------------------------------------------------------------------
+  void DumpPartInfo()
+  {
+  for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
+    {
+    //now lets dump all the part info
+
+    std::cout << "For Info index: " << i << std::endl;
+    std::cout << "We have " << this->Info[i].size() << " info entries" <<std::endl;
+
+    std::vector<PartInfo>::const_iterator it;
+    for(it = this->Info[i].begin();
+      it != this->Info[i].end(); ++it)
+      {
+      const PartInfo *info = &(*it);
+      if(info->part != NULL)
+        {
+        std::cout << "The material id is: " << info->partId << std::endl;
+        std::cout << "The numCells is:    " << info->numCells << std::endl;
+        std::cout << std::endl;
+        std::cout << "The Part is :" << std::endl;
+        info->part->PrintSelf(cout,vtkIndent().GetNextIndent());
+        std::cout << std::endl;
+        std::cout << std::endl;
+        }
+      }
+    }
+  }
+
 
   //---------------------------------------------------------------------------
   void InitCellIteration(const int &partType, int pos=0)
@@ -497,17 +553,16 @@ void vtkLSDynaPartCollection::BuildPartInfo()
   std::vector<int>::const_iterator partMIt;
   std::vector<int>::const_iterator materialIdIt = this->MetaData->PartIds.begin();
   std::vector<int>::const_iterator statusIt = this->MetaData->PartStatus.begin();
-  std::vector<LSDynaMetaData::LSDYNA_TYPES>::const_iterator typeIt = this->MetaData->PartTypes.begin();
   std::vector<std::string>::const_iterator nameIt = this->MetaData->PartNames.begin();
 
   for (partMIt = this->MetaData->PartMaterials.begin();
        partMIt != this->MetaData->PartMaterials.end();
-       ++partMIt,++statusIt,++typeIt,++nameIt,++materialIdIt)
+       ++partMIt,++statusIt,++nameIt,++materialIdIt)
     {
     if (*statusIt)
       {
       //make the index contain a part
-      this->Storage->ConstructPart((*partMIt)-1,*typeIt,*nameIt,*materialIdIt,
+      this->Storage->ConstructPart((*partMIt)-1,*nameIt,*materialIdIt,
                                    this->MetaData->NumberOfNodes,
                                    this->MetaData->Fam.GetWordSize());
       }

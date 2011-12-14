@@ -32,8 +32,10 @@
 
 namespace
 {
-
-#if (VTK_SIZEOF_ID_TYPE==8)
+//Documentation on why the exemption
+#define USE_STAT_64 VTK_SIZEOF_ID_TYPE==8 && !defined _DARWIN_FEATURE_64_BIT_INODE
+//OSX uses stat instead of stat64
+#if (USE_STAT_64)
 //64bit
 #ifndef WIN32
 int LS_DYNA_STAT(const char* fname, struct stat64& s)
@@ -223,7 +225,7 @@ int LSDynaFamily::ScanDatabaseDirectory()
   bool adapted = true; // true when advancing over a mesh adaptation.
 #if defined (WIN32) && VTK_SIZEOF_ID_TYPE==8
   struct __stat64 st;
-#elif VTK_SIZEOF_ID_TYPE==8
+#elif USE_STAT_64
   struct stat64 st;
 #else
   struct stat st;

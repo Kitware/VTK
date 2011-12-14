@@ -316,14 +316,14 @@ SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
   ".*moc_.*cxx"
   )
 
-IF(CMAKE_COMPILER_IS_GNUCXX)
+IF(@CMAKE_COMPILER_IS_GNUCXX@)
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # GCC 4.2 has a bug where it has Unnecessary anonymous namespace warnings
   # you can find the full bug on GNU Bugzilla with bug number 29365
   "warning: .* has a field .* whose type uses the anonymous namespace"
   )
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ENDIF(@CMAKE_COMPILER_IS_GNUCXX@)
 
 # Temporarily: to show us *all* the remaining warnings on the
 # 64-bit Windows builds on one result page...
