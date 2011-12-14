@@ -252,6 +252,12 @@ void vtkImageResliceMapper::Update()
       {
       this->Modified();
       }
+    else
+      {
+      // don't switch yet: wait until the camera changes position,
+      // which will cause the MTime to change
+      resampleToScreenPixels = true;
+      }
     }
 
   this->InternalResampleToScreenPixels = resampleToScreenPixels;
