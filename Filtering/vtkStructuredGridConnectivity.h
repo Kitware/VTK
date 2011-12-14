@@ -165,6 +165,13 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void SetNeighbors( const int i, const int j, int overlapExtent[6] );
 
     // Description:
+    // Given two overlapping extents A,B and their overlap along the given
+    // dimension idx, this method computes the relative orientation from A to
+    // B.
+    void DetermineNeighborOrientation(
+        const int  idx, int A[2], int B[2], int overlap[2], int orient[3] );
+
+    // Description:
     // Detects if the two extents, ex1 and ex2, corresponding to the grids
     // with grid IDs i,j respectively, are neighbors, i.e, they either share
     // a corner, an edge or a plane in 3-D.
