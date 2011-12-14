@@ -216,9 +216,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     }
 
   // get information about the image
-  int xdim, ydim, zdim; // orientation of texture wrt input image
+  int xdim, ydim; // orientation of texture wrt input image
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
-  zdim = (this->Orientation % 3);
 
   // check whether to use a shader for bicubic interpolation
   bool checkerboard = (property && property->GetCheckerboard());
