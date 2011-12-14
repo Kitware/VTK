@@ -5,7 +5,9 @@ SET(LSDyna_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 CONFIGURE_FILE (${LSDyna_SOURCE_DIR}/LSDynaExport.h.in
                 ${LSDyna_BINARY_DIR}/LSDynaExport.h)
- 
+
+# Do full dependency headers.
+INCLUDE_REGULAR_EXPRESSION("^LSDyna.*$")
  
 SET(LSDyna_SOURCES
   LSDynaFamily.h
