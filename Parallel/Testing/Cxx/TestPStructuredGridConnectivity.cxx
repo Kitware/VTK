@@ -220,14 +220,20 @@ void RegisterGrids(
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
     {
-    if( mbds->GetBlock( block ) != NULL )
+    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    if( grid != NULL )
       {
       vtkInformation *info = mbds->GetMetaData( block );
       assert( "pre: metadata should not be NULL" && (info != NULL) );
       assert( "pre: must have piece extent!" &&
               info->Has(vtkDataObject::PIECE_EXTENT() ) );
       connectivity->RegisterGrid(
-          block,info->Get(vtkDataObject::PIECE_EXTENT()));
+          block,info->Get(vtkDataObject::PIECE_EXTENT()),
+          grid->GetPointVisibilityArray(),
+          grid->GetCellVisibilityArray(),
+          grid->GetPointData(),
+          grid->GetCellData(),
+          NULL );
       } // END if block belongs to this process
     } // END for all blocks
 }
@@ -407,11 +413,9 @@ int TestAverage( const int factor )
       } // END if
     } // END for all blocks
 
-  std::cout << "partialSum: " << partialSum << std::endl;
-  std::cout.flush();
   // STEP 8: All reduce to the global sum
   double globalSum = 0.0;
-  Controller->AllReduce(&globalSum,&partialSum,1,vtkCommunicator::SUM_OP);
+  Controller->AllReduce(&partialSum,&globalSum,1,vtkCommunicator::SUM_OP);
 
   // STEP 9: Compute average
   double average = globalSum / static_cast< double >( count );
@@ -422,8 +426,24 @@ int TestAverage( const int factor )
 
   // STEP 8: return success or failure
   if( vtkMathUtilities::FuzzyCompare(average,expected) )
-    return 1;
-  return 0;
+    {
+    if( Rank == 0 )
+      {
+      std::cout << "Computed: " << average << " Expected: " << expected << "\n";
+      std::cout.flush();
+      }
+    return 0;
+    }
+
+  if( Rank == 0 )
+    {
+    std::cout << "Global sum: "      << globalSum << std::endl;
+    std::cout << "Number of Nodes: " << count     << std::endl;
+    std::cout << "Computed: " << average << " Expected: " << expected << "\n";
+    std::cout.flush();
+    }
+
+  return 1;
 }
 
 //------------------------------------------------------------------------------

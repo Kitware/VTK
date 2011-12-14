@@ -48,11 +48,15 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 
+//#define ENABLE_IO
+
 //------------------------------------------------------------------------------
 // Description:
 // Writes the grid to a file
 void WriteGrid( vtkUniformGrid *grid, std::string prefix )
 {
+
+#ifdef ENABLE_IO
   assert( "pre: input grid is NULL" && (grid != NULL) );
 
   vtkXMLImageDataWriter *writer = vtkXMLImageDataWriter::New();
@@ -64,6 +68,8 @@ void WriteGrid( vtkUniformGrid *grid, std::string prefix )
   writer->Write();
 
   writer->Delete();
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -319,12 +325,21 @@ void RegisterGrids(
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
     {
+    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    assert( "pre: grid should not be NULL!" && (grid != NULL) );
+
     vtkInformation *info = mbds->GetMetaData( block );
     assert( "pre: metadata should not be NULL" && (info != NULL) );
     assert( "pre: must have piece extent!" &&
             info->Has(vtkDataObject::PIECE_EXTENT() ) );
 
-    connectivity->RegisterGrid(block,info->Get(vtkDataObject::PIECE_EXTENT()));
+    connectivity->RegisterGrid(
+        block,info->Get(vtkDataObject::PIECE_EXTENT()),
+        grid->GetPointVisibilityArray(),
+        grid->GetCellVisibilityArray(),
+        grid->GetPointData(),
+        grid->GetCellData(),
+        NULL);
     } // END for all blocks
 }
 
@@ -359,6 +374,8 @@ void FillVisibilityArrays(
 //------------------------------------------------------------------------------
 void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
 {
+
+#ifdef ENABLE_IO
   assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
 
 
@@ -374,6 +391,8 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
   writer->Write();
 
   writer->Delete();
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -391,7 +410,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
 
   for( int i=0; i < 8; ++i )
     {
-    for( int j=0; j < 2; ++j )
+    for( int j=0; j < 1; ++j )
       {
       // STEP 0: Construct the dataset
       std::cout << "===\n";
@@ -509,9 +528,12 @@ int SimpleMonolithicTest( int argc, char **argv )
 
       mpds->GetMetaData( piece )->Get( vtkDataObject::PIECE_EXTENT(),ext );
 
-      gridConnectivity->RegisterGrid( piece, ext );
-      gridConnectivity->RegisterFieldData(
-          piece, grid->GetPointData(), grid->GetCellData() );
+      gridConnectivity->RegisterGrid( piece, ext,
+          grid->GetPointVisibilityArray(),
+          grid->GetCellVisibilityArray(),
+          grid->GetPointData(),
+          grid->GetCellData(),
+          NULL );
       }
 
     } // END for all pieces
