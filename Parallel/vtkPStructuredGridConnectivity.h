@@ -53,7 +53,12 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 
     // Description:
     // See vtkStructuredGridConnectivity::RegisterGrid
-    void RegisterGrid(const int gridID, int extents[6] );
+    void RegisterGrid( const int gridID, int extents[6],
+        vtkUnsignedCharArray* nodesGhostArray,
+        vtkUnsignedCharArray* cellGhostArray,
+        vtkPointData* pointData,
+        vtkCellData* cellData,
+        vtkPoints* gridNodes );
 
     // Description:
     // See vtkStructuredGridConnectivity::ComputeNeighbors

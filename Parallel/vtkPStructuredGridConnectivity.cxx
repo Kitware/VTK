@@ -32,7 +32,9 @@ vtkPStructuredGridConnectivity::vtkPStructuredGridConnectivity()
 vtkPStructuredGridConnectivity::~vtkPStructuredGridConnectivity()
 {
   if( this->GridConnectivity != NULL )
+    {
     this->GridConnectivity->Delete();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -51,12 +53,18 @@ void vtkPStructuredGridConnectivity::SetNumberOfGrids( const int N )
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::RegisterGrid(
-    const int gridID, int extents[6] )
+            const int gridID, int extents[6],
+            vtkUnsignedCharArray* nodesGhostArray,
+            vtkUnsignedCharArray* cellGhostArray,
+            vtkPointData* pointData,
+            vtkCellData* cellData,
+            vtkPoints* gridNodes )
 {
   assert( "pre: gridID out-of-bounds!" &&
           (gridID >= 0  && gridID < this->NumberOfGrids) );
 
-  this->Superclass::RegisterGrid( gridID, extents );
+  this->Superclass::RegisterGrid( gridID, extents, nodesGhostArray,
+      cellGhostArray, pointData, cellData, gridNodes );
   this->GridIds.push_back( gridID );
   this->GridRanks[ gridID ] = this->Rank;
 }
@@ -77,7 +85,10 @@ void vtkPStructuredGridConnectivity::RegisterRemoteGrid(
   assert( "pre: gridID out-of-bounds!" &&
           (gridID >= 0) && (gridID < static_cast<int>(this->GridRanks.size())));
 
-  this->Superclass::RegisterGrid( gridID, extents );
+  // NOTE: remote grids only have their extents since that information is
+  // required to determine neighboring.
+  this->Superclass::RegisterGrid(
+      gridID, extents, NULL, NULL, NULL, NULL, NULL );
   this->GridRanks[ gridID ] = process;
 }
 
@@ -132,8 +143,7 @@ void vtkPStructuredGridConnectivity::ExchangeGridExtents()
     {
     if( i != this->Rank )
       {
-      this->DeserializeGridExtentForProcess(
-          rcvbuffer+offSet[i], rcvcounts[i], i);
+      this->DeserializeGridExtentForProcess(rcvbuffer+offSet[i],rcvcounts[i],i);
       }// END if remote rank
     } // END for all ranks
 
@@ -165,7 +175,9 @@ void vtkPStructuredGridConnectivity::SerializeGridExtents(
 
     sndbuffer[ i*7 ] = gridID;
     for( int j=0; j < 6; ++j )
+      {
       sndbuffer[ (i*7)+(j+1) ] = ext[ j ];
+      }
     } // END for all local grids
 }
 
@@ -189,8 +201,9 @@ void vtkPStructuredGridConnectivity::DeserializeGridExtentForProcess(
     int gridID = rcvbuffer[i*7];
     int ext[6];
     for( int j=0; j < 6; ++j )
+      {
       ext[ j ] = rcvbuffer[ (i*7)+(j+1) ];
-
+      }
     this->RegisterRemoteGrid( gridID, ext, processId );
     }
 

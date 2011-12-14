@@ -33,11 +33,14 @@
 
 
 // C++ include directives
-#include <vtkstd/vector> // For STL vector
+#include <vector> // For STL vector
 
 // Forward Declarations
 class vtkIdList;
 class vtkUnsignedCharArray;
+class vtkPointData;
+class vtkCellData;
+class vtkPoints;
 
 class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
   public vtkAbstractGridConnectivity
@@ -54,21 +57,24 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 
     // Description:
     // Set/Get the total number of domains distributed among processors
-    virtual void SetNumberOfGrids( const int N )
+    virtual void SetNumberOfGrids( const unsigned int N )
     {
       this->NumberOfGrids = N;
+      this->AllocateUserRegisterDataStructures();
+
       this->GridExtents.resize( 6*N,-1);
       this->Neighbors.resize( N );
-      this->GridPointData.resize( N, NULL );
-      this->GridCellData.resize( N, NULL );
-      this->GridPointGhostArrays.resize( N, NULL );
-      this->GridCellGhostArrays.resize( N, NULL );
     }
 
     // Description:
     // Registers the current grid corresponding to the grid ID by its global
     // extent w.r.t. the whole extent.
-    virtual void RegisterGrid( const int gridID, int extents[6] );
+    virtual void RegisterGrid( const int gridID, int extents[6],
+        vtkUnsignedCharArray* nodesGhostArray,
+        vtkUnsignedCharArray* cellGhostArray,
+        vtkPointData* pointData,
+        vtkCellData* cellData,
+        vtkPoints* gridNodes );
 
     // Description:
     // Returns the grid extent of the grid corresponding to the given grid ID.
@@ -103,15 +109,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 
     // Description:
     // Creates ghost layers.
-    virtual void CreateGhostLayers( const int N );
-
-    // Description:
-    // Communicates the data at the ghost nodes.
-    virtual void CommunicateGhostNodes();
-
-    // Description:
-    // Communicates the data at the ghost cells.
-    virtual void CommunicateGhostCells();
+    virtual void CreateGhostLayers( const int N=1 );
 
   protected:
     vtkStructuredGridConnectivity();
@@ -223,8 +221,8 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 
     int DataDescription;
     int WholeExtent[6];
-    vtkstd::vector< int > GridExtents;
-    vtkstd::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
+    std::vector< int > GridExtents;
+    std::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
 
   private:
     vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ); // Not implemented

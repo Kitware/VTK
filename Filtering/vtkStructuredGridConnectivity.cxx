@@ -13,6 +13,8 @@
 
  =========================================================================*/
 #include "vtkStructuredGridConnectivity.h"
+
+// VTK includes
 #include "vtkObjectFactory.h"
 #include "vtkGhostArray.h"
 #include "vtkStructuredData.h"
@@ -21,9 +23,10 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <vtkstd/set>
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
+// C++ STL library includes
+#include <set>
+#include <vector>
+#include <algorithm>
 
 #define NO_OVERLAP      0
 #define NODE_OVERLAP    1
@@ -92,14 +95,25 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::RegisterGrid(const int gridID,int ext[6])
+void vtkStructuredGridConnectivity::RegisterGrid(
+    const int gridID, int ext[6],
+    vtkUnsignedCharArray* nodesGhostArray,
+    vtkUnsignedCharArray* cellGhostArray,
+    vtkPointData* pointData,
+    vtkCellData* cellData,
+    vtkPoints* gridNodes )
 {
   assert( "pre: gridID out-of-bounds!" &&
            (gridID >= 0  && gridID < this->NumberOfGrids) );
+
   for( int i=0; i < 6; ++i )
     {
     this->GridExtents[ gridID*6+i ] = ext[i];
     }
+
+  this->RegisterGridGhostArrays( gridID, nodesGhostArray, cellGhostArray );
+  this->RegisterFieldData( gridID, pointData, cellData );
+  this->RegisterGridNodes( gridID, gridNodes );
 }
 
 //------------------------------------------------------------------------------
@@ -117,7 +131,9 @@ void vtkStructuredGridConnectivity::GetGridExtent(const int gridID, int ext[6])
 void vtkStructuredGridConnectivity::AcquireDataDescription()
 {
   if( this->DataDescription != -1 )
+    {
     return;
+    }
 
   int dims[3];
 
@@ -713,12 +729,12 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
 
   // STEP 2: Allocate internal intersection vector. Note, since the cardinality
   // of A,B is 2, the intersection vector can be at most of size 2.
-  vtkstd::vector< int > intersection;
+  std::vector< int > intersection;
   intersection.resize( 2 );
 
   // STEP 3: Compute intersection
-  vtkstd::vector< int >::iterator it;
-  it = vtkstd::set_intersection( A, A+2, B, B+2, intersection.begin() );
+  std::vector< int >::iterator it;
+  it = std::set_intersection( A, A+2, B, B+2, intersection.begin() );
 
   // STEP 4: Find number of intersections and overlap extent
   int N = static_cast< int >( it-intersection.begin() );
@@ -749,18 +765,6 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
 
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
-{
-  // TODO: implement this
-}
-
-//------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::CommunicateGhostNodes( )
-{
-  // TODO: implement this
-}
-
-//------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::CommunicateGhostCells( )
 {
   // TODO: implement this
 }
