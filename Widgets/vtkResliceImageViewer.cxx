@@ -36,9 +36,40 @@
 #include "vtkScalarsToColors.h"
 #include "vtkBoundedPlanePointPlacer.h"
 #include "vtkPlane.h"
+#include "vtkMath.h"
 #include "vtkResliceImageViewerMeasurements.h"
 
 vtkStandardNewMacro(vtkResliceImageViewer);
+
+//----------------------------------------------------------------------------
+// This class is used to scroll slices with the scroll bar. In the case of MPR
+// view, it moves one "normalized spacing" in the direction of the normal to
+// the resliced plane, provided the new center will continue to lie within the
+// volume.
+class vtkResliceImageViewerScrollCallback : public vtkCommand
+{
+public:
+  static vtkResliceImageViewerScrollCallback *New()
+    { return new vtkResliceImageViewerScrollCallback; }
+
+  virtual void Execute(vtkObject *, unsigned long ev, void*)
+    {
+    if (!this->Viewer->GetSliceScrollOnMouseWheel())
+      {
+      return;
+      }
+
+    // forwards or backwards
+    int sign = (ev == vtkCommand::MouseWheelForwardEvent) ? 1 : -1;
+    this->Viewer->IncrementSlice(sign);
+
+    // Abort further event processing for the scroll.
+    this->SetAbortFlag(1);
+    }
+
+  vtkResliceImageViewerScrollCallback():Viewer(0) {}
+  vtkResliceImageViewer *Viewer;
+};
 
 //----------------------------------------------------------------------------
 vtkResliceImageViewer::vtkResliceImageViewer()
@@ -70,6 +101,10 @@ vtkResliceImageViewer::vtkResliceImageViewer()
   this->Measurements = vtkResliceImageViewerMeasurements::New();
   this->Measurements->SetResliceImageViewer(this);
 
+  this->ScrollCallback = vtkResliceImageViewerScrollCallback::New();
+  this->ScrollCallback->Viewer = this;
+  this->SliceScrollOnMouseWheel = 1;
+
   this->InstallPipeline();
 }
 
@@ -85,6 +120,7 @@ vtkResliceImageViewer::~vtkResliceImageViewer()
     }
 
   this->PointPlacer->Delete();
+  this->ScrollCallback->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -232,6 +268,14 @@ void vtkResliceImageViewer::InstallPipeline()
   if (this->Interactor)
     {
     this->ResliceCursorWidget->SetInteractor(this->Interactor);
+
+    // Observe the scroll for slice manipulation at a higher priority
+    // than the interactor style.
+    this->Interactor->RemoveObserver(this->ScrollCallback);
+    this->Interactor->AddObserver(vtkCommand::MouseWheelForwardEvent,
+        this->ScrollCallback, 0.55 );
+    this->Interactor->AddObserver(vtkCommand::MouseWheelBackwardEvent,
+        this->ScrollCallback, 0.55 );
     }
 
   if (this->Renderer)
@@ -280,6 +324,11 @@ void vtkResliceImageViewer::InstallPipeline()
 void vtkResliceImageViewer::UnInstallPipeline()
 {
   this->ResliceCursorWidget->SetEnabled(0);
+
+  if (this->Interactor)
+    {
+    this->Interactor->RemoveObserver(this->ScrollCallback);
+    }
 
   this->Superclass::UnInstallPipeline();
 }
@@ -464,6 +513,84 @@ void vtkResliceImageViewer::SetColorLevel( double w )
 void vtkResliceImageViewer::Reset()
 {
   this->ResliceCursorWidget->ResetResliceCursor();
+}
+
+//----------------------------------------------------------------------------
+vtkPlane * vtkResliceImageViewer::GetReslicePlane()
+{
+  // Get the reslice plane
+  if (vtkResliceCursorRepresentation *rep =
+      vtkResliceCursorRepresentation::SafeDownCast(
+        this->ResliceCursorWidget->GetRepresentation()))
+    {
+    const int planeOrientation =
+      rep->GetCursorAlgorithm()->GetReslicePlaneNormal();
+    vtkPlane *plane = this->GetResliceCursor()->GetPlane(planeOrientation);
+    return plane;
+    }
+
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+double vtkResliceImageViewer::GetInterSliceSpacingInResliceMode()
+{
+  double n[3], imageSpacing[3], resliceSpacing = 0;
+
+  if (vtkPlane *plane = this->GetReslicePlane())
+    {
+    plane->GetNormal(n);
+    this->GetResliceCursor()->GetImage()->GetSpacing(imageSpacing);
+    resliceSpacing = fabs(vtkMath::Dot(n, imageSpacing));
+    }
+
+  return resliceSpacing;
+}
+
+//----------------------------------------------------------------------------
+void vtkResliceImageViewer::IncrementSlice( int inc )
+{
+  if (this->GetResliceMode() ==
+      vtkResliceImageViewer::RESLICE_AXIS_ALIGNED)
+    {
+    int oldSlice = this->GetSlice();
+    this->SetSlice(this->GetSlice() + inc);
+    if (this->GetSlice() != oldSlice)
+      {
+      this->InvokeEvent( vtkResliceImageViewer::SliceChangedEvent, NULL );
+      this->InvokeEvent( vtkCommand::InteractionEvent, NULL );
+      }
+    }
+  else
+    {
+    if (vtkPlane *p = this->GetReslicePlane())
+      {
+      double n[3], c[3], bounds[6];
+      p->GetNormal(n);
+      const double spacing =
+          this->GetInterSliceSpacingInResliceMode() * inc;
+      this->GetResliceCursor()->GetCenter(c);
+      vtkMath::MultiplyScalar(n, spacing);
+      c[0] += n[0];
+      c[1] += n[1];
+      c[2] += n[2];
+
+      // If the new center is inside, put it there...
+      if (vtkImageData *image = this->GetResliceCursor()->GetImage())
+        {
+        image->GetBounds(bounds);
+        if (c[0] >= bounds[0] && c[0] <= bounds[1] &&
+            c[1] >= bounds[2] && c[1] <= bounds[3] &&
+            c[2] >= bounds[4] && c[2] <= bounds[5])
+          {
+          this->GetResliceCursor()->SetCenter(c);
+
+          this->InvokeEvent( vtkResliceImageViewer::SliceChangedEvent, NULL );
+          this->InvokeEvent( vtkCommand::InteractionEvent, NULL );
+          }
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
