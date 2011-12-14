@@ -601,6 +601,7 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ResliceCursorWidget:\n";
   this->ResliceCursorWidget->PrintSelf(os,indent.GetNextIndent());
   os << indent << "ResliceMode: " << this->ResliceMode << endl;
+  os << indent << "SliceScrollOnMouseWheel: " << this->SliceScrollOnMouseWheel << endl;
   os << indent << "Point Placer: ";
   this->PointPlacer->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Measurements: ";
