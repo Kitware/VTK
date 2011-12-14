@@ -25,6 +25,20 @@
 class VTK_FILTERING_EXPORT vtkStructuredNeighbor
 {
   public:
+
+    // An enum that defines the neighboring orientation which is stored in a
+    // 3-tuple vtkStructuredNeighbor::Orientation. In each dimension, a normal
+    // to the neighbor can be drawn
+    enum NeighborOrientation
+      {
+      LO         = -1, // normal to neighbor points away from the min
+      ONE_TO_ONE =  0, // neighbors abbutt 1-to-1
+      HI         =  1, // normal to neighbor points away from the max
+      UNDEFINED  =  2  // the neighboring relationship is undefined, e.g., if
+                       // we are checking 2D data, then the neighboring orientation
+                       // in the 3rd dimension is undefined.
+      };
+
     // Class Member Variables made public for easier access
     int NeighborID;
     int OverlapExtent[6];
@@ -38,6 +52,11 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
     // Custom constructor. Constructs a neighbor with the prescribed neighbor
     // grid/block ID and overlap.
     vtkStructuredNeighbor( const int NeiID, int overlap[6] );
+
+    // Description:
+    // Custom constructor. Constructs a neighbor with the prescribed neigbhor
+    // grid/block ID, overlap extent, and orientation
+    vtkStructuredNeighbor( const int NeiID, int overlap[6], int orient[3] );
 
     // Description:
     // Copy constructor
@@ -60,6 +79,27 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
         }// END if
       return *this;
     }
+
+    // Description:
+    // Flips the orientation of this neighbor.
+    void FlipOrientation()
+      {
+      for( int i=0; i < 3; ++i )
+        {
+        switch( this->Orientation[i] )
+          {
+          case vtkStructuredNeighbor::LO:
+            this->Orientation[ i ] = vtkStructuredNeighbor::HI;
+            break;
+          case vtkStructuredNeighbor::HI:
+            this->Orientation[ i ] = vtkStructuredNeighbor::LO;
+            break;
+          default:
+            ; // NOP do nothing
+
+          } // END SWITCH
+        } // END for all dimensions
+      }
 
     // Description:
     // Default destructor

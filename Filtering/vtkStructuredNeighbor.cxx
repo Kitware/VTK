@@ -20,6 +20,8 @@ vtkStructuredNeighbor::vtkStructuredNeighbor()
   this->OverlapExtent[ 0 ]  = this->OverlapExtent[ 1 ]  =
   this->OverlapExtent[ 2 ]  = this->OverlapExtent[ 3 ]  =
   this->OverlapExtent[ 4 ]  = this->OverlapExtent[ 5 ]  = 0;
+  this->Orientation[ 0 ]    = this->Orientation[ 1 ] =
+  this->Orientation[ 2 ]    = vtkStructuredNeighbor::UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -28,9 +30,23 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
 {
   this->NeighborID = neiId;
   for( int i=0; i < 6; ++i )
+    {
     this->OverlapExtent[ i ] = overlap[ i ];
+    }
 }
 
+//------------------------------------------------------------------------------
+vtkStructuredNeighbor::vtkStructuredNeighbor(
+    const int neiId, int overlap[6], int orient[3] )
+{
+  this->NeighborID = neiId;
+  for( int i=0; i < 3; ++i )
+    {
+    this->OverlapExtent[ i*2 ]   = overlap[i*2];
+    this->OverlapExtent[ i*2+1 ] = overlap[i*2+1];
+    this->Orientation[ i ]       = orient[ i ];
+    }
+}
 
 //------------------------------------------------------------------------------
 vtkStructuredNeighbor::~vtkStructuredNeighbor()
