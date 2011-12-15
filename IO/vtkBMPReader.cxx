@@ -61,11 +61,9 @@ void vtkBMPReader::ExecuteInformation()
 {
   int xsize, ysize;
   FILE *fp;
-  long tmp;
-  short stmp;
-  long infoSize;
-  int  iinfoSize;  // in case we are on a 64bit machine
-  int  itmp;       // in case we are on a 64bit machine
+  vtkTypeInt32 tmp;
+  vtkTypeInt32 infoSize;
+  vtkTypeInt16 stmp1, stmp2;
 
   // free any old memory
   if (this->Colors)
@@ -73,7 +71,7 @@ void vtkBMPReader::ExecuteInformation()
     delete [] this->Colors;
     this->Colors = NULL;
     }
-      
+
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
   if (this->DataExtent[4]==0 && this->DataExtent[5] == 0 &&
@@ -99,101 +97,97 @@ void vtkBMPReader::ExecuteInformation()
   // compare magic number to determine file type
   if ((fgetc(fp) != 'B')||(fgetc(fp) != 'M'))
     {
-    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
+    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName
                   <<" is not a Windows BMP file!");
     fclose(fp);
     return;
     }
 
+  // error indicator
+  bool errorOccurred = false;
+
   // get the size of the file
-  int sizeLong = sizeof(long);
-  if (sizeLong == 4)
+
+  // skip 4 bytes
+  if (fread(&tmp,4,1,fp) != 1)
     {
-    (void) fread(&tmp,4,1,fp);
-    // skip 4 bytes
-    (void) fread(&tmp,4,1,fp);
-    // read the offset
-    (void) fread(&tmp,4,1,fp);
+    errorOccurred = true;
     }
-  else
+  // skip 4 more bytes
+  else if (fread(&tmp,4,1,fp) != 1)
     {
-    (void) fread(&itmp,4,1,fp);
-    // skip 4 bytes
-    (void) fread(&itmp,4,1,fp);
-    // read the offset
-    (void) fread(&itmp,4,1,fp);
+    errorOccurred = true;
+    }
+  // read the offset
+  else if (fread(&tmp,4,1,fp) != 1)
+    {
+    errorOccurred = true;
     }
 
   // get size of header
-  if (sizeLong == 4)   // if we are on a 32 bit machine
+  else if (fread(&infoSize,4,1,fp) != 1)
     {
-    (void) fread(&infoSize,sizeof(long),1,fp);
-    vtkByteSwap::Swap4LE(&infoSize);
-                       
-    // error checking
-    if ((infoSize != 40)&&(infoSize != 12))
-      {
-      vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
-                    <<" is not a Windows BMP file!");
-      fclose(fp);
-      return;
-      }
-  
-    // there are two different types of BMP files
-    if (infoSize == 40)
-      {
-      // now get the dimensions
-      (void) fread(&xsize,sizeof(long),1,fp);
-      vtkByteSwap::Swap4LE(&xsize);
-      (void) fread(&ysize,sizeof(long),1,fp);
-      vtkByteSwap::Swap4LE(&ysize);
-      }
-    else
-      {
-      (void) fread(&stmp,sizeof(short),1,fp);
-      vtkByteSwap::Swap2LE(&stmp);
-      xsize = stmp;
-      (void) fread(&stmp,sizeof(short),1,fp);
-      vtkByteSwap::Swap2LE(&stmp);
-      ysize = stmp;
-      }
+    errorOccurred = true;
     }
-  else    // else we are on a 64bit machine
+
+  if (errorOccurred)
     {
-    (void) fread(&iinfoSize,sizeof(int),1,fp);
-    vtkByteSwap::Swap4LE(&iinfoSize);
-    infoSize = iinfoSize;
-    
-    // error checking
-    if ((infoSize != 40)&&(infoSize != 12))
-      {
-      vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
-                    <<" is not a Windows BMP file!");
-      fclose(fp);
-      return;
-      }
-  
-    // there are two different types of BMP files
-    if (infoSize == 40)
-      {
-      // now get the dimensions
-      (void) fread(&xsize,sizeof(int),1,fp);
-      vtkByteSwap::Swap4LE(&xsize);
-      (void) fread(&ysize,sizeof(int),1,fp);
-      vtkByteSwap::Swap4LE(&ysize);
-      }
-    else
-      {
-      (void) fread(&stmp,sizeof(short),1,fp);
-      vtkByteSwap::Swap2LE(&stmp);
-      xsize = stmp;
-      (void) fread(&stmp,sizeof(short),1,fp);
-      vtkByteSwap::Swap2LE(&stmp);
-      ysize = stmp;
-      }
+    vtkErrorMacro("Error reading file: " << this->InternalFileName
+                  <<" Premature end of file.");
+    fclose(fp);
+    return;
     }
-  
-  
+
+  vtkByteSwap::Swap4LE(&infoSize);
+
+  // error checking
+  if ((infoSize != 40)&&(infoSize != 12))
+    {
+    vtkErrorMacro("Unknown file type! " << this->InternalFileName
+                  <<" is not a Windows BMP file!");
+    fclose(fp);
+    return;
+    }
+
+  // there are two different types of BMP files
+  if (infoSize == 40)
+    {
+    // now get the dimensions
+    if (fread(&xsize,4,1,fp) != 1)
+      {
+      errorOccurred = true;
+      }
+    else if (fread(&ysize,4,1,fp) != 1)
+      {
+      errorOccurred = true;
+      }
+    vtkByteSwap::Swap4LE(&xsize);
+    vtkByteSwap::Swap4LE(&ysize);
+    }
+  else
+    {
+    if (fread(&stmp1,2,1,fp) != 1)
+      {
+      errorOccurred = true;
+      }
+    else if (fread(&stmp2,2,1,fp) != 1)
+      {
+      errorOccurred = true;
+      }
+    vtkByteSwap::Swap2LE(&stmp1);
+    vtkByteSwap::Swap2LE(&stmp2);
+    xsize = stmp1;
+    ysize = stmp2;
+    }
+
+  if (errorOccurred)
+    {
+    vtkErrorMacro ("BMPReader error reading file: " << this->InternalFileName
+                   << " Premature EOF while reading size.");
+    fclose (fp);
+    return;
+    }
+
   // is corner in upper left or lower left
   if (ysize < 0)
     {
@@ -204,30 +198,50 @@ void vtkBMPReader::ExecuteInformation()
     {
     this->FileLowerLeft = 1;
     }
-    
+
   // ignore planes
-  (void) fread(&stmp,sizeof(short),1,fp);
+  if (fread(&stmp1,2,1,fp) != 1)
+    {
+    errorOccurred = true;
+    }
   // read depth
-  (void) fread(&this->Depth,sizeof(short),1,fp);
-  vtkByteSwap::Swap2LE(&this->Depth);
+  else if (fread(&stmp2,2,1,fp) != 1)
+    {
+    errorOccurred = true;
+    }
+
+  if (errorOccurred)
+    {
+    vtkErrorMacro ("BMPReader error reading file: " << this->InternalFileName
+                   << " Premature EOF while reading depth.");
+    fclose (fp);
+    return;
+    }
+
+  vtkByteSwap::Swap2LE(&stmp2);
+  this->Depth = stmp2;
+
   if ((this->Depth != 8)&&(this->Depth != 24))
     {
-    vtkErrorMacro(<<"Only BMP depths of (8,24) are supported. Not " << this->Depth);
+    vtkErrorMacro("Only BMP depths of (8,24) are supported. Not "
+                  << this->Depth);
     fclose(fp);
     return;
     }
-  
+
   // skip over rest of info for long format
   if (infoSize == 40)
     {
-    (void) fread(&tmp,4,1,fp);
-    (void) fread(&tmp,4,1,fp);
-    (void) fread(&tmp,4,1,fp);
-    (void) fread(&tmp,4,1,fp);
-    (void) fread(&tmp,4,1,fp);
-    (void) fread(&tmp,4,1,fp);
+    int skip[6];
+    if (fread(&skip,4,6,fp) != 6)
+      {
+      vtkErrorMacro ("BMPReader error reading file: " << this->InternalFileName
+                     << " Premature EOF skipping rest of info for long format.");
+      fclose (fp);
+      return;
+      }
     }
-  
+
   // read in color table if required
   if (this->Depth < 24)
     {
@@ -458,7 +472,8 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
       // read the row.
       if ( ! self->GetFile()->read((char *)buf, streamRead))
         {
-        vtkGenericWarningMacro("File operation failed. row = " << idx1
+        vtkErrorWithObjectMacro(self,
+                               "File operation failed. row = " << idx1
                                << ", Read = " << streamRead
                                << ", Skip0 = " << streamSkip0
                                << ", Skip1 = " << streamSkip1
@@ -582,57 +597,42 @@ int vtkBMPReader::CanReadFile(const char* fname)
     return 0;
     }
 
-  long tmp;
-  long infoSize;
-  int  iinfoSize;  // in case we are on a 64bit machine
-  int  itmp;       // in case we are on a 64bit machine
+  vtkTypeInt32 tmp;
+  vtkTypeInt32 infoSize = 0;
 
-  // get the size of the file
-  int sizeLong = sizeof(long);
-  if (sizeLong == 4)
-    {
-    (void) fread(&tmp,4,1,fp);
-    // skip 4 bytes
-    (void) fread(&tmp,4,1,fp);
-    // read the offset
-    (void) fread(&tmp,4,1,fp);
-    }
-  else
-    {
-    (void) fread(&itmp,4,1,fp);
-    // skip 4 bytes
-    (void) fread(&itmp,4,1,fp);
-    // read the offset
-    (void) fread(&itmp,4,1,fp);
-    }
+  // error indicator
+  bool errorOccurred = false;
 
+  // skip 4 bytes
+  if (fread(&tmp,4,1,fp) != 1)
+    {
+    errorOccurred = true;
+    }
+  // skip 4 more bytes
+  else if (fread(&tmp,4,1,fp) != 1)
+    {
+    errorOccurred = true;
+    }
+  // read the offset
+  else if (fread(&tmp,4,1,fp) != 1)
+    {
+    errorOccurred = true;
+    }
   // get size of header
-  int res = 3;
-  if (sizeLong == 4)   // if we are on a 32 bit machine
+  else if (fread(&infoSize,4,1,fp) != 1)
     {
-    (void) fread(&infoSize,sizeof(long),1,fp);
-    vtkByteSwap::Swap4LE(&infoSize);
-                       
-    // error checking
-    if ((infoSize != 40)&&(infoSize != 12))
-      {
-      fclose(fp);
-      return 0;
-      }
+    infoSize = 0;
+    errorOccurred = true;
     }
-  else    // else we are on a 64bit machine
+
+  vtkByteSwap::Swap4LE(&infoSize);
+
+  // error checking
+  if ((infoSize != 40)&&(infoSize != 12))
     {
-    (void) fread(&iinfoSize,sizeof(int),1,fp);
-    vtkByteSwap::Swap4LE(&iinfoSize);
-    infoSize = iinfoSize;
-    
-    // error checking
-    if ((infoSize != 40)&&(infoSize != 12))
-      {
-      fclose(fp);
-      res = 0;
-      }
+    errorOccurred = true;
     }
+
   fclose(fp);
-  return res;
+  return !errorOccurred;
 }
