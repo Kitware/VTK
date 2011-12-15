@@ -576,16 +576,30 @@ void vtkStructuredGridConnectivity::EstablishNeighbors(const int i,const int j)
 
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
-    const int idx, int A[2], int B[2], int overlap[2], int orient[3] )
+    const int idx, int A[2], int overlap[2], int orient[3] )
 {
+  // We know that A,B are overlapping!
+
   assert( "pre: idx is out-of-bounds" && (idx >= 0) && (idx < 3) );
-  if( overlap[0] > A[0] )
+
+  bool lo = this->InBounds( A[0], overlap[0],overlap[1] );
+  bool hi = this->InBounds( A[1], overlap[0],overlap[1] );
+
+  if( lo && !hi )
+    {
+    orient[ idx ] = vtkStructuredNeighbor::LO;
+    }
+  else if( !lo && hi )
     {
     orient[ idx ] = vtkStructuredNeighbor::HI;
     }
+  else if( lo && hi )
+    {
+    orient[ idx ] = vtkStructuredNeighbor::BOTH;
+    }
   else
     {
-    orient[ idx ] = vtkStructuredNeighbor::LO;
+    orient[ idx ] = vtkStructuredNeighbor::UNDEFINED;
     }
 }
 
@@ -600,13 +614,15 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
   int A[2];
   int B[2];
   int overlap[2];
-  int neighborOrientation[3];
+  int iOrientation[3];
+  int jOrientation[3];
 
   int overlapExtent[6];
   for( int ii=0; ii < 3; ++ii )
     {
-    overlapExtent[ ii*2 ]     =  overlapExtent[ ii*2+1 ] = 0;
-    neighborOrientation[ ii ] = vtkStructuredNeighbor::UNDEFINED;
+    overlapExtent[ ii*2 ] = overlapExtent[ ii*2+1 ] = 0;
+    iOrientation[ ii ]    = vtkStructuredNeighbor::UNDEFINED;
+    jOrientation[ ii ]    = vtkStructuredNeighbor::UNDEFINED;
     }
 
   int dim = 0;
@@ -627,19 +643,21 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
     overlapExtent[ idx*2 ]   = overlap[0];
     overlapExtent[ idx*2+1 ] = overlap[1];
 
-    this->DetermineNeighborOrientation(
-        idx, A, B, overlap, neighborOrientation );
+    this->DetermineNeighborOrientation( idx, A, overlap, iOrientation );
+    this->DetermineNeighborOrientation( idx, B, overlap, jOrientation );
     } // END for all dimensions
 
-  this->SetNeighbors( i, j, overlapExtent );
+  this->SetNeighbors( i, j, iOrientation, jOrientation, overlapExtent );
 }
 
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::SetNeighbors(
-            const int i, const int j, int overlapExtent[6] )
+            const int i, const int j,
+            int i2jOrientation[3], int j2iOrientation[3],
+            int overlapExtent[6] )
 {
-  vtkStructuredNeighbor Ni2j( j, overlapExtent );
-  vtkStructuredNeighbor Nj2i( i, overlapExtent );
+  vtkStructuredNeighbor Ni2j( j, overlapExtent, i2jOrientation );
+  vtkStructuredNeighbor Nj2i( i, overlapExtent, j2iOrientation );
 
   this->Neighbors[ i ].push_back( Ni2j );
   this->Neighbors[ j ].push_back( Nj2i );
