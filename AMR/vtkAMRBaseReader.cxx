@@ -450,9 +450,6 @@ void vtkAMRBaseReader::LoadRequestedBlocks( vtkHierarchicalBoxDataSet *output )
     vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::LoadCellData" );
 
     // STEP 4: Add dataset
-    std::cout << "Setting block index at level: " << blockIdx << std::endl;
-    std::cout.flush();
-
     unsigned int metaLevel = 0;
     unsigned int metaIdx   = 0;
     this->Metadata->GetLevelAndIndex( blockIdx, metaLevel, metaIdx );
