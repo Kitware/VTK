@@ -74,6 +74,14 @@ void vtkLookupTableItem::ComputeBounds(double* bounds)
 //-----------------------------------------------------------------------------
 void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
 {
+  if (t == this->LookupTable)
+    {
+    return;
+    }
+  if (this->LookupTable)
+    {
+    this->LookupTable->RemoveObserver(this->Callback);
+    }
   vtkSetObjectBodyMacro(LookupTable, vtkLookupTable, t);
   if (t)
     {

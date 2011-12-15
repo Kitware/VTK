@@ -92,6 +92,10 @@ void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t
     {
     return;
     }
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->RemoveObserver(this->Callback);
+    }
   vtkSetObjectBodyMacro(PiecewiseFunction, vtkPiecewiseFunction, t);
   if (this->PiecewiseFunction)
     {
