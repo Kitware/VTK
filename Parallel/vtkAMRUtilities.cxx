@@ -485,35 +485,35 @@ void vtkAMRUtilities::ComputeLevelRefinementRatio(
       return;
     }
 
-   for( int level=1; level < numLevels; ++level )
+   for( int level=0; level < numLevels-1; ++level )
      {
 
-       int parentLevel = level-1;
-       assert("No data at parent!" && amr->GetNumberOfDataSets(parentLevel)>=1);
+       int childLevel = level+1;
+       assert("No data at parent!" && amr->GetNumberOfDataSets(childLevel)>=1);
        assert("No data in this level" && amr->GetNumberOfDataSets(level)>=1 );
 
-       vtkAMRBox parentBox;
-       amr->GetMetaData(parentLevel,0,parentBox);
+       vtkAMRBox childBox;
+       amr->GetMetaData(childLevel,0,childBox);
 
        vtkAMRBox myBox;
        amr->GetMetaData(level,0,myBox);
 
-       double parentSpacing[3];
-       parentBox.GetGridSpacing(parentSpacing);
+       double childSpacing[3];
+       childBox.GetGridSpacing(childSpacing);
 
        double currentSpacing[3];
        myBox.GetGridSpacing( currentSpacing );
 
        // Note current implementation assumes uniform spacing. The
        // refinement ratio is the same in each dimension i,j,k.
-       int ratio = vtkMath::Round(parentSpacing[0]/currentSpacing[0]);
+       int ratio = vtkMath::Round(currentSpacing[0]/childSpacing[0]);
 
-       // Set the ratio at the root level, i.e., level 0, to be the same as
-       // the ratio at level 1,since level 0 doesn't really have a refinement
-       // ratio.
-       if( level==1 )
+       // Set the ratio at the last level, i.e., level numLevels-1, to be the
+       // same as the ratio at the previous level,since the highest level
+       // doesn't really have a refinement ratio.
+       if( level==numLevels-2 )
          {
-           amr->SetRefinementRatio(0,ratio);
+           amr->SetRefinementRatio(level+1,ratio);
          }
        amr->SetRefinementRatio(level,ratio);
 

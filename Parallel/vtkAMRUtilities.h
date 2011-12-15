@@ -87,8 +87,8 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // Description:
     // This method computes the refinement ratio at each level.
     // At each level, l, the refinement ratio r_l is computed by
-    // r_l = D_{l-1} / D_{l}, where D_{l-1} and D_{l} are the grid
-    // spacings at the previous and current level respectively.
+    // r_l = D_{l} / D_{l+1}, where D_{l+1} and D_{l} are the grid
+    // spacings at the next and current level respectively.
     //
     // .SECTION Assumptions
     // 1) If the data is distributed vktAMRUtilities::CollectAMRMetaData must
