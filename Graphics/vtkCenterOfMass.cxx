@@ -73,9 +73,10 @@ void vtkCenterOfMass::ComputeCenterOfMass(vtkPointSet* input, double center[3], 
   vtkMath::MultiplyScalar(center, 1./weightTotal);
 }
 
-int vtkCenterOfMass::RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector )
+int vtkCenterOfMass::RequestData(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector) )
 {
   // Get the input and ouptut
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
