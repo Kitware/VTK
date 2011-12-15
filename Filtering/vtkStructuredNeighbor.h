@@ -34,7 +34,8 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
       LO         = -1, // normal to neighbor points away from the min
       ONE_TO_ONE =  0, // neighbors abbutt 1-to-1
       HI         =  1, // normal to neighbor points away from the max
-      UNDEFINED  =  2  // the neighboring relationship is undefined, e.g., if
+      BOTH       =  2, // neighbor overlaps in both HI and LO
+      UNDEFINED  =  3  // the neighboring relationship is undefined, e.g., if
                        // we are checking 2D data, then the neighboring orientation
                        // in the 3rd dimension is undefined.
       };
@@ -94,8 +95,10 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
           case vtkStructuredNeighbor::HI:
             this->Orientation[ i ] = vtkStructuredNeighbor::LO;
             break;
+          case vtkStructuredNeighbor::BOTH:
+            this->Orientation[ i ] = vtkStructuredNeighbor::UNDEFINED;
           default:
-            ; // NOP do nothing
+            ; // NO-OP do nothing
 
           } // END SWITCH
         } // END for all dimensions
