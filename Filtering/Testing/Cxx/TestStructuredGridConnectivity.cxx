@@ -48,7 +48,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 
-//#define ENABLE_IO
+#define ENABLE_IO
 
 //------------------------------------------------------------------------------
 // Description:
@@ -237,21 +237,54 @@ vtkMultiPieceDataSet* GetDataSet( )
 
 //------------------------------------------------------------------------------
 // Description:
+// Get Grid whole extent and dimensions
+void GetGlobalGrid( const int dimension, int wholeExtent[6], int dims[3] )
+{
+  for( int i=0; i < 3; ++i )
+    {
+    wholeExtent[ i*2   ] = 0;
+    wholeExtent[ i*2+1 ] = 0;
+    dims[ i ]            = 1;
+    }
+
+  switch( dimension )
+    {
+    case 2:
+      wholeExtent[0] = 0;
+      wholeExtent[1] = 99;
+      wholeExtent[2] = 0;
+      wholeExtent[3] = 99;
+
+      dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
+      dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
+      break;
+    case 3:
+      wholeExtent[0] = 0;
+      wholeExtent[1] = 99;
+      wholeExtent[2] = 0;
+      wholeExtent[3] = 99;
+      wholeExtent[4] = 0;
+      wholeExtent[5] = 99;
+
+      dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
+      dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
+      dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
+      break;
+    default:
+      assert( "Cannot create grid of invalid dimension" && false );
+    }
+}
+
+//------------------------------------------------------------------------------
+// Description:
 // Generates a multi-block dataset
-vtkMultiBlockDataSet* GetDataSet(const int numPartitions, const int numGhosts)
+vtkMultiBlockDataSet* GetDataSet(
+    const int dimension, const int numPartitions, const int numGhosts)
 {
   int wholeExtent[6];
-  wholeExtent[0] = 0;
-  wholeExtent[1] = 99;
-  wholeExtent[2] = 0;
-  wholeExtent[3] = 99;
-  wholeExtent[4] = 0;
-  wholeExtent[5] = 99;
-
   int dims[3];
-  dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
-  dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
-  dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
+  GetGlobalGrid( dimension, wholeExtent, dims );
+
 
   // Generate grid for the entire domain
   vtkUniformGrid *wholeGrid = vtkUniformGrid::New();
@@ -419,8 +452,8 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
       std::cout << " BLOCKS and NG=" << numGhostLayers[ j ] << "...";
       std::cout.flush();
 
-      vtkMultiBlockDataSet *mbds = GetDataSet(
-          numberOfPartitions[ i ], numGhostLayers[ j ] );
+      vtkMultiBlockDataSet *mbds =
+          GetDataSet(3,numberOfPartitions[ i ], numGhostLayers[ j ] );
       assert( "pre: multi-block is NULL" && (mbds != NULL) );
 
       std::cout << "[DONE]\n";
@@ -610,6 +643,20 @@ int SimpleMonolithicTest( int argc, char **argv )
 }
 
 //------------------------------------------------------------------------------
+int Simple2DTest( int argc, char **argv )
+{
+  // Silence compiler warnings for unused vars argc and argv
+  static_cast<void>( argc );
+  static_cast<void>( argv );
+
+  int np = 8; /* Number of partitions */
+  int ng = 1; /* Number of ghosts */
+  vtkMultiBlockDataSet *mbds = GetDataSet(2, np, ng);
+  WriteMultiBlock( mbds );
+
+}
+
+//------------------------------------------------------------------------------
 // Program main
 int main( int argc, char **argv )
 {
@@ -617,7 +664,20 @@ int main( int argc, char **argv )
 
   if( argc > 1 )
     {
-    rc = SimpleMonolithicTest( argc, argv );
+    int testNumber = atoi( argv[1] );
+    switch( testNumber )
+      {
+      case 0:
+        rc = SimpleMonolithicTest( argc, argv );
+        break;
+      case 1:
+        rc = Simple2DTest( argc, argv );
+        break;
+      default:
+        std::cerr << "Undefined test: " << testNumber << " ";
+        std::cerr << "No tests will run!\n";
+        rc = 0;
+      }
     }
   else
     {
