@@ -162,14 +162,17 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 
     // Description:
     // Creates a neighbor from i-to-j and from j-to-i.
-    void SetNeighbors( const int i, const int j, int overlapExtent[6] );
+    void SetNeighbors(
+        const int i, const int j,
+        int i2jOrientation[3], int j2iOrientation[3],
+        int overlapExtent[6] );
 
     // Description:
-    // Given two overlapping extents A,B and their overlap along the given
-    // dimension idx, this method computes the relative orientation from A to
-    // B.
+    // Given an overlapping extent A and the corresponding overlap extent with
+    // its neighbor, this method computes A's relative neighboring orientation
+    // w.r.t to its neighbor. For example, A's neighbor is
     void DetermineNeighborOrientation(
-        const int  idx, int A[2], int B[2], int overlap[2], int orient[3] );
+        const int  idx, int A[2], int overlap[2], int orient[3] );
 
     // Description:
     // Detects if the two extents, ex1 and ex2, corresponding to the grids
