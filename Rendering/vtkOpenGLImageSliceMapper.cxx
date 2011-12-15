@@ -216,9 +216,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     }
 
   // get information about the image
-  int xdim, ydim, zdim; // orientation of texture wrt input image
+  int xdim, ydim; // orientation of texture wrt input image
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
-  zdim = (this->Orientation % 3);
 
   // check whether to use a shader for bicubic interpolation
   bool checkerboard = (property && property->GetCheckerboard());
@@ -575,16 +574,10 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
 
   int xdim, ydim;
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
-  double *origin = this->DataOrigin;
-  double *spacing = this->DataSpacing;
-  double xshift = origin[xdim] - (0.5 - extent[2*xdim])*spacing[xdim];
-  double xscale = this->TextureSize[xdim]*spacing[xdim];
-  double yshift = origin[ydim] - (0.5 - extent[2*ydim])*spacing[ydim];
-  double yscale = this->TextureSize[ydim]*spacing[ydim];
 
   if (!points)
     {
-    double coords[15], tcoords[10], center[3];
+    double coords[15], tcoords[10], center[3], tcenter[2];
     this->MakeTextureGeometry(extent, coords, tcoords);
     coords[12] = coords[0];
     coords[13] = coords[1];
@@ -595,6 +588,9 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
     center[0] = 0.25*(coords[0] + coords[3] + coords[6] + coords[9]);
     center[1] = 0.25*(coords[1] + coords[4] + coords[7] + coords[10]);
     center[2] = 0.25*(coords[2] + coords[5] + coords[8] + coords[11]);
+
+    tcenter[0] = 0.25*(tcoords[0] + tcoords[2] + tcoords[4] + tcoords[6]);
+    tcenter[1] = 0.25*(tcoords[1] + tcoords[3] + tcoords[5] + tcoords[7]);
 
     double *coord = coords;
     double *tcoord = tcoords;
@@ -608,21 +604,23 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
         glTexCoord2dv(tcoord);
         }
       glVertex3dv(coord);
-      
-      double sx = (coord[xdim] > center[xdim] ? 1 : -1);
-      double sy = (coord[ydim] > center[ydim] ? 1 : -1);
+
+      double dx = coord[xdim] - center[xdim];
+      double sx = (dx >= 0 ? 1 : -1);
+      double dy = coord[ydim] - center[ydim];
+      double sy = (dy >= 0 ? 1 : -1);
       coord[xdim] += borderThickness*sx;
       coord[ydim] += borderThickness*sy;
 
       glNormal3dv(normal);
       if (textured)
         {
-        tcoord[0] = (coord[xdim] - xshift)/xscale;
-        tcoord[1] = (coord[ydim] - yshift)/yscale;
+        tcoord[0] += (tcoord[0] - tcenter[0])/dx*sx*borderThickness;
+        tcoord[1] += (tcoord[1] - tcenter[1])/dy*sy*borderThickness;
         glTexCoord2dv(tcoord);
         }
       glVertex3dv(coord);
- 
+
       coord += 3;
       tcoord += 2;
       }
@@ -630,7 +628,14 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
     }
   else if (points->GetNumberOfPoints())
     {
-    vtkIdType ncoords = points->GetNumberOfPoints(); 
+    double *origin = this->DataOrigin;
+    double *spacing = this->DataSpacing;
+    double xshift = origin[xdim] - (0.5 - extent[2*xdim])*spacing[xdim];
+    double xscale = this->TextureSize[xdim]*spacing[xdim];
+    double yshift = origin[ydim] - (0.5 - extent[2*ydim])*spacing[ydim];
+    double yscale = this->TextureSize[ydim]*spacing[ydim];
+
+    vtkIdType ncoords = points->GetNumberOfPoints();
     double coord[3], coord1[3], tcoord[2];
 
     points->GetPoint(ncoords-1, coord1);
