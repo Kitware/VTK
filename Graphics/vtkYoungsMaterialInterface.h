@@ -99,6 +99,12 @@ public:
   virtual int GetNumberOfMaterials();
  
   // Description:
+  // Set/Get whether all material blocks should be used, irrespective of the material block mapping.
+  vtkSetMacro(UseAllBlocks,bool);
+  vtkGetMacro(UseAllBlocks,bool);
+  vtkBooleanMacro(UseAllBlocks,bool);
+
+  // Description:
   // Only meaningfull for LOVE software. returns the maximum number of blocks conatining the same material
   vtkGetMacro(NumberOfDomains,int);
 
@@ -155,6 +161,7 @@ protected:
 //BTX
   vtkSmartPointer<vtkIntArray> MaterialBlockMapping;
 //ETX
+  bool UseAllBlocks;
 
   // Description:
   // Read only properties

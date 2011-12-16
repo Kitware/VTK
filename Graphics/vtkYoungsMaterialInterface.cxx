@@ -156,6 +156,7 @@ vtkYoungsMaterialInterface::vtkYoungsMaterialInterface()
   this->NumberOfDomains = -1;
   this->Internals = new vtkYoungsMaterialInterfaceInternals;
   this->MaterialBlockMapping = vtkSmartPointer<vtkIntArray>::New();
+  this->UseAllBlocks = true;
 
   vtkDebugMacro(<<"vtkYoungsMaterialInterface::vtkYoungsMaterialInterface() ok\n");
 }
@@ -180,6 +181,7 @@ void vtkYoungsMaterialInterface::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseFractionAsDistance: " << this->UseFractionAsDistance << "\n";
   os << indent << "VolumeFractionRange: [" << this->VolumeFractionRange[0] << ";" << this->VolumeFractionRange[1] <<"]\n";
   os << indent << "NumberOfDomains" << this->NumberOfDomains <<"\n";
+  os << indent << "UseAllBlocks:" << this->UseAllBlocks << "\n";
 }
 
 void vtkYoungsMaterialInterface::SetNumberOfMaterials(int n)
@@ -375,13 +377,13 @@ static inline void vtkYoungsMaterialInterface_GetPointData(
     {
     if (a < (nPointData - 1))
       {
-      DBG_ASSERT( /*i>=0 &&*/i<inPointArrays[a]->GetNumberOfTuples());
+      DBG_ASSERT( i<inPointArrays[a]->GetNumberOfTuples());
       inPointArrays[a]->GetTuple(i, t);
       }
     else
       {
       DBG_ASSERT( a == (nPointData-1) );
-      DBG_ASSERT( /*i>=0 &&*/i<input->GetNumberOfPoints());
+      DBG_ASSERT( i<input->GetNumberOfPoints());
       input->GetPoint(i, t);
       }
     }
@@ -390,7 +392,7 @@ static inline void vtkYoungsMaterialInterface_GetPointData(
     int j = -i - 1;
     DBG_ASSERT(j>=0 && j<prevPointsMap.size());
     int prev_m = prevPointsMap[j].first;
-    DBG_ASSERT(prev_m>=0 /*&& prev_m<nmat*/);
+    DBG_ASSERT(prev_m>=0);
     vtkIdType prev_i = (prevPointsMap[j].second);
     DBG_ASSERT(prev_i>=0 && prev_i<Mats[prev_m].outPointArrays[a]->GetNumberOfTuples());
     Mats[prev_m].outPointArrays[a]->GetTuple(prev_i, t);
@@ -433,7 +435,6 @@ int vtkYoungsMaterialInterface::CellProduceInterface( int dim, int np, double fr
       ( fraction < maxFrac || this->FillMaterial )
       )
      ) ;
-
 }
 
 void vtkYoungsMaterialInterface::RemoveAllMaterialBlockMappings()
@@ -441,6 +442,7 @@ void vtkYoungsMaterialInterface::RemoveAllMaterialBlockMappings()
   vtkDebugMacro(<<"RemoveAllMaterialBlockMappings\n");
   this->MaterialBlockMapping->Reset();
 }
+
 void vtkYoungsMaterialInterface::AddMaterialBlockMapping(int b)
 {
   vtkDebugMacro(<<"AddMaterialBlockMapping "<<b<<"\n");
@@ -546,7 +548,8 @@ int vtkYoungsMaterialInterface::RequestData(
         {
         vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume.c_str());
         bool materialHasBlock = ((*it).blocks.find(composite_index)!= (*it).blocks.end());
-        if (materialHasBlock && fraction != 0)
+        if ( this->UseAllBlocks
+             || ( materialHasBlock && fraction != 0 ) )
           {
           double range[2];
           fraction->GetRange(range);
