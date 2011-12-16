@@ -64,6 +64,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 
       this->GridExtents.resize( 6*N,-1);
       this->Neighbors.resize( N );
+      this->BlockTopology.resize( N );
     }
 
     // Description:
@@ -140,6 +141,33 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
         const int gridID,
         const int i, const int j, const int k,
         int ext[6], unsigned char &pfield );
+
+    // Description:
+    // Given a grid extent, this method computes the RealExtent.
+    void GetRealExtent( int GridExtent[6],int RealExtent[6] );
+
+    // Description:
+    // Checks if the node corresponding to the given global i,j,k coordinates
+    // is a ghost node or not.
+    bool IsGhostNode(
+        const int gridID, int GridExtent[6],
+        const int i, const int j, const int k );
+
+    // Description:
+    // Checks if the node corresponding to the given global i,j,k coordinates
+    // is on the boundary of the given extent.
+    bool IsNodeOnBoundaryOfExtent(
+        const int i, const int j, const int k, int ext[6] );
+
+    // Description:
+    // Checks if the node corresponding to the given global i,j,k coordinates
+    // is on the shared boundary, i.e., a partition interface.
+    //
+    // NOTE: A node on a shared boundary, may also be on a real boundary.
+    bool IsNodeOnSharedBoundary(
+        const int i, const int j, const int k,
+        int GridExtent[6],
+        int RealExtent[6] );
 
     // Description:
     // Checks if the node corresponding to the given global i,j,k coordinates
@@ -226,12 +254,63 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void AcquireDataDescription();
 
     // Description:
+    // Checks if the block corresponding to the given grid ID has a block
+    // adjacent to it in the given block direction.
+    // NOTE: The block direction is essentially one of the 6 faces  of the
+    // block defined as follows:
+    // <ul>
+    //  <li>IMIN=0</li>
+    //  <li>IMAX=1</li>
+    //  <li>JMIN=2</li>
+    //  <li>JMAX=3</li>
+    //  <li>KMIN=4</li>
+    //  <li>KMAX=5</li>
+    // </ul>
+    bool HasBlockConnection( const int gridID, const int blockDirection );
+
+    // Description:
+    // Removes a block connection along the given direction for the block
+    // corresponding to the given gridID.
+    // NOTE: The block direction is essentially one of the 6 faces  of the
+    // block defined as follows:
+    // <ul>
+    //  <li>IMIN=0</li>
+    //  <li>IMAX=1</li>
+    //  <li>JMIN=2</li>
+    //  <li>JMAX=3</li>
+    //  <li>KMIN=4</li>
+    //  <li>KMAX=5</li>
+    // </ul>
+    void RemoveBlockConnection( const int gridID, const int blockDirection );
+
+    // Description:
+    // Adds a block connection along the given direction for the block
+    // corresponding to the given gridID.
+    // NOTE: The block direction is essentially one of the 6 faces  of the
+    // block defined as follows:
+    // <ul>
+    //  <li>IMIN=0</li>
+    //  <li>IMAX=1</li>
+    //  <li>JMIN=2</li>
+    //  <li>JMAX=3</li>
+    //  <li>KMIN=4</li>
+    //  <li>KMAX=5</li>
+    // </ul>
+    void AddBlockConnection( const int gridID, const int blockDirection );
+
+    // Description:
+    // Clears all block connections for the  block corresponding to the given
+    // grid ID.
+    void ClearBlockConnections( const int gridID );
+
+    // Description:
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 
     int DataDescription;
     int WholeExtent[6];
     std::vector< int > GridExtents;
+    std::vector< unsigned char  > BlockTopology;
     std::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
 
   private:

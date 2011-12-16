@@ -35,6 +35,19 @@
 
 vtkStandardNewMacro( vtkStructuredGridConnectivity );
 
+// An enum to define the 6 block face directions
+namespace BlockDirection {
+  enum
+  {
+    IMIN=0,
+    IMAX=1,
+    JMIN=2,
+    JMAX=3,
+    KMIN=4,
+    KMAX=5
+  };
+}
+
 //------------------------------------------------------------------------------
 vtkStructuredGridConnectivity::vtkStructuredGridConnectivity()
 {
@@ -119,6 +132,65 @@ void vtkStructuredGridConnectivity::RegisterGrid(
   this->RegisterGridGhostArrays( gridID, nodesGhostArray, cellGhostArray );
   this->RegisterFieldData( gridID, pointData, cellData );
   this->RegisterGridNodes( gridID, gridNodes );
+}
+
+//------------------------------------------------------------------------------
+bool vtkStructuredGridConnectivity::HasBlockConnection(
+    const int gridID, const int blockDirection )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+  assert("pre: blockDirection is out-of-bounds" &&
+        (blockDirection >= 0) && (blockDirection < 6) );
+  return( this->BlockTopology[ gridID ] & (1 << blockDirection) );
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::RemoveBlockConnection(
+    const int gridID, const int blockDirection )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+  assert("pre: blockDirection is out-of-bounds" &&
+        (blockDirection >= 0) && (blockDirection < 6) );
+
+  this->BlockTopology[ gridID ] &= ~(1 << blockDirection);
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::AddBlockConnection(
+    const int gridID, const int blockDirection )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+  assert("pre: blockDirection is out-of-bounds" &&
+        (blockDirection >= 0) && (blockDirection < 6) );
+
+  this->BlockTopology[ gridID ] |= (1 << blockDirection);
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::ClearBlockConnections( const int gridID )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+
+  for( int i=0; i < 6; ++i )
+    {
+    this->RemoveBlockConnection( gridID, i );
+    } // END for all block directions
 }
 
 //------------------------------------------------------------------------------
@@ -209,10 +281,6 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
       {
       this->FillGhostArrays(
         i, this->GridPointGhostArrays[ i ], this->GridCellGhostArrays[ i ] );
-      }
-    else
-      {
-      std::cerr << "Grid Point Array is NULL!\n";
       }
     } // END for all grids
 }
@@ -330,56 +398,117 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
 }
 
 //------------------------------------------------------------------------------
-bool vtkStructuredGridConnectivity::IsNodeOnBoundary(
-    const int i, const int j, const int k )
+void vtkStructuredGridConnectivity::GetRealExtent(
+    int GridExtent[6], int RealExtent[6] )
 {
-  bool status = false;
+  for( int i=0; i < 6; ++i)
+    {
+    RealExtent[i] = GridExtent[i];
+    }
+
+  if( this->NumberOfGhostLayers == 0 )
+    {
+    return;
+    }
 
   switch( this->DataDescription )
     {
     case VTK_X_LINE:
-       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] )
+      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
+      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
+      break;
+    case VTK_Y_LINE:
+      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
+      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
+      break;
+    case VTK_Z_LINE:
+      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
+      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      break;
+    case VTK_XY_PLANE:
+      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
+      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
+      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
+      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
+      break;
+    case VTK_YZ_PLANE:
+      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
+      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
+      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
+      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      break;
+    case VTK_XZ_PLANE:
+      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
+      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
+      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
+      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      break;
+    case VTK_XYZ_GRID:
+      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
+      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
+      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
+      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
+      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
+      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      break;
+    default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
+      assert( "pre: Undefined data-description!" && false );
+    }
+  vtkStructuredExtent::Clamp( RealExtent, this->WholeExtent );
+}
+
+//------------------------------------------------------------------------------
+bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
+    const int i, const int j, const int k, int ext[6] )
+{
+  bool status = false;
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+       if( i==ext[0] || i==ext[1] )
          {
          status = true;
          }
        break;
      case VTK_Y_LINE:
-       if( j==this->WholeExtent[2] || j==this->WholeExtent[3] )
+       if( j==ext[2] || j==ext[3] )
          {
          status = true;
          }
        break;
      case VTK_Z_LINE:
-       if( k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+       if( k==ext[4] || k==ext[5] )
          {
          status = true;
          }
        break;
      case VTK_XY_PLANE:
-       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
-           j==this->WholeExtent[2] || j==this->WholeExtent[3] )
+       if( i==ext[0] || i==ext[1] ||
+           j==ext[2] || j==ext[3] )
          {
          status = true;
          }
        break;
      case VTK_YZ_PLANE:
-       if( j==this->WholeExtent[2] || j==this->WholeExtent[3] ||
-           k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+       if( j==ext[2] || j==ext[3] ||
+           k==ext[4] || k==ext[5] )
          {
          status = true;
          }
        break;
      case VTK_XZ_PLANE:
-       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
-           k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+       if( i==ext[0] || i==ext[1] ||
+           k==ext[4] || k==ext[5] )
          {
          status = true;
          }
        break;
      case VTK_XYZ_GRID:
-       if( i==this->WholeExtent[0] || i==this->WholeExtent[1] ||
-           j==this->WholeExtent[2] || j==this->WholeExtent[3] ||
-           k==this->WholeExtent[4] || k==this->WholeExtent[5] )
+       if( i==ext[0] || i==ext[1] ||
+           j==ext[2] || j==ext[3] ||
+           k==ext[4] || k==ext[5] )
          {
          status = true;
          }
@@ -391,6 +520,60 @@ bool vtkStructuredGridConnectivity::IsNodeOnBoundary(
     } // END switch
 
   return( status );
+}
+
+//------------------------------------------------------------------------------
+bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
+    const int i, const int j, const int k,
+    int GridExtent[6], int RealExtent[6] )
+{
+  if( this->IsNodeOnBoundaryOfExtent(i,j,k,RealExtent) )
+    {
+    // TODO: Need to fix logic here!
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+bool vtkStructuredGridConnectivity::IsGhostNode(
+        const int gridID, int GridExtent[6],
+        const int i, const int j, const int k )
+{
+  // STEP 0: Check if there are any ghost-layers. Note, if the original data
+  // that the user is registering contains ghost-layers, the users must set
+  // the number of ghost-layers.
+  if( this->NumberOfGhostLayers == 0 )
+    {
+    // Grid has no ghost-layers, so, the node cannot be a ghost node
+    return false;
+    }
+
+  // STEP 1: Initialize the return status and the real extent
+  bool status = false;
+  int realExtent[6];
+  this->GetRealExtent( GridExtent, realExtent );
+
+  if( this->IsNodeWithinExtent( i, j, k, realExtent ) )
+    {
+    status = false;
+    }
+  else
+    {
+    status = true;
+    }
+
+  return( status );
+}
+
+//------------------------------------------------------------------------------
+bool vtkStructuredGridConnectivity::IsNodeOnBoundary(
+    const int i, const int j, const int k )
+{
+  return( this->IsNodeOnBoundaryOfExtent( i,j,k, this->WholeExtent) );
 }
 
 //------------------------------------------------------------------------------
