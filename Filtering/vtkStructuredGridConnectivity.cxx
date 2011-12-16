@@ -122,7 +122,7 @@ void vtkStructuredGridConnectivity::RegisterGrid(
     vtkPoints* gridNodes )
 {
   assert( "pre: gridID out-of-bounds!" &&
-           (gridID >= 0  && gridID < this->NumberOfGrids) );
+        (gridID >= 0  && gridID < this->NumberOfGrids) );
 
   for( int i=0; i < 6; ++i )
     {
@@ -197,10 +197,31 @@ void vtkStructuredGridConnectivity::ClearBlockConnections( const int gridID )
 void vtkStructuredGridConnectivity::GetGridExtent(const int gridID, int ext[6])
 {
   assert( "pre: gridID out-of-bounds!" &&
-          (gridID >= 0  && gridID < this->NumberOfGrids) );
+        (gridID >= 0  && gridID < this->NumberOfGrids) );
   for( int i=0; i < 6; ++i )
     {
     ext[i] = this->GridExtents[ gridID*6+i ];
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::GetGhostedGridExtent(
+    const int gridID, int ext[6])
+{
+  assert( "pre: gridID out-of-bounds!" &&
+        (gridID >= 0  && gridID < this->NumberOfGrids) );
+
+  if( this->GhostedExtents.size() == 0 )
+    {
+    vtkErrorMacro( "No ghosted extents found for registered grid extends!!!" );
+    return;
+    }
+
+  assert( "GhostedExtents are not aligned with registered grid extents" &&
+        ( this->GhostedExtents.size() == this->GridExtents.size() ) );
+  for( int i=0; i < 6; ++i )
+    {
+    ext[i] = this->GhostedExtents[ gridID*6+i ];
     }
 }
 
@@ -218,9 +239,9 @@ void vtkStructuredGridConnectivity::AcquireDataDescription()
 
   this->DataDescription = vtkStructuredData::GetDataDescription( dims );
   assert( "pre: Error acquiring data description" &&
-          (this->DataDescription >= 0) );
+        (this->DataDescription >= 0) );
   assert( "pre: grid description cannot be empty" &&
-          (this->DataDescription != VTK_EMPTY) );
+        (this->DataDescription != VTK_EMPTY) );
 }
 
 //------------------------------------------------------------------------------

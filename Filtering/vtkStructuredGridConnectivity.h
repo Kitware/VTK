@@ -82,6 +82,10 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void GetGridExtent( const int gridID, int extent[6] );
 
     // Description:
+    // Returns the ghosted grid extent for the block corresponding the
+    void GetGhostedGridExtent( const int gridID, int ext[6] );
+
+    // Description:
     // Computes neighboring information
     virtual void ComputeNeighbors();
 
@@ -310,6 +314,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     int DataDescription;
     int WholeExtent[6];
     std::vector< int > GridExtents;
+    std::vector< int > GhostedExtents;
     std::vector< unsigned char  > BlockTopology;
     std::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
 
