@@ -645,17 +645,64 @@ int SimpleMonolithicTest( int argc, char **argv )
 //------------------------------------------------------------------------------
 int Simple2DTest( int argc, char **argv )
 {
-  // Silence compiler warnings for unused vars argc and argv
-  static_cast<void>( argc );
-  static_cast<void>( argv );
+  assert( "pre: argument counter must equal 4" && (argc==4) );
 
-  int np = 8; /* Number of partitions */
-  int ng = 1; /* Number of ghosts */
+  int np = atoi( argv[2] );
+  int ng = atoi( argv[3] );
+  std::cout << "Number of partitions: "   << np << std::endl;
+  std::cout << "Number of ghost-layers: " << ng << std::endl;
+  std::cout.flush();
+
+  int expected = 100*100;
+
   vtkMultiBlockDataSet *mbds = GetDataSet(2, np, ng);
   WriteMultiBlock( mbds );
 
+  vtkStructuredGridConnectivity *gridConnectivity =
+      vtkStructuredGridConnectivity::New();
+  gridConnectivity->SetNumberOfGhostLayers( ng );
+  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+
+  RegisterGrids( mbds, gridConnectivity );
+
+  gridConnectivity->ComputeNeighbors();
+  gridConnectivity->Print( std::cout );
+  std::cout.flush();
+
+  return 0;
 }
 
+//------------------------------------------------------------------------------
+int Simple3DTest( int argc, char **argv )
+{
+  assert( "pre: argument counter must equal 4" && (argc==4) );
+
+  int np = atoi( argv[2] );
+  int ng = atoi( argv[3] );
+  std::cout << "Number of partitions: "   << np << std::endl;
+  std::cout << "Number of ghost-layers: " << ng << std::endl;
+  std::cout.flush();
+
+  int expected = 100*100*100;
+
+  vtkMultiBlockDataSet *mbds = GetDataSet(3, np, ng);
+  WriteMultiBlock( mbds );
+
+  vtkStructuredGridConnectivity *gridConnectivity =
+      vtkStructuredGridConnectivity::New();
+  gridConnectivity->SetNumberOfGhostLayers( ng );
+  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+
+  RegisterGrids( mbds, gridConnectivity );
+
+  gridConnectivity->ComputeNeighbors();
+  gridConnectivity->Print( std::cout );
+  std::cout.flush();
+
+  return 0;
+}
 //------------------------------------------------------------------------------
 // Program main
 int main( int argc, char **argv )
@@ -672,6 +719,9 @@ int main( int argc, char **argv )
         break;
       case 1:
         rc = Simple2DTest( argc, argv );
+        break;
+      case 2:
+        rc = Simple3DTest( argc, argv );
         break;
       default:
         std::cerr << "Undefined test: " << testNumber << " ";
