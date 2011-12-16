@@ -89,6 +89,11 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
         os << this->Neighbors[gridID][nei].OverlapExtent[ i ] << ", ";
         os << this->Neighbors[gridID][nei].OverlapExtent[ i+1 ] << "] ";
         }
+
+      os << " orientation: (";
+      os << this->Neighbors[gridID][nei].Orientation[ 0 ] << ", ";
+      os << this->Neighbors[gridID][nei].Orientation[ 1 ] << ", ";
+      os << this->Neighbors[gridID][nei].Orientation[ 2 ] << ")\n ";
       os << std::endl;
       } // END for all neis
     } // END for all grids
@@ -179,6 +184,8 @@ vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::ComputeNeighbors()
 {
+  // STEP 0: Acquire data description, i.e., determine how the structured data
+  // is laid out, e.g., is it volumetric or 2-D along some plane, XY, XZ, or YZ.
   this->AcquireDataDescription( );
   if( this->DataDescription == VTK_EMPTY ||
       this->DataDescription == VTK_SINGLE_POINT )
@@ -186,6 +193,7 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
     return;
     }
 
+  // STEP 1: Establish neighbors based on the structured extents.
   for( int i=0; i < this->NumberOfGrids; ++i )
     {
     for( int j=i+1; j < this->NumberOfGrids; ++j )
@@ -193,6 +201,16 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
       this->EstablishNeighbors(i,j);
       } // END for all j
     } // END for all i
+
+  // STEP 2: Fill the ghost arrays
+  for( int i=0; i < this->NumberOfGrids; ++i )
+    {
+    if( this->GridPointGhostArrays[ i ] != NULL )
+      {
+      this->FillGhostArrays(
+        i, this->GridPointGhostArrays[ i ], this->GridCellGhostArrays[ i ] );
+      }
+    } // END for all grids
 }
 
 //------------------------------------------------------------------------------
