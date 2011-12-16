@@ -75,14 +75,14 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
       int NeiExtent[6];
       this->GetGridExtent( this->Neighbors[gridID][nei].NeighborID, NeiExtent );
 
-      os << "\t";
+      os << "\t N[" << nei << "]: ";
       for( int i=0; i < 6; i+=2 )
         {
         os << " [";
         os << NeiExtent[i] << ", " << NeiExtent[i+1] << "] ";
         }
 
-      os << " @ ";
+      os << " overlaps @ ";
       for( int i=0; i < 6; i+=2 )
         {
         os << " [";
@@ -209,6 +209,10 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
       {
       this->FillGhostArrays(
         i, this->GridPointGhostArrays[ i ], this->GridCellGhostArrays[ i ] );
+      }
+    else
+      {
+      std::cerr << "Grid Point Array is NULL!\n";
       }
     } // END for all grids
 }
