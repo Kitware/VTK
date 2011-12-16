@@ -195,6 +195,10 @@ protected:
   ~vtkUniformGrid();
   
   // Description:
+  // Returns the cell dimensions for this vtkUniformGrid instance.
+  void GetCellDims( int cellDims[3] );
+
+  // Description:
   // Override this method because of blanking.
   virtual void ComputeScalarRange();
   
