@@ -858,26 +858,33 @@ int checkFunctionSignature(ClassInfo *data)
     }
 
   /* watch out for functions that dont have enough info */
-  switch (returnType)
+  switch (baseType)
     {
-    case VTK_PARSE_FLOAT_PTR:
-    case VTK_PARSE_DOUBLE_PTR:
-    case VTK_PARSE_INT_PTR:
-    case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_LONG_PTR:
-    case VTK_PARSE_ID_TYPE_PTR:
-    case VTK_PARSE_LONG_LONG_PTR:
-    case VTK_PARSE___INT64_PTR:
-    case VTK_PARSE_SIGNED_CHAR_PTR:
-    case VTK_PARSE_BOOL_PTR:
-    case VTK_PARSE_UNSIGNED_CHAR_PTR:
-    case VTK_PARSE_UNSIGNED_INT_PTR:
-    case VTK_PARSE_UNSIGNED_SHORT_PTR:
-    case VTK_PARSE_UNSIGNED_LONG_PTR:
-    case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
-    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
-    case VTK_PARSE_UNSIGNED___INT64_PTR:
-      args_ok = currentFunction->HaveHint;
+    case VTK_PARSE_FLOAT:
+    case VTK_PARSE_DOUBLE:
+    case VTK_PARSE_INT:
+    case VTK_PARSE_SHORT:
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_ID_TYPE:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_BOOL:
+    case VTK_PARSE_UNSIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_INT:
+    case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_UNSIGNED_LONG:
+    case VTK_PARSE_UNSIGNED_ID_TYPE:
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
+      if ((returnType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER)
+        {
+        args_ok = currentFunction->HaveHint;
+        }
+      else if ((returnType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF)
+        {
+        args_ok = 0;
+        }
       break;
     }
 
