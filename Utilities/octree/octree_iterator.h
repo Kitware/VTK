@@ -3,7 +3,7 @@
 
 // Included by octree
 
-#include <vtkstd/iterator>
+#include <iterator>
 
 /**\brief An octree iterator.
   *
@@ -25,7 +25,7 @@ public:
   typedef typename O_::octree_node_reference octree_node_reference;
   typedef typename O_::octree_node_pointer octree_node_pointer;
 
-  typedef vtkstd::bidirectional_iterator_tag iterator_category;
+  typedef std::bidirectional_iterator_tag iterator_category;
 
   typedef octree_iterator< T_, T_&, T_*, O_, O_*, d_ > iterator;
   typedef octree_iterator< T_, const T_&, const T_*, O_, const O_*, d_ > const_iterator;

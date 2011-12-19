@@ -38,8 +38,8 @@ vtkStandardNewMacro(vtkMySQLDatabase)
 // Registration of MySQL dynamically with the vtkSQLDatabase factory method.
 vtkSQLDatabase * MySQLCreateFunction(const char* URL)
 {
-  vtkstd::string urlstr(URL ? URL : "");
-  vtkstd::string protocol, unused;
+  std::string urlstr(URL ? URL : "");
+  std::string protocol, unused;
   vtkMySQLDatabase *db = 0;
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
@@ -385,13 +385,13 @@ vtkStdString vtkMySQLDatabase::GetURL()
 // ----------------------------------------------------------------------
 bool vtkMySQLDatabase::ParseURL(const char* URL)
 {
-  vtkstd::string urlstr( URL ? URL : "" );
-  vtkstd::string protocol;
-  vtkstd::string username;
-  vtkstd::string password;
-  vtkstd::string hostname;
-  vtkstd::string dataport;
-  vtkstd::string database;
+  std::string urlstr( URL ? URL : "" );
+  std::string protocol;
+  std::string username;
+  std::string password;
+  std::string hostname;
+  std::string dataport;
+  std::string database;
 
   if ( ! vtksys::SystemTools::ParseURL(
       urlstr, protocol, username, password, hostname, dataport, database) )

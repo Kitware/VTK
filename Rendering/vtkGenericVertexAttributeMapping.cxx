@@ -15,8 +15,8 @@
 #include "vtkGenericVertexAttributeMapping.h"
 
 #include "vtkObjectFactory.h"
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 
 #include <vtksys/ios/sstream>
 
@@ -25,14 +25,14 @@ class vtkGenericVertexAttributeMapping::vtkInternal
 public:
   struct vtkInfo
     {
-    vtkstd::string AttributeName;
-    vtkstd::string ArrayName;
+    std::string AttributeName;
+    std::string ArrayName;
     int FieldAssociation;
     int Component;
     int TextureUnit;
     };
 
-  typedef vtkstd::vector<vtkInfo> VectorType;
+  typedef std::vector<vtkInfo> VectorType;
   VectorType Mappings;
 };
 

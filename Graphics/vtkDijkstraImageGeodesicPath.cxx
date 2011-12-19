@@ -258,18 +258,18 @@ void vtkDijkstraImageGeodesicPath::BuildAdjacency( vtkDataSet *inData )
       vtkIdType v = ptIds->GetId( uId[j] );
 
       // before insert and calc, check if key map u has key v
-      vtkstd::map<int,double>& mu = this->Internals->Adjacency[u];
+      std::map<int,double>& mu = this->Internals->Adjacency[u];
       if ( mu.find(v) == mu.end() )
         {
         cost = this->CalculateStaticEdgeCost( image, u, v );
-        mu.insert( vtkstd::pair<int,double>( v, cost ) );
+        mu.insert( std::pair<int,double>( v, cost ) );
         }
 
-      vtkstd::map<int,double>& mv = this->Internals->Adjacency[v];
+      std::map<int,double>& mv = this->Internals->Adjacency[v];
       if ( mv.find(u) == mv.end() )
         {
         cost = this->CalculateStaticEdgeCost( image, v, u );
-        mv.insert( vtkstd::pair<int,double>( u, cost ) );
+        mv.insert( std::pair<int,double>( u, cost ) );
         }
       }
     }
@@ -285,8 +285,8 @@ void vtkDijkstraImageGeodesicPath::UpdateStaticCosts(vtkImageData *image)
 {
   for( int u = 0; u < static_cast<int>(this->Internals->Adjacency.size()); ++u )
     {
-    vtkstd::map<int,double>& mu = this->Internals->Adjacency[u];
-    vtkstd::map<int,double>::iterator it = mu.begin();
+    std::map<int,double>& mu = this->Internals->Adjacency[u];
+    std::map<int,double>::iterator it = mu.begin();
     for( ; it != mu.end(); ++it )
       {
       int v = (*it).first;

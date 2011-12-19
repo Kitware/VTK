@@ -25,11 +25,11 @@
 #include "vtkInformationVector.h"
 #include "vtkSortDataArray.h"
 #include "vtkTypeTraits.h"
-#include <vtkstd/new>
-#include <vtkstd/exception>
-#include <vtkstd/utility>
-#include <vtkstd/algorithm>
-#include <vtkstd/map>
+#include <new>
+#include <exception>
+#include <utility>
+#include <algorithm>
+#include <map>
 
 // We do not provide a definition for the copy constructor or
 // operator=.  Block the warning.
@@ -62,7 +62,7 @@ public:
     }
   vtkAbstractArray* SortedArray;
   vtkIdList* IndexArray;
-  vtkstd::multimap<T, vtkIdType> CachedUpdates;
+  std::multimap<T, vtkIdType> CachedUpdates;
   bool Rebuild;
 };
 
@@ -147,7 +147,7 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
       abort();
       #elif !defined VTK_DONT_THROW_BAD_ALLOC
       // We can throw something that has universal meaning
-      throw vtkstd::bad_alloc();
+      throw std::bad_alloc();
       #else
       // We indicate that malloc failed by return
       return 0;
@@ -219,7 +219,7 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
     abort();
     #elif !defined VTK_DONT_THROW_BAD_ALLOC
     // We can throw something that has universal meaning
-    throw vtkstd::bad_alloc();
+    throw std::bad_alloc();
     #else
     // We indicate that malloc failed by return
     this->Size = 0;
@@ -333,7 +333,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz, bool useExactSize)
       abort();
       #elif !defined VTK_DONT_THROW_BAD_ALLOC
       // We can throw something that has universal meaning
-      throw vtkstd::bad_alloc();
+      throw std::bad_alloc();
       #else
       // We indicate that malloc failed by return
       return 0;
@@ -363,7 +363,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz, bool useExactSize)
       abort();
       #elif !defined VTK_DONT_THROW_BAD_ALLOC
       // We can throw something that has universal meaning
-      throw vtkstd::bad_alloc();
+      throw std::bad_alloc();
       #else
       // We indicate that malloc failed by return
       return 0;
@@ -551,7 +551,7 @@ double* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
     abort();
     #elif !defined VTK_DONT_THROW_BAD_ALLOC
     // We can throw something that has universal meaning
-    throw vtkstd::bad_alloc();
+    throw std::bad_alloc();
     #else
     // We indicate that malloc failed by return
     return 0;
@@ -582,7 +582,7 @@ double* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
     abort();
     #elif !defined VTK_DONT_THROW_BAD_ALLOC
     // We can throw something that has universal meaning
-    throw vtkstd::bad_alloc();
+    throw std::bad_alloc();
     #else
     // We indicate that malloc failed by return
     return 0;
@@ -1080,7 +1080,7 @@ vtkIdType vtkDataArrayTemplate<T>::LookupValue(T value)
   // indices for this value. Some of the indices may have changed
   // values since the cache was built, so we need to do this equality
   // check.
-  typedef typename vtkstd::multimap<T, vtkIdType>::iterator CacheIterator;
+  typedef typename std::multimap<T, vtkIdType>::iterator CacheIterator;
   CacheIterator cached    = this->Lookup->CachedUpdates.lower_bound(value),
                 cachedEnd = this->Lookup->CachedUpdates.end();
   while (cached != cachedEnd)
@@ -1116,7 +1116,7 @@ vtkIdType vtkDataArrayTemplate<T>::LookupValue(T value)
   vtkIdType numTuples = this->Lookup->SortedArray->GetNumberOfTuples();
   T* ptr = static_cast<T*>(this->Lookup->SortedArray->GetVoidPointer(0));
   T* ptrEnd = ptr + numComps*numTuples;
-  T* found = vtkstd::lower_bound(ptr, ptrEnd, value);
+  T* found = std::lower_bound(ptr, ptrEnd, value);
 
   // Find an index with a matching value. Non-matching values might
   // show up here when the underlying value at that index has been
@@ -1160,8 +1160,8 @@ void vtkDataArrayTemplate<T>::LookupValue(T value, vtkIdList* ids)
   // indices for this value. Some of the indices may have changed
   // values since the cache was built, so we need to do this equality
   // check.
-  typedef typename vtkstd::multimap<T, vtkIdType>::iterator CacheIterator;
-  vtkstd::pair<CacheIterator, CacheIterator> cached
+  typedef typename std::multimap<T, vtkIdType>::iterator CacheIterator;
+  std::pair<CacheIterator, CacheIterator> cached
     = this->Lookup->CachedUpdates.equal_range(value);
   while (cached.first != cached.second)
     {
@@ -1187,8 +1187,8 @@ void vtkDataArrayTemplate<T>::LookupValue(T value, vtkIdList* ids)
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   T* ptr = static_cast<T*>(this->Lookup->SortedArray->GetVoidPointer(0));
-  vtkstd::pair<T*,T*> found =
-    vtkstd::equal_range(ptr, ptr + numComps*numTuples, value);
+  std::pair<T*,T*> found =
+    std::equal_range(ptr, ptr + numComps*numTuples, value);
 
   // Add the indices of the found items to the ID list.
   vtkIdType offset = static_cast<vtkIdType>(found.first - ptr);
@@ -1238,7 +1238,7 @@ void vtkDataArrayTemplate<T>::DataElementChanged(vtkIdType id)
       else
         {
         // Insert this change into the set of cached updates
-        vtkstd::pair<const T, vtkIdType>
+        std::pair<const T, vtkIdType>
           value(this->GetValue(id), id);
         this->Lookup->CachedUpdates.insert(value);
         }

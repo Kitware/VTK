@@ -19,7 +19,7 @@
 #include "vtkGPUInfo.h"
 #include "vtkGraphicsFactory.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include "vtkGPUInfoListArray.h"
 
 

@@ -28,8 +28,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemporalDataSet.h"
 
-#include "vtkstd/algorithm"
-#include "vtkstd/vector"
+#include <algorithm>
+#include <vector>
 
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
@@ -153,7 +153,7 @@ int vtkTemporalInterpolator::RequestInformation (
       static_cast<int>(0.5+((outRange[1]-outRange[0])/this->DiscreteTimeStepInterval));
 
     // Generate list of new output time step values
-    vtkstd::vector<double> OutputTimeValues;
+    std::vector<double> OutputTimeValues;
     for (int i=0; i<NumberOfOutputTimeSteps; i++) 
       {
       OutputTimeValues.push_back(
@@ -165,7 +165,7 @@ int vtkTemporalInterpolator::RequestInformation (
   else if (this->ResampleFactor>0)
     {
     // Generate list of new output time step values
-    vtkstd::vector<double> OutputTimeValues;
+    std::vector<double> OutputTimeValues;
     OutputTimeValues.reserve(numTimes*this->ResampleFactor);
     for (int i=1; i<numTimes; i++) 
       {
@@ -576,7 +576,7 @@ vtkDataSet *vtkTemporalInterpolator
   output->GetPointData()->ShallowCopy(input[0]->GetPointData());
   for (int s=0; s < input[0]->GetPointData()->GetNumberOfArrays(); ++s) 
     {
-    vtkstd::vector<vtkDataArray*> arrays;
+    std::vector<vtkDataArray*> arrays;
     char *scalarname = NULL;
     for (int i=0; i<2; ++i) 
       {
@@ -620,7 +620,7 @@ vtkDataSet *vtkTemporalInterpolator
   for (int s=0; s<input[0]->GetCellData()->GetNumberOfArrays(); ++s) 
     {
     // copy the structure
-    vtkstd::vector<vtkDataArray*> arrays;
+    std::vector<vtkDataArray*> arrays;
     char *scalarname = NULL;
     for (int i=0; i<2; ++i) 
       {

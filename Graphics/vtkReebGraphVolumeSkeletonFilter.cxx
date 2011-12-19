@@ -164,7 +164,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
         vtkDoubleArray  *subField = vtkDoubleArray::New();
         vtkPoints       *subPointSet = vtkPoints::New();
         vtkDoubleArray  *subCoordinates = vtkDoubleArray::New();
-        std::vector<int> meshToSubMeshMap(inputMesh->GetNumberOfPoints());
+        std::vector<vtkIdType> meshToSubMeshMap(inputMesh->GetNumberOfPoints());
 
         subCoordinates->SetNumberOfComponents(3);
         subField->SetNumberOfComponents(1);
@@ -195,7 +195,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
             vtkIdType tId = starTetList->GetId(j);
             vtkTetra *t = vtkTetra::SafeDownCast(inputMesh->GetCell(tId));
 
-            int vertexId;
+            vtkIdType vertexId;
 
             for(int k = 0; k < 4; k++)
               {
@@ -204,9 +204,8 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
                 {
                 // add also its scalar value to the subField
                 inputMesh->GetPoint(vertexId, point);
-                subCoordinates->InsertNextTupleValue(point);
                 meshToSubMeshMap[vertexId] =
-                  subCoordinates->GetNumberOfTuples();
+                  subCoordinates->InsertNextTupleValue(point);
                 double scalarFieldValue =
                   scalarField->GetComponent(vertexId, 0);
                 subField->InsertNextTupleValue(&scalarFieldValue);
@@ -271,7 +270,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
             {
 
             contourFilter->SetNumberOfContours(1);
-            contourFilter->SetValue(i, minValue +
+            contourFilter->SetValue(0, minValue +
               (i + 1.0)*(maxValue - minValue)
               /(((double)NumberOfSamples) + 1.0));
             contourFilter->SetInput(subMesh);

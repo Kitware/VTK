@@ -132,12 +132,16 @@ vtkIdType vtkColorTransferControlPointsItem::GetNumberOfPoints()const
 void vtkColorTransferControlPointsItem::GetControlPoint(vtkIdType index, double* pos)const
 {
   double xrgbms[6];
-  const_cast<vtkColorTransferFunction*>(this->ColorTransferFunction)
-    ->GetNodeValue(index, xrgbms);
-  pos[0] = xrgbms[0];
-  pos[1] = 0.5;
-  pos[2] = xrgbms[4];
-  pos[3] = xrgbms[5];
+  vtkColorTransferFunction* thisTF = const_cast<vtkColorTransferFunction*>(
+    this->ColorTransferFunction);
+  if(thisTF)
+    {
+    thisTF->GetNodeValue(index, xrgbms);
+    pos[0] = xrgbms[0];
+    pos[1] = 0.5;
+    pos[2] = xrgbms[4];
+    pos[3] = xrgbms[5];
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -195,7 +199,8 @@ vtkIdType vtkColorTransferControlPointsItem::AddPoint(double* newPos)
 //-----------------------------------------------------------------------------
 vtkIdType vtkColorTransferControlPointsItem::RemovePoint(double* currentPoint)
 {
-  if (!this->ColorTransferFunction)
+  if (!this->ColorTransferFunction || !this->IsPointRemovable(
+    this->GetControlPointId(currentPoint)))
     {
     return -1;
     }

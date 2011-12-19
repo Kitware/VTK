@@ -19,12 +19,12 @@
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
 
-#include <vtkstd/map>
+#include <map>
 
 class vtkLabelSizeCalculator::Internals
 {
 public:
-  vtkstd::map<int, vtkSmartPointer<vtkTextProperty> > FontProperties;
+  std::map<int, vtkSmartPointer<vtkTextProperty> > FontProperties;
 };
 
 vtkStandardNewMacro(vtkLabelSizeCalculator);
@@ -54,7 +54,7 @@ void vtkLabelSizeCalculator::PrintSelf( ostream& os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "LabelSizeArrayName: " << this->LabelSizeArrayName << "\n";
   os << indent << "FontProperties: ";
-  vtkstd::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
+  std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
   it = this->Implementation->FontProperties.begin();
   itEnd = this->Implementation->FontProperties.end();
   for ( ; it != itEnd; ++it )

@@ -20,19 +20,31 @@
 
 #include "vtkTulipReader.h"
 
+#include "vtkAnnotation.h"
+#include "vtkAnnotationLayers.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtkVariantArray.h"
 
 #include <cassert>
 #include <vtksys/ios/fstream>
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/map>
+#include <vtksys/stl/set>
+#include <vtksys/stl/stack>
+#include <vtksys/stl/vector>
 
 #if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0560)
 #include <ctype.h> // for isspace, isdigit
@@ -52,6 +64,7 @@ vtkTulipReader::vtkTulipReader()
   // Default values for the origin vertex
   this->FileName = 0;
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(2);
 }
 
 vtkTulipReader::~vtkTulipReader()
@@ -66,6 +79,32 @@ void vtkTulipReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
   os << indent << "FileName: " 
      << (this->FileName ? this->FileName : "(none)") << endl;
 }
+
+int vtkTulipReader::FillOutputPortInformation(int port, vtkInformation* info)
+{
+  if (port == 0)
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUndirectedGraph");
+    }
+  else if (port == 1)
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkAnnotationLayers");
+    }
+  else
+    {
+    return 0;
+    }
+  return 1;
+}
+
+struct vtkTulipReaderCluster
+{
+  int clusterId;
+  int parentId;
+  const static int NO_PARENT = -1;
+  vtkStdString name;
+  vtkSmartPointer<vtkIdTypeArray> nodes;
+};
 
 struct vtkTulipReaderToken
 {
@@ -180,6 +219,28 @@ int vtkTulipReader::RequestData(
   vtkSmartPointer<vtkMutableUndirectedGraph> builder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
+  // An array for vertex pedigree ids.
+  vtkVariantArray* vertexPedigrees = vtkVariantArray::New();
+  vertexPedigrees->SetName("id");
+  builder->GetVertexData()->SetPedigreeIds(vertexPedigrees);
+  vertexPedigrees->Delete();
+
+  // An array for edge ids.
+  vtkVariantArray* edgePedigrees = vtkVariantArray::New();
+  edgePedigrees->SetName("id");
+
+  // Structures to record cluster hierarchy - all vertices belong to cluster 0.
+  vtksys_stl::vector<vtkTulipReaderCluster> clusters;
+  vtkTulipReaderCluster root;
+  root.clusterId = 0;
+  root.parentId = vtkTulipReaderCluster::NO_PARENT;
+  root.name = "<default>";
+  root.nodes = vtkSmartPointer<vtkIdTypeArray>::New();
+
+  vtksys_stl::stack<int> parentage;
+  parentage.push(root.clusterId);
+  clusters.push_back(root);
+
   vtksys_stl::map<int, vtkIdType> nodeIdMap;
   vtksys_stl::map<int, vtkIdType> edgeIdMap;
   vtkTulipReaderToken tok;
@@ -194,7 +255,7 @@ int vtkTulipReader::RequestData(
       while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)
         {
         assert(tok.Type == vtkTulipReaderToken::INT);
-        vtkIdType id = builder->AddVertex();
+        vtkIdType id = builder->AddVertex(tok.IntValue);
         nodeIdMap[tok.IntValue] = id;
         vtkTulipReaderNextToken(fin, tok);
         }
@@ -213,15 +274,75 @@ int vtkTulipReader::RequestData(
 
       vtkEdgeType e = builder->AddEdge(nodeIdMap[source], nodeIdMap[target]);
       edgeIdMap[tulipId] = e.Id;
+      edgePedigrees->InsertValue(e.Id, tulipId);
 
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::CLOSE_PAREN);
+      }
+    else if (tok.StringValue == "cluster")
+      {
+      // Cluster preamble
+      vtkTulipReaderNextToken(fin, tok);
+      assert(tok.Type == vtkTulipReaderToken::INT);
+      int clusterId = tok.IntValue;
+      vtkTulipReaderNextToken(fin, tok);
+      assert(tok.Type == vtkTulipReaderToken::TEXT);
+      vtkStdString clusterName = tok.StringValue;
+
+      vtkTulipReaderCluster newCluster;
+      newCluster.clusterId = clusterId;
+      newCluster.parentId = parentage.top();
+      newCluster.name = clusterName;
+      newCluster.nodes = vtkSmartPointer<vtkIdTypeArray>::New();
+      parentage.push(clusterId);
+
+      // Cluster nodes
+      vtkTulipReaderNextToken(fin, tok);
+      assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
+
+      vtkTulipReaderNextToken(fin, tok);
+      assert(tok.Type == vtkTulipReaderToken::KEYWORD);
+      assert(tok.StringValue == "nodes");
+
+      vtkTulipReaderNextToken(fin, tok);
+      while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)
+        {
+        assert(tok.Type == vtkTulipReaderToken::INT);
+        newCluster.nodes->InsertNextValue(nodeIdMap[tok.IntValue]);
+        vtkTulipReaderNextToken(fin, tok);
+        }
+
+      // Cluster edges - currently ignoring these...
+      vtkTulipReaderNextToken(fin, tok);
+      assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
+
+      vtkTulipReaderNextToken(fin, tok);
+      assert(tok.Type == vtkTulipReaderToken::KEYWORD);
+      assert(tok.StringValue == "edges");
+
+      vtkTulipReaderNextToken(fin, tok);
+      while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)
+        {
+        assert(tok.Type == vtkTulipReaderToken::INT);
+        vtkTulipReaderNextToken(fin, tok);
+        }
+      clusters.push_back(newCluster);
+
+      // End of cluster(s)
+      vtkTulipReaderNextToken(fin, tok);
+      while (tok.Type == vtkTulipReaderToken::CLOSE_PAREN)
+        {
+        parentage.pop();
+        vtkTulipReaderNextToken(fin, tok);
+        }
+      continue;
       }
     else if (tok.StringValue == "property")
       {
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::INT);
       //int clusterId = tok.IntValue;
+      // We only read properties for cluster 0 (the whole graph).
 
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::KEYWORD);
@@ -253,15 +374,9 @@ int vtkTulipReader::RequestData(
         {
         vtkStringArray* vertArr = vtkStringArray::New();
         vertArr->SetName(name.c_str());
-        vertArr->SetNumberOfValues(nodeIdMap.size());
-        builder->GetVertexData()->AddArray(vertArr);
-        vertArr->Delete();
 
         vtkStringArray* edgeArr = vtkStringArray::New();
         edgeArr->SetName(name.c_str());
-        edgeArr->SetNumberOfValues(edgeIdMap.size());
-        builder->GetEdgeData()->AddArray(edgeArr);
-        edgeArr->Delete();
 
         vtkTulipReaderNextToken(fin, tok);
         while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)
@@ -282,27 +397,32 @@ int vtkTulipReader::RequestData(
 
           if (key == "node")
             {
-            vertArr->SetValue(nodeIdMap[id], value);
+            vertArr->InsertValue(nodeIdMap[id], value);
             }
           else if (key == "edge")
             {
-            edgeArr->SetValue(edgeIdMap[id], value);
+            edgeArr->InsertValue(edgeIdMap[id], value);
             }
           }
+
+        if (static_cast<size_t>(vertArr->GetNumberOfValues()) == nodeIdMap.size())
+          {
+          builder->GetVertexData()->AddArray(vertArr);
+          }
+        vertArr->Delete();
+        if (static_cast<size_t>(edgeArr->GetNumberOfValues()) == edgeIdMap.size())
+          {
+          builder->GetEdgeData()->AddArray(edgeArr);
+          }
+        edgeArr->Delete();
         }
       else if (type == "int")
         {
         vtkIntArray* vertArr = vtkIntArray::New();
         vertArr->SetName(name.c_str());
-        vertArr->SetNumberOfValues(nodeIdMap.size());
-        builder->GetVertexData()->AddArray(vertArr);
-        vertArr->Delete();
 
         vtkIntArray* edgeArr = vtkIntArray::New();
         edgeArr->SetName(name.c_str());
-        edgeArr->SetNumberOfValues(edgeIdMap.size());
-        builder->GetEdgeData()->AddArray(edgeArr);
-        edgeArr->Delete();
 
         vtkTulipReaderNextToken(fin, tok);
         while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)
@@ -328,13 +448,75 @@ int vtkTulipReader::RequestData(
 
           if (key == "node")
             {
-            vertArr->SetValue(nodeIdMap[id], value);
+            vertArr->InsertValue(nodeIdMap[id], value);
             }
           else if (key == "edge")
             {
-            edgeArr->SetValue(edgeIdMap[id], value);
+            edgeArr->InsertValue(edgeIdMap[id], value);
             }
           }
+
+        if (static_cast<size_t>(vertArr->GetNumberOfTuples()) == nodeIdMap.size())
+          {
+          builder->GetVertexData()->AddArray(vertArr);
+          }
+        vertArr->Delete();
+        if (static_cast<size_t>(edgeArr->GetNumberOfTuples()) == edgeIdMap.size())
+          {
+          builder->GetEdgeData()->AddArray(edgeArr);
+          }
+        edgeArr->Delete();
+        }
+      else if (type == "double")
+        {
+        vtkDoubleArray* vertArr = vtkDoubleArray::New();
+        vertArr->SetName(name.c_str());
+
+        vtkDoubleArray* edgeArr = vtkDoubleArray::New();
+        edgeArr->SetName(name.c_str());
+
+        vtkTulipReaderNextToken(fin, tok);
+        while (tok.Type != vtkTulipReaderToken::CLOSE_PAREN)
+          {
+          assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::KEYWORD);
+          vtkStdString key = tok.StringValue;
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::TEXT ||
+            tok.Type == vtkTulipReaderToken::INT);
+          int id = tok.IntValue;
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::TEXT);
+          vtksys_ios::stringstream ss;
+          double value;
+          ss << tok.StringValue;
+          ss >> value;
+          assert(!ss.fail());
+          vtkTulipReaderNextToken(fin, tok);
+          assert(tok.Type == vtkTulipReaderToken::CLOSE_PAREN);
+          vtkTulipReaderNextToken(fin, tok);
+
+          if (key == "node")
+            {
+            vertArr->InsertValue(nodeIdMap[id], value);
+            }
+          else if (key == "edge")
+            {
+            edgeArr->InsertValue(edgeIdMap[id], value);
+            }
+          }
+
+        if (static_cast<size_t>(vertArr->GetNumberOfTuples()) == nodeIdMap.size())
+          {
+          builder->GetVertexData()->AddArray(vertArr);
+          }
+        vertArr->Delete();
+        if (static_cast<size_t>(edgeArr->GetNumberOfTuples()) == edgeIdMap.size())
+          {
+          builder->GetEdgeData()->AddArray(edgeArr);
+          }
+        edgeArr->Delete();
         }
       else // Remaining properties are ignored.
         {
@@ -370,17 +552,65 @@ int vtkTulipReader::RequestData(
     
     vtkTulipReaderNextToken(fin, tok);
     }
+  assert(parentage.size() == 1);
 
   // Clean up
   fin.close();
 
-  // Move structure to output
+  builder->GetEdgeData()->SetPedigreeIds(edgePedigrees);
+  edgePedigrees->Delete();
+
+  // Move graph structure to output
   vtkGraph* output = vtkGraph::GetData(outputVector);
   if (!output->CheckedShallowCopy(builder))
     {
-    vtkErrorMacro(<<"Invalid graph strucutre.");
+    vtkErrorMacro(<<"Invalid graph structure.");
     return 0;
     }
+
+  // Create annotation layers output.
+  vtkSmartPointer<vtkAnnotationLayers> annotationLayers =
+    vtkSmartPointer<vtkAnnotationLayers>::New();
+
+  // Determine list of unique cluster names.
+  std::set<vtkStdString> uniqueLabels;
+  for (size_t i = 0; i < clusters.size(); ++i)
+    {
+    uniqueLabels.insert(clusters.at(i).name);
+    }
+
+  // Create annotations.
+  std::set<vtkStdString>::iterator labels = uniqueLabels.begin();
+  for (; labels != uniqueLabels.end(); labels++)
+    {
+    vtkSmartPointer<vtkAnnotation> annotation = vtkSmartPointer<vtkAnnotation>::New();
+    annotation->GetInformation()->Set(vtkAnnotation::COLOR(), 0.0, 0.0, 1.0);
+    annotation->GetInformation()->Set(vtkAnnotation::OPACITY(), 0.5);
+    annotation->GetInformation()->Set(vtkAnnotation::LABEL(), labels->c_str());
+    annotation->GetInformation()->Set(vtkAnnotation::ENABLE(), 1);
+
+    vtkSmartPointer<vtkSelection> selection =
+      vtkSmartPointer<vtkSelection>::New();
+    for (size_t i = 0; i < clusters.size(); ++i)
+      {
+      if (clusters.at(i).name.compare(labels->c_str()) == 0)
+        {
+        vtkSelectionNode* selectionNode = vtkSelectionNode::New();
+        selectionNode->SetFieldType(vtkSelectionNode::VERTEX);
+        selectionNode->SetContentType(vtkSelectionNode::INDICES);
+        selectionNode->SetSelectionList(clusters.at(i).nodes);
+        selection->AddNode(selectionNode);
+        selectionNode->Delete();
+        }
+      }
+    annotation->SetSelection(selection);
+    annotationLayers->AddAnnotation(annotation);
+    }
+
+  // Copy annotations to output port 1
+  vtkInformation* info1 = outputVector->GetInformationObject(1);
+  vtkAnnotationLayers* output1 = vtkAnnotationLayers::GetData(info1);
+  output1->ShallowCopy(annotationLayers);
 
   return 1;
 }

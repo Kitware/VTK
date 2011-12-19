@@ -7,7 +7,6 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestContextScene.cxx
     TestControlPointsItem.cxx
     TestControlPointsItemEvents.cxx
-    TestVector.cxx
     )
 
   IF (VTK_DATA_ROOT)
@@ -21,6 +20,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestChartsOn3D.cxx
       TestContext.cxx
       TestContextImage.cxx
+      TestControlPointsHandleItem.cxx
       TestDiagram.cxx
       #TestFreeTypeContextUnicode.cxx
       #TestFreeTypeRender.cxx
@@ -58,6 +58,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
     SET(TestMultipleRenderersError 25)
     SET(TestMultipleScalarsToColorsError 25)
     SET(TestParallelCoordinatesError 15)
+    SET(TestControlPointsHandleItemError 30)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)

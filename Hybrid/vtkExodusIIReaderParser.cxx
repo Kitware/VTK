@@ -45,7 +45,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
 
   // If tag name has xml namespace separator, get rid of namespace:
   name = name ? name + 1 : tagName; 
-  vtkstd::string tName(name);
+  std::string tName(name);
 
   if (tName == "solid-model")
     {
@@ -59,9 +59,9 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
     const char* assemblyDescription = this->GetValue("description", attrs);
 
     // Setup the name for this node.
-    vtkstd::string node_name = vtkstd::string("Assembly: ") +
-      assemblyDescription + vtkstd::string(" (") +
-      assemblyNumber + vtkstd::string(")");
+    std::string node_name = std::string("Assembly: ") +
+      assemblyDescription + std::string(" (") +
+      assemblyNumber + std::string(")");
 
     // Now add a vertex in the SIL for this assembly node.
     vtkIdType vertexID = this->AddVertexToSIL(node_name.c_str());
@@ -71,13 +71,13 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
   else if (tName == "part")
     {
     const char* instance = this->GetValue("instance", attrs);
-    vtkstd::string instanceString = instance? instance : "";
+    std::string instanceString = instance? instance : "";
     const char* partNumber =this->GetValue("number",attrs);
-    vtkstd::string partNumberString;
+    std::string partNumberString;
     if (partNumber)
       {
-      partNumberString = vtkstd::string(partNumber) +
-        vtkstd::string(" Instance: ") + instanceString;
+      partNumberString = std::string(partNumber) +
+        std::string(" Instance: ") + instanceString;
       }
 
     const char* partDescString=this->GetValue("description",attrs);
@@ -86,9 +86,9 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
     vtkIdType partVertex = this->GetPartVertex(partNumberString.c_str());
 
     // Now fix the part vertex name.
-    vtkstd::string result = vtkstd::string("Part: ") +
-      partDescString + vtkstd::string(" (") +
-      partNumber + vtkstd::string(")") + vtkstd::string(" Instance: ") +
+    std::string result = std::string("Part: ") +
+      partDescString + std::string(" (") +
+      partNumber + std::string(")") + std::string(" Instance: ") +
       instanceString;
     this->NamesArray->InsertValue(partVertex, result.c_str());
 
@@ -111,7 +111,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
     vtkIdType partVertex = this->CurrentVertex.back();
 
     const char * materialDescriptionString = this->GetValue("description", attrs);
-    vtkstd::string material = materialDescriptionString ? materialDescriptionString : "";
+    std::string material = materialDescriptionString ? materialDescriptionString : "";
     material += " : ";
 
     const char * materialSpecificationString =
@@ -128,13 +128,13 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
   else if (tName == "blocks")
     {
     const char* instance = this->GetValue("part-instance",attrs);
-    vtkstd::string instanceString = instance ? instance : "";
+    std::string instanceString = instance ? instance : "";
     const char* partNumber =this->GetValue("part-number",attrs);
-    vtkstd::string partNumberString;
+    std::string partNumberString;
     if (partNumber)
       {
-      partNumberString = vtkstd::string(partNumber) +
-        vtkstd::string(" Instance: ") + instanceString;
+      partNumberString = std::string(partNumber) +
+        std::string(" Instance: ") + instanceString;
       }
 
     this->InBlocks = true;
@@ -191,7 +191,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
     const char* material = this->GetValue("name",attrs);
     const char* spec = this->GetValue("specification",attrs);
     const char* desc = this->GetValue("description",attrs);
-    vtkstd::string node_name;
+    std::string node_name;
     if (material && desc)
       {
       node_name = desc;
@@ -218,7 +218,7 @@ void vtkExodusIIReaderParser::EndElement(const char* tagName)
   const char* name = strrchr( tagName, ':' );
   // If tag name has xml namespace separator, get rid of namespace:
   name = name ? name + 1 : tagName; 
-  vtkstd::string tName(name);
+  std::string tName(name);
   if (tName == "solid-model")
     {
     this->CurrentVertex.pop_back();
@@ -250,13 +250,13 @@ void vtkExodusIIReaderParser::EndElement(const char* tagName)
 //-----------------------------------------------------------------------------
 void vtkExodusIIReaderParser::FinishedParsing()
 {
-  vtkstd::map<int, vtkIdType> blockID_to_partVertexID;
+  std::map<int, vtkIdType> blockID_to_partVertexID;
 
   // * Is assembly was parsed, add cross links between assembly parts and blocks
   //   belonging to that part.
   if (this->Part_To_VertexID.size() > 0)
     {
-    vtkstd::map<int, vtkstd::string>::iterator iterIS;
+    std::map<int, std::string>::iterator iterIS;
     for (iterIS = this->BlockID_To_Part.begin();
       iterIS != this->BlockID_To_Part.end(); ++iterIS)
       {
@@ -274,13 +274,13 @@ void vtkExodusIIReaderParser::FinishedParsing()
     }
 
   // * Assign correct names for all the "block" vertices.
-  vtkstd::map<int, vtkIdType>::iterator iter;
+  std::map<int, vtkIdType>::iterator iter;
   for (iter = this->BlockID_To_VertexID.begin();
     iter != this->BlockID_To_VertexID.end(); ++iter)
     {
     // To locate the part description for this block, first locate the part to
     // which this block belongs.
-    vtkstd::string desc = "None";
+    std::string desc = "None";
     if (blockID_to_partVertexID.find(iter->first) != blockID_to_partVertexID.end())
       {
       vtkIdType partVertex = blockID_to_partVertexID[iter->first];
@@ -298,7 +298,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
   //// <material-specification /> to construct material assignemnts.
   if (this->BlockID_To_MaterialName.size() == 0)
     {
-    vtkstd::map<int, vtkIdType>::iterator iterII;
+    std::map<int, vtkIdType>::iterator iterII;
     for (iterII = blockID_to_partVertexID.begin();
       iterII != blockID_to_partVertexID.end();
       iterII++)
@@ -306,7 +306,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
       int blockID = iterII->first;
       vtkIdType partVertex = iterII->second;
       
-      vtkstd::string node_name = this->MaterialSpecifications[partVertex];
+      std::string node_name = this->MaterialSpecifications[partVertex];
       vtkIdType materialVertex;
       if (this->MaterialName_To_VertexID.find(node_name) ==
         this->MaterialName_To_VertexID.end())
@@ -324,7 +324,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
     }
 
   //// * Add cross-links between "block" vertices and "material" vertices.
-  vtkstd::map<int, vtkstd::string>::iterator iter2;
+  std::map<int, std::string>::iterator iter2;
   for (iter2 = this->BlockID_To_MaterialName.begin();
     iter2 != this->BlockID_To_MaterialName.end(); ++iter2)
     {
@@ -365,7 +365,7 @@ vtkIdType vtkExodusIIReaderParser::AddCrossEdgeToSIL(vtkIdType src, vtkIdType ds
 //-----------------------------------------------------------------------------
 vtkIdType vtkExodusIIReaderParser::GetPartVertex(const char* part_number_instance_string)
 {
-  vtkstd::map<vtkstd::string, vtkIdType>::iterator iter = 
+  std::map<std::string, vtkIdType>::iterator iter =
     this->Part_To_VertexID.find(part_number_instance_string);
   if (iter != this->Part_To_VertexID.end())
     {
@@ -416,7 +416,7 @@ void vtkExodusIIReaderParser::Go(const char* filename)
 }
 
 //-----------------------------------------------------------------------------
-vtkstd::string vtkExodusIIReaderParser::GetBlockName(int id)
+std::string vtkExodusIIReaderParser::GetBlockName(int id)
 {
   if (this->BlockID_To_VertexID.find(id) != this->BlockID_To_VertexID.end())
     {

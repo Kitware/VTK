@@ -39,8 +39,8 @@
 #include "vtkTable.h"
 
 #include <stdlib.h>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
 
@@ -57,15 +57,15 @@ public:
     this->MatArrName = MatName;
     };
 
-  vtkstd::string VTKArrName;
-  vtkstd::string MatArrName;
+  std::string VTKArrName;
+  std::string MatArrName;
 };
 
 class vtkMatlabEngineFilterInternals
 {
 public:
-  vtkstd::vector<ArrNames> PutArrNames;
-  vtkstd::vector<ArrNames> GetArrNames;
+  std::vector<ArrNames> PutArrNames;
+  std::vector<ArrNames> GetArrNames;
 };
 
 vtkMatlabEngineFilter::vtkMatlabEngineFilter()
@@ -289,7 +289,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
   int ncells;
   int npoints;
   int result;
-  vtkstd::vector<ArrNames>::iterator VectorIterator;
+  std::vector<ArrNames>::iterator VectorIterator;
   vtkInformation* inpinfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outinfo = outputVector->GetInformationObject(0);
   vtkDataSetAttributes* CellinFD = 0;
@@ -779,7 +779,7 @@ int vtkMatlabEngineFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
   vtkDataSetAttributes* PointinFD = 0;
   vtkDataSetAttributes* CelloutFD = 0;
   vtkDataSetAttributes* PointoutFD = 0;
-  vtkstd::vector<ArrNames>::iterator VectorIterator;
+  std::vector<ArrNames>::iterator VectorIterator;
   vtkDataArray* currentArray = 0;
 
   CellinFD = dsinp->GetCellData();

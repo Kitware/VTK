@@ -179,8 +179,8 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
   else
     {
     this->ReduceToSize( this->Capacity - vsize );
-    vtkstd::pair<const vtkExodusIICacheKey,vtkExodusIICacheEntry*> entry( key, new vtkExodusIICacheEntry(value) );
-    vtkstd::pair<vtkExodusIICacheSet::iterator, bool> iret = this->Cache.insert( entry );
+    std::pair<const vtkExodusIICacheKey,vtkExodusIICacheEntry*> entry( key, new vtkExodusIICacheEntry(value) );
+    std::pair<vtkExodusIICacheSet::iterator, bool> iret = this->Cache.insert( entry );
     this->Size += vsize;
 #ifdef VTK_EXO_DBG_CACHE
     cout << "Adding " << VTK_EXO_PRT_KEY( key ) << VTK_EXO_PRT_ARR( value ) << "\n";

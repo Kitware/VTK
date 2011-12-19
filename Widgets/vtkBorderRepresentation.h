@@ -68,7 +68,7 @@ public:
   // Position2 relative to Position. Note that using these methods are
   // affected by the ProportionalResize flag. That is, if the aspect ratio of
   // the representation is to be preserved (e.g., ProportionalResize is on),
-  // then the rectangle (Position,Position2) is a bounding rectangle. Also,
+  // then the rectangle (Position,Position2) is a bounding rectangle.
   vtkViewportCoordinateMacro(Position);
   vtkViewportCoordinateMacro(Position2);
 

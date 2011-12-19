@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageInterpolatorInternals.h
+  Module:    vtkInterpolationMath.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageInterpolatorInternals - internals for vtkImageInterpolator
+// .NAME vtkInterpolationMath - internals for vtkImageInterpolator
 
-#ifndef __vtkImageInterpolatorInternals_h
-#define __vtkImageInterpolatorInternals_h
+#ifndef __vtkInterpolationMath_h
+#define __vtkInterpolationMath_h
 
 #include "vtkMath.h"
 
@@ -46,9 +46,22 @@ struct vtkInterpolationWeights : public vtkInterpolationInfo
     vtkInterpolationInfo(info) {}
 };
 
-//--------------------------------------------------------------------------
-// Make all defined methods invisible outside current translation unit
-namespace {
+// The internal math functions for the interpolators
+struct vtkInterpolationMath
+{
+  // floor with remainder (remainder can be double or float),
+  // includes a small tolerance for values just under an integer
+  template<class F>
+  static int Floor(double x, F &f);
+
+  // round function optimized for various architectures
+  static int Round(double x);
+
+  // border-handling functions for keeping index a with in bounds b, c
+  static int Clamp(int a, int b, int c);
+  static int Wrap(int a, int b, int c);
+  static int Mirror(int a, int b, int c);
+};
 
 //--------------------------------------------------------------------------
 // The 'floor' function is slow, so we want to do an integer
@@ -79,9 +92,8 @@ namespace {
 
 #define VTK_INTERPOLATE_FLOOR_TOL 7.62939453125e-06
 
-
 template<class F>
-inline int vtkInterpolateFloor(double x, F &f)
+inline int vtkInterpolationMath::Floor(double x, F &f)
 {
 #if defined VTK_INTERPOLATE_64BIT_FLOOR
   x += (103079215104.0 + VTK_INTERPOLATE_FLOOR_TOL);
@@ -112,7 +124,7 @@ inline int vtkInterpolateFloor(double x, F &f)
 }
 
 
-inline int vtkInterpolateRound(double x)
+inline int vtkInterpolationMath::Round(double x)
 {
 #if defined VTK_INTERPOLATE_64BIT_FLOOR
   x += (103079215104.5 + VTK_INTERPOLATE_FLOOR_TOL);
@@ -139,7 +151,7 @@ inline int vtkInterpolateRound(double x)
 //----------------------------------------------------------------------------
 // Perform a clamp to limit an index to [b, c] and subtract b.
 
-inline int vtkInterpolateClamp(int a, int b, int c)
+inline int vtkInterpolationMath::Clamp(int a, int b, int c)
 {
   a = (a <= c ? a : c);
   a -= b;
@@ -150,7 +162,7 @@ inline int vtkInterpolateClamp(int a, int b, int c)
 //----------------------------------------------------------------------------
 // Perform a wrap to limit an index to [b, c] and subtract b.
 
-inline int vtkInterpolateWrap(int a, int b, int c)
+inline int vtkInterpolationMath::Wrap(int a, int b, int c)
 {
   int range = c - b + 1;
   a -= b;
@@ -163,7 +175,7 @@ inline int vtkInterpolateWrap(int a, int b, int c)
 //----------------------------------------------------------------------------
 // Perform a mirror to limit an index to [b, c] and subtract b.
 
-inline int vtkInterpolateMirror(int a, int b, int c)
+inline int vtkInterpolationMath::Mirror(int a, int b, int c)
 {
   int range1 = c - b;
   int range = range1 + 1;
@@ -174,7 +186,5 @@ inline int vtkInterpolateMirror(int a, int b, int c)
   a = ((count & 0x1) == 0 ? a : range1 - a);
   return a;
 }
-
-} // end anonymous namespace
 
 #endif

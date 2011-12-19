@@ -28,24 +28,24 @@
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedIntArray.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/set"
+#include <vector>
+#include <set>
 
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
 {
 public:
-  typedef vtkstd::set<vtkIdType> IDSetType;
-  typedef vtkstd::vector<IDSetType> IDsType;
+  typedef std::set<vtkIdType> IDSetType;
+  typedef std::vector<IDSetType> IDsType;
   IDsType IDs;
   
-  typedef vtkstd::set<vtkStdString> StringIDSetType;
-  typedef vtkstd::vector<StringIDSetType> StringIDsType;
+  typedef std::set<vtkStdString> StringIDSetType;
+  typedef std::vector<StringIDSetType> StringIDsType;
   StringIDsType StringIDs;
 
-  vtkstd::vector<double> Thresholds;
-  vtkstd::vector<double> Locations;
+  std::vector<double> Thresholds;
+  std::vector<double> Locations;
   IDSetType Blocks;
   double Frustum[32];
 };
@@ -433,7 +433,7 @@ int vtkSelectionSource::RequestData(
     selectionList->SetNumberOfComponents(3);
     selectionList->SetNumberOfValues(this->Internal->Locations.size());
 
-    vtkstd::vector<double>::iterator iter =
+    std::vector<double>::iterator iter =
       this->Internal->Locations.begin();
     for (vtkIdType cc=0;
       iter != this->Internal->Locations.end(); ++iter, ++cc)
@@ -458,7 +458,7 @@ int vtkSelectionSource::RequestData(
     selectionList->SetNumberOfComponents(1);
     selectionList->SetNumberOfValues(this->Internal->Thresholds.size());
 
-    vtkstd::vector<double>::iterator iter =
+    std::vector<double>::iterator iter =
       this->Internal->Thresholds.begin();
     for (vtkIdType cc=0;
       iter != this->Internal->Thresholds.end(); ++iter, ++cc)

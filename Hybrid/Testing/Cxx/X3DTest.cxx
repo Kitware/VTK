@@ -71,7 +71,7 @@ int X3DTest( int argc, char *argv[] )
   exporter->SetFileName("testX3DExporter.x3d");
   exporter->Update();
   exporter->Write();
-  
+  exporter->Print(std::cout);
 
   int retVal = vtkRegressionTestImage( renWin );
 

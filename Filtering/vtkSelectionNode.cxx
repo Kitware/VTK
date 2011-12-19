@@ -26,9 +26,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/set>
-#include <vtkstd/iterator>
+#include <algorithm>
+#include <set>
+#include <iterator>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -431,17 +431,17 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
           vtkIdType * fd2_P = (vtkIdType*)fd2_array->GetVoidPointer(0);
 
           // make sure both arrays are sorted
-          vtkstd::sort( fd1_P, fd1_P + fd1_N );
-          vtkstd::sort( fd2_P, fd2_P + fd2_N );
+          std::sort( fd1_P, fd1_P + fd1_N );
+          std::sort( fd2_P, fd2_P + fd2_N );
 
-          vtkstd::set<vtkIdType> result;
+          std::set<vtkIdType> result;
 
-          vtkstd::set_difference(fd1_P, fd1_P + fd1_N,
+          std::set_difference(fd1_P, fd1_P + fd1_N,
                                  fd2_P, fd2_P + fd2_N,
-                                 vtkstd::inserter(result, result.end()));
+                                 std::inserter(result, result.end()));
 
           fd1_array->Reset();
-          for(vtkstd::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
+          for(std::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
             {
             fd1_array->InsertNextValue( *p );
             }

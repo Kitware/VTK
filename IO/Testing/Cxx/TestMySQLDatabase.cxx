@@ -44,7 +44,7 @@
 #include "vtkVariantArray.h"
 #include "vtkToolkits.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 int TestMySQLDatabase( int, char ** const )
 {
@@ -212,7 +212,7 @@ int TestMySQLDatabase( int, char ** const )
     return 1;
     }
 
-  vtkstd::vector<vtkStdString> tables;
+  std::vector<vtkStdString> tables;
   while ( query->NextRow() )
     {
     tables.push_back( query->DataValue( 0 ).ToString() );
@@ -497,7 +497,7 @@ int TestMySQLDatabase( int, char ** const )
   // 8. Drop tables
   cerr << "@@ Dropping these tables...";
 
-  for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
+  for ( std::vector<vtkStdString>::iterator it = tables.begin();
         it != tables.end(); ++ it )
     {
     queryStr = "DROP TABLE ";

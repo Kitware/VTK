@@ -33,7 +33,7 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    throw vtkstd::runtime_error("Expression failed: " #expression); \
+    throw std::runtime_error("Expression failed: " #expression); \
 }
 
 static bool close_enough(const double lhs, const double rhs)
@@ -120,7 +120,7 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(window_l1_norm->GetValueN(2), 0.5));
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

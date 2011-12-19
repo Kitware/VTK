@@ -34,6 +34,8 @@ class vtkResliceCursor;
 class vtkScalarsToColors;
 class vtkBoundedPlanePointPlacer;
 class vtkResliceImageViewerMeasurements;
+class vtkResliceImageViewerScrollCallback;
+class vtkPlane;
 
 class VTK_WIDGETS_EXPORT vtkResliceImageViewer : public vtkImageViewer2
 {
@@ -112,6 +114,22 @@ public:
   // Get the render window interactor
   vtkGetObjectMacro( Interactor, vtkRenderWindowInteractor );
 
+  // Description:
+  // Scroll slices on the mouse wheel ? In the case of MPR
+  // view, it moves one "normalized spacing" in the direction of the normal to
+  // the resliced plane, provided the new center will continue to lie within
+  // the volume.
+  vtkSetMacro( SliceScrollOnMouseWheel, int );
+  vtkGetMacro( SliceScrollOnMouseWheel, int );
+  vtkBooleanMacro( SliceScrollOnMouseWheel, int );
+
+  // Description:
+  // Increment/Decrement slice by 'n' slices
+  virtual void IncrementSlice( int n );
+
+  // Description:
+  enum { SliceChangedEvent = 1001 };
+
 protected:
   vtkResliceImageViewer();
   ~vtkResliceImageViewer();
@@ -122,10 +140,18 @@ protected:
   virtual void UpdateDisplayExtent();
   virtual void UpdatePointPlacer();
 
+  // Description:
+  // Convenience methods to get the reslice plane and the normalized
+  // spacing between slices in reslice mode.
+  vtkPlane * GetReslicePlane();
+  double GetInterSliceSpacingInResliceMode();
+
   vtkResliceCursorWidget            * ResliceCursorWidget;
   vtkBoundedPlanePointPlacer        * PointPlacer;
   int                                 ResliceMode;
   vtkResliceImageViewerMeasurements * Measurements;
+  int                                 SliceScrollOnMouseWheel;
+  vtkResliceImageViewerScrollCallback * ScrollCallback;
 
 private:
   vtkResliceImageViewer(const vtkResliceImageViewer&);  // Not implemented.

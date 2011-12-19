@@ -158,6 +158,7 @@ int TestScalarBar( int argc, char *argv[] )
   // render the image
   renWin->SetWindowName("VTK - Scalar Bar options");
   renWin->SetSize(700, 500);
+  renWin->SetMultiSamples(0);
   renWin->Render();
   
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );

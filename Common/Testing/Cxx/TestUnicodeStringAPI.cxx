@@ -32,16 +32,16 @@
     { \
     vtksys_ios::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
 // Sample strings - nothing risque, I hope ...
-static const vtkstd::string sample_utf8_ascii = "abcde123";
-static const vtkstd::string sample_utf8_greek = "\xce\xb1\xce\xb2\xce\xb3"; // Greek lower-case alpha, beta, gamma.
-static const vtkstd::string sample_utf8_thai = "\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"; // Thai ko kai, kho khai, kho khuat.
-static const vtkstd::string sample_utf8_linear_b = "\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"; // Linear-B syllables a, e, i, o, u.
-static const vtkstd::string sample_utf8_mixed = "a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80"; // a, alpha, ko kai, syllable-a.
+static const std::string sample_utf8_ascii = "abcde123";
+static const std::string sample_utf8_greek = "\xce\xb1\xce\xb2\xce\xb3"; // Greek lower-case alpha, beta, gamma.
+static const std::string sample_utf8_thai = "\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"; // Thai ko kai, kho khai, kho khuat.
+static const std::string sample_utf8_linear_b = "\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"; // Linear-B syllables a, e, i, o, u.
+static const std::string sample_utf8_mixed = "a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80"; // a, alpha, ko kai, syllable-a.
 static const vtkTypeUInt16 sample_utf16[] = 
 {
   0x0041,       // 'a'
@@ -116,7 +116,7 @@ int TestUnicodeStringAPI(int, char*[])
   
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

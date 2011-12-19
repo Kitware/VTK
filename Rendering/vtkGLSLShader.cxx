@@ -39,8 +39,8 @@
 //#include <GL/glu.h>
 
 #include <sys/types.h>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 
 
 #if 1

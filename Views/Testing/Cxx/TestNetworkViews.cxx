@@ -34,7 +34,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-using vtkstd::string;
+using std::string;
 
 int TestNetworkViews(int argc, char* argv[])
 {

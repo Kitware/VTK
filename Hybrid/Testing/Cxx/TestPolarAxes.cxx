@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pébay, Kitware SAS 2011
+// This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
@@ -55,7 +55,7 @@ int TestPolarAxes( int argc, char * argv [] )
   outline->SetInputConnection(normals->GetOutputPort() );
 
   vtkNew<vtkPolyDataMapper> mapOutline;
-  mapOutline->SetInputConnection(outline->GetOutputPort() );
+  mapOutline->SetInputConnection( outline->GetOutputPort() );
 
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper( mapOutline.GetPointer() );

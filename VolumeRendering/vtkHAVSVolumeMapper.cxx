@@ -30,9 +30,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <set>
+#include <vector>
 
 #include <math.h>
 
@@ -148,7 +148,7 @@ public:
     }
   };
 
-  vtkstd::set<vtkHAVSFace, vtkHAVSLTFace> FaceSet;
+  std::set<vtkHAVSFace, vtkHAVSLTFace> FaceSet;
 };
 
 //---------------------------------------------------------------------------- 
@@ -162,7 +162,7 @@ public:
   unsigned int GetFace(unsigned int f) { return this->Faces[f]; }
 
 private:
-  vtkstd::vector<unsigned int> Faces;
+  std::vector<unsigned int> Faces;
 };
 
 //---------------------------------------------------------------------------- 
@@ -339,10 +339,10 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
   
   vtkHAVSFaceSetPIMPL *faceSetContainer = new vtkHAVSFaceSetPIMPL();
 
-  vtkstd::pair<vtkstd::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result1;
-  vtkstd::pair<vtkstd::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result2;
-  vtkstd::pair<vtkstd::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result3;
-  vtkstd::pair<vtkstd::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result4;
+  std::pair<std::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result1;
+  std::pair<std::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result2;
+  std::pair<std::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result3;
+  std::pair<std::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result4;
   
   // Insert faces into an stl set
   for (unsigned int cellId = 0; cellId < this->NumberOfCells; cellId++)
@@ -377,7 +377,7 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
     }
 
   int boundaryCount = 0;
-  vtkstd::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator it;
+  std::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator it;
   it = faceSetContainer->FaceSet.begin();
   while(it != faceSetContainer->FaceSet.end())
     {

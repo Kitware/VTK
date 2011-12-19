@@ -61,7 +61,7 @@ namespace vtk_utf8
         uint32_t next(octet_iterator& it)
         {
             uint32_t cp = internal::mask8(*it);
-            typename vtkstd::string::difference_type length = vtk_utf8::internal::sequence_length(it);
+            typename std::string::difference_type length = vtk_utf8::internal::sequence_length(it);
             switch (length) {
                 case 1:
                     break;
@@ -117,10 +117,10 @@ namespace vtk_utf8
         }
 
         template <typename octet_iterator>
-        typename vtkstd::string::difference_type
+        typename std::string::difference_type
         distance (octet_iterator first, octet_iterator last)
         {
-            typename vtkstd::string::difference_type dist;
+            typename std::string::difference_type dist;
             for (dist = 0; first < last; ++dist) 
                 vtk_utf8::unchecked::next(first);
             return dist;
@@ -176,7 +176,7 @@ namespace vtk_utf8
 
         // The iterator class
         template <typename octet_iterator>
-          class iterator : public vtkstd::iterator <vtkstd::bidirectional_iterator_tag, uint32_t> { 
+          class iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> { 
             octet_iterator it;
             public:
             iterator () {};
@@ -198,13 +198,13 @@ namespace vtk_utf8
             }
             iterator& operator ++ () 
             {
-                vtkstd::advance(it, internal::sequence_length(it));
+                std::advance(it, internal::sequence_length(it));
                 return *this;
             }
             iterator operator ++ (int)
             {
                 iterator temp = *this;
-                vtkstd::advance(it, internal::sequence_length(it));
+                std::advance(it, internal::sequence_length(it));
                 return temp;
             }  
             iterator& operator -- ()

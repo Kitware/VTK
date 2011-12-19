@@ -40,8 +40,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkAlgorithm);
 
@@ -71,7 +71,7 @@ class vtkAlgorithmInternals
 public:
   // Proxy object instances for use in establishing connections from
   // the output ports to other algorithms.
-  vtkstd::vector< vtkSmartPointer<vtkAlgorithmOutput> > Outputs;
+  std::vector< vtkSmartPointer<vtkAlgorithmOutput> > Outputs;
 };
 
 //----------------------------------------------------------------------------

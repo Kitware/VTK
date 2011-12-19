@@ -29,7 +29,7 @@
 #include "vtkTypedArray.h"
 
 #include <math.h>
-#include <vtkstd/stdexcept>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkPowerWeighting
@@ -60,12 +60,12 @@ int vtkPowerWeighting::RequestData(
     {
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
-      throw vtkstd::runtime_error("Missing input vtkArrayData on port 0.");
+      throw std::runtime_error("Missing input vtkArrayData on port 0.");
     if(input_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("Input vtkArrayData must contain exactly one array.");
+      throw std::runtime_error("Input vtkArrayData must contain exactly one array.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("Unsupported input array type.");
+      throw std::runtime_error("Unsupported input array type.");
 
     vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
@@ -87,7 +87,7 @@ int vtkPowerWeighting::RequestData(
         }
       }
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

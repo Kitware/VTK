@@ -26,10 +26,10 @@
 #include <vtksys/ios/iostream>
 #include <vtksys/stl/stdexcept>
 
-void test_expression(const bool expression, const vtkstd::string& message)
+void test_expression(const bool expression, const std::string& message)
 {
   if(!expression)
-    throw vtkstd::runtime_error(message);
+    throw std::runtime_error(message);
 }
 
 int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
@@ -76,7 +76,7 @@ int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

@@ -95,7 +95,7 @@ public:
   // Sets the field specified with attributeID
   // of the active node to the given value.
   // The type of the field is SFString and MFString
-  //virtual void SetField(int attributeID, const vtkstd::string &value) = 0;
+  //virtual void SetField(int attributeID, const std::string &value) = 0;
   virtual void SetField(int attributeID, const char* value, bool mfstring = false) = 0;
   
   // Description:
@@ -157,7 +157,7 @@ public:
   // of the active node to the given value.
   // The type of the field is specified with type
   // Supported types: MFString
-  //virtual void SetField(int attributeID, int type, vtkstd::string) = 0;
+  //virtual void SetField(int attributeID, int type, std::string) = 0;
 protected:
   vtkX3DExporterWriter();
   ~vtkX3DExporterWriter();

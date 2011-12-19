@@ -146,13 +146,13 @@ int vtkCellCentersPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
             const vtkIdType nPoints = pickedCell->GetNumberOfPoints();
             vtkPoints *points = pickedCell->GetPoints();
             worldPos[0] = worldPos[1] = worldPos[2] = 0.0;
-            double p[3];
+            double pp[3];
             for (vtkIdType i = 0; i < nPoints; i++)
               {
-              points->GetPoint(i, p);
-              worldPos[0] += p[0];
-              worldPos[1] += p[1];
-              worldPos[2] += p[2];
+              points->GetPoint(i, pp);
+              worldPos[0] += pp[0];
+              worldPos[1] += pp[1];
+              worldPos[2] += pp[2];
               }
 
             worldPos[0] /= (static_cast< double >(nPoints));

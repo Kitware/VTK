@@ -73,7 +73,7 @@ int vtkSQLiteToTableReader::RequestData(vtkInformation *,
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   //perform a query to get the names and types of the columns
-  vtkstd::string queryStr = "pragma table_info(";
+  std::string queryStr = "pragma table_info(";
   queryStr += this->TableName;
   queryStr += ")";
   vtkSQLiteQuery *query =

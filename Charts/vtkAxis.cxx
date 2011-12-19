@@ -867,7 +867,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
         {
         vtksys_ios::ostringstream ostr;
-        ostr.imbue(vtkstd::locale::classic());
+        ostr.imbue(std::locale::classic());
         if (this->Notation > 0)
           {
           ostr.precision(this->Precision);
@@ -908,7 +908,7 @@ void vtkAxis::GenerateTickLabels()
       }
     // Now create a label for the tick position
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     if (this->Notation > 0)
       {
       ostr.precision(this->Precision);
@@ -940,7 +940,7 @@ void vtkAxis::GenerateTickLabels()
 void vtkAxis::GenerateLabelFormat(int notation, double n)
 {
   vtksys_ios::ostringstream ostr;
-  ostr.imbue(vtkstd::locale::classic());
+  ostr.imbue(std::locale::classic());
 
   switch(notation)
     {
@@ -1270,7 +1270,7 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
 
     // Now create a label for the tick position
     vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
+    ostr.imbue(std::locale::classic());
     if (this->Notation > 0)
       {
       ostr.precision(this->Precision);

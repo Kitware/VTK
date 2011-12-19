@@ -25,7 +25,7 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <vtkstd/string>
+#include <string>
 #include <assert.h>
 
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
@@ -89,7 +89,7 @@ void vtkPExtractArraysOverTime::PostExecute(
         unsigned int index;
         stream >> index;
         assert(iter->GetCurrentFlatIndex() == index);
-        vtkstd::string name;
+        std::string name;
         stream >> name;
         iter->GetCurrentMetaData()->Set(vtkCompositeDataSet::NAME(),
           name.c_str());
@@ -150,7 +150,7 @@ void vtkPExtractArraysOverTime::AddRemoteData(
       vtkWarningMacro("Internal filter error: Missing NAME()");
       continue;
       }
-    vtkstd::string name = remoteIter->GetCurrentMetaData()->Get(
+    std::string name = remoteIter->GetCurrentMetaData()->Get(
       vtkCompositeDataSet::NAME());
 
     // We need to merge "coincident" tables.

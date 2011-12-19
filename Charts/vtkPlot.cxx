@@ -136,7 +136,7 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
 {
   // Determine and format the X and Y position in the chart
   vtksys_ios::ostringstream ostr;
-  ostr.imbue(vtkstd::locale::classic());
+  ostr.imbue(std::locale::classic());
   ostr.precision(this->GetTooltipPrecision());
 
   if(this->GetTooltipNotation() == vtkAxis::SCIENTIFIC_NOTATION)

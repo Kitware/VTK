@@ -22,22 +22,22 @@
 #include "vtkObjectFactory.h"
 
 #include <stdlib.h>
-#include <vtkstd/map>
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <map>
+#include <algorithm>
+#include <vector>
+#include <string>
 
 vtkStandardNewMacro(vtkDSPFilterDefinition);
 
 class vtkDSPFilterDefinitionVectorDoubleSTLCloak
 {
 public:
-  vtkstd::vector<double> m_vector;
+  std::vector<double> m_vector;
 };
 class vtkDSPFilterDefinitionStringSTLCloak
 {
 public:
-  vtkstd::string m_string;
+  std::string m_string;
 };
 
 

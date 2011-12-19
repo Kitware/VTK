@@ -142,19 +142,19 @@ int vtkPBGLCollectGraph::RequestData(
   boost::mpi::communicator comm = communicator(pbglHelper->GetProcessGroup());
 
   // Determine the number of vertices stored on each processor.
-  vtkstd::vector<vtkIdType> numVerticesPerProcessor(numProcs);
+  std::vector<vtkIdType> numVerticesPerProcessor(numProcs);
   boost::mpi::all_gather(comm, input->GetNumberOfVertices(),
                          numVerticesPerProcessor);
 
   // Determine the total number of vertices stored on each processor
   vtkIdType totalNumVertices
-    = vtkstd::accumulate(numVerticesPerProcessor.begin(),
+    = std::accumulate(numVerticesPerProcessor.begin(),
                          numVerticesPerProcessor.end(),
                          vtkIdType(0));
 
   // Determine the ID of the first vertex provided by each rank.
-  vtkstd::vector<vtkIdType> vertexOffsets(numProcs+1);
-  vtkstd::partial_sum(numVerticesPerProcessor.begin(),
+  std::vector<vtkIdType> vertexOffsets(numProcs+1);
+  std::partial_sum(numVerticesPerProcessor.begin(),
                       numVerticesPerProcessor.end(),
                       vertexOffsets.begin()+1);
 
@@ -165,18 +165,18 @@ int vtkPBGLCollectGraph::RequestData(
     int numArrays = distribVertexData->GetNumberOfArrays();
 
     // Get the arrays we'll be reading from.
-    vtkstd::vector<vtkAbstractArray*> arrays(numArrays);
+    std::vector<vtkAbstractArray*> arrays(numArrays);
     for (int arrayIndex = 0; arrayIndex < numArrays; ++arrayIndex)
       {
       arrays[arrayIndex] = distribVertexData->GetAbstractArray(arrayIndex);
       }
 
     // Serialize and communicate all vertices and their properties.
-    vtkstd::vector<vtkstd::vector<vtkVariant> > allVertexProperties;
+    std::vector<std::vector<vtkVariant> > allVertexProperties;
     {
       // Serialize all of the vertex attributes from the local vertices.
       vtkIdType myNumVertices = numVerticesPerProcessor[myRank];
-      vtkstd::vector<vtkVariant> myVertexProperties(myNumVertices * numArrays);
+      std::vector<vtkVariant> myVertexProperties(myNumVertices * numArrays);
       vtkIdType vertIndex;
 
       for (vertIndex = 0; vertIndex < myNumVertices; ++vertIndex)
@@ -281,7 +281,7 @@ int vtkPBGLCollectGraph::RequestData(
 
         // Clear out the memory storing the serialized form of the
         // vertex properties from this source processor.
-        vtkstd::vector<vtkVariant>().swap(allVertexProperties[origin]);
+        std::vector<vtkVariant>().swap(allVertexProperties[origin]);
         }
       }
     }
@@ -312,7 +312,7 @@ int vtkPBGLCollectGraph::RequestData(
     int numArrays = distribEdgeData->GetNumberOfArrays();
 
     // Get the arrays we'll be reading from.
-    vtkstd::vector<vtkAbstractArray*> arrays(numArrays);
+    std::vector<vtkAbstractArray*> arrays(numArrays);
     for (int arrayIndex = 0; arrayIndex < numArrays; ++arrayIndex)
       {
       arrays[arrayIndex] = distribEdgeData->GetAbstractArray(arrayIndex);
@@ -320,7 +320,7 @@ int vtkPBGLCollectGraph::RequestData(
 
     // Serialize and communicate the end points and attributes of the
     // edges.
-    vtkstd::vector<mpi_buffer_type> allEdgesBuffers;
+    std::vector<mpi_buffer_type> allEdgesBuffers;
 
     {
       // Create a buffer into which we'll pack the edge data.
@@ -372,7 +372,7 @@ int vtkPBGLCollectGraph::RequestData(
 
     vtkIdType totalNumEdges
       = boost::mpi::all_reduce(comm, input->GetNumberOfEdges(),
-                               vtkstd::plus<vtkIdType>());
+                               std::plus<vtkIdType>());
 
     if (this->ReplicateGraph || myRank == this->TargetProcessor)
       {
@@ -443,10 +443,10 @@ int vtkPBGLCollectGraph::RequestData(
   else
     {
     // Serialize and communicate just the endpoints of the edges.
-    typedef vtkstd::pair<vtkIdType, vtkIdType> vtkIdPair;
-    vtkstd::vector<vtkstd::vector<vtkIdPair> > allEdges;
+    typedef std::pair<vtkIdType, vtkIdType> vtkIdPair;
+    std::vector<std::vector<vtkIdPair> > allEdges;
     {
-      vtkstd::vector<vtkIdPair> myEdges;
+      std::vector<vtkIdPair> myEdges;
       myEdges.reserve(input->GetNumberOfEdges());
 
       // Serialize all of the local edges.
@@ -486,7 +486,7 @@ int vtkPBGLCollectGraph::RequestData(
       for (int origin = 0; origin < numProcs; ++origin)
         {
         // Add the edges
-        for (vtkstd::vector<vtkIdPair>::iterator e = allEdges[origin].begin(),
+        for (std::vector<vtkIdPair>::iterator e = allEdges[origin].begin(),
                                              e_end = allEdges[origin].end();
              e != e_end; ++e)
           {
@@ -502,7 +502,7 @@ int vtkPBGLCollectGraph::RequestData(
 
         // Clear out the memory storing the serialized form of the
         // edge data from this source processor.
-        vtkstd::vector<vtkIdPair>().swap(allEdges[origin]);
+        std::vector<vtkIdPair>().swap(allEdges[origin]);
         }
       }
     }

@@ -47,7 +47,7 @@ public:
   void axis_partner( int axis );
   bool axis_bit( int axis ) const;
 
-  bool visit( const vtkstd::vector<int>& path );
+  bool visit( const std::vector<int>& path );
 
   virtual self_path& operator = ( const path& it );
 #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )

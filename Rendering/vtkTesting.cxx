@@ -46,8 +46,8 @@
 vtkStandardNewMacro(vtkTesting);
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
-using vtkstd::vector;
-using vtkstd::string;
+using std::vector;
+using std::string;
 
 //-----------------------------------------------------------------------------
 // Find in command tail, failing that find in environment,
@@ -392,12 +392,12 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
 {
   // do a get to compute the real value
   this->GetValidImageFileName();
-  vtkstd::string tmpDir = this->GetTempDirectory();
+  std::string tmpDir = this->GetTempDirectory();
 
   // construct the names for the error images
-  vtkstd::string validName = this->ValidImageFileName;
-  vtkstd::string::size_type slash_pos = validName.rfind("/");
-  if(slash_pos != vtkstd::string::npos)
+  std::string validName = this->ValidImageFileName;
+  std::string::size_type slash_pos = validName.rfind("/");
+  if(slash_pos != std::string::npos)
     {
     validName = validName.substr(slash_pos + 1);
     }  
@@ -410,7 +410,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     }
   else // there was no valid image, so write one to the temp dir
     {
-    vtkstd::string vImage = tmpDir + "/" + validName;
+    std::string vImage = tmpDir + "/" + validName;
     VTK_CREATE(vtkPNGWriter, rt_pngw);
     rt_pngw->SetFileName(vImage.c_str());
     rt_pngw->SetInput(image);
@@ -625,9 +625,9 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   rt_id->Update();
 
   // test the directory for writing
-  vtkstd::string diff_filename = tmpDir + "/" + validName;
-  vtkstd::string::size_type dot_pos = diff_filename.rfind(".");
-  if(dot_pos != vtkstd::string::npos)
+  std::string diff_filename = tmpDir + "/" + validName;
+  std::string::size_type dot_pos = diff_filename.rfind(".");
+  if(dot_pos != std::string::npos)
     {
     diff_filename = diff_filename.substr(0, dot_pos);
     }  
@@ -649,7 +649,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     rt_pngw->Write();
 
     // write out the image that was generated
-    vtkstd::string vImage = tmpDir + "/" + validName;
+    std::string vImage = tmpDir + "/" + validName;
     rt_pngw->SetFileName(vImage.c_str());
     rt_pngw->SetInput(image);
     rt_pngw->Write();

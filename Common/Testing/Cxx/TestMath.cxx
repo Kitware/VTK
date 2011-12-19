@@ -9,7 +9,7 @@
 #include "vtkMath.h"
 #include "vtkMathConfigure.h"
 
-#include <vtkstd/limits>
+#include <limits>
 
 #ifndef ABS
 #define ABS(x) ((x) < 0 ? -(x) : (x))
@@ -24,7 +24,7 @@ bool fuzzyCompare1DWeak(A a, A b)
 template<class A>
 bool fuzzyCompare1D(A a, A b)
 {
-  return ABS(a - b) < vtkstd::numeric_limits<A>::epsilon();
+  return ABS(a - b) < std::numeric_limits<A>::epsilon();
 }
 
 template<class A>

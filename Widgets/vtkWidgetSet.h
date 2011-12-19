@@ -91,7 +91,7 @@
 #define __vtkWidgetSet_h
 
 #include "vtkObject.h"
-#include <vtkstd/vector> // Required for vector
+#include <vector> // Required for vector
 
 class vtkAbstractWidget;
 
@@ -141,7 +141,7 @@ public:
   //BTX
   // TODO: Move this to the protected section. The class vtkAbstractWidget 
   //       should be a friend of this class. 
-  typedef vtkstd::vector< vtkAbstractWidget * >   WidgetContainerType;
+  typedef std::vector< vtkAbstractWidget * >   WidgetContainerType;
   typedef WidgetContainerType::iterator           WidgetIteratorType;
   typedef WidgetContainerType::const_iterator     WidgetConstIteratorType;
   WidgetContainerType                             Widget;

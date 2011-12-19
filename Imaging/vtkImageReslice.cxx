@@ -658,7 +658,7 @@ int vtkImageReslice::RequestUpdateExtent(
       if ((kernelSize & 1) == 0)
         {
         double f;
-        int k = vtkInterpolateFloor(point[j], f);
+        int k = vtkInterpolationMath::Floor(point[j], f);
         if (k - extra < inExt[2*j])
           {
           inExt[2*j] = k - extra;
@@ -672,7 +672,7 @@ int vtkImageReslice::RequestUpdateExtent(
       // else is for kernels with odd size
       else
         {
-        int k = vtkInterpolateRound(point[j]);
+        int k = vtkInterpolationMath::Round(point[j]);
         if (k < inExt[2*j])
           {
           inExt[2*j] = k - extra;
@@ -917,8 +917,8 @@ int vtkCanUseNearestNeighbor(vtkMatrix4x4 *matrix, int outExt[6])
       x = 0;
       }
     double fx, fy;
-    vtkInterpolateFloor(x, fx);
-    vtkInterpolateFloor(y, fy);
+    vtkInterpolationMath::Floor(x, fx);
+    vtkInterpolationMath::Floor(y, fy);
     if (fx != 0 || fy != 0)
       {
       return 0;
@@ -1064,8 +1064,8 @@ int vtkImageReslice::RequestInformation(
         {
         d = maxBounds[2*i+1] - maxBounds[2*i];
         }
-      outWholeExt[2*i] = vtkInterpolateRound(e);
-      outWholeExt[2*i+1] = vtkInterpolateRound(outWholeExt[2*i] +
+      outWholeExt[2*i] = vtkInterpolationMath::Round(e);
+      outWholeExt[2*i+1] = vtkInterpolationMath::Round(outWholeExt[2*i] +
                                            fabs(d/outSpacing[i]));
       }
     else
@@ -1201,7 +1201,7 @@ namespace {
 template <class F>
 inline void vtkInterpolateRound(F val, vtkTypeInt8& rnd)
 {
-  rnd = vtkInterpolateRound(val);
+  rnd = vtkInterpolationMath::Round(val);
 }
 #endif
 
@@ -1209,7 +1209,7 @@ inline void vtkInterpolateRound(F val, vtkTypeInt8& rnd)
 template <class F>
 inline void vtkInterpolateRound(F val, vtkTypeUInt8& rnd)
 {
-  rnd = vtkInterpolateRound(val);
+  rnd = vtkInterpolationMath::Round(val);
 }
 #endif
 
@@ -1217,7 +1217,7 @@ inline void vtkInterpolateRound(F val, vtkTypeUInt8& rnd)
 template <class F>
 inline void vtkInterpolateRound(F val, vtkTypeInt16& rnd)
 {
-  rnd = vtkInterpolateRound(val);
+  rnd = vtkInterpolationMath::Round(val);
 }
 #endif
 
@@ -1225,7 +1225,7 @@ inline void vtkInterpolateRound(F val, vtkTypeInt16& rnd)
 template <class F>
 inline void vtkInterpolateRound(F val, vtkTypeUInt16& rnd)
 {
-  rnd = vtkInterpolateRound(val);
+  rnd = vtkInterpolationMath::Round(val);
 }
 #endif
 
@@ -1233,7 +1233,7 @@ inline void vtkInterpolateRound(F val, vtkTypeUInt16& rnd)
 template <class F>
 inline void vtkInterpolateRound(F val, vtkTypeInt32& rnd)
 {
-  rnd = vtkInterpolateRound(val);
+  rnd = vtkInterpolationMath::Round(val);
 }
 #endif
 
@@ -1241,7 +1241,7 @@ inline void vtkInterpolateRound(F val, vtkTypeInt32& rnd)
 template <class F>
 inline void vtkInterpolateRound(F val, vtkTypeUInt32& rnd)
 {
-  rnd = vtkInterpolateRound(val);
+  rnd = vtkInterpolationMath::Round(val);
 }
 #endif
 
@@ -2235,9 +2235,9 @@ void vtkImageResliceExecute(vtkImageReslice *self,
             inPoint[1] = inPoint1[1] + iidX*xAxis[1];
             inPoint[2] = inPoint1[2] + iidX*xAxis[2];
 
-            int inIdX = vtkInterpolateRound(inPoint[0]) - inExt[0];
-            int inIdY = vtkInterpolateRound(inPoint[1]) - inExt[2];
-            int inIdZ = vtkInterpolateRound(inPoint[2]) - inExt[4];
+            int inIdX = vtkInterpolationMath::Round(inPoint[0]) - inExt[0];
+            int inIdY = vtkInterpolationMath::Round(inPoint[1]) - inExt[2];
+            int inIdZ = vtkInterpolationMath::Round(inPoint[2]) - inExt[4];
 
             if ((inIdX >= 0) & (inIdX < inExtX) &
                 (inIdY >= 0) & (inIdY < inExtY) &

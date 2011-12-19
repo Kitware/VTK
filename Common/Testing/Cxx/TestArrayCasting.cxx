@@ -37,9 +37,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -69,16 +69,16 @@ void SuccessTest(vtkObject* source, int line)
   int count = 0;
   if(!vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
     {
-    vtkstd::ostringstream buffer;
+    std::ostringstream buffer;
     buffer << "Expression failed at line " << line;
-    throw vtkstd::runtime_error(buffer.str());
+    throw std::runtime_error(buffer.str());
     }
 
   if(count != 1)
     {
-    vtkstd::ostringstream buffer;
+    std::ostringstream buffer;
     buffer << "Functor was called " << count << " times at line " << line;
-    throw vtkstd::runtime_error(buffer.str());
+    throw std::runtime_error(buffer.str());
     }
 }
 
@@ -88,16 +88,16 @@ void FailTest(vtkObject* source, int line)
   int count = 0;
   if(vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
     {
-    vtkstd::ostringstream buffer;
+    std::ostringstream buffer;
     buffer << "Expression failed at line " << line;
-    throw vtkstd::runtime_error(buffer.str());
+    throw std::runtime_error(buffer.str());
     }
 
   if(count != 0)
     {
-    vtkstd::ostringstream buffer;
+    std::ostringstream buffer;
     buffer << "Functor was called " << count << " times at line " << line;
-    throw vtkstd::runtime_error(buffer.str());
+    throw std::runtime_error(buffer.str());
     }
 }
 
@@ -147,7 +147,7 @@ struct Transpose
   void operator()(vtkDenseArray<ValueT>* input) const
   {
     if(input->GetDimensions() != 2 || input->GetExtents()[0] != input->GetExtents()[1])
-      throw vtkstd::runtime_error("A square matrix is required.");
+      throw std::runtime_error("A square matrix is required.");
 
     vtkDenseArray<ValueT>* output = vtkDenseArray<ValueT>::SafeDownCast(input->DeepCopy());
     for(vtkIdType i = 0; i != input->GetExtents()[0]; ++i)
@@ -257,7 +257,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkGenerateIndexArray);
 
@@ -184,7 +184,7 @@ int vtkGenerateIndexArray::RequestData(
       return 0;
       }
 
-    typedef vtkstd::map<vtkVariant, vtkIdType, vtkVariantLessThan> index_map_t;
+    typedef std::map<vtkVariant, vtkIdType, vtkVariantLessThan> index_map_t;
     index_map_t index_map;
 
     for(vtkIdType i = 0; i != output_count; ++i)
@@ -194,9 +194,9 @@ int vtkGenerateIndexArray::RequestData(
 #ifdef _RWSTD_NO_MEMBER_TEMPLATES
         // Deal with Sun Studio old libCstd.
         // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-        index_map.insert(vtkstd::pair<const vtkVariant,vtkIdType>(reference_array->GetVariantValue(i), 0));
+        index_map.insert(std::pair<const vtkVariant,vtkIdType>(reference_array->GetVariantValue(i), 0));
 #else
-        index_map.insert(vtkstd::make_pair(reference_array->GetVariantValue(i), 0));
+        index_map.insert(std::make_pair(reference_array->GetVariantValue(i), 0));
 #endif
         }
       }

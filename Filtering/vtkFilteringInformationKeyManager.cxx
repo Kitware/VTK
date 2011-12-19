@@ -16,14 +16,14 @@
 
 #include "vtkInformationKey.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 // Subclass vector so we can directly call constructor.  This works
 // around problems on Borland C++.
 struct vtkFilteringInformationKeyManagerKeysType:
-  public vtkstd::vector<vtkInformationKey*>
+  public std::vector<vtkInformationKey*>
 {
-  typedef vtkstd::vector<vtkInformationKey*> Superclass;
+  typedef std::vector<vtkInformationKey*> Superclass;
   typedef Superclass::iterator iterator;
 };
 

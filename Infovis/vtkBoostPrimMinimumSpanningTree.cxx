@@ -239,7 +239,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
         }
       }
 
-    vtkEdgeType tree_e = temp->AddEdge( predecessorMap->GetValue(i), i );
+    temp->AddEdge( predecessorMap->GetValue(i), i );
 
     //FIXME - We're not copying the edge data from the graph to the MST because
     //  of the ambiguity associated with copying data when parallel edges between

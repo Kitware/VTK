@@ -30,7 +30,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkRenderedRepresentation);
 
@@ -39,8 +39,8 @@ class vtkRenderedRepresentation::Internals
 public:
   // Convenience vectors for storing props to add/remove until the next render,
   // where they are added/removed by PrepareForRendering().
-  vtkstd::vector<vtkSmartPointer<vtkProp> > PropsToAdd;
-  vtkstd::vector<vtkSmartPointer<vtkProp> > PropsToRemove;
+  std::vector<vtkSmartPointer<vtkProp> > PropsToAdd;
+  std::vector<vtkSmartPointer<vtkProp> > PropsToRemove;
 };
 
 

@@ -28,12 +28,15 @@
 # define VTK_USE_UINT64 0
 
 // masks for storing window and size in a single integer
-#define VTK_INTERPOLATION_WINDOW_MASK        0x000000ff
-#define VTK_INTERPOLATION_WINDOW_XSIZE_MASK  0x0000ff00
+#define VTK_INTERPOLATION_WINDOW_MASK        0x0000007f
+#define VTK_INTERPOLATION_WINDOW_XBLUR_MASK  0x00008000
+#define VTK_INTERPOLATION_WINDOW_XSIZE_MASK  0x00007f00
 #define VTK_INTERPOLATION_WINDOW_XSIZE_SHIFT 8
-#define VTK_INTERPOLATION_WINDOW_YSIZE_MASK  0x00ff0000
+#define VTK_INTERPOLATION_WINDOW_YBLUR_MASK  0x00800000
+#define VTK_INTERPOLATION_WINDOW_YSIZE_MASK  0x007f0000
 #define VTK_INTERPOLATION_WINDOW_YSIZE_SHIFT 16
-#define VTK_INTERPOLATION_WINDOW_ZSIZE_MASK  0xff000000
+#define VTK_INTERPOLATION_WINDOW_ZBLUR_MASK  0x80000000
+#define VTK_INTERPOLATION_WINDOW_ZSIZE_MASK  0x7f000000
 #define VTK_INTERPOLATION_WINDOW_ZSIZE_SHIFT 24
 
 // kernel lookup table size must be 256*n where n is kernel half-width
@@ -160,7 +163,7 @@ void vtkImageSincInterpolator::ComputeSupportSize(
       // verify that the element is an integer:
       // check fraction that remains after floor operation
       double f;
-      vtkInterpolateFloor(x, f);
+      vtkInterpolationMath::Floor(x, f);
       integerRow &= (f == 0);
       }
 
@@ -349,6 +352,19 @@ void vtkImageSincInterpolator::InternalUpdate()
     hsize[i] = size;
     blurchange |= (fabs(this->BlurFactors[i] - this->LastBlurFactors[i]) >=
                    VTK_INTERPOLATE_FLOOR_TOL);
+    }
+
+  if (this->BlurFactors[0] > 1.0 + VTK_INTERPOLATE_FLOOR_TOL)
+    {
+    mode |= VTK_INTERPOLATION_WINDOW_XBLUR_MASK;
+    }
+  if (this->BlurFactors[1] > 1.0 + VTK_INTERPOLATE_FLOOR_TOL)
+    {
+    mode |= VTK_INTERPOLATION_WINDOW_YBLUR_MASK;
+    }
+  if (this->BlurFactors[2] > 1.0 + VTK_INTERPOLATE_FLOOR_TOL)
+    {
+    mode |= VTK_INTERPOLATION_WINDOW_ZBLUR_MASK;
     }
 
   mode |= (hsize[0] << VTK_INTERPOLATION_WINDOW_XSIZE_SHIFT);
@@ -690,9 +706,9 @@ void vtkImageSincInterpolate<F, T>::General(
   int zm2 = ((zm - 1) >> 1);
 
   F fx, fy, fz;
-  int inIdX0 = vtkInterpolateFloor(point[0], fx);
-  int inIdY0 = vtkInterpolateFloor(point[1], fy);
-  int inIdZ0 = vtkInterpolateFloor(point[2], fz);
+  int inIdX0 = vtkInterpolationMath::Floor(point[0], fx);
+  int inIdY0 = vtkInterpolationMath::Floor(point[1], fy);
+  int inIdZ0 = vtkInterpolationMath::Floor(point[2], fz);
 
   // change arrays into locals
   vtkIdType inIncX = inInc[0];
@@ -726,9 +742,9 @@ void vtkImageSincInterpolate<F, T>::General(
       int l = 0;
       do
         {
-        factX[l] = vtkInterpolateWrap(xi, minX, maxX)*inIncX;
-        factY[l] = vtkInterpolateWrap(yi, minY, maxY)*inIncY;
-        factZ[l] = vtkInterpolateWrap(zi, minZ, maxZ)*inIncZ;
+        factX[l] = vtkInterpolationMath::Wrap(xi, minX, maxX)*inIncX;
+        factY[l] = vtkInterpolationMath::Wrap(yi, minY, maxY)*inIncY;
+        factZ[l] = vtkInterpolationMath::Wrap(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
         }
       while (--mm);
@@ -740,9 +756,9 @@ void vtkImageSincInterpolate<F, T>::General(
       int l = 0;
       do
         {
-        factX[l] = vtkInterpolateMirror(xi, minX, maxX)*inIncX;
-        factY[l] = vtkInterpolateMirror(yi, minY, maxY)*inIncY;
-        factZ[l] = vtkInterpolateMirror(zi, minZ, maxZ)*inIncZ;
+        factX[l] = vtkInterpolationMath::Mirror(xi, minX, maxX)*inIncX;
+        factY[l] = vtkInterpolationMath::Mirror(yi, minY, maxY)*inIncY;
+        factZ[l] = vtkInterpolationMath::Mirror(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
         }
       while (--mm);
@@ -754,9 +770,9 @@ void vtkImageSincInterpolate<F, T>::General(
       int l = 0;
       do
         {
-        factX[l] = vtkInterpolateClamp(xi, minX, maxX)*inIncX;
-        factY[l] = vtkInterpolateClamp(yi, minY, maxY)*inIncY;
-        factZ[l] = vtkInterpolateClamp(zi, minZ, maxZ)*inIncZ;
+        factX[l] = vtkInterpolationMath::Clamp(xi, minX, maxX)*inIncX;
+        factY[l] = vtkInterpolationMath::Clamp(yi, minY, maxY)*inIncY;
+        factZ[l] = vtkInterpolationMath::Clamp(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
         }
       while (--mm);
@@ -950,6 +966,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
   float **kernel = static_cast<float **>(weights->ExtraInfo);
   weights->WeightType = vtkTypeTraits<F>::VTKTypeID();
   int sizes[3];
+  bool blur[3];
   int mode = weights->InterpolationMode;
   sizes[0] = 2*((mode & VTK_INTERPOLATION_WINDOW_XSIZE_MASK)
                 >> VTK_INTERPOLATION_WINDOW_XSIZE_SHIFT);
@@ -957,6 +974,9 @@ void vtkImageSincInterpolatorPrecomputeWeights(
                 >> VTK_INTERPOLATION_WINDOW_YSIZE_SHIFT);
   sizes[2] = 2*((mode & VTK_INTERPOLATION_WINDOW_ZSIZE_MASK)
                 >> VTK_INTERPOLATION_WINDOW_ZSIZE_SHIFT);
+  blur[0] = ((mode & VTK_INTERPOLATION_WINDOW_XBLUR_MASK) != 0);
+  blur[1] = ((mode & VTK_INTERPOLATION_WINDOW_YBLUR_MASK) != 0);
+  blur[2] = ((mode & VTK_INTERPOLATION_WINDOW_ZBLUR_MASK) != 0);
 
   // set up input positions table for interpolation
   for (int j = 0; j < 3; j++)
@@ -988,9 +1008,9 @@ void vtkImageSincInterpolatorPrecomputeWeights(
 
     // if output pixels lie exactly on top of the input pixels
     F f1, f2;
-    vtkInterpolateFloor(matrow[j], f1);
-    vtkInterpolateFloor(matrow[3], f2);
-    if (f1 == 0 && f2 == 0)
+    vtkInterpolationMath::Floor(matrow[j], f1);
+    vtkInterpolationMath::Floor(matrow[3], f2);
+    if (f1 == 0 && f2 == 0 && !blur[j])
       {
       step = 1;
       }
@@ -1016,7 +1036,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
       if (point >= minBounds && point <= maxBounds)
         {
         F f = 0;
-        int idx = vtkInterpolateFloor(point, f);
+        int idx = vtkInterpolationMath::Floor(point, f);
         int lmax = 1;
         if (step > 1)
           {
@@ -1032,7 +1052,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           case VTK_IMAGE_BORDER_REPEAT:
             do
               {
-              inId[l] = vtkInterpolateWrap(idx++, minExt, maxExt);
+              inId[l] = vtkInterpolationMath::Wrap(idx++, minExt, maxExt);
               }
             while (++l < lmax);
             break;
@@ -1040,7 +1060,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           case VTK_IMAGE_BORDER_MIRROR:
             do
               {
-              inId[l] = vtkInterpolateMirror(idx++, minExt, maxExt);
+              inId[l] = vtkInterpolationMath::Mirror(idx++, minExt, maxExt);
               }
             while (++l < lmax);
             break;
@@ -1048,7 +1068,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           default:
              do
               {
-              inId[l] = vtkInterpolateClamp(idx++, minExt, maxExt);
+              inId[l] = vtkInterpolationMath::Clamp(idx++, minExt, maxExt);
               }
             while (++l < lmax);
             break;

@@ -126,6 +126,14 @@ vtkXGMLReader.cxx
 vtkXMLTreeReader.cxx
 )
 
+IF(VTK_USE_RENDERING)
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkConvexHull2D.cxx
+    vtkGraphAnnotationLayersFilter.cxx
+    )
+ENDIF(VTK_USE_RENDERING)
+
 # Add these classes only if using Boost
 
 # About the BOOST_OLD_VERSION warning:

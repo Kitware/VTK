@@ -44,11 +44,11 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
-#include <vtkstd/map>
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <iterator>
+#include <map>
+#include <set>
+#include <vector>
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -118,7 +118,7 @@ int vtkConvertSelection::SelectTableFromTable(
   vtkTable* dataTable, 
   vtkIdTypeArray* indices)
 {
-  vtkstd::set<vtkIdType> matching;
+  std::set<vtkIdType> matching;
   VTK_CREATE(vtkIdList, list);
   for (vtkIdType row = 0; row < selTable->GetNumberOfRows(); row++)
     {
@@ -140,17 +140,17 @@ int vtkConvertSelection::SelectTableFromTable(
           }
         else
           {
-          vtkstd::set<vtkIdType> intersection;
-          vtkstd::sort(list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds());
-          vtkstd::set_intersection(
+          std::set<vtkIdType> intersection;
+          std::sort(list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds());
+          std::set_intersection(
             matching.begin(), matching.end(), 
             list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds(), 
-            vtkstd::inserter(intersection, intersection.begin()));
+            std::inserter(intersection, intersection.begin()));
           matching = intersection;
           }
         }
       }
-    vtkstd::set<vtkIdType>::iterator it, itEnd = matching.end();
+    std::set<vtkIdType>::iterator it, itEnd = matching.end();
     for (it = matching.begin(); it != itEnd; ++it)
       {
       indices->InsertNextValue(*it);
@@ -227,7 +227,7 @@ int vtkConvertSelection::ConvertToIndexSelection(
 int vtkConvertSelection::ConvertToBlockSelection(
   vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output)
 {
-  vtkstd::set<unsigned int> indices;
+  std::set<unsigned int> indices;
   for (unsigned int n = 0; n < input->GetNumberOfNodes(); ++n)
     {
     vtkSmartPointer<vtkSelectionNode> inputNode = input->GetNode(n);
@@ -268,7 +268,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
   vtkSmartPointer<vtkUnsignedIntArray> selectionList =
     vtkSmartPointer<vtkUnsignedIntArray>::New();
   selectionList->SetNumberOfTuples(indices.size());
-  vtkstd::set<unsigned int>::iterator siter;
+  std::set<unsigned int>::iterator siter;
   vtkIdType index = 0;
   for (siter = indices.begin(); siter != indices.end(); ++siter, ++index)
     {
@@ -744,7 +744,7 @@ int vtkConvertSelection::Convert(
         return 0;
         }
 
-      vtkstd::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> > domainArrays;
+      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> > domainArrays;
       vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
       vtkIdType numIndices = indices->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIndices; ++i)
@@ -769,7 +769,7 @@ int vtkConvertSelection::Convert(
           this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
           }
         }
-      vtkstd::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> >::iterator it, itEnd;
+      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> >::iterator it, itEnd;
       it = domainArrays.begin();
       itEnd = domainArrays.end();
       for (; it != itEnd; ++it)

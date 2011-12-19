@@ -42,7 +42,7 @@
 #include "vtkUnicodeString.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
@@ -58,13 +58,13 @@ public:
   /// A rectangular tile on the screen. It contains a set of labels that overlap it.
   struct ScreenTile
     {
-    vtkstd::vector<LabelRect> Labels;
+    std::vector<LabelRect> Labels;
     ScreenTile() { }
     /// Is there space to place the given rectangle in this tile so that it doesn't overlap any labels in this tile?
     bool IsSpotOpen( float& opacity, struct LabelRect& r )
       {
       float d0, d1, d2, d3;
-      for ( vtkstd::vector<LabelRect>::iterator it = this->Labels.begin(); it != this->Labels.end(); ++ it )
+      for ( std::vector<LabelRect>::iterator it = this->Labels.begin(); it != this->Labels.end(); ++ it )
         {
         d0 = it->x[0] - r.x[1];
         d1 = r.x[0] - it->x[1];
@@ -93,7 +93,7 @@ public:
       this->Labels.push_back( rect );
       }
     };
-  vtkstd::vector<vtkstd::vector<ScreenTile> > Tiles;
+  std::vector<std::vector<ScreenTile> > Tiles;
   float ScreenOrigin[2];
   float TileSize[2];
   int NumTiles[2];
@@ -144,7 +144,7 @@ public:
       {
       for ( int ty = ty0; ty <= ty1; ++ ty )
         {
-        vtkstd::vector<ScreenTile>* trow = &this->Tiles[tx];
+        std::vector<ScreenTile>* trow = &this->Tiles[tx];
         // Do this check here for speed, even though we repeat w/ small mod below.
         if ( ! (*trow)[ty].IsSpotOpen( opacity, r ) ) 
           return false;

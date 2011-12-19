@@ -32,7 +32,7 @@
 #include "vtkStringArray.h"
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/bind.hpp>
-#include <vtkstd/utility>
+#include <utility>
 
 
 //----------------------------------------------------------------------------
@@ -162,7 +162,7 @@ public:
 
   // Description:
   // Handle a FIND_EDGE_SOURCE_TARGET_TAG message.
-  vtkstd::pair<vtkIdType, vtkIdType> HandleFindEdgeSourceTarget(vtkIdType id);
+  std::pair<vtkIdType, vtkIdType> HandleFindEdgeSourceTarget(vtkIdType id);
 
   // Description:
   // Add a vertex with the given pedigree, if a vertex with that
@@ -794,7 +794,7 @@ vtkPBGLDistributedGraphHelper::FindEdgeSourceAndTarget(vtkIdType id,
     return;
     }
 
-  vtkstd::pair<vtkIdType, vtkIdType> result;
+  std::pair<vtkIdType, vtkIdType> result;
   send_oob_with_reply(this->Internals->process_group, owner,
                       FIND_EDGE_SOURCE_TARGET_TAG, id, result);
 
@@ -938,11 +938,11 @@ HandleFindVertex(const vtkVariant& pedigreeId)
 }
 
 //----------------------------------------------------------------------------
-vtkstd::pair<vtkIdType, vtkIdType>
+std::pair<vtkIdType, vtkIdType>
 vtkPBGLDistributedGraphHelperInternals::
 HandleFindEdgeSourceTarget(vtkIdType id)
 {
-  vtkstd::pair<vtkIdType, vtkIdType> result;
+  std::pair<vtkIdType, vtkIdType> result;
   this->Helper->FindEdgeSourceAndTarget(id, &result.first, &result.second);
   return result;
 }

@@ -32,6 +32,7 @@
 #include "vtkTable.h"
 
 #include <vtksys/stl/map>
+#include <vtksys/stl/functional>
 
 // ----------------------------------------------------------------------
 
@@ -110,7 +111,7 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 
   const vtkArrayExtents input_extents = input_array->GetExtents();
 
-  const vtkIdType source_dimension = vtkstd::max(static_cast<vtkIdType>(0), vtkstd::min(static_cast<vtkIdType>(1), this->SourceDimension));
+  const vtkIdType source_dimension = std::max(static_cast<vtkIdType>(0), std::min(static_cast<vtkIdType>(1), this->SourceDimension));
   const vtkIdType target_dimension = 1 - source_dimension;
 
   vtkTable* const output_table = vtkTable::GetData(outputVector);
@@ -131,7 +132,7 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
     coordinates[source_dimension] = i;
 
     // Create a sorted list of source values ...
-    typedef vtkstd::multimap<double, vtkIdType, vtkstd::greater<double> > sorted_values_t;
+    typedef std::multimap<double, vtkIdType, std::greater<double> > sorted_values_t;
     sorted_values_t sorted_values;
     for(vtkIdType j = input_extents[target_dimension].GetBegin(); j != input_extents[target_dimension].GetEnd(); ++j)
       {
@@ -140,9 +141,9 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 #ifdef _RWSTD_NO_MEMBER_TEMPLATES
       // Deal with Sun Studio old libCstd.
       // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-      sorted_values.insert(vtkstd::pair<const double,vtkIdType>(input_array->GetValue(coordinates),j));
+      sorted_values.insert(std::pair<const double,vtkIdType>(input_array->GetValue(coordinates),j));
 #else
-      sorted_values.insert(vtkstd::make_pair(input_array->GetValue(coordinates), j));
+      sorted_values.insert(std::make_pair(input_array->GetValue(coordinates), j));
 #endif
       }
 

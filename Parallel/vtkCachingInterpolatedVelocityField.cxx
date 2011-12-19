@@ -28,7 +28,7 @@
 #include "vtkCellLocator.h"
 #define Custom_TreeType vtkCellLocator
 
-#include <vtkstd/vector>
+#include <vector>
 #ifdef JB_BSP_TREE 
  #include "vtkModifiedBSPTree.h"
  #undef  Custom_TreeType

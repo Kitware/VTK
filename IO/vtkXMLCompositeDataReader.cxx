@@ -37,10 +37,10 @@
 #include "vtkXMLStructuredGridReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-#include <vtkstd/map>
-#include <vtkstd/set>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 #include <vtksys/SystemTools.hxx>
 
 struct vtkXMLCompositeDataReaderEntry
@@ -52,7 +52,7 @@ struct vtkXMLCompositeDataReaderEntry
 struct vtkXMLCompositeDataReaderInternals
 {
   vtkSmartPointer<vtkXMLDataElement> Root;
-  typedef vtkstd::map<vtkstd::string, vtkSmartPointer<vtkXMLReader> > ReadersType;
+  typedef std::map<std::string, vtkSmartPointer<vtkXMLReader> > ReadersType;
   ReadersType Readers;
   static const vtkXMLCompositeDataReaderEntry ReaderList[];
   unsigned int MinDataset;
@@ -62,7 +62,7 @@ struct vtkXMLCompositeDataReaderInternals
     this->MinDataset = 0;
     this->MaxDataset = 0;
     }
-  vtkstd::set<int> UpdateIndices;
+  std::set<int> UpdateIndices;
   bool HasUpdateRestriction;
 };
 
@@ -235,8 +235,8 @@ void vtkXMLCompositeDataReader::ReadXMLData()
 
   // Find the path to this file in case the internal files are
   // specified as relative paths.
-  vtkstd::string filePath = this->FileName;
-  vtkstd::string::size_type pos = filePath.find_last_of("/\\");
+  std::string filePath = this->FileName;
+  std::string::size_type pos = filePath.find_last_of("/\\");
   if(pos != filePath.npos)
     {
     filePath = filePath.substr(0, pos);
@@ -277,12 +277,12 @@ void vtkXMLCompositeDataReader::ReadXMLData()
   if (outInfo->Has(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES()))
     {
     this->Internal->HasUpdateRestriction = true;
-    this->Internal->UpdateIndices = vtkstd::set<int>();
+    this->Internal->UpdateIndices = std::set<int>();
     int length = outInfo->Length(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES());
     if (length > 0)
       {
       int* idx = outInfo->Get(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES());
-      this->Internal->UpdateIndices = vtkstd::set<int>(idx, idx+length);
+      this->Internal->UpdateIndices = std::set<int>(idx, idx+length);
       }
     }
   else
@@ -319,7 +319,7 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   const char* filePath)
 {
   // Construct the name of the internal file.
-  vtkstd::string fileName;
+  std::string fileName;
   const char* file = xmlElem->GetAttribute("file");
   if (!file)
     {
@@ -337,7 +337,7 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   fileName += file;
 
   // Get the file extension.
-  vtkstd::string ext = vtksys::SystemTools::GetFilenameLastExtension(fileName);
+  std::string ext = vtksys::SystemTools::GetFilenameLastExtension(fileName);
   if (ext.size() > 0)
     {
     // remote "." from the extension.

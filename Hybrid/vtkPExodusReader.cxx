@@ -48,7 +48,7 @@
 
 #include <sys/stat.h>
 #include <ctype.h>
-#include <vtkstd/vector>
+#include <vector>
 
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048

@@ -9,8 +9,8 @@
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/String.hxx>
-#include <vtkstd/vector>
-#include <vtkstd/set>
+#include <vector>
+#include <set>
 
 #include <ctype.h>
 
@@ -29,13 +29,13 @@ bool vtkExodusIIReaderVariableCheck::Start( vtksys_stl::string name, const int* 
   return result && atLeastOne;
 }
 
-vtkstd::vector<vtksys_stl::string>::size_type vtkExodusIIReaderVariableCheck::Length()
+std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderVariableCheck::Length()
 {
   return this->OriginalNames.size();
 }
 
 int vtkExodusIIReaderVariableCheck::Accept(
-  vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr,
+  std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr,
   int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
 {
   vtksys_stl::string::size_type len = this->Length();
@@ -75,7 +75,7 @@ bool vtkExodusIIReaderVariableCheck::CheckTruth( const int* truth )
   if ( ! truth )
     return false;
 
-  for ( vtkstd::vector<int>::iterator it = this->SeqTruth.begin(); it != this->SeqTruth.end(); ++ it, ++ truth )
+  for ( std::vector<int>::iterator it = this->SeqTruth.begin(); it != this->SeqTruth.end(); ++ it, ++ truth )
     {
     if ( *truth != *it )
       {
@@ -88,10 +88,10 @@ bool vtkExodusIIReaderVariableCheck::CheckTruth( const int* truth )
 
 bool vtkExodusIIReaderVariableCheck::UniquifyName(
     vtkExodusIIReaderPrivate::ArrayInfoType& ainfo,
-    vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arrays )
+    std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arrays )
 {
   bool nameChanged = false;
-  vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>::iterator it = arrays.begin();
+  std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>::iterator it = arrays.begin();
   while ( it != arrays.end() )
     {
     if ( it->Name == ainfo.Name )
@@ -183,9 +183,9 @@ bool vtkExodusIIReaderVectorCheck::Add( vtksys_stl::string name, const int* trut
   return true;
 }
 
-vtkstd::vector<vtksys_stl::string>::size_type vtkExodusIIReaderVectorCheck::Length()
+std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderVectorCheck::Length()
 {
-  vtkstd::vector<vtksys_stl::string>::size_type len = this->OriginalNames.size();
+  std::vector<vtksys_stl::string>::size_type len = this->OriginalNames.size();
   return ( len == this->Endings.size() ) ? len : 0;
 }
 
@@ -304,10 +304,10 @@ bool vtkExodusIIReaderTensorCheck::Add( vtksys_stl::string name, const int* trut
   return true;
 }
 
-vtkstd::vector<vtksys_stl::string>::size_type vtkExodusIIReaderTensorCheck::Length()
+std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderTensorCheck::Length()
 {
-  vtkstd::vector<vtksys_stl::string>::size_type len = this->OriginalNames.size();
-  //vtkstd::vector<vtksys_stl::string>::size_type expected = this->Rank * this->Dimension;
+  std::vector<vtksys_stl::string>::size_type len = this->OriginalNames.size();
+  //std::vector<vtksys_stl::string>::size_type expected = this->Rank * this->Dimension;
   return ( len == this->NumEndings ) ? len : 0;
 }
 
@@ -363,7 +363,7 @@ bool vtkExodusIIReaderIntPointCheck::Add( vtksys_stl::string name, const int* )
   return true;
 }
 
-vtkstd::vector<vtksys_stl::string>::size_type vtkExodusIIReaderIntPointCheck::Length()
+std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderIntPointCheck::Length()
 {
   if ( this->IntPtMin.size() != this->IntPtMax.size() )
     return 0;
@@ -385,7 +385,7 @@ vtkstd::vector<vtksys_stl::string>::size_type vtkExodusIIReaderIntPointCheck::Le
 
 /*
 int vtkExodusIIReaderIntPointCheck::Accept(
-vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr, int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
+std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr, int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
 {
 }
 */
@@ -451,7 +451,7 @@ bool vtkExodusIIReaderIntPointCheck::AddIntegrationPoint( vtksys_stl::string ipt
     this->Rank = 0;
     return false;
     }
-  vtkstd::pair<vtkstd::set<vtksys_stl::string>::iterator,bool> result;
+  std::pair<std::set<vtksys_stl::string>::iterator,bool> result;
   result = this->IntPtNames.insert( iptName );
   if ( ! result.second )
     { // Oops, this integration point is a duplicate.

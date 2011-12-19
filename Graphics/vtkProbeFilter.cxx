@@ -25,12 +25,12 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkProbeFilter);
 
 class vtkProbeFilter::vtkVectorOfArrays : 
-  public vtkstd::vector<vtkDataArray*>
+  public std::vector<vtkDataArray*>
 {
 };
 

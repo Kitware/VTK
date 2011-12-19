@@ -10,10 +10,6 @@ IF(NOT VTK_USE_SYSTEM_HDF5)
   # Export configuration to this export variable
   SET(HDF5_EXPORTED_TARGETS ${VTK_INSTALL_EXPORT_NAME})
   
-  IF(NOT VTK_INSTALL_NO_LIBRARIES)
-    SET_PROPERTY(GLOBAL APPEND PROPERTY VTK_TARGETS vtkhdf5)
-  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-
   # Silence HDF5's warnings. We'll let them get fixed upstream
   # and merge in updates as necessary.
   SET(HDF5_DISABLE_COMPILER_WARNINGS ON CACHE BOOL "Disable HDF5 warnings" FORCE)
@@ -24,6 +20,7 @@ IF(NOT VTK_USE_SYSTEM_HDF5)
   SET(HDF5_INSTALL_INCLUDE_DIR ${VTK_INSTALL_INCLUDE_DIR})
 
   SET(HDF5_ENABLE_Z_LIB_SUPPORT ON CACHE BOOL "Enable Zlib Filters" FORCE)
+  SET(HDF5_BUILD_HL_LIB ON CACHE BOOL "Build HIGH Level HDF5 Library" FORCE)
 
   # Setup all necessary overrides for zlib so that HDF5 uses our
   # internally compiled zlib rather than any other version
@@ -40,6 +37,8 @@ IF(NOT VTK_USE_SYSTEM_HDF5)
       SET(ZLIB_LIBRARIES vtkzlib)
     ENDIF(VTK_USE_SYSTEM_ZLIB)
   ENDIF(HDF5_ENABLE_Z_LIB_SUPPORT)
+
+  LIST(APPEND VTK_HDF5_LIBRARIES vtkhdf5_hl)
 
   MARK_AS_ADVANCED(
     H5_SET_LIB_OPTIONS

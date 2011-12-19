@@ -121,6 +121,9 @@ typedef int htri_t;
 /* Undefine this size, we will re-define it in one of the sections below */
 #undef H5_SIZEOF_SSIZE_T
 #if H5_SIZEOF_SIZE_T==H5_SIZEOF_INT
+#ifdef WIN32
+#undef ssize_t
+#endif
 typedef int ssize_t;
 #       define H5_SIZEOF_SSIZE_T H5_SIZEOF_INT
 #elif H5_SIZEOF_SIZE_T==H5_SIZEOF_LONG

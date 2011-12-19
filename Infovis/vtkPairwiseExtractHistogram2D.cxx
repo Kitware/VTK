@@ -40,19 +40,19 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 //------------------------------------------------------------------------------
-#include <vtkstd/set>
-#include <vtkstd/vector>
-#include <vtkstd/string>
-#include <vtkstd/map>
+#include <set>
+#include <vector>
+#include <string>
+#include <map>
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------
 class vtkPairwiseExtractHistogram2D::Internals
 {
 public:
-  vtkstd::vector< vtkstd::pair< vtkStdString,vtkStdString > > ColumnPairs;
-  vtkstd::map< vtkstd::string,bool > ColumnUsesCustomExtents;
-  vtkstd::map< vtkstd::string,vtkstd::vector<double> > ColumnExtents;
+  std::vector< std::pair< vtkStdString,vtkStdString > > ColumnPairs;
+  std::map< std::string,bool > ColumnUsesCustomExtents;
+  std::map< std::string,std::vector<double> > ColumnExtents;
 };
 //------------------------------------------------------------------------------
 vtkPairwiseExtractHistogram2D::vtkPairwiseExtractHistogram2D()
@@ -141,7 +141,7 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
       f.TakeReference(this->NewHistogramFilter());
       f->SetInput(inDataCopy);
       f->SetNumberOfBins(this->NumberOfBins);
-      vtkstd::pair<vtkStdString,vtkStdString> colpair(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
+      std::pair<vtkStdString,vtkStdString> colpair(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
       f->AddColumnPair(colpair.first.c_str(),colpair.second.c_str());
       f->SetSwapColumns(strcmp(colpair.first.c_str(),colpair.second.c_str())>=0);
       this->HistogramFilters->AddItem(f);
@@ -177,11 +177,11 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
       vtkExtractHistogram2D* f = this->GetHistogramFilter(i);
       
       // if the column names have changed, that means we need to update
-      vtkstd::pair<vtkStdString,vtkStdString> cols = this->Implementation->ColumnPairs[i];
+      std::pair<vtkStdString,vtkStdString> cols = this->Implementation->ColumnPairs[i];
       if (inData->GetColumn(i)->GetName() != cols.first ||
           inData->GetColumn(i+1)->GetName() != cols.second)
         {
-        vtkstd::pair<vtkStdString,vtkStdString> newCols(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
+        std::pair<vtkStdString,vtkStdString> newCols(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
         
         f->ResetRequests();
         f->AddColumnPair(newCols.first.c_str(),newCols.second.c_str());
@@ -192,7 +192,7 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
         }
       
       // if the filter extents have changed, that means we need to update
-      vtkstd::pair<vtkStdString,vtkStdString> newCols(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
+      std::pair<vtkStdString,vtkStdString> newCols(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
       if (this->Implementation->ColumnUsesCustomExtents[newCols.first.c_str()] || 
           this->Implementation->ColumnUsesCustomExtents[newCols.second.c_str()])
         {
@@ -410,7 +410,7 @@ double vtkPairwiseExtractHistogram2D::GetMaximumBinCount()
     vtkExtractHistogram2D* f = this->GetHistogramFilter(i);
     if (f)
       {
-      maxcount = vtkstd::max(f->GetMaximumBinCount(),maxcount);
+      maxcount = std::max(f->GetMaximumBinCount(),maxcount);
       }
     }
   return maxcount;

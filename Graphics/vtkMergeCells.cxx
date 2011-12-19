@@ -38,8 +38,8 @@
 #include "vtkKdTree.h"
 #include "vtkModelMetadata.h"
 #include <stdlib.h>
-#include <vtkstd/map>
-#include <vtkstd/algorithm>
+#include <map>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkMergeCells);
 
@@ -48,7 +48,7 @@ vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
 class vtkMergeCellsSTLCloak
 {
 public:
-  vtkstd::map<vtkIdType, vtkIdType> IdTypeMap;
+  std::map<vtkIdType, vtkIdType> IdTypeMap;
 };
 
 vtkMergeCells::vtkMergeCells()
@@ -303,10 +303,10 @@ vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet *set, vtkIdType *idMap)
       {
       vtkIdType globalId = this->GlobalCellIdAccessGetId(oldCellId);
 
-      vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
+      std::pair<std::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
         this->GlobalCellIdMap->IdTypeMap.insert(
-           vtkstd::map<vtkIdType, vtkIdType>::value_type(globalId, nextCellId));
+           std::map<vtkIdType, vtkIdType>::value_type(globalId, nextCellId));
 
       if (inserted.second)
         {
@@ -389,10 +389,10 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
         {
         vtkIdType globalId = this->GlobalCellIdAccessGetId(id);
 
-        vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
+        std::pair<std::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
         this->GlobalCellIdMap->IdTypeMap.insert(
-            vtkstd::map<vtkIdType, vtkIdType>::value_type(globalId, nextLocalId));
+            std::map<vtkIdType, vtkIdType>::value_type(globalId, nextLocalId));
 
         if (inserted.second)
           {
@@ -649,10 +649,10 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet *set)
     {
     vtkIdType globalId = this->GlobalNodeIdAccessGetId(oldId);
 
-    vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
+    std::pair<std::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
       this->GlobalIdMap->IdTypeMap.insert(
-         vtkstd::map<vtkIdType, vtkIdType>::value_type(globalId, nextNewLocalId));
+         std::map<vtkIdType, vtkIdType>::value_type(globalId, nextNewLocalId));
 
     if (inserted.second)
       {
@@ -818,7 +818,7 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet *set)
     // points in the new set that are not duplicates of points
     // in the points0 array.
 
-    vtkstd::map<vtkIdType, vtkIdType> newIdMap;
+    std::map<vtkIdType, vtkIdType> newIdMap;
 
     if (npoints0 > 0)   // these were already a unique set
       {
@@ -828,7 +828,7 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet *set)
 
         if (EqClassRep != ptId)
           {
-          newIdMap.insert(vtkstd::map<vtkIdType, vtkIdType>::value_type(EqClassRep, ptId));
+          newIdMap.insert(std::map<vtkIdType, vtkIdType>::value_type(EqClassRep, ptId));
           }
         }
       }
@@ -841,10 +841,10 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet *set)
         continue;
       }
 
-      vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
+      std::pair<std::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
       
         newIdMap.insert(
-          vtkstd::map<vtkIdType, vtkIdType>::value_type(EqClassRep, nextNewLocalId));
+          std::map<vtkIdType, vtkIdType>::value_type(EqClassRep, nextNewLocalId));
 
       bool newEqClassRep = inserted.second;
       vtkIdType existingMappedId = inserted.first->second;

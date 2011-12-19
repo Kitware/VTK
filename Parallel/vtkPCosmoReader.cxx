@@ -81,9 +81,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStdString.h"
 #include "vtkCellArray.h"
 
-#include "vtkstd/vector"
+#include <vector>
 
-using namespace vtkstd;
+using namespace std;
 
 // RRU stuff
 #include "CosmoDefinition.h"

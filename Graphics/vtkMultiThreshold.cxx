@@ -242,7 +242,7 @@ int vtkMultiThreshold::AddIntervalSet(
 
   nk.Association = assoc;
   nk.Type = -1;
-  nk.Name = vtkstd::string( arrayName );
+  nk.Name = std::string( arrayName );
   nk.Component = component;
   nk.AllScalars = allScalars;
 
@@ -330,7 +330,7 @@ int vtkMultiThreshold::OutputSet( int setId )
 
 void vtkMultiThreshold::Reset()
 {
-  for ( vtkstd::vector<Set*>::iterator it = this->Sets.begin(); it != this->Sets.end(); ++it )
+  for ( std::vector<Set*>::iterator it = this->Sets.begin(); it != this->Sets.end(); ++it )
     {
     delete (*it);
     }
@@ -472,7 +472,7 @@ int vtkMultiThreshold::RequestData(
     }
   omesh->SetNumberOfBlocks(this->NumberOfOutputs);
 
-  vtkstd::vector<vtkUnstructuredGrid*> outv; // vector of output datasets
+  std::vector<vtkUnstructuredGrid*> outv; // vector of output datasets
   vtkUnstructuredGrid* ds;
   for ( i = 0; i < this->NumberOfOutputs; ++i )
     {
@@ -499,7 +499,7 @@ int vtkMultiThreshold::RequestData(
   vtkIdType inCell;
   vtkCellData* inCellData = in->GetCellData();
 
-  vtkstd::set<int> unresolvedOutputs;
+  std::set<int> unresolvedOutputs;
   // setStates is a vector of the same length as this->Sets.
   // Entries are INCONCLUSIVE, INCLUDE, or EXCLUDE for each interval set, and
   // some number between 0 and the number of entries in DependentSets[i] for each boolean set.
@@ -521,7 +521,7 @@ int vtkMultiThreshold::RequestData(
 
   // II. B. Verify that the requested input arrays exist on the inputs now that we have an input
   RuleMap::iterator aacn; // aacn = (association, attribute, component, norm)
-  vtkstd::vector<vtkDataArray*> NormArrays;
+  std::vector<vtkDataArray*> NormArrays;
   i = 0;
   for ( aacn = this->IntervalRules.begin(); aacn != this->IntervalRules.end(); ++aacn, ++i )
     {
@@ -628,8 +628,8 @@ int vtkMultiThreshold::FillInputPortInformation( int vtkNotUsed(port), vtkInform
 }
 
 void vtkMultiThreshold::UpdateDependents(
-  int id, vtkstd::set<int>& unresolvedOutputs, TruthTreeValues& setStates,
-  vtkCellData* inCellData, vtkIdType inCell, vtkGenericCell* cell, vtkstd::vector<vtkUnstructuredGrid*>& outv )
+  int id, std::set<int>& unresolvedOutputs, TruthTreeValues& setStates,
+  vtkCellData* inCellData, vtkIdType inCell, vtkGenericCell* cell, std::vector<vtkUnstructuredGrid*>& outv )
 {
   int lastMatch = setStates[id];
   // See if we can take care of boolean sets now.
@@ -762,7 +762,7 @@ void vtkMultiThreshold::UpdateDependents(
 void vtkMultiThreshold::PrintGraph( ostream& os )
 {
   os << "digraph MultiThreshold {" << endl;
-  for ( vtkstd::vector<Set*>::iterator it = this->Sets.begin(); it != this->Sets.end(); ++it )
+  for ( std::vector<Set*>::iterator it = this->Sets.begin(); it != this->Sets.end(); ++it )
     {
     (*it)->PrintNode( os );
     }

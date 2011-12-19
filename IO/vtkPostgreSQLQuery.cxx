@@ -855,9 +855,9 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
     // Catch NaN 
     if (rawData[0] == 'N' || rawData[0] == 'n')
       {
-      if (vtkstd::numeric_limits<float>::has_quiet_NaN)
+      if (std::numeric_limits<float>::has_quiet_NaN)
         {
-        finalResult = vtkstd::numeric_limits<float>::quiet_NaN();
+        finalResult = std::numeric_limits<float>::quiet_NaN();
         }
       else
         {
@@ -872,9 +872,9 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
       }
     else if (rawString == "Infinity")
       {
-      if (vtkstd::numeric_limits<float>::has_infinity)
+      if (std::numeric_limits<float>::has_infinity)
         {
-        finalResult = vtkstd::numeric_limits<float>::infinity();
+        finalResult = std::numeric_limits<float>::infinity();
         }
       else
         {
@@ -883,9 +883,9 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
       }
     else if (rawString == "-Infinity")
       {
-      if (vtkstd::numeric_limits<float>::has_infinity)
+      if (std::numeric_limits<float>::has_infinity)
         {
-        finalResult = - vtkstd::numeric_limits<float>::infinity();
+        finalResult = - std::numeric_limits<float>::infinity();
         }
       else
         {
@@ -953,9 +953,9 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
     // Catch NaN 
     if (rawData[0] == 'N' || rawData[0] == 'n')
       {
-      if (vtkstd::numeric_limits<double>::has_quiet_NaN)
+      if (std::numeric_limits<double>::has_quiet_NaN)
         {
-        finalResult = vtkstd::numeric_limits<double>::quiet_NaN();
+        finalResult = std::numeric_limits<double>::quiet_NaN();
         }
       else
         {
@@ -970,9 +970,9 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
       }
     else if (rawString == "Infinity")
       {
-      if (vtkstd::numeric_limits<double>::has_infinity)
+      if (std::numeric_limits<double>::has_infinity)
         {
-        finalResult = vtkstd::numeric_limits<double>::infinity();
+        finalResult = std::numeric_limits<double>::infinity();
         }
       else
         {
@@ -981,9 +981,9 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
       }
     else if (rawString == "-Infinity")
       {
-      if (vtkstd::numeric_limits<double>::has_infinity)
+      if (std::numeric_limits<double>::has_infinity)
         {
-        finalResult = - vtkstd::numeric_limits<double>::infinity();
+        finalResult = - std::numeric_limits<double>::infinity();
         }
       else
         {

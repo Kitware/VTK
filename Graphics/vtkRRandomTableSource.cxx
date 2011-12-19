@@ -30,8 +30,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkVariant.h"
 
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <map>
+#include <string>
 #include <sstream>
 
 #include "R.h"
@@ -43,7 +43,7 @@ class ColumnStatsInfo
 {
 public:
 
-  vtkstd::string name;
+  std::string name;
   vtkRRandomTableSource::StatDistType t;
   double param1;
   double param2;
@@ -56,7 +56,7 @@ class vtkRrtsimplementation
 public:
 
   vtkRInterface* ri;
-  vtkstd::vector<ColumnStatsInfo> col_list;
+  std::vector<ColumnStatsInfo> col_list;
 
 };
 
@@ -398,7 +398,7 @@ int vtkRRandomTableSource::RequestData(
   vtkTable* output1 = vtkTable::SafeDownCast(
   outputInfo1->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkstd::vector<ColumnStatsInfo>::iterator it; 
+  std::vector<ColumnStatsInfo>::iterator it;
   vtkAbstractArray* arr;
 
   output1->Initialize();

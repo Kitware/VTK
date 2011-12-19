@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include <assert.h>
-#include <vtkstd/algorithm> // for vtkstd::min()/vtkstd::max()
+#include <algorithm> // for std::min()/std::max()
 
 vtkStandardNewMacro(vtkSCurveSpline);
 
@@ -89,7 +89,7 @@ double vtkSCurveSpline::Evaluate (double t)
                              + (6*this->NodeWeight)))
       - this->NodeWeight;
     // clamp t
-    t = vtkstd::max(vtkstd::min(t+shift,1.0),0.0);
+    t = std::max(std::min(t+shift,1.0),0.0);
     }
   
   // evaluate intervals value y

@@ -14,8 +14,8 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <map>
+#include <vector>
 #include <vtksys/ios/sstream>
 
 #include "alglib/svd.h"
@@ -209,8 +209,8 @@ public:
 
   virtual void operator () ( vtkVariantArray* result, vtkIdType row );
 
-  vtkstd::vector<double> EigenValues;
-  vtkstd::vector<vtkstd::vector<double> > EigenVectors;
+  std::vector<double> EigenValues;
+  std::vector<std::vector<double> > EigenVectors;
   vtkIdType BasisSize;
 };
 
@@ -327,7 +327,7 @@ bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
   // Could be done here by pre-multiplying this->EigenVectors by factors.
   for ( i = 0; i < this->BasisSize; ++ i )
     {
-    vtkstd::vector<double> evec;
+    std::vector<double> evec;
     for ( j = 0; j < m; ++ j )
       {
       evec.push_back( reqModel->GetValue( m + 1 + i, j + 2 ).ToDouble() );
@@ -342,7 +342,7 @@ void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 {
   vtkIdType i;
   result->SetNumberOfValues( this->BasisSize );
-  vtkstd::vector<vtkstd::vector<double> >::iterator it;
+  std::vector<std::vector<double> >::iterator it;
   vtkIdType m = this->GetNumberOfColumns();
   for ( i = 0; i < m; ++ i )
     {
@@ -352,8 +352,8 @@ void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
   for ( it = this->EigenVectors.begin(); it != this->EigenVectors.end(); ++ it, ++ i )
     {
     double cv = 0.;
-    vtkstd::vector<double>::iterator tvit;
-    vtkstd::vector<double>::iterator evit = this->Tuple.begin();
+    std::vector<double>::iterator tvit;
+    std::vector<double>::iterator evit = this->Tuple.begin();
     for ( tvit = it->begin(); tvit != it->end(); ++ tvit, ++ evit )
       {
       cv += (*evit) * (*tvit);
@@ -504,18 +504,18 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
 {
   vtkIdType i, j;
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
-  vtkstd::map<vtkStdString,vtkIdType> colNames;
+  std::map<vtkStdString,vtkIdType> colNames;
   // Get a list of columns of interest for this request
   for ( i = 0; i < m; ++ i )
     {
     colNames[ reqModel->GetColumn( i + 2 )->GetName() ] = i;
     }
   // Turn normSpec into a useful array.
-  vtkstd::map<vtkstd::pair<vtkIdType,vtkIdType>,double> factor;
+  std::map<std::pair<vtkIdType,vtkIdType>,double> factor;
   vtkIdType n = normSpec->GetNumberOfRows();
   for ( vtkIdType r = 0; r < n; ++ r )
     {
-    vtkstd::map<vtkStdString,vtkIdType>::iterator it;
+    std::map<vtkStdString,vtkIdType>::iterator it;
     if ( ( it = colNames.find( normSpec->GetValue( r, 0 ).ToString() ) ) == colNames.end() )
       {
       continue;
@@ -532,12 +532,12 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
       i = j;
       j = tmp;
       }
-    factor[vtkstd::pair<vtkIdType,vtkIdType>( i, j )] = normSpec->GetValue( r, 2 ).ToDouble();
+    factor[std::pair<vtkIdType,vtkIdType>( i, j )] = normSpec->GetValue( r, 2 ).ToDouble();
     }
   // Now normalize cov, recording any missing factors along the way.
   vtksys_ios::ostringstream missing;
   bool gotMissing = false;
-  vtkstd::map<vtkstd::pair<vtkIdType,vtkIdType>,double>::iterator fit;
+  std::map<std::pair<vtkIdType,vtkIdType>,double>::iterator fit;
   if ( triangle )
     { // Normalization factors are provided for the upper triangular portion of the covariance matrix.
     for ( i = 0; i < m; ++ i )
@@ -545,7 +545,7 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
       for ( j = i; j < m; ++ j )
         {
         double v;
-        fit = factor.find( vtkstd::pair<vtkIdType,vtkIdType>( i, j ) );
+        fit = factor.find( std::pair<vtkIdType,vtkIdType>( i, j ) );
         if ( fit == factor.end() )
           {
           v = 1.;
@@ -574,7 +574,7 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
       {
       double v;
       double vsq;
-      fit = factor.find( vtkstd::pair<vtkIdType,vtkIdType>( i, i ) );
+      fit = factor.find( std::pair<vtkIdType,vtkIdType>( i, i ) );
       if ( fit == factor.end() )
         {
         vsq = v = 1.;
@@ -1064,7 +1064,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
       }
 
     // Create an array to hold the assess values for all the input data
-    vtkstd::vector<double*> assessValues;
+    std::vector<double*> assessValues;
     int comp;
     for ( comp = 0; comp < pcafunc->BasisSize; ++ comp )
       {

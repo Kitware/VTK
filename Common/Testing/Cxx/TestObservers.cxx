@@ -18,12 +18,12 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-#include <vtkstd/map>
+#include <map>
 
 class vtkHandler : public vtkObject
 {
 public:
-  static vtkstd::map<int, int> EventCounts;
+  static std::map<int, int> EventCounts;
   static int VoidEventCounts;
 public:
   static vtkHandler* New();
@@ -38,12 +38,12 @@ public:
 vtkStandardNewMacro(vtkHandler);
 
 int vtkHandler::VoidEventCounts = 0;
-vtkstd::map<int, int> vtkHandler::EventCounts;
+std::map<int, int> vtkHandler::EventCounts;
 
 class OtherHandler
 {
 public:
-  static vtkstd::map<int, int> EventCounts;
+  static std::map<int, int> EventCounts;
   static int VoidEventCounts;
 public:
   void VoidCallback() { this->VoidEventCounts++; }
@@ -54,7 +54,7 @@ public:
 };
 
 int OtherHandler::VoidEventCounts = 0;
-vtkstd::map<int, int> OtherHandler::EventCounts;
+std::map<int, int> OtherHandler::EventCounts;
 
 int TestObservers(int, char*[])
 {

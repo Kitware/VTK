@@ -48,6 +48,7 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
   this->AmoebaValues = NULL;
   this->AmoebaSum = NULL;
   this->AmoebaSize = 0;
+  this->AmoebaHighValue = 0;
   this->AmoebaNStepsNoImprovement = 0;
 }
   
@@ -741,7 +742,8 @@ int vtkAmoebaMinimizer::PerformAmoeba()
       }
     }
 
-  if( vtkAmoebaNumericallyClose( this->AmoebaValues[low], 
+  if( this->AmoebaValues[high] == this->AmoebaHighValue ||
+      vtkAmoebaNumericallyClose( this->AmoebaValues[low],
                                  this->AmoebaValues[high],
                                  this->Tolerance ) )
     {
@@ -755,6 +757,8 @@ int vtkAmoebaMinimizer::PerformAmoeba()
     {
     this->AmoebaNStepsNoImprovement = 0;
     }
+
+  this->AmoebaHighValue = this->AmoebaValues[high];
 
   y_try = this->TryAmoeba( this->AmoebaSum, high, -1.0 );
 

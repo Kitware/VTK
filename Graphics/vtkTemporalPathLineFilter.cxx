@@ -26,10 +26,10 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 //
-#include <vtkstd/vector>
-#include <vtkstd/list>
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <vector>
+#include <list>
+#include <map>
+#include <string>
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
@@ -37,9 +37,9 @@ vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
 typedef struct { double x[3]; }   Position;
-typedef vtkstd::vector<Position>  CoordList;
-typedef vtkstd::vector<vtkIdType> IdList;
-typedef vtkstd::vector<vtkSmartPointer<vtkAbstractArray> > FieldList;
+typedef std::vector<Position>  CoordList;
+typedef std::vector<vtkIdType> IdList;
+typedef std::vector<vtkSmartPointer<vtkAbstractArray> > FieldList;
 
 class ParticleTrail : public vtkObject {
   public:
@@ -70,30 +70,30 @@ vtkStandardNewMacro(ParticleTrail);
 long int ParticleTrail::UniqueId=0;
 
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
-typedef vtkstd::pair<vtkIdType, TrailPointer> TrailMapType;
+typedef std::pair<vtkIdType, TrailPointer> TrailMapType;
 
 class vtkTemporalPathLineFilterInternals : public vtkObject {
   public:
     static vtkTemporalPathLineFilterInternals *New();
     vtkTypeMacro(vtkTemporalPathLineFilterInternals, vtkObject);
     //
-    typedef vtkstd::map<vtkIdType, TrailPointer>::iterator TrailIterator;
-    vtkstd::map<vtkIdType, TrailPointer> Trails;
+    typedef std::map<vtkIdType, TrailPointer>::iterator TrailIterator;
+    std::map<vtkIdType, TrailPointer> Trails;
     //
-    vtkstd::string                  LastIdArrayName;
-    vtkstd::map<int, double>        TimeStepSequence;
+    std::string                  LastIdArrayName;
+    std::map<int, double>        TimeStepSequence;
     //
     // This specifies the order of the arrays in the trails fields.  These are
     // valid in between calls to RequestData.
-    vtkstd::vector<vtkStdString>    TrailFieldNames;
+    std::vector<vtkStdString>    TrailFieldNames;
     // Input arrays corresponding to the entries in TrailFieldNames.  NULL arrays
     // indicate missing arrays.  This field is only valid during a call to
     // RequestData.
-    vtkstd::vector<vtkAbstractArray*> InputFieldArrays;
+    std::vector<vtkAbstractArray*> InputFieldArrays;
 };
 vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
-typedef vtkstd::map<int, double>::iterator TimeStepIterator;
+typedef std::map<int, double>::iterator TimeStepIterator;
 //----------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
@@ -186,10 +186,10 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
   vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.find(i);
   if (t==this->Internals->Trails.end()) {
     trail = vtkSmartPointer<ParticleTrail>::New();
-    vtkstd::pair<vtkTemporalPathLineFilterInternals::TrailIterator, bool> result =
+    std::pair<vtkTemporalPathLineFilterInternals::TrailIterator, bool> result =
       this->Internals->Trails.insert(TrailMapType(i,trail));
     if (!result.second) {
-      throw vtkstd::runtime_error("Unexpected map error");
+      throw std::runtime_error("Unexpected map error");
     }
     // new trail created, reserve memory now for efficiency
     trail = result.first->second;
@@ -323,7 +323,7 @@ int vtkTemporalPathLineFilter::RequestData(
   vtkPointData  *pointPointData = output1->GetPointData();
   //
   vtkInformation *doInfo = input->GetInformation();
-  vtkstd::vector<double> timesteps;
+  std::vector<double> timesteps;
   if (doInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
   {
     int NumberOfInputTimeSteps = doInfo->Length(vtkDataObject::DATA_TIME_STEPS());
@@ -401,7 +401,7 @@ int vtkTemporalPathLineFilter::RequestData(
       }
     }
 
-  vtkstd::vector<vtkAbstractArray*> outputFieldArrays;
+  std::vector<vtkAbstractArray*> outputFieldArrays;
   this->Internals->InputFieldArrays.resize(
                                        this->Internals->TrailFieldNames.size());
   outputFieldArrays.resize(this->Internals->TrailFieldNames.size());
@@ -490,7 +490,7 @@ int vtkTemporalPathLineFilter::RequestData(
   // check the 'alive' flag and remove any that are dead
   //
   if (!this->KeepDeadTrails) {
-    vtkstd::vector<vtkIdType> deadIds;
+    std::vector<vtkIdType> deadIds;
     deadIds.reserve(this->Internals->Trails.size());
     for (vtkTemporalPathLineFilterInternals::TrailIterator t=
       this->Internals->Trails.begin(); 
@@ -498,7 +498,7 @@ int vtkTemporalPathLineFilter::RequestData(
     {
       if (!t->second->alive) deadIds.push_back(t->first);
     }
-    for (vtkstd::vector<vtkIdType>::iterator it=deadIds.begin(); it!=deadIds.end(); ++it) {
+    for (std::vector<vtkIdType>::iterator it=deadIds.begin(); it!=deadIds.end(); ++it) {
       this->Internals->Trails.erase(*it);
     }
   }
@@ -520,7 +520,7 @@ int vtkTemporalPathLineFilter::RequestData(
   this->TrailId->Allocate(size*this->MaxTrackLength);
   this->TrailId->SetName("TrailId");
   //
-  vtkstd::vector<vtkIdType> TempIds(this->MaxTrackLength);
+  std::vector<vtkIdType> TempIds(this->MaxTrackLength);
   vtkIdType VertexId=0;
   //
   for (vtkTemporalPathLineFilterInternals::TrailIterator t=

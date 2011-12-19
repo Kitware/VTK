@@ -33,11 +33,11 @@
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkObjectFactory.h"
 
-#include "vtksys/ios/sstream"
-#include "vtkstd/string"
+#include <vtksys/ios/sstream>
+#include <string>
 #include "vtkSmartPointer.h"
 using vtksys_ios::ostringstream;
-using vtkstd::string;
+using std::string;
 
 // Here are some default shape functions weights which
 // we will use to create dictionaries in a gvien data set.
