@@ -142,3 +142,8 @@ void vtkEventQtSlotConnect::RemoveConnection(vtkQtConnection* conn)
     }
 }
 
+int vtkEventQtSlotConnect::GetNumberOfConnections() const
+{
+  return static_cast<int>(this->Connections->size());
+}
+
