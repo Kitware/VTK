@@ -48,7 +48,7 @@
 #include "vtkgl.h"
 
 #include <math.h>
-#include <algorithm>
+#include <vtkstd/algorithm>
 #include <vtksys/SystemTools.hxx>
 
 
@@ -96,9 +96,9 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->FloatingPointFrameBufferResourcesAllocated = false;
 
   this->Internals = new vtkOpenGLProjectedTetrahedraMapper::vtkInternals;
-  this->Internals->FrameBufferObjectId = static_cast<GLuint>(-1);
+  this->Internals->FrameBufferObjectId = 0;
   this->Internals->RenderBufferObjectIds[0]
-    = this->Internals->RenderBufferObjectIds[1] = static_cast<GLuint>(-1);
+      = this->Internals->RenderBufferObjectIds[1] = 0;
   this->Internals->OpacityTexture = 0;
 
   this->UseFloatingPointFrameBuffer = true;
@@ -109,10 +109,7 @@ vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
   this->ReleaseGraphicsResources(NULL);
   this->TransformedPoints->Delete();
   this->Colors->Delete();
-  if (this->Internals)
-    {
-    delete this->Internals;
-    }
+
   delete[] this->SqrtTable;
 }
 
@@ -233,10 +230,11 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
       this->FloatingPointFrameBufferResourcesAllocated = false;
 
       vtkgl::DeleteFramebuffers(1, &this->Internals->FrameBufferObjectId);
-      this->Internals->FrameBufferObjectId = static_cast<GLuint>(-1);
+      this->Internals->FrameBufferObjectId = 0;
 
       vtkgl::DeleteFramebuffers(2, this->Internals->RenderBufferObjectIds);
-      this->Internals->RenderBufferObjectIds[0] = static_cast<GLuint>(-1);
+      this->Internals->RenderBufferObjectIds[0] = 0;
+      this->Internals->RenderBufferObjectIds[1] = 0;
     }
 
   this->Superclass::ReleaseGraphicsResources(win);
@@ -539,7 +537,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   double tmp_mat[16];
 
   // VTK's matrix functions use doubles.
-  std::copy(projection_mat, projection_mat+16, tmp_mat);
+  vtkstd::copy(projection_mat, projection_mat+16, tmp_mat);
   // VTK and OpenGL store their matrices differently.  Correct.
   vtkMatrix4x4::Transpose(tmp_mat, tmp_mat);
   // Take the inverse.
@@ -547,7 +545,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   // Restore back to OpenGL form.
   vtkMatrix4x4::Transpose(tmp_mat, tmp_mat);
   // Copy back to float for faster computation.
-  std::copy(tmp_mat, tmp_mat+16, inverse_projection_mat);
+  vtkstd::copy(tmp_mat, tmp_mat+16, inverse_projection_mat);
 
   // Check to see if we can just do a linear depth correction from clipping
   // space to eye space.
@@ -840,7 +838,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
           // Flip segment1 so that alpha is >= 1.  P1 and P2 are also
           // flipped as are C1-C2 and T1-T2.  Note that this will
           // invalidate A.  B and beta are unaffected.
-          std::swap(segment1[0], segment1[1]);
+          vtkstd::swap(segment1[0], segment1[1]);
           alpha = 1 - alpha;
           }
         // From here on, we can assume P2 is the "thick" point.
