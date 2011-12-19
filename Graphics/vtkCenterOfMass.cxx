@@ -23,54 +23,67 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+#include <cassert>
+
 vtkStandardNewMacro(vtkCenterOfMass);
 
 vtkCenterOfMass::vtkCenterOfMass()
 {
   this->UseScalarsAsWeights = false;
+
+  this->SetNumberOfOutputPorts(0);
 }
 
-void vtkCenterOfMass::ComputeCenterOfMass(vtkPointSet* input, double center[3], bool useWeights)
+void vtkCenterOfMass::ComputeCenterOfMass(
+  vtkPoints* points, vtkDataArray *scalars, double center[3])
 {
+  vtkIdType n = points->GetNumberOfPoints();
   // Initialize the center to zero
   center[0] = 0.0;
   center[1] = 0.0;
   center[2] = 0.0;
-  if(useWeights)
+
+  assert("pre: no points" && n > 0);
+
+  if(scalars)
     {
-    if(!input->GetPointData()->GetScalars())
+    // If weights are to be used
+    double weightTotal = 0.0;
+
+    assert("pre: wrong array size" && scalars->GetNumberOfTuples() == n);
+
+    for(vtkIdType i = 0; i < n; i++)
       {
-      vtkErrorWithObjectMacro(input, "To use weights PointData::Scalars must be set!");
-      return;
+      double point[3];
+      points->GetPoint(i, point);
+
+      double weight = scalars->GetComponent(0, i);
+      weightTotal += weight;
+
+      vtkMath::MultiplyScalar(point, weight);
+      vtkMath::Add(center, point, center);
+      }
+
+    assert("pre: sum of weights must be positive" && weightTotal > 0.0);
+
+    if (weightTotal > 0.0)
+      {
+      vtkMath::MultiplyScalar(center, 1.0/weightTotal);
       }
     }
-
-  double weightTotal = 0.0;
-
-  vtkDataArray* scalars = input->GetPointData()->GetScalars();
-
-  for(vtkIdType i = 0; i < input->GetNumberOfPoints(); i++)
+  else
     {
-    double point[3];
-    input->GetPoint(i, point);
-
-    // The weights will all be 1 if we are not using the scalars as weights
-    double weight = 1.0;
-    if(useWeights)
+    // No weights
+    for(vtkIdType i = 0; i < n; i++)
       {
-      weight = scalars->GetComponent(0,i);
+      double point[3];
+      points->GetPoint(i, point);
+
+      vtkMath::Add(center, point, center);
       }
-    weightTotal += weight;
-    vtkMath::MultiplyScalar(point, weight);
-    vtkMath::Add(center, point, center);
-    }
 
-  if(weightTotal <= 0)
-    {
-    vtkErrorWithObjectMacro(scalars, "The sum of the weights must be > 0!");
+    vtkMath::MultiplyScalar(center, 1.0/n);
     }
-
-  vtkMath::MultiplyScalar(center, 1./weightTotal);
 }
 
 int vtkCenterOfMass::RequestData(
@@ -82,11 +95,29 @@ int vtkCenterOfMass::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkPointSet* input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if(input->GetNumberOfPoints() == 0)
+
+  vtkPoints *points = input->GetPoints();
+
+  if(points == 0 || points->GetNumberOfPoints() == 0)
     {
-    vtkErrorMacro(<<"Input must have at least 1 point!");
+    vtkErrorMacro("Input must have at least 1 point!");
+    return 1;
     }
-  this->ComputeCenterOfMass(input, this->Center, this->UseScalarsAsWeights);
+
+  vtkDataArray *scalars = 0;
+  if (this->UseScalarsAsWeights)
+    {
+    scalars = input->GetPointData()->GetScalars();
+
+    if(!scalars)
+      {
+      vtkErrorWithObjectMacro(
+        input, "To use weights PointData::Scalars must be set!");
+      return 1;
+      }
+    }
+
+  this->ComputeCenterOfMass(points, scalars, this->Center);
 
   return 1;
 }

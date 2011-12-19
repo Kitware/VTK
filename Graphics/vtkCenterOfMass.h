@@ -27,6 +27,9 @@
 
 #include "vtkPointSetAlgorithm.h"
 
+class vtkPoints;
+class vtkDataArray;
+
 class VTK_GRAPHICS_EXPORT vtkCenterOfMass : public vtkPointSetAlgorithm
 {
 public:
@@ -47,8 +50,13 @@ public:
   // Description:
   // This function is called by RequestData. It exists so that
   // other classes may use this computation without constructing
-  // a vtkCenterOfMass object.
-  static void ComputeCenterOfMass(vtkPointSet* input, double center[3], bool useWeights);
+  // a vtkCenterOfMass object.  The scalars can be set to NULL
+  // if all points are to be weighted equally.  If scalars are
+  // used, it is the caller's responsibility to ensure that the
+  // number of scalars matches the number of points, and that
+  // the sum of the scalars is a positive value.
+  static void ComputeCenterOfMass(
+    vtkPoints* input, vtkDataArray *scalars, double center[3]);
 
 protected:
   vtkCenterOfMass();
