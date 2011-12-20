@@ -62,6 +62,27 @@ public:
   // Description:
   // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
   static int GetDataDimension(int dataDescription);
+  static int GetDataDimension( int ext[6] );
+
+  // Description:
+  // Computes the structured grid dimensions based on the given extent.
+  static void GetDimensionsFromExtent( int ext[6], int dims[3] );
+
+  // Description:
+  // Returns the cell dimensions, i.e., the number of cells along the i,j,k
+  // for the grid with the given grid extent. Note, the grid extent is the
+  // number of points.
+  static void GetCellDimensionsFromExtent( int ext[6], int celldims[3] );
+
+  // Description:
+  // Given the global structured coordinates for a point or cell, ijk, w.r.t.
+  // the whole point or cell extent respectively, as well as, the global sub-
+  // grid extent, this method compute the corresponding local structured
+  // coordinates, lijk, starting from 0.
+  // For example, consider a sub-grid with global extent with i,j,k \in [4,8],
+  // i.e., [4,8,4,8,4,8], the local extent is [0,4] \forall i,j,k.
+  static void GetLocalStructuredCoordinates(
+      int ijk[3], int ext[6], int lijk[3] );
 
   // Description:
   // Get the points defining a cell. (See vtkDataSet for more info.)
@@ -81,30 +102,44 @@ public:
   // Description:
   // Given a location in structured coordinates (i-j-k), and the extent
   // of the structured dataset, return the point id.
-  static vtkIdType ComputePointIdForExtent(int extent[6], int ijk[3]) {
+  static vtkIdType ComputePointIdForExtent(int extent[6], int ijk[3])
+  {
+    int dataDescription =
+        vtkStructuredData::GetDataDescriptionFromExtent( extent );
+
+    switch( dataDescription )
+      {
+
+      }
     vtkIdType ydim = static_cast<vtkIdType>(extent[3] - extent[2] + 1);
     vtkIdType xdim = static_cast<vtkIdType>(extent[1] - extent[0] + 1);
     return ((ijk[2] - extent[4])*ydim + (ijk[1] - extent[2]))*xdim 
-            + (ijk[0] - extent[0]); }
+            + (ijk[0] - extent[0]);
+  }
 
   // Description:
   // Given a location in structured coordinates (i-j-k), and the extent
   // of the structured dataset, return the point id.
-  static vtkIdType ComputeCellIdForExtent(int extent[6], int ijk[3]) {
+  static vtkIdType ComputeCellIdForExtent(int extent[6], int ijk[3])
+  {
     vtkIdType ydim = static_cast<vtkIdType>(extent[3] - extent[2]);
     if (ydim == 0) ydim = 1;
     vtkIdType xdim = static_cast<vtkIdType>(extent[1] - extent[0]);
     if (xdim == 0) xdim = 1;
     return ((ijk[2] - extent[4])*(ydim) + (ijk[1] - extent[2]))*(xdim)
-            + (ijk[0] - extent[0]); }
+            + (ijk[0] - extent[0]);
+  }
 
  // Description:
   // Given a location in structured coordinates (i-j-k), and the dimensions
   // of the structured dataset, return the point id.  This method does not
   // adjust for the beginning of the extent.
-  static vtkIdType ComputePointId(int dim[3], int ijk[3]) {
+  static vtkIdType ComputePointId(int dim[3], int ijk[3])
+  {
     return (ijk[2]*static_cast<vtkIdType>(dim[1]) + ijk[1])*dim[0] + ijk[0];}
-  static vtkIdType ComputePointId( int dim[3], int i, int j, int k ){
+
+  static vtkIdType ComputePointId( int dim[3], int i, int j, int k )
+  {
     int ijk[3]; ijk[0] = i; ijk[1] = j; ijk[2] = k;
     return( ComputePointId( dim, ijk) );
   }
@@ -113,8 +148,10 @@ public:
   // Given a location in structured coordinates (i-j-k), and the dimensions
   // of the structured dataset, return the cell id.  This method does not
   // adjust for the beginning of the extent.
-  static vtkIdType ComputeCellId(int dim[3], int ijk[3]) {
-    return (ijk[2]*static_cast<vtkIdType>(dim[1]-1) + ijk[1])*(dim[0]-1) + ijk[0];}
+  static vtkIdType ComputeCellId(int dim[3], int ijk[3])
+  {
+    return (ijk[2]*static_cast<vtkIdType>(dim[1]-1) + ijk[1])*(dim[0]-1) + ijk[0];
+  }
 
   // Description:
   // Given a cellId and grid dimensions 'dim', get the structured coordinates
