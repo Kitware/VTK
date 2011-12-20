@@ -955,7 +955,7 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
   int planeId, plane2Id;
   double tMin, tMax;
   if (!vtkBox::IntersectWithLine(bounds, x1, x2, tMin, tMax, 0, 0,
-        planeId, plane2Id) || tMin < t1 || tMin > t2)
+        planeId, plane2Id))
     {
     return VTK_DOUBLE_MAX;
     }
@@ -973,6 +973,12 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
       {
       tMin = w1/(w1 - w2);
       }
+    }
+
+  // Make sure that intersection is within clipping planes
+  if (tMin < t1 || tMin > t2)
+    {
+    return VTK_DOUBLE_MAX;
     }
 
   if (tMin < this->GlobalTMin)
