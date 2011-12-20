@@ -548,8 +548,8 @@ int vtkYoungsMaterialInterface::RequestData(
         {
         vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume.c_str());
         bool materialHasBlock = ((*it).blocks.find(composite_index)!= (*it).blocks.end());
-        if ( this->UseAllBlocks
-             || ( materialHasBlock && fraction != 0 ) )
+        if ( fraction && 
+             ( this->UseAllBlocks ||materialHasBlock ) )
           {
           double range[2];
           fraction->GetRange(range);
