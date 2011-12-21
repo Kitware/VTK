@@ -28,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkIdList.h"
 #include "vtkAMRGridIndexEncoder.h"
 #include "vtkCompositeDataPipeline.h"
@@ -65,12 +66,21 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
   this->origin[0] = this->origin[1] = this->origin[2] = 0.0;
   this->Bounds[0] = this->Bounds[1] = this->Bounds[2] = 
     this->Bounds[3] = this->Bounds[4] = this->Bounds[5] = 0.0;
-
+  this->ParentInformation = NULL;
+  this->ParentInformationMap = NULL;
+  this->ChildrenInformation = NULL;
+  this->ChildrenInformationMap = NULL;
+  this->LevelMap = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 {
+  AssignUnsignedIntArray(&(this->LevelMap), NULL);
+  AssignUnsignedIntArray(&(this->ChildrenInformation), NULL);
+  AssignUnsignedIntArray(&(this->ChildrenInformationMap), NULL);
+  AssignUnsignedIntArray(&(this->ParentInformation), NULL);
+  AssignUnsignedIntArray(&(this->ParentInformationMap), NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -600,36 +610,164 @@ void vtkHierarchicalBoxDataSet::GetHigherResolutionCoarsenedBoxes(
   if( levelIdx == this->GetNumberOfLevels()-1 )
     return;
 
+  if( !this->HasLevelMetaData(levelIdx) )
+    {
+    vtkGenericWarningMacro(
+                           "No Level MetaData associated with this instance!\n" );
+    return;
+    }
   unsigned int numDataSets = this->GetNumberOfDataSets( levelIdx+1 );
   unsigned int dataSetIdx  = 0;
+  int refinementRatio = this->GetRefinementRatio(levelIdx);
+  assert( "Invalid refinement ratio!" && (refinementRatio >= 2)  );
+
   for( ; dataSetIdx<numDataSets; dataSetIdx++)
     {
-      if( !this->HasMetaData(levelIdx+1, dataSetIdx) ||
-          !this->HasLevelMetaData(levelIdx))
+    if( !this->HasMetaData(levelIdx+1, dataSetIdx) )
+      {
+      vtkGenericWarningMacro(
+                             "No MetaData associated with this instance!\n" );
+      continue;
+      }
+    
+    vtkAMRBox coarsebox;
+    this->GetMetaData( levelIdx+1, dataSetIdx, coarsebox );
+    
+    coarsebox.Coarsen(refinementRatio);
+    boxes.push_back(coarsebox);
+    
+    } // END for all datasets
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::GetBoxesFromLevel(const unsigned int levelIdx,
+                                                  vtkAMRBoxList &boxes)
+{
+  boxes.clear();
+  unsigned int numDataSets = this->GetNumberOfDataSets( levelIdx);
+  unsigned int dataSetIdx  = 0;
+  vtkAMRBox box;
+  for( ; dataSetIdx<numDataSets; dataSetIdx++)
+    {
+    if( !this->HasMetaData(levelIdx, dataSetIdx) )
+      {
+      vtkGenericWarningMacro(
+                             "No MetaData associated with this instance!\n" );
+      continue;
+      }
+    
+    this->GetMetaData( levelIdx, dataSetIdx, box );    
+    boxes.push_back(box);
+    } // END for all datasets
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::
+GenerateParentChildLevelInformation(const unsigned int levelIdx,
+                                    vtkAMRBoxList &lboxes,
+                                    vtkAMRBoxList &nlboxes)
+{
+  if( lboxes.empty() )
+    {
+    nlboxes.clear();
+    return;
+    }
+
+  // Get the boxes for the next level
+  this->GetBoxesFromLevel(levelIdx+1, nlboxes);
+  
+  vtkAMRBoxList::iterator it, end=lboxes.end(), nit, nend=nlboxes.end();
+
+  // Get the refinement ratio between this and the next level
+  int refinementRatio = this->GetRefinementRatio(levelIdx);
+  assert( "Invalid refinement ratio!" && (refinementRatio >= 2)  );
+
+  // for the child parent relationships we need an array to hold how many
+  // parents each child has - for trees this will always be 1
+  vtkstd::vector<unsigned int> parentsVec;
+  int i, j, n = (int)nlboxes.size();
+  int childInfoStartIndex = this->ChildrenInformation->GetNumberOfTuples();
+  int numChildren;
+  int childrenSizePos;
+  parentsVec.resize(n);
+  parentsVec.assign(0, n);
+  unsigned int lbid, nlbid;
+  // For each block determine which of the higher res blocks intersect it 
+  // (they will be considered its children)
+  for (it = lboxes.begin(), lbid = 0; it != end; ++it, ++lbid)
+    {
+    // Get the box and refine it to its child's level
+    it->Refine(refinementRatio);
+    // Get the position of where the number of children information is going to be
+    // stored for this block
+    childrenSizePos = this->ChildrenInformation->GetNumberOfTuples();
+    // Store this starting position in the children map and insert an initial number of
+    // children size of 0 into the children information
+    this->ChildrenInformationMap->InsertNextValue(childrenSizePos);
+    this->ChildrenInformation->InsertNextValue(0); // Initially the block has no children
+    numChildren = 0;
+    // Now see if the block intersects any of the boxes in the more refined level
+    for (nit = nlboxes.begin(), nlbid = 0; nit != nend; ++nit, ++nlbid)
+      {
+      if (!it->DoesIntersect(*nit))
         {
-          if( !this->HasMetaData(levelIdx+1, dataSetIdx) )
-            {
-              vtkGenericWarningMacro(
-               "No MetaData associated with this instance!\n" );
-            }
-          if( !this->HasLevelMetaData(levelIdx) )
-            {
-              vtkGenericWarningMacro(
-               "No Level MetaData associated with this instance!\n" );
-            }
-          continue;
+        continue; // No Intersection
         }
 
-      vtkAMRBox coarsebox;
-      this->GetMetaData( levelIdx+1, dataSetIdx, coarsebox );
-      int refinementRatio = this->GetRefinementRatio(levelIdx);
-      assert( "Invalid refinement ratio!" && (refinementRatio >= 2)  );
+      // Insert the "child"
+      this->ChildrenInformation->InsertNextValue(nlbid);
+      ++parentsVec[nlbid];
+      ++numChildren;
+      }
+    // OK - we've processed this block so lets update its number of children
+    if (numChildren)
+      {
+      this->ChildrenInformation->SetValue(childrenSizePos, numChildren);
+      }
+    }
 
-      coarsebox.Coarsen(refinementRatio);
-      boxes.push_back(coarsebox);
+  // At this point the Parent and Children Maps should be the same size
+  assert("Children and Parent Maps are not the same size!" && 
+         (this->ChildrenInformationMap->GetNumberOfTuples() == 
+          this->ParentInformationMap->GetNumberOfTuples()));
 
-    } // END for all datasets
+  // Store where the next level blocks will begin
+  this->LevelMap->SetValue(levelIdx+1, this->ChildrenInformationMap->GetNumberOfTuples());
 
+  // Now we need to create the Parent Information of the next level based on
+  // the Children information we just created - First based on the parent information
+  // lets insert the number of parents and dummy data for the parent block id
+  for (nit = nlboxes.begin(), nlbid = 0; nit != nend; ++nit, ++nlbid)
+    {
+    n = parentsVec[nlbid];
+    // n should never be 0 - it must always have a parent!
+    assert("Found Orphan Block" && (n > 0));
+    this->ParentInformationMap->InsertNextValue(this->ParentInformation->InsertNextValue(n));
+    // Now lets store where we are going to start storing the parent block ids for this block
+    parentsVec[nlbid] = this->ParentInformation->InsertNextValue(0);
+    // Now store dummy values for the rest of the ids as well
+    for (i = 1; i < n; i++)
+      {
+      this->ParentInformation->InsertNextValue(0);
+      }
+    }
+  // Now we can go through the Children Information of the previous level and fill in
+  // the proper parent block id values - doing it this way avoids doing mulitple passes through
+  // the children information which would be O(n2)
+  n = this->ChildrenInformation->GetNumberOfTuples();
+  for (i = childInfoStartIndex, lbid = 0; i < n; ++lbid)
+    {
+    //Get the number of children for this block
+    n = this->ChildrenInformation->GetValue(i++);
+    for (j = 0; j < n; j++)
+      {
+      nlbid = this->ChildrenInformation->GetValue(i++);
+      // Update the Parent Information for this child block
+      this->ParentInformation->SetValue(parentsVec[nlbid], lbid);
+      // advance the position of the next available parent id position
+      ++parentsVec[nlbid];
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -637,8 +775,11 @@ void vtkHierarchicalBoxDataSet::BlankGridsAtLevel(
     vtkAMRBoxList &boxes, const unsigned int levelIdx )
 {
   if( boxes.empty() )
+    {
+    // ASSUME that we don't have to clear the visibility arrays for
+    // the grids at this level!
     return;
-
+    }
   unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx);
   vtkAMRBoxList::iterator it, end=boxes.end();
   vtkAMRBox box, ibox;
@@ -725,6 +866,72 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 
       this->BlankGridsAtLevel( boxes, levelIdx );
     } // END for all low-res levels
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::GenerateParentChildInformation()
+{
+  // Note that we do not add the  the 
+  // children of the max level to our arrays - hence the
+  // GetChildren() methods must take this into consideration
+  AssignUnsignedIntArray(&(this->LevelMap), NULL);
+  AssignUnsignedIntArray(&(this->ChildrenInformation), NULL);
+  AssignUnsignedIntArray(&(this->ChildrenInformationMap), NULL);
+  AssignUnsignedIntArray(&(this->ParentInformation), NULL);
+  AssignUnsignedIntArray(&(this->ParentInformationMap), NULL);
+  unsigned int numLevels = this->GetNumberOfLevels();
+  // If there are no levels just return
+  if (!numLevels)
+    {
+    return;
+    }
+
+  this->LevelMap = vtkUnsignedIntArray::New();
+  this->ChildrenInformation = vtkUnsignedIntArray::New();
+  this->ChildrenInformationMap = vtkUnsignedIntArray::New();
+  this->ParentInformation = vtkUnsignedIntArray::New();
+  this->ParentInformationMap = vtkUnsignedIntArray::New();
+ 
+
+  this->LevelMap->SetNumberOfTuples(numLevels);
+  // Set the first block of level 0 is the first entry in the map arrays
+  this->LevelMap->SetValue(0,0);
+
+  vtkAMRBoxList boxes[2];
+  int i, j;
+  // Grab the boxes at level 0
+  this->GetBoxesFromLevel(0, boxes[0]);
+  // We need to insert the level 0 parent information into the Parent Information Arrays since the
+  // Generate Parent Child Level Information creates the Children information for level i
+  // and the Parents of level i+1
+  //  Though all of the blocks in level 0 have no parents we are creating parent information
+  // so that the LevelMap can be used for both the parent and children information (else we
+  // would need to separate maps) - since the number of blocks in level 0 is very small this
+  // does not seem to be a big deal
+ 
+  vtkAMRBoxList::iterator it, end=boxes[0].end();
+  // Insert 0 parents into the Parent Information array
+  this->ParentInformation->InsertNextValue(0);
+  for (it = boxes[0].begin(); it != end; ++it)
+    {
+    // Have all the blocks in level 0 point to 0th entry in the Parent Information 
+    this->ParentInformationMap->InsertNextValue(0);
+    }
+
+  for (unsigned int levelIdx=0, i= 0, j = 1; levelIdx<numLevels-1; levelIdx++)
+    {
+    this->GenerateParentChildLevelInformation(levelIdx, boxes[i], boxes[j]);
+    if (i)
+      {
+      i = 0;
+      j = 1;
+      }
+    else
+      {
+      i = 1;
+      j = 0;
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -988,6 +1195,25 @@ void vtkHierarchicalBoxDataSet::GetBounds(double bounds[6])
 }
 
 //----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::AssignUnsignedIntArray(vtkUnsignedIntArray **dest, 
+                                                       vtkUnsignedIntArray *src)
+{
+  if (*dest == src)
+    {
+    return;
+    }
+  if (*dest)
+    {
+    (*dest)->Delete();
+    }
+  *dest = src;
+  if (src)
+    {
+    (*dest)->Register(0);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::ShallowCopy( vtkDataObject *src )
 {
   if( src == this )
@@ -1019,7 +1245,11 @@ void vtkHierarchicalBoxDataSet::ShallowCopy( vtkDataObject *src )
       } // END for all levels
     } // END if hbds
 
-
+  AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
+  AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
+  AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
+  AssignUnsignedIntArray(&(this->ParentInformation), hbds->ParentInformation);
+  AssignUnsignedIntArray(&(this->ParentInformationMap), hbds->ParentInformationMap);
   this->Modified();
 }
 
@@ -1056,6 +1286,11 @@ void vtkHierarchicalBoxDataSet::DeepCopy( vtkDataObject *src )
     } // END if hbds
 
 
+  AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
+  AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
+  AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
+  AssignUnsignedIntArray(&(this->ParentInformation), hbds->ParentInformation);
+  AssignUnsignedIntArray(&(this->ParentInformationMap), hbds->ParentInformationMap);
   this->Modified();
 }
 
@@ -1094,4 +1329,72 @@ void vtkHierarchicalBoxDataSet::CopyStructure( vtkCompositeDataSet *src )
 
 
   this->Modified();
+}
+//----------------------------------------------------------------------------
+unsigned int *vtkHierarchicalBoxDataSet::
+GetParents(unsigned int level, unsigned int index)
+{
+  // If we are at level 0 there are no parents or if there is no level
+  // map there is no parent information
+  if ((!level) || (this->LevelMap == NULL))
+    {
+    return NULL;
+    }
+  unsigned int startLevel = this->LevelMap->GetValue(level);
+  unsigned int blockPos = startLevel+index;
+  unsigned int parentInfo = this->ParentInformationMap->GetValue(blockPos);
+  return this->ParentInformation->GetPointer(parentInfo);
+}
+//----------------------------------------------------------------------------
+unsigned int *vtkHierarchicalBoxDataSet::
+GetChildren(unsigned int level, unsigned int index)
+{
+  // If there is no level map or if the level is the max level
+  // there is no children information
+  if ((this->LevelMap == NULL) || 
+      (this->LevelMap->GetNumberOfTuples() == (level+1)))
+    {
+    return NULL;
+    }
+  unsigned int startLevel = this->LevelMap->GetValue(level);
+  unsigned int blockPos = startLevel+index;
+  unsigned int childInfo = this->ChildrenInformationMap->GetValue(blockPos);
+  return this->ChildrenInformation->GetPointer(childInfo);
+}
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::
+PrintParentChildInfo(unsigned int level, unsigned int index)
+{
+  unsigned int *ptr, i, n;
+  std::cerr << "Parent Child Info for block " << index << " of Level: " << level << endl;
+  ptr = this->GetParents(level, index);
+  if ((!ptr) || (ptr[0] == 0))
+    {
+    std::cerr << "\tParents: None" << endl;
+    }
+  else
+    {
+    std::cerr << "\tParents: ";
+    n = ptr[0];
+    for (i = 1; i <= n; i++)
+      {
+      std::cerr << ptr[i] << " ";
+      }
+    std::cerr << endl;
+    }
+  ptr = this->GetChildren(level, index);
+  if ((!ptr) || (ptr[0] == 0))
+    {
+    std::cerr << "\tChildren: None" << endl;
+    }
+  else
+    {
+    std::cerr << "\tChildren: ";
+    n = ptr[0];
+    for (i = 1; i <= n; i++)
+      {
+      std::cerr << ptr[i] << " ";
+      }
+    std::cerr << endl;
+    }
 }
