@@ -308,6 +308,18 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void ClearBlockConnections( const int gridID );
 
     // Description:
+    // Returns the number of faces of the block corresponding to the given grid
+    // ID that are adjacent to at least one other block. Note, this is not the
+    // total number of neighbors for the block. This method simply checks how
+    // many out of the 6 block faces have connections. Thus, the return value
+    // has an upper-bound of 6.
+    int GetNumberOfConnectingBlockFaces( const int gridID );
+
+    // Description:
+    // Sets the block topology connections for the grid corresponding to gridID.
+    void SetBlockTopology( const int gridID );
+
+    // Description:
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 

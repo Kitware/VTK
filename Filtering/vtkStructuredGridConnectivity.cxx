@@ -82,6 +82,36 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
       os << GridExtent[i] << ", " << GridExtent[i+1] << "]";
       }
     os << std::endl;
+    os << " Connecting faces: "
+       << this->GetNumberOfConnectingBlockFaces( gridID ) << " ";
+
+    os << "[ ";
+    if( this->HasBlockConnection( gridID, 0 ) )
+      {
+      os << "IMIN ";
+      }
+    if( this->HasBlockConnection( gridID, 1 ) )
+      {
+      os << "IMAX ";
+      }
+    if( this->HasBlockConnection( gridID, 2) )
+      {
+      os << "JMIN ";
+      }
+    if( this->HasBlockConnection( gridID, 3 ) )
+      {
+      os << "JMAX ";
+      }
+    if( this->HasBlockConnection( gridID, 4) )
+      {
+      os << "KMIN ";
+      }
+    if( this->HasBlockConnection( gridID, 5) )
+      {
+      os << "KMAX ";
+      }
+    os << "] ";
+    os << std::endl;
 
     for( unsigned int nei=0; nei < this->Neighbors[gridID].size(); ++nei )
       {
@@ -194,6 +224,30 @@ void vtkStructuredGridConnectivity::ClearBlockConnections( const int gridID )
 }
 
 //------------------------------------------------------------------------------
+int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
+    const int gridID )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+
+  int count = 0;
+  for( int i=0; i < 6; ++i )
+    {
+    if( this->HasBlockConnection( gridID, i ) )
+      {
+      ++count;
+      }
+    }
+
+  assert( "post: count must be in [0,5]" && (count >=0 && count <= 6) );
+  return( count );
+}
+
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::GetGridExtent(const int gridID, int ext[6])
 {
   assert( "pre: gridID out-of-bounds!" &&
@@ -289,6 +343,7 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
   // STEP 1: Establish neighbors based on the structured extents.
   for( int i=0; i < this->NumberOfGrids; ++i )
     {
+    this->SetBlockTopology( i );
     for( int j=i+1; j < this->NumberOfGrids; ++j )
       {
       this->EstablishNeighbors(i,j);
@@ -389,27 +444,32 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
 //  std::cout << std::endl;
 //  std::cout.flush();
 
-  int ijkmin[3];
-  ijkmin[0] = GridExtent[0];
-  ijkmin[1] = GridExtent[2];
-  ijkmin[2] = GridExtent[4];
+//  int ijkmin[3];
+//  ijkmin[0] = GridExtent[0];
+//  ijkmin[1] = GridExtent[2];
+//  ijkmin[2] = GridExtent[4];
+//
+//  int dims[3];
+//  vtkStructuredExtent::GetDimensions( GridExtent, dims );
 
-  int dims[3];
-  vtkStructuredExtent::GetDimensions( GridExtent, dims );
-
+  int ijk[3];
   for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
     {
     for( int j=GridExtent[2]; j <= GridExtent[3]; ++j )
       {
       for( int k=GridExtent[4]; k <= GridExtent[5]; ++k )
         {
+        ijk[0]=i;ijk[1]=j;ijk[2]=k;
+        vtkIdType idx =
+          vtkStructuredData::ComputePointIdForExtent(GridExtent,ijk);
+
         // Convert global indices to local indices
         // TODO: handle arbitrary dimensions
-        int li = i - ijkmin[0];
-        int lj = j - ijkmin[1];
-        int lk = k - ijkmin[2];
+//        int li = i - ijkmin[0];
+//        int lj = j - ijkmin[1];
+//        int lk = k - ijkmin[2];
+//        int idx = vtkStructuredData::ComputePointId( dims, li, lj, lk );
 
-        int idx = vtkStructuredData::ComputePointId( dims, li, lj, lk );
         this->MarkNodeProperty(
             gridID,i,j,k,GridExtent,
             *nodesArray->GetPointer( idx ) );
@@ -431,6 +491,8 @@ void vtkStructuredGridConnectivity::GetRealExtent(
     {
     return;
     }
+
+  // TODO: Constraint the real extent to be within the bounds of the whole extent
 
   switch( this->DataDescription )
     {
@@ -877,6 +939,51 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::SetBlockTopology( const int gridID )
+{
+  int idx;
+
+  int gridExtent[6];
+  this->GetGridExtent( gridID, gridExtent );
+
+  // Check in IMIN
+  if( gridExtent[0] > this->WholeExtent[0] )
+    {
+    this->AddBlockConnection( gridID, BlockDirection::IMIN );
+    }
+
+  // Check in IMAX
+  if( gridExtent[1] < this->WholeExtent[1] )
+    {
+    this->AddBlockConnection( gridID, BlockDirection::IMAX );
+    }
+
+  // Check in JMIN
+  if( gridExtent[2] > this->WholeExtent[2] )
+    {
+    this->AddBlockConnection( gridID, BlockDirection::JMIN );
+    }
+
+  // Check in JMAX
+  if( gridExtent[3] < this->WholeExtent[3] )
+    {
+    this->AddBlockConnection( gridID, BlockDirection::JMAX );
+    }
+
+  // Check in KMIN
+  if( gridExtent[4] > this->WholeExtent[4] )
+    {
+    this->AddBlockConnection( gridID, BlockDirection::KMIN );
+    }
+
+  // Check in KMAX
+  if( gridExtent[5] < this->WholeExtent[5] )
+    {
+    this->AddBlockConnection( gridID, BlockDirection::KMAX );
+    }
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::SetNeighbors(
             const int i, const int j,
             int i2jOrientation[3], int j2iOrientation[3],
@@ -887,6 +994,10 @@ void vtkStructuredGridConnectivity::SetNeighbors(
 
   this->Neighbors[ i ].push_back( Ni2j );
   this->Neighbors[ j ].push_back( Nj2i );
+
+  // Set block topology
+//  this->SetBlockTopology( i, i2jOrientation );
+//  this->SetBlockTopology( j, j2iOrientation );
 
 // BEGIN DEBUG
 //  int iGridExtent[6];
