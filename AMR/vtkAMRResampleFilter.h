@@ -183,7 +183,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // is not found, donorGrid is set to NULL.
     void SearchForDonorGridAtLevel(
         double q[3], vtkHierarchicalBoxDataSet *amrds,
-        unsigned int level, vtkUniformGrid *&donorGrid,
+        unsigned int level, unsigned int gridId, vtkUniformGrid *&donorGrid,
         int &donorCellIdx);
 
     // Description:
@@ -193,6 +193,16 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // contains the probe point q.
     int ProbeGridPointInAMR(
         double q[3],vtkUniformGrid *&donorGrid, unsigned int &donorLevel,
+        vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel );
+
+    // Description:
+    // Finds the AMR grid that contains the point q. If donorGrid points to a
+    // valid AMR grid in the hierarchy, the algorithm will search this grid
+    // first. The method returns the ID of the cell w.r.t. the donorGrid that
+    // contains the probe point q. - Makes use of Parent/Child Info
+    int ProbeGridPointInAMRGraph(
+        double q[3],vtkUniformGrid *&donorGrid, 
+        unsigned int &donorLevel, unsigned int &donorGridId,
         vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel );
 
     // Description:
@@ -296,6 +306,26 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
         double origin[3], int dims[3], double h[3],
         std::string prefix );
 
+    //Description:
+    // Find a decendant of the specified grid that contains the point.
+    // If none is found then the original grid information is returned.
+    // The search is limited to levels < maxLevel
+    void SearchGridDecendants(double q[3], 
+                              vtkHierarchicalBoxDataSet *amrds,
+                              unsigned int maxLevel,
+                              unsigned int &level,
+                              unsigned int &gridId,
+                              vtkUniformGrid *&grid,
+                              int &id);
+    //Description:
+    // Find an ancestor of the specified grid that contains the point.
+    // If none is found then the original grid information is returned
+    void SearchGridAncestors(double q[3], 
+                             vtkHierarchicalBoxDataSet *amrds,
+                             unsigned int &level,
+                             unsigned int &gridId,
+                             vtkUniformGrid *&grid,
+                             int &id);
   private:
     vtkAMRResampleFilter(const vtkAMRResampleFilter&); // Not implemented
     void operator=(const vtkAMRResampleFilter&); // Not implemented
