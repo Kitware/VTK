@@ -248,6 +248,11 @@ public:
   bool operator==(const vtkAMRBox &other);
 
   // Description:
+  // Determine if the boxes intersect but do not compute
+  // the intersection
+  bool DoesIntersect(const vtkAMRBox &rhs);
+
+  // Description:
   // Intersect this box with another box in place.  Returns
   // true if the boxes do intersect.  Note that the box is 
   // modified to be the intersection or is made invalid.
