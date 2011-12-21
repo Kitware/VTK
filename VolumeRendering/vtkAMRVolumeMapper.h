@@ -235,7 +235,16 @@ public:
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
   void UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr);
+  void UpdateResamplerFocalPointMethod(vtkRenderer *ren);
+  void UpdateResamplerFrustrumMethod(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr);
 //ETX
+
+  // Description:
+  //Select the type of resampling techinque approach to use.
+  vtkSetMacro(RequestedResamplingMode, int);
+  vtkGetMacro(RequestedResamplingMode, int);
+  vtkSetMacro(FreezeFocalPoint, bool);
+  vtkGetMacro(FreezeFocalPoint, bool);
 
 protected:
   vtkAMRVolumeMapper();
@@ -253,6 +262,8 @@ protected:
   // This indicates that the input has meta data for
   // doing demand driven operations.
   bool HasMetaData;
+  int RequestedResamplingMode;
+  bool FreezeFocalPoint;
   
 private:
   vtkAMRVolumeMapper(const vtkAMRVolumeMapper&);  // Not implemented.

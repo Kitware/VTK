@@ -49,6 +49,9 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
   this->NumberOfSamples[0] = 128;
   this->NumberOfSamples[1] = 128;
   this->NumberOfSamples[2] = 128;
+  this->RequestedResamplingMode = 0; // Frustrum Mode
+  this->FreezeFocalPoint = false;
+
   vtkMath::UninitializeBounds(this->Bounds);
 }
 
@@ -258,6 +261,8 @@ void vtkAMRVolumeMapper::ReleaseGraphicsResources(vtkWindow *window)
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 {
+  // Hack - Make sure the camera is in the right mode for moving the focal point
+  ren->GetActiveCamera()->SetFreezeFocalPoint(this->FreezeFocalPoint);
   // If there is no grid initially we need to see if we can create one
   if (!(this->Grid && (ren->GetRenderWindow()->GetDesiredUpdateRate()
                        >= this->InternalMapper->GetInteractiveUpdateRate())))
@@ -282,6 +287,41 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr)
+{
+  if (this->RequestedResamplingMode == 0)
+    {
+    this->UpdateResamplerFrustrumMethod(ren, amr);
+    }
+  else
+    {
+    this->UpdateResamplerFocalPointMethod(ren);
+    }
+}
+//----------------------------------------------------------------------------
+void vtkAMRVolumeMapper::UpdateResamplerFocalPointMethod(vtkRenderer *ren)
+{
+  vtkCamera *cam = ren->GetActiveCamera();
+  double va = cam->GetViewAngle() * 0.5;
+  double d = cam->GetDistance(), l;
+  double fp[3], var, p[3];
+  cam->GetFocalPoint(fp);
+  var = vtkMath::DoublePi() * va / 180.0;
+  l = d * tan(var);
+  p[0] = fp[0] - l;
+  p[1] = fp[1] - l;
+  p[2] = fp[2] - l;
+  // Now set the min/max of the resample filter
+  this->Resampler->SetMin(p);
+  p[0] = fp[0] + l;
+  p[1] = fp[1] + l;
+  p[2] = fp[2] + l;
+  this->Resampler->SetMax(p);
+
+  this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
+}
+//----------------------------------------------------------------------------
+void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren, 
+                                                       vtkHierarchicalBoxDataSet *amr)
 {
   // First we need to create a bouding box that represents the visible region
   // of the camera in World Coordinates
