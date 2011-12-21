@@ -50,6 +50,7 @@ class vtkInformationIdTypeKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkUniformGrid;
+class vtkUnsignedIntArray;
 
 typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
 
@@ -216,6 +217,11 @@ public:
   // level ones.
   void GenerateVisibilityArrays();
 
+  //Description:
+  // Generate the parent/child relationships - needed to be called
+  // before GetParents or GetChildren can be used!
+  void GenerateParentChildInformation();
+
   // Description:
   // Override ShallowCopy/DeepCopy and CopyStructure
   virtual void ShallowCopy(vtkDataObject *src);
@@ -298,6 +304,21 @@ public:
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   void GetBounds(double bounds[6]);
 
+  // Description:
+  // Return a pointer to Parents of a block.  The first entry is the number
+  // of parents the block has followed by its parent ids in level-1.
+  // If none exits it returns NULL.
+  unsigned int *GetParents(unsigned int level, unsigned int index);
+
+  // Description:
+  // Return a pointer to Children of a block.  The first entry is the number
+  // of children the block has followed by its childern ids in level+1.
+  // If none exits it returns NULL.
+  unsigned int *GetChildren(unsigned int level, unsigned int index);
+
+  // Description:
+  // Prints the parents and children of a requested block (Debug Routine)
+  void PrintParentChildInfo(unsigned int level, unsigned int index);
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();
@@ -308,6 +329,10 @@ protected:
       vtkAMRBoxList &blist, const unsigned int l );
 
   // Description:
+  // Gets the list of boxes for this level
+  void GetBoxesFromLevel(const unsigned int l, vtkAMRBoxList &blist);
+
+  // Description:
   // Blanks the grids at level, l, Given the list of high-res boxes at level
   // l+1 coarsened to level l.
   void BlankGridsAtLevel( vtkAMRBoxList &blist, const unsigned int l );
@@ -316,7 +341,19 @@ protected:
   // Compute the range of the scalars and cache it into ScalarRange
   // only if the cache became invalid (ScalarRangeComputeTime).
   virtual void ComputeScalarRange();
-  
+
+  // Description:
+  // Generate the Children Information for level l and the Parent Information
+  // for level l+1 - Note that lboxes will be converted to the more refined
+  // level and nlboxes will contain the boxes of level l+1
+  void GenerateParentChildLevelInformation(const unsigned int levelIdx,
+                                           vtkAMRBoxList &lboxes,
+                                           vtkAMRBoxList &nlboxes);
+
+  // Description:
+  // Assign an array from the src
+  static void AssignUnsignedIntArray(vtkUnsignedIntArray **dest, vtkUnsignedIntArray *src);
+
   // Cached scalar range
   double ScalarRange[2];
   // Time at which scalar range is computed
@@ -332,6 +369,26 @@ protected:
   vtkstd::map< int, vtkstd::pair<unsigned int,unsigned int> >
     CompositeIndex2LevelIdPair;
 
+  // Arrays needed to get the Parents of a block - the first holds
+  // the number of parents for each block and the parent block ids w/r
+  // to the courser level.  The second array indicates where the parent
+  // information of each block begins in the Parentinformation array
+  // NOTE: That all the blocks in level 0 point to the first entry in 
+  // the parent information array (whose value is 0)
+  vtkUnsignedIntArray *ParentInformation;
+  vtkUnsignedIntArray *ParentInformationMap;
+
+  // Arrays needed to get the Children of a block - the first holds
+  // the number of children for each block and the child block ids w/r
+  // to the refined level.  The second array indicates where the children
+  // information of each block begins in the Childreninformation array
+  // NOTE: That all the blocks in most refined level don't have entries since
+  // this would be a lot of zeros!
+  vtkUnsignedIntArray *ChildrenInformation;
+  vtkUnsignedIntArray *ChildrenInformationMap;
+
+  // Array needed to indicate where each level begins in the information map arrays
+  vtkUnsignedIntArray *LevelMap;
 private:
 
 

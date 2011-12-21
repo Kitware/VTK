@@ -1037,6 +1037,44 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
+bool vtkAMRBox::DoesIntersect(const vtkAMRBox &other)
+{
+  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
+  if (this->Dimension!=other.Dimension)
+    {
+    vtkGenericWarningMacro(
+      "Can't operate on a " << this->Dimension
+      << "D box with a " << other.Dimension << "D box.");
+    return false;
+    }
+  if (this->Empty())
+    {
+    return false;
+    }
+  if (other.Empty())
+    {
+    return false;
+    }
+
+  // Compare each coordinate of the corners.  Stop if at 
+  // anytime the box becomes invalid - i.e. there is no intersection
+  int minVal, maxVal;
+  for (int q=0; q<this->Dimension; ++q)
+    {
+    minVal = 
+      (this->LoCorner[q] < other.LoCorner[q]) ? other.LoCorner[q] : this->LoCorner[q];
+    maxVal = 
+      (this->HiCorner[q] > other.HiCorner[q]) ? other.HiCorner[q] : this->HiCorner[q];
+
+    if (minVal >= maxVal)
+      {
+      return false;
+      }
+    }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkAMRBox::Intersect(const vtkAMRBox &other)
 {
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
@@ -1069,7 +1107,7 @@ bool vtkAMRBox::Intersect(const vtkAMRBox &other)
       {
       this->HiCorner[q] = other.HiCorner[q];
       }
-    if (this->LoCorner[q] > this->HiCorner[q])
+    if (this->LoCorner[q] >= this->HiCorner[q])
       {
       return false;
       }
