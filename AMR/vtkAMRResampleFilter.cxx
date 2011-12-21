@@ -467,12 +467,20 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       currentCellIdx = donorCellIdx;
       currentLevel = donorLevel+1;
       }
+    else if (donorLevel == 0)
+      {
+      //if we are here then the point is not contained in any of the level 0
+      // blocks!
+      this->NumberOfFailedPoints++;
+      donorGrid    = NULL;
+      donorLevel = 0;
+      return -1;
+      }
     else
       {
       // If we are here then we know the point is not on the donor level
       // and therefore not contained in any of the more refined levels -
       // Base on the assumption of overlapping AMR
-
       assert("pre:Donor Level is 0" && donorLevel != 0);
       // Initialize values for step 1 s.t. the search will start from level 0.
       donorGrid  = NULL;
@@ -688,8 +696,8 @@ void vtkAMRResampleFilter::ExtractRegion(
 //  std::cout << "NumProcs: "  << this->Controller->GetNumberOfProcesses() << std::endl;
 //  std::cout.flush();
 
-  assert( "pre: NumProcs must equal NumBlocks" &&
-   ( static_cast<int>(this->ROI->GetNumberOfBlocks()) == this->Controller->GetNumberOfProcesses()));
+  assert( "pre: NumProcs must be less than or equal to NumBlocks" &&
+   ( static_cast<int>(this->ROI->GetNumberOfBlocks()) <= this->Controller->GetNumberOfProcesses()));
 
   mbds->SetNumberOfBlocks( this->ROI->GetNumberOfBlocks( ) );
   for( unsigned int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
