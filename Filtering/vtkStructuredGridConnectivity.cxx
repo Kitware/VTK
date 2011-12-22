@@ -514,30 +514,12 @@ bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
     this->GetIJKBlockOrientation( i,j,k,RealExtent,orient);
     for( int i=0; i < 3; ++i )
       {
-      switch( orient[i] )
+      if( (orient[i] != BlockFace::NOT_ON_BLOCK_FACE) &&
+          this->HasBlockConnection(gridID, orient[i]) )
         {
-        case BlockFace::LEFT:
-          // TODO:
-          break;
-        case BlockFace::RIGHT:
-          // TODO:
-          break;
-        case BlockFace::TOP:
-          // TODO:
-          break;
-        case BlockFace::BOTTOM:
-          // TODO:
-          break;
-        case BlockFace::FRONT:
-          // TODO:
-          break;
-        case BlockFace::BACK:
-          // TODO:
-          break;
-        default:
-          ; /* do nothing */
+        return true;
         }
-      }// END for all dimensions
+      } // END for all dimensions
     return false;
     }
   else
