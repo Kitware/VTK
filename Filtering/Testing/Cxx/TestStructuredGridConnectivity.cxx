@@ -443,7 +443,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
 
   for( int i=0; i < 8; ++i )
     {
-    for( int j=0; j < 1; ++j )
+    for( int j=0; j < 4; ++j )
       {
       // STEP 0: Construct the dataset
       std::cout << "===\n";
