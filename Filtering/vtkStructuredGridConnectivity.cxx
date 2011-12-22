@@ -76,12 +76,20 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
   for( int gridID=0; gridID < this->NumberOfGrids; ++gridID )
     {
     int GridExtent[6];
+    int RealExtent[6];
     this->GetGridExtent( gridID, GridExtent );
+    this->GetRealExtent( gridID, GridExtent, RealExtent );
     os << "GRID:";
     for( int i=0; i < 6; i+=2 )
       {
       os << " [";
       os << GridExtent[i] << ", " << GridExtent[i+1] << "]";
+      }
+    os << " REAL EXTENT: ";
+    for( int i=0; i < 6; i+=2 )
+      {
+      os << " [";
+      os << RealExtent[i] << ", " << RealExtent[i+1] << "]";
       }
     os << std::endl;
     os << " Connecting faces: "
@@ -372,7 +380,7 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
   this->GetGridExtent( gridID, GridExtent );
 
   int RealExtent[6];
-  this->GetGridExtent( gridID, RealExtent );
+  this->GetRealExtent( gridID, GridExtent, RealExtent );
 
   int dataDescription=
       vtkStructuredData::GetDataDescriptionFromExtent( GridExtent );
@@ -401,7 +409,7 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
 
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::GetRealExtent(
-    int GridExtent[6], int RealExtent[6] )
+    const int gridID, int GridExtent[6], int RealExtent[6] )
 {
   for( int i=0; i < 6; ++i)
     {
@@ -416,42 +424,114 @@ void vtkStructuredGridConnectivity::GetRealExtent(
   switch( this->DataDescription )
     {
     case VTK_X_LINE:
-      RealExtent[0] += this->NumberOfGhostLayers; // imin
-      RealExtent[1] -= this->NumberOfGhostLayers; // imax
+      if( this->HasBlockConnection(gridID,BlockFace::LEFT) )
+        {
+        RealExtent[0] += this->NumberOfGhostLayers; // imin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::RIGHT) )
+        {
+        RealExtent[1] -= this->NumberOfGhostLayers; // imax
+        }
       break;
     case VTK_Y_LINE:
-      RealExtent[2] += this->NumberOfGhostLayers; // jmin
-      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+      if( this->HasBlockConnection(gridID,BlockFace::BOTTOM) )
+        {
+        RealExtent[2] += this->NumberOfGhostLayers; // jmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::TOP) )
+        {
+        RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+        }
       break;
     case VTK_Z_LINE:
-      RealExtent[4] += this->NumberOfGhostLayers; // kmin
-      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+      if( this->HasBlockConnection(gridID,BlockFace::BACK) )
+        {
+        RealExtent[4] += this->NumberOfGhostLayers; // kmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::FRONT) )
+        {
+        RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+        }
       break;
     case VTK_XY_PLANE:
-      RealExtent[0] += this->NumberOfGhostLayers; // imin
-      RealExtent[1] -= this->NumberOfGhostLayers; // imax
-      RealExtent[2] += this->NumberOfGhostLayers; // jmin
-      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+      if( this->HasBlockConnection(gridID,BlockFace::LEFT) )
+        {
+        RealExtent[0] += this->NumberOfGhostLayers; // imin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::RIGHT) )
+        {
+        RealExtent[1] -= this->NumberOfGhostLayers; // imax
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::BOTTOM) )
+        {
+        RealExtent[2] += this->NumberOfGhostLayers; // jmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::TOP) )
+        {
+        RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+        }
       break;
     case VTK_YZ_PLANE:
-      RealExtent[2] += this->NumberOfGhostLayers; // jmin
-      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
-      RealExtent[4] += this->NumberOfGhostLayers; // kmin
-      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+      if( this->HasBlockConnection(gridID,BlockFace::BOTTOM) )
+        {
+        RealExtent[2] += this->NumberOfGhostLayers; // jmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::TOP) )
+        {
+        RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::BACK) )
+        {
+        RealExtent[4] += this->NumberOfGhostLayers; // kmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::FRONT) )
+        {
+        RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+        }
       break;
     case VTK_XZ_PLANE:
-      RealExtent[0] += this->NumberOfGhostLayers; // imin
-      RealExtent[1] -= this->NumberOfGhostLayers; // imax
-      RealExtent[4] += this->NumberOfGhostLayers; // kmin
-      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+      if( this->HasBlockConnection(gridID,BlockFace::LEFT) )
+        {
+        RealExtent[0] += this->NumberOfGhostLayers; // imin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::RIGHT) )
+        {
+        RealExtent[1] -= this->NumberOfGhostLayers; // imax
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::BACK) )
+        {
+        RealExtent[4] += this->NumberOfGhostLayers; // kmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::FRONT) )
+        {
+        RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+        }
       break;
     case VTK_XYZ_GRID:
-      RealExtent[0] += this->NumberOfGhostLayers; // imin
-      RealExtent[1] -= this->NumberOfGhostLayers; // imax
-      RealExtent[2] += this->NumberOfGhostLayers; // jmin
-      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
-      RealExtent[4] += this->NumberOfGhostLayers; // kmin
-      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+      if( this->HasBlockConnection(gridID,BlockFace::LEFT) )
+        {
+        RealExtent[0] += this->NumberOfGhostLayers; // imin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::RIGHT) )
+        {
+        RealExtent[1] -= this->NumberOfGhostLayers; // imax
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::BOTTOM) )
+        {
+        RealExtent[2] += this->NumberOfGhostLayers; // jmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::TOP) )
+        {
+        RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::BACK) )
+        {
+        RealExtent[4] += this->NumberOfGhostLayers; // kmin
+        }
+      if( this->HasBlockConnection(gridID,BlockFace::FRONT) )
+        {
+        RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+        }
       break;
     default:
       std::cout << "Data description is: " << this->DataDescription << "\n";

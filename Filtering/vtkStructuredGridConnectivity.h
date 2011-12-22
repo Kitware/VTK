@@ -149,7 +149,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 
     // Description:
     // Given a grid extent, this method computes the RealExtent.
-    void GetRealExtent( int GridExtent[6],int RealExtent[6] );
+    void GetRealExtent( const int gridID, int GridExtent[6],int RealExtent[6] );
 
     // Description:
     // Checks if the node corresponding to the given global i,j,k coordinates
