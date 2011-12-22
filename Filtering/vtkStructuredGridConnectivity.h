@@ -166,10 +166,10 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // Description:
     // Checks if the node corresponding to the given global i,j,k coordinates
     // is on the shared boundary, i.e., a partition interface.
-    //
     // NOTE: A node on a shared boundary, may also be on a real boundary.
     bool IsNodeOnSharedBoundary(
         const int i, const int j, const int k,
+        const int gridID,
         int GridExtent[6],
         int RealExtent[6] );
 
@@ -318,6 +318,11 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // Description:
     // Sets the block topology connections for the grid corresponding to gridID.
     void SetBlockTopology( const int gridID );
+
+    // Description:
+    // Given the node i-j-k coordinates, this method computes
+    void GetNodeBlockOrientation(
+        const int i, const int j, const int k, int ext[6], int orientation[3] );
 
     // Description:
     // Prints the extent, used for debugging

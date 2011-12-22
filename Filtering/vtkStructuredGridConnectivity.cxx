@@ -35,16 +35,18 @@
 
 vtkStandardNewMacro( vtkStructuredGridConnectivity );
 
-// An enum to define the 6 block face directions
-namespace BlockDirection {
+// Description:
+// An enum to define the 6 block faces
+namespace BlockFace {
   enum
   {
-    IMIN=0,
-    IMAX=1,
-    JMIN=2,
-    JMAX=3,
-    KMIN=4,
-    KMAX=5
+    FRONT         = 0, // (+k diretion)
+    BACK          = 1, // (-k direction)
+    RIGHT         = 2, // (+i direction)
+    LEFT          = 3, // (-i direction)
+    TOP           = 4, // (+j direction)
+    BOTTOM        = 5, // (-j direction)
+    NOT_ON_BLOCK_FACE = 6
   };
 }
 
@@ -86,29 +88,29 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
        << this->GetNumberOfConnectingBlockFaces( gridID ) << " ";
 
     os << "[ ";
-    if( this->HasBlockConnection( gridID, 0 ) )
+    if( this->HasBlockConnection( gridID, BlockFace::FRONT ) )
       {
-      os << "IMIN ";
+      os << "FRONT(+k) ";
       }
-    if( this->HasBlockConnection( gridID, 1 ) )
+    if( this->HasBlockConnection( gridID, BlockFace::BACK ) )
       {
-      os << "IMAX ";
+      os << "BACK(-k) ";
       }
-    if( this->HasBlockConnection( gridID, 2) )
+    if( this->HasBlockConnection( gridID, BlockFace::RIGHT ) )
       {
-      os << "JMIN ";
+      os << "RIGHT(+i) ";
       }
-    if( this->HasBlockConnection( gridID, 3 ) )
+    if( this->HasBlockConnection( gridID, BlockFace::LEFT ) )
       {
-      os << "JMAX ";
+      os << "LEFT(-i) ";
       }
-    if( this->HasBlockConnection( gridID, 4) )
+    if( this->HasBlockConnection( gridID, BlockFace::TOP) )
       {
-      os << "KMIN ";
+      os << "TOP(+j) ";
       }
-    if( this->HasBlockConnection( gridID, 5) )
+    if( this->HasBlockConnection( gridID, BlockFace::BOTTOM) )
       {
-      os << "KMAX ";
+      os << "BOTTOM(-j) ";
       }
     os << "] ";
     os << std::endl;
@@ -438,20 +440,6 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
   int GridExtent[6];
   this->GetGridExtent( gridID, GridExtent );
 
-//  std::cout << "GRID: " << gridID << " has extent ";
-//  std::cout.flush();
-//  this->PrintExtent( GridExtent );
-//  std::cout << std::endl;
-//  std::cout.flush();
-
-//  int ijkmin[3];
-//  ijkmin[0] = GridExtent[0];
-//  ijkmin[1] = GridExtent[2];
-//  ijkmin[2] = GridExtent[4];
-//
-//  int dims[3];
-//  vtkStructuredExtent::GetDimensions( GridExtent, dims );
-
   int ijk[3];
   for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
     {
@@ -463,19 +451,14 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
         vtkIdType idx =
           vtkStructuredData::ComputePointIdForExtent(GridExtent,ijk);
 
-        // Convert global indices to local indices
-        // TODO: handle arbitrary dimensions
-//        int li = i - ijkmin[0];
-//        int lj = j - ijkmin[1];
-//        int lk = k - ijkmin[2];
-//        int idx = vtkStructuredData::ComputePointId( dims, li, lj, lk );
-
         this->MarkNodeProperty(
             gridID,i,j,k,GridExtent,
             *nodesArray->GetPointer( idx ) );
         } // END for all k
       } // END for all j
     } // END for all i
+
+  // TODO: mark cells
 }
 
 //------------------------------------------------------------------------------
@@ -492,47 +475,45 @@ void vtkStructuredGridConnectivity::GetRealExtent(
     return;
     }
 
-  // TODO: Constraint the real extent to be within the bounds of the whole extent
-
   switch( this->DataDescription )
     {
     case VTK_X_LINE:
-      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
-      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
+      RealExtent[0] += this->NumberOfGhostLayers; // imin
+      RealExtent[1] -= this->NumberOfGhostLayers; // imax
       break;
     case VTK_Y_LINE:
-      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
-      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
+      RealExtent[2] += this->NumberOfGhostLayers; // jmin
+      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
       break;
     case VTK_Z_LINE:
-      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
-      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      RealExtent[4] += this->NumberOfGhostLayers; // kmin
+      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
       break;
     case VTK_XY_PLANE:
-      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
-      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
-      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
-      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
+      RealExtent[0] += this->NumberOfGhostLayers; // imin
+      RealExtent[1] -= this->NumberOfGhostLayers; // imax
+      RealExtent[2] += this->NumberOfGhostLayers; // jmin
+      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
       break;
     case VTK_YZ_PLANE:
-      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
-      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
-      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
-      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      RealExtent[2] += this->NumberOfGhostLayers; // jmin
+      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+      RealExtent[4] += this->NumberOfGhostLayers; // kmin
+      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
       break;
     case VTK_XZ_PLANE:
-      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
-      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
-      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
-      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      RealExtent[0] += this->NumberOfGhostLayers; // imin
+      RealExtent[1] -= this->NumberOfGhostLayers; // imax
+      RealExtent[4] += this->NumberOfGhostLayers; // kmin
+      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
       break;
     case VTK_XYZ_GRID:
-      RealExtent[0] = GridExtent[0]+this->NumberOfGhostLayers; // imin
-      RealExtent[1] = GridExtent[1]-this->NumberOfGhostLayers; // imax
-      RealExtent[2] = GridExtent[2]+this->NumberOfGhostLayers; // jmin
-      RealExtent[3] = GridExtent[3]-this->NumberOfGhostLayers; // jmax
-      RealExtent[4] = GridExtent[4]+this->NumberOfGhostLayers; // kmin
-      RealExtent[5] = GridExtent[5]-this->NumberOfGhostLayers; // kmax
+      RealExtent[0] += this->NumberOfGhostLayers; // imin
+      RealExtent[1] -= this->NumberOfGhostLayers; // imax
+      RealExtent[2] += this->NumberOfGhostLayers; // jmin
+      RealExtent[3] -= this->NumberOfGhostLayers; // jmax
+      RealExtent[4] += this->NumberOfGhostLayers; // kmin
+      RealExtent[5] -= this->NumberOfGhostLayers; // kmax
       break;
     default:
       std::cout << "Data description is: " << this->DataDescription << "\n";
@@ -608,12 +589,39 @@ bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
 //------------------------------------------------------------------------------
 bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
     const int i, const int j, const int k,
-    int GridExtent[6], int RealExtent[6] )
+    const int gridID, int GridExtent[6], int RealExtent[6] )
 {
   if( this->IsNodeOnBoundaryOfExtent(i,j,k,RealExtent) )
     {
-    // TODO: Need to fix logic here!
-    return true;
+    int orient[3];
+    this->GetNodeBlockOrientation( i,j,k,RealExtent,orient);
+    for( int i=0; i < 3; ++i )
+      {
+      switch( orient[i] )
+        {
+        case BlockFace::LEFT:
+          // TODO:
+          break;
+        case BlockFace::RIGHT:
+          // TODO:
+          break;
+        case BlockFace::TOP:
+          // TODO:
+          break;
+        case BlockFace::BOTTOM:
+          // TODO:
+          break;
+        case BlockFace::FRONT:
+          // TODO:
+          break;
+        case BlockFace::BACK:
+          // TODO:
+          break;
+        default:
+          ; /* do nothing */
+        }
+      }// END for all dimensions
+    return false;
     }
   else
     {
@@ -640,7 +648,7 @@ bool vtkStructuredGridConnectivity::IsGhostNode(
   int realExtent[6];
   this->GetRealExtent( GridExtent, realExtent );
 
-  if( this->IsNodeWithinExtent( i, j, k, realExtent ) )
+  if( this->IsNodeWithinExtent( i,j,k,realExtent ) )
     {
     status = false;
     }
@@ -949,37 +957,37 @@ void vtkStructuredGridConnectivity::SetBlockTopology( const int gridID )
   // Check in IMIN
   if( gridExtent[0] > this->WholeExtent[0] )
     {
-    this->AddBlockConnection( gridID, BlockDirection::IMIN );
+    this->AddBlockConnection( gridID, BlockFace::LEFT);
     }
 
   // Check in IMAX
   if( gridExtent[1] < this->WholeExtent[1] )
     {
-    this->AddBlockConnection( gridID, BlockDirection::IMAX );
+    this->AddBlockConnection( gridID, BlockFace::RIGHT);
     }
 
   // Check in JMIN
   if( gridExtent[2] > this->WholeExtent[2] )
     {
-    this->AddBlockConnection( gridID, BlockDirection::JMIN );
+    this->AddBlockConnection( gridID, BlockFace::BOTTOM );
     }
 
   // Check in JMAX
   if( gridExtent[3] < this->WholeExtent[3] )
     {
-    this->AddBlockConnection( gridID, BlockDirection::JMAX );
+    this->AddBlockConnection( gridID, BlockFace::TOP );
     }
 
   // Check in KMIN
   if( gridExtent[4] > this->WholeExtent[4] )
     {
-    this->AddBlockConnection( gridID, BlockDirection::KMIN );
+    this->AddBlockConnection( gridID, BlockFace::BACK );
     }
 
   // Check in KMAX
   if( gridExtent[5] < this->WholeExtent[5] )
     {
-    this->AddBlockConnection( gridID, BlockDirection::KMAX );
+    this->AddBlockConnection( gridID, BlockFace::FRONT );
     }
 }
 
@@ -994,24 +1002,6 @@ void vtkStructuredGridConnectivity::SetNeighbors(
 
   this->Neighbors[ i ].push_back( Ni2j );
   this->Neighbors[ j ].push_back( Nj2i );
-
-  // Set block topology
-//  this->SetBlockTopology( i, i2jOrientation );
-//  this->SetBlockTopology( j, j2iOrientation );
-
-// BEGIN DEBUG
-//  int iGridExtent[6];
-//  int jGridExtent[6];
-//  this->GetGridExtent( i, iGridExtent );
-//  this->GetGridExtent( j, jGridExtent );
-//
-//  std::cout << "===\n";
-//  this->PrintExtent( iGridExtent );
-//  this->PrintExtent( jGridExtent );
-//  std::cout << "\n\n";
-//  this->PrintExtent( overlapExtent );
-// END DEBUG
-
 }
 
 //------------------------------------------------------------------------------
@@ -1137,6 +1127,70 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
     }
 
   return( rc );
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::GetNodeBlockOrientation(
+    const int i, const int j, const int k, int ext[6], int orientation[3] )
+{
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      if( i==ext[0] )
+        {
+        // TODO:
+        }
+      else if( i==ext[1] )
+        {
+        // TODO:
+        }
+      orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
+      orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
+      break;
+    case VTK_Y_LINE:
+      if( j==ext[2] )
+        {
+        // TODO:
+        }
+      else if( j==ext[3] )
+        {
+        // TODO:
+        }
+      orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
+      orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
+      break;
+    case VTK_Z_LINE:
+      if( k==ext[4] )
+        {
+        // TODO:
+        }
+      else if( k==ext[5] )
+        {
+        // TODO:
+        }
+      orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
+      orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
+      break;
+    case VTK_XY_PLANE:
+      // TODO: implement this
+      orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
+      break;
+    case VTK_YZ_PLANE:
+      // TODO: implement this
+      orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
+      break;
+    case VTK_XZ_PLANE:
+      // TODO: implement this
+      orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
+      break;
+    case VTK_XYZ_GRID:
+      // TODO: implement this
+      break;
+    default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
+      assert( "pre: Undefined data-description!" && false );
+    }
 }
 
 //------------------------------------------------------------------------------
