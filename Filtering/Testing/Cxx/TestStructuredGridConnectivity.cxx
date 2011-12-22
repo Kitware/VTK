@@ -649,6 +649,7 @@ int Simple2DTest( int argc, char **argv )
 
   int np = atoi( argv[2] );
   int ng = atoi( argv[3] );
+  std::cout << "Running Simple 2-D Test..." << std::endl;
   std::cout << "Number of partitions: "   << np << std::endl;
   std::cout << "Number of ghost-layers: " << ng << std::endl;
   std::cout.flush();
@@ -670,6 +671,23 @@ int Simple2DTest( int argc, char **argv )
   gridConnectivity->Print( std::cout );
   std::cout.flush();
 
+  int NumNodes = GetTotalNumberOfNodes( mbds );
+  std::cout << "[DONE]\n";
+  std::cout.flush();
+
+  std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
+  if( NumNodes != expected )
+   {
+   std::cout << "[ERROR]\n";
+   std::cout.flush();
+   mbds->Delete();
+   gridConnectivity->Delete();
+   }
+  else
+   {
+   std::cout << "[OK]\n";
+   std::cout.flush();
+   }
   return 0;
 }
 
@@ -680,6 +698,7 @@ int Simple3DTest( int argc, char **argv )
 
   int np = atoi( argv[2] );
   int ng = atoi( argv[3] );
+  std::cout << "Running Simple 3-D Test..." << std::endl;
   std::cout << "Number of partitions: "   << np << std::endl;
   std::cout << "Number of ghost-layers: " << ng << std::endl;
   std::cout.flush();
@@ -701,6 +720,23 @@ int Simple3DTest( int argc, char **argv )
   gridConnectivity->Print( std::cout );
   std::cout.flush();
 
+  int NumNodes = GetTotalNumberOfNodes( mbds );
+  std::cout << "[DONE]\n";
+  std::cout.flush();
+
+  std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
+  if( NumNodes != expected )
+   {
+   std::cout << "[ERROR]\n";
+   std::cout.flush();
+   mbds->Delete();
+   gridConnectivity->Delete();
+   }
+  else
+   {
+   std::cout << "[OK]\n";
+   std::cout.flush();
+   }
   return 0;
 }
 //------------------------------------------------------------------------------
