@@ -308,41 +308,60 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 {
   vtkGhostArray::Reset( p );
 
-  if( this->IsNodeInterior( i, j, k, ext ) )
+  int realExtent[6];
+  this->GetRealExtent( ext, realExtent );
+
+  // Check if the node is an interior a node, i.e., it is not on any boundary
+  // shared or real boundary and not in a ghost region. Interior nodes can only
+  // be internal nodes!
+  if( this->IsNodeInterior( i,j,k, realExtent) )
     {
-    vtkGhostArray::SetProperty(p,vtkGhostArray::INTERNAL );
+    vtkGhostArray::SetProperty( p, vtkGhostArray::INTERNAL );
     }
   else
     {
+    // If the node is on the boundary of the computational domain mark it
     if( this->IsNodeOnBoundary(i,j,k) )
       {
-      vtkGhostArray::SetProperty(p,vtkGhostArray::BOUNDARY );
+      vtkGhostArray::SetProperty( p, vtkGhostArray::BOUNDARY );
       }
 
-    // Figure out if the point is shared and who owns the point
-    vtkIdList *neiList = vtkIdList::New();
-    this->SearchNeighbors( gridID, i, j, k, neiList );
-
-    if( neiList->GetNumberOfIds() > 0 )
+    // Check if the node is also on a shared boundary or if it is a ghost node
+    if(this->IsNodeOnSharedBoundary(gridID,ext,realExtent,i,j,k))
       {
-      vtkGhostArray::SetProperty(p,vtkGhostArray::SHARED );
+      vtkGhostArray::SetProperty( p, vtkGhostArray::SHARED );
 
-      for( vtkIdType nei=0; nei < neiList->GetNumberOfIds(); ++nei )
+      // For shared nodes we must check for ownership
+      vtkIdList *neiList = vtkIdList::New();
+      this->SearchNeighbors( gridID, i, j, k, neiList );
+
+      if( neiList->GetNumberOfIds() > 0 )
         {
-        // If my gridID is not the smallest gridID that shares the point, then
-        // I don't own the point.
-        // The convention is that the grid with the smallest gridID will own the
-        // point and all other grids should IGNORE it when computing statistics
-        // etc.
-        if( gridID > neiList->GetId( nei ) )
+        for( vtkIdType nei=0; nei < neiList->GetNumberOfIds(); ++nei )
           {
-          vtkGhostArray::SetProperty(p,vtkGhostArray::IGNORE );
-          break;
-          }
-        } //END for all neis
-      } // END if  shared
-    neiList->Delete();
+          // If my gridID is not the smallest gridID that shares the point,then
+          // I don't own the point.
+          // The convention is that the grid with the smallest gridID will own the
+          // point and all other grids should IGNORE it when computing statistics
+          // etc.
+          if( gridID > neiList->GetId( nei ) )
+            {
+            vtkGhostArray::SetProperty(p,vtkGhostArray::IGNORE );
+            break;
+            }
+          } // END for all neis
+        } // END if neisList isn't empty
+        neiList->Delete();
+      }// END if node is on a shared boundary
+    else if( this->IsGhostNode(gridID,ext,realExtent,i,j,k) )
+      {
+      vtkGhostArray::SetProperty( p, vtkGhostArray::GHOST );
+
+      // Ghost nodes are always ignored!
+      vtkGhostArray::SetProperty( p, vtkGhostArray::IGNORE );
+      }
     }
+
 }
 
 //------------------------------------------------------------------------------
@@ -505,17 +524,17 @@ bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
 
 //------------------------------------------------------------------------------
 bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
-    const int i, const int j, const int k,
-    const int gridID, int GridExtent[6], int RealExtent[6] )
+    const int gridID, int GridExtent[6], int RealExtent[6],
+    const int i, const int j, const int k )
 {
   if( this->IsNodeOnBoundaryOfExtent(i,j,k,RealExtent) )
     {
     int orient[3];
     this->GetIJKBlockOrientation( i,j,k,RealExtent,orient);
-    for( int i=0; i < 3; ++i )
+    for( int ii=0; ii < 3; ++ii )
       {
-      if( (orient[i] != BlockFace::NOT_ON_BLOCK_FACE) &&
-          this->HasBlockConnection(gridID, orient[i]) )
+      if( (orient[ii] != BlockFace::NOT_ON_BLOCK_FACE) &&
+          this->HasBlockConnection(gridID, orient[ii]) )
         {
         return true;
         }
@@ -530,7 +549,7 @@ bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
 
 //------------------------------------------------------------------------------
 bool vtkStructuredGridConnectivity::IsGhostNode(
-        const int gridID, int GridExtent[6],
+        const int gridID, int GridExtent[6], int RealExtent[6],
         const int i, const int j, const int k )
 {
   // STEP 0: Check if there are any ghost-layers. Note, if the original data
@@ -544,14 +563,11 @@ bool vtkStructuredGridConnectivity::IsGhostNode(
 
   // STEP 1: Initialize the return status and the real extent
   bool status = false;
-  int realExtent[6];
-  this->GetRealExtent( GridExtent, realExtent );
-
-  if( this->IsNodeWithinExtent( i,j,k,realExtent ) )
+  if( this->IsNodeWithinExtent( i,j,k,RealExtent ) )
     {
     status = false;
     }
-  else
+  else if( this->IsNodeWithinExtent( i,j,k, GridExtent ) )
     {
     status = true;
     }
@@ -1032,28 +1048,24 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
 void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
     const int i, const int j, const int k, int ext[6], int orientation[3] )
 {
+  orientation[0]=orientation[1]=orientation[2]=BlockFace::NOT_ON_BLOCK_FACE;
+
   switch( this->DataDescription )
     {
     case VTK_X_LINE:
       this->Get1DOrientation(
           i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
           BlockFace::NOT_ON_BLOCK_FACE);
-      orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
-      orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_Y_LINE:
       this->Get1DOrientation(
           j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
           BlockFace::NOT_ON_BLOCK_FACE );
-      orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
-      orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_Z_LINE:
       this->Get1DOrientation(
           k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
           BlockFace::NOT_ON_BLOCK_FACE );
-      orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
-      orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_XY_PLANE:
       this->Get1DOrientation(
@@ -1062,7 +1074,6 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
       this->Get1DOrientation(
           j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
           BlockFace::NOT_ON_BLOCK_FACE );
-      orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_YZ_PLANE:
       this->Get1DOrientation(
@@ -1071,7 +1082,6 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
       this->Get1DOrientation(
           k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
           BlockFace::NOT_ON_BLOCK_FACE );
-      orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_XZ_PLANE:
       this->Get1DOrientation(
@@ -1080,7 +1090,6 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
       this->Get1DOrientation(
           k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
           BlockFace::NOT_ON_BLOCK_FACE );
-      orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_XYZ_GRID:
       this->Get1DOrientation(
