@@ -304,11 +304,9 @@ void vtkStructuredGridConnectivity::SearchNeighbors(
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::MarkNodeProperty(
     const int gridID, const int i, const int j, const int k,
-    int ext[6], unsigned char &p )
+    int ext[6], int realExtent[6], unsigned char &p )
 {
   vtkGhostArray::Reset( p );
-  int realExtent[6];
-  this->GetRealExtent( ext, realExtent );
 
   // Check if the node is an interior a node, i.e., it is not on any boundary
   // shared or real boundary and not in a ghost region. Interior nodes can only
@@ -373,6 +371,12 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
   int GridExtent[6];
   this->GetGridExtent( gridID, GridExtent );
 
+  int RealExtent[6];
+  this->GetGridExtent( gridID, RealExtent );
+
+  int dataDescription=
+      vtkStructuredData::GetDataDescriptionFromExtent( GridExtent );
+
   int ijk[3];
   for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
     {
@@ -382,10 +386,11 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
         {
         ijk[0]=i;ijk[1]=j;ijk[2]=k;
         vtkIdType idx =
-          vtkStructuredData::ComputePointIdForExtent(GridExtent,ijk);
+          vtkStructuredData::ComputePointIdForExtent(
+              GridExtent,ijk,dataDescription);
 
         this->MarkNodeProperty(
-            gridID,i,j,k,GridExtent,
+            gridID,i,j,k,GridExtent, RealExtent,
             *nodesArray->GetPointer( idx ) );
         } // END for all k
       } // END for all j

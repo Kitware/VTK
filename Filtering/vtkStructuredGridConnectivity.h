@@ -145,7 +145,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void MarkNodeProperty(
         const int gridID,
         const int i, const int j, const int k,
-        int ext[6], unsigned char &pfield );
+        int ext[6], int RealExtent[6], unsigned char &pfield );
 
     // Description:
     // Given a grid extent, this method computes the RealExtent.
