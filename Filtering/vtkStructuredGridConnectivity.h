@@ -321,11 +321,11 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void SetBlockTopology( const int gridID );
 
     // Description:
-    // Given i-j-k coordinates and the grid extent, this method determines the
-    // node orientation with respect to the 6 block faces. If the node is not
-    // on a boundary, then orientation[i] = BlockFace::NOT_ON_BLOCK_FACE
-    // for all i in [0,2].
-    void GetNodeBlockOrientation(
+    // Given i-j-k coordinates and the grid defined by tis extent, ext, this
+    // method determines IJK orientation with respect to the block boundaries,
+    // i.e., the 6 block faces. If the node is not on a boundary, then
+    // orientation[i] = BlockFace::NOT_ON_BLOCK_FACE for all i in [0,2].
+    void GetIJKBlockOrientation(
         const int i, const int j, const int k, int ext[6], int orientation[3] );
 
     // Description:

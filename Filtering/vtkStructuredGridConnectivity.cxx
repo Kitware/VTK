@@ -511,7 +511,7 @@ bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
   if( this->IsNodeOnBoundaryOfExtent(i,j,k,RealExtent) )
     {
     int orient[3];
-    this->GetNodeBlockOrientation( i,j,k,RealExtent,orient);
+    this->GetIJKBlockOrientation( i,j,k,RealExtent,orient);
     for( int i=0; i < 3; ++i )
       {
       switch( orient[i] )
@@ -1047,7 +1047,7 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::GetNodeBlockOrientation(
+void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
     const int i, const int j, const int k, int ext[6], int orientation[3] )
 {
   switch( this->DataDescription )
