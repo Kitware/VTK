@@ -100,7 +100,19 @@ void vtkExtentRCBPartitioner::Partition()
   // STEP 3: Clear priority data-structures
   wrkQueue->Delete();
 
-  // STEP 4: Set the flag to indicate that the extent has been partitioned to
+  // STEP 4: Loop through all the extents and add ghost layers
+  if( this->NumberOfGhostLayers > 0 )
+    {
+    int ext[6];
+    for( int i=0; i < this->NumExtents; ++i )
+      {
+      this->GetExtent( i, ext );
+      this->ExtendGhostLayers( ext );
+      this->ReplaceExtent( i, ext );
+      } // END for all extents
+    }
+
+  // STEP 5: Set the flag to indicate that the extent has been partitioned to
   // the requested number of partitions. The only way this method will reexecute
   // is when the user calls SetGlobalExtent or SetNumberOfPartitions
   this->ExtentIsPartitioned = true;
@@ -200,9 +212,6 @@ void vtkExtentRCBPartitioner::SplitExtent(
   mid           = (int)vtkMath::Floor(0.5*numNodes);
   s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
   s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
-
-  this->ExtendGhostLayers( s1 );
-  this->ExtendGhostLayers( s2 );
 
 //  this->PrintExtent( "Parent", parent );
 //  this->PrintExtent( "s1", s1 );
