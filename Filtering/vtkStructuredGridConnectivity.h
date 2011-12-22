@@ -33,7 +33,8 @@
 
 
 // C++ include directives
-#include <vector> // For STL vector
+#include <vector>  // For STL vector
+#include <cassert> // For assert()
 
 // Forward Declarations
 class vtkIdList;
@@ -340,4 +341,90 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void operator=(const vtkStructuredGridConnectivity& ); // Not implemented
 };
 
+//=============================================================================
+// INLINE METHODS
+//=============================================================================
+
+//------------------------------------------------------------------------------
+inline bool vtkStructuredGridConnectivity::HasBlockConnection(
+    const int gridID, const int blockDirection )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+  assert("pre: blockDirection is out-of-bounds" &&
+        (blockDirection >= 0) && (blockDirection < 6) );
+  return( this->BlockTopology[ gridID ] & (1 << blockDirection) );
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::RemoveBlockConnection(
+    const int gridID, const int blockDirection )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+  assert("pre: blockDirection is out-of-bounds" &&
+        (blockDirection >= 0) && (blockDirection < 6) );
+
+  this->BlockTopology[ gridID ] &= ~(1 << blockDirection);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::AddBlockConnection(
+    const int gridID, const int blockDirection )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+  assert("pre: blockDirection is out-of-bounds" &&
+        (blockDirection >= 0) && (blockDirection < 6) );
+
+  this->BlockTopology[ gridID ] |= (1 << blockDirection);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::ClearBlockConnections(
+    const int gridID )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+
+  for( int i=0; i < 6; ++i )
+    {
+    this->RemoveBlockConnection( gridID, i );
+    } // END for all block directions
+}
+
+//------------------------------------------------------------------------------
+inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
+    const int gridID )
+{
+  // Sanity check
+  assert("pre: gridID is out-of-bounds" &&
+        (gridID >=0) && (gridID < this->NumberOfGrids) );
+  assert("pre: BlockTopology has not been properly allocated" &&
+        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+
+  int count = 0;
+  for( int i=0; i < 6; ++i )
+    {
+    if( this->HasBlockConnection( gridID, i ) )
+      {
+      ++count;
+      }
+    }
+
+  assert( "post: count must be in [0,5]" && (count >=0 && count <= 6) );
+  return( count );
+}
 #endif /* vtkStructuredGridConnectivity_H_ */
