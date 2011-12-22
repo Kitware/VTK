@@ -264,12 +264,12 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // NOTE: The block direction is essentially one of the 6 faces  of the
     // block defined as follows:
     // <ul>
-    //  <li>IMIN=0</li>
-    //  <li>IMAX=1</li>
-    //  <li>JMIN=2</li>
-    //  <li>JMAX=3</li>
-    //  <li>KMIN=4</li>
-    //  <li>KMAX=5</li>
+    //  <li> FRONT  = 0 (+k diretion)  </li>
+    //  <li> BACK   = 1 (-k direction) </li>
+    //  <li> RIGHT  = 2 (+i direction) </li>
+    //  <li> LEFT   = 3 (-i direction) </li>
+    //  <li> TOP    = 4 (+j direction) </li>
+    //  <li> BOTTOM = 5 (-j direction) </li>
     // </ul>
     bool HasBlockConnection( const int gridID, const int blockDirection );
 
@@ -279,12 +279,12 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // NOTE: The block direction is essentially one of the 6 faces  of the
     // block defined as follows:
     // <ul>
-    //  <li>IMIN=0</li>
-    //  <li>IMAX=1</li>
-    //  <li>JMIN=2</li>
-    //  <li>JMAX=3</li>
-    //  <li>KMIN=4</li>
-    //  <li>KMAX=5</li>
+    //  <li> FRONT  = 0 (+k diretion)  </li>
+    //  <li> BACK   = 1 (-k direction) </li>
+    //  <li> RIGHT  = 2 (+i direction) </li>
+    //  <li> LEFT   = 3 (-i direction) </li>
+    //  <li> TOP    = 4 (+j direction) </li>
+    //  <li> BOTTOM = 5 (-j direction) </li>
     // </ul>
     void RemoveBlockConnection( const int gridID, const int blockDirection );
 
@@ -294,12 +294,12 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // NOTE: The block direction is essentially one of the 6 faces  of the
     // block defined as follows:
     // <ul>
-    //  <li>IMIN=0</li>
-    //  <li>IMAX=1</li>
-    //  <li>JMIN=2</li>
-    //  <li>JMAX=3</li>
-    //  <li>KMIN=4</li>
-    //  <li>KMAX=5</li>
+    //  <li> FRONT  = 0 (+k diretion)  </li>
+    //  <li> BACK   = 1 (-k direction) </li>
+    //  <li> RIGHT  = 2 (+i direction) </li>
+    //  <li> LEFT   = 3 (-i direction) </li>
+    //  <li> TOP    = 4 (+j direction) </li>
+    //  <li> BOTTOM = 5 (-j direction) </li>
     // </ul>
     void AddBlockConnection( const int gridID, const int blockDirection );
 
