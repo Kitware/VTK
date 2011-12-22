@@ -307,7 +307,6 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
     int ext[6], unsigned char &p )
 {
   vtkGhostArray::Reset( p );
-
   int realExtent[6];
   this->GetRealExtent( ext, realExtent );
 
@@ -356,12 +355,10 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
     else if( this->IsGhostNode(gridID,ext,realExtent,i,j,k) )
       {
       vtkGhostArray::SetProperty( p, vtkGhostArray::GHOST );
-
       // Ghost nodes are always ignored!
       vtkGhostArray::SetProperty( p, vtkGhostArray::IGNORE );
       }
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -561,7 +558,6 @@ bool vtkStructuredGridConnectivity::IsGhostNode(
     return false;
     }
 
-  // STEP 1: Initialize the return status and the real extent
   bool status = false;
   if( this->IsNodeWithinExtent( i,j,k,RealExtent ) )
     {
@@ -1053,52 +1049,52 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
   switch( this->DataDescription )
     {
     case VTK_X_LINE:
-      this->Get1DOrientation(
+      orientation[0] = this->Get1DOrientation(
           i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
           BlockFace::NOT_ON_BLOCK_FACE);
       break;
     case VTK_Y_LINE:
-      this->Get1DOrientation(
+      orientation[1] = this->Get1DOrientation(
           j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
           BlockFace::NOT_ON_BLOCK_FACE );
       break;
     case VTK_Z_LINE:
-      this->Get1DOrientation(
+      orientation[2] = this->Get1DOrientation(
           k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
           BlockFace::NOT_ON_BLOCK_FACE );
       break;
     case VTK_XY_PLANE:
-      this->Get1DOrientation(
+      orientation[0] = this->Get1DOrientation(
           i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
           BlockFace::NOT_ON_BLOCK_FACE);
-      this->Get1DOrientation(
+      orientation[1] = this->Get1DOrientation(
           j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
           BlockFace::NOT_ON_BLOCK_FACE );
       break;
     case VTK_YZ_PLANE:
-      this->Get1DOrientation(
+      orientation[1] = this->Get1DOrientation(
           j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
           BlockFace::NOT_ON_BLOCK_FACE );
-      this->Get1DOrientation(
+      orientation[2] = this->Get1DOrientation(
           k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
           BlockFace::NOT_ON_BLOCK_FACE );
       break;
     case VTK_XZ_PLANE:
-      this->Get1DOrientation(
+      orientation[0] = this->Get1DOrientation(
           i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
           BlockFace::NOT_ON_BLOCK_FACE);
-      this->Get1DOrientation(
+      orientation[2] = this->Get1DOrientation(
           k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
           BlockFace::NOT_ON_BLOCK_FACE );
       break;
     case VTK_XYZ_GRID:
-      this->Get1DOrientation(
+      orientation[0] = this->Get1DOrientation(
           i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
           BlockFace::NOT_ON_BLOCK_FACE);
-      this->Get1DOrientation(
+      orientation[1] = this->Get1DOrientation(
           j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
           BlockFace::NOT_ON_BLOCK_FACE );
-      this->Get1DOrientation(
+      orientation[2] = this->Get1DOrientation(
           k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
           BlockFace::NOT_ON_BLOCK_FACE );
       break;
