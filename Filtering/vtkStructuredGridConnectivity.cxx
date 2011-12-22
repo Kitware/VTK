@@ -1053,55 +1053,63 @@ void vtkStructuredGridConnectivity::GetNodeBlockOrientation(
   switch( this->DataDescription )
     {
     case VTK_X_LINE:
-      if( i==ext[0] )
-        {
-        // TODO:
-        }
-      else if( i==ext[1] )
-        {
-        // TODO:
-        }
+      this->Get1DOrientation(
+          i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
+          BlockFace::NOT_ON_BLOCK_FACE);
       orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
       orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_Y_LINE:
-      if( j==ext[2] )
-        {
-        // TODO:
-        }
-      else if( j==ext[3] )
-        {
-        // TODO:
-        }
+      this->Get1DOrientation(
+          j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
+          BlockFace::NOT_ON_BLOCK_FACE );
       orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
       orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_Z_LINE:
-      if( k==ext[4] )
-        {
-        // TODO:
-        }
-      else if( k==ext[5] )
-        {
-        // TODO:
-        }
+      this->Get1DOrientation(
+          k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
+          BlockFace::NOT_ON_BLOCK_FACE );
       orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
       orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_XY_PLANE:
-      // TODO: implement this
+      this->Get1DOrientation(
+          i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
+          BlockFace::NOT_ON_BLOCK_FACE);
+      this->Get1DOrientation(
+          j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
+          BlockFace::NOT_ON_BLOCK_FACE );
       orientation[2] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_YZ_PLANE:
-      // TODO: implement this
+      this->Get1DOrientation(
+          j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
+          BlockFace::NOT_ON_BLOCK_FACE );
+      this->Get1DOrientation(
+          k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
+          BlockFace::NOT_ON_BLOCK_FACE );
       orientation[0] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_XZ_PLANE:
-      // TODO: implement this
+      this->Get1DOrientation(
+          i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
+          BlockFace::NOT_ON_BLOCK_FACE);
+      this->Get1DOrientation(
+          k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
+          BlockFace::NOT_ON_BLOCK_FACE );
       orientation[1] = BlockFace::NOT_ON_BLOCK_FACE;
       break;
     case VTK_XYZ_GRID:
-      // TODO: implement this
+      this->Get1DOrientation(
+          i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT,
+          BlockFace::NOT_ON_BLOCK_FACE);
+      this->Get1DOrientation(
+          j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP,
+          BlockFace::NOT_ON_BLOCK_FACE );
+      this->Get1DOrientation(
+          k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT,
+          BlockFace::NOT_ON_BLOCK_FACE );
       break;
     default:
       std::cout << "Data description is: " << this->DataDescription << "\n";

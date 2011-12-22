@@ -321,9 +321,19 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void SetBlockTopology( const int gridID );
 
     // Description:
-    // Given the node i-j-k coordinates, this method computes
+    // Given i-j-k coordinates and the grid extent, this method determines the
+    // node orientation with respect to the 6 block faces. If the node is not
+    // on a boundary, then orientation[i] = BlockFace::NOT_ON_BLOCK_FACE
+    // for all i in [0,2].
     void GetNodeBlockOrientation(
         const int i, const int j, const int k, int ext[6], int orientation[3] );
+
+    // Description:
+    // A helper method that computes the 1-D i-j-k orientation to facilitate the
+    // implementation of GetNodeBlockOrientation.
+    int Get1DOrientation(
+        const int idx, const int ExtentLo, const int ExtentHi,
+        const int OnLo, const int OnHi, const int NotOnBoundary );
 
     // Description:
     // Prints the extent, used for debugging
@@ -344,6 +354,22 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 //=============================================================================
 // INLINE METHODS
 //=============================================================================
+
+//------------------------------------------------------------------------------
+inline int vtkStructuredGridConnectivity::Get1DOrientation(
+        const int idx, const int ExtentLo, const int ExtentHi,
+        const int OnLo, const int OnHi, const int NotOnBoundary )
+{
+  if( idx == ExtentLo )
+    {
+    return OnLo;
+    }
+  else if( idx == ExtentHi )
+    {
+    return OnHi;
+    }
+  return NotOnBoundary;
+}
 
 //------------------------------------------------------------------------------
 inline bool vtkStructuredGridConnectivity::HasBlockConnection(
