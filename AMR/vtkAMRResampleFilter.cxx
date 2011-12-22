@@ -66,6 +66,8 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
     }
   this->SetNumberOfInputPorts( 1 );
   this->SetNumberOfOutputPorts( 1 );
+  this->UseBiasVector = false;
+  this->BiasVector[0] = this->BiasVector[1] = this->BiasVector[2] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1059,9 +1061,31 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
     }
   std::cerr << "Request Grid Dim : " << this->NumberOfSamples[0] << ", "  << this->NumberOfSamples[1] << ", "  << this->NumberOfSamples[2] << "\n";
   std::cerr << "Computed Grid Dim: " << N[0] << ", "  << N[1] << ", "  << N[2] << "\n";
-  int minN = 
-    (N[0] < N[1]) ? ((N[0] < N[2]) ? N[0] : N[2]) : ((N[1] < N[2]) ? N[1] : N[2]);
-  N[0] = N[1] = N[2] = minN;
+  if (this->UseBiasVector)
+    {
+    double a[3];
+    a[0] = fabs(this->BiasVector[0]);
+    a[1] = fabs(this->BiasVector[1]);
+    a[2] = fabs(this->BiasVector[2]);
+
+    // Find the max component
+    int bdir = 
+      (a[0] > a[1]) ? ((a[0] > a[2]) ? 0 : 2) : ((a[1] > a[2]) ? 1 : 2);
+
+    if (bdir == 0)
+      {
+      N[0] = fmin(N[0], fmax(N[1], N[2]));
+      }
+    else if (bdir == 1)
+      {
+      N[1] = fmin(N[1], fmax(N[0], N[2]));
+      }
+    else
+      {
+      N[2] = fmin(N[2], fmax(N[0], N[1]));
+      }
+    std::cerr << "Adjusted Grid Dim: " << N[0] << ", "  << N[1] << ", "  << N[2] << "\n";
+    }
 }
 
 //-----------------------------------------------------------------------------

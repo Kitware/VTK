@@ -288,6 +288,11 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr)
 {
+  // Set the bias of the resample filter to be the projection direction
+  double bvec[3];
+  ren->GetActiveCamera()->GetDirectionOfProjection(bvec);
+  this->Resampler->SetBiasVector(bvec);
+  this->Resampler->SetUseBiasVector(true);
   if (this->RequestedResamplingMode == 0)
     {
     this->UpdateResamplerFrustrumMethod(ren, amr);

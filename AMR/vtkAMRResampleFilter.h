@@ -85,6 +85,18 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     vtkGetVector3Macro(Max,double);
 
     // Description:
+    // Set & Get macro for the number of subdivisions
+    vtkSetMacro(UseBiasVector,bool);
+    vtkGetMacro(UseBiasVector,bool);
+
+    // Description:
+    // Set and Get the bias vector.  If UseBiasVector is true
+    // then the largest component of this vector can not have
+    // the max number of samples
+    vtkSetVector3Macro(BiasVector,double);
+    vtkGetVector3Macro(BiasVector,double);
+
+    // Description:
     // Set & Get macro for the multi-process controller
     vtkSetMacro(Controller, vtkMultiProcessController*);
     vtkGetMacro(Controller, vtkMultiProcessController*);
@@ -127,6 +139,8 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     int TransferToNodes;
     int DemandDrivenMode;
     vtkMultiProcessController *Controller;
+    bool UseBiasVector;
+    double BiasVector[3];
 
     // Debugging Stuff
     int NumberOfBlocksTestedForLevel;
