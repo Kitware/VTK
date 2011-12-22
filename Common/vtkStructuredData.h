@@ -164,7 +164,7 @@ public:
   // Description:
   // Given the global grid extent and the linear index of a cell within the
   // grid extent, this method computes the corresponding structured coordinates
-  // of the given cell.
+  // of the given cell. This method adjusts for the beginning of the extent.
   // The method accepts as an optional parameter the data description of the
   // grid. If a data description is not provided, it will be computed internally.
   // If the method is used within a tight loop it is advised to pre-acquire and
@@ -187,7 +187,8 @@ public:
       int dataDescription=VTK_EMPTY );
 
   // Description:
-  // TODO:
+  // Given a pointId and the grid extent ext, get the structured coordinates
+  // (i-j-k). This method adjusts for the beginning of the extent.
   // The method accepts as an optional parameter the data description of the
   // grid. If a data description is not provided, it will be computed internally.
   // If the method is used within a tight loop it is advised to pre-acquire and
