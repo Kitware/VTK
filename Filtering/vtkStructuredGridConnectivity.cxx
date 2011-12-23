@@ -342,14 +342,22 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 
       if( neiList->GetNumberOfIds() > 0 )
         {
+        int neiRealExtent[6];
+        int neiGridExtent[6];
+
         for( vtkIdType nei=0; nei < neiList->GetNumberOfIds(); ++nei )
           {
+          vtkIdType neiIdx = neiList->GetId( nei );
+          this->GetGridExtent( neiIdx, neiGridExtent );
+          this->GetRealExtent( neiIdx, neiGridExtent, neiRealExtent );
+
           // If my gridID is not the smallest gridID that shares the point,then
           // I don't own the point.
           // The convention is that the grid with the smallest gridID will own the
           // point and all other grids should IGNORE it when computing statistics
           // etc.
-          if( gridID > neiList->GetId( nei ) )
+          if( this->IsNodeWithinExtent(i,j,k,neiRealExtent) &&
+              gridID > neiList->GetId( nei ) )
             {
             vtkGhostArray::SetProperty(p,vtkGhostArray::IGNORE );
             break;
