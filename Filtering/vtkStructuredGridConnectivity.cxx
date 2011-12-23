@@ -1073,6 +1073,10 @@ int vtkStructuredGridConnectivity::PartialOverlap(
     {
     return( this->DoPartialOverlap( A, B, overlap )   );
     }
+  else
+    {
+    return( this->DoPartialOverlap( A, B, overlap ) );
+    }
 
   // Code should not reach here!
   return NO_OVERLAP;
@@ -1084,52 +1088,58 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
 {
   int rc = NO_OVERLAP;
 
+  if( A[0]==24 && A[1]==51 && B[0]==49 && B[1]==76 )
+    {
+    int oops;
+    oops=1;
+    }
+
   // STEP 0: Check if we must check for a partial overlap
   int CardinalityOfA = this->Cardinality( A );
   int CardinalityOfB = this->Cardinality( B );
-  if( CardinalityOfA != CardinalityOfB )
-    {
+//  if( CardinalityOfA != CardinalityOfB )
+//    {
     return( this->PartialOverlap(A,CardinalityOfA,B,CardinalityOfB,overlap));
-    }
+//    }
 
   // Otherwise, check if the intervals overlap at a node or are 1-to-1, i.e.,
   // form an edge
 
   // STEP 1: Initialize overlap
-  overlap[0] = overlap[1] = -1;
-
-  // STEP 2: Allocate internal intersection vector. Note, since the cardinality
-  // of A,B is 2, the intersection vector can be at most of size 2.
-  std::vector< int > intersection;
-  intersection.resize( 2 );
-
-  // STEP 3: Compute intersection
-  std::vector< int >::iterator it;
-  it = std::set_intersection( A, A+2, B, B+2, intersection.begin() );
-
-  // STEP 4: Find number of intersections and overlap extent
-  int N = static_cast< int >( it-intersection.begin() );
-
-  switch( N )
-    {
-    case 0:
-      rc = NO_OVERLAP;
-      overlap[ 0 ] = overlap[ 1 ] = -1;
-      break;
-    case 1:
-      rc = NODE_OVERLAP;
-      overlap[0] = overlap[1] = intersection[0];
-      break;
-    case 2:
-      rc = EDGE_OVERLAP;
-      overlap[0] = intersection[0];
-      overlap[1] = intersection[1];
-      break;
-    default:
-      rc = NO_OVERLAP;
-      overlap[ 0 ] = overlap[ 1 ] = -1;
-      vtkErrorMacro( "Code should not reach here!" )
-    }
+//  overlap[0] = overlap[1] = -1;
+//
+//  // STEP 2: Allocate internal intersection vector. Note, since the cardinality
+//  // of A,B is 2, the intersection vector can be at most of size 2.
+//  std::vector< int > intersection;
+//  intersection.resize( 2 );
+//
+//  // STEP 3: Compute intersection
+//  std::vector< int >::iterator it;
+//  it = std::set_intersection( A, A+2, B, B+2, intersection.begin() );
+//
+//  // STEP 4: Find number of intersections and overlap extent
+//  int N = static_cast< int >( it-intersection.begin() );
+//
+//  switch( N )
+//    {
+//    case 0:
+//      rc = NO_OVERLAP;
+//      overlap[ 0 ] = overlap[ 1 ] = -1;
+//      break;
+//    case 1:
+//      rc = NODE_OVERLAP;
+//      overlap[0] = overlap[1] = intersection[0];
+//      break;
+//    case 2:
+//      rc = EDGE_OVERLAP;
+//      overlap[0] = intersection[0];
+//      overlap[1] = intersection[1];
+//      break;
+//    default:
+//      rc = NO_OVERLAP;
+//      overlap[ 0 ] = overlap[ 1 ] = -1;
+//      vtkErrorMacro( "Code should not reach here!" )
+//    }
 
   return( rc );
 }
