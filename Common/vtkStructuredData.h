@@ -231,7 +231,7 @@ protected:
   // a grid with N1 and N2 dimensions along its principal directions.
   // NOTE: i,j,k are relative to the frame of reference of the grid. For example,
   // if the grid is on the XZ-Plane, then i=>i, j=>k, k=>j.
-  static vtkIdType GetStructuredCoordinates(
+  static void GetStructuredCoordinates(
       const vtkIdType idx, const int N1, const int N2,int &i, int &j, int &k )
     {
       int N12 = N1*N2;
