@@ -46,6 +46,7 @@
 #include "vtkCell.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 
 #define ENABLE_IO
@@ -70,6 +71,40 @@ void WriteGrid( vtkUniformGrid *grid, std::string prefix )
   writer->Delete();
 #endif
 
+}
+
+//------------------------------------------------------------------------------
+// Description:
+// This method attaches a point array to the given grid that will label the
+// the points by color -- 0(off) or 1(on) -- to indicate whether or not a
+// particular flag is "ON"
+void AttachPointFlagsArray(
+    vtkUniformGrid *grid, const int flag, std::string label )
+{
+  assert( "pre: grid should not be NULL!" && (grid != NULL) );
+
+  vtkUnsignedIntArray *flags = vtkUnsignedIntArray::New();
+  flags->SetName( label.c_str() ) ;
+  flags->SetNumberOfComponents( 1 );
+  flags->SetNumberOfTuples( grid->GetNumberOfPoints() );
+
+  vtkIdType pidx = 0;
+  for( ; pidx < grid->GetNumberOfPoints(); ++pidx )
+    {
+    unsigned char nodeProperty =
+         *(grid->GetPointVisibilityArray()->GetPointer( pidx ));
+    if( vtkGhostArray::IsPropertySet(nodeProperty,flag) )
+      {
+      flags->SetValue( pidx, 1);
+      }
+    else
+      {
+      flags->SetValue( pidx, 0);
+      }
+    } // END for all points
+
+  grid->GetPointData()->AddArray( flags );
+  flags->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -657,7 +692,7 @@ int Simple2DTest( int argc, char **argv )
   int expected = 100*100;
 
   vtkMultiBlockDataSet *mbds = GetDataSet(2, np, ng);
-  WriteMultiBlock( mbds );
+//  WriteMultiBlock( mbds );
 
   vtkStructuredGridConnectivity *gridConnectivity =
       vtkStructuredGridConnectivity::New();
@@ -670,6 +705,21 @@ int Simple2DTest( int argc, char **argv )
   gridConnectivity->ComputeNeighbors();
   gridConnectivity->Print( std::cout );
   std::cout.flush();
+
+  unsigned int block=0;
+  for( ; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *myGrid =
+        vtkUniformGrid::SafeDownCast(mbds->GetBlock( block ) );
+    if( myGrid != NULL )
+      {
+      AttachPointFlagsArray( myGrid, vtkGhostArray::IGNORE, "IGNORE" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::SHARED, "SHARED" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::GHOST, "GHOST" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::BOUNDARY, "BOUNDARY" );
+      }
+    } // END for all blocks
+  WriteMultiBlock( mbds );
 
   int NumNodes = GetTotalNumberOfNodes( mbds );
   std::cout << "[DONE]\n";
