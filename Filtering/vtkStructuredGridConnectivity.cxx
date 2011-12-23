@@ -545,6 +545,11 @@ void vtkStructuredGridConnectivity::GetRealExtent(
 bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
     const int i, const int j, const int k, int ext[6] )
 {
+  if( !this->IsNodeWithinExtent( i,j,k, ext) )
+    {
+    return false;
+    }
+
   bool status = false;
   switch( this->DataDescription )
     {
@@ -567,30 +572,30 @@ bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
          }
        break;
      case VTK_XY_PLANE:
-       if( i==ext[0] || i==ext[1] ||
-           j==ext[2] || j==ext[3] )
+       if( (i==ext[0] || i==ext[1]) ||
+           (j==ext[2] || j==ext[3]) )
          {
          status = true;
          }
        break;
      case VTK_YZ_PLANE:
-       if( j==ext[2] || j==ext[3] ||
-           k==ext[4] || k==ext[5] )
+       if( (j==ext[2] || j==ext[3]) ||
+           (k==ext[4] || k==ext[5]) )
          {
          status = true;
          }
        break;
      case VTK_XZ_PLANE:
-       if( i==ext[0] || i==ext[1] ||
-           k==ext[4] || k==ext[5] )
+       if( (i==ext[0] || i==ext[1]) ||
+           (k==ext[4] || k==ext[5]) )
          {
          status = true;
          }
        break;
      case VTK_XYZ_GRID:
-       if( i==ext[0] || i==ext[1] ||
-           j==ext[2] || j==ext[3] ||
-           k==ext[4] || k==ext[5] )
+       if( (i==ext[0] || i==ext[1]) ||
+           (j==ext[2] || j==ext[3]) ||
+           (k==ext[4] || k==ext[5]) )
          {
          status = true;
          }
@@ -644,15 +649,11 @@ bool vtkStructuredGridConnectivity::IsGhostNode(
     }
 
   bool status = false;
-  if( this->IsNodeWithinExtent( i,j,k,RealExtent ) )
-    {
-    status = false;
-    }
-  else if( this->IsNodeWithinExtent( i,j,k, GridExtent ) )
+  if( !this->IsNodeWithinExtent(i,j,k,RealExtent) &&
+       this->IsNodeWithinExtent(i,j,k,GridExtent))
     {
     status = true;
     }
-
   return( status );
 }
 
