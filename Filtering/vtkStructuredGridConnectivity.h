@@ -30,11 +30,12 @@
 // VTK include directives
 #include "vtkAbstractGridConnectivity.h"
 #include "vtkStructuredNeighbor.h" // For Structured Neighbor object definition
-
+#include "vtkStructuredData.h" // For data description definitions
 
 // C++ include directives
-#include <vector>  // For STL vector
-#include <cassert> // For assert()
+#include <iostream> // For cout
+#include <vector>   // For STL vector
+#include <cassert>  // For assert()
 
 // Forward Declarations
 class vtkIdList;
@@ -352,6 +353,266 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 //=============================================================================
 // INLINE METHODS
 //=============================================================================
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::GetGridExtent(
+    const int gridID, int ext[6])
+{
+  assert( "pre: gridID out-of-bounds!" &&
+        (gridID >= 0  && gridID < this->NumberOfGrids) );
+  for( int i=0; i < 6; ++i )
+    {
+    ext[i] = this->GridExtents[ gridID*6+i ];
+    }
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(
+    const int gridID, int ext[6])
+{
+  assert( "pre: gridID out-of-bounds!" &&
+        (gridID >= 0  && gridID < this->NumberOfGrids) );
+
+  if( this->GhostedExtents.size() == 0 )
+    {
+    vtkErrorMacro( "No ghosted extents found for registered grid extends!!!" );
+    return;
+    }
+
+  assert( "GhostedExtents are not aligned with registered grid extents" &&
+        ( this->GhostedExtents.size() == this->GridExtents.size() ) );
+  for( int i=0; i < 6; ++i )
+    {
+    ext[i] = this->GhostedExtents[ gridID*6+i ];
+    }
+}
+
+//------------------------------------------------------------------------------
+inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
+    const int i, const int j, const int k, int ext[6] )
+{
+  if( !this->IsNodeWithinExtent( i,j,k, ext) )
+    {
+    return false;
+    }
+
+  bool status = false;
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+       if( i==ext[0] || i==ext[1] )
+         {
+         status = true;
+         }
+       break;
+     case VTK_Y_LINE:
+       if( j==ext[2] || j==ext[3] )
+         {
+         status = true;
+         }
+       break;
+     case VTK_Z_LINE:
+       if( k==ext[4] || k==ext[5] )
+         {
+         status = true;
+         }
+       break;
+     case VTK_XY_PLANE:
+       if( (i==ext[0] || i==ext[1]) ||
+           (j==ext[2] || j==ext[3]) )
+         {
+         status = true;
+         }
+       break;
+     case VTK_YZ_PLANE:
+       if( (j==ext[2] || j==ext[3]) ||
+           (k==ext[4] || k==ext[5]) )
+         {
+         status = true;
+         }
+       break;
+     case VTK_XZ_PLANE:
+       if( (i==ext[0] || i==ext[1]) ||
+           (k==ext[4] || k==ext[5]) )
+         {
+         status = true;
+         }
+       break;
+     case VTK_XYZ_GRID:
+       if( (i==ext[0] || i==ext[1]) ||
+           (j==ext[2] || j==ext[3]) ||
+           (k==ext[4] || k==ext[5]) )
+         {
+         status = true;
+         }
+       break;
+     default:
+       std::cout << "Data description is: " << this->DataDescription << "\n";
+       std::cout.flush();
+       assert( "pre: Undefined data-description!" && false );
+    } // END switch
+
+  return( status );
+}
+
+//------------------------------------------------------------------------------
+inline bool vtkStructuredGridConnectivity::IsNodeInterior(
+    const int i, const int j, const int k,
+    int GridExtent[6] )
+{
+  bool status = false;
+
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      if( (GridExtent[0] < i) && (i < GridExtent[1]) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_Y_LINE:
+      if( (GridExtent[2] < j) && (j < GridExtent[3] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_Z_LINE:
+      if( (GridExtent[4] < k) && (k < GridExtent[5] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_XY_PLANE:
+      if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
+          (GridExtent[2] < j) && (j < GridExtent[3])  )
+        {
+        status = true;
+        }
+      break;
+    case VTK_YZ_PLANE:
+      if( (GridExtent[2] < j) && (j < GridExtent[3] ) &&
+          (GridExtent[4] < k) && (k < GridExtent[5] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_XZ_PLANE:
+      if( (GridExtent[0] < i) && (i < GridExtent[1] ) &&
+          (GridExtent[4] < k) && (k < GridExtent[5] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_XYZ_GRID:
+      if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
+          (GridExtent[2] < j) && (j < GridExtent[3]) &&
+          (GridExtent[4] < k) && (k < GridExtent[5]) )
+        {
+        status = true;
+        }
+      break;
+    default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
+      assert( "pre: Undefined data-description!" && false );
+    } // END switch
+
+  return( status );
+}
+
+//------------------------------------------------------------------------------
+inline bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
+    const int i, const int j, const int k,
+    int GridExtent[6] )
+{
+  bool status = false;
+
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_Y_LINE:
+      if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_Z_LINE:
+      if( (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_XY_PLANE:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
+          (GridExtent[2] <= j) && (j <= GridExtent[3])  )
+        {
+        status = true;
+        }
+      break;
+    case VTK_YZ_PLANE:
+      if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
+          (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_XZ_PLANE:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
+          (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+        {
+        status = true;
+        }
+      break;
+    case VTK_XYZ_GRID:
+      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
+          (GridExtent[2] <= j) && (j <= GridExtent[3]) &&
+          (GridExtent[4] <= k) && (k <= GridExtent[5]) )
+        {
+        status = true;
+        }
+      break;
+    default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
+      assert( "pre: Undefined data-description!" && false );
+    } // END switch
+
+  return( status );
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
+    const int idx, int A[2], int overlap[2], int orient[3] )
+{
+  // We know that A,B are overlapping!
+
+  assert( "pre: idx is out-of-bounds" && (idx >= 0) && (idx < 3) );
+
+  bool lo = this->InBounds( A[0], overlap[0],overlap[1] );
+  bool hi = this->InBounds( A[1], overlap[0],overlap[1] );
+
+  if( lo && !hi )
+    {
+    orient[ idx ] = vtkStructuredNeighbor::LO;
+    }
+  else if( !lo && hi )
+    {
+    orient[ idx ] = vtkStructuredNeighbor::HI;
+    }
+  else if( lo && hi )
+    {
+    orient[ idx ] = vtkStructuredNeighbor::BOTH;
+    }
+  else
+    {
+    orient[ idx ] = vtkStructuredNeighbor::UNDEFINED;
+    }
+}
 
 //------------------------------------------------------------------------------
 inline int vtkStructuredGridConnectivity::Get1DOrientation(
