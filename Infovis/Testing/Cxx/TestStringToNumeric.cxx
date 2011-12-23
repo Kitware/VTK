@@ -112,6 +112,16 @@ namespace
           ++errors;
           }
         }
+
+      cerr << "Testing force double..." << endl;
+      numeric->ForceDoubleOn();
+      numeric->Update();
+      table = vtkTable::SafeDownCast(numeric->GetOutput());
+      if (!vtkDoubleArray::SafeDownCast(table->GetColumnByName("Age")))
+        {
+        cerr << "ERROR: Arrays should have been forced to double" << endl;
+        ++errors;
+        }
       
       return errors;
 
