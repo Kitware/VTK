@@ -505,6 +505,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
       vtkStructuredGridConnectivity *gridConnectivity=
           vtkStructuredGridConnectivity::New();
       gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+      gridConnectivity->SetNumberOfGhostLayers( numGhostLayers[j] );
       gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
       std::cout << "[DONE]\n";
       std::cout.flush();
@@ -524,13 +525,6 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
       std::cout.flush();
 
       gridConnectivity->Print( std::cout );
-
-      // STEP 4: Fill-in the visibility arrays!
-      std::cout << "-- Fill visibility arrays...";
-      std::cout.flush();
-      FillVisibilityArrays( mbds, gridConnectivity  );
-      std::cout << "[DONE]\n";
-      std::cout.flush();
 
       // STEP 5: Compute total number of nodes compare to expected
       std::cout << "-- Computing the total number of nodes...";
