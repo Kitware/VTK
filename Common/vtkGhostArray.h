@@ -37,7 +37,7 @@ class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
 {
   public:
 
-    enum NodeProperties
+    enum
       {
       INTERNAL = 0, // Nodes that are on the interior domain of a partition
       SHARED   = 1, // Nodes that are on the abutting/internal interface of
@@ -52,19 +52,19 @@ class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
                     // that node to ignore it.
       BOUNDARY = 5, // Nodes that are on the boundaries of the domain
       PERIODIC = 6  // Nodes that are on periodic boundaries
-      };
+      } NodeProperties;
 
-    enum CellProperties
+    enum
       {
       DUPLICATE = 0,// Ghost cells that exist in another partition, i.e, are
-                    // composed of internal boundary and ghost nodes
+                    // composed of internal boundary and/or ghost nodes
       EXTERNAL  = 1,// Cells that are created "artificially" outside the domain,
                     // i.e., are composed from boundary nodes and nodes outside
                     // the domain.
-      VOID      = 2,// Cells that are ignored in computation/visualization, their
+      BLANK     = 2,// Cells that are ignored in computation/visualization, their
                     // value is typically garbage
-      INTERNAL  = 3 // Cells that are internal/owned by a given partition.
-      };
+      INTERIOR  = 3 // Cells that are internal/owned by a given partition.
+      } CellProperties;
 
     static vtkGhostArray* New();
     vtkTypeMacro( vtkGhostArray, vtkObject );
