@@ -66,6 +66,56 @@ int vtkStructuredData::GetDataDescription(int dims[3])
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredData::GetCellExtentFromNodeExtent(
+    int nodeExtent[6], int cellExtent[6], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription =
+        vtkStructuredData::GetDataDescriptionFromExtent( nodeExtent );
+    }
+
+  // Initialize the cell extent to be the same as the node extent
+  for( int i=0; i < 6; ++i )
+    {
+    cellExtent[ i ] = nodeExtent[ i ];
+    }
+
+  switch( dataDescription )
+    {
+    case VTK_X_LINE:
+      cellExtent[1]--;
+      break;
+    case VTK_Y_LINE:
+      cellExtent[3]--;
+      break;
+    case VTK_Z_LINE:
+      cellExtent[4]--;
+      break;
+    case VTK_XY_PLANE:
+      cellExtent[1]--;
+      cellExtent[3]--;
+      break;
+    case VTK_YZ_PLANE:
+      cellExtent[3]--;
+      cellExtent[4]--;
+      break;
+    case VTK_XZ_PLANE:
+      cellExtent[0]--;
+      cellExtent[4]--;
+      break;
+    case VTK_XYZ_GRID:
+      cellExtent[0]--;
+      cellExtent[3]--;
+      cellExtent[4]--;
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredData::GetCellDimensionsFromExtent(
     int ext[6], int celldims[3] )
 {

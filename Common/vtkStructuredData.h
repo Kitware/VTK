@@ -67,6 +67,17 @@ public:
   static int GetDataDimension( int ext[6] );
 
   // Description:
+  // Given the node extent of a grid, this method computes the corresponding
+  // cell extent for the grid.
+  // The method accepts as an optional parameter the data description of the
+  // grid. If a data description is not provided, it will be computed internally.
+  // If the method is used within a tight loop it is advised to pre-acquire and
+  // pass the data description to the method to avoid any latency associated
+  // with computing the data description internally multiple times.
+  static void GetCellExtentFromNodeExtent(
+      int nodeExtent[6], int cellExtent[6], int dataDescription=VTK_EMPTY );
+
+  // Description:
   // Computes the structured grid dimensions based on the given extent.
   static void GetDimensionsFromExtent( int ext[6], int dims[3] );
 
