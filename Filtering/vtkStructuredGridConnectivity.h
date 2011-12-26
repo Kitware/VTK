@@ -149,6 +149,13 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
         int ext[6], int RealExtent[6], unsigned char &pfield );
 
     // Description:
+    // Marks the cell property for the cell composed by the nodes with the
+    // given ghost fields.
+    void MarkCellProperty(
+        unsigned char &pfield,
+        unsigned char *nodeGhostFields, const int numNodes );
+
+    // Description:
     // Given a grid extent, this method computes the RealExtent.
     void GetRealExtent( const int gridID, int GridExtent[6],int RealExtent[6] );
 

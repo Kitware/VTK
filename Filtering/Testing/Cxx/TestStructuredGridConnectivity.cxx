@@ -217,8 +217,6 @@ vtkUniformGrid* GetGrid( const int rank, int globalExtent[6] )
       }
     }
 
-
-
   // Compute local origin
   double localOrigin[3];
   localOrigin[0] = globalOrigin[0] + globalExtent[0]*h[0];

@@ -278,6 +278,28 @@ void vtkStructuredGridConnectivity::SearchNeighbors(
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::MarkCellProperty(
+    unsigned char &pfield, unsigned char *nodeGhostFields, const int numNodes )
+{
+  // Sanity check
+  assert( "pre: node ghostfields should not be NULL" &&
+           (nodeGhostFields != NULL) );
+
+  vtkGhostArray::Reset(pfield);
+
+  for( int i=0; i < numNodes; ++i )
+    {
+    if( vtkGhostArray::IsPropertySet(nodeGhostFields[i], vtkGhostArray::GHOST))
+      {
+      vtkGhostArray::SetProperty(pfield,vtkGhostArray::DUPLICATE);
+      }
+    } // END for all nodes
+
+  vtkGhostArray::SetProperty( pfield,vtkGhostArray::INTERIOR );
+
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::MarkNodeProperty(
     const int gridID, const int i, const int j, const int k,
     int ext[6], int realExtent[6], unsigned char &p )
@@ -352,15 +374,49 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
   assert( "pre: Nodes array is not NULL" && (nodesArray != NULL) );
   assert( "pre: Cell array is not NULL" && (cellsArray != NULL) );
 
+  // STEP 0: Get the grid information
   int GridExtent[6];
   this->GetGridExtent( gridID, GridExtent );
 
+  // STEP 1: Real extent
   int RealExtent[6];
   this->GetRealExtent( gridID, GridExtent, RealExtent );
 
+  // STEP 2: Get the data description
   int dataDescription=
       vtkStructuredData::GetDataDescriptionFromExtent( GridExtent );
 
+  // STEP 3: Get the cell extent
+  int CellExtent[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent(
+      GridExtent,CellExtent,dataDescription );
+
+  // STEP 4: Get the data dimension
+  int dim = vtkStructuredData::GetDataDimension( dataDescription );
+  assert( "pre: data dimensions must be 1, 2 or 3" );
+
+  // STEP 5: Get the grid dimensions from the given extent.
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent(GridExtent,dims);
+
+  // STEP 5: Get the number of nodes per cell
+  int numNodes = 0;
+  switch( dim )
+    {
+    case 1:
+      numNodes = 2; // line cell
+      break;
+    case 2:
+      numNodes = 4; // quad cell
+      break;
+    case 3:
+      numNodes = 8; // hex cell
+      break;
+    default:
+      assert( "ERROR: code should not reach here!" && false );
+    }
+
+  // STEP 6: Mark nodes
   int ijk[3];
   for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
     {
@@ -380,7 +436,53 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
       } // END for all j
     } // END for all i
 
-  // TODO: mark cells
+  // STEP 7: Mark celss
+  if( cellsArray != NULL )
+    {
+
+    vtkIdList *cellNodeIds = vtkIdList::New();
+
+    for( int i=CellExtent[0]; i <= CellExtent[1]; ++i )
+      {
+      for( int j=CellExtent[2]; j <= CellExtent[3]; ++j )
+        {
+        for( int k=CellExtent[4]; k <= CellExtent[5]; ++k )
+          {
+
+          ijk[0]=i; ijk[1]=j; ijk[2]=k;
+
+          // Note: this is really a cell index, since it is computed from the
+          // cell extent
+          vtkIdType idx =
+            vtkStructuredData::ComputePointIdForExtent(
+                CellExtent,ijk,dataDescription);
+
+          cellNodeIds->Reset();
+          vtkStructuredData::GetCellPoints(
+                idx,cellNodeIds,dataDescription,dims );
+          assert( cellNodeIds->GetNumberOfIds() == numNodes );
+
+          unsigned char *cellNodeGhostFields = new unsigned char[ numNodes ];
+          assert( cellNodeGhostFields != NULL );
+
+          for( int i=0; i < numNodes; ++i )
+            {
+            vtkIdType nodeIdx = cellNodeIds->GetId( i );
+            cellNodeGhostFields[ i ] = *nodesArray->GetPointer( nodeIdx );
+            } // END for all nodes
+
+          this->MarkCellProperty(
+            *cellsArray->GetPointer(idx), cellNodeGhostFields, numNodes );
+
+          delete [] cellNodeGhostFields;
+
+          } // END for all cells along k
+        } // END for all cells along j
+      } // END for all cells along i
+
+    cellNodeIds->Delete();
+
+    } // END if cellsArray is not NULL
 }
 
 //------------------------------------------------------------------------------
