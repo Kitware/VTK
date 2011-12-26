@@ -108,16 +108,16 @@ void vtkStructuredData::GetCellExtentFromNodeExtent(
       assert( "post: Cell extents must be >= 1" && (cellExtent[4] >= 1) );
       break;
     case VTK_XZ_PLANE:
-      cellExtent[0]--;
+      cellExtent[1]--;
       cellExtent[4]--;
-      assert( "post: Cell extents must be >= 1" && (cellExtent[0] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
       assert( "post: Cell extents must be >= 1" && (cellExtent[4] >= 1) );
       break;
     case VTK_XYZ_GRID:
-      cellExtent[0]--;
+      cellExtent[1]--;
       cellExtent[3]--;
       cellExtent[4]--;
-      assert( "post: Cell extents must be >= 1" && (cellExtent[0] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
       assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
       assert( "post: Cell extents must be >= 1" && (cellExtent[4] >= 1) );
       break;
