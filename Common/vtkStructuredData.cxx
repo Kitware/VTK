@@ -85,29 +85,41 @@ void vtkStructuredData::GetCellExtentFromNodeExtent(
     {
     case VTK_X_LINE:
       cellExtent[1]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
       break;
     case VTK_Y_LINE:
       cellExtent[3]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
       break;
     case VTK_Z_LINE:
       cellExtent[4]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[4] >= 1) );
       break;
     case VTK_XY_PLANE:
       cellExtent[1]--;
       cellExtent[3]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
       break;
     case VTK_YZ_PLANE:
       cellExtent[3]--;
       cellExtent[4]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[4] >= 1) );
       break;
     case VTK_XZ_PLANE:
       cellExtent[0]--;
       cellExtent[4]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[0] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[4] >= 1) );
       break;
     case VTK_XYZ_GRID:
       cellExtent[0]--;
       cellExtent[3]--;
       cellExtent[4]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[0] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[4] >= 1) );
       break;
     default:
       vtkGenericWarningMacro("Could not get dimensions for extent!");
