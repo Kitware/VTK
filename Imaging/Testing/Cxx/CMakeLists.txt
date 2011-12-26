@@ -2,6 +2,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Imaging)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
     ImportExport.cxx
+    ImageBSplineCoefficients.cxx
     ImageWeightedSum.cxx
     ImageAutoRange.cxx
     ImageAccumulate.cxx

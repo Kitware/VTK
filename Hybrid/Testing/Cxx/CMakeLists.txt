@@ -1,6 +1,7 @@
 SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests
+  TestBSplineWarp.cxx
   TestImageStencilData.cxx
   X3DTest.cxx
   )

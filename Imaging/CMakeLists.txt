@@ -16,6 +16,7 @@ vtkImageAnisotropicDiffusion3D.cxx
 vtkImageAppend.cxx
 vtkImageAppendComponents.cxx
 vtkImageBlend.cxx
+vtkImageBSplineCoefficients.cxx
 vtkImageButterworthHighPass.cxx
 vtkImageButterworthLowPass.cxx
 vtkImageCacheFilter.cxx
