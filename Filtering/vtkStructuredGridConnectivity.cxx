@@ -73,7 +73,7 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
 
   os << "========================\n";
   os << "CONNECTIVITY INFORMATION: \n";
-  for( int gridID=0; gridID < this->NumberOfGrids; ++gridID )
+  for( unsigned int gridID=0; gridID < this->NumberOfGrids; ++gridID )
     {
     int GridExtent[6];
     int RealExtent[6];
@@ -162,7 +162,7 @@ void vtkStructuredGridConnectivity::RegisterGrid(
     vtkPoints* gridNodes )
 {
   assert( "pre: gridID out-of-bounds!" &&
-        (gridID >= 0  && gridID < this->NumberOfGrids) );
+        (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
 
   for( int i=0; i < 6; ++i )
     {
@@ -236,17 +236,17 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
     }
 
   // STEP 1: Establish neighbors based on the structured extents.
-  for( int i=0; i < this->NumberOfGrids; ++i )
+  for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
     this->SetBlockTopology( i );
-    for( int j=i+1; j < this->NumberOfGrids; ++j )
+    for( unsigned int j=i+1; j < this->NumberOfGrids; ++j )
       {
       this->EstablishNeighbors(i,j);
       } // END for all j
     } // END for all i
 
   // STEP 2: Fill the ghost arrays
-  for( int i=0; i < this->NumberOfGrids; ++i )
+  for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
     if( this->GridPointGhostArrays[ i ] != NULL )
       {
@@ -263,7 +263,9 @@ void vtkStructuredGridConnectivity::SearchNeighbors(
 {
   assert( "pre: neiList should not be NULL" && (neiList != NULL) );
   assert( "pre: gridID is out-of-bounds" &&
-           ( (gridID >= 0) && (gridID < this->NumberOfGrids) ) );
+           ( (gridID >= 0) &&
+             (gridID < static_cast<int>(this->NumberOfGrids))));
+
 
   for( unsigned int nei=0; nei < this->Neighbors[ gridID ].size(); ++nei )
     {
@@ -1061,7 +1063,7 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
 void vtkStructuredGridConnectivity::CreateGhostedExtent( const int gridID )
 {
   assert( "pre: gridID is out-of-bounds!" &&
-          (gridID >= 0) && (gridID < this->NumberOfGrids)  );
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: ghosted-extents vector has not been allocated" &&
           (this->NumberOfGrids == this->GhostedExtents.size()/6 ) );
   assert( "pre: Number of ghost-layers requested must be 0" &&

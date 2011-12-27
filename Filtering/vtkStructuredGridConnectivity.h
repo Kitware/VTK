@@ -430,7 +430,7 @@ inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(
     const int gridID, int ext[6] )
 {
   assert( "pre: gridID is out-of-bounds" &&
-          (gridID >= 0) && (gridID < this->NumberOfGrids) );
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: ghosted-extents vector has not been allocated" &&
           (this->NumberOfGrids == this->GhostedExtents.size()/6 ) );
 
@@ -445,7 +445,7 @@ inline void vtkStructuredGridConnectivity::GetGridExtent(
     const int gridID, int ext[6])
 {
   assert( "pre: gridID out-of-bounds!" &&
-        (gridID >= 0  && gridID < this->NumberOfGrids) );
+        (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
   for( int i=0; i < 6; ++i )
     {
     ext[i] = this->GridExtents[ gridID*6+i ];
@@ -457,7 +457,7 @@ inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(
     const int gridID, int ext[6])
 {
   assert( "pre: gridID out-of-bounds!" &&
-        (gridID >= 0  && gridID < this->NumberOfGrids) );
+        (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
 
   if( this->GhostedExtents.size() == 0 )
     {
@@ -722,9 +722,9 @@ inline bool vtkStructuredGridConnectivity::HasBlockConnection(
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" &&
-        (gridID >=0) && (gridID < this->NumberOfGrids) );
+        (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert("pre: BlockTopology has not been properly allocated" &&
-        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+        (this->NumberOfGrids == this->BlockTopology.size()));
   assert("pre: blockDirection is out-of-bounds" &&
         (blockDirection >= 0) && (blockDirection < 6) );
   return( this->BlockTopology[ gridID ] & (1 << blockDirection) );
@@ -736,9 +736,9 @@ inline void vtkStructuredGridConnectivity::RemoveBlockConnection(
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" &&
-        (gridID >=0) && (gridID < this->NumberOfGrids) );
+        (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert("pre: BlockTopology has not been properly allocated" &&
-        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+        (this->NumberOfGrids == this->BlockTopology.size()));
   assert("pre: blockDirection is out-of-bounds" &&
         (blockDirection >= 0) && (blockDirection < 6) );
 
@@ -751,9 +751,9 @@ inline void vtkStructuredGridConnectivity::AddBlockConnection(
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" &&
-        (gridID >=0) && (gridID < this->NumberOfGrids) );
+        (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert("pre: BlockTopology has not been properly allocated" &&
-        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+        (this->NumberOfGrids == this->BlockTopology.size()));
   assert("pre: blockDirection is out-of-bounds" &&
         (blockDirection >= 0) && (blockDirection < 6) );
 
@@ -766,9 +766,9 @@ inline void vtkStructuredGridConnectivity::ClearBlockConnections(
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" &&
-        (gridID >=0) && (gridID < this->NumberOfGrids) );
+        (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert("pre: BlockTopology has not been properly allocated" &&
-        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+        (this->NumberOfGrids == this->BlockTopology.size()));
 
   for( int i=0; i < 6; ++i )
     {
@@ -782,9 +782,9 @@ inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" &&
-        (gridID >=0) && (gridID < this->NumberOfGrids) );
+        (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert("pre: BlockTopology has not been properly allocated" &&
-        (this->NumberOfGrids == static_cast<int>(this->BlockTopology.size())));
+        (this->NumberOfGrids == this->BlockTopology.size()));
 
   int count = 0;
   for( int i=0; i < 6; ++i )
