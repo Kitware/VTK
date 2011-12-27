@@ -366,6 +366,85 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::FillNodesGhostArray(
+    const int gridID, const int dataDescription,
+    int GridExtent[6], int RealExtent[6], vtkUnsignedCharArray *nodesArray )
+{
+  int ijk[3];
+  for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
+    {
+    for( int j=GridExtent[2]; j <= GridExtent[3]; ++j )
+      {
+      for( int k=GridExtent[4]; k <= GridExtent[5]; ++k )
+        {
+        ijk[0]=i; ijk[1]=j; ijk[2]=k;
+        vtkIdType idx =
+          vtkStructuredData::ComputePointIdForExtent(
+              GridExtent,ijk,dataDescription);
+
+        this->MarkNodeProperty(
+            gridID,i,j,k,GridExtent, RealExtent,
+            *nodesArray->GetPointer( idx ) );
+        } // END for all k
+      } // END for all j
+    } // END for all i
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::FillCellsGhostArray(
+    const int dataDescription, const int numNodesPerCell,
+    int dims[3], int CellExtent[6], vtkUnsignedCharArray *nodesArray,
+    vtkUnsignedCharArray *cellsArray)
+{
+  assert( "pre: nodes array should not be NULL" && (nodesArray != NULL) );
+
+  if( cellsArray != NULL )
+    {
+    return;
+    }
+
+  vtkIdList *cellNodeIds             = vtkIdList::New();
+  unsigned char *cellNodeGhostFields = new unsigned char[ numNodesPerCell ];
+
+  int ijk[3];
+  for( int i=CellExtent[0]; i <= CellExtent[1]; ++i )
+    {
+    for( int j=CellExtent[2]; j <= CellExtent[3]; ++j )
+      {
+      for( int k=CellExtent[4]; k <= CellExtent[5]; ++k )
+        {
+        ijk[0]=i; ijk[1]=j; ijk[2]=k;
+
+        // Note: this is really a cell index, since it is computed from the
+        // cell extent
+        vtkIdType idx =
+          vtkStructuredData::ComputePointIdForExtent(
+              CellExtent,ijk,dataDescription);
+
+        cellNodeIds->Reset();
+        vtkStructuredData::GetCellPoints(
+              idx,cellNodeIds,dataDescription,dims );
+        assert( cellNodeIds->GetNumberOfIds() == numNodesPerCell );
+
+        assert( cellNodeGhostFields != NULL );
+
+        for( int ii=0; ii < numNodesPerCell; ++ii )
+          {
+          vtkIdType nodeIdx = cellNodeIds->GetId( ii );
+          cellNodeGhostFields[ ii ] = *nodesArray->GetPointer( nodeIdx );
+          } // END for all nodes
+
+        this->MarkCellProperty(
+          *cellsArray->GetPointer(idx), cellNodeGhostFields, numNodesPerCell );
+        } // END for all cells along k
+      } // END for all cells along j
+    } // END for all cells along i
+
+  delete [] cellNodeGhostFields;
+  cellNodeIds->Delete();
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::FillGhostArrays(
     const int gridID,
     vtkUnsignedCharArray *nodesArray,
@@ -399,90 +478,16 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
   int dims[3];
   vtkStructuredData::GetDimensionsFromExtent(GridExtent,dims);
 
-  // STEP 5: Get the number of nodes per cell
-  int numNodes = 0;
-  switch( dim )
-    {
-    case 1:
-      numNodes = 2; // line cell
-      break;
-    case 2:
-      numNodes = 4; // quad cell
-      break;
-    case 3:
-      numNodes = 8; // hex cell
-      break;
-    default:
-      assert( "ERROR: code should not reach here!" && false );
-    }
+  // STEP 6: Get the number of nodes per cell
+  int numNodes = this->GetNumberOfNodesPerCell( dim );
 
-  // STEP 6: Mark nodes
-  int ijk[3];
-  for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
-    {
-    for( int j=GridExtent[2]; j <= GridExtent[3]; ++j )
-      {
-      for( int k=GridExtent[4]; k <= GridExtent[5]; ++k )
-        {
-        ijk[0]=i;ijk[1]=j;ijk[2]=k;
-        vtkIdType idx =
-          vtkStructuredData::ComputePointIdForExtent(
-              GridExtent,ijk,dataDescription);
+  // STEP 7: Mark nodes
+  this->FillNodesGhostArray(
+      gridID, dataDescription, GridExtent, RealExtent, nodesArray );
 
-        this->MarkNodeProperty(
-            gridID,i,j,k,GridExtent, RealExtent,
-            *nodesArray->GetPointer( idx ) );
-        } // END for all k
-      } // END for all j
-    } // END for all i
-
-  // STEP 7: Mark celss
-  if( cellsArray != NULL )
-    {
-
-    vtkIdList *cellNodeIds = vtkIdList::New();
-
-    for( int i=CellExtent[0]; i <= CellExtent[1]; ++i )
-      {
-      for( int j=CellExtent[2]; j <= CellExtent[3]; ++j )
-        {
-        for( int k=CellExtent[4]; k <= CellExtent[5]; ++k )
-          {
-
-          ijk[0]=i; ijk[1]=j; ijk[2]=k;
-
-          // Note: this is really a cell index, since it is computed from the
-          // cell extent
-          vtkIdType idx =
-            vtkStructuredData::ComputePointIdForExtent(
-                CellExtent,ijk,dataDescription);
-
-          cellNodeIds->Reset();
-          vtkStructuredData::GetCellPoints(
-                idx,cellNodeIds,dataDescription,dims );
-          assert( cellNodeIds->GetNumberOfIds() == numNodes );
-
-          unsigned char *cellNodeGhostFields = new unsigned char[ numNodes ];
-          assert( cellNodeGhostFields != NULL );
-
-          for( int i=0; i < numNodes; ++i )
-            {
-            vtkIdType nodeIdx = cellNodeIds->GetId( i );
-            cellNodeGhostFields[ i ] = *nodesArray->GetPointer( nodeIdx );
-            } // END for all nodes
-
-          this->MarkCellProperty(
-            *cellsArray->GetPointer(idx), cellNodeGhostFields, numNodes );
-
-          delete [] cellNodeGhostFields;
-
-          } // END for all cells along k
-        } // END for all cells along j
-      } // END for all cells along i
-
-    cellNodeIds->Delete();
-
-    } // END if cellsArray is not NULL
+  // STEP 8: Mark Cells
+  this->FillCellsGhostArray(
+      dataDescription, numNodes, dims, CellExtent, nodesArray, cellsArray );
 }
 
 //------------------------------------------------------------------------------

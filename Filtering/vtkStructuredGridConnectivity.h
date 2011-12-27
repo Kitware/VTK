@@ -127,9 +127,44 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     bool InBounds( const int idx, const int Lo, const int Hi )
     { return( (idx>=Lo) && (idx<=Hi) ); };
 
-    // Description
+    // Description:
     // Returns the cardinality of a range S.
     int Cardinality( int S[2] ) { return( S[1]-S[0]+1 ); };
+
+    // Description:
+    // Returns the number of nodes per cell according to the given dimension.
+    int GetNumberOfNodesPerCell( const int dim )
+      {
+        int numNodes = 0;
+        switch( dim )
+          {
+          case 1:
+           numNodes = 2; // line cell
+           break;
+          case 2:
+           numNodes = 4; // quad cell
+           break;
+          case 3:
+           numNodes = 8; // hex cell
+           break;
+          default:
+           assert( "ERROR: code should not reach here!" && false );
+          } // END switch
+        return( numNodes );
+      }
+
+    // Description:
+    // Fills the the ghost array for the nodes
+    void FillNodesGhostArray(
+        const int gridID, const int dataDescription,
+        int GridExtent[6], int RealExtent[6], vtkUnsignedCharArray *nodeArray );
+
+    // Description:
+    // Fills the ghost array for the grid cells
+    void FillCellsGhostArray(
+        const int dataDescription, const int numNodesPerCell,
+        int dims[3], int CellExtent[6], vtkUnsignedCharArray *nodesArray,
+        vtkUnsignedCharArray *cellsArray );
 
     // Description:
     // Given a point (i,j,k) belonging to the grid corresponding to the given
