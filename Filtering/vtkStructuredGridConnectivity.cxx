@@ -248,6 +248,9 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
   // STEP 2: Fill the ghost arrays
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
+    // NOTE: typically remote grids have NULL ghost arrays, by this approach
+    // ComputeNeighbors() can be called transparently from
+    // vtkPStructuredGridConnectivity without any modification.
     if( this->GridPointGhostArrays[ i ] != NULL )
       {
       this->FillGhostArrays(
@@ -1105,5 +1108,20 @@ void vtkStructuredGridConnectivity::CreateGhostedExtent( const int gridID )
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 {
-  // TODO: implement this
+  if( N==0 )
+    {
+    vtkWarningMacro(
+       "N=0 ghost layers requested! No ghost layers will be created" );
+    return;
+    }
+
+  this->NumberOfGhostLayers += N;
+  this->AllocateInternalDataStructures();
+  this->GhostedExtents.resize(this->NumberOfGrids,-1);
+
+  for( unsigned int i=0; i < this->NumberOfGrids; ++i )
+    {
+    this->CreateGhostedExtent( i );
+    } // END for all grids
+
 }
