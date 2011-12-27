@@ -32,19 +32,19 @@ vtkCxxSetObjectMacro(vtkLineSource,Points,vtkPoints);
 // ----------------------------------------------------------------------
 vtkLineSource::vtkLineSource(int res)
 {
-  this->Point1[0] = -0.5;
-  this->Point1[1] =  0.0;
-  this->Point1[2] =  0.0;
+  this->Point1[0] = -.5;
+  this->Point1[1] =  .0;
+  this->Point1[2] =  .0;
 
-  this->Point2[0] =  0.5;
-  this->Point2[1] =  0.0;
-  this->Point2[2] =  0.0;
+  this->Point2[0] =  .5;
+  this->Point2[1] =  .0;
+  this->Point2[2] =  .0;
 
   this->Points = 0;
 
-  this->Resolution = (res < 1 ? 1 : res);
+  this->Resolution = ( res < 1 ? 1 : res );
 
-  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfInputPorts( 0 );
 }
 
 // ----------------------------------------------------------------------
@@ -124,7 +124,6 @@ int vtkLineSource::RequestData(
     // Iterate over segments
     for ( vtkIdType s = 0; s < nSegments; ++ s )
       {
-      cerr << "Segment " << s << ": " << endl;
       // Get coordinates of endpoints
       this->Points->GetPoint( s, point1 );
       this->Points->GetPoint( s + 1, point2 );
@@ -133,9 +132,7 @@ int vtkLineSource::RequestData(
       for ( int i = 0; i < 3; ++ i )
         {
         v[i] = point2[i] - point1[i];
-        cerr << " " << v[i];
         }
-      cerr << endl;
 
       // Generate points along segment
       tc[1] = 0.;
