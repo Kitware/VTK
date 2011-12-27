@@ -41,6 +41,7 @@ class vtkLine;
 class vtkPixel;
 class vtkVoxel;
 class vtkDataArray;
+class vtkPoints;
 
 class VTK_FILTERING_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
@@ -92,6 +93,10 @@ public:
   int GetMaxCellSize() {return 8;}; //voxel is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds);
+
+  // Description:
+  // Returns the points for this instance of rectilinear grid.
+  vtkPoints* GetPoints();
 
   // Description:
   // Set dimensions of rectilinear grid dataset.

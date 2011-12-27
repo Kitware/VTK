@@ -28,6 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
+#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkRectilinearGrid);
 
@@ -425,6 +426,20 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
     }
 }
 
+//----------------------------------------------------------------------------
+vtkPoints* vtkRectilinearGrid::GetPoints()
+{
+  vtkPoints *pnts = vtkPoints::New();
+  pnts->Initialize();
+  pnts->SetNumberOfPoints( this->GetNumberOfPoints() );
+
+  vtkIdType pntIdx = 0;
+  for( ; pntIdx < this->GetNumberOfPoints(); ++pntIdx )
+    {
+    pnts->SetPoint( pntIdx, this->GetPoint(pntIdx) );
+    }// END for all points
+  return( pnts );
+}
 
 //----------------------------------------------------------------------------
 double *vtkRectilinearGrid::GetPoint(vtkIdType ptId)
