@@ -87,7 +87,6 @@
 
 class vtkActor;
 class vtkCellPicker;
-class vtkParametricFunctionSource;
 class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
@@ -189,6 +188,8 @@ public:
   // Description:
   // Set/Get the number of line segments representing the broken line for
   // this widget.
+  // A broken line with resolution greater than the number of handles is useful when
+  // points along the line are desired; e.g., generating a rake of streamlines.
   void SetResolution(int resolution);
   vtkGetMacro(Resolution,int);
 
@@ -217,9 +218,7 @@ public:
   int IsClosed();
 
   // Description:
-  // Get the approximate vs. the true arc length of the broken line. Calculated as
-  // the summed lengths of the individual straight line segments. Use
-  // SetResolution to control the accuracy.
+  // Get the summed lengths of the individual straight line segments.
   double GetSummedLength();
 
   // Description:
@@ -281,7 +280,6 @@ protected:
   void ProjectPointsToObliquePlane();
 
   // The broken line
-  vtkParametricFunctionSource *ParametricFunctionSource;
   int NumberOfHandles;
   int Closed;
   void BuildRepresentation();
