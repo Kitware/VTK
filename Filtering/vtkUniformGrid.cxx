@@ -1058,8 +1058,7 @@ void vtkUniformGrid::GetCellDims( int cellDims[3] )
   this->GetDimensions( nodeDims );
   for( int i=0; i < 3; ++i )
     {
-    cellDims[i] = nodeDims[i]-1;
-    (cellDims[i] < 1)? 1:cellDims[i];
+    cellDims[i] = ( (nodeDims[i]-1) < 1)? 1 : nodeDims[i]-1;
     }
 }
 
