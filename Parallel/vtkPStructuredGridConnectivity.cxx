@@ -45,7 +45,7 @@ void vtkPStructuredGridConnectivity::PrintSelf(
 }
 
 //------------------------------------------------------------------------------
-void vtkPStructuredGridConnectivity::SetNumberOfGrids( const int N )
+void vtkPStructuredGridConnectivity::SetNumberOfGrids( const unsigned int N )
 {
   this->Superclass::SetNumberOfGrids( N );
   this->GridRanks.resize( N,-1 );
@@ -61,7 +61,7 @@ void vtkPStructuredGridConnectivity::RegisterGrid(
             vtkPoints* gridNodes )
 {
   assert( "pre: gridID out-of-bounds!" &&
-          (gridID >= 0  && gridID < this->NumberOfGrids) );
+          (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
 
   this->Superclass::RegisterGrid( gridID, extents, nodesGhostArray,
       cellGhostArray, pointData, cellData, gridNodes );
@@ -73,7 +73,7 @@ void vtkPStructuredGridConnectivity::RegisterGrid(
 int vtkPStructuredGridConnectivity::GetGridRank( const int gridID )
 {
   assert( "pre: gridID out-of-bounds!" &&
-          (gridID >= 0  && gridID < this->NumberOfGrids) );
+          (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
   return( this->GridRanks[ gridID ] );
 }
 

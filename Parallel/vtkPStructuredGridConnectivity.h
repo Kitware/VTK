@@ -49,7 +49,7 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 
     // Description:
     // Sets the total number of domains distributed among processors
-    void SetNumberOfGrids( const int N );
+    void SetNumberOfGrids( const unsigned int N );
 
     // Description:
     // See vtkStructuredGridConnectivity::RegisterGrid

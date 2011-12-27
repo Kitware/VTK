@@ -59,15 +59,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 
     // Description:
     // Set/Get the total number of domains distributed among processors
-    virtual void SetNumberOfGrids( const unsigned int N )
-    {
-      this->NumberOfGrids = N;
-      this->AllocateUserRegisterDataStructures();
-
-      this->GridExtents.resize( 6*N,-1);
-      this->Neighbors.resize( N );
-      this->BlockTopology.resize( N );
-    }
+    virtual void SetNumberOfGrids( const unsigned int N );
 
     // Description:
     // Registers the current grid corresponding to the grid ID by its global
@@ -797,5 +789,17 @@ inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
 
   assert( "post: count must be in [0,5]" && (count >=0 && count <= 6) );
   return( count );
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::SetNumberOfGrids(
+    const unsigned int N )
+{
+  this->NumberOfGrids = N;
+  this->AllocateUserRegisterDataStructures();
+
+  this->GridExtents.resize( 6*N,-1);
+  this->Neighbors.resize( N );
+  this->BlockTopology.resize( N );
 }
 #endif /* vtkStructuredGridConnectivity_H_ */
