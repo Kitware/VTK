@@ -324,7 +324,7 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
       }
 
     // Check if the node is also on a shared boundary or if it is a ghost node
-    if(this->IsNodeOnSharedBoundary(gridID,ext,realExtent,i,j,k))
+    if(this->IsNodeOnSharedBoundary(gridID,realExtent,i,j,k))
       {
       vtkGhostArray::SetProperty( p, vtkGhostArray::SHARED );
 
@@ -358,7 +358,7 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
         } // END if neisList isn't empty
         neiList->Delete();
       }// END if node is on a shared boundary
-    else if( this->IsGhostNode(gridID,ext,realExtent,i,j,k) )
+    else if( this->IsGhostNode(ext,realExtent,i,j,k) )
       {
       vtkGhostArray::SetProperty( p, vtkGhostArray::GHOST );
       // Ghost nodes are always ignored!
@@ -628,7 +628,7 @@ void vtkStructuredGridConnectivity::GetRealExtent(
 
 //------------------------------------------------------------------------------
 bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
-    const int gridID, int GridExtent[6], int RealExtent[6],
+    const int gridID, int RealExtent[6],
     const int i, const int j, const int k )
 {
   if( this->IsNodeOnBoundaryOfExtent(i,j,k,RealExtent) )
@@ -653,7 +653,7 @@ bool vtkStructuredGridConnectivity::IsNodeOnSharedBoundary(
 
 //------------------------------------------------------------------------------
 bool vtkStructuredGridConnectivity::IsGhostNode(
-        const int gridID, int GridExtent[6], int RealExtent[6],
+        int GridExtent[6], int RealExtent[6],
         const int i, const int j, const int k )
 {
   // STEP 0: Check if there are any ghost-layers. Note, if the original data
@@ -804,8 +804,6 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::SetBlockTopology( const int gridID )
 {
-  int idx;
-
   int gridExtent[6];
   this->GetGridExtent( gridID, gridExtent );
 
@@ -937,12 +935,6 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
                     int A[2], int B[2], int overlap[2] )
 {
   int rc = NO_OVERLAP;
-
-  if( A[0]==24 && A[1]==51 && B[0]==49 && B[1]==76 )
-    {
-    int oops;
-    oops=1;
-    }
 
   // STEP 0: Check if we must check for a partial overlap
   int CardinalityOfA = this->Cardinality( A );

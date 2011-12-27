@@ -207,7 +207,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // Checks if the node corresponding to the given global i,j,k coordinates
     // is a ghost node or not.
     bool IsGhostNode(
-        const int gridID, int GridExtent[6], int RealExtent[6],
+        int GridExtent[6], int RealExtent[6],
         const int i, const int j, const int k );
 
     // Description:
@@ -221,7 +221,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // is on the shared boundary, i.e., a partition interface.
     // NOTE: A node on a shared boundary, may also be on a real boundary.
     bool IsNodeOnSharedBoundary(
-        const int gridID, int GridExtent[6], int RealExtent[6],
+        const int gridID, int RealExtent[6],
         const int i, const int j, const int k );
 
     // Description:
