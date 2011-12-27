@@ -154,6 +154,15 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
       }
 
     // Description:
+    // Sets the ghosted grid extent for the grid corresponding to the given
+    // grid ID to the given extent.
+    void SetGhostedGridExtent( const int gridID, int ext[6] );
+
+    // Description:
+    // Creates the ghosted extent of the grid with the given
+    void CreateGhostedExtent( const int gridID );
+
+    // Description:
     // Fills the the ghost array for the nodes
     void FillNodesGhostArray(
         const int gridID, const int dataDescription,
@@ -377,6 +386,13 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
         const int OnLo, const int OnHi, const int NotOnBoundary );
 
     // Description:
+    // Gets the ghosted extent from the given grid extent along the dimension
+    // given by minIdx and maxIdx.
+    void GetGhostedExtent(
+        int *ghostedExtent, int GridExtent[6],
+        const int minIdx, const int maxIdx );
+
+    // Description:
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 
@@ -393,8 +409,36 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 };
 
 //=============================================================================
-// INLINE METHODS
+//  INLINE METHODS
 //=============================================================================
+
+inline void vtkStructuredGridConnectivity::GetGhostedExtent(
+    int *ghostedExtent, int GridExtent[6], const int minIdx, const int maxIdx )
+{
+  assert( "pre: ghosted extent pointer is NULL" && ghostedExtent != NULL);
+  ghostedExtent[minIdx] =
+   ( (GridExtent[minIdx]-1) < this->WholeExtent[minIdx] )?
+       this->WholeExtent[minIdx] : GridExtent[minIdx]-1;
+
+  ghostedExtent[maxIdx] =
+   ( (GridExtent[maxIdx]+1) > this->WholeExtent[maxIdx])?
+       this->WholeExtent[maxIdx] : GridExtent[maxIdx]+1;
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(
+    const int gridID, int ext[6] )
+{
+  assert( "pre: gridID is out-of-bounds" &&
+          (gridID >= 0) && (gridID < this->NumberOfGrids) );
+  assert( "pre: ghosted-extents vector has not been allocated" &&
+          (this->NumberOfGrids == this->GhostedExtents.size()/6 ) );
+
+  for( int i=0; i < 6; ++i )
+    {
+    this->GhostedExtents[ gridID*6+i ] = ext[i];
+    }
+}
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredGridConnectivity::GetGridExtent(

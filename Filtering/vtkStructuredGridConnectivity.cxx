@@ -1058,6 +1058,57 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::CreateGhostedExtent( const int gridID )
+{
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < this->NumberOfGrids)  );
+  assert( "pre: ghosted-extents vector has not been allocated" &&
+          (this->NumberOfGrids == this->GhostedExtents.size()/6 ) );
+  assert( "pre: Number of ghost-layers requested must be 0" &&
+          (this->NumberOfGhostLayers > 0) );
+
+  int ext[6];
+  this->GetGridExtent( gridID, ext );
+  this->SetGhostedGridExtent( gridID, ext );
+
+  int *ghostedExtent = &this->GhostedExtents[ gridID*6 ];
+
+  switch( this->DataDescription )
+    {
+    case VTK_X_LINE:
+      this->GetGhostedExtent(ghostedExtent,ext,0,1);
+      break;
+    case VTK_Y_LINE:
+      this->GetGhostedExtent(ghostedExtent,ext,2,3);
+      break;
+    case VTK_Z_LINE:
+      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      break;
+    case VTK_XY_PLANE:
+      this->GetGhostedExtent(ghostedExtent,ext,0,1);
+      this->GetGhostedExtent(ghostedExtent,ext,2,3);
+      break;
+    case VTK_YZ_PLANE:
+      this->GetGhostedExtent(ghostedExtent,ext,2,3);
+      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      break;
+    case VTK_XZ_PLANE:
+      this->GetGhostedExtent(ghostedExtent,ext,0,1);
+      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      break;
+    case VTK_XYZ_GRID:
+      this->GetGhostedExtent(ghostedExtent,ext,0,1);
+      this->GetGhostedExtent(ghostedExtent,ext,2,3);
+      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      break;
+    default:
+      std::cout << "Data description is: " << this->DataDescription << "\n";
+      std::cout.flush();
+      assert( "pre: Undefined data-description!" && false );
+    } // END switch
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 {
   // TODO: implement this
