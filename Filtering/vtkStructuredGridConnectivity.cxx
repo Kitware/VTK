@@ -292,11 +292,11 @@ void vtkStructuredGridConnectivity::MarkCellProperty(
     if( vtkGhostArray::IsPropertySet(nodeGhostFields[i], vtkGhostArray::GHOST))
       {
       vtkGhostArray::SetProperty(pfield,vtkGhostArray::DUPLICATE);
+      return;
       }
     } // END for all nodes
 
   vtkGhostArray::SetProperty( pfield,vtkGhostArray::INTERIOR );
-
 }
 
 //------------------------------------------------------------------------------
