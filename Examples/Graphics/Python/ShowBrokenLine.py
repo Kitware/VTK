@@ -8,9 +8,14 @@ line1.SetPoint1( 1, 0, 0 )
 line1.SetPoint2( -1, 0, 0 )
 line1.SetResolution( 32 )
 
+points = vtkPoints()
+points.InsertNextPoint( 1, 0, 0 )
+points.InsertNextPoint( -.5, 1, 0 )
+points.InsertNextPoint( 0, 1, 2 )
+points.InsertNextPoint( 2, 1, -1 )
+points.InsertNextPoint( -1, 0, 0 )
 line2 = vtkLineSource()
-line2.SetPoint1( 3, 2, 0 )
-line2.SetPoint2( 1, 0, 1 )
+line2.SetPoints( points )
 line2.SetResolution( 16 )
 
 # Create mappers
@@ -26,6 +31,8 @@ actor1.SetMapper( mapper1 )
 actor1.GetProperty().SetColor( 1., 0., 0. )
 actor2 = vtkActor()
 actor2.SetMapper( mapper2 )
+actor2.GetProperty().SetColor( 0., 0., 1. )
+actor2.GetProperty().SetLineWidth( 2.5 )
 
 # Create renderer
 renderer = vtkRenderer()
