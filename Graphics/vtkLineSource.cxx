@@ -25,9 +25,11 @@
 #include "vtkPolyData.h"
 
 #include <math.h>
+
 vtkStandardNewMacro(vtkLineSource);
 vtkCxxSetObjectMacro(vtkLineSource,Points,vtkPoints);
 
+// ----------------------------------------------------------------------
 vtkLineSource::vtkLineSource(int res)
 {
   this->Point1[0] = -0.5;
@@ -38,16 +40,20 @@ vtkLineSource::vtkLineSource(int res)
   this->Point2[1] =  0.0;
   this->Point2[2] =  0.0;
 
+  this->Points = 0;
+
   this->Resolution = (res < 1 ? 1 : res);
 
   this->SetNumberOfInputPorts(0);
 }
 
+// ----------------------------------------------------------------------
 vtkLineSource::~vtkLineSource()
 {
   this->SetPoints( 0 );
 }
 
+// ----------------------------------------------------------------------
 int vtkLineSource::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -60,11 +66,20 @@ int vtkLineSource::RequestInformation(
   return 1;
 }
 
+// ----------------------------------------------------------------------
 int vtkLineSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  // Reject meaningless parameterizations
+  vtkIdType nSegments = this->Points ? this->Points->GetNumberOfPoints() - 1 : 1;
+  if ( nSegments < 1 )
+    {
+    vtkWarningMacro( <<"Cannot define a broken line with given input.");
+    return 0;
+    }
+
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -72,70 +87,121 @@ int vtkLineSource::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int numLines=this->Resolution;
-  int numPts=this->Resolution+1;
-  double x[3], tc[3], v[3];
-  int i, j;
-  vtkPoints *newPoints; 
-  vtkFloatArray *newTCoords; 
-  vtkCellArray *newLines;
-  
   if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
     return 1;
     }
 
-  newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts);
-  newTCoords = vtkFloatArray::New();
-  newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2*numPts);
-  newTCoords->SetName("Texture Coordinates");
-  newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(numLines,2));
-//
-// Generate points and texture coordinates
-//
-  for (i=0; i<3; i++)
+  // Create and allocate lines
+  vtkIdType numLines = nSegments * this->Resolution;
+  vtkCellArray *newLines = vtkCellArray::New();
+  newLines->Allocate( newLines->EstimateSize( numLines, 2 ) );
+
+  // Create and allocate points
+  vtkIdType numPts = numLines + 1;
+  vtkPoints *newPoints = vtkPoints::New();
+  newPoints->Allocate( numPts );
+
+  // Create and allocate texture coordinates
+  vtkFloatArray *newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents( 2 );
+  newTCoords->Allocate( 2 * numPts );
+  newTCoords->SetName( "Texture Coordinates" );
+  
+  // Allocate convenience storage
+  double x[3], tc[3], v[3];
+
+  // Generate points and texture coordinates
+  if ( this->Points )
     {
-    v[i] = this->Point2[i] - this->Point1[i];
+    // Create storage for segment endpoints
+    double point1[3];
+    double point2[3];
+
+    // Point index offset for fast insertion
+    vtkIdType offset = 0;
+
+    // Iterate over segments
+    for ( vtkIdType s = 0; s < nSegments; ++ s )
+      {
+      cerr << "Segment " << s << ": " << endl;
+      // Get coordinates of endpoints
+      this->Points->GetPoint( s, point1 );
+      this->Points->GetPoint( s + 1, point2 );
+      
+      // Calculate segment vector
+      for ( int i = 0; i < 3; ++ i )
+        {
+        v[i] = point2[i] - point1[i];
+        cerr << " " << v[i];
+        }
+      cerr << endl;
+
+      // Generate points along segment
+      tc[1] = 0.;
+      tc[2] = 0.;
+      for ( vtkIdType i = 0; i < this->Resolution; ++ i, ++ offset ) 
+        {
+        tc[0] = static_cast<double>( i / this->Resolution );
+        for ( int j = 0; j < 3; ++ j )
+          {
+          x[j] = point1[j] + tc[0] * v[j];
+          }
+        newPoints->InsertPoint( offset, x );
+        newTCoords->InsertTuple( offset, tc );
+        }
+      } // s
+
+    // Generate last endpoint
+    newPoints->InsertPoint( numLines, point2 );
+    tc[0] = 1.;
+    newTCoords->InsertTuple( numLines, tc );
+    
+    } // if ( this->Points )
+  else
+    {
+    // Calculate segment vector
+    for ( int i = 0; i < 3; ++ i )
+      {
+      v[i] = this->Point2[i] - this->Point1[i];
+      }
+    
+    // Generate points along segment
+    tc[1] = 0.;
+    tc[2] = 0.;
+    for ( vtkIdType i = 0; i < numPts; ++ i ) 
+      {
+      tc[0] = static_cast<double>( i / this->Resolution );
+      for ( int j = 0; j < 3; ++ j )
+        {
+        x[j] = this->Point1[j] + tc[0] * v[j];
+        }
+      newPoints->InsertPoint( i, x );
+      newTCoords->InsertTuple( i, tc );
+      }
+    } // else
+
+  //  Generate lines
+  newLines->InsertNextCell( numPts );
+  for ( vtkIdType i = 0; i < numPts; ++ i ) 
+    {
+    newLines->InsertCellPoint( i );
     }
 
-  tc[1] = 0.0;
-  tc[2] = 0.0;
-  for (i=0; i<numPts; i++) 
-    {
-    tc[0] = ((double)i/this->Resolution);
-    for (j=0; j<3; j++)
-      {
-      x[j] = this->Point1[j] + tc[0]*v[j];
-      }
-    newPoints->InsertPoint(i,x);
-    newTCoords->InsertTuple(i,tc);
-    }
-//
-//  Generate lines
-//
-  newLines->InsertNextCell(numPts);
-  for (i=0; i < numPts; i++) 
-    {
-    newLines->InsertCellPoint (i);
-    }
-//
-// Update ourselves and release memory
-//
-  output->SetPoints(newPoints);
+  // Update ourselves and release memory
+  output->SetPoints( newPoints );
   newPoints->Delete();
 
-  output->GetPointData()->SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords( newTCoords );
   newTCoords->Delete();
 
-  output->SetLines(newLines);
+  output->SetLines( newLines );
   newLines->Delete();
 
   return 1;
 }
 
+// ----------------------------------------------------------------------
 void vtkLineSource::SetPoint1(float point1f[3])
 {
   double point1d[3];
@@ -145,6 +211,7 @@ void vtkLineSource::SetPoint1(float point1f[3])
   SetPoint1(point1d);
 }
 
+// ----------------------------------------------------------------------
 void vtkLineSource::SetPoint2(float point2f[3])
 {
   double point2d[3];
@@ -154,6 +221,7 @@ void vtkLineSource::SetPoint2(float point2f[3])
   SetPoint2(point2d);
 }
 
+// ----------------------------------------------------------------------
 void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
