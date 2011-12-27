@@ -3,23 +3,22 @@ from vtk import *
 ############################################################
 
 # Create sources
-arc = vtkArcSource()
-arc.SetCenter( 0, 0, 0 )
-arc.SetPoint1( 1, 0, 0 )
-arc.SetPoint2( -1, 0, 0 )
-arc.SetResolution( 32 )
-sphere = vtkSphereSource()
-sphere.SetRadius( 0.05 )
-sphere.SetCenter( 0, 0, 0 )
-sphere.SetPhiResolution( 16 )
-sphere.SetThetaResolution( 16 )
+line1 = vtkLineSource()
+line1.SetPoint1( 1, 0, 0 )
+line1.SetPoint2( -1, 0, 0 )
+line1.SetResolution( 32 )
+
+line2 = vtkLineSource()
+line2.SetPoint1( 3, 2, 0 )
+line2.SetPoint2( 1, 0, 1 )
+line2.SetResolution( 16 )
 
 # Create mappers
 mapper1 = vtkPolyDataMapper()
-mapper1.SetInput( arc.GetOutput() )
+mapper1.SetInput( line1.GetOutput() )
 
 mapper2 = vtkPolyDataMapper()
-mapper2.SetInputConnection( sphere.GetOutputPort() )
+mapper2.SetInputConnection( line2.GetOutputPort() )
 
 # Create actors
 actor1 = vtkActor()
