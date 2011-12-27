@@ -26,6 +26,7 @@
 
 #include <math.h>
 vtkStandardNewMacro(vtkLineSource);
+vtkCxxSetObjectMacro(vtkLineSource,Points,vtkPoints);
 
 vtkLineSource::vtkLineSource(int res)
 {
@@ -40,6 +41,11 @@ vtkLineSource::vtkLineSource(int res)
   this->Resolution = (res < 1 ? 1 : res);
 
   this->SetNumberOfInputPorts(0);
+}
+
+vtkLineSource::~vtkLineSource()
+{
+  this->SetPoints( 0 );
 }
 
 int vtkLineSource::RequestInformation(
@@ -161,4 +167,15 @@ void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point 2: (" << this->Point2[0] << ", "
                                << this->Point2[1] << ", "
                                << this->Point2[2] << ")\n";
+
+  os << indent 
+     << "Points: ";
+  if ( this->Points )
+    {
+    this->Points->PrintSelf( os, indent );
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
