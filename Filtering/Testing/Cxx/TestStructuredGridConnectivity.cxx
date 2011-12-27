@@ -109,6 +109,40 @@ void AttachPointFlagsArray(
 
 //------------------------------------------------------------------------------
 // Description:
+// This method attaches a cell array to the given grid that will label the
+// the points by color -- 0(off) or 1(on) -- to indicate whether or not a
+// particular flag is "ON"
+void AttachCellFlagsArray(
+    vtkUniformGrid *grid, const int flag, std::string label )
+{
+  assert( "pre: grid should not be NULL" && (grid != NULL) );
+
+  vtkUnsignedIntArray *flags = vtkUnsignedIntArray::New();
+  flags->SetName( label.c_str() );
+  flags->SetNumberOfComponents( 1 );
+  flags->SetNumberOfTuples( grid->GetNumberOfCells() );
+
+  vtkIdType cellIdx = 0;
+  for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
+    {
+    unsigned char cellProperty =
+        *(grid->GetCellVisibilityArray()->GetPointer(cellIdx));
+    if( vtkGhostArray::IsPropertySet(cellProperty,flag) )
+      {
+      flags->SetValue( cellIdx, 1 );
+      }
+    else
+      {
+      flags->SetValue( cellIdx, 0 );
+      }
+    } // END for all cells
+
+  grid->GetCellData()->AddArray( flags );
+  flags->Delete();
+}
+
+//------------------------------------------------------------------------------
+// Description:
 // Applies an XYZ field to the nodes and cells of the grid whose value is
 // corresponding to the XYZ coordinates at that location
 void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
@@ -709,6 +743,8 @@ int Simple2DTest( int argc, char **argv )
       AttachPointFlagsArray( myGrid, vtkGhostArray::SHARED, "SHARED" );
       AttachPointFlagsArray( myGrid, vtkGhostArray::GHOST, "GHOST" );
       AttachPointFlagsArray( myGrid, vtkGhostArray::BOUNDARY, "BOUNDARY" );
+      AttachCellFlagsArray( myGrid, vtkGhostArray::DUPLICATE, "DUPLICATE" );
+      AttachCellFlagsArray( myGrid, vtkGhostArray::INTERIOR, "INTERIOR" );
       }
     } // END for all blocks
   WriteMultiBlock( mbds );
