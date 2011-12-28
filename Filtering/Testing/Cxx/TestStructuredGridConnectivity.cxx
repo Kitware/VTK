@@ -358,6 +358,27 @@ void RegisterGrids(
 }
 
 //------------------------------------------------------------------------------
+void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
+{
+  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+  unsigned int block=0;
+  for( ; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *myGrid =
+       vtkUniformGrid::SafeDownCast(mbds->GetBlock( block ) );
+    if( myGrid != NULL )
+      {
+      AttachPointFlagsArray( myGrid, vtkGhostArray::IGNORE, "IGNORE" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::SHARED, "SHARED" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::GHOST, "GHOST" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::BOUNDARY, "BOUNDARY" );
+      AttachCellFlagsArray( myGrid, vtkGhostArray::DUPLICATE, "DUPLICATE" );
+      AttachCellFlagsArray( myGrid, vtkGhostArray::INTERIOR, "INTERIOR" );
+      }
+   } // END for all blocks
+}
+
+//------------------------------------------------------------------------------
 void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
 {
 
@@ -415,7 +436,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
       std::cout.flush();
       assert( "pre: NumBlocks mismatch!" &&
        (numberOfPartitions[i] ==static_cast<int>(mbds->GetNumberOfBlocks()) ) );
-      WriteMultiBlock( mbds );
+//      WriteMultiBlock( mbds );
 
       // STEP 1: Construct the grid connectivity
       std::cout << "-- Allocating grid connectivity data-structures...";
@@ -477,87 +498,36 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
 }
 
 //------------------------------------------------------------------------------
-int Simple2DTest( int argc, char **argv )
+int SimpleTest( int argc, char **argv )
 {
   assert( "pre: argument counter must equal 4" && (argc==4) );
 
-  int np = atoi( argv[2] );
-  int ng = atoi( argv[3] );
-  std::cout << "Running Simple 2-D Test..." << std::endl;
+  int dim = atoi( argv[1] );
+  int np  = atoi( argv[2] );
+  int ng  = atoi( argv[3] );
+
+  assert( "pre: dim must be 2 or 3" && ( (dim==2) || (dim==3) ) );
+
+  std::cout << "Running Simple " << dim << "-D Test..." << std::endl;
   std::cout << "Number of partitions: "   << np << std::endl;
   std::cout << "Number of ghost-layers: " << ng << std::endl;
   std::cout.flush();
 
-  int expected = 100*100;
-
-  vtkMultiBlockDataSet *mbds = GetDataSet(2, np, ng);
-//  WriteMultiBlock( mbds );
-
-  vtkStructuredGridConnectivity *gridConnectivity =
-      vtkStructuredGridConnectivity::New();
-  gridConnectivity->SetNumberOfGhostLayers( ng );
-  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
-  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
-
-  RegisterGrids( mbds, gridConnectivity );
-
-  gridConnectivity->ComputeNeighbors();
-  gridConnectivity->Print( std::cout );
-  std::cout.flush();
-
-  unsigned int block=0;
-  for( ; block < mbds->GetNumberOfBlocks(); ++block )
+  int expected = 0;
+  switch( dim )
     {
-    vtkUniformGrid *myGrid =
-        vtkUniformGrid::SafeDownCast(mbds->GetBlock( block ) );
-    if( myGrid != NULL )
-      {
-      AttachPointFlagsArray( myGrid, vtkGhostArray::IGNORE, "IGNORE" );
-      AttachPointFlagsArray( myGrid, vtkGhostArray::SHARED, "SHARED" );
-      AttachPointFlagsArray( myGrid, vtkGhostArray::GHOST, "GHOST" );
-      AttachPointFlagsArray( myGrid, vtkGhostArray::BOUNDARY, "BOUNDARY" );
-      AttachCellFlagsArray( myGrid, vtkGhostArray::DUPLICATE, "DUPLICATE" );
-      AttachCellFlagsArray( myGrid, vtkGhostArray::INTERIOR, "INTERIOR" );
-      }
-    } // END for all blocks
-  WriteMultiBlock( mbds );
+    case 2:
+      expected = 100*100;
+      break;
+    case 3:
+      expected = 100*100*100;
+      break;
+    default:
+      assert( "Code should not reach here!" && false );
+    }
 
-  int NumNodes = GetTotalNumberOfNodes( mbds );
-  std::cout << "[DONE]\n";
-  std::cout.flush();
 
-  std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
-  if( NumNodes != expected )
-   {
-   std::cout << "[ERROR]\n";
-   std::cout.flush();
-   }
-  else
-   {
-   std::cout << "[OK]\n";
-   std::cout.flush();
-   }
-  mbds->Delete();
-  gridConnectivity->Delete();
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-int Simple3DTest( int argc, char **argv )
-{
-  assert( "pre: argument counter must equal 4" && (argc==4) );
-
-  int np = atoi( argv[2] );
-  int ng = atoi( argv[3] );
-  std::cout << "Running Simple 3-D Test..." << std::endl;
-  std::cout << "Number of partitions: "   << np << std::endl;
-  std::cout << "Number of ghost-layers: " << ng << std::endl;
-  std::cout.flush();
-
-  int expected = 100*100*100;
-
-  vtkMultiBlockDataSet *mbds = GetDataSet(3, np, ng);
-  WriteMultiBlock( mbds );
+  vtkMultiBlockDataSet *mbds = GetDataSet(dim, np, ng);
 
   vtkStructuredGridConnectivity *gridConnectivity =
       vtkStructuredGridConnectivity::New();
@@ -571,6 +541,9 @@ int Simple3DTest( int argc, char **argv )
   gridConnectivity->Print( std::cout );
   std::cout.flush();
 
+  AttachNodeAndCellGhostFlags( mbds );
+  WriteMultiBlock( mbds );
+
   int NumNodes = GetTotalNumberOfNodes( mbds );
   std::cout << "[DONE]\n";
   std::cout.flush();
@@ -586,6 +559,7 @@ int Simple3DTest( int argc, char **argv )
    std::cout << "[OK]\n";
    std::cout.flush();
    }
+
   mbds->Delete();
   gridConnectivity->Delete();
   return 0;
@@ -598,25 +572,11 @@ int main( int argc, char **argv )
 
   if( argc > 1 )
     {
-    int testNumber = atoi( argv[1] );
-    switch( testNumber )
-      {
-      case 1:
-        rc = Simple2DTest( argc, argv );
-        break;
-      case 2:
-        rc = Simple3DTest( argc, argv );
-        break;
-      default:
-        std::cerr << "Undefined test: " << testNumber << " ";
-        std::cerr << "No tests will run!\n";
-        rc = 0;
-      }
+    rc = SimpleTest( argc, argv );
     }
   else
     {
     rc = TestStructuredGridConnectivity( argc, argv );
     }
-
   return( rc );
 }
