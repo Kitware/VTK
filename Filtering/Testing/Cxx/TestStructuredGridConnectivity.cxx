@@ -218,92 +218,6 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
 
 //------------------------------------------------------------------------------
 // Description:
-// Gets the grid for a given rank
-vtkUniformGrid* GetGrid( const int rank, int globalExtent[6] )
-{
-  // Fix spacing at 0.5
-  double h[3];
-  h[0] = h[1] = h[2] = 0.5;
-
-  // Fix dimensions to 10
-  int dims[3];
-  dims[0] = dims[1] = dims[2] = 10;
-
-  // Fix global origin at (0.0, 0.0, 0.0)
-  double globalOrigin[3];
-  globalOrigin[0] = globalOrigin[1] = globalOrigin[2] = 0.0;
-
-  // Setup the global extent for this grid instance
-  for( int i=0; i < 3; ++i )
-    {
-    if( i == 0 )
-      {
-      globalExtent[i*2]   = rank*10;
-      if( globalExtent[i*2] > 0)
-        globalExtent[i*2]-= rank;
-
-      globalExtent[i*2+1] = globalExtent[i*2]+10-1;
-      }
-    else
-      {
-      globalExtent[ i*2 ]   = 0;
-      globalExtent[ i*2+1 ] = 9;
-      }
-    }
-
-  // Compute local origin
-  double localOrigin[3];
-  localOrigin[0] = globalOrigin[0] + globalExtent[0]*h[0];
-  localOrigin[1] = 0.0;
-  localOrigin[2] = 0.0;
-
-  // Setup uniform grid
-  vtkUniformGrid *grid = vtkUniformGrid:: New();
-  grid->SetOrigin( localOrigin );
-  grid->SetDimensions( dims );
-  grid->SetSpacing( h );
-
-  return( grid );
-}
-
-//------------------------------------------------------------------------------
-// Description:
-// Generates a multipiece of uniform grids
-vtkMultiPieceDataSet* GetDataSet( )
-{
-  vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::New();
-
-  // Setup the hole extent
-  int wholeExtent[6];
-  wholeExtent[0] = 0;                  // IMIN
-  wholeExtent[1] = 18;                 // IMAX
-  wholeExtent[2] = 0;                  // JMIN
-  wholeExtent[3] = 9;                  // JMAX
-  wholeExtent[4] = 0;                  // KMIN
-  wholeExtent[5] = 9;                  // KMAX
-  mpds->SetWholeExtent( wholeExtent );
-
-  int ext1[6];
-  int ext2[6];
-  vtkUniformGrid *grid1 = GetGrid( 0, ext1 );
-  ApplyXYZFieldToGrid( grid1 );
-  vtkUniformGrid *grid2 = GetGrid( 1, ext2 );
-  ApplyXYZFieldToGrid( grid2 );
-
-  mpds->SetNumberOfPieces( 2 );
-  mpds->SetPiece( 0, grid1 );
-  mpds->GetMetaData( static_cast<unsigned int>(0) )->Set(
-      vtkDataObject::PIECE_EXTENT(), ext1, 6 );
-  mpds->SetPiece( 1, grid2 );
-  mpds->GetMetaData( 1 )->Set( vtkDataObject::PIECE_EXTENT(),ext2, 6 );
-  grid1->Delete();
-  grid2->Delete();
-
-  return( mpds );
-}
-
-//------------------------------------------------------------------------------
-// Description:
 // Get Grid whole extent and dimensions
 void GetGlobalGrid( const int dimension, int wholeExtent[6], int dims[3] )
 {
@@ -444,34 +358,6 @@ void RegisterGrids(
 }
 
 //------------------------------------------------------------------------------
-void FillVisibilityArrays(
-    vtkMultiBlockDataSet *mbds, vtkStructuredGridConnectivity *connectivity )
-{
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
-
-  for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
-    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    if( grid != NULL )
-      {
-      vtkUnsignedCharArray *nodes = vtkUnsignedCharArray::New();
-      nodes->SetNumberOfValues( grid->GetNumberOfPoints() );
-
-      vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
-      cells->SetNumberOfValues( grid->GetNumberOfCells() );
-
-      connectivity->FillGhostArrays( block, nodes, cells  );
-
-      grid->SetPointVisibilityArray( nodes );
-      nodes->Delete();
-      grid->SetCellVisibilityArray( cells );
-      cells->Delete();
-      } // END if grid != NULL
-    } // END for all blocks
-}
-
-//------------------------------------------------------------------------------
 void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
 {
 
@@ -588,119 +474,6 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
     } // END for all numPartition tests
 
   return( rc );
-}
-
-//------------------------------------------------------------------------------
-// Description:
-// A simple test designed as an aid in the development of the structured grid
-// connectivity functionality.
-int SimpleMonolithicTest( int argc, char **argv )
-{
-  // Silence compiler wanrings for unused vars argc and argv
-  static_cast<void>( argc );
-  static_cast<void>( argv );
-
-  vtkMultiPieceDataSet *mpds = GetDataSet( );
-
-  vtkStructuredGridConnectivity  *gridConnectivity =
-      vtkStructuredGridConnectivity::New();
-  gridConnectivity->SetNumberOfGrids( mpds->GetNumberOfPieces() );
-  gridConnectivity->SetWholeExtent( mpds->GetWholeExtent() );
-
-  int ext[6];
-  std::ostringstream oss;
-  for( unsigned int piece=0; piece < mpds->GetNumberOfPieces(); ++piece )
-    {
-
-    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mpds->GetPiece(piece ));
-
-    if( grid != NULL )
-      {
-      oss.str( "" );
-      oss << "GRID_" << piece;
-      WriteGrid( grid, oss.str() );
-
-      mpds->GetMetaData( piece )->Get( vtkDataObject::PIECE_EXTENT(),ext );
-
-      gridConnectivity->RegisterGrid( piece, ext,
-          grid->GetPointVisibilityArray(),
-          grid->GetCellVisibilityArray(),
-          grid->GetPointData(),
-          grid->GetCellData(),
-          NULL );
-      }
-
-    } // END for all pieces
-
-  std::cout << "Creating ghost nodes...\n";
-  std::cout.flush();
-  gridConnectivity->ComputeNeighbors();
-  std::cout << "[DONE]\n";
-  std::cout.flush();
-
-  // Calculate number of nodes
-  int totalNumberOfNodes = 0;
-  for( unsigned int piece=0; piece < mpds->GetNumberOfPieces(); ++piece )
-    {
-      vtkUniformGrid *grid =
-          vtkUniformGrid::SafeDownCast(mpds->GetPiece(piece ));
-
-      if( grid != NULL )
-        {
-        vtkUnsignedCharArray *nodes = vtkUnsignedCharArray::New();
-        nodes->SetNumberOfValues( grid->GetNumberOfPoints() );
-
-        vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
-        cells->SetNumberOfValues( grid->GetNumberOfCells() );
-
-        gridConnectivity->FillGhostArrays( piece, nodes, cells  );
-
-        grid->SetPointVisibilityArray( nodes );
-        nodes->Delete();
-        grid->SetCellVisibilityArray( cells );
-        cells->Delete();
-
-        vtkIntArray *flags = vtkIntArray::New();
-        flags->SetName( "FLAGS" );
-        flags->SetNumberOfComponents( 1 );
-        flags->SetNumberOfTuples( grid->GetNumberOfPoints( ) );
-
-        vtkIdType pIdx = 0;
-        for( ; pIdx < grid->GetNumberOfPoints(); ++pIdx )
-          {
-          unsigned char p = *nodes->GetPointer( pIdx );
-          if(!vtkGhostArray::IsPropertySet( p,vtkGhostArray::IGNORE))
-            {
-            ++totalNumberOfNodes;
-            if(vtkGhostArray::IsPropertySet(p,vtkGhostArray::BOUNDARY))
-              flags->SetValue( pIdx, 2 );
-            else
-              flags->SetValue( pIdx, 3);
-            }
-          else
-            {
-            flags->SetValue( pIdx, 1 );
-            }
-
-          } // END for all points
-
-        grid->GetPointData()->AddArray( flags );
-        flags->Delete();
-
-        oss.str( "" );
-        oss << "BLANKEDGRID_" << piece;
-        WriteGrid( grid, oss.str() );
-
-        }
-
-    }// END for all pieces
-
-  std::cout << "TOTAL NUMBER OF NODES: " << totalNumberOfNodes << std::endl;
-  std::cout.flush();
-
-  gridConnectivity->Delete();
-  mpds->Delete();
-  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -828,9 +601,6 @@ int main( int argc, char **argv )
     int testNumber = atoi( argv[1] );
     switch( testNumber )
       {
-      case 0:
-        rc = SimpleMonolithicTest( argc, argv );
-        break;
       case 1:
         rc = Simple2DTest( argc, argv );
         break;
