@@ -379,19 +379,18 @@ void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
 }
 
 //------------------------------------------------------------------------------
-void WriteMultiBlock( vtkMultiBlockDataSet *mbds )
+void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
 {
 
 #ifdef ENABLE_IO
   assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-
 
   vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
   assert( "pre: Cannot allocate writer" && (writer != NULL) );
 
   std::ostringstream oss;
   oss.str("");
-  oss << "MyMultiBlock_" << mbds->GetNumberOfBlocks() << "."
+  oss << prefix << mbds->GetNumberOfBlocks() << "."
       << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
   writer->SetInput( mbds );
@@ -436,7 +435,6 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
       std::cout.flush();
       assert( "pre: NumBlocks mismatch!" &&
        (numberOfPartitions[i] ==static_cast<int>(mbds->GetNumberOfBlocks()) ) );
-//      WriteMultiBlock( mbds );
 
       // STEP 1: Construct the grid connectivity
       std::cout << "-- Allocating grid connectivity data-structures...";
@@ -542,7 +540,7 @@ int SimpleTest( int argc, char **argv )
   std::cout.flush();
 
   AttachNodeAndCellGhostFlags( mbds );
-  WriteMultiBlock( mbds );
+  WriteMultiBlock( mbds, "INITIAL" );
 
   int NumNodes = GetTotalNumberOfNodes( mbds );
   std::cout << "[DONE]\n";
