@@ -1181,6 +1181,11 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
         else
           {
           vtkGhostArray::Reset( p );
+
+          if( this->IsNodeOnBoundary(i,j,k) )
+            {
+            vtkGhostArray::SetProperty( p,vtkGhostArray::BOUNDARY );
+            }
           vtkGhostArray::SetProperty( p, vtkGhostArray::GHOST );
           vtkGhostArray::SetProperty( p, vtkGhostArray::IGNORE );
           this->GhostedPointGhostArray[gridID]->SetValue(idx,p);
