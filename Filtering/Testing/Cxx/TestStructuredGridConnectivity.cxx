@@ -758,14 +758,14 @@ int Simple2DTest( int argc, char **argv )
    {
    std::cout << "[ERROR]\n";
    std::cout.flush();
-   mbds->Delete();
-   gridConnectivity->Delete();
    }
   else
    {
    std::cout << "[OK]\n";
    std::cout.flush();
    }
+  mbds->Delete();
+  gridConnectivity->Delete();
   return 0;
 }
 
@@ -807,14 +807,14 @@ int Simple3DTest( int argc, char **argv )
    {
    std::cout << "[ERROR]\n";
    std::cout.flush();
-   mbds->Delete();
-   gridConnectivity->Delete();
    }
   else
    {
    std::cout << "[OK]\n";
    std::cout.flush();
    }
+  mbds->Delete();
+  gridConnectivity->Delete();
   return 0;
 }
 //------------------------------------------------------------------------------
