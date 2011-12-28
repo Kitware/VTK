@@ -310,18 +310,9 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
 // coefficients
 
 template<class T>
-void vtkTricubicInterpWeights(T F[4], int l, int h, T f)
+inline void vtkTricubicInterpWeights(T F[4], T f)
 {
   static const T half = T(0.5);
-
-  if (l*h == 1)
-    { // no interpolation
-    F[0] = 0;
-    F[1] = 1;
-    F[2] = 0;
-    F[3] = 0;
-    return;
-    }
 
   // cubic interpolation
   T fm1 = f - 1;
@@ -331,35 +322,6 @@ void vtkTricubicInterpWeights(T F[4], int l, int h, T f)
   F[1] = ((ft3 - 2)*fd2 - 1)*fm1;
   F[2] = -((ft3 - 4)*f - 1)*fd2;
   F[3] = f*fd2*fm1;
-
-  if (h - l == 3)
-    {
-    return;
-    }
-
-  // if we are at an edge, extrapolate: edge pixel repeats
-
-  if (l == 1)
-    {
-    F[1] += F[0];
-    F[0] = 0;
-    }
-  if (l == 2)
-    {
-    F[2] += F[1];
-    F[1] = 0;
-    }
-
-  if (h == 2)
-    {
-    F[2] += F[3];
-    F[3] = 0;
-    }
-  if (h == 1)
-    {
-    F[1] += F[2];
-    F[2] = 0;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -447,31 +409,30 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
       break;
     }
 
+  // get the interpolation coefficients
+  F fX[4], fY[4], fZ[4];
+  vtkTricubicInterpWeights(fX, fx);
+  vtkTricubicInterpWeights(fY, fy);
+  vtkTricubicInterpWeights(fZ, fz);
+
   // check if only one slice in a particular direction
-  int multipleX = (minX != maxX);
   int multipleY = (minY != maxY);
   int multipleZ = (minZ != maxZ);
 
-  // if not b-spline, can use an even better rule
-  multipleX &= (fx != 0);
+  // or if fractional offset is zero
   multipleY &= (fy != 0);
   multipleZ &= (fz != 0);
 
   // the limits to use when doing the interpolation
-  int i1 = 1 - multipleX;
-  int i2 = 1 + 2*multipleX;
-
   int j1 = 1 - multipleY;
   int j2 = 1 + 2*multipleY;
 
   int k1 = 1 - multipleZ;
   int k2 = 1 + 2*multipleZ;
 
-  // get the interpolation coefficients
-  F fX[4], fY[4], fZ[4];
-  vtkTricubicInterpWeights(fX, i1, i2, fx);
-  vtkTricubicInterpWeights(fY, j1, j2, fy);
-  vtkTricubicInterpWeights(fZ, k1, k2, fz);
+  // if only one coefficient will be used
+  if (multipleY == 0) { fY[1] = 1; }
+  if (multipleZ == 0) { fZ[1] = 1; }
 
   do // loop over components
     {
@@ -1032,7 +993,7 @@ void vtkImageInterpolatorPrecomputeWeights(
           else if (interpMode == VTK_CUBIC_INTERPOLATION)
             {
             F g[4];
-            vtkTricubicInterpWeights(g, 0, 3, f);
+            vtkTricubicInterpWeights(g, f);
             if (step == 4)
               {
               for (int ll = 0; ll < 4; ll++)
