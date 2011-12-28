@@ -924,102 +924,102 @@ void vtkImageInterpolatorPrecomputeWeights(
       F point = matrow[3] + i*matrow[j];
 
       int lcount = step;
+      int inId0 = 0;
+      F f = 0;
+      if (interpMode == VTK_NEAREST_INTERPOLATION)
+        {
+        inId0 = vtkInterpolationMath::Round(point);
+        }
+      else
+        {
+        inId0 = vtkInterpolationMath::Floor(point, f);
+        if (interpMode == VTK_CUBIC_INTERPOLATION &&
+            step != 1)
+          {
+          inId0--;
+          lcount = 4;
+          }
+        }
+
+      int inId[4];
+      int l = 0;
+      switch (weights->BorderMode)
+        {
+        case VTK_IMAGE_BORDER_REPEAT:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Wrap(inId0, minExt, maxExt);
+            inId0++;
+            }
+          while (++l < lcount);
+          break;
+
+        case VTK_IMAGE_BORDER_MIRROR:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Mirror(inId0, minExt, maxExt);
+            inId0++;
+            }
+          while (++l < lcount);
+          break;
+
+        default:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Clamp(inId0, minExt, maxExt);
+            inId0++;
+            }
+          while (++l < lcount);
+          break;
+        }
+
+      // compute the weights and offsets
+      vtkIdType inInc = weights->Increments[k];
+      positions[step*i] = inId[0]*inInc;
+      if (interpMode != VTK_NEAREST_INTERPOLATION)
+        {
+        constants[step*i] = static_cast<F>(1);
+        }
+      if (step > 1)
+        {
+        if (interpMode == VTK_LINEAR_INTERPOLATION)
+          {
+          positions[step*i+1] = inId[1]*inInc;
+          constants[step*i] = static_cast<F>(1.0 - f);
+          constants[step*i+1] = static_cast<F>(f);
+          }
+        else if (interpMode == VTK_CUBIC_INTERPOLATION)
+          {
+          F g[4];
+          vtkTricubicInterpWeights(g, f);
+          if (step == 4)
+            {
+            for (int ll = 0; ll < 4; ll++)
+              {
+              positions[step*i + ll] = inId[ll]*inInc;
+              constants[step*i + ll] = g[ll];
+              }
+            }
+          else
+            {
+            // it gets tricky if there are fewer than 4 slices
+            F gg[4] = { 0, 0, 0, 0 };
+            for (int ll = 0; ll < 4; ll++)
+              {
+              int rIdx = inId[ll] - minExt;
+              gg[rIdx] += g[ll];
+              }
+            for (int jj = 0; jj < step; jj++)
+              {
+              positions[step*i + jj] = minExt + jj;
+              constants[step*i + jj] = gg[jj];
+              }
+            }
+          }
+        }
+
       if (point >= minBounds && point <= maxBounds)
         {
-        int inId0 = 0;
-        F f = 0;
-        if (interpMode == VTK_NEAREST_INTERPOLATION)
-          {
-          inId0 = vtkInterpolationMath::Round(point);
-          }
-        else
-          {
-          inId0 = vtkInterpolationMath::Floor(point, f);
-          if (interpMode == VTK_CUBIC_INTERPOLATION &&
-              step != 1)
-            {
-            inId0--;
-            lcount = 4;
-            }
-          }
-
-        int inId[4];
-        int l = 0;
-        switch (weights->BorderMode)
-          {
-          case VTK_IMAGE_BORDER_REPEAT:
-            do
-              {
-              inId[l] = vtkInterpolationMath::Wrap(inId0, minExt, maxExt);
-              inId0++;
-              }
-            while (++l < lcount);
-            break;
-
-          case VTK_IMAGE_BORDER_MIRROR:
-            do
-              {
-              inId[l] = vtkInterpolationMath::Mirror(inId0, minExt, maxExt);
-              inId0++;
-              }
-            while (++l < lcount);
-            break;
-
-          default:
-            do
-              {
-              inId[l] = vtkInterpolationMath::Clamp(inId0, minExt, maxExt);
-              inId0++;
-              }
-            while (++l < lcount);
-            break;
-          }
-
-        // compute the weights and offsets
-        vtkIdType inInc = weights->Increments[k];
-        positions[step*i] = inId[0]*inInc;
-        if (interpMode != VTK_NEAREST_INTERPOLATION)
-          {
-          constants[step*i] = static_cast<F>(1);
-          }
-        if (step > 1)
-          {
-          if (interpMode == VTK_LINEAR_INTERPOLATION)
-            {
-            positions[step*i+1] = inId[1]*inInc;
-            constants[step*i] = static_cast<F>(1.0 - f);
-            constants[step*i+1] = static_cast<F>(f);
-            }
-          else if (interpMode == VTK_CUBIC_INTERPOLATION)
-            {
-            F g[4];
-            vtkTricubicInterpWeights(g, f);
-            if (step == 4)
-              {
-              for (int ll = 0; ll < 4; ll++)
-                {
-                positions[step*i + ll] = inId[ll]*inInc;
-                constants[step*i + ll] = g[ll];
-                }
-              }
-            else
-              {
-              // it gets tricky if there are fewer than 4 slices
-              F gg[4] = { 0, 0, 0, 0 };
-              for (int ll = 0; ll < 4; ll++)
-                {
-                int rIdx = inId[ll] - minExt;
-                gg[rIdx] += g[ll];
-                }
-              for (int jj = 0; jj < step; jj++)
-                {
-                positions[step*i + jj] = minExt + jj;
-                constants[step*i + jj] = gg[jj];
-                }
-              }
-            }
-          }
-
         if (region == 0)
           { // entering the input extent
           region = 1;
