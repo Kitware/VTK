@@ -1033,92 +1033,92 @@ void vtkImageSincInterpolatorPrecomputeWeights(
       {
       F point = matrow[3] + i*matrow[j];
 
-      if (point >= minBounds && point <= maxBounds)
+      F f = 0;
+      int idx = vtkInterpolationMath::Floor(point, f);
+      int lmax = 1;
+      if (step > 1)
         {
-        F f = 0;
-        int idx = vtkInterpolationMath::Floor(point, f);
-        int lmax = 1;
-        if (step > 1)
+        idx -= m2;
+        lmax = m;
+        }
+
+      int inId[VTK_SINC_KERNEL_SIZE_MAX];
+
+      int l = 0;
+      switch (weights->BorderMode)
+        {
+        case VTK_IMAGE_BORDER_REPEAT:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Wrap(idx++, minExt, maxExt);
+            }
+          while (++l < lmax);
+          break;
+
+        case VTK_IMAGE_BORDER_MIRROR:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Mirror(idx++, minExt, maxExt);
+            }
+          while (++l < lmax);
+          break;
+
+        default:
+           do
+            {
+            inId[l] = vtkInterpolationMath::Clamp(idx++, minExt, maxExt);
+            }
+          while (++l < lmax);
+          break;
+        }
+
+      // compute the weights and offsets
+      vtkIdType inInc = weights->Increments[k];
+      if (step == 1)
+        {
+        positions[step*i] = inId[0]*inInc;
+        constants[step*i] = static_cast<F>(1);
+        }
+      else
+        {
+        F g[VTK_SINC_KERNEL_SIZE_MAX];
+        vtkSincInterpWeights(kernel[j], g, f, m);
+
+        if (step == m)
           {
-          idx -= m2;
-          lmax = m;
-          }
-
-        int inId[VTK_SINC_KERNEL_SIZE_MAX];
-
-        int l = 0;
-        switch (weights->BorderMode)
-          {
-          case VTK_IMAGE_BORDER_REPEAT:
-            do
-              {
-              inId[l] = vtkInterpolationMath::Wrap(idx++, minExt, maxExt);
-              }
-            while (++l < lmax);
-            break;
-
-          case VTK_IMAGE_BORDER_MIRROR:
-            do
-              {
-              inId[l] = vtkInterpolationMath::Mirror(idx++, minExt, maxExt);
-              }
-            while (++l < lmax);
-            break;
-
-          default:
-             do
-              {
-              inId[l] = vtkInterpolationMath::Clamp(idx++, minExt, maxExt);
-              }
-            while (++l < lmax);
-            break;
-          }
-
-        // compute the weights and offsets
-        vtkIdType inInc = weights->Increments[k];
-        if (step == 1)
-          {
-          positions[step*i] = inId[0]*inInc;
-          constants[step*i] = static_cast<F>(1);
+          int ll = 0;
+          do
+            {
+            positions[step*i + ll] = inId[ll]*inInc;
+            constants[step*i + ll] = g[ll];
+            }
+          while (++ll < step);
           }
         else
           {
-          F g[VTK_SINC_KERNEL_SIZE_MAX];
-          vtkSincInterpWeights(kernel[j], g, f, m);
-
-          if (step == m)
+          // it gets tricky if the data is thinner than the kernel
+          F gg[VTK_SINC_KERNEL_SIZE_MAX];
+          int ll = 0;
+          do { gg[ll] = 0; } while (++ll < m);
+          ll = 0;
+          do
             {
-            int ll = 0;
-            do
-              {
-              positions[step*i + ll] = inId[ll]*inInc;
-              constants[step*i + ll] = g[ll];
-              }
-            while (++ll < step);
+            int rIdx = inId[ll] - minExt;
+            gg[rIdx] += g[ll];
             }
-          else
+          while (++ll < m);
+          ll = 0;
+          do
             {
-            // it gets tricky if the data is thinner than the kernel
-            F gg[VTK_SINC_KERNEL_SIZE_MAX];
-            int ll = 0;
-            do { gg[ll] = 0; } while (++ll < m);
-            ll = 0;
-            do
-              {
-              int rIdx = inId[ll] - minExt;
-              gg[rIdx] += g[ll];
-              }
-            while (++ll < m);
-            ll = 0;
-            do
-              {
-              positions[step*i + ll] = minExt + ll;
-              constants[step*i + ll] = gg[ll];
-              }
-            while (++ll < step);
+            positions[step*i + ll] = minExt + ll;
+            constants[step*i + ll] = gg[ll];
             }
+          while (++ll < step);
           }
+        }
 
+      if (point >= minBounds && point <= maxBounds)
+        {
         if (region == 0)
           { // entering the input extent
           region = 1;
