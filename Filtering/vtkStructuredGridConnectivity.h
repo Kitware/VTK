@@ -76,6 +76,11 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void GetGridExtent( const int gridID, int extent[6] );
 
     // Description:
+    // Sets the ghosted grid extent for the grid corresponding to the given
+    // grid ID to the given extent.
+    void SetGhostedGridExtent( const int gridID, int ext[6] );
+
+    // Description:
     // Returns the ghosted grid extent for the block corresponding the
     void GetGhostedGridExtent( const int gridID, int ext[6] );
 
@@ -144,15 +149,6 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
           } // END switch
         return( numNodes );
       }
-
-    // Description:
-    // Sets the ghosted grid extent for the grid corresponding to the given
-    // grid ID to the given extent.
-    void SetGhostedGridExtent( const int gridID, int ext[6] );
-
-    // Description:
-    // Creates the ghosted extent of the grid with the given
-    void CreateGhostedExtent( const int gridID );
 
     // Description:
     // Fills the the ghost array for the nodes
@@ -378,11 +374,22 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
         const int OnLo, const int OnHi, const int NotOnBoundary );
 
     // Description:
+    // Creates the ghosted extent of the grid corresponding to the given
+    // gridID.
+    void CreateGhostedExtent( const int gridID, const int N );
+
+    // Description:
     // Gets the ghosted extent from the given grid extent along the dimension
-    // given by minIdx and maxIdx.
+    // given by minIdx and maxIdx. This method is a helper method for the
+    // implementation of CreateGhostedExtent.
     void GetGhostedExtent(
         int *ghostedExtent, int GridExtent[6],
-        const int minIdx, const int maxIdx );
+        const int minIdx, const int maxIdx, const int N);
+
+    // Description:
+    // This method creates the ghosted mask arrays, i.e., the NodeGhostArrays
+    // and the CellGhostArrays for the grid corresponding to the given gridID.
+    void CreateGhostedMaskArrays(const int gridID);
 
     // Description:
     // Prints the extent, used for debugging
@@ -405,16 +412,22 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 //=============================================================================
 
 inline void vtkStructuredGridConnectivity::GetGhostedExtent(
-    int *ghostedExtent, int GridExtent[6], const int minIdx, const int maxIdx )
+    int *ghostedExtent, int GridExtent[6],
+    const int minIdx, const int maxIdx, const int N )
 {
+  assert( "pre: Number of ghost layers must be N >= 1" && (N >= 1) );
   assert( "pre: ghosted extent pointer is NULL" && ghostedExtent != NULL);
-  ghostedExtent[minIdx] =
-   ( (GridExtent[minIdx]-1) < this->WholeExtent[minIdx] )?
-       this->WholeExtent[minIdx] : GridExtent[minIdx]-1;
 
+  ghostedExtent[minIdx] = GridExtent[minIdx]-N;
+  ghostedExtent[maxIdx] = GridExtent[maxIdx]+N;
+
+  // Clamp the ghosted extent to be within the WholeExtent
+  ghostedExtent[minIdx] =
+   (ghostedExtent[minIdx] < this->WholeExtent[minIdx] )?
+       this->WholeExtent[minIdx] : ghostedExtent[minIdx];
   ghostedExtent[maxIdx] =
-   ( (GridExtent[maxIdx]+1) > this->WholeExtent[maxIdx])?
-       this->WholeExtent[maxIdx] : GridExtent[maxIdx]+1;
+   (ghostedExtent[maxIdx] > this->WholeExtent[maxIdx])?
+       this->WholeExtent[maxIdx] : ghostedExtent[maxIdx];
 }
 
 //------------------------------------------------------------------------------
@@ -748,7 +761,6 @@ inline void vtkStructuredGridConnectivity::AddBlockConnection(
         (this->NumberOfGrids == this->BlockTopology.size()));
   assert("pre: blockDirection is out-of-bounds" &&
         (blockDirection >= 0) && (blockDirection < 6) );
-
   this->BlockTopology[ gridID ] |= (1 << blockDirection);
 }
 
@@ -761,7 +773,6 @@ inline void vtkStructuredGridConnectivity::ClearBlockConnections(
         (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert("pre: BlockTopology has not been properly allocated" &&
         (this->NumberOfGrids == this->BlockTopology.size()));
-
   for( int i=0; i < 6; ++i )
     {
     this->RemoveBlockConnection( gridID, i );
@@ -786,7 +797,6 @@ inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
       ++count;
       }
     }
-
   assert( "post: count must be in [0,5]" && (count >=0 && count <= 6) );
   return( count );
 }

@@ -430,7 +430,6 @@ void vtkStructuredGridConnectivity::FillCellsGhostArray(
         vtkStructuredData::GetCellPoints(
               idx,cellNodeIds,dataDescription,dims );
         assert( cellNodeIds->GetNumberOfIds() == numNodesPerCell );
-
         assert( cellNodeGhostFields != NULL );
 
         for( int ii=0; ii < numNodesPerCell; ++ii )
@@ -1055,7 +1054,8 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::CreateGhostedExtent( const int gridID )
+void vtkStructuredGridConnectivity::CreateGhostedExtent(
+    const int gridID, const int N )
 {
   assert( "pre: gridID is out-of-bounds!" &&
           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -1073,36 +1073,139 @@ void vtkStructuredGridConnectivity::CreateGhostedExtent( const int gridID )
   switch( this->DataDescription )
     {
     case VTK_X_LINE:
-      this->GetGhostedExtent(ghostedExtent,ext,0,1);
+      this->GetGhostedExtent(ghostedExtent,ext,0,1,N);
       break;
     case VTK_Y_LINE:
-      this->GetGhostedExtent(ghostedExtent,ext,2,3);
+      this->GetGhostedExtent(ghostedExtent,ext,2,3,N);
       break;
     case VTK_Z_LINE:
-      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      this->GetGhostedExtent(ghostedExtent,ext,4,5,N);
       break;
     case VTK_XY_PLANE:
-      this->GetGhostedExtent(ghostedExtent,ext,0,1);
-      this->GetGhostedExtent(ghostedExtent,ext,2,3);
+      this->GetGhostedExtent(ghostedExtent,ext,0,1,N);
+      this->GetGhostedExtent(ghostedExtent,ext,2,3,N);
       break;
     case VTK_YZ_PLANE:
-      this->GetGhostedExtent(ghostedExtent,ext,2,3);
-      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      this->GetGhostedExtent(ghostedExtent,ext,2,3,N);
+      this->GetGhostedExtent(ghostedExtent,ext,4,5,N);
       break;
     case VTK_XZ_PLANE:
-      this->GetGhostedExtent(ghostedExtent,ext,0,1);
-      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      this->GetGhostedExtent(ghostedExtent,ext,0,1,N);
+      this->GetGhostedExtent(ghostedExtent,ext,4,5,N);
       break;
     case VTK_XYZ_GRID:
-      this->GetGhostedExtent(ghostedExtent,ext,0,1);
-      this->GetGhostedExtent(ghostedExtent,ext,2,3);
-      this->GetGhostedExtent(ghostedExtent,ext,4,5);
+      this->GetGhostedExtent(ghostedExtent,ext,0,1,N);
+      this->GetGhostedExtent(ghostedExtent,ext,2,3,N);
+      this->GetGhostedExtent(ghostedExtent,ext,4,5,N);
       break;
     default:
       std::cout << "Data description is: " << this->DataDescription << "\n";
       std::cout.flush();
       assert( "pre: Undefined data-description!" && false );
     } // END switch
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
+{
+  // Sanity check
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+  assert( "pre: GhostedPointGhostArray has not been allocated" &&
+          (this->NumberOfGrids == this->GhostedPointGhostArray.size()));
+  assert( "pre: GhostedCellGhostArray has not been allocated" &&
+          (this->NumberOfGrids == this->GhostedCellGhostArray.size()));
+
+  // STEP 0: Initialize the ghosted node and cell arrays
+  if( this->GhostedPointGhostArray[gridID] == NULL )
+    {
+    this->GhostedPointGhostArray[gridID] = vtkUnsignedCharArray::New();
+    }
+  else
+    {
+    this->GhostedPointGhostArray[gridID]->Reset();
+    }
+
+  if( this->GhostedCellGhostArray[gridID] == NULL )
+    {
+    this->GhostedCellGhostArray[gridID] = vtkUnsignedCharArray::New();
+    }
+  else
+    {
+    this->GhostedCellGhostArray[gridID]->Reset();
+    }
+
+  // STEP 1: Get the ghosted extent
+  int ghostedExtent[6];
+  this->GetGhostedGridExtent( gridID, ghostedExtent );
+
+  // STEP 2: Get the grid extent
+  int gridExtent[6];
+  this->GetGridExtent( gridID, gridExtent );
+
+  int numNodes = vtkStructuredData::GetNumberOfNodes(
+      ghostedExtent, this->DataDescription );
+
+  int numCells = vtkStructuredData::GetNumberOfCells(
+      ghostedExtent,this->DataDescription );
+
+  // STEP 3: Allocated the ghosted node and cell arrays
+  this->GhostedPointGhostArray[gridID]->Allocate( numNodes );
+  this->GhostedCellGhostArray[gridID]->Allocate( numCells );
+
+  // STEP 4: Loop through the ghosted extent and mark the nodes in the ghosted
+  // extent accordingly. If the node exists in the grown extent
+  int ijk[3];
+  unsigned char p;
+  for( int i=ghostedExtent[0]; i <= ghostedExtent[1]; ++i )
+    {
+    for( int j=ghostedExtent[2]; j <= ghostedExtent[3]; ++j )
+      {
+      for( int k=ghostedExtent[4]; k <=ghostedExtent[5]; ++k )
+        {
+        ijk[0]=i; ijk[1]=j; ijk[2]=k;
+
+        vtkIdType idx =
+         vtkStructuredData::ComputePointIdForExtent(
+                  ghostedExtent,ijk,this->DataDescription);
+
+        if( this->IsNodeWithinExtent(i,j,k,gridExtent) )
+          {
+          // Get index w.r.t. the register extent
+          vtkIdType srcidx =
+              vtkStructuredData::ComputePointIdForExtent(
+                          gridExtent,ijk,this->DataDescription);
+          p = this->GridPointGhostArrays[gridID]->GetValue( srcidx );
+          this->GhostedPointGhostArray[gridID]->SetValue(idx, p);
+          }
+        else
+          {
+          vtkGhostArray::Reset( p );
+          vtkGhostArray::SetProperty( p, vtkGhostArray::GHOST );
+          vtkGhostArray::SetProperty( p, vtkGhostArray::IGNORE );
+          this->GhostedPointGhostArray[gridID]->SetValue(idx,p);
+          }
+        } // END for all k
+      } // END for all j
+    } // END for all i
+
+  // STEP 5: Fill the cells ghost arrays for the ghosted grid
+  int dim = vtkStructuredData::GetDataDimension( this->DataDescription );
+  assert( "pre: data dimensions must be 1, 2 or 3" );
+
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent(ghostedExtent,dims);
+
+  int numNodesPerCell = this->GetNumberOfNodesPerCell( dim );
+
+  int CellExtent[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent( ghostedExtent,CellExtent );
+
+  this->FillCellsGhostArray(
+      this->DataDescription, numNodesPerCell, dims, CellExtent,
+      this->GhostedPointGhostArray[gridID],
+      this->GhostedCellGhostArray[gridID] );
+
 }
 
 //------------------------------------------------------------------------------
@@ -1121,7 +1224,8 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
-    this->CreateGhostedExtent( i );
+    this->CreateGhostedExtent( i, N );
+    this->CreateGhostedMaskArrays( i );
     } // END for all grids
 
 }
