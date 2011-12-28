@@ -98,6 +98,8 @@ vtkGraphAlgorithm.cxx
 vtkGraph.cxx
 vtkGraphEdge.cxx
 vtkGraphInternals.cxx
+vtkGraphWeightFilter.cxx
+vtkGraphWeightEuclideanDistanceFilter.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxDataIterator.cxx
@@ -291,6 +293,7 @@ vtkGenericDataSetAlgorithm
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
 vtkGraph
+vtkGraphWeightFilter
 vtkHyperOctreeAlgorithm
 vtkHyperOctreeCursor
 vtkHyperOctreePointsGrabber
