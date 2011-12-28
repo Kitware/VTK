@@ -43,6 +43,90 @@ int vtkStructuredData::GetDataDimension(int dataDescription)
       return -1;
     }
 }
+
+//------------------------------------------------------------------------------
+int vtkStructuredData::GetNumberOfNodes( int ext[6], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  int N = 0;
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent( ext,nodeDims,dataDescription );
+
+  switch( dataDescription )
+    {
+    case VTK_X_LINE:
+      N = nodeDims[0];
+      break;
+    case VTK_Y_LINE:
+      N = nodeDims[1];
+      break;
+    case VTK_Z_LINE:
+      N = nodeDims[2];
+      break;
+    case VTK_XY_PLANE:
+      N = nodeDims[0]*nodeDims[1];
+      break;
+    case VTK_YZ_PLANE:
+      N = nodeDims[1]*nodeDims[2];
+      break;
+    case VTK_XZ_PLANE:
+      N = nodeDims[0]*nodeDims[2];
+      break;
+    case VTK_XYZ_GRID:
+      N = nodeDims[0]*nodeDims[1]*nodeDims[2];
+      break;
+    default:
+      vtkGenericWarningMacro("Undefined data description!");
+    }
+
+  return( N );
+}
+
+//------------------------------------------------------------------------------
+int vtkStructuredData::GetNumberOfCells( int ext[6], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  int N = 0;
+  int cellDims[3];
+  vtkStructuredData::GetCellDimensionsFromExtent(ext,cellDims,dataDescription);
+
+  switch( dataDescription )
+    {
+    case VTK_X_LINE:
+      N = cellDims[0];
+      break;
+    case VTK_Y_LINE:
+      N = cellDims[1];
+      break;
+    case VTK_Z_LINE:
+      N = cellDims[2];
+      break;
+    case VTK_XY_PLANE:
+      N = cellDims[0]*cellDims[1];
+      break;
+    case VTK_YZ_PLANE:
+      N = cellDims[1]*cellDims[2];
+      break;
+    case VTK_XZ_PLANE:
+      N = cellDims[0]*cellDims[2];
+      break;
+    case VTK_XYZ_GRID:
+      N = cellDims[0]*cellDims[1]*cellDims[2];
+      break;
+    default:
+      vtkGenericWarningMacro("Undefined data description!");
+    }
+  return( N );
+}
+
 //------------------------------------------------------------------------------
 int vtkStructuredData::GetDataDimension( int ext[6] )
 {
@@ -129,9 +213,13 @@ void vtkStructuredData::GetCellExtentFromNodeExtent(
 
 //------------------------------------------------------------------------------
 void vtkStructuredData::GetCellDimensionsFromExtent(
-    int ext[6], int celldims[3] )
+    int ext[6], int celldims[3], int dataDescription )
 {
-  int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
   celldims[0] = celldims[1] = celldims[2] = 0;
   switch( dataDescription )
     {
@@ -194,10 +282,14 @@ void vtkStructuredData::GetCellDimensionsFromNodeDimensions(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredData::GetDimensionsFromExtent( int ext[6], int dims[3] )
+void vtkStructuredData::GetDimensionsFromExtent(
+    int ext[6], int dims[3], int dataDescription )
 {
   dims[0] = dims[1] = dims[2] = 1;
-  int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
 
   switch( dataDescription )
     {

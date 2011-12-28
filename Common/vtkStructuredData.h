@@ -67,6 +67,26 @@ public:
   static int GetDataDimension( int ext[6] );
 
   // Description:
+  // Given the grid extent, this method returns the total number of nodes
+  // within the extent.
+  // The method accepts as an optional parameter the data description of the
+  // grid. If a data description is not provided, it will be computed internally.
+  // If the method is used within a tight loop it is advised to pre-acquire and
+  // pass the data description to the method to avoid any latency associated
+  // with computing the data description internally multiple times.
+  static int GetNumberOfNodes( int ext[6], int dataDescription=VTK_EMPTY );
+
+  // Description:
+  // Given the grid extent, this method returns the total number of cells
+  // within the extent.
+  // The method accepts as an optional parameter the data description of the
+  // grid. If a data description is not provided, it will be computed internally.
+  // If the method is used within a tight loop it is advised to pre-acquire and
+  // pass the data description to the method to avoid any latency associated
+  // with computing the data description internally multiple times.
+  static int GetNumberOfCells( int ext[6], int dataDescription=VTK_EMPTY );
+
+  // Description:
   // Given the node extent of a grid, this method computes the corresponding
   // cell extent for the grid.
   // The method accepts as an optional parameter the data description of the
@@ -79,13 +99,15 @@ public:
 
   // Description:
   // Computes the structured grid dimensions based on the given extent.
-  static void GetDimensionsFromExtent( int ext[6], int dims[3] );
+  static void GetDimensionsFromExtent(
+      int ext[6], int dims[3], int dataDescription=VTK_EMPTY );
 
   // Description:
   // Returns the cell dimensions, i.e., the number of cells along the i,j,k
   // for the grid with the given grid extent. Note, the grid extent is the
   // number of points.
-  static void GetCellDimensionsFromExtent( int ext[6], int celldims[3] );
+  static void GetCellDimensionsFromExtent(
+      int ext[6], int celldims[3], int dataDescription=VTK_EMPTY );
 
   // Description:
   // Given the node dimensions of the grid, in node dims, this method returns
