@@ -356,6 +356,38 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
 }
 
 //------------------------------------------------------------------------------
+// Description:
+// Computes the total number of nodes in the multi-block dataset.
+int GetTotalNumberOfCells( vtkMultiBlockDataSet *multiblock )
+{
+  assert( "multi-block grid is NULL" && (multiblock != NULL) );
+
+  int numCells = 0;
+
+  for( unsigned int block=0; block < multiblock->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *grid =
+        vtkUniformGrid::SafeDownCast( multiblock->GetBlock( block ) );
+
+    if( grid != NULL )
+      {
+      vtkIdType cellIdx = 0;
+      for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
+        {
+        unsigned char cellProperty =
+            *(grid->GetCellVisibilityArray()->GetPointer( cellIdx ) );
+        if( !vtkGhostArray::IsPropertySet(
+            cellProperty,vtkGhostArray::DUPLICATE) )
+          {
+          ++numCells;
+          }
+        } // END for all cells
+      } // END if grid != NULL
+    } // END for all blocks
+  return( numCells );
+}
+
+//------------------------------------------------------------------------------
 void RegisterGrids(
     vtkMultiBlockDataSet *mbds, vtkStructuredGridConnectivity *connectivity )
 {
