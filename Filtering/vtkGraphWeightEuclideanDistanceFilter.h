@@ -21,7 +21,7 @@
 #ifndef __vtkGraphWeightEuclideanDistanceFilter_h
 #define __vtkGraphWeightEuclideanDistanceFilter_h
 
-#include "vtkGraphWeightFilter.h" //superclass
+#include "vtkGraphWeightFilter.h"
 
 class vtkGraph;
 

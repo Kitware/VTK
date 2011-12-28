@@ -34,7 +34,7 @@ bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* const vtkNotUsed(graph)) 
   return true;
 }
 
-int vtkGraphWeightFilter::RequestData(vtkInformation *request,
+int vtkGraphWeightFilter::RequestData(vtkInformation *vtkNotUsed(request),
                                          vtkInformationVector **inputVector,
                                          vtkInformationVector *outputVector)
 {

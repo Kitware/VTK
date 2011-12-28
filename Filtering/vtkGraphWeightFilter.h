@@ -28,14 +28,14 @@
 #ifndef __vtkGraphWeightFilter_h
 #define __vtkGraphWeightFilter_h
 
-#include "vtkGraphAlgorithm.h" //superclass
+#include "vtkGraphAlgorithm.h"
 
 class vtkGraph;
 
-class vtkGraphWeightFilter : public vtkGraphAlgorithm
+class VTK_FILTERING_EXPORT vtkGraphWeightFilter : public vtkGraphAlgorithm
 {
 public:
-
+  vtkTypeMacro(vtkGraphWeightFilter, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
