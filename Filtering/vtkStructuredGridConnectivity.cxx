@@ -1220,7 +1220,7 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 
   this->NumberOfGhostLayers += N;
   this->AllocateInternalDataStructures();
-  this->GhostedExtents.resize(this->NumberOfGrids,-1);
+  this->GhostedExtents.resize(this->NumberOfGrids*6,-1);
 
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
