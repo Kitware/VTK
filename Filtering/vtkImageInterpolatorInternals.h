@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInterpolationMath.h
+  Module:    vtkInterpolationInternals.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInterpolationMath - internals for vtkImageInterpolator
+// .NAME vtkInterpolationInternals - internals for vtkImageInterpolator
 
-#ifndef __vtkInterpolationMath_h
-#define __vtkInterpolationMath_h
+#ifndef __vtkInterpolationInternals_h
+#define __vtkInterpolationInternals_h
 
 #include "vtkMath.h"
 
