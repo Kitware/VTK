@@ -143,6 +143,31 @@ void AttachCellFlagsArray(
 
 //------------------------------------------------------------------------------
 // Description:
+// This method loops through all the blocks in the dataset and attaches arrays
+// for each ghost property that label whether a property is off(0) or on(1).
+void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
+{
+  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+  unsigned int block=0;
+  for( ; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *myGrid =
+       vtkUniformGrid::SafeDownCast(mbds->GetBlock( block ) );
+    if( myGrid != NULL )
+      {
+      AttachPointFlagsArray( myGrid, vtkGhostArray::IGNORE, "IGNORE" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::SHARED, "SHARED" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::GHOST, "GHOST" );
+      AttachPointFlagsArray( myGrid, vtkGhostArray::BOUNDARY, "BOUNDARY" );
+      AttachCellFlagsArray( myGrid, vtkGhostArray::DUPLICATE, "DUPLICATE" );
+      AttachCellFlagsArray( myGrid, vtkGhostArray::INTERIOR, "INTERIOR" );
+      }
+   } // END for all blocks
+}
+
+
+//------------------------------------------------------------------------------
+// Description:
 // Applies an XYZ field to the nodes and cells of the grid whose value is
 // corresponding to the XYZ coordinates at that location
 void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
@@ -358,27 +383,6 @@ void RegisterGrids(
 }
 
 //------------------------------------------------------------------------------
-void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
-{
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-  unsigned int block=0;
-  for( ; block < mbds->GetNumberOfBlocks(); ++block )
-    {
-    vtkUniformGrid *myGrid =
-       vtkUniformGrid::SafeDownCast(mbds->GetBlock( block ) );
-    if( myGrid != NULL )
-      {
-      AttachPointFlagsArray( myGrid, vtkGhostArray::IGNORE, "IGNORE" );
-      AttachPointFlagsArray( myGrid, vtkGhostArray::SHARED, "SHARED" );
-      AttachPointFlagsArray( myGrid, vtkGhostArray::GHOST, "GHOST" );
-      AttachPointFlagsArray( myGrid, vtkGhostArray::BOUNDARY, "BOUNDARY" );
-      AttachCellFlagsArray( myGrid, vtkGhostArray::DUPLICATE, "DUPLICATE" );
-      AttachCellFlagsArray( myGrid, vtkGhostArray::INTERIOR, "INTERIOR" );
-      }
-   } // END for all blocks
-}
-
-//------------------------------------------------------------------------------
 void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
 {
 
@@ -399,6 +403,73 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
   writer->Delete();
 #endif
 
+}
+
+//------------------------------------------------------------------------------
+vtkUniformGrid* GetGhostedGridFromGrid( vtkUniformGrid *grid, int gext[6] )
+{
+  assert( "pre: input grid is NULL" && (grid != NULL) );
+  vtkUniformGrid *newGrid = vtkUniformGrid::New();
+
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent( gext, dims );
+
+  double h[3];
+  grid->GetSpacing( h );
+
+  double origin[3];
+  for( int i=0; i < 3; ++i )
+    {
+    // Assumes a global origing @(0,0,0)
+    origin[ i ] = 0.0 + gext[i*2]*h[i];
+    }
+
+  newGrid->SetOrigin( origin );
+  newGrid->SetDimensions( dims );
+  newGrid->SetSpacing( grid->GetSpacing() );
+  return( newGrid );
+}
+
+//------------------------------------------------------------------------------
+vtkMultiBlockDataSet* GetGhostedDataSet(
+    vtkMultiBlockDataSet *mbds,
+    vtkStructuredGridConnectivity *SGC, int numGhosts )
+{
+  assert( "pre: Multi-block dataset is not NULL" && (mbds != NULL) );
+  assert( "pre: SGC is NULL" && (SGC != NULL) );
+  assert( "pre: Number of ghosts requested is invalid" && (numGhosts >= 1) );
+  assert( "pre: Number of blocks in input must match registered grids!" &&
+          mbds->GetNumberOfBlocks()==SGC->GetNumberOfGrids() );
+
+  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::New();
+  output->SetNumberOfBlocks( mbds->GetNumberOfBlocks() );
+
+  SGC->CreateGhostLayers( numGhosts );
+
+  int GhostedGridExtent[6];
+  int GridExtent[6];
+  unsigned int block=0;
+  for( ; block < output->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *grid =
+        vtkUniformGrid::SafeDownCast( mbds->GetBlock(block) );
+    assert( "pre: Uniform grid should not be NULL" && (grid != NULL) );
+
+
+    SGC->GetGridExtent( block, GridExtent );
+    SGC->GetGhostedGridExtent( block, GhostedGridExtent );
+
+    vtkUniformGrid *ghostedGrid= GetGhostedGridFromGrid(grid,GhostedGridExtent);
+    assert( "pre:ghosted grid is NULL!" && (ghostedGrid != NULL) );
+
+    ghostedGrid->SetPointVisibilityArray(SGC->GetGhostedPointGhostArray(block));
+    ghostedGrid->SetCellVisibilityArray(SGC->GetGhostedCellGhostArray(block));
+
+    output->SetBlock( block, ghostedGrid );
+    ghostedGrid->Delete();
+    } // END for all blocks
+
+  return( output );
 }
 
 //------------------------------------------------------------------------------
@@ -558,6 +629,30 @@ int SimpleTest( int argc, char **argv )
    std::cout.flush();
    }
 
+  std::cout << "Creating/Extending ghost layers...";
+  std::cout.flush();
+  vtkMultiBlockDataSet *gmbds = GetGhostedDataSet( mbds, gridConnectivity, 1 );
+  std::cout << "[DONE]\n";
+  std::cout.flush();
+
+  int NumNodesOnGhostedDataSet = GetTotalNumberOfNodes( gmbds );
+  std::cout << "NUMNODESGHOSTED=" << NumNodesOnGhostedDataSet
+            << " EXPECTED=" << expected << "...";
+  if( NumNodesOnGhostedDataSet == expected )
+    {
+    std::cout << "[OK]\n";
+    std::cout.flush();
+    }
+  else
+    {
+    std::cout << "[ERROR]\n";
+    std::cout.flush();
+    }
+
+  AttachNodeAndCellGhostFlags( gmbds );
+  WriteMultiBlock( gmbds, "GHOSTED" );
+
+  gmbds->Delete();
   mbds->Delete();
   gridConnectivity->Delete();
   return 0;
