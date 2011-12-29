@@ -48,7 +48,7 @@ public:
   vtkGetMacro(DefaultIntegerValue, int);
 
   // Description:
-  // Set the default double value assigned to arrays.  Default is 0.0 
+  // Set the default double value assigned to arrays.  Default is 0.0
   vtkSetMacro(DefaultDoubleValue, double);
   vtkGetMacro(DefaultDoubleValue, double);
 

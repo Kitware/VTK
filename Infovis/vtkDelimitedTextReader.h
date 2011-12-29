@@ -172,7 +172,7 @@ public:
   vtkBooleanMacro(ForceDouble, bool);
 
   // Description:
-  // When DetectNumericColumns is set to true, whether to trim whitespace from 
+  // When DetectNumericColumns is set to true, whether to trim whitespace from
   // strings prior to conversion to a numeric.
   // Default is false to preserve backward compatibility.
   //

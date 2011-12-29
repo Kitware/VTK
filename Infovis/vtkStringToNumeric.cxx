@@ -347,6 +347,6 @@ void vtkStringToNumeric::PrintSelf(ostream& os, vtkIndent indent)
     << this->DefaultIntegerValue << endl;
   os << indent << "DefaultDoubleValue: "
     << this->DefaultDoubleValue << endl;
-  os << indent << "TrimWhitespacePriorToNumericConversion: " 
+  os << indent << "TrimWhitespacePriorToNumericConversion: "
     << (this->TrimWhitespacePriorToNumericConversion ? "on" : "off") << endl;
 }
