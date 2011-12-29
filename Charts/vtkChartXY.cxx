@@ -60,6 +60,7 @@
 
 // My STL containers
 #include <vector>
+#include <algorithm>
 
 //-----------------------------------------------------------------------------
 class vtkChartXYPrivate
@@ -1381,6 +1382,38 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
+namespace {
+void BuildSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection,
+                    bool add)
+{
+  // Add all unique array indices to create a new combined array.
+  if (add)
+    {
+    vtkIdType *ptrSelection =
+        static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+    vtkIdType *ptrOldSelection =
+        static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+    std::vector<vtkIdType> output(selection->GetNumberOfTuples()
+                                  + oldSelection->GetNumberOfTuples());
+    std::vector<vtkIdType>::iterator it;
+    it = std::set_union(ptrSelection,
+                        ptrSelection + selection->GetNumberOfTuples(),
+                        ptrOldSelection,
+                        ptrOldSelection + oldSelection->GetNumberOfTuples(),
+                        output.begin());
+    int newSize = int(it - output.begin());
+    selection->SetNumberOfTuples(newSize);
+    ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+    for (std::vector<vtkIdType>::iterator i = output.begin(); i != it;
+         ++i, ++ptrSelection)
+      {
+      *ptrSelection = *i;
+      }
+    }
+}
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
   // Iterate through each corner, and check for a nearby point
@@ -1422,6 +1455,9 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     }
   if (mouse.GetButton() == this->Actions.Select())
     {
+    // Add to the selection if the shift key was pressed.
+    bool addToSelection =
+        mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER;
     if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
       {
       // Invalid box size - do nothing
@@ -1431,6 +1467,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
       return true;
       }
     // Iterate through the plots and build a selection
+    vtkNew<vtkIdTypeArray> oldSelection;
     for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
       {
       int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
@@ -1465,6 +1502,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
                                                 PlotCorners[i]->GetItem(j));
           if (plot && plot->GetVisible())
             {
+            oldSelection->DeepCopy(plot->GetSelection());
             /*
              * Populate the internal selection.  This will be referenced later
              * to subsequently populate the selection inside the annotation link.
@@ -1479,6 +1517,8 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
               selection->AddNode(node);
               node->SetContentType(vtkSelectionNode::INDICES);
               node->SetFieldType(vtkSelectionNode::POINT);
+              BuildSelection(plot->GetSelection(), oldSelection.GetPointer(),
+                             addToSelection);
               node->SetSelectionList(plot->GetSelection());
               this->AnnotationLink->SetCurrentSelection(selection);
               node->Delete();
