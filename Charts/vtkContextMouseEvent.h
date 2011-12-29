@@ -38,6 +38,15 @@ public:
     RIGHT_BUTTON = 4
   };
 
+  // Description:
+  // Enumeration of modifier keys.
+  enum {
+    NO_MODIFIER = 0,
+    ALT_MODIFIER = 1,
+    SHIFT_MODIFIER = 2,
+    CONTROL_MODIFIER = 4
+  };
+
   vtkContextMouseEvent()
   {
   }
@@ -96,6 +105,11 @@ public:
   // NO_BUTTON, LEFT_BUTTON, MIDDLE_BUTTON and RIGHT_BUTTON.
   void SetButton(int button) { this->Button = button; }
   int GetButton() const { return this->Button; }
+
+  // Description:
+  // Return the modifier keys, if any, ORed together. Valid modifier enum values
+  // are NO_MODIFIER, ALT_MODIFIER, SHIFT_MODIFIER and/or CONTROL_MODIFIER.
+  int GetModifiers() const;
 
 #ifdef VTK_LEGACY_REMOVE
   // Deprecating the public exposure of member variables for mouse events

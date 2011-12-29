@@ -42,7 +42,7 @@ SET(Kit_SRCS
   vtkContextItem.cxx
   vtkContextKeyEvent.cxx
   vtkContextMapper2D.cxx
-  vtkContextMouseEvent.h
+  vtkContextMouseEvent.cxx
   vtkContextScene.cxx
   vtkContextTransform.cxx
   vtkContextView.cxx
@@ -68,11 +68,6 @@ SET(Kit_SRCS
   vtkScatterPlotMatrix.cxx
   vtkTooltipItem.cxx
   )
-
-SET_SOURCE_FILES_PROPERTIES(
-  vtkContextMouseEvent
-  HEADER_FILE_ONLY
-)
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
