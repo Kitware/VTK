@@ -403,7 +403,7 @@ void vtkStructuredGridConnectivity::FillCellsGhostArray(
 {
   assert( "pre: nodes array should not be NULL" && (nodesArray != NULL) );
 
-  if( cellsArray != NULL )
+  if( cellsArray == NULL )
     {
     return;
     }
