@@ -59,6 +59,14 @@ public:
       return;
       }
 
+    // Do not process if any modifiers are ON
+    if (this->Viewer->GetInteractor()->GetShiftKey() ||
+        this->Viewer->GetInteractor->GetControlKey() ||
+        this->Viewer->GetInteractor()->GetAltKey())
+      {
+      return;
+      }
+
     // forwards or backwards
     int sign = (ev == vtkCommand::MouseWheelForwardEvent) ? 1 : -1;
     this->Viewer->IncrementSlice(sign);
