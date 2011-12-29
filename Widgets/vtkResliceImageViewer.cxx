@@ -61,7 +61,7 @@ public:
 
     // Do not process if any modifiers are ON
     if (this->Viewer->GetInteractor()->GetShiftKey() ||
-        this->Viewer->GetInteractor->GetControlKey() ||
+        this->Viewer->GetInteractor()->GetControlKey() ||
         this->Viewer->GetInteractor()->GetAltKey())
       {
       return;
