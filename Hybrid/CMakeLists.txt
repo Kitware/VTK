@@ -40,6 +40,7 @@ vtkAxisActor.cxx
 vtkAxesActor.cxx
 vtkAxisFollower.cxx
 vtkBarChartActor.cxx
+vtkBSplineTransform.cxx
 vtkCaptionActor2D.cxx
 vtkCornerAnnotation.cxx
 vtkCubeAxesActor.cxx
