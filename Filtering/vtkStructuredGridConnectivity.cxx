@@ -1301,6 +1301,51 @@ void vtkStructuredGridConnectivity::InitializeGhostedFieldData(const int gridID)
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
+      const int gridID )
+{
+  // Sanity check
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+
+  // STEP 0: Get the registered grid extent
+  int GridExtent[6];
+  this->GetGridExtent( gridID, GridExtent );
+
+  // STEP 1: Get the ghosted grid extent
+  int GhostedGridExtent[6];
+  this->GetGhostedGridExtent( gridID, GhostedGridExtent );
+
+  // STEP 2: Loop over the registered grid extent
+  int ijk[3];
+  for( int i=GridExtent[0]; i <= GridExtent[1]; ++i )
+    {
+    for( int j=GridExtent[2]; j <= GridExtent[3]; ++j )
+      {
+      for( int k=GridExtent[4]; k <= GridExtent[5]; ++k )
+        {
+
+        ijk[0]=i; ijk[1]=j; ijk[2]=k;
+
+        // Compute the source index to the registered data
+        vtkIdType sourceIdx =
+            vtkStructuredData::ComputePointIdForExtent(
+                GridExtent, ijk, this->DataDescription );
+
+        // Compute the target index to the ghosted data
+        vtkIdType targetIdx =
+            vtkStructuredData::ComputePointIdForExtent(
+                GhostedGridExtent, ijk, this->DataDescription );
+
+        // Transfer the data from the sourceIdx to targetIdx
+        // TODO: implement this
+
+        } // END for all k
+      } // END for all j
+    } // END for all i
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 {
   if( N==0 )
@@ -1319,6 +1364,7 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
     this->CreateGhostedExtent( i, N );
     this->CreateGhostedMaskArrays( i );
     this->InitializeGhostedFieldData( i );
+    this->TransferRegisteredDataToGhostedData( i );
     } // END for all grids
 
 }

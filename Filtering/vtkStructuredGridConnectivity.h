@@ -408,6 +408,11 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void AllocateCellData( vtkCellData *RCD, const int N, vtkCellData *CD );
 
     // Description:
+    // This method transfers the registered grid data to the corresponding
+    // ghosted grid data.
+    void TransferRegisteredDataToGhostedData( const int gridID );
+
+    // Description:
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 
