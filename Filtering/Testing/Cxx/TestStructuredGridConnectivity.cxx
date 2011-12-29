@@ -590,7 +590,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
 
       gridConnectivity->Print( std::cout );
 
-      // STEP 5: Compute total number of nodes compare to expected
+      // STEP 5: Compute total number of nodes & compare to expected
       std::cout << "-- Computing the total number of nodes...";
       std::cout.flush();
       int NumNodes = GetTotalNumberOfNodes( mbds );
@@ -604,6 +604,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
         return( rc );
         }
 
+      // STEP 6: Compute total number of cells & compare to expected
       std::cout << "-- Computing the total number of cells...";
       std::cout.flush();
       int NumCells = GetTotalNumberOfCells( mbds );
@@ -617,7 +618,35 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
         return( rc );
         }
 
-      // STEP 6: De-allocated data-structures
+      // STEP 7: Create one layer of additional ghost nodes
+      std::cout << "Extending ghost layers....";
+      std::cout.flush();
+      vtkMultiBlockDataSet *gmbds = GetGhostedDataSet(mbds,gridConnectivity,1);
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+
+      // STEP 8: Ensure number of nodes/cells is the same on ghosted dataset
+      int GhostedNumNodes = GetTotalNumberOfNodes( gmbds );
+      int GhostedNumCells = GetTotalNumberOfCells( gmbds );
+      if( !Check( "GHOSTED_NODES", GhostedNumNodes, expected ) )
+        {
+        ++rc;
+        gmbds->Delete();
+        mbds->Delete();
+        gridConnectivity->Delete();
+        return( rc );
+        }
+      if( !Check( "GHOSTED_CELLS", GhostedNumCells, expectedCells ) )
+        {
+        ++rc;
+        gmbds->Delete();
+        mbds->Delete();
+        gridConnectivity->Delete();
+        return( rc );
+        }
+
+      // STEP 9: De-allocated data-structures
+      gmbds->Delete();
       mbds->Delete();
       gridConnectivity->Delete();
       }// END for all ghost layer tests
