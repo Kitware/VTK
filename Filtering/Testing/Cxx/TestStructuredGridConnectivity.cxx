@@ -165,12 +165,11 @@ void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
    } // END for all blocks
 }
 
-
 //------------------------------------------------------------------------------
 // Description:
 // Applies an XYZ field to the nodes and cells of the grid whose value is
 // corresponding to the XYZ coordinates at that location
-void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
+void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
 {
   assert( "pre: grd should not be NULL" && (grd != NULL)  );
 
@@ -180,15 +179,21 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
   assert( "pre: Cell data is NULL" && (CD != NULL) );
   assert( "pre: Point data is NULL" && (PD != NULL)  );
 
+  std::ostringstream oss;
+
   // Allocate arrays
+  oss.str("");
+  oss << prefix << "-CellXYZ";
   vtkDoubleArray *cellXYZArray = vtkDoubleArray::New();
-  cellXYZArray->SetName( "CellXYZ" );
+  cellXYZArray->SetName( oss.str().c_str() );
   cellXYZArray->SetNumberOfComponents( 3 );
   cellXYZArray->SetNumberOfTuples( grd->GetNumberOfCells() );
 
 
+  oss.str("");
+  oss << prefix << "-NodeXYZ";
   vtkDoubleArray *nodeXYZArray = vtkDoubleArray::New();
-  nodeXYZArray->SetName( "NodeXYZ" );
+  nodeXYZArray->SetName( oss.str().c_str() );
   nodeXYZArray->SetNumberOfComponents( 3 );
   nodeXYZArray->SetNumberOfTuples( grd->GetNumberOfPoints() );
 
@@ -209,14 +214,15 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
       double xyz[3];
 
       vtkIdType meshPntIdx = c->GetPointId( node );
+      grd->GetPoint(  meshPntIdx, xyz );
+      xsum += xyz[0];
+      ysum += xyz[1];
+      zsum += xyz[2];
+
       if( visited.find( meshPntIdx ) == visited.end() )
         {
         visited.insert( meshPntIdx );
-        grd->GetPoint(  meshPntIdx, xyz );
 
-        xsum += xyz[0];
-        ysum += xyz[1];
-        zsum += xyz[2];
 
         nodeXYZArray->SetComponent( meshPntIdx, 0, xyz[0] );
         nodeXYZArray->SetComponent( meshPntIdx, 1, xyz[1] );
@@ -239,6 +245,18 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd )
 
   PD->AddArray( nodeXYZArray );
   nodeXYZArray->Delete();
+}
+
+//------------------------------------------------------------------------------
+void ApplyFieldsToDataSet( vtkMultiBlockDataSet *mbds, std::string prefix )
+{
+  unsigned int block = 0;
+  for( ; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *grid =
+        vtkUniformGrid::SafeDownCast( mbds->GetBlock(block) );
+    ApplyXYZFieldToGrid( grid, prefix );
+    } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -313,6 +331,7 @@ vtkMultiBlockDataSet* GetDataSet(
   vtkMultiBlockDataSet *mbds =
       vtkMultiBlockDataSet::SafeDownCast( gridPartitioner->GetOutput() );
   mbds->SetReferenceCount( mbds->GetReferenceCount()+1 );
+  ApplyFieldsToDataSet( mbds, "COMPUTED" );
 
   wholeGrid->Delete();
   gridPartitioner->Delete();
