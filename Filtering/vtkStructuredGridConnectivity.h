@@ -392,6 +392,22 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void CreateGhostedMaskArrays(const int gridID);
 
     // Description:
+    // This method initializes the ghosted field data
+    void InitializeGhostedFieldData( const int gridID );
+
+    // Description:
+    // Adds/creates all the arrays in the reference grid point data, RPD, to
+    // the user-supplied point data instance, PD, where the number of points
+    // is given by N.
+    void AllocatePointData( vtkPointData *RPD, const int N, vtkPointData *PD );
+
+    // Description:
+    // Adds/creates all the arrays in the reference grid cell data, RCD, to the
+    // user-supplied cell data instance, CD, where the number of cells is given
+    // by N.
+    void AllocateCellData( vtkCellData *RCD, const int N, vtkCellData *CD );
+
+    // Description:
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 

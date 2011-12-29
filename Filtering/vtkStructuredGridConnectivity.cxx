@@ -1214,6 +1214,93 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::AllocatePointData(
+    vtkPointData *RPD, const int N, vtkPointData *PD )
+{
+  assert( "pre: Reference point data is NULL" && (RPD != NULL) );
+  assert( "pre: point data is NULL" && (PD != NULL) );
+  assert( "pre: N > 0" && (N > 0) );
+
+  for( int array=0; array < RPD->GetNumberOfArrays(); ++array )
+    {
+    int dataType = RPD->GetArray( array )->GetDataType();
+    vtkDataArray *dataArray = vtkDataArray::CreateDataArray( dataType );
+    assert( "Cannot create data array" && (dataArray != NULL) );
+
+    dataArray->SetName(
+        RPD->GetArray(array)->GetName() );
+    dataArray->SetNumberOfComponents(
+        RPD->GetArray(array)->GetNumberOfComponents() );
+    dataArray->SetNumberOfTuples( N );
+
+    PD->AddArray( dataArray );
+    dataArray->Delete();
+    } // END for all arrays
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::AllocateCellData(
+    vtkCellData *RCD, const int N, vtkCellData *CD )
+{
+  assert( "pre: Reference cell data is NULL" && (RCD != NULL) );
+  assert( "pre: cell data is NULL" && (CD != NULL) );
+  assert( "pre: N > 0" && (N > 0) );
+
+  for( int array=0; array < RCD->GetNumberOfArrays(); ++array )
+    {
+    int dataType = RCD->GetArray( array )->GetDataType();
+    vtkDataArray *dataArray = vtkDataArray::CreateDataArray( dataType );
+    assert( "Cannot create data array" && (dataArray != NULL) );
+
+    dataArray->SetName(
+        RCD->GetArray(array)->GetName() );
+    dataArray->SetNumberOfComponents(
+        RCD->GetArray(array)->GetNumberOfComponents() );
+    dataArray->SetNumberOfTuples( N );
+
+    CD->AddArray( dataArray );
+    dataArray->Delete();
+    } // END for all arrays
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::InitializeGhostedFieldData(const int gridID)
+{
+  // Sanity check
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+  assert( "pre: GhostedPointData vector has not been properly allocated!" &&
+          (this->NumberOfGrids==this->GhostedGridPointData.size() ) );
+  assert( "pre: GhostedCellData vector has not been properly allocated!" &&
+          (this->NumberOfGrids==this->GhostedGridCellData.size() ) );
+  assert( "pre: Grid has no registered point data!" &&
+          (this->GridPointData[gridID] != NULL) );
+  assert( "pre: Grid has no registered cell data!" &&
+          (this->GridCellData[gridID] != NULL) );
+
+  // STEP 0: Get the ghosted grid extent
+  int GhostedGridExtent[6];
+  this->GetGhostedGridExtent( gridID, GhostedGridExtent );
+
+  // STEP 1: Get the number of nodes/cells in the ghosted extent
+  int numNodes =
+      vtkStructuredData::GetNumberOfNodes(
+          GhostedGridExtent, this->DataDescription );
+  int numCells =
+      vtkStructuredData::GetNumberOfCells(
+          GhostedGridExtent, this->DataDescription );
+
+  // STEP 2: Allocate point & cell data
+  this->GhostedGridPointData[ gridID ] = vtkPointData::New();
+  this->GhostedGridCellData[ gridID ]  = vtkCellData::New();
+
+  this->AllocatePointData(
+      this->GridPointData[gridID],numNodes,this->GhostedGridPointData[gridID] );
+  this->AllocateCellData(
+      this->GridCellData[gridID],numCells,this->GhostedGridCellData[gridID] );
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 {
   if( N==0 )
@@ -1231,6 +1318,7 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
     {
     this->CreateGhostedExtent( i, N );
     this->CreateGhostedMaskArrays( i );
+    this->InitializeGhostedFieldData( i );
     } // END for all grids
 
 }
