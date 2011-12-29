@@ -87,9 +87,11 @@
 
 class vtkActor;
 class vtkCellPicker;
+class vtkLineSource;
 class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
+class vtkPolyDataMapper;
 class vtkProp;
 class vtkProperty;
 class vtkSphereSource;
@@ -202,30 +204,12 @@ public:
   double* GetHandlePosition(int handle);
 
   // Description:
-  // Control whether the broken line is open or closed. A closed broken line forms
-  // a continuous loop: the first and last points are the same, and
-  // derivatives are continuous.  A minimum of 3 handles are required to
-  // form a closed loop.  This method enforces consistency with
-  // user supplied subclasses of vtkBrokenLine.
-  void SetClosed(int closed);
-  vtkGetMacro(Closed,int);
-  vtkBooleanMacro(Closed,int);
-
-  // Description:
-  // Convenience method to determine whether the broken line is
-  // closed in a geometric sense.  The widget may be set "closed" but still
-  // be geometrically open (e.g., a straight line).
-  int IsClosed();
-
-  // Description:
   // Get the summed lengths of the individual straight line segments.
   double GetSummedLength();
 
   // Description:
   // Convenience method to allocate and set the handles from a vtkPoints
-  // instance.  If the first and last points are the same, the broken line sets
-  // Closed to the on state and disregards the last point, otherwise Closed
-  // remains unchanged.
+  // instance.
   void InitializeHandles(vtkPoints* points);
 
   // Description:
@@ -280,14 +264,13 @@ protected:
   void ProjectPointsToObliquePlane();
 
   // The broken line
-  int NumberOfHandles;
-  int Closed;
-  void BuildRepresentation();
-  
-  // The line segments
-  vtkActor           *LineActor;
+  vtkActor          *LineActor;
+  vtkPolyDataMapper *LineMapper;
+  vtkLineSource     *LineSource;
   void HighlightLine(int highlight);
   int Resolution;
+  int NumberOfHandles;
+  void BuildRepresentation();
 
   // Glyphs representing hot spots (e.g., handles)
   vtkActor          **Handle;
