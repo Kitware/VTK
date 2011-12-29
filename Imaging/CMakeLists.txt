@@ -92,6 +92,7 @@ vtkImageRGBToHSV.cxx
 vtkImageRange3D.cxx
 vtkImageRectilinearWipe.cxx
 vtkImageResample.cxx
+vtkImageResize.cxx
 vtkImageReslice.cxx
 vtkImageResliceToColors.cxx
 vtkImageSeedConnectivity.cxx
