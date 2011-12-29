@@ -27,9 +27,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkMath.h"
 
-#include "vtkSmartPointer.h"
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#include "vtkNew.h"
 
 namespace
 {
@@ -39,13 +37,13 @@ int ArrayTypesTest(int argc, char* argv[])
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                     "Data/authors.csv");
 
-  VTK_CREATE(vtkDelimitedTextReader, reader);
+  vtkNew<vtkDelimitedTextReader> reader;
   reader->SetFileName(file);
   reader->SetHaveHeaders(true);
 
   delete [] file;
 
-  VTK_CREATE(vtkStringToNumeric, numeric);
+  vtkNew<vtkStringToNumeric> numeric;
   numeric->SetInputConnection(reader->GetOutputPort());
   numeric->Update();
 
@@ -130,29 +128,29 @@ int ArrayTypesTest(int argc, char* argv[])
 int WhitespaceAndEmptyCellsTest()
 {
   // Setup a table of string columns, which is to get converted to numeric
-  VTK_CREATE(vtkTable, inputTable);
-  VTK_CREATE(vtkStringArray, integerColumn);
+  vtkNew<vtkTable> inputTable;
+  vtkNew<vtkStringArray> integerColumn;
   integerColumn->SetName("IntegerColumn");
   integerColumn->SetNumberOfTuples(2);
   integerColumn->SetValue(0, " ");
   integerColumn->SetValue(1, " 1 ");
 
-  VTK_CREATE(vtkStringArray, doubleColumn);
+  vtkNew<vtkStringArray> doubleColumn;
   doubleColumn->SetName("DoubleColumn");
   doubleColumn->SetNumberOfTuples(2);
   doubleColumn->SetValue(0, " ");
   doubleColumn->SetValue(1, " 1.1 ");
 
-  inputTable->AddColumn(integerColumn);
-  inputTable->AddColumn(doubleColumn);
+  inputTable->AddColumn(integerColumn.GetPointer());
+  inputTable->AddColumn(doubleColumn.GetPointer());
 
   // Setup the vtkStringToNumeric which is under test
-  VTK_CREATE(vtkStringToNumeric, numeric);
+  vtkNew<vtkStringToNumeric> numeric;
   int const defaultIntValue = 100;
   numeric->SetDefaultIntegerValue(defaultIntValue);
   numeric->SetDefaultDoubleValue(vtkMath::Nan());
   numeric->SetTrimWhitespacePriorToNumericConversion(true);
-  numeric->SetInput(inputTable);
+  numeric->SetInput(inputTable.GetPointer());
   numeric->Update();
   vtkTable* table = vtkTable::SafeDownCast(numeric->GetOutput());
   table->Dump();
