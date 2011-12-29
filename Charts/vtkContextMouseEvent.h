@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkContextScene.h
+  Module:    vtkContextMouseEvent.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,7 +22,9 @@
 #ifndef __vtkContextMouseEvent_h
 #define __vtkContextMouseEvent_h
 
-#include "vtkVector.h" // Needed for vtkVector2f and vtkVector2i
+#include "vtkVector.h"      // Needed for vtkVector2f and vtkVector2i
+
+class vtkRenderWindowInteractor;
 
 class vtkContextMouseEvent
 {
@@ -36,8 +38,28 @@ public:
     RIGHT_BUTTON = 4
   };
 
-  vtkContextMouseEvent() {}
-  ~vtkContextMouseEvent() {}
+  vtkContextMouseEvent()
+  {
+  }
+
+  ~vtkContextMouseEvent()
+  {
+  }
+
+  // Description:
+  // Set the interactor for the mouse event.
+  void SetInteractor(vtkRenderWindowInteractor *interactor)
+  {
+    this->Interactor = interactor;
+  }
+
+  // Description:
+  // Get the interactor for the mouse event. This can be null, and is provided
+  // only for convenience.
+  vtkRenderWindowInteractor* GetInteractor() const
+  {
+    return this->Interactor;
+  }
 
   // Description:
   // Set/get the position of the mouse in the item's coordinates.
@@ -107,6 +129,9 @@ protected:
   // Description:
   // Mouse button that caused the event, using the anonymous enumeration.
   int Button;
+
+protected:
+  vtkRenderWindowInteractor *Interactor;
 };
 
 #endif // __vtkContextMouseEvent_h
