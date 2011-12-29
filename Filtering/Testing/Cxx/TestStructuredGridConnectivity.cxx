@@ -505,6 +505,29 @@ vtkMultiBlockDataSet* GetGhostedDataSet(
 }
 
 //------------------------------------------------------------------------------
+bool Check( std::string name, const int val, const int expected )
+{
+  bool status = false;
+
+  std::cout << name << "=" << val << " EXPECTED=" << expected << "...";
+  std::cout.flush();
+  if( val == expected )
+    {
+    std::cout << "[OK]\n";
+    std::cout.flush();
+    status = true;
+    }
+  else
+    {
+    std::cout << "[ERROR]!\n";
+    std::cout.flush();
+    status = false;
+    }
+
+  return( status );
+}
+
+//------------------------------------------------------------------------------
 // Program main
 int TestStructuredGridConnectivity( int argc, char *argv[] )
 {
@@ -512,7 +535,8 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
   static_cast<void>( argc );
   static_cast<void>( argv );
 
-  int expected = 100*100*100;
+  int expected      = 100*100*100;
+  int expectedCells = 99*99*99;
   int rc = 0;
   int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
   int numGhostLayers[]     = { 0, 1, 2, 3 };
@@ -572,21 +596,25 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
       int NumNodes = GetTotalNumberOfNodes( mbds );
       std::cout << "[DONE]\n";
       std::cout.flush();
-
-      std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
-      if( NumNodes != expected )
+      if( !Check( "NODES", NumNodes, expected ) )
         {
         ++rc;
-        std::cout << "[ERROR]\n";
-        std::cout.flush();
         mbds->Delete();
         gridConnectivity->Delete();
         return( rc );
         }
-      else
+
+      std::cout << "-- Computing the total number of cells...";
+      std::cout.flush();
+      int NumCells = GetTotalNumberOfCells( mbds );
+      std::cout << "[DONE]\n";
+      std::cout.flush();
+      if( !Check( "CELLS", NumCells, expectedCells ) )
         {
-        std::cout << "[OK]\n";
-        std::cout.flush();
+        ++rc;
+        mbds->Delete();
+        gridConnectivity->Delete();
+        return( rc );
         }
 
       // STEP 6: De-allocated data-structures
@@ -614,14 +642,17 @@ int SimpleTest( int argc, char **argv )
   std::cout << "Number of ghost-layers: " << ng << std::endl;
   std::cout.flush();
 
-  int expected = 0;
+  int expected      = 0;
+  int expectedCells = 0;
   switch( dim )
     {
     case 2:
-      expected = 100*100;
+      expectedCells = 99*99;
+      expected      = 100*100;
       break;
     case 3:
-      expected = 100*100*100;
+      expectedCells = 99*99*99;
+      expected      = 100*100*100;
       break;
     default:
       assert( "Code should not reach here!" && false );
@@ -646,20 +677,12 @@ int SimpleTest( int argc, char **argv )
   WriteMultiBlock( mbds, "INITIAL" );
 
   int NumNodes = GetTotalNumberOfNodes( mbds );
+  int NumCells = GetTotalNumberOfCells( mbds );
   std::cout << "[DONE]\n";
   std::cout.flush();
 
-  std::cout << "NUMNODES=" << NumNodes << " EXPECTED=" << expected << "...";
-  if( NumNodes != expected )
-   {
-   std::cout << "[ERROR]\n";
-   std::cout.flush();
-   }
-  else
-   {
-   std::cout << "[OK]\n";
-   std::cout.flush();
-   }
+  Check( "NODES", NumNodes, expected );
+  Check( "CELLS", NumCells, expectedCells );
 
   std::cout << "Creating/Extending ghost layers...";
   std::cout.flush();
@@ -668,18 +691,10 @@ int SimpleTest( int argc, char **argv )
   std::cout.flush();
 
   int NumNodesOnGhostedDataSet = GetTotalNumberOfNodes( gmbds );
-  std::cout << "NUMNODESGHOSTED=" << NumNodesOnGhostedDataSet
-            << " EXPECTED=" << expected << "...";
-  if( NumNodesOnGhostedDataSet == expected )
-    {
-    std::cout << "[OK]\n";
-    std::cout.flush();
-    }
-  else
-    {
-    std::cout << "[ERROR]\n";
-    std::cout.flush();
-    }
+  int NumCellsOnGhostedDataSet = GetTotalNumberOfCells( gmbds );
+
+  Check( "GHOSTED_NODES", NumNodesOnGhostedDataSet, expected );
+  Check( "GHOSTED_CELLS", NumCellsOnGhostedDataSet, expectedCells );
 
   AttachNodeAndCellGhostFlags( gmbds );
   WriteMultiBlock( gmbds, "GHOSTED" );
@@ -689,6 +704,7 @@ int SimpleTest( int argc, char **argv )
   gridConnectivity->Delete();
   return 0;
 }
+
 //------------------------------------------------------------------------------
 // Program main
 int main( int argc, char **argv )
