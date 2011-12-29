@@ -48,6 +48,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkMathUtilities.h"
 
 #define ENABLE_IO
 
@@ -513,6 +514,13 @@ vtkMultiBlockDataSet* GetGhostedDataSet(
     vtkUniformGrid *ghostedGrid= GetGhostedGridFromGrid(grid,GhostedGridExtent);
     assert( "pre:ghosted grid is NULL!" && (ghostedGrid != NULL) );
 
+    // Copy the point data
+    ghostedGrid->GetPointData()->DeepCopy(
+        SGC->GetGhostedGridPointData(block) );
+    ghostedGrid->GetCellData()->DeepCopy(
+        SGC->GetGhostedGridCellData(block) );
+
+    // Copy the ghost arrays
     ghostedGrid->SetPointVisibilityArray(SGC->GetGhostedPointGhostArray(block));
     ghostedGrid->SetCellVisibilityArray(SGC->GetGhostedCellGhostArray(block));
 
@@ -675,6 +683,107 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
 }
 
 //------------------------------------------------------------------------------
+bool CheckArrays( vtkDoubleArray *computed, vtkDoubleArray *expected )
+{
+  std::cout << "Checking " << computed->GetName();
+  std::cout << " to "      << expected->GetName() << std::endl;
+  std::cout.flush();
+
+  if( computed->GetNumberOfComponents() != expected->GetNumberOfComponents() )
+    {
+    std::cout << "Number of components mismatch!\n";
+    std::cout.flush();
+    return false;
+    }
+
+  if( computed->GetNumberOfTuples() != expected->GetNumberOfTuples() )
+    {
+    std::cout << "Number of tuples mismatch!\n";
+    std::cout.flush();
+    return false;
+    }
+
+  bool status   = true;
+  vtkIdType idx = 0;
+  for( ; idx < computed->GetNumberOfTuples(); ++idx )
+    {
+    int comp = 0;
+    for( ; comp < computed->GetNumberOfComponents(); ++comp )
+      {
+      double compVal = computed->GetComponent(idx,comp);
+      double expVal  = expected->GetComponent(idx,comp);
+      if( !vtkMathUtilities::FuzzyCompare(compVal,expVal) )
+        {
+        std::cerr << "ERROR: " << compVal << " != " << expVal << std::endl;
+        std::cerr.flush();
+        status = false;
+        }
+      } // END for all components
+    } // END for all tuples
+
+  return( status );
+}
+
+//------------------------------------------------------------------------------
+bool CompareFieldsForGrid( vtkUniformGrid *grid )
+{
+  // Sanity check
+  assert( "pre: grid should not be NULL" && (grid != NULL) );
+  assert( "pre: COMPUTED-CellXYZ array is expected!" &&
+           grid->GetCellData()->HasArray( "COMPUTED-CellXYZ" ) );
+  assert( "pre: EXPECTED-CellXYZ array is expected!" &&
+           grid->GetCellData()->HasArray( "EXPECTED-CellXYZ" ) );
+  assert( "pre: COMPUTED-NodeXYZ array is expected!" &&
+           grid->GetPointData()->HasArray( "COMPUTED-NodeXYZ" ) );
+  assert( "pre: EXPECTED-NodeXYZ array is expected!" &&
+           grid->GetPointData()->HasArray( "EXPECTED-NodeXYZ" ) );
+
+  vtkDoubleArray *computedCellData =
+      vtkDoubleArray::SafeDownCast(
+          grid->GetCellData()->GetArray( "COMPUTED-CellXYZ" ) );
+  assert( "pre: computedCellData is NULL" && (computedCellData != NULL) );
+
+  vtkDoubleArray *expectedCellData =
+      vtkDoubleArray::SafeDownCast(
+          grid->GetCellData()->GetArray( "EXPECTED-CellXYZ" ) );
+  assert( "pre: expectedCellData is NULL" && (expectedCellData != NULL) );
+
+  bool status = true;
+  status = CheckArrays( computedCellData, expectedCellData );
+  if( !status )
+    {
+    return status;
+    }
+
+  vtkDoubleArray *computedPointData =
+      vtkDoubleArray::SafeDownCast(
+          grid->GetPointData()->GetArray( "COMPUTED-NodeXYZ" ) );
+  assert( "pre: computePointData is NULL" && (computedPointData != NULL) );
+
+  vtkDoubleArray *expectedPointData =
+      vtkDoubleArray::SafeDownCast(
+          grid->GetPointData()->GetArray( "EXPECTED-NodeXYZ" ) );
+  assert( "pre: expectedPointData is NULL" && (expectedPointData != NULL) );
+
+  status = CheckArrays( computedPointData, expectedPointData );
+  return( status );
+}
+
+//------------------------------------------------------------------------------
+bool CompareFields( vtkMultiBlockDataSet *mbds )
+{
+  bool status = true;
+  unsigned int block = 0;
+  for( ; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *grid= vtkUniformGrid::SafeDownCast( mbds->GetBlock(block) );
+    status = CompareFieldsForGrid( grid );
+    } // END for all blocks
+
+  return( status );
+}
+
+//------------------------------------------------------------------------------
 int SimpleTest( int argc, char **argv )
 {
   assert( "pre: argument counter must equal 4" && (argc==4) );
@@ -743,9 +852,16 @@ int SimpleTest( int argc, char **argv )
 
   Check( "GHOSTED_NODES", NumNodesOnGhostedDataSet, expected );
   Check( "GHOSTED_CELLS", NumCellsOnGhostedDataSet, expectedCells );
-
   AttachNodeAndCellGhostFlags( gmbds );
+
+  ApplyFieldsToDataSet( gmbds, "EXPECTED" );
+  bool success = CompareFields( gmbds );
   WriteMultiBlock( gmbds, "GHOSTED" );
+
+  if( !success )
+    {
+    std::cerr << "FIELD COMPARISSON FAILED!\n";
+    }
 
   gmbds->Delete();
   mbds->Delete();
