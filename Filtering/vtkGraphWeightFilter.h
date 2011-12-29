@@ -35,7 +35,7 @@ class vtkGraph;
 class vtkGraphWeightFilter : public vtkGraphAlgorithm
 {
 public:
-
+  vtkTypeMacro(vtkGraphWeightFilter, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
