@@ -27,155 +27,154 @@
 class vtkBLWCallback : public vtkCommand
 {
 public:
-  static vtkBLWCallback *New()
-  { return new vtkBLWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-  {
-    vtkBrokenLineWidget *line = reinterpret_cast<vtkBrokenLineWidget*>(caller);
-    line->GetPolyData(Poly);
-    Points = Poly->GetPoints();
-  }
-  vtkBLWCallback():Poly(0),Points(0){};
-  vtkPolyData* Poly;
-  vtkPoints* Points;
+   static vtkBLWCallback *New()
+   { return new vtkBLWCallback; }
+   virtual void Execute(vtkObject *caller, unsigned long, void*)
+   {
+      vtkBrokenLineWidget *line = reinterpret_cast<vtkBrokenLineWidget*>(caller);
+      line->GetPolyData(Poly);
+      Points = Poly->GetPoints();
+   }
+   vtkBLWCallback():Poly(0),Points(0){};
+   vtkPolyData* Poly;
+   vtkPoints* Points;
 };
 
 int TestBrokenLineWidget( int argc, char *argv[] )
 {
-  // Initialize test value
-  int testIntValue = 0;
-  
-  // Read 3D unstructured input mesh
-  char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/AngularSector.vtk");
-  vtkUnstructuredGridReader* reader = vtkUnstructuredGridReader::New();
-  reader->SetFileName( fileName );
-  delete [] fileName;
-  reader->Update();
-  
-  // Get mesh from reader output
-  vtkDataSetMapper* meshMapper = vtkDataSetMapper::New();
-  meshMapper->SetInputConnection( reader->GetOutputPort() );
-  vtkActor* meshActor = vtkActor::New();
-  meshActor->SetMapper( meshMapper );
-  meshActor->GetProperty()->SetColor( .23, .37, .17 );
-  meshActor->GetProperty()->SetRepresentationToWireframe();
+   // Initialize test value
+   int testIntValue = 0;
+   
+   // Read 3D unstructured input mesh
+   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/AngularSector.vtk");
+   vtkUnstructuredGridReader* reader = vtkUnstructuredGridReader::New();
+   reader->SetFileName( fileName );
+   delete [] fileName;
+   reader->Update();
+   
+   // Get mesh from reader output
+   vtkDataSetMapper* meshMapper = vtkDataSetMapper::New();
+   meshMapper->SetInputConnection( reader->GetOutputPort() );
+   vtkActor* meshActor = vtkActor::New();
+   meshActor->SetMapper( meshMapper );
+   meshActor->GetProperty()->SetColor( .23, .37, .17 );
+   meshActor->GetProperty()->SetRepresentationToWireframe();
 
-  // Create multi-block mesh for linear extractor
-  reader->Update();
-  vtkUnstructuredGrid* mesh = reader->GetOutput();
-  vtkMultiBlockDataSet* meshMB = vtkMultiBlockDataSet::New();
-  meshMB->SetNumberOfBlocks( 1 );
-  meshMB->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
-  meshMB->SetBlock( 0, mesh );
+   // Create multi-block mesh for linear extractor
+   reader->Update();
+   vtkUnstructuredGrid* mesh = reader->GetOutput();
+   vtkMultiBlockDataSet* meshMB = vtkMultiBlockDataSet::New();
+   meshMB->SetNumberOfBlocks( 1 );
+   meshMB->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
+   meshMB->SetBlock( 0, mesh );
 
-  // Render window
-  vtkRenderWindow* window = vtkRenderWindow::New();
-  window->SetMultiSamples( 0 );
-  window->SetSize( 600, 300 );
+   // Render window
+   vtkRenderWindow* window = vtkRenderWindow::New();
+   window->SetMultiSamples( 0 );
+   window->SetSize( 600, 300 );
 
-  // Interactor
-  vtkRenderWindowInteractor* interactor = vtkRenderWindowInteractor::New();
-  interactor->SetRenderWindow( window );
-  
-  // Renderer for full mesh and attached widget
-  vtkRenderer* ren1 = vtkRenderer::New();
-  ren1->SetBackground( .4, .4, .4 );
-  ren1->SetBackground2( .8, .8, .8 );
-  ren1->GradientBackgroundOn();
-  ren1->SetViewport( 0., 0., .5, 1. );
-  ren1->AddActor( meshActor );
-  window->AddRenderer( ren1 );
+   // Interactor
+   vtkRenderWindowInteractor* interactor = vtkRenderWindowInteractor::New();
+   interactor->SetRenderWindow( window );
+   
+   // Renderer for full mesh and attached widget
+   vtkRenderer* ren1 = vtkRenderer::New();
+   ren1->SetBackground( .4, .4, .4 );
+   ren1->SetBackground2( .8, .8, .8 );
+   ren1->GradientBackgroundOn();
+   ren1->SetViewport( 0., 0., .5, 1. );
+   ren1->AddActor( meshActor );
+   window->AddRenderer( ren1 );
 
-  // Create a good view angle
-  vtkCamera* camera1 = ren1->GetActiveCamera();
-  camera1->SetFocalPoint( .12, 0., 0. );
-  camera1->SetPosition( .35, .3, .3 );
-  camera1->SetViewUp( 0., 0., 1. );
+   // Create a good view angle
+   vtkCamera* camera1 = ren1->GetActiveCamera();
+   camera1->SetFocalPoint( .12, 0., 0. );
+   camera1->SetPosition( .35, .3, .3 );
+   camera1->SetViewUp( 0., 0., 1. );
 
-  // Create broken line widget, attach it to input mesh
-  vtkBrokenLineWidget* line = vtkBrokenLineWidget::New();
-  line->SetInteractor( interactor);
-  line->SetInput( mesh );
-  line->SetPriority( 1. );
-  line->KeyPressActivationOff();
-  line->PlaceWidget();
-  line->ProjectToPlaneOff();
-  line->On();
-  //line->SetNumberOfHandles(4);
-  //line->SetNumberOfHandles(5);
-  line->SetResolution(6);
+   // Create broken line widget, attach it to input mesh
+   vtkBrokenLineWidget* line = vtkBrokenLineWidget::New();
+   line->SetInteractor( interactor);
+   line->SetInput( mesh );
+   line->SetPriority( 1. );
+   line->KeyPressActivationOff();
+   line->PlaceWidget();
+   line->ProjectToPlaneOff();
+   line->On();
+   //line->SetNumberOfHandles(4);
+   //line->SetNumberOfHandles(5);
+   line->SetResolution(6);
 
-  // Extract polygonal line and then its points
-  vtkPolyData* polyLine = vtkPolyData::New();
-  line->GetPolyData( polyLine );
+   // Extract polygonal line and then its points
+   vtkPolyData* polyLine = vtkPolyData::New();
+   line->GetPolyData( polyLine );
 
-  // Invoke callback on polygonal line to interactively select elements
-  vtkBLWCallback* lineCB = vtkBLWCallback::New();
-  lineCB->Poly = polyLine;
-  lineCB->Points = polyLine->GetPoints();
-  line->AddObserver( vtkCommand::InteractionEvent, lineCB );
+   // Invoke callback on polygonal line to interactively select elements
+   vtkBLWCallback* lineCB = vtkBLWCallback::New();
+   lineCB->Poly = polyLine;
+   lineCB->Points = polyLine->GetPoints();
+   line->AddObserver( vtkCommand::InteractionEvent, lineCB );
 
-  // Create selection along broken line defined by list of points
-  vtkLinearExtractor* linExt = vtkLinearExtractor::New();
-  linExt->SetInput( meshMB );
-  linExt->SetPoints( lineCB->Points );
-  linExt->IncludeVerticesOff();
-  linExt->SetVertexEliminationTolerance( 1.e-12 );
+   // Create selection along broken line defined by list of points
+   vtkLinearExtractor* linExt = vtkLinearExtractor::New();
+   linExt->SetInput( meshMB );
+   linExt->SetPoints( lineCB->Points );
+   linExt->IncludeVerticesOff();
+   linExt->SetVertexEliminationTolerance( 1.e-12 );
 
-  // Extract selection from mesh
-  vtkExtractSelection* extSel = vtkExtractSelection::New();
-  extSel->SetInput( 0, mesh );
-  extSel->SetInputConnection( 1, linExt->GetOutputPort() );
-  extSel->Update();
+   // Extract selection from mesh
+   vtkExtractSelection* extSel = vtkExtractSelection::New();
+   extSel->SetInput( 0, mesh );
+   extSel->SetInputConnection( 1, linExt->GetOutputPort() );
+   extSel->Update();
 
-  //vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extSel->GetOutput() );
-  vtkUnstructuredGrid* ugrid = mesh;
-  // ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
-  vtkDataSetMapper* selMapper = vtkDataSetMapper::New();
-  selMapper->SetInput( ugrid );
-  vtkActor* selActor = vtkActor::New();
-  selActor->SetMapper( selMapper );
-  selActor->GetProperty()->SetColor( 0., 0., 0. );
-  selActor->GetProperty()->SetRepresentationToWireframe();
+   //vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extSel->GetOutput() );
+   vtkUnstructuredGrid* ugrid = mesh;
+   // ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
+   vtkDataSetMapper* selMapper = vtkDataSetMapper::New();
+   selMapper->SetInput( ugrid );
+   vtkActor* selActor = vtkActor::New();
+   selActor->SetMapper( selMapper );
+   selActor->GetProperty()->SetColor( 0., 0., 0. );
+   selActor->GetProperty()->SetRepresentationToWireframe();
 
-  // Renderer for extracted selection
-  vtkRenderer* ren2 = vtkRenderer::New();
-  ren2->SetBackground( 1., 1., 1. );
-  ren2->SetViewport( .5, 0., 1., 1. );
-  ren2->AddActor( selActor );
-  ren2->SetActiveCamera( camera1 );
-  window->AddRenderer( ren2 );
+   // Renderer for extracted selection
+   vtkRenderer* ren2 = vtkRenderer::New();
+   ren2->SetBackground( 1., 1., 1. );
+   ren2->SetViewport( .5, 0., 1., 1. );
+   ren2->AddActor( selActor );
+   ren2->SetActiveCamera( camera1 );
+   window->AddRenderer( ren2 );
 
+   // Test Set Get handle positions
+   double pos[3];
+//    for( int i = 0; i < line->GetNumberOfHandles(); ++i )
+//       {
+//       line->GetHandlePosition( i, pos );
+//       line->SetHandlePosition( i, pos );
+//       }
 
-  // Test Set Get handle positions
-  double pos[3];
-//   for( int i = 0; i < line->GetNumberOfHandles(); ++i )
-//     {
-//     line->GetHandlePosition( i, pos );
-//     line->SetHandlePosition( i, pos );
-//     }
+   // Render and interact
+   interactor->Initialize();
+   window->Render();
+   interactor->Start();
 
-  // Render and interact
-  interactor->Initialize();
-  window->Render();
-  interactor->Start();
+   // Clean up
+   ren1->Delete();
+   ren2->Delete();
+   window->Delete();
+   interactor->Delete();
+   meshMB->Delete();
+   reader->Delete();
+   meshMapper->Delete();
+   meshActor->Delete();
+   selMapper->Delete();
+   selActor->Delete();
+   line->Delete();
+   lineCB->Delete();
+   polyLine->Delete();
+   linExt->Delete();
+   extSel->Delete();
 
-  // Clean up
-  ren1->Delete();
-  ren2->Delete();
-  window->Delete();
-  interactor->Delete();
-  meshMB->Delete();
-  reader->Delete();
-  meshMapper->Delete();
-  meshActor->Delete();
-  selMapper->Delete();
-  selActor->Delete();
-  line->Delete();
-  lineCB->Delete();
-  polyLine->Delete();
-  linExt->Delete();
-  extSel->Delete();
-
-  return testIntValue;
+   return testIntValue;
 }
