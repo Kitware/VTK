@@ -1456,8 +1456,8 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
   if (mouse.GetButton() == this->Actions.Select())
     {
     // Add to the selection if the shift key was pressed.
-    bool addToSelection = static_cast<bool>(
-          mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER);
+    bool addToSelection =
+          (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER) != 0;
     if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
       {
       // Invalid box size - do nothing
