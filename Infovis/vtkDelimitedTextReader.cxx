@@ -399,6 +399,9 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   this->UseStringDelimiter = true;
   this->DetectNumericColumns = false;
   this->ForceDouble = false;
+  this->DefaultIntegerValue = 0;
+  this->DefaultDoubleValue = 0.0;
+  this->TrimWhitespacePriorToNumericConversion = false;
 }
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
@@ -439,6 +442,12 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
     << (this->DetectNumericColumns? "true" : "false") << endl;
   os << indent << "ForceDouble: "
     << (this->ForceDouble ? "true" : "false") << endl;
+  os << indent << "DefaultIntegerValue: "
+    << this->DefaultIntegerValue << endl;
+  os << indent << "DefaultDoubleValue: "
+    << this->DefaultDoubleValue << endl;
+  os << indent << "TrimWhitespacePriorToNumericConversion: "
+    << (this->TrimWhitespacePriorToNumericConversion ? "true" : "false") << endl;
   os << indent << "GeneratePedigreeIds: "
     << this->GeneratePedigreeIds << endl;
   os << indent << "PedigreeIdArrayName: "
@@ -641,15 +650,18 @@ int vtkDelimitedTextReader::RequestData(
 
     if (this->DetectNumericColumns && !this->UnicodeOutputArrays)
       {
-      vtkStringToNumeric* convertor = vtkStringToNumeric::New();
-      convertor->SetForceDouble(this->ForceDouble);
+      vtkStringToNumeric* converter = vtkStringToNumeric::New();
+      converter->SetForceDouble(this->ForceDouble);
+      converter->SetDefaultIntegerValue(this->DefaultIntegerValue);
+      converter->SetDefaultDoubleValue(this->DefaultDoubleValue);
+      converter->SetTrimWhitespacePriorToNumericConversion(this->TrimWhitespacePriorToNumericConversion);
       vtkTable* clone = output_table->NewInstance();
       clone->ShallowCopy(output_table);
-      convertor->SetInput(clone);
-      convertor->Update();
+      converter->SetInput(clone);
+      converter->Update();
       clone->Delete();
-      output_table->ShallowCopy(convertor->GetOutputDataObject(0));
-      convertor->Delete();
+      output_table->ShallowCopy(converter->GetOutputDataObject(0));
+      converter->Delete();
       }
 
     }
