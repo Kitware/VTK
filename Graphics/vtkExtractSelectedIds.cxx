@@ -518,23 +518,20 @@ namespace
         pointInArray->SetValue(ptId, flag);
         if (containingCells)
           {
-          for (vtkIdType j = 0; j < input->GetNumberOfPoints(); j++)
+          input->GetPointCells(ptId, ptCells);
+          for (vtkIdType i = 0; i < ptCells->GetNumberOfIds(); ++i)
             {
-            input->GetPointCells(ptId, ptCells);
-            for (vtkIdType i = 0; i < ptCells->GetNumberOfIds(); ++i)
+            vtkIdType cellId = ptCells->GetId(i);
+            if (!passThrough && !invert &&
+                cellInArray->GetValue(cellId) != flag)
               {
-              vtkIdType cellId = ptCells->GetId(i);
-              if (!passThrough && !invert &&
-                  cellInArray->GetValue(cellId) != flag)
+              input->GetCellPoints(cellId, cellPts);
+              for (vtkIdType j = 0; j < cellPts->GetNumberOfIds(); ++j)
                 {
-                input->GetCellPoints(cellId, cellPts);
-                for (j = 0; j < cellPts->GetNumberOfIds(); ++j)
-                  {
-                  pointInArray->SetValue(cellPts->GetId(j), flag);
-                  }
+                pointInArray->SetValue(cellPts->GetId(j), flag);
                 }
-              cellInArray->SetValue(cellId, flag);
               }
+            cellInArray->SetValue(cellId, flag);
             }
           }
         ++labelArrayIndex;
