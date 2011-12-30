@@ -518,98 +518,95 @@ M_Read(void)
 
       for(d=0; d<m_NDims; d++)
         {
-        char* num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_X[d] = td;
-        delete [] num;
         }
 
-      char* num = new char[sizeof(float)];
-      for(k=0;k<sizeof(float);k++)
         {
-        num[k] = _data[i+k];
-        }
-      float td = (float)((float*)num)[0];
-      MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-      i+=sizeof(float);
-      pnt->m_R = td;
-      delete [] num;
-
-      for(d = 0; d < m_NDims; d++)
-        {
-        num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        td = (float)((float*)num)[0];
+        MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
+        i+=sizeof(float);
+        pnt->m_R = td;
+        }
+
+      for(d = 0; d < m_NDims; d++)
+        {
+        float td;
+        char * const num = (char *)(&td);
+        for(k=0;k<sizeof(float);k++)
+          {
+          num[k] = _data[i+k];
+          }
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_V1[d] = (float)td;
-        delete [] num;
         }
 
       if(m_NDims==3)
         {
         for(d = 0; d < m_NDims; d++)
           {
-          num = new char[sizeof(float)];
+          float td;
+          char * const num = (char *)(&td);
           for(k=0;k<sizeof(float);k++)
             {
             num[k] = _data[i+k];
             }
-          td = (float)((float*)num)[0];
           MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
           i+=sizeof(float);
           pnt->m_V2[d] = (float)td;
-          delete [] num;
           }
         }
 
       for(d = 0; d < m_NDims; d++)
         {
-        num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_T[d] = (float)td;
-        delete [] num;
         }
 
       for(d=0; d<4; d++)
         {
-        num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_Color[d] = (float)td;
-        delete [] num;
         }
 
-      num = new char[sizeof(int)];
-      for(k=0;k<sizeof(int);k++)
         {
-        num[k] = _data[i+k];
+        int id;
+        char * const num = (char *)(&id);
+        for(k=0;k<sizeof(int);k++)
+          {
+          num[k] = _data[i+k];
+          }
+        MET_SwapByteIfSystemMSB(&id,MET_INT);
+        i+=sizeof(int);
+        pnt->m_ID = id;
         }
-      int id = (int)((int*)num)[0];
-      MET_SwapByteIfSystemMSB(&id,MET_INT);
-      i+=sizeof(int);
-      pnt->m_ID = id;
-      delete [] num;
 
       m_PointList.push_back(pnt);
       }

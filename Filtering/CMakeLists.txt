@@ -98,6 +98,8 @@ vtkGraphAlgorithm.cxx
 vtkGraph.cxx
 vtkGraphEdge.cxx
 vtkGraphInternals.cxx
+vtkGraphWeightFilter.cxx
+vtkGraphWeightEuclideanDistanceFilter.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxDataIterator.cxx
@@ -108,6 +110,8 @@ vtkHyperOctreeCursor.cxx
 vtkHyperOctree.cxx
 vtkHyperOctreePointsGrabber.cxx
 vtkImageAlgorithm.cxx
+vtkImageBSplineInternals.cxx
+vtkImageBSplineInterpolator.cxx
 vtkImageData.cxx
 vtkImageInPlaceFilter.cxx
 vtkImageInterpolator.cxx
@@ -291,6 +295,7 @@ vtkGenericDataSetAlgorithm
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
 vtkGraph
+vtkGraphWeightFilter
 vtkHyperOctreeAlgorithm
 vtkHyperOctreeCursor
 vtkHyperOctreePointsGrabber
@@ -341,12 +346,19 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAMRBox.cxx
   vtkExecutionSchedulerManager.cxx
   vtkFilteringInformationKeyManager.cxx
+  vtkImageBSplineInternals.cxx
   vtkImageIterator.cxx
   vtkInformation.cxx
   vtkImageProgressIterator.cxx
   vtkMarchingSquaresLineCases.cxx
   vtkMarchingCubesTriangleCases.cxx
   WRAP_EXCLUDE
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkImageBSplineInternals.cxx
+
+  PROPERTIES WRAP_SPECIAL 1
 )
 
 SET(Kit_EXTRA_SRCS)

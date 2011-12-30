@@ -605,12 +605,23 @@ void TestVoidReturnOuter()
 # pragma clang diagnostic ignored "-Wignored-qualifiers"
 #endif
 
+// gcc>=4.3 says type qualifiers ignored on function return type
+#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+#endif
+#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)))
+# pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#endif
+
 // aCC warns "type qualifier on return type is meaningless" - just omit the
 // function on aCC builds since there is no way to suppress the warning via
 // pragmas...
-// gcc>=4.3 says type qualifiers ignored on function return type
 #if !defined(__HP_aCC)
 void const TestVoidConstReturn() {}
+#endif
+
+#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
 #endif
 
 #if defined(__clang__)

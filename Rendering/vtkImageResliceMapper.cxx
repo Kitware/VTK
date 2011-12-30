@@ -262,6 +262,13 @@ void vtkImageResliceMapper::Update()
 
   this->InternalResampleToScreenPixels = resampleToScreenPixels;
 
+  // Always update if something else caused the input to update
+  vtkImageData *input = this->GetInput();
+  if (input && input->GetUpdateTime() > this->UpdateTime.GetMTime())
+    {
+    this->Modified();
+    }
+
   this->Superclass::Update();
   this->UpdateTime.Modified();
 }

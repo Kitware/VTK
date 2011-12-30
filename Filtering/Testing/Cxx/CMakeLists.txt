@@ -28,6 +28,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestImageIterator.cxx
   TestGenericCell.cxx
   TestGraph.cxx
+  TestGraphWeightEuclideanDistanceFilter.cxx
   TestHigherOrderCell.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx

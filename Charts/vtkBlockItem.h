@@ -98,12 +98,9 @@ protected:
 
   int Dimensions[4];
 
-  float LastPosition[2];
-
   vtkStdString Label;
 
   bool MouseOver;
-  int MouseButtonPressed;
 
   // Some function pointers to optionally do funky things...
   double (*scalarFunction)(double, double);

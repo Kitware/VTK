@@ -160,8 +160,8 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
   const vtkContextMouseEvent &mouse)
 {
   vtkContextMouseEvent childMouse = mouse;
-  childMouse.Pos = this->MapFromParent(mouse.Pos);
-  childMouse.LastPos = this->MapFromParent(mouse.LastPos);
+  childMouse.SetPos(this->MapFromParent(mouse.GetPos()));
+  childMouse.SetLastPos(this->MapFromParent(mouse.GetLastPos()));
   for(vtkContextScenePrivate::const_reverse_iterator it =
       this->Children->rbegin(); it != this->Children->rend(); ++it)
     {

@@ -660,7 +660,7 @@ int TestControlPointsHandleItem(int, char * [])
     chart->GetAxis(i)->SetNumberOfTicks(0);
     chart->GetAxis(i)->SetBehavior(2);
     chart->GetAxis(i)->SetLabelsVisible(false);
-    chart->GetAxis(i)->SetMargins(1.,1.);
+    chart->GetAxis(i)->SetMargins(1,1);
     chart->GetAxis(i)->SetTitle("");
     }
 

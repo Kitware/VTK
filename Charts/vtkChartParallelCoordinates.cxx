@@ -412,10 +412,11 @@ void vtkChartParallelCoordinates::RecalculateBounds()
 //-----------------------------------------------------------------------------
 bool vtkChartParallelCoordinates::Hit(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.ScreenPos[0] > this->Point1[0]-10 &&
-      mouse.ScreenPos[0] < this->Point2[0]+10 &&
-      mouse.ScreenPos[1] > this->Point1[1] &&
-      mouse.ScreenPos[1] < this->Point2[1])
+  vtkVector2i pos(mouse.GetScreenPos());
+  if (pos[0] > this->Point1[0] - 10 &&
+      pos[0] < this->Point2[0] + 10 &&
+      pos[1] > this->Point1[1] &&
+      pos[1] < this->Point2[1])
     {
     return true;
     }
@@ -434,7 +435,7 @@ bool vtkChartParallelCoordinates::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == this->Actions.Select())
+  if (mouse.GetButton() == this->Actions.Select())
     {
     // If an axis is selected, then lets try to narrow down a selection...
     if (this->Storage->CurrentAxis >= 0)
@@ -443,7 +444,7 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
           this->Storage->AxesSelections[this->Storage->CurrentAxis];
 
       // Normalize the coordinates
-      float current = mouse.ScenePos.Y();
+      float current = mouse.GetScenePos().Y();
       current -= this->Storage->Transform->GetMatrix()->GetElement(1, 2);
       current /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);
 
@@ -462,13 +463,13 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
       }
     this->Scene->SetDirty(true);
     }
-  else if (mouse.Button == this->Actions.Pan())
+  else if (mouse.GetButton() == this->Actions.Pan())
     {
     vtkAxis* axis = this->Storage->Axes[this->Storage->CurrentAxis];
     if (this->Storage->AxisResize == 0)
       {
       // Move the axis in x
-      float deltaX = mouse.ScenePos.X() - mouse.LastScenePos.X();
+      float deltaX = mouse.GetScenePos().X() - mouse.GetLastScenePos().X();
 
       axis->SetPoint1(axis->GetPoint1()[0]+deltaX, axis->GetPoint1()[1]);
       axis->SetPoint2(axis->GetPoint2()[0]+deltaX, axis->GetPoint2()[1]);
@@ -495,7 +496,7 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
     else if (this->Storage->AxisResize == 1)
       {
       // Modify the bottom axis range...
-      float deltaY = mouse.ScenePos.Y() - mouse.LastScenePos.Y();
+      float deltaY = mouse.GetScenePos().Y() - mouse.GetLastScenePos().Y();
       float scale = (axis->GetPoint2()[1]-axis->GetPoint1()[1]) /
                     (axis->GetMaximum() - axis->GetMinimum());
       axis->SetMinimum(axis->GetMinimum() - deltaY/scale);
@@ -516,7 +517,7 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
     else if (this->Storage->AxisResize == 2)
       {
       // Modify the bottom axis range...
-      float deltaY = mouse.ScenePos.Y() - mouse.LastScenePos.Y();
+      float deltaY = mouse.GetScenePos().Y() - mouse.GetLastScenePos().Y();
       float scale = (axis->GetPoint2()[1]-axis->GetPoint1()[1]) /
                     (axis->GetMaximum() - axis->GetMinimum());
       axis->SetMaximum(axis->GetMaximum() - deltaY/scale);
@@ -549,18 +550,18 @@ bool vtkChartParallelCoordinates::MouseLeaveEvent(const vtkContextMouseEvent &)
 bool vtkChartParallelCoordinates::MouseButtonPressEvent(
     const vtkContextMouseEvent& mouse)
 {
-  if (mouse.Button == this->Actions.Select())
+  if (mouse.GetButton() == this->Actions.Select())
     {
     // Select an axis if we are within range
-    if (mouse.ScenePos[1] > this->Point1[1] &&
-        mouse.ScenePos[1] < this->Point2[1])
+    if (mouse.GetScenePos()[1] > this->Point1[1] &&
+        mouse.GetScenePos()[1] < this->Point2[1])
       {
       // Iterate over the axes, see if we are within 10 pixels of an axis
       for (size_t i = 0; i < this->Storage->Axes.size(); ++i)
         {
         vtkAxis* axis = this->Storage->Axes[i];
-        if (axis->GetPoint1()[0]-10 < mouse.ScenePos[0] &&
-            axis->GetPoint1()[0]+10 > mouse.ScenePos[0])
+        if (axis->GetPoint1()[0]-10 < mouse.GetScenePos()[0] &&
+            axis->GetPoint1()[0]+10 > mouse.GetScenePos()[0])
           {
           this->Storage->CurrentAxis = static_cast<int>(i);
           vtkVector<float, 2>& range = this->Storage->AxesSelections[i];
@@ -571,7 +572,7 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(
             }
 
           // Transform into normalized coordinates
-          float low = mouse.ScenePos[1];
+          float low = mouse.GetScenePos()[1];
           low -= this->Storage->Transform->GetMatrix()->GetElement(1, 2);
           low /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);
           range[0] = range[1] = low;
@@ -585,25 +586,25 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(
     this->Scene->SetDirty(true);
     return true;
     }
-  else if (mouse.Button == this->Actions.Pan())
+  else if (mouse.GetButton() == this->Actions.Pan())
     {
     // Middle mouse button - move and zoom the axes
     // Iterate over the axes, see if we are within 10 pixels of an axis
     for (size_t i = 0; i < this->Storage->Axes.size(); ++i)
       {
       vtkAxis* axis = this->Storage->Axes[i];
-      if (axis->GetPoint1()[0]-10 < mouse.ScenePos[0] &&
-          axis->GetPoint1()[0]+10 > mouse.ScenePos[0])
+      if (axis->GetPoint1()[0]-10 < mouse.GetScenePos()[0] &&
+          axis->GetPoint1()[0]+10 > mouse.GetScenePos()[0])
         {
         this->Storage->CurrentAxis = static_cast<int>(i);
-        if (mouse.ScenePos.Y() > axis->GetPoint1()[1] &&
-            mouse.ScenePos.Y() < axis->GetPoint1()[1] + 20)
+        if (mouse.GetScenePos().Y() > axis->GetPoint1()[1] &&
+            mouse.GetScenePos().Y() < axis->GetPoint1()[1] + 20)
           {
           // Resize the bottom of the axis
           this->Storage->AxisResize = 1;
           }
-        else if (mouse.ScenePos.Y() < axis->GetPoint2()[1] &&
-                 mouse.ScenePos.Y() > axis->GetPoint2()[1] - 20)
+        else if (mouse.GetScenePos().Y() < axis->GetPoint2()[1] &&
+                 mouse.GetScenePos().Y() > axis->GetPoint2()[1] - 20)
           {
           // Resize the top of the axis
           this->Storage->AxisResize = 2;
@@ -627,14 +628,14 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(
 bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(
     const vtkContextMouseEvent& mouse)
 {
-  if (mouse.Button == this->Actions.Select())
+  if (mouse.GetButton() == this->Actions.Select())
     {
     if (this->Storage->CurrentAxis >= 0)
       {
       vtkVector<float, 2> &range =
           this->Storage->AxesSelections[this->Storage->CurrentAxis];
 
-      float final = mouse.ScenePos[1];
+      float final = mouse.GetScenePos()[1];
       final -= this->Storage->Transform->GetMatrix()->GetElement(1, 2);
       final /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);
 
@@ -689,7 +690,7 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(
       }
     return true;
     }
-  else if (mouse.Button == this->Actions.Pan())
+  else if (mouse.GetButton() == this->Actions.Pan())
     {
     this->Storage->CurrentAxis = -1;
     this->Storage->AxisResize = -1;
