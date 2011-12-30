@@ -38,7 +38,8 @@ public:
   void SetInteractor(vtkRenderWindowInteractor *interactor);
 
   // Description:
-  // Get the interactor for the key event.
+  // Get the interactor for the key event. This can be null, and is provided
+  // only for convenience.
   vtkRenderWindowInteractor* GetInteractor() const;
 
   // Description:

@@ -25,6 +25,7 @@
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
 #include "vtkStdString.h"
+#include "vtkVectorOperators.h"
 
 #include "vtkObjectFactory.h"
 
@@ -35,7 +36,6 @@ vtkStandardNewMacro(vtkBlockItem);
 vtkBlockItem::vtkBlockItem()
 {
   this->MouseOver = false;
-  this->MouseButtonPressed = vtkContextMouseEvent::NO_BUTTON;
   this->scalarFunction = NULL;
   this->Dimensions[0]=0;
   this->Dimensions[1]=0;
@@ -91,10 +91,11 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
 {
-    if (mouse.Pos[0] > this->Dimensions[0] &&
-        mouse.Pos[0] < this->Dimensions[0]+this->Dimensions[2] &&
-        mouse.Pos[1] > this->Dimensions[1] &&
-        mouse.Pos[1] < this->Dimensions[1]+this->Dimensions[3])
+  vtkVector2f pos = mouse.GetPos();
+  if (pos[0] > this->Dimensions[0] &&
+      pos[0] < this->Dimensions[0] + this->Dimensions[2] &&
+      pos[1] > this->Dimensions[1] &&
+      pos[1] < this->Dimensions[1] + this->Dimensions[3])
     {
     return true;
     }
@@ -115,34 +116,33 @@ bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  int deltaX = static_cast<int>(mouse.Pos[0] - mouse.LastPos[0]);
-  int deltaY = static_cast<int>(mouse.Pos[1] - mouse.LastPos[1]);
+  vtkVector2f delta = mouse.GetPos() - mouse.GetLastPos();
 
-  if (mouse.Button == mouse.LEFT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
     // Move the block by this amount
-    this->Dimensions[0] += deltaX;
-    this->Dimensions[1] += deltaY;
+    this->Dimensions[0] += delta.X();
+    this->Dimensions[1] += delta.Y();
 
     this->GetScene()->SetDirty(true);
     return true;
     }
-  else if (mouse.Button == mouse.MIDDLE_BUTTON)
+  else if (mouse.GetButton() == mouse.MIDDLE_BUTTON)
     {
     // Resize the block by this amount
-    this->Dimensions[0] += deltaX;
-    this->Dimensions[1] += deltaY;
-    this->Dimensions[2] -= deltaX;
-    this->Dimensions[3] -= deltaY;
+    this->Dimensions[0] += delta.X();
+    this->Dimensions[1] += delta.Y();
+    this->Dimensions[2] -= delta.X();
+    this->Dimensions[3] -= delta.Y();
 
     this->GetScene()->SetDirty(true);
     return true;
     }
-  else if (mouse.Button == mouse.RIGHT_BUTTON)
+  else if (mouse.GetButton() == mouse.RIGHT_BUTTON)
     {
     // Resize the block by this amount
-    this->Dimensions[2] += deltaX;
-    this->Dimensions[3] += deltaY;
+    this->Dimensions[2] += delta.X();
+    this->Dimensions[3] += delta.Y();
 
     this->GetScene()->SetDirty(true);
     return true;
@@ -159,18 +159,14 @@ bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+bool vtkBlockItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 {
-  this->MouseButtonPressed = mouse.Button;
-  this->LastPosition[0] = mouse.Pos[0];
-  this->LastPosition[1] = mouse.Pos[1];
   return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
-  this->MouseButtonPressed = vtkContextMouseEvent::NO_BUTTON;
   return true;
 }
 
