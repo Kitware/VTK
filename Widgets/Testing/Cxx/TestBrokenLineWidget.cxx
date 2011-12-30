@@ -33,9 +33,11 @@ public:
   {
     vtkBrokenLineWidget *line = reinterpret_cast<vtkBrokenLineWidget*>(caller);
     line->GetPolyData(Poly);
+    Points = Poly->GetPoints();
   }
-  vtkBLWCallback():Poly(0){};
+  vtkBLWCallback():Poly(0),Points(0){};
   vtkPolyData* Poly;
+  vtkPoints* Points;
 };
 
 int TestBrokenLineWidget( int argc, char *argv[] )
@@ -75,7 +77,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   vtkRenderWindowInteractor* interactor = vtkRenderWindowInteractor::New();
   interactor->SetRenderWindow( window );
   
-  // Renderer 1
+  // Renderer for full mesh and attached widget
   vtkRenderer* ren1 = vtkRenderer::New();
   ren1->SetBackground( .4, .4, .4 );
   ren1->SetBackground2( .8, .8, .8 );
@@ -84,17 +86,11 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   ren1->AddActor( meshActor );
   window->AddRenderer( ren1 );
 
-  // Create a good view angle for renderer 1
+  // Create a good view angle
   vtkCamera* camera1 = ren1->GetActiveCamera();
   camera1->SetFocalPoint( .12, 0., 0. );
   camera1->SetPosition( .35, .3, .3 );
   camera1->SetViewUp( 0., 0., 1. );
-
-  // Renderer 2
-  vtkRenderer* ren2 = vtkRenderer::New();
-  ren2->SetBackground( 1., 1., 1. );
-  ren2->SetViewport( .5, 0., 1., 1. );
-  window->AddRenderer( ren2 );
 
   // Create broken line widget, attach it to input mesh
   vtkBrokenLineWidget* line = vtkBrokenLineWidget::New();
@@ -113,12 +109,16 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   vtkPolyData* polyLine = vtkPolyData::New();
   line->GetPolyData( polyLine );
 
+  // Invoke callback on polygonal line to interactively select elements
+  vtkBLWCallback* lineCB = vtkBLWCallback::New();
+  lineCB->Poly = polyLine;
+  lineCB->Points = polyLine->GetPoints();
+  line->AddObserver( vtkCommand::InteractionEvent, lineCB );
+
   // Create selection along broken line defined by list of points
-  vtkPoints* points = polyLine->GetPoints();
-  points->Print(cerr);
   vtkLinearExtractor* linExt = vtkLinearExtractor::New();
   linExt->SetInput( meshMB );
-  linExt->SetPoints( points );
+  linExt->SetPoints( lineCB->Points );
   linExt->IncludeVerticesOff();
   linExt->SetVertexEliminationTolerance( 1.e-12 );
 
@@ -127,22 +127,25 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   extSel->SetInput( 0, mesh );
   extSel->SetInputConnection( 1, linExt->GetOutputPort() );
   extSel->Update();
-  extSel->Print(cerr);
+
   //vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extSel->GetOutput() );
-  linExt->GetOutput()->Print(cerr);
-  //vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
+  vtkUnstructuredGrid* ugrid = mesh;
+  // ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
   vtkDataSetMapper* selMapper = vtkDataSetMapper::New();
-  //selMapper->SetInput( ugrid );
+  selMapper->SetInput( ugrid );
   vtkActor* selActor = vtkActor::New();
-  //selActor->SetMapper( selMapper );
-  selActor->GetProperty()->SetColor( .23, .37, .17 );
+  selActor->SetMapper( selMapper );
+  selActor->GetProperty()->SetColor( 0., 0., 0. );
   selActor->GetProperty()->SetRepresentationToWireframe();
 
+  // Renderer for extracted selection
+  vtkRenderer* ren2 = vtkRenderer::New();
+  ren2->SetBackground( 1., 1., 1. );
+  ren2->SetViewport( .5, 0., 1., 1. );
+  ren2->AddActor( selActor );
+  ren2->SetActiveCamera( camera1 );
+  window->AddRenderer( ren2 );
 
-  // Invoke callback on polygonal line to interactively select elements
-  vtkBLWCallback* lineCB = vtkBLWCallback::New();
-  lineCB->Poly = polyLine;
-  line->AddObserver( vtkCommand::InteractionEvent, lineCB );
 
   // Test Set Get handle positions
   double pos[3];
