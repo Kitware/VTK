@@ -413,6 +413,15 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void TransferRegisteredDataToGhostedData( const int gridID );
 
     // Description:
+    // Loops through all arrays in the source and for each array, it copies the
+    // tuples from sourceIdx to the target at targetIdx. This method assumes
+    // that the source and target have a one-to-one array correspondance, that
+    // is array i in the source corresponds to array i in the target.
+    void CopyFieldData(
+        vtkFieldData *source, vtkIdType sourceIdx,
+        vtkFieldData *target, vtkIdType targetIdx );
+
+    // Description:
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 

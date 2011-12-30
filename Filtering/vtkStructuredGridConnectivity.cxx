@@ -1301,6 +1301,43 @@ void vtkStructuredGridConnectivity::InitializeGhostedFieldData(const int gridID)
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::CopyFieldData(
+    vtkFieldData *source, vtkIdType sourceIdx,
+    vtkFieldData *target, vtkIdType targetIdx )
+{
+  assert( "pre: source field data is NULL!" && (source != NULL) );
+  assert( "pre: target field data is NULL!" && (target != NULL) );
+  assert( "pre: source number of arrays does not match target!" &&
+          source->GetNumberOfArrays()==target->GetNumberOfArrays() );
+
+  int arrayIdx = 0;
+  for( ; arrayIdx < source->GetNumberOfArrays(); ++arrayIdx )
+    {
+    // Get source array
+    vtkDataArray *sourceArray = source->GetArray( arrayIdx );
+    assert( "ERROR: encountered NULL source array" && (sourceArray != NULL) );
+
+    // Get target array
+    vtkDataArray *targetArray = target->GetArray( arrayIdx );
+    assert( "ERROR: encountered NULL target array" && (targetArray != NULL) );
+
+    // Sanity checks
+    assert( "ERROR: target/source array name mismatch!" &&
+      (strcmp( sourceArray->GetName(), targetArray->GetName() ) == 0 ) );
+    assert( "ERROR: target/source array num components mismatch!" &&
+      (sourceArray->GetNumberOfComponents()==
+       targetArray->GetNumberOfComponents()));
+    assert( "ERROR: sourceIdx out-of-bounds!" &&
+      (sourceIdx >= 0) && (sourceIdx < sourceArray->GetNumberOfTuples() ) );
+    assert( "ERROR: targetIdx out-of-bounds!" &&
+      (targetIdx >= 0) && (targetIdx < targetArray->GetNumberOfTuples() ) );
+
+    // Copy the tuple
+    targetArray->SetTuple( targetIdx, sourceIdx, sourceArray );
+    } // END for all arrays
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
       const int gridID )
 {
@@ -1312,9 +1349,19 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
   int GridExtent[6];
   this->GetGridExtent( gridID, GridExtent );
 
-  // STEP 1: Get the ghosted grid extent
+  // STEP 1: Get the registered grid cell extent
+  int GridCellExtent[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent(
+      GridExtent, GridCellExtent, this->DataDescription );
+
+  // STEP 2: Get the ghosted grid extent
   int GhostedGridExtent[6];
   this->GetGhostedGridExtent( gridID, GhostedGridExtent );
+
+  // STEP 3: Get the ghosted grid cell extent
+  int GhostedGridCellExtent[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent(
+      GhostedGridExtent, GhostedGridCellExtent, this->DataDescription );
 
   // STEP 2: Loop over the registered grid extent
   int ijk[3];
@@ -1337,8 +1384,34 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
             vtkStructuredData::ComputePointIdForExtent(
                 GhostedGridExtent, ijk, this->DataDescription );
 
-        // Transfer the data from the sourceIdx to targetIdx
-        // TODO: implement this
+        // Transfer node data from the registered grid to the ghosted grid
+        this->CopyFieldData(
+            this->GridPointData[gridID], sourceIdx,
+            this->GhostedGridPointData[gridID], targetIdx );
+
+        // If the node is within the cell extent, copy the cell datta
+        if( this->IsNodeWithinExtent( i, j, k, GridCellExtent ) )
+          {
+          // Compute the source cell idx. Note, since we are passing to
+          // ComputePointIdForExtent a cell extent, this is a cell id, not
+          // a point id.
+          vtkIdType sourceCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GridCellExtent, ijk, this->DataDescription );
+
+          // Compute the target cell idx. Note, since we are passing to
+          // ComputePointIdForExtent a cell extent, this is a cell id, not
+          // a point id.
+          vtkIdType targetCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GhostedGridCellExtent, ijk, this->DataDescription );
+
+          // Transfer cell data from the registered grid to the ghosted grid
+          this->CopyFieldData(
+              this->GridCellData[gridID], sourceCellIdx,
+              this->GhostedGridCellData[gridID], targetCellIdx );
+
+          } // END if node is within cell extent
 
         } // END for all k
       } // END for all j
