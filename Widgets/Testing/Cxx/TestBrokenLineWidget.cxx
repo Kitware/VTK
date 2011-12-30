@@ -104,9 +104,8 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   line->PlaceWidget();
   line->ProjectToPlaneOff();
   line->On();
-  //line->SetNumberOfHandles(4);
-  //line->SetNumberOfHandles(5);
-  line->SetResolution(6);
+  line->SetResolution( 6 );
+  line->SetHandleSizeFactor( 2. );
 
   // Create list of points to define broken line
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();

@@ -1258,7 +1258,7 @@ double vtkBrokenLineWidget::GetSummedLength()
   double sum = 0.;
   int i = 0;
   points->GetPoint( i, a );
-  int imax = ( npts%2 == 0 ) ? npts-2 : npts-1;
+  int imax = ( npts % 2 == 0 ) ? npts - 2 : npts - 1;
 
   while ( i < imax )
     {
