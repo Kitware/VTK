@@ -516,18 +516,22 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
     // allow unrolling of inner loop
     F fX1[VTK_BSPLINE_KERNEL_SIZE_MAX + 4];
     vtkIdType factX1[VTK_BSPLINE_KERNEL_SIZE_MAX + 4];
-    for (int ii = 0; ii < stepX; ii++)
+    F *tmpfX = fX1;
+    vtkIdType *tmpfactX = factX1;
+    int ii = stepX;
+    do
       {
-      fX1[ii] = fX[ii];
-      factX1[ii] = factX[ii];
+      *tmpfX++ = *fX++;
+      *tmpfactX++ = *factX++;
       }
-    vtkIdType lfactX = factX1[stepX-1];
-    fX1[stepX] = 0.0;
-    factX1[stepX] = lfactX;
-    fX1[stepX+1] = 0.0;
-    factX1[stepX+1] = lfactX;
-    fX1[stepX+2] = 0.0;
-    factX1[stepX+2] = lfactX;
+    while (--ii);
+    vtkIdType lfactX = *(tmpfactX-1);
+    tmpfX[0] = 0.0;
+    tmpfactX[0] = lfactX;
+    tmpfX[1] = 0.0;
+    tmpfactX[1] = lfactX;
+    tmpfX[2] = 0.0;
+    tmpfactX[2] = lfactX;
 
     const T *inPtr0 = inPtr;
     int c = numscalars;
@@ -547,8 +551,8 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
           vtkIdType factzy = factz + factY[j];
           // loop over x
           const T *tmpPtr = inPtr0 + factzy;
-          const F *tmpfX = fX1;
-          const vtkIdType *tmpfactX = factX1;
+          tmpfX = fX1;
+          tmpfactX = factX1;
           F tmpval = 0;
           // unroll inner loop for efficiency
           int l = lm;
@@ -572,9 +576,6 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
       inPtr0++;
       }
     while (--c);
-
-    factX += stepX;
-    fX += stepX;
     }
 }
 
