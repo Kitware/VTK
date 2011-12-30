@@ -1,6 +1,7 @@
 #include "vtkSmartPointer.h"
 
 #include "vtkActor.h"
+#include "vtkBrokenLineWidget.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkDataSetMapper.h"
@@ -8,8 +9,6 @@
 #include "vtkInformation.h"
 #include "vtkLinearExtractor.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPlaneSource.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProgrammableFilter.h"
@@ -17,12 +16,14 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkBrokenLineWidget.h"
+#include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
 #include "vtkTestUtilities.h"
+
+#include <vtksys/ios/sstream>
 
 // Callback for the broken line widget interaction
 class vtkBLWCallback : public vtkCommand
@@ -44,12 +45,18 @@ public:
     vtkMultiBlockDataSet* outMB = vtkMultiBlockDataSet::SafeDownCast( this->Extractor->GetOutput() );
     vtkUnstructuredGrid* selection = vtkUnstructuredGrid::SafeDownCast( outMB->GetBlock( 0 ) );
     this->Mapper->SetInput( selection );
+
+    // Update cardinality of selection
+    vtksys_ios::ostringstream txt;
+    txt << "Number of selected elements:" << ( selection ? selection->GetNumberOfCells() : 0 );
+    this->Text->SetInput( txt.str().c_str() );
   }
-vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0) {};
+vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
   vtkPolyData* Poly;
   vtkLinearExtractor* Selector; 
   vtkExtractSelection* Extractor;
   vtkDataSetMapper* Mapper;
+  vtkTextActor* Text;
 };
 
 int TestBrokenLineWidget( int argc, char *argv[] )
@@ -78,11 +85,11 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   win->AddRenderer( ren2 );
 
   // Create a good view angle
-  vtkCamera* camera1 = ren1->GetActiveCamera();
-  camera1->SetFocalPoint( .12, 0., 0. );
-  camera1->SetPosition( .35, .3, .3 );
-  camera1->SetViewUp( 0., 0., 1. );
-  ren2->SetActiveCamera( camera1 );
+  vtkCamera* camera = ren1->GetActiveCamera();
+  camera->SetFocalPoint( .12, 0., 0. );
+  camera->SetPosition( .35, .3, .3 );
+  camera->SetViewUp( 0., 0., 1. );
+  ren2->SetActiveCamera( camera );
 
   // Read 3D unstructured input mesh
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/AngularSector.vtk");
@@ -91,8 +98,8 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   reader->SetFileName( fileName );
   delete [] fileName;
   reader->Update();
-   
-  // Create mesh actor from reader output
+
+  // Create mesh actor to be rendered in viewport 1
   vtkSmartPointer<vtkDataSetMapper> meshMapper = vtkSmartPointer<vtkDataSetMapper>::New();
   meshMapper->SetInputConnection( reader->GetOutputPort() );
   vtkSmartPointer<vtkActor> meshActor = vtkSmartPointer<vtkActor>::New();
@@ -119,7 +126,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   line->ProjectToPlaneOff();
   line->On();
   line->SetResolution( 6 );
-  line->SetHandleSizeFactor( 1.5 );
+  line->SetHandleSizeFactor( 1.2 );
 
   // Create list of points to define broken line
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -163,12 +170,24 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   selActor->GetProperty()->SetRepresentationToWireframe();
   ren2->AddActor( selActor );
 
+  // Annotate with number of elements
+  vtkSmartPointer<vtkTextActor> txtActor = vtkSmartPointer<vtkTextActor>::New();
+  vtksys_ios::ostringstream txt;
+  txt << "Number of selected elements:" << ( selection ? selection->GetNumberOfCells() : 0 );
+  txtActor->SetInput( txt.str().c_str() );
+  txtActor->SetTextScaleModeToViewport();
+  txtActor->SetNonLinearFontScale( .2, 18 );
+  txtActor->GetTextProperty()->SetColor( 0., 0., 1. );
+  txtActor->GetTextProperty()->SetFontSize( 18 );
+  ren2->AddActor( txtActor );
+
   // Invoke callback on polygonal line to interactively select elements
   vtkSmartPointer<vtkBLWCallback> cb = vtkSmartPointer<vtkBLWCallback>::New();
   cb->Poly = linePD;
   cb->Selector = selector;
   cb->Extractor = extractor;
   cb->Mapper = selMapper;
+  cb->Text = txtActor;
   line->AddObserver( vtkCommand::InteractionEvent, cb );
 
   // Render and interact
