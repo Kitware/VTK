@@ -52,6 +52,9 @@ vtkBrokenLineWidget::vtkBrokenLineWidget()
   // Does this widget respond to interaction?
   this->ProcessEvents = 1;
 
+  // Default handle size factor
+  this->HandleSizeFactor = 1.;
+
   // Build the representation of the widget
 
   // Default bounds to get started
@@ -402,6 +405,7 @@ void vtkBrokenLineWidget::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Projection Position: " << this->ProjectionPosition << "\n";
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Number Of Handles: " << this->NumberOfHandles << "\n";
+  os << indent << "Handle Size Factor" << this->HandleSizeFactor << "\n";
 }
 
 void vtkBrokenLineWidget::ProjectPointsToPlane()
@@ -1232,7 +1236,7 @@ void vtkBrokenLineWidget::GetPolyData( vtkPolyData *pd )
 
 void vtkBrokenLineWidget::SizeHandles()
 {
-  double radius = this->vtk3DWidget::SizeHandles( 1.0 );
+  double radius = this->vtk3DWidget::SizeHandles( this->HandleSizeFactor );
   for ( int i = 0; i < this->NumberOfHandles; ++ i )
     {
     this->HandleGeometry[i]->SetRadius( radius );

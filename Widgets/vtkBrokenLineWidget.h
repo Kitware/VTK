@@ -219,6 +219,12 @@ public:
   vtkGetMacro(ProcessEvents, int);
   vtkBooleanMacro( ProcessEvents, int );
 
+  // Description:
+  // Set/Get the size factor to be applied to the handle radii.
+  // Default: 1.
+  vtkSetClampMacro(HandleSizeFactor, double, 0., 100.);
+  vtkGetMacro(HandleSizeFactor, double);
+
 protected:
   vtkBrokenLineWidget();
   ~vtkBrokenLineWidget();
@@ -308,6 +314,9 @@ protected:
   double Centroid[3];
   void CalculateCentroid();
   int  ProcessEvents;
+
+  // Handle sizing factor
+  double HandleSizeFactor;
 
 private:
   vtkBrokenLineWidget(const vtkBrokenLineWidget&);  //Not implemented
