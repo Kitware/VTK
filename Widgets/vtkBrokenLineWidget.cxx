@@ -1364,8 +1364,8 @@ void vtkBrokenLineWidget::InitializeHandles( vtkPoints* points )
   double p0[3];
   double p1[3];
 
-  points->GetPoint( 0,p0 );
-  points->GetPoint( npts-1,p1 );
+  points->GetPoint( 0, p0 );
+  points->GetPoint( npts - 1 , p1 );
 
   if ( vtkMath::Distance2BetweenPoints( p0, p1 ) == 0. )
     {
@@ -1376,7 +1376,7 @@ void vtkBrokenLineWidget::InitializeHandles( vtkPoints* points )
   int i;
   for ( i = 0; i < npts; ++ i )
     {
-    this->SetHandlePosition( i,points->GetPoint( i ) );
+    this->SetHandlePosition( i, points->GetPoint( i ) );
     }
 
   if ( this->Interactor && this->Enabled )
