@@ -16,7 +16,6 @@
 #include "vtkImageBSplineInternals.h"
 
 #include "vtkMath.h"
-#include "vtkIntArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkInformation.h"
@@ -74,8 +73,6 @@ int vtkImageBSplineCoefficients::RequestData(
   vtkImageData *outData = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  outData->GetFieldData()->RemoveArray("BSpline");
-
   if (this->Bypass)
     {
     // directly pass the scalars to the output
@@ -121,15 +118,6 @@ int vtkImageBSplineCoefficients::RequestData(
                   << oe[3] << "," << oe[4] << "," << oe[5] << ")");
     return 0;
     }
-
-  // Add a field data array with bspline information
-  vtkIntArray *info = vtkIntArray::New();
-  info->SetName("BSpline");
-  info->SetNumberOfValues(2);
-  info->SetValue(0, this->SplineDegree);
-  info->SetValue(1, this->BorderMode);
-  outData->GetFieldData()->AddArray(info);
-  info->Delete();
 
   // if spline degree is < 2, no operation is required
   if (this->SplineDegree < 2)
