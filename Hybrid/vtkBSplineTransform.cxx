@@ -23,6 +23,8 @@
 vtkStandardNewMacro(vtkBSplineTransform);
 vtkCxxSetObjectMacro(vtkBSplineTransform,Coefficients,vtkImageData);
 
+namespace {
+
 //-------------------------------------------------------------
 // The b-spline provides continuity of the first and second
 // derivatives with a piecewise cubic polynomial.  The polynomial
@@ -184,89 +186,7 @@ static int vtkBSplineTransformBorder(
   return pointIsInvalid;
 }
 
-// cubic b-spline interpolation of a warp grid with derivatives
-// (set derivatives to 0 to avoid computing them).
-
-template <class T>
-void vtkBSplineTransformInterpolation(
-  double displacement[3], double derivatives[3][3],
-  T *gridPtr, int ext[3],
-  vtkIdType factX[4], vtkIdType factY[4], vtkIdType factZ[4],
-  double fX[4], double fY[4], double fZ[4],
-  double gX[4], double gY[4], double gZ[4])
-{
-  // shortcut for 1D and 2D images (ext is size subtract 1)
-  int singleZ = (ext[2] == 0);
-  int jl = singleZ;
-  int jm = 4 - 2*singleZ;
-  int singleY = (ext[1] == 0);
-  int kl = singleY;
-  int km = 4 - 2*singleY;
-
-  // here is the tricubic interpolation
-  double vY[3],vZ[3];
-  displacement[0] = 0;
-  displacement[1] = 0;
-  displacement[2] = 0;
-  for (int j = jl; j < jm; j++)
-    {
-    T *gridPtr1 = gridPtr + factZ[j];
-    vZ[0] = 0;
-    vZ[1] = 0;
-    vZ[2] = 0;
-    for (int k = kl; k < km; k++)
-      {
-      T *gridPtr2 = gridPtr1 + factY[k];
-      vY[0] = 0;
-      vY[1] = 0;
-      vY[2] = 0;
-      if (!derivatives)
-        {
-        for (int l = 0; l < 4; l++)
-          {
-          T *gridPtr3 = gridPtr2 + factX[l];
-          double f = fX[l];
-          vY[0] += gridPtr3[0] * f;
-          vY[1] += gridPtr3[1] * f;
-          vY[2] += gridPtr3[2] * f;
-          }
-        }
-      else
-        {
-        for (int l = 0; l < 4; l++)
-          {
-          T *gridPtr3 = gridPtr2 + factX[l];
-          double f = fX[l];
-          double gff = gX[l]*fY[k]*fZ[j];
-          double fgf = fX[l]*gY[k]*fZ[j];
-          double ffg = fX[l]*fY[k]*gZ[j];
-          double inVal = gridPtr3[0];
-          vY[0] += inVal * f;
-          derivatives[0][0] += inVal * gff;
-          derivatives[0][1] += inVal * fgf;
-          derivatives[0][2] += inVal * ffg;
-          inVal = gridPtr3[1];
-          vY[1] += inVal * f;
-          derivatives[1][0] += inVal * gff;
-          derivatives[1][1] += inVal * fgf;
-          derivatives[1][2] += inVal * ffg;
-          inVal = gridPtr3[2];
-          vY[2] += inVal * f;
-          derivatives[2][0] += inVal * gff;
-          derivatives[2][1] += inVal * fgf;
-          derivatives[2][2] += inVal * ffg;
-          }
-        }
-        vZ[0] += vY[0]*fY[k];
-        vZ[1] += vY[1]*fY[k];
-        vZ[2] += vY[2]*fY[k];
-      }
-    displacement[0] += vZ[0]*fZ[j];
-    displacement[1] += vZ[1]*fZ[j];
-    displacement[2] += vZ[2]*fZ[j];
-    }
-}
-
+//-------------------------------------------------------------
 template <class T>
 class vtkBSplineTransformFunction
 {
@@ -379,11 +299,80 @@ void vtkBSplineTransformFunction<T>::Cubic(
     {
     T *gridPtr = static_cast<T *>(gridPtrVoid);
 
-    vtkBSplineTransformInterpolation(
-      displacement, derivatives, gridPtr, ext,
-      factX, factY, factZ, fX, fY, fZ, gX, gY, gZ);
+    // shortcut for 1D and 2D images (ext is size subtract 1)
+    int singleZ = (ext[2] == 0);
+    int jl = singleZ;
+    int jm = 4 - 2*singleZ;
+    int singleY = (ext[1] == 0);
+    int kl = singleY;
+    int km = 4 - 2*singleY;
+
+    // here is the tricubic interpolation
+    double vY[3],vZ[3];
+    displacement[0] = 0;
+    displacement[1] = 0;
+    displacement[2] = 0;
+    for (int j = jl; j < jm; j++)
+      {
+      T *gridPtr1 = gridPtr + factZ[j];
+      vZ[0] = 0;
+      vZ[1] = 0;
+      vZ[2] = 0;
+      for (int k = kl; k < km; k++)
+        {
+        T *gridPtr2 = gridPtr1 + factY[k];
+        vY[0] = 0;
+        vY[1] = 0;
+        vY[2] = 0;
+        if (!derivatives)
+          {
+          for (int l = 0; l < 4; l++)
+            {
+            T *gridPtr3 = gridPtr2 + factX[l];
+            double f = fX[l];
+            vY[0] += gridPtr3[0] * f;
+            vY[1] += gridPtr3[1] * f;
+            vY[2] += gridPtr3[2] * f;
+            }
+          }
+        else
+          {
+          for (int l = 0; l < 4; l++)
+            {
+            T *gridPtr3 = gridPtr2 + factX[l];
+            double f = fX[l];
+            double gff = gX[l]*fY[k]*fZ[j];
+            double fgf = fX[l]*gY[k]*fZ[j];
+            double ffg = fX[l]*fY[k]*gZ[j];
+            double inVal = gridPtr3[0];
+            vY[0] += inVal * f;
+            derivatives[0][0] += inVal * gff;
+            derivatives[0][1] += inVal * fgf;
+            derivatives[0][2] += inVal * ffg;
+            inVal = gridPtr3[1];
+            vY[1] += inVal * f;
+            derivatives[1][0] += inVal * gff;
+            derivatives[1][1] += inVal * fgf;
+            derivatives[1][2] += inVal * ffg;
+            inVal = gridPtr3[2];
+            vY[2] += inVal * f;
+            derivatives[2][0] += inVal * gff;
+            derivatives[2][1] += inVal * fgf;
+            derivatives[2][2] += inVal * ffg;
+            }
+          }
+          vZ[0] += vY[0]*fY[k];
+          vZ[1] += vY[1]*fY[k];
+          vZ[2] += vY[2]*fY[k];
+        }
+      displacement[0] += vZ[0]*fZ[j];
+      displacement[1] += vZ[1]*fZ[j];
+      displacement[2] += vZ[2]*fZ[j];
+      }
     }
 }
+
+} // end anonymous namespace
 
 //----------------------------------------------------------------------------
 vtkBSplineTransform::vtkBSplineTransform()
