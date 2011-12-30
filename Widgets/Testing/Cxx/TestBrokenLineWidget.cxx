@@ -30,7 +30,7 @@ class vtkBLWCallback : public vtkCommand
 public:
   static vtkBLWCallback *New()
   { return new vtkBLWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void* )
+  virtual void Execute( vtkObject *caller, unsigned long, void* )
   {
     // Retrieve polydata line
     vtkBrokenLineWidget *line = reinterpret_cast<vtkBrokenLineWidget*>( caller );
@@ -42,14 +42,13 @@ public:
     // Update selection from mesh
     this->Extractor->Update();
     vtkMultiBlockDataSet* outMB = vtkMultiBlockDataSet::SafeDownCast( this->Extractor->GetOutput() );
-    this->Selection = vtkUnstructuredGrid::SafeDownCast( outMB->GetBlock( 0 ) );
-    this->Mapper->SetInput( this->Selection );
+    vtkUnstructuredGrid* selection = vtkUnstructuredGrid::SafeDownCast( outMB->GetBlock( 0 ) );
+    this->Mapper->SetInput( selection );
   }
-vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Selection(0) {};
+vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0) {};
   vtkPolyData* Poly;
   vtkLinearExtractor* Selector; 
   vtkExtractSelection* Extractor;
-  vtkUnstructuredGrid* Selection;
   vtkDataSetMapper* Mapper;
 };
 
@@ -120,7 +119,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   line->ProjectToPlaneOff();
   line->On();
   line->SetResolution( 6 );
-  line->SetHandleSizeFactor( 1. );
+  line->SetHandleSizeFactor( 1.5 );
 
   // Create list of points to define broken line
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -169,7 +168,6 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   cb->Poly = linePD;
   cb->Selector = selector;
   cb->Extractor = extractor;
-  cb->Selection = selection; 
   cb->Mapper = selMapper;
   line->AddObserver( vtkCommand::InteractionEvent, cb );
 
