@@ -52,8 +52,8 @@ PURPOSE.  See the above copyright notice for more information.
 // vtkLinearExtrusionFilter vtkRotationalExtrusionFilter
 
 // .SECTION Thanks
-// This class was intially developed at CEA
-// Ported and modified by Philippe Pébay, Kitware, 2011
+// This class was intially developed by Daniel Aguilera, CEA/DIF
+// Ported and modified by Philippe Pebay, Kitware, 2011
 
 #ifndef __vtkQuadRotationalExtrusionFilter_h
 #define __vtkQuadRotationalExtrusionFilter_h
