@@ -80,6 +80,7 @@ IF (VTK_DATA_ROOT)
   SET(MyTests ${MyTests}
     ImagePlaneWidget.cxx
     TestBiDimensionalWidget.cxx
+    TestBrokenLineWidget.cxx
     TestDijkstraImageGeodesicPath.cxx
     TestImageActorContourWidget.cxx
     TestConstrainedHandleWidget.cxx
