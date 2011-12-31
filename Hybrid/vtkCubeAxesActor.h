@@ -43,11 +43,10 @@ All rights reserve
 //
 // .SECTION Thanks
 // This class was written by:
-// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
-// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
+// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock, Will Schroeder, 
+// Eric Brugger, Daniel Aguilera, Claire Guilbaud, Nicolas Dolegieviez, 
 // Aashish Chaudhary, Philippe Pebay, David Gobbi, David Partyka, Utkarsh Ayachit
-// David Cole, François Bertel, and Mark Olesen
-// 
+// David Cole, Francois Bertel, and Mark Olesen
 //
 // .section See Also
 // vtkActor vtkAxisActor vtkCubeAxesActor2D
