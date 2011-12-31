@@ -16,6 +16,7 @@
 #include "vtkImageBSplineInternals.h"
 
 #include "vtkMath.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkInformation.h"
