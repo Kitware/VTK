@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRenderWindowInteractor - platform-independent render window interaction including picking and frame rate control.
+// .NAME vtkRenderWindowInteractor - platform-independent render window
+// interaction including picking and frame rate control.
 
 // .SECTION Description
 // vtkRenderWindowInteractor provides a platform-independent interaction
@@ -45,7 +46,6 @@
 
 class vtkTimerIdMap;
 
-
 // Timer flags for win32/X compatibility
 #define VTKI_TIMER_FIRST  0
 #define VTKI_TIMER_UPDATE 1
@@ -60,9 +60,9 @@ class vtkInteractorEventRecorder;
 
 class VTK_RENDERING_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
-  //BTX
+//BTX
   friend class vtkInteractorEventRecorder;
-  //ETX
+//ETX
 public:
   static vtkRenderWindowInteractor *New();
   vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
@@ -132,12 +132,37 @@ public:
   // timer as appropriate. Methods are also available for determining
   virtual int CreateTimer(int timerType); //first group, for backward compatibility
   virtual int DestroyTimer(); //first group, for backward compatibility
+
+  // Description:
+  // Create a repeating timer, with the specified duration (in milliseconds).
+  // \return the timer id.
   int CreateRepeatingTimer(unsigned long duration);
+
+  // Description:
+  // Create a one shot timer, with the specified duretion (in milliseconds).
+  // \return the timer id.
   int CreateOneShotTimer(unsigned long duration);
+
+  // Description:
+  // Query whether the specified timerId is a one shot timer.
+  // \return 1 if the timer is a one shot timer.
   int IsOneShotTimer(int timerId);
+
+  // Description:
+  // Get the duration (in milliseconds) for the specified timerId.
   unsigned long GetTimerDuration(int timerId);
+
+  // Description:
+  // Reset the specified timer.
   int ResetTimer(int timerId);
+
+  // Description:
+  // Destroy the timer specified by timerId.
+  // \return 1 if the timer was destroyed.
   int DestroyTimer(int timerId);
+
+  // Description:
+  // Get the VTK timer ID that corresponds to the supplied platform ID.
   virtual int GetVTKTimerId(int platformTimerId);
 
   //BTX
@@ -310,17 +335,39 @@ public:
   virtual void SetEventPositionFlipY(int pos[2])
   {
     this->SetEventPositionFlipY(pos[0], pos[1]);
-  } 
+  }
+
+  // Description:
+  // Set/get whether alt modifier key was pressed.
   vtkSetMacro(AltKey, int);
   vtkGetMacro(AltKey, int);
+
+  // Description:
+  // Set/get whether control modifier key was pressed.
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
+
+  // Description:
+  // Set/get whether shift modifier key was pressed.
   vtkSetMacro(ShiftKey, int);
   vtkGetMacro(ShiftKey, int);
+
+  // Description:
+  // Set/get the key code for the key that was pressed.
   vtkSetMacro(KeyCode, char);
   vtkGetMacro(KeyCode, char);
+
+  // Description:
+  // Set/get the repear count for the key or mouse event. This specifies how
+  // many times a key has been pressed.
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);
+
+  // Description:
+  // Set/get the key symbol for the key that was pressed. This is the key
+  // symbol as defined by the relevant X headers. On X based platforms this
+  // corresponds to the installed X sevrer, whereas on other platforms the
+  // native key codes are translated into a string representation.
   vtkSetStringMacro(KeySym);
   vtkGetStringMacro(KeySym);
 
