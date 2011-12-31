@@ -13,6 +13,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProgrammableFilter.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -61,9 +62,6 @@ vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
 
 int TestBrokenLineWidget( int argc, char *argv[] )
 {
-  // Initialize test value
-  int testIntValue = 0;
-   
   // Create render window and interactor
   vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
   win->SetMultiSamples( 0 );
@@ -190,9 +188,13 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   cb->Text = txtActor;
   line->AddObserver( vtkCommand::InteractionEvent, cb );
 
-  // Render and interact
+  // Render and test
   win->Render();
-  iren->Start();
+  int retVal = vtkRegressionTestImage( win );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
 
-  return testIntValue;
+  return !retVal;
 }
