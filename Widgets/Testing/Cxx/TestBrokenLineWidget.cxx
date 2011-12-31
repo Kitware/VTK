@@ -85,7 +85,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   // Create a good view angle
   vtkCamera* camera = ren1->GetActiveCamera();
   camera->SetFocalPoint( .12, 0., 0. );
-  camera->SetPosition( .35, .3, .3 );
+  camera->SetPosition( .38, .3, .15 );
   camera->SetViewUp( 0., 0., 1. );
   ren2->SetActiveCamera( camera );
 
