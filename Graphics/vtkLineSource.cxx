@@ -139,7 +139,7 @@ int vtkLineSource::RequestData(
       tc[2] = 0.;
       for ( vtkIdType i = 0; i < this->Resolution; ++ i, ++ offset ) 
         {
-        tc[0] = static_cast<double>( i / this->Resolution );
+        tc[0] = static_cast<double>( i ) / this->Resolution;
         for ( int j = 0; j < 3; ++ j )
           {
           x[j] = point1[j] + tc[0] * v[j];
@@ -168,7 +168,7 @@ int vtkLineSource::RequestData(
     tc[2] = 0.;
     for ( vtkIdType i = 0; i < numPts; ++ i ) 
       {
-      tc[0] = static_cast<double>( i / this->Resolution );
+      tc[0] = static_cast<double>( i ) / this->Resolution;
       for ( int j = 0; j < 3; ++ j )
         {
         x[j] = this->Point1[j] + tc[0] * v[j];
