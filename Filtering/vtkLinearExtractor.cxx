@@ -188,8 +188,15 @@ void vtkLinearExtractor::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArra
       for ( vtkIdType i = 0; i < nSegments; ++ i )
         {
         vtkIdType offset = 3 * i;
-        this->Points->GetPoint( i - 1, startPoints + offset );
-        this->Points->GetPoint( i, endPoints + offset );
+        this->Points->GetPoint( i, startPoints + offset );
+        this->Points->GetPoint( i + 1, endPoints + offset );
+        cerr << i - 1 << ": " 
+             << startPoints[offset]
+             << " "
+             << startPoints[offset + 1]
+             << " "
+             << startPoints[offset + 2]
+             << endl;
         }
       } // if ( this->IncludeVertices )
     else
