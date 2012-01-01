@@ -1277,8 +1277,6 @@ void vtkBrokenLineWidget::InsertHandleOnLine( double* pos )
   if ( id == -1 ){ return; }
 
   vtkIdType subid = this->LinePicker->GetSubId();
-  cerr << "id = " << id
-       << " subid = " << subid << endl;
   vtkPoints* newpoints = vtkPoints::New( VTK_DOUBLE );
   newpoints->SetNumberOfPoints( this->NumberOfHandles + 1 );
 
