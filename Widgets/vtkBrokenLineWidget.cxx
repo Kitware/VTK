@@ -1124,21 +1124,12 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
   double radius = this->HandleGeometry[0]->GetRadius();
   this->Initialize();
 
-  // Get current line bounds
-  double pt1[3], pt2[3];
-  vtkPoints* points = this->LineSource->GetPoints();
-  points->GetPoint( 0, pt1 );
-  vtkIdType p = points->GetNumberOfPoints() - 1; 
-  points->GetPoint( p, pt2 );
-
   this->NumberOfHandles = npts;
 
   // Create the handles
   this->Handle         = new vtkActor* [this->NumberOfHandles];
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
 
-  double pt[3];
-  double u;
   for ( int i = 0; i < this->NumberOfHandles; ++ i )
     {
     this->HandleGeometry[i] = vtkSphereSource::New();
@@ -1150,17 +1141,10 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
     this->Handle[i]->SetMapper( handleMapper );
     handleMapper->Delete();
     this->Handle[i]->SetProperty( this->HandleProperty );
-    u = i / ( this->NumberOfHandles - 1. );
-    pt[0] = ( 1. - u ) * pt1[0] + u * pt2[0];
-    pt[1] = ( 1. - u ) * pt1[1] + u * pt2[1];
-    pt[2] = ( 1. - u ) * pt1[2] + u * pt2[2];
-    this->HandleGeometry[i]->SetCenter( pt );
 
     this->HandleGeometry[i]->SetRadius( radius );
     this->HandlePicker->AddPickList( this->Handle[i]);
     }
-
-  //this->BuildRepresentation();
 
   if ( this->Interactor )
     {
