@@ -168,10 +168,10 @@ bool vtkGraphItem::Hit(const vtkContextMouseEvent &mouse)
   for (vtkIdType i = this->Graph->GetNumberOfVertices()-1; i >= 0; --i)
     {
     this->Impl->GetPosition(i, pos);
-    if (mouse.Pos[0] > pos[0] &&
-        mouse.Pos[0] < pos[0]+20.0f &&
-        mouse.Pos[1] > pos[1] &&
-        mouse.Pos[1] < pos[1]+20.0f)
+    if (mouse.GetPos()[0] > pos[0] &&
+        mouse.GetPos()[0] < pos[0] + 20.0f &&
+        mouse.GetPos()[1] > pos[1] &&
+        mouse.GetPos()[1] < pos[1] + 20.0f)
       {
       this->HitVertex = i;
       return true;
@@ -190,10 +190,10 @@ bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  int deltaX = static_cast<int>(mouse.Pos[0] - this->LastPosition[0]);
-  int deltaY = static_cast<int>(mouse.Pos[1] - this->LastPosition[1]);
-  this->LastPosition[0] = mouse.Pos[0];
-  this->LastPosition[1] = mouse.Pos[1];
+  int deltaX = static_cast<int>(mouse.GetPos()[0] - this->LastPosition[0]);
+  int deltaY = static_cast<int>(mouse.GetPos()[1] - this->LastPosition[1]);
+  this->LastPosition[0] = mouse.GetPos()[0];
+  this->LastPosition[1] = mouse.GetPos()[1];
 
   if (this->MouseButtonPressed == 0)
     {
@@ -236,9 +236,9 @@ bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
-  this->MouseButtonPressed = mouse.Button;
-  this->LastPosition[0] = mouse.Pos[0];
-  this->LastPosition[1] = mouse.Pos[1];
+  this->MouseButtonPressed = mouse.GetButton();
+  this->LastPosition[0] = mouse.GetPos()[0];
+  this->LastPosition[1] = mouse.GetPos()[1];
   return true;
 }
 
