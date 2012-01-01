@@ -965,8 +965,7 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       }
     else if (this->CurrentPoint == -1 && this->Selection->GetNumberOfTuples() > 1)
       {
-      vtkVector2f deltaPos(mouse.Pos[0] - mouse.LastPos[0],
-                           mouse.Pos[1] - mouse.LastPos[1]);
+      vtkVector2f deltaPos = mouse.GetPos() - mouse.GetLastPos();
       if(this->IsEndPointPicked())
         {
         if(!this->GetEndPointsMovable())
@@ -994,7 +993,7 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       }
     else if (this->CurrentPoint != -1)
       {
-      vtkVector2f curPos(mouse.Pos);
+      vtkVector2f curPos(mouse.GetPos());
       if(this->IsEndPointPicked())
         {
         double currentPoint[4] = {0.0, 0.0, 0.0, 0.0};
