@@ -49,7 +49,7 @@ public:
 
     // Update cardinality of selection
     vtksys_ios::ostringstream txt;
-    txt << "Number of selected elements:" << ( selection ? selection->GetNumberOfCells() : 0 );
+    txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
     this->Text->SetInput( txt.str().c_str() );
   }
 vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
@@ -170,7 +170,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   // Annotate with number of elements
   vtkSmartPointer<vtkTextActor> txtActor = vtkSmartPointer<vtkTextActor>::New();
   vtksys_ios::ostringstream txt;
-  txt << "Number of selected elements:" << ( selection ? selection->GetNumberOfCells() : 0 );
+  txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
   txtActor->SetInput( txt.str().c_str() );
   txtActor->SetTextScaleModeToViewport();
   txtActor->SetNonLinearFontScale( .2, 18 );
