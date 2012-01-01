@@ -1277,24 +1277,25 @@ void vtkBrokenLineWidget::InsertHandleOnLine( double* pos )
   if ( id == -1 ){ return; }
 
   vtkIdType subid = this->LinePicker->GetSubId();
-
+  cerr << "id = " << id
+       << " subid = " << subid << endl;
   vtkPoints* newpoints = vtkPoints::New( VTK_DOUBLE );
   newpoints->SetNumberOfPoints( this->NumberOfHandles + 1 );
 
-  int istart = subid * ( this->NumberOfHandles - 1. );
+  int istart = subid;
   int istop = istart + 1;
   int count = 0;
   int i;
   for ( i = 0; i <= istart; ++ i )
     {
-    newpoints->SetPoint( count++,this->HandleGeometry[i]->GetCenter() );
+    newpoints->SetPoint( count ++, this->HandleGeometry[i]->GetCenter() );
     }
 
-  newpoints->SetPoint( count++,pos );
+  newpoints->SetPoint( count ++, pos );
 
   for ( i = istop; i < this->NumberOfHandles; ++ i )
     {
-    newpoints->SetPoint( count++,this->HandleGeometry[i]->GetCenter() );
+    newpoints->SetPoint( count ++, this->HandleGeometry[i]->GetCenter() );
     }
 
   this->InitializeHandles( newpoints );
