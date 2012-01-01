@@ -97,16 +97,14 @@ vtkBrokenLineWidget::vtkBrokenLineWidget()
 
   // Create the broken line
   this->LineSource = vtkLineSource::New();
-  this->LineSource->SetResolution( 1 );
   this->LineSource->SetPoints( points );
   points->Delete();
-  this->LineSource->Update();
 
   // Represent the broken line
   this->LineMapper = vtkPolyDataMapper::New();
   this->LineMapper->SetInputConnection( this->LineSource->GetOutputPort() );
-  //this->LineMapper->ImmediateModeRenderingOn();
-  //this->LineMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  this->LineMapper->ImmediateModeRenderingOn();
+  this->LineMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->LineActor = vtkActor::New();
   this->LineActor->SetMapper( this->LineMapper );
 
@@ -403,7 +401,6 @@ void vtkBrokenLineWidget::PrintSelf( ostream& os, vtkIndent indent )
      << ( this->ProjectToPlane ? "On" : "Off") << "\n";
   os << indent << "Projection Normal: " << this->ProjectionNormal << "\n";
   os << indent << "Projection Position: " << this->ProjectionPosition << "\n";
-  os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Number Of Handles: " << this->NumberOfHandles << "\n";
   os << indent << "Handle Size Factor" << this->HandleSizeFactor << "\n";
 }
@@ -1120,7 +1117,7 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
     }
   if ( npts < 2 )
     {
-    vtkGenericWarningMacro(<<"vtkBrokenLineWidget: minimum of 2 points required.");
+    vtkGenericWarningMacro(<<"Minimum of 2 points required to define a broken line.");
     return;
     }
       
@@ -1129,9 +1126,10 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
 
   // Get current line bounds
   double pt1[3], pt2[3];
-  int nLast = this->NumberOfHandles - 1;
-  this->LineSource->GetPoints()->GetPoint( 0, pt1 );
-  this->LineSource->GetPoints()->GetPoint( nLast, pt2 );
+  vtkPoints* points = this->LineSource->GetPoints();
+  points->GetPoint( 0, pt1 );
+  vtkIdType p = points->GetNumberOfPoints() - 1; 
+  points->GetPoint( p, pt2 );
 
   this->NumberOfHandles = npts;
 
@@ -1162,7 +1160,7 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
     this->HandlePicker->AddPickList( this->Handle[i]);
     }
 
-  this->BuildRepresentation();
+  //this->BuildRepresentation();
 
   if ( this->Interactor )
     {
@@ -1216,17 +1214,6 @@ void vtkBrokenLineWidget::Initialize( void )
 
   delete [] this->Handle;
   delete [] this->HandleGeometry;
-}
-
-void vtkBrokenLineWidget::SetResolution( int resolution )
-{
-  if ( this->Resolution == resolution || resolution < ( this->NumberOfHandles - 1 ) )
-    {
-    return;
-    }
-
-  this->Resolution = resolution;
-  this->Modified();
 }
 
 void vtkBrokenLineWidget::GetPolyData( vtkPolyData *pd )
@@ -1310,7 +1297,7 @@ void vtkBrokenLineWidget::InsertHandleOnLine( double* pos )
   vtkPoints* newpoints = vtkPoints::New( VTK_DOUBLE );
   newpoints->SetNumberOfPoints( this->NumberOfHandles + 1 );
 
-  int istart = vtkMath::Floor( subid*( this->NumberOfHandles - 1.0 )/static_cast<double>( this->Resolution ) );
+  int istart = subid * ( this->NumberOfHandles - 1. );
   int istop = istart + 1;
   int count = 0;
   int i;

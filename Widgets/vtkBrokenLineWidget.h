@@ -51,8 +51,7 @@
 // onto the broken line at the cursor position.
 //
 // The vtkBrokenLineWidget has several methods that can be used in conjunction with
-// other VTK objects. The Set/GetResolution() methods control the number of
-// subdivisions of the broken line; the GetPolyData() method can be used to get the
+// other VTK objects. The GetPolyData() method can be used to get the
 // polygonal representation and can be used for things like seeding
 // streamlines or probing other data sets. Typical usage of the widget is to
 // make use of the StartInteractionEvent, InteractionEvent, and
@@ -160,8 +159,8 @@ public:
 
   // Description:
   // Grab the polydata (including points) that defines the broken line.  The
-  // polydata consists of points and line segments numbering Resolution + 1
-  // and Resoltuion, respectively. Points are guaranteed to be up-to-date when
+  // polydata consists of points and line segments numbering nHandles
+  // and nHandles - 1, respectively. Points are guaranteed to be up-to-date when
   // either the InteractionEvent or  EndInteraction events are invoked. The
   // user provides the vtkPolyData and the points and polyline are added to it.
   void GetPolyData(vtkPolyData *pd);
@@ -186,14 +185,6 @@ public:
   // Set/Get the number of handles for this widget.
   virtual void SetNumberOfHandles(int npts);
   vtkGetMacro(NumberOfHandles, int);
-
-  // Description:
-  // Set/Get the number of line segments representing the broken line for
-  // this widget.
-  // A broken line with resolution greater than the number of handles is useful when
-  // points along the line are desired; e.g., generating a rake of streamlines.
-  void SetResolution(int resolution);
-  vtkGetMacro(Resolution,int);
 
   // Description:
   // Set/Get the position of the broken line handles. Call GetNumberOfHandles
@@ -274,7 +265,6 @@ protected:
   vtkPolyDataMapper *LineMapper;
   vtkLineSource     *LineSource;
   void HighlightLine(int highlight);
-  int Resolution;
   int NumberOfHandles;
   void BuildRepresentation();
 

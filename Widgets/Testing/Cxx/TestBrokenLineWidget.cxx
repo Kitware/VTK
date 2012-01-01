@@ -123,7 +123,6 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   line->PlaceWidget();
   line->ProjectToPlaneOff();
   line->On();
-  line->SetResolution( 6 );
   line->SetHandleSizeFactor( 1.2 );
 
   // Create list of points to define broken line
