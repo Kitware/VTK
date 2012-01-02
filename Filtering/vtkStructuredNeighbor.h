@@ -43,6 +43,8 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
     // Class Member Variables made public for easier access
     int NeighborID;
     int OverlapExtent[6];
+    int SendExtent[6];
+    int RcvExtent[6];
     int Orientation[3];
 
     // Description:
@@ -62,6 +64,11 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
     // Description:
     // Copy constructor
     vtkStructuredNeighbor(const vtkStructuredNeighbor &N ){ *this = N; };
+
+    // Description:
+    // Default destructor
+    ~vtkStructuredNeighbor();
+
 
     // Description:
     // Overload assignement operator
@@ -84,29 +91,29 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
     // Description:
     // Flips the orientation of this neighbor.
     void FlipOrientation()
+    {
+    for( int i=0; i < 3; ++i )
       {
-      for( int i=0; i < 3; ++i )
+      switch( this->Orientation[i] )
         {
-        switch( this->Orientation[i] )
-          {
-          case vtkStructuredNeighbor::LO:
-            this->Orientation[ i ] = vtkStructuredNeighbor::HI;
-            break;
-          case vtkStructuredNeighbor::HI:
-            this->Orientation[ i ] = vtkStructuredNeighbor::LO;
-            break;
-          case vtkStructuredNeighbor::BOTH:
-            this->Orientation[ i ] = vtkStructuredNeighbor::UNDEFINED;
-          default:
-            ; // NO-OP do nothing
+        case vtkStructuredNeighbor::LO:
+          this->Orientation[ i ] = vtkStructuredNeighbor::HI;
+          break;
+        case vtkStructuredNeighbor::HI:
+          this->Orientation[ i ] = vtkStructuredNeighbor::LO;
+          break;
+        case vtkStructuredNeighbor::BOTH:
+          this->Orientation[ i ] = vtkStructuredNeighbor::UNDEFINED;
+        default:
+          ; // NO-OP do nothing
 
-          } // END SWITCH
-        } // END for all dimensions
-      }
+        } // END SWITCH
+      } // END for all dimensions
+    }
 
     // Description:
-    // Default destructor
-    ~vtkStructuredNeighbor();
+    // Computes the SendExtent and the RcvExtent for this neighbor.
+    void ComputeSendAndReceiveExtent(const int N);
 };
 
 #endif /* VTKSTRUCTUREDNEIGHBOR_H_ */

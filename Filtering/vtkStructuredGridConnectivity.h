@@ -417,6 +417,11 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void TransferRegisteredDataToGhostedData( const int gridID );
 
     // Description:
+    // This method computes, the send and rcv extents for each neighbor of
+    // each grid.
+    void ComputeNeighborSendAndRcvExtent( const int gridID, const int N );
+
+    // Description:
     // Loops through all arrays in the source and for each array, it copies the
     // tuples from sourceIdx to the target at targetIdx. This method assumes
     // that the source and target have a one-to-one array correspondance, that

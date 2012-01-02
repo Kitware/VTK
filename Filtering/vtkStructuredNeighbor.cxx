@@ -22,6 +22,11 @@ vtkStructuredNeighbor::vtkStructuredNeighbor()
   this->OverlapExtent[ 4 ]  = this->OverlapExtent[ 5 ]  = 0;
   this->Orientation[ 0 ]    = this->Orientation[ 1 ] =
   this->Orientation[ 2 ]    = vtkStructuredNeighbor::UNDEFINED;
+
+  for( int i=0; i < 6; ++i )
+    {
+    this->SendExtent[i] = this->RcvExtent[i] = -1;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -51,5 +56,10 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
 //------------------------------------------------------------------------------
 vtkStructuredNeighbor::~vtkStructuredNeighbor()
 {
-  // TODO Auto-generated destructor stub
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(const int N)
+{
+  // TODO: implement this
 }

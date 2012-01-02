@@ -1418,7 +1418,6 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
           this->CopyFieldData(
               this->GridCellData[gridID], sourceCellIdx,
               this->GhostedGridCellData[gridID], targetCellIdx );
-
           } // END if node is within cell extent
 
         } // END for all k
@@ -1426,6 +1425,22 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
     } // END for all i
 }
 
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::ComputeNeighborSendAndRcvExtent(
+    const int gridID, const int N )
+{
+  // Sanity check
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+  assert( "pre: Neigbors is not propertly allocated" &&
+          (this->NumberOfGrids==this->Neighbors.size() ) );
+
+  int NumNeis = this->Neighbors[ gridID ].size();
+  for( int nei=0; nei < NumNeis; ++nei )
+    {
+    this->Neighbors[gridID][nei].ComputeSendAndReceiveExtent( N );
+    }
+}
 //------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 {
