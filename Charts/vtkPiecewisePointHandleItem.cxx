@@ -276,7 +276,7 @@ int vtkPiecewisePointHandleItem::IsOverHandle(
 //-----------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == mouse.LEFT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
     if(this->MouseOverHandleIndex >= 0)
       {
