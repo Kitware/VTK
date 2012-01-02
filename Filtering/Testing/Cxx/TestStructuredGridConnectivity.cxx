@@ -714,8 +714,8 @@ bool CheckArrays( vtkDoubleArray *computed, vtkDoubleArray *expected )
       double expVal  = expected->GetComponent(idx,comp);
       if( !vtkMathUtilities::FuzzyCompare(compVal,expVal) )
         {
-        std::cerr << "ERROR: " << compVal << " != " << expVal << std::endl;
-        std::cerr.flush();
+//        std::cerr << "ERROR: " << compVal << " != " << expVal << std::endl;
+//        std::cerr.flush();
         status = false;
         }
       } // END for all components
