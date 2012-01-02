@@ -53,6 +53,7 @@ namespace BlockFace {
 //------------------------------------------------------------------------------
 vtkStructuredGridConnectivity::vtkStructuredGridConnectivity()
 {
+  this->DataDimension   = 0;
   this->DataDescription = -1;
   this->NumberOfGrids   = 0;
   this->WholeExtent[0]  = this->WholeExtent[1] = this->WholeExtent[2] =
@@ -72,6 +73,10 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
   this->Superclass::PrintSelf( os, indent );
 
   os << "========================\n";
+  os << "DATA DIMENSION: " << this->DataDimension << std::endl;
+  os << "WHOLE EXTENT: [ ";
+  for( int i=0; i < 6; os << this->WholeExtent[i++] << " " );
+  os << "]\n";
   os << "CONNECTIVITY INFORMATION: \n";
   for( unsigned int gridID=0; gridID < this->NumberOfGrids; ++gridID )
     {
@@ -187,6 +192,9 @@ void vtkStructuredGridConnectivity::AcquireDataDescription()
   vtkStructuredExtent::GetDimensions( this->WholeExtent, dims );
 
   this->DataDescription = vtkStructuredData::GetDataDescription( dims );
+  this->DataDimension   =
+      vtkStructuredData::GetDataDimension( this->DataDescription );
+
   assert( "pre: Error acquiring data description" &&
         (this->DataDescription >= 0) );
   assert( "pre: grid description cannot be empty" &&

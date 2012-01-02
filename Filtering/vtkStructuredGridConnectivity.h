@@ -58,6 +58,10 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     vtkGetVector6Macro(WholeExtent,int);
 
     // Description:
+    // Returns the data dimension based on the whole extent
+    vtkGetMacro(DataDimension,int);
+
+    // Description:
     // Set/Get the total number of domains distributed among processors
     virtual void SetNumberOfGrids( const unsigned int N );
 
@@ -425,6 +429,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 
+    int DataDimension;
     int DataDescription;
     int WholeExtent[6];
     std::vector< int > GridExtents;
