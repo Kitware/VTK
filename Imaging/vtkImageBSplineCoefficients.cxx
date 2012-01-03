@@ -90,8 +90,8 @@ int vtkImageBSplineCoefficients::RequestData(
     }
 
   // Allocate the output data
-  outData->SetExtent(outData->GetWholeExtent());
-  outData->AllocateScalars();
+  outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  outData->AllocateScalars(outInfo);
 
   if (outData->GetScalarType() != VTK_FLOAT &&
       outData->GetScalarType() != VTK_DOUBLE)

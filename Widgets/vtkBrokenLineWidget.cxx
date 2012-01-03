@@ -83,7 +83,7 @@ vtkBrokenLineWidget::vtkBrokenLineWidget()
     this->HandleGeometry[i]->SetThetaResolution( 16 );
     this->HandleGeometry[i]->SetPhiResolution( 8 );
     vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
-    handleMapper->SetInput( this->HandleGeometry[i]->GetOutput() );
+    handleMapper->SetInputConnection(this->HandleGeometry[i]->GetOutputPort() );
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper( handleMapper );
     handleMapper->Delete();
@@ -1147,7 +1147,7 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
     this->HandleGeometry[i]->SetThetaResolution( 16 );
     this->HandleGeometry[i]->SetPhiResolution( 8 );
     vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
-    handleMapper->SetInput( this->HandleGeometry[i]->GetOutput() );
+    handleMapper->SetInputConnection( this->HandleGeometry[i]->GetOutputPort() );
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper( handleMapper );
     handleMapper->Delete();
