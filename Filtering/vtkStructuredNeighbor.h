@@ -41,11 +41,12 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
       };
 
     // Class Member Variables made public for easier access
-    int NeighborID;
-    int OverlapExtent[6];
-    int SendExtent[6];
-    int RcvExtent[6];
-    int Orientation[3];
+    int NeighborID;       // The registered ID of the neighboring grid
+    int OverlapExtent[6]; // The extent at which the grids overlap
+    int SendExtent[6];    // The extent that we send to this neighbor
+    int RcvExtent[6];     // The extent that we receive from this neighbor
+    int Orientation[3];   // Defines how we are neighboring with this grid, see
+                          // NeighborOrientation enum above.
 
     // Description:
     // Default Constructor
@@ -82,9 +83,11 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
         this->NeighborID = N.NeighborID;
         for( int i=0; i < 6; ++i )
           {
+          this->SendExtent[ i ]    = N.SendExtent[ i ];
+          this->RcvExtent[ i ]     = N.RcvExtent[ i ];
           this->OverlapExtent[ i ] = N.OverlapExtent[ i ];
           } // END for
-        }// END if
+        } // END if
       return *this;
     }
 
@@ -112,7 +115,10 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
     }
 
     // Description:
-    // Computes the SendExtent and the RcvExtent for this neighbor.
+    // Computes the SendExtent and the RcvExtent for this neighbor. The method
+    // assumes that the overlap extent and orientation are already computed.
+    // Using this information, the method grows the overlap extent to form the
+    // Send and Rcv Extents for this neighbor instance.
     void ComputeSendAndReceiveExtent(const int N);
 };
 

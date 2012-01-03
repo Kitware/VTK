@@ -36,6 +36,8 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
   this->NeighborID = neiId;
   for( int i=0; i < 6; ++i )
     {
+    this->SendExtent[ i ]    =
+    this->RcvExtent[ i ]     =
     this->OverlapExtent[ i ] = overlap[ i ];
     }
 }
@@ -47,8 +49,14 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
   this->NeighborID = neiId;
   for( int i=0; i < 3; ++i )
     {
+    this->RcvExtent[i*2]         =
+    this->SendExtent[i*2]        =
     this->OverlapExtent[ i*2 ]   = overlap[i*2];
+
+    this->RcvExtent[i*2+1]       =
+    this->SendExtent[i*2+1]      =
     this->OverlapExtent[ i*2+1 ] = overlap[i*2+1];
+
     this->Orientation[ i ]       = orient[ i ];
     }
 }
@@ -61,5 +69,22 @@ vtkStructuredNeighbor::~vtkStructuredNeighbor()
 //------------------------------------------------------------------------------
 void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(const int N)
 {
-  // TODO: implement this
+  for( int i=0; i < 6; ++i )
+    {
+    this->RcvExtent[i] = this->SendExtent[i] = this->OverlapExtent[ i ];
+    }
+
+  for( int i=0; i < 3; ++i )
+    {
+    if( this->Orientation[i] == 1 )
+      {
+      this->RcvExtent[i*2+1] += N;
+      this->SendExtent[i*2]  -= N;
+      }
+    else if( this->Orientation[i]==-1)
+      {
+      this->RcvExtent[i*2]    -= N;
+      this->SendExtent[i*2+1] += N;
+      }
+    } // END for all dimensions
 }
