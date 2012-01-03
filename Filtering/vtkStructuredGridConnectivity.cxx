@@ -824,8 +824,8 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
     overlapExtent[ idx*2 ]   = overlap[0];
     overlapExtent[ idx*2+1 ] = overlap[1];
 
-    this->DetermineNeighborOrientation( idx, A, overlap, iOrientation );
-    this->DetermineNeighborOrientation( idx, B, overlap, jOrientation );
+    this->DetermineNeighborOrientation( idx, A, B, overlap, iOrientation );
+    this->DetermineNeighborOrientation( idx, B, A, overlap, jOrientation );
     } // END for all dimensions
 
   this->SetNeighbors( i, j, iOrientation, jOrientation, overlapExtent );
@@ -969,51 +969,7 @@ int vtkStructuredGridConnectivity::IntervalOverlap(
   // STEP 0: Check if we must check for a partial overlap
   int CardinalityOfA = this->Cardinality( A );
   int CardinalityOfB = this->Cardinality( B );
-//  if( CardinalityOfA != CardinalityOfB )
-//    {
-    return( this->PartialOverlap(A,CardinalityOfA,B,CardinalityOfB,overlap));
-//    }
-
-  // Otherwise, check if the intervals overlap at a node or are 1-to-1, i.e.,
-  // form an edge
-
-  // STEP 1: Initialize overlap
-//  overlap[0] = overlap[1] = -1;
-//
-//  // STEP 2: Allocate internal intersection vector. Note, since the cardinality
-//  // of A,B is 2, the intersection vector can be at most of size 2.
-//  std::vector< int > intersection;
-//  intersection.resize( 2 );
-//
-//  // STEP 3: Compute intersection
-//  std::vector< int >::iterator it;
-//  it = std::set_intersection( A, A+2, B, B+2, intersection.begin() );
-//
-//  // STEP 4: Find number of intersections and overlap extent
-//  int N = static_cast< int >( it-intersection.begin() );
-//
-//  switch( N )
-//    {
-//    case 0:
-//      rc = NO_OVERLAP;
-//      overlap[ 0 ] = overlap[ 1 ] = -1;
-//      break;
-//    case 1:
-//      rc = NODE_OVERLAP;
-//      overlap[0] = overlap[1] = intersection[0];
-//      break;
-//    case 2:
-//      rc = EDGE_OVERLAP;
-//      overlap[0] = intersection[0];
-//      overlap[1] = intersection[1];
-//      break;
-//    default:
-//      rc = NO_OVERLAP;
-//      overlap[ 0 ] = overlap[ 1 ] = -1;
-//      vtkErrorMacro( "Code should not reach here!" )
-//    }
-
-  return( rc );
+  return( this->PartialOverlap(A,CardinalityOfA,B,CardinalityOfB,overlap));
 }
 
 //------------------------------------------------------------------------------
@@ -1489,7 +1445,8 @@ void vtkStructuredGridConnectivity::ComputeNeighborSendAndRcvExtent(
   int NumNeis = this->Neighbors[ gridID ].size();
   for( int nei=0; nei < NumNeis; ++nei )
     {
-    this->Neighbors[gridID][nei].ComputeSendAndReceiveExtent( N );
+    this->Neighbors[gridID][nei].ComputeSendAndReceiveExtent(
+        this->WholeExtent, N );
     }
 }
 //------------------------------------------------------------------------------
