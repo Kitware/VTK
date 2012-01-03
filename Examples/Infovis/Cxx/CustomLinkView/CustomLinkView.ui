@@ -232,9 +232,6 @@
    </property>
   </action>
   <action name="actionExit" >
-   <property name="icon" >
-    <iconset/>
-   </property>
    <property name="text" >
     <string>Exit</string>
    </property>
