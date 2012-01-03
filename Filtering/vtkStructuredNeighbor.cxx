@@ -13,6 +13,7 @@
 
  =========================================================================*/
 #include "vtkStructuredNeighbor.h"
+#include "vtkStructuredExtent.h"
 
 vtkStructuredNeighbor::vtkStructuredNeighbor()
 {
@@ -67,24 +68,42 @@ vtkStructuredNeighbor::~vtkStructuredNeighbor()
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(const int N)
+void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
+      int WholeExtent[6], const int N)
 {
-  for( int i=0; i < 6; ++i )
-    {
-    this->RcvExtent[i] = this->SendExtent[i] = this->OverlapExtent[ i ];
-    }
 
   for( int i=0; i < 3; ++i )
     {
-    if( this->Orientation[i] == 1 )
+    switch( this->Orientation[i] )
       {
-      this->RcvExtent[i*2+1] += N;
-      this->SendExtent[i*2]  -= N;
+      case vtkStructuredNeighbor::HI:
+        this->RcvExtent[i*2+1] += N;
+        this->SendExtent[i*2]  -= N;
+        break;
+      case vtkStructuredNeighbor::LO:
+        this->RcvExtent[i*2]    -= N;
+        this->SendExtent[i*2+1] += N;
+        break;
+      case vtkStructuredNeighbor::LO_SUBSET:
+        this->RcvExtent[i*2+1] += N;
+        this->SendExtent[i*2]  -= N;
+        break;
+      case vtkStructuredNeighbor::HI_SUBSET:
+        this->RcvExtent[i*2]    -= N;
+        this->SendExtent[i*2+1] += N;
+        break;
+      case vtkStructuredNeighbor::SUBSET:
+        this->RcvExtent[i*2]    -= N;
+        this->SendExtent[i*2+1] += N;
+        this->RcvExtent[i*2+1]  += N;
+        this->SendExtent[i*2]   -= N;
+        break;
+      default:
+        ; /* NO OP */
       }
-    else if( this->Orientation[i]==-1)
-      {
-      this->RcvExtent[i*2]    -= N;
-      this->SendExtent[i*2+1] += N;
-      }
+
+    vtkStructuredExtent::Clamp( this->RcvExtent, WholeExtent );
+    vtkStructuredExtent::Clamp( this->SendExtent, WholeExtent );
+
     } // END for all dimensions
 }
