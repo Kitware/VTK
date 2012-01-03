@@ -84,7 +84,7 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
     int RealExtent[6];
     this->GetGridExtent( gridID, GridExtent );
     this->GetRealExtent( gridID, GridExtent, RealExtent );
-    os << "GRID:";
+    os << "GRID[ " << gridID << "]: ";
     for( int i=0; i < 6; i+=2 )
       {
       os << " [";
@@ -133,7 +133,8 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
       int NeiExtent[6];
       this->GetGridExtent( this->Neighbors[gridID][nei].NeighborID, NeiExtent );
 
-      os << "\t N[" << nei << "]: ";
+      os << "\t N[" << nei << "] GRID ID:"
+         << this->Neighbors[gridID][nei].NeighborID << " ";
       for( int i=0; i < 6; i+=2 )
         {
         os << " [";
@@ -153,6 +154,25 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
       os << this->Neighbors[gridID][nei].Orientation[ 1 ] << ", ";
       os << this->Neighbors[gridID][nei].Orientation[ 2 ] << ")\n ";
       os << std::endl;
+
+      os << "\t RCVEXTENT: ";
+      for( int i=0; i < 6; i+=2 )
+        {
+        os << " [";
+        os << this->Neighbors[gridID][nei].RcvExtent[ i ] << ", ";
+        os << this->Neighbors[gridID][nei].RcvExtent[i+1] << "] ";
+        }
+      os << std::endl;
+
+      os << "\t SNDEXTENT: ";
+      for( int i=0; i < 6; i+=2 )
+        {
+        os << " [";
+        os << this->Neighbors[gridID][nei].SendExtent[ i ] << ", ";
+        os << this->Neighbors[gridID][nei].SendExtent[i+1] << "] ";
+        }
+      os << std::endl << std::endl;
+
       } // END for all neis
     } // END for all grids
 }
@@ -1426,6 +1446,37 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::TransferGhostDataFromNeighbors(
+    const int gridID )
+{
+  // Sanity check
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+  assert( "pre: Neigbors is not propertly allocated" &&
+          (this->NumberOfGrids==this->Neighbors.size() ) );
+
+  int NumNeis = this->Neighbors[ gridID ].size();
+  for( int nei=0; nei < NumNeis; ++nei )
+    {
+    this->TransferLocalNeighborData( gridID, this->Neighbors[gridID][nei] );
+    } // END for all neighbors
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::TransferLocalNeighborData(
+    const int gridID, const vtkStructuredNeighbor& Neighbor  )
+{
+  // Sanity check
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+  assert( "pre: Neighbor gridID is out-of-bounds!" &&
+          (Neighbor.NeighborID >= 0) &&
+          (Neighbor.NeighborID < static_cast<int>(this->NumberOfGrids)));
+
+  // TODO: implement this
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::ComputeNeighborSendAndRcvExtent(
     const int gridID, const int N )
 {
@@ -1457,10 +1508,12 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
+    this->ComputeNeighborSendAndRcvExtent( i, N );
     this->CreateGhostedExtent( i, N );
     this->CreateGhostedMaskArrays( i );
     this->InitializeGhostedFieldData( i );
     this->TransferRegisteredDataToGhostedData( i );
+    this->TransferGhostDataFromNeighbors( i );
     } // END for all grids
 
 }

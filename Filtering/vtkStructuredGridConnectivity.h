@@ -422,6 +422,17 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     void ComputeNeighborSendAndRcvExtent( const int gridID, const int N );
 
     // Description:
+    // This method transfers the fields (point data and cell data) to the
+    // ghost extents from the neighboring grids of the grid corresponding
+    // to the given gridID.
+    void TransferGhostDataFromNeighbors( const int gridID );
+
+    // Description:
+    // This method transfers the fields
+    void TransferLocalNeighborData(
+        const int gridID, const vtkStructuredNeighbor& Neighor);
+
+    // Description:
     // Loops through all arrays in the source and for each array, it copies the
     // tuples from sourceIdx to the target at targetIdx. This method assumes
     // that the source and target have a one-to-one array correspondance, that
